@@ -1,0 +1,23 @@
+
+from PyQt5 import QtGui
+
+dark_palette = QtGui.QPalette()
+WHITE =     QtGui.QColor(255, 255, 255)
+BLACK =     QtGui.QColor(0, 0, 0)
+RED =       QtGui.QColor(255, 0, 0)
+PRIMARY =   QtGui.QColor(53, 53, 53)
+SECONDARY = QtGui.QColor(35, 35, 35)
+TERTIARY =  QtGui.QColor(42, 130, 218)
+dark_palette.setColor(QtGui.QPalette.Window,          PRIMARY)
+dark_palette.setColor(QtGui.QPalette.WindowText,      WHITE)
+dark_palette.setColor(QtGui.QPalette.Base,            SECONDARY)
+dark_palette.setColor(QtGui.QPalette.AlternateBase,   PRIMARY)
+dark_palette.setColor(QtGui.QPalette.ToolTipBase,     WHITE)
+dark_palette.setColor(QtGui.QPalette.ToolTipText,     WHITE)
+dark_palette.setColor(QtGui.QPalette.Text,            WHITE)
+dark_palette.setColor(QtGui.QPalette.Button,          PRIMARY)
+dark_palette.setColor(QtGui.QPalette.ButtonText,      WHITE)
+dark_palette.setColor(QtGui.QPalette.BrightText,      RED)
+dark_palette.setColor(QtGui.QPalette.Link,            TERTIARY)
+dark_palette.setColor(QtGui.QPalette.Highlight,       TERTIARY)
+dark_palette.setColor(QtGui.QPalette.HighlightedText, BLACK)
