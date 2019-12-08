@@ -1,10 +1,11 @@
 import struct
 import os
 import io
-from pyffi.formats.dds import DdsFormat
-from pyffi.formats.ms2 import Ms2Format
-from pyffi.formats.bani import BaniFormat
-from pyffi.formats.ovl import OvlFormat
+
+from pyffi_ext.formats.dds import DdsFormat
+from pyffi_ext.formats.ms2 import Ms2Format
+from pyffi_ext.formats.bani import BaniFormat
+from pyffi_ext.formats.ovl import OvlFormat
 
 from modules import extract
 from util import texconv

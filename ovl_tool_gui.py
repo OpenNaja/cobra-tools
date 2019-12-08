@@ -3,7 +3,7 @@ import io
 import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from pyffi.formats.ovl import OvlFormat
+from pyffi_ext.formats.ovl import OvlFormat
 from util import widgets, config
 from modules import extract, inject
 

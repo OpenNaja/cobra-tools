@@ -1,6 +1,7 @@
 import os
 import io
-from pyffi.formats.ms2 import Ms2Format
+
+from pyffi_ext.formats.ms2 import Ms2Format
 
 def get_ms2_name(mdl2_file_path):
 	"""Get the ms2 name used by this file"""
