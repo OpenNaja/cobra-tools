@@ -36,7 +36,7 @@ The following filetypes are currently being researched for future support:
 - Mani & Manis
 
 # Basic Tutorials
-- Jurassic World Evolution
+### Jurassic World Evolution
 
 The most advanced form of mod possible at this time will be a species replacement mod. To accomplish this task one can follow the steps outlined below:
 1) Double click `ovl_tool.bat` to start the main tool.
@@ -57,7 +57,7 @@ The most advanced form of mod possible at this time will be a species replacemen
 15) inject the Txt files and save the new Loc.OVL.
 16) replace the stock Loc.OVL and back it up.
 
--Planet Zoo
+### Planet Zoo
 
 The most advanced form of mod possible at this time will be full model replacement. To accomplish this one can follow the following steps:
 1) Double click `ovl_tool.bat` to start the main tool.
