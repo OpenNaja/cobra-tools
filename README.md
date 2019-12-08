@@ -74,4 +74,16 @@ The most advanced form of mod possible at this time will be full model replaceme
 
 Note that one cannot currently change the ingame text in the Loc.OVL yet and that only the shell fur shader is active on moddable animals at this point in time. later releases will activate the ability to use fin fur shader as well and edit the Planet Zoo ingame text.
 
+### Disclaimer
+Remember to backup all mod files and stock files. any patches will reset or break the mods and will need to be redone and re-released. 
 
+### Legal Notice
+- This tool is developed under 'fair use' by enthusiasts and is not affiliated with Universal© or Frontier® in any form.
+- Use at your own risk. This tool may cause damage to you, your equipment or your data.
+- Do not use or modify these tools to circumvent copy protections; especially, do not try to unlock downloadable content for free or share official artwork or intellectual property or engage in so-called data mining to announce game content before an official announcement.
+- Do not charge money or ask for donations for mods created with these tools.
+
+
+### Credits
+- Planet Zoo, Cobra, Frontier and the Frontier Developments logo are trademarks or registered trademarks of Frontier Developments, plc.
+- Jurassic World, Jurassic World Fallen Kingdom, Jurassic World Evolution and their respective logos are trademarks of Universal Studios and Amblin Entertainment, Inc.
