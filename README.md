@@ -18,3 +18,20 @@ Simply download and unzip to a folder of your choice. You need to have installed
 6) Inject modified files into OVL.
 7) Save OVL and test.
 
+# Supported Filetypes
+The following filetypes are currently fully supported for editing:
+- Txt
+- Png
+
+The following filetypes are partially supported and may experience some issues when editing:
+- Mdl2 & Ms2 
+
+The following filetypes are currently being researched for future support:
+- Bani & Banis
+- Fdb
+- Lua
+- Xml
+- Fgm
+- Matcol
+- Mani & Manis
+
