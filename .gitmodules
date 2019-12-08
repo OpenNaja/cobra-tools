@@ -1,0 +1,3 @@
+[submodule "pyffi_ext"]
+	path = pyffi_ext
+	url = https://github.com/OpenNaja/pyffi_ext
