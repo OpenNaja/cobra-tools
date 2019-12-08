@@ -4,7 +4,7 @@ A simple GUI for extracting OVL and OVS archives and modifying their contents.
 ![Imgur](https://i.imgur.com/ow8rKVd.png)
 
 # Installation
-Simply download and unzip to a folder of your choice. You need to have installed:
+Get the latest release [here](https://github.com/OpenNaja/cobra-tools/releases) and unzip to a folder of your choice. You need to have installed:
 - Python 3.6 (make sure you add it to the system path during installation)
 - pyffi 2.2.4.dev3 (run: `pip install PyFFI==2.2.4.dev3`)
 - pyqt5 (run: `pip install pyqt5`)
