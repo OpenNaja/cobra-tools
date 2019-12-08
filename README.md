@@ -7,7 +7,7 @@ A simple GUI for extracting OVL and OVS archives and modifying their contents.
 Simply download and unzip to a folder of your choice. You need to have installed:
 - Python 3.6 (make sure you add it to the system path during installation)
 - pyffi 2.2.4.dev3 (run: `pip install PyFFI==2.2.4.dev3`)
-- pyqt5
+- pyqt5 (run: `pip install pyqt5`)
 
 # How to use
 1) Double click `ovl_tool.bat` to start the main tool.
