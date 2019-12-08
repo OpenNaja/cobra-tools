@@ -29,8 +29,6 @@ def inject(ovl_data, file_paths):
 			load_txt(ovl_data, file_path, sized_str_entry)
 
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
-	# currently just overwriting, which is dangerous
-	padding = bytes.fromhex("00 00 00 00")
 	
 	archive = ovl_data.archives[0]
 	# first ensure each sized str entry has the current
@@ -43,7 +41,16 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	print("injecting current data")
 	with open(txt_file_path, 'rb') as stream:
 		raw_txt_bytes = stream.read()
-		txt_sized_str_entry.data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + padding
+		# get the old data to grab its length and extraneous padding
+		old = txt_sized_str_entry.data
+		old_size = struct.unpack("<I", old[:4])[0]
+		# the original OSUD + 00 padding
+		old_pad = old[4+old_size:]
+		# pad new data with 00 bytes so that it is at least as long as the old data
+		extra_pad = b"\x00" * max(0, old_size - len(raw_txt_bytes))
+		# store data, update data size
+		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + extra_pad + old_pad
+		txt_sized_str_entry.data = data
 		txt_sized_str_entry.pointers[0].data_size = len(txt_sized_str_entry.data)
 		# print(txt_sized_str_entry.data)
 	
