@@ -1,6 +1,7 @@
 import struct
 import os
 import io
+import tempfile
 
 from pyffi_ext.formats.dds import DdsFormat
 from pyffi_ext.formats.ms2 import Ms2Format
@@ -31,7 +32,7 @@ def read_sized_str_at(stream, pos):
 	size = struct.unpack("<I", stream.read(4))[0]
 	return stream.read(size)
 	
-def extract(archive,):
+def extract(archive, show_dds):
 	"""Extract the files, after all archives have been read"""
 	# the actual export, per file type
 	print("\nExtracting from archive",archive.archive_index)
@@ -46,7 +47,7 @@ def extract(archive,):
 		elif sized_str_entry.ext == "ms2":
 			write_ms2(archive, sized_str_entry, archive.stream )
 		elif sized_str_entry.ext == "tex":
-			write_dds(archive, sized_str_entry, archive.stream )
+			write_dds(archive, sized_str_entry, archive.stream, show_dds )
 		elif sized_str_entry.ext == "lua":
 			write_lua(archive, sized_str_entry, archive.stream )
 		elif sized_str_entry.ext == "assetpkg":
@@ -103,7 +104,7 @@ def get_compression_type(archive, header_3_0):
 		print("could not find DDS compression name for OVL compression type",ovl_compression_ind,"set to 'DXGI_FORMAT_BC7_UNORM'")
 		return "DXGI_FORMAT_BC7_UNORM"
 	
-def write_dds(archive, sized_str_entry, stream):
+def write_dds(archive, sized_str_entry, stream, show_dds):
 	basename = os.path.splitext(sized_str_entry.name)[0]
 	name = basename+".dds"
 	print("\nWriting",name)
@@ -161,13 +162,19 @@ def write_dds(archive, sized_str_entry, stream):
 	# caps 1
 	header.caps_1.texture = 0
 
+	# start out with the visible file path
 	dds_file_path = archive.indir(name)
+	out_dir, in_name = os.path.split(dds_file_path)
+	# if we want to see the dds, write it to the output dir
+	tmp_dir = texconv.make_tmp( out_dir, show_dds )
+	dds_file_path = os.path.join(tmp_dir, in_name)
 	# write dds
 	with open(dds_file_path, 'wb') as stream:
 		header.write(stream, dds_data)
 		stream.write(buffer_data)
 	
-	texconv.load_dds_texconv( dds_file_path )
+	# convert the dds to PNG, PNG must be visible so put it in out_dir
+	texconv.dds_to_png( dds_file_path, out_dir, show_dds)
 	
 def write_ms2(archive, ms2_sized_str_entry, stream):
 	name = ms2_sized_str_entry.name

@@ -17,12 +17,13 @@ class MainWindow(widgets.MainWindow):
 		supported_types = ("DDS", "PNG", "MDL2", "TXT")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
 		
+		# buttons
 		self.b_open = QtWidgets.QPushButton('Open OVL')
-		self.b_open.setToolTip("Load an ovl archive whose files you want to modify.")
+		self.b_open.setToolTip("Load an OVL archive whose files you want to modify.")
 		self.b_open.clicked.connect(self.open_ovl)
 		
 		self.b_save = QtWidgets.QPushButton('Save OVL')
-		self.b_save.setToolTip("Save the ovl file you do not want to merge.")
+		self.b_save.setToolTip("Save the OVL file you do not want to merge.")
 		self.b_save.clicked.connect(self.save_ovl)
 		
 		self.b_unpack = QtWidgets.QPushButton('Unpack')
@@ -30,24 +31,35 @@ class MainWindow(widgets.MainWindow):
 		self.b_unpack.clicked.connect(self.extract_all)
 		
 		self.b_inject = QtWidgets.QPushButton('Inject')
-		self.b_inject.setToolTip("Load files to inject into the opened ovl archive.")
+		self.b_inject.setToolTip("Load files to inject into the opened OVL archive.")
 		self.b_inject.clicked.connect(self.inject)
 
 		self.e_ovl_name = QtWidgets.QLineEdit(self)
 		self.e_ovl_name.setToolTip("The name of the OVL file that is currently open.")
 		self.e_ovl_name.setReadOnly(True)
 		
+		# toggles
 		self.t_reverse = QtWidgets.QCheckBox("Reverse Sets")
 		self.t_reverse.setToolTip("Most models need their sets to be read in revers. Uncheck only if issues ocur.")
 		self.t_reverse.setChecked(True)
 		
+		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
+		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
+		self.t_write_dds.setChecked(False)
+
+		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
+		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
+		self.t_write_dat.setChecked(False)
+
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.b_open, 0, 0)
 		self.qgrid.addWidget(self.b_save, 0, 1)
 		self.qgrid.addWidget(self.b_unpack, 0, 2)
 		self.qgrid.addWidget(self.b_inject, 0, 3)
-		self.qgrid.addWidget(self.t_reverse, 0, 4)
-		self.qgrid.addWidget(self.e_ovl_name, 1, 0, 1, 5)
+		self.qgrid.addWidget(self.e_ovl_name, 1, 0, 1, 4)
+		self.qgrid.addWidget(self.t_reverse, 2, 0, 1, 4)
+		self.qgrid.addWidget(self.t_write_dds, 3, 0, 1, 4)
+		self.qgrid.addWidget(self.t_write_dat, 4, 0, 1, 4)
 		
 		self.central_widget.setLayout(self.qgrid)
 	
@@ -59,13 +71,21 @@ class MainWindow(widgets.MainWindow):
 	def reverse_sets(self,):
 		return self.t_reverse.isChecked()
 	
+	@property
+	def write_dds(self,):
+		return self.t_write_dds.isChecked()
+	
+	@property
+	def write_dat(self,):
+		return self.t_write_dat.isChecked()
+
 	def open_ovl(self):
 		file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
 		if file_src:
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(file_src)
 			try:
-				with open(file_src, "rb") as nif_stream:
-					self.ovl_data.read(nif_stream, file=file_src, reverse_sets=self.reverse_sets)
+				with open(file_src, "rb") as ovl_stream:
+					self.ovl_data.read(ovl_stream, file=file_src, reverse_sets=self.reverse_sets, write_dat=self.write_dat)
 				self.e_ovl_name.setText(ovl_name)
 			except Exception as ex:
 				widgets.showdialog( str(ex) )
@@ -78,21 +98,20 @@ class MainWindow(widgets.MainWindow):
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				# just a dummy stream
-				with io.BytesIO() as nif_stream:
-					self.ovl_data.write(nif_stream, file_path=file_src)
+				with io.BytesIO() as ovl_stream:
+					self.ovl_data.write(ovl_stream, file_path=file_src)
 				print("Done!")
 			
 	def extract_all(self):
 		if self.ovl_name:
 			self.cfg["dir_extract"] = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg["dir_extract"], )
 			if self.cfg["dir_extract"]:
-				# self.ovl_data.extract_all(self.cfg["dir_extract"])
 				dir = self.cfg["dir_extract"]
 				# create output dir
 				os.makedirs(dir, exist_ok=True)
 				for archive in self.ovl_data.archives:
 					archive.dir = dir
-					extract.extract(archive)
+					extract.extract(archive, self.write_dds)
 				print("Done!")
 			
 	def inject(self):
@@ -102,7 +121,7 @@ class MainWindow(widgets.MainWindow):
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
 			# self.ovl_data.inject( files )
 			try:
-				inject.inject( self.ovl_data, files )
+				inject.inject( self.ovl_data, files, self.write_dds )
 			except Exception as ex:
 				widgets.showdialog( str(ex) )
 			print("Done!")

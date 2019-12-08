@@ -8,24 +8,32 @@ def run_smart(args):
 	argline = " ".join(['"' + x + '"' for x in args])
 	subprocess.check_call(args)
 
-def load_dds_texconv( dds_file_path ):
-	# tmp = tempfile.mkdtemp("-cobra-dds-load")
-	in_dir, in_name = os.path.split(dds_file_path)
-	tmp = in_dir
-	name = os.path.splitext(in_name)[0]
-	# result = tmp + '\\' + name + '.png'
-	run_smart([BINARY, "-y", "-ft", "png", "-o", tmp, "-f", "R8G8B8A8_UNORM", "-srgb", "-dx10", dds_file_path])
-	# os.remove(dds_file_path)
-	# finally:
-		# shutil.rmtree(tmp)
+def dds_to_png( dds_file_path, out_dir, show_dds):
+	"""Converts a DDS file given by a path to a PNG file"""
+	run_smart([BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-srgb", "-dx10", dds_file_path])
+	clear_tmp( dds_file_path, show_dds)
 
-
-def save_dds_texconv( png_file_path, codec = "BC7_UNORM", mips = 1):
-	# tmp = tempfile.mkdtemp("-cobra-dds-save")
+def png_to_dds( png_file_path, show_dds, codec = "BC7_UNORM", mips = 1):
+	"""Converts a PNG file given by a path to a DDS file"""
 	png_file_path = os.path.normpath(png_file_path)
 	in_dir, in_name = os.path.split(png_file_path)
-	tmp = in_dir
+	
+	out_dir = make_tmp( in_dir, show_dds )
 	name = os.path.splitext(in_name)[0]
-	result = tmp + '\\' + name + '.dds'
-	run_smart([BINARY, "-y", "-ft", "dds", "-o", tmp, "-f", codec, "-if", "BOX", "-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
+	run_smart([BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-if", "BOX", "-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
+
+	result = os.path.join(out_dir, name + '.dds')
 	return result
+
+def make_tmp( in_dir, show_dds ):
+	""" Make a new temp dir if show_dds is False """
+	if show_dds:
+		return in_dir
+	else:
+		return tempfile.mkdtemp("-cobra-dds")
+
+
+def clear_tmp( dds_file_path, show_dds):
+	if not show_dds:
+		tmp, in_name = os.path.split(dds_file_path)
+		shutil.rmtree(tmp)
