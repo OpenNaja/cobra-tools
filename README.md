@@ -37,6 +37,7 @@ The following filetypes are currently being researched for future support:
 
 # Basic Tutorials
 - Jurassic World Evolution
+
 The most advanced form of mod possible at this time will be a species replacement mod. To accomplish this task one can follow the steps outlined below:
 1) Double click `ovl_tool.bat` to start the main tool.
 2) Open the OVL file for the chosen dinosaur species to be replaced.
