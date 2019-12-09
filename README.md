@@ -73,10 +73,24 @@ The most advanced form of mod possible at this time will be full model replaceme
 
 Note that one cannot currently change the ingame text in the Loc.OVL yet and that only the shell fur shader is active on moddable animals at this point in time. later releases will activate the ability to use fin fur shader as well and edit the Planet Zoo ingame text.
 
-### Disclaimer
+### Editing Texture PNG Files
+Many of the texture file types use the transparency layer not for transparancy but for other texture formats. If you are using photoshop please install the SuperPNG plugin so that you can load the transparency as a seperate channel. 
+
+The link is available here: https://www.fnordware.com/superpng/
+
+To use this plugin, hold shift when opening a png file in photoshop and choose the following settings.
+
+![Imgur](https://i.imgur.com/9KPTx86.png)
+
+Blendweights files work alongside the matcol files to generate scales on the mesh. if you are using a custom model feel free to blank out this file completely.
+
+PackedTexture files contain blood splatter in the R channel, damage in the G Channel, Specular/Roughness in the B channel and AO in the alpha channel. 
+
+
+#### Disclaimer
 Remember to backup all mod files and stock files. any patches will reset or break the mods and will need to be redone and re-released. 
 
-### Legal Notice
+#### Legal Notice
 - This tool is developed under 'fair use' by enthusiasts and is not affiliated with Universal© or Frontier® in any form.
 - Use at your own risk. This tool may cause damage to you, your equipment or your data.
 - Do not use or modify these tools to circumvent copy protections; especially, do not try to unlock downloadable content for free or share official artwork or intellectual property or engage in so-called data mining to announce game content before an official announcement.
