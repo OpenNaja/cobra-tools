@@ -58,6 +58,14 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 			print(data)
 		else:
 			data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + old_pad
+		if (len(data)%8) > 0:
+			mod_padlen = 8-(len(data)%8)
+			mod_padbytes = "\x00"*mod_padlen
+			mod_pad = str.encode(mod_padbytes)
+			if shorter_pad > 0:
+				data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + mod_pad + extra_pad + old_pad
+			else:
+				data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + mod_pad + old_pad
 		txt_sized_str_entry.data = data
 		txt_sized_str_entry.pointers[0].data_size = len(txt_sized_str_entry.data)
 		# print(txt_sized_str_entry.data)
