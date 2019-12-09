@@ -42,15 +42,22 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	print("injecting current data")
 	with open(txt_file_path, 'rb') as stream:
 		raw_txt_bytes = stream.read()
-		# get the old data to grab its length and extraneous padding
-		old = txt_sized_str_entry.data
-		old_size = struct.unpack("<I", old[:4])[0]
-		# the original OSUD + 00 padding
-		old_pad = old[4+old_size:]
-		# pad new data with 00 bytes so that it is at least as long as the old data
-		extra_pad = b"\x00" * max(0, old_size - len(raw_txt_bytes))
-		# store data, update data size
-		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + extra_pad + old_pad
+		data_old = txt_sized_str_entry.data
+		data_old_size = struct.unpack("<I", data_old[:4])[0]
+		old_pad = data_old[4+data_old_size:]
+		shorter_pad = data_old_size - len(raw_txt_bytes)
+		print(shorter_pad)
+		if shorter_pad > 0:
+			#lent = len(raw_txt_bytes)+4
+			#ender = lent+shorter_pad
+			#extra_pad = data_old[lent:ender]
+			extra_padbytes = "\x00"*shorter_pad
+			extra_pad = str.encode(extra_padbytes)
+			print(extra_pad)
+			data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + extra_pad + old_pad
+			print(data)
+		else:
+			data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + old_pad
 		txt_sized_str_entry.data = data
 		txt_sized_str_entry.pointers[0].data_size = len(txt_sized_str_entry.data)
 		# print(txt_sized_str_entry.data)
