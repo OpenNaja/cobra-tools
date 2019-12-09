@@ -45,8 +45,8 @@ The most advanced form of mod possible at this time will be a species replacemen
 4) import the MDL2 of the dinosaur into blender, if it crashes or fails to import correctly then close and restart the OVL tool and uncheck the reverse sets box and unpack once again.
 5) once the model imports into the blender, edit the model or rig the new one to the nodes following the same conventions used
 6) export the MDL2 by selecting the old one. 
-7) If you have modified MDL2 models that used a shared MS2 buffer in blender, use the MS2 Merger to merge back the MDL2's.
-7a) an example of step 7 is editing the dinosaur model and not the airlift straps, select the blender exported mdl2 for the dinosaur and the stock airlift straps mdl2 as the models to be merged. 
+7) If you have modified MDL2 models that used a shared MS2 buffer in blender, use the MS2 Merger to merge back the MDL2's. Ensure the MS2 filename is the same as stock before merging
+7a) an example of step 7 is editing the dinosaur model and not the airlift straps, select the blender exported mdl2 for the dinosaur and the stock airlift straps mdl2 as the models to be merged.
 8) edit the PNG files as needed
 9) inject any edited files back into the OVL tool and save the new dinosaur OVL
 10) replace the stock OVL with the new one, back up the old one
