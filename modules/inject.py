@@ -57,9 +57,10 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	
 	# clear io objects
 	archive.headers_data_io = list( io.BytesIO() for h in archive.header_entries )
-	
+	# maintain sorting order
+	sorted_sized_str_entries = sorted(archive.sized_str_entries, key=lambda sized_str_entry : sized_str_entry.pointers[0].address)	
 	# write updated strings
-	for sized_str_entry in archive.sized_str_entries:
+	for sized_str_entry in sorted_sized_str_entries:
 		# get header_data to write into
 		writer = archive.headers_data_io[txt_sized_str_entry.pointers[0].header_index]
 		# update data offset
