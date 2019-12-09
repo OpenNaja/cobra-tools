@@ -98,7 +98,7 @@ def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds):
 	# remove the temp file if desired
 	texconv.clear_tmp(dds_file_path, show_dds)
 
-def pack_mips(stream, header):
+def pack_mips(stream, header, num_mips):
 	"""From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
 	print("\nPacking mips")
 
@@ -138,6 +138,11 @@ def pack_mips(stream, header):
 		h //= 2
 		w //= 2
 		mip_i += 1
+
+		# no packing at all, just grab desired mips and done
+		if num_mips == mip_i:
+			print("Packing not needed, either no MIPs at all or not enough to pack")
+			return b"".join( x[2] for x in normal_levels )
 	
 	# print("\npacked mips")
 	# compression blocks are 4x4 pixels
@@ -215,6 +220,11 @@ def pack_mips(stream, header):
 
 def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 	
+	# read archive tex header to make sure we have the right mip count
+	# even when users import DDS with mips when it should have none
+	archive = ovl_data.archives[0]
+	header_3_0, header_3_1, header_7 = extract.get_tex_structs(archive, tex_sized_str_entry)
+	
 	# load dds
 	with open(dds_file_path, 'rb') as stream:
 		version = DdsFormat.version_number("DX10")
@@ -223,7 +233,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 		header = DdsFormat.Header(stream, dds_data)
 		header.read(stream, dds_data)
 		# print(header)
-		out_bytes = pack_mips(stream, header)
+		out_bytes = pack_mips(stream, header, header_7.num_mips)
 		# with open(dds_file_path+"dump.dds", 'wb') as stream:
 		# 	header.write(stream, dds_data)
 		# 	stream.write(out_bytes)
