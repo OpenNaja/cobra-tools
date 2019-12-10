@@ -65,7 +65,7 @@ The most advanced form of mod possible at this time will be full model replaceme
 3) Unpack the OVL file to a folder.
 4) import the MDL2 of the animal into blender, if it crashes or fails to import correctly then close and restart the OVL tool and uncheck the reverse sets box and unpack once again.
 5) once the model imports into the blender, edit the model or rig the new one to the nodes following the same conventions used
-6) export the MDL2 by selecting the old one. 
+6) export the MDL2 by selecting the original stock one. 
 7) If you have modified MDL2 models that used a shared MS2 buffer in blender, use the MS2 Merger to merge back the MDL2's.
 8) edit the PNG files as needed
 9) inject any edited files back into the ovl tool and save the new animal ovl
