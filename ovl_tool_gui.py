@@ -39,17 +39,25 @@ class MainWindow(widgets.MainWindow):
 		self.e_ovl_name.setReadOnly(True)
 		
 		# toggles
-		self.t_reverse = QtWidgets.QCheckBox("Reverse Sets")
-		self.t_reverse.setToolTip("Most models need their sets to be read in revers. Uncheck only if issues ocur.")
-		self.t_reverse.setChecked(True)
-		
 		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
 		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
 		self.t_write_dds.setChecked(False)
 
+		# toggles that trigger reloads
+		self.t_reverse = QtWidgets.QCheckBox("Reverse Sets")
+		self.t_reverse.setToolTip("Most models need their sets to be read in revers. Uncheck only if issues ocur.")
+		self.t_reverse.setChecked(True)
+		self.t_reverse.stateChanged.connect(self.load_ovl)
+		
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
+		self.t_write_dat.stateChanged.connect(self.load_ovl)
+
+		self.t_write_frag_log = QtWidgets.QCheckBox("Save Frag Log")
+		self.t_write_frag_log.setToolTip("For devs.")
+		self.t_write_frag_log.setChecked(False)
+		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
 
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.b_open, 0, 0)
@@ -57,12 +65,23 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.b_unpack, 0, 2)
 		self.qgrid.addWidget(self.b_inject, 0, 3)
 		self.qgrid.addWidget(self.e_ovl_name, 1, 0, 1, 4)
-		self.qgrid.addWidget(self.t_reverse, 2, 0, 1, 4)
-		self.qgrid.addWidget(self.t_write_dds, 3, 0, 1, 4)
+		self.qgrid.addWidget(self.t_write_dds, 2, 0, 1, 4)
+		self.qgrid.addWidget(self.t_reverse, 3, 0, 1, 4)
 		self.qgrid.addWidget(self.t_write_dat, 4, 0, 1, 4)
+		self.qgrid.addWidget(self.t_write_frag_log, 5, 0, 1, 4)
 		
 		self.central_widget.setLayout(self.qgrid)
 	
+	@property
+	def commands(self,):
+		# get those commands that are set to True
+		return [ x for x in ("reverse_sets", "write_dat", "write_frag_log") if getattr(self, x)]
+	
+	def update_commands(self):
+		# at some point, just set commands to archive and trigger changes there
+		if self.ovl_name:
+			self.ovl_data.commands = self.commands
+
 	@property
 	def ovl_name(self,):
 		return self.e_ovl_name.text()
@@ -79,13 +98,21 @@ class MainWindow(widgets.MainWindow):
 	def write_dat(self,):
 		return self.t_write_dat.isChecked()
 
+	@property
+	def write_frag_log(self,):
+		return self.t_write_frag_log.isChecked()
+
 	def open_ovl(self):
-		file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
-		if file_src:
-			self.cfg["dir_ovls_in"], ovl_name = os.path.split(file_src)
+		"""Just a wrapper so we can also reload via code"""
+		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
+		self.load_ovl()
+
+	def load_ovl(self):
+		if self.file_src:
+			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_src)
 			try:
-				with open(file_src, "rb") as ovl_stream:
-					self.ovl_data.read(ovl_stream, file=file_src, reverse_sets=self.reverse_sets, write_dat=self.write_dat)
+				with open(self.file_src, "rb") as ovl_stream:
+					self.ovl_data.read(ovl_stream, file=self.file_src, commands=self.commands)
 				self.e_ovl_name.setText(ovl_name)
 			except Exception as ex:
 				widgets.showdialog( str(ex) )
