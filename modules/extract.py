@@ -321,10 +321,10 @@ def write_fgm(archive, sized_str_entry, stream):
 	except:
 		print("Found no buffer data for",name)
 		buffer_data = b""
-	for i, f in enumerate(sized_str_entry.fragments):
-		with open(archive.indir(name)+str(i), 'wb') as outfile:
-			stream.seek(f.pointers[1].address)
-			outfile.write( stream.read(f.pointers[1].data_size) )
+	# for i, f in enumerate(sized_str_entry.fragments):
+	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
+	# 		stream.seek(f.pointers[1].address)
+	# 		outfile.write( stream.read(f.pointers[1].data_size) )
 	# basic fgms
 	frags_ordered = list(reversed(sized_str_entry.fragments))
 	if len(sized_str_entry.fragments) == 4:
