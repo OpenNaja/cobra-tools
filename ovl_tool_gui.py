@@ -108,7 +108,7 @@ class MainWindow(widgets.MainWindow):
 		self.load_ovl()
 
 	def load_ovl(self):
-		if self.file_src:
+		if self.ovl_name:
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_src)
 			try:
 				with open(self.file_src, "rb") as ovl_stream:
