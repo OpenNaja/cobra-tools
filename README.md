@@ -42,7 +42,7 @@ The most advanced form of mod possible at this time will be a species replacemen
 1) Double click `ovl_tool.bat` to start the main tool.
 2) Open the OVL file for the chosen dinosaur species to be replaced.
 3) Unpack the OVL file to a folder.
-4) import the MDL2 of the dinosaur into blender, if it crashes or fails to import correctly then close and restart the OVL tool and uncheck the reverse sets box and unpack once again.
+4) import the MDL2 of the dinosaur into blender, if it crashes or fails to import correctly then uncheck or check reverse sets and unpack the ovl once again
 5) once the model imports into the blender, edit the model or rig the new one to the nodes following the same conventions used
 6) export the MDL2 by selecting the old one. 
 7) If you have modified MDL2 models that used a shared MS2 buffer in blender, use the MS2 Merger to merge back the MDL2's. Ensure the MS2 filename is the same as stock before merging
