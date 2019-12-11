@@ -7,6 +7,7 @@ from pyffi_ext.formats.dds import DdsFormat
 from pyffi_ext.formats.ms2 import Ms2Format
 from pyffi_ext.formats.bani import BaniFormat
 from pyffi_ext.formats.ovl import OvlFormat
+from pyffi_ext.formats.fgm import FgmFormat
 
 from util import texconv
 
@@ -320,31 +321,47 @@ def write_fgm(archive, sized_str_entry, stream):
 	except:
 		print("Found no buffer data for",name)
 		buffer_data = b""
-	# just one ms2, no mapping entry
+	for i, f in enumerate(sized_str_entry.fragments):
+		with open(archive.indir(name)+str(i), 'wb') as outfile:
+			stream.seek(f.pointers[1].address)
+			outfile.write( stream.read(f.pointers[1].data_size) )
+	# basic fgms
+	frags_ordered = list(reversed(sized_str_entry.fragments))
 	if len(sized_str_entry.fragments) == 4:
-		f_3, f_2, f_1, f_0 = sized_str_entry.fragments
-		f_4_size = 0
-	# the supposed mapping entry
+		tex_info, attr_info, zeros, data_lib  = frags_ordered
+		len_tex_info = tex_info.pointers[1].data_size
+		len_zeros = zeros.pointers[1].data_size
+	# fgms for variants
+	elif len(sized_str_entry.fragments) == 2:
+		attr_info, data_lib = frags_ordered
+		tex_info = b""
+		zeros = b""
+		len_tex_info = 0
+		len_zeros = 0
 	else:
-		f_3, f_2, f_1, f_0, f_4 = sized_str_entry.fragments
-		f_4_size = f_4.pointers[1].data_size
-
+		raise AttributeError("Fgm length is wrong")
 	# write fgm
-	fgm_header = struct.pack("<4s6I", b"FGM", f_0.pointers[1].data_size, f_1.pointers[1].data_size, f_2.pointers[1].data_size, f_3.pointers[1].data_size, f_4_size, len(buffer_data))
+	fgm_header = struct.pack("<4s5I", b"FGM", len(sized_str_entry.fragments), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size, )
+
 	with open(archive.indir(name), 'wb') as outfile:
 		# write custom FGM header
 		outfile.write(fgm_header)
+		# outfile.write(sized_str_entry.pointers[0].data)
+		stream.seek(sized_str_entry.pointers[0].address)
+		outfile.write( stream.read(sized_str_entry.pointers[0].data_size) )
 		# write each of the fragments
-		for frag in (f_0, f_1, f_2, f_3,):
+		for frag in frags_ordered:
 			stream.seek(frag.pointers[1].address)
 			outfile.write( stream.read(frag.pointers[1].data_size) )
-		if f_4_size:
-			stream.seek(f_4.pointers[1].address)
-			outfile.write( stream.read(f_4.pointers[1].data_size) )
 		# write the buffer
 		outfile.write(buffer_data)
-	#test it
-	# archive.read_fgm(name)
+	
+
+	data = FgmFormat.Data()
+	# open file for binary reading
+	with open(archive.indir(name), "rb") as stream:
+		# data.inspect_quick(stream)
+		data.read(stream, data, file=archive.indir(name))
 	
 def write_lua(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
@@ -400,8 +417,6 @@ def write_assetpkg(archive, sized_str_entry, stream):
 		outfile.write( stream.read(f_0.pointers[1].data_size) )
 		# write the buffer
 		outfile.write(buffer_data)
-	#test it
-	# archive.read_fgm(name)
 	
 def write_fdb(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
@@ -484,49 +499,3 @@ def write_userinterfaceicondata(archive, sized_str_entry, stream):
 			outfile.write( stream.read(frag.pointers[1].data_size) )
 		# write the buffer
 		outfile.write(buffer_data)
-
-def read_fgm(archive, name):
-	textures = []
-	attributes = []
-	# maps OVL dtype to struct dtype
-	dtypes = {2:"f", 6:"i", 5:"i", 0:"f", 4:"I", 8:"I"}
-	with open(archive.indir(name), 'rb') as infile:
-		magic, f_0_size, f_1_size, f_2_size, f_3_size, f_4_size, len_buffer = struct.unpack("<4s6I", infile.read(28))
-		num_textures = f_0_size // 24 # size of Fgm0Data1
-		num_attribs = f_1_size // 16 # size of Fgm1Data1
-		pos = infile.tell()
-		# read textures
-		for i in range(num_textures):
-			textures.append( archive.get_from(OvlFormat.Fgm0Data1, infile) )
-		infile.seek(pos+f_0_size)
-		# read attributes
-		for i in range(num_attribs):
-			attributes.append( archive.get_from(OvlFormat.Fgm1Data1, infile) )
-		infile.seek(pos+f_0_size+f_1_size)
-		# read the 3rd fragment
-		f2 = infile.read(f_2_size)
-		data = infile.read(f_3_size)
-		# 5th fragment, if present
-		f4 = infile.read(f_4_size)
-		name_start = infile.tell()
-		print(name_start)
-		print("\nShader =",archive.read_z_str(infile, name_start))
-		print("\nTextures")
-		for texture in textures:
-			texture.name = archive.read_z_str(infile, name_start+texture.offset)
-			texture.value = [x for x in texture.layers]
-			# convert to bool
-			texture.layered = texture.is_layered == 7
-			l = "(layered)" if texture.layered else ""
-			s = '{} {} = {}'.format(texture.name, l, texture.value)
-			print(s)
-		# read float / bool / int values
-		print("\nAttributes")
-		for attrib in attributes:
-			attrib.name = archive.read_z_str(infile, name_start+attrib.offset)
-			fmt = dtypes[attrib.dtype]
-			attrib.value = struct.unpack("<"+fmt, data[attrib.first_value_offset : attrib.first_value_offset+4])[0]
-			if attrib.dtype == 6:
-				attrib.value = bool(attrib.value)
-			s = '{} = {}'.format(attrib.name, attrib.value)
-			print(s)
