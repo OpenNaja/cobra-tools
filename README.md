@@ -82,7 +82,7 @@ To use this plugin, hold shift when opening a png file in photoshop and choose t
 
 ![Imgur](https://i.imgur.com/9KPTx86.png)
 
-Blendweights files work alongside the matcol files to generate scales on the mesh. if you are using a custom model feel free to blank out this file completely.
+Blendweights files work alongside the matcol files to generate scales on the mesh. if you are using a custom model feel free to blank out this file completely to not deal with the scale normal maps or can edit it to apply scale and wrinkle texture to the new UV
 
 PackedTexture files contain blood splatter in the R channel, damage in the G Channel, Specular/Roughness in the B channel and AO in the alpha channel. 
 
