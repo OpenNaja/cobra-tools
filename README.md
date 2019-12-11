@@ -104,7 +104,7 @@ Remember to backup all mod files and stock files. any patches will reset or brea
 
 
 ### Discord
-Some Discords where modding progress is discussed can be found here.
+Some Discords where modding progress is discussed can be found here:
 
 - https://discord.gg/SmjHnB2 Planet Zoo Discord Community
 - https://discord.gg/Wt48PYX Frontier Modding Club
