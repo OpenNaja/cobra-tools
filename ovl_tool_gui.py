@@ -13,6 +13,7 @@ class MainWindow(widgets.MainWindow):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
 		
 		self.ovl_data = OvlFormat.Data()
+		self.file_src = ""
 
 		supported_types = ("DDS", "PNG", "MDL2", "TXT")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
@@ -108,7 +109,7 @@ class MainWindow(widgets.MainWindow):
 		self.load_ovl()
 
 	def load_ovl(self):
-		if self.ovl_name:
+		if self.file_src:
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_src)
 			try:
 				with open(self.file_src, "rb") as ovl_stream:
