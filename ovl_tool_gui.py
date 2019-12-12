@@ -136,11 +136,15 @@ class MainWindow(widgets.MainWindow):
 			if self.cfg["dir_extract"]:
 				dir = self.cfg["dir_extract"]
 				# create output dir
-				os.makedirs(dir, exist_ok=True)
-				for archive in self.ovl_data.archives:
-					archive.dir = dir
-					extract.extract(archive, self.write_dds)
-				print("Done!")
+				try:
+					os.makedirs(dir, exist_ok=True)
+					for archive in self.ovl_data.archives:
+						archive.dir = dir
+						extract.extract(archive, self.write_dds)
+					print("Done!")
+				except Exception as ex:
+					widgets.showdialog( str(ex) )
+					print(ex)
 		else:
 			widgets.showdialog( "You must open an OVL file before you can extract files!" )
 			

@@ -127,7 +127,7 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 	# print("combined buffer size",len(buffer_data))
 	
 	dds_compression_type = get_compression_type(archive, header_3_0)
-	# print("dds_compression_type", dds_compression_type)
+	print("dds_compression_type", dds_compression_type)
 
 	version = DdsFormat.version_number("DX10")
 	dds_data = DdsFormat.Data(version=version)
