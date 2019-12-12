@@ -141,6 +141,8 @@ class MainWindow(widgets.MainWindow):
 					archive.dir = dir
 					extract.extract(archive, self.write_dds)
 				print("Done!")
+		else:
+			widgets.showdialog( "You must open an OVL file before you can extract files!" )
 			
 	def inject(self):
 		if self.ovl_name:
@@ -153,6 +155,8 @@ class MainWindow(widgets.MainWindow):
 			except Exception as ex:
 				widgets.showdialog( str(ex) )
 			print("Done!")
+		else:
+			widgets.showdialog( "You must open an OVL file before you can inject files!" )
 	
 	
 if __name__ == '__main__':
