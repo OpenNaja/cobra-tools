@@ -101,3 +101,10 @@ Remember to backup all mod files and stock files. any patches will reset or brea
 - Planet Zoo, Cobra, Frontier and the Frontier Developments logo are trademarks or registered trademarks of Frontier Developments, plc.
 - Jurassic World, Jurassic World Fallen Kingdom, Jurassic World Evolution and their respective logos are trademarks of Universal Studios and Amblin Entertainment, Inc.
 - Daemon1, DennisNedry1993 and Inaki for initial modding attempts and documentation.
+
+
+### Discord
+Some Discords where modding progress is discussed can be found here:
+
+- https://discord.gg/SmjHnB2 Planet Zoo Discord Community
+- https://discord.gg/Wt48PYX Frontier Modding Club
