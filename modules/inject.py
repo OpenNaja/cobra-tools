@@ -98,6 +98,25 @@ def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds):
 	# remove the temp file if desired
 	texconv.clear_tmp(dds_file_path, show_dds)
 
+def ensure_size_match(name, dds_header, tex_header):
+	"""Check that DDS files have the same basic size"""
+	dds_h = dds_header.height
+	dds_w = dds_header.width
+	dds_d = dds_header.depth
+	dds_a = dds_header.dx_10.array_size
+
+	tex_h = tex_header.height
+	tex_w = tex_header.width
+	tex_d = tex_header.depth
+	tex_a = tex_header.array_size
+
+	if dds_h * dds_w * dds_d * dds_a != tex_h * tex_w * tex_d * tex_a:
+		raise AttributeError(f"Dimensions do not match for {name}!\n\n"
+							 f"Dimensions: height x width x depth [array size]\n"
+							 f"OVL Texture: {tex_h} x {tex_w} x {tex_d} [{tex_a}]\n"
+							 f"Injected texture: {dds_h} x {dds_w} x {dds_d} [{dds_a}]\n\n"
+							 f"Make the external texture's dimensions match the OVL texture and try again!" )
+
 def pack_mips(stream, header, num_mips):
 	"""From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
 	print("\nPacking mips")
@@ -232,6 +251,8 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 		# no stream, but data version even though that's broken
 		header = DdsFormat.Header(stream, dds_data)
 		header.read(stream, dds_data)
+
+		ensure_size_match(os.path.basename(dds_file_path), header, header_7)
 		# print(header)
 		out_bytes = pack_mips(stream, header, header_7.num_mips)
 		# with open(dds_file_path+"dump.dds", 'wb') as stream:
