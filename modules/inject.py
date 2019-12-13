@@ -32,25 +32,16 @@ def inject(ovl_data, file_paths, show_dds):
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	
 	archive = ovl_data.archives[0]
-	# first ensure each sized str entry has the current
-	print("storing current data")
-	for sized_str_entry in archive.sized_str_entries:
-		# read header data and store it in sized_str_entry object
-		sized_str_entry.data = archive.get_header_data(sized_str_entry)
-		print(sized_str_entry.data)
 	
 	print("injecting current data")
 	with open(txt_file_path, 'rb') as stream:
 		raw_txt_bytes = stream.read()
-		data_old = txt_sized_str_entry.data
+		data_old = txt_sized_str_entry.pointers[0].data
 		data_old_size = struct.unpack("<I", data_old[:4])[0]
 		old_pad = data_old[4+data_old_size:]
 		shorter_pad = data_old_size - len(raw_txt_bytes)
 		print(shorter_pad)
 		if shorter_pad > 0:
-			#lent = len(raw_txt_bytes)+4
-			#ender = lent+shorter_pad
-			#extra_pad = data_old[lent:ender]
 			extra_padbytes = "\x00"*shorter_pad
 			extra_pad = str.encode(extra_padbytes)
 			print(extra_pad)
@@ -66,22 +57,10 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 				data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + mod_pad + extra_pad + old_pad
 			else:
 				data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + mod_pad + old_pad
-		txt_sized_str_entry.data = data
-		txt_sized_str_entry.pointers[0].data_size = len(txt_sized_str_entry.data)
+		# make sure all are updated
+		txt_sized_str_entry.pointers[0].update_data(data, update_copies=True)
 		# print(txt_sized_str_entry.data)
 	
-	# clear io objects
-	archive.headers_data_io = list( io.BytesIO() for h in archive.header_entries )
-	# maintain sorting order
-	sorted_sized_str_entries = sorted(archive.sized_str_entries, key=lambda sized_str_entry : sized_str_entry.pointers[0].address)	
-	# write updated strings
-	for sized_str_entry in sorted_sized_str_entries:
-		# get header_data to write into
-		writer = archive.headers_data_io[txt_sized_str_entry.pointers[0].header_index]
-		# update data offset
-		sized_str_entry.pointers[0].data_offset = writer.tell()
-		# write data to io, adjusting the cursor for that header
-		writer.write(sized_str_entry.data)
 	
 def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds):
 	# convert the png into a dds, then inject that
@@ -269,7 +248,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 			if len(dds_buff) < buffer.size:
 				# print("Missing end",len(dds_buff), buffer.size)
 				dds_buff = dds_buff + buffer.data[len(dds_buff):]
-			buffer.load_data(dds_buff)
+			buffer.update_data(dds_buff)
 		
 def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
 	# read mdl2, find ms2
@@ -326,7 +305,7 @@ def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
 		
 	# get ms2 sized str entry
 	ms2_sized_str_entry = ovl_data.get_sized_str_entry(ms2_name)
-	ms2_sized_str_entry.data_entry.load_data(buff_datas)
+	ms2_sized_str_entry.data_entry.update_data(buff_datas)
 	
 	# get header_data to write into
 	writer = archive.headers_data_io[ms2_sized_str_entry.pointers[0].header_index]
