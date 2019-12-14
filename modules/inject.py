@@ -84,10 +84,10 @@ def ensure_size_match(name, dds_header, tex_header):
 	dds_a = dds_header.dx_10.array_size
 
 	tex_h = tex_header.height
-	tex_w = tex_header.width
+	tex_w = extract.align_to(tex_header.width)
 	tex_d = tex_header.depth
 	tex_a = tex_header.array_size
-
+	
 	if dds_h * dds_w * dds_d * dds_a != tex_h * tex_w * tex_d * tex_a:
 		raise AttributeError(f"Dimensions do not match for {name}!\n\n"
 							 f"Dimensions: height x width x depth [array size]\n"

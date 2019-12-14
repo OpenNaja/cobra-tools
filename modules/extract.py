@@ -90,6 +90,13 @@ def get_compression_type(archive, header_3_0):
 		print("could not find DDS compression name for OVL compression type",ovl_compression_ind,"set to 'DXGI_FORMAT_BC7_UNORM'")
 		return "DXGI_FORMAT_BC7_UNORM"
 	
+def align_to(input, alignment=64):
+	"""Return input padded to the next closer multiple of alignment"""
+	m = input % alignment
+	if m:
+		return input + alignment - m
+	return input
+
 def write_dds(archive, sized_str_entry, stream, show_dds):
 	basename = os.path.splitext(sized_str_entry.name)[0]
 	name = basename+".dds"
@@ -118,9 +125,9 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 	dds_data = DdsFormat.Data(version=version)
 	# no stream, but data version even though that's broken
 	header = DdsFormat.Header(None, dds_data)
-	
+
 	# header attribs
-	header.width = header_7.width
+	header.width = align_to(header_7.width)
 	# hack until we have proper support for array_size on the image editors
 	header.height = header_7.height * header_7.array_size
 	header.depth = header_7.depth
