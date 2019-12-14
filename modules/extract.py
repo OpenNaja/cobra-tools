@@ -67,34 +67,19 @@ def extract(archive, show_dds):
 	
 
 def write_txt(archive, txt_sized_str_entry, stream):
-	# no archive.fragments, but a bare sized str
-	# b = archive.get_header_data(txt_sized_str_entry)
-	header_reader, data_size = archive.get_header_reader(txt_sized_str_entry)
-	b = read_sized_str_at(header_reader, header_reader.tell())
+	# a bare sized str
+	b = txt_sized_str_entry.pointers[0].data
+	size = struct.unpack("<I", b[:4])[0]
 	with open(archive.indir(txt_sized_str_entry.name), "wb") as f:
-		f.write(b)
+		f.write(b[4:4+size])
 	
 def get_tex_structs(archive, sized_str_entry):
 	# we have exactly two fragments, pointing into these header types
 	f_3_7, f_3_3 = sized_str_entry.fragments
-	# print(f_3_3.pointers[1].address)
-	# sizedstr entry has 16 bytes 00, right before f_3_7.pointers[0].address
-	header_3_0 = archive.get_at_addr(OvlFormat.Header3Data0, archive.stream, f_3_7.pointers[0].address)
 	
-	# print("getting structs")
-	# for f in [sized_str_entry,]+sized_str_entry.fragments:
-		# for p in f.pointers:
-			# print(p.address, p.data_size)
-	
-	# one header_3_1 for each valid texture buffer
-	headers_3_1 = []
-	num_parts = f_3_3.pointers[1].data_size // 24
-	archive.stream.seek(f_3_3.pointers[1].address)
-	for i in range(num_parts):
-		header_3_1 = archive.get_from(OvlFormat.Header3Data1, archive.stream)
-		headers_3_1.append(header_3_1)
-		
-	header_7 = archive.get_at_addr(OvlFormat.Header7Data1, archive.stream, f_3_7.pointers[1].address)
+	header_3_0 = f_3_7.pointers[0].read_as( OvlFormat.Header3Data0, archive )[0]
+	headers_3_1 = f_3_3.pointers[1].read_as( OvlFormat.Header3Data1, archive, num = f_3_3.pointers[1].data_size//24 )
+	header_7 = f_3_7.pointers[1].read_as( OvlFormat.Header7Data1, archive )[0]
 	return header_3_0, headers_3_1, header_7
 	
 def get_compression_type(archive, header_3_0):
@@ -196,17 +181,17 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 		return
 	f_2, f_1, f_0 = ms2_sized_str_entry.fragments
 	
-	ms2_buffer_info_data = archive.get_header_data(f_0, 1)
+	ms2_buffer_info_data = f_0.pointers[1].data
 	
 	# sizedstr data has bone count
-	ms2_general_info_data = archive.get_header_data(ms2_sized_str_entry)[:24]
+	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
 	# next_model_info = archive.get_at_addr(Ms2Format.Ms2SizedStrData, stream, address)
 	# print("Ms2SizedStrData", address, next_model_info)
 	
 	
 	# this fragment informs us about the model count of the next mdl2 that is read
 	# so we can use it to collect the variable mdl2 fragments describing a model each
-	next_model_info_data = archive.get_header_data(f_1, 1)
+	next_model_info_data = f_1.pointers[1].data
 	# next_model_info = archive.get_at_addr(Ms2Format.CoreModelInfo, stream, f_1.pointers[1].address)
 	# print("next_model_info", f_1.pointers[1].address, next_model_info)
 	
@@ -244,7 +229,7 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 			elif (archive.header.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
 			or   (archive.header.flag_2 == 8340  and pink.pointers[0].data_size == 160):
 				# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
-				next_model_info_data = archive.get_header_data(pink, 0)[40:]
+				next_model_info_data = pink.pointers[0].data[40:]
 				# core_model_data = archive.get_at_addr(Ms2Format.Mdl2ModelInfo, stream, pink.pointers[0].address)
 				# print(core_model_data)
 			else:
@@ -256,7 +241,7 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 				# need not write lod0
 				for f in (green_mats_0, blue_lod, orange_mats_1):
 					# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-					other_data = archive.get_header_data(f, 1)
+					other_data = f.pointers[1].data
 					outfile.write(other_data)
 				
 				
@@ -267,7 +252,7 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 				# model_data = archive.get_at_addr(Ms2Format.ModelData, stream, f.pointers[0].address)
 				# print(model_data)
 				
-				model_data = archive.get_header_data(f, 0)
+				model_data = f.pointers[0].data
 				outfile.write(model_data)
 				
 	
@@ -301,8 +286,8 @@ def write_bani(archive, sized_str_entry, stream):
 		
 	f = sized_str_entry.fragments[0]
 	
-	f_data0 = archive.get_header_data(f, 0)
-	f_data1 = archive.get_header_data(f, 1)
+	f_data0 = f.pointers[0].data
+	f_data1 = f.pointers[1].data
 
 	# write banis file
 	with open(archive.indir(name), 'wb') as outfile:

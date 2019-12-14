@@ -61,7 +61,6 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 		txt_sized_str_entry.pointers[0].update_data(data, update_copies=True)
 		# print(txt_sized_str_entry.data)
 	
-	
 def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds):
 	# convert the png into a dds, then inject that
 	
@@ -307,20 +306,16 @@ def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
 	ms2_sized_str_entry = ovl_data.get_sized_str_entry(ms2_name)
 	ms2_sized_str_entry.data_entry.update_data(buff_datas)
 	
-	# get header_data to write into
-	writer = archive.headers_data_io[ms2_sized_str_entry.pointers[0].header_index]
-	mdl2writer = archive.headers_data_io[mdl2_sized_str_entry.model_data_frags[0].pointers[0].header_index]
+	# the actual injection
+
 	# overwrite mdl2 modeldata frags
 	for frag, frag_data in zip(mdl2_sized_str_entry.model_data_frags, model_data_frags):
-		mdl2writer.seek(frag.pointers[0].data_offset)
-		mdl2writer.write(frag_data)
+		frag.pointers[0].update_data(frag_data, update_copies=True)
 	
 	# overwrite mdl2 lodinfo frag
-	mdl2writer.seek(mdl2_sized_str_entry.fragments[1].pointers[1].data_offset)
-	mdl2writer.write(lodinfo)
+	mdl2_sized_str_entry.fragments[1].pointers[1].update_data(lodinfo, update_copies=True)
 		
-	buffer_info_frag = ms2_sized_str_entry.fragments[2]
-	header_writer, data_size = archive.get_header_reader(buffer_info_frag, 1)
 	# overwrite ms2 buffer info frag
-	header_writer.write(buffer_info)
+	buffer_info_frag = ms2_sized_str_entry.fragments[2]
+	buffer_info_frag.pointers[1].update_data(buffer_info, update_copies=True)
 	
