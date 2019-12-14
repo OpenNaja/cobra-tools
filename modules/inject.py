@@ -40,13 +40,13 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 		data_old_size = struct.unpack("<I", data_old[:4])[0]
 		old_pad = data_old[4+data_old_size:]
 		shorter_pad = data_old_size - len(raw_txt_bytes)
-		print(shorter_pad)
+		# print(shorter_pad)
 		if shorter_pad > 0:
 			extra_padbytes = "\x00"*shorter_pad
 			extra_pad = str.encode(extra_padbytes)
-			print(extra_pad)
+			# print(extra_pad)
 			data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + extra_pad + old_pad
-			print(data)
+			# print(data)
 		else:
 			data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + old_pad
 		if (len(data)%8) > 0:
@@ -138,7 +138,7 @@ def pack_mips(stream, header, num_mips):
 
 		# no packing at all, just grab desired mips and done
 		if num_mips == mip_i:
-			print("Packing not needed, either no MIPs at all or not enough to pack")
+			print(f"Info: MIP packing is not needed. Grabbing MIP level {mip_i} directly.")
 			return b"".join( x[2] for x in normal_levels )
 	
 	# print("\npacked mips")
@@ -239,13 +239,13 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 	
 	sum_of_buffers = sum(buffer.size for buffer in tex_sized_str_entry.data_entry.buffers)
 	if len(out_bytes) != sum_of_buffers:
-		raise BufferError("Packing of MipMaps failed. OVL expects {} bytes, but packing generated {} bytes.".format(len(out_bytes), sum_of_buffers) )
+		print(f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes." )
 	
 	with io.BytesIO(out_bytes) as reader:
 		for buffer in tex_sized_str_entry.data_entry.buffers:
 			dds_buff = reader.read(buffer.size)
 			if len(dds_buff) < buffer.size:
-				# print("Missing end",len(dds_buff), buffer.size)
+				print(f"Last {buffer.size - len(dds_buff)} bytes of DDS buffer are not overwritten!")
 				dds_buff = dds_buff + buffer.data[len(dds_buff):]
 			buffer.update_data(dds_buff)
 		
