@@ -168,9 +168,14 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 		print("No data entry for ",name)
 		return
 	buffers = ms2_sized_str_entry.data_entry.buffer_datas
-	if len(buffers) != 3:
-		print("Wrong amount of buffers for",name)
-		return
+	if len(buffers) == 3:
+		bone_names, bone_matrices, verts = buffers
+	elif len(buffers) == 2:
+		bone_names, verts = buffers
+		bone_matrices = b""
+	else:
+		raise BufferError(f"Wrong amount of buffers for {name}\nWanted 2 or 3 buffers, got {len(buffers)}")
+	
 	print("\nWriting",name)
 	# print("\nbuffers",len(buffers))
 	# for i, buffer in enumerate(buffers):
@@ -195,7 +200,6 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 	# next_model_info = archive.get_at_addr(Ms2Format.CoreModelInfo, stream, f_1.pointers[1].address)
 	# print("next_model_info", f_1.pointers[1].address, next_model_info)
 	
-	bone_names, bone_matrices, verts = buffers
 	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.header.version, archive.header.flag_2, len(bone_names), len(bone_matrices))
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(ms2_header)
