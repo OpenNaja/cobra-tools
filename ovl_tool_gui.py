@@ -15,7 +15,7 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data = OvlFormat.Data()
 		self.file_src = ""
 
-		supported_types = ("DDS", "PNG", "MDL2", "TXT")
+		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
 		
 		# buttons
@@ -153,7 +153,6 @@ class MainWindow(widgets.MainWindow):
 			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg["dir_inject"], self.filter)[0]
 			if files:
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
-			# self.ovl_data.inject( files )
 			try:
 				inject.inject( self.ovl_data, files, self.write_dds )
 			except Exception as ex:

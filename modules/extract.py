@@ -322,14 +322,18 @@ def write_fgm(archive, sized_str_entry, stream):
 	# 		stream.seek(f.pointers[1].address)
 	# 		outfile.write( stream.read(f.pointers[1].data_size) )
 	# basic fgms
-	frags_ordered = list(reversed(sized_str_entry.fragments))
 	if len(sized_str_entry.fragments) == 4:
-		tex_info, attr_info, zeros, data_lib  = frags_ordered
+		tex_info, attr_info, zeros, data_lib  = sized_str_entry.fragments
 		len_tex_info = tex_info.pointers[1].data_size
 		len_zeros = zeros.pointers[1].data_size
+	# no zeros, otherwise same as basic
+	elif len(sized_str_entry.fragments) == 3:
+		tex_info, attr_info, data_lib  = sized_str_entry.fragments
+		len_tex_info = tex_info.pointers[1].data_size
+		len_zeros = 0
 	# fgms for variants
 	elif len(sized_str_entry.fragments) == 2:
-		attr_info, data_lib = frags_ordered
+		attr_info, data_lib = sized_str_entry.fragments
 		tex_info = b""
 		zeros = b""
 		len_tex_info = 0
@@ -346,7 +350,7 @@ def write_fgm(archive, sized_str_entry, stream):
 		stream.seek(sized_str_entry.pointers[0].address)
 		outfile.write( stream.read(sized_str_entry.pointers[0].data_size) )
 		# write each of the fragments
-		for frag in frags_ordered:
+		for frag in sized_str_entry.fragments:
 			stream.seek(frag.pointers[1].address)
 			outfile.write( stream.read(frag.pointers[1].data_size) )
 		# write the buffer

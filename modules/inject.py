@@ -6,6 +6,7 @@ from pyffi_ext.formats.dds import DdsFormat
 from pyffi_ext.formats.ms2 import Ms2Format
 from pyffi_ext.formats.bani import BaniFormat
 from pyffi_ext.formats.ovl import OvlFormat
+from pyffi_ext.formats.fgm import FgmFormat
 
 from modules import extract
 from util import texconv
@@ -22,6 +23,8 @@ def inject(ovl_data, file_paths, show_dds):
 		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
 		if ext == ".mdl2":
 			load_mdl2(ovl_data, file_path, sized_str_entry)
+		if ext == ".fgm":
+			load_fgm(ovl_data, file_path, sized_str_entry)
 		elif ext == ".png":
 			load_png(ovl_data, file_path, sized_str_entry, show_dds)
 		elif ext == ".dds":
@@ -319,3 +322,58 @@ def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
 	buffer_info_frag = ms2_sized_str_entry.fragments[2]
 	buffer_info_frag.pointers[1].update_data(buffer_info, update_copies=True)
 	
+def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
+	
+	archive = ovl_data.archives[0]
+
+	fgm_data = FgmFormat.Data()
+	# open file for binary reading
+	with open(fgm_file_path, "rb") as stream:
+		fgm_data.read(stream, fgm_data, file=fgm_file_path)
+
+		frag_writer = io.BytesIO()
+		fgm_data.fgm_header.fgm_info.write(frag_writer, data=fgm_data)
+		fgm_data.fgm_header.two_frags_pad.write(frag_writer, data=fgm_data)
+		sizedstr_bytes = frag_writer.getvalue()
+		
+		frag_writer = io.BytesIO()
+		fgm_data.fgm_header.textures.write(frag_writer, data=fgm_data)
+		fgm_data.fgm_header.texpad.write(frag_writer, data=fgm_data)
+		textures_bytes = frag_writer.getvalue()
+
+		frag_writer = io.BytesIO()
+		fgm_data.fgm_header.attributes.write(frag_writer, data=fgm_data)
+		attributes_bytes = frag_writer.getvalue()
+
+		# read the other datas
+		stream.seek(fgm_data.eoh)
+		zeros_bytes = stream.read(fgm_data.fgm_header.zeros_size)
+		data_bytes = stream.read(fgm_data.fgm_header.data_lib_size)
+		buffer_bytes = stream.read()
+		
+	# the actual injection
+	fgm_sized_str_entry.data_entry.update_data( (buffer_bytes,) )
+	fgm_sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
+	
+	if len(fgm_sized_str_entry.fragments) == 4:
+		datas = (textures_bytes, attributes_bytes, zeros_bytes, data_bytes)
+	# fgms without zeros
+	elif len(fgm_sized_str_entry.fragments) == 3:
+		datas = (textures_bytes, attributes_bytes, data_bytes)
+	# fgms for variants
+	elif len(fgm_sized_str_entry.fragments) == 2:
+		datas = (attributes_bytes, data_bytes)
+	else:
+		raise AttributeError("Unexpected fgm frag count")
+	
+	# inject fragment datas
+	for frag, data in zip(fgm_sized_str_entry.fragments, datas):
+		frag.pointers[1].update_data(data, update_copies=True)
+
+	# # test writing
+	# with open(fgm_file_path+"test.fgm", "wb") as stream:
+	# 	fgm_data.shader_name = "TestShader"
+	# 	fgm_data.fgm_header.attributes[0].name = "DummyAttr"
+	# 	fgm_data.fgm_header.attributes[0].value[0] *= 2
+	# 	# fgm_data.fgm_header.textures[0].name = "Tex0"
+	# 	fgm_data.write(stream)
