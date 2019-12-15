@@ -92,6 +92,7 @@ class MainWindow(widgets.MainWindow):
 				if self.tex_container.layout():
 					d = QtWidgets.QWidget()
 					d.setLayout( self.tex_container.layout() )
+				if self.attrib_container.layout():
 					d = QtWidgets.QWidget()
 					d.setLayout( self.attrib_container.layout() )
 
