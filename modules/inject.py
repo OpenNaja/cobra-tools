@@ -369,11 +369,4 @@ def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 	# inject fragment datas
 	for frag, data in zip(fgm_sized_str_entry.fragments, datas):
 		frag.pointers[1].update_data(data, update_copies=True)
-
-	# # test writing
-	# with open(fgm_file_path+"test.fgm", "wb") as stream:
-	# 	fgm_data.shader_name = "TestShader"
-	# 	fgm_data.fgm_header.attributes[0].name = "DummyAttr"
-	# 	fgm_data.fgm_header.attributes[0].value[0] *= 2
-	# 	# fgm_data.fgm_header.textures[0].name = "Tex0"
-	# 	fgm_data.write(stream)
+		

@@ -37,7 +37,126 @@ def showdialog(str):
 	msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
 	retval = msg.exec_()
 
+def vbox(parent, grid):
+	"""Adds a grid layout"""
+	# vbox = QtWidgets.QVBoxLayout()
+	# vbox.addLayout(grid)
+	# vbox.addStretch(1.0)
+	# vbox.setSpacing(0)
+	# vbox.setContentsMargins(0,0,0,0)
+	parent.setLayout(grid)
 
+class LabelEdit(QtWidgets.QWidget):
+	def __init__(self, name):
+		QtWidgets.QWidget.__init__(self,)
+		self.shader_container = QtWidgets.QWidget()
+		self.label = QtWidgets.QLabel(name)
+		self.entry = QtWidgets.QLineEdit()
+		vbox = QtWidgets.QHBoxLayout()
+		vbox.addWidget(self.label)
+		vbox.addWidget(self.entry)
+		# vbox.addStretch(1)
+		self.setLayout(vbox)
+
+class MySwitch(QtWidgets.QPushButton):
+	def __init__(self, parent = None):
+		super().__init__(parent)
+		self.setCheckable(True)
+		self.setMinimumWidth(66)
+		self.setMinimumHeight(22)
+
+	def setValue(self, v):
+		self.setChecked(v)
+
+	def paintEvent(self, event):
+		label = "ON" if self.isChecked() else "OFF"
+		bg_color = QtCore.Qt.green if self.isChecked() else QtCore.Qt.red
+
+		radius = 10
+		width = 32
+		center = self.rect().center()
+
+		painter = QtGui.QPainter(self)
+		painter.setRenderHint(QtGui.QPainter.Antialiasing)
+		painter.translate(center)
+		painter.setBrush(QtGui.QColor(0,0,0))
+
+		pen = QtGui.QPen(QtCore.Qt.black)
+		pen.setWidth(2)
+		painter.setPen(pen)
+
+		painter.drawRoundedRect(QtCore.QRect(-width, -radius, 2*width, 2*radius), radius, radius)
+		painter.setBrush(QtGui.QBrush(bg_color))
+		sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2*radius)
+		if not self.isChecked():
+			sw_rect.moveLeft(-width)
+		painter.drawRoundedRect(sw_rect, radius, radius)
+		painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
+
+class VectorEntry():
+	def __init__(self, attrib, tooltips={}):
+		"""attrib must be pyffi attrib object"""
+		# QtWidgets.QWidget.__init__(self,)
+		self.attrib = attrib
+		self.label = QtWidgets.QLabel(attrib.name)
+		
+		self.data = QtWidgets.QWidget()
+		layout = QtWidgets.QHBoxLayout()
+		buttons = [self.create_field(i) for i in range(len(attrib.value))]
+		for button in buttons:
+			layout.addWidget(button)
+		self.data.setLayout(layout)
+
+		# get tooltip
+		tooltip = tooltips.get(self.attrib.name, "Undocumented attribute.")
+		self.data.setToolTip(tooltip)
+		self.label.setToolTip(tooltip)
+
+	
+	def create_field(self, ind):
+		default = self.attrib.value[ind]
+
+		def update_ind( v):
+			# use a closure to remember index
+			# print(self.attrib, ind, v)
+			self.attrib.value[ind] = v
+
+		t = str(type(default))
+		if "float" in t:
+			field = QtWidgets.QDoubleSpinBox()
+			field.setDecimals(3)
+			field.setRange(-10000, 10000)
+			field.setSingleStep(.05)
+			field.valueChanged.connect(update_ind)
+		elif "bool" in t:
+			# field = QtWidgets.QSpinBox()
+			field = MySwitch()
+			field.clicked.connect(update_ind)
+		elif "int" in t:
+			field = QtWidgets.QSpinBox()
+			field.setRange(-10000, 10000)
+			field.valueChanged.connect(update_ind)
+
+		field.setValue(default)
+		field.setMinimumWidth(50)
+		return field
+	
+	# @property
+	# def fft_size(self): return int(self.fft_c.currentText())
+	
+	# @property
+	# def fft_overlap(self): return int(self.overlap_c.currentText())
+	
+	# def update_fft_settings(self,):
+	# 	self.canvas.compute_spectra(self.canvas.filenames,
+	# 								fft_size = self.fft_size,
+	# 								fft_overlap = self.fft_overlap)
+		
+	# def update_show_settings(self):
+	# 	show = self.show_c.currentText()
+				
+	# def update_cmap(self):
+	# 	self.canvas.set_colormap(self.cmap_c.currentText())	
 
 class FileWidget(QtWidgets.QLineEdit):
 	"""An entry widget that starts a file selector when clicked and also accepts drag & drop.

@@ -1,0 +1,137 @@
+import os
+import io
+import sys
+import webbrowser
+from PyQt5 import QtWidgets, QtGui, QtCore
+
+from pyffi_ext.formats.fgm import FgmFormat
+from util import widgets, config
+from modules import extract, inject
+
+class MainWindow(widgets.MainWindow):
+
+	def __init__(self):
+		widgets.MainWindow.__init__(self, "FGM Editor", )
+		
+		self.resize(450, 500)
+
+		self.fgm_data = FgmFormat.Data()
+		self.file_src = ""
+		self.widgets = []
+		self.tooltips = config.read_config("util/tooltips/fgm.txt")
+		
+		mainMenu = self.menuBar() 
+		fileMenu = mainMenu.addMenu('File')
+		helpMenu = mainMenu.addMenu('Help')
+		button_data = ( (fileMenu, "Open", self.open_fgm, "CTRL+O"), \
+						(fileMenu, "Save", self.save_fgm, "CTRL+S"), \
+						(fileMenu, "Exit", self.close, ""), \
+						(helpMenu, "Report Bug", self.report_bug, ""), \
+						(helpMenu, "Documentation", self.online_support, ""), \
+						)
+		self.add_to_menu(button_data)
+
+		self.cleaner = QtCore.QObjectCleanupHandler()
+
+		self.scrollarea = QtWidgets.QScrollArea(self)
+		self.scrollarea.setWidgetResizable(True)
+		self.setCentralWidget(self.scrollarea)
+
+		# the actual scrollable stuff
+		self.widget = QtWidgets.QWidget()
+		self.scrollarea.setWidget(self.widget)
+
+		self.fgm_container = widgets.LabelEdit("FGM:")
+		self.shader_container = widgets.LabelEdit("Shader:")
+		self.tex_container = QtWidgets.QGroupBox("Textures")
+		self.attrib_container = QtWidgets.QGroupBox("Attributes")
+
+		vbox = QtWidgets.QVBoxLayout()
+		vbox.addWidget(self.fgm_container)
+		vbox.addWidget(self.shader_container)
+		vbox.addWidget(self.tex_container)
+		vbox.addWidget(self.attrib_container)
+		vbox.addStretch(1)
+		self.widget.setLayout(vbox)
+
+	def report_bug(self):
+		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
+		
+	def online_support(self):
+		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
+
+	@property
+	def fgm_name(self,):
+		return self.fgm_container.entry.text()
+		
+
+	def open_fgm(self):
+		"""Just a wrapper so we can also reload via code"""
+		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load FGM', self.cfg["dir_fgms_in"], "FGM files (*.fgm)")[0]
+		self.load_fgm()
+
+	def load_fgm(self):
+		if self.file_src:
+			for w in self.widgets:
+				w.deleteLater()
+			self.cfg["dir_fgms_in"], fgm_name = os.path.split(self.file_src)
+			try:
+				with open(self.file_src, "rb") as fgm_stream:
+					self.fgm_data.read(fgm_stream, file=self.file_src)
+
+				self.fgm_container.entry.setText( fgm_name )
+				self.shader_container.entry.setText(self.fgm_data.shader_name)
+
+				# delete existing widgets
+				if self.tex_container.layout():
+					d = QtWidgets.QWidget()
+					d.setLayout( self.tex_container.layout() )
+					d = QtWidgets.QWidget()
+					d.setLayout( self.attrib_container.layout() )
+
+				qgrid = QtWidgets.QGridLayout()
+				qgrid.setHorizontalSpacing(3)
+				qgrid.setVerticalSpacing(0)
+				line_i = 0
+				for tex in self.fgm_data.fgm_header.textures:
+					# w = widgets.VectorEntry(attrib)
+					# form.addRow(w.label, w.data)
+					w = QtWidgets.QLabel(tex.name)
+					line_i += 1
+					qgrid.addWidget(w, line_i, 0)
+					# qgrid.addWidget(w.label, line_i, 0)
+					# qgrid.addWidget(w.data, line_i, 1)
+								
+				self.tex_container.setLayout(qgrid)
+				
+
+				qgrid = QtWidgets.QGridLayout()
+				qgrid.setHorizontalSpacing(3)
+				qgrid.setVerticalSpacing(0)
+				line_i = 0
+				for attrib in self.fgm_data.fgm_header.attributes:
+					w = widgets.VectorEntry(attrib, self.tooltips)
+					line_i += 1
+					qgrid.addWidget(w.label, line_i, 0)
+					qgrid.addWidget(w.data, line_i, 1)
+								
+				self.attrib_container.setLayout(qgrid)
+				
+			except Exception as ex:
+				widgets.showdialog( str(ex) )
+				print(ex)
+			print("Done!")
+		
+	def save_fgm(self):
+		if self.fgm_name:
+			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg["dir_fgms_out"], self.fgm_name), "FGM files (*.fgm)",)[0]
+			if file_src:
+				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_src)
+				# just a dummy stream
+				with open(file_src, "wb") as fgm_stream:
+					self.fgm_data.write(fgm_stream)
+				print("Done!")
+			
+	
+if __name__ == '__main__':
+	widgets.startup( MainWindow )

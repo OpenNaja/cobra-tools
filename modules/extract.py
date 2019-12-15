@@ -84,11 +84,8 @@ def get_tex_structs(archive, sized_str_entry):
 	
 def get_compression_type(archive, header_3_0):
 	ovl_compression_ind = header_3_0.compression_type
-	try:
-		return dds_types[ovl_compression_ind]
-	except:
-		print("could not find DDS compression name for OVL compression type",ovl_compression_ind,"set to 'DXGI_FORMAT_BC7_UNORM'")
-		return "DXGI_FORMAT_BC7_UNORM"
+	print("ovl_compression_ind",ovl_compression_ind)
+	return dds_types[ovl_compression_ind]
 	
 def align_to(input, alignment=64):
 	"""Return input padded to the next closer multiple of alignment"""
@@ -117,57 +114,64 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 	if not len(buffer_data) == header_7.data_size:
 		raise BufferError("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
 	# print("combined buffer size",len(buffer_data))
-	
-	dds_compression_type = get_compression_type(archive, header_3_0)
-	print("dds_compression_type", dds_compression_type)
+	try:
+		dds_compression_types = ( get_compression_type(archive, header_3_0), )
+	except:
+		dds_compression_types = DdsFormat.DxgiFormat._enumkeys
+		print("Unknown compression type, trying all compression types for your amusement")
+		# dds_compression_types = list(v for v in DdsFormat.DxgiFormat._enumkeys if v not in dds_types.values())
+	print("dds_compression_type", dds_compression_types)
 
-	version = DdsFormat.version_number("DX10")
-	dds_data = DdsFormat.Data(version=version)
-	# no stream, but data version even though that's broken
-	header = DdsFormat.Header(None, dds_data)
+	for dds_compression_type in dds_compression_types:
+		version = DdsFormat.version_number("DX10")
+		dds_data = DdsFormat.Data(version=version)
+		# no stream, but data version even though that's broken
+		header = DdsFormat.Header(None, dds_data)
 
-	# header attribs
-	header.width = align_to(header_7.width)
-	# hack until we have proper support for array_size on the image editors
-	header.height = header_7.height * header_7.array_size
-	header.depth = header_7.depth
-	header.linear_size = header_7.data_size
-	header.mipmap_count = header_7.num_mips
-	
-	# header flags
-	header.flags.height = 1
-	header.flags.width = 1
-	header.flags.mipmap_count = 1
-	header.flags.linear_size = 1
-	
-	# pixel format flags
-	header.pixel_format.flags.four_c_c = 1
-	header.pixel_format.four_c_c = "DX10"
-	
-	# dx 10 stuff
-	header.dx_10.dxgi_format = dds_compression_type
-	# possibly the two 1s in header_3_0
-	header.dx_10.resource_dimension = "D3D10_RESOURCE_DIMENSION_TEXTURE2D"
-	# not properly supported by paint net and PS, only gimp
-	# header.dx_10.array_size = header_7.array_size
-	header.dx_10.array_size = 1
-	
-	# caps 1
-	header.caps_1.texture = 0
+		# header attribs
+		header.width = align_to(header_7.width)
+		# hack until we have proper support for array_size on the image editors
+		header.height = header_7.height * header_7.array_size
+		header.depth = header_7.depth
+		header.linear_size = header_7.data_size
+		header.mipmap_count = header_7.num_mips
+		
+		# header flags
+		header.flags.height = 1
+		header.flags.width = 1
+		header.flags.mipmap_count = 1
+		header.flags.linear_size = 1
+		
+		# pixel format flags
+		header.pixel_format.flags.four_c_c = 1
+		header.pixel_format.four_c_c = "DX10"
+		
+		# dx 10 stuff
+		header.dx_10.dxgi_format = dds_compression_type
+		# possibly the two 1s in header_3_0
+		header.dx_10.resource_dimension = "D3D10_RESOURCE_DIMENSION_TEXTURE2D"
+		# not properly supported by paint net and PS, only gimp
+		# header.dx_10.array_size = header_7.array_size
+		header.dx_10.array_size = 1
+		
+		# caps 1
+		header.caps_1.texture = 0
 
-	# start out with the visible file path
-	dds_file_path = archive.indir(name)
-	out_dir, in_name = os.path.split(dds_file_path)
-	# if we want to see the dds, write it to the output dir
-	tmp_dir = texconv.make_tmp( out_dir, show_dds )
-	dds_file_path = os.path.join(tmp_dir, in_name)
-	# write dds
-	with open(dds_file_path, 'wb') as stream:
-		header.write(stream, dds_data)
-		stream.write(buffer_data)
-	
-	# convert the dds to PNG, PNG must be visible so put it in out_dir
-	texconv.dds_to_png( dds_file_path, out_dir, show_dds)
+		# start out with the visible file path
+		dds_file_path = archive.indir(name)
+		out_dir, in_name = os.path.split(dds_file_path)
+		# if we want to see the dds, write it to the output dir
+		tmp_dir = texconv.make_tmp( out_dir, show_dds )
+		dds_file_path = os.path.join(tmp_dir, in_name)
+		if len(dds_compression_types) > 1:
+			dds_file_path += "_"+dds_compression_type+".dds"
+		# write dds
+		with open(dds_file_path, 'wb') as stream:
+			header.write(stream, dds_data)
+			stream.write(buffer_data)
+		
+		# convert the dds to PNG, PNG must be visible so put it in out_dir
+		texconv.dds_to_png( dds_file_path, out_dir, show_dds)
 	
 def write_ms2(archive, ms2_sized_str_entry, stream):
 	name = ms2_sized_str_entry.name
@@ -355,13 +359,7 @@ def write_fgm(archive, sized_str_entry, stream):
 			outfile.write( stream.read(frag.pointers[1].data_size) )
 		# write the buffer
 		outfile.write(buffer_data)
-	
 
-	data = FgmFormat.Data()
-	# open file for binary reading
-	with open(archive.indir(name), "rb") as stream:
-		# data.inspect_quick(stream)
-		data.read(stream, data, file=archive.indir(name))
 	
 def write_lua(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
