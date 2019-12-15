@@ -47,7 +47,7 @@ def vbox(parent, grid):
 	parent.setLayout(grid)
 
 class LabelEdit(QtWidgets.QWidget):
-	def __init__(self, name):
+	def __init__(self, name, ):
 		QtWidgets.QWidget.__init__(self,)
 		self.shader_container = QtWidgets.QWidget()
 		self.label = QtWidgets.QLabel(name)
@@ -58,7 +58,40 @@ class LabelEdit(QtWidgets.QWidget):
 		# vbox.addStretch(1)
 		self.setLayout(vbox)
 
+class LabelCombo(QtWidgets.QWidget):
+	def __init__(self, name, options):
+		QtWidgets.QWidget.__init__(self,)
+		sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		sizePolicy.setHorizontalStretch(0)
+		sizePolicy.setVerticalStretch(0)
+		self.shader_container = QtWidgets.QWidget()
+		self.label = QtWidgets.QLabel(name)
+		self.entry = QtWidgets.QComboBox()
+		self.entry.addItems(options)
+		sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
+		self.entry.setSizePolicy(sizePolicy)
+		# self.entry.setMaxVisibleItems(10)
+		self.entry.setEditable(True)
+		vbox = QtWidgets.QHBoxLayout()
+		vbox.addWidget(self.label)
+		vbox.addWidget(self.entry)
+		self.setLayout(vbox)
+
+	def setText(self, txt):
+		indx = self.entry.findText(txt)
+		# add new item if not found
+		if indx == -1:
+			self.entry.addItem(txt)
+			indx = self.entry.findText(txt)
+		self.entry.setCurrentIndex(indx)
+
 class MySwitch(QtWidgets.QPushButton):
+	PRIMARY =   QtGui.QColor(53, 53, 53)
+	SECONDARY = QtGui.QColor(35, 35, 35)
+	OUTLINE = QtGui.QColor(122, 122, 122)
+	TERTIARY =  QtGui.QColor(42, 130, 218)
+	BLACK =  QtGui.QColor(0, 0, 0)
+	WHITE =     QtGui.QColor(255, 255, 255)
 	def __init__(self, parent = None):
 		super().__init__(parent)
 		self.setCheckable(True)
@@ -70,7 +103,7 @@ class MySwitch(QtWidgets.QPushButton):
 
 	def paintEvent(self, event):
 		label = "ON" if self.isChecked() else "OFF"
-		bg_color = QtCore.Qt.green if self.isChecked() else QtCore.Qt.red
+		bg_color = self.TERTIARY if self.isChecked() else self.PRIMARY
 
 		radius = 10
 		width = 32
@@ -79,10 +112,10 @@ class MySwitch(QtWidgets.QPushButton):
 		painter = QtGui.QPainter(self)
 		painter.setRenderHint(QtGui.QPainter.Antialiasing)
 		painter.translate(center)
-		painter.setBrush(QtGui.QColor(0,0,0))
+		painter.setBrush(self.SECONDARY)
 
-		pen = QtGui.QPen(QtCore.Qt.black)
-		pen.setWidth(2)
+		pen = QtGui.QPen(self.WHITE)
+		pen.setWidth(0)
 		painter.setPen(pen)
 
 		painter.drawRoundedRect(QtCore.QRect(-width, -radius, 2*width, 2*radius), radius, radius)

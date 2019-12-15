@@ -19,6 +19,7 @@ class MainWindow(widgets.MainWindow):
 		self.file_src = ""
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/fgm.txt")
+		self.shaders = config.read_list("util/tooltips/fgm-shaders.txt")
 		
 		mainMenu = self.menuBar() 
 		fileMenu = mainMenu.addMenu('File')
@@ -42,7 +43,8 @@ class MainWindow(widgets.MainWindow):
 		self.scrollarea.setWidget(self.widget)
 
 		self.fgm_container = widgets.LabelEdit("FGM:")
-		self.shader_container = widgets.LabelEdit("Shader:")
+		self.shader_container = widgets.LabelCombo("Shader:", self.shaders)
+		self.shader_container.entry.activated.connect(self.update_shader)
 		self.tex_container = QtWidgets.QGroupBox("Textures")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
 
@@ -60,10 +62,14 @@ class MainWindow(widgets.MainWindow):
 	def online_support(self):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
 
+	def update_shader(self,):
+		if self.file_src:
+			self.fgm_data.shader_name = self.shader_container.entry.currentText()
+
 	@property
 	def fgm_name(self,):
 		return self.fgm_container.entry.text()
-		
+
 
 	def open_fgm(self):
 		"""Just a wrapper so we can also reload via code"""
@@ -80,7 +86,7 @@ class MainWindow(widgets.MainWindow):
 					self.fgm_data.read(fgm_stream, file=self.file_src)
 
 				self.fgm_container.entry.setText( fgm_name )
-				self.shader_container.entry.setText(self.fgm_data.shader_name)
+				self.shader_container.setText(self.fgm_data.shader_name)
 
 				# delete existing widgets
 				if self.tex_container.layout():
@@ -123,12 +129,12 @@ class MainWindow(widgets.MainWindow):
 			print("Done!")
 		
 	def save_fgm(self):
-		if self.fgm_name:
-			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg["dir_fgms_out"], self.fgm_name), "FGM files (*.fgm)",)[0]
-			if file_src:
-				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_src)
+		if self.file_src:
+			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg["dir_fgms_out"], self.fgm_name), "FGM files (*.fgm)",)[0]
+			if file_out:
+				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
 				# just a dummy stream
-				with open(file_src, "wb") as fgm_stream:
+				with open(file_out, "wb") as fgm_stream:
 					self.fgm_data.write(fgm_stream)
 				print("Done!")
 			

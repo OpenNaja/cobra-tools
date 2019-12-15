@@ -20,6 +20,10 @@ def write_config(cfg_path, cfg):
 	with open(cfg_path, 'w', encoding='utf8') as cfg_file:
 		cfg_file.write(stream)
 
+def read_list(cfg_path):
+	with open(cfg_path, 'r', encoding='utf-8') as cfg_file:
+		return [line.strip() for line in cfg_file if line.strip() and not line.startswith("#")]
+		
 if __name__ == '__main__':
 	cfg = read_config("config.ini")
 	print(cfg)
