@@ -1,4 +1,5 @@
 import os
+import webbrowser
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from util import config, qt_theme
@@ -277,6 +278,12 @@ class MainWindow(QtWidgets.QMainWindow):
 		
 		self.cfg = config.read_config("config.ini")
 		
+
+	def report_bug(self):
+		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
+		
+	def online_support(self):
+		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
 
 	def update_file(self, filepath):
 		self.cfg["dir_in"], file_name = os.path.split(filepath)

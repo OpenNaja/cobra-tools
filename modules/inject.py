@@ -31,6 +31,8 @@ def inject(ovl_data, file_paths, show_dds):
 			load_dds(ovl_data, file_path, sized_str_entry)
 		elif ext == ".txt":
 			load_txt(ovl_data, file_path, sized_str_entry)
+		elif ext == ".fdb":
+			load_fdb(ovl_data, file_path, sized_str_entry, name)
 
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	
@@ -369,4 +371,21 @@ def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 	# inject fragment datas
 	for frag, data in zip(fgm_sized_str_entry.fragments, datas):
 		frag.pointers[1].update_data(data, update_copies=True)
-		
+
+
+def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
+	# read fdb
+	# inject fdb buffers
+	# update sized string
+	
+	archive = ovl_data.archives[0]
+    
+	with open(fdb_file_path, "rb") as fdb_stream:
+		#load the new buffers
+		buffer1_bytes = fdb_stream.read()
+		buffer0_bytes = fdb_name.encode()
+		#update the buffers
+		fdb_sized_str_entry.data_entry.update_data(  (buffer0_bytes , buffer1_bytes ) )
+		#update the sizedstring entry
+		data = struct.pack("<8I", len(buffer1_bytes),0,0,0,0,0,0,0)
+		fdb_sized_str_entry.pointers[0].update_data(data, update_copies=True)

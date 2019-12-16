@@ -15,25 +15,26 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data = OvlFormat.Data()
 		self.file_src = ""
 
-		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM")
+		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
 		
-		# buttons
-		self.b_open = QtWidgets.QPushButton('Open OVL')
-		self.b_open.setToolTip("Load an OVL archive whose files you want to modify.")
-		self.b_open.clicked.connect(self.open_ovl)
-		
-		self.b_save = QtWidgets.QPushButton('Save OVL')
-		self.b_save.setToolTip("Save the OVL file you do not want to merge.")
-		self.b_save.clicked.connect(self.save_ovl)
-		
-		self.b_unpack = QtWidgets.QPushButton('Unpack')
-		self.b_unpack.setToolTip("Unpack all known files from the OVL into the selected folder.")
-		self.b_unpack.clicked.connect(self.extract_all)
-		
-		self.b_inject = QtWidgets.QPushButton('Inject')
-		self.b_inject.setToolTip("Load files to inject into the opened OVL archive.")
-		self.b_inject.clicked.connect(self.inject)
+		mainMenu = self.menuBar() 
+		fileMenu = mainMenu.addMenu('File')
+		editMenu = mainMenu.addMenu('Edit')
+		helpMenu = mainMenu.addMenu('Help')
+		button_data = ( (fileMenu, "Open", self.open_ovl, "CTRL+O"),
+						(fileMenu, "Save", self.save_ovl, "CTRL+S"),
+						(fileMenu, "Exit", self.close, ""),
+						(editMenu, "Unpack", self.extract_all, "CTRL+U"),
+						(editMenu, "Inject", self.inject, "CTRL+I"),
+						(helpMenu, "Report Bug", self.report_bug, ""),
+						(helpMenu, "Documentation", self.online_support, "") )
+		self.add_to_menu(button_data)
+
+		tooltips = ( "Load an OVL archive whose files you want to modify.",
+					 "Save the OVL file you do not want to merge.",
+					 "Unpack all known files from the OVL into the selected folder.",
+					 "Load files to inject into the opened OVL archive.")
 
 		self.e_ovl_name = QtWidgets.QLineEdit(self)
 		self.e_ovl_name.setToolTip("The name of the OVL file that is currently open.")
@@ -61,15 +62,11 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.b_open, 0, 0)
-		self.qgrid.addWidget(self.b_save, 0, 1)
-		self.qgrid.addWidget(self.b_unpack, 0, 2)
-		self.qgrid.addWidget(self.b_inject, 0, 3)
-		self.qgrid.addWidget(self.e_ovl_name, 1, 0, 1, 4)
-		self.qgrid.addWidget(self.t_write_dds, 2, 0, 1, 4)
-		self.qgrid.addWidget(self.t_reverse, 3, 0, 1, 4)
-		self.qgrid.addWidget(self.t_write_dat, 4, 0, 1, 4)
-		self.qgrid.addWidget(self.t_write_frag_log, 5, 0, 1, 4)
+		self.qgrid.addWidget(self.e_ovl_name, 0, 0)
+		self.qgrid.addWidget(self.t_write_dds, 1, 0)
+		self.qgrid.addWidget(self.t_reverse, 2, 0,)
+		self.qgrid.addWidget(self.t_write_dat, 3, 0)
+		self.qgrid.addWidget(self.t_write_frag_log, 4, 0)
 		
 		self.central_widget.setLayout(self.qgrid)
 	

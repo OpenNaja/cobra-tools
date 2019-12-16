@@ -1,7 +1,6 @@
 import os
 import io
 import sys
-import webbrowser
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pyffi_ext.formats.fgm import FgmFormat
@@ -19,7 +18,10 @@ class MainWindow(widgets.MainWindow):
 		self.file_src = ""
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/fgm.txt")
-		self.shaders = config.read_list("util/tooltips/fgm-shaders.txt")
+		self.games = ("Jurassic World Evolution", "Planet Zoo")
+		self.shaders = {}
+		for game in self.games:
+			self.shaders[game] = config.read_list(f"util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
 		
 		mainMenu = self.menuBar() 
 		fileMenu = mainMenu.addMenu('File')
@@ -42,13 +44,17 @@ class MainWindow(widgets.MainWindow):
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
+		self.game_container = widgets.LabelCombo("Game:", self.games)
+		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
+		self.game_container.entry.setEditable(False)
 		self.fgm_container = widgets.LabelEdit("FGM:")
-		self.shader_container = widgets.LabelCombo("Shader:", self.shaders)
-		self.shader_container.entry.activated.connect(self.update_shader)
+		self.shader_container = widgets.LabelCombo("Shader:", () )
+		self.shader_container.entry.activated.connect(self.shader_changed)
 		self.tex_container = QtWidgets.QGroupBox("Textures")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
 
 		vbox = QtWidgets.QVBoxLayout()
+		vbox.addWidget(self.game_container)
 		vbox.addWidget(self.fgm_container)
 		vbox.addWidget(self.shader_container)
 		vbox.addWidget(self.tex_container)
@@ -56,13 +62,14 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
-	def report_bug(self):
-		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
+	def game_changed(self,):
+		if self.file_src:
+			self.shader_container.entry.clear()
+			game = self.game_container.entry.currentText()
+			self.shader_container.entry.addItems(self.shaders[game])
 		
-	def online_support(self):
-		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
-
-	def update_shader(self,):
+	def shader_changed(self,):
+		"""Change the fgm data shader name if gui changes"""
 		if self.file_src:
 			self.fgm_data.shader_name = self.shader_container.entry.currentText()
 
@@ -84,6 +91,11 @@ class MainWindow(widgets.MainWindow):
 			try:
 				with open(self.file_src, "rb") as fgm_stream:
 					self.fgm_data.read(fgm_stream, file=self.file_src)
+				game = self.fgm_data.game
+				print("from game",game)
+				self.game_container.setText(game)
+				# also for
+				self.game_changed()
 
 				self.fgm_container.entry.setText( fgm_name )
 				self.shader_container.setText(self.fgm_data.shader_name)

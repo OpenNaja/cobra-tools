@@ -345,7 +345,7 @@ def write_fgm(archive, sized_str_entry, stream):
 	else:
 		raise AttributeError("Fgm length is wrong")
 	# write fgm
-	fgm_header = struct.pack("<4s5I", b"FGM", len(sized_str_entry.fragments), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size, )
+	fgm_header = struct.pack("<4s7I", b"FGM ", archive.header.version, archive.header.flag_2, len(sized_str_entry.fragments), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size, )
 
 	with open(archive.indir(name), 'wb') as outfile:
 		# write custom FGM header
@@ -426,24 +426,12 @@ def write_fdb(archive, sized_str_entry, stream):
 	except:
 		print("Found no buffer data for",name)
 		buffer_data = b""
-	#if len(sized_str_entry.fragments) == 1:
-		# f_0, f_1, f_2, f_3 = sized_str_entry.fragments
-		#f_0 = sized_str_entry.fragments
-	# the supposed mapping entry
-	# write assetpkg
-	asset_header = struct.pack("<3s2I", b"FDB", len(buff_datas[0]),len(buff_datas[1]))
+	
 	with open(archive.indir(name), 'wb') as outfile:
-		# write custom FGM header
-		outfile.write(asset_header)
-		# write each of the archive.fragments
-		#for frag in (f_0,):
-			#stream.seek(frag.pointers[0].address)
-			#outfile.write( stream.read(frag.pointers[0].data_size) )
-			#stream.seek(frag.pointers[1].address)
-			#outfile.write( stream.read(frag.pointers[1].data_size) )
-		# write the buffer
-		for buffer in buff_datas:
-			outfile.write(buffer)
+		# write the buffer, only buffer 1
+		# buffer 0 is just the bare file name, boring
+		# sizedstr data is just size of the buffer
+		outfile.write(buff_datas[1])
 	
 def write_xmlconfig(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
