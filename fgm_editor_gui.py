@@ -62,6 +62,12 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
+		self.tex_grid = self.create_grid()
+		self.attrib_grid = self.create_grid()
+
+		self.tex_container.setLayout(self.tex_grid)
+		self.attrib_container.setLayout(self.attrib_grid)
+		
 	def game_changed(self,):
 		if self.file_src:
 			self.shader_container.entry.clear()
@@ -83,6 +89,23 @@ class MainWindow(widgets.MainWindow):
 		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load FGM', self.cfg["dir_fgms_in"], "FGM files (*.fgm)")[0]
 		self.load_fgm()
 
+	def create_grid(self,):
+		g = QtWidgets.QGridLayout()
+		g.setHorizontalSpacing(3)
+		g.setVerticalSpacing(0)
+		return g
+
+	def clear_layout(self, layout):
+		w = QtWidgets.QWidget()
+		w.setLayout(layout)
+		# while layout.count():
+		# 	item = layout.takeAt(0)
+		# 	widget = item.widget()
+		# 	# if widget has some id attributes you need to
+		# 	# save in a list to maintain order, you can do that here
+		# 	# i.e.:   aList.append(widget.someId)
+		# 	widget.deleteLater()
+
 	def load_fgm(self):
 		if self.file_src:
 			for w in self.widgets:
@@ -101,40 +124,31 @@ class MainWindow(widgets.MainWindow):
 				self.shader_container.setText(self.fgm_data.shader_name)
 
 				# delete existing widgets
-				if self.tex_container.layout():
-					d = QtWidgets.QWidget()
-					d.setLayout( self.tex_container.layout() )
-				if self.attrib_container.layout():
-					d = QtWidgets.QWidget()
-					d.setLayout( self.attrib_container.layout() )
+				self.clear_layout(self.tex_grid)
+				self.clear_layout(self.attrib_grid)
 
-				qgrid = QtWidgets.QGridLayout()
-				qgrid.setHorizontalSpacing(3)
-				qgrid.setVerticalSpacing(0)
+				self.tex_grid = self.create_grid()
+				self.attrib_grid = self.create_grid()
+
+				self.tex_container.setLayout(self.tex_grid)
+				self.attrib_container.setLayout(self.attrib_grid)
 				line_i = 0
 				for tex in self.fgm_data.fgm_header.textures:
-					# w = widgets.VectorEntry(attrib)
+					w = widgets.VectorEntry(tex, self.tooltips)
 					# form.addRow(w.label, w.data)
-					w = QtWidgets.QLabel(tex.name)
+					# w = QtWidgets.QLabel(tex.name)
+					# self.tex_grid.addWidget(w, line_i, 0)
+					self.tex_grid.addWidget(w.label, line_i, 0)
+					self.tex_grid.addWidget(w.data, line_i, 1)
 					line_i += 1
-					qgrid.addWidget(w, line_i, 0)
-					# qgrid.addWidget(w.label, line_i, 0)
-					# qgrid.addWidget(w.data, line_i, 1)
-								
-				self.tex_container.setLayout(qgrid)
 				
-
-				qgrid = QtWidgets.QGridLayout()
-				qgrid.setHorizontalSpacing(3)
-				qgrid.setVerticalSpacing(0)
 				line_i = 0
 				for attrib in self.fgm_data.fgm_header.attributes:
 					w = widgets.VectorEntry(attrib, self.tooltips)
+					self.attrib_grid.addWidget(w.label, line_i, 0)
+					self.attrib_grid.addWidget(w.data, line_i, 1)
 					line_i += 1
-					qgrid.addWidget(w.label, line_i, 0)
-					qgrid.addWidget(w.data, line_i, 1)
 								
-				self.attrib_container.setLayout(qgrid)
 				
 			except Exception as ex:
 				widgets.showdialog( str(ex) )

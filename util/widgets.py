@@ -4,6 +4,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 
 from util import config, qt_theme
 
+MAX_UINT = 4294967295
 myFont=QtGui.QFont()
 myFont.setBold(True)
 
@@ -155,6 +156,11 @@ class VectorEntry():
 			# print(self.attrib, ind, v)
 			self.attrib.value[ind] = v
 
+		def update_ind_int( v):
+			# use a closure to remember index
+			# print(self.attrib, ind, v)
+			self.attrib.value[ind] = int(v)
+
 		t = str(type(default))
 		if "float" in t:
 			field = QtWidgets.QDoubleSpinBox()
@@ -167,10 +173,12 @@ class VectorEntry():
 			field = MySwitch()
 			field.clicked.connect(update_ind)
 		elif "int" in t:
-			field = QtWidgets.QSpinBox()
-			field.setRange(-10000, 10000)
-			field.valueChanged.connect(update_ind)
-
+			default = int(default)
+			# field = QtWidgets.QSpinBox()
+			field = QtWidgets.QDoubleSpinBox()
+			field.setDecimals(0)
+			field.setRange(-MAX_UINT, MAX_UINT)
+			field.valueChanged.connect(update_ind_int)
 		field.setValue(default)
 		field.setMinimumWidth(50)
 		return field
