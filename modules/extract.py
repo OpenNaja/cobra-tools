@@ -90,8 +90,12 @@ def get_compression_type(archive, header_3_0):
 	print("ovl_compression_ind",ovl_compression_ind)
 	return dds_types[ovl_compression_ind]
 	
-def align_to(input, alignment=64):
+def align_to(input, comp, alignment=64):
 	"""Return input padded to the next closer multiple of alignment"""
+	# get bpp from compression type
+	if "BC1" in comp or "BC4" in comp:
+		alignment *= 2
+	# print("alignment",alignment)
 	m = input % alignment
 	if m:
 		return input + alignment - m
@@ -115,7 +119,9 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 	# get joined output buffer
 	buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
 	if not len(buffer_data) == header_7.data_size:
-		raise BufferError("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
+		print("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
+
+		# raise BufferError("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
 	# print("combined buffer size",len(buffer_data))
 	try:
 		dds_compression_types = ( get_compression_type(archive, header_3_0), )
@@ -132,7 +138,7 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 		header = DdsFormat.Header(None, dds_data)
 
 		# header attribs
-		header.width = align_to(header_7.width)
+		header.width = align_to(header_7.width, dds_compression_type)
 		# hack until we have proper support for array_size on the image editors
 		header.height = header_7.height * header_7.array_size
 		header.depth = header_7.depth
