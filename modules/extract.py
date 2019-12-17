@@ -8,6 +8,7 @@ from pyffi_ext.formats.ms2 import Ms2Format
 from pyffi_ext.formats.bani import BaniFormat
 from pyffi_ext.formats.ovl import OvlFormat
 from pyffi_ext.formats.fgm import FgmFormat
+from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 
 from util import texconv
 
@@ -47,6 +48,8 @@ def extract(archive, show_dds):
 			write_fgm(archive, sized_str_entry, archive.stream )
 		elif sized_str_entry.ext == "ms2":
 			write_ms2(archive, sized_str_entry, archive.stream )
+		elif sized_str_entry.ext == "materialcollection":
+			write_materialcollection(archive, sized_str_entry, archive.stream )
 		elif sized_str_entry.ext == "tex":
 			write_dds(archive, sized_str_entry, archive.stream, show_dds )
 		elif sized_str_entry.ext == "lua":
@@ -360,6 +363,57 @@ def write_fgm(archive, sized_str_entry, stream):
 		# write the buffer
 		outfile.write(buffer_data)
 
+
+def strip_padding(b):
+	return b.split(b"\x00")[0]+b"\x00"
+	# pointer.read_as(self, pyffi_cls, data, num=1)
+	# return pointer.data
+
+def write_materialcollection(archive, sized_str_entry, stream):
+	name = sized_str_entry.name
+	print("\nWriting",name)
+	
+	matcol_header = struct.pack("<4s 2I B", b"MATC ", archive.header.version, archive.header.flag_2, sized_str_entry.has_texture_list_frag )
+
+	with open(archive.indir(name), 'wb') as outfile:
+		# write custom matcol header
+		outfile.write(matcol_header)
+
+		outfile.write(sized_str_entry.f0.pointers[0].data)
+		outfile.write(sized_str_entry.f0.pointers[1].data)
+		if sized_str_entry.has_texture_list_frag:
+			outfile.write(sized_str_entry.tex_pointer.pointers[0].data)
+			for tex in sized_str_entry.tex_frags:
+				outfile.write(tex.pointers[1].data)
+		
+		outfile.write(sized_str_entry.mat_pointer.pointers[0].data)
+		if sized_str_entry.is_variant:
+			for f in sized_str_entry.mat_frags:
+				outfile.write(f.pointers[1].data)
+		elif sized_str_entry.is_layered:
+			for m0, m1, m2, infos, attribs in sized_str_entry.mat_frags:
+				outfile.write( strip_padding(m0.pointers[1].data) )
+
+				outfile.write(m1.pointers[0].data)
+				for info in infos:
+					outfile.write(info.pointers[0].data)
+					outfile.write( strip_padding(info.pointers[1].data) )
+
+				outfile.write(m2.pointers[0].data)
+				for attr in attribs:
+					outfile.write( attr.pointers[0].data)
+					outfile.write( strip_padding(attr.pointers[1].data) )
+		# stream.seek(sized_str_entry.pointers[0].address)
+		# outfile.write( stream.read(sized_str_entry.pointers[0].data_size) )
+		# # write each of the fragments
+		# for frag in sized_str_entry.fragments:
+		# 	stream.seek(frag.pointers[1].address)
+		# 	outfile.write( stream.read(frag.pointers[1].data_size) )
+
+	matcol_data = MaterialcollectionFormat.Data()
+	# open file for binary reading
+	with open(archive.indir(name), "rb") as stream:
+		matcol_data.read(stream, matcol_data, file=archive.indir(name))
 	
 def write_lua(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
