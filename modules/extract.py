@@ -405,7 +405,7 @@ def write_materialcollection(archive, sized_str_entry, stream):
 					outfile.write(info.pointers[0].data)
 					outfile.write( strip_padding(info.pointers[1].data) )
 
-				outfile.write(m2.pointers[0].data)
+				outfile.write(m2.pointers[0].data[:16])
 				for attr in attribs:
 					outfile.write( attr.pointers[0].data)
 					outfile.write( strip_padding(attr.pointers[1].data) )
