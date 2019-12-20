@@ -127,6 +127,137 @@ class MySwitch(QtWidgets.QPushButton):
 			sw_rect.moveLeft(-width)
 		painter.drawRoundedRect(sw_rect, radius, radius)
 		painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
+class CollapsibleBox(QtWidgets.QWidget):
+    def __init__(self, title="", parent=None):
+        super(CollapsibleBox, self).__init__(parent)
+
+        self.toggle_button = QtWidgets.QToolButton(
+            text=title, checkable=True, checked=False
+        )
+        self.toggle_button.setStyleSheet("QToolButton { border: none; }")
+        self.toggle_button.setToolButtonStyle(
+            QtCore.Qt.ToolButtonTextBesideIcon
+        )
+        self.toggle_button.setArrowType(QtCore.Qt.RightArrow)
+        self.toggle_button.pressed.connect(self.on_pressed)
+
+        self.toggle_animation = QtCore.QParallelAnimationGroup(self)
+
+        self.content_area = QtWidgets.QScrollArea(
+            maximumHeight=0, minimumHeight=0
+        )
+        self.content_area.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+        )
+        self.content_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+
+        lay = QtWidgets.QVBoxLayout(self)
+        lay.setSpacing(0)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.addWidget(self.toggle_button)
+        lay.addWidget(self.content_area)
+
+        self.toggle_animation.addAnimation(
+            QtCore.QPropertyAnimation(self, b"minimumHeight")
+        )
+        self.toggle_animation.addAnimation(
+            QtCore.QPropertyAnimation(self, b"maximumHeight")
+        )
+        self.toggle_animation.addAnimation(
+            QtCore.QPropertyAnimation(self.content_area, b"maximumHeight")
+        )
+
+    @QtCore.pyqtSlot()
+    def on_pressed(self):
+        checked = self.toggle_button.isChecked()
+        self.toggle_button.setArrowType(
+            QtCore.Qt.DownArrow if not checked else QtCore.Qt.RightArrow
+        )
+        self.toggle_animation.setDirection(
+            QtCore.QAbstractAnimation.Forward
+            if not checked
+            else QtCore.QAbstractAnimation.Backward
+        )
+        self.toggle_animation.start()
+
+    def setContentLayout(self, layout):
+        lay = self.content_area.layout()
+        del lay
+        self.content_area.setLayout(layout)
+        collapsed_height = (
+            self.sizeHint().height() - self.content_area.maximumHeight()
+        )
+        content_height = layout.sizeHint().height()
+        for i in range(self.toggle_animation.animationCount()):
+            animation = self.toggle_animation.animationAt(i)
+            animation.setDuration(100)
+            animation.setStartValue(collapsed_height)
+            animation.setEndValue(collapsed_height + content_height)
+
+        content_animation = self.toggle_animation.animationAt(
+            self.toggle_animation.animationCount() - 1
+        )
+        content_animation.setDuration(100)
+        content_animation.setStartValue(0)
+        content_animation.setEndValue(content_height)
+
+class MatcolInfo():
+	def __init__(self, attrib, tooltips={}):
+		"""attrib must be pyffi matcol InfoWrapper object"""
+		# QtWidgets.QWidget.__init__(self,)
+		self.attrib = attrib
+		self.label = QtWidgets.QLabel(attrib.name)
+		
+		self.data = QtWidgets.QWidget()
+		layout = QtWidgets.QHBoxLayout()
+		layout.setSpacing(0)
+		# layout.setMargin(0)
+		layout.setContentsMargins(0,0,0,0)
+		buttons = [self.create_field(i) for i in attrib.info.flags if i]
+		for button in buttons:
+			layout.addWidget(button)
+		self.data.setLayout(layout)
+		# get tooltip
+		tooltip = tooltips.get(self.attrib.name, "Undocumented attribute.")
+		self.data.setToolTip(tooltip)
+		self.label.setToolTip(tooltip)
+
+	def create_field(self, ind):
+		default = self.attrib.info.value[ind]
+
+		def update_ind( v):
+			# use a closure to remember index
+			# print(self.attrib, ind, v)
+			self.attrib.info.value[ind] = v
+
+		def update_ind_int( v):
+			# use a closure to remember index
+			# print(self.attrib, ind, v)
+			self.attrib.info.value[ind] = int(v)
+
+		t = str(type(default))
+		if "float" in t:
+			field = QtWidgets.QDoubleSpinBox()
+			field.setDecimals(3)
+			field.setRange(-10000, 10000)
+			field.setSingleStep(.05)
+			field.valueChanged.connect(update_ind)
+		elif "bool" in t:
+			# field = QtWidgets.QSpinBox()
+			field = MySwitch()
+			field.clicked.connect(update_ind)
+		elif "int" in t:
+			default = int(default)
+			# field = QtWidgets.QSpinBox()
+			field = QtWidgets.QDoubleSpinBox()
+			field.setDecimals(0)
+			field.setRange(-MAX_UINT, MAX_UINT)
+			field.valueChanged.connect(update_ind_int)
+		field.setValue(default)
+		field.setMinimumWidth(50)
+		field.setAlignment(QtCore.Qt.AlignCenter)
+		field.setContentsMargins(0,0,0,0)
+		return field
 
 class VectorEntry():
 	def __init__(self, attrib, tooltips={}):
@@ -182,23 +313,6 @@ class VectorEntry():
 		field.setValue(default)
 		field.setMinimumWidth(50)
 		return field
-	
-	# @property
-	# def fft_size(self): return int(self.fft_c.currentText())
-	
-	# @property
-	# def fft_overlap(self): return int(self.overlap_c.currentText())
-	
-	# def update_fft_settings(self,):
-	# 	self.canvas.compute_spectra(self.canvas.filenames,
-	# 								fft_size = self.fft_size,
-	# 								fft_overlap = self.fft_overlap)
-		
-	# def update_show_settings(self):
-	# 	show = self.show_c.currentText()
-				
-	# def update_cmap(self):
-	# 	self.canvas.set_colormap(self.cmap_c.currentText())	
 
 class FileWidget(QtWidgets.QLineEdit):
 	"""An entry widget that starts a file selector when clicked and also accepts drag & drop.
