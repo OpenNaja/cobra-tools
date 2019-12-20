@@ -105,7 +105,6 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 	basename = os.path.splitext(sized_str_entry.name)[0]
 	name = basename+".dds"
 	print("\nWriting",name)
-	# todo 3_0 is actually a bad struct and extends over frag boundaries
 	header_3_0, headers_3_1, header_7 = get_tex_structs(archive, sized_str_entry)
 	
 	# print(header_3_0)
