@@ -17,12 +17,8 @@ class MainWindow(widgets.MainWindow):
 		self.materialcollection_data = MaterialcollectionFormat.Data()
 		self.file_src = ""
 		self.widgets = []
-		# self.tooltips = config.read_config("util/tooltips/matcol.txt")
-		self.tooltips = {}
+		self.tooltips = config.read_config("util/tooltips/materialcollection.txt")
 		self.games = ("Jurassic World Evolution", "Planet Zoo")
-		# self.shaders = {}
-		# for game in self.games:
-		# 	self.shaders[game] = config.read_list(f"util/tooltips/materialcollection-shaders-{game.lower().replace(' ', '-')}.txt")
 		
 		mainMenu = self.menuBar() 
 		fileMenu = mainMenu.addMenu('File')

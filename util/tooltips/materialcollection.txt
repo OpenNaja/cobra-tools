@@ -1,0 +1,1 @@
+m_baseColourSaturation = Affects the saturation of this layer's base color map [range 0-1].
