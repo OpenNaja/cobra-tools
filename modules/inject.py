@@ -81,7 +81,7 @@ def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds):
 	# remove the temp file if desired
 	texconv.clear_tmp(dds_file_path, show_dds)
 
-def ensure_size_match(name, dds_header, tex_header):
+def ensure_size_match(name, dds_header, tex_header, comp):
 	"""Check that DDS files have the same basic size"""
 	dds_h = dds_header.height
 	dds_w = dds_header.width
@@ -89,7 +89,7 @@ def ensure_size_match(name, dds_header, tex_header):
 	dds_a = dds_header.dx_10.array_size
 
 	tex_h = tex_header.height
-	tex_w = extract.align_to(tex_header.width)
+	tex_w = extract.align_to(tex_header.width, comp)
 	tex_d = tex_header.depth
 	tex_a = tex_header.array_size
 	
@@ -234,8 +234,8 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 		# no stream, but data version even though that's broken
 		header = DdsFormat.Header(stream, dds_data)
 		header.read(stream, dds_data)
-
-		ensure_size_match(os.path.basename(dds_file_path), header, header_7)
+		comp = extract.get_compression_type(archive, header_3_0)
+		ensure_size_match(os.path.basename(dds_file_path), header, header_7, comp)
 		# print(header)
 		out_bytes = pack_mips(stream, header, header_7.num_mips)
 		# with open(dds_file_path+"dump.dds", 'wb') as stream:
@@ -321,7 +321,7 @@ def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
 	mdl2_sized_str_entry.fragments[1].pointers[1].update_data(lodinfo, update_copies=True)
 		
 	# overwrite ms2 buffer info frag
-	buffer_info_frag = ms2_sized_str_entry.fragments[2]
+	buffer_info_frag = ms2_sized_str_entry.fragments[0]
 	buffer_info_frag.pointers[1].update_data(buffer_info, update_copies=True)
 	
 def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):

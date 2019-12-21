@@ -99,13 +99,13 @@ class MainWindow(widgets.MainWindow):
 	def clear_layout(self, layout):
 		w = QtWidgets.QWidget()
 		w.setLayout(layout)
-		# while layout.count():
-		# 	item = layout.takeAt(0)
-		# 	widget = item.widget()
-		# 	# if widget has some id attributes you need to
-		# 	# save in a list to maintain order, you can do that here
-		# 	# i.e.:   aList.append(widget.someId)
-		# 	widget.deleteLater()
+		while layout.count():
+			item = layout.takeAt(0)
+			widget = item.widget()
+			# if widget has some id attributes you need to
+			# save in a list to maintain order, you can do that here
+			# i.e.:   aList.append(widget.someId)
+			widget.deleteLater()
 
 	def load_materialcollection(self):
 		if self.file_src:
@@ -114,15 +114,12 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_materialcollections_in"], materialcollection_name = os.path.split(self.file_src)
 			try:
 				with open(self.file_src, "rb") as materialcollection_stream:
-					self.materialcollection_data.read(materialcollection_stream, file=self.file_src)
+					self.materialcollection_data.read(materialcollection_stream)
 				game = self.materialcollection_data.game
 				print("from game",game)
 				self.game_container.setText(game)
-				# also for
-				# self.game_changed()
 
 				self.materialcollection_container.entry.setText( materialcollection_name )
-				# self.shader_container.setText(self.materialcollection_data.shader_name)
 
 				# delete existing widgets
 				self.clear_layout(self.tex_grid)
@@ -134,10 +131,11 @@ class MainWindow(widgets.MainWindow):
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
 				line_i = 0
-				for i, tex in enumerate(self.materialcollection_data.materialcollection_header.texture_wrapper.textures):
+				for i, tex in enumerate(self.materialcollection_data.header.texture_wrapper.textures):
 					# w = widgets.VectorEntry(tex, self.tooltips)
 					# form.addRow(w.label, w.data)
 					box = widgets.CollapsibleBox(f"Slot {i}")
+					# box = QtWidgets.QGroupBox(f"Slot {i}")
 					self.tex_grid.addWidget(box, line_i, 0)
 					line_i += 1
 					lay = self.create_grid()
@@ -153,10 +151,10 @@ class MainWindow(widgets.MainWindow):
 					lay.addWidget(x, 0, 1)
 					lay.addWidget(y, 1, 1)
 					lay.addWidget(z, 2, 1)
-					box.setContentLayout(lay)
+					box.setLayout(lay)
 				
 				line_i = 0
-				for attrib in self.materialcollection_data.materialcollection_header.layered_wrapper.layers:
+				for attrib in self.materialcollection_data.header.layered_wrapper.layers:
 					# w = widgets.VectorEntry(attrib, self.tooltips)
 					# self.attrib_grid.addWidget(w.label, line_i, 0)
 					# self.attrib_grid.addWidget(w.data, line_i, 1)
@@ -169,6 +167,7 @@ class MainWindow(widgets.MainWindow):
 					# 	self.attrib_grid.addWidget(w.data, line_i, 1)
 					# 	line_i += 1
 					box = widgets.CollapsibleBox(attrib.name)
+					# box = QtWidgets.QGroupBox(attrib.name)
 					self.attrib_grid.addWidget(box, line_i, 0)
 					line_i += 1
 					lay = self.create_grid()
@@ -178,7 +177,16 @@ class MainWindow(widgets.MainWindow):
 						lay.addWidget(w.label, l, 0)
 						lay.addWidget(w.data, l, 1)
 						l+=1
-					box.setContentLayout(lay)
+					box.setLayout(lay)
+				
+				line_i = 0
+				for zstr in self.materialcollection_data.header.variant_wrapper.materials:
+
+					a = QtWidgets.QLabel("variant fgm")
+					b = QtWidgets.QLineEdit(zstr)
+					self.attrib_grid.addWidget(a, line_i, 0)
+					self.attrib_grid.addWidget(b, line_i, 1)
+					line_i += 1
 				
 			except Exception as ex:
 				widgets.showdialog( str(ex) )

@@ -203,7 +203,7 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 	if len(ms2_sized_str_entry.fragments) != 3:
 		print("must have 3 fragments")
 		return
-	f_2, f_1, f_0 = ms2_sized_str_entry.fragments
+	f_0, f_1, f_2 = ms2_sized_str_entry.fragments
 	
 	ms2_buffer_info_data = f_0.pointers[1].data
 	
@@ -369,11 +369,6 @@ def write_fgm(archive, sized_str_entry, stream):
 		outfile.write(buffer_data)
 
 
-def strip_padding(b):
-	return b.split(b"\x00")[0]+b"\x00"
-	# pointer.read_as(self, pyffi_cls, data, num=1)
-	# return pointer.data
-
 def write_materialcollection(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
 	print("\nWriting",name)
@@ -392,33 +387,17 @@ def write_materialcollection(archive, sized_str_entry, stream):
 				outfile.write(tex.pointers[1].data)
 		
 		outfile.write(sized_str_entry.mat_pointer.pointers[0].data)
-		if sized_str_entry.is_variant:
-			for f in sized_str_entry.mat_frags:
-				outfile.write(f.pointers[1].data)
-		elif sized_str_entry.is_layered:
-			for m0, m1, m2, infos, attribs in sized_str_entry.mat_frags:
-				outfile.write( strip_padding(m0.pointers[1].data) )
+		for tup in sized_str_entry.mat_frags:
+			# write root frag, always present
+			m0 = tup[0]
+			outfile.write(m0.pointers[1].data)
+			# write info and attrib frags + children
+			for f in tup[1:]:
+				outfile.write(f.pointers[0].data)
+				for child in f.children:
+					for pointer in child.pointers:
+						outfile.write( pointer.data )
 
-				outfile.write(m1.pointers[0].data)
-				for info in infos:
-					outfile.write(info.pointers[0].data)
-					outfile.write( strip_padding(info.pointers[1].data) )
-
-				outfile.write(m2.pointers[0].data[:16])
-				for attr in attribs:
-					outfile.write( attr.pointers[0].data)
-					outfile.write( strip_padding(attr.pointers[1].data) )
-		# stream.seek(sized_str_entry.pointers[0].address)
-		# outfile.write( stream.read(sized_str_entry.pointers[0].data_size) )
-		# # write each of the fragments
-		# for frag in sized_str_entry.fragments:
-		# 	stream.seek(frag.pointers[1].address)
-		# 	outfile.write( stream.read(frag.pointers[1].data_size) )
-
-	matcol_data = MaterialcollectionFormat.Data()
-	# open file for binary reading
-	with open(archive.indir(name), "rb") as stream:
-		matcol_data.read(stream, matcol_data, file=archive.indir(name))
 	
 def write_lua(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
@@ -432,7 +411,6 @@ def write_lua(archive, sized_str_entry, stream):
 		buffer_data = b""
 	if len(sized_str_entry.fragments) == 2:
 		f_1, f_0 = sized_str_entry.fragments
-	# the supposed mapping entry
 	# write lua
 	lua_header = struct.pack("<3s5I", b"LUA", f_0.pointers[0].data_size, f_0.pointers[1].data_size, f_1.pointers[0].data_size, f_1.pointers[1].data_size, len(buffer_data))
 	with open(archive.indir(name), 'wb') as outfile:

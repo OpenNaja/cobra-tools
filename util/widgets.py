@@ -127,6 +127,7 @@ class MySwitch(QtWidgets.QPushButton):
 			sw_rect.moveLeft(-width)
 		painter.drawRoundedRect(sw_rect, radius, radius)
 		painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
+
 class CollapsibleBox(QtWidgets.QWidget):
     def __init__(self, title="", parent=None):
         super(CollapsibleBox, self).__init__(parent)
@@ -180,7 +181,7 @@ class CollapsibleBox(QtWidgets.QWidget):
         )
         self.toggle_animation.start()
 
-    def setContentLayout(self, layout):
+    def setLayout(self, layout):
         lay = self.content_area.layout()
         del lay
         self.content_area.setLayout(layout)
@@ -211,9 +212,8 @@ class MatcolInfo():
 		self.data = QtWidgets.QWidget()
 		layout = QtWidgets.QHBoxLayout()
 		layout.setSpacing(0)
-		# layout.setMargin(0)
 		layout.setContentsMargins(0,0,0,0)
-		buttons = [self.create_field(i) for i in attrib.info.flags if i]
+		buttons = [self.create_field(i) for i, v in enumerate(attrib.info.flags) if v]
 		for button in buttons:
 			layout.addWidget(button)
 		self.data.setLayout(layout)
@@ -230,29 +230,13 @@ class MatcolInfo():
 			# print(self.attrib, ind, v)
 			self.attrib.info.value[ind] = v
 
-		def update_ind_int( v):
-			# use a closure to remember index
-			# print(self.attrib, ind, v)
-			self.attrib.info.value[ind] = int(v)
+		# always float
+		field = QtWidgets.QDoubleSpinBox()
+		field.setDecimals(3)
+		field.setRange(-10000, 10000)
+		field.setSingleStep(.05)
+		field.valueChanged.connect(update_ind)
 
-		t = str(type(default))
-		if "float" in t:
-			field = QtWidgets.QDoubleSpinBox()
-			field.setDecimals(3)
-			field.setRange(-10000, 10000)
-			field.setSingleStep(.05)
-			field.valueChanged.connect(update_ind)
-		elif "bool" in t:
-			# field = QtWidgets.QSpinBox()
-			field = MySwitch()
-			field.clicked.connect(update_ind)
-		elif "int" in t:
-			default = int(default)
-			# field = QtWidgets.QSpinBox()
-			field = QtWidgets.QDoubleSpinBox()
-			field.setDecimals(0)
-			field.setRange(-MAX_UINT, MAX_UINT)
-			field.valueChanged.connect(update_ind_int)
 		field.setValue(default)
 		field.setMinimumWidth(50)
 		field.setAlignment(QtCore.Qt.AlignCenter)
