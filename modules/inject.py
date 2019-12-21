@@ -46,35 +46,11 @@ def to_bytes(inst, data):
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	
 	archive = ovl_data.archives[0]
-	
-	print("injecting current data")
 	with open(txt_file_path, 'rb') as stream:
-		# todo - use fragment padding for this
 		raw_txt_bytes = stream.read()
-		data_old = txt_sized_str_entry.pointers[0].data
-		data_old_size = struct.unpack("<I", data_old[:4])[0]
-		old_pad = data_old[4+data_old_size:]
-		shorter_pad = data_old_size - len(raw_txt_bytes)
-		# print(shorter_pad)
-		if shorter_pad > 0:
-			extra_padbytes = "\x00"*shorter_pad
-			extra_pad = str.encode(extra_padbytes)
-			# print(extra_pad)
-			data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + extra_pad + old_pad
-			# print(data)
-		else:
-			data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + old_pad
-		if (len(data)%8) > 0:
-			mod_padlen = 8-(len(data)%8)
-			mod_padbytes = "\x00"*mod_padlen
-			mod_pad = str.encode(mod_padbytes)
-			if shorter_pad > 0:
-				data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + mod_pad + extra_pad + old_pad
-			else:
-				data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + mod_pad + old_pad
-		# make sure all are updated
-		txt_sized_str_entry.pointers[0].update_data(data, update_copies=True)
-		# print(txt_sized_str_entry.data)
+		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
+		# make sure all are updated, and pad to 8 bytes
+		txt_sized_str_entry.pointers[0].update_data(data, update_copies=True, pad_to=8)
 	
 def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds):
 	# convert the png into a dds, then inject that
