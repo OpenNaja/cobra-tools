@@ -37,12 +37,19 @@ def inject(ovl_data, file_paths, show_dds):
 		elif ext == ".materialcollection":
 			load_materialcollection(ovl_data, file_path, sized_str_entry)
 
+def to_bytes(inst, data):
+	"""helper that returns the bytes representation of a pyffi struct"""
+	with io.BytesIO() as frag_writer:
+		inst.write(frag_writer, data=data)
+		return frag_writer.getvalue()
+	
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	
 	archive = ovl_data.archives[0]
 	
 	print("injecting current data")
 	with open(txt_file_path, 'rb') as stream:
+		# todo - use fragment padding for this
 		raw_txt_bytes = stream.read()
 		data_old = txt_sized_str_entry.pointers[0].data
 		data_old_size = struct.unpack("<I", data_old[:4])[0]
@@ -222,7 +229,6 @@ def pack_mips(stream, header, num_mips):
 	# get final merged output bytes
 	return b"".join( out_mips )
 	
-
 def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 	
 	# read archive tex header to make sure we have the right mip count
@@ -272,20 +278,9 @@ def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
 	with open(mdl2_file_path, "rb") as mdl2_stream:
 		mdl2_data.inspect(mdl2_stream)
 		ms2_name = mdl2_data.mdl2_header.name.decode()
-		# mdl2_data.read(mdl2_stream, mdl2_data, file=mdl2_file_path, quick=True)
-		# print(mdl2_data.mdl2_header)
 		for modeldata in mdl2_data.mdl2_header.models:
-			# print(modeldata)
-			frag_writer = io.BytesIO()
-			modeldata.write(frag_writer, data=mdl2_data)
-			model_data_frags.append( frag_writer.getvalue() )
-			
-		frag_writer = io.BytesIO()
-		for lod in mdl2_data.mdl2_header.lods:
-			lod.write(frag_writer, data=mdl2_data)
-			# print(lod)
-		lodinfo = frag_writer.getvalue()
-		# print(len(lodinfo),lodinfo)
+			model_data_frags.append( to_bytes(modeldata, mdl2_data) )
+		lodinfo = to_bytes(mdl2_data.mdl2_header.lods, mdl2_data)
 		
 	# get ms2 buffers
 	dir = os.path.dirname(mdl2_file_path)
@@ -295,16 +290,10 @@ def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
 		ms2_header.read(ms2_stream, data=mdl2_data)
 		
 		# get buffer info
-		buff_writer = io.BytesIO()
-		ms2_header.buffer_info.write(buff_writer, data=mdl2_data)
-		buffer_info = buff_writer.getvalue()
+		buffer_info = to_bytes(ms2_header.buffer_info, mdl2_data)
 	
 		# get buffer 0
-		buff_writer = io.BytesIO()
-		ms2_header.name_hashes.write(buff_writer, data=mdl2_data)
-		ms2_header.names.write(buff_writer, data=mdl2_data)
-		buff_datas.append( buff_writer.getvalue() )
-		
+		buff_datas.append( to_bytes(ms2_header.name_hashes, mdl2_data) + to_bytes(ms2_header.names, mdl2_data) )
 		# get buffer 1
 		buff_datas.append( ms2_stream.read(ms2_header.bone_info_size) )
 		# get buffer 2
@@ -336,19 +325,11 @@ def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 	with open(fgm_file_path, "rb") as stream:
 		fgm_data.read(stream, fgm_data, file=fgm_file_path)
 
-		frag_writer = io.BytesIO()
-		fgm_data.fgm_header.fgm_info.write(frag_writer, data=fgm_data)
-		fgm_data.fgm_header.two_frags_pad.write(frag_writer, data=fgm_data)
-		sizedstr_bytes = frag_writer.getvalue()
+		sizedstr_bytes = to_bytes(fgm_data.fgm_header.fgm_info, fgm_data) + to_bytes(fgm_data.fgm_header.two_frags_pad, fgm_data)
 		
-		frag_writer = io.BytesIO()
-		fgm_data.fgm_header.textures.write(frag_writer, data=fgm_data)
-		fgm_data.fgm_header.texpad.write(frag_writer, data=fgm_data)
-		textures_bytes = frag_writer.getvalue()
-
-		frag_writer = io.BytesIO()
-		fgm_data.fgm_header.attributes.write(frag_writer, data=fgm_data)
-		attributes_bytes = frag_writer.getvalue()
+		# todo - move texpad into fragment padding?
+		textures_bytes = to_bytes(fgm_data.fgm_header.textures, fgm_data) + to_bytes(fgm_data.fgm_header.texpad, fgm_data)
+		attributes_bytes = to_bytes(fgm_data.fgm_header.attributes, fgm_data)
 
 		# read the other datas
 		stream.seek(fgm_data.eoh)
@@ -383,47 +364,17 @@ def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
 	# open file for binary reading
 	with open(matcol_file_path, "rb") as stream:
 		matcol_data.read(stream)
-	print(matcol_data.header)
-	# 	frag_writer = io.BytesIO()
-	# 	fgm_data.fgm_header.fgm_info.write(frag_writer, data=fgm_data)
-	# 	fgm_data.fgm_header.two_frags_pad.write(frag_writer, data=fgm_data)
-	# 	sizedstr_bytes = frag_writer.getvalue()
-		
-	# 	frag_writer = io.BytesIO()
-	# 	fgm_data.fgm_header.textures.write(frag_writer, data=fgm_data)
-	# 	fgm_data.fgm_header.texpad.write(frag_writer, data=fgm_data)
-	# 	textures_bytes = frag_writer.getvalue()
+		# print(matcol_data.header)
 
-	# 	frag_writer = io.BytesIO()
-	# 	fgm_data.fgm_header.attributes.write(frag_writer, data=fgm_data)
-	# 	attributes_bytes = frag_writer.getvalue()
-
-	# 	# read the other datas
-	# 	stream.seek(fgm_data.eoh)
-	# 	zeros_bytes = stream.read(fgm_data.fgm_header.zeros_size)
-	# 	data_bytes = stream.read(fgm_data.fgm_header.data_lib_size)
-	# 	buffer_bytes = stream.read()
-		
-	# # the actual injection
-	# fgm_sized_str_entry.data_entry.update_data( (buffer_bytes,) )
-	# fgm_sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
-	
-	# if len(fgm_sized_str_entry.fragments) == 4:
-	# 	datas = (textures_bytes, attributes_bytes, zeros_bytes, data_bytes)
-	# # fgms without zeros
-	# elif len(fgm_sized_str_entry.fragments) == 3:
-	# 	datas = (textures_bytes, attributes_bytes, data_bytes)
-	# # fgms for variants
-	# elif len(fgm_sized_str_entry.fragments) == 2:
-	# 	datas = (attributes_bytes, data_bytes)
-	# else:
-	# 	raise AttributeError("Unexpected fgm frag count")
-	
-	# # inject fragment datas
-	# for frag, data in zip(fgm_sized_str_entry.fragments, datas):
-	# 	frag.pointers[1].update_data(data, update_copies=True)
-
-
+		for (m0, info, attrib), layer in zip(sized_str_entry.mat_frags, matcol_data.header.layered_wrapper.layers):
+			# print(layer.name)
+			for frag, wrapper in zip(info.children, layer.infos):
+				frag.pointers[0].update_data( to_bytes(wrapper.info, matcol_data), update_copies=True )
+				frag.pointers[1].update_data( to_bytes(wrapper.name, matcol_data), update_copies=True )
+			for frag, wrapper in zip(info.children, layer.attribs):
+				frag.pointers[0].update_data( to_bytes(wrapper.attrib, matcol_data), update_copies=True )
+				frag.pointers[1].update_data( to_bytes(wrapper.name, matcol_data), update_copies=True )
+				
 def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
 	# read fdb
 	# inject fdb buffers
