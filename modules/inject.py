@@ -7,6 +7,7 @@ from pyffi_ext.formats.ms2 import Ms2Format
 from pyffi_ext.formats.bani import BaniFormat
 from pyffi_ext.formats.ovl import OvlFormat
 from pyffi_ext.formats.fgm import FgmFormat
+from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 
 from modules import extract
 from util import texconv
@@ -33,6 +34,8 @@ def inject(ovl_data, file_paths, show_dds):
 			load_txt(ovl_data, file_path, sized_str_entry)
 		elif ext == ".fdb":
 			load_fdb(ovl_data, file_path, sized_str_entry, name)
+		elif ext == ".materialcollection":
+			load_materialcollection(ovl_data, file_path, sized_str_entry)
 
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	
@@ -371,6 +374,54 @@ def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 	# inject fragment datas
 	for frag, data in zip(fgm_sized_str_entry.fragments, datas):
 		frag.pointers[1].update_data(data, update_copies=True)
+
+def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
+	
+	archive = ovl_data.archives[0]
+
+	matcol_data = MaterialcollectionFormat.Data()
+	# open file for binary reading
+	with open(matcol_file_path, "rb") as stream:
+		matcol_data.read(stream)
+	print(matcol_data.header)
+	# 	frag_writer = io.BytesIO()
+	# 	fgm_data.fgm_header.fgm_info.write(frag_writer, data=fgm_data)
+	# 	fgm_data.fgm_header.two_frags_pad.write(frag_writer, data=fgm_data)
+	# 	sizedstr_bytes = frag_writer.getvalue()
+		
+	# 	frag_writer = io.BytesIO()
+	# 	fgm_data.fgm_header.textures.write(frag_writer, data=fgm_data)
+	# 	fgm_data.fgm_header.texpad.write(frag_writer, data=fgm_data)
+	# 	textures_bytes = frag_writer.getvalue()
+
+	# 	frag_writer = io.BytesIO()
+	# 	fgm_data.fgm_header.attributes.write(frag_writer, data=fgm_data)
+	# 	attributes_bytes = frag_writer.getvalue()
+
+	# 	# read the other datas
+	# 	stream.seek(fgm_data.eoh)
+	# 	zeros_bytes = stream.read(fgm_data.fgm_header.zeros_size)
+	# 	data_bytes = stream.read(fgm_data.fgm_header.data_lib_size)
+	# 	buffer_bytes = stream.read()
+		
+	# # the actual injection
+	# fgm_sized_str_entry.data_entry.update_data( (buffer_bytes,) )
+	# fgm_sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
+	
+	# if len(fgm_sized_str_entry.fragments) == 4:
+	# 	datas = (textures_bytes, attributes_bytes, zeros_bytes, data_bytes)
+	# # fgms without zeros
+	# elif len(fgm_sized_str_entry.fragments) == 3:
+	# 	datas = (textures_bytes, attributes_bytes, data_bytes)
+	# # fgms for variants
+	# elif len(fgm_sized_str_entry.fragments) == 2:
+	# 	datas = (attributes_bytes, data_bytes)
+	# else:
+	# 	raise AttributeError("Unexpected fgm frag count")
+	
+	# # inject fragment datas
+	# for frag, data in zip(fgm_sized_str_entry.fragments, datas):
+	# 	frag.pointers[1].update_data(data, update_copies=True)
 
 
 def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
