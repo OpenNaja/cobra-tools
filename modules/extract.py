@@ -10,7 +10,7 @@ from pyffi_ext.formats.ovl import OvlFormat
 from pyffi_ext.formats.fgm import FgmFormat
 from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 
-from util import texconv
+from util import texconv, imarray
 
 dds_types = {}
 dds_enum = OvlFormat.DdsType
@@ -179,7 +179,12 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 			stream.write(buffer_data)
 		
 		# convert the dds to PNG, PNG must be visible so put it in out_dir
-		texconv.dds_to_png( dds_file_path, out_dir, show_dds)
+		png_file_path = texconv.dds_to_png( dds_file_path, out_dir, header_7.height*header_7.array_size, show_dds)
+
+		# postprocessing of the png
+		imarray.wrapper(png_file_path, header_7)
+
+		
 	
 def write_ms2(archive, ms2_sized_str_entry, stream):
 	name = ms2_sized_str_entry.name
