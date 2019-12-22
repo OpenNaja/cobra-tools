@@ -205,18 +205,17 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 		return
 	f_0, f_1, f_2 = ms2_sized_str_entry.fragments
 	
-	ms2_buffer_info_data = f_0.pointers[1].data
-	
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
-	# next_model_info = archive.get_at_addr(Ms2Format.Ms2SizedStrData, stream, address)
-	# print("Ms2SizedStrData", address, next_model_info)
+	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2Format.Ms2SizedStrData, archive)
+	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 	
-	
+	# f0 has information on vert & tri buffer sizes
+	ms2_buffer_info_data = f_0.pointers[1].data
 	# this fragment informs us about the model count of the next mdl2 that is read
 	# so we can use it to collect the variable mdl2 fragments describing a model each
 	next_model_info_data = f_1.pointers[1].data
-	# next_model_info = archive.get_at_addr(Ms2Format.CoreModelInfo, stream, f_1.pointers[1].address)
+	# next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, archive)
 	# print("next_model_info", f_1.pointers[1].address, next_model_info)
 	
 	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.header.version, archive.header.flag_2, len(bone_names), len(bone_matrices))
@@ -247,13 +246,13 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 			if pink.pointers[0].data_size == 40:
 				pass
 				# 40 bytes of 'padding' (0,1 or 0,0,0,0)
-				# core_model_data = archive.get_at_addr(Ms2Format.Mdl2FourtyInfo, stream, pink.pointers[0].address)
+				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2FourtyInfo, archive)
 				# print(core_model_data)
 			elif (archive.header.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
 			or   (archive.header.flag_2 == 8340  and pink.pointers[0].data_size == 160):
 				# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 				next_model_info_data = pink.pointers[0].data[40:]
-				# core_model_data = archive.get_at_addr(Ms2Format.Mdl2ModelInfo, stream, pink.pointers[0].address)
+				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2ModelInfo, archive)
 				# print(core_model_data)
 			else:
 				print("unexpected size for pink")
@@ -272,7 +271,7 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 			for f in mdl2_entry.model_data_frags:
 				# each address_0 points to ms2's f_0 address_1 (size of vert & tri buffer)
 				# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-				# model_data = archive.get_at_addr(Ms2Format.ModelData, stream, f.pointers[0].address)
+				# model_data = f.pointers[0].read_as(Ms2Format.ModelData, archive)
 				# print(model_data)
 				
 				model_data = f.pointers[0].data
