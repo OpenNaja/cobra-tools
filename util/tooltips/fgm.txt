@@ -33,3 +33,4 @@ pPaletteKeyHueRotation = Shifts the coloration of PaletteKey from 0.000 to 2.000
 pPaletteKeySaturation = Affects the saturation of the PaletteKey color.
 pViewMode = Unknown affect, rarely used
 pEnableScreenSpaceAO = Toggles presence of Screen Space Ambient Occlusion
+psublayer0diffuseTint = Tints the indicated diffuse layer to the specified RGB value [range 0-1].
