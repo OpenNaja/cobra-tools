@@ -1,6 +1,8 @@
 import struct
 import os
 import io
+import tempfile
+import shutil
 
 from pyffi_ext.formats.dds import DdsFormat
 from pyffi_ext.formats.ms2 import Ms2Format
@@ -10,9 +12,14 @@ from pyffi_ext.formats.fgm import FgmFormat
 from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 
 from modules import extract
-from util import texconv
+from util import texconv, imarray
 
 def inject(ovl_data, file_paths, show_dds):
+	
+	# write modified version to tmp dir
+	tmp_dir = tempfile.mkdtemp("-cobra-png")
+
+	dupecheck = []
 	for file_path in file_paths:
 		dir, name_ext = os.path.split(file_path)
 		print("Injecting",name_ext)
@@ -20,6 +27,16 @@ def inject(ovl_data, file_paths, show_dds):
 		ext = ext.lower()
 		if ext in (".dds", ".png"):
 			name_ext = name+".tex"
+		# todo - ensure that injection of one ore all tiles works
+		#        avoid repeated readings for tiles
+		# check for separated array tiles & flipped channels
+		if ext == ".png":
+			out_path = imarray.inject_wrapper(file_path, dupecheck, tmp_dir)
+			# skip dupes
+			if not out_path:
+				print("Skipping injection of",file_path)
+				continue
+			file_path = out_path
 		# find the sizedstr entry that refers to this file
 		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
 		if ext == ".mdl2":
@@ -36,6 +53,8 @@ def inject(ovl_data, file_paths, show_dds):
 			load_fdb(ovl_data, file_path, sized_str_entry, name)
 		elif ext == ".materialcollection":
 			load_materialcollection(ovl_data, file_path, sized_str_entry)
+	
+	shutil.rmtree(tmp_dir)
 
 def to_bytes(inst, data):
 	"""helper that returns the bytes representation of a pyffi struct"""
