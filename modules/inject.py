@@ -14,6 +14,12 @@ from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 from modules import extract
 from util import texconv, imarray
 
+def split_path(fp):
+	dir, name_ext = os.path.split(fp)
+	name, ext = os.path.splitext(name_ext)
+	ext = ext.lower()
+	return name_ext, name, ext
+
 def inject(ovl_data, file_paths, show_dds):
 	
 	# write modified version to tmp dir
@@ -21,14 +27,8 @@ def inject(ovl_data, file_paths, show_dds):
 
 	dupecheck = []
 	for file_path in file_paths:
-		dir, name_ext = os.path.split(file_path)
+		name_ext, name, ext = split_path(file_path)
 		print("Injecting",name_ext)
-		name, ext = os.path.splitext(name_ext)
-		ext = ext.lower()
-		if ext in (".dds", ".png"):
-			name_ext = name+".tex"
-		# todo - ensure that injection of one ore all tiles works
-		#        avoid repeated readings for tiles
 		# check for separated array tiles & flipped channels
 		if ext == ".png":
 			out_path = imarray.inject_wrapper(file_path, dupecheck, tmp_dir)
@@ -36,9 +36,15 @@ def inject(ovl_data, file_paths, show_dds):
 			if not out_path:
 				print("Skipping injection of",file_path)
 				continue
+			# update the file path to the temp file with flipped channels or rebuilt array
 			file_path = out_path
+			name_ext, name, ext = split_path(file_path)
+		# image files are stored as tex files in the archive
+		if ext in (".dds", ".png"):
+			name_ext = name+".tex"
 		# find the sizedstr entry that refers to this file
 		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
+		# do the actual injection, varies per file type
 		if ext == ".mdl2":
 			load_mdl2(ovl_data, file_path, sized_str_entry)
 		if ext == ".fgm":
