@@ -7,22 +7,31 @@ def flip_gb(im):
 	im[:,:,1] = 255-im[:,:,1]
 	im[:,:,2] = 255-im[:,:,2]
 
+def check_any(iterable, string):
+	"""Returns true if any of the entries of the iterable occur in string"""
+	return any([i in string for i in iterable])
+
+def has_components(png_file_path):
+	return check_any(("playered_blendweights", "pbasepackedtexture"), png_file_path)
+
+def has_vectors(png_file_path):
+	return check_any(("pnormaltexture", "playered_warpoffset"), png_file_path)
+
 def wrapper(png_file_path, header_7):
 	must_split = False
-	split_components = False
-	must_flip_gb = False
-	if "playered_blendweights" in png_file_path:
-		split_components = True
-	if "pnormaltexture" in png_file_path or "playered_warpoffset" in png_file_path:
-		must_flip_gb = True
+	split_components = has_components(png_file_path)
+	must_flip_gb = has_vectors(png_file_path)
 	if header_7.array_size > 1:
 		must_split = True
+	print("split_components", split_components)
+	print("must_split", must_split)
+	print("must_flip_gb", must_flip_gb)
 	print("Splitting PNG array")
 	h = header_7.height
 	w = header_7.width
 	array_size = header_7.array_size
 	print("h, w, array_size",h, w, array_size)
-	if must_split or must_flip_gb:
+	if must_split or must_flip_gb or split_components:
 		im = imageio.imread(png_file_path)
 		# print(im.shape)
 		# (4096, 1024, 4)
@@ -31,17 +40,20 @@ def wrapper(png_file_path, header_7):
 		name, ext = os.path.splitext(png_file_path)
 		if must_flip_gb:
 			flip_gb(im)
-		if must_split:
-			if split_components:
-				layer_i = 0
-				for hi in range(array_size):
-					for di in range(d):
-						imageio.imwrite(name+f"_{layer_i:02}"+ext, im[hi*h:(hi+1)*h, :, di], compress_level=2)
-						layer_i += 1
-			else:
-				for layer_i in range(array_size):
-					imageio.imwrite(name+f"_{layer_i:02}"+ext, im[layer_i*h:(layer_i+1)*h, :, :], compress_level=2)
+		layer_i = 0
+		# split components and or tiles if present
+		if split_components:
+			for hi in range(array_size):
+				for di in range(d):
+					imageio.imwrite(name+f"_{layer_i:02}"+ext, im[hi*h:(hi+1)*h, :, di], compress_level=2)
+					layer_i += 1
 			os.remove(png_file_path)
+		# only split tiles but not components
+		elif must_split:
+			for layer_i in range(array_size):
+				imageio.imwrite(name+f"_{layer_i:02}"+ext, im[layer_i*h:(layer_i+1)*h, :, :], compress_level=2)
+			os.remove(png_file_path)
+		# don't split at all, overwrite
 		else:
 			imageio.imwrite(png_file_path, im, compress_level=2)
 
@@ -49,8 +61,8 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	"""This handles PNG modifications (arrays or flipped channels) and ensures the costly IO is only done once"""
 
 	must_join = False
-	join_components = False
-	must_flip_gb = False
+	join_components = has_components(png_file_path)
+	must_flip_gb = has_vectors(png_file_path)
 	
 	print("PNG injection wrapper input",png_file_path)
 	in_dir, in_name_ext = os.path.split(png_file_path)
@@ -73,10 +85,6 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 		return
 	dupecheck.append(out_file_path)
 
-	if "playered_blendweights" in png_file_path:
-		join_components = True
-	if "pnormaltexture" in png_file_path or "playered_warpoffset" in png_file_path:
-		must_flip_gb = True
 	print("must_join", must_join)
 	print("join_components", join_components)
 	print("must_flip_gb", must_flip_gb)
