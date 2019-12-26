@@ -376,7 +376,7 @@ def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
 			for frag, wrapper in zip(info.children, layer.infos):
 				frag.pointers[0].update_data( to_bytes(wrapper.info, matcol_data), update_copies=True )
 				frag.pointers[1].update_data( to_bytes(wrapper.name, matcol_data), update_copies=True )
-			for frag, wrapper in zip(info.children, layer.attribs):
+			for frag, wrapper in zip(attrib.children, layer.attribs):
 				frag.pointers[0].update_data( to_bytes(wrapper.attrib, matcol_data), update_copies=True )
 				frag.pointers[1].update_data( to_bytes(wrapper.name, matcol_data), update_copies=True )
 				
