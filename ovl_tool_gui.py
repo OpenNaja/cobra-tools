@@ -1,6 +1,7 @@
 import os
 import io
 import sys
+import traceback
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pyffi_ext.formats.ovl import OvlFormat
@@ -113,6 +114,7 @@ class MainWindow(widgets.MainWindow):
 					self.ovl_data.read(ovl_stream, file=self.file_src, commands=self.commands)
 				self.e_ovl_name.setText(ovl_name)
 			except Exception as ex:
+				traceback.print_exc()
 				widgets.showdialog( str(ex) )
 				print(ex)
 			print("Done!")
@@ -140,6 +142,7 @@ class MainWindow(widgets.MainWindow):
 						extract.extract(archive, self.write_dds)
 					print("Done!")
 				except Exception as ex:
+					traceback.print_exc()
 					widgets.showdialog( str(ex) )
 					print(ex)
 		else:
@@ -153,6 +156,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				inject.inject( self.ovl_data, files, self.write_dds )
 			except Exception as ex:
+				traceback.print_exc()
 				widgets.showdialog( str(ex) )
 			print("Done!")
 		else:

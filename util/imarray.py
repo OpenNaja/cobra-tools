@@ -57,6 +57,30 @@ def wrapper(png_file_path, header_7):
 		else:
 			imageio.imwrite(png_file_path, im, compress_level=2)
 
+def is_array_tile(fp, array_name_bare):
+	"""Return true if fp is an array tile of array_name_bare"""
+	if fp.startswith(array_name_bare):
+		in_dir, in_name_ext = os.path.split(fp)
+		in_name, ext = os.path.splitext(in_name_ext)
+		if ext.lower() == ".png":
+			in_name_bare, suffix = split_name_suffix(in_name)
+			# join arrays if there is a suffix
+			if suffix != None:
+				return True
+
+def split_name_suffix(in_name):
+	# grab the basic name, and the array index suffix if it exists
+	try:
+		in_name_bare, suffix = in_name.rsplit("_", 1)
+		print(in_name_bare, suffix)
+		suffix = int(suffix)
+	except:
+		in_name_bare = in_name
+		suffix = None
+	print("bare name",in_name_bare)
+	print("suffix", suffix)
+	return in_name_bare, suffix
+
 def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	"""This handles PNG modifications (arrays or flipped channels) and ensures the costly IO is only done once"""
 
@@ -67,19 +91,13 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	print("PNG injection wrapper input",png_file_path)
 	in_dir, in_name_ext = os.path.split(png_file_path)
 	in_name, ext = os.path.splitext(in_name_ext)
-	# grab the basic name, and the array index suffix if it exists
-	try:
-		in_name_bare, suffix = in_name.rsplit("_", 1)
-		print(in_name_bare, suffix)
-		suffix = int(suffix)
-		must_join = True
-		print("bare name",in_name_bare)
-		print("suffix", suffix)
-	except:
-		in_name_bare = in_name
+
+	in_name_bare, suffix = split_name_suffix(in_name)
+	# join arrays if there is a suffix
+	must_join = suffix != None
 
 	# update output path
-	out_file_path = os.path.join(tmp_dir, in_name_bare+ext)
+	out_file_path = os.path.join(tmp_dir, in_name_bare + ext)
 	print("checking if dupe",out_file_path)
 	if out_file_path in dupecheck:
 		return
@@ -100,7 +118,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	
 	# rebuild array from separated tiles
 	if must_join or join_components:
-		array_textures = [file for file in os.listdir(in_dir) if file.startswith(in_name_bare)]
+		array_textures = [file for file in os.listdir(in_dir) if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
 		ims = [imageio.imread(os.path.join(in_dir, file)) for file in array_textures]
 		print("Array tile names:")
