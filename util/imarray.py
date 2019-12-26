@@ -125,14 +125,18 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 		print(array_textures)
 		# load them all, then build im array from scratch
 		array_size = len(array_textures)
-		in_shape = ims[0].shape
-		# check for depth dimension
-		has_d = len(in_shape) == 3
-		if has_d:
-			h, w, d = in_shape
-		else:
-			h, w = in_shape
-			d = 1
+		# check that all textures have the right dimensions
+		for im, file in zip(ims, array_textures):
+			in_shape = ims[0].shape
+			# check for depth dimension
+			has_d = len(in_shape) == 3
+			if has_d:
+				h, w, d = in_shape
+				if d != 4:
+					raise AttributeError(f"{file} does not have all 4 channels (RGBA) that are expected, it has {d}")
+			else:
+				h, w = in_shape
+				d = 1
 		if join_components:
 			d = 4
 			array_size //= d

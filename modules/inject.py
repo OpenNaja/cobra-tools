@@ -66,8 +66,9 @@ def to_bytes(inst, data):
 	"""helper that returns the bytes representation of a pyffi struct"""
 	if isinstance(inst, bytes):
 		return inst
+	# zero terminated strings show up as strings
 	if isinstance(inst, str):
-		return inst.encode()
+		return inst.encode()+b"\x00"
 	with io.BytesIO() as frag_writer:
 		inst.write(frag_writer, data=data)
 		return frag_writer.getvalue()
