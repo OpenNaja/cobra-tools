@@ -64,6 +64,10 @@ def inject(ovl_data, file_paths, show_dds):
 
 def to_bytes(inst, data):
 	"""helper that returns the bytes representation of a pyffi struct"""
+	if isinstance(inst, bytes):
+		return inst
+	if isinstance(inst, str):
+		return inst.encode()
 	with io.BytesIO() as frag_writer:
 		inst.write(frag_writer, data=data)
 		return frag_writer.getvalue()
