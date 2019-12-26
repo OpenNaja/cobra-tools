@@ -163,7 +163,7 @@ def pack_mips(stream, header, num_mips):
 	
 	# print("\npacked mips")
 	# compression blocks are 4x4 pixels
-	while h > 2:
+	while h > 2 and w > 2:
 		# print(mip_i, h, w)
 		num_pixels = h * w * header.dx_10.array_size
 		num_bytes = num_pixels // pixels_per_byte
