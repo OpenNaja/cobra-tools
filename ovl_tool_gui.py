@@ -166,7 +166,8 @@ class MainWindow(widgets.MainWindow):
 			       
 	def hasher(self):
 		if self.ovl_name:
-			hasher.dat_hasher(archive)
+			for archive in self.ovl_data.archives:
+				hasher.dat_hasher(archive)
 
 
 		else:
