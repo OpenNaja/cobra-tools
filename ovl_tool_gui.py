@@ -183,7 +183,7 @@ class MainWindow(widgets.MainWindow):
 	def hasher(self):
 		if self.ovl_name:
 			for archive in self.ovl_data.archives:
-				hasher.dat_hasher(archive,self.h_stock_hash1.text(),self.h_stock_hash2.text(),self.h_stock_hash3.text(),self.h_mod_hash1.text(),self.h_mod_hash2.text(),self.h_mod_hash3.text())
+				hasher.dat_hasher(archive,self.h_stock_hash1.text(),self.h_stock_hash2.text(),self.h_stock_hash3.text(),self.h_mod_hash1.text(),self.h_mod_hash2.text(),self.h_mod_hash3.text(),self.ovl_data.header.files,self.ovl_data.header.textures)
 
 
 		else:
