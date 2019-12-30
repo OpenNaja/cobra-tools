@@ -39,11 +39,15 @@ def extract(archive, show_dds):
 	# the actual export, per file type
 	print("\nExtracting from archive",archive.archive_index)
 	for sized_str_entry in archive.sized_str_entries:
-		
+
 		if sized_str_entry.ext == "banis":
 			write_banis(archive, sized_str_entry, archive.stream )
 		elif sized_str_entry.ext == "bani":
 			write_bani(archive, sized_str_entry, archive.stream )
+		elif sized_str_entry.ext == "manis":
+			write_manis(archive, sized_str_entry, archive.stream )
+		elif sized_str_entry.ext == "mani":
+			write_mani(archive, sized_str_entry, archive.stream )
 		elif sized_str_entry.ext == "fgm":
 			write_fgm(archive, sized_str_entry, archive.stream )
 		elif sized_str_entry.ext == "ms2":
@@ -322,7 +326,47 @@ def write_bani(archive, sized_str_entry, stream):
 		write_sized_str(outfile, banis_name)
 		outfile.write(f_data0)
 		outfile.write(f_data1)
-	
+
+def write_manis(archive, sized_str_entry, stream):
+	name = sized_str_entry.name
+	print("\nWriting", name)
+	if not sized_str_entry.data_entry:
+		print("No data entry for ", name)
+		return
+	ss_data = sized_str_entry.pointers[0].data
+	print(ss_data)
+	buffers = sized_str_entry.data_entry.buffer_datas
+	print(len(buffers))
+	# if len(buffers) != 3:
+	# 	print("Wrong amount of buffers for", name)
+	# 	return
+	with open(archive.indir(name), 'wb') as outfile:
+		outfile.write(ss_data)
+		for buff in sized_str_entry.data_entry.buffers:
+			outfile.write(buff.data)
+
+def write_mani(archive, sized_str_entry, stream):
+	name = sized_str_entry.name
+	print("\nWriting", name)
+	print(sized_str_entry.pointers[0].data_offset)
+	print(sized_str_entry.pointers[0].data)
+	if len(sized_str_entry.fragments) != 0:
+		print("must have 0 fragments")
+		return
+	# todo - this doesn't work for sure as there are more than one manis in an archive
+	# # use set entries??
+	# for other_sized_str_entry in archive.sized_str_entries:
+	# 	if other_sized_str_entry.ext == "manis":
+	# 		banis_name = other_sized_str_entry.name
+	# 		break
+	# else:
+	# 	print("Found no manis file for mani animation!")
+	# 	return
+	#
+	# with open(archive.indir(name), 'wb') as outfile:
+	# 	# write_sized_str(outfile, banis_name)
+	# 	outfile.write(sized_str_entry.pointers[0].data)
+
 def write_fgm(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
 	print("\nWriting",name)
