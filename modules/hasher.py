@@ -39,7 +39,7 @@ def dat_hasher(archive,old1,old2,old3,new1,new2,new3):
 		new_name2 = new_name.replace(old1,new1)
 		new_name3 = new_name2.replace(old2,new2)
 		new_name4 = new_name3.replace(old3,new3)
-		new_hash = djbb(new_name)
+		new_hash = djbb(new_name4)
 		print(sized_str_entry.basename,sized_str_entry.file_hash,new_name4,new_hash)
 		sized_str_entry.file_hash = new_hash
 	print("\nDatas")
@@ -48,7 +48,7 @@ def dat_hasher(archive,old1,old2,old3,new1,new2,new3):
 		new_name2 = new_name.replace(old1,new1)
 		new_name3 = new_name2.replace(old2,new2)
 		new_name4 = new_name3.replace(old3,new3)
-		new_hash = djbb(new_name)
+		new_hash = djbb(new_name4)
 		print(data_entry.name,data_entry.file_hash,new_name4,new_hash)
 		data_entry.file_hash = new_hash
 	print("\nSets")
@@ -57,7 +57,7 @@ def dat_hasher(archive,old1,old2,old3,new1,new2,new3):
 		new_name2 = new_name.replace(old1,new1)
 		new_name3 = new_name2.replace(old2,new2)
 		new_name4 = new_name3.replace(old3,new3)
-		new_hash = djbb(new_name)
+		new_hash = djbb(new_name4)
 		print(set_entry.name,set_entry.file_hash,new_name4,new_hash)
 		set_entry.file_hash = new_hash
 	print("\nAssets")
@@ -66,7 +66,7 @@ def dat_hasher(archive,old1,old2,old3,new1,new2,new3):
 		new_name2 = new_name.replace(old1,new1)
 		new_name3 = new_name2.replace(old2,new2)
 		new_name4 = new_name3.replace(old3,new3)
-		new_hash = djbb(new_name)
+		new_hash = djbb(new_name4)
 		print(asset_entry.name,asset_entry.file_hash,new_name4,new_hash)
 		asset_entry.file_hash = new_hash
 	print("Done!")
