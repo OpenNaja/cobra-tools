@@ -42,6 +42,14 @@ class MainWindow(widgets.MainWindow):
 		self.e_ovl_name.setToolTip("The name of the OVL file that is currently open.")
 		self.e_ovl_name.setReadOnly(True)
 		
+		self.h_stock_hash1 = QtWidgets.QLineEdit("old")
+		self.h_stock_hash2 = QtWidgets.QLineEdit("old")
+		self.h_stock_hash3 = QtWidgets.QLineEdit("old")
+
+		self.h_mod_hash1 = QtWidgets.QLineEdit("new")
+		self.h_mod_hash2 = QtWidgets.QLineEdit("new")
+		self.h_mod_hash3 = QtWidgets.QLineEdit("new")
+        
 		# toggles
 		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
 		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
@@ -69,7 +77,15 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_reverse, 2, 0,)
 		self.qgrid.addWidget(self.t_write_dat, 3, 0)
 		self.qgrid.addWidget(self.t_write_frag_log, 4, 0)
-		
+		self.qgrid.addWidget(self.h_stock_hash1, 5, 0)
+		self.qgrid.addWidget(self.h_mod_hash1, 5, 1)
+		self.qgrid.addWidget(self.h_stock_hash2, 6, 0)
+		self.qgrid.addWidget(self.h_mod_hash2, 6, 1)
+		self.qgrid.addWidget(self.h_stock_hash3, 7, 0)
+		self.qgrid.addWidget(self.h_mod_hash3, 7, 1)
+
+
+        
 		self.central_widget.setLayout(self.qgrid)
 	
 	@property
@@ -167,7 +183,7 @@ class MainWindow(widgets.MainWindow):
 	def hasher(self):
 		if self.ovl_name:
 			for archive in self.ovl_data.archives:
-				hasher.dat_hasher(archive)
+				hasher.dat_hasher(archive,self.h_stock_hash1.text(),self.h_stock_hash2.text(),self.h_stock_hash3.text(),self.h_mod_hash1.text(),self.h_mod_hash2.text(),self.h_mod_hash3.text())
 
 
 		else:
