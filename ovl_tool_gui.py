@@ -28,7 +28,7 @@ class MainWindow(widgets.MainWindow):
 						(fileMenu, "Exit", self.close, ""),
 						(editMenu, "Unpack", self.extract_all, "CTRL+U"),
 						(editMenu, "Inject", self.inject, "CTRL+I"),
-						(editMenu, "Hash, self.hasher,""),
+						(editMenu, "Hash", self.hasher,""),
 						(helpMenu, "Report Bug", self.report_bug, ""),
 						(helpMenu, "Documentation", self.online_support, "") )
 		self.add_to_menu(button_data)
