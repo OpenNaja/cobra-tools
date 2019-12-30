@@ -348,24 +348,14 @@ def write_manis(archive, sized_str_entry, stream):
 def write_mani(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
 	print("\nWriting", name)
+	# not sure what the logic for these ones is, right now the only valid info is set membership
 	print(sized_str_entry.pointers[0].data_offset)
 	print(sized_str_entry.pointers[0].data)
 	if len(sized_str_entry.fragments) != 0:
 		print("must have 0 fragments")
 		return
-	# todo - this doesn't work for sure as there are more than one manis in an archive
-	# # use set entries??
-	# for other_sized_str_entry in archive.sized_str_entries:
-	# 	if other_sized_str_entry.ext == "manis":
-	# 		banis_name = other_sized_str_entry.name
-	# 		break
-	# else:
-	# 	print("Found no manis file for mani animation!")
-	# 	return
-	#
-	# with open(archive.indir(name), 'wb') as outfile:
-	# 	# write_sized_str(outfile, banis_name)
-	# 	outfile.write(sized_str_entry.pointers[0].data)
+	with open(archive.indir(name), 'wb') as outfile:
+		outfile.write(b"Probably missing data, uses manis file: "+sized_str_entry.parent.name.encode())
 
 def write_fgm(archive, sized_str_entry, stream):
 	name = sized_str_entry.name
