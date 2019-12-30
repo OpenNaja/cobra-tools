@@ -79,12 +79,16 @@ def dat_hasher(archive,old1,old2,old3,new1,new2,new3,header_files,header_texture
 		print(file_entry.name,file_entry.hash,new_name4,new_hash)
 		file_entry.hash = new_hash
 	print("\nTextures")
-	for texture_entry in header_textures:  
-		new_name = texture_entry.name
-		new_name2 = new_name.replace(old1,new1)
-		new_name3 = new_name2.replace(old2,new2)
-		new_name4 = new_name3.replace(old3,new3)
-		new_hash = djbb(new_name4)
+	for texture_entry in header_textures: 
+		if "bad hash" not in [texture_entry.name]:
+			new_name = texture_entry.name
+			new_name2 = new_name.replace(old1,new1)
+			new_name3 = new_name2.replace(old2,new2)
+			new_name4 = new_name3.replace(old3,new3)
+			new_hash = djbb(new_name4)
+		else:
+			new_hash = texture_entry.hash
+			new_name4 = texture_entry.name
 		print(texture_entry.name,texture_entry.hash,new_name4,new_hash)
 		texture_entry.hash = new_hash
 	print("Done!")
