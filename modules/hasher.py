@@ -22,23 +22,51 @@ def djbb(s):
 		hash = (( hash << 5) + hash) + ord(x)
 	return hash & 0xFFFFFFFF
 
-def dat_hasher(archive):
+def dat_hasher(archive,old1,old2,old3,new1,new2,new3):
 	print("\nHashing from archive",archive.archive_index)
-	for sized_str_entry in archive.header_entries:
-		new_name = "z"+sized_str_entry.name[1:]
+	print("\nHeaders")
+	for header_entry in archive.header_entries:
+		new_name = header_entry.basename
+		new_name2 = new_name.replace(old1,new1)
+		new_name3 = new_name2.replace(old2,new2)
+		new_name4 = new_name3.replace(old3,new3)
+		new_hash = djbb(new_name4)
+		print(header_entry.basename,header_entry.file_hash,new_name4,new_hash)
+		header_entry.file_hash = new_hash
+	print("\nStrings")
+	for sized_str_entry in archive.sized_str_entries:
+		new_name = sized_str_entry.basename
+		new_name2 = new_name.replace(old1,new1)
+		new_name3 = new_name2.replace(old2,new2)
+		new_name4 = new_name3.replace(old3,new3)
 		new_hash = djbb(new_name)
-		print(sized_str_entry.name,sized_str_entry.file_hash,new_name,new_hash)
+		print(sized_str_entry.basename,sized_str_entry.file_hash,new_name4,new_hash)
 		sized_str_entry.file_hash = new_hash
+	print("\nDatas")
 	for data_entry in archive.data_entries:
-		new_name = "z"+data_entry.name[1:]
+		new_name,ext = os.path.splitext(data_entry.name)
+		new_name2 = new_name.replace(old1,new1)
+		new_name3 = new_name2.replace(old2,new2)
+		new_name4 = new_name3.replace(old3,new3)
 		new_hash = djbb(new_name)
+		print(data_entry.name,data_entry.file_hash,new_name4,new_hash)
 		data_entry.file_hash = new_hash
+	print("\nSets")
 	for set_entry in archive.set_header.sets:
-		new_name = "z"+set_entry.name[1:]
+		new_name,ext = os.path.splitext(set_entry.name)
+		new_name2 = new_name.replace(old1,new1)
+		new_name3 = new_name2.replace(old2,new2)
+		new_name4 = new_name3.replace(old3,new3)
 		new_hash = djbb(new_name)
+		print(set_entry.name,set_entry.file_hash,new_name4,new_hash)
 		set_entry.file_hash = new_hash
+	print("\nAssets")
 	for asset_entry in archive.set_header.assets:
-		new_name = "z"+asset_entry.name[1:]
+		new_name,ext = os.path.splitext(asset_entry.name)
+		new_name2 = new_name.replace(old1,new1)
+		new_name3 = new_name2.replace(old2,new2)
+		new_name4 = new_name3.replace(old3,new3)
 		new_hash = djbb(new_name)
+		print(asset_entry.name,asset_entry.file_hash,new_name4,new_hash)
 		asset_entry.file_hash = new_hash
-	print("/nDone!")
+	print("Done!")
