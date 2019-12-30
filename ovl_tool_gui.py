@@ -71,7 +71,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_reverse, 2, 0,)
 		self.qgrid.addWidget(self.t_write_dat, 3, 0)
 		self.qgrid.addWidget(self.t_write_frag_log, 4, 0)
-		start = 4
+		start = 5
 		for i, (old, new) in enumerate(self.e_name_pairs):
 			self.qgrid.addWidget(old, start+i, 0)
 			self.qgrid.addWidget(new, start+i, 1)
