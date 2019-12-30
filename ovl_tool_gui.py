@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pyffi_ext.formats.ovl import OvlFormat
 from util import widgets, config
-from modules import extract, inject
+from modules import extract, inject,hasher
 
 class MainWindow(widgets.MainWindow):
 
@@ -28,6 +28,7 @@ class MainWindow(widgets.MainWindow):
 						(fileMenu, "Exit", self.close, ""),
 						(editMenu, "Unpack", self.extract_all, "CTRL+U"),
 						(editMenu, "Inject", self.inject, "CTRL+I"),
+						(editMenu, "Hash, self.hasher,""),
 						(helpMenu, "Report Bug", self.report_bug, ""),
 						(helpMenu, "Documentation", self.online_support, "") )
 		self.add_to_menu(button_data)
@@ -161,7 +162,17 @@ class MainWindow(widgets.MainWindow):
 			print("Done!")
 		else:
 			widgets.showdialog( "You must open an OVL file before you can inject files!" )
-	
-	
+
+			       
+	def hasher(self):
+		if self.ovl_name:
+			hasher.hash(archive)
+
+
+		else:
+			widgets.showdialog( "You must open an OVL file before you can extract files!" )
+
+			       
+
 if __name__ == '__main__':
 	widgets.startup( MainWindow )
