@@ -28,7 +28,7 @@ class MainWindow(widgets.MainWindow):
 						(fileMenu, "Exit", self.close, ""),
 						(editMenu, "Unpack", self.extract_all, "CTRL+U"),
 						(editMenu, "Inject", self.inject, "CTRL+I"),
-						(editMenu, "Hash", self.hasher,""),
+						(editMenu, "Hash", self.hasher,"CTRL+H"),
 						(helpMenu, "Report Bug", self.report_bug, ""),
 						(helpMenu, "Documentation", self.online_support, "") )
 		self.add_to_menu(button_data)
@@ -41,14 +41,8 @@ class MainWindow(widgets.MainWindow):
 		self.e_ovl_name = QtWidgets.QLineEdit(self)
 		self.e_ovl_name.setToolTip("The name of the OVL file that is currently open.")
 		self.e_ovl_name.setReadOnly(True)
-		
-		self.h_stock_hash1 = QtWidgets.QLineEdit("old")
-		self.h_stock_hash2 = QtWidgets.QLineEdit("old")
-		self.h_stock_hash3 = QtWidgets.QLineEdit("old")
 
-		self.h_mod_hash1 = QtWidgets.QLineEdit("new")
-		self.h_mod_hash2 = QtWidgets.QLineEdit("new")
-		self.h_mod_hash3 = QtWidgets.QLineEdit("new")
+		self.e_name_pairs = [ (QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(3) ]
         
 		# toggles
 		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
@@ -72,20 +66,17 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.e_ovl_name, 0, 0)
+		self.qgrid.addWidget(self.e_ovl_name, 0, 0, 1, 2)
 		self.qgrid.addWidget(self.t_write_dds, 1, 0)
 		self.qgrid.addWidget(self.t_reverse, 2, 0,)
 		self.qgrid.addWidget(self.t_write_dat, 3, 0)
 		self.qgrid.addWidget(self.t_write_frag_log, 4, 0)
-		self.qgrid.addWidget(self.h_stock_hash1, 5, 0)
-		self.qgrid.addWidget(self.h_mod_hash1, 5, 1)
-		self.qgrid.addWidget(self.h_stock_hash2, 6, 0)
-		self.qgrid.addWidget(self.h_mod_hash2, 6, 1)
-		self.qgrid.addWidget(self.h_stock_hash3, 7, 0)
-		self.qgrid.addWidget(self.h_mod_hash3, 7, 1)
+		start = 4
+		for i, (old, new) in enumerate(self.e_name_pairs):
+			self.qgrid.addWidget(old, start+i, 0)
+			self.qgrid.addWidget(new, start+i, 1)
 
 
-        
 		self.central_widget.setLayout(self.qgrid)
 	
 	@property
@@ -182,8 +173,9 @@ class MainWindow(widgets.MainWindow):
 			       
 	def hasher(self):
 		if self.ovl_name:
+			names = [ (tup[0].text(), tup[1].text()) for tup in self.e_name_pairs ]
 			for archive in self.ovl_data.archives:
-				hasher.dat_hasher(archive,self.h_stock_hash1.text(),self.h_stock_hash2.text(),self.h_stock_hash3.text(),self.h_mod_hash1.text(),self.h_mod_hash2.text(),self.h_mod_hash3.text(),self.ovl_data.header.files,self.ovl_data.header.textures)
+				hasher.dat_hasher(archive, names, self.ovl_data.header.files,self.ovl_data.header.textures)
 
 
 		else:
