@@ -6,8 +6,8 @@ import shutil
 
 from pyffi_ext.formats.dds import DdsFormat
 from pyffi_ext.formats.ms2 import Ms2Format
-from pyffi_ext.formats.bani import BaniFormat
-from pyffi_ext.formats.ovl import OvlFormat
+# from pyffi_ext.formats.bani import BaniFormat
+# from pyffi_ext.formats.ovl import OvlFormat
 from pyffi_ext.formats.fgm import FgmFormat
 from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 
@@ -16,7 +16,7 @@ from util import texconv, imarray
 
 
 def split_path(fp):
-	dir, name_ext = os.path.split(fp)
+	in_dir, name_ext = os.path.split(fp)
 	name, ext = os.path.splitext(name_ext)
 	ext = ext.lower()
 	return name_ext, name, ext

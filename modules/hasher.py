@@ -1,5 +1,6 @@
 import os
 
+
 def djbb(s):
 	# calculates DJB hash for string s
 	# from https://gist.github.com/mengzhuo/180cd6be8ba9e2743753#file-hash_djb2-py
@@ -8,8 +9,9 @@ def djbb(s):
 		hash = (( hash << 5) + hash) + ord(x)
 	return hash & 0xFFFFFFFF
 
+
 def dat_hasher(archive, name_tups, header_files, header_textures):
-	print("\nHashing from archive",archive.archive_index)
+	print("\nHashing from archive", archive.archive_index)
 	for entry_list in (archive.header_entries,
 					   archive.sized_str_entries,
 					   archive.data_entries,
