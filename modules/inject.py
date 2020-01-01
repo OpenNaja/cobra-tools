@@ -55,6 +55,8 @@ def inject(ovl_data, file_paths, show_dds):
 			load_dds(ovl_data, file_path, sized_str_entry)
 		elif ext == ".txt":
 			load_txt(ovl_data, file_path, sized_str_entry)
+		elif ext == ".xmlconfig":
+			load_xmlconfig(ovl_data, file_path, sized_str_entry)
 		elif ext == ".fdb":
 			load_fdb(ovl_data, file_path, sized_str_entry, name)
 		elif ext == ".materialcollection":
@@ -81,7 +83,15 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
 		# make sure all are updated, and pad to 8 bytes
 		txt_sized_str_entry.pointers[0].update_data(data, update_copies=True, pad_to=8)
-	
+
+def load_xmlconfig(ovl_data, xml_file_path, xml_sized_str_entry):
+	archive = ovl_data.archives[0]
+	with open(xml_file_path, 'rb') as stream:
+		# add zero terminator
+		data = stream.read() + b"\x00"
+		# make sure all are updated, and pad to 8 bytes
+		xml_sized_str_entry.fragments[0].pointers[1].update_data(data, update_copies=True, pad_to=8)
+
 def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds):
 	# convert the png into a dds, then inject that
 	

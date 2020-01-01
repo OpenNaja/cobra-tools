@@ -41,39 +41,39 @@ def extract(archive, show_dds):
 	for sized_str_entry in archive.sized_str_entries:
 
 		if sized_str_entry.ext == "banis":
-			write_banis(archive, sized_str_entry, archive.stream )
+			write_banis(archive, sized_str_entry)
 		elif sized_str_entry.ext == "bani":
-			write_bani(archive, sized_str_entry, archive.stream )
+			write_bani(archive, sized_str_entry)
 		elif sized_str_entry.ext == "manis":
-			write_manis(archive, sized_str_entry, archive.stream )
+			write_manis(archive, sized_str_entry)
 		elif sized_str_entry.ext == "mani":
-			write_mani(archive, sized_str_entry, archive.stream )
+			write_mani(archive, sized_str_entry)
 		elif sized_str_entry.ext == "fgm":
-			write_fgm(archive, sized_str_entry, archive.stream )
+			write_fgm(archive, sized_str_entry)
 		elif sized_str_entry.ext == "ms2":
-			write_ms2(archive, sized_str_entry, archive.stream )
+			write_ms2(archive, sized_str_entry)
 		elif sized_str_entry.ext == "materialcollection":
-			write_materialcollection(archive, sized_str_entry, archive.stream )
+			write_materialcollection(archive, sized_str_entry)
 		elif sized_str_entry.ext == "tex":
-			write_dds(archive, sized_str_entry, archive.stream, show_dds )
+			write_dds(archive, sized_str_entry, show_dds )
 		elif sized_str_entry.ext == "lua":
-			write_lua(archive, sized_str_entry, archive.stream )
+			write_lua(archive, sized_str_entry)
 		elif sized_str_entry.ext == "assetpkg":
-			write_assetpkg(archive, sized_str_entry, archive.stream )
+			write_assetpkg(archive, sized_str_entry)
 		elif sized_str_entry.ext == "fdb":
-			write_fdb(archive, sized_str_entry, archive.stream )
+			write_fdb(archive, sized_str_entry)
 		elif sized_str_entry.ext == "xmlconfig":
-			write_xmlconfig(archive, sized_str_entry, archive.stream )
+			write_xmlconfig(archive, sized_str_entry)
 		elif sized_str_entry.ext == "userinterfaceicondata":
-			write_userinterfaceicondata(archive, sized_str_entry, archive.stream )
+			write_userinterfaceicondata(archive, sized_str_entry)
 		elif sized_str_entry.ext == "txt":
-			write_txt(archive, sized_str_entry, archive.stream )
+			write_txt(archive, sized_str_entry)
 				
 		else:
 			print("\nSkipping",sized_str_entry.name)
 	
 
-def write_txt(archive, txt_sized_str_entry, stream):
+def write_txt(archive, txt_sized_str_entry):
 	# a bare sized str
 	b = txt_sized_str_entry.pointers[0].data
 	size = struct.unpack("<I", b[:4])[0]
@@ -89,7 +89,7 @@ def get_tex_structs(archive, sized_str_entry):
 	header_7 = f_3_7.pointers[1].read_as( OvlFormat.Header7Data1, archive )[0]
 	return header_3_0, headers_3_1, header_7
 	
-def get_compression_type(archive, header_3_0):
+def get_compression_type(header_3_0):
 	ovl_compression_ind = header_3_0.compression_type
 	print("ovl_compression_ind",ovl_compression_ind)
 	return dds_types[ovl_compression_ind]
@@ -105,7 +105,7 @@ def align_to(input, comp, alignment=64):
 		return input + alignment - m
 	return input
 
-def write_dds(archive, sized_str_entry, stream, show_dds):
+def write_dds(archive, sized_str_entry, show_dds):
 	basename = os.path.splitext(sized_str_entry.name)[0]
 	name = basename+".dds"
 	print("\nWriting",name)
@@ -127,8 +127,8 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 		# raise BufferError("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
 	# print("combined buffer size",len(buffer_data))
 	try:
-		dds_compression_types = ( get_compression_type(archive, header_3_0), )
-	except:
+		dds_compression_types = ( get_compression_type(header_3_0), )
+	except KeyError:
 		dds_compression_types = DdsFormat.DxgiFormat._enumkeys
 		print("Unknown compression type, trying all compression types for your amusement")
 		# dds_compression_types = list(v for v in DdsFormat.DxgiFormat._enumkeys if v not in dds_types.values())
@@ -190,7 +190,7 @@ def write_dds(archive, sized_str_entry, stream, show_dds):
 
 		
 	
-def write_ms2(archive, ms2_sized_str_entry, stream):
+def write_ms2(archive, ms2_sized_str_entry):
 	name = ms2_sized_str_entry.name
 	if not ms2_sized_str_entry.data_entry:
 		print("No data entry for ",name)
@@ -287,13 +287,12 @@ def write_ms2(archive, ms2_sized_str_entry, stream):
 				outfile.write(model_data)
 				
 	
-def write_banis(archive, sized_str_entry, stream):
+def write_banis(archive, sized_str_entry):
 	name = sized_str_entry.name
 	if not sized_str_entry.data_entry:
 		print("No data entry for ",name)
 		return
 	buffers = sized_str_entry.data_entry.buffer_datas
-	buffer_entry = sized_str_entry.data_entry.buffers[0]
 	if len(buffers) != 1:
 		print("Wrong amount of buffers for",name)
 		return
@@ -301,7 +300,7 @@ def write_banis(archive, sized_str_entry, stream):
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(buffers[0])
 	
-def write_bani(archive, sized_str_entry, stream):
+def write_bani(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	if len(sized_str_entry.fragments) != 1:
@@ -314,20 +313,17 @@ def write_bani(archive, sized_str_entry, stream):
 	else:
 		print("Found no banis file for bani animation!")
 		return
-		
+
 	f = sized_str_entry.fragments[0]
-	
-	f_data0 = f.pointers[0].data
-	f_data1 = f.pointers[1].data
 
 	# write banis file
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(b"BANI")
 		write_sized_str(outfile, banis_name)
-		outfile.write(f_data0)
-		outfile.write(f_data1)
+		outfile.write( f.pointers[0].data )
+		outfile.write( f.pointers[1].data )
 
-def write_manis(archive, sized_str_entry, stream):
+def write_manis(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	if not sized_str_entry.data_entry:
@@ -345,7 +341,7 @@ def write_manis(archive, sized_str_entry, stream):
 		for buff in sized_str_entry.data_entry.buffers:
 			outfile.write(buff.data)
 
-def write_mani(archive, sized_str_entry, stream):
+def write_mani(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	# not sure what the logic for these ones is, right now the only valid info is set membership
@@ -357,20 +353,19 @@ def write_mani(archive, sized_str_entry, stream):
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(b"Probably missing data, uses manis file: "+sized_str_entry.parent.name.encode())
 
-def write_fgm(archive, sized_str_entry, stream):
+def write_fgm(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	
 	try:
 		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
 		print("buffer size",len(buffer_data))
-	except:
+	except IndexError:
 		print("Found no buffer data for",name)
 		buffer_data = b""
 	# for i, f in enumerate(sized_str_entry.fragments):
 	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
-	# 		stream.seek(f.pointers[1].address)
-	# 		outfile.write( stream.read(f.pointers[1].data_size) )
+	# 		outfile.write( f.pointers[1].data )
 	# basic fgms
 	if len(sized_str_entry.fragments) == 4:
 		tex_info, attr_info, zeros, data_lib  = sized_str_entry.fragments
@@ -384,8 +379,6 @@ def write_fgm(archive, sized_str_entry, stream):
 	# fgms for variants
 	elif len(sized_str_entry.fragments) == 2:
 		attr_info, data_lib = sized_str_entry.fragments
-		tex_info = b""
-		zeros = b""
 		len_tex_info = 0
 		len_zeros = 0
 	else:
@@ -395,19 +388,16 @@ def write_fgm(archive, sized_str_entry, stream):
 
 	with open(archive.indir(name), 'wb') as outfile:
 		# write custom FGM header
-		outfile.write(fgm_header)
-		# outfile.write(sized_str_entry.pointers[0].data)
-		stream.seek(sized_str_entry.pointers[0].address)
-		outfile.write( stream.read(sized_str_entry.pointers[0].data_size) )
+		outfile.write( fgm_header )
+		outfile.write( sized_str_entry.pointers[0].data )
 		# write each of the fragments
 		for frag in sized_str_entry.fragments:
-			stream.seek(frag.pointers[1].address)
-			outfile.write( stream.read(frag.pointers[1].data_size) )
+			outfile.write( frag.pointers[1].data )
 		# write the buffer
 		outfile.write(buffer_data)
 
 
-def write_materialcollection(archive, sized_str_entry, stream):
+def write_materialcollection(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	
@@ -437,45 +427,48 @@ def write_materialcollection(archive, sized_str_entry, stream):
 						outfile.write( pointer.data )
 
 	
-def write_lua(archive, sized_str_entry, stream):
+def write_lua(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	
 	try:
 		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
 		print("buffer size",len(buffer_data))
-	except:
+	except IndexError:
 		print("Found no buffer data for",name)
 		buffer_data = b""
-	if len(sized_str_entry.fragments) == 2:
-		f_1, f_0 = sized_str_entry.fragments
+	# if len(sized_str_entry.fragments) == 2:
+	# 	f_1, f_0 = sized_str_entry.fragments
 	# write lua
-	lua_header = struct.pack("<3s5I", b"LUA", f_0.pointers[0].data_size, f_0.pointers[1].data_size, f_1.pointers[0].data_size, f_1.pointers[1].data_size, len(buffer_data))
+	# lua_header = struct.pack("<3s5I", b"LUA", f_0.pointers[0].data_size, f_0.pointers[1].data_size, f_1.pointers[0].data_size, f_1.pointers[1].data_size, len(buffer_data))
 	with open(archive.indir(name), 'wb') as outfile:
 		# write custom FGM header
-		outfile.write(lua_header)
-		# write each of the archive.fragments
-		for frag in (f_0, f_1,):
-			stream.seek(frag.pointers[0].address)
-			outfile.write( stream.read(frag.pointers[0].data_size) )
-			stream.seek(frag.pointers[1].address)
-			outfile.write( stream.read(frag.pointers[1].data_size) )
+		# outfile.write(lua_header)
+		# # write each of the archive.fragments
+		# for frag in (f_0, f_1,):
+		# 	print(frag.pointers[0].data)
+		# 	print(frag.pointers[1].data)
+		# 	outfile.write( frag.pointers[0].data )
+		# 	outfile.write( frag.pointers[1].data )
 		# write the buffer
 		outfile.write(buffer_data)
 		
-def write_assetpkg(archive, sized_str_entry, stream):
+def write_assetpkg(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	
 	try:
 		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
 		print("buffer size",len(buffer_data))
-	except:
+	except IndexError:
 		print("Found no buffer data for",name)
 		buffer_data = b""
 	if len(sized_str_entry.fragments) == 1:
 		print(len(sized_str_entry.fragments))
 		f_0 = sized_str_entry.fragments[0]
+	else:
+		print("Found wrong amount of frags for",name)
+		return
 	# the supposed mapping entry
 	# write assetpkg
 	asset_header = struct.pack("<8s3I", b"ASSETPKG", f_0.pointers[0].data_size, f_0.pointers[1].data_size, len(buffer_data))
@@ -484,69 +477,63 @@ def write_assetpkg(archive, sized_str_entry, stream):
 		outfile.write(asset_header)
 		# write each of the archive.fragments
 		#for frag in (f_0,):
-		stream.seek(f_0.pointers[0].address)
-		outfile.write( stream.read(f_0.pointers[0].data_size) )
-		stream.seek(f_0.pointers[1].address)
-		outfile.write( stream.read(f_0.pointers[1].data_size) )
+		outfile.write( f_0.pointers[0].data )
+		outfile.write( f_0.pointers[1].data )
 		# write the buffer
 		outfile.write(buffer_data)
 	
-def write_fdb(archive, sized_str_entry, stream):
+def write_fdb(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	
 	try:
-		buff_datas = sized_str_entry.data_entry.buffer_datas
-		print("buffer size",len(buff_datas))
-	except:
+		buff = sized_str_entry.data_entry.buffer_datas[1]
+	except IndexError:
 		print("Found no buffer data for",name)
-		buffer_data = b""
+		return
 	
 	with open(archive.indir(name), 'wb') as outfile:
 		# write the buffer, only buffer 1
 		# buffer 0 is just the bare file name, boring
 		# sizedstr data is just size of the buffer
-		outfile.write(buff_datas[1])
+		outfile.write(buff)
 	
-def write_xmlconfig(archive, sized_str_entry, stream):
+def write_xmlconfig(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
-	
-	try:
-		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
-		print("buffer size",len(buffer_data))
-	except:
-		print("Found no buffer data for",name)
-		buffer_data = b""
+
 	if len(sized_str_entry.fragments) == 1:
 		f_0 = sized_str_entry.fragments[0]
+	else:
+		print("Found wrong amount of frags for",name)
+		return
 	# write xml
-	xml_header = struct.pack("<3s2I", b"XML", f_0.pointers[0].data_size, f_0.pointers[1].data_size)
 	with open(archive.indir(name), 'wb') as outfile:
-		# write custom FGM header
-		outfile.write(xml_header)
-		# write each of the archive.fragments
-		#for frag in (f_0,):
-		stream.seek(f_0.pointers[0].address)
-		outfile.write( stream.read(f_0.pointers[0].data_size) )
-		stream.seek(f_0.pointers[1].address)
-		outfile.write( stream.read(f_0.pointers[1].data_size) )
-		# write the buffer
-		#outfile.write(buffer_data)
+		# 8 x b00
+		# sized_str_entry.pointers[0].data
+		# 8 x b00
+		# outfile.write( f_0.pointers[0].data )
+		# the actual xml data
+		# often with extra junk at the end (probably z str)
+		f_0.pointers[1].strip_zstring_padding()
+		# strip the b00 zstr terminator byte
+		outfile.write( f_0.pointers[1].data[:-1] )
 	
-def write_userinterfaceicondata(archive, sized_str_entry, stream):
+def write_userinterfaceicondata(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	
 	try:
 		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
 		print("buffer size",len(buffer_data))
-	except:
+	except IndexError:
 		print("Found no buffer data for",name)
 		buffer_data = b""
 	if len(sized_str_entry.fragments) == 2:
 		f_0, f_1 = sized_str_entry.fragments
-	# the supposed mapping entry
+	else:
+		print("Found wrong amount of frags for",name)
+		return
 	# write xml
 	xml_header = struct.pack("<12s5I", b"USERICONDATA", f_0.pointers[0].data_size, f_0.pointers[1].data_size, f_1.pointers[0].data_size, f_1.pointers[1].data_size, len(buffer_data))
 	with open(archive.indir(name), 'wb') as outfile:
@@ -554,9 +541,7 @@ def write_userinterfaceicondata(archive, sized_str_entry, stream):
 		outfile.write(xml_header)
 		# write each of the archive.fragments
 		for frag in (f_0,f_1):
-			stream.seek(frag.pointers[0].address)
-			outfile.write( stream.read(frag.pointers[0].data_size) )
-			stream.seek(frag.pointers[1].address)
-			outfile.write( stream.read(frag.pointers[1].data_size) )
+			outfile.write( frag.pointers[0].data )
+			outfile.write( frag.pointers[1].data )
 		# write the buffer
 		outfile.write(buffer_data)
