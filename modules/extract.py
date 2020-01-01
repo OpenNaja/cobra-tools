@@ -348,6 +348,11 @@ def write_manis(archive, sized_str_entry):
 	names = [c.name for c in sized_str_entry.children]
 	manis_header = struct.pack("<4s3I", b"MANI", archive.header.version, archive.header.flag_2, len(names) )
 
+	# sizedstr data + 3 buffers
+	# sized str data gives general info
+	# buffer 0 holds all mani infos - weirdly enough, its first 10 bytes come from the sized str data!
+	# buffer 1 is list of hashes and zstrs for each bone name
+	# buffer 2 has the actual keys
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(manis_header)
 		for mani in names:
@@ -355,7 +360,11 @@ def write_manis(archive, sized_str_entry):
 		outfile.write(ss_data)
 		for buff in sized_str_entry.data_entry.buffers:
 			outfile.write(buff.data)
-
+	#
+	# for i, buff in enumerate(sized_str_entry.data_entry.buffers):
+	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
+	# 		outfile.write(buff.data)
+	# if "partials" in name:
 	data = ManisFormat.Data()
 	with open(archive.indir(name), "rb") as stream:
 		data.read(stream)
