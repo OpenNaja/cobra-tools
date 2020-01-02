@@ -42,3 +42,4 @@ pRenderLayersOveride = No visible changes.
 pTransmittance = Normally 0, a value of 1 makes light go through the object so shadows are removed, but the object remains opaque.
 pWetSpecularStrength = Makes the model more reflective while wet independently of the blue value of the roughnesspacked texture.
 pMaximumSnowAmount = No visible changes.
+pDecayNormalConstrastScale = Affects the intensity of the base normal map (not the detail normals) on the dead body.
