@@ -16,7 +16,7 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data = OvlFormat.Data()
 		self.file_src = ""
 
-		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATERIALCOLLECTION", "XMLCONFIG")
+		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
 		
 		mainMenu = self.menuBar() 

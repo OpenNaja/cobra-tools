@@ -14,7 +14,7 @@ class MainWindow(widgets.MainWindow):
 		
 		self.resize(450, 500)
 
-		self.materialcollection_data = MaterialcollectionFormat.Data()
+		self.matcol_data = MaterialcollectionFormat.Data()
 		self.file_src = ""
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/materialcollection.txt")
@@ -74,7 +74,7 @@ class MainWindow(widgets.MainWindow):
 	def shader_changed(self,):
 		"""Change the materialcollection data shader name if gui changes"""
 		if self.file_src:
-			self.materialcollection_data.shader_name = self.shader_container.entry.currentText()
+			self.matcol_data.shader_name = self.shader_container.entry.currentText()
 
 	@property
 	def materialcollection_name(self,):
@@ -83,7 +83,7 @@ class MainWindow(widgets.MainWindow):
 
 	def open_materialcollection(self):
 		"""Just a wrapper so we can also reload via code"""
-		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Matcol', self.cfg["dir_materialcollections_in"], "Matcol files (*.materialcollection)")[0]
+		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Matcol', self.cfg["dir_materialcollections_in"], "Matcol files (*.matcol)")[0]
 		self.load_materialcollection()
 
 	def create_grid(self,):
@@ -110,8 +110,8 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_materialcollections_in"], materialcollection_name = os.path.split(self.file_src)
 			try:
 				with open(self.file_src, "rb") as materialcollection_stream:
-					self.materialcollection_data.read(materialcollection_stream)
-				game = self.materialcollection_data.game
+					self.matcol_data.read(materialcollection_stream)
+				game = self.matcol_data.game
 				print("from game",game)
 				self.game_container.setText(game)
 
@@ -127,7 +127,7 @@ class MainWindow(widgets.MainWindow):
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
 				line_i = 0
-				for i, tex in enumerate(self.materialcollection_data.header.texture_wrapper.textures):
+				for i, tex in enumerate(self.matcol_data.header.texture_wrapper.textures):
 					# w = widgets.VectorEntry(tex, self.tooltips)
 					# form.addRow(w.label, w.data)
 					box = widgets.CollapsibleBox(f"Slot {i}")
@@ -150,7 +150,7 @@ class MainWindow(widgets.MainWindow):
 					box.setLayout(lay)
 				
 				line_i = 0
-				for attrib in self.materialcollection_data.header.layered_wrapper.layers:
+				for attrib in self.matcol_data.header.layered_wrapper.layers:
 					# w = widgets.VectorEntry(attrib, self.tooltips)
 					# self.attrib_grid.addWidget(w.label, line_i, 0)
 					# self.attrib_grid.addWidget(w.data, line_i, 1)
@@ -176,7 +176,7 @@ class MainWindow(widgets.MainWindow):
 					box.setLayout(lay)
 				
 				line_i = 0
-				for zstr in self.materialcollection_data.header.variant_wrapper.materials:
+				for zstr in self.matcol_data.header.variant_wrapper.materials:
 
 					a = QtWidgets.QLabel("variant fgm")
 					b = QtWidgets.QLineEdit(zstr)
@@ -191,11 +191,11 @@ class MainWindow(widgets.MainWindow):
 		
 	def save_materialcollection(self):
 		if self.file_src:
-			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save materialcollection', os.path.join(self.cfg["dir_materialcollections_out"], self.materialcollection_name), "materialcollection files (*.materialcollection)",)[0]
+			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save materialcollection', os.path.join(self.cfg["dir_materialcollections_out"], self.materialcollection_name), "materialcollection files (*.matcol)",)[0]
 			if file_out:
 				self.cfg["dir_materialcollections_out"], materialcollection_name = os.path.split(file_out)
 				with open(file_out, "wb") as materialcollection_stream:
-					self.materialcollection_data.write(materialcollection_stream)
+					self.matcol_data.write(materialcollection_stream)
 				print("Done!")
 			
 	

@@ -427,7 +427,7 @@ def write_fgm(archive, sized_str_entry):
 
 
 def write_materialcollection(archive, sized_str_entry):
-	name = sized_str_entry.name
+	name = sized_str_entry.name.replace("materialcollection", "matcol")
 	print("\nWriting",name)
 	
 	matcol_header = struct.pack("<4s 2I B", b"MATC ", archive.header.version, archive.header.flag_2, sized_str_entry.has_texture_list_frag )

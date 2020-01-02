@@ -36,7 +36,7 @@ def inject(ovl_data, file_paths, show_dds):
 			out_path = imarray.inject_wrapper(file_path, dupecheck, tmp_dir)
 			# skip dupes
 			if not out_path:
-				print("Skipping injection of",file_path)
+				print("Skipping injection of", file_path)
 				continue
 			# update the file path to the temp file with flipped channels or rebuilt array
 			file_path = out_path
@@ -44,6 +44,8 @@ def inject(ovl_data, file_paths, show_dds):
 		# image files are stored as tex files in the archive
 		if ext in (".dds", ".png"):
 			name_ext = name+".tex"
+		elif ext == ".matcol":
+			name_ext = name+".materialcollection"
 		# find the sizedstr entry that refers to this file
 		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
 		# do the actual injection, varies per file type
@@ -61,7 +63,7 @@ def inject(ovl_data, file_paths, show_dds):
 			load_xmlconfig(ovl_data, file_path, sized_str_entry)
 		elif ext == ".fdb":
 			load_fdb(ovl_data, file_path, sized_str_entry, name)
-		elif ext == ".materialcollection":
+		elif ext == ".matcol":
 			load_materialcollection(ovl_data, file_path, sized_str_entry)
 
 	shutil.rmtree(tmp_dir)
@@ -378,7 +380,6 @@ def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 
 
 def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
-
 	matcol_data = MaterialcollectionFormat.Data()
 	# open file for binary reading
 	with open(matcol_file_path, "rb") as stream:
