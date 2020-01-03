@@ -2,6 +2,7 @@ import os
 import io
 import sys
 import traceback
+import time
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 from pyffi_ext.formats.ovl import OvlFormat
@@ -117,6 +118,7 @@ class MainWindow(widgets.MainWindow):
 	def load_ovl(self):
 		if self.file_src:
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_src)
+			start_time = time.time()
 			try:
 				with open(self.file_src, "rb") as ovl_stream:
 					self.ovl_data.read(ovl_stream, file=self.file_src, commands=self.commands)
@@ -125,7 +127,7 @@ class MainWindow(widgets.MainWindow):
 				traceback.print_exc()
 				widgets.showdialog( str(ex) )
 				print(ex)
-			print("Done!")
+			print(f"Done in {time.time()-start_time:.2f} seconds!")
 		
 	def save_ovl(self):
 		if self.ovl_name:
