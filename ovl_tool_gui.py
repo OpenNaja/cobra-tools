@@ -49,12 +49,6 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
 		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
 		self.t_write_dds.setChecked(False)
-
-		# toggles that trigger reloads
-		self.t_reverse = QtWidgets.QCheckBox("Reverse Sets")
-		self.t_reverse.setToolTip("Most models need their sets to be read in revers. Uncheck only if issues ocur.")
-		self.t_reverse.setChecked(True)
-		self.t_reverse.stateChanged.connect(self.load_ovl)
 		
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
@@ -69,21 +63,19 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.e_ovl_name, 0, 0, 1, 2)
 		self.qgrid.addWidget(self.t_write_dds, 1, 0)
-		self.qgrid.addWidget(self.t_reverse, 2, 0,)
-		self.qgrid.addWidget(self.t_write_dat, 3, 0)
-		self.qgrid.addWidget(self.t_write_frag_log, 4, 0)
-		start = 5
+		self.qgrid.addWidget(self.t_write_dat, 2, 0)
+		self.qgrid.addWidget(self.t_write_frag_log, 3, 0)
+		start = 4
 		for i, (old, new) in enumerate(self.e_name_pairs):
 			self.qgrid.addWidget(old, start+i, 0)
 			self.qgrid.addWidget(new, start+i, 1)
-
 
 		self.central_widget.setLayout(self.qgrid)
 	
 	@property
 	def commands(self,):
 		# get those commands that are set to True
-		return [ x for x in ("reverse_sets", "write_dat", "write_frag_log") if getattr(self, x)]
+		return [ x for x in ("write_dat", "write_frag_log") if getattr(self, x)]
 	
 	def update_commands(self):
 		# at some point, just set commands to archive and trigger changes there
@@ -93,11 +85,7 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def ovl_name(self,):
 		return self.e_ovl_name.text()
-		
-	@property
-	def reverse_sets(self,):
-		return self.t_reverse.isChecked()
-	
+
 	@property
 	def write_dds(self,):
 		return self.t_write_dds.isChecked()
