@@ -88,7 +88,7 @@ def write_txt(archive, txt_sized_str_entry):
 
 def get_tex_structs(archive, sized_str_entry):
 	# we have exactly two fragments, pointing into these header types
-	f_3_7, f_3_3 = sized_str_entry.fragments
+	f_3_3, f_3_7 = sized_str_entry.fragments
 	
 	header_3_0 = f_3_7.pointers[0].read_as( OvlFormat.Header3Data0, archive )[0]
 	headers_3_1 = f_3_3.pointers[1].read_as( OvlFormat.Header3Data1, archive, num = f_3_3.pointers[1].data_size//24 )
