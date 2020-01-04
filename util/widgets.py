@@ -129,78 +129,78 @@ class MySwitch(QtWidgets.QPushButton):
 		painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
 
 class CollapsibleBox(QtWidgets.QWidget):
-    def __init__(self, title="", parent=None):
-        super(CollapsibleBox, self).__init__(parent)
+	def __init__(self, title="", parent=None):
+		super(CollapsibleBox, self).__init__(parent)
 
-        self.toggle_button = QtWidgets.QToolButton(
-            text=title, checkable=True, checked=False
-        )
-        self.toggle_button.setStyleSheet("QToolButton { border: none; }")
-        self.toggle_button.setToolButtonStyle(
-            QtCore.Qt.ToolButtonTextBesideIcon
-        )
-        self.toggle_button.setArrowType(QtCore.Qt.RightArrow)
-        self.toggle_button.pressed.connect(self.on_pressed)
+		self.toggle_button = QtWidgets.QToolButton(
+			text=title, checkable=True, checked=False
+		)
+		self.toggle_button.setStyleSheet("QToolButton { border: none; }")
+		self.toggle_button.setToolButtonStyle(
+			QtCore.Qt.ToolButtonTextBesideIcon
+		)
+		self.toggle_button.setArrowType(QtCore.Qt.RightArrow)
+		self.toggle_button.pressed.connect(self.on_pressed)
 
-        self.toggle_animation = QtCore.QParallelAnimationGroup(self)
+		self.toggle_animation = QtCore.QParallelAnimationGroup(self)
 
-        self.content_area = QtWidgets.QScrollArea(
-            maximumHeight=0, minimumHeight=0
-        )
-        self.content_area.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
-        )
-        self.content_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+		self.content_area = QtWidgets.QScrollArea(
+			maximumHeight=0, minimumHeight=0
+		)
+		self.content_area.setSizePolicy(
+			QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+		)
+		self.content_area.setFrameShape(QtWidgets.QFrame.NoFrame)
 
-        lay = QtWidgets.QVBoxLayout(self)
-        lay.setSpacing(0)
-        lay.setContentsMargins(0, 0, 0, 0)
-        lay.addWidget(self.toggle_button)
-        lay.addWidget(self.content_area)
+		lay = QtWidgets.QVBoxLayout(self)
+		lay.setSpacing(0)
+		lay.setContentsMargins(0, 0, 0, 0)
+		lay.addWidget(self.toggle_button)
+		lay.addWidget(self.content_area)
 
-        self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self, b"minimumHeight")
-        )
-        self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self, b"maximumHeight")
-        )
-        self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self.content_area, b"maximumHeight")
-        )
+		self.toggle_animation.addAnimation(
+			QtCore.QPropertyAnimation(self, b"minimumHeight")
+		)
+		self.toggle_animation.addAnimation(
+			QtCore.QPropertyAnimation(self, b"maximumHeight")
+		)
+		self.toggle_animation.addAnimation(
+			QtCore.QPropertyAnimation(self.content_area, b"maximumHeight")
+		)
 
-    @QtCore.pyqtSlot()
-    def on_pressed(self):
-        checked = self.toggle_button.isChecked()
-        self.toggle_button.setArrowType(
-            QtCore.Qt.DownArrow if not checked else QtCore.Qt.RightArrow
-        )
-        self.toggle_animation.setDirection(
-            QtCore.QAbstractAnimation.Forward
-            if not checked
-            else QtCore.QAbstractAnimation.Backward
-        )
-        self.toggle_animation.start()
+	@QtCore.pyqtSlot()
+	def on_pressed(self):
+		checked = self.toggle_button.isChecked()
+		self.toggle_button.setArrowType(
+			QtCore.Qt.DownArrow if not checked else QtCore.Qt.RightArrow
+		)
+		self.toggle_animation.setDirection(
+			QtCore.QAbstractAnimation.Forward
+			if not checked
+			else QtCore.QAbstractAnimation.Backward
+		)
+		self.toggle_animation.start()
 
-    def setLayout(self, layout):
-        lay = self.content_area.layout()
-        del lay
-        self.content_area.setLayout(layout)
-        collapsed_height = (
-            self.sizeHint().height() - self.content_area.maximumHeight()
-        )
-        content_height = layout.sizeHint().height()
-        for i in range(self.toggle_animation.animationCount()):
-            animation = self.toggle_animation.animationAt(i)
-            animation.setDuration(100)
-            animation.setStartValue(collapsed_height)
-            animation.setEndValue(collapsed_height + content_height)
+	def setLayout(self, layout):
+		lay = self.content_area.layout()
+		del lay
+		self.content_area.setLayout(layout)
+		collapsed_height = (
+			self.sizeHint().height() - self.content_area.maximumHeight()
+		)
+		content_height = layout.sizeHint().height()
+		for i in range(self.toggle_animation.animationCount()):
+			animation = self.toggle_animation.animationAt(i)
+			animation.setDuration(100)
+			animation.setStartValue(collapsed_height)
+			animation.setEndValue(collapsed_height + content_height)
 
-        content_animation = self.toggle_animation.animationAt(
-            self.toggle_animation.animationCount() - 1
-        )
-        content_animation.setDuration(100)
-        content_animation.setStartValue(0)
-        content_animation.setEndValue(content_height)
+		content_animation = self.toggle_animation.animationAt(
+			self.toggle_animation.animationCount() - 1
+		)
+		content_animation.setDuration(100)
+		content_animation.setStartValue(0)
+		content_animation.setEndValue(content_height)
 
 class MatcolInfo():
 	def __init__(self, attrib, tooltips={}):
@@ -243,6 +243,64 @@ class MatcolInfo():
 		field.setContentsMargins(0,0,0,0)
 		return field
 
+
+class QColorButton(QtWidgets.QPushButton):
+	'''
+	Custom Qt Widget to show a chosen color.
+
+	Left-clicking the button shows the color-chooser, while
+	right-clicking resets the color to None (no-color).
+	'''
+
+	colorChanged = QtCore.pyqtSignal(object)
+
+	def __init__(self, *args, **kwargs):
+		super(QColorButton, self).__init__(*args, **kwargs)
+
+		self._color = None
+		self.setMaximumWidth(32)
+		self.pressed.connect(self.onColorPicker)
+
+	def setColor(self, color):
+		if color != self._color:
+			self._color = color
+			self.colorChanged.emit(color)
+
+		if self._color:
+			self.setStyleSheet("background-color: %s;" % self._color.name(QtGui.QColor.NameFormat.HexArgb))
+		else:
+			self.setStyleSheet("")
+
+	def color(self):
+		return self._color
+
+	def onColorPicker(self):
+		'''
+		Show color-picker dialog to select color.
+
+		Qt will use the native dialog by default.
+
+		'''
+		dlg = QtWidgets.QColorDialog(self)
+		dlg.setOption(QtWidgets.QColorDialog.ShowAlphaChannel)
+		if self._color:
+			dlg.setCurrentColor(self._color)
+		if dlg.exec_():
+			self.setColor(dlg.currentColor())
+
+	def mousePressEvent(self, e):
+		if e.button() == QtCore.Qt.RightButton:
+			self.setColor(None)
+
+		return super(QColorButton, self).mousePressEvent(e)
+
+	def setValue(self, c):
+		self.setColor(QtGui.QColor(c.r, c.g, c.b, c.a))
+
+	def getValue(self, ):
+		if self._color:
+			print(self._color.getRgb())
+
 class VectorEntry():
 	def __init__(self, attrib, tooltips={}):
 		"""attrib must be pyffi attrib object"""
@@ -262,7 +320,6 @@ class VectorEntry():
 		self.data.setToolTip(tooltip)
 		self.label.setToolTip(tooltip)
 
-	
 	def create_field(self, ind):
 		default = self.attrib.value[ind]
 
@@ -276,7 +333,18 @@ class VectorEntry():
 			# print(self.attrib, ind, v)
 			self.attrib.value[ind] = int(v)
 
+		def update_ind_color( c):
+			# use a closure to remember index
+			# print(self.attrib, ind, v)
+			color = self.attrib.value[ind]
+			c_new = c.getRgb()
+			color.r = c_new[0]
+			color.g = c_new[1]
+			color.b = c_new[2]
+			color.a = c_new[3]
+
 		t = str(type(default))
+		# print(t)
 		if "float" in t:
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(3)
@@ -294,6 +362,9 @@ class VectorEntry():
 			field.setDecimals(0)
 			field.setRange(-MAX_UINT, MAX_UINT)
 			field.valueChanged.connect(update_ind_int)
+		elif "Color" in t:
+			field = QColorButton()
+			field.colorChanged.connect(update_ind_color)
 		field.setValue(default)
 		field.setMinimumWidth(50)
 		return field
