@@ -1,1 +1,8 @@
 m_baseColourSaturation = Affects the saturation of this layer's base color map [range 0-1].
+m_uvRotationAngle = Affects the rotation of the tiling, blender version is equivelent to -180*this value.
+m_uvTile = Affects size of the scale tiles. larger values result in smaller scales.
+m_uvRotationPosition = Affects the point at which the rotation of the tiles is performed.
+m_uvOffset = Offsets the position of the initial tiling.
+m_heightScale = Affects the height strength of the scales. Difference between the min and max values.
+m_heightOffset = Offsets the height range of the scales. Offsets both the min and max values.
+
