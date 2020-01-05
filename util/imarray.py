@@ -12,7 +12,7 @@ def check_any(iterable, string):
 	return any([i in string for i in iterable])
 
 def has_components(png_file_path):
-	return check_any(("playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture"), png_file_path)
+	return check_any(("playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture", "markingbaldnessscartexture", "markingscartexture"), png_file_path)
 
 def has_vectors(png_file_path):
 	return check_any(("pnormaltexture", "playered_warpoffset"), png_file_path)
