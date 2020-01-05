@@ -17,9 +17,10 @@ class MainWindow(widgets.MainWindow):
 		self.matcol_data = MaterialcollectionFormat.Data()
 		self.file_src = ""
 		self.widgets = []
-		self.tooltips = config.read_config("util/tooltips/materialcollection.txt")
+		self.tooltips = config.read_config("util/tooltips/matcol.txt")
 		self.games = ("Jurassic World Evolution", "Planet Zoo")
-		
+		self.default_fgms = config.read_list("util/tooltips/matcol-fgm-names.txt")
+
 		mainMenu = self.menuBar() 
 		fileMenu = mainMenu.addMenu('File')
 		helpMenu = mainMenu.addMenu('Help')
@@ -45,19 +46,16 @@ class MainWindow(widgets.MainWindow):
 		# self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 		self.materialcollection_container = widgets.LabelEdit("MATCOL:")
-		# self.shader_container = widgets.LabelCombo("Shader:", () )
-		# self.shader_container.entry.activated.connect(self.shader_changed)
 		self.tex_container = QtWidgets.QGroupBox("Slots")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
 
-		vbox = QtWidgets.QVBoxLayout()
-		vbox.addWidget(self.game_container)
-		vbox.addWidget(self.materialcollection_container)
-		# vbox.addWidget(self.shader_container)
-		vbox.addWidget(self.tex_container)
-		vbox.addWidget(self.attrib_container)
-		vbox.addStretch(1)
-		self.widget.setLayout(vbox)
+		self.vbox = QtWidgets.QVBoxLayout()
+		self.vbox.addWidget(self.game_container)
+		self.vbox.addWidget(self.materialcollection_container)
+		self.vbox.addWidget(self.tex_container)
+		self.vbox.addWidget(self.attrib_container)
+		self.vbox.addStretch(1)
+		self.widget.setLayout(self.vbox)
 
 		self.tex_grid = self.create_grid()
 		self.attrib_grid = self.create_grid()
@@ -70,11 +68,6 @@ class MainWindow(widgets.MainWindow):
 			self.shader_container.entry.clear()
 			game = self.game_container.entry.currentText()
 			self.shader_container.entry.addItems(self.shaders[game])
-		
-	def shader_changed(self,):
-		"""Change the materialcollection data shader name if gui changes"""
-		if self.file_src:
-			self.matcol_data.shader_name = self.shader_container.entry.currentText()
 
 	@property
 	def materialcollection_name(self,):
@@ -113,7 +106,7 @@ class MainWindow(widgets.MainWindow):
 					self.matcol_data.read(materialcollection_stream)
 				game = self.matcol_data.game
 				print("from game",game)
-				self.game_container.setText(game)
+				self.game_container.entry.setText(game)
 
 				self.materialcollection_container.entry.setText( materialcollection_name )
 
@@ -137,37 +130,29 @@ class MainWindow(widgets.MainWindow):
 					lay = self.create_grid()
 					a = QtWidgets.QLabel("texture type")
 					b = QtWidgets.QLabel("texture suffix")
-					c = QtWidgets.QLabel("fgm name")
 					x = QtWidgets.QLineEdit(tex.texture_type)
 					y = QtWidgets.QLineEdit(tex.texture_suffix)
-					z = QtWidgets.QLineEdit(tex.fgm_name)
+
+					combo = widgets.LabelCombo("First FGM:", self.default_fgms, tex, "fgm_name")
 					lay.addWidget(a, 0, 0)
 					lay.addWidget(b, 1, 0)
-					lay.addWidget(c, 2, 0)
 					lay.addWidget(x, 0, 1)
 					lay.addWidget(y, 1, 1)
-					lay.addWidget(z, 2, 1)
+					lay.addWidget(combo.label, 2, 0)
+					lay.addWidget(combo.entry, 2, 1)
 					box.setLayout(lay)
-				
+
 				line_i = 0
-				for attrib in self.matcol_data.header.layered_wrapper.layers:
-					# w = widgets.VectorEntry(attrib, self.tooltips)
-					# self.attrib_grid.addWidget(w.label, line_i, 0)
-					# self.attrib_grid.addWidget(w.data, line_i, 1)
-					# w = QtWidgets.QLabel(attrib.name)
-					# self.attrib_grid.addWidget(w, line_i, 0)
-					# line_i += 1
-					# for infow in attrib.infos:
-					# 	w = widgets.MatcolInfo(infow, self.tooltips)
-					# 	self.attrib_grid.addWidget(w.label, line_i, 0)
-					# 	self.attrib_grid.addWidget(w.data, line_i, 1)
-					# 	line_i += 1
-					box = widgets.CollapsibleBox(attrib.name)
+				for i, attrib in enumerate(self.matcol_data.header.layered_wrapper.layers):
+					box = widgets.CollapsibleBox(f"Slot {i}")
 					# box = QtWidgets.QGroupBox(attrib.name)
 					self.attrib_grid.addWidget(box, line_i, 0)
 					line_i += 1
 					lay = self.create_grid()
-					l = 0
+					combo = widgets.LabelCombo("FGM:", self.default_fgms, attrib, "name")
+					lay.addWidget(combo.label, 0, 0)
+					lay.addWidget(combo.entry, 0, 1)
+					l = 1
 					for infow in attrib.infos:
 						w = widgets.MatcolInfo(infow, self.tooltips)
 						lay.addWidget(w.label, l, 0)

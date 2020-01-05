@@ -60,16 +60,41 @@ class LabelEdit(QtWidgets.QWidget):
 		# vbox.addStretch(1)
 		self.setLayout(vbox)
 
+
+class CleverCombo(QtWidgets.QComboBox):
+	""""A combo box that supports setting content (existing or new), and a callback"""
+	def __init__(self, options=[], link_inst=None, link_attr=None, *args, **kwargs):
+		super(CleverCombo, self).__init__(*args, **kwargs)
+		self.addItems(options)
+		self.link_inst = link_inst
+		self.link_attr = link_attr
+		if link_inst and link_attr:
+			name = getattr(link_inst, link_attr)
+			self.setText(name)
+			self.currentIndexChanged.connect(self.update_name)
+
+	def setText(self, txt):
+		flag = QtCore.Qt.MatchFixedString
+		indx = self.findText(txt, flags=flag)
+		# add new item if not found
+		if indx == -1:
+			self.addItem(txt)
+			indx = self.findText(txt, flags=flag)
+		self.setCurrentIndex(indx)
+
+	def update_name(self, ind):
+		"""Change data on pyffi struct if gui changes"""
+		setattr(self.link_inst, self.link_attr, self.currentText())
+
 class LabelCombo(QtWidgets.QWidget):
-	def __init__(self, name, options):
+	def __init__(self, name, options, link_inst=None, link_attr=None):
 		QtWidgets.QWidget.__init__(self,)
 		sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		sizePolicy.setHorizontalStretch(0)
 		sizePolicy.setVerticalStretch(0)
 		self.shader_container = QtWidgets.QWidget()
 		self.label = QtWidgets.QLabel(name)
-		self.entry = QtWidgets.QComboBox()
-		self.entry.addItems(options)
+		self.entry = CleverCombo(options=options, link_inst=link_inst, link_attr=link_attr)
 		sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
 		self.entry.setSizePolicy(sizePolicy)
 		# self.entry.setMaxVisibleItems(10)
@@ -79,13 +104,6 @@ class LabelCombo(QtWidgets.QWidget):
 		vbox.addWidget(self.entry)
 		self.setLayout(vbox)
 
-	def setText(self, txt):
-		indx = self.entry.findText(txt)
-		# add new item if not found
-		if indx == -1:
-			self.entry.addItem(txt)
-			indx = self.entry.findText(txt)
-		self.entry.setCurrentIndex(indx)
 
 class MySwitch(QtWidgets.QPushButton):
 	PRIMARY =   QtGui.QColor(53, 53, 53)

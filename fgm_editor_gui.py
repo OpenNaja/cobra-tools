@@ -116,12 +116,12 @@ class MainWindow(widgets.MainWindow):
 					self.fgm_data.read(fgm_stream, file=self.file_src)
 				game = self.fgm_data.game
 				print("from game",game)
-				self.game_container.setText(game)
+				self.game_container.entry.setText(game)
 				# also for
 				self.game_changed()
 
 				self.fgm_container.entry.setText( fgm_name )
-				self.shader_container.setText(self.fgm_data.shader_name)
+				self.shader_container.entry.setText(self.fgm_data.shader_name)
 
 				# delete existing widgets
 				self.clear_layout(self.tex_grid)
