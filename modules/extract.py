@@ -447,8 +447,9 @@ def write_materialcollection(archive, sized_str_entry):
 		for tup in sized_str_entry.mat_frags:
 			# write root frag, always present
 			m0 = tup[0]
+			# the name of the material slot or variant
 			outfile.write(m0.pointers[1].data)
-			# write info and attrib frags + children
+			# material layers only: write info and attrib frags + children
 			for f in tup[1:]:
 				outfile.write(f.pointers[0].data)
 				for child in f.children:
