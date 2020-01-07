@@ -65,8 +65,11 @@ def inject(ovl_data, file_paths, show_dds):
 			load_fdb(ovl_data, file_path, sized_str_entry, name)
 		elif ext == ".matcol":
 			load_materialcollection(ovl_data, file_path, sized_str_entry)
-
+		elif ext == ".lua":
+			load_lua(ovl_data, file_path, sized_str_entry)
+		  
 	shutil.rmtree(tmp_dir)
+
 
 
 def to_bytes(inst, data):
@@ -462,3 +465,30 @@ def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
 		# update the sizedstring entry
 		data = struct.pack("<8I", len(buffer1_bytes), 0, 0, 0, 0, 0, 0, 0)
 		fdb_sized_str_entry.pointers[0].update_data(data, update_copies=True)
+        
+        
+def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
+	# read fdb
+	# inject fdb buffers
+	# update sized string
+
+	with open(lua_file_path, "rb") as lua_stream:
+		# load the new buffers
+		buffer_bytes = lua_stream.read()
+		# update the buffers
+		lua_sized_str_entry.data_entry.update_data( (buffer_bytes,))
+		# update the sizedstring entry
+	with open(lua_file_path+"meta","rb") as luameta_stream:
+		string_data = luameta_stream.read(16)
+		print(string_data)
+		frag0_data0 = luameta_stream.read(8)
+		print(frag0_data0)
+		frag0_data1 = luameta_stream.read(lua_sized_str_entry.fragments[0].pointers[1].data_size)
+		print(frag0_data1)
+		frag1_data0 = luameta_stream.read(24)
+		print(frag1_data0)
+		frag1_data1 = luameta_stream.read(lua_sized_str_entry.fragments[1].pointers[1].data_size)
+		print(frag1_data1)
+		lua_sized_str_entry.pointers[0].update_data(string_data, update_copies=True)
+		lua_sized_str_entry.fragments[0].pointers[1].update_data(frag0_data1, update_copies=True)
+		lua_sized_str_entry.fragments[1].pointers[1].update_data(frag1_data1, update_copies=True)  
