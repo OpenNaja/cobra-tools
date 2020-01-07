@@ -468,19 +468,19 @@ def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
         
         
 def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
-	# read fdb
-	# inject fdb buffers
+	# read lua
+	# inject lua buffer
 	# update sized string
-
+	#IMPORTANT: all meta data of the lua except the sized str entries lua size value seems to just be meta data, can be zeroed
 	with open(lua_file_path, "rb") as lua_stream:
-		# load the new buffers
+		# load the new buffer
 		buffer_bytes = lua_stream.read()
-		# update the buffers
+		# update the buffer
 		lua_sized_str_entry.data_entry.update_data( (buffer_bytes,))
 		# update the sizedstring entry
 	with open(lua_file_path+"meta","rb") as luameta_stream:
 		string_data = luameta_stream.read(16)
-		print(string_data)
+		print(string_data) #4 uints: size,unknown,hash,zero. only size is used by game.
 		frag0_data0 = luameta_stream.read(8)
 		print(frag0_data0)
 		frag0_data1 = luameta_stream.read(lua_sized_str_entry.fragments[0].pointers[1].data_size)
