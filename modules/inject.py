@@ -10,7 +10,7 @@ from pyffi_ext.formats.ms2 import Ms2Format
 # from pyffi_ext.formats.ovl import OvlFormat
 from pyffi_ext.formats.fgm import FgmFormat
 from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
-from pyffi_ext.formats.assetpkg import AssetpkgFormat
+# from pyffi_ext.formats.assetpkg import AssetpkgFormat
 
 from modules import extract
 from util import texconv, imarray
@@ -470,10 +470,9 @@ def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
 		fdb_sized_str_entry.pointers[0].update_data(data, update_copies=True)
 
 def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
-	assetpkg_data = AssetpkgFormat.Data()
 	with open(assetpkg_file_path, "rb") as stream:
-		assetpkg_data.read(stream)
-		sized_str_entry.fragments[0].pointers[1].update_data( to_bytes(assetpkg_data.header.data_1, assetpkg_data), update_copies=True )  
+		b = stream.read()
+		sized_str_entry.fragments[0].pointers[1].update_data( b + b"\x00", update_copies=True, pad_to=64)
         
 def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
 	# read lua

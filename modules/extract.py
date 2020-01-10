@@ -485,6 +485,7 @@ def write_lua(archive, sized_str_entry):
 			outfile.write( frag.pointers[0].data )
 			outfile.write( frag.pointers[1].data )
 
+
 def write_assetpkg(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
@@ -494,15 +495,9 @@ def write_assetpkg(archive, sized_str_entry):
 	else:
 		print("Found wrong amount of frags for",name)
 		return
-	asset_header = struct.pack("<9s 3I", b"ASSETPKG ", archive.header.version, archive.header.flag_2, len(f_0.pointers[1].data))
-	# write assetpkg
 	with open(archive.indir(name), 'wb') as outfile:
-		# write custom FGM header
-		outfile.write(asset_header)
-		# write each of the fragments
-		# for frag in (f_0,):
-		outfile.write( f_0.pointers[0].data )
-		outfile.write( f_0.pointers[1].data )
+		f_0.pointers[1].strip_zstring_padding()
+		outfile.write(f_0.pointers[1].data[:-1])
 
 
 def write_fdb(archive, sized_str_entry):
