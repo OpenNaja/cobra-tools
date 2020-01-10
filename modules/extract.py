@@ -488,21 +488,14 @@ def write_lua(archive, sized_str_entry):
 def write_assetpkg(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
-	
-	try:
-		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
-		print("buffer size",len(buffer_data))
-	except:
-		print("Found no buffer data for",name)
-		buffer_data = b""
 	if len(sized_str_entry.fragments) == 1:
 		print(len(sized_str_entry.fragments))
 		f_0 = sized_str_entry.fragments[0]
 	else:
 		print("Found wrong amount of frags for",name)
 		return
+	asset_header = struct.pack("<9s 3I", b"ASSETPKG ", archive.header.version, archive.header.flag_2, len(f_0.pointers[1].data))
 	# write assetpkg
-	asset_header = struct.pack("<8s3I", b"ASSETPKG", f_0.pointers[0].data_size, f_0.pointers[1].data_size, len(buffer_data))
 	with open(archive.indir(name), 'wb') as outfile:
 		# write custom FGM header
 		outfile.write(asset_header)
@@ -510,8 +503,6 @@ def write_assetpkg(archive, sized_str_entry):
 		# for frag in (f_0,):
 		outfile.write( f_0.pointers[0].data )
 		outfile.write( f_0.pointers[1].data )
-		# write the buffer
-		outfile.write(buffer_data)
 
 
 def write_fdb(archive, sized_str_entry):
