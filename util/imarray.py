@@ -155,7 +155,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 						im[hi*h:(hi+1)*h, :, di] = ims[layer_i]
 					elif len(tile_shape) == 3:
 						print(f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
-						im[hi*h:(hi+1)*h, :, di] = ims[layer_i, :, 0]
+						im[hi*h:(hi+1)*h, :, di] = ims[layer_i][:, :, 0]
 					layer_i += 1
 		else:
 			print("Rebuilding array texture from RGBA tiles")
