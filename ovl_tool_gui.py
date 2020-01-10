@@ -15,36 +15,14 @@ class MainWindow(widgets.MainWindow):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
 		
 		self.ovl_data = OvlFormat.Data()
-		self.file_src = ""
 
 		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG","ASSETPKG","LUA")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
-		
-		mainMenu = self.menuBar() 
-		fileMenu = mainMenu.addMenu('File')
-		editMenu = mainMenu.addMenu('Edit')
-		helpMenu = mainMenu.addMenu('Help')
-		button_data = ( (fileMenu, "Open", self.open_ovl, "CTRL+O"),
-						(fileMenu, "Save", self.save_ovl, "CTRL+S"),
-						(fileMenu, "Exit", self.close, ""),
-						(editMenu, "Unpack", self.extract_all, "CTRL+U"),
-						(editMenu, "Inject", self.inject, "CTRL+I"),
-						(editMenu, "Hash", self.hasher,"CTRL+H"),
-						(helpMenu, "Report Bug", self.report_bug, ""),
-						(helpMenu, "Documentation", self.online_support, "") )
-		self.add_to_menu(button_data)
 
-		tooltips = ( "Load an OVL archive whose files you want to modify.",
-					 "Save the OVL file you do not want to merge.",
-					 "Unpack all known files from the OVL into the selected folder.",
-					 "Load files to inject into the opened OVL archive.")
-
-		self.e_ovl_name = QtWidgets.QLineEdit(self)
-		self.e_ovl_name.setToolTip("The name of the OVL file that is currently open.")
-		self.e_ovl_name.setReadOnly(True)
+		self.file_widget = widgets.FileWidget(self, self.cfg, "The name of the OVL file that is currently open.")
 
 		self.e_name_pairs = [ (QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(3) ]
-        
+
 		# toggles
 		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
 		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
@@ -53,15 +31,15 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
-		self.t_write_dat.stateChanged.connect(self.load_ovl)
+		self.t_write_dat.stateChanged.connect(self.file_widget.ask_open)
 
 		self.t_write_frag_log = QtWidgets.QCheckBox("Save Frag Log")
 		self.t_write_frag_log.setToolTip("For devs.")
 		self.t_write_frag_log.setChecked(False)
-		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
+		self.t_write_frag_log.stateChanged.connect(self.file_widget.ask_open)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.e_ovl_name, 0, 0, 1, 2)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 2)
 		self.qgrid.addWidget(self.t_write_dds, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 2, 0)
 		self.qgrid.addWidget(self.t_write_frag_log, 3, 0)
@@ -71,7 +49,21 @@ class MainWindow(widgets.MainWindow):
 			self.qgrid.addWidget(new, start+i, 1)
 
 		self.central_widget.setLayout(self.qgrid)
-	
+
+		mainMenu = self.menuBar()
+		fileMenu = mainMenu.addMenu('File')
+		editMenu = mainMenu.addMenu('Edit')
+		helpMenu = mainMenu.addMenu('Help')
+		button_data = ((fileMenu, "Open", self.file_widget.ask_open, "CTRL+O"),
+					   (fileMenu, "Save", self.save_ovl, "CTRL+S"),
+					   (fileMenu, "Exit", self.close, ""),
+					   (editMenu, "Unpack", self.extract_all, "CTRL+U"),
+					   (editMenu, "Inject", self.inject, "CTRL+I"),
+					   (editMenu, "Hash", self.hasher, "CTRL+H"),
+					   (helpMenu, "Report Bug", self.report_bug, ""),
+					   (helpMenu, "Documentation", self.online_support, ""))
+		self.add_to_menu(button_data)
+
 	@property
 	def commands(self,):
 		# get those commands that are set to True
@@ -84,7 +76,7 @@ class MainWindow(widgets.MainWindow):
 
 	@property
 	def ovl_name(self,):
-		return self.e_ovl_name.text()
+		return self.file_widget.text()
 
 	@property
 	def write_dds(self,):
@@ -100,17 +92,17 @@ class MainWindow(widgets.MainWindow):
 
 	def open_ovl(self):
 		"""Just a wrapper so we can also reload via code"""
-		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
+		self.file_widget.filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
 		self.load_ovl()
 
 	def load_ovl(self):
-		if self.file_src:
-			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_src)
+		if self.file_widget.filepath:
+			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_widget.filepath)
 			start_time = time.time()
 			try:
-				with open(self.file_src, "rb") as ovl_stream:
-					self.ovl_data.read(ovl_stream, file=self.file_src, commands=self.commands)
-				self.e_ovl_name.setText(ovl_name)
+				with open(self.file_widget.filepath, "rb") as ovl_stream:
+					self.ovl_data.read(ovl_stream, file=self.file_widget.filepath, commands=self.commands)
+				self.file_widget.setText(ovl_name)
 			except Exception as ex:
 				traceback.print_exc()
 				widgets.showdialog( str(ex) )

@@ -397,7 +397,7 @@ class FileWidget(QtWidgets.QLineEdit):
 		self.parent = parent
 		self.cfg = cfg
 		if not self.cfg:
-			self.cfg["dir_in"]  = "C://"
+			self.cfg["dir_ovls_in"] = "C://"
 		self.setDragEnabled(True)
 		self.setReadOnly(True)
 		self.filepath = ""
@@ -417,10 +417,10 @@ class FileWidget(QtWidgets.QLineEdit):
 			
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
-			if os.path.splitext(filepath)[1].lower() in (".flac", ".wav"):
+			if os.path.splitext(filepath)[1].lower() in (".ovl"):
 				if not self.abort_open_new_file(filepath):
 					self.filepath = filepath
-					self.cfg["dir_in"], filename = os.path.split(filepath)
+					self.cfg["dir_ovls_in"], filename = os.path.split(filepath)
 					self.setText(filename)
 					self.parent.poll()
 			else:
@@ -449,7 +449,7 @@ class FileWidget(QtWidgets.QLineEdit):
 			self.accept_file(filepath)
 			
 	def ask_open(self):
-		filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Open '+self.description, self.cfg["dir_in"], "Audio files (*.flac *.wav)")[0]
+		filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
 		self.accept_file(filepath)
 		
 	def mousePressEvent(self, event):
@@ -472,7 +472,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		except: pass
 		
 		self.cfg = config.read_config("config.ini")
-		
+
+	def poll(self):
+		if self.file_widget.filepath:
+			self.load_ovl()
 
 	def report_bug(self):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
