@@ -94,7 +94,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 
 	in_name_bare, suffix = split_name_suffix(in_name)
 	# join arrays if there is a suffix
-	must_join = suffix != None
+	must_join = suffix is not None
 
 	# update output path
 	out_file_path = os.path.join(tmp_dir, in_name_bare + ext)
@@ -130,10 +130,12 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 			in_shape = ims[0].shape
 			# check for depth dimension
 			has_d = len(in_shape) == 3
+			# RGBA or RGBA image
 			if has_d:
 				h, w, d = in_shape
 				if d != 4:
 					raise AttributeError(f"{file} does not have all 4 channels (RGBA) that are expected, it has {d}")
+			# no 3rd dimension, ie. single channel greyscale image
 			else:
 				h, w = in_shape
 				d = 1
@@ -148,7 +150,12 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 			layer_i = 0
 			for hi in range(array_size):
 				for di in range(d):
-					im[hi*h:(hi+1)*h, :, di] = ims[layer_i]
+					tile_shape = ims[layer_i].shape
+					if len(tile_shape) == 2:
+						im[hi*h:(hi+1)*h, :, di] = ims[layer_i]
+					elif len(tile_shape) == 3:
+						print(f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
+						im[hi*h:(hi+1)*h, :, di] = ims[layer_i, :, 0]
 					layer_i += 1
 		else:
 			print("Rebuilding array texture from RGBA tiles")
