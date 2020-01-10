@@ -10,6 +10,7 @@ from pyffi_ext.formats.ms2 import Ms2Format
 # from pyffi_ext.formats.ovl import OvlFormat
 from pyffi_ext.formats.fgm import FgmFormat
 from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
+from pyffi_ext.formats.assetpkg import AssetpkgFormat
 
 from modules import extract
 from util import texconv, imarray
@@ -67,6 +68,8 @@ def inject(ovl_data, file_paths, show_dds):
 			load_materialcollection(ovl_data, file_path, sized_str_entry)
 		elif ext == ".lua":
 			load_lua(ovl_data, file_path, sized_str_entry)
+		elif ext == ".assetpkg":
+			load_assetpkg(ovl_data, file_path, sized_str_entry)
 		  
 	shutil.rmtree(tmp_dir)
 
@@ -465,7 +468,12 @@ def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
 		# update the sizedstring entry
 		data = struct.pack("<8I", len(buffer1_bytes), 0, 0, 0, 0, 0, 0, 0)
 		fdb_sized_str_entry.pointers[0].update_data(data, update_copies=True)
-        
+
+def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
+	assetpkg_data = AssetpkgFormat.Data()
+	with open(assetpkg_file_path, "rb") as stream:
+		assetpkg_data.read(stream)
+		sized_str_entry.fragments[0].pointers[1].update_data( to_bytes(assetpkg_data.header.data_1, assetpkg_data), update_copies=True )  
         
 def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
 	# read lua
