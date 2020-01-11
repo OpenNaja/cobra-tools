@@ -19,7 +19,8 @@ class MainWindow(widgets.MainWindow):
 		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG","ASSETPKG","LUA")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
 
-		self.file_widget = widgets.FileWidget(self, self.cfg, "The name of the OVL file that is currently open.")
+		self.file_widget = widgets.FileWidget(self, self.cfg)
+		self.file_widget.setToolTip("The name of the OVL file that is currently open.")
 
 		self.e_name_pairs = [ (QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(3) ]
 

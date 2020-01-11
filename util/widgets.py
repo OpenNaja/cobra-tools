@@ -392,7 +392,7 @@ class FileWidget(QtWidgets.QLineEdit):
 	Displays the current file's basename.
 	"""
 
-	def __init__(self, parent, cfg, description="", ask_user=True):
+	def __init__(self, parent, cfg, ask_user=True):
 		super(FileWidget, self).__init__(parent)
 		self.parent = parent
 		self.cfg = cfg
@@ -401,8 +401,6 @@ class FileWidget(QtWidgets.QLineEdit):
 		self.setDragEnabled(True)
 		self.setReadOnly(True)
 		self.filepath = ""
-		self.description = description
-		self.setToolTip(self.description)
 		self.ask_user = ask_user
 			
 	def abort_open_new_file(self, new_filepath):
