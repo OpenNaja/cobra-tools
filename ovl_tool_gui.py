@@ -4,10 +4,12 @@ import sys
 import traceback
 import time
 from PyQt5 import QtWidgets, QtGui, QtCore
+import numpy as np
 
 from pyffi_ext.formats.ovl import OvlFormat
+from pyffi_ext.formats.ms2 import Ms2Format
 from util import widgets, config
-from modules import extract, inject,hasher
+from modules import extract, inject, hasher, walker
 
 class MainWindow(widgets.MainWindow):
 
@@ -61,6 +63,7 @@ class MainWindow(widgets.MainWindow):
 					   (editMenu, "Unpack", self.extract_all, "CTRL+U"),
 					   (editMenu, "Inject", self.inject, "CTRL+I"),
 					   (editMenu, "Hash", self.hasher, "CTRL+H"),
+					   (editMenu, "Walk", self.walker, ""),
 					   (helpMenu, "Report Bug", self.report_bug, ""),
 					   (helpMenu, "Documentation", self.online_support, ""))
 		self.add_to_menu(button_data)
@@ -153,18 +156,66 @@ class MainWindow(widgets.MainWindow):
 		else:
 			widgets.showdialog( "You must open an OVL file before you can inject files!" )
 
-			       
 	def hasher(self):
 		if self.ovl_name:
 			names = [ (tup[0].text(), tup[1].text()) for tup in self.e_name_pairs ]
 			for archive in self.ovl_data.archives:
 				hasher.dat_hasher(archive, names, self.ovl_data.header.files,self.ovl_data.header.textures)
-
-
 		else:
 			widgets.showdialog( "You must open an OVL file before you can extract files!" )
 
-			       
+	def walker(self, dummy=False, walk_ovls=True, walk_models=True):
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg["dir_ovls_in"], )
+		errors = []
+		# holds different types of flag - list of byte maps pairs
+		type_dic = {}
+		if start_dir:
+			export_dir = os.path.join(start_dir, "walker_export")
+			# don't use internal data
+			ovl_data = OvlFormat.Data()
+			mdl2_data = Ms2Format.Data()
+			if walk_ovls:
+				for ovl_path in walker.walk_type(start_dir, extension="ovl"):
+					try:
+						# read ovl file
+						with open(ovl_path, "rb") as ovl_stream:
+							ovl_data.read(ovl_stream, file=ovl_path, commands=self.commands)
+						# create an output folder for it
+						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
+						# create output dir
+						os.makedirs(outdir, exist_ok=True)
+						for archive in ovl_data.archives:
+							archive.dir = outdir
+							extract.extract(archive, self.write_dds, only_types=["ms2",])
+					except Exception as ex:
+						traceback.print_exc()
+						errors.append((ovl_path, ex))
+			if walk_models:
+				for mdl2_path in walker.walk_type(export_dir, extension="mdl2"):
+					print(mdl2_path)
+					try:
+						with open(mdl2_path, "rb") as ovl_stream:
+							mdl2_data.read(ovl_stream, file=mdl2_path, quick=True, map_bytes=True)
+							for model in mdl2_data.mdl2_header.models:
+								if model.flag not in type_dic:
+									type_dic[model.flag] = []
+								type_dic[model.flag].append(model.bytes_map)
+					except Exception as ex:
+						traceback.print_exc()
+						errors.append((mdl2_path, ex))
+			# report
+			print("\nThe following errors occured:")
+			for file_path, ex in errors:
+				print(file_path, str(ex))
+
+			print("\nThe following type - map pairs were found:")
+			for flag, maps_list in type_dic.items():
+				print(flag, bin(flag))
+				print("num models", len(maps_list))
+				print("mean", np.mean(maps_list, axis=0).astype(dtype=np.ubyte))
+				print("max", np.max(maps_list, axis=0))
+				print()
+
 
 if __name__ == '__main__':
 	widgets.startup( MainWindow )

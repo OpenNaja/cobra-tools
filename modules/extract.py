@@ -39,12 +39,14 @@ def read_sized_str_at(stream, pos):
 	return stream.read(size)
 
 
-def extract(archive, show_dds):
+def extract(archive, show_dds, only_types=[]):
 	"""Extract the files, after all archives have been read"""
 	# the actual export, per file type
-	print("\nExtracting from archive",archive.archive_index)
+	print("\nExtracting from archive", archive.archive_index)
 	for sized_str_entry in archive.sized_str_entries:
-
+		# for batch operations, only export those we need
+		if only_types and sized_str_entry.ext not in only_types:
+			continue
 		if sized_str_entry.ext == "banis":
 			write_banis(archive, sized_str_entry)
 		elif sized_str_entry.ext == "bani":
