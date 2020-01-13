@@ -192,14 +192,15 @@ class MainWindow(widgets.MainWindow):
 						errors.append((ovl_path, ex))
 			if walk_models:
 				for mdl2_path in walker.walk_type(export_dir, extension="mdl2"):
-					print(mdl2_path)
+					mdl2_name = os.path.basename(mdl2_path)
 					try:
 						with open(mdl2_path, "rb") as ovl_stream:
 							mdl2_data.read(ovl_stream, file=mdl2_path, quick=True, map_bytes=True)
 							for model in mdl2_data.mdl2_header.models:
 								if model.flag not in type_dic:
-									type_dic[model.flag] = []
-								type_dic[model.flag].append(model.bytes_map)
+									type_dic[model.flag] = ([], [])
+								type_dic[model.flag][0].append(mdl2_name)
+								type_dic[model.flag][1].append(model.bytes_map)
 					except Exception as ex:
 						traceback.print_exc()
 						errors.append((mdl2_path, ex))
@@ -209,8 +210,10 @@ class MainWindow(widgets.MainWindow):
 				print(file_path, str(ex))
 
 			print("\nThe following type - map pairs were found:")
-			for flag, maps_list in type_dic.items():
+			for flag, tup in type_dic.items():
 				print(flag, bin(flag))
+				names, maps_list = tup
+				print("Some files:", names[:15])
 				print("num models", len(maps_list))
 				print("mean", np.mean(maps_list, axis=0).astype(dtype=np.ubyte))
 				print("max", np.max(maps_list, axis=0))
