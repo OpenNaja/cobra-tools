@@ -213,7 +213,7 @@ class MainWindow(widgets.MainWindow):
 			for flag, tup in type_dic.items():
 				print(flag, bin(flag))
 				names, maps_list = tup
-				print("Some files:", list(set(names))[:15])
+				print("Some files:", list(set(names))[:25])
 				print("num models", len(maps_list))
 				print("mean", np.mean(maps_list, axis=0).astype(dtype=np.ubyte))
 				print("max", np.max(maps_list, axis=0))
