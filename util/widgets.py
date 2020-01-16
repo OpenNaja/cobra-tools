@@ -402,6 +402,8 @@ class FileWidget(QtWidgets.QLineEdit):
 		self.setReadOnly(True)
 		self.filepath = ""
 		self.ask_user = ask_user
+		# this checks if the data has been modified by the user, is set from the outside
+		self.dirty = False
 			
 	def abort_open_new_file(self, new_filepath):
 		# only return True if we should abort
@@ -409,9 +411,9 @@ class FileWidget(QtWidgets.QLineEdit):
 			return False
 		if new_filepath == self.filepath:
 			return True
-		if self.filepath:
+		if self.filepath and self.dirty:
 			qm = QtWidgets.QMessageBox
-			return qm.No == qm.question(self,'', "Do you really want to load "+os.path.basename(new_filepath)+"? You will lose unsaved work on "+os.path.basename(self.filepath)+"!", qm.Yes | qm.No)
+			return qm.No == qm.question(self, '', "Do you really want to load "+os.path.basename(new_filepath)+"? You will lose unsaved work on "+os.path.basename(self.filepath)+"!", qm.Yes | qm.No)
 			
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):

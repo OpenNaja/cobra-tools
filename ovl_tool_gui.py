@@ -94,13 +94,9 @@ class MainWindow(widgets.MainWindow):
 	def write_frag_log(self,):
 		return self.t_write_frag_log.isChecked()
 
-	def open_ovl(self):
-		"""Just a wrapper so we can also reload via code"""
-		self.file_widget.filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
-		self.load_ovl()
-
 	def load_ovl(self):
 		if self.file_widget.filepath:
+			self.file_widget.dirty = False
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_widget.filepath)
 			start_time = time.time()
 			try:
@@ -121,6 +117,7 @@ class MainWindow(widgets.MainWindow):
 				# just a dummy stream
 				with io.BytesIO() as ovl_stream:
 					self.ovl_data.write(ovl_stream, file_path=file_src)
+				self.file_widget.dirty = False
 				print("Done!")
 			
 	def extract_all(self):
@@ -149,6 +146,7 @@ class MainWindow(widgets.MainWindow):
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
 				inject.inject( self.ovl_data, files, self.write_dds )
+				self.file_widget.dirty = True
 			except Exception as ex:
 				traceback.print_exc()
 				widgets.showdialog( str(ex) )
@@ -219,6 +217,18 @@ class MainWindow(widgets.MainWindow):
 				print("max", np.max(maps_list, axis=0))
 				print()
 
+	def closeEvent(self, event):
+		if self.file_widget.dirty:
+			qm = QtWidgets.QMessageBox
+			quit_msg = "You will lose unsaved work on "+os.path.basename(self.file_widget.filepath)+"!"
+			reply = qm.question(self, 'Quit?', quit_msg, qm.Yes, qm.No)
+
+			if reply == qm.Yes:
+				event.accept()
+			else:
+				event.ignore()
+		else:
+			event.accept()
 
 if __name__ == '__main__':
 	widgets.startup( MainWindow )
