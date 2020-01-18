@@ -230,5 +230,13 @@ class MainWindow(widgets.MainWindow):
 		else:
 			event.accept()
 
+
 if __name__ == '__main__':
+	print("running python", sys.version)
+	is_64bits = sys.maxsize > 2 ** 32
+	if not is_64bits:
+		widgets.showdialog("Either your operating system or your python installation is not 64bits.\n"
+						   "Large OVLs will crash unexpectedly!")
+	if sys.version_info[0] != 3 or sys.version_info[1] != 7 or sys.version_info[2] < 6:
+		widgets.showdialog("Python 3.7.6 x64 bit is expected")
 	widgets.startup( MainWindow )
