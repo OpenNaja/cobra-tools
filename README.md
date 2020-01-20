@@ -27,7 +27,7 @@ Remember to backup all mod files and stock files. Any patches will reset or brea
 - This tool is developed under 'fair use' by enthusiasts and is not affiliated with Universal© or Frontier® in any form.
 - Use at your own risk. This tool may cause damage to you, your equipment or your data.
 - Do not use or modify these tools to circumvent copy protections; especially, do not try to unlock downloadable content for free or share official artwork or intellectual property or engage in so-called data mining to announce game content before an official announcement.
-- Do not charge money or ask for donations for mods created with these tools.
+- Mods made with the tools are not to have monetary value. Please do not charge money or ask for donations in order to download the mods or charge for exclusivity of the mods. 
 
 
 ### Credits
