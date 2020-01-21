@@ -367,9 +367,9 @@ def write_manis(archive, sized_str_entry):
 	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
 	# 		outfile.write(buff.data)
 	# if "partials" in name:
-	data = ManisFormat.Data()
-	with open(archive.indir(name), "rb") as stream:
-		data.read(stream)
+		# data = ManisFormat.Data()
+		# with open(archive.indir(name), "rb") as stream:
+		# 	data.read(stream)
 
 def write_mani(archive, sized_str_entry):
 	name = sized_str_entry.name
