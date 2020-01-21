@@ -3,13 +3,14 @@ import io
 import sys
 import traceback
 import time
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets
 import numpy as np
 
 from pyffi_ext.formats.ovl import OvlFormat
 from pyffi_ext.formats.ms2 import Ms2Format
-from util import widgets, config
+from util import widgets
 from modules import extract, inject, hasher, walker
+
 
 class MainWindow(widgets.MainWindow):
 
@@ -18,7 +19,7 @@ class MainWindow(widgets.MainWindow):
 		
 		self.ovl_data = OvlFormat.Data()
 
-		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG","ASSETPKG","LUA")
+		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
