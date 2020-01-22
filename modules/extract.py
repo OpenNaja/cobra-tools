@@ -213,7 +213,7 @@ def write_ms2(archive, ms2_sized_str_entry):
 		bone_matrices = b""
 	else:
 		raise BufferError(f"Wrong amount of buffers for {name}\nWanted 2 or 3 buffers, got {len(buffers)}")
-	
+
 	print("\nWriting",name)
 	# print("\nbuffers",len(buffers))
 	# for i, buffer in enumerate(buffers):
@@ -223,12 +223,12 @@ def write_ms2(archive, ms2_sized_str_entry):
 		print("must have 3 fragments")
 		return
 	f_0, f_1, f_2 = ms2_sized_str_entry.fragments
-	
+
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2Format.Ms2SizedStrData, archive)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
-	
+
 	# f0 has information on vert & tri buffer sizes
 	ms2_buffer_info_data = f_0.pointers[1].data
 	# this fragment informs us about the model count of the next mdl2 that is read
@@ -236,7 +236,13 @@ def write_ms2(archive, ms2_sized_str_entry):
 	next_model_info_data = f_1.pointers[1].data
 	# next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, archive)
 	# print("next_model_info", f_1.pointers[1].address, next_model_info)
-	
+
+	# ms2_header = struct.pack("<4s5I", b"MS2 ", archive.header.version, archive.header.flag_2, len(bone_names), len(bone_matrices), len(ms2_sized_str_entry.children))
+	# with open(archive.indir(name), 'wb') as outfile:
+	# 	outfile.write(ms2_header)
+	# 	for mdl2_entry in ms2_sized_str_entry.children:
+	# 		outfile.write(mdl2_entry.name.encode()[:-5]+b"\x00")
+
 	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.header.version, archive.header.flag_2, len(bone_names), len(bone_matrices))
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(ms2_header)
@@ -245,7 +251,7 @@ def write_ms2(archive, ms2_sized_str_entry):
 		outfile.write(bone_names)
 		outfile.write(bone_matrices)
 		outfile.write(verts)
-		
+
 	# export each mdl2
 	for mdl2_index, mdl2_entry in enumerate(ms2_sized_str_entry.children):
 		with open(archive.indir(mdl2_entry.name), 'wb') as outfile:
@@ -253,12 +259,12 @@ def write_ms2(archive, ms2_sized_str_entry):
 			# the fixed fragments
 			green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
 			print("model_count",mdl2_entry.model_count)
-				
+
 			mdl2_header = struct.pack("<4s3I", b"MDL2", archive.header.version, archive.header.flag_2, mdl2_index )
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
-			
+
 			# write the model info for this model, buffered from the previous model or ms2 (pink fragments)
 			outfile.write(next_model_info_data)
 			# print("PINK",pink.pointers[0].address,pink.pointers[0].data_size,pink.pointers[1].address, pink.pointers[1].data_size)
@@ -275,7 +281,7 @@ def write_ms2(archive, ms2_sized_str_entry):
 				# print(core_model_data)
 			else:
 				print("unexpected size for pink")
-				
+
 			# avoid writing bad fragments that should be empty
 			if mdl2_entry.model_count:
 				# print("fixed fragments")
@@ -291,7 +297,7 @@ def write_ms2(archive, ms2_sized_str_entry):
 				# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
 				# model_data = f.pointers[0].read_as(Ms2Format.ModelData, archive)
 				# print(model_data)
-				
+
 				model_data = f.pointers[0].data
 				outfile.write(model_data)
 				

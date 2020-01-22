@@ -74,9 +74,10 @@ def inject(ovl_data, file_paths, show_dds):
 	shutil.rmtree(tmp_dir)
 
 
-
 def to_bytes(inst, data):
 	"""helper that returns the bytes representation of a pyffi struct"""
+	if isinstance(inst, list):
+		return b"".join(to_bytes(c, data) for c in inst)
 	if isinstance(inst, bytes):
 		return inst
 	# zero terminated strings show up as strings
@@ -88,17 +89,18 @@ def to_bytes(inst, data):
 
 
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
-
-	archive = ovl_data.archives[0]
+	txt_pointer = txt_sized_str_entry.pointers[0]
+	# first make sure that the padding has been separated from the data
+	size = struct.unpack("<I", txt_pointer.data[:4])[0]
+	txt_pointer.split_data_padding(4+size)
 	with open(txt_file_path, 'rb') as stream:
 		raw_txt_bytes = stream.read()
 		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
-		# make sure all are updated, and pad to 8 bytes
-		txt_sized_str_entry.pointers[0].update_data(data, update_copies=True, pad_to=8)
+	# make sure all are updated, and pad to 8 bytes, using old padding
+	txt_pointer.update_data(data, update_copies=True, pad_to=8, include_old_pad=True)
 
 
 def load_xmlconfig(ovl_data, xml_file_path, xml_sized_str_entry):
-	archive = ovl_data.archives[0]
 	with open(xml_file_path, 'rb') as stream:
 		# add zero terminator
 		data = stream.read() + b"\x00"
@@ -295,55 +297,222 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry):
 			buffer.update_data(dds_buff)
 
 
-def load_mdl2(ovl_data, mdl2_file_path, mdl2_sized_str_entry):
+class Mdl2Holder:
+	"""Used to handle injection of mdl2 files"""
+	def __init__(self, archive):
+		self.name = "NONE"
+		self.lodinfo = b""
+		self.mdl2_data = Ms2Format.Data()
+		self.model_data_frags = []
+		self.archive = archive
+		self.source = "NONE"
+		self.mdl2_entry = None
+
+		# list or array of pyffi modeldata structs
+		self.models = []
+		# one per model
+		self.verts_bytes = []
+		self.tris_bytes = []
+
+		self.lods = []
+
+	def from_file(self, mdl2_file_path):
+		"""Read a mdl2 + ms2 file"""
+		print(f"Reading {mdl2_file_path} from file")
+		self.name = os.path.basename(mdl2_file_path)
+		self.source = "EXT"
+		with open(mdl2_file_path, "rb") as mdl2_stream:
+			self.mdl2_data.inspect(mdl2_stream)
+			ms2_name = self.mdl2_data.mdl2_header.name.decode()
+			self.models = self.mdl2_data.mdl2_header.models
+			self.lods = self.mdl2_data.mdl2_header.lods
+
+		# get ms2 buffers
+		ms2_dir = os.path.dirname(mdl2_file_path)
+		ms2_path = os.path.join(ms2_dir, ms2_name)
+		with open(ms2_path, "rb") as ms2_stream:
+			ms2_header = Ms2Format.Ms2InfoHeader()
+			ms2_header.read(ms2_stream, data=self.mdl2_data)
+			eoh = ms2_stream.tell() + ms2_header.bone_info_size
+
+			self.read_verts_tris(ms2_stream, ms2_header.buffer_info, eoh)
+
+	def read_verts_tris(self, ms2_stream, buffer_info, eoh=0, ):
+		"""Reads vertices and triangles into list of bytes for all models of this file"""
+		print("reading verts and tris")
+		self.verts_bytes = []
+		self.tris_bytes = []
+		for model in self.models:
+			# first, get the buffers for this model from the input
+			ms2_stream.seek(eoh + model.vertex_offset)
+			verts = ms2_stream.read(model.size_of_vertex * model.vertex_count)
+
+			ms2_stream.seek(eoh + buffer_info.vertexdatasize + model.tri_offset)
+			tris = ms2_stream.read(2 * model.tri_index_count)
+			self.verts_bytes.append(verts)
+			self.tris_bytes.append(tris)
+		# print(len(self.tris_bytes))
+
+	def from_entry(self, mdl2_entry):
+		"""Reads the required data to represent this model from the archive"""
+		print(f"Reading {mdl2_entry.name} from archive")
+		self.name = mdl2_entry.name
+		self.source = "OVL"
+		self.mdl2_entry = mdl2_entry
+		ms2_entry = mdl2_entry.parent
+
+		# read the vertex data for this from the archive's ms2
+		buffer_info_frag = ms2_entry.fragments[0]
+		buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
+		print(buffer_info)
+
+		verts_tris_buffer = ms2_entry.data_entry.buffer_datas[-1]
+
+		lod_pointer = mdl2_entry.fragments[1].pointers[1]
+		lod_count = len(lod_pointer.data) // 20
+		# todo get count from CoreModelInfo
+		self.lods = lod_pointer.read_as(Ms2Format.LodInfo, self.archive, num=lod_count)
+		print(self.lods)
+		self.models = []
+		for f in mdl2_entry.model_data_frags:
+			model = f.pointers[0].read_as(Ms2Format.ModelData, self.archive)[0]
+			self.models.append(model)
+
+		with io.BytesIO(verts_tris_buffer) as ms2_stream:
+			self.read_verts_tris(ms2_stream, buffer_info)
+
+	def update_entry(self):
+		# overwrite mdl2 modeldata frags
+		for frag, modeldata in zip(self.mdl2_entry.model_data_frags, self.models):
+			frag_data = to_bytes(modeldata, self.mdl2_data)
+			frag.pointers[0].update_data(frag_data, update_copies=True)
+
+		self.lodinfo = to_bytes(self.lods, self.mdl2_data)
+		# overwrite mdl2 lodinfo frag
+		self.mdl2_entry.fragments[1].pointers[1].update_data(self.lodinfo, update_copies=True)
+
+	def __repr__(self):
+		return f"<Mdl2Holder: {self.name} [{self.source}], V{len(self.verts_bytes)}, T{len(self.tris_bytes)}, M{len(self.models)}, L{len(self.lods)}>"
+
+
+class Ms2Holder:
+	"""Used to handle injection of ms2 files"""
+	def __init__(self, archive):
+		self.name = "NONE"
+		self.buffer_info = b""
+		self.buff_datas = []
+		self.mdl2s = []
+		self.archive = archive
+		self.ms2_entry = None
+
+	def __repr__(self):
+		return f"<Ms2Holder: {self.name}, Models: {len(self.mdl2s)}>"
+
+	def from_mdl2_file(self, mdl2_file_path):
+		new_name = os.path.basename(mdl2_file_path)
+
+		for i, mdl2 in enumerate(self.mdl2s):
+			if mdl2.name == new_name:
+				print(f"Match, slot {i}")
+				mdl2.from_file(mdl2_file_path)
+				break
+		else:
+			raise AttributeError(f"No match for {mdl2}")
+		return mdl2
+
+	def from_entry(self, ms2_entry):
+		"""Read from the archive"""
+		print(f"Reading {ms2_entry.name} from archive")
+		self.name = ms2_entry.name
+		self.mdl2s = []
+		self.ms2_entry = ms2_entry
+
+		buffer_info_frag = self.ms2_entry.fragments[0]
+		print(buffer_info_frag.pointers[1].data)
+		if not buffer_info_frag.pointers[1].data:
+			raise AttributeError("No buffer info, aborting merge")
+		self.buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
+		print(self.buffer_info)
+
+		for mdl2_entry in self.ms2_entry.children:
+			mdl2 = Mdl2Holder(self.archive)
+			mdl2.from_entry(mdl2_entry)
+			self.mdl2s.append(mdl2)
+		print(self.mdl2s)
+
+	def update_entry(self):
+		print(f"Updating {self}")
+		# adapted from old merger code
+
+		# write each model's vert & tri block to a temporary buffer
+		temp_vert_writer = io.BytesIO()
+		temp_tris_writer = io.BytesIO()
+
+		# set initial offset for the first modeldata
+		vert_offset = 0
+		tris_offset = 0
+
+		# go over all input mdl2 files
+		for mdl2 in self.mdl2s:
+			print(f"Flushing {mdl2}")
+			# read the mdl2
+			for model, verts, tris in zip(mdl2.models, mdl2.verts_bytes, mdl2.tris_bytes):
+				print(vert_offset)
+				print(tris_offset)
+				# write buffer to each output
+				temp_vert_writer.write(verts)
+				temp_tris_writer.write(tris)
+
+				# update mdl2 offset values
+				model.vertex_offset = vert_offset
+				model.tri_offset = tris_offset
+
+				# get offsets for the next model
+				vert_offset = temp_vert_writer.tell()
+				tris_offset = temp_tris_writer.tell()
+
+		# get bytes from IO object
+		vert_bytes = temp_vert_writer.getvalue()
+		tris_bytes = temp_tris_writer.getvalue()
+
+		buffers = self.ms2_entry.data_entry.buffer_datas[:-1]
+		buffers.append(vert_bytes+tris_bytes)
+
+		# modify buffer size
+		self.buffer_info.vertexdatasize = len(vert_bytes)
+		self.buffer_info.facesdatasize = len(tris_bytes)
+		# overwrite ms2 buffer info frag
+		buffer_info_frag = self.ms2_entry.fragments[0]
+		buffer_info_frag.pointers[1].update_data(to_bytes(self.buffer_info, self.archive), update_copies=True)
+
+		# update data
+		self.ms2_entry.data_entry.update_data(buffers)
+
+		# also flush the mdl2s
+		for mdl2 in self.mdl2s:
+			mdl2.update_entry()
+
+
+def load_mdl2(ovl_data, mdl2_file_path, mdl2_entry):
 	# read mdl2, find ms2
 	# inject ms2 buffers
 	# update ms2 + mdl2 fragments
 
 	# these fragments will be overwritten
-	model_data_frags = []
-	buff_datas = []
-	mdl2_data = Ms2Format.Data()
-	with open(mdl2_file_path, "rb") as mdl2_stream:
-		mdl2_data.inspect(mdl2_stream)
-		ms2_name = mdl2_data.mdl2_header.name.decode()
-		for modeldata in mdl2_data.mdl2_header.models:
-			model_data_frags.append( to_bytes(modeldata, mdl2_data) )
-		lodinfo = to_bytes(mdl2_data.mdl2_header.lods, mdl2_data)
 
-	# get ms2 buffers
-	ms2_dir = os.path.dirname(mdl2_file_path)
-	ms2_path = os.path.join(ms2_dir, ms2_name)
-	with open(ms2_path, "rb") as ms2_stream:
-		ms2_header = Ms2Format.Ms2InfoHeader()
-		ms2_header.read(ms2_stream, data=mdl2_data)
-
-		# get buffer info
-		buffer_info = to_bytes(ms2_header.buffer_info, mdl2_data)
-
-		# get buffer 0
-		buff_datas.append( to_bytes(ms2_header.name_hashes, mdl2_data) + to_bytes(ms2_header.names, mdl2_data) )
-		# get buffer 1
-		buff_datas.append( ms2_stream.read(ms2_header.bone_info_size) )
-		# get buffer 2
-		buff_datas.append( ms2_stream.read() )
+	# todo: allow for more than one new file
 
 	# get ms2 sized str entry
-	ms2_sized_str_entry = ovl_data.get_sized_str_entry(ms2_name)
-	ms2_sized_str_entry.data_entry.update_data(buff_datas)
+	ms2_entry = mdl2_entry.parent
+	# first read the ms2 and all of its mdl2s from the archive
+	ms2 = Ms2Holder(ovl_data)
+	ms2.from_entry(ms2_entry)
+
+	# load new input
+	ms2.from_mdl2_file(mdl2_file_path)
 
 	# the actual injection
-
-	# overwrite mdl2 modeldata frags
-	for frag, frag_data in zip(mdl2_sized_str_entry.model_data_frags, model_data_frags):
-		frag.pointers[0].update_data(frag_data, update_copies=True)
-
-	# overwrite mdl2 lodinfo frag
-	mdl2_sized_str_entry.fragments[1].pointers[1].update_data(lodinfo, update_copies=True)
-
-	# overwrite ms2 buffer info frag
-	buffer_info_frag = ms2_sized_str_entry.fragments[0]
-	buffer_info_frag.pointers[1].update_data(buffer_info, update_copies=True)
+	ms2.update_entry()
 
 
 def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):

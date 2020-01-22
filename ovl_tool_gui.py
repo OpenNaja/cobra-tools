@@ -35,12 +35,12 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
-		self.t_write_dat.stateChanged.connect(self.file_widget.ask_open)
+		self.t_write_dat.stateChanged.connect(self.load_ovl)
 
 		self.t_write_frag_log = QtWidgets.QCheckBox("Save Frag Log")
 		self.t_write_frag_log.setToolTip("For devs.")
 		self.t_write_frag_log.setChecked(False)
-		self.t_write_frag_log.stateChanged.connect(self.file_widget.ask_open)
+		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
 
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 2)
