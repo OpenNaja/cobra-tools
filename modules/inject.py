@@ -29,6 +29,7 @@ def inject(ovl_data, file_paths, show_dds):
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
 
 	dupecheck = []
+	mdl2_tups = []
 	for file_path in file_paths:
 		name_ext, name, ext = split_path(file_path)
 		print("Injecting", name_ext)
@@ -51,7 +52,7 @@ def inject(ovl_data, file_paths, show_dds):
 		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
 		# do the actual injection, varies per file type
 		if ext == ".mdl2":
-			load_mdl2(ovl_data, file_path, sized_str_entry)
+			mdl2_tups.append((file_path, sized_str_entry))
 		if ext == ".fgm":
 			load_fgm(ovl_data, file_path, sized_str_entry)
 		elif ext == ".png":
@@ -70,7 +71,8 @@ def inject(ovl_data, file_paths, show_dds):
 			load_lua(ovl_data, file_path, sized_str_entry)
 		elif ext == ".assetpkg":
 			load_assetpkg(ovl_data, file_path, sized_str_entry)
-		  
+
+	load_mdl2(ovl_data, mdl2_tups)
 	shutil.rmtree(tmp_dir)
 
 
@@ -399,7 +401,7 @@ class Ms2Holder:
 	"""Used to handle injection of ms2 files"""
 	def __init__(self, archive):
 		self.name = "NONE"
-		self.buffer_info = b""
+		self.buffer_info = None
 		self.buff_datas = []
 		self.mdl2s = []
 		self.archive = archive
@@ -428,11 +430,11 @@ class Ms2Holder:
 		self.ms2_entry = ms2_entry
 
 		buffer_info_frag = self.ms2_entry.fragments[0]
-		print(buffer_info_frag.pointers[1].data)
+		# print(buffer_info_frag.pointers[1].data)
 		if not buffer_info_frag.pointers[1].data:
 			raise AttributeError("No buffer info, aborting merge")
 		self.buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
-		print(self.buffer_info)
+		# print(self.buffer_info)
 
 		for mdl2_entry in self.ms2_entry.children:
 			mdl2 = Mdl2Holder(self.archive)
@@ -493,26 +495,29 @@ class Ms2Holder:
 			mdl2.update_entry()
 
 
-def load_mdl2(ovl_data, mdl2_file_path, mdl2_entry):
-	# read mdl2, find ms2
-	# inject ms2 buffers
-	# update ms2 + mdl2 fragments
+def load_mdl2(ovl_data, mdl2_tups):
 
-	# these fragments will be overwritten
+	# first resolve tuples to associated ms2 entry
+	ms2_mdl2_dic = {}
+	for mdl2_file_path, mdl2_entry in mdl2_tups:
+		ms2_entry = mdl2_entry.parent
+		if ms2_entry not in ms2_mdl2_dic:
+			ms2_mdl2_dic[ms2_entry] = []
+		ms2_mdl2_dic[ms2_entry].append(mdl2_file_path)
 
-	# todo: allow for more than one new file
+	# then read the ms2 and all associated new mdl2 files for it
+	for ms2_entry, mdl2_file_paths in ms2_mdl2_dic.items():
 
-	# get ms2 sized str entry
-	ms2_entry = mdl2_entry.parent
-	# first read the ms2 and all of its mdl2s from the archive
-	ms2 = Ms2Holder(ovl_data)
-	ms2.from_entry(ms2_entry)
+		# first read the ms2 and all of its mdl2s from the archive
+		ms2 = Ms2Holder(ovl_data)
+		ms2.from_entry(ms2_entry)
 
-	# load new input
-	ms2.from_mdl2_file(mdl2_file_path)
+		# load new input
+		for mdl2_file_path in mdl2_file_paths:
+			ms2.from_mdl2_file(mdl2_file_path)
 
-	# the actual injection
-	ms2.update_entry()
+		# the actual injection
+		ms2.update_entry()
 
 
 def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
