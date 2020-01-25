@@ -23,7 +23,7 @@ def split_path(fp):
 	return name_ext, name, ext
 
 
-def inject(ovl_data, file_paths, show_dds):
+def inject(ovl_data, file_paths, show_dds, is_2K):
 
 	# write modified version to tmp dir
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
