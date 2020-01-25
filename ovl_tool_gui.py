@@ -32,6 +32,10 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
 		self.t_write_dds.setChecked(False)
 		
+		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
+		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
+		self.t_2K.setChecked(False)
+		
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
@@ -47,7 +51,8 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_write_dds, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 2, 0)
 		self.qgrid.addWidget(self.t_write_frag_log, 3, 0)
-		start = 4
+		self.qgrid.addWidget(self.t_2K, 4, 0)
+		start = 5
 		for i, (old, new) in enumerate(self.e_name_pairs):
 			self.qgrid.addWidget(old, start+i, 0)
 			self.qgrid.addWidget(new, start+i, 1)
@@ -87,6 +92,10 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_dds(self,):
 		return self.t_write_dds.isChecked()
+	
+	@property
+	def write_2K(self,):
+		return self.t_2K.isChecked()
 	
 	@property
 	def write_dat(self,):
@@ -147,7 +156,7 @@ class MainWindow(widgets.MainWindow):
 			if files:
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				inject.inject( self.ovl_data, files, self.write_dds )
+				inject.inject( self.ovl_data, files, self.write_dds, self.write_2K )
 				self.file_widget.dirty = True
 			except Exception as ex:
 				traceback.print_exc()
