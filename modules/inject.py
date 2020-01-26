@@ -50,13 +50,16 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 			name_ext = name+".materialcollection"
 		# find the sizedstr entry that refers to this file
 		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
+		if is_2K:
 		# Grab OVS sized string for Textures
-		if sized_str_entry.ext == "tex":
-			for lod_i in range(1):
-				for archive in ovl_data.archives[1:]:
-					for other_sizedstr in archive.sized_str_entries:
-						if sized_str_entry.basename in other_sizedstr.name and "_lod"+str(lod_i) in other_sizedstr.name:
-							ovs_sized_str_entry = other_sizedstr
+			if sized_str_entry.ext == "tex":
+				for lod_i in range(1):
+					for archive in ovl_data.archives[1:]:
+						for other_sizedstr in archive.sized_str_entries:
+							if is_2K.basename in other_sizedstr.name and "_lod"+str(lod_i) in other_sizedstr.name:
+								ovs_sized_str_entry = other_sizedstr
+		else:
+			ovs_sized_str_entry = sized_str_entry
 		# do the actual injection, varies per file type
 		if ext == ".mdl2":
 			mdl2_tups.append((file_path, sized_str_entry))
