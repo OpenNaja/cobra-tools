@@ -56,7 +56,7 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 				for lod_i in range(1):
 					for archive in ovl_data.archives[1:]:
 						for other_sizedstr in archive.sized_str_entries:
-							if is_2K.basename in other_sizedstr.name and "_lod"+str(lod_i) in other_sizedstr.name:
+							if sized_str_entry.basename in other_sizedstr.name and "_lod"+str(lod_i) in other_sizedstr.name:
 								ovs_sized_str_entry = other_sizedstr
 		else:
 			ovs_sized_str_entry = sized_str_entry
