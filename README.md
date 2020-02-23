@@ -43,5 +43,4 @@ By downloading and using this software, you agree to the following conditions:
 ### Get in touch
 Some Discords where modding progress is discussed can be found here:
 
-- [Planet Zoo Discord Community](https://discord.gg/SmjHnB2)
-- [Frontier Modding Club](https://discord.gg/Wt48PYX)
+- [Frontier Modding Club](https://discord.gg/Su4jXKk)
