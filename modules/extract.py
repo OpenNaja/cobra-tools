@@ -39,45 +39,57 @@ def read_sized_str_at(stream, pos):
 	return stream.read(size)
 
 
-def extract(archive, show_dds, only_types=[]):
+def extract(archive, show_dds, only_types=[], progress_callback = None):
 	"""Extract the files, after all archives have been read"""
 	# the actual export, per file type
+	error_files = []
+	skip_files = []
 	print("\nExtracting from archive", archive.archive_index)
 	for sized_str_entry in archive.sized_str_entries:
-		# for batch operations, only export those we need
-		if only_types and sized_str_entry.ext not in only_types:
-			continue
-		if sized_str_entry.ext == "banis":
-			write_banis(archive, sized_str_entry)
-		elif sized_str_entry.ext == "bani":
-			write_bani(archive, sized_str_entry)
-		elif sized_str_entry.ext == "manis":
-			write_manis(archive, sized_str_entry)
-		# elif sized_str_entry.ext == "mani":
-		# 	write_mani(archive, sized_str_entry)
-		elif sized_str_entry.ext == "fgm":
-			write_fgm(archive, sized_str_entry)
-		elif sized_str_entry.ext == "ms2":
-			write_ms2(archive, sized_str_entry)
-		elif sized_str_entry.ext == "materialcollection":
-			write_materialcollection(archive, sized_str_entry)
-		elif sized_str_entry.ext == "tex":
-			write_dds(archive, sized_str_entry, show_dds )
-		elif sized_str_entry.ext == "lua":
-			write_lua(archive, sized_str_entry)
-		elif sized_str_entry.ext == "assetpkg":
-			write_assetpkg(archive, sized_str_entry)
-		elif sized_str_entry.ext == "fdb":
-			write_fdb(archive, sized_str_entry)
-		elif sized_str_entry.ext == "xmlconfig":
-			write_xmlconfig(archive, sized_str_entry)
-		elif sized_str_entry.ext == "userinterfaceicondata":
-			write_userinterfaceicondata(archive, sized_str_entry)
-		elif sized_str_entry.ext == "txt":
-			write_txt(archive, sized_str_entry)
-				
-		else:
-			print("\nSkipping",sized_str_entry.name)
+		if progress_callback != None:
+			progress_callback("Extracting " + sized_str_entry.name, value = archive.sized_str_entries.index(sized_str_entry), max = len(archive.sized_str_entries))
+			
+		try:
+			# for batch operations, only export those we need
+			if only_types and sized_str_entry.ext not in only_types:
+				continue
+			if sized_str_entry.ext == "banis":
+				write_banis(archive, sized_str_entry)
+			elif sized_str_entry.ext == "bani":
+				write_bani(archive, sized_str_entry)
+			elif sized_str_entry.ext == "manis":
+				write_manis(archive, sized_str_entry)
+			# elif sized_str_entry.ext == "mani":
+			# 	write_mani(archive, sized_str_entry)
+			elif sized_str_entry.ext == "fgm":
+				write_fgm(archive, sized_str_entry)
+			elif sized_str_entry.ext == "ms2":
+				write_ms2(archive, sized_str_entry)
+			elif sized_str_entry.ext == "materialcollection":
+				write_materialcollection(archive, sized_str_entry)
+			elif sized_str_entry.ext == "tex":
+				write_dds(archive, sized_str_entry, show_dds )
+			elif sized_str_entry.ext == "lua":
+				write_lua(archive, sized_str_entry)
+			elif sized_str_entry.ext == "assetpkg":
+				write_assetpkg(archive, sized_str_entry)
+			elif sized_str_entry.ext == "fdb":
+				write_fdb(archive, sized_str_entry)
+			elif sized_str_entry.ext == "xmlconfig":
+				write_xmlconfig(archive, sized_str_entry)
+			elif sized_str_entry.ext == "userinterfaceicondata":
+				write_userinterfaceicondata(archive, sized_str_entry)
+			elif sized_str_entry.ext == "txt":
+				write_txt(archive, sized_str_entry)
+					
+			else:
+				print("\nSkipping",sized_str_entry.name)
+				skip_files.append(sized_str_entry.name)
+		except:
+			print("\nAn exception occurred while extracting",sized_str_entry.name)
+			error_files.append(sized_str_entry.name)
+			
+	return error_files, skip_files
 	
 
 def write_txt(archive, txt_sized_str_entry):
