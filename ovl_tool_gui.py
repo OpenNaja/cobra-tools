@@ -247,7 +247,7 @@ class MainWindow(widgets.MainWindow):
 		if not is_64bits:
 			widgets.showdialog("Either your operating system or your python installation is not 64 bits.\n"
 							   "Large OVLs will crash unexpectedly!")
-		if sys.version_info[0] != 3 or sys.version_info[1] != 7 or sys.version_info[2] < 6:
+		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 6):
 			widgets.showdialog("Python 3.7.6+ x64 bit is expected!")
 
 
