@@ -202,10 +202,12 @@ class MainWindow(widgets.MainWindow):
 				try:
 					os.makedirs(dir, exist_ok=True)
 					error_files = skip_files = []
-					self.p_action.setMaximum(len(self.ovl_data.archives))
+					da_max = len(self.ovl_data.archives)
+					da_index = 0
 					for archive in self.ovl_data.archives:
-						self.update_progress("Extracting archives", value = self.ovl_data.archives.index(archive), max = len(self.ovl_data.archives))
-						self.p_action.setValue(self.ovl_data.archives.index(archive))
+						self.update_progress("Extracting archives", value = da_index, max = da_max)						
+						da_index += 1
+						
 						archive.dir = dir
 						error_files_new, skip_files_new = extract.extract(archive, self.write_dds, progress_callback = self.update_progress)
 						error_files += error_files_new
@@ -257,8 +259,11 @@ class MainWindow(widgets.MainWindow):
 			if walk_ovls:
 				error_files = skip_files = []
 				ovl_files = walker.walk_type(start_dir, extension="ovl")
+				of_max = len(ovl_files)
+				of_index = 0
 				for ovl_path in ovl_files:
-					self.update_progress("Walking OVL files: " + ovl_path, value = ovl_files.index(ovl_path), max = len(ovl_files))
+					self.update_progress("Walking OVL files: " + ovl_path, value = of_index, max = of_max)
+					of_index += 1
 					try:
 						# read ovl file
 						with open(ovl_path, "rb") as ovl_stream:
@@ -280,9 +285,12 @@ class MainWindow(widgets.MainWindow):
 				
 			if walk_models:
 				mdl2_files = walker.walk_type(export_dir, extension="mdl2")
+				mf_max = len(mdl2_files)
+				mf_index = 0
 				for mdl2_path in mdl2_files:					
 					mdl2_name = os.path.basename(mdl2_path)
-					self.update_progress("Walking MDL2 files: " + mdl2_name, value = mdl2_files.index(mdl2_path), max = len(mdl2_files))
+					self.update_progress("Walking MDL2 files: " + mdl2_name, value = mf_index, max = mf_max)
+					mf_index += 1
 					try:
 						with open(mdl2_path, "rb") as mdl2_stream:
 							mdl2_data.read(mdl2_stream, file=mdl2_path, quick=True, map_bytes=True)
