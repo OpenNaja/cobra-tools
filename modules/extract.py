@@ -45,10 +45,12 @@ def extract(archive, show_dds, only_types=[], progress_callback = None):
 	error_files = []
 	skip_files = []
 	print("\nExtracting from archive", archive.archive_index)
+	ss_max = len(archive.sized_str_entries)
+	ss_index = 0
 	for sized_str_entry in archive.sized_str_entries:
 		if progress_callback != None:
-			progress_callback("Extracting " + sized_str_entry.name, value = archive.sized_str_entries.index(sized_str_entry), max = len(archive.sized_str_entries))
-			
+			progress_callback("Extracting " + sized_str_entry.name, value = ss_index, max = ss_max)
+			ss_index += 1
 		try:
 			# for batch operations, only export those we need
 			if only_types and sized_str_entry.ext not in only_types:
