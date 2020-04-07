@@ -179,18 +179,18 @@ class MainWindow(widgets.MainWindow):
 	def skip_messages(self, error_files, skip_files):
 		error_count = len(error_files)
 		skip_count = len(skip_files)
-		if error_count > 0:
+		if error_count:
 			print("Files not extracted due to error:")
 			for ef in error_files:
 				print("\t",ef)
 			
-		if skip_count > 0:
+		if skip_count:
 			print("Unsupported files not extracted:")
 			for sf in skip_files:
 				print("\t",sf)
 				
-		if error_count > 0 or skip_count > 0:
-			message = str(error_count + skip_count) + " files were not extracted from the archive and may be missing from the output folder. " + str(skip_count) + " were unsupported, while " + str(error_count) + " produced errors."
+		if error_count or skip_count:
+			message = f"{error_count + skip_count} files were not extracted from the archive and may be missing from the output folder. {skip_count} were unsupported, while {error_count} produced errors."
 			widgets.showdialog(message)
 	
 	def extract_all(self):
@@ -201,7 +201,8 @@ class MainWindow(widgets.MainWindow):
 				# create output dir
 				try:
 					os.makedirs(dir, exist_ok=True)
-					error_files = skip_files = []
+					error_files = []
+					skip_files = []
 					da_max = len(self.ovl_data.archives)
 					da_index = 0
 					for archive in self.ovl_data.archives:
@@ -257,7 +258,8 @@ class MainWindow(widgets.MainWindow):
 			ovl_data = OvlFormat.Data()
 			mdl2_data = Ms2Format.Data()
 			if walk_ovls:
-				error_files = skip_files = []
+				error_files = []
+				skip_files = []
 				ovl_files = walker.walk_type(start_dir, extension="ovl")
 				of_max = len(ovl_files)
 				of_index = 0

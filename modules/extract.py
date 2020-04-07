@@ -39,23 +39,26 @@ def read_sized_str_at(stream, pos):
 	return stream.read(size)
 
 
-def extract(archive, show_dds, only_types=[], progress_callback = None):
+def extract(archive, show_dds, only_types=[], progress_callback=None):
 	"""Extract the files, after all archives have been read"""
 	# the actual export, per file type
 	error_files = []
 	skip_files = []
+	# data types that we export starting from other file types but are not caught as deliberate cases
+	exported_types = ["mani", "mdl2", "texturestream"]
 	print("\nExtracting from archive", archive.archive_index)
 	ss_max = len(archive.sized_str_entries)
-	ss_index = 0
-	for sized_str_entry in archive.sized_str_entries:
-		if progress_callback != None:
-			progress_callback("Extracting " + sized_str_entry.name, value = ss_index, max = ss_max)
-			ss_index += 1
+	for ss_index, sized_str_entry in enumerate(archive.sized_str_entries):
+		if progress_callback:
+			progress_callback("Extracting " + sized_str_entry.name, value=ss_index, max=ss_max)
 		try:
 			# for batch operations, only export those we need
 			if only_types and sized_str_entry.ext not in only_types:
 				continue
-			if sized_str_entry.ext == "banis":
+			# ignore types in the count that we export from inside other type exporters
+			if sized_str_entry.ext in exported_types:
+				pass
+			elif sized_str_entry.ext == "banis":
 				write_banis(archive, sized_str_entry)
 			elif sized_str_entry.ext == "bani":
 				write_bani(archive, sized_str_entry)
@@ -83,7 +86,7 @@ def extract(archive, show_dds, only_types=[], progress_callback = None):
 				write_userinterfaceicondata(archive, sized_str_entry)
 			elif sized_str_entry.ext == "txt":
 				write_txt(archive, sized_str_entry)
-					
+
 			else:
 				print("\nSkipping",sized_str_entry.name)
 				skip_files.append(sized_str_entry.name)
