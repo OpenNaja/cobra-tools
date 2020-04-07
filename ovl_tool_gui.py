@@ -17,7 +17,7 @@ class MainWindow(widgets.MainWindow):
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
 		
-		self.ovl_data = OvlFormat.Data()
+		self.ovl_data = OvlFormat.Data(progress_callback = self.update_progress)
 
 		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
@@ -25,8 +25,16 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 		self.file_widget.setToolTip("The name of the OVL file that is currently open.")
 
-		self.e_name_pairs = [ (QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(3) ]
+		#self.e_name_pairs = [ (QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(3) ]
 
+		self.p_action = QtWidgets.QProgressBar(self)
+		self.p_action.setGeometry(0, 0, 200, 15)
+		self.p_action.setTextVisible(True)
+		self.p_action.setMaximum(1)
+		self.p_action.setValue(0)
+		self.t_action_current_message = "No operation in progress"
+		self.t_action = QtWidgets.QLabel(self, text = self.t_action_current_message)
+		
 		# toggles
 		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
 		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
@@ -47,15 +55,17 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 2)
-		self.qgrid.addWidget(self.t_write_dds, 1, 0)
-		self.qgrid.addWidget(self.t_write_dat, 2, 0)
-		self.qgrid.addWidget(self.t_write_frag_log, 3, 0)
-		self.qgrid.addWidget(self.t_2K, 4, 0)
-		start = 5
-		for i, (old, new) in enumerate(self.e_name_pairs):
-			self.qgrid.addWidget(old, start+i, 0)
-			self.qgrid.addWidget(new, start+i, 1)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 2)		
+		self.qgrid.addWidget(self.p_action, 1, 0, 1, 2)
+		self.qgrid.addWidget(self.t_action, 2, 0, 1, 2)		
+		self.qgrid.addWidget(self.t_write_dds, 3, 0)
+		self.qgrid.addWidget(self.t_write_dat, 4, 0)
+		self.qgrid.addWidget(self.t_write_frag_log, 5, 0)
+		self.qgrid.addWidget(self.t_2K, 6, 0)
+		#start = 7
+		#for i, (old, new) in enumerate(self.e_name_pairs):
+		#	self.qgrid.addWidget(old, start+i, 0)
+		#	self.qgrid.addWidget(new, start+i, 1)
 
 		self.central_widget.setLayout(self.qgrid)
 
@@ -105,11 +115,45 @@ class MainWindow(widgets.MainWindow):
 	def write_frag_log(self,):
 		return self.t_write_frag_log.isChecked()
 
+	def update_progress(self, message, value = None, max = None):		
+		change = False
+		
+		## avoid gui updates if the value won't actually change the percentage.
+		## this saves us from making lots of GUI update calls that don't really
+		## matter.
+		try:
+			if max > 100 and (value % int(max / 100)) != 0 and value != max and value != 0:
+				value = None
+		except ZeroDivisionError:
+			value = 0
+		except TypeError:
+			value = None
+		
+		## update progress bar values if specified
+		if value != None:
+			self.p_action.setValue(value)
+			change = True
+		if max != None:
+			self.p_action.setMaximum(max)
+			change = True
+		
+		## don't update the GUI unless the message has changed. label updates
+		## are expensive
+		if self.t_action_current_message != message:
+			self.t_action.setText(message)			
+			self.t_action_current_message = message
+			change = True
+		
+		## don't update if nothing has changed
+		if change:
+			QtWidgets.qApp.processEvents()
+		
 	def load_ovl(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_widget.filepath)
-			start_time = time.time()
+			start_time = time.time()			
+			self.update_progress("Reading OVL " + self.file_widget.filepath, value = 0, max = 0)
 			try:
 				with open(self.file_widget.filepath, "rb") as ovl_stream:
 					self.ovl_data.read(ovl_stream, file=self.file_widget.filepath, commands=self.commands)
@@ -119,6 +163,7 @@ class MainWindow(widgets.MainWindow):
 				widgets.showdialog( str(ex) )
 				print(ex)
 			print(f"Done in {time.time()-start_time:.2f} seconds!")
+			self.update_progress("Operation completed!", value = 1, max = 1)
 		
 	def save_ovl(self):
 		if self.ovl_name:
@@ -130,7 +175,24 @@ class MainWindow(widgets.MainWindow):
 					self.ovl_data.write(ovl_stream, file_path=file_src)
 				self.file_widget.dirty = False
 				print("Done!")
+	
+	def skip_messages(self, error_files, skip_files):
+		error_count = len(error_files)
+		skip_count = len(skip_files)
+		if error_count > 0:
+			print("Files not extracted due to error:")
+			for ef in error_files:
+				print("\t",ef)
 			
+		if skip_count > 0:
+			print("Unsupported files not extracted:")
+			for sf in skip_files:
+				print("\t",sf)
+				
+		if error_count > 0 or skip_count > 0:
+			message = str(error_count + skip_count) + " files were not extracted from the archive and may be missing from the output folder. " + str(skip_count) + " were unsupported, while " + str(error_count) + " produced errors."
+			widgets.showdialog(message)
+	
 	def extract_all(self):
 		if self.ovl_name:
 			self.cfg["dir_extract"] = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg["dir_extract"], )
@@ -139,10 +201,21 @@ class MainWindow(widgets.MainWindow):
 				# create output dir
 				try:
 					os.makedirs(dir, exist_ok=True)
+					error_files = skip_files = []
+					da_max = len(self.ovl_data.archives)
+					da_index = 0
 					for archive in self.ovl_data.archives:
+						self.update_progress("Extracting archives", value = da_index, max = da_max)						
+						da_index += 1
+						
 						archive.dir = dir
-						extract.extract(archive, self.write_dds)
+						error_files_new, skip_files_new = extract.extract(archive, self.write_dds, progress_callback = self.update_progress)
+						error_files += error_files_new
+						skip_files += skip_files_new
+							
+					self.skip_messages(error_files, skip_files)
 					print("Done!")
+					self.update_progress("Operation completed!", value = 1, max = 1)
 				except Exception as ex:
 					traceback.print_exc()
 					widgets.showdialog( str(ex) )
@@ -184,7 +257,13 @@ class MainWindow(widgets.MainWindow):
 			ovl_data = OvlFormat.Data()
 			mdl2_data = Ms2Format.Data()
 			if walk_ovls:
-				for ovl_path in walker.walk_type(start_dir, extension="ovl"):
+				error_files = skip_files = []
+				ovl_files = walker.walk_type(start_dir, extension="ovl")
+				of_max = len(ovl_files)
+				of_index = 0
+				for ovl_path in ovl_files:
+					self.update_progress("Walking OVL files: " + ovl_path, value = of_index, max = of_max)
+					of_index += 1
 					try:
 						# read ovl file
 						with open(ovl_path, "rb") as ovl_stream:
@@ -195,16 +274,26 @@ class MainWindow(widgets.MainWindow):
 						os.makedirs(outdir, exist_ok=True)
 						for archive in ovl_data.archives:
 							archive.dir = outdir
-							extract.extract(archive, self.write_dds, only_types=["ms2",])
+							error_files_new, skip_files_new = extract.extract(archive, self.write_dds, only_types=["ms2",], progress_callback = self.update_progress)
+							error_files += error_files_new
+							skip_files += skip_files_new
 					except Exception as ex:
 						traceback.print_exc()
 						errors.append((ovl_path, ex))
+						
+				self.skip_messages(error_files, skip_files)
+				
 			if walk_models:
-				for mdl2_path in walker.walk_type(export_dir, extension="mdl2"):
+				mdl2_files = walker.walk_type(export_dir, extension="mdl2")
+				mf_max = len(mdl2_files)
+				mf_index = 0
+				for mdl2_path in mdl2_files:					
 					mdl2_name = os.path.basename(mdl2_path)
+					self.update_progress("Walking MDL2 files: " + mdl2_name, value = mf_index, max = mf_max)
+					mf_index += 1
 					try:
-						with open(mdl2_path, "rb") as ovl_stream:
-							mdl2_data.read(ovl_stream, file=mdl2_path, quick=True, map_bytes=True)
+						with open(mdl2_path, "rb") as mdl2_stream:
+							mdl2_data.read(mdl2_stream, file=mdl2_path, quick=True, map_bytes=True)
 							for model in mdl2_data.mdl2_header.models:
 								if model.flag not in type_dic:
 									type_dic[model.flag] = ([], [])
@@ -227,6 +316,8 @@ class MainWindow(widgets.MainWindow):
 				print("mean", np.mean(maps_list, axis=0).astype(dtype=np.ubyte))
 				print("max", np.max(maps_list, axis=0))
 				print()
+				
+			self.update_progress("Operation completed!", value = 1, max = 1)
 
 	def closeEvent(self, event):
 		if self.file_widget.dirty:
