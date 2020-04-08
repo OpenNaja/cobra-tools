@@ -17,7 +17,7 @@ class MainWindow(widgets.MainWindow):
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
 		
-		self.ovl_data = OvlFormat.Data(progress_callback = self.update_progress)
+		self.ovl_data = OvlFormat.Data(progress_callback=self.update_progress)
 
 		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
@@ -115,45 +115,36 @@ class MainWindow(widgets.MainWindow):
 	def write_frag_log(self,):
 		return self.t_write_frag_log.isChecked()
 
-	def update_progress(self, message, value = None, max = None):		
-		change = False
-		
-		## avoid gui updates if the value won't actually change the percentage.
-		## this saves us from making lots of GUI update calls that don't really
-		## matter.
+	def update_progress(self, message, value=None, vmax=None):
+		# avoid gui updates if the value won't actually change the percentage.
+		# this saves us from making lots of GUI update calls that don't really
+		# matter.
 		try:
-			if max > 100 and (value % int(max / 100)) != 0 and value != max and value != 0:
+			if vmax > 100 and (value % (vmax // 100)) and value != 0:
 				value = None
 		except ZeroDivisionError:
 			value = 0
 		except TypeError:
 			value = None
 		
-		## update progress bar values if specified
-		if value != None:
+		# update progress bar values if specified
+		if value is not None:
 			self.p_action.setValue(value)
-			change = True
-		if max != None:
-			self.p_action.setMaximum(max)
-			change = True
+		if vmax is not None:
+			self.p_action.setMaximum(vmax)
 		
-		## don't update the GUI unless the message has changed. label updates
-		## are expensive
+		# don't update the GUI unless the message has changed. label updates
+		# are expensive
 		if self.t_action_current_message != message:
 			self.t_action.setText(message)			
 			self.t_action_current_message = message
-			change = True
-		
-		## don't update if nothing has changed
-		if change:
-			QtWidgets.qApp.processEvents()
 		
 	def load_ovl(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_widget.filepath)
 			start_time = time.time()			
-			self.update_progress("Reading OVL " + self.file_widget.filepath, value = 0, max = 0)
+			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
 				with open(self.file_widget.filepath, "rb") as ovl_stream:
 					self.ovl_data.read(ovl_stream, file=self.file_widget.filepath, commands=self.commands)
@@ -163,7 +154,7 @@ class MainWindow(widgets.MainWindow):
 				widgets.showdialog( str(ex) )
 				print(ex)
 			print(f"Done in {time.time()-start_time:.2f} seconds!")
-			self.update_progress("Operation completed!", value = 1, max = 1)
+			self.update_progress("Operation completed!", value=1, vmax=1)
 		
 	def save_ovl(self):
 		if self.ovl_name:
@@ -204,19 +195,16 @@ class MainWindow(widgets.MainWindow):
 					error_files = []
 					skip_files = []
 					da_max = len(self.ovl_data.archives)
-					da_index = 0
-					for archive in self.ovl_data.archives:
-						self.update_progress("Extracting archives", value = da_index, max = da_max)						
-						da_index += 1
+					for da_index, archive in enumerate(self.ovl_data.archives):
+						self.update_progress("Extracting archives", value=da_index, vmax=da_max)
 						
 						archive.dir = dir
-						error_files_new, skip_files_new = extract.extract(archive, self.write_dds, progress_callback = self.update_progress)
+						error_files_new, skip_files_new = extract.extract(archive, self.write_dds, progress_callback=self.update_progress)
 						error_files += error_files_new
 						skip_files += skip_files_new
 							
 					self.skip_messages(error_files, skip_files)
-					print("Done!")
-					self.update_progress("Operation completed!", value = 1, max = 1)
+					self.update_progress("Operation completed!", value=1, vmax=1)
 				except Exception as ex:
 					traceback.print_exc()
 					widgets.showdialog( str(ex) )
@@ -262,21 +250,19 @@ class MainWindow(widgets.MainWindow):
 				skip_files = []
 				ovl_files = walker.walk_type(start_dir, extension="ovl")
 				of_max = len(ovl_files)
-				of_index = 0
-				for ovl_path in ovl_files:
-					self.update_progress("Walking OVL files: " + ovl_path, value = of_index, max = of_max)
-					of_index += 1
+				for of_index, ovl_path in enumerate(ovl_files):
+					self.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
 					try:
 						# read ovl file
 						with open(ovl_path, "rb") as ovl_stream:
-							ovl_data.read(ovl_stream, file=ovl_path, commands=self.commands)
+							ovl_data.read(ovl_stream, file=ovl_path, commands=self.commands, mute=True)
 						# create an output folder for it
 						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
 						# create output dir
 						os.makedirs(outdir, exist_ok=True)
 						for archive in ovl_data.archives:
 							archive.dir = outdir
-							error_files_new, skip_files_new = extract.extract(archive, self.write_dds, only_types=["ms2",], progress_callback = self.update_progress)
+							error_files_new, skip_files_new = extract.extract(archive, self.write_dds, only_types=["ms2",])#, progress_callback=self.update_progress)
 							error_files += error_files_new
 							skip_files += skip_files_new
 					except Exception as ex:
@@ -288,11 +274,9 @@ class MainWindow(widgets.MainWindow):
 			if walk_models:
 				mdl2_files = walker.walk_type(export_dir, extension="mdl2")
 				mf_max = len(mdl2_files)
-				mf_index = 0
-				for mdl2_path in mdl2_files:					
+				for mf_index, mdl2_path in enumerate(mdl2_files):
 					mdl2_name = os.path.basename(mdl2_path)
-					self.update_progress("Walking MDL2 files: " + mdl2_name, value = mf_index, max = mf_max)
-					mf_index += 1
+					self.update_progress("Walking MDL2 files: " + mdl2_name, value=mf_index, vmax=mf_max)
 					try:
 						with open(mdl2_path, "rb") as mdl2_stream:
 							mdl2_data.read(mdl2_stream, file=mdl2_path, quick=True, map_bytes=True)
@@ -319,7 +303,7 @@ class MainWindow(widgets.MainWindow):
 				print("max", np.max(maps_list, axis=0))
 				print()
 				
-			self.update_progress("Operation completed!", value = 1, max = 1)
+			self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def closeEvent(self, event):
 		if self.file_widget.dirty:

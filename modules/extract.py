@@ -49,15 +49,13 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 	print("\nExtracting from archive", archive.archive_index)
 	ss_max = len(archive.sized_str_entries)
 	for ss_index, sized_str_entry in enumerate(archive.sized_str_entries):
-		if progress_callback:
-			progress_callback("Extracting " + sized_str_entry.name, value=ss_index, max=ss_max)
 		try:
 			# for batch operations, only export those we need
 			if only_types and sized_str_entry.ext not in only_types:
 				continue
 			# ignore types in the count that we export from inside other type exporters
 			if sized_str_entry.ext in exported_types:
-				pass
+				continue
 			elif sized_str_entry.ext == "banis":
 				write_banis(archive, sized_str_entry)
 			elif sized_str_entry.ext == "bani":
@@ -90,6 +88,10 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 			else:
 				print("\nSkipping",sized_str_entry.name)
 				skip_files.append(sized_str_entry.name)
+				continue
+
+			if progress_callback:
+				progress_callback("Extracting " + sized_str_entry.name, value=ss_index, vmax=ss_max)
 		except:
 			print("\nAn exception occurred while extracting",sized_str_entry.name)
 			error_files.append(sized_str_entry.name)
