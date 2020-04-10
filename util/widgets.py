@@ -387,24 +387,44 @@ class VectorEntry():
 		field.setMinimumWidth(50)
 		return field
 
-class FileWidget(QtWidgets.QLineEdit):
+class FileWidget(QtWidgets.QWidget):
 	"""An entry widget that starts a file selector when clicked and also accepts drag & drop.
 	Displays the current file's basename.
 	"""
 
 	def __init__(self, parent, cfg, ask_user=True):
 		super(FileWidget, self).__init__(parent)
+		self.entry = QtWidgets.QLineEdit()
+		self.icon = QtWidgets.QPushButton()
+		self.icon.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirIcon")))
+		self.icon.setFlat(True)
+		self.icon.mousePressEvent = self.ignoreEvent
+		self.entry.mousePressEvent = self.ignoreEvent
+		self.icon.dropEvent = self.dropEvent
+		self.entry.dropEvent = self.dropEvent
+		self.icon.dragMoveEvent = self.dragMoveEvent
+		self.entry.dragMoveEvent = self.dragMoveEvent
+		self.icon.dragEnterEvent = self.dragEnterEvent
+		self.entry.dragEnterEvent = self.dragEnterEvent
+
 		self.parent = parent
 		self.cfg = cfg
 		if not self.cfg:
 			self.cfg["dir_ovls_in"] = "C://"
-		self.setDragEnabled(True)
-		self.setReadOnly(True)
+		self.entry.setDragEnabled(True)
+		self.entry.setReadOnly(True)
 		self.filepath = ""
 		self.ask_user = ask_user
 		# this checks if the data has been modified by the user, is set from the outside
 		self.dirty = False
-			
+
+		self.qgrid = QtWidgets.QGridLayout()
+		self.qgrid.setContentsMargins(0,0,0,0)
+		self.qgrid.addWidget(self.icon, 0, 0)
+		self.qgrid.addWidget(self.entry, 0, 1)
+
+		self.setLayout(self.qgrid)
+
 	def abort_open_new_file(self, new_filepath):
 		# only return True if we should abort
 		if not self.ask_user:
@@ -414,7 +434,7 @@ class FileWidget(QtWidgets.QLineEdit):
 		if self.filepath and self.dirty:
 			qm = QtWidgets.QMessageBox
 			return qm.No == qm.question(self, '', "Do you really want to load "+os.path.basename(new_filepath)+"? You will lose unsaved work on "+os.path.basename(self.filepath)+"!", qm.Yes | qm.No)
-			
+
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
 			if os.path.splitext(filepath)[1].lower() in (".ovl"):
@@ -425,13 +445,16 @@ class FileWidget(QtWidgets.QLineEdit):
 					self.parent.poll()
 			else:
 				showdialog("Unsupported File Format")
-				
+
+	def setText(self, text):
+		self.entry.setText(text)
+
 	def get_files(self, event):
 		data = event.mimeData()
 		urls = data.urls()
 		if urls and urls[0].scheme() == 'file':
 			return urls
-		
+
 	def dragEnterEvent(self, event):
 		if self.get_files(event):
 			event.acceptProposedAction()
@@ -447,13 +470,23 @@ class FileWidget(QtWidgets.QLineEdit):
 		if urls:
 			filepath = str(urls[0].path())[1:]
 			self.accept_file(filepath)
-			
+
 	def ask_open(self):
 		filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
 		self.accept_file(filepath)
-		
+
+	def ignoreEvent(self, event):
+		event.ignore()
+
 	def mousePressEvent(self, event):
 		self.ask_open()
+
+
+def get_icon(name):
+	try:
+		base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+		return QtGui.QIcon(os.path.join(base_dir, f'icons/{name}.png'))
+	except: pass
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -466,10 +499,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.name = name
 		# self.resize(720, 400)
 		self.setWindowTitle(name)
-		try:
-			base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-			self.setWindowIcon(QtGui.QIcon(os.path.join(base_dir,'icons/frontier.png')))
-		except: pass
+		self.setWindowIcon(get_icon("frontier"))
 		
 		self.cfg = config.read_config("config.ini")
 
@@ -488,8 +518,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setWindowTitle(self.name+" "+ file_name)
 		
 	def add_to_menu(self, button_data):
-		for submenu, name, func, shortcut in button_data:
+		for submenu, name, func, shortcut, icon in button_data:
 			button = QtWidgets.QAction(name, self)
+			if icon:
+				button.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, icon)))
 			button.triggered.connect(func)
 			if shortcut: button.setShortcut(shortcut)
 			submenu.addAction(button)

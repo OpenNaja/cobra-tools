@@ -73,15 +73,15 @@ class MainWindow(widgets.MainWindow):
 		fileMenu = mainMenu.addMenu('File')
 		editMenu = mainMenu.addMenu('Edit')
 		helpMenu = mainMenu.addMenu('Help')
-		button_data = ((fileMenu, "Open", self.file_widget.ask_open, "CTRL+O"),
-					   (fileMenu, "Save", self.save_ovl, "CTRL+S"),
-					   (fileMenu, "Exit", self.close, ""),
-					   (editMenu, "Unpack", self.extract_all, "CTRL+U"),
-					   (editMenu, "Inject", self.inject, "CTRL+I"),
-					   (editMenu, "Hash", self.hasher, "CTRL+H"),
-					   (editMenu, "Walk", self.walker, ""),
-					   (helpMenu, "Report Bug", self.report_bug, ""),
-					   (helpMenu, "Documentation", self.online_support, ""))
+		button_data = ((fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", "SP_DirIcon"),
+					   (fileMenu, "Save", self.save_ovl, "CTRL+S", "SP_DriveFDIcon"),
+					   (fileMenu, "Exit", self.close, "", "SP_DialogCloseButton"),
+					   (editMenu, "Unpack", self.extract_all, "CTRL+U", ""),
+					   (editMenu, "Inject", self.inject, "CTRL+I", ""),
+					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
+					   (editMenu, "Walk", self.walker, "", ""),
+					   (helpMenu, "Report Bug", self.report_bug, "", "SP_MessageBoxCritical"),
+					   (helpMenu, "Documentation", self.online_support, "", "SP_MessageBoxInformation"))
 		self.add_to_menu(button_data)
 		self.check_version()
 
@@ -238,8 +238,6 @@ class MainWindow(widgets.MainWindow):
 	def walker(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg["dir_ovls_in"], )
 		errors = []
-		# holds different types of flag - list of byte maps pairs
-		type_dic = {}
 		if start_dir:
 			export_dir = os.path.join(start_dir, "walker_export")
 			# don't use internal data
@@ -270,7 +268,9 @@ class MainWindow(widgets.MainWindow):
 						errors.append((ovl_path, ex))
 						
 				self.skip_messages(error_files, skip_files)
-				
+
+			# holds different types of flag - list of byte maps pairs
+			type_dic = {}
 			if walk_models:
 				mdl2_files = walker.walk_type(export_dir, extension="mdl2")
 				mf_max = len(mdl2_files)
