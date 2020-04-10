@@ -26,11 +26,11 @@ class MainWindow(widgets.MainWindow):
 		mainMenu = self.menuBar() 
 		fileMenu = mainMenu.addMenu('File')
 		helpMenu = mainMenu.addMenu('Help')
-		button_data = ( (fileMenu, "Open", self.open_fgm, "CTRL+O"), \
-						(fileMenu, "Save", self.save_fgm, "CTRL+S"), \
-						(fileMenu, "Exit", self.close, ""), \
-						(helpMenu, "Report Bug", self.report_bug, ""), \
-						(helpMenu, "Documentation", self.online_support, ""), \
+		button_data = ( (fileMenu, "Open", self.open_fgm, "CTRL+O", ""), \
+						(fileMenu, "Save", self.save_fgm, "CTRL+S", ""), \
+						(fileMenu, "Exit", self.close, "", ""), \
+						(helpMenu, "Report Bug", self.report_bug, "", ""), \
+						(helpMenu, "Documentation", self.online_support, "", ""), \
 						)
 		self.add_to_menu(button_data)
 
