@@ -89,15 +89,14 @@ class MainWindow(widgets.MainWindow):
 	def commands(self,):
 		# get those commands that are set to True
 		return [ x for x in ("write_dat", "write_frag_log") if getattr(self, x)]
-	
-	def update_commands(self):
-		# at some point, just set commands to archive and trigger changes there
-		if self.ovl_name:
-			self.ovl_data.commands = self.commands
 
 	@property
 	def ovl_name(self,):
-		return self.file_widget.text()
+		return self.file_widget.entry.text()
+
+	@ovl_name.setter
+	def ovl_name(self, name):
+		self.file_widget.setText(name)
 
 	@property
 	def write_dds(self,):
@@ -114,6 +113,11 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_frag_log(self,):
 		return self.t_write_frag_log.isChecked()
+
+	def update_commands(self):
+		# at some point, just set commands to archive and trigger changes there
+		if self.ovl_name:
+			self.ovl_data.commands = self.commands
 
 	def update_progress(self, message, value=None, vmax=None):
 		# avoid gui updates if the value won't actually change the percentage.
@@ -148,7 +152,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				with open(self.file_widget.filepath, "rb") as ovl_stream:
 					self.ovl_data.read(ovl_stream, file=self.file_widget.filepath, commands=self.commands)
-				self.file_widget.setText(ovl_name)
+				self.ovl_name = ovl_name
 			except Exception as ex:
 				traceback.print_exc()
 				widgets.showdialog( str(ex) )
