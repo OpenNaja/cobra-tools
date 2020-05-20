@@ -3,6 +3,7 @@ import os
 import io
 import tempfile
 import shutil
+import pyffi
 
 from pyffi_ext.formats.dds import DdsFormat
 from pyffi_ext.formats.ms2 import Ms2Format
@@ -88,7 +89,8 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 
 def to_bytes(inst, data):
 	"""helper that returns the bytes representation of a pyffi struct"""
-	if isinstance(inst, list):
+	# we must make sure that pyffi arrays are not treated as a list although they are an instance of 'list'
+	if isinstance(inst, list) and not isinstance(inst, pyffi.object_models.xml.array.Array):
 		return b"".join(to_bytes(c, data) for c in inst)
 	if isinstance(inst, bytes):
 		return inst
