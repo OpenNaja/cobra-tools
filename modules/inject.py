@@ -406,29 +406,31 @@ class Mdl2Holder:
 		print(buffer_info)
 
 		verts_tris_buffer = ms2_entry.data_entry.buffer_datas[-1]
-
-		lod_pointer = mdl2_entry.fragments[1].pointers[1]
-		lod_count = len(lod_pointer.data) // 20
-		# todo get count from CoreModelInfo
-		self.lods = lod_pointer.read_as(Ms2Format.LodInfo, self.archive, num=lod_count)
-		print(self.lods)
+		if len(mdl2_entry.fragments[1].pointers[1].data) < 104:
+			if len(mdl2_entry.fragments[1].pointers[1].data) % 20 == 0:
+				lod_pointer = mdl2_entry.fragments[1].pointers[1]
+				lod_count = len(lod_pointer.data) // 20
+				# todo get count from CoreModelInfo
+				self.lods = lod_pointer.read_as(Ms2Format.LodInfo, self.archive, num=lod_count)
+		print("lod list",self.lods)
 		self.models = []
 		for f in mdl2_entry.model_data_frags:
 			model = f.pointers[0].read_as(Ms2Format.ModelData, self.archive)[0]
 			self.models.append(model)
-
-		with io.BytesIO(verts_tris_buffer) as ms2_stream:
-			self.read_verts_tris(ms2_stream, buffer_info)
+		print("num models:",len(self.models))
+		if len(self.models) > 0:
+			with io.BytesIO(verts_tris_buffer) as ms2_stream:
+				self.read_verts_tris(ms2_stream, buffer_info)
 
 	def update_entry(self):
 		# overwrite mdl2 modeldata frags
 		for frag, modeldata in zip(self.mdl2_entry.model_data_frags, self.models):
 			frag_data = to_bytes(modeldata, self.mdl2_data)
 			frag.pointers[0].update_data(frag_data, update_copies=True)
-
-		self.lodinfo = to_bytes(self.lods, self.mdl2_data)
-		# overwrite mdl2 lodinfo frag
-		self.mdl2_entry.fragments[1].pointers[1].update_data(self.lodinfo, update_copies=True)
+		if len(self.lods) > 0:
+			self.lodinfo = to_bytes(self.lods, self.mdl2_data)
+			# overwrite mdl2 lodinfo frag
+			self.mdl2_entry.fragments[1].pointers[1].update_data(self.lodinfo, update_copies=True)
 
 	def __repr__(self):
 		return f"<Mdl2Holder: {self.name} [{self.source}], V{len(self.verts_bytes)}, T{len(self.tris_bytes)}, M{len(self.models)}, L{len(self.lods)}>"
@@ -471,7 +473,7 @@ class Ms2Holder:
 		if not buffer_info_frag.pointers[1].data:
 			raise AttributeError("No buffer info, aborting merge")
 		self.buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
-		# print(self.buffer_info)
+		print(self.buffer_info)
 
 		for mdl2_entry in self.ms2_entry.children:
 			mdl2 = Mdl2Holder(self.archive)
