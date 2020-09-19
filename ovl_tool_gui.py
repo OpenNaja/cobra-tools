@@ -36,8 +36,8 @@ class MainWindow(widgets.MainWindow):
 		self.t_action = QtWidgets.QLabel(self, text = self.t_action_current_message)
 		
 		# toggles
-		self.t_write_dds = QtWidgets.QCheckBox("Save DDS")
-		self.t_write_dds.setToolTip("By default, DDS files are converted to PNG and back on the fly.")
+		self.t_write_dds = QtWidgets.QCheckBox("Save Temp Files")
+		self.t_write_dds.setToolTip("By default, temporary files are converted to usable ones and back on the fly.")
 		self.t_write_dds.setChecked(False)
 		
 		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
