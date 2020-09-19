@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+    <!--Basic Types-->
+
+    <basic name="ubyte" count="1">
+        An unsigned 8-bit integer.
+    </basic>
+    <basic name="byte" count="1">
+        A signed 8-bit integer.
+    </basic>
+
+    <basic name="uint64" count="1">
+        An unsigned 64-bit integer.
+    </basic>
+    <basic name="uint" count="1">
+        An unsigned 32-bit integer.
+    </basic>
+    <basic name="ushort" count="1" >
+        An unsigned 16-bit integer.
+    </basic>
+
+    <basic name="int64" count="1" >
+        A signed 64-bit integer.
+    </basic>
+
+    <basic name="int" count="1" >
+        A signed 32-bit integer.
+    </basic>
+
+    <basic name="short" count="1" >
+        A signed 16-bit integer.
+    </basic>
+	
+    <basic name="char" count="0" >
+        An 8-bit character.
+    </basic>
+	
+    <basic name="float" count="0" >
+        A standard 32-bit floating point number.
+    </basic>
+	
+	    <compound name="DataPointer">
+        second Section of a soundback aux
+        <add name="wem id" type="uint" ></add>
+        <add name="data section offset" type="uint" >offset into data section</add>
+        <add name="wem filesize" type="uint" >length of the wem file</add>
+    </compound>
+
+    <compound name="BKHDSection">
+        First Section of a soundback aux
+<!--        <add name="magic" type="byte" arr1="4">'BKHD'</add>-->
+        <add name="length" type="uint" >length of following data</add>
+        <add name="version" type="uint" ></add>
+        <add name="IdA" type="uint" ></add>
+        <add name="IdB" type="uint" ></add>
+        <add name="constantA" type="uint" ></add>
+        <add name="constantB" type="uint" ></add>
+        <add name="zeroes" type="byte" arr1="length - 20">filler zeroes</add>
+    </compound>
+
+    <compound name="DIDXSection">
+        second Section of a soundback aux
+<!--        <add name="magic" type="byte" arr1="4">'DIDX'</add>-->
+        <add name="length" type="uint" >length of following data</add>
+        <add name="data pointers" type="DataPointer" arr1="length/12" ></add>
+
+    </compound>
+
+    <compound name="DATASection">
+        second Section of a soundback aux
+<!--        <add name="magic" type="byte" arr1="4">'DATA'</add>-->
+        <add name="length" type="uint" >length of following data</add>
+        <add name="wem files datas" type="byte" arr1="length" ></add>
+    </compound>
+
+<!--    <compound name="AuxFileContainer">-->
+<!--        Custom file struct-->
+
+<!--        This reads a whole aux soundbank file-->
+<!--        <add name="bkhd chunk" type="BKHDSection" ></add>-->
+<!--        <add name="didx chunk" type="DIDXSection" ></add>-->
+<!--        <add name="data chunk" type="DATASection" ></add>-->
+<!--&lt;!&ndash;        <add name="zeroes" type="byte" arr1="?????">theres thousands of zeroes after the three chunks, not sure how to do this</add>&ndash;&gt;-->
+<!--    </compound>-->
+
+</niftoolsxml>
