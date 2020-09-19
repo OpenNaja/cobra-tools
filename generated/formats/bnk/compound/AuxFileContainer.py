@@ -39,7 +39,7 @@ class AuxFileContainer:
 		print("Extracting audio")
 		paths = []
 		for pointer in self.didx.data_pointers:
-			wem_name = f"{pointer.wem_id}.wem"
+			wem_name = f"{hex(pointer.wem_id)[2:].upper()}.wem"
 			wem_path = os.path.normpath(os.path.join(out_dir, wem_name))
 			paths.append(wem_path)
 			print(wem_path)
