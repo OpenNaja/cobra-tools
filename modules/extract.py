@@ -103,21 +103,22 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 			
 	return error_files, skip_files
 
+
 def write_bnk(archive, sized_str_entry, show_dds):
 	bnk = os.path.splitext(sized_str_entry.name)[0]
-	bnk_name = f"{archive.header.file_no_ext}_{bnk}_bnk_b.aux"
-	if os.path.isfile(bnk_name):
-		if "_media_" not in bnk_name:
-			print("skipping events bnk", bnk_name)
+	bnk_path = f"{archive.header.file_no_ext}_{bnk}_bnk_b.aux"
+	if os.path.isfile(bnk_path):
+		if "_media_" not in bnk_path:
+			print("skipping events bnk", bnk_path)
 			return
-		print("exporting", bnk_name)
+		print("exporting", bnk_path)
 
 		data = BnkFile()
-		data.load(bnk_name)
+		data.load(bnk_path)
 
 		# if we want to see the dds, write it to the output dir
 		tmp_dir = texconv.make_tmp(archive.dir, show_dds)
-		wem_files = data.extract_audio(tmp_dir)
+		wem_files = data.extract_audio(tmp_dir, bnk)
 		texconv.wem_to_ogg(wem_files, archive.dir, show_dds)
 	else:
 		raise FileNotFoundError

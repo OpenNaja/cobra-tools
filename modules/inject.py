@@ -12,6 +12,7 @@ from pyffi_ext.formats.ms2 import Ms2Format
 from pyffi_ext.formats.fgm import FgmFormat
 from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 # from pyffi_ext.formats.assetpkg import AssetpkgFormat
+from generated.formats.bnk import BnkFile
 
 from modules import extract
 from util import texconv, imarray
@@ -49,6 +50,9 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 			name_ext = name+".tex"
 		elif ext == ".matcol":
 			name_ext = name+".materialcollection"
+		if ext == ".wem":
+			bnk_name, wem_name = name.rsplit("_", 1)
+			name_ext = bnk_name + ".bnk"
 		# find the sizedstr entry that refers to this file
 		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
 		if is_2K:
@@ -72,6 +76,8 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 			load_dds(ovl_data, file_path, sized_str_entry, is_2K, ovs_sized_str_entry)
 		elif ext == ".txt":
 			load_txt(ovl_data, file_path, sized_str_entry)
+		elif ext == ".wem":
+			load_wem(ovl_data, file_path, sized_str_entry, bnk_name, wem_name)
 		elif ext == ".xmlconfig":
 			load_xmlconfig(ovl_data, file_path, sized_str_entry)
 		elif ext == ".fdb":
@@ -112,6 +118,32 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
 	# make sure all are updated, and pad to 8 bytes, using old padding
 	txt_pointer.update_data(data, update_copies=True, pad_to=8, include_old_pad=True)
+
+
+def load_wem(ovl_data, wem_file_path, sized_str_entry, bnk_name, wem_id):
+	bnk = os.path.splitext(sized_str_entry.name)[0]
+	archive = ovl_data.archives[0]
+	bnk_path = f"{archive.header.file_no_ext}_{bnk}_bnk_b.aux"
+	if os.path.isfile(bnk_path):
+		if "_media_" not in bnk_path:
+			print("skipping events bnk", bnk_path)
+			return
+
+		data = BnkFile()
+		data.load(bnk_path)
+		data.inject_audio(wem_file_path, wem_id)
+		data.save(bnk_path)
+
+	# print(wem_file_path)
+	# txt_pointer = sized_str_entry.pointers[0]
+	# # first make sure that the padding has been separated from the data
+	# size = struct.unpack("<I", txt_pointer.data[:4])[0]
+	# txt_pointer.split_data_padding(4+size)
+	# with open(txt_file_path, 'rb') as stream:
+	# 	raw_txt_bytes = stream.read()
+	# 	data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
+	# # make sure all are updated, and pad to 8 bytes, using old padding
+	# txt_pointer.update_data(data, update_copies=True, pad_to=8, include_old_pad=True)
 
 
 def load_xmlconfig(ovl_data, xml_file_path, xml_sized_str_entry):
