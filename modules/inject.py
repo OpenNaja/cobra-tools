@@ -134,16 +134,13 @@ def load_wem(ovl_data, wem_file_path, sized_str_entry, bnk_name, wem_id):
 		data.inject_audio(wem_file_path, wem_id)
 		data.save(bnk_path)
 
-	# print(wem_file_path)
-	# txt_pointer = sized_str_entry.pointers[0]
-	# # first make sure that the padding has been separated from the data
-	# size = struct.unpack("<I", txt_pointer.data[:4])[0]
-	# txt_pointer.split_data_padding(4+size)
-	# with open(txt_file_path, 'rb') as stream:
-	# 	raw_txt_bytes = stream.read()
-	# 	data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
-	# # make sure all are updated, and pad to 8 bytes, using old padding
-	# txt_pointer.update_data(data, update_copies=True, pad_to=8, include_old_pad=True)
+	# first uint of the buffer is the size of the data that should be read from the aux file
+	with open(bnk_path, "rb") as f:
+		size = len(f.read())
+	buffers = sized_str_entry.data_entry.buffer_datas
+	buffers[0] = struct.pack("<I", size) + buffers[0][4:]
+	# update the buffer
+	sized_str_entry.data_entry.update_data(buffers)
 
 
 def load_xmlconfig(ovl_data, xml_file_path, xml_sized_str_entry):
