@@ -1,8 +1,8 @@
-from generated.formats.bnk.compound.BKHDSection import BKHDSection
-from generated.formats.bnk.compound.DIDXSection import DIDXSection
-# from generated.formats.bnk.compound.DATASection import DATASection
 import os
 import struct
+from generated.formats.bnk.compound.BKHDSection import BKHDSection
+from generated.formats.bnk.compound.DIDXSection import DIDXSection
+
 
 class AuxFileContainer:
 	# Custom file struct
@@ -14,6 +14,7 @@ class AuxFileContainer:
 		self.bhkd = None
 		self.didx = None
 		self.data = None
+		self.size_for_ovl = 0
 
 	def read(self, stream):
 		self.chunks = []
@@ -83,10 +84,15 @@ class AuxFileContainer:
 		for chunk_id, chunk in self.chunks:
 			stream.write(chunk_id)
 			stream.write_type(chunk)
+		if not self.didx.data_pointers:
+			return
 		data = b"".join(pointer.data + pointer.pad for pointer in self.didx.data_pointers)
 		stream.write(b"DATA")
 		stream.write_uint(len(data))
 		stream.write(data)
+		# ovl ignores the padding of the last wem
+		self.size_for_ovl = stream.tell() - len(pointer.pad)
+		print("AUX size for OVL", self.size_for_ovl)
 
 	def __repr__(self):
 		s = 'AuxFileContainer'

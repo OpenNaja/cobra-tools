@@ -134,13 +134,11 @@ def load_wem(ovl_data, wem_file_path, sized_str_entry, bnk_name, wem_id):
 		data.inject_audio(wem_file_path, wem_id)
 		data.save(bnk_path)
 
-	# first uint of the buffer is the size of the data that should be read from the aux file
-	with open(bnk_path, "rb") as f:
-		size = len(f.read())
-	buffers = sized_str_entry.data_entry.buffer_datas
-	buffers[0] = struct.pack("<I", size) + buffers[0][4:]
-	# update the buffer
-	sized_str_entry.data_entry.update_data(buffers)
+		# first uint of the buffer is the size of the data that should be read from the aux file
+		buffers = sized_str_entry.data_entry.buffer_datas
+		buffers[0] = struct.pack("<I", data.size_for_ovl) + buffers[0][4:]
+		# update the buffer
+		sized_str_entry.data_entry.update_data(buffers)
 
 
 def load_xmlconfig(ovl_data, xml_file_path, xml_sized_str_entry):
