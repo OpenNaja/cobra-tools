@@ -39,6 +39,7 @@ class AuxFileContainer:
 		for pointer in self.didx.data_pointers:
 			pointer.data = self.data[pointer.data_section_offset: pointer.data_section_offset+pointer.wem_filesize]
 			pointer.hash = "".join([f"{b:02X}" for b in struct.pack("<I", pointer.wem_id)])
+			pointer.pad = b""
 
 	def extract_audio(self, out_dir, basename):
 		"""Extracts all wem files from the container into a folder"""
@@ -63,18 +64,26 @@ class AuxFileContainer:
 					pointer.data = f.read()
 				break
 
+	def pad_to(self, len_d, alignment=16):
+		if alignment:
+			moduloed = len_d % alignment
+			if moduloed:
+				# create the new blank padding
+				return b"\x00" * (alignment - moduloed)
+		return b""
+
 	def write(self, stream):
 		"""Update representation, then write the container from the internal representation"""
 		offset = 0
 		for pointer in self.didx.data_pointers:
 			pointer.data_section_offset = offset
 			pointer.wem_filesize = len(pointer.data)
-			offset += len(pointer.data)
-			# todo - do padding here, might speed up loading?
+			pointer.pad = self.pad_to(len(pointer.data), alignment=16)
+			offset += len(pointer.data + pointer.pad)
 		for chunk_id, chunk in self.chunks:
 			stream.write(chunk_id)
 			stream.write_type(chunk)
-		data = b"".join(pointer.data for pointer in self.didx.data_pointers)
+		data = b"".join(pointer.data + pointer.pad for pointer in self.didx.data_pointers)
 		stream.write(b"DATA")
 		stream.write_uint(len(data))
 		stream.write(data)
