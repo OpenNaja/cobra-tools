@@ -381,8 +381,8 @@ class Mdl2Holder:
 		self.archive = archive
 		self.source = "NONE"
 		self.mdl2_entry = None
-
-		# list or array of pyffi modeldata structs
+        
+		self.bone_info_buffer = []# list or array of pyffi modeldata structs
 		self.models = []
 		# one per model
 		self.verts_bytes = []
@@ -407,7 +407,8 @@ class Mdl2Holder:
 		with open(ms2_path, "rb") as ms2_stream:
 			ms2_header = Ms2Format.Ms2InfoHeader()
 			ms2_header.read(ms2_stream, data=self.mdl2_data)
-			eoh = ms2_stream.tell() + ms2_header.bone_info_size
+			self.bone_info_buffer = ms2_stream.read(ms2_header.bone_info_size)
+			eoh = ms2_stream.tell()
 
 			self.read_verts_tris(ms2_stream, ms2_header.buffer_info, eoh)
 
@@ -480,6 +481,7 @@ class Ms2Holder:
 		self.mdl2s = []
 		self.archive = archive
 		self.ms2_entry = None
+		self.bone_info = []
 
 	def __repr__(self):
 		return f"<Ms2Holder: {self.name}, Models: {len(self.mdl2s)}>"
@@ -491,6 +493,8 @@ class Ms2Holder:
 			if mdl2.name == new_name:
 				print(f"Match, slot {i}")
 				mdl2.from_file(mdl2_file_path)
+				self.bone_info = mdl2.bone_info_buffer
+				print(len(self.bone_info))
 				break
 		else:
 			raise AttributeError(f"No match for {mdl2}")
@@ -551,7 +555,8 @@ class Ms2Holder:
 		vert_bytes = temp_vert_writer.getvalue()
 		tris_bytes = temp_tris_writer.getvalue()
 
-		buffers = self.ms2_entry.data_entry.buffer_datas[:-1]
+		buffers = self.ms2_entry.data_entry.buffer_datas[:-2]
+		buffers.append(self.bone_info)
 		buffers.append(vert_bytes+tris_bytes)
 
 		# modify buffer size
