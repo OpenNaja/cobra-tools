@@ -2,7 +2,7 @@ import os
 import struct
 from generated.formats.bnk.compound.BKHDSection import BKHDSection
 from generated.formats.bnk.compound.DIDXSection import DIDXSection
-
+from generated.formats.bnk.compound.HIRCSection import HIRCSection
 
 class AuxFileContainer:
 	# Custom file struct
@@ -13,8 +13,10 @@ class AuxFileContainer:
 		self.chunks = []
 		self.bhkd = None
 		self.didx = None
+		self.hirc = None
 		self.data = None
 		self.size_for_ovl = 0
+		self.old_size = 0
 
 	def read(self, stream):
 		self.chunks = []
@@ -25,6 +27,9 @@ class AuxFileContainer:
 			if chunk_id == b"BKHD":
 				self.bhkd = stream.read_type(BKHDSection)
 				self.chunks.append((chunk_id, self.bhkd))
+			elif chunk_id == b"HIRC":
+				self.hirc = stream.read_type(HIRCSection)
+				self.chunks.append((chunk_id, self.hirc))
 			elif chunk_id == b"DIDX":
 				self.didx = stream.read_type(DIDXSection)
 				self.chunks.append((chunk_id, self.didx))
@@ -37,10 +42,11 @@ class AuxFileContainer:
 				break
 			else:
 				raise NotImplementedError(f"Unknown chunk {chunk_id}!")
-		for pointer in self.didx.data_pointers:
-			pointer.data = self.data[pointer.data_section_offset: pointer.data_section_offset+pointer.wem_filesize]
-			pointer.hash = "".join([f"{b:02X}" for b in struct.pack("<I", pointer.wem_id)])
-			pointer.pad = b""
+		if self.hirc == None:
+			for pointer in self.didx.data_pointers:
+				pointer.data = self.data[pointer.data_section_offset: pointer.data_section_offset+pointer.wem_filesize]
+				pointer.hash = "".join([f"{b:02X}" for b in struct.pack("<I", pointer.wem_id)])
+				pointer.pad = b""
 
 	def extract_audio(self, out_dir, basename):
 		"""Extracts all wem files from the container into a folder"""
@@ -64,6 +70,25 @@ class AuxFileContainer:
 				with open(wem_path, "rb") as f:
 					pointer.data = f.read()
 				break
+                
+	def inject_hirc(self, wem_path, wem_id):
+		"""Loads wem size into the events container"""
+		print("updating hirc data size")
+		for hirc_pointer in self.hirc.hirc_pointers:
+
+			if hirc_pointer.id == 2:
+				hash = "".join([f"{b:02X}" for b in struct.pack("<I", hirc_pointer.type_2.didx_id)])
+				print(hirc_pointer.id, hash, wem_id)
+				if hash == wem_id:
+					print("found a match, reading wem data size")
+					hirc_pointer.type_2.wem_length = os.path.getsize(wem_path)
+					print(hirc_pointer.type_2)
+					break
+
+#if self.hirc != None:
+#   for hirc_pointer in self.hirc.hirc_pointers:
+#      if hirc_pointer.id == 2:
+
 
 	def pad_to(self, len_d, alignment=16):
 		if alignment:
@@ -76,19 +101,24 @@ class AuxFileContainer:
 	def write(self, stream):
 		"""Update representation, then write the container from the internal representation"""
 		offset = 0
-		for pointer in self.didx.data_pointers:
-			pointer.data_section_offset = offset
-			pointer.wem_filesize = len(pointer.data)
-			pointer.pad = self.pad_to(len(pointer.data), alignment=16)
-			offset += len(pointer.data + pointer.pad)
+		if self.hirc == None:
+			for pointer in self.didx.data_pointers:
+				pointer.data_section_offset = offset
+				pointer.wem_filesize = len(pointer.data)
+				pointer.pad = self.pad_to(len(pointer.data), alignment=16)
+				offset += len(pointer.data + pointer.pad)
 		for chunk_id, chunk in self.chunks:
 			stream.write(chunk_id)
 			stream.write_type(chunk)
+		if self.hirc != None:
+			stream.write(bytearray(self.old_size - stream.tell() ))
+			print(stream.tell)
+			return
 		if not self.didx.data_pointers:
 			return
 		data = b"".join(pointer.data + pointer.pad for pointer in self.didx.data_pointers)
 		stream.write(b"DATA")
-		stream.write_uint(len(data))
+		stream.write_uint(len(data)- len(pointer.pad))
 		stream.write(data)
 		# ovl ignores the padding of the last wem
 		self.size_for_ovl = stream.tell() - len(pointer.pad)
