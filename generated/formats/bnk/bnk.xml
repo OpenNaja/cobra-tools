@@ -59,6 +59,14 @@
         <add name="constantB" type="uint" ></add>
         <add name="zeroes" type="byte" arr1="length - 20">filler zeroes</add>
     </compound>
+	
+    <compound name="HIRCSection">
+        First Section of a soundback aux
+<!--        <add name="magic" type="byte" arr1="4">'HIRC'</add>-->
+        <add name="id" type="byte" >length of following data</add>
+        <add name="length" type="uint" ></add>
+        <add name="data" type="byte" arr1="length">filler zeroes</add>
+    </compound>
 
     <compound name="DIDXSection">
         second Section of a soundback aux
