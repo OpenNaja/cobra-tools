@@ -38,6 +38,8 @@ class AuxFileContainer:
 				self.data = stream.read(size)
 			elif chunk_id == b'\x00\x00\x00\x00':
 				break
+			elif chunk_id == b'\x00':
+				break
 			elif not chunk_id:
 				break
 			else:
