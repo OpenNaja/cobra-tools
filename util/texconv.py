@@ -1,4 +1,4 @@
-import os, tempfile, shutil, subprocess
+import os, tempfile, shutil, subprocess, struct
 
 util_dir = os.path.dirname(__file__)
 BINARY = os.path.normpath( os.path.join( util_dir , "texconv/texconv.exe") )
@@ -14,14 +14,40 @@ def run_smart(args):
 	subprocess.check_call(args)
 
 
-def wem_to_ogg( wem_files, out_dir, show_dds):
+def wem_handle( wem_files, out_dir, show_dds):
 	for wem_file in wem_files:
-		print("wem 2 ogg", wem_file, out_dir, show_dds)
-		ogg_name = os.path.splitext(os.path.basename(wem_file))[0]+".ogg"
-		ogg_file = os.path.join(out_dir, ogg_name)
-		run_smart([ww2ogg, wem_file, "-o", ogg_file, "--pcb", pcb, ])
-		run_smart([revorb, ogg_file])
-	clear_tmp( wem_file, show_dds)
+		print("checking wem format", wem_file, out_dir, show_dds)
+		out_name = os.path.splitext(os.path.basename(wem_file))[0]
+		out_file = os.path.join(out_dir, out_name)
+		# read the format
+		with open(wem_file, "rb") as f:
+			f.seek(20)
+			fmt = struct.unpack("<h", f.read(2))[0]
+		# print("fmt", fmt)
+		if fmt == -1:
+			wem_to_ogg(wem_file, out_file)
+		elif fmt == -2:
+			wem_to_wav(wem_file, out_file)
+		else:
+			raise NotImplementedError(f"Unknown RIFF format {fmt} in {wem_file}! Please report to the devs!")
+	clear_tmp(wem_file, show_dds)
+
+
+def wem_to_ogg(wem_file, out_file):
+	run_smart([ww2ogg, wem_file, "-o", out_file+".ogg", "--pcb", pcb, ])
+	run_smart([revorb, out_file+".ogg"])
+
+
+def wem_to_wav(wem_file, out_file):
+	with open(wem_file, "rb") as f:
+		data = f.read()
+	with open(out_file+".wav", "wb") as f:
+		# header up for the format chunk
+		f.write(data[:20])
+		# wav, stereo
+		f.write(struct.pack("<hh", 1, 2))
+		# the rest
+		f.write(data[24:])
 
 
 def dds_to_png( dds_file_path, out_dir, height, show_dds):

@@ -119,7 +119,7 @@ def write_bnk(archive, sized_str_entry, show_dds):
 		# if we want to see the dds, write it to the output dir
 		tmp_dir = texconv.make_tmp(archive.dir, show_dds)
 		wem_files = data.extract_audio(tmp_dir, bnk)
-		texconv.wem_to_ogg(wem_files, archive.dir, show_dds)
+		texconv.wem_handle(wem_files, archive.dir, show_dds)
 	else:
 		raise FileNotFoundError
 
