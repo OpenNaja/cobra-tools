@@ -29,7 +29,7 @@ def wem_handle( wem_files, out_dir, show_dds):
 		elif fmt == -2:
 			wem_to_wav(wem_file, out_file)
 		else:
-			raise NotImplementedError(f"Unknown RIFF format {fmt} in {wem_file}! Please report to the devs!")
+			raise NotImplementedError(f"Unknown RIFF format {fmt} in {out_name}! Please report to the devs!")
 	clear_tmp(wem_file, show_dds)
 
 
