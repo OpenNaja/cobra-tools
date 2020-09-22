@@ -14,8 +14,10 @@ def run_smart(args):
 	subprocess.check_call(args)
 
 
-def wem_handle( wem_files, out_dir, show_dds):
-	for wem_file in wem_files:
+def wem_handle( wem_files, out_dir, show_dds, progress_callback):
+	for wem_i, wem_file in enumerate(wem_files):
+
+		progress_callback("Converting audio", value=wem_i, vmax=len(wem_files))
 		print("checking wem format", wem_file, out_dir, show_dds)
 		out_name = os.path.splitext(os.path.basename(wem_file))[0]
 		out_file = os.path.join(out_dir, out_name)
