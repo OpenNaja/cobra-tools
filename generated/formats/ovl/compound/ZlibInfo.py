@@ -22,7 +22,7 @@ class ZlibInfo:
 
 	def __repr__(self):
 		s = 'ZlibInfo'
-		s += '\nzlib_thing_1 ' + self.zlib_thing_1.__repr__()
-		s += '\nzlib_thing_2 ' + self.zlib_thing_2.__repr__()
+		s += '\n	* zlib_thing_1 = ' + self.zlib_thing_1.__repr__()
+		s += '\n	* zlib_thing_2 = ' + self.zlib_thing_2.__repr__()
 		s += '\n'
 		return s

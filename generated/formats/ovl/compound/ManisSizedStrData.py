@@ -30,8 +30,8 @@ class ManisSizedStrData:
 
 	def __repr__(self):
 		s = 'ManisSizedStrData'
-		s += '\nunknown_0 ' + self.unknown_0.__repr__()
-		s += '\nunknown_1 ' + self.unknown_1.__repr__()
-		s += '\nunknown_2 ' + self.unknown_2.__repr__()
+		s += '\n	* unknown_0 = ' + self.unknown_0.__repr__()
+		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
+		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
 		s += '\n'
 		return s

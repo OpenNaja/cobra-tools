@@ -1,5 +1,9 @@
 from io import BytesIO
 from struct import Struct
+import zlib
+
+from contextlib import contextmanager
+from typing import *
 
 import numpy as np
 
@@ -180,10 +184,65 @@ class BinaryStream(BytesIO):
             array = array.astype(dtype)
         self.write(array.tobytes())
 
-    def read_type(self, cls):
-        obj = cls.__new__(cls)
+    def read_type(self, cls, args=()):
+        # obj = cls.__new__(cls, *args)
+        obj = cls(*args)
         obj.read(self)
         return obj
 
     def write_type(self, obj):
         obj.write(self)
+
+
+class IoFile:
+
+    def load(self, filepath):
+        with self.reader(filepath) as stream:
+            self.read(stream)
+            return stream.tell()
+
+    def save(self, filepath):
+        with self.writer(filepath) as stream:
+            self.write(stream)
+            return stream.tell()
+
+    @staticmethod
+    @contextmanager
+    def reader(filepath) -> Generator[BinaryStream, None, None]:
+        with open(filepath, "rb") as f:
+            data = f.read()
+        with BinaryStream(data) as stream:
+            yield stream  # type: ignore
+
+    @staticmethod
+    @contextmanager
+    def writer(filepath) -> Generator[BinaryStream, None, None]:
+        with BinaryStream() as stream:
+            yield stream  # type: ignore
+            with open(filepath, "wb") as f:
+                # noinspection PyTypeChecker
+                f.write(stream.getbuffer())
+
+
+class ZipFile(IoFile):
+
+    # @staticmethod
+    @contextmanager
+    def unzipper(self, filepath, start, compressed_size, save_temp_dat=""):
+        with self.reader(filepath) as stream:
+            # self.unzip(stream, compressed_size)
+            stream.seek(start)
+            zipped = stream.read(compressed_size)
+            # self.print_and_callback(f"Reading {archive_entry.name}")
+            self.zlib_header = zipped[:2]
+            zlib_compressed_data = zipped[2:]
+            # https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
+            # we avoid the two zlib magic bytes to get our unzipped content
+            # zlib_data = bytearray(zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS))
+            zlib_data = zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS)
+        if save_temp_dat:
+            # for debugging, write deflated content to dat
+            with open(save_temp_dat, 'wb') as out:
+                out.write(zlib_data)
+        with BinaryStream(zlib_data) as stream:
+            yield stream  # type: ignore

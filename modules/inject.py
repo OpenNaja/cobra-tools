@@ -59,7 +59,7 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 		# Grab OVS sized string for Textures
 			if sized_str_entry.ext == "tex":
 				for lod_i in range(1):
-					for archive in ovl_data.archives[1:]:
+					for archive in ovl_data.ovs_files[1:]:
 						for other_sizedstr in archive.sized_str_entries:
 							if sized_str_entry.basename in other_sizedstr.name and "_lod"+str(lod_i) in other_sizedstr.name:
 								ovs_sized_str_entry = other_sizedstr
@@ -122,7 +122,7 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 
 def load_wem(ovl_data, wem_file_path, sized_str_entry, bnk_name, wem_id):
 	bnk = os.path.splitext(sized_str_entry.name)[0]
-	archive = ovl_data.archives[0]
+	archive = ovl_data.ovs_files[0]
 	bnk_path = f"{archive.header.file_no_ext}_{bnk}_bnk_b.aux"
 	if os.path.isfile(bnk_path):
 		if "_media_" not in bnk_path:
@@ -160,7 +160,7 @@ def load_xmlconfig(ovl_data, xml_file_path, xml_sized_str_entry):
 def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds, is_2K, ovs_sized_str_entry):
 	# convert the png into a dds, then inject that
 
-	archive = ovl_data.archives[0]
+	archive = ovl_data.ovs_files[0]
 	header_3_0, header_3_1, header_7 = extract.get_tex_structs(archive, tex_sized_str_entry)
 	dds_compression_type = extract.get_compression_type(header_3_0)
 	# texconv works without prefix
@@ -336,7 +336,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, is_2K, ovs_sized_str_
 
 	# read archive tex header to make sure we have the right mip count
 	# even when users import DDS with mips when it should have none
-	archive = ovl_data.archives[0]
+	archive = ovl_data.ovs_files[0]
 	
 	if is_2K:
 		tex_to_2K(tex_sized_str_entry, ovs_sized_str_entry)

@@ -31,8 +31,8 @@ class SizedStringEntry:
 
 	def __repr__(self):
 		s = 'SizedStringEntry'
-		s += '\nfile_hash ' + self.file_hash.__repr__()
-		s += '\next_hash ' + self.ext_hash.__repr__()
-		s += '\npointers ' + self.pointers.__repr__()
+		s += '\n	* file_hash = ' + self.file_hash.__repr__()
+		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
+		s += '\n	* pointers = ' + self.pointers.__repr__()
 		s += '\n'
 		return s

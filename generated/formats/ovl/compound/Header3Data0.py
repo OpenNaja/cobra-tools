@@ -43,11 +43,11 @@ class Header3Data0:
 
 	def __repr__(self):
 		s = 'Header3Data0'
-		s += '\nzeros ' + self.zeros.__repr__()
-		s += '\ncompression_type ' + self.compression_type.__repr__()
-		s += '\none_0 ' + self.one_0.__repr__()
-		s += '\none_1 ' + self.one_1.__repr__()
-		s += '\none_2 ' + self.one_2.__repr__()
-		s += '\npad ' + self.pad.__repr__()
+		s += '\n	* zeros = ' + self.zeros.__repr__()
+		s += '\n	* compression_type = ' + self.compression_type.__repr__()
+		s += '\n	* one_0 = ' + self.one_0.__repr__()
+		s += '\n	* one_1 = ' + self.one_1.__repr__()
+		s += '\n	* one_2 = ' + self.one_2.__repr__()
+		s += '\n	* pad = ' + self.pad.__repr__()
 		s += '\n'
 		return s

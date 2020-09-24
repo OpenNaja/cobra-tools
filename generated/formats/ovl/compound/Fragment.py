@@ -21,6 +21,6 @@ class Fragment:
 
 	def __repr__(self):
 		s = 'Fragment'
-		s += '\npointers ' + self.pointers.__repr__()
+		s += '\n	* pointers = ' + self.pointers.__repr__()
 		s += '\n'
 		return s

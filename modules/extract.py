@@ -106,7 +106,7 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 
 def write_bnk(archive, sized_str_entry, show_dds, progress_callback):
 	bnk = os.path.splitext(sized_str_entry.name)[0]
-	bnk_path = f"{archive.header.file_no_ext}_{bnk}_bnk_b.aux"
+	bnk_path = f"{archive.ovl.file_no_ext}_{bnk}_bnk_b.aux"
 	if os.path.isfile(bnk_path):
 		if "_media_" not in bnk_path:
 			print("skipping events bnk", bnk_path)
@@ -281,13 +281,13 @@ def write_ms2(archive, ms2_sized_str_entry):
 	# next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, archive)
 	# print("next_model_info", f_1.pointers[1].address, next_model_info)
 
-	# ms2_header = struct.pack("<4s5I", b"MS2 ", archive.header.version, archive.header.flag_2, len(bone_names), len(bone_matrices), len(ms2_sized_str_entry.children))
+	# ms2_header = struct.pack("<4s5I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names), len(bone_matrices), len(ms2_sized_str_entry.children))
 	# with open(archive.indir(name), 'wb') as outfile:
 	# 	outfile.write(ms2_header)
 	# 	for mdl2_entry in ms2_sized_str_entry.children:
 	# 		outfile.write(mdl2_entry.name.encode()[:-5]+b"\x00")
 
-	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.header.version, archive.header.flag_2, len(bone_names), len(bone_matrices))
+	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names), len(bone_matrices))
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(ms2_header)
 		outfile.write(ms2_general_info_data)
@@ -304,7 +304,7 @@ def write_ms2(archive, ms2_sized_str_entry):
 			green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
 			print("model_count",mdl2_entry.model_count)
 
-			mdl2_header = struct.pack("<4s3I", b"MDL2", archive.header.version, archive.header.flag_2, mdl2_index )
+			mdl2_header = struct.pack("<4s3I", b"MDL2", archive.ovl.version, archive.ovl.flag_2, mdl2_index )
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
@@ -317,8 +317,8 @@ def write_ms2(archive, ms2_sized_str_entry):
 				# 40 bytes of 'padding' (0,1 or 0,0,0,0)
 				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2FourtyInfo, archive)
 				# print(core_model_data)
-			elif (archive.header.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
-			or   (archive.header.flag_2 == 8340  and pink.pointers[0].data_size == 160):
+			elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
+			or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
 				# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 				next_model_info_data = pink.pointers[0].data[40:]
 				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2ModelInfo, archive)
@@ -398,7 +398,7 @@ def write_manis(archive, sized_str_entry):
 	# 	print("Wrong amount of buffers for", name)
 	# 	return
 	names = [c.name for c in sized_str_entry.children]
-	manis_header = struct.pack("<4s3I", b"MANI", archive.header.version, archive.header.flag_2, len(names) )
+	manis_header = struct.pack("<4s3I", b"MANI", archive.ovl.version, archive.ovl.flag_2, len(names) )
 
 	# sizedstr data + 3 buffers
 	# sized str data gives general info
@@ -465,7 +465,7 @@ def write_fgm(archive, sized_str_entry):
 	else:
 		raise AttributeError("Fgm length is wrong")
 	# write fgm
-	fgm_header = struct.pack("<4s7I", b"FGM ", archive.header.version, archive.header.flag_2, len(sized_str_entry.fragments), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size, )
+	fgm_header = struct.pack("<4s7I", b"FGM ", archive.ovl.version, archive.ovl.flag_2, len(sized_str_entry.fragments), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size, )
 
 	with open(archive.indir(name), 'wb') as outfile:
 		# write custom FGM header
@@ -482,7 +482,7 @@ def write_materialcollection(archive, sized_str_entry):
 	name = sized_str_entry.name.replace("materialcollection", "matcol")
 	print("\nWriting",name)
 	
-	matcol_header = struct.pack("<4s 2I B", b"MATC ", archive.header.version, archive.header.flag_2, sized_str_entry.has_texture_list_frag )
+	matcol_header = struct.pack("<4s 2I B", b"MATC ", archive.ovl.version, archive.ovl.flag_2, sized_str_entry.has_texture_list_frag )
 
 	with open(archive.indir(name), 'wb') as outfile:
 		# write custom matcol header

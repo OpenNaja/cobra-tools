@@ -1,6 +1,6 @@
-from generated.formats.ovl.compound.SetEntry import SetEntry
 import typing
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
+from generated.formats.ovl.compound.SetEntry import SetEntry
 
 
 class SetHeader:
@@ -40,11 +40,11 @@ class SetHeader:
 
 	def __repr__(self):
 		s = 'SetHeader'
-		s += '\nset_count ' + self.set_count.__repr__()
-		s += '\nasset_count ' + self.asset_count.__repr__()
-		s += '\nsig_a ' + self.sig_a.__repr__()
-		s += '\nsig_b ' + self.sig_b.__repr__()
-		s += '\nsets ' + self.sets.__repr__()
-		s += '\nassets ' + self.assets.__repr__()
+		s += '\n	* set_count = ' + self.set_count.__repr__()
+		s += '\n	* asset_count = ' + self.asset_count.__repr__()
+		s += '\n	* sig_a = ' + self.sig_a.__repr__()
+		s += '\n	* sig_b = ' + self.sig_b.__repr__()
+		s += '\n	* sets = ' + self.sets.__repr__()
+		s += '\n	* assets = ' + self.assets.__repr__()
 		s += '\n'
 		return s

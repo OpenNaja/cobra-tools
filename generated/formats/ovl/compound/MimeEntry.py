@@ -46,12 +46,12 @@ class MimeEntry:
 
 	def __repr__(self):
 		s = 'MimeEntry'
-		s += '\noffset ' + self.offset.__repr__()
-		s += '\nunknown ' + self.unknown.__repr__()
-		s += '\nmime_hash ' + self.mime_hash.__repr__()
-		s += '\nunknown_1 ' + self.unknown_1.__repr__()
-		s += '\nunknown_2 ' + self.unknown_2.__repr__()
-		s += '\nfile_index_offset ' + self.file_index_offset.__repr__()
-		s += '\nfile_count ' + self.file_count.__repr__()
+		s += '\n	* offset = ' + self.offset.__repr__()
+		s += '\n	* unknown = ' + self.unknown.__repr__()
+		s += '\n	* mime_hash = ' + self.mime_hash.__repr__()
+		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
+		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
+		s += '\n	* file_index_offset = ' + self.file_index_offset.__repr__()
+		s += '\n	* file_count = ' + self.file_count.__repr__()
 		s += '\n'
 		return s

@@ -1,12 +1,14 @@
-import typing
-from generated.formats.ovl.compound.DirEntry import DirEntry
+from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.OtherEntry import OtherEntry
-from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
-from generated.formats.ovl.compound.FileEntry import FileEntry
+from generated.formats.ovl.compound.FixedString import FixedString
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.TextureEntry import TextureEntry
+import typing
+from generated.formats.ovl.compound.FileEntry import FileEntry
+from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
+from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
+from generated.formats.ovl.compound.DirEntry import DirEntry
 
 
 class Header:
@@ -14,7 +16,7 @@ class Header:
 # Found at the beginning of every OVL file
 
 	# 'FRES'
-	fres: typing.List[int]
+	fres: FixedString
 
 	# if 0x08 then 64bit
 	flag: int
@@ -40,8 +42,8 @@ class Header:
 	# always = 0
 	zero_2: int
 
-	# count of something
-	num_others: int
+	# count of external aux files, ie audio banks
+	num_aux_entries: int
 
 	# count of directories
 	num_dirs: int
@@ -92,7 +94,7 @@ class Header:
 	zeros_2: typing.List[int]
 
 	# Name buffer for assets and file mime types.
-	names: typing.List[Char]
+	names: ZStringBuffer
 
 	# Array of MimeEntry objects that represent a mime type (file extension) each.
 	mimes: typing.List[MimeEntry]
@@ -101,7 +103,7 @@ class Header:
 	files: typing.List[FileEntry]
 
 	# Name buffer for archives, usually will be STATIC followed by any OVS names
-	archive_names: typing.List[Char]
+	archive_names: ZStringBuffer
 
 	# Array of ArchiveEntry objects.
 	archives: typing.List[ArchiveEntry]
@@ -112,8 +114,8 @@ class Header:
 	# Array of TextureEntry objects.
 	textures: typing.List[TextureEntry]
 
-	# Array of OtherEntry objects.
-	others: typing.List[OtherEntry]
+	# Array of AuxEntry objects.
+	aux_entries: typing.List[AuxEntry]
 
 	# Array of UnknownEntry objects.
 	unknowns: typing.List[UnknownEntry]
@@ -126,7 +128,7 @@ class Header:
 		self.template = template
 
 	def read(self, stream):
-		self.fres = [stream.read_byte() for _ in range(4)]
+		self.fres = stream.read_type(FixedString, (4,))
 		self.flag = stream.read_byte()
 		self.version = stream.read_byte()
 		self.needs_bitswap = stream.read_byte()
@@ -135,7 +137,7 @@ class Header:
 		self.zero = stream.read_uint()
 		self.len_names = stream.read_uint()
 		self.zero_2 = stream.read_uint()
-		self.num_others = stream.read_uint()
+		self.num_aux_entries = stream.read_uint()
 		self.num_dirs = stream.read_ushort()
 		self.num_mimes = stream.read_ushort()
 		self.num_files = stream.read_uint()
@@ -152,19 +154,19 @@ class Header:
 		self.num_files_3 = stream.read_uint()
 		self.len_type_names = stream.read_uint()
 		self.zeros_2 = [stream.read_byte() for _ in range(52)]
-		self.names = [stream.read_char() for _ in range(self.len_names)]
+		self.names = stream.read_type(ZStringBuffer, (self.len_names,))
 		self.mimes = [stream.read_type(MimeEntry) for _ in range(self.num_mimes)]
 		self.files = [stream.read_type(FileEntry) for _ in range(self.num_files)]
-		self.archive_names = [stream.read_char() for _ in range(self.len_archive_names)]
+		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names,))
 		self.archives = [stream.read_type(ArchiveEntry) for _ in range(self.num_archives)]
 		self.dirs = [stream.read_type(DirEntry) for _ in range(self.num_dirs)]
 		self.textures = [stream.read_type(TextureEntry) for _ in range(self.num_textures)]
-		self.others = [stream.read_type(OtherEntry) for _ in range(self.num_others)]
+		self.aux_entries = [stream.read_type(AuxEntry) for _ in range(self.num_aux_entries)]
 		self.unknowns = [stream.read_type(UnknownEntry) for _ in range(self.num_files_ovs)]
 		self.zlibs = [stream.read_type(ZlibInfo) for _ in range(self.num_archives)]
 
 	def write(self, stream):
-		for item in self.fres: stream.write_byte(item)
+		stream.write_type(self.fres)
 		stream.write_byte(self.flag)
 		stream.write_byte(self.version)
 		stream.write_byte(self.needs_bitswap)
@@ -173,7 +175,7 @@ class Header:
 		stream.write_uint(self.zero)
 		stream.write_uint(self.len_names)
 		stream.write_uint(self.zero_2)
-		stream.write_uint(self.num_others)
+		stream.write_uint(self.num_aux_entries)
 		stream.write_ushort(self.num_dirs)
 		stream.write_ushort(self.num_mimes)
 		stream.write_uint(self.num_files)
@@ -190,54 +192,54 @@ class Header:
 		stream.write_uint(self.num_files_3)
 		stream.write_uint(self.len_type_names)
 		for item in self.zeros_2: stream.write_byte(item)
-		for item in self.names: stream.write_char(item)
+		stream.write_type(self.names)
 		for item in self.mimes: stream.write_type(item)
 		for item in self.files: stream.write_type(item)
-		for item in self.archive_names: stream.write_char(item)
+		stream.write_type(self.archive_names)
 		for item in self.archives: stream.write_type(item)
 		for item in self.dirs: stream.write_type(item)
 		for item in self.textures: stream.write_type(item)
-		for item in self.others: stream.write_type(item)
+		for item in self.aux_entries: stream.write_type(item)
 		for item in self.unknowns: stream.write_type(item)
 		for item in self.zlibs: stream.write_type(item)
 
 	def __repr__(self):
 		s = 'Header'
-		s += '\nfres ' + self.fres.__repr__()
-		s += '\nflag ' + self.flag.__repr__()
-		s += '\nversion ' + self.version.__repr__()
-		s += '\nneeds_bitswap ' + self.needs_bitswap.__repr__()
-		s += '\nseventh_byte ' + self.seventh_byte.__repr__()
-		s += '\nflag_2 ' + self.flag_2.__repr__()
-		s += '\nzero ' + self.zero.__repr__()
-		s += '\nlen_names ' + self.len_names.__repr__()
-		s += '\nzero_2 ' + self.zero_2.__repr__()
-		s += '\nnum_others ' + self.num_others.__repr__()
-		s += '\nnum_dirs ' + self.num_dirs.__repr__()
-		s += '\nnum_mimes ' + self.num_mimes.__repr__()
-		s += '\nnum_files ' + self.num_files.__repr__()
-		s += '\nnum_files_2 ' + self.num_files_2.__repr__()
-		s += '\nnum_textures ' + self.num_textures.__repr__()
-		s += '\nnum_archives ' + self.num_archives.__repr__()
-		s += '\nnum_header_types ' + self.num_header_types.__repr__()
-		s += '\nnum_headers ' + self.num_headers.__repr__()
-		s += '\nnum_datas ' + self.num_datas.__repr__()
-		s += '\nnum_buffers ' + self.num_buffers.__repr__()
-		s += '\nnum_files_ovs ' + self.num_files_ovs.__repr__()
-		s += '\nzeros ' + self.zeros.__repr__()
-		s += '\nlen_archive_names ' + self.len_archive_names.__repr__()
-		s += '\nnum_files_3 ' + self.num_files_3.__repr__()
-		s += '\nlen_type_names ' + self.len_type_names.__repr__()
-		s += '\nzeros_2 ' + self.zeros_2.__repr__()
-		s += '\nnames ' + self.names.__repr__()
-		s += '\nmimes ' + self.mimes.__repr__()
-		s += '\nfiles ' + self.files.__repr__()
-		s += '\narchive_names ' + self.archive_names.__repr__()
-		s += '\narchives ' + self.archives.__repr__()
-		s += '\ndirs ' + self.dirs.__repr__()
-		s += '\ntextures ' + self.textures.__repr__()
-		s += '\nothers ' + self.others.__repr__()
-		s += '\nunknowns ' + self.unknowns.__repr__()
-		s += '\nzlibs ' + self.zlibs.__repr__()
+		s += '\n	* fres = ' + self.fres.__repr__()
+		s += '\n	* flag = ' + self.flag.__repr__()
+		s += '\n	* version = ' + self.version.__repr__()
+		s += '\n	* needs_bitswap = ' + self.needs_bitswap.__repr__()
+		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
+		s += '\n	* flag_2 = ' + self.flag_2.__repr__()
+		s += '\n	* zero = ' + self.zero.__repr__()
+		s += '\n	* len_names = ' + self.len_names.__repr__()
+		s += '\n	* zero_2 = ' + self.zero_2.__repr__()
+		s += '\n	* num_aux_entries = ' + self.num_aux_entries.__repr__()
+		s += '\n	* num_dirs = ' + self.num_dirs.__repr__()
+		s += '\n	* num_mimes = ' + self.num_mimes.__repr__()
+		s += '\n	* num_files = ' + self.num_files.__repr__()
+		s += '\n	* num_files_2 = ' + self.num_files_2.__repr__()
+		s += '\n	* num_textures = ' + self.num_textures.__repr__()
+		s += '\n	* num_archives = ' + self.num_archives.__repr__()
+		s += '\n	* num_header_types = ' + self.num_header_types.__repr__()
+		s += '\n	* num_headers = ' + self.num_headers.__repr__()
+		s += '\n	* num_datas = ' + self.num_datas.__repr__()
+		s += '\n	* num_buffers = ' + self.num_buffers.__repr__()
+		s += '\n	* num_files_ovs = ' + self.num_files_ovs.__repr__()
+		s += '\n	* zeros = ' + self.zeros.__repr__()
+		s += '\n	* len_archive_names = ' + self.len_archive_names.__repr__()
+		s += '\n	* num_files_3 = ' + self.num_files_3.__repr__()
+		s += '\n	* len_type_names = ' + self.len_type_names.__repr__()
+		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
+		s += '\n	* names = ' + self.names.__repr__()
+		s += '\n	* mimes = ' + self.mimes.__repr__()
+		s += '\n	* files = ' + self.files.__repr__()
+		s += '\n	* archive_names = ' + self.archive_names.__repr__()
+		s += '\n	* archives = ' + self.archives.__repr__()
+		s += '\n	* dirs = ' + self.dirs.__repr__()
+		s += '\n	* textures = ' + self.textures.__repr__()
+		s += '\n	* aux_entries = ' + self.aux_entries.__repr__()
+		s += '\n	* unknowns = ' + self.unknowns.__repr__()
+		s += '\n	* zlibs = ' + self.zlibs.__repr__()
 		s += '\n'
 		return s

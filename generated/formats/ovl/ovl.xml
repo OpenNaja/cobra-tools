@@ -4,11 +4,11 @@
 
     <!--Basic Types-->
 
-    <basic name="ubyte" count="1">
+    <basic name="byte" count="1">
         An unsigned 8-bit integer.
     </basic>
-    <basic name="byte" count="1">
-        A signed 8-bit integer.
+    <basic name="ubyte" count="1">
+        An unsigned 8-bit integer.
     </basic>
 
     <basic name="uint64" count="1">
@@ -19,10 +19,6 @@
     </basic>
     <basic name="ushort" count="1" >
         An unsigned 16-bit integer.
-    </basic>
-
-    <basic name="int64" count="1" >
-        A signed 64-bit integer.
     </basic>
 
     <basic name="int" count="1" >
@@ -40,7 +36,7 @@
     <basic name="float" count="0" >
         A standard 32-bit floating point number.
     </basic>
-	
+
 	
 	<enum name="DdsType" storage="byte">
 		maps the OVL's dds type to name of compression format
@@ -118,10 +114,18 @@
     </enum>
 	
 	<!-- Structs for the OVL file -->
-	
+
+    <compound name="ZStringBuffer" count="0" >
+        Holds a buffer of zero-terminated strings
+    </compound>
+
+    <compound name="FixedString" count="0" >
+        Holds a string of a fixed size, given as an argument.
+    </compound>
+
     <compound name="Header">
         Found at the beginning of every OVL file
-        <add name="FRES" type="byte" arr1="4">'FRES'</add>
+        <add name="FRES" type="FixedString" arg="4">'FRES'</add>
         <add name="Flag" type="byte" >if 0x08 then 64bit</add>
         <add name="Version" type="byte" >0x13 = JWE</add>
         <add name="Needs Bitswap" type="byte" >endianness?</add>
@@ -132,7 +136,7 @@
         <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
         <add name="Zero 2" type="uint" >always = 0</add>
 		
-        <add name="Num Others" type="uint" >count of something</add>
+        <add name="Num Aux Entries" type="uint" >count of external aux files, ie audio banks</add>
         <add name="Num Dirs" type="ushort" >count of directories</add>
         <add name="Num Mimes" type="ushort" >count of file mime types, aka. extensions with metadata</add>
         <add name="Num Files" type="uint" >count of files</add>
@@ -152,14 +156,14 @@
         <add name="Zeros 2" type="byte" arr1="52">52 bytes zeros</add>
 		
 		<!-- end of fixed header structure -->
-        <add name="Names" type="char" arr1="Len Names">Name buffer for assets and file mime types.</add>
+        <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes">Array of MimeEntry objects that represent a mime type (file extension) each. </add>
         <add name="Files" type="FileEntry" arr1="Num Files">Array of FileEntry objects.</add>
-        <add name="Archive Names" type="char" arr1="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
+        <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
         <add name="Dirs" type="DirEntry" arr1="Num Dirs">Array of DirEntry objects.</add>
         <add name="Textures" type="TextureEntry" arr1="Num Textures">Array of TextureEntry objects.</add>
-        <add name="Others" type="OtherEntry" arr1="Num Others">Array of OtherEntry objects.</add>
+        <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
         <add name="Unknowns" type="UnknownEntry" arr1="Num Files OVS">Array of UnknownEntry objects.</add>
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
     </compound>
@@ -214,6 +218,18 @@
         <add name="ovs offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
+    <compound name="OvsHeader" >
+        Description of one archive's content
+        <add name="header types" type="HeaderType" arr1="#ARG#\Num Header Types"></add>
+        <add name="header entries" type="HeaderEntry" arr1="#ARG#\Num Headers"></add>
+        <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"></add>
+        <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"></add>
+        <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"></add>
+        <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"></add>
+<!--        <add name="set header " type="SetHeader" ></add>-->
+    </compound>
+
+
     <compound name="DirEntry" >
         Description of one directory in the archive
         <add name="Offset" type="uint">offset in the header's Names block</add>
@@ -230,10 +246,11 @@
         <add name="unknown 6" type="uint" ></add>
     </compound>
 	
-    <compound name="OtherEntry" >
-        ?
-        <add name="unknown00" type="uint"></add>
-        <add name="unknown08" type="uint"></add>
+    <compound name="AuxEntry" >
+        describes an external AUX resource
+        <add name="file index" type="uint">index into files list</add>
+        <add name="extension index" type="uint">maybe index into extension list</add>
+        <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
 	
     <compound name="UnknownEntry" >

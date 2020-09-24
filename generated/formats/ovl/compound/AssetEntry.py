@@ -37,11 +37,11 @@ class AssetEntry:
 
 	def __repr__(self):
 		s = 'AssetEntry'
-		s += '\nfile_hash ' + self.file_hash.__repr__()
-		s += '\nzero_0 ' + self.zero_0.__repr__()
-		s += '\next_hash ' + self.ext_hash.__repr__()
-		s += '\nzero_1 ' + self.zero_1.__repr__()
-		s += '\nfile_index ' + self.file_index.__repr__()
-		s += '\nzero_2 ' + self.zero_2.__repr__()
+		s += '\n	* file_hash = ' + self.file_hash.__repr__()
+		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
+		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
+		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
+		s += '\n	* file_index = ' + self.file_index.__repr__()
+		s += '\n	* zero_2 = ' + self.zero_2.__repr__()
 		s += '\n'
 		return s

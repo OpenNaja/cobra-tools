@@ -35,12 +35,12 @@ class TextureEntry:
 
 	def __repr__(self):
 		s = 'TextureEntry'
-		s += '\nfile_hash ' + self.file_hash.__repr__()
-		s += '\nunknown_1 ' + self.unknown_1.__repr__()
-		s += '\nunknown_2 ' + self.unknown_2.__repr__()
-		s += '\nunknown_3 ' + self.unknown_3.__repr__()
-		s += '\nunknown_4 ' + self.unknown_4.__repr__()
-		s += '\nunknown_5 ' + self.unknown_5.__repr__()
-		s += '\nunknown_6 ' + self.unknown_6.__repr__()
+		s += '\n	* file_hash = ' + self.file_hash.__repr__()
+		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
+		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
+		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
+		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()
+		s += '\n	* unknown_5 = ' + self.unknown_5.__repr__()
+		s += '\n	* unknown_6 = ' + self.unknown_6.__repr__()
 		s += '\n'
 		return s

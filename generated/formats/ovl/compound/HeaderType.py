@@ -22,7 +22,7 @@ class HeaderType:
 
 	def __repr__(self):
 		s = 'HeaderType'
-		s += '\ntype ' + self.type.__repr__()
-		s += '\nnum_headers ' + self.num_headers.__repr__()
+		s += '\n	* type = ' + self.type.__repr__()
+		s += '\n	* num_headers = ' + self.num_headers.__repr__()
 		s += '\n'
 		return s

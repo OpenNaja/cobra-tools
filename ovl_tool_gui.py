@@ -11,13 +11,16 @@ from pyffi_ext.formats.ms2 import Ms2Format
 from util import widgets
 from modules import extract, inject, hasher, walker
 
+from generated.formats.ovl import OvlFile
+
 
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
 		
-		self.ovl_data = OvlFormat.Data(progress_callback=self.update_progress)
+		# self.ovl_data = OvlFormat.Data(progress_callback=self.update_progress)
+		self.ovl_data = OvlFile()
 
 		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA", "WEM")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
@@ -150,8 +153,7 @@ class MainWindow(widgets.MainWindow):
 			start_time = time.time()			
 			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
-				with open(self.file_widget.filepath, "rb") as ovl_stream:
-					self.ovl_data.read(ovl_stream, file=self.file_widget.filepath, commands=self.commands)
+				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
 				self.ovl_name = ovl_name
 			except Exception as ex:
 				traceback.print_exc()
@@ -199,7 +201,7 @@ class MainWindow(widgets.MainWindow):
 					error_files = []
 					skip_files = []
 					da_max = len(self.ovl_data.archives)
-					for da_index, archive in enumerate(self.ovl_data.archives):
+					for da_index, archive in enumerate(self.ovl_data.ovs_files):
 						self.update_progress("Extracting archives", value=da_index, vmax=da_max)
 						
 						archive.dir = dir

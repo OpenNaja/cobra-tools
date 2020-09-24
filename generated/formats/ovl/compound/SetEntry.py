@@ -27,8 +27,8 @@ class SetEntry:
 
 	def __repr__(self):
 		s = 'SetEntry'
-		s += '\nfile_hash ' + self.file_hash.__repr__()
-		s += '\next_hash ' + self.ext_hash.__repr__()
-		s += '\nstart ' + self.start.__repr__()
+		s += '\n	* file_hash = ' + self.file_hash.__repr__()
+		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
+		s += '\n	* start = ' + self.start.__repr__()
 		s += '\n'
 		return s

@@ -52,13 +52,13 @@ class HeaderEntry:
 
 	def __repr__(self):
 		s = 'HeaderEntry'
-		s += '\nzeros_1 ' + self.zeros_1.__repr__()
-		s += '\nzeros_2 ' + self.zeros_2.__repr__()
-		s += '\nsize ' + self.size.__repr__()
-		s += '\noffset ' + self.offset.__repr__()
-		s += '\nfile_hash ' + self.file_hash.__repr__()
-		s += '\nnum_files ' + self.num_files.__repr__()
-		s += '\next_hash ' + self.ext_hash.__repr__()
-		s += '\nzeros_3 ' + self.zeros_3.__repr__()
+		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
+		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
+		s += '\n	* size = ' + self.size.__repr__()
+		s += '\n	* offset = ' + self.offset.__repr__()
+		s += '\n	* file_hash = ' + self.file_hash.__repr__()
+		s += '\n	* num_files = ' + self.num_files.__repr__()
+		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
+		s += '\n	* zeros_3 = ' + self.zeros_3.__repr__()
 		s += '\n'
 		return s

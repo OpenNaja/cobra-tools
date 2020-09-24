@@ -17,6 +17,6 @@ class DirEntry:
 
 	def __repr__(self):
 		s = 'DirEntry'
-		s += '\noffset ' + self.offset.__repr__()
+		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n'
 		return s

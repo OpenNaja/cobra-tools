@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ovl.compound.Header7MipmapInfo import Header7MipmapInfo
+import typing
 
 
 class Header7Data1:
@@ -56,15 +56,15 @@ class Header7Data1:
 
 	def __repr__(self):
 		s = 'Header7Data1'
-		s += '\nzero_00 ' + self.zero_00.__repr__()
-		s += '\nzero_04 ' + self.zero_04.__repr__()
-		s += '\ndata_size ' + self.data_size.__repr__()
-		s += '\nwidth ' + self.width.__repr__()
-		s += '\nheight ' + self.height.__repr__()
-		s += '\ndepth ' + self.depth.__repr__()
-		s += '\narray_size ' + self.array_size.__repr__()
-		s += '\nnum_mips ' + self.num_mips.__repr__()
-		s += '\npad ' + self.pad.__repr__()
-		s += '\nmip_maps ' + self.mip_maps.__repr__()
+		s += '\n	* zero_00 = ' + self.zero_00.__repr__()
+		s += '\n	* zero_04 = ' + self.zero_04.__repr__()
+		s += '\n	* data_size = ' + self.data_size.__repr__()
+		s += '\n	* width = ' + self.width.__repr__()
+		s += '\n	* height = ' + self.height.__repr__()
+		s += '\n	* depth = ' + self.depth.__repr__()
+		s += '\n	* array_size = ' + self.array_size.__repr__()
+		s += '\n	* num_mips = ' + self.num_mips.__repr__()
+		s += '\n	* pad = ' + self.pad.__repr__()
+		s += '\n	* mip_maps = ' + self.mip_maps.__repr__()
 		s += '\n'
 		return s

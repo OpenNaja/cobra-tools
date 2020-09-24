@@ -38,11 +38,11 @@ class Header3Data1:
 
 	def __repr__(self):
 		s = 'Header3Data1'
-		s += '\ndata_size_previous ' + self.data_size_previous.__repr__()
-		s += '\nzero_1 ' + self.zero_1.__repr__()
-		s += '\ndata_size ' + self.data_size.__repr__()
-		s += '\nzero_3 ' + self.zero_3.__repr__()
-		s += '\nunkn ' + self.unkn.__repr__()
-		s += '\nzero_5 ' + self.zero_5.__repr__()
+		s += '\n	* data_size_previous = ' + self.data_size_previous.__repr__()
+		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
+		s += '\n	* data_size = ' + self.data_size.__repr__()
+		s += '\n	* zero_3 = ' + self.zero_3.__repr__()
+		s += '\n	* unkn = ' + self.unkn.__repr__()
+		s += '\n	* zero_5 = ' + self.zero_5.__repr__()
 		s += '\n'
 		return s

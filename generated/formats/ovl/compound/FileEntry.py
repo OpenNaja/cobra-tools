@@ -35,10 +35,10 @@ class FileEntry:
 
 	def __repr__(self):
 		s = 'FileEntry'
-		s += '\noffset ' + self.offset.__repr__()
-		s += '\nfile_hash ' + self.file_hash.__repr__()
-		s += '\nunkn_0 ' + self.unkn_0.__repr__()
-		s += '\nunkn_1 ' + self.unkn_1.__repr__()
-		s += '\nextension ' + self.extension.__repr__()
+		s += '\n	* offset = ' + self.offset.__repr__()
+		s += '\n	* file_hash = ' + self.file_hash.__repr__()
+		s += '\n	* unkn_0 = ' + self.unkn_0.__repr__()
+		s += '\n	* unkn_1 = ' + self.unkn_1.__repr__()
+		s += '\n	* extension = ' + self.extension.__repr__()
 		s += '\n'
 		return s

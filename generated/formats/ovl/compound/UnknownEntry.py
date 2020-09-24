@@ -21,8 +21,8 @@ class UnknownEntry:
 
 	def __repr__(self):
 		s = 'UnknownEntry'
-		s += '\nunknown_1 ' + self.unknown_1.__repr__()
-		s += '\nunknown_2 ' + self.unknown_2.__repr__()
-		s += '\nunknown_3 ' + self.unknown_3.__repr__()
+		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
+		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
+		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
 		s += '\n'
 		return s

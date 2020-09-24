@@ -30,11 +30,11 @@ class Header7MipmapInfo:
 
 	def __repr__(self):
 		s = 'Header7MipmapInfo'
-		s += '\noffset ' + self.offset.__repr__()
-		s += '\nunknown_02 ' + self.unknown_02.__repr__()
-		s += '\nwidth ' + self.width.__repr__()
-		s += '\nheight ' + self.height.__repr__()
-		s += '\nunknown_0_c ' + self.unknown_0_c.__repr__()
-		s += '\nunkn_3 ' + self.unkn_3.__repr__()
+		s += '\n	* offset = ' + self.offset.__repr__()
+		s += '\n	* unknown_02 = ' + self.unknown_02.__repr__()
+		s += '\n	* width = ' + self.width.__repr__()
+		s += '\n	* height = ' + self.height.__repr__()
+		s += '\n	* unknown_0_c = ' + self.unknown_0_c.__repr__()
+		s += '\n	* unkn_3 = ' + self.unkn_3.__repr__()
 		s += '\n'
 		return s
