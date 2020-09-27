@@ -23,21 +23,29 @@ def wem_handle( wem_files, out_dir, show_dds, progress_callback):
 		out_file = os.path.join(out_dir, out_name)
 		# read the format
 		with open(wem_file, "rb") as f:
-			f.seek(20)
-			fmt = struct.unpack("<h", f.read(2))[0]
-		# print("fmt", fmt)
-		if fmt == -1:
-			wem_to_ogg(wem_file, out_file)
-		elif fmt == -2:
-			wem_to_wav(wem_file, out_file)
-		else:
-			raise NotImplementedError(f"Unknown RIFF format {fmt} in {out_name}! Please report to the devs!")
+			f_type = f.read(4)
+			if f_type == b"RIFF":
+				f.seek(20)
+				fmt = struct.unpack("<h", f.read(2))[0]
+				if fmt == -1:
+					wem_to_ogg(wem_file, out_file)
+				elif fmt == -2:
+					wem_to_wav(wem_file, out_file)
+				else:
+					raise NotImplementedError(f"Unknown RIFF format {fmt} in {out_name}! Please report to the devs!")
+			else:
+				print(f"Unknown resource format {f_type} in {out_name}! Please report to the devs!")
 	clear_tmp(wem_file, show_dds)
 
 
 def wem_to_ogg(wem_file, out_file):
-	run_smart([ww2ogg, wem_file, "-o", out_file+".ogg", "--pcb", pcb, ])
-	run_smart([revorb, out_file+".ogg"])
+	try:
+		run_smart([ww2ogg, wem_file, "-o", out_file+".ogg", "--pcb", pcb, ])
+		run_smart([revorb, out_file+".ogg"])
+	except subprocess.CalledProcessError as err:
+		# Input: C:\Users\arnfi\AppData\Local\Temp\tmp_e_wg2dg-cobra-dds\buildings_media_B06CD10C.wem
+		# Parse error: RIFF truncated
+		print(err)
 
 
 def wem_to_wav(wem_file, out_file):
