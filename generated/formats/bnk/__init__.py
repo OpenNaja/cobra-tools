@@ -1,9 +1,10 @@
+
 from generated.formats.bnk.compound.AuxFileContainer import AuxFileContainer
 from generated.io import BinaryStream
 
 from contextlib import contextmanager
 from typing import *
-import os
+
 
 class BnkFile(AuxFileContainer):
 
@@ -12,8 +13,6 @@ class BnkFile(AuxFileContainer):
 			self.read(stream)
 
 	def save(self, filepath):
-		self.old_size = os.path.getsize(filepath)
-		print(self.old_size)
 		with self.nif_writer(filepath) as stream:
 			self.write(stream)
 

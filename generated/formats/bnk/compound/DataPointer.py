@@ -25,8 +25,8 @@ class DataPointer:
 
 	def __repr__(self):
 		s = 'DataPointer'
-		s += '\nwem_id ' + self.wem_id.__repr__()
-		s += '\ndata_section_offset ' + self.data_section_offset.__repr__()
-		s += '\nwem_filesize ' + self.wem_filesize.__repr__()
+		s += '\n	* wem_id = ' + self.wem_id.__repr__()
+		s += '\n	* data_section_offset = ' + self.data_section_offset.__repr__()
+		s += '\n	* wem_filesize = ' + self.wem_filesize.__repr__()
 		s += '\n'
 		return s

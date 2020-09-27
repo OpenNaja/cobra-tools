@@ -40,12 +40,12 @@ class BKHDSection:
 
 	def __repr__(self):
 		s = 'BKHDSection'
-		s += '\nlength ' + self.length.__repr__()
-		s += '\nversion ' + self.version.__repr__()
-		s += '\nid_a ' + self.id_a.__repr__()
-		s += '\nid_b ' + self.id_b.__repr__()
-		s += '\nconstant_a ' + self.constant_a.__repr__()
-		s += '\nconstant_b ' + self.constant_b.__repr__()
-		s += '\nzeroes ' + self.zeroes.__repr__()
+		s += '\n	* length = ' + self.length.__repr__()
+		s += '\n	* version = ' + self.version.__repr__()
+		s += '\n	* id_a = ' + self.id_a.__repr__()
+		s += '\n	* id_b = ' + self.id_b.__repr__()
+		s += '\n	* constant_a = ' + self.constant_a.__repr__()
+		s += '\n	* constant_b = ' + self.constant_b.__repr__()
+		s += '\n	* zeroes = ' + self.zeroes.__repr__()
 		s += '\n'
 		return s

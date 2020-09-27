@@ -168,8 +168,10 @@ class MainWindow(widgets.MainWindow):
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				# just a dummy stream
-				with io.BytesIO() as ovl_stream:
-					self.ovl_data.write(ovl_stream, file_path=file_src)
+				try:
+					self.ovl_data.save(file_src)
+				except BaseException as error:
+					print(error)
 				self.file_widget.dirty = False
 				print("Done!")
 	

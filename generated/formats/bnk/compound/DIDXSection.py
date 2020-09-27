@@ -1,5 +1,5 @@
-import typing
 from generated.formats.bnk.compound.DataPointer import DataPointer
+import typing
 
 
 class DIDXSection:
@@ -24,7 +24,7 @@ class DIDXSection:
 
 	def __repr__(self):
 		s = 'DIDXSection'
-		s += '\nlength ' + self.length.__repr__()
-		s += '\ndata_pointers ' + self.data_pointers.__repr__()
+		s += '\n	* length = ' + self.length.__repr__()
+		s += '\n	* data_pointers = ' + self.data_pointers.__repr__()
 		s += '\n'
 		return s

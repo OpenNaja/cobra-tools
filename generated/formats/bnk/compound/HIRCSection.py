@@ -1,19 +1,15 @@
-import typing
 from generated.formats.bnk.compound.HircPointer import HircPointer
+import typing
+
 
 class HIRCSection:
 
-# First Section of a soundback aux
+# The HIRC section contains all the Wwise objects, including the events, the containers to group sounds, and the references to the sound files.
 
 	# length of following data
-    
 	length: int
 	count: int
 	hirc_pointers: typing.List[HircPointer]
-    
-
-	# filler zeroes
-	data: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -31,8 +27,8 @@ class HIRCSection:
 
 	def __repr__(self):
 		s = 'HIRCSection'
-		s += '\nlength ' + self.length.__repr__()
-		s += '\ncount ' + self.length.__repr__()
-		s += '\nhirc_pointers ' + self.hirc_pointers.__repr__()
+		s += '\n	* length = ' + self.length.__repr__()
+		s += '\n	* count = ' + self.count.__repr__()
+		s += '\n	* hirc_pointers = ' + self.hirc_pointers.__repr__()
 		s += '\n'
 		return s

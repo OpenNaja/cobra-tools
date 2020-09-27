@@ -197,11 +197,13 @@ class BinaryStream(BytesIO):
 class IoFile:
 
     def load(self, filepath):
+        print("IoFile load()")
         with self.reader(filepath) as stream:
             self.read(stream)
             return stream.tell()
 
     def save(self, filepath):
+        print("IoFile save()")
         with self.writer(filepath) as stream:
             self.write(stream)
             return stream.tell()
@@ -246,3 +248,14 @@ class ZipFile(IoFile):
                 out.write(zlib_data)
         with BinaryStream(zlib_data) as stream:
             yield stream  # type: ignore
+
+    # @staticmethod
+    # @contextmanager
+    def zipper(self, ):
+        stream = BinaryStream()
+        # with BinaryStream() as stream:
+        self.write_archive(stream)
+        uncompressed_bytes = stream.getbuffer()
+        # compress data
+        compressed = zlib.compress(uncompressed_bytes)
+        return len(uncompressed_bytes), len(compressed), compressed

@@ -3,6 +3,7 @@ import itertools
 import struct
 import io
 import time
+import zlib
 
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
@@ -567,6 +568,60 @@ class OvsFile(OvsHeader, ZipFile):
 	def indir(self, name):
 		return os.path.join( self.dir, name)
 
+	def write_archive(self, stream):
+
+		for i, header_entry in enumerate(self.header_entries):
+			# maintain sorting order
+			# grab the first pointer for each address
+			# it is assumed that subsequent pointers to that address share the same data
+			sorted_first_pointers = [pointers[0] for offset, pointers in sorted(header_entry.pointer_map.items())]
+			if sorted_first_pointers:
+				# only known from indominus
+				first_offset = sorted_first_pointers[0].data_offset
+				if first_offset != 0:
+					print(f"Found {first_offset} unaccounted bytes at start of header data {i}")
+					unaccounted_bytes = header_entry.data.getvalue()[:first_offset]
+				else:
+					unaccounted_bytes = b""
+
+				# clear io objects
+				header_entry.data = io.BytesIO()
+				header_entry.data.write(unaccounted_bytes)
+				# write updated strings
+				for pointer in sorted_first_pointers:
+					pointer.write_data(self, update_copies=True)
+			else:
+				print(f"No pointers into header entry {i} - keeping its stock data!")
+
+		# do this first so header entries can be updated
+		header_data_writer = io.BytesIO()
+		# the ugly stuff with all fragments and sizedstr entries
+		for header_entry in self.header_entries:
+			header_data_bytes = header_entry.data.getvalue()
+			# JWE style
+			if self.ovl.flag_2 == 24724:
+				header_entry.offset = header_data_writer.tell()
+			# PZ Style
+			elif self.ovl.flag_2 == 8340:
+				header_entry.offset = self.arg.ovs_header_offset + header_data_writer.tell()
+			header_entry.size = len(header_data_bytes)
+			header_data_writer.write(header_data_bytes)
+
+		# write out all entries
+		super().write(stream)
+		# write set & asset stuff
+		self.set_header.write(stream)
+		# write the header data containing all the pointers' datas
+		stream.write(header_data_writer.getvalue())
+
+		# write buffer data
+		for b in self.buffers_io_order:
+			stream.write(b.data)
+
+# do some calculations
+# self.archive_entry.uncompressed_size = stream.tell()
+# self.archive_entry.uncompressed_size = self.calc_uncompressed_size()
+
 
 class OvlFile(Header, IoFile):
 
@@ -731,6 +786,59 @@ class OvlFile(Header, IoFile):
 				data_entry.update_buffers()
 
 		print(time.time() - start_time)
+
+	def save(self, filepath, ):
+		"""Write a dds file."""
+
+		print("Writing OVL")
+
+		exp_dir = os.path.dirname(filepath)
+		ovs_dict = {}
+		# compress data stream
+		for i, (archive_entry, archive) in enumerate(zip(self.archives, self.ovs_files)):
+			# write archive into bytes IO stream
+			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive.zipper()
+			print("archive_entry.uncompressed_size, archive_entry.compressed_size", archive_entry.uncompressed_size, archive_entry.compressed_size)
+			if i == 0:
+				ovl_compressed = compressed
+				archive_entry.read_start = 0
+			else:
+				exp_path = os.path.join(exp_dir, os.path.basename(archive_entry.ovs_path))
+				# gotta keep them open because more than one archive can live in one ovs file eg PZ inspector
+				if exp_path not in ovs_dict:
+					ovs_dict[exp_path] = open(exp_path, 'wb')
+
+				# todo: account for OVS offsets specified in archive_entry
+				# todo: footer bytes in OVS?
+				ovs_stream = ovs_dict[exp_path]
+
+				archive_entry.read_start = ovs_stream.tell()
+				ovs_stream.write(compressed)
+
+		# we don't use context manager so gotta close them
+		for ovs_file in ovs_dict.values():
+			ovs_file.close()
+
+		print("Updating AUX sizes in OVL")
+		for aux in self.aux_entries:
+			name = self.files[aux.file_index].name
+			if aux.extension_index != 0:
+				bnkpath = f"{self.file_no_ext}_{name}_bnk_s.aux"
+			else:
+				bnkpath = f"{self.file_no_ext}_{name}_bnk_b.aux"
+
+			# grab and update size
+			if os.path.isfile(bnkpath):
+				aux.size = os.path.getsize(bnkpath)
+				# print(aux.size)
+
+		eof = super().save(filepath)
+		with self.writer(filepath) as stream:
+			# first header
+			self.write(stream)
+			# write zlib block
+			stream.write(ovl_compressed)
+
 
 
 if __name__ == "__main__":

@@ -1,88 +1,124 @@
 import typing
 
-class Type2:#Sound SFX
+
+class Type2:
+
+# Sound SFX/Sound Voice
+# 02 -- identifier for Sound SFX section
+
+	# length of this section
 	length: int
+
+	# id of this Sound SFX object
 	sfx_id: int
-	consta: int
-	constb: int
+
+	# ?
+	const_a: int
+
+	# ?
+	const_b: int
+
+	# ?
 	didx_id: int
+
+	# ?
 	wem_length: int
+
+	# ?
 	zerosa: int
+
+	# ?
 	zerosb: int
+
+	# ?
 	some_id: int
-	constc: int
-	constd: int
-	conste: int
-	floata: float
-	zerosc: int
+
+	# ?
+	const_c: int
+
+	# ?
+	const_d: int
+
+	# ?
+	const_e: int
+
+	# ?
+	float_a: float
+
+	# four unknown bytes
+	zeros_c: typing.List[int]
+
+	# ?
 	flag: int
+
+	# ?
 	zerosd: int
+
+	# ?
 	zerose: int
-	
-	
-	def __init__(self,arg=None, template=None):
+
+	def __init__(self, arg=None, template=None):
 		self.arg = arg
-		self.template= template
-	
+		self.template = template
+
 	def read(self, stream):
 		self.length = stream.read_uint()
 		self.sfx_id = stream.read_uint()
-		self.consta = stream.read_uint()
-		self.constb = stream.read_byte()
+		self.const_a = stream.read_uint()
+		self.const_b = stream.read_byte()
 		self.didx_id = stream.read_uint()
 		self.wem_length = stream.read_uint()
 		self.zerosa = stream.read_uint()
 		self.zerosb = stream.read_uint()
 		self.some_id = stream.read_uint()
-		self.constc = stream.read_byte()
-		self.constd = stream.read_byte()
-		if self.constd != 0:
-			self.conste = stream.read_byte()
-			self.floata = stream.read_float()
-		self.zerosc = [stream.read_byte() for _ in range(4)]
+		self.const_c = stream.read_byte()
+		self.const_d = stream.read_byte()
+		if self.const_d != 0:
+			self.const_e = stream.read_byte()
+			self.float_a = stream.read_float()
+		self.zeros_c = [stream.read_byte() for _ in range(4)]
 		self.flag = stream.read_byte()
 		self.zerosd = stream.read_uint()
 		self.zerose = stream.read_uint()
-	        
+
 	def write(self, stream):
 		stream.write_uint(self.length)
 		stream.write_uint(self.sfx_id)
-		stream.write_uint(self.consta)
-		stream.write_byte(self.constb)
+		stream.write_uint(self.const_a)
+		stream.write_byte(self.const_b)
 		stream.write_uint(self.didx_id)
 		stream.write_uint(self.wem_length)
 		stream.write_uint(self.zerosa)
 		stream.write_uint(self.zerosb)
 		stream.write_uint(self.some_id)
-		stream.write_byte(self.constc)
-		stream.write_byte(self.constd)
-		if self.constd != 0:
-			stream.write_byte(self.conste)
-			stream.write_float(self.floata)
-		for item in self.zerosc: stream.write_byte(item)
+		stream.write_byte(self.const_c)
+		stream.write_byte(self.const_d)
+		if self.const_d != 0:
+			stream.write_byte(self.const_e)
+			stream.write_float(self.float_a)
+		for item in self.zeros_c: stream.write_byte(item)
 		stream.write_byte(self.flag)
 		stream.write_uint(self.zerosd)
 		stream.write_uint(self.zerose)
-	
+
 	def __repr__(self):
-		s = 'HircPointer'
-		s += '\nlength ' + self.length.__repr__()
-		s += '\nsfx id ' + self.sfx_id.__repr__()
-		s += '\nconsta ' + self.consta.__repr__()
-		s += '\nconstb ' + self.constb.__repr__()
-		s += '\ndidx id ' + self.didx_id.__repr__()
-		s += '\nwem length ' + self.wem_length.__repr__()
-		s += '\nzerosa ' + self.zerosa.__repr__()
-		s += '\nzerosb ' + self.zerosb.__repr__()
-		s += '\nsome id ' + self.some_id.__repr__()
-		s += '\nconstc ' + self.constc.__repr__()
-		s += '\nconstd ' + self.constd.__repr__()
-		if self.constd != 0:
-			s += '\nconste ' + self.conste.__repr__()
-			s += '\nfloata ' + self.floata.__repr__()
-		s += '\nzerosc ' + self.zerosc.__repr__()
-		s += '\nflag ' + self.flag.__repr__()
-		s += '\nzerosd ' + self.zerosd.__repr__()
-		s += '\nzerose ' + self.zerose.__repr__()
+		s = 'Type2'
+		s += '\n	* length = ' + self.length.__repr__()
+		s += '\n	* sfx_id = ' + self.sfx_id.__repr__()
+		s += '\n	* const_a = ' + self.const_a.__repr__()
+		s += '\n	* const_b = ' + self.const_b.__repr__()
+		s += '\n	* didx_id = ' + self.didx_id.__repr__()
+		s += '\n	* wem_length = ' + self.wem_length.__repr__()
+		s += '\n	* zerosa = ' + self.zerosa.__repr__()
+		s += '\n	* zerosb = ' + self.zerosb.__repr__()
+		s += '\n	* some_id = ' + self.some_id.__repr__()
+		s += '\n	* const_c = ' + self.const_c.__repr__()
+		s += '\n	* const_d = ' + self.const_d.__repr__()
+		s += '\n	* const_e = ' + self.const_e.__repr__()
+		s += '\n	* float_a = ' + self.float_a.__repr__()
+		s += '\n	* zeros_c = ' + self.zeros_c.__repr__()
+		s += '\n	* flag = ' + self.flag.__repr__()
+		s += '\n	* zerosd = ' + self.zerosd.__repr__()
+		s += '\n	* zerose = ' + self.zerose.__repr__()
 		s += '\n'
 		return s
