@@ -52,54 +52,55 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 	print("\nExtracting from archive", archive.archive_index)
 	ss_max = len(archive.sized_str_entries)
 	for ss_index, sized_str_entry in enumerate(archive.sized_str_entries):
-		# try:
-		# for batch operations, only export those we need
-		if only_types and sized_str_entry.ext not in only_types:
-			continue
-		# ignore types in the count that we export from inside other type exporters
-		if sized_str_entry.ext in exported_types:
-			continue
-		elif sized_str_entry.ext == "banis":
-			write_banis(archive, sized_str_entry)
-		elif sized_str_entry.ext == "bani":
-			write_bani(archive, sized_str_entry)
-		elif sized_str_entry.ext == "manis":
-			write_manis(archive, sized_str_entry)
-		# elif sized_str_entry.ext == "mani":
-		# 	write_mani(archive, sized_str_entry)
-		elif sized_str_entry.ext == "fgm":
-			write_fgm(archive, sized_str_entry)
-		elif sized_str_entry.ext == "ms2":
-			write_ms2(archive, sized_str_entry)
-		elif sized_str_entry.ext == "materialcollection":
-			write_materialcollection(archive, sized_str_entry)
-		elif sized_str_entry.ext == "tex":
-			write_dds(archive, sized_str_entry, show_dds )
-		elif sized_str_entry.ext == "lua":
-			write_lua(archive, sized_str_entry)
-		elif sized_str_entry.ext == "assetpkg":
-			write_assetpkg(archive, sized_str_entry)
-		elif sized_str_entry.ext == "fdb":
-			write_fdb(archive, sized_str_entry)
-		elif sized_str_entry.ext == "xmlconfig":
-			write_xmlconfig(archive, sized_str_entry)
-		elif sized_str_entry.ext == "userinterfaceicondata":
-			write_userinterfaceicondata(archive, sized_str_entry)
-		elif sized_str_entry.ext == "txt":
-			write_txt(archive, sized_str_entry)
-		elif sized_str_entry.ext == "bnk":
-			write_bnk(archive, sized_str_entry, show_dds, progress_callback)
+		try:
+			# for batch operations, only export those we need
+			if only_types and sized_str_entry.ext not in only_types:
+				continue
+			# ignore types in the count that we export from inside other type exporters
+			if sized_str_entry.ext in exported_types:
+				continue
+			elif sized_str_entry.ext == "banis":
+				write_banis(archive, sized_str_entry)
+			elif sized_str_entry.ext == "bani":
+				write_bani(archive, sized_str_entry)
+			elif sized_str_entry.ext == "manis":
+				write_manis(archive, sized_str_entry)
+			# elif sized_str_entry.ext == "mani":
+			# 	write_mani(archive, sized_str_entry)
+			elif sized_str_entry.ext == "fgm":
+				write_fgm(archive, sized_str_entry)
+			elif sized_str_entry.ext == "ms2":
+				write_ms2(archive, sized_str_entry)
+			elif sized_str_entry.ext == "materialcollection":
+				write_materialcollection(archive, sized_str_entry)
+			elif sized_str_entry.ext == "tex":
+				write_dds(archive, sized_str_entry, show_dds )
+			elif sized_str_entry.ext == "lua":
+				write_lua(archive, sized_str_entry)
+			elif sized_str_entry.ext == "assetpkg":
+				write_assetpkg(archive, sized_str_entry)
+			elif sized_str_entry.ext == "fdb":
+				write_fdb(archive, sized_str_entry)
+			elif sized_str_entry.ext == "xmlconfig":
+				write_xmlconfig(archive, sized_str_entry)
+			elif sized_str_entry.ext == "userinterfaceicondata":
+				write_userinterfaceicondata(archive, sized_str_entry)
+			elif sized_str_entry.ext == "txt":
+				write_txt(archive, sized_str_entry)
+			elif sized_str_entry.ext == "bnk":
+				write_bnk(archive, sized_str_entry, show_dds, progress_callback)
 
-		else:
-			print("\nSkipping",sized_str_entry.name)
-			skip_files.append(sized_str_entry.name)
-			continue
+			else:
+				print("\nSkipping",sized_str_entry.name)
+				skip_files.append(sized_str_entry.name)
+				continue
 
-		if progress_callback:
-			progress_callback("Extracting " + sized_str_entry.name, value=ss_index, vmax=ss_max)
-		# except:
-		# 	print("\nAn exception occurred while extracting",sized_str_entry.name)
-		# 	error_files.append(sized_str_entry.name)
+			if progress_callback:
+				progress_callback("Extracting " + sized_str_entry.name, value=ss_index, vmax=ss_max)
+		except BaseException as error:
+			print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
+			print(error)
+			error_files.append(sized_str_entry.name)
 			
 	return error_files, skip_files
 
@@ -121,7 +122,7 @@ def write_bnk(archive, sized_str_entry, show_dds, progress_callback):
 		wem_files = data.extract_audio(tmp_dir, bnk)
 		texconv.wem_handle(wem_files, archive.dir, show_dds, progress_callback)
 	else:
-		raise FileNotFoundError
+		raise FileNotFoundError(f"BNK / AUX archive expected at {bnk_path}!")
 
 
 def write_txt(archive, txt_sized_str_entry):
