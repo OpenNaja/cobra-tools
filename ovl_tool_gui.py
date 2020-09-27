@@ -200,7 +200,7 @@ class MainWindow(widgets.MainWindow):
 				# create output dir
 				try:
 					os.makedirs(dir, exist_ok=True)
-					archive = self.ovl_data.ovs_files
+					archive = self.ovl_data.ovs_files[0]
 					archive.dir = dir
 					error_files, skip_files = extract.extract(archive, self.write_dds, progress_callback=self.update_progress)
 
