@@ -200,17 +200,10 @@ class MainWindow(widgets.MainWindow):
 				# create output dir
 				try:
 					os.makedirs(dir, exist_ok=True)
-					error_files = []
-					skip_files = []
-					da_max = len(self.ovl_data.archives)
-					for da_index, archive in enumerate(self.ovl_data.ovs_files):
-						self.update_progress("Extracting archives", value=da_index, vmax=da_max)
-						
-						archive.dir = dir
-						error_files_new, skip_files_new = extract.extract(archive, self.write_dds, progress_callback=self.update_progress)
-						error_files += error_files_new
-						skip_files += skip_files_new
-							
+					archive = self.ovl_data.ovs_files
+					archive.dir = dir
+					error_files, skip_files = extract.extract(archive, self.write_dds, progress_callback=self.update_progress)
+
 					self.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except Exception as ex:
