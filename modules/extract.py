@@ -281,27 +281,8 @@ def write_ms2(archive, ms2_sized_str_entry):
 	# 	with open(archive.indir(name+str(i)+".ms2"), 'wb') as outfile:
 	# 		outfile.write(buffer)
 	if archive.version == 18:
+		# only ss entry holds any useful stuff
 		with open(archive.indir(name), 'wb') as outfile:
-			if len(ms2_sized_str_entry.fragments) != 1:
-				print("PC model must have 1 fragment")
-				return
-			#
-			# with open(archive.indir(name+"ss.ms2"), 'wb') as o:
-			# 	o.write(ms2_sized_str_entry.pointers[0].data)
-			# f = ms2_sized_str_entry.fragments[0]
-			# with open(archive.indir(name+"f0.ms2"), 'wb') as o:
-			# 	o.write(f.pointers[0].data)
-			# with open(archive.indir(name+"f1.ms2"), 'wb') as o:
-			# 	o.write(f.pointers[1].data)
-			# for mdl2_index, mdl2_entry in enumerate(ms2_sized_str_entry.children):
-			# 	with open(archive.indir(mdl2_entry.name), 'wb') as o:
-			# 		p = mdl2_entry.pointers[0]
-			# 		print(type(mdl2_entry), p, p.data)
-			# 		# o.write(mdl2_entry.pointers[0].data)
-			# 		o.write(b"")
-		with open(archive.indir(name), 'wb') as outfile:
-			#outfile.write(ms2_header)
-			#outfile.write(ms2_general_info_data)
 			print(len(bone_names),"\n",len(bone_matrices),"\n",len(verts))
 			outfile.write(ms2_header)
 			outfile.write(ms2_general_info_data)
