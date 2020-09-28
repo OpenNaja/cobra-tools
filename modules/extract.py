@@ -165,6 +165,14 @@ def write_dds(archive, sized_str_entry, show_dds):
 	basename = os.path.splitext(sized_str_entry.name)[0]
 	name = basename+".dds"
 	print("\nWriting",name)
+	if archive.version == 18:
+		buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
+		with open(archive.indir(basename+".tex"), 'wb') as outfile:
+			outfile.write(sized_str_entry.pointers[0].data)
+			outfile.write(sized_str_entry.fragments[0].pointers[0].data)
+			outfile.write(sized_str_entry.fragments[0].pointers[1].data)
+			outfile.write(buffer_data)
+			return
 	header_3_0, headers_3_1, header_7 = get_tex_structs(archive, sized_str_entry)
 	
 	# print(header_3_0)
@@ -264,7 +272,16 @@ def write_ms2(archive, ms2_sized_str_entry):
 	# for i, buffer in enumerate(buffers):
 	# 	with open(archive.indir(name+str(i)+".ms2"), 'wb') as outfile:
 	# 		outfile.write(buffer)
-	if len(ms2_sized_str_entry.fragments) != 3:
+	if archive.version == 18:
+		with open(archive.indir(name), 'wb') as outfile:
+			#outfile.write(ms2_header)
+			#outfile.write(ms2_general_info_data)
+			print(len(bone_names),"\n",len(bone_matrices),"\n",len(verts))#outfile.write(ms2_buffer_info_data)
+			outfile.write(bone_names)
+			outfile.write(bone_matrices)
+			outfile.write(verts)
+			return
+	elif len(ms2_sized_str_entry.fragments) != 3:
 		print("must have 3 fragments")
 		return
 	f_0, f_1, f_2 = ms2_sized_str_entry.fragments
