@@ -14,6 +14,13 @@ class TextureEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.file_hash = 0
+		self.unknown_1 = 0
+		self.unknown_2 = 0
+		self.unknown_3 = 0
+		self.unknown_4 = 0
+		self.unknown_5 = 0
+		self.unknown_6 = 0
 
 	def read(self, stream):
 		self.file_hash = stream.read_uint()

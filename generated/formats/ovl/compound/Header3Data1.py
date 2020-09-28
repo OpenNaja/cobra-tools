@@ -19,6 +19,12 @@ class Header3Data1:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.data_size_previous = 0
+		self.zero_1 = 0
+		self.data_size = 0
+		self.zero_3 = 0
+		self.unkn = 0
+		self.zero_5 = 0
 
 	def read(self, stream):
 		self.data_size_previous = stream.read_uint()

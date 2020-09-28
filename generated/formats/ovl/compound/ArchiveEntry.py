@@ -59,6 +59,24 @@ class ArchiveEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.offset = 0
+		self.ovs_head_offset = 0
+		self.ovs_file_offset = 0
+		self.num_headers = 0
+		self.num_datas = 0
+		self.num_header_types = 0
+		self.zeros = 0
+		self.num_buffers = 0
+		self.num_fragments = 0
+		self.num_files = 0
+		self.read_start = 0
+		self.set_data_size = 0
+		self.compressed_size = 0
+		self.uncompressed_size = 0
+		self.zeros_3 = 0
+		self.ovs_header_offset = 0
+		self.header_size = 0
+		self.ovs_offset = 0
 
 	def read(self, stream):
 		self.offset = stream.read_uint()

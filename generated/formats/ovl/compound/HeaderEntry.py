@@ -29,6 +29,14 @@ class HeaderEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.zeros_1 = 0
+		self.zeros_2 = 0
+		self.size = 0
+		self.offset = 0
+		self.file_hash = 0
+		self.num_files = 0
+		self.ext_hash = 0
+		self.zeros_3 = 0
 
 	def read(self, stream):
 		self.zeros_1 = stream.read_uint()
@@ -37,8 +45,9 @@ class HeaderEntry:
 		self.offset = stream.read_uint()
 		self.file_hash = stream.read_uint()
 		self.num_files = stream.read_uint()
-		self.ext_hash = stream.read_uint()
-		self.zeros_3 = stream.read_uint()
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			self.ext_hash = stream.read_uint()
+			self.zeros_3 = stream.read_uint()
 
 	def write(self, stream):
 		stream.write_uint(self.zeros_1)
@@ -47,8 +56,9 @@ class HeaderEntry:
 		stream.write_uint(self.offset)
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.num_files)
-		stream.write_uint(self.ext_hash)
-		stream.write_uint(self.zeros_3)
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			stream.write_uint(self.ext_hash)
+			stream.write_uint(self.zeros_3)
 
 	def __repr__(self):
 		s = 'HeaderEntry'

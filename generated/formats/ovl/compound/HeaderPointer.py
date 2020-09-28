@@ -18,6 +18,8 @@ class HeaderPointer:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.header_index = 0
+		self.data_offset = 0
 
 	def read(self, stream):
 		self.header_index = stream.read_uint()

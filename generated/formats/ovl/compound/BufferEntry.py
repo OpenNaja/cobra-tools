@@ -11,6 +11,8 @@ class BufferEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.index = 0
+		self.size = 0
 
 	def read(self, stream):
 		self.index = stream.read_uint()

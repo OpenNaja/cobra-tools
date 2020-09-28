@@ -267,6 +267,14 @@ def write_ms2(archive, ms2_sized_str_entry):
 	else:
 		raise BufferError(f"Wrong amount of buffers for {name}\nWanted 2 or 3 buffers, got {len(buffers)}")
 
+	# sizedstr data has bone count
+	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
+	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2Format.Ms2SizedStrData, archive)
+	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
+
+	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names),
+							 len(bone_matrices))
+
 	print("\nWriting",name)
 	# print("\nbuffers",len(buffers))
 	# for i, buffer in enumerate(buffers):
@@ -274,9 +282,29 @@ def write_ms2(archive, ms2_sized_str_entry):
 	# 		outfile.write(buffer)
 	if archive.version == 18:
 		with open(archive.indir(name), 'wb') as outfile:
+			if len(ms2_sized_str_entry.fragments) != 1:
+				print("PC model must have 1 fragment")
+				return
+			#
+			# with open(archive.indir(name+"ss.ms2"), 'wb') as o:
+			# 	o.write(ms2_sized_str_entry.pointers[0].data)
+			# f = ms2_sized_str_entry.fragments[0]
+			# with open(archive.indir(name+"f0.ms2"), 'wb') as o:
+			# 	o.write(f.pointers[0].data)
+			# with open(archive.indir(name+"f1.ms2"), 'wb') as o:
+			# 	o.write(f.pointers[1].data)
+			# for mdl2_index, mdl2_entry in enumerate(ms2_sized_str_entry.children):
+			# 	with open(archive.indir(mdl2_entry.name), 'wb') as o:
+			# 		p = mdl2_entry.pointers[0]
+			# 		print(type(mdl2_entry), p, p.data)
+			# 		# o.write(mdl2_entry.pointers[0].data)
+			# 		o.write(b"")
+		with open(archive.indir(name), 'wb') as outfile:
 			#outfile.write(ms2_header)
 			#outfile.write(ms2_general_info_data)
-			print(len(bone_names),"\n",len(bone_matrices),"\n",len(verts))#outfile.write(ms2_buffer_info_data)
+			print(len(bone_names),"\n",len(bone_matrices),"\n",len(verts))
+			outfile.write(ms2_header)
+			outfile.write(ms2_general_info_data)
 			outfile.write(bone_names)
 			outfile.write(bone_matrices)
 			outfile.write(verts)
@@ -285,11 +313,6 @@ def write_ms2(archive, ms2_sized_str_entry):
 		print("must have 3 fragments")
 		return
 	f_0, f_1, f_2 = ms2_sized_str_entry.fragments
-
-	# sizedstr data has bone count
-	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
-	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2Format.Ms2SizedStrData, archive)
-	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
 	# f0 has information on vert & tri buffer sizes
 	ms2_buffer_info_data = f_0.pointers[1].data
@@ -305,7 +328,6 @@ def write_ms2(archive, ms2_sized_str_entry):
 	# 	for mdl2_entry in ms2_sized_str_entry.children:
 	# 		outfile.write(mdl2_entry.name.encode()[:-5]+b"\x00")
 
-	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names), len(bone_matrices))
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(ms2_header)
 		outfile.write(ms2_general_info_data)

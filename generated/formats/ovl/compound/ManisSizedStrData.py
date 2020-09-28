@@ -17,6 +17,9 @@ class ManisSizedStrData:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.unknown_0 = 0
+		self.unknown_1 = 0
+		self.unknown_2 = 0
 
 	def read(self, stream):
 		self.unknown_0 = stream.read_ushort()

@@ -8,6 +8,7 @@ class DirEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.offset = 0
 
 	def read(self, stream):
 		self.offset = stream.read_uint()

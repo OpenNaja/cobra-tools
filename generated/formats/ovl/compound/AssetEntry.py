@@ -18,20 +18,28 @@ class AssetEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.file_hash = 0
+		self.zero_0 = 0
+		self.ext_hash = 0
+		self.zero_1 = 0
+		self.file_index = 0
+		self.zero_2 = 0
 
 	def read(self, stream):
 		self.file_hash = stream.read_uint()
 		self.zero_0 = stream.read_uint()
-		self.ext_hash = stream.read_uint()
-		self.zero_1 = stream.read_uint()
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			self.ext_hash = stream.read_uint()
+			self.zero_1 = stream.read_uint()
 		self.file_index = stream.read_uint()
 		self.zero_2 = stream.read_uint()
 
 	def write(self, stream):
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.zero_0)
-		stream.write_uint(self.ext_hash)
-		stream.write_uint(self.zero_1)
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			stream.write_uint(self.ext_hash)
+			stream.write_uint(self.zero_1)
 		stream.write_uint(self.file_index)
 		stream.write_uint(self.zero_2)
 

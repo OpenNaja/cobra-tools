@@ -14,6 +14,8 @@ class TypeOther:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.length = 0
+		self.raw = 0
 
 	def read(self, stream):
 		self.length = stream.read_uint()

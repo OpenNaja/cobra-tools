@@ -12,6 +12,9 @@ class DataPointer:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.wem_id = 0
+		self.data_section_offset = 0
+		self.wem_filesize = 0
 
 	def read(self, stream):
 		self.wem_id = stream.read_uint()

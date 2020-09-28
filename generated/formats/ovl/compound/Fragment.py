@@ -1,5 +1,5 @@
-from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 import typing
+from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 
 class Fragment:
@@ -12,6 +12,7 @@ class Fragment:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.pointers = HeaderPointer()
 
 	def read(self, stream):
 		self.pointers = [stream.read_type(HeaderPointer) for _ in range(2)]

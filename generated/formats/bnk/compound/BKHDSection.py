@@ -19,6 +19,13 @@ class BKHDSection:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.length = 0
+		self.version = 0
+		self.id_a = 0
+		self.id_b = 0
+		self.constant_a = 0
+		self.constant_b = 0
+		self.zeroes = 0
 
 	def read(self, stream):
 		self.length = stream.read_uint()

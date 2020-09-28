@@ -60,6 +60,23 @@ class Type2:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.length = 0
+		self.sfx_id = 0
+		self.const_a = 0
+		self.const_b = 0
+		self.didx_id = 0
+		self.wem_length = 0
+		self.zerosa = 0
+		self.zerosb = 0
+		self.some_id = 0
+		self.const_c = 0
+		self.const_d = 0
+		self.const_e = 0
+		self.float_a = 0
+		self.zeros_c = 0
+		self.flag = 0
+		self.zerosd = 0
+		self.zerose = 0
 
 	def read(self, stream):
 		self.length = stream.read_uint()

@@ -25,6 +25,13 @@ class MimeEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.offset = 0
+		self.unknown = 0
+		self.mime_hash = 0
+		self.unknown_1 = 0
+		self.unknown_2 = 0
+		self.file_index_offset = 0
+		self.file_count = 0
 
 	def read(self, stream):
 		self.offset = stream.read_uint()

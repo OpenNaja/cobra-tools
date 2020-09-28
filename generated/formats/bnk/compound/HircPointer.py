@@ -1,6 +1,6 @@
 from generated.formats.bnk.compound.Type2 import Type2
-from generated.formats.bnk.compound.TypeOther import TypeOther
 import typing
+from generated.formats.bnk.compound.TypeOther import TypeOther
 
 
 class HircPointer:
@@ -12,6 +12,9 @@ class HircPointer:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.id = 0
+		self.data = Type2()
+		self.data = TypeOther()
 
 	def read(self, stream):
 		self.id = stream.read_byte()

@@ -14,6 +14,9 @@ class AuxEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.file_index = 0
+		self.extension_index = 0
+		self.size = 0
 
 	def read(self, stream):
 		self.file_index = stream.read_uint()

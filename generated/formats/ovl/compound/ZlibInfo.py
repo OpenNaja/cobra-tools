@@ -11,6 +11,8 @@ class ZlibInfo:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.zlib_thing_1 = 0
+		self.zlib_thing_2 = 0
 
 	def read(self, stream):
 		self.zlib_thing_1 = stream.read_uint()

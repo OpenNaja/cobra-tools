@@ -11,6 +11,12 @@ class Header7MipmapInfo:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.offset = 0
+		self.unknown_02 = 0
+		self.width = 0
+		self.height = 0
+		self.unknown_0_c = 0
+		self.unkn_3 = 0
 
 	def read(self, stream):
 		self.offset = stream.read_ushort()

@@ -8,6 +8,9 @@ class UnknownEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.unknown_1 = 0
+		self.unknown_2 = 0
+		self.unknown_3 = 0
 
 	def read(self, stream):
 		self.unknown_1 = stream.read_uint()

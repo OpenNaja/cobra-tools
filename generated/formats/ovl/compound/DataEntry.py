@@ -24,13 +24,24 @@ class DataEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.file_hash = 0
+		self.ext_hash = 0
+		self.set_index = 0
+		self.buffer_count = 0
+		self.zero_10 = 0
+		self.size_1 = 0
+		self.zero_18 = 0
+		self.size_2 = 0
+		self.zero_20 = 0
 
 	def read(self, stream):
 		self.file_hash = stream.read_uint()
-		self.ext_hash = stream.read_uint()
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			self.ext_hash = stream.read_uint()
 		self.set_index = stream.read_ushort()
 		self.buffer_count = stream.read_ushort()
-		self.zero_10 = stream.read_uint()
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			self.zero_10 = stream.read_uint()
 		self.size_1 = stream.read_uint()
 		self.zero_18 = stream.read_uint()
 		self.size_2 = stream.read_uint()
@@ -38,10 +49,12 @@ class DataEntry:
 
 	def write(self, stream):
 		stream.write_uint(self.file_hash)
-		stream.write_uint(self.ext_hash)
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			stream.write_uint(self.ext_hash)
 		stream.write_ushort(self.set_index)
 		stream.write_ushort(self.buffer_count)
-		stream.write_uint(self.zero_10)
+		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+			stream.write_uint(self.zero_10)
 		stream.write_uint(self.size_1)
 		stream.write_uint(self.zero_18)
 		stream.write_uint(self.size_2)

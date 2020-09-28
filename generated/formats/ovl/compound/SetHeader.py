@@ -1,6 +1,6 @@
+import typing
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.SetEntry import SetEntry
-import typing
 
 
 class SetHeader:
@@ -21,6 +21,12 @@ class SetHeader:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.set_count = 0
+		self.asset_count = 0
+		self.sig_a = 0
+		self.sig_b = 0
+		self.sets = SetEntry()
+		self.assets = AssetEntry()
 
 	def read(self, stream):
 		self.set_count = stream.read_uint()

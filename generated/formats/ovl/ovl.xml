@@ -4,6 +4,42 @@
 
     <!--Basic Types-->
 
+    <token name="verexpr" attrs="vercond cond">
+        Commonly used version expressions.
+        <verexpr token="#PZ#" string="((#USER# #EQ# 8340) #AND# (#VER# #EQ# 19))">PZ</verexpr>
+        <verexpr token="#JWE#" string="((#USER# #EQ# 24724) #AND# (#VER# #EQ# 19))">JWE</verexpr>
+		<verexpr token="#PC#" string="(#USER# #EQ# 8212)">PC</verexpr>
+    </token>
+    <token name="global" attrs="vercond cond">
+        Global Tokens.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <global token="#USER#" string="user_version" />
+        <global token="#VER#" string="version" />
+    </token>
+	
+    <token name="operator" attrs="cond vercond arr1 arr2 arg">
+        All Operators except for unary not (!), parentheses, and member of (\)
+        NOTE: These can be ignored entirely by string substitution and dealt with directly.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <operator token="#ADD#" string="+" />
+        <operator token="#SUB#" string="-" />
+        <operator token="#MUL#" string="*" />
+        <operator token="#DIV#" string="/" />
+        <operator token="#AND#" string="&amp;&amp;" />
+        <operator token="#OR#" string="||" />
+        <operator token="#LT#" string="&lt;" />
+        <operator token="#GT#" string="&gt;" />
+        <operator token="#LTE#" string="&lt;=" />
+        <operator token="#GTE#" string="&gt;=" />
+        <operator token="#EQ#" string="==" />
+        <operator token="#NEQ#" string="!=" />
+        <operator token="#RSH#" string="&gt;&gt;" />
+        <operator token="#LSH#" string="&lt;&lt;" />
+        <operator token="#BITAND#" string="&amp;" />
+        <operator token="#BITOR#" string="|" />
+        <operator token="#MOD#" string="%" />
+    </token>
+
     <basic name="byte" count="1">
         An unsigned 8-bit integer.
     </basic>
@@ -61,58 +97,7 @@
 		<option value="90" name="DXGI_FORMAT_BC7_UNORM"></option>
 		<option value="91" name="DXGI_FORMAT_BC7_UNORM_SRGB">PZ titan beetle</option>
     </enum>
-	
-		
-	<enum name="MimeHashes" storage="uint">
-		maps the hash values to the known mime types
-		<option value="2277974447" name="Casino:ADLPlannerConfig:adlplannerconfig"></option>
-		<option value="1130939801" name="Casino:Achievements:achievements"></option>
-		<option value="1145776474" name="Casino:AssetPackageRes:assetpkg"></option>
-		<option value="2997095326" name="Casino:ControlGroups:logicalcontrolgroups"></option>
-		<option value="4079277233" name="Casino:EnumNamer:enumnamer"></option>
-		<option value="2890464561" name="Casino:FMVDesc:fmvdesc"></option>
-		<option value="1585376418" name="Casino:InputDevice:inputdevice"></option>
-		<option value="2777436503" name="Casino:LFOGenerators:lfogenerators"></option>
-		<option value="3089504027" name="Casino:LanguagePackMap:languages"></option>
-		<option value="2692395393" name="Casino:LogicalControls:logicalcontrols"></option>
-		<option value="2350825847" name="Casino:MaterialCollection:materialcollection"></option>
-		<option value="3457112796" name="Casino:PhysicsSurfaces:physicssurfacesxmlres"></option>
-		<option value="230754185" name="Casino:Prefab:prefab"></option>
-		<option value="3663044305" name="Casino:RenderFeatureCollection:renderfeaturecollection"></option>
-		<option value="414234515" name="Casino:RenderParameterCurves:renderparametercurves"></option>
-		<option value="3867679625" name="Casino:RenderParameters:renderparameters"></option>
-		<option value="1449963929" name="Casino:SpecDef:specdef"></option>
-		<option value="857633299" name="Casino:StreamManagerSpec:stmspec"></option>
-		<option value="1284898287" name="Casino:UIMovieDefinition:uimoviedefinition"></option>
-		<option value="1570896903" name="Casino:WorldDesc:world"></option>
-		<option value="1196900597" name="Casino:WwiseMetaDataRootPaths:wmetarp"></option>
-		<option value="1945549148" name="Casino:WwiseMetaDataSoundbanks:wmetasb"></option>
-		<option value="1562051280" name="Casino:WwiseMetaDataStreamedFiles:wmetasf"></option>
-		<option value="467070503" name="Casino:fRenderLodSettings:frenderlodspec"></option>
-		<option value="311869681" name="FGDK4:DataStreamResourceDataList:datastreams"></option>
-		<option value="3008683560" name="FGDK4:MotionGraph:motiongraph"></option>
-		<option value="1028102637" name="FGDK:Animation:mani"></option>
-		<option value="4136986290" name="FGDK:AnimationSet:manis"></option>
-		<option value="723837634" name="FGDK:BlendHierarchy:hier"></option>
-		<option value="2545474337" name="FGDK:Database:fdb"></option>
-		<option value="861771362" name="FGDK:FragmentMaterial:fgm"></option>
-		<option value="1779074288" name="FGDK:LuaModule:lua"></option>
-		<option value="640591494" name="FGDK:Text:txt"></option>
-		<option value="3242366505" name="FGDK:Texture:tex"></option>
-		<option value="4096653505" name="FGDK:TextureStream:texturestream"></option>
-		<option value="876426926" name="FGDK:fRenderContextSet:frendercontextset"></option>
-		<option value="545348934" name="FGDK:fRenderFeatureSetRes:frenderfeatureset"></option>
-		<option value="4285397356" name="FGDK:model2:mdl2"></option>
-		<option value="2893339803" name="FGDK:modelSet2:ms2"></option>
-		<option value="3718098472" name="Game:AttachableObjectSettings:guestattachableobjectsettings"></option>
-		<option value="769614864" name="Game:ChancellorBudgets:chancellorbudgets"></option>
-		<option value="2830650654" name="Game:CrowdSettings:crowdsettings"></option>
-		<option value="3981839659" name="Game:DinosaurSettings:dinosaursettings"></option>
-		<option value="2890678212" name="Game:SemanticFlexiColourOverrides:semanticflexicolouroverrides"></option>
-		<option value="2236628948" name="Game:SystemVersion:systemversion"></option>
-		<option value="1254887356" name="Game:UISettings:uisettings"></option>
-    </enum>
-	
+
 	<!-- Structs for the OVL file -->
 
     <compound name="ZStringBuffer" count="0" >
@@ -276,17 +261,17 @@
 		<add name="Offset" type="uint">starting point to read text file data</add>
 		<add name="File Hash" type="uint">DJB hash of the first file in the txt data block</add>
 		<add name="Num Files" type="uint">unknown count (number of .txt files)</add>
-		<add name="Ext Hash" type="uint">JWE: DJB hash for extension, 0 for PZ</add>	
-		<add name="zeros3" type="uint">always 0</add>
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">JWE: DJB hash for extension, 0 for PZ</add>
+		<add name="zeros3" type="uint"  vercond="#JWE# #OR# #PZ#">always 0</add>
     </compound>
 	
 	<compound name="DataEntry" >
 		32 bytes
 		<add name="File Hash" type="uint"> DJB hash; sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint">DJB hash for extension; always (?) matches an archive header's hash</add>	
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">DJB hash for extension; always (?) matches an archive header's hash</add>
 		<add name="set index" type="ushort" > </add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
-		<add name="zero10" type="uint" > </add>
+		<add name="zero10" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
 		<add name="Size 1" type="uint">size of first buffer, in the case of the ms2 the size 1 is the sizw of the first two buffers together</add>
 		<add name="zero18" type="uint"> </add>	
 		<add name="Size 2" type="uint">size of last buffer</add>
@@ -309,7 +294,7 @@
     <compound name="SizedStringEntry" >
         points to a sized string in a header's data block
         <add name="File Hash" type="uint">hash of the file that should be read</add>
-        <add name="Ext Hash" type="uint">matches matching HeaderEntry's Ext Hash</add>
+        <add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">matches matching HeaderEntry's Ext Hash</add>
         <add name="pointers" type="HeaderPointer" arr1="1" >points into header datas section</add>
     </compound>
 	
@@ -332,7 +317,7 @@
 	<compound name="SetEntry" >
 		the asset indices of two consecutive SetEntries define a set of AssetEntries
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint">always (?) matches an archive header's hash</add>	
+		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
 		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
     </compound>
 	
@@ -341,8 +326,8 @@
 		It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
 		<add name="zero 0" type="uint" > </add>
-		<add name="Ext Hash" type="uint">always (?) matches an archive header's hash</add>	
-		<add name="zero 1" type="uint" > </add>
+		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
+		<add name="zero 1" type="uint"  vercond="#JWE# #OR# #PZ#"> </add>
 		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
 		<add name="zero 2" type="uint"></add>
     </compound>

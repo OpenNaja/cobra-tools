@@ -18,6 +18,11 @@ class FileEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.offset = 0
+		self.file_hash = 0
+		self.unkn_0 = 0
+		self.unkn_1 = 0
+		self.extension = 0
 
 	def read(self, stream):
 		self.offset = stream.read_uint()

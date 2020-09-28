@@ -1,10 +1,10 @@
-from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.HeaderType import HeaderType
+import typing
+from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
-from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
+from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.HeaderEntry import HeaderEntry
-import typing
 
 
 class OvsHeader:
@@ -20,6 +20,12 @@ class OvsHeader:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.header_types = HeaderType()
+		self.header_entries = HeaderEntry()
+		self.data_entries = DataEntry()
+		self.buffer_entries = BufferEntry()
+		self.sized_str_entries = SizedStringEntry()
+		self.fragments = Fragment()
 
 	def read(self, stream):
 		self.header_types = [stream.read_type(HeaderType) for _ in range(self.arg.num_header_types)]

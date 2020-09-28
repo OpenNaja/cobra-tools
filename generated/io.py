@@ -230,18 +230,21 @@ class ZipFile(IoFile):
 
     # @staticmethod
     @contextmanager
-    def unzipper(self, filepath, start, compressed_size, save_temp_dat=""):
+    def unzipper(self, filepath, start, skip, compressed_size, save_temp_dat=""):
         with self.reader(filepath) as stream:
             # self.unzip(stream, compressed_size)
             stream.seek(start)
             zipped = stream.read(compressed_size)
             # self.print_and_callback(f"Reading {archive_entry.name}")
-            self.zlib_header = zipped[:2]
-            zlib_compressed_data = zipped[2:]
+            if skip != 8212:
+                self.zlib_header = zipped[:2]
+                zlib_compressed_data = zipped[2:]
             # https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
             # we avoid the two zlib magic bytes to get our unzipped content
             # zlib_data = bytearray(zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS))
-            zlib_data = zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS)
+                zlib_data = zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS)
+            else:
+                zlib_data = bytearray(zipped)
         if save_temp_dat:
             # for debugging, write deflated content to dat
             with open(save_temp_dat, 'wb') as out:

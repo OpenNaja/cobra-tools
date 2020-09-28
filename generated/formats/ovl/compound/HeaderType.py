@@ -11,6 +11,8 @@ class HeaderType:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.type = 0
+		self.num_headers = 0
 
 	def read(self, stream):
 		self.type = stream.read_ushort()

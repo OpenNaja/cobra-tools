@@ -1,14 +1,14 @@
-from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.TextureEntry import TextureEntry
-from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.DirEntry import DirEntry
-from generated.formats.ovl.compound.FixedString import FixedString
-from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
 import typing
-from generated.formats.ovl.compound.AuxEntry import AuxEntry
-from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
+from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
+from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.AuxEntry import AuxEntry
+from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
+from generated.formats.ovl.compound.FileEntry import FileEntry
+from generated.formats.ovl.compound.TextureEntry import TextureEntry
+from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
+from generated.formats.ovl.compound.FixedString import FixedString
 
 
 class Header:
@@ -126,6 +126,42 @@ class Header:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.fres = FixedString()
+		self.flag = 0
+		self.version = 0
+		self.needs_bitswap = 0
+		self.seventh_byte = 1
+		self.flag_2 = 0
+		self.zero = 0
+		self.len_names = 0
+		self.zero_2 = 0
+		self.num_aux_entries = 0
+		self.num_dirs = 0
+		self.num_mimes = 0
+		self.num_files = 0
+		self.num_files_2 = 0
+		self.num_textures = 0
+		self.num_archives = 0
+		self.num_header_types = 0
+		self.num_headers = 0
+		self.num_datas = 0
+		self.num_buffers = 0
+		self.num_files_ovs = 0
+		self.zeros = 0
+		self.len_archive_names = 0
+		self.num_files_3 = 0
+		self.len_type_names = 0
+		self.zeros_2 = 0
+		self.names = ZStringBuffer()
+		self.mimes = MimeEntry()
+		self.files = FileEntry()
+		self.archive_names = ZStringBuffer()
+		self.archives = ArchiveEntry()
+		self.dirs = DirEntry()
+		self.textures = TextureEntry()
+		self.aux_entries = AuxEntry()
+		self.unknowns = UnknownEntry()
+		self.zlibs = ZlibInfo()
 
 	def read(self, stream):
 		self.fres = stream.read_type(FixedString, (4,))

@@ -24,6 +24,12 @@ class Header3Data0:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.zeros = 0
+		self.compression_type = 0
+		self.one_0 = 0
+		self.one_1 = 0
+		self.one_2 = 0
+		self.pad = 0
 
 	def read(self, stream):
 		self.zeros = stream.read_uint64()

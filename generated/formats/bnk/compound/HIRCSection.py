@@ -14,6 +14,9 @@ class HIRCSection:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.length = 0
+		self.count = 0
+		self.hirc_pointers = HircPointer()
 
 	def read(self, stream):
 		self.length = stream.read_uint()

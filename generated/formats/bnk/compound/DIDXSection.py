@@ -1,5 +1,5 @@
-from generated.formats.bnk.compound.DataPointer import DataPointer
 import typing
+from generated.formats.bnk.compound.DataPointer import DataPointer
 
 
 class DIDXSection:
@@ -13,6 +13,8 @@ class DIDXSection:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.length = 0
+		self.data_pointers = DataPointer()
 
 	def read(self, stream):
 		self.length = stream.read_uint()
