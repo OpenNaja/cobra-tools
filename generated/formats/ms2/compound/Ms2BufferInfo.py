@@ -30,13 +30,13 @@ class Ms2BufferInfo:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.skip_1 = 0
+		self.skip_1 = []
 		self.vertexdatasize = 0
 		self.ptr_1 = 0
 		self.unk_0 = 0
 		self.facesdatasize = 0
 		self.ptr_2 = 0
-		self.unk_2 = 0
+		self.unk_2 = []
 
 	def read(self, stream):
 

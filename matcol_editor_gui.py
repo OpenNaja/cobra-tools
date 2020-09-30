@@ -1,11 +1,13 @@
 import os
 import io
 import sys
+import traceback
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
+# from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
+from generated.formats.matcol import MatcolFile
 from util import widgets, config
-from modules import extract, inject
+
 
 class MainWindow(widgets.MainWindow):
 
@@ -14,7 +16,7 @@ class MainWindow(widgets.MainWindow):
 		
 		self.resize(450, 500)
 
-		self.matcol_data = MaterialcollectionFormat.Data()
+		self.matcol_data = MatcolFile()
 		self.file_src = ""
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/matcol.txt")
@@ -102,11 +104,10 @@ class MainWindow(widgets.MainWindow):
 				w.deleteLater()
 			self.cfg["dir_materialcollections_in"], materialcollection_name = os.path.split(self.file_src)
 			try:
-				with open(self.file_src, "rb") as materialcollection_stream:
-					self.matcol_data.read(materialcollection_stream)
-				game = self.matcol_data.game
-				print("from game",game)
-				self.game_container.entry.setText(game)
+				self.matcol_data.load(self.file_src)
+				# game = self.matcol_data.game
+				# print("from game",game)
+				# self.game_container.entry.setText(game)
 
 				self.materialcollection_container.entry.setText( materialcollection_name )
 
@@ -120,7 +121,7 @@ class MainWindow(widgets.MainWindow):
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
 				line_i = 0
-				for i, tex in enumerate(self.matcol_data.header.texture_wrapper.textures):
+				for i, tex in enumerate(self.matcol_data.texture_wrapper.textures):
 					# w = widgets.VectorEntry(tex, self.tooltips)
 					# form.addRow(w.label, w.data)
 					box = widgets.CollapsibleBox(f"Slot {i}")
@@ -143,7 +144,7 @@ class MainWindow(widgets.MainWindow):
 					box.setLayout(lay)
 
 				line_i = 0
-				for i, attrib in enumerate(self.matcol_data.header.layered_wrapper.layers):
+				for i, attrib in enumerate(self.matcol_data.layered_wrapper.layers):
 					box = widgets.CollapsibleBox(f"Slot {i}")
 					# box = QtWidgets.QGroupBox(attrib.name)
 					self.attrib_grid.addWidget(box, line_i, 0)
@@ -161,7 +162,7 @@ class MainWindow(widgets.MainWindow):
 					box.setLayout(lay)
 				
 				line_i = 0
-				for zstr in self.matcol_data.header.variant_wrapper.materials:
+				for zstr in self.matcol_data.variant_wrapper.materials:
 
 					a = QtWidgets.QLabel("variant fgm")
 					b = QtWidgets.QLineEdit(zstr)
@@ -171,7 +172,7 @@ class MainWindow(widgets.MainWindow):
 				
 			except Exception as ex:
 				widgets.showdialog( str(ex) )
-				print(ex)
+				print(traceback.print_exc())
 			print("Done!")
 		
 	def save_materialcollection(self):
@@ -179,10 +180,9 @@ class MainWindow(widgets.MainWindow):
 			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save materialcollection', os.path.join(self.cfg["dir_materialcollections_out"], self.materialcollection_name), "materialcollection files (*.matcol)",)[0]
 			if file_out:
 				self.cfg["dir_materialcollections_out"], materialcollection_name = os.path.split(file_out)
-				with open(file_out, "wb") as materialcollection_stream:
-					self.matcol_data.write(materialcollection_stream)
+				self.matcol_data.save(file_out)
 				print("Done!")
 			
 	
 if __name__ == '__main__':
-	widgets.startup( MainWindow )
+	widgets.startup(MainWindow)

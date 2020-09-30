@@ -83,9 +83,9 @@
         Holds a string of a fixed size, given as an argument.
     </compound>
 
-    <compound name="ZString">
+    <basic name="ZString">
         Null terminated string.
-    </compound>
+    </basic>
 
     <compound name="ZStringBuffer" count="0" >
         Holds a buffer of zero-terminated strings

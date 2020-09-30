@@ -1,8 +1,8 @@
-from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
-from generated.formats.ms2.compound.PcModelData import PcModelData
-import typing
-from generated.formats.ms2.compound.Material1 import Material1
 from generated.formats.ms2.compound.LodInfo import LodInfo
+from generated.formats.ms2.compound.Material1 import Material1
+from generated.formats.ms2.compound.PcModelData import PcModelData
+from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
+import typing
 
 
 class PcModel:
@@ -16,10 +16,10 @@ class PcModel:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.lod_infos = LodInfo()
-		self.materials_1 = Material1()
-		self.model_data = PcModelData()
-		self.padding = 0
+		self.lod_infos = []
+		self.materials_1 = []
+		self.model_data = []
+		self.padding = []
 		self.bone_info = Ms2BoneInfo()
 
 	def read(self, stream):

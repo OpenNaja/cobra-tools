@@ -16,7 +16,7 @@ class DATASection:
 		self.template = template
 		self.io_size = 0
 		self.length = 0
-		self.wem_files_datas = 0
+		self.wem_files_datas = []
 
 	def read(self, stream):
 

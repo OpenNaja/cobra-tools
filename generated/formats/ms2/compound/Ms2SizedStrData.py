@@ -30,7 +30,7 @@ class Ms2SizedStrData:
 		self.has_model_data = 0
 		self.mdl_2_count = 0
 		self.name_count = 0
-		self.unknown_1 = 0
+		self.unknown_1 = []
 
 	def read(self, stream):
 

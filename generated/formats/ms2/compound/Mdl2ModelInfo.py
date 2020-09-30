@@ -1,5 +1,5 @@
-from generated.formats.ms2.compound.Mdl2FourtyInfo import Mdl2FourtyInfo
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
+from generated.formats.ms2.compound.Mdl2FourtyInfo import Mdl2FourtyInfo
 
 
 class Mdl2ModelInfo:

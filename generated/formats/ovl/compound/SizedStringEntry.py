@@ -23,7 +23,7 @@ class SizedStringEntry:
 		self.io_size = 0
 		self.file_hash = 0
 		self.ext_hash = 0
-		self.pointers = HeaderPointer()
+		self.pointers = []
 
 	def read(self, stream):
 

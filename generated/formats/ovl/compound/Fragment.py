@@ -15,7 +15,7 @@ class Fragment:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.pointers = HeaderPointer()
+		self.pointers = []
 
 	def read(self, stream):
 

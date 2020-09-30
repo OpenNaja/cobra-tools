@@ -17,7 +17,7 @@ class DIDXSection:
 		self.template = template
 		self.io_size = 0
 		self.length = 0
-		self.data_pointers = DataPointer()
+		self.data_pointers = []
 
 	def read(self, stream):
 

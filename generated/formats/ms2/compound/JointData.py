@@ -1,10 +1,10 @@
+from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ms2.compound.JointInfo import JointInfo
-import typing
-from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.UnknownJointEntry import UnknownJointEntry
 from generated.formats.ms2.compound.FFCounter import FFCounter
+import typing
 
 
 class JointData:
@@ -38,13 +38,13 @@ class JointData:
 		self.unknown_2 = 0
 		self.unknown_3 = 0
 		self.joint_compound = JointCompound()
-		self.joint_list = JointEntry()
-		self.unknown_list = UnknownJointEntry()
-		self.unknown_10 = FFCounter()
+		self.joint_list = []
+		self.unknown_list = []
+		self.unknown_10 = []
 		self.unknown_11 = 0
 		self.joint_names = ZStringBuffer()
-		self.joint_names_padding = 0
-		self.joint_info_list = JointInfo()
+		self.joint_names_padding = []
+		self.joint_info_list = []
 
 	def read(self, stream):
 

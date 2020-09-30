@@ -1,11 +1,11 @@
-import typing
-from generated.formats.ms2.compound.Material1 import Material1
-from generated.formats.ms2.compound.Material0 import Material0
-from generated.formats.ms2.compound.ModelData import ModelData
-from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.FixedString import FixedString
+from generated.formats.ms2.compound.ModelData import ModelData
+from generated.formats.ms2.compound.Material1 import Material1
+from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
+from generated.formats.ms2.compound.Material0 import Material0
 from generated.formats.ms2.compound.SizedString import SizedString
+import typing
 
 
 class Mdl2InfoHeader:
@@ -52,10 +52,10 @@ class Mdl2InfoHeader:
 		self.index = 0
 		self.name = SizedString()
 		self.model_info = CoreModelInfo()
-		self.materials_0 = Material0()
-		self.lods = LodInfo()
-		self.materials_1 = Material1()
-		self.models = ModelData()
+		self.materials_0 = []
+		self.lods = []
+		self.materials_1 = []
+		self.models = []
 
 	def read(self, stream):
 

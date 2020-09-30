@@ -45,6 +45,8 @@ class Compound(BaseClass):
 						field_type = "float"
 					elif field_type.lower() in ("bool",):
 						field_type = "bool"
+					elif field_type.lower() in ("zstring",):
+						field_type = "str"
 					field_types.append(field_type)
 					field_default = field.attrib.get("default")
 					field_debug_str = clean_comment_str(field.text, indent="\t")
@@ -105,6 +107,8 @@ class Compound(BaseClass):
 									field_default = f"{field_type}()"
 						if not field_default:
 							field_default = 0
+						if field.attrib.get("arr1"):
+							field_default = "[]"
 						f.write(f"\n\t\tself.{field_name} = {field_default}")
 
 			# write the load() method

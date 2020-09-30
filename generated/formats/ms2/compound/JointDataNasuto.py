@@ -1,10 +1,10 @@
+from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ms2.compound.JointInfo import JointInfo
-import typing
-from generated.formats.ms2.compound.JointCompound import JointCompound
-from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
 from generated.formats.ms2.compound.ListCEntry import ListCEntry
+from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
+import typing
 
 
 class JointDataNasuto:
@@ -65,22 +65,22 @@ class JointDataNasuto:
 		self.unknown_2 = 0
 		self.unknown_3 = 0
 		self.unknown_4 = 0
-		self.unknown_list = NasutoJointEntry()
+		self.unknown_list = []
 		self.zero = 0
 		self.count_0 = 0
 		self.count_1 = 0
 		self.joint_compound = JointCompound()
-		self.unknown_lista = JointEntry()
-		self.unknown_listb = 0
-		self.unknown_listc = ListCEntry()
+		self.unknown_lista = []
+		self.unknown_listb = []
+		self.unknown_listc = []
 		self.d = 0
 		self.e = 0
-		self.undecoded_floats = 0
-		self.indices = 0
-		self.indices_2 = 0
+		self.undecoded_floats = []
+		self.indices = []
+		self.indices_2 = []
 		self.joint_names = ZStringBuffer()
-		self.joint_names_padding = 0
-		self.joint_info_list = JointInfo()
+		self.joint_names_padding = []
+		self.joint_info_list = []
 
 	def read(self, stream):
 

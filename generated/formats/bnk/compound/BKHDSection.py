@@ -28,7 +28,7 @@ class BKHDSection:
 		self.id_b = 0
 		self.constant_a = 0
 		self.constant_b = 0
-		self.zeroes = 0
+		self.zeroes = []
 
 	def read(self, stream):
 

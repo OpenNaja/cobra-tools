@@ -54,7 +54,7 @@ class PcModelData:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.zeros = 0
+		self.zeros = []
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 		self.tri_offset = 0
@@ -62,7 +62,7 @@ class PcModelData:
 		self.vertex_offset = 0
 		self.unknown_05 = 0
 		self.weight_offset = 0
-		self.zeros = 0
+		self.zeros = []
 		self.vert_offset_within_lod = 0
 		self.poweroftwo = 0
 		self.zero = 0

@@ -1,5 +1,5 @@
-import typing
 from generated.formats.bnk.compound.HircPointer import HircPointer
+import typing
 
 
 class HIRCSection:
@@ -19,7 +19,7 @@ class HIRCSection:
 		self.io_size = 0
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = HircPointer()
+		self.hirc_pointers = []
 
 	def read(self, stream):
 

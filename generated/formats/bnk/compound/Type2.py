@@ -81,12 +81,12 @@ class Type2:
 		self.const_d = 0
 		self.const_e = 0
 		self.float_a = 0
-		self.zeros_c = 0
+		self.zeros_c = []
 		self.flag = 0
 		self.zerosd = 0
 		self.zerose = 0
-		self.extra = 0
-		self.extra = 0
+		self.extra = []
+		self.extra = []
 
 	def read(self, stream):
 

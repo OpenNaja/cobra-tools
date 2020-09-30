@@ -1,9 +1,8 @@
-from generated.formats.ms2.compound.ZString import ZString
-import typing
-from generated.formats.ms2.compound.Onefiftytwo import Onefiftytwo
+from generated.formats.ms2.compound.FixedString import FixedString
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
-from generated.formats.ms2.compound.FixedString import FixedString
+import typing
+from generated.formats.ms2.compound.Onefiftytwo import Onefiftytwo
 
 
 class Ms2InfoHeader:
@@ -24,7 +23,7 @@ class Ms2InfoHeader:
 	# not in PC, or at least somewhere else
 	buffer_info: Ms2BufferInfo
 	name_hashes: typing.List[int]
-	names: typing.List[ZString]
+	names: typing.List[str]
 	whatever: typing.List[int]
 	model_infos: typing.List[Onefiftytwo]
 
@@ -42,10 +41,10 @@ class Ms2InfoHeader:
 		self.bone_info_size = 0
 		self.general_info = Ms2SizedStrData()
 		self.buffer_info = Ms2BufferInfo()
-		self.name_hashes = 0
-		self.names = ZString()
-		self.whatever = 0
-		self.model_infos = Onefiftytwo()
+		self.name_hashes = []
+		self.names = []
+		self.whatever = []
+		self.model_infos = []
 		self.some_zero = 0
 
 	def read(self, stream):
@@ -62,7 +61,7 @@ class Ms2InfoHeader:
 		if self.general_info.ms_2_version != 32:
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
 		self.name_hashes = [stream.read_uint() for _ in range(self.general_info.name_count)]
-		self.names = [stream.read_type(ZString) for _ in range(self.general_info.name_count)]
+		self.names = [stream.read_zstring() for _ in range(self.general_info.name_count)]
 		if self.general_info.ms_2_version == 32:
 			self.whatever = [stream.read_uint() for _ in range(8)]
 			self.model_infos = [stream.read_type(Onefiftytwo) for _ in range(self.general_info.mdl_2_count)]
@@ -84,7 +83,7 @@ class Ms2InfoHeader:
 		if self.general_info.ms_2_version != 32:
 			stream.write_type(self.buffer_info)
 		for item in self.name_hashes: stream.write_uint(item)
-		for item in self.names: stream.write_type(item)
+		for item in self.names: stream.write_zstring(item)
 		if self.general_info.ms_2_version == 32:
 			for item in self.whatever: stream.write_uint(item)
 			for item in self.model_infos: stream.write_type(item)

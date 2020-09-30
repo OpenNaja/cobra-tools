@@ -14,7 +14,7 @@ class PcFFCounter:
 		self.template = template
 		self.io_size = 0
 		self.count = 0
-		self.f_fs = 0
+		self.f_fs = []
 
 	def read(self, stream):
 

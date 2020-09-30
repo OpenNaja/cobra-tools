@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ovl.compound.Header7MipmapInfo import Header7MipmapInfo
+import typing
 
 
 class Header7Data1:
@@ -41,7 +41,7 @@ class Header7Data1:
 		self.array_size = 0
 		self.num_mips = 0
 		self.pad = 0
-		self.mip_maps = Header7MipmapInfo()
+		self.mip_maps = []
 
 	def read(self, stream):
 

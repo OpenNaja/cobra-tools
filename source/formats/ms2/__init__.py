@@ -11,30 +11,8 @@ from generated.io import IoFile
 
 class Ms2File(Ms2InfoHeader, IoFile):
 
-    def __init__(self, progress_callback=None):
+    def __init__(self, ):
         super().__init__()
-
-        self.last_print = None
-        if progress_callback:
-            self.progress_callback = progress_callback
-        else:
-            self.progress_callback = self.dummy_callback
-
-
-    # dummy (black hole) callback for if we decide we don't want one
-    def dummy_callback(self, *args, **kwargs):
-        return
-
-    def print_and_callback(self, message, value=None, max_value=None):
-        # don't print the message if it is identical to the last one - it
-        # will slow down massively repetitive tasks
-        if self.last_print != message:
-            print(message)
-            self.last_print = message
-
-        # call the callback
-        if not self.mute:
-            self.progress_callback(message, value, max_value)
 
     def load(self, filepath, verbose=0, commands=(), mute=False):
         start_time = time.time()
@@ -49,6 +27,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
             eof = stream.tell()
         print("EOF", eof)
 
-m = Ms2File()
-m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
-print(m)
+
+if __name__ == "__main__":
+    m = Ms2File()
+    m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
+    print(m)

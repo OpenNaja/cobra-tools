@@ -1,14 +1,14 @@
-from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
-from generated.formats.ovl.compound.DirEntry import DirEntry
-from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
-import typing
-from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
-from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.TextureEntry import TextureEntry
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
-from generated.formats.ovl.compound.FixedString import FixedString
+from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
+from generated.formats.ovl.compound.FixedString import FixedString
+from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
+from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
+from generated.formats.ovl.compound.DirEntry import DirEntry
+from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.TextureEntry import TextureEntry
+import typing
 
 
 class Header:
@@ -150,21 +150,21 @@ class Header:
 		self.num_datas = 0
 		self.num_buffers = 0
 		self.num_files_ovs = 0
-		self.zeros = 0
+		self.zeros = []
 		self.len_archive_names = 0
 		self.num_files_3 = 0
 		self.len_type_names = 0
-		self.zeros_2 = 0
+		self.zeros_2 = []
 		self.names = ZStringBuffer()
-		self.mimes = MimeEntry()
-		self.files = FileEntry()
+		self.mimes = []
+		self.files = []
 		self.archive_names = ZStringBuffer()
-		self.archives = ArchiveEntry()
-		self.dirs = DirEntry()
-		self.textures = TextureEntry()
-		self.aux_entries = AuxEntry()
-		self.unknowns = UnknownEntry()
-		self.zlibs = ZlibInfo()
+		self.archives = []
+		self.dirs = []
+		self.textures = []
+		self.aux_entries = []
+		self.unknowns = []
+		self.zlibs = []
 
 	def read(self, stream):
 

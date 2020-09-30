@@ -8,7 +8,7 @@ class UnknownJointEntry:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.floats = 0
+		self.floats = []
 
 	def read(self, stream):
 

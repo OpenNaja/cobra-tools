@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ms2.compound.PcFFCounter import PcFFCounter
+import typing
 
 
 class PcJointNext:
@@ -21,9 +21,9 @@ class PcJointNext:
 		self.template = template
 		self.io_size = 0
 		self.eleven_ff_stuff = PcFFCounter()
-		self.undecoded = 0
+		self.undecoded = []
 		self.name_address = 0
-		self.uints = 0
+		self.uints = []
 
 	def read(self, stream):
 

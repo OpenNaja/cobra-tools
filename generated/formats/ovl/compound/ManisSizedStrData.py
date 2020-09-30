@@ -22,7 +22,7 @@ class ManisSizedStrData:
 		self.io_size = 0
 		self.unknown_0 = 0
 		self.unknown_1 = 0
-		self.unknown_2 = 0
+		self.unknown_2 = []
 
 	def read(self, stream):
 

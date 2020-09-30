@@ -1,5 +1,5 @@
-from generated.formats.ms2.compound.Vector4 import Vector4
 from generated.formats.ms2.compound.Matrix33 import Matrix33
+from generated.formats.ms2.compound.Vector4 import Vector4
 
 
 class NasutoJointEntry:

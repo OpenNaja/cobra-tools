@@ -39,15 +39,15 @@ class JointCompound:
 		self.template = template
 		self.io_size = 0
 		self.namespace_length = 0
-		self.zeros = 0
-		self.zeros = 0
+		self.zeros = []
+		self.zeros = []
 		self.unknown_4 = 0
 		self.unknown_5 = 0
 		self.unknown_6 = 0
 		self.unknown_7 = 0
 		self.bone_count = 0
 		self.joint_entry_count = 0
-		self.zeros_1 = 0
+		self.zeros_1 = []
 
 	def read(self, stream):
 

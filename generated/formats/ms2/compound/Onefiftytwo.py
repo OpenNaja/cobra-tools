@@ -15,7 +15,7 @@ class Onefiftytwo:
 		self.template = template
 		self.io_size = 0
 		self.model_info = CoreModelInfo()
-		self.some = 0
+		self.some = []
 
 	def read(self, stream):
 

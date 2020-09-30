@@ -28,8 +28,8 @@ class SetHeader:
 		self.asset_count = 0
 		self.sig_a = 0
 		self.sig_b = 0
-		self.sets = SetEntry()
-		self.assets = AssetEntry()
+		self.sets = []
+		self.assets = []
 
 	def read(self, stream):
 

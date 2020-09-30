@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ms2.compound.Vector3 import Vector3
+import typing
 
 
 class CoreModelInfo:
@@ -49,7 +49,7 @@ class CoreModelInfo:
 		self.pack_offset = 0
 		self.zero_a = 0
 		self.unk_float_b = 0
-		self.unknownvectors = Vector3()
+		self.unknownvectors = []
 		self.unk_float_0 = 0
 		self.unk_float_1 = 0
 		self.unk_vec_a_repeat = Vector3()
@@ -61,7 +61,7 @@ class CoreModelInfo:
 		self.last_count = 0
 		self.unk_0 = 0
 		self.unk_1 = 0
-		self.pad = 0
+		self.pad = []
 
 	def read(self, stream):
 

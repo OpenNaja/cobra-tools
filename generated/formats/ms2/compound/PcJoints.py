@@ -1,12 +1,12 @@
-from generated.formats.ms2.compound.PcJointBone import PcJointBone
-from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
-from generated.formats.ms2.compound.JweBone import JweBone
+from generated.formats.ms2.compound.PcJointNext import PcJointNext
 from generated.formats.ms2.compound.Matrix44 import Matrix44
+from generated.formats.ms2.compound.JweBone import JweBone
+from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
+from generated.formats.ms2.compound.JointCompound import JointCompound
+from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
+from generated.formats.ms2.compound.PcJointBone import PcJointBone
 from generated.formats.ms2.compound.PzBone import PzBone
 import typing
-from generated.formats.ms2.compound.JointCompound import JointCompound
-from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
-from generated.formats.ms2.compound.PcJointNext import PcJointNext
 
 
 class PcJoints:
@@ -97,7 +97,7 @@ class PcJoints:
 	# bones, rot first
 
 	# bones, loc first
-	bones: typing.List[typing.Union[JweBone, PzBone]]
+	bones: typing.List[typing.Union[PzBone, JweBone]]
 
 	# 255 = root, index in this list is the current bone index, value is the bone's parent index
 	bone_parents: typing.List[int]
@@ -168,23 +168,23 @@ class PcJoints:
 		self.unknown_88 = 0
 		self.unknown_8_c = 0
 		self.unknownextra = 0
-		self.name_indices = 0
-		self.name_padding = 0
-		self.inverse_bind_matrices = Matrix44()
-		self.bones = PzBone()
-		self.bones = JweBone()
-		self.bone_parents = 0
-		self.hier_1_padding = 0
-		self.unknown_hier_list = UnkHierlistEntry()
-		self.parent_indices = 0
-		self.parent_padding = 0
-		self.zeros = 0
+		self.name_indices = []
+		self.name_padding = []
+		self.inverse_bind_matrices = []
+		self.bones = []
+		self.bones = []
+		self.bone_parents = []
+		self.hier_1_padding = []
+		self.unknown_hier_list = []
+		self.parent_indices = []
+		self.parent_padding = []
+		self.zeros = []
 		self.joint_info = JointCompound()
-		self.some_floats = PcJointBone()
-		self.some_next_stuff = PcJointNext()
-		self.zeros_b = 0
+		self.some_floats = []
+		self.some_next_stuff = []
+		self.zeros_b = []
 		self.some_count = 0
-		self.some_minus_ones = 0
+		self.some_minus_ones = []
 		self.names = ZStringBuffer()
 
 	def read(self, stream):

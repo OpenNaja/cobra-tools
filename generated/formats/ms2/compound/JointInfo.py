@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
+import typing
 
 
 class JointInfo:
@@ -24,12 +24,12 @@ class JointInfo:
 		self.template = template
 		self.io_size = 0
 		self.eleven = 0
-		self.f_fs = 0
+		self.f_fs = []
 		self.name_offset = 0
 		self.hitcheck_count = 0
 		self.zero = 0
-		self.zeros_per_hitcheck = 0
-		self.hit_check = HitCheckEntry()
+		self.zeros_per_hitcheck = []
+		self.hit_check = []
 
 	def read(self, stream):
 

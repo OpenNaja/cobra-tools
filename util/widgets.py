@@ -69,7 +69,7 @@ class CleverCombo(QtWidgets.QComboBox):
 		self.link_inst = link_inst
 		self.link_attr = link_attr
 		if link_inst and link_attr:
-			name = getattr(link_inst, link_attr)
+			name = str(getattr(link_inst, link_attr))
 			self.setText(name)
 			self.currentIndexChanged.connect(self.update_name)
 
@@ -225,7 +225,7 @@ class MatcolInfo():
 		"""attrib must be pyffi matcol InfoWrapper object"""
 		# QtWidgets.QWidget.__init__(self,)
 		self.attrib = attrib
-		self.label = QtWidgets.QLabel(attrib.name)
+		self.label = QtWidgets.QLabel(str(attrib.name))
 		
 		self.data = QtWidgets.QWidget()
 		layout = QtWidgets.QHBoxLayout()

@@ -3,8 +3,8 @@ import struct
 import math
 import numpy as np
 
-import typing
 from generated.formats.ms2.compound.Vector3 import Vector3
+import typing
 
 
 class ModelData:
@@ -52,7 +52,7 @@ class ModelData:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.zeros = 0
+		self.zeros = []
 		self.vertex_count = 0
 		self.tri_index_count = 0
 		self.unknown_05 = 0

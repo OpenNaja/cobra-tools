@@ -18,7 +18,7 @@ class TypeOther:
 		self.template = template
 		self.io_size = 0
 		self.length = 0
-		self.raw = 0
+		self.raw = []
 
 	def read(self, stream):
 
