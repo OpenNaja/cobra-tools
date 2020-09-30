@@ -1,10 +1,10 @@
-from generated.formats.ms2.compound.UnknownJointEntry import UnknownJointEntry
-from generated.formats.ms2.compound.FFCounter import FFCounter
-from generated.formats.ms2.compound.JointInfo import JointInfo
-from generated.formats.ms2.compound.JointEntry import JointEntry
-from generated.formats.ms2.compound.JointCompound import JointCompound
-from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 import typing
+from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
+from generated.formats.ms2.compound.JointCompound import JointCompound
+from generated.formats.ms2.compound.JointEntry import JointEntry
+from generated.formats.ms2.compound.FFCounter import FFCounter
+from generated.formats.ms2.compound.UnknownJointEntry import UnknownJointEntry
+from generated.formats.ms2.compound.JointInfo import JointInfo
 
 
 class JointData:

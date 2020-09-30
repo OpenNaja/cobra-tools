@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ms2.compound.Vector3 import Vector3
+import typing
 
 
 class CoreModelInfo:

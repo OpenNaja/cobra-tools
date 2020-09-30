@@ -1,8 +1,8 @@
-from generated.formats.ms2.compound.Onefiftytwo import Onefiftytwo
-from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
-from generated.formats.ms2.compound.FixedString import FixedString
-from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 import typing
+from generated.formats.ms2.compound.Onefiftytwo import Onefiftytwo
+from generated.formats.ms2.compound.FixedString import FixedString
+from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
+from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 
 
 class Ms2InfoHeader:

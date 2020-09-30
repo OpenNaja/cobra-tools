@@ -1,6 +1,6 @@
 from generated.formats.bnk.compound.TypeOther import TypeOther
-import typing
 from generated.formats.bnk.compound.Type2 import Type2
+import typing
 
 
 class HircPointer:

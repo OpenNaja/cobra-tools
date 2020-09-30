@@ -1,9 +1,10 @@
-from generated.formats.dds.bitstruct.Caps1 import Caps1
+from generated.formats.dds.compound.HeaderString import HeaderString
+import typing
 from generated.formats.dds.struct.PixelFormat import PixelFormat
 from generated.formats.dds.bitstruct.Caps2 import Caps2
-from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
+from generated.formats.dds.bitstruct.Caps1 import Caps1
 from generated.formats.dds.struct.Dxt10Header import Dxt10Header
-import typing
+from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
 
 
 class Header:
@@ -36,7 +37,7 @@ class Header:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.header_string = 0
+		self.header_string = HeaderString()
 		self.size = 124
 		self.flags = 0
 		self.height = 0
@@ -56,7 +57,7 @@ class Header:
 	def read(self, stream):
 
 		io_start = stream.tell()
-		self.header_string = stream.read_headerstring()
+		self.header_string = stream.read_type(HeaderString)
 		self.size = stream.read_uint()
 		self.flags = stream.read_type(HeaderFlags)
 		self.height = stream.read_uint()
@@ -79,7 +80,7 @@ class Header:
 	def write(self, stream):
 
 		io_start = stream.tell()
-		stream.write_headerstring(self.header_string)
+		stream.write_type(self.header_string)
 		stream.write_uint(self.size)
 		stream.write_type(self.flags)
 		stream.write_uint(self.height)

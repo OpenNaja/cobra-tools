@@ -1,14 +1,14 @@
-from generated.formats.ovl.compound.DirEntry import DirEntry
-from generated.formats.ovl.compound.TextureEntry import TextureEntry
-import typing
-from generated.formats.ovl.compound.FixedString import FixedString
-from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
-from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
-from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
+import typing
+from generated.formats.ovl.compound.DirEntry import DirEntry
+from generated.formats.ovl.compound.FileEntry import FileEntry
+from generated.formats.ovl.compound.AuxEntry import AuxEntry
+from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
+from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.FixedString import FixedString
+from generated.formats.ovl.compound.TextureEntry import TextureEntry
+from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
 
 
 class Header:

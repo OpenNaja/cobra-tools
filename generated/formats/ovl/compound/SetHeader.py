@@ -1,5 +1,5 @@
-from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.SetEntry import SetEntry
+from generated.formats.ovl.compound.AssetEntry import AssetEntry
 import typing
 
 

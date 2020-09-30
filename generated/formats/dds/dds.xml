@@ -42,9 +42,9 @@
         A standard 32-bit floating point number.
     </basic>
 
-    <basic name="HeaderString">
+    <compound name="HeaderString">
         The string "DDS ".
-    </basic>
+    </compound>
 
     <!--
     *******************

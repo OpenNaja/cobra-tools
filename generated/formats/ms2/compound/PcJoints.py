@@ -1,12 +1,12 @@
+from generated.formats.ms2.compound.PcJointNext import PcJointNext
+from generated.formats.ms2.compound.JweBone import JweBone
+import typing
+from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.PcJointBone import PcJointBone
-from generated.formats.ms2.compound.Matrix44 import Matrix44
-from generated.formats.ms2.compound.PzBone import PzBone
-from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
-from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
-from generated.formats.ms2.compound.PcJointNext import PcJointNext
-import typing
+from generated.formats.ms2.compound.PzBone import PzBone
+from generated.formats.ms2.compound.Matrix44 import Matrix44
 
 
 class PcJoints:

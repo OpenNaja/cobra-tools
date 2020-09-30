@@ -1,5 +1,5 @@
-from generated.formats.dds.bitstruct.PixelFormatFlags import PixelFormatFlags
 from generated.formats.dds.enum.FourCC import FourCC
+from generated.formats.dds.bitstruct.PixelFormatFlags import PixelFormatFlags
 
 
 class PixelFormat:
