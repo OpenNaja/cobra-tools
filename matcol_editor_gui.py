@@ -1,10 +1,7 @@
 import os
-import io
-import sys
 import traceback
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-# from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 from generated.formats.matcol import MatcolFile
 from util import widgets, config
 
@@ -12,7 +9,7 @@ from util import widgets, config
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
-		widgets.MainWindow.__init__(self, "MaterialCollection Editor", )
+		widgets.MainWindow.__init__(self, "Matcol Editor", )
 		
 		self.resize(450, 500)
 
@@ -105,9 +102,9 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_materialcollections_in"], materialcollection_name = os.path.split(self.file_src)
 			try:
 				self.matcol_data.load(self.file_src)
-				# game = self.matcol_data.game
-				# print("from game",game)
-				# self.game_container.entry.setText(game)
+				game = self.matcol_data.game
+				print("from game", game)
+				self.game_container.entry.setText(game)
 
 				self.materialcollection_container.entry.setText( materialcollection_name )
 

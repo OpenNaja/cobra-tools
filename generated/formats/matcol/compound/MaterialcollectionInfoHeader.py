@@ -1,10 +1,10 @@
-from generated.formats.matcol.compound.Root1Pad import Root1Pad
 from generated.formats.matcol.compound.Root0 import Root0
+from generated.formats.matcol.compound.Root1Pad import Root1Pad
+import typing
 from generated.formats.matcol.compound.TextureWrapper import TextureWrapper
-from generated.formats.matcol.compound.VariantWrapper import VariantWrapper
 from generated.formats.matcol.compound.Root1 import Root1
 from generated.formats.matcol.compound.LayeredWrapper import LayeredWrapper
-import typing
+from generated.formats.matcol.compound.VariantWrapper import VariantWrapper
 
 
 class MaterialcollectionInfoHeader:

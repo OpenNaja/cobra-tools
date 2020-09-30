@@ -1,8 +1,8 @@
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.Material1 import Material1
-from generated.formats.ms2.compound.PcModelData import PcModelData
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
 import typing
+from generated.formats.ms2.compound.PcModelData import PcModelData
 
 
 class PcModel:

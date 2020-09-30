@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
+import typing
 
 
 class SizedStringEntry:

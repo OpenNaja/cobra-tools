@@ -1,10 +1,10 @@
-from generated.formats.ms2.compound.JointCompound import JointCompound
-from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
-from generated.formats.ms2.compound.JointInfo import JointInfo
-from generated.formats.ms2.compound.ListCEntry import ListCEntry
-from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
 import typing
+from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
+from generated.formats.ms2.compound.JointEntry import JointEntry
+from generated.formats.ms2.compound.JointInfo import JointInfo
+from generated.formats.ms2.compound.JointCompound import JointCompound
+from generated.formats.ms2.compound.ListCEntry import ListCEntry
 
 
 class JointDataNasuto:
