@@ -63,8 +63,6 @@ class XmlParser:
         # maps each type to its member tag type
         self.tag_dict = {}
 
-        self.storage_types = set()
-
     def generate_module_paths(self, root):
         """preprocessing - generate module paths for imports relative to the output dir"""
         for child in root:
@@ -116,7 +114,6 @@ class XmlParser:
             except Exception as err:
                 logging.error(err)
                 traceback.print_exc()
-        logging.info(self.storage_types)
 
     # the following constructs do not create classes
     def read_token(self, token):
@@ -240,7 +237,6 @@ class XmlParser:
 
         out_file = self.get_out_path(class_name)
         storage = element.attrib["storage"]
-        self.storage_types.add(storage)
         imports = ["BasicBitfield", "BitfieldMember"]
         dummy_imports = []
         self.collect_types(dummy_imports, element)

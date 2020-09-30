@@ -1,11 +1,11 @@
-from generated.formats.ms2.compound.LodInfo import LodInfo
-from generated.formats.ms2.compound.Material0 import Material0
-from generated.formats.ms2.compound.Material1 import Material1
-import typing
-from generated.formats.ms2.compound.FixedString import FixedString
-from generated.formats.ms2.compound.ModelData import ModelData
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
+from generated.formats.ms2.compound.ModelData import ModelData
+from generated.formats.ms2.compound.Material1 import Material1
+from generated.formats.ms2.compound.FixedString import FixedString
+from generated.formats.ms2.compound.Material0 import Material0
+from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.SizedString import SizedString
+import typing
 
 
 class Mdl2InfoHeader:

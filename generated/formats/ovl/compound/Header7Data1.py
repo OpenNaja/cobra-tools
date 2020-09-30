@@ -1,5 +1,5 @@
-import typing
 from generated.formats.ovl.compound.Header7MipmapInfo import Header7MipmapInfo
+import typing
 
 
 class Header7Data1:

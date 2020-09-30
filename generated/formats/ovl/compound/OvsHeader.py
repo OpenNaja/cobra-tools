@@ -1,10 +1,10 @@
-import typing
-from generated.formats.ovl.compound.HeaderType import HeaderType
 from generated.formats.ovl.compound.HeaderEntry import HeaderEntry
-from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
-from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
+from generated.formats.ovl.compound.HeaderType import HeaderType
 from generated.formats.ovl.compound.DataEntry import DataEntry
+from generated.formats.ovl.compound.Fragment import Fragment
+from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
+import typing
 
 
 class OvsHeader:

@@ -1,5 +1,5 @@
-from generated.formats.bnk.compound.HircPointer import HircPointer
 import typing
+from generated.formats.bnk.compound.HircPointer import HircPointer
 
 
 class HIRCSection:

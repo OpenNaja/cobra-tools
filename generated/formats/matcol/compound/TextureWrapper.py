@@ -1,5 +1,5 @@
-from generated.formats.matcol.compound.Texture import Texture
 from generated.formats.matcol.compound.TextureInfo import TextureInfo
+from generated.formats.matcol.compound.Texture import Texture
 import typing
 
 

@@ -1,5 +1,5 @@
-from generated.formats.ms2.compound.Vector3 import Vector3
 from generated.formats.ms2.compound.Vector4 import Vector4
+from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class PzBone:
