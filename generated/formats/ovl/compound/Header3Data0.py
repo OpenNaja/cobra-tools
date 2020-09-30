@@ -1,7 +1,9 @@
 class Header3Data0:
 
-# Data struct for headers of type 3, read by data 0 of 3,7 frag.
-# 16 bytes
+	"""
+	Data struct for headers of type 3, read by data 0 of 3,7 frag.
+	16 bytes
+	"""
 
 	# 32 bytes, all 0
 	zeros: int
@@ -24,6 +26,7 @@ class Header3Data0:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.io_size = 0
 		self.zeros = 0
 		self.compression_type = 0
 		self.one_0 = 0
@@ -32,6 +35,8 @@ class Header3Data0:
 		self.pad = 0
 
 	def read(self, stream):
+
+		io_start = stream.tell()
 		self.zeros = stream.read_uint64()
 		self.compression_type = stream.read_ubyte()
 		self.one_0 = stream.read_ubyte()
@@ -39,7 +44,11 @@ class Header3Data0:
 		self.one_2 = stream.read_ubyte()
 		self.pad = stream.read_uint()
 
+		self.io_size = stream.tell() - io_start
+
 	def write(self, stream):
+
+		io_start = stream.tell()
 		stream.write_uint64(self.zeros)
 		stream.write_ubyte(self.compression_type)
 		stream.write_ubyte(self.one_0)
@@ -47,8 +56,10 @@ class Header3Data0:
 		stream.write_ubyte(self.one_2)
 		stream.write_uint(self.pad)
 
+		self.io_size = stream.tell() - io_start
+
 	def __repr__(self):
-		s = 'Header3Data0'
+		s = 'Header3Data0 [Size: '+str(self.io_size)+']'
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* compression_type = ' + self.compression_type.__repr__()
 		s += '\n	* one_0 = ' + self.one_0.__repr__()

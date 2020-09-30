@@ -1,6 +1,8 @@
 class BufferEntry:
 
-# 8 bytes
+	"""
+	8 bytes
+	"""
 
 	# apparently index of buffer in file, at least that's how it looks in barbasol - 0, 1, 2, 3, 4...
 	index: int
@@ -11,19 +13,28 @@ class BufferEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.io_size = 0
 		self.index = 0
 		self.size = 0
 
 	def read(self, stream):
+
+		io_start = stream.tell()
 		self.index = stream.read_uint()
 		self.size = stream.read_uint()
 
+		self.io_size = stream.tell() - io_start
+
 	def write(self, stream):
+
+		io_start = stream.tell()
 		stream.write_uint(self.index)
 		stream.write_uint(self.size)
 
+		self.io_size = stream.tell() - io_start
+
 	def __repr__(self):
-		s = 'BufferEntry'
+		s = 'BufferEntry [Size: '+str(self.io_size)+']'
 		s += '\n	* index = ' + self.index.__repr__()
 		s += '\n	* size = ' + self.size.__repr__()
 		s += '\n'

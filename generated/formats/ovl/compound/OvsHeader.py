@@ -1,15 +1,17 @@
-from generated.formats.ovl.compound.HeaderType import HeaderType
-import typing
-from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
-from generated.formats.ovl.compound.DataEntry import DataEntry
-from generated.formats.ovl.compound.BufferEntry import BufferEntry
-from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.HeaderEntry import HeaderEntry
+from generated.formats.ovl.compound.Fragment import Fragment
+import typing
+from generated.formats.ovl.compound.DataEntry import DataEntry
+from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
+from generated.formats.ovl.compound.BufferEntry import BufferEntry
+from generated.formats.ovl.compound.HeaderType import HeaderType
 
 
 class OvsHeader:
 
-# Description of one archive's content
+	"""
+	Description of one archive's content
+	"""
 	header_types: typing.List[HeaderType]
 	header_entries: typing.List[HeaderEntry]
 	data_entries: typing.List[DataEntry]
@@ -20,6 +22,7 @@ class OvsHeader:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.io_size = 0
 		self.header_types = HeaderType()
 		self.header_entries = HeaderEntry()
 		self.data_entries = DataEntry()
@@ -28,6 +31,8 @@ class OvsHeader:
 		self.fragments = Fragment()
 
 	def read(self, stream):
+
+		io_start = stream.tell()
 		self.header_types = [stream.read_type(HeaderType) for _ in range(self.arg.num_header_types)]
 		self.header_entries = [stream.read_type(HeaderEntry) for _ in range(self.arg.num_headers)]
 		self.data_entries = [stream.read_type(DataEntry) for _ in range(self.arg.num_datas)]
@@ -35,7 +40,11 @@ class OvsHeader:
 		self.sized_str_entries = [stream.read_type(SizedStringEntry) for _ in range(self.arg.num_files)]
 		self.fragments = [stream.read_type(Fragment) for _ in range(self.arg.num_fragments)]
 
+		self.io_size = stream.tell() - io_start
+
 	def write(self, stream):
+
+		io_start = stream.tell()
 		for item in self.header_types: stream.write_type(item)
 		for item in self.header_entries: stream.write_type(item)
 		for item in self.data_entries: stream.write_type(item)
@@ -43,8 +52,10 @@ class OvsHeader:
 		for item in self.sized_str_entries: stream.write_type(item)
 		for item in self.fragments: stream.write_type(item)
 
+		self.io_size = stream.tell() - io_start
+
 	def __repr__(self):
-		s = 'OvsHeader'
+		s = 'OvsHeader [Size: '+str(self.io_size)+']'
 		s += '\n	* header_types = ' + self.header_types.__repr__()
 		s += '\n	* header_entries = ' + self.header_entries.__repr__()
 		s += '\n	* data_entries = ' + self.data_entries.__repr__()

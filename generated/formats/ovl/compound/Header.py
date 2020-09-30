@@ -1,19 +1,21 @@
-import typing
-from generated.formats.ovl.compound.DirEntry import DirEntry
-from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
-from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.AuxEntry import AuxEntry
-from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
-from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.TextureEntry import TextureEntry
 from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
+from generated.formats.ovl.compound.DirEntry import DirEntry
+from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
+import typing
+from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
+from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.TextureEntry import TextureEntry
+from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from generated.formats.ovl.compound.FixedString import FixedString
+from generated.formats.ovl.compound.AuxEntry import AuxEntry
+from generated.formats.ovl.compound.FileEntry import FileEntry
 
 
 class Header:
 
-# Found at the beginning of every OVL file
+	"""
+	Found at the beginning of every OVL file
+	"""
 
 	# 'FRES'
 	fres: FixedString
@@ -126,6 +128,7 @@ class Header:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.io_size = 0
 		self.fres = FixedString()
 		self.flag = 0
 		self.version = 0
@@ -164,9 +167,12 @@ class Header:
 		self.zlibs = ZlibInfo()
 
 	def read(self, stream):
+
+		io_start = stream.tell()
 		self.fres = stream.read_type(FixedString, (4,))
 		self.flag = stream.read_byte()
 		self.version = stream.read_byte()
+		stream.version = self.version
 		self.needs_bitswap = stream.read_byte()
 		self.seventh_byte = stream.read_byte()
 		self.flag_2 = stream.read_uint()
@@ -201,10 +207,15 @@ class Header:
 		self.unknowns = [stream.read_type(UnknownEntry) for _ in range(self.num_files_ovs)]
 		self.zlibs = [stream.read_type(ZlibInfo) for _ in range(self.num_archives)]
 
+		self.io_size = stream.tell() - io_start
+
 	def write(self, stream):
+
+		io_start = stream.tell()
 		stream.write_type(self.fres)
 		stream.write_byte(self.flag)
 		stream.write_byte(self.version)
+		stream.version = self.version
 		stream.write_byte(self.needs_bitswap)
 		stream.write_byte(self.seventh_byte)
 		stream.write_uint(self.flag_2)
@@ -239,8 +250,10 @@ class Header:
 		for item in self.unknowns: stream.write_type(item)
 		for item in self.zlibs: stream.write_type(item)
 
+		self.io_size = stream.tell() - io_start
+
 	def __repr__(self):
-		s = 'Header'
+		s = 'Header [Size: '+str(self.io_size)+']'
 		s += '\n	* fres = ' + self.fres.__repr__()
 		s += '\n	* flag = ' + self.flag.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()

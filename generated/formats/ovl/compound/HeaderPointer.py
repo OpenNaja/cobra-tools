@@ -6,8 +6,10 @@ MAX_UINT32 = 4294967295
 
 class HeaderPointer:
 
-# Not standalone, used by SizedStringEntry and Fragment
-# 8 bytes
+	"""
+	Not standalone, used by SizedStringEntry and Fragment
+	8 bytes
+	"""
 
 	# The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: 4294967295 (FF FF FF FF), uint32 max
 	header_index: int
@@ -18,19 +20,28 @@ class HeaderPointer:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.io_size = 0
 		self.header_index = 0
 		self.data_offset = 0
 
 	def read(self, stream):
+
+		io_start = stream.tell()
 		self.header_index = stream.read_uint()
 		self.data_offset = stream.read_uint()
 
+		self.io_size = stream.tell() - io_start
+
 	def write(self, stream):
+
+		io_start = stream.tell()
 		stream.write_uint(self.header_index)
 		stream.write_uint(self.data_offset)
 
+		self.io_size = stream.tell() - io_start
+
 	def __repr__(self):
-		s = 'HeaderPointer'
+		s = 'HeaderPointer [Size: '+str(self.io_size)+']'
 		s += '\n	* header_index = ' + self.header_index.__repr__()
 		s += '\n	* data_offset = ' + self.data_offset.__repr__()
 		s += '\n'

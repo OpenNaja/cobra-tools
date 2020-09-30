@@ -1,7 +1,9 @@
 class AssetEntry:
 
-# refers to sized string entries so they can be grouped into set entries.
-# It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
+	"""
+	refers to sized string entries so they can be grouped into set entries.
+	It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
+	"""
 
 	# sometimes matches an archive header's first File Hash
 	file_hash: int
@@ -18,6 +20,7 @@ class AssetEntry:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.io_size = 0
 		self.file_hash = 0
 		self.zero_0 = 0
 		self.ext_hash = 0
@@ -26,6 +29,8 @@ class AssetEntry:
 		self.zero_2 = 0
 
 	def read(self, stream):
+
+		io_start = stream.tell()
 		self.file_hash = stream.read_uint()
 		self.zero_0 = stream.read_uint()
 		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
@@ -34,7 +39,11 @@ class AssetEntry:
 		self.file_index = stream.read_uint()
 		self.zero_2 = stream.read_uint()
 
+		self.io_size = stream.tell() - io_start
+
 	def write(self, stream):
+
+		io_start = stream.tell()
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.zero_0)
 		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
@@ -43,8 +52,10 @@ class AssetEntry:
 		stream.write_uint(self.file_index)
 		stream.write_uint(self.zero_2)
 
+		self.io_size = stream.tell() - io_start
+
 	def __repr__(self):
-		s = 'AssetEntry'
+		s = 'AssetEntry [Size: '+str(self.io_size)+']'
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()

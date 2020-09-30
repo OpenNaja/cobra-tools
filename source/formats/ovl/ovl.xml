@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+    <!--Basic Types-->
+
+    <token name="verexpr" attrs="vercond cond">
+        Commonly used version expressions.
+        <verexpr token="#PZ#" string="((#USER# #EQ# 8340) #AND# (#VER# #EQ# 19))">PZ</verexpr>
+        <verexpr token="#JWE#" string="((#USER# #EQ# 24724) #AND# (#VER# #EQ# 19))">JWE</verexpr>
+		<verexpr token="#PC#" string="(#USER# #EQ# 8212)">PC</verexpr>
+    </token>
+    <token name="global" attrs="vercond cond">
+        Global Tokens.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <global token="#USER#" string="user_version" />
+        <global token="#VER#" string="version" />
+    </token>
+	
+    <token name="operator" attrs="cond vercond arr1 arr2 arg">
+        All Operators except for unary not (!), parentheses, and member of (\)
+        NOTE: These can be ignored entirely by string substitution and dealt with directly.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <operator token="#ADD#" string="+" />
+        <operator token="#SUB#" string="-" />
+        <operator token="#MUL#" string="*" />
+        <operator token="#DIV#" string="/" />
+        <operator token="#AND#" string="&amp;&amp;" />
+        <operator token="#OR#" string="||" />
+        <operator token="#LT#" string="&lt;" />
+        <operator token="#GT#" string="&gt;" />
+        <operator token="#LTE#" string="&lt;=" />
+        <operator token="#GTE#" string="&gt;=" />
+        <operator token="#EQ#" string="==" />
+        <operator token="#NEQ#" string="!=" />
+        <operator token="#RSH#" string="&gt;&gt;" />
+        <operator token="#LSH#" string="&lt;&lt;" />
+        <operator token="#BITAND#" string="&amp;" />
+        <operator token="#BITOR#" string="|" />
+        <operator token="#MOD#" string="%" />
+    </token>
+
+    <basic name="byte" count="1">
+        An unsigned 8-bit integer.
+    </basic>
+    <basic name="ubyte" count="1">
+        An unsigned 8-bit integer.
+    </basic>
+
+    <basic name="uint64" count="1">
+        An unsigned 64-bit integer.
+    </basic>
+    <basic name="uint" count="1">
+        An unsigned 32-bit integer.
+    </basic>
+    <basic name="ushort" count="1" >
+        An unsigned 16-bit integer.
+    </basic>
+
+    <basic name="int" count="1" >
+        A signed 32-bit integer.
+    </basic>
+
+    <basic name="short" count="1" >
+        A signed 16-bit integer.
+    </basic>
+	
+    <basic name="char" count="0" >
+        An 8-bit character.
+    </basic>
+	
+    <basic name="float" count="0" >
+        A standard 32-bit floating point number.
+    </basic>
+
+	
+	<enum name="DdsType" storage="byte">
+		maps the OVL's dds type to name of compression format
+		<option value="35" name="DXGI_FORMAT_R8G8B8A8_UNORM"></option>
+		<option value="37" name="DXGI_FORMAT_R8G8B8A8_UNORM_SRGB">gharial_male.pclut.dds, or DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM</option>
+		<option value="38" name="DXGI_FORMAT_D32_FLOAT_S8X24_UINT">atmospherics_stars_data.dds</option>
+		<option value="43" name="DXGI_FORMAT_R16G16_FLOAT"></option>
+		<!-- <option value="59" name="?"></option> -->
+
+		<option value="78" name="DXGI_FORMAT_BC1_UNORM"></option>
+		<option value="79" name="DXGI_FORMAT_BC1_UNORM_SRGB"></option>
+		<option value="80" name="DXGI_FORMAT_BC2_UNORM"></option>
+		<option value="81" name="DXGI_FORMAT_BC2_UNORM_SRGB"></option>
+		<option value="82" name="DXGI_FORMAT_BC3_UNORM">PZ wolf baldnessscars texture</option>
+		<option value="83" name="DXGI_FORMAT_BC3_UNORM_SRGB"></option>
+		<option value="84" name="DXGI_FORMAT_BC4_UNORM"></option>
+		<option value="85" name="DXGI_FORMAT_BC4_SNORM"></option>
+		<option value="86" name="DXGI_FORMAT_BC5_UNORM"></option>
+		<option value="87" name="DXGI_FORMAT_BC5_SNORM"></option>
+		<option value="88" name="DXGI_FORMAT_BC6H_UF16">ptero aviary</option>
+		<option value="89" name="DXGI_FORMAT_BC6H_SF16"></option>
+		<option value="90" name="DXGI_FORMAT_BC7_UNORM"></option>
+		<option value="91" name="DXGI_FORMAT_BC7_UNORM_SRGB">PZ titan beetle</option>
+    </enum>
+
+	<!-- Structs for the OVL file -->
+
+    <compound name="ZStringBuffer" count="0" >
+        Holds a buffer of zero-terminated strings
+    </compound>
+
+    <compound name="FixedString" count="0" >
+        Holds a string of a fixed size, given as an argument.
+    </compound>
+
+    <compound name="Header">
+        Found at the beginning of every OVL file
+        <add name="FRES" type="FixedString" arg="4">'FRES'</add>
+        <add name="Flag" type="byte" >if 0x08 then 64bit</add>
+        <add name="Version" type="byte" >0x13 = JWE</add>
+        <add name="Needs Bitswap" type="byte" >endianness?</add>
+        <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
+		
+        <add name="Flag 2" type="uint" >usually 94 60 00 00</add>
+        <add name="Zero" type="uint" >always = 0</add>
+        <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
+        <add name="Zero 2" type="uint" >always = 0</add>
+		
+        <add name="Num Aux Entries" type="uint" >count of external aux files, ie audio banks</add>
+        <add name="Num Dirs" type="ushort" >count of directories</add>
+        <add name="Num Mimes" type="ushort" >count of file mime types, aka. extensions with metadata</add>
+        <add name="Num Files" type="uint" >count of files</add>
+        <add name="Num Files 2" type="uint" >repeat count of files ??</add>
+        <add name="Num Textures" type="uint" >count of parts</add>
+        <add name="Num Archives" type="uint" >number of archives</add>
+		
+        <add name="Num Header Types" type="uint" >number of header types across all archives</add>
+        <add name="Num Headers" type="uint" >number of headers of all types across all archives</add>
+        <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
+        <add name="Num Buffers" type="uint" >number of BufferEntries across all archives</add>
+        <add name="Num Files OVS" type="uint" >number of files in external OVS archive</add>
+        <add name="Zeros" type="byte" arr1="12">12 bytes zeros</add>
+        <add name="Len Archive Names" type="uint" >length of archive names</add>
+        <add name="Num Files 3" type="uint" >another Num Files</add>
+        <add name="Len Type Names" type="uint" >length of the type names portion insideNames block (usually at the start), not counting 00 bytes</add>
+        <add name="Zeros 2" type="byte" arr1="52">52 bytes zeros</add>
+		
+		<!-- end of fixed header structure -->
+        <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
+        <add name="Mimes" type="MimeEntry" arr1="Num Mimes">Array of MimeEntry objects that represent a mime type (file extension) each. </add>
+        <add name="Files" type="FileEntry" arr1="Num Files">Array of FileEntry objects.</add>
+        <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
+        <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
+        <add name="Dirs" type="DirEntry" arr1="Num Dirs">Array of DirEntry objects.</add>
+        <add name="Textures" type="TextureEntry" arr1="Num Textures">Array of TextureEntry objects.</add>
+        <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
+        <add name="Unknowns" type="UnknownEntry" arr1="Num Files OVS">Array of UnknownEntry objects.</add>
+		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
+    </compound>
+	
+    <compound name="ZlibInfo" >
+        Description of one zlib archive
+        <add name="Zlib thing1" type="uint">seemingly unused in JWE</add>
+        <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed size to get length of the uncompressed ovs header</add>
+    </compound>
+	
+    <compound name="MimeEntry" >
+        Description of one mime type, which is sort of a container for 
+		Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb(".bani") == 2090104799
+        <add name="Offset" type="uint">offset in the header's Names block</add>
+        <add name="unknown" type="uint">usually zero</add>
+        <add name="Mime Hash" type="uint">hash of this file extension; same across all files, but seemingly not used anywhere else in the archive</add>
+        <add name="unknown 1" type="ushort" ></add>
+        <add name="unknown 2" type="ushort" >usually zero</add>
+        <!-- <add name="type index" type="uint">type index 0 to (type count-1)</add> -->
+		<add name="file index offset" type="uint">offset into FileEntry list in number of files</add>
+        <add name="file count" type="uint">from 'file index offset', this many files belong to this file extension</add>
+    </compound>
+	
+    <compound name="FileEntry" >
+        Description of one file in the archive
+        <add name="Offset" type="uint">offset in the header's Names block; start offset of zero terminated string</add>
+        <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
+        <add name="unkn0" type="byte" >could be the number of fragments this file is split into; Or the amount of entries that refer to this file</add>
+        <add name="unkn1" type="byte" ></add>
+        <add name="Extension" type="ushort" >index into 'Extensions' array</add>
+    </compound>
+	
+    <compound name="ArchiveEntry" >
+        Description of one archive
+        <add name="Offset" type="uint">offset in the header's Archive Names block</add>
+        <add name="ovs head offset" type="uint">starting offset of header entries</add>
+        <add name="ovs file offset" type="uint">starting offset of file entries</add>
+        <add name="Num Headers" type="uint" >Total amount of headers in this archive; sum of all HeaderType.num_headers</add>
+        <add name="Num Datas" type="ushort" >Total amount of Data Entries</add>
+        <add name="Num Header Types" type="ushort" >Amount of HeaderType objects at start of this deflated archive.</add>
+        <add name="zeros" type="uint">?</add>
+        <add name="Num Buffers" type="uint">Amount of buffers in the archive</add>
+        <add name="Num Fragments" type="uint" >Amount of Fragments in the archive</add>
+        <add name="Num Files" type="uint">Number of files in the archive</add>
+        <add name="read start" type="uint">Seek to pos to get zlib header for this archive</add>
+        <add name="set data size" type="uint" >size of the set and asset entry data</add>
+        <add name="compressed size" type="uint">size of the compressed ovl dat</add>
+        <add name="uncompressed size" type="uint" >size of the uncompressed ovl dat</add>
+        <add name="zeros 3" type="uint">?</add>
+        <add name="ovs header offset" type="uint">cumulative size of all header datas preceding this archive</add>
+        <add name="header size" type="uint" >sum of the archives header entry data blocks + the ovs header offset</add>
+        <add name="ovs offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
+    </compound>
+
+    <compound name="OvsHeader" >
+        Description of one archive's content
+        <add name="header types" type="HeaderType" arr1="#ARG#\Num Header Types"></add>
+        <add name="header entries" type="HeaderEntry" arr1="#ARG#\Num Headers"></add>
+        <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"></add>
+        <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"></add>
+        <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"></add>
+        <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"></add>
+<!--        <add name="set header " type="SetHeader" ></add>-->
+    </compound>
+
+
+    <compound name="DirEntry" >
+        Description of one directory in the archive
+        <add name="Offset" type="uint">offset in the header's Names block</add>
+    </compound>
+
+    <compound name="TextureEntry" >
+        Description of one texture
+        <add name="file hash" type="uint">Hash of this texture, for lookup in hash dict.</add>
+        <add name="unknown 1" type="uint" ></add>
+        <add name="unknown 2" type="ubyte" ></add>
+        <add name="unknown 3" type="ubyte" ></add>
+        <add name="unknown 4" type="ushort" ></add>
+        <add name="unknown 5" type="uint" ></add>
+        <add name="unknown 6" type="uint" ></add>
+    </compound>
+	
+    <compound name="AuxEntry" >
+        describes an external AUX resource
+        <add name="file index" type="uint">index into files list</add>
+        <add name="extension index" type="uint">maybe index into extension list</add>
+        <add name="size" type="uint">byte count of the complete external resource file</add>
+    </compound>
+	
+    <compound name="UnknownEntry" >
+        Description of one file type
+        <add name="unknown 1" type="uint" ></add>
+        <add name="unknown 2" type="uint" ></add>
+        <add name="unknown 3" type="uint" ></add>
+    </compound>
+	
+	<!-- From here, structs are for the deflated stream -->
+	
+	<compound name="HeaderType">
+		Located at start of deflated archive stream
+		<add name="Type" type="ushort" >Type of the headers that follow</add>
+		<add name="Num Headers" type="ushort" >Amount of the headers of that type that follow the headers block</add>
+	</compound>
+	
+    <compound name="HeaderEntry" >
+        Description of one archive header entry
+		<add name="zeros1" type="uint">always 0</add>
+		<add name="zeros2" type="uint">always 0</add>
+		<add name="Size" type="uint">the number of bytes representing the text files data</add>
+		<add name="Offset" type="uint">starting point to read text file data</add>
+		<add name="File Hash" type="uint">DJB hash of the first file in the txt data block</add>
+		<add name="Num Files" type="uint">unknown count (number of .txt files)</add>
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">JWE: DJB hash for extension, 0 for PZ</add>
+		<add name="zeros3" type="uint"  vercond="#JWE# #OR# #PZ#">always 0</add>
+    </compound>
+	
+	<compound name="DataEntry" >
+		32 bytes
+		<add name="File Hash" type="uint"> DJB hash; sometimes matches an archive header's first File Hash</add>
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">DJB hash for extension; always (?) matches an archive header's hash</add>
+		<add name="set index" type="ushort" > </add>
+		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
+		<add name="zero10" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
+		<add name="Size 1" type="uint">size of first buffer, in the case of the ms2 the size 1 is the sizw of the first two buffers together</add>
+		<add name="zero18" type="uint"> </add>	
+		<add name="Size 2" type="uint">size of last buffer</add>
+		<add name="zero20" type="uint" > </add>
+    </compound>
+
+	<compound name="BufferEntry" >
+		8 bytes
+		<add name="Index" type="uint">apparently index of buffer in file, at least that's how it looks in barbasol - 0, 1, 2, 3, 4...</add>
+		<add name="Size" type="uint">in bytes</add>
+    </compound>
+	
+	<compound name="HeaderPointer" >
+		Not standalone, used by SizedStringEntry and Fragment
+		8 bytes
+        <add name="header index" type="uint" >The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: 4294967295 (FF FF FF FF), uint32 max</add>
+        <add name="data offset" type="uint" >the start position of the sized string's size uint</add>
+    </compound>
+	
+    <compound name="SizedStringEntry" >
+        points to a sized string in a header's data block
+        <add name="File Hash" type="uint">hash of the file that should be read</add>
+        <add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">matches matching HeaderEntry's Ext Hash</add>
+        <add name="pointers" type="HeaderPointer" arr1="1" >points into header datas section</add>
+    </compound>
+	
+    <compound name="Fragment" >
+		often huge amount of tiny files
+        <add name="pointers" type="HeaderPointer" arr1="2" >points into header datas section</add>
+    </compound>
+	
+	<compound name="SetHeader" >
+		defines amount of sets and assets
+		(not a struct in barbasol)
+		<add name="set count" type="uint"> </add>
+		<add name="asset count" type="uint"> </add>
+		<add name="sig a" type="uint">must be 1065336831</add>
+		<add name="sig b" type="uint">must be 16909320</add>
+		<add name="sets" type="SetEntry" arr1="set count"> </add>
+		<add name="assets" type="AssetEntry" arr1="asset count"> </add>
+    </compound>
+	
+	<compound name="SetEntry" >
+		the asset indices of two consecutive SetEntries define a set of AssetEntries
+		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
+		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
+		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
+    </compound>
+	
+	<compound name="AssetEntry" >
+		refers to sized string entries so they can be grouped into set entries.
+		It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
+		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
+		<add name="zero 0" type="uint" > </add>
+		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
+		<add name="zero 1" type="uint"  vercond="#JWE# #OR# #PZ#"> </add>
+		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
+		<add name="zero 2" type="uint"></add>
+    </compound>
+	
+	<!-- structs for the data blocks of each header entry, by type -->
+	
+	<compound name="Header3Data0" >
+		Data struct for headers of type 3, read by data 0 of 3,7 frag.
+		16 bytes
+		<add name="zeros" type="uint64" >32 bytes, all 0</add>
+		<add name="compression type" type="ubyte">flag, not direct index into DDS enum</add>
+		<add name="one 0" type="ubyte">0 or 1</add>
+		<add name="one 1" type="ubyte">1 or 2</add>
+		<add name="one 2" type="ubyte">1 or 2</add>
+		<add name="pad" type="uint">0</add>
+    </compound>
+	
+	<compound name="Header3Data1" >
+		Part of a fragment, repeated for count of texture LODs / buffers.
+		Data struct for headers of type 3
+		24 bytes per texture buffer
+		<add name="data size previous" type="uint">Size of previous tex buffer</add>
+		<add name="zero 1" type="uint"></add>
+		<add name="data size" type="uint">Size of this tex buffer</add>
+		<add name="zero 3" type="uint"></add>
+		<add name="unkn" type="uint">is also related to data size</add>
+		<add name="zero 5" type="uint"></add>
+    </compound>
+	
+	<compound name="Header7Data1" >
+		Data struct for headers of type 7
+		<add name="zero00" type="uint"></add>
+		<add name="zero04" type="uint"></add>
+		<add name="data size" type="uint" >total dds buffer size</add>
+		<add name="width" type="uint"></add>	
+		<add name="height" type="uint" > </add>
+		<add name="depth" type="uint" >aka tile_width; may be depth</add>
+		<add name="array_size" type="uint">aka tile_height; may be array_size</add>
+		<add name="num mips" type="uint">num_mips ??</add>
+		<add name="pad" type="byte" >skipped by barbasol</add>
+		<add name="mip maps" type="Header7MipmapInfo" arr1="num mips"></add>
+    </compound>
+	
+	<compound name="Header7MipmapInfo" >
+		Data struct for one mipmap, part of a data 1 struct in headers of type 7
+		<add name="offset" type="ushort"></add>
+		<add name="unknown02" type="ushort"></add>
+		<add name="width" type="uint" > </add>
+		<add name="height" type="uint"></add>
+		<add name="unknown0C" type="uint" ></add>
+		<add name="unkn3" type="uint"></add>
+    </compound>
+	
+	
+	<!-- Sized str entries, give info about fragments -->
+	<compound name="EnumnamerStrData" >
+        per attribute
+        <add name="unknown0" type="uint" >3 in driver</add>
+        <add name="unknown1" type="uint" >0 in driver</add>
+    </compound>
+	
+	<compound name="MotionGraphVarsStrData" >
+        per attribute
+        <add name="unknown0" type="uint" >4 in driver</add>
+        <add name="unknown1" type="uint" >0 in driver</add>
+    </compound>
+	
+	<compound name="ManisSizedStrData" >
+        per attribute
+        <add name="unknown0" type="ushort" >96 in driver</add>
+        <add name="unknown1" type="ushort">272 in driver</add>
+        <add name="unknown2" type="uint" arr1="5" >zeros in driver</add>
+    </compound>
+	
+	
+</niftoolsxml>

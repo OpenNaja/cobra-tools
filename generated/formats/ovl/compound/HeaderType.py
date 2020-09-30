@@ -1,6 +1,8 @@
 class HeaderType:
 
-# Located at start of deflated archive stream
+	"""
+	Located at start of deflated archive stream
+	"""
 
 	# Type of the headers that follow
 	type: int
@@ -11,19 +13,28 @@ class HeaderType:
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
+		self.io_size = 0
 		self.type = 0
 		self.num_headers = 0
 
 	def read(self, stream):
+
+		io_start = stream.tell()
 		self.type = stream.read_ushort()
 		self.num_headers = stream.read_ushort()
 
+		self.io_size = stream.tell() - io_start
+
 	def write(self, stream):
+
+		io_start = stream.tell()
 		stream.write_ushort(self.type)
 		stream.write_ushort(self.num_headers)
 
+		self.io_size = stream.tell() - io_start
+
 	def __repr__(self):
-		s = 'HeaderType'
+		s = 'HeaderType [Size: '+str(self.io_size)+']'
 		s += '\n	* type = ' + self.type.__repr__()
 		s += '\n	* num_headers = ' + self.num_headers.__repr__()
 		s += '\n'
