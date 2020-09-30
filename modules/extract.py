@@ -89,7 +89,12 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 				write_txt(archive, sized_str_entry)
 			elif sized_str_entry.ext == "bnk":
 				write_bnk(archive, sized_str_entry, show_dds, progress_callback)
-
+			elif sized_str_entry.ext == "prefab":
+				write_prefab(archive, sized_str_entry)
+			elif sized_str_entry.ext == "voxelskirt":
+				write_voxelskirt(archive, sized_str_entry)
+			elif sized_str_entry.ext == "gfx":
+				write_gfx(archive, sized_str_entry)
 			else:
 				print("\nSkipping",sized_str_entry.name)
 				skip_files.append(sized_str_entry.name)
@@ -123,7 +128,78 @@ def write_bnk(archive, sized_str_entry, show_dds, progress_callback):
 		texconv.wem_handle(wem_files, archive.dir, show_dds, progress_callback)
 	else:
 		raise FileNotFoundError(f"BNK / AUX archive expected at {bnk_path}!")
+		
+def write_voxelskirt(archive, sized_str_entry):
+	name = sized_str_entry.name
+	print("\nWriting",name)
+	buffers = sized_str_entry.data_entry.buffer_datas
 
+	#try:
+	#	buffer_data = sized_str_entry.data_entry.buffer_datas[0]
+	#	print("buffer size",len(buffer_data))
+	#except:
+	#	print("Found no buffer data for",name)
+	#	buffer_data = b""
+	#if len(sized_str_entry.fragments) != 2:
+	#	print("must have 2 fragments")
+	#	return
+	# write voxelskirt
+	with open(archive.indir(name), 'wb') as outfile:
+		# write the sized str and buffers
+		print(sized_str_entry.pointers[0].data)
+		outfile.write( sized_str_entry.pointers[0].data )
+		for buff in buffers:
+			outfile.write(buff)
+            
+def write_gfx(archive, sized_str_entry):
+	name = sized_str_entry.name
+	print("\nWriting",name)
+	buffers = sized_str_entry.data_entry.buffer_datas
+
+	#try:
+	#	buffer_data = sized_str_entry.data_entry.buffer_datas[0]
+	#	print("buffer size",len(buffer_data))
+	#except:
+	#	print("Found no buffer data for",name)
+	#	buffer_data = b""
+	#if len(sized_str_entry.fragments) != 2:
+	#	print("must have 2 fragments")
+	#	return
+	# write voxelskirt
+	with open(archive.indir(name), 'wb') as outfile:
+		# write the sized str and buffers
+		print(sized_str_entry.pointers[0].data)
+		outfile.write( sized_str_entry.pointers[0].data )
+		for buff in buffers:
+			outfile.write(buff)
+		
+def write_prefab(archive, sized_str_entry):
+	name = sized_str_entry.name
+	print("\nWriting",name)
+	
+	try:
+		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
+		print("buffer size",len(buffer_data))
+	except:
+		print("Found no buffer data for",name)
+		buffer_data = b""
+	#if len(sized_str_entry.fragments) != 2:
+	#	print("must have 2 fragments")
+	#	return
+	# write lua
+	#with open(archive.indir(name), 'wb') as outfile:
+	#	# write the buffer
+	#	outfile.write(buffer_data)
+
+	with open(archive.indir(name), 'wb') as outfile:
+		# write each of the fragments
+		#print(sized_str_entry.pointers[0].data)
+		outfile.write( sized_str_entry.pointers[0].data )
+		for frag in sized_str_entry.fragments:
+			#print(frag.pointers[0].data)
+			#print(frag.pointers[1].data)
+			outfile.write( frag.pointers[0].data )
+			outfile.write( frag.pointers[1].data )
 
 def write_txt(archive, txt_sized_str_entry):
 	# a bare sized str
