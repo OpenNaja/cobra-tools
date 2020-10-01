@@ -15,12 +15,14 @@ from pyffi_ext.formats.bnk import BnkFormat
 from generated.formats.bnk import BnkFile
 
 from util import texconv, imarray
-
+dds_types_coaster = {}
 dds_types = {}
 dds_enum = OvlFormat.DdsType
 for k, v in zip(dds_enum._enumkeys, dds_enum._enumvalues):
 	dds_types[v] = k
-
+dds_enum_coaster = OvlFormat.DdsType_Coaster
+for k, v in zip(dds_enum_coaster._enumkeys, dds_enum_coaster._enumvalues):
+	dds_types_coaster[v] = k
 
 def write_sized_str(stream, s):
 	"""Returns content of stream from pos"""
@@ -223,7 +225,11 @@ def get_compression_type(header_3_0):
 	ovl_compression_ind = header_3_0.compression_type
 	print("ovl_compression_ind",ovl_compression_ind)
 	return dds_types[ovl_compression_ind]
-
+    
+def get_compression_type_pc(frag):
+	ovl_compression_ind = int(frag[2])
+	print("ovl_compression_ind",ovl_compression_ind)
+	return dds_types_coaster[ovl_compression_ind]
 
 def align_to(input, comp, alignment=64):
 	"""Return input padded to the next closer multiple of alignment"""
@@ -241,92 +247,158 @@ def write_dds(archive, sized_str_entry, show_dds):
 	basename = os.path.splitext(sized_str_entry.name)[0]
 	name = basename+".dds"
 	print("\nWriting",name)
-	if archive.version == 18:
+	if archive.is_pc():
+		print(sized_str_entry.pointers[0].data,"\n",sized_str_entry.fragments[0].pointers[0].data,"\n",sized_str_entry.fragments[0].pointers[1].data,"\n",)
 		buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
-		with open(archive.indir(basename+".tex"), 'wb') as outfile:
-			outfile.write(sized_str_entry.pointers[0].data)
-			outfile.write(sized_str_entry.fragments[0].pointers[0].data)
-			outfile.write(sized_str_entry.fragments[0].pointers[1].data)
-			outfile.write(buffer_data)
-			return
-	header_3_0, headers_3_1, header_7 = get_tex_structs(archive, sized_str_entry)
+		frag_data_0 = struct.unpack("<IIBBBBBBBB",sized_str_entry.fragments[0].pointers[0].data)
+		thingy = "<{}H".format(frag_data_0[4]*4)
+		frag_data_1 = struct.unpack(thingy,sized_str_entry.fragments[0].pointers[1].data)
+		print(frag_data_0,"\n",frag_data_1,"\n",)
+
+		try:
+			dds_compression_types = ( get_compression_type_pc(frag_data_0), )
+		except KeyError:
+			dds_compression_types = DdsFormat.DxgiFormat._enumkeys
+			print("Unknown compression type, trying all compression types for your amusement")
+			# dds_compression_types = list(v for v in DdsFormat.DxgiFormat._enumkeys if v not in dds_types.values())
+		width = frag_data_1[0]
+		height = frag_data_1[1]
+		mips = frag_data_1[3]
+		depth = frag_data_0[3]
+		array = frag_data_1[2]
+		for dds_compression_type in dds_compression_types:
+			version = DdsFormat.version_number("DX10")
+			dds_data = DdsFormat.Data(version=version)
+			# no stream, but data version even though that's broken
+			header = DdsFormat.Header(None, dds_data)
+			# header attribs
+			header.width = align_to(width, dds_compression_type)
+			# hack until we have proper support for array_size on the image editors
+			header.height = height * array
+			header.depth = depth
+
+			header.linear_size = len(buffer_data)
+			header.mipmap_count = mips
+			
+			# header flags
+			header.flags.height = 1
+			header.flags.width = 1
+			header.flags.mipmap_count = 1
+			header.flags.linear_size = 1
+			
+			# pixel format flags
+			header.pixel_format.flags.four_c_c = 1
+			header.pixel_format.four_c_c = "DX10"
+			
+			# dx 10 stuff
+			header.dx_10.dxgi_format = dds_compression_type
+			# possibly the two 1s in header_3_0
+			header.dx_10.resource_dimension = "D3D10_RESOURCE_DIMENSION_TEXTURE2D"
+			# not properly supported by paint net and PS, only gimp
+			# header.dx_10.array_size = header_7.array_size
+			header.dx_10.array_size = 1
+		
+			# caps 1
+			header.caps_1.texture = 0
+
+			# start out with the visible file path
+			dds_file_path = archive.indir(name)
+			out_dir, in_name = os.path.split(dds_file_path)
+			# if we want to see the dds, write it to the output dir
+			tmp_dir = texconv.make_tmp( out_dir, show_dds )
+			dds_file_path = os.path.join(tmp_dir, in_name)
+			if len(dds_compression_types) > 1:
+				dds_file_path += "_"+dds_compression_type+".dds"
+			# write dds
+			with open(dds_file_path, 'wb') as stream:
+				header.write(stream, dds_data)
+				stream.write(buffer_data)
+		
+			# convert the dds to PNG, PNG must be visible so put it in out_dir
+			png_file_path = texconv.dds_to_png( dds_file_path, out_dir, height * array, show_dds)
 	
-	# print(header_3_0)
-	# print(headers_3_1)
-	# print(header_7)
+			# postprocessing of the png
+			imarray.wrapper_PC(png_file_path, frag_data_0, frag_data_1)
+      
+	else:       
+		header_3_0, headers_3_1, header_7 = get_tex_structs(archive, sized_str_entry)
 	
-	sum_of_parts = sum(header_3_1.data_size for header_3_1 in headers_3_1)
-	if not sum_of_parts == header_7.data_size:
-		raise BufferError("Data sizes of all 3_1 structs ({}) and 7_1 fragments ({}) do not match up".format(sum_of_parts, header_7.data_size) )
+		# print(header_3_0)
+		# print(headers_3_1)
+		# print(header_7)
+	
+		sum_of_parts = sum(header_3_1.data_size for header_3_1 in headers_3_1)
+		if not sum_of_parts == header_7.data_size:
+			raise BufferError("Data sizes of all 3_1 structs ({}) and 7_1 fragments ({}) do not match up".format(sum_of_parts, header_7.data_size) )
 
-	# get joined output buffer
-	buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
-	if not len(buffer_data) == header_7.data_size:
-		print("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
+		# get joined output buffer
+		buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
+		if not len(buffer_data) == header_7.data_size:
+			print("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
 
-		# raise BufferError("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
-	# print("combined buffer size",len(buffer_data))
-	try:
-		dds_compression_types = ( get_compression_type(header_3_0), )
-	except KeyError:
-		dds_compression_types = DdsFormat.DxgiFormat._enumkeys
-		print("Unknown compression type, trying all compression types for your amusement")
-		# dds_compression_types = list(v for v in DdsFormat.DxgiFormat._enumkeys if v not in dds_types.values())
-	print("dds_compression_type", dds_compression_types)
+			# raise BufferError("7_1 data size ({}) and actual data size of combined buffers ({}) do not match up (bug)".format(header_7.data_size, len(buffer_data)) )
+		# print("combined buffer size",len(buffer_data))
+		try:
+			dds_compression_types = ( get_compression_type(header_3_0), )
+		except KeyError:
+			dds_compression_types = DdsFormat.DxgiFormat._enumkeys
+			print("Unknown compression type, trying all compression types for your amusement")
+			# dds_compression_types = list(v for v in DdsFormat.DxgiFormat._enumkeys if v not in dds_types.values())
+		print("dds_compression_type", dds_compression_types)
 
-	for dds_compression_type in dds_compression_types:
-		version = DdsFormat.version_number("DX10")
-		dds_data = DdsFormat.Data(version=version)
-		# no stream, but data version even though that's broken
-		header = DdsFormat.Header(None, dds_data)
+		for dds_compression_type in dds_compression_types:
+			version = DdsFormat.version_number("DX10")
+			dds_data = DdsFormat.Data(version=version)
+			# no stream, but data version even though that's broken
+			header = DdsFormat.Header(None, dds_data)
 
-		# header attribs
-		header.width = align_to(header_7.width, dds_compression_type)
-		# hack until we have proper support for array_size on the image editors
-		header.height = header_7.height * header_7.array_size
-		header.depth = header_7.depth
-		header.linear_size = header_7.data_size
-		header.mipmap_count = header_7.num_mips
+			# header attribs
+			header.width = align_to(header_7.width, dds_compression_type)
+			# hack until we have proper support for array_size on the image editors
+			header.height = header_7.height * header_7.array_size
+			header.depth = header_7.depth
+			header.linear_size = header_7.data_size
+			header.mipmap_count = header_7.num_mips
 		
-		# header flags
-		header.flags.height = 1
-		header.flags.width = 1
-		header.flags.mipmap_count = 1
-		header.flags.linear_size = 1
+			# header flags
+			header.flags.height = 1
+			header.flags.width = 1
+			header.flags.mipmap_count = 1
+			header.flags.linear_size = 1
 		
-		# pixel format flags
-		header.pixel_format.flags.four_c_c = 1
-		header.pixel_format.four_c_c = "DX10"
+			# pixel format flags
+			header.pixel_format.flags.four_c_c = 1
+			header.pixel_format.four_c_c = "DX10"
 		
-		# dx 10 stuff
-		header.dx_10.dxgi_format = dds_compression_type
-		# possibly the two 1s in header_3_0
-		header.dx_10.resource_dimension = "D3D10_RESOURCE_DIMENSION_TEXTURE2D"
-		# not properly supported by paint net and PS, only gimp
-		# header.dx_10.array_size = header_7.array_size
-		header.dx_10.array_size = 1
+			# dx 10 stuff
+			header.dx_10.dxgi_format = dds_compression_type
+			# possibly the two 1s in header_3_0
+			header.dx_10.resource_dimension = "D3D10_RESOURCE_DIMENSION_TEXTURE2D"
+			# not properly supported by paint net and PS, only gimp
+			# header.dx_10.array_size = header_7.array_size
+			header.dx_10.array_size = 1
 		
-		# caps 1
-		header.caps_1.texture = 0
-
-		# start out with the visible file path
-		dds_file_path = archive.indir(name)
-		out_dir, in_name = os.path.split(dds_file_path)
-		# if we want to see the dds, write it to the output dir
-		tmp_dir = texconv.make_tmp( out_dir, show_dds )
-		dds_file_path = os.path.join(tmp_dir, in_name)
-		if len(dds_compression_types) > 1:
-			dds_file_path += "_"+dds_compression_type+".dds"
-		# write dds
-		with open(dds_file_path, 'wb') as stream:
-			header.write(stream, dds_data)
-			stream.write(buffer_data)
+			# caps 1
+			header.caps_1.texture = 0
+	
+			# start out with the visible file path
+			dds_file_path = archive.indir(name)
+			out_dir, in_name = os.path.split(dds_file_path)
+			# if we want to see the dds, write it to the output dir
+			tmp_dir = texconv.make_tmp( out_dir, show_dds )
+			dds_file_path = os.path.join(tmp_dir, in_name)
+			if len(dds_compression_types) > 1:
+				dds_file_path += "_"+dds_compression_type+".dds"
+			# write dds
+			with open(dds_file_path, 'wb') as stream:
+				header.write(stream, dds_data)
+				stream.write(buffer_data)
 		
-		# convert the dds to PNG, PNG must be visible so put it in out_dir
-		png_file_path = texconv.dds_to_png( dds_file_path, out_dir, header_7.height*header_7.array_size, show_dds)
-
-		# postprocessing of the png
-		imarray.wrapper(png_file_path, header_7)
+			# convert the dds to PNG, PNG must be visible so put it in out_dir
+			png_file_path = texconv.dds_to_png( dds_file_path, out_dir, header_7.height*header_7.array_size, show_dds)
+	
+			# postprocessing of the png
+			imarray.wrapper(png_file_path, header_7)
 
 
 def write_ms2(archive, ms2_sized_str_entry):
