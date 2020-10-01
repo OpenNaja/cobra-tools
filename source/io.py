@@ -319,6 +319,8 @@ class ZipFile(IoFile):
 	# @contextmanager
 	def zipper(self, ):
 		stream = BinaryStream()
+		stream.version = self.ovl.version
+		stream.user_version = self.ovl.user_version
 		# with BinaryStream() as stream:
 		self.write_archive(stream)
 		uncompressed_bytes = stream.getbuffer()
