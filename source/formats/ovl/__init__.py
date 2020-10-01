@@ -798,6 +798,45 @@ class OvsFile(OvsHeader, ZipFile):
 		return out
 	
 	@staticmethod
+	def get_frag_equalb(frags, initpos, datalength):
+		"""Returns count entries of frags that have not been processed and occur after initpos."""
+		out = []
+		for f in frags:
+			# can't add fragments that have already been added elsewhere
+			if f.done:
+				continue
+			if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos+datalength):
+				f.done = True
+				out.append(f)
+				break
+		return out
+
+	@staticmethod
+	def get_frag_equalb_counts(frags, initpos, datalength, count):
+		"""Returns count entries of frags that have not been processed and occur after initpos."""
+		out = []
+		first = 1
+		for f in frags:
+			if first == 1:
+				if f.done:
+					continue
+				if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos+datalength):
+					f.done = True
+					out.append(f)
+					first = 0
+			else:
+				# check length of fragment, grab good ones
+				if len(out) == count:
+					break
+				# can't add fragments that have already been added elsewhere
+				if f.done:
+					continue
+				if f.pointers[0].address >= initpos:
+					f.done = True
+					out.append(f)
+		return out
+
+	@staticmethod
 	def get_frags_til_discon(frags, initpos, datalength):
 		"""Returns entries of frags that have not been processed and until discontinuity."""
 		out = []
