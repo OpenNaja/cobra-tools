@@ -43,6 +43,8 @@ class OvsFile(OvsHeader, ZipFile):
 			print("reading from unzipped ovs")
 			stream.version = self.ovl.version
 			stream.user_version = self.ovl.user_version
+			if self.is_pc():
+				self.ovl.flag_2 = 8340 #change to zipped format for saving of coaster ovls
 			# print("stream.version", stream.version)
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
@@ -622,8 +624,8 @@ class OvsFile(OvsHeader, ZipFile):
 				
 			elif sized_str_entry.ext == "materialcollection":
 				self.collect_matcol(sized_str_entry)
-			elif sized_str_entry.ext == "prefab":
-				self.collect_prefab(sized_str_entry, address_0_fragments)
+			#elif sized_str_entry.ext == "prefab":
+				#self.collect_prefab(sized_str_entry, address_0_fragments)
 		# print("sizedstr",sized_str_entry.pointers[0].header_index)
 		# print("frags",tuple((f.pointers[0].header_index, f.pointers[1].header_index) for f in sized_str_entry.fragments))
 		# for f in sized_str_entry.fragments:
