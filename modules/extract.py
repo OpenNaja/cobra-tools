@@ -695,7 +695,8 @@ def write_lua(archive, sized_str_entry):
 	with open(archive.indir(name), 'wb') as outfile:
 		# write the buffer
 		outfile.write(buffer_data)
-
+		binfile = outfile.name
+	texconv.bin_to_lua(binfile, archive.dir)
 	with open(archive.indir(name)+"meta", 'wb') as outfile:
 		# write each of the fragments
 		print(sized_str_entry.pointers[0].data)
