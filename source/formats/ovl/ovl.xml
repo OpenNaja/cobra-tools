@@ -97,6 +97,27 @@
 		<option value="90" name="DXGI_FORMAT_BC7_UNORM"></option>
 		<option value="91" name="DXGI_FORMAT_BC7_UNORM_SRGB">PZ titan beetle</option>
     </enum>
+	
+	
+    <enum name="DdsType_Coaster" storage="byte">
+		maps the OVL's dds type to name of compression format
+
+		<!-- <option value="59" name="?"></option> -->
+
+		<option value="97" name="DXGI_FORMAT_BC1_UNORM"></option>
+		<option value="98" name="DXGI_FORMAT_BC1_UNORM_SRGB"></option>
+		<option value="99" name="DXGI_FORMAT_BC2_UNORM"></option>
+		<option value="100" name="DXGI_FORMAT_BC2_UNORM_SRGB"></option>
+		<option value="101" name="DXGI_FORMAT_BC3_UNORM">PZ wolf baldnessscars texture</option>
+		<option value="102" name="DXGI_FORMAT_BC3_UNORM_SRGB"></option>
+		<option value="103" name="DXGI_FORMAT_BC4_UNORM"></option>
+		<option value="104" name="DXGI_FORMAT_BC4_SNORM"></option>
+		<option value="105" name="DXGI_FORMAT_BC5_UNORM"></option>
+		<option value="106" name="DXGI_FORMAT_BC5_SNORM"></option>
+
+		<option value="126" name="DXGI_FORMAT_BC7_UNORM"></option>
+		<option value="127" name="DXGI_FORMAT_BC7_UNORM_SRGB">PZ titan beetle</option>
+    </enum>
 
 	<!-- Structs for the OVL file -->
 
