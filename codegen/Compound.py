@@ -55,7 +55,7 @@ class Compound(BaseClass):
 						f.write(field_debug_str)
 				field_types = set(field_types)
 				if len(field_types) > 1:
-					field_types_str = f"typing.Union[{', '.join(field_types)}]"
+					field_types_str = f"typing.Union[{', '.join(sorted(field_types))}]"
 				else:
 					field_types_str = field_type
 

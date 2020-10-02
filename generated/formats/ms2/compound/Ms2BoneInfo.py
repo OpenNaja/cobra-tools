@@ -91,7 +91,7 @@ class Ms2BoneInfo:
 	# bones, rot first
 
 	# bones, loc first
-	bones: typing.List[typing.Union[PzBone, JweBone]]
+	bones: typing.List[typing.Union[JweBone, PzBone]]
 
 	# 255 = root, index in this list is the current bone index, value is the bone's parent index
 	bone_parents: typing.List[int]

@@ -7,7 +7,7 @@ class HircPointer:
 
 	# length of following data
 	id: int
-	data: typing.Union[TypeOther, Type2]
+	data: typing.Union[Type2, TypeOther]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
