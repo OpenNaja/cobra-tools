@@ -3,8 +3,8 @@ import struct
 import math
 import numpy as np
 
-from generated.formats.ms2.compound.Vector3 import Vector3
 import typing
+from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class ModelData:

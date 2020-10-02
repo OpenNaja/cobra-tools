@@ -1,8 +1,8 @@
-from generated.formats.matcol.compound.AttribWrapper import AttribWrapper
 import typing
-from generated.formats.matcol.compound.LayeredInfo import LayeredInfo
+from generated.formats.matcol.compound.AttribWrapper import AttribWrapper
 from generated.formats.matcol.compound.InfoWrapper import InfoWrapper
 from generated.formats.matcol.compound.LayeredAttrib import LayeredAttrib
+from generated.formats.matcol.compound.LayeredInfo import LayeredInfo
 
 
 class Layer:

@@ -1,9 +1,9 @@
-from generated.formats.ms2.compound.JweBone import JweBone
 import typing
-from generated.formats.ms2.compound.PcJoints import PcJoints
-from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
-from generated.formats.ms2.compound.PzBone import PzBone
+from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
+from generated.formats.ms2.compound.PcJoints import PcJoints
+from generated.formats.ms2.compound.PzBone import PzBone
+from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
 
 
 class Ms2BoneInfo:

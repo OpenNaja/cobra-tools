@@ -1,5 +1,5 @@
-from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
+from generated.formats.ms2.compound.Capsule import Capsule
 
 
 class HitCheckEntry:

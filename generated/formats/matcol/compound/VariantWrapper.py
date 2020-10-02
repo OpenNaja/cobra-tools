@@ -1,5 +1,5 @@
-from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 import typing
+from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 
 
 class VariantWrapper:

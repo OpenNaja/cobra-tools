@@ -1,10 +1,10 @@
-from generated.formats.dds.compound.HeaderString import HeaderString
 import typing
-from generated.formats.dds.struct.PixelFormat import PixelFormat
-from generated.formats.dds.bitstruct.Caps2 import Caps2
 from generated.formats.dds.bitstruct.Caps1 import Caps1
-from generated.formats.dds.struct.Dxt10Header import Dxt10Header
+from generated.formats.dds.bitstruct.Caps2 import Caps2
 from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
+from generated.formats.dds.compound.HeaderString import HeaderString
+from generated.formats.dds.struct.Dxt10Header import Dxt10Header
+from generated.formats.dds.struct.PixelFormat import PixelFormat
 
 
 class Header:

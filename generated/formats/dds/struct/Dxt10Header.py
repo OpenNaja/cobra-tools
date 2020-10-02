@@ -1,5 +1,5 @@
-from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
+from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 
 
 class Dxt10Header:

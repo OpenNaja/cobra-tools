@@ -1,5 +1,5 @@
-from generated.formats.ms2.compound.PcFFCounter import PcFFCounter
 import typing
+from generated.formats.ms2.compound.PcFFCounter import PcFFCounter
 
 
 class PcJointNext:

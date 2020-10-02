@@ -1,5 +1,5 @@
-from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 import typing
+from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 
 
 class JointInfo:

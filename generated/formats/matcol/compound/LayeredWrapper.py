@@ -1,6 +1,6 @@
-from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 import typing
 from generated.formats.matcol.compound.Layer import Layer
+from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 
 
 class LayeredWrapper:

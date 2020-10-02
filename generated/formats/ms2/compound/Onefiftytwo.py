@@ -1,5 +1,5 @@
-from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 import typing
+from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 
 
 class Onefiftytwo:

@@ -32,11 +32,17 @@ class Imports:
                 self.imports.append(import_type)
 
     def write(self, stream):
+        module_imports = []
+        local_imports = []
         for class_import in set(self.imports):
             if class_import in self.path_dict:
                 import_path = "generated." + self.path_dict[class_import].replace("\\", ".")
-                stream.write(f"from {import_path} import {class_import}\n")
+                local_imports.append(f"from {import_path} import {class_import}\n")
             else:
-                stream.write(f"import {class_import}\n")
+                module_imports.append(f"import {class_import}\n")
+        module_imports.sort()
+        local_imports.sort()
+        for line in module_imports + local_imports:
+            stream.write(line)
         if self.imports:
             stream.write("\n\n")

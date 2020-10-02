@@ -1,5 +1,5 @@
-from generated.formats.bnk.compound.DataPointer import DataPointer
 import typing
+from generated.formats.bnk.compound.DataPointer import DataPointer
 
 
 class DIDXSection:

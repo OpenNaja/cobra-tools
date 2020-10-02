@@ -1,5 +1,5 @@
-from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 import typing
+from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 
 class Fragment:
