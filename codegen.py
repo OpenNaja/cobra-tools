@@ -94,8 +94,8 @@ class XmlParser:
             try:
                 if child.tag in self.struct_types:
                     Compound(self, child)
-                # elif child.tag in self.bitstruct_types:
-                #     self.read_bitstruct(child)
+                elif child.tag in self.bitstruct_types:
+                    Bitfield(self, child)
                 # elif child.tag == "basic":
                 #     self.write_basic(child)
                 elif child.tag == "enum":
