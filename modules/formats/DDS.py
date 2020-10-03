@@ -11,8 +11,6 @@ from generated.formats.ovl.compound.Header3Data0Pc import Header3Data0Pc
 from generated.formats.ovl.compound.Header3Data1Pc import Header3Data1Pc
 from generated.formats.ovl.compound.Header3Data1 import Header3Data1
 from generated.formats.ovl.compound.Header7Data1 import Header7Data1
-from pyffi_ext.formats.dds import DdsFormat
-# from source.formats.dds import pack_mips
 
 from util import texconv, imarray
 
