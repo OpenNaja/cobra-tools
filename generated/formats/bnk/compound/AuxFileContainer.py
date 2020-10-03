@@ -81,11 +81,11 @@ class AuxFileContainer:
         for hirc_pointer in self.hirc.hirc_pointers:
 
             if hirc_pointer.id == 2:
-                hash = "".join([f"{b:02X}" for b in struct.pack("<I", hirc_pointer.type_2.didx_id)])
+                hash = "".join([f"{b:02X}" for b in struct.pack("<I", hirc_pointer.data.didx_id)])
                 print(hirc_pointer.id, hash, wem_id)
                 if hash == wem_id:
                     print("found a match, reading wem data size")
-                    hirc_pointer.type_2.wem_length = os.path.getsize(wem_path)
+                    hirc_pointer.data.wem_length = os.path.getsize(wem_path)
                     print(hirc_pointer.type_2)
                     break
 
