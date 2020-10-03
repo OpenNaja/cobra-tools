@@ -5,6 +5,8 @@ BINARY = os.path.normpath( os.path.join( util_dir , "texconv/texconv.exe") )
 ww2ogg = os.path.normpath( os.path.join( util_dir, "ww2ogg/ww2ogg.exe") )
 pcb = os.path.normpath( os.path.join( util_dir, "ww2ogg/packed_codebooks_aoTuV_603.bin") )
 revorb = os.path.normpath( os.path.join( util_dir, "revorb/revorb.exe") )
+luadec = os.path.normpath( os.path.join( util_dir, "luadec/luadec.exe") )
+luac = os.path.normpath( os.path.join( util_dir, "luadec/luac.exe") )
 # print(BINARY)
 # print(os.path.exists(BINARY))
 
