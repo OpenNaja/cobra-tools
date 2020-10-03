@@ -13,6 +13,7 @@ class BnkFile(AuxFileContainer):
 			self.read(stream)
 
 	def save(self, filepath):
+		self.old_size = os.path.getsize(filepath)
 		with self.nif_writer(filepath) as stream:
 			self.write(stream)
 
