@@ -107,8 +107,11 @@ class Compound(BaseClass):
 									field_default = f"{field_type}()"
 						if not field_default:
 							field_default = 0
-						if field.attrib.get("arr1"):
+						arr1 = field.attrib.get("arr1")
+						if arr1:
 							field_default = "[]"
+							# todo - if we do this, it breaks when arg is used in array
+							# field_default = f"[{field_default} for _ in range({Expression(arr1)})]"
 						f.write(f"\n\t\tself.{field_name} = {field_default}")
 
 			# write the load() method

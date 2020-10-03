@@ -1,7 +1,7 @@
-from generated.formats.ovl.enum.DdsType import DdsType
+from generated.formats.ovl.enum.DdsTypeCoaster import DdsTypeCoaster
 
 
-class Header3Data0:
+class Header3Data0Pc:
 
 	"""
 	Data struct for headers of type 3, read by data 0 of 3,7 frag.
@@ -12,7 +12,7 @@ class Header3Data0:
 	zeros: int
 
 	# flag, not direct index into DDS enum
-	compression_type: DdsType
+	compression_type: DdsTypeCoaster
 
 	# 0 or 1
 	one_0: int
@@ -31,7 +31,7 @@ class Header3Data0:
 		self.template = template
 		self.io_size = 0
 		self.zeros = 0
-		self.compression_type = DdsType()
+		self.compression_type = DdsTypeCoaster()
 		self.one_0 = 0
 		self.one_1 = 0
 		self.one_2 = 0
@@ -41,7 +41,7 @@ class Header3Data0:
 
 		io_start = stream.tell()
 		self.zeros = stream.read_uint64()
-		self.compression_type = DdsType(stream.read_ubyte())
+		self.compression_type = DdsTypeCoaster(stream.read_ubyte())
 		self.one_0 = stream.read_ubyte()
 		self.one_1 = stream.read_ubyte()
 		self.one_2 = stream.read_ubyte()
@@ -62,7 +62,7 @@ class Header3Data0:
 		self.io_size = stream.tell() - io_start
 
 	def __repr__(self):
-		s = 'Header3Data0 [Size: '+str(self.io_size)+']'
+		s = 'Header3Data0Pc [Size: '+str(self.io_size)+']'
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* compression_type = ' + self.compression_type.__repr__()
 		s += '\n	* one_0 = ' + self.one_0.__repr__()

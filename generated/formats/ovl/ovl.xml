@@ -359,13 +359,24 @@
 		Data struct for headers of type 3, read by data 0 of 3,7 frag.
 		16 bytes
 		<add name="zeros" type="uint64" >32 bytes, all 0</add>
-		<add name="compression type" type="ubyte">flag, not direct index into DDS enum</add>
+		<add name="compression type" type="DdsType">flag, not direct index into DDS enum</add>
 		<add name="one 0" type="ubyte">0 or 1</add>
 		<add name="one 1" type="ubyte">1 or 2</add>
 		<add name="one 2" type="ubyte">1 or 2</add>
 		<add name="pad" type="uint">0</add>
     </compound>
-	
+
+	<compound name="Header3Data0Pc" >
+		Data struct for headers of type 3, read by data 0 of 3,7 frag.
+		16 bytes
+		<add name="zeros" type="uint64" >32 bytes, all 0</add>
+		<add name="compression type" type="DdsType_Coaster">flag, not direct index into DDS enum</add>
+		<add name="one 0" type="ubyte">0 or 1</add>
+		<add name="one 1" type="ubyte">1 or 2</add>
+		<add name="one 2" type="ubyte">1 or 2</add>
+		<add name="pad" type="uint">0</add>
+    </compound>
+
 	<compound name="Header3Data1" >
 		Part of a fragment, repeated for count of texture LODs / buffers.
 		Data struct for headers of type 3
@@ -378,12 +389,20 @@
 		<add name="zero 5" type="uint"></add>
     </compound>
 	
+	<compound name="Header3Data1Pc" >
+		Data struct for headers of type 7
+		<add name="width" type="ushort"></add>
+		<add name="height" type="ushort" > </add>
+		<add name="array size" type="ushort">may be depth</add>
+		<add name="num mips" type="ushort">num_mips</add>
+    </compound>
+
 	<compound name="Header7Data1" >
 		Data struct for headers of type 7
 		<add name="zero00" type="uint"></add>
 		<add name="zero04" type="uint"></add>
 		<add name="data size" type="uint" >total dds buffer size</add>
-		<add name="width" type="uint"></add>	
+		<add name="width" type="uint"></add>
 		<add name="height" type="uint" > </add>
 		<add name="depth" type="uint" >aka tile_width; may be depth</add>
 		<add name="array_size" type="uint">aka tile_height; may be array_size</add>

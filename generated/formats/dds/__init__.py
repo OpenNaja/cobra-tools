@@ -7,9 +7,17 @@ class DdsFile(Header, IoFile):
 
 	def __init__(self,):
 		super().__init__()
+		self.buffer = b""
 
-	def load(self, filepath, commands=(), mute=False):
-		eof = super().load(filepath)
+	def load(self, filepath):
+		with self.reader(filepath) as stream:
+			self.read(stream)
+			self.buffer = stream.read()
+
+	def save(self, filepath):
+		with self.writer(filepath) as stream:
+			self.write(stream)
+			stream.write(self.buffer)
 
 
 if __name__ == "__main__":

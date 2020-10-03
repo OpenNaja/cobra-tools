@@ -1,5 +1,6 @@
 # START_GLOBALS
 import io
+from generated.io import BinaryStream
 
 MAX_UINT32 = 4294967295
 
@@ -111,4 +112,17 @@ class HeaderPointer:
 			inst = pyffi_cls()
 			inst.read(reader, data=data)
 			insts.append(inst)
+		return insts
+
+	def load_as(self, cls, num=1, version_info={}):
+		"""Return self.data as codegen cls
+		version_info must be a dict that has version & user_version attributes"""
+		with BinaryStream(self.data) as stream:
+			for k, v in version_info.items():
+				setattr(stream, k, v)
+			insts = []
+			for i in range(num):
+				inst = cls()
+				inst.read(stream)
+				insts.append(inst)
 		return insts
