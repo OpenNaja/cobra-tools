@@ -51,7 +51,7 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 		elif ext == ".matcol":
 			name_ext = name+".materialcollection"
 		elif ext == (".otf" or ".ttf"):
-			name_ext = name+".fct"
+			name_ext = name
 		if ext == ".wem":
 			bnk_name, wem_name = name.rsplit("_", 1)
 			name_ext = bnk_name + ".bnk"
