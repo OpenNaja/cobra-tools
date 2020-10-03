@@ -36,6 +36,28 @@ def wem_handle( wem_files, out_dir, show_dds, progress_callback):
 			else:
 				print(f"Unknown resource format {f_type} in {out_name}! Please report to the devs!")
 	clear_tmp(wem_file, show_dds)
+	
+def bin_to_lua(bin_file, out_dir):
+	#print(bin_file)
+
+	#print(function_string)
+	try:
+		out_name = os.path.splitext(os.path.basename(bin_file))[0]
+		out_file = os.path.join(out_dir, out_name)
+		function_string = '{} "{}"'.format(luadec, bin_file)
+		output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
+		#print(output)
+		if len(bytearray(output)) > 0: 
+			with open(out_file, 'wb') as outfile:
+				outfile.write(bytearray(output))
+		else:
+			print("decompile failed, skipping...")
+			
+        
+	except subprocess.CalledProcessError as err:
+		# Input: C:\Users\arnfi\AppData\Local\Temp\tmp_e_wg2dg-cobra-dds\buildings_media_B06CD10C.wem
+		# Parse error: RIFF truncated
+		print(err)
 
 
 def wem_to_ogg(wem_file, out_file):
