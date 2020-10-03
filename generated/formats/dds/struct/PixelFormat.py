@@ -36,8 +36,8 @@ class PixelFormat:
 		self.template = template
 		self.io_size = 0
 		self.size = 32
-		self.flags = 0
-		self.four_c_c = 0
+		self.flags = PixelFormatFlags()
+		self.four_c_c = FourCC()
 		self.bit_count = 0
 		self.r_mask = 0
 		self.g_mask = 0
@@ -49,7 +49,7 @@ class PixelFormat:
 		io_start = stream.tell()
 		self.size = stream.read_uint()
 		self.flags = stream.read_type(PixelFormatFlags)
-		self.four_c_c = stream.read_type(FourCC)
+		self.four_c_c = FourCC(stream.read_uint())
 		self.bit_count = stream.read_uint()
 		self.r_mask = stream.read_uint()
 		self.g_mask = stream.read_uint()
@@ -63,7 +63,7 @@ class PixelFormat:
 		io_start = stream.tell()
 		stream.write_uint(self.size)
 		stream.write_type(self.flags)
-		stream.write_type(self.four_c_c)
+		stream.write_uint(self.four_c_c.value)
 		stream.write_uint(self.bit_count)
 		stream.write_uint(self.r_mask)
 		stream.write_uint(self.g_mask)

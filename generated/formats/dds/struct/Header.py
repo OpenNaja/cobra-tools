@@ -2,7 +2,7 @@ import typing
 from generated.formats.dds.bitstruct.Caps1 import Caps1
 from generated.formats.dds.bitstruct.Caps2 import Caps2
 from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
-from generated.formats.dds.compound.HeaderString import HeaderString
+from generated.formats.dds.compound.FixedString import FixedString
 from generated.formats.dds.struct.Dxt10Header import Dxt10Header
 from generated.formats.dds.struct.PixelFormat import PixelFormat
 
@@ -10,7 +10,7 @@ from generated.formats.dds.struct.PixelFormat import PixelFormat
 class Header:
 
 	# DDS
-	header_string: HeaderString
+	header_string: FixedString
 
 	# Always 124 + 4 bytes for headerstring, header ends at 128.
 	size: int = 124
@@ -37,27 +37,27 @@ class Header:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.header_string = HeaderString()
+		self.header_string = FixedString()
 		self.size = 124
-		self.flags = 0
+		self.flags = HeaderFlags()
 		self.height = 0
 		self.width = 0
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
 		self.reserved_1 = []
-		self.pixel_format = 0
-		self.caps_1 = 0
-		self.caps_2 = 0
+		self.pixel_format = PixelFormat()
+		self.caps_1 = Caps1()
+		self.caps_2 = Caps2()
 		self.caps_3 = 0
 		self.caps_4 = 0
 		self.unused = 0
-		self.dx_10 = 0
+		self.dx_10 = Dxt10Header()
 
 	def read(self, stream):
 
 		io_start = stream.tell()
-		self.header_string = stream.read_type(HeaderString)
+		self.header_string = stream.read_type(FixedString, (4,))
 		self.size = stream.read_uint()
 		self.flags = stream.read_type(HeaderFlags)
 		self.height = stream.read_uint()

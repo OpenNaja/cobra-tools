@@ -103,7 +103,7 @@ class Compound(BaseClass):
 									field_default = field_type + "." + field_default
 							# no default, so guess one
 							else:
-								if type_of_field_type in ("compound", "niobject"):
+								if type_of_field_type in ("compound", "struct", "niobject", "enum", "bitfield", "bitflags", "bitstruct"):
 									field_default = f"{field_type}()"
 						if not field_default:
 							field_default = 0

@@ -42,7 +42,7 @@
         A standard 32-bit floating point number.
     </basic>
 
-    <compound name="HeaderString">
+    <compound name="FixedString">
         The string "DDS ".
     </compound>
 
@@ -293,7 +293,7 @@
     </struct>
 
     <struct name="Header">
-        <add name="Header String" type="HeaderString">DDS</add>
+        <add name="Header String" type="FixedString" arg="4">DDS</add>
         <add name="Size" type="uint" default="124">Always 124 + 4 bytes for headerstring, header ends at 128.</add>
         <add name="Flags" type="HeaderFlags" />
         <add name="Height" type="uint">The texture height.</add>

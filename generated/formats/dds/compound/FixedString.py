@@ -1,7 +1,8 @@
 class FixedString:
-	"""Holds a string of a fixed size, given as an argument."""
 
-# START_CLASS
+	"""
+	The string "DDS ".
+	"""
 
 	def __init__(self, arg=None, template=None):
 		# arg is byte count
@@ -17,4 +18,5 @@ class FixedString:
 
 	def __repr__(self):
 		return str(self.data)
+
 

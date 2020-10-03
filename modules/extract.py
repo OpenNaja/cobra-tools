@@ -1,6 +1,6 @@
 import struct
 import os
-import io
+import traceback
 import tempfile
 
 from pyffi_ext.formats.dds import DdsFormat
@@ -107,6 +107,7 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 		except BaseException as error:
 			print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
 			print(error)
+			traceback.print_exc()
 			error_files.append(sized_str_entry.name)
 			
 	return error_files, skip_files

@@ -1,7 +1,7 @@
-import enum
+from generated.enum import UintEnum
 
 
-class DxgiFormat(enum.IntEnum):
+class DxgiFormat(UintEnum):
 
 	"""
 	An unsigned 32-bit integer, describing the DxgiFormat.
@@ -126,9 +126,3 @@ class DxgiFormat(enum.IntEnum):
 	DXGI_FORMAT_V208 = 117
 	DXGI_FORMAT_V408 = 118
 	DXGI_FORMAT_FORCE_UINT = 119
-
-	def read(self, stream):
-		self._value_ = stream.read_uint()
-
-	def write(self, stream):
-		stream.write_uint(self._value_)

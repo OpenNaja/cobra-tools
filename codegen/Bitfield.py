@@ -26,6 +26,12 @@ class Bitfield(BaseClass):
 			# else:
 			# 	print("old:", field.attrib['mask'])
 
+	def write_storage_io_methods(self, f, storage, attr='self._value'):
+		for method_type in ("read", "write"):
+			f.write(f"\n\n\tdef {method_type}(self, stream):")
+			f.write(f"\n\t\t{self.parser.method_for_type(storage, mode=method_type, attr=attr)}")
+		# f.write(f"\n")
+
 	def read(self):
 		"""Create a self.struct class"""
 		super().read()
@@ -63,6 +69,6 @@ class Bitfield(BaseClass):
 				f.write(f"\n\t\tpass")
 
 			storage = self.struct.attrib["storage"]
-			self.parser.write_storage_io_methods(f, storage)
+			self.write_storage_io_methods(f, storage)
 			f.write(f"\n")
 

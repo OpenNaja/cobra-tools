@@ -60,7 +60,7 @@ class BasicBitfield(int):
             self.set_defaults()
 
     def __repr__(self):
-        return self.__str__
+        return self.__str__()
 
     def __str__(self):
         CALLABLES = types.FunctionType, types.MethodType
@@ -96,35 +96,37 @@ class AlphaFlags(BasicBitfield):
         self.alpha_blend = 1
         self.src_blend = AlphaFunction.SRC_ALPHA
 
-# AlphaFunction(1)
-temp = AlphaFlags()
-print(AlphaFunction.INV_DEST_ALPHA.value)
-# # temp.value = 0
-# print("alpha_blend", temp.alpha_blend, temp.value, bin(temp.value))
-# temp.alpha_blend = 1
-# print("alpha_blend", temp.alpha_blend, temp.value, bin(temp.value))
-#
-# print(temp)
-print("src_blend", temp.src_blend, temp._value, bin(temp._value))
-temp.src_blend = AlphaFunction.INV_DEST_ALPHA
-print("src_blend", temp.src_blend, temp._value, bin(temp._value))
-temp.src_blend &= 0
-print("src_blend", temp.src_blend, temp._value, bin(temp._value))
-# print("src_blend", temp.src_blend, temp.value, bin(temp.value))
-temp += 3
-print(temp)
-temp = temp + 1
-print(temp)
-temp = temp +3
-print(temp)
-temp -= 2
-print(temp)
-temp *= 2
-print(temp)
-temp = temp // 4
-print(temp)
+
+if __name__ == "__main__":
+    # AlphaFunction(1)
+    temp = AlphaFlags()
+    print(AlphaFunction.INV_DEST_ALPHA.value)
+    # # temp.value = 0
+    # print("alpha_blend", temp.alpha_blend, temp.value, bin(temp.value))
+    # temp.alpha_blend = 1
+    # print("alpha_blend", temp.alpha_blend, temp.value, bin(temp.value))
+    #
+    # print(temp)
+    print("src_blend", temp.src_blend, temp._value, bin(temp._value))
+    temp.src_blend = AlphaFunction.INV_DEST_ALPHA
+    print("src_blend", temp.src_blend, temp._value, bin(temp._value))
+    temp.src_blend &= 0
+    print("src_blend", temp.src_blend, temp._value, bin(temp._value))
+    # print("src_blend", temp.src_blend, temp.value, bin(temp.value))
+    temp += 3
+    print(temp)
+    temp = temp + 1
+    print(temp)
+    temp = temp +3
+    print(temp)
+    temp -= 2
+    print(temp)
+    temp *= 2
+    print(temp)
+    temp = temp // 4
+    print(temp)
 
 
-temp2 = BasicBitfield(2)
-# temp3 = BasicBitfield()
-print(temp2)
+    temp2 = BasicBitfield(2)
+    # temp3 = BasicBitfield()
+    print(temp2)

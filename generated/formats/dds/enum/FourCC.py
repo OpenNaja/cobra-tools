@@ -1,7 +1,7 @@
-import enum
+from generated.enum import UintEnum
 
 
-class FourCC(enum.IntEnum):
+class FourCC(UintEnum):
 
 	"""
 	An unsigned 32-bit integer, describing the compression type.
@@ -19,9 +19,3 @@ class FourCC(enum.IntEnum):
 	ATI1 = 0x31495441
 	ATI2 = 0x32495441
 	DX10 = 0x30315844
-
-	def read(self, stream):
-		self._value_ = stream.read_uint()
-
-	def write(self, stream):
-		stream.write_uint(self._value_)

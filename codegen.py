@@ -42,14 +42,6 @@ class XmlParser:
         games = {}
         # note: block versions are stored in the _games attribute of the struct class
 
-        # elements for creating new classes
-        self.class_name = None
-        self.class_dict = None
-        self.base_class = ()
-        #
-        # self.basic_classes = []
-        # # these have to be read as basic classes
-        # self.compound_classes = []
 
         # elements for versions
         self.version_string = None
@@ -60,6 +52,8 @@ class XmlParser:
 
         # maps each type to its generated py file's relative path
         self.path_dict = {}
+        # enum name -> storage name
+        self.storage_dict = {}
         # maps each type to its member tag type
         self.tag_dict = {}
 
@@ -79,6 +73,10 @@ class XmlParser:
 
         self.path_dict["BasicBitfield"] = "bitfield"
         self.path_dict["BitfieldMember"] = "bitfield"
+        self.path_dict["UbyteEnum"] = "enum"
+        self.path_dict["UshortEnum"] = "enum"
+        self.path_dict["UintEnum"] = "enum"
+        self.path_dict["Uint64Enum"] = "enum"
 
     def load_xml(self, xml_file):
         """Loads an XML (can be filepath or open file) and does all parsing
@@ -186,15 +184,15 @@ class XmlParser:
                     else:
                         imports.append(field_type)
 
-    def write_imports(self, f, imports):
-        for class_import in imports:
-            if class_import in self.path_dict:
-                import_path = "generated."+self.path_dict[class_import].replace("\\", ".")
-                f.write(f"from {import_path} import {class_import}\n")
-            else:
-                f.write(f"import {class_import}\n")
-
     def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arr1=None, arg=None):
+        if self.tag_dict[dtype.lower()] == "enum":
+            storage = self.storage_dict[dtype]
+            io_func = f"{mode}_{storage.lower()}"
+            if mode == "read":
+                return f"{attr} = {dtype}(stream.{io_func}())"
+            elif mode == "write":
+                return f"stream.{io_func}({attr}.value)"
+
         args = ""
         if arg:
             args = f", ({arg},)"
@@ -226,66 +224,6 @@ class XmlParser:
         # array of basic
         # if num_bones:
         #     self.bone_data = [stream.read_type(NiSkinDataBoneData) for _ in range(num_bones)]
-
-    def write_bitflags(self, element: ElementTree.Element):
-        class_name = convention.name_class(element.attrib['name'])
-        out_file = os.path.join(os.getcwd(), "generated", self.path_dict[class_name]+".py")
-        write_file(out_file, env.get_template('bitflags.py.jinja').render(bitflags=element))
-
-    def write_bitfield(self, element: ElementTree.Element):
-        class_name, class_basename, class_debug_str = self.get_names(element)
-
-        out_file = self.get_out_path(class_name)
-        storage = element.attrib["storage"]
-        imports = ["BasicBitfield", "BitfieldMember"]
-        dummy_imports = []
-        self.collect_types(dummy_imports, element)
-        for in_type in dummy_imports:
-            must_import, in_type = self.map_type(in_type)
-            if must_import:
-                imports.append(in_type)
-        # write to python file
-        with open(out_file, "w") as f:
-            self.write_imports(f, imports)
-
-            if imports:
-                f.write("\n\n")
-            f.write(f"class {class_name}(BasicBitfield):")
-            if class_debug_str:
-                f.write(class_debug_str)
-
-            for field in element:
-                field_name = convention.name_attribute(field.attrib["name"])
-                _, field_type = self.map_type(convention.name_class(field.attrib["type"]))
-                f.write(f"\n\t{field_name} = BitfieldMember(pos={field.attrib['pos']}, mask={field.attrib['mask']}, return_type={field_type})")
-
-            f.write("\n\n\tdef set_defaults(self):")
-            defaults = []
-            for field in element:
-                field_name = convention.name_attribute(field.attrib["name"])
-                field_type = convention.name_class(field.attrib["type"])
-                field_default = field.attrib.get("default")
-                # write the field's default, if it exists
-                if field_default:
-                    # we have to check if the default is an enum default value, in which case it has to be a member of that enum
-                    if self.tag_dict[field_type.lower()] == "enum":
-                        field_default = field_type+"."+field_default
-                    defaults.append((field_name, field_default))
-            if defaults:
-                for field_name, field_default in defaults:
-                    f.write(f"\n\t\tself.{field_name} = {field_default}")
-            else:
-                f.write(f"\n\t\tpass")
-
-            self.write_storage_io_methods(f, storage)
-
-            f.write("\n")
-
-    def write_storage_io_methods(self, f, storage, attr='self._value'):
-        for method_type in ("read", "write"):
-            f.write(f"\n\n\tdef {method_type}(self, stream):")
-            f.write(f"\n\t\t{self.method_for_type(storage, mode=method_type, attr=attr)}")
-            # f.write(f"\n")
 
     def map_type(self, in_type):
         l_type = in_type.lower()

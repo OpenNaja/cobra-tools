@@ -1,7 +1,7 @@
-import enum
+from generated.enum import UbyteEnum
 
 
-class DdsType(enum.IntEnum):
+class DdsType(UbyteEnum):
 
 	"""
 	maps the OVL's dds type to name of compression format
@@ -29,9 +29,3 @@ class DdsType(enum.IntEnum):
 	DXGI_FORMAT_BC7_UNORM = 90
 	# PZ titan beetle
 	DXGI_FORMAT_BC7_UNORM_SRGB = 91
-
-	def read(self, stream):
-		self._value_ = stream.read_byte()
-
-	def write(self, stream):
-		stream.write_byte(self._value_)

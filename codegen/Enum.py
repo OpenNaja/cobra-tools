@@ -7,20 +7,23 @@ VER = "stream.version"
 class Enum(BaseClass):
 
 	def read(self):
-		"""Create a self.struct class"""
+		"""Create a struct class"""
 		super().read()
 
-		self.class_basename = "enum.IntEnum"
-		self.imports.add("enum")
+		storage = self.struct.attrib["storage"]
+		# todo - handle case where storage is given as size instead of name
+		# store storage format in dict so it can be accessed during compound writing
+		self.parser.storage_dict[self.class_name] = storage
+		enum_base = f"{storage.capitalize()}Enum"
+		self.class_basename = enum_base
+		self.imports.add(enum_base)
 		# write to python file
 		with open(self.out_file, "w") as f:
 			# write the header stuff
 			super().write(f)
-			storage = self.struct.attrib["storage"]
 			for option in self.struct:
 				if option.text:
 					f.write(f"\n\t# {option.text}")
 				f.write(f"\n\t{option.attrib['name']} = {option.attrib['value']}")
-			print(storage)
-			self.parser.write_storage_io_methods(f, storage, attr='self._value_')
+			# self.parser.write_storage_io_methods(f, storage, attr='self._value_')
 			f.write(f"\n")
