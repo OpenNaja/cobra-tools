@@ -118,25 +118,11 @@
         02 -- identifier for Sound SFX section
         <add name="length" type="uint">length of this section</add>
         <add name="sfx id" type="uint" >id of this Sound SFX object</add>
-<!--        <add name="wem files datas" type="byte" arr1="4" >four unknown bytes</add>-->
-<!--        <add name="resource location" type="uint" >whether the sound is included in the SoundBank or streamed: </add>-->
         <add name="const a" type="uint" >?</add>
         <add name="const b" type="byte" >?</add>
         <add name="didx id" type="uint" >?</add>
         <add name="wem length" type="uint" >?</add>
-        <add name="zerosa" type="uint" >?</add>
-        <add name="zerosb" type="uint" >?</add>
-        <add name="some id" type="uint" >?</add>
-        <add name="const c" type="byte" >?</add>
-        <add name="const d" type="byte" >?</add>
-        <add name="const e" type="byte" cond="const d != 0">?</add>
-        <add name="float a" type="float" cond="const d != 0">?</add>
-        <add name="zeros c" type="byte" arr1="4" >four unknown bytes</add>
-        <add name="flag" type="byte" >?</add>
-        <add name="zerosd" type="uint" >?</add>
-        <add name="zerose" type="uint" >?</add>
-        <add name="extra" type="byte" arr1="length - 49" cond="(const d #NEQ# 0) #AND# ((length #SUB# 49) #GT# 0)">?</add>
-        <add name="extra" type="byte" arr1="length - 44" cond="(const d #EQ# 0) #AND# ((length #SUB# 44) #GT# 0)">?</add>
+        <add name="extra" type="byte" arr1="length - 17" >?</add>
     </compound>
 
     <compound name="TypeOther">
