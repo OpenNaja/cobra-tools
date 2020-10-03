@@ -27,8 +27,6 @@ class Type2:
 	wem_length: int
 
 	# ?
-
-	# ?
 	extra: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
