@@ -692,7 +692,7 @@ def write_lua(archive, sized_str_entry):
 		print("must have 2 fragments")
 		return
 	# write lua
-	with open(archive.indir(name), 'wb') as outfile:
+	with open(archive.indir(name)+".bin", 'wb') as outfile:
 		# write the buffer
 		outfile.write(buffer_data)
 		binfile = outfile.name
