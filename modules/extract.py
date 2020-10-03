@@ -189,9 +189,9 @@ def write_fct(archive, sized_str_entry):
 	data_size = ss_data[10]
 	print("pad: ",pad_size,"data: ",data_size)
 
-	with open(archive.indir(name)+".pad", 'wb') as outfile:
-		for buff in buffers:
-			outfile.write(buff[0:pad_size])
+	#with open(archive.indir(name)+".pad", 'wb') as outfile:
+		#for buff in buffers:
+			#outfile.write(buff[0:pad_size])
 	        
 	type_check = struct.unpack("<4s", buffers[0][pad_size:pad_size+4])[0]
 	print(type_check)
