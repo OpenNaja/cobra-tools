@@ -86,7 +86,7 @@ class AuxFileContainer:
                 if hash == wem_id:
                     print("found a match, reading wem data size")
                     hirc_pointer.data.wem_length = os.path.getsize(wem_path)
-                    print(hirc_pointer.type_2)
+                    print(hirc_pointer.data)
                     break
 
     # if self.hirc != None:
