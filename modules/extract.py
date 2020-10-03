@@ -175,23 +175,30 @@ def write_fct(archive, sized_str_entry):
 	ss_len = len(sized_str_entry.pointers[0].data)/4
 	ss_data = struct.unpack("<4f{}I".format(int(ss_len - 4)),sized_str_entry.pointers[0].data)
 	pad_size = ss_data[8]
-	data_size = ss_data[10]
-	print("pad: ",pad_size,"data: ",data_size)
-
+    
+	data_sizes = (ss_data[10],ss_data[12],ss_data[14],ss_data[16])
+	adder = 0
+	for x, data_size in enumerate(data_sizes):
+		if data_size != 0:
+			type_check = struct.unpack("<4s", buffers[0][pad_size+adder:pad_size+adder+4])[0]
+			print(type_check)
+			if "OTTO" in str(type_check):
+				with open(archive.indir(name)+str(x)+".otf", 'wb') as outfile:
+					for buff in buffers:
+						outfile.write(buff[pad_size+adder:data_size+pad_size+adder])
+			else:
+				with open(archive.indir(name)+str(x)+".ttf", 'wb') as outfile:
+					for buff in buffers:
+						outfile.write(buff[pad_size+adder:data_size+pad_size+adder])
+		adder += data_size
+    
 	#with open(archive.indir(name)+".pad", 'wb') as outfile:
 		#for buff in buffers:
 			#outfile.write(buff[0:pad_size])
-	        
-	type_check = struct.unpack("<4s", buffers[0][pad_size:pad_size+4])[0]
-	print(type_check)
-	if "OTTO" in str(type_check):
-		with open(archive.indir(name)+".otf", 'wb') as outfile:
-			for buff in buffers:
-				outfile.write(buff[pad_size:])
-	else:
-		with open(archive.indir(name)+".ttf", 'wb') as outfile:
-			for buff in buffers:
-				outfile.write(buff[pad_size:])
+       
+	#with open(archive.indir(name)+".meta", 'wb') as outfile:
+		#print(sized_str_entry.pointers[0].data)
+		#outfile.write( sized_str_entry.pointers[0].data )
             
 def write_scaleform(archive, sized_str_entry):
 	name = sized_str_entry.name
