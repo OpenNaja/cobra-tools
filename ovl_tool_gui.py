@@ -22,7 +22,7 @@ class MainWindow(widgets.MainWindow):
 		# self.ovl_data = OvlFormat.Data(progress_callback=self.update_progress)
 		self.ovl_data = OvlFile()
 
-		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA", "WEM")
+		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA", "WEM","OTF","TTF")
 		self.filter = "Supported files ({})".format( " ".join("*."+t for t in supported_types) )
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)

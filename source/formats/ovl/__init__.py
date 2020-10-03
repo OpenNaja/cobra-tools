@@ -448,6 +448,12 @@ class OvsFile(OvsHeader, ZipFile):
 				print(self.prefab_unpack_temp(len(fragg.pointers[1].data),fragg.pointers[1].data))
 				zzz+=1
 
+	def collect_scaleform(self, ss_entry, frags):
+		ss_entry.fragments = self.get_frags_after_count(frags, ss_entry.pointers[0].address, 1)
+		f0_d0 = struct.unpack("<8I", ss_entry.fragments[0].pointers[0].data)
+		font_declare_count = f0_d0[2]
+		ss_entry.fragments += self.get_frags_after_count(frags, ss_entry.fragments[0].pointers[1].address, font_declare_count*2)
+
 	def collect_matcol(self, ss_entry):
 		print("\nMATCOL:", ss_entry.name)
 
@@ -624,6 +630,8 @@ class OvsFile(OvsHeader, ZipFile):
 				
 			elif sized_str_entry.ext == "materialcollection":
 				self.collect_matcol(sized_str_entry)
+			elif sized_str_entry.ext == "scaleformlanguagedata":
+				self.collect_scaleform(sized_str_entry, frags)
 			#elif sized_str_entry.ext == "prefab":
 				#self.collect_prefab(sized_str_entry, address_0_fragments)
 		# print("sizedstr",sized_str_entry.pointers[0].header_index)

@@ -50,6 +50,8 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 			name_ext = name+".tex"
 		elif ext == ".matcol":
 			name_ext = name+".materialcollection"
+		elif ext == (".otf" or ".ttf"):
+			name_ext = name
 		if ext == ".wem":
 			bnk_name, wem_name = name.rsplit("_", 1)
 			name_ext = bnk_name + ".bnk"
@@ -86,6 +88,8 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 			load_materialcollection(ovl_data, file_path, sized_str_entry)
 		elif ext == ".lua":
 			load_lua(ovl_data, file_path, sized_str_entry)
+		elif ext == ".fct":
+			load_fct(ovl_data, file_path, sized_str_entry)
 		elif ext == ".assetpkg":
 			load_assetpkg(ovl_data, file_path, sized_str_entry)
 
@@ -118,6 +122,26 @@ def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
 	# make sure all are updated, and pad to 8 bytes, using old padding
 	txt_pointer.update_data(data, update_copies=True, pad_to=8, include_old_pad=True)
+	
+def load_fct(ovl_data, file_path, sized_str_entry):
+	# read fct
+	# inject fct buffers
+	# update sized string
+	ss_len = len(sized_str_entry.pointers[0].data)/4
+	ss_data = struct.unpack("<4f{}I".format(int(ss_len - 4)),sized_str_entry.pointers[0].data)
+	#pad_size = ss_data[8]
+	#data_size = ss_data[10]
+	#print("pad: ",pad_size,"data: ",data_size)
+
+	with open(file_path, "rb") as stream:
+		# load the new buffer
+		buffer_bytes = stream.read()
+		# update the buffers
+		sized_str_entry.data_entry.update_data( (buffer_bytes,) )
+		# update the sizedstring entry
+		ss_data[10] = len(buffer_bytes)
+		data = struct.pack("<4f{}I".format(int(ss_len - 4)), ss_data)
+		sized_str_entry.pointers[0].update_data(data, update_copies=True)
 
 
 def load_wem(ovl_data, wem_file_path, sized_str_entry, bnk_name, wem_id):

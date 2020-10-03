@@ -97,6 +97,10 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 				write_voxelskirt(archive, sized_str_entry)
 			elif sized_str_entry.ext == "gfx":
 				write_gfx(archive, sized_str_entry)
+			elif sized_str_entry.ext == "fct":
+				write_fct(archive, sized_str_entry)
+			elif sized_str_entry.ext == "scaleformlanguagedata":
+				write_scaleform(archive, sized_str_entry)
 			else:
 				print("\nSkipping",sized_str_entry.name)
 				skip_files.append(sized_str_entry.name)
@@ -175,6 +179,46 @@ def write_gfx(archive, sized_str_entry):
 		outfile.write( sized_str_entry.pointers[0].data )
 		for buff in buffers:
 			outfile.write(buff)
+			
+def write_fct(archive, sized_str_entry):
+	name = sized_str_entry.name
+	print("\nWriting",name)
+	buffers = sized_str_entry.data_entry.buffer_datas
+	ss_len = len(sized_str_entry.pointers[0].data)/4
+	ss_data = struct.unpack("<4f{}I".format(int(ss_len - 4)),sized_str_entry.pointers[0].data)
+	pad_size = ss_data[8]
+	data_size = ss_data[10]
+	print("pad: ",pad_size,"data: ",data_size)
+
+	#with open(archive.indir(name)+".pad", 'wb') as outfile:
+		#for buff in buffers:
+			#outfile.write(buff[0:pad_size])
+	        
+	type_check = struct.unpack("<4s", buffers[0][pad_size:pad_size+4])[0]
+	print(type_check)
+	if "OTTO" in str(type_check):
+		with open(archive.indir(name)+".otf", 'wb') as outfile:
+			for buff in buffers:
+				outfile.write(buff[pad_size:])
+	else:
+		with open(archive.indir(name)+".ttf", 'wb') as outfile:
+			for buff in buffers:
+				outfile.write(buff[pad_size:])
+            
+def write_scaleform(archive, sized_str_entry):
+	name = sized_str_entry.name
+	print("\nWriting",name)
+    
+       
+	with open(archive.indir(name), 'wb') as outfile:
+		# write each of the fragments
+		#print(sized_str_entry.pointers[0].data)
+		outfile.write( sized_str_entry.pointers[0].data )
+		for frag in sized_str_entry.fragments:
+			#print(frag.pointers[0].data)
+			#print(frag.pointers[1].data)
+			outfile.write( frag.pointers[0].data )
+			outfile.write( frag.pointers[1].data )
 		
 def write_prefab(archive, sized_str_entry):
 	name = sized_str_entry.name
