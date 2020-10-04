@@ -467,7 +467,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		bpy.ops.object.mode_set(mode='OBJECT')
 
 		# link to armature, only after mirror so the order is good and weights are mirrored
-		if data.bone_info:
+		if data.ms2_file.bone_info:
 			append_armature_modifier(ob, b_armature_obj)
 		if model.flag in (1013, 821, 885):
 			add_psys(ob)

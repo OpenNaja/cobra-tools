@@ -29,6 +29,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		start_time = time.time()
 		# eof = super().load(filepath)
 
+		# extra stuff
+		self.bone_info = None
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			# this is for the PC format
@@ -112,11 +114,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		# read the file
 		with self.reader(filepath) as stream:
 			self.read(stream)
-		print(self)
-
-		# extra stuff
-		self.bone_info = None
-		# print("pack base",base)
+		# print(self)
 
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
@@ -134,6 +132,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.lod_names = [self.ms2_file.names[lod.strznameidx] for lod in self.lods]
 		print("lod_names", self.lod_names)
 		print(f"Finished reading in {time.time() - start_time:.2f} seconds!")
+
 
 if __name__ == "__main__":
 	m = Mdl2File()

@@ -5,20 +5,19 @@ import math
 import bpy
 import mathutils
 
-from utils import matrix_util
-from pyffi_ext.formats.bani import BaniFormat
+from generated.formats.bani import BaniFile
+
 
 def load_bani(file_path):
 	"""Loads a bani from the given file path"""
 	print("Importing {0}".format(file_path))
 
-	data = BaniFormat.Data()
+	data = BaniFile()
 	# open file for binary reading
-	with open(file_path, "rb") as stream:
-		data.inspect_quick(stream)
-		data.read(stream, data, file=file_path)
+	data.load(file_path)
 	return data
-	
+
+
 def get_armature():
 	src_armatures = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Armature]
 	#do we have armatures?
@@ -57,8 +56,8 @@ def load(operator, context, files = [], filepath = "", set_fps=False):
 	data = load_bani(filepath)
 
 	# data 0 has various scales and counts
-	anim_length = data.header.data_0.animation_length
-	num_frames = data.header.data_0.num_frames
+	anim_length = data.data_0.animation_length
+	num_frames = data.data_0.num_frames
 	
 	global_corr_euler = mathutils.Euler( [math.radians(k) for k in (0,-90,-90)] )
 	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
@@ -109,7 +108,7 @@ def load(operator, context, files = [], filepath = "", set_fps=False):
 		# get object mode bone
 		obone = ob.data.bones[bone_name]
 		armature_space_matrix = obone.matrix_local
-		for frame_i in range(data.header.data_0.num_frames):
+		for frame_i in range(data.data_0.num_frames):
 			bpy.context.scene.frame_set(frame_i)
 			euler = data.eulers[frame_i, i]
 			loc = data.locs[frame_i, i]
