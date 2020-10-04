@@ -5,7 +5,6 @@ from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.Material0 import Material0
 from generated.formats.ms2.compound.Material1 import Material1
 from generated.formats.ms2.compound.ModelData import ModelData
-from generated.formats.ms2.compound.SizedString import SizedString
 
 
 class Mdl2InfoHeader:
@@ -50,7 +49,7 @@ class Mdl2InfoHeader:
 		self.version = 0
 		self.user_version = 0
 		self.index = 0
-		self.name = SizedString()
+		self.name = 0
 		self.model_info = CoreModelInfo()
 		self.materials_0 = []
 		self.lods = []
@@ -66,7 +65,7 @@ class Mdl2InfoHeader:
 		self.user_version = stream.read_uint()
 		stream.user_version = self.user_version
 		self.index = stream.read_uint()
-		self.name = stream.read_type(SizedString)
+		self.name = stream.read_string()
 		self.model_info = stream.read_type(CoreModelInfo)
 		self.materials_0 = [stream.read_type(Material0) for _ in range(self.model_info.mat_count)]
 		self.lods = [stream.read_type(LodInfo) for _ in range(self.model_info.lod_count)]
@@ -84,7 +83,7 @@ class Mdl2InfoHeader:
 		stream.write_uint(self.user_version)
 		stream.user_version = self.user_version
 		stream.write_uint(self.index)
-		stream.write_type(self.name)
+		stream.write_string(self.name)
 		stream.write_type(self.model_info)
 		for item in self.materials_0: stream.write_type(item)
 		for item in self.lods: stream.write_type(item)

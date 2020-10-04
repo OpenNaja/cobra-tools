@@ -156,7 +156,7 @@ class MainWindow(widgets.MainWindow):
 				self.ovl_name = ovl_name
 			except Exception as ex:
 				traceback.print_exc()
-				widgets.showdialog( str(ex) )
+				widgets.showdialog(str(ex))
 				print(ex)
 			print(f"Done in {time.time()-start_time:.2f} seconds!")
 			self.update_progress("Operation completed!", value=1, vmax=1)
@@ -207,10 +207,10 @@ class MainWindow(widgets.MainWindow):
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except Exception as ex:
 					traceback.print_exc()
-					widgets.showdialog( str(ex) )
+					widgets.showdialog(str(ex))
 					print(ex)
 		else:
-			widgets.showdialog( "You must open an OVL file before you can extract files!" )
+			widgets.showdialog("You must open an OVL file before you can extract files!")
 			
 	def inject(self):
 		if self.ovl_name:
@@ -218,22 +218,22 @@ class MainWindow(widgets.MainWindow):
 			if files:
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				inject.inject( self.ovl_data, files, self.write_dds, self.write_2K )
+				inject.inject(self.ovl_data, files, self.write_dds, self.write_2K)
 				self.file_widget.dirty = True
 			except Exception as ex:
 				traceback.print_exc()
-				widgets.showdialog( str(ex) )
+				widgets.showdialog(str(ex))
 			print("Done!")
 		else:
-			widgets.showdialog( "You must open an OVL file before you can inject files!" )
+			widgets.showdialog("You must open an OVL file before you can inject files!")
 
 	def hasher(self):
 		if self.ovl_name:
 			names = [ (tup[0].text(), tup[1].text()) for tup in self.e_name_pairs ]
 			for archive in self.ovl_data.archives:
-				hasher.dat_hasher(archive, names, self.ovl_data.header.files,self.ovl_data.header.textures)
+				hasher.dat_hasher(archive, names, self.ovl_data.header.files, self.ovl_data.header.textures)
 		else:
-			widgets.showdialog( "You must open an OVL file before you can extract files!" )
+			widgets.showdialog("You must open an OVL file before you can extract files!")
 
 	def walker(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg["dir_ovls_in"], )
@@ -260,7 +260,7 @@ class MainWindow(widgets.MainWindow):
 						os.makedirs(outdir, exist_ok=True)
 						for archive in ovl_data.archives:
 							archive.dir = outdir
-							error_files_new, skip_files_new = extract.extract(archive, self.write_dds, only_types=["ms2",])#, progress_callback=self.update_progress)
+							error_files_new, skip_files_new = extract.extract(archive, self.write_dds, only_types=["ms2", ])#, progress_callback=self.update_progress)
 							error_files += error_files_new
 							skip_files += skip_files_new
 					except Exception as ex:

@@ -91,11 +91,9 @@
         Holds a buffer of zero-terminated strings
     </compound>
 
-    <compound name="SizedString">
+    <basic name="string">
         A string of given length.
-        <field name="Length" type="uint">The string length.</field>
-        <field name="Value" type="char" arr1="Length">The string itself.</field>
-    </compound>
+    </basic>
 	
     <compound name="Matrix44" size="64">
         A 4x4 transformation matrix.
@@ -262,7 +260,7 @@
         <add name="user version" type="uint"/>
         <add name="index" type="uint" >index of this model inside the ms2, used to find bone info</add>
 
-        <add name="name" type="SizedString" >name of ms2</add>
+        <add name="name" type="string" >name of ms2</add>
         <add name="model info" type="CoreModelInfo" >gives relevant info on the mdl, including counts and pack base</add>
 		<add name="materials 0" type="Material0" arr1="model info\mat count" >name pointers for each material</add>
 		<add name="lods" type="LodInfo" arr1="model info\lod count" >lod info for each level</add>

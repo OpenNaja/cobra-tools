@@ -14,10 +14,10 @@ class ModelData:
 		"""Used to document byte usage of different vertex formats"""
 		# read a vertices of this model
 		stream.seek(start_buffer2 + self.vertex_offset)
-		# read the packed data
-		data = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
-		data = data.reshape((self.vertex_count, self.size_of_vertex))
-		self.bytes_map = np.max(data, axis=0)
+		# read the packed ms2_file
+		ms2_file = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
+		ms2_file = ms2_file.reshape((self.vertex_count, self.size_of_vertex))
+		self.bytes_map = np.max(ms2_file, axis=0)
 		if self.size_of_vertex != 48:
 			raise AttributeError(f"size_of_vertex != 48: size_of_vertex {self.size_of_vertex}, flag {self.flag}", )
 
@@ -118,14 +118,14 @@ class ModelData:
 			raise AttributeError(
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
 
-	def read_verts(self, stream, data):
+	def read_verts(self, stream):
 		# read a vertices of this model
 		stream.seek(self.start_buffer2 + self.vertex_offset)
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
-		# read the packed data
+		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
-		# create arrays for the unpacked data
+		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.uvs is not None:
@@ -262,19 +262,19 @@ class ModelData:
 		# output = struct.unpack("<Q", struct.pack("<d",thing2))[0]
 		return output
 
-	def write_verts(self, stream, data):
+	def write_verts(self, stream, ms2_file):
 		# if writing directly to file, doesn't support io bytes
 		# self.verts_data.tofile(stream)
 		stream.write(self.verts_data.tobytes())
 
-	def read_tris(self, stream, data):
+	def read_tris(self, stream):
 		# read all tri indices for this model
-		stream.seek(self.start_buffer2 + data.ms2_header.buffer_info.vertexdatasize + self.tri_offset)
+		stream.seek(self.start_buffer2 + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
 		# print("tris offset",stream.tell())
 		# read all tri indices for this model segment
 		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
 
-	def write_tris(self, stream, data):
+	def write_tris(self, stream, ms2_file):
 		stream.write(struct.pack(str(len(self.tri_indices)) + "H", *self.tri_indices))
 
 	@property
@@ -331,10 +331,10 @@ class ModelData:
 			# reverse to account for the flipped normals from mirroring in blender
 			self.tri_indices.extend(reversed(tri))
 
-	def populate(self, data, ms2_stream, start_buffer2, bone_names=[], base=512):
+	def populate(self, ms2_file, ms2_stream, start_buffer2, bone_names=[], base=512):
 		self.start_buffer2 = start_buffer2
-		self.data = data
+		self.ms2_file = ms2_file
 		self.base = base
 		self.bone_names = bone_names
-		self.read_verts(ms2_stream, self.data)
-		self.read_tris(ms2_stream, self.data)
+		self.read_verts(ms2_stream)
+		self.read_tris(ms2_stream)

@@ -1,5 +1,5 @@
 import os
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtCore
 
 from generated.formats.fgm import FgmFile
 from util import widgets, config
@@ -46,7 +46,7 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 		self.fgm_container = widgets.LabelEdit("FGM:")
-		self.shader_container = widgets.LabelCombo("Shader:", () )
+		self.shader_container = widgets.LabelCombo("Shader:", ())
 		self.shader_container.entry.activated.connect(self.shader_changed)
 		self.tex_container = QtWidgets.QGroupBox("Textures")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
@@ -147,7 +147,7 @@ class MainWindow(widgets.MainWindow):
 					line_i += 1
 
 			except Exception as ex:
-				widgets.showdialog( str(ex) )
+				widgets.showdialog(str(ex))
 				print(ex)
 			print("Done!")
 		
