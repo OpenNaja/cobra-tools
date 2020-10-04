@@ -17,6 +17,8 @@ class InfoHeader:
 	names: typing.List[str]
 	header: SizedStrData
 	mani_infos: typing.List[ManiInfo]
+	bone_hashes: typing.List[int]
+	bone_names: typing.List[str]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -29,6 +31,8 @@ class InfoHeader:
 		self.names = []
 		self.header = SizedStrData()
 		self.mani_infos = []
+		self.bone_hashes = []
+		self.bone_names = []
 
 	def read(self, stream):
 
@@ -41,6 +45,8 @@ class InfoHeader:
 		self.names = [stream.read_zstring() for _ in range(self.mani_count)]
 		self.header = stream.read_type(SizedStrData)
 		self.mani_infos = [stream.read_type(ManiInfo) for _ in range(self.mani_count)]
+		self.bone_hashes = [stream.read_uint() for _ in range(int(self.header.hash_block_size / 4))]
+		self.bone_names = [stream.read_zstring() for _ in range(int(self.header.hash_block_size / 4))]
 
 		self.io_size = stream.tell() - io_start
 
@@ -55,6 +61,8 @@ class InfoHeader:
 		for item in self.names: stream.write_zstring(item)
 		stream.write_type(self.header)
 		for item in self.mani_infos: stream.write_type(item)
+		for item in self.bone_hashes: stream.write_uint(item)
+		for item in self.bone_names: stream.write_zstring(item)
 
 		self.io_size = stream.tell() - io_start
 
@@ -67,5 +75,7 @@ class InfoHeader:
 		s += '\n	* names = ' + self.names.__repr__()
 		s += '\n	* header = ' + self.header.__repr__()
 		s += '\n	* mani_infos = ' + self.mani_infos.__repr__()
+		s += '\n	* bone_hashes = ' + self.bone_hashes.__repr__()
+		s += '\n	* bone_names = ' + self.bone_names.__repr__()
 		s += '\n'
 		return s
