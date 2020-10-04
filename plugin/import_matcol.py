@@ -1,12 +1,9 @@
 import os
-import io
-import sys
 import bpy
-import mathutils
 import math
 
-from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
-from pyffi_ext.formats.fgm import FgmFormat
+from generated.formats.matcol import MatcolFile
+from generated.formats.fgm import FgmFile
 from utils.node_arrange import nodes_iterate
 from utils.node_util import load_tex, get_tree
 
@@ -212,7 +209,11 @@ def create_group():
 	uv_rot_pos_flip.operation = "SCALE"
 	uv_rot_pos_flip.label = "flip uvRotationPosition"
 	# counter intuitive index for non-vector argument!
-	uv_rot_pos_flip.inputs[2].default_value = -1.0
+	try:
+		uv_rot_pos_flip.inputs[2].default_value = -1.0
+	except:
+		print("bug with new blender 2.9, unsure how to solve")
+		pass
 	test_group.links.new(rotpos_flipx.outputs[0], uv_rot_pos_flip.inputs[0])
 	
 	uv_rot_pos_b = test_group.nodes.new('ShaderNodeMapping')
@@ -377,7 +378,8 @@ def get_data(p, d):
 	
 def load_matcol(matcol_path):
 	lib_dir = os.path.normpath(os.path.dirname(matcol_path))
-	materialcollection_data = get_data(matcol_path, MaterialcollectionFormat.Data)
+	matcol_file = MatcolFile()
+	matcol_file.load(matcol_path)
 	slots = []
 	rootname = "anky_ankylo_backplates"
 	basecol = ".pbasecolourtexture"
@@ -386,9 +388,9 @@ def load_matcol(matcol_path):
 	base_textures = [os.path.join(lib_dir, file) for file in all_textures if rootname in file and basecol in file]
 	height_textures = [os.path.join(lib_dir, file) for file in all_textures if rootname in file and baseheight in file]
 	# print(base_textures)
-	# for layer in materialcollection_data.header.layered_wrapper:
+	# for layer in matcol_file.layered_wrapper:
 		# print(layer)
-	for layer in materialcollection_data.header.layered_wrapper.layers:
+	for layer in matcol_file.layered_wrapper.layers:
 		print(layer.name)
 		if layer.name == "Default":
 			print("Skipping Default layer")
@@ -396,18 +398,19 @@ def load_matcol(matcol_path):
 		else:
 			fgm_path = os.path.join(lib_dir, layer.name+".fgm")
 			# print(fgm_path)
-			fgm_data = get_data(fgm_path, FgmFormat.Data)
-			if fgm_data.fgm_header.textures[0].is_textured == 8:
-				base_index = fgm_data.fgm_header.textures[0].indices[1]
-				height_index = fgm_data.fgm_header.textures[1].indices[1]
+			fgm_data = FgmFile()
+			fgm_data.load(fgm_path)
+			if fgm_data.textures[0].is_textured == 8:
+				base_index = fgm_data.textures[0].indices[1]
+				height_index = fgm_data.textures[1].indices[1]
 			else:
 				print("tell Developers not using indices")
-			print("base_array_index",base_index)
-			print("height_array_index",height_index)
-			print("base",base_textures[base_index])
-			print("height",height_textures[height_index])
+			print("base_array_index", base_index)
+			print("height_array_index", height_index)
+			print("base", base_textures[base_index])
+			print("height", height_textures[height_index])
 			htex = height_textures[height_index]
-		slots.append( (layer.infos, htex) )
+		slots.append((layer.infos, htex))
 	return slots
 	
 if __name__ == '__main__':
