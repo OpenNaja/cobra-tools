@@ -65,10 +65,7 @@ class DdsFile(Header, IoFile):
 				break
 			if w // self.pixels_per_byte > 32:
 				out_mips.append(b)
-			# todo - also grab the low levels as long as they satisfy the break condition
-			# right now, this breaks in bytes_per_line
-			# else:
-			elif h > 2 and w > 2:
+			else:
 				packed_levels.append((h, w, b))
 
 		# no packing at all, just grab desired mips and done
@@ -82,9 +79,11 @@ class DdsFile(Header, IoFile):
 			total_width = 64 * self.pixels_per_byte
 			# pack the last mips into one image
 			for i, (height, width, level_bytes) in enumerate(packed_levels):
+				# no matter what pixel size the mips represent, they must be at least one 4x4 chunk
+				height = max(4, height)
+				width = max(4, width)
 
 				# write horizontal lines
-
 				# get count of h slices, 1 block is 4x4 px
 				num_slices_y = height // 4
 				num_pad_x = (total_width - width) // 4
@@ -99,32 +98,10 @@ class DdsFile(Header, IoFile):
 					for k in range(num_pad_x):
 						packed_writer.write(self.empty_block)
 
-			# weird stuff at the end
-			for j in range(2):
-				# empty line
-				for k in range(64 // 4):
-					packed_writer.write(self.empty_block)
-
-				# write 4x4 lod
-				packed_writer.write(level_bytes)
-
-				# pad line
-				for k in range(60 // 4):
-					packed_writer.write(self.empty_block)
-			# empty line
-			for k in range(64 // 4):
-				packed_writer.write(self.empty_block)
-
-			# still gotta add one more lod here
-			if self.pixels_per_byte == 2:
-				# empty line
-				for k in range(16):
-					packed_writer.write(self.empty_block)
-				# write 4x4 lod
-				packed_writer.write(level_bytes)
-				# padding
-				for k in range(63):
-					packed_writer.write(self.empty_block)
+				# add one fully blank line for those cases
+				if num_slices_y == 1:
+					for k in range(total_width // 4):
+						packed_writer.write(self.empty_block)
 
 			packed_mip_bytes = packed_writer.getvalue()
 
