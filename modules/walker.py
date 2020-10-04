@@ -1,16 +1,4 @@
 import os
-import io
-import tempfile
-import shutil
-
-from pyffi_ext.formats.dds import DdsFormat
-from pyffi_ext.formats.ms2 import Ms2Format
-# from pyffi_ext.formats.bani import BaniFormat
-# from pyffi_ext.formats.ovl import OvlFormat
-from pyffi_ext.formats.fgm import FgmFormat
-from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
-# from pyffi_ext.formats.assetpkg import AssetpkgFormat
-from pyffi_ext.formats.ovl import OvlFormat
 
 
 def walk_type(start_dir, extension="ovl"):

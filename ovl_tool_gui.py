@@ -17,8 +17,7 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
-		
-		# self.ovl_data = OvlFormat.Data(progress_callback=self.update_progress)
+
 		self.ovl_data = OvlFile()
 
 		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA", "WEM","OTF","TTF")

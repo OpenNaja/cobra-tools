@@ -8,7 +8,6 @@ import mathutils
 from utils import matrix_util
 from utils.node_arrange import nodes_iterate
 from utils.node_util import load_tex, get_tree
-# from .pyffi_ext.formats.ms2 import Ms2Format
 from generated.formats.ms2 import Mdl2File
 from generated.formats.fgm import FgmFile
 
