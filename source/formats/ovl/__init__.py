@@ -3,14 +3,13 @@ import itertools
 import struct
 import io
 import time
-import zlib
 
+from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
+from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.io import IoFile, ZipFile
-
-from pyffi_ext.formats.ms2 import Ms2Format
 
 MAX_UINT32 = 4294967295
 
@@ -639,14 +638,15 @@ class OvsFile(OvsHeader, ZipFile):
 		# for f in sized_str_entry.fragments:
 		#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
 		# second pass: collect model fragments
+		versions = {"version" : self.version, "user_version" : self.user_version}
 		# assign the mdl2 frags to their sized str entry
 		for set_entry in self.set_header.sets:
 			set_sized_str_entry = set_entry.entry
-			if set_sized_str_entry.ext == "ms2"  and not self.is_pc():
+			if set_sized_str_entry.ext == "ms2" and not self.is_pc():
 				f_1 = set_sized_str_entry.fragments[1]
 				print("F-1:", f_1)
 				self.write_frag_log()
-				next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, self.ovl)[0]
+				next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 				print("next model info:", next_model_info)
 				for asset_entry in set_entry.assets:
 					assert (asset_entry.name == asset_entry.entry.name)
@@ -656,7 +656,7 @@ class OvsFile(OvsHeader, ZipFile):
 						pink = sized_str_entry.fragments[4]
 						if (self.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
 								or (self.ovl.flag_2 == 8340 and pink.pointers[0].data_size == 160):
-							next_model_info = pink.pointers[0].read_as(Ms2Format.Mdl2ModelInfo, self.ovl)[0].info
+							next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		# # for debugging only:
 		for sized_str_entry in sorted_sized_str_entries:

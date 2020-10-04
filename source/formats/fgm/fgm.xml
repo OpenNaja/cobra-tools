@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+    <token name="verexpr" attrs="vercond cond">
+        Commonly used version expressions.
+        <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
+        <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
+    </token>
+	
+    <token name="global" attrs="vercond cond">
+        Global Tokens.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <global token="#USER#" string="user_version" />
+    </token>
+	
+    <token name="operator" attrs="cond vercond arr1 arr2 arg">
+        All Operators except for unary not (!), parentheses, and member of (\)
+        NOTE: These can be ignored entirely by string substitution and dealt with directly.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <operator token="#ADD#" string="+" />
+        <operator token="#SUB#" string="-" />
+        <operator token="#MUL#" string="*" />
+        <operator token="#DIV#" string="/" />
+        <operator token="#AND#" string="&amp;&amp;" />
+        <operator token="#OR#" string="||" />
+        <operator token="#LT#" string="&lt;" />
+        <operator token="#GT#" string="&gt;" />
+        <operator token="#LTE#" string="&lt;=" />
+        <operator token="#GTE#" string="&gt;=" />
+        <operator token="#EQ#" string="==" />
+        <operator token="#NEQ#" string="!=" />
+        <operator token="#RSH#" string="&gt;&gt;" />
+        <operator token="#LSH#" string="&lt;&lt;" />
+        <operator token="#BITAND#" string="&amp;" />
+        <operator token="#BITOR#" string="|" />
+        <operator token="#MOD#" string="%" />
+    </token>
+    <!--Basic Types-->
+
+    <basic name="ubyte" count="1">
+        An unsigned 8-bit integer.
+    </basic>
+	
+    <basic name="byte" count="1">
+        A signed 8-bit integer.
+    </basic>
+
+    <basic name="uint" count="1">
+        An unsigned 32-bit integer.
+    </basic>
+	
+	<basic name="uint64" count="1">
+        An unsigned 64-bit integer.
+    </basic>
+	
+    <basic name="ushort" count="1" >
+        An unsigned 16-bit integer.
+    </basic>
+
+    <basic name="int" count="1" >
+        A signed 32-bit integer.
+    </basic>
+
+    <basic name="short" count="1" >
+        A signed 16-bit integer.
+    </basic>
+	
+    <basic name="float" count="0" >
+        A standard 32-bit floating point number.
+    </basic>
+
+    <compound name="Color" >
+        4 bytes
+        <add name="r" type="ubyte"/>
+        <add name="g" type="ubyte"/>
+        <add name="b" type="ubyte"/>
+        <add name="a" type="ubyte"/>
+    </compound>
+	
+
+    <compound name="FourFragFgm" >
+        Sized str entry of 16 bytes
+        <add name="Texture count" type="uint" >Number of Texture Info Entries</add>
+        <add name="zero0" type="uint" ></add>
+        <add name="Attribute count" type="uint" >Number of Attribute Info Entries</add>
+        <add name="zero1" type="uint" ></add>
+    </compound>
+
+    <compound name="TwoFragFgm" >
+        Sized str entry of 24 bytes
+        <add name="zero0" type="uint" ></add>
+        <add name="zero1" type="uint" ></add>
+        <add name="Attribute Info count" type="uint" >Number of Attribute Info Entries</add>
+        <add name="zero2" type="uint" ></add>
+        <add name="zero3" type="uint" ></add>
+        <add name="zero4" type="uint" ></add>
+    </compound>
+
+    <compound name="TwoFragFgmExtra" >
+        <add name="zero3" type="uint" ></add>
+        <add name="zero4" type="uint" ></add>
+    </compound>
+
+	<compound name="TextureInfo" >
+		part of fgm fragment, per texture involved
+		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
+		<add name="is textured" type="uint">7=has 2 8=uses texture indices</add>
+		<add name="indices" type="uint" arr1="4" cond="is textured == 8" >stores index into shader and array index of texture</add>
+		<add name="colors" type="Color" arr1="4" cond="is textured == 7" >Stores (usually) 2 rgba colors</add>
+    </compound>
+	
+	<compound name="AttributeInfo" >
+		part of fgm fragment, repeated per attribute
+		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
+		<add name="dtype" type="uint">6=bool 5=integer 0=float</add>
+		<add name="first value offset" type="uint" >byte offset to first value in the 4th fragment entry</add>
+		<add name="zero" type="uint" ></add>
+    </compound>
+
+    <compound name="FgmInfoHeader">
+        Custom header struct
+		
+		This reads a whole custom FGM file
+        <add name="magic" type="byte" arr1="4">'FGM '</add>
+        <add name="version" type="uint" ></add>
+        <add name="flag 2" type="uint" ></add>
+        <add name="num frags" type="uint" >fragment count</add>
+        <add name="tex info size" type="uint" >byte count to check for quirks</add>
+        <add name="attr info size" type="uint" >byte count to check for quirks</add>
+        <add name="zeros size" type="uint" >byte count to check for quirks</add>
+        <add name="data lib size" type="uint" >byte count to check for quirks</add>
+        <add name="fgm info" type="FourFragFgm" ></add>
+		<add name="two frags pad" type="TwoFragFgmExtra" arr1="num frags == 2" ></add>
+
+		<add name="textures" type="TextureInfo" arr1="fgm info\texture count" ></add>
+        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 24)" ></add>
+		<add name="attributes" type="AttributeInfo" arr1="fgm info\attribute count" ></add>
+        
+    </compound>
+</niftoolsxml>
