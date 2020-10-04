@@ -366,7 +366,7 @@ class ModelData:
 		# output = struct.unpack("<Q", struct.pack("<d",thing2))[0]
 		return output
 
-	def write_verts(self, stream, ms2_file):
+	def write_verts(self, stream):
 		# if writing directly to file, doesn't support io bytes
 		# self.verts_data.tofile(stream)
 		stream.write(self.verts_data.tobytes())
@@ -378,7 +378,7 @@ class ModelData:
 		# read all tri indices for this model segment
 		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
 
-	def write_tris(self, stream, ms2_file):
+	def write_tris(self, stream):
 		stream.write(struct.pack(str(len(self.tri_indices)) + "H", *self.tri_indices))
 
 	@property

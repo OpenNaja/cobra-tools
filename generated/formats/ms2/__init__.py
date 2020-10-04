@@ -8,7 +8,7 @@ from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
 from generated.formats.ms2.compound.PcModel import PcModel
-from generated.io import IoFile
+from generated.io import IoFile, BinaryStream
 
 
 def findall(p, s):
@@ -41,7 +41,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.eoh = stream.tell()
 			print("end of header: ", self.eoh)
 			# first get all bytes of the whole bone infos block
-			bone_info_bytes = stream.read(self.bone_info_size)
+			self.bone_info_bytes = stream.read(self.bone_info_size)
 			# find the start of each using this identifier
 			zero_f = bytes.fromhex("00 00 00 00")
 			one_f = bytes.fromhex("00 00 80 3F")
@@ -56,7 +56,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						 (zero_f, bone_info_marker_4),
 						 (one_f, bone_info_marker_4),
 						 ):
-				bone_info_starts.extend(x - 4 for x in findall(a + b, bone_info_bytes))
+				bone_info_starts.extend(x - 4 for x in findall(a + b, self.bone_info_bytes))
 
 			bone_info_starts = list(sorted(bone_info_starts))
 			print("bone_info_starts", bone_info_starts)
@@ -97,13 +97,78 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					model.read_bytes_map(self.start_buffer2, stream)
 				return
 
+	def save(self, filepath, mdl2):
+		print("Writing verts and tris to temporary buffer")
+		# write each model's vert & tri block to a temporary buffer
+		temp_vert_writer = io.BytesIO()
+		temp_tris_writer = io.BytesIO()
+		vert_offset = 0
+		tris_offset = 0
+
+		with BinaryStream() as temp_bone_writer:
+			temp_bone_writer.version = self.version
+			temp_bone_writer.user_version = self.user_version
+			temp_bone_writer.ms_2_version = self.general_info.ms_2_version
+			self.bone_info.write(temp_bone_writer)
+			bone_bytes = temp_bone_writer.getvalue()
+			print("new bone info length: ", len(bone_bytes))
+
+		for i, model in enumerate(mdl2.models):
+			model.write_verts(temp_vert_writer)
+			model.write_tris(temp_tris_writer)
+			print("vert_offset", vert_offset)
+			print("tris_offset", tris_offset)
+
+			# update ModelData struct
+			model.vertex_offset = vert_offset
+			model.tri_offset = tris_offset
+			model.vertex_count = len(model.verts)
+			model.tri_index_count = len(model.tri_indices)
+
+			# offsets for the next model
+			vert_offset = temp_vert_writer.tell()
+			tris_offset = temp_tris_writer.tell()
+
+		# update lod fragment
+		print("update lod fragment")
+		for lod in mdl2.lods:
+			# print(lod)
+			lod_models = tuple(
+				model for model in mdl2.models[lod.first_model_index:lod.last_model_index])
+			# print(lod_models)
+			lod.vertex_count = sum(model.vertex_count for model in lod_models)
+			lod.tri_index_count = sum(model.tri_index_count for model in lod_models)
+			print("lod.vertex_count", lod.vertex_count)
+			print("lod.tri_index_count", lod.tri_index_count)
+		print("Writing final output")
+		# get original header and buffers 0 & 1
+		# first get all bytes of the whole bone infos block
+		print("old bone info length: ", len(self.bone_info_bytes))
+		cut = len(bone_bytes) - len(self.bone_info_bytes)
+
+		# get bytes from IO object
+		vert_bytes = temp_vert_writer.getvalue()
+		tris_bytes = temp_tris_writer.getvalue()
+		# modify buffer size
+		self.buffer_info.vertexdatasize = len(vert_bytes)
+		self.buffer_info.facesdatasize = len(tris_bytes)
+	
+		# write output ms2
+		with self.writer(filepath) as f:
+			self.write(f)
+			f.write(bone_bytes)
+			if cut != 0:
+				f.write(self.bone_info_bytes[cut:])
+			f.write(vert_bytes)
+			f.write(tris_bytes)
+	
 
 class Mdl2File(Mdl2InfoHeader, IoFile):
 
 	def __init__(self, ):
 		super().__init__()
 
-	def load(self, filepath):
+	def load(self, filepath, quick=False):
 
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
@@ -118,7 +183,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
-		self.ms2_file.load(self.ms2_path, self, )
+		self.ms2_file.load(self.ms2_path, self, quick=quick)
 
 		# set material links
 		for mat_1 in self.materials_1:
@@ -132,6 +197,25 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.lod_names = [self.ms2_file.names[lod.strznameidx] for lod in self.lods]
 		print("lod_names", self.lod_names)
 		print(f"Finished reading in {time.time() - start_time:.2f} seconds!")
+
+	def save(self, filepath):
+		exp = "export"
+		exp_dir = os.path.join(self.dir, exp)
+		os.makedirs(exp_dir, exist_ok=True)
+
+		mdl2_name = os.path.basename(filepath)
+
+		# create name of output ms2
+		new_ms2_name = mdl2_name.rsplit(".", 1)[0] + ".ms2"
+		ms2_path = os.path.join(exp_dir, new_ms2_name)
+		self.ms2_file.save(ms2_path, self)
+		# set new ms2 name to mdl2 header
+		self.name = new_ms2_name
+
+		# write final mdl2
+		mdl2_path = os.path.join(exp_dir, mdl2_name)
+		with self.writer(mdl2_path) as stream:
+			self.write(stream)
 
 
 if __name__ == "__main__":
