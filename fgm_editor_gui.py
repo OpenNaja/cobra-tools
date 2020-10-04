@@ -1,11 +1,9 @@
 import os
-import io
-import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from pyffi_ext.formats.fgm import FgmFormat
+from generated.formats.fgm import FgmFile
 from util import widgets, config
-from modules import extract, inject
+
 
 class MainWindow(widgets.MainWindow):
 
@@ -14,7 +12,7 @@ class MainWindow(widgets.MainWindow):
 		
 		self.resize(450, 500)
 
-		self.fgm_data = FgmFormat.Data()
+		self.fgm_data = FgmFile()
 		self.file_src = ""
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/fgm.txt")
@@ -112,10 +110,9 @@ class MainWindow(widgets.MainWindow):
 				w.deleteLater()
 			self.cfg["dir_fgms_in"], fgm_name = os.path.split(self.file_src)
 			try:
-				with open(self.file_src, "rb") as fgm_stream:
-					self.fgm_data.read(fgm_stream, file=self.file_src)
+				self.fgm_data.load(self.file_src)
 				game = self.fgm_data.game
-				print("from game",game)
+				print("from game", game)
 				self.game_container.entry.setText(game)
 				# also for
 				self.game_changed()
@@ -133,7 +130,7 @@ class MainWindow(widgets.MainWindow):
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
 				line_i = 0
-				for tex in self.fgm_data.fgm_header.textures:
+				for tex in self.fgm_data.textures:
 					w = widgets.VectorEntry(tex, self.tooltips)
 					# form.addRow(w.label, w.data)
 					# w = QtWidgets.QLabel(tex.name)
@@ -143,13 +140,12 @@ class MainWindow(widgets.MainWindow):
 					line_i += 1
 				
 				line_i = 0
-				for attrib in self.fgm_data.fgm_header.attributes:
+				for attrib in self.fgm_data.attributes:
 					w = widgets.VectorEntry(attrib, self.tooltips)
 					self.attrib_grid.addWidget(w.label, line_i, 0)
 					self.attrib_grid.addWidget(w.data, line_i, 1)
 					line_i += 1
-								
-				
+
 			except Exception as ex:
 				widgets.showdialog( str(ex) )
 				print(ex)
@@ -160,11 +156,9 @@ class MainWindow(widgets.MainWindow):
 			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg["dir_fgms_out"], self.fgm_name), "FGM files (*.fgm)",)[0]
 			if file_out:
 				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
-				# just a dummy stream
-				with open(file_out, "wb") as fgm_stream:
-					self.fgm_data.write(fgm_stream)
+				self.fgm_data.save(file_out)
 				print("Done!")
 			
 	
 if __name__ == '__main__':
-	widgets.startup( MainWindow )
+	widgets.startup(MainWindow)

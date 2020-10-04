@@ -1,5 +1,5 @@
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
-from generated.io import IoFile
+from generated.io import IoFile, BinaryStream
 import os
 import struct
 
@@ -9,10 +9,6 @@ dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}
 
 
 class FgmFile(FgmInfoHeader, IoFile):
-
-	def save(self, filepath):
-		with self.writer(filepath) as stream:
-			self.write(stream)
 
 	@property
 	def game(self, ):
@@ -83,22 +79,15 @@ class FgmFile(FgmInfoHeader, IoFile):
 			print(attrib)
 			print()
 
-	def write(self, stream, verbose=0):
-		"""Write a fgm file.
-
-		:param stream: The stream to which to write.
-		:param verbose: The level of verbosity.
-		:type verbose: ``int``
-		"""
-
-		names_writer = io.BytesIO()
-		data_writer = io.BytesIO()
+	def save(self, filepath):
+		names_writer = BinaryStream()
+		data_writer = BinaryStream()
 		# shader name is at 0
-		self.write_z_str(names_writer, self.shader_name)
+		names_writer.write_zstring(self.shader_name)
 		# attribs are written first
 		for attrib in self.attributes:
 			attrib.offset = names_writer.tell()
-			self.write_z_str(names_writer, attrib.name)
+			names_writer.write_zstring(attrib.name)
 			attrib.first_value_offset = data_writer.tell()
 			fmt = dtypes[attrib.dtype]
 			b = struct.pack("<" + fmt, *attrib.value)
@@ -109,16 +98,18 @@ class FgmFile(FgmInfoHeader, IoFile):
 					# uint - hashes
 					texture.indices[i] = max(0, texture.value[i])
 			texture.offset = names_writer.tell()
-			self.write_z_str(names_writer, texture.name)
+			names_writer.write_zstring(texture.name)
 
 		# write the output stream
-		self.write(stream, data=self)
-		stream.write(b"\x00" * self.zeros_size)
-		stream.write(data_writer.getvalue())
-		stream.write(names_writer.getvalue())
+		with self.writer(filepath) as stream:
+			self.write(stream)
+			stream.write(b"\x00" * self.zeros_size)
+			stream.write(data_writer.getvalue())
+			stream.write(names_writer.getvalue())
 
 
 if __name__ == "__main__":
 	fgm = FgmFile()
 	fgm.load("C:/Users/arnfi/Desktop/parrot/parrot.fgm")
-	print(fgm)
+	fgm.save("C:/Users/arnfi/Desktop/parrot/parrot2.fgm")
+	# print(fgm)

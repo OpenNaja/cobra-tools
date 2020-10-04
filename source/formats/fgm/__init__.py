@@ -111,5 +111,5 @@ class FgmFile(FgmInfoHeader, IoFile):
 if __name__ == "__main__":
 	fgm = FgmFile()
 	fgm.load("C:/Users/arnfi/Desktop/parrot/parrot.fgm")
-	# fgm.save("C:/Users/arnfi/Desktop/parrot/parrot2.fgm")
+	fgm.save("C:/Users/arnfi/Desktop/parrot/parrot2.fgm")
 	# print(fgm)
