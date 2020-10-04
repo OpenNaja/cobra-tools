@@ -1,0 +1,57 @@
+import typing
+from generated.formats.bani.compound.BaniFragmentData0 import BaniFragmentData0
+from generated.formats.bani.compound.BaniFragmentData1 import BaniFragmentData1
+
+
+class BaniInfoHeader:
+
+	"""
+	Custom header struct
+	includes fragments but none of the 3 data buffers
+	"""
+
+	# 'BANI'
+	magic: typing.List[int]
+
+	# name of the banis file buffer
+	banis_name: str
+	data_0: BaniFragmentData0
+	data_1: BaniFragmentData1
+
+	def __init__(self, arg=None, template=None):
+		self.arg = arg
+		self.template = template
+		self.io_size = 0
+		self.magic = []
+		self.banis_name = 0
+		self.data_0 = BaniFragmentData0()
+		self.data_1 = BaniFragmentData1()
+
+	def read(self, stream):
+
+		io_start = stream.tell()
+		self.magic = [stream.read_byte() for _ in range(4)]
+		self.banis_name = stream.read_string()
+		self.data_0 = stream.read_type(BaniFragmentData0)
+		self.data_1 = stream.read_type(BaniFragmentData1)
+
+		self.io_size = stream.tell() - io_start
+
+	def write(self, stream):
+
+		io_start = stream.tell()
+		for item in self.magic: stream.write_byte(item)
+		stream.write_string(self.banis_name)
+		stream.write_type(self.data_0)
+		stream.write_type(self.data_1)
+
+		self.io_size = stream.tell() - io_start
+
+	def __repr__(self):
+		s = 'BaniInfoHeader [Size: '+str(self.io_size)+']'
+		s += '\n	* magic = ' + self.magic.__repr__()
+		s += '\n	* banis_name = ' + self.banis_name.__repr__()
+		s += '\n	* data_0 = ' + self.data_0.__repr__()
+		s += '\n	* data_1 = ' + self.data_1.__repr__()
+		s += '\n'
+		return s

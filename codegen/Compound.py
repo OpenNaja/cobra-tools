@@ -45,7 +45,7 @@ class Compound(BaseClass):
 						field_type = "float"
 					elif field_type.lower() in ("bool",):
 						field_type = "bool"
-					elif field_type.lower() in ("zstring",):
+					elif field_type.lower() in ("zstring", "string", "sizedstring"):
 						field_type = "str"
 					field_types.append(field_type)
 					field_default = field.attrib.get("default")

@@ -25,7 +25,7 @@ class Mdl2InfoHeader:
 	index: int
 
 	# name of ms2
-	name: SizedString
+	name: str
 
 	# gives relevant info on the mdl, including counts and pack base
 	model_info: CoreModelInfo

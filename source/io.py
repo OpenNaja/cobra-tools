@@ -43,8 +43,8 @@ class BinaryStream(BytesIO):
 		"read_floats",
 		"read_hfloat",
 		"read_hfloats",
-		"read_str",
-		"read_strs",
+		"read_string",
+		"read_strings",
 		"write_byte",
 		"write_bytes",
 		"write_ubyte",
@@ -65,8 +65,8 @@ class BinaryStream(BytesIO):
 		"write_floats",
 		"write_hfloat",
 		"write_hfloats",
-		"write_str",
-		"write_strs",
+		"write_string",
+		"write_strings",
 		"read_zstring",
 		"write_zstring"
 	)
@@ -124,10 +124,10 @@ class BinaryStream(BytesIO):
 		 self.read_hfloats,
 		 self.write_hfloats) = self.make_read_write_for_struct(HFloat)
 
-		(self.read_str,
-		 self.write_str,
-		 self.read_strs,
-		 self.write_strs) = self.make_read_write_for_string(UInt)
+		(self.read_string,
+		 self.write_string,
+		 self.read_strings,
+		 self.write_strings) = self.make_read_write_for_string(UInt)
 
 		(self.read_zstring,
 		 self.write_zstring,

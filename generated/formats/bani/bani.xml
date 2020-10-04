@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+    <token name="operator" attrs="cond vercond arr1 arr2 arg">
+        All Operators except for unary not (!), parentheses, and member of (\)
+        NOTE: These can be ignored entirely by string substitution and dealt with directly.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <operator token="#ADD#" string="+" />
+        <operator token="#SUB#" string="-" />
+        <operator token="#MUL#" string="*" />
+        <operator token="#DIV#" string="/" />
+        <operator token="#AND#" string="&amp;&amp;" />
+        <operator token="#OR#" string="||" />
+        <operator token="#LT#" string="&lt;" />
+        <operator token="#GT#" string="&gt;" />
+        <operator token="#LTE#" string="&lt;=" />
+        <operator token="#GTE#" string="&gt;=" />
+        <operator token="#EQ#" string="==" />
+        <operator token="#NEQ#" string="!=" />
+        <operator token="#RSH#" string="&gt;&gt;" />
+        <operator token="#LSH#" string="&lt;&lt;" />
+        <operator token="#BITAND#" string="&amp;" />
+        <operator token="#BITOR#" string="|" />
+        <operator token="#MOD#" string="%" />
+    </token>
+    <!--Basic Types-->
+
+    <basic name="ubyte" count="1">
+        An unsigned 8-bit integer.
+    </basic>
+	
+    <basic name="byte" count="1">
+        A signed 8-bit integer.
+    </basic>
+
+    <basic name="uint" count="1">
+        An unsigned 32-bit integer.
+    </basic>
+	
+	<basic name="uint64" count="1">
+        An unsigned 64-bit integer.
+    </basic>
+	
+    <basic name="ushort" count="1" >
+        An unsigned 16-bit integer.
+    </basic>
+
+    <basic name="int" count="1" >
+        A signed 32-bit integer.
+    </basic>
+
+    <basic name="short" count="1" >
+        A signed 16-bit integer.
+    </basic>
+	
+    <basic name="char" count="0" >
+        An 8-bit character.
+    </basic>
+	
+    <basic name="float" count="0" >
+        A standard 32-bit floating point number.
+    </basic>
+	
+    <basic name="string">
+        A string of given length.
+        <field name="Length" type="uint">The string length.</field>
+        <field name="Value" type="char" arr1="Length">The string itself.</field>
+    </basic>
+	
+    <compound name="Matrix44" size="64">
+        A 4x4 transformation matrix.
+        <field name="m11" type="float" default="1.0">The (1,1) element.</field>
+        <field name="m21" type="float" default="0.0">The (2,1) element.</field>
+        <field name="m31" type="float" default="0.0">The (3,1) element.</field>
+        <field name="m41" type="float" default="0.0">The (4,1) element.</field>
+        <field name="m12" type="float" default="0.0">The (1,2) element.</field>
+        <field name="m22" type="float" default="1.0">The (2,2) element.</field>
+        <field name="m32" type="float" default="0.0">The (3,2) element.</field>
+        <field name="m42" type="float" default="0.0">The (4,2) element.</field>
+        <field name="m13" type="float" default="0.0">The (1,3) element.</field>
+        <field name="m23" type="float" default="0.0">The (2,3) element.</field>
+        <field name="m33" type="float" default="1.0">The (3,3) element.</field>
+        <field name="m43" type="float" default="0.0">The (4,3) element.</field>
+        <field name="m14" type="float" default="0.0">The (1,4) element.</field>
+        <field name="m24" type="float" default="0.0">The (2,4) element.</field>
+        <field name="m34" type="float" default="0.0">The (3,4) element.</field>
+        <field name="m44" type="float" default="1.0">The (4,4) element.</field>
+    </compound>
+
+    <compound name="Matrix33" size="36">
+        A 3x3 rotation matrix; M^T M=identity, det(M)=1.    Stored in OpenGL column-major format.
+        <field name="m11" type="float" default="1.0">Member 1,1 (top left)</field>
+        <field name="m21" type="float" default="0.0">Member 2,1</field>
+        <field name="m31" type="float" default="0.0">Member 3,1 (bottom left)</field>
+        <field name="m12" type="float" default="0.0">Member 1,2</field>
+        <field name="m22" type="float" default="1.0">Member 2,2</field>
+        <field name="m32" type="float" default="0.0">Member 3,2</field>
+        <field name="m13" type="float" default="0.0">Member 1,3 (top right)</field>
+        <field name="m23" type="float" default="0.0">Member 2,3</field>
+        <field name="m33" type="float" default="1.0">Member 3,3 (bottom left)</field>
+    </compound>
+	
+	    <compound name="Matrix24" size="32">
+        A 4x4 transformation matrix.
+        <field name="m11" type="float" default="1.0">The (1,1) element.</field>
+        <field name="m21" type="float" default="0.0">The (2,1) element.</field>
+        <field name="m31" type="float" default="0.0">The (3,1) element.</field>
+        <field name="m41" type="float" default="0.0">The (4,1) element.</field>
+        <field name="m12" type="float" default="0.0">The (1,2) element.</field>
+        <field name="m22" type="float" default="1.0">The (2,2) element.</field>
+        <field name="m32" type="float" default="0.0">The (3,2) element.</field>
+        <field name="m42" type="float" default="0.0">The (4,2) element.</field>
+    </compound>
+	
+    <compound name="ByteColor4" size="4" convertible="Color4">
+        A color with alpha (red, green, blue, alpha).
+        <field name="r" type="ubyte">Red color component.</field>
+        <field name="g" type="ubyte">Green color component.</field>
+        <field name="b" type="ubyte">Blue color component.</field>
+        <field name="a" type="ubyte">Alpha color component.</field>
+    </compound>
+	
+    <compound name="Vector3" size="12">
+        A vector in 3D space (x,y,z).
+        <field name="x" type="float">First coordinate.</field>
+        <field name="y" type="float">Second coordinate.</field>
+        <field name="z" type="float">Third coordinate.</field>
+    </compound>
+	
+    <compound name="Vector3Short" size="6">
+        A signed int16 vector in 3D space (x,y,z).
+        <field name="x" type="short">First coordinate.</field>
+        <field name="y" type="short">Second coordinate.</field>
+        <field name="z" type="short">Third coordinate.</field>
+    </compound>
+	
+    <compound name="Vector3Ushort" size="6">
+        A signed int16 vector in 3D space (x,y,z).
+        <field name="x" type="ushort">First coordinate.</field>
+        <field name="y" type="ushort">Second coordinate.</field>
+        <field name="z" type="ushort">Third coordinate.</field>
+    </compound>
+	
+    <compound name="Vector4" size="16">
+        A vector in 3D space (x,y,z).
+        <field name="w" type="float">zeroth coordinate.</field>
+        <field name="x" type="float">First coordinate.</field>
+        <field name="y" type="float">Second coordinate.</field>
+        <field name="z" type="float">Third coordinate.</field>
+    </compound>
+	
+    <compound name="BaniInfoHeader">
+        Custom header struct
+		includes fragments but none of the 3 data buffers
+        <add name="magic" type="byte" arr1="4">'BANI'</add>
+        <add name="banis name" type="string" >name of the banis file buffer</add>
+        <add name="data 0" type="BaniFragmentData0" ></add>
+        <add name="data 1" type="BaniFragmentData1" ></add>
+        <!-- <add name="names" type="string" arr1="data 1\number of bones" ></add> -->
+        <!-- <add name="keys" type="Key" arr1="data 1\number of frames" arr2="data 1\number of bones" ></add> -->
+        <!-- <add name="frames" type="Frame" arr1="data 1\number of frames" arg="data 1\number of bones" ></add> -->
+    </compound>
+	
+	<compound name="BaniFragmentData0">
+		This varies per bani animation file and describes the bani's frames and duration
+        <add name="unknown0" type="uint"></add>
+        <add name="unknown1" type="uint"></add>
+        <add name="read start frame" type="uint">The frame in the banis where this bani starts reading</add>
+        <add name="num frames" type="uint">Number of frames in this bani file</add>
+        <add name="animation length" type="float">length of the animation, can easily get keyframe spacing now</add>
+        <add name="LoopFlag" type="uint">if 1381323599 then looped</add>
+    </compound>
+
+    <compound name="BaniFragmentData1">
+		Seems to be the same for all bani anims of one bani file
+        <add name="unknown0" type="uint"></add>
+        <add name="unknown1" type="uint"></add>
+        <add name="unknown2" type="uint"></add>
+        <add name="unknown3" type="uint">these first 4 are zeros but I think may be offset stuff we've seen before</add>
+        <add name="bytes per frame" type="uint">96 in parrots case</add>
+        <add name="bytes per bone" type="uint">how many bytes for each bone per frame</add>
+        <add name="num frames" type="uint">Number of frames for all bani files in banis buffer, 18*96 gives the size of banis buffer for parrot</add>
+        <add name="num bones" type="uint">matches number of bones parrot has</add>
+        <add name="translation center" type="float">translation range</add>
+        <add name="translation first" type="float">translation range</add>
+    </compound>
+	
+    <compound name="Key">
+        <add name="euler" type="Vector3Short" ></add>
+        <add name="translation" type="Vector3Ushort" ></add>
+    </compound>
+	
+	
+	
+<!--     <compound name="Frame">
+		holds a key for every bone in this frame
+        <add name="bones" type="Key" arr1="#ARG#" ></add>
+    </compound> -->
+	
+</niftoolsxml>
