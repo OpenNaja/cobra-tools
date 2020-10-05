@@ -3,6 +3,7 @@ import os
 import traceback
 
 from modules.formats.DDS import write_dds
+from modules.formats.MS2 import write_ms2
 
 from generated.formats.bnk import BnkFile
 
@@ -51,8 +52,6 @@ def extract(archive, show_dds, only_types=[], progress_callback=None):
 				write_bani(archive, sized_str_entry)
 			elif sized_str_entry.ext == "manis":
 				write_manis(archive, sized_str_entry)
-			# elif sized_str_entry.ext == "mani":
-			# 	write_mani(archive, sized_str_entry)
 			elif sized_str_entry.ext == "fgm":
 				write_fgm(archive, sized_str_entry)
 			elif sized_str_entry.ext == "ms2":
@@ -247,120 +246,6 @@ def write_txt(archive, txt_sized_str_entry):
 		f.write(b[4:4+size])
 
 
-def write_ms2(archive, ms2_sized_str_entry):
-	name = ms2_sized_str_entry.name
-	if not ms2_sized_str_entry.data_entry:
-		print("No data entry for ",name)
-		return
-	buffers = ms2_sized_str_entry.data_entry.buffer_datas
-	if len(buffers) == 3:
-		bone_names, bone_matrices, verts = buffers
-	elif len(buffers) == 2:
-		bone_names, verts = buffers
-		bone_matrices = b""
-	else:
-		raise BufferError(f"Wrong amount of buffers for {name}\nWanted 2 or 3 buffers, got {len(buffers)}")
-
-	# sizedstr data has bone count
-	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
-	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2Format.Ms2SizedStrData, archive)
-	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
-
-	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names),
-							 len(bone_matrices))
-
-	print("\nWriting",name)
-	# print("\nbuffers",len(buffers))
-	# for i, buffer in enumerate(buffers):
-	# 	with open(archive.indir(name+str(i)+".ms2"), 'wb') as outfile:
-	# 		outfile.write(buffer)
-	if archive.version == 18:
-		# only ss entry holds any useful stuff
-		with open(archive.indir(name), 'wb') as outfile:
-			print(len(bone_names),"\n",len(bone_matrices),"\n",len(verts))
-			outfile.write(ms2_header)
-			outfile.write(ms2_general_info_data)
-			outfile.write(bone_names)
-			outfile.write(bone_matrices)
-			outfile.write(verts)
-			return
-	elif len(ms2_sized_str_entry.fragments) != 3:
-		print("must have 3 fragments")
-		return
-	f_0, f_1, f_2 = ms2_sized_str_entry.fragments
-
-	# f0 has information on vert & tri buffer sizes
-	ms2_buffer_info_data = f_0.pointers[1].data
-	# this fragment informs us about the model count of the next mdl2 that is read
-	# so we can use it to collect the variable mdl2 fragments describing a model each
-	next_model_info_data = f_1.pointers[1].data
-	# next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, archive)
-	# print("next_model_info", f_1.pointers[1].address, next_model_info)
-
-	# ms2_header = struct.pack("<4s5I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names), len(bone_matrices), len(ms2_sized_str_entry.children))
-	# with open(archive.indir(name), 'wb') as outfile:
-	# 	outfile.write(ms2_header)
-	# 	for mdl2_entry in ms2_sized_str_entry.children:
-	# 		outfile.write(mdl2_entry.name.encode()[:-5]+b"\x00")
-
-	with open(archive.indir(name), 'wb') as outfile:
-		outfile.write(ms2_header)
-		outfile.write(ms2_general_info_data)
-		outfile.write(ms2_buffer_info_data)
-		outfile.write(bone_names)
-		outfile.write(bone_matrices)
-		outfile.write(verts)
-
-	# export each mdl2
-	for mdl2_index, mdl2_entry in enumerate(ms2_sized_str_entry.children):
-		with open(archive.indir(mdl2_entry.name), 'wb') as outfile:
-			print("Writing",mdl2_entry.name,mdl2_index)
-			# the fixed fragments
-			green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
-			print("model_count",mdl2_entry.model_count)
-
-			mdl2_header = struct.pack("<4s3I", b"MDL2", archive.ovl.version, archive.ovl.flag_2, mdl2_index )
-			outfile.write(mdl2_header)
-			# pack ms2 name as a sized string
-			write_sized_str(outfile, ms2_sized_str_entry.name)
-
-			# write the model info for this model, buffered from the previous model or ms2 (pink fragments)
-			outfile.write(next_model_info_data)
-			# print("PINK",pink.pointers[0].address,pink.pointers[0].data_size,pink.pointers[1].address, pink.pointers[1].data_size)
-			if pink.pointers[0].data_size == 40:
-				pass
-				# 40 bytes of 'padding' (0,1 or 0,0,0,0)
-				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2FourtyInfo, archive)
-				# print(core_model_data)
-			elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
-			or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
-				# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
-				next_model_info_data = pink.pointers[0].data[40:]
-				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2ModelInfo, archive)
-				# print(core_model_data)
-			else:
-				print("unexpected size for pink")
-
-			# avoid writing bad fragments that should be empty
-			if mdl2_entry.model_count:
-				# print("fixed fragments")
-				# need not write lod0
-				for f in (green_mats_0, blue_lod, orange_mats_1):
-					# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-					other_data = f.pointers[1].data
-					outfile.write(other_data)
-
-			# print("modeldata frags")
-			for f in mdl2_entry.model_data_frags:
-				# each address_0 points to ms2's f_0 address_1 (size of vert & tri buffer)
-				# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-				# model_data = f.pointers[0].read_as(Ms2Format.ModelData, archive)
-				# print(model_data)
-
-				model_data = f.pointers[0].data
-				outfile.write(model_data)
-				
-	
 def write_banis(archive, sized_str_entry):
 	name = sized_str_entry.name
 	if not sized_str_entry.data_entry:
@@ -435,19 +320,6 @@ def write_manis(archive, sized_str_entry):
 		# data = ManisFormat.Data()
 		# with open(archive.indir(name), "rb") as stream:
 		# 	data.read(stream)
-
-def write_mani(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting", name)
-	# not sure what the logic for these ones is, right now the only valid info is set membership
-	print(sized_str_entry.pointers[0].data_offset)
-	print(sized_str_entry.pointers[0].data)
-	if len(sized_str_entry.fragments) != 0:
-		print("must have 0 fragments")
-		return
-	with open(archive.indir(name), 'wb') as outfile:
-		outfile.write(b"Probably missing data, uses manis file: "+sized_str_entry.parent.name.encode())
-
 
 def write_fgm(archive, sized_str_entry):
 	name = sized_str_entry.name
