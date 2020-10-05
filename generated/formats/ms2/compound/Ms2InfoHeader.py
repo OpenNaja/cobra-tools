@@ -2,7 +2,6 @@ import typing
 from generated.formats.ms2.compound.FixedString import FixedString
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
-from generated.formats.ms2.compound.Onefiftytwo import Onefiftytwo
 
 
 class Ms2InfoHeader:
@@ -24,11 +23,6 @@ class Ms2InfoHeader:
 	buffer_info: Ms2BufferInfo
 	name_hashes: typing.List[int]
 	names: typing.List[str]
-	whatever: typing.List[int]
-	model_infos: typing.List[Onefiftytwo]
-
-	# the padding between end of the modelinfo array and start of lodinfos
-	some_zero: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -43,9 +37,6 @@ class Ms2InfoHeader:
 		self.buffer_info = Ms2BufferInfo()
 		self.name_hashes = []
 		self.names = []
-		self.whatever = []
-		self.model_infos = []
-		self.some_zero = 0
 
 	def read(self, stream):
 
@@ -62,10 +53,6 @@ class Ms2InfoHeader:
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
 		self.name_hashes = [stream.read_uint() for _ in range(self.general_info.name_count)]
 		self.names = [stream.read_zstring() for _ in range(self.general_info.name_count)]
-		if self.general_info.ms_2_version == 32:
-			self.whatever = [stream.read_uint() for _ in range(8)]
-			self.model_infos = [stream.read_type(Onefiftytwo) for _ in range(self.general_info.mdl_2_count)]
-			self.some_zero = stream.read_uint()
 
 		self.io_size = stream.tell() - io_start
 
@@ -84,10 +71,6 @@ class Ms2InfoHeader:
 			stream.write_type(self.buffer_info)
 		for item in self.name_hashes: stream.write_uint(item)
 		for item in self.names: stream.write_zstring(item)
-		if self.general_info.ms_2_version == 32:
-			for item in self.whatever: stream.write_uint(item)
-			for item in self.model_infos: stream.write_type(item)
-			stream.write_uint(self.some_zero)
 
 		self.io_size = stream.tell() - io_start
 
@@ -102,8 +85,5 @@ class Ms2InfoHeader:
 		s += '\n	* buffer_info = ' + self.buffer_info.__repr__()
 		s += '\n	* name_hashes = ' + self.name_hashes.__repr__()
 		s += '\n	* names = ' + self.names.__repr__()
-		s += '\n	* whatever = ' + self.whatever.__repr__()
-		s += '\n	* model_infos = ' + self.model_infos.__repr__()
-		s += '\n	* some_zero = ' + self.some_zero.__repr__()
 		s += '\n'
 		return s

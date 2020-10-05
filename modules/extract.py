@@ -6,27 +6,9 @@ from modules.formats.DDS import write_dds
 from modules.formats.MS2 import write_ms2
 
 from generated.formats.bnk import BnkFile
+from modules.util import write_sized_str
 
 from util import texconv
-
-def write_sized_str(stream, s):
-	"""Returns content of stream from pos"""
-	size = struct.pack("<I", len(s))
-	stream.write(size)
-	stream.write(s.encode())
-
-
-def read_sized_str(stream, pos, size):
-	"""Returns content of stream from pos until pos+size"""
-	stream.seek(pos)
-	return stream.read(size)
-
-
-def read_sized_str_at(stream, pos):
-	"""Returns content of stream from pos"""
-	stream.seek(pos)
-	size = struct.unpack("<I", stream.read(4))[0]
-	return stream.read(size)
 
 
 def extract(archive, show_dds, only_types=[], progress_callback=None):

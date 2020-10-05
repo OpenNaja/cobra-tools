@@ -8,6 +8,7 @@ from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
 from generated.formats.ms2.compound.PcModel import PcModel
+from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.io import IoFile, BinaryStream
 
 
@@ -25,77 +26,100 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def __init__(self, ):
 		super().__init__()
 
+	def is_pc(self):
+		return self.general_info.ms_2_version == 32
+
 	def load(self, filepath, mdl2, quick=False, map_bytes=False):
 		start_time = time.time()
 		# eof = super().load(filepath)
 
 		# extra stuff
+		self.bone_names = []
 		self.bone_info = None
 		with self.reader(filepath) as stream:
 			self.read(stream)
-			# this is for the PC format
-			# for mdl2_info in self.model_infos:
-			#     pc_model = stream.read_type(PcModel, (mdl2_info,))
-			#     print(pc_model)
-			#     break
 			self.eoh = stream.tell()
 			print("end of header: ", self.eoh)
-			# first get all bytes of the whole bone infos block
-			self.bone_info_bytes = stream.read(self.bone_info_size)
-			# find the start of each using this identifier
-			zero_f = bytes.fromhex("00 00 00 00")
-			one_f = bytes.fromhex("00 00 80 3F")
-			# lion has a 1 instead of a 4
-			bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
-			# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
-			bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
-			# there's 8 bytes before this
-			bone_info_starts = []
-			for a, b in ((zero_f, bone_info_marker_1),
-						 (one_f, bone_info_marker_1),
-						 (zero_f, bone_info_marker_4),
-						 (one_f, bone_info_marker_4),
-						 ):
-				bone_info_starts.extend(x - 4 for x in findall(a + b, self.bone_info_bytes))
+			if self.is_pc():
+				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
+				# this is for the PC format
+				for mdl2_info in self.pc_buffer1.model_infos:
+					mdl2_info.pc_model = stream.read_type(PcModel, (mdl2_info,))
+					print(mdl2_info.pc_model)
 
-			bone_info_starts = list(sorted(bone_info_starts))
-			print("bone_info_starts", bone_info_starts)
-
-			if bone_info_starts:
-				idx = mdl2.index
-				if idx >= len(bone_info_starts):
-					print("reset boneinfo index")
-					idx = 0
-				bone_info_address = self.eoh + bone_info_starts[idx]
-				print("using bone info {} at address {}".format(idx, bone_info_address))
-				stream.seek(bone_info_address)
-				self.bone_info = Ms2BoneInfo()
-				self.bone_info.read(stream)
-				print(self.bone_info)
-				print("end of bone info at", stream.tell())
-
-				self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
+					break
 			else:
-				print("No bone info found")
-				self.bone_names = []
+				# first get all bytes of the whole bone infos block
+				self.bone_info_bytes = stream.read(self.bone_info_size)
+				# find the start of each using this identifier
+				zero_f = bytes.fromhex("00 00 00 00")
+				one_f = bytes.fromhex("00 00 80 3F")
+				# lion has a 1 instead of a 4
+				bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
+				# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
+				bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
+				# there's 8 bytes before this
+				bone_info_starts = []
+				for a, b in ((zero_f, bone_info_marker_1),
+							 (one_f, bone_info_marker_1),
+							 (zero_f, bone_info_marker_4),
+							 (one_f, bone_info_marker_4),
+							 ):
+					bone_info_starts.extend(x - 4 for x in findall(a + b, self.bone_info_bytes))
+
+				bone_info_starts = list(sorted(bone_info_starts))
+				print("bone_info_starts", bone_info_starts)
+
+				if bone_info_starts:
+					idx = mdl2.index
+					if idx >= len(bone_info_starts):
+						print("reset boneinfo index")
+						idx = 0
+					bone_info_address = self.eoh + bone_info_starts[idx]
+					print("using bone info {} at address {}".format(idx, bone_info_address))
+					stream.seek(bone_info_address)
+					try:
+						self.bone_info = Ms2BoneInfo()
+						self.bone_info.read(stream)
+						print(self.bone_info)
+						print("end of bone info at", stream.tell())
+						self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
+					except:
+						print("Bone info failed")
+
+				else:
+					print("No bone info found")
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
 			stream.seek(self.eoh + self.bone_info_size)
 			# get the starting position of buffer #2, vertex & face array
 			self.start_buffer2 = stream.tell()
-			print("vert array start", self.start_buffer2)
-			print("tri array start", self.start_buffer2 + self.buffer_info.vertexdatasize)
+			if self.general_info.ms_2_version == 32:
+				print("PC model...")
+				mdl2.models = []
+				if not quick:
+					base = 512
+					for model in self.pc_buffer1.model_infos:
+						for model_data in model.pc_model.model_data:
+							model_data.populate(self, stream, self.start_buffer2, self.bone_names, base)
 
-			if not quick:
-				base = mdl2.model_info.pack_offset
-				for model in mdl2.models:
-					model.populate(self, stream, self.start_buffer2, self.bone_names, base)
+							model_data.material = "test"
+							mdl2.models.append(model_data)
+						break
+			else:
+				print("vert array start", self.start_buffer2)
+				print("tri array start", self.start_buffer2 + self.buffer_info.vertexdatasize)
 
-			if map_bytes:
-				for model in mdl2.models:
-					model.read_bytes_map(self.start_buffer2, stream)
-				return
+				if not quick:
+					base = mdl2.model_info.pack_offset
+					for model in mdl2.models:
+						model.populate(self, stream, self.start_buffer2, self.bone_names, base)
+
+				if map_bytes:
+					for model in mdl2.models:
+						model.read_bytes_map(self.start_buffer2, stream)
+					return
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")

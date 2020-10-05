@@ -2,6 +2,7 @@
 import struct
 import math
 import numpy as np
+from generated.formats.ms2.compound.packing_utils import *
 
 # END_GLOBALS
 
@@ -142,16 +143,16 @@ class ModelData:
 		self.tangents = (self.tangents - 128) / 128
 		for i in range(self.vertex_count):
 			in_pos_packed = self.verts_data[i]["pos"]
-			vert, residue = self.unpack_longint_vec(in_pos_packed)
-			self.vertices[i] = self.unpack_swizzle(vert)
+			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
+			self.vertices[i] = unpack_swizzle(vert)
 
-			out_pos_packed = self.pack_longint_vec(self.pack_swizzle(self.vertices[i]), residue)
+			# out_pos_packed = pack_longint_vec(pack_swizzle(self.vertices[i]), residue, self.base)
 			# print(bin(in_pos_packed), type(in_pos_packed))
 			# print(bin(out_pos_packed), type(out_pos_packed))
 			# print(in_pos_packed-out_pos_packed)
 
-			self.normals[i] = self.unpack_swizzle(self.normals[i])
-			self.tangents[i] = self.unpack_swizzle(self.tangents[i])
+			self.normals[i] = unpack_swizzle(self.normals[i])
+			self.tangents[i] = unpack_swizzle(self.tangents[i])
 
 			# stores all (bonename, weight) pairs of this vertex
 			vert_w = []
@@ -176,91 +177,6 @@ class ModelData:
 			# packing bit
 			vert_w.append(("residue", residue))
 			self.weights.append(vert_w)
-
-	@staticmethod
-	def unpack_ushort_vector(vec):
-		return (vec - 32768) / 2048
-
-	@staticmethod
-	def unpack_swizzle(vec):
-		# swizzle to avoid a matrix multiplication for global axis correction
-		return -vec[0], -vec[2], vec[1]
-
-	@staticmethod
-	def pack_swizzle(vec):
-		# swizzle to avoid a matrix multiplication for global axis correction
-		return -vec[0], vec[2], -vec[1]
-
-	@staticmethod
-	def pack_ushort_vector(vec):
-		return [min(int(round(coord * 2048 + 32768)), 65535) for coord in vec]
-
-	@staticmethod
-	def pack_ubyte_vector(vec):
-		return [min(int(round(x * 128 + 128)), 255) for x in vec]
-
-	@staticmethod
-	def get_weights(bone_ids, bone_weights):
-		return [(i, w / 255) for i, w in zip(bone_ids, bone_weights) if w > 0]
-
-	def unpack_longint_vec(self, input):
-		"""Unpacks and returns the self.raw_pos uint64"""
-		# numpy uint64 does not like the bit operations so we cast to default int
-		input = int(input)
-		# correct for size according to base, relative to 512
-		scale = self.base / 512 / 2048
-		# input = self.raw_pos
-		output = []
-		# print("inp",bin(input))
-		for i in range(3):
-			# print("\nnew coord")
-			# grab the last 20 bits with bitand
-			# bit representation: 0b11111111111111111111
-			twenty_bits = input & 0xFFFFF
-			# print("input", bin(input))
-			# print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-			input >>= 20
-			# print("input >>= 20", bin(input))
-			# print("1",bin(1))
-			# get the rightmost bit
-			rightmost_bit = input & 1
-			# print("rightmost_bit = input & 1",bin(rightmost_bit))
-			# print(rightmost_bit, twenty_bits)
-			if not rightmost_bit:
-				# rightmost bit was 0
-				# print("rightmost_bit == 0")
-				# bit representation: 0b100000000000000000000
-				twenty_bits -= 0x100000
-			# print("final int", twenty_bits)
-			o = (twenty_bits + self.base) * scale
-			output.append(o)
-			# shift to skip the sign bit
-			input >>= 1
-		# input at this point is either 0 or 1
-		return output, input
-
-	def pack_longint_vec(self, vec, residue):
-		"""Packs the input vector + residue bit into a uint64 (1, 21, 21, 21)"""
-		# correct for size according to base, relative to 512
-		scale = self.base / 512 / 2048
-		output = 0
-		for i, f in enumerate(vec):
-			o = int(round(f / scale - self.base))
-			# print("restored int", o)
-			if o < 0x100000:
-				# 0b100000000000000000000
-				o += 0x100000
-			else:
-				# set the 1 bit flag
-				output |= 1 << (21 * (i + 1) - 1)
-			# print("restored int + correction", o)
-			output |= o << (21 * i)
-		# print("bef",bin(output))
-		output |= residue << 63
-		# thing = struct.unpack("<d", struct.pack("<Q",output))
-		# thing2 = -1.0*float(thing[0])
-		# output = struct.unpack("<Q", struct.pack("<d",thing2))[0]
-		return output
 
 	def write_verts(self, stream):
 		# if writing directly to file, doesn't support io bytes
@@ -297,9 +213,9 @@ class ModelData:
 		for i, (
 		position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids, bone_weights, fur) in enumerate(
 				verts):
-			self.verts_data[i]["pos"] = self.pack_longint_vec(self.pack_swizzle(position), residue)
-			self.verts_data[i]["normal"] = self.pack_ubyte_vector(self.pack_swizzle(normal))
-			self.verts_data[i]["tangent"] = self.pack_ubyte_vector(self.pack_swizzle(tangent))
+			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
+			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
+			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
 			self.verts_data[i]["unk"] = unk_0 * 255
 			self.verts_data[i]["bone index"] = bone_index
 			if "bone ids" in self.dt.fields:
@@ -310,11 +226,15 @@ class ModelData:
 				d = np.sum(self.verts_data[i]["bone weights"]) - 255
 				self.verts_data[i]["bone weights"][0] -= d
 			if "uvs" in self.dt.fields:
-				self.verts_data[i]["uvs"] = list(self.pack_ushort_vector(uv) for uv in uvs)
+				self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
 				if fur is not None:
-					self.verts_data[i]["uvs"][1][0], _ = self.pack_ushort_vector((fur, 0))
+					self.verts_data[i]["uvs"][1][0], _ = pack_ushort_vector((fur, 0))
 			if "colors" in self.dt.fields:
 				self.verts_data[i]["colors"] = list(list(c * 255 for c in vcol) for vcol in vcols)
+
+	@staticmethod
+	def get_weights(bone_ids, bone_weights):
+		return [(i, w / 255) for i, w in zip(bone_ids, bone_weights) if w > 0]
 
 	@property
 	def tris(self, ):

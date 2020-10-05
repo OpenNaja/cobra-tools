@@ -1,24 +1,16 @@
 import struct
 import os
-import io
 import tempfile
 import shutil
-import pyffi
 
 from modules.formats.DDS import load_png, load_dds
 from modules.formats.MS2 import load_mdl2
+from modules.util import split_path, to_bytes
 from pyffi_ext.formats.fgm import FgmFormat
 from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
 from generated.formats.bnk import BnkFile
 
 from util import imarray
-
-
-def split_path(fp):
-	in_dir, name_ext = os.path.split(fp)
-	name, ext = os.path.splitext(name_ext)
-	ext = ext.lower()
-	return name_ext, name, ext
 
 
 def inject(ovl_data, file_paths, show_dds, is_2K):
@@ -92,21 +84,6 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 
 	load_mdl2(ovl_data, mdl2_tups)
 	shutil.rmtree(tmp_dir)
-
-
-def to_bytes(inst, data):
-	"""helper that returns the bytes representation of a pyffi struct"""
-	# we must make sure that pyffi arrays are not treated as a list although they are an instance of 'list'
-	if isinstance(inst, list) and not isinstance(inst, pyffi.object_models.xml.array.Array):
-		return b"".join(to_bytes(c, data) for c in inst)
-	if isinstance(inst, bytes):
-		return inst
-	# zero terminated strings show up as strings
-	if isinstance(inst, str):
-		return inst.encode() + b"\x00"
-	with io.BytesIO() as frag_writer:
-		inst.write(frag_writer, data=data)
-		return frag_writer.getvalue()
 
 
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
@@ -313,13 +290,13 @@ def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
 				pointers.append(m0.pointers[1])
 				new_names.append(layer.name)
 				for frag, wrapper in zip(info.children, layer.infos):
-					frag.pointers[0].update_data( to_bytes(wrapper.info, matcol_data), update_copies=True )
-					frag.pointers[1].update_data( to_bytes(wrapper.name, matcol_data), update_copies=True )
+					frag.pointers[0].update_data(to_bytes(wrapper.info, matcol_data), update_copies=True)
+					frag.pointers[1].update_data(to_bytes(wrapper.name, matcol_data), update_copies=True)
 					pointers.append(frag.pointers[1])
 					new_names.append(wrapper.name)
 				for frag, wrapper in zip(attrib.children, layer.attribs):
-					frag.pointers[0].update_data( to_bytes(wrapper.attrib, matcol_data), update_copies=True )
-					frag.pointers[1].update_data( to_bytes(wrapper.name, matcol_data), update_copies=True )
+					frag.pointers[0].update_data(to_bytes(wrapper.attrib, matcol_data), update_copies=True)
+					frag.pointers[1].update_data(to_bytes(wrapper.name, matcol_data), update_copies=True)
 					pointers.append(frag.pointers[1])
 					new_names.append(wrapper.name)
 

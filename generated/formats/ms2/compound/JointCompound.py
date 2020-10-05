@@ -53,9 +53,9 @@ class JointCompound:
 
 		io_start = stream.tell()
 		self.namespace_length = stream.read_uint()
-		if not (stream.ms_2_version == 32):
+		if not (stream.version == 18):
 			self.zeros = [stream.read_uint() for _ in range(13)]
-		if stream.ms_2_version == 32:
+		if stream.version == 18:
 			self.zeros = [stream.read_uint() for _ in range(17)]
 		self.unknown_4 = stream.read_uint()
 		self.unknown_5 = stream.read_uint()
@@ -71,9 +71,9 @@ class JointCompound:
 
 		io_start = stream.tell()
 		stream.write_uint(self.namespace_length)
-		if not (stream.ms_2_version == 32):
+		if not (stream.version == 18):
 			for item in self.zeros: stream.write_uint(item)
-		if stream.ms_2_version == 32:
+		if stream.version == 18:
 			for item in self.zeros: stream.write_uint(item)
 		stream.write_uint(self.unknown_4)
 		stream.write_uint(self.unknown_5)

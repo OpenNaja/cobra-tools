@@ -8,8 +8,8 @@
         Commonly used version expressions.
         <verexpr token="#PZ#" string="((#USER# #EQ# 8340) #AND# (#VER# #EQ# 19))">PZ</verexpr>
         <verexpr token="#JWE#" string="((#USER# #EQ# 24724) #AND# (#VER# #EQ# 19))">JWE</verexpr>
-<!--		<verexpr token="#PC#" string="(#USER# #EQ# 8212)">PC</verexpr>-->
-		<verexpr token="#PC#" string="(ms2 version #EQ# 32)">PC</verexpr>
+		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
+<!--		<verexpr token="#PC#" string="(ms2 version #EQ# 32)">PC</verexpr>-->
     </token>
 	
     <token name="global" attrs="vercond cond">
@@ -261,11 +261,11 @@
         <add name="index" type="uint" >index of this model inside the ms2, used to find bone info</add>
 
         <add name="name" type="string" >name of ms2</add>
-        <add name="model info" type="CoreModelInfo" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="materials 0" type="Material0" arr1="model info\mat count" >name pointers for each material</add>
-		<add name="lods" type="LodInfo" arr1="model info\lod count" >lod info for each level</add>
-		<add name="materials 1" type="Material1" arr1="model info\mat1 count" >material links for each model</add>
-		<add name="models" type="ModelData" arr1="(model info\model count)" >model data blocks for this mdl2</add>
+        <add name="model info" type="CoreModelInfo" cond="!#PC#" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="materials 0" type="Material0" arr1="model info\mat count" cond="!#PC#" >name pointers for each material</add>
+		<add name="lods" type="LodInfo" arr1="model info\lod count" cond="!#PC#" >lod info for each level</add>
+		<add name="materials 1" type="Material1" arr1="model info\mat1 count" cond="!#PC#" >material links for each model</add>
+		<add name="models" type="ModelData" arr1="(model info\model count)" cond="!#PC#" >model data blocks for this mdl2</add>
 
     </compound>
 
@@ -292,18 +292,23 @@
 		
         <add name="name hashes" type="uint" arr1="general info\name count" ></add>
         <add name="names" type="ZString" arr1="general info\name count" ></add>
-
-		<add name="whatever" type="uint" arr1="8" cond="general info \ ms2 version == 32"></add>
-        <add name="model infos" type="onefiftytwo" arr1="general info\mdl2 count" cond="general info \ ms2 version == 32"></add>
-		<add name="some zero" type="uint" cond="general info \ ms2 version == 32">the padding between end of the modelinfo array and start of lodinfos</add>
     </compound>
-	
+
+	<compound name="PcBuffer1" >
+
+        cond="general info \ ms2 version == 32"
+		<add name="whatever" type="uint" arr1="8" ></add>
+        <add name="model infos" type="onefiftytwo" arr1="#ARG#\mdl2 count" ></add>
+		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>
+
+    </compound>
+
 	<compound name="PcModel" >
 		<add name="lod infos" type="LodInfo" arr1="#ARG#\model info\lod count" ></add>
 		<add name="materials 1" type="Material1" arr1="#ARG#\model info\mat1 count" ></add>
 		<add name="model data" type="PcModelData" arr1="#ARG#\model info\model count" ></add>
 		<add name="padding" type="uint" arr1="3" ></add>
-		<add name="bone info" type="Ms2BoneInfo" ></add>
+<!--		<add name="bone info" type="Ms2BoneInfo" ></add>-->
     </compound>
 
 	<compound name="onefiftytwo" >

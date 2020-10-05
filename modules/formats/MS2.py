@@ -2,8 +2,7 @@ import io
 import os
 import struct
 
-from modules.extract import write_sized_str
-from modules.inject import to_bytes
+from modules.util import write_sized_str, to_bytes
 from pyffi_ext.formats.ms2 import Ms2Format
 
 
@@ -30,39 +29,32 @@ def write_ms2(archive, ms2_sized_str_entry):
 							 len(bone_matrices))
 
 	print("\nWriting",name)
-	# print("\nbuffers",len(buffers))
-	# for i, buffer in enumerate(buffers):
-	# 	with open(archive.indir(name+str(i)+".ms2"), 'wb') as outfile:
-	# 		outfile.write(buffer)
-	if archive.version == 18:
+	print("\nbuffers",len(buffers))
+	for i, buffer in enumerate(buffers):
+		with open(archive.indir(name+str(i)+".ms2"), 'wb') as outfile:
+			outfile.write(buffer)
+
+	# Planet coaster
+	if archive.is_pc():
 		# only ss entry holds any useful stuff
-		with open(archive.indir(name), 'wb') as outfile:
-			print(len(bone_names),"\n",len(bone_matrices),"\n",len(verts))
-			outfile.write(ms2_header)
-			outfile.write(ms2_general_info_data)
-			outfile.write(bone_names)
-			outfile.write(bone_matrices)
-			outfile.write(verts)
+		ms2_buffer_info_data = b""
+		next_model_info_data = b""
+	# Planet Zoo, JWE
+	else:
+		if len(ms2_sized_str_entry.fragments) != 3:
+			print("must have 3 fragments")
 			return
-	elif len(ms2_sized_str_entry.fragments) != 3:
-		print("must have 3 fragments")
-		return
-	f_0, f_1, f_2 = ms2_sized_str_entry.fragments
+		f_0, f_1, f_2 = ms2_sized_str_entry.fragments
 
-	# f0 has information on vert & tri buffer sizes
-	ms2_buffer_info_data = f_0.pointers[1].data
-	# this fragment informs us about the model count of the next mdl2 that is read
-	# so we can use it to collect the variable mdl2 fragments describing a model each
-	next_model_info_data = f_1.pointers[1].data
-	# next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, archive)
-	# print("next_model_info", f_1.pointers[1].address, next_model_info)
+		# f0 has information on vert & tri buffer sizes
+		ms2_buffer_info_data = f_0.pointers[1].data
+		# this fragment informs us about the model count of the next mdl2 that is read
+		# so we can use it to collect the variable mdl2 fragments describing a model each
+		next_model_info_data = f_1.pointers[1].data
+		# next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, archive)
+		# print("next_model_info", f_1.pointers[1].address, next_model_info)
 
-	# ms2_header = struct.pack("<4s5I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names), len(bone_matrices), len(ms2_sized_str_entry.children))
-	# with open(archive.indir(name), 'wb') as outfile:
-	# 	outfile.write(ms2_header)
-	# 	for mdl2_entry in ms2_sized_str_entry.children:
-	# 		outfile.write(mdl2_entry.name.encode()[:-5]+b"\x00")
-
+	# write the ms2 file
 	with open(archive.indir(name), 'wb') as outfile:
 		outfile.write(ms2_header)
 		outfile.write(ms2_general_info_data)
@@ -74,51 +66,52 @@ def write_ms2(archive, ms2_sized_str_entry):
 	# export each mdl2
 	for mdl2_index, mdl2_entry in enumerate(ms2_sized_str_entry.children):
 		with open(archive.indir(mdl2_entry.name), 'wb') as outfile:
-			print("Writing",mdl2_entry.name,mdl2_index)
-			# the fixed fragments
-			green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
-			print("model_count",mdl2_entry.model_count)
+			print("Writing", mdl2_entry.name, mdl2_index)
 
 			mdl2_header = struct.pack("<4s3I", b"MDL2", archive.ovl.version, archive.ovl.flag_2, mdl2_index )
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
 
-			# write the model info for this model, buffered from the previous model or ms2 (pink fragments)
-			outfile.write(next_model_info_data)
-			# print("PINK",pink.pointers[0].address,pink.pointers[0].data_size,pink.pointers[1].address, pink.pointers[1].data_size)
-			if pink.pointers[0].data_size == 40:
-				pass
-				# 40 bytes of 'padding' (0,1 or 0,0,0,0)
-				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2FourtyInfo, archive)
-				# print(core_model_data)
-			elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
-			or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
-				# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
-				next_model_info_data = pink.pointers[0].data[40:]
-				# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2ModelInfo, archive)
-				# print(core_model_data)
-			else:
-				print("unexpected size for pink")
+			if not archive.is_pc():
+				# the fixed fragments
+				green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
+				print("model_count",mdl2_entry.model_count)
+				# write the model info for this model, buffered from the previous model or ms2 (pink fragments)
+				outfile.write(next_model_info_data)
+				# print("PINK",pink.pointers[0].address,pink.pointers[0].data_size,pink.pointers[1].address, pink.pointers[1].data_size)
+				if pink.pointers[0].data_size == 40:
+					pass
+					# 40 bytes of 'padding' (0,1 or 0,0,0,0)
+					# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2FourtyInfo, archive)
+					# print(core_model_data)
+				elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
+				or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
+					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
+					next_model_info_data = pink.pointers[0].data[40:]
+					# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2ModelInfo, archive)
+					# print(core_model_data)
+				else:
+					print("unexpected size for pink")
 
-			# avoid writing bad fragments that should be empty
-			if mdl2_entry.model_count:
-				# print("fixed fragments")
-				# need not write lod0
-				for f in (green_mats_0, blue_lod, orange_mats_1):
+				# avoid writing bad fragments that should be empty
+				if mdl2_entry.model_count:
+					# print("fixed fragments")
+					# need not write lod0
+					for f in (green_mats_0, blue_lod, orange_mats_1):
+						# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
+						other_data = f.pointers[1].data
+						outfile.write(other_data)
+
+				# print("modeldata frags")
+				for f in mdl2_entry.model_data_frags:
+					# each address_0 points to ms2's f_0 address_1 (size of vert & tri buffer)
 					# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-					other_data = f.pointers[1].data
-					outfile.write(other_data)
+					# model_data = f.pointers[0].read_as(Ms2Format.ModelData, archive)
+					# print(model_data)
 
-			# print("modeldata frags")
-			for f in mdl2_entry.model_data_frags:
-				# each address_0 points to ms2's f_0 address_1 (size of vert & tri buffer)
-				# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-				# model_data = f.pointers[0].read_as(Ms2Format.ModelData, archive)
-				# print(model_data)
-
-				model_data = f.pointers[0].data
-				outfile.write(model_data)
+					model_data = f.pointers[0].data
+					outfile.write(model_data)
 
 
 class Mdl2Holder:
@@ -272,7 +265,6 @@ class Ms2Holder:
 
 	def update_entry(self):
 		print(f"Updating {self}")
-		# adapted from old merger code
 
 		# write each model's vert & tri block to a temporary buffer
 		temp_vert_writer = io.BytesIO()

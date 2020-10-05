@@ -189,23 +189,23 @@ class Ms2BoneInfo:
 		self.unknown_5_c = stream.read_uint()
 		self.one_64 = stream.read_uint64()
 		self.unk_joint_count = stream.read_uint64()
-		if not (stream.ms_2_version == 32):
+		if not (stream.version == 18):
 			self.count_7 = stream.read_uint64()
 		self.joint_count = stream.read_uint()
 		self.unknown_7_c = stream.read_uint()
 		self.unk_78_count = stream.read_uint()
 		self.unknown_84 = stream.read_uint()
-		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.ms_2_version == 32):
+		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
 			self.unknown_88 = stream.read_uint()
 			self.unknown_8_c = stream.read_uint()
-		if stream.ms_2_version == 32:
+		if stream.version == 18:
 			self.unknownextra = stream.read_uint64()
 		self.name_indices = [stream.read_uint() for _ in range(self.name_count)]
 		self.name_padding = [stream.read_byte() for _ in range((16 - ((self.name_count * 4) % 16)) % 16)]
 		self.inverse_bind_matrices = [stream.read_type(Matrix44) for _ in range(self.bind_matrix_count)]
 		if (stream.user_version == 8340) and (stream.version == 19):
 			self.bones = [stream.read_type(PzBone) for _ in range(self.bone_count)]
-		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.ms_2_version == 32):
+		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
 			self.bones = [stream.read_type(JweBone) for _ in range(self.bone_count)]
 		self.bone_parents = [stream.read_ubyte() for _ in range(self.bone_parents_count)]
 		self.hier_1_padding = [stream.read_byte() for _ in range((8 - (self.bone_parents_count % 8)) % 8)]
@@ -216,7 +216,7 @@ class Ms2BoneInfo:
 			self.hier_2_padding_1 = stream.read_uint64()
 		if 128 < self.bone_count:
 			self.hier_2_padding_2 = stream.read_uint64()
-		if stream.ms_2_version == 32:
+		if stream.version == 18:
 			self.joints = stream.read_type(PcJoints)
 
 		self.io_size = stream.tell() - io_start
@@ -250,23 +250,23 @@ class Ms2BoneInfo:
 		stream.write_uint(self.unknown_5_c)
 		stream.write_uint64(self.one_64)
 		stream.write_uint64(self.unk_joint_count)
-		if not (stream.ms_2_version == 32):
+		if not (stream.version == 18):
 			stream.write_uint64(self.count_7)
 		stream.write_uint(self.joint_count)
 		stream.write_uint(self.unknown_7_c)
 		stream.write_uint(self.unk_78_count)
 		stream.write_uint(self.unknown_84)
-		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.ms_2_version == 32):
+		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
 			stream.write_uint(self.unknown_88)
 			stream.write_uint(self.unknown_8_c)
-		if stream.ms_2_version == 32:
+		if stream.version == 18:
 			stream.write_uint64(self.unknownextra)
 		for item in self.name_indices: stream.write_uint(item)
 		for item in self.name_padding: stream.write_byte(item)
 		for item in self.inverse_bind_matrices: stream.write_type(item)
 		if (stream.user_version == 8340) and (stream.version == 19):
 			for item in self.bones: stream.write_type(item)
-		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.ms_2_version == 32):
+		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
 			for item in self.bones: stream.write_type(item)
 		for item in self.bone_parents: stream.write_ubyte(item)
 		for item in self.hier_1_padding: stream.write_byte(item)
@@ -277,7 +277,7 @@ class Ms2BoneInfo:
 			stream.write_uint64(self.hier_2_padding_1)
 		if 128 < self.bone_count:
 			stream.write_uint64(self.hier_2_padding_2)
-		if stream.ms_2_version == 32:
+		if stream.version == 18:
 			stream.write_type(self.joints)
 
 		self.io_size = stream.tell() - io_start

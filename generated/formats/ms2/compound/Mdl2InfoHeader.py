@@ -66,11 +66,12 @@ class Mdl2InfoHeader:
 		stream.user_version = self.user_version
 		self.index = stream.read_uint()
 		self.name = stream.read_string()
-		self.model_info = stream.read_type(CoreModelInfo)
-		self.materials_0 = [stream.read_type(Material0) for _ in range(self.model_info.mat_count)]
-		self.lods = [stream.read_type(LodInfo) for _ in range(self.model_info.lod_count)]
-		self.materials_1 = [stream.read_type(Material1) for _ in range(self.model_info.mat_1_count)]
-		self.models = [stream.read_type(ModelData) for _ in range(self.model_info.model_count)]
+		if not (stream.version == 18):
+			self.model_info = stream.read_type(CoreModelInfo)
+			self.materials_0 = [stream.read_type(Material0) for _ in range(self.model_info.mat_count)]
+			self.lods = [stream.read_type(LodInfo) for _ in range(self.model_info.lod_count)]
+			self.materials_1 = [stream.read_type(Material1) for _ in range(self.model_info.mat_1_count)]
+			self.models = [stream.read_type(ModelData) for _ in range(self.model_info.model_count)]
 
 		self.io_size = stream.tell() - io_start
 
@@ -84,11 +85,12 @@ class Mdl2InfoHeader:
 		stream.user_version = self.user_version
 		stream.write_uint(self.index)
 		stream.write_string(self.name)
-		stream.write_type(self.model_info)
-		for item in self.materials_0: stream.write_type(item)
-		for item in self.lods: stream.write_type(item)
-		for item in self.materials_1: stream.write_type(item)
-		for item in self.models: stream.write_type(item)
+		if not (stream.version == 18):
+			stream.write_type(self.model_info)
+			for item in self.materials_0: stream.write_type(item)
+			for item in self.lods: stream.write_type(item)
+			for item in self.materials_1: stream.write_type(item)
+			for item in self.models: stream.write_type(item)
 
 		self.io_size = stream.tell() - io_start
 
