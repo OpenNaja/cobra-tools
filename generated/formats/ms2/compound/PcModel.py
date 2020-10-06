@@ -8,7 +8,6 @@ class PcModel:
 	lod_infos: typing.List[LodInfo]
 	materials_1: typing.List[Material1]
 	model_data: typing.List[PcModelData]
-	padding: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -17,7 +16,6 @@ class PcModel:
 		self.lod_infos = []
 		self.materials_1 = []
 		self.model_data = []
-		self.padding = []
 
 	def read(self, stream):
 
@@ -25,7 +23,6 @@ class PcModel:
 		self.lod_infos = [stream.read_type(LodInfo) for _ in range(self.arg.model_info.lod_count)]
 		self.materials_1 = [stream.read_type(Material1) for _ in range(self.arg.model_info.mat_1_count)]
 		self.model_data = [stream.read_type(PcModelData) for _ in range(self.arg.model_info.model_count)]
-		self.padding = [stream.read_uint() for _ in range(3)]
 
 		self.io_size = stream.tell() - io_start
 
@@ -35,7 +32,6 @@ class PcModel:
 		for item in self.lod_infos: stream.write_type(item)
 		for item in self.materials_1: stream.write_type(item)
 		for item in self.model_data: stream.write_type(item)
-		for item in self.padding: stream.write_uint(item)
 
 		self.io_size = stream.tell() - io_start
 
@@ -44,6 +40,5 @@ class PcModel:
 		s += '\n	* lod_infos = ' + self.lod_infos.__repr__()
 		s += '\n	* materials_1 = ' + self.materials_1.__repr__()
 		s += '\n	* model_data = ' + self.model_data.__repr__()
-		s += '\n	* padding = ' + self.padding.__repr__()
 		s += '\n'
 		return s

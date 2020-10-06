@@ -16,9 +16,7 @@ class PcModelData:
 	"""
 
 	# always zero
-
-	# always zero
-	zeros: typing.List[int]
+	zeros_a: typing.List[int]
 
 	# repeat
 	tri_index_count_a: int
@@ -26,13 +24,13 @@ class PcModelData:
 	# vertex count of model
 	vertex_count: int
 
-	# byte offset from start of tri buffer in bytes
+	# x*16 = offset in buffer 2
 	tri_offset: int
 
 	# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
 	tri_index_count: int
 
-	# byte offset from start of vert buffer (=start of buffer nr 2) in bytes
+	# x*16 = offset in buffer 2
 	vertex_offset: int
 
 	# always zero
@@ -40,6 +38,12 @@ class PcModelData:
 
 	# ?
 	weight_offset: int
+
+	# always zero
+	zero_b: int
+
+	# x*16 = offset in buffer 2
+	vertex_color_offset: int
 
 	# ?
 	vert_offset_within_lod: int
@@ -53,14 +57,14 @@ class PcModelData:
 	# some floats
 	unknown_07: float
 
-	# maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)
+	# bitfield
 	flag: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.zeros = []
+		self.zeros_a = []
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 		self.tri_offset = 0
@@ -68,7 +72,8 @@ class PcModelData:
 		self.vertex_offset = 0
 		self.unknown_05 = 0
 		self.weight_offset = 0
-		self.zeros = []
+		self.zero_b = 0
+		self.vertex_color_offset = 0
 		self.vert_offset_within_lod = 0
 		self.poweroftwo = 0
 		self.zero = 0
@@ -78,7 +83,7 @@ class PcModelData:
 	def read(self, stream):
 
 		io_start = stream.tell()
-		self.zeros = [stream.read_uint() for _ in range(4)]
+		self.zeros_a = [stream.read_uint() for _ in range(4)]
 		if stream.version == 18:
 			self.tri_index_count_a = stream.read_uint()
 		self.vertex_count = stream.read_uint()
@@ -87,7 +92,8 @@ class PcModelData:
 		self.vertex_offset = stream.read_uint()
 		self.unknown_05 = stream.read_uint()
 		self.weight_offset = stream.read_uint()
-		self.zeros = [stream.read_uint() for _ in range(2)]
+		self.zero_b = stream.read_uint()
+		self.vertex_color_offset = stream.read_uint()
 		self.vert_offset_within_lod = stream.read_uint()
 		self.poweroftwo = stream.read_uint()
 		self.zero = stream.read_uint()
@@ -99,7 +105,7 @@ class PcModelData:
 	def write(self, stream):
 
 		io_start = stream.tell()
-		for item in self.zeros: stream.write_uint(item)
+		for item in self.zeros_a: stream.write_uint(item)
 		if stream.version == 18:
 			stream.write_uint(self.tri_index_count_a)
 		stream.write_uint(self.vertex_count)
@@ -108,7 +114,8 @@ class PcModelData:
 		stream.write_uint(self.vertex_offset)
 		stream.write_uint(self.unknown_05)
 		stream.write_uint(self.weight_offset)
-		for item in self.zeros: stream.write_uint(item)
+		stream.write_uint(self.zero_b)
+		stream.write_uint(self.vertex_color_offset)
 		stream.write_uint(self.vert_offset_within_lod)
 		stream.write_uint(self.poweroftwo)
 		stream.write_uint(self.zero)
@@ -119,7 +126,7 @@ class PcModelData:
 
 	def __repr__(self):
 		s = 'PcModelData [Size: '+str(self.io_size)+']'
-		s += '\n	* zeros = ' + self.zeros.__repr__()
+		s += '\n	* zeros_a = ' + self.zeros_a.__repr__()
 		s += '\n	* tri_index_count_a = ' + self.tri_index_count_a.__repr__()
 		s += '\n	* vertex_count = ' + self.vertex_count.__repr__()
 		s += '\n	* tri_offset = ' + self.tri_offset.__repr__()
@@ -127,6 +134,8 @@ class PcModelData:
 		s += '\n	* vertex_offset = ' + self.vertex_offset.__repr__()
 		s += '\n	* unknown_05 = ' + self.unknown_05.__repr__()
 		s += '\n	* weight_offset = ' + self.weight_offset.__repr__()
+		s += '\n	* zero_b = ' + self.zero_b.__repr__()
+		s += '\n	* vertex_color_offset = ' + self.vertex_color_offset.__repr__()
 		s += '\n	* vert_offset_within_lod = ' + self.vert_offset_within_lod.__repr__()
 		s += '\n	* poweroftwo = ' + self.poweroftwo.__repr__()
 		s += '\n	* zero = ' + self.zero.__repr__()
@@ -149,7 +158,7 @@ class PcModelData:
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		try:
-			uv_shape = self.dt["uvs"].shape
+			uv_shape = self.dt_uv["uvs"].shape
 			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		except:
 			self.uvs = None
@@ -170,8 +179,13 @@ class PcModelData:
 			("tangent", np.ubyte, (3,)),
 			("bone index", np.ubyte),
 		]
+		dt_uv = [
+			("uvs", np.ushort, (1, 2)),
+		]
 		self.dt = np.dtype(dt)
+		self.dt_uv = np.dtype(dt_uv)
 		print("PC size of vertex:", self.dt.itemsize)
+		print("PC size of uv:", self.dt_uv.itemsize)
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
@@ -188,19 +202,22 @@ class PcModelData:
 	def read_verts(self, stream):
 		# read a vertices of this model
 		stream.seek(self.start_buffer2 + (self.vertex_offset * 16))
-		print(stream.tell())
+		print("VERTS", stream.tell())
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
+		stream.seek(self.start_buffer2 + (self.weight_offset * 16))
+		print("UV", stream.tell())
+		self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
 		# print(self.verts_data)
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
-		# # first cast to the float uvs array so unpacking doesn't use int division
-		# if self.uvs is not None:
-		# 	self.uvs[:] = self.verts_data[:]["uvs"]
-		# 	# unpack uvs
-		# 	self.uvs = (self.uvs - 32768) / 2048
+		# first cast to the float uvs array so unpacking doesn't use int division
+		if self.uvs is not None:
+			self.uvs[:] = self.uv_data[:]["uvs"]
+			# unpack uvs
+			self.uvs = (self.uvs - 32768) / 2048
 		# if self.colors is not None:
 		# 	# first cast to the float colors array so unpacking doesn't use int division
 		# 	self.colors[:] = self.verts_data[:]["colors"]

@@ -25,7 +25,7 @@ class PcModelData:
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		try:
-			uv_shape = self.dt["uvs"].shape
+			uv_shape = self.dt_uv["uvs"].shape
 			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		except:
 			self.uvs = None
@@ -46,8 +46,13 @@ class PcModelData:
 			("tangent", np.ubyte, (3,)),
 			("bone index", np.ubyte),
 		]
+		dt_uv = [
+			("uvs", np.ushort, (1, 2)),
+		]
 		self.dt = np.dtype(dt)
+		self.dt_uv = np.dtype(dt_uv)
 		print("PC size of vertex:", self.dt.itemsize)
+		print("PC size of uv:", self.dt_uv.itemsize)
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
@@ -64,19 +69,22 @@ class PcModelData:
 	def read_verts(self, stream):
 		# read a vertices of this model
 		stream.seek(self.start_buffer2 + (self.vertex_offset * 16))
-		print(stream.tell())
+		print("VERTS", stream.tell())
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
+		stream.seek(self.start_buffer2 + (self.weight_offset * 16))
+		print("UV", stream.tell())
+		self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
 		# print(self.verts_data)
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
-		# # first cast to the float uvs array so unpacking doesn't use int division
-		# if self.uvs is not None:
-		# 	self.uvs[:] = self.verts_data[:]["uvs"]
-		# 	# unpack uvs
-		# 	self.uvs = (self.uvs - 32768) / 2048
+		# first cast to the float uvs array so unpacking doesn't use int division
+		if self.uvs is not None:
+			self.uvs[:] = self.uv_data[:]["uvs"]
+			# unpack uvs
+			self.uvs = (self.uvs - 32768) / 2048
 		# if self.colors is not None:
 		# 	# first cast to the float colors array so unpacking doesn't use int division
 		# 	self.colors[:] = self.verts_data[:]["colors"]

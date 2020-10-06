@@ -224,21 +224,21 @@
         Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
 		If there is more than one of these, the fragments appear as a list according to
-        <add name="zeros" type="uint" arr1="4" >always zero</add>
+        <add name="zeros a" type="uint" arr1="4" >always zero</add>
         <add name="tri index count a" type="uint" cond="#PC#">repeat</add>
         <add name="vertex count" type="uint" >vertex count of model</add>
-        <add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
+        <add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
         <add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
-        <add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
+        <add name="vertex offset" type="uint" >x*16 = offset in buffer 2</add>
         <add name="unknown05" type="uint">always zero</add>
         <add name="weight offset" type="uint" > ?</add>
-        <add name="zeros" type="uint" arr1="2">always zero</add>
+        <add name="zero b" type="uint">always zero</add>
+        <add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
         <add name="vert offset within lod" type="uint" > ?</add>
         <add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-<!--        <add name="size of vertex" type="uint" >usually 48</add>-->
         <add name="zero" type="uint">always zero</add>
         <add name="unknown07" type="float">some floats</add>
-        <add name="flag" type="uint">maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)</add>
+        <add name="flag" type="uint">bitfield</add>
 <!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
     </compound>
 	
@@ -307,7 +307,7 @@
 		<add name="lod infos" type="LodInfo" arr1="#ARG#\model info\lod count" ></add>
 		<add name="materials 1" type="Material1" arr1="#ARG#\model info\mat1 count" ></add>
 		<add name="model data" type="PcModelData" arr1="#ARG#\model info\model count" ></add>
-		<add name="padding" type="uint" arr1="3" ></add>
+<!--		<add name="padding" type="uint" arr1="3" >does not work for ostrich, has just arr = 1 here</add>-->
 <!--		<add name="bone info" type="Ms2BoneInfo" ></add>-->
     </compound>
 
@@ -417,7 +417,67 @@
         <add name="hier2padding 2" type="uint64" cond="128 #LT# bone count">129 is the first with 24 bytes</add>
 
 
-        <add name="joints" type="Pc Joints" cond="#PC#" ></add>
+<!--        <add name="joints" type="Pc Joints" cond="#PC#" ></add>-->
+<!--experimental!!-->
+<!--        objects - pz birch, jwe stuff-->
+<!--        		<add name="JointDatas" type="JointData" cond="joint count" >joint data</add>-->
+
+<!--        dinos only-->
+<!--		        <add name="JointDatas" type="JointDataNasuto" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
+
+    </compound>
+
+    <compound name="Ms2BoneInfoPc">
+        <add name="name count" type="int" >index count 1, setting to int to fix boneless model import</add>
+        <add name="float 0 1" type="float" >seems to be either 0.0 or 1.0</add>
+        <add name="knownff" type="ushort" >this is always FFFF for now</add>
+        <add name="zero0" type="ushort" >this is always 0000 for now</add>
+        <add name="unknown0c" type="uint" ></add>
+        <add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
+        <add name="unknown14" type="uint" ></add>
+        <add name="bind matrix count" type="uint" >seems to match bone count</add>
+        <add name="int 0 1" type="uint" >usually 0; 1 for animal_box_large, animal_box_medium_static</add>
+        <add name="unknown20" type="uint" ></add>
+		<add name="unknown24" type="uint" ></add>
+		<add name="unknown28" type="uint" ></add>
+		<add name="unknown2C" type="uint" ></add>
+		<add name="unknown30" type="uint" ></add>
+		<add name="unknown34" type="uint" ></add>
+		<add name="bone count" type="uint64" >index count3</add>
+		<add name="unknown40" type="uint" ></add>
+		<add name="unknown44" type="uint" ></add>
+		<add name="bone parents count" type="uint64" >index count4</add>
+		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
+		<add name="count5" type="uint64" >index count 5</add>
+		<add name="unknown58" type="uint" ></add>
+		<add name="unknown5C" type="uint" ></add>
+		<add name="one64" type="uint64" >always 1</add>
+		<add name="unk joint count" type="uint64" >if joints are present, same as bone count</add>
+		<add name="count7" type="uint64" vercond="! #PC#" >index count 7</add>
+		<add name="joint count" type="uint" >joint count</add>
+		<add name="unknown7C" type="uint" ></add>
+		<add name="unk78count" type="uint" >unnk 78 count</add>
+		<add name="unknown84" type="uint" ></add>
+		<add name="unknown88" type="uint" vercond="#JWE# #OR# #PC#" >jwe only, everything is shifted a bit due to extra uint 0</add>
+		<add name="unknown8C" type="uint" vercond="#JWE# #OR# #PC#" >same as above</add>
+		<add name="unknownextra" type="uint64" vercond="#PC#" >same as above</add>
+        <add name="name indices" type="ushort" arr1="name count">index into ms2 string table for bones used here</add>
+        <add name="name padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
+        <add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
+        <add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
+        <add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
+		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8">zeros</add>
+        <add name="unknown hier list" type="unk_hierlist_entry"  arr1="count5" cond="one64" >unclear what this is doing</add>
+
+        padding is related to bone count
+        odd one out: JWE stairwell
+        <add name="hier2padding 0" type="uint64" ></add>
+        <add name="hier2padding 1" type="uint64" cond="64 #LT# bone count">128 still has 16 bytes</add>
+        <add name="hier2padding 2" type="uint64" cond="128 #LT# bone count">129 is the first with 24 bytes</add>
+
+
+<!--        <add name="joints" type="Pc Joints" cond="#PC#" ></add>-->
 <!--experimental!!-->
 <!--        objects - pz birch, jwe stuff-->
 <!--        		<add name="JointDatas" type="JointData" cond="joint count" >joint data</add>-->

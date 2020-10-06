@@ -7,6 +7,7 @@ import time
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
+from generated.formats.ms2.compound.Ms2BoneInfoPc import Ms2BoneInfoPc
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.io import IoFile, BinaryStream
@@ -19,6 +20,16 @@ def findall(p, s):
 	while i != -1:
 		yield i
 		i = s.find(p, i+1)
+
+
+def findall_diff(s, p0, p1):
+	'''Yields all the positions of
+	the pattern p in the string s.'''
+	i = s.find(p0)
+	while i != -1:
+		if s[i+20:i+24] == p1:
+			yield i
+		i = s.find(p0, i+1)
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
@@ -42,12 +53,42 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			print("end of header: ", self.eoh)
 			if self.is_pc():
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
-				# this is for the PC format
-				for mdl2_info in self.pc_buffer1.model_infos:
-					mdl2_info.pc_model = stream.read_type(PcModel, (mdl2_info,))
-					print(mdl2_info.pc_model)
 
-					break
+				start_of_lods = stream.tell()
+				# first get all bytes of the whole bone infos block
+				self.model_data_bone_info_bytes = stream.read(self.eoh + self.bone_info_size - start_of_lods)
+				# find the start of each using this identifier
+				ninehundred_f = bytes.fromhex("00 00 61 44 00 00")
+				twothousand_f = bytes.fromhex("00 20 FD 44")
+				lod_info_starts = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, twothousand_f)
+
+				lod_info_starts = list(sorted(lod_info_starts))
+				for i, m in enumerate(self.pc_buffer1.model_infos):
+					m.index = i
+					m.pc_model = None
+
+				valid_models = [m for m in self.pc_buffer1.model_infos if m.model_info.model_count]
+				model_info = self.pc_buffer1.model_infos[mdl2.index]
+				b_index = valid_models.index(model_info)
+				print("mdl2s", len(self.pc_buffer1.model_infos))
+				print("mdl2s with models", len(valid_models))
+				print("lod info starts", len(lod_info_starts), "(should match the above)")
+				lod_offset_rel = lod_info_starts[b_index]
+				# this is for the PC format
+				# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
+				print("Lod offset from start of lod block", lod_offset_rel)
+				stream.seek(start_of_lods+lod_offset_rel)
+				print(stream.tell())
+				model_info.pc_model = stream.read_type(PcModel, (model_info,))
+				print(model_info.pc_model)
+				print("end of pc_model", stream.tell())
+				# padding
+				# the other models have 16 bytes
+				# ostrich has 4 bytes
+				stream.read(4)
+				print("start of boneinfo", stream.tell())
+				self.bone_info = stream.read_type(Ms2BoneInfoPc)
+				print("after modeldata", stream.tell())
 			else:
 				# first get all bytes of the whole bone infos block
 				self.bone_info_bytes = stream.read(self.bone_info_size)
@@ -83,12 +124,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						self.bone_info.read(stream)
 						print(self.bone_info)
 						print("end of bone info at", stream.tell())
-						self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
 					except:
 						print("Bone info failed")
 
 				else:
 					print("No bone info found")
+		if self.bone_info:
+			try:
+				self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
+			except:
+				print("Names failed...")
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
@@ -99,14 +144,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print("PC model...")
 				mdl2.models = []
 				if not quick:
+					base = model_info.model_info.pack_offset
+					print("base", base)
 					base = 512
-					for model in self.pc_buffer1.model_infos:
-						for model_data in model.pc_model.model_data:
-							model_data.populate(self, stream, self.start_buffer2, self.bone_names, base)
+					# for model in self.pc_buffer1.model_infos:
+					for model_data in model_info.pc_model.model_data:
+						model_data.populate(self, stream, self.start_buffer2, self.bone_names, base)
 
-							model_data.material = "test"
-							mdl2.models.append(model_data)
-						break
+						model_data.material = "test"
+						mdl2.models.append(model_data)
 			else:
 				print("vert array start", self.start_buffer2)
 				print("tri array start", self.start_buffer2 + self.buffer_info.vertexdatasize)

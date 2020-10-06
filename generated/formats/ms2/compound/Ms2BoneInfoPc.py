@@ -5,7 +5,7 @@ from generated.formats.ms2.compound.PzBone import PzBone
 from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
 
 
-class Ms2BoneInfo:
+class Ms2BoneInfoPc:
 
 	# index count 1, setting to int to fix boneless model import
 	name_count: int
@@ -197,8 +197,8 @@ class Ms2BoneInfo:
 			self.unknown_8_c = stream.read_uint()
 		if stream.version == 18:
 			self.unknownextra = stream.read_uint64()
-		self.name_indices = [stream.read_uint() for _ in range(self.name_count)]
-		self.name_padding = [stream.read_byte() for _ in range((16 - ((self.name_count * 4) % 16)) % 16)]
+		self.name_indices = [stream.read_ushort() for _ in range(self.name_count)]
+		self.name_padding = [stream.read_byte() for _ in range((16 - ((self.name_count * 2) % 16)) % 16)]
 		self.inverse_bind_matrices = [stream.read_type(Matrix44) for _ in range(self.bind_matrix_count)]
 		if (stream.user_version == 8340) and (stream.version == 19):
 			self.bones = [stream.read_type(PzBone) for _ in range(self.bone_count)]
@@ -256,7 +256,7 @@ class Ms2BoneInfo:
 			stream.write_uint(self.unknown_8_c)
 		if stream.version == 18:
 			stream.write_uint64(self.unknownextra)
-		for item in self.name_indices: stream.write_uint(item)
+		for item in self.name_indices: stream.write_ushort(item)
 		for item in self.name_padding: stream.write_byte(item)
 		for item in self.inverse_bind_matrices: stream.write_type(item)
 		if (stream.user_version == 8340) and (stream.version == 19):
@@ -276,7 +276,7 @@ class Ms2BoneInfo:
 		self.io_size = stream.tell() - io_start
 
 	def __repr__(self):
-		s = 'Ms2BoneInfo [Size: '+str(self.io_size)+']'
+		s = 'Ms2BoneInfoPc [Size: '+str(self.io_size)+']'
 		s += '\n	* name_count = ' + self.name_count.__repr__()
 		s += '\n	* float_0_1 = ' + self.float_0_1.__repr__()
 		s += '\n	* knownff = ' + self.knownff.__repr__()
