@@ -230,8 +230,8 @@
         <add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
         <add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
         <add name="vertex offset" type="uint" >x*16 = offset in buffer 2</add>
-        <add name="unknown05" type="uint">always zero</add>
-        <add name="weight offset" type="uint" > ?</add>
+        <add name="weights offset" type="uint">x*16 = offset in buffer 2</add>
+        <add name="uv offset" type="uint" >x*16 = offset in buffer 2</add>
         <add name="zero b" type="uint">always zero</add>
         <add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
         <add name="vert offset within lod" type="uint" > ?</add>

@@ -33,11 +33,11 @@ class PcModelData:
 	# x*16 = offset in buffer 2
 	vertex_offset: int
 
-	# always zero
-	unknown_05: int
+	# x*16 = offset in buffer 2
+	weights_offset: int
 
-	# ?
-	weight_offset: int
+	# x*16 = offset in buffer 2
+	uv_offset: int
 
 	# always zero
 	zero_b: int
@@ -70,8 +70,8 @@ class PcModelData:
 		self.tri_offset = 0
 		self.tri_index_count = 0
 		self.vertex_offset = 0
-		self.unknown_05 = 0
-		self.weight_offset = 0
+		self.weights_offset = 0
+		self.uv_offset = 0
 		self.zero_b = 0
 		self.vertex_color_offset = 0
 		self.vert_offset_within_lod = 0
@@ -90,8 +90,8 @@ class PcModelData:
 		self.tri_offset = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
 		self.vertex_offset = stream.read_uint()
-		self.unknown_05 = stream.read_uint()
-		self.weight_offset = stream.read_uint()
+		self.weights_offset = stream.read_uint()
+		self.uv_offset = stream.read_uint()
 		self.zero_b = stream.read_uint()
 		self.vertex_color_offset = stream.read_uint()
 		self.vert_offset_within_lod = stream.read_uint()
@@ -112,8 +112,8 @@ class PcModelData:
 		stream.write_uint(self.tri_offset)
 		stream.write_uint(self.tri_index_count)
 		stream.write_uint(self.vertex_offset)
-		stream.write_uint(self.unknown_05)
-		stream.write_uint(self.weight_offset)
+		stream.write_uint(self.weights_offset)
+		stream.write_uint(self.uv_offset)
 		stream.write_uint(self.zero_b)
 		stream.write_uint(self.vertex_color_offset)
 		stream.write_uint(self.vert_offset_within_lod)
@@ -132,8 +132,8 @@ class PcModelData:
 		s += '\n	* tri_offset = ' + self.tri_offset.__repr__()
 		s += '\n	* tri_index_count = ' + self.tri_index_count.__repr__()
 		s += '\n	* vertex_offset = ' + self.vertex_offset.__repr__()
-		s += '\n	* unknown_05 = ' + self.unknown_05.__repr__()
-		s += '\n	* weight_offset = ' + self.weight_offset.__repr__()
+		s += '\n	* weights_offset = ' + self.weights_offset.__repr__()
+		s += '\n	* uv_offset = ' + self.uv_offset.__repr__()
 		s += '\n	* zero_b = ' + self.zero_b.__repr__()
 		s += '\n	* vertex_color_offset = ' + self.vertex_color_offset.__repr__()
 		s += '\n	* vert_offset_within_lod = ' + self.vert_offset_within_lod.__repr__()
@@ -182,10 +182,18 @@ class PcModelData:
 		dt_uv = [
 			("uvs", np.ushort, (1, 2)),
 		]
+		# bone weights
+		# if self.flag in (529, 533, 885, 565, 1013, 528, 821):
+		dt_w = [
+			("bone ids", np.ubyte, (4,)),
+			("bone weights", np.ubyte, (4,)),
+		]
 		self.dt = np.dtype(dt)
 		self.dt_uv = np.dtype(dt_uv)
+		self.dt_w = np.dtype(dt_w)
 		print("PC size of vertex:", self.dt.itemsize)
 		print("PC size of uv:", self.dt_uv.itemsize)
+		print("PC size of weights:", self.dt_w.itemsize)
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
@@ -207,9 +215,12 @@ class PcModelData:
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
-		stream.seek(self.start_buffer2 + (self.weight_offset * 16))
+		stream.seek(self.start_buffer2 + (self.uv_offset * 16))
 		print("UV", stream.tell())
 		self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
+		stream.seek(self.start_buffer2 + (self.weights_offset * 16))
+		print("WEIGHtS", stream.tell())
+		self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
 		# print(self.verts_data)
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
@@ -230,39 +241,37 @@ class PcModelData:
 			in_pos_packed = self.verts_data[i]["pos"]
 			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
 			self.vertices[i] = unpack_swizzle(vert)
-		#
-		# 	out_pos_packed = pack_longint_vec(pack_swizzle(self.vertices[i]), residue)
-		# 	# print(bin(in_pos_packed), type(in_pos_packed))
-		# 	# print(bin(out_pos_packed), type(out_pos_packed))
-		# 	# print(in_pos_packed-out_pos_packed)
-		#
-		# 	self.normals[i] = unpack_swizzle(self.normals[i])
-		# 	self.tangents[i] = unpack_swizzle(self.tangents[i])
-		#
-		# 	# stores all (bonename, weight) pairs of this vertex
-		# 	vert_w = []
-		# 	if self.bone_names:
-		# 		if "bone ids" in self.dt.fields and residue:
-		# 			weights = self.get_weights(self.verts_data[i]["bone ids"], self.verts_data[i]["bone weights"])
-		# 			vert_w = [(self.bone_names[bone_i], w) for bone_i, w in weights]
-		# 		# fallback: skin parition
-		# 		if not vert_w:
-		# 			try:
-		# 				vert_w = [(self.bone_names[self.verts_data[i]["bone index"]], 1), ]
-		# 			except IndexError:
-		# 				# aviary landscape
-		# 				vert_w = [(str(self.verts_data[i]["bone index"]), 1), ]
-		#
-		# 	# create fur length vgroup
-		# 	if self.flag in (1013, 821, 885):
-		# 		vert_w.append(("fur_length", self.uvs[i][1][0]))
-		#
-		# 	# the unknown 0, 128 byte
-		# 	vert_w.append(("unk0", self.verts_data[i]["unk"] / 255))
-		# 	# packing bit
-		# 	vert_w.append(("residue", residue))
-		# 	self.weights.append(vert_w)
+			self.normals[i] = unpack_swizzle(self.normals[i])
+			self.tangents[i] = unpack_swizzle(self.tangents[i])
+
+			# stores all (bonename, weight) pairs of this vertex
+			vert_w = []
+			if self.bone_names:
+				if "bone ids" in self.dt.fields and residue:
+					weights = self.get_weights(self.weights_data[i]["bone ids"], self.weights_data[i]["bone weights"])
+					vert_w = [(self.bone_names[bone_i], w) for bone_i, w in weights]
+				# fallback: skin parition
+				if not vert_w:
+					try:
+						vert_w = [(self.bone_names[self.verts_data[i]["bone index"]], 1), ]
+					except IndexError:
+						# aviary landscape
+						vert_w = [(str(self.verts_data[i]["bone index"]), 1), ]
+			#
+			# # create fur length vgroup
+			# if self.flag in (1013, 821, 885):
+			# 	vert_w.append(("fur_length", self.uvs[i][1][0]))
+
+			# the unknown 0, 128 byte
+			vert_w.append(("unk0", self.verts_data[i]["unk"] / 255))
+			# packing bit
+			vert_w.append(("residue", residue))
+			self.weights.append(vert_w)
 		# print(self.vertices)
+
+	@staticmethod
+	def get_weights(bone_ids, bone_weights):
+		return [(i, w / 255) for i, w in zip(bone_ids, bone_weights) if w > 0]
 
 	@property
 	def lod_index(self, ):
