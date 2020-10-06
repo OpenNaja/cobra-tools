@@ -40,6 +40,51 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def is_pc(self):
 		return self.general_info.ms_2_version == 32
 
+	def get_bone_info(self, mdl2_index, stream, bone_info_cls):
+		bone_info = None
+		potential_start = stream.tell()
+		print("Start looking for bone info at", potential_start)
+		# first get all bytes of the whole bone infos block
+		self.bone_info_bytes = stream.read(self.bone_info_size)
+		# find the start of each using this identifier
+		zero_f = bytes.fromhex("00 00 00 00")
+		one_f = bytes.fromhex("00 00 80 3F")
+		# lion has a 1 instead of a 4
+		bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
+		# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
+		bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
+		# there's 8 bytes before this
+		bone_info_starts = []
+		for a, b in ((zero_f, bone_info_marker_1),
+					 (one_f, bone_info_marker_1),
+					 (zero_f, bone_info_marker_4),
+					 (one_f, bone_info_marker_4),
+					 ):
+			bone_info_starts.extend(x - 4 for x in findall(a + b, self.bone_info_bytes))
+
+		bone_info_starts = list(sorted(bone_info_starts))
+		print("bone_info_starts", bone_info_starts)
+
+		if bone_info_starts:
+			idx = mdl2_index
+			if idx >= len(bone_info_starts):
+				print("reset boneinfo index")
+				idx = 0
+			bone_info_address = potential_start + bone_info_starts[idx]
+			print("using bone info {} at address {}".format(idx, bone_info_address))
+			stream.seek(bone_info_address)
+			try:
+				bone_info = bone_info_cls()
+				bone_info.read(stream)
+				print(bone_info)
+				print("end of bone info at", stream.tell())
+			except:
+				print("Bone info failed")
+		else:
+			print("No bone info found")
+
+		return bone_info
+
 	def load(self, filepath, mdl2, quick=False, map_bytes=False):
 		start_time = time.time()
 		# eof = super().load(filepath)
@@ -82,53 +127,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				model_info.pc_model = stream.read_type(PcModel, (model_info,))
 				print(model_info.pc_model)
 				print("end of pc_model", stream.tell())
-				# padding
+				# padding is handled by get_bone_info
 				# the other models have 16 bytes
 				# ostrich has 4 bytes
-				stream.read(4)
 				print("start of boneinfo", stream.tell())
-				self.bone_info = stream.read_type(Ms2BoneInfoPc)
-				print("after modeldata", stream.tell())
+				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfoPc)
 			else:
-				# first get all bytes of the whole bone infos block
-				self.bone_info_bytes = stream.read(self.bone_info_size)
-				# find the start of each using this identifier
-				zero_f = bytes.fromhex("00 00 00 00")
-				one_f = bytes.fromhex("00 00 80 3F")
-				# lion has a 1 instead of a 4
-				bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
-				# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
-				bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
-				# there's 8 bytes before this
-				bone_info_starts = []
-				for a, b in ((zero_f, bone_info_marker_1),
-							 (one_f, bone_info_marker_1),
-							 (zero_f, bone_info_marker_4),
-							 (one_f, bone_info_marker_4),
-							 ):
-					bone_info_starts.extend(x - 4 for x in findall(a + b, self.bone_info_bytes))
-
-				bone_info_starts = list(sorted(bone_info_starts))
-				print("bone_info_starts", bone_info_starts)
-
-				if bone_info_starts:
-					idx = mdl2.index
-					if idx >= len(bone_info_starts):
-						print("reset boneinfo index")
-						idx = 0
-					bone_info_address = self.eoh + bone_info_starts[idx]
-					print("using bone info {} at address {}".format(idx, bone_info_address))
-					stream.seek(bone_info_address)
-					try:
-						self.bone_info = Ms2BoneInfo()
-						self.bone_info.read(stream)
-						print(self.bone_info)
-						print("end of bone info at", stream.tell())
-					except:
-						print("Bone info failed")
-
-				else:
-					print("No bone info found")
+				self.bone_info = self.get_bone_info(mdl2.index, stream, Ms2BoneInfo)
 		if self.bone_info:
 			try:
 				self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
