@@ -4,7 +4,8 @@ import typing
 class ManiInfo:
 
 	"""
-	120 bytes
+	288 bytes for JWE / PZ
+	bytes for PC
 	"""
 	zeros_start: typing.List[int]
 	duration: float
@@ -21,13 +22,17 @@ class ManiInfo:
 	# rest
 	zeros_1: typing.List[int]
 	e: int
+	extra_pc: typing.List[int]
 
 	# always FF FF
 	ffff: int
 	g: int
 
-	# rest
+	# rest 228 bytes
 	zeros_2: typing.List[int]
+
+	# rest 15 bytes
+	extra_zeros_pc: typing.List[int]
 	i: int
 	j: int
 
@@ -47,9 +52,11 @@ class ManiInfo:
 		self.name_count = 0
 		self.zeros_1 = []
 		self.e = 0
+		self.extra_pc = []
 		self.ffff = 0
 		self.g = 0
 		self.zeros_2 = []
+		self.extra_zeros_pc = []
 		self.i = 0
 		self.j = 0
 		self.ff = 0
@@ -66,9 +73,13 @@ class ManiInfo:
 		self.name_count = stream.read_ushort()
 		self.zeros_1 = [stream.read_ushort() for _ in range(4)]
 		self.e = stream.read_ushort()
+		if stream.version == 18:
+			self.extra_pc = [stream.read_ushort() for _ in range(5)]
 		self.ffff = stream.read_ushort()
 		self.g = stream.read_ushort()
 		self.zeros_2 = [stream.read_uint() for _ in range(57)]
+		if stream.version == 18:
+			self.extra_zeros_pc = [stream.read_ushort() for _ in range(7)]
 		self.i = stream.read_ushort()
 		self.j = stream.read_ushort()
 		self.ff = stream.read_ushort()
@@ -87,9 +98,13 @@ class ManiInfo:
 		stream.write_ushort(self.name_count)
 		for item in self.zeros_1: stream.write_ushort(item)
 		stream.write_ushort(self.e)
+		if stream.version == 18:
+			for item in self.extra_pc: stream.write_ushort(item)
 		stream.write_ushort(self.ffff)
 		stream.write_ushort(self.g)
 		for item in self.zeros_2: stream.write_uint(item)
+		if stream.version == 18:
+			for item in self.extra_zeros_pc: stream.write_ushort(item)
 		stream.write_ushort(self.i)
 		stream.write_ushort(self.j)
 		stream.write_ushort(self.ff)
@@ -107,9 +122,11 @@ class ManiInfo:
 		s += '\n	* name_count = ' + self.name_count.__repr__()
 		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
 		s += '\n	* e = ' + self.e.__repr__()
+		s += '\n	* extra_pc = ' + self.extra_pc.__repr__()
 		s += '\n	* ffff = ' + self.ffff.__repr__()
 		s += '\n	* g = ' + self.g.__repr__()
 		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
+		s += '\n	* extra_zeros_pc = ' + self.extra_zeros_pc.__repr__()
 		s += '\n	* i = ' + self.i.__repr__()
 		s += '\n	* j = ' + self.j.__repr__()
 		s += '\n	* ff = ' + self.ff.__repr__()

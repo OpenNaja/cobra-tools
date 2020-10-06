@@ -8,12 +8,14 @@
         Commonly used version expressions.
         <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
         <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
+		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
     </token>
 
     <token name="global" attrs="vercond cond">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#USER#" string="user_version" />
+        <global token="#VER#" string="version" />
     </token>
 
     <token name="operator" attrs="cond vercond arr1 arr2 arg">
@@ -192,7 +194,8 @@
     </compound>
 
 	<compound name="ManiInfo" >
-		120 bytes
+        288 bytes for JWE / PZ
+         bytes for PC
 		<add name="zeros start" type="ushort" arr1="5" > </add>
         <add name="duration" type="float"/>
 		<add name="frame count" type="uint" >likely</add>
@@ -200,11 +203,13 @@
 		<add name="zeros 0 " type="ushort" arr1="7"  > rest </add>
 		<add name="c" type="ushort" > </add>
 		<add name="name count" type="ushort" > </add>
-		<add name="zeros 1" type="ushort" arr1="4"  > rest </add>
+		<add name="zeros 1" type="ushort" arr1="4" > rest </add>
 		<add name="e" type="ushort" > </add>
+		<add name="extra pc" type="ushort" arr1="5" cond="#PC#"> </add>
 		<add name="ffff" type="ushort" >always FF FF</add>
 		<add name="g" type="ushort" > </add>
-		<add name="zeros 2" type="uint" arr1="57"  > rest </add>
+		<add name="zeros 2" type="uint" arr1="57"  > rest 228 bytes </add>
+		<add name="extra zeros pc" type="ushort" arr1="7" cond="#PC#" > rest 15 bytes </add>
 		<add name="i" type="ushort" > </add>
 		<add name="j" type="ushort" > </add>
 		<add name="ff" type="ushort" > always FF </add>

@@ -19,7 +19,7 @@ import sys
 dir = os.path.dirname(__file__)
 if not dir in sys.path:
 	sys.path.append(dir)
-from plugin import import_bani, import_matcol, import_mdl2, export_mdl2
+from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2
 from utils import shell
 
 
@@ -45,6 +45,21 @@ class ImportBani(bpy.types.Operator, ImportHelper):
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
 		return import_bani.load(self, context, **keywords)
+
+
+class ImportManis(bpy.types.Operator, ImportHelper):
+	"""Import from Cobra animations file format (.manis)"""
+	bl_idname = "import_scene.cobra_manis"
+	bl_label = 'Import Manis'
+	bl_options = {'UNDO'}
+	filename_ext = ".manis"
+	filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
+	files: CollectionProperty(type=bpy.types.PropertyGroup)
+	# set_fps = BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
+
+	def execute(self, context):
+		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
+		return import_manis.load(self, context, **keywords)
 
 
 class ImportMatcol(bpy.types.Operator, ImportHelper):
@@ -160,10 +175,12 @@ def menu_func_import(self, context):
 	self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol)", icon_value=preview_collection["frontier.png"].icon_id)
 	self.layout.operator(ImportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=preview_collection["frontier.png"].icon_id)
 	self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=preview_collection["frontier.png"].icon_id)
+	self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=preview_collection["frontier.png"].icon_id)
 
 
 classes = (
 	ImportBani,
+	ImportManis,
 	ImportMatcol,
 	ImportMDL2,
 	ExportMDL2,
