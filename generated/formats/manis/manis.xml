@@ -228,15 +228,23 @@
 <!--			print("p_indices_1", p_indices_1)-->
 <!--			p_indices_2 = struct.unpack(f"<{mani_info.e}B", stream.read(mani_info.e))-->
 <!--			print("p_indices_2", p_indices_2)-->
-		<add name="indices 0" type="ushort" arr1="#ARG#\c" > </add>
-		<add name="indices 1" type="ushort" arr1="#ARG#\name count" > </add>
-		<add name="indices 2" type="ushort" arr1="#ARG#\e" > </add>
+<!--    PC uses ushort-->
+		<add name="indices 0" type="ushort" arr1="#ARG#\c" cond="#PC#" > </add>
+		<add name="indices 1" type="ushort" arr1="#ARG#\name count" cond="#PC#" > </add>
+		<add name="indices 2" type="ushort" arr1="#ARG#\e" cond="#PC#" > </add>
+<!--    JWE uses uint-->
+		<add name="indices 0" type="uint" arr1="#ARG#\c" cond="!#PC#" > </add>
+		<add name="indices 1" type="uint" arr1="#ARG#\name count" cond="!#PC#" > </add>
+		<add name="indices 2" type="uint" arr1="#ARG#\e" cond="!#PC#" > </add>
+
 		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" > </add>
 		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" > </add>
 		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" > </add>
-		<add name="c indices 0" type="ubyte" arr1="#ARG#\c" > </add>
-		<add name="c indices 1" type="ubyte" arr1="#ARG#\name count" > </add>
-		<add name="c indices 2" type="ubyte" arr1="#ARG#\e" > </add>
+
+		<add name="c indices 0" type="ubyte" arr1="#ARG#\c" cond="#PC#"> </add>
+		<add name="c indices 1" type="ubyte" arr1="#ARG#\name count" cond="#PC#" > </add>
+		<add name="c indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>
+
 <!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
 		two uint zeros, or padding
 		<add name="zero" type="uint64" > </add>

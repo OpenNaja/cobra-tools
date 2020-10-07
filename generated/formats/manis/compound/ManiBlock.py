@@ -38,6 +38,9 @@ class ManiBlock:
 		self.indices_0 = []
 		self.indices_1 = []
 		self.indices_2 = []
+		self.indices_0 = []
+		self.indices_1 = []
+		self.indices_2 = []
 		self.p_indices_0 = []
 		self.p_indices_1 = []
 		self.p_indices_2 = []
@@ -59,15 +62,21 @@ class ManiBlock:
 	def read(self, stream):
 
 		io_start = stream.tell()
-		self.indices_0 = [stream.read_ushort() for _ in range(self.arg.c)]
-		self.indices_1 = [stream.read_ushort() for _ in range(self.arg.name_count)]
-		self.indices_2 = [stream.read_ushort() for _ in range(self.arg.e)]
+		if stream.version == 18:
+			self.indices_0 = [stream.read_ushort() for _ in range(self.arg.c)]
+			self.indices_1 = [stream.read_ushort() for _ in range(self.arg.name_count)]
+			self.indices_2 = [stream.read_ushort() for _ in range(self.arg.e)]
+		if not (stream.version == 18):
+			self.indices_0 = [stream.read_uint() for _ in range(self.arg.c)]
+			self.indices_1 = [stream.read_uint() for _ in range(self.arg.name_count)]
+			self.indices_2 = [stream.read_uint() for _ in range(self.arg.e)]
 		self.p_indices_0 = [stream.read_ubyte() for _ in range(self.arg.c)]
 		self.p_indices_1 = [stream.read_ubyte() for _ in range(self.arg.name_count)]
 		self.p_indices_2 = [stream.read_ubyte() for _ in range(self.arg.e)]
-		self.c_indices_0 = [stream.read_ubyte() for _ in range(self.arg.c)]
-		self.c_indices_1 = [stream.read_ubyte() for _ in range(self.arg.name_count)]
-		self.c_indices_2 = [stream.read_ubyte() for _ in range(self.arg.e)]
+		if stream.version == 18:
+			self.c_indices_0 = [stream.read_ubyte() for _ in range(self.arg.c)]
+			self.c_indices_1 = [stream.read_ubyte() for _ in range(self.arg.name_count)]
+			self.c_indices_2 = [stream.read_ubyte() for _ in range(self.arg.e)]
 		self.zero = stream.read_uint64()
 		self.frame_count = stream.read_uint()
 		self.c = stream.read_uint()
@@ -85,15 +94,21 @@ class ManiBlock:
 	def write(self, stream):
 
 		io_start = stream.tell()
-		for item in self.indices_0: stream.write_ushort(item)
-		for item in self.indices_1: stream.write_ushort(item)
-		for item in self.indices_2: stream.write_ushort(item)
+		if stream.version == 18:
+			for item in self.indices_0: stream.write_ushort(item)
+			for item in self.indices_1: stream.write_ushort(item)
+			for item in self.indices_2: stream.write_ushort(item)
+		if not (stream.version == 18):
+			for item in self.indices_0: stream.write_uint(item)
+			for item in self.indices_1: stream.write_uint(item)
+			for item in self.indices_2: stream.write_uint(item)
 		for item in self.p_indices_0: stream.write_ubyte(item)
 		for item in self.p_indices_1: stream.write_ubyte(item)
 		for item in self.p_indices_2: stream.write_ubyte(item)
-		for item in self.c_indices_0: stream.write_ubyte(item)
-		for item in self.c_indices_1: stream.write_ubyte(item)
-		for item in self.c_indices_2: stream.write_ubyte(item)
+		if stream.version == 18:
+			for item in self.c_indices_0: stream.write_ubyte(item)
+			for item in self.c_indices_1: stream.write_ubyte(item)
+			for item in self.c_indices_2: stream.write_ubyte(item)
 		stream.write_uint64(self.zero)
 		stream.write_uint(self.frame_count)
 		stream.write_uint(self.c)
