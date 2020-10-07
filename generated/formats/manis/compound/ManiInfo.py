@@ -5,7 +5,7 @@ class ManiInfo:
 
 	"""
 	288 bytes for JWE / PZ
-	bytes for PC
+	312 bytes for PC
 	"""
 	zeros_start: typing.List[int]
 	duration: float
@@ -31,7 +31,7 @@ class ManiInfo:
 	# rest 228 bytes
 	zeros_2: typing.List[int]
 
-	# rest 15 bytes
+	# rest 14 bytes
 	extra_zeros_pc: typing.List[int]
 	i: int
 	j: int

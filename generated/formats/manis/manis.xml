@@ -195,7 +195,7 @@
 
 	<compound name="ManiInfo" >
         288 bytes for JWE / PZ
-         bytes for PC
+        312 bytes for PC
 		<add name="zeros start" type="ushort" arr1="5" > </add>
         <add name="duration" type="float"/>
 		<add name="frame count" type="uint" >likely</add>
@@ -209,11 +209,55 @@
 		<add name="ffff" type="ushort" >always FF FF</add>
 		<add name="g" type="ushort" > </add>
 		<add name="zeros 2" type="uint" arr1="57"  > rest 228 bytes </add>
-		<add name="extra zeros pc" type="ushort" arr1="7" cond="#PC#" > rest 15 bytes </add>
+		<add name="extra zeros pc" type="ushort" arr1="7" cond="#PC#" > rest 14 bytes </add>
 		<add name="i" type="ushort" > </add>
 		<add name="j" type="ushort" > </add>
 		<add name="ff" type="ushort" > always FF </add>
+    </compound>
+
+	<compound name="ManiBlock" >
+<!--            name_indices_0 = struct.unpack(f"<{mani_info.c}I", stream.read(mani_info.c * 4))-->
+<!--			print("name_indices_0", name_indices_0)-->
+<!--			name_indices_1 = struct.unpack(f"<{mani_info.name_count}I", stream.read(mani_info.name_count * 4))-->
+<!--			print("name_indices_1", name_indices_1)-->
+<!--			name_indices_2 = struct.unpack(f"<{mani_info.e}I", stream.read(mani_info.e * 4))-->
+<!--			print("name_indices_2", name_indices_2)-->
+<!--			p_indices_0 = struct.unpack(f"<{mani_info.c}B", stream.read(mani_info.c))-->
+<!--			print("p_indices_0", p_indices_0)-->
+<!--			p_indices_1 = struct.unpack(f"<{mani_info.name_count}B", stream.read(mani_info.name_count))-->
+<!--			print("p_indices_1", p_indices_1)-->
+<!--			p_indices_2 = struct.unpack(f"<{mani_info.e}B", stream.read(mani_info.e))-->
+<!--			print("p_indices_2", p_indices_2)-->
+		<add name="indices 0" type="ushort" arr1="#ARG#\c" > </add>
+		<add name="indices 1" type="ushort" arr1="#ARG#\name count" > </add>
+		<add name="indices 2" type="ushort" arr1="#ARG#\e" > </add>
+		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" > </add>
+		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" > </add>
+		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" > </add>
+		<add name="c indices 0" type="ubyte" arr1="#ARG#\c" > </add>
+		<add name="c indices 1" type="ubyte" arr1="#ARG#\name count" > </add>
+		<add name="c indices 2" type="ubyte" arr1="#ARG#\e" > </add>
+<!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
+		two uint zeros, or padding
+		<add name="zero" type="uint64" > </add>
+		<add name="frame count" type="uint" >likely</add>
+		<add name="c" type="uint" > </add>
+		<add name="e" type="uint" > </add>
+		<add name="zeros" type="uint" arr1="19">fixed</add>
+		<add name="count" type="ushort" > </add>
+		<add name="four and twenty" type="ushort" >usually / always 420</add>
+        <add name="zeros" type="ubyte" arr1="count" > </add>
+        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>
+        <add name="floats" type="float" arr1="6" >these are likely a scale reference or factor</add>
+        <add name="repeats" type="Repeat" arr1="count" > </add>
 
     </compound>
+
+    <compound name="Repeat" >
+		<add name="zeros 0" type="uint" arr1="15" > </add>
+		<add name="byte size" type="uint" >to be read sequentially starting after this array </add>
+		<add name="zeros 1" type="uint" arr1="4" > </add>
+    </compound>
+
 
 </niftoolsxml>

@@ -94,57 +94,12 @@ def load(operator, context, files = [], filepath = "", set_fps=False):
 	# print(len(bone_names), len(data.bones_frames_eulers), len(data.bones_frames_locs))
 	# assert( len(bone_names) == len(data.bones_frames_eulers) == len(data.bones_frames_locs) )
 	# action = create_anim(ob, filename)
-	# go over list of euler keys
-
-
-	for i, bone_name in enumerate(bone_names):
+	# go over list
+	for i, bone_name in enumerate(data.bone_names):
 		# print(i, bone_name)
 
 		# bone_keys = data.eulers_dict[bone_name]
 		# bone_name = bone_name.decode()
 		# get pose pbone
-		pbone = ob.pose.bones[bone_name]
-		pbone.rotation_mode = "XYZ"
-		# get object mode bone
-		obone = ob.data.bones[bone_name]
-		armature_space_matrix = obone.matrix_local
-		for frame_i in range(data.data_0.num_frames):
-			bpy.context.scene.frame_set(frame_i)
-			euler = data.eulers[frame_i, i]
-			loc = data.locs[frame_i, i]
-			# create fcurves
-			data_type = "rotation_euler"
-			# fcu = [action.fcurves.new(data_path = 'pose.bones["'+bone_name+'"].'+data_type, index = i, action_group = bone_name) for i in (0,1,2)]
-
-			# for fcurve, k in zip(fcu, key):
-				# fcurve.keyframe_points.insert(frame_i, math.radians(k))#.interpolation = "Linear"
-			euler = mathutils.Euler( [math.radians(k) for k in euler] )
-			# experiments
-			# trans = (global_corr_mat @ mathutils.Vector(loc)) + armature_space_matrix.translation
-
-			# mdl2 vectors: (-x,-z,y)
-			# loc = mathutils.Vector((-loc[0], -loc[2], loc[1]))
-			loc = mathutils.Vector(loc)
-			# trans = (mathutils.Vector(loc)) + armature_space_matrix.translation
-
-			# the eulers are applied globally to the bone, equivalent to the user doing R+X, R+Y, R+Z for each axis.
-			# this expresses the rotation that should be done in blender coordinates about the center of the bone
-			space_corrected_rot = global_corr_mat @ euler.to_matrix().to_4x4()
-
-			# rot_mat is the final armature space matrix of the posed bone
-			rot_mat = space_corrected_rot @ armature_space_matrix
-
-			# rot_mat.translation = (space_corrected_rot @ loc) + armature_space_matrix.translation
-			# loc_key = (space_corrected_rot @ mathutils.Vector(loc))
-			loc_key = ( euler.to_matrix().to_4x4()  @loc )
-			# loc_key = ( loc @ space_corrected_rot)
-			# loc_key = mathutils.Vector((-loc_key[0], -loc_key[2], loc_key[1]))
-			# rot_mat.translation = loc_key + armature_space_matrix.translation
-			# the ideal translation as calculated by blender
-			rot_mat.translation = pbone.matrix.translation
-			# print(rot_mat)
-			pbone.matrix = rot_mat
-
-			pbone.keyframe_insert(data_path="rotation_euler", frame=frame_i, group=bone_name)
-			pbone.keyframe_insert(data_path="location", frame=frame_i, group=bone_name)
+		pass
 	return {'FINISHED'}
