@@ -54,7 +54,7 @@ def load(operator, context, files = [], filepath = "", set_fps=False):
 	starttime = time.clock()
 	dirname, filename = os.path.split(filepath)
 	data = load_manis(filepath)
-	print(data)
+	# print(data)
 	# # data 0 has various scales and counts
 	# anim_length = data.data_0.animation_length
 	# num_frames = data.data_0.num_frames
