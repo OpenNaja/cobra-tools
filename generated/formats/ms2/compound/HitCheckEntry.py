@@ -26,6 +26,7 @@ class HitCheckEntry:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.type = 0
 		self.unknown_2_a = 0
 		self.unknown_2_b = 0
@@ -39,7 +40,7 @@ class HitCheckEntry:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.type = stream.read_uint()
 		self.unknown_2_a = stream.read_ubyte()
 		self.unknown_2_b = stream.read_ubyte()
@@ -53,11 +54,11 @@ class HitCheckEntry:
 		if self.type == 2:
 			self.capsule = stream.read_type(Capsule)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.type)
 		stream.write_ubyte(self.unknown_2_a)
 		stream.write_ubyte(self.unknown_2_b)
@@ -71,10 +72,10 @@ class HitCheckEntry:
 		if self.type == 2:
 			stream.write_type(self.capsule)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HitCheckEntry [Size: '+str(self.io_size)+']'
+		s = 'HitCheckEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* type = ' + self.type.__repr__()
 		s += '\n	* unknown_2_a = ' + self.unknown_2_a.__repr__()
 		s += '\n	* unknown_2_b = ' + self.unknown_2_b.__repr__()

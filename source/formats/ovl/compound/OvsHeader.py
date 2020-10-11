@@ -9,27 +9,7 @@ from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 
 class OvsHeader:
 
-	"""
-	Description of one archive's content
-	"""
-	header_types: typing.List[HeaderType]
-	header_entries: typing.List[HeaderEntry]
-	data_entries: typing.List[DataEntry]
-	buffer_entries: typing.List[BufferEntry]
-	sized_str_entries: typing.List[SizedStringEntry]
-	fragments: typing.List[Fragment]
-
-	def __init__(self, arg=None, template=None):
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.header_types = []
-		self.header_entries = []
-		self.data_entries = []
-		self.buffer_entries = []
-		self.sized_str_entries = []
-		self.fragments = []
+	# START_CLASS
 
 	def read(self, stream):
 
@@ -66,4 +46,3 @@ class OvsHeader:
 		s += '\n	* fragments = ' + self.fragments.__repr__()
 		s += '\n'
 		return s
-

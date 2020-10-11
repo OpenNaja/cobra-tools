@@ -30,6 +30,7 @@ class LodInfo:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.distance = 0
 		self.unknown_04 = 0
 		self.strznameidx = 0
@@ -40,7 +41,7 @@ class LodInfo:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.distance = stream.read_float()
 		self.unknown_04 = stream.read_ushort()
 		self.strznameidx = stream.read_ushort()
@@ -49,11 +50,11 @@ class LodInfo:
 		self.vertex_count = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_float(self.distance)
 		stream.write_ushort(self.unknown_04)
 		stream.write_ushort(self.strznameidx)
@@ -62,10 +63,10 @@ class LodInfo:
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_index_count)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'LodInfo [Size: '+str(self.io_size)+']'
+		s = 'LodInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* distance = ' + self.distance.__repr__()
 		s += '\n	* unknown_04 = ' + self.unknown_04.__repr__()
 		s += '\n	* strznameidx = ' + self.strznameidx.__repr__()

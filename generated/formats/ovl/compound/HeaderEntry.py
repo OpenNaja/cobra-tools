@@ -32,6 +32,7 @@ class HeaderEntry:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.zeros_1 = 0
 		self.zeros_2 = 0
 		self.size = 0
@@ -43,7 +44,7 @@ class HeaderEntry:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.zeros_1 = stream.read_uint()
 		self.zeros_2 = stream.read_uint()
 		self.size = stream.read_uint()
@@ -54,11 +55,11 @@ class HeaderEntry:
 			self.ext_hash = stream.read_uint()
 			self.zeros_3 = stream.read_uint()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.zeros_1)
 		stream.write_uint(self.zeros_2)
 		stream.write_uint(self.size)
@@ -69,10 +70,10 @@ class HeaderEntry:
 			stream.write_uint(self.ext_hash)
 			stream.write_uint(self.zeros_3)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HeaderEntry [Size: '+str(self.io_size)+']'
+		s = 'HeaderEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
 		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
 		s += '\n	* size = ' + self.size.__repr__()

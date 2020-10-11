@@ -22,27 +22,28 @@ class HeaderPointer:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.header_index = 0
 		self.data_offset = 0
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.header_index = stream.read_uint()
 		self.data_offset = stream.read_uint()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.header_index)
 		stream.write_uint(self.data_offset)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HeaderPointer [Size: '+str(self.io_size)+']'
+		s = 'HeaderPointer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* header_index = ' + self.header_index.__repr__()
 		s += '\n	* data_offset = ' + self.data_offset.__repr__()
 		s += '\n'

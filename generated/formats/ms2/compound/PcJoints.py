@@ -134,6 +134,7 @@ class PcJoints:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.unk_zero = 0
 		self.name_count = 0
 		self.float_0_1 = 0
@@ -189,7 +190,7 @@ class PcJoints:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.unk_zero = stream.read_uint64()
 		self.name_count = stream.read_int()
 		self.float_0_1 = stream.read_float()
@@ -250,11 +251,11 @@ class PcJoints:
 		self.some_minus_ones = [stream.read_int() for _ in range(self.some_count)]
 		self.names = stream.read_type(ZStringBuffer, (self.joint_info.namespace_length,))
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint64(self.unk_zero)
 		stream.write_int(self.name_count)
 		stream.write_float(self.float_0_1)
@@ -315,10 +316,10 @@ class PcJoints:
 		for item in self.some_minus_ones: stream.write_int(item)
 		stream.write_type(self.names)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PcJoints [Size: '+str(self.io_size)+']'
+		s = 'PcJoints [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* unk_zero = ' + self.unk_zero.__repr__()
 		s += '\n	* name_count = ' + self.name_count.__repr__()
 		s += '\n	* float_0_1 = ' + self.float_0_1.__repr__()

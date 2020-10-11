@@ -60,6 +60,7 @@ class JointDataNasuto:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.joint_count = 0
 		self.unknown_1 = 0
 		self.unknown_2 = 0
@@ -84,7 +85,7 @@ class JointDataNasuto:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.joint_count = stream.read_uint()
 		self.unknown_1 = stream.read_uint()
 		self.unknown_2 = stream.read_uint()
@@ -107,11 +108,11 @@ class JointDataNasuto:
 		self.joint_names_padding = [stream.read_byte() for _ in range((8 - (self.joint_compound.namespace_length % 8)) % 8)]
 		self.joint_info_list = [stream.read_type(JointInfo) for _ in range(self.arg)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.joint_count)
 		stream.write_uint(self.unknown_1)
 		stream.write_uint(self.unknown_2)
@@ -134,10 +135,10 @@ class JointDataNasuto:
 		for item in self.joint_names_padding: stream.write_byte(item)
 		for item in self.joint_info_list: stream.write_type(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JointDataNasuto [Size: '+str(self.io_size)+']'
+		s = 'JointDataNasuto [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* joint_count = ' + self.joint_count.__repr__()
 		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
 		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()

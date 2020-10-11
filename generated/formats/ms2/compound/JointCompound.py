@@ -38,6 +38,7 @@ class JointCompound:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.namespace_length = 0
 		self.zeros = []
 		self.zeros = []
@@ -51,7 +52,7 @@ class JointCompound:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.namespace_length = stream.read_uint()
 		if not (stream.version == 18):
 			self.zeros = [stream.read_uint() for _ in range(13)]
@@ -65,11 +66,11 @@ class JointCompound:
 		self.joint_entry_count = stream.read_uint()
 		self.zeros_1 = [stream.read_uint() for _ in range(4)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.namespace_length)
 		if not (stream.version == 18):
 			for item in self.zeros: stream.write_uint(item)
@@ -83,10 +84,10 @@ class JointCompound:
 		stream.write_uint(self.joint_entry_count)
 		for item in self.zeros_1: stream.write_uint(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JointCompound [Size: '+str(self.io_size)+']'
+		s = 'JointCompound [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* namespace_length = ' + self.namespace_length.__repr__()
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()

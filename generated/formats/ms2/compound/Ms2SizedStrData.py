@@ -26,6 +26,7 @@ class Ms2SizedStrData:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.ms_2_version = 0
 		self.has_model_data = 0
 		self.mdl_2_count = 0
@@ -34,7 +35,7 @@ class Ms2SizedStrData:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.ms_2_version = stream.read_uint()
 		stream.ms_2_version = self.ms_2_version
 		self.has_model_data = stream.read_ushort()
@@ -42,11 +43,11 @@ class Ms2SizedStrData:
 		self.name_count = stream.read_uint()
 		self.unknown_1 = [stream.read_uint() for _ in range(3)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.ms_2_version)
 		stream.ms_2_version = self.ms_2_version
 		stream.write_ushort(self.has_model_data)
@@ -54,10 +55,10 @@ class Ms2SizedStrData:
 		stream.write_uint(self.name_count)
 		for item in self.unknown_1: stream.write_uint(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Ms2SizedStrData [Size: '+str(self.io_size)+']'
+		s = 'Ms2SizedStrData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* ms_2_version = ' + self.ms_2_version.__repr__()
 		s += '\n	* has_model_data = ' + self.has_model_data.__repr__()
 		s += '\n	* mdl_2_count = ' + self.mdl_2_count.__repr__()

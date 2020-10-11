@@ -28,6 +28,7 @@ class MimeEntry:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.offset = 0
 		self.unknown = 0
 		self.mime_hash = 0
@@ -38,7 +39,7 @@ class MimeEntry:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.unknown = stream.read_uint()
 		self.mime_hash = stream.read_uint()
@@ -47,11 +48,11 @@ class MimeEntry:
 		self.file_index_offset = stream.read_uint()
 		self.file_count = stream.read_uint()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.unknown)
 		stream.write_uint(self.mime_hash)
@@ -60,10 +61,10 @@ class MimeEntry:
 		stream.write_uint(self.file_index_offset)
 		stream.write_uint(self.file_count)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'MimeEntry [Size: '+str(self.io_size)+']'
+		s = 'MimeEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n	* unknown = ' + self.unknown.__repr__()
 		s += '\n	* mime_hash = ' + self.mime_hash.__repr__()

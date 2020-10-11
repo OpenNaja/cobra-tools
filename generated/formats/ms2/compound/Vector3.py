@@ -17,30 +17,31 @@ class Vector3:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.x = 0
 		self.y = 0
 		self.z = 0
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.x = stream.read_float()
 		self.y = stream.read_float()
 		self.z = stream.read_float()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_float(self.x)
 		stream.write_float(self.y)
 		stream.write_float(self.z)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Vector3 [Size: '+str(self.io_size)+']'
+		s = 'Vector3 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* x = ' + self.x.__repr__()
 		s += '\n	* y = ' + self.y.__repr__()
 		s += '\n	* z = ' + self.z.__repr__()

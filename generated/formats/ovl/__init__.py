@@ -43,11 +43,15 @@ class OvsFile(OvsHeader, ZipFile):
 			stream.version = self.ovl.version
 			stream.user_version = self.ovl.user_version
 			if self.is_pc():
-				self.ovl.flag_2 = 8340 #change to zipped format for saving of coaster ovls
+				# change to zipped format for saving of coaster ovls
+				self.ovl.flag_2 = 8340
 			# print("stream.version", stream.version)
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
-
+			# print(self.ovl)
+			# print(self)
+			# print(len(self.ovl.archives))
+			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
 			header_entry_index = 0
 			for header_type in self.header_types:
@@ -932,39 +936,41 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def get_name(self, entry):
 		"""Fetch a filename from hash dict"""
+		n = "NONAME"
+		e = "UNKNOWN"
 		# JWE style
 		if self.is_jwe():
 			# print("JWE ids",entry.file_hash, entry.ext_hash)
 			try:
 				n = self.ovl.name_hashdict[entry.file_hash]
 			except:
-				n = "NONAME"
+				pass
 			try:
 				e = self.ovl.name_hashdict[entry.ext_hash]
 			except:
-				e = "UNKNOWN"
+				pass
 		# PZ Style
 		elif self.is_pz():
 			# print("PZ ids",entry.file_hash, entry.ext_hash)
 			try:
 				n = self.ovl.name_list[entry.file_hash]
 			except:
-				n = "NONAME"
+				pass
 			try:
 				e = self.ovl.name_hashdict[entry.ext_hash]
 			except:
-				e = "UNKNOWN"
+				pass
 		# PC Style
 		elif self.is_pc():
-		# print("PC ids",entry.file_hash, entry.ext_hash)
+			# print("PC ids",entry.file_hash, entry.ext_hash)
 			try:
 				n = self.ovl.files[entry.file_hash].name#self.header.name_list[entry.file_hash]
 			except:
-				n = "NONAME"
+				pass
 			try:
 				e = self.ovl.mimes[self.ovl.files[entry.file_hash].extension].ext
 			except:
-				e = "UNKNOWN"
+				pass
 		return n + "." + e
 
 	def calc_uncompressed_size(self, ):

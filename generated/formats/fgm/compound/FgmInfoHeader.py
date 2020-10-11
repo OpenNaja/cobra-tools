@@ -42,6 +42,7 @@ class FgmInfoHeader:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.magic = []
 		self.version = 0
 		self.flag_2 = 0
@@ -58,7 +59,7 @@ class FgmInfoHeader:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.magic = [stream.read_byte() for _ in range(4)]
 		self.version = stream.read_uint()
 		stream.version = self.version
@@ -74,11 +75,11 @@ class FgmInfoHeader:
 		self.texpad = [stream.read_byte() for _ in range(self.tex_info_size - (self.fgm_info.texture_count * 24))]
 		self.attributes = [stream.read_type(AttributeInfo) for _ in range(self.fgm_info.attribute_count)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		for item in self.magic: stream.write_byte(item)
 		stream.write_uint(self.version)
 		stream.version = self.version
@@ -94,10 +95,10 @@ class FgmInfoHeader:
 		for item in self.texpad: stream.write_byte(item)
 		for item in self.attributes: stream.write_type(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'FgmInfoHeader [Size: '+str(self.io_size)+']'
+		s = 'FgmInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* flag_2 = ' + self.flag_2.__repr__()

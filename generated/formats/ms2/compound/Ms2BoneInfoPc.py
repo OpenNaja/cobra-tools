@@ -112,6 +112,7 @@ class Ms2BoneInfoPc:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.name_count = 0
 		self.float_0_1 = 0
 		self.knownff = 0
@@ -159,7 +160,7 @@ class Ms2BoneInfoPc:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.name_count = stream.read_int()
 		self.float_0_1 = stream.read_float()
 		self.knownff = stream.read_ushort()
@@ -214,11 +215,11 @@ class Ms2BoneInfoPc:
 		if 128 < self.bone_count:
 			self.hier_2_padding_2 = stream.read_uint64()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_int(self.name_count)
 		stream.write_float(self.float_0_1)
 		stream.write_ushort(self.knownff)
@@ -273,10 +274,10 @@ class Ms2BoneInfoPc:
 		if 128 < self.bone_count:
 			stream.write_uint64(self.hier_2_padding_2)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Ms2BoneInfoPc [Size: '+str(self.io_size)+']'
+		s = 'Ms2BoneInfoPc [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* name_count = ' + self.name_count.__repr__()
 		s += '\n	* float_0_1 = ' + self.float_0_1.__repr__()
 		s += '\n	* knownff = ' + self.knownff.__repr__()

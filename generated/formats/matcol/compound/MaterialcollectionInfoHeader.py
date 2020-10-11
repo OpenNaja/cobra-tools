@@ -33,6 +33,7 @@ class MaterialcollectionInfoHeader:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.magic = []
 		self.version = 0
 		self.flag_2 = 0
@@ -46,7 +47,7 @@ class MaterialcollectionInfoHeader:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.magic = [stream.read_byte() for _ in range(4)]
 		self.version = stream.read_uint()
 		stream.version = self.version
@@ -63,11 +64,11 @@ class MaterialcollectionInfoHeader:
 		if self.root_1.flag == 2:
 			self.layered_wrapper = stream.read_type(LayeredWrapper)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		for item in self.magic: stream.write_byte(item)
 		stream.write_uint(self.version)
 		stream.version = self.version
@@ -84,10 +85,10 @@ class MaterialcollectionInfoHeader:
 		if self.root_1.flag == 2:
 			stream.write_type(self.layered_wrapper)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'MaterialcollectionInfoHeader [Size: '+str(self.io_size)+']'
+		s = 'MaterialcollectionInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* flag_2 = ' + self.flag_2.__repr__()

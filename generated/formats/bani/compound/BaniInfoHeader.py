@@ -22,6 +22,7 @@ class BaniInfoHeader:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.magic = []
 		self.banis_name = 0
 		self.data_0 = BaniFragmentData0()
@@ -29,26 +30,26 @@ class BaniInfoHeader:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.magic = [stream.read_byte() for _ in range(4)]
 		self.banis_name = stream.read_string()
 		self.data_0 = stream.read_type(BaniFragmentData0)
 		self.data_1 = stream.read_type(BaniFragmentData1)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		for item in self.magic: stream.write_byte(item)
 		stream.write_string(self.banis_name)
 		stream.write_type(self.data_0)
 		stream.write_type(self.data_1)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BaniInfoHeader [Size: '+str(self.io_size)+']'
+		s = 'BaniInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* banis_name = ' + self.banis_name.__repr__()
 		s += '\n	* data_0 = ' + self.data_0.__repr__()

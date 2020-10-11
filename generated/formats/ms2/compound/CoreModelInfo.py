@@ -43,6 +43,7 @@ class CoreModelInfo:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.unk_vec_a = Vector3()
 		self.unk_float_a = 0
 		self.unk_vec_b = Vector3()
@@ -65,7 +66,7 @@ class CoreModelInfo:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.unk_vec_a = stream.read_type(Vector3)
 		self.unk_float_a = stream.read_float()
 		self.unk_vec_b = stream.read_type(Vector3)
@@ -88,11 +89,11 @@ class CoreModelInfo:
 		self.unk_1 = stream.read_uint64()
 		self.pad = [stream.read_ubyte() for _ in range(6)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_type(self.unk_vec_a)
 		stream.write_float(self.unk_float_a)
 		stream.write_type(self.unk_vec_b)
@@ -115,10 +116,10 @@ class CoreModelInfo:
 		stream.write_uint64(self.unk_1)
 		for item in self.pad: stream.write_ubyte(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'CoreModelInfo [Size: '+str(self.io_size)+']'
+		s = 'CoreModelInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* unk_vec_a = ' + self.unk_vec_a.__repr__()
 		s += '\n	* unk_float_a = ' + self.unk_float_a.__repr__()
 		s += '\n	* unk_vec_b = ' + self.unk_vec_b.__repr__()

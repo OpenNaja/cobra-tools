@@ -45,6 +45,7 @@ class Mdl2InfoHeader:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.magic = FixedString()
 		self.version = 0
 		self.user_version = 0
@@ -58,7 +59,7 @@ class Mdl2InfoHeader:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.magic = stream.read_type(FixedString, (4,))
 		self.version = stream.read_uint()
 		stream.version = self.version
@@ -73,11 +74,11 @@ class Mdl2InfoHeader:
 			self.materials_1 = [stream.read_type(Material1) for _ in range(self.model_info.mat_1_count)]
 			self.models = [stream.read_type(ModelData) for _ in range(self.model_info.model_count)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_type(self.magic)
 		stream.write_uint(self.version)
 		stream.version = self.version
@@ -92,10 +93,10 @@ class Mdl2InfoHeader:
 			for item in self.materials_1: stream.write_type(item)
 			for item in self.models: stream.write_type(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Mdl2InfoHeader [Size: '+str(self.io_size)+']'
+		s = 'Mdl2InfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()

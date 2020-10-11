@@ -80,8 +80,8 @@ class Header:
 	# number of files in external OVS archive
 	num_files_ovs: int
 
-	# 12 bytes zeros
-	zeros: typing.List[int]
+	# used in ZTUAC elephants
+	ztuac_unknowns: typing.List[int]
 
 	# length of archive names
 	len_archive_names: int
@@ -129,6 +129,7 @@ class Header:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.fres = FixedString()
 		self.flag = 0
 		self.version = 0
@@ -150,7 +151,7 @@ class Header:
 		self.num_datas = 0
 		self.num_buffers = 0
 		self.num_files_ovs = 0
-		self.zeros = []
+		self.ztuac_unknowns = []
 		self.len_archive_names = 0
 		self.num_files_3 = 0
 		self.len_type_names = 0
@@ -168,7 +169,7 @@ class Header:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.fres = stream.read_type(FixedString, (4,))
 		self.flag = stream.read_byte()
 		self.version = stream.read_byte()
@@ -191,7 +192,7 @@ class Header:
 		self.num_datas = stream.read_uint()
 		self.num_buffers = stream.read_uint()
 		self.num_files_ovs = stream.read_uint()
-		self.zeros = [stream.read_byte() for _ in range(12)]
+		self.ztuac_unknowns = [stream.read_uint() for _ in range(3)]
 		self.len_archive_names = stream.read_uint()
 		self.num_files_3 = stream.read_uint()
 		self.len_type_names = stream.read_uint()
@@ -207,11 +208,11 @@ class Header:
 		self.unknowns = [stream.read_type(UnknownEntry) for _ in range(self.num_files_ovs)]
 		self.zlibs = [stream.read_type(ZlibInfo) for _ in range(self.num_archives)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_type(self.fres)
 		stream.write_byte(self.flag)
 		stream.write_byte(self.version)
@@ -234,7 +235,7 @@ class Header:
 		stream.write_uint(self.num_datas)
 		stream.write_uint(self.num_buffers)
 		stream.write_uint(self.num_files_ovs)
-		for item in self.zeros: stream.write_byte(item)
+		for item in self.ztuac_unknowns: stream.write_uint(item)
 		stream.write_uint(self.len_archive_names)
 		stream.write_uint(self.num_files_3)
 		stream.write_uint(self.len_type_names)
@@ -250,10 +251,10 @@ class Header:
 		for item in self.unknowns: stream.write_type(item)
 		for item in self.zlibs: stream.write_type(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header [Size: '+str(self.io_size)+']'
+		s = 'Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* fres = ' + self.fres.__repr__()
 		s += '\n	* flag = ' + self.flag.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
@@ -275,7 +276,7 @@ class Header:
 		s += '\n	* num_datas = ' + self.num_datas.__repr__()
 		s += '\n	* num_buffers = ' + self.num_buffers.__repr__()
 		s += '\n	* num_files_ovs = ' + self.num_files_ovs.__repr__()
-		s += '\n	* zeros = ' + self.zeros.__repr__()
+		s += '\n	* ztuac_unknowns = ' + self.ztuac_unknowns.__repr__()
 		s += '\n	* len_archive_names = ' + self.len_archive_names.__repr__()
 		s += '\n	* num_files_3 = ' + self.num_files_3.__repr__()
 		s += '\n	* len_type_names = ' + self.len_type_names.__repr__()

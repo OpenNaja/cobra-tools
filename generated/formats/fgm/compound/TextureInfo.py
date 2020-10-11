@@ -24,6 +24,7 @@ class TextureInfo:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.offset = 0
 		self.is_textured = 0
 		self.indices = []
@@ -31,7 +32,7 @@ class TextureInfo:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.is_textured = stream.read_uint()
 		if self.is_textured == 8:
@@ -39,11 +40,11 @@ class TextureInfo:
 		if self.is_textured == 7:
 			self.colors = [stream.read_type(Color) for _ in range(4)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.is_textured)
 		if self.is_textured == 8:
@@ -51,10 +52,10 @@ class TextureInfo:
 		if self.is_textured == 7:
 			for item in self.colors: stream.write_type(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'TextureInfo [Size: '+str(self.io_size)+']'
+		s = 'TextureInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n	* is_textured = ' + self.is_textured.__repr__()
 		s += '\n	* indices = ' + self.indices.__repr__()

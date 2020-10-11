@@ -15,30 +15,31 @@ class JweBone:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.loc = Vector3()
 		self.scale = 0
 		self.rot = Vector4()
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.loc = stream.read_type(Vector3)
 		self.scale = stream.read_float()
 		self.rot = stream.read_type(Vector4)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_type(self.loc)
 		stream.write_float(self.scale)
 		stream.write_type(self.rot)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JweBone [Size: '+str(self.io_size)+']'
+		s = 'JweBone [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* loc = ' + self.loc.__repr__()
 		s += '\n	* scale = ' + self.scale.__repr__()
 		s += '\n	* rot = ' + self.rot.__repr__()

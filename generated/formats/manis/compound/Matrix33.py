@@ -35,6 +35,7 @@ class Matrix33:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.m_11 = 1.0
 		self.m_21 = 0.0
 		self.m_31 = 0.0
@@ -47,7 +48,7 @@ class Matrix33:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.m_11 = stream.read_float()
 		self.m_21 = stream.read_float()
 		self.m_31 = stream.read_float()
@@ -58,11 +59,11 @@ class Matrix33:
 		self.m_23 = stream.read_float()
 		self.m_33 = stream.read_float()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_float(self.m_11)
 		stream.write_float(self.m_21)
 		stream.write_float(self.m_31)
@@ -73,10 +74,10 @@ class Matrix33:
 		stream.write_float(self.m_23)
 		stream.write_float(self.m_33)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Matrix33 [Size: '+str(self.io_size)+']'
+		s = 'Matrix33 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* m_11 = ' + self.m_11.__repr__()
 		s += '\n	* m_21 = ' + self.m_21.__repr__()
 		s += '\n	* m_31 = ' + self.m_31.__repr__()

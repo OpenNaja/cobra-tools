@@ -14,27 +14,28 @@ class BufferEntry:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.index = 0
 		self.size = 0
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.index = stream.read_uint()
 		self.size = stream.read_uint()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.index)
 		stream.write_uint(self.size)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BufferEntry [Size: '+str(self.io_size)+']'
+		s = 'BufferEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* index = ' + self.index.__repr__()
 		s += '\n	* size = ' + self.size.__repr__()
 		s += '\n'

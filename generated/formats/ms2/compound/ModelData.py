@@ -53,6 +53,7 @@ class ModelData:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.zeros = []
 		self.vertex_count = 0
 		self.tri_index_count = 0
@@ -67,7 +68,7 @@ class ModelData:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.zeros = [stream.read_uint() for _ in range(4)]
 		self.vertex_count = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
@@ -80,11 +81,11 @@ class ModelData:
 		self.unknown_07 = stream.read_type(Vector3)
 		self.flag = stream.read_uint()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		for item in self.zeros: stream.write_uint(item)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_index_count)
@@ -97,10 +98,10 @@ class ModelData:
 		stream.write_type(self.unknown_07)
 		stream.write_uint(self.flag)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ModelData [Size: '+str(self.io_size)+']'
+		s = 'ModelData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* vertex_count = ' + self.vertex_count.__repr__()
 		s += '\n	* tri_index_count = ' + self.tri_index_count.__repr__()

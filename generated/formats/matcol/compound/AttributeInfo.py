@@ -18,6 +18,7 @@ class AttributeInfo:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.offset = 0
 		self.dtype = 0
 		self.first_value_offset = 0
@@ -25,26 +26,26 @@ class AttributeInfo:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.dtype = stream.read_uint()
 		self.first_value_offset = stream.read_uint()
 		self.zero = stream.read_uint()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.dtype)
 		stream.write_uint(self.first_value_offset)
 		stream.write_uint(self.zero)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'AttributeInfo [Size: '+str(self.io_size)+']'
+		s = 'AttributeInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n	* dtype = ' + self.dtype.__repr__()
 		s += '\n	* first_value_offset = ' + self.first_value_offset.__repr__()

@@ -88,6 +88,7 @@ class Compound(BaseClass):
 				f.write(f"\n\t\tself.arg = arg")
 				f.write(f"\n\t\tself.template = template")
 				f.write(f"\n\t\tself.io_size = 0")
+				f.write(f"\n\t\tself.io_start = 0")
 
 				for field in self.struct:
 					if field.tag in FIELD_TYPES:
@@ -120,7 +121,7 @@ class Compound(BaseClass):
 				if f"def {method_type}(" in self.src_code:
 					continue
 				f.write(f"\n\n\tdef {method_type}(self, stream):")
-				f.write(f"\n\n\t\tio_start = stream.tell()")
+				f.write(f"\n\n\t\tself.io_start = stream.tell()")
 				last_condition = ""
 				# classes that this class inherits from have to be read first
 				if self.class_basename:
@@ -180,11 +181,11 @@ class Compound(BaseClass):
 						# store version related stuff on stream
 						if "version" in field_name:
 							f.write(f"{indent}stream.{field_name} = self.{field_name}")
-				f.write(f"\n\n\t\tself.io_size = stream.tell() - io_start")
+				f.write(f"\n\n\t\tself.io_size = stream.tell() - self.io_start")
 
 			if "def __repr__(" not in self.src_code:
 				f.write(f"\n\n\tdef __repr__(self):")
-				f.write(f"\n\t\ts = '{self.class_name} [Size: '+str(self.io_size)+']'")
+				f.write(f"\n\t\ts = '{self.class_name} [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'")
 				for field_name in field_unions_dict.keys():
 					f.write(f"\n\t\ts += '\\n\t* {field_name} = ' + self.{field_name}.__repr__()")
 				f.write(f"\n\t\ts += '\\n'")

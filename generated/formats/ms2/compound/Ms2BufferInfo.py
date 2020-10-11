@@ -30,6 +30,7 @@ class Ms2BufferInfo:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.skip_1 = []
 		self.vertexdatasize = 0
 		self.ptr_1 = 0
@@ -40,7 +41,7 @@ class Ms2BufferInfo:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		if (stream.user_version == 24724) and (stream.version == 19):
 			self.skip_1 = [stream.read_uint() for _ in range(4)]
 		self.vertexdatasize = stream.read_uint64()
@@ -52,11 +53,11 @@ class Ms2BufferInfo:
 		if (stream.user_version == 8340) and (stream.version == 19):
 			self.unk_2 = [stream.read_uint64() for _ in range(2)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		if (stream.user_version == 24724) and (stream.version == 19):
 			for item in self.skip_1: stream.write_uint(item)
 		stream.write_uint64(self.vertexdatasize)
@@ -68,10 +69,10 @@ class Ms2BufferInfo:
 		if (stream.user_version == 8340) and (stream.version == 19):
 			for item in self.unk_2: stream.write_uint64(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Ms2BufferInfo [Size: '+str(self.io_size)+']'
+		s = 'Ms2BufferInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* skip_1 = ' + self.skip_1.__repr__()
 		s += '\n	* vertexdatasize = ' + self.vertexdatasize.__repr__()
 		s += '\n	* ptr_1 = ' + self.ptr_1.__repr__()

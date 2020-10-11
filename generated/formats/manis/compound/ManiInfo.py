@@ -43,6 +43,7 @@ class ManiInfo:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.zeros_start = []
 		self.duration = 0
 		self.frame_count = 0
@@ -63,7 +64,7 @@ class ManiInfo:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.zeros_start = [stream.read_ushort() for _ in range(5)]
 		self.duration = stream.read_float()
 		self.frame_count = stream.read_uint()
@@ -84,11 +85,11 @@ class ManiInfo:
 		self.j = stream.read_ushort()
 		self.ff = stream.read_ushort()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		for item in self.zeros_start: stream.write_ushort(item)
 		stream.write_float(self.duration)
 		stream.write_uint(self.frame_count)
@@ -109,10 +110,10 @@ class ManiInfo:
 		stream.write_ushort(self.j)
 		stream.write_ushort(self.ff)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ManiInfo [Size: '+str(self.io_size)+']'
+		s = 'ManiInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* zeros_start = ' + self.zeros_start.__repr__()
 		s += '\n	* duration = ' + self.duration.__repr__()
 		s += '\n	* frame_count = ' + self.frame_count.__repr__()

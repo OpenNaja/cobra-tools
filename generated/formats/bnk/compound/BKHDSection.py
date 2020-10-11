@@ -22,6 +22,7 @@ class BKHDSection:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.length = 0
 		self.version = 0
 		self.id_a = 0
@@ -32,7 +33,7 @@ class BKHDSection:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.version = stream.read_uint()
 		stream.version = self.version
@@ -42,11 +43,11 @@ class BKHDSection:
 		self.constant_b = stream.read_uint()
 		self.zeroes = [stream.read_byte() for _ in range(self.length - 20)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_uint(self.version)
 		stream.version = self.version
@@ -56,10 +57,10 @@ class BKHDSection:
 		stream.write_uint(self.constant_b)
 		for item in self.zeroes: stream.write_byte(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BKHDSection [Size: '+str(self.io_size)+']'
+		s = 'BKHDSection [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* id_a = ' + self.id_a.__repr__()

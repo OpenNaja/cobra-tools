@@ -26,6 +26,7 @@ class NasutoJointEntry:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.matrix = Matrix33()
 		self.vector = Vector4()
 		self.unknown_2 = 0
@@ -35,7 +36,7 @@ class NasutoJointEntry:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.matrix = stream.read_type(Matrix33)
 		self.vector = stream.read_type(Vector4)
 		self.unknown_2 = stream.read_uint()
@@ -43,11 +44,11 @@ class NasutoJointEntry:
 		self.unknown_3_b = stream.read_ubyte()
 		self.unknown_3_c = stream.read_ushort()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_type(self.matrix)
 		stream.write_type(self.vector)
 		stream.write_uint(self.unknown_2)
@@ -55,10 +56,10 @@ class NasutoJointEntry:
 		stream.write_ubyte(self.unknown_3_b)
 		stream.write_ushort(self.unknown_3_c)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'NasutoJointEntry [Size: '+str(self.io_size)+']'
+		s = 'NasutoJointEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* matrix = ' + self.matrix.__repr__()
 		s += '\n	* vector = ' + self.vector.__repr__()
 		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()

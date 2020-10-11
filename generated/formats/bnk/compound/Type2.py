@@ -33,6 +33,7 @@ class Type2:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.length = 0
 		self.sfx_id = 0
 		self.const_a = 0
@@ -43,7 +44,7 @@ class Type2:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.sfx_id = stream.read_uint()
 		self.const_a = stream.read_uint()
@@ -52,11 +53,11 @@ class Type2:
 		self.wem_length = stream.read_uint()
 		self.extra = [stream.read_byte() for _ in range(self.length - 17)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_uint(self.sfx_id)
 		stream.write_uint(self.const_a)
@@ -65,10 +66,10 @@ class Type2:
 		stream.write_uint(self.wem_length)
 		for item in self.extra: stream.write_byte(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Type2 [Size: '+str(self.io_size)+']'
+		s = 'Type2 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* sfx_id = ' + self.sfx_id.__repr__()
 		s += '\n	* const_a = ' + self.const_a.__repr__()

@@ -28,6 +28,7 @@ class Ms2InfoHeader:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.magic = FixedString()
 		self.version = 0
 		self.user_version = 0
@@ -40,7 +41,7 @@ class Ms2InfoHeader:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.magic = stream.read_type(FixedString, (4,))
 		self.version = stream.read_uint()
 		stream.version = self.version
@@ -54,11 +55,11 @@ class Ms2InfoHeader:
 		self.name_hashes = [stream.read_uint() for _ in range(self.general_info.name_count)]
 		self.names = [stream.read_zstring() for _ in range(self.general_info.name_count)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_type(self.magic)
 		stream.write_uint(self.version)
 		stream.version = self.version
@@ -72,10 +73,10 @@ class Ms2InfoHeader:
 		for item in self.name_hashes: stream.write_uint(item)
 		for item in self.names: stream.write_zstring(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Ms2InfoHeader [Size: '+str(self.io_size)+']'
+		s = 'Ms2InfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()

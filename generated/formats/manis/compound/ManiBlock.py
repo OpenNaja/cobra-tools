@@ -35,6 +35,7 @@ class ManiBlock:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.indices_0 = []
 		self.indices_1 = []
 		self.indices_2 = []
@@ -61,7 +62,7 @@ class ManiBlock:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		if stream.version == 18:
 			self.indices_0 = [stream.read_ushort() for _ in range(self.arg.c)]
 			self.indices_1 = [stream.read_ushort() for _ in range(self.arg.name_count)]
@@ -89,11 +90,11 @@ class ManiBlock:
 		self.floats = [stream.read_float() for _ in range(6)]
 		self.repeats = [stream.read_type(Repeat) for _ in range(self.count)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		if stream.version == 18:
 			for item in self.indices_0: stream.write_ushort(item)
 			for item in self.indices_1: stream.write_ushort(item)
@@ -121,10 +122,10 @@ class ManiBlock:
 		for item in self.floats: stream.write_float(item)
 		for item in self.repeats: stream.write_type(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ManiBlock [Size: '+str(self.io_size)+']'
+		s = 'ManiBlock [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* indices_0 = ' + self.indices_0.__repr__()
 		s += '\n	* indices_1 = ' + self.indices_1.__repr__()
 		s += '\n	* indices_2 = ' + self.indices_2.__repr__()

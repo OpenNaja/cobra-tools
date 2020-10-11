@@ -32,6 +32,7 @@ class Header7Data1:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.zero_00 = 0
 		self.zero_04 = 0
 		self.data_size = 0
@@ -45,7 +46,7 @@ class Header7Data1:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.zero_00 = stream.read_uint()
 		self.zero_04 = stream.read_uint()
 		self.data_size = stream.read_uint()
@@ -57,11 +58,11 @@ class Header7Data1:
 		self.pad = stream.read_byte()
 		self.mip_maps = [stream.read_type(Header7MipmapInfo) for _ in range(self.num_mips)]
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_uint(self.zero_00)
 		stream.write_uint(self.zero_04)
 		stream.write_uint(self.data_size)
@@ -73,10 +74,10 @@ class Header7Data1:
 		stream.write_byte(self.pad)
 		for item in self.mip_maps: stream.write_type(item)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header7Data1 [Size: '+str(self.io_size)+']'
+		s = 'Header7Data1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* zero_00 = ' + self.zero_00.__repr__()
 		s += '\n	* zero_04 = ' + self.zero_04.__repr__()
 		s += '\n	* data_size = ' + self.data_size.__repr__()

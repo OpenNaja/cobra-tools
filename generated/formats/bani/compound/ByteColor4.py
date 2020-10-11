@@ -20,6 +20,7 @@ class ByteColor4:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
+		self.io_start = 0
 		self.r = 0
 		self.g = 0
 		self.b = 0
@@ -27,26 +28,26 @@ class ByteColor4:
 
 	def read(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		self.r = stream.read_ubyte()
 		self.g = stream.read_ubyte()
 		self.b = stream.read_ubyte()
 		self.a = stream.read_ubyte()
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
-		io_start = stream.tell()
+		self.io_start = stream.tell()
 		stream.write_ubyte(self.r)
 		stream.write_ubyte(self.g)
 		stream.write_ubyte(self.b)
 		stream.write_ubyte(self.a)
 
-		self.io_size = stream.tell() - io_start
+		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ByteColor4 [Size: '+str(self.io_size)+']'
+		s = 'ByteColor4 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* r = ' + self.r.__repr__()
 		s += '\n	* g = ' + self.g.__repr__()
 		s += '\n	* b = ' + self.b.__repr__()
