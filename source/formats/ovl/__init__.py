@@ -48,7 +48,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# print("stream.version", stream.version)
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
-			# print(self.ovl)
+			print(self.ovl)
 			# print(self)
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))

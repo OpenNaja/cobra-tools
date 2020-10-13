@@ -3,6 +3,13 @@ from generated.formats.manis.compound.InfoHeader import InfoHeader
 from generated.io import IoFile, BinaryStream
 import os
 import struct
+import binascii
+
+def get_padding(size, pad_to=16):
+	mod = size % pad_to
+	if mod:
+		return pad_to - mod
+	return 0
 
 
 class ManisFile(InfoHeader, IoFile):
@@ -26,9 +33,19 @@ class ManisFile(InfoHeader, IoFile):
 			mani_info = self.mani_infos[0]
 			mani_block = stream.read_type(ManiBlock, (mani_info,))
 			print(mani_block)
-			print(stream.tell())
+			# is this correct??
+			zeros = stream.read(4)
+			print(zeros, stream.tell())
 			sum_bytes = sum(mb.byte_size for mb in mani_block.repeats)
 			print("sum_bytes", sum_bytes)
+			sum_bytes2 = sum(mb.byte_size + get_padding(mb.byte_size) for mb in mani_block.repeats)
+			print("sum_bytes + padding", sum_bytes2)
+			for mb in mani_block.repeats:
+				data = stream.read(mb.byte_size)
+				pad_size = get_padding(mb.byte_size)
+				padding = stream.read(pad_size)
+				print(binascii.hexlify(data[:20]))
+			stream.tell()
 			#
 			# # seems to be pretty good until here, then it breaks
 			#
