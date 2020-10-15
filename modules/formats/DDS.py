@@ -120,6 +120,10 @@ def write_dds(archive, sized_str_entry, show_dds):
 			f"Unknown compression type {header_3_0.compression_type}, trying all compression types for your amusement")
 	print("dds_compression_type", dds_compression_types)
 	# write out everything for each compression type
+	if header_3_0.compression_type.name == "DXGI_FORMAT_ALL":
+		dds_compression_types = [x.name for x in DxgiFormat]
+	if header_3_0.compression_type.name == "DXGI_FORMAT_BC4_UNORM_B":
+		dds_compression_types = ("DXGI_FORMAT_BC4_UNORM",)
 	for dds_compression_type in dds_compression_types:
 
 		# header attribs
