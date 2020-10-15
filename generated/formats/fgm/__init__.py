@@ -15,6 +15,9 @@ class FgmFile(FgmInfoHeader, IoFile):
 		# JWE style
 		if self.flag_2 == 24724:
 			return "Jurassic World Evolution"
+		# PC style
+		elif self.version == 18:
+			return "Planet Coaster"
 		# PZ Style
 		elif self.flag_2 == 8340:
 			return "Planet Zoo"
