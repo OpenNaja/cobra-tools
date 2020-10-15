@@ -183,6 +183,9 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 			d = 4
 			array_size //= d
 		print("array_size",array_size)
+		if array_size == 0:
+			raise FileNotFoundError(f"Only {len(array_textures)} array texture(s) were found in {in_dir}, resulting in an incomplete array. "
+									f"Make sure you inject a PNG from a folder containing all other PNGs for that array!")
 		out_shape = (h*array_size, w, d)
 		im = np.zeros(out_shape, dtype=ims[0].dtype)
 		if join_components:
