@@ -331,20 +331,13 @@ def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
 	with open(lua_file_path, "rb") as lua_stream:
 		# load the new buffer
 		buffer_bytes = lua_stream.read()
+		buff_size = len(buffer_bytes)
 		# update the buffer
 		lua_sized_str_entry.data_entry.update_data( (buffer_bytes,))
-		# update the sizedstring entry
-	with open(lua_file_path+"meta","rb") as luameta_stream:
-		string_data = luameta_stream.read(16)
-		print(string_data) #4 uints: size,unknown,hash,zero. only size is used by game.
-		frag0_data0 = luameta_stream.read(8)
-		print(frag0_data0)
-		frag0_data1 = luameta_stream.read(lua_sized_str_entry.fragments[0].pointers[1].data_size)
-		print(frag0_data1)
-		frag1_data0 = luameta_stream.read(24)
-		print(frag1_data0)
-		frag1_data1 = luameta_stream.read(lua_sized_str_entry.fragments[1].pointers[1].data_size)
-		print(frag1_data1)
-		lua_sized_str_entry.pointers[0].update_data(string_data, update_copies=True)
-		lua_sized_str_entry.fragments[0].pointers[1].update_data(frag0_data1, update_copies=True)
-		lua_sized_str_entry.fragments[1].pointers[1].update_data(frag1_data1, update_copies=True)  
+        
+        
+	ss_len = len(lua_sized_str_entry.pointers[0].data)/4 
+	ss_data = struct.unpack("<{}I".format(int(ss_len)),lua_sized_str_entry.pointers[0].data)
+	ss_new = struct.pack("<{}I".format(int(ss_len)), buff_size, *ss_data[1:] )
+    
+	lua_sized_str_entry.pointers[0].update_data(ss_new, update_copies=True)
