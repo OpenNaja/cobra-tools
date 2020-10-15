@@ -118,6 +118,9 @@
 
 		<option value="126" name="DXGI_FORMAT_BC7_UNORM"></option>
 		<option value="127" name="DXGI_FORMAT_BC7_UNORM_SRGB">PZ titan beetle</option>
+		
+		<option value="250" name="DXGI_FORMAT_ALL"></option>
+		<option value="121" name="DXGI_FORMAT_BC4_UNORM_B"></option>
     </enum>
 
 	<!-- Structs for the OVL file -->
