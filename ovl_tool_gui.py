@@ -54,6 +54,30 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.setToolTip("For devs.")
 		self.t_write_frag_log.setChecked(False)
 		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
+        
+		self.spacer = QtWidgets.QLabel(self, text = "       ")
+		self.ext_desc = QtWidgets.QLabel(self, text = "Check which filetypes to extract")
+		self.ext_fdb = QtWidgets.QCheckBox("Extract FDB Files")
+		self.ext_fdb.setChecked(True)
+		self.ext_lua = QtWidgets.QCheckBox("Extract LUA Files")
+		self.ext_lua.setChecked(False)
+		self.ext_anim = QtWidgets.QCheckBox("Extract Animation Files")
+		self.ext_anim.setChecked(True)
+		self.ext_model = QtWidgets.QCheckBox("Extract Model Files")
+		self.ext_model.setChecked(True)
+		self.ext_tex = QtWidgets.QCheckBox("Extract Texture Files")
+		self.ext_tex.setChecked(True)
+		self.ext_txt = QtWidgets.QCheckBox("Extract Text Files")
+		self.ext_txt.setChecked(False)
+		self.ext_shader = QtWidgets.QCheckBox("Extract Material Files")
+		self.ext_shader.setChecked(True)
+		self.ext_aux = QtWidgets.QCheckBox("Extract Audio Files")
+		self.ext_aux.setChecked(True)
+		self.ext_fct = QtWidgets.QCheckBox("Extract Font Files")
+		self.ext_fct.setChecked(True)
+		self.ext_misc = QtWidgets.QCheckBox("Extract Misc Files")
+		self.ext_misc.setChecked(False)
+
 
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 2)		
@@ -63,11 +87,24 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_write_dat, 4, 0)
 		self.qgrid.addWidget(self.t_write_frag_log, 5, 0)
 		self.qgrid.addWidget(self.t_2K, 6, 0)
+
+		self.qgrid.addWidget(self.spacer, 0, 2)
+		self.qgrid.addWidget(self.ext_desc, 0, 3)
+		self.qgrid.addWidget(self.ext_fdb, 1, 3)
+		self.qgrid.addWidget(self.ext_lua, 2, 3)
+		self.qgrid.addWidget(self.ext_anim, 3, 3)
+		self.qgrid.addWidget(self.ext_model, 4, 3)
+		self.qgrid.addWidget(self.ext_tex, 5, 3)
+		self.qgrid.addWidget(self.ext_shader, 6, 3)
+		self.qgrid.addWidget(self.ext_txt, 7, 3)
+		self.qgrid.addWidget(self.ext_aux, 8, 3)
+		self.qgrid.addWidget(self.ext_fct, 9, 3)
+		self.qgrid.addWidget(self.ext_misc, 10, 3)
 		#start = 7
 		#for i, (old, new) in enumerate(self.e_name_pairs):
 		#	self.qgrid.addWidget(old, start+i, 0)
 		#	self.qgrid.addWidget(new, start+i, 1)
-
+        
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
@@ -106,6 +143,46 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_2K(self,):
 		return self.t_2K.isChecked()
+        
+	@property
+	def extract_fdb(self,):
+		return self.ext_fdb.isChecked()
+        
+	@property
+	def extract_lua(self,):
+		return self.ext_lua.isChecked()
+        
+	@property
+	def extract_anim(self,):
+		return self.ext_anim.isChecked()
+        
+	@property
+	def extract_model(self,):
+		return self.ext_model.isChecked()
+
+	@property
+	def extract_tex(self,):
+		return self.ext_tex.isChecked()
+
+	@property
+	def extract_shader(self,):
+		return self.ext_shader.isChecked()
+
+	@property
+	def extract_text(self,):
+		return self.ext_txt.isChecked()
+        
+	@property
+	def extract_aux(self,):
+		return self.ext_aux.isChecked()
+        
+	@property
+	def extract_fct(self,):
+		return self.ext_fct.isChecked()
+        
+	@property
+	def extract_misc(self,):
+		return self.ext_misc.isChecked()
 	
 	@property
 	def write_dat(self,):
@@ -200,7 +277,7 @@ class MainWindow(widgets.MainWindow):
 					os.makedirs(dir, exist_ok=True)
 					archive = self.ovl_data.ovs_files[0]
 					archive.dir = dir
-					error_files, skip_files = extract.extract(archive, self.write_dds, progress_callback=self.update_progress)
+					error_files, skip_files = extract.extract(archive, self.extract_fdb, self.extract_lua, self.extract_anim, self.extract_model, self.extract_tex, self.extract_shader, self.extract_text, self.extract_aux, self.extract_fct, self.extract_misc, self.write_dds, progress_callback=self.update_progress)
 
 					self.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
