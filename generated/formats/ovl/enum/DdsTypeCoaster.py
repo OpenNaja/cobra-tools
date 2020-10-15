@@ -20,3 +20,6 @@ class DdsTypeCoaster(UbyteEnum):
 	DXGI_FORMAT_BC7_UNORM = 126
 	# PZ titan beetle
 	DXGI_FORMAT_BC7_UNORM_SRGB = 127
+
+	DXGI_FORMAT_ALL = 250
+	DXGI_FORMAT_BC4_UNORM_B = 121
