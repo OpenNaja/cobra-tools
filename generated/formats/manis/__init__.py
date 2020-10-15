@@ -5,12 +5,18 @@ import os
 import struct
 import binascii
 
+
 def get_padding(size, pad_to=16):
 	mod = size % pad_to
 	if mod:
 		return pad_to - mod
 	return 0
 
+
+def hex_test():
+	for i in range(20):
+		x = 2 ** i
+		print(i, bin(i), x, bin(x))
 
 class ManisFile(InfoHeader, IoFile):
 
@@ -44,7 +50,7 @@ class ManisFile(InfoHeader, IoFile):
 				data = stream.read(mb.byte_size)
 				pad_size = get_padding(mb.byte_size)
 				padding = stream.read(pad_size)
-				print(binascii.hexlify(data[:20]))
+				print(binascii.hexlify(data[:40]))
 			stream.tell()
 			#
 			# # seems to be pretty good until here, then it breaks
@@ -65,5 +71,6 @@ class ManisFile(InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	mani = ManisFile()
-	mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
+	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
 	# print(mani)
+	# hex_test()

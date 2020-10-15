@@ -35,7 +35,7 @@ def get_tex_structs_pc(sized_str_entry):
 	print(headers_3_1)
 	# this corresponds to a stripped down header_7
 	header_7 = headers_3_1[0]
-	return header_3_0, header_7
+	return header_3_0, headers_3_1, header_7
 
 
 def align_to(width, comp, alignment=64):
@@ -85,7 +85,7 @@ def write_dds(archive, sized_str_entry, show_dds):
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
 	if archive.is_pc():
-		header_3_0, header_7 = get_tex_structs_pc(sized_str_entry)
+		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(sized_str_entry)
 		dds_file.width = header_7.width
 		# hack until we have proper support for array_size on the image editors
 		dds_file.height = header_7.height * header_7.array_size
@@ -155,7 +155,7 @@ def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_dds, is_2K, ovs_
 
 	archive = ovl_data.ovs_files[0]
 	if archive.is_pc():
-		header_3_0, header_7 = get_tex_structs_pc(tex_sized_str_entry)
+		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 	else:
 		header_3_0, header_3_1, header_7 = get_tex_structs(tex_sized_str_entry)
 		if is_2K:
@@ -216,7 +216,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, is_2K, ovs_sized_str_
 	archive = ovl_data.ovs_files[0]
 
 	if archive.is_pc():
-		header_3_0, header_7 = get_tex_structs_pc(tex_sized_str_entry)
+		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 		tex_h = header_7.height
 		tex_w = header_7.width
 		tex_d = header_3_0.one_0
@@ -240,22 +240,27 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, is_2K, ovs_sized_str_
 	dds_file.load(dds_file_path)
 	ensure_size_match(os.path.basename(dds_file_path), dds_file, tex_h, tex_w, tex_d, tex_a, comp)
 	if archive.is_pc():
-		out_bytes = dds_file.buffer
-	else:
-		out_bytes = dds_file.pack_mips(header_7.num_mips)
-	with dds_file.writer(dds_file_path+"dump.dds") as stream:
-		dds_file.write(stream)
-		stream.write(out_bytes)
-
-	sum_of_buffers = sum(buffer.size for buffer in tex_sized_str_entry.data_entry.buffers)
-	if len(out_bytes) != sum_of_buffers:
-		print(
-			f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes.")
-
-	with io.BytesIO(out_bytes) as reader:
-		for buffer in tex_sized_str_entry.data_entry.buffers:
-			dds_buff = reader.read(buffer.size)
+		for buffer, tex_header_3 in zip(tex_sized_str_entry.data_entry.buffers, headers_3_1):
+			dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 			if len(dds_buff) < buffer.size:
 				print(f"Last {buffer.size - len(dds_buff)} bytes of DDS buffer are not overwritten!")
 				dds_buff = dds_buff + buffer.data[len(dds_buff):]
 			buffer.update_data(dds_buff)
+	else:
+		out_bytes = dds_file.pack_mips(header_7.num_mips)
+		# with dds_file.writer(dds_file_path+"dump.dds") as stream:
+		# 	dds_file.write(stream)
+		# 	stream.write(out_bytes)
+
+		sum_of_buffers = sum(buffer.size for buffer in tex_sized_str_entry.data_entry.buffers)
+		if len(out_bytes) != sum_of_buffers:
+			print(
+				f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes.")
+
+		with io.BytesIO(out_bytes) as reader:
+			for buffer in tex_sized_str_entry.data_entry.buffers:
+				dds_buff = reader.read(buffer.size)
+				if len(dds_buff) < buffer.size:
+					print(f"Last {buffer.size - len(dds_buff)} bytes of DDS buffer are not overwritten!")
+					dds_buff = dds_buff + buffer.data[len(dds_buff):]
+				buffer.update_data(dds_buff)

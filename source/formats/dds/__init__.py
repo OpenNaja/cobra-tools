@@ -110,6 +110,14 @@ class DdsFile(Header, IoFile):
 		# get final merged output bytes
 		return b"".join(out_mips)
 
+	def pack_mips_pc(self, num_mips):
+		"""Grab the lower mip levels according to the count"""
+		first_mip_index = self.mipmap_count - num_mips
+		print("first mip", first_mip_index)
+
+		# get final merged output bytes
+		return b"".join([b for h, w, b in self.mips[first_mip_index:]])
+
 
 if __name__ == "__main__":
 	m = DdsFile()
