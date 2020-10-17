@@ -3,7 +3,9 @@ import os
 import traceback
 
 from modules.formats.BANI import write_banis, write_bani
+from modules.formats.BNK import write_bnk
 from modules.formats.DDS import write_dds
+from modules.formats.FCT import write_fct
 from modules.formats.FDB import write_fdb
 from modules.formats.FGM import write_fgm
 from modules.formats.LUA import write_lua
@@ -11,9 +13,7 @@ from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MS2 import write_ms2
 
-from generated.formats.bnk import BnkFile
-
-from util import texconv
+from modules.formats.TXT import write_txt
 
 IGNORE_TYPES = ("mani", "mdl2", "texturestream", "datastreams")
 
@@ -76,18 +76,18 @@ def extract_names(archive, names, out_dir, progress_callback=None):
 			# 	write_xmlconfig(archive, entry)
 			# elif entry.ext == "userinterfaceicondata" and extract_misc == True:
 			# 	write_userinterfaceicondata(archive, entry)
-			# elif entry.ext == "txt" and extract_text == True:
-			# 	write_txt(archive, entry)
-			# elif entry.ext == "bnk" and extract_aux == True:
-			# 	write_bnk(archive, entry, show_dds, progress_callback)
+			elif entry.ext == "txt":
+				paths.extend(write_txt(archive, entry, out_dir_func))
+			elif entry.ext == "bnk":
+				paths.extend(write_bnk(archive, entry, False, progress_callback, out_dir_func))
 			# elif entry.ext == "prefab" and extract_misc == True:
 			# 	write_prefab(archive, entry)
 			# elif entry.ext == "voxelskirt" and extract_misc == True:
 			# 	write_voxelskirt(archive, entry)
 			# elif entry.ext == "gfx" and extract_misc == True:
 			# 	write_gfx(archive, entry)
-			# elif entry.ext == "fct" and extract_fct == True:
-			# 	write_fct(archive, entry)
+			elif entry.ext == "fct":
+				paths.extend(write_fct(archive, entry, out_dir_func))
 			# elif entry.ext == "scaleformlanguagedata" and extract_misc == True:
 			# 	write_scaleform(archive, entry)
 			else:
@@ -178,39 +178,10 @@ def extract(archive, extract_fdb, extract_lua, extract_anim, extract_model, extr
 	return error_files, skip_files
 
 
-def write_bnk(archive, sized_str_entry, show_dds, progress_callback):
-	bnk = os.path.splitext(sized_str_entry.name)[0]
-	bnk_path = f"{archive.ovl.file_no_ext}_{bnk}_bnk_b.aux"
-	if os.path.isfile(bnk_path):
-		if "_media_" not in bnk_path:
-			print("skipping events bnk", bnk_path)
-			return
-		print("exporting", bnk_path)
-
-		data = BnkFile()
-		data.load(bnk_path)
-
-		# if we want to see the dds, write it to the output dir
-		tmp_dir = texconv.make_tmp(archive.dir, show_dds)
-		wem_files = data.extract_audio(tmp_dir, bnk)
-		texconv.wem_handle(wem_files, archive.dir, show_dds, progress_callback)
-	else:
-		raise FileNotFoundError(f"BNK / AUX archive expected at {bnk_path}!")
-		
 def write_voxelskirt(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	buffers = sized_str_entry.data_entry.buffer_datas
-
-	#try:
-	#	buffer_data = sized_str_entry.data_entry.buffer_datas[0]
-	#	print("buffer size",len(buffer_data))
-	#except:
-	#	print("Found no buffer data for",name)
-	#	buffer_data = b""
-	#if len(sized_str_entry.fragments) != 2:
-	#	print("must have 2 fragments")
-	#	return
 	# write voxelskirt
 	with open(archive.indir(name), 'wb') as outfile:
 		# write the sized str and buffers
@@ -223,16 +194,6 @@ def write_gfx(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	buffers = sized_str_entry.data_entry.buffer_datas
-
-	#try:
-	#	buffer_data = sized_str_entry.data_entry.buffer_datas[0]
-	#	print("buffer size",len(buffer_data))
-	#except:
-	#	print("Found no buffer data for",name)
-	#	buffer_data = b""
-	#if len(sized_str_entry.fragments) != 2:
-	#	print("must have 2 fragments")
-	#	return
 	# write voxelskirt
 	with open(archive.indir(name), 'wb') as outfile:
 		# write the sized str and buffers
@@ -240,54 +201,23 @@ def write_gfx(archive, sized_str_entry):
 		outfile.write( sized_str_entry.pointers[0].data )
 		for buff in buffers:
 			outfile.write(buff)
-			
-def write_fct(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting",name)
-	buffers = sized_str_entry.data_entry.buffer_datas
-	ss_len = len(sized_str_entry.pointers[0].data)/4
-	ss_data = struct.unpack("<4f{}I".format(int(ss_len - 4)),sized_str_entry.pointers[0].data)
-	pad_size = ss_data[8]
-    
-	data_sizes = (ss_data[10],ss_data[12],ss_data[14],ss_data[16])
-	adder = 0
-	for x, data_size in enumerate(data_sizes):
-		if data_size != 0:
-			type_check = struct.unpack("<4s", buffers[0][pad_size+adder:pad_size+adder+4])[0]
-			print(type_check)
-			if "OTTO" in str(type_check):
-				with open(archive.indir(name)+str(x)+".otf", 'wb') as outfile:
-					for buff in buffers:
-						outfile.write(buff[pad_size+adder:data_size+pad_size+adder])
-			else:
-				with open(archive.indir(name)+str(x)+".ttf", 'wb') as outfile:
-					for buff in buffers:
-						outfile.write(buff[pad_size+adder:data_size+pad_size+adder])
-		adder += data_size
-    
-	#with open(archive.indir(name)+".pad", 'wb') as outfile:
-		#for buff in buffers:
-			#outfile.write(buff[0:pad_size])
-       
-	#with open(archive.indir(name)+".meta", 'wb') as outfile:
-		#print(sized_str_entry.pointers[0].data)
-		#outfile.write( sized_str_entry.pointers[0].data )
-            
+
+
 def write_scaleform(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
-    
-       
+
 	with open(archive.indir(name), 'wb') as outfile:
 		# write each of the fragments
-		#print(sized_str_entry.pointers[0].data)
+		# print(sized_str_entry.pointers[0].data)
 		outfile.write( sized_str_entry.pointers[0].data )
 		for frag in sized_str_entry.fragments:
-			#print(frag.pointers[0].data)
-			#print(frag.pointers[1].data)
-			outfile.write( frag.pointers[0].data )
-			outfile.write( frag.pointers[1].data )
-		
+			# print(frag.pointers[0].data)
+			# print(frag.pointers[1].data)
+			outfile.write(frag.pointers[0].data)
+			outfile.write(frag.pointers[1].data)
+
+
 def write_prefab(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
@@ -315,13 +245,6 @@ def write_prefab(archive, sized_str_entry):
 			#print(frag.pointers[1].data)
 			outfile.write( frag.pointers[0].data )
 			outfile.write( frag.pointers[1].data )
-
-def write_txt(archive, txt_sized_str_entry):
-	# a bare sized str
-	b = txt_sized_str_entry.pointers[0].data
-	size = struct.unpack("<I", b[:4])[0]
-	with open(archive.indir(txt_sized_str_entry.name), "wb") as f:
-		f.write(b[4:4+size])
 
 
 def write_assetpkg(archive, sized_str_entry):
