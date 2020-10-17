@@ -6,10 +6,10 @@ from modules.util import write_sized_str, to_bytes
 from pyffi_ext.formats.ms2 import Ms2Format
 
 
-def write_ms2(archive, ms2_sized_str_entry):
+def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	name = ms2_sized_str_entry.name
 	if not ms2_sized_str_entry.data_entry:
-		print("No data entry for ",name)
+		print("No data entry for ", name)
 		return
 	buffers = ms2_sized_str_entry.data_entry.buffer_datas
 	if len(buffers) == 3:
@@ -31,7 +31,8 @@ def write_ms2(archive, ms2_sized_str_entry):
 	print("\nWriting",name)
 	print("\nbuffers",len(buffers))
 	for i, buffer in enumerate(buffers):
-		with open(archive.indir(name+str(i)+".ms2"), 'wb') as outfile:
+		p = out_dir(name+str(i)+".ms2")
+		with open(p, 'wb') as outfile:
 			outfile.write(buffer)
 
 	# Planet coaster
@@ -55,7 +56,9 @@ def write_ms2(archive, ms2_sized_str_entry):
 		# print("next_model_info", f_1.pointers[1].address, next_model_info)
 
 	# write the ms2 file
-	with open(archive.indir(name), 'wb') as outfile:
+	out_path = out_dir(name)
+	out_paths = [out_path,]
+	with open(out_path, 'wb') as outfile:
 		outfile.write(ms2_header)
 		outfile.write(ms2_general_info_data)
 		outfile.write(ms2_buffer_info_data)
@@ -65,7 +68,9 @@ def write_ms2(archive, ms2_sized_str_entry):
 
 	# export each mdl2
 	for mdl2_index, mdl2_entry in enumerate(ms2_sized_str_entry.children):
-		with open(archive.indir(mdl2_entry.name), 'wb') as outfile:
+		mdl2_path = out_dir(mdl2_entry.name)
+		out_paths.append(mdl2_path)
+		with open(mdl2_path, 'wb') as outfile:
 			print("Writing", mdl2_entry.name, mdl2_index)
 
 			mdl2_header = struct.pack("<4s3I", b"MDL2", archive.ovl.version, archive.ovl.flag_2, mdl2_index )
@@ -112,6 +117,8 @@ def write_ms2(archive, ms2_sized_str_entry):
 
 					model_data = f.pointers[0].data
 					outfile.write(model_data)
+
+	return out_paths
 
 
 class Mdl2Holder:

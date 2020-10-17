@@ -1,11 +1,17 @@
 import os
+import traceback
 import webbrowser
 from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSlot
+import sys
 
 from util import config, qt_theme
+from modules import extract, inject
 
 MAX_UINT = 4294967295
-myFont=QtGui.QFont()
+myFont = QtGui.QFont()
 myFont.setBold(True)
 
 def startup(cls):
@@ -48,6 +54,148 @@ def vbox(parent, grid):
 	# vbox.setContentsMargins(0,0,0,0)
 	parent.setLayout(grid)
 
+
+import tempfile
+import os
+
+
+class DelayedMimeData(QtCore.QMimeData):
+	def __init__(self):
+		super().__init__()
+		self.callbacks = []
+
+	def add_callback(self, callback):
+		self.callbacks.append(callback)
+
+	def retrieveData(self, mime_type: str, preferred_type: QtCore.QVariant.Type):
+		for callback in self.callbacks.copy():
+			result = callback()
+			if result:
+				self.callbacks.remove(callback)
+		return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
+
+
+class TableView(QTableWidget):
+	def __init__(self, header_names, main_window):
+		QTableWidget.__init__(self,)
+		self.setColumnCount(len(header_names))
+		self.setHorizontalHeaderLabels(header_names)
+		# list of lists
+		# row first
+		self.data = []
+		self.main_window = main_window
+		self.ovl_data = main_window.ovl_data
+		self.resizeColumnsToContents()
+		self.resizeRowsToContents()
+		self.setAcceptDrops(True)
+		self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+
+		self.setSortingEnabled(True)
+		# self.setDragDropOverwriteMode(False)
+		# self.setDragEnabled(True)
+		# self.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
+		# self.setFlags(item->flags() & ~(Qt::ItemIsDropEnabled))
+
+		self.setDragEnabled(True)
+		self.setAcceptDrops(True)
+		self.verticalHeader().hide()
+		# self.addItems(['one', 'two', 'three', 'four'])
+		# self.setSelectionMode(self.MultiSelection)
+
+	def startDrag(self, actions):
+		"""Starts a drag from inside the app towards the outside"""
+		drag = QtGui.QDrag(self)
+		# names = [item.text() for item in self.selectedItems()]
+		ids = [x.row() for x in self.selectionModel().selectedRows()]
+		# todo: make sure lookup is not messed up due to sorting
+		names = [self.item(x, 0).text() for x in ids]
+		print("DRAGGING", ids, names)
+		data = QtCore.QMimeData()
+
+		archive = self.ovl_data.ovs_files[0]
+		# archive.dir = dir
+		temp_dir = tempfile.gettempdir()
+		path_list = [QtCore.QUrl.fromLocalFile(path) for path in extract.extract_names(archive, names, temp_dir)]
+
+		data.setUrls(path_list)
+		drag.setMimeData(data)
+		drag.exec_()
+		# mime = DelayedMimeData()
+		# path_list = []
+		# for name in names:
+		# 	path = os.path.join(tempfile.gettempdir(), 'DragTest', name)
+		# 	os.makedirs(os.path.dirname(path), exist_ok=True)
+		#
+		# 	def write_to_file(path=path, contents=name, widget=self):
+		# 		if widget.underMouse():
+		# 			return False
+		# 		else:
+		# 			with open(path, 'w') as f:
+		# 				import time
+		# 				# time.sleep(1)  # simulate large file
+		# 				f.write(contents)
+		#
+		# 			return True
+		#
+		# 	mime.add_callback(write_to_file)
+		#
+		# 	path_list.append(QtCore.QUrl.fromLocalFile(path))
+		# mime.setUrls(path_list)
+		# drag.setMimeData(mime)
+		# drag.exec_(QtCore.Qt.CopyAction)
+
+	def set_data(self, data):
+		self.clearContents()
+		self.setRowCount(len(data))
+		self.data = data
+		for n, line in enumerate(self.data):
+			for m, item in enumerate(line):
+				newitem = QTableWidgetItem(item)
+				if m == 0:
+					newitem.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirIcon")))
+				self.setItem(n, m, newitem)
+		self.resizeColumnsToContents()
+
+	def dragMoveEvent(self, e):
+		e.accept()
+
+	def dragEnterEvent(self, e):
+		# print("e", e)
+		e.accept()
+
+	def get_files(self, event):
+		data = event.mimeData()
+		urls = data.urls()
+		if urls and urls[0].scheme() == 'file':
+			return urls
+
+	def dropEvent(self, e):
+		position = e.pos()
+		# print('blah', position)
+		# self.button.move(position)
+
+		e.setDropAction(QtCore.Qt.CopyAction)
+
+		urls = self.get_files(e)
+		if urls:
+			files = [str(url.path())[1:] for url in urls]
+			# print(files)
+			if self.main_window.ovl_name:
+				# self.cfg["dir_inject"] = os.path.dirname(files[0])
+				try:
+					inject.inject(self.ovl_data, files, self.main_window.write_dds, self.main_window.write_2K)
+					self.main_window.file_widget.dirty = True
+				except Exception as ex:
+					traceback.print_exc()
+					showdialog(str(ex))
+				print("Done!")
+			else:
+				showdialog("You must open an OVL file before you can inject files!")
+			# self.accept_file(filepath)
+		# self.resize(720, 400)
+		e.accept()
+
+
 class LabelEdit(QtWidgets.QWidget):
 	def __init__(self, name, ):
 		QtWidgets.QWidget.__init__(self,)
@@ -85,6 +233,7 @@ class CleverCombo(QtWidgets.QComboBox):
 	def update_name(self, ind):
 		"""Change data on pyffi struct if gui changes"""
 		setattr(self.link_inst, self.link_attr, self.currentText())
+
 
 class LabelCombo(QtWidgets.QWidget):
 	def __init__(self, name, options, link_inst=None, link_attr=None):
@@ -145,6 +294,7 @@ class MySwitch(QtWidgets.QPushButton):
 			sw_rect.moveLeft(-width)
 		painter.drawRoundedRect(sw_rect, radius, radius)
 		painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
+
 
 class CollapsibleBox(QtWidgets.QWidget):
 	def __init__(self, title="", parent=None):
@@ -219,6 +369,7 @@ class CollapsibleBox(QtWidgets.QWidget):
 		content_animation.setDuration(100)
 		content_animation.setStartValue(0)
 		content_animation.setEndValue(content_height)
+
 
 class MatcolInfo():
 	def __init__(self, attrib, tooltips={}):
@@ -318,6 +469,7 @@ class QColorButton(QtWidgets.QPushButton):
 	def getValue(self, ):
 		if self._color:
 			print(self._color.getRgb())
+
 
 class VectorEntry():
 	def __init__(self, attrib, tooltips={}):

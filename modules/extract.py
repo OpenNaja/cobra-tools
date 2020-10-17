@@ -2,13 +2,109 @@ import struct
 import os
 import traceback
 
+from modules.formats.BANI import write_banis, write_bani
 from modules.formats.DDS import write_dds
+from modules.formats.FDB import write_fdb
+from modules.formats.FGM import write_fgm
+from modules.formats.LUA import write_lua
+from modules.formats.MANI import write_manis
+from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MS2 import write_ms2
 
 from generated.formats.bnk import BnkFile
-from modules.util import write_sized_str
 
 from util import texconv
+
+IGNORE_TYPES = ("mani", "mdl2", "texturestream", "datastreams")
+
+
+def extract_names(archive, names, out_dir, progress_callback=None):
+
+	def out_dir_func(n):
+		"""Helper function to generate temporary output file name"""
+		return os.path.join(out_dir, n)
+
+	print("Extracting by name...")
+	# the temporary file paths that are passed to windows to move the files to their final destination
+	paths = []
+
+	# the actual export, per file type
+	error_files = []
+	skip_files = []
+	# data types that we export starting from other file types but are not caught as deliberate cases
+
+	print("\nExtracting from archive", archive.archive_index)
+	entry_dict = {entry.name: entry for entry in archive.sized_str_entries}
+	# print(entry_dict)
+	# print(names)
+	# export all selected files
+	for file_index, file in enumerate(names):
+		print(file_index, file)
+		if progress_callback:
+			progress_callback(f"Extracting {file}", value=file_index, vmax=len(names))
+		basename, ext = os.path.splitext(file)
+
+		if ext[1:] in IGNORE_TYPES:
+			print(f"Ignoring {file}, as it is not a standalone file!")
+			continue
+
+		if file in entry_dict:
+			print("Found name", file)
+			entry = entry_dict[file]
+
+			if entry.ext == "banis":
+				paths.extend(write_banis(archive, entry, out_dir_func))
+			elif entry.ext == "bani":
+				paths.extend(write_bani(archive, entry, out_dir_func))
+			elif entry.ext == "manis":
+				paths.extend(write_manis(archive, entry, out_dir_func))
+			elif entry.ext == "fgm":
+				paths.extend(write_fgm(archive, entry, out_dir_func))
+			elif entry.ext == "ms2":
+				paths.extend(write_ms2(archive, entry, out_dir_func))
+			elif entry.ext == "materialcollection":
+				paths.extend(write_materialcollection(archive, entry, out_dir_func))
+			# elif entry.ext == "tex" and extract_tex == True:
+			# 	write_dds(archive, entry, show_dds)
+			elif entry.ext == "lua":
+				paths.extend(write_lua(archive, entry, out_dir_func))
+			# elif entry.ext == "assetpkg" and extract_misc == True:
+			# 	write_assetpkg(archive, entry)
+			elif entry.ext == "fdb":
+				paths.extend(write_fdb(archive, entry, out_dir_func))
+			# elif entry.ext == "xmlconfig" and extract_misc == True:
+			# 	write_xmlconfig(archive, entry)
+			# elif entry.ext == "userinterfaceicondata" and extract_misc == True:
+			# 	write_userinterfaceicondata(archive, entry)
+			# elif entry.ext == "txt" and extract_text == True:
+			# 	write_txt(archive, entry)
+			# elif entry.ext == "bnk" and extract_aux == True:
+			# 	write_bnk(archive, entry, show_dds, progress_callback)
+			# elif entry.ext == "prefab" and extract_misc == True:
+			# 	write_prefab(archive, entry)
+			# elif entry.ext == "voxelskirt" and extract_misc == True:
+			# 	write_voxelskirt(archive, entry)
+			# elif entry.ext == "gfx" and extract_misc == True:
+			# 	write_gfx(archive, entry)
+			# elif entry.ext == "fct" and extract_fct == True:
+			# 	write_fct(archive, entry)
+			# elif entry.ext == "scaleformlanguagedata" and extract_misc == True:
+			# 	write_scaleform(archive, entry)
+			else:
+				print("\nSkipping", entry.name)
+				skip_files.append(entry.name)
+				continue
+
+		else:
+			print(f"ERROR: file {file} not found in archive")
+
+		# except BaseException as error:
+		# 	print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
+		# 	print(error)
+		# 	traceback.print_exc()
+		# 	error_files.append(sized_str_entry.name)
+
+	return paths
 
 
 def extract(archive, extract_fdb, extract_lua, extract_anim, extract_model, extract_tex, extract_shader, extract_text, extract_aux, extract_fct, extract_misc, show_dds, only_types=[], progress_callback=None):
@@ -228,186 +324,6 @@ def write_txt(archive, txt_sized_str_entry):
 		f.write(b[4:4+size])
 
 
-def write_banis(archive, sized_str_entry):
-	name = sized_str_entry.name
-	if not sized_str_entry.data_entry:
-		print("No data entry for ",name)
-		return
-	buffers = sized_str_entry.data_entry.buffer_datas
-	if len(buffers) != 1:
-		print("Wrong amount of buffers for",name)
-		return
-	print("\nWriting",name)
-	with open(archive.indir(name), 'wb') as outfile:
-		outfile.write(buffers[0])
-
-
-def write_bani(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting",name)
-	if len(sized_str_entry.fragments) != 1:
-		print("must have 1 fragment")
-		return
-	for other_sized_str_entry in archive.sized_str_entries:
-		if other_sized_str_entry.ext == "banis":
-			banis_name = other_sized_str_entry.name
-			break
-	else:
-		print("Found no banis file for bani animation!")
-		return
-
-	f = sized_str_entry.fragments[0]
-
-	# write banis file
-	with open(archive.indir(name), 'wb') as outfile:
-		outfile.write(b"BANI")
-		write_sized_str(outfile, banis_name)
-		outfile.write( f.pointers[0].data )
-		outfile.write( f.pointers[1].data )
-
-
-def write_manis(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting", name)
-	if not sized_str_entry.data_entry:
-		print("No data entry for ", name)
-		return
-	ss_data = sized_str_entry.pointers[0].data
-	print(len(ss_data),ss_data)
-	buffers = sized_str_entry.data_entry.buffer_datas
-	print(len(buffers))
-	# if len(buffers) != 3:
-	# 	print("Wrong amount of buffers for", name)
-	# 	return
-	names = [c.name for c in sized_str_entry.children]
-	manis_header = struct.pack("<4s3I", b"MANI", archive.ovl.version, archive.ovl.flag_2, len(names) )
-
-	# sizedstr data + 3 buffers
-	# sized str data gives general info
-	# buffer 0 holds all mani infos - weirdly enough, its first 10 bytes come from the sized str data!
-	# buffer 1 is list of hashes and zstrs for each bone name
-	# buffer 2 has the actual keys
-	with open(archive.indir(name), 'wb') as outfile:
-		outfile.write(manis_header)
-		for mani in names:
-			outfile.write(mani.encode()+b"\x00")
-		outfile.write(ss_data)
-		for buff in sized_str_entry.data_entry.buffers:
-			outfile.write(buff.data)
-	#
-	# for i, buff in enumerate(sized_str_entry.data_entry.buffers):
-	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
-	# 		outfile.write(buff.data)
-	# if "partials" in name:
-		# data = ManisFormat.Data()
-		# with open(archive.indir(name), "rb") as stream:
-		# 	data.read(stream)
-
-def write_fgm(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting",name)
-	
-	try:
-		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
-		print("buffer size",len(buffer_data))
-	except:
-		print("Found no buffer data for", name)
-		buffer_data = b""
-	# for i, f in enumerate(sized_str_entry.fragments):
-	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
-	# 		outfile.write( f.pointers[1].data )
-	# basic fgms
-	if len(sized_str_entry.fragments) == 4:
-		tex_info, attr_info, zeros, data_lib  = sized_str_entry.fragments
-		len_tex_info = tex_info.pointers[1].data_size
-		len_zeros = zeros.pointers[1].data_size
-	# no zeros, otherwise same as basic
-	elif len(sized_str_entry.fragments) == 3:
-		tex_info, attr_info, data_lib  = sized_str_entry.fragments
-		len_tex_info = tex_info.pointers[1].data_size
-		len_zeros = 0
-	# fgms for variants
-	elif len(sized_str_entry.fragments) == 2:
-		attr_info, data_lib = sized_str_entry.fragments
-		len_tex_info = 0
-		len_zeros = 0
-	else:
-		raise AttributeError("Fgm length is wrong")
-	# write fgm
-	fgm_header = struct.pack("<4s7I", b"FGM ", archive.ovl.version, archive.ovl.flag_2, len(sized_str_entry.fragments), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size, )
-
-	with open(archive.indir(name), 'wb') as outfile:
-		# write custom FGM header
-		outfile.write( fgm_header )
-		outfile.write( sized_str_entry.pointers[0].data )
-		# write each of the fragments
-		for frag in sized_str_entry.fragments:
-			outfile.write( frag.pointers[1].data )
-		# write the buffer
-		outfile.write(buffer_data)
-
-
-def write_materialcollection(archive, sized_str_entry):
-	name = sized_str_entry.name.replace("materialcollection", "matcol")
-	print("\nWriting",name)
-	
-	matcol_header = struct.pack("<4s 2I B", b"MATC ", archive.ovl.version, archive.ovl.flag_2, sized_str_entry.has_texture_list_frag )
-
-	with open(archive.indir(name), 'wb') as outfile:
-		# write custom matcol header
-		outfile.write(matcol_header)
-
-		outfile.write(sized_str_entry.f0.pointers[0].data)
-		outfile.write(sized_str_entry.f0.pointers[1].data)
-		if sized_str_entry.has_texture_list_frag:
-			outfile.write(sized_str_entry.tex_pointer.pointers[0].data)
-			for tex in sized_str_entry.tex_frags:
-				outfile.write(tex.pointers[1].data)
-		
-		outfile.write(sized_str_entry.mat_pointer.pointers[0].data)
-		for tup in sized_str_entry.mat_frags:
-			# write root frag, always present
-			m0 = tup[0]
-			# the name of the material slot or variant
-			outfile.write(m0.pointers[1].data)
-			# material layers only: write info and attrib frags + children
-			for f in tup[1:]:
-				outfile.write(f.pointers[0].data)
-				for child in f.children:
-					for pointer in child.pointers:
-						outfile.write( pointer.data )
-
-	
-def write_lua(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting",name)
-	
-	try:
-		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
-		print("buffer size",len(buffer_data))
-	except:
-		print("Found no buffer data for",name)
-		buffer_data = b""
-	if len(sized_str_entry.fragments) != 2:
-		print("must have 2 fragments")
-		return
-	# write lua
-	with open(archive.indir(name)+".bin", 'wb') as outfile:
-		# write the buffer
-		outfile.write(buffer_data)
-		binfile = outfile.name
-	texconv.bin_to_lua(binfile, archive.dir)
-	with open(archive.indir(name)+"meta", 'wb') as outfile:
-		# write each of the fragments
-		print(sized_str_entry.pointers[0].data)
-		outfile.write( sized_str_entry.pointers[0].data )
-		for frag in sized_str_entry.fragments:
-			print(frag.pointers[0].data)
-			print(frag.pointers[1].data)
-			outfile.write( frag.pointers[0].data )
-			outfile.write( frag.pointers[1].data )
-
-
 def write_assetpkg(archive, sized_str_entry):
 	name = sized_str_entry.name
 	print("\nWriting",name)
@@ -420,23 +336,6 @@ def write_assetpkg(archive, sized_str_entry):
 	with open(archive.indir(name), 'wb') as outfile:
 		f_0.pointers[1].strip_zstring_padding()
 		outfile.write(f_0.pointers[1].data[:-1])
-
-
-def write_fdb(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting",name)
-	
-	try:
-		buff = sized_str_entry.data_entry.buffer_datas[1]
-	except:
-		print("Found no buffer data for",name)
-		return
-	
-	with open(archive.indir(name), 'wb') as outfile:
-		# write the buffer, only buffer 1
-		# buffer 0 is just the bare file name, boring
-		# sizedstr data is just size of the buffer
-		outfile.write(buff)
 
 
 def write_xmlconfig(archive, sized_str_entry):
