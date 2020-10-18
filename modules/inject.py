@@ -4,16 +4,18 @@ import tempfile
 import shutil
 
 from modules.formats.DDS import load_png, load_dds
+from modules.formats.FDB import load_fdb
+from modules.formats.FGM import load_fgm
+from modules.formats.LUA import load_lua
+from modules.formats.MATCOL import load_materialcollection
 from modules.formats.MS2 import load_mdl2
-from modules.util import split_path, to_bytes
-from pyffi_ext.formats.fgm import FgmFormat
-from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
+from modules.util import split_path
 from generated.formats.bnk import BnkFile
 
 from util import imarray
 
 
-def inject(ovl_data, file_paths, show_dds, is_2K):
+def inject(ovl_data, file_paths, show_temp_files, is_2K):
 
 	# write modified version to tmp dir
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
@@ -62,7 +64,7 @@ def inject(ovl_data, file_paths, show_dds, is_2K):
 		if ext == ".fgm":
 			load_fgm(ovl_data, file_path, sized_str_entry)
 		elif ext == ".png":
-			load_png(ovl_data, file_path, sized_str_entry, show_dds, is_2K, ovs_sized_str_entry)
+			load_png(ovl_data, file_path, sized_str_entry, show_temp_files, is_2K, ovs_sized_str_entry)
 		elif ext == ".dds":
 			load_dds(ovl_data, file_path, sized_str_entry, is_2K, ovs_sized_str_entry)
 		elif ext == ".txt":
@@ -195,149 +197,8 @@ def load_xmlconfig(ovl_data, xml_file_path, xml_sized_str_entry):
 		xml_sized_str_entry.fragments[0].pointers[1].update_data(data, update_copies=True, pad_to=8)
 
 
-def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
-
-	fgm_data = FgmFormat.Data()
-	# open file for binary reading
-	with open(fgm_file_path, "rb") as stream:
-		fgm_data.read(stream, fgm_data, file=fgm_file_path)
-
-		sizedstr_bytes = to_bytes(fgm_data.fgm_header.fgm_info, fgm_data) + to_bytes(fgm_data.fgm_header.two_frags_pad, fgm_data)
-
-		# todo - move texpad into fragment padding?
-		textures_bytes = to_bytes(fgm_data.fgm_header.textures, fgm_data) + to_bytes(fgm_data.fgm_header.texpad, fgm_data)
-		attributes_bytes = to_bytes(fgm_data.fgm_header.attributes, fgm_data)
-
-		# read the other datas
-		stream.seek(fgm_data.eoh)
-		zeros_bytes = stream.read(fgm_data.fgm_header.zeros_size)
-		data_bytes = stream.read(fgm_data.fgm_header.data_lib_size)
-		buffer_bytes = stream.read()
-
-	# the actual injection
-	fgm_sized_str_entry.data_entry.update_data( (buffer_bytes,) )
-	fgm_sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
-
-	if len(fgm_sized_str_entry.fragments) == 4:
-		datas = (textures_bytes, attributes_bytes, zeros_bytes, data_bytes)
-	# fgms without zeros
-	elif len(fgm_sized_str_entry.fragments) == 3:
-		datas = (textures_bytes, attributes_bytes, data_bytes)
-	# fgms for variants
-	elif len(fgm_sized_str_entry.fragments) == 2:
-		datas = (attributes_bytes, data_bytes)
-	else:
-		raise AttributeError("Unexpected fgm frag count")
-
-	# inject fragment datas
-	for frag, data in zip(fgm_sized_str_entry.fragments, datas):
-		frag.pointers[1].update_data(data, update_copies=True)
-
-
-def update_matcol_pointers(pointers, new_names):
-	# it looks like fragments are not reused here, and not even pointers are
-	# but as they point to the same address the writer treats them as same
-	# so the pointer map has to be updated for the involved header entries
-	# also the copies list has to be adjusted
-
-	# so this is a hack that only considers one entry for each union of pointers
-	# map doffset to tuple of pointer and new data
-	dic = {}
-	for p, n in zip(pointers, new_names):
-		dic[p.data_offset] = (p, n.encode() + b"\x00")
-	sorted_keys = list(sorted(dic))
-	# print(sorted_keys)
-	print("Names in ovl order:", list(dic[k][1] for k in sorted_keys))
-	sum = 0
-	for k in sorted_keys:
-		p, d = dic[k]
-		sum += len(d)
-		for pc in p.copies:
-			pc.data = d
-			pc.padding = b""
-	pad_to = 64
-	mod = sum % pad_to
-	if mod:
-		padding = b"\x00" * (pad_to-mod)
-	else:
-		padding = b""
-	for pc in p.copies:
-		pc.padding = padding
-
-
-def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
-	matcol_data = MaterialcollectionFormat.Data()
-	# open file for binary reading
-	with open(matcol_file_path, "rb") as stream:
-		matcol_data.read(stream)
-		# print(matcol_data.header)
-
-		if sized_str_entry.has_texture_list_frag:
-			pointers = [tex_frag.pointers[1] for tex_frag in sized_str_entry.tex_frags]
-			new_names = [n for t in matcol_data.header.texture_wrapper.textures for n in (t.fgm_name, t.texture_suffix, t.texture_type)]
-		else:
-			pointers = []
-			new_names = []
-
-		if sized_str_entry.is_variant:
-			for (m0,), variant in zip(sized_str_entry.mat_frags, matcol_data.header.variant_wrapper.materials):
-				# print(layer.name)
-				pointers.append(m0.pointers[1])
-				new_names.append(variant)
-		elif sized_str_entry.is_layered:
-			for (m0, info, attrib), layer in zip(sized_str_entry.mat_frags, matcol_data.header.layered_wrapper.layers):
-				# print(layer.name)
-				pointers.append(m0.pointers[1])
-				new_names.append(layer.name)
-				for frag, wrapper in zip(info.children, layer.infos):
-					frag.pointers[0].update_data(to_bytes(wrapper.info, matcol_data), update_copies=True)
-					frag.pointers[1].update_data(to_bytes(wrapper.name, matcol_data), update_copies=True)
-					pointers.append(frag.pointers[1])
-					new_names.append(wrapper.name)
-				for frag, wrapper in zip(attrib.children, layer.attribs):
-					frag.pointers[0].update_data(to_bytes(wrapper.attrib, matcol_data), update_copies=True)
-					frag.pointers[1].update_data(to_bytes(wrapper.name, matcol_data), update_copies=True)
-					pointers.append(frag.pointers[1])
-					new_names.append(wrapper.name)
-
-		update_matcol_pointers(pointers, new_names)
-
-
-def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
-	# read fdb
-	# inject fdb buffers
-	# update sized string
-
-	with open(fdb_file_path, "rb") as fdb_stream:
-		# load the new buffers
-		buffer1_bytes = fdb_stream.read()
-		buffer0_bytes = fdb_name.encode()
-		# update the buffers
-		fdb_sized_str_entry.data_entry.update_data( (buffer0_bytes, buffer1_bytes) )
-		# update the sizedstring entry
-		data = struct.pack("<8I", len(buffer1_bytes), 0, 0, 0, 0, 0, 0, 0)
-		fdb_sized_str_entry.pointers[0].update_data(data, update_copies=True)
-
 def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
 	with open(assetpkg_file_path, "rb") as stream:
 		b = stream.read()
 		sized_str_entry.fragments[0].pointers[1].update_data( b + b"\x00", update_copies=True, pad_to=64)
         
-def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
-	# read lua
-	# inject lua buffer
-	# update sized string
-	#IMPORTANT: all meta data of the lua except the sized str entries lua size value seems to just be meta data, can be zeroed
-	with open(lua_file_path, "rb") as lua_stream:
-		# load the new buffer
-		buffer_bytes = lua_stream.read()
-		buff_size = len(buffer_bytes)
-		# update the buffer
-		lua_sized_str_entry.data_entry.update_data( (buffer_bytes,))
-        
-        
-	ss_len = len(lua_sized_str_entry.pointers[0].data)/4 
-	ss_data = struct.unpack("<{}I".format(int(ss_len)),lua_sized_str_entry.pointers[0].data)
-	ss_new = struct.pack("<{}I".format(int(ss_len)), buff_size, *ss_data[1:] )
-    
-	lua_sized_str_entry.pointers[0].update_data(ss_new, update_copies=True)

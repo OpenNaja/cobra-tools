@@ -17,7 +17,9 @@ def has_components(png_file_path):
 def has_vectors(png_file_path):
 	return check_any(("pnormaltexture", "playered_warpoffset"), png_file_path)
 
+
 def wrapper(png_file_path, header_7):
+	out_files = []
 	must_split = False
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
@@ -45,58 +47,27 @@ def wrapper(png_file_path, header_7):
 		if split_components:
 			for hi in range(array_size):
 				for di in range(d):
-					imageio.imwrite(name+f"_{layer_i:02}"+ext, im[hi*h:(hi+1)*h, :, di], compress_level=2)
+					file_path = name + f"_{layer_i:02}" + ext
+					imageio.imwrite(file_path, im[hi*h:(hi+1)*h, :, di], compress_level=2)
+					out_files.append(file_path)
 					layer_i += 1
 			os.remove(png_file_path)
 		# only split tiles but not components
 		elif must_split:
 			for layer_i in range(array_size):
-				imageio.imwrite(name+f"_{layer_i:02}"+ext, im[layer_i*h:(layer_i+1)*h, :, :], compress_level=2)
+				file_path = name+f"_{layer_i:02}"+ext
+				imageio.imwrite(file_path, im[layer_i*h:(layer_i+1)*h, :, :], compress_level=2)
+				out_files.append(file_path)
 			os.remove(png_file_path)
 		# don't split at all, overwrite
 		else:
 			imageio.imwrite(png_file_path, im, compress_level=2)
+			out_files.append(png_file_path)
+	else:
+		out_files.append(png_file_path)
+	return out_files
 
-def wrapper_PC(png_file_path, frag_data_0, frag_data_1):
-	must_split = False
-	split_components = has_components(png_file_path)
-	must_flip_gb = has_vectors(png_file_path)
-	if frag_data_1[2] > 1:
-		must_split = True
-	print("split_components", split_components)
-	print("must_split", must_split)
-	print("must_flip_gb", must_flip_gb)
-	print("Splitting PNG array")
-	h = frag_data_1[1]
-	w = frag_data_1[0]
-	array_size = frag_data_1[2]
-	print("h, w, array_size",h, w, array_size)
-	if must_split or must_flip_gb or split_components:
-		im = imageio.imread(png_file_path)
-		# print(im.shape)
-		# (4096, 1024, 4)
-		h, w, d = im.shape
-		h //= array_size
-		name, ext = os.path.splitext(png_file_path)
-		if must_flip_gb:
-			flip_gb(im)
-		layer_i = 0
-		# split components and or tiles if present
-		if split_components:
-			for hi in range(array_size):
-				for di in range(d):
-					imageio.imwrite(name+f"_{layer_i:02}"+ext, im[hi*h:(hi+1)*h, :, di], compress_level=2)
-					layer_i += 1
-			os.remove(png_file_path)
-		# only split tiles but not components
-		elif must_split:
-			for layer_i in range(array_size):
-				imageio.imwrite(name+f"_{layer_i:02}"+ext, im[layer_i*h:(layer_i+1)*h, :, :], compress_level=2)
-			os.remove(png_file_path)
-		# don't split at all, overwrite
-		else:
-			imageio.imwrite(png_file_path, im, compress_level=2)
-			
+
 def is_array_tile(fp, array_name_bare):
 	"""Return true if fp is an array tile of array_name_bare"""
 	if fp.startswith(array_name_bare):

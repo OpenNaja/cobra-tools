@@ -99,27 +99,23 @@ class TableView(QTableWidget):
 		self.setDragEnabled(True)
 		self.setAcceptDrops(True)
 		self.verticalHeader().hide()
-		# self.addItems(['one', 'two', 'three', 'four'])
-		# self.setSelectionMode(self.MultiSelection)
 
 	def startDrag(self, actions):
 		"""Starts a drag from inside the app towards the outside"""
 		drag = QtGui.QDrag(self)
-		# names = [item.text() for item in self.selectedItems()]
 		ids = [x.row() for x in self.selectionModel().selectedRows()]
-		# todo: make sure lookup is not messed up due to sorting
 		names = [self.item(x, 0).text() for x in ids]
 		print("DRAGGING", ids, names)
 		data = QtCore.QMimeData()
 
 		archive = self.ovl_data.ovs_files[0]
-		# archive.dir = dir
 		temp_dir = tempfile.gettempdir()
-		path_list = [QtCore.QUrl.fromLocalFile(path) for path in extract.extract_names(archive, names, temp_dir)]
+		path_list = [QtCore.QUrl.fromLocalFile(path) for path in extract.extract_names(archive, names, temp_dir, self.main_window.show_temp_files, self.main_window.update_progress)]
 
 		data.setUrls(path_list)
 		drag.setMimeData(data)
 		drag.exec_()
+		# todo - clear temp sub dir
 		# mime = DelayedMimeData()
 		# path_list = []
 		# for name in names:
@@ -153,6 +149,8 @@ class TableView(QTableWidget):
 				newitem = QTableWidgetItem(item)
 				if m == 0:
 					newitem.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirIcon")))
+				if line[1] in extract.IGNORE_TYPES:
+					newitem.setFlags(QtCore.Qt.NoItemFlags)
 				self.setItem(n, m, newitem)
 		self.resizeColumnsToContents()
 
@@ -183,7 +181,7 @@ class TableView(QTableWidget):
 			if self.main_window.ovl_name:
 				# self.cfg["dir_inject"] = os.path.dirname(files[0])
 				try:
-					inject.inject(self.ovl_data, files, self.main_window.write_dds, self.main_window.write_2K)
+					inject.inject(self.ovl_data, files, self.main_window.show_temp_files, self.main_window.write_2K)
 					self.main_window.file_widget.dirty = True
 				except Exception as ex:
 					traceback.print_exc()

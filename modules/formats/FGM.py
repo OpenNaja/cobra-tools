@@ -1,5 +1,8 @@
 import struct
 
+from modules.util import to_bytes
+from pyffi_ext.formats.fgm import FgmFormat
+
 
 def write_fgm(archive, sized_str_entry, out_dir):
 	name = sized_str_entry.name
@@ -45,3 +48,42 @@ def write_fgm(archive, sized_str_entry, out_dir):
 		# write the buffer
 		outfile.write(buffer_data)
 	return out_path,
+
+
+def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
+
+	fgm_data = FgmFormat.Data()
+	# open file for binary reading
+	with open(fgm_file_path, "rb") as stream:
+		fgm_data.read(stream, fgm_data, file=fgm_file_path)
+
+		sizedstr_bytes = to_bytes(fgm_data.fgm_header.fgm_info, fgm_data) + to_bytes(fgm_data.fgm_header.two_frags_pad, fgm_data)
+
+		# todo - move texpad into fragment padding?
+		textures_bytes = to_bytes(fgm_data.fgm_header.textures, fgm_data) + to_bytes(fgm_data.fgm_header.texpad, fgm_data)
+		attributes_bytes = to_bytes(fgm_data.fgm_header.attributes, fgm_data)
+
+		# read the other datas
+		stream.seek(fgm_data.eoh)
+		zeros_bytes = stream.read(fgm_data.fgm_header.zeros_size)
+		data_bytes = stream.read(fgm_data.fgm_header.data_lib_size)
+		buffer_bytes = stream.read()
+
+	# the actual injection
+	fgm_sized_str_entry.data_entry.update_data( (buffer_bytes,) )
+	fgm_sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
+
+	if len(fgm_sized_str_entry.fragments) == 4:
+		datas = (textures_bytes, attributes_bytes, zeros_bytes, data_bytes)
+	# fgms without zeros
+	elif len(fgm_sized_str_entry.fragments) == 3:
+		datas = (textures_bytes, attributes_bytes, data_bytes)
+	# fgms for variants
+	elif len(fgm_sized_str_entry.fragments) == 2:
+		datas = (attributes_bytes, data_bytes)
+	else:
+		raise AttributeError("Unexpected fgm frag count")
+
+	# inject fragment datas
+	for frag, data in zip(fgm_sized_str_entry.fragments, datas):
+		frag.pointers[1].update_data(data, update_copies=True)

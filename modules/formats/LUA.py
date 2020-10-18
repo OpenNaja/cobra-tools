@@ -1,3 +1,5 @@
+import struct
+
 from util import texconv
 
 
@@ -32,3 +34,23 @@ def write_lua(archive, sized_str_entry, out_dir):
 			outfile.write(frag.pointers[1].data)
 
 	return out_path, out_path+".bin", out_path+"meta"
+
+
+def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
+	# read lua
+	# inject lua buffer
+	# update sized string
+	#IMPORTANT: all meta data of the lua except the sized str entries lua size value seems to just be meta data, can be zeroed
+	with open(lua_file_path, "rb") as lua_stream:
+		# load the new buffer
+		buffer_bytes = lua_stream.read()
+		buff_size = len(buffer_bytes)
+		# update the buffer
+		lua_sized_str_entry.data_entry.update_data( (buffer_bytes,))
+
+
+	ss_len = len(lua_sized_str_entry.pointers[0].data)/4
+	ss_data = struct.unpack("<{}I".format(int(ss_len)),lua_sized_str_entry.pointers[0].data)
+	ss_new = struct.pack("<{}I".format(int(ss_len)), buff_size, *ss_data[1:] )
+
+	lua_sized_str_entry.pointers[0].update_data(ss_new, update_copies=True)

@@ -46,9 +46,9 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
 		self.table = TableView(header_names, self)
 		# toggles
-		self.t_write_dds = QtWidgets.QCheckBox("Save Temp Files")
-		self.t_write_dds.setToolTip("By default, temporary files are converted to usable ones and back on the fly.")
-		self.t_write_dds.setChecked(False)
+		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
+		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly.")
+		self.t_show_temp_files.setChecked(False)
 		
 		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
@@ -65,18 +65,15 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0)
-		self.qgrid.addWidget(self.table, 1, 0)
-		self.qgrid.addWidget(self.p_action, 2, 0)
-		self.qgrid.addWidget(self.t_action, 3, 0)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 4)
+		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
+		self.qgrid.addWidget(self.t_write_dat, 1, 1)
+		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
+		self.qgrid.addWidget(self.t_2K, 1, 3)
+		self.qgrid.addWidget(self.table, 2, 0, 1, 4)
+		self.qgrid.addWidget(self.p_action, 3, 0, 1, 4)
+		self.qgrid.addWidget(self.t_action, 4, 0, 1, 4)
 
-		# self.qgrid.addWidget(self.file_widget, 0, 0, 1, 2)
-		# self.qgrid.addWidget(self.p_action, 1, 0, 1, 2)
-		# self.qgrid.addWidget(self.t_action, 2, 0, 1, 2)
-		# self.qgrid.addWidget(self.t_write_dds, 3, 0)
-		# self.qgrid.addWidget(self.t_write_dat, 4, 0)
-		# self.qgrid.addWidget(self.t_write_frag_log, 5, 0)
-		# self.qgrid.addWidget(self.t_2K, 6, 0)
 
 		self.central_widget.setLayout(self.qgrid)
 
@@ -99,7 +96,7 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def commands(self,):
 		# get those commands that are set to True
-		return [ x for x in ("write_dat", "write_frag_log") if getattr(self, x)]
+		return [x for x in ("write_dat", "write_frag_log") if getattr(self, x)]
 
 	@property
 	def ovl_name(self,):
@@ -110,8 +107,8 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget.setText(name)
 
 	@property
-	def write_dds(self,):
-		return self.t_write_dds.isChecked()
+	def show_temp_files(self,):
+		return self.t_show_temp_files.isChecked()
 	
 	@property
 	def write_2K(self,):
@@ -164,10 +161,13 @@ class MainWindow(widgets.MainWindow):
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
 				self.ovl_name = ovl_name
 				data = []
+				# time
+				print(f"Loading {len(self.ovl_data.files)} files into gui...")
 				for file_w in self.ovl_data.files:
 					name = f"{file_w.name}.{file_w.ext}"
 					line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
 					data.append(line)
+				print("loading gui")
 				self.table.set_data(data)
 			except Exception as ex:
 				traceback.print_exc()
@@ -215,8 +215,7 @@ class MainWindow(widgets.MainWindow):
 				try:
 					os.makedirs(dir, exist_ok=True)
 					archive = self.ovl_data.ovs_files[0]
-					archive.dir = dir
-					error_files, skip_files = extract.extract(archive, self.write_dds, progress_callback=self.update_progress)
+					error_files, skip_files = extract.extract(archive, dir, self.show_temp_files, progress_callback=self.update_progress)
 
 					self.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
@@ -233,7 +232,7 @@ class MainWindow(widgets.MainWindow):
 			if files:
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				inject.inject(self.ovl_data, files, self.write_dds, self.write_2K)
+				inject.inject(self.ovl_data, files, self.show_temp_files, self.write_2K)
 				self.file_widget.dirty = True
 			except Exception as ex:
 				traceback.print_exc()
@@ -275,7 +274,7 @@ class MainWindow(widgets.MainWindow):
 						os.makedirs(outdir, exist_ok=True)
 						for archive in ovl_data.archives:
 							archive.dir = outdir
-							error_files_new, skip_files_new = extract.extract(archive, self.write_dds, only_types=["ms2", ])#, progress_callback=self.update_progress)
+							error_files_new, skip_files_new = extract.extract(archive, self.show_temp_files, only_types=["ms2", ])#, progress_callback=self.update_progress)
 							error_files += error_files_new
 							skip_files += skip_files_new
 					except Exception as ex:
