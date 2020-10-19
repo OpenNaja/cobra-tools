@@ -75,36 +75,78 @@ class DelayedMimeData(QtCore.QMimeData):
 		return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
 
 
-class TableView(QTableWidget):
+class TableModel(QtCore.QAbstractTableModel):
+	def __init__(self, data, header_names):
+		super(TableModel, self).__init__()
+		self._data = data
+		self.header_labels = header_names
+
+	def data(self, index, role):
+		if role == QtCore.Qt.DisplayRole:
+			# See below for the nested-list data structure.
+			# .row() indexes into the outer list,
+			# .column() indexes into the sub-list
+			return self._data[index.row()][index.column()]
+
+		if role == QtCore.Qt.ForegroundRole:
+			dtype = self._data[index.row()][1]
+			if dtype in extract.IGNORE_TYPES:
+				return QtGui.QColor('grey')
+
+		if role == QtCore.Qt.DecorationRole:
+			if index.column() == 0:
+				dtype = self._data[index.row()][1]
+				return get_icon(dtype)
+
+	def rowCount(self, index):
+		# The length of the outer list.
+		return len(self._data)
+
+	def columnCount(self, index):
+		# The following takes the first sub-list, and returns
+		# the length (only works if all rows are an equal length)
+		return len(self._data[0])
+
+	def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
+		if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
+			return self.header_labels[section]
+		return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
+
+	def flags(self, index):
+		# QtCore.Qt.ItemIsEditable |
+		dtype = self._data[index.row()][1]
+		if dtype in extract.IGNORE_TYPES:
+			return QtCore.Qt.ItemIsDropEnabled
+		else:
+			return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDropEnabled
+
+
+class TableView(QtWidgets.QTableView):
 	def __init__(self, header_names, main_window):
-		QTableWidget.__init__(self,)
-		self.setColumnCount(len(header_names))
-		self.setHorizontalHeaderLabels(header_names)
+		super().__init__()
+		# self.setHorizontalHeaderLabels(header_names)
 		# list of lists
 		# row first
-		self.data = []
+		self.data = [[],]
 		self.main_window = main_window
 		self.ovl_data = main_window.ovl_data
+
+		self.model = TableModel(self.data, header_names)
+		self.setModel(self.model)
+
 		self.resizeColumnsToContents()
-		self.resizeRowsToContents()
+
 		self.setAcceptDrops(True)
-		self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-
-		self.setSortingEnabled(True)
-		# self.setDragDropOverwriteMode(False)
-		# self.setDragEnabled(True)
-		# self.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
-		# self.setFlags(item->flags() & ~(Qt::ItemIsDropEnabled))
-
 		self.setDragEnabled(True)
-		self.setAcceptDrops(True)
+		self.setDropIndicatorShown(True)
 		self.verticalHeader().hide()
+		self.setSelectionBehavior(self.SelectRows)
 
 	def startDrag(self, actions):
 		"""Starts a drag from inside the app towards the outside"""
 		drag = QtGui.QDrag(self)
-		ids = [x.row() for x in self.selectionModel().selectedRows()]
-		names = [self.item(x, 0).text() for x in ids]
+		ids = set([x.row() for x in self.selectedIndexes()])
+		names = [self.model._data[x][0] for x in ids]
 		print("DRAGGING", ids, names)
 		data = QtCore.QMimeData()
 
@@ -141,18 +183,22 @@ class TableView(QTableWidget):
 		# drag.exec_(QtCore.Qt.CopyAction)
 
 	def set_data(self, data):
-		self.clearContents()
-		self.setRowCount(len(data))
-		self.data = data
-		for n, line in enumerate(self.data):
-			for m, item in enumerate(line):
-				newitem = QTableWidgetItem(item)
-				if m == 0:
-					newitem.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirIcon")))
-				if line[1] in extract.IGNORE_TYPES:
-					newitem.setFlags(QtCore.Qt.NoItemFlags)
-				self.setItem(n, m, newitem)
+		self.model.beginResetModel()
+		self.model._data = data
+		self.model.endResetModel()
+
 		self.resizeColumnsToContents()
+		# self.setRowCount(len(data))
+		# self.data = data
+		# for n, line in enumerate(self.data):
+		# 	for m, item in enumerate(line):
+		# 		newitem = QTableWidgetItem(item)
+		# 		if m == 0:
+		# 			newitem.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirIcon")))
+		# 		if line[1] in extract.IGNORE_TYPES:
+		# 			newitem.setFlags(QtCore.Qt.NoItemFlags)
+		# 		self.setItem(n, m, newitem)
+		# self.resizeColumnsToContents()
 
 	def dragMoveEvent(self, e):
 		e.accept()
