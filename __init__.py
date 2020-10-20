@@ -19,7 +19,7 @@ import sys
 dir = os.path.dirname(__file__)
 if not dir in sys.path:
 	sys.path.append(dir)
-from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2
+from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
 from utils import shell
 
 
@@ -89,6 +89,22 @@ class ImportMDL2(bpy.types.Operator, ImportHelper):
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
 		errors = import_mdl2.load(self, context, **keywords)
+		return handle_errors(self, errors)
+
+
+class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
+	"""Import from Voxelskirt file format (.voxelskirt)"""
+	bl_idname = "import_scene.cobra_voxelskirt"
+	bl_label = 'Import Voxelskirt'
+	bl_options = {'UNDO'}
+	filename_ext = ".voxelskirt"
+	filter_glob: StringProperty(default="*.voxelskirt", options={'HIDDEN'})
+	# use_custom_normals: BoolProperty(name="Use MDL2 Normals", description="Preserves the original shading of a MDL2.", default=False)
+	# mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match!", default=False)
+
+	def execute(self, context):
+		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
+		errors = import_voxelskirt.load(self, context, **keywords)
 		return handle_errors(self, errors)
 
 
@@ -176,6 +192,7 @@ def menu_func_import(self, context):
 	self.layout.operator(ImportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=preview_collection["frontier.png"].icon_id)
 	self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=preview_collection["frontier.png"].icon_id)
 	self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=preview_collection["frontier.png"].icon_id)
+	self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=preview_collection["frontier.png"].icon_id)
 
 
 classes = (
@@ -184,6 +201,7 @@ classes = (
 	ImportMatcol,
 	ImportMDL2,
 	ExportMDL2,
+	ImportVoxelskirt,
 	StripShells,
 	CreateFins,
 	MESH_PT_CobraTools

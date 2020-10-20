@@ -17,6 +17,7 @@ from util import imarray
 
 def inject(ovl_data, file_paths, show_temp_files, is_2K):
 
+	print("\nInjecting...")
 	# write modified version to tmp dir
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
 

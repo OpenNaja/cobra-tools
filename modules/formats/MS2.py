@@ -131,13 +131,8 @@ class Mdl2Holder:
 		self.archive = archive
 		self.source = "NONE"
 		self.mdl2_entry = None
-
-		self.bone_info_buffer = []# list or array of pyffi modeldata structs
+		self.bone_info_buffer = None
 		self.models = []
-		# one per model
-		self.verts_bytes = []
-		self.tris_bytes = []
-
 		self.lods = []
 
 	def from_file(self, mdl2_file_path):
@@ -165,18 +160,13 @@ class Mdl2Holder:
 	def read_verts_tris(self, ms2_stream, buffer_info, eoh=0, ):
 		"""Reads vertices and triangles into list of bytes for all models of this file"""
 		print("reading verts and tris")
-		self.verts_bytes = []
-		self.tris_bytes = []
 		for model in self.models:
 			# first, get the buffers for this model from the input
 			ms2_stream.seek(eoh + model.vertex_offset)
-			verts = ms2_stream.read(model.size_of_vertex * model.vertex_count)
+			model.verts_bytes = ms2_stream.read(model.size_of_vertex * model.vertex_count)
 
 			ms2_stream.seek(eoh + buffer_info.vertexdatasize + model.tri_offset)
-			tris = ms2_stream.read(2 * model.tri_index_count)
-			self.verts_bytes.append(verts)
-			self.tris_bytes.append(tris)
-		# print(len(self.tris_bytes))
+			model.tris_bytes = ms2_stream.read(2 * model.tri_index_count)
 
 	def from_entry(self, mdl2_entry):
 		"""Reads the required data to represent this model from the archive"""
@@ -189,7 +179,7 @@ class Mdl2Holder:
 		# read the vertex data for this from the archive's ms2
 		buffer_info_frag = ms2_entry.fragments[0]
 		buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
-		print(buffer_info)
+		# print(buffer_info)
 
 		verts_tris_buffer = ms2_entry.data_entry.buffer_datas[-1]
 		if len(mdl2_entry.fragments[1].pointers[1].data) < 104:
@@ -198,12 +188,12 @@ class Mdl2Holder:
 				lod_count = len(lod_pointer.data) // 20
 				# todo get count from CoreModelInfo
 				self.lods = lod_pointer.read_as(Ms2Format.LodInfo, self.archive, num=lod_count)
-		print("lod list",self.lods)
+		# print("lod list", self.lods)
 		self.models = []
 		for f in mdl2_entry.model_data_frags:
 			model = f.pointers[0].read_as(Ms2Format.ModelData, self.archive)[0]
 			self.models.append(model)
-		print("num models:",len(self.models))
+		print("num models:", len(self.models))
 		if len(self.models) > 0:
 			with io.BytesIO(verts_tris_buffer) as ms2_stream:
 				self.read_verts_tris(ms2_stream, buffer_info)
@@ -219,7 +209,7 @@ class Mdl2Holder:
 			self.mdl2_entry.fragments[1].pointers[1].update_data(self.lodinfo, update_copies=True)
 
 	def __repr__(self):
-		return f"<Mdl2Holder: {self.name} [{self.source}], V{len(self.verts_bytes)}, T{len(self.tris_bytes)}, M{len(self.models)}, L{len(self.lods)}>"
+		return f"<Mdl2Holder: {self.name} [{self.source}], Meshes: {len(self.models)}, LODs: {len(self.lods)}>"
 
 
 class Ms2Holder:
@@ -227,7 +217,6 @@ class Ms2Holder:
 	def __init__(self, archive):
 		self.name = "NONE"
 		self.buffer_info = None
-		self.buff_datas = []
 		self.mdl2s = []
 		self.archive = archive
 		self.ms2_entry = None
@@ -244,7 +233,7 @@ class Ms2Holder:
 				print(f"Match, slot {i}")
 				mdl2.from_file(mdl2_file_path)
 				self.bone_info = mdl2.bone_info_buffer
-				print(len(self.bone_info))
+				print("Bone Info Size:",len(self.bone_info))
 				break
 		else:
 			raise AttributeError(f"No match for {mdl2}")
@@ -262,7 +251,7 @@ class Ms2Holder:
 		if not buffer_info_frag.pointers[1].data:
 			raise AttributeError("No buffer info, aborting merge")
 		self.buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
-		print(self.buffer_info)
+		# print(self.buffer_info)
 
 		for mdl2_entry in self.ms2_entry.children:
 			mdl2 = Mdl2Holder(self.archive)
@@ -285,12 +274,11 @@ class Ms2Holder:
 		for mdl2 in self.mdl2s:
 			print(f"Flushing {mdl2}")
 			# read the mdl2
-			for model, verts, tris in zip(mdl2.models, mdl2.verts_bytes, mdl2.tris_bytes):
-				print(vert_offset)
-				print(tris_offset)
+			for model in mdl2.models:
+				print(f"Vertex Offset: {vert_offset}, Tris Offset: {tris_offset}")
 				# write buffer to each output
-				temp_vert_writer.write(verts)
-				temp_tris_writer.write(tris)
+				temp_vert_writer.write(model.verts_bytes)
+				temp_tris_writer.write(model.tris_bytes)
 
 				# update mdl2 offset values
 				model.vertex_offset = vert_offset
@@ -304,7 +292,7 @@ class Ms2Holder:
 		vert_bytes = temp_vert_writer.getvalue()
 		tris_bytes = temp_tris_writer.getvalue()
 
-		buffers = self.ms2_entry.data_entry.buffer_datas[:-2]
+		buffers = self.ms2_entry.data_entry.buffer_datas[:1]
 		buffers.append(self.bone_info)
 		buffers.append(vert_bytes+tris_bytes)
 
