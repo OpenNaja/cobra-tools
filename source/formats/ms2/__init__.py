@@ -243,7 +243,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 	def __init__(self, ):
 		super().__init__()
 
-	def load(self, filepath, quick=False):
+	def load(self, filepath, quick=False, map_bytes=False):
 
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
@@ -258,7 +258,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
-		self.ms2_file.load(self.ms2_path, self, quick=quick)
+		self.ms2_file.load(self.ms2_path, self, quick=quick, map_bytes=map_bytes)
 
 		# set material links
 		for mat_1 in self.materials_1:

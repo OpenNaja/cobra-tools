@@ -7,13 +7,10 @@ from PyQt5 import QtWidgets
 import numpy as np
 import binascii
 
-from pyffi_ext.formats.ovl import OvlFormat
-from pyffi_ext.formats.ms2 import Ms2Format
 from util import widgets
 from modules import extract, inject, hasher, walker
-
 from generated.formats.ovl import OvlFile
-from util.widgets import TableView
+from generated.formats.ms2 import Mdl2File
 
 
 def to_hex_str(uint):
@@ -44,7 +41,7 @@ class MainWindow(widgets.MainWindow):
 
 		# header_names = ["Name", "File Type", "Size", "Compressed Size", "DJB", "Fragments"]
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
-		self.table = TableView(header_names, self)
+		self.table = widgets.TableView(header_names, self)
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly.")
@@ -256,7 +253,7 @@ class MainWindow(widgets.MainWindow):
 			export_dir = os.path.join(start_dir, "walker_export")
 			# don't use internal data
 			ovl_data = OvlFile()
-			mdl2_data = Ms2Format.Data()
+			mdl2_data = Mdl2File()
 			if walk_ovls:
 				error_files = []
 				skip_files = []
@@ -289,13 +286,12 @@ class MainWindow(widgets.MainWindow):
 					mdl2_name = os.path.basename(mdl2_path)
 					self.update_progress("Walking MDL2 files: " + mdl2_name, value=mf_index, vmax=mf_max)
 					try:
-						with open(mdl2_path, "rb") as mdl2_stream:
-							mdl2_data.read(mdl2_stream, file=mdl2_path, quick=True, map_bytes=True)
-							for model in mdl2_data.mdl2_header.models:
-								if model.flag not in type_dic:
-									type_dic[model.flag] = ([], [])
-								type_dic[model.flag][0].append(mdl2_name)
-								type_dic[model.flag][1].append(model.bytes_map)
+						mdl2_data.load(mdl2_path, quick=True, map_bytes=True)
+						for model in mdl2_data.models:
+							if model.flag not in type_dic:
+								type_dic[model.flag] = ([], [])
+							type_dic[model.flag][0].append(mdl2_name)
+							type_dic[model.flag][1].append(model.bytes_map)
 					except Exception as ex:
 						traceback.print_exc()
 						errors.append((mdl2_path, ex))
