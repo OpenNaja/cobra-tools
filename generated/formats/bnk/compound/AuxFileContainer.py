@@ -58,7 +58,7 @@ class AuxFileContainer:
         paths = []
         for pointer in self.didx.data_pointers:
             wem_name = f"{basename}_{pointer.hash}.wem"
-            wem_path = out_dir(wem_name)
+            wem_path = os.path.normpath(os.path.join(out_dir, wem_name))
             paths.append(wem_path)
             print(wem_path)
             with open(wem_path, "wb") as f:

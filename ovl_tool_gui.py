@@ -255,7 +255,7 @@ class MainWindow(widgets.MainWindow):
 		if start_dir:
 			export_dir = os.path.join(start_dir, "walker_export")
 			# don't use internal data
-			ovl_data = OvlFormat.Data()
+			ovl_data = OvlFile()
 			mdl2_data = Ms2Format.Data()
 			if walk_ovls:
 				error_files = []
@@ -266,17 +266,14 @@ class MainWindow(widgets.MainWindow):
 					self.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
 					try:
 						# read ovl file
-						with open(ovl_path, "rb") as ovl_stream:
-							ovl_data.read(ovl_stream, file=ovl_path, commands=self.commands, mute=True)
+						ovl_data.load(ovl_path, commands=self.commands)
 						# create an output folder for it
 						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
 						# create output dir
 						os.makedirs(outdir, exist_ok=True)
-						for archive in ovl_data.archives:
-							archive.dir = outdir
-							error_files_new, skip_files_new = extract.extract(archive, self.show_temp_files, only_types=["ms2", ])#, progress_callback=self.update_progress)
-							error_files += error_files_new
-							skip_files += skip_files_new
+						error_files_new, skip_files_new = extract.extract(ovl_data.ovs_files[0], outdir, only_types=["ms2", ])
+						error_files += error_files_new
+						skip_files += skip_files_new
 					except Exception as ex:
 						traceback.print_exc()
 						errors.append((ovl_path, ex))
