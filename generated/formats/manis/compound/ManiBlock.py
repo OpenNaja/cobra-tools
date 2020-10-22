@@ -37,10 +37,10 @@ class ManiBlock:
 		self.io_size = 0
 		self.io_start = 0
 		self.indices_0 = []
-		self.indices_1 = []
-		self.indices_2 = []
 		self.indices_0 = []
 		self.indices_1 = []
+		self.indices_1 = []
+		self.indices_2 = []
 		self.indices_2 = []
 		self.p_indices_0 = []
 		self.p_indices_1 = []
@@ -53,9 +53,9 @@ class ManiBlock:
 		self.c = 0
 		self.e = 0
 		self.zeros = []
+		self.zeros = []
 		self.count = 0
 		self.four_and_twenty = 0
-		self.zeros = []
 		self.pad_to_8 = []
 		self.floats = []
 		self.repeats = []
@@ -65,11 +65,15 @@ class ManiBlock:
 		self.io_start = stream.tell()
 		if stream.version == 18:
 			self.indices_0 = [stream.read_ushort() for _ in range(self.arg.c)]
-			self.indices_1 = [stream.read_ushort() for _ in range(self.arg.name_count)]
-			self.indices_2 = [stream.read_ushort() for _ in range(self.arg.e)]
 		if not (stream.version == 18):
 			self.indices_0 = [stream.read_uint() for _ in range(self.arg.c)]
+		if stream.version == 18:
+			self.indices_1 = [stream.read_ushort() for _ in range(self.arg.name_count)]
+		if not (stream.version == 18):
 			self.indices_1 = [stream.read_uint() for _ in range(self.arg.name_count)]
+		if stream.version == 18:
+			self.indices_2 = [stream.read_ushort() for _ in range(self.arg.e)]
+		if not (stream.version == 18):
 			self.indices_2 = [stream.read_uint() for _ in range(self.arg.e)]
 		self.p_indices_0 = [stream.read_ubyte() for _ in range(self.arg.c)]
 		self.p_indices_1 = [stream.read_ubyte() for _ in range(self.arg.name_count)]
@@ -83,9 +87,9 @@ class ManiBlock:
 		self.c = stream.read_uint()
 		self.e = stream.read_uint()
 		self.zeros = [stream.read_uint() for _ in range(19)]
+		self.zeros = [stream.read_ubyte() for _ in range(self.count)]
 		self.count = stream.read_ushort()
 		self.four_and_twenty = stream.read_ushort()
-		self.zeros = [stream.read_ubyte() for _ in range(self.count)]
 		self.pad_to_8 = [stream.read_ubyte() for _ in range((8 - (self.count % 8)) % 8)]
 		self.floats = [stream.read_float() for _ in range(6)]
 		self.repeats = [stream.read_type(Repeat) for _ in range(self.count)]
@@ -97,11 +101,15 @@ class ManiBlock:
 		self.io_start = stream.tell()
 		if stream.version == 18:
 			for item in self.indices_0: stream.write_ushort(item)
-			for item in self.indices_1: stream.write_ushort(item)
-			for item in self.indices_2: stream.write_ushort(item)
 		if not (stream.version == 18):
 			for item in self.indices_0: stream.write_uint(item)
+		if stream.version == 18:
+			for item in self.indices_1: stream.write_ushort(item)
+		if not (stream.version == 18):
 			for item in self.indices_1: stream.write_uint(item)
+		if stream.version == 18:
+			for item in self.indices_2: stream.write_ushort(item)
+		if not (stream.version == 18):
 			for item in self.indices_2: stream.write_uint(item)
 		for item in self.p_indices_0: stream.write_ubyte(item)
 		for item in self.p_indices_1: stream.write_ubyte(item)
@@ -115,9 +123,9 @@ class ManiBlock:
 		stream.write_uint(self.c)
 		stream.write_uint(self.e)
 		for item in self.zeros: stream.write_uint(item)
+		for item in self.zeros: stream.write_ubyte(item)
 		stream.write_ushort(self.count)
 		stream.write_ushort(self.four_and_twenty)
-		for item in self.zeros: stream.write_ubyte(item)
 		for item in self.pad_to_8: stream.write_ubyte(item)
 		for item in self.floats: stream.write_float(item)
 		for item in self.repeats: stream.write_type(item)
