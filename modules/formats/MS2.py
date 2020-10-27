@@ -25,7 +25,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
-	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2SizedStrData, archive)
+	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
 	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names),
@@ -55,7 +55,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		# this fragment informs us about the model count of the next mdl2 that is read
 		# so we can use it to collect the variable mdl2 fragments describing a model each
 		next_model_info_data = f_1.pointers[1].data
-		# next_model_info = f_1.pointers[1].read_as(CoreModelInfo, archive)
+		# next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)
 		# print("next_model_info", f_1.pointers[1].address, next_model_info)
 
 	# write the ms2 file
@@ -91,13 +91,13 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				if pink.pointers[0].data_size == 40:
 					pass
 					# 40 bytes of 'padding' (0,1 or 0,0,0,0)
-					# core_model_data = pink.pointers[0].read_as(Mdl2FourtyInfo, archive)
+					# core_model_data = pink.pointers[0].load_as(Mdl2FourtyInfo, version_info=versions)
 					# print(core_model_data)
 				elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
 				or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = pink.pointers[0].data[40:]
-					# core_model_data = pink.pointers[0].read_as(Mdl2ModelInfo, archive)
+					# core_model_data = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)
 					# print(core_model_data)
 				else:
 					print("unexpected size for pink")
@@ -115,7 +115,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				for f in mdl2_entry.model_data_frags:
 					# each address_0 points to ms2's f_0 address_1 (size of vert & tri buffer)
 					# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-					# model_data = f.pointers[0].read_as(ModelData, archive)
+					# model_data = f.pointers[0].load_as(ModelData, version_info=versions)
 					# print(model_data)
 
 					model_data = f.pointers[0].data

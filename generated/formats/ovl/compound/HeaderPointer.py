@@ -132,22 +132,9 @@ class HeaderPointer:
 				if other_pointer is not self:
 					other_pointer.update_data(data, pad_to=pad_to, include_old_pad=include_old_pad)
 
-
 	def get_reader(self):
 		"""Returns a reader of its data"""
 		return io.BytesIO(self.data)
-
-
-	def read_as(self, pyffi_cls, data, num=1):
-		"""Return self.data as pyffi cls
-		Data must be an object that has version & user_version attributes"""
-		reader = self.get_reader()
-		insts = []
-		for i in range(num):
-			inst = pyffi_cls()
-			inst.read(reader, data=data)
-			insts.append(inst)
-		return insts
 
 	def load_as(self, cls, num=1, version_info={}):
 		"""Return self.data as codegen cls
