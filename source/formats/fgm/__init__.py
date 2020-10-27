@@ -41,9 +41,11 @@ class FgmFile(FgmInfoHeader, IoFile):
 			self.eoh = stream.tell()
 			# print(self)
 
-			zeros = stream.read(self.zeros_size)
-
+			self.zeros_bytes = stream.read(self.zeros_size)
 			data_start = stream.tell()
+			self.data_bytes = stream.read(self.data_lib_size)
+			self.buffer_bytes = stream.read()
+
 			name_start = data_start + self.data_lib_size
 			self.shader_name = self.read_z_str(stream, name_start)
 			for texture in self.textures:
@@ -64,7 +66,7 @@ class FgmFile(FgmInfoHeader, IoFile):
 				if attrib.dtype == 6:
 					attrib.value = list(bool(v) for v in attrib.value)
 
-		self.print_readable()
+		# self.print_readable()
 
 	def print_readable(self, ):
 		print("\nShader =", self.shader_name)

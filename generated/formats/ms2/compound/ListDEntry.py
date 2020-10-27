@@ -2,9 +2,6 @@ from generated.formats.ms2.compound.Matrix44 import Matrix44
 
 
 class ListDEntry:
-	ce: float
-	cb: float
-	matrix: Matrix44
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -1,10 +1,4 @@
 class MaterialInfo:
-	zero_0: int
-	zero_1: int
-	material_count: int
-	zero_2: int
-	zero_3: int
-	zero_4: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

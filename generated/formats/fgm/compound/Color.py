@@ -3,10 +3,6 @@ class Color:
 	"""
 	4 bytes
 	"""
-	r: int
-	g: int
-	b: int
-	a: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

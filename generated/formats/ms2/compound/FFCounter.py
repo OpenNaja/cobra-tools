@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class FFCounter:
@@ -6,8 +7,6 @@ class FFCounter:
 	"""
 	count is nonzero in PZ broken birch model
 	"""
-	count: int
-	f_fs: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -15,13 +14,13 @@ class FFCounter:
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.f_fs = []
+		self.f_fs = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.count = stream.read_uint()
-		self.f_fs = [stream.read_int() for _ in range(self.count)]
+		self.f_fs.read(stream, 'Int', self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -29,7 +28,7 @@ class FFCounter:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.count)
-		for item in self.f_fs: stream.write_int(item)
+		self.f_fs.write(stream, 'Int', self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

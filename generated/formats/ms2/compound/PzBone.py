@@ -7,9 +7,6 @@ class PzBone:
 	"""
 	32 bytes
 	"""
-	rot: Vector4
-	loc: Vector3
-	scale: float
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -1,6 +1,4 @@
 class Material0:
-	a: int
-	b: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -12,18 +12,16 @@ class HeaderPointer:
 	8 bytes
 	"""
 
-	# The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: 4294967295 (FF FF FF FF), uint32 max
-	header_index: int
-
-	# the start position of the sized string's size uint
-	data_offset: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: 4294967295 (FF FF FF FF), uint32 max
 		self.header_index = 0
+
+		# the start position of the sized string's size uint
 		self.data_offset = 0
 
 	def read(self, stream):

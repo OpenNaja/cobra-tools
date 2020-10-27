@@ -7,9 +7,6 @@ class JweBone:
 	"""
 	32 bytes
 	"""
-	loc: Vector3
-	scale: float
-	rot: Vector4
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

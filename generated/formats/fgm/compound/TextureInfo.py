@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.fgm.compound.Color import Color
 
 
@@ -8,27 +9,23 @@ class TextureInfo:
 	part of fgm fragment, per texture involved
 	"""
 
-	# byte offset to name in fgm buffer
-	offset: int
-
-	# 7=has 2 8=uses texture indices
-	is_textured: int
-
-	# stores index into shader and array index of texture
-	indices: typing.List[int]
-
-	# Stores (usually) 2 rgba colors
-	colors: typing.List[Color]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# byte offset to name in fgm buffer
 		self.offset = 0
+
+		# 7=has 2 8=uses texture indices
 		self.is_textured = 0
-		self.indices = []
-		self.colors = []
+
+		# stores index into shader and array index of texture
+		self.indices = Array()
+
+		# Stores (usually) 2 rgba colors
+		self.colors = Array()
 
 	def read(self, stream):
 
@@ -36,9 +33,9 @@ class TextureInfo:
 		self.offset = stream.read_uint()
 		self.is_textured = stream.read_uint()
 		if self.is_textured == 8:
-			self.indices = [stream.read_uint() for _ in range(4)]
+			self.indices.read(stream, 'Uint', 4, None)
 		if self.is_textured == 7:
-			self.colors = [stream.read_type(Color) for _ in range(4)]
+			self.colors.read(stream, Color, 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -48,9 +45,9 @@ class TextureInfo:
 		stream.write_uint(self.offset)
 		stream.write_uint(self.is_textured)
 		if self.is_textured == 8:
-			for item in self.indices: stream.write_uint(item)
+			self.indices.write(stream, 'Uint', 4, None)
 		if self.is_textured == 7:
-			for item in self.colors: stream.write_type(item)
+			self.colors.write(stream, Color, 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 

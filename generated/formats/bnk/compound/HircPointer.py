@@ -5,15 +5,13 @@ from generated.formats.bnk.compound.TypeOther import TypeOther
 
 class HircPointer:
 
-	# length of following data
-	id: int
-	data: typing.Union[Type2, TypeOther]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# length of following data
 		self.id = 0
 		self.data = Type2()
 		self.data = TypeOther()

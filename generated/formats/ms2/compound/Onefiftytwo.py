@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 
 
@@ -7,8 +8,6 @@ class Onefiftytwo:
 	"""
 	# equivalent to 38 uints, 152 bytes
 	"""
-	model_info: CoreModelInfo
-	some: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -16,13 +15,13 @@ class Onefiftytwo:
 		self.io_size = 0
 		self.io_start = 0
 		self.model_info = CoreModelInfo()
-		self.some = []
+		self.some = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.model_info = stream.read_type(CoreModelInfo)
-		self.some = [stream.read_uint64() for _ in range(7)]
+		self.some.read(stream, 'Uint64', 7, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -30,7 +29,7 @@ class Onefiftytwo:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.model_info)
-		for item in self.some: stream.write_uint64(item)
+		self.some.write(stream, 'Uint64', 7, None)
 
 		self.io_size = stream.tell() - self.io_start
 

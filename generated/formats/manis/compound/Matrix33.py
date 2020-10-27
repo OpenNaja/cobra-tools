@@ -4,46 +4,37 @@ class Matrix33:
 	A 3x3 rotation matrix; M^T M=identity, det(M)=1.    Stored in OpenGL column-major format.
 	"""
 
-	# Member 1,1 (top left)
-	m_11: float = 1.0
-
-	# Member 2,1
-	m_21: float = 0.0
-
-	# Member 3,1 (bottom left)
-	m_31: float = 0.0
-
-	# Member 1,2
-	m_12: float = 0.0
-
-	# Member 2,2
-	m_22: float = 1.0
-
-	# Member 3,2
-	m_32: float = 0.0
-
-	# Member 1,3 (top right)
-	m_13: float = 0.0
-
-	# Member 2,3
-	m_23: float = 0.0
-
-	# Member 3,3 (bottom left)
-	m_33: float = 1.0
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# Member 1,1 (top left)
 		self.m_11 = 1.0
+
+		# Member 2,1
 		self.m_21 = 0.0
+
+		# Member 3,1 (bottom left)
 		self.m_31 = 0.0
+
+		# Member 1,2
 		self.m_12 = 0.0
+
+		# Member 2,2
 		self.m_22 = 1.0
+
+		# Member 3,2
 		self.m_32 = 0.0
+
+		# Member 1,3 (top right)
 		self.m_13 = 0.0
+
+		# Member 2,3
 		self.m_23 = 0.0
+
+		# Member 3,3 (bottom left)
 		self.m_33 = 1.0
 
 	def read(self, stream):

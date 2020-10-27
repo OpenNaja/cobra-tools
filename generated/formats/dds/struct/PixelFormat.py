@@ -4,45 +4,37 @@ from generated.formats.dds.enum.FourCC import FourCC
 
 class PixelFormat:
 
-	# Always 32.
-	size: int = 32
-
-	# Non-zero for DX9, zero for DX10.
-	flags: PixelFormatFlags
-
-	# Determines compression type. Zero means no compression.
-	four_c_c: FourCC
-
-	# For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.
-	bit_count: int
-
-	# For non-compressed types, this determines the red mask. Usually 0x00FF0000. Is zero for compressed textures.
-	r_mask: int
-
-	# For non-compressed types, this determines
-	# the green mask. Usually 0x0000FF00. Is zero for compressed textures.
-	g_mask: int
-
-	# For non-compressed types, this determines
-	# the blue mask. Usually 0x00FF0000. Is zero for compressed textures.
-	b_mask: int
-
-	# For non-compressed types, this determines
-	# the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.
-	a_mask: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# Always 32.
 		self.size = 32
+
+		# Non-zero for DX9, zero for DX10.
 		self.flags = PixelFormatFlags()
+
+		# Determines compression type. Zero means no compression.
 		self.four_c_c = FourCC()
+
+		# For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.
 		self.bit_count = 0
+
+		# For non-compressed types, this determines the red mask. Usually 0x00FF0000. Is zero for compressed textures.
 		self.r_mask = 0
+
+		# For non-compressed types, this determines
+		# the green mask. Usually 0x0000FF00. Is zero for compressed textures.
 		self.g_mask = 0
+
+		# For non-compressed types, this determines
+		# the blue mask. Usually 0x00FF0000. Is zero for compressed textures.
 		self.b_mask = 0
+
+		# For non-compressed types, this determines
+		# the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.
 		self.a_mask = 0
 
 	def read(self, stream):

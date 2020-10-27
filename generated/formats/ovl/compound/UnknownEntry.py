@@ -3,9 +3,6 @@ class UnknownEntry:
 	"""
 	Description of one file type
 	"""
-	unknown_1: int
-	unknown_2: int
-	unknown_3: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -3,13 +3,6 @@ class DataPointer:
 	"""
 	second Section of a soundback aux
 	"""
-	wem_id: int
-
-	# offset into data section
-	data_section_offset: int
-
-	# length of the wem file
-	wem_filesize: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -17,7 +10,11 @@ class DataPointer:
 		self.io_size = 0
 		self.io_start = 0
 		self.wem_id = 0
+
+		# offset into data section
 		self.data_section_offset = 0
+
+		# length of the wem file
 		self.wem_filesize = 0
 
 	def read(self, stream):

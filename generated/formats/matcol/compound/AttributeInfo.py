@@ -4,23 +4,19 @@ class AttributeInfo:
 	part of fgm fragment, repeated per attribute
 	"""
 
-	# byte offset to name in fgm buffer
-	offset: int
-
-	# 6=bool 5=integer 0=float
-	dtype: int
-
-	# byte offset to first value in the 4th fragment entry
-	first_value_offset: int
-	zero: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# byte offset to name in fgm buffer
 		self.offset = 0
+
+		# 6=bool 5=integer 0=float
 		self.dtype = 0
+
+		# byte offset to first value in the 4th fragment entry
 		self.first_value_offset = 0
 		self.zero = 0
 

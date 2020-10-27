@@ -4,21 +4,17 @@ class FourFragFgm:
 	Sized str entry of 16 bytes
 	"""
 
-	# Number of Texture Info Entries
-	texture_count: int
-	zero_0: int
-
-	# Number of Attribute Info Entries
-	attribute_count: int
-	zero_1: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# Number of Texture Info Entries
 		self.texture_count = 0
 		self.zero_0 = 0
+
+		# Number of Attribute Info Entries
 		self.attribute_count = 0
 		self.zero_1 = 0
 

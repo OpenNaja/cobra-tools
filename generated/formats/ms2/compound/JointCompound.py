@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class JointCompound:
@@ -6,33 +7,6 @@ class JointCompound:
 	"""
 	appears in dinos and static meshes
 	"""
-	namespace_length: int
-
-	# 0s
-
-	# 0s
-	zeros: typing.List[int]
-
-	# 1
-	unknown_4: int
-
-	# 0
-	unknown_5: int
-
-	# 1
-	unknown_6: int
-
-	# 0
-	unknown_7: int
-
-	# matches bone count from bone info
-	bone_count: int
-
-	# 0
-	joint_entry_count: int
-
-	# usually 0s
-	zeros_1: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -40,31 +14,49 @@ class JointCompound:
 		self.io_size = 0
 		self.io_start = 0
 		self.namespace_length = 0
-		self.zeros = []
-		self.zeros = []
+
+		# 0s
+		self.zeros = Array()
+
+		# 0s
+		self.zeros = Array()
+
+		# 1
 		self.unknown_4 = 0
+
+		# 0
 		self.unknown_5 = 0
+
+		# 1
 		self.unknown_6 = 0
+
+		# 0
 		self.unknown_7 = 0
+
+		# matches bone count from bone info
 		self.bone_count = 0
+
+		# 0
 		self.joint_entry_count = 0
-		self.zeros_1 = []
+
+		# usually 0s
+		self.zeros_1 = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.namespace_length = stream.read_uint()
 		if not (stream.version == 18):
-			self.zeros = [stream.read_uint() for _ in range(13)]
+			self.zeros.read(stream, 'Uint', 13, None)
 		if stream.version == 18:
-			self.zeros = [stream.read_uint() for _ in range(17)]
+			self.zeros.read(stream, 'Uint', 17, None)
 		self.unknown_4 = stream.read_uint()
 		self.unknown_5 = stream.read_uint()
 		self.unknown_6 = stream.read_uint()
 		self.unknown_7 = stream.read_uint()
 		self.bone_count = stream.read_uint()
 		self.joint_entry_count = stream.read_uint()
-		self.zeros_1 = [stream.read_uint() for _ in range(4)]
+		self.zeros_1.read(stream, 'Uint', 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -73,16 +65,16 @@ class JointCompound:
 		self.io_start = stream.tell()
 		stream.write_uint(self.namespace_length)
 		if not (stream.version == 18):
-			for item in self.zeros: stream.write_uint(item)
+			self.zeros.write(stream, 'Uint', 13, None)
 		if stream.version == 18:
-			for item in self.zeros: stream.write_uint(item)
+			self.zeros.write(stream, 'Uint', 17, None)
 		stream.write_uint(self.unknown_4)
 		stream.write_uint(self.unknown_5)
 		stream.write_uint(self.unknown_6)
 		stream.write_uint(self.unknown_7)
 		stream.write_uint(self.bone_count)
 		stream.write_uint(self.joint_entry_count)
-		for item in self.zeros_1: stream.write_uint(item)
+		self.zeros_1.write(stream, 'Uint', 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 

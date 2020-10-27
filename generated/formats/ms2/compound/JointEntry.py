@@ -3,8 +3,6 @@ from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class JointEntry:
-	matrix: Matrix33
-	vector: Vector3
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -1,8 +1,4 @@
 class LayeredAttrib:
-	zero_0: int
-	zero_1: int
-	attrib_count: int
-	zero_2: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

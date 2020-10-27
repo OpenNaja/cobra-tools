@@ -1,10 +1,9 @@
 import typing
+from generated.array import Array
 from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 
 
 class VariantWrapper:
-	info: MaterialInfo
-	materials: typing.List[str]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -12,13 +11,13 @@ class VariantWrapper:
 		self.io_size = 0
 		self.io_start = 0
 		self.info = MaterialInfo()
-		self.materials = []
+		self.materials = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.info = stream.read_type(MaterialInfo)
-		self.materials = [stream.read_zstring() for _ in range(self.info.material_count)]
+		self.materials.read(stream, 'ZString', self.info.material_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -26,7 +25,7 @@ class VariantWrapper:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.info)
-		for item in self.materials: stream.write_zstring(item)
+		self.materials.write(stream, 'ZString', self.info.material_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

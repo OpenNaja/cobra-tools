@@ -1,8 +1,4 @@
 class UnkHierlistEntry:
-	bone_index_1: int
-
-	# dunno what these do at the moment
-	bone_index_2: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -10,6 +6,8 @@ class UnkHierlistEntry:
 		self.io_size = 0
 		self.io_start = 0
 		self.bone_index_1 = 0
+
+		# dunno what these do at the moment
 		self.bone_index_2 = 0
 
 	def read(self, stream):

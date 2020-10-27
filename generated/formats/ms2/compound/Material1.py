@@ -1,6 +1,4 @@
 class Material1:
-	material_index: int
-	model_index: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

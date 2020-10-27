@@ -4,26 +4,22 @@ class Vector4:
 	A vector in 3D space (x,y,z).
 	"""
 
-	# zeroth coordinate.
-	w: float
-
-	# First coordinate.
-	x: float
-
-	# Second coordinate.
-	y: float
-
-	# Third coordinate.
-	z: float
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# zeroth coordinate.
 		self.w = 0
+
+		# First coordinate.
 		self.x = 0
+
+		# Second coordinate.
 		self.y = 0
+
+		# Third coordinate.
 		self.z = 0
 
 	def read(self, stream):

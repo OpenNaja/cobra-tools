@@ -5,6 +5,7 @@ import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from utils.tristrip import triangulate
 import typing
+from generated.array import Array
 
 
 class PcModelData:
@@ -15,76 +16,61 @@ class PcModelData:
 	If there is more than one of these, the fragments appear as a list according to
 	"""
 
-	# always zero
-	zeros_a: typing.List[int]
-
-	# repeat
-	tri_index_count_a: int
-
-	# vertex count of model
-	vertex_count: int
-
-	# x*16 = offset in buffer 2
-	tri_offset: int
-
-	# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-	tri_index_count: int
-
-	# x*16 = offset in buffer 2
-	vertex_offset: int
-
-	# x*16 = offset in buffer 2
-	weights_offset: int
-
-	# x*16 = offset in buffer 2
-	uv_offset: int
-
-	# always zero
-	zero_b: int
-
-	# x*16 = offset in buffer 2
-	vertex_color_offset: int
-
-	# ?
-	vert_offset_within_lod: int
-
-	# power of 2 increasing with lod index
-	poweroftwo: int
-
-	# always zero
-	zero: int
-
-	# some floats
-	unknown_07: float
-
-	# bitfield
-	flag: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_a = []
+
+		# always zero
+		self.zeros_a = Array()
+
+		# repeat
 		self.tri_index_count_a = 0
+
+		# vertex count of model
 		self.vertex_count = 0
+
+		# x*16 = offset in buffer 2
 		self.tri_offset = 0
+
+		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
 		self.tri_index_count = 0
+
+		# x*16 = offset in buffer 2
 		self.vertex_offset = 0
+
+		# x*16 = offset in buffer 2
 		self.weights_offset = 0
+
+		# x*16 = offset in buffer 2
 		self.uv_offset = 0
+
+		# always zero
 		self.zero_b = 0
+
+		# x*16 = offset in buffer 2
 		self.vertex_color_offset = 0
+
+		# ?
 		self.vert_offset_within_lod = 0
+
+		# power of 2 increasing with lod index
 		self.poweroftwo = 0
+
+		# always zero
 		self.zero = 0
+
+		# some floats
 		self.unknown_07 = 0
+
+		# bitfield
 		self.flag = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_a = [stream.read_uint() for _ in range(4)]
+		self.zeros_a.read(stream, 'Uint', 4, None)
 		if stream.version == 18:
 			self.tri_index_count_a = stream.read_uint()
 		self.vertex_count = stream.read_uint()
@@ -106,7 +92,7 @@ class PcModelData:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.zeros_a: stream.write_uint(item)
+		self.zeros_a.write(stream, 'Uint', 4, None)
 		if stream.version == 18:
 			stream.write_uint(self.tri_index_count_a)
 		stream.write_uint(self.vertex_count)

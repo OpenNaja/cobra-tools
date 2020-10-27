@@ -3,20 +3,6 @@ class BaniFragmentData0:
 	"""
 	This varies per bani animation file and describes the bani's frames and duration
 	"""
-	unknown_0: int
-	unknown_1: int
-
-	# The frame in the banis where this bani starts reading
-	read_start_frame: int
-
-	# Number of frames in this bani file
-	num_frames: int
-
-	# length of the animation, can easily get keyframe spacing now
-	animation_length: float
-
-	# if 1381323599 then looped
-	loop_flag: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -25,9 +11,17 @@ class BaniFragmentData0:
 		self.io_start = 0
 		self.unknown_0 = 0
 		self.unknown_1 = 0
+
+		# The frame in the banis where this bani starts reading
 		self.read_start_frame = 0
+
+		# Number of frames in this bani file
 		self.num_frames = 0
+
+		# length of the animation, can easily get keyframe spacing now
 		self.animation_length = 0
+
+		# if 1381323599 then looped
 		self.loop_flag = 0
 
 	def read(self, stream):

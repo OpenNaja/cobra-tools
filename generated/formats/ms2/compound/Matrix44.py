@@ -4,74 +4,58 @@ class Matrix44:
 	A 4x4 transformation matrix.
 	"""
 
-	# The (1,1) element.
-	m_11: float = 1.0
-
-	# The (2,1) element.
-	m_21: float = 0.0
-
-	# The (3,1) element.
-	m_31: float = 0.0
-
-	# The (4,1) element.
-	m_41: float = 0.0
-
-	# The (1,2) element.
-	m_12: float = 0.0
-
-	# The (2,2) element.
-	m_22: float = 1.0
-
-	# The (3,2) element.
-	m_32: float = 0.0
-
-	# The (4,2) element.
-	m_42: float = 0.0
-
-	# The (1,3) element.
-	m_13: float = 0.0
-
-	# The (2,3) element.
-	m_23: float = 0.0
-
-	# The (3,3) element.
-	m_33: float = 1.0
-
-	# The (4,3) element.
-	m_43: float = 0.0
-
-	# The (1,4) element.
-	m_14: float = 0.0
-
-	# The (2,4) element.
-	m_24: float = 0.0
-
-	# The (3,4) element.
-	m_34: float = 0.0
-
-	# The (4,4) element.
-	m_44: float = 1.0
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# The (1,1) element.
 		self.m_11 = 1.0
+
+		# The (2,1) element.
 		self.m_21 = 0.0
+
+		# The (3,1) element.
 		self.m_31 = 0.0
+
+		# The (4,1) element.
 		self.m_41 = 0.0
+
+		# The (1,2) element.
 		self.m_12 = 0.0
+
+		# The (2,2) element.
 		self.m_22 = 1.0
+
+		# The (3,2) element.
 		self.m_32 = 0.0
+
+		# The (4,2) element.
 		self.m_42 = 0.0
+
+		# The (1,3) element.
 		self.m_13 = 0.0
+
+		# The (2,3) element.
 		self.m_23 = 0.0
+
+		# The (3,3) element.
 		self.m_33 = 1.0
+
+		# The (4,3) element.
 		self.m_43 = 0.0
+
+		# The (1,4) element.
 		self.m_14 = 0.0
+
+		# The (2,4) element.
 		self.m_24 = 0.0
+
+		# The (3,4) element.
 		self.m_34 = 0.0
+
+		# The (4,4) element.
 		self.m_44 = 1.0
 
 	def read(self, stream):

@@ -4,18 +4,16 @@ class UshortVector2:
 	A vector in 2D space (x,y).
 	"""
 
-	# First coordinate.
-	u: int
-
-	# Second coordinate.
-	v: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# First coordinate.
 		self.u = 0
+
+		# Second coordinate.
 		self.v = 0
 
 	def read(self, stream):

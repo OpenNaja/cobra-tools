@@ -3,14 +3,6 @@ class Header3Data1Pc:
 	"""
 	Data struct for headers of type 7
 	"""
-	width: int
-	height: int
-
-	# may be depth
-	array_size: int
-
-	# num_mips
-	num_mips: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -19,7 +11,11 @@ class Header3Data1Pc:
 		self.io_start = 0
 		self.width = 0
 		self.height = 0
+
+		# may be depth
 		self.array_size = 0
+
+		# num_mips
 		self.num_mips = 0
 
 	def read(self, stream):

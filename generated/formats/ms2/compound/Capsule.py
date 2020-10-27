@@ -2,9 +2,6 @@ from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class Capsule:
-	a: Vector3
-	b: Vector3
-	c: Vector3
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

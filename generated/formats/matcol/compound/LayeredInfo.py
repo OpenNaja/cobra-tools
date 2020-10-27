@@ -1,12 +1,4 @@
 class LayeredInfo:
-	zero_0: int
-	zero_1: int
-	info_count: int
-	zero_2: int
-	zero_3: int
-	zero_4: int
-	zero_5: int
-	zero_6: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

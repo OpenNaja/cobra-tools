@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class DATASection:
@@ -7,23 +8,21 @@ class DATASection:
 	second Section of a soundback aux
 	"""
 
-	# length of following data
-	length: int
-	wem_files_datas: typing.List[int]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# length of following data
 		self.length = 0
-		self.wem_files_datas = []
+		self.wem_files_datas = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
-		self.wem_files_datas = [stream.read_byte() for _ in range(self.length)]
+		self.wem_files_datas.read(stream, 'Byte', self.length, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -31,7 +30,7 @@ class DATASection:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
-		for item in self.wem_files_datas: stream.write_byte(item)
+		self.wem_files_datas.write(stream, 'Byte', self.length, None)
 
 		self.io_size = stream.tell() - self.io_start
 

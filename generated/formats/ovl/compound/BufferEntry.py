@@ -4,18 +4,16 @@ class BufferEntry:
 	8 bytes
 	"""
 
-	# apparently index of buffer in file, at least that's how it looks in barbasol - 0, 1, 2, 3, 4...
-	index: int
-
-	# in bytes
-	size: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# apparently index of buffer in file, at least that's how it looks in barbasol - 0, 1, 2, 3, 4...
 		self.index = 0
+
+		# in bytes
 		self.size = 0
 
 	def read(self, stream):

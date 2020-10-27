@@ -3,11 +3,6 @@ from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 
 
 class Dxt10Header:
-	dxgi_format: DxgiFormat
-	resource_dimension: D3D10ResourceDimension
-	misc_flag: int
-	array_size: int
-	misc_flag_2: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -24,6 +24,7 @@ class Imports:
                 arr1 = field.attrib.get("arr1")
                 if arr1:
                     self.add("typing")
+                    self.add("Array")
 
     def add(self, cls_to_import, import_from=None):
         if cls_to_import:

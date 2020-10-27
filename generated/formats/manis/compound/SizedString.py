@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class SizedString:
@@ -7,25 +8,23 @@ class SizedString:
 	A string of given length.
 	"""
 
-	# The string length.
-	length: int
-
-	# The string itself.
-	value: typing.List[Char]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# The string length.
 		self.length = 0
-		self.value = []
+
+		# The string itself.
+		self.value = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
-		self.value = [stream.read_char() for _ in range(self.length)]
+		self.value.read(stream, 'Char', self.length, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -33,7 +32,7 @@ class SizedString:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
-		for item in self.value: stream.write_char(item)
+		self.value.write(stream, 'Char', self.length, None)
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -3,24 +3,6 @@ from generated.formats.ms2.compound.Capsule import Capsule
 
 
 class HitCheckEntry:
-	type: int
-	unknown_2_a: int
-	unknown_2_b: int
-
-	# 16
-	unknown_2_c: int
-
-	# 0
-	unknown_2_d: int
-
-	# 564267
-	unknown_3: int
-
-	# 46
-	unknown_4: int
-	namespace_offset: int
-	bbox: BoundingBox
-	capsule: Capsule
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -30,9 +12,17 @@ class HitCheckEntry:
 		self.type = 0
 		self.unknown_2_a = 0
 		self.unknown_2_b = 0
+
+		# 16
 		self.unknown_2_c = 0
+
+		# 0
 		self.unknown_2_d = 0
+
+		# 564267
 		self.unknown_3 = 0
+
+		# 46
 		self.unknown_4 = 0
 		self.namespace_offset = 0
 		self.bbox = BoundingBox()

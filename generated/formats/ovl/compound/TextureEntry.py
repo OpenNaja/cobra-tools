@@ -4,20 +4,13 @@ class TextureEntry:
 	Description of one texture
 	"""
 
-	# Hash of this texture, for lookup in hash dict.
-	file_hash: int
-	unknown_1: int
-	unknown_2: int
-	unknown_3: int
-	unknown_4: int
-	unknown_5: int
-	unknown_6: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# Hash of this texture, for lookup in hash dict.
 		self.file_hash = 0
 		self.unknown_1 = 0
 		self.unknown_2 = 0

@@ -4,42 +4,34 @@ class HeaderEntry:
 	Description of one archive header entry
 	"""
 
-	# always 0
-	zeros_1: int
-
-	# always 0
-	zeros_2: int
-
-	# the number of bytes representing the text files data
-	size: int
-
-	# starting point to read text file data
-	offset: int
-
-	# DJB hash of the first file in the txt data block
-	file_hash: int
-
-	# unknown count (number of .txt files)
-	num_files: int
-
-	# JWE: DJB hash for extension, 0 for PZ
-	ext_hash: int
-
-	# always 0
-	zeros_3: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# always 0
 		self.zeros_1 = 0
+
+		# always 0
 		self.zeros_2 = 0
+
+		# the number of bytes representing the text files data
 		self.size = 0
+
+		# starting point to read text file data
 		self.offset = 0
+
+		# DJB hash of the first file in the txt data block
 		self.file_hash = 0
+
+		# unknown count (number of .txt files)
 		self.num_files = 0
+
+		# JWE: DJB hash for extension, 0 for PZ
 		self.ext_hash = 0
+
+		# always 0
 		self.zeros_3 = 0
 
 	def read(self, stream):

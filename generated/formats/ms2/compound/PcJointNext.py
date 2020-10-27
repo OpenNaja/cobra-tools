@@ -1,38 +1,35 @@
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.PcFFCounter import PcFFCounter
 
 
 class PcJointNext:
-
-	# 11, then 11 FFs
-	eleven_ff_stuff: PcFFCounter
-
-	# usually 1F AA FF AA FF
-	undecoded: typing.List[int]
-
-	# start address in zstr buffer
-	name_address: int
-
-	# 1, 0, 0, 0
-	uints: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 11, then 11 FFs
 		self.eleven_ff_stuff = PcFFCounter()
-		self.undecoded = []
+
+		# usually 1F AA FF AA FF
+		self.undecoded = Array()
+
+		# start address in zstr buffer
 		self.name_address = 0
-		self.uints = []
+
+		# 1, 0, 0, 0
+		self.uints = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.eleven_ff_stuff = stream.read_type(PcFFCounter)
-		self.undecoded = [stream.read_byte() for _ in range(5)]
+		self.undecoded.read(stream, 'Byte', 5, None)
 		self.name_address = stream.read_uint()
-		self.uints = [stream.read_uint() for _ in range(4)]
+		self.uints.read(stream, 'Uint', 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -40,9 +37,9 @@ class PcJointNext:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.eleven_ff_stuff)
-		for item in self.undecoded: stream.write_byte(item)
+		self.undecoded.write(stream, 'Byte', 5, None)
 		stream.write_uint(self.name_address)
-		for item in self.uints: stream.write_uint(item)
+		self.uints.write(stream, 'Uint', 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 

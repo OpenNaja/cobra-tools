@@ -4,37 +4,28 @@ class DataEntry:
 	32 bytes
 	"""
 
-	# DJB hash; sometimes matches an archive header's first File Hash
-	file_hash: int
-
-	# DJB hash for extension; always (?) matches an archive header's hash
-	ext_hash: int
-	set_index: int
-
-	# number of buffers that should be read from list for this entry
-	buffer_count: int
-	zero_10: int
-
-	# size of first buffer, in the case of the ms2 the size 1 is the sizw of the first two buffers together
-	size_1: int
-	zero_18: int
-
-	# size of last buffer
-	size_2: int
-	zero_20: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# DJB hash; sometimes matches an archive header's first File Hash
 		self.file_hash = 0
+
+		# DJB hash for extension; always (?) matches an archive header's hash
 		self.ext_hash = 0
 		self.set_index = 0
+
+		# number of buffers that should be read from list for this entry
 		self.buffer_count = 0
 		self.zero_10 = 0
+
+		# size of first buffer, in the case of the ms2 the size 1 is the sizw of the first two buffers together
 		self.size_1 = 0
 		self.zero_18 = 0
+
+		# size of last buffer
 		self.size_2 = 0
 		self.zero_20 = 0
 

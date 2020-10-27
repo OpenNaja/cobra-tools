@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FourFragFgm import FourFragFgm
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
@@ -13,54 +14,41 @@ class FgmInfoHeader:
 	This reads a whole custom FGM file
 	"""
 
-	# 'FGM '
-	magic: typing.List[int]
-	version: int
-	flag_2: int
-
-	# fragment count
-	num_frags: int
-
-	# byte count to check for quirks
-	tex_info_size: int
-
-	# byte count to check for quirks
-	attr_info_size: int
-
-	# byte count to check for quirks
-	zeros_size: int
-
-	# byte count to check for quirks
-	data_lib_size: int
-	fgm_info: FourFragFgm
-	two_frags_pad: typing.List[TwoFragFgmExtra]
-	textures: typing.List[TextureInfo]
-	texpad: typing.List[int]
-	attributes: typing.List[AttributeInfo]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.magic = []
+
+		# 'FGM '
+		self.magic = Array()
 		self.version = 0
 		self.flag_2 = 0
+
+		# fragment count
 		self.num_frags = 0
+
+		# byte count to check for quirks
 		self.tex_info_size = 0
+
+		# byte count to check for quirks
 		self.attr_info_size = 0
+
+		# byte count to check for quirks
 		self.zeros_size = 0
+
+		# byte count to check for quirks
 		self.data_lib_size = 0
 		self.fgm_info = FourFragFgm()
-		self.two_frags_pad = []
-		self.textures = []
-		self.texpad = []
-		self.attributes = []
+		self.two_frags_pad = Array()
+		self.textures = Array()
+		self.texpad = Array()
+		self.attributes = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic = [stream.read_byte() for _ in range(4)]
+		self.magic.read(stream, 'Byte', 4, None)
 		self.version = stream.read_uint()
 		stream.version = self.version
 		self.flag_2 = stream.read_uint()
@@ -70,17 +58,17 @@ class FgmInfoHeader:
 		self.zeros_size = stream.read_uint()
 		self.data_lib_size = stream.read_uint()
 		self.fgm_info = stream.read_type(FourFragFgm)
-		self.two_frags_pad = [stream.read_type(TwoFragFgmExtra) for _ in range(self.num_frags == 2)]
-		self.textures = [stream.read_type(TextureInfo) for _ in range(self.fgm_info.texture_count)]
-		self.texpad = [stream.read_byte() for _ in range(self.tex_info_size - (self.fgm_info.texture_count * 24))]
-		self.attributes = [stream.read_type(AttributeInfo) for _ in range(self.fgm_info.attribute_count)]
+		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
+		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
+		self.texpad.read(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.magic: stream.write_byte(item)
+		self.magic.write(stream, 'Byte', 4, None)
 		stream.write_uint(self.version)
 		stream.version = self.version
 		stream.write_uint(self.flag_2)
@@ -90,10 +78,10 @@ class FgmInfoHeader:
 		stream.write_uint(self.zeros_size)
 		stream.write_uint(self.data_lib_size)
 		stream.write_type(self.fgm_info)
-		for item in self.two_frags_pad: stream.write_type(item)
-		for item in self.textures: stream.write_type(item)
-		for item in self.texpad: stream.write_byte(item)
-		for item in self.attributes: stream.write_type(item)
+		self.two_frags_pad.write(stream, TwoFragFgmExtra, self.num_frags == 2, None)
+		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
+		self.texpad.write(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+		self.attributes.write(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

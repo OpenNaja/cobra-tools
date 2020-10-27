@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class ManisSizedStrData:
@@ -7,30 +8,27 @@ class ManisSizedStrData:
 	per attribute
 	"""
 
-	# 96 in driver
-	unknown_0: int
-
-	# 272 in driver
-	unknown_1: int
-
-	# zeros in driver
-	unknown_2: typing.List[int]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 96 in driver
 		self.unknown_0 = 0
+
+		# 272 in driver
 		self.unknown_1 = 0
-		self.unknown_2 = []
+
+		# zeros in driver
+		self.unknown_2 = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.unknown_0 = stream.read_ushort()
 		self.unknown_1 = stream.read_ushort()
-		self.unknown_2 = [stream.read_uint() for _ in range(5)]
+		self.unknown_2.read(stream, 'Uint', 5, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -39,7 +37,7 @@ class ManisSizedStrData:
 		self.io_start = stream.tell()
 		stream.write_ushort(self.unknown_0)
 		stream.write_ushort(self.unknown_1)
-		for item in self.unknown_2: stream.write_uint(item)
+		self.unknown_2.write(stream, 'Uint', 5, None)
 
 		self.io_size = stream.tell() - self.io_start
 

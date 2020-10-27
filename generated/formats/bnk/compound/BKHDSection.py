@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class BKHDSection:
@@ -7,29 +8,22 @@ class BKHDSection:
 	First Section of a soundback aux
 	"""
 
-	# length of following data
-	length: int
-	version: int
-	id_a: int
-	id_b: int
-	constant_a: int
-	constant_b: int
-
-	# filler zeroes
-	zeroes: typing.List[int]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# length of following data
 		self.length = 0
 		self.version = 0
 		self.id_a = 0
 		self.id_b = 0
 		self.constant_a = 0
 		self.constant_b = 0
-		self.zeroes = []
+
+		# filler zeroes
+		self.zeroes = Array()
 
 	def read(self, stream):
 
@@ -41,7 +35,7 @@ class BKHDSection:
 		self.id_b = stream.read_uint()
 		self.constant_a = stream.read_uint()
 		self.constant_b = stream.read_uint()
-		self.zeroes = [stream.read_byte() for _ in range(self.length - 20)]
+		self.zeroes.read(stream, 'Byte', self.length - 20, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -55,7 +49,7 @@ class BKHDSection:
 		stream.write_uint(self.id_b)
 		stream.write_uint(self.constant_a)
 		stream.write_uint(self.constant_b)
-		for item in self.zeroes: stream.write_byte(item)
+		self.zeroes.write(stream, 'Byte', self.length - 20, None)
 
 		self.io_size = stream.tell() - self.io_start
 

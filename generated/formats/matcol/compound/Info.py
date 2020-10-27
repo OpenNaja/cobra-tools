@@ -1,12 +1,8 @@
 import typing
+from generated.array import Array
 
 
 class Info:
-	zero_0: int
-	zero_1: int
-	flags: typing.List[int]
-	value: typing.List[float]
-	zero_3: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -15,8 +11,8 @@ class Info:
 		self.io_start = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.flags = []
-		self.value = []
+		self.flags = Array()
+		self.value = Array()
 		self.zero_3 = 0
 
 	def read(self, stream):
@@ -24,8 +20,8 @@ class Info:
 		self.io_start = stream.tell()
 		self.zero_0 = stream.read_uint()
 		self.zero_1 = stream.read_uint()
-		self.flags = [stream.read_byte() for _ in range(4)]
-		self.value = [stream.read_float() for _ in range(4)]
+		self.flags.read(stream, 'Byte', 4, None)
+		self.value.read(stream, 'Float', 4, None)
 		self.zero_3 = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -35,8 +31,8 @@ class Info:
 		self.io_start = stream.tell()
 		stream.write_uint(self.zero_0)
 		stream.write_uint(self.zero_1)
-		for item in self.flags: stream.write_byte(item)
-		for item in self.value: stream.write_float(item)
+		self.flags.write(stream, 'Byte', 4, None)
+		self.value.write(stream, 'Float', 4, None)
 		stream.write_uint(self.zero_3)
 
 		self.io_size = stream.tell() - self.io_start

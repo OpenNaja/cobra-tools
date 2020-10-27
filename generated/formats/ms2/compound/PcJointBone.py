@@ -1,27 +1,27 @@
 import typing
+from generated.array import Array
 
 
 class PcJointBone:
-	floats: typing.List[float]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = []
+		self.floats = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.floats = [stream.read_float() for _ in range(12)]
+		self.floats.read(stream, 'Float', 12, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.floats: stream.write_float(item)
+		self.floats.write(stream, 'Float', 12, None)
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -5,38 +5,31 @@ class LodInfo:
 	20 bytes
 	"""
 
-	# usually first lod is 900
-	distance: float
-
-	# unknown, found 0
-	unknown_04: int
-
-	# index of strzname from str pool later
-	strznameidx: int
-
-	# first model for this lod in models list
-	first_model_index: int
-
-	# not included in interval (python style indexing)
-	last_model_index: int
-
-	# vertex count of lod
-	vertex_count: int
-
-	# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-	tri_index_count: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# usually first lod is 900
 		self.distance = 0
+
+		# unknown, found 0
 		self.unknown_04 = 0
+
+		# index of strzname from str pool later
 		self.strznameidx = 0
+
+		# first model for this lod in models list
 		self.first_model_index = 0
+
+		# not included in interval (python style indexing)
 		self.last_model_index = 0
+
+		# vertex count of lod
 		self.vertex_count = 0
+
+		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
 		self.tri_index_count = 0
 
 	def read(self, stream):

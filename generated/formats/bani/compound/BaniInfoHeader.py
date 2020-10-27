@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.bani.compound.BaniFragmentData0 import BaniFragmentData0
 from generated.formats.bani.compound.BaniFragmentData1 import BaniFragmentData1
 
@@ -10,20 +11,16 @@ class BaniInfoHeader:
 	includes fragments but none of the 3 data buffers
 	"""
 
-	# 'BANI'
-	magic: typing.List[int]
-
-	# name of the banis file buffer
-	banis_name: str
-	data_0: BaniFragmentData0
-	data_1: BaniFragmentData1
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.magic = []
+
+		# 'BANI'
+		self.magic = Array()
+
+		# name of the banis file buffer
 		self.banis_name = 0
 		self.data_0 = BaniFragmentData0()
 		self.data_1 = BaniFragmentData1()
@@ -31,7 +28,7 @@ class BaniInfoHeader:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic = [stream.read_byte() for _ in range(4)]
+		self.magic.read(stream, 'Byte', 4, None)
 		self.banis_name = stream.read_string()
 		self.data_0 = stream.read_type(BaniFragmentData0)
 		self.data_1 = stream.read_type(BaniFragmentData1)
@@ -41,7 +38,7 @@ class BaniInfoHeader:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.magic: stream.write_byte(item)
+		self.magic.write(stream, 'Byte', 4, None)
 		stream.write_string(self.banis_name)
 		stream.write_type(self.data_0)
 		stream.write_type(self.data_1)

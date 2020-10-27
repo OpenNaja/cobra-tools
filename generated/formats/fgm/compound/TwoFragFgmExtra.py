@@ -1,6 +1,4 @@
 class TwoFragFgmExtra:
-	zero_3: int
-	zero_4: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -2,8 +2,6 @@ from generated.formats.matcol.compound.Info import Info
 
 
 class InfoWrapper:
-	info: Info
-	name: str
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

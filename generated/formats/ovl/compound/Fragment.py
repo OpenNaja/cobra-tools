@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 
@@ -8,27 +9,26 @@ class Fragment:
 	often huge amount of tiny files
 	"""
 
-	# points into header datas section
-	pointers: typing.List[HeaderPointer]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.pointers = []
+
+		# points into header datas section
+		self.pointers = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.pointers = [stream.read_type(HeaderPointer) for _ in range(2)]
+		self.pointers.read(stream, HeaderPointer, 2, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.pointers: stream.write_type(item)
+		self.pointers.write(stream, HeaderPointer, 2, None)
 
 		self.io_size = stream.tell() - self.io_start
 

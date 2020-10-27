@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
@@ -11,139 +12,36 @@ from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 
 class PcJoints:
 
-	# may be padding
-	unk_zero: int
-
-	# index count 1, setting to int to fix boneless model import
-	name_count: int
-
-	# seems to be either 0.0 or 1.0
-	float_0_1: float
-
-	# this is always FFFF for now
-	knownff: int
-
-	# this is always 0000 for now
-	zero_0: int
-	unknown_0_c: int
-
-	# almost always 4, 1 for male african lion
-	unk_count: int
-	unknown_14: int
-
-	# seems to match bone count
-	bind_matrix_count: int
-
-	# usually 0; 1 for animal_box_large, animal_box_medium_static
-	int_0_1: int
-	unknown_20: int
-	unknown_24: int
-	unknown_28: int
-	unknown_2_c: int
-	unknown_30: int
-	unknown_34: int
-
-	# index count3
-	bone_count: int
-	unknown_40: int
-	unknown_44: int
-
-	# index count4
-	bone_parents_count: int
-
-	# pZ only
-	extra_uint_0: int
-
-	# index count 5
-	count_5: int
-	unknown_58: int
-	unknown_5_c: int
-
-	# always 1
-	one_64: int
-
-	# if joints are present, same as bone count
-	unk_joint_count: int
-
-	# index count 7
-	count_7: int
-
-	# joint count
-	joint_count: int
-	unknown_7_c: int
-
-	# unnk 78 count
-	unk_78_count: int
-	unknown_84: int
-
-	# jwe only, everything is shifted a bit due to extra uint 0
-	unknown_88: int
-
-	# same as above
-	unknown_8_c: int
-
-	# same as above
-	unknownextra: int
-
-	# uses ushort here
-	name_indices: typing.List[int]
-
-	# zeros. One index occupies 2 bytes; pad to multiples of 16 bytes.
-	name_padding: typing.List[int]
-
-	# used for skinning
-	inverse_bind_matrices: typing.List[Matrix44]
-
-	# bones, rot first
-
-	# bones, loc first
-	bones: typing.List[typing.Union[JweBone, PzBone]]
-
-	# 255 = root, index in this list is the current bone index, value is the bone's parent index
-	bone_parents: typing.List[int]
-
-	# zeros
-	hier_1_padding: typing.List[int]
-
-	# unclear what this is doing
-	unknown_hier_list: typing.List[UnkHierlistEntry]
-
-	# unique here! -1
-	parent_indices: typing.List[int]
-
-	# guess
-	parent_padding: typing.List[int]
-
-	# may be fixed
-	zeros: typing.List[int]
-
-	# may be fixed
-	joint_info: JointCompound
-	some_floats: typing.List[PcJointBone]
-	some_next_stuff: typing.List[PcJointNext]
-
-	# may be fixed
-	zeros_b: typing.List[int]
-	some_count: int
-
-	# -1, 16 bytes
-	some_minus_ones: typing.List[int]
-	names: ZStringBuffer
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# may be padding
 		self.unk_zero = 0
+
+		# index count 1, setting to int to fix boneless model import
 		self.name_count = 0
+
+		# seems to be either 0.0 or 1.0
 		self.float_0_1 = 0
+
+		# this is always FFFF for now
 		self.knownff = 0
+
+		# this is always 0000 for now
 		self.zero_0 = 0
 		self.unknown_0_c = 0
+
+		# almost always 4, 1 for male african lion
 		self.unk_count = 0
 		self.unknown_14 = 0
+
+		# seems to match bone count
 		self.bind_matrix_count = 0
+
+		# usually 0; 1 for animal_box_large, animal_box_medium_static
 		self.int_0_1 = 0
 		self.unknown_20 = 0
 		self.unknown_24 = 0
@@ -151,41 +49,93 @@ class PcJoints:
 		self.unknown_2_c = 0
 		self.unknown_30 = 0
 		self.unknown_34 = 0
+
+		# index count3
 		self.bone_count = 0
 		self.unknown_40 = 0
 		self.unknown_44 = 0
+
+		# index count4
 		self.bone_parents_count = 0
+
+		# pZ only
 		self.extra_uint_0 = 0
+
+		# index count 5
 		self.count_5 = 0
 		self.unknown_58 = 0
 		self.unknown_5_c = 0
+
+		# always 1
 		self.one_64 = 0
+
+		# if joints are present, same as bone count
 		self.unk_joint_count = 0
+
+		# index count 7
 		self.count_7 = 0
+
+		# joint count
 		self.joint_count = 0
 		self.unknown_7_c = 0
+
+		# unnk 78 count
 		self.unk_78_count = 0
 		self.unknown_84 = 0
+
+		# jwe only, everything is shifted a bit due to extra uint 0
 		self.unknown_88 = 0
+
+		# same as above
 		self.unknown_8_c = 0
+
+		# same as above
 		self.unknownextra = 0
-		self.name_indices = []
-		self.name_padding = []
-		self.inverse_bind_matrices = []
-		self.bones = []
-		self.bones = []
-		self.bone_parents = []
-		self.hier_1_padding = []
-		self.unknown_hier_list = []
-		self.parent_indices = []
-		self.parent_padding = []
-		self.zeros = []
+
+		# uses ushort here
+		self.name_indices = Array()
+
+		# zeros. One index occupies 2 bytes; pad to multiples of 16 bytes.
+		self.name_padding = Array()
+
+		# used for skinning
+		self.inverse_bind_matrices = Array()
+
+		# bones, rot first
+		self.bones = Array()
+
+		# bones, loc first
+		self.bones = Array()
+
+		# 255 = root, index in this list is the current bone index, value is the bone's parent index
+		self.bone_parents = Array()
+
+		# zeros
+		self.hier_1_padding = Array()
+
+		# unclear what this is doing
+		self.unknown_hier_list = Array()
+
+		# unique here! -1
+		self.parent_indices = Array()
+
+		# guess
+		self.parent_padding = Array()
+
+		# may be fixed
+		self.zeros = Array()
+
+		# may be fixed
 		self.joint_info = JointCompound()
-		self.some_floats = []
-		self.some_next_stuff = []
-		self.zeros_b = []
+		self.some_floats = Array()
+		self.some_next_stuff = Array()
+
+		# may be fixed
+		self.zeros_b = Array()
 		self.some_count = 0
-		self.some_minus_ones = []
+
+		# -1, 16 bytes
+		self.some_minus_ones = Array()
 		self.names = ZStringBuffer()
 
 	def read(self, stream):
@@ -229,26 +179,26 @@ class PcJoints:
 			self.unknown_8_c = stream.read_uint()
 		if stream.version == 18:
 			self.unknownextra = stream.read_uint64()
-		self.name_indices = [stream.read_ushort() for _ in range(self.name_count)]
-		self.name_padding = [stream.read_byte() for _ in range((16 - ((self.name_count * 2) % 16)) % 16)]
-		self.inverse_bind_matrices = [stream.read_type(Matrix44) for _ in range(self.bind_matrix_count)]
+		self.name_indices.read(stream, 'Ushort', self.name_count, None)
+		self.name_padding.read(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
 		if (stream.user_version == 8340) and (stream.version == 19):
-			self.bones = [stream.read_type(PzBone) for _ in range(self.bone_count)]
+			self.bones.read(stream, PzBone, self.bone_count, None)
 		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
-			self.bones = [stream.read_type(JweBone) for _ in range(self.bone_count)]
-		self.bone_parents = [stream.read_ubyte() for _ in range(self.bone_parents_count)]
-		self.hier_1_padding = [stream.read_byte() for _ in range((8 - (self.bone_parents_count % 8)) % 8)]
+			self.bones.read(stream, JweBone, self.bone_count, None)
+		self.bone_parents.read(stream, 'Ubyte', self.bone_parents_count, None)
+		self.hier_1_padding.read(stream, 'Byte', (8 - (self.bone_parents_count % 8)) % 8, None)
 		if self.one_64:
-			self.unknown_hier_list = [stream.read_type(UnkHierlistEntry) for _ in range(self.count_5)]
-		self.parent_indices = [stream.read_short() for _ in range(self.bone_count)]
-		self.parent_padding = [stream.read_byte() for _ in range((16 - ((self.name_count * 2) % 16)) % 16)]
-		self.zeros = [stream.read_uint64() for _ in range(5)]
+			self.unknown_hier_list.read(stream, UnkHierlistEntry, self.count_5, None)
+		self.parent_indices.read(stream, 'Short', self.bone_count, None)
+		self.parent_padding.read(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		self.zeros.read(stream, 'Uint64', 5, None)
 		self.joint_info = stream.read_type(JointCompound)
-		self.some_floats = [stream.read_type(PcJointBone) for _ in range(self.joint_info.bone_count)]
-		self.some_next_stuff = [stream.read_type(PcJointNext) for _ in range(self.joint_info.bone_count)]
-		self.zeros_b = [stream.read_uint() for _ in range(5)]
+		self.some_floats.read(stream, PcJointBone, self.joint_info.bone_count, None)
+		self.some_next_stuff.read(stream, PcJointNext, self.joint_info.bone_count, None)
+		self.zeros_b.read(stream, 'Uint', 5, None)
 		self.some_count = stream.read_uint()
-		self.some_minus_ones = [stream.read_int() for _ in range(self.some_count)]
+		self.some_minus_ones.read(stream, 'Int', self.some_count, None)
 		self.names = stream.read_type(ZStringBuffer, (self.joint_info.namespace_length,))
 
 		self.io_size = stream.tell() - self.io_start
@@ -294,26 +244,26 @@ class PcJoints:
 			stream.write_uint(self.unknown_8_c)
 		if stream.version == 18:
 			stream.write_uint64(self.unknownextra)
-		for item in self.name_indices: stream.write_ushort(item)
-		for item in self.name_padding: stream.write_byte(item)
-		for item in self.inverse_bind_matrices: stream.write_type(item)
+		self.name_indices.write(stream, 'Ushort', self.name_count, None)
+		self.name_padding.write(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
 		if (stream.user_version == 8340) and (stream.version == 19):
-			for item in self.bones: stream.write_type(item)
+			self.bones.write(stream, PzBone, self.bone_count, None)
 		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
-			for item in self.bones: stream.write_type(item)
-		for item in self.bone_parents: stream.write_ubyte(item)
-		for item in self.hier_1_padding: stream.write_byte(item)
+			self.bones.write(stream, JweBone, self.bone_count, None)
+		self.bone_parents.write(stream, 'Ubyte', self.bone_parents_count, None)
+		self.hier_1_padding.write(stream, 'Byte', (8 - (self.bone_parents_count % 8)) % 8, None)
 		if self.one_64:
-			for item in self.unknown_hier_list: stream.write_type(item)
-		for item in self.parent_indices: stream.write_short(item)
-		for item in self.parent_padding: stream.write_byte(item)
-		for item in self.zeros: stream.write_uint64(item)
+			self.unknown_hier_list.write(stream, UnkHierlistEntry, self.count_5, None)
+		self.parent_indices.write(stream, 'Short', self.bone_count, None)
+		self.parent_padding.write(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		self.zeros.write(stream, 'Uint64', 5, None)
 		stream.write_type(self.joint_info)
-		for item in self.some_floats: stream.write_type(item)
-		for item in self.some_next_stuff: stream.write_type(item)
-		for item in self.zeros_b: stream.write_uint(item)
+		self.some_floats.write(stream, PcJointBone, self.joint_info.bone_count, None)
+		self.some_next_stuff.write(stream, PcJointNext, self.joint_info.bone_count, None)
+		self.zeros_b.write(stream, 'Uint', 5, None)
 		stream.write_uint(self.some_count)
-		for item in self.some_minus_ones: stream.write_int(item)
+		self.some_minus_ones.write(stream, 'Int', self.some_count, None)
 		stream.write_type(self.names)
 
 		self.io_size = stream.tell() - self.io_start

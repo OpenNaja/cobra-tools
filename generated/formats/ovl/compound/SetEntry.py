@@ -4,22 +4,19 @@ class SetEntry:
 	the asset indices of two consecutive SetEntries define a set of AssetEntries
 	"""
 
-	# sometimes matches an archive header's first File Hash
-	file_hash: int
-
-	# always (?) matches an archive header's hash
-	ext_hash: int
-
-	# add from last set's entry up to this index to this set
-	start: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# sometimes matches an archive header's first File Hash
 		self.file_hash = 0
+
+		# always (?) matches an archive header's hash
 		self.ext_hash = 0
+
+		# add from last set's entry up to this index to this set
 		self.start = 0
 
 	def read(self, stream):

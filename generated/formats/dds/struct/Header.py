@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.dds.bitstruct.Caps1 import Caps1
 from generated.formats.dds.bitstruct.Caps2 import Caps2
 from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
@@ -9,44 +10,28 @@ from generated.formats.dds.struct.PixelFormat import PixelFormat
 
 class Header:
 
-	# DDS
-	header_string: FixedString
-
-	# Always 124 + 4 bytes for headerstring, header ends at 128.
-	size: int = 124
-	flags: HeaderFlags
-
-	# The texture height.
-	height: int
-
-	# The texture width.
-	width: int
-	linear_size: int
-	depth: int
-	mipmap_count: int
-	reserved_1: typing.List[int]
-	pixel_format: PixelFormat
-	caps_1: Caps1
-	caps_2: Caps2
-	caps_3: int
-	caps_4: int
-	unused: int
-	dx_10: Dxt10Header
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# DDS
 		self.header_string = FixedString()
+
+		# Always 124 + 4 bytes for headerstring, header ends at 128.
 		self.size = 124
 		self.flags = HeaderFlags()
+
+		# The texture height.
 		self.height = 0
+
+		# The texture width.
 		self.width = 0
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
-		self.reserved_1 = []
+		self.reserved_1 = Array()
 		self.pixel_format = PixelFormat()
 		self.caps_1 = Caps1()
 		self.caps_2 = Caps2()
@@ -66,7 +51,7 @@ class Header:
 		self.linear_size = stream.read_uint()
 		self.depth = stream.read_uint()
 		self.mipmap_count = stream.read_uint()
-		self.reserved_1 = [stream.read_uint() for _ in range(11)]
+		self.reserved_1.read(stream, 'Uint', 11, None)
 		self.pixel_format = stream.read_type(PixelFormat)
 		self.caps_1 = stream.read_type(Caps1)
 		self.caps_2 = stream.read_type(Caps2)
@@ -89,7 +74,7 @@ class Header:
 		stream.write_uint(self.linear_size)
 		stream.write_uint(self.depth)
 		stream.write_uint(self.mipmap_count)
-		for item in self.reserved_1: stream.write_uint(item)
+		self.reserved_1.write(stream, 'Uint', 11, None)
 		stream.write_type(self.pixel_format)
 		stream.write_type(self.caps_1)
 		stream.write_type(self.caps_2)

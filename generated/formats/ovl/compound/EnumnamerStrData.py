@@ -4,18 +4,16 @@ class EnumnamerStrData:
 	per attribute
 	"""
 
-	# 3 in driver
-	unknown_0: int
-
-	# 0 in driver
-	unknown_1: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 3 in driver
 		self.unknown_0 = 0
+
+		# 0 in driver
 		self.unknown_1 = 0
 
 	def read(self, stream):

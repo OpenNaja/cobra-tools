@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class Type2:
@@ -8,39 +9,32 @@ class Type2:
 	02 -- identifier for Sound SFX section
 	"""
 
-	# length of this section
-	length: int
-
-	# id of this Sound SFX object
-	sfx_id: int
-
-	# ?
-	const_a: int
-
-	# ?
-	const_b: int
-
-	# ?
-	didx_id: int
-
-	# ?
-	wem_length: int
-
-	# ?
-	extra: typing.List[int]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# length of this section
 		self.length = 0
+
+		# id of this Sound SFX object
 		self.sfx_id = 0
+
+		# ?
 		self.const_a = 0
+
+		# ?
 		self.const_b = 0
+
+		# ?
 		self.didx_id = 0
+
+		# ?
 		self.wem_length = 0
-		self.extra = []
+
+		# ?
+		self.extra = Array()
 
 	def read(self, stream):
 
@@ -51,7 +45,7 @@ class Type2:
 		self.const_b = stream.read_byte()
 		self.didx_id = stream.read_uint()
 		self.wem_length = stream.read_uint()
-		self.extra = [stream.read_byte() for _ in range(self.length - 17)]
+		self.extra.read(stream, 'Byte', self.length - 17, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -64,7 +58,7 @@ class Type2:
 		stream.write_byte(self.const_b)
 		stream.write_uint(self.didx_id)
 		stream.write_uint(self.wem_length)
-		for item in self.extra: stream.write_byte(item)
+		self.extra.write(stream, 'Byte', self.length - 17, None)
 
 		self.io_size = stream.tell() - self.io_start
 

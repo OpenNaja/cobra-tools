@@ -1,47 +1,41 @@
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 
 
 class JointInfo:
-
-	# must be 11
-	eleven: int
-
-	# bunch of -1's
-	f_fs: typing.List[int]
-	name_offset: int
-	hitcheck_count: int
-
-	# 8 bytes of zeros
-	zero: int
-
-	# 8 bytes of zeros per hitcheck
-	zeros_per_hitcheck: typing.List[int]
-	hit_check: typing.List[HitCheckEntry]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# must be 11
 		self.eleven = 0
-		self.f_fs = []
+
+		# bunch of -1's
+		self.f_fs = Array()
 		self.name_offset = 0
 		self.hitcheck_count = 0
+
+		# 8 bytes of zeros
 		self.zero = 0
-		self.zeros_per_hitcheck = []
-		self.hit_check = []
+
+		# 8 bytes of zeros per hitcheck
+		self.zeros_per_hitcheck = Array()
+		self.hit_check = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.eleven = stream.read_uint()
-		self.f_fs = [stream.read_short() for _ in range(6)]
+		self.f_fs.read(stream, 'Short', 6, None)
 		self.name_offset = stream.read_uint()
 		self.hitcheck_count = stream.read_uint()
 		self.zero = stream.read_uint64()
-		self.zeros_per_hitcheck = [stream.read_uint64() for _ in range(self.hitcheck_count)]
-		self.hit_check = [stream.read_type(HitCheckEntry) for _ in range(self.hitcheck_count)]
+		self.zeros_per_hitcheck.read(stream, 'Uint64', self.hitcheck_count, None)
+		self.hit_check.read(stream, HitCheckEntry, self.hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -49,12 +43,12 @@ class JointInfo:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.eleven)
-		for item in self.f_fs: stream.write_short(item)
+		self.f_fs.write(stream, 'Short', 6, None)
 		stream.write_uint(self.name_offset)
 		stream.write_uint(self.hitcheck_count)
 		stream.write_uint64(self.zero)
-		for item in self.zeros_per_hitcheck: stream.write_uint64(item)
-		for item in self.hit_check: stream.write_type(item)
+		self.zeros_per_hitcheck.write(stream, 'Uint64', self.hitcheck_count, None)
+		self.hit_check.write(stream, HitCheckEntry, self.hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

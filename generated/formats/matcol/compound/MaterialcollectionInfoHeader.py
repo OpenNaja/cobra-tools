@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.matcol.compound.LayeredWrapper import LayeredWrapper
 from generated.formats.matcol.compound.Root0 import Root0
 from generated.formats.matcol.compound.Root1 import Root1
@@ -15,28 +16,18 @@ class MaterialcollectionInfoHeader:
 	This reads a whole custom Matcol file
 	"""
 
-	# 'FGM '
-	magic: typing.List[int]
-	version: int
-	flag_2: int
-
-	# bool
-	has_texture_list: int
-	root_0: Root0
-	root_1: Root1
-	root_1_pad: Root1Pad
-	texture_wrapper: TextureWrapper
-	variant_wrapper: VariantWrapper
-	layered_wrapper: LayeredWrapper
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.magic = []
+
+		# 'FGM '
+		self.magic = Array()
 		self.version = 0
 		self.flag_2 = 0
+
+		# bool
 		self.has_texture_list = 0
 		self.root_0 = Root0()
 		self.root_1 = Root1()
@@ -48,7 +39,7 @@ class MaterialcollectionInfoHeader:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic = [stream.read_byte() for _ in range(4)]
+		self.magic.read(stream, 'Byte', 4, None)
 		self.version = stream.read_uint()
 		stream.version = self.version
 		self.flag_2 = stream.read_uint()
@@ -69,7 +60,7 @@ class MaterialcollectionInfoHeader:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.magic: stream.write_byte(item)
+		self.magic.write(stream, 'Byte', 4, None)
 		stream.write_uint(self.version)
 		stream.version = self.version
 		stream.write_uint(self.flag_2)

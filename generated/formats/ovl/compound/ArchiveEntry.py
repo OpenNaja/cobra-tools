@@ -4,82 +4,64 @@ class ArchiveEntry:
 	Description of one archive
 	"""
 
-	# offset in the header's Archive Names block
-	offset: int
-
-	# starting offset of header entries
-	ovs_head_offset: int
-
-	# starting offset of file entries
-	ovs_file_offset: int
-
-	# Total amount of headers in this archive; sum of all HeaderType.num_headers
-	num_headers: int
-
-	# Total amount of Data Entries
-	num_datas: int
-
-	# Amount of HeaderType objects at start of this deflated archive.
-	num_header_types: int
-
-	# ?
-	zeros: int
-
-	# Amount of buffers in the archive
-	num_buffers: int
-
-	# Amount of Fragments in the archive
-	num_fragments: int
-
-	# Number of files in the archive
-	num_files: int
-
-	# Seek to pos to get zlib header for this archive
-	read_start: int
-
-	# size of the set and asset entry data
-	set_data_size: int
-
-	# size of the compressed ovl dat
-	compressed_size: int
-
-	# size of the uncompressed ovl dat
-	uncompressed_size: int
-
-	# ?
-	zeros_3: int
-
-	# cumulative size of all header datas preceding this archive
-	ovs_header_offset: int
-
-	# sum of the archives header entry data blocks + the ovs header offset
-	header_size: int
-
-	# Seemingly unused, can be zeroed without effect ingame in JWE
-	ovs_offset: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# offset in the header's Archive Names block
 		self.offset = 0
+
+		# starting offset of header entries
 		self.ovs_head_offset = 0
+
+		# starting offset of file entries
 		self.ovs_file_offset = 0
+
+		# Total amount of headers in this archive; sum of all HeaderType.num_headers
 		self.num_headers = 0
+
+		# Total amount of Data Entries
 		self.num_datas = 0
+
+		# Amount of HeaderType objects at start of this deflated archive.
 		self.num_header_types = 0
+
+		# ?
 		self.zeros = 0
+
+		# Amount of buffers in the archive
 		self.num_buffers = 0
+
+		# Amount of Fragments in the archive
 		self.num_fragments = 0
+
+		# Number of files in the archive
 		self.num_files = 0
+
+		# Seek to pos to get zlib header for this archive
 		self.read_start = 0
+
+		# size of the set and asset entry data
 		self.set_data_size = 0
+
+		# size of the compressed ovl dat
 		self.compressed_size = 0
+
+		# size of the uncompressed ovl dat
 		self.uncompressed_size = 0
+
+		# ?
 		self.zeros_3 = 0
+
+		# cumulative size of all header datas preceding this archive
 		self.ovs_header_offset = 0
+
+		# sum of the archives header entry data blocks + the ovs header offset
 		self.header_size = 0
+
+		# Seemingly unused, can be zeroed without effect ingame in JWE
 		self.ovs_offset = 0
 
 	def read(self, stream):

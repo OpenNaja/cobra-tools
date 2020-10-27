@@ -256,6 +256,13 @@ class BinaryStream(BytesIO):
 
 		return read_zstring, write_zstring, NotImplemented, NotImplemented
 
+	def get_io_func(self, dtype, mode="read"):
+		func = f"{mode}_{dtype.lower()}"
+		if func in self.__slots__:
+			return getattr(self, func)
+		else:
+			raise NotImplementedError(f"No basic io function for dtype {dtype}!")
+
 
 class IoFile:
 

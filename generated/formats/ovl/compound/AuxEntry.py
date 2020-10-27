@@ -4,22 +4,19 @@ class AuxEntry:
 	describes an external AUX resource
 	"""
 
-	# index into files list
-	file_index: int
-
-	# maybe index into extension list
-	extension_index: int
-
-	# byte count of the complete external resource file
-	size: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# index into files list
 		self.file_index = 0
+
+		# maybe index into extension list
 		self.extension_index = 0
+
+		# byte count of the complete external resource file
 		self.size = 0
 
 	def read(self, stream):

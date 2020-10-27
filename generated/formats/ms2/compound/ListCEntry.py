@@ -3,16 +3,13 @@ from generated.formats.ms2.compound.Matrix33 import Matrix33
 
 class ListCEntry:
 
-	# 1 for carch and nasuto
-	one: int
-	matrix: Matrix33
-	a: float
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 1 for carch and nasuto
 		self.one = 0
 		self.matrix = Matrix33()
 		self.a = 0

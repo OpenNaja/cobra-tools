@@ -129,6 +129,7 @@ class Mdl2Holder:
 		self.mdl2_data = Ms2Format.Data()
 		self.model_data_frags = []
 		self.archive = archive
+		self.versions = {"version": self.archive.version, "user_version": self.archive.user_version}
 		self.source = "NONE"
 		self.mdl2_entry = None
 		self.bone_info_buffer = None

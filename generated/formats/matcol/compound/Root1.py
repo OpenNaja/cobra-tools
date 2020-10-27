@@ -1,6 +1,4 @@
 class Root1:
-	flag: int
-	zero_1: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

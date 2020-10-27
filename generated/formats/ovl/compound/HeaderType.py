@@ -4,18 +4,16 @@ class HeaderType:
 	Located at start of deflated archive stream
 	"""
 
-	# Type of the headers that follow
-	type: int
-
-	# Amount of the headers of that type that follow the headers block
-	num_headers: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# Type of the headers that follow
 		self.type = 0
+
+		# Amount of the headers of that type that follow the headers block
 		self.num_headers = 0
 
 	def read(self, stream):

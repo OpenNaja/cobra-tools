@@ -1,7 +1,7 @@
 import struct
 
-from modules.util import to_bytes
-from pyffi_ext.formats.materialcollection import MaterialcollectionFormat
+from modules.util import as_bytes
+from generated.formats.matcol import MatcolFile
 
 
 def write_materialcollection(archive, sized_str_entry, out_dir):
@@ -70,38 +70,35 @@ def update_matcol_pointers(pointers, new_names):
 
 
 def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
-	matcol_data = MaterialcollectionFormat.Data()
-	# open file for binary reading
-	with open(matcol_file_path, "rb") as stream:
-		matcol_data.read(stream)
-		# print(matcol_data.header)
+	matcol_data = MatcolFile()
+	matcol_data.load(matcol_file_path)
 
-		if sized_str_entry.has_texture_list_frag:
-			pointers = [tex_frag.pointers[1] for tex_frag in sized_str_entry.tex_frags]
-			new_names = [n for t in matcol_data.header.texture_wrapper.textures for n in (t.fgm_name, t.texture_suffix, t.texture_type)]
-		else:
-			pointers = []
-			new_names = []
+	if sized_str_entry.has_texture_list_frag:
+		pointers = [tex_frag.pointers[1] for tex_frag in sized_str_entry.tex_frags]
+		new_names = [n for t in matcol_data.texture_wrapper.textures for n in (t.fgm_name, t.texture_suffix, t.texture_type)]
+	else:
+		pointers = []
+		new_names = []
 
-		if sized_str_entry.is_variant:
-			for (m0,), variant in zip(sized_str_entry.mat_frags, matcol_data.header.variant_wrapper.materials):
-				# print(layer.name)
-				pointers.append(m0.pointers[1])
-				new_names.append(variant)
-		elif sized_str_entry.is_layered:
-			for (m0, info, attrib), layer in zip(sized_str_entry.mat_frags, matcol_data.header.layered_wrapper.layers):
-				# print(layer.name)
-				pointers.append(m0.pointers[1])
-				new_names.append(layer.name)
-				for frag, wrapper in zip(info.children, layer.infos):
-					frag.pointers[0].update_data(to_bytes(wrapper.info, matcol_data), update_copies=True)
-					frag.pointers[1].update_data(to_bytes(wrapper.name, matcol_data), update_copies=True)
-					pointers.append(frag.pointers[1])
-					new_names.append(wrapper.name)
-				for frag, wrapper in zip(attrib.children, layer.attribs):
-					frag.pointers[0].update_data(to_bytes(wrapper.attrib, matcol_data), update_copies=True)
-					frag.pointers[1].update_data(to_bytes(wrapper.name, matcol_data), update_copies=True)
-					pointers.append(frag.pointers[1])
-					new_names.append(wrapper.name)
+	if sized_str_entry.is_variant:
+		for (m0,), variant in zip(sized_str_entry.mat_frags, matcol_data.variant_wrapper.materials):
+			# print(layer.name)
+			pointers.append(m0.pointers[1])
+			new_names.append(variant)
+	elif sized_str_entry.is_layered:
+		for (m0, info, attrib), layer in zip(sized_str_entry.mat_frags, matcol_data.layered_wrapper.layers):
+			# print(layer.name)
+			pointers.append(m0.pointers[1])
+			new_names.append(layer.name)
+			for frag, wrapper in zip(info.children, layer.infos):
+				frag.pointers[0].update_data(as_bytes(wrapper.info), update_copies=True)
+				frag.pointers[1].update_data(as_bytes(wrapper.name), update_copies=True)
+				pointers.append(frag.pointers[1])
+				new_names.append(wrapper.name)
+			for frag, wrapper in zip(attrib.children, layer.attribs):
+				frag.pointers[0].update_data(as_bytes(wrapper.attrib), update_copies=True)
+				frag.pointers[1].update_data(as_bytes(wrapper.name), update_copies=True)
+				pointers.append(frag.pointers[1])
+				new_names.append(wrapper.name)
 
-		update_matcol_pointers(pointers, new_names)
+	update_matcol_pointers(pointers, new_names)

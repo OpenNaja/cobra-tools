@@ -8,34 +8,28 @@ class Header3Data0:
 	16 bytes
 	"""
 
-	# 32 bytes, all 0
-	zeros: int
-
-	# flag, not direct index into DDS enum
-	compression_type: DdsType
-
-	# 0 or 1
-	one_0: int
-
-	# 1 or 2
-	one_1: int
-
-	# 1 or 2
-	one_2: int
-
-	# 0
-	pad: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 32 bytes, all 0
 		self.zeros = 0
+
+		# flag, not direct index into DDS enum
 		self.compression_type = DdsType()
+
+		# 0 or 1
 		self.one_0 = 0
+
+		# 1 or 2
 		self.one_1 = 0
+
+		# 1 or 2
 		self.one_2 = 0
+
+		# 0
 		self.pad = 0
 
 	def read(self, stream):

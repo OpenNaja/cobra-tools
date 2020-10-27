@@ -1,11 +1,8 @@
 import typing
+from generated.array import Array
 
 
 class Attrib:
-	zero_0: int
-	zero_1: int
-	attrib: typing.List[int]
-	zero_2: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -14,7 +11,7 @@ class Attrib:
 		self.io_start = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.attrib = []
+		self.attrib = Array()
 		self.zero_2 = 0
 
 	def read(self, stream):
@@ -22,7 +19,7 @@ class Attrib:
 		self.io_start = stream.tell()
 		self.zero_0 = stream.read_uint()
 		self.zero_1 = stream.read_uint()
-		self.attrib = [stream.read_byte() for _ in range(4)]
+		self.attrib.read(stream, 'Byte', 4, None)
 		self.zero_2 = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -32,7 +29,7 @@ class Attrib:
 		self.io_start = stream.tell()
 		stream.write_uint(self.zero_0)
 		stream.write_uint(self.zero_1)
-		for item in self.attrib: stream.write_byte(item)
+		self.attrib.write(stream, 'Byte', 4, None)
 		stream.write_uint(self.zero_2)
 
 		self.io_size = stream.tell() - self.io_start

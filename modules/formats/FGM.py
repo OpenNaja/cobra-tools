@@ -1,7 +1,7 @@
 import struct
 
-from modules.util import to_bytes
-from pyffi_ext.formats.fgm import FgmFormat
+from modules.util import as_bytes
+from generated.formats.fgm import FgmFile
 
 
 def write_fgm(archive, sized_str_entry, out_dir):
@@ -52,35 +52,27 @@ def write_fgm(archive, sized_str_entry, out_dir):
 
 def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 
-	fgm_data = FgmFormat.Data()
-	# open file for binary reading
-	with open(fgm_file_path, "rb") as stream:
-		fgm_data.read(stream, fgm_data, file=fgm_file_path)
+	fgm_data = FgmFile()
+	fgm_data.load(fgm_file_path)
 
-		sizedstr_bytes = to_bytes(fgm_data.fgm_header.fgm_info, fgm_data) + to_bytes(fgm_data.fgm_header.two_frags_pad, fgm_data)
+	sizedstr_bytes = as_bytes(fgm_data.fgm_info) + as_bytes(fgm_data.two_frags_pad)
 
-		# todo - move texpad into fragment padding?
-		textures_bytes = to_bytes(fgm_data.fgm_header.textures, fgm_data) + to_bytes(fgm_data.fgm_header.texpad, fgm_data)
-		attributes_bytes = to_bytes(fgm_data.fgm_header.attributes, fgm_data)
-
-		# read the other datas
-		stream.seek(fgm_data.eoh)
-		zeros_bytes = stream.read(fgm_data.fgm_header.zeros_size)
-		data_bytes = stream.read(fgm_data.fgm_header.data_lib_size)
-		buffer_bytes = stream.read()
+	# todo - move texpad into fragment padding?
+	textures_bytes = as_bytes(fgm_data.textures) + as_bytes(fgm_data.texpad)
+	attributes_bytes = as_bytes(fgm_data.attributes)
 
 	# the actual injection
-	fgm_sized_str_entry.data_entry.update_data( (buffer_bytes,) )
+	fgm_sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))
 	fgm_sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
 
 	if len(fgm_sized_str_entry.fragments) == 4:
-		datas = (textures_bytes, attributes_bytes, zeros_bytes, data_bytes)
+		datas = (textures_bytes, attributes_bytes, fgm_data.zeros_bytes, fgm_data.data_bytes)
 	# fgms without zeros
 	elif len(fgm_sized_str_entry.fragments) == 3:
-		datas = (textures_bytes, attributes_bytes, data_bytes)
+		datas = (textures_bytes, attributes_bytes, fgm_data.data_bytes)
 	# fgms for variants
 	elif len(fgm_sized_str_entry.fragments) == 2:
-		datas = (attributes_bytes, data_bytes)
+		datas = (attributes_bytes, fgm_data.data_bytes)
 	else:
 		raise AttributeError("Unexpected fgm frag count")
 

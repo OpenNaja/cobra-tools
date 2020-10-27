@@ -4,18 +4,16 @@ class ZlibInfo:
 	Description of one zlib archive
 	"""
 
-	# seemingly unused in JWE
-	zlib_thing_1: int
-
-	# seemingly unused in JWE, subtracting this from ovs uncompressed size to get length of the uncompressed ovs header
-	zlib_thing_2: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# seemingly unused in JWE
 		self.zlib_thing_1 = 0
+
+		# seemingly unused in JWE, subtracting this from ovs uncompressed size to get length of the uncompressed ovs header
 		self.zlib_thing_2 = 0
 
 	def read(self, stream):

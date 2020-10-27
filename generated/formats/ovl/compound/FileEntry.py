@@ -4,28 +4,23 @@ class FileEntry:
 	Description of one file in the archive
 	"""
 
-	# offset in the header's Names block; start offset of zero terminated string
-	offset: int
-
-	# this hash is used to retrieve the file name from inside the archive
-	file_hash: int
-
-	# could be the number of fragments this file is split into; Or the amount of entries that refer to this file
-	unkn_0: int
-	unkn_1: int
-
-	# index into 'Extensions' array
-	extension: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# offset in the header's Names block; start offset of zero terminated string
 		self.offset = 0
+
+		# this hash is used to retrieve the file name from inside the archive
 		self.file_hash = 0
+
+		# could be the number of fragments this file is split into; Or the amount of entries that refer to this file
 		self.unkn_0 = 0
 		self.unkn_1 = 0
+
+		# index into 'Extensions' array
 		self.extension = 0
 
 	def read(self, stream):

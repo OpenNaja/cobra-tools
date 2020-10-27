@@ -71,12 +71,13 @@ class XmlParser:
                 self.path_dict[class_name] = os.path.join(*out_segments)
                 self.tag_dict[class_name.lower()] = child.tag
 
+        self.path_dict["Array"] = "array"
         self.path_dict["BasicBitfield"] = "bitfield"
         self.path_dict["BitfieldMember"] = "bitfield"
-        self.path_dict["UbyteEnum"] = "enum"
-        self.path_dict["UshortEnum"] = "enum"
-        self.path_dict["UintEnum"] = "enum"
-        self.path_dict["Uint64Enum"] = "enum"
+        self.path_dict["UbyteEnum"] = "base_enum"
+        self.path_dict["UshortEnum"] = "base_enum"
+        self.path_dict["UintEnum"] = "base_enum"
+        self.path_dict["Uint64Enum"] = "base_enum"
 
     def load_xml(self, xml_file):
         """Loads an XML (can be filepath or open file) and does all parsing

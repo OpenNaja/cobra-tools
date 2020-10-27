@@ -1,4 +1,4 @@
-from generated.enum import UintEnum
+from generated.base_enum import UintEnum
 
 
 class DxgiFormat(UintEnum):

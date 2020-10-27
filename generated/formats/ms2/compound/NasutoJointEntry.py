@@ -7,20 +7,6 @@ class NasutoJointEntry:
 	"""
 	60 bytes
 	"""
-	matrix: Matrix33
-	vector: Vector4
-
-	# 1
-	unknown_2: int
-
-	# ?
-	unknown_3_a: int
-
-	# ?
-	unknown_3_b: int
-
-	# 0
-	unknown_3_c: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -29,9 +15,17 @@ class NasutoJointEntry:
 		self.io_start = 0
 		self.matrix = Matrix33()
 		self.vector = Vector4()
+
+		# 1
 		self.unknown_2 = 0
+
+		# ?
 		self.unknown_3_a = 0
+
+		# ?
 		self.unknown_3_b = 0
+
+		# 0
 		self.unknown_3_c = 0
 
 	def read(self, stream):

@@ -4,14 +4,13 @@ class DirEntry:
 	Description of one directory in the archive
 	"""
 
-	# offset in the header's Names block
-	offset: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# offset in the header's Names block
 		self.offset = 0
 
 	def read(self, stream):

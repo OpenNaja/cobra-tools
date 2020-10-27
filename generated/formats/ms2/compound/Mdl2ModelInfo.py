@@ -7,8 +7,6 @@ class Mdl2ModelInfo:
 	"""
 	Wraps a CoreModelInfo
 	"""
-	fourty: Mdl2FourtyInfo
-	info: CoreModelInfo
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

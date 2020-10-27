@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
@@ -9,35 +10,6 @@ class CoreModelInfo:
 	In load order it always defines the variable fragments for the next mdl2
 	The mdl2's fragment informs the first mdl2
 	"""
-	unk_vec_a: Vector3
-	unk_float_a: float
-	unk_vec_b: Vector3
-
-	# scale: pack_offset / 512, also added as offset
-	pack_offset: float
-
-	# always?
-	zero_a: float
-	unk_float_b: float
-	unknownvectors: typing.List[Vector3]
-	unk_float_0: float
-	unk_float_1: float
-
-	# PZ only
-	unk_vec_a_repeat: Vector3
-
-	# PZ only
-	unk_vec_b_repeat: Vector3
-	mat_count: int
-	lod_count: int
-	mat_1_count: int
-
-	# count of modeldata fragments for the mdl2 this struct refers to
-	model_count: int
-	last_count: int
-	unk_0: int
-	unk_1: int
-	pad: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -47,22 +19,32 @@ class CoreModelInfo:
 		self.unk_vec_a = Vector3()
 		self.unk_float_a = 0
 		self.unk_vec_b = Vector3()
+
+		# scale: pack_offset / 512, also added as offset
 		self.pack_offset = 0
+
+		# always?
 		self.zero_a = 0
 		self.unk_float_b = 0
-		self.unknownvectors = []
+		self.unknownvectors = Array()
 		self.unk_float_0 = 0
 		self.unk_float_1 = 0
+
+		# PZ only
 		self.unk_vec_a_repeat = Vector3()
+
+		# PZ only
 		self.unk_vec_b_repeat = Vector3()
 		self.mat_count = 0
 		self.lod_count = 0
 		self.mat_1_count = 0
+
+		# count of modeldata fragments for the mdl2 this struct refers to
 		self.model_count = 0
 		self.last_count = 0
 		self.unk_0 = 0
 		self.unk_1 = 0
-		self.pad = []
+		self.pad = Array()
 
 	def read(self, stream):
 
@@ -73,7 +55,7 @@ class CoreModelInfo:
 		self.pack_offset = stream.read_float()
 		self.zero_a = stream.read_float()
 		self.unk_float_b = stream.read_float()
-		self.unknownvectors = [stream.read_type(Vector3) for _ in range(2)]
+		self.unknownvectors.read(stream, Vector3, 2, None)
 		if (stream.user_version == 24724) and (stream.version == 19):
 			self.unk_float_0 = stream.read_float()
 			self.unk_float_1 = stream.read_float()
@@ -87,7 +69,7 @@ class CoreModelInfo:
 		self.last_count = stream.read_ushort()
 		self.unk_0 = stream.read_uint64()
 		self.unk_1 = stream.read_uint64()
-		self.pad = [stream.read_ubyte() for _ in range(6)]
+		self.pad.read(stream, 'Ubyte', 6, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -100,7 +82,7 @@ class CoreModelInfo:
 		stream.write_float(self.pack_offset)
 		stream.write_float(self.zero_a)
 		stream.write_float(self.unk_float_b)
-		for item in self.unknownvectors: stream.write_type(item)
+		self.unknownvectors.write(stream, Vector3, 2, None)
 		if (stream.user_version == 24724) and (stream.version == 19):
 			stream.write_float(self.unk_float_0)
 			stream.write_float(self.unk_float_1)
@@ -114,7 +96,7 @@ class CoreModelInfo:
 		stream.write_ushort(self.last_count)
 		stream.write_uint64(self.unk_0)
 		stream.write_uint64(self.unk_1)
-		for item in self.pad: stream.write_ubyte(item)
+		self.pad.write(stream, 'Ubyte', 6, None)
 
 		self.io_size = stream.tell() - self.io_start
 

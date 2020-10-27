@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.FFCounter import FFCounter
 from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.JointEntry import JointEntry
@@ -9,43 +10,31 @@ from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 
 class JointData:
 
-	# 4
-	joint_count: int
-
-	# 0
-	unknown_1: int
-
-	# 0
-	unknown_2: int
-
-	# 0
-	unknown_3: int
-	joint_compound: JointCompound
-	joint_list: typing.List[JointEntry]
-	unknown_list: typing.List[UnknownJointEntry]
-	unknown_10: typing.List[FFCounter]
-	unknown_11: int
-	joint_names: ZStringBuffer
-	joint_names_padding: typing.List[int]
-	joint_info_list: typing.List[JointInfo]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 4
 		self.joint_count = 0
+
+		# 0
 		self.unknown_1 = 0
+
+		# 0
 		self.unknown_2 = 0
+
+		# 0
 		self.unknown_3 = 0
 		self.joint_compound = JointCompound()
-		self.joint_list = []
-		self.unknown_list = []
-		self.unknown_10 = []
+		self.joint_list = Array()
+		self.unknown_list = Array()
+		self.unknown_10 = Array()
 		self.unknown_11 = 0
 		self.joint_names = ZStringBuffer()
-		self.joint_names_padding = []
-		self.joint_info_list = []
+		self.joint_names_padding = Array()
+		self.joint_info_list = Array()
 
 	def read(self, stream):
 
@@ -55,13 +44,13 @@ class JointData:
 		self.unknown_2 = stream.read_uint()
 		self.unknown_3 = stream.read_uint()
 		self.joint_compound = stream.read_type(JointCompound)
-		self.joint_list = [stream.read_type(JointEntry) for _ in range(self.joint_count)]
-		self.unknown_list = [stream.read_type(UnknownJointEntry) for _ in range(self.joint_count)]
-		self.unknown_10 = [stream.read_type(FFCounter) for _ in range(self.joint_count)]
+		self.joint_list.read(stream, JointEntry, self.joint_count, None)
+		self.unknown_list.read(stream, UnknownJointEntry, self.joint_count, None)
+		self.unknown_10.read(stream, FFCounter, self.joint_count, None)
 		self.unknown_11 = stream.read_uint()
 		self.joint_names = stream.read_type(ZStringBuffer, (self.joint_compound.namespace_length,))
-		self.joint_names_padding = [stream.read_byte() for _ in range((4 - (self.joint_compound.namespace_length % 8)) % 8)]
-		self.joint_info_list = [stream.read_type(JointInfo) for _ in range(self.joint_count)]
+		self.joint_names_padding.read(stream, 'Byte', (4 - (self.joint_compound.namespace_length % 8)) % 8, None)
+		self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -73,13 +62,13 @@ class JointData:
 		stream.write_uint(self.unknown_2)
 		stream.write_uint(self.unknown_3)
 		stream.write_type(self.joint_compound)
-		for item in self.joint_list: stream.write_type(item)
-		for item in self.unknown_list: stream.write_type(item)
-		for item in self.unknown_10: stream.write_type(item)
+		self.joint_list.write(stream, JointEntry, self.joint_count, None)
+		self.unknown_list.write(stream, UnknownJointEntry, self.joint_count, None)
+		self.unknown_10.write(stream, FFCounter, self.joint_count, None)
 		stream.write_uint(self.unknown_11)
 		stream.write_type(self.joint_names)
-		for item in self.joint_names_padding: stream.write_byte(item)
-		for item in self.joint_info_list: stream.write_type(item)
+		self.joint_names_padding.write(stream, 'Byte', (4 - (self.joint_compound.namespace_length % 8)) % 8, None)
+		self.joint_info_list.write(stream, JointInfo, self.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

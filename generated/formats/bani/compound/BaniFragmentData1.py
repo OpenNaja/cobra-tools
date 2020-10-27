@@ -3,30 +3,6 @@ class BaniFragmentData1:
 	"""
 	Seems to be the same for all bani anims of one bani file
 	"""
-	unknown_0: int
-	unknown_1: int
-	unknown_2: int
-
-	# these first 4 are zeros but I think may be offset stuff we've seen before
-	unknown_3: int
-
-	# 96 in parrots case
-	bytes_per_frame: int
-
-	# how many bytes for each bone per frame
-	bytes_per_bone: int
-
-	# Number of frames for all bani files in banis buffer, 18*96 gives the size of banis buffer for parrot
-	num_frames: int
-
-	# matches number of bones parrot has
-	num_bones: int
-
-	# translation range
-	translation_center: float
-
-	# translation range
-	translation_first: float
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -36,12 +12,26 @@ class BaniFragmentData1:
 		self.unknown_0 = 0
 		self.unknown_1 = 0
 		self.unknown_2 = 0
+
+		# these first 4 are zeros but I think may be offset stuff we've seen before
 		self.unknown_3 = 0
+
+		# 96 in parrots case
 		self.bytes_per_frame = 0
+
+		# how many bytes for each bone per frame
 		self.bytes_per_bone = 0
+
+		# Number of frames for all bani files in banis buffer, 18*96 gives the size of banis buffer for parrot
 		self.num_frames = 0
+
+		# matches number of bones parrot has
 		self.num_bones = 0
+
+		# translation range
 		self.translation_center = 0
+
+		# translation range
 		self.translation_first = 0
 
 	def read(self, stream):

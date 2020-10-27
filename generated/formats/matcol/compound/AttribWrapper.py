@@ -2,8 +2,6 @@ from generated.formats.matcol.compound.Attrib import Attrib
 
 
 class AttribWrapper:
-	attrib: Attrib
-	name: str
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

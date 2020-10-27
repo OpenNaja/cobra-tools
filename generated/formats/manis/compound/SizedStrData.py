@@ -1,11 +1,8 @@
 import typing
+from generated.array import Array
 
 
 class SizedStrData:
-	a: int
-	hash_block_size: int
-	zeros: typing.List[int]
-	c: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -14,7 +11,7 @@ class SizedStrData:
 		self.io_start = 0
 		self.a = 0
 		self.hash_block_size = 0
-		self.zeros = []
+		self.zeros = Array()
 		self.c = 0
 
 	def read(self, stream):
@@ -22,7 +19,7 @@ class SizedStrData:
 		self.io_start = stream.tell()
 		self.a = stream.read_ushort()
 		self.hash_block_size = stream.read_ushort()
-		self.zeros = [stream.read_int() for _ in range(2)]
+		self.zeros.read(stream, 'Int', 2, None)
 		self.c = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
@@ -32,7 +29,7 @@ class SizedStrData:
 		self.io_start = stream.tell()
 		stream.write_ushort(self.a)
 		stream.write_ushort(self.hash_block_size)
-		for item in self.zeros: stream.write_int(item)
+		self.zeros.write(stream, 'Int', 2, None)
 		stream.write_ushort(self.c)
 
 		self.io_size = stream.tell() - self.io_start

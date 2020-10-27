@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 
 
 class Ms2SizedStrData:
@@ -7,31 +8,26 @@ class Ms2SizedStrData:
 	Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
 	"""
 
-	# 32 if PC, 47 if JWE, 48 if PZ
-	ms_2_version: int
-
-	# seems likely, 1 if yes, 0 if no
-	has_model_data: int
-
-	# 3 in stairwell
-	mdl_2_count: int
-
-	# count of names in ms2 buffer0
-	name_count: int
-
-	# seems to be zeros
-	unknown_1: typing.List[int]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 32 if PC, 47 if JWE, 48 if PZ
 		self.ms_2_version = 0
+
+		# seems likely, 1 if yes, 0 if no
 		self.has_model_data = 0
+
+		# 3 in stairwell
 		self.mdl_2_count = 0
+
+		# count of names in ms2 buffer0
 		self.name_count = 0
-		self.unknown_1 = []
+
+		# seems to be zeros
+		self.unknown_1 = Array()
 
 	def read(self, stream):
 
@@ -41,7 +37,7 @@ class Ms2SizedStrData:
 		self.has_model_data = stream.read_ushort()
 		self.mdl_2_count = stream.read_ushort()
 		self.name_count = stream.read_uint()
-		self.unknown_1 = [stream.read_uint() for _ in range(3)]
+		self.unknown_1.read(stream, 'Uint', 3, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -53,7 +49,7 @@ class Ms2SizedStrData:
 		stream.write_ushort(self.has_model_data)
 		stream.write_ushort(self.mdl_2_count)
 		stream.write_uint(self.name_count)
-		for item in self.unknown_1: stream.write_uint(item)
+		self.unknown_1.write(stream, 'Uint', 3, None)
 
 		self.io_size = stream.tell() - self.io_start
 

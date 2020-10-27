@@ -5,27 +5,21 @@ class AssetEntry:
 	It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
 	"""
 
-	# sometimes matches an archive header's first File Hash
-	file_hash: int
-	zero_0: int
-
-	# always (?) matches an archive header's hash
-	ext_hash: int
-	zero_1: int
-
-	# index into sized string entries array; hash of targeted file matches this assetentry's hash.
-	file_index: int
-	zero_2: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# sometimes matches an archive header's first File Hash
 		self.file_hash = 0
 		self.zero_0 = 0
+
+		# always (?) matches an archive header's hash
 		self.ext_hash = 0
 		self.zero_1 = 0
+
+		# index into sized string entries array; hash of targeted file matches this assetentry's hash.
 		self.file_index = 0
 		self.zero_2 = 0
 

@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.PzBone import PzBone
@@ -7,120 +8,33 @@ from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
 
 class Ms2BoneInfoPc:
 
-	# index count 1, setting to int to fix boneless model import
-	name_count: int
-
-	# seems to be either 0.0 or 1.0
-	float_0_1: float
-
-	# this is always FFFF for now
-	knownff: int
-
-	# this is always 0000 for now
-	zero_0: int
-	unknown_0_c: int
-
-	# almost always 4, 1 for male african lion
-	unk_count: int
-	unknown_14: int
-
-	# seems to match bone count
-	bind_matrix_count: int
-
-	# usually 0; 1 for animal_box_large, animal_box_medium_static
-	int_0_1: int
-	unknown_20: int
-	unknown_24: int
-	unknown_28: int
-	unknown_2_c: int
-	unknown_30: int
-	unknown_34: int
-
-	# index count3
-	bone_count: int
-	unknown_40: int
-	unknown_44: int
-
-	# index count4
-	bone_parents_count: int
-
-	# pZ only
-	extra_uint_0: int
-
-	# index count 5
-	count_5: int
-	unknown_58: int
-	unknown_5_c: int
-
-	# always 1
-	one_64: int
-
-	# if joints are present, same as bone count
-	unk_joint_count: int
-
-	# index count 7
-	count_7: int
-
-	# joint count
-	joint_count: int
-	unknown_7_c: int
-
-	# unnk 78 count
-	unk_78_count: int
-	unknown_84: int
-
-	# jwe only, everything is shifted a bit due to extra uint 0
-	unknown_88: int
-
-	# same as above
-	unknown_8_c: int
-
-	# same as above
-	unknownextra: int
-
-	# index into ms2 string table for bones used here
-	name_indices: typing.List[int]
-
-	# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-	name_padding: typing.List[int]
-
-	# used for skinning
-	inverse_bind_matrices: typing.List[Matrix44]
-
-	# bones, rot first
-
-	# bones, loc first
-	bones: typing.List[typing.Union[JweBone, PzBone]]
-
-	# 255 = root, index in this list is the current bone index, value is the bone's parent index
-	bone_parents: typing.List[int]
-
-	# zeros
-	hier_1_padding: typing.List[int]
-
-	# unclear what this is doing
-	unknown_hier_list: typing.List[UnkHierlistEntry]
-	hier_2_padding_0: int
-
-	# 128 still has 16 bytes
-	hier_2_padding_1: int
-
-	# 129 is the first with 24 bytes
-	hier_2_padding_2: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# index count 1, setting to int to fix boneless model import
 		self.name_count = 0
+
+		# seems to be either 0.0 or 1.0
 		self.float_0_1 = 0
+
+		# this is always FFFF for now
 		self.knownff = 0
+
+		# this is always 0000 for now
 		self.zero_0 = 0
 		self.unknown_0_c = 0
+
+		# almost always 4, 1 for male african lion
 		self.unk_count = 0
 		self.unknown_14 = 0
+
+		# seems to match bone count
 		self.bind_matrix_count = 0
+
+		# usually 0; 1 for animal_box_large, animal_box_medium_static
 		self.int_0_1 = 0
 		self.unknown_20 = 0
 		self.unknown_24 = 0
@@ -128,34 +42,78 @@ class Ms2BoneInfoPc:
 		self.unknown_2_c = 0
 		self.unknown_30 = 0
 		self.unknown_34 = 0
+
+		# index count3
 		self.bone_count = 0
 		self.unknown_40 = 0
 		self.unknown_44 = 0
+
+		# index count4
 		self.bone_parents_count = 0
+
+		# pZ only
 		self.extra_uint_0 = 0
+
+		# index count 5
 		self.count_5 = 0
 		self.unknown_58 = 0
 		self.unknown_5_c = 0
+
+		# always 1
 		self.one_64 = 0
+
+		# if joints are present, same as bone count
 		self.unk_joint_count = 0
+
+		# index count 7
 		self.count_7 = 0
+
+		# joint count
 		self.joint_count = 0
 		self.unknown_7_c = 0
+
+		# unnk 78 count
 		self.unk_78_count = 0
 		self.unknown_84 = 0
+
+		# jwe only, everything is shifted a bit due to extra uint 0
 		self.unknown_88 = 0
+
+		# same as above
 		self.unknown_8_c = 0
+
+		# same as above
 		self.unknownextra = 0
-		self.name_indices = []
-		self.name_padding = []
-		self.inverse_bind_matrices = []
-		self.bones = []
-		self.bones = []
-		self.bone_parents = []
-		self.hier_1_padding = []
-		self.unknown_hier_list = []
+
+		# index into ms2 string table for bones used here
+		self.name_indices = Array()
+
+		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
+		self.name_padding = Array()
+
+		# used for skinning
+		self.inverse_bind_matrices = Array()
+
+		# bones, rot first
+		self.bones = Array()
+
+		# bones, loc first
+		self.bones = Array()
+
+		# 255 = root, index in this list is the current bone index, value is the bone's parent index
+		self.bone_parents = Array()
+
+		# zeros
+		self.hier_1_padding = Array()
+
+		# unclear what this is doing
+		self.unknown_hier_list = Array()
 		self.hier_2_padding_0 = 0
+
+		# 128 still has 16 bytes
 		self.hier_2_padding_1 = 0
+
+		# 129 is the first with 24 bytes
 		self.hier_2_padding_2 = 0
 
 	def read(self, stream):
@@ -198,17 +156,17 @@ class Ms2BoneInfoPc:
 			self.unknown_8_c = stream.read_uint()
 		if stream.version == 18:
 			self.unknownextra = stream.read_uint64()
-		self.name_indices = [stream.read_ushort() for _ in range(self.name_count)]
-		self.name_padding = [stream.read_byte() for _ in range((16 - ((self.name_count * 2) % 16)) % 16)]
-		self.inverse_bind_matrices = [stream.read_type(Matrix44) for _ in range(self.bind_matrix_count)]
+		self.name_indices.read(stream, 'Ushort', self.name_count, None)
+		self.name_padding.read(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
 		if (stream.user_version == 8340) and (stream.version == 19):
-			self.bones = [stream.read_type(PzBone) for _ in range(self.bone_count)]
+			self.bones.read(stream, PzBone, self.bone_count, None)
 		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
-			self.bones = [stream.read_type(JweBone) for _ in range(self.bone_count)]
-		self.bone_parents = [stream.read_ubyte() for _ in range(self.bone_parents_count)]
-		self.hier_1_padding = [stream.read_byte() for _ in range((8 - (self.bone_parents_count % 8)) % 8)]
+			self.bones.read(stream, JweBone, self.bone_count, None)
+		self.bone_parents.read(stream, 'Ubyte', self.bone_parents_count, None)
+		self.hier_1_padding.read(stream, 'Byte', (8 - (self.bone_parents_count % 8)) % 8, None)
 		if self.one_64:
-			self.unknown_hier_list = [stream.read_type(UnkHierlistEntry) for _ in range(self.count_5)]
+			self.unknown_hier_list.read(stream, UnkHierlistEntry, self.count_5, None)
 		self.hier_2_padding_0 = stream.read_uint64()
 		if 64 < self.bone_count:
 			self.hier_2_padding_1 = stream.read_uint64()
@@ -257,17 +215,17 @@ class Ms2BoneInfoPc:
 			stream.write_uint(self.unknown_8_c)
 		if stream.version == 18:
 			stream.write_uint64(self.unknownextra)
-		for item in self.name_indices: stream.write_ushort(item)
-		for item in self.name_padding: stream.write_byte(item)
-		for item in self.inverse_bind_matrices: stream.write_type(item)
+		self.name_indices.write(stream, 'Ushort', self.name_count, None)
+		self.name_padding.write(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
 		if (stream.user_version == 8340) and (stream.version == 19):
-			for item in self.bones: stream.write_type(item)
+			self.bones.write(stream, PzBone, self.bone_count, None)
 		if ((stream.user_version == 24724) and (stream.version == 19)) or (stream.version == 18):
-			for item in self.bones: stream.write_type(item)
-		for item in self.bone_parents: stream.write_ubyte(item)
-		for item in self.hier_1_padding: stream.write_byte(item)
+			self.bones.write(stream, JweBone, self.bone_count, None)
+		self.bone_parents.write(stream, 'Ubyte', self.bone_parents_count, None)
+		self.hier_1_padding.write(stream, 'Byte', (8 - (self.bone_parents_count % 8)) % 8, None)
 		if self.one_64:
-			for item in self.unknown_hier_list: stream.write_type(item)
+			self.unknown_hier_list.write(stream, UnkHierlistEntry, self.count_5, None)
 		stream.write_uint64(self.hier_2_padding_0)
 		if 64 < self.bone_count:
 			stream.write_uint64(self.hier_2_padding_1)

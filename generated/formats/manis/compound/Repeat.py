@@ -1,37 +1,35 @@
 import typing
+from generated.array import Array
 
 
 class Repeat:
-	zeros_0: typing.List[int]
-
-	# to be read sequentially starting after this array
-	byte_size: int
-	zeros_1: typing.List[int]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_0 = []
+		self.zeros_0 = Array()
+
+		# to be read sequentially starting after this array
 		self.byte_size = 0
-		self.zeros_1 = []
+		self.zeros_1 = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_0 = [stream.read_uint() for _ in range(15)]
+		self.zeros_0.read(stream, 'Uint', 15, None)
 		self.byte_size = stream.read_uint()
-		self.zeros_1 = [stream.read_uint() for _ in range(4)]
+		self.zeros_1.read(stream, 'Uint', 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.zeros_0: stream.write_uint(item)
+		self.zeros_0.write(stream, 'Uint', 15, None)
 		stream.write_uint(self.byte_size)
-		for item in self.zeros_1: stream.write_uint(item)
+		self.zeros_1.write(stream, 'Uint', 4, None)
 
 		self.io_size = stream.tell() - self.io_start
 

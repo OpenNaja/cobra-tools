@@ -4,26 +4,22 @@ class ByteColor4:
 	A color with alpha (red, green, blue, alpha).
 	"""
 
-	# Red color component.
-	r: int
-
-	# Green color component.
-	g: int
-
-	# Blue color component.
-	b: int
-
-	# Alpha color component.
-	a: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# Red color component.
 		self.r = 0
+
+		# Green color component.
 		self.g = 0
+
+		# Blue color component.
 		self.b = 0
+
+		# Alpha color component.
 		self.a = 0
 
 	def read(self, stream):

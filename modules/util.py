@@ -4,6 +4,8 @@ import struct
 
 import pyffi
 
+from generated.io import BinaryStream
+
 
 def write_sized_str(stream, s):
 	"""Returns content of stream from pos"""
@@ -45,3 +47,13 @@ def to_bytes(inst, data):
 	with io.BytesIO() as frag_writer:
 		inst.write(frag_writer, data=data)
 		return frag_writer.getvalue()
+
+
+def as_bytes(inst):
+	"""helper that returns the bytes representation of a pyffi struct"""
+	# zero terminated strings show up as strings
+	if isinstance(inst, str):
+		return inst.encode() + b"\x00"
+	with BinaryStream() as writer:
+		inst.write(writer)
+		return writer.getvalue()

@@ -1,11 +1,10 @@
 import typing
+from generated.array import Array
 from generated.formats.matcol.compound.Layer import Layer
 from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 
 
 class LayeredWrapper:
-	info: MaterialInfo
-	layers: typing.List[Layer]
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
@@ -13,13 +12,13 @@ class LayeredWrapper:
 		self.io_size = 0
 		self.io_start = 0
 		self.info = MaterialInfo()
-		self.layers = []
+		self.layers = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.info = stream.read_type(MaterialInfo)
-		self.layers = [stream.read_type(Layer) for _ in range(self.info.material_count)]
+		self.layers.read(stream, Layer, self.info.material_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -27,7 +26,7 @@ class LayeredWrapper:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.info)
-		for item in self.layers: stream.write_type(item)
+		self.layers.write(stream, Layer, self.info.material_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

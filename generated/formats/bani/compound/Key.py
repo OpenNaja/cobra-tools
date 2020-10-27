@@ -3,8 +3,6 @@ from generated.formats.bani.compound.Vector3Ushort import Vector3Ushort
 
 
 class Key:
-	euler: Vector3Short
-	translation: Vector3Ushort
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

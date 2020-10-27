@@ -3,12 +3,6 @@ class Header7MipmapInfo:
 	"""
 	Data struct for one mipmap, part of a data 1 struct in headers of type 7
 	"""
-	offset: int
-	unknown_02: int
-	width: int
-	height: int
-	unknown_0_c: int
-	unkn_3: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

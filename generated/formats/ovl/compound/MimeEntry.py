@@ -5,36 +5,29 @@ class MimeEntry:
 	Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb(".bani") == 2090104799
 	"""
 
-	# offset in the header's Names block
-	offset: int
-
-	# usually zero
-	unknown: int
-
-	# hash of this file extension; same across all files, but seemingly not used anywhere else in the archive
-	mime_hash: int
-	unknown_1: int
-
-	# usually zero
-	unknown_2: int
-
-	# offset into FileEntry list in number of files
-	file_index_offset: int
-
-	# from 'file index offset', this many files belong to this file extension
-	file_count: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# offset in the header's Names block
 		self.offset = 0
+
+		# usually zero
 		self.unknown = 0
+
+		# hash of this file extension; same across all files, but seemingly not used anywhere else in the archive
 		self.mime_hash = 0
 		self.unknown_1 = 0
+
+		# usually zero
 		self.unknown_2 = 0
+
+		# offset into FileEntry list in number of files
 		self.file_index_offset = 0
+
+		# from 'file index offset', this many files belong to this file extension
 		self.file_count = 0
 
 	def read(self, stream):

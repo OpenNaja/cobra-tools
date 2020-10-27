@@ -1,8 +1,4 @@
 class TextureInfo:
-	zero_0: int
-	zero_1: int
-	texture_count: int
-	zero_4: int
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

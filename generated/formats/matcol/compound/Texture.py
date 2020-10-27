@@ -3,9 +3,6 @@ class Texture:
 	"""
 	each texture = three fragments of format: data0 = 8 bytes zeros | data1 = null terminating string (scale texture name)
 	"""
-	fgm_name: str
-	texture_suffix: str
-	texture_type: str
 
 	def __init__(self, arg=None, template=None):
 		self.arg = arg

@@ -1,4 +1,5 @@
 import typing
+from generated.array import Array
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
@@ -17,155 +18,119 @@ class Header:
 	Found at the beginning of every OVL file
 	"""
 
-	# 'FRES'
-	fres: FixedString
-
-	# if 0x08 then 64bit
-	flag: int
-
-	# 0x13 = JWE
-	version: int
-
-	# endianness?
-	needs_bitswap: int
-
-	# always = 1
-	seventh_byte: int = 1
-
-	# usually 94 60 00 00
-	flag_2: int
-
-	# always = 0
-	zero: int
-
-	# length of the Names block below, including 00 bytes
-	len_names: int
-
-	# always = 0
-	zero_2: int
-
-	# count of external aux files, ie audio banks
-	num_aux_entries: int
-
-	# count of directories
-	num_dirs: int
-
-	# count of file mime types, aka. extensions with metadata
-	num_mimes: int
-
-	# count of files
-	num_files: int
-
-	# repeat count of files ??
-	num_files_2: int
-
-	# count of parts
-	num_textures: int
-
-	# number of archives
-	num_archives: int
-
-	# number of header types across all archives
-	num_header_types: int
-
-	# number of headers of all types across all archives
-	num_headers: int
-
-	# number of DataEntries across all archives
-	num_datas: int
-
-	# number of BufferEntries across all archives
-	num_buffers: int
-
-	# number of files in external OVS archive
-	num_files_ovs: int
-
-	# used in ZTUAC elephants
-	ztuac_unknowns: typing.List[int]
-
-	# length of archive names
-	len_archive_names: int
-
-	# another Num Files
-	num_files_3: int
-
-	# length of the type names portion insideNames block (usually at the start), not counting 00 bytes
-	len_type_names: int
-
-	# 52 bytes zeros
-	zeros_2: typing.List[int]
-
-	# Name buffer for assets and file mime types.
-	names: ZStringBuffer
-
-	# Array of MimeEntry objects that represent a mime type (file extension) each.
-	mimes: typing.List[MimeEntry]
-
-	# Array of FileEntry objects.
-	files: typing.List[FileEntry]
-
-	# Name buffer for archives, usually will be STATIC followed by any OVS names
-	archive_names: ZStringBuffer
-
-	# Array of ArchiveEntry objects.
-	archives: typing.List[ArchiveEntry]
-
-	# Array of DirEntry objects.
-	dirs: typing.List[DirEntry]
-
-	# Array of TextureEntry objects.
-	textures: typing.List[TextureEntry]
-
-	# Array of AuxEntry objects.
-	aux_entries: typing.List[AuxEntry]
-
-	# Array of UnknownEntry objects.
-	unknowns: typing.List[UnknownEntry]
-
-	# repeats by archive count
-	zlibs: typing.List[ZlibInfo]
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# 'FRES'
 		self.fres = FixedString()
+
+		# if 0x08 then 64bit
 		self.flag = 0
+
+		# 0x13 = JWE
 		self.version = 0
+
+		# endianness?
 		self.needs_bitswap = 0
+
+		# always = 1
 		self.seventh_byte = 1
+
+		# usually 94 60 00 00
 		self.flag_2 = 0
+
+		# always = 0
 		self.zero = 0
+
+		# length of the Names block below, including 00 bytes
 		self.len_names = 0
+
+		# always = 0
 		self.zero_2 = 0
+
+		# count of external aux files, ie audio banks
 		self.num_aux_entries = 0
+
+		# count of directories
 		self.num_dirs = 0
+
+		# count of file mime types, aka. extensions with metadata
 		self.num_mimes = 0
+
+		# count of files
 		self.num_files = 0
+
+		# repeat count of files ??
 		self.num_files_2 = 0
+
+		# count of parts
 		self.num_textures = 0
+
+		# number of archives
 		self.num_archives = 0
+
+		# number of header types across all archives
 		self.num_header_types = 0
+
+		# number of headers of all types across all archives
 		self.num_headers = 0
+
+		# number of DataEntries across all archives
 		self.num_datas = 0
+
+		# number of BufferEntries across all archives
 		self.num_buffers = 0
+
+		# number of files in external OVS archive
 		self.num_files_ovs = 0
-		self.ztuac_unknowns = []
+
+		# used in ZTUAC elephants
+		self.ztuac_unknowns = Array()
+
+		# length of archive names
 		self.len_archive_names = 0
+
+		# another Num Files
 		self.num_files_3 = 0
+
+		# length of the type names portion insideNames block (usually at the start), not counting 00 bytes
 		self.len_type_names = 0
-		self.zeros_2 = []
+
+		# 52 bytes zeros
+		self.zeros_2 = Array()
+
+		# Name buffer for assets and file mime types.
 		self.names = ZStringBuffer()
-		self.mimes = []
-		self.files = []
+
+		# Array of MimeEntry objects that represent a mime type (file extension) each.
+		self.mimes = Array()
+
+		# Array of FileEntry objects.
+		self.files = Array()
+
+		# Name buffer for archives, usually will be STATIC followed by any OVS names
 		self.archive_names = ZStringBuffer()
-		self.archives = []
-		self.dirs = []
-		self.textures = []
-		self.aux_entries = []
-		self.unknowns = []
-		self.zlibs = []
+
+		# Array of ArchiveEntry objects.
+		self.archives = Array()
+
+		# Array of DirEntry objects.
+		self.dirs = Array()
+
+		# Array of TextureEntry objects.
+		self.textures = Array()
+
+		# Array of AuxEntry objects.
+		self.aux_entries = Array()
+
+		# Array of UnknownEntry objects.
+		self.unknowns = Array()
+
+		# repeats by archive count
+		self.zlibs = Array()
 
 	def read(self, stream):
 
@@ -192,21 +157,21 @@ class Header:
 		self.num_datas = stream.read_uint()
 		self.num_buffers = stream.read_uint()
 		self.num_files_ovs = stream.read_uint()
-		self.ztuac_unknowns = [stream.read_uint() for _ in range(3)]
+		self.ztuac_unknowns.read(stream, 'Uint', 3, None)
 		self.len_archive_names = stream.read_uint()
 		self.num_files_3 = stream.read_uint()
 		self.len_type_names = stream.read_uint()
-		self.zeros_2 = [stream.read_byte() for _ in range(52)]
+		self.zeros_2.read(stream, 'Byte', 52, None)
 		self.names = stream.read_type(ZStringBuffer, (self.len_names,))
-		self.mimes = [stream.read_type(MimeEntry) for _ in range(self.num_mimes)]
-		self.files = [stream.read_type(FileEntry) for _ in range(self.num_files)]
+		self.mimes.read(stream, MimeEntry, self.num_mimes, None)
+		self.files.read(stream, FileEntry, self.num_files, None)
 		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names,))
-		self.archives = [stream.read_type(ArchiveEntry) for _ in range(self.num_archives)]
-		self.dirs = [stream.read_type(DirEntry) for _ in range(self.num_dirs)]
-		self.textures = [stream.read_type(TextureEntry) for _ in range(self.num_textures)]
-		self.aux_entries = [stream.read_type(AuxEntry) for _ in range(self.num_aux_entries)]
-		self.unknowns = [stream.read_type(UnknownEntry) for _ in range(self.num_files_ovs)]
-		self.zlibs = [stream.read_type(ZlibInfo) for _ in range(self.num_archives)]
+		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
+		self.dirs.read(stream, DirEntry, self.num_dirs, None)
+		self.textures.read(stream, TextureEntry, self.num_textures, None)
+		self.aux_entries.read(stream, AuxEntry, self.num_aux_entries, None)
+		self.unknowns.read(stream, UnknownEntry, self.num_files_ovs, None)
+		self.zlibs.read(stream, ZlibInfo, self.num_archives, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -235,21 +200,21 @@ class Header:
 		stream.write_uint(self.num_datas)
 		stream.write_uint(self.num_buffers)
 		stream.write_uint(self.num_files_ovs)
-		for item in self.ztuac_unknowns: stream.write_uint(item)
+		self.ztuac_unknowns.write(stream, 'Uint', 3, None)
 		stream.write_uint(self.len_archive_names)
 		stream.write_uint(self.num_files_3)
 		stream.write_uint(self.len_type_names)
-		for item in self.zeros_2: stream.write_byte(item)
+		self.zeros_2.write(stream, 'Byte', 52, None)
 		stream.write_type(self.names)
-		for item in self.mimes: stream.write_type(item)
-		for item in self.files: stream.write_type(item)
+		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
+		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
-		for item in self.archives: stream.write_type(item)
-		for item in self.dirs: stream.write_type(item)
-		for item in self.textures: stream.write_type(item)
-		for item in self.aux_entries: stream.write_type(item)
-		for item in self.unknowns: stream.write_type(item)
-		for item in self.zlibs: stream.write_type(item)
+		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
+		self.dirs.write(stream, DirEntry, self.num_dirs, None)
+		self.textures.write(stream, TextureEntry, self.num_textures, None)
+		self.aux_entries.write(stream, AuxEntry, self.num_aux_entries, None)
+		self.unknowns.write(stream, UnknownEntry, self.num_files_ovs, None)
+		self.zlibs.write(stream, ZlibInfo, self.num_archives, None)
 
 		self.io_size = stream.tell() - self.io_start
 

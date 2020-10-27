@@ -5,6 +5,7 @@ import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 
 import typing
+from generated.array import Array
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
@@ -16,60 +17,49 @@ class ModelData:
 	If there is more than one of these, the fragments appear as a list according to
 	"""
 
-	# always zero
-	zeros: typing.List[int]
-
-	# vertex count of model
-	vertex_count: int
-
-	# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-	tri_index_count: int
-
-	# always zero
-	unknown_05: int
-
-	# power of 2 increasing with lod index
-	poweroftwo: int
-
-	# byte offset from start of vert buffer (=start of buffer nr 2) in bytes
-	vertex_offset: int
-
-	# usually 48
-	size_of_vertex: int
-
-	# byte offset from start of tri buffer in bytes
-	tri_offset: int
-
-	# always zero
-	zero: int
-
-	# some floats
-	unknown_07: Vector3
-
-	# maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)
-	flag: int
-
 	def __init__(self, arg=None, template=None):
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros = []
+
+		# always zero
+		self.zeros = Array()
+
+		# vertex count of model
 		self.vertex_count = 0
+
+		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
 		self.tri_index_count = 0
+
+		# always zero
 		self.unknown_05 = 0
+
+		# power of 2 increasing with lod index
 		self.poweroftwo = 0
+
+		# byte offset from start of vert buffer (=start of buffer nr 2) in bytes
 		self.vertex_offset = 0
+
+		# usually 48
 		self.size_of_vertex = 0
+
+		# byte offset from start of tri buffer in bytes
 		self.tri_offset = 0
+
+		# always zero
 		self.zero = 0
+
+		# some floats
 		self.unknown_07 = Vector3()
+
+		# maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)
 		self.flag = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros = [stream.read_uint() for _ in range(4)]
+		self.zeros.read(stream, 'Uint', 4, None)
 		self.vertex_count = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
 		self.unknown_05 = stream.read_uint()
@@ -86,7 +76,7 @@ class ModelData:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.zeros: stream.write_uint(item)
+		self.zeros.write(stream, 'Uint', 4, None)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_index_count)
 		stream.write_uint(self.unknown_05)
