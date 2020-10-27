@@ -2,7 +2,7 @@ class Matrix33:
 
 	# START_CLASS
 
-	def __str__(self):
+	def __repr__(self):
 		return (
 				"[ %6.3f %6.3f %6.3f ]\n"
 				"[ %6.3f %6.3f %6.3f ]\n"

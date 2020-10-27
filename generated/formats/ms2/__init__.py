@@ -76,7 +76,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			try:
 				bone_info = bone_info_cls()
 				bone_info.read(stream)
-				print(bone_info)
+				# print(bone_info)
 				print("end of bone info at", stream.tell())
 			except:
 				print("Bone info failed")
@@ -85,7 +85,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		return bone_info
 
-	def load(self, filepath, mdl2, quick=False, map_bytes=False):
+	def load(self, filepath, mdl2, quick=False, map_bytes=False, read_bytes=False):
 		start_time = time.time()
 		# eof = super().load(filepath)
 
@@ -170,7 +170,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if map_bytes:
 					for model in mdl2.models:
 						model.read_bytes_map(self.start_buffer2, stream)
-					return
+
+				# store binary data for verts and tris on the model
+				if read_bytes:
+					for model in mdl2.models:
+						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
+
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
@@ -243,7 +248,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 	def __init__(self, ):
 		super().__init__()
 
-	def load(self, filepath, quick=False, map_bytes=False):
+	def load(self, filepath, quick=False, map_bytes=False, read_bytes=False):
 
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
@@ -258,7 +263,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
-		self.ms2_file.load(self.ms2_path, self, quick=quick, map_bytes=map_bytes)
+		self.ms2_file.load(self.ms2_path, self, quick=quick, map_bytes=map_bytes, read_bytes=read_bytes)
 
 		# set material links
 		for mat_1 in self.materials_1:

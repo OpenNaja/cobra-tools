@@ -103,27 +103,6 @@ class Matrix44:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Matrix44 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
-		s += '\n	* m_11 = ' + self.m_11.__repr__()
-		s += '\n	* m_21 = ' + self.m_21.__repr__()
-		s += '\n	* m_31 = ' + self.m_31.__repr__()
-		s += '\n	* m_41 = ' + self.m_41.__repr__()
-		s += '\n	* m_12 = ' + self.m_12.__repr__()
-		s += '\n	* m_22 = ' + self.m_22.__repr__()
-		s += '\n	* m_32 = ' + self.m_32.__repr__()
-		s += '\n	* m_42 = ' + self.m_42.__repr__()
-		s += '\n	* m_13 = ' + self.m_13.__repr__()
-		s += '\n	* m_23 = ' + self.m_23.__repr__()
-		s += '\n	* m_33 = ' + self.m_33.__repr__()
-		s += '\n	* m_43 = ' + self.m_43.__repr__()
-		s += '\n	* m_14 = ' + self.m_14.__repr__()
-		s += '\n	* m_24 = ' + self.m_24.__repr__()
-		s += '\n	* m_34 = ' + self.m_34.__repr__()
-		s += '\n	* m_44 = ' + self.m_44.__repr__()
-		s += '\n'
-		return s
-
-	def __str__(self):
 		return f"{self.__class__} instance at {id(self):02x}\n" \
 			   f"\t[{self.m_11:7.3f} {self.m_12:7.3f} {self.m_13:7.3f} {self.m_14:7.3f}]\n" \
 			   f"\t[{self.m_21:7.3f} {self.m_22:7.3f} {self.m_23:7.3f} {self.m_24:7.3f}]\n" \

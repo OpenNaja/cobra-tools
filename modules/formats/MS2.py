@@ -2,8 +2,11 @@ import io
 import os
 import struct
 
-from modules.util import write_sized_str, to_bytes
-from pyffi_ext.formats.ms2 import Ms2Format
+from modules.util import write_sized_str, as_bytes
+from generated.formats.ms2 import Mdl2File
+from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
+from generated.formats.ms2.compound.LodInfo import LodInfo
+from generated.formats.ms2.compound.ModelData import ModelData
 
 
 def write_ms2(archive, ms2_sized_str_entry, out_dir):
@@ -22,7 +25,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
-	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2Format.Ms2SizedStrData, archive)
+	# ms2_general_info = ms2_sized_str_entry.pointers[0].read_as(Ms2SizedStrData, archive)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
 	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names),
@@ -52,7 +55,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		# this fragment informs us about the model count of the next mdl2 that is read
 		# so we can use it to collect the variable mdl2 fragments describing a model each
 		next_model_info_data = f_1.pointers[1].data
-		# next_model_info = f_1.pointers[1].read_as(Ms2Format.CoreModelInfo, archive)
+		# next_model_info = f_1.pointers[1].read_as(CoreModelInfo, archive)
 		# print("next_model_info", f_1.pointers[1].address, next_model_info)
 
 	# write the ms2 file
@@ -88,13 +91,13 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				if pink.pointers[0].data_size == 40:
 					pass
 					# 40 bytes of 'padding' (0,1 or 0,0,0,0)
-					# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2FourtyInfo, archive)
+					# core_model_data = pink.pointers[0].read_as(Mdl2FourtyInfo, archive)
 					# print(core_model_data)
 				elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
 				or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = pink.pointers[0].data[40:]
-					# core_model_data = pink.pointers[0].read_as(Ms2Format.Mdl2ModelInfo, archive)
+					# core_model_data = pink.pointers[0].read_as(Mdl2ModelInfo, archive)
 					# print(core_model_data)
 				else:
 					print("unexpected size for pink")
@@ -112,7 +115,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				for f in mdl2_entry.model_data_frags:
 					# each address_0 points to ms2's f_0 address_1 (size of vert & tri buffer)
 					# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-					# model_data = f.pointers[0].read_as(Ms2Format.ModelData, archive)
+					# model_data = f.pointers[0].read_as(ModelData, archive)
 					# print(model_data)
 
 					model_data = f.pointers[0].data
@@ -126,7 +129,6 @@ class Mdl2Holder:
 	def __init__(self, archive):
 		self.name = "NONE"
 		self.lodinfo = b""
-		self.mdl2_data = Ms2Format.Data()
 		self.model_data_frags = []
 		self.archive = archive
 		self.versions = {"version": self.archive.version, "user_version": self.archive.user_version}
@@ -141,22 +143,12 @@ class Mdl2Holder:
 		print(f"Reading {mdl2_file_path} from file")
 		self.name = os.path.basename(mdl2_file_path)
 		self.source = "EXT"
-		with open(mdl2_file_path, "rb") as mdl2_stream:
-			self.mdl2_data.inspect(mdl2_stream)
-			ms2_name = self.mdl2_data.mdl2_header.name.decode()
-			self.models = self.mdl2_data.mdl2_header.models
-			self.lods = self.mdl2_data.mdl2_header.lods
-
-		# get ms2 buffers
-		ms2_dir = os.path.dirname(mdl2_file_path)
-		ms2_path = os.path.join(ms2_dir, ms2_name)
-		with open(ms2_path, "rb") as ms2_stream:
-			ms2_header = Ms2Format.Ms2InfoHeader()
-			ms2_header.read(ms2_stream, data=self.mdl2_data)
-			self.bone_info_buffer = ms2_stream.read(ms2_header.bone_info_size)
-			eoh = ms2_stream.tell()
-
-			self.read_verts_tris(ms2_stream, ms2_header.buffer_info, eoh)
+		# open an mdl2 and store its binary data on the modeldata structs
+		mdl2 = Mdl2File()
+		mdl2.load(mdl2_file_path, read_bytes=True)
+		self.models = mdl2.models
+		self.lods = mdl2.lods
+		self.bone_info_buffer = mdl2.ms2_file.bone_info_bytes
 
 	def read_verts_tris(self, ms2_stream, buffer_info, eoh=0, ):
 		"""Reads vertices and triangles into list of bytes for all models of this file"""
@@ -179,7 +171,7 @@ class Mdl2Holder:
 
 		# read the vertex data for this from the archive's ms2
 		buffer_info_frag = ms2_entry.fragments[0]
-		buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
+		buffer_info = buffer_info_frag.pointers[1].load_as(Ms2BufferInfo, version_info=self.versions)[0]
 		# print(buffer_info)
 
 		verts_tris_buffer = ms2_entry.data_entry.buffer_datas[-1]
@@ -188,11 +180,11 @@ class Mdl2Holder:
 				lod_pointer = mdl2_entry.fragments[1].pointers[1]
 				lod_count = len(lod_pointer.data) // 20
 				# todo get count from CoreModelInfo
-				self.lods = lod_pointer.read_as(Ms2Format.LodInfo, self.archive, num=lod_count)
+				self.lods = lod_pointer.load_as(LodInfo, version_info=self.versions, num=lod_count)
 		# print("lod list", self.lods)
 		self.models = []
 		for f in mdl2_entry.model_data_frags:
-			model = f.pointers[0].read_as(Ms2Format.ModelData, self.archive)[0]
+			model = f.pointers[0].load_as(ModelData, version_info=self.versions)[0]
 			self.models.append(model)
 		print("num models:", len(self.models))
 		if len(self.models) > 0:
@@ -202,10 +194,10 @@ class Mdl2Holder:
 	def update_entry(self):
 		# overwrite mdl2 modeldata frags
 		for frag, modeldata in zip(self.mdl2_entry.model_data_frags, self.models):
-			frag_data = to_bytes(modeldata, self.mdl2_data)
+			frag_data = as_bytes(modeldata, version_info=self.versions)
 			frag.pointers[0].update_data(frag_data, update_copies=True)
 		if len(self.lods) > 0:
-			self.lodinfo = to_bytes(self.lods, self.mdl2_data)
+			self.lodinfo = as_bytes(self.lods, version_info=self.versions)
 			# overwrite mdl2 lodinfo frag
 			self.mdl2_entry.fragments[1].pointers[1].update_data(self.lodinfo, update_copies=True)
 
@@ -220,6 +212,7 @@ class Ms2Holder:
 		self.buffer_info = None
 		self.mdl2s = []
 		self.archive = archive
+		self.versions = {"version": self.archive.version, "user_version": self.archive.user_version}
 		self.ms2_entry = None
 		self.bone_info = []
 
@@ -251,7 +244,7 @@ class Ms2Holder:
 		# print(buffer_info_frag.pointers[1].data)
 		if not buffer_info_frag.pointers[1].data:
 			raise AttributeError("No buffer info, aborting merge")
-		self.buffer_info = buffer_info_frag.pointers[1].read_as(Ms2Format.Ms2BufferInfo, self.archive)[0]
+		self.buffer_info = buffer_info_frag.pointers[1].load_as(Ms2BufferInfo, version_info=self.versions)[0]
 		# print(self.buffer_info)
 
 		for mdl2_entry in self.ms2_entry.children:
@@ -302,7 +295,7 @@ class Ms2Holder:
 		self.buffer_info.facesdatasize = len(tris_bytes)
 		# overwrite ms2 buffer info frag
 		buffer_info_frag = self.ms2_entry.fragments[0]
-		buffer_info_frag.pointers[1].update_data(to_bytes(self.buffer_info, self.archive), update_copies=True)
+		buffer_info_frag.pointers[1].update_data(as_bytes(self.buffer_info, version_info=self.versions), update_copies=True)
 
 		# update data
 		self.ms2_entry.data_entry.update_data(buffers)

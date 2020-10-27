@@ -68,20 +68,6 @@ class Matrix33:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Matrix33 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
-		s += '\n	* m_11 = ' + self.m_11.__repr__()
-		s += '\n	* m_21 = ' + self.m_21.__repr__()
-		s += '\n	* m_31 = ' + self.m_31.__repr__()
-		s += '\n	* m_12 = ' + self.m_12.__repr__()
-		s += '\n	* m_22 = ' + self.m_22.__repr__()
-		s += '\n	* m_32 = ' + self.m_32.__repr__()
-		s += '\n	* m_13 = ' + self.m_13.__repr__()
-		s += '\n	* m_23 = ' + self.m_23.__repr__()
-		s += '\n	* m_33 = ' + self.m_33.__repr__()
-		s += '\n'
-		return s
-
-	def __str__(self):
 		return (
 				"[ %6.3f %6.3f %6.3f ]\n"
 				"[ %6.3f %6.3f %6.3f ]\n"

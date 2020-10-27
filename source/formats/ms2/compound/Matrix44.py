@@ -2,7 +2,7 @@ class Matrix44:
 
 	# START_CLASS
 
-	def __str__(self):
+	def __repr__(self):
 		return f"{self.__class__} instance at {id(self):02x}\n" \
 			   f"\t[{self.m_11:7.3f} {self.m_12:7.3f} {self.m_13:7.3f} {self.m_14:7.3f}]\n" \
 			   f"\t[{self.m_21:7.3f} {self.m_22:7.3f} {self.m_23:7.3f} {self.m_24:7.3f}]\n" \

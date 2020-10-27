@@ -43,14 +43,5 @@ class Vector4:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Vector4 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
-		s += '\n	* x = ' + self.x.__repr__()
-		s += '\n	* y = ' + self.y.__repr__()
-		s += '\n	* z = ' + self.z.__repr__()
-		s += '\n	* w = ' + self.w.__repr__()
-		s += '\n'
-		return s
-
-	def __str__(self):
 		return "[ %6.3f %6.3f %6.3f %6.3f ]"%(self.x, self.y, self.z, self.w)
 

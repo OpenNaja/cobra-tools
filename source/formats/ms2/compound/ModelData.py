@@ -11,6 +11,16 @@ class ModelData:
 
 	# START_CLASS
 
+	def read_bytes(self, start_buffer2, vertex_data_size, stream):
+		"""Used to store raw binary vertex and tri data on the model, for merging"""
+		# print("reading binary model data")
+		# read a vertices of this model
+		stream.seek(start_buffer2 + self.vertex_offset)
+		self.verts_bytes = stream.read(self.size_of_vertex * self.vertex_count)
+		stream.seek(start_buffer2 + vertex_data_size + self.tri_offset)
+		self.tris_bytes = stream.read(2 * self.tri_index_count)
+		# print(len(self.verts_bytes), len(self.tris_bytes))
+
 	def read_bytes_map(self, start_buffer2, stream):
 		"""Used to document byte usage of different vertex formats"""
 		# read a vertices of this model
