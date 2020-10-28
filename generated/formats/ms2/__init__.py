@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.Ms2BoneInfoPc import Ms2BoneInfoPc
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.io import IoFile, BinaryStream
-
+from generated.array import Array
 
 def findall(p, s):
 	'''Yields all the positions of
@@ -147,7 +147,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.start_buffer2 = stream.tell()
 			if self.general_info.ms_2_version == 32:
 				print("PC model...")
-				mdl2.models = []
+				mdl2.models = Array()
 				if not quick:
 					base = model_info.model_info.pack_offset
 					print("base", base)
