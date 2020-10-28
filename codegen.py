@@ -99,11 +99,6 @@ class XmlParser:
                 #     self.write_basic(child)
                 elif child.tag == "enum":
                     Enum(self, child)
-                elif child.tag == "bitfield":
-                    # self.write_bitfield(child)
-                    Bitfield(self, child)
-                # elif child.tag == "bitflags":
-                #     self.write_bitflags(child)
                 # elif child.tag == "module":
                 #     self.read_module(child)
                 # elif child.tag == "version":

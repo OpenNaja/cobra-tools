@@ -35,7 +35,7 @@ class Array(list):
         self.arg = arg
         self.template = template
         rfunc = self.get_rfunc(stream)
-
+        self.clear()
         if self.arr2 is None:
             self.extend([rfunc() for _ in range(self.arr1)])
         else:
