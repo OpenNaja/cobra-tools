@@ -1,18 +1,21 @@
 # cobra-tools
+"~~Life~~ Modding finds a way."
+
 A simple GUI for extracting OVL and OVS archives and modifying their contents, as well as editors for the associated in-house file formats.
 
-![Imgur](https://i.imgur.com/ow8rKVd.png)
+![Imgur](https://i.imgur.com/g9cvfQD.png)
 
 ### Installation
 Get the latest release [here](https://github.com/OpenNaja/cobra-tools/releases) and unzip to a folder of your choice. You need to have installed:
 - [Python 3.6 or 3.7, x64 bit](https://www.python.org/downloads/windows/) (make sure you add it to the system path during installation; 32 bit versions of python will hit their memory limit trying to read large OVLs)
-- [Microsoft Visual C++ Redistributable 2017](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
-- [Microsoft Visual C++ Redistributable 2013](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
+- [Microsoft Visual C++ Redistributable 2017 x64](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
+- [Microsoft Visual C++ Redistributable 2013 x86](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
 - pyqt5 (run: `pip install pyqt5`)
 - imageio (run: `pip install imageio`)
 
 ### How to use
 - [OVL Tool - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/OVL-Tool---How-to-Use)
+- [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
 - [List of supported file formats and recommended tools for editing them](https://github.com/OpenNaja/cobra-tools/wiki/Supported-Archive-Content-File-Formats)
 
 ### Basic Tutorials
@@ -21,7 +24,8 @@ Get the latest release [here](https://github.com/OpenNaja/cobra-tools/releases) 
 
 
 ### Disclaimer
-Remember to backup all mod files and stock files. Any patches will reset or break the mods and will need to be redone and re-released. 
+- Remember to backup all mod files and stock files. Any patches will reset or break the mods and will need to be redone and re-released. 
+- Not all model files are supported at this time. Some may crash on import or export. Even if they (seemingly) import and export fine, the result is not guaranteed to work ingame.
 
 
 ### Legal Notice
