@@ -188,17 +188,6 @@ class TableView(QtWidgets.QTableView):
 		self.model.endResetModel()
 
 		self.resizeColumnsToContents()
-		# self.setRowCount(len(data))
-		# self.data = data
-		# for n, line in enumerate(self.data):
-		# 	for m, item in enumerate(line):
-		# 		newitem = QTableWidgetItem(item)
-		# 		if m == 0:
-		# 			newitem.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirIcon")))
-		# 		if line[1] in extract.IGNORE_TYPES:
-		# 			newitem.setFlags(QtCore.Qt.NoItemFlags)
-		# 		self.setItem(n, m, newitem)
-		# self.resizeColumnsToContents()
 
 	def dragMoveEvent(self, e):
 		e.accept()
@@ -592,7 +581,7 @@ class FileWidget(QtWidgets.QWidget):
 		super(FileWidget, self).__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
-		self.icon.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirIcon")))
+		self.icon.setIcon(get_icon("dir"))
 		self.icon.setFlat(True)
 		self.icon.mousePressEvent = self.ignoreEvent
 		self.entry.mousePressEvent = self.ignoreEvent
