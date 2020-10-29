@@ -1,7 +1,9 @@
 class Array(list):
 
-    def __init__(self):
+    def __init__(self, default=()):
         super().__init__(self)
+        if default:
+            self.extend(default)
         self.dtype = None
         self.arr1 = 0
         self.arr2 = 0
@@ -27,13 +29,16 @@ class Array(list):
                     return stream.write_type(obj)
             return func
 
-    def read(self, stream, dtype=None, arr1=0, arr2=None, arg=None, template=None):
+    def store_params(self, dtype, arr1, arr2, arg, template):
         if dtype:
             self.dtype = dtype
         self.arr1 = arr1
         self.arr2 = arr2
         self.arg = arg
         self.template = template
+
+    def read(self, stream, dtype=None, arr1=0, arr2=None, arg=None, template=None):
+        self.store_params(dtype, arr1, arr2, arg, template)
         rfunc = self.get_rfunc(stream)
         self.clear()
         if self.arr2 is None:
@@ -42,6 +47,7 @@ class Array(list):
             self.extend([[rfunc() for _ in range(self.arr2)] for _ in range(self.arr1)])
 
     def write(self, stream, dtype=None, arr1=0, arr2=None, arg=None, template=None):
+        self.store_params(dtype, arr1, arr2, arg, template)
         rfunc = self.get_rfunc(stream, mode="write")
         if self.arr2 is None:
             for x in self:

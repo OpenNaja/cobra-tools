@@ -183,10 +183,11 @@ class TableView(QtWidgets.QTableView):
 		# drag.exec_(QtCore.Qt.CopyAction)
 
 	def set_data(self, data):
+		if not data:
+			data = [[], ]
 		self.model.beginResetModel()
 		self.model._data = data
 		self.model.endResetModel()
-
 		self.resizeColumnsToContents()
 
 	def dragMoveEvent(self, e):
@@ -668,10 +669,9 @@ class FileWidget(QtWidgets.QWidget):
 
 
 def get_icon(name):
-	try:
-		base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-		return QtGui.QIcon(os.path.join(base_dir, f'icons/{name}.png'))
-	except: pass
+	base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+	return QtGui.QIcon(os.path.join(base_dir, f'icons/{name}.png'))
+
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -703,11 +703,14 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setWindowTitle(self.name+" "+ file_name)
 		
 	def add_to_menu(self, button_data):
-		for submenu, name, func, shortcut, icon in button_data:
+		for submenu, name, func, shortcut, icon_name in button_data:
 			button = QtWidgets.QAction(name, self)
-			if icon:
-				button.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, icon)))
+			if icon_name:
+				icon = get_icon(icon_name)
+				# if not icon:
+				# 	icon = self.style().standardIcon(getattr(QtWidgets.QStyle, icon))
+				button.setIcon(icon)
 			button.triggered.connect(func)
-			if shortcut: button.setShortcut(shortcut)
+			if shortcut:
+				button.setShortcut(shortcut)
 			submenu.addAction(button)
-			

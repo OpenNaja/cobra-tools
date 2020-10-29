@@ -13,6 +13,7 @@ from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MS2 import write_ms2
 from modules.formats.TXT import write_txt
+from modules.formats.XMLCONFIG import write_xmlconfig
 from util import widgets
 
 IGNORE_TYPES = ("mani", "mdl2", "texturestream", "datastreams")
@@ -79,8 +80,8 @@ def extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progres
 	# 	write_assetpkg(archive, entry)
 	elif entry.ext == "fdb":
 		paths.extend(write_fdb(archive, entry, out_dir_func))
-	# elif entry.ext == "xmlconfig" and extract_misc == True:
-	# 	write_xmlconfig(archive, entry)
+	elif entry.ext == "xmlconfig":
+		paths.extend(write_xmlconfig(archive, entry, out_dir_func))
 	# elif entry.ext == "userinterfaceicondata" and extract_misc == True:
 	# 	write_userinterfaceicondata(archive, entry)
 	elif entry.ext == "txt":
@@ -220,28 +221,6 @@ def write_assetpkg(archive, sized_str_entry):
 	with open(archive.indir(name), 'wb') as outfile:
 		f_0.pointers[1].strip_zstring_padding()
 		outfile.write(f_0.pointers[1].data[:-1])
-
-
-def write_xmlconfig(archive, sized_str_entry):
-	name = sized_str_entry.name
-	print("\nWriting",name)
-
-	if len(sized_str_entry.fragments) == 1:
-		f_0 = sized_str_entry.fragments[0]
-	else:
-		print("Found wrong amount of frags for",name)
-		return
-	# write xml
-	with open(archive.indir(name), 'wb') as outfile:
-		# 8 x b00
-		# sized_str_entry.pointers[0].data
-		# 8 x b00
-		# outfile.write( f_0.pointers[0].data )
-		# the actual xml data
-		# often with extra junk at the end (probably z str)
-		f_0.pointers[1].strip_zstring_padding()
-		# strip the b00 zstr terminator byte
-		outfile.write( f_0.pointers[1].data[:-1] )
 
 
 def write_userinterfaceicondata(archive, sized_str_entry):

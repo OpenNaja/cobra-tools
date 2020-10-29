@@ -78,15 +78,15 @@ class MainWindow(widgets.MainWindow):
 		fileMenu = mainMenu.addMenu('File')
 		editMenu = mainMenu.addMenu('Edit')
 		helpMenu = mainMenu.addMenu('Help')
-		button_data = ((fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", "SP_DirIcon"),
-					   (fileMenu, "Save", self.save_ovl, "CTRL+S", "SP_DriveFDIcon"),
-					   (fileMenu, "Exit", self.close, "", "SP_DialogCloseButton"),
-					   (editMenu, "Unpack", self.extract_all, "CTRL+U", ""),
-					   (editMenu, "Inject", self.inject, "CTRL+I", ""),
-					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
+		button_data = ((fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
+					   (fileMenu, "Save", self.save_ovl, "CTRL+S", "save"),
+					   (fileMenu, "Exit", self.close, "", "exit"),
+					   (editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
+					   (editMenu, "Inject", self.inject, "CTRL+I", "inject"),
+					   # (editMenu, "Hash", self.hasher, "CTRL+H", ""),
 					   (editMenu, "Walk", self.walker, "", ""),
-					   (helpMenu, "Report Bug", self.report_bug, "", "SP_MessageBoxCritical"),
-					   (helpMenu, "Documentation", self.online_support, "", "SP_MessageBoxInformation"))
+					   (helpMenu, "Report Bug", self.report_bug, "", "report"),
+					   (helpMenu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
 
