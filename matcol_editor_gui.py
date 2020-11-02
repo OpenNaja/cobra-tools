@@ -75,7 +75,7 @@ class MainWindow(widgets.MainWindow):
 
 	def open_materialcollection(self):
 		"""Just a wrapper so we can also reload via code"""
-		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Matcol', self.cfg["dir_materialcollections_in"], "Matcol files (*.matcol)")[0]
+		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Matcol', self.cfg.get("dir_materialcollections_in", "C://"), "Matcol files (*.matcol)")[0]
 		self.load_materialcollection()
 
 	def create_grid(self,):
@@ -174,7 +174,7 @@ class MainWindow(widgets.MainWindow):
 		
 	def save_materialcollection(self):
 		if self.file_src:
-			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save materialcollection', os.path.join(self.cfg["dir_materialcollections_out"], self.materialcollection_name), "materialcollection files (*.matcol)",)[0]
+			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save materialcollection', os.path.join(self.cfg.get("dir_materialcollections_out", "C://"), self.materialcollection_name), "materialcollection files (*.matcol)",)[0]
 			if file_out:
 				self.cfg["dir_materialcollections_out"], materialcollection_name = os.path.split(file_out)
 				self.matcol_data.save(file_out)

@@ -175,10 +175,9 @@ class MainWindow(widgets.MainWindow):
 		
 	def save_ovl(self):
 		if self.ovl_name:
-			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL', os.path.join(self.cfg["dir_ovls_out"], self.ovl_name), "OVL files (*.ovl)",)[0]
+			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.ovl_name), "OVL files (*.ovl)",)[0]
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
-				# just a dummy stream
 				try:
 					self.ovl_data.save(file_src)
 				except BaseException as error:
@@ -205,14 +204,14 @@ class MainWindow(widgets.MainWindow):
 	
 	def extract_all(self):
 		if self.ovl_name:
-			self.cfg["dir_extract"] = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg["dir_extract"], )
-			if self.cfg["dir_extract"]:
-				dir = self.cfg["dir_extract"]
+			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
+			if out_dir:
+				self.cfg["dir_extract"] = out_dir
 				# create output dir
 				try:
-					os.makedirs(dir, exist_ok=True)
+					os.makedirs(out_dir, exist_ok=True)
 					archive = self.ovl_data.ovs_files[0]
-					error_files, skip_files = extract.extract(archive, dir, self.show_temp_files, progress_callback=self.update_progress)
+					error_files, skip_files = extract.extract(archive, out_dir, self.show_temp_files, progress_callback=self.update_progress)
 
 					self.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
@@ -225,7 +224,7 @@ class MainWindow(widgets.MainWindow):
 			
 	def inject(self):
 		if self.ovl_name:
-			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg["dir_inject"], self.filter)[0]
+			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
 			if files:
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
@@ -247,7 +246,7 @@ class MainWindow(widgets.MainWindow):
 			widgets.showdialog("You must open an OVL file before you can extract files!")
 
 	def walker(self, dummy=False, walk_ovls=True, walk_models=True):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg["dir_ovls_in"], )
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
 		errors = []
 		if start_dir:
 			export_dir = os.path.join(start_dir, "walker_export")

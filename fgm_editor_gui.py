@@ -84,7 +84,7 @@ class MainWindow(widgets.MainWindow):
 
 	def open_fgm(self):
 		"""Just a wrapper so we can also reload via code"""
-		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load FGM', self.cfg["dir_fgms_in"], "FGM files (*.fgm)")[0]
+		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load FGM', self.cfg.get("dir_fgms_in", "C://"), "FGM files (*.fgm)")[0]
 		self.load_fgm()
 
 	def create_grid(self,):
@@ -153,7 +153,7 @@ class MainWindow(widgets.MainWindow):
 		
 	def save_fgm(self):
 		if self.file_src:
-			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg["dir_fgms_out"], self.fgm_name), "FGM files (*.fgm)",)[0]
+			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
 			if file_out:
 				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
 				self.fgm_data.save(file_out)

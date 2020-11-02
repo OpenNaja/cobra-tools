@@ -658,7 +658,7 @@ class FileWidget(QtWidgets.QWidget):
 			self.accept_file(filepath)
 
 	def ask_open(self):
-		filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg["dir_ovls_in"], "OVL files (*.ovl)")[0]
+		filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg.get("dir_ovls_in", "C://"), "OVL files (*.ovl)")[0]
 		self.accept_file(filepath)
 
 	def ignoreEvent(self, event):
@@ -700,7 +700,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	def update_file(self, filepath):
 		self.cfg["dir_in"], file_name = os.path.split(filepath)
-		self.setWindowTitle(self.name+" "+ file_name)
+		self.setWindowTitle(f"{self.name} {file_name}")
 		
 	def add_to_menu(self, button_data):
 		for submenu, name, func, shortcut, icon_name in button_data:
