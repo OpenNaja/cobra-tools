@@ -139,9 +139,9 @@ def import_armature(data):
 			# store the ms2 armature space matrix
 			mats[bone_name] = n_bind
 
-			print()
-			print(bone_name)
-			print("ms2\n",n_bind)
+			# print()
+			# print(bone_name)
+			# print("ms2\n",n_bind)
 			# change orientation for blender bones
 			b_bind = matrix_util.nif_bind_to_blender_bind(n_bind)
 			# b_bind = n_bind
@@ -152,9 +152,9 @@ def import_armature(data):
 			b_edit_bone.head = b_bind.to_translation()
 			b_edit_bone.tail = tail + b_edit_bone.head
 			b_edit_bone.roll = roll
-			print("bbind\n", b_bind,"\noutput\n", matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix), "\nb edit\n",
-				  matrix_util.xflipper(b_edit_bone.matrix))
-			#print(n_bind - matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix))
+			# print("bbind\n", b_bind,"\noutput\n", matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix), "\nb edit\n",
+			# 	  matrix_util.xflipper(b_edit_bone.matrix))
+			# print(n_bind - matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix))
 
 		fix_bone_lengths(b_armature_data)
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
