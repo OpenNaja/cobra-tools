@@ -340,7 +340,9 @@ def create_ob(ob_name, ob_data):
 
 def mesh_from_data(name, verts, faces, wireframe=True):
 	me = bpy.data.meshes.new(name)
+	start_time = time.time()
 	me.from_pydata(verts, [], faces)
+	print(f"from_pydata() took {time.time()-start_time:.2f} seconds for {len(verts)} verts")
 	me.update()
 	ob = create_ob(name, me)
 	# if wireframe:
@@ -353,8 +355,6 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	in_dir, mdl2_name = os.path.split(filepath)
 	bare_name = os.path.splitext(mdl2_name)[0]
 	data = load_mdl2(filepath)
-	# todo replace with this, but set kwarg filepath
-	# data = get_data(filepath, Ms2Format.Data)
 
 	errors = []
 	b_armature_obj = import_armature(data)
@@ -389,7 +389,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		# link material to mesh
 		me = ob.data
 		me.materials.append(mat)
-		
+
 		# set uv data
 		if model.uvs is not None:
 			num_uv_layers = model.uvs.shape[1]
@@ -410,28 +410,22 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		#
 		# me.vertex_colors.new(name="normals")
 		# me.vertex_colors[-1].data.foreach_set("color", [c for col in [model.normals[l.vertex_index] for l in me.loops] for c in (*col,1,)])
-		
+
+		mesh_start_time = time.time()
 		# create vgroups and store weights
-		for i, vert	in enumerate(model.weights):
+		for i, vert in enumerate(model.weights):
 			for bonename, weight in vert:
 				bonename = matrix_util.bone_name_for_blender(bonename)
-				if bonename not in ob.vertex_groups: ob.vertex_groups.new( name = bonename )
+				if bonename not in ob.vertex_groups:
+					ob.vertex_groups.new(name=bonename)
 				ob.vertex_groups[bonename].add([i], weight, 'REPLACE')
 
-		# map normals so we can set them to the edge corners (stored per loop)
-		no_array = []
-		for face in me.polygons:
-			for vertex_index in face.vertices:
-				# no_array.append(model.normals[vertex_index])
-				no_array.append(mathutils.Vector(model.normals[vertex_index]).normalized())
-				# no_array.append((0,0,1))
-				# no_array.append(model.tangents[vertex_index])
-			face.use_smooth = True
-			# and for rendering, make sure each poly is assigned to the material
-			# face.material_index = 0
-		
+		# set faces to smooth
+		me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
 		# set normals
 		if use_custom_normals:
+			# map normals so we can set them to the edge corners (stored per loop)
+			no_array = [model.normals[vertex_index] for face in me.polygons for vertex_index in face.vertices]
 			me.use_auto_smooth = True
 			me.normals_split_custom_set(no_array)
 		# else:
@@ -459,11 +453,13 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
 		if not use_custom_normals and model.flag not in (565, ):
 			bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
+		print(f"mesh cleanup took {time.time() - mesh_start_time:.2f} seconds")
 		try:
 			bpy.ops.uv.seams_from_islands()
 		except:
 			print(ob.name+" has no UV coordinates!")
 		bpy.ops.object.mode_set(mode='OBJECT')
+
 
 		# link to armature, only after mirror so the order is good and weights are mirrored
 		if data.ms2_file.bone_info:

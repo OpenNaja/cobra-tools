@@ -245,6 +245,8 @@ class ModelData:
 		self.normals[:] = self.verts_data[:]["normal"]
 		self.tangents[:] = self.verts_data[:]["tangent"]
 		self.normals = (self.normals - 128) / 128
+		# normalize
+		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
 		self.tangents = (self.tangents - 128) / 128
 		for i in range(self.vertex_count):
 			in_pos_packed = self.verts_data[i]["pos"]
