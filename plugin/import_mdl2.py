@@ -412,6 +412,8 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		# me.vertex_colors[-1].data.foreach_set("color", [c for col in [model.normals[l.vertex_index] for l in me.loops] for c in (*col,1,)])
 
 		mesh_start_time = time.time()
+
+		# todo - reduce overhead for bone_name_for_blender, maybe with a dict. perhaps resort to reduce add() calls
 		# create vgroups and store weights
 		for i, vert in enumerate(model.weights):
 			for bonename, weight in vert:
