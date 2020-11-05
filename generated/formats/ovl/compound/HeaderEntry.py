@@ -43,7 +43,7 @@ class HeaderEntry:
 		self.offset = stream.read_uint()
 		self.file_hash = stream.read_uint()
 		self.num_files = stream.read_uint()
-		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
 			self.ext_hash = stream.read_uint()
 			self.zeros_3 = stream.read_uint()
 
@@ -58,7 +58,7 @@ class HeaderEntry:
 		stream.write_uint(self.offset)
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.num_files)
-		if ((stream.user_version == 24724) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or ((stream.user_version == 8340) and (stream.version == 19)):
 			stream.write_uint(self.ext_hash)
 			stream.write_uint(self.zeros_3)
 

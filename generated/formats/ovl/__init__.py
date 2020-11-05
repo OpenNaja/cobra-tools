@@ -50,7 +50,8 @@ class OvsFile(OvsHeader, ZipFile):
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
 			# print(self.ovl)
-			# print(self)
+			print(self)
+			print(self.is_pc(), self.is_jwe(), self.is_pz())
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -961,7 +962,7 @@ class OvsFile(OvsHeader, ZipFile):
 		return self.ovl.flag_2 == 8340 and not self.is_pc()
 
 	def is_jwe(self):
-		return self.ovl.flag_2 == 24724 and not self.is_pc()
+		return self.ovl.flag_2 in (24724, 25108) and not self.is_pc()
 
 	def get_name(self, entry):
 		"""Fetch a filename from hash dict"""
