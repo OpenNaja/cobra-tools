@@ -7,6 +7,8 @@ from typing import *
 
 import numpy as np
 
+from util import texconv
+
 Byte = Struct("<b")  # int8
 UByte = Struct("<B")  # uint8
 Short = Struct("<h")  # int16
@@ -300,19 +302,24 @@ class ZipFile(IoFile):
 
 	# @staticmethod
 	@contextmanager
-	def unzipper(self, filepath, start, skip, compressed_size, save_temp_dat=""):
+	def unzipper(self, filepath, start, skip, compressed_size, uncompressed_size, save_temp_dat=""):
 		with self.reader(filepath) as stream:
 			# self.unzip(stream, compressed_size)
 			stream.seek(start)
+			print(stream.tell())
 			zipped = stream.read(compressed_size)
 			# self.print_and_callback(f"Reading {archive_entry.name}")
 			if skip != 8212:
 				self.zlib_header = zipped[:2]
+				print(self.zlib_header)
 				zlib_compressed_data = zipped[2:]
-			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
-			# we avoid the two zlib magic bytes to get our unzipped content
-			# zlib_data = bytearray(zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS))
-				zlib_data = zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS)
+				if self.zlib_header == b'\x8c\n':
+					print("Oodle compression")
+					zlib_data = texconv.oodle_compressor.decompress(zipped, compressed_size, uncompressed_size)
+				else:
+					# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
+					# we avoid the two zlib magic bytes to get our unzipped content
+					zlib_data = zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS)
 			else:
 				zlib_data = bytearray(zipped)
 		if save_temp_dat:

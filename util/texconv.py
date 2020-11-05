@@ -1,4 +1,5 @@
 import os, tempfile, shutil, subprocess, struct
+from util.oodle import oodle
 
 util_dir = os.path.dirname(__file__)
 BINARY = os.path.normpath( os.path.join( util_dir , "texconv/texconv.exe") )
@@ -7,9 +8,11 @@ pcb = os.path.normpath( os.path.join( util_dir, "ww2ogg/packed_codebooks_aoTuV_6
 revorb = os.path.normpath( os.path.join( util_dir, "revorb/revorb.exe") )
 luadec = os.path.normpath( os.path.join( util_dir, "luadec/luadec.exe") )
 luac = os.path.normpath( os.path.join( util_dir, "luadec/luac.exe") )
+oodle_dll = os.path.normpath(os.path.join(util_dir, "oodle/oo2core_7_win64.dll"))
 # print(BINARY)
 # print(os.path.exists(BINARY))
 
+oodle_compressor = oodle.OodleDecompressor(oodle_dll)
 
 def run_smart(args):
 	# argline = " ".join(['"' + x + '"' for x in args])

@@ -156,20 +156,20 @@ class MainWindow(widgets.MainWindow):
 			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
-				self.ovl_name = ovl_name
-				data = []
-				# time
-				print(f"Loading {len(self.ovl_data.files)} files into gui...")
-				for file_w in self.ovl_data.files:
-					name = f"{file_w.name}.{file_w.ext}"
-					line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
-					data.append(line)
-				print("loading gui")
-				self.table.set_data(data)
 			except Exception as ex:
 				traceback.print_exc()
 				widgets.showdialog(str(ex))
 				print(ex)
+			self.ovl_name = ovl_name
+			data = []
+			# time
+			print(f"Loading {len(self.ovl_data.files)} files into gui...")
+			for file_w in self.ovl_data.files:
+				name = f"{file_w.name}.{file_w.ext}"
+				line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
+				data.append(line)
+			print("loading gui")
+			self.table.set_data(data)
 			print(f"Done in {time.time()-start_time:.2f} seconds!")
 			self.update_progress("Operation completed!", value=1, vmax=1)
 		
