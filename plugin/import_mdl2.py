@@ -350,6 +350,31 @@ def mesh_from_data(name, verts, faces, wireframe=True):
 	return ob, me
 
 
+def get_weights(model):
+	dic = {}
+	for i, vert in enumerate(model.weights):
+		for bone_index, weight in vert:
+			if bone_index not in dic:
+				dic[bone_index] = {}
+			if weight not in dic[bone_index]:
+				dic[bone_index][weight] = []
+			dic[bone_index][weight].append(i)
+	return dic
+
+
+def import_vertex_groups(ob, model):
+	# create vgroups and store weights
+	for bone_index, weights_dic in get_weights(model).items():
+		try:
+			bonename = model.bone_names[bone_index]
+		except:
+			bonename = str(bone_index)
+		bonename = matrix_util.bone_name_for_blender(bonename)
+		ob.vertex_groups.new(name=bonename)
+		for weight, vert_indices in weights_dic.items():
+			ob.vertex_groups[bonename].add(vert_indices, weight/255, 'REPLACE')
+
+
 def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=False):
 	start_time = time.time()
 	in_dir, mdl2_name = os.path.split(filepath)
@@ -413,14 +438,8 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 
 		mesh_start_time = time.time()
 
-		# todo - reduce overhead for bone_name_for_blender, maybe with a dict. perhaps resort to reduce add() calls
-		# create vgroups and store weights
-		for i, vert in enumerate(model.weights):
-			for bonename, weight in vert:
-				bonename = matrix_util.bone_name_for_blender(bonename)
-				if bonename not in ob.vertex_groups:
-					ob.vertex_groups.new(name=bonename)
-				ob.vertex_groups[bonename].add([i], weight, 'REPLACE')
+		import_vertex_groups(ob, model)
+		print(f"mesh cleanup took {time.time() - mesh_start_time:.2f} seconds")
 
 		# set faces to smooth
 		me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
@@ -455,7 +474,6 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
 		if not use_custom_normals and model.flag not in (565, ):
 			bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
-		print(f"mesh cleanup took {time.time() - mesh_start_time:.2f} seconds")
 		try:
 			bpy.ops.uv.seams_from_islands()
 		except:

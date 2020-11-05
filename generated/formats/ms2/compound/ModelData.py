@@ -265,24 +265,20 @@ class ModelData:
 			vert_w = []
 			if self.bone_names:
 				if "bone ids" in self.dt.fields and residue:
-					weights = self.get_weights(self.verts_data[i]["bone ids"], self.verts_data[i]["bone weights"])
-					vert_w = [(self.bone_names[bone_i], w) for bone_i, w in weights]
+					# weights = self.get_weights(self.verts_data[i]["bone ids"], self.verts_data[i]["bone weights"])
+					vert_w = [(i, w) for i, w in zip(self.verts_data[i]["bone ids"], self.verts_data[i]["bone weights"]) if w > 0]
 				# fallback: skin parition
 				if not vert_w:
-					try:
-						vert_w = [(self.bone_names[self.verts_data[i]["bone index"]], 1), ]
-					except IndexError:
-						# aviary landscape
-						vert_w = [(str(self.verts_data[i]["bone index"]), 1), ]
+					vert_w = [(self.verts_data[i]["bone index"], 255), ]
 
 			# create fur length vgroup
 			if self.flag in (1013, 821, 885):
-				vert_w.append(("fur_length", self.uvs[i][1][0]))
+				vert_w.append(("fur_length", self.uvs[i][1][0]*255))
 
 			# the unknown 0, 128 byte
-			vert_w.append(("unk0", self.verts_data[i]["unk"] / 255))
+			vert_w.append(("unk0", self.verts_data[i]["unk"]*255))
 			# packing bit
-			vert_w.append(("residue", residue))
+			vert_w.append(("residue", residue*255))
 			self.weights.append(vert_w)
 
 	def write_verts(self, stream):
