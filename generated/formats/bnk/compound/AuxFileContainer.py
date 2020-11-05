@@ -52,13 +52,13 @@ class AuxFileContainer:
                 pointer.hash = "".join([f"{b:02X}" for b in struct.pack("<I", pointer.wem_id)])
                 pointer.pad = b""
 
-    def extract_audio(self, out_dir, basename):
+    def extract_audio(self, out_dir_func, basename):
         """Extracts all wem files from the container into a folder"""
         print("Extracting audio")
         paths = []
         for pointer in self.didx.data_pointers:
             wem_name = f"{basename}_{pointer.hash}.wem"
-            wem_path = os.path.normpath(os.path.join(out_dir, wem_name))
+            wem_path = out_dir_func(wem_name)
             paths.append(wem_path)
             print(wem_path)
             with open(wem_path, "wb") as f:
