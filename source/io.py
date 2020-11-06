@@ -1,4 +1,5 @@
 from io import BytesIO
+import struct
 from struct import Struct
 import zlib
 
@@ -313,7 +314,7 @@ class ZipFile(IoFile):
 				self.zlib_header = zipped[:2]
 				print(self.zlib_header)
 				zlib_compressed_data = zipped[2:]
-				if self.zlib_header == b'\x8c\n':
+				if self.zlib_header.startswith(b'\x8c'):
 					print("Oodle compression")
 					zlib_data = texconv.oodle_compressor.decompress(zipped, compressed_size, uncompressed_size)
 				else:
@@ -335,9 +336,14 @@ class ZipFile(IoFile):
 		stream = BinaryStream()
 		stream.version = self.ovl.version
 		stream.user_version = self.ovl.user_version
-		# with BinaryStream() as stream:
 		self.write_archive(stream)
 		uncompressed_bytes = stream.getbuffer()
 		# compress data
-		compressed = zlib.compress(uncompressed_bytes)
+		if self.zlib_header.startswith(b'\x8c'):
+			a, algo = struct.unpack("BB", self.zlib_header)
+			print("Oodle compression", a, algo)
+			compressed = texconv.oodle_compressor.compress(bytes(uncompressed_bytes), algo-1)
+		else:
+			compressed = zlib.compress(uncompressed_bytes)
+
 		return len(uncompressed_bytes), len(compressed), compressed

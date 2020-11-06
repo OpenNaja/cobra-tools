@@ -1,10 +1,7 @@
 import os
 from ctypes import cdll, c_char_p, create_string_buffer
 
-# from anthemtool.io.providers.base import Decompressor
 
-
-# class OodleDecompressor(Decompressor):
 class OodleDecompressor:
     """
     Oodle decompression implementation.
@@ -24,6 +21,27 @@ class OodleDecompressor:
             raise Exception(
                 "Could not load Oodle DLL, requires Windows and 64bit python to run."
             ) from e
+
+    def compress(self, payload: bytes, algorithm: int = 9) -> bytes:
+        """
+        Compress the payload using the given algorithm.
+        """
+        input_size = len(payload)
+        output_size = input_size
+        output = create_string_buffer(output_size)
+        # OodleLZ_Compress(10, in, insz, out, 7, NULL, NULL, NULL);
+        ret = self.handle.OodleLZ_Compress(
+            algorithm, c_char_p(payload), input_size, output, 8, None, None, None, None, 0
+        )
+
+        # print("input size", input_size, "Output size", ret)
+        # # Make sure the result length matches the given output size
+        # if ret != output_size:
+        #     raise Exception(
+        #         "Decompression failed ret=0x{:x} output_size=0x{:x}".format(ret, output_size)
+        #     )
+
+        return output.raw[:ret]
 
     def decompress(self, payload: bytes, size: int, output_size: int) -> bytes:
         """
