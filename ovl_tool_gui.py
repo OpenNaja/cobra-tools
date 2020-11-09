@@ -1,16 +1,20 @@
 import os
 import struct
 import sys
-import traceback
 import time
-from PyQt5 import QtWidgets
-import numpy as np
-import binascii
+import traceback
+try:
+	from PyQt5 import QtWidgets
+	import numpy as np
+	import binascii
 
-from util import widgets
-from modules import extract, inject, hasher, walker
-from generated.formats.ovl import OvlFile
-from generated.formats.ms2 import Mdl2File
+	from util import widgets
+	from modules import extract, inject, hasher, walker
+	from generated.formats.ovl import OvlFile
+	from generated.formats.ms2 import Mdl2File
+except Exception as err:
+	traceback.print_exc()
+	time.sleep(15)
 
 
 def to_hex_str(uint):
@@ -46,11 +50,11 @@ class MainWindow(widgets.MainWindow):
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly.")
 		self.t_show_temp_files.setChecked(False)
-		
+
 		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
-		
+
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
@@ -106,11 +110,11 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def show_temp_files(self,):
 		return self.t_show_temp_files.isChecked()
-	
+
 	@property
 	def write_2K(self,):
 		return self.t_2K.isChecked()
-	
+
 	@property
 	def write_dat(self,):
 		return self.t_write_dat.isChecked()
@@ -135,24 +139,24 @@ class MainWindow(widgets.MainWindow):
 			value = 0
 		except TypeError:
 			value = None
-		
+
 		# update progress bar values if specified
 		if value is not None:
 			self.p_action.setValue(value)
 		if vmax is not None:
 			self.p_action.setMaximum(vmax)
-		
+
 		# don't update the GUI unless the message has changed. label updates
 		# are expensive
 		if self.t_action_current_message != message:
-			self.t_action.setText(message)			
+			self.t_action.setText(message)
 			self.t_action_current_message = message
-		
+
 	def load_ovl(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_widget.filepath)
-			start_time = time.time()			
+			start_time = time.time()
 			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
@@ -172,7 +176,7 @@ class MainWindow(widgets.MainWindow):
 			self.table.set_data(data)
 			print(f"Done in {time.time()-start_time:.2f} seconds!")
 			self.update_progress("Operation completed!", value=1, vmax=1)
-		
+
 	def save_ovl(self):
 		if self.ovl_name:
 			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.ovl_name), "OVL files (*.ovl)",)[0]
@@ -184,7 +188,7 @@ class MainWindow(widgets.MainWindow):
 					print(error)
 				self.file_widget.dirty = False
 				print("Done!")
-	
+
 	def skip_messages(self, error_files, skip_files):
 		error_count = len(error_files)
 		skip_count = len(skip_files)
@@ -192,16 +196,16 @@ class MainWindow(widgets.MainWindow):
 			print("Files not extracted due to error:")
 			for ef in error_files:
 				print("\t",ef)
-			
+
 		if skip_count:
 			print("Unsupported files not extracted:")
 			for sf in skip_files:
 				print("\t",sf)
-				
+
 		if error_count or skip_count:
 			message = f"{error_count + skip_count} files were not extracted from the archive and may be missing from the output folder. {skip_count} were unsupported, while {error_count} produced errors."
 			widgets.showdialog(message)
-	
+
 	def extract_all(self):
 		if self.ovl_name:
 			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
@@ -221,7 +225,7 @@ class MainWindow(widgets.MainWindow):
 					print(ex)
 		else:
 			widgets.showdialog("You must open an OVL file before you can extract files!")
-			
+
 	def inject(self):
 		if self.ovl_name:
 			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
@@ -273,7 +277,7 @@ class MainWindow(widgets.MainWindow):
 					except Exception as ex:
 						traceback.print_exc()
 						errors.append((ovl_path, ex))
-						
+
 				self.skip_messages(error_files, skip_files)
 
 			# holds different types of flag - list of byte maps pairs
@@ -308,7 +312,7 @@ class MainWindow(widgets.MainWindow):
 				print("mean", np.mean(maps_list, axis=0).astype(dtype=np.ubyte))
 				print("max", np.max(maps_list, axis=0))
 				print()
-				
+
 			self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def closeEvent(self, event):
