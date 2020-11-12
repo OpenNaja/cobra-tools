@@ -484,7 +484,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		# link to armature, only after mirror so the order is good and weights are mirrored
 		if data.ms2_file.bone_info:
 			append_armature_modifier(ob, b_armature_obj)
-		if model.flag in (1013, 821, 885):
+		if model.flag in (1013, 821, 853, 885):
 			add_psys(ob)
 		# only set the lod index here so that hiding it does not mess with any operators applied above
 		matrix_util.LOD(ob, lod_i)

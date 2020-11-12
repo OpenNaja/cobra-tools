@@ -167,22 +167,17 @@ class ModelData:
 			("bone index", np.ubyte),
 		]
 		# uv variations
-		if self.flag == 529:
-			dt.extend([
-				("uvs", np.ushort, (2, 2)),
-				("zeros0", np.int32, (2,))
-			])
-		elif self.flag == 528:
+		if self.flag == 528:
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
 				("zeros0", np.int32, (3,))
 			])
-		elif self.flag in (1013, 821):
+		elif self.flag == 529:
 			dt.extend([
-				("uvs", np.ushort, (3, 2)),
-				("zeros0", np.int32, (1,))
+				("uvs", np.ushort, (2, 2)),
+				("zeros0", np.int32, (2,))
 			])
-		elif self.flag in (885, 565):
+		elif self.flag in (565, 821, 853, 885, 1013):
 			dt.extend([
 				("uvs", np.ushort, (3, 2)),
 				("zeros0", np.int32, (1,))
@@ -213,7 +208,7 @@ class ModelData:
 			])
 
 		# bone weights
-		if self.flag in (529, 533, 885, 565, 1013, 528, 821):
+		if self.flag in (528, 529, 533, 565, 821, 853, 885, 1013):
 			dt.extend([
 				("bone ids", np.ubyte, (4,)),
 				("bone weights", np.ubyte, (4,)),
@@ -272,7 +267,7 @@ class ModelData:
 					vert_w = [(self.verts_data[i]["bone index"], 255), ]
 
 			# create fur length vgroup
-			if self.flag in (1013, 821, 885):
+			if self.flag in (1013, 821, 853, 885):
 				vert_w.append(("fur_length", self.uvs[i][1][0]*255))
 
 			# the unknown 0, 128 byte
