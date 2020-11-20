@@ -63,6 +63,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			bone_info_starts.extend(x - 4 for x in findall(a + b, self.bone_info_bytes))
 
 		bone_info_starts = list(sorted(bone_info_starts))
+		if self.is_pc():
+			if bone_info_starts:
+				if bone_info_starts[0] <= 20:
+					bone_info_starts_0 = bone_info_starts[0]
+					bone_info_starts = []
+					bone_info_starts.append(bone_info_starts_0)
+				else:
+					bone_info_starts = []
+					
 		print("bone_info_starts", bone_info_starts)
 
 		if bone_info_starts:
@@ -102,18 +111,52 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				start_of_lods = stream.tell()
 				# first get all bytes of the whole bone infos block
 				self.model_data_bone_info_bytes = stream.read(self.eoh + self.bone_info_size - start_of_lods)
+				
+				zero_f = bytes.fromhex("00 00 00 00")
+				one_f = bytes.fromhex("00 00 80 3F")
+				# lion has a 1 instead of a 4
+				bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
+				# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
+				bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
+				# there's 8 bytes before this
+				bone_info_starts = []
+				for a, b in ((zero_f, bone_info_marker_1),
+							 (one_f, bone_info_marker_1),
+					 		(zero_f, bone_info_marker_4),
+					 		(one_f, bone_info_marker_4),
+							):
+					bone_info_starts.extend(x - 4 for x in findall(a + b, self.model_data_bone_info_bytes))
+
+				bone_info_starts = list(sorted(bone_info_starts))
+				print(bone_info_starts)
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				# find the start of each using this identifier
 				ninehundred_f = bytes.fromhex("00 00 61 44 00 00")
 				twothousand_f = bytes.fromhex("00 20 FD 44")
+				no_2nd_lod_f = bytes.fromhex("00 00 00 00")
 				lod_info_starts = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, twothousand_f)
+				lod_info_starts2 =findall_diff(self.model_data_bone_info_bytes, ninehundred_f, no_2nd_lod_f)
 
 				lod_info_starts = list(sorted(lod_info_starts))
+				lod_info_starts2 = list(sorted(lod_info_starts2))
+				lod_info_starts.extend(lod_info_starts2)
+				print(lod_info_starts)
 				for i, m in enumerate(self.pc_buffer1.model_infos):
 					m.index = i
 					m.pc_model = None
 
 				valid_models = [m for m in self.pc_buffer1.model_infos if m.model_info.model_count]
 				model_info = self.pc_buffer1.model_infos[mdl2.index]
+				
+				
 				b_index = valid_models.index(model_info)
 				print("mdl2s", len(self.pc_buffer1.model_infos))
 				print("mdl2s with models", len(valid_models))
