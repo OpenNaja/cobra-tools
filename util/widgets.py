@@ -214,7 +214,7 @@ class TableView(QtWidgets.QTableView):
 		if urls:
 			files = [str(url.path())[1:] for url in urls]
 			# print(files)
-			if self.main_window.ovl_name:
+			if self.main_window.file_widget.filename:
 				# self.cfg["dir_inject"] = os.path.dirname(files[0])
 				try:
 					inject.inject(self.ovl_data, files, self.main_window.show_temp_files, self.main_window.write_2K)
@@ -505,13 +505,14 @@ class QColorButton(QtWidgets.QPushButton):
 			print(self._color.getRgb())
 
 
-class VectorEntry():
+class VectorEntry:
 	def __init__(self, attrib, tooltips={}):
 		"""attrib must be pyffi attrib object"""
 		# QtWidgets.QWidget.__init__(self,)
 		self.attrib = attrib
 		self.label = QtWidgets.QLabel(attrib.name)
-		
+		self.delete = QtWidgets.QPushButton("x")
+		self.delete.setMinimumWidth(15)
 		self.data = QtWidgets.QWidget()
 		layout = QtWidgets.QHBoxLayout()
 		buttons = [self.create_field(i) for i in range(len(attrib.value))]
@@ -573,12 +574,13 @@ class VectorEntry():
 		field.setMinimumWidth(50)
 		return field
 
+
 class FileWidget(QtWidgets.QWidget):
 	"""An entry widget that starts a file selector when clicked and also accepts drag & drop.
 	Displays the current file's basename.
 	"""
 
-	def __init__(self, parent, cfg, ask_user=True):
+	def __init__(self, parent, cfg, ask_user=True, dtype="OVL"):
 		super(FileWidget, self).__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
@@ -592,14 +594,17 @@ class FileWidget(QtWidgets.QWidget):
 		self.entry.dragMoveEvent = self.dragMoveEvent
 		self.icon.dragEnterEvent = self.dragEnterEvent
 		self.entry.dragEnterEvent = self.dragEnterEvent
+		self.dtype = dtype
+		self.dtype_l = dtype.lower()
 
 		self.parent = parent
 		self.cfg = cfg
 		if not self.cfg:
-			self.cfg["dir_ovls_in"] = "C://"
+			self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
 		self.entry.setDragEnabled(True)
 		self.entry.setReadOnly(True)
 		self.filepath = ""
+		self.filename = ""
 		self.ask_user = ask_user
 		# this checks if the data has been modified by the user, is set from the outside
 		self.dirty = False
@@ -623,11 +628,11 @@ class FileWidget(QtWidgets.QWidget):
 
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
-			if os.path.splitext(filepath)[1].lower() in (".ovl"):
+			if os.path.splitext(filepath)[1].lower() in (f".{self.dtype_l}",):
 				if not self.abort_open_new_file(filepath):
 					self.filepath = filepath
-					self.cfg["dir_ovls_in"], filename = os.path.split(filepath)
-					self.setText(filename)
+					self.cfg[f"dir_{self.dtype}s_in"], self.filename = os.path.split(filepath)
+					self.setText(self.filename)
 					self.parent.poll()
 			else:
 				showdialog("Unsupported File Format")
@@ -658,7 +663,7 @@ class FileWidget(QtWidgets.QWidget):
 			self.accept_file(filepath)
 
 	def ask_open(self):
-		filepath = QtWidgets.QFileDialog.getOpenFileName(self, 'Load OVL', self.cfg.get("dir_ovls_in", "C://"), "OVL files (*.ovl)")[0]
+		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}', self.cfg.get(f"dir_{self.dtype_l}s_in", "C://"), f"{self.dtype} files (*.{self.dtype_l})")[0]
 		self.accept_file(filepath)
 
 	def ignoreEvent(self, event):
@@ -690,7 +695,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	def poll(self):
 		if self.file_widget.filepath:
-			self.load_ovl()
+			self.load()
 
 	def report_bug(self):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)

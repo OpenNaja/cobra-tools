@@ -58,12 +58,12 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
-		self.t_write_dat.stateChanged.connect(self.load_ovl)
+		self.t_write_dat.stateChanged.connect(self.load)
 
 		self.t_write_frag_log = QtWidgets.QCheckBox("Save Frag Log")
 		self.t_write_frag_log.setToolTip("For devs.")
 		self.t_write_frag_log.setChecked(False)
-		self.t_write_frag_log.stateChanged.connect(self.load_ovl)
+		self.t_write_frag_log.stateChanged.connect(self.load)
 
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 4)
@@ -74,8 +74,6 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.table, 2, 0, 1, 4)
 		self.qgrid.addWidget(self.p_action, 3, 0, 1, 4)
 		self.qgrid.addWidget(self.t_action, 4, 0, 1, 4)
-
-
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
@@ -100,14 +98,6 @@ class MainWindow(widgets.MainWindow):
 		return [x for x in ("write_dat", "write_frag_log") if getattr(self, x)]
 
 	@property
-	def ovl_name(self,):
-		return self.file_widget.entry.text()
-
-	@ovl_name.setter
-	def ovl_name(self, name):
-		self.file_widget.setText(name)
-
-	@property
 	def show_temp_files(self,):
 		return self.t_show_temp_files.isChecked()
 
@@ -125,7 +115,7 @@ class MainWindow(widgets.MainWindow):
 
 	def update_commands(self):
 		# at some point, just set commands to archive and trigger changes there
-		if self.ovl_name:
+		if self.file_widget.filename:
 			self.ovl_data.commands = self.commands
 
 	def update_progress(self, message, value=None, vmax=None):
@@ -152,10 +142,9 @@ class MainWindow(widgets.MainWindow):
 			self.t_action.setText(message)
 			self.t_action_current_message = message
 
-	def load_ovl(self):
+	def load(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
-			self.cfg["dir_ovls_in"], ovl_name = os.path.split(self.file_widget.filepath)
 			start_time = time.time()
 			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
@@ -164,7 +153,6 @@ class MainWindow(widgets.MainWindow):
 				traceback.print_exc()
 				widgets.showdialog(str(ex))
 				print(ex)
-			self.ovl_name = ovl_name
 			data = []
 			# time
 			print(f"Loading {len(self.ovl_data.files)} files into gui...")
@@ -178,8 +166,8 @@ class MainWindow(widgets.MainWindow):
 			self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_ovl(self):
-		if self.ovl_name:
-			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.ovl_name), "OVL files (*.ovl)",)[0]
+		if self.file_widget.filename:
+			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename), "OVL files (*.ovl)",)[0]
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				try:
@@ -207,7 +195,7 @@ class MainWindow(widgets.MainWindow):
 			widgets.showdialog(message)
 
 	def extract_all(self):
-		if self.ovl_name:
+		if self.file_widget.filename:
 			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
 			if out_dir:
 				self.cfg["dir_extract"] = out_dir
@@ -227,7 +215,7 @@ class MainWindow(widgets.MainWindow):
 			widgets.showdialog("You must open an OVL file before you can extract files!")
 
 	def inject(self):
-		if self.ovl_name:
+		if self.file_widget.filename:
 			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
 			if files:
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
@@ -242,7 +230,7 @@ class MainWindow(widgets.MainWindow):
 			widgets.showdialog("You must open an OVL file before you can inject files!")
 
 	def hasher(self):
-		if self.ovl_name:
+		if self.file_widget.filename:
 			names = [ (tup[0].text(), tup[1].text()) for tup in self.e_name_pairs ]
 			for archive in self.ovl_data.archives:
 				hasher.dat_hasher(archive, names, self.ovl_data.header.files, self.ovl_data.header.textures)

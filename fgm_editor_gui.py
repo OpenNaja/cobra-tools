@@ -13,24 +13,12 @@ class MainWindow(widgets.MainWindow):
 		self.resize(450, 500)
 
 		self.fgm_data = FgmFile()
-		self.file_src = ""
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/fgm.txt")
 		self.games = ("Jurassic World Evolution", "Planet Zoo", "Planet Coaster")
 		self.shaders = {}
 		for game in self.games:
 			self.shaders[game] = config.read_list(f"util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
-		
-		mainMenu = self.menuBar() 
-		fileMenu = mainMenu.addMenu('File')
-		helpMenu = mainMenu.addMenu('Help')
-		button_data = ( (fileMenu, "Open", self.open_fgm, "CTRL+O", ""), \
-						(fileMenu, "Save", self.save_fgm, "CTRL+S", ""), \
-						(fileMenu, "Exit", self.close, "", ""), \
-						(helpMenu, "Report Bug", self.report_bug, "", ""), \
-						(helpMenu, "Documentation", self.online_support, "", ""), \
-						)
-		self.add_to_menu(button_data)
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
 
@@ -45,15 +33,15 @@ class MainWindow(widgets.MainWindow):
 		self.game_container = widgets.LabelCombo("Game:", self.games)
 		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
-		self.fgm_container = widgets.LabelEdit("FGM:")
+		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
 		self.shader_container = widgets.LabelCombo("Shader:", ())
 		self.shader_container.entry.activated.connect(self.shader_changed)
 		self.tex_container = QtWidgets.QGroupBox("Textures")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
 
 		vbox = QtWidgets.QVBoxLayout()
+		vbox.addWidget(self.file_widget)
 		vbox.addWidget(self.game_container)
-		vbox.addWidget(self.fgm_container)
 		vbox.addWidget(self.shader_container)
 		vbox.addWidget(self.tex_container)
 		vbox.addWidget(self.attrib_container)
@@ -65,27 +53,32 @@ class MainWindow(widgets.MainWindow):
 
 		self.tex_container.setLayout(self.tex_grid)
 		self.attrib_container.setLayout(self.attrib_grid)
-		
+
+		mainMenu = self.menuBar()
+		fileMenu = mainMenu.addMenu('File')
+		helpMenu = mainMenu.addMenu('Help')
+		button_data = ( (fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", ""), \
+						(fileMenu, "Save", self.save_fgm, "CTRL+S", ""), \
+						(fileMenu, "Exit", self.close, "", ""), \
+						(helpMenu, "Report Bug", self.report_bug, "", ""), \
+						(helpMenu, "Documentation", self.online_support, "", ""), \
+						)
+		self.add_to_menu(button_data)
+
 	def game_changed(self,):
-		if self.file_src:
+		if self.file_widget.filepath:
 			self.shader_container.entry.clear()
 			game = self.game_container.entry.currentText()
 			self.shader_container.entry.addItems(self.shaders[game])
 		
 	def shader_changed(self,):
 		"""Change the fgm data shader name if gui changes"""
-		if self.file_src:
+		if self.file_widget.filepath:
 			self.fgm_data.shader_name = self.shader_container.entry.currentText()
 
 	@property
 	def fgm_name(self,):
-		return self.fgm_container.entry.text()
-
-
-	def open_fgm(self):
-		"""Just a wrapper so we can also reload via code"""
-		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load FGM', self.cfg.get("dir_fgms_in", "C://"), "FGM files (*.fgm)")[0]
-		self.load_fgm()
+		return self.file_widget.entry.text()
 
 	def create_grid(self,):
 		g = QtWidgets.QGridLayout()
@@ -104,20 +97,17 @@ class MainWindow(widgets.MainWindow):
 		# 	# i.e.:   aList.append(widget.someId)
 		# 	widget.deleteLater()
 
-	def load_fgm(self):
-		if self.file_src:
+	def load(self):
+		if self.file_widget.filepath:
 			for w in self.widgets:
 				w.deleteLater()
-			self.cfg["dir_fgms_in"], fgm_name = os.path.split(self.file_src)
 			try:
-				self.fgm_data.load(self.file_src)
+				self.fgm_data.load(self.file_widget.filepath)
 				game = self.fgm_data.game
 				print("from game", game)
 				self.game_container.entry.setText(game)
 				# also for
 				self.game_changed()
-
-				self.fgm_container.entry.setText( fgm_name )
 				self.shader_container.entry.setText(self.fgm_data.shader_name)
 
 				# delete existing widgets
@@ -129,22 +119,17 @@ class MainWindow(widgets.MainWindow):
 
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
-				line_i = 0
-				for tex in self.fgm_data.textures:
+				for line_i, tex in enumerate(self.fgm_data.textures):
 					w = widgets.VectorEntry(tex, self.tooltips)
-					# form.addRow(w.label, w.data)
-					# w = QtWidgets.QLabel(tex.name)
-					# self.tex_grid.addWidget(w, line_i, 0)
-					self.tex_grid.addWidget(w.label, line_i, 0)
-					self.tex_grid.addWidget(w.data, line_i, 1)
-					line_i += 1
-				
-				line_i = 0
-				for attrib in self.fgm_data.attributes:
+					self.tex_grid.addWidget(w.delete, line_i, 0)
+					self.tex_grid.addWidget(w.label, line_i, 1)
+					self.tex_grid.addWidget(w.data, line_i, 2)
+
+				for line_i, attrib in enumerate(self.fgm_data.attributes):
 					w = widgets.VectorEntry(attrib, self.tooltips)
-					self.attrib_grid.addWidget(w.label, line_i, 0)
-					self.attrib_grid.addWidget(w.data, line_i, 1)
-					line_i += 1
+					self.attrib_grid.addWidget(w.delete, line_i, 0)
+					self.attrib_grid.addWidget(w.label, line_i, 1)
+					self.attrib_grid.addWidget(w.data, line_i, 2)
 
 			except Exception as ex:
 				widgets.showdialog(str(ex))
@@ -152,7 +137,7 @@ class MainWindow(widgets.MainWindow):
 			print("Done!")
 		
 	def save_fgm(self):
-		if self.file_src:
+		if self.file_widget.filepath:
 			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
 			if file_out:
 				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
