@@ -6,6 +6,7 @@ import bpy
 import mathutils
 
 from utils import matrix_util
+from utils.matrix_util import mat3_to_vec_roll
 from utils.node_arrange import nodes_iterate
 from utils.node_util import load_tex, get_tree
 from generated.formats.ms2 import Mdl2File
@@ -148,10 +149,15 @@ def import_armature(data):
 			# print("n_bindxflip")
 			# print(matrix_util.xflip @ n_bind)
 			# set orientation to blender bone
-			tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
+
+			tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
+			# this is broken since 2.82 - we need to use our workaround
+			# tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
 			b_edit_bone.head = b_bind.to_translation()
 			b_edit_bone.tail = tail + b_edit_bone.head
 			b_edit_bone.roll = roll
+			# print(b_bind)
+			# print(roll)
 			# print("bbind\n", b_bind,"\noutput\n", matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix), "\nb edit\n",
 			# 	  matrix_util.xflipper(b_edit_bone.matrix))
 			# print(n_bind - matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix))
