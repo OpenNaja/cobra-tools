@@ -312,4 +312,3 @@ def export_bones(b_armature_ob, data):
 		# print("new: ", )
 		# print(ms2_inv_bind)
 		# print(ms2_bone)
-
