@@ -115,6 +115,7 @@ class ExportMDL2(bpy.types.Operator, ExportHelper):
 	filename_ext = ".MDL2"
 	filter_glob: StringProperty(default="*.MDL2", options={'HIDDEN'})
 	apply_transforms: BoolProperty(name="Apply Transforms", description="Automatically applies object transforms to meshes.", default=False)
+	edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - broken in blender 2.82+", default=False)
 	
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))

@@ -47,7 +47,7 @@ def handle_transforms(ob, me, errors, apply=True):
 				f"Check 'Apply Transforms' on export or apply them manually with CTRL+A!")
 
 
-def save(operator, context, filepath='', apply_transforms=False):
+def save(operator, context, filepath='', apply_transforms=False, edit_bones=False):
 	errors = []
 	start_time = time.time()
 
@@ -59,7 +59,7 @@ def save(operator, context, filepath='', apply_transforms=False):
 		# now enter object mode on the active object, if we aren't already in it
 		bpy.ops.object.mode_set(mode="OBJECT")
 	else:
-		return ("No objects in scene, nothing to export!",)
+		return "No objects in scene, nothing to export!",
 
 	print(f"\nExporting {filepath} into export subfolder...")
 	if not os.path.isfile(filepath):
@@ -82,37 +82,9 @@ def save(operator, context, filepath='', apply_transforms=False):
 	# used to get index from bone name for faster weights
 	bones_table = dict(
 		(matrix_util.bone_name_for_blender(bone_name), bone_i) for bone_i, bone_name in enumerate(bone_names))
-	bone_parents = data.ms2_file.bone_info.bone_parents
 	old_bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
-	boness = b_armature_ob.data.bones
-	bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-	mats = {}
-	bones = data.ms2_file.bone_info.bones
-	idx = 0
-	for bone_name, bb, o_parent_ind in zip(old_bone_names, bones, bone_parents):
-		if idx in (0, 1):
-			print(idx)
-		else:
-			bbb = boness.get(bone_name)
-			# ebb = edit_bones(bone_name)
-			print(bone_name)
-			print(data.ms2_file.bone_info.inverse_bind_matrices[idx])
-			print("old: ", bb)
-			# print(matrix_util.nif_bind_to_blender_bind(matrix_util.import_matrix(data.bone_info.inverse_bind_matrices[idx]).inverted_safe()))
-			if bbb.parent is None:
-				mat_local_to_parent = bbb.matrix_local
-			else:
-				parent_name = old_bone_names[o_parent_ind]
-				mat_local_to_parent = bbb.parent.matrix_local.inverted() @ bbb.matrix_local
-			data.ms2_file.bone_info.inverse_bind_matrices[idx].set_rows(
-				*matrix_util.blender_bind_to_nif_bind(bbb.matrix_local).inverted())
-			print(data.ms2_file.bone_info.inverse_bind_matrices[idx])
-			bb.set_bone(mat_local_to_parent)
-
-			print(" ")
-			print("new: ", bb)
-		idx += 1
-	bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+	if edit_bones:
+		export_bones(b_armature_ob, data, old_bone_names)
 	# ensure that these are initialized
 	for model in data.models:
 		model.tri_indices = []
@@ -313,3 +285,26 @@ def save(operator, context, filepath='', apply_transforms=False):
 	print(f"\nFinished Mdl2 Export in {time.time() - start_time:.2f} seconds")
 	# only return unique errors
 	return set(errors)
+
+
+def export_bones(b_armature_ob, data, old_bone_names):
+	for bone_name, ms2_bone, ms2_inv_bind in zip(old_bone_names, data.ms2_file.bone_info.bones, data.ms2_file.bone_info.inverse_bind_matrices):
+		if "root" in bone_name:
+			print("Ignoring root...")
+		else:
+			b_bone = b_armature_ob.data.bones.get(bone_name)
+			print(bone_name)
+			print("old: ")
+			print(ms2_inv_bind)
+			print(ms2_bone)
+			# print(matrix_util.nif_bind_to_blender_bind(matrix_util.import_matrix(ms2_inv_bind).inverted_safe()))
+			if b_bone.parent is None:
+				mat_local_to_parent = b_bone.matrix_local
+			else:
+				mat_local_to_parent = b_bone.parent.matrix_local.inverted() @ b_bone.matrix_local
+			ms2_inv_bind.set_rows(*matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
+			ms2_bone.set_bone(mat_local_to_parent)
+
+			print("new: ", )
+			print(ms2_inv_bind)
+			print(ms2_bone)
