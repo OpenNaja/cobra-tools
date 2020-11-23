@@ -82,9 +82,8 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	# used to get index from bone name for faster weights
 	bones_table = dict(
 		(matrix_util.bone_name_for_blender(bone_name), bone_i) for bone_i, bone_name in enumerate(bone_names))
-	old_bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
 	if edit_bones:
-		export_bones(b_armature_ob, data, old_bone_names)
+		export_bones(b_armature_ob, data)
 	# ensure that these are initialized
 	for model in data.models:
 		model.tri_indices = []
@@ -287,24 +286,30 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	return set(errors)
 
 
-def export_bones(b_armature_ob, data, old_bone_names):
-	for bone_name, ms2_bone, ms2_inv_bind in zip(old_bone_names, data.ms2_file.bone_info.bones, data.ms2_file.bone_info.inverse_bind_matrices):
-		if "root" in bone_name:
-			print("Ignoring root...")
-		else:
-			b_bone = b_armature_ob.data.bones.get(bone_name)
-			print(bone_name)
-			print("old: ")
-			print(ms2_inv_bind)
-			print(ms2_bone)
-			# print(matrix_util.nif_bind_to_blender_bind(matrix_util.import_matrix(ms2_inv_bind).inverted_safe()))
-			if b_bone.parent is None:
-				mat_local_to_parent = b_bone.matrix_local
-			else:
-				mat_local_to_parent = b_bone.parent.matrix_local.inverted() @ b_bone.matrix_local
-			ms2_inv_bind.set_rows(*matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
-			ms2_bone.set_bone(mat_local_to_parent)
+def export_bones(b_armature_ob, data):
+	b_bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
+	for bone_name, ms2_bone, ms2_inv_bind in zip(b_bone_names, data.ms2_file.bone_info.bones, data.ms2_file.bone_info.inverse_bind_matrices):
+		b_bone = b_armature_ob.data.bones.get(bone_name)
+		if not b_bone:
+			print(f"Can not update bone {bone_name} because it does not exist in the blender armature")
+			continue
+		# print(bone_name)
+		# print("old: ")
+		# print(ms2_inv_bind)
+		# print(ms2_bone)
 
-			print("new: ", )
-			print(ms2_inv_bind)
-			print(ms2_bone)
+		# todo - the correction function works, but only in armature space; come up with one that works in local space to reduce overhead
+		# make relative to parent
+		if b_bone.parent:
+			mat_local_to_parent = matrix_util.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local)
+		else:
+			mat_local_to_parent = matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local)
+		# set the bone transform, relative to parent
+		ms2_bone.set_bone(mat_local_to_parent)
+		# set the armature space inverse bind pose
+		ms2_inv_bind.set_rows(*matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
+
+		# print("new: ", )
+		# print(ms2_inv_bind)
+		# print(ms2_bone)
+

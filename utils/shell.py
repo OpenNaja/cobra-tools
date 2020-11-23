@@ -124,7 +124,7 @@ def build_fins(src_ob, trg_ob):
 			ob.modifiers.remove(mod)
 
 	# only set the lod index here so that hiding it does not mess with any operators applied above
-	matrix_util.LOD(ob, None, lod=lod_group_name)
+	matrix_util.to_lod(ob, None, lod=lod_group_name)
 
 	return f'Generated fin geometry {trg_name} from {src_ob.name}'
 
