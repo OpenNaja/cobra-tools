@@ -24,16 +24,10 @@ def add_psys(ob):
 	psys.settings.hair_length = 1.0
 	psys.vertex_group_length = "fur_length"
 
-def get_data(p, d):
-	dat = d()
-	with open(p, "rb") as stream:
-		dat.read(stream)
-	return dat
-
 
 def load_mdl2(file_path):
 	"""Loads a mdl2 from the given file path"""
-	print("Importing {0}".format(file_path))
+	print(f"Importing {file_path}")
 
 	data = Mdl2File()
 	data.load(file_path)
@@ -58,51 +52,6 @@ def import_armature(data):
 	of the bones before skins are attached."""
 	bone_info = data.ms2_file.bone_info
 	if bone_info:
-		# armature_name = "Test"
-		# b_armature_data = bpy.data.armatures.new(armature_name)
-		# b_armature_data.display_type = 'STICK'
-		# b_armature_data.show_axes = True
-		# # set axis orientation for export
-		# # b_armature_data.niftools.axis_forward = NifOp.props.axis_forward
-		# # b_armature_data.niftools.axis_up = NifOp.props.axis_up
-		# b_armature_obj = create_ob(armature_name, b_armature_data)
-		# b_armature_obj.show_in_front = True
-		# # LOD(b_armature_obj, 10)
-		# bone_names = [matrix_util.bone_name_for_blender(n) for n in data.bone_names]
-		# # print(bone_names)
-		# # print("ovl order")
-		# # make armature editable and create bones
-		# bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-		# for bone_name, o_mat, o_parent_ind in zip(bone_names, bone_info.inverse_bind_matrices, bone_info.bone_parents):
-		# 	# print(bone_name)
-		# 	# create a new bone
-		# 	if not bone_name:
-		# 		bone_name = "Dummy"
-		# 	b_edit_bone = b_armature_data.edit_bones.new(bone_name)
-		# 	# get armature space matrix in blender's coordinate space
-		# 	# n_bind = matrix_util.import_matrix(o_mat).inverted()
-		# 	# it should not be needed once we are sure we read the right matrices
-		# 	raw_mat = matrix_util.import_matrix(o_mat)
-		# 	# print(bone_name, list(int(round(math.degrees(x))) for x in raw_mat.to_euler()))
-		# 	# print(bone_name, list(int(round(math.degrees(x))) for x in raw_mat.inverted().to_euler()), "inv")
-		# 	n_bind = raw_mat.inverted_safe()
-		# 	b_bind = matrix_util.nif_bind_to_blender_bind(n_bind)
-		# 	# the following is a workaround because blender can no longer set matrices to bones directly
-		# 	tail, roll = matrix_util.mat3_to_vec_roll(b_bind.to_3x3())
-		# 	b_edit_bone.head = b_bind.to_translation()
-		# 	b_edit_bone.tail = tail + b_edit_bone.head
-		# 	b_edit_bone.roll = roll
-		# 	# link to parent
-		# 	try:
-		# 		if o_parent_ind != 255:
-		# 			b_parent_bone = b_armature_data.edit_bones[bone_names[o_parent_ind]]
-		# 			b_edit_bone.parent = b_parent_bone
-		# 	except:
-		# 		pass
-		#
-		# fix_bone_lengths(b_armature_data)
-		# bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
 		armature_name = "Test"
 		b_armature_data = bpy.data.armatures.new(armature_name)
 		b_armature_data.display_type = 'STICK'
@@ -112,7 +61,6 @@ def import_armature(data):
 		# b_armature_data.niftools.axis_up = NifOp.props.axis_up
 		b_armature_obj = create_ob(armature_name, b_armature_data)
 		b_armature_obj.show_in_front = True
-		# LOD(b_armature_obj, 10)
 		bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -151,6 +99,8 @@ def import_armature(data):
 			# set orientation to blender bone
 
 			tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
+			# https://developer.blender.org/T82930
+			# our matrices have negative determinants due to the x axis flip
 			# this is broken since 2.82 - we need to use our workaround
 			# tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
 			b_edit_bone.head = b_bind.to_translation()
@@ -158,9 +108,6 @@ def import_armature(data):
 			b_edit_bone.roll = roll
 			# print(b_bind)
 			# print(roll)
-			# print("bbind\n", b_bind,"\noutput\n", matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix), "\nb edit\n",
-			# 	  matrix_util.xflipper(b_edit_bone.matrix))
-			# print(n_bind - matrix_util.blender_bind_to_nif_bind(b_edit_bone.matrix))
 
 		fix_bone_lengths(b_armature_data)
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -173,10 +120,9 @@ def import_armature(data):
 		# for bone in bone_names_restored:
 		# 	print(bone)
 
+		# store original bone index as custom property
 		for i, bone_name in enumerate(bone_names):
-			# print(i, bone_name)
 			bone = b_armature_obj.pose.bones[bone_name]
-			# bone = b_armature_data.bones[bone_name]
 			bone["index"] = i
 
 		return b_armature_obj
@@ -400,12 +346,12 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		tris = model.tris
 		if model.flag in (1013, 821, 885, 565):
 			tris = model.tris[:len(model.tris)//6]
-			print("automatically stripped shells from ",model_i)
+			print("automatically stripped shells from ", model_i)
 			num_add_shells = 5
 		else:
 			num_add_shells = 0
 		# create object and mesh from data
-		ob, me = mesh_from_data(bare_name+f"_model{model_i}", model.vertices, tris, wireframe=False)
+		ob, me = mesh_from_data(f"{bare_name}_model{model_i}", model.vertices, tris, wireframe=False)
 		ob["flag"] = model.flag
 		ob["add_shells"] = num_add_shells
 
