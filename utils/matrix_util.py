@@ -84,19 +84,20 @@ def bone_name_for_ovl(n):
 	return n
 
 
+# https://stackoverflow.com/questions/1263072/changing-a-matrix-from-right-handed-to-left-handed-coordinate-system
 def nif_bind_to_blender_bind(nif_armature_space_matrix):
 	# post multiplication: local space
-	y = correction_glob @ nif_armature_space_matrix @ correction_inv
-	return xflip @ y
+	# position of xflip does not matter
+	return xflip @ correction_glob @ nif_armature_space_matrix @ correction_inv
 
 
 def blender_bind_to_nif_bind(blender_armature_space_matrix):
-	bind = blender_armature_space_matrix @ xflip
-	y = xflip.inverted() @ bind
-	b = correction_glob.inverted() @ y @ correction_inv.inverted()
-	return b
+	# xflip must be done before the conversions
+	bind = xflip @ blender_armature_space_matrix @ xflip
+	return correction_glob_inv @ bind @ correction
 
 
+# axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
 correction_glob = axis_conversion("-Z", "Y").to_4x4()
 correction_glob_inv = correction_glob.inverted()
 correction = axis_conversion("-X", "Y").to_4x4()
@@ -104,7 +105,6 @@ correction_inv = correction.inverted()
 # mirror about x axis too:
 xflip = mathutils.Matrix().to_4x4()
 xflip[0][0] = -1
-xflip_inv = xflip.inverted()
 
 
 def import_matrix(m):
