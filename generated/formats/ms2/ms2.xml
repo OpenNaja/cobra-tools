@@ -430,9 +430,6 @@
         <add name="hier2padding 0" type="uint64" ></add>
         <add name="hier2padding 1" type="uint64" cond="64 #LT# bone count">128 still has 16 bytes</add>
         <add name="hier2padding 2" type="uint64" cond="128 #LT# bone count">129 is the first with 24 bytes</add>
-
-
-<!--        <add name="joints" type="Pc Joints" cond="#PC#" ></add>-->
 <!--experimental!!-->
 <!--        objects - pz birch, jwe stuff-->
 <!--        		<add name="JointDatas" type="JointData" cond="joint count" >joint data</add>-->
@@ -502,72 +499,6 @@
 
     </compound>
 
-
-	<compound name="Pc Joints">
-        <add name="unk zero" type="uint64" > may be padding</add>
-<!--        <add name="joint count" type="uint64"  >5 in prim</add>-->
-<!--        <add name="ff" type="uint64"  >FF 00 00 00 00 00 00 00</add>-->
-<!--        <add name="b count" type="uint64"  >4 in prim</add>-->
-<!--        <add name="c count" type="uint64"  >4 in prim</add>-->
-<!--        <add name="d count" type="uint64"  >4 in prim</add>-->
-        <add name="name count" type="int" >index count 1, setting to int to fix boneless model import</add>
-        <add name="float 0 1" type="float" >seems to be either 0.0 or 1.0</add>
-        <add name="knownff" type="ushort" >this is always FFFF for now</add>
-        <add name="zero0" type="ushort" >this is always 0000 for now</add>
-        <add name="unknown0c" type="uint" ></add>
-        <add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
-        <add name="unknown14" type="uint" ></add>
-        <add name="bind matrix count" type="uint" >seems to match bone count</add>
-        <add name="int 0 1" type="uint" >usually 0; 1 for animal_box_large, animal_box_medium_static</add>
-        <add name="unknown20" type="uint" ></add>
-		<add name="unknown24" type="uint" ></add>
-		<add name="unknown28" type="uint" ></add>
-		<add name="unknown2C" type="uint" ></add>
-		<add name="unknown30" type="uint" ></add>
-		<add name="unknown34" type="uint" ></add>
-		<add name="bone count" type="uint64" >index count3</add>
-		<add name="unknown40" type="uint" ></add>
-		<add name="unknown44" type="uint" ></add>
-		<add name="bone parents count" type="uint64" >index count4</add>
-		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
-		<add name="count5" type="uint64" >index count 5</add>
-		<add name="unknown58" type="uint" ></add>
-		<add name="unknown5C" type="uint" ></add>
-		<add name="one64" type="uint64" >always 1</add>
-		<add name="unk joint count" type="uint64" >if joints are present, same as bone count</add>
-		<add name="count7" type="uint64" vercond="! #PC#" >index count 7</add>
-		<add name="joint count" type="uint" >joint count</add>
-		<add name="unknown7C" type="uint" ></add>
-		<add name="unk78count" type="uint" >unnk 78 count</add>
-		<add name="unknown84" type="uint" ></add>
-		<add name="unknown88" type="uint" vercond="#JWE# #OR# #PC#" >jwe only, everything is shifted a bit due to extra uint 0</add>
-		<add name="unknown8C" type="uint" vercond="#JWE# #OR# #PC#" >same as above</add>
-		<add name="unknownextra" type="uint64" vercond="#PC#" >same as above</add>
-<!--        ushort-->
-        <add name="name indices" type="ushort" arr1="name count">uses ushort here</add>
-        <add name="name padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16">zeros. One index occupies 2 bytes; pad to multiples of 16 bytes.</add>
-		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
-        <add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
-        <add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
-        <add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
-		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8">zeros</add>
-        <add name="unknown hier list" type="unk_hierlist_entry"  arr1="count5" cond="one64" >unclear what this is doing</add>
-
-<!--        unique again-->
-        <add name="parent indices" type="short" arr1="bone count">unique here! -1</add>
-        <add name="parent padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16">guess</add>
-        <add name="zeros" type="uint64" arr1="5">may be fixed</add>
-        <add name="joint info" type="JointCompound">may be fixed</add>
-
-        <add name="some floats" type="Pc Joint Bone" arr1="joint info \ bone count" ></add>
-        <add name="some next stuff" type="Pc Joint Next" arr1="joint info \ bone count" ></add>
-
-        <add name="zeros b" type="uint" arr1="5">may be fixed</add>
-        <add name="some count" type="uint" ></add>
-        <add name="some minus ones" type="int" arr1="some count" >-1, 16 bytes</add>
-
-        <add name="names" type="ZStringBuffer" arg="joint info \ namespace length"></add>
-    </compound>
 
 	<compound name="Pc Joint Bone">
         <add name="floats" type="float" arr1="12"></add>

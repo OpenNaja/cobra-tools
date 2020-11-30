@@ -129,21 +129,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 				bone_info_starts = list(sorted(bone_info_starts))
 				print(bone_info_starts)
-				
-				
-				
-				
-				
-				
-				
-				
-				
+
 				# find the start of each using this identifier
 				ninehundred_f = bytes.fromhex("00 00 61 44 00 00")
 				twothousand_f = bytes.fromhex("00 20 FD 44")
 				no_2nd_lod_f = bytes.fromhex("00 00 00 00")
 				lod_info_starts = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, twothousand_f)
-				lod_info_starts2 =findall_diff(self.model_data_bone_info_bytes, ninehundred_f, no_2nd_lod_f)
+				lod_info_starts2 = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, no_2nd_lod_f)
 
 				lod_info_starts = list(sorted(lod_info_starts))
 				lod_info_starts2 = list(sorted(lod_info_starts2))
@@ -155,8 +147,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 				valid_models = [m for m in self.pc_buffer1.model_infos if m.model_info.model_count]
 				model_info = self.pc_buffer1.model_infos[mdl2.index]
-				
-				
+
 				b_index = valid_models.index(model_info)
 				print("mdl2s", len(self.pc_buffer1.model_infos))
 				print("mdl2s with models", len(valid_models))
@@ -177,6 +168,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfoPc)
 			else:
 				self.bone_info = self.get_bone_info(mdl2.index, stream, Ms2BoneInfo)
+		print(self.bone_info)
 		if self.bone_info:
 			try:
 				self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
