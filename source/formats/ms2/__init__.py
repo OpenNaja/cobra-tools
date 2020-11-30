@@ -168,7 +168,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfoPc)
 			else:
 				self.bone_info = self.get_bone_info(mdl2.index, stream, Ms2BoneInfo)
-		print(self.bone_info)
+		# print(self.bone_info)
 		if self.bone_info:
 			try:
 				self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
