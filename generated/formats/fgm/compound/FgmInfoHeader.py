@@ -28,6 +28,9 @@ class FgmInfoHeader:
 		# fragment count
 		self.num_frags = 0
 
+		# texture ref count
+		self.num_textures = 0
+
 		# byte count to check for quirks
 		self.tex_info_size = 0
 
@@ -39,6 +42,7 @@ class FgmInfoHeader:
 
 		# byte count to check for quirks
 		self.data_lib_size = 0
+		self.texture_names = Array()
 		self.fgm_info = FourFragFgm()
 		self.two_frags_pad = Array()
 		self.textures = Array()
@@ -53,10 +57,12 @@ class FgmInfoHeader:
 		stream.version = self.version
 		self.flag_2 = stream.read_uint()
 		self.num_frags = stream.read_uint()
+		self.num_textures = stream.read_uint()
 		self.tex_info_size = stream.read_uint()
 		self.attr_info_size = stream.read_uint()
 		self.zeros_size = stream.read_uint()
 		self.data_lib_size = stream.read_uint()
+		self.texture_names.read(stream, 'ZString', self.num_textures, None)
 		self.fgm_info = stream.read_type(FourFragFgm)
 		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
@@ -73,10 +79,12 @@ class FgmInfoHeader:
 		stream.version = self.version
 		stream.write_uint(self.flag_2)
 		stream.write_uint(self.num_frags)
+		stream.write_uint(self.num_textures)
 		stream.write_uint(self.tex_info_size)
 		stream.write_uint(self.attr_info_size)
 		stream.write_uint(self.zeros_size)
 		stream.write_uint(self.data_lib_size)
+		self.texture_names.write(stream, 'ZString', self.num_textures, None)
 		stream.write_type(self.fgm_info)
 		self.two_frags_pad.write(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
@@ -91,10 +99,12 @@ class FgmInfoHeader:
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* flag_2 = ' + self.flag_2.__repr__()
 		s += '\n	* num_frags = ' + self.num_frags.__repr__()
+		s += '\n	* num_textures = ' + self.num_textures.__repr__()
 		s += '\n	* tex_info_size = ' + self.tex_info_size.__repr__()
 		s += '\n	* attr_info_size = ' + self.attr_info_size.__repr__()
 		s += '\n	* zeros_size = ' + self.zeros_size.__repr__()
 		s += '\n	* data_lib_size = ' + self.data_lib_size.__repr__()
+		s += '\n	* texture_names = ' + self.texture_names.__repr__()
 		s += '\n	* fgm_info = ' + self.fgm_info.__repr__()
 		s += '\n	* two_frags_pad = ' + self.two_frags_pad.__repr__()
 		s += '\n	* textures = ' + self.textures.__repr__()

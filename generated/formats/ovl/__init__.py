@@ -1190,11 +1190,13 @@ class OvlFile(Header, IoFile):
 			# print(texture_entry.name, texture_entry.zero, texture_entry.fgm_index, texture_entry.unk_0, texture_entry.unk_1)
 			fgm_file_entry = self.files[texture_entry.fgm_index]
 			fgm_file_entry.textures.append(texture_entry)
-
+			# dilophosaurus ['dilophosaurus.pnormaltexture', 'dilophosaurus.playered_blendweights', 'dilophosaurus.pbasediffusetexture', 'dilophosaurus.pbasepackedtexture']
+			# carcharodontosaurus ['carcharodontosaurus.pbasediffusetexture', 'carcharodontosaurus.playered_warpoffset', 'carcharodontosaurus.pnormaltexture', 'carcharodontosaurus.pbasepackedtexture', 'carcharodontosaurus.playered_blendweights']
+			# gharial_male ['gharial_male.pclut', 'gharial_male.paotexture', 'gharial_male.p3markingscartexture', 'gharial_male.proughnesspackedtexture', 'gharial_male.pmarkingpatchworkmask', 'gharial_male.pscarclut', 'gharial_male.pbasecolourandmasktexture', 'gharial_male.palbinobasecolourandmasktexture', 'gharial_male.pnormaltexture', 'bad hash']
 		print(sorted(set([t.unk_1 for t in self.textures])))
-		for file in self.files:
-			if file.ext == "fgm":
-				print(file.name, list(tex.name for tex in file.textures))
+		# for file in self.files:
+		# 	if file.ext == "fgm":
+		# 		print(file.name, list(tex.name for tex in file.textures))
 		# print(self.textures)
 		self.ovs_files = []
 		ha_max = len(self.archives)

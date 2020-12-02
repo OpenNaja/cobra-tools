@@ -62,6 +62,10 @@
         A signed 32-bit integer.
     </basic>
 
+    <basic name="ZString" count="0" >
+        Zero terminated bytes.
+    </basic>
+
     <basic name="short" count="1" >
         A signed 16-bit integer.
     </basic>
@@ -126,10 +130,12 @@
         <add name="version" type="uint" ></add>
         <add name="flag 2" type="uint" ></add>
         <add name="num frags" type="uint" >fragment count</add>
+        <add name="num textures" type="uint" >texture ref count</add>
         <add name="tex info size" type="uint" >byte count to check for quirks</add>
         <add name="attr info size" type="uint" >byte count to check for quirks</add>
         <add name="zeros size" type="uint" >byte count to check for quirks</add>
         <add name="data lib size" type="uint" >byte count to check for quirks</add>
+        <add name="texture names" type="ZString" arr1="num textures" ></add>
         <add name="fgm info" type="FourFragFgm" ></add>
 		<add name="two frags pad" type="TwoFragFgmExtra" arr1="num frags == 2" ></add>
 

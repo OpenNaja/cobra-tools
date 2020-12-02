@@ -34,13 +34,21 @@ def write_fgm(archive, sized_str_entry, out_dir):
 		len_zeros = 0
 	else:
 		raise AttributeError("Fgm length is wrong")
-	# write fgm
-	fgm_header = struct.pack("<4s7I", b"FGM ", archive.ovl.version, archive.ovl.flag_2, len(sized_str_entry.fragments), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size, )
 
+	# grab the texture names that are linked to this fgm
+	fgm_file_entry = [file for file in archive.ovl.files if f"{file.name}.{file.ext}" == sized_str_entry.name][0]
+
+	# write fgm
+	fgm_header = struct.pack("<4s8I", b"FGM ", archive.ovl.version, archive.ovl.flag_2, len(sized_str_entry.fragments), len(fgm_file_entry.textures), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)
+
+	# print(file_entry.textures)
 	out_path = out_dir(name)
 	with open(out_path, 'wb') as outfile:
 		# write custom FGM header
 		outfile.write(fgm_header)
+		for tex in fgm_file_entry.textures:
+			outfile.write(tex.name.encode())
+			outfile.write(b"\x00")
 		outfile.write(sized_str_entry.pointers[0].data)
 		# write each of the fragments
 		for frag in sized_str_entry.fragments:
