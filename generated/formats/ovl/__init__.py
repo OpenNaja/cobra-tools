@@ -50,7 +50,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
 			# print(self.ovl)
-			print(self)
+			# print(self)
 			print(self.is_pc(), self.is_jwe(), self.is_pz())
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
@@ -1160,6 +1160,7 @@ class OvlFile(Header, IoFile):
 			# there seems to be no need for now to link the two
 			file_entry.ext = self.mimes[file_entry.extension].ext
 			file_entry.name = file_name
+			file_entry.textures = []
 			self.name_list.append(file_name)
 		# print(file_name+"."+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
 		# return
@@ -1181,16 +1182,20 @@ class OvlFile(Header, IoFile):
 		ht_max = len(self.textures)
 		for ht_index, texture_entry in enumerate(self.textures):
 			self.print_and_callback("Getting texture asset names", value=ht_index, max_value=ht_max)
-			# nb. 4 unknowns per texture
 			try:
 				texture_entry.name = self.name_hashdict[texture_entry.file_hash]
 			except:
 				# this seems to happen for main.ovl - external textures?
 				texture_entry.name = "bad hash"
-		# print(name, texture_entry.unknown_1, texture_entry.unknown_2, texture_entry.unknown_3, texture_entry.unknown_4, texture_entry.unknown_5, texture_entry.unknown_6)#, texture_entry.unknown_7)
+			# print(texture_entry.name, texture_entry.zero, texture_entry.fgm_index, texture_entry.unk_0, texture_entry.unk_1)
+			fgm_file_entry = self.files[texture_entry.fgm_index]
+			fgm_file_entry.textures.append(texture_entry)
 
-		# print(sorted(set([t.unknown_6 for t in self.ovl.textures])))
-		# print(textures)
+		print(sorted(set([t.unk_1 for t in self.textures])))
+		for file in self.files:
+			if file.ext == "fgm":
+				print(file.name, list(tex.name for tex in file.textures))
+		# print(self.textures)
 		self.ovs_files = []
 		ha_max = len(self.archives)
 		for archive_index, archive_entry in enumerate(self.archives):
