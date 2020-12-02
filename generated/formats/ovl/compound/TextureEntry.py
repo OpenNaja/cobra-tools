@@ -1,7 +1,7 @@
 class TextureEntry:
 
 	"""
-	Description of one texture
+	Description of one texture usage; links it to an fgm that is (always ?) from this archive
 	"""
 
 	def __init__(self, arg=None, template=None):
@@ -12,23 +12,27 @@ class TextureEntry:
 
 		# Hash of this texture, for lookup in hash dict.
 		self.file_hash = 0
-		self.unknown_1 = 0
-		self.unknown_2 = 0
-		self.unknown_3 = 0
-		self.unknown_4 = 0
-		self.unknown_5 = 0
-		self.unknown_6 = 0
+
+		# apparently always zero
+		self.zero = 0
+
+		# index into file table, points to fgm where this texture is used
+		self.fgm_index = 0
+
+		# usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects)
+		self.unk_0 = 0
+
+		# probably an address??
+		self.unk_1 = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
-		self.unknown_1 = stream.read_uint()
-		self.unknown_2 = stream.read_ubyte()
-		self.unknown_3 = stream.read_ubyte()
-		self.unknown_4 = stream.read_ushort()
-		self.unknown_5 = stream.read_uint()
-		self.unknown_6 = stream.read_uint()
+		self.zero = stream.read_uint()
+		self.fgm_index = stream.read_uint()
+		self.unk_0 = stream.read_uint()
+		self.unk_1 = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -36,23 +40,19 @@ class TextureEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
-		stream.write_uint(self.unknown_1)
-		stream.write_ubyte(self.unknown_2)
-		stream.write_ubyte(self.unknown_3)
-		stream.write_ushort(self.unknown_4)
-		stream.write_uint(self.unknown_5)
-		stream.write_uint(self.unknown_6)
+		stream.write_uint(self.zero)
+		stream.write_uint(self.fgm_index)
+		stream.write_uint(self.unk_0)
+		stream.write_uint(self.unk_1)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
 		s = 'TextureEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
-		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
-		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
-		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()
-		s += '\n	* unknown_5 = ' + self.unknown_5.__repr__()
-		s += '\n	* unknown_6 = ' + self.unknown_6.__repr__()
+		s += '\n	* zero = ' + self.zero.__repr__()
+		s += '\n	* fgm_index = ' + self.fgm_index.__repr__()
+		s += '\n	* unk_0 = ' + self.unk_0.__repr__()
+		s += '\n	* unk_1 = ' + self.unk_1.__repr__()
 		s += '\n'
 		return s

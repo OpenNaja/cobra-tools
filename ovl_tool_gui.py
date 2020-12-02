@@ -154,12 +154,18 @@ class MainWindow(widgets.MainWindow):
 				widgets.showdialog(str(ex))
 				print(ex)
 			data = []
+			# dic = {}
 			# time
 			print(f"Loading {len(self.ovl_data.files)} files into gui...")
 			for file_w in self.ovl_data.files:
 				name = f"{file_w.name}.{file_w.ext}"
 				line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
 				data.append(line)
+				# dic[file_w.file_hash] = name
+			# print(dic)
+			print(self.ovl_data)
+			for tex in self.ovl_data.textures:
+				print(tex.file_hash, tex.fgm_index, tex.name, self.ovl_data.files[tex.fgm_index].name, self.ovl_data.files[tex.fgm_index].ext, tex.zero, tex.unk_0, tex.unk_1)
 			print("loading gui")
 			self.table.set_data(data)
 			print(f"Done in {time.time()-start_time:.2f} seconds!")

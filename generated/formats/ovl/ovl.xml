@@ -246,14 +246,12 @@
     </compound>
 
     <compound name="TextureEntry" >
-        Description of one texture
+        Description of one texture usage; links it to an fgm that is (always ?) from this archive
         <add name="file hash" type="uint">Hash of this texture, for lookup in hash dict.</add>
-        <add name="unknown 1" type="uint" ></add>
-        <add name="unknown 2" type="ubyte" ></add>
-        <add name="unknown 3" type="ubyte" ></add>
-        <add name="unknown 4" type="ushort" ></add>
-        <add name="unknown 5" type="uint" ></add>
-        <add name="unknown 6" type="uint" ></add>
+        <add name="zero" type="uint" >apparently always zero</add>
+        <add name="fgm index" type="uint" >index into file table, points to fgm where this texture is used</add>
+        <add name="unk 0" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects)</add>
+        <add name="unk 1" type="uint" >probably an address??</add>
     </compound>
 	
     <compound name="AuxEntry" >
