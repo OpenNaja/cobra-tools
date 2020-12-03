@@ -92,6 +92,7 @@ class MainWindow(widgets.MainWindow):
 					   (helpMenu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
+		self.load_hash_table()
 
 	@property
 	def commands(self,):
@@ -142,6 +143,21 @@ class MainWindow(widgets.MainWindow):
 		if self.t_action_current_message != message:
 			self.t_action.setText(message)
 			self.t_action_current_message = message
+
+	def load_hash_table(self):
+		print("Loading hash table...")
+		self.hash_table = {}
+		hashes_dir = os.path.join(os.getcwd(), "hashes")
+		for file in os.listdir(hashes_dir):
+			if file.endswith(".txt"):
+				with open(os.path.join(hashes_dir, file), "r") as f:
+					for line in f:
+						line = line.strip()
+						if line:
+							k, v = line.split(" = ")
+							self.hash_table[int(k)] = v
+		# print(self.hash_table)
+		print(f"Loaded {len(self.hash_table)} hash - name pairs.")
 
 	def load(self):
 		if self.file_widget.filepath:
