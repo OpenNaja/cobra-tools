@@ -165,7 +165,7 @@ class MainWindow(widgets.MainWindow):
 			start_time = time.time()
 			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
-				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
+				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
 			except Exception as ex:
 				traceback.print_exc()
 				widgets.showdialog(str(ex))

@@ -1113,7 +1113,7 @@ class OvlFile(Header, IoFile):
 		if not self.mute:
 			self.progress_callback(message, value, max_value)
 
-	def load(self, filepath, verbose=0, commands=(), mute=False):
+	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
 		eof = super().load(filepath)
 
@@ -1131,6 +1131,7 @@ class OvlFile(Header, IoFile):
 
 		# maps OVL hash to final filename + extension
 		self.name_hashdict = {}
+		self.external_hash_table = hash_table
 		# for PZ names
 		self.name_list = []
 
@@ -1185,8 +1186,13 @@ class OvlFile(Header, IoFile):
 			try:
 				texture_entry.name = self.name_hashdict[texture_entry.file_hash]
 			except:
-				# this seems to happen for main.ovl - external textures?
-				texture_entry.name = "bad hash"
+				try:
+					texture_entry.name = self.external_hash_table[texture_entry.file_hash]
+					print(f"Resolve texture name hash {texture_entry.file_hash} as {texture_entry.name} from global hash table!")
+				except:
+					print(f"Could not resolve texture name hash {texture_entry.file_hash} from global hash table of {len(self.external_hash_table)} items")
+					texture_entry.name = "bad hash"
+
 			# print(texture_entry.name, texture_entry.zero, texture_entry.fgm_index, texture_entry.unk_0, texture_entry.unk_1)
 			fgm_file_entry = self.files[texture_entry.fgm_index]
 			fgm_file_entry.textures.append(texture_entry)
