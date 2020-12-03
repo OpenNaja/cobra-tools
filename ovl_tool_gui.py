@@ -87,6 +87,7 @@ class MainWindow(widgets.MainWindow):
 					   (editMenu, "Inject", self.inject, "CTRL+I", "inject"),
 					   # (editMenu, "Hash", self.hasher, "CTRL+H", ""),
 					   (editMenu, "Walk", self.walker, "", ""),
+					   (editMenu, "Generate Hash Table", self.walker_hash, "", ""),
 					   (helpMenu, "Report Bug", self.report_bug, "", "report"),
 					   (helpMenu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
@@ -240,6 +241,32 @@ class MainWindow(widgets.MainWindow):
 				hasher.dat_hasher(archive, names, self.ovl_data.header.files, self.ovl_data.header.textures)
 		else:
 			widgets.showdialog("You must open an OVL file before you can extract files!")
+
+	def walker_hash(self, dummy=False, walk_ovls=True, walk_models=True):
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
+		hash_dict = {}
+		if start_dir:
+			# don't use internal data
+			ovl_data = OvlFile()
+			error_files = []
+			ovl_files = walker.walk_type(start_dir, extension="ovl")
+			of_max = len(ovl_files)
+			for of_index, ovl_path in enumerate(ovl_files):
+				self.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
+				try:
+					# read ovl file
+					new_hashes = ovl_data.load(ovl_path, commands=("generate_hash_table",))
+					hash_dict.update(new_hashes)
+				except:
+					error_files.append(ovl_path)
+			if error_files:
+				print(f"{error_files} caused errors!")
+			# write the hash text file to the hashes folder
+			export_dir = os.path.join(os.getcwd(), "hashes")
+			out_path = os.path.join(export_dir, f"{os.path.basename(start_dir)}.txt")
+			with open(out_path, "w") as f:
+				for k, v in hash_dict.items():
+					f.write(f"{k} = {v}\n")
 
 	def walker(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )

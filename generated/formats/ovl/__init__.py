@@ -34,7 +34,6 @@ class OvsFile(OvsHeader, ZipFile):
 		# for temporary pyffi compat
 		self.version = self.ovl.version
 		self.user_version = self.ovl.user_version
-		self._byte_order = "<"
 
 	def unzip(self, filepath, start, skip, compressed_size=0, uncompressed_size=0):
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
@@ -1121,7 +1120,6 @@ class OvlFile(Header, IoFile):
 		# print(self)
 		# for temporary pyffi compat
 		self.user_version = self.flag_2
-		self._byte_order = "<"
 
 		# store commands
 		self.commands = commands
@@ -1165,6 +1163,8 @@ class OvlFile(Header, IoFile):
 		# print(file_name+"."+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
 		# return
 		# print(self.name_hashdict)
+		if "generate_hash_table" in self.commands:
+			return self.name_hashdict
 
 		# create directories
 		hd_max = len(self.dirs)
