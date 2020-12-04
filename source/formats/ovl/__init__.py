@@ -971,11 +971,11 @@ class OvsFile(OvsHeader, ZipFile):
 		if self.is_jwe():
 			# print("JWE ids",entry.file_hash, entry.ext_hash)
 			try:
-				n = self.ovl.name_hashdict[entry.file_hash]
+				n = self.ovl.hash_table_local[entry.file_hash]
 			except:
 				pass
 			try:
-				e = self.ovl.name_hashdict[entry.ext_hash]
+				e = self.ovl.hash_table_local[entry.ext_hash]
 			except:
 				pass
 		# PZ Style and PC Style
@@ -1114,8 +1114,8 @@ class OvlFile(Header, IoFile):
 		self.file_no_ext = os.path.splitext(self.filepath)[0]
 
 		# maps OVL hash to final filename + extension
-		self.name_hashdict = {}
-		self.external_hash_table = hash_table
+		self.hash_table_local = {}
+		self.hash_table_global = hash_table
 
 		# add extensions to hash dict
 		hm_max = len(self.mimes)
@@ -1126,10 +1126,10 @@ class OvlFile(Header, IoFile):
 			# only get the extension
 			mime_entry.ext = mime_type.split(":")[-1]
 			# the stored mime hash is not used anywhere
-			# self.name_hashdict[mime_entry.mime_hash] = mime_type
+			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
-			self.name_hashdict[djb(mime_entry.ext)] = mime_entry.ext
+			self.hash_table_local[djb(mime_entry.ext)] = mime_entry.ext
 
 		# add file name to hash dict; ignoring the extension pointer
 		hf_max = len(self.files)
@@ -1137,14 +1137,14 @@ class OvlFile(Header, IoFile):
 			self.print_and_callback("Adding file names to hash dict", value=hf_index, max_value=hf_max)
 			# get file name from name table
 			file_name = self.names.get_str_at(file_entry.offset)
-			self.name_hashdict[file_entry.file_hash] = file_name
+			self.hash_table_local[file_entry.file_hash] = file_name
 			# there seems to be no need for now to link the two
 			file_entry.ext = self.mimes[file_entry.extension].ext
 			file_entry.name = file_name
 			file_entry.textures = []
 		# print(file_name+"."+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
 		if "generate_hash_table" in self.commands:
-			return self.name_hashdict
+			return self.hash_table_local
 
 		# create directories
 		hd_max = len(self.dirs)
@@ -1163,13 +1163,13 @@ class OvlFile(Header, IoFile):
 		for ht_index, texture_entry in enumerate(self.textures):
 			self.print_and_callback("Getting texture asset names", value=ht_index, max_value=ht_max)
 			try:
-				texture_entry.name = self.name_hashdict[texture_entry.file_hash]
+				texture_entry.name = self.hash_table_local[texture_entry.file_hash]
 			except:
 				try:
-					texture_entry.name = self.external_hash_table[texture_entry.file_hash]
+					texture_entry.name = self.hash_table_global[texture_entry.file_hash]
 					print(f"Resolve texture name hash {texture_entry.file_hash} as {texture_entry.name} from global hash table!")
 				except:
-					print(f"Could not resolve texture name hash {texture_entry.file_hash} from global hash table of {len(self.external_hash_table)} items")
+					print(f"Could not resolve texture name hash {texture_entry.file_hash} from global hash table of {len(self.hash_table_global)} items")
 					texture_entry.name = "bad hash"
 
 			# print(texture_entry.name, texture_entry.zero, texture_entry.fgm_index, texture_entry.unk_0, texture_entry.unk_1)
@@ -1241,8 +1241,6 @@ class OvlFile(Header, IoFile):
 		print(time.time() - start_time)
 
 	def save(self, filepath, ):
-		"""Write a dds file."""
-
 		print("Writing OVL")
 
 		exp_dir = os.path.dirname(filepath)
