@@ -978,28 +978,12 @@ class OvsFile(OvsHeader, ZipFile):
 				e = self.ovl.name_hashdict[entry.ext_hash]
 			except:
 				pass
-		# PZ Style
-		elif self.is_pz():
-			# print("PZ ids",entry.file_hash, entry.ext_hash)
-			try:
-				n = self.ovl.name_list[entry.file_hash]
-			except:
-				pass
-			try:
-				e = self.ovl.name_hashdict[entry.ext_hash]
-			except:
-				pass
-		# PC Style
-		elif self.is_pc():
-			# print("PC ids",entry.file_hash, entry.ext_hash)
-			try:
-				n = self.ovl.files[entry.file_hash].name  # self.header.name_list[entry.file_hash]
-			except:
-				pass
-			try:
-				e = self.ovl.mimes[self.ovl.files[entry.file_hash].extension].ext
-			except:
-				pass
+		# PZ Style and PC Style
+		elif self.is_pc() or self.is_pz():
+			# file_hash is an index into ovl files
+			file = self.ovl.files[entry.file_hash]
+			n = file.name
+			e = file.ext
 		return n + "." + e
 
 	def calc_uncompressed_size(self, ):
@@ -1132,8 +1116,6 @@ class OvlFile(Header, IoFile):
 		# maps OVL hash to final filename + extension
 		self.name_hashdict = {}
 		self.external_hash_table = hash_table
-		# for PZ names
-		self.name_list = []
 
 		# add extensions to hash dict
 		hm_max = len(self.mimes)
@@ -1144,7 +1126,7 @@ class OvlFile(Header, IoFile):
 			# only get the extension
 			mime_entry.ext = mime_type.split(":")[-1]
 			# the stored mime hash is not used anywhere
-			self.name_hashdict[mime_entry.mime_hash] = mime_type
+			# self.name_hashdict[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
 			self.name_hashdict[djb(mime_entry.ext)] = mime_entry.ext
@@ -1160,10 +1142,7 @@ class OvlFile(Header, IoFile):
 			file_entry.ext = self.mimes[file_entry.extension].ext
 			file_entry.name = file_name
 			file_entry.textures = []
-			self.name_list.append(file_name)
 		# print(file_name+"."+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
-		# return
-		# print(self.name_hashdict)
 		if "generate_hash_table" in self.commands:
 			return self.name_hashdict
 
