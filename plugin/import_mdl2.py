@@ -186,21 +186,11 @@ def create_material(in_dir, matname):
 	# map texture names to node
 	tex_dic = {}
 	for fgm_texture in fgm_data.textures:
-		png_base = f"{matname}.{fgm_texture.name}".lower()
-		if "blendweights" in png_base or "warpoffset" in png_base:
-			continue
-		textures = [file for file in all_textures if file.lower().startswith(png_base)]
-		if not textures:
-			png_base = png_base.lower().replace("_eyes", "").replace("_fin", "").replace("_shell", "")
-			textures = [file for file in all_textures if file.lower().startswith(png_base)]
-		if not textures:
-			textures = [png_base+".png",]
-		# print(textures)
-		for png_name in textures:
-			png_path = os.path.join(in_dir, png_name)
-			b_tex = load_tex(tree, png_path)
-			k = png_name.lower().split(".")[1]
-			tex_dic[k] = b_tex
+		png_name = fgm_texture.name.lower()+".png"
+		png_path = os.path.join(in_dir, png_name)
+		b_tex = load_tex(tree, png_path)
+		k = png_name.lower().split(".")[1]
+		tex_dic[k] = b_tex
 
 	# get diffuse and AO
 	for diffuse_name in ("pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture"):
