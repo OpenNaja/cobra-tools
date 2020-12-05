@@ -148,14 +148,17 @@ class MainWindow(widgets.MainWindow):
 		print("Loading hash table...")
 		self.hash_table = {}
 		hashes_dir = os.path.join(os.getcwd(), "hashes")
-		for file in os.listdir(hashes_dir):
-			if file.endswith(".txt"):
-				with open(os.path.join(hashes_dir, file), "r") as f:
-					for line in f:
-						line = line.strip()
-						if line:
-							k, v = line.split(" = ")
-							self.hash_table[int(k)] = v
+		try:
+			for file in os.listdir(hashes_dir):
+				if file.endswith(".txt"):
+					with open(os.path.join(hashes_dir, file), "r") as f:
+						for line in f:
+							line = line.strip()
+							if line:
+								k, v = line.split(" = ")
+								self.hash_table[int(k)] = v
+		except:
+			pass
 		# print(self.hash_table)
 		print(f"Loaded {len(self.hash_table)} hash - name pairs.")
 

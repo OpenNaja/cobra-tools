@@ -1167,7 +1167,7 @@ class OvlFile(Header, IoFile):
 			except:
 				try:
 					texture_entry.name = self.hash_table_global[texture_entry.file_hash]
-					print(f"Resolve texture name hash {texture_entry.file_hash} as {texture_entry.name} from global hash table!")
+					print(f"Resolved texture name hash {texture_entry.file_hash} as {texture_entry.name} from global hash table!")
 				except:
 					print(f"Could not resolve texture name hash {texture_entry.file_hash} from global hash table of {len(self.hash_table_global)} items")
 					texture_entry.name = "bad hash"
