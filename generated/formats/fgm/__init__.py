@@ -24,6 +24,13 @@ class FgmFile(FgmInfoHeader, IoFile):
 		else:
 			return "Unknown Game"
 
+	def get_texture_file(self, target_suffix):
+		for tex_file in self.texture_names:
+			file, suffix = tex_file.rsplit(".", 1)
+			if suffix.lower() == target_suffix.lower():
+				return tex_file
+		return target_suffix
+
 	@staticmethod
 	def read_z_str(stream, pos):
 		stream.seek(pos)
@@ -49,7 +56,8 @@ class FgmFile(FgmInfoHeader, IoFile):
 			name_start = data_start + self.data_lib_size
 			self.shader_name = self.read_z_str(stream, name_start)
 			for texture in self.textures:
-				texture.name = self.read_z_str(stream, name_start + texture.offset)
+				texture.type = self.read_z_str(stream, name_start + texture.offset)
+				texture.name = self.get_texture_file(texture.type)
 				# convert to bool
 				texture.textured = texture.is_textured == 8
 				if texture.textured:
