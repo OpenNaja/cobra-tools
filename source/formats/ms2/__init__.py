@@ -303,14 +303,15 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		# set material links
 		for mat_1 in self.materials_1:
 			try:
-				name = self.ms2_file.names[mat_1.material_index]
+				name = self.ms2_file.names[self.materials_0[mat_1.material_index].name_index]
 				model = self.models[mat_1.model_index]
 				model.material = name
 			except:
 				print(f"Couldn't match material {mat_1.material_index} to model {mat_1.model_index} - bug?")
+				model.material = "noname"
 		# todo - doesn't seem to be correct, at least not for JWE dinos
-		self.lod_names = [self.ms2_file.names[lod.strznameidx] for lod in self.lods]
-		print("lod_names", self.lod_names)
+		# self.lod_names = [self.ms2_file.names[self.materials_0[lod.name_index].name_index] for lod in self.lods]
+		# print("lod_names", self.lod_names)
 		print(f"Finished reading in {time.time() - start_time:.2f} seconds!")
 
 	def save(self, filepath):

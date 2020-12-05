@@ -186,14 +186,24 @@ def create_material(in_dir, matname):
 	# map texture names to node
 	tex_dic = {}
 	for fgm_texture in fgm_data.textures:
-		png_name = fgm_texture.name.lower()+".png"
-		png_path = os.path.join(in_dir, png_name)
-		b_tex = load_tex(tree, png_path)
-		k = png_name.lower().split(".")[1]
-		tex_dic[k] = b_tex
+		png_base = fgm_texture.name.lower()
+		if "blendweights" in png_base or "warpoffset" in png_base:
+			continue
+		textures = [file for file in all_textures if file.lower().startswith(png_base)]
+		if not textures:
+			png_base = png_base.lower().replace("_eyes", "").replace("_fin", "").replace("_shell", "")
+			textures = [file for file in all_textures if file.lower().startswith(png_base)]
+		if not textures:
+			textures = [png_base + ".png", ]
+		# print(textures)
+		for png_name in textures:
+			png_path = os.path.join(in_dir, png_name)
+			b_tex = load_tex(tree, png_path)
+			k = png_name.lower().split(".")[1]
+			tex_dic[k] = b_tex
 
 	# get diffuse and AO
-	for diffuse_name in ("pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture"):
+	for diffuse_name in ("pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture"):
 		# get diffuse
 		if diffuse_name in tex_dic:
 			diffuse = tex_dic[diffuse_name]
@@ -245,7 +255,20 @@ def create_material(in_dir, matname):
 			tree.links.new(metal.outputs[0], principled.inputs["Metallic"])
 
 	# alpha
-	if "proughnesspackedtexture_03" in tex_dic:
+	alpha = None
+	# JWE billboard: Foliage_Billboard
+	if "pdiffusealphatexture" in tex_dic:
+		alpha = tex_dic["pdiffusealphatexture"]
+		alpha_pass = alpha.outputs[1]
+	# JWE foliage: Foliage_Clip... -> 00
+	elif "proughnesspackedtexture_00" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
+		alpha = tex_dic["proughnesspackedtexture_00"]
+		alpha_pass = alpha.outputs[0]
+	# parrot: Metallic_Roughness_Clip -> 03
+	elif "proughnesspackedtexture_03" in tex_dic and "Foliage_Clip" not in fgm_data.shader_name:
+		alpha = tex_dic["proughnesspackedtexture_03"]
+		alpha_pass = alpha.outputs[0]
+	if alpha:
 		# transparency
 		mat.blend_method = "CLIP"
 		mat.shadow_method = "CLIP"
@@ -253,12 +276,9 @@ def create_material(in_dir, matname):
 			if attrib.name.lower() == "palphatestref":
 				mat.alpha_threshold = attrib.value[0]
 				break
-		# if material.AlphaBlendEnable:
-		# 	mat.blend_method = "BLEND"
 		transp = tree.nodes.new('ShaderNodeBsdfTransparent')
 		alpha_mixer = tree.nodes.new('ShaderNodeMixShader')
-		alpha = tex_dic["proughnesspackedtexture_03"]
-		tree.links.new(alpha.outputs[0], alpha_mixer.inputs[0])
+		tree.links.new(alpha_pass, alpha_mixer.inputs[0])
 
 		tree.links.new(transp.outputs[0], alpha_mixer.inputs[1])
 		tree.links.new(principled.outputs[0], alpha_mixer.inputs[2])

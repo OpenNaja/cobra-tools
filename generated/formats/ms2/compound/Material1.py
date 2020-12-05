@@ -5,6 +5,8 @@ class Material1:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# index into material0 array
 		self.material_index = 0
 		self.model_index = 0
 

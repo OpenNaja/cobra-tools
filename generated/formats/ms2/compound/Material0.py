@@ -5,28 +5,32 @@ class Material0:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.a = 0
-		self.b = 0
+
+		# index into name buffer
+		self.name_index = 0
+
+		# always zero
+		self.zero = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.a = stream.read_uint()
-		self.b = stream.read_uint()
+		self.name_index = stream.read_uint()
+		self.zero = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uint(self.a)
-		stream.write_uint(self.b)
+		stream.write_uint(self.name_index)
+		stream.write_uint(self.zero)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
 		s = 'Material0 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
-		s += '\n	* a = ' + self.a.__repr__()
-		s += '\n	* b = ' + self.b.__repr__()
+		s += '\n	* name_index = ' + self.name_index.__repr__()
+		s += '\n	* zero = ' + self.zero.__repr__()
 		s += '\n'
 		return s
