@@ -631,7 +631,7 @@ class FileWidget(QtWidgets.QWidget):
 			if os.path.splitext(filepath)[1].lower() in (f".{self.dtype_l}",):
 				if not self.abort_open_new_file(filepath):
 					self.filepath = filepath
-					self.cfg[f"dir_{self.dtype}s_in"], self.filename = os.path.split(filepath)
+					self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(filepath)
 					self.setText(self.filename)
 					self.parent.poll()
 			else:
