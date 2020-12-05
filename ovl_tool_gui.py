@@ -146,6 +146,7 @@ class MainWindow(widgets.MainWindow):
 
 	def load_hash_table(self):
 		print("Loading hash table...")
+		start_time = time.time()
 		self.hash_table = {}
 		hashes_dir = os.path.join(os.getcwd(), "hashes")
 		try:
@@ -160,7 +161,7 @@ class MainWindow(widgets.MainWindow):
 		except:
 			pass
 		# print(self.hash_table)
-		print(f"Loaded {len(self.hash_table)} hash - name pairs.")
+		print(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time()-start_time:.2f} seconds.")
 
 	def load(self):
 		if self.file_widget.filepath:
@@ -175,7 +176,6 @@ class MainWindow(widgets.MainWindow):
 				print(ex)
 			data = []
 			# dic = {}
-			# time
 			print(f"Loading {len(self.ovl_data.files)} files into gui...")
 			for file_w in self.ovl_data.files:
 				name = f"{file_w.name}.{file_w.ext}"
