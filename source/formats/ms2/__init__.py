@@ -284,16 +284,12 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		super().__init__()
 
 	def load(self, filepath, quick=False, map_bytes=False, read_bytes=False):
-
+		start_time = time.time()
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.file)[0]
-		start_time = time.time()
-		# eof = super().load(filepath)
-
 		# read the file
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		eof = super().load(filepath)
 		# print(self)
 
 		self.ms2_path = os.path.join(self.dir, self.name)
@@ -330,8 +326,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 		# write final mdl2
 		mdl2_path = os.path.join(exp_dir, mdl2_name)
-		with self.writer(mdl2_path) as stream:
-			self.write(stream)
+		eof = super().save(mdl2_path)
 
 
 if __name__ == "__main__":
