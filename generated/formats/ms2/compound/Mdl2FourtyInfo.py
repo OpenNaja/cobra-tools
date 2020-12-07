@@ -10,7 +10,7 @@ class Mdl2FourtyInfo:
 		self.io_size = 0
 		self.io_start = 0
 
-		# 0, 1, 0, 0, 0
+		# 0, 1 or 0, 0, 0, 0
 		self.unknowns = Array()
 
 	def read(self, stream):

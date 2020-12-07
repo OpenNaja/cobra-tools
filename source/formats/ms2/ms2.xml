@@ -210,7 +210,7 @@
         20 bytes
         <add name="distance" type="float" >usually first lod is 900</add>
         <add name="unknown04" type="ushort" >unknown, found 0</add>
-        <add name="name index" type="ushort" >index of strzname from str pool later</add>
+        <add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
         <add name="first model index" type="ushort" >first model for this lod in models list</add>
         <add name="last model index" type="ushort" >not included in interval (python style indexing)</add>
         <add name="vertex count" type="uint" >vertex count of lod</add>
@@ -273,7 +273,8 @@
         <add name="magic" type="FixedString" arg="4">'MS2 '</add>
         <add name="version" type="uint"/>
         <add name="user version" type="uint"/>
-        <add name="index" type="uint" >index of this model inside the ms2, used to find bone info</add>
+        <add name="index" type="uint" >index of this model inside the ms2</add>
+        <add name="bone info index" type="uint" >used to find bone info</add>
 
         <add name="name" type="string" >name of ms2</add>
         <add name="model info" type="CoreModelInfo" cond="!#PC#" >gives relevant info on the mdl, including counts and pack base</add>
@@ -346,7 +347,7 @@
     </compound>
 	
 	<compound name="Mdl2FourtyInfo" >
-		<add name="unknowns" type="uint64" arr1="5" >0, 1, 0, 0, 0</add>
+		<add name="unknowns" type="uint64" arr1="5" >0, 1 or 0, 0, 0, 0</add>
     </compound>
 	
 	<compound name="Mdl2ModelInfo" >

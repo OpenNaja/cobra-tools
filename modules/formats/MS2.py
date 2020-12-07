@@ -69,6 +69,9 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		outfile.write(bone_matrices)
 		outfile.write(verts)
 
+	# zeros = []
+	# ones = []
+	bone_info_index = 0
 	# export each mdl2
 	for mdl2_index, mdl2_entry in enumerate(ms2_sized_str_entry.children):
 		mdl2_path = out_dir(mdl2_entry.name)
@@ -76,7 +79,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		with open(mdl2_path, 'wb') as outfile:
 			print("Writing", mdl2_entry.name, mdl2_index)
 
-			mdl2_header = struct.pack("<4s3I", b"MDL2", archive.ovl.version, archive.ovl.flag_2, mdl2_index )
+			mdl2_header = struct.pack("<4s4I", b"MDL2", archive.ovl.version, archive.ovl.flag_2, mdl2_index, bone_info_index)
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
@@ -89,27 +92,36 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				outfile.write(next_model_info_data)
 				# print("PINK",pink.pointers[0].address,pink.pointers[0].data_size,pink.pointers[1].address, pink.pointers[1].data_size)
 				if pink.pointers[0].data_size == 40:
-					pass
-					# 40 bytes of 'padding' (0,1 or 0,0,0,0)
-					# core_model_data = pink.pointers[0].load_as(Mdl2FourtyInfo, version_info=versions)
-					# print(core_model_data)
+					# 40 bytes (0,1 or 0,0,0,0)
+					has_bone_info = pink.pointers[0].data
 				elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
 				or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = pink.pointers[0].data[40:]
+					has_bone_info = pink.pointers[0].data[:40]
 					# core_model_data = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)
 					# print(core_model_data)
 				else:
-					print("unexpected size for pink")
+					raise ValueError(f"Unexpected size {len(pink.pointers[0].data)} for pink fragment for {mdl2_entry.name}")
+
+				core_model_data = struct.unpack("<5Q", has_bone_info)
+				# print(core_model_data)
+				var = core_model_data[1]
+				bone_info_index += var
+				# if var == 1:
+				# 	ones.append((mdl2_index, mdl2_entry.name))
+				# elif var == 0:
+				# 	zeros.append((mdl2_index, mdl2_entry.name))
 
 				# avoid writing bad fragments that should be empty
 				if mdl2_entry.model_count:
-					# print("fixed fragments")
 					# need not write lod0
 					for f in (green_mats_0, blue_lod, orange_mats_1):
 						# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
 						other_data = f.pointers[1].data
 						outfile.write(other_data)
+						# data 0 must be empty
+						assert(f.pointers[0].data == b'\x00\x00\x00\x00\x00\x00\x00\x00')
 
 				# print("modeldata frags")
 				for f in mdl2_entry.model_data_frags:
@@ -120,7 +132,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 
 					model_data = f.pointers[0].data
 					outfile.write(model_data)
-
+	# print("ones", len(ones), ones)
+	# print("zeros", len(zeros), zeros)
 	return out_paths
 
 

@@ -199,7 +199,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print("start of boneinfo", stream.tell())
 				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfoPc)
 			else:
-				self.bone_info = self.get_bone_info(mdl2.index, stream, Ms2BoneInfo)
+				self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
 		# print(self.bone_info)
 		if self.bone_info:
 			try:
@@ -377,16 +377,16 @@ if __name__ == "__main__":
 			m.load(fp, quick=True)
 			indices.append(m.index)
 			print(file)
-			# print(list(lod.name_index for lod in m.lods))
-			print(m.model_info)
-	# 		lod_indices = list(lod.name_index for lod in m.lods)
+			# print(list(lod.bone_index for lod in m.lods))
+			# print(m.model_info)
+			lod_indices = list(lod.bone_index for lod in m.lods)
 	# 		dic[file] = lod_indices
 	# 		if file.lower() == name:
 	# 			print(m.ms2_file.bone_info)
 	# 		# print(m.ms2_file.bone_info)
-	# 		print(m.ms2_file.bone_info.name_indices, lod_indices)
-	# 		# lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
-	# 		# print(lod_names)
+			print(m.ms2_file.bone_info.name_indices, lod_indices)
+			lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
+			print(lod_names)
 	# print(dic)
 	# # print(m.ms2_file.names)
 	# for i, n in enumerate(m.ms2_file.names):

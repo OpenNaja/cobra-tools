@@ -27,8 +27,11 @@ class Mdl2InfoHeader:
 		self.version = 0
 		self.user_version = 0
 
-		# index of this model inside the ms2, used to find bone info
+		# index of this model inside the ms2
 		self.index = 0
+
+		# used to find bone info
+		self.bone_info_index = 0
 
 		# name of ms2
 		self.name = 0
@@ -57,6 +60,7 @@ class Mdl2InfoHeader:
 		self.user_version = stream.read_uint()
 		stream.user_version = self.user_version
 		self.index = stream.read_uint()
+		self.bone_info_index = stream.read_uint()
 		self.name = stream.read_string()
 		if not (stream.version == 18):
 			self.model_info = stream.read_type(CoreModelInfo)
@@ -76,6 +80,7 @@ class Mdl2InfoHeader:
 		stream.write_uint(self.user_version)
 		stream.user_version = self.user_version
 		stream.write_uint(self.index)
+		stream.write_uint(self.bone_info_index)
 		stream.write_string(self.name)
 		if not (stream.version == 18):
 			stream.write_type(self.model_info)
@@ -92,6 +97,7 @@ class Mdl2InfoHeader:
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* index = ' + self.index.__repr__()
+		s += '\n	* bone_info_index = ' + self.bone_info_index.__repr__()
 		s += '\n	* name = ' + self.name.__repr__()
 		s += '\n	* model_info = ' + self.model_info.__repr__()
 		s += '\n	* materials_0 = ' + self.materials_0.__repr__()
