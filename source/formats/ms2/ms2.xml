@@ -657,10 +657,18 @@
 		<add name="unknown4" type="uint">46</add>
 		<add name="namespace offset" type="uint"></add>
 
+		<add name="sphere" type="Sphere" cond="type == 0"></add>
 		<add name="bbox" type="BoundingBox" cond="type == 1"></add>
 		<add name="capsule" type="Capsule" cond="type == 2"></add>
     </compound>
 
+
+    <compound name="Sphere">
+         <add name="center" type="Vector3" ></add>
+         <add name="radius" type="float" ></add>
+         <add name="unk" type="float" ></add>
+<!--         <add name="unk" type="Vector3" > zero?</add>-->
+    </compound>
 
     <compound name="Capsule">
          <add name="a" type="Vector3" ></add>

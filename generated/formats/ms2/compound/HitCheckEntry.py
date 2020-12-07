@@ -1,5 +1,6 @@
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
+from generated.formats.ms2.compound.Sphere import Sphere
 
 
 class HitCheckEntry:
@@ -25,6 +26,7 @@ class HitCheckEntry:
 		# 46
 		self.unknown_4 = 0
 		self.namespace_offset = 0
+		self.sphere = Sphere()
 		self.bbox = BoundingBox()
 		self.capsule = Capsule()
 
@@ -39,6 +41,8 @@ class HitCheckEntry:
 		self.unknown_3 = stream.read_uint()
 		self.unknown_4 = stream.read_uint()
 		self.namespace_offset = stream.read_uint()
+		if self.type == 0:
+			self.sphere = stream.read_type(Sphere)
 		if self.type == 1:
 			self.bbox = stream.read_type(BoundingBox)
 		if self.type == 2:
@@ -57,6 +61,8 @@ class HitCheckEntry:
 		stream.write_uint(self.unknown_3)
 		stream.write_uint(self.unknown_4)
 		stream.write_uint(self.namespace_offset)
+		if self.type == 0:
+			stream.write_type(self.sphere)
 		if self.type == 1:
 			stream.write_type(self.bbox)
 		if self.type == 2:
@@ -74,6 +80,7 @@ class HitCheckEntry:
 		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
 		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()
 		s += '\n	* namespace_offset = ' + self.namespace_offset.__repr__()
+		s += '\n	* sphere = ' + self.sphere.__repr__()
 		s += '\n	* bbox = ' + self.bbox.__repr__()
 		s += '\n	* capsule = ' + self.capsule.__repr__()
 		s += '\n'

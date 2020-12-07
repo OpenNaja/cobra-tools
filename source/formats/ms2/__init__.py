@@ -40,29 +40,61 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def is_pc(self):
 		return self.general_info.ms_2_version == 32
 
+	def read_all_bone_infos(self, stream, bone_info_cls):
+		# functional for JWE detailobjects.ms2, if joint_data is read
+		potential_start = stream.tell()
+		print("mdl2 count", self.general_info.mdl_2_count)
+		for i in range(self.general_info.mdl_2_count):
+			print(f"BONE INFO {i} starts at {stream.tell()}")
+			try:
+				bone_info = bone_info_cls()
+				bone_info.read(stream)
+				# print(bone_info)
+				print("end of bone info at", stream.tell())
+				# last one has no padding, so stop here
+				if stream.tell() >= potential_start + self.bone_info_size:
+					print(f"Exhausted bone info buffer at {stream.tell()}")
+					break
+				relative_offset = stream.tell() - potential_start
+				# currently no other way to predict the padding, no correlation to joint count
+				pad_to = 16
+				padding_len = (pad_to - (relative_offset % pad_to)) % pad_to
+				# k = None
+				# if bone_info.joint_count:
+				# 	k = bone_info.joint_datas.joint_count
+				print("padding", padding_len, stream.read(padding_len), "joint count", bone_info.joint_count)
+			except:
+				print("Bone info failed")
+		stream.seek(potential_start)
+
 	def get_bone_info(self, mdl2_index, stream, bone_info_cls):
 		bone_info = None
 		potential_start = stream.tell()
 		print("Start looking for bone info at", potential_start)
+		# self.read_all_bone_infos(stream, bone_info_cls)
 		# first get all bytes of the whole bone infos block
 		self.bone_info_bytes = stream.read(self.bone_info_size)
 		# find the start of each using this identifier
 		zero_f = bytes.fromhex("00 00 00 00")
 		one_f = bytes.fromhex("00 00 80 3F")
+		prefixes = (zero_f, one_f)
 		# lion has a 1 instead of a 4
 		bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
 		# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
 		bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
+		# bone_info_marker =   bytes.fromhex("00 00 00 00 00 00 00 00 01")
+		# bone_info_markerb =   bytes.fromhex("00 00 00 00 00 00 00 00 04")
+		suffixes = (bone_info_marker_1, bone_info_marker_4, )
 		# there's 8 bytes before this
 		bone_info_starts = []
-		for a, b in ((zero_f, bone_info_marker_1),
-					 (one_f, bone_info_marker_1),
-					 (zero_f, bone_info_marker_4),
-					 (one_f, bone_info_marker_4),
-					 ):
-			bone_info_starts.extend(x - 4 for x in findall(a + b, self.bone_info_bytes))
+		for prefix in prefixes:
+			for suffix in suffixes:
+				bone_info_starts.extend(x - 4 for x in findall(prefix + suffix, self.bone_info_bytes))
 
-		bone_info_starts = list(sorted(bone_info_starts))
+		bone_info_starts = list(sorted(set(bone_info_starts)))
+		# for i, start in enumerate(bone_info_starts):
+		# 	print(i, self.bone_info_bytes[start:start+20])
+
 		if self.is_pc():
 			if bone_info_starts:
 				if bone_info_starts[0] <= 20:
@@ -80,7 +112,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print("reset boneinfo index")
 				idx = 0
 			bone_info_address = potential_start + bone_info_starts[idx]
-			print("using bone info {} at address {}".format(idx, bone_info_address))
+			print(f"using bone info {idx} of {len(bone_info_starts)} at address {bone_info_address}")
 			stream.seek(bone_info_address)
 			try:
 				bone_info = bone_info_cls()
@@ -331,5 +363,36 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
-	print(m)
+	# m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
+	# print(m)
+
+	idir = "C:/Users/arnfi/Desktop/Coding/ovl/detailobjects"
+	dic = {}
+	name = "nat_grassdune_02.mdl2"
+	name = "nat_groundcover_searocket_patchy_01.mdl2"
+	indices = []
+	for file in os.listdir(idir):
+		if file.endswith(".mdl2"):
+			fp = os.path.join(idir, file)
+			m.load(fp, quick=True)
+			indices.append(m.index)
+			print(file)
+			# print(list(lod.name_index for lod in m.lods))
+			print(m.model_info)
+	# 		lod_indices = list(lod.name_index for lod in m.lods)
+	# 		dic[file] = lod_indices
+	# 		if file.lower() == name:
+	# 			print(m.ms2_file.bone_info)
+	# 		# print(m.ms2_file.bone_info)
+	# 		print(m.ms2_file.bone_info.name_indices, lod_indices)
+	# 		# lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
+	# 		# print(lod_names)
+	# print(dic)
+	# # print(m.ms2_file.names)
+	# for i, n in enumerate(m.ms2_file.names):
+	# 	print(i,n)
+	# l = dic[name]
+	# print(l)
+	# print(indices, max(indices))
+	# fp = os.path.join(idir, name)
+	# m.load(fp, quick=True)
