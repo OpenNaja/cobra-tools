@@ -85,10 +85,14 @@
 
     <bitfield name="ModelFlag" storage="uint">
         Determines the data held by a mesh.
+        Count from the end!!!
 <!--        <member width="1" pos="0" mask="0x0001" name="Anim Type" type="AnimType" />-->
 <!--        <member width="2" pos="1" mask="0x0006" name="Cycle Type" type="CycleType" default="CYCLE_CLAMP" />-->
 <!--        <member width="1" pos="3" name="Active" type="bool" default="1" />-->
-        <member width="1" pos="0" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
+        <member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
+        <member width="1" pos="4" name="weights" type="bool">at least 529</member>
+<!--        <member width="1" pos="5" name="weights" type="bool">at least 529</member>-->
+<!--        <member width="1" pos="6" name="b" type="bool">at least 529</member>-->
 <!--        <member width="1" pos="5" name="Manager Controlled" type="bool" />-->
 <!--        <member width="1" pos="6" name="Compute Scaled Time" type="bool" default="1" />-->
 <!--        <member width="1" pos="7" name="weights" type="bool" >weight data present, flag = 9</member>-->

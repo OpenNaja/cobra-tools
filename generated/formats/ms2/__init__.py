@@ -368,8 +368,8 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
 	# print(m)
 
-	# idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save"
-	idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
+	idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save"
+	# idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
 	dic = {}
 	name = "nat_grassdune_02.mdl2"
 	name = "nat_groundcover_searocket_patchy_01.mdl2"
