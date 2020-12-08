@@ -14,8 +14,8 @@ class LodInfo:
 		# usually first lod is 900
 		self.distance = 0
 
-		# unknown, found 0
-		self.unknown_04 = 0
+		# always 0
+		self.zero = 0
 
 		# index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)
 		self.bone_index = 0
@@ -36,7 +36,7 @@ class LodInfo:
 
 		self.io_start = stream.tell()
 		self.distance = stream.read_float()
-		self.unknown_04 = stream.read_ushort()
+		self.zero = stream.read_ushort()
 		self.bone_index = stream.read_ushort()
 		self.first_model_index = stream.read_ushort()
 		self.last_model_index = stream.read_ushort()
@@ -49,7 +49,7 @@ class LodInfo:
 
 		self.io_start = stream.tell()
 		stream.write_float(self.distance)
-		stream.write_ushort(self.unknown_04)
+		stream.write_ushort(self.zero)
 		stream.write_ushort(self.bone_index)
 		stream.write_ushort(self.first_model_index)
 		stream.write_ushort(self.last_model_index)
@@ -61,7 +61,7 @@ class LodInfo:
 	def __repr__(self):
 		s = 'LodInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* distance = ' + self.distance.__repr__()
-		s += '\n	* unknown_04 = ' + self.unknown_04.__repr__()
+		s += '\n	* zero = ' + self.zero.__repr__()
 		s += '\n	* bone_index = ' + self.bone_index.__repr__()
 		s += '\n	* first_model_index = ' + self.first_model_index.__repr__()
 		s += '\n	* last_model_index = ' + self.last_model_index.__repr__()

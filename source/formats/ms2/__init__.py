@@ -4,6 +4,7 @@ import struct
 import io
 import time
 
+from generated.array import Array
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
@@ -11,6 +12,7 @@ from generated.formats.ms2.compound.Ms2BoneInfoPc import Ms2BoneInfoPc
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.io import IoFile, BinaryStream
+from modules import walker
 
 
 def findall(p, s):
@@ -214,7 +216,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.start_buffer2 = stream.tell()
 			if self.general_info.ms_2_version == 32:
 				print("PC model...")
-				mdl2.models = []
+				mdl2.models = Array()
 				if not quick:
 					base = model_info.model_info.pack_offset
 					print("base", base)
@@ -366,27 +368,30 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
 	# print(m)
 
-	idir = "C:/Users/arnfi/Desktop/Coding/ovl/detailobjects"
+	idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save"
+	# idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
 	dic = {}
 	name = "nat_grassdune_02.mdl2"
 	name = "nat_groundcover_searocket_patchy_01.mdl2"
 	indices = []
-	for file in os.listdir(idir):
-		if file.endswith(".mdl2"):
-			fp = os.path.join(idir, file)
-			m.load(fp, quick=True)
-			indices.append(m.index)
-			print(file)
-			# print(list(lod.bone_index for lod in m.lods))
-			# print(m.model_info)
-			lod_indices = list(lod.bone_index for lod in m.lods)
+
+	for fp in walker.walk_type(idir, "mdl2"):
+		m.load(fp, quick=True)
+		# indices.append(m.index)
+		print(fp)
+		# print(list(lod.bone_index for lod in m.lods))
+		# print(m.model_info)
+		# lod_indices = list(lod.bone_index for lod in m.lods)
+		unk = list(lod.distance for lod in m.lods)
+		print(unk)
+		indices.extend(unk)
 	# 		dic[file] = lod_indices
 	# 		if file.lower() == name:
 	# 			print(m.ms2_file.bone_info)
 	# 		# print(m.ms2_file.bone_info)
-			print(m.ms2_file.bone_info.name_indices, lod_indices)
-			lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
-			print(lod_names)
+	# 		print(m.ms2_file.bone_info.name_indices, lod_indices)
+	# 		lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
+	# 		print(lod_names)
 	# print(dic)
 	# # print(m.ms2_file.names)
 	# for i, n in enumerate(m.ms2_file.names):
@@ -396,3 +401,5 @@ if __name__ == "__main__":
 	# print(indices, max(indices))
 	# fp = os.path.join(idir, name)
 	# m.load(fp, quick=True)
+
+	print(set(indices))
