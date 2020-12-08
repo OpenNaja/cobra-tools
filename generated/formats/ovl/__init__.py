@@ -1201,7 +1201,7 @@ class OvlFile(Header, IoFile):
 			# those point to external ovs archives
 			if archive_index > 0:
 				# JWE style
-				if self.flag_2 == 24724:
+				if self.flag_2 in (24724, 25108):
 					archive_entry.ovs_path = self.file_no_ext + ".ovs." + archive_entry.name.lower()
 				# PZ Style
 				elif self.flag_2 in (8340, 8724):
