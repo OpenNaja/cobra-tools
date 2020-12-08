@@ -339,7 +339,7 @@ class ZipFile(IoFile):
 		self.write_archive(stream)
 		uncompressed_bytes = stream.getbuffer()
 		# compress data
-		if self.zlib_header.startswith(b'\x8c'):
+		if self.zlib_header.startswith(b'\x8c') and self.is_pz() == False:
 			a, algo = struct.unpack("BB", self.zlib_header)
 			print("Oodle compression", a, algo)
 			compressed = texconv.oodle_compressor.compress(bytes(uncompressed_bytes), algo-1)
