@@ -28,6 +28,16 @@ class BasicBitfield(int):
         """This function has to be overwritten by concrete implementations to set defaults for the bitfield."""
         raise NotImplementedError
 
+    def __hash__(self):
+        return self._value.__hash__()
+
+    def __eq__(self, other):
+        if isinstance(other, BasicBitfield):
+            return self._value == other._value
+        elif isinstance(other, int):
+            return self._value == other
+        return False
+
     def __new__(cls, *args, **kwargs):
         return super(BasicBitfield, cls).__new__(cls)
 

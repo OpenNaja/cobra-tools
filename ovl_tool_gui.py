@@ -342,7 +342,7 @@ class MainWindow(widgets.MainWindow):
 				print(file_path, str(ex))
 
 			print("\nThe following type - map pairs were found:")
-			for flag, tup in type_dic.items():
+			for flag, tup in sorted(type_dic.items()):
 				print(flag, bin(flag))
 				names, maps_list = tup
 				print("Some files:", list(set(names))[:25])

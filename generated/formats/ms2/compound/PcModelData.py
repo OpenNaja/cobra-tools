@@ -6,6 +6,7 @@ from generated.formats.ms2.compound.packing_utils import *
 from utils.tristrip import triangulate
 import typing
 from generated.array import Array
+from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
 
 class PcModelData:
@@ -65,7 +66,7 @@ class PcModelData:
 		self.unknown_07 = 0
 
 		# bitfield
-		self.flag = 0
+		self.flag = ModelFlag()
 
 	def read(self, stream):
 
@@ -85,7 +86,7 @@ class PcModelData:
 		self.poweroftwo = stream.read_uint()
 		self.zero = stream.read_uint()
 		self.unknown_07 = stream.read_float()
-		self.flag = stream.read_uint()
+		self.flag = stream.read_type(ModelFlag)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -107,7 +108,7 @@ class PcModelData:
 		stream.write_uint(self.poweroftwo)
 		stream.write_uint(self.zero)
 		stream.write_float(self.unknown_07)
-		stream.write_uint(self.flag)
+		stream.write_type(self.flag)
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -7,15 +7,10 @@ class ModelFlag(BasicBitfield):
 	"""
 	Determines the data held by a mesh.
 	"""
-	active = BitfieldMember(pos=3, mask=0x8, return_type=bool)
-	basic_info = BitfieldMember(pos=4, mask=0x10, return_type=bool)
-	manager_controlled = BitfieldMember(pos=5, mask=0x20, return_type=bool)
-	compute_scaled_time = BitfieldMember(pos=6, mask=0x40, return_type=bool)
-	weights = BitfieldMember(pos=7, mask=0x80, return_type=bool)
+	basic_info = BitfieldMember(pos=0, mask=0x1, return_type=bool)
 
 	def set_defaults(self):
-		self.active = 1
-		self.compute_scaled_time = 1
+		pass
 
 	def read(self, stream):
 		self._value = stream.read_uint()

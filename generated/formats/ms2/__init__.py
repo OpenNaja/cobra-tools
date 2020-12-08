@@ -368,8 +368,8 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
 	# print(m)
 
-	idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save"
-	# idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
+	# idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save"
+	idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
 	dic = {}
 	name = "nat_grassdune_02.mdl2"
 	name = "nat_groundcover_searocket_patchy_01.mdl2"
@@ -382,9 +382,9 @@ if __name__ == "__main__":
 		# print(list(lod.bone_index for lod in m.lods))
 		# print(m.model_info)
 		# lod_indices = list(lod.bone_index for lod in m.lods)
-		unk = list(lod.distance for lod in m.lods)
-		print(unk)
-		indices.extend(unk)
+		flags = list(mo.flag for mo in m.models)
+		print(flags)
+		# indices.extend(unk)
 	# 		dic[file] = lod_indices
 	# 		if file.lower() == name:
 	# 			print(m.ms2_file.bone_info)

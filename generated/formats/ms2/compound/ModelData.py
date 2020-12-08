@@ -6,6 +6,7 @@ from generated.formats.ms2.compound.packing_utils import *
 
 import typing
 from generated.array import Array
+from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
@@ -54,7 +55,7 @@ class ModelData:
 		self.unknown_07 = Vector3()
 
 		# maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)
-		self.flag = 0
+		self.flag = ModelFlag()
 
 	def read(self, stream):
 
@@ -69,7 +70,7 @@ class ModelData:
 		self.tri_offset = stream.read_uint()
 		self.zero = stream.read_uint()
 		self.unknown_07 = stream.read_type(Vector3)
-		self.flag = stream.read_uint()
+		self.flag = stream.read_type(ModelFlag)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -86,7 +87,7 @@ class ModelData:
 		stream.write_uint(self.tri_offset)
 		stream.write_uint(self.zero)
 		stream.write_type(self.unknown_07)
-		stream.write_uint(self.flag)
+		stream.write_type(self.flag)
 
 		self.io_size = stream.tell() - self.io_start
 
