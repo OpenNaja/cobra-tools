@@ -94,8 +94,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				if pink.pointers[0].data_size == 40:
 					# 40 bytes (0,1 or 0,0,0,0)
 					has_bone_info = pink.pointers[0].data
-				elif (archive.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
-				or   (archive.ovl.flag_2 == 8340  and pink.pointers[0].data_size == 160):
+				elif (archive.is_jwe() and pink.pointers[0].data_size == 144) \
+				or   (archive.is_pz() and pink.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = pink.pointers[0].data[40:]
 					has_bone_info = pink.pointers[0].data[:40]

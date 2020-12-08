@@ -687,8 +687,8 @@ class OvsFile(OvsHeader, ZipFile):
 					if sized_str_entry.ext == "mdl2":
 						self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
 						pink = sized_str_entry.fragments[4]
-						if (self.ovl.flag_2 == 24724 and pink.pointers[0].data_size == 144) \
-								or (self.ovl.flag_2 == 8340 and pink.pointers[0].data_size == 160):
+						if (self.is_jwe() and pink.pointers[0].data_size == 144) \
+							or (self.is_pz() and pink.pointers[0].data_size == 160):
 							next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		# # for debugging only:
@@ -1204,11 +1204,10 @@ class OvlFile(Header, IoFile):
 				if self.flag_2 == 24724:
 					archive_entry.ovs_path = self.file_no_ext + ".ovs." + archive_entry.name.lower()
 				# PZ Style
-				elif self.flag_2 == 8340:
+				elif self.flag_2 in (8340, 8724):
 					archive_entry.ovs_path = self.file_no_ext + ".ovs"
 				else:
-					print("unsupported flag_2", self.flag_2)
-					return
+					raise AttributeError(f"unsupported flag_2 {self.flag_2}")
 				# make sure that the ovs exists
 				if not os.path.exists(archive_entry.ovs_path):
 					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
