@@ -8,7 +8,7 @@ pcb = os.path.normpath( os.path.join( util_dir, "ww2ogg/packed_codebooks_aoTuV_6
 revorb = os.path.normpath( os.path.join( util_dir, "revorb/revorb.exe") )
 luadec = os.path.normpath( os.path.join( util_dir, "luadec/luadec.exe") )
 luac = os.path.normpath( os.path.join( util_dir, "luadec/luac.exe") )
-oodle_dll = os.path.normpath(os.path.join(util_dir, "oodle/oo2core_7_win64.dll"))
+oodle_dll = os.path.normpath(os.path.join(util_dir, "oodle/oo2core_8_win64.dll"))
 # print(BINARY)
 # print(os.path.exists(BINARY))
 
