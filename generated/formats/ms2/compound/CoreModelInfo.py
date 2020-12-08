@@ -59,7 +59,7 @@ class CoreModelInfo:
 		if (stream.user_version == 24724) and (stream.version == 19):
 			self.unk_float_0 = stream.read_float()
 			self.unk_float_1 = stream.read_float()
-		if (stream.user_version == 8340) and (stream.version == 19):
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.unk_vec_a_repeat = stream.read_type(Vector3)
 			self.unk_vec_b_repeat = stream.read_type(Vector3)
 		self.mat_count = stream.read_ushort()
@@ -86,7 +86,7 @@ class CoreModelInfo:
 		if (stream.user_version == 24724) and (stream.version == 19):
 			stream.write_float(self.unk_float_0)
 			stream.write_float(self.unk_float_1)
-		if (stream.user_version == 8340) and (stream.version == 19):
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			stream.write_type(self.unk_vec_a_repeat)
 			stream.write_type(self.unk_vec_b_repeat)
 		stream.write_ushort(self.mat_count)

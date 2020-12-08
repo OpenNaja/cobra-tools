@@ -6,7 +6,7 @@
 
     <token name="verexpr" attrs="vercond cond">
         Commonly used version expressions.
-        <verexpr token="#PZ#" string="((#USER# #EQ# 8340) #AND# (#VER# #EQ# 19))">PZ</verexpr>
+        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
         <verexpr token="#JWE#" string="((#USER# #EQ# 24724) #AND# (#VER# #EQ# 19))">JWE</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
 <!--		<verexpr token="#PC#" string="(ms2 version #EQ# 32)">PC</verexpr>-->

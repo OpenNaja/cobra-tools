@@ -8,7 +8,7 @@
         Commonly used version expressions.
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#USER# #EQ# 8212)">PC</verexpr>
-        <verexpr token="#PZ#" string="((#USER# #EQ# 8340) #AND# (#VER# #EQ# 19))">PZ</verexpr>
+        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch</verexpr>
     </token>
     <token name="global" attrs="vercond cond">

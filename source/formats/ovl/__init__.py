@@ -49,7 +49,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
 			# print(self.ovl)
-			# print(self)
+			print(self)
 			print(self.is_pc(), self.is_jwe(), self.is_pz())
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
@@ -958,7 +958,7 @@ class OvsFile(OvsHeader, ZipFile):
 		return self.version == 18
 
 	def is_pz(self):
-		return self.ovl.flag_2 == 8340 and not self.is_pc()
+		return self.ovl.flag_2 in (8340, 8724) and not self.is_pc()
 
 	def is_jwe(self):
 		return self.ovl.flag_2 in (24724, 25108) and not self.is_pc()
@@ -981,7 +981,10 @@ class OvsFile(OvsHeader, ZipFile):
 		# PZ Style and PC Style
 		elif self.is_pc() or self.is_pz():
 			# file_hash is an index into ovl files
-			file = self.ovl.files[entry.file_hash]
+			try:
+				file = self.ovl.files[entry.file_hash]
+			except IndexError:
+				raise IndexError(f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
 			n = file.name
 			e = file.ext
 		return n + "." + e
