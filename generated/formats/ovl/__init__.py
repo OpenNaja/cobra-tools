@@ -42,7 +42,7 @@ class OvsFile(OvsHeader, ZipFile):
 			print("reading from unzipped ovs")
 			stream.version = self.ovl.version
 			stream.user_version = self.ovl.user_version
-			if self.is_pc():
+			if self.is_pc() or self.is_pz():
 				# change to zipped format for saving of coaster ovls
 				self.ovl.flag_2 = 8340
 			# print("stream.version", stream.version)
