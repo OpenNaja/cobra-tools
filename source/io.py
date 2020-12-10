@@ -1,4 +1,5 @@
 from io import BytesIO
+import os
 import struct
 from struct import Struct
 import zlib
@@ -307,14 +308,14 @@ class ZipFile(IoFile):
 		with self.reader(filepath) as stream:
 			# self.unzip(stream, compressed_size)
 			stream.seek(start)
-			print(stream.tell())
+			print(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
 			zipped = stream.read(compressed_size)
 			# self.print_and_callback(f"Reading {archive_entry.name}")
 			if skip != 8212:
 				self.zlib_header = zipped[:2]
-				print(self.zlib_header)
+				print(f"Compression magic bytes: {self.zlib_header}")
 				zlib_compressed_data = zipped[2:]
-				if self.zlib_header.startswith(b'\x8c'):
+				if self.zlib_header.startswith(b'\x8c') or self.zlib_header.startswith(b'\xcc'):
 					print("Oodle compression")
 					zlib_data = texconv.oodle_compressor.decompress(zipped, compressed_size, uncompressed_size)
 				else:
