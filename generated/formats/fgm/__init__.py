@@ -13,13 +13,13 @@ class FgmFile(FgmInfoHeader, IoFile):
 	@property
 	def game(self, ):
 		# JWE style
-		if self.flag_2 == 24724:
+		if self.flag_2 in (24724, 25108):
 			return "Jurassic World Evolution"
 		# PC style
 		elif self.version == 18:
 			return "Planet Coaster"
 		# PZ Style
-		elif self.flag_2 == 8340:
+		elif self.flag_2 in (8340, 8724):
 			return "Planet Zoo"
 		else:
 			return "Unknown Game"
