@@ -260,7 +260,10 @@ def create_material(in_dir, matname):
 	if "pdiffusealphatexture" in tex_dic:
 		alpha = tex_dic["pdiffusealphatexture"]
 		alpha_pass = alpha.outputs[1]
-	# JWE foliage: Foliage_Clip... -> 00
+	# PZ penguin
+	elif "popacitytexture" in tex_dic:
+		alpha = tex_dic["popacitytexture"]
+		alpha_pass = alpha.outputs[0]
 	elif "proughnesspackedtexture_00" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
 		alpha = tex_dic["proughnesspackedtexture_00"]
 		alpha_pass = alpha.outputs[0]
