@@ -6,6 +6,7 @@ from generated.formats.ms2.compound.Sphere import Sphere
 class HitCheckEntry:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -71,7 +72,7 @@ class HitCheckEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HitCheckEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'HitCheckEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* type = ' + self.type.__repr__()
 		s += '\n	* unknown_2_a = ' + self.unknown_2_a.__repr__()
 		s += '\n	* unknown_2_b = ' + self.unknown_2_b.__repr__()

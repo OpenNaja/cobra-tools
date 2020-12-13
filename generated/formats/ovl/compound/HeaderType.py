@@ -5,6 +5,7 @@ class HeaderType:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -33,7 +34,7 @@ class HeaderType:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HeaderType [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'HeaderType [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* type = ' + self.type.__repr__()
 		s += '\n	* num_headers = ' + self.num_headers.__repr__()
 		s += '\n'

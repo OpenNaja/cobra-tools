@@ -5,6 +5,7 @@ class Vector4:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -43,7 +44,7 @@ class Vector4:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Vector4 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Vector4 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* w = ' + self.w.__repr__()
 		s += '\n	* x = ' + self.x.__repr__()
 		s += '\n	* y = ' + self.y.__repr__()

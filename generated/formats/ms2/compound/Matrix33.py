@@ -5,6 +5,7 @@ class Matrix33:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

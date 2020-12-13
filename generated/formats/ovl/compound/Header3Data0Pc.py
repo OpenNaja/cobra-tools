@@ -9,6 +9,7 @@ class Header3Data0Pc:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -57,7 +58,7 @@ class Header3Data0Pc:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header3Data0Pc [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Header3Data0Pc [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* compression_type = ' + self.compression_type.__repr__()
 		s += '\n	* one_0 = ' + self.one_0.__repr__()

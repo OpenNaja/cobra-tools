@@ -9,6 +9,7 @@ class NasutoJointEntry:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -53,7 +54,7 @@ class NasutoJointEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'NasutoJointEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'NasutoJointEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* matrix = ' + self.matrix.__repr__()
 		s += '\n	* vector = ' + self.vector.__repr__()
 		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()

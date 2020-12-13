@@ -4,6 +4,7 @@ from generated.formats.ms2.compound.Matrix33 import Matrix33
 class ListCEntry:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -33,7 +34,7 @@ class ListCEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ListCEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'ListCEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* one = ' + self.one.__repr__()
 		s += '\n	* matrix = ' + self.matrix.__repr__()
 		s += '\n	* a = ' + self.a.__repr__()

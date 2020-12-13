@@ -19,6 +19,7 @@ class Header:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -221,7 +222,7 @@ class Header:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* fres = ' + self.fres.__repr__()
 		s += '\n	* flag = ' + self.flag.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()

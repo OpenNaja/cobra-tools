@@ -5,6 +5,7 @@ class UbyteVector3:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -38,7 +39,7 @@ class UbyteVector3:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'UbyteVector3 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'UbyteVector3 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* x = ' + self.x.__repr__()
 		s += '\n	* y = ' + self.y.__repr__()
 		s += '\n	* z = ' + self.z.__repr__()

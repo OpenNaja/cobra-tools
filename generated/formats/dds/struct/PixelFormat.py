@@ -5,6 +5,7 @@ from generated.formats.dds.enum.FourCC import FourCC
 class PixelFormat:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -66,7 +67,7 @@ class PixelFormat:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PixelFormat [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'PixelFormat [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* size = ' + self.size.__repr__()
 		s += '\n	* flags = ' + self.flags.__repr__()
 		s += '\n	* four_c_c = ' + self.four_c_c.__repr__()

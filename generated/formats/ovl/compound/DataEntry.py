@@ -5,6 +5,7 @@ class DataEntry:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -64,7 +65,7 @@ class DataEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'DataEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'DataEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
 		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
 		s += '\n	* set_index = ' + self.set_index.__repr__()

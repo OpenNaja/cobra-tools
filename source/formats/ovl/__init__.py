@@ -1174,11 +1174,12 @@ class OvlFile(Header, IoFile):
 			# dilophosaurus ['dilophosaurus.pnormaltexture', 'dilophosaurus.playered_blendweights', 'dilophosaurus.pbasediffusetexture', 'dilophosaurus.pbasepackedtexture']
 			# carcharodontosaurus ['carcharodontosaurus.pbasediffusetexture', 'carcharodontosaurus.playered_warpoffset', 'carcharodontosaurus.pnormaltexture', 'carcharodontosaurus.pbasepackedtexture', 'carcharodontosaurus.playered_blendweights']
 			# gharial_male ['gharial_male.pclut', 'gharial_male.paotexture', 'gharial_male.p3markingscartexture', 'gharial_male.proughnesspackedtexture', 'gharial_male.pmarkingpatchworkmask', 'gharial_male.pscarclut', 'gharial_male.pbasecolourandmasktexture', 'gharial_male.palbinobasecolourandmasktexture', 'gharial_male.pnormaltexture', 'bad hash']
-		print(sorted(set([t.unk_1 for t in self.textures])))
+		# print(sorted(set([t.unk_1 for t in self.textures])))
 		# for file in self.files:
 		# 	if file.ext == "fgm":
 		# 		print(file.name, list(tex.name for tex in file.textures))
 		# print(self.textures)
+		# print(self)
 		self.ovs_files = []
 		ha_max = len(self.archives)
 		for archive_index, archive_entry in enumerate(self.archives):
@@ -1233,7 +1234,7 @@ class OvlFile(Header, IoFile):
 				# just sort buffers by their index value
 				data_entry.update_buffers()
 
-		print(time.time() - start_time)
+		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
 
 	def save(self, filepath, ):
 		print("Writing OVL")

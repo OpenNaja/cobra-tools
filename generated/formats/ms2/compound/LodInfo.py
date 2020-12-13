@@ -6,6 +6,7 @@ class LodInfo:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -59,7 +60,7 @@ class LodInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'LodInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'LodInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* distance = ' + self.distance.__repr__()
 		s += '\n	* zero = ' + self.zero.__repr__()
 		s += '\n	* bone_index = ' + self.bone_index.__repr__()

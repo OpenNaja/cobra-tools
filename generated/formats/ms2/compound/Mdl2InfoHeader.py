@@ -17,6 +17,7 @@ class Mdl2InfoHeader:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -92,7 +93,7 @@ class Mdl2InfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Mdl2InfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Mdl2InfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()

@@ -10,6 +10,7 @@ class Onefiftytwo:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -34,7 +35,7 @@ class Onefiftytwo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Onefiftytwo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Onefiftytwo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* model_info = ' + self.model_info.__repr__()
 		s += '\n	* some = ' + self.some.__repr__()
 		s += '\n'

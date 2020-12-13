@@ -6,6 +6,7 @@ from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 class JointInfo:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -53,7 +54,7 @@ class JointInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JointInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'JointInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* eleven = ' + self.eleven.__repr__()
 		s += '\n	* f_fs = ' + self.f_fs.__repr__()
 		s += '\n	* name_offset = ' + self.name_offset.__repr__()

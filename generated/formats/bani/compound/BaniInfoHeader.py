@@ -12,6 +12,7 @@ class BaniInfoHeader:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -46,7 +47,7 @@ class BaniInfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BaniInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'BaniInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* banis_name = ' + self.banis_name.__repr__()
 		s += '\n	* data_0 = ' + self.data_0.__repr__()

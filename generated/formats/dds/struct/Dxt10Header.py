@@ -5,6 +5,7 @@ from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 class Dxt10Header:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -38,7 +39,7 @@ class Dxt10Header:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Dxt10Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Dxt10Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* dxgi_format = ' + self.dxgi_format.__repr__()
 		s += '\n	* resource_dimension = ' + self.resource_dimension.__repr__()
 		s += '\n	* misc_flag = ' + self.misc_flag.__repr__()

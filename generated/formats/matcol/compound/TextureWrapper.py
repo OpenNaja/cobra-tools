@@ -7,6 +7,7 @@ from generated.formats.matcol.compound.TextureInfo import TextureInfo
 class TextureWrapper:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -31,7 +32,7 @@ class TextureWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'TextureWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'TextureWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* info = ' + self.info.__repr__()
 		s += '\n	* textures = ' + self.textures.__repr__()
 		s += '\n'

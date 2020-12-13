@@ -4,6 +4,7 @@ from generated.formats.ms2.compound.Matrix44 import Matrix44
 class ListDEntry:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -31,7 +32,7 @@ class ListDEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ListDEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'ListDEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* ce = ' + self.ce.__repr__()
 		s += '\n	* cb = ' + self.cb.__repr__()
 		s += '\n	* matrix = ' + self.matrix.__repr__()

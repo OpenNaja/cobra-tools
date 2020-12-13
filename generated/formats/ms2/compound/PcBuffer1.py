@@ -10,6 +10,7 @@ class PcBuffer1:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -39,7 +40,7 @@ class PcBuffer1:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PcBuffer1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'PcBuffer1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* whatever = ' + self.whatever.__repr__()
 		s += '\n	* model_infos = ' + self.model_infos.__repr__()
 		s += '\n	* some_zero = ' + self.some_zero.__repr__()

@@ -5,6 +5,7 @@ class Matrix44:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -103,7 +104,7 @@ class Matrix44:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Matrix44 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Matrix44 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* m_11 = ' + self.m_11.__repr__()
 		s += '\n	* m_21 = ' + self.m_21.__repr__()
 		s += '\n	* m_31 = ' + self.m_31.__repr__()

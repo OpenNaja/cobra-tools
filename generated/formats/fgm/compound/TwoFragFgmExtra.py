@@ -1,6 +1,7 @@
 class TwoFragFgmExtra:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -25,7 +26,7 @@ class TwoFragFgmExtra:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'TwoFragFgmExtra [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'TwoFragFgmExtra [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* zero_3 = ' + self.zero_3.__repr__()
 		s += '\n	* zero_4 = ' + self.zero_4.__repr__()
 		s += '\n'

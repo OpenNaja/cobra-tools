@@ -9,6 +9,7 @@ class BKHDSection:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -54,7 +55,7 @@ class BKHDSection:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BKHDSection [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'BKHDSection [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* id_a = ' + self.id_a.__repr__()

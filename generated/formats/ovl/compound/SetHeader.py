@@ -12,6 +12,7 @@ class SetHeader:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -52,7 +53,7 @@ class SetHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'SetHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'SetHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* set_count = ' + self.set_count.__repr__()
 		s += '\n	* asset_count = ' + self.asset_count.__repr__()
 		s += '\n	* sig_a = ' + self.sig_a.__repr__()

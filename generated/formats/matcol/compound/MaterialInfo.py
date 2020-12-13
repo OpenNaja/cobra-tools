@@ -1,6 +1,7 @@
 class MaterialInfo:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -37,7 +38,7 @@ class MaterialInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'MaterialInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'MaterialInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
 		s += '\n	* material_count = ' + self.material_count.__repr__()

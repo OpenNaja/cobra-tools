@@ -7,6 +7,7 @@ class Header3Data1:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -49,7 +50,7 @@ class Header3Data1:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header3Data1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Header3Data1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* data_size_previous = ' + self.data_size_previous.__repr__()
 		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
 		s += '\n	* data_size = ' + self.data_size.__repr__()

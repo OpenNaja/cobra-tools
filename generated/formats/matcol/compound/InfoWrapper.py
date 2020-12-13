@@ -4,6 +4,7 @@ from generated.formats.matcol.compound.Info import Info
 class InfoWrapper:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -28,7 +29,7 @@ class InfoWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'InfoWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'InfoWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* info = ' + self.info.__repr__()
 		s += '\n	* name = ' + self.name.__repr__()
 		s += '\n'

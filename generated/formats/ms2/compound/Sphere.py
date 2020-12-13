@@ -4,6 +4,7 @@ from generated.formats.ms2.compound.Vector3 import Vector3
 class Sphere:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -31,7 +32,7 @@ class Sphere:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Sphere [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Sphere [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* center = ' + self.center.__repr__()
 		s += '\n	* radius = ' + self.radius.__repr__()
 		s += '\n	* unk = ' + self.unk.__repr__()

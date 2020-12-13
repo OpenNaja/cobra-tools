@@ -13,6 +13,7 @@ class HeaderPointer:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -41,7 +42,7 @@ class HeaderPointer:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HeaderPointer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'HeaderPointer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* header_index = ' + self.header_index.__repr__()
 		s += '\n	* data_offset = ' + self.data_offset.__repr__()
 		s += '\n'

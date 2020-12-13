@@ -5,6 +5,7 @@ class TextureEntry:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -48,7 +49,7 @@ class TextureEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'TextureEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'TextureEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
 		s += '\n	* zero = ' + self.zero.__repr__()
 		s += '\n	* fgm_index = ' + self.fgm_index.__repr__()

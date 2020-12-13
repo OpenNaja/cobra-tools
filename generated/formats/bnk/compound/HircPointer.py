@@ -6,6 +6,7 @@ from generated.formats.bnk.compound.TypeOther import TypeOther
 class HircPointer:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -39,7 +40,7 @@ class HircPointer:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HircPointer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'HircPointer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* id = ' + self.id.__repr__()
 		s += '\n	* data = ' + self.data.__repr__()
 		s += '\n'

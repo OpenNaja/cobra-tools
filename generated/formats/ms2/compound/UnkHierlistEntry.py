@@ -1,6 +1,7 @@
 class UnkHierlistEntry:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -27,7 +28,7 @@ class UnkHierlistEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'UnkHierlistEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'UnkHierlistEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* bone_index_1 = ' + self.bone_index_1.__repr__()
 		s += '\n	* bone_index_2 = ' + self.bone_index_2.__repr__()
 		s += '\n'

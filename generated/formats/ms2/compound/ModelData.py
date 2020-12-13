@@ -19,6 +19,7 @@ class ModelData:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -92,7 +93,7 @@ class ModelData:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ModelData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'ModelData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* vertex_count = ' + self.vertex_count.__repr__()
 		s += '\n	* tri_index_count = ' + self.tri_index_count.__repr__()

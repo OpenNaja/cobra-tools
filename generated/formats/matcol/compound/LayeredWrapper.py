@@ -7,6 +7,7 @@ from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 class LayeredWrapper:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -31,7 +32,7 @@ class LayeredWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'LayeredWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'LayeredWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* info = ' + self.info.__repr__()
 		s += '\n	* layers = ' + self.layers.__repr__()
 		s += '\n'

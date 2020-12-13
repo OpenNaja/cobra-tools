@@ -5,6 +5,7 @@ from generated.array import Array
 class Mdl2FourtyInfo:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -28,7 +29,7 @@ class Mdl2FourtyInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Mdl2FourtyInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'Mdl2FourtyInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* unknowns = ' + self.unknowns.__repr__()
 		s += '\n'
 		return s

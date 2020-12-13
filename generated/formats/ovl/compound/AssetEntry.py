@@ -6,6 +6,7 @@ class AssetEntry:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -50,7 +51,7 @@ class AssetEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'AssetEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'AssetEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()

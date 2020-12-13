@@ -34,6 +34,7 @@ class Compound(BaseClass):
 
 			if "def __init__" not in self.src_code:
 				f.write(f"\n\n\tdef __init__(self, arg=None, template=None):")
+				f.write(f"\n\t\tself.name = ''")
 				# classes that this class inherits from have to be read first
 				if self.class_basename:
 					f.write(f"\n\t\tsuper().__init__(arg, template)")
@@ -64,7 +65,7 @@ class Compound(BaseClass):
 
 			if "def __repr__(" not in self.src_code:
 				f.write(f"\n\n\tdef __repr__(self):")
-				f.write(f"\n\t\ts = '{self.class_name} [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'")
+				f.write(f"\n\t\ts = '{self.class_name} [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name")
 				for field_name in self.field_unions_dict.keys():
 					f.write(f"\n\t\ts += '\\n\t* {field_name} = ' + self.{field_name}.__repr__()")
 				f.write(f"\n\t\ts += '\\n'")

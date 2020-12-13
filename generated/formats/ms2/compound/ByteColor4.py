@@ -5,6 +5,7 @@ class ByteColor4:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -43,7 +44,7 @@ class ByteColor4:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ByteColor4 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'ByteColor4 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* r = ' + self.r.__repr__()
 		s += '\n	* g = ' + self.g.__repr__()
 		s += '\n	* b = ' + self.b.__repr__()

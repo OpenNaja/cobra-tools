@@ -18,6 +18,7 @@ class PcModelData:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -113,7 +114,7 @@ class PcModelData:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PcModelData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'PcModelData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* zeros_a = ' + self.zeros_a.__repr__()
 		s += '\n	* tri_index_count_a = ' + self.tri_index_count_a.__repr__()
 		s += '\n	* vertex_count = ' + self.vertex_count.__repr__()

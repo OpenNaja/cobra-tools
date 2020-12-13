@@ -10,6 +10,7 @@ class ManiInfo:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -97,7 +98,7 @@ class ManiInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ManiInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'ManiInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* zeros_start = ' + self.zeros_start.__repr__()
 		s += '\n	* duration = ' + self.duration.__repr__()
 		s += '\n	* frame_count = ' + self.frame_count.__repr__()

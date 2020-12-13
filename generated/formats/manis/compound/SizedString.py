@@ -9,6 +9,7 @@ class SizedString:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -37,7 +38,7 @@ class SizedString:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'SizedString [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'SizedString [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* value = ' + self.value.__repr__()
 		s += '\n'

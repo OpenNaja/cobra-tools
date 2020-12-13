@@ -5,6 +5,7 @@ from generated.array import Array
 class SizedStrData:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -35,7 +36,7 @@ class SizedStrData:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'SizedStrData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'SizedStrData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* a = ' + self.a.__repr__()
 		s += '\n	* hash_block_size = ' + self.hash_block_size.__repr__()
 		s += '\n	* zeros = ' + self.zeros.__repr__()

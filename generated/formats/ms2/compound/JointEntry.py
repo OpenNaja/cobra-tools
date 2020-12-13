@@ -5,6 +5,7 @@ from generated.formats.ms2.compound.Vector3 import Vector3
 class JointEntry:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -29,7 +30,7 @@ class JointEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JointEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'JointEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* matrix = ' + self.matrix.__repr__()
 		s += '\n	* vector = ' + self.vector.__repr__()
 		s += '\n'

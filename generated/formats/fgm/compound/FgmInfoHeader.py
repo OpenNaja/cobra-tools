@@ -15,6 +15,7 @@ class FgmInfoHeader:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -96,7 +97,7 @@ class FgmInfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'FgmInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'FgmInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()

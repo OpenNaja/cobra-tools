@@ -5,6 +5,7 @@ class BaniFragmentData1:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -67,7 +68,7 @@ class BaniFragmentData1:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BaniFragmentData1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'BaniFragmentData1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* unknown_0 = ' + self.unknown_0.__repr__()
 		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
 		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()

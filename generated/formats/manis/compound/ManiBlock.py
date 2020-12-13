@@ -6,6 +6,7 @@ from generated.formats.manis.compound.Repeat import Repeat
 class ManiBlock:
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -115,7 +116,7 @@ class ManiBlock:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ManiBlock [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'ManiBlock [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* indices_0 = ' + self.indices_0.__repr__()
 		s += '\n	* indices_1 = ' + self.indices_1.__repr__()
 		s += '\n	* indices_2 = ' + self.indices_2.__repr__()

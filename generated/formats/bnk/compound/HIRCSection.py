@@ -10,6 +10,7 @@ class HIRCSection:
 	"""
 
 	def __init__(self, arg=None, template=None):
+		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -39,7 +40,7 @@ class HIRCSection:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HIRCSection [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
+		s = 'HIRCSection [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* count = ' + self.count.__repr__()
 		s += '\n	* hirc_pointers = ' + self.hirc_pointers.__repr__()
