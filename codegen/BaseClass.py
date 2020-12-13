@@ -1,6 +1,6 @@
 import os
 from .Imports import Imports
-from . import naming_conventions as convention
+
 
 class BaseClass:
 
@@ -15,7 +15,7 @@ class BaseClass:
         self.src_code = self.get_code_from_src()
         self.class_basename = self.struct.attrib.get("inherit")
         self.class_debug_str = self.struct.text
-        self.out_file = self.parser.get_out_path(self.class_name)
+        self.out_file = self.get_out_path(self.parser.path_dict, self.class_name)
 
         # handle imports
         self.imports = Imports(self.parser, self.struct)
@@ -58,3 +58,11 @@ class BaseClass:
             # print("found start", len(snipp), start, end)
             return snipp
         return ""
+
+    def get_out_path(self, path_dict, class_name):
+        # get the module path from the path of the file
+        out_file = os.path.join(os.getcwd(), "generated", path_dict[class_name] + ".py")
+        out_dir = os.path.dirname(out_file)
+        if not os.path.isdir(out_dir):
+            os.makedirs(out_dir)
+        return out_file

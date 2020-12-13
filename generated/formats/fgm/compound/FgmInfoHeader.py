@@ -23,7 +23,7 @@ class FgmInfoHeader:
 		# 'FGM '
 		self.magic = Array()
 		self.version = 0
-		self.flag_2 = 0
+		self.user_version = 0
 
 		# fragment count
 		self.num_frags = 0
@@ -55,7 +55,8 @@ class FgmInfoHeader:
 		self.magic.read(stream, 'Byte', 4, None)
 		self.version = stream.read_uint()
 		stream.version = self.version
-		self.flag_2 = stream.read_uint()
+		self.user_version = stream.read_uint()
+		stream.user_version = self.user_version
 		self.num_frags = stream.read_uint()
 		self.num_textures = stream.read_uint()
 		self.tex_info_size = stream.read_uint()
@@ -77,7 +78,8 @@ class FgmInfoHeader:
 		self.magic.write(stream, 'Byte', 4, None)
 		stream.write_uint(self.version)
 		stream.version = self.version
-		stream.write_uint(self.flag_2)
+		stream.write_uint(self.user_version)
+		stream.user_version = self.user_version
 		stream.write_uint(self.num_frags)
 		stream.write_uint(self.num_textures)
 		stream.write_uint(self.tex_info_size)
@@ -97,7 +99,7 @@ class FgmInfoHeader:
 		s = 'FgmInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* flag_2 = ' + self.flag_2.__repr__()
+		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* num_frags = ' + self.num_frags.__repr__()
 		s += '\n	* num_textures = ' + self.num_textures.__repr__()
 		s += '\n	* tex_info_size = ' + self.tex_info_size.__repr__()

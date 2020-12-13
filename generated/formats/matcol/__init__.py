@@ -13,10 +13,10 @@ class MatcolFile(MaterialcollectionInfoHeader, IoFile):
 	@property
 	def game(self, ):
 		# JWE style
-		if self.flag_2 == 24724:
+		if self.user_version == 24724:
 			return "Jurassic World Evolution"
 		# PZ Style
-		elif self.flag_2 == 8340:
+		elif self.user_version == 8340:
 			return "Planet Zoo"
 		else:
 			return "Unknown Game"

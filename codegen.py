@@ -2,7 +2,6 @@ import logging
 import xml.etree.ElementTree as ET
 import os
 from distutils.dir_util import copy_tree
-from xml.etree import ElementTree
 from html import unescape
 import traceback
 
@@ -11,6 +10,7 @@ from codegen.expression import Expression
 from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
+from codegen.Versions import Versions
 from codegen.naming_conventions import clean_comment_str
 
 logging.basicConfig(level=logging.DEBUG)
@@ -36,8 +36,6 @@ class XmlParser:
 
         self.format_name = format_name
         # initialize dictionaries
-        # map each supported version string to a version number
-        versions = {}
         # map each supported game to a list of header version numbers
         games = {}
         # note: block versions are stored in the _games attribute of the struct class
@@ -82,10 +80,10 @@ class XmlParser:
     def load_xml(self, xml_file):
         """Loads an XML (can be filepath or open file) and does all parsing
         Goes over all children of the root node and calls the appropriate function depending on type of the child"""
-        # try:
         tree = ET.parse(xml_file)
         root = tree.getroot()
         self.generate_module_paths(root)
+        versions = Versions(self)
 
         for child in root:
             self.replace_tokens(child)
@@ -101,13 +99,15 @@ class XmlParser:
                     Enum(self, child)
                 # elif child.tag == "module":
                 #     self.read_module(child)
-                # elif child.tag == "version":
-                #     self.read_version(child)
+                elif child.tag == "version":
+                    versions.read(child)
                 elif child.tag == "token":
                     self.read_token(child)
             except Exception as err:
                 logging.error(err)
                 traceback.print_exc()
+        out_file = os.path.join(os.getcwd(), "generated", "formats", self.format_name, "versions.py")
+        versions.write(out_file)
 
     # the following constructs do not create classes
     def read_token(self, token):
@@ -115,18 +115,6 @@ class XmlParser:
         self.tokens.append(([(sub_token.attrib["token"], sub_token.attrib["string"])
                             for sub_token in token],
                             token.attrib["attrs"].split(" ")))
-        
-    def read_version(self, version):
-        """Reads an xml <version> block and stores it in the versions list"""
-        # todo [versions] this ignores the user vers!
-        # versions must be in reverse order so don't append but insert at beginning
-        if "id" in version.attrib:
-            self.versions[0][0].insert( 0, (version.attrib["id"], version.attrib["num"]) )
-        # add to supported versions
-        self.version_string = version.attrib["num"]
-        self.cls.versions[self.version_string] = self.cls.version_number(self.version_string)
-        self.update_gamesdict(self.cls.games, version.text)
-        self.version_string = None
 
     @staticmethod
     def get_names(struct):
@@ -140,15 +128,6 @@ class XmlParser:
             class_basename = convention.name_class(class_basename)
             # logging.debug(f"Struct {class_name} is based on {class_basename}")
         return class_name, class_basename, class_debug_str
-
-    def get_out_path(self, class_name):
-
-        # get the module path from the path of the file
-        out_file = os.path.join(os.getcwd(), "generated", self.path_dict[class_name]+".py")
-        out_dir = os.path.dirname(out_file)
-        if not os.path.isdir(out_dir):
-            os.makedirs(out_dir)
-        return out_file
 
     @staticmethod
     def apply_convention(struct, func, params):
@@ -232,15 +211,6 @@ class XmlParser:
                 return False, "bool"
             else:
                 return False, "int"
-
-    def update_gamesdict(self, gamesdict, ver_text):
-        if ver_text:
-            # update the gamesdict dictionary
-            for gamestr in (g.strip() for g in ver_text.split(',')):
-                if gamestr in gamesdict:
-                    gamesdict[gamestr].append(self.cls.versions[self.version_string])
-                else:
-                    gamesdict[gamestr] = [self.cls.versions[self.version_string]]
             
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""

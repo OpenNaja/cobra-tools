@@ -40,7 +40,7 @@ class Header:
 		self.seventh_byte = 1
 
 		# usually 94 60 00 00
-		self.flag_2 = 0
+		self.user_version = 0
 
 		# always = 0
 		self.zero = 0
@@ -141,7 +141,8 @@ class Header:
 		stream.version = self.version
 		self.needs_bitswap = stream.read_byte()
 		self.seventh_byte = stream.read_byte()
-		self.flag_2 = stream.read_uint()
+		self.user_version = stream.read_uint()
+		stream.user_version = self.user_version
 		self.zero = stream.read_uint()
 		self.len_names = stream.read_uint()
 		self.zero_2 = stream.read_uint()
@@ -184,7 +185,8 @@ class Header:
 		stream.version = self.version
 		stream.write_byte(self.needs_bitswap)
 		stream.write_byte(self.seventh_byte)
-		stream.write_uint(self.flag_2)
+		stream.write_uint(self.user_version)
+		stream.user_version = self.user_version
 		stream.write_uint(self.zero)
 		stream.write_uint(self.len_names)
 		stream.write_uint(self.zero_2)
@@ -225,7 +227,7 @@ class Header:
 		s += '\n	* version = ' + self.version.__repr__()
 		s += '\n	* needs_bitswap = ' + self.needs_bitswap.__repr__()
 		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
-		s += '\n	* flag_2 = ' + self.flag_2.__repr__()
+		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* zero = ' + self.zero.__repr__()
 		s += '\n	* len_names = ' + self.len_names.__repr__()
 		s += '\n	* zero_2 = ' + self.zero_2.__repr__()

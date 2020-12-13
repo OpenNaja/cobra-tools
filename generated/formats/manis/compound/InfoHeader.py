@@ -19,7 +19,7 @@ class InfoHeader:
 		# 'MANI'
 		self.magic = Array()
 		self.version = 0
-		self.flag_2 = 0
+		self.user_version = 0
 		self.mani_count = 0
 		self.names = Array()
 		self.header = SizedStrData()
@@ -33,7 +33,8 @@ class InfoHeader:
 		self.magic.read(stream, 'Byte', 4, None)
 		self.version = stream.read_uint()
 		stream.version = self.version
-		self.flag_2 = stream.read_uint()
+		self.user_version = stream.read_uint()
+		stream.user_version = self.user_version
 		self.mani_count = stream.read_uint()
 		self.names.read(stream, 'ZString', self.mani_count, None)
 		self.header = stream.read_type(SizedStrData)
@@ -49,7 +50,8 @@ class InfoHeader:
 		self.magic.write(stream, 'Byte', 4, None)
 		stream.write_uint(self.version)
 		stream.version = self.version
-		stream.write_uint(self.flag_2)
+		stream.write_uint(self.user_version)
+		stream.user_version = self.user_version
 		stream.write_uint(self.mani_count)
 		self.names.write(stream, 'ZString', self.mani_count, None)
 		stream.write_type(self.header)
@@ -63,7 +65,7 @@ class InfoHeader:
 		s = 'InfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* flag_2 = ' + self.flag_2.__repr__()
+		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* mani_count = ' + self.mani_count.__repr__()
 		s += '\n	* names = ' + self.names.__repr__()
 		s += '\n	* header = ' + self.header.__repr__()

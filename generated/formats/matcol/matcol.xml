@@ -205,7 +205,7 @@
 		This reads a whole custom Matcol file
         <add name="magic" type="byte" arr1="4">'FGM '</add>
         <add name="version" type="uint" ></add>
-        <add name="flag 2" type="uint" ></add>
+        <add name="user version" type="uint" ></add>
         <add name="has texture list" type="ubyte" >bool</add>
 
         <add name="root 0" type="Root0" ></add>

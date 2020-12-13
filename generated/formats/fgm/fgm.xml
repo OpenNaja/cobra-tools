@@ -128,7 +128,7 @@
 		This reads a whole custom FGM file
         <add name="magic" type="byte" arr1="4">'FGM '</add>
         <add name="version" type="uint" ></add>
-        <add name="flag 2" type="uint" ></add>
+        <add name="user version" type="uint" ></add>
         <add name="num frags" type="uint" >fragment count</add>
         <add name="num textures" type="uint" >texture ref count</add>
         <add name="tex info size" type="uint" >byte count to check for quirks</add>

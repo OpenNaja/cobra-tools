@@ -182,7 +182,7 @@
         Custom header struct
         <add name="magic" type="byte" arr1="4">'MANI'</add>
         <add name="version" type="uint"/>
-        <add name="flag 2" type="uint"/>
+        <add name="user version" type="uint"/>
         <add name="mani count" type="uint"/>
         <add name="names" type="ZString" arr1="mani count"/>
         <add name="header" type="SizedStrData"/>

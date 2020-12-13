@@ -9,6 +9,7 @@ from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetHeader import SetHeader
+from generated.formats.ovl.versions import *
 from generated.io import IoFile, ZipFile
 
 MAX_UINT32 = 4294967295
@@ -42,15 +43,15 @@ class OvsFile(OvsHeader, ZipFile):
 			print("reading from unzipped ovs")
 			stream.version = self.ovl.version
 			stream.user_version = self.ovl.user_version
-			if self.is_pc() or self.is_pz():
+			if is_pc(self) or is_pz(self):
 				# change to zipped format for saving of coaster ovls
-				self.ovl.flag_2 = 8340
+				self.ovl.user_version = 8340
 			# print("stream.version", stream.version)
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
 			# print(self.ovl)
 			# print(self)
-			print(self.is_pc(), self.is_jwe(), self.is_pz())
+			print(is_pc(self), is_jwe(self), is_pz(self))
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -123,7 +124,7 @@ class OvsFile(OvsHeader, ZipFile):
 					f"Set data size incorrect (got {set_data_size}, expected {self.arg.set_data_size})!")
 
 			# another integrity check
-			if not self.is_pc() and self.calc_uncompressed_size() != self.arg.uncompressed_size:
+			if not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
 				raise AttributeError(f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
 									 f"does not match calculated size ({self.calc_uncompressed_size})")
 
@@ -647,9 +648,9 @@ class OvsFile(OvsHeader, ZipFile):
 				frags = self.header_entries[hi].fragments
 			else:
 				frags = address_0_fragments
-			if sized_str_entry.ext == "ms2" and self.is_pc():
+			if sized_str_entry.ext == "ms2" and is_pc(self.ovl):
 				sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
-			elif sized_str_entry.ext == "tex" and self.is_pc():
+			elif sized_str_entry.ext == "tex" and is_pc(self.ovl):
 				sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
 			elif sized_str_entry.ext in dic:
 
@@ -672,24 +673,25 @@ class OvsFile(OvsHeader, ZipFile):
 		#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
 		# second pass: collect model fragments
 		versions = {"version": self.version, "user_version": self.user_version}
-		# assign the mdl2 frags to their sized str entry
-		for set_entry in self.set_header.sets:
-			set_sized_str_entry = set_entry.entry
-			if set_sized_str_entry.ext == "ms2" and not self.is_pc():
-				f_1 = set_sized_str_entry.fragments[1]
-				print("F-1:", f_1)
-				self.write_frag_log()
-				next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
-				print("next model info:", next_model_info)
-				for asset_entry in set_entry.assets:
-					assert (asset_entry.name == asset_entry.entry.name)
-					sized_str_entry = asset_entry.entry
-					if sized_str_entry.ext == "mdl2":
-						self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
-						pink = sized_str_entry.fragments[4]
-						if (self.is_jwe() and pink.pointers[0].data_size == 144) \
-							or (self.is_pz() and pink.pointers[0].data_size == 160):
-							next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
+		if not is_pc(self):
+			# assign the mdl2 frags to their sized str entry
+			for set_entry in self.set_header.sets:
+				set_sized_str_entry = set_entry.entry
+				if set_sized_str_entry.ext == "ms2":
+					f_1 = set_sized_str_entry.fragments[1]
+					# print("F-1:", f_1)
+					self.write_frag_log()
+					next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
+					# print("next model info:", next_model_info)
+					for asset_entry in set_entry.assets:
+						assert (asset_entry.name == asset_entry.entry.name)
+						sized_str_entry = asset_entry.entry
+						if sized_str_entry.ext == "mdl2":
+							self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
+							pink = sized_str_entry.fragments[4]
+							if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
+								or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
+								next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		# # for debugging only:
 		for sized_str_entry in sorted_sized_str_entries:
@@ -943,7 +945,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def find_entry(self, l, src_entry):
 		""" returns entry from list l whose file hash matches hash, or none"""
-		if self.is_pc():
+		if is_pc(self.ovl):
 			# try to find it
 			for entry in l:
 				if entry.file_hash == src_entry.file_hash:
@@ -954,21 +956,12 @@ class OvsFile(OvsHeader, ZipFile):
 				if entry.file_hash == src_entry.file_hash and entry.ext_hash == src_entry.ext_hash:
 					return entry
 
-	def is_pc(self):
-		return self.version == 18
-
-	def is_pz(self):
-		return self.ovl.flag_2 in (8340, 8724) and not self.is_pc()
-
-	def is_jwe(self):
-		return self.ovl.flag_2 in (24724, 25108) and not self.is_pc()
-
 	def get_name(self, entry):
 		"""Fetch a filename from hash dict"""
 		n = "NONAME"
 		e = "UNKNOWN"
 		# JWE style
-		if self.is_jwe():
+		if is_jwe(self.ovl):
 			# print("JWE ids",entry.file_hash, entry.ext_hash)
 			try:
 				n = self.ovl.hash_table_local[entry.file_hash]
@@ -979,7 +972,7 @@ class OvsFile(OvsHeader, ZipFile):
 			except:
 				pass
 		# PZ Style and PC Style
-		elif self.is_pc() or self.is_pz():
+		elif is_pc(self.ovl) or is_pz(self.ovl):
 			# file_hash is an index into ovl files
 			try:
 				file = self.ovl.files[entry.file_hash]
@@ -1040,10 +1033,10 @@ class OvsFile(OvsHeader, ZipFile):
 		for header_entry in self.header_entries:
 			header_data_bytes = header_entry.data.getvalue()
 			# JWE style
-			if self.ovl.flag_2 == 24724:
+			if is_jwe(self.ovl):
 				header_entry.offset = header_data_writer.tell()
 			# PZ Style
-			elif self.ovl.flag_2 == 8340:
+			elif self.ovl.user_version == 8340:
 				header_entry.offset = self.arg.ovs_header_offset + header_data_writer.tell()
 			header_entry.size = len(header_data_bytes)
 			header_data_writer.write(header_data_bytes)
@@ -1106,7 +1099,7 @@ class OvlFile(Header, IoFile):
 
 		# print(self)
 		# for temporary pyffi compat
-		self.user_version = self.flag_2
+		self.user_version = self.user_version
 
 		# store commands
 		self.commands = commands
@@ -1193,7 +1186,7 @@ class OvlFile(Header, IoFile):
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
 			# skip archives that are empty
-			if archive_entry.compressed_size == 0 and self.flag_2 == 8212:
+			if archive_entry.compressed_size == 0 and self.user_version == 8212:
 				print("archive is not compressed")
 			elif archive_entry.compressed_size == 0:
 				print("archive is empty")
@@ -1201,13 +1194,13 @@ class OvlFile(Header, IoFile):
 			# those point to external ovs archives
 			if archive_index > 0:
 				# JWE style
-				if self.flag_2 in (24724, 25108):
+				if self.user_version in (24724, 25108):
 					archive_entry.ovs_path = self.file_no_ext + ".ovs." + archive_entry.name.lower()
 				# PZ Style
-				elif self.flag_2 in (8340, 8724):
+				elif self.user_version in (8340, 8724):
 					archive_entry.ovs_path = self.file_no_ext + ".ovs"
 				else:
-					raise AttributeError(f"unsupported flag_2 {self.flag_2}")
+					raise AttributeError(f"unsupported user_version {self.user_version}")
 				# make sure that the ovs exists
 				if not os.path.exists(archive_entry.ovs_path):
 					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
@@ -1217,7 +1210,7 @@ class OvlFile(Header, IoFile):
 				read_start = eof
 				archive_entry.ovs_path = self.filepath
 			archive = OvsFile(self, archive_entry, archive_index)
-			archive.unzip(archive_entry.ovs_path, read_start, self.flag_2, archive_entry.compressed_size,
+			archive.unzip(archive_entry.ovs_path, read_start, self.user_version, archive_entry.compressed_size,
 						  archive_entry.uncompressed_size)
 
 			self.ovs_files.append(archive)

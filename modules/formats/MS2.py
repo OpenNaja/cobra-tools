@@ -7,6 +7,7 @@ from generated.formats.ms2 import Mdl2File
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.ModelData import ModelData
+from generated.formats.ovl.versions import *
 
 
 def write_ms2(archive, ms2_sized_str_entry, out_dir):
@@ -28,7 +29,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
-	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.flag_2, len(bone_names),
+	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.user_version, len(bone_names),
 							 len(bone_matrices))
 
 	print("\nWriting",name)
@@ -39,7 +40,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# 		outfile.write(buffer)
 
 	# Planet coaster
-	if archive.is_pc():
+	if is_pc(archive):
 		# only ss entry holds any useful stuff
 		ms2_buffer_info_data = b""
 		next_model_info_data = b""
@@ -79,12 +80,12 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		with open(mdl2_path, 'wb') as outfile:
 			print("Writing", mdl2_entry.name, mdl2_index)
 
-			mdl2_header = struct.pack("<4s4I", b"MDL2", archive.ovl.version, archive.ovl.flag_2, mdl2_index, bone_info_index)
+			mdl2_header = struct.pack("<4s4I", b"MDL2", archive.ovl.version, archive.ovl.user_version, mdl2_index, bone_info_index)
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
 
-			if not archive.is_pc():
+			if not is_pc(archive):
 				# the fixed fragments
 				green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
 				print("model_count",mdl2_entry.model_count)
@@ -94,8 +95,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				if pink.pointers[0].data_size == 40:
 					# 40 bytes (0,1 or 0,0,0,0)
 					has_bone_info = pink.pointers[0].data
-				elif (archive.is_jwe() and pink.pointers[0].data_size == 144) \
-				or   (archive.is_pz() and pink.pointers[0].data_size == 160):
+				elif (is_jwe(archive) and pink.pointers[0].data_size == 144) \
+				or   (is_pz(archive) and pink.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = pink.pointers[0].data[40:]
 					has_bone_info = pink.pointers[0].data[:40]

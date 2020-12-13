@@ -2,7 +2,11 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-    <!--Basic Types-->
+
+    <version id="ZTUAC" version="17">ZT UAC</version>
+    <version id="PC" user_version="8212">ZT UAC</version>
+    <version id="PZ" version="19" user_version="8340 8724">ZT UAC</version>
+    <version id="JWE" version="19" user_version="24724 25108">ZT UAC</version>
 
     <token name="verexpr" attrs="vercond cond">
         Commonly used version expressions.
@@ -141,7 +145,7 @@
         <add name="Needs Bitswap" type="byte" >endianness?</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
 		
-        <add name="Flag 2" type="uint" >usually 94 60 00 00</add>
+        <add name="user version" type="uint" >usually 94 60 00 00</add>
         <add name="Zero" type="uint" >always = 0</add>
         <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
         <add name="Zero 2" type="uint" >always = 0</add>

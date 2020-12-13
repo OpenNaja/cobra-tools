@@ -25,7 +25,7 @@ class MaterialcollectionInfoHeader:
 		# 'FGM '
 		self.magic = Array()
 		self.version = 0
-		self.flag_2 = 0
+		self.user_version = 0
 
 		# bool
 		self.has_texture_list = 0
@@ -42,7 +42,8 @@ class MaterialcollectionInfoHeader:
 		self.magic.read(stream, 'Byte', 4, None)
 		self.version = stream.read_uint()
 		stream.version = self.version
-		self.flag_2 = stream.read_uint()
+		self.user_version = stream.read_uint()
+		stream.user_version = self.user_version
 		self.has_texture_list = stream.read_ubyte()
 		self.root_0 = stream.read_type(Root0)
 		self.root_1 = stream.read_type(Root1)
@@ -63,7 +64,8 @@ class MaterialcollectionInfoHeader:
 		self.magic.write(stream, 'Byte', 4, None)
 		stream.write_uint(self.version)
 		stream.version = self.version
-		stream.write_uint(self.flag_2)
+		stream.write_uint(self.user_version)
+		stream.user_version = self.user_version
 		stream.write_ubyte(self.has_texture_list)
 		stream.write_type(self.root_0)
 		stream.write_type(self.root_1)
@@ -82,7 +84,7 @@ class MaterialcollectionInfoHeader:
 		s = 'MaterialcollectionInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* flag_2 = ' + self.flag_2.__repr__()
+		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* has_texture_list = ' + self.has_texture_list.__repr__()
 		s += '\n	* root_0 = ' + self.root_0.__repr__()
 		s += '\n	* root_1 = ' + self.root_1.__repr__()

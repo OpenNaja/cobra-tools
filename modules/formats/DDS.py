@@ -7,6 +7,7 @@ from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
+from generated.formats.ovl import is_pc
 from generated.formats.ovl.compound.Header3Data0 import Header3Data0
 from generated.formats.ovl.compound.Header3Data0Pc import Header3Data0Pc
 from generated.formats.ovl.compound.Header3Data1Pc import Header3Data1Pc
@@ -85,7 +86,7 @@ def write_dds(archive, sized_str_entry, show_temp_files, out_dir):
 	buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
-	if archive.is_pc():
+	if is_pc(archive):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(sized_str_entry)
 		dds_file.width = header_7.width
 		# hack until we have proper support for array_size on the image editors
@@ -156,7 +157,7 @@ def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_temp_files, is_2
 	# convert the png into a dds, then inject that
 
 	archive = ovl_data.ovs_files[0]
-	if archive.is_pc():
+	if is_pc(archive):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 	else:
 		header_3_0, header_3_1, header_7 = get_tex_structs(tex_sized_str_entry)
@@ -217,7 +218,7 @@ def tex_to_2K(tex_sized_str_entry, ovs_sized_str_entry):
 def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, is_2K, ovs_sized_str_entry):
 	archive = ovl_data.ovs_files[0]
 
-	if archive.is_pc():
+	if is_pc(archive):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 		tex_h = header_7.height
 		tex_w = header_7.width
@@ -241,7 +242,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, is_2K, ovs_sized_str_
 	dds_file = DdsFile()
 	dds_file.load(dds_file_path)
 	ensure_size_match(os.path.basename(dds_file_path), dds_file, tex_h, tex_w, tex_d, tex_a, comp)
-	if archive.is_pc():
+	if is_pc(archive):
 		for buffer, tex_header_3 in zip(tex_sized_str_entry.data_entry.buffers, headers_3_1):
 			dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 			if len(dds_buff) < buffer.size:

@@ -15,7 +15,7 @@ def write_manis(archive, sized_str_entry, out_dir):
 	# 	print("Wrong amount of buffers for", name)
 	# 	return
 	names = [c.name for c in sized_str_entry.children]
-	manis_header = struct.pack("<4s3I", b"MANI", archive.ovl.version, archive.ovl.flag_2, len(names) )
+	manis_header = struct.pack("<4s3I", b"MANI", archive.ovl.version, archive.ovl.user_version, len(names) )
 
 	# sizedstr data + 3 buffers
 	# sized str data gives general info

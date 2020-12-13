@@ -8,7 +8,7 @@ def write_materialcollection(archive, sized_str_entry, out_dir):
 	name = sized_str_entry.name.replace("materialcollection", "matcol")
 	print("\nWriting",name)
 
-	matcol_header = struct.pack("<4s 2I B", b"MATC ", archive.ovl.version, archive.ovl.flag_2, sized_str_entry.has_texture_list_frag )
+	matcol_header = struct.pack("<4s 2I B", b"MATC ", archive.ovl.version, archive.ovl.user_version, sized_str_entry.has_texture_list_frag )
 
 	out_path = out_dir(name)
 	with open(out_path, 'wb') as outfile:
