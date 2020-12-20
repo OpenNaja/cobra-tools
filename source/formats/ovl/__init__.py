@@ -746,7 +746,6 @@ class OvsFile(OvsHeader, ZipFile):
 		# # this is just for developing to see which unique attributes occur across a list of entries
 		# ext_hashes = sorted(set([f.size for f in self.fragments]))
 		# print(ext_hashes)
-		self.dir = os.getcwd()
 		# # for development; collect info about fragment types
 		frag_log = "self.fragments > sizedstr\nfragments in file order"
 		for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
@@ -754,11 +753,9 @@ class OvsFile(OvsHeader, ZipFile):
 			# #frag_log+="\nHeader types "+str(f.type_0)+" "+str(f.type_1)
 			# #frag_log+="\nEntry "+str(f.header_index_0)+" "+str(f.data_offset_0)+" "+str(f.header_index_1)+" "+str(f.data_offset_1)
 			# #frag_log+="\nSized str "+str(f.sized_str_entry_index)+" "+str(f.name)
-			frag_log += "\n" + str(i) + " " + str(frag.pointers[0].address) + " " + str(
-				frag.pointers[0].data_size) + " " + str(frag.pointers[1].address) + " " + str(
-				frag.pointers[1].data_size) + " " + str(frag.name) + " " + str(frag.pointers[0].type) + " " + str(
-				frag.pointers[1].type)
-		frag_log_path = self.indir("frag" + str(self.archive_index) + ".log")
+			frag_log += f"\n{i} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"
+
+		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_frag{self.archive_index}.log")
 		print(f"Writing Fragment log to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
 			f.write(frag_log)
@@ -998,9 +995,6 @@ class OvsFile(OvsHeader, ZipFile):
 	def calc_header_data_size(self, ):
 		"""Calculate the size of the whole data entry region that sizedstr and fragment entries point into"""
 		return sum(header_entry.size for header_entry in self.header_entries)
-
-	def indir(self, name):
-		return os.path.join(self.dir, name)
 
 	def write_archive(self, stream):
 

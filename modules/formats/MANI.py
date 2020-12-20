@@ -32,11 +32,11 @@ def write_manis(archive, sized_str_entry, out_dir):
 			outfile.write(buff.data)
 
 	# for i, buff in enumerate(sized_str_entry.data_entry.buffers):
-	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
+	# 	with open(out_path+str(i), 'wb') as outfile:
 	# 		outfile.write(buff.data)
 	# if "partials" in name:
 		# data = ManisFormat.Data()
-		# with open(archive.indir(name), "rb") as stream:
+		# with open(out_path, "rb") as stream:
 		# 	data.read(stream)
 
 	return out_path,

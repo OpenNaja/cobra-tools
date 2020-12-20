@@ -14,9 +14,6 @@ def write_fgm(archive, sized_str_entry, out_dir):
 	except:
 		print("Found no buffer data for", name)
 		buffer_data = b""
-	# for i, f in enumerate(sized_str_entry.fragments):
-	# 	with open(archive.indir(name)+str(i), 'wb') as outfile:
-	# 		outfile.write( f.pointers[1].data )
 	# basic fgms
 	if len(sized_str_entry.fragments) == 4:
 		tex_info, attr_info, zeros, data_lib = sized_str_entry.fragments
@@ -43,6 +40,9 @@ def write_fgm(archive, sized_str_entry, out_dir):
 
 	# print(file_entry.textures)
 	out_path = out_dir(name)
+	# for i, f in enumerate(sized_str_entry.fragments):
+	# 	with open(out_path+str(i), 'wb') as outfile:
+	# 		outfile.write( f.pointers[1].data )
 	with open(out_path, 'wb') as outfile:
 		# write custom FGM header
 		outfile.write(fgm_header)
