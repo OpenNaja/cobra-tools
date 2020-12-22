@@ -365,7 +365,8 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 			num_add_shells = 0
 		# create object and mesh from data
 		ob, me = mesh_from_data(f"{bare_name}_model{model_i}", model.vertices, tris, wireframe=False)
-		ob["flag"] = model.flag
+		# cast the bitfield to int
+		ob["flag"] = int(model.flag)
 		ob["add_shells"] = num_add_shells
 
 		# additionally keep track here so we create a node tree only once during import

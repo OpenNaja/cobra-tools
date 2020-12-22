@@ -31,6 +31,9 @@ class BasicBitfield(int):
     def __hash__(self):
         return self._value.__hash__()
 
+    def __int__(self):
+        return self._value
+
     def __eq__(self, other):
         if isinstance(other, BasicBitfield):
             return self._value == other._value
