@@ -342,10 +342,10 @@ class ZipFile(IoFile):
 		uncompressed_bytes = stream.getbuffer()
 		# compress data
 		# change to zipped format for saving of uncompressed or oodled ovls
-		# if not self.ovl.user_version.use_zlib:
-		# 	print("HACK: setting compression to zlib")
-		# 	self.ovl.user_version.use_oodle = False
-		# 	self.ovl.user_version.use_zlib = True
+		if not self.ovl.user_version.use_zlib:
+			print("HACK: setting compression to zlib")
+			self.ovl.user_version.use_oodle = False
+			self.ovl.user_version.use_zlib = True
 
 		# pc/pz zlib			8340	00100000 10010100
 		# pc/pz uncompressed	8212	00100000 00010100
