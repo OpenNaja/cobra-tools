@@ -49,12 +49,14 @@ class OodleDecompressor:
         algorithm = OodleCompressEnum[algorithm_name]
         print(f"Compressing as {algorithm_name} (value = {algorithm.value})")
         input_size = len(payload)
-        output_size = input_size
+        output_size = input_size*2
         output = create_string_buffer(output_size)
         level = 7
         ret = self.handle.OodleLZ_Compress(
             algorithm.value, c_char_p(payload), input_size, output, level, None, None, None, None, 0)
-
+        print(f"Oodle compressed {input_size} bytes down to {ret} bytes.")
+        if input_size and not ret:
+            raise ValueError("Oodle Compression returned no payload for unknown reason!")
         return output.raw[:ret]
 
     def decompress(self, payload: bytes, size: int, output_size: int) -> bytes:

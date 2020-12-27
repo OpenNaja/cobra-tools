@@ -357,13 +357,15 @@ class ZipFile(IoFile):
 		# 	print(v)
 		# 	print(bin(v))
 		# 	print()
-		# todo - current hack since oodle compression is messed up -> compress with zlib and change the flag
-		if self.compression_header.startswith(OODLE_MAGIC) and self.ovl.user_version.use_oodle:
+		if self.ovl.user_version.use_oodle:
+			assert self.compression_header.startswith(OODLE_MAGIC)
 			a, raw_algo = struct.unpack("BB", self.compression_header)
 			algo = OodleDecompressEnum(raw_algo)
 			print("Oodle compression", a, raw_algo, algo.name)
 			compressed = texconv.oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
-		else:
+		elif self.ovl.user_version.use_zlib:
 			compressed = zlib.compress(uncompressed_bytes)
+		else:
+			compressed = uncompressed_bytes
 
 		return len(uncompressed_bytes), len(compressed), compressed
