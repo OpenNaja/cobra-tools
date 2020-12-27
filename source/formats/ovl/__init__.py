@@ -36,22 +36,19 @@ class OvsFile(OvsHeader, ZipFile):
 		self.version = self.ovl.version
 		self.user_version = self.ovl.user_version
 
-	def unzip(self, filepath, start, skip, compressed_size=0, uncompressed_size=0):
+	def unzip(self, archive_entry, start):
+		filepath = archive_entry.ovs_path
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
-		with self.unzipper(filepath, start, skip, compressed_size, uncompressed_size,
-						   save_temp_dat=save_temp_dat) as stream:
+		with self.unzipper(filepath, start, archive_entry.compressed_size, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
 			print("reading from unzipped ovs")
 			stream.version = self.ovl.version
 			stream.user_version = self.ovl.user_version
-			if is_pc(self) or is_pz(self):
-				# change to zipped format for saving of coaster ovls
-				self.ovl.user_version = 8340
 			# print("stream.version", stream.version)
 			# print("stream.user_version", stream.user_version)
 			super().read(stream)
 			# print(self.ovl)
 			# print(self)
-			print(is_pc(self), is_jwe(self), is_pz(self))
+			print(f"Version check: PC = {is_pc(self)}, JWE = {is_jwe(self)}, PZ = {is_pz(self)}")
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -1205,8 +1202,7 @@ class OvlFile(Header, IoFile):
 				read_start = eof
 				archive_entry.ovs_path = self.filepath
 			archive = OvsFile(self, archive_entry, archive_index)
-			archive.unzip(archive_entry.ovs_path, read_start, self.user_version, archive_entry.compressed_size,
-						  archive_entry.uncompressed_size)
+			archive.unzip(archive_entry, read_start)
 
 			self.ovs_files.append(archive)
 

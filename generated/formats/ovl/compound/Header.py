@@ -1,5 +1,6 @@
 import typing
 from generated.array import Array
+from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
@@ -40,8 +41,8 @@ class Header:
 		# always = 1
 		self.seventh_byte = 1
 
-		# usually 94 60 00 00
-		self.user_version = 0
+		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
+		self.user_version = VersionInfo()
 
 		# always = 0
 		self.zero = 0
@@ -142,7 +143,7 @@ class Header:
 		stream.version = self.version
 		self.needs_bitswap = stream.read_byte()
 		self.seventh_byte = stream.read_byte()
-		self.user_version = stream.read_uint()
+		self.user_version = stream.read_type(VersionInfo)
 		stream.user_version = self.user_version
 		self.zero = stream.read_uint()
 		self.len_names = stream.read_uint()
@@ -186,7 +187,7 @@ class Header:
 		stream.version = self.version
 		stream.write_byte(self.needs_bitswap)
 		stream.write_byte(self.seventh_byte)
-		stream.write_uint(self.user_version)
+		stream.write_type(self.user_version)
 		stream.user_version = self.user_version
 		stream.write_uint(self.zero)
 		stream.write_uint(self.len_names)

@@ -10,6 +10,7 @@ from typing import *
 import numpy as np
 
 from util import texconv
+from util.oodle.oodle import OodleDecompressEnum
 
 Byte = Struct("<b")  # int8
 UByte = Struct("<B")  # uint8
@@ -23,6 +24,7 @@ Float = Struct("<f")  # float32
 HFloat = Struct("<e")  # float16
 
 MAX_LEN = 1000
+OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
 class BinaryStream(BytesIO):
@@ -302,27 +304,26 @@ class IoFile:
 
 class ZipFile(IoFile):
 
-	# @staticmethod
 	@contextmanager
-	def unzipper(self, filepath, start, skip, compressed_size, uncompressed_size, save_temp_dat=""):
+	def unzipper(self, filepath, start, compressed_size, uncompressed_size, save_temp_dat=""):
 		with self.reader(filepath) as stream:
-			# self.unzip(stream, compressed_size)
 			stream.seek(start)
 			print(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
 			zipped = stream.read(compressed_size)
 			# self.print_and_callback(f"Reading {archive_entry.name}")
-			if skip != 8212:
-				self.zlib_header = zipped[:2]
-				print(f"Compression magic bytes: {self.zlib_header}")
-				zlib_compressed_data = zipped[2:]
-				if self.zlib_header.startswith(b'\x8c') or self.zlib_header.startswith(b'\xcc'):
-					print("Oodle compression")
-					zlib_data = texconv.oodle_compressor.decompress(zipped, compressed_size, uncompressed_size)
-				else:
-					# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
-					# we avoid the two zlib magic bytes to get our unzipped content
-					zlib_data = zlib.decompress(zlib_compressed_data, wbits=-zlib.MAX_WBITS)
+			self.compression_header = zipped[:2]
+			print(f"Compression magic bytes: {self.compression_header}")
+			if self.ovl.user_version.use_oodle:
+				print("Oodle compression")
+				zlib_data = texconv.oodle_compressor.decompress(zipped, compressed_size, uncompressed_size)
+			elif self.ovl.user_version.use_zlib:
+				print("Zlib compression")
+				# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
+				# we avoid the two zlib magic bytes to get our unzipped content
+				zlib_data = zlib.decompress(zipped[2:], wbits=-zlib.MAX_WBITS)
+			# uncompressed archive
 			else:
+				print("No compression")
 				zlib_data = bytearray(zipped)
 		if save_temp_dat:
 			# for debugging, write deflated content to dat
@@ -340,10 +341,28 @@ class ZipFile(IoFile):
 		self.write_archive(stream)
 		uncompressed_bytes = stream.getbuffer()
 		# compress data
-		if self.zlib_header.startswith(b'\x8c') and self.is_pz() == False:
-			a, algo = struct.unpack("BB", self.zlib_header)
-			print("Oodle compression", a, algo)
-			compressed = texconv.oodle_compressor.compress(bytes(uncompressed_bytes), algo-1)
+		# change to zipped format for saving of uncompressed or oodled ovls
+		# if not self.ovl.user_version.use_zlib:
+		# 	print("HACK: setting compression to zlib")
+		# 	self.ovl.user_version.use_oodle = False
+		# 	self.ovl.user_version.use_zlib = True
+
+		# pc/pz zlib			8340	00100000 10010100
+		# pc/pz uncompressed	8212	00100000 00010100
+		# pc/pz oodle			8724	00100010 00010100
+		# JWE zlib				24724	01100000 10010100
+		# JWE oodle (switch)	25108	01100010 00010100
+		# vs = (8340, 8212, 8724, 24724, 25108)
+		# for v in vs:
+		# 	print(v)
+		# 	print(bin(v))
+		# 	print()
+		# todo - current hack since oodle compression is messed up -> compress with zlib and change the flag
+		if self.compression_header.startswith(OODLE_MAGIC) and self.ovl.user_version.use_oodle:
+			a, raw_algo = struct.unpack("BB", self.compression_header)
+			algo = OodleDecompressEnum(raw_algo)
+			print("Oodle compression", a, raw_algo, algo.name)
+			compressed = texconv.oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
 		else:
 			compressed = zlib.compress(uncompressed_bytes)
 

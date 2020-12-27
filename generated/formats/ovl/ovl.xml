@@ -45,6 +45,9 @@
         <operator token="#MOD#" string="%" />
     </token>
 
+    <basic name="bool" count="1">
+        An unsigned 8-bit integer.
+    </basic>
     <basic name="byte" count="1">
         An unsigned 8-bit integer.
     </basic>
@@ -127,6 +130,18 @@
 		<option value="121" name="DXGI_FORMAT_BC4_UNORM_B"></option>
     </enum>
 
+
+    <bitfield name="VersionInfo" storage="uint">
+        Determines the format of the OVL file held by a mesh.
+        n.b. pos counts from the end!
+        <member width="1" pos="2" name="unk1" type="bool"></member>
+        <member width="1" pos="4" name="unk2" type="bool"></member>
+        <member width="1" pos="7" name="use zlib" type="bool"></member>
+        <member width="1" pos="9" name="use oodle" type="bool"></member>
+        <member width="1" pos="13" name="unk3" type="bool"></member>
+        <member width="1" pos="14" name="is jwe" type="bool"></member>
+    </bitfield>
+
 	<!-- Structs for the OVL file -->
 
     <compound name="ZStringBuffer" count="0" >
@@ -145,7 +160,7 @@
         <add name="Needs Bitswap" type="byte" >endianness?</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
 		
-        <add name="user version" type="uint" >usually 94 60 00 00</add>
+        <add name="user version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
         <add name="Zero" type="uint" >always = 0</add>
         <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
         <add name="Zero 2" type="uint" >always = 0</add>
