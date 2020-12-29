@@ -221,6 +221,29 @@ def create_material(in_dir, matname):
 					tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
 					diffuse = diffuse_premix
 					break
+			# get marking
+			fur_names = [k for k in tex_dic.keys() if "marking" in k and "noise" not in k and "patchwork" not in k]
+			lut_names = [k for k in tex_dic.keys() if "pclut" in k]
+			if fur_names and lut_names:
+				marking = tex_dic[sorted(fur_names)[0]]
+				lut = tex_dic[sorted(lut_names)[0]]
+				marking.image.colorspace_settings.name = "Non-Color"
+
+				# PZ LUTs usually occupy half of the texture, so scale the incoming greyscale coordinates so that
+				# 1 lands in the center of the LUT
+				scaler = tree.nodes.new('ShaderNodeMath')
+				scaler.operation = "MULTIPLY"
+				tree.links.new(marking.outputs[0], scaler.inputs[0])
+				scaler.inputs[1].default_value = 0.5
+				tree.links.new(scaler.outputs[0], lut.inputs[0])
+
+				# apply AO to diffuse
+				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+				diffuse_premix.blend_type = "MIX"
+				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+				tree.links.new(lut.outputs[0], diffuse_premix.inputs["Color2"])
+				tree.links.new(marking.outputs[0], diffuse_premix.inputs["Fac"])
+				diffuse = diffuse_premix
 			#  link finished diffuse to shader
 			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 			break
