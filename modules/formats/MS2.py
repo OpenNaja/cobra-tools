@@ -29,7 +29,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
-	ms2_header = struct.pack("<4s4I", b"MS2 ", archive.ovl.version, archive.ovl.user_version, len(bone_names),
+	ms2_header = struct.pack("<4s4I", b"MS2 ", int(archive.ovl.version), int(archive.ovl.user_version), len(bone_names),
 							 len(bone_matrices))
 
 	print("\nWriting",name)
@@ -80,7 +80,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		with open(mdl2_path, 'wb') as outfile:
 			print("Writing", mdl2_entry.name, mdl2_index)
 
-			mdl2_header = struct.pack("<4s4I", b"MDL2", archive.ovl.version, archive.ovl.user_version, mdl2_index, bone_info_index)
+			mdl2_header = struct.pack("<4s4I", b"MDL2", int(archive.ovl.version), int(archive.ovl.user_version), mdl2_index, bone_info_index)
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)

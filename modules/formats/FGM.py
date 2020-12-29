@@ -36,7 +36,7 @@ def write_fgm(archive, sized_str_entry, out_dir):
 	fgm_file_entry = [file for file in archive.ovl.files if f"{file.name}.{file.ext}" == sized_str_entry.name][0]
 
 	# write fgm
-	fgm_header = struct.pack("<4s8I", b"FGM ", archive.ovl.version, archive.ovl.user_version, len(sized_str_entry.fragments), len(fgm_file_entry.textures), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)
+	fgm_header = struct.pack("<4s8I", b"FGM ", archive.ovl.version, int(archive.ovl.user_version), len(sized_str_entry.fragments), len(fgm_file_entry.textures), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)
 
 	# print(file_entry.textures)
 	out_path = out_dir(name)
