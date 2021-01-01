@@ -25,7 +25,18 @@ class Mdl2InfoHeader:
 
 		# 'MS2 '
 		self.magic = FixedString()
+
+		# if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC
+		self.version_flag = 0
+
+		# 0x12 = PC, 0x13 = JWE, PZ
 		self.version = 0
+
+		# endianness?, usually zero
+		self.bitswap = 0
+
+		# always = 1
+		self.seventh_byte = 1
 		self.user_version = 0
 
 		# index of this model inside the ms2
@@ -56,14 +67,18 @@ class Mdl2InfoHeader:
 
 		self.io_start = stream.tell()
 		self.magic = stream.read_type(FixedString, (4,))
-		self.version = stream.read_uint()
+		self.version_flag = stream.read_byte()
+		stream.version_flag = self.version_flag
+		self.version = stream.read_byte()
 		stream.version = self.version
+		self.bitswap = stream.read_byte()
+		self.seventh_byte = stream.read_byte()
 		self.user_version = stream.read_uint()
 		stream.user_version = self.user_version
 		self.index = stream.read_uint()
 		self.bone_info_index = stream.read_uint()
 		self.name = stream.read_string()
-		if not (stream.version == 18):
+		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials_0.read(stream, Material0, self.model_info.mat_count, None)
 			self.lods.read(stream, LodInfo, self.model_info.lod_count, None)
@@ -76,14 +91,18 @@ class Mdl2InfoHeader:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.magic)
-		stream.write_uint(self.version)
+		stream.write_byte(self.version_flag)
+		stream.version_flag = self.version_flag
+		stream.write_byte(self.version)
 		stream.version = self.version
+		stream.write_byte(self.bitswap)
+		stream.write_byte(self.seventh_byte)
 		stream.write_uint(self.user_version)
 		stream.user_version = self.user_version
 		stream.write_uint(self.index)
 		stream.write_uint(self.bone_info_index)
 		stream.write_string(self.name)
-		if not (stream.version == 18):
+		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
 			stream.write_type(self.model_info)
 			self.materials_0.write(stream, Material0, self.model_info.mat_count, None)
 			self.lods.write(stream, LodInfo, self.model_info.lod_count, None)
@@ -95,7 +114,10 @@ class Mdl2InfoHeader:
 	def __repr__(self):
 		s = 'Mdl2InfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* magic = ' + self.magic.__repr__()
+		s += '\n	* version_flag = ' + self.version_flag.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
+		s += '\n	* bitswap = ' + self.bitswap.__repr__()
+		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* index = ' + self.index.__repr__()
 		s += '\n	* bone_info_index = ' + self.bone_info_index.__repr__()

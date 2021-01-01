@@ -37,7 +37,7 @@ class Ms2BufferInfo:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		if (stream.user_version == 24724) and (stream.version == 19):
+		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1)):
 			self.skip_1.read(stream, 'Uint', 4, None)
 		self.vertexdatasize = stream.read_uint64()
 		self.ptr_1 = stream.read_uint64()
@@ -53,7 +53,7 @@ class Ms2BufferInfo:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		if (stream.user_version == 24724) and (stream.version == 19):
+		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1)):
 			self.skip_1.write(stream, 'Uint', 4, None)
 		stream.write_uint64(self.vertexdatasize)
 		stream.write_uint64(self.ptr_1)

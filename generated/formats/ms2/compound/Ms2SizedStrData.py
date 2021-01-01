@@ -27,6 +27,9 @@ class Ms2SizedStrData:
 		# count of names in ms2 buffer0
 		self.name_count = 0
 
+		# usually 0, 1 for ED costume01_male_.ms2
+		self.unk_count = 0
+
 		# seems to be zeros
 		self.unknown_1 = Array()
 
@@ -37,7 +40,8 @@ class Ms2SizedStrData:
 		stream.ms_2_version = self.ms_2_version
 		self.has_model_data = stream.read_ushort()
 		self.mdl_2_count = stream.read_ushort()
-		self.name_count = stream.read_uint()
+		self.name_count = stream.read_ushort()
+		self.unk_count = stream.read_ushort()
 		self.unknown_1.read(stream, 'Uint', 3, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -49,7 +53,8 @@ class Ms2SizedStrData:
 		stream.ms_2_version = self.ms_2_version
 		stream.write_ushort(self.has_model_data)
 		stream.write_ushort(self.mdl_2_count)
-		stream.write_uint(self.name_count)
+		stream.write_ushort(self.name_count)
+		stream.write_ushort(self.unk_count)
 		self.unknown_1.write(stream, 'Uint', 3, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -60,6 +65,7 @@ class Ms2SizedStrData:
 		s += '\n	* has_model_data = ' + self.has_model_data.__repr__()
 		s += '\n	* mdl_2_count = ' + self.mdl_2_count.__repr__()
 		s += '\n	* name_count = ' + self.name_count.__repr__()
+		s += '\n	* unk_count = ' + self.unk_count.__repr__()
 		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
 		s += '\n'
 		return s

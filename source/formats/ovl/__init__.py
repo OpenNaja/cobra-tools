@@ -37,6 +37,7 @@ class OvsFile(OvsHeader, ZipFile):
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
 		with self.unzipper(filepath, start, archive_entry.compressed_size, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
 			print("reading from unzipped ovs")
+			stream.version_flag = self.ovl.version_flag
 			stream.version = self.ovl.version
 			stream.user_version = self.ovl.user_version
 			# print("stream.version", stream.version)

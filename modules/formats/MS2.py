@@ -29,18 +29,19 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
-	ms2_header = struct.pack("<4s4I", b"MS2 ", int(archive.ovl.version), int(archive.ovl.user_version), len(bone_names),
+	ovl = archive.ovl
+	ms2_header = struct.pack("<4s4B3I", b"MS2 ", ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version), len(bone_names),
 							 len(bone_matrices))
 
-	print("\nWriting",name)
-	print("\nbuffers",len(buffers))
+	print("\nWriting", name)
+	print("\nbuffers", len(buffers))
 	# for i, buffer in enumerate(buffers):
 	# 	p = out_dir(name+str(i)+".ms2")
 	# 	with open(p, 'wb') as outfile:
 	# 		outfile.write(buffer)
 
 	# Planet coaster
-	if (is_pc(archive.ovl) or is_ed(archive.ovl)):
+	if is_pc(archive.ovl) or is_ed(archive.ovl):
 		# only ss entry holds any useful stuff
 		ms2_buffer_info_data = b""
 		next_model_info_data = b""
@@ -80,7 +81,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		with open(mdl2_path, 'wb') as outfile:
 			print("Writing", mdl2_entry.name, mdl2_index)
 
-			mdl2_header = struct.pack("<4s4I", b"MDL2", int(archive.ovl.version), int(archive.ovl.user_version), mdl2_index, bone_info_index)
+			mdl2_header = struct.pack("<4s4B3I", b"MDL2", ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version), mdl2_index, bone_info_index)
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
@@ -88,7 +89,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 			if not (is_pc(archive.ovl) or is_ed(archive.ovl)):
 				# the fixed fragments
 				green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
-				print("model_count",mdl2_entry.model_count)
+				print("model_count", mdl2_entry.model_count)
 				# write the model info for this model, buffered from the previous model or ms2 (pink fragments)
 				outfile.write(next_model_info_data)
 				# print("PINK",pink.pointers[0].address,pink.pointers[0].data_size,pink.pointers[1].address, pink.pointers[1].data_size)

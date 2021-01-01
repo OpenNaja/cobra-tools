@@ -11,6 +11,7 @@ from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
 from generated.formats.ms2.compound.Ms2BoneInfoPc import Ms2BoneInfoPc
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
+from generated.formats.ovl import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
 
@@ -38,9 +39,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def __init__(self, ):
 		super().__init__()
-
-	def is_pc(self):
-		return self.general_info.ms_2_version == 32
 
 	def read_all_bone_infos(self, stream, bone_info_cls):
 		# functional for JWE detailobjects.ms2, if joint_data is read
@@ -97,7 +95,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# for i, start in enumerate(bone_info_starts):
 		# 	print(i, self.bone_info_bytes[start:start+20])
 
-		if self.is_pc():
+		if is_pc(self) or is_ed(self):
 			if bone_info_starts:
 				if bone_info_starts[0] <= 20:
 					bone_info_starts_0 = bone_info_starts[0]
@@ -138,8 +136,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			self.eoh = stream.tell()
+			print(self)
 			print("end of header: ", self.eoh)
-			if self.is_pc():
+			if is_pc(self) or is_ed(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
 
 				start_of_lods = stream.tell()

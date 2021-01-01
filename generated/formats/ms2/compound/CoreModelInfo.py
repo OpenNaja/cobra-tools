@@ -57,7 +57,7 @@ class CoreModelInfo:
 		self.zero_a = stream.read_float()
 		self.unk_float_b = stream.read_float()
 		self.unknownvectors.read(stream, Vector3, 2, None)
-		if (stream.user_version == 24724) and (stream.version == 19):
+		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1)):
 			self.unk_float_0 = stream.read_float()
 			self.unk_float_1 = stream.read_float()
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
@@ -84,7 +84,7 @@ class CoreModelInfo:
 		stream.write_float(self.zero_a)
 		stream.write_float(self.unk_float_b)
 		self.unknownvectors.write(stream, Vector3, 2, None)
-		if (stream.user_version == 24724) and (stream.version == 19):
+		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1)):
 			stream.write_float(self.unk_float_0)
 			stream.write_float(self.unk_float_1)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
