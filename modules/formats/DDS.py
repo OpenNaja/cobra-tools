@@ -7,7 +7,7 @@ from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
-from generated.formats.ovl import is_pc
+from generated.formats.ovl import *
 from generated.formats.ovl.compound.Header3Data0 import Header3Data0
 from generated.formats.ovl.compound.Header3Data0Pc import Header3Data0Pc
 from generated.formats.ovl.compound.Header3Data1Pc import Header3Data1Pc
@@ -86,11 +86,13 @@ def write_dds(archive, sized_str_entry, show_temp_files, out_dir):
 	buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
-	if is_pc(archive):
+	if is_pc(archive.ovl) or is_ed(archive.ovl):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(sized_str_entry)
+		print(header_7)
 		dds_file.width = header_7.width
 		# hack until we have proper support for array_size on the image editors
-		dds_file.height = header_7.height * header_7.array_size
+		# todo - this is most assuredly not array size for ED
+		dds_file.height = header_7.height * max(1, header_7.array_size)
 		dds_file.mipmap_count = header_7.num_mips
 		dds_file.linear_size = len(buffer_data)
 		dds_file.depth = header_3_0.one_0
@@ -115,30 +117,30 @@ def write_dds(archive, sized_str_entry, show_temp_files, out_dir):
 		dds_file.mipmap_count = header_7.num_mips
 
 	try:
-		dds_compression_types = (header_3_0.compression_type.name,)
+		dds_type = header_3_0.compression_type.name
+		# account for aliases
+		if dds_type.endswith(("_B", "_C")):
+			dds_type = dds_type[:-2]
+		dds_compression_types = ((dds_type, DxgiFormat[dds_type]),)
 	except KeyError:
-		dds_compression_types = [x.name for x in DxgiFormat]
-		print(
-			f"Unknown compression type {header_3_0.compression_type}, trying all compression types for your amusement")
+		dds_compression_types = [(x.name, x) for x in DxgiFormat]
+		print(f"Unknown compression type {header_3_0.compression_type}, trying all compression types")
 	print("dds_compression_type", dds_compression_types)
 	# write out everything for each compression type
-	if header_3_0.compression_type.name == "DXGI_FORMAT_ALL":
-		dds_compression_types = [x.name for x in DxgiFormat]
-	if header_3_0.compression_type.name == "DXGI_FORMAT_BC4_UNORM_B":
-		dds_compression_types = ("DXGI_FORMAT_BC4_UNORM",)
 	out_files = []
-	for dds_compression_type in dds_compression_types:
-
+	for dds_type, dds_value in dds_compression_types:
+		print(dds_file.width)
 		# header attribs
-		dds_file.width = align_to(dds_file.width, dds_compression_type)
+		dds_file.width = align_to(dds_file.width, dds_type)
+		print(dds_file.width)
 
 		# dx 10 stuff
-		dds_file.dx_10.dxgi_format = DxgiFormat[dds_compression_type]
+		dds_file.dx_10.dxgi_format = dds_value
 
 		# start out
 		dds_file_path = out_dir(name)
 		if len(dds_compression_types) > 1:
-			dds_file_path += f"_{dds_compression_type}.dds"
+			dds_file_path += f"_{dds_type}.dds"
 		# write dds
 		dds_file.save(dds_file_path)
 
@@ -148,8 +150,9 @@ def write_dds(archive, sized_str_entry, show_temp_files, out_dir):
 		# convert the dds to PNG, PNG must be visible so put it in out_dir
 		png_file_path = texconv.dds_to_png(dds_file_path, dds_file.height)
 
-		# postprocessing of the png
-		out_files.extend(imarray.wrapper(png_file_path, header_7))
+		if os.path.isfile(png_file_path):
+			# postprocessing of the png
+			out_files.extend(imarray.wrapper(png_file_path, header_7))
 	return out_files
 
 
@@ -157,7 +160,7 @@ def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_temp_files, is_2
 	# convert the png into a dds, then inject that
 
 	archive = ovl_data.ovs_files[0]
-	if is_pc(archive):
+	if (is_pc(archive.ovl) or is_ed(archive.ovl)):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 	else:
 		header_3_0, header_3_1, header_7 = get_tex_structs(tex_sized_str_entry)
@@ -218,7 +221,7 @@ def tex_to_2K(tex_sized_str_entry, ovs_sized_str_entry):
 def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, is_2K, ovs_sized_str_entry):
 	archive = ovl_data.ovs_files[0]
 
-	if is_pc(archive):
+	if (is_pc(archive.ovl) or is_ed(archive.ovl)):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 		tex_h = header_7.height
 		tex_w = header_7.width
@@ -242,7 +245,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, is_2K, ovs_sized_str_
 	dds_file = DdsFile()
 	dds_file.load(dds_file_path)
 	ensure_size_match(os.path.basename(dds_file_path), dds_file, tex_h, tex_w, tex_d, tex_a, comp)
-	if is_pc(archive):
+	if (is_pc(archive.ovl) or is_ed(archive.ovl)):
 		for buffer, tex_header_3 in zip(tex_sized_str_entry.data_entry.buffers, headers_3_1):
 			dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 			if len(dds_buff) < buffer.size:

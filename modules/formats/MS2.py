@@ -40,7 +40,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# 		outfile.write(buffer)
 
 	# Planet coaster
-	if is_pc(archive):
+	if (is_pc(archive.ovl) or is_ed(archive.ovl)):
 		# only ss entry holds any useful stuff
 		ms2_buffer_info_data = b""
 		next_model_info_data = b""
@@ -61,7 +61,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 
 	# write the ms2 file
 	out_path = out_dir(name)
-	out_paths = [out_path,]
+	out_paths = [out_path, ]
 	with open(out_path, 'wb') as outfile:
 		outfile.write(ms2_header)
 		outfile.write(ms2_general_info_data)
@@ -85,7 +85,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
 
-			if not is_pc(archive):
+			if not (is_pc(archive.ovl) or is_ed(archive.ovl)):
 				# the fixed fragments
 				green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
 				print("model_count",mdl2_entry.model_count)

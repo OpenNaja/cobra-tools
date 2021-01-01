@@ -23,16 +23,18 @@ def wrapper(png_file_path, header_7):
 	must_split = False
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
-	if header_7.array_size > 1:
+	h = header_7.height
+	w = header_7.width
+	array_size = header_7.array_size
+	# hack since ED has this set to 0 sometimes
+	array_size = max(1, array_size)
+	if array_size > 1:
 		must_split = True
 	print("split_components", split_components)
 	print("must_split", must_split)
 	print("must_flip_gb", must_flip_gb)
 	print("Splitting PNG array")
-	h = header_7.height
-	w = header_7.width
-	array_size = header_7.array_size
-	print("h, w, array_size",h, w, array_size)
+	print(f"h {h}, w {w}, array_size {array_size}")
 	if must_split or must_flip_gb or split_components:
 		im = imageio.imread(png_file_path)
 		# print(im.shape)

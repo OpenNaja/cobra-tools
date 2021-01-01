@@ -32,10 +32,6 @@ class OvsFile(OvsHeader, ZipFile):
 		self.arg = archive_entry
 		self.archive_index = archive_index
 
-		# for temporary pyffi compat
-		self.version = self.ovl.version
-		self.user_version = self.ovl.user_version
-
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
@@ -48,7 +44,7 @@ class OvsFile(OvsHeader, ZipFile):
 			super().read(stream)
 			# print(self.ovl)
 			# print(self)
-			print(f"Version check: PC = {is_pc(self)}, JWE = {is_jwe(self)}, PZ = {is_pz(self)}")
+			print(f"Version check: PC = {is_pc(self.ovl)}, JWE = {is_jwe(self.ovl)}, PZ = {is_pz(self.ovl)}, ED = {is_ed(self.ovl)}")
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -638,61 +634,67 @@ class OvsFile(OvsHeader, ZipFile):
 		# include formats that are known to have no fragments
 		no_frags = ("txt",)
 		ss_max = len(sorted_sized_str_entries)
-		for ss_index, sized_str_entry in enumerate(sorted_sized_str_entries):
-			self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
-			# get fixed fragments
-			if sized_str_entry.ext not in no_frags:
-				print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
-			hi = sized_str_entry.pointers[0].header_index
-			if hi != MAX_UINT32:
-				frags = self.header_entries[hi].fragments
-			else:
-				frags = address_0_fragments
-			if sized_str_entry.ext == "ms2" and is_pc(self.ovl):
-				sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
-			elif sized_str_entry.ext == "tex" and is_pc(self.ovl):
-				sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
-			elif sized_str_entry.ext in dic:
+		try:
+			for ss_index, sized_str_entry in enumerate(sorted_sized_str_entries):
+				self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
+				# get fixed fragments
+				if sized_str_entry.ext not in no_frags:
+					print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
+				hi = sized_str_entry.pointers[0].header_index
+				if hi != MAX_UINT32:
+					frags = self.header_entries[hi].fragments
+				else:
+					frags = address_0_fragments
+				if sized_str_entry.ext == "ms2" and (is_pc(self.ovl) or is_ed(self.ovl)):
+					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
+				elif sized_str_entry.ext == "tex" and (is_pc(self.ovl) or is_ed(self.ovl)):
+					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
+				elif sized_str_entry.ext in dic:
 
-				t = dic[sized_str_entry.ext]
-				# get and set fragments
-				sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, t)
+					t = dic[sized_str_entry.ext]
+					# get and set fragments
+					try:
+						sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, t)
+					except:
+						print("bug")
+						pass
+				elif sized_str_entry.ext == "fgm":
+					sized_str_entry.fragments = self.get_frag_after_terminator(frags, sized_str_entry.pointers[0].address)
 
-			elif sized_str_entry.ext == "fgm":
-				sized_str_entry.fragments = self.get_frag_after_terminator(frags, sized_str_entry.pointers[0].address)
+				elif sized_str_entry.ext == "materialcollection":
+					self.collect_matcol(sized_str_entry)
+				elif sized_str_entry.ext == "scaleformlanguagedata":
+					if not is_pc(self.ovl):
+						# todo - this is different for PC
+						self.collect_scaleform(sized_str_entry, frags)
+			# elif sized_str_entry.ext == "prefab":
+			# self.collect_prefab(sized_str_entry, address_0_fragments)
+			# print("sizedstr",sized_str_entry.pointers[0].header_index)
+			# print("frags",tuple((f.pointers[0].header_index, f.pointers[1].header_index) for f in sized_str_entry.fragments))
+			# for f in sized_str_entry.fragments:
+			#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
+			# second pass: collect model fragments
+			versions = {"version": self.ovl.version, "user_version": self.ovl.user_version}
+			if not is_pc(self.ovl):
+				# assign the mdl2 frags to their sized str entry
+				for set_entry in self.set_header.sets:
+					set_sized_str_entry = set_entry.entry
+					if set_sized_str_entry.ext == "ms2":
+						f_1 = set_sized_str_entry.fragments[1]
+						next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
+						# print("next model info:", next_model_info)
+						for asset_entry in set_entry.assets:
+							assert (asset_entry.name == asset_entry.entry.name)
+							sized_str_entry = asset_entry.entry
+							if sized_str_entry.ext == "mdl2":
+								self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
+								pink = sized_str_entry.fragments[4]
+								if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
+									or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
+									next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
-			elif sized_str_entry.ext == "materialcollection":
-				self.collect_matcol(sized_str_entry)
-			elif sized_str_entry.ext == "scaleformlanguagedata":
-				if not is_pc(self):
-					# todo - this is different for PC
-					self.collect_scaleform(sized_str_entry, frags)
-		# elif sized_str_entry.ext == "prefab":
-		# self.collect_prefab(sized_str_entry, address_0_fragments)
-		# print("sizedstr",sized_str_entry.pointers[0].header_index)
-		# print("frags",tuple((f.pointers[0].header_index, f.pointers[1].header_index) for f in sized_str_entry.fragments))
-		# for f in sized_str_entry.fragments:
-		#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
-		# second pass: collect model fragments
-		versions = {"version": self.version, "user_version": self.user_version}
-		if not is_pc(self):
-			# assign the mdl2 frags to their sized str entry
-			for set_entry in self.set_header.sets:
-				set_sized_str_entry = set_entry.entry
-				if set_sized_str_entry.ext == "ms2":
-					f_1 = set_sized_str_entry.fragments[1]
-					next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
-					# print("next model info:", next_model_info)
-					for asset_entry in set_entry.assets:
-						assert (asset_entry.name == asset_entry.entry.name)
-						sized_str_entry = asset_entry.entry
-						if sized_str_entry.ext == "mdl2":
-							self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
-							pink = sized_str_entry.fragments[4]
-							if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
-								or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
-								next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
-
+		except Exception as err:
+			print(err)
 		# # for debugging only:
 		for sized_str_entry in sorted_sized_str_entries:
 			for frag in sized_str_entry.model_data_frags + sized_str_entry.fragments:
@@ -958,7 +960,7 @@ class OvsFile(OvsHeader, ZipFile):
 		n = "NONAME"
 		e = "UNKNOWN"
 		# JWE style
-		if is_jwe(self.ovl):
+		if is_jwe(self.ovl) or is_ed(self.ovl):
 			# print("JWE ids",entry.file_hash, entry.ext_hash)
 			try:
 				n = self.ovl.hash_table_local[entry.file_hash]
@@ -977,6 +979,8 @@ class OvsFile(OvsHeader, ZipFile):
 				raise IndexError(f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
 			n = file.name
 			e = file.ext
+		else:
+			raise ValueError("Unknown version!")
 		return n + "." + e
 
 	def calc_uncompressed_size(self, ):
