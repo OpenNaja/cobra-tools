@@ -585,7 +585,7 @@ class OvsFile(OvsHeader, ZipFile):
 			frag.name = ss_entry.name
 
 	def collect_mdl2(self, mdl2_sized_str_entry, model_info, mdl2_pointer):
-		# print("Collecting model fragments for", mdl2_sized_str_entry.name)
+		print("MDL2:", mdl2_sized_str_entry.name)
 		mdl2_sized_str_entry.fragments = self.frags_from_pointer(mdl2_pointer, 5)
 		mdl2_sized_str_entry.model_info = model_info
 		mdl2_sized_str_entry.model_count = model_info.model_count
@@ -675,7 +675,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# for f in sized_str_entry.fragments:
 			#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
 			# second pass: collect model fragments
-			versions = {"version": self.ovl.version, "user_version": self.ovl.user_version}
+			versions = {"version": self.ovl.version, "user_version": self.ovl.user_version, "version_flag": self.ovl.version_flag}
 			if not is_pc(self.ovl):
 				# assign the mdl2 frags to their sized str entry
 				for set_entry in self.set_header.sets:
