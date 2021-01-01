@@ -1,5 +1,6 @@
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
 from generated.io import IoFile, BinaryStream
+from generated.formats.ovl.versions import *
 import os
 import struct
 
@@ -21,6 +22,8 @@ class FgmFile(FgmInfoHeader, IoFile):
 		# PZ Style
 		elif self.user_version in (8340, 8724):
 			return "Planet Zoo"
+		elif self.version == 19:
+			return "Elite Dangerous"
 		else:
 			return "Unknown Game"
 

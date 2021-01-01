@@ -15,7 +15,7 @@ class MainWindow(widgets.MainWindow):
 		self.fgm_data = FgmFile()
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/fgm.txt")
-		self.games = ("Jurassic World Evolution", "Planet Zoo", "Planet Coaster")
+		self.games = ("Jurassic World Evolution", "Planet Zoo", "Planet Coaster", "Elite Dangerous", "Unknown Game")
 		self.shaders = {}
 		for game in self.games:
 			self.shaders[game] = config.read_list(f"util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
