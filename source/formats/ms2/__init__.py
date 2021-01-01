@@ -185,14 +185,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print("mdl2s", len(self.pc_buffer1.model_infos))
 				print("mdl2s with models", len(valid_models))
 				print("lod info starts", len(lod_info_starts), "(should match the above)")
-				lod_offset_rel = lod_info_starts[b_index]
-				# this is for the PC format
-				# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
-				print("Lod offset from start of lod block", lod_offset_rel)
-				stream.seek(start_of_lods+lod_offset_rel)
-				print(stream.tell())
-				model_info.pc_model = stream.read_type(PcModel, (model_info,))
-				print(model_info.pc_model)
+				if lod_info_starts:
+					lod_offset_rel = lod_info_starts[b_index]
+					# this is for the PC format
+					# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
+					print("Lod offset from start of lod block", lod_offset_rel)
+					stream.seek(start_of_lods+lod_offset_rel)
+					print(stream.tell())
+					model_info.pc_model = stream.read_type(PcModel, (model_info,))
+					print(model_info.pc_model)
 				print("end of pc_model", stream.tell())
 				# padding is handled by get_bone_info
 				# the other models have 16 bytes
