@@ -1,6 +1,5 @@
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
 from generated.io import IoFile, BinaryStream
-from generated.formats.ovl.versions import *
 import os
 import struct
 
@@ -10,22 +9,6 @@ dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}
 
 
 class FgmFile(FgmInfoHeader, IoFile):
-
-	@property
-	def game(self, ):
-		# JWE style
-		if self.user_version in (24724, 25108):
-			return "Jurassic World Evolution"
-		# PC style
-		elif self.version == 18:
-			return "Planet Coaster"
-		# PZ Style
-		elif self.user_version in (8340, 8724):
-			return "Planet Zoo"
-		elif self.version == 19:
-			return "Elite Dangerous"
-		else:
-			return "Unknown Game"
 
 	def get_texture_file(self, target_suffix):
 		for tex_file in self.texture_names:

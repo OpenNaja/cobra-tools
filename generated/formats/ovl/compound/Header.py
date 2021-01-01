@@ -29,14 +29,14 @@ class Header:
 		# 'FRES'
 		self.fres = FixedString()
 
-		# if 0x08 then 64bit
-		self.flag = 0
+		# if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC
+		self.version_flag = 0
 
 		# 0x12 = PC, 0x13 = JWE, PZ
 		self.version = 0
 
-		# endianness?
-		self.needs_bitswap = 0
+		# endianness?, usually zero
+		self.bitswap = 0
 
 		# always = 1
 		self.seventh_byte = 1
@@ -138,10 +138,11 @@ class Header:
 
 		self.io_start = stream.tell()
 		self.fres = stream.read_type(FixedString, (4,))
-		self.flag = stream.read_byte()
+		self.version_flag = stream.read_byte()
+		stream.version_flag = self.version_flag
 		self.version = stream.read_byte()
 		stream.version = self.version
-		self.needs_bitswap = stream.read_byte()
+		self.bitswap = stream.read_byte()
 		self.seventh_byte = stream.read_byte()
 		self.user_version = stream.read_type(VersionInfo)
 		stream.user_version = self.user_version
@@ -182,10 +183,11 @@ class Header:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.fres)
-		stream.write_byte(self.flag)
+		stream.write_byte(self.version_flag)
+		stream.version_flag = self.version_flag
 		stream.write_byte(self.version)
 		stream.version = self.version
-		stream.write_byte(self.needs_bitswap)
+		stream.write_byte(self.bitswap)
 		stream.write_byte(self.seventh_byte)
 		stream.write_type(self.user_version)
 		stream.user_version = self.user_version
@@ -225,9 +227,9 @@ class Header:
 	def __repr__(self):
 		s = 'Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* fres = ' + self.fres.__repr__()
-		s += '\n	* flag = ' + self.flag.__repr__()
+		s += '\n	* version_flag = ' + self.version_flag.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* needs_bitswap = ' + self.needs_bitswap.__repr__()
+		s += '\n	* bitswap = ' + self.bitswap.__repr__()
 		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* zero = ' + self.zero.__repr__()

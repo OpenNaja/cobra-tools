@@ -2,6 +2,7 @@ import os
 from PyQt5 import QtWidgets, QtCore
 
 from generated.formats.fgm import FgmFile
+from generated.formats.ovl.versions import *
 from util import widgets, config
 
 
@@ -15,9 +16,8 @@ class MainWindow(widgets.MainWindow):
 		self.fgm_data = FgmFile()
 		self.widgets = []
 		self.tooltips = config.read_config("util/tooltips/fgm.txt")
-		self.games = ("Jurassic World Evolution", "Planet Zoo", "Planet Coaster", "Elite Dangerous", "Unknown Game")
 		self.shaders = {}
-		for game in self.games:
+		for game in games:
 			self.shaders[game] = config.read_list(f"util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
@@ -30,7 +30,7 @@ class MainWindow(widgets.MainWindow):
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		self.game_container = widgets.LabelCombo("Game:", self.games)
+		self.game_container = widgets.LabelCombo("Game:", games)
 		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
@@ -103,7 +103,7 @@ class MainWindow(widgets.MainWindow):
 				w.deleteLater()
 			try:
 				self.fgm_data.load(self.file_widget.filepath)
-				game = self.fgm_data.game
+				game = get_game(self.fgm_data)
 				print("from game", game)
 				self.game_container.entry.setText(game)
 				# also for

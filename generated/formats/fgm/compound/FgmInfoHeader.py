@@ -23,7 +23,18 @@ class FgmInfoHeader:
 
 		# 'FGM '
 		self.magic = Array()
+
+		# if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC
+		self.version_flag = 0
+
+		# 0x12 = PC, 0x13 = JWE, PZ
 		self.version = 0
+
+		# endianness?, usually zero
+		self.bitswap = 0
+
+		# always = 1
+		self.seventh_byte = 1
 		self.user_version = 0
 
 		# fragment count
@@ -48,14 +59,19 @@ class FgmInfoHeader:
 		self.two_frags_pad = Array()
 		self.textures = Array()
 		self.texpad = Array()
+		self.texpad = Array()
 		self.attributes = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.magic.read(stream, 'Byte', 4, None)
-		self.version = stream.read_uint()
+		self.version_flag = stream.read_byte()
+		stream.version_flag = self.version_flag
+		self.version = stream.read_byte()
 		stream.version = self.version
+		self.bitswap = stream.read_byte()
+		self.seventh_byte = stream.read_byte()
 		self.user_version = stream.read_uint()
 		stream.user_version = self.user_version
 		self.num_frags = stream.read_uint()
@@ -68,7 +84,10 @@ class FgmInfoHeader:
 		self.fgm_info = stream.read_type(FourFragFgm)
 		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
-		self.texpad.read(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))):
+			self.texpad.read(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)):
+			self.texpad.read(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 12), None)
 		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -77,8 +96,12 @@ class FgmInfoHeader:
 
 		self.io_start = stream.tell()
 		self.magic.write(stream, 'Byte', 4, None)
-		stream.write_uint(self.version)
+		stream.write_byte(self.version_flag)
+		stream.version_flag = self.version_flag
+		stream.write_byte(self.version)
 		stream.version = self.version
+		stream.write_byte(self.bitswap)
+		stream.write_byte(self.seventh_byte)
 		stream.write_uint(self.user_version)
 		stream.user_version = self.user_version
 		stream.write_uint(self.num_frags)
@@ -91,7 +114,10 @@ class FgmInfoHeader:
 		stream.write_type(self.fgm_info)
 		self.two_frags_pad.write(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
-		self.texpad.write(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))):
+			self.texpad.write(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)):
+			self.texpad.write(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 12), None)
 		self.attributes.write(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -99,7 +125,10 @@ class FgmInfoHeader:
 	def __repr__(self):
 		s = 'FgmInfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
 		s += '\n	* magic = ' + self.magic.__repr__()
+		s += '\n	* version_flag = ' + self.version_flag.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()
+		s += '\n	* bitswap = ' + self.bitswap.__repr__()
+		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* num_frags = ' + self.num_frags.__repr__()
 		s += '\n	* num_textures = ' + self.num_textures.__repr__()

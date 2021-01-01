@@ -4,14 +4,19 @@
 
     <token name="verexpr" attrs="vercond cond">
         Commonly used version expressions.
-        <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
-        <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
+        <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
+		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
+        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
+        <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
+        <verexpr token="#ED#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 8))">ED</verexpr>
     </token>
-	
+
     <token name="global" attrs="vercond cond">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#USER#" string="user_version" />
+        <global token="#VER#" string="version" />
+        <global token="#FLAG#" string="version_flag" />
     </token>
 	
     <token name="operator" attrs="cond vercond arr1 arr2 arg">
@@ -36,6 +41,7 @@
         <operator token="#BITOR#" string="|" />
         <operator token="#MOD#" string="%" />
     </token>
+
     <!--Basic Types-->
 
     <basic name="ubyte" count="1">
@@ -110,8 +116,10 @@
 		part of fgm fragment, per texture involved
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
 		<add name="is textured" type="uint">7=has 2 8=uses texture indices</add>
-		<add name="indices" type="uint" arr1="4" cond="is textured == 8" >stores index into shader and array index of texture</add>
-		<add name="colors" type="Color" arr1="4" cond="is textured == 7" >Stores (usually) 2 rgba colors</add>
+		<add name="indices" type="uint" arr1="4" cond="is textured == 8" vercond="!#ED#">stores index into shader and array index of texture</add>
+		<add name="colors" type="Color" arr1="4" cond="is textured == 7" vercond="!#ED#">Stores (usually) 2 rgba colors</add>
+		<add name="indices" type="uint" arr1="1" cond="is textured == 8" vercond="#ED#">stores index into shader</add>
+		<add name="colors" type="Color" arr1="1" cond="is textured == 7" vercond="#ED#">Stores rgba color</add>
     </compound>
 	
 	<compound name="AttributeInfo" >
@@ -127,7 +135,10 @@
 		
 		This reads a whole custom FGM file
         <add name="magic" type="byte" arr1="4">'FGM '</add>
-        <add name="version" type="uint" ></add>
+        <add name="version flag" type="byte" >if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC</add>
+        <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
+        <add name="Bitswap" type="byte" >endianness?, usually zero</add>
+        <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
         <add name="user version" type="uint" ></add>
         <add name="num frags" type="uint" >fragment count</add>
         <add name="num textures" type="uint" >texture ref count</add>
@@ -139,8 +150,9 @@
         <add name="fgm info" type="FourFragFgm" ></add>
 		<add name="two frags pad" type="TwoFragFgmExtra" arr1="num frags == 2" ></add>
 
-		<add name="textures" type="TextureInfo" arr1="fgm info\texture count" ></add>
-        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 24)" ></add>
+		<add name="textures" type="TextureInfo" arr1="fgm info\texture count"></add>
+        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 24)" vercond="!#ED#"></add>
+        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 12)" vercond="#ED#"></add>
 		<add name="attributes" type="AttributeInfo" arr1="fgm info\attribute count" ></add>
         
     </compound>
