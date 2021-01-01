@@ -665,6 +665,7 @@ class OvsFile(OvsHeader, ZipFile):
 				self.collect_matcol(sized_str_entry)
 			elif sized_str_entry.ext == "scaleformlanguagedata":
 				if not is_pc(self):
+					# todo - this is different for PC
 					self.collect_scaleform(sized_str_entry, frags)
 		# elif sized_str_entry.ext == "prefab":
 		# self.collect_prefab(sized_str_entry, address_0_fragments)

@@ -92,12 +92,12 @@ def extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progres
 	# 	write_prefab(archive, entry)
 	# elif entry.ext == "voxelskirt" and extract_misc == True:
 	# 	write_voxelskirt(archive, entry)
-	# elif entry.ext == "gfx" and extract_misc == True:
-	# 	write_gfx(archive, entry)
+	elif entry.ext == "gfx":
+		paths.extend(write_gfx(archive, entry, out_dir_func))
 	elif entry.ext == "fct":
 		paths.extend(write_fct(archive, entry, out_dir_func))
-	# elif entry.ext == "scaleformlanguagedata" and extract_misc == True:
-	# 	write_scaleform(archive, entry)
+	elif entry.ext == "scaleformlanguagedata":
+		paths.extend(write_scaleform(archive, entry, out_dir_func))
 	else:
 		print("\nSkipping", entry.name)
 		# skip_files.append(entry.name)
@@ -151,33 +151,33 @@ def write_voxelskirt(archive, sized_str_entry):
 		outfile.write( sized_str_entry.pointers[0].data )
 		for buff in buffers:
 			outfile.write(buff)
-            
-def write_gfx(archive, sized_str_entry):
+
+
+def write_gfx(archive, sized_str_entry, out_dir):
 	name = sized_str_entry.name
-	print("\nWriting",name)
+	print(f"\nWriting {name}")
+
+	out_path = out_dir(name)
 	buffers = sized_str_entry.data_entry.buffer_datas
-	# write voxelskirt
-	with open(archive.indir(name), 'wb') as outfile:
-		# write the sized str and buffers
-		print(sized_str_entry.pointers[0].data)
-		outfile.write( sized_str_entry.pointers[0].data )
+	with open(out_path, 'wb') as outfile:
+		outfile.write(sized_str_entry.pointers[0].data)
 		for buff in buffers:
 			outfile.write(buff)
+	return out_path,
 
 
-def write_scaleform(archive, sized_str_entry):
+def write_scaleform(archive, sized_str_entry, out_dir):
 	name = sized_str_entry.name
-	print("\nWriting",name)
+	print(f"\nWriting {name}")
 
-	with open(archive.indir(name), 'wb') as outfile:
+	out_path = out_dir(name)
+	with open(out_path, 'wb') as outfile:
 		# write each of the fragments
-		# print(sized_str_entry.pointers[0].data)
-		outfile.write( sized_str_entry.pointers[0].data )
+		outfile.write(sized_str_entry.pointers[0].data)
 		for frag in sized_str_entry.fragments:
-			# print(frag.pointers[0].data)
-			# print(frag.pointers[1].data)
 			outfile.write(frag.pointers[0].data)
 			outfile.write(frag.pointers[1].data)
+	return out_path,
 
 
 def write_prefab(archive, sized_str_entry):
