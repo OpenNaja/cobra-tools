@@ -4,7 +4,7 @@ def is_ztuac(inst):
 
 
 def is_pc(inst):
-	if inst.user_version == 8212:
+	if inst.version == 18:
 		return True
 
 

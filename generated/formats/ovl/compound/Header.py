@@ -32,7 +32,7 @@ class Header:
 		# if 0x08 then 64bit
 		self.flag = 0
 
-		# 0x13 = JWE
+		# 0x12 = PC, 0x13 = JWE, PZ
 		self.version = 0
 
 		# endianness?

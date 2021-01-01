@@ -4,14 +4,14 @@
 
 
     <version id="ZTUAC" version="17">ZT UAC</version>
-    <version id="PC" user_version="8212">ZT UAC</version>
+    <version id="PC" version="18">ZT UAC</version>
     <version id="PZ" version="19" user_version="8340 8724">ZT UAC</version>
     <version id="JWE" version="19" user_version="24724 25108">ZT UAC</version>
 
     <token name="verexpr" attrs="vercond cond">
         Commonly used version expressions.
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
-		<verexpr token="#PC#" string="(#USER# #EQ# 8212)">PC</verexpr>
+		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
         <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch</verexpr>
     </token>
@@ -156,7 +156,7 @@
         Found at the beginning of every OVL file
         <add name="FRES" type="FixedString" arg="4">'FRES'</add>
         <add name="Flag" type="byte" >if 0x08 then 64bit</add>
-        <add name="Version" type="byte" >0x13 = JWE</add>
+        <add name="Version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
         <add name="Needs Bitswap" type="byte" >endianness?</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
 		

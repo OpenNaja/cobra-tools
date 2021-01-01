@@ -27,7 +27,7 @@ class MainWindow(widgets.MainWindow):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
 		self.resize(720, 400)
 
-		self.ovl_data = OvlFile()
+		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 
 		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA", "WEM", "OTF", "TTF")
 		self.filter = "Supported files ({})".format(" ".join("*."+t for t in supported_types))

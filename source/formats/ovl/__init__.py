@@ -601,7 +601,7 @@ class OvsFile(OvsHeader, ZipFile):
 		mdl2_sized_str_entry.model_data_frags = self.frags_from_pointer(lod_pointer, mdl2_sized_str_entry.model_count)
 
 	def map_frags(self):
-		print("\nMapping SizedStrs to Fragments")
+		print(f"\nMapping SizedStrs to {len(self.fragments)} Fragments")
 
 		# we go from the start
 		address_0_fragments = list(sorted(self.fragments, key=lambda f: f.pointers[0].address))
@@ -611,7 +611,7 @@ class OvsFile(OvsHeader, ZipFile):
 		for frag in address_0_fragments:
 			# header_index = frag.pointers[0].header_index
 			# print(header_index, header_index != MAX_UINT32)
-			# fragments always have a validheader index
+			# fragments always have a valid header index
 			self.header_entries[frag.pointers[0].header_index].fragments.append(frag)
 
 		# todo: document more of these type requirements
@@ -635,11 +635,14 @@ class OvsFile(OvsHeader, ZipFile):
 			   "pathresource": 1  # temp
 			   # "world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
 			   }
+		# include formats that are known to have no fragments
+		no_frags = ("txt",)
 		ss_max = len(sorted_sized_str_entries)
 		for ss_index, sized_str_entry in enumerate(sorted_sized_str_entries):
 			self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
 			# get fixed fragments
-			print("Collecting fragments for", sized_str_entry.name, sized_str_entry.pointers[0].address)
+			if sized_str_entry.ext not in no_frags:
+				print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
 			hi = sized_str_entry.pointers[0].header_index
 			if hi != MAX_UINT32:
 				frags = self.header_entries[hi].fragments
@@ -661,7 +664,8 @@ class OvsFile(OvsHeader, ZipFile):
 			elif sized_str_entry.ext == "materialcollection":
 				self.collect_matcol(sized_str_entry)
 			elif sized_str_entry.ext == "scaleformlanguagedata":
-				self.collect_scaleform(sized_str_entry, frags)
+				if not is_pc(self):
+					self.collect_scaleform(sized_str_entry, frags)
 		# elif sized_str_entry.ext == "prefab":
 		# self.collect_prefab(sized_str_entry, address_0_fragments)
 		# print("sizedstr",sized_str_entry.pointers[0].header_index)
@@ -676,8 +680,6 @@ class OvsFile(OvsHeader, ZipFile):
 				set_sized_str_entry = set_entry.entry
 				if set_sized_str_entry.ext == "ms2":
 					f_1 = set_sized_str_entry.fragments[1]
-					# print("F-1:", f_1)
-					self.write_frag_log()
 					next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 					# print("next model info:", next_model_info)
 					for asset_entry in set_entry.assets:
