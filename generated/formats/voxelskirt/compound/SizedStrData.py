@@ -1,7 +1,3 @@
-import typing
-from generated.array import Array
-
-
 class SizedStrData:
 
 	"""
@@ -21,19 +17,37 @@ class SizedStrData:
 		self.x = 0
 		self.y = 0
 		self.height = 0
-		self.unk = Array()
+		self.zero_float = 0
 
-		# x*y*4
-		self.height_array_size = 0
+		# zero, for PC only
+		self.zero_pc = 0
+
+		# x*y*4, for PC only
+		self.height_array_size_pc = 0
+		self.extra_offset = 0
+
+		# entries of 32 bytes
+		self.extra_count = 0
+		self.another_offset = 0
+
+		# entries of 40 bytes
+		self.another_count = 0
 
 		# slightly smaller than total size of buffer data
-		self.data_offset_1 = 0
-		self.a = 0
-		self.unk_2 = Array()
+		self.data_offset = 0
 
-		# slightly smaller than total size of buffer data
-		self.data_offset_2 = 0
-		self.b = 0
+		# counts the -1 structs; entries of 32 bytes
+		self.data_count = 0
+
+		# offset into buffer to start of sth; only given if some count is nonzero
+		self.some_offset = 0
+		self.some_count = 0
+
+		# offset into buffer to start of name zstrings
+		self.name_buffer_offset = 0
+
+		# also counts the stuff after names
+		self.name_count = 0
 
 	def read(self, stream):
 
@@ -43,13 +57,21 @@ class SizedStrData:
 		self.x = stream.read_uint64()
 		self.y = stream.read_uint64()
 		self.height = stream.read_float()
-		self.unk.read(stream, 'Uint', 3, None)
-		self.height_array_size = stream.read_uint64()
-		self.data_offset_1 = stream.read_uint64()
-		self.a = stream.read_uint64()
-		self.unk_2.read(stream, 'Uint64', 2, None)
-		self.data_offset_2 = stream.read_uint64()
-		self.b = stream.read_uint64()
+		self.zero_float = stream.read_float()
+		if stream.version == 18:
+			self.zero_pc = stream.read_uint64()
+			self.height_array_size_pc = stream.read_uint64()
+		if not (stream.version == 18):
+			self.extra_offset = stream.read_uint64()
+			self.extra_count = stream.read_uint64()
+			self.another_offset = stream.read_uint64()
+			self.another_count = stream.read_uint64()
+		self.data_offset = stream.read_uint64()
+		self.data_count = stream.read_uint64()
+		self.some_offset = stream.read_uint64()
+		self.some_count = stream.read_uint64()
+		self.name_buffer_offset = stream.read_uint64()
+		self.name_count = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -61,13 +83,21 @@ class SizedStrData:
 		stream.write_uint64(self.x)
 		stream.write_uint64(self.y)
 		stream.write_float(self.height)
-		self.unk.write(stream, 'Uint', 3, None)
-		stream.write_uint64(self.height_array_size)
-		stream.write_uint64(self.data_offset_1)
-		stream.write_uint64(self.a)
-		self.unk_2.write(stream, 'Uint64', 2, None)
-		stream.write_uint64(self.data_offset_2)
-		stream.write_uint64(self.b)
+		stream.write_float(self.zero_float)
+		if stream.version == 18:
+			stream.write_uint64(self.zero_pc)
+			stream.write_uint64(self.height_array_size_pc)
+		if not (stream.version == 18):
+			stream.write_uint64(self.extra_offset)
+			stream.write_uint64(self.extra_count)
+			stream.write_uint64(self.another_offset)
+			stream.write_uint64(self.another_count)
+		stream.write_uint64(self.data_offset)
+		stream.write_uint64(self.data_count)
+		stream.write_uint64(self.some_offset)
+		stream.write_uint64(self.some_count)
+		stream.write_uint64(self.name_buffer_offset)
+		stream.write_uint64(self.name_count)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -78,12 +108,18 @@ class SizedStrData:
 		s += '\n	* x = ' + self.x.__repr__()
 		s += '\n	* y = ' + self.y.__repr__()
 		s += '\n	* height = ' + self.height.__repr__()
-		s += '\n	* unk = ' + self.unk.__repr__()
-		s += '\n	* height_array_size = ' + self.height_array_size.__repr__()
-		s += '\n	* data_offset_1 = ' + self.data_offset_1.__repr__()
-		s += '\n	* a = ' + self.a.__repr__()
-		s += '\n	* unk_2 = ' + self.unk_2.__repr__()
-		s += '\n	* data_offset_2 = ' + self.data_offset_2.__repr__()
-		s += '\n	* b = ' + self.b.__repr__()
+		s += '\n	* zero_float = ' + self.zero_float.__repr__()
+		s += '\n	* zero_pc = ' + self.zero_pc.__repr__()
+		s += '\n	* height_array_size_pc = ' + self.height_array_size_pc.__repr__()
+		s += '\n	* extra_offset = ' + self.extra_offset.__repr__()
+		s += '\n	* extra_count = ' + self.extra_count.__repr__()
+		s += '\n	* another_offset = ' + self.another_offset.__repr__()
+		s += '\n	* another_count = ' + self.another_count.__repr__()
+		s += '\n	* data_offset = ' + self.data_offset.__repr__()
+		s += '\n	* data_count = ' + self.data_count.__repr__()
+		s += '\n	* some_offset = ' + self.some_offset.__repr__()
+		s += '\n	* some_count = ' + self.some_count.__repr__()
+		s += '\n	* name_buffer_offset = ' + self.name_buffer_offset.__repr__()
+		s += '\n	* name_count = ' + self.name_count.__repr__()
 		s += '\n'
 		return s

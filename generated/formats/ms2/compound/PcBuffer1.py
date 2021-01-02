@@ -24,7 +24,7 @@ class PcBuffer1:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.whatever.read(stream, 'Uint', 8, None)
+		self.whatever = stream.read_uints((8))
 		self.model_infos.read(stream, Onefiftytwo, self.arg.mdl_2_count, None)
 		self.some_zero = stream.read_uint()
 
@@ -33,7 +33,7 @@ class PcBuffer1:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.whatever.write(stream, 'Uint', 8, None)
+		stream.write_uints(self.whatever)
 		self.model_infos.write(stream, Onefiftytwo, self.arg.mdl_2_count, None)
 		stream.write_uint(self.some_zero)
 

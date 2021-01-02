@@ -28,9 +28,9 @@ class PcJointNext:
 
 		self.io_start = stream.tell()
 		self.eleven_ff_stuff = stream.read_type(PcFFCounter)
-		self.undecoded.read(stream, 'Byte', 5, None)
+		self.undecoded = stream.read_bytes((5))
 		self.name_address = stream.read_uint()
-		self.uints.read(stream, 'Uint', 4, None)
+		self.uints = stream.read_uints((4))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -38,9 +38,9 @@ class PcJointNext:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.eleven_ff_stuff)
-		self.undecoded.write(stream, 'Byte', 5, None)
+		stream.write_bytes(self.undecoded)
 		stream.write_uint(self.name_address)
-		self.uints.write(stream, 'Uint', 4, None)
+		stream.write_uints(self.uints)
 
 		self.io_size = stream.tell() - self.io_start
 

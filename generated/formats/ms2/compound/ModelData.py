@@ -61,7 +61,7 @@ class ModelData:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros.read(stream, 'Uint', 4, None)
+		self.zeros = stream.read_uints((4))
 		self.vertex_count = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
 		self.unknown_05 = stream.read_uint()
@@ -78,7 +78,7 @@ class ModelData:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros.write(stream, 'Uint', 4, None)
+		stream.write_uints(self.zeros)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_index_count)
 		stream.write_uint(self.unknown_05)

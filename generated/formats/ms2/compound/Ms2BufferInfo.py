@@ -38,7 +38,7 @@ class Ms2BufferInfo:
 
 		self.io_start = stream.tell()
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1)):
-			self.skip_1.read(stream, 'Uint', 4, None)
+			self.skip_1 = stream.read_uints((4))
 		self.vertexdatasize = stream.read_uint64()
 		self.ptr_1 = stream.read_uint64()
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
@@ -46,7 +46,7 @@ class Ms2BufferInfo:
 		self.facesdatasize = stream.read_uint64()
 		self.ptr_2 = stream.read_uint64()
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
-			self.unk_2.read(stream, 'Uint64', 2, None)
+			self.unk_2 = stream.read_uint64s((2))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -54,7 +54,7 @@ class Ms2BufferInfo:
 
 		self.io_start = stream.tell()
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1)):
-			self.skip_1.write(stream, 'Uint', 4, None)
+			stream.write_uints(self.skip_1)
 		stream.write_uint64(self.vertexdatasize)
 		stream.write_uint64(self.ptr_1)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
@@ -62,7 +62,7 @@ class Ms2BufferInfo:
 		stream.write_uint64(self.facesdatasize)
 		stream.write_uint64(self.ptr_2)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
-			self.unk_2.write(stream, 'Uint64', 2, None)
+			stream.write_uint64s(self.unk_2)
 
 		self.io_size = stream.tell() - self.io_start
 

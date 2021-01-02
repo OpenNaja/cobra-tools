@@ -25,7 +25,7 @@ class TypeOther:
 
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
-		self.raw.read(stream, 'Byte', self.length, None)
+		self.raw = stream.read_bytes((self.length))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -33,7 +33,7 @@ class TypeOther:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
-		self.raw.write(stream, 'Byte', self.length, None)
+		stream.write_bytes(self.raw)
 
 		self.io_size = stream.tell() - self.io_start
 

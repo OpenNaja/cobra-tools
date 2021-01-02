@@ -72,7 +72,7 @@ class PcModelData:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_a.read(stream, 'Uint', 4, None)
+		self.zeros_a = stream.read_uints((4))
 		if stream.version == 18:
 			self.tri_index_count_a = stream.read_uint()
 		self.vertex_count = stream.read_uint()
@@ -94,7 +94,7 @@ class PcModelData:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_a.write(stream, 'Uint', 4, None)
+		stream.write_uints(self.zeros_a)
 		if stream.version == 18:
 			stream.write_uint(self.tri_index_count_a)
 		stream.write_uint(self.vertex_count)

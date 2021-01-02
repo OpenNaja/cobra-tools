@@ -21,7 +21,7 @@ class PcFFCounter:
 
 		self.io_start = stream.tell()
 		self.count = stream.read_uint()
-		self.f_fs.read(stream, 'Byte', self.count, None)
+		self.f_fs = stream.read_bytes((self.count))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -29,7 +29,7 @@ class PcFFCounter:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.count)
-		self.f_fs.write(stream, 'Byte', self.count, None)
+		stream.write_bytes(self.f_fs)
 
 		self.io_size = stream.tell() - self.io_start
 

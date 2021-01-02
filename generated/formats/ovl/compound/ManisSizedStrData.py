@@ -29,7 +29,7 @@ class ManisSizedStrData:
 		self.io_start = stream.tell()
 		self.unknown_0 = stream.read_ushort()
 		self.unknown_1 = stream.read_ushort()
-		self.unknown_2.read(stream, 'Uint', 5, None)
+		self.unknown_2 = stream.read_uints((5))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -38,7 +38,7 @@ class ManisSizedStrData:
 		self.io_start = stream.tell()
 		stream.write_ushort(self.unknown_0)
 		stream.write_ushort(self.unknown_1)
-		self.unknown_2.write(stream, 'Uint', 5, None)
+		stream.write_uints(self.unknown_2)
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -47,34 +47,34 @@ class ManiBlock:
 
 		self.io_start = stream.tell()
 		if stream.version == 18:
-			self.indices_0.read(stream, 'Ushort', self.arg.c, None)
+			self.indices_0 = stream.read_ushorts((self.arg.c))
 		if not (stream.version == 18):
-			self.indices_0.read(stream, 'Uint', self.arg.c, None)
+			self.indices_0 = stream.read_uints((self.arg.c))
 		if stream.version == 18:
-			self.indices_1.read(stream, 'Ushort', self.arg.name_count, None)
+			self.indices_1 = stream.read_ushorts((self.arg.name_count))
 		if not (stream.version == 18):
-			self.indices_1.read(stream, 'Uint', self.arg.name_count, None)
+			self.indices_1 = stream.read_uints((self.arg.name_count))
 		if stream.version == 18:
-			self.indices_2.read(stream, 'Ushort', self.arg.e, None)
+			self.indices_2 = stream.read_ushorts((self.arg.e))
 		if not (stream.version == 18):
-			self.indices_2.read(stream, 'Uint', self.arg.e, None)
-		self.p_indices_0.read(stream, 'Ubyte', self.arg.c, None)
-		self.p_indices_1.read(stream, 'Ubyte', self.arg.name_count, None)
-		self.p_indices_2.read(stream, 'Ubyte', self.arg.e, None)
+			self.indices_2 = stream.read_uints((self.arg.e))
+		self.p_indices_0 = stream.read_ubytes((self.arg.c))
+		self.p_indices_1 = stream.read_ubytes((self.arg.name_count))
+		self.p_indices_2 = stream.read_ubytes((self.arg.e))
 		if stream.version == 18:
-			self.c_indices_0.read(stream, 'Ubyte', self.arg.c, None)
-			self.c_indices_1.read(stream, 'Ubyte', self.arg.name_count, None)
-			self.c_indices_2.read(stream, 'Ubyte', self.arg.e, None)
+			self.c_indices_0 = stream.read_ubytes((self.arg.c))
+			self.c_indices_1 = stream.read_ubytes((self.arg.name_count))
+			self.c_indices_2 = stream.read_ubytes((self.arg.e))
 		self.zero = stream.read_uint64()
 		self.frame_count = stream.read_uint()
 		self.c = stream.read_uint()
 		self.e = stream.read_uint()
-		self.zeros.read(stream, 'Uint', 19, None)
-		self.zeros.read(stream, 'Ubyte', self.count, None)
+		self.zeros = stream.read_uints((19))
+		self.zeros = stream.read_ubytes((self.count))
 		self.count = stream.read_ushort()
 		self.four_and_twenty = stream.read_ushort()
-		self.pad_to_8.read(stream, 'Ubyte', (8 - (self.count % 8)) % 8, None)
-		self.floats.read(stream, 'Float', 6, None)
+		self.pad_to_8 = stream.read_ubytes(((8 - (self.count % 8)) % 8))
+		self.floats = stream.read_floats((6))
 		self.repeats.read(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -83,34 +83,34 @@ class ManiBlock:
 
 		self.io_start = stream.tell()
 		if stream.version == 18:
-			self.indices_0.write(stream, 'Ushort', self.arg.c, None)
+			stream.write_ushorts(self.indices_0)
 		if not (stream.version == 18):
-			self.indices_0.write(stream, 'Uint', self.arg.c, None)
+			stream.write_uints(self.indices_0)
 		if stream.version == 18:
-			self.indices_1.write(stream, 'Ushort', self.arg.name_count, None)
+			stream.write_ushorts(self.indices_1)
 		if not (stream.version == 18):
-			self.indices_1.write(stream, 'Uint', self.arg.name_count, None)
+			stream.write_uints(self.indices_1)
 		if stream.version == 18:
-			self.indices_2.write(stream, 'Ushort', self.arg.e, None)
+			stream.write_ushorts(self.indices_2)
 		if not (stream.version == 18):
-			self.indices_2.write(stream, 'Uint', self.arg.e, None)
-		self.p_indices_0.write(stream, 'Ubyte', self.arg.c, None)
-		self.p_indices_1.write(stream, 'Ubyte', self.arg.name_count, None)
-		self.p_indices_2.write(stream, 'Ubyte', self.arg.e, None)
+			stream.write_uints(self.indices_2)
+		stream.write_ubytes(self.p_indices_0)
+		stream.write_ubytes(self.p_indices_1)
+		stream.write_ubytes(self.p_indices_2)
 		if stream.version == 18:
-			self.c_indices_0.write(stream, 'Ubyte', self.arg.c, None)
-			self.c_indices_1.write(stream, 'Ubyte', self.arg.name_count, None)
-			self.c_indices_2.write(stream, 'Ubyte', self.arg.e, None)
+			stream.write_ubytes(self.c_indices_0)
+			stream.write_ubytes(self.c_indices_1)
+			stream.write_ubytes(self.c_indices_2)
 		stream.write_uint64(self.zero)
 		stream.write_uint(self.frame_count)
 		stream.write_uint(self.c)
 		stream.write_uint(self.e)
-		self.zeros.write(stream, 'Uint', 19, None)
-		self.zeros.write(stream, 'Ubyte', self.count, None)
+		stream.write_uints(self.zeros)
+		stream.write_ubytes(self.zeros)
 		stream.write_ushort(self.count)
 		stream.write_ushort(self.four_and_twenty)
-		self.pad_to_8.write(stream, 'Ubyte', (8 - (self.count % 8)) % 8, None)
-		self.floats.write(stream, 'Float', 6, None)
+		stream.write_ubytes(self.pad_to_8)
+		stream.write_floats(self.floats)
 		self.repeats.write(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start

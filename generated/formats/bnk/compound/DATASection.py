@@ -23,7 +23,7 @@ class DATASection:
 
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
-		self.wem_files_datas.read(stream, 'Byte', self.length, None)
+		self.wem_files_datas = stream.read_bytes((self.length))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -31,7 +31,7 @@ class DATASection:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
-		self.wem_files_datas.write(stream, 'Byte', self.length, None)
+		stream.write_bytes(self.wem_files_datas)
 
 		self.io_size = stream.tell() - self.io_start
 

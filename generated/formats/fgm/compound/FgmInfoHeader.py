@@ -65,7 +65,7 @@ class FgmInfoHeader:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic.read(stream, 'Byte', 4, None)
+		self.magic = stream.read_bytes((4))
 		self.version_flag = stream.read_byte()
 		stream.version_flag = self.version_flag
 		self.version = stream.read_byte()
@@ -80,14 +80,14 @@ class FgmInfoHeader:
 		self.attr_info_size = stream.read_uint()
 		self.zeros_size = stream.read_uint()
 		self.data_lib_size = stream.read_uint()
-		self.texture_names.read(stream, 'ZString', self.num_textures, None)
+		self.texture_names = stream.read_zstrings((self.num_textures))
 		self.fgm_info = stream.read_type(FourFragFgm)
 		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
 		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))):
-			self.texpad.read(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 24)))
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)):
-			self.texpad.read(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 12), None)
+			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 12)))
 		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -95,7 +95,7 @@ class FgmInfoHeader:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic.write(stream, 'Byte', 4, None)
+		stream.write_bytes(self.magic)
 		stream.write_byte(self.version_flag)
 		stream.version_flag = self.version_flag
 		stream.write_byte(self.version)
@@ -110,14 +110,14 @@ class FgmInfoHeader:
 		stream.write_uint(self.attr_info_size)
 		stream.write_uint(self.zeros_size)
 		stream.write_uint(self.data_lib_size)
-		self.texture_names.write(stream, 'ZString', self.num_textures, None)
+		stream.write_zstrings(self.texture_names)
 		stream.write_type(self.fgm_info)
 		self.two_frags_pad.write(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
 		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))):
-			self.texpad.write(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 24), None)
+			stream.write_bytes(self.texpad)
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)):
-			self.texpad.write(stream, 'Byte', self.tex_info_size - (self.fgm_info.texture_count * 12), None)
+			stream.write_bytes(self.texpad)
 		self.attributes.write(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start

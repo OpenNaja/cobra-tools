@@ -20,7 +20,7 @@ class Attrib:
 		self.io_start = stream.tell()
 		self.zero_0 = stream.read_uint()
 		self.zero_1 = stream.read_uint()
-		self.attrib.read(stream, 'Byte', 4, None)
+		self.attrib = stream.read_bytes((4))
 		self.zero_2 = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -30,7 +30,7 @@ class Attrib:
 		self.io_start = stream.tell()
 		stream.write_uint(self.zero_0)
 		stream.write_uint(self.zero_1)
-		self.attrib.write(stream, 'Byte', 4, None)
+		stream.write_bytes(self.attrib)
 		stream.write_uint(self.zero_2)
 
 		self.io_size = stream.tell() - self.io_start

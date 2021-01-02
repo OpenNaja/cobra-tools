@@ -40,7 +40,7 @@ class MaterialcollectionInfoHeader:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic.read(stream, 'Byte', 4, None)
+		self.magic = stream.read_bytes((4))
 		self.version = stream.read_uint()
 		stream.version = self.version
 		self.user_version = stream.read_uint()
@@ -62,7 +62,7 @@ class MaterialcollectionInfoHeader:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic.write(stream, 'Byte', 4, None)
+		stream.write_bytes(self.magic)
 		stream.write_uint(self.version)
 		stream.version = self.version
 		stream.write_uint(self.user_version)

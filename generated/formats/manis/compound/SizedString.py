@@ -25,7 +25,7 @@ class SizedString:
 
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
-		self.value.read(stream, 'Char', self.length, None)
+		self.value = stream.read_chars((self.length))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -33,7 +33,7 @@ class SizedString:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
-		self.value.write(stream, 'Char', self.length, None)
+		stream.write_chars(self.value)
 
 		self.io_size = stream.tell() - self.io_start
 

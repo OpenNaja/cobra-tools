@@ -40,9 +40,9 @@ class TextureInfo:
 		self.offset = stream.read_uint()
 		self.is_textured = stream.read_uint()
 		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 8:
-			self.indices.read(stream, 'Uint', 4, None)
+			self.indices = stream.read_uints((4))
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 8:
-			self.indices.read(stream, 'Uint', 1, None)
+			self.indices = stream.read_uints((1))
 		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 7:
 			self.colors.read(stream, Color, 4, None)
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 7:
@@ -56,9 +56,9 @@ class TextureInfo:
 		stream.write_uint(self.offset)
 		stream.write_uint(self.is_textured)
 		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 8:
-			self.indices.write(stream, 'Uint', 4, None)
+			stream.write_uints(self.indices)
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 8:
-			self.indices.write(stream, 'Uint', 1, None)
+			stream.write_uints(self.indices)
 		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 7:
 			self.colors.write(stream, Color, 4, None)
 		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 7:

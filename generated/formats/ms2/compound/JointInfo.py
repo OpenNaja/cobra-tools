@@ -31,11 +31,11 @@ class JointInfo:
 
 		self.io_start = stream.tell()
 		self.eleven = stream.read_uint()
-		self.f_fs.read(stream, 'Short', 6, None)
+		self.f_fs = stream.read_shorts((6))
 		self.name_offset = stream.read_uint()
 		self.hitcheck_count = stream.read_uint()
 		self.zero = stream.read_uint64()
-		self.zeros_per_hitcheck.read(stream, 'Uint64', self.hitcheck_count, None)
+		self.zeros_per_hitcheck = stream.read_uint64s((self.hitcheck_count))
 		self.hit_check.read(stream, HitCheckEntry, self.hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -44,11 +44,11 @@ class JointInfo:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.eleven)
-		self.f_fs.write(stream, 'Short', 6, None)
+		stream.write_shorts(self.f_fs)
 		stream.write_uint(self.name_offset)
 		stream.write_uint(self.hitcheck_count)
 		stream.write_uint64(self.zero)
-		self.zeros_per_hitcheck.write(stream, 'Uint64', self.hitcheck_count, None)
+		stream.write_uint64s(self.zeros_per_hitcheck)
 		self.hit_check.write(stream, HitCheckEntry, self.hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start

@@ -157,15 +157,15 @@ class Ms2BoneInfoPc:
 			self.unknown_8_c = stream.read_uint()
 		if stream.version == 18:
 			self.unknownextra = stream.read_uint64()
-		self.name_indices.read(stream, 'Ushort', self.name_count, None)
-		self.name_padding.read(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		self.name_indices = stream.read_ushorts((self.name_count))
+		self.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
 		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.read(stream, PzBone, self.bone_count, None)
 		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
 			self.bones.read(stream, JweBone, self.bone_count, None)
-		self.bone_parents.read(stream, 'Ubyte', self.bone_parents_count, None)
-		self.hier_1_padding.read(stream, 'Byte', (8 - (self.bone_parents_count % 8)) % 8, None)
+		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
+		self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
 		if self.one_64:
 			self.unknown_hier_list.read(stream, UnkHierlistEntry, self.count_5, None)
 		self.hier_2_padding_0 = stream.read_uint64()
@@ -216,15 +216,15 @@ class Ms2BoneInfoPc:
 			stream.write_uint(self.unknown_8_c)
 		if stream.version == 18:
 			stream.write_uint64(self.unknownextra)
-		self.name_indices.write(stream, 'Ushort', self.name_count, None)
-		self.name_padding.write(stream, 'Byte', (16 - ((self.name_count * 2) % 16)) % 16, None)
+		stream.write_ushorts(self.name_indices)
+		stream.write_bytes(self.name_padding)
 		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.write(stream, PzBone, self.bone_count, None)
 		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
 			self.bones.write(stream, JweBone, self.bone_count, None)
-		self.bone_parents.write(stream, 'Ubyte', self.bone_parents_count, None)
-		self.hier_1_padding.write(stream, 'Byte', (8 - (self.bone_parents_count % 8)) % 8, None)
+		stream.write_ubytes(self.bone_parents)
+		stream.write_bytes(self.hier_1_padding)
 		if self.one_64:
 			self.unknown_hier_list.write(stream, UnkHierlistEntry, self.count_5, None)
 		stream.write_uint64(self.hier_2_padding_0)

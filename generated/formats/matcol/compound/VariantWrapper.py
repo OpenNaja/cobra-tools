@@ -18,7 +18,7 @@ class VariantWrapper:
 
 		self.io_start = stream.tell()
 		self.info = stream.read_type(MaterialInfo)
-		self.materials.read(stream, 'ZString', self.info.material_count, None)
+		self.materials = stream.read_zstrings((self.info.material_count))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -26,7 +26,7 @@ class VariantWrapper:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.info)
-		self.materials.write(stream, 'ZString', self.info.material_count, None)
+		stream.write_zstrings(self.materials)
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -159,10 +159,15 @@ class Union:
 				arr2 = Expression(arr2)
 			if arr1:
 				if self.compound.parser.tag_dict[field_type.lower()] == "basic":
-					ftype = f"'{field_type}'"
+					valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr)
+					arr_str = ", ".join(valid_arrs)
+					if method_type == "read":
+						f.write(f"{indent}self.{field_name} = stream.{method_type}_{field_type.lower()}s(({arr_str}))")
+					else:
+						f.write(f"{indent}stream.{method_type}_{field_type.lower()}s(self.{field_name})")
+
 				else:
-					ftype = field_type
-				f.write(f"{indent}self.{field_name}.{method_type}(stream, {ftype}, {arr1}, {arr2})")
+					f.write(f"{indent}self.{field_name}.{method_type}(stream, {field_type}, {arr1}, {arr2})")
 			else:
 				f.write(
 				f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arr1=arr1, arg=arg)}")

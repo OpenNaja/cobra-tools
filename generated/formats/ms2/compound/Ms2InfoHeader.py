@@ -60,8 +60,8 @@ class Ms2InfoHeader:
 		self.general_info = stream.read_type(Ms2SizedStrData)
 		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
-		self.name_hashes.read(stream, 'Uint', self.general_info.name_count, None)
-		self.names.read(stream, 'ZString', self.general_info.name_count, None)
+		self.name_hashes = stream.read_uints((self.general_info.name_count))
+		self.names = stream.read_zstrings((self.general_info.name_count))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -82,8 +82,8 @@ class Ms2InfoHeader:
 		stream.write_type(self.general_info)
 		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
 			stream.write_type(self.buffer_info)
-		self.name_hashes.write(stream, 'Uint', self.general_info.name_count, None)
-		self.names.write(stream, 'ZString', self.general_info.name_count, None)
+		stream.write_uints(self.name_hashes)
+		stream.write_zstrings(self.names)
 
 		self.io_size = stream.tell() - self.io_start
 

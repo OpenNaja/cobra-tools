@@ -9,6 +9,7 @@ from typing import *
 
 import numpy as np
 
+from generated.array import Array
 from util import texconv
 from util.oodle.oodle import OodleDecompressEnum
 
@@ -213,37 +214,6 @@ class BinaryStream(BytesIO):
 		read = self.read
 		write = self.write
 
-		# def _as_bytes(value):
-		# 	"""Helper function which converts a string to bytes (this is useful for
-		# 		set_value in all string classes, which use bytes for representation).
-		# 		:return: The bytes representing the value.
-		# 		:rtype: C{bytes}
-		# 		>>> _as_bytes("\\u00e9defa") == "\\u00e9defa".encode("utf-8")
-		# 		True
-		# 		>>> _as_bytes(123) # doctest: +ELLIPSIS
-		# 		Traceback (most recent call last):
-		# 			...
-		# 		TypeError: ...
-		# 		"""
-		# 	if isinstance(value, str):
-		# 		return value.encode("utf-8", "replace")
-		# 	elif isinstance(value, bytes):
-		# 		return value
-		# 	else:
-		# 		raise TypeError("expected str")
-		#
-		# def _as_str(value):
-		# 	"""Helper function to convert bytes back to str. This is used in
-		# 		the __str__ functions for simple string types. If you want a custom
-		# 		encoding, use an explicit decode call on the value.
-		# 		"""
-		# 	if isinstance(value, bytes):
-		# 		return value.decode("utf-8", "replace")
-		# 	elif isinstance(value, str):
-		# 		return value
-		# 	else:
-		# 		raise TypeError("expected bytes")
-
 		def read_zstring():
 			i = 0
 			val = b''
@@ -260,14 +230,22 @@ class BinaryStream(BytesIO):
 			write(value.encode(errors="surrogateescape"))
 			write(b'\x00')
 
-		return read_zstring, write_zstring, NotImplemented, NotImplemented
+		def read_zstrings(shape):
+			arr = Array()
+			arr.read(self, "zstring", shape)
+			return arr
+
+		def write_zstrings(arr):
+			arr.write(self, "zstring")
+
+		return read_zstring, write_zstring, read_zstrings, write_zstrings
 
 	def get_io_func(self, dtype, mode="read"):
 		func = f"{mode}_{dtype.lower()}"
 		if func in self.__slots__:
 			return getattr(self, func)
 		else:
-			raise NotImplementedError(f"No basic io function for dtype {dtype}!")
+			raise NotImplementedError(f"No basic io function '{func}' for dtype {dtype}!")
 
 
 class IoFile:

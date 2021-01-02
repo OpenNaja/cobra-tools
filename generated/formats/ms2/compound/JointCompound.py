@@ -48,16 +48,16 @@ class JointCompound:
 		self.io_start = stream.tell()
 		self.namespace_length = stream.read_uint()
 		if not (stream.version == 18):
-			self.zeros.read(stream, 'Uint', 13, None)
+			self.zeros = stream.read_uints((13))
 		if stream.version == 18:
-			self.zeros.read(stream, 'Uint', 17, None)
+			self.zeros = stream.read_uints((17))
 		self.unknown_4 = stream.read_uint()
 		self.unknown_5 = stream.read_uint()
 		self.unknown_6 = stream.read_uint()
 		self.unknown_7 = stream.read_uint()
 		self.bone_count = stream.read_uint()
 		self.joint_entry_count = stream.read_uint()
-		self.zeros_1.read(stream, 'Uint', 4, None)
+		self.zeros_1 = stream.read_uints((4))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -66,16 +66,16 @@ class JointCompound:
 		self.io_start = stream.tell()
 		stream.write_uint(self.namespace_length)
 		if not (stream.version == 18):
-			self.zeros.write(stream, 'Uint', 13, None)
+			stream.write_uints(self.zeros)
 		if stream.version == 18:
-			self.zeros.write(stream, 'Uint', 17, None)
+			stream.write_uints(self.zeros)
 		stream.write_uint(self.unknown_4)
 		stream.write_uint(self.unknown_5)
 		stream.write_uint(self.unknown_6)
 		stream.write_uint(self.unknown_7)
 		stream.write_uint(self.bone_count)
 		stream.write_uint(self.joint_entry_count)
-		self.zeros_1.write(stream, 'Uint', 4, None)
+		stream.write_uints(self.zeros_1)
 
 		self.io_size = stream.tell() - self.io_start
 

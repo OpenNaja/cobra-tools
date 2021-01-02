@@ -22,7 +22,7 @@ class Onefiftytwo:
 
 		self.io_start = stream.tell()
 		self.model_info = stream.read_type(CoreModelInfo)
-		self.some.read(stream, 'Uint64', 7, None)
+		self.some = stream.read_uint64s((7))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -30,7 +30,7 @@ class Onefiftytwo:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.model_info)
-		self.some.write(stream, 'Uint64', 7, None)
+		stream.write_uint64s(self.some)
 
 		self.io_size = stream.tell() - self.io_start
 

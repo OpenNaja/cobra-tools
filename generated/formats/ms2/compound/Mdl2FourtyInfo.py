@@ -17,14 +17,14 @@ class Mdl2FourtyInfo:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.unknowns.read(stream, 'Uint64', 5, None)
+		self.unknowns = stream.read_uint64s((5))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.unknowns.write(stream, 'Uint64', 5, None)
+		stream.write_uint64s(self.unknowns)
 
 		self.io_size = stream.tell() - self.io_start
 

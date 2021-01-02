@@ -1,3 +1,5 @@
+import typing
+from generated.array import Array
 from generated.formats.voxelskirt.bitfield.VersionInfo import VersionInfo
 from generated.formats.voxelskirt.compound.FixedString import FixedString
 from generated.formats.voxelskirt.compound.SizedStrData import SizedStrData
@@ -37,6 +39,15 @@ class Header:
 		# always = 0
 		self.info = SizedStrData()
 
+		# heightmap
+		self.heightmap = Array()
+
+		# weight indices
+		self.weights = Array()
+
+		# weight indices
+		self.weights = Array()
+
 	def read(self, stream):
 
 		self.io_start = stream.tell()
@@ -50,6 +61,11 @@ class Header:
 		self.user_version = stream.read_type(VersionInfo)
 		stream.user_version = self.user_version
 		self.info = stream.read_type(SizedStrData)
+		self.heightmap = stream.read_floats((self.info.x, self.info.y))
+		if stream.version == 18:
+			self.weights = stream.read_ubytes((self.info.x * self.info.y, 4))
+		if not (stream.version == 18):
+			self.weights = stream.read_ubytes((4, self.info.x * self.info.y))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -66,6 +82,11 @@ class Header:
 		stream.write_type(self.user_version)
 		stream.user_version = self.user_version
 		stream.write_type(self.info)
+		stream.write_floats(self.heightmap)
+		if stream.version == 18:
+			stream.write_ubytes(self.weights)
+		if not (stream.version == 18):
+			stream.write_ubytes(self.weights)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -78,5 +99,7 @@ class Header:
 		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
 		s += '\n	* user_version = ' + self.user_version.__repr__()
 		s += '\n	* info = ' + self.info.__repr__()
+		s += '\n	* heightmap = ' + self.heightmap.__repr__()
+		s += '\n	* weights = ' + self.weights.__repr__()
 		s += '\n'
 		return s

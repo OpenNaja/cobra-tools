@@ -36,7 +36,7 @@ class BKHDSection:
 		self.id_b = stream.read_uint()
 		self.constant_a = stream.read_uint()
 		self.constant_b = stream.read_uint()
-		self.zeroes.read(stream, 'Byte', self.length - 20, None)
+		self.zeroes = stream.read_bytes((self.length - 20))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -50,7 +50,7 @@ class BKHDSection:
 		stream.write_uint(self.id_b)
 		stream.write_uint(self.constant_a)
 		stream.write_uint(self.constant_b)
-		self.zeroes.write(stream, 'Byte', self.length - 20, None)
+		stream.write_bytes(self.zeroes)
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -46,7 +46,7 @@ class Type2:
 		self.const_b = stream.read_byte()
 		self.didx_id = stream.read_uint()
 		self.wem_length = stream.read_uint()
-		self.extra.read(stream, 'Byte', self.length - 17, None)
+		self.extra = stream.read_bytes((self.length - 17))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -59,7 +59,7 @@ class Type2:
 		stream.write_byte(self.const_b)
 		stream.write_uint(self.didx_id)
 		stream.write_uint(self.wem_length)
-		self.extra.write(stream, 'Byte', self.length - 17, None)
+		stream.write_bytes(self.extra)
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -19,18 +19,18 @@ class Repeat:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_0.read(stream, 'Uint', 15, None)
+		self.zeros_0 = stream.read_uints((15))
 		self.byte_size = stream.read_uint()
-		self.zeros_1.read(stream, 'Uint', 4, None)
+		self.zeros_1 = stream.read_uints((4))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_0.write(stream, 'Uint', 15, None)
+		stream.write_uints(self.zeros_0)
 		stream.write_uint(self.byte_size)
-		self.zeros_1.write(stream, 'Uint', 4, None)
+		stream.write_uints(self.zeros_1)
 
 		self.io_size = stream.tell() - self.io_start
 

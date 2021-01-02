@@ -20,7 +20,7 @@ class SizedStrData:
 		self.io_start = stream.tell()
 		self.a = stream.read_ushort()
 		self.hash_block_size = stream.read_ushort()
-		self.zeros.read(stream, 'Int', 2, None)
+		self.zeros = stream.read_ints((2))
 		self.c = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
@@ -30,7 +30,7 @@ class SizedStrData:
 		self.io_start = stream.tell()
 		stream.write_ushort(self.a)
 		stream.write_ushort(self.hash_block_size)
-		self.zeros.write(stream, 'Int', 2, None)
+		stream.write_ints(self.zeros)
 		stream.write_ushort(self.c)
 
 		self.io_size = stream.tell() - self.io_start

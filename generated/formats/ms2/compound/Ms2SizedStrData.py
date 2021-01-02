@@ -42,7 +42,7 @@ class Ms2SizedStrData:
 		self.mdl_2_count = stream.read_ushort()
 		self.name_count = stream.read_ushort()
 		self.unk_count = stream.read_ushort()
-		self.unknown_1.read(stream, 'Uint', 3, None)
+		self.unknown_1 = stream.read_uints((3))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -55,7 +55,7 @@ class Ms2SizedStrData:
 		stream.write_ushort(self.mdl_2_count)
 		stream.write_ushort(self.name_count)
 		stream.write_ushort(self.unk_count)
-		self.unknown_1.write(stream, 'Uint', 3, None)
+		stream.write_uints(self.unknown_1)
 
 		self.io_size = stream.tell() - self.io_start
 
