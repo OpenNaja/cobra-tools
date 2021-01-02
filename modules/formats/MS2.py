@@ -2,6 +2,7 @@ import io
 import os
 import struct
 
+from modules.formats.shared import pack_header
 from modules.util import write_sized_str, as_bytes
 from generated.formats.ms2 import Mdl2File
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
@@ -29,9 +30,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
-	ovl = archive.ovl
-	ms2_header = struct.pack("<4s4B3I", b"MS2 ", ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version), len(bone_names),
-							 len(bone_matrices))
+	ovl_header = pack_header(archive, b"MS2 ")
+	ms2_header = struct.pack("<2I", len(bone_names), len(bone_matrices))
 
 	print("\nWriting", name)
 	print("\nbuffers", len(buffers))
@@ -64,6 +64,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	out_path = out_dir(name)
 	out_paths = [out_path, ]
 	with open(out_path, 'wb') as outfile:
+		outfile.write(ovl_header)
 		outfile.write(ms2_header)
 		outfile.write(ms2_general_info_data)
 		outfile.write(ms2_buffer_info_data)
@@ -81,7 +82,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 		with open(mdl2_path, 'wb') as outfile:
 			print("Writing", mdl2_entry.name, mdl2_index)
 
-			mdl2_header = struct.pack("<4s4B3I", b"MDL2", ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version), mdl2_index, bone_info_index)
+			mdl2_header = struct.pack("<2I", mdl2_index, bone_info_index)
+			outfile.write(ovl_header)
 			outfile.write(mdl2_header)
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)

@@ -158,7 +158,7 @@ class BinaryStream(BytesIO):
 		def write_value(value):
 			write(pack(value))
 
-		def read_values(*shape):
+		def read_values(shape):
 			array = empty(shape, dtype)
 			# noinspection PyTypeChecker
 			readinto(array)
