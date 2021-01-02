@@ -13,7 +13,7 @@ Get the latest source code [here](https://github.com/OpenNaja/cobra-tools/archiv
 - pyqt5 (run: `pip install pyqt5`)
 - imageio (run: `pip install imageio`)
 
-## Blender Plugin Installation
+### Blender Plugin Installation
 - [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
 
 
