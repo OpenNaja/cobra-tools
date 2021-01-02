@@ -48,11 +48,11 @@ if __name__ == "__main__":
 	import matplotlib
 	import matplotlib.pyplot as plt
 	m = VoxelskirtFile()
-	# files = ("C:/Users/arnfi/Desktop/deciduousskirt.voxelskirt",
-	# 		  "C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",
-	# 		  "C:/Users/arnfi/Desktop/nublar.voxelskirt",
-	# 		   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
-	files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
+	files = ("C:/Users/arnfi/Desktop/deciduousskirt.voxelskirt",
+			  "C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",
+			  # "C:/Users/arnfi/Desktop/nublar.voxelskirt",
+			   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
+	# files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
 	for f in files:
 		print(f)
 		m.load(f)

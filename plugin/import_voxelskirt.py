@@ -10,8 +10,8 @@ from generated.formats.voxelskirt import VoxelskirtFile
 def generate_mesh(x_verts, y_verts, scale, heights):
 	verts = []
 	i = 0
-	for y in range(y_verts):
-		for x in range(x_verts):
+	for x in range(x_verts):
+		for y in range(y_verts):
 			verts.append((x * scale, y * scale, heights[x, y]), )
 			i += 1
 	quads = []
