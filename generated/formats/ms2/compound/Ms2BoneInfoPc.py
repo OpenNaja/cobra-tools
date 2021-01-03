@@ -235,50 +235,58 @@ class Ms2BoneInfoPc:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Ms2BoneInfoPc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* name_count = {self.name_count.__repr__()}'
+		s += f'\n	* float_0_1 = {self.float_0_1.__repr__()}'
+		s += f'\n	* knownff = {self.knownff.__repr__()}'
+		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
+		s += f'\n	* unknown_0_c = {self.unknown_0_c.__repr__()}'
+		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
+		s += f'\n	* unknown_14 = {self.unknown_14.__repr__()}'
+		s += f'\n	* bind_matrix_count = {self.bind_matrix_count.__repr__()}'
+		s += f'\n	* int_0_1 = {self.int_0_1.__repr__()}'
+		s += f'\n	* unknown_20 = {self.unknown_20.__repr__()}'
+		s += f'\n	* unknown_24 = {self.unknown_24.__repr__()}'
+		s += f'\n	* unknown_28 = {self.unknown_28.__repr__()}'
+		s += f'\n	* unknown_2_c = {self.unknown_2_c.__repr__()}'
+		s += f'\n	* unknown_30 = {self.unknown_30.__repr__()}'
+		s += f'\n	* unknown_34 = {self.unknown_34.__repr__()}'
+		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
+		s += f'\n	* unknown_40 = {self.unknown_40.__repr__()}'
+		s += f'\n	* unknown_44 = {self.unknown_44.__repr__()}'
+		s += f'\n	* bone_parents_count = {self.bone_parents_count.__repr__()}'
+		s += f'\n	* extra_uint_0 = {self.extra_uint_0.__repr__()}'
+		s += f'\n	* count_5 = {self.count_5.__repr__()}'
+		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
+		s += f'\n	* unknown_5_c = {self.unknown_5_c.__repr__()}'
+		s += f'\n	* one_64 = {self.one_64.__repr__()}'
+		s += f'\n	* unk_joint_count = {self.unk_joint_count.__repr__()}'
+		s += f'\n	* count_7 = {self.count_7.__repr__()}'
+		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
+		s += f'\n	* unknown_7_c = {self.unknown_7_c.__repr__()}'
+		s += f'\n	* unk_78_count = {self.unk_78_count.__repr__()}'
+		s += f'\n	* unknown_84 = {self.unknown_84.__repr__()}'
+		s += f'\n	* unknown_88 = {self.unknown_88.__repr__()}'
+		s += f'\n	* unknown_8_c = {self.unknown_8_c.__repr__()}'
+		s += f'\n	* unknownextra = {self.unknownextra.__repr__()}'
+		s += f'\n	* name_indices = {self.name_indices.__repr__()}'
+		s += f'\n	* name_padding = {self.name_padding.__repr__()}'
+		s += f'\n	* inverse_bind_matrices = {self.inverse_bind_matrices.__repr__()}'
+		s += f'\n	* bones = {self.bones.__repr__()}'
+		s += f'\n	* bone_parents = {self.bone_parents.__repr__()}'
+		s += f'\n	* hier_1_padding = {self.hier_1_padding.__repr__()}'
+		s += f'\n	* unknown_hier_list = {self.unknown_hier_list.__repr__()}'
+		s += f'\n	* hier_2_padding_0 = {self.hier_2_padding_0.__repr__()}'
+		s += f'\n	* hier_2_padding_1 = {self.hier_2_padding_1.__repr__()}'
+		s += f'\n	* hier_2_padding_2 = {self.hier_2_padding_2.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Ms2BoneInfoPc [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* name_count = ' + self.name_count.__repr__()
-		s += '\n	* float_0_1 = ' + self.float_0_1.__repr__()
-		s += '\n	* knownff = ' + self.knownff.__repr__()
-		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
-		s += '\n	* unknown_0_c = ' + self.unknown_0_c.__repr__()
-		s += '\n	* unk_count = ' + self.unk_count.__repr__()
-		s += '\n	* unknown_14 = ' + self.unknown_14.__repr__()
-		s += '\n	* bind_matrix_count = ' + self.bind_matrix_count.__repr__()
-		s += '\n	* int_0_1 = ' + self.int_0_1.__repr__()
-		s += '\n	* unknown_20 = ' + self.unknown_20.__repr__()
-		s += '\n	* unknown_24 = ' + self.unknown_24.__repr__()
-		s += '\n	* unknown_28 = ' + self.unknown_28.__repr__()
-		s += '\n	* unknown_2_c = ' + self.unknown_2_c.__repr__()
-		s += '\n	* unknown_30 = ' + self.unknown_30.__repr__()
-		s += '\n	* unknown_34 = ' + self.unknown_34.__repr__()
-		s += '\n	* bone_count = ' + self.bone_count.__repr__()
-		s += '\n	* unknown_40 = ' + self.unknown_40.__repr__()
-		s += '\n	* unknown_44 = ' + self.unknown_44.__repr__()
-		s += '\n	* bone_parents_count = ' + self.bone_parents_count.__repr__()
-		s += '\n	* extra_uint_0 = ' + self.extra_uint_0.__repr__()
-		s += '\n	* count_5 = ' + self.count_5.__repr__()
-		s += '\n	* unknown_58 = ' + self.unknown_58.__repr__()
-		s += '\n	* unknown_5_c = ' + self.unknown_5_c.__repr__()
-		s += '\n	* one_64 = ' + self.one_64.__repr__()
-		s += '\n	* unk_joint_count = ' + self.unk_joint_count.__repr__()
-		s += '\n	* count_7 = ' + self.count_7.__repr__()
-		s += '\n	* joint_count = ' + self.joint_count.__repr__()
-		s += '\n	* unknown_7_c = ' + self.unknown_7_c.__repr__()
-		s += '\n	* unk_78_count = ' + self.unk_78_count.__repr__()
-		s += '\n	* unknown_84 = ' + self.unknown_84.__repr__()
-		s += '\n	* unknown_88 = ' + self.unknown_88.__repr__()
-		s += '\n	* unknown_8_c = ' + self.unknown_8_c.__repr__()
-		s += '\n	* unknownextra = ' + self.unknownextra.__repr__()
-		s += '\n	* name_indices = ' + self.name_indices.__repr__()
-		s += '\n	* name_padding = ' + self.name_padding.__repr__()
-		s += '\n	* inverse_bind_matrices = ' + self.inverse_bind_matrices.__repr__()
-		s += '\n	* bones = ' + self.bones.__repr__()
-		s += '\n	* bone_parents = ' + self.bone_parents.__repr__()
-		s += '\n	* hier_1_padding = ' + self.hier_1_padding.__repr__()
-		s += '\n	* unknown_hier_list = ' + self.unknown_hier_list.__repr__()
-		s += '\n	* hier_2_padding_0 = ' + self.hier_2_padding_0.__repr__()
-		s += '\n	* hier_2_padding_1 = ' + self.hier_2_padding_1.__repr__()
-		s += '\n	* hier_2_padding_2 = ' + self.hier_2_padding_2.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

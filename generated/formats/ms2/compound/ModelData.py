@@ -92,19 +92,27 @@ class ModelData:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'ModelData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
+		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
+		s += f'\n	* unknown_05 = {self.unknown_05.__repr__()}'
+		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
+		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
+		s += f'\n	* size_of_vertex = {self.size_of_vertex.__repr__()}'
+		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* unknown_07 = {self.unknown_07.__repr__()}'
+		s += f'\n	* flag = {self.flag.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'ModelData [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zeros = ' + self.zeros.__repr__()
-		s += '\n	* vertex_count = ' + self.vertex_count.__repr__()
-		s += '\n	* tri_index_count = ' + self.tri_index_count.__repr__()
-		s += '\n	* unknown_05 = ' + self.unknown_05.__repr__()
-		s += '\n	* poweroftwo = ' + self.poweroftwo.__repr__()
-		s += '\n	* vertex_offset = ' + self.vertex_offset.__repr__()
-		s += '\n	* size_of_vertex = ' + self.size_of_vertex.__repr__()
-		s += '\n	* tri_offset = ' + self.tri_offset.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* unknown_07 = ' + self.unknown_07.__repr__()
-		s += '\n	* flag = ' + self.flag.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s
 

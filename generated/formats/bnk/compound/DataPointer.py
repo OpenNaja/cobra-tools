@@ -36,10 +36,18 @@ class DataPointer:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'DataPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* wem_id = {self.wem_id.__repr__()}'
+		s += f'\n	* data_section_offset = {self.data_section_offset.__repr__()}'
+		s += f'\n	* wem_filesize = {self.wem_filesize.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'DataPointer [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* wem_id = ' + self.wem_id.__repr__()
-		s += '\n	* data_section_offset = ' + self.data_section_offset.__repr__()
-		s += '\n	* wem_filesize = ' + self.wem_filesize.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

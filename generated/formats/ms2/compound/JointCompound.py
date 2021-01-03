@@ -79,16 +79,24 @@ class JointCompound:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'JointCompound [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* namespace_length = {self.namespace_length.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'
+		s += f'\n	* unknown_5 = {self.unknown_5.__repr__()}'
+		s += f'\n	* unknown_6 = {self.unknown_6.__repr__()}'
+		s += f'\n	* unknown_7 = {self.unknown_7.__repr__()}'
+		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
+		s += f'\n	* joint_entry_count = {self.joint_entry_count.__repr__()}'
+		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'JointCompound [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* namespace_length = ' + self.namespace_length.__repr__()
-		s += '\n	* zeros = ' + self.zeros.__repr__()
-		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()
-		s += '\n	* unknown_5 = ' + self.unknown_5.__repr__()
-		s += '\n	* unknown_6 = ' + self.unknown_6.__repr__()
-		s += '\n	* unknown_7 = ' + self.unknown_7.__repr__()
-		s += '\n	* bone_count = ' + self.bone_count.__repr__()
-		s += '\n	* joint_entry_count = ' + self.joint_entry_count.__repr__()
-		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

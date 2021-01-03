@@ -111,21 +111,29 @@ class Mdl2InfoHeader:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Mdl2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* magic = {self.magic.__repr__()}'
+		s += f'\n	* version_flag = {self.version_flag.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* bitswap = {self.bitswap.__repr__()}'
+		s += f'\n	* seventh_byte = {self.seventh_byte.__repr__()}'
+		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* index = {self.index.__repr__()}'
+		s += f'\n	* bone_info_index = {self.bone_info_index.__repr__()}'
+		s += f'\n	* name = {self.name.__repr__()}'
+		s += f'\n	* model_info = {self.model_info.__repr__()}'
+		s += f'\n	* materials_0 = {self.materials_0.__repr__()}'
+		s += f'\n	* lods = {self.lods.__repr__()}'
+		s += f'\n	* materials_1 = {self.materials_1.__repr__()}'
+		s += f'\n	* models = {self.models.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Mdl2InfoHeader [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* magic = ' + self.magic.__repr__()
-		s += '\n	* version_flag = ' + self.version_flag.__repr__()
-		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* bitswap = ' + self.bitswap.__repr__()
-		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
-		s += '\n	* user_version = ' + self.user_version.__repr__()
-		s += '\n	* index = ' + self.index.__repr__()
-		s += '\n	* bone_info_index = ' + self.bone_info_index.__repr__()
-		s += '\n	* name = ' + self.name.__repr__()
-		s += '\n	* model_info = ' + self.model_info.__repr__()
-		s += '\n	* materials_0 = ' + self.materials_0.__repr__()
-		s += '\n	* lods = ' + self.lods.__repr__()
-		s += '\n	* materials_1 = ' + self.materials_1.__repr__()
-		s += '\n	* models = ' + self.models.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

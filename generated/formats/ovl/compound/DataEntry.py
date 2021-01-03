@@ -64,17 +64,25 @@ class DataEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'DataEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
+		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
+		s += f'\n	* set_index = {self.set_index.__repr__()}'
+		s += f'\n	* buffer_count = {self.buffer_count.__repr__()}'
+		s += f'\n	* zero_10 = {self.zero_10.__repr__()}'
+		s += f'\n	* size_1 = {self.size_1.__repr__()}'
+		s += f'\n	* zero_18 = {self.zero_18.__repr__()}'
+		s += f'\n	* size_2 = {self.size_2.__repr__()}'
+		s += f'\n	* zero_20 = {self.zero_20.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'DataEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* file_hash = ' + self.file_hash.__repr__()
-		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
-		s += '\n	* set_index = ' + self.set_index.__repr__()
-		s += '\n	* buffer_count = ' + self.buffer_count.__repr__()
-		s += '\n	* zero_10 = ' + self.zero_10.__repr__()
-		s += '\n	* size_1 = ' + self.size_1.__repr__()
-		s += '\n	* zero_18 = ' + self.zero_18.__repr__()
-		s += '\n	* size_2 = ' + self.size_2.__repr__()
-		s += '\n	* zero_20 = ' + self.zero_20.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s
 

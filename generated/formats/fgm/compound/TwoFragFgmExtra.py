@@ -25,9 +25,17 @@ class TwoFragFgmExtra:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'TwoFragFgmExtra [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
+		s += f'\n	* zero_4 = {self.zero_4.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'TwoFragFgmExtra [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zero_3 = ' + self.zero_3.__repr__()
-		s += '\n	* zero_4 = ' + self.zero_4.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

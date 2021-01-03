@@ -9,7 +9,7 @@ from generated.formats.voxelskirt.compound.Header import Header
 from generated.formats.voxelskirt.compound.Material import Material
 from generated.formats.voxelskirt.compound.PosInfo import PosInfo
 from generated.formats.voxelskirt.compound.Size import Size
-from generated.io import IoFile
+from generated.io import IoFile, BinaryStream
 
 
 class VoxelskirtFile(Header, IoFile):
@@ -102,23 +102,64 @@ class VoxelskirtFile(Header, IoFile):
 
 	def save(self, filepath):
 		print("Writing verts and tris to temporary buffer")
+		# write each model's vert & tri block to a temporary buffer
+		temp_writer = BinaryStream()
+		# temp_tris_writer = io.BytesIO()
+		# vert_offset = 0
+		# tris_offset = 0
+		#
+		# with BinaryStream() as temp_bone_writer:
+		# 	temp_bone_writer.version = self.version
+		# 	temp_bone_writer.user_version = self.user_version
+		# 	temp_bone_writer.ms_2_version = self.general_info.ms_2_version
+		# 	self.bone_info.write(temp_bone_writer)
+		# 	bone_bytes = temp_bone_writer.getvalue()
+		# 	print("new bone info length: ", len(bone_bytes))
+
+		# update data
+		if is_pc(self):
+			self.info.height_array_size_pc = self.info.x * self.info.y * 4
+
+		# write the buffer data to a temporary stream
+		with BinaryStream() as stream:
+			# write the images
+			if is_pc(self):
+				stream.write_floats(self.heightmap)
+				stream.write_ubytes(self.weights)
+			else:
+				# PC and JWE store the images attached to data infos
+				for data in self.datas:
+					data.offset = stream.tell()
+					if data.type == 0:
+						stream.write_ubytes(data.im)
+					elif data.type == 2:
+						stream.write_floats(data.im)
+
+
+			buffer_bytes = stream.getvalue()
+
+		# write the actual file
+		with self.writer(filepath) as stream:
+			self.write(stream)
+			stream.write(buffer_bytes)
 
 
 if __name__ == "__main__":
 	import matplotlib
 	import matplotlib.pyplot as plt
 	m = VoxelskirtFile()
-	files = ("C:/Users/arnfi/Desktop/deciduousskirt.voxelskirt",
-			  "C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",
-			  "C:/Users/arnfi/Desktop/nublar.voxelskirt",
-			   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
+	# files = ("C:/Users/arnfi/Desktop/deciduousskirt.voxelskirt",
+	# 		  "C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",
+	# 		  "C:/Users/arnfi/Desktop/nublar.voxelskirt",
+	# 		   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
 	# files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
 	# files = ("C:/Users/arnfi/Desktop/nublar.voxelskirt",)
-	# files = ("C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",)
+	files = ("C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",)
 	for f in files:
 		# print(f)
 		m.load(f)
 		m.extract()
+		m.save(f+"2")
 		#
 		# fig, ax = plt.subplots()
 		# # ax.imshow(m.rest)

@@ -27,9 +27,17 @@ class Material1:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Material1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* material_index = {self.material_index.__repr__()}'
+		s += f'\n	* model_index = {self.model_index.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Material1 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* material_index = ' + self.material_index.__repr__()
-		s += '\n	* model_index = ' + self.model_index.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -43,11 +43,19 @@ class Vector4:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Vector4 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* w = {self.w.__repr__()}'
+		s += f'\n	* x = {self.x.__repr__()}'
+		s += f'\n	* y = {self.y.__repr__()}'
+		s += f'\n	* z = {self.z.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Vector4 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* w = ' + self.w.__repr__()
-		s += '\n	* x = ' + self.x.__repr__()
-		s += '\n	* y = ' + self.y.__repr__()
-		s += '\n	* z = ' + self.z.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

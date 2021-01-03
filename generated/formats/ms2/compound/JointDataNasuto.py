@@ -118,28 +118,36 @@ class JointDataNasuto:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'JointDataNasuto [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
+		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
+		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
+		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'
+		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* count_0 = {self.count_0.__repr__()}'
+		s += f'\n	* count_1 = {self.count_1.__repr__()}'
+		s += f'\n	* joint_compound = {self.joint_compound.__repr__()}'
+		s += f'\n	* unknown_lista = {self.unknown_lista.__repr__()}'
+		s += f'\n	* unknown_listb = {self.unknown_listb.__repr__()}'
+		s += f'\n	* unknown_listc = {self.unknown_listc.__repr__()}'
+		s += f'\n	* d = {self.d.__repr__()}'
+		s += f'\n	* e = {self.e.__repr__()}'
+		s += f'\n	* undecoded_floats = {self.undecoded_floats.__repr__()}'
+		s += f'\n	* indices = {self.indices.__repr__()}'
+		s += f'\n	* indices_2 = {self.indices_2.__repr__()}'
+		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
+		s += f'\n	* joint_names_padding = {self.joint_names_padding.__repr__()}'
+		s += f'\n	* joint_info_list = {self.joint_info_list.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'JointDataNasuto [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* joint_count = ' + self.joint_count.__repr__()
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
-		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
-		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
-		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()
-		s += '\n	* unknown_list = ' + self.unknown_list.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* count_0 = ' + self.count_0.__repr__()
-		s += '\n	* count_1 = ' + self.count_1.__repr__()
-		s += '\n	* joint_compound = ' + self.joint_compound.__repr__()
-		s += '\n	* unknown_lista = ' + self.unknown_lista.__repr__()
-		s += '\n	* unknown_listb = ' + self.unknown_listb.__repr__()
-		s += '\n	* unknown_listc = ' + self.unknown_listc.__repr__()
-		s += '\n	* d = ' + self.d.__repr__()
-		s += '\n	* e = ' + self.e.__repr__()
-		s += '\n	* undecoded_floats = ' + self.undecoded_floats.__repr__()
-		s += '\n	* indices = ' + self.indices.__repr__()
-		s += '\n	* indices_2 = ' + self.indices_2.__repr__()
-		s += '\n	* joint_names = ' + self.joint_names.__repr__()
-		s += '\n	* joint_names_padding = ' + self.joint_names_padding.__repr__()
-		s += '\n	* joint_info_list = ' + self.joint_info_list.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

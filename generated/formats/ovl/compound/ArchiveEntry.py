@@ -113,25 +113,33 @@ class ArchiveEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'ArchiveEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* ovs_head_offset = {self.ovs_head_offset.__repr__()}'
+		s += f'\n	* ovs_file_offset = {self.ovs_file_offset.__repr__()}'
+		s += f'\n	* num_headers = {self.num_headers.__repr__()}'
+		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
+		s += f'\n	* num_header_types = {self.num_header_types.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
+		s += f'\n	* num_fragments = {self.num_fragments.__repr__()}'
+		s += f'\n	* num_files = {self.num_files.__repr__()}'
+		s += f'\n	* read_start = {self.read_start.__repr__()}'
+		s += f'\n	* set_data_size = {self.set_data_size.__repr__()}'
+		s += f'\n	* compressed_size = {self.compressed_size.__repr__()}'
+		s += f'\n	* uncompressed_size = {self.uncompressed_size.__repr__()}'
+		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
+		s += f'\n	* ovs_header_offset = {self.ovs_header_offset.__repr__()}'
+		s += f'\n	* header_size = {self.header_size.__repr__()}'
+		s += f'\n	* ovs_offset = {self.ovs_offset.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'ArchiveEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* ovs_head_offset = ' + self.ovs_head_offset.__repr__()
-		s += '\n	* ovs_file_offset = ' + self.ovs_file_offset.__repr__()
-		s += '\n	* num_headers = ' + self.num_headers.__repr__()
-		s += '\n	* num_datas = ' + self.num_datas.__repr__()
-		s += '\n	* num_header_types = ' + self.num_header_types.__repr__()
-		s += '\n	* zeros = ' + self.zeros.__repr__()
-		s += '\n	* num_buffers = ' + self.num_buffers.__repr__()
-		s += '\n	* num_fragments = ' + self.num_fragments.__repr__()
-		s += '\n	* num_files = ' + self.num_files.__repr__()
-		s += '\n	* read_start = ' + self.read_start.__repr__()
-		s += '\n	* set_data_size = ' + self.set_data_size.__repr__()
-		s += '\n	* compressed_size = ' + self.compressed_size.__repr__()
-		s += '\n	* uncompressed_size = ' + self.uncompressed_size.__repr__()
-		s += '\n	* zeros_3 = ' + self.zeros_3.__repr__()
-		s += '\n	* ovs_header_offset = ' + self.ovs_header_offset.__repr__()
-		s += '\n	* header_size = ' + self.header_size.__repr__()
-		s += '\n	* ovs_offset = ' + self.ovs_offset.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

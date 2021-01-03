@@ -115,26 +115,34 @@ class ManiBlock:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'ManiBlock [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* indices_0 = {self.indices_0.__repr__()}'
+		s += f'\n	* indices_1 = {self.indices_1.__repr__()}'
+		s += f'\n	* indices_2 = {self.indices_2.__repr__()}'
+		s += f'\n	* p_indices_0 = {self.p_indices_0.__repr__()}'
+		s += f'\n	* p_indices_1 = {self.p_indices_1.__repr__()}'
+		s += f'\n	* p_indices_2 = {self.p_indices_2.__repr__()}'
+		s += f'\n	* c_indices_0 = {self.c_indices_0.__repr__()}'
+		s += f'\n	* c_indices_1 = {self.c_indices_1.__repr__()}'
+		s += f'\n	* c_indices_2 = {self.c_indices_2.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
+		s += f'\n	* c = {self.c.__repr__()}'
+		s += f'\n	* e = {self.e.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* count = {self.count.__repr__()}'
+		s += f'\n	* four_and_twenty = {self.four_and_twenty.__repr__()}'
+		s += f'\n	* pad_to_8 = {self.pad_to_8.__repr__()}'
+		s += f'\n	* floats = {self.floats.__repr__()}'
+		s += f'\n	* repeats = {self.repeats.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'ManiBlock [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* indices_0 = ' + self.indices_0.__repr__()
-		s += '\n	* indices_1 = ' + self.indices_1.__repr__()
-		s += '\n	* indices_2 = ' + self.indices_2.__repr__()
-		s += '\n	* p_indices_0 = ' + self.p_indices_0.__repr__()
-		s += '\n	* p_indices_1 = ' + self.p_indices_1.__repr__()
-		s += '\n	* p_indices_2 = ' + self.p_indices_2.__repr__()
-		s += '\n	* c_indices_0 = ' + self.c_indices_0.__repr__()
-		s += '\n	* c_indices_1 = ' + self.c_indices_1.__repr__()
-		s += '\n	* c_indices_2 = ' + self.c_indices_2.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* frame_count = ' + self.frame_count.__repr__()
-		s += '\n	* c = ' + self.c.__repr__()
-		s += '\n	* e = ' + self.e.__repr__()
-		s += '\n	* zeros = ' + self.zeros.__repr__()
-		s += '\n	* count = ' + self.count.__repr__()
-		s += '\n	* four_and_twenty = ' + self.four_and_twenty.__repr__()
-		s += '\n	* pad_to_8 = ' + self.pad_to_8.__repr__()
-		s += '\n	* floats = ' + self.floats.__repr__()
-		s += '\n	* repeats = ' + self.repeats.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

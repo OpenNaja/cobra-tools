@@ -64,10 +64,21 @@ class Compound(BaseClass):
 				f.write(f"\n\n\t\tself.io_size = stream.tell() - self.io_start")
 
 			if "def __repr__(" not in self.src_code:
-				f.write(f"\n\n\tdef __repr__(self):")
-				f.write(f"\n\t\ts = '{self.class_name} [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name")
+				f.write(f"\n\n\tdef get_info_str(self):")
+				f.write(f"\n\t\treturn f'{self.class_name} [Size: {{self.io_size}}, Address: {{self.io_start}}] {{self.name}}'")
+
+				f.write(f"\n\n\tdef get_fields_str(self):")
+				f.write(f"\n\t\ts = ''")
+				if self.class_basename:
+					f.write(f"\n\t\ts += super().get_fields_str()")
 				for field_name in self.field_unions_dict.keys():
-					f.write(f"\n\t\ts += '\\n\t* {field_name} = ' + self.{field_name}.__repr__()")
+					rep = f"self.{field_name}.__repr__()"
+					f.write(f"\n\t\ts += f'\\n\t* {field_name} = {{{rep}}}'")
+				f.write(f"\n\t\treturn s")
+
+				f.write(f"\n\n\tdef __repr__(self):")
+				f.write(f"\n\t\ts = self.get_info_str()")
+				f.write(f"\n\t\ts += self.get_fields_str()")
 				f.write(f"\n\t\ts += '\\n'")
 				f.write(f"\n\t\treturn s")
 

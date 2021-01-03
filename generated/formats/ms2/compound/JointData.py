@@ -73,19 +73,27 @@ class JointData:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'JointData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
+		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
+		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
+		s += f'\n	* joint_compound = {self.joint_compound.__repr__()}'
+		s += f'\n	* joint_list = {self.joint_list.__repr__()}'
+		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
+		s += f'\n	* unknown_10 = {self.unknown_10.__repr__()}'
+		s += f'\n	* unknown_11 = {self.unknown_11.__repr__()}'
+		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
+		s += f'\n	* joint_names_padding = {self.joint_names_padding.__repr__()}'
+		s += f'\n	* joint_info_list = {self.joint_info_list.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'JointData [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* joint_count = ' + self.joint_count.__repr__()
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
-		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
-		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
-		s += '\n	* joint_compound = ' + self.joint_compound.__repr__()
-		s += '\n	* joint_list = ' + self.joint_list.__repr__()
-		s += '\n	* unknown_list = ' + self.unknown_list.__repr__()
-		s += '\n	* unknown_10 = ' + self.unknown_10.__repr__()
-		s += '\n	* unknown_11 = ' + self.unknown_11.__repr__()
-		s += '\n	* joint_names = ' + self.joint_names.__repr__()
-		s += '\n	* joint_names_padding = ' + self.joint_names_padding.__repr__()
-		s += '\n	* joint_info_list = ' + self.joint_info_list.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

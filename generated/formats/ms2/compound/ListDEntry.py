@@ -31,10 +31,18 @@ class ListDEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'ListDEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* ce = {self.ce.__repr__()}'
+		s += f'\n	* cb = {self.cb.__repr__()}'
+		s += f'\n	* matrix = {self.matrix.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'ListDEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* ce = ' + self.ce.__repr__()
-		s += '\n	* cb = ' + self.cb.__repr__()
-		s += '\n	* matrix = ' + self.matrix.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

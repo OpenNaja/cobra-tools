@@ -122,25 +122,33 @@ class FgmInfoHeader:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'FgmInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* magic = {self.magic.__repr__()}'
+		s += f'\n	* version_flag = {self.version_flag.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* bitswap = {self.bitswap.__repr__()}'
+		s += f'\n	* seventh_byte = {self.seventh_byte.__repr__()}'
+		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* num_frags = {self.num_frags.__repr__()}'
+		s += f'\n	* num_textures = {self.num_textures.__repr__()}'
+		s += f'\n	* tex_info_size = {self.tex_info_size.__repr__()}'
+		s += f'\n	* attr_info_size = {self.attr_info_size.__repr__()}'
+		s += f'\n	* zeros_size = {self.zeros_size.__repr__()}'
+		s += f'\n	* data_lib_size = {self.data_lib_size.__repr__()}'
+		s += f'\n	* texture_names = {self.texture_names.__repr__()}'
+		s += f'\n	* fgm_info = {self.fgm_info.__repr__()}'
+		s += f'\n	* two_frags_pad = {self.two_frags_pad.__repr__()}'
+		s += f'\n	* textures = {self.textures.__repr__()}'
+		s += f'\n	* texpad = {self.texpad.__repr__()}'
+		s += f'\n	* attributes = {self.attributes.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'FgmInfoHeader [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* magic = ' + self.magic.__repr__()
-		s += '\n	* version_flag = ' + self.version_flag.__repr__()
-		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* bitswap = ' + self.bitswap.__repr__()
-		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
-		s += '\n	* user_version = ' + self.user_version.__repr__()
-		s += '\n	* num_frags = ' + self.num_frags.__repr__()
-		s += '\n	* num_textures = ' + self.num_textures.__repr__()
-		s += '\n	* tex_info_size = ' + self.tex_info_size.__repr__()
-		s += '\n	* attr_info_size = ' + self.attr_info_size.__repr__()
-		s += '\n	* zeros_size = ' + self.zeros_size.__repr__()
-		s += '\n	* data_lib_size = ' + self.data_lib_size.__repr__()
-		s += '\n	* texture_names = ' + self.texture_names.__repr__()
-		s += '\n	* fgm_info = ' + self.fgm_info.__repr__()
-		s += '\n	* two_frags_pad = ' + self.two_frags_pad.__repr__()
-		s += '\n	* textures = ' + self.textures.__repr__()
-		s += '\n	* texpad = ' + self.texpad.__repr__()
-		s += '\n	* attributes = ' + self.attributes.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -71,18 +71,26 @@ class HitCheckEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'HitCheckEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* type = {self.type.__repr__()}'
+		s += f'\n	* unknown_2_a = {self.unknown_2_a.__repr__()}'
+		s += f'\n	* unknown_2_b = {self.unknown_2_b.__repr__()}'
+		s += f'\n	* unknown_2_c = {self.unknown_2_c.__repr__()}'
+		s += f'\n	* unknown_2_d = {self.unknown_2_d.__repr__()}'
+		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
+		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'
+		s += f'\n	* namespace_offset = {self.namespace_offset.__repr__()}'
+		s += f'\n	* sphere = {self.sphere.__repr__()}'
+		s += f'\n	* bbox = {self.bbox.__repr__()}'
+		s += f'\n	* capsule = {self.capsule.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'HitCheckEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* type = ' + self.type.__repr__()
-		s += '\n	* unknown_2_a = ' + self.unknown_2_a.__repr__()
-		s += '\n	* unknown_2_b = ' + self.unknown_2_b.__repr__()
-		s += '\n	* unknown_2_c = ' + self.unknown_2_c.__repr__()
-		s += '\n	* unknown_2_d = ' + self.unknown_2_d.__repr__()
-		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
-		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()
-		s += '\n	* namespace_offset = ' + self.namespace_offset.__repr__()
-		s += '\n	* sphere = ' + self.sphere.__repr__()
-		s += '\n	* bbox = ' + self.bbox.__repr__()
-		s += '\n	* capsule = ' + self.capsule.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

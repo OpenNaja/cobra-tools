@@ -46,12 +46,20 @@ class FileEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'FileEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
+		s += f'\n	* unkn_0 = {self.unkn_0.__repr__()}'
+		s += f'\n	* unkn_1 = {self.unkn_1.__repr__()}'
+		s += f'\n	* extension = {self.extension.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'FileEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* file_hash = ' + self.file_hash.__repr__()
-		s += '\n	* unkn_0 = ' + self.unkn_0.__repr__()
-		s += '\n	* unkn_1 = ' + self.unkn_1.__repr__()
-		s += '\n	* extension = ' + self.extension.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -35,10 +35,18 @@ class PcModel:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'PcModel [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* lod_infos = {self.lod_infos.__repr__()}'
+		s += f'\n	* materials_1 = {self.materials_1.__repr__()}'
+		s += f'\n	* model_data = {self.model_data.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'PcModel [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* lod_infos = ' + self.lod_infos.__repr__()
-		s += '\n	* materials_1 = ' + self.materials_1.__repr__()
-		s += '\n	* model_data = ' + self.model_data.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

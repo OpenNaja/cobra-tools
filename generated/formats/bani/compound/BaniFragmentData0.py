@@ -49,13 +49,21 @@ class BaniFragmentData0:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'BaniFragmentData0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* unknown_0 = {self.unknown_0.__repr__()}'
+		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* read_start_frame = {self.read_start_frame.__repr__()}'
+		s += f'\n	* num_frames = {self.num_frames.__repr__()}'
+		s += f'\n	* animation_length = {self.animation_length.__repr__()}'
+		s += f'\n	* loop_flag = {self.loop_flag.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'BaniFragmentData0 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* unknown_0 = ' + self.unknown_0.__repr__()
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
-		s += '\n	* read_start_frame = ' + self.read_start_frame.__repr__()
-		s += '\n	* num_frames = ' + self.num_frames.__repr__()
-		s += '\n	* animation_length = ' + self.animation_length.__repr__()
-		s += '\n	* loop_flag = ' + self.loop_flag.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

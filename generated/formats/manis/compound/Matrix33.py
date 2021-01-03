@@ -68,16 +68,24 @@ class Matrix33:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Matrix33 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* m_11 = {self.m_11.__repr__()}'
+		s += f'\n	* m_21 = {self.m_21.__repr__()}'
+		s += f'\n	* m_31 = {self.m_31.__repr__()}'
+		s += f'\n	* m_12 = {self.m_12.__repr__()}'
+		s += f'\n	* m_22 = {self.m_22.__repr__()}'
+		s += f'\n	* m_32 = {self.m_32.__repr__()}'
+		s += f'\n	* m_13 = {self.m_13.__repr__()}'
+		s += f'\n	* m_23 = {self.m_23.__repr__()}'
+		s += f'\n	* m_33 = {self.m_33.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Matrix33 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* m_11 = ' + self.m_11.__repr__()
-		s += '\n	* m_21 = ' + self.m_21.__repr__()
-		s += '\n	* m_31 = ' + self.m_31.__repr__()
-		s += '\n	* m_12 = ' + self.m_12.__repr__()
-		s += '\n	* m_22 = ' + self.m_22.__repr__()
-		s += '\n	* m_32 = ' + self.m_32.__repr__()
-		s += '\n	* m_13 = ' + self.m_13.__repr__()
-		s += '\n	* m_23 = ' + self.m_23.__repr__()
-		s += '\n	* m_33 = ' + self.m_33.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

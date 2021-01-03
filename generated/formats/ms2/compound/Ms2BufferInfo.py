@@ -66,14 +66,22 @@ class Ms2BufferInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Ms2BufferInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* skip_1 = {self.skip_1.__repr__()}'
+		s += f'\n	* vertexdatasize = {self.vertexdatasize.__repr__()}'
+		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
+		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
+		s += f'\n	* facesdatasize = {self.facesdatasize.__repr__()}'
+		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
+		s += f'\n	* unk_2 = {self.unk_2.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Ms2BufferInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* skip_1 = ' + self.skip_1.__repr__()
-		s += '\n	* vertexdatasize = ' + self.vertexdatasize.__repr__()
-		s += '\n	* ptr_1 = ' + self.ptr_1.__repr__()
-		s += '\n	* unk_0 = ' + self.unk_0.__repr__()
-		s += '\n	* facesdatasize = ' + self.facesdatasize.__repr__()
-		s += '\n	* ptr_2 = ' + self.ptr_2.__repr__()
-		s += '\n	* unk_2 = ' + self.unk_2.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -103,23 +103,31 @@ class Matrix44:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Matrix44 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* m_11 = {self.m_11.__repr__()}'
+		s += f'\n	* m_21 = {self.m_21.__repr__()}'
+		s += f'\n	* m_31 = {self.m_31.__repr__()}'
+		s += f'\n	* m_41 = {self.m_41.__repr__()}'
+		s += f'\n	* m_12 = {self.m_12.__repr__()}'
+		s += f'\n	* m_22 = {self.m_22.__repr__()}'
+		s += f'\n	* m_32 = {self.m_32.__repr__()}'
+		s += f'\n	* m_42 = {self.m_42.__repr__()}'
+		s += f'\n	* m_13 = {self.m_13.__repr__()}'
+		s += f'\n	* m_23 = {self.m_23.__repr__()}'
+		s += f'\n	* m_33 = {self.m_33.__repr__()}'
+		s += f'\n	* m_43 = {self.m_43.__repr__()}'
+		s += f'\n	* m_14 = {self.m_14.__repr__()}'
+		s += f'\n	* m_24 = {self.m_24.__repr__()}'
+		s += f'\n	* m_34 = {self.m_34.__repr__()}'
+		s += f'\n	* m_44 = {self.m_44.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Matrix44 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* m_11 = ' + self.m_11.__repr__()
-		s += '\n	* m_21 = ' + self.m_21.__repr__()
-		s += '\n	* m_31 = ' + self.m_31.__repr__()
-		s += '\n	* m_41 = ' + self.m_41.__repr__()
-		s += '\n	* m_12 = ' + self.m_12.__repr__()
-		s += '\n	* m_22 = ' + self.m_22.__repr__()
-		s += '\n	* m_32 = ' + self.m_32.__repr__()
-		s += '\n	* m_42 = ' + self.m_42.__repr__()
-		s += '\n	* m_13 = ' + self.m_13.__repr__()
-		s += '\n	* m_23 = ' + self.m_23.__repr__()
-		s += '\n	* m_33 = ' + self.m_33.__repr__()
-		s += '\n	* m_43 = ' + self.m_43.__repr__()
-		s += '\n	* m_14 = ' + self.m_14.__repr__()
-		s += '\n	* m_24 = ' + self.m_24.__repr__()
-		s += '\n	* m_34 = ' + self.m_34.__repr__()
-		s += '\n	* m_44 = ' + self.m_44.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

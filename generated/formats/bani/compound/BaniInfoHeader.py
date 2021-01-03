@@ -46,11 +46,19 @@ class BaniInfoHeader:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'BaniInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* magic = {self.magic.__repr__()}'
+		s += f'\n	* banis_name = {self.banis_name.__repr__()}'
+		s += f'\n	* data_0 = {self.data_0.__repr__()}'
+		s += f'\n	* data_1 = {self.data_1.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'BaniInfoHeader [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* magic = ' + self.magic.__repr__()
-		s += '\n	* banis_name = ' + self.banis_name.__repr__()
-		s += '\n	* data_0 = ' + self.data_0.__repr__()
-		s += '\n	* data_1 = ' + self.data_1.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

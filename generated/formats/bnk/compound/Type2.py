@@ -63,14 +63,22 @@ class Type2:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Type2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* length = {self.length.__repr__()}'
+		s += f'\n	* sfx_id = {self.sfx_id.__repr__()}'
+		s += f'\n	* const_a = {self.const_a.__repr__()}'
+		s += f'\n	* const_b = {self.const_b.__repr__()}'
+		s += f'\n	* didx_id = {self.didx_id.__repr__()}'
+		s += f'\n	* wem_length = {self.wem_length.__repr__()}'
+		s += f'\n	* extra = {self.extra.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Type2 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* length = ' + self.length.__repr__()
-		s += '\n	* sfx_id = ' + self.sfx_id.__repr__()
-		s += '\n	* const_a = ' + self.const_a.__repr__()
-		s += '\n	* const_b = ' + self.const_b.__repr__()
-		s += '\n	* didx_id = ' + self.didx_id.__repr__()
-		s += '\n	* wem_length = ' + self.wem_length.__repr__()
-		s += '\n	* extra = ' + self.extra.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

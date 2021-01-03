@@ -32,10 +32,18 @@ class UnknownEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'UnknownEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
+		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'UnknownEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
-		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
-		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -67,17 +67,25 @@ class BaniFragmentData1:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'BaniFragmentData1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* unknown_0 = {self.unknown_0.__repr__()}'
+		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
+		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
+		s += f'\n	* bytes_per_frame = {self.bytes_per_frame.__repr__()}'
+		s += f'\n	* bytes_per_bone = {self.bytes_per_bone.__repr__()}'
+		s += f'\n	* num_frames = {self.num_frames.__repr__()}'
+		s += f'\n	* num_bones = {self.num_bones.__repr__()}'
+		s += f'\n	* translation_center = {self.translation_center.__repr__()}'
+		s += f'\n	* translation_first = {self.translation_first.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'BaniFragmentData1 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* unknown_0 = ' + self.unknown_0.__repr__()
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
-		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
-		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()
-		s += '\n	* bytes_per_frame = ' + self.bytes_per_frame.__repr__()
-		s += '\n	* bytes_per_bone = ' + self.bytes_per_bone.__repr__()
-		s += '\n	* num_frames = ' + self.num_frames.__repr__()
-		s += '\n	* num_bones = ' + self.num_bones.__repr__()
-		s += '\n	* translation_center = ' + self.translation_center.__repr__()
-		s += '\n	* translation_first = ' + self.translation_first.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

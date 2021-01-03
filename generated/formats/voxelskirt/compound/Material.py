@@ -7,9 +7,13 @@ class Material:
 		self.io_size = 0
 		self.io_start = 0
 
-		# in bytes
+		# address of child data
 		self.offset = 0
+
+		# repeat count of child structs (4 floats)
 		self.count = 0
+
+		# index into name list
 		self.id = 0
 
 	def read(self, stream):
@@ -30,10 +34,18 @@ class Material:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Material [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* count = {self.count.__repr__()}'
+		s += f'\n	* id = {self.id.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Material [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* count = ' + self.count.__repr__()
-		s += '\n	* id = ' + self.id.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

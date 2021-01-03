@@ -66,11 +66,19 @@ class TextureInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'TextureInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* is_textured = {self.is_textured.__repr__()}'
+		s += f'\n	* indices = {self.indices.__repr__()}'
+		s += f'\n	* colors = {self.colors.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'TextureInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* is_textured = ' + self.is_textured.__repr__()
-		s += '\n	* indices = ' + self.indices.__repr__()
-		s += '\n	* colors = ' + self.colors.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

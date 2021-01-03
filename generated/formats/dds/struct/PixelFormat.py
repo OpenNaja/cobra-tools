@@ -66,15 +66,23 @@ class PixelFormat:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'PixelFormat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* size = {self.size.__repr__()}'
+		s += f'\n	* flags = {self.flags.__repr__()}'
+		s += f'\n	* four_c_c = {self.four_c_c.__repr__()}'
+		s += f'\n	* bit_count = {self.bit_count.__repr__()}'
+		s += f'\n	* r_mask = {self.r_mask.__repr__()}'
+		s += f'\n	* g_mask = {self.g_mask.__repr__()}'
+		s += f'\n	* b_mask = {self.b_mask.__repr__()}'
+		s += f'\n	* a_mask = {self.a_mask.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'PixelFormat [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* size = ' + self.size.__repr__()
-		s += '\n	* flags = ' + self.flags.__repr__()
-		s += '\n	* four_c_c = ' + self.four_c_c.__repr__()
-		s += '\n	* bit_count = ' + self.bit_count.__repr__()
-		s += '\n	* r_mask = ' + self.r_mask.__repr__()
-		s += '\n	* g_mask = ' + self.g_mask.__repr__()
-		s += '\n	* b_mask = ' + self.b_mask.__repr__()
-		s += '\n	* a_mask = ' + self.a_mask.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

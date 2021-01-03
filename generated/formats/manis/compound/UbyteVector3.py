@@ -38,10 +38,18 @@ class UbyteVector3:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'UbyteVector3 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* x = {self.x.__repr__()}'
+		s += f'\n	* y = {self.y.__repr__()}'
+		s += f'\n	* z = {self.z.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'UbyteVector3 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* x = ' + self.x.__repr__()
-		s += '\n	* y = ' + self.y.__repr__()
-		s += '\n	* z = ' + self.z.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

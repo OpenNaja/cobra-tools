@@ -59,14 +59,22 @@ class LodInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* distance = {self.distance.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* bone_index = {self.bone_index.__repr__()}'
+		s += f'\n	* first_model_index = {self.first_model_index.__repr__()}'
+		s += f'\n	* last_model_index = {self.last_model_index.__repr__()}'
+		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
+		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'LodInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* distance = ' + self.distance.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* bone_index = ' + self.bone_index.__repr__()
-		s += '\n	* first_model_index = ' + self.first_model_index.__repr__()
-		s += '\n	* last_model_index = ' + self.last_model_index.__repr__()
-		s += '\n	* vertex_count = ' + self.vertex_count.__repr__()
-		s += '\n	* tri_index_count = ' + self.tri_index_count.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

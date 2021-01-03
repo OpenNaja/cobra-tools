@@ -38,10 +38,18 @@ class AuxEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'AuxEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* file_index = {self.file_index.__repr__()}'
+		s += f'\n	* extension_index = {self.extension_index.__repr__()}'
+		s += f'\n	* size = {self.size.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'AuxEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* file_index = ' + self.file_index.__repr__()
-		s += '\n	* extension_index = ' + self.extension_index.__repr__()
-		s += '\n	* size = ' + self.size.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

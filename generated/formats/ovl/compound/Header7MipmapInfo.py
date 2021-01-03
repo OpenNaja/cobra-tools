@@ -41,13 +41,21 @@ class Header7MipmapInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Header7MipmapInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* unknown_02 = {self.unknown_02.__repr__()}'
+		s += f'\n	* width = {self.width.__repr__()}'
+		s += f'\n	* height = {self.height.__repr__()}'
+		s += f'\n	* unknown_0_c = {self.unknown_0_c.__repr__()}'
+		s += f'\n	* unkn_3 = {self.unkn_3.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Header7MipmapInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* unknown_02 = ' + self.unknown_02.__repr__()
-		s += '\n	* width = ' + self.width.__repr__()
-		s += '\n	* height = ' + self.height.__repr__()
-		s += '\n	* unknown_0_c = ' + self.unknown_0_c.__repr__()
-		s += '\n	* unkn_3 = ' + self.unkn_3.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

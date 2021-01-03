@@ -62,16 +62,24 @@ class InfoHeader:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* magic = {self.magic.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* mani_count = {self.mani_count.__repr__()}'
+		s += f'\n	* names = {self.names.__repr__()}'
+		s += f'\n	* header = {self.header.__repr__()}'
+		s += f'\n	* mani_infos = {self.mani_infos.__repr__()}'
+		s += f'\n	* bone_hashes = {self.bone_hashes.__repr__()}'
+		s += f'\n	* bone_names = {self.bone_names.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'InfoHeader [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* magic = ' + self.magic.__repr__()
-		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* user_version = ' + self.user_version.__repr__()
-		s += '\n	* mani_count = ' + self.mani_count.__repr__()
-		s += '\n	* names = ' + self.names.__repr__()
-		s += '\n	* header = ' + self.header.__repr__()
-		s += '\n	* mani_infos = ' + self.mani_infos.__repr__()
-		s += '\n	* bone_hashes = ' + self.bone_hashes.__repr__()
-		s += '\n	* bone_names = ' + self.bone_names.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

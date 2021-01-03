@@ -38,12 +38,20 @@ class Dxt10Header:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Dxt10Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* dxgi_format = {self.dxgi_format.__repr__()}'
+		s += f'\n	* resource_dimension = {self.resource_dimension.__repr__()}'
+		s += f'\n	* misc_flag = {self.misc_flag.__repr__()}'
+		s += f'\n	* array_size = {self.array_size.__repr__()}'
+		s += f'\n	* misc_flag_2 = {self.misc_flag_2.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Dxt10Header [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* dxgi_format = ' + self.dxgi_format.__repr__()
-		s += '\n	* resource_dimension = ' + self.resource_dimension.__repr__()
-		s += '\n	* misc_flag = ' + self.misc_flag.__repr__()
-		s += '\n	* array_size = ' + self.array_size.__repr__()
-		s += '\n	* misc_flag_2 = ' + self.misc_flag_2.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

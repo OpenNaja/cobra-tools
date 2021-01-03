@@ -29,9 +29,17 @@ class JointEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'JointEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* matrix = {self.matrix.__repr__()}'
+		s += f'\n	* vector = {self.vector.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'JointEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* matrix = ' + self.matrix.__repr__()
-		s += '\n	* vector = ' + self.vector.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -36,11 +36,19 @@ class PzBone:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'PzBone [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* rot = {self.rot.__repr__()}'
+		s += f'\n	* loc = {self.loc.__repr__()}'
+		s += f'\n	* scale = {self.scale.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'PzBone [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* rot = ' + self.rot.__repr__()
-		s += '\n	* loc = ' + self.loc.__repr__()
-		s += '\n	* scale = ' + self.scale.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s
 

@@ -81,17 +81,25 @@ class MaterialcollectionInfoHeader:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'MaterialcollectionInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* magic = {self.magic.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* has_texture_list = {self.has_texture_list.__repr__()}'
+		s += f'\n	* root_0 = {self.root_0.__repr__()}'
+		s += f'\n	* root_1 = {self.root_1.__repr__()}'
+		s += f'\n	* root_1_pad = {self.root_1_pad.__repr__()}'
+		s += f'\n	* texture_wrapper = {self.texture_wrapper.__repr__()}'
+		s += f'\n	* variant_wrapper = {self.variant_wrapper.__repr__()}'
+		s += f'\n	* layered_wrapper = {self.layered_wrapper.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'MaterialcollectionInfoHeader [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* magic = ' + self.magic.__repr__()
-		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* user_version = ' + self.user_version.__repr__()
-		s += '\n	* has_texture_list = ' + self.has_texture_list.__repr__()
-		s += '\n	* root_0 = ' + self.root_0.__repr__()
-		s += '\n	* root_1 = ' + self.root_1.__repr__()
-		s += '\n	* root_1_pad = ' + self.root_1_pad.__repr__()
-		s += '\n	* texture_wrapper = ' + self.texture_wrapper.__repr__()
-		s += '\n	* variant_wrapper = ' + self.variant_wrapper.__repr__()
-		s += '\n	* layered_wrapper = ' + self.layered_wrapper.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

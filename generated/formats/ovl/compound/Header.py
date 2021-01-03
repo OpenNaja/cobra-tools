@@ -224,43 +224,51 @@ class Header:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* fres = {self.fres.__repr__()}'
+		s += f'\n	* version_flag = {self.version_flag.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* bitswap = {self.bitswap.__repr__()}'
+		s += f'\n	* seventh_byte = {self.seventh_byte.__repr__()}'
+		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* len_names = {self.len_names.__repr__()}'
+		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
+		s += f'\n	* num_aux_entries = {self.num_aux_entries.__repr__()}'
+		s += f'\n	* num_dirs = {self.num_dirs.__repr__()}'
+		s += f'\n	* num_mimes = {self.num_mimes.__repr__()}'
+		s += f'\n	* num_files = {self.num_files.__repr__()}'
+		s += f'\n	* num_files_2 = {self.num_files_2.__repr__()}'
+		s += f'\n	* num_textures = {self.num_textures.__repr__()}'
+		s += f'\n	* num_archives = {self.num_archives.__repr__()}'
+		s += f'\n	* num_header_types = {self.num_header_types.__repr__()}'
+		s += f'\n	* num_headers = {self.num_headers.__repr__()}'
+		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
+		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
+		s += f'\n	* num_files_ovs = {self.num_files_ovs.__repr__()}'
+		s += f'\n	* ztuac_unknowns = {self.ztuac_unknowns.__repr__()}'
+		s += f'\n	* len_archive_names = {self.len_archive_names.__repr__()}'
+		s += f'\n	* num_files_3 = {self.num_files_3.__repr__()}'
+		s += f'\n	* len_type_names = {self.len_type_names.__repr__()}'
+		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
+		s += f'\n	* names = {self.names.__repr__()}'
+		s += f'\n	* mimes = {self.mimes.__repr__()}'
+		s += f'\n	* files = {self.files.__repr__()}'
+		s += f'\n	* archive_names = {self.archive_names.__repr__()}'
+		s += f'\n	* archives = {self.archives.__repr__()}'
+		s += f'\n	* dirs = {self.dirs.__repr__()}'
+		s += f'\n	* textures = {self.textures.__repr__()}'
+		s += f'\n	* aux_entries = {self.aux_entries.__repr__()}'
+		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
+		s += f'\n	* zlibs = {self.zlibs.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Header [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* fres = ' + self.fres.__repr__()
-		s += '\n	* version_flag = ' + self.version_flag.__repr__()
-		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* bitswap = ' + self.bitswap.__repr__()
-		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
-		s += '\n	* user_version = ' + self.user_version.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* len_names = ' + self.len_names.__repr__()
-		s += '\n	* zero_2 = ' + self.zero_2.__repr__()
-		s += '\n	* num_aux_entries = ' + self.num_aux_entries.__repr__()
-		s += '\n	* num_dirs = ' + self.num_dirs.__repr__()
-		s += '\n	* num_mimes = ' + self.num_mimes.__repr__()
-		s += '\n	* num_files = ' + self.num_files.__repr__()
-		s += '\n	* num_files_2 = ' + self.num_files_2.__repr__()
-		s += '\n	* num_textures = ' + self.num_textures.__repr__()
-		s += '\n	* num_archives = ' + self.num_archives.__repr__()
-		s += '\n	* num_header_types = ' + self.num_header_types.__repr__()
-		s += '\n	* num_headers = ' + self.num_headers.__repr__()
-		s += '\n	* num_datas = ' + self.num_datas.__repr__()
-		s += '\n	* num_buffers = ' + self.num_buffers.__repr__()
-		s += '\n	* num_files_ovs = ' + self.num_files_ovs.__repr__()
-		s += '\n	* ztuac_unknowns = ' + self.ztuac_unknowns.__repr__()
-		s += '\n	* len_archive_names = ' + self.len_archive_names.__repr__()
-		s += '\n	* num_files_3 = ' + self.num_files_3.__repr__()
-		s += '\n	* len_type_names = ' + self.len_type_names.__repr__()
-		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
-		s += '\n	* names = ' + self.names.__repr__()
-		s += '\n	* mimes = ' + self.mimes.__repr__()
-		s += '\n	* files = ' + self.files.__repr__()
-		s += '\n	* archive_names = ' + self.archive_names.__repr__()
-		s += '\n	* archives = ' + self.archives.__repr__()
-		s += '\n	* dirs = ' + self.dirs.__repr__()
-		s += '\n	* textures = ' + self.textures.__repr__()
-		s += '\n	* aux_entries = ' + self.aux_entries.__repr__()
-		s += '\n	* unknowns = ' + self.unknowns.__repr__()
-		s += '\n	* zlibs = ' + self.zlibs.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

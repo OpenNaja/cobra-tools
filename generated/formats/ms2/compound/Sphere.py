@@ -31,10 +31,18 @@ class Sphere:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Sphere [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* center = {self.center.__repr__()}'
+		s += f'\n	* radius = {self.radius.__repr__()}'
+		s += f'\n	* unk = {self.unk.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Sphere [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* center = ' + self.center.__repr__()
-		s += '\n	* radius = ' + self.radius.__repr__()
-		s += '\n	* unk = ' + self.unk.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

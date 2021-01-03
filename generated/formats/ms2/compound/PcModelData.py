@@ -113,23 +113,31 @@ class PcModelData:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'PcModelData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zeros_a = {self.zeros_a.__repr__()}'
+		s += f'\n	* tri_index_count_a = {self.tri_index_count_a.__repr__()}'
+		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
+		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
+		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
+		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
+		s += f'\n	* weights_offset = {self.weights_offset.__repr__()}'
+		s += f'\n	* uv_offset = {self.uv_offset.__repr__()}'
+		s += f'\n	* zero_b = {self.zero_b.__repr__()}'
+		s += f'\n	* vertex_color_offset = {self.vertex_color_offset.__repr__()}'
+		s += f'\n	* vert_offset_within_lod = {self.vert_offset_within_lod.__repr__()}'
+		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* unknown_07 = {self.unknown_07.__repr__()}'
+		s += f'\n	* flag = {self.flag.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'PcModelData [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zeros_a = ' + self.zeros_a.__repr__()
-		s += '\n	* tri_index_count_a = ' + self.tri_index_count_a.__repr__()
-		s += '\n	* vertex_count = ' + self.vertex_count.__repr__()
-		s += '\n	* tri_offset = ' + self.tri_offset.__repr__()
-		s += '\n	* tri_index_count = ' + self.tri_index_count.__repr__()
-		s += '\n	* vertex_offset = ' + self.vertex_offset.__repr__()
-		s += '\n	* weights_offset = ' + self.weights_offset.__repr__()
-		s += '\n	* uv_offset = ' + self.uv_offset.__repr__()
-		s += '\n	* zero_b = ' + self.zero_b.__repr__()
-		s += '\n	* vertex_color_offset = ' + self.vertex_color_offset.__repr__()
-		s += '\n	* vert_offset_within_lod = ' + self.vert_offset_within_lod.__repr__()
-		s += '\n	* poweroftwo = ' + self.poweroftwo.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* unknown_07 = ' + self.unknown_07.__repr__()
-		s += '\n	* flag = ' + self.flag.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s
 

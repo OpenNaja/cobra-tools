@@ -57,14 +57,22 @@ class MimeEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'MimeEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* unknown = {self.unknown.__repr__()}'
+		s += f'\n	* mime_hash = {self.mime_hash.__repr__()}'
+		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
+		s += f'\n	* file_index_offset = {self.file_index_offset.__repr__()}'
+		s += f'\n	* file_count = {self.file_count.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'MimeEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* unknown = ' + self.unknown.__repr__()
-		s += '\n	* mime_hash = ' + self.mime_hash.__repr__()
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
-		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
-		s += '\n	* file_index_offset = ' + self.file_index_offset.__repr__()
-		s += '\n	* file_count = ' + self.file_count.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

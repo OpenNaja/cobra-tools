@@ -43,11 +43,19 @@ class ByteColor4:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'ByteColor4 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* r = {self.r.__repr__()}'
+		s += f'\n	* g = {self.g.__repr__()}'
+		s += f'\n	* b = {self.b.__repr__()}'
+		s += f'\n	* a = {self.a.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'ByteColor4 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* r = ' + self.r.__repr__()
-		s += '\n	* g = ' + self.g.__repr__()
-		s += '\n	* b = ' + self.b.__repr__()
-		s += '\n	* a = ' + self.a.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -97,24 +97,32 @@ class ManiInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'ManiInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zeros_start = {self.zeros_start.__repr__()}'
+		s += f'\n	* duration = {self.duration.__repr__()}'
+		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
+		s += f'\n	* b = {self.b.__repr__()}'
+		s += f'\n	* zeros_0 = {self.zeros_0.__repr__()}'
+		s += f'\n	* c = {self.c.__repr__()}'
+		s += f'\n	* name_count = {self.name_count.__repr__()}'
+		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
+		s += f'\n	* e = {self.e.__repr__()}'
+		s += f'\n	* extra_pc = {self.extra_pc.__repr__()}'
+		s += f'\n	* ffff = {self.ffff.__repr__()}'
+		s += f'\n	* g = {self.g.__repr__()}'
+		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
+		s += f'\n	* extra_zeros_pc = {self.extra_zeros_pc.__repr__()}'
+		s += f'\n	* i = {self.i.__repr__()}'
+		s += f'\n	* j = {self.j.__repr__()}'
+		s += f'\n	* ff = {self.ff.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'ManiInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zeros_start = ' + self.zeros_start.__repr__()
-		s += '\n	* duration = ' + self.duration.__repr__()
-		s += '\n	* frame_count = ' + self.frame_count.__repr__()
-		s += '\n	* b = ' + self.b.__repr__()
-		s += '\n	* zeros_0 = ' + self.zeros_0.__repr__()
-		s += '\n	* c = ' + self.c.__repr__()
-		s += '\n	* name_count = ' + self.name_count.__repr__()
-		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
-		s += '\n	* e = ' + self.e.__repr__()
-		s += '\n	* extra_pc = ' + self.extra_pc.__repr__()
-		s += '\n	* ffff = ' + self.ffff.__repr__()
-		s += '\n	* g = ' + self.g.__repr__()
-		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
-		s += '\n	* extra_zeros_pc = ' + self.extra_zeros_pc.__repr__()
-		s += '\n	* i = ' + self.i.__repr__()
-		s += '\n	* j = ' + self.j.__repr__()
-		s += '\n	* ff = ' + self.ff.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

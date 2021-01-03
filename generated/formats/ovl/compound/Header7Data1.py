@@ -68,17 +68,25 @@ class Header7Data1:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Header7Data1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zero_00 = {self.zero_00.__repr__()}'
+		s += f'\n	* zero_04 = {self.zero_04.__repr__()}'
+		s += f'\n	* data_size = {self.data_size.__repr__()}'
+		s += f'\n	* width = {self.width.__repr__()}'
+		s += f'\n	* height = {self.height.__repr__()}'
+		s += f'\n	* depth = {self.depth.__repr__()}'
+		s += f'\n	* array_size = {self.array_size.__repr__()}'
+		s += f'\n	* num_mips = {self.num_mips.__repr__()}'
+		s += f'\n	* pad = {self.pad.__repr__()}'
+		s += f'\n	* mip_maps = {self.mip_maps.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Header7Data1 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zero_00 = ' + self.zero_00.__repr__()
-		s += '\n	* zero_04 = ' + self.zero_04.__repr__()
-		s += '\n	* data_size = ' + self.data_size.__repr__()
-		s += '\n	* width = ' + self.width.__repr__()
-		s += '\n	* height = ' + self.height.__repr__()
-		s += '\n	* depth = ' + self.depth.__repr__()
-		s += '\n	* array_size = ' + self.array_size.__repr__()
-		s += '\n	* num_mips = ' + self.num_mips.__repr__()
-		s += '\n	* pad = ' + self.pad.__repr__()
-		s += '\n	* mip_maps = ' + self.mip_maps.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

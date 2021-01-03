@@ -59,13 +59,21 @@ class Ms2SizedStrData:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Ms2SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* ms_2_version = {self.ms_2_version.__repr__()}'
+		s += f'\n	* has_model_data = {self.has_model_data.__repr__()}'
+		s += f'\n	* mdl_2_count = {self.mdl_2_count.__repr__()}'
+		s += f'\n	* name_count = {self.name_count.__repr__()}'
+		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
+		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Ms2SizedStrData [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* ms_2_version = ' + self.ms_2_version.__repr__()
-		s += '\n	* has_model_data = ' + self.has_model_data.__repr__()
-		s += '\n	* mdl_2_count = ' + self.mdl_2_count.__repr__()
-		s += '\n	* name_count = ' + self.name_count.__repr__()
-		s += '\n	* unk_count = ' + self.unk_count.__repr__()
-		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -25,9 +25,17 @@ class Root1:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Root1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* flag = {self.flag.__repr__()}'
+		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Root1 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* flag = ' + self.flag.__repr__()
-		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

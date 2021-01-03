@@ -57,13 +57,21 @@ class Header3Data0Pc:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Header3Data0Pc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* compression_type = {self.compression_type.__repr__()}'
+		s += f'\n	* one_0 = {self.one_0.__repr__()}'
+		s += f'\n	* one_1 = {self.one_1.__repr__()}'
+		s += f'\n	* one_2 = {self.one_2.__repr__()}'
+		s += f'\n	* pad = {self.pad.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Header3Data0Pc [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zeros = ' + self.zeros.__repr__()
-		s += '\n	* compression_type = ' + self.compression_type.__repr__()
-		s += '\n	* one_0 = ' + self.one_0.__repr__()
-		s += '\n	* one_1 = ' + self.one_1.__repr__()
-		s += '\n	* one_2 = ' + self.one_2.__repr__()
-		s += '\n	* pad = ' + self.pad.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

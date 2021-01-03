@@ -146,27 +146,26 @@
     </compound>
 
     <compound name="Material">
-        <add name="offset" type="uint64" >in bytes</add>
-        <add name="count" type="uint64" ></add>
-        <add name="id" type="uint64" ></add>
+        <add name="offset" type="uint64" >address of child data</add>
+        <add name="count" type="uint64" >repeat count of child structs (4 floats)</add>
+        <add name="id" type="uint64" >index into name list</add>
     </compound>
 
     <compound name="Data">
-        <add name="id" type="uint64" />
-        <add name="type" type="uint64" ></add>
-        <add name="offset" type="uint64" ></add>
-        <add name="dsize" type="uint64" ></add>
+        PZ and JWE only, describes a data layer image
+        <add name="id" type="uint64" >index into name list</add>
+        <add name="type" type="uint64" >0 = ubyte, 2 = float</add>
+        <add name="offset" type="uint64" >address of this data layer</add>
+        <add name="dsize" type="uint64" >data size of this layer, in bytes</add>
     </compound>
 
-    <compound name="PosInfo">
-        <add name="offset" type="uint64" ></add>
-        <add name="count" type="uint64" ></add>
-        <add name="id" type="uint64" />
-        <add name="ff" type="uint64" ></add>
+    <compound name="PosInfo" inherit="Material">
+        <add name="ff" type="int" >-1</add>
+        <add name="ff or zero" type="int" >-1, 0 for PC</add>
     </compound>
 
     <compound name="Size">
-        <add name="id" type="uint64" />
+        <add name="id" type="uint64" >index into name list</add>
         <add name="width 1" type="uint64" ></add>
         <add name="height 1" type="uint64" ></add>
         <add name="width 2" type="uint64" ></add>

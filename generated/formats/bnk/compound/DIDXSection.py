@@ -36,9 +36,17 @@ class DIDXSection:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'DIDXSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* length = {self.length.__repr__()}'
+		s += f'\n	* data_pointers = {self.data_pointers.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'DIDXSection [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* length = ' + self.length.__repr__()
-		s += '\n	* data_pointers = ' + self.data_pointers.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

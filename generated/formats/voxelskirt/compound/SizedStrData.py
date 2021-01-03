@@ -101,25 +101,33 @@ class SizedStrData:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* data_size = {self.data_size.__repr__()}'
+		s += f'\n	* x = {self.x.__repr__()}'
+		s += f'\n	* y = {self.y.__repr__()}'
+		s += f'\n	* scale = {self.scale.__repr__()}'
+		s += f'\n	* padding = {self.padding.__repr__()}'
+		s += f'\n	* zero_pc = {self.zero_pc.__repr__()}'
+		s += f'\n	* height_array_size_pc = {self.height_array_size_pc.__repr__()}'
+		s += f'\n	* data_offset = {self.data_offset.__repr__()}'
+		s += f'\n	* data_count = {self.data_count.__repr__()}'
+		s += f'\n	* size_offset = {self.size_offset.__repr__()}'
+		s += f'\n	* size_count = {self.size_count.__repr__()}'
+		s += f'\n	* position_offset = {self.position_offset.__repr__()}'
+		s += f'\n	* position_count = {self.position_count.__repr__()}'
+		s += f'\n	* mat_offset = {self.mat_offset.__repr__()}'
+		s += f'\n	* mat_count = {self.mat_count.__repr__()}'
+		s += f'\n	* name_buffer_offset = {self.name_buffer_offset.__repr__()}'
+		s += f'\n	* name_count = {self.name_count.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'SizedStrData [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* data_size = ' + self.data_size.__repr__()
-		s += '\n	* x = ' + self.x.__repr__()
-		s += '\n	* y = ' + self.y.__repr__()
-		s += '\n	* scale = ' + self.scale.__repr__()
-		s += '\n	* padding = ' + self.padding.__repr__()
-		s += '\n	* zero_pc = ' + self.zero_pc.__repr__()
-		s += '\n	* height_array_size_pc = ' + self.height_array_size_pc.__repr__()
-		s += '\n	* data_offset = ' + self.data_offset.__repr__()
-		s += '\n	* data_count = ' + self.data_count.__repr__()
-		s += '\n	* size_offset = ' + self.size_offset.__repr__()
-		s += '\n	* size_count = ' + self.size_count.__repr__()
-		s += '\n	* position_offset = ' + self.position_offset.__repr__()
-		s += '\n	* position_count = ' + self.position_count.__repr__()
-		s += '\n	* mat_offset = ' + self.mat_offset.__repr__()
-		s += '\n	* mat_count = ' + self.mat_count.__repr__()
-		s += '\n	* name_buffer_offset = ' + self.name_buffer_offset.__repr__()
-		s += '\n	* name_count = ' + self.name_count.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

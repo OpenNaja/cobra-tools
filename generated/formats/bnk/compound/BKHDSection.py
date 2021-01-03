@@ -54,14 +54,22 @@ class BKHDSection:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'BKHDSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* length = {self.length.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* id_a = {self.id_a.__repr__()}'
+		s += f'\n	* id_b = {self.id_b.__repr__()}'
+		s += f'\n	* constant_a = {self.constant_a.__repr__()}'
+		s += f'\n	* constant_b = {self.constant_b.__repr__()}'
+		s += f'\n	* zeroes = {self.zeroes.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'BKHDSection [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* length = ' + self.length.__repr__()
-		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* id_a = ' + self.id_a.__repr__()
-		s += '\n	* id_b = ' + self.id_b.__repr__()
-		s += '\n	* constant_a = ' + self.constant_a.__repr__()
-		s += '\n	* constant_b = ' + self.constant_b.__repr__()
-		s += '\n	* zeroes = ' + self.zeroes.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

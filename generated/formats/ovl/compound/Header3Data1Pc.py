@@ -39,11 +39,19 @@ class Header3Data1Pc:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Header3Data1Pc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* width = {self.width.__repr__()}'
+		s += f'\n	* height = {self.height.__repr__()}'
+		s += f'\n	* array_size = {self.array_size.__repr__()}'
+		s += f'\n	* num_mips = {self.num_mips.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Header3Data1Pc [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* width = ' + self.width.__repr__()
-		s += '\n	* height = ' + self.height.__repr__()
-		s += '\n	* array_size = ' + self.array_size.__repr__()
-		s += '\n	* num_mips = ' + self.num_mips.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

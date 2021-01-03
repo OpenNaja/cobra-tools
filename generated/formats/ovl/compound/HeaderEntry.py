@@ -65,15 +65,23 @@ class HeaderEntry:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'HeaderEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
+		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
+		s += f'\n	* size = {self.size.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
+		s += f'\n	* num_files = {self.num_files.__repr__()}'
+		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
+		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'HeaderEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
-		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
-		s += '\n	* size = ' + self.size.__repr__()
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* file_hash = ' + self.file_hash.__repr__()
-		s += '\n	* num_files = ' + self.num_files.__repr__()
-		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
-		s += '\n	* zeros_3 = ' + self.zeros_3.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

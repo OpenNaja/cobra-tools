@@ -87,23 +87,31 @@ class Header:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* header_string = {self.header_string.__repr__()}'
+		s += f'\n	* size = {self.size.__repr__()}'
+		s += f'\n	* flags = {self.flags.__repr__()}'
+		s += f'\n	* height = {self.height.__repr__()}'
+		s += f'\n	* width = {self.width.__repr__()}'
+		s += f'\n	* linear_size = {self.linear_size.__repr__()}'
+		s += f'\n	* depth = {self.depth.__repr__()}'
+		s += f'\n	* mipmap_count = {self.mipmap_count.__repr__()}'
+		s += f'\n	* reserved_1 = {self.reserved_1.__repr__()}'
+		s += f'\n	* pixel_format = {self.pixel_format.__repr__()}'
+		s += f'\n	* caps_1 = {self.caps_1.__repr__()}'
+		s += f'\n	* caps_2 = {self.caps_2.__repr__()}'
+		s += f'\n	* caps_3 = {self.caps_3.__repr__()}'
+		s += f'\n	* caps_4 = {self.caps_4.__repr__()}'
+		s += f'\n	* unused = {self.unused.__repr__()}'
+		s += f'\n	* dx_10 = {self.dx_10.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Header [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* header_string = ' + self.header_string.__repr__()
-		s += '\n	* size = ' + self.size.__repr__()
-		s += '\n	* flags = ' + self.flags.__repr__()
-		s += '\n	* height = ' + self.height.__repr__()
-		s += '\n	* width = ' + self.width.__repr__()
-		s += '\n	* linear_size = ' + self.linear_size.__repr__()
-		s += '\n	* depth = ' + self.depth.__repr__()
-		s += '\n	* mipmap_count = ' + self.mipmap_count.__repr__()
-		s += '\n	* reserved_1 = ' + self.reserved_1.__repr__()
-		s += '\n	* pixel_format = ' + self.pixel_format.__repr__()
-		s += '\n	* caps_1 = ' + self.caps_1.__repr__()
-		s += '\n	* caps_2 = ' + self.caps_2.__repr__()
-		s += '\n	* caps_3 = ' + self.caps_3.__repr__()
-		s += '\n	* caps_4 = ' + self.caps_4.__repr__()
-		s += '\n	* unused = ' + self.unused.__repr__()
-		s += '\n	* dx_10 = ' + self.dx_10.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

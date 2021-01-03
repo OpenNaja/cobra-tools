@@ -52,13 +52,21 @@ class SetHeader:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'SetHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* set_count = {self.set_count.__repr__()}'
+		s += f'\n	* asset_count = {self.asset_count.__repr__()}'
+		s += f'\n	* sig_a = {self.sig_a.__repr__()}'
+		s += f'\n	* sig_b = {self.sig_b.__repr__()}'
+		s += f'\n	* sets = {self.sets.__repr__()}'
+		s += f'\n	* assets = {self.assets.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'SetHeader [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* set_count = ' + self.set_count.__repr__()
-		s += '\n	* asset_count = ' + self.asset_count.__repr__()
-		s += '\n	* sig_a = ' + self.sig_a.__repr__()
-		s += '\n	* sig_b = ' + self.sig_b.__repr__()
-		s += '\n	* sets = ' + self.sets.__repr__()
-		s += '\n	* assets = ' + self.assets.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

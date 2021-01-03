@@ -28,8 +28,16 @@ class Mdl2FourtyInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Mdl2FourtyInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Mdl2FourtyInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* unknowns = ' + self.unknowns.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

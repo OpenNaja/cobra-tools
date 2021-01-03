@@ -31,10 +31,18 @@ class Capsule:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Capsule [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* a = {self.a.__repr__()}'
+		s += f'\n	* b = {self.b.__repr__()}'
+		s += f'\n	* c = {self.c.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Capsule [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* a = ' + self.a.__repr__()
-		s += '\n	* b = ' + self.b.__repr__()
-		s += '\n	* c = ' + self.c.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

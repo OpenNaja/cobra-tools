@@ -33,9 +33,17 @@ class UshortVector2:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'UshortVector2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* u = {self.u.__repr__()}'
+		s += f'\n	* v = {self.v.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'UshortVector2 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* u = ' + self.u.__repr__()
-		s += '\n	* v = ' + self.v.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

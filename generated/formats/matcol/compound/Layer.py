@@ -42,12 +42,20 @@ class Layer:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Layer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* name = {self.name.__repr__()}'
+		s += f'\n	* info_info = {self.info_info.__repr__()}'
+		s += f'\n	* infos = {self.infos.__repr__()}'
+		s += f'\n	* attrib_info = {self.attrib_info.__repr__()}'
+		s += f'\n	* attribs = {self.attribs.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Layer [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* name = ' + self.name.__repr__()
-		s += '\n	* info_info = ' + self.info_info.__repr__()
-		s += '\n	* infos = ' + self.infos.__repr__()
-		s += '\n	* attrib_info = ' + self.attrib_info.__repr__()
-		s += '\n	* attribs = ' + self.attribs.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

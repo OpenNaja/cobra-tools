@@ -31,9 +31,17 @@ class LayeredWrapper:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'LayeredWrapper [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* info = {self.info.__repr__()}'
+		s += f'\n	* layers = {self.layers.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'LayeredWrapper [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* info = ' + self.info.__repr__()
-		s += '\n	* layers = ' + self.layers.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -31,11 +31,19 @@ class Root1Pad:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Root1Pad [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
+		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
+		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
+		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Root1Pad [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
-		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
-		s += '\n	* zero_2 = ' + self.zero_2.__repr__()
-		s += '\n	* zero_3 = ' + self.zero_3.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

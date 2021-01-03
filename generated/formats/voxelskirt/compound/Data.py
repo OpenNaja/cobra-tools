@@ -1,14 +1,26 @@
 class Data:
 
+	"""
+	PZ and JWE only, describes a data layer image
+	"""
+
 	def __init__(self, arg=None, template=None):
 		self.name = ''
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# index into name list
 		self.id = 0
+
+		# 0 = ubyte, 2 = float
 		self.type = 0
+
+		# address of this data layer
 		self.offset = 0
+
+		# data size of this layer, in bytes
 		self.dsize = 0
 
 	def read(self, stream):
@@ -31,11 +43,19 @@ class Data:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* id = {self.id.__repr__()}'
+		s += f'\n	* type = {self.type.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* dsize = {self.dsize.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Data [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* id = ' + self.id.__repr__()
-		s += '\n	* type = ' + self.type.__repr__()
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* dsize = ' + self.dsize.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

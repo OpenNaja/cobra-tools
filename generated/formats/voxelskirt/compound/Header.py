@@ -69,14 +69,22 @@ class Header:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* magic = {self.magic.__repr__()}'
+		s += f'\n	* version_flag = {self.version_flag.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* bitswap = {self.bitswap.__repr__()}'
+		s += f'\n	* seventh_byte = {self.seventh_byte.__repr__()}'
+		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* info = {self.info.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Header [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* magic = ' + self.magic.__repr__()
-		s += '\n	* version_flag = ' + self.version_flag.__repr__()
-		s += '\n	* version = ' + self.version.__repr__()
-		s += '\n	* bitswap = ' + self.bitswap.__repr__()
-		s += '\n	* seventh_byte = ' + self.seventh_byte.__repr__()
-		s += '\n	* user_version = ' + self.user_version.__repr__()
-		s += '\n	* info = ' + self.info.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

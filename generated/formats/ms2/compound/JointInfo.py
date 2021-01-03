@@ -53,14 +53,22 @@ class JointInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'JointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* eleven = {self.eleven.__repr__()}'
+		s += f'\n	* f_fs = {self.f_fs.__repr__()}'
+		s += f'\n	* name_offset = {self.name_offset.__repr__()}'
+		s += f'\n	* hitcheck_count = {self.hitcheck_count.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* zeros_per_hitcheck = {self.zeros_per_hitcheck.__repr__()}'
+		s += f'\n	* hit_check = {self.hit_check.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'JointInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* eleven = ' + self.eleven.__repr__()
-		s += '\n	* f_fs = ' + self.f_fs.__repr__()
-		s += '\n	* name_offset = ' + self.name_offset.__repr__()
-		s += '\n	* hitcheck_count = ' + self.hitcheck_count.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
-		s += '\n	* zeros_per_hitcheck = ' + self.zeros_per_hitcheck.__repr__()
-		s += '\n	* hit_check = ' + self.hit_check.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

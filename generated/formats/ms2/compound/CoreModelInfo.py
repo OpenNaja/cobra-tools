@@ -101,26 +101,34 @@ class CoreModelInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'CoreModelInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* unk_vec_a = {self.unk_vec_a.__repr__()}'
+		s += f'\n	* unk_float_a = {self.unk_float_a.__repr__()}'
+		s += f'\n	* unk_vec_b = {self.unk_vec_b.__repr__()}'
+		s += f'\n	* pack_offset = {self.pack_offset.__repr__()}'
+		s += f'\n	* zero_a = {self.zero_a.__repr__()}'
+		s += f'\n	* unk_float_b = {self.unk_float_b.__repr__()}'
+		s += f'\n	* unknownvectors = {self.unknownvectors.__repr__()}'
+		s += f'\n	* unk_float_0 = {self.unk_float_0.__repr__()}'
+		s += f'\n	* unk_float_1 = {self.unk_float_1.__repr__()}'
+		s += f'\n	* unk_vec_a_repeat = {self.unk_vec_a_repeat.__repr__()}'
+		s += f'\n	* unk_vec_b_repeat = {self.unk_vec_b_repeat.__repr__()}'
+		s += f'\n	* mat_count = {self.mat_count.__repr__()}'
+		s += f'\n	* lod_count = {self.lod_count.__repr__()}'
+		s += f'\n	* mat_1_count = {self.mat_1_count.__repr__()}'
+		s += f'\n	* model_count = {self.model_count.__repr__()}'
+		s += f'\n	* last_count = {self.last_count.__repr__()}'
+		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
+		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
+		s += f'\n	* pad = {self.pad.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'CoreModelInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* unk_vec_a = ' + self.unk_vec_a.__repr__()
-		s += '\n	* unk_float_a = ' + self.unk_float_a.__repr__()
-		s += '\n	* unk_vec_b = ' + self.unk_vec_b.__repr__()
-		s += '\n	* pack_offset = ' + self.pack_offset.__repr__()
-		s += '\n	* zero_a = ' + self.zero_a.__repr__()
-		s += '\n	* unk_float_b = ' + self.unk_float_b.__repr__()
-		s += '\n	* unknownvectors = ' + self.unknownvectors.__repr__()
-		s += '\n	* unk_float_0 = ' + self.unk_float_0.__repr__()
-		s += '\n	* unk_float_1 = ' + self.unk_float_1.__repr__()
-		s += '\n	* unk_vec_a_repeat = ' + self.unk_vec_a_repeat.__repr__()
-		s += '\n	* unk_vec_b_repeat = ' + self.unk_vec_b_repeat.__repr__()
-		s += '\n	* mat_count = ' + self.mat_count.__repr__()
-		s += '\n	* lod_count = ' + self.lod_count.__repr__()
-		s += '\n	* mat_1_count = ' + self.mat_1_count.__repr__()
-		s += '\n	* model_count = ' + self.model_count.__repr__()
-		s += '\n	* last_count = ' + self.last_count.__repr__()
-		s += '\n	* unk_0 = ' + self.unk_0.__repr__()
-		s += '\n	* unk_1 = ' + self.unk_1.__repr__()
-		s += '\n	* pad = ' + self.pad.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

@@ -34,10 +34,18 @@ class Repeat:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'Repeat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* zeros_0 = {self.zeros_0.__repr__()}'
+		s += f'\n	* byte_size = {self.byte_size.__repr__()}'
+		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'Repeat [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* zeros_0 = ' + self.zeros_0.__repr__()
-		s += '\n	* byte_size = ' + self.byte_size.__repr__()
-		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s

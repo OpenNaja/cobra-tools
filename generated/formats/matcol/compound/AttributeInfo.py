@@ -41,11 +41,19 @@ class AttributeInfo:
 
 		self.io_size = stream.tell() - self.io_start
 
+	def get_info_str(self):
+		return f'AttributeInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* dtype = {self.dtype.__repr__()}'
+		s += f'\n	* first_value_offset = {self.first_value_offset.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		return s
+
 	def __repr__(self):
-		s = 'AttributeInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
-		s += '\n	* offset = ' + self.offset.__repr__()
-		s += '\n	* dtype = ' + self.dtype.__repr__()
-		s += '\n	* first_value_offset = ' + self.first_value_offset.__repr__()
-		s += '\n	* zero = ' + self.zero.__repr__()
+		s = self.get_info_str()
+		s += self.get_fields_str()
 		s += '\n'
 		return s
