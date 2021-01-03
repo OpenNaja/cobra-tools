@@ -58,6 +58,8 @@ class MainWindow(widgets.MainWindow):
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
 
+		self.e_name_pairs = [ (QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(1) ]
+
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
@@ -69,14 +71,17 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 4)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 6)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
 		self.qgrid.addWidget(self.t_2K, 1, 3)
-		self.qgrid.addWidget(self.table, 2, 0, 1, 4)
-		self.qgrid.addWidget(self.p_action, 3, 0, 1, 4)
-		self.qgrid.addWidget(self.t_action, 4, 0, 1, 4)
+		for (old, new) in (self.e_name_pairs):
+			self.qgrid.addWidget(old, 1, 4)
+			self.qgrid.addWidget(new, 1, 5)
+		self.qgrid.addWidget(self.table, 2, 0, 1, 6)
+		self.qgrid.addWidget(self.p_action, 3, 0, 1, 6)
+		self.qgrid.addWidget(self.t_action, 4, 0, 1, 6)
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
