@@ -77,14 +77,14 @@ def extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progres
         paths.extend(write_dds(archive, entry, show_temp_files, out_dir_func))
     elif entry.ext == "lua":
         paths.extend(write_lua(archive, entry, out_dir_func))
-    # elif entry.ext == "assetpkg" and extract_misc == True:
-    # 	write_assetpkg(archive, entry)
+    elif entry.ext == "assetpkg":
+        paths.extend(write_assetpkg(archive, entry, out_dir_func))
     elif entry.ext == "fdb":
         paths.extend(write_fdb(archive, entry, out_dir_func))
     elif entry.ext == "xmlconfig":
         paths.extend(write_xmlconfig(archive, entry, out_dir_func))
-    # elif entry.ext == "userinterfaceicondata" and extract_misc == True:
-    # 	write_userinterfaceicondata(archive, entry)
+    elif entry.ext == "userinterfaceicondata":
+     	paths.extend(write_userinterfaceicondata(archive, entry, out_dir_func))
     elif entry.ext == "txt":
         paths.extend(write_txt(archive, entry, out_dir_func))
     elif entry.ext == "bnk":
@@ -197,24 +197,26 @@ def write_prefab(archive, sized_str_entry):
             outfile.write(frag.pointers[1].data)
 
 
-def write_assetpkg(archive, sized_str_entry):
+def write_assetpkg(archive, sized_str_entry, out_dir):
     name = sized_str_entry.name
     print("\nWriting", name)
-    if len(sized_str_entry.fragments) == 1:
-        print(len(sized_str_entry.fragments))
-        f_0 = sized_str_entry.fragments[0]
-    else:
-        print("Found wrong amount of frags for", name)
-        return
-    with open(archive.indir(name), 'wb') as outfile:
+    #if len(sized_str_entry.fragments) == 1:
+        #print(len(sized_str_entry.fragments))
+    f_0 = sized_str_entry.fragments[0]
+    #else:
+        #print("Found wrong amount of frags for", name)
+        #return
+    out_path=out_dir(name)
+    with open(out_path, 'wb') as outfile:
         f_0.pointers[1].strip_zstring_padding()
         outfile.write(f_0.pointers[1].data[:-1])
 
+    return out_path,
 
-def write_userinterfaceicondata(archive, sized_str_entry):
+def write_userinterfaceicondata(archive, sized_str_entry, out_dir):
     name = sized_str_entry.name
     print("\nWriting", name)
-
+    out_path=out_dir(name)
     try:
         buffer_data = sized_str_entry.data_entry.buffer_datas[0]
         print("buffer size", len(buffer_data))
@@ -225,16 +227,24 @@ def write_userinterfaceicondata(archive, sized_str_entry):
         f_0, f_1 = sized_str_entry.fragments
     else:
         print("Found wrong amount of frags for", name)
-        return
+        #return
     # write xml
-    xml_header = struct.pack("<12s5I", b"USERICONDATA", f_0.pointers[0].data_size, f_0.pointers[1].data_size,
-                             f_1.pointers[0].data_size, f_1.pointers[1].data_size, len(buffer_data))
-    with open(archive.indir(name), 'wb') as outfile:
+    xml_header = struct.pack("<12s3I", b"USERICONDATA", f_0.pointers[1].data_size,
+                             f_1.pointers[1].data_size, len(buffer_data))
+    f_0 = sized_str_entry.fragments[0]
+    f_1 = sized_str_entry.fragments[1]
+    with open(out_path, 'wb') as outfile:
         # write custom FGM header
-        outfile.write(xml_header)
+        #outfile.write(xml_header)
         # write each of the fragments
-        for frag in (f_0, f_1):
-            outfile.write(frag.pointers[0].data)
-            outfile.write(frag.pointers[1].data)
+        #outfile.write(sized_str_entry.pointers[0].data)
+        #for frag in sized_str_entry.fragments:
+            #outfile.write(frag.pointers[0].data)
+        f_0.pointers[1].strip_zstring_padding()
+        outfile.write(f_0.pointers[1].data[:-1])
         # write the buffer
-        outfile.write(buffer_data)
+        #outfile.write(buffer_data)
+    with open(out_path+"_b", 'wb') as outfile:
+        f_1.pointers[1].strip_zstring_padding()
+        outfile.write(f_1.pointers[1].data[:-1])
+    return out_path, out_path+"_b"
