@@ -258,9 +258,8 @@ class MainWindow(widgets.MainWindow):
 
 	def hasher(self):
 		if self.file_widget.filename:
-			names = [ (tup[0].text(), tup[1].text()) for tup in self.e_name_pairs ]
-			for archive in self.ovl_data.archives:
-				hasher.dat_hasher(archive, names, self.ovl_data.header.files, self.ovl_data.header.textures)
+			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+			hasher.dat_hasher(self.ovl_data, names)
 		else:
 			modules.formats.shared.showdialog("You must open an OVL file before you can extract files!")
 
