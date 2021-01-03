@@ -40,7 +40,7 @@ class HircPointer:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HircPointer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'HircPointer [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* id = ' + self.id.__repr__()
 		s += '\n	* data = ' + self.data.__repr__()
 		s += '\n'

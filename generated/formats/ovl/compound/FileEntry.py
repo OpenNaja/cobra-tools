@@ -47,7 +47,7 @@ class FileEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'FileEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'FileEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
 		s += '\n	* unkn_0 = ' + self.unkn_0.__repr__()

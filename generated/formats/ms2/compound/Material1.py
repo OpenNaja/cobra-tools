@@ -28,7 +28,7 @@ class Material1:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Material1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Material1 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* material_index = ' + self.material_index.__repr__()
 		s += '\n	* model_index = ' + self.model_index.__repr__()
 		s += '\n'

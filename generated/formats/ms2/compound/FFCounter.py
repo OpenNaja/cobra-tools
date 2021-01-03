@@ -34,7 +34,7 @@ class FFCounter:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'FFCounter [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'FFCounter [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* count = ' + self.count.__repr__()
 		s += '\n	* f_fs = ' + self.f_fs.__repr__()
 		s += '\n'

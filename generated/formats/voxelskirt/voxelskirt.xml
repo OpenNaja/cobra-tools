@@ -116,12 +116,12 @@
         <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
         <add name="Bitswap" type="byte" >endianness?, usually zero</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-		
         <add name="user version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
+
         <add name="info" type="SizedStrData" >always = 0</add>
-        <add name="heightmap" type="float" arr1="info \ x" arr2="info \ y">heightmap</add>
-        <add name="weights" type="ubyte" arr1="info \ x * info \ y" arr2="4" vercond="#PC#">weight indices</add>
-        <add name="weights" type="ubyte" arr1="4" arr2="info \ x * info \ y"  vercond="!#PC#">weight indices</add>
+<!--        <add name="heightmap" type="float" arr1="info \ x" arr2="info \ y">heightmap</add>-->
+<!--        <add name="weights" type="ubyte" arr1="info \ x * info \ y" arr2="4" vercond="#PC#">weight indices</add>-->
+<!--        <add name="weights" type="ubyte" arr1="4" arr2="info \ x * info \ y"  vercond="!#PC#">weight indices</add>-->
 <!--        <add name="weights" type="ubyte" arr1="info \ x * info \ y / 16" arr2="4" vercond="!#PC#">weight indices</add>-->
 <!--        157632 unaccounted bytes -->
 <!--        <add name="unk" type="float" arr1="39408">unk</add>-->
@@ -134,6 +134,28 @@
     </compound>
 
     <compound name="SizedStrData">
+        # JWE
+        <add name="zero" type="uint64" ></add>
+        <add name="data size" type="uint64" >total size of buffer data</add>
+        <add name="x" type="uint64" ></add>
+        <add name="y" type="uint64" ></add>
+        <add name="scale" type="float"></add>
+        <add name="padding" type="float" ></add>
+        <add name="data offset" type="uint64" vercond="!#PC#"></add>
+        <add name="data count" type="uint64" vercond="!#PC#">entries of 32 bytes</add>
+        <add name="size offset" type="uint64" vercond="!#PC#"></add>
+        <add name="size count" type="uint64" vercond="!#PC#">entries of 40 bytes</add>
+
+        <add name="unk1 offset" type="uint64" >slightly smaller than total size of buffer data</add>
+        <add name="unk1 count" type="uint64" >counts the -1 structs; entries of 32 bytes</add>
+        <add name="unk2 offset" type="uint64" >offset into buffer to start of sth; only given if some count is nonzero</add>
+        <add name="unk2 count" type="uint64" ></add>
+        <add name="name buffer offset" type="uint64" >offset into buffer to start of name zstrings</add>
+        <add name="name count" type="uint64" >also counts the stuff after names</add>
+
+    </compound>
+
+    <compound name="SizedStrDataOld">
         # 104 bytes
         <add name="zero" type="uint64" ></add>
         <add name="data size" type="uint64" >total size of buffer data</add>
@@ -161,6 +183,21 @@
         <add name="name buffer offset" type="uint64" >offset into buffer to start of name zstrings</add>
         <add name="name count" type="uint64" >also counts the stuff after names</add>
 
+    </compound>
+
+    <compound name="Data">
+        <add name="id" type="uint64" />
+        <add name="type" type="uint64" ></add>
+        <add name="offset" type="uint64" ></add>
+        <add name="dsize" type="uint64" ></add>
+    </compound>
+
+    <compound name="Size">
+        <add name="id" type="uint64" />
+        <add name="width 1" type="uint64" ></add>
+        <add name="height 1" type="uint64" ></add>
+        <add name="width 2" type="uint64" ></add>
+        <add name="height 2" type="uint64" ></add>
     </compound>
 
     <compound name="BufferEndData">

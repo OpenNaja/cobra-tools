@@ -29,7 +29,7 @@ class AttribWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'AttribWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'AttribWrapper [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* attrib = ' + self.attrib.__repr__()
 		s += '\n	* name = ' + self.name.__repr__()
 		s += '\n'

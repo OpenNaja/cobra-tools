@@ -32,7 +32,7 @@ class Capsule:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Capsule [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Capsule [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* a = ' + self.a.__repr__()
 		s += '\n	* b = ' + self.b.__repr__()
 		s += '\n	* c = ' + self.c.__repr__()

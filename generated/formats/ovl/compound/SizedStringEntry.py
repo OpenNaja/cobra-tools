@@ -46,7 +46,7 @@ class SizedStringEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'SizedStringEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'SizedStringEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
 		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
 		s += '\n	* pointers = ' + self.pointers.__repr__()

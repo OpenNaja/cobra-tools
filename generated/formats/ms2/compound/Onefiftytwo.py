@@ -35,7 +35,7 @@ class Onefiftytwo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Onefiftytwo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Onefiftytwo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* model_info = ' + self.model_info.__repr__()
 		s += '\n	* some = ' + self.some.__repr__()
 		s += '\n'

@@ -36,7 +36,7 @@ class PcModel:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PcModel [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'PcModel [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* lod_infos = ' + self.lod_infos.__repr__()
 		s += '\n	* materials_1 = ' + self.materials_1.__repr__()
 		s += '\n	* model_data = ' + self.model_data.__repr__()

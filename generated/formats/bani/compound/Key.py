@@ -30,7 +30,7 @@ class Key:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Key [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Key [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* euler = ' + self.euler.__repr__()
 		s += '\n	* translation = ' + self.translation.__repr__()
 		s += '\n'

@@ -38,7 +38,7 @@ class SizedString:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'SizedString [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'SizedString [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* value = ' + self.value.__repr__()
 		s += '\n'

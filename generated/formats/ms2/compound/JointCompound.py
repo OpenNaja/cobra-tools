@@ -80,7 +80,7 @@ class JointCompound:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JointCompound [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'JointCompound [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* namespace_length = ' + self.namespace_length.__repr__()
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* unknown_4 = ' + self.unknown_4.__repr__()

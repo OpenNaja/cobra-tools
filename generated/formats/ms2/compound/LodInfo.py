@@ -60,7 +60,7 @@ class LodInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'LodInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'LodInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* distance = ' + self.distance.__repr__()
 		s += '\n	* zero = ' + self.zero.__repr__()
 		s += '\n	* bone_index = ' + self.bone_index.__repr__()

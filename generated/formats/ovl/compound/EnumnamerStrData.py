@@ -34,7 +34,7 @@ class EnumnamerStrData:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'EnumnamerStrData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'EnumnamerStrData [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* unknown_0 = ' + self.unknown_0.__repr__()
 		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
 		s += '\n'

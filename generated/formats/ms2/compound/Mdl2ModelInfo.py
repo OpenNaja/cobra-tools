@@ -34,7 +34,7 @@ class Mdl2ModelInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Mdl2ModelInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Mdl2ModelInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* fourty = ' + self.fourty.__repr__()
 		s += '\n	* info = ' + self.info.__repr__()
 		s += '\n'

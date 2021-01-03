@@ -69,7 +69,7 @@ class Header7Data1:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header7Data1 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Header7Data1 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zero_00 = ' + self.zero_00.__repr__()
 		s += '\n	* zero_04 = ' + self.zero_04.__repr__()
 		s += '\n	* data_size = ' + self.data_size.__repr__()

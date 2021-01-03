@@ -69,7 +69,7 @@ class Matrix33:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Matrix33 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Matrix33 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* m_11 = ' + self.m_11.__repr__()
 		s += '\n	* m_21 = ' + self.m_21.__repr__()
 		s += '\n	* m_31 = ' + self.m_31.__repr__()

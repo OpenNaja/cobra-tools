@@ -36,7 +36,7 @@ class DATASection:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'DATASection [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'DATASection [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* wem_files_datas = ' + self.wem_files_datas.__repr__()
 		s += '\n'

@@ -33,7 +33,7 @@ class BoundingBox:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BoundingBox [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'BoundingBox [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* rotation = ' + self.rotation.__repr__()
 		s += '\n	* center = ' + self.center.__repr__()
 		s += '\n	* extent = ' + self.extent.__repr__()

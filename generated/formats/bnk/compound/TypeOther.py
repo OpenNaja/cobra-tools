@@ -38,7 +38,7 @@ class TypeOther:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'TypeOther [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'TypeOther [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* raw = ' + self.raw.__repr__()
 		s += '\n'

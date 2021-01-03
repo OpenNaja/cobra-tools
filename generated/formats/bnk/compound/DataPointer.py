@@ -37,7 +37,7 @@ class DataPointer:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'DataPointer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'DataPointer [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* wem_id = ' + self.wem_id.__repr__()
 		s += '\n	* data_section_offset = ' + self.data_section_offset.__repr__()
 		s += '\n	* wem_filesize = ' + self.wem_filesize.__repr__()

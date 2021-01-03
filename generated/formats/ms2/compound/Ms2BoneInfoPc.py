@@ -236,7 +236,7 @@ class Ms2BoneInfoPc:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Ms2BoneInfoPc [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Ms2BoneInfoPc [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* name_count = ' + self.name_count.__repr__()
 		s += '\n	* float_0_1 = ' + self.float_0_1.__repr__()
 		s += '\n	* knownff = ' + self.knownff.__repr__()

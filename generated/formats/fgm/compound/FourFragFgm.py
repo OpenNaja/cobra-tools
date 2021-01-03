@@ -40,7 +40,7 @@ class FourFragFgm:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'FourFragFgm [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'FourFragFgm [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* texture_count = ' + self.texture_count.__repr__()
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* attribute_count = ' + self.attribute_count.__repr__()

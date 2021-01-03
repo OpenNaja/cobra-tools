@@ -32,7 +32,7 @@ class Root0:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Root0 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Root0 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
 		s += '\n	* collection_count = ' + self.collection_count.__repr__()

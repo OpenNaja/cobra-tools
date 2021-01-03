@@ -30,7 +30,7 @@ class JointEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JointEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'JointEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* matrix = ' + self.matrix.__repr__()
 		s += '\n	* vector = ' + self.vector.__repr__()
 		s += '\n'

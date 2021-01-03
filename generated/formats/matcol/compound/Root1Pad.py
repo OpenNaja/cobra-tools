@@ -32,7 +32,7 @@ class Root1Pad:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Root1Pad [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Root1Pad [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
 		s += '\n	* zero_2 = ' + self.zero_2.__repr__()

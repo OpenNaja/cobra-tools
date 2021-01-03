@@ -45,7 +45,7 @@ class PcJointNext:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PcJointNext [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'PcJointNext [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* eleven_ff_stuff = ' + self.eleven_ff_stuff.__repr__()
 		s += '\n	* undecoded = ' + self.undecoded.__repr__()
 		s += '\n	* name_address = ' + self.name_address.__repr__()

@@ -64,7 +64,7 @@ class Type2:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Type2 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Type2 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* length = ' + self.length.__repr__()
 		s += '\n	* sfx_id = ' + self.sfx_id.__repr__()
 		s += '\n	* const_a = ' + self.const_a.__repr__()

@@ -54,7 +54,7 @@ class JointInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'JointInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'JointInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* eleven = ' + self.eleven.__repr__()
 		s += '\n	* f_fs = ' + self.f_fs.__repr__()
 		s += '\n	* name_offset = ' + self.name_offset.__repr__()

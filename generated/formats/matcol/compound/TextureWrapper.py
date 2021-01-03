@@ -32,7 +32,7 @@ class TextureWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'TextureWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'TextureWrapper [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* info = ' + self.info.__repr__()
 		s += '\n	* textures = ' + self.textures.__repr__()
 		s += '\n'

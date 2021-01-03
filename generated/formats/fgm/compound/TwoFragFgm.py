@@ -44,7 +44,7 @@ class TwoFragFgm:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'TwoFragFgm [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'TwoFragFgm [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
 		s += '\n	* attribute_info_count = ' + self.attribute_info_count.__repr__()

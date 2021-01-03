@@ -39,7 +39,7 @@ class Vector3Short:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Vector3Short [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Vector3Short [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* x = ' + self.x.__repr__()
 		s += '\n	* y = ' + self.y.__repr__()
 		s += '\n	* z = ' + self.z.__repr__()

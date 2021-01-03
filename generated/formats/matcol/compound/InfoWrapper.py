@@ -29,7 +29,7 @@ class InfoWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'InfoWrapper [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'InfoWrapper [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* info = ' + self.info.__repr__()
 		s += '\n	* name = ' + self.name.__repr__()
 		s += '\n'

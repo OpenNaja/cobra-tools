@@ -65,7 +65,7 @@ class DataEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'DataEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'DataEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* file_hash = ' + self.file_hash.__repr__()
 		s += '\n	* ext_hash = ' + self.ext_hash.__repr__()
 		s += '\n	* set_index = ' + self.set_index.__repr__()

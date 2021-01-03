@@ -88,7 +88,7 @@ class Header:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Header [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* header_string = ' + self.header_string.__repr__()
 		s += '\n	* size = ' + self.size.__repr__()
 		s += '\n	* flags = ' + self.flags.__repr__()

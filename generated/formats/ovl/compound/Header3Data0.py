@@ -58,7 +58,7 @@ class Header3Data0:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header3Data0 [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Header3Data0 [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zeros = ' + self.zeros.__repr__()
 		s += '\n	* compression_type = ' + self.compression_type.__repr__()
 		s += '\n	* one_0 = ' + self.one_0.__repr__()

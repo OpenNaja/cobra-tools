@@ -43,7 +43,7 @@ class Layer:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Layer [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Layer [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* name = ' + self.name.__repr__()
 		s += '\n	* info_info = ' + self.info_info.__repr__()
 		s += '\n	* infos = ' + self.infos.__repr__()

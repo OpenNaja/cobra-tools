@@ -32,7 +32,7 @@ class ListDEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ListDEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'ListDEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* ce = ' + self.ce.__repr__()
 		s += '\n	* cb = ' + self.cb.__repr__()
 		s += '\n	* matrix = ' + self.matrix.__repr__()

@@ -67,7 +67,7 @@ class PixelFormat:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PixelFormat [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'PixelFormat [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* size = ' + self.size.__repr__()
 		s += '\n	* flags = ' + self.flags.__repr__()
 		s += '\n	* four_c_c = ' + self.four_c_c.__repr__()

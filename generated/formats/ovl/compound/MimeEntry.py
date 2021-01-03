@@ -58,7 +58,7 @@ class MimeEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'MimeEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'MimeEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n	* unknown = ' + self.unknown.__repr__()
 		s += '\n	* mime_hash = ' + self.mime_hash.__repr__()

@@ -34,7 +34,7 @@ class ZlibInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ZlibInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'ZlibInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zlib_thing_1 = ' + self.zlib_thing_1.__repr__()
 		s += '\n	* zlib_thing_2 = ' + self.zlib_thing_2.__repr__()
 		s += '\n'

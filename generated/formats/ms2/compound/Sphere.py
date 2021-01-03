@@ -32,7 +32,7 @@ class Sphere:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Sphere [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Sphere [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* center = ' + self.center.__repr__()
 		s += '\n	* radius = ' + self.radius.__repr__()
 		s += '\n	* unk = ' + self.unk.__repr__()

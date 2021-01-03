@@ -37,7 +37,7 @@ class PzBone:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'PzBone [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'PzBone [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* rot = ' + self.rot.__repr__()
 		s += '\n	* loc = ' + self.loc.__repr__()
 		s += '\n	* scale = ' + self.scale.__repr__()

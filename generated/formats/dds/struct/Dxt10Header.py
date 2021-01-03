@@ -39,7 +39,7 @@ class Dxt10Header:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Dxt10Header [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Dxt10Header [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* dxgi_format = ' + self.dxgi_format.__repr__()
 		s += '\n	* resource_dimension = ' + self.resource_dimension.__repr__()
 		s += '\n	* misc_flag = ' + self.misc_flag.__repr__()

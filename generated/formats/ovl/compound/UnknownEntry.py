@@ -33,7 +33,7 @@ class UnknownEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'UnknownEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'UnknownEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* unknown_1 = ' + self.unknown_1.__repr__()
 		s += '\n	* unknown_2 = ' + self.unknown_2.__repr__()
 		s += '\n	* unknown_3 = ' + self.unknown_3.__repr__()

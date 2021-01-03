@@ -67,7 +67,7 @@ class Ms2BufferInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Ms2BufferInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Ms2BufferInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* skip_1 = ' + self.skip_1.__repr__()
 		s += '\n	* vertexdatasize = ' + self.vertexdatasize.__repr__()
 		s += '\n	* ptr_1 = ' + self.ptr_1.__repr__()

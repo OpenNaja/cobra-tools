@@ -34,7 +34,7 @@ class BufferEndData:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BufferEndData [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'BufferEndData [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* size_of_height_and_weights = ' + self.size_of_height_and_weights.__repr__()
 		s += '\n	* unk = ' + self.unk.__repr__()
 		s += '\n	* index = ' + self.index.__repr__()

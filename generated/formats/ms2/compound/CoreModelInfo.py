@@ -102,7 +102,7 @@ class CoreModelInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'CoreModelInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'CoreModelInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* unk_vec_a = ' + self.unk_vec_a.__repr__()
 		s += '\n	* unk_float_a = ' + self.unk_float_a.__repr__()
 		s += '\n	* unk_vec_b = ' + self.unk_vec_b.__repr__()

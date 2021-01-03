@@ -92,8 +92,12 @@ def load(operator, context, filepath=""):
 	#
 	#     heightmap = np.fromfile(stream, dtype=np.float32, count=x * y)
 	# print(heightmap)
-	verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.heightmap)
+	verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.heightmap / vox.info.height)
 	map_ob, me = mesh_from_data("map", verts, quads, False)
+	for i, (x, z, y, r) in enumerate(vox.positions):
+		ob = create_ob(f"Position{i}", None)
+		ob.location = (x, y, z)
+		ob.rotation_euler.z = r
 	import_vertex_groups(map_ob, vox.weights)
 	# verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.layer)
 	# map_ob, me = mesh_from_data("map", verts, quads, False)

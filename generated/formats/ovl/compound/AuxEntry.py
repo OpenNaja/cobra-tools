@@ -39,7 +39,7 @@ class AuxEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'AuxEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'AuxEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* file_index = ' + self.file_index.__repr__()
 		s += '\n	* extension_index = ' + self.extension_index.__repr__()
 		s += '\n	* size = ' + self.size.__repr__()

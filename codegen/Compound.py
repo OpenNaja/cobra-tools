@@ -65,7 +65,7 @@ class Compound(BaseClass):
 
 			if "def __repr__(" not in self.src_code:
 				f.write(f"\n\n\tdef __repr__(self):")
-				f.write(f"\n\t\ts = '{self.class_name} [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name")
+				f.write(f"\n\t\ts = '{self.class_name} [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name")
 				for field_name in self.field_unions_dict.keys():
 					f.write(f"\n\t\ts += '\\n\t* {field_name} = ' + self.{field_name}.__repr__()")
 				f.write(f"\n\t\ts += '\\n'")

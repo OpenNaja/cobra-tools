@@ -34,7 +34,7 @@ class BufferEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'BufferEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'BufferEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* index = ' + self.index.__repr__()
 		s += '\n	* size = ' + self.size.__repr__()
 		s += '\n'

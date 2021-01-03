@@ -66,7 +66,7 @@ class HeaderEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'HeaderEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'HeaderEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zeros_1 = ' + self.zeros_1.__repr__()
 		s += '\n	* zeros_2 = ' + self.zeros_2.__repr__()
 		s += '\n	* size = ' + self.size.__repr__()

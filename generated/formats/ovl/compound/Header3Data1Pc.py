@@ -40,7 +40,7 @@ class Header3Data1Pc:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Header3Data1Pc [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Header3Data1Pc [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* width = ' + self.width.__repr__()
 		s += '\n	* height = ' + self.height.__repr__()
 		s += '\n	* array_size = ' + self.array_size.__repr__()

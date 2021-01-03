@@ -42,7 +42,7 @@ class AttributeInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'AttributeInfo [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'AttributeInfo [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n	* dtype = ' + self.dtype.__repr__()
 		s += '\n	* first_value_offset = ' + self.first_value_offset.__repr__()

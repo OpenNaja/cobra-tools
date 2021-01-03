@@ -36,7 +36,7 @@ class Attrib:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Attrib [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Attrib [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* zero_0 = ' + self.zero_0.__repr__()
 		s += '\n	* zero_1 = ' + self.zero_1.__repr__()
 		s += '\n	* attrib = ' + self.attrib.__repr__()

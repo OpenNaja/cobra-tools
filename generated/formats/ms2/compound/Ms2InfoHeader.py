@@ -88,7 +88,7 @@ class Ms2InfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Ms2InfoHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Ms2InfoHeader [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* magic = ' + self.magic.__repr__()
 		s += '\n	* version_flag = ' + self.version_flag.__repr__()
 		s += '\n	* version = ' + self.version.__repr__()

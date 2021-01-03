@@ -27,7 +27,7 @@ class UnknownJointEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'UnknownJointEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'UnknownJointEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* floats = ' + self.floats.__repr__()
 		s += '\n'
 		return s

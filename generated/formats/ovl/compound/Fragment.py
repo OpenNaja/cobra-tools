@@ -34,7 +34,7 @@ class Fragment:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Fragment [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Fragment [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* pointers = ' + self.pointers.__repr__()
 		s += '\n'
 		return s

@@ -114,7 +114,7 @@ class ArchiveEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'ArchiveEntry [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'ArchiveEntry [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* offset = ' + self.offset.__repr__()
 		s += '\n	* ovs_head_offset = ' + self.ovs_head_offset.__repr__()
 		s += '\n	* ovs_file_offset = ' + self.ovs_file_offset.__repr__()

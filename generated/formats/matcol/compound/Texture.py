@@ -33,7 +33,7 @@ class Texture:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Texture [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Texture [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* fgm_name = ' + self.fgm_name.__repr__()
 		s += '\n	* texture_suffix = ' + self.texture_suffix.__repr__()
 		s += '\n	* texture_type = ' + self.texture_type.__repr__()

@@ -36,7 +36,7 @@ class Color:
 		self.io_size = stream.tell() - self.io_start
 
 	def __repr__(self):
-		s = 'Color [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+'] ' + self.name
+		s = 'Color [Size: '+str(self.io_size)+', Address: '+str(self.io_start)+'] ' + self.name
 		s += '\n	* r = ' + self.r.__repr__()
 		s += '\n	* g = ' + self.g.__repr__()
 		s += '\n	* b = ' + self.b.__repr__()
