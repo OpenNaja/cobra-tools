@@ -12,13 +12,13 @@ def djbb(s):
 
 def dat_hasher(ovl, name_tups):
 	lists = [ovl.files, ovl.textures, ]
-	for ovs in ovl.archives:
-		lists.append(ovs.data_entries,
+	for ovs in ovl.ovs_files:
+		lists.extend((ovs.data_entries,
 					 ovs.set_header.sets,
 					 ovs.set_header.assets,
 					 ovs.header_entries,
 					 ovs.sized_str_entries
-					 )
+					 ))
 	# print("\nHashing from archive", archive.archive_index)
 	for entry_list in lists:
 		for entry in entry_list:
