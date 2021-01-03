@@ -1098,10 +1098,6 @@ class OvlFile(Header, IoFile):
 		start_time = time.time()
 		eof = super().load(filepath)
 
-		# print(self)
-		# for temporary pyffi compat
-		self.user_version = self.user_version
-
 		# store commands
 		self.commands = commands
 		self.mute = mute
@@ -1155,6 +1151,7 @@ class OvlFile(Header, IoFile):
 		# os.makedirs(dir, exist_ok=True)
 		# print(dir)
 
+		print(self)
 		# get names of all texture assets
 		ht_max = len(self.textures)
 		for ht_index, texture_entry in enumerate(self.textures):
@@ -1168,10 +1165,13 @@ class OvlFile(Header, IoFile):
 				except:
 					print(f"Could not resolve texture name hash {texture_entry.file_hash} from global hash table of {len(self.hash_table_global)} items")
 					texture_entry.name = "bad hash"
+			try:
+				fgm_file_entry = self.files[texture_entry.fgm_index]
+				fgm_file_entry.textures.append(texture_entry)
+			# funky bug due to some PC ovls using a different TextureEntry struct
+			except IndexError as err:
+				print(err)
 
-			# print(texture_entry.name, texture_entry.zero, texture_entry.fgm_index, texture_entry.unk_0, texture_entry.unk_1)
-			fgm_file_entry = self.files[texture_entry.fgm_index]
-			fgm_file_entry.textures.append(texture_entry)
 			# dilophosaurus ['dilophosaurus.pnormaltexture', 'dilophosaurus.playered_blendweights', 'dilophosaurus.pbasediffusetexture', 'dilophosaurus.pbasepackedtexture']
 			# carcharodontosaurus ['carcharodontosaurus.pbasediffusetexture', 'carcharodontosaurus.playered_warpoffset', 'carcharodontosaurus.pnormaltexture', 'carcharodontosaurus.pbasepackedtexture', 'carcharodontosaurus.playered_blendweights']
 			# gharial_male ['gharial_male.pclut', 'gharial_male.paotexture', 'gharial_male.p3markingscartexture', 'gharial_male.proughnesspackedtexture', 'gharial_male.pmarkingpatchworkmask', 'gharial_male.pscarclut', 'gharial_male.pbasecolourandmasktexture', 'gharial_male.palbinobasecolourandmasktexture', 'gharial_male.pnormaltexture', 'bad hash']
