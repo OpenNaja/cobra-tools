@@ -86,6 +86,8 @@ def inject(ovl_data, file_paths, show_temp_files, is_2K):
 			load_fct(ovl_data, file_path, sized_str_entry, name[-1])
 		elif ext == ".assetpkg":
 			load_assetpkg(ovl_data, file_path, sized_str_entry)
+		elif ext == ".userinterfaceicondata":
+			load_userinterfaceicondata(ovl_data, file_path, sized_str_entry)
 		elif ext == ".voxelskirt":
 			load_voxelskirt(ovl_data, file_path, sized_str_entry)
 
@@ -97,4 +99,13 @@ def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
 	with open(assetpkg_file_path, "rb") as stream:
 		b = stream.read()
 		sized_str_entry.fragments[0].pointers[1].update_data( b + b"\x00", update_copies=True, pad_to=64)
+		
+def load_userinterfaceicondata(ovl_data, userinterfaceicondata_file_path, sized_str_entry):
+	with open(userinterfaceicondata_file_path, "rb") as stream:
+		b = stream.read()
+		sized_str_entry.fragments[0].pointers[1].update_data( b + b"\x00", update_copies=True)
+		len_a = len(b + b"\x00")
+	with open(userinterfaceicondata_file_path+"_b", "rb") as stream2:
+		bb = stream2.read()      
+		sized_str_entry.fragments[1].pointers[1].update_data( bb + b"\x00", update_copies=True, pad_to=64-len_a)
 
