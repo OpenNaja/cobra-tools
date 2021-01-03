@@ -3,6 +3,7 @@ import struct
 from generated.formats.bnk.compound.BKHDSection import BKHDSection
 from generated.formats.bnk.compound.DIDXSection import DIDXSection
 from generated.formats.bnk.compound.HIRCSection import HIRCSection
+from modules.formats.shared import get_padding
 
 
 class AuxFileContainer:
@@ -93,14 +94,6 @@ class AuxFileContainer:
     #   for hirc_pointer in self.hirc.hirc_pointers:
     #      if hirc_pointer.id == 2:
 
-    def pad_to(self, len_d, alignment=16):
-        if alignment:
-            moduloed = len_d % alignment
-            if moduloed:
-                # create the new blank padding
-                return b"\x00" * (alignment - moduloed)
-        return b""
-
     def write(self, stream):
         """Update representation, then write the container from the internal representation"""
         offset = 0
@@ -108,7 +101,7 @@ class AuxFileContainer:
             for pointer in self.didx.data_pointers:
                 pointer.data_section_offset = offset
                 pointer.wem_filesize = len(pointer.data)
-                pointer.pad = self.pad_to(len(pointer.data), alignment=16)
+                pointer.pad = get_padding(len(pointer.data), alignment=16)
                 offset += len(pointer.data + pointer.pad)
         for chunk_id, chunk in self.chunks:
             stream.write(chunk_id)

@@ -10,6 +10,7 @@ from generated.formats.voxelskirt.compound.Material import Material
 from generated.formats.voxelskirt.compound.PosInfo import PosInfo
 from generated.formats.voxelskirt.compound.Size import Size
 from generated.io import IoFile, BinaryStream
+from modules.formats.shared import get_padding_size, get_padding
 
 
 class VoxelskirtFile(Header, IoFile):
@@ -30,7 +31,7 @@ class VoxelskirtFile(Header, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			self.eoh = stream.tell()
-			# print(self)
+			print(self)
 			# print(self.eoh)
 
 			stream.seek(self.eoh + self.info.name_buffer_offset)
@@ -55,6 +56,7 @@ class VoxelskirtFile(Header, IoFile):
 			# assign names...
 			for s in (self.datas, self.sizes, self.positions, self.materials):
 				self.name_items(s)
+			print(self.sizes)
 
 			for data in self.datas:
 				stream.seek(self.eoh + data.offset)
@@ -100,23 +102,21 @@ class VoxelskirtFile(Header, IoFile):
 					imageio.imwrite(f"{bare_name}_{data.name}.tiff", data.im)
 		print(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds!")
 
+	def update_names(self, list_of_arrays):
+		self.names = []
+		for s in list_of_arrays:
+			for item in s:
+				if item.name not in self.names:
+					self.names.append(item.name)
+				item.id = self.names.index(item.name)
+
 	def save(self, filepath):
-		print("Writing verts and tris to temporary buffer")
-		# write each model's vert & tri block to a temporary buffer
-		temp_writer = BinaryStream()
-		# temp_tris_writer = io.BytesIO()
-		# vert_offset = 0
-		# tris_offset = 0
-		#
-		# with BinaryStream() as temp_bone_writer:
-		# 	temp_bone_writer.version = self.version
-		# 	temp_bone_writer.user_version = self.user_version
-		# 	temp_bone_writer.ms_2_version = self.general_info.ms_2_version
-		# 	self.bone_info.write(temp_bone_writer)
-		# 	bone_bytes = temp_bone_writer.getvalue()
-		# 	print("new bone info length: ", len(bone_bytes))
+		start_time = time.time()
+		self.basename = os.path.basename(self.filepath)
+		print(f"Saving {self.basename}...")
 
 		# update data
+		self.update_names((self.datas, self.sizes, self.positions, self.materials))
 		if is_pc(self):
 			self.info.height_array_size_pc = self.info.x * self.info.y * 4
 
@@ -135,13 +135,48 @@ class VoxelskirtFile(Header, IoFile):
 					elif data.type == 2:
 						stream.write_floats(data.im)
 
+			self.info.data_offset = stream.tell()
+			self.info.data_count = len(self.datas)
+			stream.write_types(self.datas)
 
+			self.info.size_offset = stream.tell()
+			self.info.size_count = len(self.sizes)
+			# todo - need to update this??
+			stream.write_types(self.sizes)
+
+			# write object positions
+			for pos in self.positions:
+				pos.offset = stream.tell()
+				stream.write_floats(pos.locs)
+			self.info.position_offset = stream.tell()
+			self.info.position_count = len(self.positions)
+			stream.write_types(self.positions)
+
+			# write 'materials' / bbox / whatever
+			for mat in self.materials:
+				mat.offset = stream.tell()
+				stream.write_floats(mat.locs)
+			self.info.material_offset = stream.tell()
+			self.info.material_count = len(self.materials)
+			stream.write_types(self.materials)
+
+			# write names
+			name_addresses = []
+			name_start = stream.tell()
+			for name in self.names:
+				name_addresses.append(stream.tell())
+				stream.write_zstring(name)
+			# pad name section
+			stream.write(get_padding(stream.tell() - name_start, alignment=8))
+			stream.write_uint64s(name_addresses)
+			# get the actual result buffer
 			buffer_bytes = stream.getvalue()
 
 		# write the actual file
 		with self.writer(filepath) as stream:
 			self.write(stream)
 			stream.write(buffer_bytes)
+		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds!")
 
 
 if __name__ == "__main__":
@@ -159,6 +194,7 @@ if __name__ == "__main__":
 		# print(f)
 		m.load(f)
 		m.extract()
+		m.positions[0].name = "TestObject"
 		m.save(f+"2")
 		#
 		# fig, ax = plt.subplots()

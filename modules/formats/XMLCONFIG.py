@@ -1,6 +1,6 @@
 def write_xmlconfig(archive, sized_str_entry, out_dir):
 	name = sized_str_entry.name
-	print("\nWriting",name)
+	print("\nWriting", name)
 
 	if len(sized_str_entry.fragments) == 1:
 		f_0 = sized_str_entry.fragments[0]

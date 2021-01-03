@@ -14,6 +14,7 @@ from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
+from modules.formats.shared import get_padding_size
 
 
 def findall(p, s):
@@ -57,8 +58,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					break
 				relative_offset = stream.tell() - potential_start
 				# currently no other way to predict the padding, no correlation to joint count
-				pad_to = 16
-				padding_len = (pad_to - (relative_offset % pad_to)) % pad_to
+				padding_len = get_padding_size(relative_offset)
 				# k = None
 				# if bone_info.joint_count:
 				# 	k = bone_info.joint_datas.joint_count

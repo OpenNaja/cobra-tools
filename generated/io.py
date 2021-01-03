@@ -167,7 +167,11 @@ class BinaryStream(BytesIO):
 			return array
 
 		def write_values(array):
-			if array.dtype != dtype:
+			# check that it is a numpy array
+			if not isinstance(array, np.ndarray):
+				array = np.array(array, dtype)
+			# cast if wrong incoming dtype
+			elif array.dtype != dtype:
 				array = array.astype(dtype)
 			write(array.tobytes())
 

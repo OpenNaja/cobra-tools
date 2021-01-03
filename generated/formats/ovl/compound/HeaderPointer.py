@@ -1,7 +1,7 @@
 
 import io
 from generated.io import BinaryStream
-from modules.formats.shared import assign_versions
+from modules.formats.shared import assign_versions, get_padding
 
 MAX_UINT32 = 4294967295
 
@@ -68,7 +68,6 @@ class HeaderPointer:
 			header_reader.seek(self.data_offset)
 			self.data = header_reader.read(self.data_size)
 
-
 	def write_data(self, archive, update_copies=False):
 		"""Write data to header data, update offset, also for copies if told"""
 
@@ -85,7 +84,6 @@ class HeaderPointer:
 			# write data to io, adjusting the cursor for that header
 			writer.write(self.data + self.padding)
 
-
 	def strip_zstring_padding(self):
 		"""Move surplus padding into the padding attribute"""
 		# the actual zstring content + end byte
@@ -93,13 +91,11 @@ class HeaderPointer:
 		# do the split itself
 		self.split_data_padding(len(data))
 
-
 	def split_data_padding(self, cut):
 		"""Move a fixed surplus padding into the padding attribute"""
 		_d = self.data + self.padding
 		self.padding = _d[cut:]
 		self.data = _d[:cut]
-
 
 	def link_to_header(self, archive):
 		"""Store this pointer in suitable header entry"""
@@ -113,7 +109,6 @@ class HeaderPointer:
 				entry.pointer_map[self.data_offset] = []
 			entry.pointer_map[self.data_offset].append(self)
 
-
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""
 		self.data = data
@@ -123,12 +118,7 @@ class HeaderPointer:
 			# consider the old padding for alignment?
 			if include_old_pad:
 				len_d += len(self.padding)
-			moduloed = len_d % pad_to
-			if moduloed:
-				# create the new blank padding
-				new_pad = b"\x00" * (pad_to - moduloed)
-			else:
-				new_pad = b""
+			new_pad = get_padding(len_d, pad_to)
 			# append new to the old padding
 			if include_old_pad:
 				self.padding = self.padding + new_pad

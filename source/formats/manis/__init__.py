@@ -1,22 +1,17 @@
 from generated.formats.manis.compound.ManiBlock import ManiBlock
 from generated.formats.manis.compound.InfoHeader import InfoHeader
-from generated.io import IoFile, BinaryStream
+from generated.io import IoFile
 import os
-import struct
 import binascii
 
-
-def get_padding(size, pad_to=16):
-	mod = size % pad_to
-	if mod:
-		return pad_to - mod
-	return 0
+from modules.formats.shared import get_padding_size
 
 
 def hex_test():
 	for i in range(20):
 		x = 2 ** i
 		print(i, bin(i), x, bin(x))
+
 
 class ManisFile(InfoHeader, IoFile):
 
@@ -44,11 +39,11 @@ class ManisFile(InfoHeader, IoFile):
 			print(zeros, stream.tell())
 			sum_bytes = sum(mb.byte_size for mb in mani_block.repeats)
 			print("sum_bytes", sum_bytes)
-			sum_bytes2 = sum(mb.byte_size + get_padding(mb.byte_size) for mb in mani_block.repeats)
+			sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_block.repeats)
 			print("sum_bytes + padding", sum_bytes2)
 			for mb in mani_block.repeats:
 				data = stream.read(mb.byte_size)
-				pad_size = get_padding(mb.byte_size)
+				pad_size = get_padding_size(mb.byte_size)
 				padding = stream.read(pad_size)
 				print(binascii.hexlify(data[:40]))
 			stream.tell()

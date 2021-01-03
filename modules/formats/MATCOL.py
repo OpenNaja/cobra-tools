@@ -1,5 +1,6 @@
 import struct
 
+from modules.formats.shared import get_padding
 from modules.util import as_bytes
 from generated.formats.matcol import MatcolFile
 
@@ -52,19 +53,15 @@ def update_matcol_pointers(pointers, new_names):
 	sorted_keys = list(sorted(dic))
 	# print(sorted_keys)
 	print("Names in ovl order:", list(dic[k][1] for k in sorted_keys))
-	sum = 0
+	sum_l = 0
 	for k in sorted_keys:
 		p, d = dic[k]
-		sum += len(d)
+		sum_l += len(d)
 		for pc in p.copies:
 			pc.data = d
 			pc.padding = b""
-	pad_to = 64
-	mod = sum % pad_to
-	if mod:
-		padding = b"\x00" * (pad_to-mod)
-	else:
-		padding = b""
+	# apply padding to the last element
+	padding = get_padding(sum_l, alignment=64)
 	for pc in p.copies:
 		pc.padding = padding
 
