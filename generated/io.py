@@ -10,6 +10,7 @@ from typing import *
 import numpy as np
 
 from generated.array import Array
+from modules.formats.shared import assign_versions, get_versions
 from util import texconv
 from util.oodle.oodle import OodleDecompressEnum
 
@@ -262,13 +263,11 @@ class BinaryStream(BytesIO):
 class IoFile:
 
 	def load(self, filepath):
-		print("IoFile load()")
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			return stream.tell()
 
 	def save(self, filepath):
-		print("IoFile save()")
 		with self.writer(filepath) as stream:
 			self.write(stream)
 			return stream.tell()
@@ -325,8 +324,7 @@ class ZipFile(IoFile):
 	# @contextmanager
 	def zipper(self, ):
 		stream = BinaryStream()
-		stream.version = self.ovl.version
-		stream.user_version = self.ovl.user_version
+		assign_versions(stream, get_versions(self.ovl))
 		self.write_archive(stream)
 		uncompressed_bytes = stream.getbuffer()
 		# compress data

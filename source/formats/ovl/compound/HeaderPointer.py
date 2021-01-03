@@ -1,6 +1,7 @@
 # START_GLOBALS
 import io
 from generated.io import BinaryStream
+from modules.formats.shared import assign_versions
 
 MAX_UINT32 = 4294967295
 
@@ -105,8 +106,7 @@ class HeaderPointer:
 		"""Return self.data as codegen cls
 		version_info must be a dict that has version & user_version attributes"""
 		with BinaryStream(self.data) as stream:
-			for k, v in version_info.items():
-				setattr(stream, k, v)
+			assign_versions(stream, version_info)
 			insts = []
 			for i in range(num):
 				inst = cls()

@@ -2,7 +2,7 @@ import time
 import numpy as np
 import os
 from generated.array import Array
-from generated.formats.ovl import is_pc
+from generated.formats.ovl.versions import *
 from generated.formats.voxelskirt.compound.Data import Data
 from generated.formats.voxelskirt.compound.Header import Header
 # from generated.formats.ovl import *

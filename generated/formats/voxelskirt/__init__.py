@@ -2,7 +2,7 @@ import time
 import numpy as np
 import os
 from generated.array import Array
-from generated.formats.ovl import is_pc
+from generated.formats.ovl.versions import *
 from generated.formats.voxelskirt.compound.Data import Data
 from generated.formats.voxelskirt.compound.Header import Header
 # from generated.formats.ovl import *
@@ -59,6 +59,13 @@ class VoxelskirtFile(Header, IoFile):
 			print(self.names)
 			print(self.datas)
 			print(self.sizes)
+			for data in self.datas:
+				stream.seek(self.eoh + data.offset)
+				if data.type == 0:
+					data.im = stream.read_ubytes((self.info.x, self.info.y))
+				elif data.type == 2:
+					data.im = stream.read_floats((self.info.x, self.info.y))
+				print(data.im)
 			# # print(self.weights.shape)
 			# # For non-PC maps, swap the axes so that the data layout is the same
 			# if not is_pc(self):
@@ -75,11 +82,16 @@ class VoxelskirtFile(Header, IoFile):
 		"""Stores the embedded height map and masks as separate images, lossless."""
 		import imageio
 		bare_name = os.path.splitext(self.filepath)[0]
-		num_layers = self.weights.shape[1]
-		layers = self.weights.reshape((self.info.x, self.info.y, num_layers))
-		imageio.imwrite(f"{bare_name}_height.tiff", self.heightmap)
-		for i in range(num_layers):
-			imageio.imwrite(f"{bare_name}_mask{i}.png", layers[:, :, i], compress_level=2)
+		# num_layers = self.weights.shape[1]
+		# layers = self.weights.reshape((self.info.x, self.info.y, num_layers))
+		# imageio.imwrite(f"{bare_name}_height.tiff", self.heightmap)
+		# for i in range(num_layers):
+		# 	imageio.imwrite(f"{bare_name}_mask{i}.png", layers[:, :, i], compress_level=2)
+		for data in self.datas:
+			if data.type == 0:
+				imageio.imwrite(f"{bare_name}_{data.name}.png", data.im, compress_level=2)
+			elif data.type == 2:
+				imageio.imwrite(f"{bare_name}_{data.name}.tiff", data.im)
 
 	def save(self, filepath):
 		print("Writing verts and tris to temporary buffer")
@@ -93,12 +105,12 @@ if __name__ == "__main__":
 	# 		  "C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",
 	# 		  # "C:/Users/arnfi/Desktop/nublar.voxelskirt",
 	# 		   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
-	# files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
-	files = ("C:/Users/arnfi/Desktop/nublar.voxelskirt",)
+	files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
+	# files = ("C:/Users/arnfi/Desktop/nublar.voxelskirt",)
 	for f in files:
 		print(f)
 		m.load(f)
-		# m.extract()
+		m.extract()
 		#
 		# fig, ax = plt.subplots()
 		# # ax.imshow(m.rest)

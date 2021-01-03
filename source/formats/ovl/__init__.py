@@ -11,6 +11,7 @@ from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, ZipFile
+from modules.formats.shared import get_versions
 
 MAX_UINT32 = 4294967295
 
@@ -675,7 +676,8 @@ class OvsFile(OvsHeader, ZipFile):
 			# for f in sized_str_entry.fragments:
 			#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
 			# second pass: collect model fragments
-			versions = {"version": self.ovl.version, "user_version": self.ovl.user_version, "version_flag": self.ovl.version_flag}
+
+			versions = get_versions(self.ovl)
 			if not is_pc(self.ovl):
 				# assign the mdl2 frags to their sized str entry
 				for set_entry in self.set_header.sets:

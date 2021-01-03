@@ -2,7 +2,7 @@ import io
 import os
 import struct
 
-from modules.formats.shared import pack_header
+from modules.formats.shared import pack_header, get_versions
 from modules.util import write_sized_str, as_bytes
 from generated.formats.ms2 import Mdl2File
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.ModelData import ModelData
 from generated.formats.ovl.versions import *
 
 
-def write_ms2(archive, ms2_sized_str_entry, out_dir):
+def write_ms2(ovl, ms2_sized_str_entry, out_dir):
 	name = ms2_sized_str_entry.name
 	if not ms2_sized_str_entry.data_entry:
 		print("No data entry for ", name)
@@ -30,7 +30,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
-	ovl_header = pack_header(archive, b"MS2 ")
+	ovl_header = pack_header(ovl, b"MS2 ")
 	ms2_header = struct.pack("<2I", len(bone_names), len(bone_matrices))
 
 	print("\nWriting", name)
@@ -41,7 +41,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 	# 		outfile.write(buffer)
 
 	# Planet coaster
-	if is_pc(archive.ovl) or is_ed(archive.ovl):
+	if is_pc(ovl.ovl) or is_ed(ovl.ovl):
 		# only ss entry holds any useful stuff
 		ms2_buffer_info_data = b""
 		next_model_info_data = b""
@@ -88,7 +88,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
 
-			if not (is_pc(archive.ovl) or is_ed(archive.ovl)):
+			if not (is_pc(ovl.ovl) or is_ed(ovl.ovl)):
 				# the fixed fragments
 				green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
 				print("model_count", mdl2_entry.model_count)
@@ -98,8 +98,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 				if pink.pointers[0].data_size == 40:
 					# 40 bytes (0,1 or 0,0,0,0)
 					has_bone_info = pink.pointers[0].data
-				elif (is_jwe(archive.ovl) and pink.pointers[0].data_size == 144) \
-				or   (is_pz(archive.ovl) and pink.pointers[0].data_size == 160):
+				elif (is_jwe(ovl.ovl) and pink.pointers[0].data_size == 144) \
+				or   (is_pz(ovl.ovl) and pink.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = pink.pointers[0].data[40:]
 					has_bone_info = pink.pointers[0].data[:40]
@@ -143,12 +143,12 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir):
 
 class Mdl2Holder:
 	"""Used to handle injection of mdl2 files"""
-	def __init__(self, archive):
+	def __init__(self, ovl):
 		self.name = "NONE"
 		self.lodinfo = b""
 		self.model_data_frags = []
-		self.archive = archive
-		self.versions = {"version": self.archive.version, "user_version": self.archive.user_version}
+		self.ovl = ovl
+		self.versions = get_versions(self.ovl)
 		self.source = "NONE"
 		self.mdl2_entry = None
 		self.bone_info_buffer = None
@@ -179,14 +179,14 @@ class Mdl2Holder:
 			model.tris_bytes = ms2_stream.read(2 * model.tri_index_count)
 
 	def from_entry(self, mdl2_entry):
-		"""Reads the required data to represent this model from the archive"""
-		print(f"Reading {mdl2_entry.name} from archive")
+		"""Reads the required data to represent this model from the ovl"""
+		print(f"Reading {mdl2_entry.name} from ovl")
 		self.name = mdl2_entry.name
 		self.source = "OVL"
 		self.mdl2_entry = mdl2_entry
 		ms2_entry = mdl2_entry.parent
 
-		# read the vertex data for this from the archive's ms2
+		# read the vertex data for this from the ovl's ms2
 		buffer_info_frag = ms2_entry.fragments[0]
 		buffer_info = buffer_info_frag.pointers[1].load_as(Ms2BufferInfo, version_info=self.versions)[0]
 		# print(buffer_info)
@@ -224,12 +224,12 @@ class Mdl2Holder:
 
 class Ms2Holder:
 	"""Used to handle injection of ms2 files"""
-	def __init__(self, archive):
+	def __init__(self, ovl):
 		self.name = "NONE"
 		self.buffer_info = None
 		self.mdl2s = []
-		self.archive = archive
-		self.versions = {"version": self.archive.version, "user_version": self.archive.user_version}
+		self.ovl = ovl
+		self.versions = get_versions(self.ovl)
 		self.ms2_entry = None
 		self.bone_info = []
 
@@ -251,8 +251,8 @@ class Ms2Holder:
 		return mdl2
 
 	def from_entry(self, ms2_entry):
-		"""Read from the archive"""
-		print(f"Reading {ms2_entry.name} from archive")
+		"""Read from the ovl"""
+		print(f"Reading {ms2_entry.name} from ovl")
 		self.name = ms2_entry.name
 		self.mdl2s = []
 		self.ms2_entry = ms2_entry
@@ -265,7 +265,7 @@ class Ms2Holder:
 		# print(self.buffer_info)
 
 		for mdl2_entry in self.ms2_entry.children:
-			mdl2 = Mdl2Holder(self.archive)
+			mdl2 = Mdl2Holder(self.ovl)
 			mdl2.from_entry(mdl2_entry)
 			self.mdl2s.append(mdl2)
 		print(self.mdl2s)
@@ -335,7 +335,7 @@ def load_mdl2(ovl_data, mdl2_tups):
 	# then read the ms2 and all associated new mdl2 files for it
 	for ms2_entry, mdl2_file_paths in ms2_mdl2_dic.items():
 
-		# first read the ms2 and all of its mdl2s from the archive
+		# first read the ms2 and all of its mdl2s from the ovl
 		ms2 = Ms2Holder(ovl_data)
 		ms2.from_entry(ms2_entry)
 

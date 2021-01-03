@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
 from generated.formats.ms2.compound.Ms2BoneInfoPc import Ms2BoneInfoPc
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
-from generated.formats.ovl import *
+from generated.formats.ovl.versions import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
 
