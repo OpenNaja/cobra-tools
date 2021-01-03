@@ -1,8 +1,7 @@
-import struct
-import os
 import tempfile
 import shutil
 
+from modules.formats.BNK import load_wem
 from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
 from modules.formats.FDB import load_fdb
@@ -13,7 +12,6 @@ from modules.formats.MS2 import load_mdl2
 from modules.formats.TXT import load_txt
 from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.util import split_path
-from generated.formats.bnk import BnkFile
 
 from util import imarray
 
@@ -90,35 +88,6 @@ def inject(ovl_data, file_paths, show_temp_files, is_2K):
 
 	load_mdl2(ovl_data, mdl2_tups)
 	shutil.rmtree(tmp_dir)
-
-
-def load_wem(ovl_data, wem_file_path, sized_str_entry, bnk_name, wem_id):
-	bnk = os.path.splitext(sized_str_entry.name)[0]
-	archive = ovl_data.ovs_files[0]
-	bnk_path = f"{archive.ovl.file_no_ext}_{bnk}_bnk_b.aux"
-	if os.path.isfile(bnk_path):
-		if "_media_" not in bnk_path:
-			print("skipping events bnk", bnk_path)
-			return
-
-		data = BnkFile()
-		data.load(bnk_path)
-		data.inject_audio(wem_file_path, wem_id)
-		data.save(bnk_path)
-		events = BnkFile()
-		ss = sized_str_entry.name.rsplit("_", 1)[0]
-		eventspath = f"{archive.ovl.file_no_ext}_{ss}_events_bnk_b.aux"
-		events.load(eventspath)
-		print(events)
-		events.inject_hirc(wem_file_path, wem_id)
-		events.save(eventspath)
-
-
-		# first uint of the buffer is the size of the data that should be read from the aux file
-		buffers = sized_str_entry.data_entry.buffer_datas
-		buffers[0] = struct.pack("<I", data.size_for_ovl) + buffers[0][4:]
-		# update the buffer
-		sized_str_entry.data_entry.update_data(buffers)
 
 
 def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):

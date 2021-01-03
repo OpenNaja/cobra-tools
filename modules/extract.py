@@ -13,8 +13,8 @@ from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MS2 import write_ms2
 from modules.formats.TXT import write_txt
+from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
-from modules.formats.shared import pack_header
 from util import widgets
 
 IGNORE_TYPES = ("mani", "mdl2", "texturestream", "datastreams")
@@ -138,24 +138,6 @@ def extract(archive, out_dir, only_types=(), show_temp_files=False, progress_cal
             error_files.append(sized_str_entry.name)
 
     return error_files, skip_files
-
-
-def write_voxelskirt(archive, sized_str_entry, out_dir):
-    name = sized_str_entry.name
-    print(f"\nWriting {name}")
-
-    ovl_header = pack_header(archive, b"VOXE")
-    out_path = out_dir(name)
-    buffers = sized_str_entry.data_entry.buffer_datas
-    # write voxelskirt
-    with open(out_path, 'wb') as outfile:
-        # write the sized str and buffers
-        # print(sized_str_entry.pointers[0].data)
-        outfile.write(ovl_header)
-        outfile.write(sized_str_entry.pointers[0].data)
-        for buff in buffers:
-            outfile.write(buff)
-    return out_path,
 
 
 def write_gfx(archive, sized_str_entry, out_dir):

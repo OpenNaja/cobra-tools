@@ -102,6 +102,34 @@ class VoxelskirtFile(Header, IoFile):
 					imageio.imwrite(f"{bare_name}_{data.name}.tiff", data.im)
 		print(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds!")
 
+	def inject(self, filepaths):
+		"""Replaces images"""
+		start_time = time.time()
+		import imageio
+		for filepath in filepaths:
+			im = imageio.imread(filepath)
+			bare_name = os.path.splitext(filepath)[0]
+			suffix = bare_name.rsplit("_", 1)[1]
+			if is_pc(self):
+				if suffix == "height":
+					self.heightmap = im
+				elif "mask" in suffix:
+					try:
+						i = int(suffix.replace("mask", ""))
+					except:
+						raise AttributeError(f"Broken suffix {suffix} for PC style.")
+					self.weights[:, :, i] = im
+				else:
+					raise AttributeError(f"Unsupported suffix {suffix} for this file.")
+			else:
+				for data in self.datas:
+					if data.name == suffix:
+						break
+				else:
+					raise AttributeError(f"Could not find layer {suffix} in this file.")
+				data.im = im
+		print(f"Injected {len(filepaths)} layers into {self.basename} in {time.time()-start_time:.2f} seconds!")
+
 	def update_names(self, list_of_arrays):
 		self.names = []
 		for s in list_of_arrays:
@@ -178,6 +206,15 @@ class VoxelskirtFile(Header, IoFile):
 			stream.write(buffer_bytes)
 		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds!")
 
+	def get_structs(self, filepath):
+		with self.reader(filepath) as stream:
+			self.read(stream)
+			self.eoh = stream.tell()
+			buffer_bytes = stream.read()
+			stream.seek(self.info.io_start)
+			sized_str_header = stream.read(self.info.io_size)
+			return sized_str_header, buffer_bytes
+
 
 if __name__ == "__main__":
 	import matplotlib
@@ -189,13 +226,15 @@ if __name__ == "__main__":
 	# 		   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
 	# files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
 	# files = ("C:/Users/arnfi/Desktop/nublar.voxelskirt",)
-	files = ("C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",)
+	files = ("C:/Users/arnfi/Desktop/nublar2.voxelskirt",)
+	# files = ("C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",)
 	for f in files:
 		# print(f)
 		m.load(f)
 		m.extract()
-		m.positions[0].name = "TestObject"
-		m.save(f+"2")
+		# m.inject(("C:/Users/arnfi/Desktop/nublar_playArea.png",))
+		# m.positions[0].name = "TestObject"
+		# m.save(f+"2")
 		#
 		# fig, ax = plt.subplots()
 		# # ax.imshow(m.rest)
