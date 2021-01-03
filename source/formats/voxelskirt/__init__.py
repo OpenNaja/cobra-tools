@@ -226,12 +226,14 @@ if __name__ == "__main__":
 	# 		   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
 	# files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
 	# files = ("C:/Users/arnfi/Desktop/nublar.voxelskirt",)
-	files = ("C:/Users/arnfi/Desktop/nublar2.voxelskirt",)
+	# files = ("C:/Users/arnfi/Desktop/nublar2.voxelskirt",)
+	files = ("C:/Users/arnfi/Desktop/nublar.voxelskirt", "C:/Users/arnfi/Desktop/nublar2.voxelskirt",)
 	# files = ("C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",)
 	for f in files:
 		# print(f)
 		m.load(f)
-		m.extract()
+		print(m)
+		# m.extract()
 		# m.inject(("C:/Users/arnfi/Desktop/nublar_playArea.png",))
 		# m.positions[0].name = "TestObject"
 		# m.save(f+"2")

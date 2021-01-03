@@ -1154,7 +1154,7 @@ class OvlFile(Header, IoFile):
 		# os.makedirs(dir, exist_ok=True)
 		# print(dir)
 
-		print(self)
+		# print(self)
 		# get names of all texture assets
 		ht_max = len(self.textures)
 		for ht_index, texture_entry in enumerate(self.textures):

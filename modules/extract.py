@@ -2,6 +2,7 @@ import struct
 import os
 import traceback
 
+import modules.formats.shared
 from modules.formats.BANI import write_banis, write_bani
 from modules.formats.BNK import write_bnk
 from modules.formats.DDS import write_dds
@@ -48,7 +49,7 @@ def extract_names(archive, names, out_dir, show_temp_files=False, progress_callb
             except BaseException as error:
                 print(f"\nAn exception occurred while extracting {entry.name}")
                 traceback.print_exc()
-                widgets.showdialog(str(error))
+                modules.formats.shared.showdialog(str(error))
 
         else:
             print(f"ERROR: file {file} not found in archive")

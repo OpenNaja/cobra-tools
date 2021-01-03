@@ -1,12 +1,11 @@
-import os
 import traceback
 import webbrowser
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QAction, QTableWidget,QTableWidgetItem,QVBoxLayout
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
-import sys
+import tempfile
+import os
 
+
+from modules.formats.shared import showdialog
 from util import config, qt_theme
 from modules import extract, inject
 
@@ -14,18 +13,20 @@ MAX_UINT = 4294967295
 myFont = QtGui.QFont()
 myFont.setBold(True)
 
+
 def startup(cls):
 	appQt = QtWidgets.QApplication([])
-	
-	#style
+
+	# style
 	appQt.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
 	appQt.setPalette(qt_theme.dark_palette)
 	appQt.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
-	
+
 	win = cls()
 	win.show()
 	appQt.exec_()
 	config.write_config("config.ini", win.cfg)
+
 
 def abort_open_new_file(parent, newfile, oldfile):
 	# only return True if we should abort
@@ -33,17 +34,9 @@ def abort_open_new_file(parent, newfile, oldfile):
 		return True
 	if oldfile:
 		qm = QtWidgets.QMessageBox
-		return qm.No == qm.question(parent.parent,'', "Do you really want to load "+os.path.basename(newfile)+"? You will lose unsaved work on "+os.path.basename(oldfile)+"!", qm.Yes | qm.No)
+		return qm.No == qm.question(parent.parent, '', "Do you really want to load " + os.path.basename(
+			newfile) + "? You will lose unsaved work on " + os.path.basename(oldfile) + "!", qm.Yes | qm.No)
 
-def showdialog(str):
-	msg = QtWidgets.QMessageBox()
-	msg.setIcon(QtWidgets.QMessageBox.Information)
-	msg.setText(str)
-	#msg.setInformativeText("This is additional information")
-	msg.setWindowTitle("Error")
-	#msg.setDetailedText("The details are as follows:")
-	msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-	retval = msg.exec_()
 
 def vbox(parent, grid):
 	"""Adds a grid layout"""
@@ -53,10 +46,6 @@ def vbox(parent, grid):
 	# vbox.setSpacing(0)
 	# vbox.setContentsMargins(0,0,0,0)
 	parent.setLayout(grid)
-
-
-import tempfile
-import os
 
 
 class DelayedMimeData(QtCore.QMimeData):
@@ -127,7 +116,7 @@ class TableView(QtWidgets.QTableView):
 		# self.setHorizontalHeaderLabels(header_names)
 		# list of lists
 		# row first
-		self.data = [[],]
+		self.data = [[], ]
 		self.main_window = main_window
 		self.ovl_data = main_window.ovl_data
 
@@ -152,35 +141,38 @@ class TableView(QtWidgets.QTableView):
 
 		archive = self.ovl_data.ovs_files[0]
 		temp_dir = tempfile.gettempdir()
-		path_list = [QtCore.QUrl.fromLocalFile(path) for path in extract.extract_names(archive, names, temp_dir, self.main_window.show_temp_files, self.main_window.update_progress)]
+		path_list = [QtCore.QUrl.fromLocalFile(path) for path in
+					 extract.extract_names(archive, names, temp_dir, self.main_window.show_temp_files,
+										   self.main_window.update_progress)]
 
 		data.setUrls(path_list)
 		drag.setMimeData(data)
 		drag.exec_()
-		# todo - clear temp sub dir
-		# mime = DelayedMimeData()
-		# path_list = []
-		# for name in names:
-		# 	path = os.path.join(tempfile.gettempdir(), 'DragTest', name)
-		# 	os.makedirs(os.path.dirname(path), exist_ok=True)
-		#
-		# 	def write_to_file(path=path, contents=name, widget=self):
-		# 		if widget.underMouse():
-		# 			return False
-		# 		else:
-		# 			with open(path, 'w') as f:
-		# 				import time
-		# 				# time.sleep(1)  # simulate large file
-		# 				f.write(contents)
-		#
-		# 			return True
-		#
-		# 	mime.add_callback(write_to_file)
-		#
-		# 	path_list.append(QtCore.QUrl.fromLocalFile(path))
-		# mime.setUrls(path_list)
-		# drag.setMimeData(mime)
-		# drag.exec_(QtCore.Qt.CopyAction)
+
+	# todo - clear temp sub dir
+	# mime = DelayedMimeData()
+	# path_list = []
+	# for name in names:
+	# 	path = os.path.join(tempfile.gettempdir(), 'DragTest', name)
+	# 	os.makedirs(os.path.dirname(path), exist_ok=True)
+	#
+	# 	def write_to_file(path=path, contents=name, widget=self):
+	# 		if widget.underMouse():
+	# 			return False
+	# 		else:
+	# 			with open(path, 'w') as f:
+	# 				import time
+	# 				# time.sleep(1)  # simulate large file
+	# 				f.write(contents)
+	#
+	# 			return True
+	#
+	# 	mime.add_callback(write_to_file)
+	#
+	# 	path_list.append(QtCore.QUrl.fromLocalFile(path))
+	# mime.setUrls(path_list)
+	# drag.setMimeData(mime)
+	# drag.exec_(QtCore.Qt.CopyAction)
 
 	def set_data(self, data):
 		if not data:
@@ -225,14 +217,14 @@ class TableView(QtWidgets.QTableView):
 				print("Done!")
 			else:
 				showdialog("You must open an OVL file before you can inject files!")
-			# self.accept_file(filepath)
+		# self.accept_file(filepath)
 		# self.resize(720, 400)
 		e.accept()
 
 
 class LabelEdit(QtWidgets.QWidget):
 	def __init__(self, name, ):
-		QtWidgets.QWidget.__init__(self,)
+		QtWidgets.QWidget.__init__(self, )
 		self.shader_container = QtWidgets.QWidget()
 		self.label = QtWidgets.QLabel(name)
 		self.entry = QtWidgets.QLineEdit()
@@ -245,6 +237,7 @@ class LabelEdit(QtWidgets.QWidget):
 
 class CleverCombo(QtWidgets.QComboBox):
 	""""A combo box that supports setting content (existing or new), and a callback"""
+
 	def __init__(self, options=[], link_inst=None, link_attr=None, *args, **kwargs):
 		super(CleverCombo, self).__init__(*args, **kwargs)
 		self.addItems(options)
@@ -271,7 +264,7 @@ class CleverCombo(QtWidgets.QComboBox):
 
 class LabelCombo(QtWidgets.QWidget):
 	def __init__(self, name, options, link_inst=None, link_attr=None):
-		QtWidgets.QWidget.__init__(self,)
+		QtWidgets.QWidget.__init__(self, )
 		sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		sizePolicy.setHorizontalStretch(0)
 		sizePolicy.setVerticalStretch(0)
@@ -289,13 +282,14 @@ class LabelCombo(QtWidgets.QWidget):
 
 
 class MySwitch(QtWidgets.QPushButton):
-	PRIMARY =   QtGui.QColor(53, 53, 53)
+	PRIMARY = QtGui.QColor(53, 53, 53)
 	SECONDARY = QtGui.QColor(35, 35, 35)
 	OUTLINE = QtGui.QColor(122, 122, 122)
-	TERTIARY =  QtGui.QColor(42, 130, 218)
-	BLACK =  QtGui.QColor(0, 0, 0)
-	WHITE =     QtGui.QColor(255, 255, 255)
-	def __init__(self, parent = None):
+	TERTIARY = QtGui.QColor(42, 130, 218)
+	BLACK = QtGui.QColor(0, 0, 0)
+	WHITE = QtGui.QColor(255, 255, 255)
+
+	def __init__(self, parent=None):
 		super().__init__(parent)
 		self.setCheckable(True)
 		self.setMinimumWidth(66)
@@ -321,9 +315,9 @@ class MySwitch(QtWidgets.QPushButton):
 		pen.setWidth(0)
 		painter.setPen(pen)
 
-		painter.drawRoundedRect(QtCore.QRect(-width, -radius, 2*width, 2*radius), radius, radius)
+		painter.drawRoundedRect(QtCore.QRect(-width, -radius, 2 * width, 2 * radius), radius, radius)
 		painter.setBrush(QtGui.QBrush(bg_color))
-		sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2*radius)
+		sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2 * radius)
 		if not self.isChecked():
 			sw_rect.moveLeft(-width)
 		painter.drawRoundedRect(sw_rect, radius, radius)
@@ -388,7 +382,7 @@ class CollapsibleBox(QtWidgets.QWidget):
 		del lay
 		self.content_area.setLayout(layout)
 		collapsed_height = (
-			self.sizeHint().height() - self.content_area.maximumHeight()
+				self.sizeHint().height() - self.content_area.maximumHeight()
 		)
 		content_height = layout.sizeHint().height()
 		for i in range(self.toggle_animation.animationCount()):
@@ -411,11 +405,11 @@ class MatcolInfo():
 		# QtWidgets.QWidget.__init__(self,)
 		self.attrib = attrib
 		self.label = QtWidgets.QLabel(str(attrib.name))
-		
+
 		self.data = QtWidgets.QWidget()
 		layout = QtWidgets.QHBoxLayout()
 		layout.setSpacing(0)
-		layout.setContentsMargins(0,0,0,0)
+		layout.setContentsMargins(0, 0, 0, 0)
 		buttons = [self.create_field(i) for i, v in enumerate(attrib.info.flags) if v]
 		for button in buttons:
 			layout.addWidget(button)
@@ -428,7 +422,7 @@ class MatcolInfo():
 	def create_field(self, ind):
 		default = self.attrib.info.value[ind]
 
-		def update_ind( v):
+		def update_ind(v):
 			# use a closure to remember index
 			# print(self.attrib, ind, v)
 			self.attrib.info.value[ind] = v
@@ -443,7 +437,7 @@ class MatcolInfo():
 		field.setValue(default)
 		field.setMinimumWidth(50)
 		field.setAlignment(QtCore.Qt.AlignCenter)
-		field.setContentsMargins(0,0,0,0)
+		field.setContentsMargins(0, 0, 0, 0)
 		return field
 
 
@@ -528,17 +522,17 @@ class VectorEntry:
 	def create_field(self, ind):
 		default = self.attrib.value[ind]
 
-		def update_ind( v):
+		def update_ind(v):
 			# use a closure to remember index
 			# print(self.attrib, ind, v)
 			self.attrib.value[ind] = v
 
-		def update_ind_int( v):
+		def update_ind_int(v):
 			# use a closure to remember index
 			# print(self.attrib, ind, v)
 			self.attrib.value[ind] = int(v)
 
-		def update_ind_color( c):
+		def update_ind_color(c):
 			# use a closure to remember index
 			# print(self.attrib, ind, v)
 			color = self.attrib.value[ind]
@@ -610,7 +604,7 @@ class FileWidget(QtWidgets.QWidget):
 		self.dirty = False
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.setContentsMargins(0,0,0,0)
+		self.qgrid.setContentsMargins(0, 0, 0, 0)
 		self.qgrid.addWidget(self.icon, 0, 0)
 		self.qgrid.addWidget(self.entry, 0, 1)
 
@@ -624,7 +618,9 @@ class FileWidget(QtWidgets.QWidget):
 			return True
 		if self.filepath and self.dirty:
 			qm = QtWidgets.QMessageBox
-			return qm.No == qm.question(self, '', "Do you really want to load "+os.path.basename(new_filepath)+"? You will lose unsaved work on "+os.path.basename(self.filepath)+"!", qm.Yes | qm.No)
+			return qm.No == qm.question(self, '', "Do you really want to load " + os.path.basename(
+				new_filepath) + "? You will lose unsaved work on " + os.path.basename(self.filepath) + "!",
+										qm.Yes | qm.No)
 
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
@@ -663,7 +659,9 @@ class FileWidget(QtWidgets.QWidget):
 			self.accept_file(filepath)
 
 	def ask_open(self):
-		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}', self.cfg.get(f"dir_{self.dtype_l}s_in", "C://"), f"{self.dtype} files (*.{self.dtype_l})")[0]
+		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}',
+														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://"),
+														 f"{self.dtype} files (*.{self.dtype_l})")[0]
 		self.accept_file(filepath)
 
 	def ignoreEvent(self, event):
@@ -681,16 +679,16 @@ def get_icon(name):
 class MainWindow(QtWidgets.QMainWindow):
 
 	def __init__(self, name, ):
-		QtWidgets.QMainWindow.__init__(self)		
-		
+		QtWidgets.QMainWindow.__init__(self)
+
 		self.central_widget = QtWidgets.QWidget(self)
 		self.setCentralWidget(self.central_widget)
-		
+
 		self.name = name
 		# self.resize(720, 400)
 		self.setWindowTitle(name)
 		self.setWindowIcon(get_icon("frontier"))
-		
+
 		self.cfg = config.read_config("config.ini")
 
 	def poll(self):
@@ -699,14 +697,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	def report_bug(self):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
-		
+
 	def online_support(self):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
 
 	def update_file(self, filepath):
 		self.cfg["dir_in"], file_name = os.path.split(filepath)
 		self.setWindowTitle(f"{self.name} {file_name}")
-		
+
 	def add_to_menu(self, button_data):
 		for submenu, name, func, shortcut, icon_name in button_data:
 			button = QtWidgets.QAction(name, self)

@@ -1,6 +1,7 @@
 import struct
 
 from util import texconv
+from modules.formats.shared import showdialog
 
 
 def write_lua(archive, sized_str_entry, out_dir):
@@ -45,7 +46,10 @@ def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
 		# load the new buffer
 		buffer_bytes = lua_stream.read()
 	if b"DECOMPILER ERROR" in buffer_bytes:
-		raise SyntaxError(f"{lua_file_path} has not been successfully decompiled and can not be injected!")
+		confirmed = showdialog(f"{lua_file_path} has not been successfully decompiled and may crash your game. Inject anyway?", ask=True)
+		if not confirmed:
+			return
+
 	buff_size = len(buffer_bytes)
 	# update the buffer
 	lua_sized_str_entry.data_entry.update_data((buffer_bytes,))
