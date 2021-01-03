@@ -3,6 +3,7 @@ import struct
 
 from generated.io import BinaryStream
 from generated.array import Array
+from modules.formats.shared import assign_versions
 
 
 def write_sized_str(stream, s):
@@ -41,7 +42,6 @@ def as_bytes(inst, version_info={}):
 	if isinstance(inst, str):
 		return inst.encode() + b"\x00"
 	with BinaryStream() as stream:
-		for k, v in version_info.items():
-			setattr(stream, k, v)
+		assign_versions(stream, version_info)
 		inst.write(stream)
 		return stream.getvalue()
