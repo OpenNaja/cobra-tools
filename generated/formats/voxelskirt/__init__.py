@@ -22,13 +22,15 @@ class VoxelskirtFile(Header, IoFile):
 			item.name = self.names[item.id]
 
 	def load(self, filepath):
-		self.filepath = filepath
 		start_time = time.time()
+		self.filepath = filepath
+		self.basename = os.path.basename(self.filepath)
+		print(f"Loading {self.basename}...")
 
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			self.eoh = stream.tell()
-			print(self)
+			# print(self)
 			# print(self.eoh)
 
 			stream.seek(self.eoh + self.info.name_buffer_offset)
@@ -50,30 +52,26 @@ class VoxelskirtFile(Header, IoFile):
 			stream.seek(self.eoh + self.info.mat_offset)
 			self.materials = stream.read_types(Material, (), (self.info.mat_count,))
 
+			# assign names...
 			for s in (self.datas, self.sizes, self.positions, self.materials):
 				self.name_items(s)
-			# print(self.names)
-			# print(self.datas)
-			# print(self.sizes)
-			# print(self.positions)
-			# print(self.materials)
+
 			for data in self.datas:
 				stream.seek(self.eoh + data.offset)
 				if data.type == 0:
 					data.im = stream.read_ubytes((self.info.x, self.info.y))
 				elif data.type == 2:
 					data.im = stream.read_floats((self.info.x, self.info.y))
-				# print(data.im)
+
 			for pos in self.positions:
 				stream.seek(self.eoh + pos.offset)
 				# X, Z, Y, Euler Z rot
 				pos.locs = stream.read_floats((pos.count, 4))
-				# print(pos.locs)
+
 			for mat in self.materials:
 				stream.seek(self.eoh + mat.offset)
 				# 4 floats, could be a bounding sphere
 				mat.locs = stream.read_floats((mat.count, 4))
-				# print(mat.locs)
 
 			# read PC style height map and masks
 			if self.info.height_array_size_pc:
@@ -83,8 +81,11 @@ class VoxelskirtFile(Header, IoFile):
 				# the same pixel of each layer is stored in 4 consecutive bytes
 				self.weights = stream.read_ubytes((self.info.x, self.info.y, 4))
 
+		print(f"Loaded {self.basename} in {time.time()-start_time:.2f} seconds!")
+
 	def extract(self, ):
 		"""Stores the embedded height map and masks as separate images, lossless."""
+		start_time = time.time()
 		import imageio
 		bare_name = os.path.splitext(self.filepath)[0]
 		if is_pc(self):
@@ -97,6 +98,7 @@ class VoxelskirtFile(Header, IoFile):
 					imageio.imwrite(f"{bare_name}_{data.name}.png", data.im, compress_level=2)
 				elif data.type == 2:
 					imageio.imwrite(f"{bare_name}_{data.name}.tiff", data.im)
+		print(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds!")
 
 	def save(self, filepath):
 		print("Writing verts and tris to temporary buffer")
@@ -106,15 +108,15 @@ if __name__ == "__main__":
 	import matplotlib
 	import matplotlib.pyplot as plt
 	m = VoxelskirtFile()
-	# files = ("C:/Users/arnfi/Desktop/deciduousskirt.voxelskirt",
-	# 		  "C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",
-	# 		  # "C:/Users/arnfi/Desktop/nublar.voxelskirt",
-	# 		   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
-	files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
+	files = ("C:/Users/arnfi/Desktop/deciduousskirt.voxelskirt",
+			  "C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",
+			  "C:/Users/arnfi/Desktop/nublar.voxelskirt",
+			   "C:/Users/arnfi/Desktop/savannahskirt.voxelskirt")
+	# files = ("C:/Users/arnfi/Desktop/savannahskirt.voxelskirt",)
 	# files = ("C:/Users/arnfi/Desktop/nublar.voxelskirt",)
 	# files = ("C:/Users/arnfi/Desktop/alpineskirt.voxelskirt",)
 	for f in files:
-		print(f)
+		# print(f)
 		m.load(f)
 		m.extract()
 		#
