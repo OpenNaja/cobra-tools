@@ -10,7 +10,7 @@ def djbb(s):
 	return hash & 0xFFFFFFFF
 
 
-def dat_hasher(ovl, name_tups, header_files, header_textures):
+def dat_hasher(ovl, name_tups):
 	lists = [ovl.files, ovl.textures, ]
 	for ovs in ovl.archives:
 		lists.append(ovs.data_entries,
