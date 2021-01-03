@@ -286,6 +286,7 @@ class MainWindow(widgets.MainWindow):
 			with open(out_path, "w") as f:
 				for k, v in hash_dict.items():
 					f.write(f"{k} = {v}\n")
+			print(f"Wrote {len(hash_dict)} items to {out_path}")
 
 	def walker(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
