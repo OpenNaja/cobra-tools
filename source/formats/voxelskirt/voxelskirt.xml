@@ -119,70 +119,36 @@
         <add name="user version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
 
         <add name="info" type="SizedStrData" >always = 0</add>
-<!--        <add name="heightmap" type="float" arr1="info \ x" arr2="info \ y">heightmap</add>-->
-<!--        <add name="weights" type="ubyte" arr1="info \ x * info \ y" arr2="4" vercond="#PC#">weight indices</add>-->
-<!--        <add name="weights" type="ubyte" arr1="4" arr2="info \ x * info \ y"  vercond="!#PC#">weight indices</add>-->
-<!--        <add name="weights" type="ubyte" arr1="info \ x * info \ y / 16" arr2="4" vercond="!#PC#">weight indices</add>-->
-<!--        157632 unaccounted bytes -->
-<!--        <add name="unk" type="float" arr1="39408">unk</add>-->
-<!--        <add name="stuff" type="BufferEndData" arr1="info \ count"></add>-->
-<!--        if some count-->
-<!--        <add name="names" type="ZString" arr1="info \ name count"></add>-->
-<!--        padding-->
-<!--        <add name="name stuff" type="uint64" arr1="info \ name count"></add>-->
 
     </compound>
 
     <compound name="SizedStrData">
-        # JWE
+        # size varies according to game
         <add name="zero" type="uint64" ></add>
         <add name="data size" type="uint64" >total size of buffer data</add>
         <add name="x" type="uint64" ></add>
         <add name="y" type="uint64" ></add>
         <add name="scale" type="float"></add>
         <add name="padding" type="float" ></add>
+        <add name="zero pc" type="uint64" vercond="#PC#">zero, for PC only</add>
+        <add name="height array size pc" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
         <add name="data offset" type="uint64" vercond="!#PC#"></add>
         <add name="data count" type="uint64" vercond="!#PC#">entries of 32 bytes</add>
         <add name="size offset" type="uint64" vercond="!#PC#"></add>
         <add name="size count" type="uint64" vercond="!#PC#">entries of 40 bytes</add>
 
-        <add name="unk1 offset" type="uint64" >slightly smaller than total size of buffer data</add>
-        <add name="unk1 count" type="uint64" >counts the -1 structs; entries of 32 bytes</add>
-        <add name="unk2 offset" type="uint64" >offset into buffer to start of sth; only given if some count is nonzero</add>
-        <add name="unk2 count" type="uint64" ></add>
+        <add name="position offset" type="uint64" >slightly smaller than total size of buffer data</add>
+        <add name="position count" type="uint64" >counts the -1 structs; entries of 32 bytes</add>
+        <add name="mat offset" type="uint64" >offset into buffer to start of sth; only given if some count is nonzero</add>
+        <add name="mat count" type="uint64" ></add>
         <add name="name buffer offset" type="uint64" >offset into buffer to start of name zstrings</add>
         <add name="name count" type="uint64" >also counts the stuff after names</add>
-
     </compound>
 
-    <compound name="SizedStrDataOld">
-        # 104 bytes
-        <add name="zero" type="uint64" ></add>
-        <add name="data size" type="uint64" >total size of buffer data</add>
-        <add name="x" type="uint64" ></add>
-        <add name="y" type="uint64" ></add>
-        <add name="height" type="float"></add>
-        <add name="zero float" type="float" ></add>
-<!--        above is congruent-->
-
-<!--        PC only-->
-        <add name="zero pc" type="uint64" vercond="#PC#">zero, for PC only</add>
-        <add name="height array size pc" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
-
-<!--        PZ, JWE only-->
-        <add name="extra offset" type="uint64" vercond="!#PC#"></add>
-        <add name="extra count" type="uint64" vercond="!#PC#">entries of 32 bytes</add>
-        <add name="another offset" type="uint64" vercond="!#PC#"></add>
-        <add name="another count" type="uint64" vercond="!#PC#">entries of 40 bytes</add>
-
-<!--        below is congruent-->
-        <add name="data offset" type="uint64" >slightly smaller than total size of buffer data</add>
-        <add name="data count" type="uint64" >counts the -1 structs; entries of 32 bytes</add>
-        <add name="some offset" type="uint64" >offset into buffer to start of sth; only given if some count is nonzero</add>
-        <add name="some count" type="uint64" ></add>
-        <add name="name buffer offset" type="uint64" >offset into buffer to start of name zstrings</add>
-        <add name="name count" type="uint64" >also counts the stuff after names</add>
-
+    <compound name="Material">
+        <add name="offset" type="uint64" >in bytes</add>
+        <add name="count" type="uint64" ></add>
+        <add name="id" type="uint64" ></add>
     </compound>
 
     <compound name="Data">
@@ -192,19 +158,19 @@
         <add name="dsize" type="uint64" ></add>
     </compound>
 
+    <compound name="PosInfo">
+        <add name="offset" type="uint64" ></add>
+        <add name="count" type="uint64" ></add>
+        <add name="id" type="uint64" />
+        <add name="ff" type="uint64" ></add>
+    </compound>
+
     <compound name="Size">
         <add name="id" type="uint64" />
         <add name="width 1" type="uint64" ></add>
         <add name="height 1" type="uint64" ></add>
         <add name="width 2" type="uint64" ></add>
         <add name="height 2" type="uint64" ></add>
-    </compound>
-
-    <compound name="BufferEndData">
-        <add name="size of height and weights" type="uint64" >in bytes</add>
-        <add name="unk" type="uint64" ></add>
-        <add name="index" type="uint64" ></add>
-        <add name="ff" type="uint64" ></add>
     </compound>
 
 </niftoolsxml>
