@@ -10,6 +10,7 @@ from modules.formats.LUA import load_lua
 from modules.formats.MATCOL import load_materialcollection
 from modules.formats.MS2 import load_mdl2
 from modules.formats.TXT import load_txt
+from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.util import split_path
 
@@ -85,6 +86,8 @@ def inject(ovl_data, file_paths, show_temp_files, is_2K):
 			load_fct(ovl_data, file_path, sized_str_entry, name[-1])
 		elif ext == ".assetpkg":
 			load_assetpkg(ovl_data, file_path, sized_str_entry)
+		elif ext == ".voxelskirt":
+			load_voxelskirt(ovl_data, file_path, sized_str_entry)
 
 	load_mdl2(ovl_data, mdl2_tups)
 	shutil.rmtree(tmp_dir)
