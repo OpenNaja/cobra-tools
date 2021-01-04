@@ -1116,8 +1116,6 @@ class OvlFile(Header, IoFile):
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
-			if "generate_hash_table" in self.commands:
-				continue
 			self.hash_table_local[djb(mime_entry.ext)] = mime_entry.ext
 
 		# add file name to hash dict; ignoring the extension pointer
@@ -1129,8 +1127,6 @@ class OvlFile(Header, IoFile):
 			file_entry.ext = self.mimes[file_entry.extension].ext
 			file_entry.name = file_name
 			file_entry.dependencies = []
-			if "generate_hash_table" in self.commands and file_entry.ext != "tex":
-				continue
 			self.hash_table_local[file_entry.file_hash] = file_name
 		# print(file_name+"."+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
 		if "generate_hash_table" in self.commands:
