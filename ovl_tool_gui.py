@@ -93,7 +93,7 @@ class MainWindow(widgets.MainWindow):
 					   (fileMenu, "Exit", self.close, "", "exit"),
 					   (editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 					   (editMenu, "Inject", self.inject, "CTRL+I", "inject"),
-					   # (editMenu, "Hash", self.hasher, "CTRL+H", ""),
+					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
 					   (editMenu, "Walk", self.walker, "", ""),
 					   (editMenu, "Generate Hash Table", self.walker_hash, "", ""),
 					   (helpMenu, "Report Bug", self.report_bug, "", "report"),
@@ -174,7 +174,6 @@ class MainWindow(widgets.MainWindow):
 	def load(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
-			start_time = time.time()
 			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
@@ -182,20 +181,23 @@ class MainWindow(widgets.MainWindow):
 				traceback.print_exc()
 				modules.formats.shared.showdialog(str(ex))
 				print(ex)
-			data = []
-			# dic = {}
-			print(f"Loading {len(self.ovl_data.files)} files into gui...")
-			for file_w in self.ovl_data.files:
-				name = f"{file_w.name}.{file_w.ext}"
-				line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
-				data.append(line)
-				# dic[file_w.file_hash] = name
-			# print(dic)
-			# print(self.ovl_data)
-			print("loading gui")
-			self.table.set_data(data)
-			print(f"Done in {time.time()-start_time:.2f} seconds!")
-			self.update_progress("Operation completed!", value=1, vmax=1)
+			self.update_gui_table()
+
+	def update_gui_table(self,):
+		start_time = time.time()
+		data = []
+		# dic = {}
+		print(f"Loading {len(self.ovl_data.files)} files into gui...")
+		for file_w in self.ovl_data.files:
+			name = f"{file_w.name}.{file_w.ext}"
+			line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
+			data.append(line)
+			# dic[file_w.file_hash] = name
+		# print(dic)
+		# print(self.ovl_data)
+		self.table.set_data(data)
+		print(f"Loaded GUI in {time.time()-start_time:.2f} seconds!")
+		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_ovl(self):
 		if self.file_widget.filename:
@@ -265,6 +267,7 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filename:
 			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
 			hasher.dat_hasher(self.ovl_data, names)
+			self.update_gui_table()
 		else:
 			modules.formats.shared.showdialog("You must open an OVL file before you can extract files!")
 

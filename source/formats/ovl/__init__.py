@@ -11,18 +11,9 @@ from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, ZipFile
-from modules.formats.shared import get_versions
+from modules.formats.shared import get_versions, djb
 
 MAX_UINT32 = 4294967295
-
-
-def djb(s):
-	# calculates DJB hash for string s
-	# from https://gist.github.com/mengzhuo/180cd6be8ba9e2743753#file-hash_djb2-py
-	hash = 5381
-	for x in s:
-		hash = ((hash << 5) + hash) + ord(x)
-	return hash & 0xFFFFFFFF
 
 
 class OvsFile(OvsHeader, ZipFile):
@@ -1115,9 +1106,9 @@ class OvlFile(Header, IoFile):
 		for hm_index, mime_entry in enumerate(self.mimes):
 			self.print_and_callback("Adding extensions to hash dict", value=hm_index, max_value=hm_max)
 			# get the whole mime type string
-			mime_type = self.names.get_str_at(mime_entry.offset)
+			mime_entry.name = self.names.get_str_at(mime_entry.offset)
 			# only get the extension
-			mime_entry.ext = mime_type.split(":")[-1]
+			mime_entry.ext = mime_entry.name.split(":")[-1]
 			# the stored mime hash is not used anywhere
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
@@ -1147,12 +1138,12 @@ class OvlFile(Header, IoFile):
 		for hd_index, dir_entry in enumerate(self.dirs):
 			self.print_and_callback("Creating directories", value=hd_index, max_value=hd_max)
 			# get dir name from name table
-			dir_name = self.names.get_str_at(dir_entry.offset)
-		# fix up the name
-		# dir = os.path.normpath(os.path.join(os.getcwd(), dir_name.lstrip("..\\")))
-		# create dir, do nothing if it already exists
-		# os.makedirs(dir, exist_ok=True)
-		# print(dir)
+			dir_entry.name = self.names.get_str_at(dir_entry.offset)
+			# fix up the name
+			# dir = os.path.normpath(os.path.join(os.getcwd(), dir_name.lstrip("..\\")))
+			# create dir, do nothing if it already exists
+			# os.makedirs(dir, exist_ok=True)
+			# print(dir)
 
 		# print(self)
 		# get names of all texture assets
