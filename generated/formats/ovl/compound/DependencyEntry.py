@@ -20,7 +20,7 @@ class DependencyEntry:
 		# index into file table, points to the file entry where this dependency is used
 		self.file_index = 0
 
-		# usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects)
+		# usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type
 		self.unk_0 = 0
 
 		# probably an address??

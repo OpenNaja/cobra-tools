@@ -287,7 +287,7 @@
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
         <add name="zero" type="uint" >apparently always zero</add>
         <add name="file index" type="uint" >index into file table, points to the file entry where this dependency is used</add>
-        <add name="unk 0" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects)</add>
+        <add name="unk 0" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>
         <add name="unk 1" type="uint" >probably an address??</add>
     </compound>
 	

@@ -11,7 +11,7 @@ from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, ZipFile
-from modules.formats.shared import get_versions, djb
+from modules.formats.shared import get_versions, djb, assign_versions
 
 MAX_UINT32 = 4294967295
 
@@ -29,11 +29,7 @@ class OvsFile(OvsHeader, ZipFile):
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
 		with self.unzipper(filepath, start, archive_entry.compressed_size, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
 			print("reading from unzipped ovs")
-			stream.version_flag = self.ovl.version_flag
-			stream.version = self.ovl.version
-			stream.user_version = self.ovl.user_version
-			# print("stream.version", stream.version)
-			# print("stream.user_version", stream.user_version)
+			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
 			# print(self.ovl)
 			# print(self)
@@ -47,20 +43,16 @@ class OvsFile(OvsHeader, ZipFile):
 					header_entry.header_type = header_type
 					header_entry.type = header_type.type
 					# print(header_entry)
-					header_entry.name = self.get_name(header_entry)
-					header_entry.basename, header_entry.ext = os.path.splitext(header_entry.name)
-					header_entry.ext = header_entry.ext[1:]
+					self.assign_name(header_entry)
 					# store fragments per header for faster lookup
 					header_entry.fragments = []
 					header_entry_index += 1
 
 			for data_entry in self.data_entries:
-				data_entry.name = self.get_name(data_entry)
+				self.assign_name(data_entry)
 			for sized_str_entry in self.sized_str_entries:
-				sized_str_entry.name = self.get_name(sized_str_entry)
+				self.assign_name(sized_str_entry)
 				sized_str_entry.lower_name = sized_str_entry.name.lower()
-				sized_str_entry.basename, ext = os.path.splitext(sized_str_entry.name)
-				sized_str_entry.ext = ext[1:]
 				sized_str_entry.children = []
 				sized_str_entry.parent = None
 				sized_str_entry.fragments = []
@@ -88,11 +80,11 @@ class OvsFile(OvsHeader, ZipFile):
 				raise AttributeError("Set header signature check failed!")
 
 			for set_entry in self.set_header.sets:
-				set_entry.name = self.get_name(set_entry)
+				self.assign_name(set_entry)
 				set_entry.entry = self.find_entry(self.sized_str_entries, set_entry)
 
 			for asset_entry in self.set_header.assets:
-				asset_entry.name = self.get_name(asset_entry)
+				self.assign_name(asset_entry)
 				try:
 					asset_entry.entry = self.sized_str_entries[asset_entry.file_index]
 				except:
@@ -948,7 +940,7 @@ class OvsFile(OvsHeader, ZipFile):
 				if entry.file_hash == src_entry.file_hash and entry.ext_hash == src_entry.ext_hash:
 					return entry
 
-	def get_name(self, entry):
+	def assign_name(self, entry):
 		"""Fetch a filename from hash dict"""
 		n = "NONAME"
 		e = "UNKNOWN"
@@ -974,7 +966,9 @@ class OvsFile(OvsHeader, ZipFile):
 			e = file.ext
 		else:
 			raise ValueError("Unknown version!")
-		return n + "." + e
+		entry.ext = e
+		entry.basename = n
+		entry.name = f"{n}.{e}"
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
@@ -1148,17 +1142,16 @@ class OvlFile(Header, IoFile):
 		# get names of all dependencies
 		ht_max = len(self.dependencies)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
-			self.print_and_callback("Getting texture asset names", value=ht_index, max_value=ht_max)
-			dependency_entry.ext = self.mimes[dependency_entry.unk_0].ext
-			print(dependency_entry.ext)
+			self.print_and_callback("Getting dependency names", value=ht_index, max_value=ht_max)
 			try:
 				dependency_entry.name = self.hash_table_local[dependency_entry.file_hash]
+				print(f"LOCAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.name}")
 			except:
 				try:
 					dependency_entry.name = self.hash_table_global[dependency_entry.file_hash]
-					print(f"Resolved dependency name hash {dependency_entry.file_hash} as {dependency_entry.name} from global hash table!")
+					print(f"GLOBAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.name}")
 				except:
-					print(f"Could not resolve dependency name hash {dependency_entry.file_hash} from global hash table of {len(self.hash_table_global)} items")
+					print(f"UNRESOLVED DEPENDENCY: {dependency_entry.file_hash} -> ?")
 					dependency_entry.name = "bad hash"
 			try:
 				file_entry = self.files[dependency_entry.file_index]
