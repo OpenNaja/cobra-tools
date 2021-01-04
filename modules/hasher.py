@@ -4,7 +4,7 @@ from modules.formats.shared import djb
 
 def dat_hasher(ovl, name_tups):
 	print(f"Hashing for {name_tups}")
-	ovl_lists = [ovl.files, ovl.dependencies, ]
+	ovl_lists = [ovl.files, ovl.dependencies, ovl.dirs]
 	# ovl_lists = [ovl.files, ]
 	ovs_lists = []
 	for ovs in ovl.ovs_files:
@@ -42,7 +42,7 @@ def dat_hasher(ovl, name_tups):
 			entry.name = f"{new_name}.{entry.ext}"
 
 	# update the name buffer and offsets
-	ovl.names.update_with((ovl.mimes, ovl.files, ))
+	ovl.names.update_with((ovl.dirs, ovl.mimes, ovl.files, ))
 	ovl.len_names = len(ovl.names.data)
 
 	print("Done!")
