@@ -4,8 +4,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import tempfile
 import os
 
-
-from modules.formats.shared import showdialog
+from util.interaction import showdialog
 from util import config, qt_theme
 from modules import extract, inject
 

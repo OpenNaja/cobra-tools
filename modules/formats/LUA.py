@@ -1,7 +1,7 @@
 import struct
 
 from util import texconv
-from modules.formats.shared import showdialog
+from util.interaction import showdialog
 
 
 def write_lua(archive, sized_str_entry, out_dir):

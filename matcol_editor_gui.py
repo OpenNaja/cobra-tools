@@ -3,6 +3,7 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 
 import modules.formats.shared
+import util.interaction
 from generated.formats.matcol import MatcolFile
 from util import widgets, config
 
@@ -169,7 +170,7 @@ class MainWindow(widgets.MainWindow):
 					line_i += 1
 				
 			except Exception as ex:
-				modules.formats.shared.showdialog(str(ex))
+				util.interaction.showdialog(str(ex))
 				print(traceback.print_exc())
 			print("Done!")
 		

@@ -111,6 +111,12 @@ class ModelData:
 				("uvs", np.ushort, (2, 2)),
 				("colors", np.ubyte, (6, 4)),
 			])
+		elif self.flag == 545:
+			dt.extend([
+				# cz_glasspanel_4m_02.mdl2
+				("uvs", np.ushort, (1, 2)),
+				("zeros2", np.uint32, (7,)),
+			])
 
 		# bone weights
 		if self.flag in (528, 529, 533, 565, 821, 853, 885, 1013):

@@ -2,6 +2,7 @@ import os
 from PyQt5 import QtWidgets, QtCore
 
 import modules.formats.shared
+import util.interaction
 from generated.formats.fgm import FgmFile
 from generated.formats.ovl.versions import *
 from util import widgets, config
@@ -133,7 +134,7 @@ class MainWindow(widgets.MainWindow):
 					self.attrib_grid.addWidget(w.data, line_i, 2)
 
 			except Exception as ex:
-				modules.formats.shared.showdialog(str(ex))
+				util.interaction.showdialog(str(ex))
 				print(ex)
 			print("Done!")
 		

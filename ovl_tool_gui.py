@@ -5,6 +5,7 @@ import time
 import traceback
 
 import modules.formats.shared
+import util.interaction
 
 try:
 	from PyQt5 import QtWidgets
@@ -179,7 +180,7 @@ class MainWindow(widgets.MainWindow):
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
 			except Exception as ex:
 				traceback.print_exc()
-				modules.formats.shared.showdialog(str(ex))
+				util.interaction.showdialog(str(ex))
 				print(ex)
 			self.update_gui_table()
 
@@ -226,7 +227,7 @@ class MainWindow(widgets.MainWindow):
 
 		if error_count or skip_count:
 			message = f"{error_count + skip_count} files were not extracted from the archive and may be missing from the output folder. {skip_count} were unsupported, while {error_count} produced errors."
-			modules.formats.shared.showdialog(message)
+			util.interaction.showdialog(message)
 
 	def extract_all(self):
 		if self.file_widget.filename:
@@ -243,10 +244,10 @@ class MainWindow(widgets.MainWindow):
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except Exception as ex:
 					traceback.print_exc()
-					modules.formats.shared.showdialog(str(ex))
+					util.interaction.showdialog(str(ex))
 					print(ex)
 		else:
-			modules.formats.shared.showdialog("You must open an OVL file before you can extract files!")
+			util.interaction.showdialog("You must open an OVL file before you can extract files!")
 
 	def inject(self):
 		if self.file_widget.filename:
@@ -258,10 +259,10 @@ class MainWindow(widgets.MainWindow):
 				self.file_widget.dirty = True
 			except Exception as ex:
 				traceback.print_exc()
-				modules.formats.shared.showdialog(str(ex))
+				util.interaction.showdialog(str(ex))
 			print("Done!")
 		else:
-			modules.formats.shared.showdialog("You must open an OVL file before you can inject files!")
+			util.interaction.showdialog("You must open an OVL file before you can inject files!")
 
 	def hasher(self):
 		if self.file_widget.filename:
@@ -269,7 +270,7 @@ class MainWindow(widgets.MainWindow):
 			hasher.dat_hasher(self.ovl_data, names)
 			self.update_gui_table()
 		else:
-			modules.formats.shared.showdialog("You must open an OVL file before you can extract files!")
+			util.interaction.showdialog("You must open an OVL file before you can extract files!")
 
 	def walker_hash(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
@@ -381,10 +382,10 @@ class MainWindow(widgets.MainWindow):
 	def check_version():
 		is_64bits = sys.maxsize > 2 ** 32
 		if not is_64bits:
-			modules.formats.shared.showdialog("Either your operating system or your python installation is not 64 bits.\n"
+			util.interaction.showdialog("Either your operating system or your python installation is not 64 bits.\n"
 							   "Large OVLs will crash unexpectedly!")
 		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 6):
-			modules.formats.shared.showdialog("Python 3.7.6+ x64 bit is expected!")
+			util.interaction.showdialog("Python 3.7.6+ x64 bit is expected!")
 
 
 if __name__ == '__main__':
