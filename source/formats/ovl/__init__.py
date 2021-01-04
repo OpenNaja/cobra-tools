@@ -1085,6 +1085,12 @@ class OvlFile(Header, IoFile):
 		if not self.mute:
 			self.progress_callback(message, value, max_value)
 
+	def store_filepath(self, filepath):
+		# store file name for later
+		self.filepath = filepath
+		self.dir, self.basename = os.path.split(filepath)
+		self.file_no_ext = os.path.splitext(self.filepath)[0]
+
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
 		eof = super().load(filepath)
@@ -1092,10 +1098,7 @@ class OvlFile(Header, IoFile):
 		# store commands
 		self.commands = commands
 		self.mute = mute
-		# store file name for later
-		self.filepath = filepath
-		self.dir, self.basename = os.path.split(filepath)
-		self.file_no_ext = os.path.splitext(self.filepath)[0]
+		self.store_filepath(filepath)
 
 		# maps OVL hash to final filename + extension
 		self.hash_table_local = {}
@@ -1189,14 +1192,7 @@ class OvlFile(Header, IoFile):
 				continue
 			# those point to external ovs archives
 			if archive_index > 0:
-				# JWE style
-				if self.user_version in (24724, 25108):
-					archive_entry.ovs_path = self.file_no_ext + ".ovs." + archive_entry.name.lower()
-				# PZ Style
-				elif self.user_version in (8340, 8724):
-					archive_entry.ovs_path = self.file_no_ext + ".ovs"
-				else:
-					raise AttributeError(f"unsupported user_version {self.user_version}")
+				self.get_external_ovs_path(archive_entry)
 				# make sure that the ovs exists
 				if not os.path.exists(archive_entry.ovs_path):
 					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
@@ -1230,9 +1226,19 @@ class OvlFile(Header, IoFile):
 
 		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
 
+	def get_external_ovs_path(self, archive_entry):
+		# JWE style
+		if self.user_version in (24724, 25108):
+			archive_entry.ovs_path = self.file_no_ext + ".ovs." + archive_entry.name.lower()
+		# PZ Style
+		elif self.user_version in (8340, 8724):
+			archive_entry.ovs_path = self.file_no_ext + ".ovs"
+		else:
+			raise AttributeError(f"unsupported user_version {self.user_version}")
+
 	def save(self, filepath, ):
 		print("Writing OVL")
-
+		self.store_filepath(filepath)
 		exp_dir = os.path.dirname(filepath)
 		ovs_dict = {}
 		# compress data stream
@@ -1243,6 +1249,7 @@ class OvlFile(Header, IoFile):
 				ovl_compressed = compressed
 				archive_entry.read_start = 0
 			else:
+				self.get_external_ovs_path(archive_entry)
 				exp_path = os.path.join(exp_dir, os.path.basename(archive_entry.ovs_path))
 				# gotta keep them open because more than one archive can live in one ovs file eg PZ inspector
 				if exp_path not in ovs_dict:
