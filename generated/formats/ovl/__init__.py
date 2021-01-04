@@ -37,7 +37,6 @@ class OvsFile(OvsHeader, ZipFile):
 			super().read(stream)
 			# print(self.ovl)
 			# print(self)
-			print(f"Version check: PC = {is_pc(self.ovl)}, JWE = {is_jwe(self.ovl)}, PZ = {is_pz(self.ovl)}, ED = {is_ed(self.ovl)}")
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -1094,6 +1093,7 @@ class OvlFile(Header, IoFile):
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
 		eof = super().load(filepath)
+		print(f"Game: {get_game(self)}")
 
 		# store commands
 		self.commands = commands
