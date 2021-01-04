@@ -26,7 +26,7 @@ class Mdl2InfoHeader:
 		# 'MS2 '
 		self.magic = FixedString()
 
-		# if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC
+		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
 
 		# 0x12 = PC, 0x13 = JWE, PZ
@@ -78,7 +78,7 @@ class Mdl2InfoHeader:
 		self.index = stream.read_uint()
 		self.bone_info_index = stream.read_uint()
 		self.name = stream.read_string()
-		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
+		if not (stream.version == 18):
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials_0.read(stream, Material0, self.model_info.mat_count, None)
 			self.lods.read(stream, LodInfo, self.model_info.lod_count, None)
@@ -102,7 +102,7 @@ class Mdl2InfoHeader:
 		stream.write_uint(self.index)
 		stream.write_uint(self.bone_info_index)
 		stream.write_string(self.name)
-		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
+		if not (stream.version == 18):
 			stream.write_type(self.model_info)
 			self.materials_0.write(stream, Material0, self.model_info.mat_count, None)
 			self.lods.write(stream, LodInfo, self.model_info.lod_count, None)

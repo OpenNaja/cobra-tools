@@ -18,11 +18,6 @@ def is_jwe(inst):
 		return True
 
 
-def is_ed(inst):
-	if inst.version_flag == 8 and inst.version == 19 and inst.user_version in (24724, 25108):
-		return True
-
-
 def get_game(inst):
 	if is_ztuac(inst):
 		return 'Zoo Tycoon Ultimate Animal Collection'
@@ -32,11 +27,9 @@ def get_game(inst):
 		return 'Planet Zoo'
 	if is_jwe(inst):
 		return 'Jurassic World Evolution'
-	if is_ed(inst):
-		return 'Elite Dangerous'
 	return 'Unknown Game'
 
 
-games = ['Elite Dangerous', 'Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']
+games = ['Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']
 
 

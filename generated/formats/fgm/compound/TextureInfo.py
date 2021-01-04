@@ -25,13 +25,7 @@ class TextureInfo:
 		# stores index into shader and array index of texture
 		self.indices = Array()
 
-		# stores index into shader
-		self.indices = Array()
-
 		# Stores (usually) 2 rgba colors
-		self.colors = Array()
-
-		# Stores rgba color
 		self.colors = Array()
 
 	def read(self, stream):
@@ -39,14 +33,10 @@ class TextureInfo:
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.is_textured = stream.read_uint()
-		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 8:
+		if self.is_textured == 8:
 			self.indices = stream.read_uints((4))
-		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 8:
-			self.indices = stream.read_uints((1))
-		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 7:
+		if self.is_textured == 7:
 			self.colors.read(stream, Color, 4, None)
-		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 7:
-			self.colors.read(stream, Color, 1, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -55,14 +45,10 @@ class TextureInfo:
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.is_textured)
-		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 8:
+		if self.is_textured == 8:
 			stream.write_uints(self.indices)
-		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 8:
-			stream.write_uints(self.indices)
-		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))) and self.is_textured == 7:
+		if self.is_textured == 7:
 			self.colors.write(stream, Color, 4, None)
-		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)) and self.is_textured == 7:
-			self.colors.write(stream, Color, 1, None)
 
 		self.io_size = stream.tell() - self.io_start
 

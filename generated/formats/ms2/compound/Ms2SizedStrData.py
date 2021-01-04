@@ -27,7 +27,7 @@ class Ms2SizedStrData:
 		# count of names in ms2 buffer0
 		self.name_count = 0
 
-		# usually 0, 1 for ED costume01_male_.ms2
+		# usually 0, rarely 1
 		self.unk_count = 0
 
 		# seems to be zeros

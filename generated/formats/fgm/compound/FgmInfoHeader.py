@@ -24,7 +24,7 @@ class FgmInfoHeader:
 		# 'FGM '
 		self.magic = Array()
 
-		# if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC
+		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
 
 		# 0x12 = PC, 0x13 = JWE, PZ
@@ -59,7 +59,6 @@ class FgmInfoHeader:
 		self.two_frags_pad = Array()
 		self.textures = Array()
 		self.texpad = Array()
-		self.texpad = Array()
 		self.attributes = Array()
 
 	def read(self, stream):
@@ -84,10 +83,7 @@ class FgmInfoHeader:
 		self.fgm_info = stream.read_type(FourFragFgm)
 		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
-		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))):
-			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 24)))
-		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)):
-			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 12)))
+		self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 24)))
 		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -114,10 +110,7 @@ class FgmInfoHeader:
 		stream.write_type(self.fgm_info)
 		self.two_frags_pad.write(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
-		if not (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8))):
-			stream.write_bytes(self.texpad)
-		if ((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)):
-			stream.write_bytes(self.texpad)
+		stream.write_bytes(self.texpad)
 		self.attributes.write(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start

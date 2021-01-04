@@ -6,7 +6,6 @@
     <version id="PC" version="18">Planet Coaster</version>
     <version id="PZ" version="19" user_version="8340 8724">Planet Zoo</version>
     <version id="JWE" version_flag="1" version="19" user_version="24724 25108">Jurassic World Evolution</version>
-    <version id="ED" version_flag="8" version="19" user_version="24724 25108">Elite Dangerous</version>
 
     <token name="verexpr" attrs="vercond cond">
         Commonly used version expressions.
@@ -14,7 +13,6 @@
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
         <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
-        <verexpr token="#ED#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 8))">ED</verexpr>
     </token>
 
     <token name="global" attrs="vercond cond">
@@ -108,8 +106,7 @@
 		<option value="90" name="DXGI_FORMAT_BC7_UNORM"></option>
 		<option value="91" name="DXGI_FORMAT_BC7_UNORM_SRGB">PZ titan beetle</option>
     </enum>
-	
-	
+
     <enum name="DdsType_Coaster" storage="ubyte">
 		maps the OVL's dds type to name of compression format
 		<option value="97" name="DXGI_FORMAT_BC1_UNORM"></option>
@@ -124,30 +121,11 @@
 		<option value="106" name="DXGI_FORMAT_BC5_SNORM"></option>
 
 		<option value="121" name="DXGI_FORMAT_BC4_UNORM_B"></option>
-		<option value="123" name="DXGI_FORMAT_BC5_UNORM_B">ED pilot</option>
 		<option value="126" name="DXGI_FORMAT_BC7_UNORM"></option>
 		<option value="127" name="DXGI_FORMAT_BC7_UNORM_SRGB"></option>
 
 		<option value="250" name="DXGI_FORMAT_ALL"></option>
     </enum>
-
-    <enum name="DdsType_ED" storage="ubyte">
-		maps the OVL's dds type to name of compression format
-		<option value="97" name="DXGI_FORMAT_BC1_UNORM"></option>
-		<option value="98" name="DXGI_FORMAT_BC1_UNORM_SRGB"></option>
-		<option value="99" name="DXGI_FORMAT_BC2_UNORM"></option>
-		<option value="100" name="DXGI_FORMAT_BC2_UNORM_SRGB"></option>
-		<option value="101" name="DXGI_FORMAT_BC3_UNORM"></option>
-		<option value="102" name="DXGI_FORMAT_BC3_UNORM_SRGB"></option>
-		<option value="103" name="DXGI_FORMAT_BC4_UNORMa"></option>
-		<option value="104" name="DXGI_FORMAT_BC4_SNORMa"></option>
-		<option value="105" name="DXGI_FORMAT_BC5_UNORM"></option>
-		<option value="106" name="DXGI_FORMAT_BC5_SNORM"></option>
-
-		<option value="121" name="DXGI_FORMAT_BC4_UNORM"></option>
-		<option value="123" name="DXGI_FORMAT_BC4_SNORM"></option>
-    </enum>
-
 
     <bitfield name="VersionInfo" storage="uint">
         Determines the format of the OVL file held by a mesh.
@@ -173,7 +151,7 @@
     <compound name="Header">
         Found at the beginning of every OVL file
         <add name="FRES" type="FixedString" arg="4">'FRES'</add>
-        <add name="version flag" type="byte" >if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC</add>
+        <add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC</add>
         <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
         <add name="Bitswap" type="byte" >endianness?, usually zero</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
@@ -321,17 +299,17 @@
 		<add name="Offset" type="uint">starting point to read text file data</add>
 		<add name="File Hash" type="uint">DJB hash of the first file in the txt data block</add>
 		<add name="Num Files" type="uint">unknown count (number of .txt files)</add>
-		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ# #OR# #ED#">JWE: DJB hash for extension, 0 for PZ</add>
-		<add name="zeros3" type="uint"  vercond="#JWE# #OR# #PZ# #OR# #ED#">always 0</add>
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">JWE: DJB hash for extension, 0 for PZ</add>
+		<add name="zeros3" type="uint"  vercond="#JWE# #OR# #PZ#">always 0</add>
     </compound>
 	
 	<compound name="DataEntry" >
 		32 bytes
 		<add name="File Hash" type="uint"> DJB hash; sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ# #OR# #ED#">DJB hash for extension; always (?) matches an archive header's hash</add>
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">DJB hash for extension; always (?) matches an archive header's hash</add>
 		<add name="set index" type="ushort" > </add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
-		<add name="zero10" type="uint" vercond="#JWE# #OR# #PZ# #OR# #ED#"> </add>
+		<add name="zero10" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
 		<add name="Size 1" type="uint">size of first buffer, in the case of the ms2 the size 1 is the sizw of the first two buffers together</add>
 		<add name="zero18" type="uint"> </add>	
 		<add name="Size 2" type="uint">size of last buffer</add>
@@ -354,7 +332,7 @@
     <compound name="SizedStringEntry" >
         points to a sized string in a header's data block
         <add name="File Hash" type="uint">hash of the file that should be read</add>
-        <add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ# #OR# #ED#">matches matching HeaderEntry's Ext Hash</add>
+        <add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">matches matching HeaderEntry's Ext Hash</add>
         <add name="pointers" type="HeaderPointer" arr1="1" >points into header datas section</add>
     </compound>
 	
@@ -377,7 +355,7 @@
 	<compound name="SetEntry" >
 		the asset indices of two consecutive SetEntries define a set of AssetEntries
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ# #OR# #ED#">always (?) matches an archive header's hash</add>
+		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
 		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
     </compound>
 	
@@ -386,8 +364,8 @@
 		It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
 		<add name="zero 0" type="uint" > </add>
-		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ# #OR# #ED#">always (?) matches an archive header's hash</add>
-		<add name="zero 1" type="uint"  vercond="#JWE# #OR# #PZ# #OR# #ED#"> </add>
+		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
+		<add name="zero 1" type="uint"  vercond="#JWE# #OR# #PZ#"> </add>
 		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
 		<add name="zero 2" type="uint"></add>
     </compound>

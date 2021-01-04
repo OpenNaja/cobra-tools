@@ -26,7 +26,7 @@ def wrapper(png_file_path, header_7):
 	h = header_7.height
 	w = header_7.width
 	array_size = header_7.array_size
-	# hack since ED has this set to 0 sometimes
+	# hack since some games have this set to 0 sometimes
 	array_size = max(1, array_size)
 	if array_size > 1:
 		must_split = True

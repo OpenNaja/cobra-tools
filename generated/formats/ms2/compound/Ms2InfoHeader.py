@@ -22,7 +22,7 @@ class Ms2InfoHeader:
 		# 'MS2 '
 		self.magic = FixedString()
 
-		# if 0x08 then 64bit, differentiates between ED and JWE, 0x08 for ED and PC
+		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
 
 		# 0x12 = PC, 0x13 = JWE, PZ
@@ -58,7 +58,7 @@ class Ms2InfoHeader:
 		self.bone_names_size = stream.read_uint()
 		self.bone_info_size = stream.read_uint()
 		self.general_info = stream.read_type(Ms2SizedStrData)
-		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
+		if not (stream.version == 18):
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
 		self.name_hashes = stream.read_uints((self.general_info.name_count))
 		self.names = stream.read_zstrings((self.general_info.name_count))
@@ -80,7 +80,7 @@ class Ms2InfoHeader:
 		stream.write_uint(self.bone_names_size)
 		stream.write_uint(self.bone_info_size)
 		stream.write_type(self.general_info)
-		if not ((stream.version == 18) or (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 8)))):
+		if not (stream.version == 18):
 			stream.write_type(self.buffer_info)
 		stream.write_uints(self.name_hashes)
 		stream.write_zstrings(self.names)
