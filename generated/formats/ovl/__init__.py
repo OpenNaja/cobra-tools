@@ -616,14 +616,14 @@ class OvsFile(OvsHeader, ZipFile):
 			   # "world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
 			   }
 		# include formats that are known to have no fragments
-		no_frags = ("txt",)
+		no_frags = ("txt", "mani", "manis", )
 		ss_max = len(sorted_sized_str_entries)
 		try:
 			for ss_index, sized_str_entry in enumerate(sorted_sized_str_entries):
 				self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
-				# get fixed fragments
-				if sized_str_entry.ext not in no_frags:
-					print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
+				if sized_str_entry.ext in no_frags:
+					continue
+				print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
 				hi = sized_str_entry.pointers[0].header_index
 				if hi != MAX_UINT32:
 					frags = self.header_entries[hi].fragments
@@ -633,6 +633,7 @@ class OvsFile(OvsHeader, ZipFile):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
 				elif sized_str_entry.ext == "tex" and (is_pc(self.ovl) or is_ed(self.ovl)):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
+				# get fixed fragments
 				elif sized_str_entry.ext in dic:
 
 					t = dic[sized_str_entry.ext]
