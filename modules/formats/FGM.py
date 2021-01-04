@@ -47,7 +47,7 @@ def write_fgm(archive, sized_str_entry, out_dir):
 	with open(out_path, 'wb') as outfile:
 		# write custom FGM header
 		outfile.write(fgm_header)
-		for tex in fgm_file_entry.textures:
+		for tex in fgm_file_entry.dependencies:
 			outfile.write(tex.name.encode())
 			outfile.write(b"\x00")
 		outfile.write(sized_str_entry.pointers[0].data)

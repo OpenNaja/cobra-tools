@@ -1,4 +1,18 @@
+import functools
 import struct
+
+VERSION_FIELDS = ("version", "user_version", "version_flag", "general_info.ms2_version")
+
+
+def rsetattr(obj, attr, val):
+	pre, _, post = attr.rpartition('.')
+	return setattr(rgetattr(obj, pre) if pre else obj, post, val)
+
+
+def rgetattr(obj, attr, *args):
+	def _getattr(obj, attr):
+		return getattr(obj, attr, *args)
+	return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 
 def pack_header(ovs, fmt_name):
@@ -7,11 +21,14 @@ def pack_header(ovs, fmt_name):
 
 
 def get_versions(ovl):
-	return {"version": ovl.version, "user_version": ovl.user_version,  "version_flag": ovl.version_flag}
+	# dynamically get the versions
+	return {k: v for k, v in ((k, rgetattr(ovl, k, None)) for k in VERSION_FIELDS if rgetattr(ovl, k, None) is not None)}
 
 
 def assign_versions(inst, versions):
 	for k, v in versions.items():
+		# for stuff like x.general_info.ms2_version we want to assign the global to stream.ms2_version
+		k = k.rsplit(".")[-1]
 		setattr(inst, k, v)
 
 

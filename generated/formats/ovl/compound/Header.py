@@ -3,11 +3,11 @@ from generated.array import Array
 from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.AuxEntry import AuxEntry
+from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.FixedString import FixedString
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.TextureEntry import TextureEntry
 from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
 from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
@@ -69,7 +69,7 @@ class Header:
 		self.num_files_2 = 0
 
 		# count of parts
-		self.num_textures = 0
+		self.num_dependencies = 0
 
 		# number of archives
 		self.num_archives = 0
@@ -122,8 +122,8 @@ class Header:
 		# Array of DirEntry objects.
 		self.dirs = Array()
 
-		# Array of TextureEntry objects.
-		self.textures = Array()
+		# Array of DependencyEntry objects.
+		self.dependencies = Array()
 
 		# Array of AuxEntry objects.
 		self.aux_entries = Array()
@@ -154,7 +154,7 @@ class Header:
 		self.num_mimes = stream.read_ushort()
 		self.num_files = stream.read_uint()
 		self.num_files_2 = stream.read_uint()
-		self.num_textures = stream.read_uint()
+		self.num_dependencies = stream.read_uint()
 		self.num_archives = stream.read_uint()
 		self.num_header_types = stream.read_uint()
 		self.num_headers = stream.read_uint()
@@ -172,7 +172,7 @@ class Header:
 		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names,))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.read(stream, DirEntry, self.num_dirs, None)
-		self.textures.read(stream, TextureEntry, self.num_textures, None)
+		self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.read(stream, AuxEntry, self.num_aux_entries, None)
 		self.unknowns.read(stream, UnknownEntry, self.num_files_ovs, None)
 		self.zlibs.read(stream, ZlibInfo, self.num_archives, None)
@@ -199,7 +199,7 @@ class Header:
 		stream.write_ushort(self.num_mimes)
 		stream.write_uint(self.num_files)
 		stream.write_uint(self.num_files_2)
-		stream.write_uint(self.num_textures)
+		stream.write_uint(self.num_dependencies)
 		stream.write_uint(self.num_archives)
 		stream.write_uint(self.num_header_types)
 		stream.write_uint(self.num_headers)
@@ -217,7 +217,7 @@ class Header:
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.write(stream, DirEntry, self.num_dirs, None)
-		self.textures.write(stream, TextureEntry, self.num_textures, None)
+		self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.write(stream, AuxEntry, self.num_aux_entries, None)
 		self.unknowns.write(stream, UnknownEntry, self.num_files_ovs, None)
 		self.zlibs.write(stream, ZlibInfo, self.num_archives, None)
@@ -243,7 +243,7 @@ class Header:
 		s += f'\n	* num_mimes = {self.num_mimes.__repr__()}'
 		s += f'\n	* num_files = {self.num_files.__repr__()}'
 		s += f'\n	* num_files_2 = {self.num_files_2.__repr__()}'
-		s += f'\n	* num_textures = {self.num_textures.__repr__()}'
+		s += f'\n	* num_dependencies = {self.num_dependencies.__repr__()}'
 		s += f'\n	* num_archives = {self.num_archives.__repr__()}'
 		s += f'\n	* num_header_types = {self.num_header_types.__repr__()}'
 		s += f'\n	* num_headers = {self.num_headers.__repr__()}'
@@ -261,7 +261,7 @@ class Header:
 		s += f'\n	* archive_names = {self.archive_names.__repr__()}'
 		s += f'\n	* archives = {self.archives.__repr__()}'
 		s += f'\n	* dirs = {self.dirs.__repr__()}'
-		s += f'\n	* textures = {self.textures.__repr__()}'
+		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
 		s += f'\n	* aux_entries = {self.aux_entries.__repr__()}'
 		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
 		s += f'\n	* zlibs = {self.zlibs.__repr__()}'

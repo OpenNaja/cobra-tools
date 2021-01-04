@@ -188,7 +188,7 @@
         <add name="Num Mimes" type="ushort" >count of file mime types, aka. extensions with metadata</add>
         <add name="Num Files" type="uint" >count of files</add>
         <add name="Num Files 2" type="uint" >repeat count of files ??</add>
-        <add name="Num Textures" type="uint" >count of parts</add>
+        <add name="Num Dependencies" type="uint" >count of parts</add>
         <add name="Num Archives" type="uint" >number of archives</add>
 		
         <add name="Num Header Types" type="uint" >number of header types across all archives</add>
@@ -209,7 +209,7 @@
         <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
         <add name="Dirs" type="DirEntry" arr1="Num Dirs">Array of DirEntry objects.</add>
-        <add name="Textures" type="TextureEntry" arr1="Num Textures">Array of TextureEntry objects.</add>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies">Array of DependencyEntry objects.</add>
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
         <add name="Unknowns" type="UnknownEntry" arr1="Num Files OVS">Array of UnknownEntry objects.</add>
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
@@ -282,11 +282,11 @@
         <add name="Offset" type="uint">offset in the header's Names block</add>
     </compound>
 
-    <compound name="TextureEntry" >
-        Description of one texture usage; links it to an fgm that is (always ?) from this archive
-        <add name="file hash" type="uint">Hash of this texture, for lookup in hash dict.</add>
+    <compound name="DependencyEntry" >
+        Description of dependency; links it to an entry (usually fgm) from this archive
+        <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
         <add name="zero" type="uint" >apparently always zero</add>
-        <add name="fgm index" type="uint" >index into file table, points to fgm where this texture is used</add>
+        <add name="file index" type="uint" >index into file table, points to the file entry where this dependency is used</add>
         <add name="unk 0" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects)</add>
         <add name="unk 1" type="uint" >probably an address??</add>
     </compound>

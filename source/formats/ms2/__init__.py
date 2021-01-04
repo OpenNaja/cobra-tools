@@ -14,7 +14,7 @@ from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
-from modules.formats.shared import get_padding_size
+from modules.formats.shared import get_padding_size, assign_versions, get_versions
 
 
 def findall(p, s):
@@ -255,8 +255,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		tris_offset = 0
 
 		with BinaryStream() as temp_bone_writer:
-			temp_bone_writer.version = self.version
-			temp_bone_writer.user_version = self.user_version
+			assign_versions(temp_bone_writer, get_versions(self))
 			temp_bone_writer.ms_2_version = self.general_info.ms_2_version
 			self.bone_info.write(temp_bone_writer)
 			bone_bytes = temp_bone_writer.getvalue()

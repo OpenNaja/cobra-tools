@@ -1128,7 +1128,7 @@ class OvlFile(Header, IoFile):
 			file_name = self.names.get_str_at(file_entry.offset)
 			file_entry.ext = self.mimes[file_entry.extension].ext
 			file_entry.name = file_name
-			file_entry.textures = []
+			file_entry.dependencies = []
 			if "generate_hash_table" in self.commands and file_entry.ext != "tex":
 				continue
 			self.hash_table_local[file_entry.file_hash] = file_name
@@ -1149,34 +1149,36 @@ class OvlFile(Header, IoFile):
 			# print(dir)
 
 		# print(self)
-		# get names of all texture assets
-		ht_max = len(self.textures)
-		for ht_index, texture_entry in enumerate(self.textures):
+		# get names of all dependencies
+		ht_max = len(self.dependencies)
+		for ht_index, dependency_entry in enumerate(self.dependencies):
 			self.print_and_callback("Getting texture asset names", value=ht_index, max_value=ht_max)
+			dependency_entry.ext = self.mimes[dependency_entry.unk_0].ext
+			print(dependency_entry.ext)
 			try:
-				texture_entry.name = self.hash_table_local[texture_entry.file_hash]
+				dependency_entry.name = self.hash_table_local[dependency_entry.file_hash]
 			except:
 				try:
-					texture_entry.name = self.hash_table_global[texture_entry.file_hash]
-					print(f"Resolved texture name hash {texture_entry.file_hash} as {texture_entry.name} from global hash table!")
+					dependency_entry.name = self.hash_table_global[dependency_entry.file_hash]
+					print(f"Resolved dependency name hash {dependency_entry.file_hash} as {dependency_entry.name} from global hash table!")
 				except:
-					print(f"Could not resolve texture name hash {texture_entry.file_hash} from global hash table of {len(self.hash_table_global)} items")
-					texture_entry.name = "bad hash"
+					print(f"Could not resolve dependency name hash {dependency_entry.file_hash} from global hash table of {len(self.hash_table_global)} items")
+					dependency_entry.name = "bad hash"
 			try:
-				fgm_file_entry = self.files[texture_entry.fgm_index]
-				fgm_file_entry.textures.append(texture_entry)
-			# funky bug due to some PC ovls using a different TextureEntry struct
+				file_entry = self.files[dependency_entry.file_index]
+				file_entry.dependencies.append(dependency_entry)
+			# funky bug due to some PC ovls using a different DependencyEntry struct
 			except IndexError as err:
 				print(err)
 
 			# dilophosaurus ['dilophosaurus.pnormaltexture', 'dilophosaurus.playered_blendweights', 'dilophosaurus.pbasediffusetexture', 'dilophosaurus.pbasepackedtexture']
 			# carcharodontosaurus ['carcharodontosaurus.pbasediffusetexture', 'carcharodontosaurus.playered_warpoffset', 'carcharodontosaurus.pnormaltexture', 'carcharodontosaurus.pbasepackedtexture', 'carcharodontosaurus.playered_blendweights']
 			# gharial_male ['gharial_male.pclut', 'gharial_male.paotexture', 'gharial_male.p3markingscartexture', 'gharial_male.proughnesspackedtexture', 'gharial_male.pmarkingpatchworkmask', 'gharial_male.pscarclut', 'gharial_male.pbasecolourandmasktexture', 'gharial_male.palbinobasecolourandmasktexture', 'gharial_male.pnormaltexture', 'bad hash']
-		# print(sorted(set([t.unk_1 for t in self.textures])))
+		# print(sorted(set([t.unk_1 for t in self.dependencies])))
 		# for file in self.files:
 		# 	if file.ext == "fgm":
-		# 		print(file.name, list(tex.name for tex in file.textures))
-		# print(self.textures)
+		# 		print(file.name, list(tex.name for tex in file.dependencies))
+		# print(self.dependencies)
 		# print(self)
 		self.ovs_files = []
 		ha_max = len(self.archives)
