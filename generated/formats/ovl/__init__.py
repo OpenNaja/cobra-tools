@@ -629,9 +629,9 @@ class OvsFile(OvsHeader, ZipFile):
 					frags = self.header_entries[hi].fragments
 				else:
 					frags = address_0_fragments
-				if sized_str_entry.ext == "ms2" and (is_pc(self.ovl) or is_ed(self.ovl)):
+				if sized_str_entry.ext == "ms2" and is_pc(self.ovl):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
-				elif sized_str_entry.ext == "tex" and (is_pc(self.ovl) or is_ed(self.ovl)):
+				elif sized_str_entry.ext == "tex" and is_pc(self.ovl):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
 				# get fixed fragments
 				elif sized_str_entry.ext in dic:
@@ -946,7 +946,7 @@ class OvsFile(OvsHeader, ZipFile):
 		n = "NONAME"
 		e = "UNKNOWN"
 		# JWE style
-		if is_jwe(self.ovl) or is_ed(self.ovl):
+		if is_jwe(self.ovl):
 			# print("JWE ids",entry.file_hash, entry.ext_hash)
 			try:
 				n = self.ovl.hash_table_local[entry.file_hash]

@@ -25,10 +25,10 @@ class MimeEntry:
 		# usually zero
 		self.unknown_2 = 0
 
-		# offset into FileEntry list in number of files
+		# Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files
 		self.file_index_offset = 0
 
-		# from 'file index offset', this many files belong to this file extension
+		# Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension
 		self.file_count = 0
 
 	def read(self, stream):

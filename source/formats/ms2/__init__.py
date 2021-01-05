@@ -95,7 +95,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# for i, start in enumerate(bone_info_starts):
 		# 	print(i, self.bone_info_bytes[start:start+20])
 
-		if is_pc(self) or is_ed(self):
+		if is_pc(self):
 			if bone_info_starts:
 				if bone_info_starts[0] <= 20:
 					bone_info_starts_0 = bone_info_starts[0]
@@ -103,7 +103,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					bone_info_starts.append(bone_info_starts_0)
 				else:
 					bone_info_starts = []
-					
+
 		print("bone_info_starts", bone_info_starts)
 
 		if bone_info_starts:
@@ -138,7 +138,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.eoh = stream.tell()
 			print(self)
 			print("end of header: ", self.eoh)
-			if is_pc(self) or is_ed(self):
+			if is_pc(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
 
 				start_of_lods = stream.tell()

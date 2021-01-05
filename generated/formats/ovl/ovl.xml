@@ -148,19 +148,25 @@
         Holds a string of a fixed size, given as an argument.
     </compound>
 
-    <compound name="Header">
+
+
+    <compound name="GenericHeader">
         Found at the beginning of every OVL file
         <add name="FRES" type="FixedString" arg="4">'FRES'</add>
         <add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC</add>
         <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
         <add name="Bitswap" type="byte" >endianness?, usually zero</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-		
         <add name="user version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
-        <add name="Zero" type="uint" >always = 0</add>
+
+    </compound>
+
+    <compound name="Header" inherit="GenericHeader">
+        Found at the beginning of every OVL file
+        <add name="Lod Depth" type="uint" >Seems to match the number of LOD models for the file (has more than 1 file)</add>
         <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
         <add name="Zero 2" type="uint" >always = 0</add>
-		
+
         <add name="Num Aux Entries" type="uint" >count of external aux files, ie audio banks</add>
         <add name="Num Dirs" type="ushort" >count of directories</add>
         <add name="Num Mimes" type="ushort" >count of file mime types, aka. extensions with metadata</add>
@@ -168,7 +174,7 @@
         <add name="Num Files 2" type="uint" >repeat count of files ??</add>
         <add name="Num Dependencies" type="uint" >count of parts</add>
         <add name="Num Archives" type="uint" >number of archives</add>
-		
+
         <add name="Num Header Types" type="uint" >number of header types across all archives</add>
         <add name="Num Headers" type="uint" >number of headers of all types across all archives</add>
         <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
@@ -179,7 +185,7 @@
         <add name="Num Files 3" type="uint" >another Num Files</add>
         <add name="Len Type Names" type="uint" >length of the type names portion insideNames block (usually at the start), not counting 00 bytes</add>
         <add name="Zeros 2" type="byte" arr1="52">52 bytes zeros</add>
-		
+
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes">Array of MimeEntry objects that represent a mime type (file extension) each. </add>
@@ -192,26 +198,25 @@
         <add name="Unknowns" type="UnknownEntry" arr1="Num Files OVS">Array of UnknownEntry objects.</add>
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
     </compound>
-	
+
     <compound name="ZlibInfo" >
         Description of one zlib archive
         <add name="Zlib thing1" type="uint">seemingly unused in JWE</add>
         <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed size to get length of the uncompressed ovs header</add>
     </compound>
-	
+
     <compound name="MimeEntry" >
-        Description of one mime type, which is sort of a container for 
+        Description of one mime type, which is sort of a container for
 		Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb(".bani") == 2090104799
         <add name="Offset" type="uint">offset in the header's Names block</add>
         <add name="unknown" type="uint">usually zero</add>
         <add name="Mime Hash" type="uint">hash of this file extension; same across all files, but seemingly not used anywhere else in the archive</add>
         <add name="unknown 1" type="ushort" ></add>
         <add name="unknown 2" type="ushort" >usually zero</add>
-        <!-- <add name="type index" type="uint">type index 0 to (type count-1)</add> -->
-		<add name="file index offset" type="uint">offset into FileEntry list in number of files</add>
-        <add name="file count" type="uint">from 'file index offset', this many files belong to this file extension</add>
+		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
+        <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
     </compound>
-	
+
     <compound name="FileEntry" >
         Description of one file in the archive
         <add name="Offset" type="uint">offset in the header's Names block; start offset of zero terminated string</add>
@@ -220,7 +225,7 @@
         <add name="unkn1" type="byte" ></add>
         <add name="Extension" type="ushort" >index into 'Extensions' array</add>
     </compound>
-	
+
     <compound name="ArchiveEntry" >
         Description of one archive
         <add name="Offset" type="uint">offset in the header's Archive Names block</add>
@@ -268,29 +273,29 @@
         <add name="unk 0" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>
         <add name="unk 1" type="uint" >probably an address??</add>
     </compound>
-	
+
     <compound name="AuxEntry" >
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
         <add name="extension index" type="uint">maybe index into extension list</add>
         <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
-	
+
     <compound name="UnknownEntry" >
         Description of one file type
         <add name="unknown 1" type="uint" ></add>
         <add name="unknown 2" type="uint" ></add>
         <add name="unknown 3" type="uint" ></add>
     </compound>
-	
+
 	<!-- From here, structs are for the deflated stream -->
-	
+
 	<compound name="HeaderType">
 		Located at start of deflated archive stream
 		<add name="Type" type="ushort" >Type of the headers that follow</add>
 		<add name="Num Headers" type="ushort" >Amount of the headers of that type that follow the headers block</add>
 	</compound>
-	
+
     <compound name="HeaderEntry" >
         Description of one archive header entry
 		<add name="zeros1" type="uint">always 0</add>
