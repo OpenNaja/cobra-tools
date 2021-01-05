@@ -26,10 +26,13 @@ def dat_hasher(ovl, name_tups):
 				new_name = entry.name
 				for old, new in name_tups:
 					new_name = new_name.replace(old, new)
-				new_hash = djb(new_name)
-				old_hash_to_new[entry.file_hash] = (new_name, new_hash)
-				print(f"List{i} {entry.name} -> {new_name},  {entry.file_hash} ->  {new_hash}")
-				entry.file_hash = new_hash
+				if hasattr(entry, "file_hash"):
+					new_hash = djb(new_name)
+					old_hash_to_new[entry.file_hash] = (new_name, new_hash)
+					print(f"List{i} {entry.name} -> {new_name},  {entry.file_hash} ->  {new_hash}")
+					entry.file_hash = new_hash
+				else:
+					print(f"List{i} {entry.name} -> {new_name},  [NOT HASHED]")
 				entry.name = new_name
 			except Exception as err:
 				print(err)
