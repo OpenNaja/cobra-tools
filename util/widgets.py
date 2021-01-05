@@ -86,6 +86,11 @@ class TableModel(QtCore.QAbstractTableModel):
 				dtype = self._data[index.row()][1]
 				return get_icon(dtype)
 
+		if role == QtCore.Qt.TextAlignmentRole:
+			# right align hashes
+			if index.column() == 2:
+				return QtCore.Qt.AlignRight
+
 	def rowCount(self, index):
 		# The length of the outer list.
 		return len(self._data)

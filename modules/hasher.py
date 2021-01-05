@@ -49,5 +49,6 @@ def dat_hasher(ovl, name_tups):
 		(ovl.files, "name")
 	))
 	ovl.len_names = len(ovl.names.data)
-
+	# resort the file entries
+	ovl.files.sort(key=lambda x: (x.ext, x.file_hash))
 	print("Done!")
