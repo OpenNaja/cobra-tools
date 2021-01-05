@@ -191,7 +191,8 @@ class MainWindow(widgets.MainWindow):
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
 		for file_w in self.ovl_data.files:
 			name = f"{file_w.name}.{file_w.ext}"
-			line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
+			# line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
+			line = [name, file_w.ext, str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
 			data.append(line)
 			# dic[file_w.file_hash] = name
 		# print(dic)

@@ -57,10 +57,10 @@ class ArchiveEntry:
 		self.zeros_3 = 0
 
 		# cumulative size of all header datas preceding this archive
-		self.ovs_header_offset = 0
+		self.pools_start = 0
 
-		# sum of the archives header entry data blocks + the ovs header offset
-		self.header_size = 0
+		# sum of the archives header entry data blocks + the pools_start
+		self.pools_end = 0
 
 		# Seemingly unused, can be zeroed without effect ingame in JWE
 		self.ovs_offset = 0
@@ -83,8 +83,8 @@ class ArchiveEntry:
 		self.compressed_size = stream.read_uint()
 		self.uncompressed_size = stream.read_uint()
 		self.zeros_3 = stream.read_uint()
-		self.ovs_header_offset = stream.read_uint()
-		self.header_size = stream.read_uint()
+		self.pools_start = stream.read_uint()
+		self.pools_end = stream.read_uint()
 		self.ovs_offset = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -107,8 +107,8 @@ class ArchiveEntry:
 		stream.write_uint(self.compressed_size)
 		stream.write_uint(self.uncompressed_size)
 		stream.write_uint(self.zeros_3)
-		stream.write_uint(self.ovs_header_offset)
-		stream.write_uint(self.header_size)
+		stream.write_uint(self.pools_start)
+		stream.write_uint(self.pools_end)
 		stream.write_uint(self.ovs_offset)
 
 		self.io_size = stream.tell() - self.io_start
@@ -133,8 +133,8 @@ class ArchiveEntry:
 		s += f'\n	* compressed_size = {self.compressed_size.__repr__()}'
 		s += f'\n	* uncompressed_size = {self.uncompressed_size.__repr__()}'
 		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
-		s += f'\n	* ovs_header_offset = {self.ovs_header_offset.__repr__()}'
-		s += f'\n	* header_size = {self.header_size.__repr__()}'
+		s += f'\n	* pools_start = {self.pools_start.__repr__()}'
+		s += f'\n	* pools_end = {self.pools_end.__repr__()}'
 		s += f'\n	* ovs_offset = {self.ovs_offset.__repr__()}'
 		return s
 

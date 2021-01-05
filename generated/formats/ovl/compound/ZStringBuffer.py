@@ -30,25 +30,26 @@ class ZStringBuffer:
 		return self.data[pos:end].decode()
 
 	def update_with(self, list_of_arrays):
-		"""Updates this name buffer with a list of arrays whose elements have
+		"""Updates this name buffer with a list of (array, attrib) whose elements have
 		offset: bytes relative to the start of the name block
-		name: string"""
+		[attrib]: string"""
 		print("Updating name buffer")
 		self.strings = []
 		offset_dic = {}
 		with BinaryStream() as stream:
 			# for name in self.names:
-			for array in list_of_arrays:
+			for array, attrib in list_of_arrays:
 				for item in array:
-					if item.name in offset_dic:
+					name = getattr(item, attrib)
+					if name in offset_dic:
 						# known string, just get offset
-						address = offset_dic[item.name]
+						address = offset_dic[name]
 					else:
 						# new string, store offset and write zstring
 						address = stream.tell()
-						self.strings.append(item.name)
-						offset_dic[item.name] = address
-						stream.write_zstring(item.name)
+						self.strings.append(name)
+						offset_dic[name] = address
+						stream.write_zstring(name)
 					# store offset on item
 					item.offset = address
 			# get the actual result buffer

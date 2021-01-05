@@ -94,8 +94,8 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_assets()
 
 			# size check again
-			self.header_size = stream.tell()
-			set_data_size = self.header_size - set_data_offset
+			self.pools_end = stream.tell()
+			set_data_size = self.pools_end - set_data_offset
 			if set_data_size != self.arg.set_data_size:
 				raise AttributeError(
 					f"Set data size incorrect (got {set_data_size}, expected {self.arg.set_data_size})!")
@@ -106,7 +106,7 @@ class OvsFile(OvsHeader, ZipFile):
 									 f"does not match calculated size ({self.calc_uncompressed_size})")
 
 			# go back to header offset
-			stream.seek(self.header_size)
+			stream.seek(self.pools_end)
 			# add IO object to every header_entry
 			for header_entry in self.header_entries:
 				header_entry.data = io.BytesIO(stream.read(header_entry.size))
@@ -140,7 +140,7 @@ class OvsFile(OvsHeader, ZipFile):
 					pointer.header = self.header_entries[pointer.header_index]
 					# store type number of each header entry
 					pointer.type = pointer.header.type
-					pointer.address = self.header_size + pointer.header.offset + pointer.data_offset
+					pointer.address = self.pools_end + pointer.header.offset + pointer.data_offset
 
 	def calc_pointer_sizes(self):
 		"""Assign an estimated size to every pointer"""
@@ -722,7 +722,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 		# finally, we have the buffers in the correct sorting so we can read their contents
 		print("\nReading from buffers")
-		stream.seek(self.header_size + self.check_header_data_size)
+		stream.seek(self.pools_end + self.check_header_data_size)
 		for buffer in self.buffers_io_order:
 			# read buffer data and store it in buffer object
 			buffer.read_data(stream)
@@ -982,7 +982,7 @@ class OvsFile(OvsHeader, ZipFile):
 			check_data_size_1 += data_entry.size_1
 			if hasattr(data_entry, "size_2"):
 				check_data_size_2 += data_entry.size_2
-		return self.header_size + self.calc_header_data_size() + check_data_size_1 + check_data_size_2
+		return self.pools_end + self.calc_header_data_size() + check_data_size_1 + check_data_size_2
 
 	def calc_header_data_size(self, ):
 		"""Calculate the size of the whole data entry region that sizedstr and fragment entries point into"""
@@ -1023,7 +1023,7 @@ class OvsFile(OvsHeader, ZipFile):
 				header_entry.offset = header_data_writer.tell()
 			# PZ Style
 			elif self.ovl.user_version == 8340:
-				header_entry.offset = self.arg.ovs_header_offset + header_data_writer.tell()
+				header_entry.offset = self.arg.pools_start + header_data_writer.tell()
 			header_entry.size = len(header_data_bytes)
 			header_data_writer.write(header_data_bytes)
 
@@ -1144,6 +1144,8 @@ class OvlFile(Header, IoFile):
 		ht_max = len(self.dependencies)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
 			self.print_and_callback("Getting dependency names", value=ht_index, max_value=ht_max)
+			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
+			print(dependency_entry.ext, dependency_entry.offset)
 			try:
 				dependency_entry.name = self.hash_table_local[dependency_entry.file_hash]
 				print(f"LOCAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.name}")
@@ -1176,6 +1178,7 @@ class OvlFile(Header, IoFile):
 			self.print_and_callback("Extracting archives", value=archive_index, max_value=ha_max)
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
+			print("archive_entry", archive_index, archive_entry)
 			# skip archives that are empty
 			if archive_entry.compressed_size == 0 and self.user_version == 8212:
 				print("archive is not compressed")

@@ -42,7 +42,12 @@ def dat_hasher(ovl, name_tups):
 			entry.name = f"{new_name}.{entry.ext}"
 
 	# update the name buffer and offsets
-	ovl.names.update_with((ovl.dirs, ovl.mimes, ovl.files, ))
+	ovl.names.update_with((
+		(ovl.dependencies, "ext"),
+		(ovl.dirs, "name"),
+		(ovl.mimes, "name"),
+		(ovl.files, "name")
+	))
 	ovl.len_names = len(ovl.names.data)
 
 	print("Done!")

@@ -104,7 +104,7 @@ class Header(GenericHeader):
 		# Array of DirEntry objects.
 		self.dirs = Array()
 
-		# Array of DependencyEntry objects.
+		# aka InstancesArray of DependencyEntry objects.
 		self.dependencies = Array()
 
 		# Array of AuxEntry objects.

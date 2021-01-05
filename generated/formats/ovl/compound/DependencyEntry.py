@@ -14,26 +14,26 @@ class DependencyEntry:
 		# Hash of this dependency, for lookup in hash dict. Can be either external or internal.
 		self.file_hash = 0
 
-		# apparently always zero
-		self.zero = 0
+		# offset for extension into string name table
+		self.offset = 0
 
 		# index into file table, points to the file entry where this dependency is used
 		self.file_index = 0
 
 		# usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type
-		self.unk_0 = 0
+		self.ovsblock_id = 0
 
 		# probably an address??
-		self.unk_1 = 0
+		self.pool_offset = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
-		self.zero = stream.read_uint()
+		self.offset = stream.read_uint()
 		self.file_index = stream.read_uint()
-		self.unk_0 = stream.read_uint()
-		self.unk_1 = stream.read_uint()
+		self.ovsblock_id = stream.read_uint()
+		self.pool_offset = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -41,10 +41,10 @@ class DependencyEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
-		stream.write_uint(self.zero)
+		stream.write_uint(self.offset)
 		stream.write_uint(self.file_index)
-		stream.write_uint(self.unk_0)
-		stream.write_uint(self.unk_1)
+		stream.write_uint(self.ovsblock_id)
+		stream.write_uint(self.pool_offset)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -54,10 +54,10 @@ class DependencyEntry:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* file_index = {self.file_index.__repr__()}'
-		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
-		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
+		s += f'\n	* ovsblock_id = {self.ovsblock_id.__repr__()}'
+		s += f'\n	* pool_offset = {self.pool_offset.__repr__()}'
 		return s
 
 	def __repr__(self):

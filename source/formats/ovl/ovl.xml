@@ -193,7 +193,7 @@
         <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
         <add name="Dirs" type="DirEntry" arr1="Num Dirs">Array of DirEntry objects.</add>
-        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies">Array of DependencyEntry objects.</add>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies">aka InstancesArray of DependencyEntry objects.</add>
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
         <add name="Unknowns" type="UnknownEntry" arr1="Num Files OVS">Array of UnknownEntry objects.</add>
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
@@ -243,8 +243,8 @@
         <add name="compressed size" type="uint">size of the compressed ovl dat</add>
         <add name="uncompressed size" type="uint" >size of the uncompressed ovl dat</add>
         <add name="zeros 3" type="uint">?</add>
-        <add name="ovs header offset" type="uint">cumulative size of all header datas preceding this archive</add>
-        <add name="header size" type="uint" >sum of the archives header entry data blocks + the ovs header offset</add>
+        <add name="pools_start" type="uint">cumulative size of all header datas preceding this archive</add>
+        <add name="pools_end" type="uint" >sum of the archives header entry data blocks + the pools_start</add>
         <add name="ovs offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
@@ -268,10 +268,10 @@
     <compound name="DependencyEntry" >
         Description of dependency; links it to an entry (usually fgm) from this archive
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
-        <add name="zero" type="uint" >apparently always zero</add>
+        <add name="offset" type="uint" >offset for extension into string name table</add>
         <add name="file index" type="uint" >index into file table, points to the file entry where this dependency is used</add>
-        <add name="unk 0" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>
-        <add name="unk 1" type="uint" >probably an address??</add>
+        <add name="Ovsblock Id" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>
+        <add name="pool_offset" type="uint" >probably an address??</add>
     </compound>
 
     <compound name="AuxEntry" >
