@@ -50,5 +50,22 @@ def dat_hasher(ovl, name_tups):
 	))
 	ovl.len_names = len(ovl.names.data)
 	# resort the file entries
+	for i, file in enumerate(ovl.files):
+		file.old_index = i
+
+	# sort the different lists according to the criteria specified
 	ovl.files.sort(key=lambda x: (x.ext, x.file_hash))
+	ovl.dependencies.sort(key=lambda x: x.file_hash)
+
+	# create a lookup table to map the old indices to the new ones
+	lut = {}
+	for i, file in enumerate(ovl.files):
+		lut[file.old_index] = i
+
+	# update the file indices
+	for dependency in ovl.dependencies:
+		dependency.file_index = lut[dependency.file_index]
+	for aux in ovl.aux_entries:
+		aux.file_index = lut[aux.file_index]
+
 	print("Done!")
