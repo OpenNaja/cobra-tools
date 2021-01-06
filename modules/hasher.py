@@ -1,6 +1,6 @@
 import os
 from modules.formats.shared import djb
-
+import io
 
 def dat_hasher(ovl, name_tups):
 	print(f"Hashing for {name_tups}")
@@ -14,7 +14,7 @@ def dat_hasher(ovl, name_tups):
 			ovs.set_header.assets,
 			ovs.header_entries,
 			ovs.sized_str_entries
-		 	))
+			))
 	old_hash_to_new = {}
 	# first go over the ovl lists to generate new hashes
 	for i, entry_list in enumerate(ovl_lists):
@@ -71,4 +71,33 @@ def dat_hasher(ovl, name_tups):
 	for aux in ovl.aux_entries:
 		aux.file_index = lut[aux.file_index]
 
+	print("Hashing dat contents...")
+	try:
+		# hash the internal buffers
+		for ovs in ovl.ovs_files:
+			for header_entry in ovs.header_entries:
+				b = header_entry.data.getvalue()
+				header_entry.data = io.BytesIO(replace_bytes(b, name_tups))
+			ovs.populate_pointers()
+			for buffer_entry in ovs.buffer_entries:
+				b = buffer_entry.data
+				buffer_entry.data = replace_bytes(b, name_tups)
+	except Exception as err:
+		print(err)
 	print("Done!")
+
+
+def replace_bytes(b, name_tups):
+	for old, new in name_tups:
+		if old.startswith("0x"):
+			print(f"HEX MODE for {old} -> {new}")
+			old = bytes.fromhex(old[2:])
+			new = bytes.fromhex(new[2:])
+		else:
+			old = old.encode(encoding="utf-8")
+			new = new.encode(encoding="utf-8")
+		print(old, new)
+		if len(old) != len(new):
+			print(f"WARNING: length of {old} and {new} don't match!")
+		b = b.replace(old, new)
+	return b
