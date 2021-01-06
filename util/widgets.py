@@ -4,6 +4,8 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import tempfile
 import os
 
+from PyQt5.QtCore import QSortFilterProxyModel, Qt
+
 from util.interaction import showdialog
 from util import config, qt_theme
 from modules import extract, inject
@@ -63,6 +65,85 @@ class DelayedMimeData(QtCore.QMimeData):
 		return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
 
 
+class CustomSortFilterProxyModel(QSortFilterProxyModel):
+	"""
+	Implements a QSortFilterProxyModel that allows for custom
+	filtering. Add new filter functions using addFilterFunction().
+	New functions should accept two arguments, the column to be
+	filtered and the currently set filter string, and should
+	return True to accept the row, False otherwise.
+	Filter functions are stored in a dictionary for easy
+	removal by key. Use the addFilterFunction() and
+	removeFilterFunction() methods for access.
+	The filterString is used as the main pattern matching
+	string for filter functions. This could easily be expanded
+	to handle regular expressions if needed.
+	"""
+
+	def __init__(self, parent=None):
+		super(CustomSortFilterProxyModel, self).__init__(parent)
+		self.filterString = ''
+		self.filterFunctions = {}
+
+	def lessThan(self, QModelIndex, QModelIndex_1):
+		# for whatever reason, probably due to data loss in casting, we must override this function
+		# to allow for correct comparison of djb hashes
+		l = QModelIndex.data()
+		r = QModelIndex_1.data()
+		return l < r
+
+	def setFilterFixedString(self, text):
+		"""
+		text : string
+			The string to be used for pattern matching.
+		"""
+		self.filterString = text.lower()
+		self.invalidateFilter()
+
+	def addFilterFunction(self, name, new_func):
+		"""
+		name : hashable object
+			The object to be used as the key for
+			this filter function. Use this object
+			to remove the filter function in the future.
+			Typically this is a self descriptive string.
+		new_func : function
+			A new function which must take two arguments,
+			the row to be tested and the ProxyModel's current
+			filterString. The function should return True if
+			the filter accepts the row, False otherwise.
+			ex:
+			model.addFilterFunction(
+				'test_columns_1_and_2',
+				lambda r,s: (s in r[1] and s in r[2]))
+		"""
+		self.filterFunctions[name] = new_func
+		self.invalidateFilter()
+
+	def removeFilterFunction(self, name):
+		"""
+		name : hashable object
+
+		Removes the filter function associated with name,
+		if it exists.
+		"""
+		if name in self.filterFunctions.keys():
+			del self.filterFunctions[name]
+			self.invalidateFilter()
+
+	def filterAcceptsRow(self, row_num, parent):
+		"""
+		Reimplemented from base class to allow the use
+		of custom filtering.
+		"""
+		model = self.sourceModel()
+		# The source model should have a method called row()
+		# which returns the table row as a python list.
+		tests = [func(model.row(row_num), self.filterString)
+				 for func in self.filterFunctions.values()]
+		return not False in tests
+
+
 class TableModel(QtCore.QAbstractTableModel):
 	def __init__(self, data, header_names):
 		super(TableModel, self).__init__()
@@ -89,7 +170,16 @@ class TableModel(QtCore.QAbstractTableModel):
 		if role == QtCore.Qt.TextAlignmentRole:
 			# right align hashes
 			if index.column() == 2:
-				return QtCore.Qt.AlignRight
+				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight
+
+		if role == QtCore.Qt.UserRole:
+			print("sort", type(self._data[index.row()][index.column()]))
+			return self._data[index.row()][index.column()]
+			# if index.column() == 2:
+			# 	return d
+
+	def row(self, row_index):
+		return self._data[row_index]
 
 	def rowCount(self, index):
 		# The length of the outer list.
@@ -114,10 +204,43 @@ class TableModel(QtCore.QAbstractTableModel):
 			return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDropEnabled
 
 
+class SortableTable(QtWidgets.QWidget):
+	def __init__(self, header_names, main_window):
+		super().__init__()
+		self.table = TableView(header_names, main_window)
+		self.filter_entry = LabelEdit("Filter:")
+		self.filter_entry.entry.textChanged.connect(self.table.set_filter)
+		self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
+		self.hide_unused.stateChanged.connect(self.toggle_hide)
+		self.clear_filters = QtWidgets.QPushButton("Clear")
+		self.clear_filters.pressed.connect(self.clear_filter)
+		qgrid = QtWidgets.QGridLayout()
+		qgrid.addWidget(self.filter_entry, 0, 0, )
+		qgrid.addWidget(self.hide_unused, 0, 1,)
+		qgrid.addWidget(self.clear_filters, 0, 2,)
+		qgrid.addWidget(self.table, 1, 0, 1, 3)
+		self.setLayout(qgrid)
+
+	def set_data(self, data):
+		self.table.set_data(data)
+
+	def clear_filter(self,):
+		self.filter_entry.entry.setText("")
+		self.hide_unused.setChecked(False)
+		self.table.clear_filter()
+
+	def toggle_hide(self, state):
+		print(state)
+		self.table.set_ext_filter(self.hide_unused.isChecked())
+		# if state == Qt.Checked:
+		# 	print("hidden")
+		# elif state == Qt.Unchecked:
+		# 	print("visible")
+
+
 class TableView(QtWidgets.QTableView):
 	def __init__(self, header_names, main_window):
 		super().__init__()
-		# self.setHorizontalHeaderLabels(header_names)
 		# list of lists
 		# row first
 		self.data = [[], ]
@@ -125,7 +248,11 @@ class TableView(QtWidgets.QTableView):
 		self.ovl_data = main_window.ovl_data
 
 		self.model = TableModel(self.data, header_names)
-		self.setModel(self.model)
+		# self.proxyModel = QSortFilterProxyModel()
+		self.proxyModel = CustomSortFilterProxyModel()
+		self.proxyModel.setSourceModel(self.model)
+		self.proxyModel.setSortRole(QtCore.Qt.UserRole)
+		self.setModel(self.proxyModel)
 
 		self.resizeColumnsToContents()
 
@@ -135,10 +262,37 @@ class TableView(QtWidgets.QTableView):
 		self.verticalHeader().hide()
 		self.setSelectionBehavior(self.SelectRows)
 
+		self.setSortingEnabled(True)
+		# sort by index; -1 means don't sort
+		self.sortByColumn(-1, Qt.AscendingOrder)
+		# self.proxyModel.setFilterFixedString("")
+		self.proxyModel.setFilterFixedString("")
+		self.proxyModel.setFilterKeyColumn(0)
+
+	def set_filter(self, fixed_string):
+		# self.proxyModel.setFilterFixedString(fixed_string)
+		self.proxyModel.setFilterFixedString(fixed_string)
+		self.proxyModel.addFilterFunction('name', lambda r, s: s in r[0])
+
+	def set_ext_filter(self, hide):
+		ext_filter_name = "ext_filter"
+		if hide:
+			def ext_filter(r, s):
+				return r[1] not in extract.IGNORE_TYPES
+			self.proxyModel.addFilterFunction(ext_filter_name, ext_filter)
+		else:
+			self.proxyModel.removeFilterFunction(ext_filter_name)
+
+	def clear_filter(self, ):
+		# self.proxyModel.setFilterFixedString("")
+		self.proxyModel.setFilterFixedString("")
+		self.sortByColumn(-1, Qt.AscendingOrder)
+
 	def startDrag(self, actions):
 		"""Starts a drag from inside the app towards the outside"""
 		drag = QtGui.QDrag(self)
-		ids = set([x.row() for x in self.selectedIndexes()])
+		# map the selected indices to the actual underlying data, which is in its original order
+		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
 		names = [self.model._data[x][0] for x in ids]
 		print("DRAGGING", ids, names)
 		data = QtCore.QMimeData()
@@ -229,7 +383,6 @@ class TableView(QtWidgets.QTableView):
 class LabelEdit(QtWidgets.QWidget):
 	def __init__(self, name, ):
 		QtWidgets.QWidget.__init__(self, )
-		self.shader_container = QtWidgets.QWidget()
 		self.label = QtWidgets.QLabel(name)
 		self.entry = QtWidgets.QLineEdit()
 		vbox = QtWidgets.QHBoxLayout()

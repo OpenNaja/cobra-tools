@@ -47,9 +47,8 @@ class MainWindow(widgets.MainWindow):
 		self.t_action_current_message = "No operation in progress"
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
-		# header_names = ["Name", "File Type", "Size", "Compressed Size", "DJB", "Fragments"]
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
-		self.table = widgets.TableView(header_names, self)
+		self.table = widgets.SortableTable(header_names, self)
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly.")
@@ -59,7 +58,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
 
-		self.e_name_pairs = [ (QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(1) ]
+		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(1)]
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
@@ -77,7 +76,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
 		self.qgrid.addWidget(self.t_2K, 1, 3)
-		for (old, new) in (self.e_name_pairs):
+		for (old, new) in self.e_name_pairs:
 			self.qgrid.addWidget(old, 1, 4)
 			self.qgrid.addWidget(new, 1, 5)
 		self.qgrid.addWidget(self.table, 2, 0, 1, 6)
@@ -187,16 +186,12 @@ class MainWindow(widgets.MainWindow):
 	def update_gui_table(self,):
 		start_time = time.time()
 		data = []
-		# dic = {}
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
 		for file_w in self.ovl_data.files:
 			name = f"{file_w.name}.{file_w.ext}"
 			# line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
-			line = [name, file_w.ext, str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
+			line = [name, file_w.ext, file_w.file_hash, file_w.unkn_0, file_w.unkn_1]
 			data.append(line)
-			# dic[file_w.file_hash] = name
-		# print(dic)
-		# print(self.ovl_data)
 		self.table.set_data(data)
 		print(f"Loaded GUI in {time.time()-start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)
