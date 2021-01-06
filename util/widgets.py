@@ -172,12 +172,6 @@ class TableModel(QtCore.QAbstractTableModel):
 			if index.column() == 2:
 				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight
 
-		if role == QtCore.Qt.UserRole:
-			print("sort", type(self._data[index.row()][index.column()]))
-			return self._data[index.row()][index.column()]
-			# if index.column() == 2:
-			# 	return d
-
 	def row(self, row_index):
 		return self._data[row_index]
 
@@ -230,12 +224,7 @@ class SortableTable(QtWidgets.QWidget):
 		self.table.clear_filter()
 
 	def toggle_hide(self, state):
-		print(state)
 		self.table.set_ext_filter(self.hide_unused.isChecked())
-		# if state == Qt.Checked:
-		# 	print("hidden")
-		# elif state == Qt.Unchecked:
-		# 	print("visible")
 
 
 class TableView(QtWidgets.QTableView):
