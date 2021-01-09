@@ -14,6 +14,7 @@ from modules.formats.FGM import write_fgm
 from modules.formats.LUA import write_lua
 from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
+from modules.formats.MOTIONGRAPHVARS import write_motiongraphvars
 from modules.formats.MS2 import write_ms2
 from modules.formats.TXT import write_txt
 from modules.formats.VOXELSKIRT import write_voxelskirt
@@ -103,6 +104,8 @@ def extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progres
 		paths.extend(write_scaleform(archive, entry, out_dir_func))
 	elif entry.ext == "enumnamer":
 		paths.extend(write_enumnamer(archive, entry, out_dir_func))
+	elif entry.ext == "motiongraphvars":
+		paths.extend(write_motiongraphvars(archive, entry, out_dir_func))
 	else:
 		print("\nSkipping", entry.name)
 	# skip_files.append(entry.name)

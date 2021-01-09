@@ -465,15 +465,14 @@ class OvsFile(OvsHeader, ZipFile):
 														 font_declare_count * 2)
 
 	def collect_enumnamer(self, ss_entry):
-		print("\nENUMNAMER:", ss_entry.name)
-
+		print("\nENUMNAMER / MOTIONGRAPHVARS:", ss_entry.name)
 		# Sized string initpos = position of first fragment
 		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-
 		count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
-		print(count)
-		ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count))
-		# print(ss_entry.fragments)
+		# print(count)
+		# pointers[1].data is the name
+		ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
+		ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_matcol(self, ss_entry):
 		print("\nMATCOL:", ss_entry.name)
@@ -659,7 +658,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 				elif sized_str_entry.ext == "materialcollection":
 					self.collect_matcol(sized_str_entry)
-				elif sized_str_entry.ext == "enumnamer":
+				elif sized_str_entry.ext in ("enumnamer", "motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
 				elif sized_str_entry.ext == "scaleformlanguagedata":
 					if not is_pc(self.ovl):
