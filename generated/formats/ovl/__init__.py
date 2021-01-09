@@ -109,6 +109,7 @@ class OvsFile(OvsHeader, ZipFile):
 			stream.seek(self.pools_end)
 			# add IO object to every header_entry
 			for header_entry in self.header_entries:
+				header_entry.address = stream.tell()
 				header_entry.data = io.BytesIO(stream.read(header_entry.size))
 
 			self.check_header_data_size = self.calc_header_data_size()
@@ -470,8 +471,11 @@ class OvsFile(OvsHeader, ZipFile):
 		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
 		count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
 		# print(count)
-		# pointers[1].data is the name
 		ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
+		# pointers[1].data is the name
+		for var in ss_entry.vars:
+			var.pointers[1].strip_zstring_padding()
+		# The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
 		ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_matcol(self, ss_entry):
@@ -747,7 +751,11 @@ class OvsFile(OvsHeader, ZipFile):
 		# ext_hashes = sorted(set([f.size for f in self.fragments]))
 		# print(ext_hashes)
 		# # for development; collect info about fragment types
-		frag_log = "self.fragments > sizedstr\nfragments in file order"
+		frag_log = ""
+
+		for i, header_entry in enumerate(self.header_entries):
+			frag_log += f"\nHeader[{i}] at {header_entry.address}"
+		frag_log +="\nself.fragments > sizedstr\nfragments in file order"
 		for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
 			# #frag_log+="\n\nFragment nr "+str(i)
 			# #frag_log+="\nHeader types "+str(f.type_0)+" "+str(f.type_1)
