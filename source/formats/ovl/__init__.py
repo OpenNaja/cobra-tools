@@ -109,6 +109,7 @@ class OvsFile(OvsHeader, ZipFile):
 			stream.seek(self.pools_end)
 			# add IO object to every header_entry
 			for header_entry in self.header_entries:
+				header_entry.address = stream.tell()
 				header_entry.data = io.BytesIO(stream.read(header_entry.size))
 
 			self.check_header_data_size = self.calc_header_data_size()
@@ -465,15 +466,54 @@ class OvsFile(OvsHeader, ZipFile):
 														 font_declare_count * 2)
 
 	def collect_enumnamer(self, ss_entry):
-		print("\nENUMNAMER:", ss_entry.name)
-
+		print("\nENUMNAMER / MOTIONGRAPHVARS:", ss_entry.name)
 		# Sized string initpos = position of first fragment
 		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-
 		count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
-		print(count)
-		ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count))
-		# print(ss_entry.fragments)
+		# print(count)
+		ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
+		# pointers[1].data is the name
+		for var in ss_entry.vars:
+			var.pointers[1].strip_zstring_padding()
+		# The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
+		ss_entry.fragments.extend(ss_entry.vars)
+
+	def collect_motiongraph(self, ss_entry):
+		print("\nMOTIONGRAPH:", ss_entry.name)
+		# Sized string initpos = position of first fragment
+		print(ss_entry.pointers[0].address, len(ss_entry.pointers[0].data))
+		if self.ovl.basename.lower() == "driver.ovl":
+			print("Debug mode for driver motiongraph!")
+			print()
+			for frag in self.fragments:
+				if 10036 <= frag.pointers[1].address < 10700:
+					# ss_entry.fragments.append(frag)
+					frag.pointers[1].strip_zstring_padding()
+					frag.name = frag.pointers[1].data[:-1]#.decode()
+
+			f = self.frags_from_pointer(ss_entry.pointers[0], 4)
+			u0, u1, counts, name_ptr = f
+			d2 = struct.unpack("<4I", counts.pointers[0].data)
+			print("counts", d2)
+			_, _, unk_count, name_count_1 = d2
+			ss_entry.names_1 = self.frags_from_pointer(name_ptr.pointers[1], name_count_1)
+			for n in ss_entry.names_1:
+				print(n.pointers[1].data)
+			d3 = struct.unpack("<3Q", counts.pointers[1].data)
+			_, two, one = d3
+			print(d3)
+			k = self.frags_from_pointer(counts.pointers[1], 9)
+			for i in k:
+				z = struct.unpack("<3Q", i.pointers[0].data)
+				print(z)
+		# count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
+		# # print(count)
+		# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
+		# # pointers[1].data is the name
+		# for var in ss_entry.vars:
+		# 	var.pointers[1].strip_zstring_padding()
+		# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
+		# ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_matcol(self, ss_entry):
 		print("\nMATCOL:", ss_entry.name)
@@ -610,8 +650,6 @@ class OvsFile(OvsHeader, ZipFile):
 			   "bani": 1,
 			   "tex": 2,
 			   "xmlconfig": 1,
-			   # "enumnamer": ( (4,4), ),
-			   # "motiongraphvars": ( (4,4), (4,6), (4,6), (4,6), (4,6), (4,6), (4,6), (4,6), ),
 			   # "hier": ( (4,6) for x in range(19) ),
 			   "spl": 1,
 			   "lua": 2,
@@ -659,8 +697,10 @@ class OvsFile(OvsHeader, ZipFile):
 
 				elif sized_str_entry.ext == "materialcollection":
 					self.collect_matcol(sized_str_entry)
-				elif sized_str_entry.ext == "enumnamer":
+				elif sized_str_entry.ext in ("enumnamer", "motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
+				elif sized_str_entry.ext == "motiongraph":
+					self.collect_motiongraph(sized_str_entry)
 				elif sized_str_entry.ext == "scaleformlanguagedata":
 					if not is_pc(self.ovl):
 						# todo - this is different for PC
@@ -748,7 +788,11 @@ class OvsFile(OvsHeader, ZipFile):
 		# ext_hashes = sorted(set([f.size for f in self.fragments]))
 		# print(ext_hashes)
 		# # for development; collect info about fragment types
-		frag_log = "self.fragments > sizedstr\nfragments in file order"
+		frag_log = ""
+
+		for i, header_entry in enumerate(self.header_entries):
+			frag_log += f"\nHeader[{i}] at {header_entry.address}"
+		frag_log +="\nself.fragments > sizedstr\nfragments in file order"
 		for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
 			# #frag_log+="\n\nFragment nr "+str(i)
 			# #frag_log+="\nHeader types "+str(f.type_0)+" "+str(f.type_1)
