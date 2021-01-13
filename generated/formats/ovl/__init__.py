@@ -260,6 +260,39 @@ class OvsFile(OvsHeader, ZipFile):
 		strr = "<" + str(num) + "B"
 		ret = struct.unpack(strr, data)
 		return ret
+	
+	def collect_specdef(self, ss_entry):        
+		print("\nSPECDEF:", ss_entry.name)
+		#frags = self.fragments
+		ss_data = struct.unpack("<2H4B", ss_entry.pointers[0].data)
+		if ss_data[0] == 0:
+			print("spec is zero ",ss_data[0])
+		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 3)
+		if ss_data[2] > 0:
+			data2_frag  = self.frags_from_pointer(ss_entry.pointers[0], 1)
+			ss_entry.fragments.extend(data2_frag)
+		if ss_data[3] > 0:
+			data3_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
+			ss_entry.fragments.extend(data3_frag)
+		if ss_data[4] > 0:
+			data4_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
+			ss_entry.fragments.extend(data4_frag)
+		if ss_data[5] > 0:
+			data5_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
+			ss_entry.fragments.extend(data5_frag)
+		
+		if ss_data[0] > 0:
+			ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[1].pointers[1], ss_data[0]))
+			ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[2].pointers[1], ss_data[0]))
+			
+		if ss_data[2] > 0:
+			ss_entry.fragments.extend(self.frags_from_pointer(data2_frag[0].pointers[1], ss_data[2]))
+		if ss_data[3] > 0:
+			ss_entry.fragments.extend(self.frags_from_pointer(data3_frag[0].pointers[1], ss_data[3]))
+		if ss_data[4] > 0:
+			ss_entry.fragments.extend(self.frags_from_pointer(data4_frag[0].pointers[1], ss_data[4]))
+		if ss_data[5] > 0:
+			ss_entry.fragments.extend(self.frags_from_pointer(data5_frag[0].pointers[1], ss_data[5]))
 
 	def collect_prefab(self, ss_entry, ad0_fragments):
 		ssdata = self.prefab_unpack_ss(len(ss_entry.pointers[0].data), ss_entry.pointers[0].data)
@@ -778,6 +811,8 @@ class OvsFile(OvsHeader, ZipFile):
 					self.collect_wmeta(sized_str_entry, address_0_fragments)
 				elif sized_str_entry.ext == "motiongraph":
 					self.collect_motiongraph(sized_str_entry)
+				elif sized_str_entry.ext == "specdef":
+					self.collect_specdef(sized_str_entry) 
 				elif sized_str_entry.ext == "scaleformlanguagedata":
 					if not is_pc(self.ovl):
 						# todo - this is different for PC
