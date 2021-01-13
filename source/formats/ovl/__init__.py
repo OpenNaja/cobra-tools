@@ -1365,7 +1365,7 @@ class OvlFile(Header, IoFile):
 		else:
 			raise AttributeError(f"unsupported user_version {self.user_version}")
 
-	def save(self, filepath, ):
+	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
 		self.store_filepath(filepath)
 		exp_dir = os.path.dirname(filepath)
@@ -1373,7 +1373,7 @@ class OvlFile(Header, IoFile):
 		# compress data stream
 		for i, (archive_entry, archive) in enumerate(zip(self.archives, self.ovs_files)):
 			# write archive into bytes IO stream
-			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive.zipper()
+			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive.zipper(i,use_ext_dat,dat_path)
 			if i == 0:
 				ovl_compressed = compressed
 				archive_entry.read_start = 0
