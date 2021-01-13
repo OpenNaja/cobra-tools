@@ -13,7 +13,7 @@ try:
 	import binascii
 
 	from util import widgets
-	from modules import extract, inject, hasher, walker
+	from modules import extract, inject, hasher, walker, remover
 	from generated.formats.ovl import OvlFile
 	from generated.formats.ms2 import Mdl2File
 except Exception as err:
@@ -62,14 +62,12 @@ class MainWindow(widgets.MainWindow):
 		self.ext_dat.setToolTip("Experimental: Save the ovl with an external STATIC Dat instead of one in memory")
 		self.ext_dat.setChecked(False)
 		self.ext_dat.stateChanged.connect(self.dat_show)
-        
-		self.dat_path = QtWidgets.QLineEdit("External .dat file path")
-		self.dat_path.setToolTip("note: use / for the file path, not \\")
-		self.dat_path.hide()
 
-		self.remove = QtWidgets.QLineEdit("file to remove")
+		self.dat_widget = widgets.FileWidget(self, self.cfg, ask_user=False, dtype="DAT", poll=False)
+		self.dat_widget.setToolTip("External .dat file path")
+		self.dat_widget.hide()
 
-		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new"))  for i in range(1)]
+		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(1)]
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
@@ -91,11 +89,10 @@ class MainWindow(widgets.MainWindow):
 		for (old, new) in self.e_name_pairs:
 			self.qgrid.addWidget(old, 1, 5)
 			self.qgrid.addWidget(new, 1, 6)
-		self.qgrid.addWidget(self.remove, 1, 7)
 		self.qgrid.addWidget(self.table, 2, 0, 1, 8)
 		self.qgrid.addWidget(self.p_action, 3, 0, 1, 8)
 		self.qgrid.addWidget(self.t_action, 4, 0, 1, 8)
-		self.qgrid.addWidget(self.dat_path, 5,0,1,8)
+		self.qgrid.addWidget(self.dat_widget, 5,0,1,8)
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
@@ -108,7 +105,7 @@ class MainWindow(widgets.MainWindow):
 					   (editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 					   (editMenu, "Inject", self.inject, "CTRL+I", "inject"),
 					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
-					   (editMenu, "Remove", self.remover, "CTRL+R", ""),
+					   (editMenu, "Remove Selected", self.remover, "DEL", ""),
 					   (editMenu, "Walk", self.walker, "", ""),
 					   (editMenu, "Generate Hash Table", self.walker_hash, "", ""),
 					   (helpMenu, "Report Bug", self.report_bug, "", "report"),
@@ -143,10 +140,10 @@ class MainWindow(widgets.MainWindow):
 		return self.t_write_frag_log.isChecked()
 	
 	def dat_show(self,):
-		if self.use_ext_dat == True:
-			self.dat_path.show()
+		if self.use_ext_dat:
+			self.dat_widget.show()
 		else:
-			self.dat_path.hide()
+			self.dat_widget.hide()
 
 	def update_commands(self):
 		# at some point, just set commands to archive and trigger changes there
@@ -227,7 +224,7 @@ class MainWindow(widgets.MainWindow):
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				try:
-					self.ovl_data.save(file_src, self.use_ext_dat, self.dat_path.text())
+					self.ovl_data.save(file_src, self.use_ext_dat, self.dat_widget.filepath)
 				except BaseException as error:
 					print(error)
 				self.file_widget.dirty = False
@@ -295,9 +292,10 @@ class MainWindow(widgets.MainWindow):
 			
 	def remover(self):
 		if self.file_widget.filename:
-			remove_text = self.remove.text()
-			remover.file_remover(self.ovl_data, remove_text)
-			self.update_gui_table()
+			selected_file_names = self.table.table.get_selected_files()
+			if selected_file_names:
+				remover.file_remover(self.ovl_data, selected_file_names)
+				self.update_gui_table()
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can remove files!")
 

@@ -497,6 +497,7 @@ class OvsFile(OvsHeader, ZipFile):
 		# print(f.pointers[0].data, f.pointers[0].address, len(f.pointers[0].data), len(ss_entry.pointers[0].data))
 		_, count = struct.unpack("<2Q", ss_entry.pointers[0].data)
 		print(count)
+		# starts at 10129 1322668 8 2264473 22 b'Proceratosaurus_media' 4 6
 		if self.ovl.basename.lower() == "main.ovl":
 			print("Debug mode for sound")
 			print()
@@ -506,6 +507,7 @@ class OvsFile(OvsHeader, ZipFile):
 					frag.pointers[1].strip_zstring_padding()
 					frag.name = frag.pointers[1].data[:-1]#.decode()
 
+		# frags =
 		ss_entry.bnks = []
 		# for bnk_index in range(count):
 		# ss_entry.bnks = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], 4*count)
@@ -545,12 +547,6 @@ class OvsFile(OvsHeader, ZipFile):
 							print(f.pointers[1].data)
 			ss_entry.bnks.append(bnk)
 			# ss_entry.fragments.extend(bnk)
-		# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
-		# # pointers[1].data is the name
-		# for var in ss_entry.vars:
-		# 	var.pointers[1].strip_zstring_padding()
-		# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
-		# ss_entry.fragments.extend(ss_entry.vars)
 
 
 	def collect_motiongraph(self, ss_entry):

@@ -277,13 +277,16 @@ class TableView(QtWidgets.QTableView):
 		self.proxyModel.setFilterFixedString("")
 		self.sortByColumn(-1, Qt.AscendingOrder)
 
+	def get_selected_files(self):
+		# map the selected indices to the actual underlying data, which is in its original order
+		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
+		return [self.model._data[x][0] for x in ids]
+
 	def startDrag(self, actions):
 		"""Starts a drag from inside the app towards the outside"""
 		drag = QtGui.QDrag(self)
-		# map the selected indices to the actual underlying data, which is in its original order
-		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
-		names = [self.model._data[x][0] for x in ids]
-		print("DRAGGING", ids, names)
+		names = self.get_selected_files()
+		print("DRAGGING", names)
 		data = QtCore.QMimeData()
 
 		archive = self.ovl_data.ovs_files[0]
@@ -720,7 +723,7 @@ class FileWidget(QtWidgets.QWidget):
 	Displays the current file's basename.
 	"""
 
-	def __init__(self, parent, cfg, ask_user=True, dtype="OVL"):
+	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True):
 		super(FileWidget, self).__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
@@ -737,6 +740,7 @@ class FileWidget(QtWidgets.QWidget):
 		self.dtype = dtype
 		self.dtype_l = dtype.lower()
 
+		self.poll = poll
 		self.parent = parent
 		self.cfg = cfg
 		if not self.cfg:
@@ -775,7 +779,8 @@ class FileWidget(QtWidgets.QWidget):
 					self.filepath = filepath
 					self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(filepath)
 					self.setText(self.filename)
-					self.parent.poll()
+					if self.poll:
+						self.parent.poll()
 			else:
 				showdialog("Unsupported File Format")
 
