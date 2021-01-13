@@ -58,7 +58,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
 
-		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(1)]
+		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new"), QtWidgets.QLineEdit("file to remove"))  for i in range(1)]
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
@@ -71,17 +71,18 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 6)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 7)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
 		self.qgrid.addWidget(self.t_2K, 1, 3)
-		for (old, new) in self.e_name_pairs:
+		for (old, new, remove) in self.e_name_pairs:
 			self.qgrid.addWidget(old, 1, 4)
 			self.qgrid.addWidget(new, 1, 5)
-		self.qgrid.addWidget(self.table, 2, 0, 1, 6)
-		self.qgrid.addWidget(self.p_action, 3, 0, 1, 6)
-		self.qgrid.addWidget(self.t_action, 4, 0, 1, 6)
+			self.qgrid.addWidget(remove, 1, 6)
+		self.qgrid.addWidget(self.table, 2, 0, 1, 7)
+		self.qgrid.addWidget(self.p_action, 3, 0, 1, 7)
+		self.qgrid.addWidget(self.t_action, 4, 0, 1, 7)
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
@@ -94,6 +95,7 @@ class MainWindow(widgets.MainWindow):
 					   (editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 					   (editMenu, "Inject", self.inject, "CTRL+I", "inject"),
 					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
+					   (editMenu, "Remove", self.remover, "CTRL+R", ""),
 					   (editMenu, "Walk", self.walker, "", ""),
 					   (editMenu, "Generate Hash Table", self.walker_hash, "", ""),
 					   (helpMenu, "Report Bug", self.report_bug, "", "report"),
@@ -267,6 +269,14 @@ class MainWindow(widgets.MainWindow):
 			self.update_gui_table()
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can extract files!")
+			
+	def remover(self):
+		if self.file_widget.filename:
+			names = [(tup[0].text(), tup[1].text(), tup[2].text()) for tup in self.e_name_pairs]
+			remover.file_remover(self.ovl_data, names[0][2])
+			self.update_gui_table()
+		else:
+			util.interaction.showdialog("You must open an OVL file before you can remove files!")
 
 	def walker_hash(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
