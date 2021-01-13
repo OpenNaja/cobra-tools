@@ -16,6 +16,7 @@ from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MOTIONGRAPHVARS import write_motiongraphvars
 from modules.formats.MS2 import write_ms2
+from modules.formats.SPECDEF import write_specdef
 from modules.formats.TXT import write_txt
 from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
@@ -90,6 +91,8 @@ def extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progres
 		paths.extend(write_userinterfaceicondata(archive, entry, out_dir_func))
 	elif entry.ext == "txt":
 		paths.extend(write_txt(archive, entry, out_dir_func))
+	elif entry.ext == "specdef":
+		paths.extend(modules.formats.SPECDEF.write_specdef(archive, entry, out_dir_func))
 	elif entry.ext == "bnk":
 		paths.extend(write_bnk(archive, entry, show_temp_files, progress_callback, out_dir_func))
 	# elif entry.ext == "prefab" and extract_misc == True:

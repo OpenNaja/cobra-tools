@@ -11,6 +11,7 @@ try:
 	from PyQt5 import QtWidgets
 	import numpy as np
 	import binascii
+	from importlib import reload
 
 	from util import widgets
 	from modules import extract, inject, hasher, walker, remover
@@ -107,6 +108,7 @@ class MainWindow(widgets.MainWindow):
 					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
 					   (editMenu, "Remove Selected", self.remover, "DEL", ""),
 					   (editMenu, "Walk", self.walker, "", ""),
+					   #(editMenu, "Reload", self.reload, "", ""),
 					   (editMenu, "Generate Hash Table", self.walker_hash, "", ""),
 					   (helpMenu, "Report Bug", self.report_bug, "", "report"),
 					   (helpMenu, "Documentation", self.online_support, "", "manual"))
@@ -289,6 +291,12 @@ class MainWindow(widgets.MainWindow):
 			self.update_gui_table()
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can extract files!")
+
+	#reload modules, debug feature, allows reloading extraction modules without restarting the gui
+	#modules need to be imported completely, import xxxx, from xxx import yyy will not work.
+	#def reload(self):
+		#reload(modules.formats.SPECDEF)
+		#reload(modules.extract)
 			
 	def remover(self):
 		if self.file_widget.filename:
