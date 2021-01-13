@@ -58,7 +58,18 @@ class MainWindow(widgets.MainWindow):
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
 
-		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new"), QtWidgets.QLineEdit("file to remove"))  for i in range(1)]
+		self.ext_dat = QtWidgets.QCheckBox("Use External Dat")
+		self.ext_dat.setToolTip("Experimental: Save the ovl with an external STATIC Dat instead of one in memory")
+		self.ext_dat.setChecked(False)
+		self.ext_dat.stateChanged.connect(self.dat_show)
+        
+		self.dat_path = QtWidgets.QLineEdit("External .dat file path")
+		self.dat_path.setToolTip("note: use / for the file path, not \\")
+		self.dat_path.hide()
+
+		self.remove = QtWidgets.QLineEdit("file to remove")
+
+		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new"))  for i in range(1)]
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
@@ -71,18 +82,20 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 7)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 8)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
 		self.qgrid.addWidget(self.t_2K, 1, 3)
-		for (old, new, remove) in self.e_name_pairs:
-			self.qgrid.addWidget(old, 1, 4)
-			self.qgrid.addWidget(new, 1, 5)
-			self.qgrid.addWidget(remove, 1, 6)
-		self.qgrid.addWidget(self.table, 2, 0, 1, 7)
-		self.qgrid.addWidget(self.p_action, 3, 0, 1, 7)
-		self.qgrid.addWidget(self.t_action, 4, 0, 1, 7)
+		self.qgrid.addWidget(self.ext_dat, 1, 4)
+		for (old, new) in self.e_name_pairs:
+			self.qgrid.addWidget(old, 1, 5)
+			self.qgrid.addWidget(new, 1, 6)
+		self.qgrid.addWidget(self.remove, 1, 7)
+		self.qgrid.addWidget(self.table, 2, 0, 1, 8)
+		self.qgrid.addWidget(self.p_action, 3, 0, 1, 8)
+		self.qgrid.addWidget(self.t_action, 4, 0, 1, 8)
+		self.qgrid.addWidget(self.dat_path, 5,0,1,8)
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
@@ -116,6 +129,10 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_2K(self,):
 		return self.t_2K.isChecked()
+	
+	@property
+	def use_ext_dat(self,):
+		return self.ext_dat.isChecked()
 
 	@property
 	def write_dat(self,):
@@ -124,6 +141,12 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_frag_log(self,):
 		return self.t_write_frag_log.isChecked()
+	
+	def dat_show(self,):
+		if self.use_ext_dat == True:
+			self.dat_path.show()
+		else:
+			self.dat_path.hide()
 
 	def update_commands(self):
 		# at some point, just set commands to archive and trigger changes there
@@ -204,7 +227,7 @@ class MainWindow(widgets.MainWindow):
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				try:
-					self.ovl_data.save(file_src)
+					self.ovl_data.save(file_src, self.use_ext_dat, self.dat_path.text())
 				except BaseException as error:
 					print(error)
 				self.file_widget.dirty = False
@@ -272,8 +295,8 @@ class MainWindow(widgets.MainWindow):
 			
 	def remover(self):
 		if self.file_widget.filename:
-			names = [(tup[0].text(), tup[1].text(), tup[2].text()) for tup in self.e_name_pairs]
-			remover.file_remover(self.ovl_data, names[0][2])
+			remove_text = self.remove.text()
+			remover.file_remover(self.ovl_data, remove_text)
 			self.update_gui_table()
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can remove files!")
