@@ -326,11 +326,19 @@ class ZipFile(IoFile):
 
 	# @staticmethod
 	# @contextmanager
-	def zipper(self, ):
+	def zipper(self, i, use_external, external_path):
 		stream = BinaryStream()
 		assign_versions(stream, get_versions(self.ovl))
 		self.write_archive(stream)
-		uncompressed_bytes = stream.getbuffer()
+		if use_external == True:
+			if i == 0:
+				with open(external_path, "rb") as streamer:
+					bbb = streamer.read()
+				uncompressed_bytes = bbb
+			else:
+				uncompressed_bytes = stream.getbuffer()
+		else:
+			uncompressed_bytes = stream.getbuffer()
 		# compress data
 		# change to zipped format for saving of uncompressed or oodled ovls
 		if not self.ovl.user_version.use_zlib:
