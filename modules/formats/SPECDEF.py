@@ -33,7 +33,8 @@ def write_specdef(archive, sized_str_entry, out_dir):
 		if attribcount > 0:
 			outfile.write(f"Attributes:\n")
 			lend = len(sized_str_entry.fragments[0].pointers[1].data)
-			#print(f"len {lend} count{attribcount}")
+			
+			#this frag has padding
 			dtypes = struct.unpack(f"<{attribcount}I", sized_str_entry.fragments[0].pointers[1].data[:4 * attribcount])
 
 			for i in range(0, attribcount):
