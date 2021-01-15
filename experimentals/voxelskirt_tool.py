@@ -99,6 +99,8 @@ if len(args) > 0:
 	data = bytearray(content)
 	if stype == 0:
 		for x in range(0, size):
+			#if hor > 560 and hor < (560+1000):
+			#	if ver > 560 and ver < (560+1000):
 			data[offset+x] = int(usevalue, base=10)
 	elif stype == 2:
 		for x in range(0, size):
