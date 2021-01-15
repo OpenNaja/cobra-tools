@@ -98,9 +98,10 @@ if len(args) > 0:
 		ovsentries.append([len(strpol2), hash_djb2(item[0])])
 		strpol1 += bytearray(item[0], encoding='utf8') + b"\x00"
 		#strpol2 chunks are 8 byte aligned: size + data
-		unalignedval = struct.pack("<I", len(item[1])) + bytearray(item[1], encoding='utf8') + b"\x00"
-		padding = len(unalignedval) % 8
-		alignedval = unalignedval + struct.pack(f"{padding}s", b'')
+		alignedval = struct.pack("<I", len(item[1])) + bytearray(item[1], encoding='utf8') + b"\x00"
+		padding = 8 - (len(alignedval) % 8)
+		if padding > 0:
+			alignedval +=  struct.pack(f"{padding}s", b'')
 		strpol2 += alignedval
 
 	#our main output buffer, ovl part
@@ -110,7 +111,6 @@ if len(args) > 0:
 		ovl += struct.pack("<2I2H", entry[0],entry[1],1,0) 
 
 	#main output buffer, ovs part, first item has defines the mem block
-	print(len(strpol2))
 	ovs  = ovs_header(len(ovsentries), len(strpol2), ovsentries[0][1])
 	for entry in ovsentries:
 		ovs += struct.pack("<4I", entry[1],0xb88b045,0,entry[0]) 
