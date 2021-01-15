@@ -21,7 +21,7 @@ values = []
 compression = True
 
 def ovl_header(entrycount, strsize):
-	compressed = 0x6093 # default to not compress
+	compressed = 0x6014 # default to not compress
 	if compression == True:
 		compressed = 0x6094
 	return b"FRES" + struct.pack("<2H5I2H16I48s", 
@@ -97,7 +97,11 @@ if len(args) > 0:
 		ovlentries.append([len(strpol1), hash_djb2(item[0])])
 		ovsentries.append([len(strpol2), hash_djb2(item[0])])
 		strpol1 += bytearray(item[0], encoding='utf8') + b"\x00"
-		strpol2 += struct.pack("<I", len(item[1])) + bytearray(item[1], encoding='utf8') + b"\x00"
+		#strpol2 chunks are 8 byte aligned: size + data
+		unalignedval = struct.pack("<I", len(item[1])) + bytearray(item[1], encoding='utf8') + b"\x00"
+		padding = len(unalignedval) % 8
+		alignedval = unalignedval + struct.pack(f"{padding}s", b'')
+		strpol2 += alignedval
 
 	#our main output buffer, ovl part
 	ovl  = ovl_header(len(ovlentries),len(strpol1)) + strpol1
@@ -105,7 +109,8 @@ if len(args) > 0:
 	for entry in ovlentries:
 		ovl += struct.pack("<2I2H", entry[0],entry[1],1,0) 
 
-	#main output buffer, ovs part
+	#main output buffer, ovs part, first item has defines the mem block
+	print(len(strpol2))
 	ovs  = ovs_header(len(ovsentries), len(strpol2), ovsentries[0][1])
 	for entry in ovsentries:
 		ovs += struct.pack("<4I", entry[1],0xb88b045,0,entry[0]) 
@@ -114,17 +119,12 @@ if len(args) > 0:
 	ovs += b"\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xBF\x7F\x3F\x08\x04\x02\x01"
 	ovs += strpol2
 
-    #quick glue, no compression
+	#quick glue, no compression
 	poolhead = b'STATIC\x00\x00'
 	mempool  = bytearray()
 	ovsout   = bytearray()
 	if compression == True:
-		
-		#compress = zlib.compressobj(1, zlib.DEFLATED, -15)
-		#ovsout   = compress.compress(ovs)
-		#ovsout  += compress.flush()
 		ovsout  = zlib.compress(ovs)
-
 		mempool  = struct.pack("<4I2H12I", 
 			0,0,0,1,
 			0,1,
@@ -134,7 +134,7 @@ if len(args) > 0:
 		mempool  = struct.pack("<4I2H12I", 
 			0,0,0,1,
 			0,1,
-			0,0,0,len(ovsentries),0,0x10,len(ovs),0,0,0,len(strpol2),0)
+			0,0,0,len(ovsentries),0,0x10,len(ovsout),0,0,0,len(strpol2),0)
 
 	poolinfo = struct.pack("<2I", len(strpol1)+len(strpol2),0)
 	ovl += poolhead + mempool + poolinfo + ovsout
@@ -142,6 +142,10 @@ if len(args) > 0:
 	ovlfile = open("Loc.ovl", "wb")
 	ovlfile.write(ovl)
 	ovlfile.close
+
+	ovsfile = open("Loc.ovs", "wb")
+	ovsfile.write(ovsout)
+	ovsfile.close
 
 
 else:
