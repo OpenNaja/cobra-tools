@@ -371,19 +371,16 @@
 		Used by ms2 or in Mdl2ModelInfo
 		In load order it always defines the variable fragments for the next mdl2
 		The mdl2's fragment informs the first mdl2
-        <add name="unk vec a" type="Vector3"></add>
+        <add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
         <add name="unk float a" type="float" ></add>
-        <add name="unk vec b" type="Vector3"></add>
+        <add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
         <add name="pack offset" type="float" >scale: pack_offset / 512, also added as offset</add>
-        <add name="zero a" type="float" >always?</add>
-        <add name="unk float b" type="float" ></add>
-        <add name="unknownvectors" type="Vector3" arr1="2"></add>
-        <add name="unk float 0" type="float" vercond="#JWE#" ></add>
-        <add name="unk float 1" type="float"  vercond="#JWE#" ></add>
-		
-        <add name="unk vec a repeat" type="Vector3" vercond="#PZ#" >PZ only</add>
-        <add name="unk vec b repeat" type="Vector3" vercond="#PZ#" >PZ only</add>
-		
+        <add name="center" type="Vector3">cog? medium of bounds?</add>
+        <add name="radius" type="float" >probably from center to max</add>
+        <add name="unknowns" type="float" arr1="4" vercond="#PZ#">PZ only, zero-ish</add>
+        <add name="bounds min repeat" type="Vector3" ></add>
+        <add name="bounds max repeat" type="Vector3" ></add>
+
 		<add name="mat count" type="ushort"></add>
 		<add name="lod count" type="ushort"></add>
 		<add name="mat1 count" type="ushort"></add>

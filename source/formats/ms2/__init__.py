@@ -323,7 +323,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file_no_ext = os.path.splitext(self.file)[0]
 		# read the file
 		eof = super().load(filepath)
-		# print(self)
+		print(self)
 
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
