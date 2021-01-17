@@ -129,8 +129,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				joints = JointData()
 				joints.read(stream)
 				print(joints)
-			except:
+			except Exception as err:
 				print("joints failed")
+				print(err)
 				pass
 			try:
 				print("reading joints Nasuto style")
@@ -138,8 +139,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				joints = JointDataNasuto(bone_info.joint_count)
 				joints.read(stream)
 				print(joints)
-			except:
+			except Exception as err:
 				print("nasuto joints failed")
+				print(err)
 				pass
 
 		else:
