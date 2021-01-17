@@ -536,22 +536,34 @@
         <add name="e" type="ushort">2</add>
 
 <!--        list d contains PI frequently, could be limited hinge descriptors-->
-        <add name="UnknownListd" type="ListDEntry" arr1="#ARG#" ></add>
-<!--        this is currently hard coded for nasuto, figure out logic and layout-->
-<!--        <add name="undecoded floats" type="float" arr1="854">nasuto</add>-->
-<!--        <add name="undecoded floats" type="float" arr1="863">carcha</add>-->
+<!--        <add name="UnknownListd" type="ListDEntry" arr1="#ARG#" ></add>-->
+        <add name="short list" type="ListShort" arr1="count 0" ></add>
+        <add name="long list" type="ListLong" arr1="count 1" ></add>
 
-<!--        <add name="undecoded floats" type="float" arr1="917">velo01male</add>-->
-
-<!--        <add name="indices" type="uint" arr1="#ARG#">index</add>-->
-<!--        <add name="indices2" type="int" arr1="JointCompound \ unknown_8">index or -1</add>-->
-<!--        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>-->
-<!--        <add name="JointNamesPadding" type="byte" arr1="(8 - (JointCompound\namespace length % 8)) % 8" ></add>-->
-<!--        <add name="JointInfoList" type="JointInfo" arr1="#ARG#" ></add>-->
+        <add name="indices" type="uint" arr1="JointCompound \ joint_entry_count">index</add>
+        <add name="indices2" type="int" arr1="JointCompound \ bone count">index or -1</add>
+        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
+<!--        todo: figure out the padding here, this is weird-->
+<!--        <add name="JointNamesPadding" type="byte" arr1="(16 - (JointCompound\namespace length % 8)) % 8" ></add>-->
+        <add name="JointNamesPadding" type="byte" arr1="(8 - (JointCompound\namespace length % 8)) % 8" ></add>
+        <add name="zero22" type="uint">2</add>
+<!--        <add name="JointInfoList" type="JointInfo" arr1="joint_count" ></add>-->
 
 <!--        for testing-->
 <!--        <add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>-->
-<!--        <add name="JointInfoList" type="JointInfo" arr1="11" ></add>-->
+        <add name="JointInfoList" type="JointInfo" arr1="1" ></add>
+    </compound>
+
+    <compound name="ListShort">
+        <add name="floats" type="float" arr1="8"></add>
+        <add name="a" type="ushort" ></add>
+        <add name="b" type="ushort" ></add>
+    </compound>
+
+    <compound name="ListLong">
+        <add name="floats" type="float" arr1="26"></add>
+        <add name="a" type="ushort" ></add>
+        <add name="b" type="ushort" ></add>
     </compound>
 
     <compound name="NasutoJointEntry">
