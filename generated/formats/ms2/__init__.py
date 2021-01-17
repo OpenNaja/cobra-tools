@@ -5,6 +5,8 @@ import io
 import time
 
 from generated.array import Array
+from generated.formats.ms2.compound.JointData import JointData
+from generated.formats.ms2.compound.JointDataNasuto import JointDataNasuto
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
@@ -117,10 +119,29 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			try:
 				bone_info = bone_info_cls()
 				bone_info.read(stream)
-				# print(bone_info)
-				print("end of bone info at", stream.tell())
+				print(bone_info)
+				end_of_bone_info = stream.tell()
+				print("end of bone info at", end_of_bone_info)
 			except:
 				print("Bone info failed")
+			try:
+				print("reading joints static style")
+				joints = JointData()
+				joints.read(stream)
+				print(joints)
+			except:
+				print("joints failed")
+				pass
+			try:
+				print("reading joints Nasuto style")
+				stream.seek(end_of_bone_info)
+				joints = JointDataNasuto(bone_info.joint_count)
+				joints.read(stream)
+				print(joints)
+			except:
+				print("nasuto joints failed")
+				pass
+
 		else:
 			print("No bone info found")
 
@@ -136,7 +157,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			self.eoh = stream.tell()
-			print(self)
+			# print(self)
 			print("end of header: ", self.eoh)
 			if is_pc(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))

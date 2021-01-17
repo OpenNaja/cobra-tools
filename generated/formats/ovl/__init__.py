@@ -903,11 +903,11 @@ class OvsFile(OvsHeader, ZipFile):
 		frag_log = ""
 
 		for i, header_entry in enumerate(self.header_entries):
-			frag_log += f"\n\nHeader[{i}] at {header_entry.address}"
+			frag_log += f"\n\nHeader[{i}] at {header_entry.address} with {len(header_entry.fragments)} fragments"
 			for j, frag in enumerate(header_entry.fragments):
 				frag_log += f"\n{j} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"
 
-		frag_log += "\nself.fragments > sizedstr\nfragments in file order"
+		frag_log += "\n\n\nself.fragments > sizedstr\nfragments in file order"
 		# for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
 		for i, frag in enumerate(self.fragments):
 			frag_log += f"\n{i} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"

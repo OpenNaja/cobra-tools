@@ -401,29 +401,21 @@
         <add name="unknown14" type="uint" ></add>
         <add name="bind matrix count" type="uint" >seems to match bone count</add>
         <add name="int 0 1" type="uint" >usually 0; 1 for animal_box_large, animal_box_medium_static</add>
-        <add name="unknown20" type="uint" ></add>
-		<add name="unknown24" type="uint" ></add>
-		<add name="unknown28" type="uint" ></add>
-		<add name="unknown2C" type="uint" ></add>
-		<add name="unknown30" type="uint" ></add>
-		<add name="unknown34" type="uint" ></add>
+        <add name="unknown20" type="uint64" ></add>
+		<add name="unknown28" type="uint64" ></add>
+		<add name="unknown30" type="uint64" ></add>
 		<add name="bone count" type="uint64" >index count3</add>
-		<add name="unknown40" type="uint" ></add>
-		<add name="unknown44" type="uint" ></add>
+		<add name="unknown40" type="uint64" ></add>
 		<add name="bone parents count" type="uint64" >index count4</add>
 		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
 		<add name="count5" type="uint64" >index count 5</add>
-		<add name="unknown58" type="uint" ></add>
-		<add name="unknown5C" type="uint" ></add>
+		<add name="unknown58" type="uint64" ></add>
 		<add name="one64" type="uint64" >always 1</add>
 		<add name="unk joint count" type="uint64" >if joints are present, same as bone count</add>
 		<add name="count7" type="uint64" vercond="! #PC#" >index count 7</add>
-		<add name="joint count" type="uint" >joint count</add>
-		<add name="unknown7C" type="uint" ></add>
-		<add name="unk78count" type="uint" >unnk 78 count</add>
-		<add name="unknown84" type="uint" ></add>
-		<add name="unknown88" type="uint" vercond="#JWE# #OR# #PC#" >jwe only, everything is shifted a bit due to extra uint 0</add>
-		<add name="unknown8C" type="uint" vercond="#JWE# #OR# #PC#" >same as above</add>
+		<add name="joint count" type="uint64" >joint count</add>
+		<add name="unk78count" type="uint64" >unnk 78 count</add>
+		<add name="unknown88" type="uint64" vercond="#JWE# #OR# #PC#" >jwe only, everything is shifted a bit due to extra uint 0</add>
 		<add name="unknownextra" type="uint64" vercond="#PC#" >same as above</add>
         <add name="name indices" type="uint" arr1="name count">index into ms2 string table for bones used here</add>
         <add name="name padding" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
@@ -526,38 +518,37 @@
     </compound>
 
     <compound name="JointDataNasuto">
-        <add name="joint count" type="uint">variable</add>
-        <add name="unknown1" type="uint" >0</add>
-        <add name="unknown2" type="uint" >0</add>
-        <add name="unknown3" type="uint" >0</add>
-        <add name="unknown4" type="uint" >usually fairly big nr, 500ish</add>
-        <add name="UnknownList" type="NasutoJointEntry" arr1="joint count" ></add>
-        <add name="zero" type="uint" >0</add>
+        <add name="count7" type="uint64">repeat</add>
+        <add name="unknown2" type="uint64" >0</add>
+        <add name="UnknownList" type="NasutoJointEntry" arr1="count7" >60 bytes per entry</add>
+        <add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
+        <add name="joint_count" type="uint64" >repeat</add>
         <add name="count 0" type="uint" >small number</add>
         <add name="count 1" type="uint" >small number</add>
 
         <add name="JointCompound" type="JointCompound" ></add>
-<!--       seems to be actually joint_count from root bone info, the following does not work properly !-->
-        <add name="UnknownLista" type="JointEntry" arr1="#ARG#" ></add>
-        <add name="UnknownListb" type="uint64" arr1="#ARG#" ></add>
+        <add name="UnknownLista" type="JointEntry" arr1="joint_count" ></add>
+        <add name="zeros" type="uint64" arr1="joint_count" >might be pointers</add>
 <!--        this one is more longer, but different entry too, seemingly all floats-->
-        <add name="UnknownListc" type="ListCEntry" arr1="#ARG#" ></add>
+        <add name="UnknownListc" type="ListCEntry" arr1="joint_count" ></add>
 <!--        may be part of list d-->
         <add name="d" type="ushort">3</add>
         <add name="e" type="ushort">2</add>
 
 <!--        list d contains PI frequently, could be limited hinge descriptors-->
-<!--        <add name="UnknownListd" type="ListDEntry" arr1="#ARG#" ></add>-->
+        <add name="UnknownListd" type="ListDEntry" arr1="#ARG#" ></add>
 <!--        this is currently hard coded for nasuto, figure out logic and layout-->
 <!--        <add name="undecoded floats" type="float" arr1="854">nasuto</add>-->
 <!--        <add name="undecoded floats" type="float" arr1="863">carcha</add>-->
-        <add name="undecoded floats" type="float" arr1="917">velo01male</add>
 
-        <add name="indices" type="uint" arr1="#ARG#">index</add>
-        <add name="indices2" type="int" arr1="JointCompound \ unknown_8">index or -1</add>
-        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
-        <add name="JointNamesPadding" type="byte" arr1="(8 - (JointCompound\namespace length % 8)) % 8" ></add>
-        <add name="JointInfoList" type="JointInfo" arr1="#ARG#" ></add>
+<!--        <add name="undecoded floats" type="float" arr1="917">velo01male</add>-->
+
+<!--        <add name="indices" type="uint" arr1="#ARG#">index</add>-->
+<!--        <add name="indices2" type="int" arr1="JointCompound \ unknown_8">index or -1</add>-->
+<!--        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>-->
+<!--        <add name="JointNamesPadding" type="byte" arr1="(8 - (JointCompound\namespace length % 8)) % 8" ></add>-->
+<!--        <add name="JointInfoList" type="JointInfo" arr1="#ARG#" ></add>-->
+
 <!--        for testing-->
 <!--        <add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>-->
 <!--        <add name="JointInfoList" type="JointInfo" arr1="11" ></add>-->
@@ -565,12 +556,12 @@
 
     <compound name="NasutoJointEntry">
         60 bytes
-        <add name="matrix" type="Matrix33" ></add>
-        <add name="vector" type="Vector4" ></add>
-        <add name="unknown2" type="uint" >1</add>
         <add name="unknown3a" type="ubyte" >?</add>
         <add name="unknown3b" type="ubyte" >?</add>
         <add name="unknown3c" type="ushort" >0</add>
+        <add name="matrix" type="Matrix33" ></add>
+        <add name="vector" type="Vector4" ></add>
+        <add name="unknown2" type="uint" >1</add>
     </compound>
 
     <compound name="JointCompound">
