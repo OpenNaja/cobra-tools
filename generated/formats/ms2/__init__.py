@@ -304,9 +304,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# write output ms2
 		with self.writer(filepath) as f:
 			self.write(f)
-			f.write(bone_bytes)
-			if cut != 0:
+			if cut < 0:
+				f.write(bone_bytes)
 				f.write(self.bone_info_bytes[cut:])
+			elif cut > 0:
+				print("neg cut")
+				f.write(bone_bytes[:len(self.bone_info_bytes)])
 			f.write(vert_bytes)
 			f.write(tris_bytes)
 	
