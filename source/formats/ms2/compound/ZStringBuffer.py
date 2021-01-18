@@ -18,7 +18,7 @@ class ZStringBuffer:
 
 	def read(self, stream):
 		self.data = stream.read(self.arg)
-		self.strings = self.data.split(ZERO)
+		self.strings = [x for x in self.data.split(ZERO) if x]
 
 	def write(self, stream):
 		stream.write(self.data)
@@ -28,4 +28,4 @@ class ZStringBuffer:
 		return self.data[pos:end].decode()
 
 	def __repr__(self):
-		return str(self.strings)
+		return f"{str(self.strings)} Amount+: {len(self.strings)}"
