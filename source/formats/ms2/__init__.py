@@ -349,7 +349,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file_no_ext = os.path.splitext(self.file)[0]
 		# read the file
 		eof = super().load(filepath)
-		print(self)
+		# print(self)
 
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
@@ -390,20 +390,23 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
 	# m = Mdl2File()
 	# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
 	# # print(m)
 	#
-	# idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save"
+	idir = "C:/Users/arnfi/Desktop/out"
 	# # idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
 	# dic = {}
 	# name = "nat_grassdune_02.mdl2"
 	# name = "nat_groundcover_searocket_patchy_01.mdl2"
 	# indices = []
 	#
-	# for fp in walker.walk_type(idir, "mdl2"):
-	# 	m.load(fp, quick=True)
+	for fp in walker.walk_type(idir, "mdl2"):
+		if "hitcheck" in fp or "skeleton" in fp or "airliftstraps" in fp:
+			continue
+		print(fp)
+		m.load(fp, quick=True)
 	# 	# indices.append(m.index)
 	# 	print(fp)
 	# 	# print(list(lod.bone_index for lod in m.lods))

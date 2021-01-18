@@ -14,6 +14,18 @@ class JointCompound:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# repeat
+		self.joint_count = 0
+
+		# small number
+		self.count_0 = 0
+
+		# small number
+		self.count_1 = 0
+
+		# small number
+		self.count_2 = 0
 		self.namespace_length = 0
 
 		# 0s
@@ -46,6 +58,10 @@ class JointCompound:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
+		self.joint_count = stream.read_uint()
+		self.count_0 = stream.read_uint()
+		self.count_1 = stream.read_uint()
+		self.count_2 = stream.read_uint()
 		self.namespace_length = stream.read_uint()
 		if not (stream.version == 18):
 			self.zeros = stream.read_uints((13))
@@ -64,6 +80,10 @@ class JointCompound:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
+		stream.write_uint(self.joint_count)
+		stream.write_uint(self.count_0)
+		stream.write_uint(self.count_1)
+		stream.write_uint(self.count_2)
 		stream.write_uint(self.namespace_length)
 		if not (stream.version == 18):
 			stream.write_uints(self.zeros)
@@ -84,6 +104,10 @@ class JointCompound:
 
 	def get_fields_str(self):
 		s = ''
+		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
+		s += f'\n	* count_0 = {self.count_0.__repr__()}'
+		s += f'\n	* count_1 = {self.count_1.__repr__()}'
+		s += f'\n	* count_2 = {self.count_2.__repr__()}'
 		s += f'\n	* namespace_length = {self.namespace_length.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'

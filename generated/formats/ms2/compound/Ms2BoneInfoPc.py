@@ -1,9 +1,9 @@
 import typing
 from generated.array import Array
+from generated.formats.ms2.compound.IndexEnum import IndexEnum
 from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.PzBone import PzBone
-from generated.formats.ms2.compound.UnkHierlistEntry import UnkHierlistEntry
 
 
 class Ms2BoneInfoPc:
@@ -167,7 +167,7 @@ class Ms2BoneInfoPc:
 		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
 		self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
 		if self.one_64:
-			self.unknown_hier_list.read(stream, UnkHierlistEntry, self.count_5, None)
+			self.unknown_hier_list.read(stream, IndexEnum, self.count_5, None)
 		self.hier_2_padding_0 = stream.read_uint64()
 		if 64 < self.bone_count:
 			self.hier_2_padding_1 = stream.read_uint64()
@@ -226,7 +226,7 @@ class Ms2BoneInfoPc:
 		stream.write_ubytes(self.bone_parents)
 		stream.write_bytes(self.hier_1_padding)
 		if self.one_64:
-			self.unknown_hier_list.write(stream, UnkHierlistEntry, self.count_5, None)
+			self.unknown_hier_list.write(stream, IndexEnum, self.count_5, None)
 		stream.write_uint64(self.hier_2_padding_0)
 		if 64 < self.bone_count:
 			stream.write_uint64(self.hier_2_padding_1)

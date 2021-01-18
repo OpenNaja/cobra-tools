@@ -1,3 +1,5 @@
+NO_CLASSES = ("Padding",)
+
 
 class Imports:
     """Creates and writes an import block"""
@@ -36,6 +38,9 @@ class Imports:
         module_imports = []
         local_imports = []
         for class_import in set(self.imports):
+            # don't write classes that are purely virtual
+            if class_import in NO_CLASSES:
+                continue
             if class_import in self.path_dict:
                 import_path = "generated." + self.path_dict[class_import].replace("\\", ".")
                 local_imports.append(f"from {import_path} import {class_import}\n")

@@ -3,7 +3,7 @@ from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
 
 
-class ListLong(Descriptor):
+class ListFirst(Descriptor):
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
@@ -18,7 +18,7 @@ class ListLong(Descriptor):
 
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.floats = stream.read_floats((26))
+		self.floats = stream.read_floats((3))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -31,7 +31,7 @@ class ListLong(Descriptor):
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'ListLong [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'ListFirst [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

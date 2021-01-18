@@ -16,18 +16,6 @@ class JointData:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# 4
-		self.joint_count = 0
-
-		# 0
-		self.unknown_1 = 0
-
-		# 0
-		self.unknown_2 = 0
-
-		# 0
-		self.unknown_3 = 0
 		self.joint_compound = JointCompound()
 		self.joint_list = Array()
 		self.unknown_list = Array()
@@ -40,14 +28,10 @@ class JointData:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.joint_count = stream.read_uint()
-		self.unknown_1 = stream.read_uint()
-		self.unknown_2 = stream.read_uint()
-		self.unknown_3 = stream.read_uint()
 		self.joint_compound = stream.read_type(JointCompound)
-		self.joint_list.read(stream, JointEntry, self.joint_count, None)
-		self.unknown_list.read(stream, UnknownJointEntry, self.joint_count, None)
-		self.unknown_10.read(stream, FFCounter, self.joint_count, None)
+		self.joint_list.read(stream, JointEntry, self.joint_compound.joint_count, None)
+		self.unknown_list.read(stream, UnknownJointEntry, self.joint_compound.joint_count, None)
+		self.unknown_10.read(stream, FFCounter, self.joint_compound.joint_count, None)
 		self.unknown_11 = stream.read_uint()
 		self.joint_names = stream.read_type(ZStringBuffer, (self.joint_compound.namespace_length,))
 		self.joint_names_padding = stream.read_bytes(((4 - (self.joint_compound.namespace_length % 8)) % 8))
@@ -58,14 +42,10 @@ class JointData:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uint(self.joint_count)
-		stream.write_uint(self.unknown_1)
-		stream.write_uint(self.unknown_2)
-		stream.write_uint(self.unknown_3)
 		stream.write_type(self.joint_compound)
-		self.joint_list.write(stream, JointEntry, self.joint_count, None)
-		self.unknown_list.write(stream, UnknownJointEntry, self.joint_count, None)
-		self.unknown_10.write(stream, FFCounter, self.joint_count, None)
+		self.joint_list.write(stream, JointEntry, self.joint_compound.joint_count, None)
+		self.unknown_list.write(stream, UnknownJointEntry, self.joint_compound.joint_count, None)
+		self.unknown_10.write(stream, FFCounter, self.joint_compound.joint_count, None)
 		stream.write_uint(self.unknown_11)
 		stream.write_type(self.joint_names)
 		stream.write_bytes(self.joint_names_padding)
@@ -78,10 +58,6 @@ class JointData:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
-		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
-		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
-		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
 		s += f'\n	* joint_compound = {self.joint_compound.__repr__()}'
 		s += f'\n	* joint_list = {self.joint_list.__repr__()}'
 		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
