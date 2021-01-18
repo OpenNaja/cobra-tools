@@ -159,8 +159,16 @@ class XmlParser:
                     else:
                         imports.append(field_type)
 
-    def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arr1=None, arg=None):
-        if self.tag_dict[dtype.lower()] == "enum":
+    def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arr1=None, arg=None, align=None):
+        if dtype.lower() == "padding":
+            # print("padding")
+            padding = f"({align}-((self.io_start-stream.tell()) % {align})) % {align}"
+            if mode == "read":
+                return f"{attr} = stream.read({padding})"
+            elif mode == "write":
+                return f"stream.write({attr})"
+
+        elif self.tag_dict[dtype.lower()] == "enum":
             storage = self.storage_dict[dtype]
             io_func = f"{mode}_{storage.lower()}"
             if mode == "read":

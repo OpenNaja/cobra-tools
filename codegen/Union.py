@@ -118,6 +118,7 @@ class Union:
 				ver2 = Version(ver2)
 			vercond = field.attrib.get("vercond")
 			cond = field.attrib.get("cond")
+			align = field.attrib.get("align")
 
 			if ver1 and ver2:
 				conditionals.append(f"{ver1} <= {VER} < {ver2}")
@@ -170,7 +171,7 @@ class Union:
 					f.write(f"{indent}self.{field_name}.{method_type}(stream, {field_type}, {arr1}, {arr2})")
 			else:
 				f.write(
-				f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arr1=arr1, arg=arg)}")
+				f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arr1=arr1, arg=arg, align=align)}")
 			# store version related stuff on stream
 			if "version" in field_name:
 				f.write(f"{indent}stream.{field_name} = self.{field_name}")
