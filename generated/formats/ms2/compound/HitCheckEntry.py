@@ -26,7 +26,7 @@ class HitCheckEntry:
 
 		# 46
 		self.unknown_4 = 0
-		self.namespace_offset = 0
+		self.name_offset = 0
 		self.sphere = Sphere()
 		self.bbox = BoundingBox()
 		self.capsule = Capsule()
@@ -41,7 +41,7 @@ class HitCheckEntry:
 		self.unknown_2_d = stream.read_ubyte()
 		self.unknown_3 = stream.read_uint()
 		self.unknown_4 = stream.read_uint()
-		self.namespace_offset = stream.read_uint()
+		self.name_offset = stream.read_uint()
 		if self.type == 0:
 			self.sphere = stream.read_type(Sphere)
 		if self.type == 1:
@@ -61,7 +61,7 @@ class HitCheckEntry:
 		stream.write_ubyte(self.unknown_2_d)
 		stream.write_uint(self.unknown_3)
 		stream.write_uint(self.unknown_4)
-		stream.write_uint(self.namespace_offset)
+		stream.write_uint(self.name_offset)
 		if self.type == 0:
 			stream.write_type(self.sphere)
 		if self.type == 1:
@@ -83,7 +83,7 @@ class HitCheckEntry:
 		s += f'\n	* unknown_2_d = {self.unknown_2_d.__repr__()}'
 		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
 		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'
-		s += f'\n	* namespace_offset = {self.namespace_offset.__repr__()}'
+		s += f'\n	* name_offset = {self.name_offset.__repr__()}'
 		s += f'\n	* sphere = {self.sphere.__repr__()}'
 		s += f'\n	* bbox = {self.bbox.__repr__()}'
 		s += f'\n	* capsule = {self.capsule.__repr__()}'

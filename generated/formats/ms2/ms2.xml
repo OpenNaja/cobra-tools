@@ -546,26 +546,15 @@
         <add name="JointCompound" type="JointCompound" ></add>
         <add name="UnknownLista" type="JointEntry" arr1="JointCompound \ joint_count" ></add>
         <add name="zeros" type="uint64" arr1="JointCompound \ joint_count" >might be pointers</add>
-<!--        this one is more longer, but different entry too, seemingly all floats-->
         <add name="UnknownListc" type="ListCEntry" arr1="JointCompound \ joint_count" ></add>
-
-<!--        list d contains PI frequently, could be limited hinge descriptors-->
         <add name="first list" type="ListFirst" arr1="JointCompound \ count_0" >used by ptero, 16 bytes per entry</add>
         <add name="short list" type="ListShort" arr1="JointCompound \ count_1" ></add>
         <add name="long list" type="ListLong" arr1="JointCompound \ count_2" ></add>
         <add name="joint indices" type="int" arr1="JointCompound \ joint_count">index</add>
         <add name="bone indices" type="int" arr1="JointCompound \ bone count">index or -1</add>
         <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
-<!--        <add name="padding new" type="padding" align="12" >align to 8 bytes</add>-->
-<!--&lt;!&ndash;        todo: figure out the padding here, this is weird&ndash;&gt;-->
-<!--&lt;!&ndash;        <add name="JointNamesPadding" type="byte" arr1="(16 - (JointCompound\namespace length % 8)) % 8" ></add>&ndash;&gt;-->
-<!--        <add name="JointNamesPadding" type="byte" arr1="(8 - (JointCompound\namespace length % 8)) % 8" ></add>-->
-<!--        <add name="zero22" type="uint">2</add>-->
-<!--        <add name="JointInfoList" type="JointInfo" arr1="joint_count" ></add>-->
-
-<!--        for testing-->
-<!--        <add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>-->
-<!--        <add name="JointInfoList" type="JointInfo" arr1="1" ></add>-->
+        <add name="JointNamesPadding" type="byte" arr1="(4 - (JointCompound\namespace length % 8)) % 8" ></add>
+        <add name="JointInfoList" type="JointInfo" arr1="JointCompound \ joint count" ></add>
     </compound>
 
     <compound name="Descriptor">
@@ -675,7 +664,7 @@
         <add name="unknown2d" type="ubyte">0</add>
 		<add name="unknown3" type="uint">564267</add>
 		<add name="unknown4" type="uint">46</add>
-		<add name="namespace offset" type="uint"></add>
+		<add name="name offset" type="uint"></add>
 
 		<add name="sphere" type="Sphere" cond="type == 0"></add>
 		<add name="bbox" type="BoundingBox" cond="type == 1"></add>

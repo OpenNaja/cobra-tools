@@ -138,6 +138,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.seek(end_of_bone_info)
 				joints = JointDataNasuto(bone_info.joint_count)
 				joints.read(stream)
+				for joint_info in joints.joint_info_list:
+					joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
+					for hit in joint_info.hit_check:
+						hit.name = joints.joint_names.get_str_at(hit.name_offset)
+
 				print(joints)
 			except Exception as err:
 				print("nasuto joints failed")

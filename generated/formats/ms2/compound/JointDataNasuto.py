@@ -2,6 +2,7 @@ import typing
 from generated.array import Array
 from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.JointEntry import JointEntry
+from generated.formats.ms2.compound.JointInfo import JointInfo
 from generated.formats.ms2.compound.ListCEntry import ListCEntry
 from generated.formats.ms2.compound.ListFirst import ListFirst
 from generated.formats.ms2.compound.ListLong import ListLong
@@ -35,6 +36,8 @@ class JointDataNasuto:
 		# index or -1
 		self.bone_indices = Array()
 		self.joint_names = ZStringBuffer()
+		self.joint_names_padding = Array()
+		self.joint_info_list = Array()
 
 	def read(self, stream):
 
@@ -49,6 +52,8 @@ class JointDataNasuto:
 		self.joint_indices = stream.read_ints((self.joint_compound.joint_count))
 		self.bone_indices = stream.read_ints((self.joint_compound.bone_count))
 		self.joint_names = stream.read_type(ZStringBuffer, (self.joint_compound.namespace_length,))
+		self.joint_names_padding = stream.read_bytes(((4 - (self.joint_compound.namespace_length % 8)) % 8))
+		self.joint_info_list.read(stream, JointInfo, self.joint_compound.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -65,6 +70,8 @@ class JointDataNasuto:
 		stream.write_ints(self.joint_indices)
 		stream.write_ints(self.bone_indices)
 		stream.write_type(self.joint_names)
+		stream.write_bytes(self.joint_names_padding)
+		self.joint_info_list.write(stream, JointInfo, self.joint_compound.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -83,6 +90,8 @@ class JointDataNasuto:
 		s += f'\n	* joint_indices = {self.joint_indices.__repr__()}'
 		s += f'\n	* bone_indices = {self.bone_indices.__repr__()}'
 		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
+		s += f'\n	* joint_names_padding = {self.joint_names_padding.__repr__()}'
+		s += f'\n	* joint_info_list = {self.joint_info_list.__repr__()}'
 		return s
 
 	def __repr__(self):
