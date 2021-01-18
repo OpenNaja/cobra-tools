@@ -556,6 +556,7 @@
         <add name="joint indices" type="int" arr1="JointCompound \ joint_count">index</add>
         <add name="bone indices" type="int" arr1="JointCompound \ bone count">index or -1</add>
         <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
+<!--        <add name="padding new" type="padding" align="12" >align to 8 bytes</add>-->
 <!--&lt;!&ndash;        todo: figure out the padding here, this is weird&ndash;&gt;-->
 <!--&lt;!&ndash;        <add name="JointNamesPadding" type="byte" arr1="(16 - (JointCompound\namespace length % 8)) % 8" ></add>&ndash;&gt;-->
 <!--        <add name="JointNamesPadding" type="byte" arr1="(8 - (JointCompound\namespace length % 8)) % 8" ></add>-->
