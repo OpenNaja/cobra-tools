@@ -143,9 +143,10 @@ if len(args) > 0:
 	ovlfile.write(ovl)
 	ovlfile.close
 
-	ovsfile = open("Loc.ovs", "wb")
-	ovsfile.write(ovsout)
-	ovsfile.close
+	# debug save the ovs chunk
+	#ovsfile = open("Loc.ovs", "wb")
+	#ovsfile.write(ovsout)
+	#ovsfile.close
 
 
 else:
