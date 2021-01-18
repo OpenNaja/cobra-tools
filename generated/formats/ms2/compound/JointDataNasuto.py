@@ -30,16 +30,10 @@ class JointDataNasuto:
 		self.long_list = Array()
 
 		# index
-		self.indices_0 = Array()
-
-		# index
-		self.indices_1 = Array()
-
-		# index
-		self.indices_2 = Array()
+		self.joint_indices = Array()
 
 		# index or -1
-		self.indices_3 = Array()
+		self.bone_indices = Array()
 		self.joint_names = ZStringBuffer()
 
 	def read(self, stream):
@@ -52,10 +46,8 @@ class JointDataNasuto:
 		self.first_list.read(stream, ListFirst, self.joint_compound.count_0, None)
 		self.short_list.read(stream, ListShort, self.joint_compound.count_1, None)
 		self.long_list.read(stream, ListLong, self.joint_compound.count_2, None)
-		self.indices_0 = stream.read_uints((self.joint_compound.count_0))
-		self.indices_1 = stream.read_uints((self.joint_compound.count_1))
-		self.indices_2 = stream.read_uints((self.joint_compound.count_2))
-		self.indices_3 = stream.read_ints((self.joint_compound.bone_count))
+		self.joint_indices = stream.read_ints((self.joint_compound.joint_count))
+		self.bone_indices = stream.read_ints((self.joint_compound.bone_count))
 		self.joint_names = stream.read_type(ZStringBuffer, (self.joint_compound.namespace_length,))
 
 		self.io_size = stream.tell() - self.io_start
@@ -70,10 +62,8 @@ class JointDataNasuto:
 		self.first_list.write(stream, ListFirst, self.joint_compound.count_0, None)
 		self.short_list.write(stream, ListShort, self.joint_compound.count_1, None)
 		self.long_list.write(stream, ListLong, self.joint_compound.count_2, None)
-		stream.write_uints(self.indices_0)
-		stream.write_uints(self.indices_1)
-		stream.write_uints(self.indices_2)
-		stream.write_ints(self.indices_3)
+		stream.write_ints(self.joint_indices)
+		stream.write_ints(self.bone_indices)
 		stream.write_type(self.joint_names)
 
 		self.io_size = stream.tell() - self.io_start
@@ -90,10 +80,8 @@ class JointDataNasuto:
 		s += f'\n	* first_list = {self.first_list.__repr__()}'
 		s += f'\n	* short_list = {self.short_list.__repr__()}'
 		s += f'\n	* long_list = {self.long_list.__repr__()}'
-		s += f'\n	* indices_0 = {self.indices_0.__repr__()}'
-		s += f'\n	* indices_1 = {self.indices_1.__repr__()}'
-		s += f'\n	* indices_2 = {self.indices_2.__repr__()}'
-		s += f'\n	* indices_3 = {self.indices_3.__repr__()}'
+		s += f'\n	* joint_indices = {self.joint_indices.__repr__()}'
+		s += f'\n	* bone_indices = {self.bone_indices.__repr__()}'
 		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
 		return s
 
