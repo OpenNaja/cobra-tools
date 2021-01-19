@@ -412,7 +412,7 @@
 		<add name="unknown40" type="uint64" ></add>
 		<add name="bone parents count" type="uint64" >index count4</add>
 		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
-		<add name="count5" type="uint64" >index count 5</add>
+		<add name="enum count" type="uint64" >index count 5</add>
 		<add name="unknown58" type="uint64" ></add>
 		<add name="one" type="uint64" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
@@ -428,21 +428,10 @@
         <add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
         <add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8">zeros</add>
-<!--        <add name="enumeration" type="IndexEnum"  arr1="count5" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
-        <add name="enumeration" type="uint"  arr1="count5" arr2="2"  cond="one" >enumerates all bone indices, 4 may be flags</add>
-
-
+<!--        <add name="enumeration" type="IndexEnum"  arr1="enum count" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
+        <add name="enumeration" type="uint"  arr1="enum count" arr2="2" cond="one" >enumerates all bone indices, 4 may be flags</add>
         <add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count">weird zeros</add>
-
         <add name="struct 7" type="Struct7" cond="count7">not present for static objects</add>
-
-<!--experimental!!-->
-<!--        objects - pz birch, jwe stuff-->
-<!--        		<add name="JointDatas" type="JointData" cond="joint count" >joint data</add>-->
-
-<!--        dinos only-->
-<!--		        <add name="JointDatas" type="JointDataNasuto" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
-
     </compound>
 
 	<compound name="ZerosPadding">

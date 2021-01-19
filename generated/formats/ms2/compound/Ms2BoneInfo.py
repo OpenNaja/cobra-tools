@@ -53,7 +53,7 @@ class Ms2BoneInfo:
 		self.extra_uint_0 = 0
 
 		# index count 5
-		self.count_5 = 0
+		self.enum_count = 0
 		self.unknown_58 = 0
 
 		# always 1
@@ -127,7 +127,7 @@ class Ms2BoneInfo:
 		self.bone_parents_count = stream.read_uint64()
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.extra_uint_0 = stream.read_uint64()
-		self.count_5 = stream.read_uint64()
+		self.enum_count = stream.read_uint64()
 		self.unknown_58 = stream.read_uint64()
 		self.one = stream.read_uint64()
 		self.zeros_count = stream.read_uint64()
@@ -149,7 +149,7 @@ class Ms2BoneInfo:
 		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
 		self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
 		if self.one:
-			self.enumeration = stream.read_uints((self.count_5, 2))
+			self.enumeration = stream.read_uints((self.enum_count, 2))
 		if self.zeros_count:
 			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count,))
 		if self.count_7:
@@ -177,7 +177,7 @@ class Ms2BoneInfo:
 		stream.write_uint64(self.bone_parents_count)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			stream.write_uint64(self.extra_uint_0)
-		stream.write_uint64(self.count_5)
+		stream.write_uint64(self.enum_count)
 		stream.write_uint64(self.unknown_58)
 		stream.write_uint64(self.one)
 		stream.write_uint64(self.zeros_count)
@@ -228,7 +228,7 @@ class Ms2BoneInfo:
 		s += f'\n	* unknown_40 = {self.unknown_40.__repr__()}'
 		s += f'\n	* bone_parents_count = {self.bone_parents_count.__repr__()}'
 		s += f'\n	* extra_uint_0 = {self.extra_uint_0.__repr__()}'
-		s += f'\n	* count_5 = {self.count_5.__repr__()}'
+		s += f'\n	* enum_count = {self.enum_count.__repr__()}'
 		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
 		s += f'\n	* one = {self.one.__repr__()}'
 		s += f'\n	* zeros_count = {self.zeros_count.__repr__()}'
