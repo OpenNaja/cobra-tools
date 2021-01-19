@@ -1,3 +1,4 @@
+import typing
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.Sphere import Sphere
@@ -21,15 +22,17 @@ class HitCheckEntry:
 		# 0
 		self.unknown_2_d = 0
 
-		# 564267
+		# JWE: 564267, PZ: seen 17 and 22
 		self.unknown_3 = 0
 
-		# 46
+		# JWE: 46, PZ: same as above
 		self.unknown_4 = 0
+
+		# offset into joint names
 		self.name_offset = 0
-		self.sphere = Sphere()
-		self.bbox = BoundingBox()
-		self.capsule = Capsule()
+		self.collider = Sphere()
+		self.collider = BoundingBox()
+		self.collider = Capsule()
 
 	def read(self, stream):
 
@@ -43,11 +46,11 @@ class HitCheckEntry:
 		self.unknown_4 = stream.read_uint()
 		self.name_offset = stream.read_uint()
 		if self.type == 0:
-			self.sphere = stream.read_type(Sphere)
+			self.collider = stream.read_type(Sphere)
 		if self.type == 1:
-			self.bbox = stream.read_type(BoundingBox)
+			self.collider = stream.read_type(BoundingBox)
 		if self.type == 2:
-			self.capsule = stream.read_type(Capsule)
+			self.collider = stream.read_type(Capsule)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -63,11 +66,11 @@ class HitCheckEntry:
 		stream.write_uint(self.unknown_4)
 		stream.write_uint(self.name_offset)
 		if self.type == 0:
-			stream.write_type(self.sphere)
+			stream.write_type(self.collider)
 		if self.type == 1:
-			stream.write_type(self.bbox)
+			stream.write_type(self.collider)
 		if self.type == 2:
-			stream.write_type(self.capsule)
+			stream.write_type(self.collider)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -84,9 +87,7 @@ class HitCheckEntry:
 		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
 		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'
 		s += f'\n	* name_offset = {self.name_offset.__repr__()}'
-		s += f'\n	* sphere = {self.sphere.__repr__()}'
-		s += f'\n	* bbox = {self.bbox.__repr__()}'
-		s += f'\n	* capsule = {self.capsule.__repr__()}'
+		s += f'\n	* collider = {self.collider.__repr__()}'
 		return s
 
 	def __repr__(self):

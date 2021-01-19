@@ -35,7 +35,7 @@ class JointData:
 		self.unknown_11 = stream.read_uint()
 		self.joint_names = stream.read_type(ZStringBuffer, (self.joint_compound.namespace_length,))
 		self.joint_names_padding = stream.read_bytes(((4 - (self.joint_compound.namespace_length % 8)) % 8))
-		self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
+		self.joint_info_list.read(stream, JointInfo, self.joint_compound.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -49,7 +49,7 @@ class JointData:
 		stream.write_uint(self.unknown_11)
 		stream.write_type(self.joint_names)
 		stream.write_bytes(self.joint_names_padding)
-		self.joint_info_list.write(stream, JointInfo, self.joint_count, None)
+		self.joint_info_list.write(stream, JointInfo, self.joint_compound.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

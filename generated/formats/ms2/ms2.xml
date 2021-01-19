@@ -106,6 +106,10 @@
         Null terminated string.
     </basic>
 
+    <compound name="SmartPadding">
+        Grabs 00 bytes only
+    </compound>
+
     <compound name="ZStringBuffer" count="0" >
         Holds a buffer of zero-terminated strings
     </compound>
@@ -410,8 +414,8 @@
 		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
 		<add name="count5" type="uint64" >index count 5</add>
 		<add name="unknown58" type="uint64" ></add>
-		<add name="one64" type="uint64" >always 1</add>
-		<add name="unk joint count" type="uint64" >if joints are present, same as bone count</add>
+		<add name="one" type="uint64" >always 1</add>
+		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="count7" type="uint64" vercond="! #PC#" >index count 7</add>
 		<add name="joint count" type="uint64" >joint count</add>
 		<add name="unk78count" type="uint64" >unnk 78 count</add>
@@ -424,16 +428,12 @@
         <add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
         <add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8">zeros</add>
-<!--        <add name="enumeration" type="IndexEnum"  arr1="count5" cond="one64" >enumerates all bone indices, 4 may be flags</add>-->
-        <add name="enumeration" type="uint"  arr1="count5" arr2="2"  cond="one64" >enumerates all bone indices, 4 may be flags</add>
+<!--        <add name="enumeration" type="IndexEnum"  arr1="count5" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
+        <add name="enumeration" type="uint"  arr1="count5" arr2="2"  cond="one" >enumerates all bone indices, 4 may be flags</add>
 
-<!--        padding is related to bone count-->
-<!--        odd one out: JWE stairwell-->
-        <add name="hier2padding 0" type="uint64" vercond="!#PZ#" ></add>
-        <add name="hier2padding 1" type="uint64" vercond="!#PZ#" cond="64 #LT# bone count">128 still has 16 bytes</add>
-        <add name="hier2padding 2" type="uint64" vercond="!#PZ#" cond="128 #LT# bone count">129 is the first with 24 bytes</add>
 
-        <add name="padding for ghari" type="padding" align="32" cond="#PZ#">align to 32 bytes</add>
+        <add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count">weird zeros</add>
+
         <add name="struct 7" type="Struct7" cond="count7">not present for static objects</add>
 
 <!--experimental!!-->
@@ -443,6 +443,14 @@
 <!--        dinos only-->
 <!--		        <add name="JointDatas" type="JointDataNasuto" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
 
+    </compound>
+
+	<compound name="ZerosPadding">
+<!--        padding is related to bone count-->
+<!--        odd one out: JWE stairwell-->
+        <add name="hier2padding 0" type="uint64" ></add>
+        <add name="hier2padding 1" type="uint64" cond="64 #LT# #ARG#">128 still has 16 bytes</add>
+        <add name="hier2padding 2" type="uint64" cond="128 #LT# #ARG#">129 is the first with 24 bytes</add>
     </compound>
 
 	<compound name="IndexEnum">
@@ -510,56 +518,42 @@
 
     </compound>
 
-
-	<compound name="Pc Joint Bone">
-        <add name="floats" type="float" arr1="12"></add>
-    </compound>
-
-	<compound name="Pc Joint Next">
-        <add name="eleven ff stuff" type="Pc FFCounter" >11, then 11 FFs</add>
-        <add name="undecoded" type="byte" arr1="5">usually 1F AA FF AA FF</add>
-        <add name="name address" type="uint" >start address in zstr buffer</add>
-        <add name="uints" type="uint" arr1="4">1, 0, 0, 0</add>
-    </compound>
-
     <compound name="Struct7">
         <add name="count7" type="uint64">repeat</add>
-        <add name="unknown2" type="uint64" >0</add>
-        <add name="unknown3 pz" type="uint" vercond="#PZ#" >0 or 1</add>
-        <add name="unknown f pz" type="float" vercond="#PZ#" >0 or 1</add>
-        <add name="unknown4 pz" type="uint64" vercond="#PZ#" >0</add>
+        <add name="zero" type="uint64" >seen 0</add>
+        <add name="zeros pz" type="uint64" vercond="#PZ#" arr1="2">only for recent versions of PZ</add>
         <add name="UnknownList" type="NasutoJointEntry" arr1="count7" >60 bytes per entry</add>
         <add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
     </compound>
 
     <compound name="NasutoJointEntry">
         60 bytes
-        <add name="unknown3a" type="ubyte" >?</add>
-        <add name="unknown3b" type="ubyte" >?</add>
-        <add name="unknown3c" type="ushort" >0</add>
+        <add name="child" type="ubyte" >index into bone list</add>
+        <add name="parent" type="ubyte" >index into bone list</add>
+        <add name="zero" type="ushort" >0</add>
         <add name="matrix" type="Matrix33" ></add>
         <add name="vector" type="Vector4" ></add>
         <add name="one" type="uint" >1</add>
     </compound>
 
-    <compound name="JointDataNasuto">
-        <add name="JointCompound" type="JointCompound" ></add>
-        <add name="UnknownLista" type="JointEntry" arr1="JointCompound \ joint_count" ></add>
-        <add name="zeros" type="uint64" arr1="JointCompound \ joint_count" >might be pointers</add>
-        <add name="UnknownListc" type="ListCEntry" arr1="JointCompound \ joint_count" ></add>
-        <add name="first list" type="ListFirst" arr1="JointCompound \ count_0" >used by ptero, 16 bytes per entry</add>
-        <add name="short list" type="ListShort" arr1="JointCompound \ count_1" ></add>
-        <add name="long list" type="ListLong" arr1="JointCompound \ count_2" ></add>
-        <add name="joint indices" type="int" arr1="JointCompound \ joint_count">index</add>
-        <add name="bone indices" type="int" arr1="JointCompound \ bone count">index or -1</add>
-        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
-        <add name="JointNamesPadding" type="byte" arr1="(4 - (JointCompound\namespace length % 8)) % 8" ></add>
-        <add name="JointInfoList" type="JointInfo" arr1="JointCompound \ joint count" ></add>
+    <compound name="JointDataNasuto" inherit="JointCompound">
+        <add name="UnknownLista" type="JointEntry" arr1="joint_count" ></add>
+        <add name="zeros" type="uint64" arr1="joint_count" >might be pointers</add>
+        <add name="UnknownListc" type="ListCEntry" arr1="joint_count" ></add>
+        <add name="first list" type="ListFirst" arr1="count_0" >used by ptero, 16 bytes per entry</add>
+        <add name="short list" type="ListShort" arr1="count_1" ></add>
+        <add name="long list" type="ListLong" arr1="count_2" ></add>
+        <add name="joint indices" type="int" arr1="joint_count">index</add>
+        <add name="bone indices" type="int" arr1="bone count">index or -1</add>
+        <add name="joint names" type="ZStringBuffer" arg="namespace length"></add>
+<!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
+        <add name="JointNamesPadding" type="SmartPadding" ></add>
+        <add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>
     </compound>
 
     <compound name="Descriptor">
-        <add name="a" type="ushort" ></add>
-        <add name="b" type="ushort" ></add>
+        <add name="parent" type="ushort" >index into JointInfoList</add>
+        <add name="child" type="ushort" >index into JointInfoList</add>
     </compound>
 
     <compound name="ListFirst" inherit="Descriptor">
@@ -583,40 +577,16 @@
         <add name="namespace length" type="uint" ></add>
         <add name="zeros" type="uint" arr1="13" cond="! #PC#">0s</add>
         <add name="zeros" type="uint" arr1="17" cond="#PC#">0s</add>
-        <add name="unknown4" type="uint" >1</add>
-        <add name="unknown5" type="uint" >0</add>
-        <add name="unknown6" type="uint" >1</add>
-        <add name="unknown7" type="uint" >0</add>
+        <add name="ones" type="uint64" arr1="2" >1, 1</add>
         <add name="bone count" type="uint" >matches bone count from bone info</add>
         <add name="joint entry count" type="uint" >0</add>
         <add name="zeros1" type="uint" arr1="4">usually 0s</add>
-    </compound>
-
-    <compound name="JointData">
-        <add name="JointCompound" type="JointCompound" ></add>
-
-        <add name="JointList" type="JointEntry" arr1="JointCompound \ joint count" ></add>
-        <!--<add name="JointListPadding" type="byte" arr1="(60 - ((joint count * 48) % 60)) % 60 " ></add>-->
-<!--        if i had to guess, those floats are probably several arrays of joint count after another-->
-        <add name="UnknownList" type="UnknownJointEntry" arr1="JointCompound \ joint count" ></add>
-        <add name="unknown10" type="FFCounter" arr1="JointCompound \ joint count"></add>
-        <add name="unknown11" type="uint"></add>
-        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
-        <add name="JointNamesPadding" type="byte" arr1="(4 - (JointCompound\namespace length % 8)) % 8" ></add>
-        <add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>
-<!--        <add name="JointInfoList" type="JointInfo" ></add>-->
     </compound>
 
     <compound name="Pc FFCounter">
         count is nonzero in PZ broken birch model
         <add name="count" type="uint" ></add>
         <add name="FFs" type="byte" arr1="count"></add>
-    </compound>
-
-    <compound name="FFCounter">
-        count is nonzero in PZ broken birch model
-        <add name="count" type="uint" ></add>
-        <add name="FFs" type="int" arr1="count"></add>
     </compound>
 
     <compound name="JointEntry">
@@ -631,24 +601,9 @@
         <add name="a" type="float" ></add>
     </compound>
 
-    <compound name="ListDEntry">
-<!--        probably not a matrix, not sure what it is-->
-        <add name="ce" type="float" ></add>
-        <add name="cb" type="float" ></add>
-        <add name="matrix" type="Matrix44" ></add>
-<!--        <add name="matrixb" type="Matrix33" ></add>-->
-<!--        <add name="c" type="Vector4" ></add>-->
-<!--        <add name="d" type="Vector4" ></add>-->
-    </compound>
-
-    <compound name="UnknownJointEntry">
-        <add name="floats" type="float" arr1="13"></add>
-    </compound>	
-	
-
 	<compound name="JointInfo">
         <add name="eleven" type="uint">must be 11</add>
-        <add name="FFs" type="short" arr1="6">bunch of -1's</add>
+        <add name="FFs" type="int" arr1="3">bunch of -1's</add>
 		<add name="name offset" type="uint"></add>
         <add name="hitcheck count" type="uint"></add>
          <add name="zero" type="uint64" >8 bytes of zeros</add>
@@ -662,21 +617,19 @@
         <add name="unknown2b" type="ubyte"></add>
         <add name="unknown2c" type="ubyte">16</add>
         <add name="unknown2d" type="ubyte">0</add>
-		<add name="unknown3" type="uint">564267</add>
-		<add name="unknown4" type="uint">46</add>
-		<add name="name offset" type="uint"></add>
+		<add name="unknown3" type="uint">JWE: 564267, PZ: seen 17 and 22</add>
+		<add name="unknown4" type="uint">JWE: 46, PZ: same as above</add>
+		<add name="name offset" type="uint">offset into joint names</add>
 
-		<add name="sphere" type="Sphere" cond="type == 0"></add>
-		<add name="bbox" type="BoundingBox" cond="type == 1"></add>
-		<add name="capsule" type="Capsule" cond="type == 2"></add>
+		<add name="collider" type="Sphere" cond="type == 0"></add>
+		<add name="collider" type="BoundingBox" cond="type == 1"></add>
+		<add name="collider" type="Capsule" cond="type == 2"></add>
     </compound>
-
 
     <compound name="Sphere">
          <add name="center" type="Vector3" ></add>
          <add name="radius" type="float" ></add>
          <add name="unk" type="float" ></add>
-<!--         <add name="unk" type="Vector3" > zero?</add>-->
     </compound>
 
     <compound name="Capsule">

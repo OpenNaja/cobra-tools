@@ -34,17 +34,8 @@ class JointCompound:
 		# 0s
 		self.zeros = Array()
 
-		# 1
-		self.unknown_4 = 0
-
-		# 0
-		self.unknown_5 = 0
-
-		# 1
-		self.unknown_6 = 0
-
-		# 0
-		self.unknown_7 = 0
+		# 1, 1
+		self.ones = Array()
 
 		# matches bone count from bone info
 		self.bone_count = 0
@@ -67,10 +58,7 @@ class JointCompound:
 			self.zeros = stream.read_uints((13))
 		if stream.version == 18:
 			self.zeros = stream.read_uints((17))
-		self.unknown_4 = stream.read_uint()
-		self.unknown_5 = stream.read_uint()
-		self.unknown_6 = stream.read_uint()
-		self.unknown_7 = stream.read_uint()
+		self.ones = stream.read_uint64s((2))
 		self.bone_count = stream.read_uint()
 		self.joint_entry_count = stream.read_uint()
 		self.zeros_1 = stream.read_uints((4))
@@ -89,10 +77,7 @@ class JointCompound:
 			stream.write_uints(self.zeros)
 		if stream.version == 18:
 			stream.write_uints(self.zeros)
-		stream.write_uint(self.unknown_4)
-		stream.write_uint(self.unknown_5)
-		stream.write_uint(self.unknown_6)
-		stream.write_uint(self.unknown_7)
+		stream.write_uint64s(self.ones)
 		stream.write_uint(self.bone_count)
 		stream.write_uint(self.joint_entry_count)
 		stream.write_uints(self.zeros_1)
@@ -110,10 +95,7 @@ class JointCompound:
 		s += f'\n	* count_2 = {self.count_2.__repr__()}'
 		s += f'\n	* namespace_length = {self.namespace_length.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'
-		s += f'\n	* unknown_5 = {self.unknown_5.__repr__()}'
-		s += f'\n	* unknown_6 = {self.unknown_6.__repr__()}'
-		s += f'\n	* unknown_7 = {self.unknown_7.__repr__()}'
+		s += f'\n	* ones = {self.ones.__repr__()}'
 		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
 		s += f'\n	* joint_entry_count = {self.joint_entry_count.__repr__()}'
 		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'

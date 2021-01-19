@@ -4,6 +4,7 @@ from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.PzBone import PzBone
 from generated.formats.ms2.compound.Struct7 import Struct7
+from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
 
 
 class Ms2BoneInfo:
@@ -56,10 +57,10 @@ class Ms2BoneInfo:
 		self.unknown_58 = 0
 
 		# always 1
-		self.one_64 = 0
+		self.one = 0
 
-		# if joints are present, same as bone count
-		self.unk_joint_count = 0
+		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
+		self.zeros_count = 0
 
 		# index count 7
 		self.count_7 = 0
@@ -99,16 +100,9 @@ class Ms2BoneInfo:
 
 		# enumerates all bone indices, 4 may be flags
 		self.enumeration = Array()
-		self.hier_2_padding_0 = 0
 
-		# 128 still has 16 bytes
-		self.hier_2_padding_1 = 0
-
-		# 129 is the first with 24 bytes
-		self.hier_2_padding_2 = 0
-
-		# align to 32 bytes
-		self.padding_for_ghari = 0
+		# weird zeros
+		self.zeros_padding = ZerosPadding()
 
 		# not present for static objects
 		self.struct_7 = Struct7()
@@ -135,8 +129,8 @@ class Ms2BoneInfo:
 			self.extra_uint_0 = stream.read_uint64()
 		self.count_5 = stream.read_uint64()
 		self.unknown_58 = stream.read_uint64()
-		self.one_64 = stream.read_uint64()
-		self.unk_joint_count = stream.read_uint64()
+		self.one = stream.read_uint64()
+		self.zeros_count = stream.read_uint64()
 		if not (stream.version == 18):
 			self.count_7 = stream.read_uint64()
 		self.joint_count = stream.read_uint64()
@@ -154,16 +148,10 @@ class Ms2BoneInfo:
 			self.bones.read(stream, JweBone, self.bone_count, None)
 		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
 		self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
-		if self.one_64:
+		if self.one:
 			self.enumeration = stream.read_uints((self.count_5, 2))
-		if not (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)):
-			self.hier_2_padding_0 = stream.read_uint64()
-		if not (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)) and 64 < self.bone_count:
-			self.hier_2_padding_1 = stream.read_uint64()
-		if not (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)) and 128 < self.bone_count:
-			self.hier_2_padding_2 = stream.read_uint64()
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
-			self.padding_for_ghari = stream.read((32-((self.io_start-stream.tell()) % 32)) % 32)
+		if self.zeros_count:
+			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count,))
 		if self.count_7:
 			self.struct_7 = stream.read_type(Struct7)
 
@@ -191,8 +179,8 @@ class Ms2BoneInfo:
 			stream.write_uint64(self.extra_uint_0)
 		stream.write_uint64(self.count_5)
 		stream.write_uint64(self.unknown_58)
-		stream.write_uint64(self.one_64)
-		stream.write_uint64(self.unk_joint_count)
+		stream.write_uint64(self.one)
+		stream.write_uint64(self.zeros_count)
 		if not (stream.version == 18):
 			stream.write_uint64(self.count_7)
 		stream.write_uint64(self.joint_count)
@@ -210,16 +198,10 @@ class Ms2BoneInfo:
 			self.bones.write(stream, JweBone, self.bone_count, None)
 		stream.write_ubytes(self.bone_parents)
 		stream.write_bytes(self.hier_1_padding)
-		if self.one_64:
+		if self.one:
 			stream.write_uints(self.enumeration)
-		if not (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)):
-			stream.write_uint64(self.hier_2_padding_0)
-		if not (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)) and 64 < self.bone_count:
-			stream.write_uint64(self.hier_2_padding_1)
-		if not (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)) and 128 < self.bone_count:
-			stream.write_uint64(self.hier_2_padding_2)
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
-			stream.write(self.padding_for_ghari)
+		if self.zeros_count:
+			stream.write_type(self.zeros_padding)
 		if self.count_7:
 			stream.write_type(self.struct_7)
 
@@ -248,8 +230,8 @@ class Ms2BoneInfo:
 		s += f'\n	* extra_uint_0 = {self.extra_uint_0.__repr__()}'
 		s += f'\n	* count_5 = {self.count_5.__repr__()}'
 		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
-		s += f'\n	* one_64 = {self.one_64.__repr__()}'
-		s += f'\n	* unk_joint_count = {self.unk_joint_count.__repr__()}'
+		s += f'\n	* one = {self.one.__repr__()}'
+		s += f'\n	* zeros_count = {self.zeros_count.__repr__()}'
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
 		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
 		s += f'\n	* unk_78_count = {self.unk_78_count.__repr__()}'
@@ -262,10 +244,7 @@ class Ms2BoneInfo:
 		s += f'\n	* bone_parents = {self.bone_parents.__repr__()}'
 		s += f'\n	* hier_1_padding = {self.hier_1_padding.__repr__()}'
 		s += f'\n	* enumeration = {self.enumeration.__repr__()}'
-		s += f'\n	* hier_2_padding_0 = {self.hier_2_padding_0.__repr__()}'
-		s += f'\n	* hier_2_padding_1 = {self.hier_2_padding_1.__repr__()}'
-		s += f'\n	* hier_2_padding_2 = {self.hier_2_padding_2.__repr__()}'
-		s += f'\n	* padding_for_ghari = {self.padding_for_ghari.__repr__()}'
+		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
 		return s
 

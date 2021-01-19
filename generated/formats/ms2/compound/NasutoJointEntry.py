@@ -15,14 +15,14 @@ class NasutoJointEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# ?
-		self.unknown_3_a = 0
+		# index into bone list
+		self.child = 0
 
-		# ?
-		self.unknown_3_b = 0
+		# index into bone list
+		self.parent = 0
 
 		# 0
-		self.unknown_3_c = 0
+		self.zero = 0
 		self.matrix = Matrix33()
 		self.vector = Vector4()
 
@@ -32,9 +32,9 @@ class NasutoJointEntry:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.unknown_3_a = stream.read_ubyte()
-		self.unknown_3_b = stream.read_ubyte()
-		self.unknown_3_c = stream.read_ushort()
+		self.child = stream.read_ubyte()
+		self.parent = stream.read_ubyte()
+		self.zero = stream.read_ushort()
 		self.matrix = stream.read_type(Matrix33)
 		self.vector = stream.read_type(Vector4)
 		self.one = stream.read_uint()
@@ -44,9 +44,9 @@ class NasutoJointEntry:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_ubyte(self.unknown_3_a)
-		stream.write_ubyte(self.unknown_3_b)
-		stream.write_ushort(self.unknown_3_c)
+		stream.write_ubyte(self.child)
+		stream.write_ubyte(self.parent)
+		stream.write_ushort(self.zero)
 		stream.write_type(self.matrix)
 		stream.write_type(self.vector)
 		stream.write_uint(self.one)
@@ -58,9 +58,9 @@ class NasutoJointEntry:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* unknown_3_a = {self.unknown_3_a.__repr__()}'
-		s += f'\n	* unknown_3_b = {self.unknown_3_b.__repr__()}'
-		s += f'\n	* unknown_3_c = {self.unknown_3_c.__repr__()}'
+		s += f'\n	* child = {self.child.__repr__()}'
+		s += f'\n	* parent = {self.parent.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
 		s += f'\n	* matrix = {self.matrix.__repr__()}'
 		s += f'\n	* vector = {self.vector.__repr__()}'
 		s += f'\n	* one = {self.one.__repr__()}'

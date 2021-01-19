@@ -124,28 +124,41 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print("end of bone info at", end_of_bone_info)
 			except:
 				print("Bone info failed")
+			# print(self.bone_info)
+			if bone_info:
+				try:
+					self.bone_names = [self.names[i] for i in bone_info.name_indices]
+				except:
+					print("Names failed...")
+			print(self.bone_names)
+			for i, x in enumerate(bone_info.struct_7.unknown_list):
+				print(i)
+				print(self.bone_names[x.child], x.child)
+				print(self.bone_names[x.parent], x.parent)
+				assert x.zero == 0
+				assert x.one == 1
+			assert bone_info.one == 1
+			assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.bone_parents_count == bone_info.count_5
+			assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
+			assert bone_info.unk_78_count == 0 and bone_info.unknown_88 == 0 and bone_info.unknownextra == 0
 			try:
-				print("reading joints static style")
-				joints = JointData()
-				joints.read(stream)
-				print(joints)
-			except Exception as err:
-				print("joints failed")
-				print(err)
-				pass
-			try:
-				print("reading joints Nasuto style")
-				stream.seek(end_of_bone_info)
-				joints = JointDataNasuto(bone_info.joint_count)
+				print("reading joints")
+				joints = JointDataNasuto()
 				joints.read(stream)
 				for joint_info in joints.joint_info_list:
 					joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
 					for hit in joint_info.hit_check:
 						hit.name = joints.joint_names.get_str_at(hit.name_offset)
 
-				print(joints)
+				for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
+					print(f"List {ix}")
+					for i, x in enumerate(li):
+						print(i)
+						print(joints.joint_info_list[x.parent].name, x.parent)
+						print(joints.joint_info_list[x.child].name, x.child)
+
 			except Exception as err:
-				print("nasuto joints failed")
+				print("joints failed")
 				print(err)
 				pass
 
@@ -159,7 +172,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# eof = super().load(filepath)
 
 		# extra stuff
-		self.bone_names = []
 		self.bone_info = None
 		with self.reader(filepath) as stream:
 			self.read(stream)
@@ -230,12 +242,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfoPc)
 			else:
 				self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
-		# print(self.bone_info)
-		if self.bone_info:
-			try:
-				self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
-			except:
-				print("Names failed...")
+
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
