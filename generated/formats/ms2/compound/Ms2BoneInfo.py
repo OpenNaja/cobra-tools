@@ -1,5 +1,6 @@
 import typing
 from generated.array import Array
+from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.PzBone import PzBone
@@ -98,6 +99,9 @@ class Ms2BoneInfo:
 		# ragdoll links?
 		self.struct_7 = Struct7()
 
+		# joints
+		self.joints = JointData()
+
 	def read(self, stream):
 
 		self.io_start = stream.tell()
@@ -140,6 +144,8 @@ class Ms2BoneInfo:
 			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count,))
 		if self.count_7:
 			self.struct_7 = stream.read_type(Struct7)
+		if self.joint_count:
+			self.joints = stream.read_type(JointData)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -185,6 +191,8 @@ class Ms2BoneInfo:
 			stream.write_type(self.zeros_padding)
 		if self.count_7:
 			stream.write_type(self.struct_7)
+		if self.joint_count:
+			stream.write_type(self.joints)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -222,6 +230,7 @@ class Ms2BoneInfo:
 		s += f'\n	* enumeration = {self.enumeration.__repr__()}'
 		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
+		s += f'\n	* joints = {self.joints.__repr__()}'
 		return s
 
 	def __repr__(self):

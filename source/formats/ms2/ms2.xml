@@ -434,7 +434,7 @@
         <add name="enumeration" type="uint"  arr1="enum count" arr2="2" cond="one" >enumerates all bone indices, 4 may be flags</add>
         <add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count">weird zeros</add>
         <add name="struct 7" type="Struct7" cond="count7">ragdoll links?</add>
-<!--        <add name="joints" type="JointData" cond="joint count">joints</add>-->
+        <add name="joints" type="JointData" cond="joint count">joints</add>
     </compound>
 
 	<compound name="ZerosPadding">
@@ -625,9 +625,11 @@
     </compound>
 
     <compound name="Capsule">
-         <add name="a" type="Vector3" ></add>
-         <add name="b" type="Vector3" ></add>
-         <add name="c" type="Vector3" ></add>
+         <add name="offset" type="Vector3" ></add>
+         <add name="direction" type="Vector3" >normalized</add>
+         <add name="radius" type="float" ></add>
+         <add name="extent" type="float" ></add>
+         <add name="zero" type="uint" >apparently unused</add>
     </compound>
 
     <compound name="BoundingBox">

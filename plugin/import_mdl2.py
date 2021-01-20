@@ -5,6 +5,11 @@ import bpy
 # import bmesh
 import mathutils
 
+from generated.formats.ms2.compound.BoundingBox import BoundingBox
+from generated.formats.ms2.compound.Capsule import Capsule
+from generated.formats.ms2.compound.Sphere import Sphere
+from plugin.collision import import_capsulebv
+from plugin.helpers import mesh_from_data, create_ob
 from utils import matrix_util
 from utils.matrix_util import mat3_to_vec_roll
 from utils.node_arrange import nodes_iterate
@@ -124,8 +129,23 @@ def import_armature(data):
 		for i, bone_name in enumerate(bone_names):
 			bone = b_armature_obj.pose.bones[bone_name]
 			bone["index"] = i
-
+		import_joints(b_armature_obj, bone_info)
 		return b_armature_obj
+
+
+def import_joints(armature_ob, bone_info):
+	print("Importing joints")
+	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
+		print("joint", joint_info.name)
+		for hitcheck in joint_info.hit_check:
+			print(hitcheck.name, hitcheck.type)
+			coll = hitcheck.collider
+			if isinstance(coll, Sphere):
+				pass
+			elif isinstance(coll, BoundingBox):
+				pass
+			elif isinstance(coll, Capsule):
+				import_capsulebv(coll, hitcheck.name)
 
 
 def fix_bone_lengths(b_armature_data):
@@ -317,25 +337,6 @@ def create_material(in_dir, matname):
 
 	nodes_iterate(tree, output)
 	return mat
-
-
-def create_ob(ob_name, ob_data):
-	ob = bpy.data.objects.new(ob_name, ob_data)
-	bpy.context.scene.collection.objects.link(ob)
-	bpy.context.view_layer.objects.active = ob
-	return ob
-
-
-def mesh_from_data(name, verts, faces, wireframe=True):
-	me = bpy.data.meshes.new(name)
-	start_time = time.time()
-	me.from_pydata(verts, [], faces)
-	print(f"from_pydata() took {time.time()-start_time:.2f} seconds for {len(verts)} verts")
-	me.update()
-	ob = create_ob(name, me)
-	# if wireframe:
-	# 	ob.draw_type = 'WIRE'
-	return ob, me
 
 
 def get_weights(model):

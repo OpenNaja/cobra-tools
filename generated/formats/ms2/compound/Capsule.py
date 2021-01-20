@@ -9,25 +9,35 @@ class Capsule:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.a = Vector3()
-		self.b = Vector3()
-		self.c = Vector3()
+		self.offset = Vector3()
+
+		# normalized
+		self.direction = Vector3()
+		self.radius = 0
+		self.extent = 0
+
+		# apparently unused
+		self.zero = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.a = stream.read_type(Vector3)
-		self.b = stream.read_type(Vector3)
-		self.c = stream.read_type(Vector3)
+		self.offset = stream.read_type(Vector3)
+		self.direction = stream.read_type(Vector3)
+		self.radius = stream.read_float()
+		self.extent = stream.read_float()
+		self.zero = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_type(self.a)
-		stream.write_type(self.b)
-		stream.write_type(self.c)
+		stream.write_type(self.offset)
+		stream.write_type(self.direction)
+		stream.write_float(self.radius)
+		stream.write_float(self.extent)
+		stream.write_uint(self.zero)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -36,9 +46,11 @@ class Capsule:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* a = {self.a.__repr__()}'
-		s += f'\n	* b = {self.b.__repr__()}'
-		s += f'\n	* c = {self.c.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* direction = {self.direction.__repr__()}'
+		s += f'\n	* radius = {self.radius.__repr__()}'
+		s += f'\n	* extent = {self.extent.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
 		return s
 
 	def __repr__(self):
