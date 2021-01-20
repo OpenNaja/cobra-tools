@@ -2,6 +2,7 @@ import typing
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.Sphere import Sphere
+from generated.formats.ms2.enum.CollisionType import CollisionType
 
 
 class HitCheckEntry:
@@ -12,7 +13,7 @@ class HitCheckEntry:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.type = 0
+		self.type = CollisionType()
 		self.unknown_2_a = 0
 		self.unknown_2_b = 0
 
@@ -37,7 +38,7 @@ class HitCheckEntry:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.type = stream.read_uint()
+		self.type = CollisionType(stream.read_uint())
 		self.unknown_2_a = stream.read_ubyte()
 		self.unknown_2_b = stream.read_ubyte()
 		self.unknown_2_c = stream.read_ubyte()
@@ -57,7 +58,7 @@ class HitCheckEntry:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uint(self.type)
+		stream.write_uint(self.type.value)
 		stream.write_ubyte(self.unknown_2_a)
 		stream.write_ubyte(self.unknown_2_b)
 		stream.write_ubyte(self.unknown_2_c)

@@ -1,55 +1,78 @@
 import typing
 from generated.array import Array
-from generated.formats.ms2.compound.FFCounter import FFCounter
 from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.JointInfo import JointInfo
-from generated.formats.ms2.compound.UnknownJointEntry import UnknownJointEntry
+from generated.formats.ms2.compound.ListCEntry import ListCEntry
+from generated.formats.ms2.compound.ListFirst import ListFirst
+from generated.formats.ms2.compound.ListLong import ListLong
+from generated.formats.ms2.compound.ListShort import ListShort
+from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 
 
-class JointData:
+class JointData(JointCompound):
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
+		super().__init__(arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.joint_compound = JointCompound()
-		self.joint_list = Array()
-		self.unknown_list = Array()
-		self.unknown_10 = Array()
-		self.unknown_11 = 0
+		self.unknown_lista = Array()
+
+		# might be pointers
+		self.zeros = Array()
+		self.unknown_listc = Array()
+
+		# used by ptero, 16 bytes per entry
+		self.first_list = Array()
+		self.short_list = Array()
+		self.long_list = Array()
+
+		# index into bone info bones for each joint; bone that the joint is attached to
+		self.joint_indices = Array()
+
+		# the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint
+		self.bone_indices = Array()
 		self.joint_names = ZStringBuffer()
-		self.joint_names_padding = Array()
+		self.joint_names_padding = SmartPadding()
 		self.joint_info_list = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.joint_compound = stream.read_type(JointCompound)
-		self.joint_list.read(stream, JointEntry, self.joint_compound.joint_count, None)
-		self.unknown_list.read(stream, UnknownJointEntry, self.joint_compound.joint_count, None)
-		self.unknown_10.read(stream, FFCounter, self.joint_compound.joint_count, None)
-		self.unknown_11 = stream.read_uint()
-		self.joint_names = stream.read_type(ZStringBuffer, (self.joint_compound.namespace_length,))
-		self.joint_names_padding = stream.read_bytes(((4 - (self.joint_compound.namespace_length % 8)) % 8))
-		self.joint_info_list.read(stream, JointInfo, self.joint_compound.joint_count, None)
+		super().read(stream)
+		self.unknown_lista.read(stream, JointEntry, self.joint_count, None)
+		self.zeros = stream.read_uint64s((self.joint_count))
+		self.unknown_listc.read(stream, ListCEntry, self.joint_count, None)
+		self.first_list.read(stream, ListFirst, self.count_0, None)
+		self.short_list.read(stream, ListShort, self.count_1, None)
+		self.long_list.read(stream, ListLong, self.count_2, None)
+		self.joint_indices = stream.read_ints((self.joint_count))
+		self.bone_indices = stream.read_ints((self.bone_count))
+		self.joint_names = stream.read_type(ZStringBuffer, (self.namespace_length,))
+		self.joint_names_padding = stream.read_type(SmartPadding)
+		self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_type(self.joint_compound)
-		self.joint_list.write(stream, JointEntry, self.joint_compound.joint_count, None)
-		self.unknown_list.write(stream, UnknownJointEntry, self.joint_compound.joint_count, None)
-		self.unknown_10.write(stream, FFCounter, self.joint_compound.joint_count, None)
-		stream.write_uint(self.unknown_11)
+		super().write(stream)
+		self.unknown_lista.write(stream, JointEntry, self.joint_count, None)
+		stream.write_uint64s(self.zeros)
+		self.unknown_listc.write(stream, ListCEntry, self.joint_count, None)
+		self.first_list.write(stream, ListFirst, self.count_0, None)
+		self.short_list.write(stream, ListShort, self.count_1, None)
+		self.long_list.write(stream, ListLong, self.count_2, None)
+		stream.write_ints(self.joint_indices)
+		stream.write_ints(self.bone_indices)
 		stream.write_type(self.joint_names)
-		stream.write_bytes(self.joint_names_padding)
-		self.joint_info_list.write(stream, JointInfo, self.joint_compound.joint_count, None)
+		stream.write_type(self.joint_names_padding)
+		self.joint_info_list.write(stream, JointInfo, self.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -58,11 +81,15 @@ class JointData:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* joint_compound = {self.joint_compound.__repr__()}'
-		s += f'\n	* joint_list = {self.joint_list.__repr__()}'
-		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
-		s += f'\n	* unknown_10 = {self.unknown_10.__repr__()}'
-		s += f'\n	* unknown_11 = {self.unknown_11.__repr__()}'
+		s += super().get_fields_str()
+		s += f'\n	* unknown_lista = {self.unknown_lista.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* unknown_listc = {self.unknown_listc.__repr__()}'
+		s += f'\n	* first_list = {self.first_list.__repr__()}'
+		s += f'\n	* short_list = {self.short_list.__repr__()}'
+		s += f'\n	* long_list = {self.long_list.__repr__()}'
+		s += f'\n	* joint_indices = {self.joint_indices.__repr__()}'
+		s += f'\n	* bone_indices = {self.bone_indices.__repr__()}'
 		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
 		s += f'\n	* joint_names_padding = {self.joint_names_padding.__repr__()}'
 		s += f'\n	* joint_info_list = {self.joint_info_list.__repr__()}'

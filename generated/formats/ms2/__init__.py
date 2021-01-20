@@ -6,7 +6,7 @@ import time
 
 from generated.array import Array
 from generated.formats.ms2.compound.JointData import JointData
-from generated.formats.ms2.compound.JointDataNasuto import JointDataNasuto
+from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
@@ -79,7 +79,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# find the start of each using this identifier
 		zero_f = bytes.fromhex("00 00 00 00")
 		one_f = bytes.fromhex("00 00 80 3F")
-		prefixes = (zero_f, one_f)
+		# prefixes = (zero_f, one_f)
+		prefixes = (zero_f, )
 		# lion has a 1 instead of a 4
 		bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
 		# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
@@ -124,7 +125,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print("end of bone info at", end_of_bone_info)
 			except:
 				print("Bone info failed")
-			# print(self.bone_info)
 			if bone_info:
 				try:
 					self.bone_names = [self.names[i] for i in bone_info.name_indices]
@@ -142,26 +142,37 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
 			assert bone_info.unk_78_count == 0 and bone_info.unknown_88 == 0 and bone_info.unknownextra == 0
 			try:
-				print("reading joints")
-				joints = JointDataNasuto()
-				joints.read(stream)
-				for joint_info in joints.joint_info_list:
-					joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
-					for hit in joint_info.hit_check:
-						hit.name = joints.joint_names.get_str_at(hit.name_offset)
-				print(joints)
-				for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
-					print(f"List {ix}")
-					for i, x in enumerate(li):
-						print(i)
-						print(joints.joint_info_list[x.parent].name, x.parent)
-						print(joints.joint_info_list[x.child].name, x.child)
+				if bone_info.joint_count:
+					print("reading joints")
+					joints = JointData()
+					joints.read(stream)
+					for joint_info in joints.joint_info_list:
+						joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
+						for hit in joint_info.hit_check:
+							hit.name = joints.joint_names.get_str_at(hit.name_offset)
+					print(joints)
+
+					for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
+						print(f"List {ix}")
+						for i, x in enumerate(li):
+							print(i)
+							print(joints.joint_info_list[x.parent].name, x.parent)
+							print(joints.joint_info_list[x.child].name, x.child)
 
 			except Exception as err:
 				print("joints failed")
 				print(err)
 				pass
-
+			# if bone_info.joint_count:
+			# 	for i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
+			# 		usually, this corresponds - does not do for speedtree but does not matter
+			# 		if not self.bone_names[i] == joint_info.name:
+			# 			print("WARNING NAMES DON'T MATCH", self.bone_names[i], joint_info.name)
+			# if bone_info.joint_count:
+			# 	for i, bone_name in zip(joints.bone_indices, self.bone_names):
+			# 		print(i, bone_name)
+			# 		if i > -1:
+			# 			print(joints.joint_info_list[i].name)
 		else:
 			print("No bone info found")
 

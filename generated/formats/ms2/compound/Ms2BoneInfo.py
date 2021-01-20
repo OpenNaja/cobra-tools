@@ -16,11 +16,8 @@ class Ms2BoneInfo:
 		self.io_size = 0
 		self.io_start = 0
 
-		# index count 1, setting to int to fix boneless model import
+		# counts the names
 		self.name_count = 0
-
-		# seems to be either 0.0 or 1.0
-		self.float_0_1 = 0
 
 		# this is always FFFF for now
 		self.knownff = 0
@@ -31,16 +28,10 @@ class Ms2BoneInfo:
 
 		# almost always 4, 1 for male african lion
 		self.unk_count = 0
-		self.unknown_14 = 0
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-
-		# usually 0; 1 for animal_box_large, animal_box_medium_static
-		self.int_0_1 = 0
-		self.unknown_20 = 0
-		self.unknown_28 = 0
-		self.unknown_30 = 0
+		self.zeros = Array()
 
 		# index count3
 		self.bone_count = 0
@@ -104,24 +95,19 @@ class Ms2BoneInfo:
 		# weird zeros
 		self.zeros_padding = ZerosPadding()
 
-		# not present for static objects
+		# ragdoll links?
 		self.struct_7 = Struct7()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.name_count = stream.read_int()
-		self.float_0_1 = stream.read_float()
-		self.knownff = stream.read_ushort()
-		self.zero_0 = stream.read_ushort()
+		self.name_count = stream.read_uint64()
+		self.knownff = stream.read_short()
+		self.zero_0 = stream.read_short()
 		self.unknown_0_c = stream.read_uint()
-		self.unk_count = stream.read_uint()
-		self.unknown_14 = stream.read_uint()
-		self.bind_matrix_count = stream.read_uint()
-		self.int_0_1 = stream.read_uint()
-		self.unknown_20 = stream.read_uint64()
-		self.unknown_28 = stream.read_uint64()
-		self.unknown_30 = stream.read_uint64()
+		self.unk_count = stream.read_uint64()
+		self.bind_matrix_count = stream.read_uint64()
+		self.zeros = stream.read_uint64s((3))
 		self.bone_count = stream.read_uint64()
 		self.unknown_40 = stream.read_uint64()
 		self.bone_parents_count = stream.read_uint64()
@@ -160,18 +146,13 @@ class Ms2BoneInfo:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_int(self.name_count)
-		stream.write_float(self.float_0_1)
-		stream.write_ushort(self.knownff)
-		stream.write_ushort(self.zero_0)
+		stream.write_uint64(self.name_count)
+		stream.write_short(self.knownff)
+		stream.write_short(self.zero_0)
 		stream.write_uint(self.unknown_0_c)
-		stream.write_uint(self.unk_count)
-		stream.write_uint(self.unknown_14)
-		stream.write_uint(self.bind_matrix_count)
-		stream.write_uint(self.int_0_1)
-		stream.write_uint64(self.unknown_20)
-		stream.write_uint64(self.unknown_28)
-		stream.write_uint64(self.unknown_30)
+		stream.write_uint64(self.unk_count)
+		stream.write_uint64(self.bind_matrix_count)
+		stream.write_uint64s(self.zeros)
 		stream.write_uint64(self.bone_count)
 		stream.write_uint64(self.unknown_40)
 		stream.write_uint64(self.bone_parents_count)
@@ -213,17 +194,12 @@ class Ms2BoneInfo:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* name_count = {self.name_count.__repr__()}'
-		s += f'\n	* float_0_1 = {self.float_0_1.__repr__()}'
 		s += f'\n	* knownff = {self.knownff.__repr__()}'
 		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
 		s += f'\n	* unknown_0_c = {self.unknown_0_c.__repr__()}'
 		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
-		s += f'\n	* unknown_14 = {self.unknown_14.__repr__()}'
 		s += f'\n	* bind_matrix_count = {self.bind_matrix_count.__repr__()}'
-		s += f'\n	* int_0_1 = {self.int_0_1.__repr__()}'
-		s += f'\n	* unknown_20 = {self.unknown_20.__repr__()}'
-		s += f'\n	* unknown_28 = {self.unknown_28.__repr__()}'
-		s += f'\n	* unknown_30 = {self.unknown_30.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
 		s += f'\n	* unknown_40 = {self.unknown_40.__repr__()}'
 		s += f'\n	* bone_parents_count = {self.bone_parents_count.__repr__()}'

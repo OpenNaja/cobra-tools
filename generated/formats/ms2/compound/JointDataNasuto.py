@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 
 
-class JointDataNasuto(JointCompound):
+class JointData(JointCompound):
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
@@ -77,7 +77,7 @@ class JointDataNasuto(JointCompound):
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'JointDataNasuto [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'JointData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

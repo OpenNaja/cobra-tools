@@ -98,6 +98,13 @@
 <!--        <member width="1" pos="7" name="weights" type="bool" >weight data present, flag = 9</member>-->
     </bitfield>
 
+	<enum name="CollisionType" storage="uint">
+		<option value="0" name="Sphere" />
+		<option value="1" name="BoundingBox" />
+		<option value="2" name="Capsule" />
+		<option value="10" name="Unknown" >widgetball_test.mdl2, Ball_Hitcheck not supported</option>
+	</enum>
+
     <compound name="FixedString" count="0" >
         Holds a string of a fixed size, given as an argument.
     </compound>
@@ -396,18 +403,13 @@
     </compound>
 	
     <compound name="Ms2BoneInfo">
-        <add name="name count" type="int" >index count 1, setting to int to fix boneless model import</add>
-        <add name="float 0 1" type="float" >seems to be either 0.0 or 1.0</add>
-        <add name="knownff" type="ushort" >this is always FFFF for now</add>
-        <add name="zero0" type="ushort" >this is always 0000 for now</add>
+        <add name="name count" type="uint64" >counts the names</add>
+        <add name="knownff" type="short" >this is always FFFF for now</add>
+        <add name="zero0" type="short" >this is always 0000 for now</add>
         <add name="unknown0c" type="uint" ></add>
-        <add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
-        <add name="unknown14" type="uint" ></add>
-        <add name="bind matrix count" type="uint" >seems to match bone count</add>
-        <add name="int 0 1" type="uint" >usually 0; 1 for animal_box_large, animal_box_medium_static</add>
-        <add name="unknown20" type="uint64" ></add>
-		<add name="unknown28" type="uint64" ></add>
-		<add name="unknown30" type="uint64" ></add>
+        <add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
+        <add name="bind matrix count" type="uint64" >seems to match bone count</add>
+        <add name="zeros" type="uint64" arr1="3"></add>
 		<add name="bone count" type="uint64" >index count3</add>
 		<add name="unknown40" type="uint64" ></add>
 		<add name="bone parents count" type="uint64" >index count4</add>
@@ -431,7 +433,8 @@
 <!--        <add name="enumeration" type="IndexEnum"  arr1="enum count" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
         <add name="enumeration" type="uint"  arr1="enum count" arr2="2" cond="one" >enumerates all bone indices, 4 may be flags</add>
         <add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count">weird zeros</add>
-        <add name="struct 7" type="Struct7" cond="count7">not present for static objects</add>
+        <add name="struct 7" type="Struct7" cond="count7">ragdoll links?</add>
+<!--        <add name="joints" type="JointData" cond="joint count">joints</add>-->
     </compound>
 
 	<compound name="ZerosPadding">
@@ -503,7 +506,7 @@
 <!--        		<add name="JointDatas" type="JointData" cond="joint count" >joint data</add>-->
 
 <!--        dinos only-->
-<!--		        <add name="JointDatas" type="JointDataNasuto" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
+<!--		        <add name="JointDatas" type="JointData" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
 
     </compound>
 
@@ -525,15 +528,30 @@
         <add name="one" type="uint" >1</add>
     </compound>
 
-    <compound name="JointDataNasuto" inherit="JointCompound">
+    <compound name="JointCompound">
+        appears in dinos and static meshes
+        <add name="joint_count" type="uint" >repeat</add>
+        <add name="count_0" type="uint" >small number</add>
+        <add name="count_1" type="uint" >small number</add>
+        <add name="count_2" type="uint" >small number</add>
+        <add name="namespace length" type="uint" ></add>
+        <add name="zeros" type="uint" arr1="13" cond="! #PC#">0s</add>
+        <add name="zeros" type="uint" arr1="17" cond="#PC#">0s</add>
+        <add name="ones" type="uint64" arr1="2" >1, 1</add>
+        <add name="bone count" type="uint" >matches bone count from bone info</add>
+        <add name="joint entry count" type="uint" >0</add>
+        <add name="zeros1" type="uint" arr1="4">usually 0s</add>
+    </compound>
+
+    <compound name="JointData" inherit="JointCompound">
         <add name="UnknownLista" type="JointEntry" arr1="joint_count" ></add>
         <add name="zeros" type="uint64" arr1="joint_count" >might be pointers</add>
         <add name="UnknownListc" type="ListCEntry" arr1="joint_count" ></add>
         <add name="first list" type="ListFirst" arr1="count_0" >used by ptero, 16 bytes per entry</add>
         <add name="short list" type="ListShort" arr1="count_1" ></add>
         <add name="long list" type="ListLong" arr1="count_2" ></add>
-        <add name="joint indices" type="int" arr1="joint_count">index</add>
-        <add name="bone indices" type="int" arr1="bone count">index or -1</add>
+        <add name="joint indices" type="int" arr1="joint_count">index into bone info bones for each joint; bone that the joint is attached to</add>
+        <add name="bone indices" type="int" arr1="bone count">the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
         <add name="joint names" type="ZStringBuffer" arg="namespace length"></add>
 <!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
         <add name="JointNamesPadding" type="SmartPadding" ></add>
@@ -555,21 +573,6 @@
 
     <compound name="ListLong" inherit="Descriptor">
         <add name="floats" type="float" arr1="26"></add>
-    </compound>
-
-    <compound name="JointCompound">
-        appears in dinos and static meshes
-        <add name="joint_count" type="uint" >repeat</add>
-        <add name="count_0" type="uint" >small number</add>
-        <add name="count_1" type="uint" >small number</add>
-        <add name="count_2" type="uint" >small number</add>
-        <add name="namespace length" type="uint" ></add>
-        <add name="zeros" type="uint" arr1="13" cond="! #PC#">0s</add>
-        <add name="zeros" type="uint" arr1="17" cond="#PC#">0s</add>
-        <add name="ones" type="uint64" arr1="2" >1, 1</add>
-        <add name="bone count" type="uint" >matches bone count from bone info</add>
-        <add name="joint entry count" type="uint" >0</add>
-        <add name="zeros1" type="uint" arr1="4">usually 0s</add>
     </compound>
 
     <compound name="Pc FFCounter">
@@ -601,7 +604,7 @@
     </compound>
 
 	<compound name="HitCheck Entry">
-        <add name="type" type="uint"></add>
+        <add name="type" type="CollisionType"></add>
         <add name="unknown2a" type="ubyte"></add>
         <add name="unknown2b" type="ubyte"></add>
         <add name="unknown2c" type="ubyte">16</add>
