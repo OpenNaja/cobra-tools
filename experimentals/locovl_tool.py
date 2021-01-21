@@ -10,7 +10,7 @@
 # run: locovl_tool.py nameofthetextfile.txt  
 
 # it will generate a loc.ovl file with those names and strings.
-
+import os
 import zlib
 import sys
 import struct 
@@ -57,6 +57,8 @@ def processContent(lines):
 	entries = []
 	for line in lines:
 		name, value = line.split(",", 1)
+		#lowercase the name
+		name = name.lower()
 		djb2 = hash_djb2(name)
 		entries.append([name,value.rstrip()])
 
@@ -139,7 +141,8 @@ if len(args) > 0:
 	poolinfo = struct.pack("<2I", len(strpol1)+len(strpol2),0)
 	ovl += poolhead + mempool + poolinfo + ovsout
 
-	ovlfile = open("Loc.ovl", "wb")
+	outfname = os.path.splitext(args[0])[0]
+	ovlfile = open(outfname + ".ovl", "wb")
 	ovlfile.write(ovl)
 	ovlfile.close
 

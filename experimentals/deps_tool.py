@@ -211,7 +211,7 @@ if len(args) > 0:
 		print("listed")
 	else:
 		#write file
-		setContent(args[0] + ".test", content)
+		setContent(args[0], content)
 
 else:
 	raise SystemExit(
