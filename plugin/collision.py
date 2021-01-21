@@ -49,6 +49,15 @@ def center_origin_to_matrix(n_center, n_dir):
 	return rot
 
 
+def import_boxbv(box, hitcheck_name):
+	# ignore for now, seems to be a unity 3x3 matrix
+	# axes = box.rotation
+	x, y, z = unpack_swizzle((box.extent.x / 2, box.extent.y / 2, box.extent.z / 2))
+	b_obj, b_me = box_from_extents(hitcheck_name, -x, x, -y, y, -z, z)
+	b_obj.location = unpack_swizzle((box.offset.x, box.offset.y, box.offset.z))
+	set_b_collider(b_obj, (x+y+z)/3)
+
+
 def import_capsulebv(capsule, hitcheck_name):
 	# positions of the box verts
 	minx = miny = -capsule.radius

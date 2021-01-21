@@ -8,7 +8,7 @@ import mathutils
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.Sphere import Sphere
-from plugin.collision import import_capsulebv
+from plugin.collision import import_capsulebv, import_boxbv
 from plugin.helpers import mesh_from_data, create_ob
 from utils import matrix_util
 from utils.matrix_util import mat3_to_vec_roll
@@ -143,7 +143,7 @@ def import_joints(armature_ob, bone_info):
 			if isinstance(coll, Sphere):
 				pass
 			elif isinstance(coll, BoundingBox):
-				pass
+				import_boxbv(coll, hitcheck.name)
 			elif isinstance(coll, Capsule):
 				import_capsulebv(coll, hitcheck.name)
 

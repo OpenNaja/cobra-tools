@@ -11,14 +11,14 @@ class BoundingBox:
 		self.io_size = 0
 		self.io_start = 0
 		self.rotation = Matrix33()
-		self.center = Vector3()
+		self.offset = Vector3()
 		self.extent = Vector3()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.rotation = stream.read_type(Matrix33)
-		self.center = stream.read_type(Vector3)
+		self.offset = stream.read_type(Vector3)
 		self.extent = stream.read_type(Vector3)
 
 		self.io_size = stream.tell() - self.io_start
@@ -27,7 +27,7 @@ class BoundingBox:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.rotation)
-		stream.write_type(self.center)
+		stream.write_type(self.offset)
 		stream.write_type(self.extent)
 
 		self.io_size = stream.tell() - self.io_start
@@ -38,7 +38,7 @@ class BoundingBox:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* rotation = {self.rotation.__repr__()}'
-		s += f'\n	* center = {self.center.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* extent = {self.extent.__repr__()}'
 		return s
 

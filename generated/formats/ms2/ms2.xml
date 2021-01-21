@@ -634,7 +634,7 @@
 
     <compound name="BoundingBox">
          <add name="rotation" type="Matrix33" ></add>
-         <add name="center" type="Vector3" ></add>
+         <add name="offset" type="Vector3" ></add>
          <add name="extent" type="Vector3" ></add>
     </compound>
 
