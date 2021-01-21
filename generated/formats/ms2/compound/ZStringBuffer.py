@@ -27,5 +27,5 @@ class ZStringBuffer:
 		return self.data[pos:end].decode()
 
 	def __repr__(self):
-		return f"{str(self.strings)} Amount+: {len(self.strings)}"
+		return f"{str(self.strings)} Amount: {len(self.strings)}"
 

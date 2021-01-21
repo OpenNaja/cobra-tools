@@ -2,333 +2,344 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-    <token name="verexpr" attrs="vercond cond">
-        Commonly used version expressions.
+	<token name="verexpr" attrs="vercond cond">
+		Commonly used version expressions.
 <!--		<verexpr token="#PC#" string="(ms2 version #EQ# 32)">PC</verexpr>-->
-        <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
+		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
-        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
-        <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
-    </token>
+		<verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
+		<verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
+	</token>
 	
-    <token name="global" attrs="vercond cond">
-        Global Tokens.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <global token="#USER#" string="user_version" />
-        <global token="#VER#" string="version" />
-        <global token="#FLAG#" string="version_flag" />
-    </token>
+	<token name="global" attrs="vercond cond">
+		Global Tokens.
+		NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+		<global token="#USER#" string="user_version" />
+		<global token="#VER#" string="version" />
+		<global token="#FLAG#" string="version_flag" />
+	</token>
 	
-    <token name="operator" attrs="cond vercond arr1 arr2 arg">
-        All Operators except for unary not (!), parentheses, and member of (\)
-        NOTE: These can be ignored entirely by string substitution and dealt with directly.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <operator token="#ADD#" string="+" />
-        <operator token="#SUB#" string="-" />
-        <operator token="#MUL#" string="*" />
-        <operator token="#DIV#" string="/" />
-        <operator token="#AND#" string="&amp;&amp;" />
-        <operator token="#OR#" string="||" />
-        <operator token="#LT#" string="&lt;" />
-        <operator token="#GT#" string="&gt;" />
-        <operator token="#LTE#" string="&lt;=" />
-        <operator token="#GTE#" string="&gt;=" />
-        <operator token="#EQ#" string="==" />
-        <operator token="#NEQ#" string="!=" />
-        <operator token="#RSH#" string="&gt;&gt;" />
-        <operator token="#LSH#" string="&lt;&lt;" />
-        <operator token="#BITAND#" string="&amp;" />
-        <operator token="#BITOR#" string="|" />
-        <operator token="#MOD#" string="%" />
-    </token>
-    <!--Basic Types-->
+	<token name="operator" attrs="cond vercond arr1 arr2 arg">
+		All Operators except for unary not (!), parentheses, and member of (\)
+		NOTE: These can be ignored entirely by string substitution and dealt with directly.
+		NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+		<operator token="#ADD#" string="+" />
+		<operator token="#SUB#" string="-" />
+		<operator token="#MUL#" string="*" />
+		<operator token="#DIV#" string="/" />
+		<operator token="#AND#" string="&amp;&amp;" />
+		<operator token="#OR#" string="||" />
+		<operator token="#LT#" string="&lt;" />
+		<operator token="#GT#" string="&gt;" />
+		<operator token="#LTE#" string="&lt;=" />
+		<operator token="#GTE#" string="&gt;=" />
+		<operator token="#EQ#" string="==" />
+		<operator token="#NEQ#" string="!=" />
+		<operator token="#RSH#" string="&gt;&gt;" />
+		<operator token="#LSH#" string="&lt;&lt;" />
+		<operator token="#BITAND#" string="&amp;" />
+		<operator token="#BITOR#" string="|" />
+		<operator token="#MOD#" string="%" />
+	</token>
+	<!--Basic Types-->
 
-    <basic name="bool" count="1">
-        An unsigned 8-bit integer.
-    </basic>
+	<basic name="bool" count="1">
+		An unsigned 8-bit integer.
+	</basic>
 
-    <basic name="ubyte" count="1">
-        An unsigned 8-bit integer.
-    </basic>
+	<basic name="ubyte" count="1">
+		An unsigned 8-bit integer.
+	</basic>
 	
-    <basic name="byte" count="1">
-        A signed 8-bit integer.
-    </basic>
+	<basic name="byte" count="1">
+		A signed 8-bit integer.
+	</basic>
 
-    <basic name="uint" count="1">
-        An unsigned 32-bit integer.
-    </basic>
+	<basic name="uint" count="1">
+		An unsigned 32-bit integer.
+	</basic>
 	
 	<basic name="uint64" count="1">
-        An unsigned 64-bit integer.
-    </basic>
+		An unsigned 64-bit integer.
+	</basic>
 	
-    <basic name="ushort" count="1" >
-        An unsigned 16-bit integer.
-    </basic>
+	<basic name="ushort" count="1" >
+		An unsigned 16-bit integer.
+	</basic>
 
-    <basic name="int" count="1" >
-        A signed 32-bit integer.
-    </basic>
+	<basic name="int" count="1" >
+		A signed 32-bit integer.
+	</basic>
 
-    <basic name="short" count="1" >
-        A signed 16-bit integer.
-    </basic>
+	<basic name="short" count="1" >
+		A signed 16-bit integer.
+	</basic>
 	
-    <basic name="char" count="0" >
-        An 8-bit character.
-    </basic>
+	<basic name="char" count="0" >
+		An 8-bit character.
+	</basic>
 	
-    <basic name="float" count="0" >
-        A standard 32-bit floating point number.
-    </basic>
+	<basic name="float" count="0" >
+		A standard 32-bit floating point number.
+	</basic>
 
-    <bitfield name="ModelFlag" storage="uint">
-        Determines the data held by a mesh.
-        Count from the end!!!
+	<bitfield name="ModelFlag" storage="uint">
+		Determines the data held by a mesh.
+		Count from the end!!!
 <!--        <member width="1" pos="0" mask="0x0001" name="Anim Type" type="AnimType" />-->
 <!--        <member width="2" pos="1" mask="0x0006" name="Cycle Type" type="CycleType" default="CYCLE_CLAMP" />-->
 <!--        <member width="1" pos="3" name="Active" type="bool" default="1" />-->
-        <member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
-        <member width="1" pos="4" name="weights" type="bool">at least 529</member>
+		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
+		<member width="1" pos="4" name="weights" type="bool">at least 529</member>
 <!--        <member width="1" pos="5" name="weights" type="bool">at least 529</member>-->
 <!--        <member width="1" pos="6" name="b" type="bool">at least 529</member>-->
 <!--        <member width="1" pos="5" name="Manager Controlled" type="bool" />-->
 <!--        <member width="1" pos="6" name="Compute Scaled Time" type="bool" default="1" />-->
 <!--        <member width="1" pos="7" name="weights" type="bool" >weight data present, flag = 9</member>-->
-    </bitfield>
+	</bitfield>
 
-    <compound name="FixedString" count="0" >
-        Holds a string of a fixed size, given as an argument.
-    </compound>
+	<enum name="CollisionType" storage="uint">
+		<option value="0" name="Sphere" />
+		<option value="1" name="BoundingBox" />
+		<option value="2" name="Capsule" />
+		<option value="10" name="Unknown" >widgetball_test.mdl2, Ball_Hitcheck not supported</option>
+	</enum>
 
-    <basic name="ZString">
-        Null terminated string.
-    </basic>
+	<compound name="FixedString" count="0" >
+		Holds a string of a fixed size, given as an argument.
+	</compound>
 
-    <compound name="ZStringBuffer" count="0" >
-        Holds a buffer of zero-terminated strings
-    </compound>
+	<basic name="ZString">
+		Null terminated string.
+	</basic>
 
-    <basic name="string">
-        A string of given length.
-    </basic>
-	
-    <compound name="Matrix44" size="64">
-        A 4x4 transformation matrix.
-        <field name="m11" type="float" default="1.0">The (1,1) element.</field>
-        <field name="m21" type="float" default="0.0">The (2,1) element.</field>
-        <field name="m31" type="float" default="0.0">The (3,1) element.</field>
-        <field name="m41" type="float" default="0.0">The (4,1) element.</field>
-        <field name="m12" type="float" default="0.0">The (1,2) element.</field>
-        <field name="m22" type="float" default="1.0">The (2,2) element.</field>
-        <field name="m32" type="float" default="0.0">The (3,2) element.</field>
-        <field name="m42" type="float" default="0.0">The (4,2) element.</field>
-        <field name="m13" type="float" default="0.0">The (1,3) element.</field>
-        <field name="m23" type="float" default="0.0">The (2,3) element.</field>
-        <field name="m33" type="float" default="1.0">The (3,3) element.</field>
-        <field name="m43" type="float" default="0.0">The (4,3) element.</field>
-        <field name="m14" type="float" default="0.0">The (1,4) element.</field>
-        <field name="m24" type="float" default="0.0">The (2,4) element.</field>
-        <field name="m34" type="float" default="0.0">The (3,4) element.</field>
-        <field name="m44" type="float" default="1.0">The (4,4) element.</field>
-    </compound>
+	<compound name="SmartPadding">
+		Grabs 00 bytes only
+	</compound>
 
-    <compound name="Matrix33" size="36">
-        A 3x3 rotation matrix; M^T M=identity, det(M)=1.    Stored in OpenGL column-major format.
-        <field name="m11" type="float" default="1.0">Member 1,1 (top left)</field>
-        <field name="m21" type="float" default="0.0">Member 2,1</field>
-        <field name="m31" type="float" default="0.0">Member 3,1 (bottom left)</field>
-        <field name="m12" type="float" default="0.0">Member 1,2</field>
-        <field name="m22" type="float" default="1.0">Member 2,2</field>
-        <field name="m32" type="float" default="0.0">Member 3,2</field>
-        <field name="m13" type="float" default="0.0">Member 1,3 (top right)</field>
-        <field name="m23" type="float" default="0.0">Member 2,3</field>
-        <field name="m33" type="float" default="1.0">Member 3,3 (bottom left)</field>
-    </compound>
-	
-	    <compound name="Matrix24" size="32">
-        A 4x4 transformation matrix.
-        <field name="m11" type="float" default="1.0">The (1,1) element.</field>
-        <field name="m21" type="float" default="0.0">The (2,1) element.</field>
-        <field name="m31" type="float" default="0.0">The (3,1) element.</field>
-        <field name="m41" type="float" default="0.0">The (4,1) element.</field>
-        <field name="m12" type="float" default="0.0">The (1,2) element.</field>
-        <field name="m22" type="float" default="1.0">The (2,2) element.</field>
-        <field name="m32" type="float" default="0.0">The (3,2) element.</field>
-        <field name="m42" type="float" default="0.0">The (4,2) element.</field>
-    </compound>
-	
-    <compound name="ByteColor4" size="4" convertible="Color4">
-        A color with alpha (red, green, blue, alpha).
-        <field name="r" type="ubyte">Red color component.</field>
-        <field name="g" type="ubyte">Green color component.</field>
-        <field name="b" type="ubyte">Blue color component.</field>
-        <field name="a" type="ubyte">Alpha color component.</field>
-    </compound>
-	
-    <compound name="UshortVector2" size="4">
-        A vector in 2D space (x,y).
-        <field name="u" type="ushort">First coordinate.</field>
-        <field name="v" type="ushort">Second coordinate.</field>
-    </compound>
-	
-    <compound name="UbyteVector3" size="3">
-        A vector in 3D space (x,y,z).
-        <field name="x" type="ubyte">First coordinate.</field>
-        <field name="y" type="ubyte">Second coordinate.</field>
-        <field name="z" type="ubyte">Third coordinate.</field>
-    </compound>
-	
-    <compound name="Vector3" size="12">
-        A vector in 3D space (x,y,z).
-        <field name="x" type="float">First coordinate.</field>
-        <field name="y" type="float">Second coordinate.</field>
-        <field name="z" type="float">Third coordinate.</field>
-    </compound>
-	
-    <compound name="Vector4" size="16">
-        A vector in 3D space (x,y,z).
-        <field name="x" type="float">First coordinate.</field>
-        <field name="y" type="float">Second coordinate.</field>
-        <field name="z" type="float">Third coordinate.</field>
-        <field name="w" type="float">zeroth coordinate.</field>
-    </compound>
+	<compound name="ZStringBuffer" count="0" >
+		Holds a buffer of zero-terminated strings
+	</compound>
 
-    <compound name="PzBone">
+	<basic name="string">
+		A string of given length.
+	</basic>
+	
+	<compound name="Matrix44" size="64">
+		A 4x4 transformation matrix.
+		<field name="m11" type="float" default="1.0">The (1,1) element.</field>
+		<field name="m21" type="float" default="0.0">The (2,1) element.</field>
+		<field name="m31" type="float" default="0.0">The (3,1) element.</field>
+		<field name="m41" type="float" default="0.0">The (4,1) element.</field>
+		<field name="m12" type="float" default="0.0">The (1,2) element.</field>
+		<field name="m22" type="float" default="1.0">The (2,2) element.</field>
+		<field name="m32" type="float" default="0.0">The (3,2) element.</field>
+		<field name="m42" type="float" default="0.0">The (4,2) element.</field>
+		<field name="m13" type="float" default="0.0">The (1,3) element.</field>
+		<field name="m23" type="float" default="0.0">The (2,3) element.</field>
+		<field name="m33" type="float" default="1.0">The (3,3) element.</field>
+		<field name="m43" type="float" default="0.0">The (4,3) element.</field>
+		<field name="m14" type="float" default="0.0">The (1,4) element.</field>
+		<field name="m24" type="float" default="0.0">The (2,4) element.</field>
+		<field name="m34" type="float" default="0.0">The (3,4) element.</field>
+		<field name="m44" type="float" default="1.0">The (4,4) element.</field>
+	</compound>
+
+	<compound name="Matrix33" size="36">
+		A 3x3 rotation matrix; M^T M=identity, det(M)=1.    Stored in OpenGL column-major format.
+		<field name="m11" type="float" default="1.0">Member 1,1 (top left)</field>
+		<field name="m21" type="float" default="0.0">Member 2,1</field>
+		<field name="m31" type="float" default="0.0">Member 3,1 (bottom left)</field>
+		<field name="m12" type="float" default="0.0">Member 1,2</field>
+		<field name="m22" type="float" default="1.0">Member 2,2</field>
+		<field name="m32" type="float" default="0.0">Member 3,2</field>
+		<field name="m13" type="float" default="0.0">Member 1,3 (top right)</field>
+		<field name="m23" type="float" default="0.0">Member 2,3</field>
+		<field name="m33" type="float" default="1.0">Member 3,3 (bottom left)</field>
+	</compound>
+	
+		<compound name="Matrix24" size="32">
+		A 4x4 transformation matrix.
+		<field name="m11" type="float" default="1.0">The (1,1) element.</field>
+		<field name="m21" type="float" default="0.0">The (2,1) element.</field>
+		<field name="m31" type="float" default="0.0">The (3,1) element.</field>
+		<field name="m41" type="float" default="0.0">The (4,1) element.</field>
+		<field name="m12" type="float" default="0.0">The (1,2) element.</field>
+		<field name="m22" type="float" default="1.0">The (2,2) element.</field>
+		<field name="m32" type="float" default="0.0">The (3,2) element.</field>
+		<field name="m42" type="float" default="0.0">The (4,2) element.</field>
+	</compound>
+	
+	<compound name="ByteColor4" size="4" convertible="Color4">
+		A color with alpha (red, green, blue, alpha).
+		<field name="r" type="ubyte">Red color component.</field>
+		<field name="g" type="ubyte">Green color component.</field>
+		<field name="b" type="ubyte">Blue color component.</field>
+		<field name="a" type="ubyte">Alpha color component.</field>
+	</compound>
+	
+	<compound name="UshortVector2" size="4">
+		A vector in 2D space (x,y).
+		<field name="u" type="ushort">First coordinate.</field>
+		<field name="v" type="ushort">Second coordinate.</field>
+	</compound>
+	
+	<compound name="UbyteVector3" size="3">
+		A vector in 3D space (x,y,z).
+		<field name="x" type="ubyte">First coordinate.</field>
+		<field name="y" type="ubyte">Second coordinate.</field>
+		<field name="z" type="ubyte">Third coordinate.</field>
+	</compound>
+	
+	<compound name="Vector3" size="12">
+		A vector in 3D space (x,y,z).
+		<field name="x" type="float">First coordinate.</field>
+		<field name="y" type="float">Second coordinate.</field>
+		<field name="z" type="float">Third coordinate.</field>
+	</compound>
+	
+	<compound name="Vector4" size="16">
+		A vector in 3D space (x,y,z).
+		<field name="x" type="float">First coordinate.</field>
+		<field name="y" type="float">Second coordinate.</field>
+		<field name="z" type="float">Third coordinate.</field>
+		<field name="w" type="float">zeroth coordinate.</field>
+	</compound>
+
+	<compound name="PzBone">
 		32 bytes
-        <add name="rot" type="Vector4" />
-        <add name="loc" type="Vector3"/>
-        <add name="scale" type="float" />
-    </compound>
+		<add name="rot" type="Vector4" />
+		<add name="loc" type="Vector3"/>
+		<add name="scale" type="float" />
+	</compound>
 
-    <compound name="JweBone">
+	<compound name="JweBone">
 		32 bytes
-        <add name="loc" type="Vector3"/>
-        <add name="scale" type="float" />
-        <add name="rot" type="Vector4" />
-    </compound>
+		<add name="loc" type="Vector3"/>
+		<add name="scale" type="float" />
+		<add name="rot" type="Vector4" />
+	</compound>
 	
-    <compound name="LodInfo">
+	<compound name="LodInfo">
 		Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
-        20 bytes
-        <add name="distance" type="float" >usually first lod is 900</add>
-        <add name="zero" type="ushort" >always 0</add>
-        <add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
-        <add name="first model index" type="ushort" >first model for this lod in models list</add>
-        <add name="last model index" type="ushort" >not included in interval (python style indexing)</add>
-        <add name="vertex count" type="uint" >vertex count of lod</add>
-        <add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
-    </compound>
+		20 bytes
+		<add name="distance" type="float" >usually first lod is 900</add>
+		<add name="zero" type="ushort" >always 0</add>
+		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
+		<add name="first model index" type="ushort" >first model for this lod in models list</add>
+		<add name="last model index" type="ushort" >not included in interval (python style indexing)</add>
+		<add name="vertex count" type="uint" >vertex count of lod</add>
+		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+	</compound>
 
 	<compound name="ModelData" >
-        Defines one model's data. Both LODs and mdl2 files may contain several of these.
+		Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
 		If there is more than one of these, the fragments appear as a list according to 
-        <add name="zeros" type="uint" arr1="4" >always zero</add>
-        <add name="vertex count" type="uint" >vertex count of model</add>
-        <add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
-        <add name="unknown05" type="uint">always zero</add>
-        <add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-        <add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
-        <add name="size of vertex" type="uint" >usually 48</add>
-        <add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
-        <add name="zero" type="uint">always zero</add>
-        <add name="unknown07" type="Vector3">some floats</add>
-        <add name="flag" type="ModelFlag">maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)</add>
-    </compound>
+		<add name="zeros" type="uint" arr1="4" >always zero</add>
+		<add name="vertex count" type="uint" >vertex count of model</add>
+		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="unknown05" type="uint">always zero</add>
+		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
+		<add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
+		<add name="size of vertex" type="uint" >usually 48</add>
+		<add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
+		<add name="zero" type="uint">always zero</add>
+		<add name="unknown07" type="Vector3">some floats</add>
+		<add name="flag" type="ModelFlag">maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)</add>
+	</compound>
 
 
-    <compound name="PcModelData" >
-        Defines one model's data. Both LODs and mdl2 files may contain several of these.
+	<compound name="PcModelData" >
+		Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
 		If there is more than one of these, the fragments appear as a list according to
-        <add name="zeros a" type="uint" arr1="4" >always zero</add>
-        <add name="tri index count a" type="uint" cond="#PC#">repeat</add>
-        <add name="vertex count" type="uint" >vertex count of model</add>
-        <add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
-        <add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
-        <add name="vertex offset" type="uint" >x*16 = offset in buffer 2</add>
-        <add name="weights offset" type="uint">x*16 = offset in buffer 2</add>
-        <add name="uv offset" type="uint" >x*16 = offset in buffer 2</add>
-        <add name="zero b" type="uint">always zero</add>
-        <add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
-        <add name="vert offset within lod" type="uint" > ?</add>
-        <add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-        <add name="zero" type="uint">always zero</add>
-        <add name="unknown07" type="float">some floats</add>
-        <add name="flag" type="ModelFlag">bitfield</add>
+		<add name="zeros a" type="uint" arr1="4" >always zero</add>
+		<add name="tri index count a" type="uint" cond="#PC#">repeat</add>
+		<add name="vertex count" type="uint" >vertex count of model</add>
+		<add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
+		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="vertex offset" type="uint" >x*16 = offset in buffer 2</add>
+		<add name="weights offset" type="uint">x*16 = offset in buffer 2</add>
+		<add name="uv offset" type="uint" >x*16 = offset in buffer 2</add>
+		<add name="zero b" type="uint">always zero</add>
+		<add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
+		<add name="vert offset within lod" type="uint" > ?</add>
+		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
+		<add name="zero" type="uint">always zero</add>
+		<add name="unknown07" type="float">some floats</add>
+		<add name="flag" type="ModelFlag">bitfield</add>
 <!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
-    </compound>
+	</compound>
 	
 	<compound name="Ms2SizedStrData">
 		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
-        <add name="ms2 version" type="uint" >32 if PC, 47 if JWE, 48 if PZ</add>
-        <add name="has model data" type="ushort" >seems likely, 1 if yes, 0 if no</add>
-        <add name="mdl2 count" type="ushort" >3 in stairwell</add>
-        <add name="name count" type="ushort" >count of names in ms2 buffer0</add>
-        <add name="unk count" type="ushort" >usually 0, rarely 1</add>
-        <add name="unknown1" type="uint" arr1="3" >seems to be zeros</add>
-    </compound>
+		<add name="ms2 version" type="uint" >32 if PC, 47 if JWE, 48 if PZ</add>
+		<add name="has model data" type="ushort" >seems likely, 1 if yes, 0 if no</add>
+		<add name="mdl2 count" type="ushort" >3 in stairwell</add>
+		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
+		<add name="unk count" type="ushort" >usually 0, rarely 1</add>
+		<add name="unknown1" type="uint" arr1="3" >seems to be zeros</add>
+	</compound>
 	
-    <compound name="Mdl2InfoHeader">
-        Custom header struct
+	<compound name="Mdl2InfoHeader">
+		Custom header struct
 		
 		This reads a whole custom mdl2 file
-        <add name="magic" type="FixedString" arg="4">'MS2 '</add>
-        <add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC</add>
-        <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
-        <add name="Bitswap" type="byte" >endianness?, usually zero</add>
-        <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-        <add name="user version" type="uint"/>
-        <add name="index" type="uint" >index of this model inside the ms2</add>
-        <add name="bone info index" type="uint" >used to find bone info</add>
+		<add name="magic" type="FixedString" arg="4">'MS2 '</add>
+		<add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC</add>
+		<add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
+		<add name="Bitswap" type="byte" >endianness?, usually zero</add>
+		<add name="Seventh Byte" type="byte" default="1" >always = 1</add>
+		<add name="user version" type="uint"/>
+		<add name="index" type="uint" >index of this model inside the ms2</add>
+		<add name="bone info index" type="uint" >used to find bone info</add>
 
-        <add name="name" type="string" >name of ms2</add>
-        <add name="model info" type="CoreModelInfo" cond="!#PC#" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="name" type="string" >name of ms2</add>
+		<add name="model info" type="CoreModelInfo" cond="!#PC#" >gives relevant info on the mdl, including counts and pack base</add>
 		<add name="materials 0" type="Material0" arr1="model info\mat count" cond="!#PC#" >name pointers for each material</add>
 		<add name="lods" type="LodInfo" arr1="model info\lod count" cond="!#PC#" >lod info for each level</add>
 		<add name="materials 1" type="Material1" arr1="model info\mat1 count" cond="!#PC#" >material links for each model</add>
 		<add name="models" type="ModelData" arr1="(model info\model count)" cond="!#PC#" >model data blocks for this mdl2</add>
 
-    </compound>
+	</compound>
 
-    <compound name="Material0">
-        <add name="name index" type="uint" >index into name buffer</add>
-        <add name="zero" type="uint" >always zero</add>
-    </compound>
+	<compound name="Material0">
+		<add name="name index" type="uint" >index into name buffer</add>
+		<add name="zero" type="uint" >always zero</add>
+	</compound>
 
-    <compound name="Material1">
-        <add name="material index" type="ushort" >index into material0 array</add>
-        <add name="model index" type="ushort" ></add>
-    </compound>
+	<compound name="Material1">
+		<add name="material index" type="ushort" >index into material0 array</add>
+		<add name="model index" type="ushort" ></add>
+	</compound>
 
-    <compound name="Ms2InfoHeader">
-        Custom header struct
+	<compound name="Ms2InfoHeader">
+		Custom header struct
 		includes fragments but none of the 3 data buffers
-        <add name="magic" type="FixedString" arg="4">'MS2 '</add>
-        <add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC</add>
-        <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
-        <add name="Bitswap" type="byte" >endianness?, usually zero</add>
-        <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-        <add name="user version" type="uint" ></add>
-        <add name="bone names size" type="uint" ></add>
-        <add name="bone info size" type="uint" ></add>
-        <add name="general info" type="Ms2SizedStrData" ></add>
-        <add name="buffer info" type="Ms2BufferInfo" cond="!#PC#"> not in PC, or at least somewhere else</add>
+		<add name="magic" type="FixedString" arg="4">'MS2 '</add>
+		<add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC</add>
+		<add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
+		<add name="Bitswap" type="byte" >endianness?, usually zero</add>
+		<add name="Seventh Byte" type="byte" default="1" >always = 1</add>
+		<add name="user version" type="uint" ></add>
+		<add name="bone names size" type="uint" ></add>
+		<add name="bone info size" type="uint" ></add>
+		<add name="general info" type="Ms2SizedStrData" ></add>
+		<add name="buffer info" type="Ms2BufferInfo" cond="!#PC#"> not in PC, or at least somewhere else</add>
 		
-        <add name="name hashes" type="uint" arr1="general info\name count" ></add>
-        <add name="names" type="ZString" arr1="general info\name count" ></add>
-    </compound>
+		<add name="name hashes" type="uint" arr1="general info\name count" ></add>
+		<add name="names" type="ZString" arr1="general info\name count" ></add>
+	</compound>
 
 	<compound name="PcBuffer1" >
 
-        cond="general info \ ms2 version == 32"
+		cond="general info \ ms2 version == 32"
 		<add name="whatever" type="uint" arr1="8" ></add>
-        <add name="model infos" type="onefiftytwo" arr1="#ARG#\mdl2 count" ></add>
+		<add name="model infos" type="onefiftytwo" arr1="#ARG#\mdl2 count" ></add>
 		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>
 
-    </compound>
+	</compound>
 
 	<compound name="PcModel" >
 		<add name="lod infos" type="LodInfo" arr1="#ARG#\model info\lod count" ></add>
@@ -336,13 +347,13 @@
 		<add name="model data" type="PcModelData" arr1="#ARG#\model info\model count" ></add>
 <!--		<add name="padding" type="uint" arr1="3" >does not work for ostrich, has just arr = 1 here</add>-->
 <!--		<add name="bone info" type="Ms2BoneInfo" ></add>-->
-    </compound>
+	</compound>
 
 	<compound name="onefiftytwo" >
-        # equivalent to 38 uints, 152 bytes
+		# equivalent to 38 uints, 152 bytes
 		<add name="model info" type="CoreModelInfo" ></add>
 		<add name="some" type="uint64" arr1="7" ></add>
-    </compound>
+	</compound>
 
 	<compound name="Ms2BufferInfo" >
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
@@ -355,31 +366,31 @@
 		<add name="facesdatasize" type="uint64" ></add>
 		<add name="ptr2" type="uint64">8 empty bytes</add>
 		<add name="unk 2" type="uint64" arr1="2" vercond="#PZ#" > PZ, another 16 empty bytes </add>
-    </compound>
+	</compound>
 	
 	<compound name="Mdl2FourtyInfo" >
 		<add name="unknowns" type="uint64" arr1="5" >0, 1 or 0, 0, 0, 0</add>
-    </compound>
+	</compound>
 	
 	<compound name="Mdl2ModelInfo" >
 		Wraps a CoreModelInfo
 		<add name="fourty" type="Mdl2FourtyInfo" > </add>
 		<add name="info" type="CoreModelInfo" > </add>
-    </compound>
+	</compound>
 	
 	<compound name="CoreModelInfo" >
 		Used by ms2 or in Mdl2ModelInfo
 		In load order it always defines the variable fragments for the next mdl2
 		The mdl2's fragment informs the first mdl2
-        <add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-        <add name="unk float a" type="float" ></add>
-        <add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-        <add name="pack offset" type="float" >scale: pack_offset / 512, also added as offset</add>
-        <add name="center" type="Vector3">cog? medium of bounds?</add>
-        <add name="radius" type="float" >probably from center to max</add>
-        <add name="unknowns" type="float" arr1="4" vercond="#PZ#">PZ only, zero-ish</add>
-        <add name="bounds min repeat" type="Vector3" ></add>
-        <add name="bounds max repeat" type="Vector3" ></add>
+		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
+		<add name="unk float a" type="float" ></add>
+		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
+		<add name="pack offset" type="float" >scale: pack_offset / 512, also added as offset</add>
+		<add name="center" type="Vector3">cog? medium of bounds?</add>
+		<add name="radius" type="float" >probably from center to max</add>
+		<add name="unknowns" type="float" arr1="4" vercond="#PZ#">PZ only, zero-ish</add>
+		<add name="bounds min repeat" type="Vector3" ></add>
+		<add name="bounds max repeat" type="Vector3" ></add>
 
 		<add name="mat count" type="ushort"></add>
 		<add name="lod count" type="ushort"></add>
@@ -389,78 +400,67 @@
 		<add name="unk0" type="uint64"></add>	
 		<add name="unk1" type="uint64"></add>	
 		<add name="pad" type="ubyte" arr1="6" > </add>
-    </compound>
+	</compound>
 	
-    <compound name="Ms2BoneInfo">
-        <add name="name count" type="int" >index count 1, setting to int to fix boneless model import</add>
-        <add name="float 0 1" type="float" >seems to be either 0.0 or 1.0</add>
-        <add name="knownff" type="ushort" >this is always FFFF for now</add>
-        <add name="zero0" type="ushort" >this is always 0000 for now</add>
-        <add name="unknown0c" type="uint" ></add>
-        <add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
-        <add name="unknown14" type="uint" ></add>
-        <add name="bind matrix count" type="uint" >seems to match bone count</add>
-        <add name="int 0 1" type="uint" >usually 0; 1 for animal_box_large, animal_box_medium_static</add>
-        <add name="unknown20" type="uint64" ></add>
-		<add name="unknown28" type="uint64" ></add>
-		<add name="unknown30" type="uint64" ></add>
+	<compound name="Ms2BoneInfo">
+		<add name="name count" type="uint64" >counts the names</add>
+		<add name="knownff" type="short" >this is always FFFF for now</add>
+		<add name="zero0" type="short" >this is always 0000 for now</add>
+		<add name="unknown0c" type="uint" ></add>
+		<add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
+		<add name="bind matrix count" type="uint64" >seems to match bone count</add>
+		<add name="zeros" type="uint64" arr1="3"></add>
 		<add name="bone count" type="uint64" >index count3</add>
 		<add name="unknown40" type="uint64" ></add>
 		<add name="bone parents count" type="uint64" >index count4</add>
 		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
-		<add name="count5" type="uint64" >index count 5</add>
+		<add name="enum count" type="uint64" >index count 5</add>
 		<add name="unknown58" type="uint64" ></add>
-		<add name="one64" type="uint64" >always 1</add>
-		<add name="unk joint count" type="uint64" >if joints are present, same as bone count</add>
+		<add name="one" type="uint64" >always 1</add>
+		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="count7" type="uint64" vercond="! #PC#" >index count 7</add>
 		<add name="joint count" type="uint64" >joint count</add>
 		<add name="unk78count" type="uint64" >unnk 78 count</add>
 		<add name="unknown88" type="uint64" vercond="#JWE# #OR# #PC#" >jwe only, everything is shifted a bit due to extra uint 0</add>
 		<add name="unknownextra" type="uint64" vercond="#PC#" >same as above</add>
-        <add name="name indices" type="uint" arr1="name count">index into ms2 string table for bones used here</add>
-        <add name="name padding" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		<add name="name indices" type="uint" arr1="name count">index into ms2 string table for bones used here</add>
+		<add name="name padding" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
-        <add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
-        <add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
-        <add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
+		<add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
+		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
+		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8">zeros</add>
-<!--        <add name="enumeration" type="IndexEnum"  arr1="count5" cond="one64" >enumerates all bone indices, 4 may be flags</add>-->
-        <add name="enumeration" type="uint"  arr1="count5" arr2="2"  cond="one64" >enumerates all bone indices, 4 may be flags</add>
+<!--        <add name="enumeration" type="IndexEnum"  arr1="enum count" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
+		<add name="enumeration" type="uint"  arr1="enum count" arr2="2" cond="one" >enumerates all bone indices, 4 may be flags</add>
+		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count">weird zeros</add>
+		<add name="struct 7" type="Struct7" cond="count7">ragdoll links?</add>
+		<add name="joints" type="JointData" cond="joint count">joints</add>
+	</compound>
 
+	<compound name="ZerosPadding">
 <!--        padding is related to bone count-->
 <!--        odd one out: JWE stairwell-->
-        <add name="hier2padding 0" type="uint64" vercond="!#PZ#" ></add>
-        <add name="hier2padding 1" type="uint64" vercond="!#PZ#" cond="64 #LT# bone count">128 still has 16 bytes</add>
-        <add name="hier2padding 2" type="uint64" vercond="!#PZ#" cond="128 #LT# bone count">129 is the first with 24 bytes</add>
-
-        <add name="padding for ghari" type="padding" align="32" cond="#PZ#">align to 32 bytes</add>
-        <add name="struct 7" type="Struct7" cond="count7">not present for static objects</add>
-
-<!--experimental!!-->
-<!--        objects - pz birch, jwe stuff-->
-<!--        		<add name="JointDatas" type="JointData" cond="joint count" >joint data</add>-->
-
-<!--        dinos only-->
-<!--		        <add name="JointDatas" type="JointDataNasuto" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
-
-    </compound>
+		<add name="hier2padding 0" type="uint64" ></add>
+		<add name="hier2padding 1" type="uint64" cond="64 #LT# #ARG#">128 still has 16 bytes</add>
+		<add name="hier2padding 2" type="uint64" cond="128 #LT# #ARG#">129 is the first with 24 bytes</add>
+	</compound>
 
 	<compound name="IndexEnum">
-        <add name="four" type="uint"></add>
+		<add name="four" type="uint"></add>
 		<add name="index" type="uint">linear increase</add>
-    </compound>
+	</compound>
 
-    <compound name="Ms2BoneInfoPc">
-        <add name="name count" type="int" >index count 1, setting to int to fix boneless model import</add>
-        <add name="float 0 1" type="float" >seems to be either 0.0 or 1.0</add>
-        <add name="knownff" type="ushort" >this is always FFFF for now</add>
-        <add name="zero0" type="ushort" >this is always 0000 for now</add>
-        <add name="unknown0c" type="uint" ></add>
-        <add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
-        <add name="unknown14" type="uint" ></add>
-        <add name="bind matrix count" type="uint" >seems to match bone count</add>
-        <add name="int 0 1" type="uint" >usually 0; 1 for animal_box_large, animal_box_medium_static</add>
-        <add name="unknown20" type="uint" ></add>
+	<compound name="Ms2BoneInfoPc">
+		<add name="name count" type="int" >index count 1, setting to int to fix boneless model import</add>
+		<add name="float 0 1" type="float" >seems to be either 0.0 or 1.0</add>
+		<add name="knownff" type="ushort" >this is always FFFF for now</add>
+		<add name="zero0" type="ushort" >this is always 0000 for now</add>
+		<add name="unknown0c" type="uint" ></add>
+		<add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
+		<add name="unknown14" type="uint" ></add>
+		<add name="bind matrix count" type="uint" >seems to match bone count</add>
+		<add name="int 0 1" type="uint" >usually 0; 1 for animal_box_large, animal_box_medium_static</add>
+		<add name="unknown20" type="uint" ></add>
 		<add name="unknown24" type="uint" ></add>
 		<add name="unknown28" type="uint" ></add>
 		<add name="unknown2C" type="uint" ></add>
@@ -484,20 +484,20 @@
 		<add name="unknown88" type="uint" vercond="#JWE# #OR# #PC#" >jwe only, everything is shifted a bit due to extra uint 0</add>
 		<add name="unknown8C" type="uint" vercond="#JWE# #OR# #PC#" >same as above</add>
 		<add name="unknownextra" type="uint64" vercond="#PC#" >same as above</add>
-        <add name="name indices" type="ushort" arr1="name count">index into ms2 string table for bones used here</add>
-        <add name="name padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		<add name="name indices" type="ushort" arr1="name count">index into ms2 string table for bones used here</add>
+		<add name="name padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
-        <add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
-        <add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
-        <add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
+		<add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
+		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
+		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8">zeros</add>
-        <add name="unknown hier list" type="IndexEnum"  arr1="count5" cond="one64" >unclear what this is doing</add>
+		<add name="unknown hier list" type="IndexEnum"  arr1="count5" cond="one64" >unclear what this is doing</add>
 
-        padding is related to bone count
-        odd one out: JWE stairwell
-        <add name="hier2padding 0" type="uint64" ></add>
-        <add name="hier2padding 1" type="uint64" cond="64 #LT# bone count">128 still has 16 bytes</add>
-        <add name="hier2padding 2" type="uint64" cond="128 #LT# bone count">129 is the first with 24 bytes</add>
+		padding is related to bone count
+		odd one out: JWE stairwell
+		<add name="hier2padding 0" type="uint64" ></add>
+		<add name="hier2padding 1" type="uint64" cond="64 #LT# bone count">128 still has 16 bytes</add>
+		<add name="hier2padding 2" type="uint64" cond="128 #LT# bone count">129 is the first with 24 bytes</add>
 
 
 <!--        <add name="joints" type="Pc Joints" cond="#PC#" ></add>-->
@@ -506,189 +506,134 @@
 <!--        		<add name="JointDatas" type="JointData" cond="joint count" >joint data</add>-->
 
 <!--        dinos only-->
-<!--		        <add name="JointDatas" type="JointDataNasuto" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
+<!--		       <add name="JointDatas" type="JointData" cond="joint count" arg="joint count" >joint data for dinosaurs</add>-->
 
-    </compound>
+	</compound>
 
+	<compound name="Struct7">
+		<add name="count7" type="uint64">repeat</add>
+		<add name="zero" type="uint64" >seen 0</add>
+		<add name="zeros pz" type="uint64" vercond="#PZ#" arr1="2">only for recent versions of PZ</add>
+		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" >60 bytes per entry</add>
+		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
+	</compound>
 
-	<compound name="Pc Joint Bone">
-        <add name="floats" type="float" arr1="12"></add>
-    </compound>
+	<compound name="NasutoJointEntry">
+		60 bytes
+		<add name="child" type="ubyte" >index into bone list</add>
+		<add name="parent" type="ubyte" >index into bone list</add>
+		<add name="zero" type="ushort" >0</add>
+		<add name="matrix" type="Matrix33" ></add>
+		<add name="vector" type="Vector4" ></add>
+		<add name="one" type="uint" >1</add>
+	</compound>
 
-	<compound name="Pc Joint Next">
-        <add name="eleven ff stuff" type="Pc FFCounter" >11, then 11 FFs</add>
-        <add name="undecoded" type="byte" arr1="5">usually 1F AA FF AA FF</add>
-        <add name="name address" type="uint" >start address in zstr buffer</add>
-        <add name="uints" type="uint" arr1="4">1, 0, 0, 0</add>
-    </compound>
+	<compound name="JointData">
+		appears in dinos and static meshes
+		<add name="joint_count" type="uint" >repeat</add>
+		<add name="count_0" type="uint" >small number</add>
+		<add name="count_1" type="uint" >small number</add>
+		<add name="count_2" type="uint" >small number</add>
+		<add name="namespace length" type="uint" ></add>
+		<add name="zeros" type="uint" arr1="13" cond="! #PC#">0s</add>
+		<add name="zeros" type="uint" arr1="17" cond="#PC#">0s</add>
+		<add name="ones" type="uint64" arr1="2" >1, 1</add>
+		<add name="bone count" type="uint" >matches bone count from bone info</add>
+		<add name="joint entry count" type="uint" >0</add>
+		<add name="zeros 1" type="uint" arr1="4">usually 0s</add>
 
-    <compound name="Struct7">
-        <add name="count7" type="uint64">repeat</add>
-        <add name="unknown2" type="uint64" >0</add>
-        <add name="unknown3 pz" type="uint" vercond="#PZ#" >0 or 1</add>
-        <add name="unknown f pz" type="float" vercond="#PZ#" >0 or 1</add>
-        <add name="unknown4 pz" type="uint64" vercond="#PZ#" >0</add>
-        <add name="UnknownList" type="NasutoJointEntry" arr1="count7" >60 bytes per entry</add>
-        <add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
-    </compound>
+		<add name="UnknownLista" type="JointEntry" arr1="joint_count" ></add>
+		<add name="zeros 2" type="uint64" arr1="joint_count" >might be pointers</add>
+		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" ></add>
+		<add name="first list" type="ListFirst" arr1="count_0" >used by ptero, 16 bytes per entry</add>
+		<add name="short list" type="ListShort" arr1="count_1" ></add>
+		<add name="long list" type="ListLong" arr1="count_2" ></add>
+		<add name="joint indices" type="int" arr1="joint_count">index into bone info bones for each joint; bone that the joint is attached to</add>
+		<add name="bone indices" type="int" arr1="bone count">the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
+		<add name="joint names" type="ZStringBuffer" arg="namespace length"></add>
+<!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
+		<add name="JointNamesPadding" type="SmartPadding" ></add>
+		<add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>
+	</compound>
 
-    <compound name="NasutoJointEntry">
-        60 bytes
-        <add name="unknown3a" type="ubyte" >?</add>
-        <add name="unknown3b" type="ubyte" >?</add>
-        <add name="unknown3c" type="ushort" >0</add>
-        <add name="matrix" type="Matrix33" ></add>
-        <add name="vector" type="Vector4" ></add>
-        <add name="one" type="uint" >1</add>
-    </compound>
+	<compound name="Descriptor">
+		<add name="parent" type="ushort" >index into JointInfoList</add>
+		<add name="child" type="ushort" >index into JointInfoList</add>
+	</compound>
 
-    <compound name="JointDataNasuto">
-        <add name="JointCompound" type="JointCompound" ></add>
-        <add name="UnknownLista" type="JointEntry" arr1="JointCompound \ joint_count" ></add>
-        <add name="zeros" type="uint64" arr1="JointCompound \ joint_count" >might be pointers</add>
-        <add name="UnknownListc" type="ListCEntry" arr1="JointCompound \ joint_count" ></add>
-        <add name="first list" type="ListFirst" arr1="JointCompound \ count_0" >used by ptero, 16 bytes per entry</add>
-        <add name="short list" type="ListShort" arr1="JointCompound \ count_1" ></add>
-        <add name="long list" type="ListLong" arr1="JointCompound \ count_2" ></add>
-        <add name="joint indices" type="int" arr1="JointCompound \ joint_count">index</add>
-        <add name="bone indices" type="int" arr1="JointCompound \ bone count">index or -1</add>
-        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
-        <add name="JointNamesPadding" type="byte" arr1="(4 - (JointCompound\namespace length % 8)) % 8" ></add>
-        <add name="JointInfoList" type="JointInfo" arr1="JointCompound \ joint count" ></add>
-    </compound>
+	<compound name="ListFirst" inherit="Descriptor">
+		<add name="floats" type="float" arr1="3"></add>
+	</compound>
 
-    <compound name="Descriptor">
-        <add name="a" type="ushort" ></add>
-        <add name="b" type="ushort" ></add>
-    </compound>
+	<compound name="ListShort" inherit="Descriptor">
+		<add name="floats" type="float" arr1="8"></add>
+	</compound>
 
-    <compound name="ListFirst" inherit="Descriptor">
-        <add name="floats" type="float" arr1="3"></add>
-    </compound>
+	<compound name="ListLong" inherit="Descriptor">
+		<add name="floats" type="float" arr1="26"></add>
+	</compound>
 
-    <compound name="ListShort" inherit="Descriptor">
-        <add name="floats" type="float" arr1="8"></add>
-    </compound>
+	<compound name="Pc FFCounter">
+		count is nonzero in PZ broken birch model
+		<add name="count" type="uint" ></add>
+		<add name="FFs" type="byte" arr1="count"></add>
+	</compound>
 
-    <compound name="ListLong" inherit="Descriptor">
-        <add name="floats" type="float" arr1="26"></add>
-    </compound>
+	<compound name="JointEntry">
+		<add name="matrix" type="Matrix33" ></add>
+		<add name="vector" type="Vector3" ></add>
+	</compound>
 
-    <compound name="JointCompound">
-        appears in dinos and static meshes
-        <add name="joint_count" type="uint" >repeat</add>
-        <add name="count_0" type="uint" >small number</add>
-        <add name="count_1" type="uint" >small number</add>
-        <add name="count_2" type="uint" >small number</add>
-        <add name="namespace length" type="uint" ></add>
-        <add name="zeros" type="uint" arr1="13" cond="! #PC#">0s</add>
-        <add name="zeros" type="uint" arr1="17" cond="#PC#">0s</add>
-        <add name="unknown4" type="uint" >1</add>
-        <add name="unknown5" type="uint" >0</add>
-        <add name="unknown6" type="uint" >1</add>
-        <add name="unknown7" type="uint" >0</add>
-        <add name="bone count" type="uint" >matches bone count from bone info</add>
-        <add name="joint entry count" type="uint" >0</add>
-        <add name="zeros1" type="uint" arr1="4">usually 0s</add>
-    </compound>
-
-    <compound name="JointData">
-        <add name="JointCompound" type="JointCompound" ></add>
-
-        <add name="JointList" type="JointEntry" arr1="JointCompound \ joint count" ></add>
-        <!--<add name="JointListPadding" type="byte" arr1="(60 - ((joint count * 48) % 60)) % 60 " ></add>-->
-<!--        if i had to guess, those floats are probably several arrays of joint count after another-->
-        <add name="UnknownList" type="UnknownJointEntry" arr1="JointCompound \ joint count" ></add>
-        <add name="unknown10" type="FFCounter" arr1="JointCompound \ joint count"></add>
-        <add name="unknown11" type="uint"></add>
-        <add name="joint names" type="ZStringBuffer" arg="JointCompound\namespace length"></add>
-        <add name="JointNamesPadding" type="byte" arr1="(4 - (JointCompound\namespace length % 8)) % 8" ></add>
-        <add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>
-<!--        <add name="JointInfoList" type="JointInfo" ></add>-->
-    </compound>
-
-    <compound name="Pc FFCounter">
-        count is nonzero in PZ broken birch model
-        <add name="count" type="uint" ></add>
-        <add name="FFs" type="byte" arr1="count"></add>
-    </compound>
-
-    <compound name="FFCounter">
-        count is nonzero in PZ broken birch model
-        <add name="count" type="uint" ></add>
-        <add name="FFs" type="int" arr1="count"></add>
-    </compound>
-
-    <compound name="JointEntry">
-        <add name="matrix" type="Matrix33" ></add>
-        <add name="vector" type="Vector3" ></add>
-    </compound>
-
-    <compound name="ListCEntry">
-        <add name="one" type="uint">1 for carch and nasuto</add>
+	<compound name="ListCEntry">
+		<add name="one" type="uint">1 for carch and nasuto</add>
 <!--        probably not a matrix, not sure what it is-->
-        <add name="matrix" type="Matrix33" ></add>
-        <add name="a" type="float" ></add>
-    </compound>
-
-    <compound name="ListDEntry">
-<!--        probably not a matrix, not sure what it is-->
-        <add name="ce" type="float" ></add>
-        <add name="cb" type="float" ></add>
-        <add name="matrix" type="Matrix44" ></add>
-<!--        <add name="matrixb" type="Matrix33" ></add>-->
-<!--        <add name="c" type="Vector4" ></add>-->
-<!--        <add name="d" type="Vector4" ></add>-->
-    </compound>
-
-    <compound name="UnknownJointEntry">
-        <add name="floats" type="float" arr1="13"></add>
-    </compound>	
-	
+		<add name="matrix" type="Matrix33" ></add>
+		<add name="a" type="float" ></add>
+	</compound>
 
 	<compound name="JointInfo">
-        <add name="eleven" type="uint">must be 11</add>
-        <add name="FFs" type="short" arr1="6">bunch of -1's</add>
-		<add name="name offset" type="uint"></add>
-        <add name="hitcheck count" type="uint"></add>
-         <add name="zero" type="uint64" >8 bytes of zeros</add>
-         <add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
-		<add name="HitCheck" type="HitCheck Entry" arr1="hitcheck count"></add>
-    </compound>
+		<add name="eleven" type="uint">must be 11</add>
+		<add name="FFs" type="int" arr1="3">bunch of -1's</add>
+		<add name="name offset" type="uint"/>
+		<add name="hitcheck count" type="uint"/>
+		<add name="zero" type="uint64" >8 bytes of zeros</add>
+		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
+		<add name="HitCheck" type="HitCheck Entry" arr1="hitcheck count"/>
+	</compound>
 
 	<compound name="HitCheck Entry">
-        <add name="type" type="uint"></add>
-        <add name="unknown2a" type="ubyte"></add>
-        <add name="unknown2b" type="ubyte"></add>
-        <add name="unknown2c" type="ubyte">16</add>
-        <add name="unknown2d" type="ubyte">0</add>
-		<add name="unknown3" type="uint">564267</add>
-		<add name="unknown4" type="uint">46</add>
-		<add name="name offset" type="uint"></add>
+		<add name="type" type="CollisionType"/>
+		<add name="unknown2a" type="ubyte"></add>
+		<add name="unknown2b" type="ubyte"></add>
+		<add name="unknown2c" type="ubyte">16</add>
+		<add name="unknown2d" type="ubyte">0</add>
+		<add name="unknown3" type="uint">JWE: 564267, PZ: seen 17 and 22</add>
+		<add name="unknown4" type="uint">JWE: 46, PZ: same as above</add>
+		<add name="name offset" type="uint">offset into joint names</add>
 
-		<add name="sphere" type="Sphere" cond="type == 0"></add>
-		<add name="bbox" type="BoundingBox" cond="type == 1"></add>
-		<add name="capsule" type="Capsule" cond="type == 2"></add>
-    </compound>
+		<add name="collider" type="Sphere" cond="type == 0" />
+		<add name="collider" type="BoundingBox" cond="type == 1" />
+		<add name="collider" type="Capsule" cond="type == 2" />
+	</compound>
 
+	<compound name="Sphere">
+		<add name="center" type="Vector3" >center of the sphere</add>
+		<add name="radius" type="float" >radius around the center</add>
+		<add name="zero" type="uint" >apparently unused</add>
+	</compound>
 
-    <compound name="Sphere">
-         <add name="center" type="Vector3" ></add>
-         <add name="radius" type="float" ></add>
-         <add name="unk" type="float" ></add>
-<!--         <add name="unk" type="Vector3" > zero?</add>-->
-    </compound>
+	<compound name="BoundingBox">
+		<add name="rotation" type="Matrix33"/>
+		<add name="center" type="Vector3" >center of the box</add>
+		<add name="extent" type="Vector3" >total width</add>
+	</compound>
 
-    <compound name="Capsule">
-         <add name="a" type="Vector3" ></add>
-         <add name="b" type="Vector3" ></add>
-         <add name="c" type="Vector3" ></add>
-    </compound>
-
-    <compound name="BoundingBox">
-         <add name="rotation" type="Matrix33" ></add>
-         <add name="center" type="Vector3" ></add>
-         <add name="extent" type="Vector3" ></add>
-    </compound>
+	<compound name="Capsule">
+		<add name="offset" type="Vector3" >relative to the armature, ie. not in bone space</add>
+		<add name="direction" type="Vector3" >normalized</add>
+		<add name="radius" type="float" >radius of the caps</add>
+		<add name="extent" type="float" >distance between the center points of the capsule caps, total extent is 2 * radius + extent</add>
+		<add name="zero" type="uint" >apparently unused</add>
+	</compound>
 
 </niftoolsxml>

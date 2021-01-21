@@ -11,7 +11,11 @@ class BoundingBox:
 		self.io_size = 0
 		self.io_start = 0
 		self.rotation = Matrix33()
+
+		# center of the box
 		self.center = Vector3()
+
+		# total width
 		self.extent = Vector3()
 
 	def read(self, stream):

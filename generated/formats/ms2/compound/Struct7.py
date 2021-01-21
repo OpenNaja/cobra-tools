@@ -15,17 +15,11 @@ class Struct7:
 		# repeat
 		self.count_7 = 0
 
-		# 0
-		self.unknown_2 = 0
+		# seen 0
+		self.zero = 0
 
-		# 0 or 1
-		self.unknown_3_pz = 0
-
-		# 0 or 1
-		self.unknown_f_pz = 0
-
-		# 0
-		self.unknown_4_pz = 0
+		# only for recent versions of PZ
+		self.zeros_pz = Array()
 
 		# 60 bytes per entry
 		self.unknown_list = Array()
@@ -37,11 +31,9 @@ class Struct7:
 
 		self.io_start = stream.tell()
 		self.count_7 = stream.read_uint64()
-		self.unknown_2 = stream.read_uint64()
+		self.zero = stream.read_uint64()
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
-			self.unknown_3_pz = stream.read_uint()
-			self.unknown_f_pz = stream.read_float()
-			self.unknown_4_pz = stream.read_uint64()
+			self.zeros_pz = stream.read_uint64s((2))
 		self.unknown_list.read(stream, NasutoJointEntry, self.count_7, None)
 		self.padding = stream.read_ubytes(((8 - ((self.count_7 * 60) % 8)) % 8))
 
@@ -51,11 +43,9 @@ class Struct7:
 
 		self.io_start = stream.tell()
 		stream.write_uint64(self.count_7)
-		stream.write_uint64(self.unknown_2)
+		stream.write_uint64(self.zero)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
-			stream.write_uint(self.unknown_3_pz)
-			stream.write_float(self.unknown_f_pz)
-			stream.write_uint64(self.unknown_4_pz)
+			stream.write_uint64s(self.zeros_pz)
 		self.unknown_list.write(stream, NasutoJointEntry, self.count_7, None)
 		stream.write_ubytes(self.padding)
 
@@ -67,10 +57,8 @@ class Struct7:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
-		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
-		s += f'\n	* unknown_3_pz = {self.unknown_3_pz.__repr__()}'
-		s += f'\n	* unknown_f_pz = {self.unknown_f_pz.__repr__()}'
-		s += f'\n	* unknown_4_pz = {self.unknown_4_pz.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* zeros_pz = {self.zeros_pz.__repr__()}'
 		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
 		s += f'\n	* padding = {self.padding.__repr__()}'
 		return s

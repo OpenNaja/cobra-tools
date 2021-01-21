@@ -9,16 +9,22 @@ class Sphere:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# center of the sphere
 		self.center = Vector3()
+
+		# radius around the center
 		self.radius = 0
-		self.unk = 0
+
+		# apparently unused
+		self.zero = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.center = stream.read_type(Vector3)
 		self.radius = stream.read_float()
-		self.unk = stream.read_float()
+		self.zero = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -27,7 +33,7 @@ class Sphere:
 		self.io_start = stream.tell()
 		stream.write_type(self.center)
 		stream.write_float(self.radius)
-		stream.write_float(self.unk)
+		stream.write_uint(self.zero)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -38,7 +44,7 @@ class Sphere:
 		s = ''
 		s += f'\n	* center = {self.center.__repr__()}'
 		s += f'\n	* radius = {self.radius.__repr__()}'
-		s += f'\n	* unk = {self.unk.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
 		return s
 
 	def __repr__(self):

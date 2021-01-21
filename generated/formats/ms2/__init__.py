@@ -6,7 +6,7 @@ import time
 
 from generated.array import Array
 from generated.formats.ms2.compound.JointData import JointData
-from generated.formats.ms2.compound.JointDataNasuto import JointDataNasuto
+from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
@@ -79,7 +79,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# find the start of each using this identifier
 		zero_f = bytes.fromhex("00 00 00 00")
 		one_f = bytes.fromhex("00 00 80 3F")
-		prefixes = (zero_f, one_f)
+		# prefixes = (zero_f, one_f)
+		prefixes = (zero_f, )
 		# lion has a 1 instead of a 4
 		bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
 		# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
@@ -119,36 +120,51 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			try:
 				bone_info = bone_info_cls()
 				bone_info.read(stream)
-				print(bone_info)
+				# print(bone_info)
 				end_of_bone_info = stream.tell()
 				print("end of bone info at", end_of_bone_info)
 			except:
 				print("Bone info failed")
-			try:
-				print("reading joints static style")
-				joints = JointData()
-				joints.read(stream)
-				print(joints)
-			except Exception as err:
-				print("joints failed")
-				print(err)
-				pass
-			try:
-				print("reading joints Nasuto style")
-				stream.seek(end_of_bone_info)
-				joints = JointDataNasuto(bone_info.joint_count)
-				joints.read(stream)
-				for joint_info in joints.joint_info_list:
-					joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
-					for hit in joint_info.hit_check:
-						hit.name = joints.joint_names.get_str_at(hit.name_offset)
+			if bone_info:
+				try:
+					self.bone_names = [self.names[i] for i in bone_info.name_indices]
+				except:
+					print("Names failed...")
+			print(self.bone_names)
+			for i, x in enumerate(bone_info.struct_7.unknown_list):
+				print(i)
+				print(self.bone_names[x.child], x.child)
+				print(self.bone_names[x.parent], x.parent)
+				assert x.zero == 0
+				assert x.one == 1
+			assert bone_info.one == 1
+			assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.bone_parents_count == bone_info.enum_count
+			assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
+			assert bone_info.unk_78_count == 0 and bone_info.unknown_88 == 0 and bone_info.unknownextra == 0
+			joints = bone_info.joints
+			for joint_info in joints.joint_info_list:
+				joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
+				for hit in joint_info.hit_check:
+					hit.name = joints.joint_names.get_str_at(hit.name_offset)
+			print(joints)
 
-				print(joints)
-			except Exception as err:
-				print("nasuto joints failed")
-				print(err)
-				pass
+			for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
+				print(f"List {ix}")
+				for i, x in enumerate(li):
+					print(i)
+					print(joints.joint_info_list[x.parent].name, x.parent)
+					print(joints.joint_info_list[x.child].name, x.child)
 
+			# if bone_info.joint_count:
+			# 	for i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
+			# 		usually, this corresponds - does not do for speedtree but does not matter
+			# 		if not self.bone_names[i] == joint_info.name:
+			# 			print("WARNING NAMES DON'T MATCH", self.bone_names[i], joint_info.name)
+			# if bone_info.joint_count:
+			# 	for i, bone_name in zip(joints.bone_indices, self.bone_names):
+			# 		print(i, bone_name)
+			# 		if i > -1:
+			# 			print(joints.joint_info_list[i].name)
 		else:
 			print("No bone info found")
 
@@ -159,7 +175,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# eof = super().load(filepath)
 
 		# extra stuff
-		self.bone_names = []
 		self.bone_info = None
 		with self.reader(filepath) as stream:
 			self.read(stream)
@@ -230,12 +245,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfoPc)
 			else:
 				self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
-		# print(self.bone_info)
-		if self.bone_info:
-			try:
-				self.bone_names = [self.names[i] for i in self.bone_info.name_indices]
-			except:
-				print("Names failed...")
+
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
@@ -288,6 +298,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.bone_info.write(temp_bone_writer)
 			bone_bytes = temp_bone_writer.getvalue()
 			print("new bone info length: ", len(bone_bytes))
+
+		with open(filepath+"bonedump", "wb") as f:
+			f.write(bone_bytes)
 
 		for i, model in enumerate(mdl2.models):
 			model.write_verts(temp_vert_writer)
@@ -352,6 +365,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.file)[0]
+		print(f"Loading {self.basename}")
 		# read the file
 		eof = super().load(filepath)
 		# print(self)
