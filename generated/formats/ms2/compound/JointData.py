@@ -1,6 +1,5 @@
 import typing
 from generated.array import Array
-from generated.formats.ms2.compound.JointCompound import JointCompound
 from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.JointInfo import JointInfo
 from generated.formats.ms2.compound.ListCEntry import ListCEntry
@@ -11,19 +10,53 @@ from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
 
 
-class JointData(JointCompound):
+class JointData:
+
+	"""
+	appears in dinos and static meshes
+	"""
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
-		super().__init__(arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# repeat
+		self.joint_count = 0
+
+		# small number
+		self.count_0 = 0
+
+		# small number
+		self.count_1 = 0
+
+		# small number
+		self.count_2 = 0
+		self.namespace_length = 0
+
+		# 0s
+		self.zeros = Array()
+
+		# 0s
+		self.zeros = Array()
+
+		# 1, 1
+		self.ones = Array()
+
+		# matches bone count from bone info
+		self.bone_count = 0
+
+		# 0
+		self.joint_entry_count = 0
+
+		# usually 0s
+		self.zeros_1 = Array()
 		self.unknown_lista = Array()
 
 		# might be pointers
-		self.zeros = Array()
+		self.zeros_2 = Array()
 		self.unknown_listc = Array()
 
 		# used by ptero, 16 bytes per entry
@@ -43,9 +76,21 @@ class JointData(JointCompound):
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		super().read(stream)
+		self.joint_count = stream.read_uint()
+		self.count_0 = stream.read_uint()
+		self.count_1 = stream.read_uint()
+		self.count_2 = stream.read_uint()
+		self.namespace_length = stream.read_uint()
+		if not (stream.version == 18):
+			self.zeros = stream.read_uints((13))
+		if stream.version == 18:
+			self.zeros = stream.read_uints((17))
+		self.ones = stream.read_uint64s((2))
+		self.bone_count = stream.read_uint()
+		self.joint_entry_count = stream.read_uint()
+		self.zeros_1 = stream.read_uints((4))
 		self.unknown_lista.read(stream, JointEntry, self.joint_count, None)
-		self.zeros = stream.read_uint64s((self.joint_count))
+		self.zeros_2 = stream.read_uint64s((self.joint_count))
 		self.unknown_listc.read(stream, ListCEntry, self.joint_count, None)
 		self.first_list.read(stream, ListFirst, self.count_0, None)
 		self.short_list.read(stream, ListShort, self.count_1, None)
@@ -61,9 +106,21 @@ class JointData(JointCompound):
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		super().write(stream)
+		stream.write_uint(self.joint_count)
+		stream.write_uint(self.count_0)
+		stream.write_uint(self.count_1)
+		stream.write_uint(self.count_2)
+		stream.write_uint(self.namespace_length)
+		if not (stream.version == 18):
+			stream.write_uints(self.zeros)
+		if stream.version == 18:
+			stream.write_uints(self.zeros)
+		stream.write_uint64s(self.ones)
+		stream.write_uint(self.bone_count)
+		stream.write_uint(self.joint_entry_count)
+		stream.write_uints(self.zeros_1)
 		self.unknown_lista.write(stream, JointEntry, self.joint_count, None)
-		stream.write_uint64s(self.zeros)
+		stream.write_uint64s(self.zeros_2)
 		self.unknown_listc.write(stream, ListCEntry, self.joint_count, None)
 		self.first_list.write(stream, ListFirst, self.count_0, None)
 		self.short_list.write(stream, ListShort, self.count_1, None)
@@ -81,9 +138,18 @@ class JointData(JointCompound):
 
 	def get_fields_str(self):
 		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* unknown_lista = {self.unknown_lista.__repr__()}'
+		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
+		s += f'\n	* count_0 = {self.count_0.__repr__()}'
+		s += f'\n	* count_1 = {self.count_1.__repr__()}'
+		s += f'\n	* count_2 = {self.count_2.__repr__()}'
+		s += f'\n	* namespace_length = {self.namespace_length.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* ones = {self.ones.__repr__()}'
+		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
+		s += f'\n	* joint_entry_count = {self.joint_entry_count.__repr__()}'
+		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
+		s += f'\n	* unknown_lista = {self.unknown_lista.__repr__()}'
+		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
 		s += f'\n	* unknown_listc = {self.unknown_listc.__repr__()}'
 		s += f'\n	* first_list = {self.first_list.__repr__()}'
 		s += f'\n	* short_list = {self.short_list.__repr__()}'

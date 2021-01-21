@@ -9,11 +9,17 @@ class Capsule:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# relative to the armature, ie. not in bone space
 		self.offset = Vector3()
 
 		# normalized
 		self.direction = Vector3()
+
+		# radius of the caps
 		self.radius = 0
+
+		# distance between the center points of the capsule caps, total extent is 2 * radius + extent
 		self.extent = 0
 
 		# apparently unused

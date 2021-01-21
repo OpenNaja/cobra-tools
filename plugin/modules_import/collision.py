@@ -1,8 +1,29 @@
 import mathutils
 import bpy
 
+from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.packing_utils import unpack_swizzle
-from plugin.helpers import mesh_from_data, create_ob
+from generated.formats.ms2.enum.CollisionType import CollisionType
+from plugin.helpers import mesh_from_data
+from plugin.modules_export.collision import export_hitcheck
+
+
+def import_collider(hitcheck, armature_ob, bone_name):
+	print(hitcheck.name, hitcheck.type)
+	coll = hitcheck.collider
+	# print(hitcheck)
+	if hitcheck.type == CollisionType.Sphere:
+		ob = import_spherebv(coll, hitcheck.name)
+	elif hitcheck.type == CollisionType.BoundingBox:
+		ob = import_boxbv(coll, hitcheck.name)
+	elif hitcheck.type == CollisionType.Capsule:
+		ob = import_capsulebv(coll, hitcheck.name)
+	else:
+		print(f"Unsupported collider type {hitcheck.type}")
+		return
+	parent_to(armature_ob, ob, bone_name)
+	# h = HitCheckEntry()
+	# print(export_hitcheck(ob, h))
 
 
 def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
@@ -49,13 +70,22 @@ def center_origin_to_matrix(n_center, n_dir):
 	return rot
 
 
+def import_spherebv(sphere, hitcheck_name):
+	r = sphere.radius
+	b_obj, b_me = box_from_extents(hitcheck_name, -r, r, -r, r, -r, r)
+	b_obj.location = unpack_swizzle((sphere.center.x, sphere.center.y, sphere.center.z))
+	set_b_collider(b_obj, r, bounds_type="SPHERE", display_type="SPHERE")
+	return b_obj
+
+
 def import_boxbv(box, hitcheck_name):
 	# ignore for now, seems to be a unity 3x3 matrix
 	# axes = box.rotation
 	x, y, z = unpack_swizzle((box.extent.x / 2, box.extent.y / 2, box.extent.z / 2))
 	b_obj, b_me = box_from_extents(hitcheck_name, -x, x, -y, y, -z, z)
-	b_obj.location = unpack_swizzle((box.offset.x, box.offset.y, box.offset.z))
+	b_obj.location = unpack_swizzle((box.center.x, box.center.y, box.center.z))
 	set_b_collider(b_obj, (x+y+z)/3)
+	return b_obj
 
 
 def import_capsulebv(capsule, hitcheck_name):
@@ -69,4 +99,14 @@ def import_capsulebv(capsule, hitcheck_name):
 	b_obj, b_me = box_from_extents(hitcheck_name, minx, maxx, miny, maxy, minz, maxz)
 	# apply transform in local space
 	b_obj.matrix_local = center_origin_to_matrix(capsule.offset, capsule.direction)
-	set_b_collider(b_obj, bounds_type="CAPSULE", display_type="CAPSULE", radius=capsule.radius)
+	set_b_collider(b_obj, capsule.radius, bounds_type="CAPSULE", display_type="CAPSULE")
+	return b_obj
+
+
+def parent_to(armature_ob, ob, bone_name):
+	ob.parent = armature_ob
+	ob.parent_type = 'BONE'
+	ob.parent_bone = bone_name
+	b_bone = armature_ob.data.bones[bone_name]
+	# re-set matrix to update the binding
+	ob.matrix_local = ob.matrix_local

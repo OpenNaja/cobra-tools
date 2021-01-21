@@ -299,6 +299,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			bone_bytes = temp_bone_writer.getvalue()
 			print("new bone info length: ", len(bone_bytes))
 
+		with open(filepath+"bonedump", "wb") as f:
+			f.write(bone_bytes)
+
 		for i, model in enumerate(mdl2.models):
 			model.write_verts(temp_vert_writer)
 			model.write_tris(temp_tris_writer)
@@ -362,6 +365,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.file)[0]
+		print(f"Loading {self.basename}")
 		# read the file
 		eof = super().load(filepath)
 		# print(self)
