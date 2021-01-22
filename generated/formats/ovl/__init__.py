@@ -1274,11 +1274,11 @@ class OvlFile(Header, IoFile):
 			files_by_extension[file_ext].append(file_path)
 		print(files_by_extension)
 
-		lut = {".fdb": 1,
-			   ".assetpkg": 2,
-			   ".userinterfaceicondata": 1,
-			   ".lua": 7
-			   }
+		lut_mime_unk_0 = {".fdb": 1,
+						   ".assetpkg": 2,
+						   ".userinterfaceicondata": 1,
+						   ".lua": 7
+						   }
 		lut_file_unk_0 = {".fdb": 4,
 						   ".assetpkg": 4,
 						   ".userinterfaceicondata": 4,
@@ -1295,7 +1295,7 @@ class OvlFile(Header, IoFile):
 			mime_entry.ext = file_ext[1:]
 			# update offset using the name buffer
 			mime_entry.mime_hash = djb(mime_entry.name)
-			mime_entry.unknown_1 = lut[file_ext]
+			mime_entry.unknown_1 = lut_mime_unk_0[file_ext]
 			mime_entry.unknown_2 = 0
 			mime_entry.file_index_offset = file_index_offset
 			mime_entry.file_count = len(file_paths)
@@ -1326,10 +1326,46 @@ class OvlFile(Header, IoFile):
 			(self.mimes, "name"),
 			(self.files, "name")
 		))
-		self.len_names = len(self.names.data)
-		print(self)
 		# refactor!!
 		self.ovs_files = []
+
+		self.fres.data = b"FRES"
+		self.flag = 1
+		self.version = 13
+		self.needs_bitswap = 0
+		self.flag_2 = 24724
+		#
+		# new_archive_entry.uncompressed_size, new_archive_entry.compressed_size, compressed, ovs_stream = new_archive.creator_zip(
+		# 	new_archive, header_entry_data, new_buffers)
+
+		new_zlib = ZlibInfo()
+		# new_zlib.zlib_thing_1 = 68 + new_archive_entry.uncompressed_size
+		new_zlib.zlib_thing_2 = 0
+
+		# ovl header stuff
+
+		self.len_names = len(self.names.data)
+		self.num_mimes = len(self.mimes)
+		self.num_files = len(self.files)
+		self.num_files_2 = len(self.files)
+		self.num_files_3 = len(self.files)
+		# self.num_archives = 1
+		# self.num_header_types = 1
+		# self.num_headers = 1
+		# self.num_datas = len(new_data_entries)
+		# self.num_buffers = len(new_buffer_entries)
+		# self.len_archive_names = 8
+		# self.len_type_names = len(type_names)
+		# self.names.data = names_buffer
+		# self.mimes.extend(new_mime_entries)
+		# self.files.extend(new_file_entries)
+		# self.archive_names.data = b'STATIC\x00\x00'
+		# self.archives.append(new_archive_entry)
+		# self.zlibs.append(new_zlib)
+
+
+		print(self)
+
 		return
         
 		# initial ovl state
@@ -1541,41 +1577,6 @@ class OvlFile(Header, IoFile):
 		new_archive.buffer_entries =  new_buffer_entries
 		new_archive.sized_str_entries = new_sized_str_entries
 		new_archive.fragments = new_fragments
-        
-		self.fres.data = b"FRES"
-		self.flag = 1
-		self.version = 13
-		self.needs_bitswap = 0
-		self.flag_2 = 24724
-        
-
-		
-		new_archive_entry.uncompressed_size, new_archive_entry.compressed_size, compressed, ovs_stream = new_archive.creator_zip(new_archive,header_entry_data,new_buffers)
-		
-		new_zlib = ZlibInfo()
-		new_zlib.zlib_thing_1 = 68 + new_archive_entry.uncompressed_size
-		new_zlib.zlib_thing_2 = 0
-		
-		#ovl header stuff
-
-		self.len_names = len(names_buffer)
-		self.num_mimes = mime_entry_count
-		self.num_files = file_entry_count
-		self.num_files_2 = file_entry_count
-		self.num_archives = 1
-		self.num_header_types = 1
-		self.num_headers = 1
-		self.num_datas = len(new_data_entries)
-		self.num_buffers = len(new_buffer_entries)
-		self.len_archive_names = 8
-		self.num_files_3 = file_entry_count
-		self.len_type_names = len(type_names)
-		self.names.data = names_buffer
-		self.mimes.extend(new_mime_entries)
-		self.files.extend(new_file_entries)
-		self.archive_names.data = b'STATIC\x00\x00'
-		self.archives.append(new_archive_entry)
-		self.zlibs.append(new_zlib)
 		    
 		eof = super().save(filepath)  
 		with self.writer(filepath) as streamm:
@@ -1765,6 +1766,7 @@ class OvlFile(Header, IoFile):
 		self.store_filepath(filepath)
 		exp_dir = os.path.dirname(filepath)
 		ovs_dict = {}
+		ovl_compressed = b""
 		# compress data stream
 		for i, (archive_entry, archive) in enumerate(zip(self.archives, self.ovs_files)):
 			# write archive into bytes IO stream

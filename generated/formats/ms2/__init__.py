@@ -297,7 +297,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			temp_bone_writer.ms_2_version = self.general_info.ms_2_version
 			self.bone_info.write(temp_bone_writer)
 			bone_bytes = temp_bone_writer.getvalue()
-			print("new bone info length: ", len(bone_bytes))
 
 		with open(filepath+"bonedump", "wb") as f:
 			f.write(bone_bytes)
@@ -331,9 +330,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			print("lod.tri_index_count", lod.tri_index_count)
 		print("Writing final output")
 		# get original header and buffers 0 & 1
-		# first get all bytes of the whole bone infos block
-		print("old bone info length: ", len(self.bone_info_bytes))
-		cut = len(bone_bytes) - len(self.bone_info_bytes)
 
 		# get bytes from IO object
 		vert_bytes = temp_vert_writer.getvalue()
@@ -345,12 +341,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# write output ms2
 		with self.writer(filepath) as f:
 			self.write(f)
-			if cut < 0:
+			print("new bone info length: ", len(bone_bytes))
+			print("old bone info length: ", len(self.bone_info_bytes))
+			# this is a hack
+			if len(bone_bytes) < len(self.bone_info_bytes):
 				f.write(bone_bytes)
-				f.write(self.bone_info_bytes[cut:])
-			elif cut > 0:
-				print("neg cut")
+				f.write(self.bone_info_bytes[len(bone_bytes):])
+			elif len(bone_bytes) > len(self.bone_info_bytes):
 				f.write(bone_bytes[:len(self.bone_info_bytes)])
+			else:
+				f.write(bone_bytes)
 			f.write(vert_bytes)
 			f.write(tris_bytes)
 	
