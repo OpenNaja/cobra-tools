@@ -1262,11 +1262,75 @@ class OvlFile(Header, IoFile):
 		f.close()
 		return content
 
-	def create(self, filepath, files_to_pack, basepath):
-		fdbs = [fdb for fdb in files_to_pack if fdb.endswith(".fdb")]
-		luas = [lua for lua in files_to_pack if lua.endswith(".lua")]
-		asse = [ass for ass in files_to_pack if ass.endswith('.assetpkg')]
-		uics = [uic for uic in files_to_pack if uic.endswith('.userinterfaceicondata')]
+	def create(self, ovl_dir, mime_names_dict):
+		print(f"Creating OVL from {ovl_dir}")
+
+		files_by_extension = {}
+		for file_name in os.listdir(ovl_dir):
+			file_name_bare, file_ext = os.path.splitext(file_name)
+			file_path = os.path.join(ovl_dir, file_name)
+			if file_ext not in files_by_extension:
+				files_by_extension[file_ext] = []
+			files_by_extension[file_ext].append(file_path)
+		print(files_by_extension)
+
+		lut = {".fdb": 1,
+			   ".assetpkg": 2,
+			   ".userinterfaceicondata": 1,
+			   ".lua": 7
+			   }
+		lut_file_unk_0 = {".fdb": 4,
+						   ".assetpkg": 4,
+						   ".userinterfaceicondata": 4,
+						   ".lua": 2
+						   }
+		file_index_offset = 0
+		for file_ext, file_paths in files_by_extension.items():
+			if file_ext not in mime_names_dict:
+				print(f"ignoring extension {file_ext}")
+				continue
+			mime_entry = MimeEntry()
+			mime_entry.name = mime_names_dict[file_ext]
+			# strip away the leading .
+			mime_entry.ext = file_ext[1:]
+			# update offset using the name buffer
+			mime_entry.mime_hash = djb(mime_entry.name)
+			mime_entry.unknown_1 = lut[file_ext]
+			mime_entry.unknown_2 = 0
+			mime_entry.file_index_offset = file_index_offset
+			mime_entry.file_count = len(file_paths)
+			file_index_offset += len(file_paths)
+
+			for file_path in file_paths:
+				file_entry = FileEntry()
+				basename = os.path.basename(file_path)
+				file_entry.path = file_path
+				file_entry.name, file_entry.ext = basename.rsplit(".", 1)
+				file_entry.file_hash = djb(file_entry.name)
+				file_entry.unkn_0 = lut_file_unk_0[file_ext]
+				file_entry.unkn_1 = 0
+				file_entry.extension = len(self.mimes)
+				# this is not used here - djb(.ext)
+				# file_entry.mime_hash = djb(file_entry.ext)
+				self.files.append(file_entry)
+			self.mimes.append(mime_entry)
+
+		# sort the different lists according to the criteria specified
+		self.files.sort(key=lambda x: (x.ext, x.file_hash))
+		self.dependencies.sort(key=lambda x: x.file_hash)
+
+		# update the name buffer and offsets
+		self.names.update_with((
+			(self.dependencies, "ext"),
+			(self.dirs, "name"),
+			(self.mimes, "name"),
+			(self.files, "name")
+		))
+		self.len_names = len(self.names.data)
+		print(self)
+		# refactor!!
+		self.ovs_files = []
+		return
         
 		# initial ovl state
 		names_buffer   = b''
@@ -1274,151 +1338,15 @@ class OvlFile(Header, IoFile):
 		offset     = 0
 		mime_entry_count = 0
 		file_entry_count = 0
-        
-		new_mime_entries = Array()
+
         
 		new_file_entries = Array()
-  
-		if len(asse) > 0:
-			asse_mime = MimeEntry()
-			asse_mime.offset = len(names_buffer)
-			asse_mime.mime_hash = 0x444B295A
-			asse_mime.unknown_1 = 2
-			asse_mime.unknown_2 = 0
-			asse_mime.file_index_offset = file_entry_count
-			asse_mime.file_count = len(asse)
-			names_buffer += b"Casino:AssetPackageRes:assetpkg" + b'\x00'
-			type_names += b"Casino:AssetPackageRes:assetpkg" + b'\x00'
-			file_entry_count += len(asse)
-			new_mime_entries.append(asse_mime)
-		if len(fdbs) > 0:
-			fdbs_mime = MimeEntry()
-			fdbs_mime.offset = len(names_buffer)
-			fdbs_mime.mime_hash = 0x97B8DB21
-			fdbs_mime.unknown_1 = 1
-			fdbs_mime.unknown_2 = 0
-			fdbs_mime.file_index_offset = file_entry_count
-			fdbs_mime.file_count = len(fdbs)
-			names_buffer += b"FGDK:Database:fdb" + b'\x00'
-			type_names += b"FGDK:Database:fdb" + b'\x00'
-			file_entry_count += len(fdbs)
-			new_mime_entries.append(fdbs_mime)
-		if len(luas) > 0:
-			luas_mime = MimeEntry()
-			luas_mime.offset = len(names_buffer)
-			luas_mime.mime_hash = 0x6A0A84F0
-			luas_mime.unknown_1 = 7
-			luas_mime.unknown_2 = 0
-			luas_mime.file_index_offset = file_entry_count
-			luas_mime.file_count = len(luas)
-			names_buffer += b"FGDK:LuaModule:lua" + b'\x00'
-			type_names += b"FGDK:LuaModule:lua" + b'\x00'
-			file_entry_count += len(luas)
-			new_mime_entries.append(luas_mime)
-		if len(uics) > 0:
-			uics_mime = MimeEntry()
-			uics_mime.offset = len(names_buffer)
-			uics_mime.mime_hash = 0x7ED198C7
-			uics_mime.unknown_1 = 1
-			uics_mime.unknown_2 = 0
-			uics_mime.file_index_offset = file_entry_count
-			uics_mime.file_count = len(uics)
-			names_buffer += b"Casino:UserInterfaceIconData:userinterfaceicondata" + b'\x00'
-			type_names += b"Casino:UserInterfaceIconData:userinterfaceicondata" + b'\x00'
-			file_entry_count += len(uics)
-			new_mime_entries.append(uics_mime)
-        
+
 		# restart counters to process entries
 		offset     = len(names_buffer)
 		file_entry_count = 0
 		bufferscount = 0
 
-		asssorted = []
-		fdbsorted = []
-		luasorted = []
-		uicsorted = []
-    
-		if len(asse) > 0:
-			# order names by hash
-			asssorted = self.sorted_namelist(asse)
-			for ass in asssorted:
-				print(f"+ {ass[0]}.assetpkg")
-				asse_file = FileEntry()
-				asse_file.offset = len(names_buffer)
-				asse_file.file_hash = djb(ass[0])
-				asse_file.unkn_0 = 4
-				asse_file.unkn_1 = 0
-				asse_file.extension = mime_entry_count
-				asse_file.path = ass[1]
-				asse_file.mime_hash = 0x444B295A
-				asse_file.name = ass[0]
-				new_file_entries.append(asse_file)
-				names_buffer += bytearray(ass[0], encoding='utf8') + b'\x00'
-			mime_entry_count   += 1
-			file_entry_count   += len(asssorted)
-			#bufferscount += len(asssorted)
-
-
-		if len(fdbs) > 0:
-			# order names by hash
-			fdbsorted = self.sorted_namelist(fdbs)
-			for fdb in fdbsorted:
-				print(f"+ {fdb[0]}.fdb")
-				fdb_file = FileEntry()
-				fdb_file.offset = len(names_buffer)
-				fdb_file.file_hash = djb(fdb[0])
-				fdb_file.unkn_0 = 4
-				fdb_file.unkn_1 = 0
-				fdb_file.extension = mime_entry_count
-				fdb_file.path = fdb[1]
-				fdb_file.mime_hash = 0x97B8DB21
-				fdb_file.name = fdb[0]
-				new_file_entries.append(fdb_file)
-				names_buffer += bytearray(fdb[0], encoding='utf8') + b'\x00'
-			mime_entry_count   += 1
-			file_entry_count   += len(fdbsorted)
-			bufferscount += len(fdbsorted)
-         
-		if len(luas) > 0:
-			# order names by hash
-			luasorted = self.sorted_namelist(luas)
-			for lua in luasorted:
-				print(f"+ {lua[0]}.lua")
-				lua_file = FileEntry()
-				lua_file.offset = len(names_buffer)
-				lua_file.file_hash = djb(lua[0])
-				lua_file.unkn_0 = 2
-				lua_file.unkn_1 = 0
-				lua_file.extension = mime_entry_count
-				lua_file.path = lua[1]
-				lua_file.mime_hash = 0x6A0A84F0
-				lua_file.name = lua[0]
-				new_file_entries.append(lua_file)
-				names_buffer += bytearray(lua[0], encoding='utf8') + b'\x00'
-			mime_entry_count   += 1
-			file_entry_count   += len(luasorted)
-			bufferscount += len(luasorted)
-            
-		if len(uics) > 0:
-			# order names by hash
-			uicsorted = self.sorted_namelist(uics)
-			for uic in uicsorted:
-				print(f"+ {uic[0]}.userinterfaceicondata")
-				uic_file = FileEntry()
-				uic_file.offset = len(names_buffer)
-				uic_file.file_hash = djb(uic[0])
-				uic_file.unkn_0 = 4
-				uic_file.unkn_1 = 0
-				uic_file.extension = mime_entry_count
-				uic_file.path = uic[1]
-				uic_file.mime_hash = 0x7ED198C7
-				uic_file.name = uic[0]
-				new_file_entries.append(uic_file)
-				names_buffer += bytearray(uic[0], encoding='utf8') + b'\x00'
-			mime_entry_count   += 1
-			file_entry_count   += len(uicsorted)
-			#bufferscount += len(uicsorted)
-            
 		ovs = b''
         
 		# all classes go in a memory block

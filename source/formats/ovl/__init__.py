@@ -12,6 +12,18 @@ from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, ZipFile
 from modules.formats.shared import get_versions, djb, assign_versions
+from generated.array import Array
+from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
+from generated.formats.ovl.compound.BufferEntry import BufferEntry
+from generated.formats.ovl.compound.DataEntry import DataEntry
+from generated.formats.ovl.compound.FileEntry import FileEntry
+from generated.formats.ovl.compound.Fragment import Fragment
+from generated.formats.ovl.compound.HeaderEntry import HeaderEntry
+from generated.formats.ovl.compound.HeaderType import HeaderType
+from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
+from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
+from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 MAX_UINT32 = 4294967295
 
@@ -1224,6 +1236,354 @@ class OvlFile(Header, IoFile):
 		else:
 			self.progress_callback = self.dummy_callback
 
+            
+	def hash_name(self, dataa):
+		val = dataa[0]
+		return djb(dataa[0])
+
+	def sorted_namelist(self, dataa):
+		entries = []
+		for entry in dataa:
+			name = os.path.splitext(entry)[0]
+			djb2 = djb(name)
+			entries.append([name,entry])
+		entries.sort(key=self.hash_name)
+		return entries
+        
+	def buffer_padding(self, dbuffer, length):
+		blen = len(dbuffer) % length
+		if blen > 0:
+			dbuffer += struct.pack(f"{length-blen}s", b'')	
+		return dbuffer
+        
+	def getContent(self, filename):
+		f = open(filename, 'rb')
+		content = f.read()
+		f.close()
+		return content
+
+	def create(self, ovl_dir, mime_names_dict):
+		print(f"Creating OVL from {ovl_dir}")
+
+		files_by_extension = {}
+		for file_name in os.listdir(ovl_dir):
+			file_name_bare, file_ext = os.path.splitext(file_name)
+			file_path = os.path.join(ovl_dir, file_name)
+			if file_ext not in files_by_extension:
+				files_by_extension[file_ext] = []
+			files_by_extension[file_ext].append(file_path)
+		print(files_by_extension)
+
+		lut = {".fdb": 1,
+			   ".assetpkg": 2,
+			   ".userinterfaceicondata": 1,
+			   ".lua": 7
+			   }
+		lut_file_unk_0 = {".fdb": 4,
+						   ".assetpkg": 4,
+						   ".userinterfaceicondata": 4,
+						   ".lua": 2
+						   }
+		file_index_offset = 0
+		for file_ext, file_paths in files_by_extension.items():
+			if file_ext not in mime_names_dict:
+				print(f"ignoring extension {file_ext}")
+				continue
+			mime_entry = MimeEntry()
+			mime_entry.name = mime_names_dict[file_ext]
+			# strip away the leading .
+			mime_entry.ext = file_ext[1:]
+			# update offset using the name buffer
+			mime_entry.mime_hash = djb(mime_entry.name)
+			mime_entry.unknown_1 = lut[file_ext]
+			mime_entry.unknown_2 = 0
+			mime_entry.file_index_offset = file_index_offset
+			mime_entry.file_count = len(file_paths)
+			file_index_offset += len(file_paths)
+
+			for file_path in file_paths:
+				file_entry = FileEntry()
+				basename = os.path.basename(file_path)
+				file_entry.path = file_path
+				file_entry.name, file_entry.ext = basename.rsplit(".", 1)
+				file_entry.file_hash = djb(file_entry.name)
+				file_entry.unkn_0 = lut_file_unk_0[file_ext]
+				file_entry.unkn_1 = 0
+				file_entry.extension = len(self.mimes)
+				# this is not used here - djb(.ext)
+				# file_entry.mime_hash = djb(file_entry.ext)
+				self.files.append(file_entry)
+			self.mimes.append(mime_entry)
+
+		# sort the different lists according to the criteria specified
+		self.files.sort(key=lambda x: (x.ext, x.file_hash))
+		self.dependencies.sort(key=lambda x: x.file_hash)
+
+		# update the name buffer and offsets
+		self.names.update_with((
+			(self.dependencies, "ext"),
+			(self.dirs, "name"),
+			(self.mimes, "name"),
+			(self.files, "name")
+		))
+		self.len_names = len(self.names.data)
+		print(self)
+		# refactor!!
+		self.ovs_files = []
+		return
+        
+		# initial ovl state
+		names_buffer   = b''
+		type_names = b''
+		offset     = 0
+		mime_entry_count = 0
+		file_entry_count = 0
+
+        
+		new_file_entries = Array()
+
+		# restart counters to process entries
+		offset     = len(names_buffer)
+		file_entry_count = 0
+		bufferscount = 0
+
+		ovs = b''
+        
+		# all classes go in a memory block
+		header_entry_data = b''
+		offset   = 0
+    
+		# load the content of the files for the buffers/miniblocks section
+		new_data_entries = Array()
+		new_buffer_entries = Array()
+		new_buffers = []
+		new_sized_str_entries = Array()
+		new_fragments = Array()
+        
+		for file_entry in new_file_entries:
+			print(basepath + '/' + file_entry.path)
+			dbuffer = self.getContent(str(basepath) + "/" + str(file_entry.path))
+            
+			if file_entry.mime_hash == 0x444B295A: # assetpkg.. copy content, pad to 64b, then assign 1 fragment and 1 empty sized str.
+				dbuffer = self.buffer_padding(dbuffer + b'\x00',64) 
+				header_entry_data += dbuffer #fragment pointer 1 data
+				header_entry_data += struct.pack('16s', b'') #fragment pointer 0 data
+				new_frag = Fragment()
+				new_point0 = HeaderPointer()
+				new_point1 = HeaderPointer()
+				new_pointss = HeaderPointer()
+				new_frag.pointers.append(new_point0)
+				new_frag.pointers.append(new_point1)
+				new_frag.pointers[0].header_index = 0
+				new_frag.pointers[0].data_offset = offset + len(dbuffer)
+				new_frag.pointers[1].header_index = 0
+				new_frag.pointers[1].data_offset = offset
+				new_ss = SizedStringEntry()
+				new_ss.pointers.append(new_pointss)
+				new_ss.file_hash = file_entry.file_hash
+				new_ss.ext_hash = 0xA8B4AFC7
+				new_ss.pointers[0].header_index = 0
+				new_ss.pointers[0].data_offset = offset + len(dbuffer)
+				new_sized_str_entries.append(new_ss)
+				new_fragments.append(new_frag)
+
+				
+			if file_entry.mime_hash == 0x97B8DB21: #fdb 
+				header_entry_data += struct.pack("I28s",  len(dbuffer), b'')
+				new_pointss = HeaderPointer()
+				new_ss = SizedStringEntry()
+				new_ss.pointers.append(new_pointss)
+				new_ss.file_hash = file_entry.file_hash
+				new_ss.ext_hash = 0xB887211
+				new_ss.pointers[0].header_index = 0
+				new_ss.pointers[0].data_offset = offset
+				new_sized_str_entries.append(new_ss)
+				new_buffers.append(dbuffer)
+				new_data = DataEntry()
+				new_data.file_hash = file_entry.file_hash
+				new_data.ext_hash = 0xB887211
+				new_data.set_index = 0
+				new_data.buffer_count = 2
+				new_data.size_1 = len(dbuffer) + len(file_entry.name)
+				new_buff0 = BufferEntry()
+				new_buff1 = BufferEntry()
+				new_buff0.index = 1
+				new_buff0.size = len(dbuffer)
+				new_buff1.index = 0
+				new_buff1.size = len(file_entry.name)
+				new_data_entries.append(new_data)
+				new_buffer_entries.append(new_buff0)
+				new_buffer_entries.append(new_buff1)
+                
+			if file_entry.mime_hash == 0x6A0A84F0: #lua, ss, 2 frag + buffer
+				header_entry_data += struct.pack("IIII",  len(dbuffer), 16000, 0x00, 0x00) #ss data
+				header_entry_data += struct.pack("24s", b'') # room for 3 pointers
+				header_entry_data += struct.pack("8s", b'')  # room for 2 ints
+				header_entry_data += b'\x00' #one more char for the 2nd ptr
+				header_entry_data += bytearray(file_entry.name, encoding='utf8') + b'\x00'
+				new_frag0 = Fragment()
+				new_point0 = HeaderPointer()
+				new_point1 = HeaderPointer()
+				new_pointss = HeaderPointer()
+				new_frag0.pointers.append(new_point0)
+				new_frag0.pointers.append(new_point1)
+				new_frag0.pointers[0].header_index = 0
+				new_frag0.pointers[0].data_offset = offset + 0x10
+				new_frag0.pointers[1].header_index = 0
+				new_frag0.pointers[1].data_offset =  offset + 0x31
+				new_frag1 = Fragment()
+				new_frag1.pointers.append(new_point0)
+				new_frag1.pointers.append(new_point1)
+				new_frag1.pointers[0].header_index = 0
+				new_frag1.pointers[0].data_offset = offset + 0x18
+				new_frag1.pointers[1].header_index = 0
+				new_frag1.pointers[1].data_offset = offset + 0x30
+				new_ss = SizedStringEntry()
+				new_ss.pointers.append(new_pointss)
+				new_ss.file_hash = file_entry.file_hash
+				new_ss.ext_hash = 0xB888DC7
+				new_ss.pointers[0].header_index = 0
+				new_ss.pointers[0].data_offset = offset
+				new_sized_str_entries.append(new_ss)
+				new_fragments.append(new_frag0)
+				new_fragments.append(new_frag1)
+				new_buffers.append(dbuffer)
+				new_data = DataEntry()
+				new_data.file_hash = file_entry.file_hash
+				new_data.ext_hash = 0xB888DC7
+				new_data.set_index = 0
+				new_data.buffer_count = 1
+				new_data.size_1 = len(dbuffer)
+				new_buff0 = BufferEntry()
+				new_buff0.index = 0
+				new_buff0.size = len(dbuffer)
+				new_data_entries.append(new_data)
+				new_buffer_entries.append(new_buff0)    
+                
+			if file_entry.mime_hash == 0x7ED198C7: #userinterfaceiconddata, 2 frags
+				icname, icpath = dbuffer.split(b',')
+				outb = icname + b'\x00' + icpath + b'\x00'
+				outb = self.buffer_padding(outb, 64) + struct.pack('8s', b'')
+				header_entry_data += outb
+				newoffset = len(header_entry_data)
+				header_entry_data += struct.pack('16s', b'')
+				iclen = len(outb)
+				new_point0 = HeaderPointer()
+				new_point1 = HeaderPointer()
+				new_pointss = HeaderPointer()
+				new_frag0 = Fragment()
+				new_frag0.pointers.append(new_point0)
+				new_frag0.pointers.append(new_point1)
+				new_frag0.pointers[0].header_index = 0
+				new_frag0.pointers[0].data_offset = newoffset
+				new_frag0.pointers[1].header_index = 0
+				new_frag0.pointers[1].data_offset =  offset
+				new_frag1 = Fragment()
+				new_frag1.pointers.append(new_point0)
+				new_frag1.pointers.append(new_point1)
+				new_frag1.pointers[0].header_index = 0
+				new_frag1.pointers[0].data_offset = newoffset + 8
+				new_frag1.pointers[1].header_index = 0
+				new_frag1.pointers[1].data_offset = offset + len(icname) + 1
+				new_ss = SizedStringEntry()
+				new_ss.pointers.append(new_pointss)
+				new_ss.file_hash = file_entry.file_hash
+				new_ss.ext_hash = 0x603D40F8
+				new_ss.pointers[0].header_index = 0
+				new_ss.pointers[0].data_offset = newoffset
+				new_sized_str_entries.append(new_ss)
+				new_fragments.append(new_frag0)
+				new_fragments.append(new_frag1)
+			
+			
+			header_entry_data = self.buffer_padding(header_entry_data, 4)
+			offset = len(header_entry_data)	
+            
+		
+		for fdb in fdbsorted:
+			new_buffers.append(bytearray(fdb[0], encoding='utf8'))
+        
+		new_head_type = HeaderType()
+		new_head_type.type = 2
+		new_head_type.num_headers = 1
+		
+		new_head_entry = HeaderEntry()
+		new_head_entry.size = len(header_entry_data)
+		new_head_entry.offset = 0
+		new_head_entry.file_hash = new_sized_str_entries[0].file_hash
+		new_head_entry.num_files = file_entry_count
+		new_head_entry.ext_hash = new_sized_str_entries[0].ext_hash
+		
+		new_archive_entry = ArchiveEntry()
+		new_archive_entry.offset = 0
+		new_archive_entry.ovs_head_offset = 0
+		new_archive_entry.ovs_file_offset = 0
+		new_archive_entry.num_headers = 1
+		new_archive_entry.num_datas = len(new_data_entries)
+		new_archive_entry.num_header_types = 1
+		new_archive_entry.num_buffers = len(new_buffer_entries)
+		new_archive_entry.num_fragments = len(new_fragments)
+		new_archive_entry.num_files = len(new_sized_str_entries)
+		new_archive_entry.read_start = 0
+		new_archive_entry.set_data_size = 0x10
+		new_archive_entry.compressed_size = 0
+		new_archive_entry.uncompressed_size = 0
+		new_archive_entry.zeros_3 = 0
+		new_archive_entry.pools_start = 0
+		new_archive_entry.pools_end = len(header_entry_data)	
+		new_archive_entry.ovs_offset = 0
+        
+        
+		new_archive = OvsFile(self, new_archive_entry, 0)
+		new_archive.header_types = (new_head_type,)
+		new_archive.header_entries = (new_head_entry,)
+		new_archive.data_entries = new_data_entries
+		new_archive.buffer_entries =  new_buffer_entries
+		new_archive.sized_str_entries = new_sized_str_entries
+		new_archive.fragments = new_fragments
+        
+		self.fres.data = b"FRES"
+		self.flag = 1
+		self.version = 13
+		self.needs_bitswap = 0
+		self.flag_2 = 24724
+        
+
+		
+		new_archive_entry.uncompressed_size, new_archive_entry.compressed_size, compressed, ovs_stream = new_archive.creator_zip(new_archive,header_entry_data,new_buffers)
+		
+		new_zlib = ZlibInfo()
+		new_zlib.zlib_thing_1 = 68 + new_archive_entry.uncompressed_size
+		new_zlib.zlib_thing_2 = 0
+		
+		#ovl header stuff
+
+		self.len_names = len(names_buffer)
+		self.num_mimes = mime_entry_count
+		self.num_files = file_entry_count
+		self.num_files_2 = file_entry_count
+		self.num_archives = 1
+		self.num_header_types = 1
+		self.num_headers = 1
+		self.num_datas = len(new_data_entries)
+		self.num_buffers = len(new_buffer_entries)
+		self.len_archive_names = 8
+		self.num_files_3 = file_entry_count
+		self.len_type_names = len(type_names)
+		self.names.data = names_buffer
+		self.mimes.extend(new_mime_entries)
+		self.files.extend(new_file_entries)
+		self.archive_names.data = b'STATIC\x00\x00'
+		self.archives.append(new_archive_entry)
+		self.zlibs.append(new_zlib)
+		    
+		eof = super().save(filepath)  
+		with self.writer(filepath) as streamm:
+			# first header
+			self.write(streamm)
+			# write zlib block
+			streamm.write(compressed)
+			
 	def get_sized_str_entry(self, name):
 		lower_name = name.lower()
 		for archive in self.ovs_files:

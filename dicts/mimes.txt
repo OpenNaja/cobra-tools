@@ -1,0 +1,4 @@
+.assetpkg = Casino:AssetPackageRes:assetpkg
+.fdb = FGDK:Database:fdb
+.lua = FGDK:LuaModule:lua
+.userinterfaceicondata = Casino:UserInterfaceIconData:userinterfaceicondata

@@ -184,17 +184,30 @@ class MainWindow(widgets.MainWindow):
 		hashes_dir = os.path.join(os.getcwd(), "hashes")
 		try:
 			for file in os.listdir(hashes_dir):
-				if file.endswith(".txt"):
-					with open(os.path.join(hashes_dir, file), "r") as f:
-						for line in f:
-							line = line.strip()
-							if line:
-								k, v = line.split(" = ")
-								self.hash_table[int(k)] = v
+				self.read_table(os.path.join(hashes_dir, file), self.hash_table, int_key=True)
 		except:
 			pass
 		# print(self.hash_table)
 		print(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time()-start_time:.2f} seconds.")
+
+		self.mimes_table = {}
+		tables_dir = os.path.join(os.getcwd(), "dicts")
+		self.read_table(os.path.join(tables_dir, "mimes.txt"), self.mimes_table)
+		print(self.mimes_table)
+
+	@staticmethod
+	def read_table(fp, dic, int_key=False):
+		if fp.endswith(".txt"):
+			with open(fp, "r") as f:
+				for line in f:
+					line = line.strip()
+					if line:
+						k, v = line.split(" = ")
+						if int_key:
+							dic[int(k)] = v
+						else:
+							dic[k] = v
+
 
 	def load(self):
 		if self.file_widget.filepath:
@@ -208,38 +221,44 @@ class MainWindow(widgets.MainWindow):
 				print(ex)
 			self.update_gui_table()
 			
-	def create_ovl(self,path_thing):
-		print(path_thing)
-		for entry in os.listdir(path_thing):
-			print("entry",entry,"arg",path_thing)
-			# enter only in subdirectories
-			if os.path.isdir(os.path.join(path_thing, entry)):
-				path = os.path.join(path_thing, entry)
-				print("path",path)
-				try:
-					files = []
-					for entry in os.listdir(path):
-						#if os.path.isdir(os.path.join(path, entry)):
-							#folder_pack(os.path.join(path, entry))
-						#else:
-						if entry.endswith('.lua') or entry.endswith('.fdb') or entry.endswith('.assetpkg') or entry.endswith('.userinterfaceicondata'):
-							files.append(entry.lower())
-	            
-					if len(files) > 0:
-						ovlname = os.path.basename(path)
-						print(f"Creating: {ovlname}.ovl")
-
-						content = self.ovl_data.create(ovlname+".ovl",files, path)
-						#ilo: following up, create() isn't returning anything, so 'content' is invalid for the next write()
-						f = open(ovlname+".ovl", "wb")
-						f.write(content)
-						.close()
-
-				except Exception as ex:
-					traceback.print_exc()
-					util.interaction.showdialog(str(ex))
-					print(ex)
-				#self.update_gui_table()
+	def create_ovl(self, ovl_dir):
+		self.ovl_data = OvlFile(progress_callback=self.update_progress)
+		try:
+			self.ovl_data.create(ovl_dir, mime_names_dict=self.mimes_table)
+			# self.save_ovl()
+		except Exception as ex:
+			traceback.print_exc()
+			util.interaction.showdialog(str(ex))
+			print(ex)
+		# for entry in os.listdir(ovl_dir):
+		# 	print("entry",entry,"arg",ovl_dir)
+		# 	# enter only in subdirectories
+		# 	if os.path.isdir(os.path.join(ovl_dir, entry)):
+		# 		path = os.path.join(ovl_dir, entry)
+		# 		print("path",path)
+		# 		try:
+		# 			files = []
+		# 			for entry in os.listdir(path):
+		# 				#if os.path.isdir(os.path.join(path, entry)):
+		# 					#folder_pack(os.path.join(path, entry))
+		# 				#else:
+		# 				if entry.endswith('.lua') or entry.endswith('.fdb') or entry.endswith('.assetpkg') or entry.endswith('.userinterfaceicondata'):
+		# 					files.append(entry.lower())
+	    #
+		# 			if len(files) > 0:
+		# 				ovlname = os.path.basename(path)
+		# 				print(f"Creating: {ovlname}.ovl")
+		#
+		# 				content = self.ovl_data.create(ovlname+".ovl", files, path)
+		# 				# ilo: following up, create() isn't returning anything, so 'content' is invalid for the next write()
+		# 				with open(ovlname+".ovl", "wb") as f:
+		# 					f.write(content)
+		#
+		# 		except Exception as ex:
+		# 			traceback.print_exc()
+		# 			util.interaction.showdialog(str(ex))
+		# 			print(ex)
+		self.update_gui_table()
 
 	def update_gui_table(self,):
 		start_time = time.time()

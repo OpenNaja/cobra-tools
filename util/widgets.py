@@ -779,10 +779,17 @@ class FileWidget(QtWidgets.QWidget):
 					self.filepath = filepath
 					self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(filepath)
 					self.setText(self.filename)
-					if self.poll:
-						self.parent.poll()
+					return True
 			else:
 				showdialog("Unsupported File Format")
+
+	def accept_dir(self, dirpath):
+		if os.path.isdir(dirpath):
+			if not self.abort_open_new_file(dirpath):
+				self.filepath = dirpath
+				self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(dirpath)
+				self.setText(self.filename)
+				return True
 
 	def setText(self, text):
 		self.entry.setText(text)
@@ -807,18 +814,19 @@ class FileWidget(QtWidgets.QWidget):
 		urls = self.get_files(event)
 		if urls:
 			filepath = str(urls[0].path())[1:]
-			self.accept_file(filepath)
+			if self.accept_file(filepath) and self.poll:
+				self.parent.poll()
 
 	def ask_open(self):
 		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}',
 														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://"),
 														 f"{self.dtype} files (*.{self.dtype_l})")[0]
-		self.accept_file(filepath)
+		if self.accept_file(filepath) and self.poll:
+			self.parent.poll()
 
 	def ask_open_dir(self):
 		filepath = QtWidgets.QFileDialog.getExistingDirectory()
-		print(filepath)
-		if filepath:
+		if self.accept_dir(filepath):
 			self.parent.create_ovl(filepath)
 			
 	def ignoreEvent(self, event):
