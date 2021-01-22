@@ -212,31 +212,34 @@ class MainWindow(widgets.MainWindow):
 		print(path_thing)
 		for entry in os.listdir(path_thing):
 			print("entry",entry,"arg",path_thing)
-			path = os.path.join(path_thing, entry)
-			print("path",path)
-			try:
-				files = []
-				for entry in os.listdir(path):
-					#if os.path.isdir(os.path.join(path, entry)):
-						#folder_pack(os.path.join(path, entry))
-					#else:
-					if entry.endswith('.lua') or entry.endswith('.fdb') or entry.endswith('.assetpkg') or entry.endswith('.userinterfaceicondata'):
-						files.append(entry.lower())
-            
-				if len(files) > 0:
-					ovlname = os.path.basename(path)
-					print(f"Creating: {ovlname}.ovl")
+			# enter only in subdirectories
+			if os.path.isdir(os.path.join(path_thing, entry)):
+				path = os.path.join(path_thing, entry)
+				print("path",path)
+				try:
+					files = []
+					for entry in os.listdir(path):
+						#if os.path.isdir(os.path.join(path, entry)):
+							#folder_pack(os.path.join(path, entry))
+						#else:
+						if entry.endswith('.lua') or entry.endswith('.fdb') or entry.endswith('.assetpkg') or entry.endswith('.userinterfaceicondata'):
+							files.append(entry.lower())
+	            
+					if len(files) > 0:
+						ovlname = os.path.basename(path)
+						print(f"Creating: {ovlname}.ovl")
 
-					content = self.ovl_data.create(ovlname+".ovl",files, path)
-					f = open(ovlname+".ovl", "wb")
-					f.write(content)
-					f.close()
+						content = self.ovl_data.create(ovlname+".ovl",files, path)
+						#ilo: following up, create() isn't returning anything, so 'content' is invalid for the next write()
+						f = open(ovlname+".ovl", "wb")
+						f.write(content)
+						.close()
 
-			except Exception as ex:
-				traceback.print_exc()
-				util.interaction.showdialog(str(ex))
-				print(ex)
-			#self.update_gui_table()
+				except Exception as ex:
+					traceback.print_exc()
+					util.interaction.showdialog(str(ex))
+					print(ex)
+				#self.update_gui_table()
 
 	def update_gui_table(self,):
 		start_time = time.time()
