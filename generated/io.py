@@ -368,3 +368,58 @@ class ZipFile(IoFile):
 			compressed = uncompressed_bytes
 
 		return len(uncompressed_bytes), len(compressed), compressed
+	
+	def creator_zip(self, new_archive,header_entry_data,new_buffers):
+		ovs_stream = BinaryStream()
+		assign_versions(ovs_stream, get_versions(self.ovl))
+		#ovs_stream.user_version = self.ovl.flag_2
+		#ovs_stream.version = self.ovl.version
+		for header_type in new_archive.header_types:
+			header_type.write(ovs_stream)
+		for header_entry in new_archive.header_entries:
+			header_entry.write(ovs_stream)
+		for data in new_archive.data_entries:
+			data.write(ovs_stream)
+		for buff in new_archive.buffer_entries:
+			buff.write(ovs_stream)
+		for ss in new_archive.sized_str_entries:
+			ss.write(ovs_stream)
+		for frg in new_archive.fragments:
+			frg.write(ovs_stream)
+
+		stream = ovs_stream
+        
+		uncompressed_bytes = bytes(stream.getbuffer())
+		uncompressed_bytes+=b"\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xBF\x7F\x3F\x08\x04\x02\x01"
+		uncompressed_bytes+=header_entry_data
+		bb = b''
+		uncompressed_bytes += bb.join(new_buffers)
+		# compress data
+		# change to zipped format for saving of uncompressed or oodled ovls
+		if not self.ovl.user_version.use_zlib:
+			print("HACK: setting compression to zlib")
+			self.ovl.user_version.use_oodle = False
+			self.ovl.user_version.use_zlib = True
+
+		# pc/pz zlib			8340	00100000 10010100
+		# pc/pz uncompressed	8212	00100000 00010100
+		# pc/pz oodle			8724	00100010 00010100
+		# JWE zlib				24724	01100000 10010100
+		# JWE oodle (switch)	25108	01100010 00010100
+		# vs = (8340, 8212, 8724, 24724, 25108)
+		# for v in vs:
+		# 	print(v)
+		# 	print(bin(v))
+		# 	print()
+		if self.ovl.user_version.use_oodle:
+			assert self.compression_header.startswith(OODLE_MAGIC)
+			a, raw_algo = struct.unpack("BB", self.compression_header)
+			algo = OodleDecompressEnum(raw_algo)
+			print("Oodle compression", a, raw_algo, algo.name)
+			compressed = texconv.oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
+		elif self.ovl.user_version.use_zlib:
+			compressed = zlib.compress(uncompressed_bytes)
+		else:
+			compressed = uncompressed_bytes
+
+		return len(uncompressed_bytes), len(compressed), compressed, ovs_stream
