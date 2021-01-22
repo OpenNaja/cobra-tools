@@ -815,6 +815,12 @@ class FileWidget(QtWidgets.QWidget):
 														 f"{self.dtype} files (*.{self.dtype_l})")[0]
 		self.accept_file(filepath)
 
+	def ask_open_dir(self):
+		filepath = QtWidgets.QFileDialog.getExistingDirectory()
+		print(filepath)
+		if filepath:
+			self.parent.create_ovl(filepath)
+			
 	def ignoreEvent(self, event):
 		event.ignore()
 
