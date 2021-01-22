@@ -103,6 +103,7 @@ class MainWindow(widgets.MainWindow):
 		button_data = ((fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
 					   (fileMenu, "Save", self.save_ovl, "CTRL+S", "save"),
 					   (fileMenu, "Exit", self.close, "", "exit"),
+					   (fileMenu, "Create", self.file_widget.ask_open_dir, "", "SP_DriveFDIcon"),
 					   (editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 					   (editMenu, "Inject", self.inject, "CTRL+I", "inject"),
 					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
@@ -206,6 +207,36 @@ class MainWindow(widgets.MainWindow):
 				util.interaction.showdialog(str(ex))
 				print(ex)
 			self.update_gui_table()
+			
+	def create_ovl(self,path_thing):
+		print(path_thing)
+		for entry in os.listdir(path_thing):
+			print("entry",entry,"arg",path_thing)
+			path = os.path.join(path_thing, entry)
+			print("path",path)
+			try:
+				files = []
+				for entry in os.listdir(path):
+					#if os.path.isdir(os.path.join(path, entry)):
+						#folder_pack(os.path.join(path, entry))
+					#else:
+					if entry.endswith('.lua') or entry.endswith('.fdb') or entry.endswith('.assetpkg') or entry.endswith('.userinterfaceicondata'):
+						files.append(entry.lower())
+            
+				if len(files) > 0:
+					ovlname = os.path.basename(path)
+					print(f"Creating: {ovlname}.ovl")
+
+					content = self.ovl_data.create(ovlname+".ovl",files, path)
+					f = open(ovlname+".ovl", "wb")
+					f.write(content)
+					f.close()
+
+			except Exception as ex:
+				traceback.print_exc()
+				util.interaction.showdialog(str(ex))
+				print(ex)
+			#self.update_gui_table()
 
 	def update_gui_table(self,):
 		start_time = time.time()
