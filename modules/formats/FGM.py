@@ -1,5 +1,6 @@
 import struct
 
+from modules.formats.shared import pack_header
 from modules.util import as_bytes
 from generated.formats.fgm import FgmFile
 
@@ -33,11 +34,10 @@ def write_fgm(archive, sized_str_entry, out_dir):
 		raise AttributeError("Fgm length is wrong")
 
 	# grab the texture names that are linked to this fgm
-	fgm_file_entry = [file for file in archive.ovl.files if f"{file.name}.{file.ext}" == sized_str_entry.name][0]
+	fgm_file_entry = [file for file in archive.ovl.files if f"{file.name}{file.ext}" == sized_str_entry.name][0]
 
 	# write fgm
-	ovl = archive.ovl
-	fgm_header = struct.pack("<4s4B7I", b"FGM ", ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version), len(sized_str_entry.fragments), len(fgm_file_entry.dependencies), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)
+	fgm_header = struct.pack("<6I", len(sized_str_entry.fragments), len(fgm_file_entry.dependencies), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)
 
 	# print(file_entry.textures)
 	out_path = out_dir(name)
@@ -46,6 +46,7 @@ def write_fgm(archive, sized_str_entry, out_dir):
 	# 		outfile.write( f.pointers[1].data )
 	with open(out_path, 'wb') as outfile:
 		# write custom FGM header
+		outfile.write(pack_header(archive, b"FGM "))
 		outfile.write(fgm_header)
 		for tex in fgm_file_entry.dependencies:
 			outfile.write(tex.name.encode())

@@ -180,11 +180,13 @@
         <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
         <add name="Num Buffers" type="uint" >number of BufferEntries across all archives</add>
         <add name="Num Files OVS" type="uint" >number of files in external OVS archive</add>
-        <add name="ztuac unknowns" type="uint" arr1="3">used in ZTUAC elephants</add>
+        <add name="ztuac unk 0" type="uint" >used in ZTUAC elephants</add>
+        <add name="ztuac unk 1" type="uint" >used in ZTUAC elephants</add>
+        <add name="ztuac unk 2" type="uint" >used in ZTUAC elephants</add>
         <add name="Len Archive Names" type="uint" >length of archive names</add>
         <add name="Num Files 3" type="uint" >another Num Files</add>
         <add name="Len Type Names" type="uint" >length of the type names portion insideNames block (usually at the start), not counting 00 bytes</add>
-        <add name="Zeros 2" type="byte" arr1="52">52 bytes zeros</add>
+        <add name="Reserved" type="uint" arr1="13">52 bytes zeros</add>
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>

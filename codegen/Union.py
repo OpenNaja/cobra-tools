@@ -97,6 +97,10 @@ class Union:
 				field_default = 0
 			arr1 = field.attrib.get("arr1")
 			if arr1:
+				# todo - only do this for numeric types
+				# if type_of_field_type == "basic":
+				# 	field_default = f"numpy.zeros(({arr1},), dtype='{field_type.lower()}')"
+				# else:
 				field_default = "Array()"
 			# todo - if we do this, it breaks when arg is used in array
 			# field_default = f"[{field_default} for _ in range({Expression(arr1)})]"

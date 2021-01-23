@@ -6,6 +6,7 @@ import traceback
 
 import modules.formats.shared
 import util.interaction
+from modules.extract import SUPPORTED_TYPES
 
 try:
 	from PyQt5 import QtWidgets
@@ -34,8 +35,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 
-		supported_types = ("DDS", "PNG", "MDL2", "TXT", "FGM", "FDB", "MATCOL", "XMLCONFIG", "ASSETPKG", "LUA", "WEM", "OTF", "TTF")
-		self.filter = "Supported files ({})".format(" ".join("*."+t for t in supported_types))
+		self.filter = "Supported files ({})".format(" ".join("*" + t for t in SUPPORTED_TYPES))
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 		self.file_widget.setToolTip("The name of the OVL file that is currently open.")
@@ -52,7 +52,8 @@ class MainWindow(widgets.MainWindow):
 		self.table = widgets.SortableTable(header_names, self)
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
-		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly.")
+		self.t_show_temp_files.setToolTip(
+			"By default, temporary files are converted to usable ones and back on the fly.")
 		self.t_show_temp_files.setChecked(False)
 
 		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
@@ -93,56 +94,57 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.table, 2, 0, 1, 8)
 		self.qgrid.addWidget(self.p_action, 3, 0, 1, 8)
 		self.qgrid.addWidget(self.t_action, 4, 0, 1, 8)
-		self.qgrid.addWidget(self.dat_widget, 5,0,1,8)
+		self.qgrid.addWidget(self.dat_widget, 5, 0, 1, 8)
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
 		fileMenu = mainMenu.addMenu('File')
 		editMenu = mainMenu.addMenu('Edit')
 		helpMenu = mainMenu.addMenu('Help')
-		button_data = ((fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-					   (fileMenu, "Save", self.save_ovl, "CTRL+S", "save"),
-					   (fileMenu, "Exit", self.close, "", "exit"),
-					   (fileMenu, "Create", self.file_widget.ask_open_dir, "", "SP_DriveFDIcon"),
-					   (editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
-					   (editMenu, "Inject", self.inject, "CTRL+I", "inject"),
-					   (editMenu, "Hash", self.hasher, "CTRL+H", ""),
-					   (editMenu, "Remove Selected", self.remover, "DEL", ""),
-					   (editMenu, "Walk", self.walker, "", ""),
-					   #(editMenu, "Reload", self.reload, "", ""),
-					   (editMenu, "Generate Hash Table", self.walker_hash, "", ""),
-					   (helpMenu, "Report Bug", self.report_bug, "", "report"),
-					   (helpMenu, "Documentation", self.online_support, "", "manual"))
+		button_data = (
+			(fileMenu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
+			(fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
+			(fileMenu, "Save", self.save_ovl, "CTRL+S", "save"),
+			(fileMenu, "Exit", self.close, "", "exit"),
+			(editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
+			(editMenu, "Inject", self.inject, "CTRL+I", "inject"),
+			(editMenu, "Hash", self.hasher, "CTRL+H", ""),
+			(editMenu, "Remove Selected", self.remover, "DEL", ""),
+			(editMenu, "Walk", self.walker, "", ""),
+			# (editMenu, "Reload", self.reload, "", ""),
+			(editMenu, "Generate Hash Table", self.walker_hash, "", ""),
+			(helpMenu, "Report Bug", self.report_bug, "", "report"),
+			(helpMenu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
 		self.load_hash_table()
 
 	@property
-	def commands(self,):
+	def commands(self, ):
 		# get those commands that are set to True
 		return [x for x in ("write_dat", "write_frag_log") if getattr(self, x)]
 
 	@property
-	def show_temp_files(self,):
+	def show_temp_files(self, ):
 		return self.t_show_temp_files.isChecked()
 
 	@property
-	def write_2K(self,):
+	def write_2K(self, ):
 		return self.t_2K.isChecked()
-	
+
 	@property
-	def use_ext_dat(self,):
+	def use_ext_dat(self, ):
 		return self.ext_dat.isChecked()
 
 	@property
-	def write_dat(self,):
+	def write_dat(self, ):
 		return self.t_write_dat.isChecked()
 
 	@property
-	def write_frag_log(self,):
+	def write_frag_log(self, ):
 		return self.t_write_frag_log.isChecked()
-	
-	def dat_show(self,):
+
+	def dat_show(self, ):
 		if self.use_ext_dat:
 			self.dat_widget.show()
 		else:
@@ -188,7 +190,7 @@ class MainWindow(widgets.MainWindow):
 		except:
 			pass
 		# print(self.hash_table)
-		print(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time()-start_time:.2f} seconds.")
+		print(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
 
 		self.mimes_table = {}
 		tables_dir = os.path.join(os.getcwd(), "dicts")
@@ -208,59 +210,31 @@ class MainWindow(widgets.MainWindow):
 						else:
 							dic[k] = v
 
-
 	def load(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
+				self.ovl_data.load_archives()
 			except Exception as ex:
 				traceback.print_exc()
 				util.interaction.showdialog(str(ex))
 				print(ex)
 			self.update_gui_table()
-			
+
 	def create_ovl(self, ovl_dir):
+		# clear the ovl
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 		try:
 			self.ovl_data.create(ovl_dir, mime_names_dict=self.mimes_table)
-			# self.save_ovl()
 		except Exception as ex:
 			traceback.print_exc()
 			util.interaction.showdialog(str(ex))
 			print(ex)
-		# for entry in os.listdir(ovl_dir):
-		# 	print("entry",entry,"arg",ovl_dir)
-		# 	# enter only in subdirectories
-		# 	if os.path.isdir(os.path.join(ovl_dir, entry)):
-		# 		path = os.path.join(ovl_dir, entry)
-		# 		print("path",path)
-		# 		try:
-		# 			files = []
-		# 			for entry in os.listdir(path):
-		# 				#if os.path.isdir(os.path.join(path, entry)):
-		# 					#folder_pack(os.path.join(path, entry))
-		# 				#else:
-		# 				if entry.endswith('.lua') or entry.endswith('.fdb') or entry.endswith('.assetpkg') or entry.endswith('.userinterfaceicondata'):
-		# 					files.append(entry.lower())
-	    #
-		# 			if len(files) > 0:
-		# 				ovlname = os.path.basename(path)
-		# 				print(f"Creating: {ovlname}.ovl")
-		#
-		# 				content = self.ovl_data.create(ovlname+".ovl", files, path)
-		# 				# ilo: following up, create() isn't returning anything, so 'content' is invalid for the next write()
-		# 				with open(ovlname+".ovl", "wb") as f:
-		# 					f.write(content)
-		#
-		# 		except Exception as ex:
-		# 			traceback.print_exc()
-		# 			util.interaction.showdialog(str(ex))
-		# 			print(ex)
 		self.update_gui_table()
 
-	def update_gui_table(self,):
+	def update_gui_table(self, ):
 		start_time = time.time()
 		data = []
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
@@ -270,12 +244,15 @@ class MainWindow(widgets.MainWindow):
 			line = [name, file_w.ext, file_w.file_hash, file_w.unkn_0, file_w.unkn_1]
 			data.append(line)
 		self.table.set_data(data)
-		print(f"Loaded GUI in {time.time()-start_time:.2f} seconds!")
+		print(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_ovl(self):
 		if self.file_widget.filename:
-			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename), "OVL files (*.ovl)",)[0]
+			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL',
+															 os.path.join(self.cfg.get("dir_ovls_out", "C://"),
+																		  self.file_widget.filename),
+															 "OVL files (*.ovl)", )[0]
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				try:
@@ -291,12 +268,12 @@ class MainWindow(widgets.MainWindow):
 		if error_count:
 			print("Files not extracted due to error:")
 			for ef in error_files:
-				print("\t",ef)
+				print("\t", ef)
 
 		if skip_count:
 			print("Unsupported files not extracted:")
 			for sf in skip_files:
-				print("\t",sf)
+				print("\t", sf)
 
 		if error_count or skip_count:
 			message = f"{error_count + skip_count} files were not extracted from the archive and may be missing from the output folder. {skip_count} were unsupported, while {error_count} produced errors."
@@ -304,14 +281,16 @@ class MainWindow(widgets.MainWindow):
 
 	def extract_all(self):
 		if self.file_widget.filename:
-			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
+			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
+																 self.cfg.get("dir_extract", "C://"), )
 			if out_dir:
 				self.cfg["dir_extract"] = out_dir
 				# create output dir
 				try:
 					os.makedirs(out_dir, exist_ok=True)
 					content = self.ovl_data.archives[0].content
-					error_files, skip_files = extract.extract(content, out_dir, self.show_temp_files, progress_callback=self.update_progress)
+					error_files, skip_files = extract.extract(content, out_dir, self.show_temp_files,
+															  progress_callback=self.update_progress)
 
 					self.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
@@ -324,7 +303,8 @@ class MainWindow(widgets.MainWindow):
 
 	def inject(self):
 		if self.file_widget.filename:
-			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
+			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg.get("dir_inject", "C://"),
+														   self.filter)[0]
 			if files:
 				self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
@@ -350,7 +330,7 @@ class MainWindow(widgets.MainWindow):
 	# def reload(self):
 	# 	reload(modules.formats.SPECDEF)
 	# 	reload(modules.extract)
-			
+
 	def remover(self):
 		if self.file_widget.filename:
 			selected_file_names = self.table.table.get_selected_files()
@@ -364,7 +344,8 @@ class MainWindow(widgets.MainWindow):
 			util.interaction.showdialog("You must open an OVL file before you can remove files!")
 
 	def walker_hash(self, dummy=False, walk_ovls=True, walk_models=True):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
+															   self.cfg.get("dir_ovls_in", "C://"), )
 		hash_dict = {}
 		if start_dir:
 			# don't use internal data
@@ -391,7 +372,8 @@ class MainWindow(widgets.MainWindow):
 			print(f"Wrote {len(hash_dict)} items to {out_path}")
 
 	def walker(self, dummy=False, walk_ovls=True, walk_models=True):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
+															   self.cfg.get("dir_ovls_in", "C://"), )
 		errors = []
 		if start_dir:
 			export_dir = os.path.join(start_dir, "walker_export")
@@ -404,15 +386,18 @@ class MainWindow(widgets.MainWindow):
 				ovl_files = walker.walk_type(start_dir, extension="ovl")
 				of_max = len(ovl_files)
 				for of_index, ovl_path in enumerate(ovl_files):
-					self.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
+					self.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index,
+										 vmax=of_max)
 					try:
 						# read ovl file
 						ovl_data.load(ovl_path, commands=self.commands)
+						ovl_data.load_archives()
 						# create an output folder for it
 						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
 						# create output dir
 						os.makedirs(outdir, exist_ok=True)
-						error_files_new, skip_files_new = extract.extract(ovl_data.archives[0].content, outdir, only_types=["ms2", ])
+						error_files_new, skip_files_new = extract.extract(ovl_data.archives[0].content, outdir,
+																		  only_types=["ms2", ])
 						error_files += error_files_new
 						skip_files += skip_files_new
 					except Exception as ex:
@@ -459,7 +444,7 @@ class MainWindow(widgets.MainWindow):
 	def closeEvent(self, event):
 		if self.file_widget.dirty:
 			qm = QtWidgets.QMessageBox
-			quit_msg = "You will lose unsaved work on "+os.path.basename(self.file_widget.filepath)+"!"
+			quit_msg = "You will lose unsaved work on " + os.path.basename(self.file_widget.filepath) + "!"
 			reply = qm.question(self, 'Quit?', quit_msg, qm.Yes, qm.No)
 
 			if reply == qm.Yes:
@@ -474,8 +459,9 @@ class MainWindow(widgets.MainWindow):
 		is_64bits = sys.maxsize > 2 ** 32
 		if not is_64bits:
 			util.interaction.showdialog("Either your operating system or your python installation is not 64 bits.\n"
-							   "Large OVLs will crash unexpectedly!")
-		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (sys.version_info[1] == 7 and sys.version_info[2] < 6):
+										"Large OVLs will crash unexpectedly!")
+		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
+				sys.version_info[1] == 7 and sys.version_info[2] < 6):
 			util.interaction.showdialog("Python 3.7.6+ x64 bit is expected!")
 
 

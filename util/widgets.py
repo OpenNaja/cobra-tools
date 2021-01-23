@@ -165,7 +165,8 @@ class TableModel(QtCore.QAbstractTableModel):
 		if role == QtCore.Qt.DecorationRole:
 			if index.column() == 0:
 				dtype = self._data[index.row()][1]
-				return get_icon(dtype)
+				# remove the leading .
+				return get_icon(dtype[1:])
 
 		if role == QtCore.Qt.TextAlignmentRole:
 			# right align hashes

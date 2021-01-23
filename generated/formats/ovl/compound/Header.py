@@ -72,7 +72,13 @@ class Header(GenericHeader):
 		self.num_files_ovs = 0
 
 		# used in ZTUAC elephants
-		self.ztuac_unknowns = Array()
+		self.ztuac_unk_0 = 0
+
+		# used in ZTUAC elephants
+		self.ztuac_unk_1 = 0
+
+		# used in ZTUAC elephants
+		self.ztuac_unk_2 = 0
 
 		# length of archive names
 		self.len_archive_names = 0
@@ -84,7 +90,7 @@ class Header(GenericHeader):
 		self.len_type_names = 0
 
 		# 52 bytes zeros
-		self.zeros_2 = Array()
+		self.reserved = Array()
 
 		# Name buffer for assets and file mime types.
 		self.names = ZStringBuffer()
@@ -135,11 +141,13 @@ class Header(GenericHeader):
 		self.num_datas = stream.read_uint()
 		self.num_buffers = stream.read_uint()
 		self.num_files_ovs = stream.read_uint()
-		self.ztuac_unknowns = stream.read_uints((3))
+		self.ztuac_unk_0 = stream.read_uint()
+		self.ztuac_unk_1 = stream.read_uint()
+		self.ztuac_unk_2 = stream.read_uint()
 		self.len_archive_names = stream.read_uint()
 		self.num_files_3 = stream.read_uint()
 		self.len_type_names = stream.read_uint()
-		self.zeros_2 = stream.read_bytes((52))
+		self.reserved = stream.read_uints((13))
 		self.names = stream.read_type(ZStringBuffer, (self.len_names,))
 		self.mimes.read(stream, MimeEntry, self.num_mimes, None)
 		self.files.read(stream, FileEntry, self.num_files, None)
@@ -172,11 +180,13 @@ class Header(GenericHeader):
 		stream.write_uint(self.num_datas)
 		stream.write_uint(self.num_buffers)
 		stream.write_uint(self.num_files_ovs)
-		stream.write_uints(self.ztuac_unknowns)
+		stream.write_uint(self.ztuac_unk_0)
+		stream.write_uint(self.ztuac_unk_1)
+		stream.write_uint(self.ztuac_unk_2)
 		stream.write_uint(self.len_archive_names)
 		stream.write_uint(self.num_files_3)
 		stream.write_uint(self.len_type_names)
-		stream.write_bytes(self.zeros_2)
+		stream.write_uints(self.reserved)
 		stream.write_type(self.names)
 		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
 		self.files.write(stream, FileEntry, self.num_files, None)
@@ -211,11 +221,13 @@ class Header(GenericHeader):
 		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
 		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
 		s += f'\n	* num_files_ovs = {self.num_files_ovs.__repr__()}'
-		s += f'\n	* ztuac_unknowns = {self.ztuac_unknowns.__repr__()}'
+		s += f'\n	* ztuac_unk_0 = {self.ztuac_unk_0.__repr__()}'
+		s += f'\n	* ztuac_unk_1 = {self.ztuac_unk_1.__repr__()}'
+		s += f'\n	* ztuac_unk_2 = {self.ztuac_unk_2.__repr__()}'
 		s += f'\n	* len_archive_names = {self.len_archive_names.__repr__()}'
 		s += f'\n	* num_files_3 = {self.num_files_3.__repr__()}'
 		s += f'\n	* len_type_names = {self.len_type_names.__repr__()}'
-		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
+		s += f'\n	* reserved = {self.reserved.__repr__()}'
 		s += f'\n	* names = {self.names.__repr__()}'
 		s += f'\n	* mimes = {self.mimes.__repr__()}'
 		s += f'\n	* files = {self.files.__repr__()}'

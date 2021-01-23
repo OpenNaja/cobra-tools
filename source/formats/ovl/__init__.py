@@ -6,6 +6,7 @@ import time
 
 from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
+from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetHeader import SetHeader
@@ -1303,7 +1304,6 @@ class OvlFile(Header, IoFile):
 				continue
 			mime_entry = MimeEntry()
 			mime_entry.name = mime_names_dict[file_ext]
-			# strip away the leading .
 			mime_entry.ext = file_ext
 			# update offset using the name buffer
 			mime_entry.mime_hash = djb(mime_entry.name)
@@ -1338,40 +1338,37 @@ class OvlFile(Header, IoFile):
 			(self.mimes, "name"),
 			(self.files, "name")
 		))
-		# refactor!!
 
 		self.fres.data = b"FRES"
 		self.flag = 1
 		self.version = 13
 		self.needs_bitswap = 0
-		self.flag_2 = 24724
+		self.user_version = VersionInfo(24724)
+		self.reserved = [0 for i in range(13)]
 		#
 		# new_archive_entry.uncompressed_size, new_archive_entry.compressed_size, compressed, ovs_stream = new_archive.creator_zip(
 		# 	new_archive, header_entry_data, new_buffers)
 
-		new_zlib = ZlibInfo()
-		# new_zlib.zlib_thing_1 = 68 + new_archive_entry.uncompressed_size
-		new_zlib.zlib_thing_2 = 0
-
 		# ovl header stuff
-
 		self.len_names = len(self.names.data)
+
+		self.archive_names.data = b'STATIC\x00\x00'
+		self.len_archive_names = 8
+
 		self.num_mimes = len(self.mimes)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
-		# self.num_archives = 1
+		# self.archives.append(new_archive_entry)
+		self.num_archives = len(self.archives)
 		# self.num_header_types = 1
 		# self.num_headers = 1
 		# self.num_datas = len(new_data_entries)
 		# self.num_buffers = len(new_buffer_entries)
-		# self.len_archive_names = 8
 		# self.len_type_names = len(type_names)
-		# self.names.data = names_buffer
-		# self.mimes.extend(new_mime_entries)
-		# self.files.extend(new_file_entries)
-		# self.archive_names.data = b'STATIC\x00\x00'
-		# self.archives.append(new_archive_entry)
-		# self.zlibs.append(new_zlib)
 
+		new_zlib = ZlibInfo()
+		# new_zlib.zlib_thing_1 = 68 + new_archive_entry.uncompressed_size
+		new_zlib.zlib_thing_2 = 0
+		self.zlibs.append(new_zlib)
 
 		print(self)
 
@@ -1617,7 +1614,7 @@ class OvlFile(Header, IoFile):
 
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
-		eof = super().load(filepath)
+		self.eof = super().load(filepath)
 		print(f"Game: {get_game(self)}")
 
 		# store commands
@@ -1694,10 +1691,13 @@ class OvlFile(Header, IoFile):
 			except IndexError as err:
 				print(err)
 
+		for archive_entry in self.archives:
+			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
+		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
+
+	def load_archives(self):
 		ha_max = len(self.archives)
 		for archive_index, archive_entry in enumerate(self.archives):
-			self.print_and_callback("Extracting archives", value=archive_index, max_value=ha_max)
-			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
 			# print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
@@ -1705,18 +1705,17 @@ class OvlFile(Header, IoFile):
 				self.get_external_ovs_path(archive_entry)
 				read_start = archive_entry.read_start
 			else:
-				print("Internal OVS data")
-				read_start = eof
+				read_start = self.eof
 				archive_entry.ovs_path = self.filepath
 			archive_entry.content = OvsFile(self, archive_entry, archive_index)
 			archive_entry.content.unzip(archive_entry, read_start)
 
 		self.link_streams()
 
-		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
-
 	def link_streams(self):
 		"""Attach the data buffers of streamed filed to standard files from the first archive"""
+		if not self.archives:
+			return
 		# find texstream buffers
 		for tb_index, sized_str_entry in enumerate(self.archives[0].content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)

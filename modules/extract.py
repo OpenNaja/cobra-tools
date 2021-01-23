@@ -22,7 +22,8 @@ from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
 from util import widgets
 
-IGNORE_TYPES = ("mani", "mdl2", "texturestream", "datastreams")
+IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams")
+SUPPORTED_TYPES = (".dds", ".png", ".mdl2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
 
 
 def extract_names(archive, names, out_dir, show_temp_files=False, progress_callback=None):
@@ -41,7 +42,7 @@ def extract_names(archive, names, out_dir, show_temp_files=False, progress_callb
 		print(file_index, file)
 		basename, ext = os.path.splitext(file)
 
-		if ext[1:] in IGNORE_TYPES:
+		if ext in IGNORE_TYPES:
 			print(f"Ignoring {file}, as it is not a standalone file!")
 			continue
 
@@ -65,49 +66,49 @@ def extract_names(archive, names, out_dir, show_temp_files=False, progress_callb
 
 
 def extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progress_callback):
-	if entry.ext == "banis":
+	if entry.ext == ".banis":
 		paths.extend(write_banis(archive, entry, out_dir_func))
-	elif entry.ext == "bani":
+	elif entry.ext == ".bani":
 		paths.extend(write_bani(archive, entry, out_dir_func))
-	elif entry.ext == "manis":
+	elif entry.ext == ".manis":
 		paths.extend(write_manis(archive, entry, out_dir_func))
-	elif entry.ext == "fgm":
+	elif entry.ext == ".fgm":
 		paths.extend(write_fgm(archive, entry, out_dir_func))
-	elif entry.ext == "ms2":
+	elif entry.ext == ".ms2":
 		paths.extend(write_ms2(archive, entry, out_dir_func))
-	elif entry.ext == "materialcollection":
+	elif entry.ext == ".materialcollection":
 		paths.extend(write_materialcollection(archive, entry, out_dir_func))
-	elif entry.ext == "tex":
+	elif entry.ext == ".tex":
 		paths.extend(write_dds(archive, entry, show_temp_files, out_dir_func))
-	elif entry.ext == "lua":
+	elif entry.ext == ".lua":
 		paths.extend(write_lua(archive, entry, out_dir_func))
-	elif entry.ext == "assetpkg":
+	elif entry.ext == ".assetpkg":
 		paths.extend(write_assetpkg(archive, entry, out_dir_func))
-	elif entry.ext == "fdb":
+	elif entry.ext == ".fdb":
 		paths.extend(write_fdb(archive, entry, out_dir_func))
-	elif entry.ext == "xmlconfig":
+	elif entry.ext == ".xmlconfig":
 		paths.extend(write_xmlconfig(archive, entry, out_dir_func))
-	elif entry.ext == "userinterfaceicondata":
+	elif entry.ext == ".userinterfaceicondata":
 		paths.extend(write_userinterfaceicondata(archive, entry, out_dir_func))
-	elif entry.ext == "txt":
+	elif entry.ext == ".txt":
 		paths.extend(write_txt(archive, entry, out_dir_func))
-	elif entry.ext == "specdef":
+	elif entry.ext == ".specdef":
 		paths.extend(modules.formats.SPECDEF.write_specdef(archive, entry, out_dir_func))
-	elif entry.ext == "bnk":
+	elif entry.ext == ".bnk":
 		paths.extend(write_bnk(archive, entry, show_temp_files, progress_callback, out_dir_func))
-	# elif entry.ext == "prefab" and extract_misc == True:
+	# elif entry.ext == ".prefab" and extract_misc == True:
 	# 	write_prefab(archive, entry)
-	elif entry.ext == "voxelskirt":
+	elif entry.ext == ".voxelskirt":
 		paths.extend(write_voxelskirt(archive, entry, out_dir_func))
-	elif entry.ext == "gfx":
+	elif entry.ext == ".gfx":
 		paths.extend(write_gfx(archive, entry, out_dir_func))
-	elif entry.ext == "fct":
+	elif entry.ext == ".fct":
 		paths.extend(write_fct(archive, entry, out_dir_func))
-	elif entry.ext == "scaleformlanguagedata":
+	elif entry.ext == ".scaleformlanguagedata":
 		paths.extend(write_scaleform(archive, entry, out_dir_func))
-	elif entry.ext == "enumnamer":
+	elif entry.ext == ".enumnamer":
 		paths.extend(write_enumnamer(archive, entry, out_dir_func))
-	elif entry.ext == "motiongraphvars":
+	elif entry.ext == ".motiongraphvars":
 		paths.extend(write_motiongraphvars(archive, entry, out_dir_func))
 	else:
 		print("\nSkipping", entry.name)
