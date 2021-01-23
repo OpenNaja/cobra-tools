@@ -6,21 +6,13 @@ import io
 
 def file_remover(ovl, filenames):
     for filename in filenames:
-        new_list = Array()
-        new_deps = Array()
-        new_ss = Array()
         new_dd = Array()
         new_bb = Array()
         new_f = Array()
-        th = 1
-        thing = filename.split(".")
-        print(thing)
-        filename = thing[0]
-        fileext = thing[1]
-        print(filename, fileext)
+        basename, fileext = os.path.splitext(filename)
         # remove file entry
         for i, file_entry in enumerate(ovl.files):
-            if filename == file_entry.name and file_entry.ext == fileext:
+            if basename == file_entry.name and file_entry.ext == fileext:
 
                 del_hash = file_entry.file_hash
 
@@ -106,11 +98,6 @@ def file_remover(ovl, filenames):
                         ovl.archives[0].uncompressed_size -= 8 * rem_buf
                         ovl.archives[0].content.data_entries.pop(de)
             print(i)
-            new_list = Array()
-            new_deps = Array()
-            new_ss = Array()
             new_dd = Array()
             new_bb = Array()
             new_f = Array()
-            th = 1
-            filename = thing[0]

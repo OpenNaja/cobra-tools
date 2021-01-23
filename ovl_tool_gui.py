@@ -265,7 +265,7 @@ class MainWindow(widgets.MainWindow):
 		data = []
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
 		for file_w in self.ovl_data.files:
-			name = f"{file_w.name}.{file_w.ext}"
+			name = f"{file_w.name}{file_w.ext}"
 			# line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
 			line = [name, file_w.ext, file_w.file_hash, file_w.unkn_0, file_w.unkn_1]
 			data.append(line)
@@ -345,17 +345,20 @@ class MainWindow(widgets.MainWindow):
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can extract files!")
 
-	#reload modules, debug feature, allows reloading extraction modules without restarting the gui
-	#modules need to be imported completely, import xxxx, from xxx import yyy will not work.
-	#def reload(self):
-		#reload(modules.formats.SPECDEF)
-		#reload(modules.extract)
+	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
+	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
+	# def reload(self):
+	# 	reload(modules.formats.SPECDEF)
+	# 	reload(modules.extract)
 			
 	def remover(self):
 		if self.file_widget.filename:
 			selected_file_names = self.table.table.get_selected_files()
 			if selected_file_names:
-				remover.file_remover(self.ovl_data, selected_file_names)
+				try:
+					remover.file_remover(self.ovl_data, selected_file_names)
+				except Exception as err:
+					traceback.print_exc()
 				self.update_gui_table()
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can remove files!")

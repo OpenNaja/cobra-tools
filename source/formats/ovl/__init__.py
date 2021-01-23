@@ -774,26 +774,26 @@ class OvsFile(OvsHeader, ZipFile):
 			self.header_entries[frag.pointers[0].header_index].fragments.append(frag)
 
 		# todo: document more of these type requirements
-		dic = {"ms2": 3,
-			   "bani": 1,
-			   "tex": 2,
-			   "xmlconfig": 1,
-			   # "hier": ( (4,6) for x in range(19) ),
-			   "spl": 1,
-			   "lua": 2,
-			   "assetpkg": 1,
-			   "userinterfaceicondata": 2,
-			   "renderparameters": 1,  # temp
-			   "renderparametercurves": 1,  # temp
-			   "animalresearchunlocksettings": 1,  # temp
-			   "mechanicresearchsettings": 1,  # temp
-			   "pathextrusion": 1,  # temp
-			   "pathmaterial": 1,  # temp
-			   "pathresource": 1  # temp
-			   # "world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
+		dic = {".ms2": 3,
+			   ".bani": 1,
+			   ".tex": 2,
+			   ".xmlconfig": 1,
+			   # ".hier": ( (4,6) for x in range(19) ),
+			   ".spl": 1,
+			   ".lua": 2,
+			   ".assetpkg": 1,
+			   ".userinterfaceicondata": 2,
+			   ".renderparameters": 1,  # temp
+			   ".renderparametercurves": 1,  # temp
+			   ".animalresearchunlocksettings": 1,  # temp
+			   ".mechanicresearchsettings": 1,  # temp
+			   ".pathextrusion": 1,  # temp
+			   ".pathmaterial": 1,  # temp
+			   ".pathresource": 1  # temp
+			   # ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
 			   }
 		# include formats that are known to have no fragments
-		no_frags = ("txt", "mani", "manis", )
+		no_frags = (".txt", ".mani", ".manis", )
 		ss_max = len(sorted_sized_str_entries)
 		try:
 			for ss_index, sized_str_entry in enumerate(sorted_sized_str_entries):
@@ -806,9 +806,9 @@ class OvsFile(OvsHeader, ZipFile):
 					frags = self.header_entries[hi].fragments
 				else:
 					frags = address_0_fragments
-				if sized_str_entry.ext == "ms2" and is_pc(self.ovl):
+				if sized_str_entry.ext == ".ms2" and is_pc(self.ovl):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
-				elif sized_str_entry.ext == "tex" and is_pc(self.ovl):
+				elif sized_str_entry.ext == ".tex" and is_pc(self.ovl):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
 				# get fixed fragments
 				elif sized_str_entry.ext in dic:
@@ -820,20 +820,20 @@ class OvsFile(OvsHeader, ZipFile):
 					except:
 						print("bug")
 						pass
-				elif sized_str_entry.ext == "fgm":
+				elif sized_str_entry.ext == ".fgm":
 					sized_str_entry.fragments = self.get_frag_after_terminator(frags, sized_str_entry.pointers[0].address)
 
-				elif sized_str_entry.ext == "materialcollection":
+				elif sized_str_entry.ext == ".materialcollection":
 					self.collect_matcol(sized_str_entry)
-				elif sized_str_entry.ext in ("enumnamer", "motiongraphvars"):
+				elif sized_str_entry.ext in (".enumnamer", ".motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
-				elif sized_str_entry.ext in ("wmetasb",):# "wmetarp", "wmetasf"):
+				elif sized_str_entry.ext in (".wmetasb",):# ".wmetarp", ".wmetasf"):
 					self.collect_wmeta(sized_str_entry, address_0_fragments)
-				elif sized_str_entry.ext == "motiongraph":
+				elif sized_str_entry.ext == ".motiongraph":
 					self.collect_motiongraph(sized_str_entry)
-				elif sized_str_entry.ext == "specdef":
+				elif sized_str_entry.ext == ".specdef":
 					self.collect_specdef(sized_str_entry) 
-				elif sized_str_entry.ext == "scaleformlanguagedata":
+				elif sized_str_entry.ext == ".scaleformlanguagedata":
 					if not is_pc(self.ovl):
 						# todo - this is different for PC
 						self.collect_scaleform(sized_str_entry, frags)
@@ -850,14 +850,14 @@ class OvsFile(OvsHeader, ZipFile):
 				# assign the mdl2 frags to their sized str entry
 				for set_entry in self.set_header.sets:
 					set_sized_str_entry = set_entry.entry
-					if set_sized_str_entry.ext == "ms2":
+					if set_sized_str_entry.ext == ".ms2":
 						f_1 = set_sized_str_entry.fragments[1]
 						next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 						# print("next model info:", next_model_info)
 						for asset_entry in set_entry.assets:
 							assert (asset_entry.name == asset_entry.entry.name)
 							sized_str_entry = asset_entry.entry
-							if sized_str_entry.ext == "mdl2":
+							if sized_str_entry.ext == ".mdl2":
 								self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
 								pink = sized_str_entry.fragments[4]
 								if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
@@ -1137,7 +1137,7 @@ class OvsFile(OvsHeader, ZipFile):
 	def assign_name(self, entry):
 		"""Fetch a filename from hash dict"""
 		n = "NONAME"
-		e = "UNKNOWN"
+		e = ".UNK"
 		# JWE style
 		if is_jwe(self.ovl):
 			# print("JWE ids",entry.file_hash, entry.ext_hash)
@@ -1162,7 +1162,7 @@ class OvsFile(OvsHeader, ZipFile):
 			raise ValueError("Unknown version!")
 		entry.ext = e
 		entry.basename = n
-		entry.name = f"{n}.{e}"
+		entry.name = f"{n}{e}"
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
@@ -1304,7 +1304,7 @@ class OvlFile(Header, IoFile):
 			mime_entry = MimeEntry()
 			mime_entry.name = mime_names_dict[file_ext]
 			# strip away the leading .
-			mime_entry.ext = file_ext[1:]
+			mime_entry.ext = file_ext
 			# update offset using the name buffer
 			mime_entry.mime_hash = djb(mime_entry.name)
 			mime_entry.unknown_1 = lut_mime_unk_0[file_ext]
@@ -1317,7 +1317,7 @@ class OvlFile(Header, IoFile):
 				file_entry = FileEntry()
 				basename = os.path.basename(file_path)
 				file_entry.path = file_path
-				file_entry.name, file_entry.ext = basename.rsplit(".", 1)
+				file_entry.name, file_entry.ext = os.path.splitext(basename)
 				file_entry.file_hash = djb(file_entry.name)
 				file_entry.unkn_0 = lut_file_unk_0[file_ext]
 				file_entry.unkn_1 = 0
@@ -1636,7 +1636,7 @@ class OvlFile(Header, IoFile):
 			# get the whole mime type string
 			mime_entry.name = self.names.get_str_at(mime_entry.offset)
 			# only get the extension
-			mime_entry.ext = mime_entry.name.split(":")[-1]
+			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
 			# the stored mime hash is not used anywhere
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
@@ -1653,7 +1653,7 @@ class OvlFile(Header, IoFile):
 			file_entry.name = file_name
 			file_entry.dependencies = []
 			self.hash_table_local[file_entry.file_hash] = file_name
-		# print(file_name+"."+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
+		# print(file_name+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
 
@@ -1674,8 +1674,9 @@ class OvlFile(Header, IoFile):
 		ht_max = len(self.dependencies)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
 			self.print_and_callback("Getting dependency names", value=ht_index, max_value=ht_max)
+			# nb: these use : instead of . at the start, eg. :tex
 			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
-			print(dependency_entry.ext, dependency_entry.offset)
+			# print(dependency_entry.ext, dependency_entry.offset)
 			try:
 				dependency_entry.name = self.hash_table_local[dependency_entry.file_hash]
 				print(f"LOCAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.name}")
@@ -1693,15 +1694,6 @@ class OvlFile(Header, IoFile):
 			except IndexError as err:
 				print(err)
 
-			# dilophosaurus ['dilophosaurus.pnormaltexture', 'dilophosaurus.playered_blendweights', 'dilophosaurus.pbasediffusetexture', 'dilophosaurus.pbasepackedtexture']
-			# carcharodontosaurus ['carcharodontosaurus.pbasediffusetexture', 'carcharodontosaurus.playered_warpoffset', 'carcharodontosaurus.pnormaltexture', 'carcharodontosaurus.pbasepackedtexture', 'carcharodontosaurus.playered_blendweights']
-			# gharial_male ['gharial_male.pclut', 'gharial_male.paotexture', 'gharial_male.p3markingscartexture', 'gharial_male.proughnesspackedtexture', 'gharial_male.pmarkingpatchworkmask', 'gharial_male.pscarclut', 'gharial_male.pbasecolourandmasktexture', 'gharial_male.palbinobasecolourandmasktexture', 'gharial_male.pnormaltexture', 'bad hash']
-		# print(sorted(set([t.unk_1 for t in self.dependencies])))
-		# for file in self.files:
-		# 	if file.ext == "fgm":
-		# 		print(file.name, list(tex.name for tex in file.dependencies))
-		# print(self.dependencies)
-		# print(self)
 		ha_max = len(self.archives)
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback("Extracting archives", value=archive_index, max_value=ha_max)
@@ -1728,7 +1720,7 @@ class OvlFile(Header, IoFile):
 		# find texstream buffers
 		for tb_index, sized_str_entry in enumerate(self.archives[0].content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)
-			if sized_str_entry.ext == "tex":
+			if sized_str_entry.ext == ".tex":
 				for lod_i in range(3):
 					for archive in self.archives[1:]:
 						for other_sizedstr in archive.content.sized_str_entries:
