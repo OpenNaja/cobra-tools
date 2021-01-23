@@ -86,11 +86,14 @@ class OvsFile(OvsHeader, ZipFile):
 				except:
 					print("ERROR: Could not find a data entry!")
 
-			for fragment in self.fragments:
+			for i,fragment in enumerate(self.fragments):
 				# we assign these later
 				fragment.done = False
 				fragment.lod = False
 				fragment.name = None
+				fragment.o_ind = i
+			for i,buffer in enumerate(self.buffer_entries):
+				buffer.o_ind = i
 			# print(self.ovl)
 			# print(self)
 			set_data_offset = stream.tell()
