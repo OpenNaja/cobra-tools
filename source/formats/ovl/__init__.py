@@ -904,6 +904,10 @@ class OvsFile(OvsHeader, ZipFile):
 			# read buffer data and store it in buffer object
 			buffer.read_data(stream)
 
+		for data_entry in self.data_entries:
+			# just sort buffers by their index value
+			data_entry.update_buffers()
+
 	def write_frag_log(self, ):
 		# # this is just for developing to see which unique attributes occur across a list of entries
 		# ext_hashes = sorted(set([f.offset for f in self.ovl.files]))
@@ -1346,9 +1350,7 @@ class OvlFile(Header, IoFile):
 
 		self.len_names = len(self.names.data)
 		self.num_mimes = len(self.mimes)
-		self.num_files = len(self.files)
-		self.num_files_2 = len(self.files)
-		self.num_files_3 = len(self.files)
+		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 		# self.num_archives = 1
 		# self.num_header_types = 1
 		# self.num_headers = 1
@@ -1743,23 +1745,15 @@ class OvlFile(Header, IoFile):
 									lod_i) in other_sizedstr.name:
 								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
 
-		# postprocessing of data buffers
-		for archive in self.ovs_files:
-			for data_entry in archive.data_entries:
-				# just sort buffers by their index value
-				data_entry.update_buffers()
-
 		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
 
 	def get_external_ovs_path(self, archive_entry):
 		# JWE style
-		if self.user_version in (24724, 25108):
-			archive_entry.ovs_path = self.file_no_ext + ".ovs." + archive_entry.name.lower()
-		# PZ Style
-		elif self.user_version in (8340, 8724):
-			archive_entry.ovs_path = self.file_no_ext + ".ovs"
+		if is_jwe(self.user_version):
+			archive_entry.ovs_path = f"{self.file_no_ext}.ovs.{archive_entry.name.lower()}"
+		# PZ, PC, ZTUAC Style
 		else:
-			raise AttributeError(f"unsupported user_version {self.user_version}")
+			archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
 
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
