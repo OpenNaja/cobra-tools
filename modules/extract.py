@@ -133,8 +133,6 @@ def extract(archive, out_dir, only_types=(), show_temp_files=False, progress_cal
 	error_files = []
 	skip_files = []
 	out_paths = []
-	# data types that we export starting from other file types but are not caught as deliberate cases
-	exported_types = ["mani", "mdl2", "texturestream"]
 	print("\nExtracting from archive", archive.archive_index)
 	ss_max = len(archive.sized_str_entries)
 	for ss_index, sized_str_entry in enumerate(archive.sized_str_entries):
