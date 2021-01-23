@@ -74,16 +74,16 @@ def create_dds_struct():
 	return dds_file
 
 
-def write_dds(archive, sized_str_entry, show_temp_files, out_dir):
-	basename = os.path.splitext(sized_str_entry.name)[0]
+def write_dds(archive, entry, out_dir, show_temp_files):
+	basename = os.path.splitext(entry.name)[0]
 	name = basename + ".dds"
 	print("\nWriting", name)
 	# get joined output buffer
-	buffer_data = b"".join([b for b in sized_str_entry.data_entry.buffer_datas if b])
+	buffer_data = b"".join([b for b in entry.data_entry.buffer_datas if b])
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
 	if is_pc(archive.ovl):
-		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(sized_str_entry)
+		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(entry)
 		print(header_7)
 		dds_file.width = header_7.width
 		# hack until we have proper support for array_size on the image editors
@@ -94,7 +94,7 @@ def write_dds(archive, sized_str_entry, show_temp_files, out_dir):
 		dds_file.depth = header_3_0.one_0
 
 	else:
-		header_3_0, headers_3_1, header_7 = get_tex_structs(sized_str_entry)
+		header_3_0, headers_3_1, header_7 = get_tex_structs(entry)
 
 		sum_of_parts = sum(header_3_1.data_size for header_3_1 in headers_3_1)
 		if not sum_of_parts == header_7.data_size:

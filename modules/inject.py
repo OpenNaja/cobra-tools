@@ -12,7 +12,7 @@ from modules.formats.MS2 import load_mdl2
 from modules.formats.TXT import load_txt
 from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
-from modules.util import split_path
+from modules.helpers import split_path
 
 from util import imarray
 

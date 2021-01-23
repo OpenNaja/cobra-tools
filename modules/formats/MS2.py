@@ -3,7 +3,7 @@ import os
 import struct
 
 from modules.formats.shared import pack_header, get_versions
-from modules.util import write_sized_str, as_bytes
+from modules.helpers import write_sized_str, as_bytes
 from generated.formats.ms2 import Mdl2File
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo

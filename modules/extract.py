@@ -1,6 +1,7 @@
 import struct
 import os
 import traceback
+import sys
 
 import modules.formats.shared
 import util.interaction
@@ -50,7 +51,7 @@ def extract_names(archive, names, out_dir, show_temp_files=False, progress_callb
 			print("Found name", file)
 			entry = entry_dict[file]
 			try:
-				extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progress_callback)
+				paths.extend(extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback))
 			except BaseException as error:
 				print(f"\nAn exception occurred while extracting {entry.name}")
 				traceback.print_exc()
@@ -65,55 +66,60 @@ def extract_names(archive, names, out_dir, show_temp_files=False, progress_callb
 	return paths
 
 
-def extract_kernel(paths, entry, archive, out_dir_func, show_temp_files, progress_callback):
+def extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback):
+	# try:
+	# 	func_name = f"write_{entry.ext[1:]}"
+	# 	print(func_name)
+	# 	func = getattr(sys.modules[__name__], func_name)
+	# except AttributeError:
+	# 	print(f"No function to export {entry.name}")
+	# return func(archive, entry, out_dir_func, )
 	if entry.ext == ".banis":
-		paths.extend(write_banis(archive, entry, out_dir_func))
+		return write_banis(archive, entry, out_dir_func)
 	elif entry.ext == ".bani":
-		paths.extend(write_bani(archive, entry, out_dir_func))
+		return write_bani(archive, entry, out_dir_func)
 	elif entry.ext == ".manis":
-		paths.extend(write_manis(archive, entry, out_dir_func))
+		return write_manis(archive, entry, out_dir_func)
 	elif entry.ext == ".fgm":
-		paths.extend(write_fgm(archive, entry, out_dir_func))
+		return write_fgm(archive, entry, out_dir_func)
 	elif entry.ext == ".ms2":
-		paths.extend(write_ms2(archive, entry, out_dir_func))
+		return write_ms2(archive, entry, out_dir_func)
 	elif entry.ext == ".materialcollection":
-		paths.extend(write_materialcollection(archive, entry, out_dir_func))
+		return write_materialcollection(archive, entry, out_dir_func)
 	elif entry.ext == ".tex":
-		paths.extend(write_dds(archive, entry, show_temp_files, out_dir_func))
+		return write_dds(archive, entry, out_dir_func, show_temp_files)
 	elif entry.ext == ".lua":
-		paths.extend(write_lua(archive, entry, out_dir_func))
+		return write_lua(archive, entry, out_dir_func)
 	elif entry.ext == ".assetpkg":
-		paths.extend(write_assetpkg(archive, entry, out_dir_func))
+		return write_assetpkg(archive, entry, out_dir_func)
 	elif entry.ext == ".fdb":
-		paths.extend(write_fdb(archive, entry, out_dir_func))
+		return write_fdb(archive, entry, out_dir_func)
 	elif entry.ext == ".xmlconfig":
-		paths.extend(write_xmlconfig(archive, entry, out_dir_func))
+		return write_xmlconfig(archive, entry, out_dir_func)
 	elif entry.ext == ".userinterfaceicondata":
-		paths.extend(write_userinterfaceicondata(archive, entry, out_dir_func))
+		return write_userinterfaceicondata(archive, entry, out_dir_func)
 	elif entry.ext == ".txt":
-		paths.extend(write_txt(archive, entry, out_dir_func))
+		return write_txt(archive, entry, out_dir_func)
 	elif entry.ext == ".specdef":
-		paths.extend(modules.formats.SPECDEF.write_specdef(archive, entry, out_dir_func))
+		return write_specdef(archive, entry, out_dir_func)
 	elif entry.ext == ".bnk":
-		paths.extend(write_bnk(archive, entry, show_temp_files, progress_callback, out_dir_func))
+		return write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback)
 	# elif entry.ext == ".prefab" and extract_misc == True:
 	# 	write_prefab(archive, entry)
 	elif entry.ext == ".voxelskirt":
-		paths.extend(write_voxelskirt(archive, entry, out_dir_func))
+		return write_voxelskirt(archive, entry, out_dir_func)
 	elif entry.ext == ".gfx":
-		paths.extend(write_gfx(archive, entry, out_dir_func))
+		return write_gfx(archive, entry, out_dir_func)
 	elif entry.ext == ".fct":
-		paths.extend(write_fct(archive, entry, out_dir_func))
+		return write_fct(archive, entry, out_dir_func)
 	elif entry.ext == ".scaleformlanguagedata":
-		paths.extend(write_scaleform(archive, entry, out_dir_func))
+		return write_scaleform(archive, entry, out_dir_func)
 	elif entry.ext == ".enumnamer":
-		paths.extend(write_enumnamer(archive, entry, out_dir_func))
+		return write_enumnamer(archive, entry, out_dir_func)
 	elif entry.ext == ".motiongraphvars":
-		paths.extend(write_motiongraphvars(archive, entry, out_dir_func))
+		return write_motiongraphvars(archive, entry, out_dir_func)
 	else:
 		print("\nSkipping", entry.name)
-	# skip_files.append(entry.name)
-	# continue
 
 
 def extract(archive, out_dir, only_types=(), show_temp_files=False, progress_callback=None):
@@ -139,7 +145,7 @@ def extract(archive, out_dir, only_types=(), show_temp_files=False, progress_cal
 			# ignore types in the count that we export from inside other type exporters
 			if sized_str_entry.ext in IGNORE_TYPES:
 				continue
-			extract_kernel(out_paths, sized_str_entry, archive, out_dir_func, show_temp_files, progress_callback)
+			out_paths.extend(extract_kernel(archive, sized_str_entry, out_dir_func, show_temp_files, progress_callback))
 
 			if progress_callback:
 				progress_callback("Extracting " + sized_str_entry.name, value=ss_index, vmax=ss_max)

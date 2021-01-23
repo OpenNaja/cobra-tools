@@ -1,4 +1,4 @@
-from modules.util import write_sized_str
+from modules.helpers import write_sized_str
 
 
 def write_banis(archive, sized_str_entry, out_dir):
@@ -24,7 +24,7 @@ def write_bani(archive, sized_str_entry, out_dir):
 		print("must have 1 fragment")
 		return
 	for other_sized_str_entry in archive.sized_str_entries:
-		if other_sized_str_entry.ext == "banis":
+		if other_sized_str_entry.ext == ".banis":
 			banis_name = other_sized_str_entry.name
 			break
 	else:

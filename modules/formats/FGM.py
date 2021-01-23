@@ -1,7 +1,7 @@
 import struct
 
 from modules.formats.shared import pack_header
-from modules.util import as_bytes
+from modules.helpers import as_bytes
 from generated.formats.fgm import FgmFile
 
 

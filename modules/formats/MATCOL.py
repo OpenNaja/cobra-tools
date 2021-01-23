@@ -1,7 +1,7 @@
 import struct
 
 from modules.formats.shared import get_padding
-from modules.util import as_bytes
+from modules.helpers import as_bytes
 from generated.formats.matcol import MatcolFile
 
 

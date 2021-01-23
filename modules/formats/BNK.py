@@ -5,8 +5,8 @@ from generated.formats.bnk import BnkFile
 from util import texconv
 
 
-def write_bnk(archive, sized_str_entry, show_temp_files, progress_callback, out_dir_func):
-	bnk = os.path.splitext(sized_str_entry.name)[0]
+def write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback):
+	bnk = os.path.splitext(entry.name)[0]
 	bnk_path = f"{archive.ovl.file_no_ext}_{bnk}_bnk_b.aux"
 	if os.path.isfile(bnk_path):
 		if "_media_" not in bnk_path:

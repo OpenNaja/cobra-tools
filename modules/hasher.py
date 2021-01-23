@@ -43,7 +43,7 @@ def dat_hasher(ovl, name_tups):
 		for entry in entry_list:
 			new_name, new_hash = old_hash_to_new[entry.file_hash]
 			entry.file_hash = new_hash
-			entry.name = f"{new_name}.{entry.ext}"
+			entry.name = f"{new_name}{entry.ext}"
 
 	# update the name buffer and offsets
 	ovl.names.update_with((
