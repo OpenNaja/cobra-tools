@@ -310,8 +310,8 @@ class MainWindow(widgets.MainWindow):
 				# create output dir
 				try:
 					os.makedirs(out_dir, exist_ok=True)
-					archive = self.ovl_data.ovs_files[0]
-					error_files, skip_files = extract.extract(archive, out_dir, self.show_temp_files, progress_callback=self.update_progress)
+					content = self.ovl_data.archives[0].content
+					error_files, skip_files = extract.extract(content, out_dir, self.show_temp_files, progress_callback=self.update_progress)
 
 					self.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
@@ -409,7 +409,7 @@ class MainWindow(widgets.MainWindow):
 						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
 						# create output dir
 						os.makedirs(outdir, exist_ok=True)
-						error_files_new, skip_files_new = extract.extract(ovl_data.ovs_files[0], outdir, only_types=["ms2", ])
+						error_files_new, skip_files_new = extract.extract(ovl_data.archives[0].content, outdir, only_types=["ms2", ])
 						error_files += error_files_new
 						skip_files += skip_files_new
 					except Exception as ex:

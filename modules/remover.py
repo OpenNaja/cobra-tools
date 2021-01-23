@@ -48,9 +48,9 @@ def file_remover(ovl, filenames):
                 ovl.num_dependencies -= old_dep_len - len(ovl.dependencies)
 
                 # remove sizedstring entry for file and remove its fragments if mapped
-                for ss, string in enumerate(ovl.ovs_files[0].sized_str_entries):
+                for ss, string in enumerate(ovl.archives[0].content.sized_str_entries):
                     if string.lower_name == file_entry.name + "." + fileext:
-                        ovl.ovs_files[0].sized_str_entries.pop(ss)
+                        ovl.archives[0].content.sized_str_entries.pop(ss)
                         ovl.archives[0].num_files -= 1
                         ovl.archives[0].uncompressed_size -= 16
 
@@ -68,17 +68,17 @@ def file_remover(ovl, filenames):
 
                         rem_ff = len(fgg)
 
-                        for fff in ovl.ovs_files[0].fragments:
+                        for fff in ovl.archives[0].content.fragments:
                             if fff.o_ind not in fgg:
                                 new_f.append(fff)
 
-                        ovl.ovs_files[0].fragments = new_f
+                        ovl.archives[0].content.fragments = new_f
                         ovl.archives[0].num_fragments -= rem_ff
 
                 # TODO UPDATE THE HEADER ENTRIES WITH THE FIRST FILE HASH AND NEW COUNTS
 
                 # remove data entry for file
-                for de, data in enumerate(ovl.ovs_files[0].data_entries):
+                for de, data in enumerate(ovl.archives[0].content.data_entries):
                     if data.basename == file_entry.name and data.ext == fileext:
 
                         ovl.archives[0].num_datas -= 1
@@ -95,16 +95,16 @@ def file_remover(ovl, filenames):
                         thing.sort()
                         rem_buf = len(thing)
 
-                        for bbf in ovl.ovs_files[0].buffer_entries:
+                        for bbf in ovl.archives[0].content.buffer_entries:
                             if bbf.o_ind not in thing:
                                 new_bb.append(bbf)
 
-                        ovl.ovs_files[0].buffer_entries = new_bb
+                        ovl.archives[0].content.buffer_entries = new_bb
                         ovl.archives[0].num_buffers -= rem_buf
                         ovl.num_buffers -= rem_buf
 
                         ovl.archives[0].uncompressed_size -= 8 * rem_buf
-                        ovl.ovs_files[0].data_entries.pop(de)
+                        ovl.archives[0].content.data_entries.pop(de)
             print(i)
             new_list = Array()
             new_deps = Array()

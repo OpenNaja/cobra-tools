@@ -36,6 +36,14 @@ class OvsFile(OvsHeader, ZipFile):
 		self.arg = archive_entry
 		self.archive_index = archive_index
 
+	def get_sized_str_entry(self, name):
+		lower_name = name.lower()
+		for sized_str_entry in self.sized_str_entries:
+			if lower_name == sized_str_entry.lower_name:
+				return sized_str_entry
+		# still here - error!
+		raise KeyError(f"Can't find a sizedstr entry for {name}, not from this archive?")
+
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
@@ -1331,7 +1339,6 @@ class OvlFile(Header, IoFile):
 			(self.files, "name")
 		))
 		# refactor!!
-		self.ovs_files = []
 
 		self.fres.data = b"FRES"
 		self.flag = 1
@@ -1586,15 +1593,6 @@ class OvlFile(Header, IoFile):
 			self.write(streamm)
 			# write zlib block
 			streamm.write(compressed)
-			
-	def get_sized_str_entry(self, name):
-		lower_name = name.lower()
-		for archive in self.ovs_files:
-			for sized_str_entry in archive.sized_str_entries:
-				if lower_name == sized_str_entry.lower_name:
-					return sized_str_entry
-		# still here - error!
-		raise KeyError(f"Can't find a sizedstr entry for {name}, not from this archive?")
 
 	# dummy (black hole) callback for if we decide we don't want one
 	def dummy_callback(self, *args, **kwargs):
@@ -1704,56 +1702,50 @@ class OvlFile(Header, IoFile):
 		# 		print(file.name, list(tex.name for tex in file.dependencies))
 		# print(self.dependencies)
 		# print(self)
-		self.ovs_files = []
 		ha_max = len(self.archives)
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback("Extracting archives", value=archive_index, max_value=ha_max)
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
-			print("archive_entry", archive_index, archive_entry)
-			# skip archives that are empty
-			if archive_entry.compressed_size == 0 and self.user_version == 8212:
-				print("archive is not compressed")
-			elif archive_entry.compressed_size == 0:
-				print("archive is empty")
-				continue
+			# print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
 			if archive_index > 0:
 				self.get_external_ovs_path(archive_entry)
-				# make sure that the ovs exists
-				if not os.path.exists(archive_entry.ovs_path):
-					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
 				read_start = archive_entry.read_start
 			else:
 				print("Internal OVS data")
 				read_start = eof
 				archive_entry.ovs_path = self.filepath
-			archive = OvsFile(self, archive_entry, archive_index)
-			archive.unzip(archive_entry, read_start)
+			archive_entry.content = OvsFile(self, archive_entry, archive_index)
+			archive_entry.content.unzip(archive_entry, read_start)
 
-			self.ovs_files.append(archive)
+		self.link_streams()
 
+		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
+
+	def link_streams(self):
+		"""Attach the data buffers of streamed filed to standard files from the first archive"""
 		# find texstream buffers
-		tb_max = len(self.ovs_files[0].sized_str_entries)
-		for tb_index, sized_str_entry in enumerate(self.ovs_files[0].sized_str_entries):
+		for tb_index, sized_str_entry in enumerate(self.archives[0].content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)
 			if sized_str_entry.ext == "tex":
 				for lod_i in range(3):
-					for archive in self.ovs_files[1:]:
-						for other_sizedstr in archive.sized_str_entries:
+					for archive in self.archives[1:]:
+						for other_sizedstr in archive.content.sized_str_entries:
 							if sized_str_entry.basename in other_sizedstr.name and "_lod" + str(
 									lod_i) in other_sizedstr.name:
 								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
 
-		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
-
 	def get_external_ovs_path(self, archive_entry):
 		# JWE style
-		if is_jwe(self.user_version):
+		if is_jwe(self):
 			archive_entry.ovs_path = f"{self.file_no_ext}.ovs.{archive_entry.name.lower()}"
 		# PZ, PC, ZTUAC Style
 		else:
 			archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
+		# make sure that the ovs exists
+		if not os.path.exists(archive_entry.ovs_path):
+			raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
 
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
@@ -1762,9 +1754,9 @@ class OvlFile(Header, IoFile):
 		ovs_dict = {}
 		ovl_compressed = b""
 		# compress data stream
-		for i, (archive_entry, archive) in enumerate(zip(self.archives, self.ovs_files)):
+		for i, archive_entry in enumerate(self.archives):
 			# write archive into bytes IO stream
-			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive.zipper(i,use_ext_dat,dat_path)
+			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i, use_ext_dat, dat_path)
 			if i == 0:
 				ovl_compressed = compressed
 				archive_entry.read_start = 0

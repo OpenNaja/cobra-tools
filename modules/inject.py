@@ -17,7 +17,7 @@ from modules.util import split_path
 from util import imarray
 
 
-def inject(ovl_data, file_paths, show_temp_files, is_2K):
+def inject(ovl_data, file_paths, show_temp_files, hack_2k):
 
 	print("\nInjecting...")
 	# write modified version to tmp dir
@@ -50,26 +50,16 @@ def inject(ovl_data, file_paths, show_temp_files, is_2K):
 			bnk_name, wem_name = name.rsplit("_", 1)
 			name_ext = bnk_name + ".bnk"
 		# find the sizedstr entry that refers to this file
-		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
-		if is_2K:
-		# Grab OVS sized string for Textures
-			if sized_str_entry.ext == "tex":
-				for lod_i in range(1):
-					for archive in ovl_data.ovs_files[1:]:
-						for other_sizedstr in archive.sized_str_entries:
-							if sized_str_entry.basename in other_sizedstr.name and "_lod"+str(lod_i) in other_sizedstr.name:
-								ovs_sized_str_entry = other_sizedstr
-		else:
-			ovs_sized_str_entry = sized_str_entry
+		sized_str_entry = ovl_data.archives[0].content.get_sized_str_entry(name_ext)
 		# do the actual injection, varies per file type
 		if ext == ".mdl2":
 			mdl2_tups.append((file_path, sized_str_entry))
 		if ext == ".fgm":
 			load_fgm(ovl_data, file_path, sized_str_entry)
 		elif ext == ".png":
-			load_png(ovl_data, file_path, sized_str_entry, show_temp_files, is_2K, ovs_sized_str_entry)
+			load_png(ovl_data, file_path, sized_str_entry, show_temp_files, hack_2k)
 		elif ext == ".dds":
-			load_dds(ovl_data, file_path, sized_str_entry, is_2K, ovs_sized_str_entry)
+			load_dds(ovl_data, file_path, sized_str_entry, hack_2k)
 		elif ext == ".txt":
 			load_txt(ovl_data, file_path, sized_str_entry)
 		elif ext == ".wem":
@@ -99,7 +89,8 @@ def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
 	with open(assetpkg_file_path, "rb") as stream:
 		b = stream.read()
 		sized_str_entry.fragments[0].pointers[1].update_data( b + b"\x00", update_copies=True, pad_to=64)
-		
+
+
 def load_userinterfaceicondata(ovl_data, userinterfaceicondata_file_path, sized_str_entry):
 	with open(userinterfaceicondata_file_path, "rb") as stream:
 		b = stream.read()

@@ -289,10 +289,10 @@ class TableView(QtWidgets.QTableView):
 		print("DRAGGING", names)
 		data = QtCore.QMimeData()
 
-		archive = self.ovl_data.ovs_files[0]
+		content = self.ovl_data.archives[0].content
 		temp_dir = tempfile.gettempdir()
 		path_list = [QtCore.QUrl.fromLocalFile(path) for path in
-					 extract.extract_names(archive, names, temp_dir, self.main_window.show_temp_files,
+					 extract.extract_names(content, names, temp_dir, self.main_window.show_temp_files,
 										   self.main_window.update_progress)]
 
 		data.setUrls(path_list)
