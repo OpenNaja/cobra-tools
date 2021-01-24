@@ -14,7 +14,9 @@ def file_remover(ovl, filenames):
         for i, file_entry in enumerate(ovl.files):
             if basename == file_entry.name and file_entry.ext == fileext:
 
+
                 del_hash = file_entry.file_hash
+                next_hash = ovl.files[i-1].file_hash
 
                 ovl.files.pop(i)
                 ovl.num_files -= 1
@@ -68,7 +70,11 @@ def file_remover(ovl, filenames):
                         ovl.archives[0].num_fragments -= rem_ff
 
                 # TODO UPDATE THE HEADER ENTRIES WITH THE FIRST FILE HASH AND NEW COUNTS
-
+                for he, header_entry in enumerate(ovl.ovs_files[0].header_entries):
+                    if header_entry.file_hash == del_hash:
+                        if header_entry.ext_hash == djb(fileext):
+                            print("updated header entry")
+                            header_entry.file_hash = next_hash
                 # remove data entry for file
                 for de, data in enumerate(ovl.archives[0].content.data_entries):
                     if data.basename == file_entry.name and data.ext == fileext:

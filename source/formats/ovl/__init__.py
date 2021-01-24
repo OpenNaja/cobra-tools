@@ -86,11 +86,14 @@ class OvsFile(OvsHeader, ZipFile):
 				except:
 					print("ERROR: Could not find a data entry!")
 
-			for fragment in self.fragments:
+			for i,fragment in enumerate(self.fragments):
 				# we assign these later
 				fragment.done = False
 				fragment.lod = False
 				fragment.name = None
+				fragment.o_ind = i
+			for i,buffer in enumerate(self.buffer_entries):
+				buffer.o_ind = i
 			# print(self.ovl)
 			# print(self)
 			set_data_offset = stream.tell()
@@ -1638,7 +1641,7 @@ class OvlFile(Header, IoFile):
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
-			self.hash_table_local[djb(mime_entry.ext)] = mime_entry.ext
+			self.hash_table_local[djb(mime_entry.ext[1:])] = mime_entry.ext
 
 		# add file name to hash dict; ignoring the extension pointer
 		hf_max = len(self.files)
