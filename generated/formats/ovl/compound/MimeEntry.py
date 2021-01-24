@@ -2,7 +2,7 @@ class MimeEntry:
 
 	"""
 	Description of one mime type, which is sort of a container for
-	Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb(".bani") == 2090104799
+	Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
 	"""
 
 	def __init__(self, arg=None, template=None):

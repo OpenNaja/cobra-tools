@@ -20,15 +20,13 @@ class DataEntry:
 
 		# number of buffers that should be read from list for this entry
 		self.buffer_count = 0
-		self.zero_10 = 0
+		self.zero = 0
 
-		# size of first buffer, in the case of the ms2 the size 1 is the sizw of the first two buffers together
+		# size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together
 		self.size_1 = 0
-		self.zero_18 = 0
 
-		# size of last buffer
+		# size of last buffer; tex and texstream have all size here
 		self.size_2 = 0
-		self.zero_20 = 0
 
 	def read(self, stream):
 
@@ -39,11 +37,9 @@ class DataEntry:
 		self.set_index = stream.read_ushort()
 		self.buffer_count = stream.read_ushort()
 		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)):
-			self.zero_10 = stream.read_uint()
-		self.size_1 = stream.read_uint()
-		self.zero_18 = stream.read_uint()
-		self.size_2 = stream.read_uint()
-		self.zero_20 = stream.read_uint()
+			self.zero = stream.read_uint()
+		self.size_1 = stream.read_uint64()
+		self.size_2 = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -56,11 +52,9 @@ class DataEntry:
 		stream.write_ushort(self.set_index)
 		stream.write_ushort(self.buffer_count)
 		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)):
-			stream.write_uint(self.zero_10)
-		stream.write_uint(self.size_1)
-		stream.write_uint(self.zero_18)
-		stream.write_uint(self.size_2)
-		stream.write_uint(self.zero_20)
+			stream.write_uint(self.zero)
+		stream.write_uint64(self.size_1)
+		stream.write_uint64(self.size_2)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -73,11 +67,9 @@ class DataEntry:
 		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
 		s += f'\n	* set_index = {self.set_index.__repr__()}'
 		s += f'\n	* buffer_count = {self.buffer_count.__repr__()}'
-		s += f'\n	* zero_10 = {self.zero_10.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
 		s += f'\n	* size_1 = {self.size_1.__repr__()}'
-		s += f'\n	* zero_18 = {self.zero_18.__repr__()}'
 		s += f'\n	* size_2 = {self.size_2.__repr__()}'
-		s += f'\n	* zero_20 = {self.zero_20.__repr__()}'
 		return s
 
 	def __repr__(self):

@@ -209,7 +209,7 @@
 
     <compound name="MimeEntry" >
         Description of one mime type, which is sort of a container for
-		Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb(".bani") == 2090104799
+		Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
         <add name="Offset" type="uint">offset in the header's Names block</add>
         <add name="unknown" type="uint">usually zero</add>
         <add name="Mime Hash" type="uint">hash of this file extension; same across all files, but seemingly not used anywhere else in the archive</add>
@@ -316,11 +316,9 @@
 		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">DJB hash for extension; always (?) matches an archive header's hash</add>
 		<add name="set index" type="ushort" > </add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
-		<add name="zero10" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
-		<add name="Size 1" type="uint">size of first buffer, in the case of the ms2 the size 1 is the sizw of the first two buffers together</add>
-		<add name="zero18" type="uint"> </add>	
-		<add name="Size 2" type="uint">size of last buffer</add>
-		<add name="zero20" type="uint" > </add>
+		<add name="zero" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
+		<add name="Size 1" type="uint64">size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together</add>
+		<add name="Size 2" type="uint64">size of last buffer; tex and texstream have all size here</add>
     </compound>
 
 	<compound name="BufferEntry" >
