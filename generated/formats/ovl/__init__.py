@@ -1641,7 +1641,7 @@ class OvlFile(Header, IoFile):
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
-			self.hash_table_local[djb(mime_entry.ext)] = mime_entry.ext
+			self.hash_table_local[djb(mime_entry.ext[1:])] = mime_entry.ext
 
 		# add file name to hash dict; ignoring the extension pointer
 		hf_max = len(self.files)
