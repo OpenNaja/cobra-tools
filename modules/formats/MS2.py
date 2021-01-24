@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.ModelData import ModelData
 from generated.formats.ovl.versions import *
 
 
-def write_ms2(archive, ms2_sized_str_entry, out_dir):
+def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = ms2_sized_str_entry.name
 	if not ms2_sized_str_entry.data_entry:
 		print("No data entry for ", name)

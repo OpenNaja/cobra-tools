@@ -1,7 +1,7 @@
 from modules.helpers import write_sized_str
 
 
-def write_banis(archive, sized_str_entry, out_dir):
+def write_banis(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	if not sized_str_entry.data_entry:
 		print("No data entry for ",name)
@@ -17,7 +17,7 @@ def write_banis(archive, sized_str_entry, out_dir):
 	return out_path,
 
 
-def write_bani(archive, sized_str_entry, out_dir):
+def write_bani(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 	if len(sized_str_entry.fragments) != 1:

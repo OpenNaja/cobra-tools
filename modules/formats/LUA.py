@@ -4,7 +4,7 @@ from util import texconv
 from util.interaction import showdialog
 
 
-def write_lua(archive, sized_str_entry, out_dir):
+def write_lua(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 

@@ -74,7 +74,7 @@ def create_dds_struct():
 	return dds_file
 
 
-def write_dds(archive, entry, out_dir, show_temp_files):
+def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 	basename = os.path.splitext(entry.name)[0]
 	name = basename + ".dds"
 	print("\nWriting", name)

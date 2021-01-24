@@ -7,7 +7,7 @@ import modules.formats.shared
 import util.interaction
 from modules.formats.BANI import write_banis, write_bani
 from modules.formats.BNK import write_bnk
-from modules.formats.DDS import write_dds
+from modules.formats.DDS import write_tex
 from modules.formats.ENUMNAMER import write_enumnamer
 from modules.formats.FCT import write_fct
 from modules.formats.FDB import write_fdb
@@ -67,59 +67,15 @@ def extract_names(archive, names, out_dir, show_temp_files=False, progress_callb
 
 
 def extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback):
-	# try:
-	# 	func_name = f"write_{entry.ext[1:]}"
-	# 	print(func_name)
-	# 	func = getattr(sys.modules[__name__], func_name)
-	# except AttributeError:
-	# 	print(f"No function to export {entry.name}")
-	# return func(archive, entry, out_dir_func, )
-	if entry.ext == ".banis":
-		return write_banis(archive, entry, out_dir_func)
-	elif entry.ext == ".bani":
-		return write_bani(archive, entry, out_dir_func)
-	elif entry.ext == ".manis":
-		return write_manis(archive, entry, out_dir_func)
-	elif entry.ext == ".fgm":
-		return write_fgm(archive, entry, out_dir_func)
-	elif entry.ext == ".ms2":
-		return write_ms2(archive, entry, out_dir_func)
-	elif entry.ext == ".materialcollection":
-		return write_materialcollection(archive, entry, out_dir_func)
-	elif entry.ext == ".tex":
-		return write_dds(archive, entry, out_dir_func, show_temp_files)
-	elif entry.ext == ".lua":
-		return write_lua(archive, entry, out_dir_func)
-	elif entry.ext == ".assetpkg":
-		return write_assetpkg(archive, entry, out_dir_func)
-	elif entry.ext == ".fdb":
-		return write_fdb(archive, entry, out_dir_func)
-	elif entry.ext == ".xmlconfig":
-		return write_xmlconfig(archive, entry, out_dir_func)
-	elif entry.ext == ".userinterfaceicondata":
-		return write_userinterfaceicondata(archive, entry, out_dir_func)
-	elif entry.ext == ".txt":
-		return write_txt(archive, entry, out_dir_func)
-	elif entry.ext == ".specdef":
-		return write_specdef(archive, entry, out_dir_func)
-	elif entry.ext == ".bnk":
-		return write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback)
-	# elif entry.ext == ".prefab" and extract_misc == True:
-	# 	write_prefab(archive, entry)
-	elif entry.ext == ".voxelskirt":
-		return write_voxelskirt(archive, entry, out_dir_func)
-	elif entry.ext == ".gfx":
-		return write_gfx(archive, entry, out_dir_func)
-	elif entry.ext == ".fct":
-		return write_fct(archive, entry, out_dir_func)
-	elif entry.ext == ".scaleformlanguagedata":
-		return write_scaleform(archive, entry, out_dir_func)
-	elif entry.ext == ".enumnamer":
-		return write_enumnamer(archive, entry, out_dir_func)
-	elif entry.ext == ".motiongraphvars":
-		return write_motiongraphvars(archive, entry, out_dir_func)
-	else:
-		print("\nSkipping", entry.name)
+	# automatically call the extract function, if it has been defined
+	try:
+		func_name = f"write_{entry.ext[1:]}"
+		print(func_name)
+		func = getattr(sys.modules[__name__], func_name)
+		return func(archive, entry, out_dir_func, show_temp_files, progress_callback)
+	except AttributeError:
+		print(f"No function to export {entry.name}")
+		return ()
 
 
 def extract(archive, out_dir, only_types=(), show_temp_files=False, progress_callback=None):

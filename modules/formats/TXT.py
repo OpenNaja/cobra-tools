@@ -1,7 +1,7 @@
 import struct
 
 
-def write_txt(archive, sized_str_entry, out_dir):
+def write_txt(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	# a bare sized str
 	b = sized_str_entry.pointers[0].data
 	size = struct.unpack("<I", b[:4])[0]

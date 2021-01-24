@@ -1,7 +1,7 @@
 import struct
 
 
-def write_manis(archive, sized_str_entry, out_dir):
+def write_manis(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	if not sized_str_entry.data_entry:

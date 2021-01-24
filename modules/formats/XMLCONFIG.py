@@ -1,11 +1,11 @@
-def write_xmlconfig(archive, sized_str_entry, out_dir):
+def write_xmlconfig(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 
 	if len(sized_str_entry.fragments) == 1:
 		f_0 = sized_str_entry.fragments[0]
 	else:
-		print("Found wrong amount of frags for",name)
+		print("Found wrong amount of frags for", name)
 		return
 	# write xml
 	out_path = out_dir(name)
