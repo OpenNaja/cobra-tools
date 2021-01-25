@@ -1698,7 +1698,7 @@ class OvlFile(Header, IoFile):
 
 				archive_entry.read_start = ovs_stream.tell()
 				ovs_stream.write(compressed)
-
+			self.zlibs[i].zlib_thing_1 = 68 + archive_entry.uncompressed_size
 		# we don't use context manager so gotta close them
 		for ovs_file in ovs_dict.values():
 			ovs_file.close()
