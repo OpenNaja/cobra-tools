@@ -4,6 +4,20 @@ from modules.formats.shared import djb
 # *num_files = 0
 # *ext_hash = 2830413767
 print(djb("Casino:AssetPackageRes:assetpkg"))
+print(djb("casino:assetpackageres:assetpkg"))
+print(djb("Casino.AssetPackageRes.assetpkg"))
+print(djb("casino.assetpackageres.assetpkg"))
+print(djb("Casino:AssetPackageRes:"))
+print(djb("casino:assetpackageres:"))
+print(djb("Casino.AssetPackageRes."))
+print(djb("casino.assetpackageres."))
+print(djb("Casino:AssetPackageRes"))
+print(djb("casino:assetpackageres"))
+print(djb("Casino.AssetPackageRes"))
+print(djb("casino.assetpackageres"))
+print(djb(".assetpkg"))
+print(djb(":assetpkg"))
+print(djb("assetpkg"))
 # print(djb("bani"))
 #
 # 	* sized_str_entries = [SizedStringEntry [Size: 0, Address: 0]
