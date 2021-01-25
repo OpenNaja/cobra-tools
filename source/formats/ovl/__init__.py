@@ -29,15 +29,17 @@ from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 MAX_UINT32 = 4294967295
 
 lut_mime_unk_0 = {".fdb": 1,
-				  ".assetpkg": 2,
-				  ".userinterfaceicondata": 1,
-				  ".lua": 7
-				  }
+						   ".assetpkg": 2,
+						   ".userinterfaceicondata": 1,
+						   ".lua": 7,
+						   ".txt": 2,
+				}
 lut_file_unk_0 = {".fdb": 4,
-				  ".assetpkg": 4,
-				  ".userinterfaceicondata": 4,
-				  ".lua": 2
-				  }
+						   ".assetpkg": 4,
+						   ".userinterfaceicondata": 4,
+						   ".lua": 2,
+						   ".txt": 1,
+				}
 
 
 class OvsFile(OvsHeader, ZipFile):
@@ -168,6 +170,17 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = newoffset
+				
+			if file_entry.ext == ".txt": # 
+				data = struct.pack("<I", len(dbuffer)) + dbuffer + b"\x00"
+				padding = 8 - (len(data) % 8)
+				if padding > 0:
+					data +=  struct.pack(f"{padding}s", b'')
+				dbuffer = data
+				self.header_entry_data += dbuffer #fragment pointer 1 data
+				new_ss = self.create_ss_entry(file_entry)
+				new_ss.pointers[0].header_index = 0
+				new_ss.pointers[0].data_offset = offset
 
 			self.header_entry_data = self.buffer_padding(self.header_entry_data, 4)
 			offset = len(self.header_entry_data)
