@@ -235,7 +235,6 @@ class TableView(QtWidgets.QTableView):
 		# row first
 		self.data = [[], ]
 		self.main_window = main_window
-		self.ovl_data = main_window.ovl_data
 
 		self.model = TableModel(self.data, header_names)
 		# self.proxyModel = QSortFilterProxyModel()
@@ -288,17 +287,22 @@ class TableView(QtWidgets.QTableView):
 		drag = QtGui.QDrag(self)
 		names = self.get_selected_files()
 		print("DRAGGING", names)
-		data = QtCore.QMimeData()
+		try:
+			data = QtCore.QMimeData()
 
-		content = self.ovl_data.archives[0].content
-		temp_dir = tempfile.gettempdir()
-		path_list = [QtCore.QUrl.fromLocalFile(path) for path in
-					 extract.extract_names(content, names, temp_dir, self.main_window.show_temp_files,
-										   self.main_window.update_progress)]
+			content = self.main_window.ovl_data.archives[0].content
+			temp_dir = tempfile.gettempdir()
+			path_list = [QtCore.QUrl.fromLocalFile(path) for path in
+						 extract.extract_names(content, names, temp_dir, self.main_window.show_temp_files,
+											   self.main_window.update_progress)]
 
-		data.setUrls(path_list)
-		drag.setMimeData(data)
-		drag.exec_()
+			data.setUrls(path_list)
+			drag.setMimeData(data)
+			drag.exec_()
+		except BaseException as ex:
+			traceback.print_exc()
+			showdialog(str(ex))
+			print(ex)
 
 	# todo - clear temp sub dir
 	# mime = DelayedMimeData()
@@ -360,7 +364,7 @@ class TableView(QtWidgets.QTableView):
 			if self.main_window.file_widget.filename:
 				# self.cfg["dir_inject"] = os.path.dirname(files[0])
 				try:
-					inject.inject(self.ovl_data, files, self.main_window.show_temp_files, self.main_window.write_2K)
+					inject.inject(self.main_window.ovl_data, files, self.main_window.show_temp_files, self.main_window.write_2K)
 					self.main_window.file_widget.dirty = True
 				except Exception as ex:
 					traceback.print_exc()

@@ -1610,6 +1610,7 @@ class OvlFile(Header, IoFile):
 		print(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
 	def load_archives(self):
+		print("Loading archives...")
 		ha_max = len(self.archives)
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
