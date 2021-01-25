@@ -85,7 +85,7 @@ class OvsFile(OvsHeader, ZipFile):
 		# new_data.set_index = 0
 		new_data.buffer_count = len(buffer_bytes)
 		new_data.size_1 = sum([len(b) for b in buffer_bytes])
-		for i, b in enumerate(buffer_bytes):
+		for i, b in reversed(enumerate(buffer_bytes)):
 			new_buff = BufferEntry()
 			new_buff.index = i
 			new_buff.update_data(b)
