@@ -2,3 +2,4 @@
 .fdb = FGDK:Database:fdb
 .lua = FGDK:LuaModule:lua
 .userinterfaceicondata = Casino:UserInterfaceIconData:userinterfaceicondata
+.txt = FGDK:Text:txt
