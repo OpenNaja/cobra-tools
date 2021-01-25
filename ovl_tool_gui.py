@@ -257,8 +257,10 @@ class MainWindow(widgets.MainWindow):
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				try:
 					self.ovl_data.save(file_src, self.use_ext_dat, self.dat_widget.filepath)
-				except BaseException as error:
-					print(error)
+				except BaseException as ex:
+					traceback.print_exc()
+					util.interaction.showdialog(str(ex))
+					print(ex)
 				self.file_widget.dirty = False
 				print("Done!")
 

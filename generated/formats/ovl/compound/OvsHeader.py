@@ -5,6 +5,7 @@ from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.HeaderEntry import HeaderEntry
 from generated.formats.ovl.compound.HeaderType import HeaderType
+from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 
 
@@ -26,40 +27,54 @@ class OvsHeader:
 		self.buffer_entries = Array()
 		self.sized_str_entries = Array()
 		self.fragments = Array()
+		self.set_header = SetHeader()
+
+	def get_info_str(self):
+		return f'OvsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += f'\n	* header_types = {self.header_types.__repr__()}'
+		s += f'\n	* header_entries = {self.header_entries.__repr__()}'
+		s += f'\n	* data_entries = {self.data_entries.__repr__()}'
+		s += f'\n	* buffer_entries = {self.buffer_entries.__repr__()}'
+		s += f'\n	* sized_str_entries = {self.sized_str_entries.__repr__()}'
+		s += f'\n	* fragments = {self.fragments.__repr__()}'
+		s += f'\n	* set_header = {self.set_header.__repr__()}'
+		return s
+
+	def __repr__(self):
+		s = self.get_info_str()
+		s += self.get_fields_str()
+		s += '\n'
+		return s
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.header_types = [stream.read_type(HeaderType) for _ in range(self.arg.num_header_types)]
+		self.header_types.read(stream, HeaderType, self.arg.num_header_types, None)
 		num_headers = sum(header_type.num_headers for header_type in self.header_types)
-		self.header_entries = [stream.read_type(HeaderEntry) for _ in range(num_headers)]
-		self.data_entries = [stream.read_type(DataEntry) for _ in range(self.arg.num_datas)]
-		self.buffer_entries = [stream.read_type(BufferEntry) for _ in range(self.arg.num_buffers)]
-		self.sized_str_entries = [stream.read_type(SizedStringEntry) for _ in range(self.arg.num_files)]
-		self.fragments = [stream.read_type(Fragment) for _ in range(self.arg.num_fragments)]
+		self.header_entries.read(stream, HeaderEntry, num_headers, None)
+		self.data_entries.read(stream, DataEntry, self.arg.num_datas, None)
+		self.buffer_entries.read(stream, BufferEntry, self.arg.num_buffers, None)
+		self.sized_str_entries.read(stream, SizedStringEntry, self.arg.num_files, None)
+		self.fragments.read(stream, Fragment, self.arg.num_fragments, None)
+		self.set_header = stream.read_type(SetHeader)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		for item in self.header_types: stream.write_type(item)
-		for item in self.header_entries: stream.write_type(item)
-		for item in self.data_entries: stream.write_type(item)
-		for item in self.buffer_entries: stream.write_type(item)
-		for item in self.sized_str_entries: stream.write_type(item)
-		for item in self.fragments: stream.write_type(item)
+		self.header_types.write(stream, HeaderType, self.arg.num_header_types, None)
+		num_headers = sum(header_type.num_headers for header_type in self.header_types)
+		self.header_entries.write(stream, HeaderEntry, num_headers, None)
+		self.data_entries.write(stream, DataEntry, self.arg.num_datas, None)
+		self.buffer_entries.write(stream, BufferEntry, self.arg.num_buffers, None)
+		self.sized_str_entries.write(stream, SizedStringEntry, self.arg.num_files, None)
+		self.fragments.write(stream, Fragment, self.arg.num_fragments, None)
+		stream.write_type(self.set_header)
 
 		self.io_size = stream.tell() - self.io_start
 
-	def __repr__(self):
-		s = 'OvsHeader [Size: '+str(self.io_size)+', Address:'+str(self.io_start)+']'
-		s += '\n	* header_types = ' + self.header_types.__repr__()
-		s += '\n	* header_entries = ' + self.header_entries.__repr__()
-		s += '\n	* data_entries = ' + self.data_entries.__repr__()
-		s += '\n	* buffer_entries = ' + self.buffer_entries.__repr__()
-		s += '\n	* sized_str_entries = ' + self.sized_str_entries.__repr__()
-		s += '\n	* fragments = ' + self.fragments.__repr__()
-		s += '\n'
-		return s
 

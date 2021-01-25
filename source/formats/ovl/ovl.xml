@@ -258,7 +258,7 @@
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"></add>
         <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"></add>
         <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"></add>
-<!--        <add name="set header " type="SetHeader" ></add>-->
+        <add name="set header " type="SetHeader" ></add>
     </compound>
 
 

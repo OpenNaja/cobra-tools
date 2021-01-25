@@ -47,19 +47,7 @@ class OvsFile(OvsHeader, ZipFile):
 		self.ovl = ovl
 		self.arg = archive_entry
 		self.archive_index = archive_index
-
-	def hash_name(self, dataa):
-		val = dataa[0]
-		return djb(dataa[0])
-
-	def sorted_namelist(self, dataa):
-		entries = []
-		for entry in dataa:
-			name = os.path.splitext(entry)[0]
-			djb2 = djb(name)
-			entries.append([name, entry])
-		entries.sort(key=self.hash_name)
-		return entries
+		self.force_update_header_datas = True
 
 	def buffer_padding(self, dbuffer, length):
 		blen = len(dbuffer) % length
@@ -100,7 +88,7 @@ class OvsFile(OvsHeader, ZipFile):
 		for i, b in enumerate(buffer_bytes):
 			new_buff = BufferEntry()
 			new_buff.index = i
-			new_buff.size = len(b)
+			new_buff.update_data(b)
 			self.buffer_entries.append(new_buff)
 		self.data_entries.append(new_data)
 		return new_data
@@ -118,11 +106,11 @@ class OvsFile(OvsHeader, ZipFile):
 		self.buffer_entries = Array()
 		self.sized_str_entries = Array()
 		self.fragments = Array()
-		buffs = [[] for i in range(2)]
+		# buffs = [[] for i in range(2)]
 
 		for file_entry in self.ovl.files:
 			dbuffer = self.getContent(file_entry.path)
-
+			file_name_bytes = bytearray(file_entry.name, encoding='utf8')
 			if file_entry.ext == ".assetpkg":  # assetpkg.. copy content, pad to 64b, then assign 1 fragment and 1 empty sized str.
 				dbuffer = self.buffer_padding(dbuffer + b'\x00', 64)
 				self.header_entry_data += dbuffer  # fragment pointer 1 data
@@ -141,9 +129,9 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = offset
-				buffs[0].append(dbuffer)
-				buffs[0].append(bytearray(file_entry.name, encoding='utf8'))
-				new_data = self.create_data_entry(file_entry, (dbuffer, file_entry.name))
+				# buffs[0].append(dbuffer)
+				# buffs[0].append(bytearray(file_entry.name, encoding='utf8'))
+				new_data = self.create_data_entry(file_entry, (dbuffer, file_name_bytes))
 				new_data.set_index = 0
 
 			if file_entry.ext == ".lua":  # lua, ss, 2 frag + buffer
@@ -151,7 +139,7 @@ class OvsFile(OvsHeader, ZipFile):
 				self.header_entry_data += struct.pack("24s", b'')  # room for 3 pointers
 				self.header_entry_data += struct.pack("8s", b'')  # room for 2 ints
 				self.header_entry_data += b'\x00'  # one more char for the 2nd ptr
-				self.header_entry_data += bytearray(file_entry.name, encoding='utf8') + b'\x00'
+				self.header_entry_data += file_name_bytes + b'\x00'
 				new_frag0 = self.create_fragment()
 				new_frag0.pointers[0].header_index = 0
 				new_frag0.pointers[0].data_offset = offset + 0x10
@@ -165,8 +153,8 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = offset
-				buffs[0].append(dbuffer)
-				new_data = self.create_data_entry(file_entry, (dbuffer, ))
+				# buffs[0].append(dbuffer)
+				new_data = self.create_data_entry(file_entry, (dbuffer,))
 				new_data.set_index = 0
 
 			if file_entry.ext == ".userinterfaceiconddata":  # userinterfaceiconddata, 2 frags
@@ -194,22 +182,32 @@ class OvsFile(OvsHeader, ZipFile):
 			self.header_entry_data = self.buffer_padding(self.header_entry_data, 4)
 			offset = len(self.header_entry_data)
 
-
 		header_type = HeaderType()
 		header_type.type = 2
 		header_type.num_headers = 1
 
 		header_entry = HeaderEntry()
+		# header_entry.address = stream.tell()
+		header_entry.data = io.BytesIO(self.header_entry_data)
 		header_entry.size = len(self.header_entry_data)
 		header_entry.offset = 0
 		header_entry.file_hash = self.sized_str_entries[0].file_hash
 		header_entry.num_files = file_entry_count
 		header_entry.ext_hash = self.sized_str_entries[0].ext_hash
+		header_entry.type = header_type.type
 
 		self.header_types.append(header_type)
 		self.header_entries.append(header_entry)
 
-		self.new_buffers = [item for sublist in buffs for item in sublist]
+		# self.new_buffers = [item for sublist in buffs for item in sublist]
+		self.force_update_header_datas = False
+		# self.map_pointers()
+		# self.calc_pointer_addresses()
+		# self.calc_pointer_sizes()
+		# self.populate_pointers()
+
+		# self.map_frags()
+		self.map_buffers()
 		print(self)
 
 	def get_sized_str_entry(self, name):
@@ -223,7 +221,8 @@ class OvsFile(OvsHeader, ZipFile):
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
-		with self.unzipper(filepath, start, archive_entry.compressed_size, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
+		with self.unzipper(filepath, start, archive_entry.compressed_size, archive_entry.uncompressed_size,
+						   save_temp_dat=save_temp_dat) as stream:
 			print("reading from unzipped ovs")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
@@ -261,22 +260,20 @@ class OvsFile(OvsHeader, ZipFile):
 				except:
 					print("ERROR: Could not find a data entry!")
 
-			for i,fragment in enumerate(self.fragments):
+			for i, fragment in enumerate(self.fragments):
 				# we assign these later
 				fragment.done = False
 				fragment.lod = False
 				fragment.name = None
 				fragment.o_ind = i
-			for i,buffer in enumerate(self.buffer_entries):
+			for i, buffer in enumerate(self.buffer_entries):
 				buffer.o_ind = i
-			# print(self.ovl)
-			# print(self)
-			set_data_offset = stream.tell()
-			print("Set header address", set_data_offset)
-			self.set_header = stream.read_type(SetHeader)
-			# print(self.set_header)
+
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
+			if self.set_header.io_size != self.arg.set_data_size:
+				raise AttributeError(
+					f"Set data size incorrect (got {self.set_header.io_size}, expected {self.arg.set_data_size})!")
 
 			for set_entry in self.set_header.sets:
 				self.assign_name(set_entry)
@@ -292,36 +289,34 @@ class OvsFile(OvsHeader, ZipFile):
 
 			self.map_assets()
 
-			# size check again
+			# up to here was data defined by the OvsHeader class, ending with the AssetEntries
 			self.pools_end = stream.tell()
-			set_data_size = self.pools_end - set_data_offset
-			if set_data_size != self.arg.set_data_size:
-				raise AttributeError(
-					f"Set data size incorrect (got {set_data_size}, expected {self.arg.set_data_size})!")
 
 			# another integrity check
 			if not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
 				raise AttributeError(f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
-									 f"does not match calculated size ({self.calc_uncompressed_size})")
+									 f"does not match calculated size ({self.calc_uncompressed_size()})")
 
-			# go back to header offset
-			stream.seek(self.pools_end)
 			# add IO object to every header_entry
-			for header_entry in self.header_entries:
-				header_entry.address = stream.tell()
-				header_entry.data = io.BytesIO(stream.read(header_entry.size))
+			self.read_header_entries(stream)
 
-			self.check_header_data_size = self.calc_header_data_size()
+			# self.check_header_data_size = self.calc_header_data_size()
 			self.map_pointers()
 			self.calc_pointer_addresses()
 			self.calc_pointer_sizes()
 			self.populate_pointers()
 
 			self.map_frags()
-			self.map_buffers(stream)
+			self.map_buffers()
+			self.read_buffer_datas(stream)
 
 			if "write_frag_log" in self.ovl.commands:
 				self.write_frag_log()
+
+	def read_header_entries(self, stream):
+		for header_entry in self.header_entries:
+			header_entry.address = stream.tell()
+			header_entry.data = io.BytesIO(stream.read(header_entry.size))
 
 	def calc_pointer_addresses(self):
 		print("Calculating pointer addresses")
@@ -459,16 +454,16 @@ class OvsFile(OvsHeader, ZipFile):
 		strr = "<" + str(num) + "B"
 		ret = struct.unpack(strr, data)
 		return ret
-	
-	def collect_specdef(self, ss_entry):        
+
+	def collect_specdef(self, ss_entry):
 		print("\nSPECDEF:", ss_entry.name)
-		#frags = self.fragments
+		# frags = self.fragments
 		ss_data = struct.unpack("<2H4B", ss_entry.pointers[0].data)
 		if ss_data[0] == 0:
-			print("spec is zero ",ss_data[0])
+			print("spec is zero ", ss_data[0])
 		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 3)
 		if ss_data[2] > 0:
-			data2_frag  = self.frags_from_pointer(ss_entry.pointers[0], 1)
+			data2_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
 			ss_entry.fragments.extend(data2_frag)
 		if ss_data[3] > 0:
 			data3_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
@@ -479,11 +474,11 @@ class OvsFile(OvsHeader, ZipFile):
 		if ss_data[5] > 0:
 			data5_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
 			ss_entry.fragments.extend(data5_frag)
-		
+
 		if ss_data[0] > 0:
 			ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[1].pointers[1], ss_data[0]))
 			ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[2].pointers[1], ss_data[0]))
-			
+
 		if ss_data[2] > 0:
 			ss_entry.fragments.extend(self.frags_from_pointer(data2_frag[0].pointers[1], ss_data[2]))
 		if ss_data[3] > 0:
@@ -736,7 +731,7 @@ class OvsFile(OvsHeader, ZipFile):
 				if 4233228 <= frag.pointers[1].address < 4234772 or 2257932 <= frag.pointers[1].address < 4219472:
 					# ss_entry.fragments.append(frag)
 					frag.pointers[1].strip_zstring_padding()
-					frag.name = frag.pointers[1].data[:-1]#.decode()
+					frag.name = frag.pointers[1].data[:-1]  # .decode()
 
 		ss_entry.bnks = []
 		# for bnk_index in range(count):
@@ -758,7 +753,7 @@ class OvsFile(OvsHeader, ZipFile):
 			for f in bnk[:3]:
 				f.pointers[1].strip_zstring_padding()
 				print(f.pointers[1].data)
-				f.name = f.pointers[1].data[:-1]#.decode()
+				f.name = f.pointers[1].data[:-1]  # .decode()
 			# 	 if it's a media bnk like for the dinos, it has a pointer pointing to the start of the files that belong to this
 			if len(bnk) > 3:
 				b = bnk[3].pointers[0].data
@@ -769,21 +764,21 @@ class OvsFile(OvsHeader, ZipFile):
 					media_count = d[1]
 					maybe_hash = d[6]
 					print(f.name, media_count, maybe_hash, ptr.address)
-					bk_frags = self.frags_from_pointer(ptr, media_count*3)
+					bk_frags = self.frags_from_pointer(ptr, media_count * 3)
 					for i in range(media_count):
-						z = bk_frags[i*3:i*3+3]
+						z = bk_frags[i * 3:i * 3 + 3]
 						for f in z:
 							f.pointers[1].strip_zstring_padding()
 							print(f.pointers[1].data)
 			ss_entry.bnks.append(bnk)
-			# ss_entry.fragments.extend(bnk)
-		# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
-		# # pointers[1].data is the name
-		# for var in ss_entry.vars:
-		# 	var.pointers[1].strip_zstring_padding()
-		# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
-		# ss_entry.fragments.extend(ss_entry.vars)
+		# ss_entry.fragments.extend(bnk)
 
+	# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
+	# # pointers[1].data is the name
+	# for var in ss_entry.vars:
+	# 	var.pointers[1].strip_zstring_padding()
+	# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
+	# ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_motiongraph(self, ss_entry):
 		print("\nMOTIONGRAPH:", ss_entry.name)
@@ -796,7 +791,7 @@ class OvsFile(OvsHeader, ZipFile):
 				if 10036 <= frag.pointers[1].address < 10700:
 					# ss_entry.fragments.append(frag)
 					frag.pointers[1].strip_zstring_padding()
-					frag.name = frag.pointers[1].data[:-1]#.decode()
+					frag.name = frag.pointers[1].data[:-1]  # .decode()
 
 			f = self.frags_from_pointer(ss_entry.pointers[0], 4)
 			u0, u1, counts, name_ptr = f
@@ -813,14 +808,15 @@ class OvsFile(OvsHeader, ZipFile):
 			for i in k:
 				z = struct.unpack("<3Q", i.pointers[0].data)
 				print(z)
-		# count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
-		# # print(count)
-		# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
-		# # pointers[1].data is the name
-		# for var in ss_entry.vars:
-		# 	var.pointers[1].strip_zstring_padding()
-		# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
-		# ss_entry.fragments.extend(ss_entry.vars)
+
+	# count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
+	# # print(count)
+	# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
+	# # pointers[1].data is the name
+	# for var in ss_entry.vars:
+	# 	var.pointers[1].strip_zstring_padding()
+	# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
+	# ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_matcol(self, ss_entry):
 		print("\nMATCOL:", ss_entry.name)
@@ -972,7 +968,7 @@ class OvsFile(OvsHeader, ZipFile):
 			   # ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
 			   }
 		# include formats that are known to have no fragments
-		no_frags = (".txt", ".mani", ".manis", )
+		no_frags = (".txt", ".mani", ".manis",)
 		ss_max = len(sorted_sized_str_entries)
 		try:
 			for ss_index, sized_str_entry in enumerate(sorted_sized_str_entries):
@@ -986,32 +982,36 @@ class OvsFile(OvsHeader, ZipFile):
 				else:
 					frags = address_0_fragments
 				if sized_str_entry.ext == ".ms2" and is_pc(self.ovl):
-					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
+					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
+																		   1)
 				elif sized_str_entry.ext == ".tex" and is_pc(self.ovl):
-					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 1)
+					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
+																		   1)
 				# get fixed fragments
 				elif sized_str_entry.ext in dic:
 
 					t = dic[sized_str_entry.ext]
 					# get and set fragments
 					try:
-						sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address, t)
+						sized_str_entry.fragments = self.get_frags_after_count(frags,
+																			   sized_str_entry.pointers[0].address, t)
 					except:
 						print("bug")
 						pass
 				elif sized_str_entry.ext == ".fgm":
-					sized_str_entry.fragments = self.get_frag_after_terminator(frags, sized_str_entry.pointers[0].address)
+					sized_str_entry.fragments = self.get_frag_after_terminator(frags,
+																			   sized_str_entry.pointers[0].address)
 
 				elif sized_str_entry.ext == ".materialcollection":
 					self.collect_matcol(sized_str_entry)
 				elif sized_str_entry.ext in (".enumnamer", ".motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
-				elif sized_str_entry.ext in (".wmetasb",):# ".wmetarp", ".wmetasf"):
+				elif sized_str_entry.ext in (".wmetasb",):  # ".wmetarp", ".wmetasf"):
 					self.collect_wmeta(sized_str_entry, address_0_fragments)
 				elif sized_str_entry.ext == ".motiongraph":
 					self.collect_motiongraph(sized_str_entry)
 				elif sized_str_entry.ext == ".specdef":
-					self.collect_specdef(sized_str_entry) 
+					self.collect_specdef(sized_str_entry)
 				elif sized_str_entry.ext == ".scaleformlanguagedata":
 					if not is_pc(self.ovl):
 						# todo - this is different for PC
@@ -1040,8 +1040,9 @@ class OvsFile(OvsHeader, ZipFile):
 								self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
 								pink = sized_str_entry.fragments[4]
 								if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
-									or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
-									next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
+										or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
+									next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[
+										0].info
 
 		except Exception as err:
 			print(err)
@@ -1050,11 +1051,8 @@ class OvsFile(OvsHeader, ZipFile):
 			for frag in sized_str_entry.model_data_frags + sized_str_entry.fragments:
 				frag.name = sized_str_entry.name
 
-	# for header_i, header_entry in enumerate(self.header_entries):
-	# print("Header {} with unknown count {}".format(header_i, header_entry.num_files))
-
-	def map_buffers(self, stream):
-		"""Map buffers to data entries, sort buffers into load order, populate buffers with data"""
+	def map_buffers(self):
+		"""Map buffers to data entries, sort buffers into load order"""
 		print("\nMapping buffers")
 
 		# this holds the buffers in the order they are read from the file
@@ -1084,9 +1082,10 @@ class OvsFile(OvsHeader, ZipFile):
 					if i < data.buffer_count:
 						self.buffers_io_order.append(data.buffers[i])
 
+	def read_buffer_datas(self, stream):
 		# finally, we have the buffers in the correct sorting so we can read their contents
 		print("\nReading from buffers")
-		stream.seek(self.pools_end + self.check_header_data_size)
+		# stream.seek(self.pools_end + self.check_header_data_size)
 		for buffer in self.buffers_io_order:
 			# read buffer data and store it in buffer object
 			buffer.read_data(stream)
@@ -1330,7 +1329,8 @@ class OvsFile(OvsHeader, ZipFile):
 			try:
 				file = self.ovl.files[entry.file_hash]
 			except IndexError:
-				raise IndexError(f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
+				raise IndexError(
+					f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
 			n = file.name
 			e = file.ext
 		else:
@@ -1356,8 +1356,8 @@ class OvsFile(OvsHeader, ZipFile):
 		"""Calculate the size of the whole data entry region that sizedstr and fragment entries point into"""
 		return sum(header_entry.size for header_entry in self.header_entries)
 
-	def write_archive(self, stream):
-
+	def write_pointers_to_header_datas(self):
+		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""
 		for i, header_entry in enumerate(self.header_entries):
 			# maintain sorting order
 			# grab the first pointer for each address
@@ -1381,6 +1381,9 @@ class OvsFile(OvsHeader, ZipFile):
 			else:
 				print(f"No pointers into header entry {i} - keeping its stock data!")
 
+	def write_archive(self, stream):
+		if self.force_update_header_datas:
+			self.write_pointers_to_header_datas()
 		# do this first so header entries can be updated
 		header_data_writer = io.BytesIO()
 		# the ugly stuff with all fragments and sizedstr entries
@@ -1390,26 +1393,18 @@ class OvsFile(OvsHeader, ZipFile):
 			if is_jwe(self.ovl):
 				header_entry.offset = header_data_writer.tell()
 			# PZ Style
-			elif self.ovl.user_version == 8340:
+			elif is_pc(self.ovl):
 				header_entry.offset = self.arg.pools_start + header_data_writer.tell()
 			header_entry.size = len(header_data_bytes)
 			header_data_writer.write(header_data_bytes)
 
 		# write out all entries
 		super().write(stream)
-		# write set & asset stuff
-		self.set_header.write(stream)
 		# write the header data containing all the pointers' datas
 		stream.write(header_data_writer.getvalue())
-
 		# write buffer data
 		for b in self.buffers_io_order:
 			stream.write(b.data)
-
-
-# do some calculations
-# self.archive_entry.uncompressed_size = stream.tell()
-# self.archive_entry.uncompressed_size = self.calc_uncompressed_size()
 
 
 class OvlFile(Header, IoFile):
@@ -1508,9 +1503,9 @@ class OvlFile(Header, IoFile):
 
 		# update ovl stuff
 		self.fres.data = b"FRES"
-		self.flag = 1
-		self.version = 13
-		self.needs_bitswap = 0
+		self.version_flag = 0x1
+		self.version = 0x13
+		self.seventh_byte = 0x1
 		self.user_version = VersionInfo(24724)
 		self.reserved = [0 for i in range(13)]
 		self.len_names = len(self.names.data)
@@ -1597,11 +1592,11 @@ class OvlFile(Header, IoFile):
 			self.print_and_callback("Creating directories", value=hd_index, max_value=hd_max)
 			# get dir name from name table
 			dir_entry.name = self.names.get_str_at(dir_entry.offset)
-			# fix up the name
-			# dir = os.path.normpath(os.path.join(os.getcwd(), dir_name.lstrip("..\\")))
-			# create dir, do nothing if it already exists
-			# os.makedirs(dir, exist_ok=True)
-			# print(dir)
+		# fix up the name
+		# dir = os.path.normpath(os.path.join(os.getcwd(), dir_name.lstrip("..\\")))
+		# create dir, do nothing if it already exists
+		# os.makedirs(dir, exist_ok=True)
+		# print(dir)
 
 		# print(self)
 		# get names of all dependencies
@@ -1630,7 +1625,7 @@ class OvlFile(Header, IoFile):
 
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
-		print(f"Loaded OVL in {time.time()-start_time:.2f} seconds!")
+		print(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
 	def load_archives(self):
 		ha_max = len(self.archives)
@@ -1688,7 +1683,9 @@ class OvlFile(Header, IoFile):
 		# compress data stream
 		for i, archive_entry in enumerate(self.archives):
 			# write archive into bytes IO stream
-			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i, use_ext_dat, dat_path)
+			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i,
+																													  use_ext_dat,
+																													  dat_path)
 			if i == 0:
 				ovl_compressed = compressed
 				archive_entry.read_start = 0
