@@ -85,7 +85,7 @@ class OvsFile(OvsHeader, ZipFile):
 		# new_data.set_index = 0
 		new_data.buffer_count = len(buffer_bytes)
 		new_data.size_1 = sum([len(b) for b in buffer_bytes])
-		for i, b in enumerate(buffer_bytes):
+		for i, b in reversed(list(enumerate(buffer_bytes))):
 			new_buff = BufferEntry()
 			new_buff.index = i
 			new_buff.update_data(b)
@@ -122,7 +122,7 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = offset
-				new_data = self.create_data_entry(file_entry, (dbuffer, file_name_bytes))
+				new_data = self.create_data_entry(file_entry, (file_name_bytes, dbuffer))
 				new_data.set_index = 0
 
 			if file_entry.ext == ".lua":  # lua, ss, 2 frag + buffer
@@ -292,6 +292,7 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_buffers()
 			self.read_buffer_datas(stream)
 
+			print(self)
 			if "write_frag_log" in self.ovl.commands:
 				self.write_frag_log()
 

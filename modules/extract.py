@@ -112,7 +112,7 @@ def extract(archive, out_dir, only_types=(), show_temp_files=False, progress_cal
 	return error_files, skip_files
 
 
-def write_gfx(archive, sized_str_entry, out_dir):
+def write_gfx(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")
 
@@ -125,7 +125,7 @@ def write_gfx(archive, sized_str_entry, out_dir):
 	return out_path,
 
 
-def write_scaleform(archive, sized_str_entry, out_dir):
+def write_scaleform(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")
 
@@ -139,7 +139,7 @@ def write_scaleform(archive, sized_str_entry, out_dir):
 	return out_path,
 
 
-def write_prefab(archive, sized_str_entry):
+def write_prefab(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 
@@ -168,7 +168,7 @@ def write_prefab(archive, sized_str_entry):
 			outfile.write(frag.pointers[1].data)
 
 
-def write_assetpkg(archive, sized_str_entry, out_dir):
+def write_assetpkg(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	#if len(sized_str_entry.fragments) == 1:
@@ -184,7 +184,8 @@ def write_assetpkg(archive, sized_str_entry, out_dir):
 
 	return out_path,
 
-def write_userinterfaceicondata(archive, sized_str_entry, out_dir):
+
+def write_userinterfaceicondata(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	out_path=out_dir(name)
