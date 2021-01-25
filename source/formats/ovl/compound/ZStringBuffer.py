@@ -40,7 +40,7 @@ class ZStringBuffer:
 		with BinaryStream() as stream:
 			# for name in self.names:
 			for array, attrib in list_of_arrays:
-				for item in array:
+				for item in sorted(array, key=lambda i: getattr(i, attrib)):
 					name = getattr(item, attrib)
 					if name in offset_dic:
 						# known string, just get offset

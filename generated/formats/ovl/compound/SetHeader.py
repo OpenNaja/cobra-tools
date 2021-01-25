@@ -21,10 +21,10 @@ class SetHeader:
 		self.asset_count = 0
 
 		# must be 1065336831
-		self.sig_a = 0
+		self.sig_a = 1065336831
 
 		# must be 16909320
-		self.sig_b = 0
+		self.sig_b = 16909320
 		self.sets = Array()
 		self.assets = Array()
 

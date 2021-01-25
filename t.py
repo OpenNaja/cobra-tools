@@ -3,8 +3,8 @@ from modules.formats.shared import djb
 # *file_hash = 1118995050
 # *num_files = 0
 # *ext_hash = 2830413767
-print(djb(".fdb"))
-print(djb("bani"))
+print(djb("Casino:AssetPackageRes:assetpkg"))
+# print(djb("bani"))
 #
 # 	* sized_str_entries = [SizedStringEntry [Size: 0, Address: 0]
 # 	* file_hash = 1118995050

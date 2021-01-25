@@ -93,20 +93,13 @@ class OvsFile(OvsHeader, ZipFile):
 		self.data_entries.append(new_data)
 		return new_data
 
-	def create(self, files_by_extension):
+	def create(self):
 
 		file_entry_count = 0
 
 		# all classes go in a memory block
 		self.header_entry_data = b''
 		offset = 0
-
-		# load the content of the files for the buffers/miniblocks section
-		self.data_entries = Array()
-		self.buffer_entries = Array()
-		self.sized_str_entries = Array()
-		self.fragments = Array()
-		# buffs = [[] for i in range(2)]
 
 		for file_entry in self.ovl.files:
 			dbuffer = self.getContent(file_entry.path)
@@ -129,8 +122,6 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = offset
-				# buffs[0].append(dbuffer)
-				# buffs[0].append(bytearray(file_entry.name, encoding='utf8'))
 				new_data = self.create_data_entry(file_entry, (dbuffer, file_name_bytes))
 				new_data.set_index = 0
 
@@ -153,7 +144,6 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = offset
-				# buffs[0].append(dbuffer)
 				new_data = self.create_data_entry(file_entry, (dbuffer,))
 				new_data.set_index = 0
 
@@ -187,7 +177,6 @@ class OvsFile(OvsHeader, ZipFile):
 		header_type.num_headers = 1
 
 		header_entry = HeaderEntry()
-		# header_entry.address = stream.tell()
 		header_entry.data = io.BytesIO(self.header_entry_data)
 		header_entry.size = len(self.header_entry_data)
 		header_entry.offset = 0
@@ -199,14 +188,7 @@ class OvsFile(OvsHeader, ZipFile):
 		self.header_types.append(header_type)
 		self.header_entries.append(header_entry)
 
-		# self.new_buffers = [item for sublist in buffs for item in sublist]
 		self.force_update_header_datas = False
-		# self.map_pointers()
-		# self.calc_pointer_addresses()
-		# self.calc_pointer_sizes()
-		# self.populate_pointers()
-
-		# self.map_frags()
 		self.map_buffers()
 		print(self)
 
@@ -1431,7 +1413,7 @@ class OvlFile(Header, IoFile):
 		print(files_by_extension)
 
 		file_index_offset = 0
-		for file_ext, file_paths in files_by_extension.items():
+		for file_ext, file_paths in sorted(files_by_extension.items()):
 			if file_ext not in mime_names_dict:
 				print(f"ignoring extension {file_ext}")
 				# files_by_extension.pop(file_ext)
@@ -1440,6 +1422,7 @@ class OvlFile(Header, IoFile):
 			mime_entry.name = mime_names_dict[file_ext]
 			mime_entry.ext = file_ext
 			# update offset using the name buffer
+			# fixme - this is wrong - different hash!
 			mime_entry.mime_hash = djb(mime_entry.name)
 			mime_entry.unknown_1 = lut_mime_unk_0[file_ext]
 			mime_entry.unknown_2 = 0
@@ -1459,10 +1442,6 @@ class OvlFile(Header, IoFile):
 				self.files.append(file_entry)
 			self.mimes.append(mime_entry)
 
-		# sort the different lists according to the criteria specified
-		self.files.sort(key=lambda x: (x.ext, x.file_hash))
-		self.dependencies.sort(key=lambda x: x.file_hash)
-
 		# update the name buffer and offsets
 		self.names.update_with((
 			(self.dependencies, "ext"),
@@ -1470,15 +1449,18 @@ class OvlFile(Header, IoFile):
 			(self.mimes, "name"),
 			(self.files, "name")
 		))
+		# get the offset of the first file entry
+		self.len_type_names = min(file.offset for file in self.files)
+		# sort the different lists according to the criteria specified
+		self.files.sort(key=lambda x: (x.ext, x.file_hash))
+		self.dependencies.sort(key=lambda x: x.file_hash)
 
 		archive_entry = ArchiveEntry()
 		self.archives.append(archive_entry)
 
 		content = OvsFile(self, archive_entry, 0)
-		content.create(files_by_extension)
+		content.create()
 		archive_entry.content = content
-		# archive_entry.uncompressed_size, archive_entry.compressed_size, compressed, ovs_stream = archive_entry.creator_zip(
-		# 	content, content.header_entry_data, content.new_buffers)
 
 		archive_entry.offset = 0
 		archive_entry.ovs_head_offset = 0
@@ -1520,7 +1502,6 @@ class OvlFile(Header, IoFile):
 		self.num_headers = archive_entry.num_headers
 		self.num_datas = archive_entry.num_datas
 		self.num_buffers = archive_entry.num_buffers
-		# self.len_type_names = len(type_names)
 		print(self)
 
 	# dummy (black hole) callback for if we decide we don't want one
@@ -1636,6 +1617,9 @@ class OvlFile(Header, IoFile):
 			if archive_index > 0:
 				self.get_external_ovs_path(archive_entry)
 				read_start = archive_entry.read_start
+				# make sure that the ovs exists
+				if not os.path.exists(archive_entry.ovs_path):
+					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
 			else:
 				read_start = self.eof
 				archive_entry.ovs_path = self.filepath
@@ -1670,9 +1654,6 @@ class OvlFile(Header, IoFile):
 		# PZ, PC, ZTUAC Style
 		else:
 			archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
-		# make sure that the ovs exists
-		if not os.path.exists(archive_entry.ovs_path):
-			raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
 
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
