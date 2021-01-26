@@ -375,8 +375,109 @@ class TableView(QtWidgets.QTableView):
 		# self.accept_file(filepath)
 		# self.resize(720, 400)
 		e.accept()
+		
+class TableDirModel(QtCore.QAbstractTableModel):
+	def __init__(self, data, header_names):
+		super(TableDirModel, self).__init__()
+		self._data = data
+		self.header_labels = header_names
+
+	def data(self, index, role):
+		if role == QtCore.Qt.DisplayRole:
+			# See below for the nested-list data structure.
+			# .row() indexes into the outer list,
+			# .column() indexes into the sub-list
+			return self._data[index.row()][index.column()]
 
 
+		if role == QtCore.Qt.TextAlignmentRole:
+			# right align hashes
+			if index.column() == 2:
+				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight
+
+	def row(self, row_index):
+		return self._data[row_index]
+
+	def rowCount(self, index):
+		# The length of the outer list.
+		return len(self._data)
+
+	def columnCount(self, index):
+		# The following takes the first sub-list, and returns
+		# the length (only works if all rows are an equal length)
+		return len(self._data[0])
+
+	def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
+		if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
+			return self.header_labels[section]
+		return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
+
+	def flags(self, index):
+		# QtCore.Qt.ItemIsEditable |
+
+
+		return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDropEnabled 
+
+class SortableDirTable(QtWidgets.QWidget):
+	def __init__(self, header_names, main_window):
+		super().__init__()
+		self.table = TableDirView(header_names, main_window)
+		self.directory = LabelEdit("Directories:")
+		qgrid = QtWidgets.QGridLayout()
+		qgrid.addWidget(self.directory, 0, 0, )
+		qgrid.addWidget(self.table, 1, 0, 1, 1)
+		self.setLayout(qgrid)
+
+	def set_data(self, data):
+		self.table.set_data(data)	
+		
+class TableDirView(QtWidgets.QTableView):
+	def __init__(self, header_names, main_window):
+		super().__init__()
+		# list of lists
+		# row first
+		self.data = [[], ]
+		self.main_window = main_window
+		self.ovl_data = main_window.ovl_data
+
+		self.model = TableDirModel(self.data, header_names)
+		# self.proxyModel = QSortFilterProxyModel()
+		self.proxyModel = CustomSortFilterProxyModel()
+		self.proxyModel.setSourceModel(self.model)
+		self.proxyModel.setSortRole(QtCore.Qt.UserRole)
+		self.setModel(self.proxyModel)
+
+		self.resizeColumnsToContents()
+
+		self.setAcceptDrops(True)
+		self.setDragEnabled(True)
+		self.setDropIndicatorShown(True)
+		self.verticalHeader().hide()
+		self.setSelectionBehavior(self.SelectRows)
+
+		self.setSortingEnabled(True)
+		# sort by index; -1 means don't sort
+		self.sortByColumn(-1, Qt.AscendingOrder)
+		# self.proxyModel.setFilterFixedString("")
+		self.proxyModel.setFilterFixedString("")
+		self.proxyModel.setFilterKeyColumn(0)
+
+
+	def get_selected_files(self):
+		# map the selected indices to the actual underlying data, which is in its original order
+		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
+		return [self.model._data[x][0] for x in ids]
+
+
+	def set_data(self, data):
+		if not data:
+			data = [[], ]
+		self.model.beginResetModel()
+		self.model._data = data
+		self.model.endResetModel()
+		self.resizeColumnsToContents()
+		
+		
 class LabelEdit(QtWidgets.QWidget):
 	def __init__(self, name, ):
 		QtWidgets.QWidget.__init__(self, )
