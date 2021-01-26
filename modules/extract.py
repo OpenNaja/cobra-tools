@@ -3,8 +3,8 @@ import os
 import traceback
 import sys
 
-import modules.formats.shared
 import util.interaction
+import modules.formats.shared
 from modules.formats.BANI import write_banis, write_bani
 from modules.formats.BNK import write_bnk
 from modules.formats.DDS import write_tex
@@ -23,93 +23,22 @@ from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
 from util import widgets
 
+
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams")
 SUPPORTED_TYPES = (".dds", ".png", ".mdl2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
-
-
-def extract_names(archive, names, out_dir, show_temp_files=False, progress_callback=None):
-	def out_dir_func(n):
-		"""Helper function to generate temporary output file name"""
-		return os.path.normpath(os.path.join(out_dir, n))
-
-	print("Extracting by name...")
-	# the temporary file paths that are passed to windows to move the files to their final destination
-	paths = []
-
-	print("\nExtracting from archive", archive.archive_index)
-	entry_dict = {entry.name: entry for entry in archive.sized_str_entries}
-	# export all selected files
-	for file_index, file in enumerate(names):
-		print(file_index, file)
-		basename, ext = os.path.splitext(file)
-
-		if ext in IGNORE_TYPES:
-			print(f"Ignoring {file}, as it is not a standalone file!")
-			continue
-
-		if file in entry_dict:
-			print("Found name", file)
-			entry = entry_dict[file]
-			try:
-				paths.extend(extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback))
-			except BaseException as error:
-				print(f"\nAn exception occurred while extracting {entry.name}")
-				traceback.print_exc()
-				util.interaction.showdialog(str(error))
-
-		else:
-			print(f"ERROR: file {file} not found in archive")
-
-		if progress_callback:
-			progress_callback(f"Extracting {file}", value=file_index + 1, vmax=len(names))
-
-	return paths
 
 
 def extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback):
 	# automatically call the extract function, if it has been defined
 	try:
 		func_name = f"write_{entry.ext[1:]}"
-		print(func_name)
+		# print(func_name)
+		# print(__name__)
 		func = getattr(sys.modules[__name__], func_name)
 		return func(archive, entry, out_dir_func, show_temp_files, progress_callback)
 	except AttributeError:
 		print(f"No function to export {entry.name}")
 		return ()
-
-
-def extract(archive, out_dir, only_types=(), show_temp_files=False, progress_callback=None):
-	"""Extract the files, after all archives have been read"""
-
-	def out_dir_func(n):
-		"""Helper function to generate temporary output file name"""
-		return os.path.normpath(os.path.join(out_dir, n))
-
-	# the actual export, per file type
-	error_files = []
-	skip_files = []
-	out_paths = []
-	print("\nExtracting from archive", archive.archive_index)
-	ss_max = len(archive.sized_str_entries)
-	for ss_index, sized_str_entry in enumerate(archive.sized_str_entries):
-		try:
-			# for batch operations, only export those we need
-			if only_types and sized_str_entry.ext not in only_types:
-				continue
-			# ignore types in the count that we export from inside other type exporters
-			if sized_str_entry.ext in IGNORE_TYPES:
-				continue
-			out_paths.extend(extract_kernel(archive, sized_str_entry, out_dir_func, show_temp_files, progress_callback))
-
-			if progress_callback:
-				progress_callback("Extracting " + sized_str_entry.name, value=ss_index, vmax=ss_max)
-		except BaseException as error:
-			print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
-			print(error)
-			traceback.print_exc()
-			error_files.append(sized_str_entry.name)
-
-	return error_files, skip_files
 
 
 def write_gfx(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):

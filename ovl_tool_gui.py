@@ -4,9 +4,7 @@ import sys
 import time
 import traceback
 
-import modules.formats.shared
 import util.interaction
-from modules.extract import SUPPORTED_TYPES
 
 try:
 	from PyQt5 import QtWidgets
@@ -16,6 +14,7 @@ try:
 
 	from util import widgets
 	from modules import extract, inject, hasher, walker, remover
+	from modules.extract import SUPPORTED_TYPES
 	from generated.formats.ovl import OvlFile
 	from generated.formats.ms2 import Mdl2File
 except Exception as err:
@@ -300,13 +299,8 @@ class MainWindow(widgets.MainWindow):
 																 self.cfg.get("dir_extract", "C://"), )
 			if out_dir:
 				self.cfg["dir_extract"] = out_dir
-				# create output dir
 				try:
-					os.makedirs(out_dir, exist_ok=True)
-					content = self.ovl_data.archives[0].content
-					error_files, skip_files = extract.extract(content, out_dir, self.show_temp_files,
-															  progress_callback=self.update_progress)
-
+					out_paths, error_files, skip_files = self.ovl_data.extract(out_dir, self.show_temp_files)
 					self.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except Exception as ex:
@@ -351,7 +345,7 @@ class MainWindow(widgets.MainWindow):
 			hasher.dat_hasher(self.ovl_data, names)
 			self.update_gui_table()
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can extract files!")
+			util.interaction.showdialog("You must open an OVL file before you can rename files!")
 
 	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
 	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
@@ -422,10 +416,7 @@ class MainWindow(widgets.MainWindow):
 						ovl_data.load_archives()
 						# create an output folder for it
 						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
-						# create output dir
-						os.makedirs(outdir, exist_ok=True)
-						error_files_new, skip_files_new = extract.extract(ovl_data.archives[0].content, outdir,
-																		  only_types=["ms2", ])
+						out_paths, error_files_new, skip_files_new = self.ovl_data.extract(outdir, only_types=["ms2", ])
 						error_files += error_files_new
 						skip_files += skip_files_new
 					except Exception as ex:

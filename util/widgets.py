@@ -288,15 +288,11 @@ class TableView(QtWidgets.QTableView):
 		names = self.get_selected_files()
 		print("DRAGGING", names)
 		try:
-			data = QtCore.QMimeData()
-
-			content = self.main_window.ovl_data.archives[0].content
 			temp_dir = tempfile.gettempdir()
-			path_list = [QtCore.QUrl.fromLocalFile(path) for path in
-						 extract.extract_names(content, names, temp_dir, self.main_window.show_temp_files,
-											   self.main_window.update_progress)]
+			out_paths, errors, skips = self.main_window.ovl_data.extract(temp_dir, only_names=names, show_temp_files=self.main_window.show_temp_files)
 
-			data.setUrls(path_list)
+			data = QtCore.QMimeData()
+			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
 		except BaseException as ex:

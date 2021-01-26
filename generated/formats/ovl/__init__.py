@@ -3,6 +3,7 @@ import itertools
 import struct
 import io
 import time
+import traceback
 
 from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
@@ -29,18 +30,21 @@ from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 MAX_UINT32 = 4294967295
 
-lut_mime_unk_0 = {".fdb": 1,
-						   ".assetpkg": 2,
-						   ".userinterfaceicondata": 1,
-						   ".lua": 7,
-						   ".txt": 2,
-				}
-lut_file_unk_0 = {".fdb": 4,
-						   ".assetpkg": 4,
-						   ".userinterfaceicondata": 4,
-						   ".lua": 2,
-						   ".txt": 1,
-				}
+lut_mime_unk_0 = {
+	".fdb": 1,
+	".assetpkg": 2,
+	".userinterfaceicondata": 1,
+	".lua": 7,
+	".txt": 2,
+	}
+
+lut_file_unk_0 = {
+	".fdb": 4,
+	".assetpkg": 4,
+	".userinterfaceicondata": 4,
+	".lua": 2,
+	".txt": 1,
+	}
 
 
 class OvsFile(OvsHeader, ZipFile):
@@ -204,7 +208,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 		self.force_update_header_datas = False
 		self.map_buffers()
-		print(self)
+		# print(self)
 
 	def get_sized_str_entry(self, name):
 		lower_name = name.lower()
@@ -306,7 +310,7 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_buffers()
 			self.read_buffer_datas(stream)
 
-			print(self)
+			# print(self)
 			if "write_frag_log" in self.ovl.commands:
 				self.write_frag_log()
 
@@ -1415,6 +1419,46 @@ class OvlFile(Header, IoFile):
 		else:
 			self.progress_callback = self.dummy_callback
 
+	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
+		"""Extract the files, after all archives have been read"""
+		# create output dir
+		from modules.extract import IGNORE_TYPES, extract_kernel
+		os.makedirs(out_dir, exist_ok=True)
+
+		def out_dir_func(n):
+			"""Helper function to generate temporary output file name"""
+			return os.path.normpath(os.path.join(out_dir, n))
+
+		# the actual export, per file type
+		error_files = []
+		skip_files = []
+		out_paths = []
+		content = self.archives[0].content
+		ss_max = len(content.sized_str_entries)
+		for ss_index, sized_str_entry in enumerate(content.sized_str_entries):
+			self.progress_callback("Extracting...", value=ss_index, vmax=ss_max)
+			try:
+				# for batch operations, only export those that we need
+				if only_types and sized_str_entry.ext not in only_types:
+					skip_files.append(sized_str_entry.name)
+					continue
+				if only_names and sized_str_entry.name not in only_names:
+					skip_files.append(sized_str_entry.name)
+					continue
+				# ignore types in the count that we export from inside other type exporters
+				if sized_str_entry.ext in IGNORE_TYPES:
+					continue
+				out_paths.extend(
+					extract_kernel(content, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
+
+			except BaseException as error:
+				print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
+				print(error)
+				traceback.print_exc()
+				error_files.append(sized_str_entry.name)
+
+		return out_paths, error_files, skip_files
+
 	def create(self, ovl_dir, mime_names_dict):
 		print(f"Creating OVL from {ovl_dir}")
 
@@ -1517,7 +1561,7 @@ class OvlFile(Header, IoFile):
 		self.num_headers = archive_entry.num_headers
 		self.num_datas = archive_entry.num_datas
 		self.num_buffers = archive_entry.num_buffers
-		print(self)
+		# print(self)
 
 	# dummy (black hole) callback for if we decide we don't want one
 	def dummy_callback(self, *args, **kwargs):
