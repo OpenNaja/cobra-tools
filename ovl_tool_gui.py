@@ -31,7 +31,7 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "OVL Tool", )
-		self.resize(720, 400)
+		self.resize(980, 400)
 
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 
@@ -49,7 +49,9 @@ class MainWindow(widgets.MainWindow):
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
+		header2_names = ["Path",]
 		self.table = widgets.SortableTable(header_names, self)
+		self.table2 = widgets.SortableDirTable(header2_names, self)
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip(
@@ -82,7 +84,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 8)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 10)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
@@ -91,10 +93,12 @@ class MainWindow(widgets.MainWindow):
 		for (old, new) in self.e_name_pairs:
 			self.qgrid.addWidget(old, 1, 5)
 			self.qgrid.addWidget(new, 1, 6)
-		self.qgrid.addWidget(self.table, 2, 0, 1, 8)
-		self.qgrid.addWidget(self.p_action, 3, 0, 1, 8)
-		self.qgrid.addWidget(self.t_action, 4, 0, 1, 8)
-		self.qgrid.addWidget(self.dat_widget, 5, 0, 1, 8)
+		self.qgrid.addWidget(self.table, 2, 0, 1, 6)
+		self.qgrid.addWidget(self.table2, 2, 6, 1, 7)
+		self.qgrid.addWidget(self.p_action, 3, 0, 1, 10)
+		self.qgrid.addWidget(self.t_action, 4, 0, 1, 10)
+		self.qgrid.addWidget(self.dat_widget, 5, 0, 1, 10)
+
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
@@ -109,6 +113,7 @@ class MainWindow(widgets.MainWindow):
 			(editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(editMenu, "Inject", self.inject, "CTRL+I", "inject"),
 			(editMenu, "Hash", self.hasher, "CTRL+H", ""),
+			(editMenu, "Inject Dir", self.inject_dir, "CTRL+B", ""),
 			(editMenu, "Remove Selected", self.remover, "DEL", ""),
 			(editMenu, "Walk", self.walker, "", ""),
 			# (editMenu, "Reload", self.reload, "", ""),
@@ -237,13 +242,21 @@ class MainWindow(widgets.MainWindow):
 	def update_gui_table(self, ):
 		start_time = time.time()
 		data = []
+		data2 = []
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
 		for file_w in self.ovl_data.files:
 			name = f"{file_w.name}{file_w.ext}"
 			# line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
 			line = [name, file_w.ext, file_w.file_hash, file_w.unkn_0, file_w.unkn_1]
 			data.append(line)
+		for dir_w in self.ovl_data.dirs:
+			path = f"{dir_w.name}"
+			print(path)
+			# line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
+			line2 = [path,]
+			data2.append(line2)
 		self.table.set_data(data)
+		self.table2.set_data(data2)
 		print(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
@@ -318,6 +331,19 @@ class MainWindow(widgets.MainWindow):
 			print("Done!")
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can inject files!")
+            
+	def inject_dir(self):
+		if self.file_widget.filename:
+			directory_name = self.table2.directory.entry.text()
+			try:
+				self.ovl_data.inject_dir(directory_name)
+				self.update_gui_table()
+			except Exception as ex:
+				traceback.print_exc()
+				util.interaction.showdialog(str(ex))
+			print("Done!")
+		else:
+			util.interaction.showdialog("You must open an OVL file before you can inject directories!")
 
 	def hasher(self):
 		if self.file_widget.filename:
