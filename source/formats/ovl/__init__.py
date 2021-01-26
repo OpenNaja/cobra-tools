@@ -17,6 +17,7 @@ from generated.array import Array
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
+from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.HeaderEntry import HeaderEntry
@@ -170,7 +171,7 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = newoffset
-				
+                
 			if file_entry.ext == ".txt": # 
 				data = struct.pack("<I", len(dbuffer)) + dbuffer + b"\x00"
 				padding = 8 - (len(data) % 8)
@@ -1538,6 +1539,22 @@ class OvlFile(Header, IoFile):
 		self.filepath = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.filepath)[0]
+        
+	def inject_dir(self, directory_name):
+		# store file name for later
+		new_directory = DirEntry()
+		new_directory.name = directory_name
+		self.dirs.append(new_directory)
+        
+		self.names.update_with((
+			(self.dependencies, "ext"),
+			(self.dirs, "name"),
+			(self.mimes, "name"),
+			(self.files, "name")
+		))
+		self.len_names = len(self.names.data)
+		self.num_dirs+=1
+		self.len_type_names = min(file.offset for file in self.files)
 
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
@@ -1699,6 +1716,7 @@ class OvlFile(Header, IoFile):
 				archive_entry.read_start = ovs_stream.tell()
 				ovs_stream.write(compressed)
 			self.zlibs[i].zlib_thing_1 = 68 + archive_entry.uncompressed_size
+
 		# we don't use context manager so gotta close them
 		for ovs_file in ovs_dict.values():
 			ovs_file.close()
