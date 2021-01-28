@@ -294,7 +294,7 @@ class OvsFile(OvsHeader, ZipFile):
 			self.pools_end = stream.tell()
 
 			# another integrity check
-			if not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
+			if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
 				raise AttributeError(f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
 									 f"does not match calculated size ({self.calc_uncompressed_size()})")
 
@@ -1701,8 +1701,10 @@ class OvlFile(Header, IoFile):
 			print(archive_entry)
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
-			except:
-				print(f"Unzipping of {archive_entry.ovs_path} failed")
+			except BaseException as err:
+				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
+				print(err)
+
 		self.link_streams()
 
 	def link_streams(self):

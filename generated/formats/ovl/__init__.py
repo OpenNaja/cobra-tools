@@ -36,7 +36,7 @@ lut_mime_unk_0 = {
 	".userinterfaceicondata": 1,
 	".lua": 7,
 	".txt": 2,
-	}
+}
 
 lut_file_unk_0 = {
 	".fdb": 4,
@@ -44,7 +44,7 @@ lut_file_unk_0 = {
 	".userinterfaceicondata": 4,
 	".lua": 2,
 	".txt": 1,
-	}
+}
 
 
 class OvsFile(OvsHeader, ZipFile):
@@ -175,14 +175,14 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = newoffset
-                
-			if file_entry.ext == ".txt": # 
+
+			if file_entry.ext == ".txt":  #
 				data = struct.pack("<I", len(dbuffer)) + dbuffer + b"\x00"
 				padding = 8 - (len(data) % 8)
 				if padding > 0:
-					data +=  struct.pack(f"{padding}s", b'')
+					data += struct.pack(f"{padding}s", b'')
 				dbuffer = data
-				self.header_entry_data += dbuffer #fragment pointer 1 data
+				self.header_entry_data += dbuffer  # fragment pointer 1 data
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = offset
@@ -208,7 +208,8 @@ class OvsFile(OvsHeader, ZipFile):
 
 		self.force_update_header_datas = False
 		self.map_buffers()
-		# print(self)
+
+	# print(self)
 
 	def get_sized_str_entry(self, name):
 		lower_name = name.lower()
@@ -293,7 +294,7 @@ class OvsFile(OvsHeader, ZipFile):
 			self.pools_end = stream.tell()
 
 			# another integrity check
-			if not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
+			if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
 				raise AttributeError(f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
 									 f"does not match calculated size ({self.calc_uncompressed_size()})")
 
@@ -772,7 +773,8 @@ class OvsFile(OvsHeader, ZipFile):
 							f.pointers[1].strip_zstring_padding()
 							print(f.pointers[1].data)
 			ss_entry.bnks.append(bnk)
-		# ss_entry.fragments.extend(bnk)
+
+	# ss_entry.fragments.extend(bnk)
 
 	# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
 	# # pointers[1].data is the name
@@ -1331,7 +1333,8 @@ class OvsFile(OvsHeader, ZipFile):
 		entry.ext = e
 		entry.basename = n
 		entry.name = f"{n}{e}"
-		# print(entry.name, entry.file_hash, entry.ext_hash)
+
+	# print(entry.name, entry.file_hash, entry.ext_hash)
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
@@ -1554,7 +1557,8 @@ class OvlFile(Header, IoFile):
 		self.num_headers = archive_entry.num_headers
 		self.num_datas = archive_entry.num_datas
 		self.num_buffers = archive_entry.num_buffers
-		# print(self)
+
+	# print(self)
 
 	# dummy (black hole) callback for if we decide we don't want one
 	def dummy_callback(self, *args, **kwargs):
@@ -1576,13 +1580,13 @@ class OvlFile(Header, IoFile):
 		self.filepath = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.filepath)[0]
-        
+
 	def inject_dir(self, directory_name):
 		# store file name for later
 		new_directory = DirEntry()
 		new_directory.name = directory_name
 		self.dirs.append(new_directory)
-        
+
 		self.names.update_with((
 			(self.dependencies, "ext"),
 			(self.dirs, "name"),
@@ -1590,7 +1594,7 @@ class OvlFile(Header, IoFile):
 			(self.files, "name")
 		))
 		self.len_names = len(self.names.data)
-		self.num_dirs+=1
+		self.num_dirs += 1
 		self.len_type_names = min(file.offset for file in self.files)
 
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
@@ -1697,8 +1701,10 @@ class OvlFile(Header, IoFile):
 			print(archive_entry)
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
-			except:
-				print(f"Unzipping of {archive_entry.ovs_path} failed")
+			except BaseException as err:
+				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
+				print(err)
+
 		self.link_streams()
 
 	def link_streams(self):
