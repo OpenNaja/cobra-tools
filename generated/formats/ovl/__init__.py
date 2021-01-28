@@ -227,7 +227,7 @@ class OvsFile(OvsHeader, ZipFile):
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
 			# print(self.ovl)
-			# print(self)
+			print(self)
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -1310,22 +1310,16 @@ class OvsFile(OvsHeader, ZipFile):
 					return entry
 
 	def assign_name(self, entry):
-		"""Fetch a filename from hash dict"""
+		"""Fetch a filename for an entry"""
 		n = "NONAME"
 		e = ".UNK"
 		# JWE style
-		if is_jwe(self.ovl):
+		if self.ovl.user_version.is_jwe:
 			# print("JWE ids",entry.file_hash, entry.ext_hash)
-			try:
-				n = self.ovl.hash_table_local[entry.file_hash]
-			except:
-				pass
-			try:
-				e = self.ovl.hash_table_local[entry.ext_hash]
-			except:
-				pass
+			n = self.ovl.hash_table_local[entry.file_hash]
+			e = self.ovl.hash_table_local[entry.ext_hash]
 		# PZ Style and PC Style
-		elif is_pc(self.ovl) or is_pz(self.ovl):
+		else:
 			# file_hash is an index into ovl files
 			try:
 				file = self.ovl.files[entry.file_hash]
@@ -1334,11 +1328,10 @@ class OvsFile(OvsHeader, ZipFile):
 					f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
 			n = file.name
 			e = file.ext
-		else:
-			raise ValueError("Unknown version!")
 		entry.ext = e
 		entry.basename = n
 		entry.name = f"{n}{e}"
+		# print(entry.name, entry.file_hash, entry.ext_hash)
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
@@ -1686,6 +1679,7 @@ class OvlFile(Header, IoFile):
 	def load_archives(self):
 		print("Loading archives...")
 		ha_max = len(self.archives)
+		print(self)
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
 			# print("archive_entry", archive_index, archive_entry)
@@ -1700,8 +1694,11 @@ class OvlFile(Header, IoFile):
 				read_start = self.eof
 				archive_entry.ovs_path = self.filepath
 			archive_entry.content = OvsFile(self, archive_entry, archive_index)
-			archive_entry.content.unzip(archive_entry, read_start)
-
+			print(archive_entry)
+			try:
+				archive_entry.content.unzip(archive_entry, read_start)
+			except:
+				print(f"Unzipping of {archive_entry.ovs_path} failed")
 		self.link_streams()
 
 	def link_streams(self):
