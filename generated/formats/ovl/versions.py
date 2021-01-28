@@ -14,7 +14,7 @@ def is_pz(inst):
 
 
 def is_jwe(inst):
-	if inst.version_flag == 1 and inst.version == 19 and inst.user_version in (24724, 25108):
+	if inst.version == 19 and inst.user_version in (24724, 25108):
 		return True
 
 
