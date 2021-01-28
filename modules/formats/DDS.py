@@ -82,14 +82,18 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 	buffer_data = b"".join([b for b in entry.data_entry.buffer_datas if b])
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
-	if is_pc(archive.ovl):
+	if is_pc(archive.ovl) or is_ztuac(archive.ovl):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(entry)
 		print(header_7)
 		dds_file.width = header_7.width
 		# hack until we have proper support for array_size on the image editors
 		# todo - this is most assuredly not array size for ED
-		dds_file.height = header_7.height * max(1, header_7.array_size)
+		dds_file.height = header_7.height# * max(1, header_7.array_size)
 		dds_file.mipmap_count = header_7.num_mips
+		# ztuac has a slightly different struct
+		if is_ztuac(archive.ovl):
+			dds_file.mipmap_count = header_7.array_size
+			header_7.array_size = 1
 		dds_file.linear_size = len(buffer_data)
 		dds_file.depth = header_3_0.one_0
 
@@ -139,7 +143,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 			dds_file_path += f"_{dds_type}.dds"
 		# write dds
 		dds_file.save(dds_file_path)
-
+		print(dds_file)
 		if show_temp_files:
 			out_files.append(dds_file_path)
 

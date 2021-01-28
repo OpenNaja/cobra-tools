@@ -228,7 +228,7 @@ class OvsFile(OvsHeader, ZipFile):
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
 			# print(self.ovl)
-			print(self)
+			# print(self)
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -987,7 +987,7 @@ class OvsFile(OvsHeader, ZipFile):
 				if sized_str_entry.ext == ".ms2" and is_pc(self.ovl):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
 																		   1)
-				elif sized_str_entry.ext == ".tex" and is_pc(self.ovl):
+				elif sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
 																		   1)
 				# get fixed fragments
@@ -1429,7 +1429,8 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		skip_files = []
 		out_paths = []
-		content = self.archives[0].content
+		# content = self.archives[0].content
+		content = self.static_archive.content
 		ss_max = len(content.sized_str_entries)
 		for ss_index, sized_str_entry in enumerate(content.sized_str_entries):
 			self.progress_callback("Extracting...", value=ss_index, vmax=ss_max)
@@ -1675,7 +1676,7 @@ class OvlFile(Header, IoFile):
 			# funky bug due to some PC ovls using a different DependencyEntry struct
 			except IndexError as err:
 				print(err)
-
+		self.static_archive = None
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		print(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
@@ -1683,24 +1684,26 @@ class OvlFile(Header, IoFile):
 	def load_archives(self):
 		print("Loading archives...")
 		ha_max = len(self.archives)
-		print(self)
+		# print(self)
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
 			# print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
-			if archive_index > 0:
+			if archive_entry.name == "STATIC":
+				self.static_archive = archive_entry
+				read_start = self.eof
+				archive_entry.ovs_path = self.filepath
+			else:
 				self.get_external_ovs_path(archive_entry)
 				read_start = archive_entry.read_start
 				# make sure that the ovs exists
 				if not os.path.exists(archive_entry.ovs_path):
 					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
-			else:
-				read_start = self.eof
-				archive_entry.ovs_path = self.filepath
 			archive_entry.content = OvsFile(self, archive_entry, archive_index)
-			print(archive_entry)
+			# print(archive_entry)
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
+				print(len(archive_entry.content.sized_str_entries), list([e.name for e in archive_entry.content.sized_str_entries]))
 			except BaseException as err:
 				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
 				print(err)
@@ -1713,17 +1716,19 @@ class OvlFile(Header, IoFile):
 			return
 		print("Linking streams...")
 		# find texstream buffers
-		for tb_index, sized_str_entry in enumerate(self.archives[0].content.sized_str_entries):
+		for tb_index, sized_str_entry in enumerate(self.static_archive.content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)
 			if sized_str_entry.ext == ".tex":
 				for lod_i in range(3):
-					for archive in self.archives[1:]:
+					for archive in self.archives:
+						if archive == self.static_archive:
+							continue
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
 								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
 
 		# just sort all buffers by their index value so they are extracted nicely
-		for data_entry in self.archives[0].content.data_entries:
+		for data_entry in self.static_archive.content.data_entries:
 			data_entry.update_buffers()
 
 	def get_external_ovs_path(self, archive_entry):
