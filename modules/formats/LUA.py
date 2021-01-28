@@ -19,11 +19,22 @@ def write_lua(archive, sized_str_entry, out_dir, show_temp_files, progress_callb
 		return
 	# write lua
 	out_path = out_dir(name)
-	print(out_path)
-	with open(out_path+".bin", 'wb') as outfile:
-		# write the buffer
-		outfile.write(buffer_data)
-	texconv.bin_to_lua(out_path+".bin")
+	# print(out_path)
+	out_files = [out_path, out_path+"meta"]
+	if buffer_data[1:4] == b"Lua":
+		print("compiled lua")
+		bin_path = out_path+".bin"
+		with open(bin_path, 'wb') as outfile:
+			# write the buffer
+			outfile.write(buffer_data)
+		texconv.bin_to_lua(bin_path)
+		out_files.append(bin_path)
+	else:
+		print("uncompiled lua")
+		with open(out_path, 'wb') as outfile:
+			# write the buffer
+			outfile.write(buffer_data)
+
 	with open(out_path+"meta", 'wb') as outfile:
 		# write each of the fragments
 		# print(sized_str_entry.pointers[0].data)
@@ -33,8 +44,7 @@ def write_lua(archive, sized_str_entry, out_dir, show_temp_files, progress_callb
 			# print(frag.pointers[1].data)
 			outfile.write(frag.pointers[0].data)
 			outfile.write(frag.pointers[1].data)
-
-	return out_path, out_path+".bin", out_path+"meta"
+	return out_files
 
 
 def load_lua(ovl_data, lua_file_path, lua_sized_str_entry):
