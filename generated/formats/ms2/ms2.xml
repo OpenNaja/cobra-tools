@@ -326,8 +326,8 @@
 		<add name="bone names size" type="uint" ></add>
 		<add name="bone info size" type="uint" ></add>
 		<add name="general info" type="Ms2SizedStrData" ></add>
-		<add name="buffer info" type="Ms2BufferInfo" cond="!#PC#"> not in PC, or at least somewhere else</add>
-		
+		<add name="buffer info" type="Ms2BufferInfo" cond="general info \ has model data" vercond="!#PC#" > not in PC, or at least somewhere else</add>
+
 		<add name="name hashes" type="uint" arr1="general info\name count" ></add>
 		<add name="names" type="ZString" arr1="general info\name count" ></add>
 	</compound>
