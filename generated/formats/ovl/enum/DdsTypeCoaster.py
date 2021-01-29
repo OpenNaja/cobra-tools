@@ -6,6 +6,8 @@ class DdsTypeCoaster(UbyteEnum):
 	"""
 	maps the OVL's dds type to name of compression format
 	"""
+	# wrong
+	DXGI_FORMAT_BC1_UNORM_B = 74
 	DXGI_FORMAT_BC1_UNORM = 97
 	DXGI_FORMAT_BC1_UNORM_SRGB = 98
 	DXGI_FORMAT_BC2_UNORM = 99

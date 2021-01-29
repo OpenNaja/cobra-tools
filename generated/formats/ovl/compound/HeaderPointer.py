@@ -136,14 +136,14 @@ class HeaderPointer:
 		"""Returns a reader of its data"""
 		return io.BytesIO(self.data)
 
-	def load_as(self, cls, num=1, version_info={}):
+	def load_as(self, cls, num=1, version_info={}, args=()):
 		"""Return self.data as codegen cls
 		version_info must be a dict that has version & user_version attributes"""
 		with BinaryStream(self.data) as stream:
 			assign_versions(stream, version_info)
 			insts = []
 			for i in range(num):
-				inst = cls()
+				inst = cls(*args)
 				inst.read(stream)
 				insts.append(inst)
 		return insts

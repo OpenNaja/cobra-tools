@@ -2,27 +2,38 @@ import os
 import imageio
 import numpy as np
 
+from generated.formats.ovl import is_ztuac
+
+
 def flip_gb(im):
 	"""Flips green and blue channels of image array"""
-	im[:,:,1] = 255-im[:,:,1]
-	im[:,:,2] = 255-im[:,:,2]
+	im[:, :, 1] = 255 - im[:, :, 1]
+	im[:, :, 2] = 255 - im[:, :, 2]
+
 
 def check_any(iterable, string):
 	"""Returns true if any of the entries of the iterable occur in string"""
 	return any([i in string for i in iterable])
 
+
 def has_components(png_file_path):
-	return check_any(("playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture", "markingbaldnessscartexture", "markingscartexture","pflexicolourmaskssamplertexture","pmetalsmoothnesscavitysamplertexture","pmetalsmoothnesscavityopacitysamplertexture"), png_file_path)
+	return check_any(("playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture",
+					  "markingbaldnessscartexture", "markingscartexture", "pflexicolourmaskssamplertexture",
+					  "pmetalsmoothnesscavitysamplertexture", "pmetalsmoothnesscavityopacitysamplertexture"),
+					 png_file_path)
+
 
 def has_vectors(png_file_path):
 	return check_any(("pnormaltexture", "playered_warpoffset"), png_file_path)
 
 
-def wrapper(png_file_path, header_7):
+def wrapper(png_file_path, header_7, archive):
 	out_files = []
 	must_split = False
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
+	if is_ztuac(archive.ovl):
+		must_flip_gb = False
 	h = header_7.height
 	w = header_7.width
 	array_size = header_7.array_size
@@ -50,15 +61,15 @@ def wrapper(png_file_path, header_7):
 			for hi in range(array_size):
 				for di in range(d):
 					file_path = name + f"_{layer_i:02}" + ext
-					imageio.imwrite(file_path, im[hi*h:(hi+1)*h, :, di], compress_level=2)
+					imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, di], compress_level=2)
 					out_files.append(file_path)
 					layer_i += 1
 			os.remove(png_file_path)
 		# only split tiles but not components
 		elif must_split:
 			for layer_i in range(array_size):
-				file_path = name+f"_{layer_i:02}"+ext
-				imageio.imwrite(file_path, im[layer_i*h:(layer_i+1)*h, :, :], compress_level=2)
+				file_path = name + f"_{layer_i:02}" + ext
+				imageio.imwrite(file_path, im[layer_i * h:(layer_i + 1) * h, :, :], compress_level=2)
 				out_files.append(file_path)
 			os.remove(png_file_path)
 		# don't split at all, overwrite
@@ -81,6 +92,7 @@ def is_array_tile(fp, array_name_bare):
 			if suffix != None:
 				return True
 
+
 def split_name_suffix(in_name):
 	# grab the basic name, and the array index suffix if it exists
 	try:
@@ -90,9 +102,10 @@ def split_name_suffix(in_name):
 	except:
 		in_name_bare = in_name
 		suffix = None
-	print("bare name",in_name_bare)
+	print("bare name", in_name_bare)
 	print("suffix", suffix)
 	return in_name_bare, suffix
+
 
 def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	"""This handles PNG modifications (arrays or flipped channels) and ensures the costly IO is only done once"""
@@ -100,8 +113,8 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	must_join = False
 	join_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
-	
-	print("PNG injection wrapper input",png_file_path)
+
+	print("PNG injection wrapper input", png_file_path)
 	in_dir, in_name_ext = os.path.split(png_file_path)
 	in_name, ext = os.path.splitext(in_name_ext)
 
@@ -111,7 +124,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 
 	# update output path
 	out_file_path = os.path.join(tmp_dir, in_name_bare + ext)
-	print("checking if dupe",out_file_path)
+	print("checking if dupe", out_file_path)
 	if out_file_path in dupecheck:
 		return
 	dupecheck.append(out_file_path)
@@ -128,7 +141,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	if not must_join and not join_components:
 		# just read the one input file
 		im = imageio.imread(png_file_path)
-	
+
 	# rebuild array from separated tiles
 	if must_join or join_components:
 		array_textures = [file for file in os.listdir(in_dir) if is_array_tile(file, in_name_bare)]
@@ -155,11 +168,12 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 		if join_components:
 			d = 4
 			array_size //= d
-		print("array_size",array_size)
+		print("array_size", array_size)
 		if array_size == 0:
-			raise FileNotFoundError(f"Only {len(array_textures)} array texture(s) were found in {in_dir}, resulting in an incomplete array. "
-									f"Make sure you inject a PNG from a folder containing all other PNGs for that array!")
-		out_shape = (h*array_size, w, d)
+			raise FileNotFoundError(
+				f"Only {len(array_textures)} array texture(s) were found in {in_dir}, resulting in an incomplete array. "
+				f"Make sure you inject a PNG from a folder containing all other PNGs for that array!")
+		out_shape = (h * array_size, w, d)
 		im = np.zeros(out_shape, dtype=ims[0].dtype)
 		if join_components:
 			print("Rebuilding array texture from components")
@@ -168,20 +182,21 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 				for di in range(d):
 					tile_shape = ims[layer_i].shape
 					if len(tile_shape) == 2:
-						im[hi*h:(hi+1)*h, :, di] = ims[layer_i]
+						im[hi * h:(hi + 1) * h, :, di] = ims[layer_i]
 					elif len(tile_shape) == 3:
-						print(f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
-						im[hi*h:(hi+1)*h, :, di] = ims[layer_i][:, :, 0]
+						print(
+							f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
+						im[hi * h:(hi + 1) * h, :, di] = ims[layer_i][:, :, 0]
 					layer_i += 1
 		else:
 			print("Rebuilding array texture from RGBA tiles")
 			for layer_i in range(array_size):
-				im[layer_i*h:(layer_i+1)*h, :, :] = ims[layer_i]
+				im[layer_i * h:(layer_i + 1) * h, :, :] = ims[layer_i]
 
 	# flip the green and blue channels of the array
 	if must_flip_gb:
 		flip_gb(im)
-	
+
 	# this is shared for all that have to be read
 	print("Writing png output")
 	imageio.imwrite(out_file_path, im, compress_level=2)

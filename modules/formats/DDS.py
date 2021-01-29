@@ -8,6 +8,7 @@ from generated.formats.ovl.compound.Header3Data0 import Header3Data0
 from generated.formats.ovl.compound.Header3Data0Pc import Header3Data0Pc
 from generated.formats.ovl.compound.Header3Data1Pc import Header3Data1Pc
 from generated.formats.ovl.compound.Header3Data1 import Header3Data1
+from generated.formats.ovl.compound.Header3Data1Ztuac import Header3Data1Ztuac
 from generated.formats.ovl.compound.Header7Data1 import Header7Data1
 
 from util import texconv, imarray
@@ -25,15 +26,30 @@ def get_tex_structs(sized_str_entry):
 
 def get_tex_structs_pc(sized_str_entry):
 	frag = sized_str_entry.fragments[0]
+	print(frag.pointers[0].address, frag.pointers[0].data_size)
+	print(frag.pointers[1].address, frag.pointers[1].data_size)
 	header_3_0 = frag.pointers[0].load_as(Header3Data0Pc)[0]
 	# headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=header_3_0.one_2)
 	# alternative?
-	headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=frag.pointers[1].data_size//8)
+	headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=frag.pointers[1].data_size//8, args=())
 	print(header_3_0)
 	print(headers_3_1)
 	# this corresponds to a stripped down header_7
 	header_7 = headers_3_1[0]
 	return header_3_0, headers_3_1, header_7
+
+
+def get_tex_structs_ztuac(sized_str_entry):
+	frag = sized_str_entry.fragments[0]
+	# print(frag.pointers[0].address, frag.pointers[0].data_size)
+	# print(frag.pointers[1].address, frag.pointers[1].data_size)
+	header_3_0 = frag.pointers[0].load_as(Header3Data0Pc)[0]
+	# print(header_3_0)
+	header_3_1 = frag.pointers[1].load_as(Header3Data1Ztuac, args=(header_3_0.one_1,))[0]
+	# print(header_3_1)
+	# this corresponds to a stripped down header_7
+	header_7 = header_3_1.lods[0]
+	return header_3_0, header_3_1.lods, header_7
 
 
 def align_to(width, comp, alignment=64):
@@ -82,18 +98,22 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 	buffer_data = b"".join([b for b in entry.data_entry.buffer_datas if b])
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
-	if is_pc(archive.ovl) or is_ztuac(archive.ovl):
+	if is_ztuac(archive.ovl):
+		header_3_0, headers_3_1, header_7 = get_tex_structs_ztuac(entry)
+		dds_file.width = header_7.width
+		dds_file.height = header_7.height
+		dds_file.mipmap_count = header_7.num_mips
+		dds_file.linear_size = len(buffer_data)
+		header_7.array_size = 1
+		dds_file.depth = header_3_0.one_0
+	elif is_pc(archive.ovl):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(entry)
-		print(header_7)
+		# print(header_7)
 		dds_file.width = header_7.width
 		# hack until we have proper support for array_size on the image editors
 		# todo - this is most assuredly not array size for ED
 		dds_file.height = header_7.height# * max(1, header_7.array_size)
 		dds_file.mipmap_count = header_7.num_mips
-		# ztuac has a slightly different struct
-		if is_ztuac(archive.ovl):
-			dds_file.mipmap_count = header_7.array_size
-			header_7.array_size = 1
 		dds_file.linear_size = len(buffer_data)
 		dds_file.depth = header_3_0.one_0
 
@@ -129,10 +149,10 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 	# write out everything for each compression type
 	out_files = []
 	for dds_type, dds_value in dds_compression_types:
-		print(dds_file.width)
+		# print(dds_file.width)
 		# header attribs
 		dds_file.width = align_to(dds_file.width, dds_type)
-		print(dds_file.width)
+		# print(dds_file.width)
 
 		# dx 10 stuff
 		dds_file.dx_10.dxgi_format = dds_value
@@ -143,7 +163,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 			dds_file_path += f"_{dds_type}.dds"
 		# write dds
 		dds_file.save(dds_file_path)
-		print(dds_file)
+		# print(dds_file)
 		if show_temp_files:
 			out_files.append(dds_file_path)
 
@@ -152,7 +172,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 
 		if os.path.isfile(png_file_path):
 			# postprocessing of the png
-			out_files.extend(imarray.wrapper(png_file_path, header_7))
+			out_files.extend(imarray.wrapper(png_file_path, header_7, archive))
 	return out_files
 
 

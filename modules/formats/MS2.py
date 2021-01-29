@@ -24,7 +24,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 		bone_matrices = b""
 	else:
 		raise BufferError(f"Wrong amount of buffers for {name}\nWanted 2 or 3 buffers, got {len(buffers)}")
-
+	print(f"bone_names: {len(bone_names)}, bone_matrices: {len(bone_matrices)}, verts: {len(verts)}")
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
@@ -41,7 +41,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 	# 		outfile.write(buffer)
 
 	# Planet coaster
-	if is_pc(archive.ovl):
+	if is_pc(archive.ovl) or is_ztuac(archive.ovl):
 		# only ss entry holds any useful stuff
 		ms2_buffer_info_data = b""
 		next_model_info_data = b""
@@ -88,7 +88,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
 
-			if not is_pc(archive.ovl):
+			if not (is_pc(archive.ovl) or is_ztuac(archive.ovl)):
 				# the fixed fragments
 				green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
 				print("model_count", mdl2_entry.model_count)

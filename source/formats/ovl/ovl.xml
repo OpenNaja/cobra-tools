@@ -109,6 +109,7 @@
 
     <enum name="DdsType_Coaster" storage="ubyte">
 		maps the OVL's dds type to name of compression format
+		<option value="74" name="DXGI_FORMAT_BC1_UNORM_B">wrong</option>
 		<option value="97" name="DXGI_FORMAT_BC1_UNORM"></option>
 		<option value="98" name="DXGI_FORMAT_BC1_UNORM_SRGB"></option>
 		<option value="99" name="DXGI_FORMAT_BC2_UNORM"></option>
@@ -391,12 +392,12 @@
 	<compound name="Header3Data0Pc" >
 		Data struct for headers of type 3, read by data 0 of 3,7 frag.
 		16 bytes
-		<add name="zeros" type="uint64" >32 bytes, all 0</add>
+		<add name="zeros" type="uint64" >8 bytes, all 0</add>
 		<add name="compression type" type="DdsType_Coaster">flag, not direct index into DDS enum</add>
 		<add name="one 0" type="ubyte">0 or 1</add>
 		<add name="one 1" type="ubyte">1 or 2</add>
 		<add name="one 2" type="ubyte">1 or 2</add>
-		<add name="pad" type="uint">0</add>
+		<add name="pad" type="uint">0, might be first 4 bytes of tex buffer for ztuac</add>
     </compound>
 
 	<compound name="Header3Data1" >
@@ -416,6 +417,20 @@
 		<add name="width" type="ushort"></add>
 		<add name="height" type="ushort" > </add>
 		<add name="array size" type="ushort">may be depth</add>
+		<add name="num mips" type="ushort">num_mips</add>
+    </compound>
+
+	<compound name="Header3Data1ZTUAC" >
+		Data struct for headers of type 7
+		<add name="lods" type="Header3Data1ZTUACEntry" arr1="#ARG#"></add>
+		<add name="data size" type="ushort">?not sure if this isn't just junk data</add>
+        is something remains, it seems to be padding!
+    </compound>
+
+	<compound name="Header3Data1ZTUACEntry" >
+		Data struct for headers of type 7
+		<add name="width" type="ushort"></add>
+		<add name="height" type="ushort" > </add>
 		<add name="num mips" type="ushort">num_mips</add>
     </compound>
 

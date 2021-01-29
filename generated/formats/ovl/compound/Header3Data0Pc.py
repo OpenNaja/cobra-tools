@@ -15,7 +15,7 @@ class Header3Data0Pc:
 		self.io_size = 0
 		self.io_start = 0
 
-		# 32 bytes, all 0
+		# 8 bytes, all 0
 		self.zeros = 0
 
 		# flag, not direct index into DDS enum
@@ -30,7 +30,7 @@ class Header3Data0Pc:
 		# 1 or 2
 		self.one_2 = 0
 
-		# 0
+		# 0, might be first 4 bytes of tex buffer for ztuac
 		self.pad = 0
 
 	def read(self, stream):

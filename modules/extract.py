@@ -30,15 +30,13 @@ SUPPORTED_TYPES = (".dds", ".png", ".mdl2", ".txt", ".fgm", ".fdb", ".matcol", "
 
 def extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback):
 	# automatically call the extract function, if it has been defined
-	try:
-		func_name = f"write_{entry.ext[1:]}"
-		# print(func_name)
-		# print(__name__)
-		func = getattr(sys.modules[__name__], func_name)
+	namespace = sys.modules[__name__]
+	func_name = f"write_{entry.ext[1:]}"
+	func = getattr(namespace, func_name, None)
+	if func:
 		return func(archive, entry, out_dir_func, show_temp_files, progress_callback)
-	except AttributeError:
+	else:
 		print(f"No function to export {entry.name}")
-		return ()
 
 
 def write_gfx(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):

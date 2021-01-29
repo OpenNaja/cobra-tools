@@ -984,7 +984,7 @@ class OvsFile(OvsHeader, ZipFile):
 					frags = self.header_entries[hi].fragments
 				else:
 					frags = address_0_fragments
-				if sized_str_entry.ext == ".ms2" and is_pc(self.ovl):
+				if sized_str_entry.ext == ".ms2" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
 																		   1)
 				elif sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
@@ -1025,27 +1025,24 @@ class OvsFile(OvsHeader, ZipFile):
 			# print("frags",tuple((f.pointers[0].header_index, f.pointers[1].header_index) for f in sized_str_entry.fragments))
 			# for f in sized_str_entry.fragments:
 			#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
-			# second pass: collect model fragments
 
-			versions = get_versions(self.ovl)
 			if not is_pc(self.ovl):
+				# second pass: collect model fragments
+				versions = get_versions(self.ovl)
 				# assign the mdl2 frags to their sized str entry
-				for set_entry in self.set_header.sets:
-					set_sized_str_entry = set_entry.entry
-					if set_sized_str_entry.ext == ".ms2":
-						f_1 = set_sized_str_entry.fragments[1]
+				for ms2_entry in self.sized_str_entries:
+					if ms2_entry.ext == ".ms2":
+						f_1 = ms2_entry.fragments[1]
 						next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 						# print("next model info:", next_model_info)
-						for asset_entry in set_entry.assets:
-							assert (asset_entry.name == asset_entry.entry.name)
-							sized_str_entry = asset_entry.entry
-							if sized_str_entry.ext == ".mdl2":
-								self.collect_mdl2(sized_str_entry, next_model_info, f_1.pointers[1])
-								pink = sized_str_entry.fragments[4]
-								if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
-										or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
-									next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[
-										0].info
+						for mdl2_entry in ms2_entry.children:
+							assert mdl2_entry.ext == ".mdl2"
+							self.collect_mdl2(mdl2_entry, next_model_info, f_1.pointers[1])
+							pink = mdl2_entry.fragments[4]
+							if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
+									or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
+								next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[
+									0].info
 
 		except Exception as err:
 			print(err)
