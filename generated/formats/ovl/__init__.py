@@ -279,9 +279,11 @@ class OvsFile(OvsHeader, ZipFile):
 			for set_entry in self.set_header.sets:
 				self.assign_name(set_entry)
 				set_entry.entry = self.find_entry(self.sized_str_entries, set_entry)
+				print(set_entry.name)
 
 			for asset_entry in self.set_header.assets:
 				self.assign_name(asset_entry)
+				print(asset_entry.name)
 				try:
 					asset_entry.entry = self.sized_str_entries[asset_entry.file_index]
 				except:
@@ -1723,6 +1725,16 @@ class OvlFile(Header, IoFile):
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
 								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
+			if sized_str_entry.ext == ".ms2":
+				for lod_i in range(4):
+					for archive in self.archives:
+						if archive == self.static_archive:
+							continue
+						for other_sizedstr in archive.content.sized_str_entries:
+							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
+								# print("model2stream")
+								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
+				# print(sized_str_entry.data_entry.buffers)
 
 		# just sort all buffers by their index value so they are extracted nicely
 		for data_entry in self.static_archive.content.data_entries:

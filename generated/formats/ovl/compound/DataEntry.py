@@ -112,4 +112,6 @@ class DataEntry:
 	@property
 	def buffer_datas(self):
 		"""Get data for each non-empty buffer (should have been sorted before)"""
-		return list(buffer.data for buffer in self.buffers if buffer.size)
+		# return list(buffer.data for buffer in self.buffers if buffer.size)
+		return list(buffer.data for buffer in self.buffers)
+

@@ -95,7 +95,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 	name = basename + ".dds"
 	print("\nWriting", name)
 	# get joined output buffer
-	buffer_data = b"".join([b for b in entry.data_entry.buffer_datas if b])
+	buffer_data = b"".join(entry.data_entry.buffer_datas)
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
 	if is_ztuac(archive.ovl):

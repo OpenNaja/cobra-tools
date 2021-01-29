@@ -13,17 +13,13 @@ from generated.formats.ovl.versions import *
 
 def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = ms2_sized_str_entry.name
-	if not ms2_sized_str_entry.data_entry:
-		print("No data entry for ", name)
-		return
+	assert ms2_sized_str_entry.data_entry
 	buffers = ms2_sized_str_entry.data_entry.buffer_datas
-	if len(buffers) == 3:
-		bone_names, bone_matrices, verts = buffers
-	elif len(buffers) == 2:
-		bone_names, verts = buffers
-		bone_matrices = b""
-	else:
-		raise BufferError(f"Wrong amount of buffers for {name}\nWanted 2 or 3 buffers, got {len(buffers)}")
+	bone_names = buffers[0]
+	bone_matrices = buffers[1]
+	verts = b"".join(buffers[2:])
+	print("\nWriting", name)
+	print("buffers", len(buffers))
 	print(f"bone_names: {len(bone_names)}, bone_matrices: {len(bone_matrices)}, verts: {len(verts)}")
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
@@ -33,8 +29,6 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 	ovl_header = pack_header(archive, b"MS2 ")
 	ms2_header = struct.pack("<2I", len(bone_names), len(bone_matrices))
 
-	print("\nWriting", name)
-	print("\nbuffers", len(buffers))
 	# for i, buffer in enumerate(buffers):
 	# 	p = out_dir(name+str(i)+".ms2")
 	# 	with open(p, 'wb') as outfile:
