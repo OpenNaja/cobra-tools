@@ -45,7 +45,7 @@ class ManisFile(InfoHeader, IoFile):
 				data = stream.read(mb.byte_size)
 				pad_size = get_padding_size(mb.byte_size)
 				padding = stream.read(pad_size)
-				print(binascii.hexlify(data[:40]))
+				print(binascii.hexlify(data[:40]), padding, stream.tell())
 			stream.tell()
 			#
 			# # seems to be pretty good until here, then it breaks
@@ -66,6 +66,9 @@ class ManisFile(InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	mani = ManisFile()
+	mani = ManisFile()
 	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
+	mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")
+	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/rot_x_0_22_42.manis")
 	# print(mani)
 	# hex_test()

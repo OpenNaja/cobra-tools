@@ -31,12 +31,12 @@ class ManiBlock:
 		self.e = 0
 
 		# fixed
-		self.zeros = Array()
-		self.zeros = Array()
+		self.zeros_19 = Array()
 		self.count = 0
 
 		# usually / always 420
 		self.four_and_twenty = 0
+		self.zeros = Array()
 		self.pad_to_8 = Array()
 
 		# these are likely a scale reference or factor
@@ -69,10 +69,10 @@ class ManiBlock:
 		self.frame_count = stream.read_uint()
 		self.c = stream.read_uint()
 		self.e = stream.read_uint()
-		self.zeros = stream.read_uints((19))
-		self.zeros = stream.read_ubytes((self.count))
+		self.zeros_19 = stream.read_uints((19))
 		self.count = stream.read_ushort()
 		self.four_and_twenty = stream.read_ushort()
+		self.zeros = stream.read_ubytes((self.count))
 		self.pad_to_8 = stream.read_ubytes(((8 - (self.count % 8)) % 8))
 		self.floats = stream.read_floats((6))
 		self.repeats.read(stream, Repeat, self.count, None)
@@ -105,10 +105,10 @@ class ManiBlock:
 		stream.write_uint(self.frame_count)
 		stream.write_uint(self.c)
 		stream.write_uint(self.e)
-		stream.write_uints(self.zeros)
-		stream.write_ubytes(self.zeros)
+		stream.write_uints(self.zeros_19)
 		stream.write_ushort(self.count)
 		stream.write_ushort(self.four_and_twenty)
+		stream.write_ubytes(self.zeros)
 		stream.write_ubytes(self.pad_to_8)
 		stream.write_floats(self.floats)
 		self.repeats.write(stream, Repeat, self.count, None)
@@ -133,9 +133,10 @@ class ManiBlock:
 		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
 		s += f'\n	* c = {self.c.__repr__()}'
 		s += f'\n	* e = {self.e.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* zeros_19 = {self.zeros_19.__repr__()}'
 		s += f'\n	* count = {self.count.__repr__()}'
 		s += f'\n	* four_and_twenty = {self.four_and_twenty.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* pad_to_8 = {self.pad_to_8.__repr__()}'
 		s += f'\n	* floats = {self.floats.__repr__()}'
 		s += f'\n	* repeats = {self.repeats.__repr__()}'

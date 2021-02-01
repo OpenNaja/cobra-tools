@@ -251,7 +251,7 @@
 		<add name="frame count" type="uint" >likely</add>
 		<add name="c" type="uint" > </add>
 		<add name="e" type="uint" > </add>
-		<add name="zeros" type="uint" arr1="19">fixed</add>
+		<add name="zeros 19" type="uint" arr1="19">fixed</add>
 		<add name="count" type="ushort" > </add>
 		<add name="four and twenty" type="ushort" >usually / always 420</add>
         <add name="zeros" type="ubyte" arr1="count" > </add>
