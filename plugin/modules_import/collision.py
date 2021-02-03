@@ -81,6 +81,7 @@ def import_spherebv(sphere, hitcheck_name):
 def import_boxbv(box, hitcheck_name):
 	# ignore for now, seems to be a unity 3x3 matrix
 	# axes = box.rotation
+	print(box.rotation)
 	x, y, z = unpack_swizzle((box.extent.x / 2, box.extent.y / 2, box.extent.z / 2))
 	b_obj, b_me = box_from_extents(hitcheck_name, -x, x, -y, y, -z, z)
 	b_obj.location = unpack_swizzle((box.center.x, box.center.y, box.center.z))

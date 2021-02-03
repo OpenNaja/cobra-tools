@@ -58,7 +58,7 @@ def export_bones(b_armature_ob, data):
 		# set the bone transform, relative to parent
 		ms2_bone.set_bone(mat_local_to_parent)
 		# set the armature space inverse bind pose
-		ms2_inv_bind.set_rows(*matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
+		ms2_inv_bind.set_rows(matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
 
 		# print("new: ", )
 		# print(ms2_inv_bind)

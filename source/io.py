@@ -194,17 +194,6 @@ class BinaryStream(BytesIO):
 
 		return read_string, write_string, NotImplemented, NotImplemented
 
-	def read_array(self, shape, dtype=np.float32):  # TODO remove this
-		array = np.empty(shape, dtype)
-		# noinspection PyTypeChecker
-		self.readinto(array)
-		return array
-
-	def write_array(self, array, dtype=np.float32):  # TODO remove this
-		if array.dtype != dtype:
-			array = array.astype(dtype)
-		self.write(array.tobytes())
-
 	def read_type(self, cls, args=()):
 		# obj = cls.__new__(cls, *args)
 		obj = cls(*args)

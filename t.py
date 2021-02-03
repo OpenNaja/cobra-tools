@@ -82,3 +82,28 @@ print(djb("assetpkg"))
 # 	* pointers = [HeaderPointer [Size: 0, Address: 0]
 # 	* header_index = 0
 # 	* data_offset = 752
+
+
+# START_GLOBALS
+import numpy as np
+
+# END_GLOBALS
+
+
+class Matrix33(np.ndarray):
+
+	def __init__(self, shape):
+		print("HY")
+		super().__init__((3, 3), dtype=np.float32)
+	# START_CLASS
+
+	def __repr__(self):
+		return (
+				"[ %6.3f %6.3f %6.3f ]\n"
+				"[ %6.3f %6.3f %6.3f ]\n"
+				"[ %6.3f %6.3f %6.3f ]\n"
+				% (self.m_11, self.m_12, self.m_13, self.m_21, self.m_22, self.m_23, self.m_31, self.m_32, self.m_33))
+
+
+m = Matrix33((1,2))
+print(m)
