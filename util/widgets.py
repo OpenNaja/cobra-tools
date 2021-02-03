@@ -417,15 +417,25 @@ class TableDirModel(QtCore.QAbstractTableModel):
 class SortableDirTable(QtWidgets.QWidget):
 	def __init__(self, header_names, main_window):
 		super().__init__()
+		self.main_window = main_window
 		self.table = TableDirView(header_names, main_window)
 		self.directory = LabelEdit("Directories:")
 		qgrid = QtWidgets.QGridLayout()
 		qgrid.addWidget(self.directory, 0, 0, )
 		qgrid.addWidget(self.table, 1, 0, 1, 1)
 		self.setLayout(qgrid)
+		self.table.doubleClicked.connect(self.double_clicked)
+
+	def double_clicked(self, data):
+		currentPath = os.path.dirname(self.main_window.file_widget.filepath)
+		newfile     = self.table.get_selected_files()[0]
+		print(f"\nLoading {newfile} requested\n")
+		newfilepath = os.path.join(currentPath , newfile + '.ovl')
+		if self.main_window.file_widget.accept_file(newfilepath) and self.main_window.poll:
+				self.main_window.poll()
 
 	def set_data(self, data):
-		self.table.set_data(data)	
+		self.table.set_data(data)
 		
 class TableDirView(QtWidgets.QTableView):
 	def __init__(self, header_names, main_window):
@@ -463,7 +473,6 @@ class TableDirView(QtWidgets.QTableView):
 		# map the selected indices to the actual underlying data, which is in its original order
 		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
 		return [self.model._data[x][0] for x in ids]
-
 
 	def set_data(self, data):
 		if not data:
