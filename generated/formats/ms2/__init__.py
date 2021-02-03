@@ -25,7 +25,7 @@ def findall(p, s):
 	i = s.find(p)
 	while i != -1:
 		yield i
-		i = s.find(p, i+1)
+		i = s.find(p, i + 1)
 
 
 def findall_diff(s, p0, p1):
@@ -33,9 +33,9 @@ def findall_diff(s, p0, p1):
 	the pattern p in the string s.'''
 	i = s.find(p0)
 	while i != -1:
-		if s[i+20:i+24] == p1:
+		if s[i + 20:i + 24] == p1:
 			yield i
-		i = s.find(p0, i+1)
+		i = s.find(p0, i + 1)
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
@@ -80,14 +80,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		zero_f = bytes.fromhex("00 00 00 00")
 		one_f = bytes.fromhex("00 00 80 3F")
 		# prefixes = (zero_f, one_f)
-		prefixes = (zero_f, )
+		prefixes = (zero_f,)
 		# lion has a 1 instead of a 4
 		bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
 		# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
 		bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
 		# bone_info_marker =   bytes.fromhex("00 00 00 00 00 00 00 00 01")
 		# bone_info_markerb =   bytes.fromhex("00 00 00 00 00 00 00 00 04")
-		suffixes = (bone_info_marker_1, bone_info_marker_4, )
+		suffixes = (bone_info_marker_1, bone_info_marker_4,)
 		# there's 8 bytes before this
 		bone_info_starts = []
 		for prefix in prefixes:
@@ -97,15 +97,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		bone_info_starts = list(sorted(set(bone_info_starts)))
 		# for i, start in enumerate(bone_info_starts):
 		# 	print(i, self.bone_info_bytes[start:start+20])
-
-		if is_pc(self):
-			if bone_info_starts:
-				if bone_info_starts[0] <= 20:
-					bone_info_starts_0 = bone_info_starts[0]
-					bone_info_starts = []
-					bone_info_starts.append(bone_info_starts_0)
-				else:
-					bone_info_starts = []
+		#
+		# if is_pc(self):
+		# 	if bone_info_starts:
+		# 		if bone_info_starts[0] <= 20:
+		# 			bone_info_starts_0 = bone_info_starts[0]
+		# 			bone_info_starts = []
+		# 			bone_info_starts.append(bone_info_starts_0)
+		# 		else:
+		# 			bone_info_starts = []
 
 		print("bone_info_starts", bone_info_starts)
 
@@ -129,46 +129,55 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				try:
 					self.bone_names = [self.names[i] for i in bone_info.name_indices]
 				except:
+					self.bone_names = []
 					print("Names failed...")
+				try:
+					self.read_joints(bone_info)
+				except:
+					pass
 			print(self.bone_names)
-			for i, x in enumerate(bone_info.struct_7.unknown_list):
-				print(i)
-				print(self.bone_names[x.child], x.child)
-				print(self.bone_names[x.parent], x.parent)
-				assert x.zero == 0
-				assert x.one == 1
-			assert bone_info.one == 1
-			assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.bone_parents_count == bone_info.enum_count
-			assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
-			assert bone_info.unk_78_count == 0 and bone_info.unknown_88 == 0 and bone_info.unknownextra == 0
-			joints = bone_info.joints
-			for joint_info in joints.joint_info_list:
-				joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
-				for hit in joint_info.hit_check:
-					hit.name = joints.joint_names.get_str_at(hit.name_offset)
-			print(joints)
 
-			for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
-				print(f"List {ix}")
-				for i, x in enumerate(li):
-					print(i)
-					print(joints.joint_info_list[x.parent].name, x.parent)
-					print(joints.joint_info_list[x.child].name, x.child)
-
-			# if bone_info.joint_count:
-			# 	for i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
-			# 		usually, this corresponds - does not do for speedtree but does not matter
-			# 		if not self.bone_names[i] == joint_info.name:
-			# 			print("WARNING NAMES DON'T MATCH", self.bone_names[i], joint_info.name)
-			# if bone_info.joint_count:
-			# 	for i, bone_name in zip(joints.bone_indices, self.bone_names):
-			# 		print(i, bone_name)
-			# 		if i > -1:
-			# 			print(joints.joint_info_list[i].name)
 		else:
 			print("No bone info found")
 
 		return bone_info
+
+	def read_joints(self, bone_info):
+
+		for i, x in enumerate(bone_info.struct_7.unknown_list):
+			print(i)
+			print(self.bone_names[x.child], x.child)
+			print(self.bone_names[x.parent], x.parent)
+			assert x.zero == 0
+			assert x.one == 1
+		assert bone_info.one == 1
+		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.bone_parents_count == bone_info.enum_count
+		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
+		assert bone_info.unk_78_count == 0 and bone_info.unknown_88 == 0 and bone_info.unknownextra == 0
+		joints = bone_info.joints
+		for joint_info in joints.joint_info_list:
+			joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
+			for hit in joint_info.hit_check:
+				hit.name = joints.joint_names.get_str_at(hit.name_offset)
+		# print(joints)
+
+		for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
+			print(f"List {ix}")
+			for i, x in enumerate(li):
+				print(i)
+				print(joints.joint_info_list[x.parent].name, x.parent)
+				print(joints.joint_info_list[x.child].name, x.child)
+
+		# if bone_info.joint_count:
+		# 	for i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
+		# 		usually, this corresponds - does not do for speedtree but does not matter
+		# 		if not self.bone_names[i] == joint_info.name:
+		# 			print("WARNING NAMES DON'T MATCH", self.bone_names[i], joint_info.name)
+		# if bone_info.joint_count:
+		# 	for i, bone_name in zip(joints.bone_indices, self.bone_names):
+		# 		print(i, bone_name)
+		# 		if i > -1:
+		# 			print(joints.joint_info_list[i].name)
 
 	def load(self, filepath, mdl2, quick=False, map_bytes=False, read_bytes=False):
 		start_time = time.time()
@@ -179,32 +188,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			self.eoh = stream.tell()
-			# print(self)
+			print(self)
 			print("end of header: ", self.eoh)
 			if is_pc(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
-
+				print(self.pc_buffer1)
 				start_of_lods = stream.tell()
 				# first get all bytes of the whole bone infos block
 				self.model_data_bone_info_bytes = stream.read(self.eoh + self.bone_info_size - start_of_lods)
-				
-				zero_f = bytes.fromhex("00 00 00 00")
-				one_f = bytes.fromhex("00 00 80 3F")
-				# lion has a 1 instead of a 4
-				bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
-				# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
-				bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
-				# there's 8 bytes before this
-				bone_info_starts = []
-				for a, b in ((zero_f, bone_info_marker_1),
-							 (one_f, bone_info_marker_1),
-					 		(zero_f, bone_info_marker_4),
-					 		(one_f, bone_info_marker_4),
-							):
-					bone_info_starts.extend(x - 4 for x in findall(a + b, self.model_data_bone_info_bytes))
-
-				bone_info_starts = list(sorted(bone_info_starts))
-				print(bone_info_starts)
 
 				# find the start of each using this identifier
 				ninehundred_f = bytes.fromhex("00 00 61 44 00 00")
@@ -233,7 +224,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					# this is for the PC format
 					# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
 					print("Lod offset from start of lod block", lod_offset_rel)
-					stream.seek(start_of_lods+lod_offset_rel)
+					stream.seek(start_of_lods + lod_offset_rel)
 					print(stream.tell())
 					model_info.pc_model = stream.read_type(PcModel, (model_info,))
 					print(model_info.pc_model)
@@ -242,10 +233,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# the other models have 16 bytes
 				# ostrich has 4 bytes
 				print("start of boneinfo", stream.tell())
-				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfoPc)
+				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo)
+				self.bone_info2 = self.get_bone_info(1, stream, Ms2BoneInfo)
+				print(self.bone_info)
+				print(self.bone_info2)
 			else:
 				self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
-
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
@@ -283,7 +276,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					for model in mdl2.models:
 						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
 
-
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
 		# write each model's vert & tri block to a temporary buffer
@@ -298,7 +290,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.bone_info.write(temp_bone_writer)
 			bone_bytes = temp_bone_writer.getvalue()
 
-		with open(filepath+"bonedump", "wb") as f:
+		with open(filepath + "bonedump", "wb") as f:
 			f.write(bone_bytes)
 
 		for i, model in enumerate(mdl2.models):
@@ -337,7 +329,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# modify buffer size
 		self.buffer_info.vertexdatasize = len(vert_bytes)
 		self.buffer_info.facesdatasize = len(tris_bytes)
-	
+
 		# write output ms2
 		with self.writer(filepath) as f:
 			self.write(f)
@@ -353,7 +345,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				f.write(bone_bytes)
 			f.write(vert_bytes)
 			f.write(tris_bytes)
-	
+
 
 class Mdl2File(Mdl2InfoHeader, IoFile):
 
@@ -409,46 +401,47 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
+	m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
 	# m = Mdl2File()
 	# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
-	# # print(m)
+	# print(m)
 	#
-	idir = "C:/Users/arnfi/Desktop/out"
+	# idir = "C:/Users/arnfi/Desktop/out"
 	# # idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
 	# dic = {}
 	# name = "nat_grassdune_02.mdl2"
 	# name = "nat_groundcover_searocket_patchy_01.mdl2"
 	# indices = []
 	#
-	for fp in walker.walk_type(idir, "mdl2"):
-		if "hitcheck" in fp or "skeleton" in fp or "airliftstraps" in fp:
-			continue
-		print(fp)
-		m.load(fp, quick=True)
-	# 	# indices.append(m.index)
+	# for fp in walker.walk_type(idir, "mdl2"):
+	# 	if "hitcheck" in fp or "skeleton" in fp or "airliftstraps" in fp:
+	# 		continue
 	# 	print(fp)
-	# 	# print(list(lod.bone_index for lod in m.lods))
-	# 	# print(m.model_info)
-	# 	# lod_indices = list(lod.bone_index for lod in m.lods)
-	# 	flags = list(mo.flag for mo in m.models)
-	# 	print(flags)
-	# 	# indices.extend(unk)
-	# # 		dic[file] = lod_indices
-	# # 		if file.lower() == name:
-	# # 			print(m.ms2_file.bone_info)
-	# # 		# print(m.ms2_file.bone_info)
-	# # 		print(m.ms2_file.bone_info.name_indices, lod_indices)
-	# # 		lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
-	# # 		print(lod_names)
-	# # print(dic)
-	# # # print(m.ms2_file.names)
-	# # for i, n in enumerate(m.ms2_file.names):
-	# # 	print(i,n)
-	# # l = dic[name]
-	# # print(l)
-	# # print(indices, max(indices))
-	# # fp = os.path.join(idir, name)
-	# # m.load(fp, quick=True)
-	#
-	# print(set(indices))
+	# 	m.load(fp, quick=True)
+# 	# indices.append(m.index)
+# 	print(fp)
+# 	# print(list(lod.bone_index for lod in m.lods))
+# 	# print(m.model_info)
+# 	# lod_indices = list(lod.bone_index for lod in m.lods)
+# 	flags = list(mo.flag for mo in m.models)
+# 	print(flags)
+# 	# indices.extend(unk)
+# # 		dic[file] = lod_indices
+# # 		if file.lower() == name:
+# # 			print(m.ms2_file.bone_info)
+# # 		# print(m.ms2_file.bone_info)
+# # 		print(m.ms2_file.bone_info.name_indices, lod_indices)
+# # 		lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
+# # 		print(lod_names)
+# # print(dic)
+# # # print(m.ms2_file.names)
+# # for i, n in enumerate(m.ms2_file.names):
+# # 	print(i,n)
+# # l = dic[name]
+# # print(l)
+# # print(indices, max(indices))
+# # fp = os.path.join(idir, name)
+# # m.load(fp, quick=True)
+#
+# print(set(indices))

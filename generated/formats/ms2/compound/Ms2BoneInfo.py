@@ -3,6 +3,7 @@ from generated.array import Array
 from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
+from generated.formats.ms2.compound.MinusPadding import MinusPadding
 from generated.formats.ms2.compound.PzBone import PzBone
 from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
@@ -46,6 +47,8 @@ class Ms2BoneInfo:
 
 		# index count 5
 		self.enum_count = 0
+
+		# usually zero
 		self.unknown_58 = 0
 
 		# always 1
@@ -57,6 +60,9 @@ class Ms2BoneInfo:
 		# index count 7
 		self.count_7 = 0
 
+		# zero
+		self.unknownextra = 0
+
 		# joint count
 		self.joint_count = 0
 
@@ -66,11 +72,14 @@ class Ms2BoneInfo:
 		# jwe only, everything is shifted a bit due to extra uint 0
 		self.unknown_88 = 0
 
-		# same as above
-		self.unknownextra = 0
+		# index into ms2 string table for bones used here
+		self.name_indices = Array()
 
 		# index into ms2 string table for bones used here
 		self.name_indices = Array()
+
+		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
+		self.name_padding = Array()
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
 		self.name_padding = Array()
@@ -95,6 +104,9 @@ class Ms2BoneInfo:
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding()
+
+		# weird -1s
+		self.minus_padding = MinusPadding()
 
 		# ragdoll links?
 		self.struct_7 = Struct7()
@@ -121,16 +133,22 @@ class Ms2BoneInfo:
 		self.unknown_58 = stream.read_uint64()
 		self.one = stream.read_uint64()
 		self.zeros_count = stream.read_uint64()
-		if not (stream.version == 18):
-			self.count_7 = stream.read_uint64()
-		self.joint_count = stream.read_uint64()
-		self.unk_78_count = stream.read_uint64()
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
-			self.unknown_88 = stream.read_uint64()
+		self.count_7 = stream.read_uint64()
 		if stream.version == 18:
 			self.unknownextra = stream.read_uint64()
-		self.name_indices = stream.read_uints((self.name_count))
-		self.name_padding = stream.read_bytes(((16 - ((self.name_count * 4) % 16)) % 16))
+		self.joint_count = stream.read_uint64()
+		if not (stream.version == 18):
+			self.unk_78_count = stream.read_uint64()
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
+			self.unknown_88 = stream.read_uint64()
+		if not (stream.version == 18):
+			self.name_indices = stream.read_uints((self.name_count))
+		if stream.version == 18:
+			self.name_indices = stream.read_ushorts((self.name_count))
+		if not (stream.version == 18):
+			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 4) % 16)) % 16))
+		if stream.version == 18:
+			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
 		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.read(stream, PzBone, self.bone_count, None)
@@ -140,9 +158,11 @@ class Ms2BoneInfo:
 		self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
 		if self.one:
 			self.enumeration = stream.read_uints((self.enum_count, 2))
-		if self.zeros_count:
+		if not (stream.version == 18) and self.zeros_count:
 			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count,))
-		if self.count_7:
+		if stream.version == 18 and self.zeros_count:
+			self.minus_padding = stream.read_type(MinusPadding, (self.zeros_count,))
+		if not (stream.version == 18) and self.count_7:
 			self.struct_7 = stream.read_type(Struct7)
 		if self.joint_count:
 			self.joints = stream.read_type(JointData)
@@ -168,16 +188,22 @@ class Ms2BoneInfo:
 		stream.write_uint64(self.unknown_58)
 		stream.write_uint64(self.one)
 		stream.write_uint64(self.zeros_count)
-		if not (stream.version == 18):
-			stream.write_uint64(self.count_7)
-		stream.write_uint64(self.joint_count)
-		stream.write_uint64(self.unk_78_count)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
-			stream.write_uint64(self.unknown_88)
+		stream.write_uint64(self.count_7)
 		if stream.version == 18:
 			stream.write_uint64(self.unknownextra)
-		stream.write_uints(self.name_indices)
-		stream.write_bytes(self.name_padding)
+		stream.write_uint64(self.joint_count)
+		if not (stream.version == 18):
+			stream.write_uint64(self.unk_78_count)
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
+			stream.write_uint64(self.unknown_88)
+		if not (stream.version == 18):
+			stream.write_uints(self.name_indices)
+		if stream.version == 18:
+			stream.write_ushorts(self.name_indices)
+		if not (stream.version == 18):
+			stream.write_bytes(self.name_padding)
+		if stream.version == 18:
+			stream.write_bytes(self.name_padding)
 		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.write(stream, PzBone, self.bone_count, None)
@@ -187,9 +213,11 @@ class Ms2BoneInfo:
 		stream.write_bytes(self.hier_1_padding)
 		if self.one:
 			stream.write_uints(self.enumeration)
-		if self.zeros_count:
+		if not (stream.version == 18) and self.zeros_count:
 			stream.write_type(self.zeros_padding)
-		if self.count_7:
+		if stream.version == 18 and self.zeros_count:
+			stream.write_type(self.minus_padding)
+		if not (stream.version == 18) and self.count_7:
 			stream.write_type(self.struct_7)
 		if self.joint_count:
 			stream.write_type(self.joints)
@@ -217,10 +245,10 @@ class Ms2BoneInfo:
 		s += f'\n	* one = {self.one.__repr__()}'
 		s += f'\n	* zeros_count = {self.zeros_count.__repr__()}'
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
+		s += f'\n	* unknownextra = {self.unknownextra.__repr__()}'
 		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
 		s += f'\n	* unk_78_count = {self.unk_78_count.__repr__()}'
 		s += f'\n	* unknown_88 = {self.unknown_88.__repr__()}'
-		s += f'\n	* unknownextra = {self.unknownextra.__repr__()}'
 		s += f'\n	* name_indices = {self.name_indices.__repr__()}'
 		s += f'\n	* name_padding = {self.name_padding.__repr__()}'
 		s += f'\n	* inverse_bind_matrices = {self.inverse_bind_matrices.__repr__()}'
@@ -229,6 +257,7 @@ class Ms2BoneInfo:
 		s += f'\n	* hier_1_padding = {self.hier_1_padding.__repr__()}'
 		s += f'\n	* enumeration = {self.enumeration.__repr__()}'
 		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
+		s += f'\n	* minus_padding = {self.minus_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
 		s += f'\n	* joints = {self.joints.__repr__()}'
 		return s
