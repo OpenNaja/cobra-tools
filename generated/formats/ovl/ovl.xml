@@ -273,8 +273,8 @@
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
         <add name="offset" type="uint" >offset for extension into string name table</add>
         <add name="file index" type="uint" >index into file table, points to the file entry where this dependency is used</add>
-        <add name="Ovsblock Id" type="uint" >usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>
-        <add name="pool_offset" type="uint" >probably an address??</add>
+        <add name="Ovsblock Id" type="uint" >what we call archive, usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>
+        <add name="pool_offset" type="uint" >offset inside the ovs in memory, textures probably should be shorted by that for loading</add>
     </compound>
 
     <compound name="AuxEntry" >

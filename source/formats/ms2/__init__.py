@@ -228,6 +228,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					print(stream.tell())
 					model_info.pc_model = stream.read_type(PcModel, (model_info,))
 					print(model_info.pc_model)
+				else:
+					stream.seek(start_of_lods)
 				print("end of pc_model", stream.tell())
 				# padding is handled by get_bone_info
 				# the other models have 16 bytes

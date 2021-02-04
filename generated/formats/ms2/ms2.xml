@@ -300,7 +300,10 @@
 	<compound name="PcBuffer1" >
 
 		cond="general info \ ms2 version == 32"
-		<add name="whatever" type="uint" arr1="8" ></add>
+
+		<add name="zeros 1" type="uint64" arr1="2" ></add>
+		<add name="vertex buffer size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
+		<add name="zero 2" type="uint64" ></add>
 		<add name="model infos" type="onefiftytwo" arr1="#ARG#\mdl2 count" ></add>
 		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>
 

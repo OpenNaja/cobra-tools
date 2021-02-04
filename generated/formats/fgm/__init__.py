@@ -10,12 +10,12 @@ dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}
 
 class FgmFile(FgmInfoHeader, IoFile):
 
-	def get_texture_file(self, target_suffix):
-		for tex_file in self.texture_names:
-			file, suffix = tex_file.rsplit(".", 1)
-			if suffix.lower() == target_suffix.lower():
-				return tex_file
-		return target_suffix
+	# def get_texture_file(self, target_suffix):
+	# 	for tex_file in self.texture_names:
+	# 		file, suffix = tex_file.rsplit(".", 1)
+	# 		if suffix.lower() == target_suffix.lower():
+	# 			return tex_file
+	# 	return target_suffix
 
 	@staticmethod
 	def read_z_str(stream, pos):
@@ -43,13 +43,15 @@ class FgmFile(FgmInfoHeader, IoFile):
 			self.shader_name = self.read_z_str(stream, name_start)
 			for texture in self.textures:
 				texture.type = self.read_z_str(stream, name_start + texture.offset)
-				texture.name = self.get_texture_file(texture.type)
+				# texture.name = self.get_texture_file(texture.type)
 				# convert to bool
 				texture.textured = texture.is_textured == 8
 				if texture.textured:
 					texture.value = list(x for x in texture.indices)
+					texture.name = self.texture_names[texture.indices[0]]
 				else:
 					texture.value = list(x for x in texture.colors)
+					texture.name = texture.type
 
 			# read float / bool / int values
 			for attrib in self.attributes:

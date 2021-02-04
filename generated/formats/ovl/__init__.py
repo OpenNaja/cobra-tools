@@ -1508,7 +1508,8 @@ class OvlFile(Header, IoFile):
 		self.len_type_names = min(file.offset for file in self.files)
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
-		self.dependencies.sort(key=lambda x: x.file_hash)
+		# nope they are not sorted by hash
+		# self.dependencies.sort(key=lambda x: x.file_hash)
 
 		archive_entry = ArchiveEntry()
 		self.archives.append(archive_entry)
@@ -1658,7 +1659,6 @@ class OvlFile(Header, IoFile):
 			self.print_and_callback("Getting dependency names", value=ht_index, max_value=ht_max)
 			# nb: these use : instead of . at the start, eg. :tex
 			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
-			# print(dependency_entry.ext, dependency_entry.offset)
 			try:
 				dependency_entry.name = self.hash_table_local[dependency_entry.file_hash]
 				print(f"LOCAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.name}")
@@ -1669,12 +1669,17 @@ class OvlFile(Header, IoFile):
 				except:
 					print(f"UNRESOLVED DEPENDENCY: {dependency_entry.file_hash} -> ?")
 					dependency_entry.name = "bad hash"
+			print(dependency_entry.name, dependency_entry.ovsblock_id, dependency_entry.pool_offset)
 			try:
 				file_entry = self.files[dependency_entry.file_index]
 				file_entry.dependencies.append(dependency_entry)
 			# funky bug due to some PC ovls using a different DependencyEntry struct
 			except IndexError as err:
 				print(err)
+		# sort dependencies by their pool offset
+		for file_entry in self.files:
+			file_entry.dependencies.sort(key=lambda entry: entry.pool_offset)
+
 		self.static_archive = None
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)

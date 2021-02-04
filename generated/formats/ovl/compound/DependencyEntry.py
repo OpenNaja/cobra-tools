@@ -20,10 +20,10 @@ class DependencyEntry:
 		# index into file table, points to the file entry where this dependency is used
 		self.file_index = 0
 
-		# usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type
+		# what we call archive, usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type
 		self.ovsblock_id = 0
 
-		# probably an address??
+		# offset inside the ovs in memory, textures probably should be shorted by that for loading
 		self.pool_offset = 0
 
 	def read(self, stream):
