@@ -13,6 +13,9 @@ class PcModel:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# uses uint here, uint64 elsewhere
+		self.materials_0 = Array()
 		self.lod_infos = Array()
 		self.materials_1 = Array()
 		self.model_data = Array()
@@ -20,18 +23,20 @@ class PcModel:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.lod_infos.read(stream, LodInfo, self.arg.model_info.lod_count, None)
-		self.materials_1.read(stream, Material1, self.arg.model_info.mat_1_count, None)
-		self.model_data.read(stream, PcModelData, self.arg.model_info.model_count, None)
+		self.materials_0 = stream.read_uints((self.arg.mat_count))
+		self.lod_infos.read(stream, LodInfo, self.arg.lod_count, None)
+		self.materials_1.read(stream, Material1, self.arg.mat_1_count, None)
+		self.model_data.read(stream, PcModelData, self.arg.model_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.lod_infos.write(stream, LodInfo, self.arg.model_info.lod_count, None)
-		self.materials_1.write(stream, Material1, self.arg.model_info.mat_1_count, None)
-		self.model_data.write(stream, PcModelData, self.arg.model_info.model_count, None)
+		stream.write_uints(self.materials_0)
+		self.lod_infos.write(stream, LodInfo, self.arg.lod_count, None)
+		self.materials_1.write(stream, Material1, self.arg.mat_1_count, None)
+		self.model_data.write(stream, PcModelData, self.arg.model_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -40,6 +45,7 @@ class PcModel:
 
 	def get_fields_str(self):
 		s = ''
+		s += f'\n	* materials_0 = {self.materials_0.__repr__()}'
 		s += f'\n	* lod_infos = {self.lod_infos.__repr__()}'
 		s += f'\n	* materials_1 = {self.materials_1.__repr__()}'
 		s += f'\n	* model_data = {self.model_data.__repr__()}'

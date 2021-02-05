@@ -40,8 +40,6 @@ def import_armature(data):
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 		mats = {}
 		for bone_name, bone, o_parent_ind in zip(bone_names, bone_info.bones, bone_info.bone_parents):
-			if not bone_name:
-				bone_name = "Dummy"
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
 
 			# local space matrix, in ms2 orientation
@@ -95,10 +93,16 @@ def import_armature(data):
 		# 	print(bone)
 
 		# store original bone index as custom property
-		for i, bone_name in enumerate(bone_names):
-			bone = b_armature_obj.pose.bones[bone_name]
-			bone["index"] = i
-		import_joints(b_armature_obj, bone_info, bone_names)
+		try:
+			for i, bone_name in enumerate(bone_names):
+				bone = b_armature_obj.pose.bones[bone_name]
+				bone["index"] = i
+		except:
+			print("Bone did not exist - bug")
+		try:
+			import_joints(b_armature_obj, bone_info, bone_names)
+		except:
+			print("Joints failed...")
 		return b_armature_obj
 
 

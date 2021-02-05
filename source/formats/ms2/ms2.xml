@@ -291,36 +291,33 @@
 		<add name="bone names size" type="uint" ></add>
 		<add name="bone info size" type="uint" ></add>
 		<add name="general info" type="Ms2SizedStrData" ></add>
-		<add name="buffer info" type="Ms2BufferInfo" cond="general info \ has model data" vercond="!#PC#" > not in PC, or at least somewhere else</add>
+		<add name="buffer info" type="Ms2BufferInfo" cond="general info \ has model data" vercond="!#PC#"/>
 
 		<add name="name hashes" type="uint" arr1="general info\name count" ></add>
 		<add name="names" type="ZString" arr1="general info\name count" ></add>
 	</compound>
 
 	<compound name="PcBuffer1" >
-
 		cond="general info \ ms2 version == 32"
-
-		<add name="zeros 1" type="uint64" arr1="2" ></add>
-		<add name="vertex buffer size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
-		<add name="zero 2" type="uint64" ></add>
-		<add name="model infos" type="onefiftytwo" arr1="#ARG#\mdl2 count" ></add>
-		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>
-
+		<add name="buffer info pc" type="Ms2BufferInfoPC" />
+		<add name="model infos" type="CoreModelInfoPC" arr1="#ARG#\mdl2 count" ></add>
+<!--		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>-->
 	</compound>
 
 	<compound name="PcModel" >
-		<add name="lod infos" type="LodInfo" arr1="#ARG#\model info\lod count" ></add>
-		<add name="materials 1" type="Material1" arr1="#ARG#\model info\mat1 count" ></add>
-		<add name="model data" type="PcModelData" arr1="#ARG#\model info\model count" ></add>
+		<add name="materials 0" type="uint" arr1="#ARG#\mat count" >uses uint here, uint64 elsewhere</add>
+		<add name="lod infos" type="LodInfo" arr1="#ARG#\lod count" ></add>
+		<add name="materials 1" type="Material1" arr1="#ARG#\mat1 count" ></add>
+		<add name="model data" type="PcModelData" arr1="#ARG#\model count" ></add>
 <!--		<add name="padding" type="uint" arr1="3" >does not work for ostrich, has just arr = 1 here</add>-->
 <!--		<add name="bone info" type="Ms2BoneInfo" ></add>-->
 	</compound>
 
-	<compound name="onefiftytwo" >
-		# equivalent to 38 uints, 152 bytes
-		<add name="model info" type="CoreModelInfo" ></add>
-		<add name="some" type="uint64" arr1="7" ></add>
+	<compound name="CoreModelInfoPC" inherit="CoreModelInfo">
+		152 bytes
+		<add name="zeros" type="uint64" arr1="5"/>
+		<add name="one" type="uint64"/>
+		<add name="zero" type="uint64"/>
 	</compound>
 
 	<compound name="Ms2BufferInfo" >
@@ -334,6 +331,14 @@
 		<add name="facesdatasize" type="uint64" ></add>
 		<add name="ptr2" type="uint64">8 empty bytes</add>
 		<add name="unk 2" type="uint64" arr1="2" vercond="#PZ#" > PZ, another 16 empty bytes </add>
+	</compound>
+
+	<compound name="Ms2BufferInfoPC" >
+		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
+		PC: 32 bytes
+		<add name="zeros 1" type="uint64" arr1="2" ></add>
+		<add name="vertex buffer size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
+		<add name="zero 2" type="uint64" ></add>
 	</compound>
 	
 	<compound name="Mdl2FourtyInfo" >

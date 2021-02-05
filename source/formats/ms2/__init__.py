@@ -187,13 +187,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.bone_info = None
 		with self.reader(filepath) as stream:
 			self.read(stream)
+			# buffer 0 (hashes and names) has been read by the header
+			# so eoh = start of buffer 1
 			self.eoh = stream.tell()
-			print(self)
+			# print(self)
 			print("end of header: ", self.eoh)
 			if is_pc(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
 				print(self.pc_buffer1)
 				start_of_lods = stream.tell()
+				print("end of PC mdl2s:", start_of_lods)
 				# first get all bytes of the whole bone infos block
 				self.model_data_bone_info_bytes = stream.read(self.eoh + self.bone_info_size - start_of_lods)
 
@@ -207,12 +210,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				lod_info_starts = list(sorted(lod_info_starts))
 				lod_info_starts2 = list(sorted(lod_info_starts2))
 				lod_info_starts.extend(lod_info_starts2)
-				print(lod_info_starts)
+				print("lod_info_starts", lod_info_starts)
 				for i, m in enumerate(self.pc_buffer1.model_infos):
 					m.index = i
 					m.pc_model = None
 
-				valid_models = [m for m in self.pc_buffer1.model_infos if m.model_info.model_count]
+				valid_models = [m for m in self.pc_buffer1.model_infos if m.model_count]
 				model_info = self.pc_buffer1.model_infos[mdl2.index]
 
 				b_index = valid_models.index(model_info)
@@ -224,21 +227,23 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					# this is for the PC format
 					# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
 					print("Lod offset from start of lod block", lod_offset_rel)
-					stream.seek(start_of_lods + lod_offset_rel)
+					stream.seek(start_of_lods + lod_offset_rel - model_info.mat_count*4)
 					print(stream.tell())
 					model_info.pc_model = stream.read_type(PcModel, (model_info,))
+					pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
 					print(model_info.pc_model)
+					print("end of pc_model", stream.tell())
+					print("pc_model_padding", pc_model_padding)
 				else:
 					stream.seek(start_of_lods)
-				print("end of pc_model", stream.tell())
 				# padding is handled by get_bone_info
 				# the other models have 16 bytes
 				# ostrich has 4 bytes
 				print("start of boneinfo", stream.tell())
 				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo)
-				self.bone_info2 = self.get_bone_info(1, stream, Ms2BoneInfo)
-				print(self.bone_info)
-				print(self.bone_info2)
+				# self.bone_info2 = self.get_bone_info(1, stream, Ms2BoneInfo)
+				# print(self.bone_info)
+				# print(self.bone_info2)
 			else:
 				self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
 
@@ -247,11 +252,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			stream.seek(self.eoh + self.bone_info_size)
 			# get the starting position of buffer #2, vertex & face array
 			self.start_buffer2 = stream.tell()
+			print("self.start_buffer2", self.start_buffer2)
 			if self.general_info.ms_2_version == 32:
 				print("PC model...")
 				mdl2.models = Array()
 				if not quick:
-					base = model_info.model_info.pack_offset
+					base = model_info.pack_offset
 					print("base", base)
 					base = 512
 					# for model in self.pc_buffer1.model_infos:
@@ -404,6 +410,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Mdl2File()
 	m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
 	# m = Mdl2File()
 	# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")

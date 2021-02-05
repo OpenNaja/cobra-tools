@@ -1,0 +1,58 @@
+import typing
+from generated.array import Array
+from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
+
+
+class CoreModelInfoPC(CoreModelInfo):
+
+	"""
+	152 bytes
+	"""
+
+	def __init__(self, arg=None, template=None):
+		self.name = ''
+		super().__init__(arg, template)
+		self.arg = arg
+		self.template = template
+		self.io_size = 0
+		self.io_start = 0
+		self.zeros = Array()
+		self.one = 0
+		self.zero = 0
+
+	def read(self, stream):
+
+		self.io_start = stream.tell()
+		super().read(stream)
+		self.zeros = stream.read_uint64s((5))
+		self.one = stream.read_uint64()
+		self.zero = stream.read_uint64()
+
+		self.io_size = stream.tell() - self.io_start
+
+	def write(self, stream):
+
+		self.io_start = stream.tell()
+		super().write(stream)
+		stream.write_uint64s(self.zeros)
+		stream.write_uint64(self.one)
+		stream.write_uint64(self.zero)
+
+		self.io_size = stream.tell() - self.io_start
+
+	def get_info_str(self):
+		return f'CoreModelInfoPC [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
+	def get_fields_str(self):
+		s = ''
+		s += super().get_fields_str()
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* one = {self.one.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
+		return s
+
+	def __repr__(self):
+		s = self.get_info_str()
+		s += self.get_fields_str()
+		s += '\n'
+		return s

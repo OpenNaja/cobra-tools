@@ -37,8 +37,6 @@ class Ms2InfoHeader:
 		self.bone_names_size = 0
 		self.bone_info_size = 0
 		self.general_info = Ms2SizedStrData()
-
-		# not in PC, or at least somewhere else
 		self.buffer_info = Ms2BufferInfo()
 		self.name_hashes = Array()
 		self.names = Array()
