@@ -202,56 +202,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			print("end of header: ", self.eoh)
 			if is_pc(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
-				# print(self.pc_buffer1)
-				start_of_lods = stream.tell()
-				# print("end of PC mdl2s:", start_of_lods)
-				# # first get all bytes of the whole bone infos block
-				# self.model_data_bone_info_bytes = stream.read(self.eoh + self.bone_info_size - start_of_lods)
-				#
-				# # find the start of each using this identifier
-				# ninehundred_f = bytes.fromhex("00 00 61 44 00 00")
-				# twothousand_f = bytes.fromhex("00 20 FD 44")
-				# no_2nd_lod_f = bytes.fromhex("00 00 00 00")
-				# lod_info_starts = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, twothousand_f)
-				# lod_info_starts2 = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, no_2nd_lod_f)
-				#
-				# lod_info_starts = list(sorted(lod_info_starts))
-				# lod_info_starts2 = list(sorted(lod_info_starts2))
-				# lod_info_starts.extend(lod_info_starts2)
-				# print("lod_info_starts", lod_info_starts)
-				# for i, m in enumerate(self.pc_buffer1.model_infos):
-				# 	m.index = i
-				# 	m.pc_model = None
-				#
-				# valid_models = [m for m in self.pc_buffer1.model_infos if m.model_count]
-				# model_info = self.pc_buffer1.model_infos[mdl2.index]
-				#
-				# b_index = valid_models.index(model_info)
-				# print("mdl2s", len(self.pc_buffer1.model_infos))
-				# print("mdl2s with models", len(valid_models))
-				# print("lod info starts", len(lod_info_starts), "(should match the above)")
-				# if lod_info_starts:
-				# 	lod_offset_rel = lod_info_starts[b_index]
-				# 	# this is for the PC format
-				# 	# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
-				# 	print("Lod offset from start of lod block", lod_offset_rel)
-				# 	stream.seek(start_of_lods + lod_offset_rel - model_info.mat_count*4)
-				# 	print(stream.tell())
-				# 	model_info.pc_model = stream.read_type(PcModel, (model_info,))
-				# 	pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
-				# 	print(model_info.pc_model)
-				# 	print("end of pc_model", stream.tell())
-				# 	print("pc_model_padding", pc_model_padding)
-				# else:
-				# 	stream.seek(start_of_lods)
-				# print("start of boneinfo", stream.tell())
 				for i, model_info in enumerate(self.pc_buffer1.model_infos):
 					print("\n\nMDL2", i)
-					print(model_info)
+					# print(model_info)
 					model_info.pc_model = stream.read_type(PcModel, (model_info,))
-					pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
+					# print(model_info.pc_model)
+					model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
 					self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo)
-					print(self.bone_info)
+					# print(self.bone_info)
 					if i == mdl2.index:
 						break
 			else:
@@ -263,27 +221,22 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# get the starting position of buffer #2, vertex & face array
 			self.start_buffer2 = stream.tell()
 			print("self.start_buffer2", self.start_buffer2)
-			if self.general_info.ms_2_version == 32:
+			if is_pc(self):
 				print("PC model...")
 				mdl2.models = Array()
 				if not quick:
-					base = model_info.pack_offset
-					print("base", base)
-					base = 512
 					# for model in self.pc_buffer1.model_infos:
 					for model_data in model_info.pc_model.model_data:
-						model_data.populate(self, stream, self.start_buffer2, self.bone_names, base)
-
-						model_data.material = "test"
+						model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512)
 						mdl2.models.append(model_data)
+					self.lookup_material(model_info.pc_model, mdl2.models)
 			else:
 				print("vert array start", self.start_buffer2)
 				print("tri array start", self.start_buffer2 + self.buffer_info.vertexdatasize)
 
 				if not quick:
-					base = mdl2.model_info.pack_offset
 					for model in mdl2.models:
-						model.populate(self, stream, self.start_buffer2, self.bone_names, base)
+						model.populate(self, stream, self.start_buffer2, self.bone_names, mdl2.model_info.pack_offset)
 
 				if map_bytes:
 					for model in mdl2.models:
@@ -293,6 +246,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if read_bytes:
 					for model in mdl2.models:
 						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
+
+	def lookup_material(self, mdl2, models):
+		for mat_1 in mdl2.materials_1:
+			try:
+				name = self.names[mdl2.materials_0[mat_1.material_index]]
+				model = models[mat_1.model_index]
+				model.material = name
+			except:
+				print(f"Couldn't match material {mat_1.material_index} to model {mat_1.model_index} - bug?")
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
@@ -385,17 +347,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.ms2_file.load(self.ms2_path, self, quick=quick, map_bytes=map_bytes, read_bytes=read_bytes)
 
 		# set material links
-		for mat_1 in self.materials_1:
-			try:
-				name = self.ms2_file.names[self.materials_0[mat_1.material_index].name_index]
-				model = self.models[mat_1.model_index]
-				model.material = name
-			except:
-				print(f"Couldn't match material {mat_1.material_index} to model {mat_1.model_index} - bug?")
-				model.material = "noname"
-		# todo - doesn't seem to be correct, at least not for JWE dinos
-		# self.lod_names = [self.ms2_file.names[self.materials_0[lod.name_index].name_index] for lod in self.lods]
-		# print("lod_names", self.lod_names)
+		self.ms2_file.lookup_material(self, self.models)
 		print(f"Finished reading in {time.time() - start_time:.2f} seconds!")
 
 	def save(self, filepath):
@@ -421,8 +373,9 @@ if __name__ == "__main__":
 	m = Mdl2File()
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
-	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
+	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
 	# m = Mdl2File()
 	# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")

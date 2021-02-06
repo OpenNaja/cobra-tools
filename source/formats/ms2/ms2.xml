@@ -263,16 +263,11 @@
 		<add name="name" type="string" >name of ms2</add>
 
 		<add name="model info" type="CoreModelInfo" cond="!#PC#" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="materials 0" type="Material0" arr1="model info\mat count" cond="!#PC#" >name pointers for each material</add>
+		<add name="materials 0" type="uint64" arr1="model info\mat count" cond="!#PC#" >name pointers for each material</add>
 		<add name="lods" type="LodInfo" arr1="model info\lod count" cond="!#PC#" >lod info for each level</add>
 		<add name="materials 1" type="Material1" arr1="model info\mat1 count" cond="!#PC#" >material links for each model</add>
 		<add name="models" type="ModelData" arr1="(model info\model count)" cond="!#PC#" >model data blocks for this mdl2</add>
 
-	</compound>
-
-	<compound name="Material0">
-		<add name="name index" type="uint" >index into name buffer</add>
-		<add name="zero" type="uint" >always zero</add>
 	</compound>
 
 	<compound name="Material1">
@@ -310,8 +305,6 @@
 		<add name="lod infos" type="LodInfo" arr1="#ARG#\lod count" ></add>
 		<add name="materials 1" type="Material1" arr1="#ARG#\mat1 count" ></add>
 		<add name="model data" type="PcModelData" arr1="#ARG#\model count" ></add>
-<!--		<add name="padding" type="uint" arr1="3" >does not work for ostrich, has just arr = 1 here</add>-->
-<!--		<add name="bone info" type="Ms2BoneInfo" ></add>-->
 	</compound>
 
 	<compound name="CoreModelInfoPC" inherit="CoreModelInfo">
@@ -414,6 +407,9 @@
 <!--		<add name="struct 7" type="uint64" arr1="count7" vercond="#PC#">ragdoll links?</add>-->
 		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
 		<add name="joints" type="JointData" cond="joint count">joints</add>
+<!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
+		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>
+
 	</compound>
 
 	<compound name="ZerosPadding">

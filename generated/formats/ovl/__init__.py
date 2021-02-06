@@ -279,11 +279,11 @@ class OvsFile(OvsHeader, ZipFile):
 			for set_entry in self.set_header.sets:
 				self.assign_name(set_entry)
 				set_entry.entry = self.find_entry(self.sized_str_entries, set_entry)
-				print(set_entry.name)
+				# print(set_entry.name)
 
 			for asset_entry in self.set_header.assets:
 				self.assign_name(asset_entry)
-				print(asset_entry.name)
+				# print(asset_entry.name)
 				try:
 					asset_entry.entry = self.sized_str_entries[asset_entry.file_index]
 				except:

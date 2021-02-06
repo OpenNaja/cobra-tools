@@ -3,7 +3,6 @@ from generated.array import Array
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.FixedString import FixedString
 from generated.formats.ms2.compound.LodInfo import LodInfo
-from generated.formats.ms2.compound.Material0 import Material0
 from generated.formats.ms2.compound.Material1 import Material1
 from generated.formats.ms2.compound.ModelData import ModelData
 
@@ -80,7 +79,7 @@ class Mdl2InfoHeader:
 		self.name = stream.read_string()
 		if not (stream.version == 18):
 			self.model_info = stream.read_type(CoreModelInfo)
-			self.materials_0.read(stream, Material0, self.model_info.mat_count, None)
+			self.materials_0 = stream.read_uint64s((self.model_info.mat_count))
 			self.lods.read(stream, LodInfo, self.model_info.lod_count, None)
 			self.materials_1.read(stream, Material1, self.model_info.mat_1_count, None)
 			self.models.read(stream, ModelData, self.model_info.model_count, None)
@@ -104,7 +103,7 @@ class Mdl2InfoHeader:
 		stream.write_string(self.name)
 		if not (stream.version == 18):
 			stream.write_type(self.model_info)
-			self.materials_0.write(stream, Material0, self.model_info.mat_count, None)
+			stream.write_uint64s(self.materials_0)
 			self.lods.write(stream, LodInfo, self.model_info.lod_count, None)
 			self.materials_1.write(stream, Material1, self.model_info.mat_1_count, None)
 			self.models.write(stream, ModelData, self.model_info.model_count, None)

@@ -6,7 +6,7 @@ import bpy
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups
 from plugin.helpers import mesh_from_data
-from plugin.material import create_material
+from plugin.modules_import.material import create_material
 from utils import matrix_util
 from generated.formats.ms2 import Mdl2File
 

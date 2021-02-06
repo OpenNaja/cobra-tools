@@ -109,7 +109,7 @@
 
     <enum name="DdsType_Coaster" storage="ubyte">
 		maps the OVL's dds type to name of compression format
-		<option value="74" name="DXGI_FORMAT_BC1_UNORM_B">wrong</option>
+		<option value="74" name="DXGI_FORMAT_D24_UNORM_S8_UINT">wrong</option>
 		<option value="97" name="DXGI_FORMAT_BC1_UNORM"></option>
 		<option value="98" name="DXGI_FORMAT_BC1_UNORM_SRGB"></option>
 		<option value="99" name="DXGI_FORMAT_BC2_UNORM"></option>

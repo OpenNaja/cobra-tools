@@ -115,6 +115,7 @@ class Ms2BoneInfo:
 
 		# joints
 		self.joints = JointData()
+		self.weird_padding_2 = SmartPadding()
 
 	def read(self, stream):
 
@@ -170,6 +171,8 @@ class Ms2BoneInfo:
 			self.weird_padding = stream.read_type(SmartPadding)
 		if self.joint_count:
 			self.joints = stream.read_type(JointData)
+		if stream.version == 18 and not self.joint_count:
+			self.weird_padding_2 = stream.read_type(SmartPadding)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -227,6 +230,8 @@ class Ms2BoneInfo:
 			stream.write_type(self.weird_padding)
 		if self.joint_count:
 			stream.write_type(self.joints)
+		if stream.version == 18 and not self.joint_count:
+			stream.write_type(self.weird_padding_2)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -267,6 +272,7 @@ class Ms2BoneInfo:
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
 		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
 		s += f'\n	* joints = {self.joints.__repr__()}'
+		s += f'\n	* weird_padding_2 = {self.weird_padding_2.__repr__()}'
 		return s
 
 	def __repr__(self):
