@@ -36,7 +36,11 @@ class CoreModelInfo:
 
 		# PZ only, zero-ish
 		self.unknowns = Array()
+
+		# verbatim repeat
 		self.bounds_min_repeat = Vector3()
+
+		# verbatim repeat
 		self.bounds_max_repeat = Vector3()
 		self.mat_count = 0
 		self.lod_count = 0
@@ -53,17 +57,18 @@ class CoreModelInfo:
 
 		self.io_start = stream.tell()
 		self.bounds_min = stream.read_type(Vector3)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			self.unk_float_a = stream.read_float()
 		self.bounds_max = stream.read_type(Vector3)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			self.pack_offset = stream.read_float()
 		self.center = stream.read_type(Vector3)
 		self.radius = stream.read_float()
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.unknowns = stream.read_floats((4))
-		self.bounds_min_repeat = stream.read_type(Vector3)
-		self.bounds_max_repeat = stream.read_type(Vector3)
+		if not (stream.version == 17):
+			self.bounds_min_repeat = stream.read_type(Vector3)
+			self.bounds_max_repeat = stream.read_type(Vector3)
 		self.mat_count = stream.read_ushort()
 		self.lod_count = stream.read_ushort()
 		self.mat_1_count = stream.read_ushort()
@@ -79,17 +84,18 @@ class CoreModelInfo:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.bounds_min)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			stream.write_float(self.unk_float_a)
 		stream.write_type(self.bounds_max)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			stream.write_float(self.pack_offset)
 		stream.write_type(self.center)
 		stream.write_float(self.radius)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			stream.write_floats(self.unknowns)
-		stream.write_type(self.bounds_min_repeat)
-		stream.write_type(self.bounds_max_repeat)
+		if not (stream.version == 17):
+			stream.write_type(self.bounds_min_repeat)
+			stream.write_type(self.bounds_max_repeat)
 		stream.write_ushort(self.mat_count)
 		stream.write_ushort(self.lod_count)
 		stream.write_ushort(self.mat_1_count)

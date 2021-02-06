@@ -16,6 +16,7 @@ from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from generated.formats.ovl.versions import *
+from generated.formats.ms2.versions import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
 from modules.formats.shared import get_padding_size, assign_versions, get_versions
@@ -98,18 +99,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				bone_info_starts.extend(x - 4 for x in findall(prefix + suffix, self.bone_info_bytes))
 
 		bone_info_starts = list(sorted(set(bone_info_starts)))
-		# for i, start in enumerate(bone_info_starts):
-		# 	print(i, self.bone_info_bytes[start:start+20])
-		#
-		# if is_pc(self):
-		# 	if bone_info_starts:
-		# 		if bone_info_starts[0] <= 20:
-		# 			bone_info_starts_0 = bone_info_starts[0]
-		# 			bone_info_starts = []
-		# 			bone_info_starts.append(bone_info_starts_0)
-		# 		else:
-		# 			bone_info_starts = []
-
 		print("bone_info_starts", bone_info_starts)
 
 		if bone_info_starts:
@@ -198,10 +187,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# buffer 0 (hashes and names) has been read by the header
 			# so eoh = start of buffer 1
 			self.eoh = stream.tell()
-			# print(self)
+			print(self)
 			print("end of header: ", self.eoh)
-			if is_pc(self):
+			if is_old(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
+				print(self.pc_buffer1)
 				for i, model_info in enumerate(self.pc_buffer1.model_infos):
 					print("\n\nMDL2", i)
 					# print(model_info)
@@ -221,7 +211,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# get the starting position of buffer #2, vertex & face array
 			self.start_buffer2 = stream.tell()
 			print("self.start_buffer2", self.start_buffer2)
-			if is_pc(self):
+			if is_old(self):
 				print("PC model...")
 				mdl2.models = Array()
 				if not quick:
@@ -371,9 +361,10 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
+	m.load("C:/Users/arnfi/Desktop/ele/africanelephant_child.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
-	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")

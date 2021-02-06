@@ -2,11 +2,14 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
+    <version id="old" version="17 18" >Old</version>
+
 	<token name="verexpr" attrs="vercond cond">
 		Commonly used version expressions.
 <!--		<verexpr token="#PC#" string="(ms2 version #EQ# 32)">PC</verexpr>-->
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
+		<verexpr token="#OLD#" string="(#VER# #LT# 19)">PC, ZTUAC</verexpr>
 		<verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
 		<verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
 	</token>
@@ -262,11 +265,11 @@
 		<add name="bone info index" type="uint" >used to find bone info</add>
 		<add name="name" type="string" >name of ms2</add>
 
-		<add name="model info" type="CoreModelInfo" cond="!#PC#" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="materials 0" type="uint64" arr1="model info\mat count" cond="!#PC#" >name pointers for each material</add>
-		<add name="lods" type="LodInfo" arr1="model info\lod count" cond="!#PC#" >lod info for each level</add>
-		<add name="materials 1" type="Material1" arr1="model info\mat1 count" cond="!#PC#" >material links for each model</add>
-		<add name="models" type="ModelData" arr1="(model info\model count)" cond="!#PC#" >model data blocks for this mdl2</add>
+		<add name="model info" type="CoreModelInfo" cond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="materials 0" type="uint64" arr1="model info\mat count" cond="!#OLD#" >name pointers for each material</add>
+		<add name="lods" type="LodInfo" arr1="model info\lod count" cond="!#OLD#" >lod info for each level</add>
+		<add name="materials 1" type="Material1" arr1="model info\mat1 count" cond="!#OLD#" >material links for each model</add>
+		<add name="models" type="ModelData" arr1="(model info\model count)" cond="!#OLD#" >model data blocks for this mdl2</add>
 
 	</compound>
 
@@ -287,7 +290,7 @@
 		<add name="bone names size" type="uint" ></add>
 		<add name="bone info size" type="uint" ></add>
 		<add name="general info" type="Ms2SizedStrData" ></add>
-		<add name="buffer info" type="Ms2BufferInfo" cond="general info \ has model data" vercond="!#PC#"/>
+		<add name="buffer info" type="Ms2BufferInfo" cond="general info \ has model data" vercond="!#OLD#"/>
 
 		<add name="name hashes" type="uint" arr1="general info\name count" ></add>
 		<add name="names" type="ZString" arr1="general info\name count" ></add>
@@ -295,7 +298,9 @@
 
 	<compound name="PcBuffer1" >
 		cond="general info \ ms2 version == 32"
-		<add name="buffer info pc" type="Ms2BufferInfoPC" />
+		<add name="weird padding" type="SmartPadding" vercond="#ZTUAC#">sometimes 00 byte</add>
+		<add name="buffer info pc" type="Ms2BufferInfoPC" vercond="#PC#" />
+		<add name="buffer info pc" type="Ms2BufferInfoZT" vercond="#ZTUAC#" />
 		<add name="model infos" type="CoreModelInfoPC" arr1="#ARG#\mdl2 count" ></add>
 <!--		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>-->
 	</compound>
@@ -334,6 +339,13 @@
 		<add name="vertex buffer size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
 		<add name="zero 2" type="uint64" ></add>
 	</compound>
+
+	<compound name="Ms2BufferInfoZT" >
+		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
+		266 bytes
+		<add name="unks" type="ushort" arr1="7" ></add>
+		<add name="unks 1" type="ushort" arr1="126" ></add>
+	</compound>
 	
 	<compound name="Mdl2FourtyInfo" >
 		<add name="unknowns" type="uint64" arr1="5" >0, 1 or 0, 0, 0, 0</add>
@@ -350,14 +362,14 @@
 		In load order it always defines the variable fragments for the next mdl2
 		The mdl2's fragment informs the first mdl2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-		<add name="unk float a" type="float" vercond="!#PC#"></add>
+		<add name="unk float a" type="float" vercond="!#OLD#"></add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="pack offset" type="float" vercond="!#PC#">scale: pack_offset / 512, also added as offset</add>
+		<add name="pack offset" type="float" vercond="!#OLD#">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
 		<add name="unknowns" type="float" arr1="4" vercond="#PZ#">PZ only, zero-ish</add>
-		<add name="bounds min repeat" type="Vector3" ></add>
-		<add name="bounds max repeat" type="Vector3" ></add>
+		<add name="bounds min repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
+		<add name="bounds max repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
 
 		<add name="mat count" type="ushort"></add>
 		<add name="lod count" type="ushort"></add>

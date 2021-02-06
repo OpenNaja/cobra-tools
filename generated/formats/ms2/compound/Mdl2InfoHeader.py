@@ -77,7 +77,7 @@ class Mdl2InfoHeader:
 		self.index = stream.read_uint()
 		self.bone_info_index = stream.read_uint()
 		self.name = stream.read_string()
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials_0 = stream.read_uint64s((self.model_info.mat_count))
 			self.lods.read(stream, LodInfo, self.model_info.lod_count, None)
@@ -101,7 +101,7 @@ class Mdl2InfoHeader:
 		stream.write_uint(self.index)
 		stream.write_uint(self.bone_info_index)
 		stream.write_string(self.name)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			stream.write_type(self.model_info)
 			stream.write_uint64s(self.materials_0)
 			self.lods.write(stream, LodInfo, self.model_info.lod_count, None)
