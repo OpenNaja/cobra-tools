@@ -3,6 +3,7 @@ import itertools
 import struct
 import io
 import time
+import traceback
 
 from generated.array import Array
 from generated.formats.ms2.compound.JointData import JointData
@@ -13,6 +14,7 @@ from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
 from generated.formats.ms2.compound.Ms2BoneInfoPc import Ms2BoneInfoPc
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
+from generated.formats.ms2.enum.CollisionType import CollisionType
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
@@ -65,7 +67,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# if bone_info.joint_count:
 				# 	k = bone_info.joint_datas.joint_count
 				print("padding", padding_len, stream.read(padding_len), "joint count", bone_info.joint_count)
-			except:
+			except Exception as err:
+				traceback.print_exc()
 				print("Bone info failed")
 		stream.seek(potential_start)
 
@@ -120,10 +123,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			try:
 				bone_info = bone_info_cls()
 				bone_info.read(stream)
+				for hitcheck in bone_info.joints.hitchecks_pc:
+					if hitcheck.type == CollisionType.ConvexHull:
+						hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
+						print(hitcheck.collider.verts)
 				# print(bone_info)
 				end_of_bone_info = stream.tell()
 				print("end of bone info at", end_of_bone_info)
-			except:
+			except Exception as err:
+				traceback.print_exc()
 				print("Bone info failed")
 			if bone_info:
 				try:
@@ -194,56 +202,58 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			print("end of header: ", self.eoh)
 			if is_pc(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
-				print(self.pc_buffer1)
+				# print(self.pc_buffer1)
 				start_of_lods = stream.tell()
-				print("end of PC mdl2s:", start_of_lods)
-				# first get all bytes of the whole bone infos block
-				self.model_data_bone_info_bytes = stream.read(self.eoh + self.bone_info_size - start_of_lods)
-
-				# find the start of each using this identifier
-				ninehundred_f = bytes.fromhex("00 00 61 44 00 00")
-				twothousand_f = bytes.fromhex("00 20 FD 44")
-				no_2nd_lod_f = bytes.fromhex("00 00 00 00")
-				lod_info_starts = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, twothousand_f)
-				lod_info_starts2 = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, no_2nd_lod_f)
-
-				lod_info_starts = list(sorted(lod_info_starts))
-				lod_info_starts2 = list(sorted(lod_info_starts2))
-				lod_info_starts.extend(lod_info_starts2)
-				print("lod_info_starts", lod_info_starts)
-				for i, m in enumerate(self.pc_buffer1.model_infos):
-					m.index = i
-					m.pc_model = None
-
-				valid_models = [m for m in self.pc_buffer1.model_infos if m.model_count]
-				model_info = self.pc_buffer1.model_infos[mdl2.index]
-
-				b_index = valid_models.index(model_info)
-				print("mdl2s", len(self.pc_buffer1.model_infos))
-				print("mdl2s with models", len(valid_models))
-				print("lod info starts", len(lod_info_starts), "(should match the above)")
-				if lod_info_starts:
-					lod_offset_rel = lod_info_starts[b_index]
-					# this is for the PC format
-					# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
-					print("Lod offset from start of lod block", lod_offset_rel)
-					stream.seek(start_of_lods + lod_offset_rel - model_info.mat_count*4)
-					print(stream.tell())
+				# print("end of PC mdl2s:", start_of_lods)
+				# # first get all bytes of the whole bone infos block
+				# self.model_data_bone_info_bytes = stream.read(self.eoh + self.bone_info_size - start_of_lods)
+				#
+				# # find the start of each using this identifier
+				# ninehundred_f = bytes.fromhex("00 00 61 44 00 00")
+				# twothousand_f = bytes.fromhex("00 20 FD 44")
+				# no_2nd_lod_f = bytes.fromhex("00 00 00 00")
+				# lod_info_starts = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, twothousand_f)
+				# lod_info_starts2 = findall_diff(self.model_data_bone_info_bytes, ninehundred_f, no_2nd_lod_f)
+				#
+				# lod_info_starts = list(sorted(lod_info_starts))
+				# lod_info_starts2 = list(sorted(lod_info_starts2))
+				# lod_info_starts.extend(lod_info_starts2)
+				# print("lod_info_starts", lod_info_starts)
+				# for i, m in enumerate(self.pc_buffer1.model_infos):
+				# 	m.index = i
+				# 	m.pc_model = None
+				#
+				# valid_models = [m for m in self.pc_buffer1.model_infos if m.model_count]
+				# model_info = self.pc_buffer1.model_infos[mdl2.index]
+				#
+				# b_index = valid_models.index(model_info)
+				# print("mdl2s", len(self.pc_buffer1.model_infos))
+				# print("mdl2s with models", len(valid_models))
+				# print("lod info starts", len(lod_info_starts), "(should match the above)")
+				# if lod_info_starts:
+				# 	lod_offset_rel = lod_info_starts[b_index]
+				# 	# this is for the PC format
+				# 	# for mdl2_info, lod_offset_rel in zip(valid_models, lod_info_starts):
+				# 	print("Lod offset from start of lod block", lod_offset_rel)
+				# 	stream.seek(start_of_lods + lod_offset_rel - model_info.mat_count*4)
+				# 	print(stream.tell())
+				# 	model_info.pc_model = stream.read_type(PcModel, (model_info,))
+				# 	pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
+				# 	print(model_info.pc_model)
+				# 	print("end of pc_model", stream.tell())
+				# 	print("pc_model_padding", pc_model_padding)
+				# else:
+				# 	stream.seek(start_of_lods)
+				# print("start of boneinfo", stream.tell())
+				for i, model_info in enumerate(self.pc_buffer1.model_infos):
+					print("\n\nMDL2", i)
+					print(model_info)
 					model_info.pc_model = stream.read_type(PcModel, (model_info,))
 					pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
-					print(model_info.pc_model)
-					print("end of pc_model", stream.tell())
-					print("pc_model_padding", pc_model_padding)
-				else:
-					stream.seek(start_of_lods)
-				# padding is handled by get_bone_info
-				# the other models have 16 bytes
-				# ostrich has 4 bytes
-				print("start of boneinfo", stream.tell())
-				self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo)
-				# self.bone_info2 = self.get_bone_info(1, stream, Ms2BoneInfo)
-				# print(self.bone_info)
-				# print(self.bone_info2)
+					self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo)
+					print(self.bone_info)
+					if i == mdl2.index:
+						break
 			else:
 				self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
 
@@ -409,8 +419,10 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
+	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
 	# m = Mdl2File()
 	# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")

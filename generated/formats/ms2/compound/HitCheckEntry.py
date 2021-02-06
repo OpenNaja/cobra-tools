@@ -1,6 +1,7 @@
 import typing
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
+from generated.formats.ms2.compound.ConvexHull import ConvexHull
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.enum.CollisionType import CollisionType
 
@@ -28,12 +29,14 @@ class HitCheckEntry:
 
 		# JWE: 46, PZ: same as above
 		self.unknown_4 = 0
+		self.zero_extra_pc_unk = 0
 
 		# offset into joint names
 		self.name_offset = 0
 		self.collider = Sphere()
 		self.collider = BoundingBox()
 		self.collider = Capsule()
+		self.collider = ConvexHull()
 
 	def read(self, stream):
 
@@ -45,6 +48,8 @@ class HitCheckEntry:
 		self.unknown_2_d = stream.read_ubyte()
 		self.unknown_3 = stream.read_uint()
 		self.unknown_4 = stream.read_uint()
+		if stream.version == 18:
+			self.zero_extra_pc_unk = stream.read_uint()
 		self.name_offset = stream.read_uint()
 		if self.type == 0:
 			self.collider = stream.read_type(Sphere)
@@ -52,6 +57,8 @@ class HitCheckEntry:
 			self.collider = stream.read_type(BoundingBox)
 		if self.type == 2:
 			self.collider = stream.read_type(Capsule)
+		if self.type == 8:
+			self.collider = stream.read_type(ConvexHull)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -65,12 +72,16 @@ class HitCheckEntry:
 		stream.write_ubyte(self.unknown_2_d)
 		stream.write_uint(self.unknown_3)
 		stream.write_uint(self.unknown_4)
+		if stream.version == 18:
+			stream.write_uint(self.zero_extra_pc_unk)
 		stream.write_uint(self.name_offset)
 		if self.type == 0:
 			stream.write_type(self.collider)
 		if self.type == 1:
 			stream.write_type(self.collider)
 		if self.type == 2:
+			stream.write_type(self.collider)
+		if self.type == 8:
 			stream.write_type(self.collider)
 
 		self.io_size = stream.tell() - self.io_start
@@ -87,6 +98,7 @@ class HitCheckEntry:
 		s += f'\n	* unknown_2_d = {self.unknown_2_d.__repr__()}'
 		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
 		s += f'\n	* unknown_4 = {self.unknown_4.__repr__()}'
+		s += f'\n	* zero_extra_pc_unk = {self.zero_extra_pc_unk.__repr__()}'
 		s += f'\n	* name_offset = {self.name_offset.__repr__()}'
 		s += f'\n	* collider = {self.collider.__repr__()}'
 		return s

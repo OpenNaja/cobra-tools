@@ -5,6 +5,7 @@ from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.MinusPadding import MinusPadding
 from generated.formats.ms2.compound.PzBone import PzBone
+from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
 
@@ -110,6 +111,7 @@ class Ms2BoneInfo:
 
 		# ragdoll links?
 		self.struct_7 = Struct7()
+		self.weird_padding = SmartPadding()
 
 		# joints
 		self.joints = JointData()
@@ -164,6 +166,8 @@ class Ms2BoneInfo:
 			self.minus_padding = stream.read_type(MinusPadding, (self.zeros_count,))
 		if not (stream.version == 18) and self.count_7:
 			self.struct_7 = stream.read_type(Struct7)
+		if stream.version == 18 and self.joint_count:
+			self.weird_padding = stream.read_type(SmartPadding)
 		if self.joint_count:
 			self.joints = stream.read_type(JointData)
 
@@ -219,6 +223,8 @@ class Ms2BoneInfo:
 			stream.write_type(self.minus_padding)
 		if not (stream.version == 18) and self.count_7:
 			stream.write_type(self.struct_7)
+		if stream.version == 18 and self.joint_count:
+			stream.write_type(self.weird_padding)
 		if self.joint_count:
 			stream.write_type(self.joints)
 
@@ -259,6 +265,7 @@ class Ms2BoneInfo:
 		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
 		s += f'\n	* minus_padding = {self.minus_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
+		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
 		s += f'\n	* joints = {self.joints.__repr__()}'
 		return s
 

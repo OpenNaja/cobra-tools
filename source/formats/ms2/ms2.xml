@@ -102,6 +102,7 @@
 		<option value="0" name="Sphere" />
 		<option value="1" name="BoundingBox" />
 		<option value="2" name="Capsule" />
+		<option value="8" name="ConvexHull" />
 		<option value="10" name="Unknown" >widgetball_test.mdl2, Ball_Hitcheck not supported</option>
 	</enum>
 
@@ -410,6 +411,8 @@
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#PC#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#PC#">weird -1s</add>
 		<add name="struct 7" type="Struct7" cond="count7" vercond="!#PC#">ragdoll links?</add>
+<!--		<add name="struct 7" type="uint64" arr1="count7" vercond="#PC#">ragdoll links?</add>-->
+		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
 		<add name="joints" type="JointData" cond="joint count">joints</add>
 	</compound>
 
@@ -461,30 +464,38 @@
 		<add name="count_0" type="uint" >small number</add>
 		<add name="count_1" type="uint" >small number</add>
 		<add name="count_2" type="uint" >small number</add>
-		<add name="zeros extra" type="uint" arr1="2" cond="#PC#">0s</add>
+		<add name="zeros extra" type="uint" arr1="2" cond="#PC#">0s, might be related to count 7 in PC</add>
 		<add name="namespace length" type="uint" ></add>
-		<add name="zeros" type="uint" arr1="13" cond="! #PC#">0s</add>
-		<add name="zeros" type="uint" arr1="17" cond="#PC#">0s</add>
+		<add name="zeros 0" type="uint" arr1="5" >0s</add>
+		<add name="pc count" type="uint" >0 or 1</add>
+		<add name="zeros 1" type="uint" arr1="7">0s</add>
+		<add name="extra zeros pc" type="uint" arr1="4" cond="#PC#">0s</add>
 		<add name="ones" type="uint64" arr1="2" >1, 1</add>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
 		<add name="joint entry count" type="uint" >0</add>
-		<add name="zeros 1" type="uint" arr1="4">usually 0s</add>
+		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="UnknownLista" type="JointEntry" arr1="joint_count" ></add>
 
-		<add name="zeros 2" type="uint64" arr1="joint_count" cond="! #PC#">might be pointers</add>
+		<add name="zeros 3" type="uint64" arr1="joint_count" cond="! #PC#">might be pointers</add>
 		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" cond="! #PC#" ></add>
 		<add name="first list" type="ListFirst" arr1="count_0" cond="! #PC#" >used by ptero, 16 bytes per entry</add>
 		<add name="short list" type="ListShort" arr1="count_1" cond="! #PC#" ></add>
 		<add name="long list" type="ListLong" arr1="count_2" cond="! #PC#" ></add>
 
-		<add name="pc ffs" type="PcFFCounter" arr1="joint_count" cond="#PC#" ></add>
-
-		<add name="joint indices" type="int" arr1="joint_count">index into bone info bones for each joint; bone that the joint is attached to</add>
-		<add name="bone indices" type="int" arr1="bone count">the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
+		<add name="pc ffs" type="PcFFCounter" cond="#PC#" ></add>
+		<add name="pc bytes" type="byte" arr1="9" cond="#PC#" >1FAA FFAAFF00 000000</add>
+		<add name="pc hitcheck count" type="uint64" cond="#PC#">some count, not sure if used</add>
+		<add name="pc zero 0" type="uint64" cond="#PC#">0</add>
+		<add name="pc floats" type="float" arr1="pc count" arr2="10" vercond="#PC#">sometimes an array of floats</add>
+		<add name="joint indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
+		<add name="bone indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint names" type="ZStringBuffer" arg="namespace length"></add>
 <!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
 		<add name="JointNamesPadding" type="SmartPadding" ></add>
-		<add name="JointInfoList" type="JointInfo" arr1="joint count" ></add>
+		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#PC#"></add>
+<!--		<add name="JointInfoList" type="HitCheck Entry" arr1="2" vercond="#PC#"></add>-->
+<!--		<add name="JointInfoList" type="HitCheck Entry" arr1="joint count" vercond="#PC#"></add>-->
+		<add name="hitchecks pc" type="HitCheck Entry" arr1="pc hitcheck count" vercond="#PC#"></add>
 	</compound>
 
 	<compound name="Descriptor">
@@ -532,6 +543,16 @@
 		<add name="HitCheck" type="HitCheck Entry" arr1="hitcheck count"/>
 	</compound>
 
+	<compound name="JointInfoPC">
+		<add name="eleven" type="uint">must be 11</add>
+		<add name="FFs" type="int" arr1="3">bunch of -1's</add>
+		<add name="name offset" type="uint"/>
+		<add name="hitcheck count" type="uint"/>
+		<add name="zero" type="uint64" >8 bytes of zeros</add>
+		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
+		<add name="HitCheck" type="HitCheck Entry" arr1="hitcheck count"/>
+	</compound>
+
 	<compound name="HitCheck Entry">
 		<add name="type" type="CollisionType"/>
 		<add name="unknown2a" type="ubyte"></add>
@@ -540,11 +561,13 @@
 		<add name="unknown2d" type="ubyte">0</add>
 		<add name="unknown3" type="uint">JWE: 564267, PZ: seen 17 and 22</add>
 		<add name="unknown4" type="uint">JWE: 46, PZ: same as above</add>
+		<add name="zero extra pc unk" type="uint" vercond="#PC#"></add>
 		<add name="name offset" type="uint">offset into joint names</add>
 
 		<add name="collider" type="Sphere" cond="type == 0" />
 		<add name="collider" type="BoundingBox" cond="type == 1" />
 		<add name="collider" type="Capsule" cond="type == 2" />
+		<add name="collider" type="ConvexHull" cond="type == 8" />
 	</compound>
 
 	<compound name="Sphere">
@@ -557,6 +580,7 @@
 		<add name="rotation" type="Matrix33"/>
 		<add name="center" type="Vector3" >center of the box</add>
 		<add name="extent" type="Vector3" >total width</add>
+		<add name="zeros" type="uint" arr1="3" vercond="#PC#" >probably padding</add>
 	</compound>
 
 	<compound name="Capsule">
@@ -565,6 +589,13 @@
 		<add name="radius" type="float" >radius of the caps</add>
 		<add name="extent" type="float" >distance between the center points of the capsule caps, total extent is 2 * radius + extent</add>
 		<add name="zero" type="uint" >apparently unused</add>
+	</compound>
+
+	<compound name="ConvexHull">
+		<add name="vertex count" type="uint" >16 for anubis: 4 hulls * 16 * 12 (size of vert)</add>
+		<add name="rotation" type="Matrix33"/>
+		<add name="center" type="Vector3" >center of the box</add>
+		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
 	</compound>
 
 </niftoolsxml>

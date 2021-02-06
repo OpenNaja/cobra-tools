@@ -5,5 +5,6 @@ class CollisionType(UintEnum):
 	Sphere = 0
 	BoundingBox = 1
 	Capsule = 2
+	ConvexHull = 8
 	# widgetball_test.mdl2, Ball_Hitcheck not supported
 	Unknown = 10
