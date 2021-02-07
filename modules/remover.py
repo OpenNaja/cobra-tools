@@ -43,7 +43,7 @@ def file_remover(ovl, filenames):
 
                 # remove sizedstring entry for file and remove its fragments if mapped
                 for ss, string in enumerate(ovl.archives[0].content.sized_str_entries):
-                    if string.lower_name == file_entry.name + "." + fileext:
+                    if string.lower_name == file_entry.name + fileext:
                         ovl.archives[0].content.sized_str_entries.pop(ss)
                         ovl.archives[0].num_files -= 1
                         ovl.archives[0].uncompressed_size -= 16
