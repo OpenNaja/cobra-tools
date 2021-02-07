@@ -17,16 +17,23 @@ class CoreModelInfoPC(CoreModelInfo):
 		self.io_size = 0
 		self.io_start = 0
 		self.zeros = Array()
+		self.zeros = Array()
 		self.one = 0
 		self.zero = 0
+		self.zero_zt = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.zeros = stream.read_uint64s((5))
+		if stream.version == 18:
+			self.zeros = stream.read_uint64s((5))
+		if stream.version == 17:
+			self.zeros = stream.read_uint64s((9))
 		self.one = stream.read_uint64()
 		self.zero = stream.read_uint64()
+		if stream.version == 17:
+			self.zero_zt = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -34,9 +41,14 @@ class CoreModelInfoPC(CoreModelInfo):
 
 		self.io_start = stream.tell()
 		super().write(stream)
-		stream.write_uint64s(self.zeros)
+		if stream.version == 18:
+			stream.write_uint64s(self.zeros)
+		if stream.version == 17:
+			stream.write_uint64s(self.zeros)
 		stream.write_uint64(self.one)
 		stream.write_uint64(self.zero)
+		if stream.version == 17:
+			stream.write_uint64(self.zero_zt)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -49,6 +61,7 @@ class CoreModelInfoPC(CoreModelInfo):
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* one = {self.one.__repr__()}'
 		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* zero_zt = {self.zero_zt.__repr__()}'
 		return s
 
 	def __repr__(self):

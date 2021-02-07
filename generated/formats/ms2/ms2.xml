@@ -314,9 +314,11 @@
 
 	<compound name="CoreModelInfoPC" inherit="CoreModelInfo">
 		152 bytes
-		<add name="zeros" type="uint64" arr1="5"/>
+		<add name="zeros" type="uint64" arr1="5" vercond="#PC#"/>
+		<add name="zeros" type="uint64" arr1="9" vercond="#ZTUAC#"/>
 		<add name="one" type="uint64"/>
 		<add name="zero" type="uint64"/>
+		<add name="zero zt" type="uint64" vercond="#ZTUAC#"/>
 	</compound>
 
 	<compound name="Ms2BufferInfo" >
@@ -378,7 +380,7 @@
 		<add name="last count" type="ushort"></add>
 		<add name="unk0" type="uint64"></add>	
 		<add name="unk1" type="uint64"></add>	
-		<add name="pad" type="ubyte" arr1="6" > </add>
+		<add name="pad" type="ushort" arr1="3" > </add>
 	</compound>
 	
 	<compound name="Ms2BoneInfo">

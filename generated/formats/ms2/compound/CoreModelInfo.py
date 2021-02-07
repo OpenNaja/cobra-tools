@@ -76,7 +76,7 @@ class CoreModelInfo:
 		self.last_count = stream.read_ushort()
 		self.unk_0 = stream.read_uint64()
 		self.unk_1 = stream.read_uint64()
-		self.pad = stream.read_ubytes((6))
+		self.pad = stream.read_ushorts((3))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -103,7 +103,7 @@ class CoreModelInfo:
 		stream.write_ushort(self.last_count)
 		stream.write_uint64(self.unk_0)
 		stream.write_uint64(self.unk_1)
-		stream.write_ubytes(self.pad)
+		stream.write_ushorts(self.pad)
 
 		self.io_size = stream.tell() - self.io_start
 

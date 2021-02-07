@@ -1,3 +1,4 @@
+import bpy
 import os
 
 from generated.formats.fgm import FgmFile
