@@ -201,6 +201,19 @@
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 	</compound>
 
+	<compound name="LodInfoZT">
+		Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
+		20 bytes
+		<add name="full" type="ushort" >FFFF</add>
+		<add name="half" type="ushort" >7F7F</add>
+		<add name="some index" type="ushort" >increasing</add>
+		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
+		<add name="first model index" type="ushort" >first model for this lod in models list</add>
+		<add name="last model index" type="ushort" >not included in interval (python style indexing)</add>
+		<add name="vertex count" type="ushort" >vertex count of lod</add>
+		<add name="tri index count" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+	</compound>
+
 	<compound name="ModelData" >
 		Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
@@ -223,8 +236,9 @@
 		Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
 		If there is more than one of these, the fragments appear as a list according to
-		<add name="zeros a" type="uint" arr1="4" >always zero</add>
-		<add name="tri index count a" type="uint" cond="#PC#">repeat</add>
+		<add name="stream index" type="uint" >index into streamed buffers</add>
+		<add name="zeros a" type="uint" arr1="3" >always zero</add>
+		<add name="tri index count a" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
@@ -234,10 +248,11 @@
 		<add name="zero b" type="uint">always zero</add>
 		<add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
 		<add name="vert offset within lod" type="uint" > ?</add>
-		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-		<add name="zero" type="uint">always zero</add>
-		<add name="unknown07" type="float">some floats</add>
+		<add name="poweroftwo" type="uint" vercond="#PC#">power of 2 increasing with lod index</add>
+		<add name="zero" type="uint" vercond="#PC#">always zero</add>
+		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
 		<add name="flag" type="ModelFlag">bitfield</add>
+		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
 <!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
 	</compound>
 	
@@ -307,9 +322,21 @@
 
 	<compound name="PcModel" >
 		<add name="materials 0" type="uint" arr1="#ARG#\mat count" >uses uint here, uint64 elsewhere</add>
-		<add name="lod infos" type="LodInfo" arr1="#ARG#\lod count" ></add>
+		<add name="lod infos" type="LodInfoZT" arr1="#ARG#\lod count" vercond="#ZTUAC#" ></add>
+		<add name="lod infos" type="LodInfo" arr1="#ARG#\lod count" vercond="#PC#" ></add>
+<!--		<add name="lod infos" type="LodInfo" arr1="#ARG#\lod count" ></add>-->
 		<add name="materials 1" type="Material1" arr1="#ARG#\mat1 count" ></add>
 		<add name="model data" type="PcModelData" arr1="#ARG#\model count" ></add>
+		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" ></add>
+	</compound>
+
+	<compound name="ZTPreBones">
+		<add name="zeros" type="uint64" arr1="2" />
+		<add name="unks" type="uint" arr1="4" />
+		<add name="zeros 3" type="uint64" arr1="2" />
+		<add name="unks2" type="uint" arr1="10" />
+		<add name="floats" type="float" arr1="4" />
+		<add name="unks3" type="uint" arr1="2" />
 	</compound>
 
 	<compound name="CoreModelInfoPC" inherit="CoreModelInfo">
@@ -346,6 +373,7 @@
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		266 bytes
 		<add name="unks" type="ushort" arr1="7" ></add>
+		this has the starting offsets of tri buffers per streamed buffer
 		<add name="unks 1" type="ushort" arr1="126" ></add>
 	</compound>
 	
@@ -385,9 +413,9 @@
 	
 	<compound name="Ms2BoneInfo">
 		<add name="name count" type="uint64" >counts the names</add>
-		<add name="knownff" type="short" >this is always FFFF for now</add>
-		<add name="zero0" type="short" >this is always 0000 for now</add>
-		<add name="unknown0c" type="uint" ></add>
+		<add name="knownff" type="short" vercond="!#ZTUAC#" >this is always FFFF for now</add>
+		<add name="zero0" type="short" vercond="!#ZTUAC#" >this is always 0000 for now</add>
+		<add name="unknown0c" type="uint" vercond="!#ZTUAC#" ></add>
 		<add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
 		<add name="bind matrix count" type="uint64" >seems to match bone count</add>
 		<add name="zeros" type="uint64" arr1="3"></add>
@@ -395,32 +423,36 @@
 		<add name="unknown40" type="uint64" ></add>
 		<add name="bone parents count" type="uint64" >index count4</add>
 		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
+		<add name="unk zero zt" type="uint64" vercond="#ZTUAC#" >zero</add>
 		<add name="enum count" type="uint64" >index count 5</add>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="count7" type="uint64" >index count 7</add>
-		<add name="unknownextra" type="uint64" vercond="#PC#" >zero</add>
+		<add name="unknownextra" type="uint64" vercond="#OLD#" >zero</add>
 		<add name="joint count" type="uint64" >joint count</add>
-		<add name="unk78count" type="uint64" vercond="! #PC#" >unnk 78 count</add>
-		<add name="unknown88" type="uint64" vercond="#JWE# #OR# #PC#" >jwe only, everything is shifted a bit due to extra uint 0</add>
-		<add name="name indices" type="uint" arr1="name count" vercond="!#PC#">index into ms2 string table for bones used here</add>
-		<add name="name indices" type="ushort" arr1="name count" vercond="#PC#">index into ms2 string table for bones used here</add>
-		<add name="name padding" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#PC#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
-		<add name="name padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#PC#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		<add name="unk78count" type="uint64" vercond="! #OLD#" >unnk 78 count</add>
+		<add name="unknown88" type="uint64" vercond="#JWE# #OR# #OLD#" >jwe only, everything is shifted a bit due to extra uint 0</add>
+
+		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
+		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#">index into ms2 string table for bones used here</add>
+		<add name="name padding" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		<add name="name padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
 		<add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
-		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #PC#">bones, loc first</add>
+		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #OLD#">bones, loc first</add>
 		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
-		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8">zeros</add>
+		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
 <!--        <add name="enumeration" type="IndexEnum"  arr1="enum count" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
-		<add name="enumeration" type="uint"  arr1="enum count" arr2="2" cond="one" >enumerates all bone indices, 4 may be flags</add>
-		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#PC#">weird zeros</add>
-		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#PC#">weird -1s</add>
-		<add name="struct 7" type="Struct7" cond="count7" vercond="!#PC#">ragdoll links?</add>
+		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
+		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" vercond="#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
+		<add name="ZT weirdness" type="ushort" arr1="10" vercond="#ZTUAC#">zeros</add>
+		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
+		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
+		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#">ragdoll links?</add>
 <!--		<add name="struct 7" type="uint64" arr1="count7" vercond="#PC#">ragdoll links?</add>-->
 		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
-		<add name="joints" type="JointData" cond="joint count">joints</add>
+		<add name="joints" type="JointData" cond="joint count" vercond="!#ZTUAC#">joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
 		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>
 

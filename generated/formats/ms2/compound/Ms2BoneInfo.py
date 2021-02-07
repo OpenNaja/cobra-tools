@@ -46,6 +46,9 @@ class Ms2BoneInfo:
 		# pZ only
 		self.extra_uint_0 = 0
 
+		# zero
+		self.unk_zero_zt = 0
+
 		# index count 5
 		self.enum_count = 0
 
@@ -103,6 +106,12 @@ class Ms2BoneInfo:
 		# enumerates all bone indices, 4 may be flags
 		self.enumeration = Array()
 
+		# enumerates all bone indices, 4 may be flags
+		self.enumeration = Array()
+
+		# zeros
+		self.zt_weirdness = Array()
+
 		# weird zeros
 		self.zeros_padding = ZerosPadding()
 
@@ -121,9 +130,10 @@ class Ms2BoneInfo:
 
 		self.io_start = stream.tell()
 		self.name_count = stream.read_uint64()
-		self.knownff = stream.read_short()
-		self.zero_0 = stream.read_short()
-		self.unknown_0_c = stream.read_uint()
+		if not (stream.version == 17):
+			self.knownff = stream.read_short()
+			self.zero_0 = stream.read_short()
+			self.unknown_0_c = stream.read_uint()
 		self.unk_count = stream.read_uint64()
 		self.bind_matrix_count = stream.read_uint64()
 		self.zeros = stream.read_uint64s((3))
@@ -132,44 +142,51 @@ class Ms2BoneInfo:
 		self.bone_parents_count = stream.read_uint64()
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.extra_uint_0 = stream.read_uint64()
+		if stream.version == 17:
+			self.unk_zero_zt = stream.read_uint64()
 		self.enum_count = stream.read_uint64()
 		self.unknown_58 = stream.read_uint64()
 		self.one = stream.read_uint64()
 		self.zeros_count = stream.read_uint64()
 		self.count_7 = stream.read_uint64()
-		if stream.version == 18:
+		if stream.version < 19:
 			self.unknownextra = stream.read_uint64()
 		self.joint_count = stream.read_uint64()
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			self.unk_78_count = stream.read_uint64()
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
 			self.unknown_88 = stream.read_uint64()
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			self.name_indices = stream.read_uints((self.name_count))
-		if stream.version == 18:
+		if stream.version < 19:
 			self.name_indices = stream.read_ushorts((self.name_count))
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 4) % 16)) % 16))
-		if stream.version == 18:
+		if stream.version < 19:
 			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
 		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.read(stream, PzBone, self.bone_count, None)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
 			self.bones.read(stream, JweBone, self.bone_count, None)
 		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
-		self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
-		if self.one:
+		if not (stream.version == 17):
+			self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
+		if not (stream.version == 17) and self.one:
 			self.enumeration = stream.read_uints((self.enum_count, 2))
-		if not (stream.version == 18) and self.zeros_count:
+		if stream.version == 17 and self.one:
+			self.enumeration = stream.read_ubytes((self.enum_count))
+		if stream.version == 17:
+			self.zt_weirdness = stream.read_ushorts((10))
+		if not (stream.version < 19) and self.zeros_count:
 			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count,))
-		if stream.version == 18 and self.zeros_count:
+		if stream.version < 19 and self.zeros_count:
 			self.minus_padding = stream.read_type(MinusPadding, (self.zeros_count,))
-		if not (stream.version == 18) and self.count_7:
+		if not (stream.version < 19) and self.count_7:
 			self.struct_7 = stream.read_type(Struct7)
 		if stream.version == 18 and self.joint_count:
 			self.weird_padding = stream.read_type(SmartPadding)
-		if self.joint_count:
+		if not (stream.version == 17) and self.joint_count:
 			self.joints = stream.read_type(JointData)
 		if stream.version == 18 and not self.joint_count:
 			self.weird_padding_2 = stream.read_type(SmartPadding)
@@ -180,9 +197,10 @@ class Ms2BoneInfo:
 
 		self.io_start = stream.tell()
 		stream.write_uint64(self.name_count)
-		stream.write_short(self.knownff)
-		stream.write_short(self.zero_0)
-		stream.write_uint(self.unknown_0_c)
+		if not (stream.version == 17):
+			stream.write_short(self.knownff)
+			stream.write_short(self.zero_0)
+			stream.write_uint(self.unknown_0_c)
 		stream.write_uint64(self.unk_count)
 		stream.write_uint64(self.bind_matrix_count)
 		stream.write_uint64s(self.zeros)
@@ -191,44 +209,51 @@ class Ms2BoneInfo:
 		stream.write_uint64(self.bone_parents_count)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			stream.write_uint64(self.extra_uint_0)
+		if stream.version == 17:
+			stream.write_uint64(self.unk_zero_zt)
 		stream.write_uint64(self.enum_count)
 		stream.write_uint64(self.unknown_58)
 		stream.write_uint64(self.one)
 		stream.write_uint64(self.zeros_count)
 		stream.write_uint64(self.count_7)
-		if stream.version == 18:
+		if stream.version < 19:
 			stream.write_uint64(self.unknownextra)
 		stream.write_uint64(self.joint_count)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			stream.write_uint64(self.unk_78_count)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
 			stream.write_uint64(self.unknown_88)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			stream.write_uints(self.name_indices)
-		if stream.version == 18:
+		if stream.version < 19:
 			stream.write_ushorts(self.name_indices)
-		if not (stream.version == 18):
+		if not (stream.version < 19):
 			stream.write_bytes(self.name_padding)
-		if stream.version == 18:
+		if stream.version < 19:
 			stream.write_bytes(self.name_padding)
 		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.write(stream, PzBone, self.bone_count, None)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version == 18):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
 			self.bones.write(stream, JweBone, self.bone_count, None)
 		stream.write_ubytes(self.bone_parents)
-		stream.write_bytes(self.hier_1_padding)
-		if self.one:
+		if not (stream.version == 17):
+			stream.write_bytes(self.hier_1_padding)
+		if not (stream.version == 17) and self.one:
 			stream.write_uints(self.enumeration)
-		if not (stream.version == 18) and self.zeros_count:
+		if stream.version == 17 and self.one:
+			stream.write_ubytes(self.enumeration)
+		if stream.version == 17:
+			stream.write_ushorts(self.zt_weirdness)
+		if not (stream.version < 19) and self.zeros_count:
 			stream.write_type(self.zeros_padding)
-		if stream.version == 18 and self.zeros_count:
+		if stream.version < 19 and self.zeros_count:
 			stream.write_type(self.minus_padding)
-		if not (stream.version == 18) and self.count_7:
+		if not (stream.version < 19) and self.count_7:
 			stream.write_type(self.struct_7)
 		if stream.version == 18 and self.joint_count:
 			stream.write_type(self.weird_padding)
-		if self.joint_count:
+		if not (stream.version == 17) and self.joint_count:
 			stream.write_type(self.joints)
 		if stream.version == 18 and not self.joint_count:
 			stream.write_type(self.weird_padding_2)
@@ -251,6 +276,7 @@ class Ms2BoneInfo:
 		s += f'\n	* unknown_40 = {self.unknown_40.__repr__()}'
 		s += f'\n	* bone_parents_count = {self.bone_parents_count.__repr__()}'
 		s += f'\n	* extra_uint_0 = {self.extra_uint_0.__repr__()}'
+		s += f'\n	* unk_zero_zt = {self.unk_zero_zt.__repr__()}'
 		s += f'\n	* enum_count = {self.enum_count.__repr__()}'
 		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
 		s += f'\n	* one = {self.one.__repr__()}'
@@ -267,6 +293,7 @@ class Ms2BoneInfo:
 		s += f'\n	* bone_parents = {self.bone_parents.__repr__()}'
 		s += f'\n	* hier_1_padding = {self.hier_1_padding.__repr__()}'
 		s += f'\n	* enumeration = {self.enumeration.__repr__()}'
+		s += f'\n	* zt_weirdness = {self.zt_weirdness.__repr__()}'
 		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
 		s += f'\n	* minus_padding = {self.minus_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'

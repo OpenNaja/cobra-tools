@@ -73,70 +73,69 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print("Bone info failed")
 		stream.seek(potential_start)
 
-	def get_bone_info(self, mdl2_index, stream, bone_info_cls):
+	def get_bone_info(self, mdl2_index, stream, bone_info_cls, hack=True):
 		bone_info = None
 		potential_start = stream.tell()
 		print("Start looking for bone info at", potential_start)
-		# self.read_all_bone_infos(stream, bone_info_cls)
-		# first get all bytes of the whole bone infos block
-		self.bone_info_bytes = stream.read(self.bone_info_size)
-		# find the start of each using this identifier
-		zero_f = bytes.fromhex("00 00 00 00")
-		one_f = bytes.fromhex("00 00 80 3F")
-		# prefixes = (zero_f, one_f)
-		prefixes = (zero_f,)
-		# lion has a 1 instead of a 4
-		bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
-		# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
-		bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
-		# bone_info_marker =   bytes.fromhex("00 00 00 00 00 00 00 00 01")
-		# bone_info_markerb =   bytes.fromhex("00 00 00 00 00 00 00 00 04")
-		suffixes = (bone_info_marker_1, bone_info_marker_4,)
-		# there's 8 bytes before this
-		bone_info_starts = []
-		for prefix in prefixes:
-			for suffix in suffixes:
-				bone_info_starts.extend(x - 4 for x in findall(prefix + suffix, self.bone_info_bytes))
+		if hack:
+			# self.read_all_bone_infos(stream, bone_info_cls)
+			# first get all bytes of the whole bone infos block
+			self.bone_info_bytes = stream.read(self.bone_info_size)
+			# find the start of each using this identifier
+			zero_f = bytes.fromhex("00 00 00 00")
+			one_f = bytes.fromhex("00 00 80 3F")
+			# prefixes = (zero_f, one_f)
+			prefixes = (zero_f,)
+			# lion has a 1 instead of a 4
+			bone_info_marker_1 = bytes.fromhex("FF FF 00 00 00 00 00 00 01")
+			# this alone is not picky enough for mod_f_wl_unq_laboratory_corner_002_dst
+			bone_info_marker_4 = bytes.fromhex("FF FF 00 00 00 00 00 00 04")
+			# bone_info_marker =   bytes.fromhex("00 00 00 00 00 00 00 00 01")
+			# bone_info_markerb =   bytes.fromhex("00 00 00 00 00 00 00 00 04")
+			suffixes = (bone_info_marker_1, bone_info_marker_4,)
+			# there's 8 bytes before this
+			bone_info_starts = []
+			for prefix in prefixes:
+				for suffix in suffixes:
+					bone_info_starts.extend(x - 4 for x in findall(prefix + suffix, self.bone_info_bytes))
 
-		bone_info_starts = list(sorted(set(bone_info_starts)))
-		print("bone_info_starts", bone_info_starts)
+			bone_info_starts = list(sorted(set(bone_info_starts)))
+			print("bone_info_starts", bone_info_starts)
 
-		if bone_info_starts:
-			idx = mdl2_index
-			if idx >= len(bone_info_starts):
-				print("reset boneinfo index")
-				idx = 0
-			bone_info_address = potential_start + bone_info_starts[idx]
-			print(f"using bone info {idx} of {len(bone_info_starts)} at address {bone_info_address}")
-			stream.seek(bone_info_address)
+			if bone_info_starts:
+				idx = mdl2_index
+				if idx >= len(bone_info_starts):
+					print("reset boneinfo index")
+					idx = 0
+				bone_info_address = potential_start + bone_info_starts[idx]
+				print(f"using bone info {idx} of {len(bone_info_starts)} at address {bone_info_address}")
+				stream.seek(bone_info_address)
+			else:
+				print("No bone info found")
+		try:
+			bone_info = bone_info_cls()
+			bone_info.read(stream)
+			for hitcheck in bone_info.joints.hitchecks_pc:
+				if hitcheck.type == CollisionType.ConvexHull:
+					hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
+					print(hitcheck.collider.verts)
+			# print(bone_info)
+			end_of_bone_info = stream.tell()
+			print("end of bone info at", end_of_bone_info)
+		except Exception as err:
+			traceback.print_exc()
+			print("Bone info failed")
+		if bone_info:
 			try:
-				bone_info = bone_info_cls()
-				bone_info.read(stream)
-				for hitcheck in bone_info.joints.hitchecks_pc:
-					if hitcheck.type == CollisionType.ConvexHull:
-						hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
-						print(hitcheck.collider.verts)
-				# print(bone_info)
-				end_of_bone_info = stream.tell()
-				print("end of bone info at", end_of_bone_info)
-			except Exception as err:
-				traceback.print_exc()
-				print("Bone info failed")
-			if bone_info:
-				try:
-					self.bone_names = [self.names[i] for i in bone_info.name_indices]
-				except:
-					self.bone_names = []
-					print("Names failed...")
-				try:
-					self.read_joints(bone_info)
-				except:
-					pass
-			print(self.bone_names)
-
-		else:
-			print("No bone info found")
-
+				self.bone_names = [self.names[i] for i in bone_info.name_indices]
+			except:
+				self.bone_names = []
+				print("Names failed...")
+			try:
+				self.read_joints(bone_info)
+			except:
+				pass
+		print(self.bone_names)
 		return bone_info
 
 	def read_joints(self, bone_info):
@@ -196,9 +195,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					print("\n\nMDL2", i)
 					# print(model_info)
 					model_info.pc_model = stream.read_type(PcModel, (model_info,))
-					# print(model_info.pc_model)
-					model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
-					self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo)
+					print(model_info.pc_model)
+					if is_pc(self):
+						model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
+					# try:
+					# 	self.bone_info = stream.read_type(Ms2BoneInfo)
+					# except Exception as err:
+					# 	print("BONE INFO FAILED", err)
+					self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo, hack=False)
 					# print(self.bone_info)
 					if i == mdl2.index:
 						break
@@ -211,7 +215,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# get the starting position of buffer #2, vertex & face array
 			self.start_buffer2 = stream.tell()
 			print("self.start_buffer2", self.start_buffer2)
-			if is_old(self):
+			if is_ztuac(self):
+				pass
+			elif is_pc(self):
 				print("PC model...")
 				mdl2.models = Array()
 				if not quick:

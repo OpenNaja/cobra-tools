@@ -18,6 +18,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 	bone_names = buffers[0]
 	bone_matrices = buffers[1]
 	verts = b"".join(buffers[2:])
+	for i, vbuff in enumerate(buffers[2:]):
+		print(f"Vertex buffer {i}, size {len(vbuff)} bytes")
 	print("\nWriting", name)
 	print("buffers", len(buffers))
 	print(f"bone_names: {len(bone_names)}, bone_matrices: {len(bone_matrices)}, verts: {len(verts)}")
@@ -29,10 +31,10 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 	ovl_header = pack_header(archive, b"MS2 ")
 	ms2_header = struct.pack("<2I", len(bone_names), len(bone_matrices))
 
-	# for i, buffer in enumerate(buffers):
-	# 	p = out_dir(name+str(i)+".ms2")
-	# 	with open(p, 'wb') as outfile:
-	# 		outfile.write(buffer)
+	for i, buffer in enumerate(buffers):
+		p = out_dir(name+str(i)+".ms2")
+		with open(p, 'wb') as outfile:
+			outfile.write(buffer)
 
 	# Planet coaster
 	if is_pc(archive.ovl) or is_ztuac(archive.ovl):

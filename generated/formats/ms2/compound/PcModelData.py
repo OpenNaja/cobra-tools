@@ -24,6 +24,9 @@ class PcModelData:
 		self.io_size = 0
 		self.io_start = 0
 
+		# index into list of lods, or may be index into streamed buffers
+		self.lod_level_index = 0
+
 		# always zero
 		self.zeros_a = Array()
 
@@ -69,12 +72,15 @@ class PcModelData:
 		# bitfield
 		self.flag = ModelFlag()
 
+		# always zero
+		self.zero_uac = 0
+
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_a = stream.read_uints((4))
-		if stream.version == 18:
-			self.tri_index_count_a = stream.read_uint()
+		self.lod_level_index = stream.read_uint()
+		self.zeros_a = stream.read_uints((3))
+		self.tri_index_count_a = stream.read_uint()
 		self.vertex_count = stream.read_uint()
 		self.tri_offset = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
@@ -84,19 +90,22 @@ class PcModelData:
 		self.zero_b = stream.read_uint()
 		self.vertex_color_offset = stream.read_uint()
 		self.vert_offset_within_lod = stream.read_uint()
-		self.poweroftwo = stream.read_uint()
-		self.zero = stream.read_uint()
-		self.unknown_07 = stream.read_float()
+		if stream.version == 18:
+			self.poweroftwo = stream.read_uint()
+			self.zero = stream.read_uint()
+			self.unknown_07 = stream.read_float()
 		self.flag = stream.read_type(ModelFlag)
+		if stream.version == 17:
+			self.zero_uac = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
+		stream.write_uint(self.lod_level_index)
 		stream.write_uints(self.zeros_a)
-		if stream.version == 18:
-			stream.write_uint(self.tri_index_count_a)
+		stream.write_uint(self.tri_index_count_a)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_offset)
 		stream.write_uint(self.tri_index_count)
@@ -106,10 +115,13 @@ class PcModelData:
 		stream.write_uint(self.zero_b)
 		stream.write_uint(self.vertex_color_offset)
 		stream.write_uint(self.vert_offset_within_lod)
-		stream.write_uint(self.poweroftwo)
-		stream.write_uint(self.zero)
-		stream.write_float(self.unknown_07)
+		if stream.version == 18:
+			stream.write_uint(self.poweroftwo)
+			stream.write_uint(self.zero)
+			stream.write_float(self.unknown_07)
 		stream.write_type(self.flag)
+		if stream.version == 17:
+			stream.write_uint(self.zero_uac)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -118,6 +130,7 @@ class PcModelData:
 
 	def get_fields_str(self):
 		s = ''
+		s += f'\n	* lod_level_index = {self.lod_level_index.__repr__()}'
 		s += f'\n	* zeros_a = {self.zeros_a.__repr__()}'
 		s += f'\n	* tri_index_count_a = {self.tri_index_count_a.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
@@ -133,6 +146,7 @@ class PcModelData:
 		s += f'\n	* zero = {self.zero.__repr__()}'
 		s += f'\n	* unknown_07 = {self.unknown_07.__repr__()}'
 		s += f'\n	* flag = {self.flag.__repr__()}'
+		s += f'\n	* zero_uac = {self.zero_uac.__repr__()}'
 		return s
 
 	def __repr__(self):
