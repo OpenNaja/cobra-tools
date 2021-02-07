@@ -43,7 +43,7 @@ def file_remover(ovl, filenames):
 
                 # remove sizedstring entry for file and remove its fragments if mapped
                 for ss, string in enumerate(ovl.archives[0].content.sized_str_entries):
-                    if string.lower_name == file_entry.name + "." + fileext:
+                    if string.lower_name == file_entry.name + fileext:
                         ovl.archives[0].content.sized_str_entries.pop(ss)
                         ovl.archives[0].num_files -= 1
                         ovl.archives[0].uncompressed_size -= 16
@@ -70,7 +70,7 @@ def file_remover(ovl, filenames):
                         ovl.archives[0].num_fragments -= rem_ff
 
                 # TODO UPDATE THE HEADER ENTRIES WITH THE FIRST FILE HASH AND NEW COUNTS
-                for he, header_entry in enumerate(ovl.ovs_files[0].header_entries):
+                for he, header_entry in enumerate(ovl.archives[0].content.header_entries):
                     if header_entry.file_hash == del_hash:
                         if header_entry.ext_hash == djb(fileext):
                             print("updated header entry")
