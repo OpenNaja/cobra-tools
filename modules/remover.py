@@ -72,7 +72,7 @@ def file_remover(ovl, filenames):
                 # TODO UPDATE THE HEADER ENTRIES WITH THE FIRST FILE HASH AND NEW COUNTS
                 for he, header_entry in enumerate(ovl.archives[0].content.header_entries):
                     if header_entry.file_hash == del_hash:
-                        if header_entry.ext_hash == djb(fileext):
+                        if header_entry.ext_hash == djb(fileext[1:]):
                             print("updated header entry")
                             header_entry.file_hash = next_hash
                 # remove data entry for file
