@@ -336,9 +336,11 @@ class ModelData:
 				self.verts_data[i]["bone ids"] = bone_ids
 				# round is essential so the float is not truncated
 				self.verts_data[i]["bone weights"] = list(round(w * 255) for w in bone_weights)
+				# print(self.verts_data[i]["bone weights"], np.sum(self.verts_data[i]["bone weights"]))
 				# additional double check
 				d = np.sum(self.verts_data[i]["bone weights"]) - 255
 				self.verts_data[i]["bone weights"][0] -= d
+				assert np.sum(self.verts_data[i]["bone weights"]) == 255
 			if "uvs" in self.dt.fields:
 				self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
 				if fur is not None:

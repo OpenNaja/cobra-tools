@@ -155,6 +155,10 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 					except:
 						# it doesn't, so we have to fill in additional data
 						v_index = count_unique
+						if v_index > MAX_USHORT:
+							errors.append(
+								f"{ob.name} has too many MDL2 verts. The limit is {MAX_USHORT}. \nBlender vertices have to be duplicated on every UV seam, hence the increase.")
+							return errors
 						dummy_vertices[dummy] = v_index
 						count_unique += 1
 
@@ -171,44 +175,40 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 							if vgroup_name == "unk0":
 								unk_0 = vertex_group.weight
 							elif vgroup_name == "residue":
-								residue = int(vertex_group.weight)
+								# if this is not rounded, somehow it affects the weights
+								# might be a bug, but can't figure out where the rest is affected
+								residue = int(round(vertex_group.weight))
 							elif vgroup_name == "fur_length":
 								# only store this hack for shells, never for fins
 								if model.flag in (885, 1013, 821):
 									fur_length = vertex_group.weight
 							else:
-								# avoid check for dummy vertex groups without corresponding bones
+								# avoid dummy vertex groups without corresponding bones
 								try:
 									w.append([bones_table[vgroup_name], vertex_group.weight])
 								except:
-									try:
-										w.append([int(vgroup_name), vertex_group.weight])
-									except:
-										errors.append(
-											f"Ignored extraneous vertex group {vgroup_name} on mesh {ob.name}!")
+									print(f"Could not find bone name '{vgroup_name}' in bone table")
+									errors.append(
+										f"Ignored extraneous vertex group {vgroup_name} on mesh {ob.name}!")
 						# get the 4 strongest influences on this vert
 						w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
+						# print(w_s)
 						# pad the weight list to 4 bones, ie. add empty bones if missing
-						for i in range(0, 4 - len(w_s)): w_s.append([0, 0])
-						# summed weights
-						sw = sum(w[1] for w in w_s)
-						# print(sw)
-						if sw > 0.0:
-							# normalize
-							for x in range(4):
-								w_s[x][1] /= sw
-						elif b_loop.vertex_index not in unweighted_vertices:
-							# print("Sum of weights",sw)
-							unweighted_vertices.append(b_loop.vertex_index)
-						if v_index > MAX_USHORT:
-							errors.append(
-								f"{ob.name} has too many MDL2 verts. The limit is {MAX_USHORT}. \nBlender vertices have to be duplicated on every UV seam, hence the increase.")
-							return errors
-
+						for i in range(0, 4 - len(w_s)):
+							w_s.append([0, 0])
 						# ensure that we have 4 weights at this point
 						assert (len(w_s) == 4)
 						# split the list of tuples into two separate lists
 						bone_ids, bone_weights = zip(*w_s)
+						# summed weights
+						sw = sum(bone_weights)
+						# print(sw)
+						if sw > 0.0:
+							# normalize
+							bone_weights = [x / sw for x in bone_weights]
+						elif b_loop.vertex_index not in unweighted_vertices:
+							# print("Sum of weights",sw)
+							unweighted_vertices.append(b_loop.vertex_index)
 						# get the index for the skin partition - the bone with the highest weight
 						bone_index = w_s[0][0]
 						# store all raw blender data for pyffi
