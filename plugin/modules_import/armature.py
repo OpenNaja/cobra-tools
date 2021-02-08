@@ -101,8 +101,8 @@ def import_armature(data):
 			print("Bone did not exist - bug")
 		try:
 			import_joints(b_armature_obj, bone_info, bone_names)
-		except:
-			print("Joints failed...")
+		except Exception as err:
+			print("Joints failed...", err)
 		return b_armature_obj
 
 

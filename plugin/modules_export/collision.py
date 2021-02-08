@@ -45,8 +45,8 @@ def export_boxbv(b_obj, hitcheck):
 	matrix = get_collider_matrix(b_obj)
 	c = hitcheck.collider.center
 	c.x, c.y, c.z = pack_swizzle(matrix.translation)
-	e = hitcheck.collider.center
-	e.x, e.y, e.z = pack_swizzle(b_obj.dimensions)
+	e = hitcheck.collider.extent
+	e.y, e.x, e.z = pack_swizzle(b_obj.dimensions)
 
 
 def export_capsulebv(b_obj, hitcheck):

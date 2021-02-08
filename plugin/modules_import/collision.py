@@ -6,6 +6,7 @@ from generated.formats.ms2.compound.packing_utils import unpack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from plugin.helpers import mesh_from_data
 from plugin.modules_export.collision import export_hitcheck
+from utils.matrix_util import nif_bind_to_blender_bind
 
 
 def import_collider(hitcheck, armature_ob, bone_name):
@@ -79,12 +80,13 @@ def import_spherebv(sphere, hitcheck_name):
 
 
 def import_boxbv(box, hitcheck_name):
-	# ignore for now, seems to be a unity 3x3 matrix
-	# axes = box.rotation
-	print(box.rotation)
-	x, y, z = unpack_swizzle((box.extent.x / 2, box.extent.y / 2, box.extent.z / 2))
+	mat = mathutils.Matrix(box.rotation.data).to_4x4()
+	mat.transpose()
+	mat = nif_bind_to_blender_bind(mat)
+	y, x, z = unpack_swizzle((box.extent.x / 2, box.extent.y / 2, box.extent.z / 2))
 	b_obj, b_me = box_from_extents(hitcheck_name, -x, x, -y, y, -z, z)
-	b_obj.location = unpack_swizzle((box.center.x, box.center.y, box.center.z))
+	mat.translation = unpack_swizzle((box.center.x, box.center.y, box.center.z))
+	b_obj.matrix_local = mat
 	set_b_collider(b_obj, (x+y+z)/3)
 	return b_obj
 
