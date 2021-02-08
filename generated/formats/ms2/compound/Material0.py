@@ -10,7 +10,7 @@ class Material0:
 		# index into ms2 names array
 		self.name_index = 0
 
-		# unknown, nonzero in PZ flamingo juvenile
+		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
 		self.some_index = 0
 
 	def read(self, stream):

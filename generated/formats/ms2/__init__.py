@@ -244,7 +244,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
 
 	def lookup_material(self, mdl2, models):
-		print(mdl2.materials_0)
+		# print(mdl2.materials_0)
+		# for m in mdl2.materials_0:
+		# 	print(self.names[m.name_index], self.names[m.some_index])
 		for mat_1 in mdl2.materials_1:
 			try:
 				name = self.names[mdl2.materials_0[mat_1.material_index].name_index]

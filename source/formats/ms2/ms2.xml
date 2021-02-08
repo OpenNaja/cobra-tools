@@ -290,7 +290,7 @@
 
 	<compound name="Material0">
 		<add name="name index" type="uint" >index into ms2 names array</add>
-		<add name="some index" type="uint" cond="!#OLD#">unknown, nonzero in PZ flamingo juvenile</add>
+		<add name="some index" type="uint" cond="!#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
 	</compound>
 
 	<compound name="Material1">
