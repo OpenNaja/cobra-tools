@@ -65,8 +65,8 @@ class MainWindow(widgets.MainWindow):
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
 
-		self.ext_dat = QtWidgets.QCheckBox("Use External Dat")
-		self.ext_dat.setToolTip("Experimental: Save the ovl with an external STATIC Dat instead of one in memory")
+		self.ext_dat = QtWidgets.QCheckBox("Use External DAT")
+		self.ext_dat.setToolTip("Experimental: Save the ovl with an external STATIC DAT instead of one in memory")
 		self.ext_dat.setChecked(False)
 		self.ext_dat.stateChanged.connect(self.dat_show)
 

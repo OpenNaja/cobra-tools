@@ -190,6 +190,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 									print(f"Could not find bone name '{vgroup_name}' in bone table")
 									errors.append(
 										f"Ignored extraneous vertex group {vgroup_name} on mesh {ob.name}!")
+						# print(residue, unk_0)
 						# get the 4 strongest influences on this vert
 						w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
 						# print(w_s)

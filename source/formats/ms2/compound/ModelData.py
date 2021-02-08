@@ -158,44 +158,16 @@ class ModelData:
 			in_pos_packed = self.verts_data[i]["pos"]
 			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
 			self.vertices[i] = unpack_swizzle(vert)
-
-			# out_pos_packed = pack_longint_vec(pack_swizzle(self.vertices[i]), residue, self.base)
-			# print(bin(in_pos_packed), type(in_pos_packed))
-			# print(bin(out_pos_packed), type(out_pos_packed))
-			# print(in_pos_packed-out_pos_packed)
-
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
-
-			# stores all (bonename, weight) pairs of this vertex
-			vert_w = []
-			if self.bone_names:
-				if "bone ids" in self.dt.fields and residue:
-					# weights = self.get_weights(self.verts_data[i]["bone ids"], self.verts_data[i]["bone weights"])
-					vert_w = [(i, w) for i, w in zip(self.verts_data[i]["bone ids"], self.verts_data[i]["bone weights"]) if w > 0]
-				# fallback: skin parition
-				if not vert_w:
-					vert_w = [(self.verts_data[i]["bone index"], 255), ]
-
-			# create fur length vgroup
-			if self.flag in (1013, 821, 853, 885):
-				vert_w.append(("fur_length", self.uvs[i][1][0]*255))
-
-			# the unknown 0, 128 byte
-			vert_w.append(("unk0", self.verts_data[i]["unk"]*255))
-			# packing bit
-			vert_w.append(("residue", residue*255))
-			self.weights.append(vert_w)
+			self.weights.append(unpack_weights(self, i, residue))
 
 	def write_verts(self, stream):
-		# if writing directly to file, doesn't support io bytes
-		# self.verts_data.tofile(stream)
 		stream.write(self.verts_data.tobytes())
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
 		stream.seek(self.start_buffer2 + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
-		# print("tris offset",stream.tell())
 		# read all tri indices for this model segment
 		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
 

@@ -110,30 +110,7 @@ class PcModelData:
 			self.vertices[i] = unpack_swizzle(vert)
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
-
-			# stores all (bonename, weight) pairs of this vertex
-			vert_w = []
-			if self.bone_names:
-				if "bone ids" in self.dt.fields and residue:
-					weights = self.get_weights(self.weights_data[i]["bone ids"], self.weights_data[i]["bone weights"])
-					vert_w = [(self.bone_names[bone_i], w) for bone_i, w in weights]
-				# fallback: skin parition
-				if not vert_w:
-					try:
-						vert_w = [(self.bone_names[self.verts_data[i]["bone index"]], 1), ]
-					except IndexError:
-						# aviary landscape
-						vert_w = [(str(self.verts_data[i]["bone index"]), 1), ]
-			#
-			# # create fur length vgroup
-			# if self.flag in (1013, 821, 885):
-			# 	vert_w.append(("fur_length", self.uvs[i][1][0]))
-
-			# the unknown 0, 128 byte
-			vert_w.append(("unk0", self.verts_data[i]["unk"] / 255))
-			# packing bit
-			vert_w.append(("residue", residue))
-			self.weights.append(vert_w)
+			self.weights.append(unpack_weights(self, i, residue))
 		# print(self.vertices)
 
 	@staticmethod
