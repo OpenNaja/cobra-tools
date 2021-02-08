@@ -72,6 +72,7 @@ def export_joints(armature_ob, bone_info, bone_names):
 		bone_name = bone_names[bone_index]
 		print("joint", joint_info.name)
 		for hitcheck in joint_info.hit_check:
-			b_obj = bpy.data.objects[hitcheck.name]
-			export_hitcheck(b_obj, hitcheck)
+			b_obj = bpy.data.objects.get(hitcheck.name, None)
+			if b_obj:
+				export_hitcheck(b_obj, hitcheck)
 
