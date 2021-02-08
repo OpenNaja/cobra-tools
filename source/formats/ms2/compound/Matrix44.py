@@ -4,4 +4,4 @@ class Matrix44:
 
 	def set_rows(self, mat):
 		"""Set matrix from rows."""
-		self.data[:] = mat
+		self.data[:] = mat.transposed()
