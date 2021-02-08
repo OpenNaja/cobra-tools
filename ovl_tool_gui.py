@@ -15,7 +15,7 @@ try:
 	from util import widgets
 	from modules import extract, inject, hasher, walker, remover
 	from modules.extract import SUPPORTED_TYPES
-	from generated.formats.ovl import OvlFile
+	from generated.formats.ovl import OvlFile, games, get_game
 	from generated.formats.ms2 import Mdl2File
 except Exception as err:
 	traceback.print_exc()
@@ -46,6 +46,10 @@ class MainWindow(widgets.MainWindow):
 		self.p_action.setValue(0)
 		self.t_action_current_message = "No operation in progress"
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
+
+		self.game_container = widgets.LabelCombo("Game:", games)
+		# self.game_container.entry.currentIndexChanged.connect(self.game_changed)
+		self.game_container.entry.setEditable(False)
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
 		header2_names = ["Path",]
@@ -83,7 +87,8 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 10)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 6)
+		self.qgrid.addWidget(self.game_container, 0, 6, 1, 4)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
@@ -93,7 +98,7 @@ class MainWindow(widgets.MainWindow):
 			self.qgrid.addWidget(old, 1, 5)
 			self.qgrid.addWidget(new, 1, 6)
 		self.qgrid.addWidget(self.table, 2, 0, 1, 6)
-		self.qgrid.addWidget(self.table2, 2, 6, 1, 7)
+		self.qgrid.addWidget(self.table2, 2, 6, 1, 4)
 		self.qgrid.addWidget(self.p_action, 3, 0, 1, 10)
 		self.qgrid.addWidget(self.t_action, 4, 0, 1, 10)
 		self.qgrid.addWidget(self.dat_widget, 5, 0, 1, 10)
@@ -226,6 +231,8 @@ class MainWindow(widgets.MainWindow):
 				util.interaction.showdialog(str(ex))
 				print(ex)
 			self.update_gui_table()
+			game = get_game(self.ovl_data)
+			self.game_container.entry.setText(game)
 
 	def create_ovl(self, ovl_dir):
 		# clear the ovl
