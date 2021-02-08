@@ -157,14 +157,23 @@ def get_weights(model):
 	return dic
 
 
+def resolve_name(model, bone_index):
+	try:
+		bonename = model.bone_names[bone_index]
+		return matrix_util.bone_name_for_blender(bonename)
+	except:
+		return str(bone_index)
+
+
 def import_vertex_groups(ob, model):
 	# create vgroups and store weights
-	for bone_index, weights_dic in get_weights(model).items():
-		try:
-			bonename = model.bone_names[bone_index]
-		except:
-			bonename = str(bone_index)
-		bonename = matrix_util.bone_name_for_blender(bonename)
+	weights_info = get_weights(model)
+	# this would sort by bone index
+	# keys_sorted = sorted([x for x in weights_info.keys() if type(x) == str]) + sorted([x for x in weights_info.keys() if type(x) != str])
+	# sort by bone name
+	for bone_index in sorted(weights_info.keys(), key=lambda x: resolve_name(model, x)):
+		weights_dic = weights_info[bone_index]
+		bonename = resolve_name(model, bone_index)
 		ob.vertex_groups.new(name=bonename)
 		for weight, vert_indices in weights_dic.items():
 			ob.vertex_groups[bonename].add(vert_indices, weight/255, 'REPLACE')
