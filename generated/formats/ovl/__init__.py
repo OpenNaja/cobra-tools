@@ -1583,11 +1583,36 @@ class OvlFile(Header, IoFile):
 		self.file_no_ext = os.path.splitext(self.filepath)[0]
 
 	def inject_dir(self, directory_name):
+		# validate can't insert same directory twice
+		for dirEntry in self.dirs:
+			if dirEntry.name == directory_name:
+				return
+
 		# store file name for later
 		new_directory = DirEntry()
 		new_directory.name = directory_name
 		self.dirs.append(new_directory)
 
+		self.update_names()
+		
+	def remove_dir(self, directory_name):
+		for dirEntry in self.dirs:
+			if dirEntry.name == directory_name:
+				self.dirs.remove(dirEntry)
+				self.num_dirs -= 1
+
+		self.update_names()
+
+	def rename_dir(self, directory_name, directory_new_name):
+		# find an existing entry in the list
+		for idx, dirEntry in enumerate(self.dirs):
+			if dirEntry.name == directory_name:
+				dirEntry.name = directory_new_name
+				self.dirs[idx] = dirEntry
+
+		self.update_names()
+
+	def update_names(self):
 		self.names.update_with((
 			(self.dependencies, "ext"),
 			(self.dirs, "name"),
@@ -1595,8 +1620,11 @@ class OvlFile(Header, IoFile):
 			(self.files, "name")
 		))
 		self.len_names = len(self.names.data)
-		self.num_dirs += 1
-		self.len_type_names = min(file.offset for file in self.files)
+
+		# catching ovl files without entries, default len_type_names is 0
+		if len(self.files) > 0:
+			self.len_type_names = min(file.offset for file in self.files)
+
 
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
