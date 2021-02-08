@@ -17,9 +17,10 @@ def dat_hasher(ovl, name_tups):
 			content.sized_str_entries
 			))
 	old_hash_to_new = {}
+	old_hash_to_new_pz = {}
 	# first go over the ovl lists to generate new hashes
 	for i, entry_list in enumerate(ovl_lists):
-		for entry in entry_list:
+		for e,entry in enumerate(entry_list):
 			try:
 				if "bad hash" in entry.name:
 					print("Skipping", entry.name, entry.file_hash)
@@ -30,6 +31,7 @@ def dat_hasher(ovl, name_tups):
 				if hasattr(entry, "file_hash"):
 					new_hash = djb(new_name)
 					old_hash_to_new[entry.file_hash] = (new_name, new_hash)
+					old_hash_to_new_pz[e] = (new_name, new_hash)
 					print(f"List{i} {entry.name} -> {new_name},  {entry.file_hash} ->  {new_hash}")
 					entry.file_hash = new_hash
 				else:
@@ -41,10 +43,15 @@ def dat_hasher(ovl, name_tups):
 	# we do this in a second step to resolve the links
 	for i, entry_list in enumerate(ovs_lists):
 		for entry in entry_list:
-			new_name, new_hash = old_hash_to_new[entry.file_hash]
-			entry.file_hash = new_hash
-			entry.name = f"{new_name}{entry.ext}"
-
+			if ovl.user_version.is_jwe:
+				new_name, new_hash = old_hash_to_new[entry.file_hash]
+				entry.file_hash = new_hash
+				entry.name = f"{new_name}{entry.ext}"
+			else:
+				new_name, new_hash = old_hash_to_new_pz[entry.file_hash]
+				#entry.file_hash = new_hash
+				entry.name = f"{new_name}{entry.ext}"
+				
 	# update the name buffer and offsets
 	ovl.names.update_with((
 		(ovl.dependencies, "ext"),
@@ -71,7 +78,13 @@ def dat_hasher(ovl, name_tups):
 		dependency.file_index = lut[dependency.file_index]
 	for aux in ovl.aux_entries:
 		aux.file_index = lut[aux.file_index]
-
+	if ovl.user_version.is_jwe:
+		print("JWE")
+	else:
+		for i, entry_list in enumerate(ovs_lists):
+			for entry in entry_list:
+				entry.file_hash = lut[entry.file_hash]
+				
 	#print("Hashing dat contents...")
 	#try:
 	#	# hash the internal buffers
