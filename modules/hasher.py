@@ -72,20 +72,20 @@ def dat_hasher(ovl, name_tups):
 	for aux in ovl.aux_entries:
 		aux.file_index = lut[aux.file_index]
 
-	print("Hashing dat contents...")
-	try:
-		# hash the internal buffers
-		for archive_entry in ovl.archives:
-			ovs = archive_entry.content
-			for header_entry in ovs.header_entries:
-				b = header_entry.data.getvalue()
-				header_entry.data = io.BytesIO(replace_bytes(b, name_tups))
-			ovs.populate_pointers()
-			for buffer_entry in ovs.buffer_entries:
-				b = buffer_entry.data
-				buffer_entry.data = replace_bytes(b, name_tups)
-	except Exception as err:
-		print(err)
+	#print("Hashing dat contents...")
+	#try:
+	#	# hash the internal buffers
+	#	for archive_entry in ovl.archives:
+	#		ovs = archive_entry.content
+	#		for header_entry in ovs.header_entries:
+	#			b = header_entry.data.getvalue()
+	#			header_entry.data = io.BytesIO(replace_bytes(b, name_tups))
+	#		ovs.populate_pointers()
+	#		for buffer_entry in ovs.buffer_entries:
+	#			b = buffer_entry.data
+	#			buffer_entry.data = replace_bytes(b, name_tups)
+	#except Exception as err:
+	#	print(err)
 	print("Done!")
 
 
