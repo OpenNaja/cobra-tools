@@ -24,8 +24,8 @@ class PcModelData:
 		self.io_size = 0
 		self.io_start = 0
 
-		# index into list of lods, or may be index into streamed buffers
-		self.lod_level_index = 0
+		# index into streamed buffers
+		self.stream_index = 0
 
 		# always zero
 		self.zeros_a = Array()
@@ -78,7 +78,7 @@ class PcModelData:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.lod_level_index = stream.read_uint()
+		self.stream_index = stream.read_uint()
 		self.zeros_a = stream.read_uints((3))
 		self.tri_index_count_a = stream.read_uint()
 		self.vertex_count = stream.read_uint()
@@ -103,7 +103,7 @@ class PcModelData:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uint(self.lod_level_index)
+		stream.write_uint(self.stream_index)
 		stream.write_uints(self.zeros_a)
 		stream.write_uint(self.tri_index_count_a)
 		stream.write_uint(self.vertex_count)
@@ -130,7 +130,7 @@ class PcModelData:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* lod_level_index = {self.lod_level_index.__repr__()}'
+		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
 		s += f'\n	* zeros_a = {self.zeros_a.__repr__()}'
 		s += f'\n	* tri_index_count_a = {self.tri_index_count_a.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'

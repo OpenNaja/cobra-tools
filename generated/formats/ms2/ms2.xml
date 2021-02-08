@@ -236,7 +236,7 @@
 		Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
 		If there is more than one of these, the fragments appear as a list according to
-		<add name="lod level index" type="uint" >index into list of lods, or may be index into streamed buffers</add>
+		<add name="stream index" type="uint" >index into streamed buffers</add>
 		<add name="zeros a" type="uint" arr1="3" >always zero</add>
 		<add name="tri index count a" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
@@ -370,12 +370,31 @@
 	</compound>
 
 	<compound name="Ms2BufferInfoZT" >
-		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
+		Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		266 bytes
-		<add name="unks" type="ushort" arr1="7" ></add>
-		<add name="unks 1" type="ushort" arr1="126" ></add>
+		very end of buffer 0 after the names list
+		<add name="unk" type="ushort" ></add>
+		<add name="stream count" type="ushort" ></add>
+		<add name="unks" type="ushort" arr1="3" ></add>
+		from here on, it's buffer 1
+		<add name="streams" type="StreamInfo" arr1="stream count" ></add>
 	</compound>
-	
+
+	<compound name="StreamInfo" >
+		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
+		64 bytes
+		this has the starting offsets of tri buffers per streamed buffer
+<!--		<add name="unk" type="uint64" arr1="8"></add>-->
+		<add name="vertex buffer length" type="uint64" >in bytes</add>
+		<add name="zero 0" type="uint64"/>
+		<add name="tris buffer length" type="uint64" >from start of tris buffer</add>
+		<add name="zero 1" type="uint64"/>
+		<add name="zero 2" type="uint64"/>
+		<add name="next buffer length" type="uint64" >from start of tris buffer</add>
+		<add name="zero 3" type="uint64"/>
+		<add name="zero 4" type="uint64"/>
+	</compound>
+
 	<compound name="Mdl2FourtyInfo" >
 		<add name="unknowns" type="uint64" arr1="5" >0, 1 or 0, 0, 0, 0</add>
 	</compound>
