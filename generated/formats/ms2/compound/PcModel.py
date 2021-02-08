@@ -2,6 +2,7 @@ import typing
 from generated.array import Array
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.LodInfoZT import LodInfoZT
+from generated.formats.ms2.compound.Material0 import Material0
 from generated.formats.ms2.compound.Material1 import Material1
 from generated.formats.ms2.compound.PcModelData import PcModelData
 from generated.formats.ms2.compound.ZTPreBones import ZTPreBones
@@ -16,7 +17,7 @@ class PcModel:
 		self.io_size = 0
 		self.io_start = 0
 
-		# uses uint here, uint64 elsewhere
+		# uses uint here, two uints elsewhere
 		self.materials_0 = Array()
 		self.lod_infos = Array()
 		self.lod_infos = Array()
@@ -27,7 +28,7 @@ class PcModel:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.materials_0 = stream.read_uints((self.arg.mat_count))
+		self.materials_0.read(stream, Material0, self.arg.mat_count, None)
 		if stream.version == 17:
 			self.lod_infos.read(stream, LodInfoZT, self.arg.lod_count, None)
 		if stream.version == 18:
@@ -42,7 +43,7 @@ class PcModel:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uints(self.materials_0)
+		self.materials_0.write(stream, Material0, self.arg.mat_count, None)
 		if stream.version == 17:
 			self.lod_infos.write(stream, LodInfoZT, self.arg.lod_count, None)
 		if stream.version == 18:

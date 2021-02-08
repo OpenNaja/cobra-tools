@@ -244,13 +244,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
 
 	def lookup_material(self, mdl2, models):
+		print(mdl2.materials_0)
 		for mat_1 in mdl2.materials_1:
 			try:
-				name = self.names[mdl2.materials_0[mat_1.material_index]]
+				name = self.names[mdl2.materials_0[mat_1.material_index].name_index]
 				model = models[mat_1.model_index]
 				model.material = name
-			except:
+			except Exception as err:
+				print(err)
 				print(f"Couldn't match material {mat_1.material_index} to model {mat_1.model_index} - bug?")
+				print(len(models), mat_1, mdl2.materials_0)
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
