@@ -255,6 +255,32 @@
 		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
 <!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
 	</compound>
+
+	<compound name="ZtModelData" >
+		Defines one model's data. Both LODs and mdl2 files may contain several of these.
+		This is a fragment from headers of type (0,0)
+		If there is more than one of these, the fragments appear as a list according to
+		<add name="stream index" type="uint" >index into streamed buffers</add>
+		<add name="zeros a" type="uint" arr1="3" >always zero</add>
+		<add name="tri index count" type="uint" >repeat</add>
+		<add name="vertex count" type="uint" >vertex count of model</add>
+		<add name="tri info offset" type="uint">stores count, -1 as ints</add>
+		<add name="vert info offset" type="uint" >stores count, -1 as ints</add>
+		<add name="known ff 0" type="int" >x*16 = offset in buffer 2</add>
+		<add name="tri offset" type="uint">relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri index count</add>
+		<add name="uv offset" type="uint" >relative to start of buffer[i], blocks of 8 bytes, count vertex_count</add>
+		<add name="vert offset" type="uint">relative to start of buffer[i], blocks of 24 bytes, count vertex_count</add>
+		<add name="known ff 1" type="short">x*16 = offset in buffer 2</add>
+		<add name="one 0" type="ushort">x*16 = offset in buffer 2</add>
+		<add name="one 1" type="ushort" > ?</add>
+		<add name="poweroftwo" type="ushort" vercond="#ZTUAC#"> ?</add>
+		<add name="poweroftwo" type="uint" vercond="#PC#">power of 2 increasing with lod index</add>
+		<add name="zero" type="uint" vercond="#PC#">always zero</add>
+		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
+		<add name="flag" type="ModelFlag">bitfield</add>
+		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
+<!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
+	</compound>
 	
 	<compound name="Ms2SizedStrData">
 		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
@@ -331,7 +357,8 @@
 		<add name="lod infos" type="LodInfo" arr1="#ARG#\lod count" vercond="#PC#" ></add>
 <!--		<add name="lod infos" type="LodInfo" arr1="#ARG#\lod count" ></add>-->
 		<add name="materials 1" type="Material1" arr1="#ARG#\mat1 count" ></add>
-		<add name="model data" type="PcModelData" arr1="#ARG#\model count" ></add>
+		<add name="model data" type="PcModelData" arr1="#ARG#\model count" vercond="#PC#" ></add>
+		<add name="model data" type="ZtModelData" arr1="#ARG#\model count" vercond="#ZTUAC#" ></add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" ></add>
 	</compound>
 

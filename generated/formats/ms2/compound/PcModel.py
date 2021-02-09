@@ -6,6 +6,7 @@ from generated.formats.ms2.compound.Material0 import Material0
 from generated.formats.ms2.compound.Material1 import Material1
 from generated.formats.ms2.compound.PcModelData import PcModelData
 from generated.formats.ms2.compound.ZTPreBones import ZTPreBones
+from generated.formats.ms2.compound.ZtModelData import ZtModelData
 
 
 class PcModel:
@@ -23,6 +24,7 @@ class PcModel:
 		self.lod_infos = Array()
 		self.materials_1 = Array()
 		self.model_data = Array()
+		self.model_data = Array()
 		self.ztuac_pre_bones = ZTPreBones()
 
 	def read(self, stream):
@@ -34,8 +36,10 @@ class PcModel:
 		if stream.version == 18:
 			self.lod_infos.read(stream, LodInfo, self.arg.lod_count, None)
 		self.materials_1.read(stream, Material1, self.arg.mat_1_count, None)
-		self.model_data.read(stream, PcModelData, self.arg.model_count, None)
+		if stream.version == 18:
+			self.model_data.read(stream, PcModelData, self.arg.model_count, None)
 		if stream.version == 17:
+			self.model_data.read(stream, ZtModelData, self.arg.model_count, None)
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones)
 
 		self.io_size = stream.tell() - self.io_start
@@ -49,8 +53,10 @@ class PcModel:
 		if stream.version == 18:
 			self.lod_infos.write(stream, LodInfo, self.arg.lod_count, None)
 		self.materials_1.write(stream, Material1, self.arg.mat_1_count, None)
-		self.model_data.write(stream, PcModelData, self.arg.model_count, None)
+		if stream.version == 18:
+			self.model_data.write(stream, PcModelData, self.arg.model_count, None)
 		if stream.version == 17:
+			self.model_data.write(stream, ZtModelData, self.arg.model_count, None)
 			stream.write_type(self.ztuac_pre_bones)
 
 		self.io_size = stream.tell() - self.io_start

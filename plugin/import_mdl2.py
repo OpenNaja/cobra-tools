@@ -53,17 +53,20 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		ob["flag"] = int(model.flag)
 		ob["add_shells"] = num_add_shells
 
-		# additionally keep track here so we create a node tree only once during import
-		# but make sure that we overwrite existing materials:
-		if model.material not in created_materials:
-			mat = create_material(in_dir, model.material)
-			created_materials[model.material] = mat
-		else:
-			print(f"Already imported material {model.material}")
-			mat = created_materials[model.material]
 		# link material to mesh
 		me = ob.data
-		me.materials.append(mat)
+		try:
+			# additionally keep track here so we create a node tree only once during import
+			# but make sure that we overwrite existing materials:
+			if model.material not in created_materials:
+				mat = create_material(in_dir, model.material)
+				created_materials[model.material] = mat
+			else:
+				print(f"Already imported material {model.material}")
+				mat = created_materials[model.material]
+			me.materials.append(mat)
+		except:
+			print("material failed")
 
 		# set uv data
 		if model.uvs is not None:

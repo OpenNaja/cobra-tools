@@ -215,15 +215,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# get the starting position of buffer #2, vertex & face array
 			self.start_buffer2 = stream.tell()
 			print("self.start_buffer2", self.start_buffer2)
-			if is_ztuac(self):
-				pass
-			elif is_pc(self):
+			if is_old(self):
 				print("PC model...")
 				mdl2.models = Array()
 				if not quick:
 					# for model in self.pc_buffer1.model_infos:
 					for model_data in model_info.pc_model.model_data:
-						model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512)
+						if is_ztuac(self):
+							model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512, )
+						else:
+							model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512)
 						mdl2.models.append(model_data)
 					self.lookup_material(model_info.pc_model, mdl2.models)
 			else:
