@@ -6,6 +6,7 @@ import bpy
 import mathutils
 
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones
+from plugin.modules_export.collision import export_bounds
 from utils import matrix_util
 from generated.formats.ms2 import Mdl2File
 
@@ -63,6 +64,8 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		model.tri_indices = []
 		model.verts = []
 
+	bounds = []
+	
 	for ob in bpy.data.objects:
 		if type(ob.data) == bpy.types.Mesh:
 			print("\nNext mesh...")
@@ -75,7 +78,6 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 			eval_obj = ob.evaluated_get(dg)
 			me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
 			handle_transforms(eval_obj, me, errors, apply=apply_transforms)
-
 			# get the index of this model in the mdl2 model buffer
 			try:
 				ind = int(ob.name.rsplit("_model", 1)[1])
@@ -83,6 +85,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 				print("Bad name, skipping", ob.name)
 				continue
 			print("Model slot", ind)
+			bounds.append(eval_obj.bound_box)
 
 			# we get the corresponding mdl2 model
 			model = data.models[ind]
@@ -246,6 +249,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 			model.set_verts(verts)
 			model.tris = out_tris
 
+	export_bounds(bounds, data)
 	# check if any modeldata is empty
 	for i, model in enumerate(data.models):
 		if not model.tri_indices or not model.verts:

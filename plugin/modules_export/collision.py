@@ -9,6 +9,29 @@ from generated.formats.ms2.compound.packing_utils import pack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from utils.matrix_util import blender_bind_to_nif_bind
 
+v = 9999
+
+
+def export_bounds(bounds, mdl2):
+	print("Exporting bounds")
+	bounds_max = mathutils.Vector((-v, -v, -v))
+	bounds_min = mathutils.Vector((v, v, v))
+	for bound in bounds:
+		for co in bound:
+			for i in range(3):
+				vec = pack_swizzle(co)
+				bounds_min[i] = min(bounds_min[i], vec[i])
+				bounds_max[i] = max(bounds_max[i], vec[i])
+	center = (bounds_min+bounds_max)/2
+	model_info = mdl2.model_info
+	model_info.bounds_max.set(bounds_max)
+	model_info.bounds_min.set(bounds_min)
+	model_info.bounds_max_repeat.set(bounds_max)
+	model_info.bounds_min_repeat.set(bounds_min)
+	model_info.center.set(center)
+	model_info.radius = (center-bounds_max).length*0.77
+	# print(model_info)
+
 
 def export_hitcheck(b_obj, hitcheck):
 	hitcheck.name = b_obj.name

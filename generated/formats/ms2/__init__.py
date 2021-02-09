@@ -141,9 +141,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def read_joints(self, bone_info):
 
 		for i, x in enumerate(bone_info.struct_7.unknown_list):
-			print(i)
-			print(self.bone_names[x.child], x.child)
-			print(self.bone_names[x.parent], x.parent)
+			# print(i)
+			# print(self.bone_names[x.child], x.child)
+			# print(self.bone_names[x.parent], x.parent)
 			assert x.zero == 0
 			assert x.one == 1
 		assert bone_info.one == 1
@@ -157,12 +157,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				hit.name = joints.joint_names.get_str_at(hit.name_offset)
 		# print(joints)
 
-		for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
-			print(f"List {ix}")
-			for i, x in enumerate(li):
-				print(i)
-				print(joints.joint_info_list[x.parent].name, x.parent)
-				print(joints.joint_info_list[x.child].name, x.child)
+		# for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
+		# 	print(f"List {ix}")
+		# 	for i, x in enumerate(li):
+		# 		print(i)
+		# 		print(joints.joint_info_list[x.parent].name, x.parent)
+		# 		print(joints.joint_info_list[x.child].name, x.child)
 
 		# if bone_info.joint_count:
 		# 	for i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
