@@ -7,6 +7,7 @@ from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.compound.packing_utils import pack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
+from utils.matrix_util import blender_bind_to_nif_bind
 
 
 def export_hitcheck(b_obj, hitcheck):
@@ -46,7 +47,10 @@ def export_boxbv(b_obj, hitcheck):
 	c = hitcheck.collider.center
 	c.x, c.y, c.z = pack_swizzle(matrix.translation)
 	e = hitcheck.collider.extent
-	e.y, e.x, e.z = pack_swizzle(b_obj.dimensions)
+	dim = b_obj.dimensions
+	e.x, e.y, e.z = pack_swizzle((dim.y, dim.x, dim.z))
+	rot = blender_bind_to_nif_bind(matrix).to_3x3()
+	hitcheck.collider.rotation.data[:] = rot.transposed()
 
 
 def export_capsulebv(b_obj, hitcheck):
