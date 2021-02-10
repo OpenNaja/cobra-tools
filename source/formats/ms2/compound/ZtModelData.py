@@ -30,12 +30,12 @@ class ZtModelData:
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		try:
-			uv_shape = self.dt_uv["uvs"].shape
+			uv_shape = self.dt["uvs"].shape
 			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		except:
 			self.uvs = None
 		try:
-			colors_shape = self.dt["colors"].shape
+			colors_shape = self.dt_colors["colors"].shape
 			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 		except:
 			self.colors = None
@@ -45,21 +45,21 @@ class ZtModelData:
 		"""Update ModelData.dt (numpy dtype) according to ModelData.flag"""
 		# basic shared stuff
 		dt = [
-			# ("pos", np.uint64),
-			# ("normal", np.ubyte, (3,)),
-			# ("unk", np.ubyte),
-			# ("tangent", np.ubyte, (3,)),
-			# ("bone index", np.ubyte),
-
-			# ("bones", np.uint64),
 			("bone ids", np.ubyte, (4,)),
 			("bone weights", np.ubyte, (4,)),
 			("pos", np.float16, (3,)),
-			("unk", np.ushort, (5,)),
-			# ("bone index", np.ubyte),
+			# ("u", np.ubyte, 1),
+			("one", np.float16),
+			# ("uvs", np.ushort, (1, 2)),
+			# ("b", np.ubyte, 4),
+			# ("some", np.ubyte),
+			("normal", np.ubyte, (3,)),
+			("a", np.ubyte, ),
+			# ("colors", np.ubyte, (1, 4)),
+			("uvs", np.ubyte, (2, 2)),
 		]
-		dt_uv = [
-			("uvs", np.ushort, (1, 2)),
+		dt_colors = [
+			("colors", np.ubyte, (2, 4)),
 		]
 		# bone weights
 		# if self.flag in (529, 533, 885, 565, 1013, 528, 821):
@@ -68,10 +68,10 @@ class ZtModelData:
 			("bone weights", np.ubyte, (4,)),
 		]
 		self.dt = np.dtype(dt)
-		self.dt_uv = np.dtype(dt_uv)
+		self.dt_colors = np.dtype(dt_colors)
 		self.dt_w = np.dtype(dt_w)
 		print("PC size of vertex:", self.dt.itemsize)
-		print("PC size of uv:", self.dt_uv.itemsize)
+		print("PC size of vcol:", self.dt_colors.itemsize)
 		print("PC size of weights:", self.dt_w.itemsize)
 
 	def read_tris(self, stream):
@@ -98,32 +98,41 @@ class ZtModelData:
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
 		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
-		# self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
+		self.colors_data = np.fromfile(stream, dtype=self.dt_colors, count=self.vertex_count)
 		# stream.seek(self.start_buffer2 + (self.weights_offset * 16))
 		# print("WEIGHtS", stream.tell())
 		# self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
-		# # print(self.verts_data)
-		# # first cast to the float uvs array so unpacking doesn't use int division
-		# if self.uvs is not None:
-		# 	self.uvs[:] = self.uv_data[:]["uvs"]
-		# 	# unpack uvs
-		# 	self.uvs = (self.uvs - 32768) / 2048
+		# print(self.verts_data)
+		# first cast to the float uvs array so unpacking doesn't use int division
 		# if self.colors is not None:
-		# 	# first cast to the float colors array so unpacking doesn't use int division
+		# # if self.colors is not None:
+		# # 	# first cast to the float colors array so unpacking doesn't use int division
+		# # 	self.colors[:] = self.colors_data[:]["colors"]
 		# 	self.colors[:] = self.verts_data[:]["colors"]
 		# 	self.colors /= 255
-		# self.normals[:] = self.verts_data[:]["normal"]
+		self.uvs[:] = self.verts_data[:]["uvs"]
+		# self.uvs[:][]
+		# unpack uvs
+		# x 2
+		# y 0
+		# z 1
+		# self.uvs = (self.uvs - 32768) / 2048
+		self.uvs = (self.uvs - 256) / 256
+		self.normals[:] = self.verts_data[:]["normal"]
 		# self.tangents[:] = self.verts_data[:]["tangent"]
 		self.vertices[:] = self.verts_data[:]["pos"]
-		# self.normals = (self.normals - 128) / 128
+		self.normals = (self.normals - 128) / 128
 		# self.tangents = (self.tangents - 128) / 128
 		for i in range(self.vertex_count):
 		# 	in_pos_packed = self.verts_data[i]["pos"]
 		# 	vert, residue = unpack_longint_vec(in_pos_packed, self.base)
 			self.vertices[i] = unpack_swizzle(self.vertices[i])
-		# 	self.normals[i] = unpack_swizzle(self.normals[i])
+			# self.normals[i] = unpack_swizzle(self.normals[i])
+			self.normals[i] = (-self.normals[i][2], -self.normals[i][0], self.normals[i][1])
 		# 	self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, 0, extra=False))
+			print(math.sqrt(sum(x**2 for x in self.normals[i])))
+		print(self.normals)
 		# print(self.verts_data)
 		# print(self.vertices)
 		# print(self.weights)
