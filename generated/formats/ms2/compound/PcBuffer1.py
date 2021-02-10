@@ -3,7 +3,6 @@ from generated.array import Array
 from generated.formats.ms2.compound.CoreModelInfoPC import CoreModelInfoPC
 from generated.formats.ms2.compound.Ms2BufferInfoPC import Ms2BufferInfoPC
 from generated.formats.ms2.compound.Ms2BufferInfoZT import Ms2BufferInfoZT
-from generated.formats.ms2.compound.SmartPadding import SmartPadding
 
 
 class PcBuffer1:
@@ -18,23 +17,18 @@ class PcBuffer1:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# sometimes 00 byte
-		self.weird_padding = SmartPadding()
-		self.buffer_info_pc = Ms2BufferInfoPC()
 		self.buffer_info_pc = Ms2BufferInfoZT()
+		self.buffer_info_pc = Ms2BufferInfoPC()
 		self.model_infos = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		if stream.version == 17:
-			self.weird_padding = stream.read_type(SmartPadding)
+			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT, (self.arg.zt_streams_header,))
 		if stream.version == 18:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoPC)
-		if stream.version == 17:
-			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT)
-		self.model_infos.read(stream, CoreModelInfoPC, self.arg.mdl_2_count, None)
+		self.model_infos.read(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -42,12 +36,10 @@ class PcBuffer1:
 
 		self.io_start = stream.tell()
 		if stream.version == 17:
-			stream.write_type(self.weird_padding)
+			stream.write_type(self.buffer_info_pc)
 		if stream.version == 18:
 			stream.write_type(self.buffer_info_pc)
-		if stream.version == 17:
-			stream.write_type(self.buffer_info_pc)
-		self.model_infos.write(stream, CoreModelInfoPC, self.arg.mdl_2_count, None)
+		self.model_infos.write(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -56,7 +48,6 @@ class PcBuffer1:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
 		s += f'\n	* buffer_info_pc = {self.buffer_info_pc.__repr__()}'
 		s += f'\n	* model_infos = {self.model_infos.__repr__()}'
 		return s

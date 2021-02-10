@@ -84,27 +84,30 @@ def bone_name_for_ovl(n):
 	return n
 
 
-# https://stackoverflow.com/questions/1263072/changing-a-matrix-from-right-handed-to-left-handed-coordinate-system
-def nif_bind_to_blender_bind(nif_armature_space_matrix):
-	# post multiplication: local space
-	# position of xflip does not matter
-	return xflip @ correction_glob @ nif_armature_space_matrix @ correction_inv
+class Corrector:
+	def __init__(self, is_zt):
+		# axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
+		self.correction_glob = axis_conversion("-Z", "Y").to_4x4()
+		self.correction_glob_inv = self.correction_glob.inverted()
+		if is_zt:
+			self.correction = axis_conversion("X", "Y").to_4x4()
+		else:
+			self.correction = axis_conversion("-X", "Y").to_4x4()
+		self.correction_inv = self.correction.inverted()
+		# mirror about x axis too:
+		self.xflip = mathutils.Matrix().to_4x4()
+		self.xflip[0][0] = -1
 
+	# https://stackoverflow.com/questions/1263072/changing-a-matrix-from-right-handed-to-left-handed-coordinate-system
+	def nif_bind_to_blender_bind(self, nif_armature_space_matrix):
+		# post multiplication: local space
+		# position of xflip does not matter
+		return self.xflip @ self.correction_glob @ nif_armature_space_matrix @ self.correction_inv
 
-def blender_bind_to_nif_bind(blender_armature_space_matrix):
-	# xflip must be done before the conversions
-	bind = xflip @ blender_armature_space_matrix @ xflip
-	return correction_glob_inv @ bind @ correction
-
-
-# axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
-correction_glob = axis_conversion("-Z", "Y").to_4x4()
-correction_glob_inv = correction_glob.inverted()
-correction = axis_conversion("-X", "Y").to_4x4()
-correction_inv = correction.inverted()
-# mirror about x axis too:
-xflip = mathutils.Matrix().to_4x4()
-xflip[0][0] = -1
+	def blender_bind_to_nif_bind(self, blender_armature_space_matrix):
+		# xflip must be done before the conversions
+		bind = self.xflip @ blender_armature_space_matrix @ self.xflip
+		return self.correction_glob_inv @ bind @ self.correction
 
 
 def import_matrix(m):

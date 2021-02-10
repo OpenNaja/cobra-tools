@@ -81,20 +81,21 @@ def pack_longint_vec(vec, residue, base):
     return output
 
 
-def unpack_weights(model, i, residue):
+def unpack_weights(model, i, residue, extra=True):
     vert_w = []
     if "bone ids" in model.dt.fields:
         vert_w = [(i, w) for i, w in zip(model.verts_data[i]["bone ids"], model.verts_data[i]["bone weights"]) if w > 0]
-    # fallback: skin parition
-    if not vert_w:
-        vert_w = [(model.verts_data[i]["bone index"], 255), ]
+    if extra:
+        # fallback: skin parition
+        if not vert_w:
+            vert_w = [(model.verts_data[i]["bone index"], 255), ]
 
-    # create fur length vgroup
-    if model.flag in (1013, 821, 853, 885):
-        vert_w.append(("fur_length", model.uvs[i][1][0] * 255))
+        # create fur length vgroup
+        if model.flag in (1013, 821, 853, 885):
+            vert_w.append(("fur_length", model.uvs[i][1][0] * 255))
 
-    # the unknown 0, 128 byte
-    vert_w.append(("unk0", model.verts_data[i]["unk"] * 255))
-    # packing bit
-    vert_w.append(("residue", residue * 255))
+        # the unknown 0, 128 byte
+        vert_w.append(("unk0", model.verts_data[i]["unk"] * 255))
+        # packing bit
+        vert_w.append(("residue", residue * 255))
     return vert_w

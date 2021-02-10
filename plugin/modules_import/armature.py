@@ -1,6 +1,7 @@
 import bpy
 import mathutils
 
+from generated.formats.ovl import is_ztuac
 from plugin.modules_import.collision import import_collider
 
 from plugin.helpers import create_ob
@@ -24,6 +25,7 @@ def import_armature(data):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
+	corrector = matrix_util.Corrector(is_ztuac(data))
 	bone_info = data.ms2_file.bone_info
 	if bone_info:
 		bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
@@ -64,7 +66,7 @@ def import_armature(data):
 			# print(bone_name)
 			# print("ms2\n",n_bind)
 			# change orientation for blender bones
-			b_bind = matrix_util.nif_bind_to_blender_bind(n_bind)
+			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
 			# b_bind = n_bind
 			# print("n_bindxflip")
 			# print(matrix_util.xflip @ n_bind)
@@ -100,19 +102,19 @@ def import_armature(data):
 		except:
 			print("Bone did not exist - bug")
 		try:
-			import_joints(b_armature_obj, bone_info, bone_names)
+			import_joints(b_armature_obj, bone_info, bone_names, corrector)
 		except Exception as err:
 			print("Joints failed...", err)
 		return b_armature_obj
 
 
-def import_joints(armature_ob, bone_info, bone_names):
+def import_joints(armature_ob, bone_info, bone_names, corrector):
 	print("Importing joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
 		bone_name = bone_names[bone_index]
 		print("joint", joint_info.name)
 		for hitcheck in joint_info.hit_check:
-			import_collider(hitcheck, armature_ob, bone_name)
+			import_collider(hitcheck, armature_ob, bone_name, corrector)
 
 
 def fix_bone_lengths(b_armature_data):

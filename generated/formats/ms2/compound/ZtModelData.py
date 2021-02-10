@@ -233,7 +233,7 @@ class ZtModelData:
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
-		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset + 11)
+		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
 		print("tris offset", stream.tell())
 		# read all tri indices for this model segment
 		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
@@ -250,10 +250,10 @@ class ZtModelData:
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
 		# read a vertices of this model
-		stream.seek(self.start_buffer2 + self.stream_offset + self.vert_offset + 11)
+		stream.seek(self.start_buffer2 + self.stream_offset + self.vert_offset)
 		print("VERTS", stream.tell())
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
-		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset + 11)
+		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
 		# self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
 		# stream.seek(self.start_buffer2 + (self.weights_offset * 16))
@@ -280,7 +280,7 @@ class ZtModelData:
 			self.vertices[i] = unpack_swizzle(self.vertices[i])
 		# 	self.normals[i] = unpack_swizzle(self.normals[i])
 		# 	self.tangents[i] = unpack_swizzle(self.tangents[i])
-			self.weights.append(unpack_weights(self, i, 0))
+			self.weights.append(unpack_weights(self, i, 0, extra=False))
 		# print(self.verts_data)
 		# print(self.vertices)
 		# print(self.weights)

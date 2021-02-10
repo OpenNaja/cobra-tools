@@ -6,17 +6,16 @@ from generated.formats.ms2.compound.packing_utils import unpack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from plugin.helpers import mesh_from_data
 from plugin.modules_export.collision import export_hitcheck
-from utils.matrix_util import nif_bind_to_blender_bind
 
 
-def import_collider(hitcheck, armature_ob, bone_name):
+def import_collider(hitcheck, armature_ob, bone_name, corrector):
 	print(hitcheck.name, hitcheck.type)
 	coll = hitcheck.collider
 	# print(hitcheck)
 	if hitcheck.type == CollisionType.Sphere:
 		ob = import_spherebv(coll, hitcheck.name)
 	elif hitcheck.type == CollisionType.BoundingBox:
-		ob = import_boxbv(coll, hitcheck.name)
+		ob = import_boxbv(coll, hitcheck.name, corrector)
 	elif hitcheck.type == CollisionType.Capsule:
 		ob = import_capsulebv(coll, hitcheck.name)
 	else:
@@ -79,10 +78,10 @@ def import_spherebv(sphere, hitcheck_name):
 	return b_obj
 
 
-def import_boxbv(box, hitcheck_name):
+def import_boxbv(box, hitcheck_name, corrector):
 	mat = mathutils.Matrix(box.rotation.data).to_4x4()
 	mat.transpose()
-	mat = nif_bind_to_blender_bind(mat)
+	mat = corrector.nif_bind_to_blender_bind(mat)
 	y, x, z = unpack_swizzle((box.extent.x / 2, box.extent.y / 2, box.extent.z / 2))
 	b_obj, b_me = box_from_extents(hitcheck_name, -x, x, -y, y, -z, z)
 	mat.translation = unpack_swizzle((box.center.x, box.center.y, box.center.z))

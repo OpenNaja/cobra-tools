@@ -340,14 +340,14 @@
 
 		<add name="name hashes" type="uint" arr1="general info\name count" ></add>
 		<add name="names" type="ZString" arr1="general info\name count" ></add>
+		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" />
 	</compound>
 
 	<compound name="PcBuffer1" >
 		cond="general info \ ms2 version == 32"
-		<add name="weird padding" type="SmartPadding" vercond="#ZTUAC#">sometimes 00 byte</add>
+		<add name="buffer info pc" type="Ms2BufferInfoZT" vercond="#ZTUAC#" arg="#ARG#\zt streams header"/>
 		<add name="buffer info pc" type="Ms2BufferInfoPC" vercond="#PC#" />
-		<add name="buffer info pc" type="Ms2BufferInfoZT" vercond="#ZTUAC#" />
-		<add name="model infos" type="CoreModelInfoPC" arr1="#ARG#\mdl2 count" ></add>
+		<add name="model infos" type="CoreModelInfoPC" arr1="#ARG#\general info\mdl2 count" ></add>
 <!--		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>-->
 	</compound>
 
@@ -401,15 +401,20 @@
 		<add name="zero 2" type="uint64" ></add>
 	</compound>
 
-	<compound name="Ms2BufferInfoZT" >
+	<compound name="Ms2BufferInfoZTHeader" >
 		Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		266 bytes
 		very end of buffer 0 after the names list
+		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
 		<add name="unk" type="ushort" ></add>
 		<add name="stream count" type="ushort" ></add>
 		<add name="unks" type="ushort" arr1="3" ></add>
+	</compound>
+
+	<compound name="Ms2BufferInfoZT" >
+		Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		from here on, it's buffer 1
-		<add name="streams" type="StreamInfo" arr1="stream count" ></add>
+		<add name="streams" type="StreamInfo" arr1="#ARG#\stream count" ></add>
 	</compound>
 
 	<compound name="StreamInfo" >

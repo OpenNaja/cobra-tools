@@ -1,6 +1,7 @@
 import bpy
 import mathutils
 
+from generated.formats.ovl import is_ztuac
 from plugin.modules_export.collision import export_hitcheck
 from utils import matrix_util
 
@@ -37,6 +38,7 @@ def handle_transforms(ob, me, errors, apply=True):
 
 
 def export_bones(b_armature_ob, data):
+	corrector = matrix_util.Corrector(is_ztuac(data))
 	b_bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
 	bone_info = data.ms2_file.bone_info
 	for bone_name, ms2_bone, ms2_inv_bind in zip(b_bone_names, bone_info.bones, bone_info.inverse_bind_matrices):
@@ -52,21 +54,21 @@ def export_bones(b_armature_ob, data):
 		# todo - the correction function works, but only in armature space; come up with one that works in local space to reduce overhead
 		# make relative to parent
 		if b_bone.parent:
-			mat_local_to_parent = matrix_util.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local)
+			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
 		else:
-			mat_local_to_parent = matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local)
+			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
 		# set the bone transform, relative to parent
 		ms2_bone.set_bone(mat_local_to_parent)
 		# set the armature space inverse bind pose
-		ms2_inv_bind.set_rows(matrix_util.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
+		ms2_inv_bind.set_rows(corrector.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
 
 		# print("new: ", )
 		# print(ms2_inv_bind)
 		# print(ms2_bone)
-	export_joints(b_armature_ob, bone_info, b_bone_names)
+	export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
 
 
-def export_joints(armature_ob, bone_info, bone_names):
+def export_joints(armature_ob, bone_info, bone_names, corrector):
 	print("Exporting joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
 		bone_name = bone_names[bone_index]
@@ -74,5 +76,5 @@ def export_joints(armature_ob, bone_info, bone_names):
 		for hitcheck in joint_info.hit_check:
 			b_obj = bpy.data.objects.get(hitcheck.name, None)
 			if b_obj:
-				export_hitcheck(b_obj, hitcheck)
+				export_hitcheck(b_obj, hitcheck, corrector)
 

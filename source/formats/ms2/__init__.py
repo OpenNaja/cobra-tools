@@ -189,7 +189,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			print(self)
 			print("end of header: ", self.eoh)
 			if is_old(self):
-				self.pc_buffer1 = stream.read_type(PcBuffer1, (self.general_info,))
+				self.pc_buffer1 = stream.read_type(PcBuffer1, (self,))
 				print(self.pc_buffer1)
 				for i, model_info in enumerate(self.pc_buffer1.model_infos):
 					print("\n\nMDL2", i)

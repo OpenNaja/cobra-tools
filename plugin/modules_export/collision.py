@@ -7,7 +7,6 @@ from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.compound.packing_utils import pack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
-from utils.matrix_util import blender_bind_to_nif_bind
 
 v = 9999
 
@@ -33,12 +32,12 @@ def export_bounds(bounds, mdl2):
 	# print(model_info)
 
 
-def export_hitcheck(b_obj, hitcheck):
+def export_hitcheck(b_obj, hitcheck, corrector):
 	hitcheck.name = b_obj.name
 	if b_obj.display_bounds_type == 'SPHERE':
 		export_spherebv(b_obj, hitcheck)
 	elif b_obj.display_bounds_type == 'BOX':
-		export_boxbv(b_obj, hitcheck)
+		export_boxbv(b_obj, hitcheck, corrector)
 	elif b_obj.display_bounds_type == 'CAPSULE':
 		export_capsulebv(b_obj, hitcheck)
 	return hitcheck
@@ -62,7 +61,7 @@ def export_spherebv(b_obj, hitcheck):
 	c.x, c.y, c.z = pack_swizzle(matrix.translation)
 
 
-def export_boxbv(b_obj, hitcheck):
+def export_boxbv(b_obj, hitcheck, corrector):
 	hitcheck.type = CollisionType.BoundingBox
 	hitcheck.collider = BoundingBox()
 
@@ -72,7 +71,7 @@ def export_boxbv(b_obj, hitcheck):
 	e = hitcheck.collider.extent
 	dim = b_obj.dimensions
 	e.x, e.y, e.z = pack_swizzle((dim.y, dim.x, dim.z))
-	rot = blender_bind_to_nif_bind(matrix).to_3x3()
+	rot = corrector.blender_bind_to_nif_bind(matrix).to_3x3()
 	hitcheck.collider.rotation.data[:] = rot.transposed()
 
 
