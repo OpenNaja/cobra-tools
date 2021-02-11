@@ -215,17 +215,10 @@ class ZtModelData:
 			("colors", np.ubyte, (1, 4)),
 			("uvs", np.ushort, (1, 2)),
 		]
-		# bone weights
-		dt_w = [
-			("bone ids", np.ubyte, (4,)),
-			("bone weights", np.ubyte, (4,)),
-		]
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
-		self.dt_w = np.dtype(dt_w)
 		print("PC size of vertex:", self.dt.itemsize)
 		print("PC size of vcol:", self.dt_colors.itemsize)
-		print("PC size of weights:", self.dt_w.itemsize)
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
@@ -252,10 +245,6 @@ class ZtModelData:
 		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
 		self.colors_data = np.fromfile(stream, dtype=self.dt_colors, count=self.vertex_count)
-		# stream.seek(self.start_buffer2 + (self.weights_offset * 16))
-		# print("WEIGHtS", stream.tell())
-		# self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
-		# print(self.verts_data)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
@@ -263,19 +252,15 @@ class ZtModelData:
 			self.colors /= 255
 			self.uvs[:] = self.colors_data[:]["uvs"]
 			self.uvs /= 2048
-		# x 2
-		# y 0
-		# z 1
 		self.normals[:] = self.verts_data[:]["normal"]
 		# self.tangents[:] = self.verts_data[:]["tangent"]
 		self.vertices[:] = self.verts_data[:]["pos"]
 		self.normals = (self.normals - 128) / 128
 		# self.tangents = (self.tangents - 128) / 128
 		for i in range(self.vertex_count):
-		# 	in_pos_packed = self.verts_data[i]["pos"]
-		# 	vert, residue = unpack_longint_vec(in_pos_packed, self.base)
 			self.vertices[i] = unpack_swizzle(self.vertices[i])
 			# self.normals[i] = unpack_swizzle(self.normals[i])
+			# different swizzle!
 			self.normals[i] = (-self.normals[i][2], -self.normals[i][0], self.normals[i][1])
 		# 	self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, 0, extra=False))
