@@ -198,11 +198,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					print(model_info.pc_model)
 					if is_pc(self):
 						model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
+
 					# try:
 					# 	self.bone_info = stream.read_type(Ms2BoneInfo)
 					# except Exception as err:
 					# 	print("BONE INFO FAILED", err)
 					self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo, hack=False)
+					# lod_names = [self.bone_names[lod.bone_index] for lod in model_info.pc_model.lods]
+					# print(lod_names)
 					# print(self.bone_info)
 					if i == mdl2.index:
 						break
@@ -217,16 +220,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			print("self.start_buffer2", self.start_buffer2)
 			if is_old(self):
 				print("PC model...")
-				mdl2.models = Array()
 				if not quick:
 					# for model in self.pc_buffer1.model_infos:
-					for model_data in model_info.pc_model.model_data:
-						if is_ztuac(self):
-							model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512, )
-						else:
-							model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512)
-						mdl2.models.append(model_data)
-					self.lookup_material(model_info.pc_model, mdl2.models)
+					for model_data in model_info.pc_model.models:
+						model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512)
+					mdl2.lods = model_info.pc_model.lods
+					mdl2.mesh_links = model_info.pc_model.mesh_links
+					mdl2.models = model_info.pc_model.models
+					mdl2.materials = model_info.pc_model.materials
+					# self.lookup_material(model_info.pc_model, mdl2.models)
 			else:
 				print("vert array start", self.start_buffer2)
 				print("tri array start", self.start_buffer2 + self.buffer_info.vertexdatasize)
@@ -243,20 +245,25 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if read_bytes:
 					for model in mdl2.models:
 						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
+		print("mapping")
+		for lod in mdl2.lods:
+			# print(lod)
+			# print(mdl2.mesh_links[lod.first_model_index:lod.last_model_index])
+			lod.models = tuple(
+				mdl2.models[mesh_link.model_index] for mesh_link in mdl2.mesh_links[lod.first_model_index:lod.last_model_index])
+			# print(lod.models)
 
 	def lookup_material(self, mdl2, models):
-		# print(mdl2.materials_0)
-		# for m in mdl2.materials_0:
-		# 	print(self.names[m.name_index], self.names[m.some_index])
-		for mat_1 in mdl2.materials_1:
+		for mat_1 in mdl2.mesh_links:
 			try:
-				name = self.names[mdl2.materials_0[mat_1.material_index].name_index]
+				name = self.names[mdl2.materials[mat_1.material_index].name_index]
 				model = models[mat_1.model_index]
 				model.material = name
+				print(f"Model: {mat_1.model_index} Material: {name}")
 			except Exception as err:
 				print(err)
 				print(f"Couldn't match material {mat_1.material_index} to model {mat_1.model_index} - bug?")
-				print(len(models), mat_1, mdl2.materials_0)
+				print(len(models), mat_1, mdl2.materials)
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
@@ -295,11 +302,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		print("update lod fragment")
 		for lod in mdl2.lods:
 			# print(lod)
-			lod_models = tuple(
-				model for model in mdl2.models[lod.first_model_index:lod.last_model_index])
 			# print(lod_models)
-			lod.vertex_count = sum(model.vertex_count for model in lod_models)
-			lod.tri_index_count = sum(model.tri_index_count for model in lod_models)
+			lod.vertex_count = sum(model.vertex_count for model in lod.models)
+			lod.tri_index_count = sum(model.tri_index_count for model in lod.models)
 			print("lod.vertex_count", lod.vertex_count)
 			print("lod.tri_index_count", lod.tri_index_count)
 		print("Writing final output")
@@ -373,7 +378,8 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/ele/africanelephant_child.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_child.mdl2")
+	m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")

@@ -3,8 +3,8 @@ from generated.array import Array
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.FixedString import FixedString
 from generated.formats.ms2.compound.LodInfo import LodInfo
-from generated.formats.ms2.compound.Material0 import Material0
-from generated.formats.ms2.compound.Material1 import Material1
+from generated.formats.ms2.compound.MaterialName import MaterialName
+from generated.formats.ms2.compound.MeshLink import MeshLink
 from generated.formats.ms2.compound.ModelData import ModelData
 
 
@@ -52,13 +52,13 @@ class Mdl2InfoHeader:
 		self.model_info = CoreModelInfo()
 
 		# name pointers for each material
-		self.materials_0 = Array()
+		self.materials = Array()
 
 		# lod info for each level
 		self.lods = Array()
 
 		# material links for each model
-		self.materials_1 = Array()
+		self.mesh_links = Array()
 
 		# model data blocks for this mdl2
 		self.models = Array()
@@ -80,9 +80,9 @@ class Mdl2InfoHeader:
 		self.name = stream.read_string()
 		if not (stream.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo)
-			self.materials_0.read(stream, Material0, self.model_info.mat_count, None)
+			self.materials.read(stream, MaterialName, self.model_info.mat_count, None)
 			self.lods.read(stream, LodInfo, self.model_info.lod_count, None)
-			self.materials_1.read(stream, Material1, self.model_info.mat_1_count, None)
+			self.mesh_links.read(stream, MeshLink, self.model_info.mesh_link_count, None)
 			self.models.read(stream, ModelData, self.model_info.model_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -104,9 +104,9 @@ class Mdl2InfoHeader:
 		stream.write_string(self.name)
 		if not (stream.version < 19):
 			stream.write_type(self.model_info)
-			self.materials_0.write(stream, Material0, self.model_info.mat_count, None)
+			self.materials.write(stream, MaterialName, self.model_info.mat_count, None)
 			self.lods.write(stream, LodInfo, self.model_info.lod_count, None)
-			self.materials_1.write(stream, Material1, self.model_info.mat_1_count, None)
+			self.mesh_links.write(stream, MeshLink, self.model_info.mesh_link_count, None)
 			self.models.write(stream, ModelData, self.model_info.model_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -126,9 +126,9 @@ class Mdl2InfoHeader:
 		s += f'\n	* bone_info_index = {self.bone_info_index.__repr__()}'
 		s += f'\n	* name = {self.name.__repr__()}'
 		s += f'\n	* model_info = {self.model_info.__repr__()}'
-		s += f'\n	* materials_0 = {self.materials_0.__repr__()}'
+		s += f'\n	* materials = {self.materials.__repr__()}'
 		s += f'\n	* lods = {self.lods.__repr__()}'
-		s += f'\n	* materials_1 = {self.materials_1.__repr__()}'
+		s += f'\n	* mesh_links = {self.mesh_links.__repr__()}'
 		s += f'\n	* models = {self.models.__repr__()}'
 		return s
 

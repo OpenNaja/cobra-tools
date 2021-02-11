@@ -58,7 +58,7 @@ class Ms2InfoHeader:
 		self.bone_names_size = stream.read_uint()
 		self.bone_info_size = stream.read_uint()
 		self.general_info = stream.read_type(Ms2SizedStrData)
-		if not (stream.version < 19) and self.general_info.has_model_data:
+		if not (stream.version < 19) and self.general_info.vertex_buffer_count:
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
 		self.name_hashes = stream.read_uints((self.general_info.name_count))
 		self.names = stream.read_zstrings((self.general_info.name_count))
@@ -82,7 +82,7 @@ class Ms2InfoHeader:
 		stream.write_uint(self.bone_names_size)
 		stream.write_uint(self.bone_info_size)
 		stream.write_type(self.general_info)
-		if not (stream.version < 19) and self.general_info.has_model_data:
+		if not (stream.version < 19) and self.general_info.vertex_buffer_count:
 			stream.write_type(self.buffer_info)
 		stream.write_uints(self.name_hashes)
 		stream.write_zstrings(self.names)

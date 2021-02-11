@@ -44,13 +44,15 @@ class CoreModelInfo:
 		self.bounds_max_repeat = Vector3()
 		self.mat_count = 0
 		self.lod_count = 0
-		self.mat_1_count = 0
+		self.mesh_link_count = 0
 
 		# count of modeldata fragments for the mdl2 this struct refers to
 		self.model_count = 0
 		self.last_count = 0
-		self.unk_0 = 0
-		self.unk_1 = 0
+
+		# nonzero in PZ flamingo, ZT african ele female
+		self.another_count = 0
+		self.unks = Array()
 		self.pad = Array()
 
 	def read(self, stream):
@@ -71,11 +73,11 @@ class CoreModelInfo:
 			self.bounds_max_repeat = stream.read_type(Vector3)
 		self.mat_count = stream.read_ushort()
 		self.lod_count = stream.read_ushort()
-		self.mat_1_count = stream.read_ushort()
+		self.mesh_link_count = stream.read_ushort()
 		self.model_count = stream.read_ushort()
 		self.last_count = stream.read_ushort()
-		self.unk_0 = stream.read_uint64()
-		self.unk_1 = stream.read_uint64()
+		self.another_count = stream.read_ushort()
+		self.unks = stream.read_ushorts((7))
 		self.pad = stream.read_ushorts((3))
 
 		self.io_size = stream.tell() - self.io_start
@@ -98,11 +100,11 @@ class CoreModelInfo:
 			stream.write_type(self.bounds_max_repeat)
 		stream.write_ushort(self.mat_count)
 		stream.write_ushort(self.lod_count)
-		stream.write_ushort(self.mat_1_count)
+		stream.write_ushort(self.mesh_link_count)
 		stream.write_ushort(self.model_count)
 		stream.write_ushort(self.last_count)
-		stream.write_uint64(self.unk_0)
-		stream.write_uint64(self.unk_1)
+		stream.write_ushort(self.another_count)
+		stream.write_ushorts(self.unks)
 		stream.write_ushorts(self.pad)
 
 		self.io_size = stream.tell() - self.io_start
@@ -123,11 +125,11 @@ class CoreModelInfo:
 		s += f'\n	* bounds_max_repeat = {self.bounds_max_repeat.__repr__()}'
 		s += f'\n	* mat_count = {self.mat_count.__repr__()}'
 		s += f'\n	* lod_count = {self.lod_count.__repr__()}'
-		s += f'\n	* mat_1_count = {self.mat_1_count.__repr__()}'
+		s += f'\n	* mesh_link_count = {self.mesh_link_count.__repr__()}'
 		s += f'\n	* model_count = {self.model_count.__repr__()}'
 		s += f'\n	* last_count = {self.last_count.__repr__()}'
-		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
-		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
+		s += f'\n	* another_count = {self.another_count.__repr__()}'
+		s += f'\n	* unks = {self.unks.__repr__()}'
 		s += f'\n	* pad = {self.pad.__repr__()}'
 		return s
 

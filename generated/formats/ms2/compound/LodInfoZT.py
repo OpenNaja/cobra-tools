@@ -19,7 +19,7 @@ class LodInfoZT:
 		self.half = 0
 
 		# increasing
-		self.some_index = 0
+		self.lod_index = 0
 
 		# index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)
 		self.bone_index = 0
@@ -39,9 +39,9 @@ class LodInfoZT:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.full = stream.read_ushort()
-		self.half = stream.read_ushort()
-		self.some_index = stream.read_ushort()
+		self.full = stream.read_short()
+		self.half = stream.read_short()
+		self.lod_index = stream.read_ushort()
 		self.bone_index = stream.read_ushort()
 		self.first_model_index = stream.read_ushort()
 		self.last_model_index = stream.read_ushort()
@@ -53,9 +53,9 @@ class LodInfoZT:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_ushort(self.full)
-		stream.write_ushort(self.half)
-		stream.write_ushort(self.some_index)
+		stream.write_short(self.full)
+		stream.write_short(self.half)
+		stream.write_ushort(self.lod_index)
 		stream.write_ushort(self.bone_index)
 		stream.write_ushort(self.first_model_index)
 		stream.write_ushort(self.last_model_index)
@@ -71,7 +71,7 @@ class LodInfoZT:
 		s = ''
 		s += f'\n	* full = {self.full.__repr__()}'
 		s += f'\n	* half = {self.half.__repr__()}'
-		s += f'\n	* some_index = {self.some_index.__repr__()}'
+		s += f'\n	* lod_index = {self.lod_index.__repr__()}'
 		s += f'\n	* bone_index = {self.bone_index.__repr__()}'
 		s += f'\n	* first_model_index = {self.first_model_index.__repr__()}'
 		s += f'\n	* last_model_index = {self.last_model_index.__repr__()}'

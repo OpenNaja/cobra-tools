@@ -25,7 +25,7 @@ class PcBuffer1:
 
 		self.io_start = stream.tell()
 		if stream.version == 17:
-			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT, (self.arg.zt_streams_header,))
+			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT, (self.arg,))
 		if stream.version == 18:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoPC)
 		self.model_infos.read(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)

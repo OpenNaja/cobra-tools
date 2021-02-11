@@ -12,7 +12,6 @@ class ZTPreBones:
 		self.io_start = 0
 		self.zeros = Array()
 		self.unks = Array()
-		self.zeros_3 = Array()
 		self.unks_2 = Array()
 		self.floats = Array()
 		self.unks_3 = Array()
@@ -21,8 +20,7 @@ class ZTPreBones:
 
 		self.io_start = stream.tell()
 		self.zeros = stream.read_uint64s((2))
-		self.unks = stream.read_uints((4))
-		self.zeros_3 = stream.read_uint64s((2))
+		self.unks = stream.read_uints((8))
 		self.unks_2 = stream.read_uints((10))
 		self.floats = stream.read_floats((4))
 		self.unks_3 = stream.read_uints((2))
@@ -34,7 +32,6 @@ class ZTPreBones:
 		self.io_start = stream.tell()
 		stream.write_uint64s(self.zeros)
 		stream.write_uints(self.unks)
-		stream.write_uint64s(self.zeros_3)
 		stream.write_uints(self.unks_2)
 		stream.write_floats(self.floats)
 		stream.write_uints(self.unks_3)
@@ -48,7 +45,6 @@ class ZTPreBones:
 		s = ''
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* unks = {self.unks.__repr__()}'
-		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
 		s += f'\n	* unks_2 = {self.unks_2.__repr__()}'
 		s += f'\n	* floats = {self.floats.__repr__()}'
 		s += f'\n	* unks_3 = {self.unks_3.__repr__()}'
