@@ -59,6 +59,7 @@ class FgmInfoHeader:
 		self.two_frags_pad = Array()
 		self.textures = Array()
 		self.texpad = Array()
+		self.texpad = Array()
 		self.attributes = Array()
 
 	def read(self, stream):
@@ -83,7 +84,10 @@ class FgmInfoHeader:
 		self.fgm_info = stream.read_type(FourFragFgm)
 		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
-		self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 24)))
+		if not (stream.version == 17):
+			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 24)))
+		if stream.version == 17:
+			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 12)))
 		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -110,7 +114,10 @@ class FgmInfoHeader:
 		stream.write_type(self.fgm_info)
 		self.two_frags_pad.write(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
-		stream.write_bytes(self.texpad)
+		if not (stream.version == 17):
+			stream.write_bytes(self.texpad)
+		if stream.version == 17:
+			stream.write_bytes(self.texpad)
 		self.attributes.write(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
 		self.io_size = stream.tell() - self.io_start

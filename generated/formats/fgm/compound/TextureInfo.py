@@ -25,7 +25,13 @@ class TextureInfo:
 		# stores index into shader and array index of texture
 		self.indices = Array()
 
+		# stores index into shader
+		self.indices = Array()
+
 		# Stores (usually) 2 rgba colors
+		self.colors = Array()
+
+		# Stores rgba color
 		self.colors = Array()
 
 	def read(self, stream):
@@ -33,10 +39,14 @@ class TextureInfo:
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.is_textured = stream.read_uint()
-		if self.is_textured == 8:
+		if not (stream.version == 17) and self.is_textured == 8:
 			self.indices = stream.read_uints((4))
-		if self.is_textured == 7:
+		if stream.version == 17 and self.is_textured == 8:
+			self.indices = stream.read_uints((1))
+		if not (stream.version == 17) and self.is_textured == 7:
 			self.colors.read(stream, Color, 4, None)
+		if stream.version == 17 and self.is_textured == 7:
+			self.colors.read(stream, Color, 1, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -45,10 +55,14 @@ class TextureInfo:
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.is_textured)
-		if self.is_textured == 8:
+		if not (stream.version == 17) and self.is_textured == 8:
 			stream.write_uints(self.indices)
-		if self.is_textured == 7:
+		if stream.version == 17 and self.is_textured == 8:
+			stream.write_uints(self.indices)
+		if not (stream.version == 17) and self.is_textured == 7:
 			self.colors.write(stream, Color, 4, None)
+		if stream.version == 17 and self.is_textured == 7:
+			self.colors.write(stream, Color, 1, None)
 
 		self.io_size = stream.tell() - self.io_start
 

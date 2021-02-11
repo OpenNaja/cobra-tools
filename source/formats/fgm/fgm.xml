@@ -115,8 +115,10 @@
 		part of fgm fragment, per texture involved
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
 		<add name="is textured" type="uint">7=has 2 8=uses texture indices</add>
-		<add name="indices" type="uint" arr1="4" cond="is textured == 8">stores index into shader and array index of texture</add>
-		<add name="colors" type="Color" arr1="4" cond="is textured == 7">Stores (usually) 2 rgba colors</add>
+		<add name="indices" type="uint" arr1="4" cond="is textured == 8" vercond="!#ZTUAC#">stores index into shader and array index of texture</add>
+		<add name="colors" type="Color" arr1="4" cond="is textured == 7" vercond="!#ZTUAC#">Stores (usually) 2 rgba colors</add>
+		<add name="indices" type="uint" arr1="1" cond="is textured == 8" vercond="#ZTUAC#">stores index into shader</add>
+		<add name="colors" type="Color" arr1="1" cond="is textured == 7" vercond="#ZTUAC#">Stores rgba color</add>
     </compound>
 	
 	<compound name="AttributeInfo" >
@@ -148,7 +150,8 @@
 		<add name="two frags pad" type="TwoFragFgmExtra" arr1="num frags == 2" ></add>
 
 		<add name="textures" type="TextureInfo" arr1="fgm info\texture count"></add>
-        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 24)"></add>
+        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 24)" vercond="!#ZTUAC#"></add>
+        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 12)" vercond="#ZTUAC#"></add>
 		<add name="attributes" type="AttributeInfo" arr1="fgm info\attribute count" ></add>
         
     </compound>

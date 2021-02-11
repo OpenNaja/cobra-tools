@@ -1,4 +1,6 @@
 import os
+import traceback
+
 from PyQt5 import QtWidgets, QtCore
 
 import modules.formats.shared
@@ -134,6 +136,7 @@ class MainWindow(widgets.MainWindow):
 					self.attrib_grid.addWidget(w.data, line_i, 2)
 
 			except Exception as ex:
+				traceback.print_exc()
 				util.interaction.showdialog(str(ex))
 				print(ex)
 			print("Done!")
