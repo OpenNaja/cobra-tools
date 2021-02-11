@@ -187,7 +187,7 @@ class ZtModelData:
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		try:
-			uv_shape = self.dt["uvs"].shape
+			uv_shape = self.dt_colors["uvs"].shape
 			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		except:
 			self.uvs = None
@@ -205,21 +205,17 @@ class ZtModelData:
 			("bone ids", np.ubyte, (4,)),
 			("bone weights", np.ubyte, (4,)),
 			("pos", np.float16, (3,)),
-			# ("u", np.ubyte, 1),
 			("one", np.float16),
-			# ("uvs", np.ushort, (1, 2)),
-			# ("b", np.ubyte, 4),
-			# ("some", np.ubyte),
 			("normal", np.ubyte, (3,)),
 			("a", np.ubyte, ),
-			# ("colors", np.ubyte, (1, 4)),
-			("uvs", np.ubyte, (2, 2)),
+			("tangent", np.ubyte, (3,)),
+			("b", np.ubyte, ),
 		]
 		dt_colors = [
-			("colors", np.ubyte, (2, 4)),
+			("colors", np.ubyte, (1, 4)),
+			("uvs", np.ushort, (1, 2)),
 		]
 		# bone weights
-		# if self.flag in (529, 533, 885, 565, 1013, 528, 821):
 		dt_w = [
 			("bone ids", np.ubyte, (4,)),
 			("bone weights", np.ubyte, (4,)),
@@ -237,7 +233,7 @@ class ZtModelData:
 		print("tris offset", stream.tell())
 		# read all tri indices for this model segment
 		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
-		print(self.tri_indices)
+		# print(self.tri_indices)
 
 	@property
 	def tris(self, ):
@@ -261,20 +257,15 @@ class ZtModelData:
 		# self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
 		# print(self.verts_data)
 		# first cast to the float uvs array so unpacking doesn't use int division
-		# if self.colors is not None:
-		# # if self.colors is not None:
-		# # 	# first cast to the float colors array so unpacking doesn't use int division
-		# # 	self.colors[:] = self.colors_data[:]["colors"]
-		# 	self.colors[:] = self.verts_data[:]["colors"]
-		# 	self.colors /= 255
-		self.uvs[:] = self.verts_data[:]["uvs"]
-		# self.uvs[:][]
-		# unpack uvs
+		if self.colors is not None:
+			# first cast to the float colors array so unpacking doesn't use int division
+			self.colors[:] = self.colors_data[:]["colors"]
+			self.colors /= 255
+			self.uvs[:] = self.colors_data[:]["uvs"]
+			self.uvs /= 2048
 		# x 2
 		# y 0
 		# z 1
-		# self.uvs = (self.uvs - 32768) / 2048
-		self.uvs = (self.uvs - 256) / 256
 		self.normals[:] = self.verts_data[:]["normal"]
 		# self.tangents[:] = self.verts_data[:]["tangent"]
 		self.vertices[:] = self.verts_data[:]["pos"]
@@ -288,8 +279,8 @@ class ZtModelData:
 			self.normals[i] = (-self.normals[i][2], -self.normals[i][0], self.normals[i][1])
 		# 	self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, 0, extra=False))
-			print(math.sqrt(sum(x**2 for x in self.normals[i])))
-		print(self.normals)
+			# print(math.sqrt(sum(x**2 for x in self.normals[i])))
+		# print(self.normals)
 		# print(self.verts_data)
 		# print(self.vertices)
 		# print(self.weights)
