@@ -31,10 +31,10 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 	ovl_header = pack_header(archive, b"MS2 ")
 	ms2_header = struct.pack("<2I", len(bone_names), len(bone_matrices))
 
-	for i, buffer in enumerate(buffers):
-		p = out_dir(name+str(i)+".ms2")
-		with open(p, 'wb') as outfile:
-			outfile.write(buffer)
+	# for i, buffer in enumerate(buffers):
+	# 	p = out_dir(name+str(i)+".ms2")
+	# 	with open(p, 'wb') as outfile:
+	# 		outfile.write(buffer)
 
 	# Planet coaster
 	if is_pc(archive.ovl) or is_ztuac(archive.ovl):
