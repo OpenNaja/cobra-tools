@@ -138,6 +138,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 
 	try:
 		dds_type = header_3_0.compression_type.name
+		print(header_3_0.compression_type)
 		# account for aliases
 		if dds_type.endswith(("_B", "_C")):
 			dds_type = dds_type[:-2]

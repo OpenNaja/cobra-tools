@@ -19,7 +19,7 @@ def check_any(iterable, string):
 def has_components(png_file_path):
 	return check_any(("playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture",
 					  "markingbaldnessscartexture", "markingscartexture", "pflexicolourmaskssamplertexture",
-					  "pmetalsmoothnesscavitysamplertexture", "pmetalsmoothnesscavityopacitysamplertexture"),
+					  "pmetalsmoothnesscavitysamplertexture", "pmetalsmoothnesscavityopacitysamplertexture", "pspecularmaptexture"),
 					 png_file_path)
 
 
