@@ -209,9 +209,10 @@
 		<add name="lod index" type="ushort" >increasing</add>
 		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
 		<add name="first model index" type="ushort" >first model for this lod in models list</add>
-		<add name="last model index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="vertex count" type="ushort" >vertex count of lod</add>
-		<add name="tri index count" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+<!--		<add name="last model index" type="ushort" >not included in interval (python style indexing)</add>-->
+		<add name="some index" type="ushort" >not included in interval (python style indexing)</add>
+		<add name="some index 2" type="ushort" >vertex count of lod</add>
+		<add name="last model index" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 	</compound>
 
 	<compound name="ModelData" >

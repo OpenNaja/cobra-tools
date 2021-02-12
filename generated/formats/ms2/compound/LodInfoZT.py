@@ -28,13 +28,13 @@ class LodInfoZT:
 		self.first_model_index = 0
 
 		# not included in interval (python style indexing)
-		self.last_model_index = 0
+		self.some_index = 0
 
 		# vertex count of lod
-		self.vertex_count = 0
+		self.some_index_2 = 0
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-		self.tri_index_count = 0
+		self.last_model_index = 0
 
 	def read(self, stream):
 
@@ -44,9 +44,9 @@ class LodInfoZT:
 		self.lod_index = stream.read_ushort()
 		self.bone_index = stream.read_ushort()
 		self.first_model_index = stream.read_ushort()
+		self.some_index = stream.read_ushort()
+		self.some_index_2 = stream.read_ushort()
 		self.last_model_index = stream.read_ushort()
-		self.vertex_count = stream.read_ushort()
-		self.tri_index_count = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -58,9 +58,9 @@ class LodInfoZT:
 		stream.write_ushort(self.lod_index)
 		stream.write_ushort(self.bone_index)
 		stream.write_ushort(self.first_model_index)
+		stream.write_ushort(self.some_index)
+		stream.write_ushort(self.some_index_2)
 		stream.write_ushort(self.last_model_index)
-		stream.write_ushort(self.vertex_count)
-		stream.write_ushort(self.tri_index_count)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -74,9 +74,9 @@ class LodInfoZT:
 		s += f'\n	* lod_index = {self.lod_index.__repr__()}'
 		s += f'\n	* bone_index = {self.bone_index.__repr__()}'
 		s += f'\n	* first_model_index = {self.first_model_index.__repr__()}'
+		s += f'\n	* some_index = {self.some_index.__repr__()}'
+		s += f'\n	* some_index_2 = {self.some_index_2.__repr__()}'
 		s += f'\n	* last_model_index = {self.last_model_index.__repr__()}'
-		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
-		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
 		return s
 
 	def __repr__(self):

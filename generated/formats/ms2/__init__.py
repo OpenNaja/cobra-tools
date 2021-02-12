@@ -135,7 +135,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.read_joints(bone_info)
 			except:
 				pass
-		print(self.bone_names)
+		# print(self.bone_names)
 		return bone_info
 
 	def read_joints(self, bone_info):
@@ -245,25 +245,24 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if read_bytes:
 					for model in mdl2.models:
 						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
-		print("mapping")
-		for lod in mdl2.lods:
-			# print(lod)
-			# print(mdl2.mesh_links[lod.first_model_index:lod.last_model_index])
-			lod.models = tuple(
-				mdl2.models[mesh_link.model_index] for mesh_link in mdl2.mesh_links[lod.first_model_index:lod.last_model_index])
-			# print(lod.models)
 
 	def lookup_material(self, mdl2, models):
-		for mat_1 in mdl2.mesh_links:
-			try:
-				name = self.names[mdl2.materials[mat_1.material_index].name_index]
-				model = models[mat_1.model_index]
-				model.material = name
-				print(f"Model: {mat_1.model_index} Material: {name}")
-			except Exception as err:
-				print(err)
-				print(f"Couldn't match material {mat_1.material_index} to model {mat_1.model_index} - bug?")
-				print(len(models), mat_1, mdl2.materials)
+		print("mapping")
+		for lod_index, lod in enumerate(mdl2.lods):
+			lod.mesh_links = mdl2.mesh_links[lod.first_model_index:lod.last_model_index]
+			lod.models = tuple(mdl2.models[mesh_link.model_index] for mesh_link in lod.mesh_links)
+			print("LOD", lod_index)
+			for mesh_link in lod.mesh_links:
+				try:
+					material = mdl2.materials[mesh_link.material_index]
+					name = self.names[material.name_index]
+					model = models[mesh_link.model_index]
+					model.material = name
+					print(f"Model: {mesh_link.model_index} Material: {name} Material Unk: {material.some_index} Lod Index: {model.poweroftwo}")
+				except Exception as err:
+					print(err)
+					print(f"Couldn't match material {mesh_link.material_index} to model {mesh_link.model_index} - bug?")
+					print(len(models), mesh_link, mdl2.materials)
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
