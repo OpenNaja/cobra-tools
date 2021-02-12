@@ -18,11 +18,14 @@ class ZtModelData:
 		for s in self.streams[:self.stream_index]:
 			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.next_buffer_length
 		self.start_buffer2 = start_buffer2
+		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.start_buffer2+self.stream_offset}")
 		self.ms2_file = ms2_file
 		self.base = base
 		self.bone_names = bone_names
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
+		print(self.flag)
+		print(self.tris)
 
 	def init_arrays(self, count):
 		self.vertex_count = count
@@ -74,7 +77,10 @@ class ZtModelData:
 	@property
 	def tris(self, ):
 		# tri strip
-		return triangulate((self.tri_indices,))
+		if self.flag == 38:
+			return list([(self.tri_indices[i], self.tri_indices[i+1], self.tri_indices[i+2]) for i in range(0, len(self.tri_indices), 3)])
+		else:
+			return triangulate((self.tri_indices,))
 
 	def read_verts(self, stream):
 		# get dtype according to which the vertices are packed

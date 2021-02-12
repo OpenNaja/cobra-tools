@@ -51,7 +51,7 @@ def create_material(in_dir, matname):
 			tex_dic[k] = b_tex
 
 	# get diffuse and AO
-	for diffuse_name in ("pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture", "palbinobasecolourandmasktexture"):
+	for diffuse_name in ("pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture", "palbinobasecolourandmasktexture"):
 		# get diffuse
 		if diffuse_name in tex_dic:
 			diffuse = tex_dic[diffuse_name]
@@ -130,6 +130,9 @@ def create_material(in_dir, matname):
 	# JWE billboard: Foliage_Billboard
 	if "pdiffusealphatexture" in tex_dic:
 		alpha = tex_dic["pdiffusealphatexture"]
+		alpha_pass = alpha.outputs[1]
+	elif "pdiffuse_alphatexture" in tex_dic:
+		alpha = tex_dic["pdiffuse_alphatexture"]
 		alpha_pass = alpha.outputs[1]
 	# PZ penguin
 	elif "popacitytexture" in tex_dic:

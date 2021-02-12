@@ -118,7 +118,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for hitcheck in bone_info.joints.hitchecks_pc:
 				if hitcheck.type == CollisionType.ConvexHull:
 					hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
-					print(hitcheck.collider.verts)
+					# print(hitcheck.collider.verts)
 			# print(bone_info)
 			end_of_bone_info = stream.tell()
 			print("end of bone info at", end_of_bone_info)
@@ -221,14 +221,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if is_old(self):
 				print("PC model...")
 				if not quick:
-					# for model in self.pc_buffer1.model_infos:
-					for model_data in model_info.pc_model.models:
+					for i, model_data in enumerate(model_info.pc_model.models):
+						print("\nModel", i)
 						model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512)
+						print(model_data)
 					mdl2.lods = model_info.pc_model.lods
 					mdl2.mesh_links = model_info.pc_model.mesh_links
 					mdl2.models = model_info.pc_model.models
 					mdl2.materials = model_info.pc_model.materials
-					# self.lookup_material(model_info.pc_model, mdl2.models)
 			else:
 				print("vert array start", self.start_buffer2)
 				print("tri array start", self.start_buffer2 + self.buffer_info.vertexdatasize)
@@ -378,7 +378,8 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Mdl2File()
 	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_child.mdl2")
-	m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
+	m.load("C:/Users/arnfi/Desktop/ele/asianelephant_child.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
