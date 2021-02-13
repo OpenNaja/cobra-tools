@@ -189,7 +189,8 @@ class ModelData:
 			])
 		elif self.flag in (565, 821, 853, 885, 1013):
 			dt.extend([
-				("uvs", np.ushort, (3, 2)),
+				("uvs", np.ushort, (2, 2)),
+				("colors", np.ubyte, (1, 4)), # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
 			])
 		elif self.flag == 533:

@@ -345,8 +345,11 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file_no_ext = os.path.splitext(self.file)[0]
 		print(f"Loading {self.basename}")
 		# read the file
-		eof = super().load(filepath)
-		# print(self)
+		try:
+			eof = super().load(filepath)
+		except Exception as err:
+			print(err)
+			print(self)
 
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
@@ -378,7 +381,8 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Mdl2File()
 	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_child.mdl2")
-	m.load("C:/Users/arnfi/Desktop/ele/asianelephant_child.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/ele/asianelephant_child.mdl2")
+	m.load("C:/Users/arnfi/Desktop/rattle/western_diamondback_rattlesnake.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
