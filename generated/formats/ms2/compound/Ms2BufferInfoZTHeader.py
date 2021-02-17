@@ -1,5 +1,6 @@
 import typing
 from generated.array import Array
+from generated.formats.ms2.compound.InfoZTHeaderEntry import InfoZTHeaderEntry
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
 
 
@@ -20,15 +21,13 @@ class Ms2BufferInfoZTHeader:
 
 		# sometimes 00 byte
 		self.weird_padding = SmartPadding()
-		self.unk_count = 0
 		self.unks = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.weird_padding = stream.read_type(SmartPadding)
-		self.unk_count = stream.read_ushort()
-		self.unks = stream.read_ushorts((self.unk_count, 2))
+		self.unks.read(stream, InfoZTHeaderEntry, self.arg.unk_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -36,8 +35,7 @@ class Ms2BufferInfoZTHeader:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.weird_padding)
-		stream.write_ushort(self.unk_count)
-		stream.write_ushorts(self.unks)
+		self.unks.write(stream, InfoZTHeaderEntry, self.arg.unk_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -47,7 +45,6 @@ class Ms2BufferInfoZTHeader:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
-		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
 		s += f'\n	* unks = {self.unks.__repr__()}'
 		return s
 

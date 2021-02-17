@@ -63,7 +63,7 @@ class Ms2InfoHeader:
 		self.name_hashes = stream.read_uints((self.general_info.name_count))
 		self.names = stream.read_zstrings((self.general_info.name_count))
 		if stream.version == 17:
-			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader)
+			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.general_info,))
 
 		self.io_size = stream.tell() - self.io_start
 

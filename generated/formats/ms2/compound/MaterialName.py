@@ -1,3 +1,6 @@
+import typing
+
+
 class MaterialName:
 
 	def __init__(self, arg=None, template=None):
@@ -10,24 +13,40 @@ class MaterialName:
 		# index into ms2 names array
 		self.name_index = 0
 
+		# index into ms2 names array
+		self.name_index = 0
+
+		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
+		self.some_index = 0
+
 		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
 		self.some_index = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.name_index = stream.read_uint()
+		if not (stream.version < 19):
+			self.name_index = stream.read_uint()
+		if stream.version < 19:
+			self.name_index = stream.read_ushort()
 		if not (stream.version < 19):
 			self.some_index = stream.read_uint()
+		if stream.version < 19:
+			self.some_index = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uint(self.name_index)
+		if not (stream.version < 19):
+			stream.write_uint(self.name_index)
+		if stream.version < 19:
+			stream.write_ushort(self.name_index)
 		if not (stream.version < 19):
 			stream.write_uint(self.some_index)
+		if stream.version < 19:
+			stream.write_ushort(self.some_index)
 
 		self.io_size = stream.tell() - self.io_start
 

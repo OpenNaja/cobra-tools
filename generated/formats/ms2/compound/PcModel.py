@@ -51,6 +51,7 @@ class PcModel:
 			self.models.read(stream, PcModelData, self.arg.model_count, None)
 		if stream.version == 17:
 			self.models.read(stream, ZtModelData, self.arg.model_count, None)
+		if stream.version == 17 and self.arg.last_count:
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones)
 		self.floatsy.read(stream, FloatsY, self.arg.another_count, None)
 		self.weird_padding = stream.read_type(SmartPadding)
@@ -72,6 +73,7 @@ class PcModel:
 			self.models.write(stream, PcModelData, self.arg.model_count, None)
 		if stream.version == 17:
 			self.models.write(stream, ZtModelData, self.arg.model_count, None)
+		if stream.version == 17 and self.arg.last_count:
 			stream.write_type(self.ztuac_pre_bones)
 		self.floatsy.write(stream, FloatsY, self.arg.another_count, None)
 		stream.write_type(self.weird_padding)

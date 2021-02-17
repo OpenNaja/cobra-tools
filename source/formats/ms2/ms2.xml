@@ -101,6 +101,13 @@
 <!--        <member width="1" pos="7" name="weights" type="bool" >weight data present, flag = 9</member>-->
 	</bitfield>
 
+	<bitfield name="ModelFlagZT" storage="uint">
+		Determines the data held by a mesh.
+		Count from the end!!!
+		<member width="1" pos="6" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
+		<member width="1" pos="9" name="fur fins" type="bool">stores fins</member>
+	</bitfield>
+
 	<enum name="CollisionType" storage="uint">
 		<option value="0" name="Sphere" />
 		<option value="1" name="BoundingBox" />
@@ -278,7 +285,7 @@
 		<add name="poweroftwo" type="uint" vercond="#PC#">power of 2 increasing with lod index</add>
 		<add name="zero" type="uint" vercond="#PC#">always zero</add>
 		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
-		<add name="flag" type="ModelFlag">bitfield</add>
+		<add name="flag" type="ModelFlagZT">bitfield</add>
 		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
 <!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
 	</compound>
@@ -315,8 +322,10 @@
 	</compound>
 
 	<compound name="MaterialName">
-		<add name="name index" type="uint" >index into ms2 names array</add>
+		<add name="name index" type="uint" cond="!#OLD#">index into ms2 names array</add>
+		<add name="name index" type="ushort" cond="#OLD#">index into ms2 names array</add>
 		<add name="some index" type="uint" cond="!#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
+		<add name="some index" type="ushort" cond="#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
 	</compound>
 
 	<compound name="MeshLink">
@@ -340,7 +349,7 @@
 
 		<add name="name hashes" type="uint" arr1="general info\name count" ></add>
 		<add name="names" type="ZString" arr1="general info\name count" ></add>
-		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" />
+		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" arg="general info" />
 	</compound>
 
 	<compound name="PcBuffer1" >
@@ -359,7 +368,7 @@
 		<add name="unk" type="uint" cond="#ARG#\another_count" >may be padding instead</add>
 		<add name="models" type="PcModelData" arr1="#ARG#\model count" vercond="#PC#" ></add>
 		<add name="models" type="ZtModelData" arr1="#ARG#\model count" vercond="#ZTUAC#" ></add>
-		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" ></add>
+		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\another count" ></add>
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
 	</compound>
@@ -412,6 +421,10 @@
 		266 bytes
 		very end of buffer 0 after the names list
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
+		<add name="unks" type="InfoZTHeaderEntry" arr1="#ARG# \ unk count" ></add>
+	</compound>
+
+	<compound name="InfoZTHeaderEntry" >
 		<add name="unk count" type="ushort" ></add>
 		<add name="unks" type="ushort" arr1="unk count" arr2="2" ></add>
 	</compound>

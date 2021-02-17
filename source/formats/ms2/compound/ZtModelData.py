@@ -24,8 +24,8 @@ class ZtModelData:
 		self.bone_names = bone_names
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
-		print(self.flag)
-		print(self.tris)
+		# print(self.flag)
+		# print(self.tris)
 
 	def init_arrays(self, count):
 		self.vertex_count = count
@@ -57,10 +57,18 @@ class ZtModelData:
 			("tangent", np.ubyte, (3,)),
 			("b", np.ubyte, ),
 		]
-		dt_colors = [
-			("colors", np.ubyte, (1, 4)),
-			("uvs", np.ushort, (1, 2)),
-		]
+		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
+		if self.flag.fur_fins:
+			dt_colors = [
+				("colors", np.ubyte, (1, 4)),
+				("uvs", np.ushort, (2, 2)),
+			]
+		# zt3 elephants
+		else:
+			dt_colors = [
+				("colors", np.ubyte, (1, 4)),
+				("uvs", np.ushort, (1, 2)),
+			]
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
 		print("PC size of vertex:", self.dt.itemsize)
@@ -77,10 +85,10 @@ class ZtModelData:
 	@property
 	def tris(self, ):
 		# tri strip
-		if self.flag == 38:
-			return list([(self.tri_indices[i], self.tri_indices[i+1], self.tri_indices[i+2]) for i in range(0, len(self.tri_indices), 3)])
-		else:
+		if self.flag.stripify:
 			return triangulate((self.tri_indices,))
+		else:
+			return list([(self.tri_indices[i], self.tri_indices[i+1], self.tri_indices[i+2]) for i in range(0, len(self.tri_indices), 3)])
 
 	def read_verts(self, stream):
 		# get dtype according to which the vertices are packed
