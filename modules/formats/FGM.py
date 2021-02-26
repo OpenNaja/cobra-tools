@@ -1,6 +1,6 @@
 import struct
 
-from modules.formats.shared import pack_header
+from modules.formats.shared import pack_header, get_versions
 from modules.helpers import as_bytes
 from generated.formats.fgm import FgmFile
 
@@ -8,7 +8,6 @@ from generated.formats.fgm import FgmFile
 def write_fgm(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
-
 	try:
 		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
 		print("buffer size", len(buffer_data))
@@ -62,14 +61,15 @@ def write_fgm(archive, sized_str_entry, out_dir, show_temp_files, progress_callb
 
 def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 
+	versions = get_versions(ovl_data)
 	fgm_data = FgmFile()
 	fgm_data.load(fgm_file_path)
 
-	sizedstr_bytes = as_bytes(fgm_data.fgm_info) + as_bytes(fgm_data.two_frags_pad)
+	sizedstr_bytes = as_bytes(fgm_data.fgm_info, version_info=versions) + as_bytes(fgm_data.two_frags_pad, version_info=versions)
 
 	# todo - move texpad into fragment padding?
-	textures_bytes = as_bytes(fgm_data.textures) + as_bytes(fgm_data.texpad)
-	attributes_bytes = as_bytes(fgm_data.attributes)
+	textures_bytes = as_bytes(fgm_data.textures, version_info=versions) + as_bytes(fgm_data.texpad, version_info=versions)
+	attributes_bytes = as_bytes(fgm_data.attributes, version_info=versions)
 
 	# the actual injection
 	fgm_sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))

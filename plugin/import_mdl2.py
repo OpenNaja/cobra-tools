@@ -4,7 +4,7 @@ import time
 import bpy
 # import bmesh
 
-from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups
+from plugin.modules_import.armature import import_armature, import_armature_new, append_armature_modifier, import_vertex_groups
 from plugin.helpers import mesh_from_data
 from plugin.modules_import.material import create_material
 from utils import matrix_util
@@ -32,6 +32,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 
 	errors = []
 	b_armature_obj = import_armature(data)
+	# b_armature_obj2 = import_armature_new(data)
 	created_materials = {}
 	# print("data.models",data.models)
 	for model_i, model in enumerate(data.models):
