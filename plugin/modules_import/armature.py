@@ -72,8 +72,9 @@ def import_armature(data):
 			# print("n_bindxflip")
 			# print(matrix_util.xflip @ n_bind)
 			# set orientation to blender bone
-
+			# print(bone_name)
 			tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
+			# print(tail, roll)
 			# https://developer.blender.org/T82930
 			# our matrices have negative determinants due to the x axis flip
 			# this is broken since 2.82 - we need to use our workaround
@@ -151,12 +152,18 @@ def import_armature_new(data):
 
 			# store the ms2 armature space matrix
 			mats[bone_name] = n_bind
-			# change orientation for blender bones
-			# b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+			# # change orientation for blender bones
+			# # b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+			# b_edit_bone.tail = (-1, 0, 0)
+			# b_edit_bone.roll = math.radians(90)
+			# b_edit_bone.transform(n_bind)
+			# b_edit_bone.transform(xflip)
+
+			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+			b_edit_bone.head = (0, 0, 0)
 			b_edit_bone.tail = (-1, 0, 0)
-			b_edit_bone.roll = math.radians(90)
-			b_edit_bone.transform(n_bind)
-			b_edit_bone.transform(xflip)
+			# this works if determinant is positive, ie. no xflip
+			b_edit_bone.matrix = b_bind
 
 		fix_bone_lengths(b_armature_data)
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
