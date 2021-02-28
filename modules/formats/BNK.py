@@ -7,6 +7,15 @@ from util import texconv
 
 def write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback):
 	bnk = os.path.splitext(entry.name)[0]
+	# print(entry.pointers[0].address, entry.pointers[0].data)
+	# print(entry.data_entry.buffer_datas)
+	out_path = out_dir_func(entry.name)
+	with open(out_path, "wb") as f:
+		f.write(entry.data_entry.buffer_datas[0])
+	return out_path,
+
+
+def process_bnk(bnk_path):
 	bnk_path = f"{archive.ovl.file_no_ext}_{bnk}_bnk_b.aux"
 	if os.path.isfile(bnk_path):
 		if "_media_" not in bnk_path:

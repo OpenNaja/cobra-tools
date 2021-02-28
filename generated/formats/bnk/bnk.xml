@@ -27,6 +27,10 @@
 
     <!--Basic Types-->
 
+	<basic name="ZString">
+		Null terminated string.
+	</basic>
+
     <basic name="ubyte" count="1">
         An unsigned 8-bit integer.
     </basic>
@@ -131,14 +135,15 @@
         <add name="raw" type="byte" arr1="length">id of this Sound SFX object</add>
     </compound>
 
-<!--    <compound name="AuxFileContainer">-->
-<!--        Custom file struct-->
-
-<!--        This reads a whole aux soundbank file-->
-<!--        <add name="bkhd chunk" type="BKHDSection" ></add>-->
-<!--        <add name="didx chunk" type="DIDXSection" ></add>-->
-<!--        <add name="data chunk" type="DATASection" ></add>-->
-<!--&lt;!&ndash;        <add name="zeroes" type="byte" arr1="?????">theres thousands of zeroes after the three chunks, not sure how to do this</add>&ndash;&gt;-->
-<!--    </compound>-->
+    <compound name="BnkFileContainer">
+        <add name="size b" type="uint64" >data size of aux file of type b</add>
+        <add name="name count" type="uint" >1, guess</add>
+        <add name="extension count" type="uint" >2, guess</add>
+        <add name="stream info count" type="uint" >variable</add>
+        <add name="zeros" type="uint" arr1="11">0</add>
+        <add name="stream infos" type="uint64" arr1="stream info count" arr2="3">data</add>
+        <add name="names" type="zstring" arr1="name count">data</add>
+        <add name="extensions" type="zstring" arr1="extension count">data</add>
+    </compound>
 
 </niftoolsxml>
