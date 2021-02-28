@@ -46,17 +46,17 @@ def write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback):
 
 def load_wem(ovl, wem_file_path, sized_str_entry, bnk_name, wem_id):
 	bnk = os.path.splitext(sized_str_entry.name)[0]
-	bnk_path = f"{ovl.file_no_ext}_{bnk}_bnk_b.aux"
-	if os.path.isfile(bnk_path):
-		if "_media_" not in bnk_path:
-			print("skipping events bnk", bnk_path)
+	aux_path = f"{ovl.file_no_ext}_{bnk}_bnk_b.aux"
+	if os.path.isfile(aux_path):
+		if "_media_" not in aux_path:
+			print("skipping events bnk", aux_path)
 			return
 
-		data = BnkFile()
-		data.load(bnk_path)
+		data = AuxFile()
+		data.load(aux_path)
 		data.inject_audio(wem_file_path, wem_id)
-		data.save(bnk_path)
-		events = BnkFile()
+		data.save(aux_path)
+		events = AuxFile()
 		ss = sized_str_entry.name.rsplit("_", 1)[0]
 		eventspath = f"{ovl.file_no_ext}_{ss}_events_bnk_b.aux"
 		events.load(eventspath)
