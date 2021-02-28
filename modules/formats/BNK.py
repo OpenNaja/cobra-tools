@@ -22,7 +22,7 @@ def write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback):
 		wem_files = data.extract_audio(out_dir_func, bnk)
 		processed_files = texconv.wem_handle(wem_files, show_temp_files, progress_callback)
 		if show_temp_files:
-			return wem_files + processed_files
+			return [bnk_path, ] + wem_files + processed_files
 		else:
 			return processed_files
 	else:

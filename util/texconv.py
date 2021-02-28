@@ -39,7 +39,11 @@ def wem_handle(wem_files, show_temp_files, progress_callback):
 				elif fmt == -2:
 					processed_files.append(wem_to_wav(wem_file, out_file))
 				else:
-					raise NotImplementedError(f"Unknown RIFF format {fmt} in {out_name}! Please report to the devs!")
+					# 2 == JUNK, not sure if readable
+					# processed_files.append(wem_to_ogg(wem_file, out_file))
+					# processed_files.append(wem_file)
+					# raise NotImplementedError(f"Unknown RIFF format {fmt} in {out_name}! Please report to the devs!")
+					print(f"Unknown RIFF format {fmt} in {out_name}! Please report to the devs!")
 			else:
 				print(f"Unknown resource format {f_type} in {out_name}! Please report to the devs!")
 	return processed_files

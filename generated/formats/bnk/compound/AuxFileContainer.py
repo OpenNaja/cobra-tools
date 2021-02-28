@@ -47,6 +47,8 @@ class AuxFileContainer:
             else:
                 raise NotImplementedError(f"Unknown chunk {chunk_id}!")
         if not self.hirc:
+            if not self.didx:
+                return
             for pointer in self.didx.data_pointers:
                 pointer.data = self.data[
                                pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize]
@@ -57,13 +59,14 @@ class AuxFileContainer:
         """Extracts all wem files from the container into a folder"""
         print("Extracting audio")
         paths = []
-        for pointer in self.didx.data_pointers:
-            wem_name = f"{basename}_{pointer.hash}.wem"
-            wem_path = out_dir_func(wem_name)
-            paths.append(wem_path)
-            print(wem_path)
-            with open(wem_path, "wb") as f:
-                f.write(pointer.data)
+        if self.didx:
+            for pointer in self.didx.data_pointers:
+                wem_name = f"{basename}_{pointer.hash}.wem"
+                wem_path = out_dir_func(wem_name)
+                paths.append(wem_path)
+                print(wem_path)
+                with open(wem_path, "wb") as f:
+                    f.write(pointer.data)
         return paths
 
     def inject_audio(self, wem_path, wem_id):
