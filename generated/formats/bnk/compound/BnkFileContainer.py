@@ -4,6 +4,10 @@ from generated.array import Array
 
 class BnkFileContainer:
 
+	"""
+	Buffer data of bnk files
+	"""
+
 	def __init__(self, arg=None, template=None):
 		self.name = ''
 		self.arg = arg
@@ -32,7 +36,7 @@ class BnkFileContainer:
 		# data
 		self.names = Array()
 
-		# data
+		# start offset, size, end
 		self.extensions = Array()
 
 	def read(self, stream):

@@ -1,41 +1,47 @@
 import os
 import struct
 
-from generated.formats.bnk import BnkFile
+from generated.formats.bnk import BnkFile, AuxFile
 from util import texconv
 
 
 def write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback):
-	bnk = os.path.splitext(entry.name)[0]
+	bnk_name = os.path.splitext(entry.name)[0]
 	# print(entry.pointers[0].address, entry.pointers[0].data)
 	# print(entry.data_entry.buffer_datas)
 	out_path = out_dir_func(entry.name)
 	with open(out_path, "wb") as f:
 		f.write(entry.data_entry.buffer_datas[0])
-	return out_path,
+	# first read the bnk file which informs of any streams
+	bnk = BnkFile()
+	bnk.load(out_path)
+	# print(bnk)
+	wem_files = []
+	# extract streamed files
+	for ext in bnk.extensions:
+		aux_path = f"{archive.ovl.file_no_ext}_{bnk_name}_bnk_{ext}.aux"
+		if ext and not os.path.isfile(aux_path):
+			raise FileNotFoundError(f"AUX file expected at {aux_path}!")
+		if ext.lower() == "s":
+			with open(aux_path, "rb") as f:
+				for i, stream_info in enumerate(bnk.stream_infos):
+					offset, size, unk = stream_info
+					f.seek(offset)
+					d = f.read(size)
+					wem_path = out_dir_func(f"{bnk_name}_bnk_{i}.wem")
+					with open(wem_path, "wb") as wem:
+						wem.write(d)
+					wem_files.append(wem_path)
+		elif ext.lower() == "b":
+			aux = AuxFile()
+			aux.load(aux_path)
+			wem_files.extend(aux.extract_audio(out_dir_func, bnk_name))
 
-
-def process_bnk(bnk_path):
-	bnk_path = f"{archive.ovl.file_no_ext}_{bnk}_bnk_b.aux"
-	if os.path.isfile(bnk_path):
-		if "_media_" not in bnk_path:
-			print("skipping events bnk", bnk_path)
-			return ()
-		print("exporting", bnk_path)
-
-		data = BnkFile()
-		data.load(bnk_path)
-
-		# if we want to see the dds, write it to the output dir
-		# tmp_dir = texconv.make_tmp(archive.dir, show_temp_files)
-		wem_files = data.extract_audio(out_dir_func, bnk)
-		processed_files = texconv.wem_handle(wem_files, show_temp_files, progress_callback)
-		if show_temp_files:
-			return wem_files + processed_files
-		else:
-			return processed_files
+	processed_files = texconv.wem_handle(wem_files, show_temp_files, progress_callback)
+	if show_temp_files:
+		return [out_path, ] + wem_files + processed_files
 	else:
-		raise FileNotFoundError(f"BNK / AUX archive expected at {bnk_path}!")
+		return [out_path, ] + processed_files
 
 
 def load_wem(ovl, wem_file_path, sized_str_entry, bnk_name, wem_id):
