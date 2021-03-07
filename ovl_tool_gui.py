@@ -87,6 +87,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_frag_log.stateChanged.connect(self.load)
 
 		self.qgrid = QtWidgets.QGridLayout()
+
 		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 6)
 		self.qgrid.addWidget(self.game_container, 0, 6, 1, 4)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
@@ -102,7 +103,6 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.p_action, 3, 0, 1, 10)
 		self.qgrid.addWidget(self.t_action, 4, 0, 1, 10)
 		self.qgrid.addWidget(self.dat_widget, 5, 0, 1, 10)
-
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()

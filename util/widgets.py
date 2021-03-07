@@ -532,7 +532,7 @@ class LabelCombo(QtWidgets.QWidget):
 		self.label = QtWidgets.QLabel(name)
 		self.entry = CleverCombo(options=options, link_inst=link_inst, link_attr=link_attr)
 		sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
-		self.entry.setSizePolicy(sizePolicy)
+		# self.entry.setSizePolicy(sizePolicy)
 		# self.entry.setMaxVisibleItems(10)
 		self.entry.setEditable(True)
 		vbox = QtWidgets.QHBoxLayout()
