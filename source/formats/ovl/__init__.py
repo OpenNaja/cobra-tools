@@ -1431,6 +1431,7 @@ class OvlFile(Header, IoFile):
 		out_paths = []
 		# content = self.archives[0].content
 		if is_dla(self):
+			# todo this is a hack, instead use archive.file_index_offset to lookup archive membership for file entries
 			contents = [archive.content for archive in self.archives]
 		else:
 			contents = [self.static_archive.content, ]
@@ -1723,7 +1724,7 @@ class OvlFile(Header, IoFile):
 		# print(self)
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
-			# print("archive_entry", archive_index, archive_entry)
+			print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
 			if archive_entry.name == "STATIC":
 				self.static_archive = archive_entry

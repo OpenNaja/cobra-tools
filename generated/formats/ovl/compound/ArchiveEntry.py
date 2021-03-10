@@ -62,6 +62,9 @@ class ArchiveEntry:
 		# sum of the archives header entry data blocks + the pools_start
 		self.pools_end = 0
 
+		# files of this archive start here in ovl file list, + count num files
+		self.file_index_offset = 0
+
 		# Seemingly unused, can be zeroed without effect ingame in JWE
 		self.ovs_offset = 0
 
@@ -85,7 +88,10 @@ class ArchiveEntry:
 		self.zeros_3 = stream.read_uint()
 		self.pools_start = stream.read_uint()
 		self.pools_end = stream.read_uint()
-		self.ovs_offset = stream.read_uint()
+		if stream.version == 15:
+			self.file_index_offset = stream.read_uint()
+		if not (stream.version == 15):
+			self.ovs_offset = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -109,7 +115,10 @@ class ArchiveEntry:
 		stream.write_uint(self.zeros_3)
 		stream.write_uint(self.pools_start)
 		stream.write_uint(self.pools_end)
-		stream.write_uint(self.ovs_offset)
+		if stream.version == 15:
+			stream.write_uint(self.file_index_offset)
+		if not (stream.version == 15):
+			stream.write_uint(self.ovs_offset)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -135,6 +144,7 @@ class ArchiveEntry:
 		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
 		s += f'\n	* pools_start = {self.pools_start.__repr__()}'
 		s += f'\n	* pools_end = {self.pools_end.__repr__()}'
+		s += f'\n	* file_index_offset = {self.file_index_offset.__repr__()}'
 		s += f'\n	* ovs_offset = {self.ovs_offset.__repr__()}'
 		return s
 
