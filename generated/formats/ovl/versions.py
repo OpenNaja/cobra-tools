@@ -1,3 +1,8 @@
+def is_dla(inst):
+	if inst.version == 15:
+		return True
+
+
 def is_ztuac(inst):
 	if inst.version == 17:
 		return True
@@ -19,6 +24,8 @@ def is_jwe(inst):
 
 
 def get_game(inst):
+	if is_dla(inst):
+		return 'Disneyland Adventure'
 	if is_ztuac(inst):
 		return 'Zoo Tycoon Ultimate Animal Collection'
 	if is_pc(inst):
@@ -30,6 +37,6 @@ def get_game(inst):
 	return 'Unknown Game'
 
 
-games = ['Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']
+games = ['Disneyland Adventure', 'Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']
 
 

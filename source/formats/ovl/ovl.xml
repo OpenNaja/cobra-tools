@@ -2,6 +2,7 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
+    <version id="DLA" version="15">Disneyland Adventure</version>
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
     <version id="PC" version="18">Planet Coaster</version>
     <version id="PZ" version="19" user_version="8340 8724">Planet Zoo</version>
@@ -9,6 +10,7 @@
 
     <token name="verexpr" attrs="vercond cond">
         Commonly used version expressions.
+        <verexpr token="#DLA#" string="(#VER# #EQ# 15)">Disneyland Adventure</verexpr>
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
         <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
@@ -301,14 +303,14 @@
 
     <compound name="HeaderEntry" >
         Description of one archive header entry
-		<add name="zeros1" type="uint">always 0</add>
-		<add name="zeros2" type="uint">always 0</add>
+		<add name="zero1" type="uint64" vercond="!#DLA#">always 0</add>
 		<add name="Size" type="uint">the number of bytes representing the text files data</add>
 		<add name="Offset" type="uint">starting point to read text file data</add>
+		<add name="zero2" type="uint64" vercond="#DLA#">always 0</add>
 		<add name="File Hash" type="uint">DJB hash of the first file in the txt data block</add>
 		<add name="Num Files" type="uint">unknown count (number of .txt files)</add>
 		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">JWE: DJB hash for extension, 0 for PZ</add>
-		<add name="zeros3" type="uint"  vercond="#JWE# #OR# #PZ#">always 0</add>
+		<add name="zero3" type="uint"  vercond="#JWE# #OR# #PZ#">always 0</add>
     </compound>
 	
 	<compound name="DataEntry" >

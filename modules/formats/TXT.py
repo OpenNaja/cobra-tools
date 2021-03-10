@@ -1,13 +1,23 @@
 import struct
 
+from generated.formats.ovl import is_dla
+
 
 def write_txt(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	# a bare sized str
+	# print("write txt")
 	b = sized_str_entry.pointers[0].data
-	size = struct.unpack("<I", b[:4])[0]
+	# print(b)
+	if is_dla(archive.ovl):
+		# not sure, not standard sized strings
+		size, unk = struct.unpack("<2B", b[:2])
+		data = b[2:2+size*2]
+	else:
+		size = struct.unpack("<I", b[:4])[0]
+		data = b[4:4+size]
 	out_path = out_dir(sized_str_entry.name)
 	with open(out_path, "wb") as f:
-		f.write(b[4:4+size])
+		f.write(data)
 	return out_path,
 
 

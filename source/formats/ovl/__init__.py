@@ -320,7 +320,8 @@ class OvsFile(OvsHeader, ZipFile):
 	def read_header_entries(self, stream):
 		for header_entry in self.header_entries:
 			header_entry.address = stream.tell()
-			header_entry.data = io.BytesIO(stream.read(header_entry.size))
+			header_bytes = stream.read(header_entry.size)
+			header_entry.data = io.BytesIO(header_bytes)
 
 	def calc_pointer_addresses(self):
 		print("Calculating pointer addresses")
@@ -1429,29 +1430,33 @@ class OvlFile(Header, IoFile):
 		skip_files = []
 		out_paths = []
 		# content = self.archives[0].content
-		content = self.static_archive.content
-		ss_max = len(content.sized_str_entries)
-		for ss_index, sized_str_entry in enumerate(content.sized_str_entries):
-			self.progress_callback("Extracting...", value=ss_index, vmax=ss_max)
-			try:
-				# for batch operations, only export those that we need
-				if only_types and sized_str_entry.ext not in only_types:
-					skip_files.append(sized_str_entry.name)
-					continue
-				if only_names and sized_str_entry.name not in only_names:
-					skip_files.append(sized_str_entry.name)
-					continue
-				# ignore types in the count that we export from inside other type exporters
-				if sized_str_entry.ext in IGNORE_TYPES:
-					continue
-				out_paths.extend(
-					extract_kernel(content, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
+		if is_dla(self):
+			contents = [archive.content for archive in self.archives]
+		else:
+			contents = [self.static_archive.content, ]
+		for content in contents:
+			ss_max = len(content.sized_str_entries)
+			for ss_index, sized_str_entry in enumerate(content.sized_str_entries):
+				self.progress_callback("Extracting...", value=ss_index, vmax=ss_max)
+				try:
+					# for batch operations, only export those that we need
+					if only_types and sized_str_entry.ext not in only_types:
+						skip_files.append(sized_str_entry.name)
+						continue
+					if only_names and sized_str_entry.name not in only_names:
+						skip_files.append(sized_str_entry.name)
+						continue
+					# ignore types in the count that we export from inside other type exporters
+					if sized_str_entry.ext in IGNORE_TYPES:
+						continue
+					out_paths.extend(
+						extract_kernel(content, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
 
-			except BaseException as error:
-				print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
-				print(error)
-				traceback.print_exc()
-				error_files.append(sized_str_entry.name)
+				except BaseException as error:
+					print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
+					print(error)
+					traceback.print_exc()
+					error_files.append(sized_str_entry.name)
 
 		return out_paths, error_files, skip_files
 
@@ -1625,7 +1630,6 @@ class OvlFile(Header, IoFile):
 		if len(self.files) > 0:
 			self.len_type_names = min(file.offset for file in self.files)
 
-
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
 		self.eof = super().load(filepath)
@@ -1739,6 +1743,8 @@ class OvlFile(Header, IoFile):
 			except BaseException as err:
 				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
 				print(err)
+			# print(archive_entry.content)
+			# break
 
 		self.link_streams()
 

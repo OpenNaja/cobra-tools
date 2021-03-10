@@ -13,7 +13,7 @@ naming_convention = (
 )
 
 
-def vec_roll_to_mat3(vec, roll):
+def vec_roll_to_mat3_24(vec, roll):
 	target = mathutils.Vector((0, 1, 0))
 	nor = vec.normalized()
 	axis = target.cross(nor)
@@ -104,7 +104,7 @@ def vec_roll_to_mat3d(nor, roll):
 	return r_matrix @ b_matrix
 
 
-def vec_roll_to_mat3_old(vec, roll):
+def vec_roll_to_mat3(vec, roll):
 	# port of the updated C function from armature.c
 	# https://developer.blender.org/T39470
 	# note that C accesses columns first, so all matrix indices are swapped compared to the C version

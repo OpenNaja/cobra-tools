@@ -64,7 +64,7 @@ def import_armature(data):
 			mats[bone_name] = n_bind
 
 			# print()
-			# print(bone_name)
+			print(bone_name)
 			# print("ms2\n",n_bind)
 			# change orientation for blender bones
 			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
@@ -81,8 +81,14 @@ def import_armature(data):
 			# tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
 			b_edit_bone.head = b_bind.to_translation()
 			b_edit_bone.tail = tail + b_edit_bone.head
+			# b_edit_bone.roll = math.radians(180) - roll
 			b_edit_bone.roll = roll
+			# b_edit_bone.roll = 0
 			# print(b_bind)
+			# print(b_edit_bone.matrix.to_3x3().inverted() @ b_bind.to_3x3())
+			print(b_bind.to_3x3())
+			print(b_edit_bone.matrix.to_3x3())
+			print()
 			# print(roll)
 
 		fix_bone_lengths(b_armature_data)

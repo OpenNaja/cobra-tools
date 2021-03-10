@@ -30,6 +30,7 @@ SUPPORTED_TYPES = (".dds", ".png", ".mdl2", ".txt", ".fgm", ".fdb", ".matcol", "
 
 def extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback):
 	# automatically call the extract function, if it has been defined
+	print("extract kernel")
 	namespace = sys.modules[__name__]
 	func_name = f"write_{entry.ext[1:]}"
 	func = getattr(namespace, func_name, None)
