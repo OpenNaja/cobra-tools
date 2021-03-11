@@ -13,7 +13,7 @@ def file_remover(ovl, filenames):
         # remove file entry
         for i, file_entry in enumerate(ovl.files):
             if basename == file_entry.name and file_entry.ext == fileext:
-
+                old_index = i
 
                 del_hash = file_entry.file_hash
                 next_hash = ovl.files[i-1].file_hash
