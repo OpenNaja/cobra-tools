@@ -90,7 +90,7 @@ def create_dds_struct():
 	return dds_file
 
 
-def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
+def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 	basename = os.path.splitext(entry.name)[0]
 	name = basename + ".dds"
 	print("\nWriting", name)
@@ -98,7 +98,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 	buffer_data = b"".join(entry.data_entry.buffer_datas)
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
-	if is_ztuac(archive.ovl):
+	if is_ztuac(ovl):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_ztuac(entry)
 		dds_file.width = header_7.width
 		dds_file.height = header_7.height
@@ -106,7 +106,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 		dds_file.linear_size = len(buffer_data)
 		header_7.array_size = 1
 		dds_file.depth = header_3_0.one_0
-	elif is_pc(archive.ovl):
+	elif is_pc(ovl):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(entry)
 		# print(header_7)
 		dds_file.width = header_7.width
@@ -173,7 +173,7 @@ def write_tex(archive, entry, out_dir, show_temp_files, progress_callback):
 
 		if os.path.isfile(png_file_path):
 			# postprocessing of the png
-			out_files.extend(imarray.wrapper(png_file_path, header_7, archive))
+			out_files.extend(imarray.wrapper(png_file_path, header_7, ovl))
 	return out_files
 
 

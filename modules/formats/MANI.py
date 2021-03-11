@@ -1,21 +1,21 @@
 import struct
 
 
-def write_manis(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_manis(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	if not sized_str_entry.data_entry:
 		print("No data entry for ", name)
 		return
 	ss_data = sized_str_entry.pointers[0].data
-	print(len(ss_data),ss_data)
+	print(len(ss_data), ss_data)
 	buffers = sized_str_entry.data_entry.buffer_datas
 	print(len(buffers))
 	# if len(buffers) != 3:
 	# 	print("Wrong amount of buffers for", name)
 	# 	return
 	names = [c.name for c in sized_str_entry.children]
-	manis_header = struct.pack("<4s3I", b"MANI", int(archive.ovl.version), int(archive.ovl.user_version), len(names) )
+	manis_header = struct.pack("<4s3I", b"MANI", int(ovl.version), int(ovl.user_version), len(names))
 
 	# sizedstr data + 3 buffers
 	# sized str data gives general info
@@ -26,7 +26,7 @@ def write_manis(archive, sized_str_entry, out_dir, show_temp_files, progress_cal
 	with open(out_path, 'wb') as outfile:
 		outfile.write(manis_header)
 		for mani in names:
-			outfile.write(mani.encode()+b"\x00")
+			outfile.write(mani.encode() + b"\x00")
 		outfile.write(ss_data)
 		for buff in sized_str_entry.data_entry.buffers:
 			outfile.write(buff.data)
@@ -35,8 +35,8 @@ def write_manis(archive, sized_str_entry, out_dir, show_temp_files, progress_cal
 	# 	with open(out_path+str(i), 'wb') as outfile:
 	# 		outfile.write(buff.data)
 	# if "partials" in name:
-		# data = ManisFormat.Data()
-		# with open(out_path, "rb") as stream:
-		# 	data.read(stream)
+	# data = ManisFormat.Data()
+	# with open(out_path, "rb") as stream:
+	# 	data.read(stream)
 
 	return out_path,

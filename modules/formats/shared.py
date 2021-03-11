@@ -15,8 +15,7 @@ def rgetattr(obj, attr, *args):
 	return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 
-def pack_header(ovs, fmt_name):
-	ovl = ovs.ovl
+def pack_header(ovl, fmt_name):
 	return struct.pack("<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
 
 

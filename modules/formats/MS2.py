@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.ModelData import ModelData
 from generated.formats.ovl.versions import *
 
 
-def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = ms2_sized_str_entry.name
 	assert ms2_sized_str_entry.data_entry
 	buffers = ms2_sized_str_entry.data_entry.buffer_datas
@@ -28,7 +28,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
-	ovl_header = pack_header(archive, b"MS2 ")
+	ovl_header = pack_header(ovl, b"MS2 ")
 	ms2_header = struct.pack("<2I", len(bone_names), len(bone_matrices))
 
 	# for i, buffer in enumerate(buffers):
@@ -37,7 +37,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 	# 		outfile.write(buffer)
 
 	# Planet coaster
-	if is_pc(archive.ovl) or is_ztuac(archive.ovl):
+	if is_pc(ovl) or is_ztuac(ovl):
 		# only ss entry holds any useful stuff
 		ms2_buffer_info_data = b""
 		next_model_info_data = b""
@@ -84,7 +84,7 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 			# pack ms2 name as a sized string
 			write_sized_str(outfile, ms2_sized_str_entry.name)
 
-			if not (is_pc(archive.ovl) or is_ztuac(archive.ovl)):
+			if not (is_pc(ovl) or is_ztuac(ovl)):
 				# the fixed fragments
 				green_mats_0, blue_lod, orange_mats_1, yellow_lod0, pink = mdl2_entry.fragments
 				print("model_count", mdl2_entry.model_count)
@@ -94,8 +94,8 @@ def write_ms2(archive, ms2_sized_str_entry, out_dir, show_temp_files, progress_c
 				if pink.pointers[0].data_size == 40:
 					# 40 bytes (0,1 or 0,0,0,0)
 					has_bone_info = pink.pointers[0].data
-				elif (is_jwe(archive.ovl) and pink.pointers[0].data_size == 144) \
-				or   (is_pz(archive.ovl) and pink.pointers[0].data_size == 160):
+				elif (is_jwe(ovl) and pink.pointers[0].data_size == 144) \
+				or   (is_pz(ovl) and pink.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = pink.pointers[0].data[40:]
 					has_bone_info = pink.pointers[0].data[:40]

@@ -27,12 +27,12 @@ def has_vectors(png_file_path):
 	return check_any(("pnormaltexture", "playered_warpoffset"), png_file_path)
 
 
-def wrapper(png_file_path, header_7, archive):
+def wrapper(png_file_path, header_7, ovl):
 	out_files = []
 	must_split = False
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
-	if is_ztuac(archive.ovl):
+	if is_ztuac(ovl):
 		must_flip_gb = False
 	h = header_7.height
 	w = header_7.width

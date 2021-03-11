@@ -28,19 +28,18 @@ IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams")
 SUPPORTED_TYPES = (".dds", ".png", ".mdl2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
 
 
-def extract_kernel(archive, entry, out_dir_func, show_temp_files, progress_callback):
+def extract_kernel(ovl, entry, out_dir_func, show_temp_files, progress_callback):
 	# automatically call the extract function, if it has been defined
-	print("extract kernel")
 	namespace = sys.modules[__name__]
 	func_name = f"write_{entry.ext[1:]}"
 	func = getattr(namespace, func_name, None)
 	if func:
-		return func(archive, entry, out_dir_func, show_temp_files, progress_callback)
+		return func(ovl, entry, out_dir_func, show_temp_files, progress_callback)
 	else:
 		print(f"No function to export {entry.name}")
 
 
-def write_gfx(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_gfx(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")
 
@@ -53,7 +52,7 @@ def write_gfx(archive, sized_str_entry, out_dir, show_temp_files, progress_callb
 	return out_path,
 
 
-def write_scaleform(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_scaleform(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")
 
@@ -67,7 +66,7 @@ def write_scaleform(archive, sized_str_entry, out_dir, show_temp_files, progress
 	return out_path,
 
 
-def write_prefab(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_prefab(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 
@@ -85,7 +84,7 @@ def write_prefab(archive, sized_str_entry, out_dir, show_temp_files, progress_ca
 	#	# write the buffer
 	#	outfile.write(buffer_data)
 
-	with open(archive.indir(name), 'wb') as outfile:
+	with open(out_dir(name), 'wb') as outfile:
 		# write each of the fragments
 		# print(sized_str_entry.pointers[0].data)
 		outfile.write(sized_str_entry.pointers[0].data)
@@ -96,7 +95,7 @@ def write_prefab(archive, sized_str_entry, out_dir, show_temp_files, progress_ca
 			outfile.write(frag.pointers[1].data)
 
 
-def write_assetpkg(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_assetpkg(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	#if len(sized_str_entry.fragments) == 1:
@@ -113,7 +112,7 @@ def write_assetpkg(archive, sized_str_entry, out_dir, show_temp_files, progress_
 	return out_path,
 
 
-def write_userinterfaceicondata(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_userinterfaceicondata(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	out_path=out_dir(name)

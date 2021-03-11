@@ -2,11 +2,11 @@ from generated.formats.voxelskirt import VoxelskirtFile
 from modules.formats.shared import pack_header
 
 
-def write_voxelskirt(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_voxelskirt(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")
 
-	ovl_header = pack_header(archive, b"VOXE")
+	ovl_header = pack_header(ovl, b"VOXE")
 	out_path = out_dir(name)
 	buffers = sized_str_entry.data_entry.buffer_datas
 	# write voxelskirt

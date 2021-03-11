@@ -941,6 +941,8 @@ class OvsFile(OvsHeader, ZipFile):
 		mdl2_sized_str_entry.model_data_frags = self.frags_from_pointer(lod_pointer, mdl2_sized_str_entry.model_count)
 
 	def map_frags(self):
+		if not self.fragments:
+			return
 		print(f"\nMapping SizedStrs to {len(self.fragments)} Fragments")
 
 		# we go from the start
@@ -1429,35 +1431,34 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		skip_files = []
 		out_paths = []
-		# content = self.archives[0].content
-		if is_dla(self):
-			# todo this is a hack, instead use archive.file_index_offset to lookup archive membership for file entries
-			contents = [archive.content for archive in self.archives]
-		else:
-			contents = [self.static_archive.content, ]
-		for content in contents:
-			ss_max = len(content.sized_str_entries)
-			for ss_index, sized_str_entry in enumerate(content.sized_str_entries):
-				self.progress_callback("Extracting...", value=ss_index, vmax=ss_max)
-				try:
-					# for batch operations, only export those that we need
-					if only_types and sized_str_entry.ext not in only_types:
-						skip_files.append(sized_str_entry.name)
-						continue
-					if only_names and sized_str_entry.name not in only_names:
-						skip_files.append(sized_str_entry.name)
-						continue
-					# ignore types in the count that we export from inside other type exporters
-					if sized_str_entry.ext in IGNORE_TYPES:
-						continue
-					out_paths.extend(
-						extract_kernel(content, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
+		extract_files = []
+		for file in self.files:
+			# for batch operations, only export those that we need
+			if only_types and file.ext not in only_types:
+				skip_files.append(file.name)
+				continue
+			# todo - refactor this so that name includes extension for all entries
+			if only_names and file.name+file.ext not in only_names:
+				skip_files.append(file.name)
+				continue
+			# ignore types in the count that we export from inside other type exporters
+			if file.ext in IGNORE_TYPES:
+				continue
+			extract_files.append(file)
 
-				except BaseException as error:
-					print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
-					print(error)
-					traceback.print_exc()
-					error_files.append(sized_str_entry.name)
+		for ss_index, file in enumerate(extract_files):
+			self.progress_callback("Extracting...", value=ss_index, vmax=len(extract_files))
+			sized_str_entry = self.ss_dict[file.name+file.ext]
+			try:
+				out_paths.extend(
+					extract_kernel(self, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
+
+			except BaseException as error:
+				print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
+				print(error)
+				traceback.print_exc()
+				error_files.append(sized_str_entry.name)
+		self.progress_callback("Done", value=len(extract_files), vmax=len(extract_files))
 
 		return out_paths, error_files, skip_files
 
@@ -1722,9 +1723,10 @@ class OvlFile(Header, IoFile):
 		print("Loading archives...")
 		ha_max = len(self.archives)
 		# print(self)
+		self.ss_dict = {}
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
-			print("archive_entry", archive_index, archive_entry)
+			# print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
 			if archive_entry.name == "STATIC":
 				self.static_archive = archive_entry
@@ -1740,14 +1742,18 @@ class OvlFile(Header, IoFile):
 			# print(archive_entry)
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
-				print(len(archive_entry.content.sized_str_entries), list([e.name for e in archive_entry.content.sized_str_entries]))
+				# print(len(archive_entry.content.sized_str_entries), list([e.name for e in archive_entry.content.sized_str_entries]))
 			except BaseException as err:
 				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
 				print(err)
+
+			for file in archive_entry.content.sized_str_entries:
+				self.ss_dict[file.name] = file
 			# print(archive_entry.content)
 			# break
 
 		self.link_streams()
+
 
 	def link_streams(self):
 		"""Attach the data buffers of streamed filed to standard files from the first archive"""

@@ -1,7 +1,7 @@
 import struct
 
 
-def write_fdb(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_fdb(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting",name)
 

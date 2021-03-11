@@ -1,11 +1,11 @@
 from modules.formats.shared import pack_header
 
 
-def write_motiongraphvars(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_motiongraphvars(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")
 
-	ovl_header = pack_header(archive, b"MOTV")
+	ovl_header = pack_header(ovl, b"MOTV")
 	out_path = out_dir(name)
 	# buffers = sized_str_entry.data_entry.buffer_datas
 	# write voxelskirt

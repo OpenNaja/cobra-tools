@@ -2,11 +2,11 @@ from modules.formats.shared import pack_header
 import struct
 
 
-def write_specdef(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_specdef(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")
 
-	ovl_header = pack_header(archive, b"SPEC")
+	ovl_header = pack_header(ovl, b"SPEC")
 	out_path = out_dir(name)
 
 	# save .bin data

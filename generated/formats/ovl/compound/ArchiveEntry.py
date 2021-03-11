@@ -62,7 +62,7 @@ class ArchiveEntry:
 		# sum of the archives header entry data blocks + the pools_start
 		self.pools_end = 0
 
-		# files of this archive start here in ovl file list, + count num files
+		# doesn't work like that because order of ovl files is wrong! - files of this archive start here in ovl file list, + count num files
 		self.file_index_offset = 0
 
 		# Seemingly unused, can be zeroed without effect ingame in JWE

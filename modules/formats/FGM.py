@@ -5,7 +5,7 @@ from modules.helpers import as_bytes
 from generated.formats.fgm import FgmFile
 
 
-def write_fgm(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_fgm(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
 	try:
@@ -33,7 +33,7 @@ def write_fgm(archive, sized_str_entry, out_dir, show_temp_files, progress_callb
 		raise AttributeError("Fgm length is wrong")
 
 	# grab the texture names that are linked to this fgm
-	fgm_file_entry = [file for file in archive.ovl.files if f"{file.name}{file.ext}" == sized_str_entry.name][0]
+	fgm_file_entry = [file for file in ovl.files if f"{file.name}{file.ext}" == sized_str_entry.name][0]
 
 	# write fgm
 	fgm_header = struct.pack("<6I", len(sized_str_entry.fragments), len(fgm_file_entry.dependencies), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)
@@ -45,7 +45,7 @@ def write_fgm(archive, sized_str_entry, out_dir, show_temp_files, progress_callb
 	# 		outfile.write( f.pointers[1].data )
 	with open(out_path, 'wb') as outfile:
 		# write custom FGM header
-		outfile.write(pack_header(archive, b"FGM "))
+		outfile.write(pack_header(ovl, b"FGM "))
 		outfile.write(fgm_header)
 		for tex in fgm_file_entry.dependencies:
 			outfile.write(tex.name.encode())

@@ -5,7 +5,7 @@ from generated.formats.bnk import BnkFile, AuxFile
 from util import texconv
 
 
-def write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback):
+def write_bnk(ovl, entry, out_dir_func, show_temp_files, progress_callback):
 	bnk_name = os.path.splitext(entry.name)[0]
 	# print(entry.pointers[0].address, entry.pointers[0].data)
 	# print(entry.data_entry.buffer_datas)
@@ -19,7 +19,7 @@ def write_bnk(archive, entry, out_dir_func, show_temp_files, progress_callback):
 	wem_files = []
 	# extract streamed files
 	for ext in bnk.extensions:
-		aux_path = f"{archive.ovl.file_no_ext}_{bnk_name}_bnk_{ext}.aux"
+		aux_path = f"{ovl.file_no_ext}_{bnk_name}_bnk_{ext}.aux"
 		if ext and not os.path.isfile(aux_path):
 			raise FileNotFoundError(f"AUX file expected at {aux_path}!")
 		if ext.lower() == "s":

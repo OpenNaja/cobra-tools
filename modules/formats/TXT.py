@@ -3,12 +3,12 @@ import struct
 from generated.formats.ovl import is_dla
 
 
-def write_txt(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_txt(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	# a bare sized str
 	# print("write txt")
 	b = sized_str_entry.pointers[0].data
 	# print(b)
-	if is_dla(archive.ovl):
+	if is_dla(ovl):
 		# not sure, not standard sized strings
 		size, unk = struct.unpack("<2B", b[:2])
 		data = b[2:2+size*2]

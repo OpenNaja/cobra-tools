@@ -1,7 +1,7 @@
 from modules.helpers import write_sized_str
 
 
-def write_banis(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_banis(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	if not sized_str_entry.data_entry:
 		print("No data entry for ",name)

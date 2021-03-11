@@ -5,11 +5,12 @@ from modules.helpers import as_bytes
 from generated.formats.matcol import MatcolFile
 
 
-def write_materialcollection(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_materialcollection(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name.replace("materialcollection", "matcol")
-	print("\nWriting",name)
+	print("\nWriting", name)
 
-	matcol_header = struct.pack("<4s 2I B", b"MATC ", int(archive.ovl.version), int(archive.ovl.user_version), sized_str_entry.has_texture_list_frag )
+	matcol_header = struct.pack("<4s 2I B", b"MATC ", int(ovl.version), int(ovl.user_version),
+								sized_str_entry.has_texture_list_frag)
 
 	out_path = out_dir(name)
 	with open(out_path, 'wb') as outfile:
@@ -72,7 +73,8 @@ def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
 
 	if sized_str_entry.has_texture_list_frag:
 		pointers = [tex_frag.pointers[1] for tex_frag in sized_str_entry.tex_frags]
-		new_names = [n for t in matcol_data.texture_wrapper.textures for n in (t.fgm_name, t.texture_suffix, t.texture_type)]
+		new_names = [n for t in matcol_data.texture_wrapper.textures for n in
+					 (t.fgm_name, t.texture_suffix, t.texture_type)]
 	else:
 		pointers = []
 		new_names = []

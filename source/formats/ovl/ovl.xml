@@ -250,7 +250,7 @@
         <add name="zeros 3" type="uint">?</add>
         <add name="pools_start" type="uint">cumulative size of all header datas preceding this archive</add>
         <add name="pools_end" type="uint" >sum of the archives header entry data blocks + the pools_start</add>
-        <add name="file index offset" type="uint" vercond="#DLA#">files of this archive start here in ovl file list, + count num files</add>
+        <add name="file index offset" type="uint" vercond="#DLA#">doesn't work like that because order of ovl files is wrong! - files of this archive start here in ovl file list, + count num files</add>
         <add name="ovs offset" type="uint" vercond="!#DLA#" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
