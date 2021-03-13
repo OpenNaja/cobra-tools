@@ -14,7 +14,6 @@ MAX_UINT = 4294967295
 myFont = QtGui.QFont()
 myFont.setBold(True)
 
-
 def startup(cls):
 	appQt = QtWidgets.QApplication([])
 
@@ -207,25 +206,48 @@ class SortableTable(QtWidgets.QWidget):
 		self.filter_entry.entry.textChanged.connect(self.table.set_filter)
 		self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
 		self.hide_unused.stateChanged.connect(self.toggle_hide)
+		self.rev_search = QtWidgets.QCheckBox("Exclude Search")
+		self.rev_search.stateChanged.connect(self.toggle_rev)
 		self.clear_filters = QtWidgets.QPushButton("Clear")
 		self.clear_filters.pressed.connect(self.clear_filter)
 		qgrid = QtWidgets.QGridLayout()
 		qgrid.addWidget(self.filter_entry, 0, 0, )
 		qgrid.addWidget(self.hide_unused, 0, 1,)
-		qgrid.addWidget(self.clear_filters, 0, 2,)
-		qgrid.addWidget(self.table, 1, 0, 1, 3)
+		qgrid.addWidget(self.rev_search, 0, 2,)
+		qgrid.addWidget(self.clear_filters, 0, 3,)
+		qgrid.addWidget(self.table, 1, 0, 1, 4)
 		self.setLayout(qgrid)
 
 	def set_data(self, data):
 		self.table.set_data(data)
 
 	def clear_filter(self,):
+		self.filter_entry.entry.setText(".")
+		self.hide_unused.setChecked(False)
+		self.table.clear_filter()
 		self.filter_entry.entry.setText("")
 		self.hide_unused.setChecked(False)
+		self.rev_search.setChecked(False)
 		self.table.clear_filter()
 
 	def toggle_hide(self, state):
 		self.table.set_ext_filter(self.hide_unused.isChecked())
+        
+	def toggle_rev(self, state):
+		if self.rev_search.isChecked():
+
+			self.filter_entry.entry.setText(".")
+			self.table.clear_filter()
+			self.filter_entry.entry.setText("")
+			self.table.clear_filter()
+			self.table.rev_check = True
+		else:
+			self.table.rev_check = False
+
+			self.filter_entry.entry.setText(".")
+			self.table.clear_filter()
+			self.filter_entry.entry.setText("")
+			self.table.clear_filter()
 
 
 class TableView(QtWidgets.QTableView):
@@ -257,11 +279,16 @@ class TableView(QtWidgets.QTableView):
 		# self.proxyModel.setFilterFixedString("")
 		self.proxyModel.setFilterFixedString("")
 		self.proxyModel.setFilterKeyColumn(0)
+		self.rev_check = False
 
 	def set_filter(self, fixed_string):
 		# self.proxyModel.setFilterFixedString(fixed_string)
-		self.proxyModel.setFilterFixedString(fixed_string)
-		self.proxyModel.addFilterFunction('name', lambda r, s: s in r[0])
+		if self.rev_check:
+			self.proxyModel.setFilterFixedString(fixed_string)
+			self.proxyModel.addFilterFunction('name', lambda r, s: s not in r[0])
+		else:
+			self.proxyModel.setFilterFixedString(fixed_string)
+			self.proxyModel.addFilterFunction('name', lambda r, s: s in r[0])
 
 	def set_ext_filter(self, hide):
 		ext_filter_name = "ext_filter"
@@ -469,7 +496,7 @@ class TableDirView(QtWidgets.QTableView):
 		self.proxyModel.setFilterKeyColumn(0)
 
 
-	def get_selected_files(self):
+	def get_selected_dirs(self):
 		# map the selected indices to the actual underlying data, which is in its original order
 		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
 		return [self.model._data[x][0] for x in ids]
