@@ -29,7 +29,7 @@ def to_hex_str(uint):
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
-		widgets.MainWindow.__init__(self, "OVL Tool", )
+		widgets.MainWindow.__init__(self, "OVL Archive Editor", )
 		self.resize(980, 400)
 
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
@@ -93,7 +93,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
-		self.qgrid.addWidget(self.t_2K, 1, 3)
+		#self.qgrid.addWidget(self.t_2K, 1, 3)
 		self.qgrid.addWidget(self.ext_dat, 1, 4)
 		for (old, new) in self.e_name_pairs:
 			self.qgrid.addWidget(old, 1, 5)
@@ -117,6 +117,8 @@ class MainWindow(widgets.MainWindow):
 			(editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(editMenu, "Inject", self.inject, "CTRL+I", "inject"),
 			(editMenu, "Hash", self.hasher, "CTRL+H", ""),
+			(editMenu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
+			(editMenu, "Species Dat Edit", self.species_dat_replacement, "CTRL+K", ""),
 			(editMenu, "Inject Dir", self.inject_dir, "CTRL+B", ""),
 			(editMenu, "Remove Selected", self.remover, "DEL", ""),
 			(editMenu, "Walk", self.walker, "", ""),
@@ -352,8 +354,24 @@ class MainWindow(widgets.MainWindow):
 			hasher.dat_hasher(self.ovl_data, names)
 			self.update_gui_table()
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can rename files!")
+			util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
+            
+	def dat_replacement(self):
+		if self.file_widget.filename:
+			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+			hasher.dat_replacer(self.ovl_data, names)
+			self.update_gui_table()
+		else:
+			util.interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
 
+	def species_dat_replacement(self):
+		if self.file_widget.filename:
+			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+			hasher.species_dat_replacer(self.ovl_data, names)
+			self.update_gui_table()
+		else:
+			util.interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
+            
 	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
 	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
 	# def reload(self):
@@ -363,12 +381,21 @@ class MainWindow(widgets.MainWindow):
 	def remover(self):
 		if self.file_widget.filename:
 			selected_file_names = self.table.table.get_selected_files()
+			selected_dir_names = self.table2.table.get_selected_dirs()
 			if selected_file_names:
 				try:
 					remover.file_remover(self.ovl_data, selected_file_names)
 				except Exception as err:
 					traceback.print_exc()
 				self.update_gui_table()
+			if selected_dir_names:
+				try:
+					print(selected_dir_names)
+					remover.dir_remover(self.ovl_data, selected_dir_names)
+				except Exception as err:
+					traceback.print_exc()
+				self.update_gui_table()
+                
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can remove files!")
 
