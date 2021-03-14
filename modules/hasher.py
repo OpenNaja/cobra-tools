@@ -648,12 +648,16 @@ def replace_bytes(b, name_tups):
 			print(f"HEX MODE for {old} -> {new}")
 			if len(old[2:]) == 8:
 				old = bytes.fromhex(old[2:])[::-1]
-			else:
+			elif len(old[2:]) == 7:
 				old = bytes.fromhex("0"+old[2:])[::-1]
+			elif len(old[2:]) == 6:
+				old = bytes.fromhex("00"+old[2:])[::-1]
 			if len(new[2:]) == 8:
 				new = bytes.fromhex(new[2:])[::-1]
-			else:
+			elif len(new[2:]) == 7:
 				new = bytes.fromhex("0"+new[2:])[::-1]
+			elif len(new[2:]) == 6:
+				new = bytes.fromhex("00"+new[2:])[::-1]
 		else:
 			old = old.encode(encoding="utf-8")
 			new = new.encode(encoding="utf-8")
