@@ -64,6 +64,10 @@ class MainWindow(widgets.MainWindow):
 		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
+        
+		self.sp_hash = QtWidgets.QCheckBox("New Species Hash")
+		self.sp_hash.setToolTip("Experimental")
+		self.sp_hash.setChecked(False)
 
 		self.ext_dat = QtWidgets.QCheckBox("Use External DAT")
 		self.ext_dat.setToolTip("Experimental: Save the ovl with an external STATIC DAT instead of one in memory")
@@ -93,7 +97,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
-		#self.qgrid.addWidget(self.t_2K, 1, 3)
+		self.qgrid.addWidget(self.sp_hash, 1, 3)
 		self.qgrid.addWidget(self.ext_dat, 1, 4)
 		for (old, new) in self.e_name_pairs:
 			self.qgrid.addWidget(old, 1, 5)
@@ -142,6 +146,10 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_2K(self, ):
 		return self.t_2K.isChecked()
+        
+	@property
+	def species_hash(self, ):
+		return self.sp_hash.isChecked()
 
 	@property
 	def use_ext_dat(self, ):
@@ -349,12 +357,20 @@ class MainWindow(widgets.MainWindow):
 			util.interaction.showdialog("You must open an OVL file before you can inject directories!")
 
 	def hasher(self):
-		if self.file_widget.filename:
-			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
-			hasher.dat_hasher(self.ovl_data, names)
-			self.update_gui_table()
+		if self.species_hash == False:
+			if self.file_widget.filename:
+				names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+				hasher.dat_hasher(self.ovl_data, names)
+				self.update_gui_table()
+			else:
+				util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
+			if self.file_widget.filename:
+				names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+				hasher.dat_hasher_species(self.ovl_data, names)
+				self.update_gui_table()
+			else:
+				util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
             
 	def dat_replacement(self):
 		if self.file_widget.filename:
