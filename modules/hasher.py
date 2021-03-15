@@ -598,6 +598,23 @@ def species_dat_replacer(ovl, name_tups):
 			new_njh = hex(djb(new_nj.lower()))
 			old_nmh = hex(djb(old_nm.lower()))
 			new_nmh = hex(djb(new_nm.lower()))
+			
+			old_o = old+"_Teeth"
+			new_o = new+"_Teeth"
+			old_of = old+"_Female_Teeth"
+			new_of = new+"_Female_Teeth"
+			old_oj = old+"_Male_Teeth"
+			new_oj = new+"_Male_Teeth"
+			old_om = old+"_Juvenile_Teeth"
+			new_om = new+"_Juvenile_Teeth" 
+			old_oh = hex(djb(old_o.lower()))
+			new_oh = hex(djb(new_o.lower()))
+			old_ofh = hex(djb(old_of.lower()))
+			new_ofh = hex(djb(new_of.lower()))
+			old_ojh = hex(djb(old_oj.lower()))
+			new_ojh = hex(djb(new_oj.lower()))
+			old_omh = hex(djb(old_om.lower()))
+			new_omh = hex(djb(new_om.lower()))
             
             
             
@@ -621,7 +638,8 @@ def species_dat_replacer(ovl, name_tups):
             (old_k,new_k),(old_kf,new_kf),(old_kj,new_kj),(old_km,new_km),(old_kh,new_kh),(old_kfh,new_kfh),(old_kjh,new_kjh),(old_kmh,new_kmh),
             (old_l,new_l),(old_lf,new_lf),(old_lj,new_lj),(old_lm,new_lm),(old_lh,new_lh),(old_lfh,new_lfh),(old_ljh,new_ljh),(old_lmh,new_lmh),
             (old_m,new_m),(old_mf,new_mf),(old_mj,new_mj),(old_mm,new_mm),(old_mh,new_mh),(old_mfh,new_mfh),(old_mjh,new_mjh),(old_mmh,new_mmh),
-            (old_n,new_n),(old_nf,new_nf),(old_nj,new_nj),(old_nm,new_nm),(old_nh,new_nh),(old_nfh,new_nfh),(old_njh,new_njh),(old_nmh,new_nmh)]
+            (old_n,new_n),(old_nf,new_nf),(old_nj,new_nj),(old_nm,new_nm),(old_nh,new_nh),(old_nfh,new_nfh),(old_njh,new_njh),(old_nmh,new_nmh),
+            (old_o,new_o),(old_of,new_of),(old_oj,new_oj),(old_om,new_om),(old_oh,new_oh),(old_ofh,new_ofh),(old_ojh,new_ojh),(old_omh,new_omh)]
 	try:
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
