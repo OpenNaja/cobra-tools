@@ -99,7 +99,7 @@ class FgmFile(FgmInfoHeader, IoFile):
 					# uint - hashes
 					texture.indices[i] = max(0, texture.value[i])
 			texture.offset = names_writer.tell()
-			names_writer.write_zstring(texture.name)
+			names_writer.write_zstring(texture.type)
 
 		# write the output stream
 		with self.writer(filepath) as stream:
