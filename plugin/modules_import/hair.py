@@ -46,7 +46,7 @@ def mesh_to_hair_test():
 	mesh_to_hair(depsgraph, mesh_object_eval, hair_object, particle_system)
 
 
-mesh_to_hair_test()
+# mesh_to_hair_test()
 
 
 def add_psys(ob):
@@ -59,4 +59,5 @@ def add_psys(ob):
 	psys.settings.use_emit_random = False
 	psys.settings.hair_length = 1.0
 	psys.vertex_group_length = "fur_length"
-	psys.hair_step = 2
+	psys.settings.hair_step = 1
+	psys.settings.display_step = 1
