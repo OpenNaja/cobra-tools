@@ -4,23 +4,12 @@ import time
 import bpy
 # import bmesh
 
-from plugin.modules_import.armature import import_armature, import_armature_new, append_armature_modifier, import_vertex_groups
+from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups
 from plugin.helpers import mesh_from_data
+from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import create_material
 from utils import matrix_util
 from generated.formats.ms2 import Mdl2File
-
-
-def add_psys(ob):
-	name = "hair"
-	ps_mod = ob.modifiers.new(name, 'PARTICLE_SYSTEM')
-	psys = ob.particle_systems[ps_mod.name]
-	psys.settings.count = len(ob.data.vertices)
-	psys.settings.type = 'HAIR'
-	psys.settings.emit_from = 'VERT'
-	psys.settings.use_emit_random = False
-	psys.settings.hair_length = 1.0
-	psys.vertex_group_length = "fur_length"
 
 
 def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=False):
