@@ -48,6 +48,7 @@ def dat_hasher(ovl, name_tups):
 				new_name, new_hash = old_hash_to_new[entry.file_hash]
 				entry.file_hash = new_hash
 				entry.name = f"{new_name}{entry.ext}"
+				print(entry.ext)
 			else:
 				new_name, new_hash = old_hash_to_new_pz[entry.file_hash]
 				#entry.file_hash = new_hash
@@ -102,6 +103,117 @@ def dat_hasher(ovl, name_tups):
 	#	print(err)
 	print("Done!")
     
+def dat_hasher_species(ovl, name_tups):
+	print(f"Hashing and Renaming for {name_tups}")
+	ovl_lists = [ovl.files, ovl.dependencies, ovl.dirs]
+	ovs_lists = []
+	for archive_entry in ovl.archives:
+		content = archive_entry.content
+		ovs_lists.extend((
+			content.data_entries,
+			content.set_header.sets,
+			content.set_header.assets,
+			content.header_entries,
+			content.sized_str_entries
+			))
+	old_hash_to_new = {}
+	old_hash_to_new_pz = {}
+	# first go over the ovl lists to generate new hashes
+	for i, entry_list in enumerate(ovl_lists):
+		for e,entry in enumerate(entry_list):
+			try:
+				if "bad hash" in entry.name:
+					print("Skipping", entry.name, entry.file_hash)
+					continue
+				if entry.ext not in ".mdl2.ms2.motiongraph.materialcollection":
+					print("Skipping", entry.name, entry.file_hash)
+					continue
+				new_name = entry.name
+				for old, new in name_tups:
+					new_name = new_name.replace(old, new)
+				if hasattr(entry, "file_hash"):
+					new_hash = djb(new_name)
+					old_hash_to_new[entry.file_hash] = (new_name, new_hash)
+					old_hash_to_new_pz[e] = (new_name, new_hash)
+					print(f"List{i} {entry.name} -> {new_name},  {entry.file_hash} ->  {new_hash}")
+					entry.file_hash = new_hash
+				else:
+					print(f"List{i} {entry.name} -> {new_name},  [NOT HASHED]")
+				entry.name = new_name
+			except Exception as err:
+				print(err)
+
+	# we do this in a second step to resolve the links
+	for i, entry_list in enumerate(ovs_lists):
+		for entry in entry_list:
+			if entry.ext not in ".mdl2.ms2.motiongraph.materialcollection":
+				print("Skipping", entry.name, entry.file_hash)
+				continue
+			if ovl.user_version.is_jwe:
+				new_name, new_hash = old_hash_to_new[entry.file_hash]
+				entry.file_hash = new_hash
+				entry.name = f"{new_name}{entry.ext}"
+			else:
+				new_name, new_hash = old_hash_to_new_pz[entry.file_hash]
+				#entry.file_hash = new_hash
+				entry.name = f"{new_name}{entry.ext}"
+				
+	# update the name buffer and offsets
+	ovl.names.update_with((
+		(ovl.dependencies, "ext"),
+		(ovl.dirs, "name"),
+		(ovl.mimes, "name"),
+		(ovl.files, "name")
+	))
+	ovl.len_names = len(ovl.names.data)
+	# resort the file entries
+	for i, file in enumerate(ovl.files):
+		file.old_index = i
+
+	# sort the different lists according to the criteria specified
+	ovl.files.sort(key=lambda x: (x.ext, x.file_hash))
+	ovl.dependencies.sort(key=lambda x: x.file_hash)
+
+	# create a lookup table to map the old indices to the new ones
+	lut = {}
+	for i, file in enumerate(ovl.files):
+		lut[file.old_index] = i
+
+	# update the file indices
+	for dependency in ovl.dependencies:
+		dependency.file_index = lut[dependency.file_index]
+	for aux in ovl.aux_entries:
+		aux.file_index = lut[aux.file_index]
+	if ovl.user_version.is_jwe:
+		print("JWE")
+	else:
+		for i, entry_list in enumerate(ovs_lists):
+			for entry in entry_list:
+				entry.file_hash = lut[entry.file_hash]
+                
+#	if ovl.user_version.is_jwe:
+	#	for old, new in name_tups:
+	#		old_c = old
+	#		new_c = new
+	#		old_ch = hex(djb(old_c.lower()))
+	#		new_ch = hex(djb(new_c.lower()))
+	#	name_tups_new = [(old_ch,new_ch),]
+ #       
+#	try:
+#		# hash the internal buffers
+#		for archive_entry in ovl.archives:
+#			ovs = archive_entry.content
+#			for header_entry in ovs.header_entries:
+#				b = header_entry.data.getvalue()
+#				header_entry.data = io.BytesIO(replace_bytes(b, name_tups_new))
+#			ovs.populate_pointers()
+#			for buffer_entry in ovs.buffer_entries:
+#				b = buffer_entry.data
+#				buffer_entry.data = replace_bytes(b, name_tups_new)
+#	except Exception as err:
+#		print(err)
+	print("Done!")
+    
     
 def dat_replacer(ovl, name_tups):
 	print(f"Replacing Dat contents for {name_tups}")
@@ -133,8 +245,8 @@ def species_dat_replacer(ovl, name_tups):
 			new_c = new
 			old_ch = hex(djb(old_c.lower()))
 			new_ch = hex(djb(new_c.lower()))
-			print(old_ch)
-		name_tups_new = [(old_a,new_a),(old_b,new_b),(old_c,new_c),(old_ch,new_ch)]
+		name_tups_new = [(old_a,new_a),(old_b,new_b),(old_ch,new_ch)]
+		name_tups_new2 = [(old_a,new_a),(old_b,new_b),(old_c,new_c),(old_ch,new_ch)]
 	else:
 		for old, new in name_tups:
 			old_a = old+"@"
@@ -486,6 +598,23 @@ def species_dat_replacer(ovl, name_tups):
 			new_njh = hex(djb(new_nj.lower()))
 			old_nmh = hex(djb(old_nm.lower()))
 			new_nmh = hex(djb(new_nm.lower()))
+			
+			old_o = old+"_Teeth"
+			new_o = new+"_Teeth"
+			old_of = old+"_Female_Teeth"
+			new_of = new+"_Female_Teeth"
+			old_oj = old+"_Male_Teeth"
+			new_oj = new+"_Male_Teeth"
+			old_om = old+"_Juvenile_Teeth"
+			new_om = new+"_Juvenile_Teeth" 
+			old_oh = hex(djb(old_o.lower()))
+			new_oh = hex(djb(new_o.lower()))
+			old_ofh = hex(djb(old_of.lower()))
+			new_ofh = hex(djb(new_of.lower()))
+			old_ojh = hex(djb(old_oj.lower()))
+			new_ojh = hex(djb(new_oj.lower()))
+			old_omh = hex(djb(old_om.lower()))
+			new_omh = hex(djb(new_om.lower()))
             
             
             
@@ -509,7 +638,8 @@ def species_dat_replacer(ovl, name_tups):
             (old_k,new_k),(old_kf,new_kf),(old_kj,new_kj),(old_km,new_km),(old_kh,new_kh),(old_kfh,new_kfh),(old_kjh,new_kjh),(old_kmh,new_kmh),
             (old_l,new_l),(old_lf,new_lf),(old_lj,new_lj),(old_lm,new_lm),(old_lh,new_lh),(old_lfh,new_lfh),(old_ljh,new_ljh),(old_lmh,new_lmh),
             (old_m,new_m),(old_mf,new_mf),(old_mj,new_mj),(old_mm,new_mm),(old_mh,new_mh),(old_mfh,new_mfh),(old_mjh,new_mjh),(old_mmh,new_mmh),
-            (old_n,new_n),(old_nf,new_nf),(old_nj,new_nj),(old_nm,new_nm),(old_nh,new_nh),(old_nfh,new_nfh),(old_njh,new_njh),(old_nmh,new_nmh)]
+            (old_n,new_n),(old_nf,new_nf),(old_nj,new_nj),(old_nm,new_nm),(old_nh,new_nh),(old_nfh,new_nfh),(old_njh,new_njh),(old_nmh,new_nmh),
+            (old_o,new_o),(old_of,new_of),(old_oj,new_oj),(old_om,new_om),(old_oh,new_oh),(old_ofh,new_ofh),(old_ojh,new_ojh),(old_omh,new_omh)]
 	try:
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
@@ -519,8 +649,12 @@ def species_dat_replacer(ovl, name_tups):
 				header_entry.data = io.BytesIO(replace_bytes(b, name_tups_new))
 			ovs.populate_pointers()
 			for buffer_entry in ovs.buffer_entries:
-				b = buffer_entry.data
-				buffer_entry.data = replace_bytes(b, name_tups_new)
+				if ovl.user_version.is_jwe:
+					b = buffer_entry.data
+					buffer_entry.data = replace_bytes(b, name_tups_new2)
+				else:
+					b = buffer_entry.data
+					buffer_entry.data = replace_bytes(b, name_tups_new)
 	except Exception as err:
 		print(err)
 	print("Done!")
@@ -532,12 +666,16 @@ def replace_bytes(b, name_tups):
 			print(f"HEX MODE for {old} -> {new}")
 			if len(old[2:]) == 8:
 				old = bytes.fromhex(old[2:])[::-1]
-			else:
+			elif len(old[2:]) == 7:
 				old = bytes.fromhex("0"+old[2:])[::-1]
+			elif len(old[2:]) == 6:
+				old = bytes.fromhex("00"+old[2:])[::-1]
 			if len(new[2:]) == 8:
 				new = bytes.fromhex(new[2:])[::-1]
-			else:
+			elif len(new[2:]) == 7:
 				new = bytes.fromhex("0"+new[2:])[::-1]
+			elif len(new[2:]) == 6:
+				new = bytes.fromhex("00"+new[2:])[::-1]
 		else:
 			old = old.encode(encoding="utf-8")
 			new = new.encode(encoding="utf-8")
