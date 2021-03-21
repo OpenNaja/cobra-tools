@@ -13,70 +13,6 @@ def find_modifier_for_particle_system(object, particle_system):
 	return None
 
 
-def mesh_to_hair(depsgraph, mesh_object, ob, particle_system):
-	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
-
-	ob_eval = ob.evaluated_get(depsgraph)
-	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
-	particle_system_eval = particle_modifier_eval.particle_system
-
-	mesh = mesh_object.data
-	vertices = mesh.vertices
-
-	num_particles = len(particle_system.particles)
-	vertex_index = 0
-	for particle_index in range(num_particles):
-		particle = particle_system.particles[particle_index]
-		particle_eval = particle_system_eval.particles[particle_index]
-		num_hair_keys = len(particle_eval.hair_keys)
-		print(num_hair_keys)
-		for hair_key_index in range(num_hair_keys):
-			co = vertices[vertex_index].co
-			hair_key = particle.hair_keys[hair_key_index]
-			hair_key.co_object_set(ob_eval, particle_modifier_eval, particle_eval, co)
-			vertex_index += 1
-
-
-def test_hair(depsgraph, ob, particle_system):
-	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
-
-	ob_eval = ob.evaluated_get(depsgraph)
-	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
-	particle_system_eval = particle_modifier_eval.particle_system
-	#
-	# mesh = mesh_object.data
-	# vertices = mesh.vertices
-
-	num_particles = len(particle_system.particles)
-	vertex_index = 0
-	for particle_index in range(num_particles):
-		particle = particle_system.particles[particle_index]
-		particle_eval = particle_system_eval.particles[particle_index]
-		num_hair_keys = len(particle_eval.hair_keys)
-		print(num_hair_keys)
-		for hair_key_index in range(num_hair_keys):
-			# co = vertices[vertex_index].co
-			hair_key = particle.hair_keys[hair_key_index]
-			hair_key.co_object_set(ob_eval, particle_modifier_eval, particle_eval, (0,0,hair_key_index))
-			vertex_index += 1
-
-
-def mesh_to_hair_test():
-	context = bpy.context
-	ob = bpy.data.objects["Plane"]
-	particle_system = ob.particle_systems["ParticleSettings"]
-	mesh_object = bpy.data.objects["Plane-ParticleSettings"]
-
-	depsgraph = context.evaluated_depsgraph_get()
-
-	mesh_object_eval = mesh_object.evaluated_get(depsgraph)
-
-	mesh_to_hair(depsgraph, mesh_object_eval, ob, particle_system)
-
-
-# mesh_to_hair_test()
-
-
 def add_psys(ob):
 	name = "hair"
 	ps_mod = ob.modifiers.new(name, 'PARTICLE_SYSTEM')
@@ -89,30 +25,6 @@ def add_psys(ob):
 	psys.vertex_group_length = "fur_length"
 	psys.settings.hair_step = 1
 	psys.settings.display_step = 1
-
-
-def mesh_from_data(name, verts, faces, wireframe=True):
-	me = bpy.data.meshes.new(name)
-	start_time = time.time()
-	me.from_pydata(verts, [], faces)
-	print(f"from_pydata() took {time.time() - start_time:.2f} seconds for {len(verts)} verts")
-	me.update()
-	ob = create_ob(name, me)
-	# if wireframe:
-	# 	ob.draw_type = 'WIRE'
-	return ob, me
-
-
-def create_ob(ob_name, ob_data):
-	ob = bpy.data.objects.new(ob_name, ob_data)
-	bpy.context.scene.collection.objects.link(ob)
-	bpy.context.view_layer.objects.active = ob
-	return ob
-
-
-def unpack_swizzle(vec):
-	# swizzle to avoid a matrix multiplication for global axis correction
-	return -vec[0], -vec[2], vec[1]
 
 
 def vcol_to_comb():
