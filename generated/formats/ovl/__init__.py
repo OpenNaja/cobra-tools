@@ -1599,7 +1599,7 @@ class OvlFile(Header, IoFile):
 		new_directory = DirEntry()
 		new_directory.name = directory_name
 		self.dirs.append(new_directory)
-
+		self.num_dirs += 1
 		self.update_names()
 		
 	def remove_dir(self, directory_name):
