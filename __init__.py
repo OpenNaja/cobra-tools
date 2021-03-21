@@ -20,6 +20,7 @@ dir = os.path.dirname(__file__)
 if not dir in sys.path:
 	sys.path.append(dir)
 from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
+from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
 from utils import shell
 
 
@@ -160,6 +161,38 @@ class CreateFins(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+class VcolToHair(bpy.types.Operator):
+	"""Convert vertex color layer to hair combing"""
+	bl_idname = "object.vcol_to_comb"
+	bl_label = "Vcol to Hair"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		try:
+			for msg in vcol_to_comb():
+				self.report({"INFO"}, msg)
+		except Exception as err:
+			self.report({"ERROR"}, str(err))
+			print(err)
+		return {'FINISHED'}
+
+
+class HairToVcol(bpy.types.Operator):
+	"""Convert hair combing to vertex color layer"""
+	bl_idname = "object.comb_to_vcol"
+	bl_label = "Hair to Vcol"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		try:
+			for msg in comb_to_vcol():
+				self.report({"INFO"}, msg)
+		except Exception as err:
+			self.report({"ERROR"}, str(err))
+			print(err)
+		return {'FINISHED'}
+
+
 class MESH_PT_CobraTools(bpy.types.Panel):
 	"""Creates a Panel in the scene context of the properties editor"""
 	bl_label = "Cobra Mesh Tools"
@@ -179,9 +212,13 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 
 		row = layout.row(align=True)
 		row.operator("object.strip_shells", icon_value=preview_collection["frontier.png"].icon_id)
-
 		sub = row.row()
 		sub.operator("object.create_fins", icon_value=preview_collection["frontier.png"].icon_id)
+
+		row = layout.row(align=True)
+		row.operator("object.vcol_to_comb", icon_value=preview_collection["frontier.png"].icon_id)
+		sub = row.row()
+		sub.operator("object.comb_to_vcol", icon_value=preview_collection["frontier.png"].icon_id)
 
 
 def menu_func_export(self, context):
@@ -205,6 +242,8 @@ classes = (
 	ImportVoxelskirt,
 	StripShells,
 	CreateFins,
+	VcolToHair,
+	HairToVcol,
 	MESH_PT_CobraTools
 	)
 
