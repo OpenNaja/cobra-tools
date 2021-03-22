@@ -3,7 +3,7 @@
 
 A simple GUI for extracting OVL and OVS archives and modifying their contents, as well as editors for the associated in-house file formats. Also includes a model plugin for blender.
 
-![Imgur](https://i.imgur.com/g9cvfQD.png)
+<img src="https://i.imgur.com/qECNBcL.png" width="75%" height="75%">
 
 ### Installation
 Get the latest source code [here](https://github.com/OpenNaja/cobra-tools/archive/master.zip) and unzip to a folder of your choice. You need to have installed:
