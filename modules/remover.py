@@ -51,57 +51,44 @@ def file_remover(ovl, filenames):
 			print("file index", i)
 			new_bb = Array()
 			new_f = Array()
-	# adjust the counts
-	ovl.num_files = ovl.num_files_2 = ovl.num_files_3 = len(ovl.files)
-	ovl.num_dependencies = len(ovl.dependencies)
-	ovl.num_mimes = len(ovl.mimes)
+	ovl.update_counts()
 
 
 def remove_from_ovs(del_hash, file_entry, fileext, new_bb, new_f, next_hash, old_index, ovl):
+	ovs = ovl.archives[0]
 	# remove sizedstring entry for file and remove its fragments if mapped
-	for ss, string in enumerate(ovl.archives[0].content.sized_str_entries):
+	for ss_index, ss_entry in enumerate(ovs.content.sized_str_entries):
 		# delete the sized string and fragment data
-		if string.lower_name == file_entry.name + fileext:
-			ovl.archives[0].content.sized_str_entries.pop(ss)
-			ovl.archives[0].num_files -= 1
-			ovl.archives[0].uncompressed_size -= 16
+		if ss_entry.lower_name == file_entry.name + fileext:
+			ovs.content.sized_str_entries.pop(ss_index)
+			ovs.num_files -= 1
 
-			string.pointers[0].update_data(b"", update_copies=True)
-			for frag in string.fragments:
-				frag.pointers[0].update_data(b"", update_copies=True)
-				frag.pointers[1].update_data(b"", update_copies=True)
-
-			fgg = []
-			for frg in string.fragments:
-				fgg.append(frg.o_ind)
-
-			rem_ff = len(fgg)
-
-			for fff in ovl.archives[0].content.fragments:
-				if fff.o_ind not in fgg:
-					new_f.append(fff)
-
-			ovl.archives[0].content.fragments = new_f
-			ovl.archives[0].num_fragments -= rem_ff
+			ss_entry.pointers[0].remove(ovs.content)
+			for frag in ss_entry.fragments:
+				frag.pointers[0].remove(ovs.content)
+				frag.pointers[1].remove(ovs.content)
+			for f_index in sorted([frg.o_ind for frg in ss_entry.fragments], reverse=True):
+				ovs.content.fragments.pop(f_index)
+			ovs.num_fragments = len(ovs.content.fragments)
 
 		# update name indices for PZ (JWE hashes remain untouched!)
 		if not ovl.user_version.is_jwe:
-			if string.lower_name == file_entry.name + fileext:
-				print("deleting", string.lower_name, string.file_hash, old_index)
+			if ss_entry.lower_name == file_entry.name + fileext:
+				print("deleting", ss_entry.lower_name, ss_entry.file_hash, old_index)
 				try:
-					print(ovl.archives[0].content.sized_str_entries[ss + 1].file_hash, old_index)
-					ovl.archives[0].content.sized_str_entries[ss + 1].file_hash -= 1
-					print("changed to:  ", ovl.archives[0].content.sized_str_entries[ss + 1].file_hash)
+					print(ovs.content.sized_str_entries[ss_index + 1].file_hash, old_index)
+					ovs.content.sized_str_entries[ss_index + 1].file_hash -= 1
+					print("changed to:  ", ovs.content.sized_str_entries[ss_index + 1].file_hash)
 				except:
 					print("last file index")
 			else:
-				print(string.file_hash, old_index)
-				if string.file_hash >= old_index:
-					string.file_hash -= 1
-					print("changed to: ", string.file_hash)
+				print(ss_entry.file_hash, old_index)
+				if ss_entry.file_hash >= old_index:
+					ss_entry.file_hash -= 1
+					print("changed to: ", ss_entry.file_hash)
 
 	# TODO UPDATE THE HEADER ENTRIES WITH THE FIRST FILE HASH AND NEW COUNTS
-	for he, header_entry in enumerate(ovl.archives[0].content.header_entries):
+	for he, header_entry in enumerate(ovs.content.header_entries):
 		if ovl.user_version.is_jwe:
 			if header_entry.file_hash == del_hash:
 				if header_entry.ext_hash == djb(fileext[1:]):
@@ -113,12 +100,11 @@ def remove_from_ovs(del_hash, file_entry, fileext, new_bb, new_f, next_hash, old
 				print("updated header entry", header_entry.file_hash - 1)
 				header_entry.file_hash -= 1
 	# remove data entry for file
-	for de, data in enumerate(ovl.archives[0].content.data_entries):
+	for de, data in enumerate(ovs.content.data_entries):
 		if data.basename == file_entry.name and data.ext == fileext:
 
-			ovl.archives[0].num_datas -= 1
+			ovs.num_datas -= 1
 			ovl.num_datas -= 1
-			ovl.archives[0].uncompressed_size -= 32
 
 			zero_buff_array = [b"" for buffer in data.buffer_datas]
 			data.update_data(zero_buff_array)
@@ -128,23 +114,21 @@ def remove_from_ovs(del_hash, file_entry, fileext, new_bb, new_f, next_hash, old
 			thing.sort()
 			rem_buf = len(thing)
 
-			for bbf in ovl.archives[0].content.buffer_entries:
+			for bbf in ovs.content.buffer_entries:
 				if bbf.o_ind not in thing:
 					new_bb.append(bbf)
 
-			ovl.archives[0].content.buffer_entries = new_bb
-			ovl.archives[0].num_buffers -= rem_buf
+			ovs.content.buffer_entries = new_bb
+			ovs.num_buffers -= rem_buf
 			ovl.num_buffers -= rem_buf
-
-			ovl.archives[0].uncompressed_size -= 8 * rem_buf
-			ovl.archives[0].content.data_entries.pop(de)
+			ovs.content.data_entries.pop(de)
 		if not ovl.user_version.is_jwe:
 			if data.basename == file_entry.name and data.ext == fileext:
 				print("deleting", data.basename, old_index)
 				try:
-					print(ovl.archives[0].content.data_entries[de + 1].file_hash, old_index)
-					ovl.archives[0].content.data_entries[de + 1].file_hash -= 1
-					print("changed to:  ", ovl.archives[0].content.data_entries[de + 1].file_hash)
+					print(ovs.content.data_entries[de + 1].file_hash, old_index)
+					ovs.content.data_entries[de + 1].file_hash -= 1
+					print("changed to:  ", ovs.content.data_entries[de + 1].file_hash)
 				except:
 					print("last file index")
 			else:

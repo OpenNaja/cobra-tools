@@ -54,6 +54,7 @@ class OvsFile(OvsHeader, ZipFile):
 		self.ovl = ovl
 		self.arg = archive_entry
 		self.archive_index = archive_index
+		# this determines if fragments are written back to header datas
 		self.force_update_header_datas = True
 
 	def buffer_padding(self, dbuffer, length):
@@ -1794,9 +1795,16 @@ class OvlFile(Header, IoFile):
 		else:
 			archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
 
+	def update_counts(self):
+		# adjust the counts
+		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
+		self.num_dependencies = len(self.dependencies)
+		self.num_mimes = len(self.mimes)
+
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
 		self.store_filepath(filepath)
+		self.update_counts()
 		exp_dir = os.path.dirname(filepath)
 		ovs_dict = {}
 		ovl_compressed = b""

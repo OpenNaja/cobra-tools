@@ -103,3 +103,15 @@ class HeaderPointer:
 				inst.read(stream)
 				insts.append(inst)
 		return insts
+
+	def remove(self, archive):
+		"""Remove this pointer from suitable header entry"""
+
+		if self.header_index == MAX_UINT32:
+			pass
+		else:
+			# get header entry
+			entry = archive.header_entries[self.header_index]
+			if self.data_offset in entry.pointer_map:
+				entry.pointer_map.pop(self.data_offset)
+
