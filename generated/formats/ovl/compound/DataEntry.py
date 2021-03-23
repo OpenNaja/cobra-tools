@@ -105,3 +105,8 @@ class DataEntry:
 		"""Get data for each buffer"""
 		return list(buffer.data for buffer in self.sorted_buffers)
 
+	@property
+	def stream_datas(self):
+		"""Get data for each buffer, including streamed ones from other entries"""
+		return list(buffer.data for buffer in sorted(self.streams, key=lambda buffer: buffer.index))
+

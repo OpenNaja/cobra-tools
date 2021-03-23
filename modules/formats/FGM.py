@@ -33,7 +33,7 @@ def write_fgm(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 		raise AttributeError("Fgm length is wrong")
 
 	# grab the texture names that are linked to this fgm
-	fgm_file_entry = [file for file in ovl.files if f"{file.name}{file.ext}" == sized_str_entry.name][0]
+	fgm_file_entry = [file for file in ovl.files if file.name == sized_str_entry.name][0]
 
 	# write fgm
 	fgm_header = struct.pack("<6I", len(sized_str_entry.fragments), len(fgm_file_entry.dependencies), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)

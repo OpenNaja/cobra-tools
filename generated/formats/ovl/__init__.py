@@ -1800,14 +1800,17 @@ class OvlFile(Header, IoFile):
 		for tb_index, sized_str_entry in enumerate(self.static_archive.content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)
 			if sized_str_entry.ext == ".tex":
+				sized_str_entry.data_entry.streams = list(sized_str_entry.data_entry.buffers)
 				for lod_i in range(3):
 					for archive in self.archives:
 						if archive == self.static_archive:
 							continue
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
-								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
+								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
+								# sized_str_entry.streams.append(other_sizedstr)
 			if sized_str_entry.ext == ".ms2":
+				sized_str_entry.data_entry.streams = list(sized_str_entry.data_entry.buffers)
 				for lod_i in range(4):
 					for archive in self.archives:
 						if archive == self.static_archive:
@@ -1815,7 +1818,8 @@ class OvlFile(Header, IoFile):
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
 								# print("model2stream")
-								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
+								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
+								# sized_str_entry.streams.append(other_sizedstr)
 				# print(sized_str_entry.data_entry.buffers)
 
 	def get_external_ovs_path(self, archive_entry):
