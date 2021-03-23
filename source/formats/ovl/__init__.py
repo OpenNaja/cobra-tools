@@ -8,8 +8,10 @@ import traceback
 from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
+from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
+from generated.formats.ovl.compound.SetEntry import SetEntry
 from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, ZipFile
@@ -396,13 +398,38 @@ class OvsFile(OvsHeader, ZipFile):
 			else:
 				set_entry.end = self.set_header.sets[i + 1].start
 			# map assets to entry
-			set_entry.assets = self.set_header.assets[set_entry.start: set_entry.end]
+			assets = self.set_header.assets[set_entry.start: set_entry.end]
 			# print("SET:", set_entry.name)
-			# print("ASSETS:", [a.name for a in set_entry.assets])
+			# print("ASSETS:", [a.name for a in assets])
 			# store the references on the corresponding sized str entry
-			set_entry.entry.children = [self.sized_str_entries[a.file_index] for a in set_entry.assets]
-			for child in set_entry.entry.children:
-				child.parent = set_entry.entry
+			set_entry.entry.children = [self.sized_str_entries[a.file_index] for a in assets]
+
+	def update_assets(self):
+		"""Update archive asset grouping from children list on sized str entries"""
+		print("Updating assets")
+		self.set_header.sets.clear()
+		self.set_header.assets.clear()
+		self.set_header.set_count = 0
+		self.set_header.asset_count = 0
+		start = 0
+		ss_index_table = {file.name: i for i, file in enumerate(self.sized_str_entries)}
+		for ss_entry in self.sized_str_entries:
+			if ss_entry.children:
+				set_entry = SetEntry()
+				set_entry.start = start
+				set_entry.end = start + len(ss_entry.children)
+				set_entry.file_hash = ss_entry.file_hash
+				set_entry.ext_hash = ss_entry.ext_hash
+				self.set_header.sets.append(set_entry)
+				for ss_child in ss_entry.children:
+					asset_entry = AssetEntry()
+					asset_entry.file_hash = ss_child.file_hash
+					asset_entry.ext_hash = ss_child.ext_hash
+					asset_entry.file_index = ss_index_table[ss_child.name]
+					self.set_header.assets.append(asset_entry)
+				start += len(ss_entry.children)
+				self.set_header.set_count += 1
+				self.set_header.asset_count += len(ss_entry.children)
 
 	def frags_accumulate(self, p, d_size, address_0_fragments):
 		# get frags whose pointers 0 datas together occupy d_size bytes
@@ -1040,7 +1067,8 @@ class OvsFile(OvsHeader, ZipFile):
 					if ms2_entry.ext == ".ms2":
 						f_1 = ms2_entry.fragments[1]
 						next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
-						# print("next model info:", next_model_info)
+						print("next model info:", next_model_info)
+						print(ms2_entry.children)
 						for mdl2_entry in ms2_entry.children:
 							assert mdl2_entry.ext == ".mdl2"
 							self.collect_mdl2(mdl2_entry, next_model_info, f_1.pointers[1])
@@ -1811,6 +1839,8 @@ class OvlFile(Header, IoFile):
 
 	def update_counts(self):
 		# adjust the counts
+		for archive in self.archives:
+			archive.content.update_assets()
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 		self.num_dependencies = len(self.dependencies)
 		self.num_mimes = len(self.mimes)
