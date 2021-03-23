@@ -1113,9 +1113,12 @@ class OvsFile(OvsHeader, ZipFile):
 			# then the second if it has any
 			# and so on, until there is no data entry left with unprocessed buffers
 			for i in range(max_buffers_per_data):
-				for data in self.data_entries:
+				for j, data in enumerate(self.data_entries):
 					if i < data.buffer_count:
+						print(f"Data {j} Buffer [{i}]")
+						# todo - data.buffers is resorted somewhere
 						io_order.append(data.buffers[i])
+		print("io_order", io_order)
 		return io_order
 
 	def read_buffer_datas(self, stream):
@@ -1787,9 +1790,9 @@ class OvlFile(Header, IoFile):
 
 		self.link_streams()
 
-
 	def link_streams(self):
 		"""Attach the data buffers of streamed filed to standard files from the first archive"""
+		# todo - refactor this so that it does not mess with the underlying buffers
 		if not self.archives:
 			return
 		print("Linking streams...")
@@ -1814,10 +1817,6 @@ class OvlFile(Header, IoFile):
 								# print("model2stream")
 								sized_str_entry.data_entry.buffers.extend(other_sizedstr.data_entry.buffers)
 				# print(sized_str_entry.data_entry.buffers)
-
-		# just sort all buffers by their index value so they are extracted nicely
-		for data_entry in self.static_archive.content.data_entries:
-			data_entry.update_buffers()
 
 	def get_external_ovs_path(self, archive_entry):
 		# JWE style
