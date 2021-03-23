@@ -1068,7 +1068,6 @@ class OvsFile(OvsHeader, ZipFile):
 						f_1 = ms2_entry.fragments[1]
 						next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 						print("next model info:", next_model_info)
-						print(ms2_entry.children)
 						for mdl2_entry in ms2_entry.children:
 							assert mdl2_entry.ext == ".mdl2"
 							self.collect_mdl2(mdl2_entry, next_model_info, f_1.pointers[1])
@@ -1115,10 +1114,7 @@ class OvsFile(OvsHeader, ZipFile):
 			for i in range(max_buffers_per_data):
 				for j, data in enumerate(self.data_entries):
 					if i < data.buffer_count:
-						print(f"Data {j} Buffer [{i}]")
-						# todo - data.buffers is resorted somewhere
 						io_order.append(data.buffers[i])
-		print("io_order", io_order)
 		return io_order
 
 	def read_buffer_datas(self, stream):
