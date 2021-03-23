@@ -1058,24 +1058,25 @@ class OvsFile(OvsHeader, ZipFile):
 				frag.name = sized_str_entry.name
 
 	def map_buffers(self):
-		"""Map buffers to data entries, sort buffers into load order"""
+		"""Map buffers to data entries"""
 		print("\nMapping buffers")
-
-		# this holds the buffers in the order they are read from the file
-		self.buffers_io_order = []
-
 		# sequentially attach buffers to data entries by each entry's buffer count
 		buff_ind = 0
 		for i, data in enumerate(self.data_entries):
 			data.buffers = []
 			for j in range(data.buffer_count):
-				print("data",i,"buffer",j, "buff_ind",buff_ind)
+				# print("data",i,"buffer",j, "buff_ind",buff_ind)
 				buffer = self.buffer_entries[buff_ind]
 				# also give each buffer a reference to data so we can access it later
 				buffer.data_entry = data
 				data.buffers.append(buffer)
 				buff_ind += 1
 
+	@property
+	def buffers_io_order(self):
+		"""sort buffers into load order"""
+		# this holds the buffers in the order they are read from the file
+		io_order = []
 		# only do this if there are any data entries so that max() doesn't choke
 		if self.data_entries:
 			# check how many buffers occur at max in one data block
@@ -1086,7 +1087,8 @@ class OvsFile(OvsHeader, ZipFile):
 			for i in range(max_buffers_per_data):
 				for data in self.data_entries:
 					if i < data.buffer_count:
-						self.buffers_io_order.append(data.buffers[i])
+						io_order.append(data.buffers[i])
+		return io_order
 
 	def read_buffer_datas(self, stream):
 		# finally, we have the buffers in the correct sorting so we can read their contents
