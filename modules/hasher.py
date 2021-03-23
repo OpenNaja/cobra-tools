@@ -21,23 +21,23 @@ def dat_hasher(ovl, name_tups):
 	old_hash_to_new_pz = {}
 	# first go over the ovl lists to generate new hashes
 	for i, entry_list in enumerate(ovl_lists):
-		for e,entry in enumerate(entry_list):
+		for entry_index, entry in enumerate(entry_list):
 			try:
 				if "bad hash" in entry.name:
 					print("Skipping", entry.name, entry.file_hash)
 					continue
-				new_name = entry.name
+				new_name = entry.basename
 				for old, new in name_tups:
 					new_name = new_name.replace(old, new)
 				if hasattr(entry, "file_hash"):
 					new_hash = djb(new_name)
 					old_hash_to_new[entry.file_hash] = (new_name, new_hash)
-					old_hash_to_new_pz[e] = (new_name, new_hash)
-					print(f"List{i} {entry.name} -> {new_name},  {entry.file_hash} ->  {new_hash}")
+					old_hash_to_new_pz[entry_index] = (new_name, new_hash)
+					print(f"List{i} {entry.basename} -> {new_name},  {entry.file_hash} ->  {new_hash}")
 					entry.file_hash = new_hash
 				else:
-					print(f"List{i} {entry.name} -> {new_name},  [NOT HASHED]")
-				entry.name = new_name
+					print(f"List{i} {entry.basename} -> {new_name},  [NOT HASHED]")
+				entry.basename = new_name
 			except Exception as err:
 				print(err)
 
@@ -47,21 +47,12 @@ def dat_hasher(ovl, name_tups):
 			if ovl.user_version.is_jwe:
 				new_name, new_hash = old_hash_to_new[entry.file_hash]
 				entry.file_hash = new_hash
-				entry.name = f"{new_name}{entry.ext}"
-				print(entry.ext)
 			else:
 				new_name, new_hash = old_hash_to_new_pz[entry.file_hash]
-				#entry.file_hash = new_hash
-				entry.name = f"{new_name}{entry.ext}"
-				
-	# update the name buffer and offsets
-	ovl.names.update_with((
-		(ovl.dependencies, "ext"),
-		(ovl.dirs, "name"),
-		(ovl.mimes, "name"),
-		(ovl.files, "name")
-	))
-	ovl.len_names = len(ovl.names.data)
+			entry.basename = new_name
+			entry.name = f"{new_name}{entry.ext}"
+
+	ovl.update_name_buffer()
 	# resort the file entries
 	for i, file in enumerate(ovl.files):
 		file.old_index = i
@@ -120,7 +111,7 @@ def dat_hasher_species(ovl, name_tups):
 	old_hash_to_new_pz = {}
 	# first go over the ovl lists to generate new hashes
 	for i, entry_list in enumerate(ovl_lists):
-		for e,entry in enumerate(entry_list):
+		for e, entry in enumerate(entry_list):
 			try:
 				if "bad hash" in entry.name:
 					print("Skipping", entry.name, entry.file_hash)

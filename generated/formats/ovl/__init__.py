@@ -111,7 +111,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 		for file_entry in self.ovl.files:
 			dbuffer = self.getContent(file_entry.path)
-			file_name_bytes = bytearray(file_entry.name, encoding='utf8')
+			file_name_bytes = bytearray(file_entry.basename, encoding='utf8')
 			if file_entry.ext == ".assetpkg":  # assetpkg.. copy content, pad to 64b, then assign 1 fragment and 1 empty sized str.
 				dbuffer = self.buffer_padding(dbuffer + b'\x00', 64)
 				self.header_entry_data += dbuffer  # fragment pointer 1 data
@@ -228,8 +228,7 @@ class OvsFile(OvsHeader, ZipFile):
 			print("reading from unzipped ovs")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
-			# print(self.ovl)
-			# print(self)
+			print(self)
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -295,6 +294,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 			# up to here was data defined by the OvsHeader class, ending with the AssetEntries
 			self.pools_end = stream.tell()
+			print("Pools end:", self.pools_end)
 
 			# another integrity check
 			if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
@@ -1069,7 +1069,7 @@ class OvsFile(OvsHeader, ZipFile):
 		for i, data in enumerate(self.data_entries):
 			data.buffers = []
 			for j in range(data.buffer_count):
-				# print("data",i,"buffer",j, "buff_ind",buff_ind)
+				print("data",i,"buffer",j, "buff_ind",buff_ind)
 				buffer = self.buffer_entries[buff_ind]
 				# also give each buffer a reference to data so we can access it later
 				buffer.data_entry = data
@@ -1331,7 +1331,7 @@ class OvsFile(OvsHeader, ZipFile):
 			except IndexError:
 				raise IndexError(
 					f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
-			n = file.name
+			n = file.basename
 			e = file.ext
 		entry.ext = e
 		entry.basename = n
@@ -1356,7 +1356,7 @@ class OvsFile(OvsHeader, ZipFile):
 		"""Calculate the size of the whole data entry region that sizedstr and fragment entries point into"""
 		return sum(header_entry.size for header_entry in self.header_entries)
 
-	def write_pointers_to_header_datas(self):
+	def write_pointers_to_header_datas(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""
 		for i, header_entry in enumerate(self.header_entries):
 			# maintain sorting order
@@ -1366,7 +1366,7 @@ class OvsFile(OvsHeader, ZipFile):
 			if sorted_first_pointers:
 				# only known from indominus
 				first_offset = sorted_first_pointers[0].data_offset
-				if first_offset != 0:
+				if first_offset != 0 and not ignore_unaccounted_bytes:
 					print(f"Found {first_offset} unaccounted bytes at start of header data {i}")
 					unaccounted_bytes = header_entry.data.getvalue()[:first_offset]
 				else:
@@ -1439,7 +1439,7 @@ class OvlFile(Header, IoFile):
 				skip_files.append(file.name)
 				continue
 			# todo - refactor this so that name includes extension for all entries
-			if only_names and file.name+file.ext not in only_names:
+			if only_names and file.name not in only_names:
 				skip_files.append(file.name)
 				continue
 			# ignore types in the count that we export from inside other type exporters
@@ -1449,7 +1449,7 @@ class OvlFile(Header, IoFile):
 
 		for ss_index, file in enumerate(extract_files):
 			self.progress_callback("Extracting...", value=ss_index, vmax=len(extract_files))
-			sized_str_entry = self.ss_dict[file.name+file.ext]
+			sized_str_entry = self.ss_dict[file.name]
 			try:
 				out_paths.extend(
 					extract_kernel(self, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
@@ -1668,7 +1668,8 @@ class OvlFile(Header, IoFile):
 			# get file name from name table
 			file_name = self.names.get_str_at(file_entry.offset)
 			file_entry.ext = self.mimes[file_entry.extension].ext
-			file_entry.name = file_name
+			file_entry.basename = file_name
+			file_entry.name = file_name + file_entry.ext
 			file_entry.dependencies = []
 			self.hash_table_local[file_entry.file_hash] = file_name
 		# print(file_name+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
@@ -1687,7 +1688,7 @@ class OvlFile(Header, IoFile):
 		# os.makedirs(dir, exist_ok=True)
 		# print(dir)
 
-		# print(self)
+		print(self)
 		# get names of all dependencies
 		ht_max = len(self.dependencies)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
@@ -1747,6 +1748,7 @@ class OvlFile(Header, IoFile):
 			except BaseException as err:
 				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
 				print(err)
+				traceback.print_exc()
 
 			for file in archive_entry.content.sized_str_entries:
 				self.ss_dict[file.name] = file
@@ -1795,6 +1797,16 @@ class OvlFile(Header, IoFile):
 		else:
 			archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
 
+	def update_name_buffer(self):
+		# update the name buffer and offsets
+		self.names.update_with((
+			(self.dependencies, "ext"),
+			(self.dirs, "name"),
+			(self.mimes, "name"),
+			(self.files, "basename")
+		))
+		self.len_names = len(self.names.data)
+
 	def update_counts(self):
 		# adjust the counts
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
@@ -1838,7 +1850,7 @@ class OvlFile(Header, IoFile):
 
 		print("Updating AUX sizes in OVL")
 		for aux in self.aux_entries:
-			name = self.files[aux.file_index].name
+			name = self.files[aux.file_index].basename
 			if aux.extension_index != 0:
 				bnkpath = f"{self.file_no_ext}_{name}_bnk_s.aux"
 			else:

@@ -261,15 +261,12 @@ class MainWindow(widgets.MainWindow):
 		data2 = []
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
 		for file_w in self.ovl_data.files:
-			name = f"{file_w.name}{file_w.ext}"
-			# line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
-			line = [name, file_w.ext, file_w.file_hash, file_w.unkn_0, file_w.unkn_1]
+			line = [file_w.name, file_w.ext, file_w.file_hash, file_w.unkn_0, file_w.unkn_1]
 			data.append(line)
 		for dir_w in self.ovl_data.dirs:
 			path = f"{dir_w.name}"
 			print(path)
-			# line = [name, file_w.ext, to_hex_str(file_w.file_hash), str(file_w.unkn_0), str(file_w.unkn_1)]
-			line2 = [path,]
+			line2 = [path, ]
 			data2.append(line2)
 		self.table.set_data(data)
 		self.table2.set_data(data2)
