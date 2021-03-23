@@ -14,7 +14,7 @@ from generated.formats.ovl.versions import *
 def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = ms2_sized_str_entry.name
 	assert ms2_sized_str_entry.data_entry
-	buffers = ms2_sized_str_entry.data_entry.buffer_datas
+	buffers = ms2_sized_str_entry.data_entry.stream_datas
 	bone_names = buffers[0]
 	bone_matrices = buffers[1]
 	verts = b"".join(buffers[2:])

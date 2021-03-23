@@ -230,7 +230,7 @@ class OvsFile(OvsHeader, ZipFile):
 			print("reading from unzipped ovs")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
-			print(self)
+			# print(self)
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
 			# print(self.header_entries)
@@ -1721,7 +1721,7 @@ class OvlFile(Header, IoFile):
 		# os.makedirs(dir, exist_ok=True)
 		# print(dir)
 
-		print(self)
+		# print(self)
 		# get names of all dependencies
 		ht_max = len(self.dependencies)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
