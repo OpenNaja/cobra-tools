@@ -17,15 +17,15 @@ def write_banis(ovl, sized_str_entry, out_dir, show_temp_files, progress_callbac
 	return out_path,
 
 
-def write_bani(archive, sized_str_entry, out_dir, show_temp_files, progress_callback):
+def write_bani(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
-	print("\nWriting",name)
+	print("\nWriting", name)
 	if len(sized_str_entry.fragments) != 1:
 		print("must have 1 fragment")
 		return
-	for other_sized_str_entry in archive.sized_str_entries:
-		if other_sized_str_entry.ext == ".banis":
-			banis_name = other_sized_str_entry.name
+	for file_entry in ovl.files:
+		if file_entry.ext == ".banis":
+			banis_name = file_entry.name
 			break
 	else:
 		print("Found no banis file for bani animation!")
