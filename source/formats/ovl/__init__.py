@@ -1725,16 +1725,17 @@ class OvlFile(Header, IoFile):
 			# nb: these use : instead of . at the start, eg. :tex
 			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
 			try:
-				dependency_entry.name = self.hash_table_local[dependency_entry.file_hash]
-				print(f"LOCAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.name}")
+				dependency_entry.basename = self.hash_table_local[dependency_entry.file_hash]
+				print(f"LOCAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.basename}")
 			except:
 				try:
-					dependency_entry.name = self.hash_table_global[dependency_entry.file_hash]
-					print(f"GLOBAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.name}")
+					dependency_entry.basename = self.hash_table_global[dependency_entry.file_hash]
+					print(f"GLOBAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.basename}")
 				except:
 					print(f"UNRESOLVED DEPENDENCY: {dependency_entry.file_hash} -> ?")
-					dependency_entry.name = "bad hash"
-			print(dependency_entry.name, dependency_entry.ovsblock_id, dependency_entry.pool_offset)
+					dependency_entry.basename = "bad hash"
+			dependency_entry.name = dependency_entry.basename + dependency_entry.ext
+			print(dependency_entry.basename, dependency_entry.ovsblock_id, dependency_entry.pool_offset)
 			try:
 				file_entry = self.files[dependency_entry.file_index]
 				file_entry.dependencies.append(dependency_entry)
