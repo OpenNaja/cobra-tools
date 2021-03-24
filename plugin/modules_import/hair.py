@@ -13,7 +13,7 @@ def find_modifier_for_particle_system(object, particle_system):
 	return None
 
 
-def add_psys(ob):
+def add_psys(ob, model):
 	name = "hair"
 	ps_mod = ob.modifiers.new(name, 'PARTICLE_SYSTEM')
 	psys = ob.particle_systems[ps_mod.name]
@@ -21,7 +21,7 @@ def add_psys(ob):
 	psys.settings.type = 'HAIR'
 	psys.settings.emit_from = 'VERT'
 	psys.settings.use_emit_random = False
-	psys.settings.hair_length = 1.0
+	psys.settings.hair_length = model.fur_length
 	psys.vertex_group_length = "fur_length"
 	psys.settings.hair_step = 1
 	psys.settings.display_step = 1
@@ -70,7 +70,8 @@ def vcol_to_comb():
 			# this is like uv, so we do 1-v
 			b = -vcol[2] + 0.5
 			# not sure what this does, kinda random
-			c = vcol[3]
+			c = vcol[3] - 0.5
+			# print((a * a) + (b * b) + (c*c))
 			# calculate third component for unit vector
 			z = math.sqrt(-(a * a) - (b * b) + 1)
 			# d = math.sqrt((a * a + b * b + z * z))
@@ -85,7 +86,7 @@ def vcol_to_comb():
 
 			# calculate root and tip of the hair
 			root = vertex.co
-			tip = vertex.co + hair_direction
+			tip = vertex.co + (hair_direction * particle_system.settings.hair_length)
 
 			particle = particle_system.particles[vert.vertex_index]
 			particle_eval = particle_system_eval.particles[vert.vertex_index]

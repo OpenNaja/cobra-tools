@@ -91,8 +91,8 @@ def unpack_weights(model, i, residue, extra=True):
             vert_w = [(model.verts_data[i]["bone index"], 255), ]
 
         # create fur length vgroup
-        if model.flag in (1013, 821, 853, 885):
-            vert_w.append(("fur_length", model.uvs[i][1][0] * 255))
+        if model.fur is not None:
+            vert_w.append(("fur_length", model.fur[i][0] * 255))
 
         # the unknown 0, 128 byte
         vert_w.append(("unk0", model.verts_data[i]["unk"] * 255))

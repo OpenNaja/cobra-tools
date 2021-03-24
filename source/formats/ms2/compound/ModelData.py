@@ -4,6 +4,8 @@ import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 
+
+FUR_OVERHEAD = 2
 # END_GLOBALS
 
 
@@ -45,6 +47,11 @@ class ModelData:
 		except:
 			self.uvs = None
 		try:
+			fur_shape = self.dt["fur_length"].shape
+			self.fur = np.empty((self.vertex_count, *fur_shape), np.float32)
+		except:
+			self.fur = None
+		try:
 			colors_shape = self.dt["colors"].shape
 			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 		except:
@@ -84,7 +91,8 @@ class ModelData:
 			])
 		elif self.flag in (565, 821, 853, 885, 1013):
 			dt.extend([
-				("uvs", np.ushort, (2, 2)),
+				("uvs", np.ushort, (1, 2)),
+				("fur_length", np.ushort, (2,)),
 				("colors", np.ubyte, (1, 4)), # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
 			])
@@ -141,10 +149,19 @@ class ModelData:
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
 		# first cast to the float uvs array so unpacking doesn't use int division
+		print(self.verts_data[:]["uvs"][1])
 		if self.uvs is not None:
 			self.uvs[:] = self.verts_data[:]["uvs"]
 			# unpack uvs
 			self.uvs = (self.uvs - 32768) / 2048
+		self.fur_length = 0.0
+		if self.fur is not None:
+			self.fur[:] = self.verts_data[:]["fur_length"]
+			# unpack fur
+			self.fur = (self.fur - 32768) / 2048
+			# normalize with some overhead
+			self.fur_length = np.max(self.fur) * FUR_OVERHEAD
+			self.fur /= self.fur_length
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data[:]["colors"]
@@ -170,7 +187,7 @@ class ModelData:
 		# read all tri indices for this model
 		stream.seek(self.start_buffer2 + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
 		# read all tri indices for this model segment
-		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
+		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count)
 
 	def write_tris(self, stream):
 		stream.write(struct.pack(str(len(self.tri_indices)) + "H", *self.tri_indices))

@@ -127,7 +127,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		if data.ms2_file.bone_info:
 			append_armature_modifier(ob, b_armature_obj)
 		if model.flag in (1013, 821, 853, 885):
-			add_psys(ob)
+			add_psys(ob, model)
 		# only set the lod index here so that hiding it does not mess with any operators applied above
 		matrix_util.to_lod(ob, lod_i)
 
