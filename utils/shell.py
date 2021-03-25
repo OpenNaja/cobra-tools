@@ -66,7 +66,9 @@ def get_ob_from_lod_and_flags(lod_group_name, flags=[565, ]):
 def build_fins(src_ob, trg_ob):
     lod_group_name = matrix_util.get_lod(src_ob)
     ob = copy_ob(src_ob)
-
+    me = ob.data
+    # transfer the material
+    me.materials[0] = trg_ob.data.materials[0]
     # rename new object
     trg_name = trg_ob.name
     trg_ob.name += "dummy"
@@ -80,9 +82,10 @@ def build_fins(src_ob, trg_ob):
     mod.use_loop_data = True
     mod.data_types_loops = {"CUSTOM_NORMAL", }
 
-    me = ob.data
     # needed for custom normals
     me.use_auto_smooth = True
+    # create uv1 layer for fins
+    me.uv_layers.new(name="UV1")
     # Get a BMesh representation
     bm = bmesh.new()  # create an empty BMesh
     bm.from_mesh(me)  # fill it in from a Mesh
