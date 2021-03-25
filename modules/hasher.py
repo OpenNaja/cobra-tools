@@ -40,6 +40,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 				else:
 					print(f"List{i} {entry.basename} -> {new_name},  [NOT HASHED]")
 				entry.basename = new_name
+				entry.name = entry.basename+entry.ext
 			except Exception as err:
 				print(err)
 
