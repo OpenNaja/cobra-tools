@@ -65,7 +65,6 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		model.verts = []
 
 	bounds = []
-	
 	for ob in bpy.data.objects:
 		if type(ob.data) == bpy.types.Mesh:
 			print("\nNext mesh...")
@@ -91,6 +90,14 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 			model = data.models[ind]
 			# perhaps we want to update model.flag from ob["flag"]
 			model.update_dtype()
+
+			if ob.particle_systems:
+				psys = ob.particle_systems[0]
+				hair_length = psys.settings.hair_length
+			else:
+				hair_length = 0
+			model.fur_length = hair_length
+
 			num_uvs = model.get_uv_count()
 			num_vcols = model.get_vcol_count()
 			print("num_uvs", num_uvs)
@@ -184,7 +191,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 							elif vgroup_name == "fur_length":
 								# only store this hack for shells, never for fins
 								if model.flag in (885, 1013, 821):
-									fur_length = vertex_group.weight
+									fur_length = vertex_group.weight * hair_length
 							else:
 								# avoid dummy vertex groups without corresponding bones
 								try:

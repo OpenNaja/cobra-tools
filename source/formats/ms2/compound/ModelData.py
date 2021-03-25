@@ -89,7 +89,13 @@ class ModelData:
 				("uvs", np.ushort, (2, 2)),
 				("zeros0", np.int32, (2,))
 			])
-		elif self.flag in (565, 821, 853, 885, 1013):
+		elif self.flag in (565,):
+			dt.extend([
+				("uvs", np.ushort, (2, 2)),
+				("colors", np.ubyte, (1, 4)), # these appear to be directional vectors
+				("zeros0", np.int32, (1,))
+			])
+		elif self.flag in (821, 853, 885, 1013):
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
 				("fur_length", np.ushort, (2,)),
@@ -149,7 +155,7 @@ class ModelData:
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
 		# first cast to the float uvs array so unpacking doesn't use int division
-		print(self.verts_data[:]["uvs"][1])
+		# print(self.verts_data[:]["uvs"][1])
 		if self.uvs is not None:
 			self.uvs[:] = self.verts_data[:]["uvs"]
 			# unpack uvs
@@ -159,8 +165,10 @@ class ModelData:
 			self.fur[:] = self.verts_data[:]["fur_length"]
 			# unpack fur
 			self.fur = (self.fur - 32768) / 2048
+			# print("self.fur[0]",self.fur[0])
 			# normalize with some overhead
 			self.fur_length = np.max(self.fur) * FUR_OVERHEAD
+			# print("self.fur_length", self.fur_length)
 			self.fur /= self.fur_length
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
@@ -228,14 +236,10 @@ class ModelData:
 				assert np.sum(self.verts_data[i]["bone weights"]) == 255
 			if "uvs" in self.dt.fields:
 				self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
-				if fur is not None:
-					self.verts_data[i]["uvs"][1][0], _ = pack_ushort_vector((fur, 0))
+			if "fur_length" in self.dt.fields and fur is not None:
+				self.verts_data[i]["fur_length"] = pack_ushort_vector((fur, -1.1))
 			if "colors" in self.dt.fields:
 				self.verts_data[i]["colors"] = list(list(c * 255 for c in vcol) for vcol in vcols)
-
-	@staticmethod
-	def get_weights(bone_ids, bone_weights):
-		return [(i, w / 255) for i, w in zip(bone_ids, bone_weights) if w > 0]
 
 	@property
 	def tris(self, ):
