@@ -1,9 +1,5 @@
-import os
-from modules.formats.shared import djb
-from generated.array import Array
-import io
-
 MAX_UINT32 = 4294967295
+REVERSED_TYPES = (".tex", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection")
 
 
 def add_pointer(pointer, ss_entry, pointers_to_ss):
@@ -12,6 +8,7 @@ def add_pointer(pointer, ss_entry, pointers_to_ss):
 
 
 def header_hash_finder(ovs):
+	# this algorithm depends on every fragment being assigned to the correct sized string entries
 	print("Updating header entries")
 	pointers_to_ss_ss = [{} for _ in ovs.header_entries]
 	pointers_to_ss_frag = [{} for _ in ovs.header_entries]
@@ -21,8 +18,10 @@ def header_hash_finder(ovs):
 			for pointer in frag.pointers:
 				add_pointer(pointer, sized_str_entry, pointers_to_ss_frag)
 	for header_entry_index, header_entry in enumerate(ovs.header_entries):
-		# print()
-		# print(header_entry_index)
+		print(f"Header index {header_entry_index}")
+		if header_entry.ext not in REVERSED_TYPES:
+			print(f"Keeping header name {header_entry.name} as it has not been reverse engineered!")
+			continue
 		# print(header_entry)
 		ss_map = pointers_to_ss_ss[header_entry_index]
 		results = tuple(sorted(ss_map.items()))
@@ -31,12 +30,15 @@ def header_hash_finder(ovs):
 			ss_map = pointers_to_ss_frag[header_entry_index]
 			results = tuple(sorted(ss_map.items()))
 			if not results:
-				print("No pointer found, error!")
-				break
+				print(f"No pointer found for header {header_entry_index}, error!")
+				continue
 		ss = results[0][1]
 		print(f"Header[{header_entry_index}]: {header_entry.name} -> {ss.name}")
 		header_entry.file_hash = ss.file_hash
 		header_entry.ext_hash = ss.ext_hash
+		header_entry.name = ss.name
+		header_entry.basename = ss.basename
+		header_entry.ext = ss.ext
 
 
 def dir_remover(ovl, dirnames):
@@ -50,37 +52,36 @@ def dir_remover(ovl, dirnames):
 
 
 def file_remover(ovl, filenames):
-	for filename in filenames:
-		basename, fileext = os.path.splitext(filename)
-		# remove file entry
-		for i, file_entry in sorted(enumerate(ovl.files), reverse=True):
-			print(file_entry.name, filename)
-			if file_entry.name == filename:
-				old_index = i
+	"""
+	Removes files from an ovl file
+	:param ovl: an ovl instance
+	:param filenames: list of file names (eg. "example.ext") that should be removed from ovl
+	:return:
+	"""
+	# remove file entry
+	for i, file_entry in sorted(enumerate(ovl.files), reverse=True):
+		if file_entry.name in filenames:
+			print("Removing", file_entry.name)
+			ovl.files.pop(i)
 
-				del_hash = file_entry.file_hash
-				next_hash = ovl.files[i - 1].file_hash
+			# update mime entries
+			for mime_index, mime in sorted(enumerate(ovl.mimes), reverse=True):
+				# found mime matching removed file
+				if mime_index == file_entry.extension:
+					mime.file_count -= 1
+					if mime.file_count < 1:
+						ovl.mimes.pop(mime_index)
+				# mime type comes after the affected mime
+				elif mime_index > file_entry.extension:
+					mime.file_index_offset -= 1
+			# remove dependencies for removed file
+			for dep_i, dep in sorted(enumerate(ovl.dependencies), reverse=True):
+				if dep.file_index == i:
+					ovl.dependencies.pop(dep_i)
+				elif dep.file_index > i:
+					dep.file_index -= 1
 
-				ovl.files.pop(i)
-
-				# update mime entries
-				for mime_index, mime in sorted(enumerate(ovl.mimes), reverse=True):
-					# found mime matching removed file
-					if mime_index == file_entry.extension:
-						mime.file_count -= 1
-						if mime.file_count < 1:
-							ovl.mimes.pop(mime_index)
-					# mime type comes after the affected mime
-					elif mime_index > file_entry.extension:
-						mime.file_index_offset -= 1
-				# remove dependencies for removed file
-				for dep_i, dep in sorted(enumerate(ovl.dependencies), reverse=True):
-					if dep.file_index == i:
-						ovl.dependencies.pop(dep_i)
-					elif dep.file_index > i:
-						dep.file_index -= 1
-
-				remove_from_ovs(del_hash, file_entry, fileext, next_hash, old_index, ovl)
+	remove_from_ovs(ovl, filenames)
 
 	# update file entry's index into mime list
 	ext_lut = {mime.ext: mime_index for mime_index, mime in enumerate(ovl.mimes)}
@@ -102,12 +103,12 @@ def file_remover(ovl, filenames):
 	ovl.update_counts()
 
 
-def remove_from_ovs(del_hash, file_entry, fileext, next_hash, old_index, ovl):
+def remove_from_ovs(ovl, filenames):
 	ovs = ovl.archives[0]
 	# remove sizedstring entry for file and remove its fragments if mapped
 	for ss_index, ss_entry in sorted(enumerate(ovs.content.sized_str_entries), reverse=True):
 		# delete the sized string and fragment data
-		if ss_entry.name == file_entry.name:
+		if ss_entry.name in filenames:
 			ovs.content.sized_str_entries.pop(ss_index)
 			ovs.num_files -= 1
 
@@ -117,20 +118,20 @@ def remove_from_ovs(del_hash, file_entry, fileext, next_hash, old_index, ovl):
 				frag.pointers[1].remove(ovs.content)
 			for f_index in sorted([frg.o_ind for frg in ss_entry.fragments], reverse=True):
 				ovs.content.fragments.pop(f_index)
-			ovs.num_fragments = len(ovs.content.fragments)
 
 	# remove data entry for file
 	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
-		if data.basename == file_entry.basename and data.ext == fileext:
+		if data.name in filenames:
 
 			for b_index in sorted([b.o_ind for b in data.buffers], reverse=True):
 				ovs.content.buffer_entries.pop(b_index)
 			ovs.content.data_entries.pop(data_index)
-			ovs.num_datas = len(ovs.content.data_entries)
-			ovs.num_buffers = len(ovs.content.buffer_entries)
 
 			# ovl - sum of buffers for all archives?
 			ovl.num_buffers -= len(data.buffers)
 			ovl.num_datas -= 1
+	ovs.num_fragments = len(ovs.content.fragments)
+	ovs.num_datas = len(ovs.content.data_entries)
+	ovs.num_buffers = len(ovs.content.buffer_entries)
 	header_hash_finder(ovs.content)
 	ovs.content.write_pointers_to_header_datas(ignore_unaccounted_bytes=True)

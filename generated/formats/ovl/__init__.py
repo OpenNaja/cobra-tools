@@ -751,6 +751,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def collect_wmeta(self, ss_entry, address_0_fragments):
 		print("\nwmeta:", ss_entry.name)
+		return
 		# Sized string initpos = position of first fragment
 		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
 		f = ss_entry.fragments[0]
