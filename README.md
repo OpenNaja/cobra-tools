@@ -22,8 +22,8 @@ Get the latest source code [here](https://github.com/OpenNaja/cobra-tools/archiv
 - [List of supported file formats and recommended tools for editing them](https://github.com/OpenNaja/cobra-tools/wiki/Supported-Archive-Content-File-Formats)
 
 ### Basic Tutorials
-- [Tutorial: Jurassic World Evolution Species Replacement Mod](https://github.com/OpenNaja/cobra-tools/wiki/Tutorial:-Jurassic-World-Evolution---Species-Replacement-Mod)
-- [Tutorial: Planet Zoo Species Replacement Mod](https://github.com/OpenNaja/cobra-tools/wiki/Tutorial:-Planet-Zoo---Species-Replacement-Mod)
+- [Tutorial: Jurassic World Evolution New Species Mod](https://www.youtube.com/watch?v=8qMIBo-7n1A)
+- [Tutorial: Planet Zoo New Species Mod](https://www.youtube.com/watch?v=cBauGq4Y1ao)
 
 
 ### Disclaimer
