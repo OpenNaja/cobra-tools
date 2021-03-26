@@ -25,6 +25,11 @@ class DataEntry:
 		return sorted(self.buffers, key=lambda buffer: buffer.index)
 
 	@property
+	def sorted_streams(self):
+		"""Get buffers sorted by index"""
+		return sorted(self.streams, key=lambda buffer: buffer.index)
+
+	@property
 	def buffer_datas(self):
 		"""Get data for each buffer"""
 		return list(buffer.data for buffer in self.sorted_buffers)
@@ -32,4 +37,4 @@ class DataEntry:
 	@property
 	def stream_datas(self):
 		"""Get data for each buffer, including streamed ones from other entries"""
-		return list(buffer.data for buffer in sorted(self.streams, key=lambda buffer: buffer.index))
+		return list(buffer.data for buffer in self.sorted_streams)

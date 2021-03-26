@@ -230,10 +230,10 @@ def tex_to_2K(tex_sized_str_entry, ovs_sized_str_entry):
 
 	tex_sized_str_entry.fragments[0].pointers[1].update_data(new_header_3_1, update_copies=True)
 	tex_sized_str_entry.fragments[1].pointers[1].update_data(new_header_7, update_copies=True)
-	tex_sized_str_entry.data_entry.streams[0].size = 4194304
-	tex_sized_str_entry.data_entry.streams[1].size = 1401856
+	tex_sized_str_entry.data_entry.sorted_streams[0].size = 4194304
+	tex_sized_str_entry.data_entry.sorted_streams[1].size = 1401856
 	ovs_sized_str_entry.data_entry.size_2 = 4194304
-	ovs_sized_str_entry.data_entry.streams[0].size = 4194304
+	ovs_sized_str_entry.data_entry.sorted_streams[0].size = 4194304
 	tex_sized_str_entry.data_entry.size_2 = 1401856
 
 
@@ -265,7 +265,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, hack_2k):
 	dds_file.load(dds_file_path)
 	ensure_size_match(os.path.basename(dds_file_path), dds_file, tex_h, tex_w, tex_d, tex_a, comp)
 	if is_pc(ovl_data):
-		for buffer, tex_header_3 in zip(tex_sized_str_entry.data_entry.streams, headers_3_1):
+		for buffer, tex_header_3 in zip(tex_sized_str_entry.data_entry.sorted_streams, headers_3_1):
 			dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 			if len(dds_buff) < buffer.size:
 				print(f"Last {buffer.size - len(dds_buff)} bytes of DDS buffer are not overwritten!")
@@ -277,13 +277,14 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, hack_2k):
 		# 	dds_file.write(stream)
 		# 	stream.write(out_bytes)
 
-		sum_of_buffers = sum(buffer.size for buffer in tex_sized_str_entry.data_entry.streams)
+		sum_of_buffers = sum(buffer.size for buffer in tex_sized_str_entry.data_entry.sorted_streams)
 		if len(out_bytes) != sum_of_buffers:
 			print(
 				f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes.")
 
 		with io.BytesIO(out_bytes) as reader:
-			for buffer in tex_sized_str_entry.data_entry.streams:
+			for buffer in tex_sized_str_entry.data_entry.sorted_streams:
+				print(buffer)
 				dds_buff = reader.read(buffer.size)
 				if len(dds_buff) < buffer.size:
 					print(f"Last {buffer.size - len(dds_buff)} bytes of DDS buffer are not overwritten!")
