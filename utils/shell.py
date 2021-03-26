@@ -1,7 +1,15 @@
 import bpy
 import bmesh
+import numpy as np
 
 from . import matrix_util
+
+# gauged from the average of grey wolf
+# X_SCALE = 3.79
+# x scale is variable per animal
+Y_SCALE = 1.82
+X_START = -16.0
+Y_START = 1.00049
 
 
 def copy_ob(src_obj):
@@ -73,6 +81,7 @@ def build_fins(src_ob, trg_ob):
 	trg_name = trg_ob.name
 	trg_ob.name += "dummy"
 	ob.name = trg_name
+	uv_scale_x = gauge_uv_factors(trg_ob)
 	# delete old target
 	bpy.data.objects.remove(trg_ob, do_unlink=True)
 
@@ -108,7 +117,7 @@ def build_fins(src_ob, trg_ob):
 	bmesh.ops.delete(bm, geom=faces, context="FACES_ONLY")
 
 	# build uv1 coords
-	build_uv(ob, bm)
+	build_uv(ob, bm, uv_scale_x)
 
 	# Finish up, write the bmesh back to the mesh
 	bm.to_mesh(me)
@@ -136,24 +145,29 @@ def get_face_ring(face):
 	strip = [face, ]
 	for i in range(10):
 		# get linked faces
-		current_face = strip[-1]
-		current_face.tag = True
-		link_faces = [f for e in current_face.edges for f in e.link_faces if f not in strip and not f.tag]
-		print(len(link_faces), len(set(link_faces)))
-		if link_faces:
-			# get the face whose orientation is most similar
-			dots = [(abs(current_face.normal.dot(f.normal)), f) for f in link_faces]
-			dots.sort(key=lambda x: x[0])
-			# dot product = 0 -> vectors are orthogonal
-			# we need parallel normals
-			best_face = dots[-1][1]
+		best_face = get_best_face(strip[-1])
+		if best_face:
 			strip.append(best_face)
 		else:
 			break
 	return strip
 
 
-def build_uv(ob, bm):
+def get_best_face(current_face):
+	link_faces = [f for e in current_face.edges for f in e.link_faces if not f.tag and f is not current_face]
+	# print(len(link_faces), len(set(link_faces)))
+	if link_faces:
+		# get the face whose orientation is most similar
+		dots = [(abs(current_face.normal.dot(f.normal)), f) for f in link_faces]
+		dots.sort(key=lambda x: x[0])
+		# dot product = 0 -> vectors are orthogonal
+		# we need parallel normals
+		best_face = dots[-1][1]
+		best_face.tag = True
+		return best_face
+
+
+def build_uv(ob, bm, uv_scale_x):
 	# get vertex group index
 	# this is stored in the object, not the BMesh
 	group_index = ob.vertex_groups["fur_length"].index
@@ -164,30 +178,45 @@ def build_uv(ob, bm):
 
 	# get uv 1
 	uv_lay = bm.loops.layers.uv["UV1"]
-	# print(uv_lay)
 
-	# face = bm.select_history.active
 	for face_a in bm.faces:
 		if not face_a.tag:
 			ring = get_face_ring(face_a)
-
-			# initial xpos for this strip of faces
-			x_0 = 0
+			# store the x position
+			x_pos_dic = {}
 			for face in ring:
 				# update X coords
-				length = face.edges[0].calc_length() * 6
+				length = face.edges[0].calc_length() * uv_scale_x
+				# print(x_pos_dic)
+				ind = face.loops[0].vert.index
+				# print("ind", ind)
+				if ind in x_pos_dic:
+					# print("0 in, index", ind)
+					left = (0, 3)
+					right = (1, 2)
+				else:
+					# print("1 in, index", ind2)
+					left = (1, 2)
+					right = (0, 3)
+				# fall back to start if top left vertex hasn't been keyed in the dict
+				x_0 = x_pos_dic.get(face.loops[left[0]].vert.index, X_START)
 				# left edges
-				for loop in (face.loops[0], face.loops[3]):
-					loop[uv_lay].uv.x = -16.0 + x_0
+				for i in left:
+					loop = face.loops[i]
+					loop[uv_lay].uv.x = x_0
+					# print("left", loop.vert.index, x_0)
+					x_pos_dic[loop.vert.index] = x_0
 				# right edge
-				for loop in (face.loops[1], face.loops[2]):
-					loop[uv_lay].uv.x = -16.0 + x_0 + length
-				x_0 += length
+				for i in right:
+					loop = face.loops[i]
+					loop[uv_lay].uv.x = x_0 + length
+					# print("right", loop.vert.index, x_0 + length)
+					x_pos_dic[loop.vert.index] = x_0 + length
 
 				# update Y coords
 				# top edge
 				for loop in face.loops[:2]:
-					loop[uv_lay].uv.y = 1.00049
+					loop[uv_lay].uv.y = Y_START
 				# lower edge
 				for loop in face.loops[2:]:
 					vert = loop.vert
@@ -196,6 +225,38 @@ def build_uv(ob, bm):
 
 					if group_index in dvert:
 						weight = dvert[group_index]
-						loop[uv_lay].uv.y = 1 - (weight * 2)
-
+						loop[uv_lay].uv.y = Y_START - (weight * Y_SCALE)
 	print("Finished UV generation")
+
+
+def gauge_uv_factors(ob):
+	print(f"Gauging UV X scale for {ob.name}")
+	me = ob.data
+
+	facs = []
+	for i, p in enumerate(me.polygons):
+		# print(p)
+		base = []
+		for loop_index in p.loop_indices:
+			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in me.uv_layers]
+			# print(uvs)
+			if uvs[1][1] < 0:
+				base.append(loop_index)
+		if len(base) == 2:
+			# print(base)
+			uv_verts = [me.uv_layers[1].data[loop_index].uv.x for loop_index in base]
+			uv_len = abs(uv_verts[1] - uv_verts[0])
+			# print(uv_len)
+			loops = [me.loops[loop_index] for loop_index in base]
+			me_verts = [me.vertices[loop.vertex_index].co for loop in loops]
+			v_len = (me_verts[1] - me_verts[0]).length
+			# print(v_len)
+			# print("Fac", uv_len/v_len)
+			if v_len:
+				facs.append(uv_len / v_len)
+	#    if i == 20:
+	#        break
+	uv_scale_x = np.mean(facs)
+	print(f"Found UV X scale {uv_scale_x}")
+	return uv_scale_x
+
