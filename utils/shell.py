@@ -173,6 +173,8 @@ def build_uv(ob, bm, uv_scale_x):
 	group_index = ob.vertex_groups["fur_length"].index
 	# print(group_index)
 
+	psys_fac = ob.particle_systems[0].settings.hair_length
+
 	# only ever one deform weight layer
 	dvert_lay = bm.verts.layers.deform.active
 
@@ -225,7 +227,7 @@ def build_uv(ob, bm, uv_scale_x):
 
 					if group_index in dvert:
 						weight = dvert[group_index]
-						loop[uv_lay].uv.y = Y_START - (weight * Y_SCALE)
+						loop[uv_lay].uv.y = Y_START - (weight * psys_fac * Y_SCALE)
 	print("Finished UV generation")
 
 
