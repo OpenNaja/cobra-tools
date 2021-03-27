@@ -1,13 +1,14 @@
 import bpy
 import bmesh
 import numpy as np
+import mathutils
 
 from . import matrix_util
 
 # gauged from the average of grey wolf
 # X_SCALE = 3.79
 # x scale is variable per animal
-Y_SCALE = 1.82
+# Y_SCALE = 1.82
 X_START = -16.0
 Y_START = 1.00049
 
@@ -81,7 +82,7 @@ def build_fins(src_ob, trg_ob):
 	trg_name = trg_ob.name
 	trg_ob.name += "dummy"
 	ob.name = trg_name
-	uv_scale_x = gauge_uv_factors(trg_ob)
+	uv_scale_x, uv_scale_y = gauge_uv_factors(src_ob, trg_ob)
 	# delete old target
 	bpy.data.objects.remove(trg_ob, do_unlink=True)
 
@@ -117,7 +118,7 @@ def build_fins(src_ob, trg_ob):
 	bmesh.ops.delete(bm, geom=faces, context="FACES_ONLY")
 
 	# build uv1 coords
-	build_uv(ob, bm, uv_scale_x)
+	build_uv(ob, bm, uv_scale_x, uv_scale_y)
 
 	# Finish up, write the bmesh back to the mesh
 	bm.to_mesh(me)
@@ -167,7 +168,7 @@ def get_best_face(current_face):
 		return best_face
 
 
-def build_uv(ob, bm, uv_scale_x):
+def build_uv(ob, bm, uv_scale_x, uv_scale_y):
 	# get vertex group index
 	# this is stored in the object, not the BMesh
 	group_index = ob.vertex_groups["fur_length"].index
@@ -227,38 +228,74 @@ def build_uv(ob, bm, uv_scale_x):
 
 					if group_index in dvert:
 						weight = dvert[group_index]
-						loop[uv_lay].uv.y = Y_START - (weight * psys_fac * Y_SCALE)
+						loop[uv_lay].uv.y = Y_START - (weight * psys_fac * uv_scale_y)
 	print("Finished UV generation")
 
 
-def gauge_uv_factors(ob):
-	print(f"Gauging UV X scale for {ob.name}")
-	me = ob.data
+def gauge_uv_factors(src_ob, trg_ob):
+	print(f"Gauging UV X scale for {trg_ob.name}")
+	vg = src_ob.vertex_groups["fur_length"]
+	psys = src_ob.particle_systems[0]
+	hair_length = psys.settings.hair_length
 
-	facs = []
-	for i, p in enumerate(me.polygons):
+	# populate a KD tree with all verts from the base (shells) mesh
+	src_me = src_ob.data
+	size = len(src_me.vertices)
+	kd = mathutils.kdtree.KDTree(size)
+	for i, v in enumerate(src_me.vertices):
+		kd.insert(v.co, i)
+	kd.balance()
+
+	x_facs = []
+	y_facs = []
+	trg_me = trg_ob.data
+	for i, p in enumerate(trg_me.polygons):
 		# print(p)
 		base = []
+		top = []
 		for loop_index in p.loop_indices:
-			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in me.uv_layers]
+			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in trg_me.uv_layers]
 			# print(uvs)
 			if uvs[1][1] < 0:
 				base.append(loop_index)
+			else:
+				top.append(loop_index)
+
 		if len(base) == 2:
 			# print(base)
-			uv_verts = [me.uv_layers[1].data[loop_index].uv.x for loop_index in base]
+			uv_verts = [trg_me.uv_layers[1].data[loop_index].uv.x for loop_index in base]
 			uv_len = abs(uv_verts[1] - uv_verts[0])
 			# print(uv_len)
-			loops = [me.loops[loop_index] for loop_index in base]
-			me_verts = [me.vertices[loop.vertex_index].co for loop in loops]
+			loops = [trg_me.loops[loop_index] for loop_index in base]
+			me_verts = [trg_me.vertices[loop.vertex_index].co for loop in loops]
 			v_len = (me_verts[1] - me_verts[0]).length
 			# print(v_len)
 			# print("Fac", uv_len/v_len)
 			if v_len:
-				facs.append(uv_len / v_len)
+				x_facs.append(uv_len / v_len)
+
+		if base and top:
+			uv_verts = [trg_me.uv_layers[1].data[loop_index].uv.y for loop_index in (base[0], top[0])]
+			uv_height = abs(uv_verts[1] - uv_verts[0])
+			# print(uv_height)
+
+			# find the closest vert on base shell mesh
+			loop = trg_me.loops[base[0]]
+			find_co = trg_me.vertices[loop.vertex_index].co
+			co, index, dist = kd.find(find_co)
+			vert = src_me.vertices[index]
+			for vertex_group in vert.groups:
+				vgroup_name = src_ob.vertex_groups[vertex_group.group].name
+				if vgroup_name == "fur_length":
+					base_fur_length = vertex_group.weight * hair_length
+					if base_fur_length:
+						y_facs.append(uv_height / base_fur_length)
+		# print("Close to center:", co, index, dist, find_co)
 	#    if i == 20:
 	#        break
-	uv_scale_x = np.mean(facs)
+	uv_scale_x = np.mean(x_facs)
+	uv_scale_y = np.mean(y_facs)
 	print(f"Found UV X scale {uv_scale_x}")
-	return uv_scale_x
+	print(f"Found UV Y scale {uv_scale_y}")
+	return uv_scale_x, uv_scale_y
 
