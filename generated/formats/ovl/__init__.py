@@ -404,6 +404,14 @@ class OvsFile(OvsHeader, ZipFile):
 			# store the references on the corresponding sized str entry
 			set_entry.entry.children = [self.sized_str_entries[a.file_index] for a in assets]
 
+	@staticmethod
+	def transfer_identity(source_entry, target_entry):
+		source_entry.file_hash = target_entry.file_hash
+		source_entry.ext_hash = target_entry.ext_hash
+		source_entry.basename = target_entry.basename
+		source_entry.ext = target_entry.ext
+		source_entry.name = target_entry.name
+
 	def update_assets(self):
 		"""Update archive asset grouping from children list on sized str entries"""
 		print("Updating assets")
@@ -418,14 +426,12 @@ class OvsFile(OvsHeader, ZipFile):
 				set_entry = SetEntry()
 				set_entry.start = start
 				set_entry.end = start + len(ss_entry.children)
-				set_entry.file_hash = ss_entry.file_hash
-				set_entry.ext_hash = ss_entry.ext_hash
+				self.transfer_identity(set_entry, ss_entry)
 				self.set_header.sets.append(set_entry)
 				for ss_child in ss_entry.children:
 					asset_entry = AssetEntry()
-					asset_entry.file_hash = ss_child.file_hash
-					asset_entry.ext_hash = ss_child.ext_hash
 					asset_entry.file_index = ss_index_table[ss_child.name]
+					self.transfer_identity(asset_entry, ss_child)
 					self.set_header.assets.append(asset_entry)
 				start += len(ss_entry.children)
 				self.set_header.set_count += 1
