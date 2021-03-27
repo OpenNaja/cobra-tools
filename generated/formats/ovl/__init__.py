@@ -252,7 +252,6 @@ class OvsFile(OvsHeader, ZipFile):
 				self.assign_name(sized_str_entry)
 				sized_str_entry.lower_name = sized_str_entry.name.lower()
 				sized_str_entry.children = []
-				sized_str_entry.parent = None
 				sized_str_entry.fragments = []
 				sized_str_entry.model_data_frags = []
 				sized_str_entry.model_count = 0
@@ -338,7 +337,6 @@ class OvsFile(OvsHeader, ZipFile):
 					pointer.header = 9999999
 					pointer.type = 9999999
 					pointer.address = 9999999
-				# sized_str_entry.parent
 				else:
 					pointer.header = self.header_entries[pointer.header_index]
 					# store type number of each header entry
@@ -1076,6 +1074,8 @@ class OvsFile(OvsHeader, ZipFile):
 						next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 						print("next model info:", next_model_info)
 						for mdl2_entry in ms2_entry.children:
+							# store parent for extraction
+							mdl2_entry.parent = ms2_entry
 							assert mdl2_entry.ext == ".mdl2"
 							self.collect_mdl2(mdl2_entry, next_model_info, f_1.pointers[1])
 							pink = mdl2_entry.fragments[4]
