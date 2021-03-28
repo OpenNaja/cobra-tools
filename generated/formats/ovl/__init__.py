@@ -1762,7 +1762,6 @@ class OvlFile(Header, IoFile):
 		print("Loading archives...")
 		ha_max = len(self.archives)
 		# print(self)
-		self.ss_dict = {}
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
 			# print("archive_entry", archive_index, archive_entry)
@@ -1787,12 +1786,17 @@ class OvlFile(Header, IoFile):
 				print(err)
 				traceback.print_exc()
 
-			for file in archive_entry.content.sized_str_entries:
-				self.ss_dict[file.name] = file
 			# print(archive_entry.content)
 			# break
-
+		self.update_ss_dict()
 		self.link_streams()
+
+	def update_ss_dict(self):
+		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
+		self.ss_dict = {}
+		for archive_index, archive_entry in enumerate(self.archives):
+			for file in archive_entry.content.sized_str_entries:
+				self.ss_dict[file.name] = file
 
 	def link_streams(self):
 		"""Attach the data buffers of streamed filed to standard files from the first archive"""

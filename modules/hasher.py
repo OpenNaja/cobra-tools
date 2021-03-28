@@ -84,6 +84,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 		for i, entry_list in enumerate(ovs_lists):
 			for entry in entry_list:
 				entry.file_hash = lut[entry.file_hash]
+	ovl.update_ss_dict()
 	print("Done!")
 
 
