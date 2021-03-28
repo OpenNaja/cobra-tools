@@ -59,7 +59,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 			entry.basename = new_name
 			entry.name = f"{new_name}{entry.ext}"
 
-	ovl.update_name_buffer()
+	ovl.update_names()
 	# resort the file entries
 	for i, file in enumerate(ovl.files):
 		file.old_index = i

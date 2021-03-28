@@ -88,7 +88,7 @@ def file_remover(ovl, filenames):
 	for file in ovl.files:
 		file.extension = ext_lut[file.ext]
 
-	ovl.update_name_buffer()
+	ovl.update_names()
 	# update name indices for PZ (JWE hashes remain untouched!)
 	if not ovl.user_version.is_jwe:
 		print("Updating name indices for ovs archives")

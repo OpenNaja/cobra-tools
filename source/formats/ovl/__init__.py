@@ -205,14 +205,13 @@ class OvsFile(OvsHeader, ZipFile):
 		header_entry.num_files = file_entry_count
 		header_entry.ext_hash = self.sized_str_entries[0].ext_hash
 		header_entry.type = header_type.type
-
 		self.header_types.append(header_type)
 		self.header_entries.append(header_entry)
 
 		self.force_update_header_datas = False
 		self.map_buffers()
-
-	# print(self)
+		for ss_entry in self.sized_str_entries:
+			ss_entry.children = []
 
 	def get_sized_str_entry(self, name):
 		lower_name = name.lower()
@@ -1531,9 +1530,10 @@ class OvlFile(Header, IoFile):
 
 			for file_path in file_paths:
 				file_entry = FileEntry()
-				basename = os.path.basename(file_path)
+				filename = os.path.basename(file_path)
 				file_entry.path = file_path
-				file_entry.name, file_entry.ext = os.path.splitext(basename)
+				file_entry.name = filename
+				file_entry.basename, file_entry.ext = os.path.splitext(filename)
 				file_entry.file_hash = djb(file_entry.name)
 				file_entry.unkn_0 = lut_file_unk_0[file_ext]
 				file_entry.unkn_1 = 0
@@ -1542,14 +1542,7 @@ class OvlFile(Header, IoFile):
 			self.mimes.append(mime_entry)
 
 		# update the name buffer and offsets
-		self.names.update_with((
-			(self.dependencies, "ext"),
-			(self.dirs, "name"),
-			(self.mimes, "name"),
-			(self.files, "name")
-		))
-		# get the offset of the first file entry
-		self.len_type_names = min(file.offset for file in self.files)
+		self.update_names()
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		# nope they are not sorted by hash
@@ -1602,6 +1595,7 @@ class OvlFile(Header, IoFile):
 		self.num_headers = archive_entry.num_headers
 		self.num_datas = archive_entry.num_datas
 		self.num_buffers = archive_entry.num_buffers
+		self.update_ss_dict()
 
 	# print(self)
 
@@ -1661,7 +1655,7 @@ class OvlFile(Header, IoFile):
 			(self.dependencies, "ext"),
 			(self.dirs, "name"),
 			(self.mimes, "name"),
-			(self.files, "name")
+			(self.files, "basename")
 		))
 		self.len_names = len(self.names.data)
 
@@ -1793,8 +1787,10 @@ class OvlFile(Header, IoFile):
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
+		print("Updating the entry dict...")
 		self.ss_dict = {}
 		for archive_index, archive_entry in enumerate(self.archives):
+			print(archive_index)
 			for file in archive_entry.content.sized_str_entries:
 				self.ss_dict[file.name] = file
 
@@ -1837,16 +1833,6 @@ class OvlFile(Header, IoFile):
 		# PZ, PC, ZTUAC Style
 		else:
 			archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
-
-	def update_name_buffer(self):
-		# update the name buffer and offsets
-		self.names.update_with((
-			(self.dependencies, "ext"),
-			(self.dirs, "name"),
-			(self.mimes, "name"),
-			(self.files, "basename")
-		))
-		self.len_names = len(self.names.data)
 
 	def update_counts(self):
 		# adjust the counts
