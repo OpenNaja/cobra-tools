@@ -19,7 +19,7 @@ from generated.formats.ovl.versions import *
 from generated.formats.ms2.versions import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
-from modules.formats.shared import get_padding_size, assign_versions, get_versions
+from modules.formats.shared import get_padding_size, assign_versions, get_versions, djb
 
 
 def findall(p, s):
@@ -255,17 +255,41 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for mesh_link in lod.mesh_links:
 				try:
 					material = mdl2.materials[mesh_link.material_index]
-					name = self.names[material.name_index]
+					material.name = self.names[material.name_index]
 					model = models[mesh_link.model_index]
-					model.material = name
-					print(f"Model: {mesh_link.model_index} Material: {name} Material Unk: {material.some_index} Lod Index: {model.poweroftwo}")
+					model.material = material.name
+					print(f"Model: {mesh_link.model_index} Material: {material.name} Material Unk: {material.some_index} Lod Index: {model.poweroftwo}")
 				except Exception as err:
 					print(err)
 					print(f"Couldn't match material {mesh_link.material_index} to model {mesh_link.model_index} - bug?")
 					print(len(models), mesh_link, mdl2.materials)
 
+	def update_names(self, mdl2s):
+		print("Updating MS2 name buffer")
+		self.names.clear()
+		for mdl2 in mdl2s:
+			for material in mdl2.materials:
+				if material.name not in self.names:
+					self.names.append(material.name)
+				material.name_index = self.names.index(material.name)
+			for bone_index, bone in enumerate(self.bone_info.bones):
+				bone_name = self.bone_names[bone_index]
+				if bone_name not in self.names:
+					self.names.append(bone_name)
+				self.bone_info.name_indices[bone_index] = self.names.index(bone_name)
+			# print(self.bone_info.name_indices)
+		# print(self.names)
+		print("Updating MS2 name hashes")
+		# update hashes from new names
+		self.name_count = len(self.names)
+		# print("self.name_count", self.name_count)
+		self.name_hashes.resize(len(self.names))
+		for name_i, name in enumerate(self.names):
+			self.name_hashes[name_i] = djb(name.lower())
+
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
+		self.update_names((mdl2,))
 		# write each model's vert & tri block to a temporary buffer
 		temp_vert_writer = io.BytesIO()
 		temp_tris_writer = io.BytesIO()
@@ -277,9 +301,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			temp_bone_writer.ms_2_version = self.general_info.ms_2_version
 			self.bone_info.write(temp_bone_writer)
 			bone_bytes = temp_bone_writer.getvalue()
-
-		with open(filepath + "bonedump", "wb") as f:
-			f.write(bone_bytes)
+		#
+		# with open(filepath + "bonedump", "wb") as f:
+		# 	f.write(bone_bytes)
 
 		for i, model in enumerate(mdl2.models):
 			model.write_verts(temp_vert_writer)
