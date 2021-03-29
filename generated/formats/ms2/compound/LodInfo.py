@@ -21,13 +21,13 @@ class LodInfo:
 		# index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)
 		self.bone_index = 0
 
-		# first model for this lod in models list
+		# first model for this lod in MeshLinks list
 		self.first_model_index = 0
 
 		# not included in interval (python style indexing)
 		self.last_model_index = 0
 
-		# vertex count of lod
+		# vertex count of lod, sum of all vertex counts that are attached to this lod
 		self.vertex_count = 0
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)

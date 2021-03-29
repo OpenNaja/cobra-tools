@@ -7,6 +7,7 @@ import mathutils
 
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones
 from plugin.modules_export.collision import export_bounds
+from plugin.modules_import.armature import get_bone_names
 from utils import matrix_util
 from generated.formats.ms2 import Mdl2File
 
@@ -53,10 +54,8 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	for pbone in b_armature_ob.pose.bones:
 		pbone.matrix_basis = mathutils.Matrix()
 
-	bone_names = data.ms2_file.bone_names
 	# used to get index from bone name for faster weights
-	bones_table = dict(
-		(matrix_util.bone_name_for_blender(bone_name), bone_i) for bone_i, bone_name in enumerate(bone_names))
+	bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(data))))
 	if edit_bones:
 		export_bones(b_armature_ob, data)
 	# ensure that these are initialized

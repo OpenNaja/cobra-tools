@@ -22,15 +22,14 @@ def ovl_bones(b_armature_data):
 	return [b.name for b in out_bones]
 
 
-def import_armature(data):
+def import_armature(data, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
 	corrector = matrix_util.Corrector(is_ztuac(data))
 	bone_info = data.ms2_file.bone_info
 	if bone_info:
-		bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
-		armature_name = bone_names[0]
+		armature_name = b_bone_names[0]
 		b_armature_data = bpy.data.armatures.new(armature_name)
 		b_armature_data.display_type = 'STICK'
 		# b_armature_data.show_axes = True
@@ -42,7 +41,7 @@ def import_armature(data):
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 		mats = {}
-		for bone_name, bone, o_parent_ind in zip(bone_names, bone_info.bones, bone_info.bone_parents):
+		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.bone_parents):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
 
 			# local space matrix, in ms2 orientation
@@ -52,7 +51,7 @@ def import_armature(data):
 			# link to parent
 			try:
 				if o_parent_ind != 255:
-					parent_name = bone_names[o_parent_ind]
+					parent_name = b_bone_names[o_parent_ind]
 					b_parent_bone = b_armature_data.edit_bones[parent_name]
 					b_edit_bone.parent = b_parent_bone
 					# calculate ms2 armature space matrix
@@ -86,9 +85,9 @@ def import_armature(data):
 			# b_edit_bone.roll = 0
 			# print(b_bind)
 			# print(b_edit_bone.matrix.to_3x3().inverted() @ b_bind.to_3x3())
-			print(b_bind.to_3x3())
-			print(b_edit_bone.matrix.to_3x3())
-			print()
+			# print(b_bind.to_3x3())
+			# print(b_edit_bone.matrix.to_3x3())
+			# print()
 			# print(roll)
 
 		fix_bone_lengths(b_armature_data)
@@ -98,33 +97,36 @@ def import_armature(data):
 		# for bone in b_armature_data.bones:
 		# 	print(bone.name)
 		# print("restored order")
-		# bone_names_restored = ovl_bones(b_armature_data)
-		# for bone in bone_names_restored:
+		# b_bone_names_restored = ovl_bones(b_armature_data)
+		# for bone in b_bone_names_restored:
 		# 	print(bone)
 
 		# store original bone index as custom property
 		try:
-			for i, bone_name in enumerate(bone_names):
+			for i, bone_name in enumerate(b_bone_names):
 				bone = b_armature_obj.pose.bones[bone_name]
 				bone["index"] = i
 		except:
 			print("Bone did not exist - bug")
 		try:
-			import_joints(b_armature_obj, bone_info, bone_names, corrector)
+			import_joints(b_armature_obj, bone_info, b_bone_names, corrector)
 		except Exception as err:
 			print("Joints failed...", err)
 		return b_armature_obj
 
 
-def import_armature_new(data):
+def get_bone_names(data):
+	return [matrix_util.bone_name_for_blender(bone.name) for bone in data.ms2_file.bone_info.bones]
+
+
+def import_armature_new(data, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
 	corrector = matrix_util.Corrector(is_ztuac(data))
 	bone_info = data.ms2_file.bone_info
 	if bone_info:
-		bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
-		armature_name = bone_names[0]
+		armature_name = b_bone_names[0]
 		b_armature_data = bpy.data.armatures.new(armature_name)
 		b_armature_data.display_type = 'STICK'
 		# b_armature_data.show_axes = True
@@ -138,7 +140,7 @@ def import_armature_new(data):
 		mats = {}
 		xflip = mathutils.Matrix().to_4x4()
 		xflip[0][0] = -1
-		for bone_name, bone, o_parent_ind in zip(bone_names, bone_info.bones, bone_info.bone_parents):
+		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.bone_parents):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
 
 			# local space matrix, in ms2 orientation
@@ -148,7 +150,7 @@ def import_armature_new(data):
 			# link to parent
 			try:
 				if o_parent_ind != 255:
-					parent_name = bone_names[o_parent_ind]
+					parent_name = b_bone_names[o_parent_ind]
 					b_parent_bone = b_armature_data.edit_bones[parent_name]
 					b_edit_bone.parent = b_parent_bone
 					# calculate ms2 armature space matrix
@@ -176,22 +178,22 @@ def import_armature_new(data):
 
 		# store original bone index as custom property
 		try:
-			for i, bone_name in enumerate(bone_names):
+			for i, bone_name in enumerate(b_bone_names):
 				bone = b_armature_obj.pose.bones[bone_name]
 				bone["index"] = i
 		except:
 			print("Bone did not exist - bug")
 		try:
-			import_joints(b_armature_obj, bone_info, bone_names, corrector)
+			import_joints(b_armature_obj, bone_info, b_bone_names, corrector)
 		except Exception as err:
 			print("Joints failed...", err)
 		return b_armature_obj
 
 
-def import_joints(armature_ob, bone_info, bone_names, corrector):
+def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 	print("Importing joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
-		bone_name = bone_names[bone_index]
+		bone_name = b_bone_names[bone_index]
 		print("joint", joint_info.name)
 		for hitcheck in joint_info.hit_check:
 			import_collider(hitcheck, armature_ob, bone_name, corrector)
@@ -239,23 +241,23 @@ def get_weights(model):
 	return dic
 
 
-def resolve_name(model, bone_index):
+def resolve_name(b_bone_names, bone_index):
 	try:
-		bonename = model.bone_names[bone_index]
-		return matrix_util.bone_name_for_blender(bonename)
+		# already converted to blender convention
+		return b_bone_names[bone_index]
 	except:
 		return str(bone_index)
 
 
-def import_vertex_groups(ob, model):
+def import_vertex_groups(ob, model, b_bone_names):
 	# create vgroups and store weights
 	weights_info = get_weights(model)
 	# this would sort by bone index
 	# keys_sorted = sorted([x for x in weights_info.keys() if type(x) == str]) + sorted([x for x in weights_info.keys() if type(x) != str])
 	# sort by bone name
-	for bone_index in sorted(weights_info.keys(), key=lambda x: resolve_name(model, x)):
+	for bone_index in sorted(weights_info.keys(), key=lambda x: resolve_name(b_bone_names, x)):
 		weights_dic = weights_info[bone_index]
-		bonename = resolve_name(model, bone_index)
+		bonename = resolve_name(b_bone_names, bone_index)
 		ob.vertex_groups.new(name=bonename)
 		for weight, vert_indices in weights_dic.items():
 			ob.vertex_groups[bonename].add(vert_indices, weight/255, 'REPLACE')

@@ -15,21 +15,21 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 	name = ms2_sized_str_entry.name
 	assert ms2_sized_str_entry.data_entry
 	buffers = ms2_sized_str_entry.data_entry.stream_datas
-	bone_names = buffers[0]
-	bone_matrices = buffers[1]
+	name_buffer = buffers[0]
+	bone_infos = buffers[1]
 	verts = b"".join(buffers[2:])
 	for i, vbuff in enumerate(buffers[2:]):
 		print(f"Vertex buffer {i}, size {len(vbuff)} bytes")
 	print("\nWriting", name)
 	print("buffers", len(buffers))
-	print(f"bone_names: {len(bone_names)}, bone_matrices: {len(bone_matrices)}, verts: {len(verts)}")
+	print(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 
 	ovl_header = pack_header(ovl, b"MS2 ")
-	ms2_header = struct.pack("<2I", len(bone_names), len(bone_matrices))
+	ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
 
 	# for i, buffer in enumerate(buffers):
 	# 	p = out_dir(name+str(i)+".ms2")
@@ -64,8 +64,8 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 		outfile.write(ms2_header)
 		outfile.write(ms2_general_info_data)
 		outfile.write(ms2_buffer_info_data)
-		outfile.write(bone_names)
-		outfile.write(bone_matrices)
+		outfile.write(name_buffer)
+		outfile.write(bone_infos)
 		outfile.write(verts)
 
 	# zeros = []

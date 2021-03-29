@@ -4,7 +4,8 @@ import time
 import bpy
 # import bmesh
 
-from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups
+from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
+	get_bone_names
 from plugin.helpers import mesh_from_data
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import create_material
@@ -20,7 +21,8 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	data.load(filepath)
 
 	errors = []
-	b_armature_obj = import_armature(data)
+	bone_names = get_bone_names(data)
+	b_armature_obj = import_armature(data, bone_names)
 	# b_armature_obj2 = import_armature_new(data)
 	created_materials = {}
 	# print("data.models",data.models)
@@ -81,7 +83,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 
 		mesh_start_time = time.time()
 
-		import_vertex_groups(ob, model)
+		import_vertex_groups(ob, model, bone_names)
 		print(f"mesh cleanup took {time.time() - mesh_start_time:.2f} seconds")
 
 		# set faces to smooth

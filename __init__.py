@@ -19,7 +19,7 @@ import sys
 dir = os.path.dirname(__file__)
 if not dir in sys.path:
 	sys.path.append(dir)
-print(sys.path)
+
 from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
 from utils import shell

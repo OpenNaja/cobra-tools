@@ -202,9 +202,9 @@
 		<add name="distance" type="float" >usually first lod is 900</add>
 		<add name="zero" type="ushort" >always 0</add>
 		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
-		<add name="first model index" type="ushort" >first model for this lod in models list</add>
+		<add name="first model index" type="ushort" >first model for this lod in MeshLinks list</add>
 		<add name="last model index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="vertex count" type="uint" >vertex count of lod</add>
+		<add name="vertex count" type="uint" >vertex count of lod, sum of all vertex counts that are attached to this lod</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 	</compound>
 

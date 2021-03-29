@@ -46,15 +46,33 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def __init__(self, ):
 		super().__init__()
 
+	def assign_bone_names(self, bone_info):
+		try:
+			for name_i, bone in zip(bone_info.name_indices, bone_info.bones):
+				bone.name = self.names[name_i]
+		except:
+			print("Names failed...")
+
 	def read_all_bone_infos(self, stream, bone_info_cls):
 		# functional for JWE detailobjects.ms2, if joint_data is read
 		potential_start = stream.tell()
+		self.bone_info_bytes = stream.read(self.bone_info_size)
+		stream.seek(potential_start)
+		self.bone_infos = []
+
 		print("mdl2 count", self.general_info.mdl_2_count)
 		for i in range(self.general_info.mdl_2_count):
 			print(f"BONE INFO {i} starts at {stream.tell()}")
 			try:
 				bone_info = bone_info_cls()
 				bone_info.read(stream)
+				self.assign_bone_names(bone_info)
+				try:
+					self.read_joints(bone_info)
+				except:
+					print("Joints failed...")
+					pass
+				self.bone_infos.append(bone_info)
 				# print(bone_info)
 				print("end of bone info at", stream.tell())
 				# last one has no padding, so stop here
@@ -64,9 +82,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				relative_offset = stream.tell() - potential_start
 				# currently no other way to predict the padding, no correlation to joint count
 				padding_len = get_padding_size(relative_offset)
-				# k = None
-				# if bone_info.joint_count:
-				# 	k = bone_info.joint_datas.joint_count
+
 				print("padding", padding_len, stream.read(padding_len), "joint count", bone_info.joint_count)
 			except Exception as err:
 				traceback.print_exc()
@@ -76,11 +92,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def get_bone_info(self, mdl2_index, stream, bone_info_cls, hack=True):
 		bone_info = None
 		potential_start = stream.tell()
+		self.bone_info_bytes = stream.read(self.bone_info_size)
+		stream.seek(potential_start)
 		print("Start looking for bone info at", potential_start)
 		if hack:
 			# self.read_all_bone_infos(stream, bone_info_cls)
 			# first get all bytes of the whole bone infos block
-			self.bone_info_bytes = stream.read(self.bone_info_size)
 			# find the start of each using this identifier
 			zero_f = bytes.fromhex("00 00 00 00")
 			one_f = bytes.fromhex("00 00 80 3F")
@@ -126,24 +143,19 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			traceback.print_exc()
 			print("Bone info failed")
 		if bone_info:
-			try:
-				self.bone_names = [self.names[i] for i in bone_info.name_indices]
-			except:
-				self.bone_names = []
-				print("Names failed...")
+			self.assign_bone_names(bone_info)
 			try:
 				self.read_joints(bone_info)
 			except:
 				pass
-		# print(self.bone_names)
 		return bone_info
 
 	def read_joints(self, bone_info):
 
 		for i, x in enumerate(bone_info.struct_7.unknown_list):
 			# print(i)
-			# print(self.bone_names[x.child], x.child)
-			# print(self.bone_names[x.parent], x.parent)
+			# print(self.bone_info.bones[x.child], x.child)
+			# print(self.bone_info.bones[x.parent], x.parent)
 			assert x.zero == 0
 			assert x.one == 1
 		assert bone_info.one == 1
@@ -167,11 +179,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# if bone_info.joint_count:
 		# 	for i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
 		# 		usually, this corresponds - does not do for speedtree but does not matter
-		# 		if not self.bone_names[i] == joint_info.name:
-		# 			print("WARNING NAMES DON'T MATCH", self.bone_names[i], joint_info.name)
+		# 		if not self.bone_info.bones[i].name == joint_info.name:
+		# 			print("WARNING NAMES DON'T MATCH", self.bone_info.bones[i].name, joint_info.name)
 		# if bone_info.joint_count:
-		# 	for i, bone_name in zip(joints.bone_indices, self.bone_names):
-		# 		print(i, bone_name)
+		# 	for i, bone in zip(joints.bone_indices, self.bone_info.bones):
+		# 		print(i, bone.name)
 		# 		if i > -1:
 		# 			print(joints.joint_info_list[i].name)
 
@@ -210,7 +222,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					if i == mdl2.index:
 						break
 			else:
-				self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
+				self.read_all_bone_infos(stream, Ms2BoneInfo)
+				self.bone_info = self.bone_infos[mdl2.bone_info_index]
+				# self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
@@ -223,7 +237,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if not quick:
 					for i, model_data in enumerate(model_info.pc_model.models):
 						print("\nModel", i)
-						model_data.populate(self, stream, self.start_buffer2, self.bone_names, 512)
+						model_data.populate(self, stream, self.start_buffer2, 512)
 						print(model_data)
 					mdl2.lods = model_info.pc_model.lods
 					mdl2.mesh_links = model_info.pc_model.mesh_links
@@ -235,7 +249,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 				if not quick:
 					for model in mdl2.models:
-						model.populate(self, stream, self.start_buffer2, self.bone_names, mdl2.model_info.pack_offset)
+						model.populate(self, stream, self.start_buffer2, mdl2.model_info.pack_offset)
 
 				if map_bytes:
 					for model in mdl2.models:
@@ -273,10 +287,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					self.names.append(material.name)
 				material.name_index = self.names.index(material.name)
 			for bone_index, bone in enumerate(self.bone_info.bones):
-				bone_name = self.bone_names[bone_index]
-				if bone_name not in self.names:
-					self.names.append(bone_name)
-				self.bone_info.name_indices[bone_index] = self.names.index(bone_name)
+				if bone.name not in self.names:
+					self.names.append(bone.name)
+				self.bone_info.name_indices[bone_index] = self.names.index(bone.name)
 			# print(self.bone_info.name_indices)
 		# print(self.names)
 		print("Updating MS2 name hashes")
@@ -375,6 +388,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 			print(err)
 			print(self)
 
+		print(self)
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
 		self.ms2_file.load(self.ms2_path, self, quick=quick, map_bytes=map_bytes, read_bytes=read_bytes)

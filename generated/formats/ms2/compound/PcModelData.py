@@ -155,11 +155,10 @@ class PcModelData:
 		s += '\n'
 		return s
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, bone_names=[], base=512):
+	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512):
 		self.start_buffer2 = start_buffer2
 		self.ms2_file = ms2_file
 		self.base = base
-		self.bone_names = bone_names
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
 

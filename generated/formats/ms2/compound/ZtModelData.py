@@ -168,7 +168,7 @@ class ZtModelData:
 		s += '\n'
 		return s
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, bone_names=[], base=512):
+	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512):
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
@@ -178,7 +178,6 @@ class ZtModelData:
 		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.start_buffer2+self.stream_offset}")
 		self.ms2_file = ms2_file
 		self.base = base
-		self.bone_names = bone_names
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
 		# print(self.flag)

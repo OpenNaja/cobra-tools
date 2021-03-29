@@ -3,6 +3,7 @@ import mathutils
 
 from generated.formats.ovl import is_ztuac
 from plugin.modules_export.collision import export_hitcheck
+from plugin.modules_import.armature import get_bone_names
 from utils import matrix_util
 
 
@@ -39,7 +40,7 @@ def handle_transforms(ob, me, errors, apply=True):
 
 def export_bones(b_armature_ob, data):
 	corrector = matrix_util.Corrector(is_ztuac(data))
-	b_bone_names = [matrix_util.bone_name_for_blender(n) for n in data.ms2_file.bone_names]
+	b_bone_names = get_bone_names(data)
 	bone_info = data.ms2_file.bone_info
 	for bone_name, ms2_bone, ms2_inv_bind in zip(b_bone_names, bone_info.bones, bone_info.inverse_bind_matrices):
 		b_bone = b_armature_ob.data.bones.get(bone_name)
@@ -68,10 +69,10 @@ def export_bones(b_armature_ob, data):
 	export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
 
 
-def export_joints(armature_ob, bone_info, bone_names, corrector):
+def export_joints(armature_ob, bone_info, b_bone_names, corrector):
 	print("Exporting joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
-		bone_name = bone_names[bone_index]
+		bone_name = b_bone_names[bone_index]
 		print("joint", joint_info.name)
 		for hitcheck in joint_info.hit_check:
 			b_obj = bpy.data.objects.get(hitcheck.name, None)
