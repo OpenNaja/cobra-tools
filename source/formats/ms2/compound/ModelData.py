@@ -32,11 +32,11 @@ class ModelData:
 		# read the packed ms2_file
 		ms2_file = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
 		ms2_file = ms2_file.reshape((self.vertex_count, self.size_of_vertex))
-		self.bytes_map = np.max(ms2_file, axis=0)
+		self.bytes_max = np.max(ms2_file, axis=0)
+		self.bytes_min = np.min(ms2_file, axis=0)
+		self.bytes_mean = np.mean(ms2_file, axis=0)
 		if self.size_of_vertex != 48:
 			raise AttributeError(f"size_of_vertex != 48: size_of_vertex {self.size_of_vertex}, flag {self.flag}", )
-
-	# print(self.size_of_vertex, self.flag, self.bytes_map)
 
 	def init_arrays(self, count):
 		self.vertex_count = count

@@ -486,7 +486,7 @@ class MainWindow(widgets.MainWindow):
 							if model.flag not in type_dic:
 								type_dic[model.flag] = ([], [])
 							type_dic[model.flag][0].append(mdl2_name)
-							type_dic[model.flag][1].append(model.bytes_map)
+							type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 					except Exception as ex:
 						traceback.print_exc()
 						errors.append((mdl2_path, ex))
@@ -501,8 +501,11 @@ class MainWindow(widgets.MainWindow):
 				names, maps_list = tup
 				print("Some files:", list(set(names))[:25])
 				print("num models", len(maps_list))
-				print("mean", np.mean(maps_list, axis=0).astype(dtype=np.ubyte))
-				print("max", np.max(maps_list, axis=0))
+				means, maxs, mins = zip(*maps_list)
+				print(len(means))
+				print("mean", np.mean(means, axis=0).astype(dtype=np.ubyte))
+				print("max", np.max(maxs, axis=0))
+				print("min", np.min(mins, axis=0))
 				print()
 
 			self.update_progress("Operation completed!", value=1, vmax=1)
