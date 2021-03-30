@@ -8,7 +8,6 @@ import mathutils
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
-from utils import matrix_util
 from generated.formats.ms2 import Mdl2File
 
 MAX_USHORT = 65535
@@ -64,203 +63,186 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		model.verts = []
 
 	bounds = []
-	for ob in bpy.data.objects:
-		if type(ob.data) == bpy.types.Mesh:
-			print("\nNext mesh...")
+	mesh_objects = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Mesh and ob.display_type != 'BOUNDS']
+	for ob in mesh_objects:
+		print("\nNext mesh...")
 
-			# make sure the model has a triangulation modifier
-			ensure_tri_modifier(ob)
+		# make sure the model has a triangulation modifier
+		ensure_tri_modifier(ob)
 
-			# make a copy with all modifiers applied
-			dg = bpy.context.evaluated_depsgraph_get()
-			eval_obj = ob.evaluated_get(dg)
-			me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
-			handle_transforms(eval_obj, me, errors, apply=apply_transforms)
-			# get the index of this model in the mdl2 model buffer
-			try:
-				ind = int(ob.name.rsplit("_model", 1)[1])
-			except:
-				print("Bad name, skipping", ob.name)
-				continue
-			print("Model slot", ind)
-			bounds.append(eval_obj.bound_box)
+		dg = bpy.context.evaluated_depsgraph_get()
+		# make a copy with all modifiers applied
+		eval_obj = ob.evaluated_get(dg)
+		me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
+		handle_transforms(eval_obj, me, errors, apply=apply_transforms)
+		# get the index of this model in the mdl2 model buffer
+		try:
+			ind = int(ob.name.rsplit("_model", 1)[1])
+		except:
+			print("Bad name, skipping", ob.name)
+			continue
+		print("Model slot", ind)
+		bounds.append(eval_obj.bound_box)
 
-			# we get the corresponding mdl2 model
-			model = data.models[ind]
-			# perhaps we want to update model.flag from ob["flag"]
-			model.update_dtype()
+		# we get the corresponding mdl2 model
+		model = data.models[ind]
+		# perhaps we want to update model.flag from ob["flag"]
+		model.update_dtype()
 
-			if ob.particle_systems:
-				psys = ob.particle_systems[0]
-				hair_length = psys.settings.hair_length
-			else:
-				hair_length = 0
-			model.fur_length = hair_length
+		hair_length = get_hair_length(ob)
+		model.fur_length = hair_length
 
-			num_uvs = model.get_uv_count()
-			num_vcols = model.get_vcol_count()
-			print("num_uvs", num_uvs)
-			print("num_vcols", num_vcols)
+		num_uvs = model.get_uv_count()
+		num_vcols = model.get_vcol_count()
 
-			if not len(me.vertices):
-				errors.append(f"Model {ob.name} has no vertices!")
+		if not len(me.vertices):
+			errors.append(f"Model {ob.name} has no vertices!")
+			return errors
+
+		if not len(me.polygons):
+			errors.append(f"Model {ob.name} has no polygons!")
+			return errors
+
+		for len_type, num_type, name_type in (
+				(len(me.uv_layers), num_uvs, "UV"),
+				(len(me.vertex_colors), num_vcols, "Vertex Color")):
+			print(f"{name_type} count:", num_type)
+			if len_type != num_type:
+				errors.append(f"Model {ob.name} has {len_type} {name_type} layers, but {num_type} were expected!")
 				return errors
 
-			if not len(me.polygons):
-				errors.append(f"Model {ob.name} has no polygons!")
+		unweighted_vertices = []
+		tris = []
+		# tangents have to be pre-calculated
+		# this will also calculate loop normal
+		me.calc_tangents()
+		# stores values retrieved from blender, will be packed into array by pyffi
+		verts = []
+		# use a dict mapping dummy vertices to their index for fast lookup
+		# this is used to convert blender vertices (several UVs, normals per face corner) to mdl2 vertices
+		dummy_vertices = {}
+		count_unique = 0
+		count_reused = 0
+		# defaults that may or may not be set later on
+		unk_0 = 0
+		residue = 1
+		fur_length = None
+		# loop faces and collect unique and repeated vertices
+		for face in me.polygons:
+			print(len(face.loop_indices))
+			if len(face.loop_indices) != 3:
+				# this is a bug - we are applying the triangulation modifier above
+				errors.append(f"Model {ob.name} is not triangulated!")
+				return errors
+			# build indices into vertex buffer for the current face
+			tri = []
+			# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
+			for loop_index in face.loop_indices:
+				b_loop = me.loops[loop_index]
+				b_vert = me.vertices[b_loop.vertex_index]
+
+				# get the vectors
+				position = b_vert.co
+				tangent = b_loop.tangent
+				normal = b_loop.normal
+				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in me.uv_layers]
+				# create a dummy bytes str for indexing
+				float_items = [*position, *[c for uv in uvs[:2] for c in uv], *tangent]
+				dummy = struct.pack(f'<{len(float_items)}f', *float_items)
+				# see if this dummy key exists
+				try:
+					# if it does - reuse it by grabbing its index from the dict
+					v_index = dummy_vertices[dummy]
+					count_reused += 1
+				except:
+					# it doesn't, so we have to fill in additional data
+					v_index = count_unique
+					if v_index > MAX_USHORT:
+						errors.append(
+							f"{ob.name} has too many MDL2 verts. The limit is {MAX_USHORT}. \nBlender vertices have to be duplicated on every UV seam, hence the increase.")
+						return errors
+					dummy_vertices[dummy] = v_index
+					count_unique += 1
+
+					# now collect any missing vert data that was not needed for the splitting of blender verts
+
+					# collect vertex colors
+					vcols = [(x for x in layer.data[loop_index].color) for layer in me.vertex_colors]
+
+					# get the weights
+					w = []
+					for vertex_group in b_vert.groups:
+						vgroup_name = ob.vertex_groups[vertex_group.group].name
+						# get the unk0
+						if vgroup_name == "unk0":
+							unk_0 = vertex_group.weight
+						elif vgroup_name == "residue":
+							# if this is not rounded, somehow it affects the weights
+							# might be a bug, but can't figure out where the rest is affected
+							residue = int(round(vertex_group.weight))
+						elif vgroup_name == "fur_length":
+							# only store this hack for shells, never for fins
+							if model.flag in (885, 1013, 821):
+								fur_length = vertex_group.weight * hair_length
+						else:
+							# avoid dummy vertex groups without corresponding bones
+							try:
+								w.append([bones_table[vgroup_name], vertex_group.weight])
+							except:
+								print(f"Could not find bone name '{vgroup_name}' in bone table")
+								errors.append(
+									f"Ignored extraneous vertex group {vgroup_name} on mesh {ob.name}!")
+					# print(residue, unk_0)
+					# get the 4 strongest influences on this vert
+					w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
+					# print(w_s)
+					# pad the weight list to 4 bones, ie. add empty bones if missing
+					for i in range(0, 4 - len(w_s)):
+						w_s.append([0, 0])
+					# ensure that we have 4 weights at this point
+					assert (len(w_s) == 4)
+					# split the list of tuples into two separate lists
+					bone_ids, bone_weights = zip(*w_s)
+					# summed weights
+					sw = sum(bone_weights)
+					# print(sw)
+					if sw > 0.0:
+						# normalize
+						bone_weights = [x / sw for x in bone_weights]
+					elif b_loop.vertex_index not in unweighted_vertices:
+						# print("Sum of weights",sw)
+						unweighted_vertices.append(b_loop.vertex_index)
+					# get the index for the skin partition - the bone with the highest weight
+					bone_index = w_s[0][0]
+					# store all raw blender data for pyffi
+					verts.append((position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids,
+								  bone_weights, fur_length))
+				tri.append(v_index)
+			tris.append(tri)
+
+		print("count_unique", count_unique)
+		print("count_reused", count_reused)
+
+		# report unweighted vertices
+		if model.flag not in (513,):
+			if unweighted_vertices:
+				errors.append(f"{ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 				return errors
 
-			if len(me.uv_layers) != num_uvs:
-				errors.append(f"Model {ob.name} has {len(me.uv_layers)} UV layers, but {num_uvs} were expected!")
-				return errors
-
-			if len(me.vertex_colors) != num_vcols:
-				errors.append(
-					f"Model {ob.name} has {len(me.vertex_colors)} Vertex Color layers, but {num_vcols} were expected!")
-				return errors
-
-			unweighted_vertices = []
-			tris = []
-			# tangents have to be pre-calculated
-			# this will also calculate loop normal
-			me.calc_tangents()
-			# stores values retrieved from blender, will be packed into array by pyffi
-			verts = []
-			# use a dict mapping dummy vertices to their index for fast lookup
-			# this is used to convert blender vertices (several UVs, normals per face corner) to mdl2 vertices
-			dummy_vertices = {}
-			count_unique = 0
-			count_reused = 0
-			# defaults that may or may not be set later on
-			unk_0 = 0
-			residue = 1
-			fur_length = None
-			# loop faces and collect unique and repeated vertices
-			for face in me.polygons:
-				if len(face.loop_indices) != 3:
-					# this is a bug - we are applying the triangulation modifier above
-					errors.append(f"Model {ob.name} is not triangulated!")
-					return errors
-				# build indices into vertex buffer for the current face
-				tri = []
-				# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
-				for loop_index in face.loop_indices:
-					b_loop = me.loops[loop_index]
-					b_vert = me.vertices[b_loop.vertex_index]
-
-					# get the vectors
-					position = b_vert.co
-					tangent = b_loop.tangent
-					normal = b_loop.normal
-					uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in me.uv_layers]
-					# create a dummy bytes str for indexing
-					float_items = [*position, *[c for uv in uvs[:2] for c in uv], *tangent]
-					dummy = struct.pack(f'<{len(float_items)}f', *float_items)
-					# see if this dummy key exists
-					try:
-						# if it does - reuse it by grabbing its index from the dict
-						v_index = dummy_vertices[dummy]
-						count_reused += 1
-					except:
-						# it doesn't, so we have to fill in additional data
-						v_index = count_unique
-						if v_index > MAX_USHORT:
-							errors.append(
-								f"{ob.name} has too many MDL2 verts. The limit is {MAX_USHORT}. \nBlender vertices have to be duplicated on every UV seam, hence the increase.")
-							return errors
-						dummy_vertices[dummy] = v_index
-						count_unique += 1
-
-						# now collect any missing vert data that was not needed for the splitting of blender verts
-
-						# collect vertex colors
-						vcols = [(x for x in layer.data[loop_index].color) for layer in me.vertex_colors]
-
-						# get the weights
-						w = []
-						for vertex_group in b_vert.groups:
-							vgroup_name = ob.vertex_groups[vertex_group.group].name
-							# get the unk0
-							if vgroup_name == "unk0":
-								unk_0 = vertex_group.weight
-							elif vgroup_name == "residue":
-								# if this is not rounded, somehow it affects the weights
-								# might be a bug, but can't figure out where the rest is affected
-								residue = int(round(vertex_group.weight))
-							elif vgroup_name == "fur_length":
-								# only store this hack for shells, never for fins
-								if model.flag in (885, 1013, 821):
-									fur_length = vertex_group.weight * hair_length
-							else:
-								# avoid dummy vertex groups without corresponding bones
-								try:
-									w.append([bones_table[vgroup_name], vertex_group.weight])
-								except:
-									print(f"Could not find bone name '{vgroup_name}' in bone table")
-									errors.append(
-										f"Ignored extraneous vertex group {vgroup_name} on mesh {ob.name}!")
-						# print(residue, unk_0)
-						# get the 4 strongest influences on this vert
-						w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
-						# print(w_s)
-						# pad the weight list to 4 bones, ie. add empty bones if missing
-						for i in range(0, 4 - len(w_s)):
-							w_s.append([0, 0])
-						# ensure that we have 4 weights at this point
-						assert (len(w_s) == 4)
-						# split the list of tuples into two separate lists
-						bone_ids, bone_weights = zip(*w_s)
-						# summed weights
-						sw = sum(bone_weights)
-						# print(sw)
-						if sw > 0.0:
-							# normalize
-							bone_weights = [x / sw for x in bone_weights]
-						elif b_loop.vertex_index not in unweighted_vertices:
-							# print("Sum of weights",sw)
-							unweighted_vertices.append(b_loop.vertex_index)
-						# get the index for the skin partition - the bone with the highest weight
-						bone_index = w_s[0][0]
-						# store all raw blender data for pyffi
-						verts.append((position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids,
-									  bone_weights, fur_length))
-					tri.append(v_index)
-				tris.append(tri)
-
-			print("count_unique", count_unique)
-			print("count_reused", count_reused)
-
-			# report unweighted vertices
-			if model.flag not in (513,):
-				if unweighted_vertices:
-					errors.append(f"{ob.name} has {len(unweighted_vertices)} unweighted vertices!")
-					return errors
-
-			# set shell count if not present
-			if "add_shells" in ob:
-				shell_count = ob["add_shells"]
-			else:
-				shell_count = 0
-				ob["add_shells"] = 0
-			# extend tri array according to shell count
-			print("Got to add shells", shell_count)
-			out_tris = list(tris)
-			for shell in range(shell_count):
-				print("Shell", shell)
-				out_tris.extend(tris)
-
-			# update vert & tri array
-			model.base = data.model_info.pack_offset
-			# transfer raw verts into model data packed array
-			model.set_verts(verts)
-			model.tris = out_tris
+		# update vert & tri array
+		model.base = data.model_info.pack_offset
+		model.shell_count = get_shell_count(ob)
+		# transfer raw verts into model data packed array
+		model.set_verts(verts)
+		model.tris = tris
 
 	export_bounds(bounds, data)
 	# check if any modeldata is empty
 	for i, model in enumerate(data.models):
 		if not model.tri_indices or not model.verts:
 			errors.append(
-				f"MDL2 Modeldata #{i} has not been populated. \nEnsure that the name of the blender model for that number follows the naming convention.")
+				f"MDL2 Modeldata #{i} has not been populated. \n"
+				f"Ensure that the name of the blender model for that number follows the naming convention.")
 			return errors
 
 	# write modified data
@@ -269,5 +251,22 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	print(f"\nFinished Mdl2 Export in {time.time() - start_time:.2f} seconds")
 	# only return unique errors
 	return set(errors)
+
+
+def get_shell_count(ob):
+	# set shell count if not present
+	if "add_shells" in ob:
+		shell_count = ob["add_shells"]
+	else:
+		shell_count = 0
+		ob["add_shells"] = 0
+	return shell_count
+
+
+def get_hair_length(ob):
+	if ob.particle_systems:
+		psys = ob.particle_systems[0]
+		return psys.settings.hair_length
+	return 0
 
 

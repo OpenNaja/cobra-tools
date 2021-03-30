@@ -28,6 +28,7 @@ def import_armature(data, b_bone_names):
 	of the bones before skins are attached."""
 	corrector = matrix_util.Corrector(is_ztuac(data))
 	bone_info = data.ms2_file.bone_info
+	# print(bone_info)
 	if bone_info:
 		armature_name = b_bone_names[0]
 		b_armature_data = bpy.data.armatures.new(armature_name)
@@ -63,7 +64,7 @@ def import_armature(data, b_bone_names):
 			mats[bone_name] = n_bind
 
 			# print()
-			print(bone_name)
+			# print(bone_name)
 			# print("ms2\n",n_bind)
 			# change orientation for blender bones
 			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
@@ -102,12 +103,9 @@ def import_armature(data, b_bone_names):
 		# 	print(bone)
 
 		# store original bone index as custom property
-		try:
-			for i, bone_name in enumerate(b_bone_names):
-				bone = b_armature_obj.pose.bones[bone_name]
-				bone["index"] = i
-		except:
-			print("Bone did not exist - bug")
+		for i, bone_name in enumerate(b_bone_names):
+			bone = b_armature_obj.pose.bones[bone_name]
+			bone["index"] = i
 		try:
 			import_joints(b_armature_obj, bone_info, b_bone_names, corrector)
 		except Exception as err:

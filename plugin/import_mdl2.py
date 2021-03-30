@@ -8,7 +8,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 	get_bone_names
 from plugin.helpers import mesh_from_data
 from plugin.modules_import.hair import add_psys
-from plugin.modules_import.material import create_material
+from plugin.modules_import.material import import_material
 from utils import matrix_util
 from generated.formats.ms2 import Mdl2File
 
@@ -47,18 +47,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 
 		# link material to mesh
 		me = ob.data
-		try:
-			# additionally keep track here so we create a node tree only once during import
-			# but make sure that we overwrite existing materials:
-			if model.material not in created_materials:
-				mat = create_material(in_dir, model.material)
-				created_materials[model.material] = mat
-			else:
-				print(f"Already imported material {model.material}")
-				mat = created_materials[model.material]
-			me.materials.append(mat)
-		except:
-			print("material failed")
+		import_material(created_materials, in_dir, me, model)
 
 		# set uv data
 		if model.uvs is not None:
@@ -135,3 +124,5 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 
 	print(f"Finished MDL2 import in {time.time()-start_time:.2f} seconds!")
 	return errors
+
+

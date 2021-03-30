@@ -303,7 +303,12 @@ class ModelData:
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count)
 
 	def write_tris(self, stream):
-		stream.write(struct.pack(str(len(self.tri_indices)) + "H", *self.tri_indices))
+		tri_bytes = struct.pack(f"{len(self.tri_indices)}H", *self.tri_indices)
+		stream.write(tri_bytes)
+		# extend tri array according to shell count
+		print(f"Adding {self.shell_count} shells")
+		for shell in range(self.shell_count):
+			stream.write(tri_bytes)
 
 	@property
 	def lod_index(self, ):
