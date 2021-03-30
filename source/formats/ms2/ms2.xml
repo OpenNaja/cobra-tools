@@ -226,17 +226,19 @@
 		Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
 		If there is more than one of these, the fragments appear as a list according to 
-		<add name="zeros" type="uint" arr1="4" >always zero</add>
+		<add name="stream index" type="uint" >index into streamed buffers, streaming is not used for JWE or PZ</add>
+		<add name="zeros" type="uint" arr1="3" >always zero</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
-		<add name="unknown05" type="uint">always zero</add>
+		<add name="zero0" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
 		<add name="size of vertex" type="uint" >usually 48</add>
 		<add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
-		<add name="zero" type="uint">always zero</add>
-		<add name="unknown07" type="Vector3">some floats</add>
-		<add name="flag" type="ModelFlag">maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)</add>
+		<add name="zero1" type="uint">always zero</add>
+		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
+		<add name="zero2" type="uint">always zero</add>
+		<add name="flag" type="ModelFlag">bitfield, determines vertex format</add>
 	</compound>
 
 

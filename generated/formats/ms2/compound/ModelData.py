@@ -9,7 +9,6 @@ FUR_OVERHEAD = 2
 import typing
 from generated.array import Array
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
-from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class ModelData:
@@ -27,6 +26,9 @@ class ModelData:
 		self.io_size = 0
 		self.io_start = 0
 
+		# index into streamed buffers, streaming is not used for JWE or PZ
+		self.stream_index = 0
+
 		# always zero
 		self.zeros = Array()
 
@@ -37,7 +39,7 @@ class ModelData:
 		self.tri_index_count = 0
 
 		# always zero
-		self.unknown_05 = 0
+		self.zero_0 = 0
 
 		# power of 2 increasing with lod index
 		self.poweroftwo = 0
@@ -52,27 +54,32 @@ class ModelData:
 		self.tri_offset = 0
 
 		# always zero
-		self.zero = 0
+		self.zero_1 = 0
 
-		# some floats
-		self.unknown_07 = Vector3()
+		# some floats, purpose unknown
+		self.unk_floats = Array()
 
-		# maybe a bitfield; usually in 500 range, e.g 513 (parrot, JWE trees), 517 (stairwell, PZ trees), 529 (driver, PZ terrarium animals)
+		# always zero
+		self.zero_2 = 0
+
+		# bitfield, determines vertex format
 		self.flag = ModelFlag()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros = stream.read_uints((4))
+		self.stream_index = stream.read_uint()
+		self.zeros = stream.read_uints((3))
 		self.vertex_count = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
-		self.unknown_05 = stream.read_uint()
+		self.zero_0 = stream.read_uint()
 		self.poweroftwo = stream.read_uint()
 		self.vertex_offset = stream.read_uint()
 		self.size_of_vertex = stream.read_uint()
 		self.tri_offset = stream.read_uint()
-		self.zero = stream.read_uint()
-		self.unknown_07 = stream.read_type(Vector3)
+		self.zero_1 = stream.read_uint()
+		self.unk_floats = stream.read_floats((2))
+		self.zero_2 = stream.read_uint()
 		self.flag = stream.read_type(ModelFlag)
 
 		self.io_size = stream.tell() - self.io_start
@@ -80,16 +87,18 @@ class ModelData:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
+		stream.write_uint(self.stream_index)
 		stream.write_uints(self.zeros)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_index_count)
-		stream.write_uint(self.unknown_05)
+		stream.write_uint(self.zero_0)
 		stream.write_uint(self.poweroftwo)
 		stream.write_uint(self.vertex_offset)
 		stream.write_uint(self.size_of_vertex)
 		stream.write_uint(self.tri_offset)
-		stream.write_uint(self.zero)
-		stream.write_type(self.unknown_07)
+		stream.write_uint(self.zero_1)
+		stream.write_floats(self.unk_floats)
+		stream.write_uint(self.zero_2)
 		stream.write_type(self.flag)
 
 		self.io_size = stream.tell() - self.io_start
@@ -99,16 +108,18 @@ class ModelData:
 
 	def get_fields_str(self):
 		s = ''
+		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
-		s += f'\n	* unknown_05 = {self.unknown_05.__repr__()}'
+		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
 		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
 		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
 		s += f'\n	* size_of_vertex = {self.size_of_vertex.__repr__()}'
 		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* unknown_07 = {self.unknown_07.__repr__()}'
+		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
+		s += f'\n	* unk_floats = {self.unk_floats.__repr__()}'
+		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
 		s += f'\n	* flag = {self.flag.__repr__()}'
 		return s
 
