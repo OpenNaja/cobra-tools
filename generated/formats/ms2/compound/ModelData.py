@@ -346,6 +346,10 @@ class ModelData:
 			verts):
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
 			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
+			# if self.flag == 565:
+			# 	self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(-tangent))
+			# else:
+			# 	self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
 			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
 			self.verts_data[i]["unk"] = unk_0 * 255
 			self.verts_data[i]["bone index"] = bone_index

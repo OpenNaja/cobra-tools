@@ -113,6 +113,10 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 
 		unweighted_vertices = []
 		tris = []
+		if model.flag == 565:
+			me.uv_layers.active = me.uv_layers[-1]
+			print(me.uv_layers.active_index)
+			print(me.uv_layers.active)
 		# tangents have to be pre-calculated
 		# this will also calculate loop normal
 		me.calc_tangents()
