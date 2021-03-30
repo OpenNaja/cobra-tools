@@ -19,7 +19,7 @@ from generated.formats.ovl.versions import *
 from generated.formats.ms2.versions import *
 from generated.io import IoFile, BinaryStream
 from modules import walker
-from modules.formats.shared import get_padding_size, assign_versions, get_versions, djb
+from modules.formats.shared import get_padding_size, assign_versions, get_versions, djb, get_padding
 
 
 def findall(p, s):
@@ -90,6 +90,19 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				print(self.bone_infos)
 				break
 		stream.seek(potential_start)
+
+	def write_all_bone_infos(self, stream):
+		# functional for JWE detailobjects.ms2, if joint_data is read
+		bone_infos_start = stream.tell()
+		for bone_info_index, bone_info in enumerate(self.bone_infos):
+			print(f"BONE INFO {bone_info_index} starts at {stream.tell()}")
+			bone_info.write(stream)
+			if bone_info_index + 1 < len(self.bone_infos):
+				relative_offset = stream.tell() - bone_infos_start
+				padding = get_padding(relative_offset)
+				print("Writing padding", padding)
+				stream.write(padding)
+		self.bone_info_size = stream.tell() - bone_infos_start
 
 	def get_bone_info(self, mdl2_index, stream, bone_info_cls, hack=True):
 		bone_info = None
@@ -282,6 +295,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_names(self, mdl2s):
 		print("Updating MS2 name buffer")
+		# todo - update self.bone_names_size
 		self.names.clear()
 		for mdl2 in mdl2s:
 			for material in mdl2.materials:
@@ -296,8 +310,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# print(self.names)
 		print("Updating MS2 name hashes")
 		# update hashes from new names
-		self.name_count = len(self.names)
-		# print("self.name_count", self.name_count)
+		self.general_info.name_count = len(self.names)
 		self.name_hashes.resize(len(self.names))
 		for name_i, name in enumerate(self.names):
 			self.name_hashes[name_i] = djb(name.lower())
@@ -314,11 +327,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		with BinaryStream() as temp_bone_writer:
 			assign_versions(temp_bone_writer, get_versions(self))
 			temp_bone_writer.ms_2_version = self.general_info.ms_2_version
-			self.bone_info.write(temp_bone_writer)
+			self.write_all_bone_infos(temp_bone_writer)
 			bone_bytes = temp_bone_writer.getvalue()
-		#
-		# with open(filepath + "bonedump", "wb") as f:
-		# 	f.write(bone_bytes)
 
 		for i, model in enumerate(mdl2.models):
 			model.write_verts(temp_vert_writer)
@@ -358,16 +368,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# write output ms2
 		with self.writer(filepath) as f:
 			self.write(f)
-			print("new bone info length: ", len(bone_bytes))
-			print("old bone info length: ", len(self.bone_info_bytes))
-			# this is a hack
-			if len(bone_bytes) < len(self.bone_info_bytes):
-				f.write(bone_bytes)
-				f.write(self.bone_info_bytes[len(bone_bytes):])
-			elif len(bone_bytes) > len(self.bone_info_bytes):
-				f.write(bone_bytes[:len(self.bone_info_bytes)])
-			else:
-				f.write(bone_bytes)
+			f.write(bone_bytes)
 			f.write(vert_bytes)
 			f.write(tris_bytes)
 
