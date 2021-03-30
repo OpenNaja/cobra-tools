@@ -4,8 +4,9 @@ import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 
-
 FUR_OVERHEAD = 2
+
+
 import typing
 from generated.array import Array
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
@@ -137,7 +138,8 @@ class ModelData:
 		self.verts_bytes = stream.read(self.size_of_vertex * self.vertex_count)
 		stream.seek(start_buffer2 + vertex_data_size + self.tri_offset)
 		self.tris_bytes = stream.read(2 * self.tri_index_count)
-		# print(len(self.verts_bytes), len(self.tris_bytes))
+
+	# print(len(self.verts_bytes), len(self.tris_bytes))
 
 	def read_bytes_map(self, start_buffer2, stream):
 		"""Used to document byte usage of different vertex formats"""
@@ -208,14 +210,14 @@ class ModelData:
 		elif self.flag in (565,):
 			dt.extend([
 				("uvs", np.ushort, (2, 2)),
-				("colors", np.ubyte, (1, 4)), # these appear to be directional vectors
+				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
 			])
 		elif self.flag in (821, 853, 885, 1013):
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
 				("fur_length", np.ushort, (2,)),
-				("colors", np.ubyte, (1, 4)), # these appear to be directional vectors
+				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
 			])
 		elif self.flag == 533:
@@ -339,8 +341,9 @@ class ModelData:
 		self.verts = verts
 		self.verts_data = np.zeros(len(verts), dtype=self.dt)
 		for i, (
-		position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids, bone_weights, fur) in enumerate(
-				verts):
+				position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
+				fur) in enumerate(
+			verts):
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
 			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
 			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
@@ -363,7 +366,7 @@ class ModelData:
 				self.verts_data[i]["colors"] = list(list(c * 255 for c in vcol) for vcol in vcols)
 
 	def update_shell_count(self):
-		if self.flag in (1013, 821, 885, 565):
+		if self.flag in (853, 1013, 821, 885, 565):
 			self.shell_count = 6
 		else:
 			self.shell_count = 1

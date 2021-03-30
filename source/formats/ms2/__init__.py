@@ -318,11 +318,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
 		self.update_names((mdl2,))
-		# write each model's vert & tri block to a temporary buffer
-		temp_vert_writer = io.BytesIO()
-		temp_tris_writer = io.BytesIO()
-		vert_offset = 0
-		tris_offset = 0
 
 		with BinaryStream() as temp_bone_writer:
 			assign_versions(temp_bone_writer, get_versions(self))
@@ -330,21 +325,21 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.write_all_bone_infos(temp_bone_writer)
 			bone_bytes = temp_bone_writer.getvalue()
 
-		for i, model in enumerate(mdl2.models):
-			model.write_verts(temp_vert_writer)
-			model.write_tris(temp_tris_writer)
-			print("vert_offset", vert_offset)
-			print("tris_offset", tris_offset)
-
+		# write each model's vert & tri block to a temporary buffer
+		temp_vert_writer = io.BytesIO()
+		temp_tris_writer = io.BytesIO()
+		for model in mdl2.models:
 			# update ModelData struct
-			model.vertex_offset = vert_offset
-			model.tri_offset = tris_offset
+			model.vertex_offset = temp_vert_writer.tell()
+			model.tri_offset = temp_tris_writer.tell()
 			model.vertex_count = len(model.verts)
 			model.tri_index_count = len(model.tri_indices) * model.shell_count
-
-			# offsets for the next model
-			vert_offset = temp_vert_writer.tell()
-			tris_offset = temp_tris_writer.tell()
+			# write data
+			model.write_verts(temp_vert_writer)
+			model.write_tris(temp_tris_writer)
+		# get bytes from IO object
+		vert_bytes = temp_vert_writer.getvalue()
+		tris_bytes = temp_tris_writer.getvalue()
 
 		# update lod fragment
 		print("update lod fragment")
@@ -358,9 +353,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		print("Writing final output")
 		# get original header and buffers 0 & 1
 
-		# get bytes from IO object
-		vert_bytes = temp_vert_writer.getvalue()
-		tris_bytes = temp_tris_writer.getvalue()
 		# modify buffer size
 		self.buffer_info.vertexdatasize = len(vert_bytes)
 		self.buffer_info.facesdatasize = len(tris_bytes)
