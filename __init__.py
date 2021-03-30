@@ -125,27 +125,6 @@ class ExportMDL2(bpy.types.Operator, ExportHelper):
 		return handle_errors(self, errors)
 
 
-class StripShells(bpy.types.Operator):
-	"""Remove duplicate faces for a faster export and to avoid blender hiccups"""
-	bl_idname = "object.strip_shells"
-	bl_label = "Strip Shells"
-	bl_options = {'REGISTER', 'UNDO'}
-
-	num_shells: IntProperty(
-			name="Shell Count",
-			description="Assumed number of shells",
-			min=1, max=10,
-			default=6, )
-			
-	def execute(self, context):
-		try:
-			shell.strip_shells_wrapper(self.num_shells)
-		except Exception as err:
-			self.report({"ERROR"}, str(err))
-			print(err)
-		return {'FINISHED'}
-
-
 class CreateFins(bpy.types.Operator):
 	"""Create fins for all objects with shells, and overwrite existing fin geometry"""
 	bl_idname = "object.create_fins"
@@ -212,9 +191,7 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 		layout = self.layout
 
 		row = layout.row(align=True)
-		row.operator("object.strip_shells", icon_value=preview_collection["frontier.png"].icon_id)
-		sub = row.row()
-		sub.operator("object.create_fins", icon_value=preview_collection["frontier.png"].icon_id)
+		row.operator("object.create_fins", icon_value=preview_collection["frontier.png"].icon_id)
 
 		row = layout.row(align=True)
 		row.operator("object.vcol_to_comb", icon_value=preview_collection["frontier.png"].icon_id)
@@ -241,7 +218,6 @@ classes = (
 	ImportMDL2,
 	ExportMDL2,
 	ImportVoxelskirt,
-	StripShells,
 	CreateFins,
 	VcolToHair,
 	HairToVcol,

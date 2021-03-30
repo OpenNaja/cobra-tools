@@ -23,12 +23,6 @@ def copy_ob(src_obj):
 	return new_obj
 
 
-def strip_shells_wrapper(shell_count=6):
-	for ob in bpy.context.selected_objects:
-		if ob.type == "MESH":
-			strip_shells(ob, shell_count)
-
-
 def create_fins_wrapper():
 	msgs = ["Creating fins...", ]
 	for lod_i in range(6):
@@ -38,30 +32,6 @@ def create_fins_wrapper():
 		if src_ob and trg_ob:
 			msgs.append(build_fins(src_ob, trg_ob))
 	return msgs
-
-
-def strip_shells(ob, shell_count=6):
-	if "add_shells" in ob:
-		if ob["add_shells"] == 5:
-			raise AttributeError(
-				f"Model {ob.name} has 'add_shells' set to 5 - can not remove shells from a mesh that has none")
-	me = ob.data
-	# Get a BMesh representation
-	bm = bmesh.new()  # create an empty BMesh
-	bm.from_mesh(me)  # fill it in from a Mesh
-
-	sixth = (len(bm.faces) // shell_count) - 1
-	for i, face in enumerate(bm.faces):
-		if i > sixth:
-			bm.faces.remove(face)
-
-	# Finish up, write the bmesh back to the mesh
-	bm.to_mesh(me)
-	bm.free()  # free and prevent further access
-	ob["add_shells"] = shell_count - 1
-
-	success = '\nFinished Shell generation'
-	print(success)
 
 
 def get_ob_from_lod_and_flags(lod_group_name, flags=(565,)):
