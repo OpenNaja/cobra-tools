@@ -48,7 +48,7 @@ def write_fgm(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 		outfile.write(pack_header(ovl, b"FGM "))
 		outfile.write(fgm_header)
 		for tex in fgm_file_entry.dependencies:
-			outfile.write(tex.name.encode())
+			outfile.write(tex.basename.encode())
 			outfile.write(b"\x00")
 		outfile.write(sized_str_entry.pointers[0].data)
 		# write each of the fragments

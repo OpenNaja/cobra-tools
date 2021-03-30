@@ -1735,7 +1735,8 @@ class OvlFile(Header, IoFile):
 				except:
 					print(f"UNRESOLVED DEPENDENCY: {dependency_entry.file_hash} -> ?")
 					dependency_entry.basename = "bad hash"
-			dependency_entry.name = dependency_entry.basename + dependency_entry.ext
+
+			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 			print(dependency_entry.basename, dependency_entry.ovsblock_id, dependency_entry.pool_offset)
 			try:
 				file_entry = self.files[dependency_entry.file_index]
