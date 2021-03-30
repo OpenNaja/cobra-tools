@@ -2,6 +2,7 @@ import typing
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.ConvexHull import ConvexHull
+from generated.formats.ms2.compound.HitcheckHeroTree import HitcheckHeroTree
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.enum.CollisionType import CollisionType
 
@@ -36,6 +37,7 @@ class HitCheckEntry:
 		self.collider = Sphere()
 		self.collider = BoundingBox()
 		self.collider = Capsule()
+		self.collider = HitcheckHeroTree()
 		self.collider = ConvexHull()
 
 	def read(self, stream):
@@ -57,6 +59,8 @@ class HitCheckEntry:
 			self.collider = stream.read_type(BoundingBox)
 		if self.type == 2:
 			self.collider = stream.read_type(Capsule)
+		if self.type == 3:
+			self.collider = stream.read_type(HitcheckHeroTree)
 		if self.type == 8:
 			self.collider = stream.read_type(ConvexHull)
 
@@ -80,6 +84,8 @@ class HitCheckEntry:
 		if self.type == 1:
 			stream.write_type(self.collider)
 		if self.type == 2:
+			stream.write_type(self.collider)
+		if self.type == 3:
 			stream.write_type(self.collider)
 		if self.type == 8:
 			stream.write_type(self.collider)

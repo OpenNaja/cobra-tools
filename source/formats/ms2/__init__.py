@@ -87,6 +87,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			except Exception as err:
 				traceback.print_exc()
 				print("Bone info failed")
+				break
+		print(self.bone_infos)
 		stream.seek(potential_start)
 
 	def get_bone_info(self, mdl2_index, stream, bone_info_cls, hack=True):
