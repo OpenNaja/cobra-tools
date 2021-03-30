@@ -141,6 +141,7 @@ class ModelData:
 				("zeros1", np.uint64)
 			])
 		self.dt = np.dtype(dt)
+		self.update_shell_count()
 		if self.dt.itemsize != self.size_of_vertex:
 			raise AttributeError(
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
@@ -245,12 +246,14 @@ class ModelData:
 			if "colors" in self.dt.fields:
 				self.verts_data[i]["colors"] = list(list(c * 255 for c in vcol) for vcol in vcols)
 
-	@property
-	def tris(self, ):
+	def update_shell_count(self):
 		if self.flag in (1013, 821, 885, 565):
 			self.shell_count = 6
 		else:
 			self.shell_count = 1
+
+	@property
+	def tris(self, ):
 		# create non-overlapping tris
 		# reverse to account for the flipped normals from mirroring in blender
 		return [(self.tri_indices[i + 2], self.tri_indices[i + 1], self.tri_indices[i]) for i in

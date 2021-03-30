@@ -230,7 +230,6 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 
 		# update vert & tri array
 		model.base = data.model_info.pack_offset
-		model.shell_count = get_shell_count(ob)
 		# transfer raw verts into model data packed array
 		model.set_verts(verts)
 		model.tris = tris
@@ -250,16 +249,6 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	print(f"\nFinished Mdl2 Export in {time.time() - start_time:.2f} seconds")
 	# only return unique errors
 	return set(errors)
-
-
-def get_shell_count(ob):
-	# set shell count if not present
-	if "add_shells" in ob:
-		shell_count = ob["add_shells"]
-	else:
-		shell_count = 0
-		ob["add_shells"] = 0
-	return shell_count + 1
 
 
 def get_hair_length(ob):

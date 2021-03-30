@@ -37,7 +37,6 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		ob, me = mesh_from_data(f"{bare_name}_model{model_i}", model.vertices, model.tris, wireframe=False)
 		# cast the bitfield to int
 		ob["flag"] = int(model.flag)
-		ob["add_shells"] = model.shell_count - 1
 
 		# link material to mesh
 		me = ob.data
