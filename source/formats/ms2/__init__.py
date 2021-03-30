@@ -328,7 +328,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			model.vertex_offset = vert_offset
 			model.tri_offset = tris_offset
 			model.vertex_count = len(model.verts)
-			model.tri_index_count = len(model.tri_indices)
+			model.tri_index_count = len(model.tri_indices) * model.shell_count
 
 			# offsets for the next model
 			vert_offset = temp_vert_writer.tell()

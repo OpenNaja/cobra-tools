@@ -32,18 +32,12 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		print("lod_i", lod_i)
 		print("flag", model.flag)
 		print("bits", bin(model.flag))
-		tris = model.tris
-		if model.flag in (1013, 821, 885, 565):
-			tris = model.tris[:len(model.tris)//6]
-			print("automatically stripped shells from ", model_i)
-			num_add_shells = 5
-		else:
-			num_add_shells = 0
+
 		# create object and mesh from data
-		ob, me = mesh_from_data(f"{bare_name}_model{model_i}", model.vertices, tris, wireframe=False)
+		ob, me = mesh_from_data(f"{bare_name}_model{model_i}", model.vertices, model.tris, wireframe=False)
 		# cast the bitfield to int
 		ob["flag"] = int(model.flag)
-		ob["add_shells"] = num_add_shells
+		ob["add_shells"] = model.shell_count - 1
 
 		# link material to mesh
 		me = ob.data

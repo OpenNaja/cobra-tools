@@ -129,7 +129,6 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		fur_length = None
 		# loop faces and collect unique and repeated vertices
 		for face in me.polygons:
-			print(len(face.loop_indices))
 			if len(face.loop_indices) != 3:
 				# this is a bug - we are applying the triangulation modifier above
 				errors.append(f"Model {ob.name} is not triangulated!")
@@ -260,7 +259,7 @@ def get_shell_count(ob):
 	else:
 		shell_count = 0
 		ob["add_shells"] = 0
-	return shell_count
+	return shell_count + 1
 
 
 def get_hair_length(ob):

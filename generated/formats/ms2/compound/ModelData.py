@@ -304,9 +304,8 @@ class ModelData:
 
 	def write_tris(self, stream):
 		tri_bytes = struct.pack(f"{len(self.tri_indices)}H", *self.tri_indices)
-		stream.write(tri_bytes)
 		# extend tri array according to shell count
-		print(f"Adding {self.shell_count} shells")
+		print(f"Writing {self.shell_count} shells of triangles")
 		for shell in range(self.shell_count):
 			stream.write(tri_bytes)
 
@@ -353,10 +352,14 @@ class ModelData:
 
 	@property
 	def tris(self, ):
+		if self.flag in (1013, 821, 885, 565):
+			self.shell_count = 6
+		else:
+			self.shell_count = 1
 		# create non-overlapping tris
 		# reverse to account for the flipped normals from mirroring in blender
 		return [(self.tri_indices[i + 2], self.tri_indices[i + 1], self.tri_indices[i]) for i in
-				range(0, len(self.tri_indices), 3)]
+				range(0, len(self.tri_indices) // self.shell_count, 3)]
 
 	@tris.setter
 	def tris(self, b_tris):
