@@ -463,7 +463,7 @@ class MainWindow(widgets.MainWindow):
 						ovl_data.load_archives()
 						# create an output folder for it
 						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
-						out_paths, error_files_new, skip_files_new = self.ovl_data.extract(outdir, only_types=["ms2", ])
+						out_paths, error_files_new, skip_files_new = ovl_data.extract(outdir, only_types=(".ms2", ))
 						error_files += error_files_new
 						skip_files += skip_files_new
 					except Exception as ex:

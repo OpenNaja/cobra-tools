@@ -1456,6 +1456,7 @@ class OvlFile(Header, IoFile):
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
+		print(f"Extracting from {len(self.files)} files...")
 		from modules.extract import IGNORE_TYPES, extract_kernel
 		os.makedirs(out_dir, exist_ok=True)
 
@@ -1473,7 +1474,6 @@ class OvlFile(Header, IoFile):
 			if only_types and file.ext not in only_types:
 				skip_files.append(file.name)
 				continue
-			# todo - refactor this so that name includes extension for all entries
 			if only_names and file.name not in only_names:
 				skip_files.append(file.name)
 				continue
@@ -1481,7 +1481,6 @@ class OvlFile(Header, IoFile):
 			if file.ext in IGNORE_TYPES:
 				continue
 			extract_files.append(file)
-
 		for ss_index, file in enumerate(extract_files):
 			self.progress_callback("Extracting...", value=ss_index, vmax=len(extract_files))
 			sized_str_entry = self.ss_dict[file.name]
