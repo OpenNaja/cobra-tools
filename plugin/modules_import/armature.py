@@ -114,6 +114,8 @@ def import_armature(data, b_bone_names):
 
 
 def get_bone_names(data):
+	if not data.ms2_file.bone_info:
+		return []
 	return [matrix_util.bone_name_for_blender(bone.name) for bone in data.ms2_file.bone_info.bones]
 
 

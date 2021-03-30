@@ -59,36 +59,36 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.bone_info_bytes = stream.read(self.bone_info_size)
 		stream.seek(potential_start)
 		self.bone_infos = []
-
-		print("mdl2 count", self.general_info.mdl_2_count)
-		for i in range(self.general_info.mdl_2_count):
-			print(f"BONE INFO {i} starts at {stream.tell()}")
-			try:
-				bone_info = bone_info_cls()
-				bone_info.read(stream)
-				self.assign_bone_names(bone_info)
+		if self.bone_info_size:
+			print("mdl2 count", self.general_info.mdl_2_count)
+			for i in range(self.general_info.mdl_2_count):
+				print(f"BONE INFO {i} starts at {stream.tell()}")
 				try:
-					self.read_joints(bone_info)
-				except:
-					print("Joints failed...")
-					pass
-				self.bone_infos.append(bone_info)
-				# print(bone_info)
-				print("end of bone info at", stream.tell())
-				# last one has no padding, so stop here
-				if stream.tell() >= potential_start + self.bone_info_size:
-					print(f"Exhausted bone info buffer at {stream.tell()}")
-					break
-				relative_offset = stream.tell() - potential_start
-				# currently no other way to predict the padding, no correlation to joint count
-				padding_len = get_padding_size(relative_offset)
+					bone_info = bone_info_cls()
+					bone_info.read(stream)
+					self.assign_bone_names(bone_info)
+					try:
+						self.read_joints(bone_info)
+					except:
+						print("Joints failed...")
+						pass
+					self.bone_infos.append(bone_info)
+					# print(bone_info)
+					print("end of bone info at", stream.tell())
+					# last one has no padding, so stop here
+					if stream.tell() >= potential_start + self.bone_info_size:
+						print(f"Exhausted bone info buffer at {stream.tell()}")
+						break
+					relative_offset = stream.tell() - potential_start
+					# currently no other way to predict the padding, no correlation to joint count
+					padding_len = get_padding_size(relative_offset)
 
-				print("padding", padding_len, stream.read(padding_len), "joint count", bone_info.joint_count)
-			except Exception as err:
-				traceback.print_exc()
-				print("Bone info failed")
-				print(self.bone_infos)
-				break
+					print("padding", padding_len, stream.read(padding_len), "joint count", bone_info.joint_count)
+				except Exception as err:
+					traceback.print_exc()
+					print("Bone info failed")
+					print(self.bone_infos)
+					break
 		stream.seek(potential_start)
 
 	def write_all_bone_infos(self, stream):
@@ -238,8 +238,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						break
 			else:
 				self.read_all_bone_infos(stream, Ms2BoneInfo)
-				self.bone_info = self.bone_infos[mdl2.bone_info_index]
-				# self.bone_info = self.get_bone_info(mdl2.bone_info_index, stream, Ms2BoneInfo)
+				if self.bone_infos:
+					self.bone_info = self.bone_infos[mdl2.bone_info_index]
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
