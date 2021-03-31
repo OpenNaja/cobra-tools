@@ -115,8 +115,8 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 			add_psys(ob, model)
 		# only set the lod index here so that hiding it does not mess with any operators applied above
 		matrix_util.to_lod(ob, lod_i)
-		ob2, me2 = visualize_tangents(ob.name, model.vertices, model.normals, model.tangents)
-		matrix_util.to_lod(ob2, lod_i)
+		# ob2, me2 = visualize_tangents(ob.name, model.vertices, model.normals, model.tangents)
+		# matrix_util.to_lod(ob2, lod_i)
 	print(f"Finished MDL2 import in {time.time()-start_time:.2f} seconds!")
 	return errors
 
