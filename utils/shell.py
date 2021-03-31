@@ -27,19 +27,25 @@ def create_fins_wrapper():
 	msgs = ["Creating fins...", ]
 	for lod_i in range(6):
 		lod_group_name = "LOD" + str(lod_i)
-		src_ob = get_ob_from_lod_and_flags(lod_group_name, flags=[885, 821, 1013, ])
-		trg_ob = get_ob_from_lod_and_flags(lod_group_name, flags=[565, ])
+		coll = get_collection(lod_group_name)
+		src_ob = get_ob_from_lod_and_flags(coll, flags=[885, 821, 1013, ])
+		trg_ob = get_ob_from_lod_and_flags(coll, flags=[565, ])
 		if src_ob and trg_ob:
 			msgs.append(build_fins(src_ob, trg_ob))
 	return msgs
 
 
-def get_ob_from_lod_and_flags(lod_group_name, flags=(565,)):
+def get_collection(name):
 	for coll in bpy.data.collections:
-		if lod_group_name in coll.name:
-			for ob in coll.objects:
-				if ob["flag"] in flags:
-					return ob
+		if name in coll.name:
+			return coll
+
+
+def get_ob_from_lod_and_flags(coll, flags=(565,)):
+	if coll:
+		for ob in coll.objects:
+			if "flag" in ob and ob["flag"] in flags:
+				return ob
 
 
 def build_fins(src_ob, trg_ob):

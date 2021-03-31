@@ -9,6 +9,7 @@ from plugin.modules_export.armature import get_armature, handle_transforms, expo
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Mdl2File
+from utils.shell import get_ob_from_lod_and_flags
 
 MAX_USHORT = 65535
 
@@ -113,10 +114,6 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 
 		unweighted_vertices = []
 		tris = []
-		if model.flag == 565:
-			me.uv_layers.active = me.uv_layers[-1]
-			print(me.uv_layers.active_index)
-			print(me.uv_layers.active)
 		# tangents have to be pre-calculated
 		# this will also calculate loop normal
 		me.calc_tangents()
@@ -131,6 +128,20 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		unk_0 = 0
 		residue = 1
 		fur_length = None
+
+		# fin models have to grab tangents from shell
+		if model.flag == 565:
+			lod_coll = ob.users_collection[0]
+			print(lod_coll)
+			shell_ob = get_ob_from_lod_and_flags(lod_coll, flags=[885, 821, 1013, ])
+			print(shell_ob)
+			if shell_ob:
+				shell_eval_ob, shell_eval_me = eval_me(shell_ob)
+				shell_eval_me.calc_tangents()
+				shell_kd = fill_kd_tree(shell_eval_me)
+
+				fin_uv_layer = me.uv_layers[0].data
+
 		# loop faces and collect unique and repeated vertices
 		for face in me.polygons:
 			if len(face.loop_indices) != 3:
@@ -146,8 +157,16 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 
 				# get the vectors
 				position = b_vert.co
-				tangent = b_loop.tangent
-				normal = b_loop.normal
+				if model.flag == 565 and shell_ob:
+					uv_co = fin_uv_layer[b_loop.index].uv.to_3d()
+					co, index, dist = shell_kd.find(uv_co)
+					shell_loop = shell_eval_me.loops[index]
+					# print(tangent)
+					tangent = shell_loop.tangent
+					normal = shell_loop.normal
+				else:
+					tangent = b_loop.tangent
+					normal = b_loop.normal
 				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in me.uv_layers]
 				# create a dummy bytes str for indexing
 				float_items = [*position, *[c for uv in uvs[:2] for c in uv], *tangent]
@@ -262,3 +281,19 @@ def get_hair_length(ob):
 	return 0
 
 
+def eval_me(ob):
+	dg = bpy.context.evaluated_depsgraph_get()
+	# make a copy with all modifiers applied
+	eval_obj = ob.evaluated_get(dg)
+	me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
+	return eval_obj, me
+
+
+def fill_kd_tree(me):
+	size = len(me.loops)
+	kd = mathutils.kdtree.KDTree(size)
+	uv_layer = me.uv_layers[0].data
+	for i, loop in enumerate(me.loops):
+		kd.insert(uv_layer[loop.index].uv.to_3d(), i)
+	kd.balance()
+	return kd
