@@ -17,6 +17,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 		))
 	old_hash_to_new = {}
 	old_hash_to_new_pz = {}
+
 	# first go over the ovl lists to generate new hashes
 	for i, entry_list in enumerate(ovl_lists):
 		for entry_index, entry in enumerate(entry_list):
@@ -33,8 +34,9 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 					new_name = new_name.replace(old, new)
 				if hasattr(entry, "file_hash"):
 					new_hash = djb(new_name)
-					old_hash_to_new[entry.file_hash] = (new_name, new_hash)
-					old_hash_to_new_pz[entry_index] = (new_name, new_hash)
+					if i == 0:#only want a list of file names, dont want dirs and dependencies overriding this next loop
+						old_hash_to_new[entry.file_hash] = (new_name, new_hash)
+						old_hash_to_new_pz[entry_index] = (new_name, new_hash)
 					print(f"List{i} {entry.basename} -> {new_name},  {entry.file_hash} ->  {new_hash}")
 					entry.file_hash = new_hash
 				else:
