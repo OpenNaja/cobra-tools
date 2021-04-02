@@ -48,6 +48,13 @@ lut_file_unk_0 = {
 	".txt": 1,
 }
 
+lut_mime_hash = {
+	".assetpkg": 1145776474,
+	".fdb": 2545474337,
+	".lua": 1779074288,
+	".txt": 640591494,
+}
+
 
 class OvsFile(OvsHeader, ZipFile):
 
@@ -1519,8 +1526,7 @@ class OvlFile(Header, IoFile):
 			mime_entry.name = mime_names_dict[file_ext]
 			mime_entry.ext = file_ext
 			# update offset using the name buffer
-			# fixme - this is wrong - different hash!
-			mime_entry.mime_hash = djb(mime_entry.name)
+			mime_entry.mime_hash = lut_mime_hash[file_ext]
 			mime_entry.unknown_1 = lut_mime_unk_0[file_ext]
 			mime_entry.unknown_2 = 0
 			mime_entry.file_index_offset = file_index_offset
@@ -1684,6 +1690,7 @@ class OvlFile(Header, IoFile):
 			mime_entry.name = self.names.get_str_at(mime_entry.offset)
 			# only get the extension
 			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
+			# print(f'"{mime_entry.ext}": {mime_entry.mime_hash},')
 			# the stored mime hash is not used anywhere
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
