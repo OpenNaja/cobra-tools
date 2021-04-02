@@ -128,6 +128,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		unk_0 = 0
 		residue = 1
 		fur_length = None
+		fur_width = None
 
 		# fin models have to grab tangents from shell
 		if model.flag == 565:
@@ -203,9 +204,9 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 							# might be a bug, but can't figure out where the rest is affected
 							residue = int(round(vertex_group.weight))
 						elif vgroup_name == "fur_length":
-							# only store this hack for shells, never for fins
-							if model.flag in (885, 1013, 821):
-								fur_length = vertex_group.weight * hair_length
+							fur_length = vertex_group.weight * hair_length
+						elif vgroup_name == "fur_width":
+							fur_width = vertex_group.weight
 						else:
 							# avoid dummy vertex groups without corresponding bones
 							try:
@@ -236,9 +237,9 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 						unweighted_vertices.append(b_loop.vertex_index)
 					# get the index for the skin partition - the bone with the highest weight
 					bone_index = w_s[0][0]
-					# store all raw blender data for pyffi
+					# store all raw blender data
 					verts.append((position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids,
-								  bone_weights, fur_length))
+								  bone_weights, fur_length, fur_width))
 				tri.append(v_index)
 			tris.append(tri)
 

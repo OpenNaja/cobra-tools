@@ -165,7 +165,7 @@ class ModelData:
 		except:
 			self.uvs = None
 		try:
-			fur_shape = self.dt["fur_length"].shape
+			fur_shape = self.dt["fur_shell"].shape
 			self.fur = np.empty((self.vertex_count, *fur_shape), np.float32)
 		except:
 			self.fur = None
@@ -216,7 +216,7 @@ class ModelData:
 		elif self.flag in (821, 853, 885, 1013):
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
-				("fur_length", np.ushort, (2,)),
+				("fur_shell", np.ushort, (2,)),
 				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
 			])
@@ -281,14 +281,16 @@ class ModelData:
 			self.uvs = (self.uvs - 32768) / 2048
 		self.fur_length = 0.0
 		if self.fur is not None:
-			self.fur[:] = self.verts_data[:]["fur_length"]
+			self.fur[:] = self.verts_data[:]["fur_shell"]
 			# unpack fur
 			self.fur = (self.fur - 32768) / 2048
-			# print("self.fur[0]",self.fur[0])
 			# normalize with some overhead
-			self.fur_length = np.max(self.fur) * FUR_OVERHEAD
+			self.fur_length = np.max(self.fur[:, 0]) * FUR_OVERHEAD
 			# print("self.fur_length", self.fur_length)
-			self.fur /= self.fur_length
+			self.fur[:, 0] /= self.fur_length
+			# value range is +-16 - squash it into 0 - 1
+			self.fur[:, 1] = remap(self.fur[:, 1], -16, 16, 0, 1)
+			print("self.fur[0]", self.fur[0])
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data[:]["colors"]
@@ -342,7 +344,7 @@ class ModelData:
 		self.verts_data = np.zeros(len(verts), dtype=self.dt)
 		for i, (
 				position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
-				fur) in enumerate(
+				fur_length, fur_width) in enumerate(
 			verts):
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
 			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
@@ -364,8 +366,8 @@ class ModelData:
 				assert np.sum(self.verts_data[i]["bone weights"]) == 255
 			if "uvs" in self.dt.fields:
 				self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
-			if "fur_length" in self.dt.fields and fur is not None:
-				self.verts_data[i]["fur_length"] = pack_ushort_vector((fur, -1.1))
+			if "fur_shell" in self.dt.fields and fur_length is not None:
+				self.verts_data[i]["fur_shell"] = pack_ushort_vector((fur_length, remap(fur_width, 0, 1, -16, 16)))
 			if "colors" in self.dt.fields:
 				self.verts_data[i]["colors"] = list(list(c * 255 for c in vcol) for vcol in vcols)
 

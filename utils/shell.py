@@ -101,10 +101,10 @@ def build_fins(src_ob, trg_ob):
 	bm.free()  # free and prevent further access
 
 	# remove fur_length vgroup
-	fl = "fur_length"
-	if fl in ob.vertex_groups:
-		vg = ob.vertex_groups[fl]
-		ob.vertex_groups.remove(vg)
+	for vg_name in ("fur_length", "fur_width"):
+		if vg_name in ob.vertex_groups:
+			vg = ob.vertex_groups[vg_name]
+			ob.vertex_groups.remove(vg)
 	ob["flag"] = 565
 
 	# remove the particle system, since we no longer have a fur length vertex group

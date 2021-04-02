@@ -93,9 +93,14 @@ def unpack_weights(model, i, residue, extra=True):
         # create fur length vgroup
         if model.fur is not None:
             vert_w.append(("fur_length", model.fur[i][0] * 255))
+            vert_w.append(("fur_width", model.fur[i][1] * 255))
 
         # the unknown 0, 128 byte
         vert_w.append(("unk0", model.verts_data[i]["unk"] * 255))
         # packing bit
         vert_w.append(("residue", residue * 255))
     return vert_w
+
+
+def remap(v, old_min, old_max, new_min, new_max):
+    return ((v - old_min) / (old_max - old_min)) * (new_max - new_min) + new_min
