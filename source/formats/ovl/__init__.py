@@ -1533,7 +1533,7 @@ class OvlFile(Header, IoFile):
 				file_entry.path = file_path
 				file_entry.name = filename
 				file_entry.basename, file_entry.ext = os.path.splitext(filename)
-				file_entry.file_hash = djb(file_entry.name)
+				file_entry.file_hash = djb(file_entry.basename)
 				file_entry.unkn_0 = lut_file_unk_0[file_ext]
 				file_entry.unkn_1 = 0
 				file_entry.extension = len(self.mimes)
