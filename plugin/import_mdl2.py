@@ -11,7 +11,7 @@ from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from utils import matrix_util
 from generated.formats.ms2 import Mdl2File
-from utils.shell import get_ob_from_lod_and_flags
+from utils.shell import get_ob_from_lod_and_flags, is_fin
 
 
 def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=False):
@@ -32,7 +32,6 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		print("\nmodel_i", model_i)
 		print("lod_i", lod_i)
 		print("flag", model.flag)
-		print("bits", bin(model.flag))
 
 		# create object and mesh from data
 		ob, me = mesh_from_data(f"{bare_name}_model{model_i}", model.vertices, model.tris, wireframe=False)
@@ -100,7 +99,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		bpy.ops.mesh.tris_convert_to_quads()
 		# shells are messed up by remove doubles, affected faces have their dupe faces removed
 		# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
-		if not use_custom_normals and model.flag not in (565, ):
+		if not use_custom_normals and not is_fin(ob):
 			bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
 		try:
 			bpy.ops.uv.seams_from_islands()
@@ -111,7 +110,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		# link to armature, only after mirror so the order is good and weights are mirrored
 		if data.ms2_file.bone_info:
 			append_armature_modifier(ob, b_armature_obj)
-		if model.flag in (1013, 821, 853, 885):
+		if model.flag.fur_shells:
 			add_psys(ob, model)
 		# only set the lod index here so that hiding it does not mess with any operators applied above
 		matrix_util.to_lod(ob, lod_i)

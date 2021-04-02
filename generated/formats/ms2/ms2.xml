@@ -94,11 +94,8 @@
 <!--        <member width="1" pos="3" name="Active" type="bool" default="1" />-->
 		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
 		<member width="1" pos="4" name="weights" type="bool">at least 529</member>
-<!--        <member width="1" pos="5" name="weights" type="bool">at least 529</member>-->
-<!--        <member width="1" pos="6" name="b" type="bool">at least 529</member>-->
-<!--        <member width="1" pos="5" name="Manager Controlled" type="bool" />-->
-<!--        <member width="1" pos="6" name="Compute Scaled Time" type="bool" default="1" />-->
-<!--        <member width="1" pos="7" name="weights" type="bool" >weight data present, flag = 9</member>-->
+		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>
+		<member width="1" pos="8" name="fur shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
 	</bitfield>
 
 	<bitfield name="ModelFlagZT" storage="uint">

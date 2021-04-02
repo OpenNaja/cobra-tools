@@ -232,10 +232,6 @@ class ModelData:
 			verts):
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
 			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
-			# if self.flag == 565:
-			# 	self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(-tangent))
-			# else:
-			# 	self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
 			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
 			self.verts_data[i]["unk"] = unk_0 * 255
 			self.verts_data[i]["bone index"] = bone_index
@@ -256,7 +252,8 @@ class ModelData:
 				self.verts_data[i]["colors"] = list(list(c * 255 for c in vcol) for vcol in vcols)
 
 	def update_shell_count(self):
-		if self.flag in (853, 1013, 821, 885, 565):
+		# 853 in aardvark is a shell mesh, but has no tri shells
+		if self.flag.repeat_tris:
 			self.shell_count = 6
 		else:
 			self.shell_count = 1
