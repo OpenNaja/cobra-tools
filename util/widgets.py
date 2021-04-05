@@ -223,9 +223,6 @@ class SortableTable(QtWidgets.QWidget):
 		self.table.set_data(data)
 
 	def clear_filter(self, ):
-		self.filter_entry.entry.setText(".")
-		self.hide_unused.setChecked(False)
-		self.table.clear_filter()
 		self.filter_entry.entry.setText("")
 		self.hide_unused.setChecked(False)
 		self.rev_search.setChecked(False)
@@ -236,19 +233,11 @@ class SortableTable(QtWidgets.QWidget):
 
 	def toggle_rev(self, state):
 		if self.rev_search.isChecked():
-
-			self.filter_entry.entry.setText(".")
-			self.table.clear_filter()
-			self.filter_entry.entry.setText("")
-			self.table.clear_filter()
 			self.table.rev_check = True
+			self.table.update_filter_function()
 		else:
 			self.table.rev_check = False
-
-			self.filter_entry.entry.setText(".")
-			self.table.clear_filter()
-			self.filter_entry.entry.setText("")
-			self.table.clear_filter()
+			self.table.update_filter_function()
 
 
 class TableView(QtWidgets.QTableView):
@@ -282,14 +271,15 @@ class TableView(QtWidgets.QTableView):
 		self.proxyModel.setFilterKeyColumn(0)
 		self.rev_check = False
 
-	def set_filter(self, fixed_string):
-		# self.proxyModel.setFilterFixedString(fixed_string)
+	def update_filter_function(self):
 		if self.rev_check:
-			self.proxyModel.setFilterFixedString(fixed_string)
 			self.proxyModel.addFilterFunction('name', lambda r, s: s not in r[0])
 		else:
-			self.proxyModel.setFilterFixedString(fixed_string)
 			self.proxyModel.addFilterFunction('name', lambda r, s: s in r[0])
+
+	def set_filter(self, fixed_string):
+		self.proxyModel.setFilterFixedString(fixed_string)
+		self.update_filter_function()
 
 	def set_ext_filter(self, hide):
 		ext_filter_name = "ext_filter"
