@@ -4,10 +4,10 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 
 import modules.formats.shared
-import util.interaction
+import ovl_util.interaction
 from generated.formats.fgm import FgmFile
 from generated.formats.ovl.versions import *
-from util import widgets, config
+from ovl_util import widgets, config
 
 
 class MainWindow(widgets.MainWindow):
@@ -19,10 +19,10 @@ class MainWindow(widgets.MainWindow):
 
 		self.fgm_data = FgmFile()
 		self.widgets = []
-		self.tooltips = config.read_config("util/tooltips/fgm.txt")
+		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.shaders = {}
 		for game in games:
-			self.shaders[game] = config.read_list(f"util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
+			self.shaders[game] = config.read_list(f"ovl_util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
 
@@ -137,7 +137,7 @@ class MainWindow(widgets.MainWindow):
 
 			except Exception as ex:
 				traceback.print_exc()
-				util.interaction.showdialog(str(ex))
+				ovl_util.interaction.showdialog(str(ex))
 				print(ex)
 			print("Done!")
 		

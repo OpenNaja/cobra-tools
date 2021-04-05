@@ -1,7 +1,7 @@
 import struct
 
-from util import texconv
-from util.interaction import showdialog
+from ovl_util import texconv
+from ovl_util.interaction import showdialog
 
 
 def write_lua(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):

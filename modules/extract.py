@@ -3,7 +3,7 @@ import os
 import traceback
 import sys
 
-import util.interaction
+import ovl_util.interaction
 import modules.formats.shared
 from modules.formats.BANI import write_banis, write_bani
 from modules.formats.BNK import write_bnk
@@ -21,7 +21,7 @@ from modules.formats.SPECDEF import write_specdef
 from modules.formats.TXT import write_txt
 from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
-from util import widgets
+from ovl_util import widgets
 
 
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams")

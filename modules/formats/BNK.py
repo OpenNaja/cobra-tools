@@ -2,7 +2,7 @@ import os
 import struct
 
 from generated.formats.bnk import BnkFile, AuxFile
-from util import texconv
+from ovl_util import texconv
 
 
 def write_bnk(ovl, entry, out_dir_func, show_temp_files, progress_callback):

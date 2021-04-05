@@ -14,7 +14,7 @@ from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.helpers import split_path
 
-from util import imarray
+from ovl_util import imarray
 
 
 def inject(ovl_data, file_paths, show_temp_files, hack_2k):

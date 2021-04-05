@@ -11,8 +11,8 @@ import numpy as np
 
 from generated.array import Array
 from modules.formats.shared import assign_versions, get_versions
-from util import texconv
-from util.oodle.oodle import OodleDecompressEnum
+from ovl_util import texconv
+from ovl_util.oodle.oodle import OodleDecompressEnum
 
 Byte = Struct("<b")  # int8
 UByte = Struct("<B")  # uint8

@@ -9,8 +9,8 @@ try:
 	import binascii
 	from importlib import reload
 
-	import util.interaction
-	from util import widgets
+	import ovl_util.interaction
+	from ovl_util import widgets
 	from modules import extract, inject, hasher, walker, remover
 	from modules.extract import SUPPORTED_TYPES
 	from generated.formats.ovl import OvlFile, games, get_game
@@ -231,7 +231,7 @@ class MainWindow(widgets.MainWindow):
 				self.ovl_data.load_archives()
 			except Exception as ex:
 				traceback.print_exc()
-				util.interaction.showdialog(str(ex))
+				ovl_util.interaction.showdialog(str(ex))
 				print(ex)
 			self.update_gui_table()
 			game = get_game(self.ovl_data)
@@ -244,7 +244,7 @@ class MainWindow(widgets.MainWindow):
 			self.ovl_data.create(ovl_dir, mime_names_dict=self.mimes_table)
 		except Exception as ex:
 			traceback.print_exc()
-			util.interaction.showdialog(str(ex))
+			ovl_util.interaction.showdialog(str(ex))
 			print(ex)
 		self.update_gui_table()
 
@@ -268,27 +268,10 @@ class MainWindow(widgets.MainWindow):
 					self.ovl_data.save(file_src, self.use_ext_dat, self.dat_widget.filepath)
 				except BaseException as ex:
 					traceback.print_exc()
-					util.interaction.showdialog(str(ex))
+					ovl_util.interaction.showdialog(str(ex))
 					print(ex)
 				self.file_widget.dirty = False
 				print("Done!")
-
-	def skip_messages(self, error_files, skip_files):
-		error_count = len(error_files)
-		skip_count = len(skip_files)
-		if error_count:
-			print("Files not extracted due to error:")
-			for ef in error_files:
-				print("\t", ef)
-
-		if skip_count:
-			print("Unsupported files not extracted:")
-			for sf in skip_files:
-				print("\t", sf)
-
-		if error_count or skip_count:
-			message = f"{error_count + skip_count} files were not extracted from the archive and may be missing from the output folder. {skip_count} were unsupported, while {error_count} produced errors."
-			util.interaction.showdialog(message)
 
 	def extract_all(self):
 		if self.file_widget.filename:
@@ -298,14 +281,14 @@ class MainWindow(widgets.MainWindow):
 				self.cfg["dir_extract"] = out_dir
 				try:
 					out_paths, error_files, skip_files = self.ovl_data.extract(out_dir, self.show_temp_files)
-					self.skip_messages(error_files, skip_files)
+					ovl_util.interaction.skip_messages(error_files, skip_files)
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except Exception as ex:
 					traceback.print_exc()
-					util.interaction.showdialog(str(ex))
+					ovl_util.interaction.showdialog(str(ex))
 					print(ex)
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can extract files!")
+			ovl_util.interaction.showdialog("You must open an OVL file before you can extract files!")
 
 	def inject(self):
 		if self.file_widget.filename:
@@ -318,10 +301,10 @@ class MainWindow(widgets.MainWindow):
 				self.file_widget.dirty = True
 			except Exception as ex:
 				traceback.print_exc()
-				util.interaction.showdialog(str(ex))
+				ovl_util.interaction.showdialog(str(ex))
 			print("Done!")
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can inject files!")
+			ovl_util.interaction.showdialog("You must open an OVL file before you can inject files!")
 
 	def inject_dir(self):
 		if self.file_widget.filename:
@@ -331,10 +314,10 @@ class MainWindow(widgets.MainWindow):
 				self.update_gui_table()
 			except Exception as ex:
 				traceback.print_exc()
-				util.interaction.showdialog(str(ex))
+				ovl_util.interaction.showdialog(str(ex))
 			print("Done!")
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can inject directories!")
+			ovl_util.interaction.showdialog("You must open an OVL file before you can inject directories!")
 
 	def hasher(self):
 		if self.species_hash == False:
@@ -343,14 +326,14 @@ class MainWindow(widgets.MainWindow):
 				hasher.dat_hasher(self.ovl_data, names)
 				self.update_gui_table()
 			else:
-				util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
+				ovl_util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
 		else:
 			if self.file_widget.filename:
 				names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
 				hasher.dat_hasher_species(self.ovl_data, names)
 				self.update_gui_table()
 			else:
-				util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
+				ovl_util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
 
 	def dat_replacement(self):
 		if self.file_widget.filename:
@@ -358,7 +341,7 @@ class MainWindow(widgets.MainWindow):
 			hasher.dat_replacer(self.ovl_data, names)
 			self.update_gui_table()
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
+			ovl_util.interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
 
 	def species_dat_replacement(self):
 		if self.file_widget.filename:
@@ -366,7 +349,7 @@ class MainWindow(widgets.MainWindow):
 			hasher.species_dat_replacer(self.ovl_data, names)
 			self.update_gui_table()
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
+			ovl_util.interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
 
 	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
 	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
@@ -384,7 +367,7 @@ class MainWindow(widgets.MainWindow):
 					traceback.print_exc()
 				self.update_gui_table()
 		else:
-			util.interaction.showdialog("You must open an OVL file before you can remove files!")
+			ovl_util.interaction.showdialog("You must open an OVL file before you can remove files!")
 
 	def walker_hash(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
@@ -444,7 +427,7 @@ class MainWindow(widgets.MainWindow):
 						traceback.print_exc()
 						errors.append((ovl_path, ex))
 
-				self.skip_messages(error_files, skip_files)
+				skip_messages(error_files, skip_files)
 
 			# holds different types of flag - list of byte maps pairs
 			type_dic = {}
@@ -501,11 +484,11 @@ class MainWindow(widgets.MainWindow):
 	def check_version():
 		is_64bits = sys.maxsize > 2 ** 32
 		if not is_64bits:
-			util.interaction.showdialog("Either your operating system or your python installation is not 64 bits.\n"
+			ovl_util.interaction.showdialog("Either your operating system or your python installation is not 64 bits.\n"
 										"Large OVLs will crash unexpectedly!")
 		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
 				sys.version_info[1] == 7 and sys.version_info[2] < 6):
-			util.interaction.showdialog("Python 3.7.6+ x64 bit is expected!")
+			ovl_util.interaction.showdialog("Python 3.7.6+ x64 bit is expected!")
 
 
 if __name__ == '__main__':

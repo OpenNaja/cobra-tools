@@ -11,7 +11,7 @@ from generated.formats.ovl.compound.Header3Data1 import Header3Data1
 from generated.formats.ovl.compound.Header3Data1Ztuac import Header3Data1Ztuac
 from generated.formats.ovl.compound.Header7Data1 import Header7Data1
 
-from util import texconv, imarray
+from ovl_util import texconv, imarray
 
 
 def get_tex_structs(sized_str_entry):

@@ -3,9 +3,9 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 
 import modules.formats.shared
-import util.interaction
+import ovl_util.interaction
 from generated.formats.matcol import MatcolFile
-from util import widgets, config
+from ovl_util import widgets, config
 
 
 class MainWindow(widgets.MainWindow):
@@ -18,9 +18,9 @@ class MainWindow(widgets.MainWindow):
 		self.matcol_data = MatcolFile()
 		self.file_src = ""
 		self.widgets = []
-		self.tooltips = config.read_config("util/tooltips/matcol.txt")
+		self.tooltips = config.read_config("ovl_util/tooltips/matcol.txt")
 		self.games = ("Jurassic World Evolution", "Planet Zoo")
-		self.default_fgms = config.read_list("util/tooltips/matcol-fgm-names.txt")
+		self.default_fgms = config.read_list("ovl_util/tooltips/matcol-fgm-names.txt")
 
 		mainMenu = self.menuBar() 
 		fileMenu = mainMenu.addMenu('File')
@@ -170,7 +170,7 @@ class MainWindow(widgets.MainWindow):
 					line_i += 1
 				
 			except Exception as ex:
-				util.interaction.showdialog(str(ex))
+				ovl_util.interaction.showdialog(str(ex))
 				print(traceback.print_exc())
 			print("Done!")
 		
