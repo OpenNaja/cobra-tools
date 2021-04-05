@@ -1712,17 +1712,14 @@ class OvlFile(Header, IoFile):
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
 
-		# create directories
+		# get directories
 		hd_max = len(self.dirs)
 		for hd_index, dir_entry in enumerate(self.dirs):
 			self.print_and_callback("Creating directories", value=hd_index, max_value=hd_max)
 			# get dir name from name table
-			dir_entry.name = self.names.get_str_at(dir_entry.offset)
-		# fix up the name
-		# dir = os.path.normpath(os.path.join(os.getcwd(), dir_name.lstrip("..\\")))
-		# create dir, do nothing if it already exists
-		# os.makedirs(dir, exist_ok=True)
-		# print(dir)
+			dir_entry.basename = self.names.get_str_at(dir_entry.offset)
+			dir_entry.ext = ""
+			dir_entry.name = dir_entry.name + dir_entry.ext
 
 		# print(self)
 		# get names of all dependencies

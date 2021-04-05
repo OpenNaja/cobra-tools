@@ -1,6 +1,8 @@
 from modules.formats.shared import djb
 import io
 
+SPECIES_ONLY_FMTS = (".mdl2", ".ms2", ".motiongraph", ".materialcollection")
+
 
 def dat_hasher(ovl, name_tups, species_mode=False):
 	print(f"Hashing and Renaming for {name_tups}")
@@ -26,7 +28,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 					print("Skipping", entry.name, entry.file_hash)
 					continue
 				if species_mode:
-					if entry.ext not in ".mdl2.ms2.motiongraph.materialcollection":
+					if entry.ext not in SPECIES_ONLY_FMTS:
 						print("Skipping", entry.name, entry.file_hash)
 						continue
 				new_name = entry.basename
@@ -34,7 +36,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 					new_name = new_name.replace(old, new)
 				if hasattr(entry, "file_hash"):
 					new_hash = djb(new_name)
-					if i == 0:#only want a list of file names, dont want dirs and dependencies overriding this next loop
+					if i == 0:  # only want a list of file names, dont want dirs and dependencies overriding this next loop
 						old_hash_to_new[entry.file_hash] = (new_name, new_hash)
 						old_hash_to_new_pz[entry_index] = (new_name, new_hash)
 					print(f"List{i} {entry.basename} -> {new_name},  {entry.file_hash} ->  {new_hash}")
@@ -42,7 +44,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 				else:
 					print(f"List{i} {entry.basename} -> {new_name},  [NOT HASHED]")
 				entry.basename = new_name
-				entry.name = entry.basename+entry.ext
+				entry.name = entry.basename + entry.ext
 			except Exception as err:
 				print(err)
 
@@ -50,7 +52,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 	for i, entry_list in enumerate(ovs_lists):
 		for entry in entry_list:
 			if species_mode:
-				if entry.ext not in ".mdl2.ms2.motiongraph.materialcollection":
+				if entry.ext not in SPECIES_ONLY_FMTS:
 					print("Skipping", entry.name, entry.file_hash)
 					continue
 			if ovl.user_version.is_jwe:
@@ -104,9 +106,9 @@ def dat_replacer(ovl, name_tups):
 				b = header_entry.data.getvalue()
 				header_entry.data = io.BytesIO(replace_bytes(b, name_tups))
 			ovs.populate_pointers()
-		# for buffer_entry in ovs.buffer_entries:
-		# 	b = buffer_entry.data
-		# 	buffer_entry.data = replace_bytes(b, name_tups)
+	# for buffer_entry in ovs.buffer_entries:
+	# 	b = buffer_entry.data
+	# 	buffer_entry.data = replace_bytes(b, name_tups)
 	except Exception as err:
 		print(err)
 	print("Done!")
@@ -138,7 +140,7 @@ def species_dat_replacer(ovl, name_tups):
 				suffixes.append(f"{gender}_l{i}")
 		name_tups_new = []
 		for old, new in name_tups:
-			name_tups_temp = [(old+s, new+s) for s in suffixes]
+			name_tups_temp = [(old + s, new + s) for s in suffixes]
 			name_tups_new.extend(name_tups_temp)
 			name_tups_new.extend([(hex(djb(o.lower())), hex(djb(n.lower()))) for o, n in name_tups_temp])
 	try:
