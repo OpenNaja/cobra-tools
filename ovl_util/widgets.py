@@ -217,6 +217,7 @@ class SortableTable(QtWidgets.QWidget):
 		qgrid.addWidget(self.rev_search, 0, 2, )
 		qgrid.addWidget(self.clear_filters, 0, 3, )
 		qgrid.addWidget(self.table, 1, 0, 1, 4)
+		qgrid.setContentsMargins(0, 0, 0, 0)
 		self.setLayout(qgrid)
 
 	def set_data(self, data):
@@ -402,6 +403,7 @@ class LabelEdit(QtWidgets.QWidget):
 		vbox = QtWidgets.QHBoxLayout()
 		vbox.addWidget(self.label)
 		vbox.addWidget(self.entry)
+		vbox.setContentsMargins(0, 0, 0, 0)
 		# vbox.addStretch(1)
 		self.setLayout(vbox)
 
@@ -449,6 +451,7 @@ class EditCombo(QtWidgets.QWidget):
 		vbox.addWidget(self.entry)
 		vbox.addWidget(self.add_button)
 		vbox.addWidget(self.delete_button)
+		vbox.setContentsMargins(0, 0, 0, 0)
 
 	def setText(self, txt):
 		flag = QtCore.Qt.MatchFixedString
@@ -491,6 +494,7 @@ class LabelCombo(QtWidgets.QWidget):
 		vbox = QtWidgets.QHBoxLayout(self)
 		vbox.addWidget(self.label)
 		vbox.addWidget(self.entry)
+		vbox.setContentsMargins(0, 0, 0, 0)
 
 
 class MySwitch(QtWidgets.QPushButton):
