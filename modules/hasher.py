@@ -1,7 +1,18 @@
 from modules.formats.shared import djb
+import struct
 import io
 
+from ovl_util.interaction import showdialog
+
 SPECIES_ONLY_FMTS = (".mdl2", ".ms2", ".motiongraph", ".materialcollection")
+
+
+def djb_bytes(string):
+	return struct.pack("<I", djb(string.lower()))
+
+
+def name_bytes(string):
+	return string.encode(encoding="utf-8")
 
 
 def dat_hasher(ovl, name_tups, species_mode=False):
@@ -98,13 +109,16 @@ def dat_hasher_species(ovl, name_tups):
 
 def dat_replacer(ovl, name_tups):
 	print(f"Replacing Dat contents for {name_tups}")
+	if check_length(name_tups):
+		return
+	name_tups_new = [(name_bytes(o), name_bytes(n)) for o, n in name_tups]
 	try:
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
 			ovs = archive_entry.content
 			for header_entry in ovs.header_entries:
 				b = header_entry.data.getvalue()
-				header_entry.data = io.BytesIO(replace_bytes(b, name_tups))
+				header_entry.data = io.BytesIO(replace_bytes(b, name_tups_new))
 			ovs.populate_pointers()
 	# for buffer_entry in ovs.buffer_entries:
 	# 	b = buffer_entry.data
@@ -114,20 +128,27 @@ def dat_replacer(ovl, name_tups):
 	print("Done!")
 
 
+def check_length(name_tups):
+	# Ask and return true if error is found and process should be stopped
+	for old, new in name_tups:
+		if len(old) != len(new):
+			if showdialog(f"WARNING: length of '{old}' [{len(old)} chars] and '{new}' [{len(new)} chars] don't match!\n"
+							 f"Stop hashing?", ask=True):
+				return True
+
+
 def species_dat_replacer(ovl, name_tups):
-	print(f"Replacing Dat contents for {name_tups}")
+	print(f"Replacing Species Dat contents for {name_tups}")
+	if check_length(name_tups):
+		return
+	name_tups_new = []
+	name_tups_new2 = []
 	if ovl.user_version.is_jwe:
+		suffixes = ("@", "_Var")
+		suffixes2 = ("", "@", "_Var")
 		for old, new in name_tups:
-			old_a = old + "@"
-			new_a = new + "@"
-			old_b = old + "_Var"
-			new_b = new + "_Var"
-			old_c = old
-			new_c = new
-			old_ch = hex(djb(old_c.lower()))
-			new_ch = hex(djb(new_c.lower()))
-		name_tups_new = [(old_a, new_a), (old_b, new_b), (old_ch, new_ch)]
-		name_tups_new2 = [(old_a, new_a), (old_b, new_b), (old_c, new_c), (old_ch, new_ch)]
+			extend_name_tuples(name_tups_new, new, old, suffixes)
+			extend_name_tuples(name_tups_new2, new, old, suffixes2)
 	else:
 		suffixes = []
 		for gender in ("_Female", "_Male", "_Juvenile", ""):
@@ -138,11 +159,8 @@ def species_dat_replacer(ovl, name_tups):
 			# lods
 			for i in range(7):
 				suffixes.append(f"{gender}_l{i}")
-		name_tups_new = []
 		for old, new in name_tups:
-			name_tups_temp = [(old + s, new + s) for s in suffixes]
-			name_tups_new.extend(name_tups_temp)
-			name_tups_new.extend([(hex(djb(o.lower())), hex(djb(n.lower()))) for o, n in name_tups_temp])
+			extend_name_tuples(name_tups_new, new, old, suffixes)
 	try:
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
@@ -163,27 +181,13 @@ def species_dat_replacer(ovl, name_tups):
 	print("Done!")
 
 
+def extend_name_tuples(name_tups_new, new, old, suffixes):
+	name_tups_temp = [(old + s, new + s) for s in suffixes]
+	name_tups_new.extend([(name_bytes(o), name_bytes(n)) for o, n in name_tups_temp])
+	name_tups_new.extend([(djb_bytes(o), djb_bytes(n)) for o, n in name_tups_temp])
+
+
 def replace_bytes(b, name_tups):
 	for old, new in name_tups:
-		if old.startswith("0x"):
-			print(f"HEX MODE for {old} -> {new}")
-			if len(old[2:]) == 8:
-				old = bytes.fromhex(old[2:])[::-1]
-			elif len(old[2:]) == 7:
-				old = bytes.fromhex("0" + old[2:])[::-1]
-			elif len(old[2:]) == 6:
-				old = bytes.fromhex("00" + old[2:])[::-1]
-			if len(new[2:]) == 8:
-				new = bytes.fromhex(new[2:])[::-1]
-			elif len(new[2:]) == 7:
-				new = bytes.fromhex("0" + new[2:])[::-1]
-			elif len(new[2:]) == 6:
-				new = bytes.fromhex("00" + new[2:])[::-1]
-		else:
-			old = old.encode(encoding="utf-8")
-			new = new.encode(encoding="utf-8")
-		print(old, new)
-		if len(old) != len(new):
-			print(f"WARNING: length of {old} and {new} don't match!")
 		b = b.replace(old, new)
 	return b

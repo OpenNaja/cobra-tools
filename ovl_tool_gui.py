@@ -112,8 +112,6 @@ class MainWindow(widgets.MainWindow):
 			(editMenu, "Inject", self.inject, "CTRL+I", "inject"),
 			(editMenu, "Hash", self.hasher, "CTRL+H", ""),
 			(editMenu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
-			(editMenu, "Species Dat Edit", self.species_dat_replacement, "CTRL+K", ""),
-			(editMenu, "Inject Dir", self.inject_dir, "CTRL+B", ""),
 			(editMenu, "Remove Selected", self.remover, "DEL", ""),
 			(editMenu, "Walk", self.walker, "", ""),
 			# (editMenu, "Reload", self.reload, "", ""),
@@ -303,47 +301,21 @@ class MainWindow(widgets.MainWindow):
 		else:
 			interaction.showdialog("You must open an OVL file before you can inject files!")
 
-	def inject_dir(self):
-		if self.file_widget.filename:
-			directory_name = self.dir_container.directory.entry.text()
-			try:
-				self.ovl_data.inject_dir(directory_name)
-				self.update_gui_table()
-			except Exception as ex:
-				traceback.print_exc()
-				interaction.showdialog(str(ex))
-			print("Done!")
-		else:
-			interaction.showdialog("You must open an OVL file before you can inject directories!")
-
 	def hasher(self):
-		if self.species_hash == False:
-			if self.file_widget.filename:
-				names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
-				hasher.dat_hasher(self.ovl_data, names)
-				self.update_gui_table()
-			else:
-				interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
+		if self.file_widget.filename:
+			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+			hasher.dat_hasher(self.ovl_data, names, species_mode=self.species_hash)
+			self.update_gui_table()
 		else:
-			if self.file_widget.filename:
-				names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
-				hasher.dat_hasher_species(self.ovl_data, names)
-				self.update_gui_table()
-			else:
-				interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
+			interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
 
 	def dat_replacement(self):
 		if self.file_widget.filename:
 			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
-			hasher.dat_replacer(self.ovl_data, names)
-			self.update_gui_table()
-		else:
-			interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
-
-	def species_dat_replacement(self):
-		if self.file_widget.filename:
-			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
-			hasher.species_dat_replacer(self.ovl_data, names)
+			if self.species_hash:
+				hasher.species_dat_replacer(self.ovl_data, names)
+			else:
+				hasher.dat_replacer(self.ovl_data, names)
 			self.update_gui_table()
 		else:
 			interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
@@ -424,7 +396,7 @@ class MainWindow(widgets.MainWindow):
 						traceback.print_exc()
 						errors.append((ovl_path, ex))
 
-				skip_messages(error_files, skip_files)
+				interaction.skip_messages(error_files, skip_files)
 
 			# holds different types of flag - list of byte maps pairs
 			type_dic = {}
