@@ -383,21 +383,12 @@ class MainWindow(widgets.MainWindow):
 	def remover(self):
 		if self.file_widget.filename:
 			selected_file_names = self.files_container.table.get_selected_files()
-			selected_dir_names = self.dir_container.table.get_selected_dirs()
 			if selected_file_names:
 				try:
 					remover.file_remover(self.ovl_data, selected_file_names)
 				except Exception as err:
 					traceback.print_exc()
 				self.update_gui_table()
-			if selected_dir_names:
-				try:
-					print(selected_dir_names)
-					remover.dir_remover(self.ovl_data, selected_dir_names)
-				except Exception as err:
-					traceback.print_exc()
-				self.update_gui_table()
-
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can remove files!")
 
