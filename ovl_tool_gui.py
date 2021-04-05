@@ -1,10 +1,7 @@
 import os
-import struct
 import sys
 import time
 import traceback
-
-import util.interaction
 
 try:
 	from PyQt5 import QtWidgets
@@ -12,6 +9,7 @@ try:
 	import binascii
 	from importlib import reload
 
+	import util.interaction
 	from util import widgets
 	from modules import extract, inject, hasher, walker, remover
 	from modules.extract import SUPPORTED_TYPES
@@ -20,10 +18,6 @@ try:
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
-
-
-def to_hex_str(uint):
-	return binascii.hexlify(struct.pack("I", uint)).upper().decode()
 
 
 class MainWindow(widgets.MainWindow):
