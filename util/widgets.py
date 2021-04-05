@@ -14,6 +14,7 @@ MAX_UINT = 4294967295
 myFont = QtGui.QFont()
 myFont.setBold(True)
 
+
 def startup(cls):
 	appQt = QtWidgets.QApplication([])
 
@@ -212,16 +213,16 @@ class SortableTable(QtWidgets.QWidget):
 		self.clear_filters.pressed.connect(self.clear_filter)
 		qgrid = QtWidgets.QGridLayout()
 		qgrid.addWidget(self.filter_entry, 0, 0, )
-		qgrid.addWidget(self.hide_unused, 0, 1,)
-		qgrid.addWidget(self.rev_search, 0, 2,)
-		qgrid.addWidget(self.clear_filters, 0, 3,)
+		qgrid.addWidget(self.hide_unused, 0, 1, )
+		qgrid.addWidget(self.rev_search, 0, 2, )
+		qgrid.addWidget(self.clear_filters, 0, 3, )
 		qgrid.addWidget(self.table, 1, 0, 1, 4)
 		self.setLayout(qgrid)
 
 	def set_data(self, data):
 		self.table.set_data(data)
 
-	def clear_filter(self,):
+	def clear_filter(self, ):
 		self.filter_entry.entry.setText(".")
 		self.hide_unused.setChecked(False)
 		self.table.clear_filter()
@@ -232,7 +233,7 @@ class SortableTable(QtWidgets.QWidget):
 
 	def toggle_hide(self, state):
 		self.table.set_ext_filter(self.hide_unused.isChecked())
-        
+
 	def toggle_rev(self, state):
 		if self.rev_search.isChecked():
 
@@ -295,6 +296,7 @@ class TableView(QtWidgets.QTableView):
 		if hide:
 			def ext_filter(r, s):
 				return r[1] not in extract.IGNORE_TYPES
+
 			self.proxyModel.addFilterFunction(ext_filter_name, ext_filter)
 		else:
 			self.proxyModel.removeFilterFunction(ext_filter_name)
@@ -316,7 +318,8 @@ class TableView(QtWidgets.QTableView):
 		print("DRAGGING", names)
 		try:
 			temp_dir = tempfile.gettempdir()
-			out_paths, errors, skips = self.main_window.ovl_data.extract(temp_dir, only_names=names, show_temp_files=self.main_window.show_temp_files)
+			out_paths, errors, skips = self.main_window.ovl_data.extract(temp_dir, only_names=names,
+																		 show_temp_files=self.main_window.show_temp_files)
 
 			data = QtCore.QMimeData()
 			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
@@ -387,7 +390,8 @@ class TableView(QtWidgets.QTableView):
 			if self.main_window.file_widget.filename:
 				# self.cfg["dir_inject"] = os.path.dirname(files[0])
 				try:
-					inject.inject(self.main_window.ovl_data, files, self.main_window.show_temp_files, self.main_window.write_2K)
+					inject.inject(self.main_window.ovl_data, files, self.main_window.show_temp_files,
+								  self.main_window.write_2K)
 					self.main_window.file_widget.dirty = True
 				except Exception as ex:
 					traceback.print_exc()
@@ -398,118 +402,8 @@ class TableView(QtWidgets.QTableView):
 		# self.accept_file(filepath)
 		# self.resize(720, 400)
 		e.accept()
-		
-class TableDirModel(QtCore.QAbstractTableModel):
-	def __init__(self, data, header_names):
-		super(TableDirModel, self).__init__()
-		self._data = data
-		self.header_labels = header_names
-
-	def data(self, index, role):
-		if role == QtCore.Qt.DisplayRole:
-			# See below for the nested-list data structure.
-			# .row() indexes into the outer list,
-			# .column() indexes into the sub-list
-			return self._data[index.row()][index.column()]
 
 
-		if role == QtCore.Qt.TextAlignmentRole:
-			# right align hashes
-			if index.column() == 2:
-				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight
-
-	def row(self, row_index):
-		return self._data[row_index]
-
-	def rowCount(self, index):
-		# The length of the outer list.
-		return len(self._data)
-
-	def columnCount(self, index):
-		# The following takes the first sub-list, and returns
-		# the length (only works if all rows are an equal length)
-		return len(self._data[0])
-
-	def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
-		if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
-			return self.header_labels[section]
-		return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
-
-	def flags(self, index):
-		# QtCore.Qt.ItemIsEditable |
-
-
-		return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDropEnabled 
-
-class SortableDirTable(QtWidgets.QWidget):
-	def __init__(self, header_names, main_window):
-		super().__init__()
-		self.main_window = main_window
-		self.table = TableDirView(header_names, main_window)
-		self.directory = LabelEdit("Directories:")
-		qgrid = QtWidgets.QGridLayout()
-		qgrid.addWidget(self.directory, 0, 0, )
-		qgrid.addWidget(self.table, 1, 0, 1, 1)
-		self.setLayout(qgrid)
-		self.table.doubleClicked.connect(self.double_clicked)
-
-	def double_clicked(self, data):
-		currentPath = os.path.dirname(self.main_window.file_widget.filepath)
-		newfile     = self.table.get_selected_files()[0]
-		print(f"\nLoading {newfile} requested\n")
-		newfilepath = os.path.join(currentPath , newfile + '.ovl')
-		if self.main_window.file_widget.accept_file(newfilepath) and self.main_window.poll:
-				self.main_window.poll()
-
-	def set_data(self, data):
-		self.table.set_data(data)
-		
-class TableDirView(QtWidgets.QTableView):
-	def __init__(self, header_names, main_window):
-		super().__init__()
-		# list of lists
-		# row first
-		self.data = [[], ]
-		self.main_window = main_window
-		self.ovl_data = main_window.ovl_data
-
-		self.model = TableDirModel(self.data, header_names)
-		# self.proxyModel = QSortFilterProxyModel()
-		self.proxyModel = CustomSortFilterProxyModel()
-		self.proxyModel.setSourceModel(self.model)
-		self.proxyModel.setSortRole(QtCore.Qt.UserRole)
-		self.setModel(self.proxyModel)
-
-		self.resizeColumnsToContents()
-
-		self.setAcceptDrops(True)
-		self.setDragEnabled(True)
-		self.setDropIndicatorShown(True)
-		self.verticalHeader().hide()
-		self.setSelectionBehavior(self.SelectRows)
-
-		self.setSortingEnabled(True)
-		# sort by index; -1 means don't sort
-		self.sortByColumn(-1, Qt.AscendingOrder)
-		# self.proxyModel.setFilterFixedString("")
-		self.proxyModel.setFilterFixedString("")
-		self.proxyModel.setFilterKeyColumn(0)
-
-
-	def get_selected_dirs(self):
-		# map the selected indices to the actual underlying data, which is in its original order
-		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
-		return [self.model._data[x][0] for x in ids]
-
-	def set_data(self, data):
-		if not data:
-			data = [[], ]
-		self.model.beginResetModel()
-		self.model._data = data
-		self.model.endResetModel()
-		self.resizeColumnsToContents()
-		
-		
 class LabelEdit(QtWidgets.QWidget):
 	def __init__(self, name, ):
 		QtWidgets.QWidget.__init__(self, )
@@ -549,23 +443,64 @@ class CleverCombo(QtWidgets.QComboBox):
 		setattr(self.link_inst, self.link_attr, self.currentText())
 
 
+class EditCombo(QtWidgets.QWidget):
+	def __init__(self, parent):
+		super(EditCombo, self).__init__(parent)
+		self.main_window = parent
+		self.add_button = QtWidgets.QPushButton("+")
+		self.add_button.clicked.connect(self.add)
+		self.delete_button = QtWidgets.QPushButton("-")
+		self.delete_button.clicked.connect(self.delete)
+		self.add_button.setMaximumWidth(20)
+		self.delete_button.setMaximumWidth(20)
+		self.entry = QtWidgets.QComboBox()
+		self.entry.setEditable(True)
+		vbox = QtWidgets.QHBoxLayout(self)
+		vbox.addWidget(self.entry)
+		vbox.addWidget(self.add_button)
+		vbox.addWidget(self.delete_button)
+
+	def setText(self, txt):
+		flag = QtCore.Qt.MatchFixedString
+		indx = self.findText(txt, flags=flag)
+		# add new item if not found
+		if indx == -1:
+			self.addItem(txt)
+			indx = self.findText(txt, flags=flag)
+		self.setCurrentIndex(indx)
+
+	def add(self, ):
+		dir_name = self.entry.currentText()
+		if dir_name:
+			self.main_window.ovl_data.inject_dir(dir_name)
+			self.set_data(self.main_window.ovl_data.dir_names)
+
+	def delete(self, ):
+		dir_name = self.entry.currentText()
+		if dir_name:
+			self.main_window.ovl_data.remove_dir(dir_name)
+			self.set_data(self.main_window.ovl_data.dir_names)
+
+	def set_data(self, items):
+		self.entry.clear()
+		self.entry.addItems(items)
+
+
 class LabelCombo(QtWidgets.QWidget):
 	def __init__(self, name, options, link_inst=None, link_attr=None):
 		QtWidgets.QWidget.__init__(self, )
-		sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		sizePolicy.setHorizontalStretch(0)
-		sizePolicy.setVerticalStretch(0)
-		self.shader_container = QtWidgets.QWidget()
-		self.label = QtWidgets.QLabel(name)
-		self.entry = CleverCombo(options=options, link_inst=link_inst, link_attr=link_attr)
-		sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
+		# sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		# sizePolicy.setHorizontalStretch(0)
+		# sizePolicy.setVerticalStretch(0)
+		# sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
 		# self.entry.setSizePolicy(sizePolicy)
 		# self.entry.setMaxVisibleItems(10)
+		self.label = QtWidgets.QLabel(name)
+		self.entry = CleverCombo(options=options, link_inst=link_inst, link_attr=link_attr)
 		self.entry.setEditable(True)
-		vbox = QtWidgets.QHBoxLayout()
+		vbox = QtWidgets.QHBoxLayout(self)
 		vbox.addWidget(self.label)
 		vbox.addWidget(self.entry)
-		self.setLayout(vbox)
 
 
 class MySwitch(QtWidgets.QPushButton):
@@ -966,7 +901,7 @@ class FileWidget(QtWidgets.QWidget):
 		filepath = QtWidgets.QFileDialog.getExistingDirectory()
 		if self.accept_dir(filepath):
 			self.parent.create_ovl(filepath)
-			
+
 	def ignoreEvent(self, event):
 		event.ignore()
 

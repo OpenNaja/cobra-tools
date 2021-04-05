@@ -1,109 +1,106 @@
-from modules.formats.shared import djb
-#
-# *file_hash = 1118995050
-# *num_files = 0
-# *ext_hash = 2830413767
-print(djb("Casino:AssetPackageRes:assetpkg"))
-print(djb("casino:assetpackageres:assetpkg"))
-print(djb("Casino.AssetPackageRes.assetpkg"))
-print(djb("casino.assetpackageres.assetpkg"))
-print(djb("Casino:AssetPackageRes:"))
-print(djb("casino:assetpackageres:"))
-print(djb("Casino.AssetPackageRes."))
-print(djb("casino.assetpackageres."))
-print(djb("Casino:AssetPackageRes"))
-print(djb("casino:assetpackageres"))
-print(djb("Casino.AssetPackageRes"))
-print(djb("casino.assetpackageres"))
-print(djb(".assetpkg"))
-print(djb(":assetpkg"))
-print(djb("assetpkg"))
-# print(djb("bani"))
-#
-# 	* sized_str_entries = [SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 1118995050
-# 	* ext_hash = 2830413767
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 128
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 2846495040
-# 	* ext_hash = 2830413767
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 208
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 3013842650
-# 	* ext_hash = 2830413767
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 352
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 3074757116
-# 	* ext_hash = 2830413767
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 496
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 3776781890
-# 	* ext_hash = 2830413767
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 640
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 1056665418
-# 	* ext_hash = 193491473
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 656
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 1755461150
-# 	* ext_hash = 193491473
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 688
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 3921485951
-# 	* ext_hash = 193491473
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 720
-# ]
-# , SizedStringEntry [Size: 0, Address: 0]
-# 	* file_hash = 1284844042
-# 	* ext_hash = 193498567
-# 	* pointers = [HeaderPointer [Size: 0, Address: 0]
-# 	* header_index = 0
-# 	* data_offset = 752
+# importing libraries
+from PyQt5.QtWidgets import *
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+import sys
 
 
-# START_GLOBALS
-import numpy as np
+class EditableCombo(QComboBox):
 
-# END_GLOBALS
-
-
-class Matrix33(np.ndarray):
-
-	def __init__(self, shape):
-		print("HY")
-		super().__init__((3, 3), dtype=np.float32)
-	# START_CLASS
-
-	def __repr__(self):
-		return (
-				"[ %6.3f %6.3f %6.3f ]\n"
-				"[ %6.3f %6.3f %6.3f ]\n"
-				"[ %6.3f %6.3f %6.3f ]\n"
-				% (self.m_11, self.m_12, self.m_13, self.m_21, self.m_22, self.m_23, self.m_31, self.m_32, self.m_33))
+	def __init__(self, parent):
+		super().__init__(parent)
 
 
-m = Matrix33((1,2))
-print(m)
+class CleverCombo(QtWidgets.QComboBox):
+	""""A combo box that supports setting content (existing or new), and a callback"""
+
+	def __init__(self, options=[], link_inst=None, link_attr=None, *args, **kwargs):
+		super(CleverCombo, self).__init__(*args, **kwargs)
+		self.addItems(options)
+		self.link_inst = link_inst
+		self.link_attr = link_attr
+		if link_inst and link_attr:
+			name = str(getattr(link_inst, link_attr))
+			self.setText(name)
+			self.currentIndexChanged.connect(self.update_name)
+
+	def setText(self, txt):
+		flag = QtCore.Qt.MatchFixedString
+		indx = self.findText(txt, flags=flag)
+		# add new item if not found
+		if indx == -1:
+			self.addItem(txt)
+			indx = self.findText(txt, flags=flag)
+		self.setCurrentIndex(indx)
+
+	def update_name(self, ind):
+		"""Change data on pyffi struct if gui changes"""
+		setattr(self.link_inst, self.link_attr, self.currentText())
+
+
+class EditCombo(QtWidgets.QWidget):
+	def __init__(self, parent, ):
+		super(EditCombo, self).__init__(parent)
+		self.add_button = QtWidgets.QPushButton("+")
+		self.delete_button = QtWidgets.QPushButton("-")
+		self.entry = QtWidgets.QComboBox()
+		self.entry.setEditable(True)
+		vbox = QtWidgets.QHBoxLayout(self)
+		vbox.addWidget(self.entry)
+		vbox.addWidget(self.add_button)
+		vbox.addWidget(self.delete_button)
+
+	def setText(self, txt):
+		flag = QtCore.Qt.MatchFixedString
+		indx = self.findText(txt, flags=flag)
+		# add new item if not found
+		if indx == -1:
+			self.addItem(txt)
+			indx = self.findText(txt, flags=flag)
+		self.setCurrentIndex(indx)
+
+	def set_data(self, items):
+		self.entry.clear()
+		self.entry.addItems(items)
+
+
+class Window(QMainWindow):
+
+	def __init__(self):
+		super().__init__()
+
+		# setting title
+		self.setWindowTitle("Python ")
+
+		# setting geometry
+		self.setGeometry(100, 100, 600, 400)
+
+		# calling method
+		self.UiComponents()
+
+		# showing all the widgets
+		self.show()
+
+	# method for widgets
+	def UiComponents(self):
+		# creating a combo box widget
+		# geek list
+		options = ["Geek", "Geeky Geek", "Legend Geek", "Ultra Legend Geek"]
+		self.combo_box = LabelCombo(self, )
+
+		# setting geometry of combo box
+		# self.combo_box.setGeometry(200, 150, 120, 30)
+
+		# creating a editable combo box
+		# self.combo_box.setEditable(True)
+
+
+# create pyqt5 app
+App = QApplication(sys.argv)
+
+# create the instance of our Window
+window = Window()
+
+# start the app
+sys.exit(App.exec())

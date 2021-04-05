@@ -1619,6 +1619,10 @@ class OvlFile(Header, IoFile):
 		if not self.mute:
 			self.progress_callback(message, value, max_value)
 
+	@property
+	def dir_names(self):
+		return [dir_entry.basename for dir_entry in self.dirs]
+
 	def store_filepath(self, filepath):
 		# store file name for later
 		self.filepath = filepath
@@ -1634,16 +1638,16 @@ class OvlFile(Header, IoFile):
 		# store file name for later
 		new_directory = DirEntry()
 		new_directory.name = directory_name
+		new_directory.basename = directory_name
 		self.dirs.append(new_directory)
-		self.num_dirs += 1
+		self.num_dirs = len(self.dirs)
 		self.update_names()
 		
 	def remove_dir(self, directory_name):
 		for dirEntry in self.dirs:
 			if dirEntry.name == directory_name:
 				self.dirs.remove(dirEntry)
-				self.num_dirs -= 1
-
+		self.num_dirs = len(self.dirs)
 		self.update_names()
 
 	def rename_dir(self, directory_name, directory_new_name):
@@ -1651,14 +1655,13 @@ class OvlFile(Header, IoFile):
 		for idx, dirEntry in enumerate(self.dirs):
 			if dirEntry.name == directory_name:
 				dirEntry.name = directory_new_name
-				self.dirs[idx] = dirEntry
-
+				dirEntry.basename = directory_new_name
 		self.update_names()
 
 	def update_names(self):
 		self.names.update_with((
 			(self.dependencies, "ext"),
-			(self.dirs, "name"),
+			(self.dirs, "basename"),
 			(self.mimes, "name"),
 			(self.files, "basename")
 		))
@@ -1719,7 +1722,7 @@ class OvlFile(Header, IoFile):
 			# get dir name from name table
 			dir_entry.basename = self.names.get_str_at(dir_entry.offset)
 			dir_entry.ext = ""
-			dir_entry.name = dir_entry.name + dir_entry.ext
+			dir_entry.name = dir_entry.basename + dir_entry.ext
 
 		# print(self)
 		# get names of all dependencies

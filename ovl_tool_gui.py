@@ -52,9 +52,8 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.setEditable(False)
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
-		header2_names = ["Path",]
-		self.table = widgets.SortableTable(header_names, self)
-		self.table2 = widgets.SortableDirTable(header2_names, self)
+		self.files_container = widgets.SortableTable(header_names, self)
+		self.dir_container = widgets.EditCombo(self)
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip(
@@ -64,7 +63,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
 		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
 		self.t_2K.setChecked(False)
-        
+
 		self.sp_hash = QtWidgets.QCheckBox("New Species Hash")
 		self.sp_hash.setToolTip("Experimental")
 		self.sp_hash.setChecked(False)
@@ -92,21 +91,21 @@ class MainWindow(widgets.MainWindow):
 
 		self.qgrid = QtWidgets.QGridLayout()
 
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 6)
-		self.qgrid.addWidget(self.game_container, 0, 6, 1, 4)
+		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 5)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
-		self.qgrid.addWidget(self.sp_hash, 1, 3)
-		self.qgrid.addWidget(self.ext_dat, 1, 4)
+		self.qgrid.addWidget(self.ext_dat, 1, 3)
+		self.qgrid.addWidget(self.sp_hash, 1, 4)
 		for (old, new) in self.e_name_pairs:
-			self.qgrid.addWidget(old, 1, 5)
-			self.qgrid.addWidget(new, 1, 6)
-		self.qgrid.addWidget(self.table, 2, 0, 1, 6)
-		self.qgrid.addWidget(self.table2, 2, 6, 1, 4)
-		self.qgrid.addWidget(self.p_action, 3, 0, 1, 10)
-		self.qgrid.addWidget(self.t_action, 4, 0, 1, 10)
-		self.qgrid.addWidget(self.dat_widget, 5, 0, 1, 10)
+			self.qgrid.addWidget(old, 2, 0, 1, 2)
+			self.qgrid.addWidget(new, 2, 2, 1, 2)
+		self.qgrid.addWidget(self.game_container, 2, 4,)
+		self.qgrid.addWidget(self.files_container, 3, 0, 1, 5)
+		self.qgrid.addWidget(self.dir_container, 4, 0, 1, 5)
+		self.qgrid.addWidget(self.p_action, 5, 0, 1, 5)
+		self.qgrid.addWidget(self.t_action, 6, 0, 1, 5)
+		self.qgrid.addWidget(self.dat_widget, 7, 0, 1, 5)
 		self.central_widget.setLayout(self.qgrid)
 
 		mainMenu = self.menuBar()
@@ -146,7 +145,7 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_2K(self, ):
 		return self.t_2K.isChecked()
-        
+
 	@property
 	def species_hash(self, ):
 		return self.sp_hash.isChecked()
@@ -257,19 +256,9 @@ class MainWindow(widgets.MainWindow):
 
 	def update_gui_table(self, ):
 		start_time = time.time()
-		data = []
-		data2 = []
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
-		for file_w in self.ovl_data.files:
-			line = [file_w.name, file_w.ext, file_w.file_hash, file_w.unkn_0, file_w.unkn_1]
-			data.append(line)
-		for dir_w in self.ovl_data.dirs:
-			path = f"{dir_w.name}"
-			print(path)
-			line2 = [path, ]
-			data2.append(line2)
-		self.table.set_data(data)
-		self.table2.set_data(data2)
+		self.files_container.set_data([(f.name, f.ext, f.file_hash, f.unkn_0, f.unkn_1) for f in self.ovl_data.files])
+		self.dir_container.set_data(self.ovl_data.dir_names)
 		print(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
@@ -339,10 +328,10 @@ class MainWindow(widgets.MainWindow):
 			print("Done!")
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can inject files!")
-            
+
 	def inject_dir(self):
 		if self.file_widget.filename:
-			directory_name = self.table2.directory.entry.text()
+			directory_name = self.dir_container.directory.entry.text()
 			try:
 				self.ovl_data.inject_dir(directory_name)
 				self.update_gui_table()
@@ -368,7 +357,7 @@ class MainWindow(widgets.MainWindow):
 				self.update_gui_table()
 			else:
 				util.interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
-            
+
 	def dat_replacement(self):
 		if self.file_widget.filename:
 			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
@@ -384,7 +373,7 @@ class MainWindow(widgets.MainWindow):
 			self.update_gui_table()
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
-            
+
 	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
 	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
 	# def reload(self):
@@ -393,8 +382,8 @@ class MainWindow(widgets.MainWindow):
 
 	def remover(self):
 		if self.file_widget.filename:
-			selected_file_names = self.table.table.get_selected_files()
-			selected_dir_names = self.table2.table.get_selected_dirs()
+			selected_file_names = self.files_container.table.get_selected_files()
+			selected_dir_names = self.dir_container.table.get_selected_dirs()
 			if selected_file_names:
 				try:
 					remover.file_remover(self.ovl_data, selected_file_names)
@@ -408,7 +397,7 @@ class MainWindow(widgets.MainWindow):
 				except Exception as err:
 					traceback.print_exc()
 				self.update_gui_table()
-                
+
 		else:
 			util.interaction.showdialog("You must open an OVL file before you can remove files!")
 
@@ -463,7 +452,7 @@ class MainWindow(widgets.MainWindow):
 						ovl_data.load_archives()
 						# create an output folder for it
 						outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
-						out_paths, error_files_new, skip_files_new = ovl_data.extract(outdir, only_types=(".ms2", ))
+						out_paths, error_files_new, skip_files_new = ovl_data.extract(outdir, only_types=(".ms2",))
 						error_files += error_files_new
 						skip_files += skip_files_new
 					except Exception as ex:
