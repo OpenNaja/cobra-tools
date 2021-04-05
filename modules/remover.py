@@ -41,16 +41,6 @@ def header_hash_finder(ovs):
 		header_entry.ext = ss.ext
 
 
-def dir_remover(ovl, dirnames):
-	for dirname in dirnames:
-		# remove the directory entry
-		for i, dir_entry in enumerate(ovl.dirs):
-			if dirname == dir_entry.name:
-				ovl.num_dirs -= 1
-				ovl.dirs.pop(i)
-			print("dir index", i)
-
-
 def file_remover(ovl, filenames):
 	"""
 	Removes files from an ovl file
