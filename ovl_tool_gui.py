@@ -243,6 +243,12 @@ class MainWindow(widgets.MainWindow):
 			print(ex)
 		self.update_gui_table()
 
+	def is_open_ovl(self):
+		if not self.file_widget.filename:
+			interaction.showdialog("You must open an OVL file first!")
+		else:
+			return True
+
 	def update_gui_table(self, ):
 		start_time = time.time()
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
@@ -252,7 +258,7 @@ class MainWindow(widgets.MainWindow):
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_ovl(self):
-		if self.file_widget.filename:
+		if self.is_open_ovl():
 			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL',
 															 os.path.join(self.cfg.get("dir_ovls_out", "C://"),
 																		  self.file_widget.filename),
@@ -269,7 +275,7 @@ class MainWindow(widgets.MainWindow):
 				print("Done!")
 
 	def extract_all(self):
-		if self.file_widget.filename:
+		if self.is_open_ovl():
 			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
 																 self.cfg.get("dir_extract", "C://"), )
 			if out_dir:
@@ -282,11 +288,9 @@ class MainWindow(widgets.MainWindow):
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
 					print(ex)
-		else:
-			interaction.showdialog("You must open an OVL file before you can extract files!")
 
 	def inject(self):
-		if self.file_widget.filename:
+		if self.is_open_ovl():
 			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg.get("dir_inject", "C://"),
 														   self.filter)[0]
 			if files:
@@ -298,27 +302,21 @@ class MainWindow(widgets.MainWindow):
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
 			print("Done!")
-		else:
-			interaction.showdialog("You must open an OVL file before you can inject files!")
 
 	def hasher(self):
-		if self.file_widget.filename:
+		if self.is_open_ovl():
 			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
 			hasher.dat_hasher(self.ovl_data, names, species_mode=self.species_hash)
 			self.update_gui_table()
-		else:
-			interaction.showdialog("You must open an OVL file before you can rename amd hash files!")
 
 	def dat_replacement(self):
-		if self.file_widget.filename:
+		if self.is_open_ovl():
 			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
 			if self.species_hash:
 				hasher.species_dat_replacer(self.ovl_data, names)
 			else:
 				hasher.dat_replacer(self.ovl_data, names)
 			self.update_gui_table()
-		else:
-			interaction.showdialog("You must open an OVL file before you can rename text in the Dat!")
 
 	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
 	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
@@ -327,7 +325,7 @@ class MainWindow(widgets.MainWindow):
 	# 	reload(modules.extract)
 
 	def remover(self):
-		if self.file_widget.filename:
+		if self.is_open_ovl():
 			selected_file_names = self.files_container.table.get_selected_files()
 			if selected_file_names:
 				try:
@@ -335,8 +333,6 @@ class MainWindow(widgets.MainWindow):
 				except Exception as err:
 					traceback.print_exc()
 				self.update_gui_table()
-		else:
-			interaction.showdialog("You must open an OVL file before you can remove files!")
 
 	def walker_hash(self, dummy=False, walk_ovls=True, walk_models=True):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
@@ -438,16 +434,11 @@ class MainWindow(widgets.MainWindow):
 
 	def closeEvent(self, event):
 		if self.file_widget.dirty:
-			qm = QtWidgets.QMessageBox
-			quit_msg = "You will lose unsaved work on " + os.path.basename(self.file_widget.filepath) + "!"
-			reply = qm.question(self, 'Quit?', quit_msg, qm.Yes, qm.No)
-
-			if reply == qm.Yes:
-				event.accept()
-			else:
+			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
+			if not interaction.showdialog(quit_msg, ask=True):
 				event.ignore()
-		else:
-			event.accept()
+				return
+		event.accept()
 
 	@staticmethod
 	def check_version():
