@@ -88,23 +88,14 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 
 		bpy.ops.object.mode_set(mode='EDIT')
 		if mirror_mesh:
-			bpy.ops.mesh.bisect(plane_co=(0, 0, 0), plane_no=(1, 0, 0), clear_inner=True)
-			bpy.ops.mesh.select_all(action='SELECT')
-			mod = ob.modifiers.new('Mirror', 'MIRROR')
-			mod.use_clip = True
-			mod.use_mirror_merge = True
-			mod.use_mirror_vertex_groups = True
-			mod.use_x = True
-			mod.merge_threshold = 0.001
+			bisect_mesh(ob)
 		bpy.ops.mesh.tris_convert_to_quads()
 		# shells are messed up by remove doubles, affected faces have their dupe faces removed
 		# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
 		if not use_custom_normals and not is_fin(ob):
 			bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
-		try:
-			bpy.ops.uv.seams_from_islands()
-		except:
-			print(ob.name+" has no UV coordinates!")
+		bpy.ops.uv.select_all(action='SELECT')
+		bpy.ops.uv.seams_from_islands()
 		bpy.ops.object.mode_set(mode='OBJECT')
 
 		# link to armature, only after mirror so the order is good and weights are mirrored
@@ -118,6 +109,17 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		# matrix_util.to_lod(ob2, lod_i)
 	print(f"Finished MDL2 import in {time.time()-start_time:.2f} seconds!")
 	return errors
+
+
+def bisect_mesh(ob):
+	bpy.ops.mesh.bisect(plane_co=(0, 0, 0), plane_no=(1, 0, 0), clear_inner=True)
+	bpy.ops.mesh.select_all(action='SELECT')
+	mod = ob.modifiers.new('Mirror', 'MIRROR')
+	mod.use_clip = True
+	mod.use_mirror_merge = True
+	mod.use_mirror_vertex_groups = True
+	mod.use_x = True
+	mod.merge_threshold = 0.001
 
 
 def visualize_tangents(name, verts, normals, tangents):
