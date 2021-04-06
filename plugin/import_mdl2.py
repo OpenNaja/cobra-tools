@@ -72,10 +72,8 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 		me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
 		# set normals
 		if use_custom_normals and model.flag not in (565, ):
-			# map normals so we can set them to the edge corners (stored per loop)
-			no_array = [model.normals[vertex_index] for face in me.polygons for vertex_index in face.vertices]
 			me.use_auto_smooth = True
-			me.normals_split_custom_set(no_array)
+			me.normals_split_custom_set_from_vertices(model.normals)
 		# else:
 		# # no operator, but bmesh
 		# 	bm = bmesh.new()
