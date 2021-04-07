@@ -318,7 +318,7 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_buffers()
 			self.read_buffer_datas(stream)
 
-			print(self)
+			# print(self)
 			if "write_frag_log" in self.ovl.commands:
 				self.write_frag_log()
 
