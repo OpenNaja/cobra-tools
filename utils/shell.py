@@ -23,7 +23,7 @@ def copy_ob(src_obj):
 	return new_obj
 
 
-def create_fins_wrapper():
+def ob_processor_wrapper(func):
 	msgs = ["Creating fins...", ]
 	for lod_i in range(6):
 		lod_group_name = "LOD" + str(lod_i)
@@ -33,8 +33,16 @@ def create_fins_wrapper():
 		src_obs = [ob for ob in coll.objects if is_shell(ob)]
 		trg_obs = [ob for ob in coll.objects if is_fin(ob)]
 		if src_obs and trg_obs:
-			msgs.append(build_fins(src_obs[0], trg_obs[0]))
+			msgs.append(func(src_obs[0], trg_obs[0]))
 	return msgs
+
+
+def create_fins_wrapper():
+	return ob_processor_wrapper(build_fins)
+
+
+def gauge_uv_scale_wrapper():
+	return ob_processor_wrapper(gauge_uv_factors)
 
 
 def get_collection(name):
@@ -51,6 +59,12 @@ def get_ob_from_lod_and_flags(coll, flags=(565,)):
 
 
 def build_fins(src_ob, trg_ob):
+	try:
+		uv_scale_x = src_ob["uv_scale_x"]
+		uv_scale_y = src_ob["uv_scale_y"]
+	except:
+		raise AttributeError(f"{src_ob.name} has no UV scale properties. Run 'Gauge UV Scale' first!")
+
 	lod_group_name = matrix_util.get_lod(src_ob)
 	ob = copy_ob(src_ob)
 	me = ob.data
@@ -60,7 +74,6 @@ def build_fins(src_ob, trg_ob):
 	trg_name = trg_ob.name
 	trg_ob.name += "dummy"
 	ob.name = trg_name
-	uv_scale_x, uv_scale_y = gauge_uv_factors(src_ob, trg_ob)
 	# delete old target
 	bpy.data.objects.remove(trg_ob, do_unlink=True)
 
@@ -211,7 +224,7 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y):
 
 
 def gauge_uv_factors(src_ob, trg_ob):
-	print(f"Gauging UV X scale for {trg_ob.name}")
+	print(f"Gauging UV scale for {trg_ob.name}")
 	vg = src_ob.vertex_groups["fur_length"]
 	psys = src_ob.particle_systems[0]
 	hair_length = psys.settings.hair_length
@@ -273,9 +286,9 @@ def gauge_uv_factors(src_ob, trg_ob):
 	#        break
 	uv_scale_x = np.mean(x_facs)
 	uv_scale_y = np.mean(y_facs)
-	print(f"Found UV X scale {uv_scale_x}")
-	print(f"Found UV Y scale {uv_scale_y}")
-	return uv_scale_x, uv_scale_y
+	src_ob["uv_scale_x"] = uv_scale_x
+	src_ob["uv_scale_y"] = uv_scale_y
+	return f"Found UV scale ({uv_scale_x}, {uv_scale_y})"
 
 
 def is_fin(ob):

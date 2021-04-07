@@ -141,6 +141,22 @@ class CreateFins(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+class GaugeUVScale(bpy.types.Operator):
+	"""Measures the UV scale for fur fins"""
+	bl_idname = "object.gauge_uv_scale"
+	bl_label = "Gauge UV Scale"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		try:
+			for msg in shell.gauge_uv_scale_wrapper():
+				self.report({"INFO"}, msg)
+		except Exception as err:
+			self.report({"ERROR"}, str(err))
+			print(err)
+		return {'FINISHED'}
+
+
 class VcolToHair(bpy.types.Operator):
 	"""Convert vertex color layer to hair combing"""
 	bl_idname = "object.vcol_to_comb"
@@ -191,7 +207,9 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 		layout = self.layout
 
 		row = layout.row(align=True)
-		row.operator("object.create_fins", icon_value=preview_collection["frontier.png"].icon_id)
+		row.operator("object.gauge_uv_scale", icon_value=preview_collection["frontier.png"].icon_id)
+		sub = row.row()
+		sub.operator("object.create_fins", icon_value=preview_collection["frontier.png"].icon_id)
 
 		row = layout.row(align=True)
 		row.operator("object.vcol_to_comb", icon_value=preview_collection["frontier.png"].icon_id)
@@ -219,6 +237,7 @@ classes = (
 	ExportMDL2,
 	ImportVoxelskirt,
 	CreateFins,
+	GaugeUVScale,
 	VcolToHair,
 	HairToVcol,
 	MESH_PT_CobraTools
