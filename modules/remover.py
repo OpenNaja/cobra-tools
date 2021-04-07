@@ -108,15 +108,19 @@ def remove_from_ovs(ovl, filenames):
 			for frag in ss_entry.fragments:
 				frag.pointers[0].remove(ovs.content)
 				frag.pointers[1].remove(ovs.content)
-			for f_index in sorted([frg.o_ind for frg in ss_entry.fragments], reverse=True):
-				ovs.content.fragments.pop(f_index)
+			# for f_index in sorted([frg.o_ind for frg in ss_entry.fragments], reverse=True):
+			# 	ovs.content.fragments.pop(f_index)
+			for frg in ss_entry.fragments:
+				ovs.content.fragments.remove(frg)
 
 	# remove data entry for file
 	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
 		if data.name in filenames:
 
-			for b_index in sorted([b.o_ind for b in data.buffers], reverse=True):
-				ovs.content.buffer_entries.pop(b_index)
+			# for b_index in sorted([b.o_ind for b in data.buffers], reverse=True):
+			# 	ovs.content.buffer_entries.pop(b_index)
+			for b in data.buffers:
+				ovs.content.buffer_entries.remove(b)
 			ovs.content.data_entries.pop(data_index)
 
 			# ovl - sum of buffers for all archives?

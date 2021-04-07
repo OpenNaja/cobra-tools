@@ -273,9 +273,6 @@ class OvsFile(OvsHeader, ZipFile):
 				fragment.done = False
 				fragment.lod = False
 				fragment.name = None
-				fragment.o_ind = i
-			for i, buffer in enumerate(self.buffer_entries):
-				buffer.o_ind = i
 
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
@@ -321,7 +318,7 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_buffers()
 			self.read_buffer_datas(stream)
 
-			# print(self)
+			print(self)
 			if "write_frag_log" in self.ovl.commands:
 				self.write_frag_log()
 
