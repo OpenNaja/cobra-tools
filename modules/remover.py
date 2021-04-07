@@ -91,6 +91,8 @@ def file_remover(ovl, filenames):
 			for da_entry in archive.content.data_entries:
 				da_entry.file_hash = name_lut[da_entry.name]
 	ovl.update_counts()
+	for ovs in ovl.archives:
+		header_hash_finder(ovs.content)
 
 
 def remove_from_ovs(ovl, filenames):
@@ -123,5 +125,4 @@ def remove_from_ovs(ovl, filenames):
 	ovs.num_fragments = len(ovs.content.fragments)
 	ovs.num_datas = len(ovs.content.data_entries)
 	ovs.num_buffers = len(ovs.content.buffer_entries)
-	header_hash_finder(ovs.content)
 	ovs.content.write_pointers_to_header_datas(ignore_unaccounted_bytes=True)
