@@ -95,8 +95,18 @@ def file_remover(ovl, filenames):
 		header_hash_finder(ovs.content)
 
 
+def bulk_delete(input_list, entries_to_delete):
+	entries_to_delete = set(entries_to_delete)
+	lut_dict = {e: e_index for e_index, e in enumerate(input_list)}
+	indices_to_delete = [lut_dict[e] for e in entries_to_delete]
+	for e_index in sorted(indices_to_delete, reverse=True):
+		input_list.pop(e_index)
+
+
 def remove_from_ovs(ovl, filenames):
 	ovs = ovl.archives[0]
+	frags_to_delete = []
+	buffers_to_delete = []
 	# remove sizedstring entry for file and remove its fragments if mapped
 	for ss_index, ss_entry in sorted(enumerate(ovs.content.sized_str_entries), reverse=True):
 		# delete the sized string and fragment data
@@ -108,24 +118,22 @@ def remove_from_ovs(ovl, filenames):
 			for frag in ss_entry.fragments:
 				frag.pointers[0].remove(ovs.content)
 				frag.pointers[1].remove(ovs.content)
-			# for f_index in sorted([frg.o_ind for frg in ss_entry.fragments], reverse=True):
-			# 	ovs.content.fragments.pop(f_index)
-			for frg in ss_entry.fragments:
-				ovs.content.fragments.remove(frg)
+			frags_to_delete.extend(ss_entry.fragments)
 
 	# remove data entry for file
 	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
 		if data.name in filenames:
-
-			# for b_index in sorted([b.o_ind for b in data.buffers], reverse=True):
-			# 	ovs.content.buffer_entries.pop(b_index)
-			for b in data.buffers:
-				ovs.content.buffer_entries.remove(b)
+			buffers_to_delete.extend(data.buffers)
 			ovs.content.data_entries.pop(data_index)
 
 			# ovl - sum of buffers for all archives?
 			ovl.num_buffers -= len(data.buffers)
 			ovl.num_datas -= 1
+
+	# delete elements whose index we don't know
+	bulk_delete(ovs.content.fragments, frags_to_delete)
+	bulk_delete(ovs.content.buffer_entries, buffers_to_delete)
+
 	ovs.num_fragments = len(ovs.content.fragments)
 	ovs.num_datas = len(ovs.content.data_entries)
 	ovs.num_buffers = len(ovs.content.buffer_entries)
