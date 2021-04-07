@@ -281,6 +281,8 @@ def gauge_uv_factors(src_ob, trg_ob):
 					base_fur_length = vertex_group.weight * hair_length
 					if base_fur_length:
 						y_facs.append(uv_height / base_fur_length)
+				# if vgroup_name == "fur_width":
+				# 	base_fur_width = vertex_group.weight
 		# print("Close to center:", co, index, dist, find_co)
 	#    if i == 20:
 	#        break
@@ -288,6 +290,7 @@ def gauge_uv_factors(src_ob, trg_ob):
 	uv_scale_y = np.mean(y_facs)
 	src_ob["uv_scale_x"] = uv_scale_x
 	src_ob["uv_scale_y"] = uv_scale_y
+	# print(base_fur_width, uv_scale_x/base_fur_width)
 	return f"Found UV scale ({uv_scale_x}, {uv_scale_y})"
 
 
