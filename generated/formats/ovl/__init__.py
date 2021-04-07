@@ -164,7 +164,7 @@ class OvsFile(OvsHeader, ZipFile):
 				new_data = self.create_data_entry(file_entry, (dbuffer,))
 				new_data.set_index = 0
 
-			if file_entry.ext == ".userinterfaceiconddata":  # userinterfaceiconddata, 2 frags
+			if file_entry.ext == ".userinterfaceicondata":  # userinterfaceicondata, 2 frags
 				icname, icpath = dbuffer.split(b',')
 				outb = icname + b'\x00' + icpath + b'\x00'
 				outb = self.buffer_padding(outb, 64) + struct.pack('8s', b'')
