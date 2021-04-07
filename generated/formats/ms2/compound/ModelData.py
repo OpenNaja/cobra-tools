@@ -365,7 +365,7 @@ class ModelData:
 			if "fur_shell" in self.dt.fields and fur_length is not None:
 				self.verts_data[i]["fur_shell"] = pack_ushort_vector((fur_length, remap(fur_width, 0, 1, -16, 16)))
 			if "colors" in self.dt.fields:
-				self.verts_data[i]["colors"] = list(list(c * 255 for c in vcol) for vcol in vcols)
+				self.verts_data[i]["colors"] = list(list(round(c * 255) for c in vcol) for vcol in vcols)
 
 	def update_shell_count(self):
 		# 853 in aardvark is a shell mesh, but has no tri shells
