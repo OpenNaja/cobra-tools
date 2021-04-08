@@ -5,7 +5,7 @@ import struct
 import bpy
 import mathutils
 
-from plugin.modules_export.armature import get_armature, handle_transforms, export_bones
+from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Mdl2File
@@ -57,7 +57,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	# used to get index from bone name for faster weights
 	bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(data))))
 	if edit_bones:
-		export_bones(b_armature_ob, data)
+		export_bones_custom(b_armature_ob, data)
 	# ensure that these are initialized
 	for model in data.models:
 		model.tri_indices = []

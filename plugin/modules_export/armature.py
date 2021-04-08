@@ -66,9 +66,15 @@ def export_bones_custom(b_armature_ob, data):
 	# now get bone names from b_armature.data
 	b_bone_names = get_bone_names_from_armature(b_armature_ob)
 	bone_info = data.ms2_file.bone_info
+	# get bone type based on version, or based on bone that previously was used in bones
+	if bone_info.bones:
+		bone_class = bone_info.bones[0].__class__
+	else:
+		bone_class = JweBone
 	bone_info.bones.clear()
 	bone_info.inverse_bind_matrices.clear()
-	lut_dic = dict(enumerate(b_bone_names))
+	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
+	print(lut_dic)
 	bone_info.bone_parents.resize(len(b_bone_names))
 	for bone_i, b_bone_name in enumerate(b_bone_names):
 		b_bone = b_armature_ob.data.bones.get(b_bone_name)
@@ -80,8 +86,7 @@ def export_bones_custom(b_armature_ob, data):
 		else:
 			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
 
-		# todo - get type based on version, or based on bone that previously was used in bones
-		ms2_bone = JweBone()
+		ms2_bone = bone_class()
 		ms2_bone.name = bone_name_for_ovl(b_bone_name)
 		# set parent index
 		if b_bone.parent:
@@ -96,13 +101,18 @@ def export_bones_custom(b_armature_ob, data):
 		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
 
 	# update counts and any padding
-	bone_info.bind_matrix_count = bone_info.bone_count = len(b_bone_names)
-	# todo - hier1padding
+	bone_info.bind_matrix_count = bone_info.bone_count = bone_info.name_count = bone_info.bone_parents_count = len(b_bone_names)
+	bone_info.hier_1_padding.resize((8 - (len(bone_info.bone_parents) % 8)) % 8)
+	# bone_info.hier_1_padding.resize((8 - (len(bone_info.bone_parents) % 8)) % 8)
+	# if not (stream.version < 19):
+	bone_info.name_padding.resize((16 - ((len(b_bone_names) * 4) % 16)) % 16)
+	bone_info.name_indices.resize(len(b_bone_names))
+	# if stream.version < 19:
+	# 	bone_info.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
 	# todo - enumeration
 
 	# todo - update joints
 	# export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
-
 
 
 def export_bones(b_armature_ob, data):
