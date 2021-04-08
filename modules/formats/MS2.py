@@ -147,7 +147,6 @@ class Mdl2Holder:
 		self.versions = get_versions(self.ovl)
 		self.source = "NONE"
 		self.mdl2_entry = None
-		self.bone_info_buffer = None
 		self.models = []
 		self.lods = []
 
@@ -161,7 +160,7 @@ class Mdl2Holder:
 		mdl2.load(mdl2_file_path, read_bytes=True)
 		self.models = mdl2.models
 		self.lods = mdl2.lods
-		self.bone_info_buffer = mdl2.ms2_file.bone_info_bytes
+		self.ms2_file = mdl2.ms2_file
 
 	def read_verts_tris(self, ms2_stream, buffer_info, eoh=0, ):
 		"""Reads vertices and triangles into list of bytes for all models of this file"""
@@ -239,8 +238,10 @@ class Ms2Holder:
 			if mdl2.name == new_name:
 				print(f"Match, slot {i}")
 				mdl2.from_file(mdl2_file_path)
-				self.bone_info = mdl2.bone_info_buffer
-				print("Bone Info Size:",len(self.bone_info))
+				mdl2.ms2_file.update_buffer_0_bytes()
+				self.general_info = mdl2.ms2_file.general_info
+				self.buffer_0_bytes = mdl2.ms2_file.buffer_0_bytes
+				self.buffer_1_bytes = mdl2.ms2_file.buffer_1_bytes
 				break
 		else:
 			raise AttributeError(f"No match for {mdl2}")
@@ -299,10 +300,6 @@ class Ms2Holder:
 		vert_bytes = temp_vert_writer.getvalue()
 		tris_bytes = temp_tris_writer.getvalue()
 
-		buffers = self.ms2_entry.data_entry.buffer_datas[:1]
-		buffers.append(self.bone_info)
-		buffers.append(vert_bytes+tris_bytes)
-
 		# modify buffer size
 		self.buffer_info.vertexdatasize = len(vert_bytes)
 		self.buffer_info.facesdatasize = len(tris_bytes)
@@ -310,8 +307,13 @@ class Ms2Holder:
 		buffer_info_frag = self.ms2_entry.fragments[0]
 		buffer_info_frag.pointers[1].update_data(as_bytes(self.buffer_info, version_info=self.versions), update_copies=True)
 
+		ms2_ss_bytes = as_bytes(self.general_info, version_info=self.versions) + self.ms2_entry.pointers[0].data[24:]
+		self.ms2_entry.pointers[0].update_data(ms2_ss_bytes, update_copies=True)
+
+		print("self.buffer_0_bytes", len(self.buffer_0_bytes))
+		print("self.buffer_1_bytes", len(self.buffer_1_bytes))
 		# update data
-		self.ms2_entry.data_entry.update_data(buffers)
+		self.ms2_entry.data_entry.update_data([self.buffer_0_bytes, self.buffer_1_bytes, vert_bytes+tris_bytes])
 
 		# also flush the mdl2s
 		for mdl2 in self.mdl2s:

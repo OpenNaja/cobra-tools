@@ -56,7 +56,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def read_all_bone_infos(self, stream, bone_info_cls):
 		# functional for JWE detailobjects.ms2, if joint_data is read
 		potential_start = stream.tell()
-		self.bone_info_bytes = stream.read(self.bone_info_size)
+		self.buffer_1_bytes = stream.read(self.bone_info_size)
 		stream.seek(potential_start)
 		self.bone_infos = []
 		if self.bone_info_size:
@@ -107,7 +107,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def get_bone_info(self, mdl2_index, stream, bone_info_cls, hack=True):
 		bone_info = None
 		potential_start = stream.tell()
-		self.bone_info_bytes = stream.read(self.bone_info_size)
+		self.buffer_1_bytes = stream.read(self.bone_info_size)
 		stream.seek(potential_start)
 		print("Start looking for bone info at", potential_start)
 		if hack:
@@ -129,7 +129,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			bone_info_starts = []
 			for prefix in prefixes:
 				for suffix in suffixes:
-					bone_info_starts.extend(x - 4 for x in findall(prefix + suffix, self.bone_info_bytes))
+					bone_info_starts.extend(x - 4 for x in findall(prefix + suffix, self.buffer_1_bytes))
 
 			bone_info_starts = list(sorted(set(bone_info_starts)))
 			print("bone_info_starts", bone_info_starts)
@@ -213,7 +213,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# buffer 0 (hashes and names) has been read by the header
 			# so eoh = start of buffer 1
 			self.eoh = stream.tell()
-			print(self)
+			# print(self)
 			print("end of header: ", self.eoh)
 			if is_old(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self,))
@@ -313,14 +313,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.buffer_0.name_hashes.resize(len(self.buffer_0.names))
 		for name_i, name in enumerate(self.buffer_0.names):
 			self.buffer_0.name_hashes[name_i] = djb(name.lower())
+		self.update_buffer_0_bytes()
 
+	def update_buffer_0_bytes(self):
 		# update self.bone_names_size
 		with BinaryStream() as temp_writer:
 			assign_versions(temp_writer, get_versions(self))
 			temp_writer.ms_2_version = self.general_info.ms_2_version
 			self.buffer_0.write(temp_writer)
-			buffer_0_bytes = temp_writer.getvalue()
-			self.bone_names_size = len(buffer_0_bytes)
+			self.buffer_0_bytes = temp_writer.getvalue()
+			self.bone_names_size = len(self.buffer_0_bytes)
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
