@@ -346,10 +346,14 @@
 		<add name="bone info size" type="uint" ></add>
 		<add name="general info" type="Ms2SizedStrData" ></add>
 		<add name="buffer info" type="Ms2BufferInfo" cond="general info \ vertex buffer count" vercond="!#OLD#"/>
+<!--		the actual buffer datas-->
+		<add name="buffer 0" type="Ms2Buffer0" arg="general info" />
+	</compound>
 
-		<add name="name hashes" type="uint" arr1="general info\name count" ></add>
-		<add name="names" type="ZString" arr1="general info\name count" ></add>
-		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" arg="general info" />
+	<compound name="Ms2Buffer0" >
+		<add name="name hashes" type="uint" arr1="#ARG#\name count" ></add>
+		<add name="names" type="ZString" arr1="#ARG#\name count" ></add>
+		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
 	</compound>
 
 	<compound name="PcBuffer1" >

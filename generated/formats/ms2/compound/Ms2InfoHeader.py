@@ -1,8 +1,6 @@
-import typing
-from generated.array import Array
 from generated.formats.ms2.compound.FixedString import FixedString
+from generated.formats.ms2.compound.Ms2Buffer0 import Ms2Buffer0
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
-from generated.formats.ms2.compound.Ms2BufferInfoZTHeader import Ms2BufferInfoZTHeader
 from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
 
 
@@ -39,9 +37,7 @@ class Ms2InfoHeader:
 		self.bone_info_size = 0
 		self.general_info = Ms2SizedStrData()
 		self.buffer_info = Ms2BufferInfo()
-		self.name_hashes = Array()
-		self.names = Array()
-		self.zt_streams_header = Ms2BufferInfoZTHeader()
+		self.buffer_0 = Ms2Buffer0()
 
 	def read(self, stream):
 
@@ -60,10 +56,7 @@ class Ms2InfoHeader:
 		self.general_info = stream.read_type(Ms2SizedStrData)
 		if not (stream.version < 19) and self.general_info.vertex_buffer_count:
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
-		self.name_hashes = stream.read_uints((self.general_info.name_count))
-		self.names = stream.read_zstrings((self.general_info.name_count))
-		if stream.version == 17:
-			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.general_info,))
+		self.buffer_0 = stream.read_type(Ms2Buffer0, (self.general_info,))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -84,10 +77,7 @@ class Ms2InfoHeader:
 		stream.write_type(self.general_info)
 		if not (stream.version < 19) and self.general_info.vertex_buffer_count:
 			stream.write_type(self.buffer_info)
-		stream.write_uints(self.name_hashes)
-		stream.write_zstrings(self.names)
-		if stream.version == 17:
-			stream.write_type(self.zt_streams_header)
+		stream.write_type(self.buffer_0)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -106,9 +96,7 @@ class Ms2InfoHeader:
 		s += f'\n	* bone_info_size = {self.bone_info_size.__repr__()}'
 		s += f'\n	* general_info = {self.general_info.__repr__()}'
 		s += f'\n	* buffer_info = {self.buffer_info.__repr__()}'
-		s += f'\n	* name_hashes = {self.name_hashes.__repr__()}'
-		s += f'\n	* names = {self.names.__repr__()}'
-		s += f'\n	* zt_streams_header = {self.zt_streams_header.__repr__()}'
+		s += f'\n	* buffer_0 = {self.buffer_0.__repr__()}'
 		return s
 
 	def __repr__(self):

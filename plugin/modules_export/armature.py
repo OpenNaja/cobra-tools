@@ -1,10 +1,33 @@
 import bpy
 import mathutils
 
+from generated.formats.ms2.compound.JweBone import JweBone
+from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ovl import is_ztuac
 from plugin.modules_export.collision import export_hitcheck
 from plugin.modules_import.armature import get_bone_names
 from utils import matrix_util
+from utils.matrix_util import bone_name_for_ovl
+
+
+def get_bone_names_from_armature(b_armature_ob):
+	assign_p_bone_indices(b_armature_ob)
+	sorted_bones = sorted(b_armature_ob.pose.bones, key=lambda p_bone: p_bone["index"])
+	# return [bone_name_for_ovl(p_bone.name) for p_bone in sorted_bones]
+	return [p_bone.name for p_bone in sorted_bones]
+
+
+def assign_p_bone_indices(b_armature_ob):
+	print("assigning pbone indices")
+	bones_with_index = [p_bone for p_bone in b_armature_ob.pose.bones if "index" in p_bone]
+	bones_with_index.sort(key=lambda p_bone: p_bone["index"])
+	bones_without_index = [p_bone for p_bone in b_armature_ob.pose.bones if "index" not in p_bone]
+	max_index = bones_with_index[-1]["index"]
+	print(max_index)
+	for p_bone in bones_without_index:
+		max_index += 1
+		p_bone["index"] = max_index
+		print(f"{p_bone.name} = {max_index}")
 
 
 def get_armature():
@@ -36,6 +59,50 @@ def handle_transforms(ob, me, errors, apply=True):
 			errors.append(
 				f"Ignored object transforms for {ob.name} - orientation will not match what you see in blender!\n"
 				f"Check 'Apply Transforms' on export or apply them manually with CTRL+A!")
+
+
+def export_bones_custom(b_armature_ob, data):
+	corrector = matrix_util.Corrector(is_ztuac(data))
+	# now get bone names from b_armature.data
+	b_bone_names = get_bone_names_from_armature(b_armature_ob)
+	bone_info = data.ms2_file.bone_info
+	bone_info.bones.clear()
+	bone_info.inverse_bind_matrices.clear()
+	lut_dic = dict(enumerate(b_bone_names))
+	bone_info.bone_parents.resize(len(b_bone_names))
+	for bone_i, b_bone_name in enumerate(b_bone_names):
+		b_bone = b_armature_ob.data.bones.get(b_bone_name)
+
+		# todo - the correction function works, but only in armature space; come up with one that works in local space to reduce overhead
+		# make relative to parent
+		if b_bone.parent:
+			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
+		else:
+			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
+
+		# todo - get type based on version, or based on bone that previously was used in bones
+		ms2_bone = JweBone()
+		ms2_bone.name = bone_name_for_ovl(b_bone_name)
+		# set parent index
+		if b_bone.parent:
+			bone_info.bone_parents[bone_i] = lut_dic[b_bone.parent.name]
+		else:
+			bone_info.bone_parents[bone_i] = 255
+		ms2_bone.set_bone(mat_local_to_parent)
+
+		bone_info.bones.append(ms2_bone)
+		ms2_inv_bind = Matrix44()
+		ms2_inv_bind.set_rows(corrector.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
+		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
+
+	# update counts and any padding
+	bone_info.bind_matrix_count = bone_info.bone_count = len(b_bone_names)
+	# todo - hier1padding
+	# todo - enumeration
+
+	# todo - update joints
+	# export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
+
 
 
 def export_bones(b_armature_ob, data):

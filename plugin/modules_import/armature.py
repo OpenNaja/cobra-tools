@@ -1,6 +1,5 @@
 import bpy
 import mathutils
-import math
 
 from generated.formats.ovl import is_ztuac
 from plugin.modules_import.collision import import_collider
@@ -93,14 +92,6 @@ def import_armature(data, b_bone_names):
 
 		fix_bone_lengths(b_armature_data)
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-		# print("blender order")
-		# for bone in b_armature_data.bones:
-		# 	print(bone.name)
-		# print("restored order")
-		# b_bone_names_restored = ovl_bones(b_armature_data)
-		# for bone in b_bone_names_restored:
-		# 	print(bone)
 
 		# store original bone index as custom property
 		for i, bone_name in enumerate(b_bone_names):

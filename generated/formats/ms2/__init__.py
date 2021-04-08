@@ -49,7 +49,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def assign_bone_names(self, bone_info):
 		try:
 			for name_i, bone in zip(bone_info.name_indices, bone_info.bones):
-				bone.name = self.names[name_i]
+				bone.name = self.buffer_0.names[name_i]
 		except:
 			print("Names failed...")
 
@@ -284,7 +284,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for mesh_link in lod.mesh_links:
 				try:
 					material = mdl2.materials[mesh_link.material_index]
-					material.name = self.names[material.name_index]
+					material.name = self.buffer_0.names[material.name_index]
 					model = models[mesh_link.model_index]
 					model.material = material.name
 					print(f"Model: {mesh_link.model_index} Material: {material.name} Material Unk: {material.some_index} Lod Index: {model.poweroftwo}")
@@ -295,25 +295,32 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_names(self, mdl2s):
 		print("Updating MS2 name buffer")
-		# todo - update self.bone_names_size
-		self.names.clear()
+		self.buffer_0.names.clear()
 		for mdl2 in mdl2s:
 			for material in mdl2.materials:
-				if material.name not in self.names:
-					self.names.append(material.name)
-				material.name_index = self.names.index(material.name)
+				if material.name not in self.buffer_0.names:
+					self.buffer_0.names.append(material.name)
+				material.name_index = self.buffer_0.names.index(material.name)
 			for bone_index, bone in enumerate(self.bone_info.bones):
-				if bone.name not in self.names:
-					self.names.append(bone.name)
-				self.bone_info.name_indices[bone_index] = self.names.index(bone.name)
+				if bone.name not in self.buffer_0.names:
+					self.buffer_0.names.append(bone.name)
+				self.bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
 			# print(self.bone_info.name_indices)
-		# print(self.names)
+		# print(self.buffer_0.names)
 		print("Updating MS2 name hashes")
 		# update hashes from new names
-		self.general_info.name_count = len(self.names)
-		self.name_hashes.resize(len(self.names))
-		for name_i, name in enumerate(self.names):
-			self.name_hashes[name_i] = djb(name.lower())
+		self.general_info.name_count = len(self.buffer_0.names)
+		self.buffer_0.name_hashes.resize(len(self.buffer_0.names))
+		for name_i, name in enumerate(self.buffer_0.names):
+			self.buffer_0.name_hashes[name_i] = djb(name.lower())
+
+		# update self.bone_names_size
+		with BinaryStream() as temp_writer:
+			assign_versions(temp_writer, get_versions(self))
+			temp_writer.ms_2_version = self.general_info.ms_2_version
+			self.buffer_0.write(temp_writer)
+			buffer_0_bytes = temp_writer.getvalue()
+			self.bone_names_size = len(buffer_0_bytes)
 
 	def save(self, filepath, mdl2):
 		print("Writing verts and tris to temporary buffer")
@@ -456,8 +463,8 @@ if __name__ == "__main__":
 # # 		lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
 # # 		print(lod_names)
 # # print(dic)
-# # # print(m.ms2_file.names)
-# # for i, n in enumerate(m.ms2_file.names):
+# # # print(m.ms2_file.buffer_0.names)
+# # for i, n in enumerate(m.ms2_file.buffer_0.names):
 # # 	print(i,n)
 # # l = dic[name]
 # # print(l)
