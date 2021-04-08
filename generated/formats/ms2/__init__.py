@@ -250,16 +250,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					try:
 						count_0 = tis_counts[0][2]
 						offset_1 = tis_counts[1][1]
-						print("uv size", offset_1//count_0)
+						uv_size = offset_1//count_0
 					except:
 						print("Guessing uv size failed")
-					# tis_offsets = [ for m in model_info.pc_model.models]
-
+						uv_size = 8
+					print("guessed uv size", uv_size)
 					print("tis_counts", tis_counts)
 					# print("tis_offsets", tis_offsets)
 					for i, model_data in enumerate(model_info.pc_model.models):
 						print("\nModel", i)
-						model_data.populate(self, stream, self.start_buffer2, 512)
+						model_data.populate(self, stream, self.start_buffer2, 512, uv_size)
 						print(model_data)
 					mdl2.lods = model_info.pc_model.lods
 					mdl2.mesh_links = model_info.pc_model.mesh_links

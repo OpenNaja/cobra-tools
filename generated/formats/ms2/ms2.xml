@@ -269,7 +269,9 @@
 		This is a fragment from headers of type (0,0)
 		If there is more than one of these, the fragments appear as a list according to
 		<add name="stream index" type="uint" >index into streamed buffers</add>
-		<add name="zeros a" type="uint" arr1="3" >always zero</add>
+		<add name="zero a" type="uint" >always zero</add>
+		<add name="some index" type="uint" >increments somewhat in platypus</add>
+		<add name="zero b" type="uint" >always zero</add>
 		<add name="tri index count" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri info offset" type="uint">stores count, -1 as ints</add>

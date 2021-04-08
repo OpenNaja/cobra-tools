@@ -11,7 +11,8 @@ class ZtModelData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512):
+	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512, uv_size=8):
+		self.uv_size = uv_size
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
@@ -19,6 +20,9 @@ class ZtModelData:
 			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.next_buffer_length
 		self.start_buffer2 = start_buffer2
 		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.start_buffer2+self.stream_offset}")
+		# print("uv root offset", self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length)
+		print("Tri info address", self.start_buffer2+self.stream_offset+self.tri_info_offset)
+		print("Vertex info address", self.start_buffer2+self.stream_offset+self.vert_info_offset)
 		self.ms2_file = ms2_file
 		self.base = base
 		self.read_verts(ms2_stream)
@@ -56,6 +60,25 @@ class ZtModelData:
 			("tangent", np.ubyte, (3,)),
 			("b", np.ubyte, ),
 		]
+		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
+		# if self.uv_size == 12:
+		# 	dt_colors = [
+		# 		("colors", np.ubyte, (1, 4)),
+		# 		("uvs", np.ushort, (2, 2)),
+		# 	]
+		# # zt3 elephants
+		# elif self.uv_size == 8:
+		# 	dt_colors = [
+		# 		("colors", np.ubyte, (1, 4)),
+		# 		("uvs", np.ushort, (1, 2)),
+		# 	]
+		# else:
+		# 	raise AttributeError(f"Unsupported UV size {self.uv_size}")
+		# dt_colors = [
+		# 	("colors", np.ubyte, (1, 4)),
+		# 	("uvs", np.ushort, (2, 2)),
+		# ]
+
 		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
 		if self.flag.fur_shells:
 			dt_colors = [

@@ -5,7 +5,6 @@ import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from utils.tristrip import triangulate
 import typing
-from generated.array import Array
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 
 
@@ -28,7 +27,13 @@ class ZtModelData:
 		self.stream_index = 0
 
 		# always zero
-		self.zeros_a = Array()
+		self.zero_a = 0
+
+		# increments somewhat in platypus
+		self.some_index = 0
+
+		# always zero
+		self.zero_b = 0
 
 		# repeat
 		self.tri_index_count = 0
@@ -85,7 +90,9 @@ class ZtModelData:
 
 		self.io_start = stream.tell()
 		self.stream_index = stream.read_uint()
-		self.zeros_a = stream.read_uints((3))
+		self.zero_a = stream.read_uint()
+		self.some_index = stream.read_uint()
+		self.zero_b = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
 		self.vertex_count = stream.read_uint()
 		self.tri_info_offset = stream.read_uint()
@@ -113,7 +120,9 @@ class ZtModelData:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.stream_index)
-		stream.write_uints(self.zeros_a)
+		stream.write_uint(self.zero_a)
+		stream.write_uint(self.some_index)
+		stream.write_uint(self.zero_b)
 		stream.write_uint(self.tri_index_count)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_info_offset)
@@ -143,7 +152,9 @@ class ZtModelData:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
-		s += f'\n	* zeros_a = {self.zeros_a.__repr__()}'
+		s += f'\n	* zero_a = {self.zero_a.__repr__()}'
+		s += f'\n	* some_index = {self.some_index.__repr__()}'
+		s += f'\n	* zero_b = {self.zero_b.__repr__()}'
 		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_info_offset = {self.tri_info_offset.__repr__()}'
@@ -168,7 +179,8 @@ class ZtModelData:
 		s += '\n'
 		return s
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512):
+	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512, uv_size=8):
+		self.uv_size = uv_size
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
@@ -176,6 +188,9 @@ class ZtModelData:
 			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.next_buffer_length
 		self.start_buffer2 = start_buffer2
 		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.start_buffer2+self.stream_offset}")
+		# print("uv root offset", self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length)
+		print("Tri info address", self.start_buffer2+self.stream_offset+self.tri_info_offset)
+		print("Vertex info address", self.start_buffer2+self.stream_offset+self.vert_info_offset)
 		self.ms2_file = ms2_file
 		self.base = base
 		self.read_verts(ms2_stream)
@@ -213,6 +228,25 @@ class ZtModelData:
 			("tangent", np.ubyte, (3,)),
 			("b", np.ubyte, ),
 		]
+		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
+		# if self.uv_size == 12:
+		# 	dt_colors = [
+		# 		("colors", np.ubyte, (1, 4)),
+		# 		("uvs", np.ushort, (2, 2)),
+		# 	]
+		# # zt3 elephants
+		# elif self.uv_size == 8:
+		# 	dt_colors = [
+		# 		("colors", np.ubyte, (1, 4)),
+		# 		("uvs", np.ushort, (1, 2)),
+		# 	]
+		# else:
+		# 	raise AttributeError(f"Unsupported UV size {self.uv_size}")
+		# dt_colors = [
+		# 	("colors", np.ubyte, (1, 4)),
+		# 	("uvs", np.ushort, (2, 2)),
+		# ]
+
 		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
 		if self.flag.fur_shells:
 			dt_colors = [
