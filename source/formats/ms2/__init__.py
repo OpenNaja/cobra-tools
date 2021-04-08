@@ -245,6 +245,18 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if is_old(self):
 				print("PC model...")
 				if not quick:
+					tis_counts = [(m.stream_index, m.uv_offset, m.vertex_count) for m in model_info.pc_model.models]
+					tis_counts.sort()
+					try:
+						count_0 = tis_counts[0][2]
+						offset_1 = tis_counts[1][1]
+						print("uv size", offset_1//count_0)
+					except:
+						print("Guessing uv size failed")
+					# tis_offsets = [ for m in model_info.pc_model.models]
+
+					print("tis_counts", tis_counts)
+					# print("tis_offsets", tis_offsets)
 					for i, model_data in enumerate(model_info.pc_model.models):
 						print("\nModel", i)
 						model_data.populate(self, stream, self.start_buffer2, 512)
