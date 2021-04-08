@@ -513,13 +513,13 @@
 
 		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
 		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#">index into ms2 string table for bones used here</add>
-		<add name="name padding" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
-		<add name="name padding" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
 		<add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
 		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #OLD#">bones, loc first</add>
 		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
-		<add name="hier1padding" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
+		<add name="hier1padding" padding="1" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
 <!--        <add name="enumeration" type="IndexEnum"  arr1="enum count" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
 		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" vercond="#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>

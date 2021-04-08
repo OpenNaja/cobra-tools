@@ -114,6 +114,7 @@ class Union:
 
 			# parse all conditions
 			conditionals = []
+			pad_mode = field.attrib.get("padding")
 			ver1 = field.attrib.get("ver1")
 			ver2 = field.attrib.get("ver2")
 			if ver1:
@@ -169,6 +170,9 @@ class Union:
 					if method_type == "read":
 						f.write(f"{indent}self.{field_name} = stream.{method_type}_{field_type.lower()}s(({arr_str}))")
 					else:
+						if pad_mode:
+							# resize numpy arrays that represent padding so we need not worry about them
+							f.write(f"{indent}self.{field_name}.resize(({arr_str}))")
 						f.write(f"{indent}stream.{method_type}_{field_type.lower()}s(self.{field_name})")
 
 				else:

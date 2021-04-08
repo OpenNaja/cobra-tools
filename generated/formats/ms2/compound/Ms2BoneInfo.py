@@ -228,8 +228,10 @@ class Ms2BoneInfo:
 		if stream.version < 19:
 			stream.write_ushorts(self.name_indices)
 		if not (stream.version < 19):
+			self.name_padding.resize(((16 - ((self.name_count * 4) % 16)) % 16))
 			stream.write_bytes(self.name_padding)
 		if stream.version < 19:
+			self.name_padding.resize(((16 - ((self.name_count * 2) % 16)) % 16))
 			stream.write_bytes(self.name_padding)
 		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
@@ -238,6 +240,7 @@ class Ms2BoneInfo:
 			self.bones.write(stream, JweBone, self.bone_count, None)
 		stream.write_ubytes(self.bone_parents)
 		if not (stream.version == 17):
+			self.hier_1_padding.resize(((8 - (self.bone_parents_count % 8)) % 8))
 			stream.write_bytes(self.hier_1_padding)
 		if not (stream.version == 17) and self.one:
 			stream.write_uints(self.enumeration)

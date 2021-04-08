@@ -100,15 +100,10 @@ def export_bones_custom(b_armature_ob, data):
 		ms2_inv_bind.set_rows(corrector.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
 		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
 
-	# update counts and any padding
+	# update counts
 	bone_info.bind_matrix_count = bone_info.bone_count = bone_info.name_count = bone_info.bone_parents_count = len(b_bone_names)
-	bone_info.hier_1_padding.resize((8 - (len(bone_info.bone_parents) % 8)) % 8)
-	# bone_info.hier_1_padding.resize((8 - (len(bone_info.bone_parents) % 8)) % 8)
-	# if not (stream.version < 19):
-	bone_info.name_padding.resize((16 - ((len(b_bone_names) * 4) % 16)) % 16)
 	bone_info.name_indices.resize(len(b_bone_names))
-	# if stream.version < 19:
-	# 	bone_info.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
+	# paddings are taken care of automatically during writing
 	# todo - enumeration
 
 	# todo - update joints
