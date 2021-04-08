@@ -105,34 +105,42 @@ def bulk_delete(input_list, entries_to_delete):
 
 def remove_from_ovs(ovl, filenames):
 	ovs = ovl.archives[0]
-	frags_to_delete = []
-	buffers_to_delete = []
+
 	# remove sizedstring entry for file and remove its fragments if mapped
 	for ss_index, ss_entry in sorted(enumerate(ovs.content.sized_str_entries), reverse=True):
 		# delete the sized string and fragment data
 		if ss_entry.name in filenames:
-			ovs.content.sized_str_entries.pop(ss_index)
-			ovs.num_files -= 1
 
-			ss_entry.pointers[0].remove(ovs.content)
+			ovs.num_files -= 1
+            #wipe out ss and frag data
+			ss_entry.pointers[0].update_data(b"", update_copies=True)
+
 			for frag in ss_entry.fragments:
+				frag.pointers[0].update_data(b"", update_copies=True)
+				frag.pointers[1].update_data(b"", update_copies=True)
 				frag.pointers[0].remove(ovs.content)
 				frag.pointers[1].remove(ovs.content)
-			frags_to_delete.extend(ss_entry.fragments)
+                #remove frag and then ss entry
+				ovs.content.fragments.remove(frag)
+			ss_entry.pointers[0].remove(ovs.content)
+			ovs.content.sized_str_entries.remove(ss_entry)
+
 
 	# remove data entry for file
 	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
 		if data.name in filenames:
-			buffers_to_delete.extend(data.buffers)
-			ovs.content.data_entries.pop(data_index)
-
-			# ovl - sum of buffers for all archives?
 			ovl.num_buffers -= len(data.buffers)
 			ovl.num_datas -= 1
 
-	# delete elements whose index we don't know
-	bulk_delete(ovs.content.fragments, frags_to_delete)
-	bulk_delete(ovs.content.buffer_entries, buffers_to_delete)
+			#buffers_to_delete.extend(data.buffers)
+			for buffer in data.buffers:
+				buffer.update_data(b"")
+				ovs.content.buffer_entries.remove(buffer)
+			ovs.content.data_entries.remove(data)
+
+			# ovl - sum of buffers for all archives?
+			#ovl.num_buffers -= len(data.buffers)
+			#ovl.num_datas -= 1
 
 	ovs.num_fragments = len(ovs.content.fragments)
 	ovs.num_datas = len(ovs.content.data_entries)
