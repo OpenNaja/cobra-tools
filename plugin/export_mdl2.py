@@ -54,10 +54,10 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	for pbone in b_armature_ob.pose.bones:
 		pbone.matrix_basis = mathutils.Matrix()
 
-	# used to get index from bone name for faster weights
-	bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(data))))
 	if edit_bones:
 		export_bones_custom(b_armature_ob, data)
+	# used to get index from bone name for faster weights
+	bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(data))))
 	# ensure that these are initialized
 	for model in data.models:
 		model.tri_indices = []
