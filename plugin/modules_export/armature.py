@@ -74,7 +74,7 @@ def export_bones_custom(b_armature_ob, data):
 	bone_info.bones.clear()
 	bone_info.inverse_bind_matrices.clear()
 	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
-	print(lut_dic)
+	# print(lut_dic)
 	bone_info.bone_parents.resize(len(b_bone_names))
 	for bone_i, b_bone_name in enumerate(b_bone_names):
 		b_bone = b_armature_ob.data.bones.get(b_bone_name)
