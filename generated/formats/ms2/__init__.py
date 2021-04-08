@@ -1,12 +1,8 @@
 import os
-import itertools
-import struct
 import io
 import time
 import traceback
 
-from generated.array import Array
-from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
@@ -18,7 +14,6 @@ from generated.formats.ms2.enum.CollisionType import CollisionType
 from generated.formats.ovl.versions import *
 from generated.formats.ms2.versions import *
 from generated.io import IoFile, BinaryStream
-from modules import walker
 from modules.formats.shared import get_padding_size, assign_versions, get_versions, djb, get_padding
 
 
@@ -213,7 +208,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# buffer 0 (hashes and names) has been read by the header
 			# so eoh = start of buffer 1
 			self.eoh = stream.tell()
-			# print(self)
+			print(self)
 			print("end of header: ", self.eoh)
 			if is_old(self):
 				self.pc_buffer1 = stream.read_type(PcBuffer1, (self,))
@@ -287,7 +282,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					material.name = self.buffer_0.names[material.name_index]
 					model = models[mesh_link.model_index]
 					model.material = material.name
-					print(f"Model: {mesh_link.model_index} Material: {material.name} Material Unk: {material.some_index} Lod Index: {model.poweroftwo}")
+					print(f"Model: {mesh_link.model_index} Material: {material.name} Material Unk: {material.some_index} "
+						  f"Lod Index: {model.poweroftwo} Flag: {int(model.flag)}")
 				except Exception as err:
 					print(err)
 					print(f"Couldn't match material {mesh_link.material_index} to model {mesh_link.model_index} - bug?")
@@ -392,7 +388,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 			print(err)
 			print(self)
 
-		print(self)
+		# print(self)
 		self.ms2_path = os.path.join(self.dir, self.name)
 		self.ms2_file = Ms2File()
 		self.ms2_file.load(self.ms2_path, self, quick=quick, map_bytes=map_bytes, read_bytes=read_bytes)
@@ -422,10 +418,11 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_child.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/ele/asianelephant_child.mdl2")
+	m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
+	m.load("C:/Users/arnfi/Desktop/rhinos/africanelephant_child.mdl2")
+	m.load("C:/Users/arnfi/Desktop/rhinos/platypus.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/rattle/western_diamondback_rattlesnake.mdl2")
-	m.load("C:/Users/arnfi/Desktop/anteater/giant_anteater.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/anteater/giant_anteater.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")

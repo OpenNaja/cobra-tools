@@ -102,7 +102,7 @@
 		Determines the data held by a mesh.
 		Count from the end!!!
 		<member width="1" pos="6" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
-		<member width="1" pos="9" name="fur fins" type="bool">stores fins</member>
+		<member width="1" pos="9" name="fur shells" type="bool">stores fins</member>
 	</bitfield>
 
 	<enum name="CollisionType" storage="uint">
@@ -369,7 +369,12 @@
 		<add name="lods" type="LodInfoZT" arr1="#ARG#\lod count" vercond="#ZTUAC#" ></add>
 		<add name="lods" type="LodInfo" arr1="#ARG#\lod count" vercond="#PC#" ></add>
 		<add name="MeshLinks" type="MeshLink" arr1="#ARG#\mesh link count" ></add>
-		<add name="unk" type="uint" cond="#ARG#\another_count" >may be padding instead</add>
+
+<!--		<add name="unk" type="uint" >may be padding instead, present on rhino</add>-->
+		rhino: start of model - end of mesh links: 124 - 4 bytes padding
+		ele: start of model - end of mesh links: 120 - 0 bytes padding
+		<add name="padding" type="uint" cond="(#ARG#\mat count + #ARG#\mesh link count) % 2" >pad to 8 bytes alignment</add>
+<!--		<add name="unk" type="uint" cond="#ARG#\another_count" >may be padding instead</add>-->
 		<add name="models" type="PcModelData" arr1="#ARG#\model count" vercond="#PC#" ></add>
 		<add name="models" type="ZtModelData" arr1="#ARG#\model count" vercond="#ZTUAC#" ></add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>

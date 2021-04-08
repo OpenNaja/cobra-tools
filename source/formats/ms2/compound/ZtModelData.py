@@ -57,7 +57,7 @@ class ZtModelData:
 			("b", np.ubyte, ),
 		]
 		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
-		if self.flag.fur_fins:
+		if self.flag.fur_shells:
 			dt_colors = [
 				("colors", np.ubyte, (1, 4)),
 				("uvs", np.ushort, (2, 2)),

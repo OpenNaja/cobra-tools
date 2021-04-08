@@ -26,8 +26,8 @@ class PcModel:
 		self.lods = Array()
 		self.mesh_links = Array()
 
-		# may be padding instead
-		self.unk = 0
+		# pad to 8 bytes alignment
+		self.padding = 0
 		self.models = Array()
 		self.models = Array()
 		self.ztuac_pre_bones = ZTPreBones()
@@ -45,8 +45,8 @@ class PcModel:
 		if stream.version == 18:
 			self.lods.read(stream, LodInfo, self.arg.lod_count, None)
 		self.mesh_links.read(stream, MeshLink, self.arg.mesh_link_count, None)
-		if self.arg.another_count:
-			self.unk = stream.read_uint()
+		if (self.arg.mat_count + self.arg.mesh_link_count) % 2:
+			self.padding = stream.read_uint()
 		if stream.version == 18:
 			self.models.read(stream, PcModelData, self.arg.model_count, None)
 		if stream.version == 17:
@@ -67,8 +67,8 @@ class PcModel:
 		if stream.version == 18:
 			self.lods.write(stream, LodInfo, self.arg.lod_count, None)
 		self.mesh_links.write(stream, MeshLink, self.arg.mesh_link_count, None)
-		if self.arg.another_count:
-			stream.write_uint(self.unk)
+		if (self.arg.mat_count + self.arg.mesh_link_count) % 2:
+			stream.write_uint(self.padding)
 		if stream.version == 18:
 			self.models.write(stream, PcModelData, self.arg.model_count, None)
 		if stream.version == 17:
@@ -88,7 +88,7 @@ class PcModel:
 		s += f'\n	* materials = {self.materials.__repr__()}'
 		s += f'\n	* lods = {self.lods.__repr__()}'
 		s += f'\n	* mesh_links = {self.mesh_links.__repr__()}'
-		s += f'\n	* unk = {self.unk.__repr__()}'
+		s += f'\n	* padding = {self.padding.__repr__()}'
 		s += f'\n	* models = {self.models.__repr__()}'
 		s += f'\n	* ztuac_pre_bones = {self.ztuac_pre_bones.__repr__()}'
 		s += f'\n	* floatsy = {self.floatsy.__repr__()}'

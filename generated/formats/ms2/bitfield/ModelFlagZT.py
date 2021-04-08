@@ -9,7 +9,7 @@ class ModelFlagZT(BasicBitfield):
 	Count from the end!!!
 	"""
 	stripify = BitfieldMember(pos=6, mask=0x40, return_type=bool)
-	fur_fins = BitfieldMember(pos=9, mask=0x200, return_type=bool)
+	fur_shells = BitfieldMember(pos=9, mask=0x200, return_type=bool)
 
 	def set_defaults(self):
 		pass
