@@ -11,11 +11,10 @@ from utils.matrix_util import bone_name_for_ovl
 
 
 def get_bone_names_from_armature(b_armature_ob):
-	# assign_p_bone_indices(b_armature_ob)
-	# sorted_bones = sorted(b_armature_ob.pose.bones, key=lambda p_bone: p_bone["index"])
-	# # return [bone_name_for_ovl(p_bone.name) for p_bone in sorted_bones]
-	# return [p_bone.name for p_bone in sorted_bones]
-	return [p_bone.name for p_bone in b_armature_ob.pose.bones]
+	assign_p_bone_indices(b_armature_ob)
+	sorted_bones = sorted(b_armature_ob.pose.bones, key=lambda p_bone: p_bone["index"])
+	return [p_bone.name for p_bone in sorted_bones]
+	# return [p_bone.name for p_bone in b_armature_ob.pose.bones]
 
 
 def assign_p_bone_indices(b_armature_ob):
