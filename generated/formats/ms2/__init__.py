@@ -245,22 +245,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if is_old(self):
 				print("PC model...")
 				if not quick:
-					tis_counts = [(m.stream_index, m.uv_offset, m.vertex_count) for m in model_info.pc_model.models]
-					tis_counts.sort()
-					try:
-						count_0 = tis_counts[0][2]
-						offset_1 = tis_counts[1][1]
-						uv_size = offset_1//count_0
-					except:
-						print("Guessing uv size failed")
-						uv_size = 8
-					print("guessed uv size", uv_size)
-					print("tis_counts", tis_counts)
-					# print("tis_offsets", tis_offsets)
 					for i, model_data in enumerate(model_info.pc_model.models):
 						print("\nModel", i)
-						model_data.populate(self, stream, self.start_buffer2, 512, uv_size)
-						print(model_data)
+						model_data.populate(self, stream, self.start_buffer2, 512)
 					mdl2.lods = model_info.pc_model.lods
 					mdl2.mesh_links = model_info.pc_model.mesh_links
 					mdl2.models = model_info.pc_model.models
@@ -430,9 +417,10 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
-	m.load("C:/Users/arnfi/Desktop/rhinos/africanelephant_child.mdl2")
-	m.load("C:/Users/arnfi/Desktop/rhinos/platypus.mdl2")
+	m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblacksouthcentral_child.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/rhinos/africanelephant_child.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/rhinos/platypus.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/rattle/western_diamondback_rattlesnake.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/anteater/giant_anteater.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")

@@ -11,8 +11,7 @@ class ZtModelData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512, uv_size=8):
-		self.uv_size = uv_size
+	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512):
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
@@ -20,18 +19,15 @@ class ZtModelData:
 			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.next_buffer_length
 		self.start_buffer2 = start_buffer2
 		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.start_buffer2+self.stream_offset}")
-		# print("uv root offset", self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length)
 		print("Tri info address", self.start_buffer2+self.stream_offset+self.tri_info_offset)
 		print("Vertex info address", self.start_buffer2+self.stream_offset+self.vert_info_offset)
+		print(self)
 		self.ms2_file = ms2_file
 		self.base = base
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
-		# print(self.flag)
-		# print(self.tris)
 
-	def init_arrays(self, count):
-		self.vertex_count = count
+	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
@@ -60,36 +56,9 @@ class ZtModelData:
 			("tangent", np.ubyte, (3,)),
 			("b", np.ubyte, ),
 		]
-		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
-		# if self.uv_size == 12:
-		# 	dt_colors = [
-		# 		("colors", np.ubyte, (1, 4)),
-		# 		("uvs", np.ushort, (2, 2)),
-		# 	]
-		# # zt3 elephants
-		# elif self.uv_size == 8:
-		# 	dt_colors = [
-		# 		("colors", np.ubyte, (1, 4)),
-		# 		("uvs", np.ushort, (1, 2)),
-		# 	]
-		# else:
-		# 	raise AttributeError(f"Unsupported UV size {self.uv_size}")
-		# dt_colors = [
-		# 	("colors", np.ubyte, (1, 4)),
-		# 	("uvs", np.ushort, (2, 2)),
-		# ]
-
-		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
-		# if self.some_index:
-		# 	dt_colors = [
-		# 		("colors", np.ubyte, (1, 4)),
-		# 		("uvs", np.ushort, (2, 2)),
-		# 	]
-		# # zt3 elephants
-		# else:
 		dt_colors = [
 			("colors", np.ubyte, (1, 4)),
-			("uvs", np.ushort, (1+self.some_index, 2)),
+			("uvs", np.ushort, (1 + self.some_index, 2)),
 		]
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
@@ -98,7 +67,6 @@ class ZtModelData:
 		print("PC size of vcol:", self.dt_colors.itemsize)
 
 	def update_shell_count(self):
-		# 853 in aardvark is a shell mesh, but has no tri shells
 		if self.flag.repeat_tris:
 			self.shell_count = 6
 		else:
@@ -123,11 +91,15 @@ class ZtModelData:
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# create arrays for the unpacked ms2_file
-		self.init_arrays(self.vertex_count)
+		self.init_arrays()
 		# read a vertices of this model
+		if 4294967295 == self.vert_offset:
+			self.vert_offset = 0
+			print("Warning, vert_offset is -1, unsure how to parse this!")
 		stream.seek(self.start_buffer2 + self.stream_offset + self.vert_offset)
-		print("VERTS", stream.tell())
+		print("VERTS", stream.tell(), self.vertex_count)
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
+		print(self.verts_data.shape)
 		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
 		self.colors_data = np.fromfile(stream, dtype=self.dt_colors, count=self.vertex_count)
@@ -138,6 +110,7 @@ class ZtModelData:
 			self.colors /= 255
 			self.uvs[:] = self.colors_data[:]["uvs"]
 			self.uvs /= 2048
+		print(self.normals.shape)
 		self.normals[:] = self.verts_data[:]["normal"]
 		# self.tangents[:] = self.verts_data[:]["tangent"]
 		self.vertices[:] = self.verts_data[:]["pos"]

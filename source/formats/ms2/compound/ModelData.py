@@ -38,8 +38,7 @@ class ModelData:
 		if self.size_of_vertex != 48:
 			raise AttributeError(f"size_of_vertex != 48: size_of_vertex {self.size_of_vertex}, flag {self.flag}", )
 
-	def init_arrays(self, count):
-		self.vertex_count = count
+	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
@@ -156,7 +155,7 @@ class ModelData:
 		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
 		# create arrays for the unpacked ms2_file
-		self.init_arrays(self.vertex_count)
+		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
 		# print(self.verts_data[:]["uvs"][1])
 		if self.uvs is not None:
