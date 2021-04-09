@@ -1108,6 +1108,7 @@ class OvsFile(OvsHeader, ZipFile):
 				buffer.data_entry = data
 				data.buffers.append(buffer)
 				buff_ind += 1
+			data.streams = list(data.buffers)
 
 	@property
 	def buffers_io_order(self):
@@ -1800,7 +1801,6 @@ class OvlFile(Header, IoFile):
 
 	def link_streams(self):
 		"""Attach the data buffers of streamed filed to standard files from the first archive"""
-		# todo - refactor this so that it does not mess with the underlying buffers
 		if not self.archives:
 			return
 		print("Linking streams...")
@@ -1808,7 +1808,6 @@ class OvlFile(Header, IoFile):
 		for tb_index, sized_str_entry in enumerate(self.static_archive.content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)
 			if sized_str_entry.ext == ".tex":
-				sized_str_entry.data_entry.streams = list(sized_str_entry.data_entry.buffers)
 				for lod_i in range(3):
 					for archive in self.archives:
 						if archive == self.static_archive:
@@ -1818,7 +1817,6 @@ class OvlFile(Header, IoFile):
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
 								# sized_str_entry.streams.append(other_sizedstr)
 			if sized_str_entry.ext == ".ms2":
-				sized_str_entry.data_entry.streams = list(sized_str_entry.data_entry.buffers)
 				for lod_i in range(4):
 					for archive in self.archives:
 						if archive == self.static_archive:

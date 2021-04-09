@@ -152,7 +152,8 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 	for dds_type, dds_value in dds_compression_types:
 		# print(dds_file.width)
 		# header attribs
-		dds_file.width = align_to(dds_file.width, dds_type)
+		if not is_ztuac(ovl):
+			dds_file.width = align_to(dds_file.width, dds_type)
 		# print(dds_file.width)
 
 		# dx 10 stuff
@@ -162,6 +163,7 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 		dds_file_path = out_dir(name)
 		if len(dds_compression_types) > 1:
 			dds_file_path += f"_{dds_type}.dds"
+
 		# write dds
 		dds_file.save(dds_file_path)
 		# print(dds_file)
