@@ -93,16 +93,23 @@ class ZtModelData:
 		]
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
+		self.update_shell_count()
 		print("PC size of vertex:", self.dt.itemsize)
 		print("PC size of vcol:", self.dt_colors.itemsize)
+
+	def update_shell_count(self):
+		# 853 in aardvark is a shell mesh, but has no tri shells
+		if self.flag.repeat_tris:
+			self.shell_count = 6
+		else:
+			self.shell_count = 1
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
 		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
 		print("tris offset", stream.tell())
 		# read all tri indices for this model segment
-		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
-		# print(self.tri_indices)
+		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
 
 	@property
 	def tris(self, ):

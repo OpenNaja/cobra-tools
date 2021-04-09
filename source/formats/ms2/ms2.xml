@@ -102,7 +102,7 @@
 		Determines the data held by a mesh.
 		Count from the end!!!
 		<member width="1" pos="6" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
-		<member width="1" pos="9" name="fur shells" type="bool">stores fins</member>
+		<member width="1" pos="9" name="repeat tris" type="bool">repeats the tri array 5 times</member>
 	</bitfield>
 
 	<enum name="CollisionType" storage="uint">

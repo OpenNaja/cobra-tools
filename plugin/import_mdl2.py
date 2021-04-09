@@ -10,7 +10,7 @@ from plugin.helpers import mesh_from_data
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from utils import matrix_util
-from generated.formats.ms2 import Mdl2File
+from generated.formats.ms2 import Mdl2File, is_old
 from utils.shell import is_fin
 
 
@@ -91,7 +91,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 
 		# link to armature, only after mirror so the order is good and weights are mirrored
 		append_armature_modifier(ob, b_armature_obj)
-		if model.flag.fur_shells:
+		if not is_old(data) and model.flag.fur_shells:
 			add_psys(ob, model)
 		# only set the lod index here so that hiding it does not mess with any operators applied above
 		matrix_util.to_lod(ob, lod_i)
