@@ -200,7 +200,7 @@ class ModelData:
 		# read all tri indices for this model
 		stream.seek(self.start_buffer2 + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
 		# read all tri indices for this model segment
-		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count)
+		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
 
 	def write_tris(self, stream):
 		tri_bytes = struct.pack(f"{len(self.tri_indices)}H", *self.tri_indices)
@@ -263,7 +263,7 @@ class ModelData:
 		# create non-overlapping tris
 		# reverse to account for the flipped normals from mirroring in blender
 		return [(self.tri_indices[i + 2], self.tri_indices[i + 1], self.tri_indices[i]) for i in
-				range(0, len(self.tri_indices) // self.shell_count, 3)]
+				range(0, len(self.tri_indices), 3)]
 
 	@tris.setter
 	def tris(self, b_tris):
