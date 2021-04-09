@@ -80,17 +80,17 @@ class ZtModelData:
 		# ]
 
 		# this appears to be wrong and instead might be the norm for zt uac vs standard zt3?
-		if self.flag.fur_shells:
-			dt_colors = [
-				("colors", np.ubyte, (1, 4)),
-				("uvs", np.ushort, (2, 2)),
-			]
-		# zt3 elephants
-		else:
-			dt_colors = [
-				("colors", np.ubyte, (1, 4)),
-				("uvs", np.ushort, (1, 2)),
-			]
+		# if self.some_index:
+		# 	dt_colors = [
+		# 		("colors", np.ubyte, (1, 4)),
+		# 		("uvs", np.ushort, (2, 2)),
+		# 	]
+		# # zt3 elephants
+		# else:
+		dt_colors = [
+			("colors", np.ubyte, (1, 4)),
+			("uvs", np.ushort, (1+self.some_index, 2)),
+		]
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
 		print("PC size of vertex:", self.dt.itemsize)
