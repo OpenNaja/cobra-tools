@@ -93,10 +93,9 @@ def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
 
 def load_userinterfaceicondata(ovl_data, userinterfaceicondata_file_path, sized_str_entry):
 	with open(userinterfaceicondata_file_path, "rb") as stream:
-		b = stream.read()
-		sized_str_entry.fragments[0].pointers[1].update_data( b + b"\x00", update_copies=True)
-		len_a = len(b + b"\x00")
-	with open(userinterfaceicondata_file_path+"_b", "rb") as stream2:
-		bb = stream2.read()      
-		sized_str_entry.fragments[1].pointers[1].update_data( bb + b"\x00", update_copies=True, pad_to=64-len_a)
+		icname, icpath = [line.strip() for line in stream.read().split(b'\n') if line.strip()]
+		f0 = icname + b'\x00'
+		f1 = icpath + b'\x00'
+		sized_str_entry.fragments[0].pointers[1].update_data(f0, update_copies=True)
+		sized_str_entry.fragments[1].pointers[1].update_data(f1, update_copies=True, pad_to=64-len(f0))
 

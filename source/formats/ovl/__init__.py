@@ -53,6 +53,7 @@ lut_mime_hash = {
 	".fdb": 2545474337,
 	".lua": 1779074288,
 	".txt": 640591494,
+	".userinterfaceicondata": 2127665351,
 }
 
 
@@ -165,13 +166,12 @@ class OvsFile(OvsHeader, ZipFile):
 				new_data.set_index = 0
 
 			if file_entry.ext == ".userinterfaceicondata":  # userinterfaceicondata, 2 frags
-				icname, icpath = dbuffer.split(b',')
+				icname, icpath = [line.strip() for line in dbuffer.split(b'\n') if line.strip()]
 				outb = icname + b'\x00' + icpath + b'\x00'
 				outb = self.buffer_padding(outb, 64) + struct.pack('8s', b'')
 				self.header_entry_data += outb
 				newoffset = len(self.header_entry_data)
 				self.header_entry_data += struct.pack('16s', b'')
-				iclen = len(outb)
 				new_frag0 = self.create_fragment()
 				new_frag0.pointers[0].header_index = 0
 				new_frag0.pointers[0].data_offset = newoffset
