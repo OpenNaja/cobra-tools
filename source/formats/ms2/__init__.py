@@ -245,9 +245,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if is_old(self):
 				print("PC model...")
 				if not quick:
+					last_vert_offset = 0
 					for i, model_data in enumerate(model_info.pc_model.models):
 						print("\nModel", i)
-						model_data.populate(self, stream, self.start_buffer2, 512)
+						last_vert_offset = model_data.populate(self, stream, self.start_buffer2, 512, last_vert_offset=last_vert_offset)
 					mdl2.lods = model_info.pc_model.lods
 					mdl2.mesh_links = model_info.pc_model.mesh_links
 					mdl2.models = model_info.pc_model.models
