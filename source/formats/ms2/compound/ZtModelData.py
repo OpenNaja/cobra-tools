@@ -99,12 +99,13 @@ class ZtModelData:
 		if 4294967295 == self.vert_offset:
 			# self.vert_offset = 0
 			print(f"Warning, vert_offset is -1, seeking to last vert offset {self.last_vert_offset}")
-			stream.seek(self.last_vert_offset - (self.vertex_count * self.dt.itemsize))
+			# stream.seek(self.last_vert_offset - (self.vertex_count * self.dt.itemsize))
+			stream.seek(self.last_vert_offset)
 		else:
 			stream.seek(self.start_buffer2 + self.stream_offset + self.vert_offset)
 		print("VERTS", stream.tell(), self.vertex_count)
-		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
 		self.new_vert_offset = stream.tell()
+		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
 		print(self.verts_data.shape)
 		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
