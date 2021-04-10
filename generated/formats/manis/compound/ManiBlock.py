@@ -23,7 +23,7 @@ class ManiBlock:
 		self.c_indices_0 = Array()
 		self.c_indices_1 = Array()
 		self.c_indices_2 = Array()
-		self.zero = 0
+		self.padding = Array()
 
 		# likely
 		self.frame_count = 0
@@ -65,7 +65,7 @@ class ManiBlock:
 			self.c_indices_0 = stream.read_ubytes((self.arg.c))
 			self.c_indices_1 = stream.read_ubytes((self.arg.name_count))
 			self.c_indices_2 = stream.read_ubytes((self.arg.e))
-		self.zero = stream.read_uint64()
+		self.padding = stream.read_ubytes(((16 - (((self.arg.c + (self.arg.name_count + self.arg.e)) * 4) % 16)) % 16))
 		self.frame_count = stream.read_uint()
 		self.c = stream.read_uint()
 		self.e = stream.read_uint()
@@ -101,7 +101,7 @@ class ManiBlock:
 			stream.write_ubytes(self.c_indices_0)
 			stream.write_ubytes(self.c_indices_1)
 			stream.write_ubytes(self.c_indices_2)
-		stream.write_uint64(self.zero)
+		stream.write_ubytes(self.padding)
 		stream.write_uint(self.frame_count)
 		stream.write_uint(self.c)
 		stream.write_uint(self.e)
@@ -129,7 +129,7 @@ class ManiBlock:
 		s += f'\n	* c_indices_0 = {self.c_indices_0.__repr__()}'
 		s += f'\n	* c_indices_1 = {self.c_indices_1.__repr__()}'
 		s += f'\n	* c_indices_2 = {self.c_indices_2.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* padding = {self.padding.__repr__()}'
 		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
 		s += f'\n	* c = {self.c.__repr__()}'
 		s += f'\n	* e = {self.e.__repr__()}'

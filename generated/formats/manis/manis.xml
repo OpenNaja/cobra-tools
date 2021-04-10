@@ -245,9 +245,9 @@
 		<add name="c indices 1" type="ubyte" arr1="#ARG#\name count" cond="#PC#" > </add>
 		<add name="c indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>
 
-<!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
+		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>
 		two uint zeros, or padding
-		<add name="zero" type="uint64" > </add>
+<!--		<add name="zero" type="uint64" > </add>-->
 		<add name="frame count" type="uint" >likely</add>
 		<add name="c" type="uint" > </add>
 		<add name="e" type="uint" > </add>
