@@ -41,12 +41,15 @@ class ManisFile(InfoHeader, IoFile):
 			print("sum_bytes", sum_bytes)
 			sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_block.repeats)
 			print("sum_bytes + padding", sum_bytes2)
-			for mb in mani_block.repeats:
+			for mb, bone_name in zip(mani_block.repeats, self.bone_names):
 				data = stream.read(mb.byte_size)
 				pad_size = get_padding_size(mb.byte_size)
 				padding = stream.read(pad_size)
-				print(binascii.hexlify(data[:40]), padding, stream.tell())
+				# print(binascii.hexlify(data[:40]), padding, stream.tell())
+				with open(os.path.join(self.dir, f"{self.file_no_ext}_{bone_name}.maniskeys"), "wb") as f:
+					f.write(data)
 			stream.tell()
+			# print()
 			#
 			# # seems to be pretty good until here, then it breaks
 			#
