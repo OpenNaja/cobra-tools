@@ -101,13 +101,15 @@ def export_bones_custom(b_armature_ob, data):
 		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
 
 	# update counts
-	bone_info.bind_matrix_count = bone_info.bone_count = bone_info.name_count = bone_info.bone_parents_count = \
+	bone_info.zeros_count = bone_info.bind_matrix_count = bone_info.bone_count = bone_info.name_count = bone_info.bone_parents_count = \
 		bone_info.enum_count = len(b_bone_names)
+	bone_info.zeros_padding.arg = bone_info.zeros_count
 	bone_info.name_indices.resize(len(b_bone_names))
 	# paddings are taken care of automatically during writing
 	bone_info.enumeration.resize((len(b_bone_names), 2))
 	for i in range(len(b_bone_names)):
 		bone_info.enumeration[i] = [4, i]
+
 	# todo - update joints
 	# export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
 
