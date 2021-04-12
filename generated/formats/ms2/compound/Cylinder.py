@@ -1,35 +1,31 @@
-import typing
-from generated.array import Array
+from generated.formats.ms2.compound.Capsule import Capsule
 
 
-class Cylinder:
+class Cylinder(Capsule):
+
+	"""
+	identical data to capsule, just imported differently
+	"""
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
+		super().__init__(arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
-		# ?
-		self.unk = Array()
-
-		# apparently unused
-		self.zero = 0
-
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.unk = stream.read_floats((8))
-		self.zero = stream.read_uint()
+		super().read(stream)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_floats(self.unk)
-		stream.write_uint(self.zero)
+		super().write(stream)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -38,8 +34,7 @@ class Cylinder:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* unk = {self.unk.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += super().get_fields_str()
 		return s
 
 	def __repr__(self):

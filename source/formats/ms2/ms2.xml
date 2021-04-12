@@ -718,9 +718,8 @@
 		<add name="zero" type="uint" >apparently unused</add>
 	</compound>
 
-	<compound name="Cylinder">
-		<add name="unk" type="float" arr1="8" >?</add>
-		<add name="zero" type="uint" >apparently unused</add>
+	<compound name="Cylinder" inherit="Capsule">
+		identical data to capsule, just imported differently
 	</compound>
 
 	<compound name="ConvexHull">

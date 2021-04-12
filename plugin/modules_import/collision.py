@@ -18,6 +18,8 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 		ob = import_boxbv(coll, hitcheck.name, corrector)
 	elif hitcheck.type == CollisionType.Capsule:
 		ob = import_capsulebv(coll, hitcheck.name)
+	elif hitcheck.type == CollisionType.Cylinder:
+		ob = import_cylinderbv(coll, hitcheck.name)
 	else:
 		print(f"Unsupported collider type {hitcheck.type}")
 		return
@@ -102,6 +104,21 @@ def import_capsulebv(capsule, hitcheck_name):
 	# apply transform in local space
 	b_obj.matrix_local = center_origin_to_matrix(capsule.offset, capsule.direction)
 	set_b_collider(b_obj, capsule.radius, bounds_type="CAPSULE", display_type="CAPSULE")
+	return b_obj
+
+
+def import_cylinderbv(cylinder, hitcheck_name):
+	# positions of the box verts
+	minx = miny = -cylinder.radius
+	maxx = maxy = +cylinder.radius
+	minz = -cylinder.extent / 2
+	maxz = cylinder.extent / 2
+
+	# create blender object
+	b_obj, b_me = box_from_extents(hitcheck_name, minx, maxx, miny, maxy, minz, maxz)
+	# apply transform in local space
+	b_obj.matrix_local = center_origin_to_matrix(cylinder.offset, cylinder.direction)
+	set_b_collider(b_obj, cylinder.radius, bounds_type="CYLINDER", display_type="CYLINDER")
 	return b_obj
 
 
