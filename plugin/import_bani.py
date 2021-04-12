@@ -38,21 +38,6 @@ def create_anim(ob, anim_name):
 	return action
 
 
-def ovl_bones(b_armature_data):
-	# first just get the roots, then extend it
-	roots = [bone for bone in b_armature_data.bones if not bone.parent]
-	# this_level = []
-	out_bones = roots
-	# next_level = []
-	for bone in roots:
-		out_bones += [child for child in bone.children]
-	bone_names = [b.name for b in out_bones]
-	if "srb" in bone_names:
-		bone_names.remove("srb")
-		bone_names.append("srb")
-	return bone_names
-
-
 def load(operator, context, files=[], filepath="", set_fps=False):
 	starttime = time.clock()
 	dirname, filename = os.path.split(filepath)

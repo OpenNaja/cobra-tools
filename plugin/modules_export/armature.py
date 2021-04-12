@@ -3,11 +3,39 @@ import mathutils
 
 from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
-from generated.formats.ovl import is_ztuac
+from generated.formats.ovl import is_ztuac, is_jwe
 from plugin.modules_export.collision import export_hitcheck
 from plugin.modules_import.armature import get_bone_names
 from utils import matrix_util
 from utils.matrix_util import bone_name_for_ovl
+
+
+def get_level(bones, level=0):
+	level_children = []
+	for bone in bones:
+		# print(f"Level {level} {bone.name}")
+		if level == 0:
+			tmp_children = sorted(bone.children, key=lambda b: bone_name_for_ovl(b.name), reverse=True)
+
+		else:
+			tmp_children = sorted(bone.children, key=lambda b: bone_name_for_ovl(b.name))
+		level_children.extend(tmp_children)
+	return level_children
+
+
+def ovl_bones_jwe(b_armature_ob):
+	b_armature_data = b_armature_ob.data
+	# first just get the roots, then extend it
+	roots = [bone for bone in b_armature_data.bones if not bone.parent]
+	out_bones = []
+	level_children = list(roots)
+	i = 0
+	while level_children:
+		# print(level_children)
+		out_bones.extend(level_children)
+		level_children = get_level(level_children, level=i)
+		i += 1
+	return [b.name for b in out_bones]
 
 
 def get_bone_names_from_armature(b_armature_ob):
@@ -64,7 +92,10 @@ def handle_transforms(ob, me, errors, apply=True):
 def export_bones_custom(b_armature_ob, data):
 	corrector = matrix_util.Corrector(is_ztuac(data))
 	# now get bone names from b_armature.data
-	b_bone_names = get_bone_names_from_armature(b_armature_ob)
+	if is_jwe(data):
+		b_bone_names = ovl_bones_jwe(b_armature_ob)
+	else:
+		b_bone_names = get_bone_names_from_armature(b_armature_ob)
 	bone_info = data.ms2_file.bone_info
 	# get bone type based on version, or based on bone that previously was used in bones
 	if bone_info.bones:
