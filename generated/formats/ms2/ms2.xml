@@ -725,20 +725,20 @@
 
 	<compound name="MeshCollision">
 		<add name="rotation" type="Matrix33"/>
-		<add name="unk0" type="Vector3" >?</add>
-		<add name="unk1" type="Vector3" >not floats, maybe 6 ushorts, shared among (all?) redwoods</add>
+		<add name="offset" type="Vector3" >offset of mesh</add>
+		<add name="unk1" type="ushort" arr1="3" arr2="2">not floats, maybe 6 ushorts, shared among (all?) redwoods</add>
 		<add name="vertex count" type="uint64" >vertices (3 float)</add>
 		<add name="tri count" type="uint64" >tris?, counts the 25s at the end</add>
-		<add name="unk2" type="Vector3" >?</add>
-		<add name="unk3" type="Vector3" >?</add>
+		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
+		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="ones or zeros" type="uint64" arr1="7" >seemingly fixed</add>
 		<add name="ff or zero" type="int" arr1="10" >seemingly fixed</add>
-		<add name="unk4" type="Vector3" >?</add>
-		<add name="unk5" type="Vector3" >?</add>
-		<add name="countc" type="uint" >?</add>
+		<add name="bounds min repeat" type="Vector3">verbatim</add>
+		<add name="bounds max repeat" type="Vector3">verbatim</add>
+		<add name="countc" type="uint" >seems to repeat tri_count</add>
 		<add name="stuff" type="ushort" arr1="43">?</add>
 		<add name="countd" type="ushort" >?</add>
-		<add name="consts" type="uint" arr1="3">?</add>
+		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
 		<add name="zeros" type="uint" arr1="4">?</add>
 		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
 		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>

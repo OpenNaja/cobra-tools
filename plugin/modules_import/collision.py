@@ -21,7 +21,7 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 	elif hitcheck.type == CollisionType.Cylinder:
 		ob = import_cylinderbv(coll, hitcheck.name)
 	elif hitcheck.type == CollisionType.MeshCollision:
-		ob = import_meshbv(coll, hitcheck.name)
+		ob = import_meshbv(coll, hitcheck.name, corrector)
 	else:
 		print(f"Unsupported collider type {hitcheck.type}")
 		return
@@ -33,9 +33,12 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
 	"""Helper function to set up b_obj so it becomes recognizable as a collision object"""
 	# set bounds type
-	b_obj.show_bounds = True
-	b_obj.display_type = 'BOUNDS'
-	b_obj.display_bounds_type = display_type
+	if display_type == "MESH":
+		b_obj.display_type = 'WIRE'
+	else:
+		b_obj.show_bounds = True
+		b_obj.display_type = 'BOUNDS'
+		b_obj.display_bounds_type = display_type
 
 	override = bpy.context.copy()
 	override['selected_objects'] = b_obj
@@ -82,10 +85,14 @@ def import_spherebv(sphere, hitcheck_name):
 	return b_obj
 
 
-def import_boxbv(box, hitcheck_name, corrector):
-	mat = mathutils.Matrix(box.rotation.data).to_4x4()
+def import_collision_matrix(container, corrector):
+	mat = mathutils.Matrix(container.data).to_4x4()
 	mat.transpose()
-	mat = corrector.nif_bind_to_blender_bind(mat)
+	return corrector.nif_bind_to_blender_bind(mat)
+
+
+def import_boxbv(box, hitcheck_name, corrector):
+	mat = import_collision_matrix(box.rotation, corrector)
 	y, x, z = unpack_swizzle((box.extent.x / 2, box.extent.y / 2, box.extent.z / 2))
 	b_obj, b_me = box_from_extents(hitcheck_name, -x, x, -y, y, -z, z)
 	mat.translation = unpack_swizzle((box.center.x, box.center.y, box.center.z))
@@ -124,10 +131,13 @@ def import_cylinderbv(cylinder, hitcheck_name):
 	return b_obj
 
 
-def import_meshbv(coll, hitcheck_name):
-	print(coll)
-	b_obj = mesh_from_data(hitcheck_name, list(coll.vertices), list(coll.triangles))
-	set_b_collider(b_obj, 1, bounds_type="MESH", display_type="CYLINDER")
+def import_meshbv(coll, hitcheck_name, corrector):
+	# print(coll)
+	b_obj, b_me = mesh_from_data(hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles))
+	mat = import_collision_matrix(coll.rotation, corrector)
+	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
+	b_obj.matrix_local = mat
+	set_b_collider(b_obj, 1, bounds_type="MESH", display_type="MESH")
 	return b_obj
 
 

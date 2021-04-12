@@ -14,11 +14,11 @@ class MeshCollision:
 		self.io_start = 0
 		self.rotation = Matrix33()
 
-		# ?
-		self.unk_0 = Vector3()
+		# offset of mesh
+		self.offset = Vector3()
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
-		self.unk_1 = Vector3()
+		self.unk_1 = Array()
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -26,11 +26,11 @@ class MeshCollision:
 		# tris?, counts the 25s at the end
 		self.tri_count = 0
 
-		# ?
-		self.unk_2 = Vector3()
+		# the smallest coordinates across all axes
+		self.bounds_min = Vector3()
 
-		# ?
-		self.unk_3 = Vector3()
+		# the biggest coordinates across all axes
+		self.bounds_max = Vector3()
 
 		# seemingly fixed
 		self.ones_or_zeros = Array()
@@ -38,13 +38,13 @@ class MeshCollision:
 		# seemingly fixed
 		self.ff_or_zero = Array()
 
-		# ?
-		self.unk_4 = Vector3()
+		# verbatim
+		self.bounds_min_repeat = Vector3()
 
-		# ?
-		self.unk_5 = Vector3()
+		# verbatim
+		self.bounds_max_repeat = Vector3()
 
-		# ?
+		# seems to repeat tri_count
 		self.countc = 0
 
 		# ?
@@ -53,7 +53,7 @@ class MeshCollision:
 		# ?
 		self.countd = 0
 
-		# ?
+		# always 2954754766?
 		self.consts = Array()
 
 		# ?
@@ -78,16 +78,16 @@ class MeshCollision:
 
 		self.io_start = stream.tell()
 		self.rotation = stream.read_type(Matrix33)
-		self.unk_0 = stream.read_type(Vector3)
-		self.unk_1 = stream.read_type(Vector3)
+		self.offset = stream.read_type(Vector3)
+		self.unk_1 = stream.read_ushorts((3, 2))
 		self.vertex_count = stream.read_uint64()
 		self.tri_count = stream.read_uint64()
-		self.unk_2 = stream.read_type(Vector3)
-		self.unk_3 = stream.read_type(Vector3)
+		self.bounds_min = stream.read_type(Vector3)
+		self.bounds_max = stream.read_type(Vector3)
 		self.ones_or_zeros = stream.read_uint64s((7))
 		self.ff_or_zero = stream.read_ints((10))
-		self.unk_4 = stream.read_type(Vector3)
-		self.unk_5 = stream.read_type(Vector3)
+		self.bounds_min_repeat = stream.read_type(Vector3)
+		self.bounds_max_repeat = stream.read_type(Vector3)
 		self.countc = stream.read_uint()
 		self.stuff = stream.read_ushorts((43))
 		self.countd = stream.read_ushort()
@@ -105,16 +105,16 @@ class MeshCollision:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.rotation)
-		stream.write_type(self.unk_0)
-		stream.write_type(self.unk_1)
+		stream.write_type(self.offset)
+		stream.write_ushorts(self.unk_1)
 		stream.write_uint64(self.vertex_count)
 		stream.write_uint64(self.tri_count)
-		stream.write_type(self.unk_2)
-		stream.write_type(self.unk_3)
+		stream.write_type(self.bounds_min)
+		stream.write_type(self.bounds_max)
 		stream.write_uint64s(self.ones_or_zeros)
 		stream.write_ints(self.ff_or_zero)
-		stream.write_type(self.unk_4)
-		stream.write_type(self.unk_5)
+		stream.write_type(self.bounds_min_repeat)
+		stream.write_type(self.bounds_max_repeat)
 		stream.write_uint(self.countc)
 		stream.write_ushorts(self.stuff)
 		stream.write_ushort(self.countd)
@@ -134,16 +134,16 @@ class MeshCollision:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* rotation = {self.rotation.__repr__()}'
-		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_count = {self.tri_count.__repr__()}'
-		s += f'\n	* unk_2 = {self.unk_2.__repr__()}'
-		s += f'\n	* unk_3 = {self.unk_3.__repr__()}'
+		s += f'\n	* bounds_min = {self.bounds_min.__repr__()}'
+		s += f'\n	* bounds_max = {self.bounds_max.__repr__()}'
 		s += f'\n	* ones_or_zeros = {self.ones_or_zeros.__repr__()}'
 		s += f'\n	* ff_or_zero = {self.ff_or_zero.__repr__()}'
-		s += f'\n	* unk_4 = {self.unk_4.__repr__()}'
-		s += f'\n	* unk_5 = {self.unk_5.__repr__()}'
+		s += f'\n	* bounds_min_repeat = {self.bounds_min_repeat.__repr__()}'
+		s += f'\n	* bounds_max_repeat = {self.bounds_max_repeat.__repr__()}'
 		s += f'\n	* countc = {self.countc.__repr__()}'
 		s += f'\n	* stuff = {self.stuff.__repr__()}'
 		s += f'\n	* countd = {self.countd.__repr__()}'
