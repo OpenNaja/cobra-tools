@@ -123,11 +123,3 @@ def bisect_mesh(ob):
 	mod.merge_threshold = 0.001
 
 
-def eval_me(ob):
-	dg = bpy.context.evaluated_depsgraph_get()
-	# make a copy with all modifiers applied
-	eval_obj = ob.evaluated_get(dg)
-	me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
-	return eval_obj, me
-
-

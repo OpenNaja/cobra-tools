@@ -9,6 +9,7 @@ from plugin.modules_export.armature import get_armature, handle_transforms, expo
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Mdl2File
+from utils.matrix_util import eval_me
 from utils.shell import get_ob_from_lod_and_flags
 
 MAX_USHORT = 65535
@@ -68,20 +69,16 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	for ob in mesh_objects:
 		print("\nNext mesh...")
 
-		# make sure the model has a triangulation modifier
-		ensure_tri_modifier(ob)
-
-		dg = bpy.context.evaluated_depsgraph_get()
-		# make a copy with all modifiers applied
-		eval_obj = ob.evaluated_get(dg)
-		me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
-		handle_transforms(eval_obj, me, errors, apply=apply_transforms)
 		# get the index of this model in the mdl2 model buffer
 		try:
 			ind = int(ob.name.rsplit("_model", 1)[1])
 		except:
 			print("Bad name, skipping", ob.name)
 			continue
+		# make sure the model has a triangulation modifier
+		ensure_tri_modifier(ob)
+		eval_obj, me = eval_me(ob)
+		handle_transforms(eval_obj, me, errors, apply=apply_transforms)
 		print("Model slot", ind)
 		bounds.append(eval_obj.bound_box)
 
@@ -280,14 +277,6 @@ def get_hair_length(ob):
 		psys = ob.particle_systems[0]
 		return psys.settings.hair_length
 	return 0
-
-
-def eval_me(ob):
-	dg = bpy.context.evaluated_depsgraph_get()
-	# make a copy with all modifiers applied
-	eval_obj = ob.evaluated_get(dg)
-	me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
-	return eval_obj, me
 
 
 def fill_kd_tree(me):

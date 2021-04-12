@@ -108,6 +108,11 @@ def export_meshbv(b_obj, hitcheck):
 	coll.vertices.resize((coll.vertex_count, 3))
 	for vert_i, vert in enumerate(me.vertices):
 		coll.vertices[vert_i, :] = pack_swizzle(vert.co)
+	coll.tri_count = len(me.polygons)
+	coll.triangles.resize((coll.tri_count, 3))
+	for face_i, face in enumerate(me.polygons):
+		coll.triangles[face_i, :] = face.vertices
+		assert len(face.vertices) == 3
 	print("Mesh collision export is not supported!")
 	print(coll)
 

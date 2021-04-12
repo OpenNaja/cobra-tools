@@ -735,7 +735,7 @@
 		<add name="ff or zero" type="int" arr1="10" >seemingly fixed</add>
 		<add name="bounds min repeat" type="Vector3">verbatim</add>
 		<add name="bounds max repeat" type="Vector3">verbatim</add>
-		<add name="countc" type="uint" >seems to repeat tri_count</add>
+		<add name="tri flags count" type="uint" >seems to repeat tri_count</add>
 		<add name="count bits" type="ushort" >counts MeshCollisionBit</add>
 		<add name="stuff" type="ushort" arr1="9">?</add>
 		<add name="collision bits" type="MeshCollisionBit" arr1="count bits">?</add>
@@ -744,7 +744,7 @@
 		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
 		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>
 		<add name="const" type="uint" >?</add>
-		<add name="triangle flags" type="uint" arr1="tri count" cond="const" >always 25</add>
+		<add name="triangle flags" type="uint" arr1="tri flags count" cond="const" >always 25</add>
 		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
 

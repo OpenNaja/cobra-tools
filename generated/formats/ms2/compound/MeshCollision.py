@@ -47,7 +47,7 @@ class MeshCollision:
 		self.bounds_max_repeat = Vector3()
 
 		# seems to repeat tri_count
-		self.countc = 0
+		self.tri_flags_count = 0
 
 		# counts MeshCollisionBit
 		self.count_bits = 0
@@ -71,7 +71,7 @@ class MeshCollision:
 		self.const = 0
 
 		# always 25
-		self.triangle_flags = numpy.zeros((self.tri_count), dtype='uint')
+		self.triangle_flags = numpy.zeros((self.tri_flags_count), dtype='uint')
 
 		# might be padding!
 		self.zero_end = 0
@@ -90,7 +90,7 @@ class MeshCollision:
 		self.ff_or_zero = stream.read_ints((10))
 		self.bounds_min_repeat = stream.read_type(Vector3)
 		self.bounds_max_repeat = stream.read_type(Vector3)
-		self.countc = stream.read_uint()
+		self.tri_flags_count = stream.read_uint()
 		self.count_bits = stream.read_ushort()
 		self.stuff = stream.read_ushorts((9))
 		self.collision_bits.read(stream, MeshCollisionBit, self.count_bits, None)
@@ -99,7 +99,7 @@ class MeshCollision:
 		self.triangles = stream.read_ushorts((self.tri_count, 3))
 		self.const = stream.read_uint()
 		if self.const:
-			self.triangle_flags = stream.read_uints((self.tri_count))
+			self.triangle_flags = stream.read_uints((self.tri_flags_count))
 		self.zero_end = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -118,7 +118,7 @@ class MeshCollision:
 		stream.write_ints(self.ff_or_zero)
 		stream.write_type(self.bounds_min_repeat)
 		stream.write_type(self.bounds_max_repeat)
-		stream.write_uint(self.countc)
+		stream.write_uint(self.tri_flags_count)
 		stream.write_ushort(self.count_bits)
 		stream.write_ushorts(self.stuff)
 		self.collision_bits.write(stream, MeshCollisionBit, self.count_bits, None)
@@ -148,7 +148,7 @@ class MeshCollision:
 		s += f'\n	* ff_or_zero = {self.ff_or_zero.__repr__()}'
 		s += f'\n	* bounds_min_repeat = {self.bounds_min_repeat.__repr__()}'
 		s += f'\n	* bounds_max_repeat = {self.bounds_max_repeat.__repr__()}'
-		s += f'\n	* countc = {self.countc.__repr__()}'
+		s += f'\n	* tri_flags_count = {self.tri_flags_count.__repr__()}'
 		s += f'\n	* count_bits = {self.count_bits.__repr__()}'
 		s += f'\n	* stuff = {self.stuff.__repr__()}'
 		s += f'\n	* collision_bits = {self.collision_bits.__repr__()}'

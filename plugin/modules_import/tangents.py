@@ -1,5 +1,5 @@
 from plugin.helpers import mesh_from_data
-from plugin.import_mdl2 import eval_me
+from utils.matrix_util import eval_me
 from utils.shell import get_ob_from_lod_and_flags
 
 

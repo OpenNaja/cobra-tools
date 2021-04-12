@@ -234,3 +234,11 @@ def to_lod(ob, level=0, lod=None):
 	vlayer.layer_collection.children[lod].hide_viewport = should_hide
 	# hide object in view layer
 	ob.hide_set(should_hide, view_layer=vlayer)
+
+
+def eval_me(ob):
+	dg = bpy.context.evaluated_depsgraph_get()
+	# make a copy with all modifiers applied
+	eval_obj = ob.evaluated_get(dg)
+	me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
+	return eval_obj, me

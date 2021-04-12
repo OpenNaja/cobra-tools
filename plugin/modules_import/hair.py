@@ -3,6 +3,8 @@ import mathutils
 import math
 import time
 
+from utils.matrix_util import eval_me
+
 
 def find_modifier_for_particle_system(object, particle_system):
 	for modifier in object.modifiers:
@@ -37,9 +39,7 @@ def vcol_to_comb():
 	# otherwise the non-eval ob's particle count is 0
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
-	depsgraph = context.evaluated_depsgraph_get()
-	ob_eval = ob.evaluated_get(depsgraph)
-	me = ob.data
+	ob_eval, me = eval_me(ob)
 	if not ob:
 		return msgs
 	particle_system = ob.particle_systems[0]
@@ -109,9 +109,7 @@ def comb_to_vcol():
 	# otherwise the non-eval ob's particle count is 0
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
-	depsgraph = context.evaluated_depsgraph_get()
-	ob_eval = ob.evaluated_get(depsgraph)
-	me = ob.data
+	ob_eval, me = eval_me(ob)
 	if not ob:
 		return msgs
 	particle_system = ob.particle_systems[0]
