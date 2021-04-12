@@ -736,15 +736,22 @@
 		<add name="bounds min repeat" type="Vector3">verbatim</add>
 		<add name="bounds max repeat" type="Vector3">verbatim</add>
 		<add name="countc" type="uint" >seems to repeat tri_count</add>
-		<add name="stuff" type="ushort" arr1="43">?</add>
-		<add name="countd" type="ushort" >?</add>
-		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
-		<add name="zeros" type="uint" arr1="4">?</add>
+		<add name="count bits" type="ushort" >counts MeshCollisionBit</add>
+		<add name="stuff" type="ushort" arr1="9">?</add>
+		<add name="collision bits" type="MeshCollisionBit" arr1="count bits">?</add>
+		<add name="zeros" type="uint" arr1="4" >always 25</add>
+
 		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
 		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>
 		<add name="const" type="uint" >?</add>
-		<add name="triangle flags" type="uint" arr1="tri count" >always 25</add>
+		<add name="triangle flags" type="uint" arr1="tri count" cond="const" >always 25</add>
 		<add name="zero end" type="uint" >might be padding!</add>
+	</compound>
+
+
+	<compound name="MeshCollisionBit">
+		<add name="countd" type="ushort" arr1="34">?</add>
+		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
 	</compound>
 
 	<compound name="ConvexHull">

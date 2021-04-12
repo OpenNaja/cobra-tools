@@ -1,6 +1,7 @@
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Matrix33 import Matrix33
+from generated.formats.ms2.compound.MeshCollisionBit import MeshCollisionBit
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
@@ -47,16 +48,16 @@ class MeshCollision:
 		# seems to repeat tri_count
 		self.countc = 0
 
+		# counts MeshCollisionBit
+		self.count_bits = 0
+
 		# ?
 		self.stuff = Array()
 
 		# ?
-		self.countd = 0
+		self.collision_bits = Array()
 
-		# always 2954754766?
-		self.consts = Array()
-
-		# ?
+		# always 25
 		self.zeros = Array()
 
 		# array of vertices
@@ -89,14 +90,15 @@ class MeshCollision:
 		self.bounds_min_repeat = stream.read_type(Vector3)
 		self.bounds_max_repeat = stream.read_type(Vector3)
 		self.countc = stream.read_uint()
-		self.stuff = stream.read_ushorts((43))
-		self.countd = stream.read_ushort()
-		self.consts = stream.read_uints((3))
+		self.count_bits = stream.read_ushort()
+		self.stuff = stream.read_ushorts((9))
+		self.collision_bits.read(stream, MeshCollisionBit, self.count_bits, None)
 		self.zeros = stream.read_uints((4))
 		self.vertices = stream.read_floats((self.vertex_count, 3))
 		self.triangles = stream.read_ushorts((self.tri_count, 3))
 		self.const = stream.read_uint()
-		self.triangle_flags = stream.read_uints((self.tri_count))
+		if self.const:
+			self.triangle_flags = stream.read_uints((self.tri_count))
 		self.zero_end = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -116,14 +118,15 @@ class MeshCollision:
 		stream.write_type(self.bounds_min_repeat)
 		stream.write_type(self.bounds_max_repeat)
 		stream.write_uint(self.countc)
+		stream.write_ushort(self.count_bits)
 		stream.write_ushorts(self.stuff)
-		stream.write_ushort(self.countd)
-		stream.write_uints(self.consts)
+		self.collision_bits.write(stream, MeshCollisionBit, self.count_bits, None)
 		stream.write_uints(self.zeros)
 		stream.write_floats(self.vertices)
 		stream.write_ushorts(self.triangles)
 		stream.write_uint(self.const)
-		stream.write_uints(self.triangle_flags)
+		if self.const:
+			stream.write_uints(self.triangle_flags)
 		stream.write_uint(self.zero_end)
 
 		self.io_size = stream.tell() - self.io_start
@@ -145,9 +148,9 @@ class MeshCollision:
 		s += f'\n	* bounds_min_repeat = {self.bounds_min_repeat.__repr__()}'
 		s += f'\n	* bounds_max_repeat = {self.bounds_max_repeat.__repr__()}'
 		s += f'\n	* countc = {self.countc.__repr__()}'
+		s += f'\n	* count_bits = {self.count_bits.__repr__()}'
 		s += f'\n	* stuff = {self.stuff.__repr__()}'
-		s += f'\n	* countd = {self.countd.__repr__()}'
-		s += f'\n	* consts = {self.consts.__repr__()}'
+		s += f'\n	* collision_bits = {self.collision_bits.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* vertices = {self.vertices.__repr__()}'
 		s += f'\n	* triangles = {self.triangles.__repr__()}'
