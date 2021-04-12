@@ -109,7 +109,7 @@
 		<option value="0" name="Sphere" />
 		<option value="1" name="BoundingBox" />
 		<option value="2" name="Capsule" />
-		<option value="3" name="HitcheckHeroTree" />
+		<option value="3" name="Cylinder" />
 		<option value="8" name="ConvexHull" />
 		<option value="10" name="Unknown" >widgetball_test.mdl2, Ball_Hitcheck not supported</option>
 	</enum>
@@ -693,7 +693,7 @@
 		<add name="collider" type="Sphere" cond="type == 0" />
 		<add name="collider" type="BoundingBox" cond="type == 1" />
 		<add name="collider" type="Capsule" cond="type == 2" />
-		<add name="collider" type="HitcheckHeroTree" cond="type == 3" />
+		<add name="collider" type="Cylinder" cond="type == 3" />
 		<add name="collider" type="ConvexHull" cond="type == 8" />
 	</compound>
 
@@ -718,8 +718,9 @@
 		<add name="zero" type="uint" >apparently unused</add>
 	</compound>
 
-	<compound name="HitcheckHeroTree">
+	<compound name="Cylinder">
 		<add name="unk" type="float" arr1="8" >?</add>
+		<add name="zero" type="uint" >apparently unused</add>
 	</compound>
 
 	<compound name="ConvexHull">

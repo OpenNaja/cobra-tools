@@ -25,6 +25,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 	print(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
+	# print("ms2 ss rest", ms2_sized_str_entry.pointers[0].data[24:])
 	# ms2_general_info = ms2_sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 	# print("Ms2SizedStrData", ms2_sized_str_entry.pointers[0].address, ms2_general_info)
 

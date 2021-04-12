@@ -2,7 +2,7 @@ import typing
 from generated.array import Array
 
 
-class HitcheckHeroTree:
+class Cylinder:
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
@@ -34,7 +34,7 @@ class HitcheckHeroTree:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'HitcheckHeroTree [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Cylinder [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

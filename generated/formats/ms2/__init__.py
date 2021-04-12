@@ -7,7 +7,6 @@ from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
-from generated.formats.ms2.compound.Ms2BoneInfoPc import Ms2BoneInfoPc
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ms2.enum.CollisionType import CollisionType
@@ -58,8 +57,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			print("mdl2 count", self.general_info.mdl_2_count)
 			for i in range(self.general_info.mdl_2_count):
 				print(f"BONE INFO {i} starts at {stream.tell()}")
+				bone_info = bone_info_cls()
 				try:
-					bone_info = bone_info_cls()
 					bone_info.read(stream)
 					self.assign_bone_names(bone_info)
 					try:
@@ -81,8 +80,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					print("padding", padding_len, stream.read(padding_len), "joint count", bone_info.joint_count)
 				except Exception as err:
 					traceback.print_exc()
-					print("Bone info failed")
-					print(self.bone_infos)
+					print(f"Bone info {i} failed:")
+					print(bone_info)
+
+					if self.bone_infos:
+						print(f"Last bone info that worked:")
+						print(self.bone_infos[-1])
 					break
 		stream.seek(potential_start)
 
@@ -106,7 +109,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		stream.seek(potential_start)
 		print("Start looking for bone info at", potential_start)
 		if hack:
-			# self.read_all_bone_infos(stream, bone_info_cls)
 			# first get all bytes of the whole bone infos block
 			# find the start of each using this identifier
 			zero_f = bytes.fromhex("00 00 00 00")
@@ -234,7 +236,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			else:
 				self.read_all_bone_infos(stream, Ms2BoneInfo)
 				if self.bone_infos:
-					self.bone_info = self.bone_infos[mdl2.bone_info_index]
+					if mdl2.bone_info_index < len(self.bone_infos):
+						self.bone_info = self.bone_infos[mdl2.bone_info_index]
+					else:
+						print(
+							f"Info: Expected bone info index {mdl2.bone_info_index}, but only found "
+							f"{len(self.bone_infos)} bone infos. Using the last bone info instead!")
+						self.bone_info = self.bone_infos[-1]
 
 		# numpy chokes on bytes io objects
 		with open(filepath, "rb") as stream:
