@@ -65,7 +65,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						self.read_joints(bone_info)
 					except:
 						print("Joints failed...")
-						pass
+						traceback.print_exc()
 					self.bone_infos.append(bone_info)
 					# print(bone_info)
 					print("end of bone info at", stream.tell())
@@ -168,6 +168,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# print(i)
 			# print(self.bone_info.bones[x.child], x.child)
 			# print(self.bone_info.bones[x.parent], x.parent)
+			x.child_name = bone_info.bones[x.child].name
+			x.parent_name = bone_info.bones[x.parent].name
 			assert x.zero == 0
 			assert x.one == 1
 		assert bone_info.one == 1
@@ -188,16 +190,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# 		print(joints.joint_info_list[x.parent].name, x.parent)
 		# 		print(joints.joint_info_list[x.child].name, x.child)
 
-		# if bone_info.joint_count:
-		# 	for i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
-		# 		usually, this corresponds - does not do for speedtree but does not matter
-		# 		if not self.bone_info.bones[i].name == joint_info.name:
-		# 			print("WARNING NAMES DON'T MATCH", self.bone_info.bones[i].name, joint_info.name)
-		# if bone_info.joint_count:
-		# 	for i, bone in zip(joints.bone_indices, self.bone_info.bones):
-		# 		print(i, bone.name)
-		# 		if i > -1:
-		# 			print(joints.joint_info_list[i].name)
+		if bone_info.joint_count:
+			for bone_i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
+				# usually, this corresponds - does not do for speedtree but does not matter
+				joint_info.bone_name = bone_info.bones[bone_i].name
+				if not joint_info.bone_name == joint_info.name:
+					print(f"Info: bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
+				assert joints.joint_info_list[joints.bone_indices[bone_i]] == joint_info
+
 
 	def load(self, filepath, mdl2, quick=False, map_bytes=False, read_bytes=False):
 		start_time = time.time()
@@ -297,6 +297,33 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					print(f"Couldn't match material {mesh_link.material_index} to model {mesh_link.model_index} - bug?")
 					print(len(models), mesh_link, mdl2.materials)
 
+	def update_joints(self, bone_info):
+		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
+
+		for entry in bone_info.struct_7.unknown_list:
+			# indices into bones
+			entry.parent = bone_lut[entry.parent_name]
+			entry.child = bone_lut[entry.child_name]
+
+		# print(bone_info.joints)
+		joints = bone_info.joints
+		for l_list in (joints.first_list, joints.short_list, joints.long_list, ):
+			for l_entry in l_list:
+				# these link into joints.joint_info_list
+				# no need to update right now, but later
+				pass
+		# make sure these have the correct size
+		joints.joint_indices.resize(joints.joint_count)
+		joints.bone_indices.resize(joints.bone_count)
+		# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
+		joints.bone_indices[:] = -1
+		# linke between bones and joints, in both directions
+		for joint_i, joint_info in enumerate(joints.joint_info_list):
+			bone_i = bone_lut[joint_info.bone_name]
+			joints.joint_indices[joint_i] = bone_i
+			joints.bone_indices[bone_i] = joint_i
+		# todo - update joint JointData.names buffer + JointInfo.name_offset
+
 	def update_names(self, mdl2s):
 		print("Updating MS2 name buffer")
 		self.buffer_0.names.clear()
@@ -305,11 +332,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if material.name not in self.buffer_0.names:
 					self.buffer_0.names.append(material.name)
 				material.name_index = self.buffer_0.names.index(material.name)
-			for bone_index, bone in enumerate(self.bone_info.bones):
+		for bone_info in self.bone_infos:
+			for bone_index, bone in enumerate(bone_info.bones):
 				if bone.name not in self.buffer_0.names:
 					self.buffer_0.names.append(bone.name)
-				self.bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
-			# print(self.bone_info.name_indices)
+				bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
+		for bone_info in self.bone_infos:
+			self.update_joints(bone_info)
 		# print(self.buffer_0.names)
 		print("Updating MS2 name hashes")
 		# update hashes from new names
