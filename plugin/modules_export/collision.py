@@ -3,6 +3,7 @@ import bpy
 
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
+from generated.formats.ms2.compound.Cylinder import Cylinder
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.compound.packing_utils import pack_swizzle
@@ -40,6 +41,8 @@ def export_hitcheck(b_obj, hitcheck, corrector):
 		export_boxbv(b_obj, hitcheck, corrector)
 	elif b_obj.display_bounds_type == 'CAPSULE':
 		export_capsulebv(b_obj, hitcheck)
+	elif b_obj.display_bounds_type == 'CYLINDER':
+		export_cylinderbv(b_obj, hitcheck)
 	return hitcheck
 
 
@@ -78,7 +81,18 @@ def export_boxbv(b_obj, hitcheck, corrector):
 def export_capsulebv(b_obj, hitcheck):
 	hitcheck.type = CollisionType.Capsule
 	hitcheck.collider = Capsule()
+	_capsule_transform(b_obj, hitcheck)
 
+
+def export_cylinderbv(b_obj, hitcheck):
+	hitcheck.type = CollisionType.Cylinder
+	hitcheck.collider = Cylinder()
+	_capsule_transform(b_obj, hitcheck)
+	# sole difference
+	hitcheck.collider.extent = b_obj.dimensions.z
+
+
+def _capsule_transform(b_obj, hitcheck):
 	matrix = get_collider_matrix(b_obj)
 	offset = matrix.translation
 	# calculate the direction unit vector
