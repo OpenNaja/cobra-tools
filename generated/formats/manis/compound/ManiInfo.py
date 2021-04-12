@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -15,7 +16,7 @@ class ManiInfo:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_start = Array()
+		self.zeros_start = numpy.zeros((5), dtype='ushort')
 		self.duration = 0
 
 		# likely
@@ -23,24 +24,24 @@ class ManiInfo:
 		self.b = 0
 
 		# rest
-		self.zeros_0 = Array()
+		self.zeros_0 = numpy.zeros((7), dtype='ushort')
 		self.c = 0
 		self.name_count = 0
 
 		# rest
-		self.zeros_1 = Array()
+		self.zeros_1 = numpy.zeros((4), dtype='ushort')
 		self.e = 0
-		self.extra_pc = Array()
+		self.extra_pc = numpy.zeros((5), dtype='ushort')
 
 		# always FF FF
 		self.ffff = 0
 		self.g = 0
 
 		# rest 228 bytes
-		self.zeros_2 = Array()
+		self.zeros_2 = numpy.zeros((57), dtype='uint')
 
 		# rest 14 bytes
-		self.extra_zeros_pc = Array()
+		self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
 		self.i = 0
 		self.j = 0
 

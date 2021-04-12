@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.JointData import JointData
@@ -34,7 +35,7 @@ class Ms2BoneInfo:
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = Array()
+		self.zeros = numpy.zeros((3), dtype='uint64')
 
 		# index count3
 		self.bone_count = 0
@@ -77,16 +78,16 @@ class Ms2BoneInfo:
 		self.unknown_88 = 0
 
 		# index into ms2 string table for bones used here
-		self.name_indices = Array()
+		self.name_indices = numpy.zeros((self.name_count), dtype='uint')
 
 		# index into ms2 string table for bones used here
-		self.name_indices = Array()
+		self.name_indices = numpy.zeros((self.name_count), dtype='ushort')
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = Array()
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype='byte')
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = Array()
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
 
 		# used for skinning
 		self.inverse_bind_matrices = Array()
@@ -98,19 +99,19 @@ class Ms2BoneInfo:
 		self.bones = Array()
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.bone_parents = Array()
+		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
 
 		# zeros
-		self.hier_1_padding = Array()
+		self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = Array()
+		self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = Array()
+		self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
 
 		# zeros
-		self.zt_weirdness = Array()
+		self.zt_weirdness = numpy.zeros((10), dtype='ushort')
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding()

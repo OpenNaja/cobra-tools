@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -16,7 +17,7 @@ class PCJointThing:
 		self.io_start = 0
 
 		# -1
-		self.shorts = Array()
+		self.shorts = numpy.zeros((4), dtype='short')
 
 	def read(self, stream):
 

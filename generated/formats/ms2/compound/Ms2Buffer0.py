@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Ms2BufferInfoZTHeader import Ms2BufferInfoZTHeader
@@ -11,7 +12,7 @@ class Ms2Buffer0:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.name_hashes = Array()
+		self.name_hashes = numpy.zeros((), dtype='uint')
 		self.names = Array()
 		self.zt_streams_header = Ms2BufferInfoZTHeader()
 

@@ -5,6 +5,7 @@ from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.Cylinder import Cylinder
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
+from generated.formats.ms2.compound.MeshCollision import MeshCollision
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.compound.packing_utils import pack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
@@ -35,14 +36,19 @@ def export_bounds(bounds, mdl2):
 
 def export_hitcheck(b_obj, hitcheck, corrector):
 	hitcheck.name = b_obj.name
-	if b_obj.display_bounds_type == 'SPHERE':
-		export_spherebv(b_obj, hitcheck)
-	elif b_obj.display_bounds_type == 'BOX':
-		export_boxbv(b_obj, hitcheck, corrector)
-	elif b_obj.display_bounds_type == 'CAPSULE':
-		export_capsulebv(b_obj, hitcheck)
-	elif b_obj.display_bounds_type == 'CYLINDER':
-		export_cylinderbv(b_obj, hitcheck)
+	if b_obj.display_type == 'WIRE':
+		export_meshbv(b_obj, hitcheck)
+	elif b_obj.display_type == 'BOUNDS':
+		if b_obj.display_bounds_type == 'SPHERE':
+			export_spherebv(b_obj, hitcheck)
+		elif b_obj.display_bounds_type == 'BOX':
+			export_boxbv(b_obj, hitcheck, corrector)
+		elif b_obj.display_bounds_type == 'CAPSULE':
+			export_capsulebv(b_obj, hitcheck)
+		elif b_obj.display_bounds_type == 'CYLINDER':
+			export_cylinderbv(b_obj, hitcheck)
+	else:
+		raise AttributeError(f"Unsupported display type for {b_obj.name} - can't identify collision type.")
 	return hitcheck
 
 
@@ -90,6 +96,20 @@ def export_cylinderbv(b_obj, hitcheck):
 	_capsule_transform(b_obj, hitcheck)
 	# sole difference
 	hitcheck.collider.extent = b_obj.dimensions.z
+
+
+def export_meshbv(b_obj, hitcheck):
+	me = b_obj.data
+
+	hitcheck.type = CollisionType.MeshCollision
+	hitcheck.collider = MeshCollision()
+	coll = hitcheck.collider
+	coll.vertex_count = len(me.vertices)
+	coll.vertices.resize((coll.vertex_count, 3))
+	for vert_i, vert in enumerate(me.vertices):
+		coll.vertices[vert_i, :] = pack_swizzle(vert.co)
+	print("Mesh collision export is not supported!")
+	print(coll)
 
 
 def _capsule_transform(b_obj, hitcheck):

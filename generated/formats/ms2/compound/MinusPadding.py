@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -16,10 +17,10 @@ class MinusPadding:
 		self.io_start = 0
 
 		# -1
-		self.indices = Array()
+		self.indices = numpy.zeros((), dtype='short')
 
 		# 0
-		self.padding = Array()
+		self.padding = numpy.zeros((), dtype='byte')
 
 	def read(self, stream):
 

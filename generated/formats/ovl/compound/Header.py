@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
@@ -90,7 +91,7 @@ class Header(GenericHeader):
 		self.len_type_names = 0
 
 		# 52 bytes zeros
-		self.reserved = Array()
+		self.reserved = numpy.zeros((13), dtype='uint')
 
 		# Name buffer for assets and file mime types.
 		self.names = ZStringBuffer()

@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -28,10 +29,10 @@ class BnkFileContainer:
 		self.stream_info_count = 0
 
 		# 0
-		self.zeros = Array()
+		self.zeros = numpy.zeros((11), dtype='uint')
 
 		# data
-		self.stream_infos = Array()
+		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
 
 		# data
 		self.names = Array()

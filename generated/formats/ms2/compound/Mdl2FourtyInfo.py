@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -12,7 +13,7 @@ class Mdl2FourtyInfo:
 		self.io_start = 0
 
 		# 0, 1 or 0, 0, 0, 0
-		self.unknowns = Array()
+		self.unknowns = numpy.zeros((5), dtype='uint64')
 
 	def read(self, stream):
 

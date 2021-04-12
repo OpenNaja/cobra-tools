@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -12,8 +13,8 @@ class Info:
 		self.io_start = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.flags = Array()
-		self.value = Array()
+		self.flags = numpy.zeros((4), dtype='byte')
+		self.value = numpy.zeros((4), dtype='float')
 		self.zero_3 = 0
 
 	def read(self, stream):

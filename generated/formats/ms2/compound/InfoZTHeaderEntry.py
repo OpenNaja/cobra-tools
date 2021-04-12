@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -11,7 +12,7 @@ class InfoZTHeaderEntry:
 		self.io_size = 0
 		self.io_start = 0
 		self.unk_count = 0
-		self.unks = Array()
+		self.unks = numpy.zeros((self.unk_count, 2), dtype='ushort')
 
 	def read(self, stream):
 

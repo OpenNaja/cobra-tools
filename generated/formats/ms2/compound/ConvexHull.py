@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Matrix33 import Matrix33
@@ -21,7 +22,7 @@ class ConvexHull:
 		self.center = Vector3()
 
 		# probably padding
-		self.zeros = Array()
+		self.zeros = numpy.zeros((5), dtype='uint')
 
 	def read(self, stream):
 

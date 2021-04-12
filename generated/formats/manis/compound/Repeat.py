@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -10,11 +11,11 @@ class Repeat:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_0 = Array()
+		self.zeros_0 = numpy.zeros((15), dtype='uint')
 
 		# to be read sequentially starting after this array
 		self.byte_size = 0
-		self.zeros_1 = Array()
+		self.zeros_1 = numpy.zeros((4), dtype='uint')
 
 	def read(self, stream):
 

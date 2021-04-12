@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
@@ -16,8 +17,8 @@ class CoreModelInfoPC(CoreModelInfo):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros = Array()
-		self.zeros = Array()
+		self.zeros = numpy.zeros((5), dtype='uint64')
+		self.zeros = numpy.zeros((9), dtype='uint64')
 		self.one = 0
 		self.zero = 0
 		self.zero_zt = 0

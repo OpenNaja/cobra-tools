@@ -4,6 +4,45 @@ from .naming_conventions import clean_comment_str
 VER = "stream.version"
 
 
+def get_params(field):
+	# parse all conditions
+	conditionals = []
+	field_name = field.attrib["name"]
+	field_type = field.attrib["type"]
+	pad_mode = field.attrib.get("padding")
+	ver1 = field.attrib.get("ver1")
+	ver2 = field.attrib.get("ver2")
+	if ver1:
+		ver1 = Version(ver1)
+	if ver2:
+		ver2 = Version(ver2)
+	vercond = field.attrib.get("vercond")
+	cond = field.attrib.get("cond")
+	align = field.attrib.get("align")
+	if ver1 and ver2:
+		conditionals.append(f"{ver1} <= {VER} < {ver2}")
+	elif ver1:
+		conditionals.append(f"{VER} >= {ver1}")
+	elif ver2:
+		conditionals.append(f"{VER} < {ver2}")
+	if vercond:
+		vercond = Expression(vercond)
+		conditionals.append(f"{vercond}")
+	if cond:
+		cond = Expression(cond)
+		conditionals.append(f"{cond}")
+	arr1 = field.attrib.get("arr1")
+	arr2 = field.attrib.get("arr2")
+	arg = field.attrib.get("arg")
+	if arg:
+		arg = Expression(arg)
+	if arr1:
+		arr1 = Expression(arr1)
+	if arr2:
+		arr2 = Expression(arr2)
+	return align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode
+
+
 class Union:
 	def __init__(self, compound, union_name):
 		self.compound = compound
@@ -75,14 +114,13 @@ class Union:
 	def write_init(self, f):
 		for field in self.members:
 			field_debug_str = clean_comment_str(field.text, indent="\t\t")
-
+			align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+			field_type_lower = field_type.lower()
 			if field_debug_str.strip():
 				f.write(field_debug_str)
-			field_name = field.attrib["name"]
-			field_type = field.attrib["type"]
 			field_default = field.attrib.get("default")
-			if field_type.lower() in self.compound.parser.tag_dict:
-				type_of_field_type = self.compound.parser.tag_dict[field_type.lower()]
+			if field_type_lower in self.compound.parser.tag_dict:
+				type_of_field_type = self.compound.parser.tag_dict[field_type_lower]
 				# write the field's default, if it exists
 				if field_default:
 					# we have to check if the default is an enum default value, in which case it has to be a member of that enum
@@ -95,13 +133,13 @@ class Union:
 						field_default = f"{field_type}()"
 			if not field_default:
 				field_default = 0
-			arr1 = field.attrib.get("arr1")
 			if arr1:
-				# todo - only do this for numeric types
-				# if type_of_field_type == "basic":
-				# 	field_default = f"numpy.zeros(({arr1},), dtype='{field_type.lower()}')"
-				# else:
 				field_default = "Array()"
+				if self.compound.parser.tag_dict[field_type_lower] == "basic":
+					valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr and ".arg" not in str(arr))
+					arr_str = ", ".join(valid_arrs)
+					if field_type_lower in ("ubyte", "byte", "short", "ushort", "int", "uint", "uint64", "int64", "float"):
+						field_default = f"numpy.zeros(({arr_str}), dtype='{field_type_lower}')"
 			# todo - if we do this, it breaks when arg is used in array
 			# field_default = f"[{field_default} for _ in range({Expression(arr1)})]"
 			f.write(f"\n\t\tself.{field_name} = {field_default}")
@@ -109,34 +147,7 @@ class Union:
 	def write_io(self, f, method_type, last_condition=""):
 
 		for field in self.members:
-			field_name = field.attrib["name"]
-			field_type = field.attrib["type"]
-
-			# parse all conditions
-			conditionals = []
-			pad_mode = field.attrib.get("padding")
-			ver1 = field.attrib.get("ver1")
-			ver2 = field.attrib.get("ver2")
-			if ver1:
-				ver1 = Version(ver1)
-			if ver2:
-				ver2 = Version(ver2)
-			vercond = field.attrib.get("vercond")
-			cond = field.attrib.get("cond")
-			align = field.attrib.get("align")
-
-			if ver1 and ver2:
-				conditionals.append(f"{ver1} <= {VER} < {ver2}")
-			elif ver1:
-				conditionals.append(f"{VER} >= {ver1}")
-			elif ver2:
-				conditionals.append(f"{VER} < {ver2}")
-			if vercond:
-				vercond = Expression(vercond)
-				conditionals.append(f"{vercond}")
-			if cond:
-				cond = Expression(cond)
-				conditionals.append(f"{cond}")
+			align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
 			if conditionals:
 				new_condition = f"if {' and '.join(conditionals)}:"
 				# merge subsequent fields that have the same condition
@@ -153,16 +164,6 @@ class Union:
 				f.write(f"{indent}# TEMPLATE: {template_str}")
 			else:
 				template_str = ""
-			arr1 = field.attrib.get("arr1")
-			arr2 = field.attrib.get("arr2")
-			arg = field.attrib.get("arg")
-			if arg:
-				arg = Expression(arg)
-
-			if arr1:
-				arr1 = Expression(arr1)
-			if arr2:
-				arr2 = Expression(arr2)
 			if arr1:
 				if self.compound.parser.tag_dict[field_type.lower()] == "basic":
 					valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr)

@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.manis.compound.ManiInfo import ManiInfo
@@ -18,14 +19,14 @@ class InfoHeader:
 		self.io_start = 0
 
 		# 'MANI'
-		self.magic = Array()
+		self.magic = numpy.zeros((4), dtype='byte')
 		self.version = 0
 		self.user_version = 0
 		self.mani_count = 0
 		self.names = Array()
 		self.header = SizedStrData()
 		self.mani_infos = Array()
-		self.bone_hashes = Array()
+		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
 		self.bone_names = Array()
 
 	def read(self, stream):

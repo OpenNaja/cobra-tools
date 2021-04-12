@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -22,7 +23,7 @@ class ManisSizedStrData:
 		self.unknown_1 = 0
 
 		# zeros in driver
-		self.unknown_2 = Array()
+		self.unknown_2 = numpy.zeros((5), dtype='uint')
 
 	def read(self, stream):
 

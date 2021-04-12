@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.matcol.compound.LayeredWrapper import LayeredWrapper
@@ -24,7 +25,7 @@ class MaterialcollectionInfoHeader:
 		self.io_start = 0
 
 		# 'FGM '
-		self.magic = Array()
+		self.magic = numpy.zeros((4), dtype='byte')
 		self.version = 0
 		self.user_version = 0
 

@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -12,7 +13,7 @@ class Attrib:
 		self.io_start = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.attrib = Array()
+		self.attrib = numpy.zeros((4), dtype='byte')
 		self.zero_2 = 0
 
 	def read(self, stream):

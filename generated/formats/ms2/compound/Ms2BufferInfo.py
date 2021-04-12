@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -18,7 +19,7 @@ class Ms2BufferInfo:
 		self.io_start = 0
 
 		# JWE, 16 bytes of 00 padding
-		self.skip_1 = Array()
+		self.skip_1 = numpy.zeros((4), dtype='uint')
 		self.vertexdatasize = 0
 
 		# 8 empty bytes
@@ -32,7 +33,7 @@ class Ms2BufferInfo:
 		self.ptr_2 = 0
 
 		# PZ, another 16 empty bytes
-		self.unk_2 = Array()
+		self.unk_2 = numpy.zeros((2), dtype='uint64')
 
 	def read(self, stream):
 

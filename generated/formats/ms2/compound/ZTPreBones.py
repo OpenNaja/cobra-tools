@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -10,11 +11,11 @@ class ZTPreBones:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros = Array()
-		self.unks = Array()
-		self.unks_2 = Array()
-		self.floats = Array()
-		self.unks_3 = Array()
+		self.zeros = numpy.zeros((2), dtype='uint64')
+		self.unks = numpy.zeros((8), dtype='uint')
+		self.unks_2 = numpy.zeros((10), dtype='uint')
+		self.floats = numpy.zeros((4), dtype='float')
+		self.unks_3 = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
 

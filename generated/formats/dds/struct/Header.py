@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.dds.bitstruct.Caps1 import Caps1
@@ -32,7 +33,7 @@ class Header:
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
-		self.reserved_1 = Array()
+		self.reserved_1 = numpy.zeros((11), dtype='uint')
 		self.pixel_format = PixelFormat()
 		self.caps_1 = Caps1()
 		self.caps_2 = Caps2()

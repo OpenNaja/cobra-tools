@@ -7,6 +7,7 @@ from generated.formats.ms2.compound.packing_utils import *
 FUR_OVERHEAD = 2
 
 
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
@@ -31,7 +32,7 @@ class ModelData:
 		self.stream_index = 0
 
 		# always zero
-		self.zeros = Array()
+		self.zeros = numpy.zeros((3), dtype='uint')
 
 		# vertex count of model
 		self.vertex_count = 0
@@ -58,7 +59,7 @@ class ModelData:
 		self.zero_1 = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = Array()
+		self.unk_floats = numpy.zeros((2), dtype='float')
 
 		# always zero
 		self.zero_2 = 0

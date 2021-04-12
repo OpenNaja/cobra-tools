@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
@@ -12,7 +13,7 @@ class ListLong(Descriptor):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = Array()
+		self.floats = numpy.zeros((26), dtype='float')
 
 	def read(self, stream):
 

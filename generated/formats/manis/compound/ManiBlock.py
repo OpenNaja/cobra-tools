@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.manis.compound.Repeat import Repeat
@@ -11,19 +12,19 @@ class ManiBlock:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.indices_0 = Array()
-		self.indices_0 = Array()
-		self.indices_1 = Array()
-		self.indices_1 = Array()
-		self.indices_2 = Array()
-		self.indices_2 = Array()
-		self.p_indices_0 = Array()
-		self.p_indices_1 = Array()
-		self.p_indices_2 = Array()
-		self.c_indices_0 = Array()
-		self.c_indices_1 = Array()
-		self.c_indices_2 = Array()
-		self.padding = Array()
+		self.indices_0 = numpy.zeros((), dtype='ushort')
+		self.indices_0 = numpy.zeros((), dtype='uint')
+		self.indices_1 = numpy.zeros((), dtype='ushort')
+		self.indices_1 = numpy.zeros((), dtype='uint')
+		self.indices_2 = numpy.zeros((), dtype='ushort')
+		self.indices_2 = numpy.zeros((), dtype='uint')
+		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
+		self.p_indices_1 = numpy.zeros((), dtype='ubyte')
+		self.p_indices_2 = numpy.zeros((), dtype='ubyte')
+		self.c_indices_0 = numpy.zeros((), dtype='ubyte')
+		self.c_indices_1 = numpy.zeros((), dtype='ubyte')
+		self.c_indices_2 = numpy.zeros((), dtype='ubyte')
+		self.padding = numpy.zeros((), dtype='ubyte')
 
 		# likely
 		self.frame_count = 0
@@ -31,16 +32,16 @@ class ManiBlock:
 		self.e = 0
 
 		# fixed
-		self.zeros_19 = Array()
+		self.zeros_19 = numpy.zeros((19), dtype='uint')
 		self.count = 0
 
 		# usually / always 420
 		self.four_and_twenty = 0
-		self.zeros = Array()
-		self.pad_to_8 = Array()
+		self.zeros = numpy.zeros((self.count), dtype='ubyte')
+		self.pad_to_8 = numpy.zeros(((8 - (self.count % 8)) % 8), dtype='ubyte')
 
 		# these are likely a scale reference or factor
-		self.floats = Array()
+		self.floats = numpy.zeros((6), dtype='float')
 		self.repeats = Array()
 
 	def read(self, stream):

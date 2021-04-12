@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.matcol.compound.AttribWrapper import AttribWrapper

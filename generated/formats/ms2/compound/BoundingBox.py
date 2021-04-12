@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Matrix33 import Matrix33
@@ -21,7 +22,7 @@ class BoundingBox:
 		self.extent = Vector3()
 
 		# probably padding
-		self.zeros = Array()
+		self.zeros = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
 

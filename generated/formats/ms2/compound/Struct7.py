@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
@@ -19,13 +20,13 @@ class Struct7:
 		self.zero = 0
 
 		# only for recent versions of PZ
-		self.zeros_pz = Array()
+		self.zeros_pz = numpy.zeros((2), dtype='uint64')
 
 		# 60 bytes per entry
 		self.unknown_list = Array()
 
 		# align list to multiples of 8
-		self.padding = Array()
+		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
 
 	def read(self, stream):
 

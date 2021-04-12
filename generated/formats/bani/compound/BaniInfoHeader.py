@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.bani.compound.BaniFragmentData0 import BaniFragmentData0
@@ -19,7 +20,7 @@ class BaniInfoHeader:
 		self.io_start = 0
 
 		# 'BANI'
-		self.magic = Array()
+		self.magic = numpy.zeros((4), dtype='byte')
 
 		# name of the banis file buffer
 		self.banis_name = 0

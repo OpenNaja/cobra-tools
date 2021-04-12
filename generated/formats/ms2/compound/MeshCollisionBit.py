@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -12,10 +13,10 @@ class MeshCollisionBit:
 		self.io_start = 0
 
 		# ?
-		self.countd = Array()
+		self.countd = numpy.zeros((34), dtype='ushort')
 
 		# always 2954754766?
-		self.consts = Array()
+		self.consts = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
 

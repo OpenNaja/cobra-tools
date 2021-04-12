@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -19,7 +20,7 @@ class TypeOther:
 		self.length = 0
 
 		# id of this Sound SFX object
-		self.raw = Array()
+		self.raw = numpy.zeros((self.length), dtype='byte')
 
 	def read(self, stream):
 

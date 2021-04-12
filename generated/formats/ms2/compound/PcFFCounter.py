@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -15,7 +16,7 @@ class PcFFCounter:
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.f_fs = Array()
+		self.f_fs = numpy.zeros((self.count), dtype='byte')
 
 	def read(self, stream):
 

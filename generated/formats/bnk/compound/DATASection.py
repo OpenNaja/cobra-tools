@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -17,7 +18,7 @@ class DATASection:
 
 		# length of following data
 		self.length = 0
-		self.wem_files_datas = Array()
+		self.wem_files_datas = numpy.zeros((self.length), dtype='byte')
 
 	def read(self, stream):
 

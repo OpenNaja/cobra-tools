@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.fgm.compound.Color import Color
@@ -23,10 +24,10 @@ class TextureInfo:
 		self.is_textured = 0
 
 		# stores index into shader and array index of texture
-		self.indices = Array()
+		self.indices = numpy.zeros((4), dtype='uint')
 
 		# stores index into shader
-		self.indices = Array()
+		self.indices = numpy.zeros((1), dtype='uint')
 
 		# Stores (usually) 2 rgba colors
 		self.colors = Array()

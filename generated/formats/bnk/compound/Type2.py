@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -35,7 +36,7 @@ class Type2:
 		self.wem_length = 0
 
 		# ?
-		self.extra = Array()
+		self.extra = numpy.zeros((self.length - 17), dtype='byte')
 
 	def read(self, stream):
 

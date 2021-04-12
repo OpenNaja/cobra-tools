@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
@@ -38,23 +39,23 @@ class JointData:
 		self.count_2 = 0
 
 		# 0s, might be related to count 7 in PC
-		self.zeros_extra = Array()
+		self.zeros_extra = numpy.zeros((2), dtype='uint')
 		self.namespace_length = 0
 
 		# 0s
-		self.zeros_0 = Array()
+		self.zeros_0 = numpy.zeros((5), dtype='uint')
 
 		# 0 or 1
 		self.pc_count = 0
 
 		# 0s
-		self.zeros_1 = Array()
+		self.zeros_1 = numpy.zeros((7), dtype='uint')
 
 		# 0s
-		self.extra_zeros_pc = Array()
+		self.extra_zeros_pc = numpy.zeros((4), dtype='uint')
 
 		# 1, 1
-		self.ones = Array()
+		self.ones = numpy.zeros((2), dtype='uint64')
 
 		# matches bone count from bone info
 		self.bone_count = 0
@@ -63,11 +64,11 @@ class JointData:
 		self.joint_entry_count = 0
 
 		# usually 0s
-		self.zeros_2 = Array()
+		self.zeros_2 = numpy.zeros((4), dtype='uint')
 		self.unknown_lista = Array()
 
 		# might be pointers
-		self.zeros_3 = Array()
+		self.zeros_3 = numpy.zeros((self.joint_count), dtype='uint64')
 		self.unknown_listc = Array()
 
 		# used by ptero, 16 bytes per entry
@@ -77,7 +78,7 @@ class JointData:
 		self.pc_ffs = PcFFCounter()
 
 		# 1FAA FFAAFF00 000000
-		self.pc_bytes = Array()
+		self.pc_bytes = numpy.zeros((9), dtype='byte')
 
 		# some count, not sure if used
 		self.pc_hitcheck_count = 0
@@ -86,13 +87,13 @@ class JointData:
 		self.pc_zero_0 = 0
 
 		# sometimes an array of floats
-		self.pc_floats = Array()
+		self.pc_floats = numpy.zeros((self.pc_count, 10), dtype='float')
 
 		# index into bone info bones for each joint; bone that the joint is attached to
-		self.joint_indices = Array()
+		self.joint_indices = numpy.zeros((self.joint_count), dtype='int')
 
 		# the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint
-		self.bone_indices = Array()
+		self.bone_indices = numpy.zeros((self.bone_count), dtype='int')
 		self.joint_names = ZStringBuffer()
 		self.joint_names_padding = SmartPadding()
 		self.joint_info_list = Array()

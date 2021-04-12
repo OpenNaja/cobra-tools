@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
@@ -16,7 +17,7 @@ class JointInfo:
 		self.eleven = 0
 
 		# bunch of -1's
-		self.f_fs = Array()
+		self.f_fs = numpy.zeros((3), dtype='int')
 		self.name_offset = 0
 		self.hitcheck_count = 0
 
@@ -24,7 +25,7 @@ class JointInfo:
 		self.zero = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.zeros_per_hitcheck = Array()
+		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
 		self.hit_check = Array()
 
 	def read(self, stream):

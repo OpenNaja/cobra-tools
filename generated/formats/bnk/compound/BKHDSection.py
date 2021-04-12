@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -24,7 +25,7 @@ class BKHDSection:
 		self.constant_b = 0
 
 		# filler zeroes
-		self.zeroes = Array()
+		self.zeroes = numpy.zeros((self.length - 20), dtype='byte')
 
 	def read(self, stream):
 

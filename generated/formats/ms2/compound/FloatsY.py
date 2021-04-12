@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -10,7 +11,7 @@ class FloatsY:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = Array()
+		self.floats = numpy.zeros((8), dtype='float')
 		self.index = 0
 
 	def read(self, stream):

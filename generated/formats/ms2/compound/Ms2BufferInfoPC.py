@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -15,7 +16,7 @@ class Ms2BufferInfoPC:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_1 = Array()
+		self.zeros_1 = numpy.zeros((2), dtype='uint64')
 
 		# Total size of vertex buffer for PC, starting with the 0 - 16 byte indices
 		self.vertex_buffer_size = 0

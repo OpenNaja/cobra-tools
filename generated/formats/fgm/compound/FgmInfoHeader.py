@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
@@ -22,7 +23,7 @@ class FgmInfoHeader:
 		self.io_start = 0
 
 		# 'FGM '
-		self.magic = Array()
+		self.magic = numpy.zeros((4), dtype='byte')
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -58,8 +59,8 @@ class FgmInfoHeader:
 		self.fgm_info = FourFragFgm()
 		self.two_frags_pad = Array()
 		self.textures = Array()
-		self.texpad = Array()
-		self.texpad = Array()
+		self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 24)), dtype='byte')
+		self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 12)), dtype='byte')
 		self.attributes = Array()
 
 	def read(self, stream):

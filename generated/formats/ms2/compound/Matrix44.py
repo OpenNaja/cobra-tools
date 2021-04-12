@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -16,7 +17,7 @@ class Matrix44:
 		self.io_start = 0
 
 		# Stored in OpenGL column-major format.
-		self.data = Array()
+		self.data = numpy.zeros((4, 4), dtype='float')
 
 	def read(self, stream):
 

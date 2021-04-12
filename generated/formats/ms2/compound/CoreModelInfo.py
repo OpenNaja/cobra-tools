@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Vector3 import Vector3
@@ -35,7 +36,7 @@ class CoreModelInfo:
 		self.radius = 0
 
 		# PZ only, zero-ish
-		self.unknowns = Array()
+		self.unknowns = numpy.zeros((4), dtype='float')
 
 		# verbatim repeat
 		self.bounds_min_repeat = Vector3()
@@ -52,8 +53,8 @@ class CoreModelInfo:
 
 		# nonzero in PZ flamingo, ZT african ele female
 		self.another_count = 0
-		self.unks = Array()
-		self.pad = Array()
+		self.unks = numpy.zeros((7), dtype='ushort')
+		self.pad = numpy.zeros((3), dtype='ushort')
 
 	def read(self, stream):
 

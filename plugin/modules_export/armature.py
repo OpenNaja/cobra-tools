@@ -141,8 +141,7 @@ def export_bones_custom(b_armature_ob, data):
 	for i in range(len(b_bone_names)):
 		bone_info.enumeration[i] = [4, i]
 
-	# todo - update joints
-	# export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
+	export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
 
 
 def export_bones(b_armature_ob, data):

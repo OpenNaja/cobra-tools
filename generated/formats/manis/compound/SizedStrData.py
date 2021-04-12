@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -12,7 +13,7 @@ class SizedStrData:
 		self.io_start = 0
 		self.a = 0
 		self.hash_block_size = 0
-		self.zeros = Array()
+		self.zeros = numpy.zeros((2), dtype='int')
 		self.c = 0
 
 	def read(self, stream):

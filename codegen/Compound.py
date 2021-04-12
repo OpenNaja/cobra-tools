@@ -1,6 +1,6 @@
 import collections
 from .BaseClass import BaseClass
-from .Union import Union
+from .Union import Union, get_params
 
 FIELD_TYPES = ("add", "field")
 VER = "stream.version"
@@ -22,6 +22,9 @@ class Compound(BaseClass):
 					# field exists and we add to it, so we have an union and must import typing module
 					self.imports.add("typing")
 				self.field_unions_dict[field_name].append(field)
+			align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+			if arr1:
+				self.imports.add("numpy")
 
 		# write to python file
 		with open(self.out_file, "w") as f:

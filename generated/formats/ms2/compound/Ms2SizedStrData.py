@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 
@@ -31,7 +32,7 @@ class Ms2SizedStrData:
 		self.unk_count = 0
 
 		# seems to be zeros
-		self.unknown_1 = Array()
+		self.unknown_1 = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
 

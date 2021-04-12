@@ -1,3 +1,4 @@
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Matrix33 import Matrix33
@@ -19,7 +20,7 @@ class MeshCollision:
 		self.offset = Vector3()
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
-		self.unk_1 = Array()
+		self.unk_1 = numpy.zeros((3, 2), dtype='ushort')
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -34,10 +35,10 @@ class MeshCollision:
 		self.bounds_max = Vector3()
 
 		# seemingly fixed
-		self.ones_or_zeros = Array()
+		self.ones_or_zeros = numpy.zeros((7), dtype='uint64')
 
 		# seemingly fixed
-		self.ff_or_zero = Array()
+		self.ff_or_zero = numpy.zeros((10), dtype='int')
 
 		# verbatim
 		self.bounds_min_repeat = Vector3()
@@ -52,25 +53,25 @@ class MeshCollision:
 		self.count_bits = 0
 
 		# ?
-		self.stuff = Array()
+		self.stuff = numpy.zeros((9), dtype='ushort')
 
 		# ?
 		self.collision_bits = Array()
 
 		# always 25
-		self.zeros = Array()
+		self.zeros = numpy.zeros((4), dtype='uint')
 
 		# array of vertices
-		self.vertices = Array()
+		self.vertices = numpy.zeros((self.vertex_count, 3), dtype='float')
 
 		# triangle indices into vertex list
-		self.triangles = Array()
+		self.triangles = numpy.zeros((self.tri_count, 3), dtype='ushort')
 
 		# ?
 		self.const = 0
 
 		# always 25
-		self.triangle_flags = Array()
+		self.triangle_flags = numpy.zeros((self.tri_count), dtype='uint')
 
 		# might be padding!
 		self.zero_end = 0

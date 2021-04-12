@@ -4,6 +4,7 @@ import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from utils.tristrip import triangulate
+import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
@@ -28,7 +29,7 @@ class PcModelData:
 		self.stream_index = 0
 
 		# always zero
-		self.zeros_a = Array()
+		self.zeros_a = numpy.zeros((3), dtype='uint')
 
 		# repeat
 		self.tri_index_count_a = 0
