@@ -1,3 +1,5 @@
+import traceback
+
 import bpy
 import mathutils
 
@@ -100,7 +102,8 @@ def import_armature(data, b_bone_names):
 		try:
 			import_joints(b_armature_obj, bone_info, b_bone_names, corrector)
 		except Exception as err:
-			print("Joints failed...", err)
+			print("Importing joints failed...", err)
+			traceback.print_exc()
 		return b_armature_obj
 
 
@@ -177,7 +180,8 @@ def import_armature_new(data, b_bone_names):
 		try:
 			import_joints(b_armature_obj, bone_info, b_bone_names, corrector)
 		except Exception as err:
-			print("Joints failed...", err)
+			print("Importing joints failed...", err)
+			traceback.print_exc()
 		return b_armature_obj
 
 

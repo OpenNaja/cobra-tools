@@ -3,6 +3,7 @@ from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.ConvexHull import ConvexHull
 from generated.formats.ms2.compound.Cylinder import Cylinder
+from generated.formats.ms2.compound.MeshCollision import MeshCollision
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.enum.CollisionType import CollisionType
 
@@ -39,6 +40,7 @@ class HitCheckEntry:
 		self.collider = Capsule()
 		self.collider = Cylinder()
 		self.collider = ConvexHull()
+		self.collider = MeshCollision()
 
 	def read(self, stream):
 
@@ -63,6 +65,8 @@ class HitCheckEntry:
 			self.collider = stream.read_type(Cylinder)
 		if self.type == 8:
 			self.collider = stream.read_type(ConvexHull)
+		if self.type == 10:
+			self.collider = stream.read_type(MeshCollision)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -88,6 +92,8 @@ class HitCheckEntry:
 		if self.type == 3:
 			stream.write_type(self.collider)
 		if self.type == 8:
+			stream.write_type(self.collider)
+		if self.type == 10:
 			stream.write_type(self.collider)
 
 		self.io_size = stream.tell() - self.io_start

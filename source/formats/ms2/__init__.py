@@ -56,6 +56,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		if self.bone_info_size:
 			print("mdl2 count", self.general_info.mdl_2_count)
 			for i in range(self.general_info.mdl_2_count):
+				# if i == 2:
+				# 	print(bone_info)
+				# 	return
 				print(f"BONE INFO {i} starts at {stream.tell()}")
 				bone_info = bone_info_cls()
 				try:
@@ -455,7 +458,8 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblacksouthcentral_child.mdl2")
+	m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblacksouthcentral_child.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/rhinos/africanelephant_child.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/rhinos/platypus.mdl2")

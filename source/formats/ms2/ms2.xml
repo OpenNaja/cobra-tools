@@ -111,7 +111,7 @@
 		<option value="2" name="Capsule" />
 		<option value="3" name="Cylinder" />
 		<option value="8" name="ConvexHull" />
-		<option value="10" name="Unknown" >widgetball_test.mdl2, Ball_Hitcheck not supported</option>
+		<option value="10" name="MeshCollision" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>
 	</enum>
 
 	<compound name="FixedString" count="0" >
@@ -695,6 +695,7 @@
 		<add name="collider" type="Capsule" cond="type == 2" />
 		<add name="collider" type="Cylinder" cond="type == 3" />
 		<add name="collider" type="ConvexHull" cond="type == 8" />
+		<add name="collider" type="MeshCollision" cond="type == 10" />
 	</compound>
 
 	<compound name="Sphere">
@@ -720,6 +721,30 @@
 
 	<compound name="Cylinder" inherit="Capsule">
 		identical data to capsule, just imported differently
+	</compound>
+
+	<compound name="MeshCollision">
+		<add name="rotation" type="Matrix33"/>
+		<add name="unk0" type="Vector3" >?</add>
+		<add name="unk1" type="Vector3" >not floats, maybe 6 ushorts, shared among (all?) redwoods</add>
+		<add name="vertex count" type="uint64" >vertices (3 float)</add>
+		<add name="tri count" type="uint64" >tris?, counts the 25s at the end</add>
+		<add name="unk2" type="Vector3" >?</add>
+		<add name="unk3" type="Vector3" >?</add>
+		<add name="ones or zeros" type="uint64" arr1="7" >seemingly fixed</add>
+		<add name="ff or zero" type="int" arr1="10" >seemingly fixed</add>
+		<add name="unk4" type="Vector3" >?</add>
+		<add name="unk5" type="Vector3" >?</add>
+		<add name="countc" type="uint" >?</add>
+		<add name="stuff" type="ushort" arr1="43">?</add>
+		<add name="countd" type="ushort" >?</add>
+		<add name="consts" type="uint" arr1="3">?</add>
+		<add name="zeros" type="uint" arr1="4">?</add>
+		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
+		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>
+		<add name="const" type="uint" >?</add>
+		<add name="triangle flags" type="uint" arr1="tri count" >always 25</add>
+		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
 
 	<compound name="ConvexHull">

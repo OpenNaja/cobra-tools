@@ -20,6 +20,8 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 		ob = import_capsulebv(coll, hitcheck.name)
 	elif hitcheck.type == CollisionType.Cylinder:
 		ob = import_cylinderbv(coll, hitcheck.name)
+	elif hitcheck.type == CollisionType.MeshCollision:
+		ob = import_meshbv(coll, hitcheck.name)
 	else:
 		print(f"Unsupported collider type {hitcheck.type}")
 		return
@@ -119,6 +121,13 @@ def import_cylinderbv(cylinder, hitcheck_name):
 	# apply transform in local space
 	b_obj.matrix_local = center_origin_to_matrix(cylinder.offset, cylinder.direction)
 	set_b_collider(b_obj, cylinder.radius, bounds_type="CYLINDER", display_type="CYLINDER")
+	return b_obj
+
+
+def import_meshbv(coll, hitcheck_name):
+	print(coll)
+	b_obj = mesh_from_data(hitcheck_name, list(coll.vertices), list(coll.triangles))
+	set_b_collider(b_obj, 1, bounds_type="MESH", display_type="CYLINDER")
 	return b_obj
 
 
