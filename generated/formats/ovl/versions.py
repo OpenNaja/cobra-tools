@@ -3,9 +3,17 @@ def is_dla(inst):
 		return True
 
 
+def set_dla(inst):
+	inst.version = 15
+
+
 def is_ztuac(inst):
 	if inst.version == 17:
 		return True
+
+
+def set_ztuac(inst):
+	inst.version = 17
 
 
 def is_pc(inst):
@@ -13,14 +21,28 @@ def is_pc(inst):
 		return True
 
 
+def set_pc(inst):
+	inst.version = 18
+
+
 def is_pz(inst):
 	if inst.version == 19 and inst.user_version in (8340, 8724):
 		return True
 
 
+def set_pz(inst):
+	inst.version = 19
+	inst.user_version = 8340
+
+
 def is_jwe(inst):
 	if inst.version == 19 and inst.user_version in (24724, 25108):
 		return True
+
+
+def set_jwe(inst):
+	inst.version = 19
+	inst.user_version = 24724
 
 
 def get_game(inst):

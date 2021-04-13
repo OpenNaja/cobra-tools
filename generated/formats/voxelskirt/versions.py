@@ -3,9 +3,17 @@ def is_ztuac(inst):
 		return True
 
 
+def set_ztuac(inst):
+	inst.version = 17
+
+
 def is_pc(inst):
 	if inst.version == 18:
 		return True
+
+
+def set_pc(inst):
+	inst.version = 18
 
 
 def is_pz(inst):
@@ -13,9 +21,20 @@ def is_pz(inst):
 		return True
 
 
+def set_pz(inst):
+	inst.version = 19
+	inst.user_version = 8340
+
+
 def is_jwe(inst):
 	if inst.version_flag == 1 and inst.version == 19 and inst.user_version in (24724, 25108):
 		return True
+
+
+def set_jwe(inst):
+	inst.version_flag = 1
+	inst.version = 19
+	inst.user_version = 24724
 
 
 def get_game(inst):

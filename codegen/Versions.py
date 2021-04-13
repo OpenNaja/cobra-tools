@@ -28,6 +28,16 @@ class Versions:
 					stream.write("\n\t\treturn True")
 					stream.write("\n\n\n")
 
+					stream.write(f"def set_{version.attrib['id'].lower()}(inst):")
+					for k, v in version.attrib.items():
+						if k != "id":
+							name = k.lower()
+							val = v.strip()
+							if " " in val:
+								val = val.split(" ")[0]
+							stream.write(f"\n\tinst.{name} = {val}")
+					stream.write("\n\n\n")
+
 				# write game lookup function
 				stream.write(f"def get_game(inst):")
 				for version in self.versions:

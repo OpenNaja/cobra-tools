@@ -144,37 +144,6 @@ def export_bones_custom(b_armature_ob, data):
 	export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
 
 
-def export_bones(b_armature_ob, data):
-	corrector = matrix_util.Corrector(is_ztuac(data))
-	b_bone_names = get_bone_names(data)
-	bone_info = data.ms2_file.bone_info
-	for bone_name, ms2_bone, ms2_inv_bind in zip(b_bone_names, bone_info.bones, bone_info.inverse_bind_matrices):
-		b_bone = b_armature_ob.data.bones.get(bone_name)
-		if not b_bone:
-			print(f"Can not update bone {bone_name} because it does not exist in the blender armature")
-			continue
-		# print(bone_name)
-		# print("old: ")
-		# print(ms2_inv_bind)
-		# print(ms2_bone)
-
-		# todo - the correction function works, but only in armature space; come up with one that works in local space to reduce overhead
-		# make relative to parent
-		if b_bone.parent:
-			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
-		else:
-			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
-		# set the bone transform, relative to parent
-		ms2_bone.set_bone(mat_local_to_parent)
-		# set the armature space inverse bind pose
-		ms2_inv_bind.set_rows(corrector.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
-
-		# print("new: ", )
-		# print(ms2_inv_bind)
-		# print(ms2_bone)
-	export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
-
-
 def export_joints(armature_ob, bone_info, b_bone_names, corrector):
 	print("Exporting joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
