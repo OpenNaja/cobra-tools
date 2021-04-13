@@ -1,10 +1,8 @@
 import mathutils
-import bpy
 
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.Cylinder import Cylinder
-from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.MeshCollision import MeshCollision
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.compound.packing_utils import pack_swizzle

@@ -1,11 +1,9 @@
-import mathutils
 import bpy
+import mathutils
 
-from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.packing_utils import unpack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from plugin.helpers import mesh_from_data
-from plugin.modules_export.collision import export_hitcheck
 
 
 def import_collider(hitcheck, armature_ob, bone_name, corrector):

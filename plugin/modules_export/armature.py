@@ -178,7 +178,7 @@ def export_bones(b_armature_ob, data):
 def export_joints(armature_ob, bone_info, b_bone_names, corrector):
 	print("Exporting joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
-		bone_name = b_bone_names[bone_index]
+		# bone_name = b_bone_names[bone_index]
 		print("joint", joint_info.name)
 		for hitcheck in joint_info.hit_check:
 			b_obj = bpy.data.objects.get(hitcheck.name, None)
