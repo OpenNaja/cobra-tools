@@ -1498,7 +1498,7 @@ class OvlFile(Header, IoFile):
 				print(error)
 				traceback.print_exc()
 				error_files.append(sized_str_entry.name)
-		self.progress_callback("Done", value=len(extract_files), vmax=len(extract_files))
+		self.progress_callback("Extraction completed!", value=1, vmax=1)
 
 		return out_paths, error_files, skip_files
 

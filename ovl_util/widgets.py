@@ -382,12 +382,11 @@ class TableView(QtWidgets.QTableView):
 				# self.cfg["dir_inject"] = os.path.dirname(files[0])
 				try:
 					inject.inject(self.main_window.ovl_data, files, self.main_window.show_temp_files,
-								  self.main_window.write_2K)
+								  self.main_window.write_2K, self.main_window.update_progress)
 					self.main_window.file_widget.dirty = True
 				except Exception as ex:
 					traceback.print_exc()
 					showdialog(str(ex))
-				print("Done!")
 			else:
 				showdialog("You must open an OVL file before you can inject files!")
 		# self.accept_file(filepath)

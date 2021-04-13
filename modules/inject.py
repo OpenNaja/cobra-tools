@@ -17,15 +17,16 @@ from modules.helpers import split_path
 from ovl_util import imarray
 
 
-def inject(ovl_data, file_paths, show_temp_files, hack_2k):
-
+def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=None):
 	print("\nInjecting...")
 	# write modified version to tmp dir
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
 
 	dupecheck = []
 	mdl2_tups = []
-	for file_path in file_paths:
+	for file_i, file_path in enumerate(file_paths):
+		if progress_callback:
+			progress_callback("Injecting...", value=file_i, vmax=len(file_paths))
 		name_ext, name, ext = split_path(file_path)
 		print("Injecting", name_ext)
 		# check for separated array tiles & flipped channels
@@ -83,6 +84,9 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k):
 
 	load_mdl2(ovl_data, mdl2_tups)
 	shutil.rmtree(tmp_dir)
+
+	if progress_callback:
+		progress_callback("Injection completed!", value=1, vmax=1)
 
 
 def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
