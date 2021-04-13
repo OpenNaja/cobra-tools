@@ -37,7 +37,7 @@ def export_bounds(bounds, mdl2):
 def export_hitcheck(b_obj, hitcheck, corrector):
 	hitcheck.name = b_obj.name
 	if b_obj.display_type == 'WIRE':
-		export_meshbv(b_obj, hitcheck)
+		export_meshbv(b_obj, hitcheck, corrector)
 	elif b_obj.display_type == 'BOUNDS':
 		if b_obj.display_bounds_type == 'SPHERE':
 			export_spherebv(b_obj, hitcheck)
@@ -80,8 +80,12 @@ def export_boxbv(b_obj, hitcheck, corrector):
 	e = hitcheck.collider.extent
 	dim = b_obj.dimensions
 	e.x, e.y, e.z = pack_swizzle((dim.y, dim.x, dim.z))
-	rot = corrector.blender_bind_to_nif_bind(matrix).to_3x3()
-	hitcheck.collider.rotation.data[:] = rot.transposed()
+	set_rot_matrix(matrix, hitcheck.collider.rotation, corrector)
+
+
+def set_rot_matrix(b_matrix_4x4, m_rot_3x3, corrector):
+	rot = corrector.blender_bind_to_nif_bind(b_matrix_4x4).to_3x3()
+	m_rot_3x3.data[:] = rot.transposed()
 
 
 def export_capsulebv(b_obj, hitcheck):
@@ -98,23 +102,30 @@ def export_cylinderbv(b_obj, hitcheck):
 	hitcheck.collider.extent = b_obj.dimensions.z
 
 
-def export_meshbv(b_obj, hitcheck):
+def export_meshbv(b_obj, hitcheck, corrector):
 	me = b_obj.data
+	matrix = get_collider_matrix(b_obj)
 
 	hitcheck.type = CollisionType.MeshCollision
 	hitcheck.collider = MeshCollision()
 	coll = hitcheck.collider
+
+	# export rotation
+	set_rot_matrix(matrix, hitcheck.collider.rotation, corrector)
+	# export translation
+	c = coll.offset
+	c.x, c.y, c.z = pack_swizzle(matrix.translation)
+	# export vertices
 	coll.vertex_count = len(me.vertices)
 	coll.vertices.resize((coll.vertex_count, 3))
 	for vert_i, vert in enumerate(me.vertices):
 		coll.vertices[vert_i, :] = pack_swizzle(vert.co)
+	# export triangles
 	coll.tri_count = len(me.polygons)
 	coll.triangles.resize((coll.tri_count, 3))
 	for face_i, face in enumerate(me.polygons):
 		coll.triangles[face_i, :] = face.vertices
 		assert len(face.vertices) == 3
-	print("Mesh collision export is not supported!")
-	print(coll)
 
 
 def _capsule_transform(b_obj, hitcheck):
