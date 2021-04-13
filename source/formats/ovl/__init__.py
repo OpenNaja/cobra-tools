@@ -15,7 +15,7 @@ from generated.formats.ovl.compound.SetEntry import SetEntry
 from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.versions import *
 from generated.io import IoFile, ZipFile
-from modules.formats.shared import get_versions, djb, assign_versions
+from modules.formats.shared import get_versions, djb, assign_versions, get_padding
 from generated.array import Array
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
@@ -29,6 +29,7 @@ from generated.formats.ovl.compound.MimeEntry import MimeEntry
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
+from modules.helpers import zstr
 
 MAX_UINT32 = 4294967295
 
@@ -67,11 +68,24 @@ class OvsFile(OvsHeader, ZipFile):
 		# this determines if fragments are written back to header datas
 		self.force_update_header_datas = True
 
-	def buffer_padding(self, dbuffer, length):
-		blen = len(dbuffer) % length
-		if blen > 0:
-			dbuffer += struct.pack(f"{length - blen}s", b'')
-		return dbuffer
+	def update_hashes(self):
+		print("Updating hashes")
+		print(f"Game: {get_game(self.ovl)}")
+		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.ovl.files)}
+		for entry_list in (
+				self.header_entries,
+				self.sized_str_entries,
+				self.data_entries,
+				self.set_header.sets,
+				self.set_header.assets):
+			for entry in entry_list:
+				file_index = file_name_lut[entry.name]
+				file = self.ovl.files[file_index]
+				if is_jwe(self.ovl):
+					entry.file_hash = file.file_hash
+				else:
+					entry.file_hash = file_index
+				entry.ext_hash = file.ext_hash
 
 	def getContent(self, filename):
 		with open(filename, 'rb') as f:
@@ -80,10 +94,9 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def create_ss_entry(self, file_entry):
 		new_ss = SizedStringEntry()
+		self.transfer_identity(new_ss, file_entry)
 		new_pointss = HeaderPointer()
 		new_ss.pointers.append(new_pointss)
-		new_ss.file_hash = file_entry.file_hash
-		new_ss.ext_hash = djb(file_entry.ext[1:])
 		self.sized_str_entries.append(new_ss)
 		return new_ss
 
@@ -98,8 +111,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def create_data_entry(self, file_entry, buffer_bytes):
 		new_data = DataEntry()
-		new_data.file_hash = file_entry.file_hash
-		new_data.ext_hash = djb(file_entry.ext[1:])
+		self.transfer_identity(new_data, file_entry)
 		# new_data.set_index = 0
 		new_data.buffer_count = len(buffer_bytes)
 		new_data.size_1 = sum([len(b) for b in buffer_bytes])
@@ -123,7 +135,7 @@ class OvsFile(OvsHeader, ZipFile):
 			dbuffer = self.getContent(file_entry.path)
 			file_name_bytes = bytearray(file_entry.basename, encoding='utf8')
 			if file_entry.ext == ".assetpkg":  # assetpkg.. copy content, pad to 64b, then assign 1 fragment and 1 empty sized str.
-				dbuffer = self.buffer_padding(dbuffer + b'\x00', 64)
+				dbuffer = zstr(dbuffer) + get_padding(len(zstr(dbuffer)), 64)
 				self.header_entry_data += dbuffer  # fragment pointer 1 data
 				self.header_entry_data += struct.pack('16s', b'')  # fragment pointer 0 data
 				new_frag = self.create_fragment()
@@ -167,8 +179,8 @@ class OvsFile(OvsHeader, ZipFile):
 
 			if file_entry.ext == ".userinterfaceicondata":  # userinterfaceicondata, 2 frags
 				icname, icpath = [line.strip() for line in dbuffer.split(b'\n') if line.strip()]
-				outb = icname + b'\x00' + icpath + b'\x00'
-				outb = self.buffer_padding(outb, 64) + struct.pack('8s', b'')
+				outb = zstr(icname) + zstr(icpath)
+				outb = outb + get_padding(len(outb), 64) + struct.pack('8s', b'')
 				self.header_entry_data += outb
 				newoffset = len(self.header_entry_data)
 				self.header_entry_data += struct.pack('16s', b'')
@@ -186,18 +198,15 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = newoffset
 
-			if file_entry.ext == ".txt":  #
-				data = struct.pack("<I", len(dbuffer)) + dbuffer + b"\x00"
-				padding = 8 - (len(data) % 8)
-				if padding > 0:
-					data += struct.pack(f"{padding}s", b'')
-				dbuffer = data
-				self.header_entry_data += dbuffer  # fragment pointer 1 data
+			if file_entry.ext == ".txt":
+				data = zstr(dbuffer)
+				self.header_entry_data += data + get_padding(len(data), alignment=8)  # fragment pointer 1 data
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
 				new_ss.pointers[0].data_offset = offset
+				file_entry_count += 1
 
-			self.header_entry_data = self.buffer_padding(self.header_entry_data, 4)
+			self.header_entry_data += get_padding(len(self.header_entry_data), 4)
 			offset = len(self.header_entry_data)
 
 		header_type = HeaderType()
@@ -208,10 +217,9 @@ class OvsFile(OvsHeader, ZipFile):
 		header_entry.data = io.BytesIO(self.header_entry_data)
 		header_entry.size = len(self.header_entry_data)
 		header_entry.offset = 0
-		header_entry.file_hash = self.sized_str_entries[0].file_hash
 		header_entry.num_files = file_entry_count
-		header_entry.ext_hash = self.sized_str_entries[0].ext_hash
 		header_entry.type = header_type.type
+		self.transfer_identity(header_entry, self.sized_str_entries[0])
 		self.header_types.append(header_type)
 		self.header_entries.append(header_entry)
 
@@ -407,8 +415,8 @@ class OvsFile(OvsHeader, ZipFile):
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
-		source_entry.file_hash = target_entry.file_hash
-		source_entry.ext_hash = target_entry.ext_hash
+		# source_entry.file_hash = target_entry.file_hash
+		# source_entry.ext_hash = target_entry.ext_hash
 		source_entry.basename = target_entry.basename
 		source_entry.ext = target_entry.ext
 		source_entry.name = target_entry.name
@@ -1137,13 +1145,7 @@ class OvsFile(OvsHeader, ZipFile):
 			buffer.read_data(stream)
 
 	def write_frag_log(self, ):
-		# # this is just for developing to see which unique attributes occur across a list of entries
-		# ext_hashes = sorted(set([f.offset for f in self.ovl.files]))
-		# print(ext_hashes)
-		# # this is just for developing to see which unique attributes occur across a list of entries
-		# ext_hashes = sorted(set([f.size for f in self.fragments]))
-		# print(ext_hashes)
-		# # for development; collect info about fragment types
+		# for development; collect info about fragment types
 		frag_log = ""
 
 		for i, header_entry in enumerate(self.header_entries):
@@ -1360,7 +1362,6 @@ class OvsFile(OvsHeader, ZipFile):
 		e = ".UNK"
 		# JWE style
 		if self.ovl.user_version.is_jwe:
-			# print("JWE ids",entry.file_hash, entry.ext_hash)
 			n = self.ovl.hash_table_local[entry.file_hash]
 			e = self.ovl.hash_table_local[entry.ext_hash]
 		# PZ Style and PC Style
@@ -1376,8 +1377,6 @@ class OvsFile(OvsHeader, ZipFile):
 		entry.ext = e
 		entry.basename = n
 		entry.name = f"{n}{e}"
-
-	# print(entry.name, entry.file_hash, entry.ext_hash)
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
@@ -1512,7 +1511,7 @@ class OvlFile(Header, IoFile):
 			if file_ext not in files_by_extension:
 				files_by_extension[file_ext] = []
 			files_by_extension[file_ext].append(file_path)
-		print(files_by_extension)
+		# print(files_by_extension)
 
 		file_index_offset = 0
 		for file_ext, file_paths in sorted(files_by_extension.items()):
@@ -1538,11 +1537,16 @@ class OvlFile(Header, IoFile):
 				file_entry.name = filename
 				file_entry.basename, file_entry.ext = os.path.splitext(filename)
 				file_entry.file_hash = djb(file_entry.basename)
+				file_entry.ext_hash = djb(file_entry.ext[1:])
 				file_entry.unkn_0 = lut_file_unk_0[file_ext]
 				file_entry.unkn_1 = 0
 				file_entry.extension = len(self.mimes)
 				self.files.append(file_entry)
 			self.mimes.append(mime_entry)
+
+		# update ovl stuff
+		self.fres.data = b"FRES"
+		self.archive_names.data = b'STATIC\x00\x00'
 
 		# update the name buffer and offsets
 		self.update_names()
@@ -1579,25 +1583,7 @@ class OvlFile(Header, IoFile):
 		new_zlib.zlib_thing_2 = 0
 		self.zlibs.append(new_zlib)
 
-		# update ovl stuff
-		self.fres.data = b"FRES"
-		self.version_flag = 0x1
-		self.version = 0x13
-		self.seventh_byte = 0x1
-		self.user_version = VersionInfo(24724)
-		self.reserved = [0 for i in range(13)]
-		self.len_names = len(self.names.data)
-
-		self.archive_names.data = b'STATIC\x00\x00'
-		self.len_archive_names = 8
-
-		self.num_mimes = len(self.mimes)
-		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
-		self.num_archives = len(self.archives)
-		self.num_header_types = archive_entry.num_header_types
-		self.num_headers = archive_entry.num_headers
-		self.num_datas = archive_entry.num_datas
-		self.num_buffers = archive_entry.num_buffers
+		self.update_counts()
 		self.update_ss_dict()
 
 	# print(self)
@@ -1664,6 +1650,7 @@ class OvlFile(Header, IoFile):
 			(self.files, "basename")
 		))
 		self.len_names = len(self.names.data)
+		self.len_archive_names = len(self.archive_names.data)
 
 		# catching ovl files without entries, default len_type_names is 0
 		if len(self.files) > 0:
@@ -1705,6 +1692,8 @@ class OvlFile(Header, IoFile):
 			# get file name from name table
 			file_name = self.names.get_str_at(file_entry.offset)
 			file_entry.ext = self.mimes[file_entry.extension].ext
+			# store this so we can use it
+			file_entry.ext_hash = djb(file_entry.ext[1:])
 			file_entry.basename = file_name
 			file_entry.name = file_name + file_entry.ext
 			file_entry.dependencies = []
@@ -1839,10 +1828,20 @@ class OvlFile(Header, IoFile):
 	def update_counts(self):
 		# adjust the counts
 		for archive in self.archives:
+			# change the hashes / indices to be valid for the current version
+			archive.content.update_hashes()
 			archive.content.update_assets()
+
+		# sum content of individual archives
+		self.num_header_types = sum(a.num_header_types for a in self.archives)
+		self.num_headers = sum(a.num_headers for a in self.archives)
+		self.num_datas = sum(a.num_datas for a in self.archives)
+		self.num_buffers = sum(a.num_buffers for a in self.archives)
+
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 		self.num_dependencies = len(self.dependencies)
 		self.num_mimes = len(self.mimes)
+		self.num_archives = len(self.archives)
 
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")

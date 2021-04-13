@@ -14,19 +14,6 @@ def write_sized_str(stream, s):
 	stream.write(s.encode())
 
 
-def read_sized_str(stream, pos, size):
-	"""Returns content of stream from pos until pos+size"""
-	stream.seek(pos)
-	return stream.read(size)
-
-
-def read_sized_str_at(stream, pos):
-	"""Returns content of stream from pos"""
-	stream.seek(pos)
-	size = struct.unpack("<I", stream.read(4))[0]
-	return stream.read(size)
-
-
 def split_path(fp):
 	in_dir, name_ext = os.path.split(fp)
 	name, ext = os.path.splitext(name_ext)
@@ -48,3 +35,7 @@ def as_bytes(inst, version_info={}):
 		assign_versions(stream, version_info)
 		inst.write(stream)
 		return stream.getvalue()
+
+
+def zstr(b):
+	return b + b"\x00"

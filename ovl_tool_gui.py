@@ -203,11 +203,6 @@ class MainWindow(widgets.MainWindow):
 		# print(self.hash_table)
 		print(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
 
-		self.mimes_table = {}
-		tables_dir = os.path.join(os.getcwd(), "dicts")
-		self.read_table(os.path.join(tables_dir, "mimes.txt"), self.mimes_table)
-		print(self.mimes_table)
-
 	@staticmethod
 	def read_table(fp, dic, int_key=False):
 		if fp.endswith(".txt"):
@@ -240,8 +235,13 @@ class MainWindow(widgets.MainWindow):
 		# clear the ovl
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 		self.game_changed()
+
+		# read tables for constants
+		mimes_table = {}
+		tables_dir = os.path.join(os.getcwd(), "dicts")
+		self.read_table(os.path.join(tables_dir, "mimes.txt"), mimes_table)
 		try:
-			self.ovl_data.create(ovl_dir, mime_names_dict=self.mimes_table)
+			self.ovl_data.create(ovl_dir, mime_names_dict=mimes_table)
 		except Exception as ex:
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
