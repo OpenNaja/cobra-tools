@@ -15,6 +15,22 @@ v = 9999
 
 def export_bounds(bounds, mdl2):
 	print("Exporting bounds")
+	bounds_max, bounds_min = get_bounds(bounds)
+	center = (bounds_min+bounds_max)/2
+	model_info = mdl2.model_info
+	assign_bounds(model_info, bounds_max, bounds_min)
+	model_info.center.set(center)
+	model_info.radius = (center-bounds_max).length*0.77
+
+
+def assign_bounds(model_info, bounds_max, bounds_min):
+	model_info.bounds_max.set(bounds_max)
+	model_info.bounds_min.set(bounds_min)
+	model_info.bounds_max_repeat.set(bounds_max)
+	model_info.bounds_min_repeat.set(bounds_min)
+
+
+def get_bounds(bounds):
 	bounds_max = mathutils.Vector((-v, -v, -v))
 	bounds_min = mathutils.Vector((v, v, v))
 	for bound in bounds:
@@ -23,15 +39,10 @@ def export_bounds(bounds, mdl2):
 				vec = pack_swizzle(co)
 				bounds_min[i] = min(bounds_min[i], vec[i])
 				bounds_max[i] = max(bounds_max[i], vec[i])
-	center = (bounds_min+bounds_max)/2
-	model_info = mdl2.model_info
-	model_info.bounds_max.set(bounds_max)
-	model_info.bounds_min.set(bounds_min)
-	model_info.bounds_max_repeat.set(bounds_max)
-	model_info.bounds_min_repeat.set(bounds_min)
-	model_info.center.set(center)
-	model_info.radius = (center-bounds_max).length*0.77
-	# print(model_info)
+	return bounds_max, bounds_min
+
+
+# print(model_info)
 
 
 def export_hitcheck(b_obj, hitcheck, corrector):
@@ -109,6 +120,9 @@ def export_meshbv(b_obj, hitcheck, corrector):
 	hitcheck.type = CollisionType.MeshCollision
 	hitcheck.collider = MeshCollision()
 	coll = hitcheck.collider
+
+	bounds_max, bounds_min = get_bounds((b_obj.bound_box, ))
+	assign_bounds(coll, bounds_max, bounds_min)
 
 	# export rotation
 	set_rot_matrix(matrix, hitcheck.collider.rotation, corrector)
