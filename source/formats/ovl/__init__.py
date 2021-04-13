@@ -1504,7 +1504,7 @@ class OvlFile(Header, IoFile):
 
 	def create(self, ovl_dir, mime_names_dict):
 		print(f"Creating OVL from {ovl_dir}")
-
+		print(f"Game: {get_game(self)}")
 		files_by_extension = {}
 		for file_name in os.listdir(ovl_dir):
 			file_name_bare, file_ext = os.path.splitext(file_name)

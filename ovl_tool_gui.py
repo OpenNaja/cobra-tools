@@ -239,6 +239,7 @@ class MainWindow(widgets.MainWindow):
 	def create_ovl(self, ovl_dir):
 		# clear the ovl
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
+		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir, mime_names_dict=self.mimes_table)
 		except Exception as ex:
