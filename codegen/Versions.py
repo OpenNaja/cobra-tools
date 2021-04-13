@@ -35,7 +35,11 @@ class Versions:
 							val = v.strip()
 							if " " in val:
 								val = val.split(" ")[0]
-							stream.write(f"\n\tinst.{name} = {val}")
+							if name == "user_version":
+								suffix = "._value"
+							else:
+								suffix = ""
+							stream.write(f"\n\tinst.{name}{suffix} = {val}")
 					stream.write("\n\n\n")
 
 				# write game lookup function
@@ -46,6 +50,14 @@ class Versions:
 					full_game_names.append(full_game_name)
 					stream.write(f"\n\t\treturn '{full_game_name}'")
 				stream.write("\n\treturn 'Unknown Game'")
+				stream.write("\n\n\n")
+
+				# write game version setting function
+				stream.write(f"def set_game(inst, game):")
+				for version in self.versions:
+					full_game_name = version.text.replace('"', '').strip()
+					stream.write(f"\n\tif game == '{full_game_name}':")
+					stream.write(f"\n\t\tset_{version.attrib['id'].lower()}(inst)")
 				stream.write("\n\n\n")
 
 				full_game_names.sort()

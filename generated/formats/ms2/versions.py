@@ -13,6 +13,11 @@ def get_game(inst):
 	return 'Unknown Game'
 
 
+def set_game(inst, game):
+	if game == 'Old':
+		set_old(inst)
+
+
 games = ['Old', 'Unknown Game']
 
 

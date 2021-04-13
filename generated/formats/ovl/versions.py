@@ -32,7 +32,7 @@ def is_pz(inst):
 
 def set_pz(inst):
 	inst.version = 19
-	inst.user_version = 8340
+	inst.user_version._value = 8340
 
 
 def is_jwe(inst):
@@ -42,7 +42,7 @@ def is_jwe(inst):
 
 def set_jwe(inst):
 	inst.version = 19
-	inst.user_version = 24724
+	inst.user_version._value = 24724
 
 
 def get_game(inst):
@@ -57,6 +57,19 @@ def get_game(inst):
 	if is_jwe(inst):
 		return 'Jurassic World Evolution'
 	return 'Unknown Game'
+
+
+def set_game(inst, game):
+	if game == 'Disneyland Adventure':
+		set_dla(inst)
+	if game == 'Zoo Tycoon Ultimate Animal Collection':
+		set_ztuac(inst)
+	if game == 'Planet Coaster':
+		set_pc(inst)
+	if game == 'Planet Zoo':
+		set_pz(inst)
+	if game == 'Jurassic World Evolution':
+		set_jwe(inst)
 
 
 games = ['Disneyland Adventure', 'Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']

@@ -11,7 +11,7 @@ try:
 
 	from ovl_util import widgets, interaction
 	from modules import extract, inject, hasher, walker, remover
-	from generated.formats.ovl import OvlFile, games, get_game
+	from generated.formats.ovl import OvlFile, games, get_game, set_game
 	from generated.formats.ms2 import Mdl2File
 except Exception as err:
 	traceback.print_exc()
@@ -40,7 +40,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
 		self.game_container = widgets.LabelCombo("Game:", games)
-		# self.game_container.entry.currentIndexChanged.connect(self.game_changed)
+		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
@@ -121,6 +121,10 @@ class MainWindow(widgets.MainWindow):
 		self.add_to_menu(button_data)
 		self.check_version()
 		self.load_hash_table()
+
+	def game_changed(self,):
+		game = self.game_container.entry.currentText()
+		set_game(self.ovl_data, game)
 
 	@property
 	def commands(self, ):
@@ -227,6 +231,7 @@ class MainWindow(widgets.MainWindow):
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
+			print(self.ovl_data.archives[0].content)
 			self.update_gui_table()
 			game = get_game(self.ovl_data)
 			self.game_container.entry.setText(game)
