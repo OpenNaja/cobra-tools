@@ -226,7 +226,6 @@ class MainWindow(widgets.MainWindow):
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
-			print(self.ovl_data.archives[0].content)
 			self.update_gui_table()
 			game = get_game(self.ovl_data)
 			self.game_container.entry.setText(game)
