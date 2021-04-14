@@ -1362,8 +1362,12 @@ class OvsFile(OvsHeader, ZipFile):
 		e = ".UNK"
 		# JWE style
 		if self.ovl.user_version.is_jwe:
-			n = self.ovl.hash_table_local[entry.file_hash]
-			e = self.ovl.hash_table_local[entry.ext_hash]
+			try:
+				n = self.ovl.hash_table_local[entry.file_hash]
+				e = self.ovl.hash_table_local[entry.ext_hash]
+			except KeyError:
+				raise KeyError(
+					f"No match for entry!\n{entry}")
 		# PZ Style and PC Style
 		else:
 			# file_hash is an index into ovl files
@@ -1828,9 +1832,9 @@ class OvlFile(Header, IoFile):
 	def update_counts(self):
 		# adjust the counts
 		for archive in self.archives:
-			# change the hashes / indices to be valid for the current version
-			archive.content.update_hashes()
 			archive.content.update_assets()
+			# change the hashes / indices of all entries to be valid for the current game version
+			archive.content.update_hashes()
 
 		# sum content of individual archives
 		self.num_header_types = sum(a.num_header_types for a in self.archives)
