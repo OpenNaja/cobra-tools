@@ -458,8 +458,11 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2", quick=True)
-	m.load("C:/Users/arnfi/Desktop/Coding/ovl/dev/out/PZ/Main PZ big/widgetball_test.mdl2")
+	m.load("C:/Users/arnfi/Desktop/test/borked/wm_skeleton_base_02.mdl2", quick=True)
+	m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2", quick=True)
+	m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2", quick=True)
+	# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2", quick=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/ovl/dev/out/PZ/Main PZ big/widgetball_test.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblacksouthcentral_child.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
