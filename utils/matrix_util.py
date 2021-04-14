@@ -193,7 +193,7 @@ class Corrector:
 	def nif_bind_to_blender_bind(self, nif_armature_space_matrix):
 		# post multiplication: local space
 		# position of xflip does not matter
-		return self.xflip @ self.correction_glob @ nif_armature_space_matrix @ self.correction_inv
+		return self.xflip @ self.correction_glob @ nif_armature_space_matrix @ self.correction_inv @ self.xflip
 
 	def blender_bind_to_nif_bind(self, blender_armature_space_matrix):
 		# xflip must be done before the conversions

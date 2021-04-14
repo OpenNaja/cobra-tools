@@ -56,9 +56,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		if self.bone_info_size:
 			print("mdl2 count", self.general_info.mdl_2_count)
 			for i in range(self.general_info.mdl_2_count):
-				# if i == 2:
-				# 	print(bone_info)
-				# 	return
 				print(f"BONE INFO {i} starts at {stream.tell()}")
 				bone_info = bone_info_cls()
 				try:
