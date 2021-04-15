@@ -64,11 +64,10 @@ def import_armature(data, b_bone_names):
 
 			# store the ms2 armature space matrix
 			mats[bone_name] = n_bind
-
 			# change orientation for blender bones
 			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
 			# set orientation to blender bone
-			set_transform(b_bind, b_edit_bone)
+			set_transform1(b_bind, b_edit_bone)
 
 		fix_bone_lengths(b_armature_data)
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -85,7 +84,8 @@ def import_armature(data, b_bone_names):
 		return b_armature_obj
 
 
-def set_transform(b_bind, b_edit_bone):
+def set_transform1(b_bind, b_edit_bone):
+	# now simplified to handle tail = -Y
 	tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
 	b_edit_bone.head = b_bind.to_translation()
 	b_edit_bone.tail = tail + b_edit_bone.head
@@ -93,18 +93,21 @@ def set_transform(b_bind, b_edit_bone):
 
 
 def set_transform2(b_bind, b_edit_bone):
+	# identical to 4
 	b_edit_bone.head = (0, 0, 0)
 	b_edit_bone.tail = (-1, 0, 0)
 	b_edit_bone.matrix = b_bind
 
 
 def set_transform3(b_bind, b_edit_bone):
-	b_edit_bone.tail = (-1, 0, 0)
-	b_edit_bone.roll = math.radians(90)
+	b_edit_bone.tail = (0, 1, 0)
+	# seemingly no matter what roll is set to, it's not correct
+	b_edit_bone.roll = math.radians(-90)
 	b_edit_bone.transform(b_bind)
 
 
 def set_transform4(b_bind, b_edit_bone):
+	# identical to 2
 	tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
 	b_edit_bone.head = b_bind.to_translation()
 	b_edit_bone.tail = tail + b_edit_bone.head
