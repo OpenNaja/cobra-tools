@@ -61,7 +61,7 @@ def wrapper(png_file_path, header_7, ovl):
 		if split_components:
 			for hi in range(array_size):
 				for di in range(d):
-					file_path = name + f"_{layer_i:02}" + ext
+					file_path = f"{name}_[{layer_i:02}]{ext}"
 					imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, di], compress_level=2)
 					out_files.append(file_path)
 					layer_i += 1
@@ -69,7 +69,7 @@ def wrapper(png_file_path, header_7, ovl):
 		# only split tiles but not components
 		elif must_split:
 			for layer_i in range(array_size):
-				file_path = name + f"_{layer_i:02}" + ext
+				file_path = f"{name}_[{layer_i:02}]{ext}"
 				imageio.imwrite(file_path, im[layer_i * h:(layer_i + 1) * h, :, :], compress_level=2)
 				out_files.append(file_path)
 			os.remove(png_file_path)
@@ -90,7 +90,7 @@ def is_array_tile(fp, array_name_bare):
 		if ext.lower() == ".png":
 			in_name_bare, suffix = split_name_suffix(in_name)
 			# join arrays if there is a suffix
-			if suffix != None:
+			if suffix is not None:
 				return True
 
 
@@ -99,7 +99,12 @@ def split_name_suffix(in_name):
 	try:
 		in_name_bare, suffix = in_name.rsplit("_", 1)
 		print(in_name_bare, suffix)
-		suffix = int(suffix)
+		if "[" in suffix:
+			suffix = suffix[1:-1]
+			suffix = int(suffix)
+		else:
+			in_name_bare = in_name
+			suffix = None
 	except:
 		in_name_bare = in_name
 		suffix = None
