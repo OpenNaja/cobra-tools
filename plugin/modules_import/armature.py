@@ -1,3 +1,4 @@
+import math
 import traceback
 
 import bpy
@@ -64,33 +65,10 @@ def import_armature(data, b_bone_names):
 			# store the ms2 armature space matrix
 			mats[bone_name] = n_bind
 
-			# print()
-			# print(bone_name)
-			# print("ms2\n",n_bind)
 			# change orientation for blender bones
 			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
-			# b_bind = n_bind
-			# print("n_bindxflip")
-			# print(matrix_util.xflip @ n_bind)
 			# set orientation to blender bone
-			# print(bone_name)
-			tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
-			# print(tail, roll)
-			# https://developer.blender.org/T82930
-			# our matrices have negative determinants due to the x axis flip
-			# this is broken since 2.82 - we need to use our workaround
-			# tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
-			b_edit_bone.head = b_bind.to_translation()
-			b_edit_bone.tail = tail + b_edit_bone.head
-			# b_edit_bone.roll = math.radians(180) - roll
-			b_edit_bone.roll = roll
-			# b_edit_bone.roll = 0
-			# print(b_bind)
-			# print(b_edit_bone.matrix.to_3x3().inverted() @ b_bind.to_3x3())
-			# print(b_bind.to_3x3())
-			# print(b_edit_bone.matrix.to_3x3())
-			# print()
-			# print(roll)
+			set_transform(b_bind, b_edit_bone)
 
 		fix_bone_lengths(b_armature_data)
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -107,82 +85,36 @@ def import_armature(data, b_bone_names):
 		return b_armature_obj
 
 
+def set_transform(b_bind, b_edit_bone):
+	tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
+	b_edit_bone.head = b_bind.to_translation()
+	b_edit_bone.tail = tail + b_edit_bone.head
+	b_edit_bone.roll = roll
+
+
+def set_transform2(b_bind, b_edit_bone):
+	b_edit_bone.head = (0, 0, 0)
+	b_edit_bone.tail = (-1, 0, 0)
+	b_edit_bone.matrix = b_bind
+
+
+def set_transform3(b_bind, b_edit_bone):
+	b_edit_bone.tail = (-1, 0, 0)
+	b_edit_bone.roll = math.radians(90)
+	b_edit_bone.transform(b_bind)
+
+
+def set_transform4(b_bind, b_edit_bone):
+	tail, roll = bpy.types.Bone.AxisRollFromMatrix(b_bind.to_3x3())
+	b_edit_bone.head = b_bind.to_translation()
+	b_edit_bone.tail = tail + b_edit_bone.head
+	b_edit_bone.roll = roll
+
+
 def get_bone_names(data):
 	if not data.ms2_file.bone_info:
 		return []
 	return [matrix_util.bone_name_for_blender(bone.name) for bone in data.ms2_file.bone_info.bones]
-
-
-def import_armature_new(data, b_bone_names):
-	"""Scans an armature hierarchy, and returns a whole armature.
-	This is done outside the normal node tree scan to allow for positioning
-	of the bones before skins are attached."""
-	corrector = matrix_util.Corrector(is_ztuac(data))
-	bone_info = data.ms2_file.bone_info
-	if bone_info:
-		armature_name = b_bone_names[0]
-		b_armature_data = bpy.data.armatures.new(armature_name)
-		b_armature_data.display_type = 'STICK'
-		# b_armature_data.show_axes = True
-		# set axis orientation for export
-		# b_armature_data.niftools.axis_forward = NifOp.props.axis_forward
-		# b_armature_data.niftools.axis_up = NifOp.props.axis_up
-		b_armature_obj = create_ob(armature_name, b_armature_data)
-		b_armature_obj.show_in_front = True
-		# make armature editable and create bones
-		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-		mats = {}
-		xflip = mathutils.Matrix().to_4x4()
-		xflip[0][0] = -1
-		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.bone_parents):
-			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
-
-			# local space matrix, in ms2 orientation
-			n_bind = mathutils.Quaternion((bone.rot.w, bone.rot.x, bone.rot.y, bone.rot.z)).to_matrix().to_4x4()
-			n_bind.translation = (bone.loc.x, bone.loc.y, bone.loc.z)
-
-			# link to parent
-			try:
-				if o_parent_ind != 255:
-					parent_name = b_bone_names[o_parent_ind]
-					b_parent_bone = b_armature_data.edit_bones[parent_name]
-					b_edit_bone.parent = b_parent_bone
-					# calculate ms2 armature space matrix
-					n_bind = mats[parent_name] @ n_bind
-			except:
-				print(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
-
-			# store the ms2 armature space matrix
-			mats[bone_name] = n_bind
-			# # change orientation for blender bones
-			# # b_bind = corrector.nif_bind_to_blender_bind(n_bind)
-			# b_edit_bone.tail = (-1, 0, 0)
-			# b_edit_bone.roll = math.radians(90)
-			# b_edit_bone.transform(n_bind)
-			# b_edit_bone.transform(xflip)
-
-			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
-			b_edit_bone.head = (0, 0, 0)
-			b_edit_bone.tail = (-1, 0, 0)
-			# this works if determinant is positive, ie. no xflip
-			b_edit_bone.matrix = b_bind
-
-		fix_bone_lengths(b_armature_data)
-		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-		# store original bone index as custom property
-		try:
-			for i, bone_name in enumerate(b_bone_names):
-				bone = b_armature_obj.pose.bones[bone_name]
-				bone["index"] = i
-		except:
-			print("Bone did not exist - bug")
-		try:
-			import_joints(b_armature_obj, bone_info, b_bone_names, corrector)
-		except Exception as err:
-			print("Importing joints failed...", err)
-			traceback.print_exc()
-		return b_armature_obj
 
 
 def import_joints(armature_ob, bone_info, b_bone_names, corrector):
