@@ -12,18 +12,6 @@ from utils import matrix_util
 from utils.matrix_util import mat3_to_vec_roll
 
 
-def ovl_bones(b_armature_data):
-	# first just get the roots, then extend it
-	roots = [bone for bone in b_armature_data.bones if not bone.parent]
-	# this_level = []
-	out_bones = roots
-	# next_level = []
-	for bone in roots:
-		out_bones += [child for child in bone.children]
-
-	return [b.name for b in out_bones]
-
-
 def import_armature(data, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
