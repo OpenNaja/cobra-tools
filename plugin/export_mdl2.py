@@ -44,8 +44,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		return errors
 
 	data = Mdl2File()
-	# open file for binary reading
-	data.load(filepath, quick=True)
+	data.load(filepath, entry=True, read_bytes=True)
 
 	b_armature_ob = get_armature()
 	if not b_armature_ob:

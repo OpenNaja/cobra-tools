@@ -11,7 +11,7 @@ class ZtModelData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512, last_vert_offset=0):
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0):
 		self.last_vert_offset = last_vert_offset
 		self.new_vert_offset = 0
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
@@ -19,10 +19,10 @@ class ZtModelData:
 		self.stream_offset = 0
 		for s in self.streams[:self.stream_index]:
 			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.next_buffer_length
-		self.start_buffer2 = start_buffer2
-		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.start_buffer2+self.stream_offset}")
-		print("Tri info address", self.start_buffer2+self.stream_offset+self.tri_info_offset)
-		print("Vertex info address", self.start_buffer2+self.stream_offset+self.vert_info_offset)
+		self.buffer_2_offset = buffer_2_offset
+		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
+		print("Tri info address", self.buffer_2_offset+self.stream_offset+self.tri_info_offset)
+		print("Vertex info address", self.buffer_2_offset+self.stream_offset+self.vert_info_offset)
 		print(self)
 		self.ms2_file = ms2_file
 		self.base = base
@@ -77,7 +77,7 @@ class ZtModelData:
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
-		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
+		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
 		print("tris offset", stream.tell())
 		# read all tri indices for this model segment
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
@@ -102,12 +102,12 @@ class ZtModelData:
 			# stream.seek(self.last_vert_offset - (self.vertex_count * self.dt.itemsize))
 			stream.seek(self.last_vert_offset)
 		else:
-			stream.seek(self.start_buffer2 + self.stream_offset + self.vert_offset)
+			stream.seek(self.buffer_2_offset + self.stream_offset + self.vert_offset)
 		print("VERTS", stream.tell(), self.vertex_count)
 		self.new_vert_offset = stream.tell()
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
 		print(self.verts_data.shape)
-		stream.seek(self.start_buffer2 + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
+		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
 		self.colors_data = np.fromfile(stream, dtype=self.dt_colors, count=self.vertex_count)
 		# first cast to the float uvs array so unpacking doesn't use int division

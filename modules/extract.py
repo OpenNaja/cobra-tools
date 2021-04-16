@@ -24,8 +24,8 @@ from modules.formats.XMLCONFIG import write_xmlconfig
 from ovl_util import widgets
 
 
-IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams")
-SUPPORTED_TYPES = (".dds", ".png", ".mdl2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
+IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".modelstream")
+SUPPORTED_TYPES = (".dds", ".png", ".ms2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
 
 
 def extract_kernel(ovl, entry, out_dir_func, show_temp_files, progress_callback):

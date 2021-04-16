@@ -14,21 +14,21 @@ class ModelData:
 
 	# START_CLASS
 
-	def read_bytes(self, start_buffer2, vertex_data_size, stream):
+	def read_bytes(self, buffer_2_offset, vertex_data_size, stream):
 		"""Used to store raw binary vertex and tri data on the model, for merging"""
 		# print("reading binary model data")
 		# read a vertices of this model
-		stream.seek(start_buffer2 + self.vertex_offset)
+		stream.seek(buffer_2_offset + self.vertex_offset)
 		self.verts_bytes = stream.read(self.size_of_vertex * self.vertex_count)
-		stream.seek(start_buffer2 + vertex_data_size + self.tri_offset)
+		stream.seek(buffer_2_offset + vertex_data_size + self.tri_offset)
 		self.tris_bytes = stream.read(2 * self.tri_index_count)
 
 	# print(len(self.verts_bytes), len(self.tris_bytes))
 
-	def read_bytes_map(self, start_buffer2, stream):
+	def read_bytes_map(self, buffer_2_offset, stream):
 		"""Used to document byte usage of different vertex formats"""
 		# read a vertices of this model
-		stream.seek(start_buffer2 + self.vertex_offset)
+		stream.seek(buffer_2_offset + self.vertex_offset)
 		# read the packed ms2_file
 		ms2_file = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
 		ms2_file = ms2_file.reshape((self.vertex_count, self.size_of_vertex))
@@ -149,7 +149,7 @@ class ModelData:
 
 	def read_verts(self, stream):
 		# read a vertices of this model
-		stream.seek(self.start_buffer2 + self.vertex_offset)
+		stream.seek(self.buffer_2_offset + self.vertex_offset)
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
@@ -197,7 +197,7 @@ class ModelData:
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
-		stream.seek(self.start_buffer2 + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
+		stream.seek(self.buffer_2_offset + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
 		# read all tri indices for this model segment
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
 
@@ -272,8 +272,8 @@ class ModelData:
 			# reverse to account for the flipped normals from mirroring in blender
 			self.tri_indices.extend(reversed(tri))
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512):
-		self.start_buffer2 = start_buffer2
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512):
+		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
 		self.read_verts(ms2_stream)

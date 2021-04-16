@@ -8,7 +8,7 @@ from modules.formats.FDB import load_fdb
 from modules.formats.FGM import load_fgm
 from modules.formats.LUA import load_lua
 from modules.formats.MATCOL import load_materialcollection
-from modules.formats.MS2 import load_mdl2
+from modules.formats.MS2 import load_ms2
 from modules.formats.TXT import load_txt
 from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
@@ -23,7 +23,6 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
 
 	dupecheck = []
-	mdl2_tups = []
 	for file_i, file_path in enumerate(file_paths):
 		if progress_callback:
 			progress_callback("Injecting...", value=file_i, vmax=len(file_paths))
@@ -53,8 +52,8 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 		# find the sizedstr entry that refers to this file
 		sized_str_entry = ovl_data.archives[0].content.get_sized_str_entry(name_ext)
 		# do the actual injection, varies per file type
-		if ext == ".mdl2":
-			mdl2_tups.append((file_path, sized_str_entry))
+		if ext == ".ms2":
+			load_ms2(ovl_data, file_path, sized_str_entry)
 		if ext == ".fgm":
 			load_fgm(ovl_data, file_path, sized_str_entry)
 		elif ext == ".png":
@@ -82,7 +81,6 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 		elif ext == ".voxelskirt":
 			load_voxelskirt(ovl_data, file_path, sized_str_entry)
 
-	load_mdl2(ovl_data, mdl2_tups)
 	shutil.rmtree(tmp_dir)
 
 	if progress_callback:

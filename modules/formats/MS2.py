@@ -1,10 +1,11 @@
 import io
 import os
 import struct
+import logging
 
 from modules.formats.shared import pack_header, get_versions
 from modules.helpers import write_sized_str, as_bytes
-from generated.formats.ms2 import Mdl2File
+from generated.formats.ms2 import Mdl2File, Ms2File
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.ModelData import ModelData
@@ -136,6 +137,41 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 	# print("ones", len(ones), ones)
 	# print("zeros", len(zeros), zeros)
 	return out_paths
+
+
+def load_ms2(ovl_data, ms2_file_path, ms2_entry):
+	logging.info(f"Injecting MS2")
+	ms2_file = Ms2File()
+	ms2_file.load(ms2_file_path, read_bytes=True)
+
+	versions = get_versions(ovl_data)
+
+	# load ms2 ss data
+	ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions) + ms2_entry.pointers[0].data[24:]
+	ms2_entry.pointers[0].update_data(ms2_ss_bytes, update_copies=True)
+
+	# overwrite ms2 buffer info frag
+	buffer_info_frag = ms2_entry.fragments[0]
+	buffer_info_frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
+
+	# update ms2 data
+	ms2_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
+
+	logging.info(f"Injecting MDL2s")
+	ms2_dir = os.path.dirname(ms2_file_path)
+	for mdl2_entry in ms2_entry.children:
+		mdl2_path = os.path.join(ms2_dir, mdl2_entry.name)
+		mdl2 = Mdl2File()
+		mdl2.load(mdl2_path)
+
+		# overwrite mdl2 modeldata frags
+		for frag, modeldata in zip(mdl2_entry.model_data_frags, mdl2.models):
+			frag_data = as_bytes(modeldata, version_info=versions)
+			frag.pointers[0].update_data(frag_data, update_copies=True)
+		if len(mdl2.lods) > 0:
+			lodinfo = as_bytes(mdl2.lods, version_info=versions)
+			# overwrite mdl2 lodinfo frag
+			mdl2_entry.fragments[1].pointers[1].update_data(lodinfo, update_copies=True)
 
 
 class Mdl2Holder:

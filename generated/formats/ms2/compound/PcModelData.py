@@ -156,8 +156,8 @@ class PcModelData:
 		s += '\n'
 		return s
 
-	def populate(self, ms2_file, ms2_stream, start_buffer2, base=512, last_vert_offset=0):
-		self.start_buffer2 = start_buffer2
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0):
+		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
 		self.read_verts(ms2_stream)
@@ -208,7 +208,7 @@ class PcModelData:
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
-		stream.seek(self.start_buffer2 + (self.tri_offset * 16))
+		stream.seek(self.buffer_2_offset + (self.tri_offset * 16))
 		# print("tris offset",stream.tell())
 		# read all tri indices for this model segment
 		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
@@ -220,16 +220,16 @@ class PcModelData:
 
 	def read_verts(self, stream):
 		# read a vertices of this model
-		stream.seek(self.start_buffer2 + (self.vertex_offset * 16))
+		stream.seek(self.buffer_2_offset + (self.vertex_offset * 16))
 		print("VERTS", stream.tell())
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
-		stream.seek(self.start_buffer2 + (self.uv_offset * 16))
+		stream.seek(self.buffer_2_offset + (self.uv_offset * 16))
 		print("UV", stream.tell())
 		self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
-		stream.seek(self.start_buffer2 + (self.weights_offset * 16))
+		stream.seek(self.buffer_2_offset + (self.weights_offset * 16))
 		print("WEIGHtS", stream.tell())
 		self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
 		# print(self.verts_data)

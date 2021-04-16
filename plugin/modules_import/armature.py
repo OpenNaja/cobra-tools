@@ -12,12 +12,12 @@ from utils import matrix_util
 from utils.matrix_util import mat3_to_vec_roll
 
 
-def import_armature(data, b_bone_names):
+def import_armature(md2, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
-	corrector = matrix_util.Corrector(is_ztuac(data))
-	bone_info = data.ms2_file.bone_info
+	corrector = matrix_util.Corrector(is_ztuac(md2))
+	bone_info = md2.bone_info
 	# print(bone_info)
 	if bone_info:
 		armature_name = b_bone_names[0]
@@ -102,10 +102,10 @@ def set_transform4(b_bind, b_edit_bone):
 	b_edit_bone.roll = roll
 
 
-def get_bone_names(data):
-	if not data.ms2_file.bone_info:
+def get_bone_names(mdl2):
+	if not mdl2.bone_info:
 		return []
-	return [matrix_util.bone_name_for_blender(bone.name) for bone in data.ms2_file.bone_info.bones]
+	return [matrix_util.bone_name_for_blender(bone.name) for bone in mdl2.bone_info.bones]
 
 
 def import_joints(armature_ob, bone_info, b_bone_names, corrector):

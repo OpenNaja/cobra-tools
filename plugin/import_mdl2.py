@@ -19,7 +19,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	in_dir, mdl2_name = os.path.split(filepath)
 	bare_name = os.path.splitext(mdl2_name)[0]
 	data = Mdl2File()
-	data.load(filepath)
+	data.load(filepath, entry=True, read_editable=True)
 
 	errors = []
 	bone_names = get_bone_names(data)

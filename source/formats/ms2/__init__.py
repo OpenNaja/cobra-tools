@@ -2,6 +2,7 @@ import os
 import io
 import time
 import traceback
+import logging
 
 from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
@@ -14,6 +15,8 @@ from generated.formats.ovl.versions import *
 from generated.formats.ms2.versions import *
 from generated.io import IoFile, BinaryStream
 from modules.formats.shared import get_padding_size, assign_versions, get_versions, djb, get_padding
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def findall(p, s):
@@ -45,47 +48,47 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for name_i, bone in zip(bone_info.name_indices, bone_info.bones):
 				bone.name = self.buffer_0.names[name_i]
 		except:
-			print("Names failed...")
+			logging.error("Names failed...")
 
-	def read_all_bone_infos(self, stream, bone_info_cls):
+	def read_all_bone_infos(self, stream):
 		# functional for JWE detailobjects.ms2, if joint_data is read
 		potential_start = stream.tell()
 		self.buffer_1_bytes = stream.read(self.bone_info_size)
 		stream.seek(potential_start)
 		self.bone_infos = []
 		if self.bone_info_size:
-			print("mdl2 count", self.general_info.mdl_2_count)
+			logging.debug(f"mdl2 count {self.general_info.mdl_2_count}")
 			for i in range(self.general_info.mdl_2_count):
-				print(f"BONE INFO {i} starts at {stream.tell()}")
-				bone_info = bone_info_cls()
+				logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
+				bone_info = Ms2BoneInfo()
 				try:
 					bone_info.read(stream)
 					self.assign_bone_names(bone_info)
 					try:
 						self.read_joints(bone_info)
 					except:
-						print("Joints failed...")
+						logging.error("Joints failed...")
 						traceback.print_exc()
 					self.bone_infos.append(bone_info)
 					# print(bone_info)
-					print("end of bone info at", stream.tell())
+					logging.debug(f"end of bone info at {stream.tell()}")
 					# last one has no padding, so stop here
 					if stream.tell() >= potential_start + self.bone_info_size:
-						print(f"Exhausted bone info buffer at {stream.tell()}")
+						logging.debug(f"Exhausted bone info buffer at {stream.tell()}")
 						break
 					relative_offset = stream.tell() - potential_start
 					# currently no other way to predict the padding, no correlation to joint count
 					padding_len = get_padding_size(relative_offset)
 
-					print("padding", padding_len, stream.read(padding_len), "joint count", bone_info.joint_count)
+					logging.debug(f"padding {padding_len} {stream.read(padding_len)} joint count {bone_info.joint_count}")
 				except Exception as err:
 					traceback.print_exc()
-					print(f"Bone info {i} failed:")
-					print(bone_info)
+					logging.error(f"Bone info {i} failed:")
+					logging.error(bone_info)
 
 					if self.bone_infos:
-						print(f"Last bone info that worked:")
-						print(self.bone_infos[-1])
+						logging.error(f"Last bone info that worked:")
+						logging.error(self.bone_infos[-1])
 					break
 		stream.seek(potential_start)
 
@@ -93,12 +96,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# functional for JWE detailobjects.ms2, if joint_data is read
 		bone_infos_start = stream.tell()
 		for bone_info_index, bone_info in enumerate(self.bone_infos):
-			print(f"BONE INFO {bone_info_index} starts at {stream.tell()}")
+			logging.debug(f"BONE INFO {bone_info_index} starts at {stream.tell()}")
 			bone_info.write(stream)
 			if bone_info_index + 1 < len(self.bone_infos):
 				relative_offset = stream.tell() - bone_infos_start
 				padding = get_padding(relative_offset)
-				print("Writing padding", padding)
+				logging.debug(f"Writing padding {padding}")
 				stream.write(padding)
 		self.bone_info_size = stream.tell() - bone_infos_start
 
@@ -107,7 +110,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		potential_start = stream.tell()
 		self.buffer_1_bytes = stream.read(self.bone_info_size)
 		stream.seek(potential_start)
-		print("Start looking for bone info at", potential_start)
+		logging.debug(f"Start looking for bone info at {potential_start}")
 		if hack:
 			# first get all bytes of the whole bone infos block
 			# find the start of each using this identifier
@@ -129,31 +132,31 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					bone_info_starts.extend(x - 4 for x in findall(prefix + suffix, self.buffer_1_bytes))
 
 			bone_info_starts = list(sorted(set(bone_info_starts)))
-			print("bone_info_starts", bone_info_starts)
+			logging.debug(f"bone_info_starts {bone_info_starts}")
 
 			if bone_info_starts:
 				idx = mdl2_index
 				if idx >= len(bone_info_starts):
-					print("reset boneinfo index")
+					logging.debug("reset boneinfo index")
 					idx = 0
 				bone_info_address = potential_start + bone_info_starts[idx]
-				print(f"using bone info {idx} of {len(bone_info_starts)} at address {bone_info_address}")
+				logging.debug(f"using bone info {idx} of {len(bone_info_starts)} at address {bone_info_address}")
 				stream.seek(bone_info_address)
 			else:
-				print("No bone info found")
+				logging.error("No bone info found")
 		try:
 			bone_info = bone_info_cls()
 			bone_info.read(stream)
 			for hitcheck in bone_info.joints.hitchecks_pc:
 				if hitcheck.type == CollisionType.ConvexHull:
 					hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
-					# print(hitcheck.collider.verts)
+				# print(hitcheck.collider.verts)
 			# print(bone_info)
 			end_of_bone_info = stream.tell()
-			print("end of bone info at", end_of_bone_info)
+			logging.debug(f"end of bone info at {end_of_bone_info}")
 		except Exception as err:
 			traceback.print_exc()
-			print("Bone info failed")
+			logging.error("Bone info failed")
 		if bone_info:
 			self.assign_bone_names(bone_info)
 			try:
@@ -195,107 +198,97 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
 				if not joint_info.bone_name == joint_info.name:
-					print(f"Info: bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
+					logging.debug(f"Info: bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
 				assert joints.joint_info_list[joints.bone_indices[bone_i]] == joint_info
 
-
-	def load(self, filepath, mdl2, quick=False, map_bytes=False, read_bytes=False):
-		start_time = time.time()
-		# eof = super().load(filepath)
-
-		# extra stuff
-		self.bone_info = None
+	def load(self, filepath, read_bytes=False):
+		self.filepath = filepath
+		self.dir, self.basename = os.path.split(filepath)
+		logging.debug(f"Reading {self.basename}")
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			# buffer 0 (hashes and names) has been read by the header
-			# so eoh = start of buffer 1
-			self.eoh = stream.tell()
-			print(self)
-			print("end of header: ", self.eoh)
-			if is_old(self):
-				self.pc_buffer1 = stream.read_type(PcBuffer1, (self,))
-				print(self.pc_buffer1)
-				for i, model_info in enumerate(self.pc_buffer1.model_infos):
-					print("\n\nMDL2", i)
-					# print(model_info)
-					model_info.pc_model = stream.read_type(PcModel, (model_info,))
-					print(model_info.pc_model)
-					if is_pc(self):
-						model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.eoh))
-
-					# try:
-					# 	self.bone_info = stream.read_type(Ms2BoneInfo)
-					# except Exception as err:
-					# 	print("BONE INFO FAILED", err)
-					self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo, hack=False)
-					# lod_names = [self.bone_names[lod.bone_index] for lod in model_info.pc_model.lods]
-					# print(lod_names)
-					# print(self.bone_info)
-					if i == mdl2.index:
-						break
+			self.buffer_1_offset = stream.tell()
+			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
+			# logging.debug(self)
+			logging.debug(f"end of header: {self.buffer_1_offset}")
+			if read_bytes:
+				# make all 3 buffers accesible as bytes
+				self.update_buffer_0_bytes()
+				self.buffer_1_bytes = stream.read(self.bone_info_size)
+				self.buffer_2_bytes = stream.read()
 			else:
-				self.read_all_bone_infos(stream, Ms2BoneInfo)
-				if self.bone_infos:
-					if mdl2.bone_info_index < len(self.bone_infos):
-						self.bone_info = self.bone_infos[mdl2.bone_info_index]
-					else:
-						print(
-							f"Info: Expected bone info index {mdl2.bone_info_index}, but only found "
-							f"{len(self.bone_infos)} bone infos. Using the last bone info instead!")
-						self.bone_info = self.bone_infos[-1]
+				# read buffer 1
+				if is_old(self):
+					self.read_pc_buffer_1(stream)
+				else:
+					self.read_all_bone_infos(stream)
 
+	def fill_mdl2s(self, mdl2s):
+		self.mdl2s = mdl2s
+		for mdl2_path, mdl2 in mdl2s.items():
+			mdl2.ms2_file = self
+			mdl2.get_bone_info()
+			# set material links
+			mdl2.lookup_material()
+
+	def load_mesh_data(self):
 		# numpy chokes on bytes io objects
-		with open(filepath, "rb") as stream:
-			stream.seek(self.eoh + self.bone_info_size)
-			# get the starting position of buffer #2, vertex & face array
-			self.start_buffer2 = stream.tell()
-			print("self.start_buffer2", self.start_buffer2)
-			if is_old(self):
-				print("PC model...")
-				if not quick:
-					last_vert_offset = 0
-					for i, model_data in enumerate(model_info.pc_model.models):
-						print("\nModel", i)
-						last_vert_offset = model_data.populate(self, stream, self.start_buffer2, 512, last_vert_offset=last_vert_offset)
-					mdl2.lods = model_info.pc_model.lods
-					mdl2.mesh_links = model_info.pc_model.mesh_links
-					mdl2.models = model_info.pc_model.models
-					mdl2.materials = model_info.pc_model.materials
-			else:
-				print("vert array start", self.start_buffer2)
-				print("tri array start", self.start_buffer2 + self.buffer_info.vertexdatasize)
+		with open(self.filepath, "rb") as stream:
+			stream.seek(self.buffer_2_offset)
+			logging.debug(f"buffer_2_offset {self.buffer_2_offset}")
+			for mdl2_path, mdl2 in self.mdl2s.items():
+				mdl2_name = os.path.basename(mdl2_path)
+				if is_old(self):
+					model_info = self.pc_buffer1.model_infos[mdl2.index]
+					logging.debug("PC model...")
+					if mdl2.read_editable:
+						last_vert_offset = 0
+						for i, model_data in enumerate(model_info.pc_model.models):
+							logging.debug(f"\nModel {i}")
+							last_vert_offset = model_data.populate(self, stream, self.buffer_2_offset, 512,
+																   last_vert_offset=last_vert_offset)
+						mdl2.lods = model_info.pc_model.lods
+						mdl2.mesh_links = model_info.pc_model.mesh_links
+						mdl2.models = model_info.pc_model.models
+						mdl2.materials = model_info.pc_model.materials
+				else:
+					if mdl2.read_editable:
+						logging.debug(f"Loading editable mesh data for {mdl2_name}")
+						for model in mdl2.models:
+							model.populate(self, stream, self.buffer_2_offset, mdl2.model_info.pack_offset)
 
-				if not quick:
-					for model in mdl2.models:
-						model.populate(self, stream, self.start_buffer2, mdl2.model_info.pack_offset)
+					elif mdl2.map_bytes:
+						for model in mdl2.models:
+							model.read_bytes_map(self.buffer_2_offset, stream)
 
-				if map_bytes:
-					for model in mdl2.models:
-						model.read_bytes_map(self.start_buffer2, stream)
+					# store binary data for verts and tris on the model
+					elif mdl2.read_bytes:
+						logging.debug(f"Copying mesh data for {mdl2_name}")
+						for model in mdl2.models:
+							model.read_bytes(self.buffer_2_offset, self.buffer_info.vertexdatasize, stream)
 
-				# store binary data for verts and tris on the model
-				if read_bytes:
-					for model in mdl2.models:
-						model.read_bytes(self.start_buffer2, self.buffer_info.vertexdatasize, stream)
+	def read_pc_buffer_1(self, stream):
+		"""Reads the model info buffer for PC / ZTUAC which includes MDL2s + bone infos interleaved"""
+		self.pc_buffer1 = stream.read_type(PcBuffer1, (self,))
+		logging.debug(self.pc_buffer1)
+		for i, model_info in enumerate(self.pc_buffer1.model_infos):
+			logging.debug(f"\n\nMDL2 {i}")
+			# print(model_info)
+			model_info.pc_model = stream.read_type(PcModel, (model_info,))
+			logging.debug(model_info.pc_model)
+			if is_pc(self):
+				model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset))
 
-	def lookup_material(self, mdl2, models):
-		print("mapping")
-		for lod_index, lod in enumerate(mdl2.lods):
-			lod.mesh_links = mdl2.mesh_links[lod.first_model_index:lod.last_model_index]
-			lod.models = tuple(mdl2.models[mesh_link.model_index] for mesh_link in lod.mesh_links)
-			print("LOD", lod_index)
-			for mesh_link in lod.mesh_links:
-				try:
-					material = mdl2.materials[mesh_link.material_index]
-					material.name = self.buffer_0.names[material.name_index]
-					model = models[mesh_link.model_index]
-					model.material = material.name
-					print(f"Model: {mesh_link.model_index} Material: {material.name} Material Unk: {material.some_index} "
-						  f"Lod Index: {model.poweroftwo} Flag: {int(model.flag)}")
-				except Exception as err:
-					print(err)
-					print(f"Couldn't match material {mesh_link.material_index} to model {mesh_link.model_index} - bug?")
-					print(len(models), mesh_link, mdl2.materials)
+			# try:
+			# 	self.bone_info = stream.read_type(Ms2BoneInfo)
+			# except Exception as err:
+			# 	print("BONE INFO FAILED", err)
+			self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo, hack=False)
+			# lod_names = [self.bone_names[lod.bone_index] for lod in model_info.pc_model.lods]
+			# print(lod_names)
+			# print(self.bone_info)
+
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
@@ -307,7 +300,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		# print(bone_info.joints)
 		joints = bone_info.joints
-		for l_list in (joints.first_list, joints.short_list, joints.long_list, ):
+		for l_list in (joints.first_list, joints.short_list, joints.long_list,):
 			for l_entry in l_list:
 				# these link into joints.joint_info_list
 				# no need to update right now, but later
@@ -322,12 +315,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			bone_i = bone_lut[joint_info.bone_name]
 			joints.joint_indices[joint_i] = bone_i
 			joints.bone_indices[bone_i] = joint_i
+
 		# todo - update joint JointData.names buffer + JointInfo.name_offset
 
-	def update_names(self, mdl2s):
-		print("Updating MS2 name buffer")
+	def update_names(self):
+		logging.info("Updating MS2 name buffer")
 		self.buffer_0.names.clear()
-		for mdl2 in mdl2s:
+		for mdl2 in self.mdl2s.values():
 			for material in mdl2.materials:
 				if material.name not in self.buffer_0.names:
 					self.buffer_0.names.append(material.name)
@@ -340,13 +334,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for bone_info in self.bone_infos:
 			self.update_joints(bone_info)
 		# print(self.buffer_0.names)
-		print("Updating MS2 name hashes")
+		logging.info("Updating MS2 name hashes")
 		# update hashes from new names
 		self.general_info.name_count = len(self.buffer_0.names)
 		self.buffer_0.name_hashes.resize(len(self.buffer_0.names))
 		for name_i, name in enumerate(self.buffer_0.names):
 			self.buffer_0.name_hashes[name_i] = djb(name.lower())
-		self.update_buffer_0_bytes()
 
 	def update_buffer_0_bytes(self):
 		# update self.bone_names_size
@@ -357,139 +350,201 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_0_bytes = temp_writer.getvalue()
 			self.bone_names_size = len(self.buffer_0_bytes)
 
-	def save(self, filepath, mdl2):
-		print("Writing verts and tris to temporary buffer")
-		self.update_names((mdl2,))
-
+	def update_buffer_1_bytes(self):
 		with BinaryStream() as temp_bone_writer:
 			assign_versions(temp_bone_writer, get_versions(self))
 			temp_bone_writer.ms_2_version = self.general_info.ms_2_version
 			self.write_all_bone_infos(temp_bone_writer)
-			bone_bytes = temp_bone_writer.getvalue()
+			self.buffer_1_bytes = temp_bone_writer.getvalue()
+
+	def update_buffer_2_bytes(self):
 
 		# write each model's vert & tri block to a temporary buffer
 		temp_vert_writer = io.BytesIO()
 		temp_tris_writer = io.BytesIO()
-		for model in mdl2.models:
-			# update ModelData struct
-			model.vertex_offset = temp_vert_writer.tell()
-			model.tri_offset = temp_tris_writer.tell()
-			model.vertex_count = len(model.verts)
-			model.tri_index_count = len(model.tri_indices) * model.shell_count
-			# write data
-			model.write_verts(temp_vert_writer)
-			model.write_tris(temp_tris_writer)
+		for mdl2_path, mdl2 in self.mdl2s.items():
+			for model in mdl2.models:
+				# update ModelData struct
+				model.vertex_offset = temp_vert_writer.tell()
+				model.tri_offset = temp_tris_writer.tell()
+				if mdl2.read_editable:
+					model.vertex_count = len(model.verts)
+					model.tri_index_count = len(model.tri_indices) * model.shell_count
+					# write data
+					model.write_verts(temp_vert_writer)
+					model.write_tris(temp_tris_writer)
+				else:
+					temp_vert_writer.write(model.verts_bytes)
+					temp_tris_writer.write(model.tris_bytes)
+			for lod in mdl2.lods:
+				lod.vertex_count = sum(model.vertex_count for model in lod.models)
+				lod.tri_index_count = sum(model.tri_index_count for model in lod.models)
+				logging.debug(f"lod.vertex_count = {lod.vertex_count}")
+				logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
 		# get bytes from IO object
 		vert_bytes = temp_vert_writer.getvalue()
 		tris_bytes = temp_tris_writer.getvalue()
-
-		# update lod fragment
-		print("update lod fragment")
-		for lod in mdl2.lods:
-			# print(lod)
-			# print(lod_models)
-			lod.vertex_count = sum(model.vertex_count for model in lod.models)
-			lod.tri_index_count = sum(model.tri_index_count for model in lod.models)
-			print("lod.vertex_count", lod.vertex_count)
-			print("lod.tri_index_count", lod.tri_index_count)
-		print("Writing final output")
-		# get original header and buffers 0 & 1
-
 		# modify buffer size
 		self.buffer_info.vertexdatasize = len(vert_bytes)
 		self.buffer_info.facesdatasize = len(tris_bytes)
+		self.buffer_2_bytes = vert_bytes + tris_bytes
 
+	def save(self, filepath):
+		logging.info("Writing verts and tris to temporary buffer")
+		self.update_names()
+
+		self.update_buffer_0_bytes()
+		self.update_buffer_1_bytes()
+		self.update_buffer_2_bytes()
 		# write output ms2
+		logging.info("Writing final output")
 		with self.writer(filepath) as f:
 			self.write(f)
-			f.write(bone_bytes)
-			f.write(vert_bytes)
-			f.write(tris_bytes)
+			f.write(self.buffer_1_bytes)
+			f.write(self.buffer_2_bytes)
 
 
 class Mdl2File(Mdl2InfoHeader, IoFile):
 
 	def __init__(self, ):
 		super().__init__()
+		self.ms2_file = None
 
-	def load(self, filepath, quick=False, map_bytes=False, read_bytes=False):
+	def load(self, filepath, read_editable=False, map_bytes=False, read_bytes=False, entry=False):
 		start_time = time.time()
+
+		self.read_editable = read_editable
+		self.map_bytes = map_bytes
+		self.read_bytes = read_bytes
+		self.entry = entry
+
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.file)[0]
-		print(f"Loading {self.basename}")
+		logging.info(f"Loading {self.basename}")
 		# read the file
 		try:
 			eof = super().load(filepath)
 		except Exception as err:
-			print(err)
-			print(self)
+			logging.error(err)
+			logging.error(self)
 
-		# print(self)
-		self.ms2_path = os.path.join(self.dir, self.name)
-		self.ms2_file = Ms2File()
-		self.ms2_file.load(self.ms2_path, self, quick=quick, map_bytes=map_bytes, read_bytes=read_bytes)
+		if entry:
+			# print(self)
+			self.ms2_path = os.path.join(self.dir, self.ms_2_name)
+			ms2_file = Ms2File()
+			ms2_file.load(self.ms2_path)
+			self.mdl2_siblings = self.get_siblings()
+			ms2_file.fill_mdl2s(self.mdl2_siblings)
+			# at this point, a ms2 file should have been assigned, so we can read its data from the ms2
+			ms2_file.load_mesh_data()
+		logging.info(f"Finished reading in {time.time() - start_time:.2f} seconds!")
 
-		# set material links
-		self.ms2_file.lookup_material(self, self.models)
-		print(f"Finished reading in {time.time() - start_time:.2f} seconds!")
+	def get_siblings(self):
+		logging.info(f"Looking for siblings of {self.basename}")
+		# map mdl2 name to mdl2 file, for valid ones
+		mdl2s = {}
+		mdl2_paths = [os.path.join(self.dir, f) for f in os.listdir(self.dir) if f.endswith(".mdl2")]
+		for mdl2_path in mdl2_paths:
+			if self.file == mdl2_path:
+				mdl2s[mdl2_path] = self
+			else:
+				mdl2 = Mdl2File()
+				mdl2.load(mdl2_path, read_editable=False, read_bytes=True)
+				if mdl2.ms_2_name == self.ms_2_name:
+					logging.info(f"Found sibling!")
+					# store this one if already read
+					mdl2s[mdl2_path] = mdl2
+		return mdl2s
+
+	def get_bone_info(self):
+		"""Get the correct bone info for this mdl2 from the ms2"""
+		logging.debug(f"Assigning bone info {self.bone_info_index}")
+		# extra stuff
+		self.bone_info = None
+		if self.ms2_file.bone_infos:
+			if self.bone_info_index < len(self.ms2_file.bone_infos):
+				self.bone_info = self.ms2_file.bone_infos[self.bone_info_index]
+			else:
+				logging.error(
+					f"Info: Expected bone info index {self.bone_info_index}, but only found "
+					f"{len(self.ms2_file.bone_infos)} bone infos. Using the last bone info instead!")
+				self.bone_info = self.ms2_file.bone_infos[-1]
+
+	def lookup_material(self):
+		logging.debug("mapping")
+		for lod_index, lod in enumerate(self.lods):
+			lod.mesh_links = self.mesh_links[lod.first_model_index:lod.last_model_index]
+			lod.models = tuple(self.models[mesh_link.model_index] for mesh_link in lod.mesh_links)
+			logging.debug(f"LOD{lod_index}")
+			for mesh_link in lod.mesh_links:
+				try:
+					material = self.materials[mesh_link.material_index]
+					material.name = self.ms2_file.buffer_0.names[material.name_index]
+					model = self.models[mesh_link.model_index]
+					model.material = material.name
+					logging.debug(
+						f"Model: {mesh_link.model_index} Material: {material.name} Material Unk: {material.some_index} "
+						f"Lod Index: {model.poweroftwo} Flag: {int(model.flag)}")
+				except Exception as err:
+					logging.error(err)
+					logging.error(f"Couldn't match material {mesh_link.material_index} to model {mesh_link.model_index} - bug?")
+					# logging.error(len(models), mesh_link, mdl2.materials)
 
 	def save(self, filepath):
 		exp = "export"
 		exp_dir = os.path.join(self.dir, exp)
 		os.makedirs(exp_dir, exist_ok=True)
 
-		mdl2_name = os.path.basename(filepath)
+		# create output ms2
+		ms2_path = os.path.join(exp_dir, self.ms_2_name)
+		self.ms2_file.save(ms2_path)
 
-		# create name of output ms2
-		new_ms2_name = mdl2_name.rsplit(".", 1)[0] + ".ms2"
-		ms2_path = os.path.join(exp_dir, new_ms2_name)
-		self.ms2_file.save(ms2_path, self)
-		# set new ms2 name to mdl2 header
-		self.name = new_ms2_name
-
-		# write final mdl2
-		mdl2_path = os.path.join(exp_dir, mdl2_name)
-		eof = super().save(mdl2_path)
+		# write final mdl2s
+		for mdl2_path, mdl2 in self.mdl2_siblings.items():
+			mdl2_name = os.path.basename(mdl2_path)
+			mdl2_exp_path = os.path.join(exp_dir, mdl2_name)
+			with self.writer(mdl2_exp_path) as stream:
+				mdl2.write(stream)
 
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/test/borked/wm_skeleton_base_02.mdl2", quick=True)
-	m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2", quick=True)
-	m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2", quick=True)
-	# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2", quick=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/ovl/dev/out/PZ/Main PZ big/widgetball_test.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblacksouthcentral_child.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/rhinos/africanelephant_child.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/rhinos/platypus.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/rattle/western_diamondback_rattlesnake.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/anteater/giant_anteater.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
-	# m = Mdl2File()
-	# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
-	# print(m)
-	#
-	# idir = "C:/Users/arnfi/Desktop/out"
-	# # idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
-	# dic = {}
-	# name = "nat_grassdune_02.mdl2"
-	# name = "nat_groundcover_searocket_patchy_01.mdl2"
-	# indices = []
-	#
-	# for fp in walker.walk_type(idir, "mdl2"):
-	# 	if "hitcheck" in fp or "skeleton" in fp or "airliftstraps" in fp:
-	# 		continue
-	# 	print(fp)
-	# 	m.load(fp, quick=True)
+	m.load("C:/Users/arnfi/Desktop/test/borked/wm_skeleton_base_02.mdl2")
+	m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
+	m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
+# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2", read_editable=True)
+# m.load("C:/Users/arnfi/Desktop/Coding/ovl/dev/out/PZ/Main PZ big/widgetball_test.mdl2")
+# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2")
+# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblacksouthcentral_child.mdl2")
+# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
+# m.load("C:/Users/arnfi/Desktop/rhinos/africanelephant_child.mdl2")
+# m.load("C:/Users/arnfi/Desktop/rhinos/platypus.mdl2")
+# m.load("C:/Users/arnfi/Desktop/rattle/western_diamondback_rattlesnake.mdl2")
+# m.load("C:/Users/arnfi/Desktop/anteater/giant_anteater.mdl2")
+# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
+# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
+# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
+# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
+# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
+# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
+# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
+# m = Mdl2File()
+# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
+# print(m)
+#
+# idir = "C:/Users/arnfi/Desktop/out"
+# # idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
+# dic = {}
+# name = "nat_grassdune_02.mdl2"
+# name = "nat_groundcover_searocket_patchy_01.mdl2"
+# indices = []
+#
+# for fp in walker.walk_type(idir, "mdl2"):
+# 	if "hitcheck" in fp or "skeleton" in fp or "airliftstraps" in fp:
+# 		continue
+# 	print(fp)
+# 	m.load(fp, read_editable=True)
 # 	# indices.append(m.index)
 # 	print(fp)
 # 	# print(list(lod.bone_index for lod in m.lods))
@@ -513,6 +568,6 @@ if __name__ == "__main__":
 # # print(l)
 # # print(indices, max(indices))
 # # fp = os.path.join(idir, name)
-# # m.load(fp, quick=True)
+# # m.load(fp, read_editable=True)
 #
 # print(set(indices))

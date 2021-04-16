@@ -89,14 +89,14 @@ def handle_transforms(ob, me, errors, apply=True):
 				f"Check 'Apply Transforms' on export or apply them manually with CTRL+A!")
 
 
-def export_bones_custom(b_armature_ob, data):
-	corrector = matrix_util.Corrector(is_ztuac(data))
+def export_bones_custom(b_armature_ob, mdl2):
+	corrector = matrix_util.Corrector(is_ztuac(mdl2))
 	# now get bone names from b_armature.data
-	if is_jwe(data):
+	if is_jwe(mdl2):
 		b_bone_names = ovl_bones_jwe(b_armature_ob)
 	else:
 		b_bone_names = get_bone_names_from_armature(b_armature_ob)
-	bone_info = data.ms2_file.bone_info
+	bone_info = mdl2.bone_info
 	# get bone type based on version, or based on bone that previously was used in bones
 	if bone_info.bones:
 		bone_class = bone_info.bones[0].__class__

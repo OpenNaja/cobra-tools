@@ -12,7 +12,6 @@ try:
 	from ovl_util import widgets, interaction
 	from modules import extract, inject, hasher, walker, remover
 	from generated.formats.ovl import OvlFile, games, get_game, set_game
-	from generated.formats.ms2 import Mdl2File
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)

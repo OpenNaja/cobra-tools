@@ -47,7 +47,7 @@ class Mdl2InfoHeader:
 		self.bone_info_index = 0
 
 		# name of ms2
-		self.name = 0
+		self.ms_2_name = 0
 
 		# gives relevant info on the mdl, including counts and pack base
 		self.model_info = CoreModelInfo()
@@ -78,7 +78,7 @@ class Mdl2InfoHeader:
 		stream.user_version = self.user_version
 		self.index = stream.read_uint()
 		self.bone_info_index = stream.read_uint()
-		self.name = stream.read_string()
+		self.ms_2_name = stream.read_string()
 		if not (stream.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials.read(stream, MaterialName, self.model_info.mat_count, None)
@@ -102,7 +102,7 @@ class Mdl2InfoHeader:
 		stream.user_version = self.user_version
 		stream.write_uint(self.index)
 		stream.write_uint(self.bone_info_index)
-		stream.write_string(self.name)
+		stream.write_string(self.ms_2_name)
 		if not (stream.version < 19):
 			stream.write_type(self.model_info)
 			self.materials.write(stream, MaterialName, self.model_info.mat_count, None)
@@ -125,7 +125,7 @@ class Mdl2InfoHeader:
 		s += f'\n	* user_version = {self.user_version.__repr__()}'
 		s += f'\n	* index = {self.index.__repr__()}'
 		s += f'\n	* bone_info_index = {self.bone_info_index.__repr__()}'
-		s += f'\n	* name = {self.name.__repr__()}'
+		s += f'\n	* ms_2_name = {self.ms_2_name.__repr__()}'
 		s += f'\n	* model_info = {self.model_info.__repr__()}'
 		s += f'\n	* materials = {self.materials.__repr__()}'
 		s += f'\n	* lods = {self.lods.__repr__()}'
