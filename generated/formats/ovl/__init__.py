@@ -4,6 +4,7 @@ import struct
 import io
 import time
 import traceback
+import logging
 
 from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
@@ -239,8 +240,11 @@ class OvsFile(OvsHeader, ZipFile):
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
-		with self.unzipper(filepath, start, archive_entry.compressed_size, archive_entry.uncompressed_size,
-						   save_temp_dat=save_temp_dat) as stream:
+		stream = self.ovl.ovs_dict[filepath]
+		stream.seek(start)
+		print(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
+		compressed_bytes = stream.read(archive_entry.compressed_size)
+		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
 			print("reading from unzipped ovs")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
@@ -1754,20 +1758,15 @@ class OvlFile(Header, IoFile):
 		print("Loading archives...")
 		ha_max = len(self.archives)
 		# print(self)
+		self.open_ovs_streams(mode="rb")
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}")
 			# print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
 			if archive_entry.name == "STATIC":
-				self.static_archive = archive_entry
 				read_start = self.eof
-				archive_entry.ovs_path = self.filepath
 			else:
-				self.get_external_ovs_path(archive_entry)
 				read_start = archive_entry.read_start
-				# make sure that the ovs exists
-				if not os.path.exists(archive_entry.ovs_path):
-					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
 			archive_entry.content = OvsFile(self, archive_entry, archive_index)
 			# print(archive_entry)
 			try:
@@ -1777,9 +1776,7 @@ class OvlFile(Header, IoFile):
 				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
 				print(err)
 				traceback.print_exc()
-
-			# print(archive_entry.content)
-			# break
+		self.close_ovs_streams()
 		self.update_ss_dict()
 		self.link_streams()
 
@@ -1788,7 +1785,7 @@ class OvlFile(Header, IoFile):
 		print("Updating the entry dict...")
 		self.ss_dict = {}
 		for archive_index, archive_entry in enumerate(self.archives):
-			print(archive_index)
+			# print(archive_index)
 			for file in archive_entry.content.sized_str_entries:
 				self.ss_dict[file.name] = file
 
@@ -1821,13 +1818,17 @@ class OvlFile(Header, IoFile):
 								# sized_str_entry.streams.append(other_sizedstr)
 				# print(sized_str_entry.data_entry.buffers)
 
-	def get_external_ovs_path(self, archive_entry):
-		# JWE style
-		if is_jwe(self):
-			archive_entry.ovs_path = f"{self.file_no_ext}.ovs.{archive_entry.name.lower()}"
-		# PZ, PC, ZTUAC Style
+	def get_ovs_path(self, archive_entry):
+		if archive_entry.name == "STATIC":
+			self.static_archive = archive_entry
+			archive_entry.ovs_path = self.filepath
 		else:
-			archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
+			# JWE style
+			if is_jwe(self):
+				archive_entry.ovs_path = f"{self.file_no_ext}.ovs.{archive_entry.name.lower()}"
+			# PZ, PC, ZTUAC Style
+			else:
+				archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
 
 	def update_counts(self):
 		# adjust the counts
@@ -1847,12 +1848,29 @@ class OvlFile(Header, IoFile):
 		self.num_mimes = len(self.mimes)
 		self.num_archives = len(self.archives)
 
+	def open_ovs_streams(self, mode="wb"):
+		logging.info("Opening OVS streams...")
+		self.ovs_dict = {}
+		for archive_entry in self.archives:
+			# gotta update it here
+			self.get_ovs_path(archive_entry)
+			if archive_entry.ovs_path not in self.ovs_dict:
+				self.ovs_dict[archive_entry.ovs_path] = open(archive_entry.ovs_path, mode)
+				# make sure that the ovs exists
+				if mode == "rb" and not os.path.exists(archive_entry.ovs_path):
+					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
+
+	def close_ovs_streams(self):
+		logging.info("Closing OVS streams...")
+		# we don't use context manager so gotta close them
+		for ovs_file in self.ovs_dict.values():
+			ovs_file.close()
+
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
 		self.store_filepath(filepath)
 		self.update_counts()
-		exp_dir = os.path.dirname(filepath)
-		ovs_dict = {}
+		self.open_ovs_streams()
 		ovl_compressed = b""
 		# compress data stream
 		for i, archive_entry in enumerate(self.archives):
@@ -1864,23 +1882,12 @@ class OvlFile(Header, IoFile):
 				ovl_compressed = compressed
 				archive_entry.read_start = 0
 			else:
-				self.get_external_ovs_path(archive_entry)
-				exp_path = os.path.join(exp_dir, os.path.basename(archive_entry.ovs_path))
-				# gotta keep them open because more than one archive can live in one ovs file eg PZ inspector
-				if exp_path not in ovs_dict:
-					ovs_dict[exp_path] = open(exp_path, 'wb')
-
-				# todo: account for OVS offsets specified in archive_entry
-				# todo: footer bytes in OVS?
-				ovs_stream = ovs_dict[exp_path]
-
+				ovs_stream = self.ovs_dict[archive_entry.ovs_path]
 				archive_entry.read_start = ovs_stream.tell()
 				ovs_stream.write(compressed)
 			self.zlibs[i].zlib_thing_1 = 68 + archive_entry.uncompressed_size
 
-		# we don't use context manager so gotta close them
-		for ovs_file in ovs_dict.values():
-			ovs_file.close()
+		self.close_ovs_streams()
 
 		print("Updating AUX sizes in OVL")
 		for aux in self.aux_entries:

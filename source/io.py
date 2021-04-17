@@ -286,26 +286,21 @@ class IoFile:
 class ZipFile(IoFile):
 
 	@contextmanager
-	def unzipper(self, filepath, start, compressed_size, uncompressed_size, save_temp_dat=""):
-		with self.reader(filepath) as stream:
-			stream.seek(start)
-			print(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
-			zipped = stream.read(compressed_size)
-			# self.print_and_callback(f"Reading {archive_entry.name}")
-			self.compression_header = zipped[:2]
-			print(f"Compression magic bytes: {self.compression_header}")
-			if self.ovl.user_version.use_oodle:
-				print("Oodle compression")
-				zlib_data = texconv.oodle_compressor.decompress(zipped, compressed_size, uncompressed_size)
-			elif self.ovl.user_version.use_zlib:
-				print("Zlib compression")
-				# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
-				# we avoid the two zlib magic bytes to get our unzipped content
-				zlib_data = zlib.decompress(zipped[2:], wbits=-zlib.MAX_WBITS)
-			# uncompressed archive
-			else:
-				print("No compression")
-				zlib_data = bytearray(zipped)
+	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
+		self.compression_header = compressed_bytes[:2]
+		print(f"Compression magic bytes: {self.compression_header}")
+		if self.ovl.user_version.use_oodle:
+			print("Oodle compression")
+			zlib_data = texconv.oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
+		elif self.ovl.user_version.use_zlib:
+			print("Zlib compression")
+			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
+			# we avoid the two zlib magic bytes to get our unzipped content
+			zlib_data = zlib.decompress(compressed_bytes[2:], wbits=-zlib.MAX_WBITS)
+		# uncompressed archive
+		else:
+			print("No compression")
+			zlib_data = compressed_bytes
 		if save_temp_dat:
 			# for debugging, write deflated content to dat
 			with open(save_temp_dat, 'wb') as out:
