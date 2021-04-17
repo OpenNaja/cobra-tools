@@ -24,7 +24,7 @@ from modules.formats.XMLCONFIG import write_xmlconfig
 from ovl_util import widgets
 
 
-IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".modelstream")
+IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
 SUPPORTED_TYPES = (".dds", ".png", ".ms2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
 
 

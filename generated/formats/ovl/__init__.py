@@ -1756,11 +1756,11 @@ class OvlFile(Header, IoFile):
 
 	def load_archives(self):
 		print("Loading archives...")
-		ha_max = len(self.archives)
+		start_time = time.time()
 		# print(self)
 		self.open_ovs_streams(mode="rb")
 		for archive_index, archive_entry in enumerate(self.archives):
-			self.print_and_callback(f"Reading archive {archive_entry.name}")
+			self.print_and_callback(f"Reading archive {archive_entry.name}", value=archive_index, max_value=len(self.archives))
 			# print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
 			if archive_entry.name == "STATIC":
@@ -1779,6 +1779,7 @@ class OvlFile(Header, IoFile):
 		self.close_ovs_streams()
 		self.update_ss_dict()
 		self.link_streams()
+		print(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
