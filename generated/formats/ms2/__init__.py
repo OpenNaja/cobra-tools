@@ -226,7 +226,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def fill_mdl2s(self, mdl2s):
 		self.mdl2s = mdl2s
-		for mdl2_path, mdl2 in mdl2s.items():
+		for mdl2 in mdl2s.values():
 			mdl2.ms2_file = self
 			mdl2.get_bone_info()
 			# set material links
@@ -270,6 +270,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def read_pc_buffer_1(self, stream):
 		"""Reads the model info buffer for PC / ZTUAC which includes MDL2s + bone infos interleaved"""
+		self.bone_infos = []
 		self.pc_buffer1 = stream.read_type(PcBuffer1, (self,))
 		logging.debug(self.pc_buffer1)
 		for i, model_info in enumerate(self.pc_buffer1.model_infos):
@@ -279,16 +280,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(model_info.pc_model)
 			if is_pc(self):
 				model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset))
-
 			# try:
 			# 	self.bone_info = stream.read_type(Ms2BoneInfo)
 			# except Exception as err:
 			# 	print("BONE INFO FAILED", err)
-			self.bone_info = self.get_bone_info(0, stream, Ms2BoneInfo, hack=False)
-			# lod_names = [self.bone_names[lod.bone_index] for lod in model_info.pc_model.lods]
-			# print(lod_names)
-			# print(self.bone_info)
-
+			self.bone_infos.append(self.get_bone_info(0, stream, Ms2BoneInfo, hack=False))
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
@@ -438,6 +434,9 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 			ms2_file.fill_mdl2s(self.mdl2_siblings)
 			# at this point, a ms2 file should have been assigned, so we can read its data from the ms2
 			ms2_file.load_mesh_data()
+			# do it once more so materials are loaded!
+			if is_old(self):
+				ms2_file.fill_mdl2s(self.mdl2_siblings)
 		logging.info(f"Finished reading in {time.time() - start_time:.2f} seconds!")
 
 	def get_siblings(self):
@@ -510,9 +509,9 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/test/borked/wm_skeleton_base_02.mdl2")
-	m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
-	m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
+	m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
+	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
+	# m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
 # m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2", read_editable=True)
 # m.load("C:/Users/arnfi/Desktop/Coding/ovl/dev/out/PZ/Main PZ big/widgetball_test.mdl2")
 # m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2")
