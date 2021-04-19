@@ -325,7 +325,6 @@ class OvsFile(OvsHeader, ZipFile):
 			self.calc_pointer_addresses()
 			self.calc_pointer_sizes()
 			self.populate_pointers()
-
 			self.map_frags()
 			self.map_buffers()
 			self.read_buffer_datas(stream)
@@ -333,6 +332,13 @@ class OvsFile(OvsHeader, ZipFile):
 			# print(self)
 			if "write_frag_log" in self.ovl.commands:
 				self.write_frag_log()
+			for ss in self.sized_str_entries:
+				p = ss.pointers[0]
+				b = p.data
+				size = struct.unpack("<I", b[:4])[0]
+				data = b[4:4+size]
+				padding_size = len(b) - (4+size)
+				print(ss.file_hash, p.header_index, p.data_offset, p.address, len(b), padding_size, ss.name, data)
 
 	def read_header_entries(self, stream):
 		for header_entry in self.header_entries:
@@ -1569,7 +1575,7 @@ class OvlFile(Header, IoFile):
 		content = OvsFile(self, archive_entry, 0)
 		content.create()
 		archive_entry.content = content
-
+		archive_entry.name = "STATIC"
 		archive_entry.offset = 0
 		archive_entry.ovs_head_offset = 0
 		archive_entry.ovs_file_offset = 0

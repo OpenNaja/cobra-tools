@@ -209,7 +209,7 @@ class PcModelData:
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
-		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}")
+		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}, count {self.tri_offset}")
 		stream.seek(self.buffer_2_offset + (self.tri_offset * 16))
 		logging.debug(f"tris offset at {stream.tell()}")
 		# read all tri indices for this model segment
