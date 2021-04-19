@@ -1,6 +1,7 @@
 # START_GLOBALS
 import struct
 import math
+import logging
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from utils.tristrip import triangulate
@@ -63,10 +64,12 @@ class PcModelData:
 
 	def read_tris(self, stream):
 		# read all tri indices for this model
+		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}")
 		stream.seek(self.buffer_2_offset + (self.tri_offset * 16))
-		# print("tris offset",stream.tell())
+		logging.debug(f"tris offset at {stream.tell()}")
 		# read all tri indices for this model segment
-		self.tri_indices = list(struct.unpack(str(self.tri_index_count) + "H", stream.read(self.tri_index_count * 2)))
+		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count)
+		print(self.tri_indices)
 
 	@property
 	def tris(self, ):
@@ -109,7 +112,7 @@ class PcModelData:
 			self.vertices[i] = unpack_swizzle(vert)
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
-			self.weights.append(unpack_weights(self, i, residue))
+			self.weights.append(unpack_weights(self, i, residue, extra=False))
 		# print(self.vertices)
 
 	@staticmethod

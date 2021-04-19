@@ -203,7 +203,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def load(self, filepath, read_bytes=False):
 		self.filepath = filepath
-		self.dir, self.basename = os.path.split(filepath)
+		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
 		logging.debug(f"Reading {self.basename}")
 		with self.reader(filepath) as stream:
 			self.read(stream)
@@ -241,7 +241,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				mdl2_name = os.path.basename(mdl2_path)
 				if is_old(self):
 					model_info = self.pc_buffer1.model_infos[mdl2.index]
-					logging.debug("PC model...")
+					logging.debug(f"PC model, {len(model_info.pc_model.models)} meshes")
 					if mdl2.read_editable:
 						last_vert_offset = 0
 						for i, model_data in enumerate(model_info.pc_model.models):
@@ -415,7 +415,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.entry = entry
 
 		self.file = filepath
-		self.dir, self.basename = os.path.split(filepath)
+		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
 		self.file_no_ext = os.path.splitext(self.file)[0]
 		logging.info(f"Loading {self.basename}")
 		# read the file
@@ -443,9 +443,9 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		logging.info(f"Looking for siblings of {self.basename}")
 		# map mdl2 name to mdl2 file, for valid ones
 		mdl2s = {}
-		mdl2_paths = [os.path.join(self.dir, f) for f in os.listdir(self.dir) if f.endswith(".mdl2")]
-		for mdl2_path in mdl2_paths:
-			if self.file == mdl2_path:
+		for mdl2_filename in [f for f in os.listdir(self.dir) if f.endswith(".mdl2")]:
+			mdl2_path = os.path.join(self.dir, mdl2_filename)
+			if self.basename == mdl2_filename:
 				mdl2s[mdl2_path] = self
 			else:
 				mdl2 = Mdl2File()
@@ -509,7 +509,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
+	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
 	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
 # m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2", read_editable=True)
@@ -524,7 +524,9 @@ if __name__ == "__main__":
 # m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
 # m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 # m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
-# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2")
+	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2", entry=True, read_editable=True)
+	for model in m.models:
+		b = list(model.tris)
 # m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
 # m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
 # m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
