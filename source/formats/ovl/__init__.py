@@ -200,7 +200,7 @@ class OvsFile(OvsHeader, ZipFile):
 				new_ss.pointers[0].data_offset = newoffset
 
 			if file_entry.ext == ".txt":
-				data = zstr(dbuffer)
+				data = struct.pack("I", len(dbuffer)) + zstr(dbuffer)
 				self.header_entry_data += data + get_padding(len(data), alignment=8)  # fragment pointer 1 data
 				new_ss = self.create_ss_entry(file_entry)
 				new_ss.pointers[0].header_index = 0
