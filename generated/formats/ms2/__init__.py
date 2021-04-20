@@ -69,6 +69,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					except:
 						logging.error("Joints failed...")
 						traceback.print_exc()
+					self.read_hitcheck_verts(bone_info, stream)
 					self.bone_infos.append(bone_info)
 					# print(bone_info)
 					logging.debug(f"end of bone info at {stream.tell()}")
@@ -147,10 +148,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		try:
 			bone_info = bone_info_cls()
 			bone_info.read(stream)
-			for hitcheck in bone_info.joints.hitchecks_pc:
-				if hitcheck.type == CollisionType.ConvexHull:
-					hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
-				# print(hitcheck.collider.verts)
+			self.read_hitcheck_verts(bone_info, stream)
 			# print(bone_info)
 			end_of_bone_info = stream.tell()
 			logging.debug(f"end of bone info at {end_of_bone_info}")
@@ -164,6 +162,20 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			except:
 				pass
 		return bone_info
+
+	def read_hitcheck_verts(self, bone_info, stream):
+		logging.debug(f"Reading additional hitcheck data")
+		for hitcheck in bone_info.joints.hitchecks_pc:
+			logging.debug(f"PC hitcheck {hitcheck.type}")
+			if hitcheck.type == CollisionType.ConvexHullPc:
+				hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
+				# print(hitcheck.collider.verts)
+		for joint in bone_info.joints.joint_info_list:
+			for hitcheck in joint.hit_check:
+				logging.debug(f"hitcheck {hitcheck.type}")
+				if hitcheck.type == CollisionType.ConvexHull:
+					hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
+					# print(hitcheck.collider.verts)
 
 	def read_joints(self, bone_info):
 
@@ -509,6 +521,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
+	m.load("C:/Users/arnfi/Desktop/rock/au_paintedrock_01.mdl2", entry=True)
 	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
 	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
@@ -524,9 +537,9 @@ if __name__ == "__main__":
 # m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
 # m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 # m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
-	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2", entry=True, read_editable=True)
-	for model in m.models:
-		b = list(model.tris)
+# 	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2", entry=True, read_editable=True)
+# 	for model in m.models:
+# 		b = list(model.tris)
 # m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
 # m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
 # m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")

@@ -110,7 +110,8 @@
 		<option value="1" name="BoundingBox" />
 		<option value="2" name="Capsule" />
 		<option value="3" name="Cylinder" />
-		<option value="8" name="ConvexHull" />
+		<option value="7" name="ConvexHull" />
+		<option value="8" name="ConvexHullPC" />
 		<option value="10" name="MeshCollision" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>
 	</enum>
 
@@ -694,6 +695,7 @@
 		<add name="collider" type="BoundingBox" cond="type == 1" />
 		<add name="collider" type="Capsule" cond="type == 2" />
 		<add name="collider" type="Cylinder" cond="type == 3" />
+		<add name="collider" type="ConvexHull" cond="type == 7" />
 		<add name="collider" type="ConvexHull" cond="type == 8" />
 		<add name="collider" type="MeshCollision" cond="type == 10" />
 	</compound>
@@ -721,6 +723,14 @@
 
 	<compound name="Cylinder" inherit="Capsule">
 		identical data to capsule, just imported differently
+	</compound>
+
+	<compound name="ConvexHull">
+		<add name="vertex count" type="uint" >16 for anubis: 4 hulls * 16 * 12 (size of vert)</add>
+		<add name="rotation" type="Matrix33"/>
+		<add name="center" type="Vector3" >center of the box</add>
+		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
+		<add name="zeros" type="uint" arr1="2" vercond="#PZ#" >probably padding</add>
 	</compound>
 
 	<compound name="MeshCollision">
@@ -754,11 +764,5 @@
 		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
 	</compound>
 
-	<compound name="ConvexHull">
-		<add name="vertex count" type="uint" >16 for anubis: 4 hulls * 16 * 12 (size of vert)</add>
-		<add name="rotation" type="Matrix33"/>
-		<add name="center" type="Vector3" >center of the box</add>
-		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
-	</compound>
 
 </niftoolsxml>

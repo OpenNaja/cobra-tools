@@ -40,6 +40,7 @@ class HitCheckEntry:
 		self.collider = Capsule()
 		self.collider = Cylinder()
 		self.collider = ConvexHull()
+		self.collider = ConvexHull()
 		self.collider = MeshCollision()
 
 	def read(self, stream):
@@ -63,6 +64,8 @@ class HitCheckEntry:
 			self.collider = stream.read_type(Capsule)
 		if self.type == 3:
 			self.collider = stream.read_type(Cylinder)
+		if self.type == 7:
+			self.collider = stream.read_type(ConvexHull)
 		if self.type == 8:
 			self.collider = stream.read_type(ConvexHull)
 		if self.type == 10:
@@ -90,6 +93,8 @@ class HitCheckEntry:
 		if self.type == 2:
 			stream.write_type(self.collider)
 		if self.type == 3:
+			stream.write_type(self.collider)
+		if self.type == 7:
 			stream.write_type(self.collider)
 		if self.type == 8:
 			stream.write_type(self.collider)

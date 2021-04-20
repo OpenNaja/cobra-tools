@@ -6,6 +6,7 @@ class CollisionType(UintEnum):
 	BoundingBox = 1
 	Capsule = 2
 	Cylinder = 3
-	ConvexHull = 8
+	ConvexHull = 7
+	ConvexHullPC = 8
 	# widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods
 	MeshCollision = 10

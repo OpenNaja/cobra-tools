@@ -24,6 +24,9 @@ class ConvexHull:
 		# probably padding
 		self.zeros = numpy.zeros((5), dtype='uint')
 
+		# probably padding
+		self.zeros = numpy.zeros((2), dtype='uint')
+
 	def read(self, stream):
 
 		self.io_start = stream.tell()
@@ -32,6 +35,8 @@ class ConvexHull:
 		self.center = stream.read_type(Vector3)
 		if stream.version == 18:
 			self.zeros = stream.read_uints((5))
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
+			self.zeros = stream.read_uints((2))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -42,6 +47,8 @@ class ConvexHull:
 		stream.write_type(self.rotation)
 		stream.write_type(self.center)
 		if stream.version == 18:
+			stream.write_uints(self.zeros)
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			stream.write_uints(self.zeros)
 
 		self.io_size = stream.tell() - self.io_start
