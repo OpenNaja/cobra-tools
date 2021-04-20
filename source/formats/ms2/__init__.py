@@ -375,6 +375,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# update ModelData struct
 				model.vertex_offset = temp_vert_writer.tell()
 				model.tri_offset = temp_tris_writer.tell()
+				logging.debug(f"{os.path.basename(mdl2_path)} {mdl2.read_editable}")
 				if mdl2.read_editable:
 					model.vertex_count = len(model.verts)
 					model.tri_index_count = len(model.tri_indices) * model.shell_count

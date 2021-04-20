@@ -45,6 +45,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 
 	data = Mdl2File()
 	data.load(filepath, entry=True, read_bytes=True)
+	data.read_editable = True
 
 	b_armature_ob = get_armature()
 	if not b_armature_ob:
