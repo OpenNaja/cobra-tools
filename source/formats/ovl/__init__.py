@@ -332,12 +332,16 @@ class OvsFile(OvsHeader, ZipFile):
 			# print(self)
 			if "write_frag_log" in self.ovl.commands:
 				self.write_frag_log()
-			for ss in self.sized_str_entries:
+			# self.debug_txt_data()
+
+	def debug_txt_data(self):
+		for ss in self.sized_str_entries:
+			if ss.ext == ".txt":
 				p = ss.pointers[0]
 				b = p.data
 				size = struct.unpack("<I", b[:4])[0]
-				data = b[4:4+size]
-				padding_size = len(b) - (4+size)
+				data = b[4:4 + size]
+				padding_size = len(b) - (4 + size)
 				print(ss.file_hash, p.header_index, p.data_offset, p.address, len(b), padding_size, ss.name, data)
 
 	def read_header_entries(self, stream):

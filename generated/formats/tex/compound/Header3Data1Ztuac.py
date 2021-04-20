@@ -1,7 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
-from generated.formats.ovl.compound.Header3Data1ZTUACEntry import Header3Data1ZTUACEntry
+from generated.formats.tex.compound.Header3Data1ZTUACEntry import Header3Data1ZTUACEntry
 
 
 class Header3Data1Ztuac:

@@ -1,7 +1,7 @@
-from generated.formats.ovl.enum.DdsType import DdsType
+from generated.formats.tex.enum.DdsTypeCoaster import DdsTypeCoaster
 
 
-class Header3Data0:
+class Header3Data0Pc:
 
 	"""
 	Data struct for headers of type 3, read by data 0 of 3,7 frag.
@@ -15,11 +15,11 @@ class Header3Data0:
 		self.io_size = 0
 		self.io_start = 0
 
-		# 32 bytes, all 0
+		# 8 bytes, all 0
 		self.zeros = 0
 
 		# flag, not direct index into DDS enum
-		self.compression_type = DdsType()
+		self.compression_type = DdsTypeCoaster()
 
 		# 0 or 1
 		self.one_0 = 0
@@ -30,14 +30,14 @@ class Header3Data0:
 		# 1 or 2
 		self.one_2 = 0
 
-		# 0
+		# 0, might be first 4 bytes of tex buffer for ztuac
 		self.pad = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.zeros = stream.read_uint64()
-		self.compression_type = DdsType(stream.read_ubyte())
+		self.compression_type = DdsTypeCoaster(stream.read_ubyte())
 		self.one_0 = stream.read_ubyte()
 		self.one_1 = stream.read_ubyte()
 		self.one_2 = stream.read_ubyte()
@@ -58,7 +58,7 @@ class Header3Data0:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Header3Data0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Header3Data0Pc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

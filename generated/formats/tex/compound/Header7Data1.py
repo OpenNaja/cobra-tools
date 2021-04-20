@@ -1,7 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
-from generated.formats.ovl.compound.Header7MipmapInfo import Header7MipmapInfo
+from generated.formats.tex.compound.Header7MipmapInfo import Header7MipmapInfo
 
 
 class Header7Data1:

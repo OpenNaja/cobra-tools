@@ -4,12 +4,12 @@ from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.ovl import *
-from generated.formats.ovl.compound.Header3Data0 import Header3Data0
-from generated.formats.ovl.compound.Header3Data0Pc import Header3Data0Pc
-from generated.formats.ovl.compound.Header3Data1Pc import Header3Data1Pc
-from generated.formats.ovl.compound.Header3Data1 import Header3Data1
-from generated.formats.ovl.compound.Header3Data1Ztuac import Header3Data1Ztuac
-from generated.formats.ovl.compound.Header7Data1 import Header7Data1
+from generated.formats.tex.compound.Header3Data0 import Header3Data0
+from generated.formats.tex.compound.Header3Data0Pc import Header3Data0Pc
+from generated.formats.tex.compound.Header3Data1Pc import Header3Data1Pc
+from generated.formats.tex.compound.Header3Data1 import Header3Data1
+from generated.formats.tex.compound.Header3Data1Ztuac import Header3Data1Ztuac
+from generated.formats.tex.compound.Header7Data1 import Header7Data1
 
 from ovl_util import texconv, imarray
 
@@ -20,7 +20,11 @@ def get_tex_structs(sized_str_entry):
 
 	header_3_0 = f_3_7.pointers[0].load_as(Header3Data0)[0]
 	headers_3_1 = f_3_3.pointers[1].load_as(Header3Data1, num=f_3_3.pointers[1].data_size // 24)
+	print(f_3_3.pointers[1].data_size // 24)
+	print(header_3_0)
+	print(headers_3_1)
 	header_7 = f_3_7.pointers[1].load_as(Header7Data1)[0]
+	print(header_7)
 	return header_3_0, headers_3_1, header_7
 
 
