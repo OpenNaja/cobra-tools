@@ -1,4 +1,3 @@
-import numpy as np
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
@@ -71,7 +70,6 @@ def align_to(width, comp, alignment=64):
 def create_dds_struct():
 	dds_file = DdsFile()
 	dds_file.header_string.data = b"DDS "
-	dds_file.reserved_1 = np.zeros(11)
 
 	# header flags
 	dds_file.flags.height = 1
