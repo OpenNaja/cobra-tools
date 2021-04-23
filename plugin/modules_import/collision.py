@@ -144,6 +144,7 @@ def import_meshbv(coll, hitcheck_name, corrector):
 
 def unpack_swizzle2(vec):
 	# swizzle to avoid a matrix multiplication for global axis correction
+	# Z, -X, Y
 	return vec[2], -vec[0], vec[1]
 
 

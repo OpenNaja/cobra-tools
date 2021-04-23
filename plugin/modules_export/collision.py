@@ -1,7 +1,9 @@
 import mathutils
+import numpy as np
 
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
+from generated.formats.ms2.compound.ConvexHull import ConvexHull
 from generated.formats.ms2.compound.Cylinder import Cylinder
 from generated.formats.ms2.compound.MeshCollision import MeshCollision
 from generated.formats.ms2.compound.Sphere import Sphere
@@ -45,17 +47,22 @@ def get_bounds(bounds):
 
 def export_hitcheck(b_obj, hitcheck, corrector):
 	hitcheck.name = b_obj.name
-	if b_obj.display_type == 'WIRE':
+	b_rb = b_obj.rigid_body
+	if not b_rb:
+		raise AttributeError(f"No rigid body on {b_obj.name} - can't identify collision type.")
+	b_type = b_rb.collision_shape
+	if b_type == 'MESH':
 		export_meshbv(b_obj, hitcheck, corrector)
-	elif b_obj.display_type == 'BOUNDS':
-		if b_obj.display_bounds_type == 'SPHERE':
-			export_spherebv(b_obj, hitcheck)
-		elif b_obj.display_bounds_type == 'BOX':
-			export_boxbv(b_obj, hitcheck, corrector)
-		elif b_obj.display_bounds_type == 'CAPSULE':
-			export_capsulebv(b_obj, hitcheck)
-		elif b_obj.display_bounds_type == 'CYLINDER':
-			export_cylinderbv(b_obj, hitcheck)
+	elif b_type == 'SPHERE':
+		export_spherebv(b_obj, hitcheck)
+	elif b_type == 'BOX':
+		export_boxbv(b_obj, hitcheck, corrector)
+	elif b_type == 'CAPSULE':
+		export_capsulebv(b_obj, hitcheck)
+	elif b_type == 'CYLINDER':
+		export_cylinderbv(b_obj, hitcheck)
+	elif b_type == 'CONVEX_HULL':
+		export_hullbv(b_obj, hitcheck, corrector)
 	else:
 		raise AttributeError(f"Unsupported display type for {b_obj.name} - can't identify collision type.")
 	return hitcheck
@@ -138,6 +145,32 @@ def export_meshbv(b_obj, hitcheck, corrector):
 	for face_i, face in enumerate(me.polygons):
 		coll.triangles[face_i, :] = face.vertices
 		assert len(face.vertices) == 3
+
+
+def pack_swizzle2(vec):
+	# swizzle to avoid a matrix multiplication for global axis correction
+	return -vec[1], vec[2], vec[0]
+
+
+def export_hullbv(b_obj, hitcheck, corrector):
+	me = b_obj.data
+	matrix = get_collider_matrix(b_obj)
+
+	hitcheck.type = CollisionType.ConvexHull
+	hitcheck.collider = ConvexHull()
+	coll = hitcheck.collider
+
+	# export rotation
+	set_rot_matrix(matrix, hitcheck.collider.rotation, corrector)
+	# export translation
+	c = coll.offset
+	c.x, c.y, c.z = pack_swizzle(matrix.translation)
+	# export vertices
+	coll.vertex_count = len(me.vertices)
+	coll.vertices = np.empty((coll.vertex_count, 3), dtype="float")
+	# coll.vertices.resize((coll.vertex_count, 3))
+	for vert_i, vert in enumerate(me.vertices):
+		coll.vertices[vert_i, :] = pack_swizzle2(vert.co)
 
 
 def _capsule_transform(b_obj, hitcheck):

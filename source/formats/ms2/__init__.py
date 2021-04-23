@@ -171,7 +171,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def read_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Reading additional hitcheck data")
 		for hitcheck in self.get_hitchecks(bone_info):
-			logging.debug(hitcheck.type)
 			if hitcheck.type in (CollisionType.ConvexHullPC, CollisionType.ConvexHull):
 				logging.debug(f"Reading vertices for {hitcheck.type}")
 				hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
