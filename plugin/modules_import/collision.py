@@ -4,6 +4,7 @@ import mathutils
 from generated.formats.ms2.compound.packing_utils import unpack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from plugin.helpers import mesh_from_data
+from utils.quickhull import qhull3d
 
 
 def import_collider(hitcheck, armature_ob, bone_name, corrector):
@@ -20,6 +21,8 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 		ob = import_cylinderbv(coll, hitcheck.name)
 	elif hitcheck.type == CollisionType.MeshCollision:
 		ob = import_meshbv(coll, hitcheck.name, corrector)
+	elif hitcheck.type == CollisionType.ConvexHull:
+		ob = import_hullbv(coll, hitcheck.name, corrector)
 	else:
 		print(f"Unsupported collider type {hitcheck.type}")
 		return
@@ -134,6 +137,21 @@ def import_meshbv(coll, hitcheck_name, corrector):
 	b_obj, b_me = mesh_from_data(hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles))
 	mat = import_collision_matrix(coll.rotation, corrector)
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
+	b_obj.matrix_local = mat
+	set_b_collider(b_obj, 1, bounds_type="MESH", display_type="MESH")
+	return b_obj
+
+
+def unpack_swizzle2(vec):
+	# swizzle to avoid a matrix multiplication for global axis correction
+	return vec[2], -vec[0], vec[1]
+
+
+def import_hullbv(coll, hitcheck_name, corrector):
+	# print(coll)
+	b_obj, b_me = mesh_from_data(hitcheck_name, *qhull3d([unpack_swizzle2(v) for v in coll.vertices]))
+	mat = import_collision_matrix(coll.rotation, corrector)
+	# mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
 	set_b_collider(b_obj, 1, bounds_type="MESH", display_type="MESH")
 	return b_obj

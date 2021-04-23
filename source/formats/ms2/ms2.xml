@@ -728,7 +728,7 @@
 	<compound name="ConvexHull">
 		<add name="vertex count" type="uint" >16 for anubis: 4 hulls * 16 * 12 (size of vert)</add>
 		<add name="rotation" type="Matrix33"/>
-		<add name="center" type="Vector3" >center of the box</add>
+		<add name="offset" type="Vector3" >center of the box</add>
 		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
 		<add name="zeros" type="uint" arr1="2" vercond="#PZ#" >probably padding</add>
 	</compound>

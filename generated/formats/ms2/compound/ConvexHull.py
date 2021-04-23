@@ -19,7 +19,7 @@ class ConvexHull:
 		self.rotation = Matrix33()
 
 		# center of the box
-		self.center = Vector3()
+		self.offset = Vector3()
 
 		# probably padding
 		self.zeros = numpy.zeros((5), dtype='uint')
@@ -32,7 +32,7 @@ class ConvexHull:
 		self.io_start = stream.tell()
 		self.vertex_count = stream.read_uint()
 		self.rotation = stream.read_type(Matrix33)
-		self.center = stream.read_type(Vector3)
+		self.offset = stream.read_type(Vector3)
 		if stream.version == 18:
 			self.zeros = stream.read_uints((5))
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
@@ -45,7 +45,7 @@ class ConvexHull:
 		self.io_start = stream.tell()
 		stream.write_uint(self.vertex_count)
 		stream.write_type(self.rotation)
-		stream.write_type(self.center)
+		stream.write_type(self.offset)
 		if stream.version == 18:
 			stream.write_uints(self.zeros)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
@@ -60,7 +60,7 @@ class ConvexHull:
 		s = ''
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* rotation = {self.rotation.__repr__()}'
-		s += f'\n	* center = {self.center.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		return s
 

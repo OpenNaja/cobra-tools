@@ -168,14 +168,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for hitcheck in bone_info.joints.hitchecks_pc:
 			logging.debug(f"PC hitcheck {hitcheck.type}")
 			if hitcheck.type == CollisionType.ConvexHullPc:
-				hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
-				# print(hitcheck.collider.verts)
+				hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
+				# print(hitcheck.collider.vertices)
 		for joint in bone_info.joints.joint_info_list:
 			for hitcheck in joint.hit_check:
 				logging.debug(f"hitcheck {hitcheck.type}")
 				if hitcheck.type == CollisionType.ConvexHull:
-					hitcheck.collider.verts = stream.read_floats((hitcheck.collider.vertex_count, 3))
-					# print(hitcheck.collider.verts)
+					hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
+					# print(hitcheck.collider.vertices)
 
 	def read_joints(self, bone_info):
 
