@@ -99,6 +99,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for bone_info_index, bone_info in enumerate(self.bone_infos):
 			logging.debug(f"BONE INFO {bone_info_index} starts at {stream.tell()}")
 			bone_info.write(stream)
+			self.write_hitcheck_verts(bone_info, stream)
 			if bone_info_index + 1 < len(self.bone_infos):
 				relative_offset = stream.tell() - bone_infos_start
 				padding = get_padding(relative_offset)
@@ -163,19 +164,24 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				pass
 		return bone_info
 
+	def get_hitchecks(self, bone_info):
+		# collect all hitchecks in a flat list
+		return [hitcheck for hitcheck in bone_info.joints.hitchecks_pc] + [hitcheck for joint in bone_info.joints.joint_info_list for hitcheck in joint.hit_check]
+
 	def read_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Reading additional hitcheck data")
-		for hitcheck in bone_info.joints.hitchecks_pc:
-			logging.debug(f"PC hitcheck {hitcheck.type}")
-			if hitcheck.type == CollisionType.ConvexHullPc:
+		for hitcheck in self.get_hitchecks(bone_info):
+			logging.debug(hitcheck.type)
+			if hitcheck.type in (CollisionType.ConvexHullPC, CollisionType.ConvexHull):
+				logging.debug(f"Reading vertices for {hitcheck.type}")
 				hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
-				# print(hitcheck.collider.vertices)
-		for joint in bone_info.joints.joint_info_list:
-			for hitcheck in joint.hit_check:
-				logging.debug(f"hitcheck {hitcheck.type}")
-				if hitcheck.type == CollisionType.ConvexHull:
-					hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
-					# print(hitcheck.collider.vertices)
+
+	def write_hitcheck_verts(self, bone_info, stream):
+		logging.debug(f"Writing additional hitcheck data")
+		for hitcheck in self.get_hitchecks(bone_info):
+			if hitcheck.type in (CollisionType.ConvexHullPC, CollisionType.ConvexHull):
+				logging.debug(f"Writing vertices for {hitcheck.type}")
+				stream.write_floats(hitcheck.collider.vertices)
 
 	def read_joints(self, bone_info):
 
