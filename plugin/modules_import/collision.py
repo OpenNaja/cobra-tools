@@ -153,7 +153,7 @@ def import_hullbv(coll, hitcheck_name, corrector):
 	mat = import_collision_matrix(coll.rotation, corrector)
 	# mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
-	set_b_collider(b_obj, 1, bounds_type="MESH", display_type="MESH")
+	set_b_collider(b_obj, 1, bounds_type="CONVEX_HULL", display_type="MESH")
 	return b_obj
 
 
