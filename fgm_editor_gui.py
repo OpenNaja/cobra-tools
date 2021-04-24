@@ -15,7 +15,7 @@ class MainWindow(widgets.MainWindow):
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "FGM Editor", )
 		
-		self.resize(450, 500)
+		self.resize(800, 600)
 
 		self.fgm_data = FgmFile()
 		self.widgets = []
@@ -107,6 +107,7 @@ class MainWindow(widgets.MainWindow):
 				w.deleteLater()
 			try:
 				self.fgm_data.load(self.file_widget.filepath)
+				print(self.fgm_data)
 				game = get_game(self.fgm_data)
 				print("from game", game)
 				self.game_container.entry.setText(game)
@@ -119,6 +120,8 @@ class MainWindow(widgets.MainWindow):
 				self.clear_layout(self.attrib_grid)
 
 				self.tex_grid = self.create_grid()
+				self.tex_grid.setColumnStretch(1, 3)
+				self.tex_grid.setColumnStretch(2, 1)
 				self.attrib_grid = self.create_grid()
 
 				self.tex_container.setLayout(self.tex_grid)
@@ -126,13 +129,13 @@ class MainWindow(widgets.MainWindow):
 				for line_i, tex in enumerate(self.fgm_data.textures):
 					w = widgets.VectorEntry(tex, self.tooltips)
 					self.tex_grid.addWidget(w.delete, line_i, 0)
-					self.tex_grid.addWidget(w.label, line_i, 1)
+					self.tex_grid.addWidget(w.entry, line_i, 1)
 					self.tex_grid.addWidget(w.data, line_i, 2)
 
 				for line_i, attrib in enumerate(self.fgm_data.attributes):
 					w = widgets.VectorEntry(attrib, self.tooltips)
 					self.attrib_grid.addWidget(w.delete, line_i, 0)
-					self.attrib_grid.addWidget(w.label, line_i, 1)
+					self.attrib_grid.addWidget(w.entry, line_i, 1)
 					self.attrib_grid.addWidget(w.data, line_i, 2)
 
 			except Exception as ex:

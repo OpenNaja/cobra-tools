@@ -726,9 +726,10 @@ class VectorEntry:
 		"""attrib must be pyffi attrib object"""
 		# QtWidgets.QWidget.__init__(self,)
 		self.attrib = attrib
-		self.label = QtWidgets.QLabel(attrib.name)
+		self.entry = QtWidgets.QLineEdit(attrib.name)
+		self.entry.textEdited.connect(self.update_name)
 		self.delete = QtWidgets.QPushButton("x")
-		self.delete.setMinimumWidth(15)
+		self.delete.setMaximumWidth(15)
 		self.data = QtWidgets.QWidget()
 		layout = QtWidgets.QHBoxLayout()
 		buttons = [self.create_field(i) for i in range(len(attrib.value))]
@@ -739,7 +740,10 @@ class VectorEntry:
 		# get tooltip
 		tooltip = tooltips.get(self.attrib.name, "Undocumented attribute.")
 		self.data.setToolTip(tooltip)
-		self.label.setToolTip(tooltip)
+		self.entry.setToolTip(tooltip)
+
+	def update_name(self, name):
+		self.attrib.name = name
 
 	def create_field(self, ind):
 		default = self.attrib.value[ind]

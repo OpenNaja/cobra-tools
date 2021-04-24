@@ -98,6 +98,8 @@ class FgmFile(FgmInfoHeader, IoFile):
 				for i in range(len(texture.indices)):
 					# uint - hashes
 					texture.indices[i] = max(0, texture.value[i])
+				tex_ind = texture.indices[0]
+				self.texture_names[tex_ind] = texture.name
 			texture.offset = names_writer.tell()
 			names_writer.write_zstring(texture.type)
 
