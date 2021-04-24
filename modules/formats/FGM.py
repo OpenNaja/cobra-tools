@@ -1,8 +1,14 @@
 import struct
 
-from modules.formats.shared import pack_header, get_versions
+from modules.formats.shared import pack_header, get_versions, djb
 from modules.helpers import as_bytes
 from generated.formats.fgm import FgmFile
+
+
+def get_file_entry(ovl, sized_str_entry):
+	for entry in ovl.files:
+		if entry.name == sized_str_entry.name:
+			return entry
 
 
 def write_fgm(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
@@ -33,7 +39,7 @@ def write_fgm(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 		raise AttributeError("Fgm length is wrong")
 
 	# grab the texture names that are linked to this fgm
-	fgm_file_entry = [file for file in ovl.files if file.name == sized_str_entry.name][0]
+	fgm_file_entry = get_file_entry(ovl, sized_str_entry)
 
 	# write fgm
 	fgm_header = struct.pack("<6I", len(sized_str_entry.fragments), len(fgm_file_entry.dependencies), len_tex_info, attr_info.pointers[1].data_size, len_zeros, data_lib.pointers[1].data_size,)
@@ -59,9 +65,9 @@ def write_fgm(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 	return out_path,
 
 
-def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
+def load_fgm(ovl, fgm_file_path, fgm_sized_str_entry):
 
-	versions = get_versions(ovl_data)
+	versions = get_versions(ovl)
 	fgm_data = FgmFile()
 	fgm_data.load(fgm_file_path)
 
@@ -89,3 +95,10 @@ def load_fgm(ovl_data, fgm_file_path, fgm_sized_str_entry):
 	# inject fragment datas
 	for frag, data in zip(fgm_sized_str_entry.fragments, datas):
 		frag.pointers[1].update_data(data, update_copies=True)
+
+	# update dependencies on ovl
+	fgm_file_entry = get_file_entry(ovl, fgm_sized_str_entry)
+	for dep_entry, tex_name in zip(fgm_file_entry.dependencies, fgm_data.texture_names):
+		dep_entry.basename = tex_name
+		dep_entry.name = dep_entry.basename + dep_entry.ext.replace(":", ".")
+		dep_entry.file_hash = djb(tex_name.lower())
