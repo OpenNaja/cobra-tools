@@ -267,10 +267,15 @@ class TableView(QtWidgets.QTableView):
 		self.setSortingEnabled(True)
 		# sort by index; -1 means don't sort
 		self.sortByColumn(-1, Qt.AscendingOrder)
-		# self.proxyModel.setFilterFixedString("")
 		self.proxyModel.setFilterFixedString("")
 		self.proxyModel.setFilterKeyColumn(0)
 		self.rev_check = False
+		self.selectionModel().selectionChanged.connect(self.on_selectionChanged)
+
+	def on_selectionChanged(self, selected, deselected):
+		self.selected = list(self.get_selected_line_indices())
+		if self.selected:
+			self.main_window.show_dependencies(self.selected[-1])
 
 	def update_filter_function(self):
 		if self.rev_check:
@@ -297,10 +302,12 @@ class TableView(QtWidgets.QTableView):
 		self.proxyModel.setFilterFixedString("")
 		self.sortByColumn(-1, Qt.AscendingOrder)
 
+	def get_selected_line_indices(self):
+		return set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
+
 	def get_selected_files(self):
 		# map the selected indices to the actual underlying data, which is in its original order
-		ids = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
-		return [self.model._data[x][0] for x in ids]
+		return [self.model._data[x][0] for x in self.get_selected_line_indices()]
 
 	def startDrag(self, actions):
 		"""Starts a drag from inside the app towards the outside"""

@@ -1,3 +1,9 @@
+import numpy
+import typing
+from generated.array import Array
+from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
+
+
 class DependencyEntry:
 
 	"""
@@ -20,11 +26,8 @@ class DependencyEntry:
 		# index into file table, points to the file entry where this dependency is used
 		self.file_index = 0
 
-		# what we call archive, usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type
-		self.ovsblock_id = 0
-
-		# offset inside the ovs in memory, textures probably should be shorted by that for loading
-		self.pool_offset = 0
+		# points into header datas section of user
+		self.pointers = Array()
 
 	def read(self, stream):
 
@@ -32,8 +35,7 @@ class DependencyEntry:
 		self.file_hash = stream.read_uint()
 		self.offset = stream.read_uint()
 		self.file_index = stream.read_uint()
-		self.ovsblock_id = stream.read_uint()
-		self.pool_offset = stream.read_uint()
+		self.pointers.read(stream, HeaderPointer, 1, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -43,8 +45,7 @@ class DependencyEntry:
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.offset)
 		stream.write_uint(self.file_index)
-		stream.write_uint(self.ovsblock_id)
-		stream.write_uint(self.pool_offset)
+		self.pointers.write(stream, HeaderPointer, 1, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -56,8 +57,7 @@ class DependencyEntry:
 		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
 		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* file_index = {self.file_index.__repr__()}'
-		s += f'\n	* ovsblock_id = {self.ovsblock_id.__repr__()}'
-		s += f'\n	* pool_offset = {self.pool_offset.__repr__()}'
+		s += f'\n	* pointers = {self.pointers.__repr__()}'
 		return s
 
 	def __repr__(self):

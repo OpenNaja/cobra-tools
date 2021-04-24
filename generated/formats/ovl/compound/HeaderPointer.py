@@ -3,13 +3,11 @@ import io
 from generated.io import BinaryStream
 from modules.formats.shared import assign_versions, get_padding
 
-MAX_UINT32 = 4294967295
-
 
 class HeaderPointer:
 
 	"""
-	Not standalone, used by SizedStringEntry and Fragment
+	Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
 	8 bytes
 	"""
 
@@ -20,16 +18,16 @@ class HeaderPointer:
 		self.io_size = 0
 		self.io_start = 0
 
-		# The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: 4294967295 (FF FF FF FF), uint32 max
+		# The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)
 		self.header_index = 0
 
-		# the start position of the sized string's size uint
+		# the byte offset relative to the start of the header entry data
 		self.data_offset = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.header_index = stream.read_uint()
+		self.header_index = stream.read_int()
 		self.data_offset = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -37,7 +35,7 @@ class HeaderPointer:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uint(self.header_index)
+		stream.write_int(self.header_index)
 		stream.write_uint(self.data_offset)
 
 		self.io_size = stream.tell() - self.io_start
@@ -61,7 +59,7 @@ class HeaderPointer:
 		"""Load data from archive header data readers into pointer for modification and io"""
 
 		self.padding = b""
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			self.data = None
 		else:
 			header_reader = archive.header_entries[self.header_index].data
@@ -71,7 +69,7 @@ class HeaderPointer:
 	def write_data(self, archive, update_copies=False):
 		"""Write data to header data, update offset, also for copies if told"""
 
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			pass
 		else:
 			# get header data to write into
@@ -100,7 +98,7 @@ class HeaderPointer:
 	def link_to_header(self, archive):
 		"""Store this pointer in suitable header entry"""
 
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			pass
 		else:
 			# get header entry
@@ -151,7 +149,7 @@ class HeaderPointer:
 	def remove(self, archive):
 		"""Remove this pointer from suitable header entry"""
 
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			pass
 		else:
 			# get header entry

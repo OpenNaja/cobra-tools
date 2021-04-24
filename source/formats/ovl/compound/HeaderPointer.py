@@ -3,8 +3,6 @@ import io
 from generated.io import BinaryStream
 from modules.formats.shared import assign_versions, get_padding
 
-MAX_UINT32 = 4294967295
-
 
 # END_GLOBALS
 
@@ -17,7 +15,7 @@ class HeaderPointer:
 		"""Load data from archive header data readers into pointer for modification and io"""
 
 		self.padding = b""
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			self.data = None
 		else:
 			header_reader = archive.header_entries[self.header_index].data
@@ -27,7 +25,7 @@ class HeaderPointer:
 	def write_data(self, archive, update_copies=False):
 		"""Write data to header data, update offset, also for copies if told"""
 
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			pass
 		else:
 			# get header data to write into
@@ -56,7 +54,7 @@ class HeaderPointer:
 	def link_to_header(self, archive):
 		"""Store this pointer in suitable header entry"""
 
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			pass
 		else:
 			# get header entry
@@ -107,7 +105,7 @@ class HeaderPointer:
 	def remove(self, archive):
 		"""Remove this pointer from suitable header entry"""
 
-		if self.header_index == MAX_UINT32:
+		if self.header_index == -1:
 			pass
 		else:
 			# get header entry

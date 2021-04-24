@@ -32,7 +32,6 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from modules.helpers import zstr
 
-MAX_UINT32 = 4294967295
 
 lut_mime_unk_0 = {
 	".fdb": 1,
@@ -357,7 +356,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# for access from start of file
 			for pointer in entry.pointers:
 				# some have max_uint as a header value, what do they refer to
-				if pointer.header_index == MAX_UINT32:
+				if pointer.header_index == -1:
 					# print("Warning: {} has no header index (-1)".format(entry.name))
 					pointer.header = 9999999
 					pointer.type = 9999999
@@ -1009,8 +1008,6 @@ class OvsFile(OvsHeader, ZipFile):
 		# just reverse is good enough, no longer need to sort them
 		sorted_sized_str_entries = list(reversed(self.sized_str_entries))
 		for frag in address_0_fragments:
-			# header_index = frag.pointers[0].header_index
-			# print(header_index, header_index != MAX_UINT32)
 			# fragments always have a valid header index
 			self.header_entries[frag.pointers[0].header_index].fragments.append(frag)
 
@@ -1042,11 +1039,11 @@ class OvsFile(OvsHeader, ZipFile):
 				if sized_str_entry.ext in no_frags:
 					continue
 				print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
-				hi = sized_str_entry.pointers[0].header_index
-				if hi != MAX_UINT32:
-					frags = self.header_entries[hi].fragments
-				else:
+				header_index = sized_str_entry.pointers[0].header_index
+				if header_index == -1:
 					frags = address_0_fragments
+				else:
+					frags = self.header_entries[header_index].fragments
 				if sized_str_entry.ext == ".ms2" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
 																		   1)
@@ -1170,7 +1167,8 @@ class OvsFile(OvsHeader, ZipFile):
 		frag_log += "\n\n\nself.fragments > sizedstr\nfragments in file order"
 		# for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
 		for i, frag in enumerate(self.fragments):
-			frag_log += f"\n{i} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"
+			# frag_log += f"\n{i} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"
+			frag_log += f"\n{i} {frag.pointers[0].header_index} {frag.pointers[0].data_offset} {frag.pointers[1].header_index} {frag.pointers[1].data_offset} {frag.name}"
 
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_frag{self.archive_index}.log")
 		print(f"Writing Fragment log to {frag_log_path}")
@@ -1748,7 +1746,7 @@ class OvlFile(Header, IoFile):
 					dependency_entry.basename = "bad hash"
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
-			print(dependency_entry.basename, dependency_entry.ovsblock_id, dependency_entry.pool_offset)
+			print(dependency_entry.basename, dependency_entry.pointers)
 			try:
 				file_entry = self.files[dependency_entry.file_index]
 				file_entry.dependencies.append(dependency_entry)
@@ -1757,7 +1755,7 @@ class OvlFile(Header, IoFile):
 				print(err)
 		# sort dependencies by their pool offset
 		for file_entry in self.files:
-			file_entry.dependencies.sort(key=lambda entry: entry.pool_offset)
+			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
 
 		self.static_archive = None
 		for archive_entry in self.archives:

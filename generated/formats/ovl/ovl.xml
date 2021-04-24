@@ -228,8 +228,9 @@
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
         <add name="offset" type="uint" >offset for extension into string name table</add>
         <add name="file index" type="uint" >index into file table, points to the file entry where this dependency is used</add>
-        <add name="Ovsblock Id" type="uint" >what we call archive, usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>
-        <add name="pool_offset" type="uint" >offset inside the ovs in memory, textures probably should be shorted by that for loading</add>
+        <add name="pointers" type="HeaderPointer" arr1="1" >points into header datas section of user</add>
+<!--        <add name="Ovsblock Id" type="uint" >what we call archive, usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>-->
+<!--        <add name="pool_offset" type="uint" >offset inside the ovs in memory, textures probably should be shorted by that for loading</add>-->
     </compound>
 
     <compound name="AuxEntry" >
@@ -284,17 +285,17 @@
     </compound>
 	
 	<compound name="HeaderPointer" >
-		Not standalone, used by SizedStringEntry and Fragment
+		Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
 		8 bytes
-        <add name="header index" type="uint" >The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: 4294967295 (FF FF FF FF), uint32 max</add>
-        <add name="data offset" type="uint" >the start position of the sized string's size uint</add>
+        <add name="header index" type="int" >The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)</add>
+        <add name="data offset" type="uint" >the byte offset relative to the start of the header entry data</add>
     </compound>
 	
     <compound name="SizedStringEntry" >
-        points to a sized string in a header's data block
-        <add name="File Hash" type="uint">hash of the file that should be read</add>
-        <add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">matches matching HeaderEntry's Ext Hash</add>
-        <add name="pointers" type="HeaderPointer" arr1="1" >points into header datas section</add>
+        Main file entry in the ovs
+        <add name="File Hash" type="uint">id (index or djb) of the file</add>
+        <add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">djb of extension</add>
+        <add name="pointers" type="HeaderPointer" arr1="1" >one pointer OR -1 pointer for assets</add>
     </compound>
 	
     <compound name="Fragment" >

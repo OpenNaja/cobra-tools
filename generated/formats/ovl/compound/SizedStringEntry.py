@@ -7,7 +7,7 @@ from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 class SizedStringEntry:
 
 	"""
-	points to a sized string in a header's data block
+	Main file entry in the ovs
 	"""
 
 	def __init__(self, arg=None, template=None):
@@ -17,13 +17,13 @@ class SizedStringEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# hash of the file that should be read
+		# id (index or djb) of the file
 		self.file_hash = 0
 
-		# matches matching HeaderEntry's Ext Hash
+		# djb of extension
 		self.ext_hash = 0
 
-		# points into header datas section
+		# one pointer OR -1 pointer for assets
 		self.pointers = Array()
 
 	def read(self, stream):

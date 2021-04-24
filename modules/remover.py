@@ -1,9 +1,8 @@
-MAX_UINT32 = 4294967295
 REVERSED_TYPES = (".tex", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection", ".txt")
 
 
 def add_pointer(pointer, ss_entry, pointers_to_ss):
-	if pointer.header_index != MAX_UINT32:
+	if pointer.header_index != -1:
 		pointers_to_ss[pointer.header_index][pointer.data_offset] = ss_entry
 
 

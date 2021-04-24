@@ -2,10 +2,10 @@ import os
 import sys
 import time
 import traceback
+import logging
 
 try:
 	import numpy as np
-	import binascii
 	from PyQt5 import QtWidgets
 	from importlib import reload
 
@@ -201,6 +201,26 @@ class MainWindow(widgets.MainWindow):
 			pass
 		# print(self.hash_table)
 		print(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
+
+	def show_dependencies(self, file_index):
+		file_entry = self.ovl_data.files[file_index]
+		# print(file_entry)
+		ss_entry = self.ovl_data.ss_dict[file_entry.name]
+		# print(ss_entry)
+		ss_p = ss_entry.pointers[0]
+		# print(file_entry.dependencies)
+		logging.debug(f"File: {ss_p.header_index} {ss_p.data_offset} {ss_entry.name}")
+		archive = self.ovl_data.archives[0].content
+		for dep in file_entry.dependencies:
+			p = dep.pointers[0]
+			p.data_size = 8
+			p.read_data(archive)
+			assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
+			logging.debug(f"Dependency: {p.header_index} {p.data_offset} {dep.name}")
+		for f in ss_entry.fragments:
+			p0 = f.pointers[0]
+			p1 = f.pointers[1]
+			logging.debug(f"Fragment: {p0.header_index} {p0.data_offset} {p1.header_index} {p1.data_offset}")
 
 	@staticmethod
 	def read_table(fp, dic, int_key=False):
