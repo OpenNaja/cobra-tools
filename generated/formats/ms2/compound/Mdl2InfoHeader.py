@@ -59,7 +59,7 @@ class Mdl2InfoHeader:
 		self.lods = Array()
 
 		# material links for each model
-		self.mesh_links = Array()
+		self.objects = Array()
 
 		# model data blocks for this mdl2
 		self.models = Array()
@@ -83,7 +83,7 @@ class Mdl2InfoHeader:
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials.read(stream, MaterialName, self.model_info.mat_count, None)
 			self.lods.read(stream, LodInfo, self.model_info.lod_count, None)
-			self.mesh_links.read(stream, MeshLink, self.model_info.mesh_link_count, None)
+			self.objects.read(stream, MeshLink, self.model_info.mesh_link_count, None)
 			self.models.read(stream, ModelData, self.model_info.model_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -107,7 +107,7 @@ class Mdl2InfoHeader:
 			stream.write_type(self.model_info)
 			self.materials.write(stream, MaterialName, self.model_info.mat_count, None)
 			self.lods.write(stream, LodInfo, self.model_info.lod_count, None)
-			self.mesh_links.write(stream, MeshLink, self.model_info.mesh_link_count, None)
+			self.objects.write(stream, MeshLink, self.model_info.mesh_link_count, None)
 			self.models.write(stream, ModelData, self.model_info.model_count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -129,7 +129,7 @@ class Mdl2InfoHeader:
 		s += f'\n	* model_info = {self.model_info.__repr__()}'
 		s += f'\n	* materials = {self.materials.__repr__()}'
 		s += f'\n	* lods = {self.lods.__repr__()}'
-		s += f'\n	* mesh_links = {self.mesh_links.__repr__()}'
+		s += f'\n	* objects = {self.objects.__repr__()}'
 		s += f'\n	* models = {self.models.__repr__()}'
 		return s
 

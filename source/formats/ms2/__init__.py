@@ -266,7 +266,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 							last_vert_offset = model_data.populate(self, stream, self.buffer_2_offset, 512,
 																   last_vert_offset=last_vert_offset)
 						mdl2.lods = model_info.pc_model.lods
-						mdl2.mesh_links = model_info.pc_model.mesh_links
+						mdl2.objects = model_info.pc_model.objects
 						mdl2.models = model_info.pc_model.models
 						mdl2.materials = model_info.pc_model.materials
 				else:
@@ -395,7 +395,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				lod.tri_index_count = sum(model.tri_index_count for model in lod.models)
 				logging.debug(f"lod.vertex_count = {lod.vertex_count}")
 				logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
-		# get bytes from IO object
+		# get bytes from IO obj
 		vert_bytes = temp_vert_writer.getvalue()
 		tris_bytes = temp_tris_writer.getvalue()
 		# modify buffer size
@@ -491,22 +491,22 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 	def lookup_material(self):
 		logging.debug("mapping")
 		for lod_index, lod in enumerate(self.lods):
-			lod.mesh_links = self.mesh_links[lod.first_model_index:lod.last_model_index]
-			lod.models = tuple(self.models[mesh_link.model_index] for mesh_link in lod.mesh_links)
+			lod.objects = self.objects[lod.first_object_index:lod.last_object_index]
+			lod.models = tuple(self.models[obj.model_index] for obj in lod.objects)
 			logging.debug(f"LOD{lod_index}")
-			for mesh_link in lod.mesh_links:
+			for obj in lod.objects:
 				try:
-					material = self.materials[mesh_link.material_index]
+					material = self.materials[obj.material_index]
 					material.name = self.ms2_file.buffer_0.names[material.name_index]
-					model = self.models[mesh_link.model_index]
-					model.material = material.name
+					obj.model = self.models[obj.model_index]
+					obj.material = material
 					logging.debug(
-						f"Model: {mesh_link.model_index} Material: {material.name} Material Unk: {material.some_index} "
-						f"Lod Index: {model.poweroftwo} Flag: {int(model.flag)}")
+						f"Model: {obj.model_index} Material: {material.name} Material Unk: {material.some_index} "
+						f"Lod Index: {obj.model.poweroftwo} Flag: {int(obj.model.flag)}")
 				except Exception as err:
 					logging.error(err)
-					logging.error(f"Couldn't match material {mesh_link.material_index} to model {mesh_link.model_index} - bug?")
-					# logging.error(len(models), mesh_link, mdl2.materials)
+					logging.error(f"Couldn't match material {obj.material_index} to model {obj.model_index} - bug?")
+					# logging.error(len(models), obj, mdl2.materials)
 
 	def save(self, filepath):
 		exp = "export"

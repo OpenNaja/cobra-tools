@@ -170,16 +170,16 @@ def create_material(in_dir, matname):
 	return mat
 
 
-def import_material(created_materials, in_dir, me, model):
+def import_material(created_materials, in_dir, b_me, material_name):
 	try:
 		# additionally keep track here so we create a node tree only once during import
 		# but make sure that we overwrite existing materials:
-		if model.material not in created_materials:
-			mat = create_material(in_dir, model.material)
-			created_materials[model.material] = mat
+		if material_name not in created_materials:
+			mat = create_material(in_dir, material_name)
+			created_materials[material_name] = mat
 		else:
-			print(f"Already imported material {model.material}")
-			mat = created_materials[model.material]
-		me.materials.append(mat)
+			print(f"Already imported material {material_name}")
+			mat = created_materials[material_name]
+		b_me.materials.append(mat)
 	except:
 		print("material failed")

@@ -210,17 +210,23 @@ class MainWindow(widgets.MainWindow):
 		ss_p = ss_entry.pointers[0]
 		# print(file_entry.dependencies)
 		logging.debug(f"File: {ss_p.header_index} {ss_p.data_offset} {ss_entry.name}")
-		archive = self.ovl_data.archives[0].content
-		for dep in file_entry.dependencies:
-			p = dep.pointers[0]
-			p.data_size = 8
-			p.read_data(archive)
-			assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
-			logging.debug(f"Dependency: {p.header_index} {p.data_offset} {dep.name}")
-		for f in ss_entry.fragments:
-			p0 = f.pointers[0]
-			p1 = f.pointers[1]
-			logging.debug(f"Fragment: {p0.header_index} {p0.data_offset} {p1.header_index} {p1.data_offset}")
+		# this is problematic for stuff like ztuac
+		try:
+			# actually the index goes into the flattened list of header entries
+			# todo - gotta create an array of header entries to read them into
+			archive = self.ovl_data.archives[0].content
+			for dep in file_entry.dependencies:
+				p = dep.pointers[0]
+				p.data_size = 8
+				p.read_data(archive)
+				# assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
+				logging.debug(f"Dependency: {p.header_index} {p.data_offset} {dep.name}")
+			for f in ss_entry.fragments:
+				p0 = f.pointers[0]
+				p1 = f.pointers[1]
+				logging.debug(f"Fragment: {p0.header_index} {p0.data_offset} {p1.header_index} {p1.data_offset}")
+		except:
+			logging.error(f"Dependency failed {file_entry.dependencies}")
 
 	@staticmethod
 	def read_table(fp, dic, int_key=False):

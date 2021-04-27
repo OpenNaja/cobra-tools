@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -6,7 +7,7 @@ import bpy
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
-from plugin.helpers import mesh_from_data
+from plugin.helpers import mesh_from_data, create_ob
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from utils import matrix_util
@@ -18,108 +19,126 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	start_time = time.time()
 	in_dir, mdl2_name = os.path.split(filepath)
 	bare_name = os.path.splitext(mdl2_name)[0]
-	data = Mdl2File()
-	data.load(filepath, entry=True, read_editable=True)
+	mdl2 = Mdl2File()
+	mdl2.load(filepath, entry=True, read_editable=True)
 
 	errors = []
-	bone_names = get_bone_names(data)
-	b_armature_obj = import_armature(data, bone_names)
-	# b_armature_obj2 = import_armature_new(data)
+	bone_names = get_bone_names(mdl2)
+	b_armature_obj = import_armature(mdl2, bone_names)
 	created_materials = {}
-	# print("data.models",data.models)
-	for model_i, model in enumerate(data.models):
-		lod_i = model.lod_index
-		print("\nmodel_i", model_i)
+	mesh_dict = {}
+	# print("mdl2.models",mdl2.models)
+	for lod_i, m_lod in enumerate(mdl2.lods):
 		print("lod_i", lod_i)
-		print("flag", model.flag)
+		for ob_i, m_ob in enumerate(m_lod.objects):
+			model = mdl2.models[m_ob.model_index]
+			# lod_i = model.lod_index
+			print("flag", model.flag)
+			if m_ob.model_index in mesh_dict:
+				b_me = mesh_dict[m_ob.model_index]
+			# create object and mesh from data
+			else:
+				b_me = bpy.data.meshes.new(f"{bare_name}_model{m_ob.model_index}")
+				b_me.from_pydata(model.vertices, [], model.tris)
+				mesh_dict[m_ob.model_index] = b_me
+				import_mesh_layers(b_me, model, mirror_mesh, use_custom_normals)
+			b_ob = create_ob(f"{bare_name}_lod{lod_i}_ob{ob_i}", b_me)
 
-		# create object and mesh from data
-		ob, me = mesh_from_data(f"{bare_name}_model{model_i}", model.vertices, model.tris, wireframe=False)
-		# cast the bitfield to int
-		ob["flag"] = int(model.flag)
+			# store mesh unknowns
+			# cast the bitfield to int
+			b_me["flag"] = int(model.flag)
+			b_me["unk_f0"] = float(model.unk_floats[0])
+			b_me["unk_f1"] = float(model.unk_floats[1])
 
-		# link material to mesh
-		me = ob.data
-		import_material(created_materials, in_dir, me, model)
+			# store ob / material unknowns
+			b_ob["mat_unk"] = m_ob.material.some_index
 
-		# set uv data
-		if model.uvs is not None:
-			num_uv_layers = model.uvs.shape[1]
-			for uv_i in range(num_uv_layers):
-				uvs = model.uvs[:, uv_i]
-				me.uv_layers.new(name=f"UV{uv_i}")
-				me.uv_layers[-1].data.foreach_set("uv", [uv for pair in [uvs[l.vertex_index] for l in me.loops] for uv in (pair[0], 1-pair[1])])
+			# link material to mesh
+			import_material(created_materials, in_dir, b_me, m_ob.material.name)
+			import_vertex_groups(b_ob, model, bone_names)
 
-		if model.colors is not None:
-			num_vcol_layers = model.colors.shape[1]
-			for col_i in range(num_vcol_layers):
-				vcols = model.colors[:, col_i]
-				me.vertex_colors.new(name=f"RGBA{col_i}")
-				me.vertex_colors[-1].data.foreach_set("color", [c for col in [vcols[l.vertex_index] for l in me.loops] for c in col])
-
-		# me.vertex_colors.new(name="tangents")
-		# me.vertex_colors[-1].data.foreach_set("color", [c for col in [model.tangents[l.vertex_index] for l in me.loops] for c in (*col, 1,)])
-		#
-		# me.vertex_colors.new(name="normals")
-		# me.vertex_colors[-1].data.foreach_set("color", [c for col in [model.normals[l.vertex_index] for l in me.loops] for c in (*col,1,)])
-
-		mesh_start_time = time.time()
-
-		import_vertex_groups(ob, model, bone_names)
-		print(f"mesh cleanup took {time.time() - mesh_start_time:.2f} seconds")
-
-		# set faces to smooth
-		me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
-		# set normals
-		if use_custom_normals and model.flag not in (565, ):
-			me.use_auto_smooth = True
-			me.normals_split_custom_set_from_vertices(model.normals)
-		# else:
-		# 	remove_doubles_bmesh(me)
-
-		bpy.ops.object.mode_set(mode='EDIT')
-		if mirror_mesh:
-			bisect_mesh(ob)
-		bpy.ops.mesh.tris_convert_to_quads()
-		# shells are messed up by remove doubles, affected faces have their dupe faces removed
-		# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
-		if not use_custom_normals and not is_fin(ob):
-			bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
-		bpy.ops.uv.select_all(action='SELECT')
-		bpy.ops.uv.seams_from_islands()
-		bpy.ops.object.mode_set(mode='OBJECT')
-
-		# link to armature, only after mirror so the order is good and weights are mirrored
-		append_armature_modifier(ob, b_armature_obj)
-		if not is_old(data) and model.flag.fur_shells:
-			add_psys(ob, model)
-		# only set the lod index here so that hiding it does not mess with any operators applied above
-		matrix_util.to_lod(ob, lod_i)
-		# ob2, me2 = visualize_tangents(ob.name, model.vertices, model.normals, model.tangents)
-		# matrix_util.to_lod(ob2, lod_i)
+			# link to armature, only after mirror so the order is good and weights are mirrored
+			append_armature_modifier(b_ob, b_armature_obj)
+			append_bisect_modifier(b_ob)
+			ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+			if not is_old(mdl2) and model.flag.fur_shells:
+				add_psys(b_ob, model)
+			# only set the lod index here so that hiding it does not mess with any operators applied above
+			matrix_util.to_lod(b_ob, lod_i)
+			# ob2, me2 = visualize_tangents(b_ob.name, model.vertices, model.normals, model.tangents)
+			# matrix_util.to_lod(ob2, lod_i)
 	print(f"Finished MDL2 import in {time.time()-start_time:.2f} seconds!")
 	return errors
 
 
-# def remove_doubles_bmesh(me):
+def import_mesh_layers(b_me, model, use_mirror_mesh, use_custom_normals):
+	# set uv data
+	if model.uvs is not None:
+		num_uv_layers = model.uvs.shape[1]
+		for uv_i in range(num_uv_layers):
+			uvs = model.uvs[:, uv_i]
+			b_me.uv_layers.new(name=f"UV{uv_i}")
+			b_me.uv_layers[-1].data.foreach_set("uv",
+												[uv for pair in [uvs[l.vertex_index] for l in b_me.loops] for uv in
+												 (pair[0], 1 - pair[1])])
+	if model.colors is not None:
+		num_vcol_layers = model.colors.shape[1]
+		for col_i in range(num_vcol_layers):
+			vcols = model.colors[:, col_i]
+			b_me.vertex_colors.new(name=f"RGBA{col_i}")
+			b_me.vertex_colors[-1].data.foreach_set("color",
+													[c for col in [vcols[l.vertex_index] for l in b_me.loops] for c in
+													 col])
+	# b_me.vertex_colors.new(name="tangents")
+	# b_me.vertex_colors[-1].data.foreach_set("color", [c for col in [model.tangents[l.vertex_index] for l in b_me.loops] for c in (*col, 1,)])
+	#
+	# b_me.vertex_colors.new(name="normals")
+	# b_me.vertex_colors[-1].data.foreach_set("color", [c for col in [model.normals[l.vertex_index] for l in b_me.loops] for c in (*col,1,)])
+	# set faces to smooth
+	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))
+	# set normals
+	if use_custom_normals and model.flag not in (565,):
+		b_me.use_auto_smooth = True
+		b_me.normals_split_custom_set_from_vertices(model.normals)
+	# else:
+	# 	remove_doubles_bmesh(b_me)
+
+
+def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):
+	logging.debug("Postprocessing geometry")
+	bpy.ops.object.mode_set(mode='EDIT')
+	if use_mirror_mesh:
+		bpy.ops.mesh.bisect(plane_co=(0, 0, 0), plane_no=(1, 0, 0), clear_inner=True)
+		bpy.ops.mesh.select_all(action='SELECT')
+	bpy.ops.mesh.tris_convert_to_quads()
+	bpy.ops.uv.select_all(action='SELECT')
+	bpy.ops.uv.seams_from_islands()
+	# shells are messed up by remove doubles, affected faces have their dupe faces removed
+	# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
+	# todo reimplement check against fins for mesh
+	if not use_custom_normals and not is_fin(b_ob):
+		bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
+	bpy.ops.object.mode_set(mode='OBJECT')
+
+
+# def remove_doubles_bmesh(b_me):
 # 	# no operator, but bmesh
 # 	bm = bmesh.new()
-# 	bm.from_mesh(me)
+# 	bm.from_mesh(b_me)
 # 	bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.001)
-# 	bm.to_mesh(me)
-# 	me.update()
+# 	bm.to_mesh(b_me)
+# 	b_me.update()
 # 	bm.clear()
 # 	bm.free()
 
 
-def bisect_mesh(ob):
-	bpy.ops.mesh.bisect(plane_co=(0, 0, 0), plane_no=(1, 0, 0), clear_inner=True)
-	bpy.ops.mesh.select_all(action='SELECT')
-	mod = ob.modifiers.new('Mirror', 'MIRROR')
+def append_bisect_modifier(b_ob):
+	mod = b_ob.modifiers.new('Mirror', 'MIRROR')
 	mod.use_clip = True
 	mod.use_mirror_merge = True
 	mod.use_mirror_vertex_groups = True
-	mod.use_x = True
+	# mod.use_x = True
+	mod.use_axis = (True, False, False)
 	mod.merge_threshold = 0.001
 
 

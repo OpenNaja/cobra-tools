@@ -5,6 +5,7 @@ from struct import unpack_from, iter_unpack, calcsize
 import numpy as np
 
 from generated.formats.voxelskirt import VoxelskirtFile
+from plugin.helpers import mesh_from_data
 
 
 def generate_mesh(x_verts, y_verts, scale, heights):
@@ -53,16 +54,6 @@ def import_vertex_groups(ob, weights):
 			ob.vertex_groups[bonename].add(vert_indices, weight/255, 'REPLACE')
 
 
-def mesh_from_data(name, verts, faces, wireframe=True):
-	me = bpy.data.meshes.new(name)
-	me.from_pydata(verts, [], faces)
-	me.update()
-	ob = create_ob(name, me)
-	# if wireframe:
-	# 	ob.draw_type = 'WIRE'
-	return ob, me
-
-
 def load(operator, context, filepath=""):
 	starttime = time.clock()
 	errors = []
@@ -100,7 +91,6 @@ def load(operator, context, filepath=""):
 		ob.rotation_euler.z = r
 	import_vertex_groups(map_ob, vox.weights)
 	# verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.layer)
-	# map_ob, me = mesh_from_data("map", verts, quads, False)
 	# for face in me.polygons:
 	# 	face.use_smooth = True
 

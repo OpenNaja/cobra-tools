@@ -201,8 +201,8 @@
 		<add name="distance" type="float" >usually first lod is 900</add>
 		<add name="zero" type="ushort" >always 0</add>
 		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
-		<add name="first model index" type="ushort" >first model for this lod in MeshLinks list</add>
-		<add name="last model index" type="ushort" >not included in interval (python style indexing)</add>
+		<add name="first object index" type="ushort" >first object for this lod in objects list</add>
+		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
 		<add name="vertex count" type="uint" >vertex count of lod, sum of all vertex counts that are attached to this lod</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 	</compound>
@@ -214,11 +214,11 @@
 		<add name="half" type="short" >7F7F</add>
 		<add name="lod index" type="ushort" >increasing</add>
 		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
-		<add name="first model index" type="ushort" >first model for this lod in models list</add>
-<!--		<add name="last model index" type="ushort" >not included in interval (python style indexing)</add>-->
+		<add name="first object index" type="ushort" >first model for this lod in models list</add>
+<!--		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>-->
 		<add name="some index" type="ushort" >not included in interval (python style indexing)</add>
 		<add name="some index 2" type="ushort" >vertex count of lod</add>
-		<add name="last model index" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="last object index" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 	</compound>
 
 	<compound name="ModelData" >
@@ -320,7 +320,7 @@
 		<add name="model info" type="CoreModelInfo" cond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
 		<add name="materials" type="MaterialName" arr1="model info\mat count" cond="!#OLD#" >name pointers for each material</add>
 		<add name="lods" type="LodInfo" arr1="model info\lod count" cond="!#OLD#" >lod info for each level</add>
-		<add name="MeshLinks" type="MeshLink" arr1="model info\mesh link count" cond="!#OLD#" >material links for each model</add>
+		<add name="objects" type="MeshLink" arr1="model info\mesh link count" cond="!#OLD#" >material links for each model</add>
 		<add name="models" type="ModelData" arr1="(model info\model count)" cond="!#OLD#" >model data blocks for this mdl2</add>
 	</compound>
 
@@ -371,7 +371,7 @@
 		<add name="materials" type="MaterialName" arr1="#ARG#\mat count" >uses uint here, two uints elsewhere</add>
 		<add name="lods" type="LodInfoZT" arr1="#ARG#\lod count" vercond="#ZTUAC#" ></add>
 		<add name="lods" type="LodInfo" arr1="#ARG#\lod count" vercond="#PC#" ></add>
-		<add name="MeshLinks" type="MeshLink" arr1="#ARG#\mesh link count" ></add>
+		<add name="objects" type="MeshLink" arr1="#ARG#\mesh link count" ></add>
 
 <!--		<add name="unk" type="uint" >may be padding instead, present on rhino</add>-->
 		rhino: start of model - end of mesh links: 124 - 4 bytes padding

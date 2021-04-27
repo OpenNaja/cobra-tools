@@ -25,7 +25,7 @@ class LodInfoZT:
 		self.bone_index = 0
 
 		# first model for this lod in models list
-		self.first_model_index = 0
+		self.first_object_index = 0
 
 		# not included in interval (python style indexing)
 		self.some_index = 0
@@ -34,7 +34,7 @@ class LodInfoZT:
 		self.some_index_2 = 0
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-		self.last_model_index = 0
+		self.last_object_index = 0
 
 	def read(self, stream):
 
@@ -43,10 +43,10 @@ class LodInfoZT:
 		self.half = stream.read_short()
 		self.lod_index = stream.read_ushort()
 		self.bone_index = stream.read_ushort()
-		self.first_model_index = stream.read_ushort()
+		self.first_object_index = stream.read_ushort()
 		self.some_index = stream.read_ushort()
 		self.some_index_2 = stream.read_ushort()
-		self.last_model_index = stream.read_ushort()
+		self.last_object_index = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -57,10 +57,10 @@ class LodInfoZT:
 		stream.write_short(self.half)
 		stream.write_ushort(self.lod_index)
 		stream.write_ushort(self.bone_index)
-		stream.write_ushort(self.first_model_index)
+		stream.write_ushort(self.first_object_index)
 		stream.write_ushort(self.some_index)
 		stream.write_ushort(self.some_index_2)
-		stream.write_ushort(self.last_model_index)
+		stream.write_ushort(self.last_object_index)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -73,10 +73,10 @@ class LodInfoZT:
 		s += f'\n	* half = {self.half.__repr__()}'
 		s += f'\n	* lod_index = {self.lod_index.__repr__()}'
 		s += f'\n	* bone_index = {self.bone_index.__repr__()}'
-		s += f'\n	* first_model_index = {self.first_model_index.__repr__()}'
+		s += f'\n	* first_object_index = {self.first_object_index.__repr__()}'
 		s += f'\n	* some_index = {self.some_index.__repr__()}'
 		s += f'\n	* some_index_2 = {self.some_index_2.__repr__()}'
-		s += f'\n	* last_model_index = {self.last_model_index.__repr__()}'
+		s += f'\n	* last_object_index = {self.last_object_index.__repr__()}'
 		return s
 
 	def __repr__(self):
