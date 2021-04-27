@@ -6,7 +6,7 @@ import bpy
 # import bmesh
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
-	get_bone_names
+	get_bone_names, get_weights
 from plugin.helpers import mesh_from_data, create_ob
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
@@ -38,6 +38,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 				b_me = mesh_dict[m_ob.model_index]
 			# create object and mesh from data
 			else:
+				model.weights_info = get_weights(model)
 				b_me = bpy.data.meshes.new(f"{bare_name}_model{m_ob.model_index}")
 				b_me.from_pydata(model.vertices, [], model.tris)
 				mesh_dict[m_ob.model_index] = b_me
