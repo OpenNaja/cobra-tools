@@ -258,7 +258,7 @@ class PcModelData:
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, residue, extra=False))
 		# print(self.vertices)
-
+	
 	@staticmethod
 	def get_weights(bone_ids, bone_weights):
 		return [(i, w / 255) for i, w in zip(bone_ids, bone_weights) if w > 0]

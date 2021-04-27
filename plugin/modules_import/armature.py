@@ -1,3 +1,4 @@
+import logging
 import math
 import traceback
 
@@ -168,6 +169,7 @@ def resolve_name(b_bone_names, bone_index):
 
 
 def import_vertex_groups(ob, model, b_bone_names):
+	logging.debug(f"Importing vertex groups for {ob.name}...")
 	# create vgroups and store weights
 	weights_info = get_weights(model)
 	# this would sort by bone index

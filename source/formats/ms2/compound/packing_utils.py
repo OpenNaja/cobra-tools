@@ -85,6 +85,8 @@ def unpack_weights(model, i, residue, extra=True):
     vert_w = []
     if "bone ids" in model.dt.fields:
         vert_w = [(i, w) for i, w in zip(model.verts_data[i]["bone ids"], model.verts_data[i]["bone weights"]) if w > 0]
+    else:
+        vert_w = [(i, w) for i, w in zip(model.weights_data[i]["bone ids"], model.weights_data[i]["bone weights"]) if w > 0]
     if extra:
         # fallback: skin parition
         if not vert_w:
