@@ -69,7 +69,6 @@ class PcModelData:
 		logging.debug(f"tris offset at {stream.tell()}")
 		# read all tri indices for this model segment
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count)
-		print(self.tri_indices)
 
 	@property
 	def tris(self, ):

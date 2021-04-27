@@ -46,7 +46,7 @@ class PcModel:
 		if stream.version == 18:
 			self.lods.read(stream, LodInfo, self.arg.lod_count, None)
 		self.mesh_links.read(stream, MeshLink, self.arg.mesh_link_count, None)
-		if (self.arg.mat_count + self.arg.mesh_link_count) % 2:
+		if stream.version == 17 and (self.arg.mat_count + self.arg.mesh_link_count) % 2:
 			self.padding = stream.read_uint()
 		if stream.version == 18:
 			self.models.read(stream, PcModelData, self.arg.model_count, None)
@@ -68,7 +68,7 @@ class PcModel:
 		if stream.version == 18:
 			self.lods.write(stream, LodInfo, self.arg.lod_count, None)
 		self.mesh_links.write(stream, MeshLink, self.arg.mesh_link_count, None)
-		if (self.arg.mat_count + self.arg.mesh_link_count) % 2:
+		if stream.version == 17 and (self.arg.mat_count + self.arg.mesh_link_count) % 2:
 			stream.write_uint(self.padding)
 		if stream.version == 18:
 			self.models.write(stream, PcModelData, self.arg.model_count, None)

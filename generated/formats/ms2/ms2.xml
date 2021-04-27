@@ -376,7 +376,7 @@
 <!--		<add name="unk" type="uint" >may be padding instead, present on rhino</add>-->
 		rhino: start of model - end of mesh links: 124 - 4 bytes padding
 		ele: start of model - end of mesh links: 120 - 0 bytes padding
-		<add name="padding" type="uint" cond="(#ARG#\mat count + #ARG#\mesh link count) % 2" >pad to 8 bytes alignment</add>
+		<add name="padding" type="uint" cond="(#ARG#\mat count + #ARG#\mesh link count) % 2" vercond="#ZTUAC#" >pad to 8 bytes alignment</add>
 <!--		<add name="unk" type="uint" cond="#ARG#\another_count" >may be padding instead</add>-->
 		<add name="models" type="PcModelData" arr1="#ARG#\model count" vercond="#PC#" ></add>
 		<add name="models" type="ZtModelData" arr1="#ARG#\model count" vercond="#ZTUAC#" ></add>
