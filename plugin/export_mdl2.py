@@ -182,7 +182,7 @@ def export_model(mdl2, b_ob, b_me, bones_table, bounds, apply_transforms):
 	# transfer raw verts into model data packed array
 	model.set_verts(verts)
 	model.tris = tris
-
+	return model
 
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# defaults that may or may not be set later on
@@ -275,6 +275,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		m_lod.first_object_index = len(mdl2.objects)
 		m_lod.models = []
 		m_lod.objects = []
+		# m_lod.bone_index =
 		mdl2.lods.append(m_lod)
 		lod_group_name = f"LOD{lod_i}"
 		lod_coll = get_collection(lod_group_name)
@@ -282,7 +283,8 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 			b_me = b_ob.data
 			if b_me not in b_models:
 				b_models.append(b_me)
-				export_model(mdl2, b_ob, b_me, bones_table, bounds, apply_transforms)
+				m_mesh = export_model(mdl2, b_ob, b_me, bones_table, bounds, apply_transforms)
+				m_mesh.lod_index = lod_i
 			for b_mat in b_me.materials:
 				if b_mat not in b_materials:
 					b_materials.append(b_mat)
