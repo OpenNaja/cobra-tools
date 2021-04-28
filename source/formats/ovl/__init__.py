@@ -991,7 +991,7 @@ class OvsFile(OvsHeader, ZipFile):
 		mdl2_sized_str_entry.num_models = model_info.num_models
 		lod_pointer = mdl2_sized_str_entry.fragments[3].pointers[1]
 		# remove padding from materials1 fragment
-		mdl2_sized_str_entry.fragments[2].pointers[1].split_data_padding(4 * model_info.mesh_link_count)
+		mdl2_sized_str_entry.fragments[2].pointers[1].split_data_padding(4 * model_info.num_objects)
 
 		# get and set fragments
 		# print("Num model data frags",mdl2_sized_str_entry.num_models)
