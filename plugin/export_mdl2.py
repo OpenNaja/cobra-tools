@@ -275,6 +275,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		m_lod.first_object_index = len(mdl2.objects)
 		m_lod.models = []
 		m_lod.objects = []
+		# todo store & set bone index for lod
 		# m_lod.bone_index =
 		mdl2.lods.append(m_lod)
 		lod_group_name = f"LOD{lod_i}"

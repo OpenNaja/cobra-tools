@@ -89,7 +89,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 			if not (is_pc(ovl) or is_ztuac(ovl)):
 				# the fixed fragments
 				materials, lods, mesh_links, lod0, model_info = mdl2_entry.fragments
-				print("model_count", mdl2_entry.model_count)
+				print("num_models", mdl2_entry.num_models)
 				# write the model info for this model, buffered from the previous model or ms2 (model_info fragments)
 				outfile.write(next_model_info_data)
 				# print("model_info",model_info.pointers[0].address,model_info.pointers[0].data_size,model_info.pointers[1].address, model_info.pointers[1].data_size)
@@ -116,7 +116,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 				# 	zeros.append((mdl2_index, mdl2_entry.name))
 
 				# avoid writing bad fragments that should be empty
-				if mdl2_entry.model_count:
+				if mdl2_entry.num_models:
 					# need not write lod0
 					for f in (materials, lods, mesh_links):
 						# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)

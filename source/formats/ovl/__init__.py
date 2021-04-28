@@ -271,7 +271,7 @@ class OvsFile(OvsHeader, ZipFile):
 				sized_str_entry.children = []
 				sized_str_entry.fragments = []
 				sized_str_entry.model_data_frags = []
-				sized_str_entry.model_count = 0
+				sized_str_entry.num_models = 0
 				# print(sized_str_entry.name)
 				# get data entry for link to buffers, or none
 				try:
@@ -988,14 +988,14 @@ class OvsFile(OvsHeader, ZipFile):
 		print("MDL2:", mdl2_sized_str_entry.name)
 		mdl2_sized_str_entry.fragments = self.frags_from_pointer(mdl2_pointer, 5)
 		mdl2_sized_str_entry.model_info = model_info
-		mdl2_sized_str_entry.model_count = model_info.model_count
+		mdl2_sized_str_entry.num_models = model_info.num_models
 		lod_pointer = mdl2_sized_str_entry.fragments[3].pointers[1]
 		# remove padding from materials1 fragment
 		mdl2_sized_str_entry.fragments[2].pointers[1].split_data_padding(4 * model_info.mesh_link_count)
 
 		# get and set fragments
-		# print("Num model data frags",mdl2_sized_str_entry.model_count)
-		mdl2_sized_str_entry.model_data_frags = self.frags_from_pointer(lod_pointer, mdl2_sized_str_entry.model_count)
+		# print("Num model data frags",mdl2_sized_str_entry.num_models)
+		mdl2_sized_str_entry.model_data_frags = self.frags_from_pointer(lod_pointer, mdl2_sized_str_entry.num_models)
 
 	def map_frags(self):
 		if not self.fragments:
