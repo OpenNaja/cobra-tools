@@ -23,11 +23,8 @@ def write_txt(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 
 def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
 	txt_pointer = txt_sized_str_entry.pointers[0]
-	# first make sure that the padding has been separated from the data
-	size = struct.unpack("<I", txt_pointer.data[:4])[0]
-	txt_pointer.split_data_padding(4+size)
 	with open(txt_file_path, 'rb') as stream:
 		raw_txt_bytes = stream.read()
-		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes
-	# make sure all are updated, and pad to 8 bytes, using old padding
-	txt_pointer.update_data(data, update_copies=True, pad_to=8, include_old_pad=True)
+		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + b"\x00"
+	# make sure all are updated, and pad to 8 bytes
+	txt_pointer.update_data(data, update_copies=True, pad_to=8)
