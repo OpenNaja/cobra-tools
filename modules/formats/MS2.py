@@ -88,7 +88,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 
 			if not (is_pc(ovl) or is_ztuac(ovl)):
 				# the fixed fragments
-				materials, lods, mesh_links, lod0, model_info = mdl2_entry.fragments
+				materials, lods, objects, lod0, model_info = mdl2_entry.fragments
 				print("num_models", mdl2_entry.num_models)
 				# write the model info for this model, buffered from the previous model or ms2 (model_info fragments)
 				outfile.write(next_model_info_data)
@@ -118,7 +118,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 				# avoid writing bad fragments that should be empty
 				if mdl2_entry.num_models:
 					# need not write lod0
-					for f in (materials, lods, mesh_links):
+					for f in (materials, lods, objects):
 						# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
 						outfile.write(f.pointers[1].data)
 						# data 0 must be empty
@@ -168,11 +168,11 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 			frag_data = as_bytes(modeldata, version_info=versions)
 			frag.pointers[0].update_data(frag_data, update_copies=True)
 
-		materials, lods, mesh_links, lod0, model_info = mdl2_entry.fragments
+		materials, lods, objects, lod0, model_info = mdl2_entry.fragments
 		for frag, mdl2_list in (
 				(materials, mdl2.materials, ),
 				(lods, mdl2.lods),
-				(mesh_links, mdl2.mesh_links)):
+				(objects, mdl2.objects)):
 			if len(mdl2_list) > 0:
 				data = as_bytes(mdl2_list, version_info=versions)
 				frag.pointers[1].update_data(data, update_copies=True)
@@ -186,7 +186,7 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 			# grab the preceding mdl2 entry since it points ahead
 			mdl2_entry = ms2_entry.children[mdl2.index-1]
 			# get its model info fragment
-			materials, lods, mesh_links, lod0, model_info = mdl2_entry.fragments
+			materials, lods, objects, lod0, model_info = mdl2_entry.fragments
 			if (is_jwe(ovl_data) and model_info.pointers[0].data_size == 144) \
 				 or (is_pz(ovl_data) and model_info.pointers[0].data_size == 160):
 				data = model_info.pointers[0].data[:40] + data
