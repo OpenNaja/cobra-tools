@@ -1,3 +1,5 @@
+import logging
+
 import bpy
 import mathutils
 
@@ -70,7 +72,7 @@ def get_armature():
 		return src_armatures[0]
 
 
-def handle_transforms(ob, me, errors, apply=True):
+def handle_transforms(ob, me, apply=True):
 	"""Ensures that non-zero object transforms are either applied or reported"""
 	# ignore colliders
 	if ob.display_type == 'BOUNDS':
@@ -81,10 +83,10 @@ def handle_transforms(ob, me, errors, apply=True):
 		if apply:
 			# we only transform the evaluated mesh and leave the actual scene alone
 			me.transform(ob.matrix_local)
-			errors.append(ob.name + " has had its object transforms applied on the fly to avoid ingame distortion!")
+			logging.warn(f"{ob.name} has had its object transforms applied on the fly to avoid ingame distortion!")
 		else:
 			# we simply ignore the transforms and export the mesh as is, but warn the user
-			errors.append(
+			logging.warn(
 				f"Ignored object transforms for {ob.name} - orientation will not match what you see in blender!\n"
 				f"Check 'Apply Transforms' on export or apply them manually with CTRL+A!")
 

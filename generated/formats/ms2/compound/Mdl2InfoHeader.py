@@ -81,10 +81,10 @@ class Mdl2InfoHeader:
 		self.ms_2_name = stream.read_string()
 		if not (stream.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo)
-			self.materials.read(stream, MaterialName, self.model_info.mat_count, None)
-			self.lods.read(stream, LodInfo, self.model_info.lod_count, None)
-			self.objects.read(stream, MeshLink, self.model_info.mesh_link_count, None)
-			self.models.read(stream, ModelData, self.model_info.model_count, None)
+			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
+			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
+			self.objects.read(stream, MeshLink, self.model_info.num_objects, None)
+			self.models.read(stream, ModelData, self.model_info.num_models, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -105,10 +105,10 @@ class Mdl2InfoHeader:
 		stream.write_string(self.ms_2_name)
 		if not (stream.version < 19):
 			stream.write_type(self.model_info)
-			self.materials.write(stream, MaterialName, self.model_info.mat_count, None)
-			self.lods.write(stream, LodInfo, self.model_info.lod_count, None)
-			self.objects.write(stream, MeshLink, self.model_info.mesh_link_count, None)
-			self.models.write(stream, ModelData, self.model_info.model_count, None)
+			self.materials.write(stream, MaterialName, self.model_info.num_materials, None)
+			self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
+			self.objects.write(stream, MeshLink, self.model_info.num_objects, None)
+			self.models.write(stream, ModelData, self.model_info.num_models, None)
 
 		self.io_size = stream.tell() - self.io_start
 

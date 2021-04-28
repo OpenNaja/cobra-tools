@@ -12,9 +12,9 @@ def create_material(in_dir, matname):
 	# only create the material if it doesn't exist in the blend file, then just grab it
 	# but we overwrite its contents anyway
 	if matname not in bpy.data.materials:
-		mat = bpy.data.materials.new(matname)
+		b_mat = bpy.data.materials.new(matname)
 	else:
-		mat = bpy.data.materials[matname]
+		b_mat = bpy.data.materials[matname]
 
 	fgm_path = os.path.join(in_dir, matname + ".fgm")
 	# print(fgm_path)
@@ -23,10 +23,10 @@ def create_material(in_dir, matname):
 		fgm_data.load(fgm_path)
 	except FileNotFoundError:
 		print(f"{fgm_path} does not exist!")
-		return mat
+		return b_mat
 	# base_index = fgm_data.textures[0].layers[1]
 	# height_index = fgm_data.textures[1].layers[1]
-	tree = get_tree(mat)
+	tree = get_tree(b_mat)
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
@@ -147,11 +147,11 @@ def create_material(in_dir, matname):
 		alpha_pass = alpha.outputs[0]
 	if alpha:
 		# transparency
-		mat.blend_method = "CLIP"
-		mat.shadow_method = "CLIP"
+		b_mat.blend_method = "CLIP"
+		b_mat.shadow_method = "CLIP"
 		for attrib in fgm_data.attributes:
 			if attrib.name.lower() == "palphatestref":
-				mat.alpha_threshold = attrib.value[0]
+				b_mat.alpha_threshold = attrib.value[0]
 				break
 		transp = tree.nodes.new('ShaderNodeBsdfTransparent')
 		alpha_mixer = tree.nodes.new('ShaderNodeMixShader')
@@ -163,23 +163,27 @@ def create_material(in_dir, matname):
 		alpha_mixer.update()
 	# no alpha
 	else:
-		mat.blend_method = "OPAQUE"
+		b_mat.blend_method = "OPAQUE"
 		tree.links.new(principled.outputs[0], output.inputs[0])
 
 	nodes_iterate(tree, output)
-	return mat
+	return b_mat
 
 
-def import_material(created_materials, in_dir, b_me, material_name):
+def import_material(created_materials, in_dir, b_me, material):
+	material_name = material.name
+
 	try:
 		# additionally keep track here so we create a node tree only once during import
 		# but make sure that we overwrite existing materials:
 		if material_name not in created_materials:
-			mat = create_material(in_dir, material_name)
-			created_materials[material_name] = mat
+			b_mat = create_material(in_dir, material_name)
+			created_materials[material_name] = b_mat
 		else:
 			print(f"Already imported material {material_name}")
-			mat = created_materials[material_name]
-		b_me.materials.append(mat)
+			b_mat = created_materials[material_name]
+		# store ob / material unknowns
+		b_mat["some_index"] = material.some_index
+		b_me.materials.append(b_mat)
 	except:
 		print("material failed")

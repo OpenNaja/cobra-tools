@@ -21,6 +21,8 @@ class CoreModelInfo:
 
 		# the smallest coordinates across all axes
 		self.bounds_min = Vector3()
+
+		# not sure
 		self.unk_float_a = 0
 
 		# the biggest coordinates across all axes
@@ -43,16 +45,20 @@ class CoreModelInfo:
 
 		# verbatim repeat
 		self.bounds_max_repeat = Vector3()
-		self.mat_count = 0
-		self.lod_count = 0
-		self.mesh_link_count = 0
+		self.num_materials = 0
+		self.num_lods = 0
+		self.num_objects = 0
 
 		# count of modeldata fragments for the mdl2 this struct refers to
-		self.model_count = 0
+		self.num_models = 0
+
+		# ?
 		self.last_count = 0
 
 		# nonzero in PZ flamingo, ZT african ele female
 		self.another_count = 0
+
+		# ?
 		self.unks = numpy.zeros((7), dtype='ushort')
 		self.pad = numpy.zeros((3), dtype='ushort')
 
@@ -72,10 +78,10 @@ class CoreModelInfo:
 		if not (stream.version == 17):
 			self.bounds_min_repeat = stream.read_type(Vector3)
 			self.bounds_max_repeat = stream.read_type(Vector3)
-		self.mat_count = stream.read_ushort()
-		self.lod_count = stream.read_ushort()
-		self.mesh_link_count = stream.read_ushort()
-		self.model_count = stream.read_ushort()
+		self.num_materials = stream.read_ushort()
+		self.num_lods = stream.read_ushort()
+		self.num_objects = stream.read_ushort()
+		self.num_models = stream.read_ushort()
 		self.last_count = stream.read_ushort()
 		self.another_count = stream.read_ushort()
 		self.unks = stream.read_ushorts((7))
@@ -99,10 +105,10 @@ class CoreModelInfo:
 		if not (stream.version == 17):
 			stream.write_type(self.bounds_min_repeat)
 			stream.write_type(self.bounds_max_repeat)
-		stream.write_ushort(self.mat_count)
-		stream.write_ushort(self.lod_count)
-		stream.write_ushort(self.mesh_link_count)
-		stream.write_ushort(self.model_count)
+		stream.write_ushort(self.num_materials)
+		stream.write_ushort(self.num_lods)
+		stream.write_ushort(self.num_objects)
+		stream.write_ushort(self.num_models)
 		stream.write_ushort(self.last_count)
 		stream.write_ushort(self.another_count)
 		stream.write_ushorts(self.unks)
@@ -124,10 +130,10 @@ class CoreModelInfo:
 		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
 		s += f'\n	* bounds_min_repeat = {self.bounds_min_repeat.__repr__()}'
 		s += f'\n	* bounds_max_repeat = {self.bounds_max_repeat.__repr__()}'
-		s += f'\n	* mat_count = {self.mat_count.__repr__()}'
-		s += f'\n	* lod_count = {self.lod_count.__repr__()}'
-		s += f'\n	* mesh_link_count = {self.mesh_link_count.__repr__()}'
-		s += f'\n	* model_count = {self.model_count.__repr__()}'
+		s += f'\n	* num_materials = {self.num_materials.__repr__()}'
+		s += f'\n	* num_lods = {self.num_lods.__repr__()}'
+		s += f'\n	* num_objects = {self.num_objects.__repr__()}'
+		s += f'\n	* num_models = {self.num_models.__repr__()}'
 		s += f'\n	* last_count = {self.last_count.__repr__()}'
 		s += f'\n	* another_count = {self.another_count.__repr__()}'
 		s += f'\n	* unks = {self.unks.__repr__()}'

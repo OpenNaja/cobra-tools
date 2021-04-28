@@ -27,10 +27,10 @@ class LodInfo:
 		# not included in interval (python style indexing)
 		self.last_object_index = 0
 
-		# vertex count of lod, sum of all vertex counts that are attached to this lod
+		# vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models
 		self.vertex_count = 0
 
-		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
+		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models
 		self.tri_index_count = 0
 
 	def read(self, stream):

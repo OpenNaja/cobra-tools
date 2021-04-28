@@ -390,11 +390,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				else:
 					temp_vert_writer.write(model.verts_bytes)
 					temp_tris_writer.write(model.tris_bytes)
-			for lod in mdl2.lods:
-				lod.vertex_count = sum(model.vertex_count for model in lod.models)
-				lod.tri_index_count = sum(model.tri_index_count for model in lod.models)
-				logging.debug(f"lod.vertex_count = {lod.vertex_count}")
-				logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
+			mdl2.update_lod_vertex_counts()
 		# get bytes from IO obj
 		vert_bytes = temp_vert_writer.getvalue()
 		tris_bytes = temp_tris_writer.getvalue()
@@ -492,6 +488,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		logging.debug("mapping")
 		for lod_index, lod in enumerate(self.lods):
 			lod.objects = self.objects[lod.first_object_index:lod.last_object_index]
+			# todo - investigate how duplicate models are handled for the lod's vertex count0
 			lod.models = tuple(self.models[obj.model_index] for obj in lod.objects)
 			logging.debug(f"LOD{lod_index}")
 			for obj in lod.objects:
@@ -507,6 +504,26 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 					logging.error(err)
 					logging.error(f"Couldn't match material {obj.material_index} to model {obj.model_index} - bug?")
 					# logging.error(len(models), obj, mdl2.materials)
+
+	def clear(self):
+		self.materials.clear()
+		self.lods.clear()
+		self.objects.clear()
+		self.models.clear()
+
+	def update_counts(self):
+		self.model_info.num_materials = len(self.materials)
+		self.model_info.num_lods = len(self.lods)
+		self.model_info.num_objects = len(self.objects)
+		self.model_info.num_models = len(self.models)
+
+	def update_lod_vertex_counts(self):
+		logging.debug(f"Updating lod vertex counts...")
+		for lod in self.lods:
+			lod.vertex_count = sum(model.vertex_count for model in lod.models)
+			lod.tri_index_count = sum(model.tri_index_count for model in lod.models)
+			logging.debug(f"lod.vertex_count = {lod.vertex_count}")
+			logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
 
 	def save(self, filepath):
 		exp = "export"

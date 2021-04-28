@@ -138,7 +138,7 @@ def to_lod(ob, level=0, lod=None):
 	ob.hide_set(should_hide, view_layer=vlayer)
 
 
-def eval_me(ob):
+def evaluate_mesh(ob):
 	dg = bpy.context.evaluated_depsgraph_get()
 	# make a copy with all modifiers applied
 	eval_obj = ob.evaluated_get(dg)

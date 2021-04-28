@@ -1,5 +1,5 @@
 from plugin.helpers import mesh_from_data
-from utils.matrix_util import eval_me
+from utils.matrix_util import evaluate_mesh
 from utils.shell import get_ob_from_lod_and_flags
 
 
@@ -22,8 +22,8 @@ def create_tangents():
 		src_ob = get_ob_from_lod_and_flags(lod_group_name, flags=[885, 821, 1013, ])
 		trg_ob = get_ob_from_lod_and_flags(lod_group_name, flags=[565, ])
 
-		eval_ob_src, me_src = eval_me(src_ob)
-		eval_ob_trg, me_trg = eval_me(trg_ob)
+		eval_ob_src, me_src = evaluate_mesh(src_ob)
+		eval_ob_trg, me_trg = evaluate_mesh(trg_ob)
 
 		# tangents have to be pre-calculated
 		# this will also calculate loop normal

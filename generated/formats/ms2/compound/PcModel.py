@@ -40,18 +40,18 @@ class PcModel:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.materials.read(stream, MaterialName, self.arg.mat_count, None)
+		self.materials.read(stream, MaterialName, self.arg.num_materials, None)
 		if stream.version == 17:
-			self.lods.read(stream, LodInfoZT, self.arg.lod_count, None)
+			self.lods.read(stream, LodInfoZT, self.arg.num_lods, None)
 		if stream.version == 18:
-			self.lods.read(stream, LodInfo, self.arg.lod_count, None)
-		self.objects.read(stream, MeshLink, self.arg.mesh_link_count, None)
-		if stream.version == 17 and (self.arg.mat_count + self.arg.mesh_link_count) % 2:
+			self.lods.read(stream, LodInfo, self.arg.num_lods, None)
+		self.objects.read(stream, MeshLink, self.arg.num_objects, None)
+		if stream.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.padding = stream.read_uint()
 		if stream.version == 18:
-			self.models.read(stream, PcModelData, self.arg.model_count, None)
+			self.models.read(stream, PcModelData, self.arg.num_models, None)
 		if stream.version == 17:
-			self.models.read(stream, ZtModelData, self.arg.model_count, None)
+			self.models.read(stream, ZtModelData, self.arg.num_models, None)
 		if stream.version == 17 and self.arg.last_count:
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones)
 		self.floatsy.read(stream, FloatsY, self.arg.another_count, None)
@@ -62,18 +62,18 @@ class PcModel:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		self.materials.write(stream, MaterialName, self.arg.mat_count, None)
+		self.materials.write(stream, MaterialName, self.arg.num_materials, None)
 		if stream.version == 17:
-			self.lods.write(stream, LodInfoZT, self.arg.lod_count, None)
+			self.lods.write(stream, LodInfoZT, self.arg.num_lods, None)
 		if stream.version == 18:
-			self.lods.write(stream, LodInfo, self.arg.lod_count, None)
-		self.objects.write(stream, MeshLink, self.arg.mesh_link_count, None)
-		if stream.version == 17 and (self.arg.mat_count + self.arg.mesh_link_count) % 2:
+			self.lods.write(stream, LodInfo, self.arg.num_lods, None)
+		self.objects.write(stream, MeshLink, self.arg.num_objects, None)
+		if stream.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			stream.write_uint(self.padding)
 		if stream.version == 18:
-			self.models.write(stream, PcModelData, self.arg.model_count, None)
+			self.models.write(stream, PcModelData, self.arg.num_models, None)
 		if stream.version == 17:
-			self.models.write(stream, ZtModelData, self.arg.model_count, None)
+			self.models.write(stream, ZtModelData, self.arg.num_models, None)
 		if stream.version == 17 and self.arg.last_count:
 			stream.write_type(self.ztuac_pre_bones)
 		self.floatsy.write(stream, FloatsY, self.arg.another_count, None)

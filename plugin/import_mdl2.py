@@ -21,12 +21,14 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	bare_name = os.path.splitext(mdl2_name)[0]
 	mdl2 = Mdl2File()
 	mdl2.load(filepath, entry=True, read_editable=True)
-
+	print(mdl2)
+	mdl2.update_lod_vertex_counts()
 	errors = []
 	bone_names = get_bone_names(mdl2)
 	b_armature_obj = import_armature(mdl2, bone_names)
 	created_materials = {}
 	mesh_dict = {}
+	ob_dict = {}
 	# print("mdl2.models",mdl2.models)
 	for lod_i, m_lod in enumerate(mdl2.lods):
 		print("lod_i", lod_i)
@@ -41,31 +43,33 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 				model.weights_info = get_weights(model)
 				b_me = bpy.data.meshes.new(f"{bare_name}_model{m_ob.model_index}")
 				b_me.from_pydata(model.vertices, [], model.tris)
+				# store mesh unknowns
+				# cast the bitfield to int
+				b_me["flag"] = int(model.flag)
+				b_me["unk_f0"] = float(model.unk_floats[0])
+				b_me["unk_f1"] = float(model.unk_floats[1])
 				mesh_dict[m_ob.model_index] = b_me
 				import_mesh_layers(b_me, model, mirror_mesh, use_custom_normals)
-			b_ob = create_ob(f"{bare_name}_lod{lod_i}_ob{ob_i}", b_me)
-
-			# store mesh unknowns
-			# cast the bitfield to int
-			b_me["flag"] = int(model.flag)
-			b_me["unk_f0"] = float(model.unk_floats[0])
-			b_me["unk_f1"] = float(model.unk_floats[1])
-
-			# store ob / material unknowns
-			b_ob["mat_unk"] = m_ob.material.some_index
 
 			# link material to mesh
-			import_material(created_materials, in_dir, b_me, m_ob.material.name)
-			import_vertex_groups(b_ob, model, bone_names)
+			import_material(created_materials, in_dir, b_me, m_ob.material)
 
-			# link to armature, only after mirror so the order is good and weights are mirrored
-			append_armature_modifier(b_ob, b_armature_obj)
-			append_bisect_modifier(b_ob)
-			ob_postpro(b_ob, mirror_mesh, use_custom_normals)
-			if not is_old(mdl2) and model.flag.fur_shells:
-				add_psys(b_ob, model)
-			# only set the lod index here so that hiding it does not mess with any operators applied above
-			matrix_util.to_lod(b_ob, lod_i)
+			if m_ob.model_index not in ob_dict:
+				b_ob = create_ob(f"{bare_name}_lod{lod_i}_ob{ob_i}", b_me)
+				import_vertex_groups(b_ob, model, bone_names)
+				# link to armature, only after mirror so the order is good and weights are mirrored
+				append_armature_modifier(b_ob, b_armature_obj)
+				if mirror_mesh:
+					append_bisect_modifier(b_ob)
+				ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+				if not is_old(mdl2) and model.flag.fur_shells:
+					add_psys(b_ob, model)
+				# only set the lod index here so that hiding it does not mess with any operators applied above
+				matrix_util.to_lod(b_ob, lod_i)
+				ob_dict[m_ob.model_index] = b_ob
+			else:
+				b_ob = ob_dict[m_ob.model_index]
+
 			# ob2, me2 = visualize_tangents(b_ob.name, model.vertices, model.normals, model.tangents)
 			# matrix_util.to_lod(ob2, lod_i)
 	print(f"Finished MDL2 import in {time.time()-start_time:.2f} seconds!")

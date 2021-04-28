@@ -203,8 +203,8 @@
 		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
 		<add name="first object index" type="ushort" >first object for this lod in objects list</add>
 		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="vertex count" type="uint" >vertex count of lod, sum of all vertex counts that are attached to this lod</add>
-		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="vertex count" type="uint" >vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
+		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
 	</compound>
 
 	<compound name="LodInfoZT">
@@ -318,10 +318,10 @@
 		<add name="ms2 name" type="string" >name of ms2</add>
 
 		<add name="model info" type="CoreModelInfo" cond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="materials" type="MaterialName" arr1="model info\mat count" cond="!#OLD#" >name pointers for each material</add>
-		<add name="lods" type="LodInfo" arr1="model info\lod count" cond="!#OLD#" >lod info for each level</add>
-		<add name="objects" type="MeshLink" arr1="model info\mesh link count" cond="!#OLD#" >material links for each model</add>
-		<add name="models" type="ModelData" arr1="(model info\model count)" cond="!#OLD#" >model data blocks for this mdl2</add>
+		<add name="materials" type="MaterialName" arr1="model info\num_materials" cond="!#OLD#" >name pointers for each material</add>
+		<add name="lods" type="LodInfo" arr1="model info\num_lods" cond="!#OLD#" >lod info for each level</add>
+		<add name="objects" type="MeshLink" arr1="model info\num_objects" cond="!#OLD#" >material links for each model</add>
+		<add name="models" type="ModelData" arr1="(model info\num_models)" cond="!#OLD#" >model data blocks for this mdl2</add>
 	</compound>
 
 	<compound name="MaterialName">
@@ -368,18 +368,18 @@
 	</compound>
 
 	<compound name="PcModel" >
-		<add name="materials" type="MaterialName" arr1="#ARG#\mat count" >uses uint here, two uints elsewhere</add>
-		<add name="lods" type="LodInfoZT" arr1="#ARG#\lod count" vercond="#ZTUAC#" ></add>
-		<add name="lods" type="LodInfo" arr1="#ARG#\lod count" vercond="#PC#" ></add>
-		<add name="objects" type="MeshLink" arr1="#ARG#\mesh link count" ></add>
+		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >uses uint here, two uints elsewhere</add>
+		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" vercond="#ZTUAC#" ></add>
+		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" vercond="#PC#" ></add>
+		<add name="objects" type="MeshLink" arr1="#ARG#\num_objects" ></add>
 
 <!--		<add name="unk" type="uint" >may be padding instead, present on rhino</add>-->
 		rhino: start of model - end of mesh links: 124 - 4 bytes padding
 		ele: start of model - end of mesh links: 120 - 0 bytes padding
-		<add name="padding" type="uint" cond="(#ARG#\mat count + #ARG#\mesh link count) % 2" vercond="#ZTUAC#" >pad to 8 bytes alignment</add>
+		<add name="padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" vercond="#ZTUAC#" >pad to 8 bytes alignment</add>
 <!--		<add name="unk" type="uint" cond="#ARG#\another_count" >may be padding instead</add>-->
-		<add name="models" type="PcModelData" arr1="#ARG#\model count" vercond="#PC#" ></add>
-		<add name="models" type="ZtModelData" arr1="#ARG#\model count" vercond="#ZTUAC#" ></add>
+		<add name="models" type="PcModelData" arr1="#ARG#\num_models" vercond="#PC#" ></add>
+		<add name="models" type="ZtModelData" arr1="#ARG#\num_models" vercond="#ZTUAC#" ></add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\another count" ></add>
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
@@ -477,7 +477,7 @@
 		In load order it always defines the variable fragments for the next mdl2
 		The mdl2's fragment informs the first mdl2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-		<add name="unk float a" type="float" vercond="!#OLD#"></add>
+		<add name="unk float a" type="float" vercond="!#OLD#">not sure</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="pack offset" type="float" vercond="!#OLD#">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
@@ -485,14 +485,14 @@
 		<add name="unknowns" type="float" arr1="4" vercond="#PZ#">PZ only, zero-ish</add>
 		<add name="bounds min repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
 		<add name="bounds max repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
-
-		<add name="mat count" type="ushort"></add>
-		<add name="lod count" type="ushort"></add>
-		<add name="mesh link count" type="ushort"></add>
-		<add name="model count" type="ushort">count of modeldata fragments for the mdl2 this struct refers to</add>
-		<add name="last count" type="ushort"></add>
+<!--		array counts-->
+		<add name="num_materials" type="ushort"/>
+		<add name="num_lods" type="ushort"/>
+		<add name="num_objects" type="ushort"/>
+		<add name="num_models" type="ushort">count of modeldata fragments for the mdl2 this struct refers to</add>
+		<add name="last count" type="ushort">?</add>
 		<add name="another count" type="ushort">nonzero in PZ flamingo, ZT african ele female</add>
-		<add name="unks" type="ushort" arr1="7"></add>
+		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 	</compound>
 	

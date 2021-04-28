@@ -26,7 +26,7 @@ def copy_ob(src_obj):
 def ob_processor_wrapper(func):
 	msgs = ["Creating fins...", ]
 	for lod_i in range(6):
-		lod_group_name = "LOD" + str(lod_i)
+		lod_group_name = f"LOD{lod_i}"
 		coll = get_collection(lod_group_name)
 		# src_ob = get_ob_from_lod_and_flags(coll, flags=[885, 821, 1013, ])
 		# trg_ob = get_ob_from_lod_and_flags(coll, flags=[565, ])
