@@ -52,7 +52,7 @@ def get_collection(name):
 def get_ob_from_lod_and_flags(coll, flags=(565,)):
 	if coll:
 		for ob in coll.objects:
-			if "flag" in ob and ob["flag"] in flags:
+			if "flag" in ob and ob.data["flag"] in flags:
 				return ob
 
 
@@ -118,7 +118,7 @@ def build_fins(src_ob, trg_ob):
 		if vg_name in ob.vertex_groups:
 			vg = ob.vertex_groups[vg_name]
 			ob.vertex_groups.remove(vg)
-	ob["flag"] = 565
+	me["flag"] = 565
 
 	# remove the particle system, since we no longer have a fur length vertex group
 	for mod in ob.modifiers:
