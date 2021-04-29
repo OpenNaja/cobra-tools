@@ -47,7 +47,7 @@ def export_material(mdl2, b_mat):
 	mdl2.materials.append(mat)
 
 
-def export_model(mdl2, b_ob, b_me, bones_table, bounds, apply_transforms):
+def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we get the corresponding mdl2 model
 	model = ModelData()
@@ -102,15 +102,13 @@ def export_model(mdl2, b_ob, b_me, bones_table, bounds, apply_transforms):
 
 	# fin models have to grab tangents from shell
 	if model.flag == 565:
-		lod_coll = b_ob.users_collection[0]
-		print(lod_coll)
-		shell_ob = get_ob_from_lod_and_flags(lod_coll, flags=[885, 821, 1013, ])
-		print(shell_ob)
+		shell_ob = get_ob_from_lod_and_flags(b_lod_coll, flags=[885, 821, 1013, ])
+		# print(shell_ob)
 		if shell_ob:
+			logging.debug(f"Copying data for {b_ob.name} from base mesh {shell_ob.name}...")
 			shell_eval_ob, shell_eval_me = evaluate_mesh(shell_ob)
 			shell_eval_me.calc_tangents()
 			shell_kd = fill_kd_tree(shell_eval_me)
-
 			fin_uv_layer = eval_me.uv_layers[0].data
 
 	# loop faces and collect unique and repeated vertices
@@ -183,6 +181,7 @@ def export_model(mdl2, b_ob, b_me, bones_table, bounds, apply_transforms):
 	model.set_verts(verts)
 	model.tris = tris
 	return model
+
 
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# defaults that may or may not be set later on
@@ -284,7 +283,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 			b_me = b_ob.data
 			if b_me not in b_models:
 				b_models.append(b_me)
-				m_mesh = export_model(mdl2, b_ob, b_me, bones_table, bounds, apply_transforms)
+				m_mesh = export_model(mdl2, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms)
 				m_mesh.lod_index = lod_i
 			for b_mat in b_me.materials:
 				if b_mat not in b_materials:
