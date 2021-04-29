@@ -175,7 +175,7 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 				(objects, mdl2.objects)):
 			if len(mdl2_list) > 0:
 				data = as_bytes(mdl2_list, version_info=versions)
-				frag.pointers[1].update_data(data, update_copies=True)
+				frag.pointers[1].update_data(data, update_copies=True, pad_to=8)
 
 	for mdl2 in mdl2s:
 		data = as_bytes(mdl2.model_info, version_info=versions)
