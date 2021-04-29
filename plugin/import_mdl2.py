@@ -31,8 +31,6 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	ob_dict = {}
 	# print("mdl2.models",mdl2.models)
 	for lod_i, m_lod in enumerate(mdl2.lods):
-		# parent the meshes to this bone
-		bone_name = bone_names[m_lod.bone_index]
 		print("lod_i", lod_i)
 		for ob_i, m_ob in enumerate(m_lod.objects):
 			model = mdl2.models[m_ob.model_index]
@@ -59,10 +57,14 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 			if m_ob.model_index not in ob_dict:
 				b_ob = create_ob(f"{bare_name}_lod{lod_i}_ob{ob_i}", b_me)
 
-				# parent to bone
+				# parenting
 				b_ob.parent = b_armature_obj
-				b_ob.parent_type = 'BONE'
-				b_ob.parent_bone = bone_name
+
+				# parent the meshes to this bone
+				if m_lod.bone_index > 0:
+					bone_name = bone_names[m_lod.bone_index-1]
+					b_ob.parent_type = 'BONE'
+					b_ob.parent_bone = bone_name
 				# re-set matrix to update the binding
 				b_ob.matrix_local = b_ob.matrix_local
 
