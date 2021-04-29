@@ -20,7 +20,7 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	in_dir, mdl2_name = os.path.split(filepath)
 	bare_name = os.path.splitext(mdl2_name)[0]
 	mdl2 = Mdl2File()
-	mdl2.load(filepath, entry=True, read_editable=True)
+	mdl2.load(filepath, entry=True, read_editable=True, read_bytes=False)
 	print(mdl2)
 	mdl2.update_lod_vertex_counts()
 	errors = []

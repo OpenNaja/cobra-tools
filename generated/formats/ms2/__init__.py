@@ -444,7 +444,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 			self.ms2_path = os.path.join(self.dir, self.ms_2_name)
 			ms2_file = Ms2File()
 			ms2_file.load(self.ms2_path)
-			self.mdl2_siblings = self.get_siblings()
+			self.mdl2_siblings = self.get_siblings(read_bytes)
 			ms2_file.fill_mdl2s(self.mdl2_siblings)
 			# at this point, a ms2 file should have been assigned, so we can read its data from the ms2
 			ms2_file.load_mesh_data()
@@ -453,7 +453,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 				ms2_file.fill_mdl2s(self.mdl2_siblings)
 		logging.info(f"Finished reading in {time.time() - start_time:.2f} seconds!")
 
-	def get_siblings(self):
+	def get_siblings(self, read_bytes):
 		logging.info(f"Looking for siblings of {self.basename}")
 		# map mdl2 name to mdl2 file, for valid ones
 		mdl2s = {}
@@ -462,12 +462,13 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 			if self.basename == mdl2_filename:
 				mdl2s[mdl2_path] = self
 			else:
-				mdl2 = Mdl2File()
-				mdl2.load(mdl2_path, read_editable=False, read_bytes=True)
-				if mdl2.ms_2_name == self.ms_2_name:
-					logging.info(f"Found sibling!")
-					# store this one if already read
-					mdl2s[mdl2_path] = mdl2
+				if read_bytes:
+					mdl2 = Mdl2File()
+					mdl2.load(mdl2_path, read_editable=False, read_bytes=read_bytes)
+					if mdl2.ms_2_name == self.ms_2_name:
+						logging.info(f"Found sibling!")
+						# store this one if already read
+						mdl2s[mdl2_path] = mdl2
 		return mdl2s
 
 	def get_bone_info(self):
