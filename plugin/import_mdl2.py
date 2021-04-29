@@ -46,8 +46,9 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 				# store mesh unknowns
 				# cast the bitfield to int
 				b_me["flag"] = int(model.flag)
-				b_me["unk_f0"] = float(model.unk_floats[0])
-				b_me["unk_f1"] = float(model.unk_floats[1])
+				if not is_old(mdl2):
+					b_me["unk_f0"] = float(model.unk_floats[0])
+					b_me["unk_f1"] = float(model.unk_floats[1])
 				mesh_dict[m_ob.model_index] = b_me
 				import_mesh_layers(b_me, model, mirror_mesh, use_custom_normals)
 
