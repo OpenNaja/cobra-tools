@@ -6,8 +6,8 @@ import time
 from utils.matrix_util import evaluate_mesh
 
 
-def find_modifier_for_particle_system(object, particle_system):
-	for modifier in object.modifiers:
+def find_modifier_for_particle_system(b_ob, particle_system):
+	for modifier in b_ob.modifiers:
 		if modifier.type != "PARTICLE_SYSTEM":
 			continue
 		if modifier.particle_system == particle_system:
