@@ -28,8 +28,6 @@ def ob_processor_wrapper(func):
 	for lod_i in range(6):
 		lod_group_name = f"LOD{lod_i}"
 		coll = get_collection(lod_group_name)
-		# src_ob = get_ob_from_lod_and_flags(coll, flags=[885, 821, 1013, ])
-		# trg_ob = get_ob_from_lod_and_flags(coll, flags=[565, ])
 		src_obs = [ob for ob in coll.objects if is_shell(ob)]
 		trg_obs = [ob for ob in coll.objects if is_fin(ob)]
 		if src_obs and trg_obs:
@@ -295,9 +293,13 @@ def gauge_uv_factors(src_ob, trg_ob):
 
 
 def is_fin(ob):
-	return "_fur_fin" in ob.data.materials[0].name.lower()
+	for b_mat in ob.data.materials:
+		if "_fur_fin" in b_mat.name.lower():
+			return True
 
 
 def is_shell(ob):
-	return "_fur_shell" in ob.data.materials[0].name.lower()
+	for b_mat in ob.data.materials:
+		if "_fur_shell" in b_mat.name.lower():
+			return True
 

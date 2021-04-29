@@ -16,7 +16,7 @@ from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Mdl2File
 from utils.matrix_util import evaluate_mesh
-from utils.shell import get_ob_from_lod_and_flags, get_collection
+from utils.shell import get_ob_from_lod_and_flags, get_collection, is_shell
 
 MAX_USHORT = 65535
 
@@ -99,12 +99,12 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	dummy_vertices = {}
 	count_unique = 0
 	count_reused = 0
-
+	shell_ob = None
 	# fin models have to grab tangents from shell
 	if model.flag == 565:
-		shell_ob = get_ob_from_lod_and_flags(b_lod_coll, flags=[885, 821, 1013, ])
-		# print(shell_ob)
-		if shell_ob:
+		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob)]
+		if shell_obs:
+			shell_ob = shell_obs[0]
 			logging.debug(f"Copying data for {b_ob.name} from base mesh {shell_ob.name}...")
 			shell_eval_ob, shell_eval_me = evaluate_mesh(shell_ob)
 			shell_eval_me.calc_tangents()
@@ -125,7 +125,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 
 			# get the vectors
 			position = b_vert.co
-			if model.flag == 565 and shell_ob:
+			if shell_ob:
 				uv_co = fin_uv_layer[b_loop.index].uv.to_3d()
 				co, index, dist = shell_kd.find(uv_co)
 				shell_loop = shell_eval_me.loops[index]

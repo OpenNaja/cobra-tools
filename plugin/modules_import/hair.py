@@ -30,18 +30,15 @@ def add_psys(ob, model):
 
 
 def vcol_to_comb():
-
-	msgs = ["Calculating...", ]
-
 	context = bpy.context
 	ob = context.object
+	if not ob:
+		return "No object in context",
 	# particle edit mode has to be entered so that hair strands are generated
 	# otherwise the non-eval ob's particle count is 0
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
 	ob_eval, me = evaluate_mesh(ob)
-	if not ob:
-		return msgs
 	particle_system = ob.particle_systems[0]
 	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
 	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
@@ -96,22 +93,20 @@ def vcol_to_comb():
 				hair_key.co_object_set(ob_eval, particle_modifier_eval, particle_eval, root.lerp(tip, hair_key_index/(num_hair_keys-1)))
 
 	# ob, m = mesh_from_data("asd", verts, faces, wireframe=True)
-	return msgs
+	return f"Converted Vertex Color to Combing for {ob.name}",
 
 
 def comb_to_vcol():
 
-	msgs = ["Calculating...", ]
-
 	context = bpy.context
 	ob = context.object
+	if not ob:
+		return "No object in context",
 	# particle edit mode has to be entered so that hair strands are generated
 	# otherwise the non-eval ob's particle count is 0
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
 	ob_eval, me = evaluate_mesh(ob)
-	if not ob:
-		return msgs
 	particle_system = ob.particle_systems[0]
 	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
 	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
@@ -148,7 +143,7 @@ def comb_to_vcol():
 			vcol[0] = vec.x + 0.5
 			vcol[2] = -vec.y + 0.5
 
-	return msgs
+	return f"Converted Combing to Vertex Color for {ob.name}",
 
 
 def get_tangent_space_mat(vert):
