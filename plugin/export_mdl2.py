@@ -275,12 +275,12 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		m_lod.first_object_index = len(mdl2.objects)
 		m_lod.models = []
 		m_lod.objects = []
-		# todo store & set bone index for lod
-		# m_lod.bone_index =
 		mdl2.lods.append(m_lod)
 		lod_group_name = f"LOD{lod_i}"
 		lod_coll = get_collection(lod_group_name)
 		for b_ob in lod_coll.objects:
+			# store & set bone index for lod
+			m_lod.bone_index = bones_table[b_ob.parent_bone]
 			b_me = b_ob.data
 			if b_me not in b_models:
 				b_models.append(b_me)
