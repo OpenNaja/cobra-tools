@@ -205,14 +205,14 @@ class Ms2Loader(Ms2File):
 		frags = self.ovs.header_entries[ss_pointer.header_index].fragments
 		if not is_old(self.ovl):
 			ms2_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.address, 3)
-			print(ms2_entry.fragments)
+			# print(ms2_entry.fragments)
 			# second pass: collect model fragments
 			versions = get_versions(self.ovl)
 			# assign the mdl2 frags to their sized str entry
 
 			f_1 = ms2_entry.fragments[1]
 			core_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
-			print("next model info:", core_model_info)
+			# print("next model info:", core_model_info)
 			for mdl2_entry in ms2_entry.children:
 				assert mdl2_entry.ext == ".mdl2"
 				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
