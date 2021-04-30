@@ -1706,7 +1706,7 @@ class OvlFile(Header, IoFile):
 					dependency_entry.basename = "bad hash"
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
-			print(dependency_entry.basename, dependency_entry.pointers)
+			# print(dependency_entry.basename, dependency_entry.pointers)
 			try:
 				file_entry = self.files[dependency_entry.file_index]
 				file_entry.dependencies.append(dependency_entry)
