@@ -107,9 +107,4 @@ class LuaLoader(BaseFile):
 		new_data.set_index = 0
 
 	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.ovs = ovl.static_archive.content
-		sized_str_entry = self.ovl.ss_dict[file_entry.name]
-		ss_pointer = sized_str_entry.pointers[0]
-		frags = self.ovs.pools[ss_pointer.pool_index].fragments
-		sized_str_entry.fragments = self.ovs.get_frags_after_count(frags, sized_str_entry.pointers[0].address, 2)
+		self.assign_fixed_frags(ovl, file_entry, 2)

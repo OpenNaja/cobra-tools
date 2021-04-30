@@ -13,6 +13,14 @@ class BaseFile:
 	# dbuffer = self.getContent(file_entry.path)
 	# file_name_bytes = bytearray(file_entry.basename, encoding='utf8')
 
+	def assign_fixed_frags(self, ovl, file_entry, count):
+		self.ovl = ovl
+		self.ovs = ovl.static_archive.content
+		self.sized_str_entry = self.ovl.ss_dict[file_entry.name]
+		ss_pointer = self.sized_str_entry.pointers[0]
+		frags = self.ovs.pools[ss_pointer.pool_index].fragments
+		self.sized_str_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.address, count)
+
 	def get_pool(self, pool_type):
 		# get one if it exists
 		for pool_index, pool in enumerate(self.ovs.pools):
@@ -105,10 +113,3 @@ class BaseFile:
 # 	new_ss.pointers[0].pool_index = 0
 # 	new_ss.pointers[0].data_offset = newoffset
 #
-# if file_entry.ext == ".txt":
-# 	data = struct.pack("I", len(dbuffer)) + zstr(dbuffer)
-# 	self.pool_data += data + get_padding(len(data), alignment=8)  # fragment pointer 1 data
-# 	new_ss = self.create_ss_entry(file_entry)
-# 	new_ss.pointers[0].pool_index = 0
-# 	new_ss.pointers[0].data_offset = offset
-# 	file_entry_count += 1

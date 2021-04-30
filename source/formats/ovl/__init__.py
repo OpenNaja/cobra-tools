@@ -58,10 +58,12 @@ def get_loader(ext):
 	from modules.formats.ASSETPKG import AssetpkgLoader
 	from modules.formats.MS2 import Ms2Loader
 	from modules.formats.LUA import LuaLoader
+	from modules.formats.TXT import TxtLoader
 	ext_2_class = {
 		".assetpkg": AssetpkgLoader,
 		".ms2": Ms2Loader,
 		".lua": LuaLoader,
+		".txt": TxtLoader,
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
