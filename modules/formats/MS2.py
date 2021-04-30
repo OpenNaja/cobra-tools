@@ -240,6 +240,8 @@ class Ms2Loader(Ms2File):
 		# 2 - p0: 8*00 				p1: objects
 		# 3 - p0: 8*00 				p1: -> first ModelData, start of ModelData fragments block
 		# 4 - p0: next_model_info	p1: -> materials
+		# plus fragments counted by num_models
+		# i - p0: ModelData (64b)	p1: -> buffer_info
 		materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 		# remove padding
 		objects.pointers[1].split_data_padding(4 * core_model_info.num_objects)
