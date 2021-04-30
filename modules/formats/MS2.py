@@ -57,8 +57,8 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 		# this fragment informs us about the model count of the next mdl2 that is read
 		# so we can use it to collect the variable mdl2 fragments describing a model each
 		next_model_info_data = f_1.pointers[1].data
-		# next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)
-		# print("next_model_info", f_1.pointers[1].address, next_model_info)
+	# next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)
+	# print("next_model_info", f_1.pointers[1].address, next_model_info)
 
 	# write the ms2 file
 	out_path = out_dir(name)
@@ -99,14 +99,15 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 					# 40 bytes (0,1 or 0,0,0,0)
 					has_bone_info = model_info.pointers[0].data
 				elif (is_jwe(ovl) and model_info.pointers[0].data_size == 144) \
-				or   (is_pz(ovl) and model_info.pointers[0].data_size == 160):
+					or (is_pz(ovl) and model_info.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = model_info.pointers[0].data[40:]
 					has_bone_info = model_info.pointers[0].data[:40]
-					# core_model_data = model_info.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)
-					# print(core_model_data)
+				# core_model_data = model_info.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)
+				# print(core_model_data)
 				else:
-					raise ValueError(f"Unexpected size {len(model_info.pointers[0].data)} for model_info fragment for {mdl2_entry.name}")
+					raise ValueError(
+						f"Unexpected size {len(model_info.pointers[0].data)} for model_info fragment for {mdl2_entry.name}")
 
 				core_model_data = struct.unpack("<5Q", has_bone_info)
 				# print(core_model_data)
@@ -172,7 +173,7 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 
 		materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 		for frag, mdl2_list in (
-				(materials, mdl2.materials, ),
+				(materials, mdl2.materials,),
 				(lods, mdl2.lods),
 				(objects, mdl2.objects)):
 			if len(mdl2_list) > 0:
@@ -186,11 +187,11 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 			f_1.pointers[1].update_data(data, update_copies=True)
 		else:
 			# grab the preceding mdl2 entry since it points ahead
-			mdl2_entry = ms2_entry.children[mdl2.index-1]
+			mdl2_entry = ms2_entry.children[mdl2.index - 1]
 			# get its model info fragment
 			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 			if (is_jwe(ovl_data) and model_info.pointers[0].data_size == 144) \
-				 or (is_pz(ovl_data) and model_info.pointers[0].data_size == 160):
+				or (is_pz(ovl_data) and model_info.pointers[0].data_size == 160):
 				data = model_info.pointers[0].data[:40] + data
 				model_info.pointers[0].update_data(data, update_copies=True)
 
@@ -210,6 +211,11 @@ class Ms2Loader(Ms2File):
 			versions = get_versions(self.ovl)
 			# assign the mdl2 frags to their sized str entry
 
+			# 3 fixed fragments laid out like
+			# sse p0: ms2_general_info_data (24 bytes)
+			# 0 - p0: 8*00 				p1: buffer_info
+			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
+			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0
 			f_1 = ms2_entry.fragments[1]
 			core_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 			# print("next model info:", core_model_info)
@@ -218,9 +224,8 @@ class Ms2Loader(Ms2File):
 				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
 				pink = mdl2_entry.fragments[4]
 				if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
-						or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
-					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[
-						0].info
+					or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
+					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		else:
 			ms2_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.address, 1)
