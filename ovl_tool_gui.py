@@ -213,12 +213,10 @@ class MainWindow(widgets.MainWindow):
 		# this is problematic for stuff like ztuac
 		try:
 			# actually the index goes into the flattened list of header entries
-			# todo - gotta create an array of header entries to read them into
-			archive = self.ovl_data.archives[0].content
 			for dep in file_entry.dependencies:
 				p = dep.pointers[0]
 				p.data_size = 8
-				p.read_data(archive)
+				p.read_data(self.ovl_data.header_entries)
 				# assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
 				logging.debug(f"Dependency: {p.header_index} {p.data_offset} {dep.name}")
 			for f in ss_entry.fragments:

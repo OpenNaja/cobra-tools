@@ -398,7 +398,7 @@ class OvsFile(OvsHeader, ZipFile):
 		print("Reading data into pointers")
 		for entry in itertools.chain(self.fragments, self.sized_str_entries):
 			for pointer in entry.pointers:
-				pointer.read_data(self)
+				pointer.read_data(self.header_entries)
 
 	def map_assets(self):
 		"""Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
@@ -1722,6 +1722,13 @@ class OvlFile(Header, IoFile):
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		print(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
+	def load_headers(self):
+		self.header_entries = [None for _ in range(self.num_headers)]
+		for archive_entry in self.archives:
+			if archive_entry.num_headers:
+				self.header_entries[archive_entry.ovs_head_offset:
+									archive_entry.ovs_head_offset + archive_entry.num_headers] = archive_entry.content.header_entries
+
 	def load_archives(self):
 		print("Loading archives...")
 		start_time = time.time()
@@ -1747,6 +1754,7 @@ class OvlFile(Header, IoFile):
 		self.close_ovs_streams()
 		self.update_ss_dict()
 		self.link_streams()
+		self.load_headers()
 		self.load_file_classes()
 
 		# print(self)

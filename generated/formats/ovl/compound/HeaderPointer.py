@@ -55,14 +55,14 @@ class HeaderPointer:
 		s += '\n'
 		return s
 
-	def read_data(self, archive):
+	def read_data(self, header_entries):
 		"""Load data from archive header data readers into pointer for modification and io"""
 
 		self.padding = b""
 		if self.header_index == -1:
 			self.data = None
 		else:
-			header_reader = archive.header_entries[self.header_index].data
+			header_reader = header_entries[self.header_index].data
 			header_reader.seek(self.data_offset)
 			self.data = header_reader.read(self.data_size)
 
