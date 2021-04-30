@@ -67,7 +67,8 @@ def build_fins(src_ob, trg_ob):
 	ob = copy_ob(src_ob)
 	me = ob.data
 	# transfer the material
-	me.materials[0] = trg_ob.data.materials[0]
+	me.materials.clear()
+	me.materials.append(trg_ob.data.materials[0])
 	# rename new object
 	trg_name = trg_ob.name
 	trg_ob.name += "dummy"
