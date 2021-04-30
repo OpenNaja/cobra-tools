@@ -165,6 +165,8 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 		mdl2.load(mdl2_path)
 		mdl2s.append(mdl2)
 
+		if len(mdl2_entry.model_data_frags) != len(mdl2.models):
+			raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
 		# overwrite mdl2 modeldata frags
 		for frag, modeldata in zip(mdl2_entry.model_data_frags, mdl2.models):
 			frag_data = as_bytes(modeldata, version_info=versions)
