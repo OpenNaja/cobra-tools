@@ -241,7 +241,8 @@ class Ms2Loader(Ms2File):
 		materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 		# remove padding
 		objects.pointers[1].split_data_padding(4 * core_model_info.num_objects)
-
+		# store for export
+		mdl2_entry.num_models = core_model_info.num_objects
 		# get and set fragments
 		logging.debug(f"Num model data frags = {core_model_info.num_models}")
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(model_data_ptr.pointers[1], core_model_info.num_models)
