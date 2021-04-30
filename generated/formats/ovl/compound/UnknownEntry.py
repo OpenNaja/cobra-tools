@@ -1,3 +1,8 @@
+import numpy
+import typing
+from generated.array import Array
+
+
 class UnknownEntry:
 
 	"""
@@ -10,25 +15,24 @@ class UnknownEntry:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.unknown_1 = 0
-		self.unknown_2 = 0
-		self.unknown_3 = 0
+
+		# ?
+		self.unknowns = numpy.zeros((2, 2), dtype='ushort')
+		self.zero = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.unknown_1 = stream.read_uint()
-		self.unknown_2 = stream.read_uint()
-		self.unknown_3 = stream.read_uint()
+		self.unknowns = stream.read_ushorts((2, 2))
+		self.zero = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_uint(self.unknown_1)
-		stream.write_uint(self.unknown_2)
-		stream.write_uint(self.unknown_3)
+		stream.write_ushorts(self.unknowns)
+		stream.write_uint(self.zero)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -37,9 +41,8 @@ class UnknownEntry:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
-		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
-		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
+		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
 		return s
 
 	def __repr__(self):

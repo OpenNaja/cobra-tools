@@ -433,10 +433,10 @@
 		266 bytes
 		very end of buffer 0 after the names list
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
-		<add name="unks" type="InfoZTHeaderEntry" arr1="#ARG# \ unk count" ></add>
+		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ unk count" ></add>
 	</compound>
 
-	<compound name="InfoZTHeaderEntry" >
+	<compound name="InfoZTMemPool" >
 		<add name="unk count" type="ushort" ></add>
 		<add name="unks" type="ushort" arr1="unk count" arr2="2" ></add>
 	</compound>

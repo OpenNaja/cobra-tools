@@ -14,7 +14,7 @@ class ZlibInfo:
 		# seemingly unused in JWE
 		self.zlib_thing_1 = 0
 
-		# seemingly unused in JWE, subtracting this from ovs uncompressed size to get length of the uncompressed ovs header
+		# seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header
 		self.zlib_thing_2 = 0
 
 	def read(self, stream):

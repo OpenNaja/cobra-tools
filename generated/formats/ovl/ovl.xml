@@ -130,8 +130,8 @@
         <add name="Num Dependencies" type="uint" >count of parts</add>
         <add name="Num Archives" type="uint" >number of archives</add>
 
-        <add name="Num Header Types" type="uint" >number of header types across all archives</add>
-        <add name="Num Headers" type="uint" >number of headers of all types across all archives</add>
+        <add name="num_pool_types" type="uint" >number of pool_types across all archives</add>
+        <add name="num_pools" type="uint" >number of headers of all types across all archives</add>
         <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
         <add name="Num Buffers" type="uint" >number of BufferEntries across all archives</add>
         <add name="Num Files OVS" type="uint" >number of files in external OVS archive</add>
@@ -159,7 +159,7 @@
     <compound name="ZlibInfo" >
         Description of one zlib archive
         <add name="Zlib thing1" type="uint">seemingly unused in JWE</add>
-        <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed size to get length of the uncompressed ovs header</add>
+        <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header</add>
     </compound>
 
     <compound name="MimeEntry" >
@@ -176,45 +176,45 @@
 
     <compound name="FileEntry" >
         Description of one file in the archive
-        <add name="Offset" type="uint">offset in the header's Names block; start offset of zero terminated string</add>
+        <add name="Offset" type="uint">offset in the ovl's names block; start offset of zero terminated string</add>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
-        <add name="unkn0" type="byte" >could be the number of fragments this file is split into; Or the amount of entries that refer to this file</add>
-        <add name="unkn1" type="byte" ></add>
+        <add name="unkn0" type="byte" >? constant per file type</add>
+        <add name="unkn1" type="byte" >? constant per file type</add>
         <add name="Extension" type="ushort" >index into 'Extensions' array</add>
     </compound>
 
     <compound name="ArchiveEntry" >
         Description of one archive
-        <add name="Offset" type="uint">offset in the header's Archive Names block</add>
-        <add name="ovs head offset" type="uint">starting offset of header entries</add>
-        <add name="ovs file offset" type="uint">starting offset of file entries</add>
-        <add name="Num Headers" type="uint" >Total amount of headers in this archive; sum of all HeaderType.num_headers</add>
-        <add name="Num Datas" type="ushort" >Total amount of Data Entries</add>
-        <add name="Num Header Types" type="ushort" >Amount of HeaderType objects at start of this deflated archive.</add>
+        <add name="Offset" type="uint">offset in the ovl's Archive Names block</add>
+        <add name="pools_offset" type="uint">starting index in ovl list of pools, this archive's pools continue for num_pools</add>
+        <add name="ovs file offset" type="uint">starting index of file entries</add>
+        <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolType.num_pools</add>
+        <add name="Num Datas" type="ushort" >Amount of Data Entries</add>
+        <add name="num_pool_types" type="ushort" >Amount of PoolType objects at start of this deflated archive.</add>
         <add name="zeros" type="uint">?</add>
         <add name="Num Buffers" type="uint">Amount of buffers in the archive</add>
         <add name="Num Fragments" type="uint" >Amount of Fragments in the archive</add>
         <add name="Num Files" type="uint">Number of files in the archive</add>
         <add name="read start" type="uint">Seek to pos to get zlib header for this archive</add>
         <add name="set data size" type="uint" >size of the set and asset entry data</add>
-        <add name="compressed size" type="uint">size of the compressed ovl dat</add>
-        <add name="uncompressed size" type="uint" >size of the uncompressed ovl dat</add>
+        <add name="compressed_size" type="uint">size of the compressed data for this archive</add>
+        <add name="uncompressed_size" type="uint" >size of the uncompressed data for this archive</add>
         <add name="zeros 3" type="uint">?</add>
-        <add name="pools_start" type="uint">cumulative size of all header datas preceding this archive</add>
-        <add name="pools_end" type="uint" >sum of the archives header entry data blocks + the pools_start</add>
+        <add name="pools_start" type="uint">byte offset, cumulative size of all pools preceding this archive</add>
+        <add name="pools_end" type="uint" >byte offset, sum of the archives header entry data blocks + the pools_start</add>
         <add name="file index offset" type="uint" vercond="#DLA#">doesn't work like that because order of ovl files is wrong! - files of this archive start here in ovl file list, + count num files</add>
         <add name="ovs offset" type="uint" vercond="!#DLA#" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
     <compound name="OvsHeader" >
         Description of one archive's content
-        <add name="header types" type="HeaderType" arr1="#ARG#\Num Header Types"></add>
-        <add name="header entries" type="HeaderEntry" arr1="#ARG#\Num Headers"></add>
-        <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"></add>
-        <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"></add>
-        <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"></add>
-        <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"></add>
-        <add name="set header " type="SetHeader" ></add>
+        <add name="pool_types" type="PoolType" arr1="#ARG#\num_pool_types"/>
+        <add name="pools" type="MemPool" arr1="#ARG#\num_pools"/>
+        <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
+        <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
+        <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"/>
+        <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
+        <add name="set header " type="SetHeader"/>
     </compound>
 
 
@@ -224,13 +224,11 @@
     </compound>
 
     <compound name="DependencyEntry" >
-        Description of dependency; links it to an entry (usually fgm) from this archive
+        Description of dependency; links it to an entry from this archive
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
         <add name="offset" type="uint" >offset for extension into string name table</add>
-        <add name="file index" type="uint" >index into file table, points to the file entry where this dependency is used</add>
-        <add name="pointers" type="HeaderPointer" arr1="1" >points into header datas section of user</add>
-<!--        <add name="Ovsblock Id" type="uint" >what we call archive, usually 0, 1 (dino common), 4 (aardvark), 5 (dilo) or 7 (detailobjects); definitely NOT file type</add>-->
-<!--        <add name="pool_offset" type="uint" >offset inside the ovs in memory, textures probably should be shorted by that for loading</add>-->
+        <add name="file index" type="uint" >index into ovl file table, points to the file entry where this dependency is used</add>
+        <add name="pointers" type="HeaderPointer" arr1="1" >pointer into flattened list of all archives' pools</add>
     </compound>
 
     <compound name="AuxEntry" >
@@ -242,20 +240,19 @@
 
     <compound name="UnknownEntry" >
         Description of one file type
-        <add name="unknown 1" type="uint" ></add>
-        <add name="unknown 2" type="uint" ></add>
-        <add name="unknown 3" type="uint" ></add>
+        <add name="unknowns" type="ushort" arr1="2" arr2="2">?</add>
+        <add name="zero" type="uint"/>
     </compound>
 
 	<!-- From here, structs are for the deflated stream -->
 
-	<compound name="HeaderType">
+	<compound name="PoolType">
 		Located at start of deflated archive stream
 		<add name="Type" type="ushort" >Type of the headers that follow</add>
-		<add name="Num Headers" type="ushort" >Amount of the headers of that type that follow the headers block</add>
+		<add name="num_pools" type="ushort" >Amount of the headers of that type that follow the headers block</add>
 	</compound>
 
-    <compound name="HeaderEntry" >
+    <compound name="MemPool" >
         Description of one archive header entry
 		<add name="zero1" type="uint64" vercond="!#DLA#">always 0</add>
 		<add name="Size" type="uint">the number of bytes representing the text files data</add>
@@ -287,7 +284,7 @@
 	<compound name="HeaderPointer" >
 		Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
 		8 bytes
-        <add name="header index" type="int" >The index of the HeaderEntry this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)</add>
+        <add name="pool_index" type="int" >The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)</add>
         <add name="data offset" type="uint" >the byte offset relative to the start of the header entry data</add>
     </compound>
 	

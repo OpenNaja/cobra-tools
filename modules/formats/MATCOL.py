@@ -43,7 +43,7 @@ def write_materialcollection(ovl, sized_str_entry, out_dir, show_temp_files, pro
 def update_matcol_pointers(pointers, new_names):
 	# it looks like fragments are not reused here, and not even pointers are
 	# but as they point to the same address the writer treats them as same
-	# so the pointer map has to be updated for the involved header entries
+	# so the pointer map has to be updated for the involved pools
 	# also the copies list has to be adjusted
 
 	# so this is a hack that only considers one entry for each union of pointers

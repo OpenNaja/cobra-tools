@@ -11,23 +11,23 @@ class ArchiveEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# offset in the header's Archive Names block
+		# offset in the ovl's Archive Names block
 		self.offset = 0
 
-		# starting offset of header entries
-		self.ovs_head_offset = 0
+		# starting index in ovl list of pools, this archive's pools continue for num_pools
+		self.pools_offset = 0
 
-		# starting offset of file entries
+		# starting index of file entries
 		self.ovs_file_offset = 0
 
-		# Total amount of headers in this archive; sum of all HeaderType.num_headers
-		self.num_headers = 0
+		# Total amount of pools in this archive; sum of all PoolType.num_pools
+		self.num_pools = 0
 
-		# Total amount of Data Entries
+		# Amount of Data Entries
 		self.num_datas = 0
 
-		# Amount of HeaderType objects at start of this deflated archive.
-		self.num_header_types = 0
+		# Amount of PoolType objects at start of this deflated archive.
+		self.num_pool_types = 0
 
 		# ?
 		self.zeros = 0
@@ -47,19 +47,19 @@ class ArchiveEntry:
 		# size of the set and asset entry data
 		self.set_data_size = 0
 
-		# size of the compressed ovl dat
+		# size of the compressed data for this archive
 		self.compressed_size = 0
 
-		# size of the uncompressed ovl dat
+		# size of the uncompressed data for this archive
 		self.uncompressed_size = 0
 
 		# ?
 		self.zeros_3 = 0
 
-		# cumulative size of all header datas preceding this archive
+		# byte offset, cumulative size of all pools preceding this archive
 		self.pools_start = 0
 
-		# sum of the archives header entry data blocks + the pools_start
+		# byte offset, sum of the archives header entry data blocks + the pools_start
 		self.pools_end = 0
 
 		# doesn't work like that because order of ovl files is wrong! - files of this archive start here in ovl file list, + count num files
@@ -72,11 +72,11 @@ class ArchiveEntry:
 
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
-		self.ovs_head_offset = stream.read_uint()
+		self.pools_offset = stream.read_uint()
 		self.ovs_file_offset = stream.read_uint()
-		self.num_headers = stream.read_uint()
+		self.num_pools = stream.read_uint()
 		self.num_datas = stream.read_ushort()
-		self.num_header_types = stream.read_ushort()
+		self.num_pool_types = stream.read_ushort()
 		self.zeros = stream.read_uint()
 		self.num_buffers = stream.read_uint()
 		self.num_fragments = stream.read_uint()
@@ -99,11 +99,11 @@ class ArchiveEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
-		stream.write_uint(self.ovs_head_offset)
+		stream.write_uint(self.pools_offset)
 		stream.write_uint(self.ovs_file_offset)
-		stream.write_uint(self.num_headers)
+		stream.write_uint(self.num_pools)
 		stream.write_ushort(self.num_datas)
-		stream.write_ushort(self.num_header_types)
+		stream.write_ushort(self.num_pool_types)
 		stream.write_uint(self.zeros)
 		stream.write_uint(self.num_buffers)
 		stream.write_uint(self.num_fragments)
@@ -128,11 +128,11 @@ class ArchiveEntry:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* ovs_head_offset = {self.ovs_head_offset.__repr__()}'
+		s += f'\n	* pools_offset = {self.pools_offset.__repr__()}'
 		s += f'\n	* ovs_file_offset = {self.ovs_file_offset.__repr__()}'
-		s += f'\n	* num_headers = {self.num_headers.__repr__()}'
+		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
 		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
-		s += f'\n	* num_header_types = {self.num_header_types.__repr__()}'
+		s += f'\n	* num_pool_types = {self.num_pool_types.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
 		s += f'\n	* num_fragments = {self.num_fragments.__repr__()}'

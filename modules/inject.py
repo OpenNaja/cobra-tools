@@ -1,6 +1,7 @@
 import tempfile
 import shutil
 
+from modules.formats.ASSETPKG import load_assetpkg
 from modules.formats.BNK import load_wem
 from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
@@ -85,12 +86,6 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 
 	if progress_callback:
 		progress_callback("Injection completed!", value=1, vmax=1)
-
-
-def load_assetpkg(ovl_data, assetpkg_file_path, sized_str_entry):
-	with open(assetpkg_file_path, "rb") as stream:
-		b = stream.read()
-		sized_str_entry.fragments[0].pointers[1].update_data( b + b"\x00", update_copies=True, pad_to=64)
 
 
 def load_userinterfaceicondata(ovl_data, userinterfaceicondata_file_path, sized_str_entry):

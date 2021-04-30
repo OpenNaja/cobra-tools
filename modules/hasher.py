@@ -25,7 +25,7 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 			content.data_entries,
 			content.set_header.sets,
 			content.set_header.assets,
-			content.header_entries,
+			content.pools,
 			content.sized_str_entries
 		))
 	old_hash_to_new = {}
@@ -116,9 +116,9 @@ def dat_replacer(ovl, name_tups):
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
 			ovs = archive_entry.content
-			for header_entry in ovs.header_entries:
-				b = header_entry.data.getvalue()
-				header_entry.data = io.BytesIO(replace_bytes(b, name_tups_new))
+			for pool in ovs.pools:
+				b = pool.data.getvalue()
+				pool.data = io.BytesIO(replace_bytes(b, name_tups_new))
 			ovs.populate_pointers()
 	# for buffer_entry in ovs.buffer_entries:
 	# 	b = buffer_entry.data
@@ -165,9 +165,9 @@ def species_dat_replacer(ovl, name_tups):
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
 			ovs = archive_entry.content
-			for header_entry in ovs.header_entries:
-				b = header_entry.data.getvalue()
-				header_entry.data = io.BytesIO(replace_bytes(b, name_tups_new))
+			for pool in ovs.pools:
+				b = pool.data.getvalue()
+				pool.data = io.BytesIO(replace_bytes(b, name_tups_new))
 			ovs.populate_pointers()
 			for buffer_entry in ovs.buffer_entries:
 				if ovl.user_version.is_jwe:

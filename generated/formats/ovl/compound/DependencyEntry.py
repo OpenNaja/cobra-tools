@@ -7,7 +7,7 @@ from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 class DependencyEntry:
 
 	"""
-	Description of dependency; links it to an entry (usually fgm) from this archive
+	Description of dependency; links it to an entry from this archive
 	"""
 
 	def __init__(self, arg=None, template=None):
@@ -23,10 +23,10 @@ class DependencyEntry:
 		# offset for extension into string name table
 		self.offset = 0
 
-		# index into file table, points to the file entry where this dependency is used
+		# index into ovl file table, points to the file entry where this dependency is used
 		self.file_index = 0
 
-		# points into header datas section of user
+		# pointer into flattened list of all archives' pools
 		self.pointers = Array()
 
 	def read(self, stream):

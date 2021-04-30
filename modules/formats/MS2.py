@@ -4,13 +4,16 @@ import logging
 
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
-from modules.formats.shared import pack_header, get_versions
-from modules.helpers import write_sized_str, as_bytes
 from generated.formats.ms2 import Mdl2File, Ms2File, is_old
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.ModelData import ModelData
+
 from generated.formats.ovl.versions import *
+
+from modules.formats.shared import pack_header, get_versions
+from modules.formats.BaseFormat import BaseFile
+from modules.helpers import write_sized_str, as_bytes
 
 
 def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
@@ -197,14 +200,14 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 				model_info.pointers[0].update_data(data, update_copies=True)
 
 
-class Ms2Loader(Ms2File):
+class Ms2Loader(Ms2File, BaseFile):
 
 	def collect(self, ovl, file_entry):
 		self.ovl = ovl
 		ms2_entry = self.ovl.ss_dict[file_entry.name]
 		ss_pointer = ms2_entry.pointers[0]
 		self.ovs = ovl.static_archive.content
-		frags = self.ovs.header_entries[ss_pointer.header_index].fragments
+		frags = self.ovs.pools[ss_pointer.pool_index].fragments
 		if not is_old(self.ovl):
 			ms2_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.address, 3)
 			# print(ms2_entry.fragments)

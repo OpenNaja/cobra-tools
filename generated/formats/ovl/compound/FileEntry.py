@@ -11,14 +11,16 @@ class FileEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# offset in the header's Names block; start offset of zero terminated string
+		# offset in the ovl's names block; start offset of zero terminated string
 		self.offset = 0
 
 		# this hash is used to retrieve the file name from inside the archive
 		self.file_hash = 0
 
-		# could be the number of fragments this file is split into; Or the amount of entries that refer to this file
+		# ? constant per file type
 		self.unkn_0 = 0
+
+		# ? constant per file type
 		self.unkn_1 = 0
 
 		# index into 'Extensions' array

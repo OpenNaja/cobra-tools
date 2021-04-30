@@ -5,6 +5,7 @@ import sys
 
 import ovl_util.interaction
 import modules.formats.shared
+from modules.formats.ASSETPKG import write_assetpkg
 from modules.formats.BANI import write_banis, write_bani
 from modules.formats.BNK import write_bnk
 from modules.formats.DDS import write_tex
@@ -22,7 +23,6 @@ from modules.formats.TXT import write_txt
 from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
 from ovl_util import widgets
-
 
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
 SUPPORTED_TYPES = (".dds", ".png", ".ms2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
@@ -93,18 +93,6 @@ def write_prefab(ovl, sized_str_entry, out_dir, show_temp_files, progress_callba
 			# print(frag.pointers[1].data)
 			outfile.write(frag.pointers[0].data)
 			outfile.write(frag.pointers[1].data)
-
-
-def write_assetpkg(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
-	name = sized_str_entry.name
-	print("\nWriting", name)
-	f_0 = sized_str_entry.fragments[0]
-	out_path=out_dir(name)
-	with open(out_path, 'wb') as outfile:
-		f_0.pointers[1].strip_zstring_padding()
-		outfile.write(f_0.pointers[1].data[:-1])
-
-	return out_path,
 
 
 def write_userinterfaceicondata(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):

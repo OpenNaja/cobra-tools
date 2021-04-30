@@ -1,7 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
-from generated.formats.ms2.compound.InfoZTHeaderEntry import InfoZTHeaderEntry
+from generated.formats.ms2.compound.InfoZTMemPool import InfoZTMemPool
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
 
 
@@ -28,7 +28,7 @@ class Ms2BufferInfoZTHeader:
 
 		self.io_start = stream.tell()
 		self.weird_padding = stream.read_type(SmartPadding)
-		self.unks.read(stream, InfoZTHeaderEntry, self.arg.unk_count, None)
+		self.unks.read(stream, InfoZTMemPool, self.arg.unk_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -36,7 +36,7 @@ class Ms2BufferInfoZTHeader:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.weird_padding)
-		self.unks.write(stream, InfoZTHeaderEntry, self.arg.unk_count, None)
+		self.unks.write(stream, InfoZTMemPool, self.arg.unk_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 

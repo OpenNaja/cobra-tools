@@ -14,7 +14,7 @@ from ovl_util import texconv, imarray
 
 
 def get_tex_structs(sized_str_entry):
-	# we have exactly two fragments, pointing into these header types
+	# we have exactly two fragments, pointing into these pool_types
 	f_3_3, f_3_7 = sized_str_entry.fragments
 
 	header_3_0 = f_3_7.pointers[0].load_as(Header3Data0)[0]

@@ -209,19 +209,19 @@ class MainWindow(widgets.MainWindow):
 		# print(ss_entry)
 		ss_p = ss_entry.pointers[0]
 		# print(file_entry.dependencies)
-		logging.debug(f"File: {ss_p.header_index} {ss_p.data_offset} {ss_entry.name}")
+		logging.debug(f"File: {ss_p.pool_index} {ss_p.data_offset} {ss_entry.name}")
 		try:
 			for dep in file_entry.dependencies:
 				p = dep.pointers[0]
 				p.data_size = 8
-				# the index goes into the flattened list of header entries
-				p.read_data(self.ovl_data.header_entries)
+				# the index goes into the flattened list of pools
+				p.read_data(self.ovl_data.pools)
 				assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
-				logging.debug(f"Dependency: {p.header_index} {p.data_offset} {dep.name}")
+				logging.debug(f"Dependency: {p.pool_index} {p.data_offset} {dep.name}")
 			for f in ss_entry.fragments:
 				p0 = f.pointers[0]
 				p1 = f.pointers[1]
-				logging.debug(f"Fragment: {p0.header_index} {p0.data_offset} {p1.header_index} {p1.data_offset}")
+				logging.debug(f"Fragment: {p0.pool_index} {p0.data_offset} {p1.pool_index} {p1.data_offset}")
 		except:
 			logging.error(f"Dependency failed {file_entry.dependencies}")
 

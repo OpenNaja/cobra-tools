@@ -314,11 +314,10 @@ class ZipFile(IoFile):
 		stream = BinaryStream()
 		assign_versions(stream, get_versions(self.ovl))
 		self.write_archive(stream)
-		if use_external == True:
+		if use_external:
 			if i == 0:
 				with open(external_path, "rb") as streamer:
-					bbb = streamer.read()
-				uncompressed_bytes = bbb
+					uncompressed_bytes = streamer.read()
 			else:
 				uncompressed_bytes = stream.getbuffer()
 		else:

@@ -2,42 +2,42 @@ REVERSED_TYPES = (".tex", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm",
 
 
 def add_pointer(pointer, ss_entry, pointers_to_ss):
-	if pointer.header_index != -1:
-		pointers_to_ss[pointer.header_index][pointer.data_offset] = ss_entry
+	if pointer.pool_index != -1:
+		pointers_to_ss[pointer.pool_index][pointer.data_offset] = ss_entry
 
 
 def header_hash_finder(ovs):
 	# this algorithm depends on every fragment being assigned to the correct sized string entries
-	print("Updating header entries")
-	pointers_to_ss_ss = [{} for _ in ovs.header_entries]
-	pointers_to_ss_frag = [{} for _ in ovs.header_entries]
+	print("Updating pools")
+	pointers_to_ss_ss = [{} for _ in ovs.pools]
+	pointers_to_ss_frag = [{} for _ in ovs.pools]
 	for sized_str_entry in ovs.sized_str_entries:
 		add_pointer(sized_str_entry.pointers[0], sized_str_entry, pointers_to_ss_ss)
 		for frag in sized_str_entry.fragments:
 			for pointer in frag.pointers:
 				add_pointer(pointer, sized_str_entry, pointers_to_ss_frag)
-	for header_entry_index, header_entry in enumerate(ovs.header_entries):
-		print(f"Header index {header_entry_index}")
-		if header_entry.ext not in REVERSED_TYPES:
-			print(f"Keeping header name {header_entry.name} as it has not been reverse engineered!")
+	for pool_index, pool in enumerate(ovs.pools):
+		print(f"pool_index {pool_index}")
+		if pool.ext not in REVERSED_TYPES:
+			print(f"Keeping header name {pool.name} as it has not been reverse engineered!")
 			continue
-		# print(header_entry)
-		ss_map = pointers_to_ss_ss[header_entry_index]
+		# print(pool)
+		ss_map = pointers_to_ss_ss[pool_index]
 		results = tuple(sorted(ss_map.items()))
 		if not results:
 			print("No ss pointer found, checking frag pointers!")
-			ss_map = pointers_to_ss_frag[header_entry_index]
+			ss_map = pointers_to_ss_frag[pool_index]
 			results = tuple(sorted(ss_map.items()))
 			if not results:
-				print(f"No pointer found for header {header_entry_index}, error!")
+				print(f"No pointer found for header {pool_index}, error!")
 				continue
 		ss = results[0][1]
-		print(f"Header[{header_entry_index}]: {header_entry.name} -> {ss.name}")
-		header_entry.file_hash = ss.file_hash
-		header_entry.ext_hash = ss.ext_hash
-		header_entry.name = ss.name
-		header_entry.basename = ss.basename
-		header_entry.ext = ss.ext
+		print(f"Header[{pool_index}]: {pool.name} -> {ss.name}")
+		pool.file_hash = ss.file_hash
+		pool.ext_hash = ss.ext_hash
+		pool.name = ss.name
+		pool.basename = ss.basename
+		pool.ext = ss.ext
 
 
 def file_remover(ovl, filenames):

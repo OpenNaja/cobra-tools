@@ -6,26 +6,26 @@ import time
 import traceback
 import logging
 
+from generated.io import IoFile, ZipFile, BinaryStream
+from generated.formats.ovl.versions import *
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetEntry import SetEntry
-from generated.formats.ovl.versions import *
-from generated.io import IoFile, ZipFile, BinaryStream
-from modules.formats.MS2 import Ms2Loader
-from modules.formats.shared import get_versions, djb, assign_versions, get_padding
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.Fragment import Fragment
-from generated.formats.ovl.compound.HeaderEntry import HeaderEntry
-from generated.formats.ovl.compound.HeaderType import HeaderType
+from generated.formats.ovl.compound.MemPool import MemPool
+from generated.formats.ovl.compound.PoolType import PoolType
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
+
+from modules.formats.shared import get_versions, djb, assign_versions, get_padding
 from modules.helpers import zstr
 
 
@@ -54,6 +54,20 @@ lut_mime_hash = {
 }
 
 
+def get_loader(ext):
+	from modules.formats.ASSETPKG import AssetpkgLoader
+	from modules.formats.MS2 import Ms2Loader
+	from modules.formats.LUA import LuaLoader
+	ext_2_class = {
+		".assetpkg": AssetpkgLoader,
+		".ms2": Ms2Loader,
+		".lua": LuaLoader,
+	}
+	cls = ext_2_class.get(ext, None)
+	if cls:
+		return cls()
+
+
 class OvsFile(OvsHeader, ZipFile):
 
 	def __init__(self, ovl, archive_entry, archive_index):
@@ -69,7 +83,7 @@ class OvsFile(OvsHeader, ZipFile):
 		print(f"Game: {get_game(self.ovl)}")
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.ovl.files)}
 		for entry_list in (
-				self.header_entries,
+				self.pools,
 				self.sized_str_entries,
 				self.data_entries,
 				self.set_header.sets,
@@ -83,141 +97,28 @@ class OvsFile(OvsHeader, ZipFile):
 					entry.file_hash = file_index
 				entry.ext_hash = file.ext_hash
 
-	def getContent(self, filename):
-		with open(filename, 'rb') as f:
-			content = f.read()
-		return content
-
-	def create_ss_entry(self, file_entry):
-		new_ss = SizedStringEntry()
-		self.transfer_identity(new_ss, file_entry)
-		new_pointss = HeaderPointer()
-		new_ss.pointers.append(new_pointss)
-		self.sized_str_entries.append(new_ss)
-		return new_ss
-
-	def create_fragment(self):
-		new_frag = Fragment()
-		new_point0 = HeaderPointer()
-		new_point1 = HeaderPointer()
-		new_frag.pointers.append(new_point0)
-		new_frag.pointers.append(new_point1)
-		self.fragments.append(new_frag)
-		return new_frag
-
-	def create_data_entry(self, file_entry, buffer_bytes):
-		new_data = DataEntry()
-		self.transfer_identity(new_data, file_entry)
-		# new_data.set_index = 0
-		new_data.buffer_count = len(buffer_bytes)
-		new_data.size_1 = sum([len(b) for b in buffer_bytes])
-		for i, b in reversed(list(enumerate(buffer_bytes))):
-			new_buff = BufferEntry()
-			new_buff.index = i
-			new_buff.update_data(b)
-			self.buffer_entries.append(new_buff)
-		self.data_entries.append(new_data)
-		return new_data
+	def update_counts(self):
+		# adjust the counts
+		self.arg.num_pools = len(self.pools)
+		self.arg.num_datas = len(self.data_entries)
+		self.arg.num_pool_types = len(self.pool_types)
+		self.arg.num_buffers = len(self.buffer_entries)
+		self.arg.num_fragments = len(self.fragments)
+		self.arg.num_files = len(self.sized_str_entries)
 
 	def create(self):
-
 		file_entry_count = 0
 
 		# all classes go in a memory block
-		self.header_entry_data = b''
-		offset = 0
-
 		for file_entry in self.ovl.files:
-			dbuffer = self.getContent(file_entry.path)
-			file_name_bytes = bytearray(file_entry.basename, encoding='utf8')
-			if file_entry.ext == ".assetpkg":  # assetpkg.. copy content, pad to 64b, then assign 1 fragment and 1 empty sized str.
-				dbuffer = zstr(dbuffer) + get_padding(len(zstr(dbuffer)), 64)
-				self.header_entry_data += dbuffer  # fragment pointer 1 data
-				self.header_entry_data += struct.pack('16s', b'')  # fragment pointer 0 data
-				new_frag = self.create_fragment()
-				new_frag.pointers[0].header_index = 0
-				new_frag.pointers[0].data_offset = offset + len(dbuffer)
-				new_frag.pointers[1].header_index = 0
-				new_frag.pointers[1].data_offset = offset
-				new_ss = self.create_ss_entry(file_entry)
-				new_ss.pointers[0].header_index = 0
-				new_ss.pointers[0].data_offset = offset + len(dbuffer)
+			loader = get_loader(file_entry.ext)
+			if loader:
+				loader.create(self, file_entry)
 
-			if file_entry.ext == ".fdb":
-				self.header_entry_data += struct.pack("I28s", len(dbuffer), b'')
-				new_ss = self.create_ss_entry(file_entry)
-				new_ss.pointers[0].header_index = 0
-				new_ss.pointers[0].data_offset = offset
-				new_data = self.create_data_entry(file_entry, (file_name_bytes, dbuffer))
-				new_data.set_index = 0
-
-			if file_entry.ext == ".lua":  # lua, ss, 2 frag + buffer
-				self.header_entry_data += struct.pack("IIII", len(dbuffer), 16000, 0x00, 0x00)  # ss data
-				self.header_entry_data += struct.pack("24s", b'')  # room for 3 pointers
-				self.header_entry_data += struct.pack("8s", b'')  # room for 2 ints
-				self.header_entry_data += b'\x00'  # one more char for the 2nd ptr
-				self.header_entry_data += file_name_bytes + b'\x00'
-				new_frag0 = self.create_fragment()
-				new_frag0.pointers[0].header_index = 0
-				new_frag0.pointers[0].data_offset = offset + 0x10
-				new_frag0.pointers[1].header_index = 0
-				new_frag0.pointers[1].data_offset = offset + 0x31
-				new_frag1 = self.create_fragment()
-				new_frag1.pointers[0].header_index = 0
-				new_frag1.pointers[0].data_offset = offset + 0x18
-				new_frag1.pointers[1].header_index = 0
-				new_frag1.pointers[1].data_offset = offset + 0x30
-				new_ss = self.create_ss_entry(file_entry)
-				new_ss.pointers[0].header_index = 0
-				new_ss.pointers[0].data_offset = offset
-				new_data = self.create_data_entry(file_entry, (dbuffer,))
-				new_data.set_index = 0
-
-			if file_entry.ext == ".userinterfaceicondata":  # userinterfaceicondata, 2 frags
-				icname, icpath = [line.strip() for line in dbuffer.split(b'\n') if line.strip()]
-				outb = zstr(icname) + zstr(icpath)
-				outb = outb + get_padding(len(outb), 64) + struct.pack('8s', b'')
-				self.header_entry_data += outb
-				newoffset = len(self.header_entry_data)
-				self.header_entry_data += struct.pack('16s', b'')
-				new_frag0 = self.create_fragment()
-				new_frag0.pointers[0].header_index = 0
-				new_frag0.pointers[0].data_offset = newoffset
-				new_frag0.pointers[1].header_index = 0
-				new_frag0.pointers[1].data_offset = offset
-				new_frag1 = self.create_fragment()
-				new_frag1.pointers[0].header_index = 0
-				new_frag1.pointers[0].data_offset = newoffset + 8
-				new_frag1.pointers[1].header_index = 0
-				new_frag1.pointers[1].data_offset = offset + len(icname) + 1
-				new_ss = self.create_ss_entry(file_entry)
-				new_ss.pointers[0].header_index = 0
-				new_ss.pointers[0].data_offset = newoffset
-
-			if file_entry.ext == ".txt":
-				data = struct.pack("I", len(dbuffer)) + zstr(dbuffer)
-				self.header_entry_data += data + get_padding(len(data), alignment=8)  # fragment pointer 1 data
-				new_ss = self.create_ss_entry(file_entry)
-				new_ss.pointers[0].header_index = 0
-				new_ss.pointers[0].data_offset = offset
-				file_entry_count += 1
-
-			self.header_entry_data += get_padding(len(self.header_entry_data), 4)
-			offset = len(self.header_entry_data)
-
-		header_type = HeaderType()
-		header_type.type = 2
-		header_type.num_headers = 1
-
-		header_entry = HeaderEntry()
-		header_entry.data = io.BytesIO(self.header_entry_data)
-		header_entry.size = len(self.header_entry_data)
-		header_entry.offset = 0
-		header_entry.num_files = file_entry_count
-		header_entry.type = header_type.type
-		self.transfer_identity(header_entry, self.sized_str_entries[0])
-		self.header_types.append(header_type)
-		self.header_entries.append(header_entry)
+		for pool in self.pools:
+			pool.data.write(get_padding(pool.data.tell(), 4))
+			pool.num_files = file_entry_count
+			self.transfer_identity(pool, self.sized_str_entries[0])
 
 		self.force_update_header_datas = False
 		self.map_buffers()
@@ -246,18 +147,18 @@ class OvsFile(OvsHeader, ZipFile):
 			# print(self)
 			# print(len(self.ovl.archives))
 			# print(sum([archive.num_files for archive in self.ovl.archives]))
-			# print(self.header_entries)
-			header_entry_index = 0
-			for header_type in self.header_types:
-				for i in range(header_type.num_headers):
-					header_entry = self.header_entries[header_entry_index]
-					header_entry.header_type = header_type
-					header_entry.type = header_type.type
-					# print(header_entry)
-					self.assign_name(header_entry)
+			# print(self.pools)
+			pool_index = 0
+			for header_type in self.pool_types:
+				for i in range(header_type.num_pools):
+					pool = self.pools[pool_index]
+					pool.header_type = header_type
+					pool.type = header_type.type
+					# print(pool)
+					self.assign_name(pool)
 					# store fragments per header for faster lookup
-					header_entry.fragments = []
-					header_entry_index += 1
+					pool.fragments = []
+					pool_index += 1
 
 			for data_entry in self.data_entries:
 				self.assign_name(data_entry)
@@ -303,16 +204,16 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_assets()
 
 			# up to here was data defined by the OvsHeader class, ending with the AssetEntries
-			self.pools_end = stream.tell()
-			print("Pools end:", self.pools_end)
+			self.start_of_pools = stream.tell()
+			print("Start of pools data:", self.start_of_pools)
 
 			# another integrity check
 			if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
 				raise AttributeError(f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
 									 f"does not match calculated size ({self.calc_uncompressed_size()})")
 
-			# add IO object to every header_entry
-			self.read_header_entries(stream)
+			# add IO object to every pool
+			self.read_pools(stream)
 
 			# self.check_header_data_size = self.calc_header_data_size()
 			self.map_pointers()
@@ -331,14 +232,13 @@ class OvsFile(OvsHeader, ZipFile):
 				size = struct.unpack("<I", b[:4])[0]
 				data = b[4:4 + size]
 				padding_size = len(b) - (4 + size)
-				print(ss.file_hash, p.header_index, p.data_offset, p.address, len(b), padding_size, ss.name, data)
+				print(ss.file_hash, p.pool_index, p.data_offset, p.address, len(b), padding_size, ss.name, data)
 
-	def read_header_entries(self, stream):
-		for header_entry in self.header_entries:
-			header_entry.address = stream.tell()
-			header_bytes = stream.read(header_entry.size)
-			header_entry.data = BinaryStream(header_bytes)
-			assign_versions(header_entry.data, get_versions(self.ovl))
+	def read_pools(self, stream):
+		for pool in self.pools:
+			pool.address = stream.tell()
+			pool.data = BinaryStream(stream.read(pool.size))
+			assign_versions(pool.data, get_versions(self.ovl))
 
 	def calc_pointer_addresses(self):
 		print("Calculating pointer addresses")
@@ -347,22 +247,22 @@ class OvsFile(OvsHeader, ZipFile):
 			# for access from start of file
 			for pointer in entry.pointers:
 				# some have max_uint as a header value, what do they refer to
-				if pointer.header_index == -1:
-					# print("Warning: {} has no header index (-1)".format(entry.name))
+				if pointer.pool_index == -1:
+					# print("Warning: {} has no pool_index (-1)".format(entry.name))
 					pointer.header = 9999999
 					pointer.type = 9999999
 					pointer.address = 9999999
 				else:
-					pointer.header = self.header_entries[pointer.header_index]
+					pointer.header = self.pools[pointer.pool_index]
 					# store type number of each header entry
 					pointer.type = pointer.header.type
-					pointer.address = self.pools_end + pointer.header.offset + pointer.data_offset
+					pointer.address = self.start_of_pools + pointer.header.offset + pointer.data_offset
 
 	def calc_pointer_sizes(self):
 		"""Assign an estimated size to every pointer"""
 		print("calculating pointer sizes")
 		# calculate pointer data sizes
-		for entry in self.header_entries:
+		for entry in self.pools:
 			# make them unique and sort them
 			sorted_items = sorted(entry.pointer_map.items())
 			# add the end of the header data block
@@ -378,17 +278,17 @@ class OvsFile(OvsHeader, ZipFile):
 		"""Assign list of copies to every pointer so they can be updated with the same data easily"""
 		print("\nMapping pointers")
 		# reset pointer map for each header entry
-		for header_entry in self.header_entries:
-			header_entry.pointer_map = {}
+		for pool in self.pools:
+			pool.pointer_map = {}
 		print("\nLinking pointers to header")
 		# append all valid pointers to their respective dicts
 		for entry in itertools.chain(self.fragments, self.sized_str_entries):
 			for pointer in entry.pointers:
 				pointer.link_to_header(self)
 		print("\nFinding duplicate pointers")
-		for header_entry in self.header_entries:
+		for pool in self.pools:
 			# for every pointer, store any other pointer that points to the same address
-			for offset, pointers in header_entry.pointer_map.items():
+			for offset, pointers in pool.pointer_map.items():
 				for p in pointers:
 					# p.copies = [po for po in pointers if po != p]
 					p.copies = pointers
@@ -398,7 +298,7 @@ class OvsFile(OvsHeader, ZipFile):
 		print("Reading data into pointers")
 		for entry in itertools.chain(self.fragments, self.sized_str_entries):
 			for pointer in entry.pointers:
-				pointer.read_data(self.header_entries)
+				pointer.read_data(self.pools)
 
 	def map_assets(self):
 		"""Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
@@ -486,7 +386,7 @@ class OvsFile(OvsHeader, ZipFile):
 		return self.get_frag_equalb_counts(frags, p.address, len(p.data), count)
 
 	def frags_for_pointer(self, p):
-		return self.header_entries[p.header_index].fragments
+		return self.pools[p.pool_index].fragments
 
 	def prefab_unpack_temp(self, len, data):
 		if len % 4 != 0:
@@ -986,8 +886,8 @@ class OvsFile(OvsHeader, ZipFile):
 		# just reverse is good enough, no longer need to sort them
 		sorted_sized_str_entries = list(reversed(self.sized_str_entries))
 		for frag in address_0_fragments:
-			# fragments always have a valid header index
-			self.header_entries[frag.pointers[0].header_index].fragments.append(frag)
+			# fragments always have a valid pool_index
+			self.pools[frag.pointers[0].pool_index].fragments.append(frag)
 
 		# todo: document more of these type requirements
 		dic = {".bani": 1,
@@ -995,8 +895,6 @@ class OvsFile(OvsHeader, ZipFile):
 			   ".xmlconfig": 1,
 			   # ".hier": ( (4,6) for x in range(19) ),
 			   ".spl": 1,
-			   ".lua": 2,
-			   ".assetpkg": 1,
 			   ".userinterfaceicondata": 2,
 			   ".renderparameters": 1,  # temp
 			   ".renderparametercurves": 1,  # temp
@@ -1016,11 +914,11 @@ class OvsFile(OvsHeader, ZipFile):
 				if sized_str_entry.ext in no_frags:
 					continue
 				print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
-				header_index = sized_str_entry.pointers[0].header_index
-				if header_index == -1:
+				pool_index = sized_str_entry.pointers[0].pool_index
+				if pool_index == -1:
 					frags = address_0_fragments
 				else:
-					frags = self.header_entries[header_index].fragments
+					frags = self.pools[pool_index].fragments
 				if sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
 																		   1)
@@ -1055,10 +953,10 @@ class OvsFile(OvsHeader, ZipFile):
 						self.collect_scaleform(sized_str_entry, frags)
 			# elif sized_str_entry.ext == ".prefab":
 			# self.collect_prefab(sized_str_entry, address_0_fragments)
-			# print("sizedstr",sized_str_entry.pointers[0].header_index)
-			# print("frags",tuple((f.pointers[0].header_index, f.pointers[1].header_index) for f in sized_str_entry.fragments))
+			# print("sizedstr",sized_str_entry.pointers[0].pool_index)
+			# print("frags",tuple((f.pointers[0].pool_index, f.pointers[1].pool_index) for f in sized_str_entry.fragments))
 			# for f in sized_str_entry.fragments:
-			#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
+			#	 assert(f.pointers[0].pool_index == sized_str_entry.pointers[0].pool_index)
 
 
 		except Exception as err:
@@ -1107,7 +1005,7 @@ class OvsFile(OvsHeader, ZipFile):
 	def read_buffer_datas(self, stream):
 		# finally, we have the buffers in the correct sorting so we can read their contents
 		print("\nReading from buffers")
-		# stream.seek(self.pools_end + self.check_header_data_size)
+		# stream.seek(self.start_of_pools + self.check_header_data_size)
 		for buffer in self.buffers_io_order:
 			# read buffer data and store it in buffer object
 			buffer.read_data(stream)
@@ -1116,19 +1014,19 @@ class OvsFile(OvsHeader, ZipFile):
 		# for development; collect info about fragment types
 		frag_log = ""
 
-		for i, header_entry in enumerate(self.header_entries):
-			frag_log += f"\n\nHeader[{i}] at {header_entry.address} with {len(header_entry.fragments)} fragments\n"
+		for i, pool in enumerate(self.pools):
+			frag_log += f"\n\nHeader[{i}] at {pool.address} with {len(pool.fragments)} fragments\n"
 			lines = [f"{' '.join((f'{p.address} {p.data_size} {p.type}' for p in frag.pointers))} {j} {frag.name}"
-					 for j, frag in enumerate(header_entry.fragments)]
+					 for j, frag in enumerate(pool.fragments)]
 			lines += [f"{' '.join((f'{p.address} {p.data_size} {p.type}' for p in ss.pointers))} {j} {ss.name}"
-					 for j, ss in enumerate(self.sized_str_entries) if ss.pointers[0].header_index == i]
+					 for j, ss in enumerate(self.sized_str_entries) if ss.pointers[0].pool_index == i]
 			lines.sort()
 			frag_log += "\n".join(lines)
 		frag_log += "\n\n\nself.fragments > sizedstr\nfragments in file order"
 		# for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
 		for i, frag in enumerate(self.fragments):
 			# frag_log += f"\n{i} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"
-			frag_log += f"\n{i} {frag.pointers[0].header_index} {frag.pointers[0].data_offset} {frag.pointers[1].header_index} {frag.pointers[1].data_offset} {frag.name}"
+			frag_log += f"\n{i} {frag.pointers[0].pool_index} {frag.pointers[0].data_offset} {frag.pointers[1].pool_index} {frag.pointers[1].data_offset} {frag.name}"
 
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_frag{self.archive_index}.log")
 		print(f"Writing Fragment log to {frag_log_path}")
@@ -1365,58 +1263,63 @@ class OvsFile(OvsHeader, ZipFile):
 			check_data_size_1 += data_entry.size_1
 			if hasattr(data_entry, "size_2"):
 				check_data_size_2 += data_entry.size_2
-		return self.pools_end + self.calc_header_data_size() + check_data_size_1 + check_data_size_2
+		return self.start_of_pools + self.calc_header_data_size() + check_data_size_1 + check_data_size_2
 
 	def calc_header_data_size(self, ):
 		"""Calculate the size of the whole data entry region that sizedstr and fragment entries point into"""
-		return sum(header_entry.size for header_entry in self.header_entries)
+		return sum(pool.size for pool in self.pools)
 
 	def write_pointers_to_header_datas(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""
-		for i, header_entry in enumerate(self.header_entries):
+		for i, pool in enumerate(self.pools):
 			# maintain sorting order
 			# grab the first pointer for each address
 			# it is assumed that subsequent pointers to that address share the same data
-			sorted_first_pointers = [pointers[0] for offset, pointers in sorted(header_entry.pointer_map.items())]
+			sorted_first_pointers = [pointers[0] for offset, pointers in sorted(pool.pointer_map.items())]
 			if sorted_first_pointers:
 				# only known from indominus
 				first_offset = sorted_first_pointers[0].data_offset
 				if first_offset != 0 and not ignore_unaccounted_bytes:
 					print(f"Found {first_offset} unaccounted bytes at start of header data {i}")
-					unaccounted_bytes = header_entry.data.getvalue()[:first_offset]
+					unaccounted_bytes = pool.data.getvalue()[:first_offset]
 				else:
 					unaccounted_bytes = b""
 
 				# clear io objects
-				header_entry.data = io.BytesIO()
-				header_entry.data.write(unaccounted_bytes)
+				pool.data = io.BytesIO()
+				pool.data.write(unaccounted_bytes)
 				# write updated strings
 				for pointer in sorted_first_pointers:
 					pointer.write_data(self, update_copies=True)
 			else:
 				print(f"No pointers into header entry {i} - keeping its stock data!")
 
-	def write_archive(self, stream):
+	def write_pools(self):
+		logging.debug(f"Writing pools for {self.arg.name}")
 		if self.force_update_header_datas:
 			self.write_pointers_to_header_datas()
-		# do this first so header entries can be updated
-		header_data_writer = io.BytesIO()
+		# do this first so pools can be updated
+		pools_data_writer = io.BytesIO()
 		# the ugly stuff with all fragments and sizedstr entries
-		for header_entry in self.header_entries:
-			header_data_bytes = header_entry.data.getvalue()
-			# JWE style
+		for pool in self.pools:
+			header_data_bytes = pool.data.getvalue()
+			# JWE style stores relative offset for each pool
 			if is_jwe(self.ovl):
-				header_entry.offset = header_data_writer.tell()
-			# PZ Style
-			elif is_pc(self.ovl):
-				header_entry.offset = self.arg.pools_start + header_data_writer.tell()
-			header_entry.size = len(header_data_bytes)
-			header_data_writer.write(header_data_bytes)
+				pool.offset = pools_data_writer.tell()
+			# PZ, PC Style has offsets relative to the whole pool block
+			else:
+				pool.offset = self.arg.pools_start + pools_data_writer.tell()
+			logging.debug(f"header.offset {pool.offset}, pools_start {self.arg.pools_start}")
+			pool.size = len(header_data_bytes)
+			pools_data_writer.write(header_data_bytes)
+		self.pools_data = pools_data_writer.getvalue()
 
+	def write_archive(self, stream):
+		logging.debug(f"Writing archive {self.arg.name}")
 		# write out all entries
 		super().write(stream)
 		# write the header data containing all the pointers' datas
-		stream.write(header_data_writer.getvalue())
+		stream.write(self.pools_data)
 		# write buffer data
 		for b in self.buffers_io_order:
 			stream.write(b.data)
@@ -1539,19 +1442,10 @@ class OvlFile(Header, IoFile):
 		archive_entry.content = content
 		archive_entry.name = "STATIC"
 		archive_entry.offset = 0
-		archive_entry.ovs_head_offset = 0
+		archive_entry.pools_offset = 0
 		archive_entry.ovs_file_offset = 0
-		archive_entry.num_headers = 1
-		archive_entry.num_datas = len(content.data_entries)
-		archive_entry.num_header_types = 1
-		archive_entry.num_buffers = len(content.buffer_entries)
-		archive_entry.num_fragments = len(content.fragments)
-		archive_entry.num_files = len(content.sized_str_entries)
 		archive_entry.read_start = 0
 		archive_entry.set_data_size = 0x10
-		archive_entry.zeros_3 = 0
-		archive_entry.pools_start = 0
-		archive_entry.pools_end = len(content.header_entry_data)
 		archive_entry.ovs_offset = 0
 
 		new_zlib = ZlibInfo()
@@ -1602,7 +1496,7 @@ class OvlFile(Header, IoFile):
 		self.dirs.append(new_directory)
 		self.num_dirs = len(self.dirs)
 		self.update_names()
-		
+
 	def remove_dir(self, directory_name):
 		for dirEntry in self.dirs:
 			if dirEntry.name == directory_name:
@@ -1723,11 +1617,11 @@ class OvlFile(Header, IoFile):
 		print(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
 	def load_headers(self):
-		self.header_entries = [None for _ in range(self.num_headers)]
+		self.pools = [None for _ in range(self.num_pools)]
 		for archive_entry in self.archives:
-			if archive_entry.num_headers:
-				self.header_entries[archive_entry.ovs_head_offset:
-									archive_entry.ovs_head_offset + archive_entry.num_headers] = archive_entry.content.header_entries
+			if archive_entry.num_pools:
+				self.pools[archive_entry.pools_offset:
+									archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
 
 	def load_archives(self):
 		print("Loading archives...")
@@ -1768,9 +1662,9 @@ class OvlFile(Header, IoFile):
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
 		for file in self.files:
-			if file.ext == ".ms2":
-				ms2 = Ms2Loader()
-				ms2.collect(self, file)
+			loader = get_loader(file.ext)
+			if loader:
+				loader.collect(self, file)
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
@@ -1825,13 +1719,14 @@ class OvlFile(Header, IoFile):
 	def update_counts(self):
 		# adjust the counts
 		for archive in self.archives:
+			archive.content.update_counts()
 			archive.content.update_assets()
 			# change the hashes / indices of all entries to be valid for the current game version
 			archive.content.update_hashes()
 
 		# sum content of individual archives
-		self.num_header_types = sum(a.num_header_types for a in self.archives)
-		self.num_headers = sum(a.num_headers for a in self.archives)
+		self.num_pool_types = sum(a.num_pool_types for a in self.archives)
+		self.num_pools = sum(a.num_pools for a in self.archives)
 		self.num_datas = sum(a.num_datas for a in self.archives)
 		self.num_buffers = sum(a.num_buffers for a in self.archives)
 
@@ -1858,10 +1753,19 @@ class OvlFile(Header, IoFile):
 		for ovs_file in self.ovs_dict.values():
 			ovs_file.close()
 
+	def update_pool_datas(self):
+		pools_offset = 0
+		for i, archive_entry in enumerate(self.archives):
+			archive_entry.pools_start = pools_offset
+			archive_entry.content.write_pools()
+			pools_offset += len(archive_entry.content.pools_data)
+			archive_entry.pools_end = pools_offset
+
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
 		self.store_filepath(filepath)
 		self.update_counts()
+		self.update_pool_datas()
 		self.open_ovs_streams()
 		ovl_compressed = b""
 		# compress data stream
