@@ -3,9 +3,11 @@ import os
 import struct
 import logging
 
+from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
+from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
 from modules.formats.shared import pack_header, get_versions
 from modules.helpers import write_sized_str, as_bytes
-from generated.formats.ms2 import Mdl2File, Ms2File
+from generated.formats.ms2 import Mdl2File, Ms2File, is_old
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.ModelData import ModelData
@@ -88,7 +90,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 
 			if not (is_pc(ovl) or is_ztuac(ovl)):
 				# the fixed fragments
-				materials, lods, objects, lod0, model_info = mdl2_entry.fragments
+				materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 				print("num_models", mdl2_entry.num_models)
 				# write the model info for this model, buffered from the previous model or ms2 (model_info fragments)
 				outfile.write(next_model_info_data)
@@ -117,7 +119,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 
 				# avoid writing bad fragments that should be empty
 				if mdl2_entry.num_models:
-					# need not write lod0
+					# need not write model_data_ptr
 					for f in (materials, lods, objects):
 						# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
 						outfile.write(f.pointers[1].data)
@@ -168,7 +170,7 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 			frag_data = as_bytes(modeldata, version_info=versions)
 			frag.pointers[0].update_data(frag_data, update_copies=True)
 
-		materials, lods, objects, lod0, model_info = mdl2_entry.fragments
+		materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 		for frag, mdl2_list in (
 				(materials, mdl2.materials, ),
 				(lods, mdl2.lods),
@@ -186,8 +188,56 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 			# grab the preceding mdl2 entry since it points ahead
 			mdl2_entry = ms2_entry.children[mdl2.index-1]
 			# get its model info fragment
-			materials, lods, objects, lod0, model_info = mdl2_entry.fragments
+			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 			if (is_jwe(ovl_data) and model_info.pointers[0].data_size == 144) \
 				 or (is_pz(ovl_data) and model_info.pointers[0].data_size == 160):
 				data = model_info.pointers[0].data[:40] + data
 				model_info.pointers[0].update_data(data, update_copies=True)
+
+
+class Ms2Loader(Ms2File):
+
+	def collect(self, ovl, file_entry):
+		self.ovl = ovl
+		ms2_entry = self.ovl.ss_dict[file_entry.name]
+		ss_pointer = ms2_entry.pointers[0]
+		self.ovs = ovl.static_archive.content
+		frags = self.ovs.header_entries[ss_pointer.header_index].fragments
+		if not is_old(self.ovl):
+			ms2_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.address, 3)
+			print(ms2_entry.fragments)
+			# second pass: collect model fragments
+			versions = get_versions(self.ovl)
+			# assign the mdl2 frags to their sized str entry
+
+			f_1 = ms2_entry.fragments[1]
+			core_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
+			print("next model info:", core_model_info)
+			for mdl2_entry in ms2_entry.children:
+				assert mdl2_entry.ext == ".mdl2"
+				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
+				pink = mdl2_entry.fragments[4]
+				if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
+						or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
+					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[
+						0].info
+
+		else:
+			ms2_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.address, 1)
+
+	def collect_mdl2(self, mdl2_entry, core_model_info, mdl2_pointer):
+		logging.info(f"MDL2: {mdl2_entry.name}")
+		mdl2_entry.fragments = self.ovs.frags_from_pointer(mdl2_pointer, 5)
+		# these 5 fixed fragments are laid out like
+		# 0 - p0: 8*00 				p1: materials
+		# 1 - p0: 8*00 				p1: lods
+		# 2 - p0: 8*00 				p1: objects
+		# 3 - p0: 8*00 				p1: -> first ModelData, start of ModelData fragments block
+		# 4 - p0: next_model_info	p1: -> materials
+		materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
+		# remove padding
+		objects.pointers[1].split_data_padding(4 * core_model_info.num_objects)
+
+		# get and set fragments
+		logging.debug(f"Num model data frags = {core_model_info.num_models}")
+		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(model_data_ptr.pointers[1], core_model_info.num_models)

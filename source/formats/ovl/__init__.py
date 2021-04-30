@@ -6,18 +6,14 @@ import time
 import traceback
 import logging
 
-from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
-from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
-from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetEntry import SetEntry
-from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.versions import *
-from generated.io import IoFile, ZipFile
+from generated.io import IoFile, ZipFile, BinaryStream
+from modules.formats.MS2 import Ms2Loader
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
-from generated.array import Array
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
@@ -271,7 +267,6 @@ class OvsFile(OvsHeader, ZipFile):
 				sized_str_entry.children = []
 				sized_str_entry.fragments = []
 				sized_str_entry.model_data_frags = []
-				sized_str_entry.num_models = 0
 				# print(sized_str_entry.name)
 				# get data entry for link to buffers, or none
 				try:
@@ -328,11 +323,6 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_buffers()
 			self.read_buffer_datas(stream)
 
-			# print(self)
-			if "write_frag_log" in self.ovl.commands:
-				self.write_frag_log()
-			# self.debug_txt_data()
-
 	def debug_txt_data(self):
 		for ss in self.sized_str_entries:
 			if ss.ext == ".txt":
@@ -347,7 +337,8 @@ class OvsFile(OvsHeader, ZipFile):
 		for header_entry in self.header_entries:
 			header_entry.address = stream.tell()
 			header_bytes = stream.read(header_entry.size)
-			header_entry.data = io.BytesIO(header_bytes)
+			header_entry.data = BinaryStream(header_bytes)
+			assign_versions(header_entry.data, get_versions(self.ovl))
 
 	def calc_pointer_addresses(self):
 		print("Calculating pointer addresses")
@@ -984,19 +975,6 @@ class OvsFile(OvsHeader, ZipFile):
 		for frag in all_frags:
 			frag.name = ss_entry.name
 
-	def collect_mdl2(self, mdl2_sized_str_entry, model_info, mdl2_pointer):
-		print("MDL2:", mdl2_sized_str_entry.name)
-		mdl2_sized_str_entry.fragments = self.frags_from_pointer(mdl2_pointer, 5)
-		mdl2_sized_str_entry.model_info = model_info
-		mdl2_sized_str_entry.num_models = model_info.num_models
-		lod_pointer = mdl2_sized_str_entry.fragments[3].pointers[1]
-		# remove padding from materials1 fragment
-		mdl2_sized_str_entry.fragments[2].pointers[1].split_data_padding(4 * model_info.num_objects)
-
-		# get and set fragments
-		# print("Num model data frags",mdl2_sized_str_entry.num_models)
-		mdl2_sized_str_entry.model_data_frags = self.frags_from_pointer(lod_pointer, mdl2_sized_str_entry.num_models)
-
 	def map_frags(self):
 		if not self.fragments:
 			return
@@ -1012,8 +990,7 @@ class OvsFile(OvsHeader, ZipFile):
 			self.header_entries[frag.pointers[0].header_index].fragments.append(frag)
 
 		# todo: document more of these type requirements
-		dic = {".ms2": 3,
-			   ".bani": 1,
+		dic = {".bani": 1,
 			   ".tex": 2,
 			   ".xmlconfig": 1,
 			   # ".hier": ( (4,6) for x in range(19) ),
@@ -1044,10 +1021,7 @@ class OvsFile(OvsHeader, ZipFile):
 					frags = address_0_fragments
 				else:
 					frags = self.header_entries[header_index].fragments
-				if sized_str_entry.ext == ".ms2" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
-					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
-																		   1)
-				elif sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
+				if sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
 																		   1)
 				# get fixed fragments
@@ -1086,30 +1060,13 @@ class OvsFile(OvsHeader, ZipFile):
 			# for f in sized_str_entry.fragments:
 			#	 assert(f.pointers[0].header_index == sized_str_entry.pointers[0].header_index)
 
-			if not is_pc(self.ovl):
-				# second pass: collect model fragments
-				versions = get_versions(self.ovl)
-				# assign the mdl2 frags to their sized str entry
-				for ms2_entry in self.sized_str_entries:
-					if ms2_entry.ext == ".ms2":
-						f_1 = ms2_entry.fragments[1]
-						next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
-						print("next model info:", next_model_info)
-						for mdl2_entry in ms2_entry.children:
-							# store parent for extraction
-							mdl2_entry.parent = ms2_entry
-							assert mdl2_entry.ext == ".mdl2"
-							self.collect_mdl2(mdl2_entry, next_model_info, f_1.pointers[1])
-							pink = mdl2_entry.fragments[4]
-							if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
-									or (is_pz(self.ovl) and pink.pointers[0].data_size == 160):
-								next_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[
-									0].info
 
 		except Exception as err:
 			print(err)
-		# # for debugging only:
-		for sized_str_entry in sorted_sized_str_entries:
+
+	def assign_frag_names(self):
+		# for debugging only:
+		for sized_str_entry in self.sized_str_entries:
 			for frag in sized_str_entry.model_data_frags + sized_str_entry.fragments:
 				frag.name = sized_str_entry.name
 
@@ -1160,10 +1117,13 @@ class OvsFile(OvsHeader, ZipFile):
 		frag_log = ""
 
 		for i, header_entry in enumerate(self.header_entries):
-			frag_log += f"\n\nHeader[{i}] at {header_entry.address} with {len(header_entry.fragments)} fragments"
-			for j, frag in enumerate(header_entry.fragments):
-				frag_log += f"\n{j} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"
-
+			frag_log += f"\n\nHeader[{i}] at {header_entry.address} with {len(header_entry.fragments)} fragments\n"
+			lines = [f"{' '.join((f'{p.address} {p.data_size} {p.type}' for p in frag.pointers))} {j} {frag.name}"
+					 for j, frag in enumerate(header_entry.fragments)]
+			lines += [f"{' '.join((f'{p.address} {p.data_size} {p.type}' for p in ss.pointers))} {j} {ss.name}"
+					 for j, ss in enumerate(self.sized_str_entries) if ss.pointers[0].header_index == i]
+			lines.sort()
+			frag_log += "\n".join(lines)
 		frag_log += "\n\n\nself.fragments > sizedstr\nfragments in file order"
 		# for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
 		for i, frag in enumerate(self.fragments):
@@ -1787,7 +1747,22 @@ class OvlFile(Header, IoFile):
 		self.close_ovs_streams()
 		self.update_ss_dict()
 		self.link_streams()
+		self.load_file_classes()
+
+		# print(self)
+		for archive_entry in self.archives:
+			if "write_frag_log" in self.commands:
+				archive_entry.content.assign_frag_names()
+				archive_entry.content.write_frag_log()
+				archive_entry.content.debug_txt_data()
 		print(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
+
+	def load_file_classes(self):
+		logging.info("Loading file classes...")
+		for file in self.files:
+			if file.ext == ".ms2":
+				ms2 = Ms2Loader()
+				ms2.collect(self, file)
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
