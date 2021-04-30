@@ -22,6 +22,7 @@ from modules.formats.SPECDEF import write_specdef
 from modules.formats.TXT import write_txt
 from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
+from modules.formats.USERINTERFACEICONDATA import write_userinterfaceicondata
 from ovl_util import widgets
 
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
@@ -94,14 +95,3 @@ def write_prefab(ovl, sized_str_entry, out_dir, show_temp_files, progress_callba
 			outfile.write(frag.pointers[0].data)
 			outfile.write(frag.pointers[1].data)
 
-
-def write_userinterfaceicondata(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
-	name = sized_str_entry.name
-	print("\nWriting", name)
-	out_path = out_dir(name)
-	with open(out_path, 'wb') as outfile:
-		for frag in sized_str_entry.fragments:
-			frag.pointers[1].strip_zstring_padding()
-			outfile.write(frag.pointers[1].data[:-1])
-			outfile.write(b"\n")
-	return out_path,

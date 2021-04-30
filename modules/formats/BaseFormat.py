@@ -82,34 +82,3 @@ class BaseFile:
 			self.ovs.buffer_entries.append(new_buff)
 		self.ovs.data_entries.append(new_data)
 		return new_data
-#
-#
-# if file_entry.ext == ".fdb":
-# 	self.pool_data += struct.pack("I28s", len(dbuffer), b'')
-# 	new_ss = self.create_ss_entry(file_entry)
-# 	new_ss.pointers[0].pool_index = 0
-# 	new_ss.pointers[0].data_offset = offset
-# 	new_data = self.create_data_entry(file_entry, (file_name_bytes, dbuffer))
-# 	new_data.set_index = 0
-#
-# if file_entry.ext == ".userinterfaceicondata":  # userinterfaceicondata, 2 frags
-# 	icname, icpath = [line.strip() for line in dbuffer.split(b'\n') if line.strip()]
-# 	outb = zstr(icname) + zstr(icpath)
-# 	outb = outb + get_padding(len(outb), 64) + struct.pack('8s', b'')
-# 	self.pool_data += outb
-# 	newoffset = len(self.pool_data)
-# 	self.pool_data += struct.pack('16s', b'')
-# 	new_frag0 = self.create_fragment()
-# 	new_frag0.pointers[0].pool_index = 0
-# 	new_frag0.pointers[0].data_offset = newoffset
-# 	new_frag0.pointers[1].pool_index = 0
-# 	new_frag0.pointers[1].data_offset = offset
-# 	new_frag1 = self.create_fragment()
-# 	new_frag1.pointers[0].pool_index = 0
-# 	new_frag1.pointers[0].data_offset = newoffset + 8
-# 	new_frag1.pointers[1].pool_index = 0
-# 	new_frag1.pointers[1].data_offset = offset + len(icname) + 1
-# 	new_ss = self.create_ss_entry(file_entry)
-# 	new_ss.pointers[0].pool_index = 0
-# 	new_ss.pointers[0].data_offset = newoffset
-#

@@ -13,6 +13,7 @@ from modules.formats.MS2 import load_ms2
 from modules.formats.TXT import load_txt
 from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
+from modules.formats.USERINTERFACEICONDATA import load_userinterfaceicondata
 from modules.helpers import split_path
 
 from ovl_util import imarray
@@ -87,12 +88,4 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 	if progress_callback:
 		progress_callback("Injection completed!", value=1, vmax=1)
 
-
-def load_userinterfaceicondata(ovl_data, userinterfaceicondata_file_path, sized_str_entry):
-	with open(userinterfaceicondata_file_path, "rb") as stream:
-		icname, icpath = [line.strip() for line in stream.read().split(b'\n') if line.strip()]
-		f0 = icname + b'\x00'
-		f1 = icpath + b'\x00'
-		sized_str_entry.fragments[0].pointers[1].update_data(f0, update_copies=True)
-		sized_str_entry.fragments[1].pointers[1].update_data(f1, update_copies=True, pad_to=64-len(f0))
 
