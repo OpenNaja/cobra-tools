@@ -144,4 +144,4 @@ def remove_from_ovs(ovl, filenames):
 	ovs.num_fragments = len(ovs.content.fragments)
 	ovs.num_datas = len(ovs.content.data_entries)
 	ovs.num_buffers = len(ovs.content.buffer_entries)
-	ovs.content.write_pointers_to_header_datas(ignore_unaccounted_bytes=True)
+	ovs.content.write_pointers_to_pools(ignore_unaccounted_bytes=True)

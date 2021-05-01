@@ -269,14 +269,16 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	bounds = []
 	# mesh_objects = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Mesh and not ob.rigid_body]
 	for lod_i in range(6):
+		lod_group_name = f"LOD{lod_i}"
+		lod_coll = get_collection(lod_group_name)
+		if not lod_coll:
+			break
 		m_lod = LodInfo()
 		m_lod.distance = math.pow(30+15*lod_i, 2)
 		m_lod.first_object_index = len(mdl2.objects)
 		m_lod.models = []
 		m_lod.objects = []
 		mdl2.lods.append(m_lod)
-		lod_group_name = f"LOD{lod_i}"
-		lod_coll = get_collection(lod_group_name)
 		for b_ob in lod_coll.objects:
 			# store & set bone index for lod
 			if b_ob.parent_type == 'BONE':

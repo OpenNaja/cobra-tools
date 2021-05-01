@@ -82,7 +82,7 @@ class OvsFile(OvsHeader, ZipFile):
 		self.arg = archive_entry
 		self.archive_index = archive_index
 		# this determines if fragments are written back to header datas
-		self.force_update_header_datas = True
+		self.force_update_pools = True
 
 	def update_hashes(self):
 		print("Updating hashes")
@@ -126,7 +126,7 @@ class OvsFile(OvsHeader, ZipFile):
 			pool.num_files = file_entry_count
 			self.transfer_identity(pool, self.sized_str_entries[0])
 
-		self.force_update_header_datas = False
+		self.force_update_pools = False
 		self.map_buffers()
 		for ss_entry in self.sized_str_entries:
 			ss_entry.children = []
@@ -221,7 +221,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# add IO object to every pool
 			self.read_pools(stream)
 
-			# self.check_header_data_size = self.calc_header_data_size()
+			# self.check_pool_size = self.calc_pools_size()
 			self.map_pointers()
 			self.calc_pointer_addresses()
 			self.calc_pointer_sizes()
@@ -1011,7 +1011,7 @@ class OvsFile(OvsHeader, ZipFile):
 	def read_buffer_datas(self, stream):
 		# finally, we have the buffers in the correct sorting so we can read their contents
 		print("\nReading from buffers")
-		# stream.seek(self.start_of_pools + self.check_header_data_size)
+		# stream.seek(self.start_of_pools + self.check_pool_size)
 		for buffer in self.buffers_io_order:
 			# read buffer data and store it in buffer object
 			buffer.read_data(stream)
@@ -1269,13 +1269,13 @@ class OvsFile(OvsHeader, ZipFile):
 			check_data_size_1 += data_entry.size_1
 			if hasattr(data_entry, "size_2"):
 				check_data_size_2 += data_entry.size_2
-		return self.start_of_pools + self.calc_header_data_size() + check_data_size_1 + check_data_size_2
+		return self.start_of_pools + self.calc_pools_size() + check_data_size_1 + check_data_size_2
 
-	def calc_header_data_size(self, ):
-		"""Calculate the size of the whole data entry region that sizedstr and fragment entries point into"""
+	def calc_pools_size(self, ):
+		"""Calculate the size of the whole memory pool region that sizedstr and fragment entries point into"""
 		return sum(pool.size for pool in self.pools)
 
-	def write_pointers_to_header_datas(self, ignore_unaccounted_bytes=False):
+	def write_pointers_to_pools(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""
 		for i, pool in enumerate(self.pools):
 			# maintain sorting order
@@ -1302,13 +1302,13 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
-		if self.force_update_header_datas:
-			self.write_pointers_to_header_datas()
+		if self.force_update_pools:
+			self.write_pointers_to_pools()
 		# do this first so pools can be updated
 		pools_data_writer = io.BytesIO()
 		# the ugly stuff with all fragments and sizedstr entries
 		for pool in self.pools:
-			header_data_bytes = pool.data.getvalue()
+			pool_bytes = pool.data.getvalue()
 			# JWE style stores relative offset for each pool
 			if is_jwe(self.ovl):
 				pool.offset = pools_data_writer.tell()
@@ -1316,8 +1316,8 @@ class OvsFile(OvsHeader, ZipFile):
 			else:
 				pool.offset = self.arg.pools_start + pools_data_writer.tell()
 			logging.debug(f"header.offset {pool.offset}, pools_start {self.arg.pools_start}")
-			pool.size = len(header_data_bytes)
-			pools_data_writer.write(header_data_bytes)
+			pool.size = len(pool_bytes)
+			pools_data_writer.write(pool_bytes)
 		self.pools_data = pools_data_writer.getvalue()
 
 	def write_archive(self, stream):
