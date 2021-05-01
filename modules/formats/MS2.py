@@ -393,6 +393,7 @@ class Ms2Loader(Ms2File, BaseFile):
 		# todo - from the frag log, buffer_info_bytes should be 48 bytes but is 32
 		buffer_info_frag.pointers[1].data_offset = buffer_info_offset
 		buffer_info_bytes = as_bytes(ms2_file.buffer_info, version_info=versions)
+		logging.debug(f"len(buffer_info_bytes) {len(buffer_info_bytes)}")
 		pool.data.write(buffer_info_bytes)
 
 		# the last ms2 fragment

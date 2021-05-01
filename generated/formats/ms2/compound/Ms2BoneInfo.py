@@ -155,7 +155,7 @@ class Ms2BoneInfo:
 		self.joint_count = stream.read_uint64()
 		if not (stream.version < 19):
 			self.unk_78_count = stream.read_uint64()
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (stream.version < 19):
 			self.unknown_88 = stream.read_uint64()
 		if not (stream.version < 19):
 			self.name_indices = stream.read_uints((self.name_count))
@@ -168,7 +168,7 @@ class Ms2BoneInfo:
 		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.read(stream, PzBone, self.bone_count, None)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (stream.version < 19):
 			self.bones.read(stream, JweBone, self.bone_count, None)
 		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
 		if not (stream.version == 17):
@@ -222,7 +222,7 @@ class Ms2BoneInfo:
 		stream.write_uint64(self.joint_count)
 		if not (stream.version < 19):
 			stream.write_uint64(self.unk_78_count)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (stream.version < 19):
 			stream.write_uint64(self.unknown_88)
 		if not (stream.version < 19):
 			stream.write_uints(self.name_indices)
@@ -237,7 +237,7 @@ class Ms2BoneInfo:
 		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
 		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
 			self.bones.write(stream, PzBone, self.bone_count, None)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and ((stream.version == 19) and (stream.version_flag == 1))) or (stream.version < 19):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (stream.version < 19):
 			self.bones.write(stream, JweBone, self.bone_count, None)
 		stream.write_ubytes(self.bone_parents)
 		if not (stream.version == 17):

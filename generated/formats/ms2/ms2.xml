@@ -11,7 +11,7 @@
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
 		<verexpr token="#OLD#" string="(#VER# #LT# 19)">PC, ZTUAC</verexpr>
 		<verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
-		<verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
+		<verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch #AND# (#FLAG# #EQ# 1))</verexpr>
 	</token>
 	
 	<token name="global" attrs="vercond cond">
