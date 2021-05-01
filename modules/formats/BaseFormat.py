@@ -53,12 +53,13 @@ class BaseFile:
 		return content
 
 	def create_ss_entry(self, file_entry):
-		new_ss = SizedStringEntry()
-		self.ovs.transfer_identity(new_ss, file_entry)
+		ss_entry = SizedStringEntry()
+		ss_entry.children = []
+		self.ovs.transfer_identity(ss_entry, file_entry)
 		new_pointss = HeaderPointer()
-		new_ss.pointers.append(new_pointss)
-		self.ovs.sized_str_entries.append(new_ss)
-		return new_ss
+		ss_entry.pointers.append(new_pointss)
+		self.ovs.sized_str_entries.append(ss_entry)
+		return ss_entry
 
 	def create_fragment(self):
 		new_frag = Fragment()

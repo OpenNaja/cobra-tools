@@ -114,20 +114,18 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def create(self):
 
-		# all classes go in a memory block
+		# create loaders for supported files
 		for file_entry in self.ovl.files:
 			loader = get_loader(file_entry.ext)
 			if loader:
 				loader.create(self, file_entry)
-
+		# post-process the memory pools
 		for pool in self.pools:
 			pool.data.write(get_padding(pool.data.tell(), 4))
 			self.transfer_identity(pool, self.sized_str_entries[0])
 
 		self.force_update_pools = False
 		self.map_buffers()
-		for ss_entry in self.sized_str_entries:
-			ss_entry.children = []
 
 	def get_sized_str_entry(self, name):
 		lower_name = name.lower()
