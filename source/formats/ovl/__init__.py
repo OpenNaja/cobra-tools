@@ -113,7 +113,6 @@ class OvsFile(OvsHeader, ZipFile):
 		self.arg.num_files = len(self.sized_str_entries)
 
 	def create(self):
-		file_entry_count = 0
 
 		# all classes go in a memory block
 		for file_entry in self.ovl.files:
@@ -123,7 +122,6 @@ class OvsFile(OvsHeader, ZipFile):
 
 		for pool in self.pools:
 			pool.data.write(get_padding(pool.data.tell(), 4))
-			pool.num_files = file_entry_count
 			self.transfer_identity(pool, self.sized_str_entries[0])
 
 		self.force_update_pools = False
@@ -1260,20 +1258,15 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
-
-		# TODO: this is apparently wrong during write_archive, as if something wasn't properly updated
-
-		check_data_size_1 = 0
-		check_data_size_2 = 0
-		for data_entry in self.data_entries:
-			check_data_size_1 += data_entry.size_1
-			if hasattr(data_entry, "size_2"):
-				check_data_size_2 += data_entry.size_2
-		return self.start_of_pools + self.calc_pools_size() + check_data_size_1 + check_data_size_2
+		return self.start_of_pools + self.calc_pools_size() + self.calc_buffers_size()
 
 	def calc_pools_size(self, ):
-		"""Calculate the size of the whole memory pool region that sizedstr and fragment entries point into"""
+		"""Calculate the size of the whole memory pool region that sizedstr, fragment and ovl dependency entries point into"""
 		return sum(pool.size for pool in self.pools)
+
+	def calc_buffers_size(self, ):
+		"""Calculate the size of the buffer region that data entries use"""
+		return sum(buffer.size for buffer in self.buffer_entries)
 
 	def write_pointers_to_pools(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""
@@ -1594,16 +1587,16 @@ class OvlFile(Header, IoFile):
 			self.print_and_callback("Getting dependency names", value=ht_index, max_value=ht_max)
 			# nb: these use : instead of . at the start, eg. :tex
 			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
-			try:
-				dependency_entry.basename = self.hash_table_local[dependency_entry.file_hash]
-				print(f"LOCAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.basename}")
-			except:
-				try:
-					dependency_entry.basename = self.hash_table_global[dependency_entry.file_hash]
-					print(f"GLOBAL DEPENDENCY: {dependency_entry.file_hash} -> {dependency_entry.basename}")
-				except:
-					print(f"UNRESOLVED DEPENDENCY: {dependency_entry.file_hash} -> ?")
-					dependency_entry.basename = "bad hash"
+			h = dependency_entry.file_hash
+			if h in self.hash_table_local:
+				dependency_entry.basename = self.hash_table_local[h]
+				logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
+			elif h in self.hash_table_global:
+				dependency_entry.basename = self.hash_table_global[h]
+				logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
+			else:
+				logging.debug(f"UNRESOLVED DEPENDENCY: {h} -> ?")
+				dependency_entry.basename = "bad hash"
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 			# print(dependency_entry.basename, dependency_entry.pointers)

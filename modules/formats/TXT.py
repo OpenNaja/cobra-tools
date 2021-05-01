@@ -45,7 +45,7 @@ class TxtLoader(BaseFile):
 		new_ss.pointers[0].data_offset = offset
 		data = struct.pack("I", len(dbuffer)) + zstr(dbuffer)
 		pool.data.write(data + get_padding(len(data), alignment=8))
-	# 	file_entry_count += 1
+		pool.num_files += 1
 
 	def collect(self, ovl, file_entry):
 		# no fragments
