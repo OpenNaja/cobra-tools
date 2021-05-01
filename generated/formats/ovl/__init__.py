@@ -31,10 +31,15 @@ from modules.helpers import zstr
 
 lut_mime_unk_0 = {
 	".fdb": 1,
+	".banis": 5,
 	".assetpkg": 2,
 	".userinterfaceicondata": 1,
 	".lua": 7,
 	".txt": 2,
+	".tex": 8,
+	".ms2": 47,
+	".mdl2": 47,
+	".fgm": 6,
 }
 
 lut_file_unk_0 = {
@@ -43,13 +48,24 @@ lut_file_unk_0 = {
 	".userinterfaceicondata": 4,
 	".lua": 2,
 	".txt": 1,
+	".bani": 2,
+	".banis": 2,
+	".fgm": 2,
+	".mdl2": 2,
+	".ms2": 2,
+	".tex": 3,
 }
 
 lut_mime_hash = {
 	".assetpkg": 1145776474,
+	".banis": 1177957172,
 	".fdb": 2545474337,
+	".fgm": 861771362,
+	".mdl2": 4285397356,
+	".ms2": 2893339803,
 	".lua": 1779074288,
 	".txt": 640591494,
+	".tex": 3242366505,
 	".userinterfaceicondata": 2127665351,
 }
 
@@ -1535,7 +1551,8 @@ class OvlFile(Header, IoFile):
 			mime_entry.name = self.names.get_str_at(mime_entry.offset)
 			# only get the extension
 			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
-			# print(f'"{mime_entry.ext}": {mime_entry.mime_hash},')
+			logging.debug(f'"{mime_entry.ext}": {mime_entry.mime_hash},')
+			logging.debug(f'"{mime_entry.ext}": {mime_entry.unknown_1},')
 			# the stored mime hash is not used anywhere
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
@@ -1549,6 +1566,7 @@ class OvlFile(Header, IoFile):
 			# get file name from name table
 			file_name = self.names.get_str_at(file_entry.offset)
 			file_entry.ext = self.mimes[file_entry.extension].ext
+			logging.debug(f'"{file_entry.ext}": {file_entry.unkn_0},')
 			# store this so we can use it
 			file_entry.ext_hash = djb(file_entry.ext[1:])
 			file_entry.basename = file_name
@@ -1761,6 +1779,8 @@ class OvlFile(Header, IoFile):
 			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i,
 																													  use_ext_dat,
 																													  dat_path)
+			# update set data size
+			archive_entry.set_data_size = archive_entry.content.set_header.io_size
 			if i == 0:
 				ovl_compressed = compressed
 				archive_entry.read_start = 0

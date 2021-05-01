@@ -260,6 +260,8 @@ class Ms2Loader(Ms2File, BaseFile):
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(model_data_ptr.pointers[1], core_model_info.num_models)
 
 	def create(self, ovs, file_entry):
+		self.ovs = ovs
+		self.ovl = ovs.ovl
 		ms2_file = Ms2File()
 		ms2_file.load(file_entry.path, read_bytes=True)
 
@@ -388,6 +390,7 @@ class Ms2Loader(Ms2File, BaseFile):
 			for frag in mdl2_entry.model_data_frags:
 				frag.pointers[1].pool_index = pool_index
 				frag.pointers[1].data_offset = buffer_info_offset
+		# todo - from the frag log, buffer_info_bytes should be 48 bytes but is 32
 		buffer_info_frag.pointers[1].data_offset = buffer_info_offset
 		buffer_info_bytes = as_bytes(ms2_file.buffer_info, version_info=versions)
 		pool.data.write(buffer_info_bytes)
