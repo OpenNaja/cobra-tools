@@ -44,13 +44,18 @@ class BaseFile:
 		self.ovs.pools.append(pool)
 		return len(self.ovs.pools)-1, pool
 
-	def create(self, ovs, fp):
+	def create(self, ovs, file_entry):
 		raise NotImplementedError
 
 	def getContent(self, filename):
 		with open(filename, 'rb') as f:
 			content = f.read()
 		return content
+
+	def get_file_entry(self, file_name):
+		for file_entry in self.ovl.files:
+			if file_entry.name == file_name:
+				return file_entry
 
 	def create_ss_entry(self, file_entry):
 		ss_entry = SizedStringEntry()

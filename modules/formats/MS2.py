@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.ModelData import ModelData
 
 from generated.formats.ovl.versions import *
 
-from modules.formats.shared import pack_header, get_versions
+from modules.formats.shared import pack_header, get_versions, get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import write_sized_str, as_bytes
 
@@ -213,13 +213,17 @@ class Ms2Loader(Ms2File, BaseFile):
 			# print(ms2_entry.fragments)
 			# second pass: collect model fragments
 			versions = get_versions(self.ovl)
+			assert ms2_entry.pointers[0].data_size == 24
+			assert ms2_entry.fragments[2].pointers[1].data in (struct.pack("<ii", -1, 0), b"")
+			# print(ms2_entry.fragments[2].pointers[1].address, ms2_entry.fragments[2].pointers[1].data)
+
 			# assign the mdl2 frags to their sized str entry
 
 			# 3 fixed fragments laid out like
 			# sse p0: ms2_general_info_data (24 bytes)
-			# 0 - p0: 8*00 				p1: buffer_info
+			# 0 - p0: 8*00 				p1: buffer_info or empty (if no buffers)
 			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
-			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0
+			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0 or empty (if no buffers)
 			f_1 = ms2_entry.fragments[1]
 			core_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 			# print("next model info:", core_model_info)
@@ -243,6 +247,7 @@ class Ms2Loader(Ms2File, BaseFile):
 		# 2 - p0: 8*00 				p1: objects
 		# 3 - p0: 8*00 				p1: -> first ModelData, start of ModelData fragments block
 		# 4 - p0: next_model_info	p1: -> materials
+		#         or just 40 bytes
 		# plus fragments counted by num_models
 		# i - p0: ModelData (64b)	p1: -> buffer_info
 		materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
@@ -253,3 +258,142 @@ class Ms2Loader(Ms2File, BaseFile):
 		# get and set fragments
 		logging.debug(f"Num model data frags = {core_model_info.num_models}")
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(model_data_ptr.pointers[1], core_model_info.num_models)
+
+	def create(self, ovs, file_entry):
+		ms2_file = Ms2File()
+		ms2_file.load(file_entry.path, read_bytes=True)
+
+		ms2_entry = self.create_ss_entry(file_entry)
+		ms2_entry.children = []
+
+		versions = get_versions(ovs.ovl)
+
+		pool_index, pool = self.get_pool(2)
+		offset = pool.data.tell()
+
+		ms2_dir, ms2_basename = os.path.split(file_entry.path)
+		mdl2_names = [f for f in os.listdir(ms2_dir) if f.lower().endswith(".mdl2")]
+		mdl2s = []
+		for mdl2_name in mdl2_names:
+			mdl2_path = os.path.join(ms2_dir, mdl2_name)
+			mdl2 = Mdl2File()
+			mdl2.load(mdl2_path)
+			if mdl2.ms_2_name == ms2_basename:
+				mdl2s.append((mdl2_name, mdl2))
+		# sort them by model index
+		mdl2s.sort(key=lambda tup: tup[1].index)
+
+		# create sized str entries and model data fragments
+		for mdl2_name, mdl2 in mdl2s:
+			mdl2_file_entry = self.get_file_entry(mdl2_name)
+			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
+			mdl2_entry.pointers[0].pool_index = -1
+			mdl2_entry.pointers[0].data_offset = 0
+			ms2_entry.children.append(mdl2_entry)
+
+			# first, create all ModelData structs as fragments
+			mdl2_entry.model_data_frags = [self.create_fragment() for _ in range(mdl2.model_info.num_models)]
+
+		# create the 5 fixed frags per MDL2 and write their data
+		for (mdl2_name, mdl2), mdl2_entry in zip(mdl2s, ms2_entry.children):
+			mdl2_entry.fragments = [self.create_fragment() for _ in range(5)]
+			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
+
+			materials_offset = pool.data.tell()
+			materials.pointers[1].pool_index = pool_index
+			materials.pointers[1].data_offset = materials_offset
+			pool.data.write(as_bytes(mdl2.materials, version_info=versions))
+
+			lods.pointers[1].pool_index = pool_index
+			lods.pointers[1].data_offset = pool.data.tell()
+			pool.data.write(as_bytes(mdl2.lods, version_info=versions))
+
+			objects.pointers[1].pool_index = pool_index
+			objects.pointers[1].data_offset = pool.data.tell()
+			objects_bytes = as_bytes(mdl2.objects, version_info=versions)
+			pool.data.write(objects_bytes + get_padding(len(objects_bytes), alignment=8))
+
+			# modeldatas start here
+
+			model_info.pointers[1].pool_index = pool_index
+			model_info.pointers[1].data_offset = materials_offset
+
+		# write modeldata
+		for (mdl2_name, mdl2), mdl2_entry in zip(mdl2s, ms2_entry.children):
+			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
+			model_data_ptr.pointers[1].pool_index = pool_index
+			model_data_ptr.pointers[1].data_offset = pool.data.tell()
+			# write mdl2 modeldata frags
+			for frag, modeldata in zip(mdl2_entry.model_data_frags, mdl2.models):
+				frag.pointers[0].pool_index = pool_index
+				frag.pointers[0].data_offset = pool.data.tell()
+				pool.data.write(as_bytes(modeldata, version_info=versions))
+
+		# create fragments for ms2
+		ms2_entry.fragments = [self.create_fragment() for _ in range(3)]
+
+		# write model info
+		for mdl2_name, mdl2 in mdl2s:
+			model_info_bytes = as_bytes(mdl2.model_info, version_info=versions)
+			if mdl2.index == 0:
+				f_0, f_1, f_2 = ms2_entry.fragments
+				f_1.pointers[1].pool_index = pool_index
+				f_1.pointers[1].data_offset = pool.data.tell()
+				# only write core model info
+				pool.data.write(model_info_bytes)
+
+			else:
+				# grab the preceding mdl2 entry since it points ahead
+				prev_mdl2_entry = ms2_entry.children[mdl2.index - 1]
+				# get its model info fragment
+				materials, lods, objects, model_data_ptr, model_info = prev_mdl2_entry.fragments
+				model_info.pointers[1].pool_index = pool_index
+				model_info.pointers[1].data_offset = pool.data.tell()
+				# we write this anyway
+				# todo - get the actual data
+				pool.data.write(b"\x00"*40)
+				# we should only
+				pool.data.write(model_info_bytes)
+
+			this_mdl2_entry = ms2_entry.children[mdl2.index]
+			materials, lods, objects, model_data_ptr, model_info = this_mdl2_entry.fragments
+			for frag in (materials, lods, objects, model_data_ptr):
+				frag.pointers[0].pool_index = pool_index
+				frag.pointers[0].data_offset = pool.data.tell()
+				pool.data.write(b"\x00"*8)
+		# write last 40 bytes to model_info
+		if mdl2s:
+			model_info.pointers[0].pool_index = pool_index
+			model_info.pointers[0].data_offset = pool.data.tell()
+			pool.data.write(b"\x00"*40)
+
+		# write the ms2 itself
+		ms2_entry.pointers[0].pool_index = pool_index
+		ms2_entry.pointers[0].data_offset = pool.data.tell()
+		# load ms2 ss data
+		ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions)  # + ms2_entry.pointers[0].data[24:]
+		pool.data.write(ms2_ss_bytes)
+
+		# first, 3 * 8 bytes of 00
+		for frag in ms2_entry.fragments:
+			frag.pointers[0].pool_index = pool_index
+			frag.pointers[1].pool_index = pool_index
+			frag.pointers[0].data_offset = pool.data.tell()
+			pool.data.write(b"\x00"*8)
+		# now the actual data
+		buffer_info_frag, model_info_frag, end_frag = ms2_entry.fragments
+		buffer_info_offset = pool.data.tell()
+		# set ptr to buffer info for each ModelData frag
+		for mdl2_entry in ms2_entry.children:
+			for frag in mdl2_entry.model_data_frags:
+				frag.pointers[1].pool_index = pool_index
+				frag.pointers[1].data_offset = buffer_info_offset
+		buffer_info_frag.pointers[1].data_offset = buffer_info_offset
+		buffer_info_bytes = as_bytes(ms2_file.buffer_info, version_info=versions)
+		pool.data.write(buffer_info_bytes)
+
+		# the last ms2 fragment
+		end_frag.pointers[1].data_offset = pool.data.tell()
+		pool.data.write(struct.pack("<ii", -1, 0))
+		# create ms2 data
+		self.create_data_entry(file_entry, (ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes))

@@ -897,14 +897,6 @@ class OvsFile(OvsHeader, ZipFile):
 			   ".xmlconfig": 1,
 			   # ".hier": ( (4,6) for x in range(19) ),
 			   ".spl": 1,
-			   ".userinterfaceicondata": 2,
-			   ".renderparameters": 1,  # temp
-			   ".renderparametercurves": 1,  # temp
-			   ".animalresearchunlocksettings": 1,  # temp
-			   ".mechanicresearchsettings": 1,  # temp
-			   ".pathextrusion": 1,  # temp
-			   ".pathmaterial": 1,  # temp
-			   ".pathresource": 1  # temp
 			   # ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
 			   }
 		# include formats that are known to have no fragments
@@ -959,8 +951,6 @@ class OvsFile(OvsHeader, ZipFile):
 			# print("frags",tuple((f.pointers[0].pool_index, f.pointers[1].pool_index) for f in sized_str_entry.fragments))
 			# for f in sized_str_entry.fragments:
 			#	 assert(f.pointers[0].pool_index == sized_str_entry.pointers[0].pool_index)
-
-
 		except Exception as err:
 			print(err)
 
