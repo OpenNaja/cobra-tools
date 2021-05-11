@@ -109,8 +109,6 @@ def remove_from_ovs(ovl, filenames):
 	for ss_index, ss_entry in sorted(enumerate(ovs.content.sized_str_entries), reverse=True):
 		# delete the sized string and fragment data
 		if ss_entry.name in filenames:
-
-			ovs.num_files -= 1
 			# wipe out ss and frag data
 			ss_entry.pointers[0].update_data(b"", update_copies=True)
 
@@ -127,20 +125,9 @@ def remove_from_ovs(ovl, filenames):
 	# remove data entry for file
 	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
 		if data.name in filenames:
-			ovl.num_buffers -= len(data.buffers)
-			ovl.num_datas -= 1
-
 			# buffers_to_delete.extend(data.buffers)
 			for buffer in data.buffers:
 				buffer.update_data(b"")
 				ovs.content.buffer_entries.remove(buffer)
 			ovs.content.data_entries.remove(data)
-
-		# ovl - sum of buffers for all archives?
-		# ovl.num_buffers -= len(data.buffers)
-		# ovl.num_datas -= 1
-
-	ovs.num_fragments = len(ovs.content.fragments)
-	ovs.num_datas = len(ovs.content.data_entries)
-	ovs.num_buffers = len(ovs.content.buffer_entries)
 	ovs.content.write_pointers_to_pools(ignore_unaccounted_bytes=True)
