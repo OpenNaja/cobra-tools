@@ -1765,6 +1765,8 @@ class OvlFile(Header, IoFile):
 			archive_entry.content.write_pools()
 			pools_offset += len(archive_entry.content.pools_data)
 			archive_entry.pools_end = pools_offset
+			# at least PZ & JWE require 4 additional bytes after each pool
+			pools_offset += 4
 
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
