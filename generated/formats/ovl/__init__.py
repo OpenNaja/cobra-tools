@@ -1447,8 +1447,6 @@ class OvlFile(Header, IoFile):
 		archive_entry.offset = 0
 		archive_entry.pools_offset = 0
 		archive_entry.ovs_file_offset = 0
-		archive_entry.read_start = 0
-		archive_entry.set_data_size = 0x10
 		archive_entry.ovs_offset = 0
 
 		new_zlib = ZlibInfo()
@@ -1456,7 +1454,6 @@ class OvlFile(Header, IoFile):
 		new_zlib.zlib_thing_2 = 0
 		self.zlibs.append(new_zlib)
 
-		self.update_counts()
 		self.update_ss_dict()
 
 	# print(self)
