@@ -15,6 +15,19 @@ def name_bytes(string):
 	return string.encode(encoding="utf-8")
 
 
+def rename_entry(entry, name_tups, species_mode):
+	if "bad hash" in entry.name:
+		print("Skipping", entry.name, entry.file_hash)
+		return
+	if species_mode:
+		if entry.ext not in SPECIES_ONLY_FMTS:
+			print("Skipping", entry.name, entry.file_hash)
+			return
+	for old, new in name_tups:
+		entry.basename = entry.basename.replace(old, new)
+	entry.name = f"{entry.basename}{entry.ext}"
+
+
 def dat_hasher(ovl, name_tups, species_mode=False):
 	print(f"Hashing and Renaming for {name_tups}")
 	ovl_lists = [ovl.files, ovl.dependencies, ovl.dirs]
@@ -28,54 +41,13 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 			content.pools,
 			content.sized_str_entries
 		))
-	old_hash_to_new = {}
-	old_hash_to_new_pz = {}
 
-	# first go over the ovl lists to generate new hashes
-	for i, entry_list in enumerate(ovl_lists):
-		for entry_index, entry in enumerate(entry_list):
-			try:
-				if "bad hash" in entry.name:
-					print("Skipping", entry.name, entry.file_hash)
-					continue
-				if species_mode:
-					if entry.ext not in SPECIES_ONLY_FMTS:
-						print("Skipping", entry.name, entry.file_hash)
-						continue
-				new_name = entry.basename
-				for old, new in name_tups:
-					new_name = new_name.replace(old, new)
-				if hasattr(entry, "file_hash"):
-					new_hash = djb(new_name)
-					if i == 0:  # only want a list of file names, dont want dirs and dependencies overriding this next loop
-						old_hash_to_new[entry.file_hash] = (new_name, new_hash)
-						old_hash_to_new_pz[entry_index] = (new_name, new_hash)
-					print(f"List{i} {entry.basename} -> {new_name},  {entry.file_hash} ->  {new_hash}")
-					entry.file_hash = new_hash
-				else:
-					print(f"List{i} {entry.basename} -> {new_name},  [NOT HASHED]")
-				entry.basename = new_name
-				entry.name = entry.basename + entry.ext
-			except Exception as err:
-				print(err)
-
-	# we do this in a second step to resolve the links
-	for i, entry_list in enumerate(ovs_lists):
+	# rename all entries
+	for entry_list in ovl_lists + ovs_lists:
 		for entry in entry_list:
-			if species_mode:
-				if entry.ext not in SPECIES_ONLY_FMTS:
-					print("Skipping", entry.name, entry.file_hash)
-					continue
-			if ovl.user_version.is_jwe:
-				new_name, new_hash = old_hash_to_new[entry.file_hash]
-				entry.file_hash = new_hash
-			else:
-				new_name, new_hash = old_hash_to_new_pz[entry.file_hash]
-			entry.basename = new_name
-			entry.name = f"{new_name}{entry.ext}"
+			rename_entry(entry, name_tups, species_mode)
 
-	ovl.update_names()
-	# resort the file entries
+	# store old index - refactor this so that name is used to link files to aux / dependency entries
 	for i, file in enumerate(ovl.files):
 		file.old_index = i
 
@@ -84,21 +56,13 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 	ovl.dependencies.sort(key=lambda x: x.file_hash)
 
 	# create a lookup table to map the old indices to the new ones
-	lut = {}
-	for i, file in enumerate(ovl.files):
-		lut[file.old_index] = i
-
+	lut = {file.old_index: file_i for file_i, file in enumerate(ovl.files)}
 	# update the file indices
 	for dependency in ovl.dependencies:
 		dependency.file_index = lut[dependency.file_index]
 	for aux in ovl.aux_entries:
 		aux.file_index = lut[aux.file_index]
-	if ovl.user_version.is_jwe:
-		print("JWE")
-	else:
-		for i, entry_list in enumerate(ovs_lists):
-			for entry in entry_list:
-				entry.file_hash = lut[entry.file_hash]
+
 	ovl.update_ss_dict()
 	print("Done!")
 

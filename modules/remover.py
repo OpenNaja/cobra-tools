@@ -1,5 +1,5 @@
 REVERSED_TYPES = (
-".tex", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection", ".txt")
+	".tex", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection", ".txt")
 
 
 def add_pointer(pointer, ss_entry, pointers_to_ss):
@@ -10,10 +10,10 @@ def add_pointer(pointer, ss_entry, pointers_to_ss):
 def header_hash_finder(ovs):
 	# this algorithm depends on every fragment being assigned to the correct sized string entries
 	print("Updating pools")
-	pointers_to_ss_ss = [{} for _ in ovs.pools]
+	pointers_to_ss = [{} for _ in ovs.pools]
 	pointers_to_ss_frag = [{} for _ in ovs.pools]
 	for sized_str_entry in ovs.sized_str_entries:
-		add_pointer(sized_str_entry.pointers[0], sized_str_entry, pointers_to_ss_ss)
+		add_pointer(sized_str_entry.pointers[0], sized_str_entry, pointers_to_ss)
 		for frag in sized_str_entry.fragments:
 			for pointer in frag.pointers:
 				add_pointer(pointer, sized_str_entry, pointers_to_ss_frag)
@@ -23,7 +23,7 @@ def header_hash_finder(ovs):
 			print(f"Keeping header name {pool.name} as it has not been reverse engineered!")
 			continue
 		# print(pool)
-		ss_map = pointers_to_ss_ss[pool_index]
+		ss_map = pointers_to_ss[pool_index]
 		results = tuple(sorted(ss_map.items()))
 		if not results:
 			print("No ss pointer found, checking frag pointers!")
@@ -34,11 +34,7 @@ def header_hash_finder(ovs):
 				continue
 		ss = results[0][1]
 		print(f"Header[{pool_index}]: {pool.name} -> {ss.name}")
-		pool.file_hash = ss.file_hash
-		pool.ext_hash = ss.ext_hash
-		pool.name = ss.name
-		pool.basename = ss.basename
-		pool.ext = ss.ext
+		ovs.transfer_identity(pool, ss)
 
 
 def file_remover(ovl, filenames):
@@ -78,18 +74,6 @@ def file_remover(ovl, filenames):
 	for file in ovl.files:
 		file.extension = ext_lut[file.ext]
 
-	ovl.update_names()
-	# update name indices for PZ (JWE hashes remain untouched!)
-	if not ovl.user_version.is_jwe:
-		print("Updating name indices for ovs archives")
-		name_lut = {file.name: file_index for file_index, file in enumerate(ovl.files)}
-		# print(name_lut)
-		for archive in ovl.archives:
-			# remove sizedstring entry for file and remove its fragments if mapped
-			for ss_entry in archive.content.sized_str_entries:
-				ss_entry.file_hash = name_lut[ss_entry.name]
-			for da_entry in archive.content.data_entries:
-				da_entry.file_hash = name_lut[da_entry.name]
 	for ovs in ovl.archives:
 		header_hash_finder(ovs.content)
 

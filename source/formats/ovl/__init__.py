@@ -100,10 +100,9 @@ class OvsFile(OvsHeader, ZipFile):
 		# this determines if fragments are written back to header datas
 		self.force_update_pools = True
 
-	def update_hashes(self):
+	def update_hashes(self, file_name_lut):
 		print("Updating hashes")
 		print(f"Game: {get_game(self.ovl)}")
-		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.ovl.files)}
 		for entry_list in (
 				self.pools,
 				self.sized_str_entries,
@@ -120,6 +119,7 @@ class OvsFile(OvsHeader, ZipFile):
 				entry.ext_hash = file.ext_hash
 
 	def update_counts(self):
+		"""Update counts of this archive"""
 		# adjust the counts
 		self.arg.num_pools = len(self.pools)
 		self.arg.num_datas = len(self.data_entries)
@@ -1418,8 +1418,6 @@ class OvlFile(Header, IoFile):
 				file_entry.path = file_path
 				file_entry.name = filename
 				file_entry.basename, file_entry.ext = os.path.splitext(filename)
-				file_entry.file_hash = djb(file_entry.basename)
-				file_entry.ext_hash = djb(file_entry.ext[1:])
 				file_entry.unkn_0 = lut_file_unk_0[file_ext]
 				file_entry.unkn_1 = 0
 				file_entry.extension = len(self.mimes)
@@ -1430,8 +1428,6 @@ class OvlFile(Header, IoFile):
 		self.fres.data = b"FRES"
 		self.archive_names.data = b'STATIC\x00\x00'
 
-		# update the name buffer and offsets
-		self.update_names()
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		# nope they are not sorted by hash
@@ -1494,15 +1490,11 @@ class OvlFile(Header, IoFile):
 		new_directory.name = directory_name
 		new_directory.basename = directory_name
 		self.dirs.append(new_directory)
-		self.num_dirs = len(self.dirs)
-		self.update_names()
 
 	def remove_dir(self, directory_name):
 		for dirEntry in self.dirs:
 			if dirEntry.name == directory_name:
 				self.dirs.remove(dirEntry)
-		self.num_dirs = len(self.dirs)
-		self.update_names()
 
 	def rename_dir(self, directory_name, directory_new_name):
 		# find an existing entry in the list
@@ -1510,7 +1502,6 @@ class OvlFile(Header, IoFile):
 			if dirEntry.name == directory_name:
 				dirEntry.name = directory_new_name
 				dirEntry.basename = directory_new_name
-		self.update_names()
 
 	def update_names(self):
 		self.names.update_with((
@@ -1718,13 +1709,33 @@ class OvlFile(Header, IoFile):
 			else:
 				archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
 
+	def update_hashes(self):
+		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
+		# update file hashes
+		for file in self.files:
+			file.file_hash = djb(file.basename)
+			file.ext_hash = djb(file.ext[1:])
+		# update dependency hashes
+		for dependency in self.dependencies:
+			if dependency.basename == "bad hash":
+				logging.warning(f"Bad hash on dependency entry - cannot resolve this")
+			else:
+				dependency.file_hash = djb(dependency.basename)
+
+		# todo - we should sort the entries here before we create the lut
+
+		# build a lookup table mapping file name to its index
+		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
+		for archive in self.archives:
+			# change the hashes / indices of all entries to be valid for the current game version
+			archive.content.update_hashes(file_name_lut)
+
 	def update_counts(self):
+		"""Update counts of this ovl and all of its archives"""
 		# adjust the counts
 		for archive in self.archives:
 			archive.content.update_counts()
 			archive.content.update_assets()
-			# change the hashes / indices of all entries to be valid for the current game version
-			archive.content.update_hashes()
 
 		# sum content of individual archives
 		self.num_pool_types = sum(a.num_pool_types for a in self.archives)
@@ -1732,6 +1743,7 @@ class OvlFile(Header, IoFile):
 		self.num_datas = sum(a.num_datas for a in self.archives)
 		self.num_buffers = sum(a.num_buffers for a in self.archives)
 
+		self.num_dirs = len(self.dirs)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 		self.num_dependencies = len(self.dependencies)
 		self.num_mimes = len(self.mimes)
@@ -1768,7 +1780,10 @@ class OvlFile(Header, IoFile):
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
 		self.store_filepath(filepath)
+		self.update_hashes()
 		self.update_counts()
+		# update the name buffer and offsets
+		self.update_names()
 		self.update_pool_datas()
 		self.open_ovs_streams()
 		ovl_compressed = b""
