@@ -89,7 +89,6 @@ def file_remover(ovl, filenames):
 				ss_entry.file_hash = name_lut[ss_entry.name]
 			for da_entry in archive.content.data_entries:
 				da_entry.file_hash = name_lut[da_entry.name]
-	ovl.update_counts()
 	for ovs in ovl.archives:
 		header_hash_finder(ovs.content)
 

@@ -1456,7 +1456,6 @@ class OvlFile(Header, IoFile):
 		new_zlib.zlib_thing_2 = 0
 		self.zlibs.append(new_zlib)
 
-		self.update_counts()
 		self.update_ss_dict()
 
 	# print(self)
