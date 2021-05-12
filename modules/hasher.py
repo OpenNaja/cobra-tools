@@ -19,12 +19,11 @@ def name_bytes(string):
 
 def rename_entry(entry, name_tups, species_mode):
 	if "bad hash" in entry.name:
-		print("Skipping", entry.name, entry.file_hash)
+		logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
 		return
-	if species_mode:
-		if entry.ext not in SPECIES_ONLY_FMTS:
-			print("Skipping", entry.name, entry.file_hash)
-			return
+	elif species_mode and entry.ext not in SPECIES_ONLY_FMTS:
+		logging.debug(f"Skipping {entry.name} due to its file extension")
+		return
 	for old, new in name_tups:
 		entry.basename = entry.basename.replace(old, new)
 	entry.name = f"{entry.basename}{entry.ext}"
