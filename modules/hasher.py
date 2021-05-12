@@ -48,7 +48,7 @@ def rename(ovl, name_tups, species_mode=False):
 	for entry_list in ovl_lists + ovs_lists:
 		for entry in entry_list:
 			rename_entry(entry, name_tups, species_mode)
-
+	ovl.update_hashes()
 	ovl.update_ss_dict()
 	logging.info("Finished renaming!")
 
