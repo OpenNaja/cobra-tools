@@ -82,8 +82,9 @@ def check_length(name_tups):
 	# Ask and return true if error is found and process should be stopped
 	for old, new in name_tups:
 		if len(old) != len(new):
-			if showdialog(f"WARNING: length of '{old}' [{len(old)} chars] and '{new}' [{len(new)} chars] don't match!\n"
-							 f"Stop hashing?", ask=True):
+			if showdialog(
+					f"WARNING: length of '{old}' [{len(old)} chars] and '{new}' [{len(new)} chars] don't match!\n"
+					f"Stop hashing?", ask=True):
 				return True
 
 
@@ -103,8 +104,9 @@ def species_dat_replacer(ovl, name_tups):
 		suffixes = []
 		for gender in ("_Female", "_Male", "_Juvenile", ""):
 			# various hardcoded suffixes
-			for sym in ("@", "_Mat", "_Skin", "_Skin_NoDirt", "_Fur", "_Fur_Shell", "_Fur_Fin", "_Eyeball", "_Eyes",
-						"_Eye", "_EyeMouthClaws", "_Whiskers", "_Hair", "_Feathers", "_Teeth", ""):
+			for sym in (
+					"@", "_Mat", "_Skin", "_Skin_NoDirt", "_Fur", "_Fur_Shell", "_Fur_Fin", "_Eyeball", "_Eyes",
+					"_Eye", "_EyeMouthClaws", "_Whiskers", "_Hair", "_Feathers", "_Teeth", ""):
 				suffixes.append(f"{gender}{sym}")
 			# lods
 			for i in range(7):
