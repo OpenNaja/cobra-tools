@@ -57,7 +57,7 @@ def rename_species(ovl, name_tups):
 
 
 def dat_replacer(ovl, name_tups):
-	print(f"Replacing Dat contents for {name_tups}")
+	logging.info(f"Replacing Dat contents for {name_tups}")
 	if check_length(name_tups):
 		return
 	name_tups_new = [(name_bytes(o), name_bytes(n)) for o, n in name_tups]
@@ -73,8 +73,8 @@ def dat_replacer(ovl, name_tups):
 	# 	b = buffer_entry.data
 	# 	buffer_entry.data = replace_bytes(b, name_tups)
 	except Exception as err:
-		print(err)
-	print("Done!")
+		showdialog(err)
+	logging.info("Done!")
 
 
 def check_length(name_tups):
@@ -88,7 +88,7 @@ def check_length(name_tups):
 
 
 def species_dat_replacer(ovl, name_tups):
-	print(f"Replacing Species Dat contents for {name_tups}")
+	logging.info(f"Replacing Species Dat contents for {name_tups}")
 	if check_length(name_tups):
 		return
 	name_tups_new = []
@@ -128,8 +128,8 @@ def species_dat_replacer(ovl, name_tups):
 					b = buffer_entry.data
 					buffer_entry.data = replace_bytes(b, name_tups_new)
 	except Exception as err:
-		print(err)
-	print("Done!")
+		showdialog(err)
+	logging.info("Finished DAT replacing")
 
 
 def extend_name_tuples(name_tups_new, new, old, suffixes):
