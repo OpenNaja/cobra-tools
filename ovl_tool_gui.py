@@ -109,7 +109,7 @@ class MainWindow(widgets.MainWindow):
 			(fileMenu, "Exit", self.close, "", "exit"),
 			(editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(editMenu, "Inject", self.inject, "CTRL+I", "inject"),
-			(editMenu, "Hash", self.hasher, "CTRL+H", ""),
+			(editMenu, "Rename", self.hasher, "CTRL+R", ""),
 			(editMenu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
 			(editMenu, "Remove Selected", self.remover, "DEL", ""),
 			(editMenu, "Walk", self.walker, "", ""),
@@ -245,6 +245,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
 				self.ovl_data.load_archives()
+				# print(self.ovl_data)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
@@ -327,7 +328,7 @@ class MainWindow(widgets.MainWindow):
 	def hasher(self):
 		if self.is_open_ovl():
 			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
-			hasher.dat_hasher(self.ovl_data, names, species_mode=self.species_hash)
+			hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
 			self.update_gui_table()
 
 	def dat_replacement(self):

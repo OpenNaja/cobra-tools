@@ -1597,12 +1597,16 @@ class OvlFile(Header, IoFile):
 			try:
 				file_entry = self.files[dependency_entry.file_index]
 				file_entry.dependencies.append(dependency_entry)
+				dependency_entry.file = file_entry
 			# funky bug due to some PC ovls using a different DependencyEntry struct
 			except IndexError as err:
 				print(err)
 		# sort dependencies by their pool offset
 		for file_entry in self.files:
 			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
+
+		for aux_entry in self.aux_entries:
+			aux_entry.file = self.files[aux_entry.file_index]
 
 		self.static_archive = None
 		for archive_entry in self.archives:
@@ -1722,10 +1726,16 @@ class OvlFile(Header, IoFile):
 			else:
 				dependency.file_hash = djb(dependency.basename)
 
-		# todo - we should sort the entries here before we create the lut
+		# sort the different lists according to the criteria specified
+		self.files.sort(key=lambda x: (x.ext, x.file_hash))
+		self.dependencies.sort(key=lambda x: x.file_hash)
 
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
+		# update the file indices
+		for entry in self.dependencies + self.aux_entries:
+			entry.file_index = file_name_lut[entry.file.name]
+
 		for archive in self.archives:
 			# change the hashes / indices of all entries to be valid for the current game version
 			archive.content.update_hashes(file_name_lut)

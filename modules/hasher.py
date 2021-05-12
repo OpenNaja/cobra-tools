@@ -1,3 +1,5 @@
+import logging
+
 from modules.formats.shared import djb
 import struct
 import io
@@ -28,8 +30,8 @@ def rename_entry(entry, name_tups, species_mode):
 	entry.name = f"{entry.basename}{entry.ext}"
 
 
-def dat_hasher(ovl, name_tups, species_mode=False):
-	print(f"Hashing and Renaming for {name_tups}")
+def rename(ovl, name_tups, species_mode=False):
+	logging.info(f"Renaming for {name_tups}")
 	ovl_lists = [ovl.files, ovl.dependencies, ovl.dirs]
 	ovs_lists = []
 	for archive_entry in ovl.archives:
@@ -47,28 +49,12 @@ def dat_hasher(ovl, name_tups, species_mode=False):
 		for entry in entry_list:
 			rename_entry(entry, name_tups, species_mode)
 
-	# store old index - refactor this so that name is used to link files to aux / dependency entries
-	for i, file in enumerate(ovl.files):
-		file.old_index = i
-
-	# sort the different lists according to the criteria specified
-	ovl.files.sort(key=lambda x: (x.ext, x.file_hash))
-	ovl.dependencies.sort(key=lambda x: x.file_hash)
-
-	# create a lookup table to map the old indices to the new ones
-	lut = {file.old_index: file_i for file_i, file in enumerate(ovl.files)}
-	# update the file indices
-	for dependency in ovl.dependencies:
-		dependency.file_index = lut[dependency.file_index]
-	for aux in ovl.aux_entries:
-		aux.file_index = lut[aux.file_index]
-
 	ovl.update_ss_dict()
-	print("Done!")
+	logging.info("Finished renaming!")
 
 
-def dat_hasher_species(ovl, name_tups):
-	dat_hasher(ovl, name_tups, species_mode=True)
+def rename_species(ovl, name_tups):
+	rename(ovl, name_tups, species_mode=True)
 
 
 def dat_replacer(ovl, name_tups):
