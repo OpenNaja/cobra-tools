@@ -23,7 +23,7 @@ class StreamInfo:
 		self.zero_2 = 0
 
 		# from start of tris buffer
-		self.next_buffer_length = 0
+		self.uv_buffer_length = 0
 		self.zero_3 = 0
 		self.zero_4 = 0
 
@@ -35,7 +35,7 @@ class StreamInfo:
 		self.tris_buffer_length = stream.read_uint64()
 		self.zero_1 = stream.read_uint64()
 		self.zero_2 = stream.read_uint64()
-		self.next_buffer_length = stream.read_uint64()
+		self.uv_buffer_length = stream.read_uint64()
 		self.zero_3 = stream.read_uint64()
 		self.zero_4 = stream.read_uint64()
 
@@ -49,7 +49,7 @@ class StreamInfo:
 		stream.write_uint64(self.tris_buffer_length)
 		stream.write_uint64(self.zero_1)
 		stream.write_uint64(self.zero_2)
-		stream.write_uint64(self.next_buffer_length)
+		stream.write_uint64(self.uv_buffer_length)
 		stream.write_uint64(self.zero_3)
 		stream.write_uint64(self.zero_4)
 
@@ -65,7 +65,7 @@ class StreamInfo:
 		s += f'\n	* tris_buffer_length = {self.tris_buffer_length.__repr__()}'
 		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
 		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
-		s += f'\n	* next_buffer_length = {self.next_buffer_length.__repr__()}'
+		s += f'\n	* uv_buffer_length = {self.uv_buffer_length.__repr__()}'
 		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
 		s += f'\n	* zero_4 = {self.zero_4.__repr__()}'
 		return s

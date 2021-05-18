@@ -260,11 +260,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					model_info = self.pc_buffer1.model_infos[mdl2.index]
 					logging.debug(f"PC model, {len(model_info.pc_model.models)} meshes")
 					if mdl2.read_editable:
+						sum_uv_dict = {}
+						for model_data in model_info.pc_model.models:
+							if model_data.stream_index not in sum_uv_dict:
+								sum_uv_dict[model_data.stream_index] = 0
+							sum_uv_dict[model_data.stream_index] += model_data.vertex_count
 						last_vert_offset = 0
 						for i, model_data in enumerate(model_info.pc_model.models):
 							logging.debug(f"\nModel {i}")
 							last_vert_offset = model_data.populate(self, stream, self.buffer_2_offset, 512,
-																   last_vert_offset=last_vert_offset)
+																   last_vert_offset=last_vert_offset, sum_uv_dict=sum_uv_dict)
 						mdl2.lods = model_info.pc_model.lods
 						mdl2.objects = model_info.pc_model.objects
 						mdl2.models = model_info.pc_model.models

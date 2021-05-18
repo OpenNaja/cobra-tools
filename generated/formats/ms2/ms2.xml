@@ -451,13 +451,12 @@
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		64 bytes
 		this has the starting offsets of tri buffers per streamed buffer
-<!--		<add name="unk" type="uint64" arr1="8"></add>-->
 		<add name="vertex buffer length" type="uint64" >in bytes</add>
 		<add name="zero 0" type="uint64"/>
 		<add name="tris buffer length" type="uint64" >from start of tris buffer</add>
 		<add name="zero 1" type="uint64"/>
 		<add name="zero 2" type="uint64"/>
-		<add name="next buffer length" type="uint64" >from start of tris buffer</add>
+		<add name="uv buffer length" type="uint64" >from start of tris buffer</add>
 		<add name="zero 3" type="uint64"/>
 		<add name="zero 4" type="uint64"/>
 	</compound>

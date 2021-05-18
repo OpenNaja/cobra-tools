@@ -11,14 +11,15 @@ class ZtModelData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0):
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0, sum_uv_dict={}):
+		self.sum_uv_dict = sum_uv_dict
 		self.last_vert_offset = last_vert_offset
 		self.new_vert_offset = 0
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
 		for s in self.streams[:self.stream_index]:
-			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.next_buffer_length
+			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.uv_buffer_length
 		self.buffer_2_offset = buffer_2_offset
 		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
 		print("Tri info address", self.buffer_2_offset+self.stream_offset+self.tri_info_offset)
@@ -59,15 +60,23 @@ class ZtModelData:
 			("tangent", np.ubyte, (3,)),
 			("b", np.ubyte, ),
 		]
-		dt_colors = [
-			("colors", np.ubyte, (1, 4)),
-			("uvs", np.ushort, (1 + self.some_index, 2)),
-		]
+		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
+		stream_info = self.streams[self.stream_index]
+		# hack for zt monitor
+		if stream_info.uv_buffer_length // vert_count_in_stream == 4:
+			dt_colors = [
+				("uvs", np.ushort, (1, 2)),
+			]
+		else:
+			dt_colors = [
+				("colors", np.ubyte, (1, 4)),
+				("uvs", np.ushort, (1 + self.some_index, 2)),
+			]
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
 		self.update_shell_count()
 		print("PC size of vertex:", self.dt.itemsize)
-		print("PC size of vcol:", self.dt_colors.itemsize)
+		print("PC size of vcol+uv:", self.dt_colors.itemsize)
 
 	def update_shell_count(self):
 		if self.flag.repeat_tris:
@@ -115,6 +124,7 @@ class ZtModelData:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.colors_data[:]["colors"]
 			self.colors /= 255
+		if self.uvs is not None:
 			self.uvs[:] = self.colors_data[:]["uvs"]
 			self.uvs /= 2048
 		print(self.normals.shape)

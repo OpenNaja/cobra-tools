@@ -157,7 +157,7 @@ class PcModelData:
 		s += '\n'
 		return s
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0):
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0, sum_uv_dict={}):
 		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
