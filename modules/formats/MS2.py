@@ -285,8 +285,11 @@ class Ms2Loader(Ms2File, BaseFile):
 		# sort them by model index
 		mdl2s.sort(key=lambda tup: tup[1].index)
 
+		# 1 for the ms2, 2 for each mdl2
+		pool.num_files += 1
 		# create sized str entries and model data fragments
 		for mdl2_name, mdl2 in mdl2s:
+			pool.num_files += 2
 			mdl2_file_entry = self.get_file_entry(mdl2_name)
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
 			mdl2_entry.pointers[0].pool_index = -1
@@ -400,4 +403,4 @@ class Ms2Loader(Ms2File, BaseFile):
 		end_frag.pointers[1].data_offset = pool.data.tell()
 		pool.data.write(struct.pack("<ii", -1, 0))
 		# create ms2 data
-		self.create_data_entry(file_entry, (ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes))
+		self.create_data_entry(ms2_entry, (ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes))

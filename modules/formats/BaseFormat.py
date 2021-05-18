@@ -75,16 +75,17 @@ class BaseFile:
 		self.ovs.fragments.append(new_frag)
 		return new_frag
 
-	def create_data_entry(self, file_entry, buffer_bytes):
+	def create_data_entry(self, ss_entry, buffer_bytes):
 		new_data = DataEntry()
-		self.ovs.transfer_identity(new_data, file_entry)
-		# new_data.set_index = 0
+		self.ovs.transfer_identity(new_data, ss_entry)
+		ss_entry.data_entry = new_data
 		new_data.buffer_count = len(buffer_bytes)
-		new_data.size_1 = sum([len(b) for b in buffer_bytes])
-		for i, b in reversed(list(enumerate(buffer_bytes))):
+		new_data.buffers = []
+		for i, b in enumerate(buffer_bytes):
 			new_buff = BufferEntry()
 			new_buff.index = i
-			new_buff.update_data(b)
+			new_data.buffers.append(new_buff)
 			self.ovs.buffer_entries.append(new_buff)
 		self.ovs.data_entries.append(new_data)
+		new_data.update_data(buffer_bytes)
 		return new_data

@@ -268,7 +268,7 @@
 		32 bytes
 		<add name="File Hash" type="uint"> DJB hash; sometimes matches an archive header's first File Hash</add>
 		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">DJB hash for extension; always (?) matches an archive header's hash</add>
-		<add name="set index" type="ushort" > </add>
+		<add name="set index" type="ushort" >1-based indexing into set_header.sets; 0 if data is not part of a set</add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
 		<add name="zero" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
 		<add name="Size 1" type="uint64">size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together</add>

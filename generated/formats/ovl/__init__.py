@@ -117,6 +117,8 @@ class OvsFile(OvsHeader, ZipFile):
 				else:
 					entry.file_hash = file_index
 				entry.ext_hash = file.ext_hash
+		# these seem to be sorted, but they are indexed into by other lists so gotta be careful when sorting them
+		# self.sized_str_entries.sort(key=lambda x: x.file_hash)
 
 	def update_counts(self):
 		"""Update counts of this archive"""
@@ -162,9 +164,7 @@ class OvsFile(OvsHeader, ZipFile):
 			print("reading from unzipped ovs")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
-			# print(self)
-			# print(len(self.ovl.archives))
-			# print(sum([archive.num_files for archive in self.ovl.archives]))
+			print(self)
 			# print(self.pools)
 			pool_index = 0
 			for header_type in self.pool_types:
@@ -215,6 +215,7 @@ class OvsFile(OvsHeader, ZipFile):
 				# print(asset_entry.name)
 				try:
 					asset_entry.entry = self.sized_str_entries[asset_entry.file_index]
+					print(asset_entry.entry)
 				except:
 					raise IndexError(
 						f"Could not find a sizedstr entry for asset {asset_entry} in {len(self.sized_str_entries)}")
@@ -333,6 +334,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# print("SET:", set_entry.name)
 			# print("ASSETS:", [a.name for a in assets])
 			# store the references on the corresponding sized str entry
+			assert set_entry.entry
 			set_entry.entry.children = [self.sized_str_entries[a.file_index] for a in assets]
 
 	@staticmethod
@@ -367,6 +369,8 @@ class OvsFile(OvsHeader, ZipFile):
 				start += len(ss_entry.children)
 				self.set_header.set_count += 1
 				self.set_header.asset_count += len(ss_entry.children)
+				# set_index is 1-based, so the first set = 1, so we do it after the increment
+				ss_entry.data_entry.set_index = self.set_header.set_count
 
 	def frags_accumulate(self, p, d_size, address_0_fragments):
 		# get frags whose pointers 0 datas together occupy d_size bytes
@@ -1428,6 +1432,7 @@ class OvlFile(Header, IoFile):
 		self.fres.data = b"FRES"
 		self.archive_names.data = b'STATIC\x00\x00'
 
+		self.update_hashes()
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		# nope they are not sorted by hash
@@ -1446,13 +1451,10 @@ class OvlFile(Header, IoFile):
 		archive_entry.ovs_offset = 0
 
 		new_zlib = ZlibInfo()
-		new_zlib.zlib_thing_1 = 68 + archive_entry.uncompressed_size
-		new_zlib.zlib_thing_2 = 0
 		self.zlibs.append(new_zlib)
 
 		self.update_ss_dict()
-
-	# print(self)
+		self.update_hashes()
 
 	# dummy (black hole) callback for if we decide we don't want one
 	def dummy_callback(self, *args, **kwargs):
@@ -1623,7 +1625,6 @@ class OvlFile(Header, IoFile):
 	def load_archives(self):
 		print("Loading archives...")
 		start_time = time.time()
-		# print(self)
 		self.open_ovs_streams(mode="rb")
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}", value=archive_index, max_value=len(self.archives))
@@ -1648,7 +1649,6 @@ class OvlFile(Header, IoFile):
 		self.load_headers()
 		self.load_file_classes()
 
-		# print(self)
 		for archive_entry in self.archives:
 			if "write_frag_log" in self.commands:
 				archive_entry.content.assign_frag_names()
@@ -1790,8 +1790,9 @@ class OvlFile(Header, IoFile):
 	def save(self, filepath, use_ext_dat, dat_path):
 		print("Writing OVL")
 		self.store_filepath(filepath)
-		self.update_hashes()
 		self.update_counts()
+		# do this last so we also catch the assets & sets
+		self.update_hashes()
 		# update the name buffer and offsets
 		self.update_names()
 		self.update_pool_datas()

@@ -49,7 +49,7 @@ class FdbLoader(BaseFile):
 		new_ss = self.create_ss_entry(file_entry)
 		new_ss.pointers[0].pool_index = pool_index
 		new_ss.pointers[0].data_offset = offset
-		new_data = self.create_data_entry(file_entry, (file_name_bytes, dbuffer))
+		new_data = self.create_data_entry(new_ss, (file_name_bytes, dbuffer))
 		# new_data.set_index = 0
 
 	def collect(self, ovl, file_entry):

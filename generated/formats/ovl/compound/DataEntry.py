@@ -16,6 +16,8 @@ class DataEntry:
 
 		# DJB hash for extension; always (?) matches an archive header's hash
 		self.ext_hash = 0
+
+		# 1-based indexing into set_header.sets; 0 if data is not part of a set
 		self.set_index = 0
 
 		# number of buffers that should be read from list for this entry
