@@ -23,7 +23,7 @@ def write_lua(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 	# write lua
 	out_path = out_dir(name)
 	# print(out_path)
-	out_files = [out_path, out_path + "meta"]
+	out_files = [out_path, ]
 	if buffer_data[1:4] == b"Lua":
 		print("compiled lua")
 		bin_path = out_path + ".bin"
@@ -37,16 +37,6 @@ def write_lua(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 		with open(out_path, 'wb') as outfile:
 			# write the buffer
 			outfile.write(buffer_data)
-
-	# with open(out_path + "meta", 'wb') as outfile:
-	# 	# write each of the fragments
-	# 	# print(sized_str_entry.pointers[0].data)
-	# 	outfile.write(sized_str_entry.pointers[0].data)
-	# 	for frag in sized_str_entry.fragments:
-	# 		# print(frag.pointers[0].data)
-	# 		# print(frag.pointers[1].data)
-	# 		outfile.write(frag.pointers[0].data)
-	# 		outfile.write(frag.pointers[1].data)
 	return out_files
 
 
