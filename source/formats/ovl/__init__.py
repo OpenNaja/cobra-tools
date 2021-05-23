@@ -1372,6 +1372,7 @@ class OvlFile(Header, IoFile):
 	def create(self, ovl_dir, mime_names_dict):
 		print(f"Creating OVL from {ovl_dir}")
 		print(f"Game: {get_game(self)}")
+		# map all files in ovl_dir by their extension
 		files_by_extension = {}
 		for file_name in os.listdir(ovl_dir):
 			file_name_bare, file_ext = os.path.splitext(file_name)
@@ -1379,13 +1380,11 @@ class OvlFile(Header, IoFile):
 			if file_ext not in files_by_extension:
 				files_by_extension[file_ext] = []
 			files_by_extension[file_ext].append(file_path)
-		# print(files_by_extension)
 
 		file_index_offset = 0
 		for file_ext, file_paths in sorted(files_by_extension.items()):
 			if file_ext not in mime_names_dict:
-				print(f"ignoring extension {file_ext}")
-				# files_by_extension.pop(file_ext)
+				logging.warning(f"Ignoring extension {file_ext}")
 				continue
 			mime_entry = MimeEntry()
 			mime_entry.name = mime_names_dict[file_ext]
@@ -1446,7 +1445,7 @@ class OvlFile(Header, IoFile):
 		# don't print the message if it is identical to the last one - it
 		# will slow down massively repetitive tasks
 		if self.last_print != message:
-			print(message)
+			logging.info(message)
 			self.last_print = message
 
 		# call the callback
@@ -1465,8 +1464,8 @@ class OvlFile(Header, IoFile):
 
 	def inject_dir(self, directory_name):
 		# validate can't insert same directory twice
-		for dirEntry in self.dirs:
-			if dirEntry.name == directory_name:
+		for dir_entry in self.dirs:
+			if dir_entry.name == directory_name:
 				return
 
 		# store file name for later
@@ -1476,16 +1475,16 @@ class OvlFile(Header, IoFile):
 		self.dirs.append(new_directory)
 
 	def remove_dir(self, directory_name):
-		for dirEntry in self.dirs:
-			if dirEntry.name == directory_name:
-				self.dirs.remove(dirEntry)
+		for dir_entry in self.dirs:
+			if dir_entry.name == directory_name:
+				self.dirs.remove(dir_entry)
 
 	def rename_dir(self, directory_name, directory_new_name):
 		# find an existing entry in the list
-		for idx, dirEntry in enumerate(self.dirs):
-			if dirEntry.name == directory_name:
-				dirEntry.name = directory_new_name
-				dirEntry.basename = directory_new_name
+		for idx, dir_entry in enumerate(self.dirs):
+			if dir_entry.name == directory_name:
+				dir_entry.name = directory_new_name
+				dir_entry.basename = directory_new_name
 
 	def update_names(self):
 		self.names.update_with((
@@ -1504,7 +1503,7 @@ class OvlFile(Header, IoFile):
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()
 		self.eof = super().load(filepath)
-		print(f"Game: {get_game(self)}")
+		logging.info(f"Game: {get_game(self)}")
 
 		# store commands
 		self.commands = commands
@@ -1545,7 +1544,6 @@ class OvlFile(Header, IoFile):
 			file_entry.name = file_name + file_entry.ext
 			file_entry.dependencies = []
 			self.hash_table_local[file_entry.file_hash] = file_name
-		# print(file_name+file_entry.ext , file_entry.unkn_0, file_entry.unkn_1)
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
 
@@ -1558,7 +1556,6 @@ class OvlFile(Header, IoFile):
 			dir_entry.ext = ""
 			dir_entry.name = dir_entry.basename + dir_entry.ext
 
-		# print(self)
 		# get names of all dependencies
 		ht_max = len(self.dependencies)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
@@ -1577,14 +1574,13 @@ class OvlFile(Header, IoFile):
 				dependency_entry.basename = "bad hash"
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
-			# print(dependency_entry.basename, dependency_entry.pointers)
 			try:
 				file_entry = self.files[dependency_entry.file_index]
 				file_entry.dependencies.append(dependency_entry)
 				dependency_entry.file = file_entry
 			# funky bug due to some PC ovls using a different DependencyEntry struct
 			except IndexError as err:
-				print(err)
+				logging.error(err)
 		# sort dependencies by their pool offset
 		for file_entry in self.files:
 			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
@@ -1595,35 +1591,31 @@ class OvlFile(Header, IoFile):
 		self.static_archive = None
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
-		print(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
 	def load_headers(self):
 		self.pools = [None for _ in range(self.num_pools)]
 		for archive_entry in self.archives:
 			if archive_entry.num_pools:
-				self.pools[archive_entry.pools_offset:
-									archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
+				self.pools[archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
 
 	def load_archives(self):
-		print("Loading archives...")
+		logging.info("Loading archives...")
 		start_time = time.time()
 		self.open_ovs_streams(mode="rb")
 		for archive_index, archive_entry in enumerate(self.archives):
 			self.print_and_callback(f"Reading archive {archive_entry.name}", value=archive_index, max_value=len(self.archives))
-			# print("archive_entry", archive_index, archive_entry)
 			# those point to external ovs archives
 			if archive_entry.name == "STATIC":
 				read_start = self.eof
 			else:
 				read_start = archive_entry.read_start
 			archive_entry.content = OvsFile(self, archive_entry, archive_index)
-			# print(archive_entry)
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
-				# print(len(archive_entry.content.sized_str_entries), list([e.name for e in archive_entry.content.sized_str_entries]))
 			except BaseException as err:
-				print(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
-				print(err)
+				logging.error(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
+				logging.error(err)
 				traceback.print_exc()
 		self.close_ovs_streams()
 		self.update_ss_dict()
@@ -1631,12 +1623,12 @@ class OvlFile(Header, IoFile):
 		self.load_headers()
 		self.load_file_classes()
 
-		for archive_entry in self.archives:
-			if "write_frag_log" in self.commands:
+		if "write_frag_log" in self.commands:
+			for archive_entry in self.archives:
 				archive_entry.content.assign_frag_names()
 				archive_entry.content.write_frag_log()
 				archive_entry.content.debug_txt_data()
-		print(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
 
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
@@ -1650,10 +1642,9 @@ class OvlFile(Header, IoFile):
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
-		print("Updating the entry dict...")
+		logging.info("Updating the entry dict...")
 		self.ss_dict = {}
 		for archive_index, archive_entry in enumerate(self.archives):
-			# print(archive_index)
 			for file in archive_entry.content.sized_str_entries:
 				self.ss_dict[file.name] = file
 
@@ -1661,7 +1652,7 @@ class OvlFile(Header, IoFile):
 		"""Attach the data buffers of streamed filed to standard files from the first archive"""
 		if not self.archives:
 			return
-		print("Linking streams...")
+		logging.info("Linking streams...")
 		# find texstream buffers
 		for tb_index, sized_str_entry in enumerate(self.static_archive.content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)
@@ -1773,7 +1764,7 @@ class OvlFile(Header, IoFile):
 			pools_offset += 4
 
 	def save(self, filepath, use_ext_dat, dat_path):
-		print("Writing OVL")
+		logging.info("Writing OVL")
 		self.store_filepath(filepath)
 		self.update_counts()
 		# do this last so we also catch the assets & sets
@@ -1781,6 +1772,7 @@ class OvlFile(Header, IoFile):
 		# update the name buffer and offsets
 		self.update_names()
 		self.update_pool_datas()
+		self.update_aux_sizes()
 		self.open_ovs_streams()
 		ovl_compressed = b""
 		# compress data stream
@@ -1801,8 +1793,15 @@ class OvlFile(Header, IoFile):
 			self.zlibs[i].zlib_thing_1 = 68 + archive_entry.uncompressed_size
 
 		self.close_ovs_streams()
+		eof = super().save(filepath)
+		with self.writer(filepath) as stream:
+			# first header
+			self.write(stream)
+			# write zlib block
+			stream.write(ovl_compressed)
 
-		print("Updating AUX sizes in OVL")
+	def update_aux_sizes(self):
+		logging.debug("Updating AUX sizes in OVL")
 		for aux in self.aux_entries:
 			name = self.files[aux.file_index].basename
 			if aux.extension_index != 0:
@@ -1815,17 +1814,7 @@ class OvlFile(Header, IoFile):
 				aux.size = os.path.getsize(bnkpath)
 		# print(aux.size)
 
-		eof = super().save(filepath)
-		with self.writer(filepath) as stream:
-			# first header
-			self.write(stream)
-			# write zlib block
-			stream.write(ovl_compressed)
-
 
 if __name__ == "__main__":
-	bnk = OvlFile()
-	bnk.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
-# bnk.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Gharial_Male.ovl")
-# bnk.load("C:/Users/arnfi/Desktop/Coding/ovl/PC_Primitives_01.ovl")
-# print(bnk)
+	ovl = OvlFile()
+	ovl.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
