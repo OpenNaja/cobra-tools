@@ -192,11 +192,10 @@ class OvsFile(OvsHeader, ZipFile):
 			super().read(stream)
 			# print(self)
 			pool_index = 0
-			for header_type in self.pool_types:
-				for i in range(header_type.num_pools):
+			for pool_type in self.pool_types:
+				for i in range(pool_type.num_pools):
 					pool = self.pools[pool_index]
-					pool.header_type = header_type
-					pool.type = header_type.type
+					pool.type = pool_type.type
 					self.assign_name(pool)
 					# store fragments per header for faster lookup
 					pool.fragments = []
@@ -216,7 +215,6 @@ class OvsFile(OvsHeader, ZipFile):
 			for i, fragment in enumerate(self.fragments):
 				# we assign these later
 				fragment.done = False
-				fragment.lod = False
 				fragment.name = None
 
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):

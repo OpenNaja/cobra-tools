@@ -27,20 +27,15 @@ class BaseFile:
 			if pool.type == pool_type:
 				return pool_index, pool
 		# nope, means we gotta create pool type and pool
-		header_type = PoolType()
-		header_type.type = pool_type
-		header_type.num_pools = 1
+		pool_type = PoolType()
+		pool_type.type = pool_type
+		pool_type.num_pools = 1
 
 		pool = MemPool()
-		# pool.data = io.BytesIO(self.pool_data)
-		# pool.size = len(self.pool_data)
 		pool.data = BinaryStream()
 		# assign_versions(pool.data, get_versions(self.ovl))
-		pool.type = type
-		# pool.offset = 0
-		# pool.num_files = file_entry_count
-		pool.type = header_type.type
-		self.ovs.pool_types.append(header_type)
+		pool.type = pool_type
+		self.ovs.pool_types.append(pool_type)
 		self.ovs.pools.append(pool)
 		return len(self.ovs.pools)-1, pool
 
