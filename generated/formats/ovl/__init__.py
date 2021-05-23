@@ -162,21 +162,19 @@ class OvsFile(OvsHeader, ZipFile):
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
 		stream = self.ovl.ovs_dict[filepath]
 		stream.seek(start)
-		print(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
+		logging.debug(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
-			print("reading from unzipped ovs")
+			logging.debug("Reading unzipped stream...")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
 			# print(self)
-			# print(self.pools)
 			pool_index = 0
 			for header_type in self.pool_types:
 				for i in range(header_type.num_pools):
 					pool = self.pools[pool_index]
 					pool.header_type = header_type
 					pool.type = header_type.type
-					# print(pool)
 					self.assign_name(pool)
 					# store fragments per header for faster lookup
 					pool.fragments = []
@@ -190,12 +188,8 @@ class OvsFile(OvsHeader, ZipFile):
 				sized_str_entry.children = []
 				sized_str_entry.fragments = []
 				sized_str_entry.model_data_frags = []
-				# print(sized_str_entry.name)
 				# get data entry for link to buffers, or none
-				try:
-					sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
-				except:
-					print("ERROR: Could not find a data entry!")
+				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
 
 			for i, fragment in enumerate(self.fragments):
 				# we assign these later
@@ -212,14 +206,11 @@ class OvsFile(OvsHeader, ZipFile):
 			for set_entry in self.set_header.sets:
 				self.assign_name(set_entry)
 				set_entry.entry = self.find_entry(self.sized_str_entries, set_entry)
-				# print(set_entry.name)
 
 			for asset_entry in self.set_header.assets:
 				self.assign_name(asset_entry)
-				# print(asset_entry.name)
 				try:
 					asset_entry.entry = self.sized_str_entries[asset_entry.file_index]
-					# print(asset_entry.entry)
 				except:
 					raise IndexError(
 						f"Could not find a sizedstr entry for asset {asset_entry} in {len(self.sized_str_entries)}")
@@ -228,12 +219,13 @@ class OvsFile(OvsHeader, ZipFile):
 
 			# up to here was data defined by the OvsHeader class, ending with the AssetEntries
 			self.start_of_pools = stream.tell()
-			print("Start of pools data:", self.start_of_pools)
+			logging.debug(f"Start of pools data: {self.start_of_pools}")
 
 			# another integrity check
 			if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
-				raise AttributeError(f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
-									 f"does not match calculated size ({self.calc_uncompressed_size()})")
+				raise AttributeError(
+					f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
+					f"does not match calculated size ({self.calc_uncompressed_size()})")
 
 			# add IO object to every pool
 			self.read_pools(stream)
@@ -264,26 +256,22 @@ class OvsFile(OvsHeader, ZipFile):
 			assign_versions(pool.data, get_versions(self.ovl))
 
 	def calc_pointer_addresses(self):
-		print("Calculating pointer addresses")
+		logging.info("Calculating pointer addresses")
 		# store absolute read addresses from the start of file
 		for entry in itertools.chain(self.fragments, self.sized_str_entries):
 			# for access from start of file
 			for pointer in entry.pointers:
 				# some have max_uint as a header value, what do they refer to
 				if pointer.pool_index == -1:
-					# print("Warning: {} has no pool_index (-1)".format(entry.name))
-					pointer.header = 9999999
-					pointer.type = 9999999
+					pointer.header = None
 					pointer.address = 9999999
 				else:
 					pointer.header = self.pools[pointer.pool_index]
-					# store type number of each header entry
-					pointer.type = pointer.header.type
 					pointer.address = self.start_of_pools + pointer.header.offset + pointer.data_offset
 
 	def calc_pointer_sizes(self):
 		"""Assign an estimated size to every pointer"""
-		print("calculating pointer sizes")
+		logging.info("Calculating pointer sizes")
 		# calculate pointer data sizes
 		for entry in self.pools:
 			# make them unique and sort them
@@ -299,16 +287,16 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def map_pointers(self):
 		"""Assign list of copies to every pointer so they can be updated with the same data easily"""
-		print("\nMapping pointers")
+		logging.info("Mapping pointers")
 		# reset pointer map for each header entry
 		for pool in self.pools:
 			pool.pointer_map = {}
-		print("\nLinking pointers to header")
+		logging.debug("Linking pointers to header")
 		# append all valid pointers to their respective dicts
 		for entry in itertools.chain(self.fragments, self.sized_str_entries):
 			for pointer in entry.pointers:
 				pointer.link_to_header(self)
-		print("\nFinding duplicate pointers")
+		logging.debug("Finding duplicate pointers")
 		for pool in self.pools:
 			# for every pointer, store any other pointer that points to the same address
 			for offset, pointers in pool.pointer_map.items():
@@ -318,7 +306,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def populate_pointers(self):
 		"""Load data for every pointer"""
-		print("Reading data into pointers")
+		logging.info("Reading data into pointers")
 		for entry in itertools.chain(self.fragments, self.sized_str_entries):
 			for pointer in entry.pointers:
 				pointer.read_data(self.pools)
@@ -335,8 +323,8 @@ class OvsFile(OvsHeader, ZipFile):
 				set_entry.end = self.set_header.sets[i + 1].start
 			# map assets to entry
 			assets = self.set_header.assets[set_entry.start: set_entry.end]
-			# print("SET:", set_entry.name)
-			# print("ASSETS:", [a.name for a in assets])
+			logging.debug(f"SET: {set_entry.name}")
+			logging.debug(f"ASSETS: {[a.name for a in assets]}")
 			# store the references on the corresponding sized str entry
 			assert set_entry.entry
 			set_entry.entry.children = [self.sized_str_entries[a.file_index] for a in assets]
@@ -351,7 +339,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def update_assets(self):
 		"""Update archive asset grouping from children list on sized str entries"""
-		print("Updating assets")
+		logging.info("Updating assets")
 		self.set_header.sets.clear()
 		self.set_header.assets.clear()
 		self.set_header.set_count = 0
@@ -1028,7 +1016,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	@staticmethod
 	def get_ptr_debug_str(entry, ind):
-		# return f"{' '.join((f'[{p.address} {p.data_size} {p.type}]' for p in entry.pointers))} {ind} {entry.name}"
+		# return f"{' '.join((f'[{p.address} {p.data_size}]' for p in entry.pointers))} {ind} {entry.name}"
 		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name}"
 
 	def write_frag_log(self, ):
@@ -1226,18 +1214,11 @@ class OvsFile(OvsHeader, ZipFile):
 					break
 		return out
 
-	def find_entry(self, l, src_entry):
+	def find_entry(self, entries, src_entry):
 		""" returns entry from list l whose file hash matches hash, or none"""
-		if is_pc(self.ovl):
-			# try to find it
-			for entry in l:
-				if entry.file_hash == src_entry.file_hash:
-					return entry
-		else:
-			# try to find it
-			for entry in l:
-				if entry.file_hash == src_entry.file_hash and entry.ext_hash == src_entry.ext_hash:
-					return entry
+		for entry in entries:
+			if entry.name == src_entry.name:
+				return entry
 
 	def assign_name(self, entry):
 		"""Fetch a filename for an entry"""
