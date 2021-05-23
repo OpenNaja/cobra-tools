@@ -13,20 +13,12 @@ from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetEntry import SetEntry
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compound.BufferEntry import BufferEntry
-from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.Fragment import Fragment
-from generated.formats.ovl.compound.MemPool import MemPool
-from generated.formats.ovl.compound.PoolType import PoolType
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
-from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
-from modules.helpers import zstr
 
 
 lut_mime_unk_0 = {
@@ -105,8 +97,8 @@ class OvsFile(OvsHeader, ZipFile):
 		self.force_update_pools = True
 
 	def update_hashes(self, file_name_lut):
-		print("Updating hashes")
-		print(f"Game: {get_game(self.ovl)}")
+		logging.info("Updating hashes")
+		logging.info(f"Game: {get_game(self.ovl)}")
 		for entry_list in (
 				self.pools,
 				self.sized_str_entries,
