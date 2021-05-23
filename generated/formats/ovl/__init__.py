@@ -13,20 +13,12 @@ from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetEntry import SetEntry
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compound.BufferEntry import BufferEntry
-from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.Fragment import Fragment
-from generated.formats.ovl.compound.MemPool import MemPool
-from generated.formats.ovl.compound.PoolType import PoolType
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
-from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
-from modules.helpers import zstr
 
 
 lut_mime_unk_0 = {
@@ -105,8 +97,8 @@ class OvsFile(OvsHeader, ZipFile):
 		self.force_update_pools = True
 
 	def update_hashes(self, file_name_lut):
-		print("Updating hashes")
-		print(f"Game: {get_game(self.ovl)}")
+		logging.info("Updating hashes")
+		logging.info(f"Game: {get_game(self.ovl)}")
 		for entry_list in (
 				self.pools,
 				self.sized_str_entries,
@@ -337,6 +329,7 @@ class OvsFile(OvsHeader, ZipFile):
 		source_entry.ext = target_entry.ext
 		source_entry.name = target_entry.name
 
+	# noinspection PyTypeChecker
 	def update_assets(self):
 		"""Update archive asset grouping from children list on sized str entries"""
 		logging.info("Updating assets")
@@ -385,7 +378,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def frags_from_pointer_equals(self, p):
 		frags = self.frags_for_pointer(p)
-		return self.get_frag_equal(frags, p.address, len(p.data))
+		return self.get_frag_equal(frags, p.address)
 
 	def frags_from_pointer_equals_counts(self, p, count):
 		frags = self.frags_for_pointer(p)
@@ -732,8 +725,8 @@ class OvsFile(OvsHeader, ZipFile):
 					maybe_hash = d[6]
 					print(f.name, media_count, maybe_hash, ptr.address)
 					bk_frags = self.frags_from_pointer(ptr, media_count * 3)
-					for i in range(media_count):
-						z = bk_frags[i * 3:i * 3 + 3]
+					for j in range(media_count):
+						z = bk_frags[j*3: j*3+3]
 						for f in z:
 							f.pointers[1].strip_zstring_padding()
 							print(f.pointers[1].data)
@@ -1075,8 +1068,8 @@ class OvsFile(OvsHeader, ZipFile):
 		return out
 
 	@staticmethod
-	def get_frag_equal(frags, initpos, datalength):
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
+	def get_frag_equal(frags, initpos):
+		"""Get frag whose ptr 0 is at initpos."""
 		out = []
 		for f in frags:
 			# can't add fragments that have already been added elsewhere
@@ -1164,37 +1157,6 @@ class OvsFile(OvsHeader, ZipFile):
 				if f.done:
 					continue
 				if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-					f.done = True
-					out.append(f)
-					firstgrab = 0
-					length = len(f.pointers[0].data)
-					lastpos = f.pointers[0].address
-					print("first ", initpos, length, lastpos)
-			else:
-				if f.pointers[0].address - length == lastpos:
-					if f.done:
-						continue
-					if f.pointers[0].address >= initpos:
-						f.done = True
-						out.append(f)
-						length = len(f.pointers[0].data)
-						lastpos = f.pointers[0].address
-				else:
-					break
-		return out
-
-	@staticmethod
-	def get_frags_til_disconb(frags, initpos, datalength):
-		"""Returns entries of frags that have not been processed and until discontinuity."""
-		out = []
-		lastpos = initpos
-		length = 0
-		firstgrab = 1
-		for f in frags:
-			if firstgrab == 1:
-				if f.done:
-					continue
-				if f.pointers[0].address == initpos:
 					f.done = True
 					out.append(f)
 					firstgrab = 0
