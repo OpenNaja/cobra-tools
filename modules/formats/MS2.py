@@ -246,7 +246,7 @@ class Ms2Loader(Ms2File, BaseFile):
 		# 1 - p0: 8*00 				p1: lods
 		# 2 - p0: 8*00 				p1: objects
 		# 3 - p0: 8*00 				p1: -> first ModelData, start of ModelData fragments block
-		# 4 - p0: next_model_info	p1: -> materials
+		# 4 - p0: next_model_info	p1: -> materials of the first mdl2
 		#         or just 40 bytes
 		# plus fragments counted by num_models
 		# i - p0: ModelData (64b)	p1: -> buffer_info
@@ -299,12 +299,15 @@ class Ms2Loader(Ms2File, BaseFile):
 			# first, create all ModelData structs as fragments
 			mdl2_entry.model_data_frags = [self.create_fragment() for _ in range(mdl2.model_info.num_models)]
 
+		first_materials_offset = None
 		# create the 5 fixed frags per MDL2 and write their data
 		for (mdl2_name, mdl2), mdl2_entry in zip(mdl2s, ms2_entry.children):
 			mdl2_entry.fragments = [self.create_fragment() for _ in range(5)]
 			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 
 			materials_offset = pool.data.tell()
+			if first_materials_offset is None:
+				first_materials_offset = materials_offset
 			materials.pointers[1].pool_index = pool_index
 			materials.pointers[1].data_offset = materials_offset
 			pool.data.write(as_bytes(mdl2.materials, version_info=versions))
@@ -321,11 +324,8 @@ class Ms2Loader(Ms2File, BaseFile):
 			# modeldatas start here
 
 			model_info.pointers[1].pool_index = pool_index
-			model_info.pointers[1].data_offset = materials_offset
+			model_info.pointers[1].data_offset = first_materials_offset
 
-		# write modeldata
-		for (mdl2_name, mdl2), mdl2_entry in zip(mdl2s, ms2_entry.children):
-			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 			model_data_ptr.pointers[1].pool_index = pool_index
 			model_data_ptr.pointers[1].data_offset = pool.data.tell()
 			# write mdl2 modeldata frags
@@ -352,8 +352,8 @@ class Ms2Loader(Ms2File, BaseFile):
 				prev_mdl2_entry = ms2_entry.children[mdl2.index - 1]
 				# get its model info fragment
 				materials, lods, objects, model_data_ptr, model_info = prev_mdl2_entry.fragments
-				model_info.pointers[1].pool_index = pool_index
-				model_info.pointers[1].data_offset = pool.data.tell()
+				model_info.pointers[0].pool_index = pool_index
+				model_info.pointers[0].data_offset = pool.data.tell()
 				# we write this anyway
 				# todo - get the actual data
 				pool.data.write(b"\x00"*40)
@@ -373,19 +373,7 @@ class Ms2Loader(Ms2File, BaseFile):
 			pool.data.write(b"\x00"*40)
 
 		# write the ms2 itself
-		ms2_entry.pointers[0].pool_index = pool_index
-		ms2_entry.pointers[0].data_offset = pool.data.tell()
-		# load ms2 ss data
-		ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions)  # + ms2_entry.pointers[0].data[24:]
-		pool.data.write(ms2_ss_bytes)
-
-		# first, 3 * 8 bytes of 00
-		for frag in ms2_entry.fragments:
-			frag.pointers[0].pool_index = pool_index
-			frag.pointers[1].pool_index = pool_index
-			frag.pointers[0].data_offset = pool.data.tell()
-			pool.data.write(b"\x00"*8)
-		# now the actual data
+		# buffer info data
 		buffer_info_frag, model_info_frag, end_frag = ms2_entry.fragments
 		buffer_info_offset = pool.data.tell()
 		# set ptr to buffer info for each ModelData frag
@@ -398,6 +386,20 @@ class Ms2Loader(Ms2File, BaseFile):
 		buffer_info_bytes = as_bytes(ms2_file.buffer_info, version_info=versions)
 		logging.debug(f"len(buffer_info_bytes) {len(buffer_info_bytes)}")
 		pool.data.write(buffer_info_bytes)
+
+		# ss data
+		ms2_entry.pointers[0].pool_index = pool_index
+		ms2_entry.pointers[0].data_offset = pool.data.tell()
+		# load ms2 ss data
+		ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions)  # + ms2_entry.pointers[0].data[24:]
+		pool.data.write(ms2_ss_bytes)
+
+		# first, 3 * 8 bytes of 00
+		for frag in ms2_entry.fragments:
+			frag.pointers[0].pool_index = pool_index
+			frag.pointers[1].pool_index = pool_index
+			frag.pointers[0].data_offset = pool.data.tell()
+			pool.data.write(b"\x00"*8)
 
 		# the last ms2 fragment
 		end_frag.pointers[1].data_offset = pool.data.tell()

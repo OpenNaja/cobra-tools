@@ -56,6 +56,10 @@ lut_file_unk_0 = {
 	".tex": 3,
 }
 
+lut_file_unk_1 = {
+	".mdl2": 2,
+}
+
 lut_mime_hash = {
 	".assetpkg": 1145776474,
 	".banis": 1177957172,
@@ -164,7 +168,7 @@ class OvsFile(OvsHeader, ZipFile):
 			print("reading from unzipped ovs")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
-			print(self)
+			# print(self)
 			# print(self.pools)
 			pool_index = 0
 			for header_type in self.pool_types:
@@ -215,7 +219,7 @@ class OvsFile(OvsHeader, ZipFile):
 				# print(asset_entry.name)
 				try:
 					asset_entry.entry = self.sized_str_entries[asset_entry.file_index]
-					print(asset_entry.entry)
+					# print(asset_entry.entry)
 				except:
 					raise IndexError(
 						f"Could not find a sizedstr entry for asset {asset_entry} in {len(self.sized_str_entries)}")
@@ -1022,28 +1026,25 @@ class OvsFile(OvsHeader, ZipFile):
 			# read buffer data and store it in buffer object
 			buffer.read_data(stream)
 
+	@staticmethod
+	def get_ptr_debug_str(entry, ind):
+		# return f"{' '.join((f'[{p.address} {p.data_size} {p.type}]' for p in entry.pointers))} {ind} {entry.name}"
+		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name}"
+
 	def write_frag_log(self, ):
-		# for development; collect info about fragment types
-		frag_log = ""
-
-		for i, pool in enumerate(self.pools):
-			frag_log += f"\n\nHeader[{i}] at {pool.address} with {len(pool.fragments)} fragments\n"
-			lines = [f"{' '.join((f'{p.address} {p.data_size} {p.type}' for p in frag.pointers))} {j} {frag.name}"
-					 for j, frag in enumerate(pool.fragments)]
-			lines += [f"{' '.join((f'{p.address} {p.data_size} {p.type}' for p in ss.pointers))} {j} {ss.name}"
-					 for j, ss in enumerate(self.sized_str_entries) if ss.pointers[0].pool_index == i]
-			lines.sort()
-			frag_log += "\n".join(lines)
-		frag_log += "\n\n\nself.fragments > sizedstr\nfragments in file order"
-		# for i, frag in enumerate(sorted(self.fragments, key=lambda f: f.pointers[0].address)):
-		for i, frag in enumerate(self.fragments):
-			# frag_log += f"\n{i} {frag.pointers[0].address} {frag.pointers[0].data_size} {frag.pointers[1].address} {frag.pointers[1].data_size} {frag.name} {frag.pointers[0].type} {frag.pointers[1].type}"
-			frag_log += f"\n{i} {frag.pointers[0].pool_index} {frag.pointers[0].data_offset} {frag.pointers[1].pool_index} {frag.pointers[1].data_offset} {frag.name}"
-
+		"""for development; collect info about fragment types"""
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_frag{self.archive_index}.log")
 		print(f"Writing Fragment log to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
-			f.write(frag_log)
+			for i, pool in enumerate(self.pools):
+				f.write(f"\n\nHeader[{i}] at {pool.address} with {len(pool.fragments)} fragments\n")
+				entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i]
+				entries.sort(key=lambda entry: entry.pointers[0].data_offset)
+				lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(entries)]
+				f.write("\n".join(lines))
+			f.write("\n\n\nself.fragments > sizedstr\nfragments in file order\n")
+			lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(self.fragments)]
+			f.write("\n".join(lines))
 
 	@staticmethod
 	def get_frag_after_terminator(l, initpos, terminator=24):
@@ -1051,7 +1052,7 @@ class OvsFile(OvsHeader, ZipFile):
 		out = []
 		# print("looking for",h_types)
 		for f in l:
-			# can't add self.fragments that have already been added elsewhere
+			# can't add fragments that have already been added elsewhere
 			if f.done:
 				continue
 			if f.pointers[0].address >= initpos:
@@ -1423,7 +1424,7 @@ class OvlFile(Header, IoFile):
 				file_entry.name = filename
 				file_entry.basename, file_entry.ext = os.path.splitext(filename)
 				file_entry.unkn_0 = lut_file_unk_0[file_ext]
-				file_entry.unkn_1 = 0
+				file_entry.unkn_1 = lut_file_unk_1.get(file_ext, 0)
 				file_entry.extension = len(self.mimes)
 				self.files.append(file_entry)
 			self.mimes.append(mime_entry)
@@ -1661,7 +1662,10 @@ class OvlFile(Header, IoFile):
 		for file in self.files:
 			loader = get_loader(file.ext)
 			if loader:
-				loader.collect(self, file)
+				try:
+					loader.collect(self, file)
+				except Exception as err:
+					logging.error(err)
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
