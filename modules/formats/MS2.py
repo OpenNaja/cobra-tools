@@ -356,7 +356,8 @@ class Ms2Loader(Ms2File, BaseFile):
 				model_info.pointers[0].data_offset = pool.data.tell()
 				# we write this anyway
 				# todo - get the actual data
-				pool.data.write(b"\x00"*40)
+				core_model_data = struct.pack("<5Q", 0, 1, 0, 0, 0)
+				pool.data.write(core_model_data)
 				# we should only
 				pool.data.write(model_info_bytes)
 
@@ -370,7 +371,9 @@ class Ms2Loader(Ms2File, BaseFile):
 		if mdl2s:
 			model_info.pointers[0].pool_index = pool_index
 			model_info.pointers[0].data_offset = pool.data.tell()
-			pool.data.write(b"\x00"*40)
+			# todo - get the actual data
+			core_model_data = struct.pack("<5Q", 0, 1, 0, 0, 0)
+			pool.data.write(core_model_data)
 
 		# write the ms2 itself
 		# buffer info data
