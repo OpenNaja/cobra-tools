@@ -1725,7 +1725,7 @@ class OvlFile(Header, IoFile):
 			# at least PZ & JWE require 4 additional bytes after each pool
 			pools_offset += 4
 
-	def save(self, filepath, use_ext_dat, dat_path):
+	def save(self, filepath, dat_path):
 		logging.info("Writing OVL")
 		self.store_filepath(filepath)
 		self.update_counts()
@@ -1740,9 +1740,7 @@ class OvlFile(Header, IoFile):
 		# compress data stream
 		for i, archive_entry in enumerate(self.archives):
 			# write archive into bytes IO stream
-			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i,
-																													  use_ext_dat,
-																													  dat_path)
+			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i, dat_path)
 			# update set data size
 			archive_entry.set_data_size = archive_entry.content.set_header.io_size
 			if i == 0:

@@ -292,7 +292,8 @@ class MainWindow(widgets.MainWindow):
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				try:
-					self.ovl_data.save(file_src, self.use_ext_dat, self.dat_widget.filepath)
+					ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
+					self.ovl_data.save(file_src, ext_path)
 					self.file_widget.dirty = False
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except BaseException as ex:
