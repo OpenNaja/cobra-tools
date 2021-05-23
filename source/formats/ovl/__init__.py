@@ -1772,6 +1772,7 @@ class OvlFile(Header, IoFile):
 		ovl_compressed = b""
 		# compress data stream
 		for i, archive_entry in enumerate(self.archives):
+			print(archive_entry.content)
 			# write archive into bytes IO stream
 			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i, dat_path)
 			# update set data size

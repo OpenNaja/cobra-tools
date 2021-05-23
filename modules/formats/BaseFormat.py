@@ -21,20 +21,20 @@ class BaseFile:
 		frags = self.ovs.pools[ss_pointer.pool_index].fragments
 		self.sized_str_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.address, count)
 
-	def get_pool(self, pool_type):
+	def get_pool(self, pool_type_key):
 		# get one if it exists
 		for pool_index, pool in enumerate(self.ovs.pools):
-			if pool.type == pool_type:
+			if pool.type == pool_type_key:
 				return pool_index, pool
 		# nope, means we gotta create pool type and pool
 		pool_type = PoolType()
-		pool_type.type = pool_type
+		pool_type.type = pool_type_key
 		pool_type.num_pools = 1
 
 		pool = MemPool()
 		pool.data = BinaryStream()
 		# assign_versions(pool.data, get_versions(self.ovl))
-		pool.type = pool_type
+		pool.type = pool_type_key
 		self.ovs.pool_types.append(pool_type)
 		self.ovs.pools.append(pool)
 		return len(self.ovs.pools)-1, pool
