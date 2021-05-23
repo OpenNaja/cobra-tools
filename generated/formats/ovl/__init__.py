@@ -21,7 +21,7 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
 
 
-lut_mime_unk_0 = {
+lut_mime_version_jwe = {
 	".fdb": 1,
 	".banis": 5,
 	".assetpkg": 2,
@@ -31,6 +31,21 @@ lut_mime_unk_0 = {
 	".tex": 8,
 	".ms2": 47,
 	".mdl2": 47,
+	".fgm": 6,
+}
+
+lut_mime_version_pz = {
+	".fdb": 1,
+	".bani": 5,
+	".banis": 5,
+	".assetpkg": 2,
+	".userinterfaceicondata": 1,
+	".lua": 7,
+	".txt": 2,
+	".tex": 9,
+	".texturestream": 9,
+	".ms2": 50,
+	".mdl2": 50,
 	".fgm": 6,
 }
 
@@ -52,7 +67,7 @@ lut_file_unk_1 = {
 	".mdl2": 2,
 }
 
-lut_mime_hash = {
+lut_mime_hash_jwe = {
 	".assetpkg": 1145776474,
 	".banis": 1177957172,
 	".fdb": 2545474337,
@@ -63,6 +78,21 @@ lut_mime_hash = {
 	".txt": 640591494,
 	".tex": 3242366505,
 	".userinterfaceicondata": 2127665351,
+}
+
+lut_mime_hash_pz = {
+	".bani": 1380752341,
+	".banis": 1177957172,
+	".fgm": 861771362,
+	".mdl2": 4285397382,
+	".ms2": 2893339829,
+	".tex": 3242366506,
+	".texturestream": 4096653506,
+	# ".assetpkg": 1145776474,
+	# ".fdb": 2545474337,
+	# ".lua": 1779074288,
+	# ".txt": 640591494,
+	# ".userinterfaceicondata": 2127665351,
 }
 
 
@@ -1352,9 +1382,14 @@ class OvlFile(Header, IoFile):
 			mime_entry.name = mime_names_dict[file_ext]
 			mime_entry.ext = file_ext
 			# update offset using the name buffer
-			mime_entry.mime_hash = lut_mime_hash[file_ext]
-			mime_entry.unknown_1 = lut_mime_unk_0[file_ext]
-			mime_entry.unknown_2 = 0
+			if is_jwe(self):
+				mime_entry.mime_hash = lut_mime_hash_jwe.get(file_ext)
+				mime_entry.version = lut_mime_version_jwe.get(file_ext)
+			elif is_pz(self):
+				mime_entry.mime_hash = lut_mime_hash_pz.get(file_ext)
+				mime_entry.version = lut_mime_version_pz.get(file_ext)
+			else:
+				raise ValueError(f"Unsupported game {get_game(self)}")
 			mime_entry.file_index_offset = file_index_offset
 			mime_entry.file_count = len(file_paths)
 			file_index_offset += len(file_paths)
@@ -1485,7 +1520,7 @@ class OvlFile(Header, IoFile):
 			# only get the extension
 			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
 			logging.debug(f'"{mime_entry.ext}": {mime_entry.mime_hash},')
-			logging.debug(f'"{mime_entry.ext}": {mime_entry.unknown_1},')
+			logging.debug(f'"{mime_entry.ext}": {mime_entry.version},')
 			# the stored mime hash is not used anywhere
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that

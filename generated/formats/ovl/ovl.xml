@@ -167,9 +167,8 @@
 		Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
         <add name="Offset" type="uint">offset in the header's Names block</add>
         <add name="unknown" type="uint">usually zero</add>
-        <add name="Mime Hash" type="uint">hash of this file extension; same across all files, but seemingly not used anywhere else in the archive</add>
-        <add name="unknown 1" type="ushort" ></add>
-        <add name="unknown 2" type="ushort" >usually zero</add>
+        <add name="Mime Hash" type="uint">changes with game version; hash of this file extension; same across all files, but seemingly not used anywhere else in the archive</add>
+        <add name="version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
     </compound>

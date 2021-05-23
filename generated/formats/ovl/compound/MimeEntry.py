@@ -18,12 +18,11 @@ class MimeEntry:
 		# usually zero
 		self.unknown = 0
 
-		# hash of this file extension; same across all files, but seemingly not used anywhere else in the archive
+		# changes with game version; hash of this file extension; same across all files, but seemingly not used anywhere else in the archive
 		self.mime_hash = 0
-		self.unknown_1 = 0
 
-		# usually zero
-		self.unknown_2 = 0
+		# usually increments with game
+		self.version = 0
 
 		# Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files
 		self.file_index_offset = 0
@@ -37,8 +36,8 @@ class MimeEntry:
 		self.offset = stream.read_uint()
 		self.unknown = stream.read_uint()
 		self.mime_hash = stream.read_uint()
-		self.unknown_1 = stream.read_ushort()
-		self.unknown_2 = stream.read_ushort()
+		self.version = stream.read_uint()
+		stream.version = self.version
 		self.file_index_offset = stream.read_uint()
 		self.file_count = stream.read_uint()
 
@@ -50,8 +49,8 @@ class MimeEntry:
 		stream.write_uint(self.offset)
 		stream.write_uint(self.unknown)
 		stream.write_uint(self.mime_hash)
-		stream.write_ushort(self.unknown_1)
-		stream.write_ushort(self.unknown_2)
+		stream.write_uint(self.version)
+		stream.version = self.version
 		stream.write_uint(self.file_index_offset)
 		stream.write_uint(self.file_count)
 
@@ -65,8 +64,7 @@ class MimeEntry:
 		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* unknown = {self.unknown.__repr__()}'
 		s += f'\n	* mime_hash = {self.mime_hash.__repr__()}'
-		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
-		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
 		s += f'\n	* file_index_offset = {self.file_index_offset.__repr__()}'
 		s += f'\n	* file_count = {self.file_count.__repr__()}'
 		return s

@@ -245,7 +245,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
 				self.ovl_data.load_archives()
-				# print(self.ovl_data)
+				print(self.ovl_data)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
