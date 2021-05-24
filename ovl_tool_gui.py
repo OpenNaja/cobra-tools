@@ -307,7 +307,7 @@ class MainWindow(widgets.MainWindow):
 			if out_dir:
 				self.cfg["dir_extract"] = out_dir
 				try:
-					out_paths, error_files, skip_files = self.ovl_data.extract(out_dir, self.show_temp_files)
+					out_paths, error_files, skip_files = self.ovl_data.extract(out_dir, show_temp_files=self.show_temp_files)
 					interaction.skip_messages(error_files, skip_files)
 				except Exception as ex:
 					traceback.print_exc()
