@@ -61,13 +61,14 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 				# parenting
 				b_ob.parent = b_armature_obj
 
-				# parent the meshes to this bone
-				if m_lod.bone_index > 0:
-					bone_name = bone_names[m_lod.bone_index-1]
-					b_ob.parent_type = 'BONE'
-					b_ob.parent_bone = bone_name
-				# re-set matrix to update the binding
-				b_ob.matrix_local = b_ob.matrix_local
+				b_ob["bone_index"] = m_lod.bone_index
+				# # parent the meshes to this bone
+				# if m_lod.bone_index > 0:
+				# 	bone_name = bone_names[m_lod.bone_index-1]
+				# 	b_ob.parent_type = 'BONE'
+				# 	b_ob.parent_bone = bone_name
+				# # re-set matrix to update the binding
+				# b_ob.matrix_local = b_ob.matrix_local
 
 				import_vertex_groups(b_ob, model, bone_names)
 				# link to armature, only after mirror so the order is good and weights are mirrored

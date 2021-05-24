@@ -281,10 +281,11 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 		mdl2.lods.append(m_lod)
 		for b_ob in lod_coll.objects:
 			# store & set bone index for lod
-			if b_ob.parent_type == 'BONE':
-				m_lod.bone_index = bones_table[b_ob.parent_bone]+1
-			else:
-				m_lod.bone_index = 0
+			m_lod.bone_index = b_ob["bone_index"]
+			# if b_ob.parent_type == 'BONE':
+			# 	m_lod.bone_index = bones_table[b_ob.parent_bone]+1
+			# else:
+			# 	m_lod.bone_index = 0
 
 			b_me = b_ob.data
 			if b_me not in b_models:
