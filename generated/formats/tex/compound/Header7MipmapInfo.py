@@ -10,18 +10,26 @@ class Header7MipmapInfo:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# cumulative sum of the preceding values
 		self.offset = 0
-		self.unknown_02 = 0
+
+		# not pixels
 		self.width = 0
+
+		# not pixels
 		self.height = 0
+
+		# decreases quadratically
 		self.unknown_0_c = 0
+
+		# repeat of height or width
 		self.unkn_3 = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.offset = stream.read_ushort()
-		self.unknown_02 = stream.read_ushort()
+		self.offset = stream.read_uint()
 		self.width = stream.read_uint()
 		self.height = stream.read_uint()
 		self.unknown_0_c = stream.read_uint()
@@ -32,8 +40,7 @@ class Header7MipmapInfo:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_ushort(self.offset)
-		stream.write_ushort(self.unknown_02)
+		stream.write_uint(self.offset)
 		stream.write_uint(self.width)
 		stream.write_uint(self.height)
 		stream.write_uint(self.unknown_0_c)
@@ -47,7 +54,6 @@ class Header7MipmapInfo:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* unknown_02 = {self.unknown_02.__repr__()}'
 		s += f'\n	* width = {self.width.__repr__()}'
 		s += f'\n	* height = {self.height.__repr__()}'
 		s += f'\n	* unknown_0_c = {self.unknown_0_c.__repr__()}'

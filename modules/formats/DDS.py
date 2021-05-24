@@ -13,16 +13,16 @@ from generated.formats.tex.compound.Header7Data1 import Header7Data1
 from ovl_util import texconv, imarray
 
 
-def get_tex_structs(sized_str_entry):
+def get_tex_structs(sized_str_entry, ovl_version):
 	# we have exactly two fragments, pointing into these pool_types
 	f_3_3, f_3_7 = sized_str_entry.fragments
 
-	header_3_0 = f_3_7.pointers[0].load_as(Header3Data0)[0]
-	headers_3_1 = f_3_3.pointers[1].load_as(Header3Data1, num=f_3_3.pointers[1].data_size // 24)
+	header_3_0 = f_3_7.pointers[0].load_as(Header3Data0, version_info=ovl_version)[0]
+	headers_3_1 = f_3_3.pointers[1].load_as(Header3Data1, num=f_3_3.pointers[1].data_size//24, version_info=ovl_version)
 	print(f_3_3.pointers[1].data_size // 24)
 	print(header_3_0)
 	print(headers_3_1)
-	header_7 = f_3_7.pointers[1].load_as(Header7Data1)[0]
+	header_7 = f_3_7.pointers[1].load_as(Header7Data1, version_info=ovl_version)[0]
 	print(header_7)
 	return header_3_0, headers_3_1, header_7
 
@@ -100,6 +100,7 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 	buffer_data = b"".join(entry.data_entry.stream_datas)
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
+	versions = get_versions(ovl)
 	if is_ztuac(ovl):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_ztuac(entry)
 		dds_file.width = header_7.width
@@ -120,7 +121,7 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 		dds_file.depth = header_3_0.one_0
 
 	else:
-		header_3_0, headers_3_1, header_7 = get_tex_structs(entry)
+		header_3_0, headers_3_1, header_7 = get_tex_structs(entry, versions)
 
 		sum_of_parts = sum(header_3_1.data_size for header_3_1 in headers_3_1)
 		if not sum_of_parts == header_7.data_size:
@@ -183,10 +184,11 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 
 def load_png(ovl_data, png_file_path, tex_sized_str_entry, show_temp_files, hack_2k):
 	# convert the png into a dds, then inject that
+	versions = get_versions(ovl_data)
 	if is_pc(ovl_data):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 	else:
-		header_3_0, header_3_1, header_7 = get_tex_structs(tex_sized_str_entry)
+		header_3_0, header_3_1, header_7 = get_tex_structs(tex_sized_str_entry, versions)
 		if hack_2k:
 			header_7.height = 2048
 			header_7.num_mips = 12
@@ -242,7 +244,7 @@ def tex_to_2K(tex_sized_str_entry, ovs_sized_str_entry):
 
 
 def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, hack_2k):
-
+	versions = get_versions(ovl_data)
 	if is_pc(ovl_data):
 		header_3_0, headers_3_1, header_7 = get_tex_structs_pc(tex_sized_str_entry)
 		tex_h = header_7.height
@@ -250,7 +252,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, hack_2k):
 		tex_d = header_3_0.one_0
 		tex_a = header_7.array_size
 	else:
-		header_3_0, header_3_1, header_7 = get_tex_structs(tex_sized_str_entry)
+		header_3_0, header_3_1, header_7 = get_tex_structs(tex_sized_str_entry, versions)
 		tex_h = header_7.height
 		tex_w = header_7.width
 		tex_d = header_7.depth

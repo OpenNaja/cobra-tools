@@ -10,7 +10,11 @@ class Header3Data1ZTUACEntry:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# x
 		self.width = 0
+
+		# y
 		self.height = 0
 
 		# num_mips
