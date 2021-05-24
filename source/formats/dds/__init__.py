@@ -12,7 +12,6 @@ class DdsFile(Header, IoFile):
 	def __init__(self,):
 		super().__init__()
 		self.buffer = b""
-		self.emmpty_block = b""
 		self.mips = []
 
 	def load(self, filepath):
@@ -29,10 +28,9 @@ class DdsFile(Header, IoFile):
 		return int(round(num_pixels / self.pixels_per_byte))
 
 	def read_mips(self, stream):
-		print("\nReading mips")
+		logging.info("Reading mip maps")
 
 		self.get_pixel_fmt()
-		min_bytes = len(self.empty_block)
 		h = self.height
 		w = self.width
 
@@ -40,7 +38,7 @@ class DdsFile(Header, IoFile):
 			# print(mip_i, h, w)
 			num_pixels = h * w * self.dx_10.array_size
 			# read at least one block
-			num_bytes = max(min_bytes, self.get_bytes_size(num_pixels))
+			num_bytes = max(self.block_byte_size, self.get_bytes_size(num_pixels))
 			# address = stream.tell()
 			# print(address, num_pixels, num_bytes)
 			self.mips.append((h, w, stream.read(num_bytes)))
@@ -48,7 +46,7 @@ class DdsFile(Header, IoFile):
 			w //= 2
 		# print(self.mips)
 		self.buffer = b"".join([b for h, w, b in self.mips])
-		print("End of mips", stream.tell())
+		logging.debug(f"End of mips: {stream.tell()}")
 
 	def get_pixel_fmt(self):
 		# get compression type
@@ -56,16 +54,20 @@ class DdsFile(Header, IoFile):
 		# get bpp from compression type
 		if "R8G8B8A8" in comp:
 			self.pixels_per_byte = 0.25
-			self.empty_block = bytes.fromhex("00 00 00 00")
-			self.block_size = 1
+			self.block_len_pixels_1d = 1
 		elif "BC1" in comp or "BC4" in comp:
 			self.pixels_per_byte = 2
-			self.empty_block = bytes.fromhex("00 00 00 00 00 00 00 00")
-			self.block_size = 4
+			self.block_len_pixels_1d = 4
 		else:
 			self.pixels_per_byte = 1
-			self.empty_block = bytes.fromhex("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00")
-			self.block_size = 4
+			self.block_len_pixels_1d = 4
+		# a block is the smallest usable unit, for dxt it is 4x4 px, for RGBA it is 1x1 px
+		# get its byte count
+		self.block_byte_size = int(round(self.block_len_pixels_1d * self.block_len_pixels_1d / self.pixels_per_byte))
+		logging.debug(f"Compression: {comp}")
+		logging.debug(f"pixels_per_byte: {self.pixels_per_byte}")
+		logging.debug(f"block_len_pixels_1d: {self.block_len_pixels_1d}")
+		logging.debug(f"block_byte_size: {self.block_byte_size}")
 
 	def pack_mips(self, num_mips):
 		"""From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
@@ -91,11 +93,11 @@ class DdsFile(Header, IoFile):
 			# pack the last mips into one image
 			for i, (height, width, level_bytes) in enumerate(packed_levels):
 				# no matter what pixel size the mips represent, they must be at least one 4x4 chunk
-				height = max(self.block_size, height)
+				height = max(self.block_len_pixels_1d, height)
 
 				# write horizontal lines
 				# get count of h slices, 1 block is 4x4 px
-				num_slices_y = height // self.block_size
+				num_slices_y = height // self.block_len_pixels_1d
 				bytes_per_line = len(level_bytes) // num_slices_y
 
 				# write the bytes for this line from the mip bytes
