@@ -1,7 +1,7 @@
 import bpy
 import mathutils
 import math
-import time
+import logging
 
 from utils.matrix_util import evaluate_mesh
 
@@ -38,13 +38,13 @@ def vcol_to_comb():
 	# otherwise the non-eval ob's particle count is 0
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
-	ob_eval, me = evaluate_mesh(ob)
+	ob_eval, me_eval = evaluate_mesh(ob)
 	particle_system = ob.particle_systems[0]
 	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
 	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
 	particle_system_eval = ob_eval.particle_systems[0]
 
-	vertices = me.vertices
+	vertices = me_eval.vertices
 	num_particles = len(particle_system.particles)
 	num_particles2 = len(particle_system_eval.particles)
 
@@ -52,16 +52,16 @@ def vcol_to_comb():
 
 	# tangents have to be pre-calculated
 	# this will also calculate loop normal
-	me.calc_tangents()
+	me_eval.calc_tangents()
 
 	# loop faces
-	for i, face in enumerate(me.polygons):
+	for i, face in enumerate(me_eval.polygons):
 		# loop over face loop
 		for loop_index in face.loop_indices:
-			vert = me.loops[loop_index]
-			vertex = me.vertices[vert.vertex_index]
+			vert = me_eval.loops[loop_index]
+			vertex = me_eval.vertices[vert.vertex_index]
 			tangent_space_mat = get_tangent_space_mat(vert)
-			vcol_layer = me.vertex_colors[0]
+			vcol_layer = me_eval.vertex_colors[0]
 			vcol = vcol_layer.data[loop_index].color
 			a = vcol[0] - 0.5
 			# this is like uv, so we do 1-v
@@ -102,11 +102,14 @@ def comb_to_vcol():
 	ob = context.object
 	if not ob:
 		return "No object in context",
+	logging.debug(f"Converting hair to vcol for {ob.name}")
 	# particle edit mode has to be entered so that hair strands are generated
 	# otherwise the non-eval ob's particle count is 0
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
-	ob_eval, me = evaluate_mesh(ob)
+	ob_eval, me_eval = evaluate_mesh(ob)
+	# to set the vertex colors we need the unevaluated data
+	me = ob.data
 	particle_system = ob.particle_systems[0]
 	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
 	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
