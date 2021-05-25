@@ -49,6 +49,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 
 		# holds different types of flag - list of byte maps pairs
 		type_dic = {}
+		# for another_count
+		another_counts = set()
 		if walk_models:
 			mdl2_files = walk_type(export_dir, extension="mdl2")
 			mf_max = len(mdl2_files)
@@ -56,12 +58,13 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 				mdl2_name = os.path.basename(mdl2_path)
 				gui.update_progress("Walking MDL2 files: " + mdl2_name, value=mf_index, vmax=mf_max)
 				try:
-					mdl2_data.load(mdl2_path, quick=True, map_bytes=True)
+					mdl2_data.load(mdl2_path, map_bytes=True, entry=True)
 					for model in mdl2_data.models:
 						if model.flag not in type_dic:
 							type_dic[model.flag] = ([], [])
 						type_dic[model.flag][0].append(mdl2_name)
 						type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
+					another_counts.add(mdl2_data.model_info.another_count)
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((mdl2_path, ex))
@@ -82,5 +85,5 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print("max", np.max(maxs, axis=0))
 			print("min", np.min(mins, axis=0))
 			print()
-
+		print(f"another_counts: {another_counts}")
 		gui.update_progress("Operation completed!", value=1, vmax=1)

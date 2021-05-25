@@ -268,8 +268,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						last_vert_offset = 0
 						for i, model_data in enumerate(model_info.pc_model.models):
 							logging.debug(f"\nModel {i}")
-							last_vert_offset = model_data.populate(self, stream, self.buffer_2_offset, 512,
-																   last_vert_offset=last_vert_offset, sum_uv_dict=sum_uv_dict)
+							last_vert_offset = model_data.populate(
+								self, stream, self.buffer_2_offset, 512, last_vert_offset=last_vert_offset, sum_uv_dict=sum_uv_dict)
 						mdl2.lods = model_info.pc_model.lods
 						mdl2.objects = model_info.pc_model.objects
 						mdl2.models = model_info.pc_model.models
@@ -281,6 +281,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 							model.populate(self, stream, self.buffer_2_offset, mdl2.model_info.pack_offset)
 
 					elif mdl2.map_bytes:
+						logging.debug(f"Reading mesh statistics for {mdl2_name}")
 						for model in mdl2.models:
 							model.read_bytes_map(self.buffer_2_offset, stream)
 
@@ -436,7 +437,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file = filepath
 		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
 		self.file_no_ext = os.path.splitext(self.file)[0]
-		logging.info(f"Loading {self.basename}")
+		logging.info(f"Loading {self.basename} [map_bytes = {self.map_bytes}]")
 		# read the file
 		try:
 			eof = super().load(filepath)
