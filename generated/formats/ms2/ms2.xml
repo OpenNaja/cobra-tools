@@ -476,7 +476,7 @@
 		In load order it always defines the variable fragments for the next mdl2
 		The mdl2's fragment informs the first mdl2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-		<add name="unk float a" type="float" vercond="!#OLD#">not sure</add>
+		<add name="unk float a" type="float" vercond="!#OLD#">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="pack offset" type="float" vercond="!#OLD#">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
@@ -490,7 +490,7 @@
 		<add name="num_objects" type="ushort"/>
 		<add name="num_models" type="ushort">count of modeldata fragments for the mdl2 this struct refers to</add>
 		<add name="last count" type="ushort">?</add>
-		<add name="another count" type="ushort">nonzero in PZ flamingo, ZT african ele female</add>
+		<add name="another count" type="ushort">this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female</add>
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 	</compound>

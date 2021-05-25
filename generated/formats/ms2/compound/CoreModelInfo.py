@@ -22,7 +22,7 @@ class CoreModelInfo:
 		# the smallest coordinates across all axes
 		self.bounds_min = Vector3()
 
-		# not sure
+		# not sure, for PZ often 40 00 00 37 for animals
 		self.unk_float_a = 0
 
 		# the biggest coordinates across all axes
@@ -55,7 +55,7 @@ class CoreModelInfo:
 		# ?
 		self.last_count = 0
 
-		# nonzero in PZ flamingo, ZT african ele female
+		# this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female
 		self.another_count = 0
 
 		# ?
