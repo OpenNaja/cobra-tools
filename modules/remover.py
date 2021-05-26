@@ -1,3 +1,5 @@
+import logging
+
 REVERSED_TYPES = (
 	".tex", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection", ".txt")
 
@@ -44,10 +46,14 @@ def file_remover(ovl, filenames):
 	:param filenames: list of file names (eg. "example.ext") that should be removed from ovl
 	:return:
 	"""
+	logging.info(f"Removing files for {filenames}")
+	children_names = []
 	# remove file entry
 	for i, file_entry in sorted(enumerate(ovl.files), reverse=True):
 		if file_entry.name in filenames:
-			print("Removing", file_entry.name)
+			ss_entry = ovl.ss_dict[file_entry.name]
+			children_names.extend([ss.name for ss in ss_entry.children])
+			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)
 
 			# update mime entries
@@ -76,6 +82,9 @@ def file_remover(ovl, filenames):
 
 	for ovs in ovl.archives:
 		header_hash_finder(ovs.content)
+	if children_names:
+		logging.info(f"Removing children")
+		file_remover(ovl, children_names)
 
 
 def bulk_delete(input_list, entries_to_delete):
