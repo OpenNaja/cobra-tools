@@ -81,7 +81,7 @@ class HeaderPointer:
 				self.padding = new_pad
 		self.data_size = len(self.data + self.padding)
 		# update other pointers if asked to by the injector
-		if update_copies:
+		if update_copies and self.pool_index != -1:
 			for other_pointer in self.copies:
 				if other_pointer is not self:
 					other_pointer.update_data(data, pad_to=pad_to, include_old_pad=include_old_pad)
