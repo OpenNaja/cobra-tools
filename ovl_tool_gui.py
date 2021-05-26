@@ -44,6 +44,7 @@ class MainWindow(widgets.MainWindow):
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
 		self.files_container = widgets.SortableTable(header_names, self)
+		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.dir_container = widgets.EditCombo(self)
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
@@ -120,6 +121,11 @@ class MainWindow(widgets.MainWindow):
 		self.add_to_menu(button_data)
 		self.check_version()
 		self.load_hash_table()
+
+	def rename_handle(self, old_name, new_name):
+		names = [(old_name, new_name), ]
+		hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
+		self.update_gui_table()
 
 	def game_changed(self,):
 		game = self.game_container.entry.currentText()
@@ -278,7 +284,7 @@ class MainWindow(widgets.MainWindow):
 	def update_gui_table(self, ):
 		start_time = time.time()
 		print(f"Loading {len(self.ovl_data.files)} files into gui...")
-		self.files_container.set_data([(f.name, f.ext, f.file_hash, f.unkn_0, f.unkn_1) for f in self.ovl_data.files])
+		self.files_container.set_data([[f.name, f.ext, f.file_hash, f.unkn_0, f.unkn_1] for f in self.ovl_data.files])
 		self.dir_container.set_data(self.ovl_data.dir_names)
 		print(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)

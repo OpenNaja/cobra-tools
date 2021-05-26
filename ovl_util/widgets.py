@@ -4,7 +4,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import tempfile
 import os
 
-from PyQt5.QtCore import QSortFilterProxyModel, Qt
+from PyQt5.QtCore import QSortFilterProxyModel, Qt, pyqtSignal
 
 from ovl_util.interaction import showdialog
 from ovl_util import config, qt_theme
@@ -145,13 +145,20 @@ class CustomSortFilterProxyModel(QSortFilterProxyModel):
 
 
 class TableModel(QtCore.QAbstractTableModel):
+	member_renamed = pyqtSignal(str, str)
+
 	def __init__(self, data, header_names):
 		super(TableModel, self).__init__()
 		self._data = data
 		self.header_labels = header_names
+		# self.member_renamed.connect(self.member_renamed_debug_print)
+
+	@staticmethod
+	def member_renamed_debug_print(a, b):
+		print("renamed", a, b)
 
 	def data(self, index, role):
-		if role == QtCore.Qt.DisplayRole:
+		if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
 			# See below for the nested-list data structure.
 			# .row() indexes into the outer list,
 			# .column() indexes into the sub-list
@@ -173,6 +180,19 @@ class TableModel(QtCore.QAbstractTableModel):
 			if index.column() == 2:
 				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight
 
+	def setData(self, index, value, role=QtCore.Qt.EditRole):
+		if index.isValid():
+			if role == QtCore.Qt.EditRole:
+				row = index.row()
+				column = index.column()
+				old_value = self._data[row][column]
+				# value has changed, gotta update it
+				if old_value != value:
+					self._data[row][column] = value
+					self.member_renamed.emit(old_value, value)
+				return True
+		return False
+
 	def row(self, row_index):
 		return self._data[row_index]
 
@@ -191,12 +211,18 @@ class TableModel(QtCore.QAbstractTableModel):
 		return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
 
 	def flags(self, index):
-		# QtCore.Qt.ItemIsEditable |
 		dtype = self._data[index.row()][1]
 		if dtype in extract.IGNORE_TYPES:
 			return QtCore.Qt.ItemIsDropEnabled
 		else:
-			return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsDropEnabled
+			# names
+			if index.column() == 0:
+				return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | \
+					   QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsEditable
+			# other stuff, can't be edited
+			else:
+				return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | \
+					   QtCore.Qt.ItemIsDropEnabled
 
 
 class SortableTable(QtWidgets.QWidget):
@@ -257,12 +283,13 @@ class TableView(QtWidgets.QTableView):
 		self.setModel(self.proxyModel)
 
 		self.resizeColumnsToContents()
-
+		self.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
 		self.setAcceptDrops(True)
 		self.setDragEnabled(True)
 		self.setDropIndicatorShown(True)
 		self.verticalHeader().hide()
 		self.setSelectionBehavior(self.SelectRows)
+		# self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
 		self.setSortingEnabled(True)
 		# sort by index; -1 means don't sort

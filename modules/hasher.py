@@ -3,6 +3,7 @@ import logging
 from modules.formats.shared import djb
 import struct
 import io
+import os
 
 from ovl_util.interaction import showdialog
 
@@ -25,8 +26,8 @@ def rename_entry(entry, name_tups, species_mode):
 		logging.debug(f"Skipping {entry.name} due to its file extension")
 		return
 	for old, new in name_tups:
-		entry.basename = entry.basename.replace(old, new)
-	entry.name = f"{entry.basename}{entry.ext}"
+		entry.name = entry.name.replace(old, new)
+	entry.basename, entry.ext = os.path.splitext(entry.name)
 
 
 def rename(ovl, name_tups, species_mode=False):
@@ -50,10 +51,6 @@ def rename(ovl, name_tups, species_mode=False):
 	ovl.update_hashes()
 	ovl.update_ss_dict()
 	logging.info("Finished renaming!")
-
-
-def rename_species(ovl, name_tups):
-	rename(ovl, name_tups, species_mode=True)
 
 
 def dat_replacer(ovl, name_tups):
