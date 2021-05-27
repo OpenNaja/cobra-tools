@@ -52,6 +52,7 @@ class MainWindow(widgets.MainWindow):
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
+		self.files_container.table.files_dropped.connect(self.inject_files)
 
 		self.dir_container = widgets.EditCombo(self)
 		# toggles
@@ -117,7 +118,7 @@ class MainWindow(widgets.MainWindow):
 			(fileMenu, "Save", self.save_ovl, "CTRL+S", "save"),
 			(fileMenu, "Exit", self.close, "", "exit"),
 			(editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
-			(editMenu, "Inject", self.inject, "CTRL+I", "inject"),
+			(editMenu, "Inject", self.inject_ask, "CTRL+I", "inject"),
 			(editMenu, "Rename", self.hasher, "CTRL+R", ""),
 			(editMenu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
 			(editMenu, "Remove Selected", self.remover, "DEL", ""),
@@ -171,6 +172,7 @@ class MainWindow(widgets.MainWindow):
 	# mime.setUrls(path_list)
 	# drag.setMimeData(mime)
 	# drag.exec_(QtCore.Qt.CopyAction)
+
 	def rename_handle(self, old_name, new_name):
 		names = [(old_name, new_name), ]
 		hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
@@ -368,18 +370,22 @@ class MainWindow(widgets.MainWindow):
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
 
-	def inject(self):
+	def inject_ask(self):
 		if self.is_open_ovl():
-			files = QtWidgets.QFileDialog.getOpenFileNames(self, 'Inject files', self.cfg.get("dir_inject", "C://"),
-														   self.filter)[0]
-			if files:
-				self.cfg["dir_inject"] = os.path.dirname(files[0])
-				try:
-					inject.inject(self.ovl_data, files, self.show_temp_files, self.write_2K, self.update_progress)
-					self.file_widget.dirty = True
-				except Exception as ex:
-					traceback.print_exc()
-					interaction.showdialog(str(ex))
+			files = QtWidgets.QFileDialog.getOpenFileNames(
+				self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
+			self.inject_files(files)
+
+	def inject_files(self, files):
+		"""Tries to inject files into self.ovl_data"""
+		if files:
+			self.cfg["dir_inject"] = os.path.dirname(files[0])
+			try:
+				inject.inject(self.ovl_data, files, self.show_temp_files, self.write_2K, self.update_progress)
+				self.file_widget.dirty = True
+			except Exception as ex:
+				traceback.print_exc()
+				interaction.showdialog(str(ex))
 
 	def hasher(self):
 		if self.is_open_ovl():

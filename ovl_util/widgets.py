@@ -268,6 +268,7 @@ class SortableTable(QtWidgets.QWidget):
 
 class TableView(QtWidgets.QTableView):
 	files_dragged = pyqtSignal(list)
+	files_dropped = pyqtSignal(list)
 
 	def __init__(self, header_names, main_window):
 		super().__init__()
@@ -290,7 +291,6 @@ class TableView(QtWidgets.QTableView):
 		self.setDropIndicatorShown(True)
 		self.verticalHeader().hide()
 		self.setSelectionBehavior(self.SelectRows)
-		# self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
 		self.setSortingEnabled(True)
 		# sort by index; -1 means don't sort
@@ -353,39 +353,18 @@ class TableView(QtWidgets.QTableView):
 		e.accept()
 
 	def dragEnterEvent(self, e):
-		# print("e", e)
 		e.accept()
 
-	def get_files(self, event):
+	@staticmethod
+	def get_files_from_event(event):
 		data = event.mimeData()
 		urls = data.urls()
 		if urls and urls[0].scheme() == 'file':
-			return urls
+			return [str(url.path())[1:] for url in urls]
 
 	def dropEvent(self, e):
-		position = e.pos()
-		# print('blah', position)
-		# self.button.move(position)
-
 		e.setDropAction(QtCore.Qt.CopyAction)
-
-		urls = self.get_files(e)
-		if urls:
-			files = [str(url.path())[1:] for url in urls]
-			# print(files)
-			if self.main_window.file_widget.filename:
-				# self.cfg["dir_inject"] = os.path.dirname(files[0])
-				try:
-					inject.inject(self.main_window.ovl_data, files, self.main_window.show_temp_files,
-								  self.main_window.write_2K, self.main_window.update_progress)
-					self.main_window.file_widget.dirty = True
-				except Exception as ex:
-					traceback.print_exc()
-					showdialog(str(ex))
-			else:
-				showdialog("You must open an OVL file before you can inject files!")
-		# self.accept_file(filepath)
-		# self.resize(720, 400)
+		self.files_dropped.emit(self.get_files_from_event(e))
 		e.accept()
 
 
