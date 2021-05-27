@@ -1,7 +1,6 @@
 import traceback
 import webbrowser
 from PyQt5 import QtGui, QtCore, QtWidgets
-import tempfile
 import os
 
 from PyQt5.QtCore import QSortFilterProxyModel, Qt, pyqtSignal
@@ -268,6 +267,8 @@ class SortableTable(QtWidgets.QWidget):
 
 
 class TableView(QtWidgets.QTableView):
+	files_dragged = pyqtSignal(list)
+
 	def __init__(self, header_names, main_window):
 		super().__init__()
 		# list of lists
@@ -337,48 +338,8 @@ class TableView(QtWidgets.QTableView):
 		return [self.model._data[x][0] for x in self.get_selected_line_indices()]
 
 	def startDrag(self, actions):
-		"""Starts a drag from inside the app towards the outside"""
-		drag = QtGui.QDrag(self)
-		names = self.get_selected_files()
-		print("DRAGGING", names)
-		try:
-			temp_dir = tempfile.gettempdir()
-			out_paths, errors, skips = self.main_window.ovl_data.extract(temp_dir, only_names=names,
-																		 show_temp_files=self.main_window.show_temp_files)
-
-			data = QtCore.QMimeData()
-			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
-			drag.setMimeData(data)
-			drag.exec_()
-		except BaseException as ex:
-			traceback.print_exc()
-			showdialog(str(ex))
-			print(ex)
-
-	# todo - clear temp sub dir
-	# mime = DelayedMimeData()
-	# path_list = []
-	# for name in names:
-	# 	path = os.path.join(tempfile.gettempdir(), 'DragTest', name)
-	# 	os.makedirs(os.path.dirname(path), exist_ok=True)
-	#
-	# 	def write_to_file(path=path, contents=name, widget=self):
-	# 		if widget.underMouse():
-	# 			return False
-	# 		else:
-	# 			with open(path, 'w') as f:
-	# 				import time
-	# 				# time.sleep(1)  # simulate large file
-	# 				f.write(contents)
-	#
-	# 			return True
-	#
-	# 	mime.add_callback(write_to_file)
-	#
-	# 	path_list.append(QtCore.QUrl.fromLocalFile(path))
-	# mime.setUrls(path_list)
-	# drag.setMimeData(mime)
-	# drag.exec_(QtCore.Qt.CopyAction)
+		"""Emits a signal with the file names of all files that are being dragged"""
+		self.files_dragged.emit(self.get_selected_files())
 
 	def set_data(self, data):
 		if not data:

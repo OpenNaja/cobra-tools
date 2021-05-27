@@ -3,10 +3,13 @@ import sys
 import time
 import traceback
 import logging
+import tempfile
+
+from ovl_util.interaction import showdialog
 
 try:
 	import numpy as np
-	from PyQt5 import QtWidgets
+	from PyQt5 import QtWidgets, QtGui, QtCore
 	from importlib import reload
 
 	from ovl_util import widgets, interaction
@@ -43,8 +46,13 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.setEditable(False)
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
+
+		# create the table
 		self.files_container = widgets.SortableTable(header_names, self)
+		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
+		self.files_container.table.files_dragged.connect(self.drag_files)
+
 		self.dir_container = widgets.EditCombo(self)
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
@@ -122,6 +130,47 @@ class MainWindow(widgets.MainWindow):
 		self.check_version()
 		self.load_hash_table()
 
+	def drag_files(self, file_names):
+		print("DRAGGING", file_names)
+		drag = QtGui.QDrag(self)
+		try:
+			temp_dir = tempfile.gettempdir()
+			out_paths, errors, skips = self.ovl_data.extract(
+				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
+
+			data = QtCore.QMimeData()
+			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
+			drag.setMimeData(data)
+			drag.exec_()
+		except BaseException as ex:
+			traceback.print_exc()
+			showdialog(str(ex))
+			print(ex)
+
+	# todo - clear temp sub dir
+	# mime = DelayedMimeData()
+	# path_list = []
+	# for name in names:
+	# 	path = os.path.join(tempfile.gettempdir(), 'DragTest', name)
+	# 	os.makedirs(os.path.dirname(path), exist_ok=True)
+	#
+	# 	def write_to_file(path=path, contents=name, widget=self):
+	# 		if widget.underMouse():
+	# 			return False
+	# 		else:
+	# 			with open(path, 'w') as f:
+	# 				import time
+	# 				# time.sleep(1)  # simulate large file
+	# 				f.write(contents)
+	#
+	# 			return True
+	#
+	# 	mime.add_callback(write_to_file)
+	#
+	# 	path_list.append(QtCore.QUrl.fromLocalFile(path))
+	# mime.setUrls(path_list)
+	# drag.setMimeData(mime)
+	# drag.exec_(QtCore.Qt.CopyAction)
 	def rename_handle(self, old_name, new_name):
 		names = [(old_name, new_name), ]
 		hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
