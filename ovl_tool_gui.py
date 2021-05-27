@@ -48,11 +48,12 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, self)
+		self.files_container = widgets.SortableTable(header_names)
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
 		self.files_container.table.files_dropped.connect(self.inject_files)
+		self.files_container.table.file_selected.connect(self.show_dependencies)
 
 		self.dir_container = widgets.EditCombo(self)
 		# toggles

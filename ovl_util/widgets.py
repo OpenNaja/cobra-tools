@@ -225,9 +225,9 @@ class TableModel(QtCore.QAbstractTableModel):
 
 
 class SortableTable(QtWidgets.QWidget):
-	def __init__(self, header_names, main_window):
+	def __init__(self, header_names):
 		super().__init__()
-		self.table = TableView(header_names, main_window)
+		self.table = TableView(header_names)
 		self.filter_entry = LabelEdit("Filter:")
 		self.filter_entry.entry.textChanged.connect(self.table.set_filter)
 		self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
@@ -269,13 +269,13 @@ class SortableTable(QtWidgets.QWidget):
 class TableView(QtWidgets.QTableView):
 	files_dragged = pyqtSignal(list)
 	files_dropped = pyqtSignal(list)
+	file_selected = pyqtSignal(int)
 
-	def __init__(self, header_names, main_window):
+	def __init__(self, header_names):
 		super().__init__()
 		# list of lists
 		# row first
 		self.data = [[], ]
-		self.main_window = main_window
 
 		self.model = TableModel(self.data, header_names)
 		# self.proxyModel = QSortFilterProxyModel()
@@ -303,7 +303,7 @@ class TableView(QtWidgets.QTableView):
 	def on_selectionChanged(self, selected, deselected):
 		self.selected = list(self.get_selected_line_indices())
 		if self.selected:
-			self.main_window.show_dependencies(self.selected[-1])
+			self.file_selected.emit(self.selected[-1])
 
 	def update_filter_function(self):
 		if self.rev_check:
