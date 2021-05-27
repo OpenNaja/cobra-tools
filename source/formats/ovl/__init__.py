@@ -1589,10 +1589,20 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
 	def load_headers(self):
+		"""Create flattened list of pools"""
 		self.pools = [None for _ in range(self.num_pools)]
 		for archive_entry in self.archives:
 			if archive_entry.num_pools:
 				self.pools[archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
+
+	def load_dependencies(self):
+		""""Load dependency pointers and make sure they are empty"""
+		for dep in self.dependencies:
+			p = dep.pointers[0]
+			p.data_size = 8
+			# the index goes into the flattened list of pools
+			p.read_data(self.pools)
+			assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
 
 	def load_archives(self):
 		logging.info("Loading archives...")
@@ -1616,14 +1626,15 @@ class OvlFile(Header, IoFile):
 		self.update_ss_dict()
 		self.link_streams()
 		self.load_headers()
+		self.load_dependencies()
 		self.load_file_classes()
-
-		if "write_frag_log" in self.commands:
-			for archive_entry in self.archives:
-				archive_entry.content.assign_frag_names()
-				archive_entry.content.write_frag_log()
-				archive_entry.content.debug_txt_data()
 		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
+
+	def write_frag_log(self):
+		for archive_entry in self.archives:
+			archive_entry.content.assign_frag_names()
+			archive_entry.content.write_frag_log()
+			archive_entry.content.debug_txt_data()
 
 	def load_file_classes(self):
 		logging.info("Loading file classes...")

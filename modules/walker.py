@@ -1,5 +1,6 @@
 import os
 import traceback
+import logging
 import numpy as np
 
 from generated.formats.ms2 import Mdl2File
@@ -8,13 +9,40 @@ from ovl_util import interaction
 
 
 def walk_type(start_dir, extension="ovl"):
-	print(f"Scanning {start_dir} for {extension} files")
+	logging.info(f"Scanning {start_dir} for {extension} files")
 	ret = []
 	for root, dirs, files in os.walk(start_dir, topdown=False):
 		for name in files:
 			if name.lower().endswith("."+extension):
 				ret.append(os.path.join(root, name))
 	return ret
+
+
+def generate_hash_table(gui, start_dir):
+	hash_dict = {}
+	if start_dir:
+		# don't use internal data
+		ovl_data = OvlFile()
+		error_files = []
+		ovl_files = walk_type(start_dir, extension="ovl")
+		of_max = len(ovl_files)
+		for of_index, ovl_path in enumerate(ovl_files):
+			gui.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
+			try:
+				# read ovl file
+				new_hashes = ovl_data.load(ovl_path, commands=("generate_hash_table",))
+				hash_dict.update(new_hashes)
+			except:
+				error_files.append(ovl_path)
+		if error_files:
+			logging.error(f"{error_files} caused errors!")
+		# write the hash text file to the hashes folder
+		export_dir = os.path.join(os.getcwd(), "hashes")
+		out_path = os.path.join(export_dir, f"{os.path.basename(start_dir)}.txt")
+		with open(out_path, "w") as f:
+			for k, v in hash_dict.items():
+				f.write(f"{k} = {v}\n")
+		logging.info(f"Wrote {len(hash_dict)} items to {out_path}")
 
 
 def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):

@@ -86,18 +86,12 @@ class MainWindow(widgets.MainWindow):
 		self.t_write_dat.setChecked(False)
 		self.t_write_dat.stateChanged.connect(self.load)
 
-		self.t_write_frag_log = QtWidgets.QCheckBox("Save Frag Log")
-		self.t_write_frag_log.setToolTip("For devs.")
-		self.t_write_frag_log.setChecked(False)
-		self.t_write_frag_log.stateChanged.connect(self.load)
-
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 5)
 		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
-		self.qgrid.addWidget(self.t_write_frag_log, 1, 2)
-		self.qgrid.addWidget(self.ext_dat, 1, 3)
-		self.qgrid.addWidget(self.sp_hash, 1, 4)
+		self.qgrid.addWidget(self.ext_dat, 1, 2)
+		self.qgrid.addWidget(self.sp_hash, 1, 3)
 		for (old, new) in self.e_name_pairs:
 			self.qgrid.addWidget(old, 2, 0, 1, 2)
 			self.qgrid.addWidget(new, 2, 2, 1, 2)
@@ -109,25 +103,27 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.dat_widget, 7, 0, 1, 5)
 		self.central_widget.setLayout(self.qgrid)
 
-		mainMenu = self.menuBar()
-		fileMenu = mainMenu.addMenu('File')
-		editMenu = mainMenu.addMenu('Edit')
-		helpMenu = mainMenu.addMenu('Help')
+		main_menu = self.menuBar()
+		file_menu = main_menu.addMenu('File')
+		edit_menu = main_menu.addMenu('Edit')
+		util_menu = main_menu.addMenu('Util')
+		help_menu = main_menu.addMenu('Help')
 		button_data = (
-			(fileMenu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
-			(fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(fileMenu, "Save", self.save_ovl, "CTRL+S", "save"),
-			(fileMenu, "Exit", self.close, "", "exit"),
-			(editMenu, "Unpack", self.extract_all, "CTRL+U", "extract"),
-			(editMenu, "Inject", self.inject_ask, "CTRL+I", "inject"),
-			(editMenu, "Rename", self.hasher, "CTRL+R", ""),
-			(editMenu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
-			(editMenu, "Remove Selected", self.remover, "DEL", ""),
-			(editMenu, "Walk", self.walker, "", ""),
-			# (editMenu, "Reload", self.reload, "", ""),
-			(editMenu, "Generate Hash Table", self.walker_hash, "", ""),
-			(helpMenu, "Report Bug", self.report_bug, "", "report"),
-			(helpMenu, "Documentation", self.online_support, "", "manual"))
+			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
+			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
+			(file_menu, "Save", self.save_ovl, "CTRL+S", "save"),
+			(file_menu, "Exit", self.close, "", "exit"),
+			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
+			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
+			(edit_menu, "Rename", self.hasher, "CTRL+R", ""),
+			(edit_menu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
+			(edit_menu, "Remove Selected", self.remover, "DEL", ""),
+			(util_menu, "Inspect Models", self.walker, "", ""),
+			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
+			(util_menu, "Save Frag Log", self.ovl_data.write_frag_log, "", ""),
+			# (edit_menu, "Reload", self.reload, "", ""),
+			(help_menu, "Report Bug", self.report_bug, "", "report"),
+			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
 		self.load_hash_table()
@@ -186,7 +182,7 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def commands(self, ):
 		# get those commands that are set to True
-		return [x for x in ("write_dat", "write_frag_log") if getattr(self, x)]
+		return [x for x in ("write_dat", ) if getattr(self, x)]
 
 	@property
 	def show_temp_files(self, ):
@@ -207,10 +203,6 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def write_dat(self, ):
 		return self.t_write_dat.isChecked()
-
-	@property
-	def write_frag_log(self, ):
-		return self.t_write_frag_log.isChecked()
 
 	def dat_show(self, ):
 		if self.use_ext_dat:
@@ -262,26 +254,16 @@ class MainWindow(widgets.MainWindow):
 
 	def show_dependencies(self, file_index):
 		file_entry = self.ovl_data.files[file_index]
-		# print(file_entry)
 		ss_entry = self.ovl_data.ss_dict[file_entry.name]
-		# print(ss_entry)
 		ss_p = ss_entry.pointers[0]
-		# print(file_entry.dependencies)
 		logging.debug(f"File: {ss_p.pool_index} {ss_p.data_offset} {ss_entry.name}")
-		try:
-			for dep in file_entry.dependencies:
-				p = dep.pointers[0]
-				p.data_size = 8
-				# the index goes into the flattened list of pools
-				p.read_data(self.ovl_data.pools)
-				assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
-				logging.debug(f"Dependency: {p.pool_index} {p.data_offset} {dep.name}")
-			for f in ss_entry.fragments:
-				p0 = f.pointers[0]
-				p1 = f.pointers[1]
-				logging.debug(f"Fragment: {p0.pool_index} {p0.data_offset} {p1.pool_index} {p1.data_offset}")
-		except:
-			logging.error(f"Dependency failed {file_entry.dependencies}")
+		for dep in file_entry.dependencies:
+			p = dep.pointers[0]
+			logging.debug(f"Dependency: {p.pool_index} {p.data_offset} {dep.name}")
+		for f in ss_entry.fragments:
+			p0 = f.pointers[0]
+			p1 = f.pointers[1]
+			logging.debug(f"Fragment: {p0.pool_index} {p0.data_offset} {p1.pool_index} {p1.data_offset}")
 
 	@staticmethod
 	def read_table(fp, dic, int_key=False):
@@ -299,11 +281,10 @@ class MainWindow(widgets.MainWindow):
 	def load(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
-			self.update_progress("Reading OVL " + self.file_widget.filepath, value=0, vmax=0)
 			try:
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
 				self.ovl_data.load_archives()
-				print(self.ovl_data)
+				# print(self.ovl_data)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
@@ -343,10 +324,9 @@ class MainWindow(widgets.MainWindow):
 
 	def save_ovl(self):
 		if self.is_open_ovl():
-			file_src = QtWidgets.QFileDialog.getSaveFileName(self, 'Save OVL',
-															 os.path.join(self.cfg.get("dir_ovls_out", "C://"),
-																		  self.file_widget.filename),
-															 "OVL files (*.ovl)", )[0]
+			file_src = QtWidgets.QFileDialog.getSaveFileName(
+				self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
+				"OVL files (*.ovl)", )[0]
 			if file_src:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
 				try:
@@ -420,36 +400,11 @@ class MainWindow(widgets.MainWindow):
 				self.update_gui_table()
 
 	def walker_hash(self,):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
-															   self.cfg.get("dir_ovls_in", "C://"), )
-		hash_dict = {}
-		if start_dir:
-			# don't use internal data
-			ovl_data = OvlFile()
-			error_files = []
-			ovl_files = walker.walk_type(start_dir, extension="ovl")
-			of_max = len(ovl_files)
-			for of_index, ovl_path in enumerate(ovl_files):
-				self.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
-				try:
-					# read ovl file
-					new_hashes = ovl_data.load(ovl_path, commands=("generate_hash_table",))
-					hash_dict.update(new_hashes)
-				except:
-					error_files.append(ovl_path)
-			if error_files:
-				print(f"{error_files} caused errors!")
-			# write the hash text file to the hashes folder
-			export_dir = os.path.join(os.getcwd(), "hashes")
-			out_path = os.path.join(export_dir, f"{os.path.basename(start_dir)}.txt")
-			with open(out_path, "w") as f:
-				for k, v in hash_dict.items():
-					f.write(f"{k} = {v}\n")
-			print(f"Wrote {len(hash_dict)} items to {out_path}")
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+		walker.generate_hash_table(self, start_dir)
 
 	def walker(self):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
-															   self.cfg.get("dir_ovls_in", "C://"), )
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
 		walker.bulk_test_models(self, start_dir)
 
 	def closeEvent(self, event):
