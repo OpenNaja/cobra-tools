@@ -86,12 +86,9 @@
 		A standard 32-bit floating point number.
 	</basic>
 
+<!--Count from the end!!!-->
 	<bitfield name="ModelFlag" storage="uint">
 		Determines the data held by a mesh.
-		Count from the end!!!
-<!--        <member width="1" pos="0" mask="0x0001" name="Anim Type" type="AnimType" />-->
-<!--        <member width="2" pos="1" mask="0x0006" name="Cycle Type" type="CycleType" default="CYCLE_CLAMP" />-->
-<!--        <member width="1" pos="3" name="Active" type="bool" default="1" />-->
 		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
 		<member width="1" pos="4" name="weights" type="bool">at least 529</member>
 		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>
@@ -100,9 +97,17 @@
 
 	<bitfield name="ModelFlagZT" storage="uint">
 		Determines the data held by a mesh.
-		Count from the end!!!
 		<member width="1" pos="6" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
 		<member width="1" pos="9" name="repeat tris" type="bool">repeats the tri array 5 times</member>
+	</bitfield>
+
+	<bitfield name="RenderFlag" storage="ushort">
+		Determines how the model is rendered.
+		<member width="1" pos="0" name="a" type="bool">?</member>
+		<member width="1" pos="1" name="b" type="bool">?</member>
+		<member width="1" pos="2" name="c" type="bool">?</member>
+		<member width="1" pos="3" name="d" type="bool">?</member>
+		<member width="1" pos="4" name="e" type="bool">?</member>
 	</bitfield>
 
 	<enum name="CollisionType" storage="uint">
@@ -381,7 +386,7 @@
 		<add name="models" type="PcModelData" arr1="#ARG#\num_models" vercond="#PC#" ></add>
 		<add name="models" type="ZtModelData" arr1="#ARG#\num_models" vercond="#ZTUAC#" ></add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
-		<add name="floatsy" type="FloatsY" arr1="#ARG#\another count" ></add>
+		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" >see if it is a flag for ztuac too, so might be totally wrong here</add>
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
 	</compound>
 
@@ -490,7 +495,7 @@
 		<add name="num_objects" type="ushort"/>
 		<add name="num_models" type="ushort">count of modeldata fragments for the mdl2 this struct refers to</add>
 		<add name="last count" type="ushort">?</add>
-		<add name="another count" type="ushort">this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female</add>
+		<add name="render flag" type="RenderFlag">this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female</add>
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 	</compound>

@@ -259,6 +259,7 @@ def save(operator, context, filepath='', apply_transforms=False, edit_bones=Fals
 	for pbone in b_armature_ob.pose.bones:
 		pbone.matrix_basis = mathutils.Matrix()
 
+	mdl2.model_info.render_flag._value = bpy.context.scene["render_flag"]
 	if edit_bones:
 		export_bones_custom(b_armature_ob, mdl2)
 	# used to get index from bone name for faster weights

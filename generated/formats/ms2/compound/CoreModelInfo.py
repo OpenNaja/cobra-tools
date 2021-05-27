@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.formats.ms2.bitfield.RenderFlag import RenderFlag
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
@@ -56,7 +57,7 @@ class CoreModelInfo:
 		self.last_count = 0
 
 		# this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female
-		self.another_count = 0
+		self.render_flag = RenderFlag()
 
 		# ?
 		self.unks = numpy.zeros((7), dtype='ushort')
@@ -83,7 +84,7 @@ class CoreModelInfo:
 		self.num_objects = stream.read_ushort()
 		self.num_models = stream.read_ushort()
 		self.last_count = stream.read_ushort()
-		self.another_count = stream.read_ushort()
+		self.render_flag = stream.read_type(RenderFlag)
 		self.unks = stream.read_ushorts((7))
 		self.pad = stream.read_ushorts((3))
 
@@ -110,7 +111,7 @@ class CoreModelInfo:
 		stream.write_ushort(self.num_objects)
 		stream.write_ushort(self.num_models)
 		stream.write_ushort(self.last_count)
-		stream.write_ushort(self.another_count)
+		stream.write_type(self.render_flag)
 		stream.write_ushorts(self.unks)
 		stream.write_ushorts(self.pad)
 
@@ -135,7 +136,7 @@ class CoreModelInfo:
 		s += f'\n	* num_objects = {self.num_objects.__repr__()}'
 		s += f'\n	* num_models = {self.num_models.__repr__()}'
 		s += f'\n	* last_count = {self.last_count.__repr__()}'
-		s += f'\n	* another_count = {self.another_count.__repr__()}'
+		s += f'\n	* render_flag = {self.render_flag.__repr__()}'
 		s += f'\n	* unks = {self.unks.__repr__()}'
 		s += f'\n	* pad = {self.pad.__repr__()}'
 		return s

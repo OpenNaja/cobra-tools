@@ -32,6 +32,8 @@ class PcModel:
 		self.models = Array()
 		self.models = Array()
 		self.ztuac_pre_bones = ZTPreBones()
+
+		# see if it is a flag for ztuac too, so might be totally wrong here
 		self.floatsy = Array()
 
 		# sometimes 00 byte
@@ -54,7 +56,7 @@ class PcModel:
 			self.models.read(stream, ZtModelData, self.arg.num_models, None)
 		if stream.version == 17 and self.arg.last_count:
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones)
-		self.floatsy.read(stream, FloatsY, self.arg.another_count, None)
+		self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
 		self.weird_padding = stream.read_type(SmartPadding)
 
 		self.io_size = stream.tell() - self.io_start
@@ -76,7 +78,7 @@ class PcModel:
 			self.models.write(stream, ZtModelData, self.arg.num_models, None)
 		if stream.version == 17 and self.arg.last_count:
 			stream.write_type(self.ztuac_pre_bones)
-		self.floatsy.write(stream, FloatsY, self.arg.another_count, None)
+		self.floatsy.write(stream, FloatsY, self.arg.render_flag, None)
 		stream.write_type(self.weird_padding)
 
 		self.io_size = stream.tell() - self.io_start

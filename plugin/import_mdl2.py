@@ -26,6 +26,8 @@ def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=F
 	errors = []
 	bone_names = get_bone_names(mdl2)
 	b_armature_obj = import_armature(mdl2, bone_names)
+	
+	bpy.context.scene["render_flag"] = int(mdl2.model_info.render_flag)
 	created_materials = {}
 	mesh_dict = {}
 	ob_dict = {}
