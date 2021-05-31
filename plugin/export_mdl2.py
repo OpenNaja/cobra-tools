@@ -16,7 +16,7 @@ from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Mdl2File
 from utils.matrix_util import evaluate_mesh
-from utils.shell import get_ob_from_lod_and_flags, get_collection, is_shell
+from utils.shell import get_collection, is_shell
 
 MAX_USHORT = 65535
 

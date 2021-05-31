@@ -1482,6 +1482,10 @@ class OvlFile(Header, IoFile):
 				dir_entry.basename = directory_new_name
 
 	def update_names(self):
+		# update ext dependencies with : prefix instead of .
+		for dependency in self.dependencies:
+			dependency.ext = dependency.ext.replace(".", ":")
+		# regenerate the name buffer
 		self.names.update_with((
 			(self.dependencies, "ext"),
 			(self.dirs, "basename"),
@@ -1492,8 +1496,10 @@ class OvlFile(Header, IoFile):
 		self.len_archive_names = len(self.archive_names.data)
 
 		# catching ovl files without entries, default len_type_names is 0
-		if len(self.files) > 0:
+		if self.files:
 			self.len_type_names = min(file.offset for file in self.files)
+		else:
+			self.len_type_names = 0
 
 	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
 		start_time = time.time()

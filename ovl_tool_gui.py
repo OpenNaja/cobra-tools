@@ -79,7 +79,8 @@ class MainWindow(widgets.MainWindow):
 		self.dat_widget.setToolTip("External .dat file path")
 		self.dat_widget.hide()
 
-		self.e_name_pairs = [(QtWidgets.QLineEdit("old"), QtWidgets.QLineEdit("new")) for i in range(1)]
+		self.e_name_old = QtWidgets.QLineEdit("old")
+		self.e_name_new = QtWidgets.QLineEdit("new")
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
@@ -92,9 +93,8 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_write_dat, 1, 1)
 		self.qgrid.addWidget(self.ext_dat, 1, 2)
 		self.qgrid.addWidget(self.sp_hash, 1, 3)
-		for (old, new) in self.e_name_pairs:
-			self.qgrid.addWidget(old, 2, 0, 1, 2)
-			self.qgrid.addWidget(new, 2, 2, 1, 2)
+		self.qgrid.addWidget(self.e_name_old, 2, 0, 1, 2)
+		self.qgrid.addWidget(self.e_name_new, 2, 2, 1, 2)
 		self.qgrid.addWidget(self.game_container, 2, 4,)
 		self.qgrid.addWidget(self.files_container, 3, 0, 1, 5)
 		self.qgrid.addWidget(self.dir_container, 4, 0, 1, 5)
@@ -370,13 +370,13 @@ class MainWindow(widgets.MainWindow):
 
 	def hasher(self):
 		if self.is_open_ovl():
-			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+			names = [(self.e_name_old.text(), self.e_name_new.text())]
 			hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
 			self.update_gui_table()
 
 	def dat_replacement(self):
 		if self.is_open_ovl():
-			names = [(tup[0].text(), tup[1].text()) for tup in self.e_name_pairs]
+			names = [(self.e_name_old.text(), self.e_name_new.text())]
 			if self.species_hash:
 				hasher.species_dat_replacer(self.ovl_data, names)
 			else:
