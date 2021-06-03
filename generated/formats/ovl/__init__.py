@@ -103,6 +103,7 @@ def get_loader(ext):
 	from modules.formats.TXT import TxtLoader
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
+	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	ext_2_class = {
 		".assetpkg": AssetpkgLoader,
 		".ms2": Ms2Loader,
@@ -110,6 +111,7 @@ def get_loader(ext):
 		".txt": TxtLoader,
 		".fdb": FdbLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
+		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
@@ -393,12 +395,12 @@ class OvsFile(OvsHeader, ZipFile):
 			# frags = self.fragments
 			# the frag list crosses header borders at Deinonychus_events, so use full frag list
 			# -> exceedingly slow
-			fs.extend(self.get_frags_after_count(address_0_fragments, p.address, 1))
+			fs.extend(self.get_frags_after_count(address_0_fragments, p.data_offset, 1))
 		return fs
 
 	def frags_from_pointer(self, p, count):
 		frags = self.frags_for_pointer(p)
-		return self.get_frags_after_count(frags, p.address, count)
+		return self.get_frags_after_count(frags, p.data_offset, count)
 
 	def frags_from_pointer_discon(self, p):
 		frags = self.frags_for_pointer(p)
@@ -684,10 +686,10 @@ class OvsFile(OvsHeader, ZipFile):
 				zzz += 1
 
 	def collect_scaleform(self, ss_entry, frags):
-		ss_entry.fragments = self.get_frags_after_count(frags, ss_entry.pointers[0].address, 1)
+		ss_entry.fragments = self.get_frags_after_count(frags, ss_entry.pointers[0].data_offset, 1)
 		f0_d0 = struct.unpack("<8I", ss_entry.fragments[0].pointers[0].data)
 		font_declare_count = f0_d0[2]
-		ss_entry.fragments += self.get_frags_after_count(frags, ss_entry.fragments[0].pointers[1].address,
+		ss_entry.fragments += self.get_frags_after_count(frags, ss_entry.fragments[0].pointers[1].data_offset,
 														 font_declare_count * 2)
 
 	def collect_enumnamer(self, ss_entry):
@@ -947,7 +949,7 @@ class OvsFile(OvsHeader, ZipFile):
 				else:
 					frags = self.pools[pool_index].fragments
 				if sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
-					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].address,
+					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].data_offset,
 																		   1)
 				# get fixed fragments
 				elif sized_str_entry.ext in dic:
@@ -956,7 +958,7 @@ class OvsFile(OvsHeader, ZipFile):
 					# get and set fragments
 					try:
 						sized_str_entry.fragments = self.get_frags_after_count(frags,
-																			   sized_str_entry.pointers[0].address, t)
+																			   sized_str_entry.pointers[0].data_offset, t)
 					except:
 						print("bug")
 						pass
@@ -1086,7 +1088,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# can't add fragments that have already been added elsewhere
 			if f.done:
 				continue
-			if f.pointers[0].address >= initpos:
+			if f.pointers[0].data_offset >= initpos:
 				f.done = True
 				out.append(f)
 		else:
