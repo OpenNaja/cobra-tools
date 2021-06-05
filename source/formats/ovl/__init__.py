@@ -120,9 +120,9 @@ def get_loader(ext):
 
 class OvsFile(OvsHeader, ZipFile):
 
-	def __init__(self, ovl, archive_entry, archive_index):
+	def __init__(self, ovl_inst, archive_entry, archive_index):
 		super().__init__()
-		self.ovl = ovl
+		self.ovl = ovl_inst
 		self.arg = archive_entry
 		self.archive_index = archive_index
 		# this determines if fragments are written back to header datas
@@ -254,6 +254,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 			# self.check_pool_size = self.calc_pools_size()
 			self.map_pointers()
+			self.build_frag_lut()
 			self.calc_pointer_addresses()
 			self.calc_pointer_sizes()
 			self.populate_pointers()
@@ -325,6 +326,18 @@ class OvsFile(OvsHeader, ZipFile):
 				for p in pointers:
 					# p.copies = [po for po in pointers if po != p]
 					p.copies = pointers
+
+	def build_frag_lut(self):
+		"""Create a lookup table for fragments"""
+		logging.info("Building frag lookup table")
+		# create a lut per pool
+		for pool in self.pools:
+			pool.frag_lut = {}
+		# link into flattened list of fragments
+		for frag_i, frag in enumerate(self.fragments):
+			ptr = frag.pointers[0]
+			pool = self.pools[ptr.pool_index]
+			pool.frag_lut[ptr.data_offset] = frag_i
 
 	def populate_pointers(self):
 		"""Load data for every pointer"""
@@ -401,6 +414,15 @@ class OvsFile(OvsHeader, ZipFile):
 	def frags_from_pointer(self, p, count):
 		frags = self.frags_for_pointer(p)
 		return self.get_frags_after_count(frags, p.data_offset, count)
+
+	def get_frags_from_ptr_lut(self, ptr, count):
+		"""Use the fragment lookup table to retrieve count fragments starting at a given pointer"""
+		pool = self.pools[ptr.pool_index]
+		try:
+			frag_i = pool.frag_lut[ptr.data_offset]
+		except:
+			print("error", ptr.data_offset, pool.frag_lut)
+		return self.fragments[frag_i:frag_i+count]
 
 	def frags_from_pointer_discon(self, p):
 		frags = self.frags_for_pointer(p)

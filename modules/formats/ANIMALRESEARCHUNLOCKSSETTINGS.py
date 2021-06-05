@@ -19,10 +19,17 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 		logging.debug(f"{file_entry.name} has {count} entries")
 		self.assign_fixed_frags(ovl, file_entry, 1)
 		frag = self.sized_str_entry.fragments[0]
+		logging.debug(frag)
 		p1 = frag.pointers[1]
 		count_of_triples = count-1
 		# plus 1 fragment of variable size - 40ish
 		triples = self.get_frags_after_p(p1, (count_of_triples*3)+1)
+		frags_pt_1 = self.ovs.get_frags_from_ptr_lut(p1, count_of_triples)
+		for f in frags_pt_1:
+			name = f.pointers[1].data
+			logging.debug(f"new: {name}")
+
+		# logging.debug(triples)
 		b_set = set()
 		self.sized_str_entry.fragments += triples
 		for i in range(count_of_triples):
@@ -35,7 +42,7 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 			# another link - this is 1 frag, usually after ss frag, might be b_v1
 			b_ptr = c.pointers[1]
 			# this bugs out for some reason, so get count of individual ones
-			# self.sized_str_entry.fragments += self.get_frags_after_p(b_ptr, 1)
+			# self.sized_str_entry.fragments += self.get_frags_from_ptr_lut(b_ptr, 1)
 			b_set.add(b_ptr.data_offset)
 
 			# more names
@@ -47,7 +54,10 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 				logging.debug(f"{name}, {nf.pointers[0].data}")
 			self.sized_str_entry.fragments += names
 
-		# names = self.get_frags_after_p(p1, (count_of_triples*3)+1)
+		end_f = triples[-1]
+		logging.debug(f"{end_f.pointers[1].data}, {end_f.pointers[0].data}")
+
+		# names = self.ovs.get_frags_from_ptr_lut(p1, (count_of_triples*3)+1)
 		self.sized_str_entry.fragments += triples
 
 		logging.debug(f"{len(b_set)} following levels")

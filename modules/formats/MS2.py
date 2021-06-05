@@ -207,9 +207,8 @@ class Ms2Loader(Ms2File, BaseFile):
 		ms2_entry = self.ovl.ss_dict[file_entry.name]
 		ss_pointer = ms2_entry.pointers[0]
 		self.ovs = ovl.static_archive.content
-		frags = self.ovs.pools[ss_pointer.pool_index].fragments
 		if not is_old(self.ovl):
-			ms2_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.data_offset, 3)
+			ms2_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
 			# print(ms2_entry.fragments)
 			# second pass: collect model fragments
 			versions = get_versions(self.ovl)
@@ -236,7 +235,7 @@ class Ms2Loader(Ms2File, BaseFile):
 					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		else:
-			ms2_entry.fragments = self.ovs.get_frags_after_count(frags, ss_pointer.data_offset, 1)
+			ms2_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
 
 	def collect_mdl2(self, mdl2_entry, core_model_info, mdl2_pointer):
 		logging.info(f"MDL2: {mdl2_entry.name}")
