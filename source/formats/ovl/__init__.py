@@ -104,6 +104,8 @@ def get_loader(ext):
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
+	from modules.formats.SPECDEF import SpecdefLoader
+	from modules.formats.MATCOL import MatcolLoader
 	ext_2_class = {
 		".assetpkg": AssetpkgLoader,
 		".ms2": Ms2Loader,
@@ -112,6 +114,8 @@ def get_loader(ext):
 		".fdb": FdbLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
+		".specdef": SpecdefLoader,
+		".materialcollection": MatcolLoader,
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
@@ -424,10 +428,6 @@ class OvsFile(OvsHeader, ZipFile):
 			print("error", ptr.data_offset, pool.frag_lut)
 		return self.fragments[frag_i:frag_i+count]
 
-	def frags_from_pointer_discon(self, p):
-		frags = self.frags_for_pointer(p)
-		return self.get_frags_til_discon(frags, p.address, len(p.data))
-
 	def frags_from_pointer_equals(self, p):
 		frags = self.frags_for_pointer(p)
 		return self.get_frag_equal(frags, p.address)
@@ -446,266 +446,6 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def frags_for_pointer(self, p):
 		return self.pools[p.pool_index].fragments
-
-	def prefab_unpack_temp(self, len, data):
-		if len % 4 != 0:
-			ret = data
-		elif len >= 50:
-			num = int(len / 4)
-			strr = "<" + str(num) + "I"
-			ret = struct.unpack(strr, data)
-		else:
-			num = int(len / 4)
-			strr = "<" + str(num) + "I"
-			ret = struct.unpack(strr, data)
-		return ret
-
-	def prefab_unpack_ss(self, len, data):
-		num = int(len)
-		strr = "<" + str(num) + "B"
-		ret = struct.unpack(strr, data)
-		return ret
-
-	def collect_specdef(self, ss_entry):
-		print("\nSPECDEF:", ss_entry.name)
-		# frags = self.fragments
-		ss_data = struct.unpack("<2H4B", ss_entry.pointers[0].data)
-		if ss_data[0] == 0:
-			print("spec is zero ", ss_data[0])
-		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 3)
-		if ss_data[2] > 0:
-			data2_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
-			ss_entry.fragments.extend(data2_frag)
-		if ss_data[3] > 0:
-			data3_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
-			ss_entry.fragments.extend(data3_frag)
-		if ss_data[4] > 0:
-			data4_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
-			ss_entry.fragments.extend(data4_frag)
-		if ss_data[5] > 0:
-			data5_frag = self.frags_from_pointer(ss_entry.pointers[0], 1)
-			ss_entry.fragments.extend(data5_frag)
-
-		if ss_data[0] > 0:
-			ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[1].pointers[1], ss_data[0]))
-			ss_entry.fragments.extend(self.frags_from_pointer(ss_entry.fragments[2].pointers[1], ss_data[0]))
-
-		if ss_data[2] > 0:
-			ss_entry.fragments.extend(self.frags_from_pointer(data2_frag[0].pointers[1], ss_data[2]))
-		if ss_data[3] > 0:
-			ss_entry.fragments.extend(self.frags_from_pointer(data3_frag[0].pointers[1], ss_data[3]))
-		if ss_data[4] > 0:
-			ss_entry.fragments.extend(self.frags_from_pointer(data4_frag[0].pointers[1], ss_data[4]))
-		if ss_data[5] > 0:
-			ss_entry.fragments.extend(self.frags_from_pointer(data5_frag[0].pointers[1], ss_data[5]))
-
-	def collect_prefab(self, ss_entry, ad0_fragments):
-		ssdata = self.prefab_unpack_ss(len(ss_entry.pointers[0].data), ss_entry.pointers[0].data)
-		# if ss_entry.name in ("dingo_game.prefab"+"cassowary_game.prefab"+"red_kangaroo_game.prefab"+"koala_game.prefab"):
-		print("\nPREFAB:", ss_entry.name)
-		print(ssdata)
-		if (ssdata[4] == 0) and (ssdata[6] == 0):
-			ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-		elif (ssdata[4] != 0) and (ssdata[6] == 0):
-			ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 4)
-			f3_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[3].pointers[0].data),
-											ss_entry.fragments[3].pointers[0].data)
-			f2_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-											ss_entry.fragments[2].pointers[0].data)
-		elif (ssdata[4] == 0) and (ssdata[6] != 0):
-			ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 3)
-			f3_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-											ss_entry.fragments[2].pointers[0].data)
-			f2_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-											ss_entry.fragments[2].pointers[0].data)
-		elif (ssdata[4] != 0) and (ssdata[6] != 0):
-			ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 6)
-			f5_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[5].pointers[0].data),
-											ss_entry.fragments[5].pointers[0].data)
-			f2_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-											ss_entry.fragments[2].pointers[0].data)
-		else:
-			ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-		gub = []
-		fug = []
-
-		if (ssdata[4] != 0) and (ssdata[6] == 0):
-			if len(f3_d0) == 8:
-				gub = self.frags_from_pointer(ss_entry.pointers[0], 1)
-				ss_entry.fragments += gub
-			ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[0].pointers[1], ssdata[4])
-			if f2_d0[
-				2] == 536870911:  # in ("dingo_game.prefab"+"cassowary_game.prefab"+"red_kangaroo_game.prefab"+"koala_game.prefab"):
-				ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 18)
-				for x in range(34, 52):
-					if x == 34:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-					elif x == 35:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 5)
-					elif x == 38:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 3)
-					elif x == 41:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 43:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-					elif x == 45:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 47:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 48:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 50:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-					elif x == 51:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-			# elif  f2_d0[2] ==127:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 6)
-			# elif  f2_d0[2] ==3:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 1)
-			# elif  f2_d0[2] ==63:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 5)
-			# elif  f2_d0[2] ==1:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 1)
-			# elif  f2_d0[2] ==7:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 4)
-			# elif  f2_d0[2] ==15:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 3)
-			if len(f3_d0) == 8:
-				fug += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[4].pointers[1], 5)
-				ss_entry.fragments += fug
-				gub_d1 = self.prefab_unpack_temp(len(gub[0].pointers[1].data), gub[0].pointers[1].data)
-				fug0_d1 = self.prefab_unpack_temp(len(fug[0].pointers[1].data), fug[0].pointers[1].data)
-				fug1_d1 = self.prefab_unpack_temp(len(fug[1].pointers[1].data), fug[1].pointers[1].data)
-				fug2_d1 = self.prefab_unpack_temp(len(fug[2].pointers[1].data), fug[2].pointers[1].data)
-				fug3_d1 = self.prefab_unpack_temp(len(fug[3].pointers[1].data), fug[3].pointers[1].data)
-				fug4_d1 = self.prefab_unpack_temp(len(fug[4].pointers[1].data), fug[4].pointers[1].data)
-				print("gub", gub_d1)
-				print("fug0", fug0_d1)
-				print("fug1", fug1_d1)
-				print("fug2", fug2_d1)
-				print("fug3", fug3_d1)
-				print("fug4", fug4_d1)
-				if fug0_d1[len(fug0_d1) - 1] == 0:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[1].pointers[1], len(
-						fug0_d1) - 1)  # count equal to len(fug[0].pointers[1].data)/4 -1
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[2].pointers[1], len(
-						fug0_d1) - 1)  # count equal to len(fug[0].pointers[1].data)/4 -1
-				else:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[1].pointers[1], len(
-						fug0_d1))  # count equal to len(fug[0].pointers[1].data)/4 -1
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[2].pointers[1], len(
-						fug0_d1))  # count equal to len(fug[0].pointers[1].data)/4 -1
-				if gub_d1[0] == 1638405:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[4].pointers[1], 8)
-				elif gub_d1[0] == 1966113:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[4].pointers[1], 13)
-				elif gub_d1[0] == 1966113:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[4].pointers[1], 13)
-
-		elif (ssdata[4] == 0) and (ssdata[6] != 0):
-			if len(f2_d0) == 4:
-				gub = self.frags_from_pointer(ss_entry.pointers[0], 1)
-				ss_entry.fragments += gub
-			ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[1].pointers[1], ssdata[6])
-
-
-		elif (ssdata[4] != 0) and (ssdata[6] != 0):
-			if len(f5_d0) == 4:
-				gub = self.frags_from_pointer(ss_entry.pointers[0], 1)
-				ss_entry.fragments += gub
-			ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[0].pointers[1], ssdata[4])
-			if f2_d0[
-				2] == 536870911:  # in ("dingo_game.prefab"+"cassowary_game.prefab"+"red_kangaroo_game.prefab"+"koala_game.prefab"):
-				ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 18)
-				for x in range(34, 52):
-					if x == 34:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-					elif x == 35:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 5)
-					elif x == 38:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 3)
-					elif x == 41:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 43:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-					elif x == 45:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 47:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 48:
-						ss_entry.fragments += self.frags_from_pointer_equalsb(ss_entry.fragments[x].pointers[1])
-					elif x == 50:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-					elif x == 51:
-						ss_entry.fragments += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[x].pointers[1],
-																					 2)
-			# elif  f2_d0[2] ==127:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 6)
-			# elif  f2_d0[2] ==3:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 1)
-			# elif  f2_d0[2] ==63:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 5)
-			# elif  f2_d0[2] ==1:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 1)
-			# elif  f2_d0[2] ==7:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 4)
-			# elif  f2_d0[2] ==15:
-			#	ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[2].pointers[1], 3)
-			if len(f5_d0) == 4:
-				fug += self.frags_from_pointer_equalsb_counts(ss_entry.fragments[6].pointers[1], 5)
-				ss_entry.fragments += fug
-				gub_d1 = self.prefab_unpack_temp(len(gub[0].pointers[1].data), gub[0].pointers[1].data)
-				fug0_d1 = self.prefab_unpack_temp(len(fug[0].pointers[1].data), fug[0].pointers[1].data)
-				fug1_d1 = self.prefab_unpack_temp(len(fug[1].pointers[1].data), fug[1].pointers[1].data)
-				fug2_d1 = self.prefab_unpack_temp(len(fug[2].pointers[1].data), fug[2].pointers[1].data)
-				fug3_d1 = self.prefab_unpack_temp(len(fug[3].pointers[1].data), fug[3].pointers[1].data)
-				fug4_d1 = self.prefab_unpack_temp(len(fug[4].pointers[1].data), fug[4].pointers[1].data)
-				print("gub", gub_d1)
-				print("fug0", fug0_d1)
-				print("fug1", fug1_d1)
-				print("fug2", fug2_d1)
-				print("fug3", fug3_d1)
-				print("fug4", fug4_d1)
-				if fug0_d1[len(fug0_d1) - 1] == 0:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[1].pointers[1], len(
-						fug0_d1) - 1)  # count equal to len(fug[0].pointers[1].data)/4 -1
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[2].pointers[1], len(
-						fug0_d1) - 1)  # count equal to len(fug[0].pointers[1].data)/4 -1
-				else:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[1].pointers[1], len(
-						fug0_d1))  # count equal to len(fug[0].pointers[1].data)/4 -1
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[2].pointers[1], len(
-						fug0_d1))  # count equal to len(fug[0].pointers[1].data)/4 -1
-				# if gub_d1[0] == 393217:
-				# ss_entry.fragments+=  self.frags_from_pointer_equalsb_counts(fug[4].pointers[1], 0) #count equal to len(fug[0].pointers[1].data)/4 -1
-				if gub_d1[0] == 1638405:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[4].pointers[1], 8)
-				elif gub_d1[0] == 1966113:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[4].pointers[1], 13)
-				elif gub_d1[0] == 1966113:
-					ss_entry.fragments += self.frags_from_pointer_equalsb_counts(fug[4].pointers[1], 13)
-
-			ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[4].pointers[1], ssdata[6])
-
-		zzz = 0
-		# if ss_entry.name in "dingo_game.prefab":
-		for fragg in ss_entry.fragments:
-			if zzz < 6:
-				print("frag" + str(zzz))
-				print(self.prefab_unpack_temp(len(fragg.pointers[0].data), fragg.pointers[0].data))
-				print(self.prefab_unpack_temp(len(fragg.pointers[1].data), fragg.pointers[1].data))
-				zzz += 1
 
 	def collect_scaleform(self, ss_entry, frags):
 		ss_entry.fragments = self.get_frags_after_count(frags, ss_entry.pointers[0].data_offset, 1)
@@ -831,109 +571,6 @@ class OvsFile(OvsHeader, ZipFile):
 	# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
 	# ss_entry.fragments.extend(ss_entry.vars)
 
-	def collect_matcol(self, ss_entry):
-		print("\nMATCOL:", ss_entry.name)
-
-		# Sized string initpos = position of first fragment for matcol
-		# input_frags = self.frags_for_pointer(ss_entry.pointers[0])
-		# ss_entry.fragments = self.get_frag_after(input_frags, ((4,4),), ss_entry.pointers[0].address)
-		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-		ss_entry.f0 = ss_entry.fragments[0]
-
-		# print(ss_entry.f0)
-		# 0,0,collection count,0
-		f0_d0 = struct.unpack("<4I", ss_entry.f0.pointers[0].data)
-		# flag (3=variant, 2=layered) , 0
-		ss_entry.has_texture_list_frag = len(ss_entry.f0.pointers[1].data) == 8
-		if ss_entry.has_texture_list_frag:
-			f0_d1 = struct.unpack("<2I", ss_entry.f0.pointers[1].data)
-		else:
-			f0_d1 = struct.unpack("<6I", ss_entry.f0.pointers[1].data)
-		# print("f0_d0", f0_d0)
-		# print("f0_d1", f0_d1)
-		ss_entry.is_variant = f0_d1[0] == 3
-		ss_entry.is_layered = f0_d1[0] == 2
-		# print("has_texture_list_frag",ss_entry.has_texture_list_frag)
-		# print("is_variant",ss_entry.is_variant)
-		# print("is_layered",ss_entry.is_layered)
-		# print(ss_entry.tex_pointer)
-		if ss_entry.has_texture_list_frag:
-			# input_frags = self.frags_for_pointer(ss_entry.f0.pointers[1])
-			# ss_entry.tex_pointer = self.get_frag_after(input_frags, ((4,4),), ss_entry.f0.pointers[1].address)[0]
-			ss_entry.tex_pointer = self.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
-			tex_pointer_d0 = struct.unpack("<4I", ss_entry.tex_pointer.pointers[0].data)
-			# print("tex_pointer_d0", tex_pointer_d0)
-			tex_count = tex_pointer_d0[2]
-			# print("tex_count",tex_count)
-			ss_entry.tex_frags = self.frags_from_pointer(ss_entry.tex_pointer.pointers[1], tex_count * 3)
-		# ss_entry.tex_frags = []
-		# input_frags = self.frags_for_pointer(ss_entry.tex_pointer.pointers[1])
-		# for t in range(tex_count):
-		#	 ss_entry.tex_frags += self.get_frag_after(input_frags, ((4,6),(4,6),(4,6)), ss_entry.tex_pointer.pointers[1].address)
-		# for tex in ss_entry.tex_frags:
-		#	 print(tex.pointers[1].data)
-		else:
-			ss_entry.tex_pointer = None
-		# material pointer frag
-		ss_entry.mat_pointer = self.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
-		# ss_entry.mat_pointer_frag = self.get_frag_after(address_0_fragments, ((4,4),), ss_entry.f0.pointers[1].address)
-		# ss_entry.mat_pointer = ss_entry.mat_pointer_frag[0]
-		mat_pointer_d0 = struct.unpack("<6I", ss_entry.mat_pointer.pointers[0].data)
-		# print("mat_pointer_d0",mat_pointer_d0)
-		mat_count = mat_pointer_d0[2]
-		# print("mat_count",mat_count)
-		ss_entry.mat_frags = []
-		for t in range(mat_count):
-			if ss_entry.is_variant:
-				m0 = self.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 1)[0]
-				# m0 = self.get_frag_after(address_0_fragments, ((4,6),), ss_entry.mat_pointer.pointers[1].address)[0]
-				# print(m0.pointers[1].data)
-				m0.name = ss_entry.name
-				ss_entry.mat_frags.append((m0,))
-			elif ss_entry.is_layered:
-				mat_frags = self.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 3)
-				# mat_frags = self.get_frag_after(address_0_fragments, ((4,6),(4,4),(4,4)), ss_entry.mat_pointer.pointers[1].address)
-
-				m0, info, attrib = mat_frags
-				m0.pointers[1].strip_zstring_padding()
-				# print(m0.pointers[1].data)
-
-				info_d0 = struct.unpack("<8I", info.pointers[0].data)
-				info_count = info_d0[2]
-				# print("info_count", info_count)
-				info.children = self.frags_from_pointer(info.pointers[1], info_count)
-				for info_child in info.children:
-					# info_child = self.get_frag_after(address_0_fragments, ((4,6),), info.pointers[1].address)[0]
-					# 0,0,byte flag,byte flag,byte flag,byte flag,float,float,float,float,0
-					# info_child_d0 = struct.unpack("<2I4B4fI", info_child.pointers[0].data)
-					info_child.pointers[1].strip_zstring_padding()
-				# print(info_child.pointers[1].data, info_d0)
-
-				attrib.children = []
-				attrib.pointers[0].split_data_padding(16)
-				attrib_d0 = struct.unpack("<4I", attrib.pointers[0].data)
-				attrib_count = attrib_d0[2]
-				# print("attrib_count",attrib_count)
-				attrib.children = self.frags_from_pointer(attrib.pointers[1], attrib_count)
-				for attr_child in attrib.children:
-					# attr_child = self.get_frag_after(address_0_fragments, ((4,6),), attrib.pointers[1].address)[0]
-					# attrib.children.append(attr_child)
-					# attr_child_d0 = struct.unpack("<2I4BI", attr_child.pointers[0].data)
-					attr_child.pointers[1].strip_zstring_padding()
-				# print(attr_child.pointers[1].data, attr_child_d0)
-
-				# store names for frag log
-				for frag in mat_frags + info.children + attrib.children:
-					frag.name = ss_entry.name
-				# store frags
-				ss_entry.mat_frags.append(mat_frags)
-		if ss_entry.has_texture_list_frag:
-			for frag in ss_entry.tex_frags + [ss_entry.tex_pointer, ]:
-				frag.name = ss_entry.name
-		all_frags = [ss_entry.f0, ss_entry.mat_pointer]
-		for frag in all_frags:
-			frag.name = ss_entry.name
-
 	def map_frags(self):
 		if not self.fragments:
 			return
@@ -987,27 +624,16 @@ class OvsFile(OvsHeader, ZipFile):
 				elif sized_str_entry.ext == ".fgm":
 					sized_str_entry.fragments = self.get_frag_after_terminator(frags,
 																			   sized_str_entry.pointers[0].address)
-
-				elif sized_str_entry.ext == ".materialcollection":
-					self.collect_matcol(sized_str_entry)
 				elif sized_str_entry.ext in (".enumnamer", ".motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
 				elif sized_str_entry.ext in (".wmetasb",):  # ".wmetarp", ".wmetasf"):
 					self.collect_wmeta(sized_str_entry, address_0_fragments)
 				elif sized_str_entry.ext == ".motiongraph":
 					self.collect_motiongraph(sized_str_entry)
-				elif sized_str_entry.ext == ".specdef":
-					self.collect_specdef(sized_str_entry)
 				elif sized_str_entry.ext == ".scaleformlanguagedata":
 					if not is_pc(self.ovl):
 						# todo - this is different for PC
 						self.collect_scaleform(sized_str_entry, frags)
-			# elif sized_str_entry.ext == ".prefab":
-			# self.collect_prefab(sized_str_entry, address_0_fragments)
-			# print("sizedstr",sized_str_entry.pointers[0].pool_index)
-			# print("frags",tuple((f.pointers[0].pool_index, f.pointers[1].pool_index) for f in sized_str_entry.fragments))
-			# for f in sized_str_entry.fragments:
-			#	 assert(f.pointers[0].pool_index == sized_str_entry.pointers[0].pool_index)
 		except Exception as err:
 			print(err)
 
@@ -1142,7 +768,7 @@ class OvsFile(OvsHeader, ZipFile):
 			if first == 1:
 				if f.done:
 					continue
-				if (f.pointers[0].address == initpos):
+				if f.pointers[0].address == initpos:
 					f.done = True
 					out.append(f)
 					first = 0
@@ -1195,37 +821,6 @@ class OvsFile(OvsHeader, ZipFile):
 				if f.pointers[0].address >= initpos:
 					f.done = True
 					out.append(f)
-		return out
-
-	@staticmethod
-	def get_frags_til_discon(frags, initpos, datalength):
-		"""Returns entries of frags that have not been processed and until discontinuity."""
-		out = []
-		lastpos = initpos
-		length = 0
-		firstgrab = 1
-		for f in frags:
-			if firstgrab == 1:
-				if f.done:
-					continue
-				if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-					f.done = True
-					out.append(f)
-					firstgrab = 0
-					length = len(f.pointers[0].data)
-					lastpos = f.pointers[0].address
-					print("first ", initpos, length, lastpos)
-			else:
-				if f.pointers[0].address - length == lastpos:
-					if f.done:
-						continue
-					if f.pointers[0].address >= initpos:
-						f.done = True
-						out.append(f)
-						length = len(f.pointers[0].data)
-						lastpos = f.pointers[0].address
-				else:
-					break
 		return out
 
 	def find_entry(self, entries, src_entry):
