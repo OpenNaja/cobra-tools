@@ -256,7 +256,6 @@ class OvsFile(OvsHeader, ZipFile):
 			# add IO object to every pool
 			self.read_pools(stream)
 
-			# self.check_pool_size = self.calc_pools_size()
 			self.map_pointers()
 			self.build_frag_lut()
 			self.calc_pointer_addresses()
@@ -415,9 +414,9 @@ class OvsFile(OvsHeader, ZipFile):
 			fs.extend(self.get_frags_after_count(address_0_fragments, p.data_offset, 1))
 		return fs
 
-	def frags_from_pointer(self, p, count):
-		frags = self.frags_for_pointer(p)
-		return self.get_frags_after_count(frags, p.data_offset, count)
+	def frags_from_pointer(self, ptr, count):
+		frags = self.frags_for_pointer(ptr)
+		return self.get_frags_after_count(frags, ptr.data_offset, count)
 
 	def get_frags_from_ptr_lut(self, ptr, count):
 		"""Use the fragment lookup table to retrieve count fragments starting at a given pointer"""
@@ -447,12 +446,13 @@ class OvsFile(OvsHeader, ZipFile):
 	def frags_for_pointer(self, p):
 		return self.pools[p.pool_index].fragments
 
-	def collect_scaleform(self, ss_entry, frags):
-		ss_entry.fragments = self.get_frags_after_count(frags, ss_entry.pointers[0].data_offset, 1)
-		f0_d0 = struct.unpack("<8I", ss_entry.fragments[0].pointers[0].data)
-		font_declare_count = f0_d0[2]
-		ss_entry.fragments += self.get_frags_after_count(frags, ss_entry.fragments[0].pointers[1].data_offset,
-														 font_declare_count * 2)
+	def collect_scaleform(self, ss_entry):
+		# todo - this is different for PC
+		if not is_pc(self.ovl):
+			ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
+			f0_d0 = struct.unpack("<8I", ss_entry.fragments[0].pointers[0].data)
+			font_declare_count = f0_d0[2]
+			ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[0].pointers[1], font_declare_count * 2)
 
 	def collect_enumnamer(self, ss_entry):
 		print("\nENUMNAMER / MOTIONGRAPHVARS:", ss_entry.name)
@@ -466,72 +466,6 @@ class OvsFile(OvsHeader, ZipFile):
 			var.pointers[1].strip_zstring_padding()
 		# The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
 		ss_entry.fragments.extend(ss_entry.vars)
-
-	def collect_wmeta(self, ss_entry, address_0_fragments):
-		print("\nwmeta:", ss_entry.name)
-		return
-		# Sized string initpos = position of first fragment
-		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-		f = ss_entry.fragments[0]
-		# print(f.pointers[0].data, f.pointers[0].address, len(f.pointers[0].data), len(ss_entry.pointers[0].data))
-		_, count = struct.unpack("<2Q", ss_entry.pointers[0].data)
-		print(count)
-		if self.ovl.basename.lower() == "main.ovl":
-			print("Debug mode for sound")
-			print()
-			for frag in self.fragments:
-				if 4233228 <= frag.pointers[1].address < 4234772 or 2257932 <= frag.pointers[1].address < 4219472:
-					# ss_entry.fragments.append(frag)
-					frag.pointers[1].strip_zstring_padding()
-					frag.name = frag.pointers[1].data[:-1]  # .decode()
-
-		ss_entry.bnks = []
-		# for bnk_index in range(count):
-		# ss_entry.bnks = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], 4*count)
-		# ss_entry.fragments.extend(ss_entry.bnks)
-		# for i in range(count):
-		# 	fs = ss_entry.bnks[i*4: i*4+4]
-		# 	for f in fs[:3]:
-		# 		f.pointers[1].strip_zstring_padding()
-		# 	print(fs[0].pointers[1].data)
-		# 	print(fs[1].pointers[1].data)
-		# 	for f in fs:
-		# 		print(f.pointers[0].data)
-		for i in range(count):
-			print(f"\n\nbnk {i}")
-			bnk = self.frags_accumulate(ss_entry.fragments[0].pointers[1], 112, address_0_fragments)
-			# if bnk[3].pointers[0].data_size == 64:
-			# 	bnk.extend(self.frags_from_pointer(ss_entry.fragments[0].pointers[1], 1))
-			for f in bnk[:3]:
-				f.pointers[1].strip_zstring_padding()
-				print(f.pointers[1].data)
-				f.name = f.pointers[1].data[:-1]  # .decode()
-			# 	 if it's a media bnk like for the dinos, it has a pointer pointing to the start of the files that belong to this
-			if len(bnk) > 3:
-				b = bnk[3].pointers[0].data
-				# this points to the child data
-				ptr = bnk[3].pointers[1]
-				if len(b) == 56:
-					d = struct.unpack("<6Q2I", b)
-					media_count = d[1]
-					maybe_hash = d[6]
-					print(f.name, media_count, maybe_hash, ptr.address)
-					bk_frags = self.frags_from_pointer(ptr, media_count * 3)
-					for j in range(media_count):
-						z = bk_frags[j*3: j*3+3]
-						for f in z:
-							f.pointers[1].strip_zstring_padding()
-							print(f.pointers[1].data)
-			ss_entry.bnks.append(bnk)
-
-	# ss_entry.fragments.extend(bnk)
-
-	# ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
-	# # pointers[1].data is the name
-	# for var in ss_entry.vars:
-	# 	var.pointers[1].strip_zstring_padding()
-	# # The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
-	# ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_motiongraph(self, ss_entry):
 		print("\nMOTIONGRAPH:", ss_entry.name)
@@ -578,64 +512,48 @@ class OvsFile(OvsHeader, ZipFile):
 
 		# we go from the start
 		address_0_fragments = list(sorted(self.fragments, key=lambda f: f.pointers[0].address))
-
-		# just reverse is good enough, no longer need to sort them
-		sorted_sized_str_entries = list(reversed(self.sized_str_entries))
 		for frag in address_0_fragments:
 			# fragments always have a valid pool_index
 			self.pools[frag.pointers[0].pool_index].fragments.append(frag)
 
-		# todo: document more of these type requirements
-		dic = {".bani": 1,
-			   ".tex": 2,
-			   ".xmlconfig": 1,
-			   # ".hier": ( (4,6) for x in range(19) ),
-			   ".spl": 1,
-			   # ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
-			   }
+		dic = {
+			".bani": 1,
+			".tex": 2,
+			".xmlconfig": 1,
+			# ".hier": ( (4,6) for x in range(19) ),
+			".spl": 1,
+			# ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
+			}
 		# include formats that are known to have no fragments
 		no_frags = (".txt", ".mani", ".manis",)
-		ss_max = len(sorted_sized_str_entries)
-		try:
-			for ss_index, sized_str_entry in enumerate(sorted_sized_str_entries):
-				self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
-				if sized_str_entry.ext in no_frags:
-					continue
-				print(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
-				pool_index = sized_str_entry.pointers[0].pool_index
-				if pool_index == -1:
-					frags = address_0_fragments
-				else:
-					frags = self.pools[pool_index].fragments
+		ss_max = len(self.sized_str_entries)
+		for ss_index, sized_str_entry in enumerate(self.sized_str_entries):
+			if sized_str_entry.ext in no_frags:
+				continue
+			self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
+			logging.debug(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
+			try:
 				if sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
-					sized_str_entry.fragments = self.get_frags_after_count(frags, sized_str_entry.pointers[0].data_offset,
-																		   1)
+					sized_str_entry.fragments = self.frags_from_pointer(sized_str_entry.pointers[0], 1)
 				# get fixed fragments
 				elif sized_str_entry.ext in dic:
-
 					t = dic[sized_str_entry.ext]
 					# get and set fragments
 					try:
-						sized_str_entry.fragments = self.get_frags_after_count(frags,
-																			   sized_str_entry.pointers[0].data_offset, t)
+						sized_str_entry.fragments = self.frags_from_pointer(sized_str_entry.pointers[0], t)
 					except:
 						print("bug")
 						pass
 				elif sized_str_entry.ext == ".fgm":
-					sized_str_entry.fragments = self.get_frag_after_terminator(frags,
-																			   sized_str_entry.pointers[0].address)
+					sized_str_entry.fragments = self.get_frag_after_terminator(sized_str_entry.pointers[0])
 				elif sized_str_entry.ext in (".enumnamer", ".motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
-				elif sized_str_entry.ext in (".wmetasb",):  # ".wmetarp", ".wmetasf"):
-					self.collect_wmeta(sized_str_entry, address_0_fragments)
 				elif sized_str_entry.ext == ".motiongraph":
 					self.collect_motiongraph(sized_str_entry)
 				elif sized_str_entry.ext == ".scaleformlanguagedata":
-					if not is_pc(self.ovl):
-						# todo - this is different for PC
-						self.collect_scaleform(sized_str_entry, frags)
-		except Exception as err:
-			print(err)
+					self.collect_scaleform(sized_str_entry)
+			except Exception as err:
+				print(err)
 
 	def assign_frag_names(self):
 		# for debugging only:
@@ -705,24 +623,22 @@ class OvsFile(OvsHeader, ZipFile):
 			lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(self.fragments)]
 			f.write("\n".join(lines))
 
-	@staticmethod
-	def get_frag_after_terminator(l, initpos, terminator=24):
+	def get_frag_after_terminator(self, ptr, terminator=24):
 		"""Returns entries of l matching h_types that have not been processed until it reaches a frag of terminator size."""
+		frags = self.frags_for_pointer(ptr)
 		out = []
-		# print("looking for",h_types)
-		for f in l:
+		for f in frags:
 			# can't add fragments that have already been added elsewhere
 			if f.done:
 				continue
-			if f.pointers[0].address >= initpos:
-				# print(f.data_offset_0,"  ",initpos)
+			if f.pointers[0].data_offset >= ptr.data_offset:
 				f.done = True
 				out.append(f)
 				if f.pointers[0].data_size == terminator:
 					break
 		else:
 			raise AttributeError(
-				f"Could not find a terminator fragment matching initpos {initpos} and pointer[0].size {terminator}")
+				f"Could not find a terminator fragment matching initpos {ptr.data_offset} and pointer[0].size {terminator}")
 		return out
 
 	@staticmethod
@@ -857,15 +773,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
-		return self.start_of_pools + self.calc_pools_size() + self.calc_buffers_size()
-
-	def calc_pools_size(self, ):
-		"""Calculate the size of the whole memory pool region that sizedstr, fragment and ovl dependency entries point into"""
-		return sum(pool.size for pool in self.pools)
-
-	def calc_buffers_size(self, ):
-		"""Calculate the size of the buffer region that data entries use"""
-		return sum(buffer.size for buffer in self.buffer_entries)
+		return self.start_of_pools + sum(pool.size for pool in self.pools) + sum(buffer.size for buffer in self.buffer_entries)
 
 	def write_pointers_to_pools(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""

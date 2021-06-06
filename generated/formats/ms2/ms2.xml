@@ -205,7 +205,7 @@
 		20 bytes
 		<add name="distance" type="float" >usually first lod is 900</add>
 		<add name="zero" type="ushort" >always 0</add>
-		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
+		<add name="bone index" type="ushort" >Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes</add>
 		<add name="first object index" type="ushort" >first object for this lod in objects list</add>
 		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
 		<add name="vertex count" type="uint" >vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>

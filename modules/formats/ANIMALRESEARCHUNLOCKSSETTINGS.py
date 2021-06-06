@@ -23,7 +23,7 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 		p1 = frag.pointers[1]
 		count_of_triples = count-1
 		# plus 1 fragment of variable size - 40ish
-		triples = self.get_frags_after_p(p1, (count_of_triples*3)+1)
+		triples = self.ovs.frags_from_pointer(p1, (count_of_triples*3)+1)
 		frags_pt_1 = self.ovs.get_frags_from_ptr_lut(p1, count_of_triples)
 		for f in frags_pt_1:
 			name = f.pointers[1].data
@@ -47,7 +47,7 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 
 			# more names
 			c_ptr = c.pointers[1]
-			names = self.get_frags_after_p(c_ptr, c_v1)
+			names = self.ovs.frags_from_pointer(c_ptr, c_v1)
 			for nf in names:
 				name = nf.pointers[1].data
 				# b_v0, b_v1 = unpack("<QQ", b.pointers[0].data)
@@ -61,7 +61,7 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 		self.sized_str_entry.fragments += triples
 
 		logging.debug(f"{len(b_set)} following levels")
-		rest = self.get_frags_after_p(frag.pointers[0], len(b_set))
+		rest = self.ovs.frags_from_pointer(frag.pointers[0], len(b_set))
 		for nf in rest:
 			name = nf.pointers[1].data
 			assert nf.pointers[0].data == b'\x00' * 16

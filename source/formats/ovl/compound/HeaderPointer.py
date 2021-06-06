@@ -52,16 +52,16 @@ class HeaderPointer:
 		self.data = _d[:cut]
 
 	def link_to_header(self, archive):
-		"""Store this pointer in suitable header entry"""
+		"""Link this pointer to its pool"""
 
 		if self.pool_index == -1:
 			pass
 		else:
-			# get header entry
-			entry = archive.pools[self.pool_index]
-			if self.data_offset not in entry.pointer_map:
-				entry.pointer_map[self.data_offset] = []
-			entry.pointer_map[self.data_offset].append(self)
+			# get pool
+			pool = archive.pools[self.pool_index]
+			if self.data_offset not in pool.pointer_map:
+				pool.pointer_map[self.data_offset] = []
+			pool.pointer_map[self.data_offset].append(self)
 
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""

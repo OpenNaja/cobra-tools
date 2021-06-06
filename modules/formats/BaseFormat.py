@@ -24,11 +24,7 @@ class BaseFile:
 		self.assign_ovl_ovs(ovl)
 		self.get_sized_str_entry(file_entry)
 		ss_pointer = self.sized_str_entry.pointers[0]
-		self.sized_str_entry.fragments = self.get_frags_after_p(ss_pointer, count)
-
-	def get_frags_after_p(self, ptr, count):
-		frags = self.ovs.pools[ptr.pool_index].fragments
-		return self.ovs.get_frags_after_count(frags, ptr.data_offset, count)
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, count)
 
 	def get_pool(self, pool_type_key):
 		# get one if it exists

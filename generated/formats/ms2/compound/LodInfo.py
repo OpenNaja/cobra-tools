@@ -18,7 +18,7 @@ class LodInfo:
 		# always 0
 		self.zero = 0
 
-		# index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)
+		# Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes
 		self.bone_index = 0
 
 		# first object for this lod in objects list
