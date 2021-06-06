@@ -822,6 +822,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def write_archive(self, stream):
 		logging.debug(f"Writing archive {self.arg.name}")
+		self.fragments.sort(key=lambda f: (f.pointers[0].header_index, f.pointers[0].data_offset), reverse=True)
 		# write out all entries
 		super().write(stream)
 		# write the header data containing all the pointers' datas
