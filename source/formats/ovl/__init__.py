@@ -1340,7 +1340,7 @@ class OvlFile(Header, IoFile):
 	def update_aux_sizes(self):
 		logging.debug("Updating AUX sizes in OVL")
 		for aux in self.aux_entries:
-			name = self.files[aux.file_index].basename
+			name = aux.file.basename
 			if aux.extension_index != 0:
 				bnkpath = f"{self.file_no_ext}_{name}_bnk_s.aux"
 			else:
