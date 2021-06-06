@@ -103,15 +103,17 @@ def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
 
 	update_matcol_pointers(pointers, new_names)
 
+
 class MatcolLoader(BaseFile):
 
-	def collect(self, ss_entry):
+	def collect(self, ovl, file_entry):
+		self.ovl = ovl
+		ss_entry = self.ovl.ss_dict[file_entry.name]
+		self.ovs = ovl.static_archive.content
 		print("\nMATCOL:", ss_entry.name)
 
 		# Sized string initpos = position of first fragment for matcol
-		# input_frags = self.frags_for_pointer(ss_entry.pointers[0])
-		# ss_entry.fragments = self.get_frag_after(input_frags, ((4,4),), ss_entry.pointers[0].address)
-		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
+		ss_entry.fragments = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
 		ss_entry.f0 = ss_entry.fragments[0]
 
 		# print(ss_entry.f0)
@@ -134,22 +136,22 @@ class MatcolLoader(BaseFile):
 		if ss_entry.has_texture_list_frag:
 			# input_frags = self.frags_for_pointer(ss_entry.f0.pointers[1])
 			# ss_entry.tex_pointer = self.get_frag_after(input_frags, ((4,4),), ss_entry.f0.pointers[1].address)[0]
-			ss_entry.tex_pointer = self.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
+			ss_entry.tex_pointer = self.ovs.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
 			tex_pointer_d0 = struct.unpack("<4I", ss_entry.tex_pointer.pointers[0].data)
 			# print("tex_pointer_d0", tex_pointer_d0)
 			tex_count = tex_pointer_d0[2]
 			# print("tex_count",tex_count)
-			ss_entry.tex_frags = self.frags_from_pointer(ss_entry.tex_pointer.pointers[1], tex_count * 3)
+			ss_entry.tex_frags = self.ovs.frags_from_pointer(ss_entry.tex_pointer.pointers[1], tex_count * 3)
 		# ss_entry.tex_frags = []
 		# input_frags = self.frags_for_pointer(ss_entry.tex_pointer.pointers[1])
 		# for t in range(tex_count):
-		#	 ss_entry.tex_frags += self.get_frag_after(input_frags, ((4,6),(4,6),(4,6)), ss_entry.tex_pointer.pointers[1].address)
+		# 	 ss_entry.tex_frags += self.get_frag_after(input_frags, ((4,6),(4,6),(4,6)), ss_entry.tex_pointer.pointers[1].address)
 		# for tex in ss_entry.tex_frags:
-		#	 print(tex.pointers[1].data)
+		# 	 print(tex.pointers[1].data)
 		else:
 			ss_entry.tex_pointer = None
 		# material pointer frag
-		ss_entry.mat_pointer = self.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
+		ss_entry.mat_pointer = self.ovs.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
 		# ss_entry.mat_pointer_frag = self.get_frag_after(address_0_fragments, ((4,4),), ss_entry.f0.pointers[1].address)
 		# ss_entry.mat_pointer = ss_entry.mat_pointer_frag[0]
 		mat_pointer_d0 = struct.unpack("<6I", ss_entry.mat_pointer.pointers[0].data)
@@ -159,13 +161,13 @@ class MatcolLoader(BaseFile):
 		ss_entry.mat_frags = []
 		for t in range(mat_count):
 			if ss_entry.is_variant:
-				m0 = self.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 1)[0]
+				m0 = self.ovs.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 1)[0]
 				# m0 = self.get_frag_after(address_0_fragments, ((4,6),), ss_entry.mat_pointer.pointers[1].address)[0]
 				# print(m0.pointers[1].data)
 				m0.name = ss_entry.name
 				ss_entry.mat_frags.append((m0,))
 			elif ss_entry.is_layered:
-				mat_frags = self.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 3)
+				mat_frags = self.ovs.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 3)
 				# mat_frags = self.get_frag_after(address_0_fragments, ((4,6),(4,4),(4,4)), ss_entry.mat_pointer.pointers[1].address)
 
 				m0, info, attrib = mat_frags
@@ -175,7 +177,7 @@ class MatcolLoader(BaseFile):
 				info_d0 = struct.unpack("<8I", info.pointers[0].data)
 				info_count = info_d0[2]
 				# print("info_count", info_count)
-				info.children = self.frags_from_pointer(info.pointers[1], info_count)
+				info.children = self.ovs.frags_from_pointer(info.pointers[1], info_count)
 				for info_child in info.children:
 					# info_child = self.get_frag_after(address_0_fragments, ((4,6),), info.pointers[1].address)[0]
 					# 0,0,byte flag,byte flag,byte flag,byte flag,float,float,float,float,0
@@ -188,7 +190,7 @@ class MatcolLoader(BaseFile):
 				attrib_d0 = struct.unpack("<4I", attrib.pointers[0].data)
 				attrib_count = attrib_d0[2]
 				# print("attrib_count",attrib_count)
-				attrib.children = self.frags_from_pointer(attrib.pointers[1], attrib_count)
+				attrib.children = self.ovs.frags_from_pointer(attrib.pointers[1], attrib_count)
 				for attr_child in attrib.children:
 					# attr_child = self.get_frag_after(address_0_fragments, ((4,6),), attrib.pointers[1].address)[0]
 					# attrib.children.append(attr_child)
