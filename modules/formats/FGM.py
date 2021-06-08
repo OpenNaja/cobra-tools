@@ -21,6 +21,7 @@ def write_fgm(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 		print("Found no buffer data for", name)
 		buffer_data = b""
 	# basic fgms
+	# zeros is the ptr to the dependencies block, which is only present if they are present
 	if len(sized_str_entry.fragments) == 4:
 		tex_info, attr_info, zeros, data_lib = sized_str_entry.fragments
 		len_tex_info = tex_info.pointers[1].data_size

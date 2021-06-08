@@ -256,8 +256,8 @@ class OvsFile(OvsHeader, ZipFile):
 			# add IO object to every pool
 			self.read_pools(stream)
 
-			self.map_pointers()
 			self.build_frag_lut()
+			self.map_pointers()
 			self.calc_pointer_addresses()
 			self.calc_pointer_sizes()
 			self.populate_pointers()
@@ -333,6 +333,9 @@ class OvsFile(OvsHeader, ZipFile):
 	def build_frag_lut(self):
 		"""Create a lookup table for fragments"""
 		logging.info("Building frag lookup table")
+
+		# first sort fragments by their first pointer
+		self.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset))
 		# create a lut per pool
 		for pool in self.pools:
 			pool.frag_lut = {}
@@ -340,6 +343,7 @@ class OvsFile(OvsHeader, ZipFile):
 		for frag_i, frag in enumerate(self.fragments):
 			ptr = frag.pointers[0]
 			pool = self.pools[ptr.pool_index]
+			pool.fragments.append(frag)
 			pool.frag_lut[ptr.data_offset] = frag_i
 
 	def populate_pointers(self):
@@ -403,7 +407,7 @@ class OvsFile(OvsHeader, ZipFile):
 				# set_index is 1-based, so the first set = 1, so we do it after the increment
 				ss_entry.data_entry.set_index = self.set_header.set_count
 
-	def frags_accumulate(self, p, d_size, address_0_fragments):
+	def frags_accumulate(self, p, d_size):
 		# get frags whose pointers 0 datas together occupy d_size bytes
 		fs = []
 		while sum((f.pointers[0].data_size for f in fs)) < d_size:
@@ -411,7 +415,7 @@ class OvsFile(OvsHeader, ZipFile):
 			# frags = self.fragments
 			# the frag list crosses header borders at Deinonychus_events, so use full frag list
 			# -> exceedingly slow
-			fs.extend(self.get_frags_after_count(address_0_fragments, p.data_offset, 1))
+			fs.extend(self.get_frags_after_count(self.fragments, p.data_offset, 1))
 		return fs
 
 	def frags_from_pointer(self, ptr, count):
@@ -509,12 +513,6 @@ class OvsFile(OvsHeader, ZipFile):
 		if not self.fragments:
 			return
 		print(f"\nMapping SizedStrs to {len(self.fragments)} Fragments")
-
-		# we go from the start
-		address_0_fragments = list(sorted(self.fragments, key=lambda f: f.pointers[0].address))
-		for frag in address_0_fragments:
-			# fragments always have a valid pool_index
-			self.pools[frag.pointers[0].pool_index].fragments.append(frag)
 
 		dic = {
 			".bani": 1,
@@ -822,7 +820,6 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def write_archive(self, stream):
 		logging.debug(f"Writing archive {self.arg.name}")
-		self.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset), reverse=True)
 		# write out all entries
 		super().write(stream)
 		# write the header data containing all the pointers' datas
