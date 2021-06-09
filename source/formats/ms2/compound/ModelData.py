@@ -169,9 +169,11 @@ class ModelData:
 			self.fur = (self.fur - 32768) / 2048
 			# normalize with some overhead
 			self.fur_length = np.max(self.fur[:, 0]) * FUR_OVERHEAD
-			# print("self.fur_length", self.fur_length)
-			self.fur[:, 0] /= self.fur_length
-			# value range is +-16 - squash it into 0 - 1
+			# fur length can be set to 0 for the whole mesh, so make sure we don't divide in that case
+			if self.fur_length:
+				# print("self.fur_length", self.fur_length)
+				self.fur[:, 0] /= self.fur_length
+			# value range of fur width is +-16 - squash it into 0 - 1
 			self.fur[:, 1] = remap(self.fur[:, 1], -16, 16, 0, 1)
 			print("self.fur[0]", self.fur[0])
 		if self.colors is not None:

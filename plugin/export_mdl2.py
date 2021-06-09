@@ -144,7 +144,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 				# if it does - reuse it by grabbing its index from the dict
 				v_index = dummy_vertices[dummy]
 				count_reused += 1
-			except:
+			except KeyError:
 				# it doesn't, so we have to fill in additional data
 				v_index = count_unique
 				if v_index > MAX_USHORT:
@@ -178,7 +178,12 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	# update vert & tri array
 	model.base = mdl2.model_info.pack_offset
 	# transfer raw verts into model data packed array
-	model.set_verts(verts)
+	try:
+		model.set_verts(verts)
+	except ValueError as err:
+		print(err)
+		raise AttributeError(f"Could not export {b_ob.name}!")
+
 	model.tris = tris
 	return model
 
