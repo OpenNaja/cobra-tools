@@ -609,7 +609,7 @@ class OvsFile(OvsHeader, ZipFile):
 	def write_frag_log(self, ):
 		"""for development; collect info about fragment types"""
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_frag{self.archive_index}.log")
-		print(f"Writing Fragment log to {frag_log_path}")
+		logging.info(f"Writing Fragment log to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
 			for i, pool in enumerate(self.pools):
 				f.write(f"\n\nHeader[{i}] at {pool.address} with {len(pool.fragments)} fragments\n")
@@ -617,9 +617,6 @@ class OvsFile(OvsHeader, ZipFile):
 				entries.sort(key=lambda entry: entry.pointers[0].data_offset)
 				lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(entries)]
 				f.write("\n".join(lines))
-			f.write("\n\n\nself.fragments > sizedstr\nfragments in file order\n")
-			lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(self.fragments)]
-			f.write("\n".join(lines))
 
 	def get_frag_after_terminator(self, ptr, terminator=24):
 		"""Returns entries of l matching h_types that have not been processed until it reaches a frag of terminator size."""
