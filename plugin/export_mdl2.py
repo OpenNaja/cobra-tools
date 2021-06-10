@@ -209,21 +209,19 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 			fur_length = vertex_group.weight * hair_length
 		elif vgroup_name == "fur_width":
 			fur_width = vertex_group.weight
-		else:
+		elif vgroup_name in bones_table:
 			# avoid dummy vertex groups without corresponding bones
-			try:
-				w.append([bones_table[vgroup_name], vertex_group.weight])
-			except:
-				logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
+			w.append([bones_table[vgroup_name], vertex_group.weight])
+		else:
+			logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
 	# print(residue, unk_0)
 	# get the 4 strongest influences on this vert
 	w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
 	# print(w_s)
 	# pad the weight list to 4 bones, ie. add empty bones if missing
-	for i in range(0, 4 - len(w_s)):
-		w_s.append([0, 0])
+	w_s.extend([[0, 0] * (4 - len(w_s))])
 	# ensure that we have 4 weights at this point
-	assert (len(w_s) == 4)
+	assert len(w_s) == 4
 	# split the list of tuples into two separate lists
 	bone_ids, bone_weights = zip(*w_s)
 	# summed weights
