@@ -1162,6 +1162,7 @@ class OvlFile(Header, IoFile):
 	def load_pointers(self):
 		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
 		logging.info("Loading pointers")
+		# todo - this needs to be refactored as to include dependencies with their flattened pool indices
 		for archive_entry in self.archives:
 			archive_entry.content.resolve_pointers()
 
