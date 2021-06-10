@@ -310,24 +310,25 @@ class ZipFile(IoFile):
 
 	# @staticmethod
 	# @contextmanager
-	def zipper(self, archive_index, external_path):
+	def get_bytes(self, archive_index, external_path):
 		# load external uncompressed data
 		if external_path and archive_index == 0:
 			with open(external_path, "rb") as f:
-				uncompressed_bytes = f.read()
+				return f.read()
 		# write the internal data
 		else:
 			stream = BinaryStream()
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
-			uncompressed_bytes = stream.getbuffer()
+			return stream.getbuffer()
+
+	def compress(self, uncompressed_bytes):
 		# compress data
 		# change to zipped format for saving of uncompressed or oodled ovls
 		if not self.ovl.user_version.use_zlib:
 			print("HACK: setting compression to zlib")
 			self.ovl.user_version.use_oodle = False
 			self.ovl.user_version.use_zlib = True
-
 		# pc/pz zlib			8340	00100000 10010100
 		# pc/pz uncompressed	8212	00100000 00010100
 		# pc/pz oodle			8724	00100010 00010100
@@ -348,5 +349,4 @@ class ZipFile(IoFile):
 			compressed = zlib.compress(uncompressed_bytes)
 		else:
 			compressed = uncompressed_bytes
-
 		return len(uncompressed_bytes), len(compressed), compressed

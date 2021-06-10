@@ -1315,7 +1315,8 @@ class OvlFile(Header, IoFile):
 		# compress data stream
 		for i, archive_entry in enumerate(self.archives):
 			# write archive into bytes IO stream
-			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.zipper(i, dat_path)
+			uncompressed = archive_entry.content.get_bytes(i, dat_path)
+			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.compress(uncompressed)
 			# update set data size
 			archive_entry.set_data_size = archive_entry.content.set_header.io_size
 			if i == 0:

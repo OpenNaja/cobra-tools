@@ -194,6 +194,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	residue = 1
 	fur_length = 0
 	fur_width = 0
+	bone_index_cutoff = b_ob["bone_index"]
 	# get the weights
 	w = []
 	for vertex_group in b_vert.groups:
@@ -211,7 +212,12 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 			fur_width = vertex_group.weight
 		elif vgroup_name in bones_table:
 			# avoid dummy vertex groups without corresponding bones
-			w.append([bones_table[vgroup_name], vertex_group.weight])
+			bone_index = bones_table[vgroup_name]
+			if bone_index > bone_index_cutoff:
+				logging.error(
+					f"Mesh {b_ob.name} has weights for bone {vgroup_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
+					f"This will cause distortions ingame!")
+			w.append([bone_index, vertex_group.weight])
 		else:
 			logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
 	# print(residue, unk_0)
@@ -219,8 +225,8 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
 	# print(w_s)
 	# pad the weight list to 4 bones, ie. add empty bones if missing
-	w_s.extend([[0, 0] * (4 - len(w_s))])
-	# ensure that we have 4 weights at this point
+	for i in range(0, 4 - len(w_s)):
+		w_s.append([0, 0])
 	assert len(w_s) == 4
 	# split the list of tuples into two separate lists
 	bone_ids, bone_weights = zip(*w_s)
