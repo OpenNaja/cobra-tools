@@ -216,7 +216,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 			if bone_index > bone_index_cutoff:
 				logging.error(
 					f"Mesh {b_ob.name} has weights for bone {vgroup_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
-					f"This will cause distortions ingame!")
+					f"\nThis will cause distortions ingame!")
 			w.append([bone_index, vertex_group.weight])
 		else:
 			logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
