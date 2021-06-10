@@ -512,7 +512,7 @@ class OvsFile(OvsHeader, ZipFile):
 	def map_frags(self):
 		if not self.fragments:
 			return
-		print(f"\nMapping SizedStrs to {len(self.fragments)} Fragments")
+		logging.info(f"Mapping SizedStrs to {len(self.fragments)} Fragments")
 
 		dic = {
 			".bani": 1,
@@ -561,7 +561,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def map_buffers(self):
 		"""Map buffers to data entries"""
-		print("\nMapping buffers")
+		logging.info("Mapping buffers")
 		# sequentially attach buffers to data entries by each entry's buffer count
 		buff_ind = 0
 		for i, data in enumerate(self.data_entries):
@@ -595,15 +595,13 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def read_buffer_datas(self, stream):
 		# finally, we have the buffers in the correct sorting so we can read their contents
-		print("\nReading from buffers")
-		# stream.seek(self.start_of_pools + self.check_pool_size)
+		logging.info("Reading from buffers")
 		for buffer in self.buffers_io_order:
 			# read buffer data and store it in buffer object
 			buffer.read_data(stream)
 
 	@staticmethod
 	def get_ptr_debug_str(entry, ind):
-		# return f"{' '.join((f'[{p.address} {p.data_size}]' for p in entry.pointers))} {ind} {entry.name}"
 		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name}"
 
 	def write_frag_log(self, ):
