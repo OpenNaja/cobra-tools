@@ -255,15 +255,17 @@ class OvsFile(OvsHeader, ZipFile):
 
 			# add IO object to every pool
 			self.read_pools(stream)
-
-			self.build_frag_lut()
-			self.map_pointers()
-			self.calc_pointer_addresses()
-			self.calc_pointer_sizes()
-			self.populate_pointers()
-			self.map_frags()
 			self.map_buffers()
 			self.read_buffer_datas(stream)
+
+	def resolve_pointers(self):
+		"""Handle all of the pointer logic that goes beyond loading the pools"""
+		self.build_frag_lut()
+		self.map_pointers()
+		self.calc_pointer_addresses()
+		self.calc_pointer_sizes()
+		self.populate_pointers()
+		self.map_frags()
 
 	def debug_txt_data(self):
 		for ss in self.sized_str_entries:
@@ -606,7 +608,7 @@ class OvsFile(OvsHeader, ZipFile):
 
 	def write_frag_log(self, ):
 		"""for development; collect info about fragment types"""
-		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_frag{self.archive_index}.log")
+		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}.log")
 		logging.info(f"Writing Fragment log to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
 			for i, pool in enumerate(self.pools):
@@ -1153,14 +1155,21 @@ class OvlFile(Header, IoFile):
 		self.link_streams()
 		self.load_headers()
 		self.load_dependencies()
+		self.load_pointers()
 		self.load_file_classes()
 		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
+
+	def load_pointers(self):
+		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
+		logging.info("Loading pointers")
+		for archive_entry in self.archives:
+			archive_entry.content.resolve_pointers()
 
 	def write_frag_log(self):
 		for archive_entry in self.archives:
 			archive_entry.content.assign_frag_names()
 			archive_entry.content.write_frag_log()
-			archive_entry.content.debug_txt_data()
+			# archive_entry.content.debug_txt_data()
 
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
