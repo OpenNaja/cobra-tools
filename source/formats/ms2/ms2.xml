@@ -605,7 +605,7 @@
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
 		<add name="joint entry count" type="uint" >0</add>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
-		<add name="UnknownLista" type="JointEntry" arr1="joint_count" ></add>
+		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
 		<add name="zeros 3" type="uint64" arr1="joint_count" cond="! #PC#">might be pointers</add>
 		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" cond="! #PC#" ></add>
@@ -653,8 +653,9 @@
 	</compound>
 
 	<compound name="JointEntry">
-		<add name="matrix" type="Matrix33" ></add>
-		<add name="vector" type="Vector3" ></add>
+		Describes a joint in armature space.
+		<add name="rot" type="Matrix33" >the rotation of the joint, inverted</add>
+		<add name="loc" type="Vector3" >the location of the joint</add>
 	</compound>
 
 	<compound name="ListCEntry">

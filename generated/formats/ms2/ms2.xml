@@ -653,8 +653,9 @@
 	</compound>
 
 	<compound name="JointEntry">
-		<add name="matrix" type="Matrix33" ></add>
-		<add name="vector" type="Vector3" ></add>
+		Describes a joint in armature space.
+		<add name="rot" type="Matrix33" >the rotation of the joint, inverted</add>
+		<add name="loc" type="Vector3" >the position of the joint</add>
 	</compound>
 
 	<compound name="ListCEntry">

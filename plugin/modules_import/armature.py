@@ -116,6 +116,15 @@ def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 		print("joint", joint_info.name)
 		for hitcheck in joint_info.hit_check:
 			import_collider(hitcheck, armature_ob, bone_name, corrector)
+	for bone_index, joint_transform in zip(bone_info.joints.joint_indices, bone_info.joints.joint_transforms):
+		bone_name = b_bone_names[bone_index]
+		joint = create_ob("joint_"+bone_name, None)
+		n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
+		n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
+		b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+		joint.empty_display_type = "ARROWS"
+		joint.empty_display_size = 0.03
+		joint.matrix_local = b_bind
 
 
 def fix_bone_lengths(b_armature_data):
