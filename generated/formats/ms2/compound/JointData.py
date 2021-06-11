@@ -65,7 +65,9 @@ class JointData:
 
 		# usually 0s
 		self.zeros_2 = numpy.zeros((4), dtype='uint')
-		self.unknown_lista = Array()
+
+		# corresponds to bone transforms
+		self.joint_transforms = Array()
 
 		# might be pointers
 		self.zeros_3 = numpy.zeros((self.joint_count), dtype='uint64')
@@ -118,7 +120,7 @@ class JointData:
 		self.bone_count = stream.read_uint()
 		self.joint_entry_count = stream.read_uint()
 		self.zeros_2 = stream.read_uints((4))
-		self.unknown_lista.read(stream, JointEntry, self.joint_count, None)
+		self.joint_transforms.read(stream, JointEntry, self.joint_count, None)
 		if not (stream.version == 18):
 			self.zeros_3 = stream.read_uint64s((self.joint_count))
 			self.unknown_listc.read(stream, ListCEntry, self.joint_count, None)
@@ -161,7 +163,7 @@ class JointData:
 		stream.write_uint(self.bone_count)
 		stream.write_uint(self.joint_entry_count)
 		stream.write_uints(self.zeros_2)
-		self.unknown_lista.write(stream, JointEntry, self.joint_count, None)
+		self.joint_transforms.write(stream, JointEntry, self.joint_count, None)
 		if not (stream.version == 18):
 			stream.write_uint64s(self.zeros_3)
 			self.unknown_listc.write(stream, ListCEntry, self.joint_count, None)
@@ -204,7 +206,7 @@ class JointData:
 		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
 		s += f'\n	* joint_entry_count = {self.joint_entry_count.__repr__()}'
 		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
-		s += f'\n	* unknown_lista = {self.unknown_lista.__repr__()}'
+		s += f'\n	* joint_transforms = {self.joint_transforms.__repr__()}'
 		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
 		s += f'\n	* unknown_listc = {self.unknown_listc.__repr__()}'
 		s += f'\n	* first_list = {self.first_list.__repr__()}'

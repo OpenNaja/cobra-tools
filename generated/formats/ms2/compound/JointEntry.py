@@ -18,7 +18,7 @@ class JointEntry:
 		# the rotation of the joint, inverted
 		self.rot = Matrix33()
 
-		# the position of the joint
+		# the location of the joint
 		self.loc = Vector3()
 
 	def read(self, stream):

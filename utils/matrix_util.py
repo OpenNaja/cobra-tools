@@ -121,14 +121,8 @@ def to_lod(ob, level=0, lod=None):
 	# lod is given, but no level
 	else:
 		level = int(lod[3:])
-		print(level)
-	if lod not in bpy.data.collections:
-		coll = bpy.data.collections.new(lod)
-		bpy.context.scene.collection.children.link(coll)
-	else:
-		coll = bpy.data.collections[lod]
-	# Link active object to the new collection
-	coll.objects.link(ob)
+		# print(level)
+	link_to_collection(ob, lod)
 	# show lod 0, hide the others
 	should_hide = level != 0
 	# get view layer, hide collection there
@@ -136,6 +130,16 @@ def to_lod(ob, level=0, lod=None):
 	vlayer.layer_collection.children[lod].hide_viewport = should_hide
 	# hide object in view layer
 	ob.hide_set(should_hide, view_layer=vlayer)
+
+
+def link_to_collection(ob, coll_name):
+	if coll_name not in bpy.data.collections:
+		coll = bpy.data.collections.new(coll_name)
+		bpy.context.scene.collection.children.link(coll)
+	else:
+		coll = bpy.data.collections[coll_name]
+	# Link active object to the new collection
+	coll.objects.link(ob)
 
 
 def evaluate_mesh(ob):
