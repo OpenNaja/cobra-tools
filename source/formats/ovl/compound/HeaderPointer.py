@@ -11,32 +11,27 @@ class HeaderPointer:
 
 # START_CLASS
 
-	def read_data(self, pools):
+	def read_data(self):
 		"""Load data from archive header data readers into pointer for modification and io"""
 
 		self.padding = b""
 		if self.pool_index == -1:
 			self.data = None
 		else:
-			header_reader = pools[self.pool_index].data
-			header_reader.seek(self.data_offset)
-			self.data = header_reader.read(self.data_size)
+			self.pool.data.seek(self.data_offset)
+			self.data = self.pool.data.read(self.data_size)
 
-	def write_data(self, archive, update_copies=False):
+	def write_data(self, update_copies=False):
 		"""Write data to header data, update offset, also for copies if told"""
 
-		if self.pool_index == -1:
-			pass
-		else:
-			# get header data to write into
-			writer = archive.pools[self.pool_index].data
+		if self.pool_index != -1:
 			# update data offset
-			self.data_offset = writer.tell()
+			self.data_offset = self.pool.data.tell()
 			if update_copies:
 				for other_pointer in self.copies:
-					other_pointer.data_offset = writer.tell()
+					other_pointer.data_offset = self.pool.data.tell()
 			# write data to io, adjusting the cursor for that header
-			writer.write(self.data + self.padding)
+			self.pool.data.write(self.data + self.padding)
 
 	def strip_zstring_padding(self):
 		"""Move surplus padding into the padding attribute"""
@@ -51,17 +46,15 @@ class HeaderPointer:
 		self.padding = _d[cut:]
 		self.data = _d[:cut]
 
-	def link_to_header(self, archive):
+	def link_to_pool(self, pools):
 		"""Link this pointer to its pool"""
 
-		if self.pool_index == -1:
-			pass
-		else:
+		if self.pool_index != -1:
 			# get pool
-			pool = archive.pools[self.pool_index]
-			if self.data_offset not in pool.pointer_map:
-				pool.pointer_map[self.data_offset] = []
-			pool.pointer_map[self.data_offset].append(self)
+			self.pool = pools[self.pool_index]
+			if self.data_offset not in self.pool.pointer_map:
+				self.pool.pointer_map[self.data_offset] = []
+			self.pool.pointer_map[self.data_offset].append(self)
 
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""

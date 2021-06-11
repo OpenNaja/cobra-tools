@@ -258,13 +258,16 @@ class OvsFile(OvsHeader, ZipFile):
 			self.map_buffers()
 			self.read_buffer_datas(stream)
 
+	def link_ptrs_to_pools(self):
+		logging.debug("Linking pointers to pools")
+		# append all valid pointers to their respective dicts
+		for entry in itertools.chain(self.fragments, self.sized_str_entries):
+			for pointer in entry.pointers:
+				pointer.link_to_pool(self.pools)
+
 	def resolve_pointers(self):
 		"""Handle all of the pointer logic that goes beyond loading the pools"""
 		self.build_frag_lut()
-		self.map_pointers()
-		self.calc_pointer_addresses()
-		self.calc_pointer_sizes()
-		self.populate_pointers()
 		self.map_frags()
 
 	def debug_txt_data(self):
@@ -283,55 +286,6 @@ class OvsFile(OvsHeader, ZipFile):
 			pool.data = BinaryStream(stream.read(pool.size))
 			assign_versions(pool.data, get_versions(self.ovl))
 
-	def calc_pointer_addresses(self):
-		logging.info("Calculating pointer addresses")
-		# store absolute read addresses from the start of file
-		for entry in itertools.chain(self.fragments, self.sized_str_entries):
-			# for access from start of file
-			for pointer in entry.pointers:
-				# some have max_uint as a header value, what do they refer to
-				if pointer.pool_index == -1:
-					pointer.header = None
-					pointer.address = 9999999
-				else:
-					pointer.header = self.pools[pointer.pool_index]
-					pointer.address = self.start_of_pools + pointer.header.offset + pointer.data_offset
-
-	def calc_pointer_sizes(self):
-		"""Assign an estimated size to every pointer"""
-		logging.info("Calculating pointer sizes")
-		# calculate pointer data sizes
-		for entry in self.pools:
-			# make them unique and sort them
-			sorted_items = sorted(entry.pointer_map.items())
-			# add the end of the header data block
-			sorted_items.append((entry.size, None))
-			# get the size of each fragment: find the next entry's address and substract it from address
-			for i, (offset, pointers) in enumerate(sorted_items[:-1]):
-				# get the offset of the next entry that points into this buffer, substract this offset
-				data_size = sorted_items[i + 1][0] - offset
-				for pointer in pointers:
-					pointer.data_size = data_size
-
-	def map_pointers(self):
-		"""Assign list of copies to every pointer so they can be updated with the same data easily"""
-		logging.info("Mapping pointers")
-		# reset pointer map for each header entry
-		for pool in self.pools:
-			pool.pointer_map = {}
-		logging.debug("Linking pointers to header")
-		# append all valid pointers to their respective dicts
-		for entry in itertools.chain(self.fragments, self.sized_str_entries):
-			for pointer in entry.pointers:
-				pointer.link_to_header(self)
-		logging.debug("Finding duplicate pointers")
-		for pool in self.pools:
-			# for every pointer, store any other pointer that points to the same address
-			for offset, pointers in pool.pointer_map.items():
-				for p in pointers:
-					# p.copies = [po for po in pointers if po != p]
-					p.copies = pointers
-
 	def build_frag_lut(self):
 		"""Create a lookup table for fragments"""
 		logging.info("Building frag lookup table")
@@ -347,13 +301,6 @@ class OvsFile(OvsHeader, ZipFile):
 			pool = self.pools[ptr.pool_index]
 			pool.fragments.append(frag)
 			pool.frag_lut[ptr.data_offset] = frag_i
-
-	def populate_pointers(self):
-		"""Load data for every pointer"""
-		logging.info("Reading data into pointers")
-		for entry in itertools.chain(self.fragments, self.sized_str_entries):
-			for pointer in entry.pointers:
-				pointer.read_data(self.pools)
 
 	def map_assets(self):
 		"""Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
@@ -531,7 +478,7 @@ class OvsFile(OvsHeader, ZipFile):
 			if sized_str_entry.ext in no_frags:
 				continue
 			self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
-			logging.debug(f"Collecting fragments for {sized_str_entry.name} at {sized_str_entry.pointers[0].address}")
+			logging.debug(f"Collecting fragments for {sized_str_entry.name}")
 			try:
 				if sized_str_entry.ext == ".tex" and (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					sized_str_entry.fragments = self.frags_from_pointer(sized_str_entry.pointers[0], 1)
@@ -781,7 +728,7 @@ class OvsFile(OvsHeader, ZipFile):
 				# only known from indominus
 				first_offset = sorted_first_pointers[0].data_offset
 				if first_offset != 0 and not ignore_unaccounted_bytes:
-					print(f"Found {first_offset} unaccounted bytes at start of header data {i}")
+					logging.debug(f"Found {first_offset} unaccounted bytes at start of header data {i}")
 					unaccounted_bytes = pool.data.getvalue()[:first_offset]
 				else:
 					unaccounted_bytes = b""
@@ -791,7 +738,7 @@ class OvsFile(OvsHeader, ZipFile):
 				pool.data.write(unaccounted_bytes)
 				# write updated strings
 				for pointer in sorted_first_pointers:
-					pointer.write_data(self, update_copies=True)
+					pointer.write_data(update_copies=True)
 			else:
 				print(f"No pointers into header entry {i} - keeping its stock data!")
 
@@ -1123,14 +1070,14 @@ class OvlFile(Header, IoFile):
 			if archive_entry.num_pools:
 				self.pools[archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
 
-	def load_dependencies(self):
-		""""Load dependency pointers and make sure they are empty"""
+	def link_ptrs_to_pools(self):
+		""""Link all pointers to their respective pools"""
 		for dep in self.dependencies:
-			p = dep.pointers[0]
-			p.data_size = 8
 			# the index goes into the flattened list of pools
-			p.read_data(self.pools)
-			assert p.data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
+			dep.pointers[0].link_to_pool(self.pools)
+		for archive_entry in self.archives:
+			ovs = archive_entry.content
+			ovs.link_ptrs_to_pools()
 
 	def load_archives(self):
 		logging.info("Loading archives...")
@@ -1154,7 +1101,6 @@ class OvlFile(Header, IoFile):
 		self.update_ss_dict()
 		self.link_streams()
 		self.load_headers()
-		self.load_dependencies()
 		self.load_pointers()
 		self.load_file_classes()
 		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
@@ -1162,9 +1108,41 @@ class OvlFile(Header, IoFile):
 	def load_pointers(self):
 		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
 		logging.info("Loading pointers")
-		# todo - this needs to be refactored as to include dependencies with their flattened pool indices
+		# reset pointer map for each header entry
+		for pool in self.pools:
+			pool.pointer_map = {}
+		self.link_ptrs_to_pools()
+		self.calc_pointer_sizes()
+		self.resolve_pointers()
+
+	def resolve_pointers(self):
+		for dep in self.dependencies:
+			if dep.pointers[0].data != b'\x00\x00\x00\x00\x00\x00\x00\x00':
+				logging.warning(f"Unexpected data for dependency ptr {dep.name}: {dep.pointers[0].data}")
 		for archive_entry in self.archives:
-			archive_entry.content.resolve_pointers()
+			ovs = archive_entry.content
+			ovs.resolve_pointers()
+
+	def calc_pointer_sizes(self):
+		"""Assign an estimated size to every pointer"""
+		logging.info("Calculating pointer sizes, addresses, copies & reading data")
+		# calculate pointer data sizes
+		for pool in self.pools:
+			# make them unique and sort them
+			sorted_items = sorted(pool.pointer_map.items())
+			# add the end of the header data block
+			sorted_items.append((pool.size, None))
+			# get the size of each pointer
+			for i, (offset, pointers) in enumerate(sorted_items[:-1]):
+				# get the offset of the next pointer, substract this offset
+				data_size = sorted_items[i + 1][0] - offset
+				# also calculate address of pointer
+				address = pool.address + offset
+				for pointer in pointers:
+					pointer.data_size = data_size
+					pointer.address = address
+					pointer.copies = pointers
+					pointer.read_data()
 
 	def write_frag_log(self):
 		for archive_entry in self.archives:
