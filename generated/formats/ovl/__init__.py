@@ -270,16 +270,6 @@ class OvsFile(OvsHeader, ZipFile):
 		self.build_frag_lut()
 		self.map_frags()
 
-	def debug_txt_data(self):
-		for ss in self.sized_str_entries:
-			if ss.ext == ".txt":
-				p = ss.pointers[0]
-				b = p.data
-				size = struct.unpack("<I", b[:4])[0]
-				data = b[4:4 + size]
-				padding_size = len(b) - (4 + size)
-				print(ss.file_hash, p.pool_index, p.data_offset, p.address, len(b), padding_size, ss.name, data)
-
 	def read_pools(self, stream):
 		for pool in self.pools:
 			pool.address = stream.tell()
@@ -1148,7 +1138,6 @@ class OvlFile(Header, IoFile):
 		for archive_entry in self.archives:
 			archive_entry.content.assign_frag_names()
 			archive_entry.content.write_frag_log()
-			# archive_entry.content.debug_txt_data()
 
 	def load_file_classes(self):
 		logging.info("Loading file classes...")

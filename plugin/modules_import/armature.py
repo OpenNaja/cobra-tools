@@ -13,12 +13,12 @@ from utils import matrix_util
 from utils.matrix_util import mat3_to_vec_roll
 
 
-def import_armature(md2, b_bone_names):
+def import_armature(mdl2, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
-	corrector = matrix_util.Corrector(is_ztuac(md2))
-	bone_info = md2.bone_info
+	corrector = matrix_util.Corrector(is_ztuac(mdl2))
+	bone_info = mdl2.bone_info
 	# print(bone_info)
 	if bone_info:
 		armature_name = b_bone_names[0]
