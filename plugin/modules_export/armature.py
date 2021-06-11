@@ -106,6 +106,14 @@ def export_bones_custom(b_armature_ob, mdl2):
 		bone_class = JweBone
 	bone_info.bones.clear()
 	bone_info.inverse_bind_matrices.clear()
+
+	bone_2_ob = {}
+	for ob in bpy.data.collections["joints"].objects:
+		assert ob.parent_type == "BONE"
+		if ob.parent_bone not in bone_2_ob:
+			bone_2_ob[ob.parent_bone] = []
+		bone_2_ob[ob.parent_bone].append(ob)
+
 	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
 	# print(lut_dic)
 	bone_info.bone_parents.resize(len(b_bone_names))
@@ -113,11 +121,12 @@ def export_bones_custom(b_armature_ob, mdl2):
 		b_bone = b_armature_ob.data.bones.get(b_bone_name)
 
 		# todo - the correction function works, but only in armature space; come up with one that works in local space to reduce overhead
+		mat_local = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
 		# make relative to parent
 		if b_bone.parent:
-			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
+			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.parent.matrix_local).inverted() @ mat_local
 		else:
-			mat_local_to_parent = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
+			mat_local_to_parent = mat_local
 
 		ms2_bone = bone_class()
 		ms2_bone.name = bone_name_for_ovl(b_bone_name)
@@ -130,8 +139,12 @@ def export_bones_custom(b_armature_ob, mdl2):
 
 		bone_info.bones.append(ms2_bone)
 		ms2_inv_bind = Matrix44()
-		ms2_inv_bind.set_rows(corrector.blender_bind_to_nif_bind(b_bone.matrix_local).inverted())
+		ms2_inv_bind.set_rows(mat_local.inverted())
 		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
+
+		# then it is considered a joint, so append data to the joints lists (joint_count)
+		if b_bone_name in bone_2_ob:
+			print(f"Bone {b_bone_name} has {len(bone_2_ob[b_bone_name])} hitchecks")
 
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \

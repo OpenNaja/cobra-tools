@@ -463,15 +463,15 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		logging.info(f"Looking for siblings of {self.basename}")
 		# map mdl2 name to mdl2 file, for valid ones
 		mdl2s = {}
-		for mdl2_filename in [f for f in os.listdir(self.dir) if f.endswith(".mdl2")]:
+		for mdl2_filename in [f for f in os.listdir(self.dir) if f.lower().endswith(".mdl2")]:
 			mdl2_path = os.path.join(self.dir, mdl2_filename)
-			if self.basename == mdl2_filename:
+			if self.basename.lower() == mdl2_filename.lower():
 				mdl2s[mdl2_path] = self
 			else:
 				if read_bytes:
 					mdl2 = Mdl2File()
 					mdl2.load(mdl2_path, read_editable=False, read_bytes=read_bytes)
-					if mdl2.ms_2_name == self.ms_2_name:
+					if mdl2.ms_2_name.lower() == self.ms_2_name.lower():
 						logging.info(f"Found sibling!")
 						# store this one if already read
 						mdl2s[mdl2_path] = mdl2
