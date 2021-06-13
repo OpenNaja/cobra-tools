@@ -596,7 +596,7 @@
 		<add name="count_1" type="uint" >small number</add>
 		<add name="count_2" type="uint" >small number</add>
 		<add name="zeros extra" type="uint" arr1="2" cond="#PC#">0s, might be related to count 7 in PC</add>
-		<add name="namespace length" type="uint" ></add>
+		<add name="namespace length" type="uint" >size of the name buffer below, including trailing zeros</add>
 		<add name="zeros 0" type="uint" arr1="5" >0s</add>
 		<add name="pc count" type="uint" >0 or 1</add>
 		<add name="zeros 1" type="uint" arr1="7">0s</add>
@@ -613,20 +613,19 @@
 		<add name="short list" type="ListShort" arr1="count_1" cond="! #PC#" ></add>
 		<add name="long list" type="ListLong" arr1="count_2" cond="! #PC#" ></add>
 
-		<add name="pc ffs" type="PcFFCounter" cond="#PC#" ></add>
+		<add name="pc ffs" type="PcFFCounter" cond="#PC#" >?</add>
 		<add name="pc bytes" type="byte" arr1="9" cond="#PC#" >1FAA FFAAFF00 000000</add>
-		<add name="pc hitcheck count" type="uint64" cond="#PC#">some count, not sure if used</add>
+		<add name="pc hitcheck count" type="uint64" cond="#PC#">counts hitchecks for pz</add>
 		<add name="pc zero 0" type="uint64" cond="#PC#">0</add>
 		<add name="pc floats" type="float" arr1="pc count" arr2="10" vercond="#PC#">sometimes an array of floats</add>
+
 		<add name="joint indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
-		<add name="joint names" type="ZStringBuffer" arg="namespace length"></add>
+		<add name="joint names" type="ZStringBuffer" arg="namespace length">zstring name buffer</add>
 <!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
-		<add name="JointNamesPadding" type="SmartPadding" ></add>
-		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#PC#"></add>
-<!--		<add name="JointInfoList" type="HitCheck Entry" arr1="2" vercond="#PC#"></add>-->
-<!--		<add name="JointInfoList" type="HitCheck Entry" arr1="joint count" vercond="#PC#"></add>-->
-		<add name="hitchecks pc" type="HitCheck Entry" arr1="pc hitcheck count" vercond="#PC#"></add>
+		<add name="JointNamesPadding" type="SmartPadding" >?</add>
+		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#PC#">includes name ptrs, some flags, and the hitchecks</add>
+		<add name="hitchecks pc" type="HitCheck Entry" arr1="pc hitcheck count" vercond="#PC#">bare hitchecks</add>
 	</compound>
 
 	<compound name="Descriptor">
@@ -643,7 +642,11 @@
 	</compound>
 
 	<compound name="ListLong" inherit="Descriptor">
-		<add name="floats" type="float" arr1="26"></add>
+		probably ragdoll, lots of angles
+		<add name="loc" type="Vector3" >the location of the child joint</add>
+<!--		<add name="rot" type="Matrix33" >the rotation of the joint, inverted?? - first line == first line of child JointEntry</add>-->
+		<add name="floats" type="float" arr1="5" arr2="3" >matrix? seems to be a multiplication of the other two matrices</add>
+		<add name="radians" type="float" arr1="8">radians</add>
 	</compound>
 
 	<compound name="PcFFCounter">
@@ -660,9 +663,7 @@
 
 	<compound name="ListCEntry">
 		<add name="one" type="uint">1 for carch and nasuto</add>
-<!--        probably not a matrix, not sure what it is-->
-		<add name="matrix" type="Matrix33" ></add>
-		<add name="a" type="float" ></add>
+		<add name="floats" type="float" arr1="10">?</add>
 	</compound>
 
 	<compound name="JointInfo">

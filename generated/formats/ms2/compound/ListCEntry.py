@@ -1,4 +1,6 @@
-from generated.formats.ms2.compound.Matrix33 import Matrix33
+import numpy
+import typing
+from generated.array import Array
 
 
 class ListCEntry:
@@ -12,15 +14,15 @@ class ListCEntry:
 
 		# 1 for carch and nasuto
 		self.one = 0
-		self.matrix = Matrix33()
-		self.a = 0
+
+		# ?
+		self.floats = numpy.zeros((10), dtype='float')
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.one = stream.read_uint()
-		self.matrix = stream.read_type(Matrix33)
-		self.a = stream.read_float()
+		self.floats = stream.read_floats((10))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -28,8 +30,7 @@ class ListCEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.one)
-		stream.write_type(self.matrix)
-		stream.write_float(self.a)
+		stream.write_floats(self.floats)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -39,8 +40,7 @@ class ListCEntry:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* one = {self.one.__repr__()}'
-		s += f'\n	* matrix = {self.matrix.__repr__()}'
-		s += f'\n	* a = {self.a.__repr__()}'
+		s += f'\n	* floats = {self.floats.__repr__()}'
 		return s
 
 	def __repr__(self):

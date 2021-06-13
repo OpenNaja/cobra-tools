@@ -2,9 +2,14 @@ import numpy
 import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
+from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class ListLong(Descriptor):
+
+	"""
+	probably ragdoll, lots of angles
+	"""
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
@@ -13,13 +18,23 @@ class ListLong(Descriptor):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = numpy.zeros((26), dtype='float')
+
+		# the location of the child joint
+		self.loc = Vector3()
+
+		# matrix? seems to be a multiplication of the other two matrices
+		self.floats = numpy.zeros((5, 3), dtype='float')
+
+		# radians
+		self.radians = numpy.zeros((8), dtype='float')
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.floats = stream.read_floats((26))
+		self.loc = stream.read_type(Vector3)
+		self.floats = stream.read_floats((5, 3))
+		self.radians = stream.read_floats((8))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -27,7 +42,9 @@ class ListLong(Descriptor):
 
 		self.io_start = stream.tell()
 		super().write(stream)
+		stream.write_type(self.loc)
 		stream.write_floats(self.floats)
+		stream.write_floats(self.radians)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -37,7 +54,9 @@ class ListLong(Descriptor):
 	def get_fields_str(self):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* loc = {self.loc.__repr__()}'
 		s += f'\n	* floats = {self.floats.__repr__()}'
+		s += f'\n	* radians = {self.radians.__repr__()}'
 		return s
 
 	def __repr__(self):

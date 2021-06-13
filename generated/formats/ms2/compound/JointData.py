@@ -40,6 +40,8 @@ class JointData:
 
 		# 0s, might be related to count 7 in PC
 		self.zeros_extra = numpy.zeros((2), dtype='uint')
+
+		# size of the name buffer below, including trailing zeros
 		self.namespace_length = 0
 
 		# 0s
@@ -77,12 +79,14 @@ class JointData:
 		self.first_list = Array()
 		self.short_list = Array()
 		self.long_list = Array()
+
+		# ?
 		self.pc_ffs = PcFFCounter()
 
 		# 1FAA FFAAFF00 000000
 		self.pc_bytes = numpy.zeros((9), dtype='byte')
 
-		# some count, not sure if used
+		# counts hitchecks for pz
 		self.pc_hitcheck_count = 0
 
 		# 0
@@ -96,9 +100,17 @@ class JointData:
 
 		# the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint
 		self.bone_indices = numpy.zeros((self.bone_count), dtype='int')
+
+		# zstring name buffer
 		self.joint_names = ZStringBuffer()
+
+		# ?
 		self.joint_names_padding = SmartPadding()
+
+		# includes name ptrs, some flags, and the hitchecks
 		self.joint_info_list = Array()
+
+		# bare hitchecks
 		self.hitchecks_pc = Array()
 
 	def read(self, stream):
