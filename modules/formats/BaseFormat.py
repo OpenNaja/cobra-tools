@@ -38,6 +38,8 @@ class BaseFile:
 
 		pool = MemPool()
 		pool.data = BinaryStream()
+		# the real address isn't known until it is written, but declare it anyway
+		pool.address = 0
 		# assign_versions(pool.data, get_versions(self.ovl))
 		pool.type = pool_type_key
 		self.ovs.pool_types.append(pool_type)
@@ -60,6 +62,7 @@ class BaseFile:
 	def create_ss_entry(self, file_entry):
 		ss_entry = SizedStringEntry()
 		ss_entry.children = []
+		ss_entry.fragments = []
 		self.ovs.transfer_identity(ss_entry, file_entry)
 		new_pointss = HeaderPointer()
 		ss_entry.pointers.append(new_pointss)

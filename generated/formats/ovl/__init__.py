@@ -203,8 +203,6 @@ class OvsFile(OvsHeader, ZipFile):
 					pool = self.pools[pool_index]
 					pool.type = pool_type.type
 					self.assign_name(pool)
-					# store fragments per header for faster lookup
-					pool.fragments = []
 					pool_index += 1
 
 			for data_entry in self.data_entries:
@@ -280,6 +278,8 @@ class OvsFile(OvsHeader, ZipFile):
 		# create a lut per pool
 		for pool in self.pools:
 			pool.frag_lut = {}
+			# store fragments per header for faster lookup
+			pool.fragments = []
 		# link into flattened list of fragments
 		for frag_i, frag in enumerate(self.fragments):
 			# we assign these later during map_frags or when the loader classes run collect()
@@ -775,7 +775,7 @@ class OvlFile(Header, IoFile):
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
-		print(f"Extracting from {len(self.files)} files...")
+		logging.info(f"Extracting from {len(self.files)} files...")
 		from modules.extract import IGNORE_TYPES, extract_kernel
 		os.makedirs(out_dir, exist_ok=True)
 
@@ -858,6 +858,7 @@ class OvlFile(Header, IoFile):
 				file_entry.unkn_0 = lut_file_unk_0[file_ext]
 				file_entry.unkn_1 = lut_file_unk_1.get(file_ext, 0)
 				file_entry.extension = len(self.mimes)
+				file_entry.dependencies = []
 				self.files.append(file_entry)
 			self.mimes.append(mime_entry)
 
@@ -873,6 +874,10 @@ class OvlFile(Header, IoFile):
 
 		archive_entry = ArchiveEntry()
 		self.archives.append(archive_entry)
+		self.static_archive = archive_entry
+		# assign names and find the static archive
+		# for archive_entry in self.archives:
+		# 	self.get_ovs_path(archive_entry)
 
 		content = OvsFile(self, archive_entry, 0)
 		content.create()
@@ -885,9 +890,9 @@ class OvlFile(Header, IoFile):
 
 		new_zlib = ZlibInfo()
 		self.zlibs.append(new_zlib)
-
-		self.update_ss_dict()
 		self.update_hashes()
+		self.update_counts()
+		self.postprocessing()
 
 	# dummy (black hole) callback for if we decide we don't want one
 	def dummy_callback(self, *args, **kwargs):
@@ -901,8 +906,7 @@ class OvlFile(Header, IoFile):
 			self.last_print = message
 
 		# call the callback
-		if not self.mute:
-			self.progress_callback(message, value, max_value)
+		self.progress_callback(message, value, max_value)
 
 	@property
 	def dir_names(self):
@@ -958,14 +962,13 @@ class OvlFile(Header, IoFile):
 		else:
 			self.len_type_names = 0
 
-	def load(self, filepath, verbose=0, commands=(), mute=False, hash_table={}):
+	def load(self, filepath, verbose=0, commands=(), hash_table={}):
 		start_time = time.time()
 		self.eof = super().load(filepath)
 		logging.info(f"Game: {get_game(self)}")
 
 		# store commands
 		self.commands = commands
-		self.mute = mute
 		self.store_filepath(filepath)
 
 		# maps OVL hash to final filename + extension
@@ -1086,12 +1089,15 @@ class OvlFile(Header, IoFile):
 				logging.error(err)
 				traceback.print_exc()
 		self.close_ovs_streams()
+		self.postprocessing()
+		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
+
+	def postprocessing(self):
 		self.update_ss_dict()
 		self.link_streams()
 		self.load_headers()
 		self.load_pointers()
 		self.load_file_classes()
-		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
 
 	def load_pointers(self):
 		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
