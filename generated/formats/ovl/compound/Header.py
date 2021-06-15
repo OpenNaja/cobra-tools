@@ -90,14 +90,23 @@ class Header(GenericHeader):
 		# length of the type names portion insideNames block (usually at the start), not counting 00 bytes
 		self.len_type_names = 0
 
-		# 52 bytes zeros
-		self.reserved = numpy.zeros((13), dtype='uint')
+		# used in PZ1.6 for the first time
+		self.new_count = 0
+
+		# zeros
+		self.reserved = numpy.zeros((12), dtype='uint')
 
 		# Name buffer for assets and file mime types.
 		self.names = ZStringBuffer()
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
 		self.mimes = Array()
+
+		# ?
+		self.unk_bytes = numpy.zeros((self.new_count, 3), dtype='ubyte')
+
+		# ?
+		self.unk_pad = numpy.zeros(((4 - ((self.new_count * 3) % 4)) % 4), dtype='ubyte')
 
 		# Array of FileEntry objects.
 		self.files = Array()
@@ -148,9 +157,13 @@ class Header(GenericHeader):
 		self.len_archive_names = stream.read_uint()
 		self.num_files_3 = stream.read_uint()
 		self.len_type_names = stream.read_uint()
-		self.reserved = stream.read_uints((13))
+		self.new_count = stream.read_uint()
+		self.reserved = stream.read_uints((12))
 		self.names = stream.read_type(ZStringBuffer, (self.len_names,))
 		self.mimes.read(stream, MimeEntry, self.num_mimes, None)
+		if stream.version == 20:
+			self.unk_bytes = stream.read_ubytes((self.new_count, 3))
+			self.unk_pad = stream.read_ubytes(((4 - ((self.new_count * 3) % 4)) % 4))
 		self.files.read(stream, FileEntry, self.num_files, None)
 		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names,))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
@@ -187,9 +200,13 @@ class Header(GenericHeader):
 		stream.write_uint(self.len_archive_names)
 		stream.write_uint(self.num_files_3)
 		stream.write_uint(self.len_type_names)
+		stream.write_uint(self.new_count)
 		stream.write_uints(self.reserved)
 		stream.write_type(self.names)
 		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
+		if stream.version == 20:
+			stream.write_ubytes(self.unk_bytes)
+			stream.write_ubytes(self.unk_pad)
 		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
@@ -228,9 +245,12 @@ class Header(GenericHeader):
 		s += f'\n	* len_archive_names = {self.len_archive_names.__repr__()}'
 		s += f'\n	* num_files_3 = {self.num_files_3.__repr__()}'
 		s += f'\n	* len_type_names = {self.len_type_names.__repr__()}'
+		s += f'\n	* new_count = {self.new_count.__repr__()}'
 		s += f'\n	* reserved = {self.reserved.__repr__()}'
 		s += f'\n	* names = {self.names.__repr__()}'
 		s += f'\n	* mimes = {self.mimes.__repr__()}'
+		s += f'\n	* unk_bytes = {self.unk_bytes.__repr__()}'
+		s += f'\n	* unk_pad = {self.unk_pad.__repr__()}'
 		s += f'\n	* files = {self.files.__repr__()}'
 		s += f'\n	* archive_names = {self.archive_names.__repr__()}'
 		s += f'\n	* archives = {self.archives.__repr__()}'

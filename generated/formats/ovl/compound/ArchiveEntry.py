@@ -29,8 +29,8 @@ class ArchiveEntry:
 		# Amount of PoolType objects at start of this deflated archive.
 		self.num_pool_types = 0
 
-		# ?
-		self.zeros = 0
+		# used in pz 1.6
+		self.num_new = 0
 
 		# Amount of buffers in the archive
 		self.num_buffers = 0
@@ -77,7 +77,7 @@ class ArchiveEntry:
 		self.num_pools = stream.read_uint()
 		self.num_datas = stream.read_ushort()
 		self.num_pool_types = stream.read_ushort()
-		self.zeros = stream.read_uint()
+		self.num_new = stream.read_uint()
 		self.num_buffers = stream.read_uint()
 		self.num_fragments = stream.read_uint()
 		self.num_files = stream.read_uint()
@@ -104,7 +104,7 @@ class ArchiveEntry:
 		stream.write_uint(self.num_pools)
 		stream.write_ushort(self.num_datas)
 		stream.write_ushort(self.num_pool_types)
-		stream.write_uint(self.zeros)
+		stream.write_uint(self.num_new)
 		stream.write_uint(self.num_buffers)
 		stream.write_uint(self.num_fragments)
 		stream.write_uint(self.num_files)
@@ -133,7 +133,7 @@ class ArchiveEntry:
 		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
 		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
 		s += f'\n	* num_pool_types = {self.num_pool_types.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* num_new = {self.num_new.__repr__()}'
 		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
 		s += f'\n	* num_fragments = {self.num_fragments.__repr__()}'
 		s += f'\n	* num_files = {self.num_files.__repr__()}'

@@ -196,7 +196,7 @@ class OvsFile(OvsHeader, ZipFile):
 			logging.debug("Reading unzipped stream...")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
-			# print(self)
+			print(self)
 			pool_index = 0
 			for pool_type in self.pool_types:
 				for i in range(pool_type.num_pools):
@@ -240,11 +240,12 @@ class OvsFile(OvsHeader, ZipFile):
 			self.start_of_pools = stream.tell()
 			logging.debug(f"Start of pools data: {self.start_of_pools}")
 
-			# another integrity check
-			if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
-				raise AttributeError(
-					f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
-					f"does not match calculated size ({self.calc_uncompressed_size()})")
+			# doesn't work for 1.6
+			# # another integrity check
+			# if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
+			# 	raise AttributeError(
+			# 		f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
+			# 		f"does not match calculated size ({self.calc_uncompressed_size()})")
 
 			# add IO object to every pool
 			self.read_pools(stream)
@@ -839,10 +840,10 @@ class OvlFile(Header, IoFile):
 			# update offset using the name buffer
 			if is_jwe(self):
 				mime_entry.mime_hash = lut_mime_hash_jwe.get(file_ext)
-				mime_entry.version = lut_mime_version_jwe.get(file_ext)
+				mime_entry.mime_version = lut_mime_version_jwe.get(file_ext)
 			elif is_pz(self):
 				mime_entry.mime_hash = lut_mime_hash_pz.get(file_ext)
-				mime_entry.version = lut_mime_version_pz.get(file_ext)
+				mime_entry.mime_version = lut_mime_version_pz.get(file_ext)
 			else:
 				raise ValueError(f"Unsupported game {get_game(self)}")
 			mime_entry.file_index_offset = file_index_offset
@@ -974,7 +975,7 @@ class OvlFile(Header, IoFile):
 		# maps OVL hash to final filename + extension
 		self.hash_table_local = {}
 		self.hash_table_global = hash_table
-
+		# print(self)
 		# add extensions to hash dict
 		hm_max = len(self.mimes)
 		for hm_index, mime_entry in enumerate(self.mimes):
@@ -984,7 +985,7 @@ class OvlFile(Header, IoFile):
 			# only get the extension
 			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
 			logging.debug(f'"{mime_entry.ext}": {mime_entry.mime_hash},')
-			logging.debug(f'"{mime_entry.ext}": {mime_entry.version},')
+			logging.debug(f'"{mime_entry.ext}": {mime_entry.mime_version},')
 			# the stored mime hash is not used anywhere
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that

@@ -29,7 +29,7 @@ class AssetEntry:
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
 		self.zero_0 = stream.read_uint()
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
 			self.ext_hash = stream.read_uint()
 			self.zero_1 = stream.read_uint()
 		self.file_index = stream.read_uint()
@@ -42,7 +42,7 @@ class AssetEntry:
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.zero_0)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19)):
+		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
 			stream.write_uint(self.ext_hash)
 			stream.write_uint(self.zero_1)
 		stream.write_uint(self.file_index)

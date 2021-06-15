@@ -5,7 +5,7 @@
     <version id="DLA" version="15">Disneyland Adventure</version>
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
     <version id="PC" version="18">Planet Coaster</version>
-    <version id="PZ" version="19" user_version="8340 8724">Planet Zoo</version>
+    <version id="PZ" version="19 20" user_version="8340 8724">Planet Zoo</version>
     <version id="JWE" version="19" user_version="24724 25108">Jurassic World Evolution</version>
 
     <token name="verexpr" attrs="vercond cond">
@@ -13,7 +13,8 @@
         <verexpr token="#DLA#" string="(#VER# #EQ# 15)">Disneyland Adventure</verexpr>
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
-        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
+        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #GTE# 19))">PZ</verexpr>
+        <verexpr token="#PZ16#" string="(#VER# #EQ# 20)">PZ</verexpr>
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch</verexpr>
     </token>
 
@@ -141,11 +142,14 @@
         <add name="Len Archive Names" type="uint" >length of archive names</add>
         <add name="Num Files 3" type="uint" >another Num Files</add>
         <add name="Len Type Names" type="uint" >length of the type names portion insideNames block (usually at the start), not counting 00 bytes</add>
-        <add name="Reserved" type="uint" arr1="13">52 bytes zeros</add>
+        <add name="new count" type="uint" >used in PZ1.6 for the first time</add>
+        <add name="Reserved" type="uint" arr1="12">zeros</add>
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes">Array of MimeEntry objects that represent a mime type (file extension) each. </add>
+        <add name="unk bytes" type="ubyte" arr1="new count" arr2="3" vercond="#PZ16#" >?</add>
+        <add name="unk pad" type="ubyte" arr1="(4 - ((new count * 3) #MOD# 4)) #MOD# 4" vercond="#PZ16#" >?</add>
         <add name="Files" type="FileEntry" arr1="Num Files">Array of FileEntry objects.</add>
         <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
@@ -168,9 +172,11 @@
         <add name="Offset" type="uint">offset in the header's Names block</add>
         <add name="unknown" type="uint">usually zero</add>
         <add name="Mime Hash" type="uint">changes with game version; hash of this file extension; same across all files, but seemingly not used anywhere else in the archive</add>
-        <add name="version" type="uint" >usually increments with game</add>
+        <add name="mime version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
+        <add name="unk1" type="uint" vercond="#PZ16#" >?</add>
+        <add name="unk2" type="uint" vercond="#PZ16#" >?</add>
     </compound>
 
     <compound name="FileEntry" >
@@ -190,7 +196,7 @@
         <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolType.num_pools</add>
         <add name="Num Datas" type="ushort" >Amount of Data Entries</add>
         <add name="num_pool_types" type="ushort" >Amount of PoolType objects at start of this deflated archive.</add>
-        <add name="zeros" type="uint">?</add>
+        <add name="num_new" type="uint">used in pz 1.6</add>
         <add name="Num Buffers" type="uint">Amount of buffers in the archive</add>
         <add name="Num Fragments" type="uint" >Amount of Fragments in the archive</add>
         <add name="Num Files" type="uint">Number of files in the archive</add>
@@ -210,6 +216,7 @@
         <add name="pool_types" type="PoolType" arr1="#ARG#\num_pool_types"/>
         <add name="pools" type="MemPool" arr1="#ARG#\num_pools"/>
         <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
+        <add name="new entries" type="NewEntry" arr1="#ARG#\num_new"/>
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
         <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"/>
         <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
@@ -272,6 +279,11 @@
 		<add name="zero" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
 		<add name="Size 1" type="uint64">size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together</add>
 		<add name="Size 2" type="uint64">size of last buffer; tex and texstream have all size here</add>
+    </compound>
+
+	<compound name="NewEntry" >
+		32 bytes
+		<add name="unks" type="uint" arr1="8">?</add>
     </compound>
 
 	<compound name="BufferEntry" >

@@ -22,7 +22,7 @@ class MimeEntry:
 		self.mime_hash = 0
 
 		# usually increments with game
-		self.version = 0
+		self.mime_version = 0
 
 		# Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files
 		self.file_index_offset = 0
@@ -30,16 +30,25 @@ class MimeEntry:
 		# Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension
 		self.file_count = 0
 
+		# ?
+		self.unk_1 = 0
+
+		# ?
+		self.unk_2 = 0
+
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.unknown = stream.read_uint()
 		self.mime_hash = stream.read_uint()
-		self.version = stream.read_uint()
-		stream.version = self.version
+		self.mime_version = stream.read_uint()
+		stream.mime_version = self.mime_version
 		self.file_index_offset = stream.read_uint()
 		self.file_count = stream.read_uint()
+		if stream.version == 20:
+			self.unk_1 = stream.read_uint()
+			self.unk_2 = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -49,10 +58,13 @@ class MimeEntry:
 		stream.write_uint(self.offset)
 		stream.write_uint(self.unknown)
 		stream.write_uint(self.mime_hash)
-		stream.write_uint(self.version)
-		stream.version = self.version
+		stream.write_uint(self.mime_version)
+		stream.mime_version = self.mime_version
 		stream.write_uint(self.file_index_offset)
 		stream.write_uint(self.file_count)
+		if stream.version == 20:
+			stream.write_uint(self.unk_1)
+			stream.write_uint(self.unk_2)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -64,9 +76,11 @@ class MimeEntry:
 		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* unknown = {self.unknown.__repr__()}'
 		s += f'\n	* mime_hash = {self.mime_hash.__repr__()}'
-		s += f'\n	* version = {self.version.__repr__()}'
+		s += f'\n	* mime_version = {self.mime_version.__repr__()}'
 		s += f'\n	* file_index_offset = {self.file_index_offset.__repr__()}'
 		s += f'\n	* file_count = {self.file_count.__repr__()}'
+		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
+		s += f'\n	* unk_2 = {self.unk_2.__repr__()}'
 		return s
 
 	def __repr__(self):
