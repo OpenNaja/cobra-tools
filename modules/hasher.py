@@ -65,12 +65,10 @@ def dat_replacer(ovl, name_tups):
 			for pool in ovs.pools:
 				b = pool.data.getvalue()
 				pool.data = io.BytesIO(replace_bytes(b, name_tups_new))
-			ovs.populate_pointers()
-	# for buffer_entry in ovs.buffer_entries:
-	# 	b = buffer_entry.data
-	# 	buffer_entry.data = replace_bytes(b, name_tups)
+		# do a total reload of all ptrs, data reload would be enough
+		ovl.load_pointers()
 	except Exception as err:
-		showdialog(err)
+		showdialog(str(err))
 	logging.info("Done!")
 
 
@@ -116,7 +114,6 @@ def species_dat_replacer(ovl, name_tups):
 			for pool in ovs.pools:
 				b = pool.data.getvalue()
 				pool.data = io.BytesIO(replace_bytes(b, name_tups_new))
-			ovs.populate_pointers()
 			for buffer_entry in ovs.buffer_entries:
 				if ovl.user_version.is_jwe:
 					b = buffer_entry.data
@@ -124,8 +121,10 @@ def species_dat_replacer(ovl, name_tups):
 				else:
 					b = buffer_entry.data
 					buffer_entry.data = replace_bytes(b, name_tups_new)
+		# do a total reload of all ptrs, data reload would be enough
+		ovl.load_pointers()
 	except Exception as err:
-		showdialog(err)
+		showdialog(str(err))
 	logging.info("Finished DAT replacing")
 
 

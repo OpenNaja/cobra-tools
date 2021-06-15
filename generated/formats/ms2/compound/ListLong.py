@@ -22,7 +22,7 @@ class ListLong(Descriptor):
 		# the location of the child joint
 		self.loc = Vector3()
 
-		# matrix? seems to be a multiplication of the other two matrices
+		# each of the vec3 components is normalized, these might represent axes for the angles
 		self.floats = numpy.zeros((5, 3), dtype='float')
 
 		# radians

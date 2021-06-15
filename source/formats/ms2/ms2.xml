@@ -645,7 +645,7 @@
 		probably ragdoll, lots of angles
 		<add name="loc" type="Vector3" >the location of the child joint</add>
 <!--		<add name="rot" type="Matrix33" >the rotation of the joint, inverted?? - first line == first line of child JointEntry</add>-->
-		<add name="floats" type="float" arr1="5" arr2="3" >matrix? seems to be a multiplication of the other two matrices</add>
+		<add name="floats" type="float" arr1="5" arr2="3" >each of the vec3 components is normalized, these might represent axes for the angles</add>
 		<add name="radians" type="float" arr1="8">radians</add>
 	</compound>
 

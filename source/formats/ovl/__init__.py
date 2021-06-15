@@ -218,11 +218,6 @@ class OvsFile(OvsHeader, ZipFile):
 				# get data entry for link to buffers, or none
 				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
 
-			for i, fragment in enumerate(self.fragments):
-				# we assign these later
-				fragment.done = False
-				fragment.name = None
-
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
 			if self.set_header.io_size != self.arg.set_data_size:
@@ -287,6 +282,9 @@ class OvsFile(OvsHeader, ZipFile):
 			pool.frag_lut = {}
 		# link into flattened list of fragments
 		for frag_i, frag in enumerate(self.fragments):
+			# we assign these later during map_frags or when the loader classes run collect()
+			frag.done = False
+			frag.name = None
 			ptr = frag.pointers[0]
 			pool = self.pools[ptr.pool_index]
 			pool.fragments.append(frag)
