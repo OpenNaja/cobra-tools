@@ -74,7 +74,7 @@ class CoreModelInfo:
 			self.pack_offset = stream.read_float()
 		self.center = stream.read_type(Vector3)
 		self.radius = stream.read_float()
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
 			self.unknowns = stream.read_floats((4))
 		if not (stream.version == 17):
 			self.bounds_min_repeat = stream.read_type(Vector3)
@@ -101,7 +101,7 @@ class CoreModelInfo:
 			stream.write_float(self.pack_offset)
 		stream.write_type(self.center)
 		stream.write_float(self.radius)
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
 			stream.write_floats(self.unknowns)
 		if not (stream.version == 17):
 			stream.write_type(self.bounds_min_repeat)

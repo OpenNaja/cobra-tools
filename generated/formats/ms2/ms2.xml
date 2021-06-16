@@ -4,15 +4,16 @@
 
     <version id="old" version="17 18" >Old</version>
 
-	<token name="verexpr" attrs="vercond cond">
-		Commonly used version expressions.
-<!--		<verexpr token="#PC#" string="(ms2 version #EQ# 32)">PC</verexpr>-->
-		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
+    <token name="verexpr" attrs="vercond cond">
+        Commonly used version expressions.
+        <verexpr token="#DLA#" string="(#VER# #EQ# 15)">Disneyland Adventure</verexpr>
+        <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
 		<verexpr token="#OLD#" string="(#VER# #LT# 19)">PC, ZTUAC</verexpr>
-		<verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
-		<verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch #AND# (#FLAG# #EQ# 1))</verexpr>
-	</token>
+        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #GTE# 19))">PZ</verexpr>
+        <verexpr token="#PZ16#" string="(#VER# #EQ# 20)">PZ</verexpr>
+        <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch</verexpr>
+    </token>
 	
 	<token name="global" attrs="vercond cond">
 		Global Tokens.
