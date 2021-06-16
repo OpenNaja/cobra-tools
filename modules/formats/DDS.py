@@ -19,7 +19,7 @@ def get_tex_structs(sized_str_entry, ovl_version):
 
 	header_3_0 = f_3_7.pointers[0].load_as(Header3Data0, version_info=ovl_version)[0]
 	headers_3_1 = f_3_3.pointers[1].load_as(Header3Data1, num=f_3_3.pointers[1].data_size//24, version_info=ovl_version)
-	print(f_3_3.pointers[1].data_size // 24)
+	# print(f_3_3.pointers[1].data_size // 24)
 	print(header_3_0)
 	print(headers_3_1)
 	header_7 = f_3_7.pointers[1].load_as(Header7Data1, version_info=ovl_version)[0]
@@ -96,6 +96,7 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 	basename = os.path.splitext(entry.name)[0]
 	name = basename + ".dds"
 	print("\nWriting", name)
+	logging.debug(f"Num streams: {len(entry.data_entry.stream_datas)}")
 	# get joined output buffer
 	buffer_data = b"".join(entry.data_entry.stream_datas)
 	dds_file = create_dds_struct()

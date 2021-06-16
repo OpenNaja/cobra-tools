@@ -501,27 +501,42 @@ class OvsFile(OvsHeader, ZipFile):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
 		if is_pz16(self.ovl):
+			# we have direct indices now
+			for buffer in self.buffer_entries:
+				self.assign_name(buffer)
+			for data in self.data_entries:
+				data.buffers = []
 			logging.debug("Assigning buffer indices")
 			for b_group in self.new_entries:
-				print(b_group.buffer_index)
+				# print(b_group.buffer_index)
+				if b_group.buffer_count != b_group.data_count:
+					logging.warning(f"{self.ovl.mimes[b_group.ext_index]}")
+					logging.warning(f"b_group.buffer_count {b_group.buffer_count} != data_count {b_group.data_count}")
+					# print(self.data_entries)
+					# print(self.buffer_entries)
+					# print(self.new_entries)
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
-				for buffer in buffers:
+				datas = self.data_entries[b_group.data_offset: b_group.data_offset+b_group.data_count]
+				for buffer, data in zip(buffers, datas):
 					buffer.index = b_group.buffer_index
-			print(self.buffer_entries)
-			print(self.new_entries)
-		# else:
-		# sequentially attach buffers to data entries by each entry's buffer count
-		buff_ind = 0
-		for i, data in enumerate(self.data_entries):
-			data.buffers = []
-			for j in range(data.buffer_count):
-				# print("data",i,"buffer",j, "buff_ind",buff_ind)
-				buffer = self.buffer_entries[buff_ind]
-				# also give each buffer a reference to data so we can access it later
-				buffer.data_entry = data
-				data.buffers.append(buffer)
-				buff_ind += 1
-			data.streams = list(data.buffers)
+					data.buffers.append(buffer)
+			# print(self.buffer_entries)
+			# print(self.new_entries)
+			for data in self.data_entries:
+				data.streams = list(data.buffers)
+		else:
+			# sequentially attach buffers to data entries by each entry's buffer count
+			buff_ind = 0
+			for i, data in enumerate(self.data_entries):
+				data.buffers = []
+				for j in range(data.buffer_count):
+					# print("data",i,"buffer",j, "buff_ind",buff_ind)
+					buffer = self.buffer_entries[buff_ind]
+					# also give each buffer a reference to data so we can access it later
+					buffer.data_entry = data
+					data.buffers.append(buffer)
+					buff_ind += 1
+				data.streams = list(data.buffers)
 
 	@property
 	def buffers_io_order(self):
