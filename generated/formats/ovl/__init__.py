@@ -500,26 +500,23 @@ class OvsFile(OvsHeader, ZipFile):
 	def map_buffers(self):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
+		print(self.data_entries)
+		print(self.buffer_entries)
+		print(self.new_entries)
 		if is_pz16(self.ovl):
-			# we have direct indices now
-			for buffer in self.buffer_entries:
-				self.assign_name(buffer)
 			for data in self.data_entries:
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
 			for b_group in self.new_entries:
-				# print(b_group.buffer_index)
-				if b_group.buffer_count != b_group.data_count:
-					logging.warning(f"{self.ovl.mimes[b_group.ext_index]}")
-					logging.warning(f"b_group.buffer_count {b_group.buffer_count} != data_count {b_group.data_count}")
-					# print(self.data_entries)
-					# print(self.buffer_entries)
-					# print(self.new_entries)
+				print(b_group.buffer_count,b_group.data_count)
+				#assert b_group.buffer_count == b_group.data_count
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
 				datas = self.data_entries[b_group.data_offset: b_group.data_offset+b_group.data_count]
-				for buffer, data in zip(buffers, datas):
+				for buffer in buffers:
 					buffer.index = b_group.buffer_index
-					data.buffers.append(buffer)
+					for data in datas:
+						if buffer.file_hash == data.file_hash:
+							data.buffers.append(buffer)
 			# print(self.buffer_entries)
 			# print(self.new_entries)
 			for data in self.data_entries:
