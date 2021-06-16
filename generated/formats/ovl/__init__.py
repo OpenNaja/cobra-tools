@@ -500,6 +500,16 @@ class OvsFile(OvsHeader, ZipFile):
 	def map_buffers(self):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
+		if is_pz16(self.ovl):
+			logging.debug("Assigning buffer indices")
+			for b_group in self.new_entries:
+				print(b_group.buffer_index)
+				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
+				for buffer in buffers:
+					buffer.index = b_group.buffer_index
+			print(self.buffer_entries)
+			print(self.new_entries)
+		# else:
 		# sequentially attach buffers to data entries by each entry's buffer count
 		buff_ind = 0
 		for i, data in enumerate(self.data_entries):
@@ -512,33 +522,27 @@ class OvsFile(OvsHeader, ZipFile):
 				data.buffers.append(buffer)
 				buff_ind += 1
 			data.streams = list(data.buffers)
-		if is_pz16(self.ovl):
-			logging.debug("Assigning buffer indices")
-			for b_group in self.new_entries:
-				print(b_group.buffer_index)
-				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
-				for buffer in buffers:
-					buffer.index = b_group.buffer_index
-			print(self.buffer_entries)
-			print(self.new_entries)
 
 	@property
 	def buffers_io_order(self):
 		"""sort buffers into load order"""
-		# this holds the buffers in the order they are read from the file
-		io_order = []
-		# only do this if there are any data entries so that max() doesn't choke
-		if self.data_entries:
-			# check how many buffers occur at max in one data block
-			max_buffers_per_data = max([data.buffer_count for data in self.data_entries])
-			# first read the first buffer for every file
-			# then the second if it has any
-			# and so on, until there is no data entry left with unprocessed buffers
-			for i in range(max_buffers_per_data):
-				for j, data in enumerate(self.data_entries):
-					if i < data.buffer_count:
-						io_order.append(data.buffers[i])
-		return io_order
+		if is_pz16(self.ovl):
+			return self.buffer_entries
+		else:
+			# this holds the buffers in the order they are read from the file
+			io_order = []
+			# only do this if there are any data entries so that max() doesn't choke
+			if self.data_entries:
+				# check how many buffers occur at max in one data block
+				max_buffers_per_data = max([data.buffer_count for data in self.data_entries])
+				# first read the first buffer for every file
+				# then the second if it has any
+				# and so on, until there is no data entry left with unprocessed buffers
+				for i in range(max_buffers_per_data):
+					for j, data in enumerate(self.data_entries):
+						if i < data.buffer_count:
+							io_order.append(data.buffers[i])
+			return io_order
 
 	def read_buffer_datas(self, stream):
 		# finally, we have the buffers in the correct sorting so we can read their contents
