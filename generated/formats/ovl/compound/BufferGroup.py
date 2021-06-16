@@ -1,4 +1,4 @@
-class NewEntry:
+class BufferGroup:
 
 	"""
 	32 bytes
@@ -26,7 +26,7 @@ class NewEntry:
 		# cumulative size of all buffers to grab
 		self.size = 0
 
-		# ?
+		# seems to be a zero
 		self.unk = 0
 
 		# first data entry
@@ -64,7 +64,7 @@ class NewEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'NewEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BufferGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

@@ -13,23 +13,18 @@ class Version(object):
         if not expr_str:
             self.value = None
         else:
-            byte_number_strs = expr_str.split(".")
-            self.value = sum(int(n) << shift for n, shift in zip(byte_number_strs, self.shifts))
-        # print(self)
+            if "." in expr_str:
+                byte_number_strs = expr_str.split(".")
+                self.value = sum(int(n) << shift for n, shift in zip(byte_number_strs, self.shifts))
+            else:
+                self.value = int(expr_str)
+                # print(self)
 
     def version_number(version_str):
         """Converts version string into an integer.
         :param version_str: The version string.
         :type version_str: str
         :return: A version integer.
-        >>> hex(NifFormat.version_number('3.14.15.29'))
-        '0x30e0f1d'
-        >>> hex(NifFormat.version_number('1.2'))
-        '0x1020000'
-        >>> hex(NifFormat.version_number('3.03'))
-        '0x3000300'
-        >>> hex(NifFormat.version_number('NS'))
-        '0xa010000'
         """
 
         # 3.03 case is special
@@ -43,53 +38,25 @@ class Version(object):
         try:
             ver_list = [int(x) for x in version_str.split('.')]
         except ValueError:
-            return -1 # version not supported (i.e. version_str '10.0.1.3a' would trigger this)
+            return -1  # version not supported (i.e. version_str '10.0.1.3a' would trigger this)
         if len(ver_list) > 4 or len(ver_list) < 1:
-            return -1 # version not supported
+            return -1  # version not supported
         for ver_digit in ver_list:
             if (ver_digit | 0xff) > 0xff:
-                return -1 # version not supported
-        while len(ver_list) < 4: ver_list.append(0)
+                return -1  # version not supported
+        while len(ver_list) < 4:
+            ver_list.append(0)
         return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
 
     def __str__(self):
-        """Reconstruct the expression to a string."""
+        """Reconstruct tfhe expression to a string."""
         if self.value:
-            return str(hex(self.value))
+            return str(self.value)
         else:
             return ""
 
 
 class Expression(object):
-    """This class represents an expression.
-
-    >>> class A(object):
-    ...     x = False
-    ...     y = True
-    >>> a = A()
-    >>> e = Expression('x || y')
-    >>> e.eval(a)
-    1
-    >>> Expression('99 & 15').eval(a)
-    3
-    >>> bool(Expression('(99&15)&&y').eval(a))
-    True
-    >>> a.hello_world = False
-    >>> def nameFilter(s):
-    ...     return 'hello_' + s.lower()
-    >>> bool(Expression('(99 &15) &&WoRlD', name_filter = nameFilter).eval(a))
-    False
-    >>> Expression('c && d').eval(a)
-    Traceback (most recent call last):
-        ...
-    AttributeError: 'A' object has no attribute 'c'
-    >>> bool(Expression('1 == 1').eval())
-    True
-    >>> bool(Expression('(1 == 1)').eval())
-    True
-    >>> bool(Expression('1 != 1').eval())
-    False
-    """
 
     operators = {'==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
 

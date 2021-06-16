@@ -18,7 +18,6 @@ def escape_backslashes(text: str) -> str:
 def hex_string(number: str) -> str:
     if number is not None:
         return "0x%08X" % int(number, base=0)
-
     return number
 
 

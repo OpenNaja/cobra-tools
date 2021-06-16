@@ -6,6 +6,7 @@
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
     <version id="PC" version="18">Planet Coaster</version>
     <version id="PZ" version="19 20" user_version="8340 8724">Planet Zoo</version>
+    <version id="PZ16" version="20" user_version="8340 8724">Planet Zoo 1.6</version>
     <version id="JWE" version="19" user_version="24724 25108">Jurassic World Evolution</version>
 
     <token name="verexpr" attrs="vercond cond">
@@ -216,8 +217,8 @@
         <add name="pool_types" type="PoolType" arr1="#ARG#\num_pool_types"/>
         <add name="pools" type="MemPool" arr1="#ARG#\num_pools"/>
         <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
-        <add name="new entries" type="NewEntry" arr1="#ARG#\num_new"/>
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
+        <add name="new entries" type="BufferGroup" arr1="#ARG#\num_new"/>
         <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"/>
         <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
         <add name="set header " type="SetHeader"/>
@@ -281,15 +282,23 @@
 		<add name="Size 2" type="uint64">size of last buffer; tex and texstream have all size here</add>
     </compound>
 
-	<compound name="NewEntry" >
+	<compound name="BufferGroup" >
 		32 bytes
-		<add name="unks" type="uint" arr1="8">?</add>
+		<add name="buffer_offset" type="uint">first buffer index</add>
+		<add name="buffer_count" type="uint">number of buffers to grab</add>
+		<add name="ext_index" type="uint">type of extension this entry is for</add>
+		<add name="buffer_index" type="uint">which buffer index to populate</add>
+		<add name="size" type="uint">cumulative size of all buffers to grab</add>
+		<add name="unk" type="uint">seems to be a zero</add>
+		<add name="data_offset" type="uint">first data entry</add>
+		<add name="data_count" type="uint">number of data entries to populate buffers into</add>
     </compound>
 
 	<compound name="BufferEntry" >
 		8 bytes
-		<add name="Index" type="uint">apparently index of buffer in file, at least that's how it looks in barbasol - 0, 1, 2, 3, 4...</add>
-		<add name="Size" type="uint">in bytes</add>
+		<add name="index" type="uint" ver2="20">apparently index of buffer in file, up to pz 1.6</add>
+		<add name="size" type="uint">in bytes</add>
+		<add name="file_hash" type="uint" ver1="20">id, new for pz 1.6</add>
     </compound>
 	
 	<compound name="HeaderPointer" >
@@ -325,7 +334,7 @@
 	<compound name="SetEntry" >
 		the asset indices of two consecutive SetEntries define a set of AssetEntries
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
 		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
     </compound>
 	
@@ -334,8 +343,8 @@
 		It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
 		<add name="zero 0" type="uint" > </add>
-		<add name="Ext Hash" type="uint"  vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
-		<add name="zero 1" type="uint"  vercond="#JWE# #OR# #PZ#"> </add>
+		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
+		<add name="zero 1" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
 		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
 		<add name="zero 2" type="uint"></add>
     </compound>

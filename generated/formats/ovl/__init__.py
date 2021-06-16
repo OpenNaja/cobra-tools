@@ -196,7 +196,7 @@ class OvsFile(OvsHeader, ZipFile):
 			logging.debug("Reading unzipped stream...")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
-			print(self)
+			# print(self)
 			pool_index = 0
 			for pool_type in self.pool_types:
 				for i in range(pool_type.num_pools):
@@ -512,6 +512,15 @@ class OvsFile(OvsHeader, ZipFile):
 				data.buffers.append(buffer)
 				buff_ind += 1
 			data.streams = list(data.buffers)
+		if is_pz16(self.ovl):
+			logging.debug("Assigning buffer indices")
+			for b_group in self.new_entries:
+				print(b_group.buffer_index)
+				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
+				for buffer in buffers:
+					buffer.index = b_group.buffer_index
+			print(self.buffer_entries)
+			print(self.new_entries)
 
 	@property
 	def buffers_io_order(self):
