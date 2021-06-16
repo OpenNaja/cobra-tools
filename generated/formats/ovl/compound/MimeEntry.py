@@ -31,10 +31,10 @@ class MimeEntry:
 		self.file_count = 0
 
 		# ?
-		self.unk_1 = 0
+		self.triplet_count = 0
 
 		# ?
-		self.unk_2 = 0
+		self.triplet_offset = 0
 
 	def read(self, stream):
 
@@ -47,8 +47,8 @@ class MimeEntry:
 		self.file_index_offset = stream.read_uint()
 		self.file_count = stream.read_uint()
 		if stream.version >= 20:
-			self.unk_1 = stream.read_uint()
-			self.unk_2 = stream.read_uint()
+			self.triplet_count = stream.read_uint()
+			self.triplet_offset = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -63,8 +63,8 @@ class MimeEntry:
 		stream.write_uint(self.file_index_offset)
 		stream.write_uint(self.file_count)
 		if stream.version >= 20:
-			stream.write_uint(self.unk_1)
-			stream.write_uint(self.unk_2)
+			stream.write_uint(self.triplet_count)
+			stream.write_uint(self.triplet_offset)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -79,8 +79,8 @@ class MimeEntry:
 		s += f'\n	* mime_version = {self.mime_version.__repr__()}'
 		s += f'\n	* file_index_offset = {self.file_index_offset.__repr__()}'
 		s += f'\n	* file_count = {self.file_count.__repr__()}'
-		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
-		s += f'\n	* unk_2 = {self.unk_2.__repr__()}'
+		s += f'\n	* triplet_count = {self.triplet_count.__repr__()}'
+		s += f'\n	* triplet_offset = {self.triplet_offset.__repr__()}'
 		return s
 
 	def __repr__(self):

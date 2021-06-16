@@ -143,14 +143,14 @@
         <add name="Len Archive Names" type="uint" >length of archive names</add>
         <add name="Num Files 3" type="uint" >another Num Files</add>
         <add name="Len Type Names" type="uint" >length of the type names portion insideNames block (usually at the start), not counting 00 bytes</add>
-        <add name="new count" type="uint" >used in PZ1.6 for the first time</add>
+        <add name="num_triplets" type="uint" >used in PZ1.6 for the first time</add>
         <add name="Reserved" type="uint" arr1="12">zeros</add>
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes">Array of MimeEntry objects that represent a mime type (file extension) each. </add>
-        <add name="unk bytes" type="ubyte" arr1="new count" arr2="3" vercond="#PZ16#" >?</add>
-        <add name="unk pad" type="ubyte" arr1="(4 - ((new count * 3) #MOD# 4)) #MOD# 4" vercond="#PZ16#" >?</add>
+        <add name="triplets" type="Triplet" arr1="num_triplets" since="20" >?</add>
+        <add name="triplets pad" type="ubyte" arr1="(4 - ((num_triplets * 3) #MOD# 4)) #MOD# 4" since="20" >?</add>
         <add name="Files" type="FileEntry" arr1="Num Files">Array of FileEntry objects.</add>
         <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
@@ -176,8 +176,15 @@
         <add name="mime version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
-        <add name="unk1" type="uint" since="20" >?</add>
-        <add name="unk2" type="uint" since="20" >?</add>
+        <add name="triplet count" type="uint" since="20" >?</add>
+        <add name="triplet offset" type="uint" since="20" >?</add>
+    </compound>
+
+    <compound name="Triplet" >
+        3 bytes
+        <add name="a" type="ubyte">?</add>
+        <add name="b" type="ubyte">?</add>
+        <add name="c" type="ubyte">?</add>
     </compound>
 
     <compound name="FileEntry" >

@@ -8,6 +8,7 @@ from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.GenericHeader import GenericHeader
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
 from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
@@ -91,7 +92,7 @@ class Header(GenericHeader):
 		self.len_type_names = 0
 
 		# used in PZ1.6 for the first time
-		self.new_count = 0
+		self.num_triplets = 0
 
 		# zeros
 		self.reserved = numpy.zeros((12), dtype='uint')
@@ -103,10 +104,10 @@ class Header(GenericHeader):
 		self.mimes = Array()
 
 		# ?
-		self.unk_bytes = numpy.zeros((self.new_count, 3), dtype='ubyte')
+		self.triplets = Array()
 
 		# ?
-		self.unk_pad = numpy.zeros(((4 - ((self.new_count * 3) % 4)) % 4), dtype='ubyte')
+		self.triplets_pad = numpy.zeros(((4 - ((self.num_triplets * 3) % 4)) % 4), dtype='ubyte')
 
 		# Array of FileEntry objects.
 		self.files = Array()
@@ -157,13 +158,13 @@ class Header(GenericHeader):
 		self.len_archive_names = stream.read_uint()
 		self.num_files_3 = stream.read_uint()
 		self.len_type_names = stream.read_uint()
-		self.new_count = stream.read_uint()
+		self.num_triplets = stream.read_uint()
 		self.reserved = stream.read_uints((12))
 		self.names = stream.read_type(ZStringBuffer, (self.len_names,))
 		self.mimes.read(stream, MimeEntry, self.num_mimes, None)
-		if stream.version == 20:
-			self.unk_bytes = stream.read_ubytes((self.new_count, 3))
-			self.unk_pad = stream.read_ubytes(((4 - ((self.new_count * 3) % 4)) % 4))
+		if stream.version >= 20:
+			self.triplets.read(stream, Triplet, self.num_triplets, None)
+			self.triplets_pad = stream.read_ubytes(((4 - ((self.num_triplets * 3) % 4)) % 4))
 		self.files.read(stream, FileEntry, self.num_files, None)
 		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names,))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
@@ -200,13 +201,13 @@ class Header(GenericHeader):
 		stream.write_uint(self.len_archive_names)
 		stream.write_uint(self.num_files_3)
 		stream.write_uint(self.len_type_names)
-		stream.write_uint(self.new_count)
+		stream.write_uint(self.num_triplets)
 		stream.write_uints(self.reserved)
 		stream.write_type(self.names)
 		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
-		if stream.version == 20:
-			stream.write_ubytes(self.unk_bytes)
-			stream.write_ubytes(self.unk_pad)
+		if stream.version >= 20:
+			self.triplets.write(stream, Triplet, self.num_triplets, None)
+			stream.write_ubytes(self.triplets_pad)
 		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
@@ -245,12 +246,12 @@ class Header(GenericHeader):
 		s += f'\n	* len_archive_names = {self.len_archive_names.__repr__()}'
 		s += f'\n	* num_files_3 = {self.num_files_3.__repr__()}'
 		s += f'\n	* len_type_names = {self.len_type_names.__repr__()}'
-		s += f'\n	* new_count = {self.new_count.__repr__()}'
+		s += f'\n	* num_triplets = {self.num_triplets.__repr__()}'
 		s += f'\n	* reserved = {self.reserved.__repr__()}'
 		s += f'\n	* names = {self.names.__repr__()}'
 		s += f'\n	* mimes = {self.mimes.__repr__()}'
-		s += f'\n	* unk_bytes = {self.unk_bytes.__repr__()}'
-		s += f'\n	* unk_pad = {self.unk_pad.__repr__()}'
+		s += f'\n	* triplets = {self.triplets.__repr__()}'
+		s += f'\n	* triplets_pad = {self.triplets_pad.__repr__()}'
 		s += f'\n	* files = {self.files.__repr__()}'
 		s += f'\n	* archive_names = {self.archive_names.__repr__()}'
 		s += f'\n	* archives = {self.archives.__repr__()}'
