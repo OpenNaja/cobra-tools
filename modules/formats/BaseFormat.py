@@ -1,8 +1,8 @@
 
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
-from generated.formats.ovl.compound.HeaderEntry import MemPool
-from generated.formats.ovl.compound.HeaderType import PoolType
+from generated.formats.ovl.compound.MemPool import MemPool
+from generated.formats.ovl.compound.PoolType import PoolType
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from generated.formats.ovl.compound.DataEntry import DataEntry
