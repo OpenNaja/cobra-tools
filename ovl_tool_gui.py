@@ -42,7 +42,8 @@ class MainWindow(widgets.MainWindow):
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
 		self.game_container = widgets.LabelCombo("Game:", games)
-		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
+		# only listen to user changes
+		self.game_container.entry.textActivated.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]

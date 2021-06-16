@@ -360,8 +360,9 @@
 	</compound>
 
 	<compound name="Ms2Buffer0" >
-		<add name="name hashes" type="uint" arr1="#ARG#\name count" ></add>
-		<add name="names" type="ZString" arr1="#ARG#\name count" ></add>
+		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb hashes</add>
+		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
+		<add name="new padding" type="SmartPadding" vercond="#PZ16#" >todo - pad to 8; for pz 1.6</add>
 		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
 	</compound>
 
