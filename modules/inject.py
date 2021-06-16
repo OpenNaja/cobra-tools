@@ -1,5 +1,6 @@
 import tempfile
 import shutil
+import logging
 
 from modules.formats.ASSETPKG import load_assetpkg
 from modules.formats.BNK import load_wem
@@ -20,7 +21,7 @@ from ovl_util import imarray
 
 
 def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=None):
-	print("\nInjecting...")
+	logging.info(f"Injecting {len(file_paths)}")
 	# write modified version to tmp dir
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
 
@@ -29,13 +30,13 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 		if progress_callback:
 			progress_callback("Injecting...", value=file_i, vmax=len(file_paths))
 		name_ext, name, ext = split_path(file_path)
-		print("Injecting", name_ext)
+		logging.info(f"Injecting {name_ext}")
 		# check for separated array tiles & flipped channels
 		if ext == ".png":
 			out_path = imarray.inject_wrapper(file_path, dupecheck, tmp_dir)
 			# skip dupes
 			if not out_path:
-				print("Skipping injection of", file_path)
+				logging.warning(f"Skipping injection of {file_path}")
 				continue
 			# update the file path to the temp file with flipped channels or rebuilt array
 			file_path = out_path
@@ -56,7 +57,7 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 		# do the actual injection, varies per file type
 		if ext == ".ms2":
 			load_ms2(ovl_data, file_path, sized_str_entry)
-		if ext == ".fgm":
+		elif ext == ".fgm":
 			load_fgm(ovl_data, file_path, sized_str_entry)
 		elif ext == ".png":
 			load_png(ovl_data, file_path, sized_str_entry, show_temp_files, hack_2k)
@@ -82,7 +83,8 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 			load_userinterfaceicondata(ovl_data, file_path, sized_str_entry)
 		elif ext == ".voxelskirt":
 			load_voxelskirt(ovl_data, file_path, sized_str_entry)
-
+		else:
+			logging.warning(f"Skipping injection of {file_path} because its extension is not supported.")
 	shutil.rmtree(tmp_dir)
 
 	if progress_callback:

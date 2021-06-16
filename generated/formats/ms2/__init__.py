@@ -248,6 +248,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			mdl2.get_bone_info()
 			# set material links
 			mdl2.lookup_material()
+		if len(mdl2s) != self.general_info.mdl_2_count:
+			raise FileNotFoundError(f"{len(mdl2s)} mdl2s were loaded while {self.general_info.mdl_2_count} were expected.")
 
 	def load_mesh_data(self):
 		# numpy chokes on bytes io objects
@@ -439,11 +441,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file_no_ext = os.path.splitext(self.file)[0]
 		logging.info(f"Loading {self.basename} [map_bytes = {self.map_bytes}]")
 		# read the file
-		try:
-			eof = super().load(filepath)
-		except Exception as err:
-			logging.error(err)
-			logging.error(self)
+		super().load(filepath)
 
 		if entry:
 			# print(self)
