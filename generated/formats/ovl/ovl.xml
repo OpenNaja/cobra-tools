@@ -176,8 +176,8 @@
         <add name="mime version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
-        <add name="unk1" type="uint" vercond="#PZ16#" >?</add>
-        <add name="unk2" type="uint" vercond="#PZ16#" >?</add>
+        <add name="unk1" type="uint" since="20" >?</add>
+        <add name="unk2" type="uint" since="20" >?</add>
     </compound>
 
     <compound name="FileEntry" >
@@ -267,17 +267,17 @@
 		<add name="zero2" type="uint64" vercond="#DLA#">always 0</add>
 		<add name="File Hash" type="uint">DJB hash of the first file in the txt data block</add>
 		<add name="Num Files" type="uint">unknown count (number of .txt files)</add>
-		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">JWE: DJB hash for extension, 0 for PZ</add>
-		<add name="zero3" type="uint"  vercond="#JWE# #OR# #PZ#">always 0</add>
+		<add name="Ext Hash" type="uint" since="19">JWE: DJB hash for extension, 0 for PZ</add>
+		<add name="zero3" type="uint" since="19">always 0</add>
     </compound>
 	
 	<compound name="DataEntry" >
 		32 bytes
 		<add name="File Hash" type="uint"> DJB hash; sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">DJB hash for extension; always (?) matches an archive header's hash</add>
+		<add name="Ext Hash" type="uint" since="19">DJB hash for extension; always (?) matches an archive header's hash</add>
 		<add name="set index" type="ushort" >1-based indexing into set_header.sets; 0 if data is not part of a set</add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
-		<add name="zero" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
+		<add name="zero" type="uint" since="19"> </add>
 		<add name="Size 1" type="uint64">size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together</add>
 		<add name="Size 2" type="uint64">size of last buffer; tex and texstream have all size here</add>
     </compound>
@@ -296,9 +296,9 @@
 
 	<compound name="BufferEntry" >
 		8 bytes
-		<add name="index" type="uint" ver2="20">apparently index of buffer in file, up to pz 1.6</add>
+		<add name="index" type="uint" until="20">index of buffer in file, up to pz 1.6</add>
 		<add name="size" type="uint">in bytes</add>
-		<add name="file_hash" type="uint" ver1="20">id, new for pz 1.6</add>
+		<add name="file_hash" type="uint" since="20">id, new for pz 1.6</add>
     </compound>
 	
 	<compound name="HeaderPointer" >
@@ -311,7 +311,7 @@
     <compound name="SizedStringEntry" >
         Main file entry in the ovs
         <add name="File Hash" type="uint">id (index or djb) of the file</add>
-        <add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">djb of extension</add>
+        <add name="Ext Hash" type="uint" since="19">djb of extension</add>
         <add name="pointers" type="HeaderPointer" arr1="1" >one pointer OR -1 pointer for assets</add>
     </compound>
 	
@@ -334,7 +334,7 @@
 	<compound name="SetEntry" >
 		the asset indices of two consecutive SetEntries define a set of AssetEntries
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
+		<add name="Ext Hash" type="uint" since="19">always (?) matches an archive header's hash</add>
 		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
     </compound>
 	
@@ -343,10 +343,10 @@
 		It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
 		<add name="zero 0" type="uint" > </add>
-		<add name="Ext Hash" type="uint" vercond="#JWE# #OR# #PZ#">always (?) matches an archive header's hash</add>
-		<add name="zero 1" type="uint" vercond="#JWE# #OR# #PZ#"> </add>
+		<add name="Ext Hash" type="uint" since="19">always (?) matches an archive header's hash</add>
+		<add name="zero 1" type="uint" since="19"> </add>
 		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
-		<add name="zero 2" type="uint"></add>
+        <add name="zero 2" type="uint"/>
     </compound>
 
 	<!-- Sized str entries, give info about fragments -->

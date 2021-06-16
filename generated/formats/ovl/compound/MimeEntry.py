@@ -46,7 +46,7 @@ class MimeEntry:
 		stream.mime_version = self.mime_version
 		self.file_index_offset = stream.read_uint()
 		self.file_count = stream.read_uint()
-		if stream.version == 20:
+		if stream.version >= 20:
 			self.unk_1 = stream.read_uint()
 			self.unk_2 = stream.read_uint()
 
@@ -62,7 +62,7 @@ class MimeEntry:
 		stream.mime_version = self.mime_version
 		stream.write_uint(self.file_index_offset)
 		stream.write_uint(self.file_count)
-		if stream.version == 20:
+		if stream.version >= 20:
 			stream.write_uint(self.unk_1)
 			stream.write_uint(self.unk_2)
 

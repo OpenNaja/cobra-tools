@@ -30,7 +30,7 @@ class SizedStringEntry:
 
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
+		if stream.version >= 19:
 			self.ext_hash = stream.read_uint()
 		self.pointers.read(stream, HeaderPointer, 1, None)
 
@@ -40,7 +40,7 @@ class SizedStringEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
+		if stream.version >= 19:
 			stream.write_uint(self.ext_hash)
 		self.pointers.write(stream, HeaderPointer, 1, None)
 

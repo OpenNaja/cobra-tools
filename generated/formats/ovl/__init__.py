@@ -500,23 +500,28 @@ class OvsFile(OvsHeader, ZipFile):
 	def map_buffers(self):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
-		print(self.data_entries)
-		print(self.buffer_entries)
-		print(self.new_entries)
+		# print(self.data_entries)
+		# print(self.buffer_entries)
+		# print(self.new_entries)
 		if is_pz16(self.ovl):
 			for data in self.data_entries:
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
+			# buffs_sorted = sorted(self.buffer_entries, key=lambda x: x.file_hash)
 			for b_group in self.new_entries:
-				print(b_group.buffer_count,b_group.data_count)
-				#assert b_group.buffer_count == b_group.data_count
+				# print(b_group.buffer_count, b_group.data_count)
+				# note that datas can be bigger than buffers
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
+				# buffers = buffs_sorted[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
 				datas = self.data_entries[b_group.data_offset: b_group.data_offset+b_group.data_count]
 				for buffer in buffers:
 					buffer.index = b_group.buffer_index
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
 							data.buffers.append(buffer)
+				# for buffer, data in zip(buffers, datas):
+				# 	buffer.index = b_group.buffer_index
+				# 	data.buffers.append(buffer)
 			# print(self.buffer_entries)
 			# print(self.new_entries)
 			for data in self.data_entries:

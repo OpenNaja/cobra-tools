@@ -11,7 +11,7 @@ class BufferEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# apparently index of buffer in file, up to pz 1.6
+		# index of buffer in file, up to pz 1.6
 		self.index = 0
 
 		# in bytes

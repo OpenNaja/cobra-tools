@@ -34,11 +34,11 @@ class DataEntry:
 
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
+		if stream.version >= 19:
 			self.ext_hash = stream.read_uint()
 		self.set_index = stream.read_ushort()
 		self.buffer_count = stream.read_ushort()
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
+		if stream.version >= 19:
 			self.zero = stream.read_uint()
 		self.size_1 = stream.read_uint64()
 		self.size_2 = stream.read_uint64()
@@ -49,11 +49,11 @@ class DataEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
+		if stream.version >= 19:
 			stream.write_uint(self.ext_hash)
 		stream.write_ushort(self.set_index)
 		stream.write_ushort(self.buffer_count)
-		if (((stream.user_version == 24724) or (stream.user_version == 25108)) and (stream.version == 19)) or (((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19)):
+		if stream.version >= 19:
 			stream.write_uint(self.zero)
 		stream.write_uint64(self.size_1)
 		stream.write_uint64(self.size_2)

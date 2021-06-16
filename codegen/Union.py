@@ -11,11 +11,20 @@ def get_params(field):
 	field_type = field.attrib["type"]
 	pad_mode = field.attrib.get("padding")
 	ver1 = field.attrib.get("ver1")
-	ver2 = field.attrib.get("ver2")
 	if ver1:
 		ver1 = Version(ver1)
+	else:
+		ver1 = field.attrib.get("since")
+		if ver1:
+			ver1 = Version(ver1)
+
+	ver2 = field.attrib.get("ver2")
 	if ver2:
 		ver2 = Version(ver2)
+	else:
+		ver2 = field.attrib.get("until")
+		if ver2:
+			ver2 = Version(ver2)
 	vercond = field.attrib.get("vercond")
 	cond = field.attrib.get("cond")
 	align = field.attrib.get("align")
