@@ -6,7 +6,6 @@ from html import unescape
 import traceback
 
 from codegen import naming_conventions as convention
-from codegen.expression import Expression
 from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
@@ -35,18 +34,13 @@ class XmlParser:
         """Set up the xml parser."""
 
         self.format_name = format_name
-        # initialize dictionaries
-        # map each supported game to a list of header version numbers
-        games = {}
-        # note: block versions are stored in the _games attribute of the struct class
-
 
         # elements for versions
         self.version_string = None
 
         # ordered (!) list of tuples ({tokens}, (target_attribs)) for each <token>
         self.tokens = []
-        self.versions = [ ([], ("versions", "until", "since")), ]
+        self.versions = [([], ("versions", "until", "since")), ]
 
         # maps each type to its generated py file's relative path
         self.path_dict = {}
