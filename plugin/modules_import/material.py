@@ -2,6 +2,7 @@ import bpy
 import os
 
 from generated.formats.fgm import FgmFile
+from generated.formats.ovl import is_jwe
 from utils.node_arrange import nodes_iterate
 from utils.node_util import get_tree, load_tex
 
@@ -56,7 +57,7 @@ def create_material(in_dir, matname):
 		if diffuse_name in tex_dic:
 			diffuse = tex_dic[diffuse_name]
 			# get AO
-			for ao_name in ("paotexture", "pbasepackedtexture_03"):
+			for ao_name in ("paotexture", "pbasepackedtexture_[03]"):
 				if ao_name in tex_dic:
 					ao = tex_dic[ao_name]
 					ao.image.colorspace_settings.name = "Non-Color"
@@ -105,21 +106,21 @@ def create_material(in_dir, matname):
 		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
 	# PZ - specularity?
-	for spec_name in ("proughnesspackedtexture_02", "pspecularmaptexture_00",):
+	for spec_name in ("proughnesspackedtexture_[02]", "pspecularmaptexture_[00]",):
 		if spec_name in tex_dic:
 			specular = tex_dic[spec_name]
 			specular.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# PZ - roughness?
-	for roughness_name in ("proughnesspackedtexture_01", ): # "pspecularmaptexture_01" ?
+	for roughness_name in ("proughnesspackedtexture_[01]", ): # "pspecularmaptexture_[01]" ?
 		if roughness_name in tex_dic:
 			roughness = tex_dic[roughness_name]
 			roughness.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 
 	# JWE dinos - metalness
-	for metal_name in ("pbasepackedtexture_02",):
+	for metal_name in ("pbasepackedtexture_[02]",):
 		if metal_name in tex_dic:
 			metal = tex_dic[metal_name]
 			metal.image.colorspace_settings.name = "Non-Color"
@@ -138,12 +139,11 @@ def create_material(in_dir, matname):
 	elif "popacitytexture" in tex_dic:
 		alpha = tex_dic["popacitytexture"]
 		alpha_pass = alpha.outputs[0]
-	elif "proughnesspackedtexture_00" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
-		alpha = tex_dic["proughnesspackedtexture_00"]
+	elif is_jwe(fgm_data) and "proughnesspackedtexture_[00]" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
+		alpha = tex_dic["proughnesspackedtexture_[00]"]
 		alpha_pass = alpha.outputs[0]
-	# parrot: Metallic_Roughness_Clip -> 03
-	elif "proughnesspackedtexture_03" in tex_dic and "Foliage_Clip" not in fgm_data.shader_name:
-		alpha = tex_dic["proughnesspackedtexture_03"]
+	elif "proughnesspackedtexture_[03]" in tex_dic:
+		alpha = tex_dic["proughnesspackedtexture_[03]"]
 		alpha_pass = alpha.outputs[0]
 	if alpha:
 		# transparency

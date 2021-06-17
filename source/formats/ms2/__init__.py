@@ -466,13 +466,12 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 			if self.basename.lower() == mdl2_filename.lower():
 				mdl2s[mdl2_path] = self
 			else:
-				if read_bytes:
-					mdl2 = Mdl2File()
-					mdl2.load(mdl2_path, read_editable=False, read_bytes=read_bytes)
-					if mdl2.ms_2_name.lower() == self.ms_2_name.lower():
-						logging.info(f"Found sibling!")
-						# store this one if already read
-						mdl2s[mdl2_path] = mdl2
+				mdl2 = Mdl2File()
+				mdl2.load(mdl2_path, read_editable=False, read_bytes=read_bytes)
+				if mdl2.ms_2_name.lower() == self.ms_2_name.lower():
+					logging.info(f"Found sibling!")
+					# store this one if already read
+					mdl2s[mdl2_path] = mdl2
 		return mdl2s
 
 	def get_bone_info(self):
