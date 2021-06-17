@@ -180,9 +180,9 @@ class Ms2BoneInfo:
 		if stream.version == 17:
 			self.zt_weirdness = stream.read_ushorts((10))
 		if not (stream.version < 19) and self.zeros_count:
-			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count,))
+			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count, None))
 		if stream.version < 19 and self.zeros_count:
-			self.minus_padding = stream.read_type(MinusPadding, (self.zeros_count,))
+			self.minus_padding = stream.read_type(MinusPadding, (self.zeros_count, None))
 		if not (stream.version < 19) and self.count_7:
 			self.struct_7 = stream.read_type(Struct7)
 		if stream.version == 18 and self.joint_count:

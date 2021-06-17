@@ -37,7 +37,7 @@ class TxtLoader(BaseFile):
 
 	def create(self, ovs, file_entry):
 		self.ovs = ovs
-		dbuffer = self.getContent(file_entry.path)
+		dbuffer = self.get_content(file_entry.path)
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()
 		new_ss = self.create_ss_entry(file_entry)

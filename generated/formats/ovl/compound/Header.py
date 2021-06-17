@@ -8,6 +8,7 @@ from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.GenericHeader import GenericHeader
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.PadAlign import PadAlign
 from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
 from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
@@ -107,7 +108,7 @@ class Header(GenericHeader):
 		self.triplets = Array()
 
 		# ?
-		self.triplets_pad = numpy.zeros(((4 - ((self.num_triplets * 3) % 4)) % 4), dtype='ubyte')
+		self.triplets_pad = PadAlign()
 
 		# Array of FileEntry objects.
 		self.files = Array()
@@ -160,13 +161,13 @@ class Header(GenericHeader):
 		self.len_type_names = stream.read_uint()
 		self.num_triplets = stream.read_uint()
 		self.reserved = stream.read_uints((12))
-		self.names = stream.read_type(ZStringBuffer, (self.len_names,))
+		self.names = stream.read_type(ZStringBuffer, (self.len_names, None))
 		self.mimes.read(stream, MimeEntry, self.num_mimes, None)
 		if stream.version >= 20:
 			self.triplets.read(stream, Triplet, self.num_triplets, None)
-			self.triplets_pad = stream.read_ubytes(((4 - ((self.num_triplets * 3) % 4)) % 4))
+			self.triplets_pad = stream.read_type(PadAlign, (self.triplets, 4))
 		self.files.read(stream, FileEntry, self.num_files, None)
-		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names,))
+		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names, None))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.read(stream, DirEntry, self.num_dirs, None)
 		self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
@@ -207,7 +208,7 @@ class Header(GenericHeader):
 		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
 		if stream.version >= 20:
 			self.triplets.write(stream, Triplet, self.num_triplets, None)
-			stream.write_ubytes(self.triplets_pad)
+			stream.write_type(self.triplets_pad)
 		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)

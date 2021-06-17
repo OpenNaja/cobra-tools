@@ -42,7 +42,7 @@ class Ms2InfoHeader:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic = stream.read_type(FixedString, (4,))
+		self.magic = stream.read_type(FixedString, (4, None))
 		self.version_flag = stream.read_byte()
 		stream.version_flag = self.version_flag
 		self.version = stream.read_byte()
@@ -56,7 +56,7 @@ class Ms2InfoHeader:
 		self.general_info = stream.read_type(Ms2SizedStrData)
 		if not (stream.version < 19) and self.general_info.vertex_buffer_count:
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
-		self.buffer_0 = stream.read_type(Ms2Buffer0, (self.general_info,))
+		self.buffer_0 = stream.read_type(Ms2Buffer0, (self.general_info, None))
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -29,7 +29,7 @@ class AssetpkgLoader(BaseFile):
 		# assetpkg.. copy content, pad to 64b, then assign 1 fragment and 1 empty sized str.
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()
-		dbuffer = self.getContent(file_entry.path)
+		dbuffer = self.get_content(file_entry.path)
 		dbuffer = zstr(dbuffer) + get_padding(len(zstr(dbuffer)), 64)
 		pool.data.write(dbuffer)  # fragment pointer 1 data
 		pool.data.write(struct.pack('16s', b''))  # fragment pointer 0 data

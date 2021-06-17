@@ -10,8 +10,6 @@ from generated.io import BinaryStream
 
 
 class BaseFile:
-	# dbuffer = self.getContent(file_entry.path)
-	# file_name_bytes = bytearray(file_entry.basename, encoding='utf8')
 
 	def get_sized_str_entry(self, file_entry):
 		self.sized_str_entry = self.ovl.ss_dict[file_entry.name]
@@ -49,7 +47,7 @@ class BaseFile:
 	def create(self, ovs, file_entry):
 		raise NotImplementedError
 
-	def getContent(self, filename):
+	def get_content(self, filename):
 		with open(filename, 'rb') as f:
 			content = f.read()
 		return content

@@ -22,7 +22,7 @@ class Compound(BaseClass):
 					# field exists and we add to it, so we have an union and must import typing module
 					self.imports.add("typing")
 				self.field_unions_dict[field_name].append(field)
-			align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+			arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
 			if arr1:
 				self.imports.add("numpy")
 

@@ -69,7 +69,7 @@ class LuaLoader(BaseFile):
 
 	def create(self, ovs, file_entry):
 		self.ovs = ovs
-		dbuffer = self.getContent(file_entry.path)
+		dbuffer = self.get_content(file_entry.path)
 		file_name_bytes = file_entry.basename.encode(encoding='utf8')
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()

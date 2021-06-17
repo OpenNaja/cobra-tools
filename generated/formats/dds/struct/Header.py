@@ -45,7 +45,7 @@ class Header:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.header_string = stream.read_type(FixedString, (4,))
+		self.header_string = stream.read_type(FixedString, (4, None))
 		self.size = stream.read_uint()
 		self.flags = stream.read_type(HeaderFlags)
 		self.height = stream.read_uint()

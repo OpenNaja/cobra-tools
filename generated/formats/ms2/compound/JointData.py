@@ -147,7 +147,7 @@ class JointData:
 			self.pc_floats = stream.read_floats((self.pc_count, 10))
 		self.joint_indices = stream.read_ints((self.joint_count))
 		self.bone_indices = stream.read_ints((self.bone_count))
-		self.joint_names = stream.read_type(ZStringBuffer, (self.namespace_length,))
+		self.joint_names = stream.read_type(ZStringBuffer, (self.namespace_length, None))
 		self.joint_names_padding = stream.read_type(SmartPadding)
 		if not (stream.version == 18):
 			self.joint_info_list.read(stream, JointInfo, self.joint_count, None)

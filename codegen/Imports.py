@@ -16,12 +16,13 @@ class Imports:
         for field in xml_struct:
             if field.tag in ("add", "field", "member"):
                 field_type = field.attrib["type"]
-                template = field.attrib.get("template")
-                self.add(template)
-                if field_type == "self.template":
-                    self.add("typing")
-                else:
-                    self.add(field_type)
+                # template = field.attrib.get("template")
+                # self.add(template)
+                # if field_type == "self.template":
+                #     self.add("typing")
+                # else:
+                #     self.add(field_type)
+                self.add(field_type)
                 # arr1 needs typing.List
                 arr1 = field.attrib.get("arr1")
                 if arr1:

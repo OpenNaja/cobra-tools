@@ -159,16 +159,8 @@ class XmlParser:
                     else:
                         imports.append(field_type)
 
-    def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arr1=None, arg=None, align=None):
-        if dtype.lower() == "padding":
-            # print("padding")
-            padding = f"({align}-((self.io_start-stream.tell()) % {align})) % {align}"
-            if mode == "read":
-                return f"{attr} = stream.read({padding})"
-            elif mode == "write":
-                return f"stream.write({attr})"
-
-        elif self.tag_dict[dtype.lower()] == "enum":
+    def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arg=None, template=None):
+        if self.tag_dict[dtype.lower()] == "enum":
             storage = self.storage_dict[dtype]
             io_func = f"{mode}_{storage.lower()}"
             if mode == "read":
@@ -178,7 +170,7 @@ class XmlParser:
 
         args = ""
         if arg:
-            args = f", ({arg},)"
+            args = f", ({arg}, {template})"
         # template or custom type
         if "template" in dtype.lower() or self.tag_dict[dtype.lower()] != "basic":
             io_func = f"{mode}_type"
@@ -186,27 +178,10 @@ class XmlParser:
         else:
             io_func = f"{mode}_{dtype.lower()}"
             dtype = ""
-        if not arr1:
-            if mode == "read":
-                return f"{attr} = stream.{io_func}({dtype}{args})"
-            elif mode == "write":
-                return f"stream.{io_func}({attr})"
-        else:
-            arr1 = Expression(arr1)
-            if mode == "read":
-                return f"{attr} = [stream.{io_func}({dtype}{args}) for _ in range({arr1})]"
-            elif mode == "write":
-                return f"for item in {attr}: stream.{io_func}(item)"
-
-            # todo - handle array 2
-            # f.write(f"{indent}self.{field_name} = [{field_type}({template_str}) for _ in range({arr1})]")
-        #     f.write(f"{indent}for item in self.{field_name}:")
-        #     f.write(f"{indent}\titem.{method_type}(stream)")
-        # return # f.write(f"{indent}self.{field_name} = {field_type}().{method_type}(stream)")
-            # raise ModuleNotFoundError(f"Storage {dtype} is not a basic type.")
-        # array of basic
-        # if num_bones:
-        #     self.bone_data = [stream.read_type(NiSkinDataBoneData) for _ in range(num_bones)]
+        if mode == "read":
+            return f"{attr} = stream.{io_func}({dtype}{args})"
+        elif mode == "write":
+            return f"stream.{io_func}({attr})"
 
     def map_type(self, in_type):
         l_type = in_type.lower()

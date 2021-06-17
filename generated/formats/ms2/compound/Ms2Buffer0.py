@@ -32,7 +32,7 @@ class Ms2Buffer0:
 		if stream.version == 20:
 			self.new_padding = stream.read_type(SmartPadding)
 		if stream.version == 17:
-			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.arg,))
+			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.arg, None))
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -36,7 +36,7 @@ class GenericHeader:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.fres = stream.read_type(FixedString, (4,))
+		self.fres = stream.read_type(FixedString, (4, None))
 		self.version_flag = stream.read_byte()
 		stream.version_flag = self.version_flag
 		self.version = stream.read_byte()

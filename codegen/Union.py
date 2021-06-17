@@ -10,6 +10,7 @@ def get_params(field):
 	field_name = field.attrib["name"]
 	field_type = field.attrib["type"]
 	pad_mode = field.attrib.get("padding")
+	template = field.attrib.get("template")
 	ver1 = field.attrib.get("ver1")
 	if ver1:
 		ver1 = Version(ver1)
@@ -27,7 +28,6 @@ def get_params(field):
 			ver2 = Version(ver2)
 	vercond = field.attrib.get("vercond")
 	cond = field.attrib.get("cond")
-	align = field.attrib.get("align")
 	if ver1 and ver2:
 		conditionals.append(f"{ver1} <= {VER} < {ver2}")
 	elif ver1:
@@ -49,7 +49,7 @@ def get_params(field):
 		arr1 = Expression(arr1)
 	if arr2:
 		arr2 = Expression(arr2)
-	return align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode
+	return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode
 
 
 class Union:
@@ -66,11 +66,8 @@ class Union:
 		field_types = []
 		for field in self.members:
 			field_type = field.attrib["type"]
-			# todo - make consisten / merge with map_type()
-			if field_type == "self.template":
-				field_type = "typing.Any"
-				self.compound.imports.add("typing")
-			elif field_type.lower() in ("byte", "ubyte", "short", "ushort", "int", "uint", "int64", "uint64"):
+			# todo - make consistent / merge with map_type()
+			if field_type.lower() in ("byte", "ubyte", "short", "ushort", "int", "uint", "int64", "uint64"):
 				field_type = "int"
 			elif field_type.lower() in ("float", "hfloat"):
 				field_type = "float"
@@ -123,7 +120,7 @@ class Union:
 	def write_init(self, f):
 		for field in self.members:
 			field_debug_str = clean_comment_str(field.text, indent="\t\t")
-			align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+			arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
 			field_type_lower = field_type.lower()
 			if field_debug_str.strip():
 				f.write(field_debug_str)
@@ -156,7 +153,7 @@ class Union:
 	def write_io(self, f, method_type, last_condition=""):
 
 		for field in self.members:
-			align, arg, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+			arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
 			if conditionals:
 				new_condition = f"if {' and '.join(conditionals)}:"
 				# merge subsequent fields that have the same condition
@@ -167,12 +164,6 @@ class Union:
 				indent = "\n\t\t"
 				new_condition = ""
 			last_condition = new_condition
-			template = field.attrib.get("template")
-			if template:
-				template_str = f"template={template}"
-				f.write(f"{indent}# TEMPLATE: {template_str}")
-			else:
-				template_str = ""
 			if arr1:
 				if self.compound.parser.tag_dict[field_type.lower()] == "basic":
 					valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr)
@@ -184,12 +175,11 @@ class Union:
 							# resize numpy arrays that represent padding so we need not worry about them
 							f.write(f"{indent}self.{field_name}.resize(({arr_str}))")
 						f.write(f"{indent}stream.{method_type}_{field_type.lower()}s(self.{field_name})")
-
 				else:
 					f.write(f"{indent}self.{field_name}.{method_type}(stream, {field_type}, {arr1}, {arr2})")
 			else:
 				f.write(
-				f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arr1=arr1, arg=arg, align=align)}")
+					f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arg=arg, template=template)}")
 			# store version related stuff on stream
 			if "version" in field_name:
 				f.write(f"{indent}stream.{field_name} = self.{field_name}")
