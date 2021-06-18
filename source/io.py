@@ -1,5 +1,4 @@
 from io import BytesIO
-import os
 import struct
 from struct import Struct
 import zlib
@@ -11,8 +10,7 @@ import numpy as np
 
 from generated.array import Array
 from modules.formats.shared import assign_versions, get_versions
-from ovl_util import texconv
-from ovl_util.oodle.oodle import OodleDecompressEnum
+from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 Byte = Struct("<b")  # int8
 UByte = Struct("<B")  # uint8
@@ -291,7 +289,7 @@ class ZipFile(IoFile):
 		print(f"Compression magic bytes: {self.compression_header}")
 		if self.ovl.user_version.use_oodle:
 			print("Oodle compression")
-			zlib_data = texconv.oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
+			zlib_data = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
 		elif self.ovl.user_version.use_zlib:
 			print("Zlib compression")
 			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
@@ -344,7 +342,7 @@ class ZipFile(IoFile):
 			a, raw_algo = struct.unpack("BB", self.compression_header)
 			algo = OodleDecompressEnum(raw_algo)
 			print("Oodle compression", a, raw_algo, algo.name)
-			compressed = texconv.oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
+			compressed = oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
 		elif self.ovl.user_version.use_zlib:
 			compressed = zlib.compress(uncompressed_bytes)
 		else:

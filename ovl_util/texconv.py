@@ -1,18 +1,17 @@
-import os, tempfile, shutil, subprocess, struct
-from ovl_util.oodle import oodle
+import os
+import tempfile
+import shutil
+import subprocess
+import struct
 
 util_dir = os.path.dirname(__file__)
-BINARY = os.path.normpath( os.path.join( util_dir , "texconv/texconv.exe") )
-ww2ogg = os.path.normpath( os.path.join( util_dir, "ww2ogg/ww2ogg.exe") )
-pcb = os.path.normpath( os.path.join( util_dir, "ww2ogg/packed_codebooks_aoTuV_603.bin") )
-revorb = os.path.normpath( os.path.join( util_dir, "revorb/revorb.exe") )
-luadec = os.path.normpath( os.path.join( util_dir, "luadec/luadec.exe") )
-luac = os.path.normpath( os.path.join( util_dir, "luadec/luac.exe") )
-oodle_dll = os.path.normpath(os.path.join(util_dir, "oodle/oo2core_8_win64.dll"))
-# print(BINARY)
-# print(os.path.exists(BINARY))
+BINARY = os.path.normpath(os.path.join(util_dir, "texconv/texconv.exe"))
+ww2ogg = os.path.normpath(os.path.join(util_dir, "ww2ogg/ww2ogg.exe"))
+pcb = os.path.normpath(os.path.join(util_dir, "ww2ogg/packed_codebooks_aoTuV_603.bin"))
+revorb = os.path.normpath(os.path.join(util_dir, "revorb/revorb.exe"))
+luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
+luac = os.path.normpath(os.path.join(util_dir, "luadec/luac.exe"))
 
-oodle_compressor = oodle.OodleDecompressor(oodle_dll)
 
 def run_smart(args):
 	# argline = " ".join(['"' + x + '"' for x in args])
@@ -47,13 +46,15 @@ def wem_handle(wem_files, show_temp_files, progress_callback):
 			else:
 				print(f"Unknown resource format {f_type} in {out_name}! Please report to the devs!")
 	return processed_files
-	# clear_tmp(wem_file, show_temp_files)
+
+
+# clear_tmp(wem_file, show_temp_files)
 
 
 def bin_to_lua(bin_file):
-	#print(bin_file)
+	# print(bin_file)
 
-	#print(function_string)
+	# print(function_string)
 	try:
 		out_file = os.path.splitext(bin_file)[0]
 		# out_file = os.path.join(out_dir, out_name)
@@ -62,12 +63,12 @@ def bin_to_lua(bin_file):
 		function_string2 = '"{}" -s "{}"'.format(luadec, bin_file)
 		output2 = subprocess.Popen(function_string2, stdout=subprocess.PIPE).communicate()[0]
 		print(function_string, output)
-		if len(bytearray(output)) > 0: 
+		if len(bytearray(output)) > 0:
 			with open(out_file, 'wb') as outfile:
 				outfile.write(bytearray(output))
-		elif len(bytearray(output2)) > 0: 
+		elif len(bytearray(output2)) > 0:
 			with open(out_file, 'wb') as outfile:
-				outfile.write(bytearray(output2))  
+				outfile.write(bytearray(output2))
 		else:
 			print("decompile failed, skipping...")
 
@@ -77,7 +78,7 @@ def bin_to_lua(bin_file):
 
 def wem_to_ogg(wem_file, out_file):
 	try:
-		output = out_file+".ogg"
+		output = out_file + ".ogg"
 		run_smart([ww2ogg, wem_file, "-o", output, "--pcb", pcb, ])
 		run_smart([revorb, output])
 		return output
@@ -88,7 +89,7 @@ def wem_to_ogg(wem_file, out_file):
 
 
 def wem_to_wav(wem_file, out_file):
-	output = out_file+".wav"
+	output = out_file + ".wav"
 	with open(wem_file, "rb") as f:
 		data = f.read()
 	with open(output, "wb") as f:
@@ -106,22 +107,26 @@ def dds_to_png(dds_file_path, height):
 	out_dir, in_name = os.path.split(dds_file_path)
 	name = os.path.splitext(in_name)[0]
 	print("dds to png", dds_file_path, out_dir, height)
-	run_smart([BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb", "-dx10", dds_file_path])
+	run_smart(
+		[BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
+		 "-dx10", dds_file_path])
 	return os.path.join(out_dir, name + '.png')
 
 
-def png_to_dds( png_file_path, height, show_temp_files, codec = "BC7_UNORM", mips=1):
+def png_to_dds(png_file_path, height, show_temp_files, codec="BC7_UNORM", mips=1):
 	"""Converts a PNG file given by a path to a DDS file"""
 	png_file_path = os.path.normpath(png_file_path)
 	in_dir, in_name = os.path.split(png_file_path)
-	
+
 	out_dir = make_tmp(in_dir, show_temp_files)
 	name = os.path.splitext(in_name)[0]
-	run_smart([BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "BOX", "-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
+	run_smart([BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "BOX",
+			   "-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
 
 	return os.path.join(out_dir, name + '.dds')
 
-def make_tmp( in_dir, show_temp_files ):
+
+def make_tmp(in_dir, show_temp_files):
 	""" Make a new temp dir if show_temp_files is False """
 	if show_temp_files:
 		return in_dir
@@ -129,7 +134,7 @@ def make_tmp( in_dir, show_temp_files ):
 		return tempfile.mkdtemp("-cobra-dds")
 
 
-def clear_tmp( dds_file_path, show_temp_files):
+def clear_tmp(dds_file_path, show_temp_files):
 	if not show_temp_files:
 		tmp, in_name = os.path.split(dds_file_path)
 		shutil.rmtree(tmp)

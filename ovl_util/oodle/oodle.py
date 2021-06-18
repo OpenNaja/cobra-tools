@@ -23,6 +23,8 @@ compressions = (
 OodleCompressEnum = IntEnum('OodleEnum', list([(x[0], x[1]) for x in compressions]))
 OodleDecompressEnum = IntEnum('OodleEnum', list([(x[0], x[2]) for x in compressions]))
 
+oodle_dll = os.path.join(os.path.dirname(__file__), "oo2core_8_win64.dll")
+
 
 class OodleDecompressor:
     """
@@ -73,3 +75,6 @@ class OodleDecompressor:
             raise Exception(f"Decompression failed ret={ret} output_size={output_size}")
 
         return output.raw
+
+
+oodle_compressor = OodleDecompressor(oodle_dll)
