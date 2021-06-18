@@ -12,7 +12,7 @@ try:
 	from PyQt5 import QtWidgets, QtGui, QtCore
 	from importlib import reload
 
-	from ovl_util import widgets, interaction
+	from ovl_util import widgets, interaction, qt_threads
 	from modules import extract, inject, hasher, walker, remover
 	from generated.formats.ovl import OvlFile, games, get_game, set_game
 except Exception as err:
@@ -283,8 +283,14 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			try:
+				# runTask(self.ovl_data.load, (self.file_widget.filepath,), {"commands": self.commands, "hash_table": self.hash_table})
+				# test(2)
+				# self.ovl_thread.func = self.ovl_thread.ovl_data.load
+				# self.ovl_thread.args = (self.file_widget.filepath,)
+				# self.ovl_thread.kwargs = {"commands": self.commands, "hash_table": self.hash_table}
+				# self.ovl_thread.start()
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
-				self.ovl_data.load_archives()
+				# self.ovl_data.load_archives()
 				# print(self.ovl_data)
 			except Exception as ex:
 				traceback.print_exc()

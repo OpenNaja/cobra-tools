@@ -1083,6 +1083,7 @@ class OvlFile(Header, IoFile):
 		self.static_archive = None
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
+		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
 	def load_headers(self):
