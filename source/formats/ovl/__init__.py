@@ -132,6 +132,18 @@ class OvsFile(OvsHeader, ZipFile):
 		# this determines if fragments are written back to header datas
 		self.force_update_pools = True
 
+	def get_bytes(self, archive_index, external_path):
+		# load external uncompressed data
+		if external_path and archive_index == 0:
+			with open(external_path, "rb") as f:
+				return f.read()
+		# write the internal data
+		else:
+			stream = BinaryStream()
+			assign_versions(stream, get_versions(self.ovl))
+			self.write_archive(stream)
+			return stream.getbuffer()
+
 	def update_hashes(self, file_name_lut):
 		logging.info("Updating hashes")
 		logging.info(f"Game: {get_game(self.ovl)}")

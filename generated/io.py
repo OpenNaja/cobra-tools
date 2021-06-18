@@ -306,20 +306,6 @@ class ZipFile(IoFile):
 		with BinaryStream(zlib_data) as stream:
 			yield stream  # type: ignore
 
-	# @staticmethod
-	# @contextmanager
-	def get_bytes(self, archive_index, external_path):
-		# load external uncompressed data
-		if external_path and archive_index == 0:
-			with open(external_path, "rb") as f:
-				return f.read()
-		# write the internal data
-		else:
-			stream = BinaryStream()
-			assign_versions(stream, get_versions(self.ovl))
-			self.write_archive(stream)
-			return stream.getbuffer()
-
 	def compress(self, uncompressed_bytes):
 		# compress data
 		# change to zipped format for saving of uncompressed or oodled ovls
