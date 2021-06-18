@@ -38,7 +38,7 @@ def create_anim(ob, anim_name):
 	return action
 
 
-def load(operator, context, files=[], filepath="", set_fps=False):
+def load(files=[], filepath="", set_fps=False):
 	starttime = time.clock()
 	dirname, filename = os.path.split(filepath)
 	data = load_manis(filepath)

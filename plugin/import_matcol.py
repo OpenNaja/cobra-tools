@@ -8,7 +8,7 @@ from utils.node_arrange import nodes_iterate
 from utils.node_util import load_tex, get_tree
 
 
-def load(operator, context, filepath = ""):
+def load(filepath=""):
 	create_material(filepath)
 	return []
 

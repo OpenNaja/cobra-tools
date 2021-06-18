@@ -15,7 +15,7 @@ from generated.formats.ms2 import Mdl2File, is_old
 from utils.shell import is_fin
 
 
-def load(operator, context, filepath="", use_custom_normals=False, mirror_mesh=False):
+def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	start_time = time.time()
 	in_dir, mdl2_name = os.path.split(filepath)
 	bare_name = os.path.splitext(mdl2_name)[0]

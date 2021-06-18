@@ -242,7 +242,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	return bone_ids, bone_weights, fur_length, fur_width, residue, unk_0
 
 
-def save(operator, context, filepath='', apply_transforms=False, edit_bones=False):
+def save(filepath='', apply_transforms=False, edit_bones=False):
 	errors = []
 	start_time = time.time()
 

@@ -54,7 +54,7 @@ def import_vertex_groups(ob, weights):
 			ob.vertex_groups[bonename].add(vert_indices, weight/255, 'REPLACE')
 
 
-def load(operator, context, filepath=""):
+def load(filepath=""):
 	starttime = time.clock()
 	errors = []
 

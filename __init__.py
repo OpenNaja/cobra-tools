@@ -46,7 +46,7 @@ class ImportBani(bpy.types.Operator, ImportHelper):
 
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		return import_bani.load(self, context, **keywords)
+		return import_bani.load(**keywords)
 
 
 class ImportManis(bpy.types.Operator, ImportHelper):
@@ -61,7 +61,7 @@ class ImportManis(bpy.types.Operator, ImportHelper):
 
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		return import_manis.load(self, context, **keywords)
+		return import_manis.load(**keywords)
 
 
 class ImportMatcol(bpy.types.Operator, ImportHelper):
@@ -74,7 +74,7 @@ class ImportMatcol(bpy.types.Operator, ImportHelper):
 
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		errors = import_matcol.load(self, context, **keywords)
+		errors = import_matcol.load(**keywords)
 		return handle_errors(self, errors)
 
 
@@ -90,7 +90,7 @@ class ImportMDL2(bpy.types.Operator, ImportHelper):
 	
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		errors = import_mdl2.load(self, context, **keywords)
+		errors = import_mdl2.load(**keywords)
 		return handle_errors(self, errors)
 
 
@@ -106,7 +106,7 @@ class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
 
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		errors = import_voxelskirt.load(self, context, **keywords)
+		errors = import_voxelskirt.load(**keywords)
 		return handle_errors(self, errors)
 
 
@@ -121,7 +121,7 @@ class ExportMDL2(bpy.types.Operator, ExportHelper):
 	
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
-		errors = export_mdl2.save(self, context, **keywords)
+		errors = export_mdl2.save(**keywords)
 		return handle_errors(self, errors)
 
 
