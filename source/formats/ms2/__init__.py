@@ -216,7 +216,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				joint_info.bone_name = bone_info.bones[bone_i].name
 				if not joint_info.bone_name == joint_info.name:
 					logging.debug(f"Info: bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
-				assert joints.joint_info_list[joints.bone_indices[bone_i]] == joint_info
+				if joints.joint_info_list[joints.bone_indices[bone_i]] != joint_info:
+					logging.debug(f"Info: bone index [{bone_i}] doesn't point to expected joint info")
 
 	def load(self, filepath, read_bytes=False):
 		self.filepath = filepath

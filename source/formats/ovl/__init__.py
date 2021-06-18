@@ -1,12 +1,16 @@
 import os
 import itertools
 import struct
+import zlib
 import io
 import time
 import traceback
 import logging
+from contextlib import contextmanager
 
-from generated.io import IoFile, ZipFile, BinaryStream
+from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
+
+from generated.io import IoFile, BinaryStream
 from generated.formats.ovl.versions import *
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
@@ -20,6 +24,7 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
 
+OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 lut_mime_version_jwe = {
 	".fdb": 1,
@@ -122,7 +127,7 @@ def get_loader(ext):
 		return cls()
 
 
-class OvsFile(OvsHeader, ZipFile):
+class OvsFile(OvsHeader):
 
 	def __init__(self, ovl_inst, archive_entry, archive_index):
 		super().__init__()
@@ -143,6 +148,58 @@ class OvsFile(OvsHeader, ZipFile):
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
 			return stream.getbuffer()
+
+	@contextmanager
+	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
+		self.compression_header = compressed_bytes[:2]
+		print(f"Compression magic bytes: {self.compression_header}")
+		if self.ovl.user_version.use_oodle:
+			print("Oodle compression")
+			zlib_data = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
+		elif self.ovl.user_version.use_zlib:
+			print("Zlib compression")
+			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
+			# we avoid the two zlib magic bytes to get our unzipped content
+			zlib_data = zlib.decompress(compressed_bytes[2:], wbits=-zlib.MAX_WBITS)
+		# uncompressed archive
+		else:
+			print("No compression")
+			zlib_data = compressed_bytes
+		if save_temp_dat:
+			# for debugging, write deflated content to dat
+			with open(save_temp_dat, 'wb') as out:
+				out.write(zlib_data)
+		with BinaryStream(zlib_data) as stream:
+			yield stream  # type: ignore
+
+	def compress(self, uncompressed_bytes):
+		# compress data
+		# change to zipped format for saving of uncompressed or oodled ovls
+		if not self.ovl.user_version.use_zlib:
+			print("HACK: setting compression to zlib")
+			self.ovl.user_version.use_oodle = False
+			self.ovl.user_version.use_zlib = True
+		# pc/pz zlib			8340	00100000 10010100
+		# pc/pz uncompressed	8212	00100000 00010100
+		# pc/pz oodle			8724	00100010 00010100
+		# JWE zlib				24724	01100000 10010100
+		# JWE oodle (switch)	25108	01100010 00010100
+		# vs = (8340, 8212, 8724, 24724, 25108)
+		# for v in vs:
+		# 	print(v)
+		# 	print(bin(v))
+		# 	print()
+		if self.ovl.user_version.use_oodle:
+			assert self.compression_header.startswith(OODLE_MAGIC)
+			a, raw_algo = struct.unpack("BB", self.compression_header)
+			algo = OodleDecompressEnum(raw_algo)
+			print("Oodle compression", a, raw_algo, algo.name)
+			compressed = oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
+		elif self.ovl.user_version.use_zlib:
+			compressed = zlib.compress(uncompressed_bytes)
+		else:
+			compressed = uncompressed_bytes
+		return len(uncompressed_bytes), len(compressed), compressed
 
 	def update_hashes(self, file_name_lut):
 		logging.info("Updating hashes")
