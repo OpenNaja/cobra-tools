@@ -129,11 +129,10 @@ def get_loader(ext):
 
 class OvsFile(OvsHeader):
 
-	def __init__(self, ovl_inst, archive_entry, archive_index):
+	def __init__(self, ovl_inst, archive_entry):
 		super().__init__()
 		self.ovl = ovl_inst
 		self.arg = archive_entry
-		self.archive_index = archive_index
 		# this determines if fragments are written back to header datas
 		self.force_update_pools = True
 
@@ -152,24 +151,24 @@ class OvsFile(OvsHeader):
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
 		self.compression_header = compressed_bytes[:2]
-		print(f"Compression magic bytes: {self.compression_header}")
+		logging.debug(f"Compression magic bytes: {self.compression_header}")
 		if self.ovl.user_version.use_oodle:
-			print("Oodle compression")
-			zlib_data = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
+			logging.info("Oodle compression")
+			decompressed = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
 		elif self.ovl.user_version.use_zlib:
-			print("Zlib compression")
+			logging.info("Zlib compression")
 			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
 			# we avoid the two zlib magic bytes to get our unzipped content
-			zlib_data = zlib.decompress(compressed_bytes[2:], wbits=-zlib.MAX_WBITS)
+			decompressed = zlib.decompress(compressed_bytes[2:], wbits=-zlib.MAX_WBITS)
 		# uncompressed archive
 		else:
-			print("No compression")
-			zlib_data = compressed_bytes
+			logging.info("No compression")
+			decompressed = compressed_bytes
 		if save_temp_dat:
 			# for debugging, write deflated content to dat
 			with open(save_temp_dat, 'wb') as out:
-				out.write(zlib_data)
-		with BinaryStream(zlib_data) as stream:
+				out.write(decompressed)
+		with BinaryStream(decompressed) as stream:
 			yield stream  # type: ignore
 
 	def compress(self, uncompressed_bytes):
@@ -979,7 +978,7 @@ class OvlFile(Header, IoFile):
 		# for archive_entry in self.archives:
 		# 	self.get_ovs_path(archive_entry)
 
-		content = OvsFile(self, archive_entry, 0)
+		content = OvsFile(self, archive_entry)
 		content.create()
 		archive_entry.content = content
 		archive_entry.name = "STATIC"
@@ -1182,7 +1181,7 @@ class OvlFile(Header, IoFile):
 				read_start = self.eof
 			else:
 				read_start = archive_entry.read_start
-			archive_entry.content = OvsFile(self, archive_entry, archive_index)
+			archive_entry.content = OvsFile(self, archive_entry)
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
 			except BaseException as err:

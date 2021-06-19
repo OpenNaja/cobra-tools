@@ -306,10 +306,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(model_info.pc_model)
 			if is_pc(self):
 				model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset))
-			# try:
-			# 	self.bone_info = stream.read_type(Ms2BoneInfo)
-			# except Exception as err:
-			# 	print("BONE INFO FAILED", err)
 			self.bone_infos.append(self.get_bone_info(0, stream, Ms2BoneInfo, hack=False))
 
 	def update_joints(self, bone_info):
