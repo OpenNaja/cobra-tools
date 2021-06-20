@@ -53,7 +53,7 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 			bnk_name, wem_name = name.rsplit("_", 1)
 			name_ext = bnk_name + ".bnk"
 		# find the sizedstr entry that refers to this file
-		sized_str_entry = ovl_data.assign_ss_entry(name_ext)
+		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
 		# do the actual injection, varies per file type
 		if ext == ".ms2":
 			load_ms2(ovl_data, file_path, sized_str_entry)
