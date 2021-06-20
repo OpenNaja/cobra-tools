@@ -247,21 +247,20 @@ def get_property(ob, prop_name):
 	if prop_name in ob:
 		return ob[prop_name]
 	else:
-		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} ({ob.type}). Add it!")
+		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} (data: {type(ob).__name__}). Add it!")
 
 
 def save(filepath='', apply_transforms=False, edit_bones=False):
-	errors = []
+	messages = set()
 	start_time = time.time()
 
 	# ensure that we have objects in the scene
 	if not has_objects_in_scene():
-		return "No objects in scene, nothing to export!",
+		raise AttributeError("No objects in scene, nothing to export!")
 
 	print(f"\nExporting {filepath} into export subfolder...")
 	if not os.path.isfile(filepath):
-		errors.append(f"{filepath} does not exist. You must open an existing MDL2 file for exporting.")
-		return errors
+		raise FileNotFoundError(f"{filepath} does not exist. You must open an existing MDL2 file for exporting.")
 
 	mdl2 = Mdl2File()
 	mdl2.load(filepath, entry=True, read_bytes=True)
@@ -270,8 +269,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 
 	b_armature_ob = get_armature()
 	if not b_armature_ob:
-		errors.append(f"No armature was found - did you delete it?")
-		return errors
+		raise AttributeError(f"No armature was found - did you delete it?")
 	# clear pose
 	for pbone in b_armature_ob.pose.bones:
 		pbone.matrix_basis = mathutils.Matrix()
@@ -325,9 +323,8 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 	# write modified mdl2
 	mdl2.save(filepath)
 
-	print(f"\nFinished Mdl2 Export in {time.time() - start_time:.2f} seconds")
-	# only return unique errors
-	return set(errors)
+	messages.add(f"Finished MDL2 export in {time.time() - start_time:.2f} seconds")
+	return messages
 
 
 def get_hair_length(ob):

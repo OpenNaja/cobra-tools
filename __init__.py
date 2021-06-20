@@ -16,9 +16,10 @@ from bpy_extras.io_utils import ImportHelper, ExportHelper
 
 import os
 import sys
-dir = os.path.dirname(__file__)
-if not dir in sys.path:
-	sys.path.append(dir)
+import traceback
+plugin_dir = os.path.dirname(__file__)
+if not plugin_dir in sys.path:
+	sys.path.append(plugin_dir)
 
 from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
@@ -27,10 +28,14 @@ from utils import shell
 
 preview_collection = bpy.utils.previews.new()
 
-def handle_errors(inst, errors):
-	for error in errors:
-		inst.report({"ERROR"}, error)
-		print(error)
+
+def handle_errors(inst, func, kwargs):
+	try:
+		for msg in func(**kwargs):
+			inst.report({"INFO"}, msg)
+	except Exception as err:
+		inst.report({"ERROR"}, str(err))
+		traceback.print_exc()
 	return {'FINISHED'}
 
 
@@ -74,8 +79,7 @@ class ImportMatcol(bpy.types.Operator, ImportHelper):
 
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		errors = import_matcol.load(**keywords)
-		return handle_errors(self, errors)
+		return handle_errors(self, import_matcol.load, keywords)
 
 
 class ImportMDL2(bpy.types.Operator, ImportHelper):
@@ -90,8 +94,7 @@ class ImportMDL2(bpy.types.Operator, ImportHelper):
 	
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		errors = import_mdl2.load(**keywords)
-		return handle_errors(self, errors)
+		return handle_errors(self, import_mdl2.load, keywords)
 
 
 class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
@@ -106,8 +109,7 @@ class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
 
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-		errors = import_voxelskirt.load(**keywords)
-		return handle_errors(self, errors)
+		return handle_errors(self, import_voxelskirt.load, keywords)
 
 
 class ExportMDL2(bpy.types.Operator, ExportHelper):
@@ -121,8 +123,7 @@ class ExportMDL2(bpy.types.Operator, ExportHelper):
 	
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
-		errors = export_mdl2.save(**keywords)
-		return handle_errors(self, errors)
+		return handle_errors(self, export_mdl2.save, keywords)
 
 
 class CreateFins(bpy.types.Operator):
@@ -132,13 +133,7 @@ class CreateFins(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 			
 	def execute(self, context):
-		try:
-			for msg in shell.create_fins_wrapper():
-				self.report({"INFO"}, msg)
-		except Exception as err:
-			self.report({"ERROR"}, str(err))
-			print(err)
-		return {'FINISHED'}
+		return handle_errors(self, shell.create_fins_wrapper, {})
 
 
 class GaugeUVScale(bpy.types.Operator):
@@ -148,13 +143,7 @@ class GaugeUVScale(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):
-		try:
-			for msg in shell.gauge_uv_scale_wrapper():
-				self.report({"INFO"}, msg)
-		except Exception as err:
-			self.report({"ERROR"}, str(err))
-			print(err)
-		return {'FINISHED'}
+		return handle_errors(self, shell.gauge_uv_scale_wrapper, {})
 
 
 class VcolToHair(bpy.types.Operator):
@@ -164,13 +153,7 @@ class VcolToHair(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):
-		try:
-			for msg in vcol_to_comb():
-				self.report({"INFO"}, msg)
-		except Exception as err:
-			self.report({"ERROR"}, str(err))
-			print(err)
-		return {'FINISHED'}
+		return handle_errors(self, vcol_to_comb, {})
 
 
 class HairToVcol(bpy.types.Operator):
@@ -180,13 +163,7 @@ class HairToVcol(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):
-		try:
-			for msg in comb_to_vcol():
-				self.report({"INFO"}, msg)
-		except Exception as err:
-			self.report({"ERROR"}, str(err))
-			print(err)
-		return {'FINISHED'}
+		return handle_errors(self, comb_to_vcol, {})
 
 
 class MESH_PT_CobraTools(bpy.types.Panel):

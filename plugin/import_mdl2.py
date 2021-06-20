@@ -23,7 +23,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	mdl2.load(filepath, entry=True, read_editable=True, read_bytes=False)
 	print(mdl2)
 	mdl2.update_lod_vertex_counts()
-	errors = []
+	messages = set()
 	bone_names = get_bone_names(mdl2)
 	b_armature_obj = import_armature(mdl2, bone_names)
 	
@@ -82,8 +82,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 			# from plugin.modules_import.tangents import visualize_tangents
 			# ob2, me2 = visualize_tangents(b_ob.name, model.vertices, model.normals, model.tangents)
 			# matrix_util.to_lod(ob2, lod_i)
-	print(f"Finished MDL2 import in {time.time()-start_time:.2f} seconds!")
-	return errors
+	messages.add(f"Finished MDL2 import in {time.time() - start_time:.2f} seconds")
+	return messages
 
 
 def import_mesh_layers(b_me, model, use_mirror_mesh, use_custom_normals):
