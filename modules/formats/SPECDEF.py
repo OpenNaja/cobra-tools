@@ -104,36 +104,36 @@ class SpecdefLoader(BaseFile):
 
 	def collect(self, ovl, file_entry):
 		self.ovl = ovl
-		ss_entry = self.ovl.ss_dict[file_entry.name]
-		ss_pointer = ss_entry.pointers[0]
+		self.assign_ss_entry(file_entry)
+		ss_pointer = self.sized_str_entry.pointers[0]
 		self.ovs = ovl.static_archive.content
-		print("\nSPECDEF:", ss_entry.name)
+		print("\nSPECDEF:", self.sized_str_entry.name)
 		ss_data = struct.unpack("<2H4B", ss_pointer.data)
 		if ss_data[0] == 0:
 			print("spec is zero ", ss_data[0])
-		ss_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
 		if ss_data[2] > 0:
 			data2_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			ss_entry.fragments.extend(data2_frag)
+			self.sized_str_entry.fragments.extend(data2_frag)
 		if ss_data[3] > 0:
 			data3_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			ss_entry.fragments.extend(data3_frag)
+			self.sized_str_entry.fragments.extend(data3_frag)
 		if ss_data[4] > 0:
 			data4_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			ss_entry.fragments.extend(data4_frag)
+			self.sized_str_entry.fragments.extend(data4_frag)
 		if ss_data[5] > 0:
 			data5_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			ss_entry.fragments.extend(data5_frag)
+			self.sized_str_entry.fragments.extend(data5_frag)
 
 		if ss_data[0] > 0:
-			ss_entry.fragments.extend(self.ovs.frags_from_pointer(ss_entry.fragments[1].pointers[1], ss_data[0]))
-			ss_entry.fragments.extend(self.ovs.frags_from_pointer(ss_entry.fragments[2].pointers[1], ss_data[0]))
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], ss_data[0]))
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], ss_data[0]))
 
 		if ss_data[2] > 0:
-			ss_entry.fragments.extend(self.ovs.frags_from_pointer(data2_frag[0].pointers[1], ss_data[2]))
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data2_frag[0].pointers[1], ss_data[2]))
 		if ss_data[3] > 0:
-			ss_entry.fragments.extend(self.ovs.frags_from_pointer(data3_frag[0].pointers[1], ss_data[3]))
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data3_frag[0].pointers[1], ss_data[3]))
 		if ss_data[4] > 0:
-			ss_entry.fragments.extend(self.ovs.frags_from_pointer(data4_frag[0].pointers[1], ss_data[4]))
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data4_frag[0].pointers[1], ss_data[4]))
 		if ss_data[5] > 0:
-			ss_entry.fragments.extend(self.ovs.frags_from_pointer(data5_frag[0].pointers[1], ss_data[5]))
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data5_frag[0].pointers[1], ss_data[5]))

@@ -169,7 +169,7 @@ class OvsFile(OvsHeader):
 			with open(save_temp_dat, 'wb') as out:
 				out.write(decompressed)
 		with BinaryStream(decompressed) as stream:
-			yield stream  # type: ignore
+			yield stream
 
 	def compress(self, uncompressed_bytes):
 		# compress data
@@ -245,14 +245,6 @@ class OvsFile(OvsHeader):
 		self.force_update_pools = False
 		self.map_buffers()
 
-	def get_sized_str_entry(self, name):
-		lower_name = name.lower()
-		for sized_str_entry in self.sized_str_entries:
-			if lower_name == sized_str_entry.lower_name:
-				return sized_str_entry
-		# still here - error!
-		raise KeyError(f"Can't find a sizedstr entry for {name}, not from this archive?")
-
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
@@ -277,7 +269,6 @@ class OvsFile(OvsHeader):
 				self.assign_name(data_entry)
 			for sized_str_entry in self.sized_str_entries:
 				self.assign_name(sized_str_entry)
-				sized_str_entry.lower_name = sized_str_entry.name.lower()
 				sized_str_entry.children = []
 				sized_str_entry.fragments = []
 				sized_str_entry.model_data_frags = []
@@ -901,7 +892,7 @@ class OvlFile(Header, IoFile):
 			extract_files.append(file)
 		for ss_index, file in enumerate(extract_files):
 			self.progress_callback("Extracting...", value=ss_index, vmax=len(extract_files))
-			sized_str_entry = self.ss_dict[file.name]
+			sized_str_entry = self.get_sized_str_entry(file.name)
 			try:
 				out_paths.extend(
 					extract_kernel(self, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
@@ -1252,6 +1243,15 @@ class OvlFile(Header, IoFile):
 					loader.collect(self, file)
 				except Exception as err:
 					logging.error(err)
+					traceback.print_exc()
+
+	def get_sized_str_entry(self, name):
+		"""Retrieves the desired ss entry"""
+		# logging.debug(f"Getting {name.lower()}")
+		if name.lower() in self.ss_dict:
+			return self.ss_dict[name.lower()]
+		else:
+			raise KeyError(f"Can't find a sizedstr entry for {name}, not from this archive?")
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
@@ -1259,7 +1259,7 @@ class OvlFile(Header, IoFile):
 		self.ss_dict = {}
 		for archive_index, archive_entry in enumerate(self.archives):
 			for file in archive_entry.content.sized_str_entries:
-				self.ss_dict[file.name] = file
+				self.ss_dict[file.name.lower()] = file
 
 	def link_streams(self):
 		"""Attach the data buffers of streamed filed to standard files from the first archive"""

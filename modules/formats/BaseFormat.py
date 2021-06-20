@@ -11,8 +11,8 @@ from generated.io import BinaryStream
 
 class BaseFile:
 
-	def get_sized_str_entry(self, file_entry):
-		self.sized_str_entry = self.ovl.ss_dict[file_entry.name]
+	def assign_ss_entry(self, file_entry):
+		self.sized_str_entry = self.ovl.assign_ss_entry(file_entry.name)
 
 	def assign_ovl_ovs(self, ovl):
 		self.ovl = ovl
@@ -20,7 +20,7 @@ class BaseFile:
 
 	def assign_fixed_frags(self, ovl, file_entry, count):
 		self.assign_ovl_ovs(ovl)
-		self.get_sized_str_entry(file_entry)
+		self.assign_ss_entry(file_entry)
 		ss_pointer = self.sized_str_entry.pointers[0]
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, count)
 

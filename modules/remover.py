@@ -51,7 +51,7 @@ def file_remover(ovl, filenames):
 	# remove file entry
 	for i, file_entry in sorted(enumerate(ovl.files), reverse=True):
 		if file_entry.name in filenames:
-			ss_entry = ovl.ss_dict[file_entry.name]
+			ss_entry = ovl.assign_ss_entry(file_entry.name)
 			children_names.extend([ss.name for ss in ss_entry.children])
 			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)

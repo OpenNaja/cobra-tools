@@ -204,17 +204,17 @@ class Ms2Loader(Ms2File, BaseFile):
 
 	def collect(self, ovl, file_entry):
 		self.ovl = ovl
-		ms2_entry = self.ovl.ss_dict[file_entry.name]
-		ss_pointer = ms2_entry.pointers[0]
+		self.assign_ss_entry(file_entry)
+		ss_pointer = self.sized_str_entry.pointers[0]
 		self.ovs = ovl.static_archive.content
 		if not is_old(self.ovl):
-			ms2_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
-			# print(ms2_entry.fragments)
+			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
+			# print(self.sized_str_entry.fragments)
 			# second pass: collect model fragments
 			versions = get_versions(self.ovl)
-			assert ms2_entry.pointers[0].data_size == 24
-			assert ms2_entry.fragments[2].pointers[1].data in (struct.pack("<ii", -1, 0), b"")
-			# print(ms2_entry.fragments[2].pointers[1].address, ms2_entry.fragments[2].pointers[1].data)
+			assert self.sized_str_entry.pointers[0].data_size == 24
+			assert self.sized_str_entry.fragments[2].pointers[1].data in (struct.pack("<ii", -1, 0), b"")
+			# print(self.sized_str_entry.fragments[2].pointers[1].address, self.sized_str_entry.fragments[2].pointers[1].data)
 
 			# assign the mdl2 frags to their sized str entry
 
@@ -223,10 +223,10 @@ class Ms2Loader(Ms2File, BaseFile):
 			# 0 - p0: 8*00 				p1: buffer_info or empty (if no buffers)
 			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
 			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0 or empty (if no buffers)
-			f_1 = ms2_entry.fragments[1]
+			f_1 = self.sized_str_entry.fragments[1]
 			core_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
 			# print("next model info:", core_model_info)
-			for mdl2_entry in ms2_entry.children:
+			for mdl2_entry in self.sized_str_entry.children:
 				assert mdl2_entry.ext == ".mdl2"
 				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
 				pink = mdl2_entry.fragments[4]
@@ -235,7 +235,7 @@ class Ms2Loader(Ms2File, BaseFile):
 					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		else:
-			ms2_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
+			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
 
 	def collect_mdl2(self, mdl2_entry, core_model_info, mdl2_pointer):
 		logging.info(f"MDL2: {mdl2_entry.name}")

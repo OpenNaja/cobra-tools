@@ -12,7 +12,7 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 	def collect(self, ovl, file_entry):
 		self.ovl = ovl
 		self.ovs = ovl.static_archive.content
-		self.get_sized_str_entry(file_entry)
+		self.assign_ss_entry(file_entry)
 		ss_pointer = self.sized_str_entry.pointers[0]
 		_, count = unpack("<QQ", ss_pointer.data)
 		logging.debug(ss_pointer.data)

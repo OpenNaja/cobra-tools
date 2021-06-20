@@ -108,55 +108,55 @@ class MatcolLoader(BaseFile):
 
 	def collect(self, ovl, file_entry):
 		self.ovl = ovl
-		ss_entry = self.ovl.ss_dict[file_entry.name]
+		self.assign_ss_entry(file_entry)
 		self.ovs = ovl.static_archive.content
-		print("\nMATCOL:", ss_entry.name)
+		print("\nMATCOL:", self.sized_str_entry.name)
 
 		# Sized string initpos = position of first fragment for matcol
-		ss_entry.fragments = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
-		ss_entry.f0 = ss_entry.fragments[0]
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
+		self.sized_str_entry.f0 = self.sized_str_entry.fragments[0]
 
-		# print(ss_entry.f0)
+		# print(self.sized_str_entry.f0)
 		# 0,0,collection count,0
-		f0_d0 = struct.unpack("<4I", ss_entry.f0.pointers[0].data)
+		f0_d0 = struct.unpack("<4I", self.sized_str_entry.f0.pointers[0].data)
 		# flag (3=variant, 2=layered) , 0
-		ss_entry.has_texture_list_frag = len(ss_entry.f0.pointers[1].data) == 8
-		if ss_entry.has_texture_list_frag:
-			f0_d1 = struct.unpack("<2I", ss_entry.f0.pointers[1].data)
+		self.sized_str_entry.has_texture_list_frag = len(self.sized_str_entry.f0.pointers[1].data) == 8
+		if self.sized_str_entry.has_texture_list_frag:
+			f0_d1 = struct.unpack("<2I", self.sized_str_entry.f0.pointers[1].data)
 		else:
-			f0_d1 = struct.unpack("<6I", ss_entry.f0.pointers[1].data)
+			f0_d1 = struct.unpack("<6I", self.sized_str_entry.f0.pointers[1].data)
 		# print("f0_d0", f0_d0)
 		# print("f0_d1", f0_d1)
-		ss_entry.is_variant = f0_d1[0] == 3
-		ss_entry.is_layered = f0_d1[0] == 2
-		# print("has_texture_list_frag",ss_entry.has_texture_list_frag)
-		# print("is_variant",ss_entry.is_variant)
-		# print("is_layered",ss_entry.is_layered)
-		# print(ss_entry.tex_pointer)
-		if ss_entry.has_texture_list_frag:
-			ss_entry.tex_pointer = self.ovs.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
-			tex_pointer_d0 = struct.unpack("<4I", ss_entry.tex_pointer.pointers[0].data)
+		self.sized_str_entry.is_variant = f0_d1[0] == 3
+		self.sized_str_entry.is_layered = f0_d1[0] == 2
+		# print("has_texture_list_frag",self.sized_str_entry.has_texture_list_frag)
+		# print("is_variant",self.sized_str_entry.is_variant)
+		# print("is_layered",self.sized_str_entry.is_layered)
+		# print(self.sized_str_entry.tex_pointer)
+		if self.sized_str_entry.has_texture_list_frag:
+			self.sized_str_entry.tex_pointer = self.ovs.frags_from_pointer(self.sized_str_entry.f0.pointers[1], 1)[0]
+			tex_pointer_d0 = struct.unpack("<4I", self.sized_str_entry.tex_pointer.pointers[0].data)
 			# print("tex_pointer_d0", tex_pointer_d0)
 			tex_count = tex_pointer_d0[2]
 			# print("tex_count",tex_count)
-			ss_entry.tex_frags = self.ovs.frags_from_pointer(ss_entry.tex_pointer.pointers[1], tex_count * 3)
+			self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.tex_pointer.pointers[1], tex_count * 3)
 		else:
-			ss_entry.tex_pointer = None
+			self.sized_str_entry.tex_pointer = None
 		# material pointer frag
-		ss_entry.mat_pointer = self.ovs.frags_from_pointer(ss_entry.f0.pointers[1], 1)[0]
-		mat_pointer_d0 = struct.unpack("<6I", ss_entry.mat_pointer.pointers[0].data)
+		self.sized_str_entry.mat_pointer = self.ovs.frags_from_pointer(self.sized_str_entry.f0.pointers[1], 1)[0]
+		mat_pointer_d0 = struct.unpack("<6I", self.sized_str_entry.mat_pointer.pointers[0].data)
 		# print("mat_pointer_d0",mat_pointer_d0)
 		mat_count = mat_pointer_d0[2]
 		# print("mat_count",mat_count)
-		ss_entry.mat_frags = []
+		self.sized_str_entry.mat_frags = []
 		for t in range(mat_count):
-			if ss_entry.is_variant:
-				m0 = self.ovs.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 1)[0]
+			if self.sized_str_entry.is_variant:
+				m0 = self.ovs.frags_from_pointer(self.sized_str_entry.mat_pointer.pointers[1], 1)[0]
 				# print(m0.pointers[1].data)
-				m0.name = ss_entry.name
-				ss_entry.mat_frags.append((m0,))
-			elif ss_entry.is_layered:
-				mat_frags = self.ovs.frags_from_pointer(ss_entry.mat_pointer.pointers[1], 3)
+				m0.name = self.sized_str_entry.name
+				self.sized_str_entry.mat_frags.append((m0,))
+			elif self.sized_str_entry.is_layered:
+				mat_frags = self.ovs.frags_from_pointer(self.sized_str_entry.mat_pointer.pointers[1], 3)
 				m0, info, attrib = mat_frags
 				m0.pointers[1].strip_zstring_padding()
 				# print(m0.pointers[1].data)
@@ -184,12 +184,12 @@ class MatcolLoader(BaseFile):
 
 				# store names for frag log
 				for frag in mat_frags + info.children + attrib.children:
-					frag.name = ss_entry.name
+					frag.name = self.sized_str_entry.name
 				# store frags
-				ss_entry.mat_frags.append(mat_frags)
-		if ss_entry.has_texture_list_frag:
-			for frag in ss_entry.tex_frags + [ss_entry.tex_pointer, ]:
-				frag.name = ss_entry.name
-		all_frags = [ss_entry.f0, ss_entry.mat_pointer]
+				self.sized_str_entry.mat_frags.append(mat_frags)
+		if self.sized_str_entry.has_texture_list_frag:
+			for frag in self.sized_str_entry.tex_frags + [self.sized_str_entry.tex_pointer, ]:
+				frag.name = self.sized_str_entry.name
+		all_frags = [self.sized_str_entry.f0, self.sized_str_entry.mat_pointer]
 		for frag in all_frags:
-			frag.name = ss_entry.name
+			frag.name = self.sized_str_entry.name
