@@ -52,7 +52,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					b_me["unk_f0"] = float(model.unk_floats[0])
 					b_me["unk_f1"] = float(model.unk_floats[1])
 				mesh_dict[m_ob.model_index] = b_me
-				import_mesh_layers(b_me, model, mirror_mesh, use_custom_normals)
+				import_mesh_layers(b_me, model, use_custom_normals)
 
 			# link material to mesh
 			import_material(created_materials, in_dir, b_me, m_ob.material)
@@ -86,7 +86,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	return messages
 
 
-def import_mesh_layers(b_me, model, use_mirror_mesh, use_custom_normals):
+def import_mesh_layers(b_me, model, use_custom_normals):
 	# set uv data
 	if model.uvs is not None:
 		num_uv_layers = model.uvs.shape[1]

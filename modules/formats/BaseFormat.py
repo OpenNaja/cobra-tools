@@ -12,7 +12,7 @@ from generated.io import BinaryStream
 class BaseFile:
 
 	def assign_ss_entry(self, file_entry):
-		self.sized_str_entry = self.ovl.assign_ss_entry(file_entry.name)
+		self.sized_str_entry = self.ovl.get_sized_str_entry(file_entry.name)
 
 	def assign_ovl_ovs(self, ovl):
 		self.ovl = ovl
