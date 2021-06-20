@@ -42,7 +42,7 @@ def has_objects_in_scene():
 
 def export_material(mdl2, b_mat):
 	mat = MaterialName()
-	mat.some_index = b_mat["some_index"]
+	mat.some_index = get_property(b_mat, "some_index")
 	mat.name = b_mat.name
 	mdl2.materials.append(mat)
 
@@ -53,8 +53,8 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	model = ModelData()
 	# set data
 	model.size_of_vertex = 48
-	model.flag._value = b_me["flag"]
-	model.unk_floats[:] = (b_me["unk_f0"], b_me["unk_f1"])
+	model.flag._value = get_property(b_me, "flag")
+	model.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
 
 	model.update_dtype()
 	num_uvs = model.get_uv_count()
@@ -194,7 +194,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	residue = 1
 	fur_length = 0
 	fur_width = 0
-	bone_index_cutoff = b_ob["bone_index"]
+	bone_index_cutoff = get_property(b_ob, "bone_index")
 	# get the weights
 	w = []
 	for vertex_group in b_vert.groups:
@@ -242,6 +242,14 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	return bone_ids, bone_weights, fur_length, fur_width, residue, unk_0
 
 
+def get_property(ob, prop_name):
+	"""Ensure that custom property is set or raise an intellegible error"""
+	if prop_name in ob:
+		return ob[prop_name]
+	else:
+		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} ({ob.type}). Add it!")
+
+
 def save(filepath='', apply_transforms=False, edit_bones=False):
 	errors = []
 	start_time = time.time()
@@ -268,7 +276,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 	for pbone in b_armature_ob.pose.bones:
 		pbone.matrix_basis = mathutils.Matrix()
 
-	mdl2.model_info.render_flag._value = bpy.context.scene["render_flag"]
+	mdl2.model_info.render_flag._value = get_property(bpy.context.scene, "render_flag")
 	if edit_bones:
 		export_bones_custom(b_armature_ob, mdl2)
 	# used to get index from bone name for faster weights
@@ -291,7 +299,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 		mdl2.lods.append(m_lod)
 		for b_ob in lod_coll.objects:
 			# store & set bone index for lod
-			m_lod.bone_index = b_ob["bone_index"]
+			m_lod.bone_index = get_property(b_ob, "bone_index")
 
 			b_me = b_ob.data
 			if b_me not in b_models:
