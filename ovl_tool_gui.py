@@ -122,12 +122,16 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Inspect Models", self.walker, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
 			(util_menu, "Save Frag Log", self.ovl_data.write_frag_log, "", ""),
+			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			# (edit_menu, "Reload", self.reload, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
 		self.load_hash_table()
+
+	def open_tools_dir(self):
+		os.startfile(os.getcwd())
 
 	def drag_files(self, file_names):
 		print("DRAGGING", file_names)
