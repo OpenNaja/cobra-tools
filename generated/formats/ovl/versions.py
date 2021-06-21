@@ -26,7 +26,7 @@ def set_pc(inst):
 
 
 def is_pz(inst):
-	if inst.version in (19, 20) and inst.user_version in (8340, 8724):
+	if inst.version == 19 and inst.user_version in (8340, 8724):
 		return True
 
 
@@ -63,9 +63,9 @@ def get_game(inst):
 	if is_pc(inst):
 		return 'Planet Coaster'
 	if is_pz(inst):
-		return 'Planet Zoo'
+		return 'Planet Zoo pre-1.6'
 	if is_pz16(inst):
-		return 'Planet Zoo 1.6'
+		return 'Planet Zoo 1.6+'
 	if is_jwe(inst):
 		return 'Jurassic World Evolution'
 	return 'Unknown Game'
@@ -78,14 +78,14 @@ def set_game(inst, game):
 		set_ztuac(inst)
 	if game == 'Planet Coaster':
 		set_pc(inst)
-	if game == 'Planet Zoo':
+	if game == 'Planet Zoo pre-1.6':
 		set_pz(inst)
-	if game == 'Planet Zoo 1.6':
+	if game == 'Planet Zoo 1.6+':
 		set_pz16(inst)
 	if game == 'Jurassic World Evolution':
 		set_jwe(inst)
 
 
-games = ['Disneyland Adventure', 'Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo', 'Planet Zoo 1.6', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']
+games = ['Disneyland Adventure', 'Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo 1.6+', 'Planet Zoo pre-1.6', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']
 
 

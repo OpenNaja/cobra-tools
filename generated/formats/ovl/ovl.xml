@@ -5,8 +5,8 @@
     <version id="DLA" version="15">Disneyland Adventure</version>
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
     <version id="PC" version="18">Planet Coaster</version>
-    <version id="PZ" version="19 20" user_version="8340 8724">Planet Zoo</version>
-    <version id="PZ16" version="20" user_version="8340 8724">Planet Zoo 1.6</version>
+    <version id="PZ" version="19" user_version="8340 8724">Planet Zoo pre-1.6</version>
+    <version id="PZ16" version="20" user_version="8340 8724">Planet Zoo 1.6+</version>
     <version id="JWE" version="19" user_version="24724 25108">Jurassic World Evolution</version>
 
     <token name="verexpr" attrs="vercond cond">
