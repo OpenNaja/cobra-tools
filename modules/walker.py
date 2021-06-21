@@ -2,6 +2,7 @@ import os
 import traceback
 import logging
 import numpy as np
+import json
 
 from generated.formats.ms2 import Mdl2File
 from generated.formats.ovl import OvlFile
@@ -23,6 +24,12 @@ def generate_hash_table(gui, start_dir):
 	if start_dir:
 		# don't use internal data
 		ovl_data = OvlFile()
+		dic = {}  # , "triplets"
+		lists = {"mimes": ("mime_hash", "mime_version", "triplet_count"), "files": ("unkn_0", "unkn_1")}
+		for list_name, attr_names in lists.items():
+			dic[list_name] = {}
+			for attr_name in attr_names:
+				dic[list_name][attr_name] = {}
 		error_files = []
 		ovl_files = walk_type(start_dir, extension="ovl")
 		of_max = len(ovl_files)
@@ -31,9 +38,19 @@ def generate_hash_table(gui, start_dir):
 			try:
 				# read ovl file
 				new_hashes = ovl_data.load(ovl_path, commands=("generate_hash_table",))
+				for list_name, attr_names in lists.items():
+					for entry in getattr(ovl_data, list_name):
+						for attr_name in attr_names:
+							v = getattr(entry, attr_name)
+							# if the value already exists, make sure it is indeed constant (for this version)
+							if entry.ext in dic[list_name][attr_name]:
+								if v != dic[list_name][attr_name][entry.ext]:
+									logging.error(f"{list_name}.{attr_name} is not constant for {entry.ext}! ({v} vs. {dic[list_name][attr_name][entry.ext]})")
+							dic[list_name][attr_name][entry.ext] = v
 				hash_dict.update(new_hashes)
 			except:
 				error_files.append(ovl_path)
+		print(dic)
 		if error_files:
 			logging.error(f"{error_files} caused errors!")
 		# write the hash text file to the hashes folder
@@ -42,6 +59,15 @@ def generate_hash_table(gui, start_dir):
 		with open(out_path, "w") as f:
 			for k, v in hash_dict.items():
 				f.write(f"{k} = {v}\n")
+		for list_name, attr_names in lists.items():
+			out_dir = os.path.join(os.getcwd(), "dicts", "game", list_name,)
+			os.makedirs(out_dir, exist_ok=True)
+			for attr_name in attr_names:
+				out_path = os.path.join(out_dir, f"{attr_name}.json")
+				with open(out_path, 'w') as f:
+					json.dump(dic[list_name][attr_name], f)
+		# with open(file, 'r') as f:
+		# 	data = json.load(f)
 		logging.info(f"Wrote {len(hash_dict)} items to {out_path}")
 
 

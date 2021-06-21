@@ -180,12 +180,12 @@
         <add name="mime version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
-        <add name="triplet count" type="uint" since="20" >?</add>
-        <add name="triplet offset" type="uint" since="20" >?</add>
+        <add name="triplet count" type="uint" since="20" >constant per mime, grab this many triplets</add>
+        <add name="triplet offset" type="uint" since="20" >index into triplets list</add>
     </compound>
 
     <compound name="Triplet" >
-        3 bytes
+        3 bytes - seemingly constant per mime
         <add name="a" type="ubyte">?</add>
         <add name="b" type="ubyte">?</add>
         <add name="c" type="ubyte">?</add>

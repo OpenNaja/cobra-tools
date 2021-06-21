@@ -1,7 +1,7 @@
 class Triplet:
 
 	"""
-	3 bytes
+	3 bytes - seemingly constant per mime
 	"""
 
 	def __init__(self, arg=None, template=None):
