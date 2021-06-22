@@ -1,5 +1,5 @@
 import logging
-
+from generated.formats.ovl.versions import *
 REVERSED_TYPES = (
 	".tex", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection", ".txt")
 
@@ -118,25 +118,28 @@ def remove_from_ovs(ovl, filenames):
 	# remove data entry for file
 	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
 		if data.name in filenames:
-			for b_group in ovs.content.new_entries:
-				print(b_group)
+			if is_pz16(ovl):
+				for b_group in ovs.content.new_entries:
+					print(b_group)
 			# buffers_to_delete.extend(data.buffers)
 			for buffer in data.buffers:
-				buff_size = buffer.size
-				buffer.buffer_group.size -= buffer.size
-				buffer.buffer_group.buffer_count -= 1
-				buffer.buffer_group.data_count -= 1
+				if is_pz16(ovl):
+					buff_size = buffer.size
+					buffer.buffer_group.size -= buffer.size
+					buffer.buffer_group.buffer_count -= 1
+					buffer.buffer_group.data_count -= 1
 				buffer.update_data(b"")
 				ovs.content.buffer_entries.remove(buffer)
-			counta = 0
-			countb = 0
-			for b_group in ovs.content.new_entries:
-				b_group.buffer_offset = counta
-				counta += b_group.buffer_count
-				if b_group.buffer_index == 0:
-					b_group.data_offset = countb
-					countb += b_group.data_count
-			for b_group in ovs.content.new_entries:
-				print(b_group)
+			if is_pz16(ovl):
+				counta = 0
+				countb = 0
+				for b_group in ovs.content.new_entries:
+					b_group.buffer_offset = counta
+					counta += b_group.buffer_count
+					if b_group.buffer_index == 0:
+						b_group.data_offset = countb
+						countb += b_group.data_count
+				#for b_group in ovs.content.new_entries:
+					#print(b_group)
 			ovs.content.data_entries.remove(data)
 	ovs.content.write_pointers_to_pools(ignore_unaccounted_bytes=True)
