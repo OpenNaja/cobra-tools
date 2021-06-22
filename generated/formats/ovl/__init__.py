@@ -147,20 +147,34 @@ class OvsFile(OvsHeader):
 	def update_hashes(self, file_name_lut):
 		logging.info("Updating hashes")
 		logging.info(f"Game: {get_game(self.ovl)}")
-		for entry_list in (
-				self.pools,
-				self.sized_str_entries,
-				self.data_entries,
-				self.set_header.sets,
-				self.set_header.assets):
-			for entry in entry_list:
-				file_index = file_name_lut[entry.name]
-				file = self.ovl.files[file_index]
-				if is_jwe(self.ovl):
-					entry.file_hash = file.file_hash
-				else:
+		if is_pz16(self.ovl):
+			for entry_list in (
+					self.pools,
+					self.sized_str_entries,
+					self.data_entries,
+					self.buffer_entries,
+					self.set_header.sets,
+					self.set_header.assets):
+				for entry in entry_list:
+					file_index = file_name_lut[entry.name]
+					file = self.ovl.files[file_index]
 					entry.file_hash = file_index
-				entry.ext_hash = file.ext_hash
+					entry.ext_hash = file.ext_hash
+		else:
+			for entry_list in (
+					self.pools,
+					self.sized_str_entries,
+					self.data_entries,
+					self.set_header.sets,
+					self.set_header.assets):
+				for entry in entry_list:
+					file_index = file_name_lut[entry.name]
+					file = self.ovl.files[file_index]
+					if is_jwe(self.ovl):
+						entry.file_hash = file.file_hash
+					else:
+						entry.file_hash = file_index
+					entry.ext_hash = file.ext_hash
 		# these seem to be sorted, but they are indexed into by other lists so gotta be careful when sorting them
 		# self.sized_str_entries.sort(key=lambda x: x.file_hash)
 
@@ -521,12 +535,15 @@ class OvsFile(OvsHeader):
 					buffer.index = b_group.buffer_index
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
+							buffer.data_entry = data
+							buffer.name = data.name
+							buffer.buffer_group = b_group
 							data.buffers.append(buffer)
 				# for buffer, data in zip(buffers, datas):
 				# 	buffer.index = b_group.buffer_index
 				# 	data.buffers.append(buffer)
-			# print(self.buffer_entries)
-			# print(self.new_entries)
+			#print(self.buffer_entries)
+			#print(self.new_entries)
 			for data in self.data_entries:
 				data.streams = list(data.buffers)
 		else:
@@ -539,9 +556,12 @@ class OvsFile(OvsHeader):
 					buffer = self.buffer_entries[buff_ind]
 					# also give each buffer a reference to data so we can access it later
 					buffer.data_entry = data
+					buffer.name = data.name
 					data.buffers.append(buffer)
 					buff_ind += 1
 				data.streams = list(data.buffers)
+			#rint(self.buffer_entries)
+
 
 	@property
 	def buffers_io_order(self):
