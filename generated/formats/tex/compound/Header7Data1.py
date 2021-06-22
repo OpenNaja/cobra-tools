@@ -58,7 +58,7 @@ class Header7Data1:
 		self.array_size = stream.read_uint()
 		self.num_mips = stream.read_uint()
 		self.pad = stream.read_byte()
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
 			self.unk_pz = stream.read_uint64()
 		self.mip_maps.read(stream, Header7MipmapInfo, self.num_mips, None)
 
@@ -75,7 +75,7 @@ class Header7Data1:
 		stream.write_uint(self.array_size)
 		stream.write_uint(self.num_mips)
 		stream.write_byte(self.pad)
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version == 19):
+		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
 			stream.write_uint64(self.unk_pz)
 		self.mip_maps.write(stream, Header7MipmapInfo, self.num_mips, None)
 
