@@ -51,7 +51,7 @@ def file_remover(ovl, filenames):
 	# remove file entry
 	for i, file_entry in sorted(enumerate(ovl.files), reverse=True):
 		if file_entry.name in filenames:
-			ss_entry = ovl.assign_ss_entry(file_entry.name)
+			ss_entry =  ovl.get_sized_str_entry(file_entry.name)
 			children_names.extend([ss.name for ss in ss_entry.children])
 			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)
@@ -118,9 +118,25 @@ def remove_from_ovs(ovl, filenames):
 	# remove data entry for file
 	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
 		if data.name in filenames:
+			for b_group in ovs.content.new_entries:
+				print(b_group)
 			# buffers_to_delete.extend(data.buffers)
 			for buffer in data.buffers:
+				buff_size = buffer.size
+				buffer.buffer_group.size -= buffer.size
+				buffer.buffer_group.buffer_count -= 1
+				buffer.buffer_group.data_count -= 1
 				buffer.update_data(b"")
 				ovs.content.buffer_entries.remove(buffer)
+			counta = 0
+			countb = 0
+			for b_group in ovs.content.new_entries:
+				b_group.buffer_offset = counta
+				counta += b_group.buffer_count
+				if b_group.buffer_index == 0:
+					b_group.data_offset = countb
+					countb += b_group.data_count
+			for b_group in ovs.content.new_entries:
+				print(b_group)
 			ovs.content.data_entries.remove(data)
 	ovs.content.write_pointers_to_pools(ignore_unaccounted_bytes=True)
