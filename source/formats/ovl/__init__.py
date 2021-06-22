@@ -20,6 +20,8 @@ from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.BufferGroup import BufferGroup
+from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
@@ -42,6 +44,28 @@ lut_file_unk_0 = {
 
 lut_file_unk_1 = {
 	".mdl2": 2,
+}
+
+
+lut_triplets = {
+	".fgm":((1,2,0),),
+	".banis":((2,2,1),),
+	".manis":((2,0,4),(1,0,2),(2,0,4),),
+	".ms2":((1,2,2),(2,0,4),(0,0,0),),
+	".tex":((0,0,0),),
+	".texturestream":((0,0,0),),
+	".lua":((2,2,0),),
+	".renderparametercurves":((1,2,3),),
+	".renderparameters":((1,2,3),),
+	".userinterfaceicondata":((1,2,3),),
+	".assetpkg":((1,2,3),),
+	".animalresearchstartunlockedsettings":((1,2,3),),
+	".animalresearchunlockssettings":((1,2,3),),
+	".fdb":((1,2,0),(1,0,0),),
+	".mechanicresearchsettings":((1,2,3),),
+	".pathextrusion":((1,2,3),),
+	".pathmaterial":((1,2,3),),
+	".pathresource":((1,2,3),),
 }
 
 
@@ -91,6 +115,99 @@ class OvsFile(OvsHeader):
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
 			return stream.getbuffer()
+			
+			
+	def upgrader(self):
+        #sort the buffers to be what 1.6 needs
+		for buffer in self.buffer_entries:
+			buffer.file_hash = buffer.data_entry.file_hash
+			buffer.ext = buffer.data_entry.ext
+		self.buffer_entries.sort(key = lambda x: (x.ext,x.index) )
+		print("AYAYA",self.buffer_entries)
+		#generate a mime lut to know the index of the mimes
+		mime_lut = []
+		for i,mime in enumerate(self.ovl.mimes):
+			mime_lut.append((mime.ext,i))	
+        #generate the buffergroup entries
+		new_b = []
+		for i, buffer in enumerate(self.buffer_entries):
+			if i > 0:
+				if buffer.ext != self.buffer_entries[i-1].ext:
+					new_entry = BufferGroup()
+					new_entry.ext = buffer.ext
+					new_entry.buffer_offset = 0
+					new_entry.buffer_count += 1
+					for tuple in mime_lut:
+						if tuple[0] == buffer.ext:
+							new_entry.ext_index = tuple[1]
+					new_entry.buffer_index = buffer.index
+					new_entry.size += buffer.size
+					new_entry.data_offset = 0
+					new_entry.data_count += 1
+					new_b.append(new_entry)	
+					
+				else:
+					if buffer.index != self.buffer_entries[i-1].index:
+						new_entry = BufferGroup()
+						new_entry.ext = buffer.ext
+						new_entry.buffer_offset = 0
+						new_entry.buffer_count += 1
+						for tuple in mime_lut:
+							if tuple[0] == buffer.ext:
+								new_entry.ext_index = tuple[1]
+						new_entry.buffer_index = buffer.index
+						new_entry.size += buffer.size
+						new_entry.data_offset = 0
+						new_entry.data_count += 1
+						new_b.append(new_entry)	
+						
+						
+					else:
+						for x, new_entry in enumerate(new_b):
+							if new_entry.ext == buffer.ext:
+								if new_entry.buffer_index == buffer.index:
+									new_entry.buffer_count+=1
+									new_entry.size += buffer.size
+									new_entry.data_count +=1
+			else:
+				new_entry = BufferGroup()
+				new_entry.ext = buffer.ext
+				new_entry.buffer_offset = 0
+				new_entry.buffer_count += 1
+				for tuple in mime_lut:
+					if tuple[0] == buffer.ext:
+						new_entry.ext_index = tuple[1]
+				new_entry.buffer_index = buffer.index
+				new_entry.size += buffer.size
+				new_entry.data_offset = 0
+				new_entry.data_count += 1
+				new_b.append(new_entry)
+		#fix the offsets of the buffergroups				
+		for x, new_entry in enumerate(new_b):
+			if x > 0:
+				new_entry.buffer_offset = new_b[x-1].buffer_offset + new_b[x-1].buffer_count
+				if new_entry.ext != new_b[x-1].ext:
+					new_entry.data_offset = new_b[x-1].data_offset + new_b[x-1].data_count
+				else:
+					new_entry.data_offset = new_b[x-1].data_offset
+        #tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
+		tex_fixa = 0
+		tex_fixb = 0
+		for new_entry in new_b:
+			if ".tex" == new_entry.ext:
+				if new_entry.buffer_index == 1:
+					tex_fixa = new_entry.data_offset
+					tex_fixb = new_entry.data_count
+		for new_entry in new_b:
+			if ".tex" == new_entry.ext:
+				new_entry.data_offset = tex_fixa
+				new_entry.data_count = tex_fixb
+					
+
+		print(new_b)
+		self.new_entries.extend(new_b)
+			
+		
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
@@ -187,6 +304,7 @@ class OvsFile(OvsHeader):
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
+		self.arg.num_new = len(self.new_entries)
 
 	def create(self):
 
@@ -542,8 +660,8 @@ class OvsFile(OvsHeader):
 				# for buffer, data in zip(buffers, datas):
 				# 	buffer.index = b_group.buffer_index
 				# 	data.buffers.append(buffer)
-			#print(self.buffer_entries)
-			#print(self.new_entries)
+			print(self.buffer_entries)
+			print(self.new_entries)
 			for data in self.data_entries:
 				data.streams = list(data.buffers)
 		else:
@@ -560,7 +678,8 @@ class OvsFile(OvsHeader):
 					data.buffers.append(buffer)
 					buff_ind += 1
 				data.streams = list(data.buffers)
-			#rint(self.buffer_entries)
+			#print(self.buffer_entries)
+            
 
 
 	@property
@@ -1098,6 +1217,34 @@ class OvlFile(Header, IoFile):
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
+        
+		print(self.mimes)
+		print(self.triplets)
+
+                
+	def upgrade(self):
+		for archive_entry in self.archives:
+			archive_entry.content.upgrader()
+		new_triplets = []
+		triplet_offset = 0
+		for mime in self.mimes:
+			mime.triplet_offset = triplet_offset
+			if mime.ext in lut_triplets:
+				triplet_grab = lut_triplets[mime.ext]
+				mime.triplet_count = len(triplet_grab)
+				triplet_offset += len(triplet_grab)
+				print(triplet_grab)
+				for tuple in triplet_grab:
+					trip = Triplet()
+					trip.a = tuple[0]
+					trip.b = tuple[1]
+					trip.c = tuple[2]
+					new_triplets.append(trip)
+		print(new_triplets)
+		self.triplets.extend(new_triplets)
+		self.update_pool_datas()
+
+        
 
 	def load_headers(self):
 		"""Create flattened list of pools"""
@@ -1300,6 +1447,7 @@ class OvlFile(Header, IoFile):
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 		self.num_dependencies = len(self.dependencies)
 		self.num_mimes = len(self.mimes)
+		self.num_triplets = len(self.triplets)
 		self.num_archives = len(self.archives)
 
 	def open_ovs_streams(self, mode="wb"):
