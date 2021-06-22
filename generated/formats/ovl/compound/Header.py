@@ -208,7 +208,12 @@ class Header(GenericHeader):
 		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
 		if stream.version >= 20:
 			self.triplets.write(stream, Triplet, self.num_triplets, None)
-			stream.write_type(self.triplets_pad)
+			if self.num_triplets > 0:
+				pad_size = (4 - ((3*self.num_triplets)%4))%4
+				pad = b"\x00" * pad_size
+				print(pad)
+				stream.write(pad)
+				#stream.write_type(self.triplets_pad)
 		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
