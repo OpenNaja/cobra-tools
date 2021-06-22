@@ -4,7 +4,7 @@ from modules.formats.shared import djb
 import struct
 import io
 import os
-
+from generated.formats.ovl.versions import *
 from ovl_util.interaction import showdialog
 
 SPECIES_ONLY_FMTS = (".mdl2", ".ms2", ".motiongraph", ".materialcollection")
@@ -34,15 +34,27 @@ def rename(ovl, name_tups, species_mode=False):
 	logging.info(f"Renaming for {name_tups}")
 	ovl_lists = [ovl.files, ovl.dependencies, ovl.dirs]
 	ovs_lists = []
-	for archive_entry in ovl.archives:
-		content = archive_entry.content
-		ovs_lists.extend((
-			content.data_entries,
-			content.set_header.sets,
-			content.set_header.assets,
-			content.pools,
-			content.sized_str_entries
-		))
+	if is_pz16(ovl):
+		for archive_entry in ovl.archives:
+			content = archive_entry.content
+			ovs_lists.extend((
+				content.data_entries,
+				content.buffer_entries,
+				content.set_header.sets,
+				content.set_header.assets,
+				content.pools,
+				content.sized_str_entries
+			))
+	else:   
+		for archive_entry in ovl.archives:
+			content = archive_entry.content
+			ovs_lists.extend((
+				content.data_entries,
+				content.set_header.sets,
+				content.set_header.assets,
+				content.pools,
+				content.sized_str_entries
+			))
 
 	# rename all entries
 	for entry_list in ovl_lists + ovs_lists:
