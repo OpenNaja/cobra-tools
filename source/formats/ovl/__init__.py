@@ -665,6 +665,7 @@ class OvsFile(OvsHeader):
 						if buffer.file_hash == data.file_hash:
 							buffer.data_entry = data
 							buffer.name = data.name
+							buffer.ext = data.ext
 							buffer.buffer_group = b_group
 							data.buffers.append(buffer)
 				# for buffer, data in zip(buffers, datas):
@@ -685,6 +686,7 @@ class OvsFile(OvsHeader):
 					# also give each buffer a reference to data so we can access it later
 					buffer.data_entry = data
 					buffer.name = data.name
+					buffer.ext = data.ext
 					data.buffers.append(buffer)
 					buff_ind += 1
 				data.streams = list(data.buffers)
