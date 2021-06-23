@@ -14,8 +14,8 @@ class HircPointer:
 
 		# length of following data
 		self.id = 0
-		self.data = Type2()
-		self.data = TypeOther()
+		self.data = Type2(None, None)
+		self.data = TypeOther(None, None)
 
 	def read(self, stream):
 

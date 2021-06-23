@@ -20,7 +20,7 @@ class ListLong(Descriptor):
 		self.io_start = 0
 
 		# the location of the child joint
-		self.loc = Vector3()
+		self.loc = Vector3(None, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
 		self.floats = numpy.zeros((5, 3), dtype='float')

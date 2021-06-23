@@ -13,13 +13,13 @@ class BoundingBox:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33()
+		self.rotation = Matrix33(None, None)
 
 		# center of the box
-		self.center = Vector3()
+		self.center = Vector3(None, None)
 
 		# total width
-		self.extent = Vector3()
+		self.extent = Vector3(None, None)
 
 		# probably padding
 		self.zeros = numpy.zeros((3), dtype='uint')

@@ -114,18 +114,18 @@ class Ms2BoneInfo:
 		self.zt_weirdness = numpy.zeros((10), dtype='ushort')
 
 		# weird zeros
-		self.zeros_padding = ZerosPadding()
+		self.zeros_padding = ZerosPadding(self.zeros_count, None)
 
 		# weird -1s
-		self.minus_padding = MinusPadding()
+		self.minus_padding = MinusPadding(self.zeros_count, None)
 
 		# ragdoll links?
-		self.struct_7 = Struct7()
-		self.weird_padding = SmartPadding()
+		self.struct_7 = Struct7(None, None)
+		self.weird_padding = SmartPadding(None, None)
 
 		# joints
-		self.joints = JointData()
-		self.weird_padding_2 = SmartPadding()
+		self.joints = JointData(None, None)
+		self.weird_padding_2 = SmartPadding(None, None)
 
 	def read(self, stream):
 

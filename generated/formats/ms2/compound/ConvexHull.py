@@ -16,10 +16,10 @@ class ConvexHull:
 
 		# 16 for anubis: 4 hulls * 16 * 12 (size of vert)
 		self.vertex_count = 0
-		self.rotation = Matrix33()
+		self.rotation = Matrix33(None, None)
 
 		# center of the box
-		self.offset = Vector3()
+		self.offset = Vector3(None, None)
 
 		# probably padding
 		self.zeros = numpy.zeros((5), dtype='uint')

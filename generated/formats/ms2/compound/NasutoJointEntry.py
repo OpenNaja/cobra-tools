@@ -23,8 +23,8 @@ class NasutoJointEntry:
 
 		# 0
 		self.zero = 0
-		self.matrix = Matrix33()
-		self.vector = Vector4()
+		self.matrix = Matrix33(None, None)
+		self.vector = Vector4(None, None)
 
 		# 1
 		self.one = 0

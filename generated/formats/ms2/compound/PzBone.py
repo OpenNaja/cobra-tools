@@ -14,8 +14,8 @@ class PzBone:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rot = Vector4()
-		self.loc = Vector3()
+		self.rot = Vector4(None, None)
+		self.loc = Vector3(None, None)
 		self.scale = 0
 
 	def read(self, stream):

@@ -10,8 +10,8 @@ class Key:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.euler = Vector3Short()
-		self.translation = Vector3Ushort()
+		self.euler = Vector3Short(None, None)
+		self.translation = Vector3Ushort(None, None)
 
 	def read(self, stream):
 

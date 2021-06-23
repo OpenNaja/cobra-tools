@@ -17,7 +17,7 @@ class Header:
 		self.io_start = 0
 
 		# 'VOXE'
-		self.magic = FixedString()
+		self.magic = FixedString(4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -35,7 +35,7 @@ class Header:
 		self.user_version = VersionInfo()
 
 		# always = 0
-		self.info = SizedStrData()
+		self.info = SizedStrData(None, None)
 
 	def read(self, stream):
 

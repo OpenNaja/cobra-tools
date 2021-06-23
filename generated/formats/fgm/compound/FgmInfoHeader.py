@@ -56,7 +56,7 @@ class FgmInfoHeader:
 		# byte count to check for quirks
 		self.data_lib_size = 0
 		self.texture_names = Array()
-		self.fgm_info = FourFragFgm()
+		self.fgm_info = FourFragFgm(None, None)
 		self.two_frags_pad = Array()
 		self.textures = Array()
 		self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 24)), dtype='byte')

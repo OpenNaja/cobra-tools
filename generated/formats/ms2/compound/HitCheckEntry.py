@@ -35,13 +35,13 @@ class HitCheckEntry:
 
 		# offset into joint names
 		self.name_offset = 0
-		self.collider = Sphere()
-		self.collider = BoundingBox()
-		self.collider = Capsule()
-		self.collider = Cylinder()
-		self.collider = ConvexHull()
-		self.collider = ConvexHull()
-		self.collider = MeshCollision()
+		self.collider = Sphere(None, None)
+		self.collider = BoundingBox(None, None)
+		self.collider = Capsule(None, None)
+		self.collider = Cylinder(None, None)
+		self.collider = ConvexHull(None, None)
+		self.collider = ConvexHull(None, None)
+		self.collider = MeshCollision(None, None)
 
 	def read(self, stream):
 

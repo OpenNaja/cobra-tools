@@ -16,7 +16,7 @@ class GenericHeader:
 		self.io_start = 0
 
 		# 'FRES'
-		self.fres = FixedString()
+		self.fres = FixedString(4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform
 		self.version_flag = 0

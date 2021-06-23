@@ -19,7 +19,7 @@ class Ms2InfoHeader:
 		self.io_start = 0
 
 		# 'MS2 '
-		self.magic = FixedString()
+		self.magic = FixedString(4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -35,9 +35,9 @@ class Ms2InfoHeader:
 		self.user_version = 0
 		self.bone_names_size = 0
 		self.bone_info_size = 0
-		self.general_info = Ms2SizedStrData()
-		self.buffer_info = Ms2BufferInfo()
-		self.buffer_0 = Ms2Buffer0()
+		self.general_info = Ms2SizedStrData(None, None)
+		self.buffer_info = Ms2BufferInfo(None, None)
+		self.buffer_0 = Ms2Buffer0(self.general_info, None)
 
 	def read(self, stream):
 

@@ -21,8 +21,8 @@ class Ms2Buffer0:
 		self.names = Array()
 
 		# todo - pad to 8; for pz 1.6
-		self.new_padding = SmartPadding()
-		self.zt_streams_header = Ms2BufferInfoZTHeader()
+		self.new_padding = SmartPadding(None, None)
+		self.zt_streams_header = Ms2BufferInfoZTHeader(self.arg, None)
 
 	def read(self, stream):
 

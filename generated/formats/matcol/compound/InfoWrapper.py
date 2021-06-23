@@ -9,7 +9,7 @@ class InfoWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = Info()
+		self.info = Info(None, None)
 		self.name = 0
 
 	def read(self, stream):

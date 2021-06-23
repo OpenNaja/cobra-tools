@@ -11,10 +11,10 @@ class Capsule:
 		self.io_start = 0
 
 		# relative to the armature, ie. not in bone space
-		self.offset = Vector3()
+		self.offset = Vector3(None, None)
 
 		# normalized
-		self.direction = Vector3()
+		self.direction = Vector3(None, None)
 
 		# radius of the caps
 		self.radius = 0

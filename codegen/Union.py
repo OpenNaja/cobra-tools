@@ -135,8 +135,12 @@ class Union:
 				# no default, so guess one
 				else:
 					if type_of_field_type in (
-					"compound", "struct", "niobject", "enum", "bitfield", "bitflags", "bitstruct"):
-						field_default = f"{field_type}()"
+						"compound", "struct", "niobject", "enum", "bitfield", "bitflags", "bitstruct"):
+						if type_of_field_type in ("compound", "struct", "niobject"):
+							arguments = f"{arg}, {template}"
+						else:
+							arguments = ""
+						field_default = f"{field_type}({arguments})"
 			if not field_default:
 				field_default = 0
 			if arr1:

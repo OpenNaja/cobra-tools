@@ -21,7 +21,7 @@ class Ms2BufferInfoZTHeader:
 		self.io_start = 0
 
 		# sometimes 00 byte
-		self.weird_padding = SmartPadding()
+		self.weird_padding = SmartPadding(None, None)
 		self.unks = Array()
 
 	def read(self, stream):

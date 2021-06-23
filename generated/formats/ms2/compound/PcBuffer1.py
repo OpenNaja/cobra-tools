@@ -18,8 +18,8 @@ class PcBuffer1:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.buffer_info_pc = Ms2BufferInfoZT()
-		self.buffer_info_pc = Ms2BufferInfoPC()
+		self.buffer_info_pc = Ms2BufferInfoZT(self.arg, None)
+		self.buffer_info_pc = Ms2BufferInfoPC(None, None)
 		self.model_infos = Array()
 
 	def read(self, stream):

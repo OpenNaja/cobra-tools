@@ -14,8 +14,8 @@ class Mdl2ModelInfo:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.fourty = Mdl2FourtyInfo()
-		self.info = CoreModelInfo()
+		self.fourty = Mdl2FourtyInfo(None, None)
+		self.info = CoreModelInfo(None, None)
 
 	def read(self, stream):
 

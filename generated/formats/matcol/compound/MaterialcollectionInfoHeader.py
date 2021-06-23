@@ -31,12 +31,12 @@ class MaterialcollectionInfoHeader:
 
 		# bool
 		self.has_texture_list = 0
-		self.root_0 = Root0()
-		self.root_1 = Root1()
-		self.root_1_pad = Root1Pad()
-		self.texture_wrapper = TextureWrapper()
-		self.variant_wrapper = VariantWrapper()
-		self.layered_wrapper = LayeredWrapper()
+		self.root_0 = Root0(None, None)
+		self.root_1 = Root1(None, None)
+		self.root_1_pad = Root1Pad(None, None)
+		self.texture_wrapper = TextureWrapper(None, None)
+		self.variant_wrapper = VariantWrapper(None, None)
+		self.layered_wrapper = LayeredWrapper(None, None)
 
 	def read(self, stream):
 

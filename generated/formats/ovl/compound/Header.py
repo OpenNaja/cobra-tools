@@ -99,7 +99,7 @@ class Header(GenericHeader):
 		self.reserved = numpy.zeros((12), dtype='uint')
 
 		# Name buffer for assets and file mime types.
-		self.names = ZStringBuffer()
+		self.names = ZStringBuffer(self.len_names, None)
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
 		self.mimes = Array()
@@ -108,13 +108,13 @@ class Header(GenericHeader):
 		self.triplets = Array()
 
 		# ?
-		self.triplets_pad = PadAlign()
+		self.triplets_pad = PadAlign(self.triplets, 4)
 
 		# Array of FileEntry objects.
 		self.files = Array()
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
-		self.archive_names = ZStringBuffer()
+		self.archive_names = ZStringBuffer(self.len_archive_names, None)
 
 		# Array of ArchiveEntry objects.
 		self.archives = Array()
@@ -208,12 +208,7 @@ class Header(GenericHeader):
 		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
 		if stream.version >= 20:
 			self.triplets.write(stream, Triplet, self.num_triplets, None)
-			if self.num_triplets > 0:
-				pad_size = (4 - ((3*self.num_triplets)%4))%4
-				pad = b"\x00" * pad_size
-				print(pad)
-				stream.write(pad)
-				#stream.write_type(self.triplets_pad)
+			stream.write_type(self.triplets_pad)
 		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)

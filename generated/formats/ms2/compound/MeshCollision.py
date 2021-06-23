@@ -14,10 +14,10 @@ class MeshCollision:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33()
+		self.rotation = Matrix33(None, None)
 
 		# offset of mesh
-		self.offset = Vector3()
+		self.offset = Vector3(None, None)
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
 		self.unk_1 = numpy.zeros((3, 2), dtype='ushort')
@@ -29,10 +29,10 @@ class MeshCollision:
 		self.tri_count = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3()
+		self.bounds_min = Vector3(None, None)
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3()
+		self.bounds_max = Vector3(None, None)
 
 		# seemingly fixed
 		self.ones_or_zeros = numpy.zeros((7), dtype='uint64')
@@ -41,10 +41,10 @@ class MeshCollision:
 		self.ff_or_zero = numpy.zeros((10), dtype='int')
 
 		# verbatim
-		self.bounds_min_repeat = Vector3()
+		self.bounds_min_repeat = Vector3(None, None)
 
 		# verbatim
-		self.bounds_max_repeat = Vector3()
+		self.bounds_max_repeat = Vector3(None, None)
 
 		# seems to repeat tri_count
 		self.tri_flags_count = 0

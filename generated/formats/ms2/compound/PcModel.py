@@ -31,13 +31,13 @@ class PcModel:
 		self.padding = 0
 		self.models = Array()
 		self.models = Array()
-		self.ztuac_pre_bones = ZTPreBones()
+		self.ztuac_pre_bones = ZTPreBones(None, None)
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
 		self.floatsy = Array()
 
 		# sometimes 00 byte
-		self.weird_padding = SmartPadding()
+		self.weird_padding = SmartPadding(None, None)
 
 	def read(self, stream):
 

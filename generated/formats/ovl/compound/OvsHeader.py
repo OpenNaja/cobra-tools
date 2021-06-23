@@ -30,7 +30,7 @@ class OvsHeader:
 		self.new_entries = Array()
 		self.sized_str_entries = Array()
 		self.fragments = Array()
-		self.set_header = SetHeader()
+		self.set_header = SetHeader(None, None)
 
 	def read(self, stream):
 

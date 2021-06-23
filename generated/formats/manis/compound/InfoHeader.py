@@ -24,7 +24,7 @@ class InfoHeader:
 		self.user_version = 0
 		self.mani_count = 0
 		self.names = Array()
-		self.header = SizedStrData()
+		self.header = SizedStrData(None, None)
 		self.mani_infos = Array()
 		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
 		self.bone_names = Array()

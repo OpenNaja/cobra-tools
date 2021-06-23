@@ -21,19 +21,19 @@ class CoreModelInfo:
 		self.io_start = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3()
+		self.bounds_min = Vector3(None, None)
 
 		# not sure, for PZ often 40 00 00 37 for animals
 		self.unk_float_a = 0
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3()
+		self.bounds_max = Vector3(None, None)
 
 		# scale: pack_offset / 512, also added as offset
 		self.pack_offset = 0
 
 		# cog? medium of bounds?
-		self.center = Vector3()
+		self.center = Vector3(None, None)
 
 		# probably from center to max
 		self.radius = 0
@@ -42,10 +42,10 @@ class CoreModelInfo:
 		self.unknowns = numpy.zeros((4), dtype='float')
 
 		# verbatim repeat
-		self.bounds_min_repeat = Vector3()
+		self.bounds_min_repeat = Vector3(None, None)
 
 		# verbatim repeat
-		self.bounds_max_repeat = Vector3()
+		self.bounds_max_repeat = Vector3(None, None)
 		self.num_materials = 0
 		self.num_lods = 0
 		self.num_objects = 0

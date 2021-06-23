@@ -13,7 +13,7 @@ class LayeredWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = MaterialInfo()
+		self.info = MaterialInfo(None, None)
 		self.layers = Array()
 
 	def read(self, stream):

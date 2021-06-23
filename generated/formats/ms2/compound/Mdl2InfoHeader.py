@@ -25,7 +25,7 @@ class Mdl2InfoHeader:
 		self.io_start = 0
 
 		# 'MS2 '
-		self.magic = FixedString()
+		self.magic = FixedString(4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -50,7 +50,7 @@ class Mdl2InfoHeader:
 		self.ms_2_name = 0
 
 		# gives relevant info on the mdl, including counts and pack base
-		self.model_info = CoreModelInfo()
+		self.model_info = CoreModelInfo(None, None)
 
 		# name pointers for each material
 		self.materials = Array()

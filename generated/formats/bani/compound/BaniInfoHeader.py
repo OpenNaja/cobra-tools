@@ -24,8 +24,8 @@ class BaniInfoHeader:
 
 		# name of the banis file buffer
 		self.banis_name = 0
-		self.data_0 = BaniFragmentData0()
-		self.data_1 = BaniFragmentData1()
+		self.data_0 = BaniFragmentData0(None, None)
+		self.data_1 = BaniFragmentData1(None, None)
 
 	def read(self, stream):
 

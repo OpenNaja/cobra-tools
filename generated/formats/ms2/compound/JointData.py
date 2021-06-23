@@ -81,7 +81,7 @@ class JointData:
 		self.long_list = Array()
 
 		# ?
-		self.pc_ffs = PcFFCounter()
+		self.pc_ffs = PcFFCounter(None, None)
 
 		# 1FAA FFAAFF00 000000
 		self.pc_bytes = numpy.zeros((9), dtype='byte')
@@ -102,10 +102,10 @@ class JointData:
 		self.bone_indices = numpy.zeros((self.bone_count), dtype='int')
 
 		# zstring name buffer
-		self.joint_names = ZStringBuffer()
+		self.joint_names = ZStringBuffer(self.namespace_length, None)
 
 		# ?
-		self.joint_names_padding = SmartPadding()
+		self.joint_names_padding = SmartPadding(None, None)
 
 		# includes name ptrs, some flags, and the hitchecks
 		self.joint_info_list = Array()

@@ -13,7 +13,7 @@ class TextureWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = TextureInfo()
+		self.info = TextureInfo(None, None)
 		self.textures = Array()
 
 	def read(self, stream):

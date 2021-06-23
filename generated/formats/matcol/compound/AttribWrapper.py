@@ -9,7 +9,7 @@ class AttribWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.attrib = Attrib()
+		self.attrib = Attrib(None, None)
 		self.name = 0
 
 	def read(self, stream):

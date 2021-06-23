@@ -26,7 +26,7 @@ def set_pc(inst):
 
 
 def is_pz(inst):
-	if inst.version >= 19 and inst.user_version in (8340, 8724):
+	if inst.version == 19 and inst.user_version in (8340, 8724):
 		return True
 
 

@@ -16,9 +16,9 @@ class Layer:
 		self.io_size = 0
 		self.io_start = 0
 		self.name = 0
-		self.info_info = LayeredInfo()
+		self.info_info = LayeredInfo(None, None)
 		self.infos = Array()
-		self.attrib_info = LayeredAttrib()
+		self.attrib_info = LayeredAttrib(None, None)
 		self.attribs = Array()
 
 	def read(self, stream):
