@@ -121,6 +121,7 @@ class OvsFile(OvsHeader):
         #sort the buffers to be what 1.6 needs
 		for buffer in self.buffer_entries:
 			buffer.file_hash = buffer.data_entry.file_hash
+			buffer.name = buffer.data_entry.name
 			buffer.ext = buffer.data_entry.ext
 		self.buffer_entries.sort(key = lambda x: (x.ext,x.index) )
 		print("AYAYA",self.buffer_entries)
@@ -193,16 +194,22 @@ class OvsFile(OvsHeader):
         #tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 		tex_fixa = 0
 		tex_fixb = 0
+		tex_fixc = 0
 		for new_entry in new_b:
 			if ".tex" == new_entry.ext:
-				if new_entry.buffer_index == 1:
+				if new_entry.buffer_count > tex_fixb:
+
+					tex_fixb = new_entry.buffer_count
+				if new_entry.data_offset > tex_fixa:
 					tex_fixa = new_entry.data_offset
-					tex_fixb = new_entry.data_count
+			elif ".texturestream" == new_entry.ext:
+				tex_fixc += new_entry.buffer_count
 		for new_entry in new_b:
 			if ".tex" == new_entry.ext:
 				new_entry.data_offset = tex_fixa
 				new_entry.data_count = tex_fixb
-					
+			elif ".texturestream" == new_entry.ext:
+				new_entry.data_count = tex_fixc
 
 		print(new_b)
 		self.new_entries.extend(new_b)
@@ -273,6 +280,7 @@ class OvsFile(OvsHeader):
 					self.set_header.sets,
 					self.set_header.assets):
 				for entry in entry_list:
+					print(entry)
 					file_index = file_name_lut[entry.name]
 					file = self.ovl.files[file_index]
 					entry.file_hash = file_index
@@ -285,6 +293,7 @@ class OvsFile(OvsHeader):
 					self.set_header.sets,
 					self.set_header.assets):
 				for entry in entry_list:
+					print(self.buffer_entries)
 					file_index = file_name_lut[entry.name]
 					file = self.ovl.files[file_index]
 					if is_jwe(self.ovl):
@@ -492,6 +501,7 @@ class OvsFile(OvsHeader):
 		return fs
 
 	def frags_from_pointer(self, ptr, count):
+		#print(ptr)
 		frags = self.frags_for_pointer(ptr)
 		return self.get_frags_after_count(frags, ptr.data_offset, count)
 
@@ -678,7 +688,7 @@ class OvsFile(OvsHeader):
 					data.buffers.append(buffer)
 					buff_ind += 1
 				data.streams = list(data.buffers)
-			#print(self.buffer_entries)
+			print(self.buffer_entries)
             
 
 
@@ -1218,8 +1228,8 @@ class OvlFile(Header, IoFile):
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
         
-		print(self.mimes)
-		print(self.triplets)
+		#print(self.mimes)
+		#print(self.triplets)
 
                 
 	def upgrade(self):
@@ -1241,8 +1251,10 @@ class OvlFile(Header, IoFile):
 					trip.c = tuple[2]
 					new_triplets.append(trip)
 		print(new_triplets)
+		self.triplets.clear()
 		self.triplets.extend(new_triplets)
-		self.update_pool_datas()
+		#self.update_pool_datas()
+		#print(self.archives[0].content)
 
         
 
