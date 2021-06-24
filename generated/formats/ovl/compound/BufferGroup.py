@@ -26,9 +26,6 @@ class BufferGroup:
 		# cumulative size of all buffers to grab
 		self.size = 0
 
-		# seems to be a zero
-		self.unk = 0
-
 		# first data entry
 		self.data_offset = 0
 
@@ -42,8 +39,7 @@ class BufferGroup:
 		self.buffer_count = stream.read_uint()
 		self.ext_index = stream.read_uint()
 		self.buffer_index = stream.read_uint()
-		self.size = stream.read_uint()
-		self.unk = stream.read_uint()
+		self.size = stream.read_uint64()
 		self.data_offset = stream.read_uint()
 		self.data_count = stream.read_uint()
 
@@ -56,8 +52,7 @@ class BufferGroup:
 		stream.write_uint(self.buffer_count)
 		stream.write_uint(self.ext_index)
 		stream.write_uint(self.buffer_index)
-		stream.write_uint(self.size)
-		stream.write_uint(self.unk)
+		stream.write_uint64(self.size)
 		stream.write_uint(self.data_offset)
 		stream.write_uint(self.data_count)
 
@@ -73,7 +68,6 @@ class BufferGroup:
 		s += f'\n	* ext_index = {self.ext_index.__repr__()}'
 		s += f'\n	* buffer_index = {self.buffer_index.__repr__()}'
 		s += f'\n	* size = {self.size.__repr__()}'
-		s += f'\n	* unk = {self.unk.__repr__()}'
 		s += f'\n	* data_offset = {self.data_offset.__repr__()}'
 		s += f'\n	* data_count = {self.data_count.__repr__()}'
 		return s

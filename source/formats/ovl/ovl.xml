@@ -299,8 +299,7 @@
 		<add name="buffer_count" type="uint">number of buffers to grab</add>
 		<add name="ext_index" type="uint">type of extension this entry is for</add>
 		<add name="buffer_index" type="uint">which buffer index to populate</add>
-		<add name="size" type="uint">cumulative size of all buffers to grab</add>
-		<add name="unk" type="uint">seems to be a zero</add>
+		<add name="size" type="uint64">cumulative size of all buffers to grab</add>
 		<add name="data_offset" type="uint">first data entry</add>
 		<add name="data_count" type="uint">number of data entries to populate buffers into</add>
     </compound>

@@ -143,7 +143,9 @@ class OvsFile(OvsHeader):
 				if new_entry:
 					logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
 					buffer_offset += new_entry.buffer_count
-					data_offset += new_entry.data_count
+					# only change data offset if ext changes
+					if buffer.ext != last_ext:
+						data_offset += new_entry.data_count
 				# now create the new new_entry and update its initial data
 				new_entry = BufferGroup()
 				new_entry.ext = buffer.ext
@@ -178,7 +180,7 @@ class OvsFile(OvsHeader):
 			elif ".texturestream" == new_entry.ext:
 				new_entry.data_count = tex_fixc
 
-		print(self.new_entries)
+		# print(self.new_entries)
 		# self.new_entries.extend(self.new_entries)
 
 	@contextmanager
@@ -308,6 +310,7 @@ class OvsFile(OvsHeader):
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
 			# print(self)
+			# print(self.new_entries)
 			pool_index = 0
 			for pool_type in self.pool_types:
 				for i in range(pool_type.num_pools):
@@ -636,8 +639,8 @@ class OvsFile(OvsHeader):
 			# for buffer, data in zip(buffers, datas):
 			# 	buffer.index = b_group.buffer_index
 			# 	data.buffers.append(buffer)
-			print(self.buffer_entries)
-			print(self.new_entries)
+			# print(self.buffer_entries)
+			# print(self.new_entries)
 			for data in self.data_entries:
 				data.streams = list(data.buffers)
 		else:
@@ -653,7 +656,7 @@ class OvsFile(OvsHeader):
 					data.buffers.append(buffer)
 					buff_ind += 1
 				data.streams = list(data.buffers)
-			print(self.buffer_entries)
+			# print(self.buffer_entries)
 
 	@property
 	def buffers_io_order(self):
@@ -1401,12 +1404,12 @@ class OvlFile(Header, IoFile):
 
 	def update_counts(self):
 		"""Update counts of this ovl and all of its archives"""
+		self.update_triplets()
 		# adjust the counts
 		for archive in self.archives:
+			archive.content.update_buffer_groups()
 			archive.content.update_counts()
 			archive.content.update_assets()
-			archive.content.update_buffer_groups()
-		self.update_triplets()
 		# sum content of individual archives
 		self.num_pool_types = sum(a.num_pool_types for a in self.archives)
 		self.num_pools = sum(a.num_pools for a in self.archives)
