@@ -1,5 +1,5 @@
 # START_GLOBALS
-from generated.formats.ovl import is_jwe, is_pz, get_game
+from generated.formats.ovl import *
 
 lut_mime_version_jwe = {
 	".fdb": 1,
@@ -72,7 +72,7 @@ class MimeEntry:
 		if is_jwe(ovl):
 			self.mime_hash = lut_mime_hash_jwe.get(self.ext)
 			self.mime_version = lut_mime_version_jwe.get(self.ext)
-		elif is_pz(ovl):
+		elif is_pz(ovl) or is_pz16(ovl):
 			self.mime_hash = lut_mime_hash_pz.get(self.ext)
 			self.mime_version = lut_mime_version_pz.get(self.ext)
 		else:
