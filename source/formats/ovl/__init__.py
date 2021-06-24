@@ -118,11 +118,13 @@ class OvsFile(OvsHeader):
 	def update_buffer_groups(self):
 		logging.info("Updating buffer groups")
 		# sort the buffers to be what 1.6 needs
-		for buffer in self.buffer_entries:
-			buffer.file_hash = buffer.data_entry.file_hash
-			buffer.name = buffer.data_entry.name
-			buffer.ext = buffer.data_entry.ext
-		self.buffer_entries.sort(key=lambda x: (x.ext, x.index))
+		for data_entry in self.data_entries:
+			for buffer in data_entry.buffers:
+				buffer.file_hash = data_entry.file_hash
+				buffer.name = data_entry.name
+				buffer.ext = data_entry.ext
+		# cobra < 20 used buffer index per data entry
+		self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
 		print("AYAYA", self.buffer_entries)
 		# generate a mime lut to know the index of the mimes
 		mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
@@ -649,7 +651,6 @@ class OvsFile(OvsHeader):
 					buffer.index = b_group.buffer_index
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
-							buffer.data_entry = data
 							buffer.name = data.name
 							buffer.ext = data.ext
 							buffer.buffer_group = b_group
@@ -669,8 +670,6 @@ class OvsFile(OvsHeader):
 				for j in range(data.buffer_count):
 					# print("data",i,"buffer",j, "buff_ind",buff_ind)
 					buffer = self.buffer_entries[buff_ind]
-					# also give each buffer a reference to data so we can access it later
-					buffer.data_entry = data
 					buffer.name = data.name
 					buffer.ext = data.ext
 					data.buffers.append(buffer)
