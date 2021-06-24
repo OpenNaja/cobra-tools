@@ -117,71 +117,69 @@ class OvsFile(OvsHeader):
 
 	def update_buffer_groups(self):
 		logging.info("Updating buffer groups")
-		# sort the buffers to be what 1.6 needs
-		for data_entry in self.data_entries:
-			for buffer in data_entry.buffers:
-				buffer.file_hash = data_entry.file_hash
-				buffer.name = data_entry.name
-				buffer.ext = data_entry.ext
-		# cobra < 20 used buffer index per data entry
-		self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
-		print("AYAYA", self.buffer_entries)
-		# generate a mime lut to know the index of the mimes
-		mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
-		# generate the buffergroup entries
-		last_ext = None
-		last_index = None
-		new_entry = None
-		buffer_offset = 0
-		data_offset = 0
 		self.new_entries.clear()
-		for i, buffer in enumerate(self.buffer_entries):
-			logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
-			# we have to create a new group
-			if buffer.ext != last_ext or buffer.index != last_index:
-				# if we already have a new_entry declared, update offsets for the next one
-				if new_entry:
-					logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
-					buffer_offset += new_entry.buffer_count
-					# only change data offset if ext changes
-					if buffer.ext != last_ext:
-						data_offset += new_entry.data_count
-				# now create the new new_entry and update its initial data
-				new_entry = BufferGroup()
-				new_entry.ext = buffer.ext
-				new_entry.ext_index = mime_lut.get(buffer.ext)
-				new_entry.buffer_index = buffer.index
-				new_entry.buffer_offset = buffer_offset
-				new_entry.data_offset = data_offset
-				self.new_entries.append(new_entry)
-			# gotta add this buffer to the current group
-			new_entry.buffer_count += 1
-			new_entry.size += buffer.size
-			new_entry.data_count += 1
-			# change buffer identity for next loop
-			last_ext = buffer.ext
-			last_index = buffer.index
-		# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
-		tex_fixa = 0
-		tex_fixb = 0
-		tex_fixc = 0
-		for new_entry in self.new_entries:
-			if ".tex" == new_entry.ext:
-				if new_entry.buffer_count > tex_fixb:
-					tex_fixb = new_entry.buffer_count
-				if new_entry.data_offset > tex_fixa:
-					tex_fixa = new_entry.data_offset
-			elif ".texturestream" == new_entry.ext:
-				tex_fixc += new_entry.buffer_count
-		for new_entry in self.new_entries:
-			if ".tex" == new_entry.ext:
-				new_entry.data_offset = tex_fixa
-				new_entry.data_count = tex_fixb
-			elif ".texturestream" == new_entry.ext:
-				new_entry.data_count = tex_fixc
-
-		# print(self.new_entries)
-		# self.new_entries.extend(self.new_entries)
+		if is_pz16(self.ovl):
+			# sort the buffers to be what 1.6 needs
+			for data_entry in self.data_entries:
+				for buffer in data_entry.buffers:
+					buffer.file_hash = data_entry.file_hash
+					buffer.name = data_entry.name
+					buffer.ext = data_entry.ext
+			# cobra < 20 used buffer index per data entry
+			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
+			print("AYAYA", self.buffer_entries)
+			# generate a mime lut to know the index of the mimes
+			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
+			# generate the buffergroup entries
+			last_ext = None
+			last_index = None
+			new_entry = None
+			buffer_offset = 0
+			data_offset = 0
+			for i, buffer in enumerate(self.buffer_entries):
+				logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
+				# we have to create a new group
+				if buffer.ext != last_ext or buffer.index != last_index:
+					# if we already have a new_entry declared, update offsets for the next one
+					if new_entry:
+						logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
+						buffer_offset += new_entry.buffer_count
+						# only change data offset if ext changes
+						if buffer.ext != last_ext:
+							data_offset += new_entry.data_count
+					# now create the new new_entry and update its initial data
+					new_entry = BufferGroup()
+					new_entry.ext = buffer.ext
+					new_entry.ext_index = mime_lut.get(buffer.ext)
+					new_entry.buffer_index = buffer.index
+					new_entry.buffer_offset = buffer_offset
+					new_entry.data_offset = data_offset
+					self.new_entries.append(new_entry)
+				# gotta add this buffer to the current group
+				new_entry.buffer_count += 1
+				new_entry.size += buffer.size
+				new_entry.data_count += 1
+				# change buffer identity for next loop
+				last_ext = buffer.ext
+				last_index = buffer.index
+			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
+			tex_fixa = 0
+			tex_fixb = 0
+			tex_fixc = 0
+			for new_entry in self.new_entries:
+				if ".tex" == new_entry.ext:
+					if new_entry.buffer_count > tex_fixb:
+						tex_fixb = new_entry.buffer_count
+					if new_entry.data_offset > tex_fixa:
+						tex_fixa = new_entry.data_offset
+				elif ".texturestream" == new_entry.ext:
+					tex_fixc += new_entry.buffer_count
+			for new_entry in self.new_entries:
+				if ".tex" == new_entry.ext:
+					new_entry.data_offset = tex_fixa
+					new_entry.data_count = tex_fixb
+				elif ".texturestream" == new_entry.ext:
+					new_entry.data_count = tex_fixc
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
@@ -1202,19 +1200,19 @@ class OvlFile(Header, IoFile):
 	def update_triplets(self):
 		logging.info("Updating triplets")
 		self.triplets.clear()
-		triplet_offset = 0
-		for mime in self.mimes:
-			mime.triplet_offset = triplet_offset
-			if mime.ext in lut_triplets:
-				triplet_grab = lut_triplets[mime.ext]
-				mime.triplet_count = len(triplet_grab)
-				triplet_offset += len(triplet_grab)
-				# print(triplet_grab)
-				for triplet in triplet_grab:
-					trip = Triplet()
-					trip.a, trip.b, trip.c = triplet
-					self.triplets.append(trip)
-		# print(self.triplets)
+		if is_pz16(self):
+			triplet_offset = 0
+			for mime in self.mimes:
+				mime.triplet_offset = triplet_offset
+				if mime.ext in lut_triplets:
+					triplet_grab = lut_triplets[mime.ext]
+					mime.triplet_count = len(triplet_grab)
+					triplet_offset += len(triplet_grab)
+					# print(triplet_grab)
+					for triplet in triplet_grab:
+						trip = Triplet()
+						trip.a, trip.b, trip.c = triplet
+						self.triplets.append(trip)
 
 	def load_headers(self):
 		"""Create flattened list of pools"""
