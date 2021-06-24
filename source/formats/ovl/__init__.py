@@ -129,58 +129,36 @@ class OvsFile(OvsHeader):
 		# generate a mime lut to know the index of the mimes
 		mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
 		# generate the buffergroup entries
+		last_ext = None
+		last_index = None
+		new_entry = None
+		buffer_offset = 0
+		data_offset = 0
 		self.new_entries.clear()
 		for i, buffer in enumerate(self.buffer_entries):
-			if i > 0:
-				if buffer.ext != self.buffer_entries[i - 1].ext:
-					new_entry = BufferGroup()
-					new_entry.ext = buffer.ext
-					new_entry.buffer_offset = 0
-					new_entry.buffer_count += 1
-					new_entry.ext_index = mime_lut.get(buffer.ext)
-					new_entry.buffer_index = buffer.index
-					new_entry.size += buffer.size
-					new_entry.data_offset = 0
-					new_entry.data_count += 1
-					self.new_entries.append(new_entry)
-				else:
-					if buffer.index != self.buffer_entries[i - 1].index:
-						new_entry = BufferGroup()
-						new_entry.ext = buffer.ext
-						new_entry.buffer_offset = 0
-						new_entry.buffer_count += 1
-						new_entry.ext_index = mime_lut.get(buffer.ext)
-						new_entry.buffer_index = buffer.index
-						new_entry.size += buffer.size
-						new_entry.data_offset = 0
-						new_entry.data_count += 1
-						self.new_entries.append(new_entry)
-					else:
-						for x, new_entry in enumerate(self.new_entries):
-							if new_entry.ext == buffer.ext:
-								if new_entry.buffer_index == buffer.index:
-									new_entry.buffer_count += 1
-									new_entry.size += buffer.size
-									new_entry.data_count += 1
-			else:
+			logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
+			# we have to create a new group
+			if buffer.ext != last_ext or buffer.index != last_index:
+				# if we already have a new_entry declared, update offsets for the next one
+				if new_entry:
+					logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
+					buffer_offset += new_entry.buffer_count
+					data_offset += new_entry.data_count
+				# now create the new new_entry and update its initial data
 				new_entry = BufferGroup()
 				new_entry.ext = buffer.ext
-				new_entry.buffer_offset = 0
-				new_entry.buffer_count += 1
 				new_entry.ext_index = mime_lut.get(buffer.ext)
 				new_entry.buffer_index = buffer.index
-				new_entry.size += buffer.size
-				new_entry.data_offset = 0
-				new_entry.data_count += 1
+				new_entry.buffer_offset = buffer_offset
+				new_entry.data_offset = data_offset
 				self.new_entries.append(new_entry)
-		# fix the offsets of the buffergroups
-		for x, new_entry in enumerate(self.new_entries):
-			if x > 0:
-				new_entry.buffer_offset = self.new_entries[x - 1].buffer_offset + self.new_entries[x - 1].buffer_count
-				if new_entry.ext != self.new_entries[x - 1].ext:
-					new_entry.data_offset = self.new_entries[x - 1].data_offset + self.new_entries[x - 1].data_count
-				else:
-					new_entry.data_offset = self.new_entries[x - 1].data_offset
+			# gotta add this buffer to the current group
+			new_entry.buffer_count += 1
+			new_entry.size += buffer.size
+			new_entry.data_count += 1
+			# change buffer identity for next loop
+			last_ext = buffer.ext
+			last_index = buffer.index
 		# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 		tex_fixa = 0
 		tex_fixb = 0
