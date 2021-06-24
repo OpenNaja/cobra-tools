@@ -126,59 +126,87 @@ class OvsFile(OvsHeader):
 				buffer.ext = buffer.data_entry.ext
 			# cobra < 20 used buffer index per data entry
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
-			print("AYAYA", self.buffer_entries)
+			#print("AYAYA", self.buffer_entries)
 			# generate a mime lut to know the index of the mimes
 			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
 			# generate the buffergroup entries
-			last_ext = None
-			last_index = None
-			new_entry = None
-			buffer_offset = 0
-			data_offset = 0
+			new_b = []
 			for i, buffer in enumerate(self.buffer_entries):
-				logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
-				# we have to create a new group
-				if buffer.ext != last_ext or buffer.index != last_index:
-					# if we already have a new_entry declared, update offsets for the next one
-					if new_entry:
-						logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
-						buffer_offset += new_entry.buffer_count
-						# only change data offset if ext changes
-						if buffer.ext != last_ext:
-							data_offset += new_entry.data_count
-					# now create the new new_entry and update its initial data
+				if i > 0:
+					if buffer.ext != self.buffer_entries[i-1].ext:
+						new_entry = BufferGroup()
+						new_entry.ext = buffer.ext
+						new_entry.buffer_offset = 0
+						new_entry.buffer_count += 1
+						new_entry.ext_index = mime_lut.get(buffer.ext)
+						new_entry.buffer_index = buffer.index
+						new_entry.size += buffer.size
+						new_entry.data_offset = 0
+						new_entry.data_count += 1
+						new_b.append(new_entry)	
+						
+					else:
+						if buffer.index != self.buffer_entries[i-1].index:
+							new_entry = BufferGroup()
+							new_entry.ext = buffer.ext
+							new_entry.buffer_offset = 0
+							new_entry.buffer_count += 1
+							new_entry.ext_index = mime_lut.get(buffer.ext)
+							new_entry.buffer_index = buffer.index
+							new_entry.size += buffer.size
+							new_entry.data_offset = 0
+							new_entry.data_count += 1
+							new_b.append(new_entry)	
+							
+							
+						else:
+							for x, new_entry in enumerate(new_b):
+								if new_entry.ext == buffer.ext:
+									if new_entry.buffer_index == buffer.index:
+										new_entry.buffer_count+=1
+										new_entry.size += buffer.size
+										new_entry.data_count +=1
+				else:
 					new_entry = BufferGroup()
 					new_entry.ext = buffer.ext
+					new_entry.buffer_offset = 0
+					new_entry.buffer_count += 1
 					new_entry.ext_index = mime_lut.get(buffer.ext)
 					new_entry.buffer_index = buffer.index
-					new_entry.buffer_offset = buffer_offset
-					new_entry.data_offset = data_offset
-					self.new_entries.append(new_entry)
-				# gotta add this buffer to the current group
-				new_entry.buffer_count += 1
-				new_entry.size += buffer.size
-				new_entry.data_count += 1
-				# change buffer identity for next loop
-				last_ext = buffer.ext
-				last_index = buffer.index
+					new_entry.size += buffer.size
+					new_entry.data_offset = 0
+					new_entry.data_count += 1
+					new_b.append(new_entry)
+			#fix the offsets of the buffergroups				
+			for x, new_entry in enumerate(new_b):
+				if x > 0:
+					new_entry.buffer_offset = new_b[x-1].buffer_offset + new_b[x-1].buffer_count
+					if new_entry.ext != new_b[x-1].ext:
+						new_entry.data_offset = new_b[x-1].data_offset + new_b[x-1].data_count
+					else:
+						new_entry.data_offset = new_b[x-1].data_offset
+						if new_entry.data_count < new_b[x-1].data_count:
+							new_entry.data_count = new_b[x-1].data_count
 			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 			tex_fixa = 0
 			tex_fixb = 0
 			tex_fixc = 0
-			for new_entry in self.new_entries:
+			for new_entry in new_b:
 				if ".tex" == new_entry.ext:
 					if new_entry.buffer_count > tex_fixb:
+
 						tex_fixb = new_entry.buffer_count
 					if new_entry.data_offset > tex_fixa:
 						tex_fixa = new_entry.data_offset
 				elif ".texturestream" == new_entry.ext:
 					tex_fixc += new_entry.buffer_count
-			for new_entry in self.new_entries:
+			for new_entry in new_b:
 				if ".tex" == new_entry.ext:
 					new_entry.data_offset = tex_fixa
 					new_entry.data_count = tex_fixb
 				elif ".texturestream" == new_entry.ext:
 					new_entry.data_count = tex_fixc
+			self.new_entries.extend(new_b)
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
