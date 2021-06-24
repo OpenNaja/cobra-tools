@@ -113,7 +113,6 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
 			(file_menu, "Save", self.save_ovl, "CTRL+S", "save"),
-			(file_menu, "Upgrade", self.upgrade_ovl, "", ""),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
@@ -348,11 +347,6 @@ class MainWindow(widgets.MainWindow):
 				except BaseException as ex:
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
-                    
-	def upgrade_ovl(self):
-		if self.is_open_ovl():
-			self.ovl_data.upgrade()
-			print("upgraded ovl")
 
 	def extract_all(self):
 		if self.is_open_ovl():

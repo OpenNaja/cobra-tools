@@ -46,26 +46,25 @@ lut_file_unk_1 = {
 	".mdl2": 2,
 }
 
-
 lut_triplets = {
-	".fgm":((1,2,0),),
-	".banis":((2,2,1),),
-	".manis":((2,0,4),(1,0,2),(2,0,4),),
-	".ms2":((1,2,2),(2,0,4),(0,0,0),),
-	".tex":((0,0,0),),
-	".texturestream":((0,0,0),),
-	".lua":((2,2,0),),
-	".renderparametercurves":((1,2,3),),
-	".renderparameters":((1,2,3),),
-	".userinterfaceicondata":((1,2,3),),
-	".assetpkg":((1,2,3),),
-	".animalresearchstartunlockedsettings":((1,2,3),),
-	".animalresearchunlockssettings":((1,2,3),),
-	".fdb":((1,2,0),(1,0,0),),
-	".mechanicresearchsettings":((1,2,3),),
-	".pathextrusion":((1,2,3),),
-	".pathmaterial":((1,2,3),),
-	".pathresource":((1,2,3),),
+	".fgm": ((1, 2, 0),),
+	".banis": ((2, 2, 1),),
+	".manis": ((2, 0, 4), (1, 0, 2), (2, 0, 4),),
+	".ms2": ((1, 2, 2), (2, 0, 4), (0, 0, 0),),
+	".tex": ((0, 0, 0),),
+	".texturestream": ((0, 0, 0),),
+	".lua": ((2, 2, 0),),
+	".renderparametercurves": ((1, 2, 3),),
+	".renderparameters": ((1, 2, 3),),
+	".userinterfaceicondata": ((1, 2, 3),),
+	".assetpkg": ((1, 2, 3),),
+	".animalresearchstartunlockedsettings": ((1, 2, 3),),
+	".animalresearchunlockssettings": ((1, 2, 3),),
+	".fdb": ((1, 2, 0), (1, 0, 0),),
+	".mechanicresearchsettings": ((1, 2, 3),),
+	".pathextrusion": ((1, 2, 3),),
+	".pathmaterial": ((1, 2, 3),),
+	".pathresource": ((1, 2, 3),),
 }
 
 
@@ -115,106 +114,92 @@ class OvsFile(OvsHeader):
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
 			return stream.getbuffer()
-			
-			
-	def upgrader(self):
-        #sort the buffers to be what 1.6 needs
+
+	def update_buffer_groups(self):
+		logging.info("Updating buffer groups")
+		# sort the buffers to be what 1.6 needs
 		for buffer in self.buffer_entries:
 			buffer.file_hash = buffer.data_entry.file_hash
 			buffer.name = buffer.data_entry.name
 			buffer.ext = buffer.data_entry.ext
-		self.buffer_entries.sort(key = lambda x: (x.ext,x.index) )
-		print("AYAYA",self.buffer_entries)
-		#generate a mime lut to know the index of the mimes
-		mime_lut = []
-		for i,mime in enumerate(self.ovl.mimes):
-			mime_lut.append((mime.ext,i))	
-        #generate the buffergroup entries
-		new_b = []
+		self.buffer_entries.sort(key=lambda x: (x.ext, x.index))
+		print("AYAYA", self.buffer_entries)
+		# generate a mime lut to know the index of the mimes
+		mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
+		# generate the buffergroup entries
+		self.new_entries.clear()
 		for i, buffer in enumerate(self.buffer_entries):
 			if i > 0:
-				if buffer.ext != self.buffer_entries[i-1].ext:
+				if buffer.ext != self.buffer_entries[i - 1].ext:
 					new_entry = BufferGroup()
 					new_entry.ext = buffer.ext
 					new_entry.buffer_offset = 0
 					new_entry.buffer_count += 1
-					for tuple in mime_lut:
-						if tuple[0] == buffer.ext:
-							new_entry.ext_index = tuple[1]
+					new_entry.ext_index = mime_lut.get(buffer.ext)
 					new_entry.buffer_index = buffer.index
 					new_entry.size += buffer.size
 					new_entry.data_offset = 0
 					new_entry.data_count += 1
-					new_b.append(new_entry)	
-					
+					self.new_entries.append(new_entry)
 				else:
-					if buffer.index != self.buffer_entries[i-1].index:
+					if buffer.index != self.buffer_entries[i - 1].index:
 						new_entry = BufferGroup()
 						new_entry.ext = buffer.ext
 						new_entry.buffer_offset = 0
 						new_entry.buffer_count += 1
-						for tuple in mime_lut:
-							if tuple[0] == buffer.ext:
-								new_entry.ext_index = tuple[1]
+						new_entry.ext_index = mime_lut.get(buffer.ext)
 						new_entry.buffer_index = buffer.index
 						new_entry.size += buffer.size
 						new_entry.data_offset = 0
 						new_entry.data_count += 1
-						new_b.append(new_entry)	
-						
-						
+						self.new_entries.append(new_entry)
 					else:
-						for x, new_entry in enumerate(new_b):
+						for x, new_entry in enumerate(self.new_entries):
 							if new_entry.ext == buffer.ext:
 								if new_entry.buffer_index == buffer.index:
-									new_entry.buffer_count+=1
+									new_entry.buffer_count += 1
 									new_entry.size += buffer.size
-									new_entry.data_count +=1
+									new_entry.data_count += 1
 			else:
 				new_entry = BufferGroup()
 				new_entry.ext = buffer.ext
 				new_entry.buffer_offset = 0
 				new_entry.buffer_count += 1
-				for tuple in mime_lut:
-					if tuple[0] == buffer.ext:
-						new_entry.ext_index = tuple[1]
+				new_entry.ext_index = mime_lut.get(buffer.ext)
 				new_entry.buffer_index = buffer.index
 				new_entry.size += buffer.size
 				new_entry.data_offset = 0
 				new_entry.data_count += 1
-				new_b.append(new_entry)
-		#fix the offsets of the buffergroups				
-		for x, new_entry in enumerate(new_b):
+				self.new_entries.append(new_entry)
+		# fix the offsets of the buffergroups
+		for x, new_entry in enumerate(self.new_entries):
 			if x > 0:
-				new_entry.buffer_offset = new_b[x-1].buffer_offset + new_b[x-1].buffer_count
-				if new_entry.ext != new_b[x-1].ext:
-					new_entry.data_offset = new_b[x-1].data_offset + new_b[x-1].data_count
+				new_entry.buffer_offset = self.new_entries[x - 1].buffer_offset + self.new_entries[x - 1].buffer_count
+				if new_entry.ext != self.new_entries[x - 1].ext:
+					new_entry.data_offset = self.new_entries[x - 1].data_offset + self.new_entries[x - 1].data_count
 				else:
-					new_entry.data_offset = new_b[x-1].data_offset
-        #tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
+					new_entry.data_offset = self.new_entries[x - 1].data_offset
+		# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 		tex_fixa = 0
 		tex_fixb = 0
 		tex_fixc = 0
-		for new_entry in new_b:
+		for new_entry in self.new_entries:
 			if ".tex" == new_entry.ext:
 				if new_entry.buffer_count > tex_fixb:
-
 					tex_fixb = new_entry.buffer_count
 				if new_entry.data_offset > tex_fixa:
 					tex_fixa = new_entry.data_offset
 			elif ".texturestream" == new_entry.ext:
 				tex_fixc += new_entry.buffer_count
-		for new_entry in new_b:
+		for new_entry in self.new_entries:
 			if ".tex" == new_entry.ext:
 				new_entry.data_offset = tex_fixa
 				new_entry.data_count = tex_fixb
 			elif ".texturestream" == new_entry.ext:
 				new_entry.data_count = tex_fixc
 
-		print(new_b)
-		self.new_entries.extend(new_b)
-			
-		
+		print(self.new_entries)
+		# self.new_entries.extend(self.new_entries)
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
@@ -301,8 +286,9 @@ class OvsFile(OvsHeader):
 					else:
 						entry.file_hash = file_index
 					entry.ext_hash = file.ext_hash
-		# these seem to be sorted, but they are indexed into by other lists so gotta be careful when sorting them
-		# self.sized_str_entries.sort(key=lambda x: x.file_hash)
+
+	# these seem to be sorted, but they are indexed into by other lists so gotta be careful when sorting them
+	# self.sized_str_entries.sort(key=lambda x: x.file_hash)
 
 	def update_counts(self):
 		"""Update counts of this archive"""
@@ -501,7 +487,7 @@ class OvsFile(OvsHeader):
 		return fs
 
 	def frags_from_pointer(self, ptr, count):
-		#print(ptr)
+		# print(ptr)
 		frags = self.frags_for_pointer(ptr)
 		return self.get_frags_after_count(frags, ptr.data_offset, count)
 
@@ -512,7 +498,7 @@ class OvsFile(OvsHeader):
 			frag_i = pool.frag_lut[ptr.data_offset]
 		except:
 			print("error", ptr.data_offset, pool.frag_lut)
-		return self.fragments[frag_i:frag_i+count]
+		return self.fragments[frag_i:frag_i + count]
 
 	def frags_from_pointer_equals(self, p):
 		frags = self.frags_for_pointer(p)
@@ -604,7 +590,7 @@ class OvsFile(OvsHeader):
 			# ".hier": ( (4,6) for x in range(19) ),
 			".spl": 1,
 			# ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
-			}
+		}
 		# include formats that are known to have no fragments
 		no_frags = (".txt", ".mani", ".manis",)
 		ss_max = len(self.sized_str_entries)
@@ -656,9 +642,9 @@ class OvsFile(OvsHeader):
 			for b_group in self.new_entries:
 				# print(b_group.buffer_count, b_group.data_count)
 				# note that datas can be bigger than buffers
-				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
+				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset + b_group.buffer_count]
 				# buffers = buffs_sorted[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
-				datas = self.data_entries[b_group.data_offset: b_group.data_offset+b_group.data_count]
+				datas = self.data_entries[b_group.data_offset: b_group.data_offset + b_group.data_count]
 				for buffer in buffers:
 					buffer.index = b_group.buffer_index
 					for data in datas:
@@ -668,9 +654,9 @@ class OvsFile(OvsHeader):
 							buffer.ext = data.ext
 							buffer.buffer_group = b_group
 							data.buffers.append(buffer)
-				# for buffer, data in zip(buffers, datas):
-				# 	buffer.index = b_group.buffer_index
-				# 	data.buffers.append(buffer)
+			# for buffer, data in zip(buffers, datas):
+			# 	buffer.index = b_group.buffer_index
+			# 	data.buffers.append(buffer)
 			print(self.buffer_entries)
 			print(self.new_entries)
 			for data in self.data_entries:
@@ -691,8 +677,6 @@ class OvsFile(OvsHeader):
 					buff_ind += 1
 				data.streams = list(data.buffers)
 			print(self.buffer_entries)
-            
-
 
 	@property
 	def buffers_io_order(self):
@@ -888,7 +872,8 @@ class OvsFile(OvsHeader):
 
 	def calc_uncompressed_size(self, ):
 		"""Calculate the size of the whole decompressed stream for this archive"""
-		return self.start_of_pools + sum(pool.size for pool in self.pools) + sum(buffer.size for buffer in self.buffer_entries)
+		return self.start_of_pools + sum(pool.size for pool in self.pools) + sum(
+			buffer.size for buffer in self.buffer_entries)
 
 	def write_pointers_to_pools(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""
@@ -1165,7 +1150,8 @@ class OvlFile(Header, IoFile):
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
 			self.hash_table_local[djb(mime_entry.ext[1:])] = mime_entry.ext
-			mime_entry.triplets = self.triplets[mime_entry.triplet_offset: mime_entry.triplet_offset+mime_entry.triplet_count]
+			mime_entry.triplets = self.triplets[
+								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
 
 		# add file name to hash dict; ignoring the extension pointer
 		hf_max = len(self.files)
@@ -1229,15 +1215,13 @@ class OvlFile(Header, IoFile):
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
-        
-		#print(self.mimes)
-		#print(self.triplets)
 
-                
-	def upgrade(self):
-		for archive_entry in self.archives:
-			archive_entry.content.upgrader()
-		new_triplets = []
+	# print(self.mimes)
+	# print(self.triplets)
+
+	def update_triplets(self):
+		logging.info("Updating triplets")
+		self.triplets.clear()
 		triplet_offset = 0
 		for mime in self.mimes:
 			mime.triplet_offset = triplet_offset
@@ -1245,27 +1229,20 @@ class OvlFile(Header, IoFile):
 				triplet_grab = lut_triplets[mime.ext]
 				mime.triplet_count = len(triplet_grab)
 				triplet_offset += len(triplet_grab)
-				print(triplet_grab)
-				for tuple in triplet_grab:
+				# print(triplet_grab)
+				for triplet in triplet_grab:
 					trip = Triplet()
-					trip.a = tuple[0]
-					trip.b = tuple[1]
-					trip.c = tuple[2]
-					new_triplets.append(trip)
-		print(new_triplets)
-		self.triplets.clear()
-		self.triplets.extend(new_triplets)
-		#self.update_pool_datas()
-		#print(self.archives[0].content)
-
-        
+					trip.a, trip.b, trip.c = triplet
+					self.triplets.append(trip)
+		# print(self.triplets)
 
 	def load_headers(self):
 		"""Create flattened list of pools"""
 		self.pools = [None for _ in range(self.num_pools)]
 		for archive_entry in self.archives:
 			if archive_entry.num_pools:
-				self.pools[archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
+				self.pools[
+				archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
 
 	def link_ptrs_to_pools(self):
 		""""Link all pointers to their respective pools"""
@@ -1281,7 +1258,8 @@ class OvlFile(Header, IoFile):
 		start_time = time.time()
 		self.open_ovs_streams(mode="rb")
 		for archive_index, archive_entry in enumerate(self.archives):
-			self.print_and_callback(f"Reading archive {archive_entry.name}", value=archive_index, max_value=len(self.archives))
+			self.print_and_callback(f"Reading archive {archive_entry.name}", value=archive_index,
+									max_value=len(self.archives))
 			# those point to external ovs archives
 			if archive_entry.name == "STATIC":
 				read_start = self.eof
@@ -1392,7 +1370,7 @@ class OvlFile(Header, IoFile):
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-								# sized_str_entry.streams.append(other_sizedstr)
+							# sized_str_entry.streams.append(other_sizedstr)
 			if sized_str_entry.ext == ".ms2":
 				for lod_i in range(4):
 					for archive in self.archives:
@@ -1402,8 +1380,8 @@ class OvlFile(Header, IoFile):
 							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
 								# print("model2stream")
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-								# sized_str_entry.streams.append(other_sizedstr)
-				# print(sized_str_entry.data_entry.buffers)
+							# sized_str_entry.streams.append(other_sizedstr)
+			# print(sized_str_entry.data_entry.buffers)
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
@@ -1450,7 +1428,8 @@ class OvlFile(Header, IoFile):
 		for archive in self.archives:
 			archive.content.update_counts()
 			archive.content.update_assets()
-
+			archive.content.update_buffer_groups()
+		self.update_triplets()
 		# sum content of individual archives
 		self.num_pool_types = sum(a.num_pool_types for a in self.archives)
 		self.num_pools = sum(a.num_pools for a in self.archives)
@@ -1508,7 +1487,8 @@ class OvlFile(Header, IoFile):
 		for i, archive_entry in enumerate(self.archives):
 			# write archive into bytes IO stream
 			uncompressed = archive_entry.content.get_bytes(i, dat_path)
-			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.compress(uncompressed)
+			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.compress(
+				uncompressed)
 			# update set data size
 			archive_entry.set_data_size = archive_entry.content.set_header.io_size
 			if i == 0:
@@ -1540,7 +1520,7 @@ class OvlFile(Header, IoFile):
 			# grab and update size
 			if os.path.isfile(bnkpath):
 				aux.size = os.path.getsize(bnkpath)
-		# print(aux.size)
+	# print(aux.size)
 
 
 if __name__ == "__main__":
