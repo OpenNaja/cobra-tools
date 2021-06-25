@@ -1479,6 +1479,7 @@ class OvlFile(Header, IoFile):
 		# compress data stream
 		for i, archive_entry in enumerate(self.archives):
 			# write archive into bytes IO stream
+			self.progress_callback("Saving archives...", value=i, vmax=len(self.archives))
 			uncompressed = archive_entry.content.get_bytes(i, dat_path)
 			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.compress(
 				uncompressed)
