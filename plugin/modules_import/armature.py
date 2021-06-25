@@ -67,13 +67,15 @@ def import_armature(mdl2, b_bone_names):
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 		for b_edit_bone in b_armature_data.edit_bones:
 			# get the actual z axis from the matrix represented by this bone
+			old_roll = math.degrees(b_edit_bone.roll)
 			b_vec = b_edit_bone.matrix.to_3x3()[2]
 			# form the angle between that and the desired bone bind's z axis
 			a = b_vec.angle(z_dic[b_edit_bone.name])
 			if a > 0.0001:
-				logging.debug(f"Changed broken bone roll for {b_edit_bone.name}")
 				# align it to original bone's z axis
 				b_edit_bone.align_roll(z_dic[b_edit_bone.name])
+				new_roll = math.degrees(b_edit_bone.roll)
+				logging.debug(f"Changed broken bone roll for {b_edit_bone.name} ({old_roll:.1f}° -> {new_roll:.1f}°)")
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
 		# store original bone index as custom property
