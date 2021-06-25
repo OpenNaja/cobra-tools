@@ -16,7 +16,7 @@ from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Mdl2File
 from utils.matrix_util import evaluate_mesh
-from utils.shell import get_collection, is_shell
+from utils.shell import get_collection, is_shell, is_fin
 
 MAX_USHORT = 65535
 
@@ -101,8 +101,9 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	count_reused = 0
 	shell_ob = None
 	# fin models have to grab tangents from shell
-	if model.flag == 565:
-		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob)]
+	# if model.flag == 565:
+	if is_fin(b_ob):
+		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob) and ob is not b_ob]
 		if shell_obs:
 			shell_ob = shell_obs[0]
 			logging.debug(f"Copying data for {b_ob.name} from base mesh {shell_ob.name}...")
