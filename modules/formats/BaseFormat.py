@@ -90,3 +90,7 @@ class BaseFile:
 		self.ovs.data_entries.append(new_data)
 		new_data.update_data(buffer_bytes)
 		return new_data
+
+	def update(self):
+		"""Don't do anything by default, overwrite if needed"""
+		pass

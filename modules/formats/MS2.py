@@ -5,9 +5,6 @@ import logging
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
 from generated.formats.ms2 import Mdl2File, Ms2File, is_old
-from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
-from generated.formats.ms2.compound.LodInfo import LodInfo
-from generated.formats.ms2.compound.ModelData import ModelData
 
 from generated.formats.ovl.versions import *
 
@@ -18,16 +15,8 @@ from modules.helpers import write_sized_str, as_bytes
 
 def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = ms2_sized_str_entry.name
-	assert ms2_sized_str_entry.data_entry
-	buffers = ms2_sized_str_entry.data_entry.stream_datas
-	name_buffer = buffers[0]
-	bone_infos = buffers[1]
-	verts = b"".join(buffers[2:])
-	for i, vbuff in enumerate(buffers[2:]):
-		print(f"Vertex buffer {i}, size {len(vbuff)} bytes")
 	print("\nWriting", name)
-	print("buffers", len(buffers))
-	print(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
+	name_buffer, bone_infos, verts = get_ms2_buffer_datas(ms2_sized_str_entry)
 	# sizedstr data has bone count
 	ms2_general_info_data = ms2_sized_str_entry.pointers[0].data[:24]
 	# print("ms2 ss rest", ms2_sized_str_entry.pointers[0].data[24:])
@@ -141,12 +130,25 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 	return out_paths
 
 
-def load_ms2(ovl_data, ms2_file_path, ms2_entry):
+def get_ms2_buffer_datas(ms2_sized_str_entry):
+	assert ms2_sized_str_entry.data_entry
+	buffers = ms2_sized_str_entry.data_entry.stream_datas
+	name_buffer = buffers[0]
+	bone_infos = buffers[1]
+	verts = b"".join(buffers[2:])
+	for i, vbuff in enumerate(buffers[2:]):
+		print(f"Vertex buffer {i}, size {len(vbuff)} bytes")
+	print("buffers", len(buffers))
+	print(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
+	return name_buffer, bone_infos, verts
+
+
+def load_ms2(ovl, ms2_file_path, ms2_entry):
 	logging.info(f"Injecting MS2")
 	ms2_file = Ms2File()
 	ms2_file.load(ms2_file_path, read_bytes=True)
 
-	versions = get_versions(ovl_data)
+	versions = get_versions(ovl)
 
 	# load ms2 ss data
 	ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions) + ms2_entry.pointers[0].data[24:]
@@ -194,8 +196,8 @@ def load_ms2(ovl_data, ms2_file_path, ms2_entry):
 			mdl2_entry = ms2_entry.children[mdl2.index - 1]
 			# get its model info fragment
 			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
-			if (is_jwe(ovl_data) and model_info.pointers[0].data_size == 144) \
-				or ((is_pz(ovl_data) or is_pz16(ovl_data)) and model_info.pointers[0].data_size == 160):
+			if (is_jwe(ovl) and model_info.pointers[0].data_size == 144) \
+				or ((is_pz(ovl) or is_pz16(ovl)) and model_info.pointers[0].data_size == 160):
 				data = model_info.pointers[0].data[:40] + data
 				model_info.pointers[0].update_data(data, update_copies=True)
 
@@ -408,3 +410,12 @@ class Ms2Loader(Ms2File, BaseFile):
 		pool.data.write(struct.pack("<ii", -1, 0))
 		# create ms2 data
 		self.create_data_entry(ms2_entry, (ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes))
+
+	def update(self):
+		if is_pz16(self.ovl):
+			logging.info(f"Updating MS2 buffer 0 with padding for {self.sized_str_entry.name}")
+			name_buffer, bone_infos, verts = get_ms2_buffer_datas(self.sized_str_entry)
+			# make sure buffer 0 is padded to 4 bytes
+			padding = get_padding(len(name_buffer), 4)
+			if padding:
+				self.sized_str_entry.data_entry.update_data([name_buffer + padding, bone_infos, verts])

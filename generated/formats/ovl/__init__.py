@@ -302,9 +302,9 @@ class OvsFile(OvsHeader):
 
 		# create loaders for supported files
 		for file_entry in self.ovl.files:
-			loader = get_loader(file_entry.ext)
-			if loader:
-				loader.create(self, file_entry)
+			file_entry.loader = get_loader(file_entry.ext)
+			if file_entry.loader:
+				file_entry.loader.create(self, file_entry)
 		# post-process the memory pools
 		for pool in self.pools:
 			pool.data.write(get_padding(pool.data.tell(), 4))
@@ -1323,10 +1323,10 @@ class OvlFile(Header, IoFile):
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
 		for file in self.files:
-			loader = get_loader(file.ext)
-			if loader:
+			file.loader = get_loader(file.ext)
+			if file.loader:
 				try:
-					loader.collect(self, file)
+					file.loader.collect(self, file)
 				except Exception as err:
 					logging.error(err)
 					traceback.print_exc()
@@ -1464,9 +1464,16 @@ class OvlFile(Header, IoFile):
 			# at least PZ & JWE require 4 additional bytes after each pool
 			pools_offset += 4
 
+	def update_files(self):
+		logging.info("Updating files...")
+		for file in self.files:
+			if file.loader:
+				file.loader.update()
+
 	def save(self, filepath, dat_path):
 		logging.info("Writing OVL")
 		self.store_filepath(filepath)
+		self.update_files()
 		self.update_counts()
 		# do this last so we also catch the assets & sets
 		self.update_hashes()
