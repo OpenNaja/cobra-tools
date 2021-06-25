@@ -15,8 +15,8 @@ from plugin.modules_export.armature import get_armature, handle_transforms, expo
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Mdl2File
-from utils.matrix_util import evaluate_mesh
-from utils.shell import get_collection, is_shell, is_fin
+from plugin.utils.matrix_util import evaluate_mesh
+from plugin.utils.shell import get_collection, is_shell, is_fin
 
 MAX_USHORT = 65535
 

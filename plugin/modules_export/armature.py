@@ -7,9 +7,8 @@ from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ovl import is_ztuac, is_jwe
 from plugin.modules_export.collision import export_hitcheck
-from plugin.modules_import.armature import get_bone_names
-from utils import matrix_util
-from utils.matrix_util import bone_name_for_ovl
+from plugin.utils import matrix_util
+from plugin.utils.matrix_util import bone_name_for_ovl
 
 
 def get_level(bones, level=0):

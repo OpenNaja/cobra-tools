@@ -11,7 +11,7 @@ bl_info = {	"name": "Frontier's Cobra Engine Formats (JWE, Planet Zoo)",
 
 import bpy
 import bpy.utils.previews
-from bpy.props import StringProperty, BoolProperty, CollectionProperty, IntProperty
+from bpy.props import StringProperty, BoolProperty, CollectionProperty
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 
 import os
@@ -23,8 +23,7 @@ if not plugin_dir in sys.path:
 
 from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
-from utils import shell
-
+from plugin.utils import shell
 
 preview_collection = bpy.utils.previews.new()
 

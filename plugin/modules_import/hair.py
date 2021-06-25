@@ -3,7 +3,7 @@ import mathutils
 import math
 import logging
 
-from utils.matrix_util import evaluate_mesh
+from plugin.utils.matrix_util import evaluate_mesh
 
 
 def find_modifier_for_particle_system(b_ob, particle_system):

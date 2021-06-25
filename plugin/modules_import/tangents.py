@@ -1,6 +1,6 @@
 from plugin.helpers import mesh_from_data
-from utils.matrix_util import evaluate_mesh
-from utils.shell import get_ob_from_lod_and_flags
+from plugin.utils.matrix_util import evaluate_mesh
+from plugin.utils.shell import get_ob_from_lod_and_flags
 
 
 def visualize_tangents(name, verts, normals, tangents):

@@ -3,8 +3,8 @@ import os
 
 from generated.formats.fgm import FgmFile
 from generated.formats.ovl import is_jwe
-from utils.node_arrange import nodes_iterate
-from utils.node_util import get_tree, load_tex
+from plugin.utils.node_arrange import nodes_iterate
+from plugin.utils.node_util import get_tree, load_tex
 
 
 def create_material(in_dir, matname):

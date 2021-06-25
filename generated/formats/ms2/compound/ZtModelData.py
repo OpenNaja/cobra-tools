@@ -1,10 +1,7 @@
-
-import struct
 import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
-from utils.tristrip import triangulate
-import typing
+from plugin.utils.tristrip import triangulate
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 
 

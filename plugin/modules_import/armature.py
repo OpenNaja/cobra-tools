@@ -9,8 +9,8 @@ from generated.formats.ovl import is_ztuac
 from plugin.modules_import.collision import import_collider
 
 from plugin.helpers import create_ob
-from utils import matrix_util
-from utils.matrix_util import mat3_to_vec_roll
+from plugin.utils import matrix_util
+from plugin.utils.matrix_util import mat3_to_vec_roll
 
 
 def import_armature(mdl2, b_bone_names):

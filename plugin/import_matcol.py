@@ -4,8 +4,8 @@ import math
 
 from generated.formats.matcol import MatcolFile
 from generated.formats.fgm import FgmFile
-from utils.node_arrange import nodes_iterate
-from utils.node_util import load_tex, get_tree
+from plugin.utils.node_arrange import nodes_iterate
+from plugin.utils.node_util import load_tex, get_tree
 
 
 def load(filepath=""):

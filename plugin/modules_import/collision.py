@@ -4,8 +4,8 @@ import mathutils
 from generated.formats.ms2.compound.packing_utils import unpack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from plugin.helpers import mesh_from_data
-from utils.matrix_util import link_to_collection
-from utils.quickhull import qhull3d
+from plugin.utils.matrix_util import link_to_collection
+from plugin.utils.quickhull import qhull3d
 
 
 def import_collider(hitcheck, armature_ob, bone_name, corrector):

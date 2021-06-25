@@ -7,12 +7,12 @@ import bpy
 
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names, get_weights
-from plugin.helpers import mesh_from_data, create_ob
+from plugin.helpers import create_ob
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
-from utils import matrix_util
+from plugin.utils import matrix_util
 from generated.formats.ms2 import Mdl2File, is_old
-from utils.shell import is_fin
+from plugin.utils.shell import is_fin
 
 
 def load(filepath="", use_custom_normals=False, mirror_mesh=False):
