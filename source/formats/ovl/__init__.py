@@ -126,7 +126,8 @@ class OvsFile(OvsHeader):
 				buffer.ext = buffer.data_entry.ext
 			# cobra < 20 used buffer index per data entry
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
-			#print("AYAYA", self.buffer_entries)
+            
+			print("AYAYA\n", self.data_entries,"AYAYA\n",self.buffer_entries)
 			# generate a mime lut to know the index of the mimes
 			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
 			# generate the buffergroup entries
@@ -206,6 +207,11 @@ class OvsFile(OvsHeader):
 					new_entry.data_count = tex_fixb
 				elif ".texturestream" == new_entry.ext:
 					new_entry.data_count = tex_fixc
+
+			if (new_b[-1].data_count + new_b[-1].data_offset) < len(self.data_entries):
+				for x in range(new_b[-1].buffer_index + 1):
+					new_b[-1-x].data_count = len(self.data_entries) - new_b[-1-x].data_offset
+
 			self.new_entries.extend(new_b)
 
 	@contextmanager
