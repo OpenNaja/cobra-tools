@@ -160,11 +160,11 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 				# collect vertex colors
 				vcols = [(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
 
-				bone_ids, bone_weights, fur_length, fur_width, residue, unk_0 = export_weights(b_ob, b_vert,
-																							   bones_table, hair_length, unweighted_vertices)
+				bone_ids, bone_weights, fur_length, fur_width, residue, unk_0 = export_weights(
+					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
 				# store all raw blender data
 				verts.append((position, residue, normal, unk_0, tangent, bone_ids[0], uvs, vcols, bone_ids,
-							  bone_weights, fur_length, fur_width))
+					bone_weights, fur_length, fur_width))
 			tri.append(v_index)
 		tris.append(tri)
 
@@ -182,7 +182,6 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	try:
 		model.set_verts(verts)
 	except ValueError as err:
-		print(err)
 		raise AttributeError(f"Could not export {b_ob.name}!")
 
 	model.tris = tris
