@@ -120,21 +120,22 @@ class OvsFile(OvsHeader):
 		self.new_entries.clear()
 		if is_pz16(self.ovl):
 			# sort the buffers to be what 1.6 needs
-			for buffer in self.buffer_entries:
-				buffer.file_hash = buffer.data_entry.file_hash
-				buffer.name = buffer.data_entry.name
-				buffer.ext = buffer.data_entry.ext
+			for data_entry in self.data_entries:
+				for buffer in data_entry.buffers:
+					buffer.file_hash = data_entry.file_hash
+					buffer.name = data_entry.name
+					buffer.ext = data_entry.ext
 			# cobra < 20 used buffer index per data entry
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
-            
-			print("AYAYA\n", self.data_entries,"AYAYA\n",self.buffer_entries)
+
+			print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
 			# generate a mime lut to know the index of the mimes
 			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
 			# generate the buffergroup entries
 			new_b = []
 			for i, buffer in enumerate(self.buffer_entries):
 				if i > 0:
-					if buffer.ext != self.buffer_entries[i-1].ext:
+					if buffer.ext != self.buffer_entries[i - 1].ext:
 						new_entry = BufferGroup()
 						new_entry.ext = buffer.ext
 						new_entry.buffer_offset = 0
@@ -144,10 +145,9 @@ class OvsFile(OvsHeader):
 						new_entry.size += buffer.size
 						new_entry.data_offset = 0
 						new_entry.data_count += 1
-						new_b.append(new_entry)	
-						
+						new_b.append(new_entry)
 					else:
-						if buffer.index != self.buffer_entries[i-1].index:
+						if buffer.index != self.buffer_entries[i - 1].index:
 							new_entry = BufferGroup()
 							new_entry.ext = buffer.ext
 							new_entry.buffer_offset = 0
@@ -157,16 +157,14 @@ class OvsFile(OvsHeader):
 							new_entry.size += buffer.size
 							new_entry.data_offset = 0
 							new_entry.data_count += 1
-							new_b.append(new_entry)	
-							
-							
+							new_b.append(new_entry)
 						else:
 							for x, new_entry in enumerate(new_b):
 								if new_entry.ext == buffer.ext:
 									if new_entry.buffer_index == buffer.index:
-										new_entry.buffer_count+=1
+										new_entry.buffer_count += 1
 										new_entry.size += buffer.size
-										new_entry.data_count +=1
+										new_entry.data_count += 1
 				else:
 					new_entry = BufferGroup()
 					new_entry.ext = buffer.ext
@@ -178,16 +176,16 @@ class OvsFile(OvsHeader):
 					new_entry.data_offset = 0
 					new_entry.data_count += 1
 					new_b.append(new_entry)
-			#fix the offsets of the buffergroups				
+			# fix the offsets of the buffergroups
 			for x, new_entry in enumerate(new_b):
 				if x > 0:
-					new_entry.buffer_offset = new_b[x-1].buffer_offset + new_b[x-1].buffer_count
-					if new_entry.ext != new_b[x-1].ext:
-						new_entry.data_offset = new_b[x-1].data_offset + new_b[x-1].data_count
+					new_entry.buffer_offset = new_b[x - 1].buffer_offset + new_b[x - 1].buffer_count
+					if new_entry.ext != new_b[x - 1].ext:
+						new_entry.data_offset = new_b[x - 1].data_offset + new_b[x - 1].data_count
 					else:
-						new_entry.data_offset = new_b[x-1].data_offset
-						if new_entry.data_count < new_b[x-1].data_count:
-							new_entry.data_count = new_b[x-1].data_count
+						new_entry.data_offset = new_b[x - 1].data_offset
+						if new_entry.data_count < new_b[x - 1].data_count:
+							new_entry.data_count = new_b[x - 1].data_count
 			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 			tex_fixa = 0
 			tex_fixb = 0
@@ -195,7 +193,6 @@ class OvsFile(OvsHeader):
 			for new_entry in new_b:
 				if ".tex" == new_entry.ext:
 					if new_entry.buffer_count > tex_fixb:
-
 						tex_fixb = new_entry.buffer_count
 					if new_entry.data_offset > tex_fixa:
 						tex_fixa = new_entry.data_offset
@@ -210,7 +207,7 @@ class OvsFile(OvsHeader):
 
 			if (new_b[-1].data_count + new_b[-1].data_offset) < len(self.data_entries):
 				for x in range(new_b[-1].buffer_index + 1):
-					new_b[-1-x].data_count = len(self.data_entries) - new_b[-1-x].data_offset
+					new_b[-1 - x].data_count = len(self.data_entries) - new_b[-1 - x].data_offset
 
 			self.new_entries.extend(new_b)
 
@@ -652,22 +649,19 @@ class OvsFile(OvsHeader):
 			for data in self.data_entries:
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
-			# buffs_sorted = sorted(self.buffer_entries, key=lambda x: x.file_hash)
 			for b_group in self.new_entries:
 				# print(b_group.buffer_count, b_group.data_count)
 				# note that datas can be bigger than buffers
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset + b_group.buffer_count]
-				# buffers = buffs_sorted[b_group.buffer_offset: b_group.buffer_offset+b_group.buffer_count]
 				datas = self.data_entries[b_group.data_offset: b_group.data_offset + b_group.data_count]
 				for buffer in buffers:
 					buffer.index = b_group.buffer_index
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
-							buffer.data_entry = data
 							buffer.name = data.name
 							buffer.ext = data.ext
-							buffer.buffer_group = b_group
 							data.buffers.append(buffer)
+							break
 			# for buffer, data in zip(buffers, datas):
 			# 	buffer.index = b_group.buffer_index
 			# 	data.buffers.append(buffer)
@@ -683,13 +677,12 @@ class OvsFile(OvsHeader):
 				for j in range(data.buffer_count):
 					# print("data",i,"buffer",j, "buff_ind",buff_ind)
 					buffer = self.buffer_entries[buff_ind]
-					buffer.data_entry = data
 					buffer.name = data.name
 					buffer.ext = data.ext
 					data.buffers.append(buffer)
 					buff_ind += 1
 				data.streams = list(data.buffers)
-			# print(self.buffer_entries)
+		# print(self.buffer_entries)
 
 	@property
 	def buffers_io_order(self):
@@ -1383,7 +1376,7 @@ class OvlFile(Header, IoFile):
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-							# sized_str_entry.streams.append(other_sizedstr)
+						# sized_str_entry.streams.append(other_sizedstr)
 			if sized_str_entry.ext == ".ms2":
 				for lod_i in range(4):
 					for archive in self.archives:
@@ -1393,8 +1386,8 @@ class OvlFile(Header, IoFile):
 							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
 								# print("model2stream")
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-							# sized_str_entry.streams.append(other_sizedstr)
-			# print(sized_str_entry.data_entry.buffers)
+						# sized_str_entry.streams.append(other_sizedstr)
+		# print(sized_str_entry.data_entry.buffers)
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
@@ -1533,7 +1526,7 @@ class OvlFile(Header, IoFile):
 			# grab and update size
 			if os.path.isfile(bnkpath):
 				aux.size = os.path.getsize(bnkpath)
-	# print(aux.size)
+# print(aux.size)
 
 
 if __name__ == "__main__":
