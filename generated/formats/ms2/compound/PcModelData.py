@@ -1,9 +1,12 @@
+
 import math
 import logging
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
 import numpy
+import typing
+from generated.array import Array
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
 

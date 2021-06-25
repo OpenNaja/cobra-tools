@@ -33,6 +33,7 @@ def import_armature(mdl2, b_bone_names):
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 		mats = {}
+		z_dic = {}
 		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.bone_parents):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
 
@@ -49,16 +50,30 @@ def import_armature(mdl2, b_bone_names):
 					# calculate ms2 armature space matrix
 					n_bind = mats[parent_name] @ n_bind
 			except:
-				print(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
+				logging.warning(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
 
 			# store the ms2 armature space matrix
 			mats[bone_name] = n_bind
 			# change orientation for blender bones
 			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+			z_dic[bone_name] = b_bind.to_3x3()[2]
 			# set orientation to blender bone
-			set_transform1(b_bind, b_edit_bone)
+			set_transform4(b_bind, b_edit_bone)
 
 		fix_bone_lengths(b_armature_data)
+		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+		# fix bone roll, gotta toggle modes once for the broken rolls to become apparent
+		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+		for b_edit_bone in b_armature_data.edit_bones:
+			# get the actual z axis from the matrix represented by this bone
+			b_vec = b_edit_bone.matrix.to_3x3()[2]
+			# form the angle between that and the desired bone bind's z axis
+			a = b_vec.angle(z_dic[b_edit_bone.name])
+			if a > 0.0001:
+				logging.debug(f"Changed broken bone roll for {b_edit_bone.name}")
+				# align it to original bone's z axis
+				b_edit_bone.align_roll(z_dic[b_edit_bone.name])
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
 		# store original bone index as custom property
@@ -91,8 +106,8 @@ def set_transform2(b_bind, b_edit_bone):
 def set_transform3(b_bind, b_edit_bone):
 	b_edit_bone.tail = (0, 1, 0)
 	# seemingly no matter what roll is set to, it's not correct
-	b_edit_bone.roll = math.radians(-90)
-	b_edit_bone.transform(b_bind)
+	b_edit_bone.roll = math.radians(180)
+	b_edit_bone.transform(b_bind, roll=True)
 
 
 def set_transform4(b_bind, b_edit_bone):
