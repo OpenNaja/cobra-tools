@@ -8,6 +8,7 @@ import traceback
 import logging
 from contextlib import contextmanager
 
+from hashes import constants_pz
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile, BinaryStream
@@ -28,62 +29,6 @@ from modules.formats.shared import get_versions, djb, assign_versions, get_paddi
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
-lut_file_unk_0 = {
-	".fdb": 4,
-	".assetpkg": 4,
-	".userinterfaceicondata": 4,
-	".lua": 2,
-	".txt": 1,
-	".bani": 2,
-	".banis": 2,
-	".fgm": 2,
-	".mdl2": 2,
-	".ms2": 2,
-	".tex": 3,
-}
-
-lut_file_unk_1 = {
-	".mdl2": 2,
-}
-
-lut_triplets = {
-	".fgm": ((1, 2, 0),),
-	".banis": ((2, 2, 1),),
-	".manis": ((2, 0, 4), (1, 0, 2), (2, 0, 4),),
-	".ms2": ((1, 2, 2), (2, 0, 4), (0, 0, 0),),
-	".tex": ((0, 0, 0),),
-	".texturestream": ((0, 0, 0),),
-	".lua": ((2, 2, 0),),
-	".renderparametercurves": ((1, 2, 3),),
-	".renderparameters": ((1, 2, 3),),
-	".userinterfaceicondata": ((1, 2, 3),),
-	".assetpkg": ((1, 2, 3),),
-	".animalresearchstartunlockedsettings": ((1, 2, 3),),
-	".animalresearchunlockssettings": ((1, 2, 3),),
-	".fdb": ((1, 2, 0), (1, 0, 0),),
-	".mechanicresearchsettings": ((1, 2, 3),),
-	".pathextrusion": ((1, 2, 3),),
-	".pathmaterial": ((1, 2, 3),),
-	".pathresource": ((1, 2, 3),),
-	".fct": ((2, 0, 0),),
-	".scaleformlanguagedata": ((1, 2, 3),),
-	".world": ((1, 2, 3),),
-	".trackedridecar": ((1, 2, 3),),   
-	".uimoviedefinition": ((1, 2, 3),),
-	".pscollection": ((1, 2, 3),),
-	".pathtype": ((1, 2, 3),),
-	".pathsupport": ((1, 2, 3),),
-	".pathjoinpartresource": ((1, 2, 3),),
-	".particleatlas": ((2, 0, 3),),
-	".particleeffect": ((2, 0, 4),),
-	".motiongraphvars": ((1, 2, 3),),
-	".lut": ((2, 0, 3),),
-	".buttonprompts": ((1, 2, 3),),
-	".datastreams": ((1, 2, 3),),
-	".enumnamer": ((1, 2, 3),),
-	".gfx": ((2, 0, 4),),
-	".helpnodedata": ((1, 2, 3),),
-}
 
 def get_loader(ext):
 	from modules.formats.ASSETPKG import AssetpkgLoader
@@ -1026,8 +971,7 @@ class OvlFile(Header, IoFile):
 				file_entry.path = file_path
 				file_entry.name = filename
 				file_entry.basename, file_entry.ext = os.path.splitext(filename)
-				file_entry.unkn_0 = lut_file_unk_0[file_ext]
-				file_entry.unkn_1 = lut_file_unk_1.get(file_ext, 0)
+				mime_entry.update_constants(self)
 				file_entry.extension = len(self.mimes)
 				file_entry.dependencies = []
 				self.files.append(file_entry)
@@ -1225,9 +1169,6 @@ class OvlFile(Header, IoFile):
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
-		print(self.mimes)
-		print(self.triplets)
-
 	def update_triplets(self):
 		logging.info("Updating triplets")
 		self.triplets.clear()
@@ -1235,8 +1176,8 @@ class OvlFile(Header, IoFile):
 			triplet_offset = 0
 			for mime in self.mimes:
 				mime.triplet_offset = triplet_offset
-				if mime.ext in lut_triplets:
-					triplet_grab = lut_triplets[mime.ext]
+				if mime.ext in constants_pz.mimes_triplets:
+					triplet_grab = constants_pz.mimes_triplets[mime.ext]
 					mime.triplet_count = len(triplet_grab)
 					triplet_offset += len(triplet_grab)
 					# print(triplet_grab)

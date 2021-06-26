@@ -1,8 +1,13 @@
+import os
+import logging
+import io
+import struct
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
-from generated.formats.ovl import *
+from generated.formats.ovl.versions import *
+from modules.formats.shared import get_versions
 from generated.formats.tex.compound.Header3Data0 import Header3Data0
 from generated.formats.tex.compound.Header3Data0Pc import Header3Data0Pc
 from generated.formats.tex.compound.Header3Data1Pc import Header3Data1Pc

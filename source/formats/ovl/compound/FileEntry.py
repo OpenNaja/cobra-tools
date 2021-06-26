@@ -6,7 +6,7 @@ from hashes import constants_jwe, constants_pz
 # END_GLOBALS
 
 
-class MimeEntry:
+class FileEntry:
 
 	# START_CLASS
 
@@ -20,6 +20,5 @@ class MimeEntry:
 			constants = constants_pz
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
-		self.name = constants.mimes_name.get(self.ext)
-		self.mime_hash = constants.mimes_mime_hash.get(self.ext)
-		self.mime_version = constants.mimes_mime_version.get(self.ext)
+		self.unkn_0 = constants.files_unkn_0.get(self.ext)
+		self.unkn_1 = constants.files_unkn_1.get(self.ext)
