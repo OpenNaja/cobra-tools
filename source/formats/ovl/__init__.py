@@ -65,8 +65,25 @@ lut_triplets = {
 	".pathextrusion": ((1, 2, 3),),
 	".pathmaterial": ((1, 2, 3),),
 	".pathresource": ((1, 2, 3),),
+	".fct": ((2, 0, 0),),
+	".scaleformlanguagedata": ((1, 2, 3),),
+	".world": ((1, 2, 3),),
+	".trackedridecar": ((1, 2, 3),),   
+	".uimoviedefinition": ((1, 2, 3),),
+	".pscollection": ((1, 2, 3),),
+	".pathtype": ((1, 2, 3),),
+	".pathsupport": ((1, 2, 3),),
+	".pathjoinpartresource": ((1, 2, 3),),
+	".particleatlas": ((2, 0, 3),),
+	".particleeffect": ((2, 0, 4),),
+	".motiongraphvars": ((1, 2, 3),),
+	".lut": ((2, 0, 3),),
+	".buttonprompts": ((1, 2, 3),),
+	".datastreams": ((1, 2, 3),),
+	".enumnamer": ((1, 2, 3),),
+	".gfx": ((2, 0, 4),),
+	".helpnodedata": ((1, 2, 3),),
 }
-
 
 def get_loader(ext):
 	from modules.formats.ASSETPKG import AssetpkgLoader
@@ -118,7 +135,7 @@ class OvsFile(OvsHeader):
 	def update_buffer_groups(self):
 		logging.info("Updating buffer groups")
 		self.new_entries.clear()
-		if is_pz16(self.ovl):
+		if is_pz16(self.ovl) and len(self.data_entries) > 0:
 			# sort the buffers to be what 1.6 needs
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
@@ -1209,8 +1226,8 @@ class OvlFile(Header, IoFile):
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
-	# print(self.mimes)
-	# print(self.triplets)
+		print(self.mimes)
+		print(self.triplets)
 
 	def update_triplets(self):
 		logging.info("Updating triplets")
