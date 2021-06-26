@@ -1136,12 +1136,12 @@ class OvlFile(Header, IoFile):
 
 	def load(self, filepath, verbose=0, commands=(), hash_table={}):
 		start_time = time.time()
-		self.eof = super().load(filepath)
-		logging.info(f"Game: {get_game(self)}")
-
 		# store commands
 		self.commands = commands
 		self.store_filepath(filepath)
+		logging.info(f"Loading {self.basename}")
+		self.eof = super().load(filepath)
+		logging.info(f"Game: {get_game(self)}")
 
 		# maps OVL hash to final filename + extension
 		self.hash_table_local = {}

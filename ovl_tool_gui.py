@@ -306,13 +306,8 @@ class MainWindow(widgets.MainWindow):
 		# clear the ovl
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 		self.game_changed()
-
-		# read tables for constants
-		mimes_table = {}
-		tables_dir = os.path.join(os.getcwd(), "dicts")
-		self.read_table(os.path.join(tables_dir, "mimes.txt"), mimes_table)
 		try:
-			self.ovl_data.create(ovl_dir, mime_names_dict=mimes_table)
+			self.ovl_data.create(ovl_dir)
 		except Exception as ex:
 			traceback.print_exc()
 			interaction.showdialog(str(ex))

@@ -53,3 +53,8 @@ class Triplet:
 		s += self.get_fields_str()
 		s += '\n'
 		return s
+
+	def __eq__(self, other):
+		if isinstance(other, Triplet):
+			return self.a == other.a and self.b == other.b and self.c == other.c
+

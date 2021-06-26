@@ -1010,11 +1010,10 @@ class OvlFile(Header, IoFile):
 
 		file_index_offset = 0
 		for file_ext, file_paths in sorted(files_by_extension.items()):
-			if file_ext not in mime_names_dict:
-				logging.warning(f"Ignoring extension {file_ext}")
-				continue
+			# if file_ext not in mime_names_dict:
+			# 	logging.warning(f"Ignoring extension {file_ext}")
+			# 	continue
 			mime_entry = MimeEntry()
-			mime_entry.name = mime_names_dict[file_ext]
 			mime_entry.ext = file_ext
 			mime_entry.update_constants(self)
 			mime_entry.file_index_offset = file_index_offset
@@ -1136,12 +1135,12 @@ class OvlFile(Header, IoFile):
 
 	def load(self, filepath, verbose=0, commands=(), hash_table={}):
 		start_time = time.time()
-		self.eof = super().load(filepath)
-		logging.info(f"Game: {get_game(self)}")
-
 		# store commands
 		self.commands = commands
 		self.store_filepath(filepath)
+		logging.info(f"Loading {self.basename}")
+		self.eof = super().load(filepath)
+		logging.info(f"Game: {get_game(self)}")
 
 		# maps OVL hash to final filename + extension
 		self.hash_table_local = {}
