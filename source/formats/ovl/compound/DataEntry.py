@@ -6,10 +6,6 @@ class DataEntry:
 		"""Load datas into this DataEntry's buffers, and update its size values according to an assumed pattern
 		data : list of bytes object, each representing the data of one buffer for this data entry"""
 		for buffer, data in zip(self.sorted_buffers, datas):
-			try:
-				buffer.buffer_group.size = buffer.buffer_group.size + len(data) - buffer.size
-			except:
-				print("No buffer group, not version 1.6 ovl")
 			buffer.update_data(data)
 		# update data 0, 1 size
 		total = sum(len(d) for d in datas)
