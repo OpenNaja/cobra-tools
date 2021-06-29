@@ -1160,7 +1160,6 @@ class OvlFile(Header, IoFile):
 					triplet_grab = constants_pz.mimes_triplets[mime.ext]
 					mime.triplet_count = len(triplet_grab)
 					triplet_offset += len(triplet_grab)
-					# print(triplet_grab)
 					for triplet in triplet_grab:
 						trip = Triplet()
 						trip.a, trip.b, trip.c = triplet
