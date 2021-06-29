@@ -40,6 +40,7 @@ def get_loader(ext):
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.SPECDEF import SpecdefLoader
 	from modules.formats.MATCOL import MatcolLoader
+	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	ext_2_class = {
 		".assetpkg": AssetpkgLoader,
 		".ms2": Ms2Loader,
@@ -50,6 +51,7 @@ def get_loader(ext):
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".specdef": SpecdefLoader,
 		".materialcollection": MatcolLoader,
+		".scaleformlanguagedata": ScaleformLoader,
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
@@ -479,14 +481,6 @@ class OvsFile(OvsHeader):
 	def frags_for_pointer(self, p):
 		return self.pools[p.pool_index].fragments
 
-	def collect_scaleform(self, ss_entry):
-		# todo - this is different for PC
-		if not is_pc(self.ovl):
-			ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-			f0_d0 = struct.unpack("<8I", ss_entry.fragments[0].pointers[0].data)
-			font_declare_count = f0_d0[2]
-			ss_entry.fragments += self.frags_from_pointer(ss_entry.fragments[0].pointers[1], font_declare_count * 2)
-
 	def collect_enumnamer(self, ss_entry):
 		print("\nENUMNAMER / MOTIONGRAPHVARS:", ss_entry.name)
 		# Sized string initpos = position of first fragment
@@ -577,8 +571,6 @@ class OvsFile(OvsHeader):
 					self.collect_enumnamer(sized_str_entry)
 				elif sized_str_entry.ext == ".motiongraph":
 					self.collect_motiongraph(sized_str_entry)
-				elif sized_str_entry.ext == ".scaleformlanguagedata":
-					self.collect_scaleform(sized_str_entry)
 			except Exception as err:
 				print(err)
 

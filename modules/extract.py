@@ -22,6 +22,7 @@ from modules.formats.SPECDEF import write_specdef
 from modules.formats.TXT import write_txt
 from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
+from modules.formats.SCALEFORMLANGUAGEDATA import write_scaleformlanguagedata
 from modules.formats.USERINTERFACEICONDATA import write_userinterfaceicondata
 from ovl_util import widgets
 
@@ -37,7 +38,7 @@ def extract_kernel(ovl, entry, out_dir_func, show_temp_files, progress_callback)
 	if func:
 		return func(ovl, entry, out_dir_func, show_temp_files, progress_callback)
 	else:
-		print(f"No function to export {entry.name}")
+		raise AttributeError(f"No function to export {entry.name}")
 
 
 def write_gfx(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
@@ -50,20 +51,6 @@ def write_gfx(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 		outfile.write(sized_str_entry.pointers[0].data)
 		for buff in buffers:
 			outfile.write(buff)
-	return out_path,
-
-
-def write_scaleform(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
-	name = sized_str_entry.name
-	print(f"\nWriting {name}")
-
-	out_path = out_dir(name)
-	with open(out_path, 'wb') as outfile:
-		# write each of the fragments
-		outfile.write(sized_str_entry.pointers[0].data)
-		for frag in sized_str_entry.fragments:
-			outfile.write(frag.pointers[0].data)
-			outfile.write(frag.pointers[1].data)
 	return out_path,
 
 
