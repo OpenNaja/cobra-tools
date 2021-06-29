@@ -217,36 +217,23 @@ class OvsFile(OvsHeader):
 	def update_hashes(self, file_name_lut):
 		logging.info("Updating hashes")
 		logging.info(f"Game: {get_game(self.ovl)}")
+		entry_lists = [
+					self.pools,
+					self.sized_str_entries,
+					self.data_entries,
+					self.set_header.sets,
+					self.set_header.assets]
 		if is_pz16(self.ovl):
-			for entry_list in (
-					self.pools,
-					self.sized_str_entries,
-					self.data_entries,
-					self.buffer_entries,
-					self.set_header.sets,
-					self.set_header.assets):
-				for entry in entry_list:
-					print(entry)
-					file_index = file_name_lut[entry.name]
-					file = self.ovl.files[file_index]
+			entry_lists.append(self.buffer_entries)
+		for entry_list in entry_lists:
+			for entry in entry_list:
+				file_index = file_name_lut[entry.name]
+				file = self.ovl.files[file_index]
+				if is_jwe(self.ovl):
+					entry.file_hash = file.file_hash
+				else:
 					entry.file_hash = file_index
-					entry.ext_hash = file.ext_hash
-		else:
-			for entry_list in (
-					self.pools,
-					self.sized_str_entries,
-					self.data_entries,
-					self.set_header.sets,
-					self.set_header.assets):
-				for entry in entry_list:
-					print(self.buffer_entries)
-					file_index = file_name_lut[entry.name]
-					file = self.ovl.files[file_index]
-					if is_jwe(self.ovl):
-						entry.file_hash = file.file_hash
-					else:
-						entry.file_hash = file_index
-					entry.ext_hash = file.ext_hash
+				entry.ext_hash = file.ext_hash
 
 	# these seem to be sorted, but they are indexed into by other lists so gotta be careful when sorting them
 	# self.sized_str_entries.sort(key=lambda x: x.file_hash)
@@ -933,7 +920,7 @@ class OvlFile(Header, IoFile):
 
 		return out_paths, error_files, skip_files
 
-	def create(self, ovl_dir, mime_names_dict):
+	def create(self, ovl_dir):
 		print(f"Creating OVL from {ovl_dir}")
 		print(f"Game: {get_game(self)}")
 		# map all files in ovl_dir by their extension
@@ -947,12 +934,13 @@ class OvlFile(Header, IoFile):
 
 		file_index_offset = 0
 		for file_ext, file_paths in sorted(files_by_extension.items()):
-			# if file_ext not in mime_names_dict:
-			# 	logging.warning(f"Ignoring extension {file_ext}")
-			# 	continue
 			mime_entry = MimeEntry()
 			mime_entry.ext = file_ext
-			mime_entry.update_constants(self)
+			try:
+				mime_entry.update_constants(self)
+			except KeyError:
+				logging.warning(f"Unsupported extension {file_ext}")
+				continue
 			mime_entry.file_index_offset = file_index_offset
 			mime_entry.file_count = len(file_paths)
 			file_index_offset += len(file_paths)

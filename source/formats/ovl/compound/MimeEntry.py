@@ -20,6 +20,6 @@ class MimeEntry:
 			constants = constants_pz
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
-		self.name = constants.mimes_name.get(self.ext)
-		self.mime_hash = constants.mimes_mime_hash.get(self.ext)
-		self.mime_version = constants.mimes_mime_version.get(self.ext)
+		self.name = constants.mimes_name[self.ext]
+		self.mime_hash = constants.mimes_mime_hash[self.ext]
+		self.mime_version = constants.mimes_mime_version[self.ext]

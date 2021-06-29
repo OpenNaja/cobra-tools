@@ -84,6 +84,7 @@ class BaseFile:
 		new_data.buffers = []
 		for i, b in enumerate(buffer_bytes):
 			new_buff = BufferEntry()
+			self.ovs.transfer_identity(new_buff, ss_entry)
 			new_buff.index = i
 			new_data.buffers.append(new_buff)
 			self.ovs.buffer_entries.append(new_buff)
