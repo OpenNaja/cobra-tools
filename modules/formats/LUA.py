@@ -1,5 +1,6 @@
 import struct
 
+from generated.formats.ovl.versions import *
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import zstr
 from ovl_util import texconv
@@ -19,24 +20,34 @@ def write_lua(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback)
 		buffer_data = b""
 	if len(sized_str_entry.fragments) != 2:
 		print("must have 2 fragments")
-		return ()
 	# write lua
 	out_path = out_dir(name)
 	# print(out_path)
-	out_files = [out_path, ]
+	# clip away the start (fragment data at start of buffer?)
+	if is_ztuac(ovl):
+		buffer_data = buffer_data[8:]
+	out_files = []
 	if buffer_data[1:4] == b"Lua":
 		print("compiled lua")
 		bin_path = out_path + ".bin"
 		with open(bin_path, 'wb') as outfile:
 			# write the buffer
 			outfile.write(buffer_data)
-		texconv.bin_to_lua(bin_path)
-		out_files.append(bin_path)
+		# see if it worked
+		if texconv.bin_to_lua(bin_path):
+			out_files.append(out_path)
+			# optional bin
+			if show_temp_files:
+				out_files.append(bin_path)
+		# no conversion, just get bin
+		else:
+			out_files.append(bin_path)
 	else:
 		print("uncompiled lua")
 		with open(out_path, 'wb') as outfile:
 			# write the buffer
 			outfile.write(buffer_data)
+		out_files.append(out_path)
 	return out_files
 
 
@@ -97,4 +108,5 @@ class LuaLoader(BaseFile):
 		new_data.set_index = 0
 
 	def collect(self, ovl, file_entry):
-		self.assign_fixed_frags(ovl, file_entry, 2)
+		if is_jwe(ovl) or is_pz(ovl) or is_pc(ovl):
+			self.assign_fixed_frags(ovl, file_entry, 2)

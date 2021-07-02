@@ -52,9 +52,6 @@ def wem_handle(wem_files, show_temp_files, progress_callback):
 
 
 def bin_to_lua(bin_file):
-	# print(bin_file)
-
-	# print(function_string)
 	try:
 		out_file = os.path.splitext(bin_file)[0]
 		# out_file = os.path.join(out_dir, out_name)
@@ -66,9 +63,11 @@ def bin_to_lua(bin_file):
 		if len(bytearray(output)) > 0:
 			with open(out_file, 'wb') as outfile:
 				outfile.write(bytearray(output))
+				return True
 		elif len(bytearray(output2)) > 0:
 			with open(out_file, 'wb') as outfile:
 				outfile.write(bytearray(output2))
+				return True
 		else:
 			print("decompile failed, skipping...")
 
