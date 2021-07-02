@@ -7,7 +7,7 @@ A simple GUI for extracting OVL and OVS archives and modifying their contents, a
 
 ### Installation
 Get the latest source code [here](https://github.com/OpenNaja/cobra-tools/archive/master.zip) and unzip to a folder of your choice. You need to have installed:
-- [Python 3.6 or 3.7, x64 bit](https://www.python.org/downloads/windows/) (make sure you add it to the system path during installation; 32 bit versions of python will hit their memory limit trying to read large OVLs)
+- [Python 3.7 x64 bit](https://www.python.org/downloads/windows/) (make sure you add it to the system path during installation; 32 bit versions of python will hit their memory limit trying to read large OVLs)
 - [Microsoft Visual C++ Redistributable 2017 x64](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
 - [Microsoft Visual C++ Redistributable 2013 x86](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
 - pyqt5 (run: `pip install pyqt5` in cmd)
