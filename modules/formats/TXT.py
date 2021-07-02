@@ -1,6 +1,6 @@
 import struct
 
-from generated.formats.ovl import is_dla
+from generated.formats.ovl.versions import is_dla
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_padding
 from modules.helpers import zstr

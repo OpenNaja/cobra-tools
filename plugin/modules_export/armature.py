@@ -5,7 +5,7 @@ import mathutils
 
 from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
-from generated.formats.ovl import is_ztuac, is_jwe
+from generated.formats.ovl.versions import is_ztuac, is_jwe
 from plugin.modules_export.collision import export_hitcheck
 from plugin.utils import matrix_util
 from plugin.utils.matrix_util import bone_name_for_ovl

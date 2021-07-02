@@ -2,7 +2,7 @@ import bpy
 import os
 
 from generated.formats.fgm import FgmFile
-from generated.formats.ovl import is_jwe
+from generated.formats.ovl.versions import is_jwe
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex
 

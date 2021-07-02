@@ -2,7 +2,7 @@ import os
 import imageio
 import numpy as np
 
-from generated.formats.ovl import is_ztuac
+from generated.formats.ovl.versions import is_ztuac
 
 
 def flip_gb(im):

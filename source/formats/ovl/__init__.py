@@ -1069,7 +1069,7 @@ class OvlFile(Header, IoFile):
 		# maps OVL hash to final filename + extension
 		self.hash_table_local = {}
 		self.hash_table_global = hash_table
-		print(self)
+		# print(self)
 		# add extensions to hash dict
 		hm_max = len(self.mimes)
 		for hm_index, mime_entry in enumerate(self.mimes):
