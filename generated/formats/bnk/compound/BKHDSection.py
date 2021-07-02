@@ -25,7 +25,7 @@ class BKHDSection:
 		self.constant_b = 0
 
 		# filler zeroes
-		self.zeroes = numpy.zeros((self.length - 20), dtype='byte')
+		self.zeroes = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
 
@@ -37,7 +37,7 @@ class BKHDSection:
 		self.id_b = stream.read_uint()
 		self.constant_a = stream.read_uint()
 		self.constant_b = stream.read_uint()
-		self.zeroes = stream.read_bytes((self.length - 20))
+		self.zeroes = stream.read_uints((3))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -51,7 +51,7 @@ class BKHDSection:
 		stream.write_uint(self.id_b)
 		stream.write_uint(self.constant_a)
 		stream.write_uint(self.constant_b)
-		stream.write_bytes(self.zeroes)
+		stream.write_uints(self.zeroes)
 
 		self.io_size = stream.tell() - self.io_start
 

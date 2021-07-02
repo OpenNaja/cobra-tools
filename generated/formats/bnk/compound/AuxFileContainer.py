@@ -46,9 +46,8 @@ class AuxFileContainer:
                 break
             else:
                 raise NotImplementedError(f"Unknown chunk {chunk_id}!")
-        if not self.hirc:
-            if not self.didx:
-                return
+        # if not self.hirc:
+        if self.didx:
             for pointer in self.didx.data_pointers:
                 pointer.data = self.data[
                                pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize]
