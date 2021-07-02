@@ -586,8 +586,8 @@
 		<add name="child" type="ubyte" >index into bone list</add>
 		<add name="parent" type="ubyte" >index into bone list</add>
 		<add name="zero" type="ushort" >0</add>
-		<add name="matrix" type="Matrix33" ></add>
-		<add name="vector" type="Vector4" ></add>
+		<add name="matrix" type="Matrix33" >?</add>
+		<add name="vector" type="Vector4" >?</add>
 		<add name="one" type="uint" >1</add>
 	</compound>
 
@@ -669,7 +669,11 @@
 
 	<compound name="ListCEntry">
 		<add name="one" type="uint">1 for carch and nasuto</add>
-		<add name="floats" type="float" arr1="10">?</add>
+		<add name="loc" type="Vector3" >center of the collider</add>
+		<add name="constant" type="float">-1 for PZ, 80 for JWE</add>
+		<add name="a" type="float">?</add>
+		<add name="floats" type="float" arr1="4">?</add>
+		<add name="a 2" type="float">sometimes repeat of a</add>
 	</compound>
 
 	<compound name="JointInfo">
