@@ -87,14 +87,14 @@
     </basic>
 
     <bitfield name="VersionInfo" storage="uint">
-        Determines the format of the OVL file held by a mesh.
+        Determines the format of the OVL file.
         n.b. pos counts from the end!
-        <member width="1" pos="2" name="unk1" type="bool"></member>
-        <member width="1" pos="4" name="unk2" type="bool"></member>
-        <member width="1" pos="7" name="use zlib" type="bool"></member>
-        <member width="1" pos="9" name="use oodle" type="bool"></member>
-        <member width="1" pos="13" name="unk3" type="bool"></member>
-        <member width="1" pos="14" name="is jwe" type="bool"></member>
+        <member width="1" pos="2" name="unk1" type="bool"/>
+        <member width="1" pos="4" name="unk2" type="bool"/>
+        <member width="1" pos="7" name="use zlib" type="bool"/>
+        <member width="1" pos="9" name="use oodle" type="bool"/>
+        <member width="1" pos="13" name="unk3" type="bool"/>
+        <member width="1" pos="14" name="is jwe" type="bool"/>
     </bitfield>
 
 	<!-- Structs for the OVL file -->
@@ -358,26 +358,6 @@
 		<add name="zero 1" type="uint" since="19"> </add>
 		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
         <add name="zero 2" type="uint"/>
-    </compound>
-
-	<!-- Sized str entries, give info about fragments -->
-	<compound name="EnumnamerStrData" >
-        per attribute
-        <add name="unknown0" type="uint" >3 in driver</add>
-        <add name="unknown1" type="uint" >0 in driver</add>
-    </compound>
-	
-	<compound name="MotionGraphVarsStrData" >
-        per attribute
-        <add name="unknown0" type="uint" >4 in driver</add>
-        <add name="unknown1" type="uint" >0 in driver</add>
-    </compound>
-	
-	<compound name="ManisSizedStrData" >
-        per attribute
-        <add name="unknown0" type="ushort" >96 in driver</add>
-        <add name="unknown1" type="ushort">272 in driver</add>
-        <add name="unknown2" type="uint" arr1="5" >zeros in driver</add>
     </compound>
 
 </niftoolsxml>

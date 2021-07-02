@@ -5,7 +5,7 @@ from generated.bitfield import BitfieldMember
 class VersionInfo(BasicBitfield):
 
 	"""
-	Determines the format of the OVL file held by a mesh.
+	Determines the format of the OVL file.
 	n.b. pos counts from the end!
 	"""
 	unk_1 = BitfieldMember(pos=2, mask=0x4, return_type=bool)
