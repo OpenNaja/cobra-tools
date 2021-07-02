@@ -1,10 +1,12 @@
-import numpy
-import typing
-from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
+from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class ListShort(Descriptor):
+
+	"""
+	used in JWE dinos
+	"""
 
 	def __init__(self, arg=None, template=None):
 		self.name = ''
@@ -13,13 +15,27 @@ class ListShort(Descriptor):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = numpy.zeros((8), dtype='float')
+
+		# location of the joint
+		self.loc = Vector3(None, None)
+
+		# normalized
+		self.direction = Vector3(None, None)
+
+		# min, le 0
+		self.min = 0
+
+		# max, ge 0
+		self.max = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.floats = stream.read_floats((8))
+		self.loc = stream.read_type(Vector3)
+		self.direction = stream.read_type(Vector3)
+		self.min = stream.read_float()
+		self.max = stream.read_float()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -27,7 +43,10 @@ class ListShort(Descriptor):
 
 		self.io_start = stream.tell()
 		super().write(stream)
-		stream.write_floats(self.floats)
+		stream.write_type(self.loc)
+		stream.write_type(self.direction)
+		stream.write_float(self.min)
+		stream.write_float(self.max)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -37,7 +56,10 @@ class ListShort(Descriptor):
 	def get_fields_str(self):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* floats = {self.floats.__repr__()}'
+		s += f'\n	* loc = {self.loc.__repr__()}'
+		s += f'\n	* direction = {self.direction.__repr__()}'
+		s += f'\n	* min = {self.min.__repr__()}'
+		s += f'\n	* max = {self.max.__repr__()}'
 		return s
 
 	def __repr__(self):

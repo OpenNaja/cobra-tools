@@ -640,7 +640,11 @@
 	</compound>
 
 	<compound name="ListShort" inherit="Descriptor">
-		<add name="floats" type="float" arr1="8"></add>
+		used in JWE dinos
+		<add name="loc" type="Vector3" >location of the joint</add>
+		<add name="direction" type="Vector3" >normalized</add>
+		<add name="min" type="float">min, le 0</add>
+		<add name="max" type="float">max, ge 0</add>
 	</compound>
 
 	<compound name="ListLong" inherit="Descriptor">
