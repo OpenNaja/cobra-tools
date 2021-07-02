@@ -3,7 +3,6 @@ import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
-import typing
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 
 

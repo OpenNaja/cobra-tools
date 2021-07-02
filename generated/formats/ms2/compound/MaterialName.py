@@ -1,6 +1,3 @@
-import typing
-
-
 class MaterialName:
 
 	def __init__(self, arg=None, template=None):

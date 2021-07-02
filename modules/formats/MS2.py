@@ -214,8 +214,10 @@ class Ms2Loader(Ms2File, BaseFile):
 			# print(self.sized_str_entry.fragments)
 			# second pass: collect model fragments
 			versions = get_versions(self.ovl)
-			assert self.sized_str_entry.pointers[0].data_size == 24
-			assert self.sized_str_entry.fragments[2].pointers[1].data in (struct.pack("<ii", -1, 0), b"")
+			if ss_pointer.data_size != 24:
+				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {file_entry.name}")
+			if self.sized_str_entry.fragments[2].pointers[1].data not in (struct.pack("<ii", -1, 0), b""):
+				logging.warning(f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {file_entry.name}")
 			# print(self.sized_str_entry.fragments[2].pointers[1].address, self.sized_str_entry.fragments[2].pointers[1].data)
 
 			# assign the mdl2 frags to their sized str entry

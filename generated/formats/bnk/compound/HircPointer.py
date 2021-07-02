@@ -1,4 +1,3 @@
-import typing
 from generated.formats.bnk.compound.Type2 import Type2
 from generated.formats.bnk.compound.TypeOther import TypeOther
 

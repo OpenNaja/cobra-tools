@@ -158,6 +158,7 @@ class Union:
 
 		for field in self.members:
 			arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+			# does a condition for this union exist?
 			if conditionals:
 				new_condition = f"if {' and '.join(conditionals)}:"
 				# merge subsequent fields that have the same condition

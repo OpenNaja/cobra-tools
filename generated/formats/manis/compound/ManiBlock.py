@@ -13,10 +13,10 @@ class ManiBlock:
 		self.io_size = 0
 		self.io_start = 0
 		self.indices_0 = numpy.zeros((), dtype='ushort')
-		self.indices_0 = numpy.zeros((), dtype='uint')
 		self.indices_1 = numpy.zeros((), dtype='ushort')
-		self.indices_1 = numpy.zeros((), dtype='uint')
 		self.indices_2 = numpy.zeros((), dtype='ushort')
+		self.indices_0 = numpy.zeros((), dtype='uint')
+		self.indices_1 = numpy.zeros((), dtype='uint')
 		self.indices_2 = numpy.zeros((), dtype='uint')
 		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
 		self.p_indices_1 = numpy.zeros((), dtype='ubyte')
@@ -49,15 +49,11 @@ class ManiBlock:
 		self.io_start = stream.tell()
 		if stream.version == 18:
 			self.indices_0 = stream.read_ushorts((self.arg.c))
-		if not (stream.version == 18):
-			self.indices_0 = stream.read_uints((self.arg.c))
-		if stream.version == 18:
 			self.indices_1 = stream.read_ushorts((self.arg.name_count))
-		if not (stream.version == 18):
-			self.indices_1 = stream.read_uints((self.arg.name_count))
-		if stream.version == 18:
 			self.indices_2 = stream.read_ushorts((self.arg.e))
 		if not (stream.version == 18):
+			self.indices_0 = stream.read_uints((self.arg.c))
+			self.indices_1 = stream.read_uints((self.arg.name_count))
 			self.indices_2 = stream.read_uints((self.arg.e))
 		self.p_indices_0 = stream.read_ubytes((self.arg.c))
 		self.p_indices_1 = stream.read_ubytes((self.arg.name_count))
@@ -85,15 +81,11 @@ class ManiBlock:
 		self.io_start = stream.tell()
 		if stream.version == 18:
 			stream.write_ushorts(self.indices_0)
-		if not (stream.version == 18):
-			stream.write_uints(self.indices_0)
-		if stream.version == 18:
 			stream.write_ushorts(self.indices_1)
-		if not (stream.version == 18):
-			stream.write_uints(self.indices_1)
-		if stream.version == 18:
 			stream.write_ushorts(self.indices_2)
 		if not (stream.version == 18):
+			stream.write_uints(self.indices_0)
+			stream.write_uints(self.indices_1)
 			stream.write_uints(self.indices_2)
 		stream.write_ubytes(self.p_indices_0)
 		stream.write_ubytes(self.p_indices_1)
@@ -121,6 +113,9 @@ class ManiBlock:
 
 	def get_fields_str(self):
 		s = ''
+		s += f'\n	* indices_0 = {self.indices_0.__repr__()}'
+		s += f'\n	* indices_1 = {self.indices_1.__repr__()}'
+		s += f'\n	* indices_2 = {self.indices_2.__repr__()}'
 		s += f'\n	* indices_0 = {self.indices_0.__repr__()}'
 		s += f'\n	* indices_1 = {self.indices_1.__repr__()}'
 		s += f'\n	* indices_2 = {self.indices_2.__repr__()}'

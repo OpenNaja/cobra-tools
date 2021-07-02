@@ -128,6 +128,9 @@ class Header(GenericHeader):
 		# Array of AuxEntry objects.
 		self.aux_entries = Array()
 
+		# after aux in ZTUAC
+		self.dependencies = Array()
+
 		# Array of UnknownEntry objects.
 		self.unknowns = Array()
 
@@ -170,8 +173,11 @@ class Header(GenericHeader):
 		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names, None))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.read(stream, DirEntry, self.num_dirs, None)
-		self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
+		if not (stream.version == 17):
+			self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.read(stream, AuxEntry, self.num_aux_entries, None)
+		if stream.version == 17:
+			self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
 		self.unknowns.read(stream, UnknownEntry, self.num_files_ovs, None)
 		self.zlibs.read(stream, ZlibInfo, self.num_archives, None)
 
@@ -213,8 +219,11 @@ class Header(GenericHeader):
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.write(stream, DirEntry, self.num_dirs, None)
-		self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
+		if not (stream.version == 17):
+			self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.write(stream, AuxEntry, self.num_aux_entries, None)
+		if stream.version == 17:
+			self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
 		self.unknowns.write(stream, UnknownEntry, self.num_files_ovs, None)
 		self.zlibs.write(stream, ZlibInfo, self.num_archives, None)
 
@@ -259,6 +268,7 @@ class Header(GenericHeader):
 		s += f'\n	* dirs = {self.dirs.__repr__()}'
 		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
 		s += f'\n	* aux_entries = {self.aux_entries.__repr__()}'
+		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
 		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
 		s += f'\n	* zlibs = {self.zlibs.__repr__()}'
 		return s

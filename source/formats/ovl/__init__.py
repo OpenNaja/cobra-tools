@@ -1069,7 +1069,7 @@ class OvlFile(Header, IoFile):
 		# maps OVL hash to final filename + extension
 		self.hash_table_local = {}
 		self.hash_table_global = hash_table
-		# print(self)
+		print(self)
 		# add extensions to hash dict
 		hm_max = len(self.mimes)
 		for hm_index, mime_entry in enumerate(self.mimes):
@@ -1201,6 +1201,9 @@ class OvlFile(Header, IoFile):
 				logging.error(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
 				logging.error(err)
 				traceback.print_exc()
+				print(archive_entry)
+				print(archive_entry.content)
+				break
 		self.close_ovs_streams()
 		self.postprocessing()
 		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
