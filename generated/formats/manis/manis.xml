@@ -89,6 +89,10 @@
 		Grabs 00 bytes only
 	</compound>
 
+	<compound name="Empty">
+		Grabs 00 bytes only
+	</compound>
+
     <basic name="ZString">
         A string of given length.
     </basic>
@@ -197,7 +201,7 @@
         <add name="mani infos" type="ManiInfo" arr1="mani count"/>
 		<add name="bone hashes" type="uint" arr1="header\hash block size / 4" ></add>
 		<add name="bone names" type="ZString" arr1="header\hash block size / 4" ></add>
-        <add name="bone pad" type="PadAlign" arg="mani infos" template="8" >?</add>
+        <add name="bone pad" type="PadAlign" arg="bone names" template="4" >?</add>
 
     </compound>
 
@@ -232,6 +236,7 @@
 <!--    PC uses ushort-->
 <!--    JWE uses uint-->
 
+		<add name="ref" type="Empty" > </add>
 		<add name="indices c 2" type="ushort" arr1="#ARG#\c2" cond="#PC#" > </add>
 		<add name="indices c 2" type="uint" arr1="#ARG#\c2" cond="!#PC#" > </add>
 
@@ -261,7 +266,8 @@
 		<add name="p indices 0c" type="ubyte" arr1="#ARG#\ffff" > </add>
 		<add name="p indices 0c" type="ubyte" arr1="#ARG#\ffff" cond="#PC#"> </add>
 
-		<add name="pad" type="ubyte" arr1="3"> </add>
+<!--		<add name="pad" type="ubyte" arr1="3"> </add>-->
+        <add name="bone pad" type="PadAlign" arg="ref" template="4" >?</add>
         <add name="floats" type="float" arr2="#ARG#\e2" arr1="#ARG#\frame count" >these are likely a scale reference or factor</add>
 
 <!--		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" > </add>-->

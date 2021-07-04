@@ -31,7 +31,7 @@ class InfoHeader:
 		self.bone_names = Array()
 
 		# ?
-		self.bone_pad = PadAlign(self.mani_infos, 8)
+		self.bone_pad = PadAlign(self.bone_names, 4)
 
 	def read(self, stream):
 
@@ -47,7 +47,7 @@ class InfoHeader:
 		self.mani_infos.read(stream, ManiInfo, self.mani_count, None)
 		self.bone_hashes = stream.read_uints((int(self.header.hash_block_size / 4)))
 		self.bone_names = stream.read_zstrings((int(self.header.hash_block_size / 4)))
-		self.bone_pad = stream.read_type(PadAlign, (self.mani_infos, 8))
+		self.bone_pad = stream.read_type(PadAlign, (self.bone_names, 4))
 
 		self.io_size = stream.tell() - self.io_start
 
