@@ -250,11 +250,17 @@
 		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" > </add>
 		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" cond="#PC#"> </add>
 
-		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" > </add>
-		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" cond="#PC#" > </add>
+		<add name="p indices 0b" type="ubyte" arr1="#ARG#\ffff" > </add>
+		<add name="p indices 0b" type="ubyte" arr1="#ARG#\ffff" cond="#PC#"> </add>
 
-		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" > </add>
-		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>
+		<add name="p indices 0c" type="ubyte" arr1="#ARG#\ffff" > </add>
+		<add name="p indices 0c" type="ubyte" arr1="#ARG#\ffff" cond="#PC#"> </add>
+
+<!--		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" > </add>-->
+<!--		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" cond="#PC#" > </add>-->
+
+<!--		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" > </add>-->
+<!--		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>-->
 
 <!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
 <!--		two uint zeros, or padding-->
