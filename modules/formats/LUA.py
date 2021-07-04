@@ -10,22 +10,19 @@ from ovl_util.interaction import showdialog
 def write_lua(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print("\nWriting", name)
-	print(sized_str_entry.fragments)
+	# print(sized_str_entry.fragments)
 
-	try:
-		buffer_data = sized_str_entry.data_entry.buffer_datas[0]
-		print("buffer size", len(buffer_data))
-	except:
-		print("Found no buffer data for", name)
-		buffer_data = b""
-	if len(sized_str_entry.fragments) != 2:
-		print("must have 2 fragments")
+	buffer_data = sized_str_entry.data_entry.buffer_datas[0]
+	print("buffer size", len(buffer_data))
 	# write lua
 	out_path = out_dir(name)
 	# print(out_path)
 	# clip away the start (fragment data at start of buffer?)
 	if is_ztuac(ovl):
 		buffer_data = buffer_data[8:]
+	else:
+		if len(sized_str_entry.fragments) != 2:
+			print("must have 2 fragments")
 	out_files = []
 	if buffer_data[1:4] == b"Lua":
 		print("compiled lua")
