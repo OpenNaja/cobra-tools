@@ -202,7 +202,7 @@ def load_ms2(ovl, ms2_file_path, ms2_entry):
 				model_info.pointers[0].update_data(data, update_copies=True)
 
 
-class Ms2Loader(Ms2File, BaseFile):
+class Ms2Loader(BaseFile):
 
 	def collect(self, ovl, file_entry):
 		self.ovl = ovl
