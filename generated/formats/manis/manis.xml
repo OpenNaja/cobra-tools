@@ -7,6 +7,7 @@
     <token name="verexpr" attrs="vercond cond">
         Commonly used version expressions.
         <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
+        <verexpr token="#PZ16#" string="(#VER# #EQ# 20)">PZ</verexpr>
         <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
     </token>
@@ -176,6 +177,8 @@
         <add name="hash block size" type="ushort"/>
         <add name="zeros" type="int" arr1="2"/>
         <add name="c" type="ushort"/>
+<!--        <add name="unk" type="uint" arr1="3" vercond="#PZ16#"/>-->
+		<add name="zeros end" type="ushort" vercond="#PZ16#" arr1="9" > </add>
     </compound>
 
     <compound name="InfoHeader">
@@ -196,14 +199,16 @@
 	<compound name="ManiInfo" >
         288 bytes for JWE / PZ
         312 bytes for PC
-		<add name="zeros start" type="ushort" arr1="5" > </add>
+<!--		<add name="zeros start" type="ushort" arr1="5" > </add>-->
         <add name="duration" type="float"/>
 		<add name="frame count" type="uint" >likely</add>
 		<add name="b" type="uint" > </add>
-		<add name="zeros 0 " type="ushort" arr1="7"  > rest </add>
+		<add name="zeros 0 " type="ushort" arr1="6"  > rest </add>
+		<add name="c2" type="ushort" > </add>
 		<add name="c" type="ushort" > </add>
 		<add name="name count" type="ushort" > </add>
-		<add name="zeros 1" type="ushort" arr1="4" > rest </add>
+		<add name="zeros 1" type="ushort" arr1="3" > rest </add>
+		<add name="e2" type="ushort" > </add>
 		<add name="e" type="ushort" > </add>
 		<add name="extra pc" type="ushort" arr1="5" cond="#PC#"> </add>
 		<add name="ffff" type="ushort" >always FF FF</add>
@@ -213,51 +218,57 @@
 		<add name="i" type="ushort" > </add>
 		<add name="j" type="ushort" > </add>
 		<add name="ff" type="ushort" > always FF </add>
+		<add name="k" type="ushort" > </add>
+		<add name="l" type="ushort" > </add>
+		<add name="zeros end" type="ushort" arr1="3" > </add>
     </compound>
 
 	<compound name="ManiBlock" >
-<!--            name_indices_0 = struct.unpack(f"<{mani_info.c}I", stream.read(mani_info.c * 4))-->
-<!--			print("name_indices_0", name_indices_0)-->
-<!--			name_indices_1 = struct.unpack(f"<{mani_info.name_count}I", stream.read(mani_info.name_count * 4))-->
-<!--			print("name_indices_1", name_indices_1)-->
-<!--			name_indices_2 = struct.unpack(f"<{mani_info.e}I", stream.read(mani_info.e * 4))-->
-<!--			print("name_indices_2", name_indices_2)-->
-<!--			p_indices_0 = struct.unpack(f"<{mani_info.c}B", stream.read(mani_info.c))-->
-<!--			print("p_indices_0", p_indices_0)-->
-<!--			p_indices_1 = struct.unpack(f"<{mani_info.name_count}B", stream.read(mani_info.name_count))-->
-<!--			print("p_indices_1", p_indices_1)-->
-<!--			p_indices_2 = struct.unpack(f"<{mani_info.e}B", stream.read(mani_info.e))-->
-<!--			print("p_indices_2", p_indices_2)-->
 <!--    PC uses ushort-->
-		<add name="indices 0" type="ushort" arr1="#ARG#\c" cond="#PC#" > </add>
-		<add name="indices 1" type="ushort" arr1="#ARG#\name count" cond="#PC#" > </add>
-		<add name="indices 2" type="ushort" arr1="#ARG#\e" cond="#PC#" > </add>
 <!--    JWE uses uint-->
+
+		<add name="indices c 2" type="ushort" arr1="#ARG#\c2" cond="#PC#" > </add>
+		<add name="indices c 2" type="uint" arr1="#ARG#\c2" cond="!#PC#" > </add>
+
+		<add name="indices 0" type="ushort" arr1="#ARG#\c" cond="#PC#" > </add>
 		<add name="indices 0" type="uint" arr1="#ARG#\c" cond="!#PC#" > </add>
+
+		<add name="indices 1" type="ushort" arr1="#ARG#\name count" cond="#PC#" > </add>
 		<add name="indices 1" type="uint" arr1="#ARG#\name count" cond="!#PC#" > </add>
-		<add name="indices 2" type="uint" arr1="#ARG#\e" cond="!#PC#" > </add>
+
+		<add name="indices e2" type="ushort" arr1="#ARG#\e2" cond="#PC#" > </add>
+		<add name="indices e2" type="uint" arr1="#ARG#\e2" cond="!#PC#" > </add>
+
+<!--		<add name="indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>-->
+<!--		<add name="indices 2" type="ubyte" arr1="#ARG#\e" cond="!#PC#" > </add>-->
+<!--		<add name="indices 2" type="ushort" arr1="#ARG#\e" cond="#PC#" > </add>-->
+<!--		<add name="indices 2" type="uint" arr1="#ARG#\e" cond="!#PC#" > </add>-->
+
+		<add name="p indices 00" type="ubyte" arr1="#ARG#\c2" > </add>
+		<add name="p indices 00" type="ubyte" arr1="#ARG#\c2" cond="#PC#"> </add>
 
 		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" > </add>
+		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" cond="#PC#"> </add>
+
 		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" > </add>
+		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" cond="#PC#" > </add>
+
 		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" > </add>
+		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>
 
-		<add name="c indices 0" type="ubyte" arr1="#ARG#\c" cond="#PC#"> </add>
-		<add name="c indices 1" type="ubyte" arr1="#ARG#\name count" cond="#PC#" > </add>
-		<add name="c indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>
-
-		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>
-		two uint zeros, or padding
-<!--		<add name="zero" type="uint64" > </add>-->
-		<add name="frame count" type="uint" >likely</add>
-		<add name="c" type="uint" > </add>
-		<add name="e" type="uint" > </add>
-		<add name="zeros 19" type="uint" arr1="19">fixed</add>
-		<add name="count" type="ushort" > </add>
-		<add name="four and twenty" type="ushort" >usually / always 420</add>
-        <add name="zeros" type="ubyte" arr1="count" > </add>
-        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>
-        <add name="floats" type="float" arr1="6" >these are likely a scale reference or factor</add>
-        <add name="repeats" type="Repeat" arr1="count" > </add>
+<!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
+<!--		two uint zeros, or padding-->
+<!--&lt;!&ndash;		<add name="zero" type="uint64" > </add>&ndash;&gt;-->
+<!--		<add name="frame count" type="uint" >likely</add>-->
+<!--		<add name="c" type="uint" > </add>-->
+<!--		<add name="e" type="uint" > </add>-->
+<!--		<add name="zeros 19" type="uint" arr1="19">fixed</add>-->
+<!--		<add name="count" type="ushort" > </add>-->
+<!--		<add name="four and twenty" type="ushort" >usually / always 420</add>-->
+<!--        <add name="zeros" type="ubyte" arr1="count" > </add>-->
+<!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
+<!--        <add name="floats" type="float" arr1="6" >these are likely a scale reference or factor</add>-->
+<!--        <add name="repeats" type="Repeat" arr1="count" > </add>-->
 
     </compound>
 

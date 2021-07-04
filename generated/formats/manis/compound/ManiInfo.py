@@ -16,7 +16,6 @@ class ManiInfo:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_start = numpy.zeros((5), dtype='ushort')
 		self.duration = 0
 
 		# likely
@@ -24,12 +23,14 @@ class ManiInfo:
 		self.b = 0
 
 		# rest
-		self.zeros_0 = numpy.zeros((7), dtype='ushort')
+		self.zeros_0 = numpy.zeros((6), dtype='ushort')
+		self.c_2 = 0
 		self.c = 0
 		self.name_count = 0
 
 		# rest
-		self.zeros_1 = numpy.zeros((4), dtype='ushort')
+		self.zeros_1 = numpy.zeros((3), dtype='ushort')
+		self.e_2 = 0
 		self.e = 0
 		self.extra_pc = numpy.zeros((5), dtype='ushort')
 
@@ -47,18 +48,22 @@ class ManiInfo:
 
 		# always FF
 		self.ff = 0
+		self.k = 0
+		self.l = 0
+		self.zeros_end = numpy.zeros((3), dtype='ushort')
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.zeros_start = stream.read_ushorts((5))
 		self.duration = stream.read_float()
 		self.frame_count = stream.read_uint()
 		self.b = stream.read_uint()
-		self.zeros_0 = stream.read_ushorts((7))
+		self.zeros_0 = stream.read_ushorts((6))
+		self.c_2 = stream.read_ushort()
 		self.c = stream.read_ushort()
 		self.name_count = stream.read_ushort()
-		self.zeros_1 = stream.read_ushorts((4))
+		self.zeros_1 = stream.read_ushorts((3))
+		self.e_2 = stream.read_ushort()
 		self.e = stream.read_ushort()
 		if stream.version == 18:
 			self.extra_pc = stream.read_ushorts((5))
@@ -70,20 +75,24 @@ class ManiInfo:
 		self.i = stream.read_ushort()
 		self.j = stream.read_ushort()
 		self.ff = stream.read_ushort()
+		self.k = stream.read_ushort()
+		self.l = stream.read_ushort()
+		self.zeros_end = stream.read_ushorts((3))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		stream.write_ushorts(self.zeros_start)
 		stream.write_float(self.duration)
 		stream.write_uint(self.frame_count)
 		stream.write_uint(self.b)
 		stream.write_ushorts(self.zeros_0)
+		stream.write_ushort(self.c_2)
 		stream.write_ushort(self.c)
 		stream.write_ushort(self.name_count)
 		stream.write_ushorts(self.zeros_1)
+		stream.write_ushort(self.e_2)
 		stream.write_ushort(self.e)
 		if stream.version == 18:
 			stream.write_ushorts(self.extra_pc)
@@ -95,6 +104,9 @@ class ManiInfo:
 		stream.write_ushort(self.i)
 		stream.write_ushort(self.j)
 		stream.write_ushort(self.ff)
+		stream.write_ushort(self.k)
+		stream.write_ushort(self.l)
+		stream.write_ushorts(self.zeros_end)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -103,14 +115,15 @@ class ManiInfo:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* zeros_start = {self.zeros_start.__repr__()}'
 		s += f'\n	* duration = {self.duration.__repr__()}'
 		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
 		s += f'\n	* b = {self.b.__repr__()}'
 		s += f'\n	* zeros_0 = {self.zeros_0.__repr__()}'
+		s += f'\n	* c_2 = {self.c_2.__repr__()}'
 		s += f'\n	* c = {self.c.__repr__()}'
 		s += f'\n	* name_count = {self.name_count.__repr__()}'
 		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
+		s += f'\n	* e_2 = {self.e_2.__repr__()}'
 		s += f'\n	* e = {self.e.__repr__()}'
 		s += f'\n	* extra_pc = {self.extra_pc.__repr__()}'
 		s += f'\n	* ffff = {self.ffff.__repr__()}'
@@ -120,6 +133,9 @@ class ManiInfo:
 		s += f'\n	* i = {self.i.__repr__()}'
 		s += f'\n	* j = {self.j.__repr__()}'
 		s += f'\n	* ff = {self.ff.__repr__()}'
+		s += f'\n	* k = {self.k.__repr__()}'
+		s += f'\n	* l = {self.l.__repr__()}'
+		s += f'\n	* zeros_end = {self.zeros_end.__repr__()}'
 		return s
 
 	def __repr__(self):

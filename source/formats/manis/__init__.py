@@ -28,12 +28,14 @@ class ManisFile(InfoHeader, IoFile):
 
 		with self.reader(filepath) as stream:
 			self.read(stream)
-			print(self)
+			# print(self)
 			#
 			# read the first mani data
 			mani_info = self.mani_infos[0]
 			mani_block = stream.read_type(ManiBlock, (mani_info,))
+			print(mani_info)
 			print(mani_block)
+			return
 			# is this correct??
 			zeros = stream.read(4)
 			print(zeros, stream.tell())
@@ -75,6 +77,7 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c0.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c1.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c2.manis")
-	mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animation.maniset9637aeb4.manis")
-	print(mani)
+	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animation.maniset9637aeb4.manis")
+	mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedbehaviour.maniset5f721adf.manis")
+	# print(mani)
 	# hex_test()
