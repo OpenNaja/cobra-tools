@@ -30,7 +30,7 @@ from modules.formats.shared import get_versions, djb, assign_versions, get_paddi
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
-def get_loader(ext):
+def get_loader(ext, ovl):
 	from modules.formats.ASSETPKG import AssetpkgLoader
 	from modules.formats.MS2 import Ms2Loader
 	from modules.formats.LUA import LuaLoader
@@ -55,7 +55,7 @@ def get_loader(ext):
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
-		return cls()
+		return cls(ovl)
 
 
 class OvsFile(OvsHeader):
@@ -253,7 +253,7 @@ class OvsFile(OvsHeader):
 
 		# create loaders for supported files
 		for file_entry in self.ovl.files:
-			file_entry.loader = get_loader(file_entry.ext)
+			file_entry.loader = get_loader(file_entry.ext, self.ovl)
 			if file_entry.loader:
 				file_entry.loader.create(self, file_entry)
 		# post-process the memory pools
@@ -1262,7 +1262,7 @@ class OvlFile(Header, IoFile):
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
 		for file in self.files:
-			file.loader = get_loader(file.ext)
+			file.loader = get_loader(file.ext, self)
 			if file.loader:
 				try:
 					file.loader.collect(self, file)
