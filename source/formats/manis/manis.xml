@@ -264,7 +264,7 @@
 		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" > </add>
 		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" cond="#PC#"> </add>
 
-		<add name="p indices 0b" type="ubyte" arr1="#ARG#\e" cond="(#ARG#\e2) #GT# (0)"> </add>
+		<add name="p indices 0b" type="ubyte" arr1="#ARG#\e" > </add>
 
 
 		<add name="p indices 0c" type="ubyte" arr1="#ARG#\e" cond="(#ARG#\e2) #GT# (0)"> </add>
@@ -290,7 +290,8 @@
 		<add name="four and twenty" type="ushort" >usually / always 420</add>
 		<add name="ref2" type="Empty" > </add>
 		<add name="zeros" type="ubyte" arr1="c" > </add>
-		<add name="anoth pad" type="PadAlign" arg="ref2" template="8" > </add>
+<!--		<add name="anoth pad" type="PadAlign" arg="ref2" template="8" > </add>-->
+		<add name="anoth pad" type="SmartPadding" >?</add>
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 		<add name="floatsb" type="float" arr1="6" >these are likely a scale reference or factor</add>
 		<add name="repeats" type="Repeat" arr1="count" > </add>
@@ -301,6 +302,20 @@
 		<add name="zeros 0" type="uint" arr1="15" > </add>
 		<add name="byte size" type="uint" >to be read sequentially starting after this array </add>
 		<add name="zeros 1" type="uint" arr1="4" > </add>
+    </compound>
+	
+	
+    <compound name="UncompressedRegion" >
+		<add name="zeros 0" type="uint" arr1="2" > </add>
+		<add name="unk0" type="ushort" ></add>
+		<add name="unk1" type="ushort" ></add>
+		<add name="zeros 1" type="uint" arr1="3" > </add>
+		<add name="unk2" type="uint" ></add>
+		<add name="unk3" type="uint" ></add>
+		<add name="zeros 2" type="uint" arr1="2" > </add>
+		<add name="unk4" type="uint" ></add>
+		<add name="unk5" type="uint" ></add>
+		<add name="zeros 3" type="uint" arr1="2" > </add>
     </compound>
 
 
