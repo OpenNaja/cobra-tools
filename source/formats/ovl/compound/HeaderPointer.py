@@ -11,10 +11,25 @@ class HeaderPointer:
 
 # START_CLASS
 
+
+	def __init__(self, arg=None, template=None):
+		self.name = ''
+		self.arg = arg
+		self.template = template
+		self.io_size = 0
+		self.io_start = 0
+
+		# The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)
+		self.pool_index = 0
+
+		# the byte offset relative to the start of the header entry data
+		self.data_offset = 0
+
+		# define this already
+		self.padding = b""
+
 	def read_data(self):
 		"""Load data from archive header data readers into pointer for modification and io"""
-
-		self.padding = b""
 		if self.pool_index == -1:
 			self.data = None
 		else:

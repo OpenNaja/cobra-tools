@@ -3,6 +3,8 @@ import typing
 from generated.array import Array
 from generated.formats.manis.compound.Empty import Empty
 from generated.formats.manis.compound.PadAlign import PadAlign
+from generated.formats.manis.compound.Repeat import Repeat
+from generated.formats.manis.compound.SmartPadding import SmartPadding
 
 
 class ManiBlock:
@@ -27,15 +29,35 @@ class ManiBlock:
 		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
 		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
 		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
 		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
 
 		# ?
-		self.bone_pad = PadAlign(self.ref, 4)
+		self.pad = PadAlign(self.ref, 4)
 
 		# these are likely a scale reference or factor
-		self.floats = numpy.zeros((), dtype='float')
+		self.floatsa = numpy.zeros((), dtype='float')
+
+		# ?
+		self.pad_2 = SmartPadding(None, None)
+
+		# likely
+		self.frame_count = 0
+		self.c = 0
+		self.e = 0
+
+		# fixed
+		self.zeros_19 = numpy.zeros((19), dtype='uint')
+		self.count = 0
+
+		# usually / always 420
+		self.four_and_twenty = 0
+		self.ref_2 = Empty(None, None)
+		self.zeros = numpy.zeros((self.c), dtype='ubyte')
+		self.anoth_pad = PadAlign(self.ref_2, 8)
+
+		# these are likely a scale reference or factor
+		self.floatsb = numpy.zeros((6), dtype='float')
+		self.repeats = Array()
 
 	def read(self, stream):
 
@@ -63,14 +85,23 @@ class ManiBlock:
 		self.p_indices_0 = stream.read_ubytes((self.arg.c))
 		if stream.version == 18:
 			self.p_indices_0 = stream.read_ubytes((self.arg.c))
-		self.p_indices_0_b = stream.read_ubytes((self.arg.ffff))
-		if stream.version == 18:
-			self.p_indices_0_b = stream.read_ubytes((self.arg.ffff))
-		self.p_indices_0_c = stream.read_ubytes((self.arg.ffff))
-		if stream.version == 18:
-			self.p_indices_0_c = stream.read_ubytes((self.arg.ffff))
-		self.bone_pad = stream.read_type(PadAlign, (self.ref, 4))
-		self.floats = stream.read_floats((self.arg.frame_count, self.arg.e_2))
+		if self.arg.e_2 > 0:
+			self.p_indices_0_b = stream.read_ubytes((self.arg.e))
+			self.p_indices_0_c = stream.read_ubytes((self.arg.e))
+		self.pad = stream.read_type(PadAlign, (self.ref, 4))
+		self.floatsa = stream.read_floats((self.arg.frame_count, self.arg.e_2))
+		self.pad_2 = stream.read_type(SmartPadding)
+		self.frame_count = stream.read_uint()
+		self.c = stream.read_uint()
+		self.e = stream.read_uint()
+		self.zeros_19 = stream.read_uints((19))
+		self.count = stream.read_ushort()
+		self.four_and_twenty = stream.read_ushort()
+		self.ref_2 = stream.read_type(Empty)
+		self.zeros = stream.read_ubytes((self.c))
+		self.anoth_pad = stream.read_type(PadAlign, (self.ref_2, 8))
+		self.floatsb = stream.read_floats((6))
+		self.repeats.read(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -100,14 +131,23 @@ class ManiBlock:
 		stream.write_ubytes(self.p_indices_0)
 		if stream.version == 18:
 			stream.write_ubytes(self.p_indices_0)
-		stream.write_ubytes(self.p_indices_0_b)
-		if stream.version == 18:
+		if self.arg.e_2 > 0:
 			stream.write_ubytes(self.p_indices_0_b)
-		stream.write_ubytes(self.p_indices_0_c)
-		if stream.version == 18:
 			stream.write_ubytes(self.p_indices_0_c)
-		stream.write_type(self.bone_pad)
-		stream.write_floats(self.floats)
+		stream.write_type(self.pad)
+		stream.write_floats(self.floatsa)
+		stream.write_type(self.pad_2)
+		stream.write_uint(self.frame_count)
+		stream.write_uint(self.c)
+		stream.write_uint(self.e)
+		stream.write_uints(self.zeros_19)
+		stream.write_ushort(self.count)
+		stream.write_ushort(self.four_and_twenty)
+		stream.write_type(self.ref_2)
+		stream.write_ubytes(self.zeros)
+		stream.write_type(self.anoth_pad)
+		stream.write_floats(self.floatsb)
+		self.repeats.write(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -125,8 +165,20 @@ class ManiBlock:
 		s += f'\n	* p_indices_0 = {self.p_indices_0.__repr__()}'
 		s += f'\n	* p_indices_0_b = {self.p_indices_0_b.__repr__()}'
 		s += f'\n	* p_indices_0_c = {self.p_indices_0_c.__repr__()}'
-		s += f'\n	* bone_pad = {self.bone_pad.__repr__()}'
-		s += f'\n	* floats = {self.floats.__repr__()}'
+		s += f'\n	* pad = {self.pad.__repr__()}'
+		s += f'\n	* floatsa = {self.floatsa.__repr__()}'
+		s += f'\n	* pad_2 = {self.pad_2.__repr__()}'
+		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
+		s += f'\n	* c = {self.c.__repr__()}'
+		s += f'\n	* e = {self.e.__repr__()}'
+		s += f'\n	* zeros_19 = {self.zeros_19.__repr__()}'
+		s += f'\n	* count = {self.count.__repr__()}'
+		s += f'\n	* four_and_twenty = {self.four_and_twenty.__repr__()}'
+		s += f'\n	* ref_2 = {self.ref_2.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* anoth_pad = {self.anoth_pad.__repr__()}'
+		s += f'\n	* floatsb = {self.floatsb.__repr__()}'
+		s += f'\n	* repeats = {self.repeats.__repr__()}'
 		return s
 
 	def __repr__(self):

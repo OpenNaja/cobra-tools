@@ -31,11 +31,14 @@ class ManiInfo:
 		# rest
 		self.zeros_1 = numpy.zeros((3), dtype='ushort')
 		self.e_2 = 0
-		self.e = 0
-		self.extra_pc = numpy.zeros((5), dtype='ushort')
 
 		# always FF FF
-		self.ffff = 0
+		self.ff_1 = 0
+
+		# always FF FF
+		self.ff_2 = 0
+		self.e = 0
+		self.extra_pc = numpy.zeros((5), dtype='ushort')
 		self.g = 0
 
 		# rest 228 bytes
@@ -64,10 +67,11 @@ class ManiInfo:
 		self.name_count = stream.read_ushort()
 		self.zeros_1 = stream.read_ushorts((3))
 		self.e_2 = stream.read_ushort()
+		self.ff_1 = stream.read_ubyte()
+		self.ff_2 = stream.read_ubyte()
 		self.e = stream.read_ushort()
 		if stream.version == 18:
 			self.extra_pc = stream.read_ushorts((5))
-		self.ffff = stream.read_ushort()
 		self.g = stream.read_ushort()
 		self.zeros_2 = stream.read_uints((57))
 		if stream.version == 18:
@@ -93,10 +97,11 @@ class ManiInfo:
 		stream.write_ushort(self.name_count)
 		stream.write_ushorts(self.zeros_1)
 		stream.write_ushort(self.e_2)
+		stream.write_ubyte(self.ff_1)
+		stream.write_ubyte(self.ff_2)
 		stream.write_ushort(self.e)
 		if stream.version == 18:
 			stream.write_ushorts(self.extra_pc)
-		stream.write_ushort(self.ffff)
 		stream.write_ushort(self.g)
 		stream.write_uints(self.zeros_2)
 		if stream.version == 18:
@@ -124,9 +129,10 @@ class ManiInfo:
 		s += f'\n	* name_count = {self.name_count.__repr__()}'
 		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
 		s += f'\n	* e_2 = {self.e_2.__repr__()}'
+		s += f'\n	* ff_1 = {self.ff_1.__repr__()}'
+		s += f'\n	* ff_2 = {self.ff_2.__repr__()}'
 		s += f'\n	* e = {self.e.__repr__()}'
 		s += f'\n	* extra_pc = {self.extra_pc.__repr__()}'
-		s += f'\n	* ffff = {self.ffff.__repr__()}'
 		s += f'\n	* g = {self.g.__repr__()}'
 		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
 		s += f'\n	* extra_zeros_pc = {self.extra_zeros_pc.__repr__()}'
