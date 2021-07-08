@@ -92,7 +92,7 @@ class OvsFile(OvsHeader):
 			# cobra < 20 used buffer index per data entry
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
 
-			print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
+			# print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
 			# generate a mime lut to know the index of the mimes
 			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
 			# generate the buffergroup entries
@@ -189,7 +189,7 @@ class OvsFile(OvsHeader):
 		# compress data
 		# change to zipped format for saving of uncompressed or oodled ovls
 		if not self.ovl.user_version.use_zlib:
-			print("HACK: setting compression to zlib")
+			logging.info("HACK: setting compression to zlib")
 			self.ovl.user_version.use_oodle = False
 			self.ovl.user_version.use_zlib = True
 		# pc/pz zlib			8340	00100000 10010100
@@ -206,7 +206,7 @@ class OvsFile(OvsHeader):
 			assert self.compression_header.startswith(OODLE_MAGIC)
 			a, raw_algo = struct.unpack("BB", self.compression_header)
 			algo = OodleDecompressEnum(raw_algo)
-			print("Oodle compression", a, raw_algo, algo.name)
+			logging.debug(f"Oodle compression {a} {raw_algo} {algo.name}")
 			compressed = oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
 		elif self.ovl.user_version.use_zlib:
 			compressed = zlib.compress(uncompressed_bytes)
@@ -469,11 +469,9 @@ class OvsFile(OvsHeader):
 		return self.pools[p.pool_index].fragments
 
 	def collect_enumnamer(self, ss_entry):
-		print("\nENUMNAMER / MOTIONGRAPHVARS:", ss_entry.name)
 		# Sized string initpos = position of first fragment
 		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
 		count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
-		# print(count)
 		ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
 		# pointers[1].data is the name
 		for var in ss_entry.vars:
@@ -482,7 +480,6 @@ class OvsFile(OvsHeader):
 		ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_motiongraph(self, ss_entry):
-		print("\nMOTIONGRAPH:", ss_entry.name)
 		# Sized string initpos = position of first fragment
 		print(ss_entry.pointers[0].address, len(ss_entry.pointers[0].data))
 		if self.ovl.basename.lower() == "driver.ovl":
@@ -550,8 +547,7 @@ class OvsFile(OvsHeader):
 					try:
 						sized_str_entry.fragments = self.frags_from_pointer(sized_str_entry.pointers[0], t)
 					except:
-						print("bug")
-						pass
+						logging.error("fragment bug")
 				elif sized_str_entry.ext == ".fgm":
 					sized_str_entry.fragments = self.get_frag_after_terminator(sized_str_entry.pointers[0])
 				elif sized_str_entry.ext in (".enumnamer", ".motiongraphvars"):
@@ -559,7 +555,7 @@ class OvsFile(OvsHeader):
 				elif sized_str_entry.ext == ".motiongraph":
 					self.collect_motiongraph(sized_str_entry)
 			except Exception as err:
-				print(err)
+				logging.error(err)
 
 	def assign_frag_names(self):
 		# for debugging only:
@@ -832,7 +828,8 @@ class OvsFile(OvsHeader):
 				for pointer in sorted_first_pointers:
 					pointer.write_data(update_copies=True)
 			else:
-				print(f"No pointers into header entry {i} - keeping its stock data!")
+				# todo - shouldn't we delete the header entry in that case?
+				logging.debug(f"No pointers into header entry {i} - keeping its stock data!")
 
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
@@ -912,8 +909,8 @@ class OvlFile(Header, IoFile):
 					extract_kernel(self, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
 
 			except BaseException as error:
-				print(f"\nAn exception occurred while extracting {sized_str_entry.name}")
-				print(error)
+				logging.error(f"An exception occurred while extracting {sized_str_entry.name}")
+				logging.error(error)
 				traceback.print_exc()
 				error_files.append(sized_str_entry.name)
 		self.progress_callback("Extraction completed!", value=1, vmax=1)
@@ -921,8 +918,8 @@ class OvlFile(Header, IoFile):
 		return out_paths, error_files, skip_files
 
 	def create(self, ovl_dir):
-		print(f"Creating OVL from {ovl_dir}")
-		print(f"Game: {get_game(self)}")
+		logging.info(f"Creating OVL from {ovl_dir}")
+		logging.info(f"Game: {get_game(self)}")
 		# map all files in ovl_dir by their extension
 		files_by_extension = {}
 		for file_name in os.listdir(ovl_dir):

@@ -53,7 +53,9 @@ class ManiBlock:
 		self.four_and_twenty = 0
 		self.ref_2 = Empty(None, None)
 		self.zeros = numpy.zeros((self.c), dtype='ubyte')
-		self.anoth_pad = PadAlign(self.ref_2, 8)
+
+		# ?
+		self.anoth_pad = SmartPadding(None, None)
 
 		# these are likely a scale reference or factor
 		self.floatsb = numpy.zeros((6), dtype='float')
@@ -85,8 +87,8 @@ class ManiBlock:
 		self.p_indices_0 = stream.read_ubytes((self.arg.c))
 		if stream.version == 18:
 			self.p_indices_0 = stream.read_ubytes((self.arg.c))
+		self.p_indices_0_b = stream.read_ubytes((self.arg.e))
 		if self.arg.e_2 > 0:
-			self.p_indices_0_b = stream.read_ubytes((self.arg.e))
 			self.p_indices_0_c = stream.read_ubytes((self.arg.e))
 		self.pad = stream.read_type(PadAlign, (self.ref, 4))
 		self.floatsa = stream.read_floats((self.arg.frame_count, self.arg.e_2))
@@ -99,7 +101,7 @@ class ManiBlock:
 		self.four_and_twenty = stream.read_ushort()
 		self.ref_2 = stream.read_type(Empty)
 		self.zeros = stream.read_ubytes((self.c))
-		self.anoth_pad = stream.read_type(PadAlign, (self.ref_2, 8))
+		self.anoth_pad = stream.read_type(SmartPadding)
 		self.floatsb = stream.read_floats((6))
 		self.repeats.read(stream, Repeat, self.count, None)
 
@@ -131,8 +133,8 @@ class ManiBlock:
 		stream.write_ubytes(self.p_indices_0)
 		if stream.version == 18:
 			stream.write_ubytes(self.p_indices_0)
+		stream.write_ubytes(self.p_indices_0_b)
 		if self.arg.e_2 > 0:
-			stream.write_ubytes(self.p_indices_0_b)
 			stream.write_ubytes(self.p_indices_0_c)
 		stream.write_type(self.pad)
 		stream.write_floats(self.floatsa)
