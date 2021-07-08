@@ -5,8 +5,6 @@ import traceback
 import logging
 import tempfile
 
-from ovl_util.interaction import showdialog
-
 try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
@@ -18,6 +16,22 @@ try:
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+formatter = logging.Formatter('%(levelname)s | %(message)s')
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler('ovl_tool_gui.log', mode="w")
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stdout_handler)
 
 
 class MainWindow(widgets.MainWindow):
