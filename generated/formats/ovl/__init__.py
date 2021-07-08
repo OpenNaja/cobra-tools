@@ -965,6 +965,7 @@ class OvlFile(Header, IoFile):
 		# self.dependencies.sort(key=lambda x: x.file_hash)
 
 		archive_entry = ArchiveEntry()
+		archive_entry.content = self
 		self.archives.append(archive_entry)
 		self.static_archive = archive_entry
 		# assign names and find the static archive
