@@ -1,5 +1,10 @@
+USHORT_SCALE = 2048
+USHORT_OFFSET = 32766.5
+USHORT_MAX = 65535
+
+
 def unpack_ushort_vector(vec):
-    return (vec - 32768) / 2048
+    return (vec - USHORT_OFFSET) / USHORT_SCALE
 
 
 def unpack_swizzle(vec):
@@ -13,7 +18,7 @@ def pack_swizzle(vec):
 
 
 def pack_ushort_vector(vec):
-    return [min(int(round(coord * 2048 + 32768)), 65535) for coord in vec]
+    return [min(int(round(coord * USHORT_SCALE + USHORT_OFFSET)), USHORT_MAX) for coord in vec]
 
 
 def pack_ubyte_vector(vec):

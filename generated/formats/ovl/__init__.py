@@ -80,15 +80,13 @@ class OvsFile(OvsHeader):
 			return stream.getbuffer()
 
 	def update_buffer_groups(self):
-		logging.info("Updating buffer groups")
+		logging.info(f"Updating buffer groups for {self.arg.name}")
 		self.new_entries.clear()
 		if is_pz16(self.ovl) and len(self.data_entries) > 0:
 			# sort the buffers to be what 1.6 needs
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
-					buffer.file_hash = data_entry.file_hash
-					buffer.name = data_entry.name
-					buffer.ext = data_entry.ext
+					self.transfer_identity(buffer, data_entry)
 			# cobra < 20 used buffer index per data entry
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
 
@@ -167,16 +165,16 @@ class OvsFile(OvsHeader):
 		self.compression_header = compressed_bytes[:2]
 		logging.debug(f"Compression magic bytes: {self.compression_header}")
 		if self.ovl.user_version.use_oodle:
-			logging.info("Oodle compression")
+			logging.debug("Oodle compression")
 			decompressed = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
 		elif self.ovl.user_version.use_zlib:
-			logging.info("Zlib compression")
+			logging.debug("Zlib compression")
 			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
 			# we avoid the two zlib magic bytes to get our unzipped content
 			decompressed = zlib.decompress(compressed_bytes[2:], wbits=-zlib.MAX_WBITS)
 		# uncompressed archive
 		else:
-			logging.info("No compression")
+			logging.debug("No compression")
 			decompressed = compressed_bytes
 		if save_temp_dat:
 			# for debugging, write deflated content to dat
@@ -215,8 +213,8 @@ class OvsFile(OvsHeader):
 		return len(uncompressed_bytes), len(compressed), compressed
 
 	def update_hashes(self, file_name_lut):
-		logging.info("Updating hashes")
-		logging.info(f"Game: {get_game(self.ovl)}")
+		logging.info(f"Updating hashes for {self.arg.name}")
+		logging.debug(f"Game: {get_game(self.ovl)}")
 		entry_lists = [
 					self.pools,
 					self.sized_str_entries,
@@ -399,7 +397,7 @@ class OvsFile(OvsHeader):
 	# noinspection PyTypeChecker
 	def update_assets(self):
 		"""Update archive asset grouping from children list on sized str entries"""
-		logging.info("Updating assets")
+		logging.info(f"Updating assets for {self.arg.name}")
 		self.set_header.sets.clear()
 		self.set_header.assets.clear()
 		self.set_header.set_count = 0
@@ -776,16 +774,13 @@ class OvsFile(OvsHeader):
 
 	def assign_name(self, entry):
 		"""Fetch a filename for an entry"""
-		n = "NONAME"
-		e = ".UNK"
 		# JWE style
 		if self.ovl.user_version.is_jwe:
 			try:
 				n = self.ovl.hash_table_local[entry.file_hash]
 				e = self.ovl.hash_table_local[entry.ext_hash]
 			except KeyError:
-				raise KeyError(
-					f"No match for entry!\n{entry}")
+				raise KeyError(f"No match for entry!\n{entry}")
 		# PZ Style and PC Style
 		else:
 			# file_hash is an index into ovl files
@@ -852,7 +847,7 @@ class OvsFile(OvsHeader):
 		self.pools_data = pools_data_writer.getvalue()
 
 	def write_archive(self, stream):
-		logging.debug(f"Writing archive {self.arg.name}")
+		logging.info(f"Writing archive {self.arg.name}")
 		# write out all entries
 		super().write(stream)
 		# write the header data containing all the pointers' datas

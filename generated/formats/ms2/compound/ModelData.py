@@ -274,16 +274,13 @@ class ModelData:
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
-		# print(self.verts_data[:]["uvs"][1])
 		if self.uvs is not None:
 			self.uvs[:] = self.verts_data[:]["uvs"]
-			# unpack uvs
-			self.uvs = (self.uvs - 32768) / 2048
+			self.uvs = unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
 		if self.fur is not None:
 			self.fur[:] = self.verts_data[:]["fur_shell"]
-			# unpack fur
-			self.fur = (self.fur - 32768) / 2048
+			self.fur = unpack_ushort_vector(self.fur)
 			# normalize with some overhead
 			self.fur_length = np.max(self.fur[:, 0]) * FUR_OVERHEAD
 			# fur length can be set to 0 for the whole mesh, so make sure we don't divide in that case

@@ -21,6 +21,9 @@ plugin_dir = os.path.dirname(__file__)
 if not plugin_dir in sys.path:
 	sys.path.append(plugin_dir)
 
+from ovl_util.config import logging_setup
+logging_setup(os.path.join(plugin_dir, "blender_plugin"))
+
 from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
 from plugin.utils import shell

@@ -1,3 +1,6 @@
+import logging
+import sys
+
 
 def read_config(cfg_path):
 	config_dict = {}
@@ -37,3 +40,18 @@ def read_list(cfg_path):
 if __name__ == '__main__':
 	cfg = read_config("config.ini")
 	print(cfg)
+
+
+def logging_setup(log_name):
+	logger = logging.getLogger()
+	logger.setLevel(logging.DEBUG)
+	# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+	formatter = logging.Formatter('%(levelname)s | %(message)s')
+	stdout_handler = logging.StreamHandler(sys.stdout)
+	stdout_handler.setLevel(logging.INFO)
+	stdout_handler.setFormatter(formatter)
+	file_handler = logging.FileHandler(f'{log_name}.log', mode="w")
+	file_handler.setLevel(logging.DEBUG)
+	file_handler.setFormatter(formatter)
+	logger.addHandler(file_handler)
+	logger.addHandler(stdout_handler)

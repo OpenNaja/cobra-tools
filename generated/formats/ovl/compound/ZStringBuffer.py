@@ -1,4 +1,5 @@
 
+import logging
 from generated.io import BinaryStream
 from modules.formats.shared import get_padding
 
@@ -33,7 +34,7 @@ class ZStringBuffer:
 		"""Updates this name buffer with a list of (array, attrib) whose elements have
 		offset: bytes relative to the start of the name block
 		[attrib]: string"""
-		print("Updating name buffer")
+		logging.debug("Updating name buffer")
 		self.strings = []
 		offset_dic = {}
 		with BinaryStream() as stream:

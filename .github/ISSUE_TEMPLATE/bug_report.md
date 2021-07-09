@@ -27,3 +27,6 @@ If applicable, add screenshots to help explain your problem.
  - Python Version: [e.g. 3.7.2]
  - Blender Version: [e.g. 2.92]
  - Cobra Tools Version [e.g. release x.xx, or master, date downloaded]
+ 
+ **Log Files:**
+ - Close the tools and attach the appropriate log file here. [e.g. cobra-tools/ovl_tool_gui.log]

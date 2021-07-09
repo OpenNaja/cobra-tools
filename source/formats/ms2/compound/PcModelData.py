@@ -95,7 +95,7 @@ class PcModelData:
 		if self.uvs is not None:
 			self.uvs[:] = self.uv_data[:]["uvs"]
 			# unpack uvs
-			self.uvs = (self.uvs - 32768) / 2048
+			self.uvs = unpack_ushort_vector(self.uvs)
 		# if self.colors is not None:
 		# 	# first cast to the float colors array so unpacking doesn't use int division
 		# 	self.colors[:] = self.verts_data[:]["colors"]
