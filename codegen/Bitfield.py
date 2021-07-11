@@ -23,7 +23,7 @@ class Bitfield(BaseClass):
 				elif "width" in field.attrib:
 					num_bits = int(field.attrib["width"])
 				else:
-					raise AttributeError(f"Neither width or mask or numbits are defined for {field.name}")
+					raise AttributeError(f"Neither width or mask or numbits are defined for {field.attrib['name']}")
 				pos = int(field.attrib["pos"])
 
 				mask = ~((~0) << (pos + num_bits)) & ((~0) << pos)
