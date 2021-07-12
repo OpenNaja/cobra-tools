@@ -1,4 +1,5 @@
 
+import logging
 import struct
 import math
 import numpy as np
@@ -267,6 +268,7 @@ class ModelData:
 	def read_verts(self, stream):
 		# read a vertices of this model
 		stream.seek(self.buffer_2_offset + self.vertex_offset)
+		logging.debug(f"Reading {self.vertex_count} verts at {stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
@@ -289,7 +291,7 @@ class ModelData:
 				self.fur[:, 0] /= self.fur_length
 			# value range of fur width is +-16 - squash it into 0 - 1
 			self.fur[:, 1] = remap(self.fur[:, 1], -16, 16, 0, 1)
-			print("self.fur[0]", self.fur[0])
+			# print("self.fur[0]", self.fur[0])
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data[:]["colors"]
@@ -320,7 +322,7 @@ class ModelData:
 	def write_tris(self, stream):
 		tri_bytes = struct.pack(f"{len(self.tri_indices)}H", *self.tri_indices)
 		# extend tri array according to shell count
-		print(f"Writing {self.shell_count} shells of triangles")
+		logging.debug(f"Writing {self.shell_count} shells of triangles")
 		for shell in range(self.shell_count):
 			stream.write(tri_bytes)
 
@@ -330,7 +332,7 @@ class ModelData:
 			lod_i = int(math.log2(self.poweroftwo))
 		except:
 			lod_i = 0
-			print("EXCEPTION: math domain for lod", self.poweroftwo)
+			logging.warning(f"math domain for lod {self.poweroftwo}")
 		return lod_i
 
 	@lod_index.setter
