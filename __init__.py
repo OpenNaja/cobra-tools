@@ -153,7 +153,7 @@ class ImportMDL2(bpy.types.Operator, ImportHelper):
 	bl_idname = "import_scene.cobra_mdl2"
 	bl_label = 'Import MDL2'
 	bl_options = {'UNDO'}
-	filename_ext = ".MDL2"
+	filename_ext = ".mdl2"
 	filter_glob: StringProperty(default="*.mdl2", options={'HIDDEN'})
 	use_custom_normals: BoolProperty(name="Use MDL2 Normals", description="Preserves the original shading of a MDL2.", default=False)
 	mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match!", default=False)
@@ -182,7 +182,7 @@ class ExportMDL2(bpy.types.Operator, ExportHelper):
 	"""Export to MDL2 file format (.MDL2)"""
 	bl_idname = "export_scene.cobra_mdl2"
 	bl_label = 'Export MDL2'
-	filename_ext = ".MDL2"
+	filename_ext = ".mdl2"
 	filter_glob: StringProperty(default="*.mdl2", options={'HIDDEN'})
 	apply_transforms: BoolProperty(name="Apply Transforms", description="Automatically applies object transforms to meshes.", default=False)
 	edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - tends to break skeletons!", default=False)
