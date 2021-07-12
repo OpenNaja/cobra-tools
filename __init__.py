@@ -258,7 +258,7 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 		row.operator("object.vcol_to_comb", icon_value=preview_collection["frontier.png"].icon_id)
 		sub = row.row()
 		sub.operator("object.comb_to_vcol", icon_value=preview_collection["frontier.png"].icon_id)
-		addon_updater_ops.update_notice_box_ui()
+		addon_updater_ops.update_notice_box_ui(self, context)
 
 
 def menu_func_export(self, context):
