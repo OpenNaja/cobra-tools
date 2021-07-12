@@ -273,6 +273,7 @@ class ModelData:
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
+		assert len(self.verts_data) == self.vertex_count
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division

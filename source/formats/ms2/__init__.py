@@ -545,7 +545,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/rock/au_paintedrock_01.mdl2", entry=True)
+	m.load("C:/Users/arnfi/Desktop/frb/frbmodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
 	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
