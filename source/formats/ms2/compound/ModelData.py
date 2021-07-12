@@ -201,7 +201,10 @@ class ModelData:
 		# read all tri indices for this model
 		stream.seek(self.buffer_2_offset + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
 		# read all tri indices for this model segment
-		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
+		index_count = self.tri_index_count // self.shell_count
+		logging.debug(f"Reading {index_count} indices at {stream.tell()}")
+		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=index_count)
+		assert len(self.tri_indices) == index_count
 
 	def write_tris(self, stream):
 		tri_bytes = struct.pack(f"{len(self.tri_indices)}H", *self.tri_indices)
