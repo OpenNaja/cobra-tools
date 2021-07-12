@@ -248,29 +248,31 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 
 	def draw(self, context):
 		layout = self.layout
+		icon = preview_collection["frontier.png"].icon_id
+		row = layout.row(align=True)
+		row.operator("object.gauge_uv_scale", icon_value=icon)
+		sub = row.row()
+		sub.operator("object.create_fins", icon_value=icon)
 
 		row = layout.row(align=True)
-		row.operator("object.gauge_uv_scale", icon_value=preview_collection["frontier.png"].icon_id)
+		row.operator("object.vcol_to_comb", icon_value=icon)
 		sub = row.row()
-		sub.operator("object.create_fins", icon_value=preview_collection["frontier.png"].icon_id)
-
-		row = layout.row(align=True)
-		row.operator("object.vcol_to_comb", icon_value=preview_collection["frontier.png"].icon_id)
-		sub = row.row()
-		sub.operator("object.comb_to_vcol", icon_value=preview_collection["frontier.png"].icon_id)
+		sub.operator("object.comb_to_vcol", icon_value=icon)
 		addon_updater_ops.update_notice_box_ui(self, context)
 
 
 def menu_func_export(self, context):
-	self.layout.operator(ExportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=preview_collection["frontier.png"].icon_id)
+	icon = preview_collection["frontier.png"].icon_id
+	self.layout.operator(ExportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=icon)
 
 
 def menu_func_import(self, context):
-	self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol)", icon_value=preview_collection["frontier.png"].icon_id)
-	self.layout.operator(ImportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=preview_collection["frontier.png"].icon_id)
-	self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=preview_collection["frontier.png"].icon_id)
-	self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=preview_collection["frontier.png"].icon_id)
-	self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=preview_collection["frontier.png"].icon_id)
+	icon = preview_collection["frontier.png"].icon_id
+	self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol)", icon_value=icon)
+	self.layout.operator(ImportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=icon)
+	self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=icon)
+	self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
+	self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
 
 
 classes = (
