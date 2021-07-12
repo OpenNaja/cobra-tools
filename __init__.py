@@ -293,7 +293,6 @@ classes = (
 
 def register():
 	addon_updater_ops.register(bl_info)
-	import os
 	icons_dir = os.path.join(os.path.dirname(__file__), "icons")
 	for icon_name_ext in os.listdir(icons_dir):
 		icon_name = os.path.basename(icon_name_ext)
