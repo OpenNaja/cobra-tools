@@ -1,5 +1,8 @@
 import logging
 import sys
+import os
+
+plugin_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 def read_config(cfg_path):
@@ -43,6 +46,7 @@ if __name__ == '__main__':
 
 
 def logging_setup(log_name):
+	log_path = f'{os.path.join(plugin_dir, log_name)}.log'
 	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
 	# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
@@ -50,7 +54,7 @@ def logging_setup(log_name):
 	stdout_handler = logging.StreamHandler(sys.stdout)
 	stdout_handler.setLevel(logging.INFO)
 	stdout_handler.setFormatter(formatter)
-	file_handler = logging.FileHandler(f'{log_name}.log', mode="w")
+	file_handler = logging.FileHandler(log_path, mode="w")
 	file_handler.setLevel(logging.DEBUG)
 	file_handler.setFormatter(formatter)
 	logger.addHandler(file_handler)
