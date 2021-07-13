@@ -283,3 +283,10 @@ class ModelData:
 		self.base = base
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
+
+	def validate_tris(self):
+		"""See if all tri indices point into the vertex buffer, raise an error if they don't"""
+		for tri_ind in self.tri_indices:
+			if tri_ind >= len(self.verts_data):
+				raise IndexError(f"Tri index {tri_ind} does not point into {len(self.verts_data)} vertices")
+		logging.debug("All tri indices are valid")

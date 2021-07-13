@@ -80,8 +80,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					relative_offset = stream.tell() - potential_start
 					# currently no other way to predict the padding, no correlation to joint count
 					padding_len = get_padding_size(relative_offset)
-
-					logging.debug(f"padding {padding_len} {stream.read(padding_len)} joint count {bone_info.joint_count}")
+					padding = stream.read(padding_len)
+					assert padding == b'\x00' * padding_len
+					logging.debug(f"padding: {padding_len}")
 				except Exception as err:
 					traceback.print_exc()
 					logging.error(f"Bone info {i} failed:")
@@ -452,7 +453,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 			# do it once more so materials are loaded!
 			if is_old(self):
 				ms2_file.fill_mdl2s(self.mdl2_siblings)
-		logging.info(f"Finished reading in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Finished reading {self.basename} in {time.time() - start_time:.2f} seconds!")
 
 	def get_siblings(self, read_bytes):
 		logging.info(f"Looking for siblings of {self.basename}")
@@ -486,7 +487,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 				self.bone_info = self.ms2_file.bone_infos[-1]
 
 	def lookup_material(self):
-		logging.debug("mapping")
+		logging.debug(f"Mapping links for {self.basename}")
 		for lod_index, lod in enumerate(self.lods):
 			lod.objects = self.objects[lod.first_object_index:lod.last_object_index]
 			# todo - investigate how duplicate models are handled for the lod's vertex count0
@@ -503,7 +504,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 						f"Lod Index: {obj.model.poweroftwo} Flag: {int(obj.model.flag)}")
 				except Exception as err:
 					logging.error(err)
-					logging.error(f"Couldn't match material {obj.material_index} to model {obj.model_index} - bug?")
+					logging.error(f"Couldn't match material {obj.material_index} to model {obj.model_index}")
 					# logging.error(len(models), obj, mdl2.materials)
 
 	def clear(self):
@@ -546,6 +547,13 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Mdl2File()
 	m.load("C:/Users/arnfi/Desktop/frb/frbmodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
+	# for model in m.models:
+	# 	print(model.tris)
+	# 	model.validate_tris()
+	m.load("C:/Users/arnfi/Desktop/fra/framodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
+	for model in m.models:
+		# print(model.tris)
+		model.validate_tris()
 	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
 	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
