@@ -11,6 +11,7 @@ from generated.formats.ovl.versions import *
 from modules.formats.shared import pack_header, get_versions, get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import write_sized_str, as_bytes
+from ovl_util import interaction
 
 
 def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callback):
@@ -90,7 +91,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 					# 40 bytes (0,1 or 0,0,0,0)
 					has_bone_info = model_info.pointers[0].data
 				elif (is_jwe(ovl) and model_info.pointers[0].data_size == 144) \
-					or ((is_pz(ovl) or is_pz16(ovl)) and model_info.pointers[0].data_size == 160):
+						or ((is_pz(ovl) or is_pz16(ovl)) and model_info.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = model_info.pointers[0].data[40:]
 					has_bone_info = model_info.pointers[0].data[:40]
@@ -150,26 +151,28 @@ def load_ms2(ovl, ms2_file_path, ms2_entry):
 
 	versions = get_versions(ovl)
 
-	# load ms2 ss data
-	ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions) + ms2_entry.pointers[0].data[24:]
-	ms2_entry.pointers[0].update_data(ms2_ss_bytes, update_copies=True)
-
-	# overwrite ms2 buffer info frag
-	buffer_info_frag = ms2_entry.fragments[0]
-	buffer_info_frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
-
-	# update ms2 data
-	ms2_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
-
 	logging.info(f"Injecting MDL2s")
 	ms2_dir = os.path.dirname(ms2_file_path)
 	mdl2s = []
 	for mdl2_entry in ms2_entry.children:
 		mdl2_path = os.path.join(ms2_dir, mdl2_entry.name)
 		mdl2 = Mdl2File()
-		mdl2.load(mdl2_path)
+		# todo - entry is costly, but needed for the mapping of materials - refactor to use entry just once
+		mdl2.load(mdl2_path, entry=True)
 		mdl2s.append(mdl2)
 
+		missing_materials = []
+		for material in mdl2.materials:
+			fgm_name = f"{material.name.lower()}.fgm"
+			if fgm_name not in ovl.ss_dict:
+				missing_materials.append(fgm_name)
+		if missing_materials:
+			mats = '\n'.join(missing_materials)
+			msg = f"The following materials are used by {mdl2_entry.name}, but are missing from the OVL:\n" \
+				f"{mats}\n" \
+				f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
+			if interaction.showdialog(msg, ask=True):
+				return
 		if len(mdl2_entry.model_data_frags) != len(mdl2.models):
 			raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
 		# overwrite mdl2 modeldata frags
@@ -197,9 +200,20 @@ def load_ms2(ovl, ms2_file_path, ms2_entry):
 			# get its model info fragment
 			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 			if (is_jwe(ovl) and model_info.pointers[0].data_size == 144) \
-				or ((is_pz(ovl) or is_pz16(ovl)) and model_info.pointers[0].data_size == 160):
+					or ((is_pz(ovl) or is_pz16(ovl)) and model_info.pointers[0].data_size == 160):
 				data = model_info.pointers[0].data[:40] + data
 				model_info.pointers[0].update_data(data, update_copies=True)
+
+	# load ms2 ss data
+	ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions) + ms2_entry.pointers[0].data[24:]
+	ms2_entry.pointers[0].update_data(ms2_ss_bytes, update_copies=True)
+
+	# overwrite ms2 buffer info frag
+	buffer_info_frag = ms2_entry.fragments[0]
+	buffer_info_frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
+
+	# update ms2 data
+	ms2_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
 
 
 class Ms2Loader(BaseFile):
@@ -217,7 +231,8 @@ class Ms2Loader(BaseFile):
 			if ss_pointer.data_size != 24:
 				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {file_entry.name}")
 			if self.sized_str_entry.fragments[2].pointers[1].data not in (struct.pack("<ii", -1, 0), b""):
-				logging.warning(f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {file_entry.name}")
+				logging.warning(
+					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {file_entry.name}")
 			# print(self.sized_str_entry.fragments[2].pointers[1].address, self.sized_str_entry.fragments[2].pointers[1].data)
 
 			# assign the mdl2 frags to their sized str entry
@@ -235,7 +250,7 @@ class Ms2Loader(BaseFile):
 				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
 				pink = mdl2_entry.fragments[4]
 				if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
-					or ((is_pz(self.ovl) or is_pz16(self.ovl)) and pink.pointers[0].data_size == 160):
+						or ((is_pz(self.ovl) or is_pz16(self.ovl)) and pink.pointers[0].data_size == 160):
 					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		else:
@@ -260,7 +275,8 @@ class Ms2Loader(BaseFile):
 		mdl2_entry.num_models = core_model_info.num_objects
 		# get and set fragments
 		logging.debug(f"Num model data frags = {core_model_info.num_models}")
-		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(model_data_ptr.pointers[1], core_model_info.num_models)
+		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(model_data_ptr.pointers[1],
+																  core_model_info.num_models)
 
 	def create(self, ovs, file_entry):
 		self.ovs = ovs
@@ -369,7 +385,7 @@ class Ms2Loader(BaseFile):
 			for frag in (materials, lods, objects, model_data_ptr):
 				frag.pointers[0].pool_index = pool_index
 				frag.pointers[0].data_offset = pool.data.tell()
-				pool.data.write(b"\x00"*8)
+				pool.data.write(b"\x00" * 8)
 		# write last 40 bytes to model_info
 		if mdl2s:
 			model_info.pointers[0].pool_index = pool_index
@@ -405,7 +421,7 @@ class Ms2Loader(BaseFile):
 			frag.pointers[0].pool_index = pool_index
 			frag.pointers[1].pool_index = pool_index
 			frag.pointers[0].data_offset = pool.data.tell()
-			pool.data.write(b"\x00"*8)
+			pool.data.write(b"\x00" * 8)
 
 		# the last ms2 fragment
 		end_frag.pointers[1].data_offset = pool.data.tell()
