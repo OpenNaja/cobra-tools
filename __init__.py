@@ -1,14 +1,15 @@
-bl_info = {	"name": "Frontier's Cobra Engine Formats (JWE, Planet Zoo)",
-			"author": "Harlequinz Ego & HENDRIX",
-			"blender": (2, 92, 0),
-			"version": (2, 3, 1),
-			"location": "File > Import-Export",
-			"description": "Import-Export models, skeletons and animations.",
-			"warning": "",
-			"wiki_url": "https://github.com/OpenNaja/cobra-blender",
-			"support": 'COMMUNITY',
-			"tracker_url": "https://github.com/OpenNaja/cobra-blender/issues/new",
-			"category": "Import-Export"}
+bl_info = {
+	"name": "Frontier's Cobra Engine Formats (JWE, Planet Zoo)",
+	"author": "Harlequinz Ego & HENDRIX",
+	"blender": (2, 92, 0),
+	"version": (2, 3, 1),
+	"location": "File > Import-Export",
+	"description": "Import-Export models, skeletons and animations.",
+	"warning": "",
+	"wiki_url": "https://github.com/OpenNaja/cobra-tools",
+	"support": 'COMMUNITY',
+	"tracker_url": "https://github.com/OpenNaja/cobra-tools/issues/new",
+	"category": "Import-Export"}
 
 import bpy
 import bpy.utils.previews
