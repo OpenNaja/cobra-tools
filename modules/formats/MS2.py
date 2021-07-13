@@ -145,15 +145,11 @@ def get_ms2_buffer_datas(ms2_sized_str_entry):
 
 
 def load_ms2(ovl, ms2_file_path, ms2_entry):
-	logging.info(f"Injecting MS2")
-	ms2_file = Ms2File()
-	ms2_file.load(ms2_file_path, read_bytes=True)
-
 	versions = get_versions(ovl)
 
-	logging.info(f"Injecting MDL2s")
 	ms2_dir = os.path.dirname(ms2_file_path)
 	mdl2s = []
+	# load and check if everything is valid
 	for mdl2_entry in ms2_entry.children:
 		mdl2_path = os.path.join(ms2_dir, mdl2_entry.name)
 		mdl2 = Mdl2File()
@@ -171,10 +167,15 @@ def load_ms2(ovl, ms2_file_path, ms2_entry):
 			msg = f"The following materials are used by {mdl2_entry.name}, but are missing from the OVL:\n" \
 				f"{mats}\n" \
 				f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
-			if interaction.showdialog(msg, ask=True):
+			if not interaction.showdialog(msg, ask=True):
+				logging.info("Injection was canceled by the user")
 				return
 		if len(mdl2_entry.model_data_frags) != len(mdl2.models):
 			raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
+
+	logging.info(f"Injecting MDL2s")
+	# actual injection starts here
+	for mdl2_entry, mdl2 in zip(ms2_entry.children, mdl2s):
 		# overwrite mdl2 modeldata frags
 		for frag, modeldata in zip(mdl2_entry.model_data_frags, mdl2.models):
 			frag_data = as_bytes(modeldata, version_info=versions)
@@ -204,6 +205,9 @@ def load_ms2(ovl, ms2_file_path, ms2_entry):
 				data = model_info.pointers[0].data[:40] + data
 				model_info.pointers[0].update_data(data, update_copies=True)
 
+	logging.info(f"Injecting MS2")
+	ms2_file = Ms2File()
+	ms2_file.load(ms2_file_path, read_bytes=True)
 	# load ms2 ss data
 	ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions) + ms2_entry.pointers[0].data[24:]
 	ms2_entry.pointers[0].update_data(ms2_ss_bytes, update_copies=True)
