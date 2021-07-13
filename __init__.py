@@ -42,9 +42,11 @@ def handle_errors(inst, func, kwargs):
 	try:
 		for msg in func(**kwargs):
 			inst.report({"INFO"}, msg)
+			logging.info(msg)
 	except Exception as err:
 		inst.report({"ERROR"}, str(err))
-		traceback.print_exc()
+		# traceback.print_exc()
+		logging.exception('Got exception on main handler')
 	return {'FINISHED'}
 
 

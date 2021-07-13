@@ -308,6 +308,8 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 				if b_mat not in b_materials:
 					b_materials.append(b_mat)
 					export_material(mdl2, b_mat)
+					if "." in b_mat.name:
+						messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
 				# create one unique model per material
 				m_ob = MeshLink()
 				m_ob.model_index = b_models.index(b_me)
