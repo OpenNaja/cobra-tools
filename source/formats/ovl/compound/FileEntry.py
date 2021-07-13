@@ -20,5 +20,5 @@ class FileEntry:
 			constants = constants_pz
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
-		self.unkn_0 = constants.files_unkn_0.get(self.ext)
-		self.unkn_1 = constants.files_unkn_1.get(self.ext)
+		self.unkn_0 = constants.files_unkn_0[self.ext]
+		self.unkn_1 = constants.files_unkn_1[self.ext]

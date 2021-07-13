@@ -28,6 +28,8 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
+REVERSED_TYPES = (
+	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection", ".txt")
 
 
 def get_loader(ext, ovl):
@@ -67,6 +69,40 @@ class OvsFile(OvsHeader):
 		# this determines if fragments are written back to header datas
 		self.force_update_pools = True
 
+	@staticmethod
+	def add_pointer(pointer, ss_entry, pointers_to_ss):
+		if pointer.pool_index != -1:
+			pointers_to_ss[pointer.pool_index][pointer.data_offset] = ss_entry
+
+	def header_name_finder(self):
+		# this algorithm depends on every fragment being assigned to the correct sized string entries
+		logging.info("Updating pool names")
+		pointers_to_ss = [{} for _ in self.pools]
+		pointers_to_ss_frag = [{} for _ in self.pools]
+		for sized_str_entry in self.sized_str_entries:
+			self.add_pointer(sized_str_entry.pointers[0], sized_str_entry, pointers_to_ss)
+			for frag in sized_str_entry.fragments:
+				for pointer in frag.pointers:
+					self.add_pointer(pointer, sized_str_entry, pointers_to_ss_frag)
+		for pool_index, pool in enumerate(self.pools):
+			logging.debug(f"pool_index {pool_index}")
+			# if we are dealing with a pool loaded from an ovl, see if its extension has been figured out
+			if hasattr(pool, "ext") and pool.ext not in REVERSED_TYPES:
+				logging.debug(f"Keeping header name {pool.name} as it has not been reverse engineered!")
+				continue
+			ss_map = pointers_to_ss[pool_index]
+			results = tuple(sorted(ss_map.items()))
+			if not results:
+				logging.debug("No ss pointer found, checking frag pointers!")
+				ss_map = pointers_to_ss_frag[pool_index]
+				results = tuple(sorted(ss_map.items()))
+				if not results:
+					logging.error(f"No pointer found for header {pool_index}, error!")
+					continue
+			ss = results[0][1]
+			logging.debug(f"Header[{pool_index}]: {pool.name} -> {ss.name}")
+			self.transfer_identity(pool, ss)
+
 	def get_bytes(self, archive_index, external_path):
 		# load external uncompressed data
 		if external_path and archive_index == 0:
@@ -78,87 +114,6 @@ class OvsFile(OvsHeader):
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
 			return stream.getbuffer()
-
-	def update_buffer_groups(self):
-		logging.info(f"Updating buffer groups for {self.arg.name}")
-		self.new_entries.clear()
-		if is_pz16(self.ovl) and len(self.data_entries) > 0:
-			# sort the buffers to be what 1.6 needs
-			for data_entry in self.data_entries:
-				for buffer in data_entry.buffers:
-					self.transfer_identity(buffer, data_entry)
-			# cobra < 20 used buffer index per data entry
-			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
-
-			# print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
-			# generate a mime lut to know the index of the mimes
-			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
-			# generate the buffergroup entries
-			
-			last_ext = None
-			last_index = None
-			new_entry = None
-			buffer_offset = 0
-			data_offset = 0
-			for i, buffer in enumerate(self.buffer_entries):
-				logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
-				# we have to create a new group
-				if buffer.ext != last_ext or buffer.index != last_index:
-					# if we already have a new_entry declared, update offsets for the next one
-					# if new_entry:
-					# 	logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
-					# 	buffer_offset += new_entry.buffer_count
-					# 	# only change data offset if ext changes
-					# 	if buffer.ext != last_ext:
-					# 		data_offset += new_entry.data_count
-					# now create the new new_entry and update its initial data
-					new_entry = BufferGroup()
-					new_entry.ext = buffer.ext
-					new_entry.ext_index = mime_lut.get(buffer.ext)
-					new_entry.buffer_index = buffer.index
-					new_entry.buffer_offset = buffer_offset
-					new_entry.data_offset = data_offset
-					self.new_entries.append(new_entry)
-				# gotta add this buffer to the current group
-				new_entry.buffer_count += 1
-				new_entry.size += buffer.size
-				new_entry.data_count += 1
-				# change buffer identity for next loop
-				last_ext = buffer.ext
-				last_index = buffer.index
-
-			# fix the offsets of the buffergroups
-			for x, new_entry in enumerate(self.new_entries):
-				if x > 0:
-					new_entry.buffer_offset = self.new_entries[x - 1].buffer_offset + self.new_entries[x - 1].buffer_count
-					if new_entry.ext != self.new_entries[x - 1].ext:
-						new_entry.data_offset = self.new_entries[x - 1].data_offset + self.new_entries[x - 1].data_count
-					else:
-						new_entry.data_offset = self.new_entries[x - 1].data_offset
-						if new_entry.data_count < self.new_entries[x - 1].data_count:
-							new_entry.data_count = self.new_entries[x - 1].data_count
-			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
-			tex_fixa = 0
-			tex_fixb = 0
-			tex_fixc = 0
-			for new_entry in self.new_entries:
-				if ".tex" == new_entry.ext:
-					if new_entry.buffer_count > tex_fixb:
-						tex_fixb = new_entry.buffer_count
-					if new_entry.data_offset > tex_fixa:
-						tex_fixa = new_entry.data_offset
-				elif ".texturestream" == new_entry.ext:
-					tex_fixc += new_entry.buffer_count
-			for new_entry in self.new_entries:
-				if ".tex" == new_entry.ext:
-					new_entry.data_offset = tex_fixa
-					new_entry.data_count = tex_fixb
-				elif ".texturestream" == new_entry.ext:
-					new_entry.data_count = tex_fixc
-
-			if (self.new_entries[-1].data_count + self.new_entries[-1].data_offset) < len(self.data_entries):
-				for x in range(self.new_entries[-1].buffer_index + 1):
-					self.new_entries[-1 - x].data_count = len(self.data_entries) - self.new_entries[-1 - x].data_offset
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
@@ -215,6 +170,7 @@ class OvsFile(OvsHeader):
 	def update_hashes(self, file_name_lut):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		logging.debug(f"Game: {get_game(self.ovl)}")
+		self.header_name_finder()
 		entry_lists = [
 					self.pools,
 					self.sized_str_entries,
@@ -246,21 +202,6 @@ class OvsFile(OvsHeader):
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
 		self.arg.num_new = len(self.new_entries)
-
-	def create(self):
-
-		# create loaders for supported files
-		for file_entry in self.ovl.files:
-			file_entry.loader = get_loader(file_entry.ext, self.ovl)
-			if file_entry.loader:
-				file_entry.loader.create(self, file_entry)
-		# post-process the memory pools
-		for pool in self.pools:
-			pool.data.write(get_padding(pool.data.tell(), 4))
-			self.transfer_identity(pool, self.sized_str_entries[0])
-
-		self.force_update_pools = False
-		self.map_buffers()
 
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
@@ -388,14 +329,11 @@ class OvsFile(OvsHeader):
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
-		# source_entry.file_hash = target_entry.file_hash
-		# source_entry.ext_hash = target_entry.ext_hash
 		source_entry.basename = target_entry.basename
 		source_entry.ext = target_entry.ext
 		source_entry.name = target_entry.name
 
-	# noinspection PyTypeChecker
-	def update_assets(self):
+	def rebuild_assets(self):
 		"""Update archive asset grouping from children list on sized str entries"""
 		logging.info(f"Updating assets for {self.arg.name}")
 		self.set_header.sets.clear()
@@ -421,6 +359,88 @@ class OvsFile(OvsHeader):
 				self.set_header.asset_count += len(ss_entry.children)
 				# set_index is 1-based, so the first set = 1, so we do it after the increment
 				ss_entry.data_entry.set_index = self.set_header.set_count
+
+	def rebuild_buffer_groups(self):
+		logging.info(f"Updating buffer groups for {self.arg.name}")
+		self.new_entries.clear()
+		if is_pz16(self.ovl) and len(self.data_entries) > 0:
+			# sort the buffers to be what 1.6 needs
+			for data_entry in self.data_entries:
+				for buffer in data_entry.buffers:
+					self.transfer_identity(buffer, data_entry)
+			# cobra < 20 used buffer index per data entry
+			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
+
+			# print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
+			# generate a mime lut to know the index of the mimes
+			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
+			# generate the buffergroup entries
+
+			last_ext = None
+			last_index = None
+			new_entry = None
+			buffer_offset = 0
+			data_offset = 0
+			for i, buffer in enumerate(self.buffer_entries):
+				logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
+				# we have to create a new group
+				if buffer.ext != last_ext or buffer.index != last_index:
+					# if we already have a new_entry declared, update offsets for the next one
+					# if new_entry:
+					# 	logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
+					# 	buffer_offset += new_entry.buffer_count
+					# 	# only change data offset if ext changes
+					# 	if buffer.ext != last_ext:
+					# 		data_offset += new_entry.data_count
+					# now create the new new_entry and update its initial data
+					new_entry = BufferGroup()
+					new_entry.ext = buffer.ext
+					new_entry.ext_index = mime_lut.get(buffer.ext)
+					new_entry.buffer_index = buffer.index
+					new_entry.buffer_offset = buffer_offset
+					new_entry.data_offset = data_offset
+					self.new_entries.append(new_entry)
+				# gotta add this buffer to the current group
+				new_entry.buffer_count += 1
+				new_entry.size += buffer.size
+				new_entry.data_count += 1
+				# change buffer identity for next loop
+				last_ext = buffer.ext
+				last_index = buffer.index
+
+			# fix the offsets of the buffergroups
+			for x, new_entry in enumerate(self.new_entries):
+				if x > 0:
+					new_entry.buffer_offset = self.new_entries[x - 1].buffer_offset + self.new_entries[
+						x - 1].buffer_count
+					if new_entry.ext != self.new_entries[x - 1].ext:
+						new_entry.data_offset = self.new_entries[x - 1].data_offset + self.new_entries[x - 1].data_count
+					else:
+						new_entry.data_offset = self.new_entries[x - 1].data_offset
+						if new_entry.data_count < self.new_entries[x - 1].data_count:
+							new_entry.data_count = self.new_entries[x - 1].data_count
+			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
+			tex_fixa = 0
+			tex_fixb = 0
+			tex_fixc = 0
+			for new_entry in self.new_entries:
+				if ".tex" == new_entry.ext:
+					if new_entry.buffer_count > tex_fixb:
+						tex_fixb = new_entry.buffer_count
+					if new_entry.data_offset > tex_fixa:
+						tex_fixa = new_entry.data_offset
+				elif ".texturestream" == new_entry.ext:
+					tex_fixc += new_entry.buffer_count
+			for new_entry in self.new_entries:
+				if ".tex" == new_entry.ext:
+					new_entry.data_offset = tex_fixa
+					new_entry.data_count = tex_fixb
+				elif ".texturestream" == new_entry.ext:
+					new_entry.data_count = tex_fixc
+
+			if (self.new_entries[-1].data_count + self.new_entries[-1].data_offset) < len(self.data_entries):
+				for x in range(self.new_entries[-1].buffer_index + 1):
+					self.new_entries[-1 - x].data_count = len(self.data_entries) - self.new_entries[-1 - x].data_offset
 
 	def frags_accumulate(self, p, d_size):
 		# get frags whose pointers 0 datas together occupy d_size bytes
@@ -861,6 +881,7 @@ class OvlFile(Header, IoFile):
 
 	def __init__(self, progress_callback=None):
 		super().__init__()
+		self.fres.data = b'FRES'
 
 		self.last_print = None
 		if progress_callback:
@@ -912,63 +933,37 @@ class OvlFile(Header, IoFile):
 
 		return out_paths, error_files, skip_files
 
+	def create_file(self, file_path):
+		"""Create a file entry from a file path"""
+		filename = os.path.basename(file_path)
+		logging.debug(f"Creating {filename}")
+		file_entry = FileEntry()
+		file_entry.path = file_path
+		file_entry.name = filename
+		file_entry.basename, file_entry.ext = os.path.splitext(filename)
+		try:
+			file_entry.update_constants(self)
+		except KeyError:
+			logging.warning(f"Unsupported extension {filename}")
+			return
+		file_entry.dependencies = []
+		self.files.append(file_entry)
+
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		logging.info(f"Game: {get_game(self)}")
-		# map all files in ovl_dir by their extension
-		files_by_extension = {}
 		for file_name in os.listdir(ovl_dir):
-			file_name_bare, file_ext = os.path.splitext(file_name)
 			file_path = os.path.join(ovl_dir, file_name)
-			if file_ext not in files_by_extension:
-				files_by_extension[file_ext] = []
-			files_by_extension[file_ext].append(file_path)
-
-		file_index_offset = 0
-		for file_ext, file_paths in sorted(files_by_extension.items()):
-			mime_entry = MimeEntry()
-			mime_entry.ext = file_ext
-			try:
-				mime_entry.update_constants(self)
-			except KeyError:
-				logging.warning(f"Unsupported extension {file_ext}")
-				continue
-			mime_entry.file_index_offset = file_index_offset
-			mime_entry.file_count = len(file_paths)
-			file_index_offset += len(file_paths)
-
-			for file_path in file_paths:
-				file_entry = FileEntry()
-				filename = os.path.basename(file_path)
-				file_entry.path = file_path
-				file_entry.name = filename
-				file_entry.basename, file_entry.ext = os.path.splitext(filename)
-				mime_entry.update_constants(self)
-				file_entry.extension = len(self.mimes)
-				file_entry.dependencies = []
-				self.files.append(file_entry)
-			self.mimes.append(mime_entry)
-
-		# update ovl stuff
-		self.fres.data = b"FRES"
-		self.archive_names.data = b'STATIC\x00\x00'
-
+			self.create_file(file_path)
+		# generate hashes so we can sort the files
 		self.update_hashes()
-		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
-		# nope they are not sorted by hash
-		# self.dependencies.sort(key=lambda x: x.file_hash)
 
 		archive_entry = ArchiveEntry()
-		archive_entry.content = self
 		self.archives.append(archive_entry)
 		self.static_archive = archive_entry
-		# assign names and find the static archive
-		# for archive_entry in self.archives:
-		# 	self.get_ovs_path(archive_entry)
 
 		content = OvsFile(self, archive_entry)
-		content.create()
 		archive_entry.content = content
 		archive_entry.name = "STATIC"
 		archive_entry.offset = 0
@@ -978,6 +973,18 @@ class OvlFile(Header, IoFile):
 
 		new_zlib = ZlibInfo()
 		self.zlibs.append(new_zlib)
+
+		# create loaders for supported files
+		for file_entry in self.files:
+			file_entry.loader = get_loader(file_entry.ext, self)
+			if file_entry.loader:
+				file_entry.loader.create(content, file_entry)
+		# ensure that each pool data is padded to 4
+		for pool in content.pools:
+			pool.data.write(get_padding(pool.data.tell(), 4))
+		content.force_update_pools = False
+		content.map_buffers()
+
 		self.update_hashes()
 		self.update_counts()
 		self.postprocessing()
@@ -1031,6 +1038,7 @@ class OvlFile(Header, IoFile):
 				dir_entry.basename = directory_new_name
 
 	def update_names(self):
+		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
 		# update ext dependencies with : prefix instead of .
 		for dependency in self.dependencies:
 			dependency.ext = dependency.ext.replace(".", ":")
@@ -1040,6 +1048,9 @@ class OvlFile(Header, IoFile):
 			(self.dirs, "basename"),
 			(self.mimes, "name"),
 			(self.files, "basename")
+		))
+		self.archive_names.update_with((
+			(self.archives, "name"),
 		))
 		self.len_names = len(self.names.data)
 		self.len_archive_names = len(self.archive_names.data)
@@ -1141,6 +1152,35 @@ class OvlFile(Header, IoFile):
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
+
+	def update_mimes(self):
+		"""Rebuilds the mimes list according to the ovl's current file entries"""
+		logging.info("Updating mimes")
+		self.mimes.clear()
+		# map all files by their extension
+		files_by_extension = {}
+		for file in self.files:
+			if file.ext not in files_by_extension:
+				files_by_extension[file.ext] = []
+			files_by_extension[file.ext].append(file)
+
+		# now create the mimes
+		file_index_offset = 0
+		for file_ext, files in sorted(files_by_extension.items()):
+			mime_entry = MimeEntry()
+			mime_entry.ext = file_ext
+			try:
+				mime_entry.update_constants(self)
+			except KeyError:
+				logging.warning(f"Unsupported extension {file_ext}")
+				continue
+			mime_entry.file_index_offset = file_index_offset
+			mime_entry.file_count = len(files)
+			file_index_offset += len(files)
+			for file_entry in files:
+				file_entry.update_constants(self)
+				file_entry.extension = len(self.mimes)
+			self.mimes.append(mime_entry)
 
 	def update_triplets(self):
 		logging.info("Updating triplets")
@@ -1349,12 +1389,13 @@ class OvlFile(Header, IoFile):
 
 	def update_counts(self):
 		"""Update counts of this ovl and all of its archives"""
+		self.update_mimes()
 		self.update_triplets()
 		# adjust the counts
 		for archive in self.archives:
-			archive.content.update_buffer_groups()
+			archive.content.rebuild_buffer_groups()
 			archive.content.update_counts()
-			archive.content.update_assets()
+			archive.content.rebuild_assets()
 		# sum content of individual archives
 		self.num_pool_types = sum(a.num_pool_types for a in self.archives)
 		self.num_pools = sum(a.num_pools for a in self.archives)

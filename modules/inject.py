@@ -17,7 +17,7 @@ from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.formats.USERINTERFACEICONDATA import load_userinterfaceicondata
 from modules.helpers import split_path
 
-from ovl_util import imarray
+from ovl_util import imarray, interaction
 
 
 def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=None):
@@ -53,7 +53,13 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 			bnk_name, wem_name = name.rsplit("_", 1)
 			name_ext = bnk_name + ".bnk"
 		# find the sizedstr entry that refers to this file
-		sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
+		try:
+			sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
+		except KeyError:
+			if interaction.showdialog(f"Do you want to add {name_ext} to this ovl?", ask=True):
+				logging.info(f"Adding new file {name_ext}")
+			# ignore this file for injection
+			continue
 		# do the actual injection, varies per file type
 		if ext == ".ms2":
 			load_ms2(ovl_data, file_path, sized_str_entry)
