@@ -2,7 +2,7 @@ bl_info = {
 	"name": "Frontier's Cobra Engine Formats (JWE, Planet Zoo)",
 	"author": "Harlequinz Ego & HENDRIX",
 	"blender": (2, 92, 0),
-	"version": (2, 3, 2),
+	"version": (2, 3, 3),
 	"location": "File > Import-Export",
 	"description": "Import-Export models, skeletons and animations.",
 	"warning": "",
@@ -11,11 +11,6 @@ bl_info = {
 	"tracker_url": "https://github.com/OpenNaja/cobra-tools/issues/new",
 	"category": "Import-Export"}
 
-import bpy
-import bpy.utils.previews
-from bpy.props import StringProperty, BoolProperty, CollectionProperty
-from bpy_extras.io_utils import ImportHelper, ExportHelper
-from . import addon_updater_ops
 
 import os
 import sys
@@ -24,8 +19,17 @@ plugin_dir = os.path.dirname(__file__)
 if not plugin_dir in sys.path:
 	sys.path.append(plugin_dir)
 
-from ovl_util.config import logging_setup
+import logging
+from ovl_util.config import logging_setup, get_version_str
 logging_setup("blender_plugin")
+logging.info(f"Running python {sys.version}")
+logging.info(f"Running cobra-tools {get_version_str()}")
+
+import bpy
+import bpy.utils.previews
+from bpy.props import StringProperty, BoolProperty, CollectionProperty
+from bpy_extras.io_utils import ImportHelper, ExportHelper
+from . import addon_updater_ops
 
 from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
@@ -44,39 +48,38 @@ def handle_errors(inst, func, kwargs):
 	return {'FINISHED'}
 
 
-@addon_updater_ops.make_annotations
 class CobraPreferences(bpy.types.AddonPreferences):
 	"""Cobra preferences"""
 	bl_idname = __package__
 
 	# Addon updater preferences.
 
-	auto_check_update = bpy.props.BoolProperty(
+	auto_check_update: bpy.props.BoolProperty(
 		name="Auto-check for Update",
 		description="If enabled, auto-check for updates using an interval",
 		default=False)
 
-	updater_interval_months = bpy.props.IntProperty(
+	updater_interval_months: bpy.props.IntProperty(
 		name='Months',
 		description="Number of months between checking for updates",
 		default=0,
 		min=0)
 
-	updater_interval_days = bpy.props.IntProperty(
+	updater_interval_days: bpy.props.IntProperty(
 		name='Days',
 		description="Number of days between checking for updates",
-		default=7,
+		default=1,
 		min=0,
 		max=31)
 
-	updater_interval_hours = bpy.props.IntProperty(
+	updater_interval_hours: bpy.props.IntProperty(
 		name='Hours',
 		description="Number of hours between checking for updates",
 		default=0,
 		min=0,
 		max=23)
 
-	updater_interval_minutes = bpy.props.IntProperty(
+	updater_interval_minutes: bpy.props.IntProperty(
 		name='Minutes',
 		description="Number of minutes between checking for updates",
 		default=0,
@@ -84,26 +87,8 @@ class CobraPreferences(bpy.types.AddonPreferences):
 		max=59)
 
 	def draw(self, context):
-		layout = self.layout
-
-		# Works best if a column, or even just self.layout.
-		mainrow = layout.row()
-		col = mainrow.column()
-
 		# Updater draw function, could also pass in col as third arg.
 		addon_updater_ops.update_settings_ui(self, context)
-
-		# Alternate draw function, which is more condensed and can be
-		# placed within an existing draw function. Only contains:
-		#   1) check for update/update now buttons
-		#   2) toggle for auto-check (interval will be equal to what is set above)
-		# addon_updater_ops.update_settings_ui_condensed(self, context, col)
-
-		# Adding another column to help show the above condensed ui as one column
-		# col = mainrow.column()
-		# col.scale_y = 2
-		# ops = col.operator("wm.url_open","Open webpage ")
-		# ops.url=addon_updater_ops.updater.website
 
 
 class ImportBani(bpy.types.Operator, ImportHelper):
@@ -158,7 +143,7 @@ class ImportMDL2(bpy.types.Operator, ImportHelper):
 	filter_glob: StringProperty(default="*.mdl2", options={'HIDDEN'})
 	use_custom_normals: BoolProperty(name="Use MDL2 Normals", description="Preserves the original shading of a MDL2.", default=False)
 	mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match!", default=False)
-	
+
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
 		return handle_errors(self, import_mdl2.load, keywords)
@@ -187,7 +172,7 @@ class ExportMDL2(bpy.types.Operator, ExportHelper):
 	filter_glob: StringProperty(default="*.mdl2", options={'HIDDEN'})
 	apply_transforms: BoolProperty(name="Apply Transforms", description="Automatically applies object transforms to meshes.", default=False)
 	edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - tends to break skeletons!", default=False)
-	
+
 	def execute(self, context):
 		keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
 		return handle_errors(self, export_mdl2.save, keywords)
@@ -198,7 +183,7 @@ class CreateFins(bpy.types.Operator):
 	bl_idname = "object.create_fins"
 	bl_label = "Create Fins"
 	bl_options = {'REGISTER', 'UNDO'}
-			
+
 	def execute(self, context):
 		return handle_errors(self, shell.create_fins_wrapper, {})
 
@@ -248,6 +233,7 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 			return False
 
 	def draw(self, context):
+		addon_updater_ops.check_for_update_background()
 		layout = self.layout
 		icon = preview_collection["frontier.png"].icon_id
 		row = layout.row(align=True)
@@ -310,7 +296,7 @@ def unregister():
 
 	bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
 	bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
-	
+
 	for cls in classes:
 		bpy.utils.unregister_class(cls)
 

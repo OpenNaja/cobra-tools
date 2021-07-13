@@ -40,11 +40,6 @@ def read_list(cfg_path):
 		return []
 
 
-if __name__ == '__main__':
-	cfg = read_config("config.ini")
-	print(cfg)
-
-
 def logging_setup(log_name):
 	log_path = f'{os.path.join(plugin_dir, log_name)}.log'
 	logger = logging.getLogger()
@@ -59,3 +54,26 @@ def logging_setup(log_name):
 	file_handler.setFormatter(formatter)
 	logger.addHandler(file_handler)
 	logger.addHandler(stdout_handler)
+
+
+def get_version():
+	init_path = f'{os.path.join(plugin_dir, "__init__")}.py'
+	with open(init_path, "r") as f:
+		line = ""
+		while '"version"' not in line:
+			line = f.readline()
+		# 	"version": (2, 3, 1),
+		_, r = line.split("(", 1)
+		version_raw, _ = r.split(")", 1)
+		version = [int(x.strip()) for x in version_raw.split(",")]
+	return version
+
+
+def get_version_str():
+	version_tuple = get_version()
+	return '.'.join([str(x) for x in version_tuple])
+
+
+if __name__ == '__main__':
+	cfg = read_config("config.ini")
+	print(cfg)

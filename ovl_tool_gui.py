@@ -11,8 +11,11 @@ try:
 	from PyQt5 import QtWidgets, QtGui, QtCore
 	from importlib import reload
 
-	from ovl_util.config import logging_setup
+	from ovl_util.config import logging_setup, get_version_str
 	logging_setup("ovl_tool_gui")
+
+	logging.info(f"Running python {sys.version}")
+	logging.info(f"Running cobra-tools {get_version_str()}")
 
 	from ovl_util import widgets, interaction, qt_threads
 	from modules import extract, inject, hasher, walker, remover
@@ -56,7 +59,7 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
 		self.files_container.table.files_dropped.connect(self.inject_files)
-		self.files_container.table.file_selected.connect(self.show_dependencies)
+		# self.files_container.table.file_selected.connect(self.show_dependencies)
 
 		self.dir_container = widgets.EditCombo(self)
 		# toggles
@@ -136,7 +139,7 @@ class MainWindow(widgets.MainWindow):
 		os.startfile(os.getcwd())
 
 	def drag_files(self, file_names):
-		print("DRAGGING", file_names)
+		logging.info("DRAGGING", file_names)
 		drag = QtGui.QDrag(self)
 		try:
 			temp_dir = tempfile.gettempdir()
@@ -149,8 +152,8 @@ class MainWindow(widgets.MainWindow):
 			drag.exec_()
 		except BaseException as ex:
 			traceback.print_exc()
-			showdialog(str(ex))
-			print(ex)
+			interaction.showdialog(str(ex))
+			logging.error(ex)
 
 	# todo - clear temp sub dir
 	# mime = DelayedMimeData()
@@ -247,7 +250,7 @@ class MainWindow(widgets.MainWindow):
 			self.t_action_current_message = message
 
 	def load_hash_table(self):
-		print("Loading hash table...")
+		logging.info("Loading hash table...")
 		start_time = time.time()
 		self.hash_table = {}
 		hashes_dir = os.path.join(os.getcwd(), "hashes")
@@ -257,9 +260,10 @@ class MainWindow(widgets.MainWindow):
 		except:
 			pass
 		# print(self.hash_table)
-		print(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
+		logging.info(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
 
 	def show_dependencies(self, file_index):
+		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 		ss_entry = self.ovl_data.get_sized_str_entry(file_entry.name)
 		ss_p = ss_entry.pointers[0]
@@ -323,10 +327,10 @@ class MainWindow(widgets.MainWindow):
 
 	def update_gui_table(self, ):
 		start_time = time.time()
-		print(f"Loading {len(self.ovl_data.files)} files into gui...")
+		logging.info(f"Loading {len(self.ovl_data.files)} files into gui...")
 		self.files_container.set_data([[f.name, f.ext, f.file_hash, f.unkn_0, f.unkn_1] for f in self.ovl_data.files])
 		self.dir_container.set_data(self.ovl_data.dir_names)
-		print(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_ovl(self):
@@ -434,5 +438,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	print("running python", sys.version)
 	widgets.startup(MainWindow)
