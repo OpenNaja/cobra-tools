@@ -4,7 +4,6 @@ import time
 import traceback
 import logging
 
-from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
@@ -482,7 +481,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 				self.bone_info = self.ms2_file.bone_infos[self.bone_info_index]
 			else:
 				logging.error(
-					f"Info: Expected bone info index {self.bone_info_index}, but only found "
+					f"Expected bone info index {self.bone_info_index}, but only found "
 					f"{len(self.ms2_file.bone_infos)} bone infos. Using the last bone info instead!")
 				self.bone_info = self.ms2_file.bone_infos[-1]
 
@@ -505,7 +504,6 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 				except Exception as err:
 					logging.error(err)
 					logging.error(f"Couldn't match material {obj.material_index} to model {obj.model_index}")
-					# logging.error(len(models), obj, mdl2.materials)
 
 	def clear(self):
 		self.materials.clear()
@@ -551,9 +549,7 @@ if __name__ == "__main__":
 	# 	print(model.tris)
 	# 	model.validate_tris()
 	m.load("C:/Users/arnfi/Desktop/fra/framodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
-	for model in m.models:
-		# print(model.tris)
-		model.validate_tris()
+
 	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
 	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
 	# m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
