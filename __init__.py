@@ -14,7 +14,6 @@ bl_info = {
 
 import os
 import sys
-import traceback
 plugin_dir = os.path.dirname(__file__)
 if not plugin_dir in sys.path:
 	sys.path.append(plugin_dir)
@@ -45,7 +44,6 @@ def handle_errors(inst, func, kwargs):
 			logging.info(msg)
 	except Exception as err:
 		inst.report({"ERROR"}, str(err))
-		# traceback.print_exc()
 		logging.exception('Got exception on main handler')
 	return {'FINISHED'}
 
