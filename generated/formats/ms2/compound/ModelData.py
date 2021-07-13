@@ -273,7 +273,8 @@ class ModelData:
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
-		assert len(self.verts_data) == self.vertex_count
+		if len(self.verts_data) != self.vertex_count:
+			raise BufferError(f"{len(self.verts_data)} were read into vertex buffer, should have {self.vertex_count}")
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
@@ -321,10 +322,11 @@ class ModelData:
 		index_count = self.tri_index_count // self.shell_count
 		logging.debug(f"Reading {index_count} indices at {stream.tell()}")
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=index_count)
-		assert len(self.tri_indices) == index_count
+		if len(self.tri_indices) != index_count:
+			raise BufferError(f"{len(self.tri_indices)} were read into tri index buffer, should have {index_count}")
 
 	def write_tris(self, stream):
-		tri_bytes = struct.pack(f"{len(self.tri_indices)}H", *self.tri_indices)
+		tri_bytes = self.tri_indices.tobytes()
 		# extend tri array according to shell count
 		logging.debug(f"Writing {self.shell_count} shells of triangles")
 		for shell in range(self.shell_count):
@@ -381,18 +383,17 @@ class ModelData:
 
 	@property
 	def tris(self, ):
-		# create non-overlapping tris
-		# reverse to account for the flipped normals from mirroring in blender
-		return [(self.tri_indices[i + 2], self.tri_indices[i + 1], self.tri_indices[i]) for i in
-				range(0, len(self.tri_indices), 3)]
+		# create non-overlapping tris from flattened tri indices
+		tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
+		# reverse each tri to account for the flipped normals from mirroring in blender
+		return np.flip(tris_raw, axis=-1)
 
 	@tris.setter
 	def tris(self, b_tris):
-		# clear tri array
-		self.tri_indices = []
-		for tri in b_tris:
-			# reverse to account for the flipped normals from mirroring in blender
-			self.tri_indices.extend(reversed(tri))
+		# first flip tri
+		raw_tris = np.flip(b_tris, axis=-1)
+		# now flatten array
+		self.tri_indices = np.reshape(raw_tris, len(raw_tris)*3)
 
 	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512):
 		self.buffer_2_offset = buffer_2_offset
