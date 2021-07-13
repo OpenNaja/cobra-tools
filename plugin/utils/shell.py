@@ -1,3 +1,5 @@
+import logging
+
 import bpy
 import bmesh
 import numpy as np
@@ -223,7 +225,7 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y):
 
 
 def gauge_uv_factors(src_ob, trg_ob):
-	print(f"Gauging UV scale for {trg_ob.name}")
+	logging.info(f"Gauging UV scale for {trg_ob.name} from {src_ob.name}")
 	vg = src_ob.vertex_groups["fur_length"]
 	psys = src_ob.particle_systems[0]
 	hair_length = psys.settings.hair_length
@@ -246,7 +248,8 @@ def gauge_uv_factors(src_ob, trg_ob):
 		for loop_index in p.loop_indices:
 			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in trg_me.uv_layers]
 			# print(uvs)
-			if uvs[1][1] < 0:
+			# reindeer is an edge case and starts slightly lower
+			if uvs[1][1] < 0.001:
 				base.append(loop_index)
 			else:
 				top.append(loop_index)
