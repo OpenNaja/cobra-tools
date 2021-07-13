@@ -44,7 +44,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 			else:
 				model.weights_info = get_weights(model)
 				b_me = bpy.data.meshes.new(f"{bare_name}_model{m_ob.model_index}")
-				b_me.from_pydata(model.vertices, [], model.tris)
+				# cast array to prevent truth check in from_pydata
+				b_me.from_pydata(model.vertices, [], tuple(model.tris))
 				# store mesh unknowns
 				# cast the bitfield to int
 				b_me["flag"] = int(model.flag)
