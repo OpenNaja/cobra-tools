@@ -1,6 +1,5 @@
 # START_GLOBALS
 import logging
-import struct
 import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
@@ -273,9 +272,11 @@ class ModelData:
 
 	@tris.setter
 	def tris(self, b_tris):
-		# first flip tri
-		raw_tris = np.flip(b_tris, axis=-1)
-		# now flatten array
+		# cast to uint16
+		raw_tris = np.array(b_tris, dtype=np.uint16)
+		# reverse tris
+		raw_tris = np.flip(raw_tris, axis=-1)
+		# flatten array
 		self.tri_indices = np.reshape(raw_tris, len(raw_tris)*3)
 
 	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512):
