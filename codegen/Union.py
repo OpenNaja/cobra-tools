@@ -29,11 +29,11 @@ def get_params(field):
 	vercond = field.attrib.get("vercond")
 	cond = field.attrib.get("cond")
 	if ver1 and ver2:
-		conditionals.append(f"{ver1} <= {VER} < {ver2}")
+		conditionals.append(f"{ver1} <= {VER} <= {ver2}")
 	elif ver1:
 		conditionals.append(f"{VER} >= {ver1}")
 	elif ver2:
-		conditionals.append(f"{VER} < {ver2}")
+		conditionals.append(f"{VER} <= {ver2}")
 	if vercond:
 		vercond = Expression(vercond)
 		conditionals.append(f"{vercond}")
