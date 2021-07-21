@@ -4,6 +4,17 @@ from .naming_conventions import clean_comment_str
 VER = "stream.version"
 
 
+def get_attr_with_backups(field, attribute_keys):
+	# return the value of the first attribute in the list that is not empty or
+	# missing
+	for key in attribute_keys:
+		attr_value = field.attrib.get(key)
+		if attr_value:
+			return attr_value
+	else:
+		return None
+
+
 def get_params(field):
 	# parse all conditions
 	conditionals = []
@@ -11,21 +22,13 @@ def get_params(field):
 	field_type = field.attrib["type"]
 	pad_mode = field.attrib.get("padding")
 	template = field.attrib.get("template")
-	ver1 = field.attrib.get("ver1")
+	ver1 = get_attr_with_backups(field, ["ver1", "since"])
 	if ver1:
 		ver1 = Version(ver1)
-	else:
-		ver1 = field.attrib.get("since")
-		if ver1:
-			ver1 = Version(ver1)
 
-	ver2 = field.attrib.get("ver2")
+	ver2 = get_attr_with_backups(field, ["ver2", "until"])
 	if ver2:
 		ver2 = Version(ver2)
-	else:
-		ver2 = field.attrib.get("until")
-		if ver2:
-			ver2 = Version(ver2)
 	vercond = field.attrib.get("vercond")
 	cond = field.attrib.get("cond")
 	if ver1 and ver2:
@@ -40,9 +43,9 @@ def get_params(field):
 	if cond:
 		cond = Expression(cond)
 		conditionals.append(f"{cond}")
-	arr1 = field.attrib.get("arr1")
-	arr2 = field.attrib.get("arr2")
 	arg = field.attrib.get("arg")
+	arr1 = get_attr_with_backups(field, ["arr1", "length"])
+	arr2 = get_attr_with_backups(field, ["arr2", "width"])
 	if arg:
 		arg = Expression(arg)
 	if arr1:
