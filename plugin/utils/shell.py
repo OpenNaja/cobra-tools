@@ -7,12 +7,11 @@ import mathutils
 
 from . import matrix_util
 
-# gauged from the average of grey wolf
-# X_SCALE = 3.79
-# x scale is variable per animal
-# Y_SCALE = 1.82
-X_START = -16.0
-Y_START = 1.00049
+# X_START = -16.0
+# Y_START = 1.00049
+# changed to avoid clamping bug and squares on fins
+X_START = -15.9993
+Y_START = 0.999756
 
 
 def copy_ob(src_obj):
