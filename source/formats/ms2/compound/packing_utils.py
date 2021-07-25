@@ -1,5 +1,6 @@
 USHORT_SCALE = 2048
 USHORT_OFFSET = 32766.5
+USHORT_MIN = 0
 USHORT_MAX = 65535
 
 
@@ -17,8 +18,12 @@ def pack_swizzle(vec):
     return -vec[0], vec[2], -vec[1]
 
 
+def ushort_clamp(coord):
+    return max(min(coord, USHORT_MAX), USHORT_MIN)
+
+
 def pack_ushort_vector(vec):
-    return [min(int(round(coord * USHORT_SCALE + USHORT_OFFSET)), USHORT_MAX) for coord in vec]
+    return [ushort_clamp(int(round(coord * USHORT_SCALE + USHORT_OFFSET))) for coord in vec]
 
 
 def pack_ubyte_vector(vec):
