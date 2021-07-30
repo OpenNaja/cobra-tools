@@ -139,7 +139,7 @@ class MainWindow(widgets.MainWindow):
 		os.startfile(os.getcwd())
 
 	def drag_files(self, file_names):
-		logging.info("DRAGGING", file_names)
+		logging.info(f"DRAGGING {file_names}")
 		drag = QtGui.QDrag(self)
 		try:
 			temp_dir = tempfile.gettempdir()
