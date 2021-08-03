@@ -1259,8 +1259,10 @@ class OvlFile(Header, IoFile):
 		self.resolve_pointers()
 
 	def resolve_pointers(self):
+		# apparently JWE has 16 bytes, PZ seems to have either?
+		valid_dep_ptrs = (b'\x00' * 8, b'\x00' * 16)
 		for dep in self.dependencies:
-			if dep.pointers[0].data != b'\x00\x00\x00\x00\x00\x00\x00\x00':
+			if dep.pointers[0].data not in valid_dep_ptrs:
 				logging.warning(f"Unexpected data for dependency ptr {dep.name}: {dep.pointers[0].data}")
 		for archive_entry in self.archives:
 			ovs = archive_entry.content
