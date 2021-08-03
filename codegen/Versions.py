@@ -1,4 +1,5 @@
 from codegen.naming_conventions import name_enum_key
+from codegen.expression import Version
 
 
 class Versions:
@@ -24,6 +25,8 @@ class Versions:
 						if k != "id":
 							name = k.lower()
 							val = v.strip()
+							if name == 'num':
+								val = str(Version(val))
 							if " " in val:
 								conds_list.append(f"inst.{name} in ({val.replace(' ', ', ')})")
 							else:
@@ -43,6 +46,8 @@ class Versions:
 								suffix = "._value"
 							else:
 								suffix = ""
+								if name == "num":
+									val = str(Version(val))
 							stream.write(f"\n\tinst.{name}{suffix} = {val}")
 					stream.write("\n\n\n")
 
