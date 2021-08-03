@@ -300,7 +300,7 @@ class MainWindow(widgets.MainWindow):
 				# self.ovl_thread.kwargs = {"commands": self.commands, "hash_table": self.hash_table}
 				# self.ovl_thread.start()
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
-				# print(self.ovl_data)
+				print(self.ovl_data)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
@@ -413,10 +413,12 @@ class MainWindow(widgets.MainWindow):
 	def walker_hash(self,):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.generate_hash_table(self, start_dir)
+		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def walker(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
 		walker.bulk_test_models(self, start_dir)
+		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def closeEvent(self, event):
 		if self.file_widget.dirty:
@@ -430,8 +432,9 @@ class MainWindow(widgets.MainWindow):
 	def check_version():
 		is_64bits = sys.maxsize > 2 ** 32
 		if not is_64bits:
-			interaction.showdialog("Either your operating system or your python installation is not 64 bits.\n"
-										"Large OVLs will crash unexpectedly!")
+			interaction.showdialog(
+				"Either your operating system or your python installation is not 64 bits.\n"
+				"Large OVLs will crash unexpectedly!")
 		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
 				sys.version_info[1] == 7 and sys.version_info[2] < 6):
 			interaction.showdialog("Python 3.7.6+ x64 bit is expected!")

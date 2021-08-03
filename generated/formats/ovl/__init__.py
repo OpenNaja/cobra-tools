@@ -1124,12 +1124,12 @@ class OvlFile(Header, IoFile):
 			h = dependency_entry.file_hash
 			if h in self.hash_table_local:
 				dependency_entry.basename = self.hash_table_local[h]
-				logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
+				# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
 			elif h in self.hash_table_global:
 				dependency_entry.basename = self.hash_table_global[h]
-				logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
+				# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
-				logging.debug(f"UNRESOLVED DEPENDENCY: {h} -> ?")
+				logging.warning(f"UNRESOLVED DEPENDENCY: {h} -> ?")
 				dependency_entry.basename = "bad hash"
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
