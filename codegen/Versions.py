@@ -91,12 +91,12 @@ class Versions:
 				for version in self.versions:
 					if len(version_default_map[version.attrib['id']]) > 0:
 						stream.write(f"\n\tif game in {{{', '.join([f'games.{key}' for key in version_default_map[version.attrib['id']]])}}}:")
-						stream.write(f"\n\t\tset_{version.attrib['id'].lower()}(inst)")
+						stream.write(f"\n\t\treturn set_{version.attrib['id'].lower()}(inst)")
 				# then the rest
 				for version in self.versions:
 					non_default_games = set(version_game_map[version.attrib['id']]) - version_default_map[version.attrib['id']]
 					if len(non_default_games) > 0:
 						stream.write(f"\n\tif game in {{{', '.join([f'games.{key}' for key in non_default_games])}}}:")
-						stream.write(f"\n\t\tset_{version.attrib['id'].lower()}(inst)")
+						stream.write(f"\n\t\treturn set_{version.attrib['id'].lower()}(inst)")
 				stream.write("\n\n\n")
 
