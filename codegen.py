@@ -81,7 +81,8 @@ class XmlParser:
 
         for child in root:
             self.replace_tokens(child)
-            self.apply_conventions(child)
+            if child.tag != 'version':
+                self.apply_conventions(child)
             try:
                 if child.tag in self.struct_types:
                     Compound(self, child)
