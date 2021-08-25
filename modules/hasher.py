@@ -112,7 +112,7 @@ def species_dat_replacer(ovl, name_tups):
 			# various hardcoded suffixes
 			for sym in (
 					"@", "_Mat", "_Skin", "_Skin_NoDirt", "_Fur", "_Fur_Shell", "_Fur_Fin", "_Eyeball", "_Eyes",
-					"_Eye", "_EyeMouthClaws", "_Whiskers", "_Hair", "_Feathers", "_Teeth", ""):
+					"_Eye", "_EyeMouthClaws", "_Whiskers", "_Hairs", "_Hair", "_Feathers", "_Teeth", ""):
 				suffixes.append(f"{gender}{sym}")
 			# lods
 			for i in range(7):
