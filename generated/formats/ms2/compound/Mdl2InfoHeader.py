@@ -55,10 +55,10 @@ class Mdl2InfoHeader:
 		# name pointers for each material
 		self.materials = Array()
 
-		# lod info for each level
+		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
 		self.lods = Array()
 
-		# material links for each model
+		# instantiate the meshes with materials
 		self.objects = Array()
 
 		# model data blocks for this mdl2
@@ -82,13 +82,9 @@ class Mdl2InfoHeader:
 		if not (stream.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
-			if (self.model_info.num_lods > 1) or (self.model_info.num_lods == 0):
-				self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
-			elif self.model_info.num_lods == 1:
-				if self.model_info.num_objects > 0:
-					self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
-				else:
-					self.lods.read(stream, LodInfo, 0, None)
+		if self.model_info.num_models and (stream.version < 19):
+			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
+		if not (stream.version < 19):
 			self.objects.read(stream, MeshLink, self.model_info.num_objects, None)
 			self.models.read(stream, ModelData, self.model_info.num_models, None)
 
@@ -112,13 +108,9 @@ class Mdl2InfoHeader:
 		if not (stream.version < 19):
 			stream.write_type(self.model_info)
 			self.materials.write(stream, MaterialName, self.model_info.num_materials, None)
-			if (self.model_info.num_lods > 1) or (self.model_info.num_lods == 0):
-				self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
-			elif self.model_info.num_lods == 1:
-				if self.model_info.num_objects > 0:
-					self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
-				else:
-					self.lods.write(stream, LodInfo, 0, None)
+		if self.model_info.num_models and (stream.version < 19):
+			self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
+		if not (stream.version < 19):
 			self.objects.write(stream, MeshLink, self.model_info.num_objects, None)
 			self.models.write(stream, ModelData, self.model_info.num_models, None)
 
