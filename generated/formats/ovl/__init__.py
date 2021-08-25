@@ -411,14 +411,14 @@ class OvsFile(OvsHeader):
 			# fix the offsets of the buffergroups
 			for x, new_entry in enumerate(self.new_entries):
 				if x > 0:
-					previous_entry = self.new_entries[x - 1]
-					new_entry.buffer_offset = previous_entry.buffer_offset + previous_entry.buffer_count
-					if new_entry.ext != previous_entry.ext:
-						new_entry.data_offset = previous_entry.data_offset + previous_entry.data_count
+					new_entry.buffer_offset = self.new_entries[x - 1].buffer_offset + self.new_entries[
+						x - 1].buffer_count
+					if new_entry.ext != self.new_entries[x - 1].ext:
+						new_entry.data_offset = self.new_entries[x - 1].data_offset + self.new_entries[x - 1].data_count
 					else:
-						new_entry.data_offset = previous_entry.data_offset
-						if new_entry.data_count < previous_entry.data_count:
-							new_entry.data_count = previous_entry.data_count
+						new_entry.data_offset = self.new_entries[x - 1].data_offset
+						if new_entry.data_count < self.new_entries[x - 1].data_count:
+							new_entry.data_count = self.new_entries[x - 1].data_count
 			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 			tex_fixa = 0
 			tex_fixb = 0
