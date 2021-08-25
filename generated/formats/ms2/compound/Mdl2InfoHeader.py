@@ -82,7 +82,7 @@ class Mdl2InfoHeader:
 		if not (stream.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
-		if self.model_info.num_models and (stream.version < 19):
+		if not ((stream.version < 19) and self.model_info.num_models):
 			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
 		if not (stream.version < 19):
 			self.objects.read(stream, MeshLink, self.model_info.num_objects, None)
@@ -108,7 +108,7 @@ class Mdl2InfoHeader:
 		if not (stream.version < 19):
 			stream.write_type(self.model_info)
 			self.materials.write(stream, MaterialName, self.model_info.num_materials, None)
-		if self.model_info.num_models and (stream.version < 19):
+		if not ((stream.version < 19) and self.model_info.num_models):
 			self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
 		if not (stream.version < 19):
 			self.objects.write(stream, MeshLink, self.model_info.num_objects, None)
