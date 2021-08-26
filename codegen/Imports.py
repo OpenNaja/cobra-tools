@@ -1,3 +1,6 @@
+from os.path import sep
+
+
 NO_CLASSES = ("Padding",)
 
 
@@ -43,7 +46,7 @@ class Imports:
             if class_import in NO_CLASSES:
                 continue
             if class_import in self.path_dict:
-                import_path = "generated." + self.path_dict[class_import].replace("\\", ".")
+                import_path = "generated." + self.path_dict[class_import].replace(sep, ".")
                 local_imports.append(f"from {import_path} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
