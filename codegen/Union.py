@@ -31,6 +31,8 @@ def get_params(field):
 		ver2 = Version(ver2)
 	vercond = field.attrib.get("vercond")
 	cond = field.attrib.get("cond")
+	onlyT = field.attrib.get("onlyT")
+	excludeT = field.attrib.get("excludeT")
 	if ver1 and ver2:
 		conditionals.append(f"{ver1} <= {VER} <= {ver2}")
 	elif ver1:
@@ -43,6 +45,11 @@ def get_params(field):
 	if cond:
 		cond = Expression(cond)
 		conditionals.append(f"{cond}")
+	if onlyT:
+		conditionals.append(f"isinstance(self, {onlyT})")
+	if excludeT:
+		conditionals.append(f"not isinstance(self, {excludeT})")
+
 	arg = field.attrib.get("arg")
 	arr1 = get_attr_with_backups(field, ["arr1", "length"])
 	arr2 = get_attr_with_backups(field, ["arr2", "width"])

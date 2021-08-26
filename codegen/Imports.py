@@ -31,6 +31,11 @@ class Imports:
                 if arr1:
                     self.add("typing")
                     self.add("Array")
+                type_attribs = ("onlyT", "excludeT")
+                for attrib in type_attribs:
+                    attrib_type = field.attrib.get(attrib)
+                    if attrib_type:
+                        self.add(attrib_type)
 
     def add(self, cls_to_import, import_from=None):
         if cls_to_import:

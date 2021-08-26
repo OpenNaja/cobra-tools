@@ -138,6 +138,8 @@ class XmlParser:
             if field.tag in FIELD_TYPES:
                 self.apply_convention(field, convention.name_attribute, ("name",))
                 self.apply_convention(field, convention.name_class, ("type",))
+                self.apply_convention(field, convention.name_class, ("onlyT",))
+                self.apply_convention(field, convention.name_class, ("excludeT",))
 
         # filter comment str
         struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
@@ -208,11 +210,6 @@ class XmlParser:
             for op_token, op_str in fixed_tokens:
                 expr_str = expr_str.replace(op_token, op_str)
             xml_struct.attrib[attrib] = expr_str
-        # onlyT & excludeT act as aliases for deprecated cond
-        for t, pref in (("onlyT", ""), ("excludeT", "!")):
-            if t in xml_struct.attrib:
-                xml_struct.attrib["cond"] = pref+xml_struct.attrib[t]
-                break
         for xml_child in xml_struct:
             self.replace_tokens(xml_child)
 
