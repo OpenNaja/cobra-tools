@@ -657,11 +657,19 @@ class OvsFile(OvsHeader):
 	@staticmethod
 	def get_ptr_debug_str(entry, ind):
 		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name}"
+	
+	def dump_pools(self):
+		"""for debugging"""
+		logging.info(f"Dumping pools to {self.ovl.dir}")
+		for i, pool in enumerate(self.pools):
+			pool_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}_pool[{i}].dmp")
+			with open(pool_path, "wb") as f:
+				f.write(pool.data.getvalue())
 
-	def write_frag_log(self, ):
+	def dump_frag_log(self):
 		"""for development; collect info about fragment types"""
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}.log")
-		logging.info(f"Writing Fragment log to {frag_log_path}")
+		logging.info(f"Dumping fragment log to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
 			for i, pool in enumerate(self.pools):
 				f.write(f"\n\nHeader[{i}] at {pool.address} with {len(pool.fragments)} fragments\n")
@@ -821,7 +829,8 @@ class OvsFile(OvsHeader):
 			buffer.size for buffer in self.buffer_entries)
 
 	def write_pointers_to_pools(self, ignore_unaccounted_bytes=False):
-		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header data io blocks"""
+		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header
+		data io blocks"""
 		for i, pool in enumerate(self.pools):
 			# maintain sorting order
 			# grab the first pointer for each address
@@ -1289,10 +1298,11 @@ class OvlFile(Header, IoFile):
 					pointer.copies = pointers
 					pointer.read_data()
 
-	def write_frag_log(self):
+	def dump_frag_log(self):
 		for archive_entry in self.archives:
 			archive_entry.content.assign_frag_names()
-			archive_entry.content.write_frag_log()
+			archive_entry.content.dump_frag_log()
+			archive_entry.content.dump_pools()
 
 	def load_file_classes(self):
 		logging.info("Loading file classes...")

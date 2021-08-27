@@ -74,11 +74,9 @@ def dat_replacer(ovl, name_tups):
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
 			ovs = archive_entry.content
-			for pool in ovs.pools:
-				b = pool.data.getvalue()
-				pool.data = io.BytesIO(replace_bytes(b, name_tups_new))
-		# do a total reload of all ptrs, data reload would be enough
-		ovl.load_pointers()
+			for fragment in ovs.fragments:
+				for ptr in fragment.pointers:
+					ptr.data = replace_bytes(ptr.data, name_tups_new)
 	except Exception as err:
 		showdialog(str(err))
 	logging.info("Done!")
@@ -123,9 +121,9 @@ def species_dat_replacer(ovl, name_tups):
 		# hash the internal buffers
 		for archive_entry in ovl.archives:
 			ovs = archive_entry.content
-			for pool in ovs.pools:
-				b = pool.data.getvalue()
-				pool.data = io.BytesIO(replace_bytes(b, name_tups_new))
+			for fragment in ovs.fragments:
+				for ptr in fragment.pointers:
+					ptr.data = replace_bytes(ptr.data, name_tups_new)
 			for buffer_entry in ovs.buffer_entries:
 				if ovl.user_version.is_jwe:
 					b = buffer_entry.data
@@ -133,8 +131,6 @@ def species_dat_replacer(ovl, name_tups):
 				else:
 					b = buffer_entry.data
 					buffer_entry.data = replace_bytes(b, name_tups_new)
-		# do a total reload of all ptrs, data reload would be enough
-		ovl.load_pointers()
 	except Exception as err:
 		showdialog(str(err))
 	logging.info("Finished DAT replacing")

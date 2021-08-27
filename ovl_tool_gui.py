@@ -126,7 +126,7 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Remove Selected", self.remover, "DEL", ""),
 			(util_menu, "Inspect Models", self.walker, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(util_menu, "Save Frag Log", self.ovl_data.write_frag_log, "", ""),
+			(util_menu, "Save Frag Log", self.ovl_data.dump_frag_log, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			# (edit_menu, "Reload", self.reload, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
