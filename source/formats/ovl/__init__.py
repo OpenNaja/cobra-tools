@@ -592,6 +592,7 @@ class OvsFile(OvsHeader):
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
 			for b_group in self.new_entries:
+				b_group.ext = self.ovl.mimes[b_group.ext_index].ext
 				# print(b_group.buffer_count, b_group.data_count)
 				# note that datas can be bigger than buffers
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset + b_group.buffer_count]
@@ -665,6 +666,13 @@ class OvsFile(OvsHeader):
 			pool_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}_pool[{i}].dmp")
 			with open(pool_path, "wb") as f:
 				f.write(pool.data.getvalue())
+
+	def dump_buffer_groups_log(self):
+		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}_buffers.log")
+		logging.info(f"Dumping buffer log to {buff_log_path}")
+		with open(buff_log_path, "w") as f:
+			for x, new_entry in enumerate(self.new_entries):
+				f.write(f"\n{new_entry.ext} {new_entry.buffer_offset} {new_entry.buffer_count} {new_entry.buffer_index} | {new_entry.size} {new_entry.data_offset} {new_entry.data_count} ")
 
 	def dump_frag_log(self):
 		"""for development; collect info about fragment types"""
@@ -1302,6 +1310,7 @@ class OvlFile(Header, IoFile):
 		for archive_entry in self.archives:
 			archive_entry.content.assign_frag_names()
 			archive_entry.content.dump_frag_log()
+			archive_entry.content.dump_buffer_groups_log()
 			archive_entry.content.dump_pools()
 
 	def load_file_classes(self):
