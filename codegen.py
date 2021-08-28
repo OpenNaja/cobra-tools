@@ -15,7 +15,7 @@ from codegen.naming_conventions import clean_comment_str
 logging.basicConfig(level=logging.DEBUG)
 
 FIELD_TYPES = ("add", "field")
-VER = "stream.version"
+VER = "self.context.version"
 
 
 def write_file(filename: str, contents: str):
@@ -66,6 +66,7 @@ class XmlParser:
         self.path_dict["Array"] = "array"
         self.path_dict["BasicBitfield"] = "bitfield"
         self.path_dict["BitfieldMember"] = "bitfield"
+        self.path_dict["ContextReference"] = "context"
         self.path_dict["UbyteEnum"] = "base_enum"
         self.path_dict["UshortEnum"] = "base_enum"
         self.path_dict["UintEnum"] = "base_enum"

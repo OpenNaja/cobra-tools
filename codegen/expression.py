@@ -193,7 +193,7 @@ class Expression(object):
         # it is only a global if the leftmost member has version in it
         # ie. general_info.ms2_version is not a global
         if "version" in expr_str.split(".")[0].lower():
-            prefix = "stream."
+            prefix = "self.context."
         return prefix + ('.'.join(name_filter(comp) for comp in expr_str.split(".")))
 
     @classmethod

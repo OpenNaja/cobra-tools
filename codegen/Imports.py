@@ -14,6 +14,9 @@ class Imports:
         self.imports = []
         # import parent class
         self.add(xml_struct.attrib.get("inherit"))
+        # import ContextReference class
+        if xml_struct.tag in parser.struct_types and not xml_struct.attrib.get("inherit"):
+            self.add("ContextReference")
 
         # import classes used in the fields
         for field in xml_struct:

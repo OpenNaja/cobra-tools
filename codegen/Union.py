@@ -1,7 +1,7 @@
 from codegen.expression import Expression, Version
 from .naming_conventions import clean_comment_str
 
-VER = "stream.version"
+VER = "self.context.version"
 
 
 def get_attr_with_backups(field, attribute_keys):
@@ -61,6 +61,20 @@ def get_params(field):
 		arr2 = Expression(arr2)
 	return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode
 
+def condition_indent(base_indent, conditionals, last_condition=""):
+	if conditionals:
+		new_condition = f"if {' and '.join(conditionals)}:"
+		# merge subsequent fields that have the same condition
+		if last_condition != new_condition:
+			last_condition = new_condition
+		else:
+			new_condition=""
+		indent = base_indent + "\t"
+	else:
+		indent = base_indent
+		new_condition = ""
+
+	return indent, new_condition, last_condition
 
 class Union:
 	def __init__(self, compound, union_name):
@@ -128,12 +142,19 @@ class Union:
 				return t
 
 	def write_init(self, f):
+		last_condition=""
 		for field in self.members:
 			field_debug_str = clean_comment_str(field.text, indent="\t\t")
 			arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
 			field_type_lower = field_type.lower()
 			if field_debug_str.strip():
 				f.write(field_debug_str)
+
+			indent, new_condition, last_condition = condition_indent("\n\t\t", conditionals, last_condition)
+			if new_condition:
+				f.write(f"\n\t\t{new_condition}")
+
+			# write setting the default (or the best guess of it)
 			field_default = field.attrib.get("default")
 			if field_type_lower in self.compound.parser.tag_dict:
 				type_of_field_type = self.compound.parser.tag_dict[field_type_lower]
@@ -147,7 +168,7 @@ class Union:
 					if type_of_field_type in (
 						"compound", "struct", "niobject", "enum", "bitfield", "bitflags", "bitstruct"):
 						if type_of_field_type in ("compound", "struct", "niobject"):
-							arguments = f"{arg}, {template}"
+							arguments = f"context, {arg}, {template}"
 						else:
 							arguments = ""
 						field_default = f"{field_type}({arguments})"
@@ -162,23 +183,15 @@ class Union:
 						field_default = f"numpy.zeros(({arr_str}), dtype='{field_type_lower}')"
 			# todo - if we do this, it breaks when arg is used in array
 			# field_default = f"[{field_default} for _ in range({Expression(arr1)})]"
-			f.write(f"\n\t\tself.{field_name} = {field_default}")
+			f.write(f"{indent}self.{field_name} = {field_default}")
 
 	def write_io(self, f, method_type, last_condition=""):
 
 		for field in self.members:
 			arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
-			# does a condition for this union exist?
-			if conditionals:
-				new_condition = f"if {' and '.join(conditionals)}:"
-				# merge subsequent fields that have the same condition
-				if last_condition != new_condition:
-					f.write(f"\n\t\t{new_condition}")
-				indent = "\n\t\t\t"
-			else:
-				indent = "\n\t\t"
-				new_condition = ""
-			last_condition = new_condition
+			indent, new_condition, last_condition = condition_indent("\n\t\t", conditionals, last_condition)
+			if new_condition:
+				f.write(f"\n\t\t{new_condition}")
 			if arr1:
 				if self.compound.parser.tag_dict[field_type.lower()] == "basic":
 					valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr)

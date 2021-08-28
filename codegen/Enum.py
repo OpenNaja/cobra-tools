@@ -1,7 +1,7 @@
 from .BaseClass import BaseClass
 
 FIELD_TYPES = ("add", "field")
-VER = "stream.version"
+VER = "self.context.version"
 
 
 class Enum(BaseClass):
