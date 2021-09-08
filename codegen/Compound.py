@@ -27,7 +27,7 @@ class Compound(BaseClass):
 				self.imports.add("numpy")
 
 		# write to python file
-		with open(self.out_file, "w") as f:
+		with open(self.out_file, "w", encoding=self.parser.encoding) as f:
 			# write the header stuff
 			super().write(f)
 

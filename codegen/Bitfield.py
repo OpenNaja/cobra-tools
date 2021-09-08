@@ -49,7 +49,7 @@ class Bitfield(BaseClass):
 		self.class_basename = "BasicBitfield"
 
 		# write to python file
-		with open(self.out_file, "w") as f:
+		with open(self.out_file, "w", encoding=self.parser.encoding) as f:
 			# write the header stuff
 			super().write(f)
 			self.map_pos()

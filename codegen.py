@@ -34,6 +34,8 @@ class XmlParser:
         """Set up the xml parser."""
 
         self.format_name = format_name
+        # which encoding to use for the output files
+        self.encoding='utf-8'
 
         # elements for versions
         self.version_string = None
