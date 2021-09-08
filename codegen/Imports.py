@@ -40,6 +40,13 @@ class Imports:
                     if attrib_type:
                         self.add(attrib_type)
 
+                for default in field:
+                    if default.tag in ("default",):
+                        for attrib in type_attribs:
+                            attrib_type = default.attrib.get(attrib)
+                            if attrib_type:
+                                self.add(attrib_type)
+
     def add(self, cls_to_import, import_from=None):
         if cls_to_import:
             must_import, import_type = self.parent.map_type(cls_to_import)
