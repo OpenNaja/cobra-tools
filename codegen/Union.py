@@ -158,6 +158,8 @@ class Union:
 				# we have to check if the default is an enum default value, in which case it has to be a member of that enum
 				if type_of_field_type == "enum":
 					default_string = f'{field_type}.{default_string}'
+				elif type_of_field_type in ("bitfield", "bitflags"):
+					default_string = f'{field_type}({default_string})'
 			# no default, so guess one
 			else:
 				if type_of_field_type in ("compound", "struct", "niobject", "enum", "bitfield", "bitflags", "bitstruct"):
