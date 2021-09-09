@@ -31,6 +31,8 @@ class Imports:
                 self.add(field_type)
                 # arr1 needs typing.List
                 arr1 = field.attrib.get("arr1")
+                if arr1 is None:
+                    arr1 = field.attrib.get("length")
                 if arr1:
                     self.add("typing")
                     self.add("Array")
