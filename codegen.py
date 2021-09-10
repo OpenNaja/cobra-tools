@@ -18,14 +18,6 @@ FIELD_TYPES = ("add", "field")
 VER = "self.context.version"
 
 
-def write_file(filename: str, contents: str):
-    file_dir = os.path.dirname(filename)
-    if not os.path.exists(file_dir):
-        os.makedirs(file_dir)
-    with open(filename, 'w', encoding='utf-8') as file:
-        file.write(contents)
-
-
 class XmlParser:
     struct_types = ("compound", "niobject", "struct")
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
@@ -115,19 +107,6 @@ class XmlParser:
                             token.attrib["attrs"].split(" ")))
 
     @staticmethod
-    def get_names(struct):
-        # struct types can be organized in a hierarchy
-        # if inherit attribute is defined, look for corresponding base block
-        class_name = convention.name_class(struct.attrib.get("name"))
-        class_basename = struct.attrib.get("inherit")
-        class_debug_str = clean_comment_str(struct.text, indent="\t")
-        if class_basename:
-            # avoid turning None into 'None' if class doesn't inherit
-            class_basename = convention.name_class(class_basename)
-            # logging.debug(f"Struct {class_name} is based on {class_basename}")
-        return class_name, class_basename, class_debug_str
-
-    @staticmethod
     def apply_convention(struct, func, params):
         for k in params:
             if struct.attrib.get(k):
@@ -146,18 +125,6 @@ class XmlParser:
 
         # filter comment str
         struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
-
-    def collect_types(self, imports, struct):
-        """Iterate over all fields in struct and collect type references"""
-        # import classes used in the fields
-        for field in struct:
-            if field.tag in ("add", "field", "member"):
-                field_type = convention.name_class(field.attrib["type"])
-                if field_type not in imports:
-                    if field_type == "self.template":
-                        imports.append("typing")
-                    else:
-                        imports.append(field_type)
 
     def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arg=None, template=None):
         if self.tag_dict[dtype.lower()] == "enum":
