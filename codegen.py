@@ -49,10 +49,10 @@ class XmlParser:
             # only check stuff that has a name - ignore version tags
             if child.tag not in ("version", "module", "token"):
                 class_name = convention.name_class(child.attrib["name"])
-                out_segments = ["formats", self.format_name, child.tag, ]
-                if child.tag == "niobject":
+                out_segments = ["formats", self.format_name,]
+                if child.attrib.get("module"):
                     out_segments.append(child.attrib["module"])
-                out_segments.append(class_name)
+                out_segments.extend([child.tag, class_name, ])
                 # store the final relative module path for this class
                 self.path_dict[class_name] = os.path.join(*out_segments)
                 self.tag_dict[class_name.lower()] = child.tag
