@@ -202,6 +202,17 @@ def copy_src_to_generated():
     copy_tree(src_dir, trg_dir)
 
 
+def create_inits():
+    """Create a __init__.py file in all subdirectories that don't have one, to prevent error on second import"""
+    base_dir = os.path.join(os.getcwd(), 'generated')
+    init_file = "__init__.py"
+    for root, dirs, files in os.walk(base_dir):
+        if init_file not in files:
+            # __init__.py does not exist, create it
+            with open(os.path.join(root, init_file), 'x'): pass
+        # don't go into subdirectories that start with a double underscore
+        dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
+
 def generate_classes():
     logging.info("Starting class generation")
     cwd = os.getcwd()
@@ -215,6 +226,7 @@ def generate_classes():
                 logging.info(f"Reading {format_name} format")
                 xmlp = XmlParser(format_name)
                 xmlp.load_xml(xml_path)
+    create_inits()
 
 
 generate_classes()

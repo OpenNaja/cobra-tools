@@ -16,9 +16,9 @@ class Module:
         self.custom = bool(eval(element.attrib.get("custom","true").replace("true","True").replace("false","False"),{}))
 
     def write(self, rel_path):
-        file = open(os.path.join(os.getcwd(), "generated", rel_path, "__init__.py"), "w", encoding=self.parser.encoding)
-        file.write(self.comment_str)
-        file.write(f'\n\n__priority__ = {repr(self.priority)}')
-        file.write(f'\n__depends__ = {repr(self.depends)}')
-        file.write(f'\n__custom__ = {repr(self.custom)}')
-        file.write(f'\n')
+        with open(os.path.join(os.getcwd(), "generated", rel_path, "__init__.py"), "w", encoding=self.parser.encoding) as file:
+            file.write(self.comment_str)
+            file.write(f'\n\n__priority__ = {repr(self.priority)}')
+            file.write(f'\n__depends__ = {repr(self.depends)}')
+            file.write(f'\n__custom__ = {repr(self.custom)}')
+            file.write(f'\n')
