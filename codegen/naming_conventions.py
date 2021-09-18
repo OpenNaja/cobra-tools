@@ -124,3 +124,14 @@ def clean_comment_str(comment_str="", indent="", class_comment=""):
     else:
         lines = [f"\n{indent}# {line.strip()}" for line in comment_str.strip().split("\n")]
     return "\n" + "".join(lines)
+
+
+def name_module(name):
+    """Converts a module name into a name suitable for a python module
+    :param name: the module name
+    :type name: str
+    :return: Reformatted module name
+    >>> name_module('BSHavok')
+    'bshavok'
+    """
+    return name.lower()

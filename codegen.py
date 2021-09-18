@@ -10,6 +10,7 @@ from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
 from codegen.Versions import Versions
+from codegen.Module import Module
 from codegen.naming_conventions import clean_comment_str
 
 logging.basicConfig(level=logging.DEBUG)
@@ -47,14 +48,21 @@ class XmlParser:
         """preprocessing - generate module paths for imports relative to the output dir"""
         for child in root:
             # only check stuff that has a name - ignore version tags
-            if child.tag not in ("version", "module", "token"):
-                class_name = convention.name_class(child.attrib["name"])
-                out_segments = ["formats", self.format_name,]
-                if child.attrib.get("module"):
-                    out_segments.append(child.attrib["module"])
-                out_segments.extend([child.tag, class_name, ])
+            if child.tag not in ("version", "token"):
+                base_segments = os.path.join("formats", self.format_name)
+                if child.tag == "module":
+                    # for modules, set the path to base/module_name
+                    class_name = convention.name_module(child.attrib["name"])
+                    class_segments = [class_name]
+                else:
+                    # for classes, set the path to module_path/tag/class_name or
+                    # base/tag/class_name if it's not part of a module
+                    class_name = convention.name_class(child.attrib["name"])
+                    if child.attrib.get("module"):
+                        base_segments = self.path_dict[convention.name_module(child.attrib["module"])]
+                    class_segments = [child.tag, class_name, ]
                 # store the final relative module path for this class
-                self.path_dict[class_name] = os.path.join(*out_segments)
+                self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
                 self.tag_dict[class_name.lower()] = child.tag
 
         self.path_dict["Array"] = "array"
@@ -76,7 +84,7 @@ class XmlParser:
 
         for child in root:
             self.replace_tokens(child)
-            if child.tag != 'version':
+            if child.tag not in ('version', 'module'):
                 self.apply_conventions(child)
             try:
                 if child.tag in self.struct_types:
@@ -87,8 +95,8 @@ class XmlParser:
                 #     self.write_basic(child)
                 elif child.tag == "enum":
                     Enum(self, child)
-                # elif child.tag == "module":
-                #     self.read_module(child)
+                elif child.tag == "module":
+                    Module(self, child)
                 elif child.tag == "version":
                     versions.read(child)
                 elif child.tag == "token":
@@ -122,6 +130,8 @@ class XmlParser:
                 self.apply_convention(field, convention.name_class, ("type",))
                 self.apply_convention(field, convention.name_class, ("onlyT",))
                 self.apply_convention(field, convention.name_class, ("excludeT",))
+                for default in field:
+                    self.apply_convention(field, convention.name_class, ("onlyT",))
 
         # filter comment str
         struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
