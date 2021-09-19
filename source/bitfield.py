@@ -34,13 +34,6 @@ class BasicBitfield(object):
     def __int__(self):
         return self._value
 
-    def __eq__(self, other):
-        if isinstance(other, BasicBitfield):
-            return self._value == other._value
-        elif isinstance(other, int):
-            return self._value == other
-        return False
-
     def __init__(self, value=None):
         super().__init__()
         if value is not None:
@@ -61,6 +54,24 @@ class BasicBitfield(object):
             info += f"\n\t{field} = {str(val)}"
         return info
 
+    # rich comparison methods
+    def __lt__(self, other):
+        return self._value < other
+
+    def __le__(self, other):
+        return self._value <= other
+
+    def __eq__(self, other):
+        return self._value == other
+
+    def __ne__(self, other):
+        return self._value != other
+
+    def __gt__(self, other):
+        return self._value > other
+
+    def __ge__(self, other):
+        return self._value >= other
 
     # basic arithmetic functions
     def __add__(self, other):
