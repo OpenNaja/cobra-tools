@@ -4,7 +4,7 @@
 
 
 
-    <token name="verexpr" attrs="vercond cond">
+    <token name="verexpr" attrs="vercond">
         Commonly used version expressions.
         <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
         <verexpr token="#PZ16#" string="(#VER# #EQ# 20)">PZ</verexpr>
@@ -12,7 +12,7 @@
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
     </token>
 
-    <token name="global" attrs="vercond cond">
+    <token name="global" attrs="vercond">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#USER#" string="user_version" />
@@ -224,10 +224,10 @@
 		<add name="ff1" type="ubyte" >always FF FF</add>
 		<add name="ff2" type="ubyte" >always FF FF</add>
 		<add name="e" type="ushort" > </add>
-		<add name="extra pc" type="ushort" arr1="5" cond="#PC#"> </add>
+		<add name="extra pc" type="ushort" arr1="5" vercond="#PC#"> </add>
 		<add name="g" type="ushort" > </add>
 		<add name="zeros 2" type="uint" arr1="57"  > rest 228 bytes </add>
-		<add name="extra zeros pc" type="ushort" arr1="7" cond="#PC#" > rest 14 bytes </add>
+		<add name="extra zeros pc" type="ushort" arr1="7" vercond="#PC#" > rest 14 bytes </add>
 		<add name="i" type="ushort" > </add>
 		<add name="j" type="ushort" > </add>
 		<add name="ff" type="ushort" > always FF </add>
@@ -241,17 +241,17 @@
 <!--    JWE uses uint-->
 
 		<add name="ref" type="Empty" > </add>
-		<add name="indices c 2" type="ushort" arr1="#ARG#\c2" cond="#PC#" > </add>
-		<add name="indices c 2" type="uint" arr1="#ARG#\c2" cond="!#PC#" > </add>
+		<add name="indices c 2" type="ushort" arr1="#ARG#\c2" vercond="#PC#" > </add>
+		<add name="indices c 2" type="uint" arr1="#ARG#\c2" vercond="!#PC#" > </add>
 
-		<add name="indices 0" type="ushort" arr1="#ARG#\c" cond="#PC#" > </add>
-		<add name="indices 0" type="uint" arr1="#ARG#\c" cond="!#PC#" > </add>
+		<add name="indices 0" type="ushort" arr1="#ARG#\c" vercond="#PC#" > </add>
+		<add name="indices 0" type="uint" arr1="#ARG#\c" vercond="!#PC#" > </add>
 
-		<add name="indices 1" type="ushort" arr1="#ARG#\name count" cond="#PC#" > </add>
-		<add name="indices 1" type="uint" arr1="#ARG#\name count" cond="!#PC#" > </add>
+		<add name="indices 1" type="ushort" arr1="#ARG#\name count" vercond="#PC#" > </add>
+		<add name="indices 1" type="uint" arr1="#ARG#\name count" vercond="!#PC#" > </add>
 
-		<add name="indices e2" type="ushort" arr1="#ARG#\e2" cond="#PC#" > </add>
-		<add name="indices e2" type="uint" arr1="#ARG#\e2" cond="!#PC#" > </add>
+		<add name="indices e2" type="ushort" arr1="#ARG#\e2" vercond="#PC#" > </add>
+		<add name="indices e2" type="uint" arr1="#ARG#\e2" vercond="!#PC#" > </add>
 
 <!--		<add name="indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>-->
 <!--		<add name="indices 2" type="ubyte" arr1="#ARG#\e" cond="!#PC#" > </add>-->
@@ -259,10 +259,10 @@
 <!--		<add name="indices 2" type="uint" arr1="#ARG#\e" cond="!#PC#" > </add>-->
 
 		<add name="p indices 00" type="ubyte" arr1="#ARG#\c2" > </add>
-		<add name="p indices 00" type="ubyte" arr1="#ARG#\c2" cond="#PC#"> </add>
+		<add name="p indices 00" type="ubyte" arr1="#ARG#\c2" vercond="#PC#"> </add>
 
 		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" > </add>
-		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" cond="#PC#"> </add>
+		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" vercond="#PC#"> </add>
 
 		<add name="p indices 0b" type="ubyte" arr1="#ARG#\e" > </add>
 

@@ -38,7 +38,7 @@ def get_conditions(field):
 	elif ver2:
 		conditionals.append(f"{VER} <= {ver2}")
 	if vercond:
-		vercond = Expression(vercond)
+		vercond = Expression(vercond, g_vars=True)
 		conditionals.append(f"{vercond}")
 	if versions:
 		conditionals.append(f"({' or '.join([f'is_{version}(self.context)' for version in versions])})")

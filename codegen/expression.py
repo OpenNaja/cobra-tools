@@ -60,11 +60,11 @@ class Expression(object):
 
     operators = {'==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
 
-    def __init__(self, expr_str, name_filter=None):
+    def __init__(self, expr_str, name_filter=None, g_vars=False):
         try:
             left, self._op, right = self._partition(expr_str)
-            self._left = self._parse(left, name_filter)
-            self._right = self._parse(right, name_filter)
+            self._left = self._parse(left, name_filter, g_vars)
+            self._right = self._parse(right, name_filter, g_vars)
         except:
             print("error while parsing expression '%s'" % expr_str)
             raise
@@ -163,7 +163,7 @@ class Expression(object):
         return f"{left} {op} {right}".strip()
 
     @classmethod
-    def _parse(cls, expr_str, name_filter=None):
+    def _parse(cls, expr_str, name_filter=None, g_vars=False):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         if not expr_str:
@@ -171,10 +171,10 @@ class Expression(object):
             return None
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
-            return Expression(expr_str, name_filter)
+            return Expression(expr_str, name_filter, g_vars)
         for op in cls.operators:
             if expr_str.find(op) != -1:
-                return Expression(expr_str, name_filter)
+                return Expression(expr_str, name_filter, g_vars)
         # try to convert it to one of the following classes
         for create_cls in (int, Version):
             try:
@@ -188,12 +188,11 @@ class Expression(object):
         if name_filter is None:
             def name_filter(x):
                 return convention.name_attribute(x)
-        prefix = "self."
-        # globals are stored on the stream
-        # it is only a global if the leftmost member has version in it
-        # ie. general_info.ms2_version is not a global
-        if "version" in expr_str.split(".")[0].lower():
+        if g_vars:
+            # globals are stored on the context
             prefix = "self.context."
+        else:
+            prefix = "self."
         return prefix + ('.'.join(name_filter(comp) for comp in expr_str.split(".")))
 
     @classmethod
