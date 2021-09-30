@@ -3,7 +3,7 @@ from .BaseClass import BaseClass
 from .Union import Union, get_params
 
 FIELD_TYPES = ("add", "field")
-VER = "stream.version"
+VER = "self.context.version"
 
 
 class Compound(BaseClass):
@@ -27,20 +27,25 @@ class Compound(BaseClass):
 				self.imports.add("numpy")
 
 		# write to python file
-		with open(self.out_file, "w") as f:
+		with open(self.out_file, "w", encoding=self.parser.encoding) as f:
 			# write the header stuff
 			super().write(f)
+
+			if not self.class_basename:
+				f.write(f"\n\n\tcontext = ContextReference()")
 
 			# check all fields/members in this class and write them as fields
 			# for union in self.field_unions.values():
 			# 	union.write_declaration(f)
 
 			if "def __init__" not in self.src_code:
-				f.write(f"\n\n\tdef __init__(self, arg=None, template=None):")
+				f.write(f"\n\n\tdef __init__(self, context, arg=None, template=None):")
 				f.write(f"\n\t\tself.name = ''")
 				# classes that this class inherits from have to be read first
 				if self.class_basename:
-					f.write(f"\n\t\tsuper().__init__(arg, template)")
+					f.write(f"\n\t\tsuper().__init__(context, arg, template)")
+				else:
+					f.write(f"\n\t\tself._context = context")
 				f.write(f"\n\t\tself.arg = arg")
 				f.write(f"\n\t\tself.template = template")
 				f.write(f"\n\t\tself.io_size = 0")
@@ -60,7 +65,6 @@ class Compound(BaseClass):
 				# classes that this class inherits from have to be read first
 				if self.class_basename:
 					f.write(f"\n\t\tsuper().{method_type}(stream)")
-
 				for union in self.field_unions:
 					last_condition = union.write_io(f, method_type, last_condition)
 

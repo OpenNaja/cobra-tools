@@ -22,8 +22,12 @@ class Bitfield(BaseClass):
 					num_bits = int(field.attrib["numbits"])
 				elif "width" in field.attrib:
 					num_bits = int(field.attrib["width"])
+				elif "bit" in field.attrib:
+					num_bits = 1
+					field.attrib["pos"] = field.attrib["bit"]
+					field.attrib["type"] = "bool"
 				else:
-					raise AttributeError(f"Neither width or mask or numbits are defined for {field.name}")
+					raise AttributeError(f"Neither width, mask, bit or numbits are defined for {field.attrib['name']}")
 				pos = int(field.attrib["pos"])
 
 				mask = ~((~0) << (pos + num_bits)) & ((~0) << pos)
@@ -45,7 +49,7 @@ class Bitfield(BaseClass):
 		self.class_basename = "BasicBitfield"
 
 		# write to python file
-		with open(self.out_file, "w") as f:
+		with open(self.out_file, "w", encoding=self.parser.encoding) as f:
 			# write the header stuff
 			super().write(f)
 			self.map_pos()

@@ -10,20 +10,13 @@ from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
 from codegen.Versions import Versions
+from codegen.Module import Module
 from codegen.naming_conventions import clean_comment_str
 
 logging.basicConfig(level=logging.DEBUG)
 
 FIELD_TYPES = ("add", "field")
-VER = "stream.version"
-
-
-def write_file(filename: str, contents: str):
-    file_dir = os.path.dirname(filename)
-    if not os.path.exists(file_dir):
-        os.makedirs(file_dir)
-    with open(filename, 'w', encoding='utf-8') as file:
-        file.write(contents)
+VER = "self.context.version"
 
 
 class XmlParser:
@@ -34,6 +27,8 @@ class XmlParser:
         """Set up the xml parser."""
 
         self.format_name = format_name
+        # which encoding to use for the output files
+        self.encoding='utf-8'
 
         # elements for versions
         self.version_string = None
@@ -53,19 +48,27 @@ class XmlParser:
         """preprocessing - generate module paths for imports relative to the output dir"""
         for child in root:
             # only check stuff that has a name - ignore version tags
-            if child.tag not in ("version", "module", "token"):
-                class_name = convention.name_class(child.attrib["name"])
-                out_segments = ["formats", self.format_name, child.tag, ]
-                if child.tag == "niobject":
-                    out_segments.append(child.attrib["module"])
-                out_segments.append(class_name)
+            if child.tag not in ("version", "token"):
+                base_segments = os.path.join("formats", self.format_name)
+                if child.tag == "module":
+                    # for modules, set the path to base/module_name
+                    class_name = convention.name_module(child.attrib["name"])
+                    class_segments = [class_name]
+                else:
+                    # for classes, set the path to module_path/tag/class_name or
+                    # base/tag/class_name if it's not part of a module
+                    class_name = convention.name_class(child.attrib["name"])
+                    if child.attrib.get("module"):
+                        base_segments = self.path_dict[convention.name_module(child.attrib["module"])]
+                    class_segments = [child.tag, class_name, ]
                 # store the final relative module path for this class
-                self.path_dict[class_name] = os.path.join(*out_segments)
+                self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
                 self.tag_dict[class_name.lower()] = child.tag
 
         self.path_dict["Array"] = "array"
         self.path_dict["BasicBitfield"] = "bitfield"
         self.path_dict["BitfieldMember"] = "bitfield"
+        self.path_dict["ContextReference"] = "context"
         self.path_dict["UbyteEnum"] = "base_enum"
         self.path_dict["UshortEnum"] = "base_enum"
         self.path_dict["UintEnum"] = "base_enum"
@@ -81,7 +84,8 @@ class XmlParser:
 
         for child in root:
             self.replace_tokens(child)
-            self.apply_conventions(child)
+            if child.tag not in ('version', 'module'):
+                self.apply_conventions(child)
             try:
                 if child.tag in self.struct_types:
                     Compound(self, child)
@@ -91,8 +95,8 @@ class XmlParser:
                 #     self.write_basic(child)
                 elif child.tag == "enum":
                     Enum(self, child)
-                # elif child.tag == "module":
-                #     self.read_module(child)
+                elif child.tag == "module":
+                    Module(self, child)
                 elif child.tag == "version":
                     versions.read(child)
                 elif child.tag == "token":
@@ -111,19 +115,6 @@ class XmlParser:
                             token.attrib["attrs"].split(" ")))
 
     @staticmethod
-    def get_names(struct):
-        # struct types can be organized in a hierarchy
-        # if inherit attribute is defined, look for corresponding base block
-        class_name = convention.name_class(struct.attrib.get("name"))
-        class_basename = struct.attrib.get("inherit")
-        class_debug_str = clean_comment_str(struct.text, indent="\t")
-        if class_basename:
-            # avoid turning None into 'None' if class doesn't inherit
-            class_basename = convention.name_class(class_basename)
-            # logging.debug(f"Struct {class_name} is based on {class_basename}")
-        return class_name, class_basename, class_debug_str
-
-    @staticmethod
     def apply_convention(struct, func, params):
         for k in params:
             if struct.attrib.get(k):
@@ -137,21 +128,13 @@ class XmlParser:
             if field.tag in FIELD_TYPES:
                 self.apply_convention(field, convention.name_attribute, ("name",))
                 self.apply_convention(field, convention.name_class, ("type",))
+                self.apply_convention(field, convention.name_class, ("onlyT",))
+                self.apply_convention(field, convention.name_class, ("excludeT",))
+                for default in field:
+                    self.apply_convention(field, convention.name_class, ("onlyT",))
 
         # filter comment str
         struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
-
-    def collect_types(self, imports, struct):
-        """Iterate over all fields in struct and collect type references"""
-        # import classes used in the fields
-        for field in struct:
-            if field.tag in ("add", "field", "member"):
-                field_type = convention.name_class(field.attrib["type"])
-                if field_type not in imports:
-                    if field_type == "self.template":
-                        imports.append("typing")
-                    else:
-                        imports.append(field_type)
 
     def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arg=None, template=None):
         if self.tag_dict[dtype.lower()] == "enum":
@@ -207,11 +190,6 @@ class XmlParser:
             for op_token, op_str in fixed_tokens:
                 expr_str = expr_str.replace(op_token, op_str)
             xml_struct.attrib[attrib] = expr_str
-        # onlyT & excludeT act as aliases for deprecated cond
-        for t, pref in (("onlyT", ""), ("excludeT", "!")):
-            if t in xml_struct.attrib:
-                xml_struct.attrib["cond"] = pref+xml_struct.attrib[t]
-                break
         for xml_child in xml_struct:
             self.replace_tokens(xml_child)
 
@@ -223,6 +201,17 @@ def copy_src_to_generated():
     trg_dir = os.path.join(cwd, "generated")
     copy_tree(src_dir, trg_dir)
 
+
+def create_inits():
+    """Create a __init__.py file in all subdirectories that don't have one, to prevent error on second import"""
+    base_dir = os.path.join(os.getcwd(), 'generated')
+    init_file = "__init__.py"
+    for root, dirs, files in os.walk(base_dir):
+        if init_file not in files:
+            # __init__.py does not exist, create it
+            with open(os.path.join(root, init_file), 'x'): pass
+        # don't go into subdirectories that start with a double underscore
+        dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
 
 def generate_classes():
     logging.info("Starting class generation")
@@ -237,6 +226,7 @@ def generate_classes():
                 logging.info(f"Reading {format_name} format")
                 xmlp = XmlParser(format_name)
                 xmlp.load_xml(xml_path)
+    create_inits()
 
 
 generate_classes()

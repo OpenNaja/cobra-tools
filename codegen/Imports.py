@@ -1,3 +1,6 @@
+from os.path import sep
+
+
 NO_CLASSES = ("Padding",)
 
 
@@ -11,6 +14,9 @@ class Imports:
         self.imports = []
         # import parent class
         self.add(xml_struct.attrib.get("inherit"))
+        # import ContextReference class
+        if xml_struct.tag in parser.struct_types and not xml_struct.attrib.get("inherit"):
+            self.add("ContextReference")
 
         # import classes used in the fields
         for field in xml_struct:
@@ -25,9 +31,23 @@ class Imports:
                 self.add(field_type)
                 # arr1 needs typing.List
                 arr1 = field.attrib.get("arr1")
+                if arr1 is None:
+                    arr1 = field.attrib.get("length")
                 if arr1:
                     self.add("typing")
                     self.add("Array")
+                type_attribs = ("onlyT", "excludeT")
+                for attrib in type_attribs:
+                    attrib_type = field.attrib.get(attrib)
+                    if attrib_type:
+                        self.add(attrib_type)
+
+                for default in field:
+                    if default.tag in ("default",):
+                        for attrib in type_attribs:
+                            attrib_type = default.attrib.get(attrib)
+                            if attrib_type:
+                                self.add(attrib_type)
 
     def add(self, cls_to_import, import_from=None):
         if cls_to_import:
@@ -43,7 +63,7 @@ class Imports:
             if class_import in NO_CLASSES:
                 continue
             if class_import in self.path_dict:
-                import_path = "generated." + self.path_dict[class_import].replace("\\", ".")
+                import_path = "generated." + self.path_dict[class_import].replace(sep, ".")
                 local_imports.append(f"from {import_path} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")

@@ -4,7 +4,7 @@
 
     <version id="old" version="17 18" >Old</version>
 
-    <token name="verexpr" attrs="vercond cond">
+    <token name="verexpr" attrs="vercond">
         Commonly used version expressions.
         <verexpr token="#DLA#" string="(#VER# #EQ# 15)">Disneyland Adventure</verexpr>
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
@@ -15,7 +15,7 @@
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch</verexpr>
     </token>
 	
-	<token name="global" attrs="vercond cond">
+	<token name="global" attrs="vercond">
 		Global Tokens.
 		NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
 		<global token="#USER#" string="user_version" />
@@ -323,18 +323,18 @@
 		<add name="bone info index" type="uint" >used to find bone info</add>
 		<add name="ms2 name" type="string" >name of ms2</add>
 
-		<add name="model info" type="CoreModelInfo" cond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="materials" type="MaterialName" arr1="model info\num_materials" cond="!#OLD#" >name pointers for each material</add>
-		<add name="lods" type="LodInfo" arr1="model info\num_lods" cond="!#OLD# #AND# model info\num_models" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
-		<add name="objects" type="MeshLink" arr1="model info\num_objects" cond="!#OLD#" >instantiate the meshes with materials</add>
-		<add name="models" type="ModelData" arr1="model info\num_models" cond="!#OLD#" >model data blocks for this mdl2</add>
+		<add name="model info" type="CoreModelInfo" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="materials" type="MaterialName" arr1="model info\num_materials" vercond="!#OLD#" >name pointers for each material</add>
+		<add name="lods" type="LodInfo" arr1="model info\num_lods" vercond="!#OLD#" con="model info\num_models" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
+		<add name="objects" type="MeshLink" arr1="model info\num_objects" vercond="!#OLD#" >instantiate the meshes with materials</add>
+		<add name="models" type="ModelData" arr1="model info\num_models" vercond="!#OLD#" >model data blocks for this mdl2</add>
 	</compound>
 
 	<compound name="MaterialName">
-		<add name="name index" type="uint" cond="!#OLD#">index into ms2 names array</add>
-		<add name="name index" type="ushort" cond="#OLD#">index into ms2 names array</add>
-		<add name="some index" type="uint" cond="!#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
-		<add name="some index" type="ushort" cond="#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
+		<add name="name index" type="uint" vercond="!#OLD#">index into ms2 names array</add>
+		<add name="name index" type="ushort" vercond="#OLD#">index into ms2 names array</add>
+		<add name="some index" type="uint" vercond="!#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
+		<add name="some index" type="ushort" vercond="#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
 	</compound>
 
 	<compound name="MeshLink">
@@ -522,7 +522,7 @@
 		<add name="count7" type="uint64" >index count 7</add>
 		<add name="unknownextra" type="uint64" vercond="#OLD#" >zero</add>
 		<add name="joint count" type="uint64" >joint count</add>
-		<add name="unk78count" type="uint64" vercond="! #OLD#" >unnk 78 count</add>
+		<add name="unk78count" type="uint64" vercond="!#OLD#" >unnk 78 count</add>
 		<add name="unknown88" type="uint64" vercond="#JWE# #OR# #OLD#" >jwe only, everything is shifted a bit due to extra uint 0</add>
 
 		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
@@ -597,28 +597,28 @@
 		<add name="count_0" type="uint" >small number</add>
 		<add name="count_1" type="uint" >small number</add>
 		<add name="count_2" type="uint" >small number</add>
-		<add name="zeros extra" type="uint" arr1="2" cond="#PC#">0s, might be related to count 7 in PC</add>
+		<add name="zeros extra" type="uint" arr1="2" vercond="#PC#">0s, might be related to count 7 in PC</add>
 		<add name="namespace length" type="uint" >size of the name buffer below, including trailing zeros</add>
 		<add name="zeros 0" type="uint" arr1="5" >0s</add>
 		<add name="pc count" type="uint" >0 or 1</add>
 		<add name="zeros 1" type="uint" arr1="7">0s</add>
-		<add name="extra zeros pc" type="uint" arr1="4" cond="#PC#">0s</add>
+		<add name="extra zeros pc" type="uint" arr1="4" vercond="#PC#">0s</add>
 		<add name="ones" type="uint64" arr1="2" >1, 1</add>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
 		<add name="joint entry count" type="uint" >0</add>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
-		<add name="zeros 3" type="uint64" arr1="joint_count" cond="! #PC#">might be pointers</add>
-		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" cond="! #PC#" ></add>
-		<add name="first list" type="ListFirst" arr1="count_0" cond="! #PC#" >used by ptero, 16 bytes per entry</add>
-		<add name="short list" type="ListShort" arr1="count_1" cond="! #PC#" ></add>
-		<add name="long list" type="ListLong" arr1="count_2" cond="! #PC#" ></add>
+		<add name="zeros 3" type="uint64" arr1="joint_count" vercond="!#PC#">might be pointers</add>
+		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" vercond="!#PC#" ></add>
+		<add name="first list" type="ListFirst" arr1="count_0" vercond="!#PC#" >used by ptero, 16 bytes per entry</add>
+		<add name="short list" type="ListShort" arr1="count_1" vercond="!#PC#" ></add>
+		<add name="long list" type="ListLong" arr1="count_2" vercond="!#PC#" ></add>
 
-		<add name="pc ffs" type="PcFFCounter" cond="#PC#" >?</add>
-		<add name="pc bytes" type="byte" arr1="9" cond="#PC#" >1FAA FFAAFF00 000000</add>
-		<add name="pc hitcheck count" type="uint64" cond="#PC#">counts hitchecks for pz</add>
-		<add name="pc zero 0" type="uint64" cond="#PC#">0</add>
+		<add name="pc ffs" type="PcFFCounter" vercond="#PC#" >?</add>
+		<add name="pc bytes" type="byte" arr1="9" vercond="#PC#" >1FAA FFAAFF00 000000</add>
+		<add name="pc hitcheck count" type="uint64" vercond="#PC#">counts hitchecks for pz</add>
+		<add name="pc zero 0" type="uint64" vercond="#PC#">0</add>
 		<add name="pc floats" type="float" arr1="pc count" arr2="10" vercond="#PC#">sometimes an array of floats</add>
 
 		<add name="joint indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>

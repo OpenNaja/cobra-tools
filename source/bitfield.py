@@ -21,7 +21,7 @@ class BitfieldMember(object):
         instance._value |= (value << self.pos) & self.mask
 
 
-class BasicBitfield(int):
+class BasicBitfield(object):
     _value: int = 0
 
     def set_defaults(self):
@@ -33,36 +33,6 @@ class BasicBitfield(int):
 
     def __int__(self):
         return self._value
-
-    def __eq__(self, other):
-        if isinstance(other, BasicBitfield):
-            return self._value == other._value
-        elif isinstance(other, int):
-            return self._value == other
-        return False
-
-    def __new__(cls, *args, **kwargs):
-        return super(BasicBitfield, cls).__new__(cls)
-
-    def __add__(self, other):
-        self._value += other
-        return self
-
-    def __sub__(self, other):
-        self._value -= other
-        return self
-
-    def __mul__(self, other):
-        self._value *= other
-        return self
-
-    def __floordiv__(self, other):
-        self._value //= other
-        return self
-
-    def __truediv__(self, other):
-        self._value /= other
-        return self
 
     def __init__(self, value=None):
         super().__init__()
@@ -83,6 +53,185 @@ class BasicBitfield(int):
             val = getattr(self, field)
             info += f"\n\t{field} = {str(val)}"
         return info
+
+    # rich comparison methods
+    def __lt__(self, other):
+        return self._value < other
+
+    def __le__(self, other):
+        return self._value <= other
+
+    def __eq__(self, other):
+        return self._value == other
+
+    def __ne__(self, other):
+        return self._value != other
+
+    def __gt__(self, other):
+        return self._value > other
+
+    def __ge__(self, other):
+        return self._value >= other
+
+    # basic arithmetic functions
+    def __add__(self, other):
+        return self._value + other
+
+    def __sub__(self, other):
+        return self._value - other
+
+    def __mul__(self, other):
+        return self._value * other
+
+    def __truediv__(self, other):
+        return self._value / other
+
+    def __floordiv__(self, other):
+        return self._value // other
+
+    def __mod__(self, other):
+        return self._value % other
+
+    def __divmod__(self, other):
+        return divmod(self._value, other)
+
+    def __pow__(self, other, modulo=None):
+        if modulo is None:
+            return pow(self._value, other)
+        else:
+            return pow(self._value, other, modulo)
+
+    def __lshift__(self, other):
+        return self._value << other
+
+    def __rshift__(self, other):
+        return self._value >> other
+
+    def __and__(self, other):
+        return self._value & other
+
+    def __xor__(self, other):
+        return self._value ^ other
+
+    def __or__(self, other):
+        return self._value | other
+
+    # reflected basic arithmetic functions
+    def __radd__(self, other):
+        return other + self._value
+
+    def __rsub__(self, other):
+        return other - self._value
+
+    def __rmul__(self, other):
+        return other * self._value
+
+    def __rtruediv__(self, other):
+        return other / self._value
+
+    def __rfloordiv__(self, other):
+        return other // self._value
+
+    def __rmod__(self, other):
+        return other % self._value
+
+    def __rdivmod__(self, other):
+        return divmod(other, self._value)
+
+    def __rpow__(self, other, modulo=None):
+        if modulo is None:
+            return pow(other, self._value)
+        else:
+            return pow(other, self._value, modulo)
+
+    def __rlshift__(self, other):
+        return other << self._value
+
+    def __rrshift__(self, other):
+        return other >> self._value
+
+    def __rand__(self, other):
+        return other & self._value
+
+    def __rxor__(self, other):
+        return other ^ self._value
+
+    def __ror__(self, other):
+        return other | self._value
+
+    # arithmetic assignments
+    def __iadd__(self, other):
+        self._value = int(self._value + other)
+        return self
+
+    def __isub__(self, other):
+        self._value = int(self._value - other)
+        return self
+
+    def __imul__(self, other):
+        self._value = int(self._value * other)
+        return self
+
+    def __itruediv__(self, other):
+        self._value = int(self._value / other)
+        return self
+
+    def __ifloordiv__(self, other):
+        self._value = int(self._value // other)
+        return self
+
+    def __imod__(self, other):
+        self._value = int(self._value % other)
+        return self
+
+    def __ipow__(self, other, modulo=None):
+        if modulo is None:
+            self._value = int(pow(self._value, other))
+        else:
+            self._value = int(pow(self._value, other, modulo))
+        return self
+
+    def __ilshift__(self, other):
+        self._value = int(self._value << other)
+        return self
+
+    def __irshift__(self, other):
+        self._value = int(self._value >> other)
+        return self
+
+    def __iand__(self, other):
+        self._value = int(self._value & other)
+        return self
+
+    def __ixor__(self, other):
+        self._value = int(self._value ^ other)
+        return self
+
+    def __ior__(self, other):
+        self._value = int(self._value | other)
+        return self
+
+    # unary operators
+    def __neg__(self):
+        return -self._value
+
+    def __pos__(self):
+        return +self._value
+
+    def __abs__(self):
+        return abs(self._value)
+
+    def __invert__(self):
+        return ~self._value
+
+    def __complex__(self):
+        return complex(self._value)
+
+    def __float__(self):
+        return float(self._value)
+
+    def __index__(self):
+        return self.__int__()
 
 
 class AlphaFunction(IntEnum):

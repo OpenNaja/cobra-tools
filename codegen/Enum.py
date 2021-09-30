@@ -1,7 +1,7 @@
 from .BaseClass import BaseClass
 
 FIELD_TYPES = ("add", "field")
-VER = "stream.version"
+VER = "self.context.version"
 
 
 class Enum(BaseClass):
@@ -18,7 +18,7 @@ class Enum(BaseClass):
 		self.class_basename = enum_base
 		self.imports.add(enum_base)
 		# write to python file
-		with open(self.out_file, "w") as f:
+		with open(self.out_file, "w", encoding=self.parser.encoding) as f:
 			# write the header stuff
 			super().write(f)
 			for option in self.struct:

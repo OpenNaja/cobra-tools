@@ -1,7 +1,7 @@
 """Expression parser (for arr1, arr2, cond, and vercond xml attributes of
 <add> tag)."""
 
-from codegen import naming_conventions as convention
+from codegen.naming_conventions import name_attribute
 
 
 class Version(object):
@@ -60,87 +60,14 @@ class Expression(object):
 
     operators = {'==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
 
-    def __init__(self, expr_str, name_filter=None):
+    def __init__(self, expr_str, g_vars=False):
         try:
             left, self._op, right = self._partition(expr_str)
-            self._left = self._parse(left, name_filter)
-            self._right = self._parse(right, name_filter)
+            self._left = self._parse(left, g_vars)
+            self._right = self._parse(right, g_vars)
         except:
             print("error while parsing expression '%s'" % expr_str)
             raise
-
-    def eval(self, data=None):
-        """Evaluate the expression to an integer."""
-
-        if isinstance(self._left, Expression):
-            left = self._left.eval(data)
-        elif isinstance(self._left, str):
-            if self._left == '""':
-                left = ""
-            else:
-                left = data
-                for part in self._left.split("."):
-                    left = getattr(left, part)
-        elif isinstance(self._left, type):
-            left = isinstance(data, self._left)
-        elif self._left is None:
-            pass
-        else:
-            assert (isinstance(self._left, int))  # debug
-            left = self._left
-
-        if not self._op:
-            return left
-
-        if isinstance(self._right, Expression):
-            right = self._right.eval(data)
-        elif isinstance(self._right, str):
-            if (not self._right) or self._right == '""':
-                right = ""
-            else:
-                right = getattr(data, self._right)
-        elif isinstance(self._right, type):
-            right = isinstance(data, self._right)
-        elif self._right is None:
-            pass
-        else:
-            assert (isinstance(self._right, int))  # debug
-            right = self._right
-
-        if self._op == '==':
-            return left == right
-        elif self._op == '!=':
-            return left != right
-        elif self._op == '>=':
-            return left >= right
-        elif self._op == '<=':
-            return left <= right
-        elif self._op == '&&':
-            return left and right
-        elif self._op == '||':
-            return left or right
-        elif self._op == '&':
-            return left & right
-        elif self._op == '|':
-            return left | right
-        elif self._op == '-':
-            return left - right
-        elif self._op == '!':
-            return not (right)
-        elif self._op == '>':
-            return left > right
-        elif self._op == '<':
-            return left < right
-        elif self._op == '/':
-            return left / right
-        elif self._op == '*':
-            return left * right
-        elif self._op == '+':
-            return left + right
-        elif self._op == '%':
-            return left % right
-        else:
-            raise NotImplementedError("expression syntax error: operator '" + self._op + "' not implemented")
 
     def __str__(self):
         """Reconstruct the expression to a string."""
@@ -163,7 +90,7 @@ class Expression(object):
         return f"{left} {op} {right}".strip()
 
     @classmethod
-    def _parse(cls, expr_str, name_filter=None):
+    def _parse(cls, expr_str, g_vars=False):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         if not expr_str:
@@ -171,10 +98,10 @@ class Expression(object):
             return None
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
-            return Expression(expr_str, name_filter)
+            return Expression(expr_str, g_vars)
         for op in cls.operators:
             if expr_str.find(op) != -1:
-                return Expression(expr_str, name_filter)
+                return Expression(expr_str, g_vars)
         # try to convert it to one of the following classes
         for create_cls in (int, Version):
             try:
@@ -185,16 +112,12 @@ class Expression(object):
         # at this point, expr_str is a single attribute
         # apply name filter on each component separately
         # (where a dot separates components)
-        if name_filter is None:
-            def name_filter(x):
-                return convention.name_attribute(x)
-        prefix = "self."
-        # globals are stored on the stream
-        # it is only a global if the leftmost member has version in it
-        # ie. general_info.ms2_version is not a global
-        if "version" in expr_str.split(".")[0].lower():
-            prefix = "stream."
-        return prefix + ('.'.join(name_filter(comp) for comp in expr_str.split(".")))
+        if g_vars:
+            # globals are stored on the context
+            prefix = "self.context."
+        else:
+            prefix = "self."
+        return prefix + ('.'.join(name_attribute(comp) for comp in expr_str.split(".")))
 
     @classmethod
     def _partition(cls, expr_str):
@@ -331,16 +254,6 @@ class Expression(object):
             if start_pos != -1 or end_pos != -1:
                 raise ValueError("expression syntax error (non-matching brackets?)")
         return start_pos, end_pos
-
-    def map_(self, func):
-        if isinstance(self._left, Expression):
-            self._left.map_(func)
-        else:
-            self._left = func(self._left)
-        if isinstance(self._right, Expression):
-            self._right.map_(func)
-        else:
-            self._right = func(self._right)
 
 
 if __name__ == "__main__":

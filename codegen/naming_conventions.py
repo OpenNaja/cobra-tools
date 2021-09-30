@@ -102,6 +102,17 @@ def name_class(name):
     return ''.join(part.capitalize() for part in name_parts(name))
 
 
+def name_enum_key(name):
+    """Converts a key name into a name suitable for an enum key.
+    :param name: the key name
+    :type name: str
+    :return: Reformatted key name.
+    >>> name_enum_key('Some key name')
+    'SOME_KEY_NAME'
+    """
+    return '_'.join(part.upper() for part in name_parts(name))
+
+
 def clean_comment_str(comment_str="", indent="", class_comment=""):
     """Reformats an XML comment string into multi-line a python style comment block"""
     if comment_str is None:
@@ -113,3 +124,14 @@ def clean_comment_str(comment_str="", indent="", class_comment=""):
     else:
         lines = [f"\n{indent}# {line.strip()}" for line in comment_str.strip().split("\n")]
     return "\n" + "".join(lines)
+
+
+def name_module(name):
+    """Converts a module name into a name suitable for a python module
+    :param name: the module name
+    :type name: str
+    :return: Reformatted module name
+    >>> name_module('BSHavok')
+    'bshavok'
+    """
+    return name.lower()

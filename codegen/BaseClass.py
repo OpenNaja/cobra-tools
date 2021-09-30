@@ -40,7 +40,7 @@ class BaseClass:
                 if self.parser.format_name in root and py_name == name.lower():
                     src_path = os.path.join(root, name)
                     print("found source", src_path)
-                    with open(src_path, "r") as f:
+                    with open(src_path, "r", encoding=self.parser.encoding) as f:
                         return f.read()
         return ""
 
