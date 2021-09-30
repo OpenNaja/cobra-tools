@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector3 import Vector3
 
@@ -8,18 +9,21 @@ class JointEntry:
 	Describes a joint in armature space.
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# the rotation of the joint, inverted
-		self.rot = Matrix33(None, None)
+		self.rot = Matrix33(context, None, None)
 
 		# the location of the joint
-		self.loc = Vector3(None, None)
+		self.loc = Vector3(context, None, None)
 
 	def read(self, stream):
 

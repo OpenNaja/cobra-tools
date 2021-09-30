@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.matcol.compound.AttribWrapper import AttribWrapper
 from generated.formats.matcol.compound.InfoWrapper import InfoWrapper
 from generated.formats.matcol.compound.LayeredAttrib import LayeredAttrib
@@ -9,16 +10,19 @@ from generated.formats.matcol.compound.LayeredInfo import LayeredInfo
 
 class Layer:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 		self.name = 0
-		self.info_info = LayeredInfo(None, None)
+		self.info_info = LayeredInfo(context, None, None)
 		self.infos = Array()
-		self.attrib_info = LayeredAttrib(None, None)
+		self.attrib_info = LayeredAttrib(context, None, None)
 		self.attribs = Array()
 
 	def read(self, stream):

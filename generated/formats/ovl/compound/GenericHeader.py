@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl.compound.FixedString import FixedString
 
@@ -8,15 +9,18 @@ class GenericHeader:
 	Found at the beginning of every OVL file
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# 'FRES'
-		self.fres = FixedString(4, None)
+		self.fres = FixedString(context, 4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform
 		self.version_flag = 0

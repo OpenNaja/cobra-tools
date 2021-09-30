@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.tex.enum.DdsType import DdsType
 
 
@@ -8,8 +9,11 @@ class Header3Data0:
 	16 bytes
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.voxelskirt.bitfield.VersionInfo import VersionInfo
 from generated.formats.voxelskirt.compound.FixedString import FixedString
 from generated.formats.voxelskirt.compound.SizedStrData import SizedStrData
@@ -9,15 +10,18 @@ class Header:
 	Found at the beginning of every OVL file
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# 'VOXE'
-		self.magic = FixedString(4, None)
+		self.magic = FixedString(context, 4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -35,7 +39,7 @@ class Header:
 		self.user_version = VersionInfo()
 
 		# always = 0
-		self.info = SizedStrData(None, None)
+		self.info = SizedStrData(context, None, None)
 
 	def read(self, stream):
 

@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.SetEntry import SetEntry
 
@@ -12,8 +13,11 @@ class SetHeader:
 	(not a struct in barbasol)
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

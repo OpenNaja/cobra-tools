@@ -7,9 +7,9 @@ class Cylinder(Capsule):
 	identical data to capsule, just imported differently
 	"""
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		super().__init__(arg, template)
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

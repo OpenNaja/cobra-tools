@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.FixedString import FixedString
 from generated.formats.ms2.compound.LodInfo import LodInfo
@@ -17,15 +18,18 @@ class Mdl2InfoHeader:
 	This reads a whole custom mdl2 file
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# 'MS2 '
-		self.magic = FixedString(4, None)
+		self.magic = FixedString(context, 4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -50,19 +54,24 @@ class Mdl2InfoHeader:
 		self.ms_2_name = 0
 
 		# gives relevant info on the mdl, including counts and pack base
-		self.model_info = CoreModelInfo(None, None)
+		if not (self.context.version < 19):
+			self.model_info = CoreModelInfo(context, None, None)
 
 		# name pointers for each material
-		self.materials = Array()
+		if not (self.context.version < 19):
+			self.materials = Array()
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
-		self.lods = Array()
+		if not (self.context.version < 19):
+			self.lods = Array()
 
 		# instantiate the meshes with materials
-		self.objects = Array()
+		if not (self.context.version < 19):
+			self.objects = Array()
 
 		# model data blocks for this mdl2
-		self.models = Array()
+		if not (self.context.version < 19):
+			self.models = Array()
 
 	def read(self, stream):
 
@@ -79,13 +88,13 @@ class Mdl2InfoHeader:
 		self.index = stream.read_uint()
 		self.bone_info_index = stream.read_uint()
 		self.ms_2_name = stream.read_string()
-		if not (stream.version < 19):
+		if not (self.context.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo)
 			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
-		if not ((stream.version < 19) and self.model_info.num_models):
+		if not (self.context.version < 19):
 			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
-		if not (stream.version < 19):
 			self.objects.read(stream, MeshLink, self.model_info.num_objects, None)
+		if not (self.context.version < 19):
 			self.models.read(stream, ModelData, self.model_info.num_models, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -105,13 +114,13 @@ class Mdl2InfoHeader:
 		stream.write_uint(self.index)
 		stream.write_uint(self.bone_info_index)
 		stream.write_string(self.ms_2_name)
-		if not (stream.version < 19):
+		if not (self.context.version < 19):
 			stream.write_type(self.model_info)
 			self.materials.write(stream, MaterialName, self.model_info.num_materials, None)
-		if not ((stream.version < 19) and self.model_info.num_models):
+		if not (self.context.version < 19):
 			self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
-		if not (stream.version < 19):
 			self.objects.write(stream, MeshLink, self.model_info.num_objects, None)
+		if not (self.context.version < 19):
 			self.models.write(stream, ModelData, self.model_info.num_models, None)
 
 		self.io_size = stream.tell() - self.io_start

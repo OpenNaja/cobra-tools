@@ -3,6 +3,7 @@ import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
+from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 
 
@@ -14,8 +15,11 @@ class ZtModelData:
 	If there is more than one of these, the fragments appear as a list according to
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -67,22 +71,27 @@ class ZtModelData:
 		self.one_1 = 0
 
 		# ?
-		self.poweroftwo = 0
+		if self.context.version == 17:
+			self.poweroftwo = 0
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
+		if self.context.version == 18:
+			self.poweroftwo = 0
 
 		# always zero
-		self.zero = 0
+		if self.context.version == 18:
+			self.zero = 0
 
 		# some floats
-		self.unknown_07 = 0
+		if self.context.version == 18:
+			self.unknown_07 = 0
 
 		# bitfield
 		self.flag = ModelFlagZT()
 
 		# always zero
-		self.zero_uac = 0
+		if self.context.version == 17:
+			self.zero_uac = 0
 
 	def read(self, stream):
 
@@ -102,14 +111,15 @@ class ZtModelData:
 		self.known_ff_1 = stream.read_short()
 		self.one_0 = stream.read_ushort()
 		self.one_1 = stream.read_ushort()
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.poweroftwo = stream.read_ushort()
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.poweroftwo = stream.read_uint()
 			self.zero = stream.read_uint()
+		if self.context.version == 18:
 			self.unknown_07 = stream.read_float()
 		self.flag = stream.read_type(ModelFlagZT)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.zero_uac = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -132,14 +142,15 @@ class ZtModelData:
 		stream.write_short(self.known_ff_1)
 		stream.write_ushort(self.one_0)
 		stream.write_ushort(self.one_1)
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_ushort(self.poweroftwo)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_uint(self.poweroftwo)
 			stream.write_uint(self.zero)
+		if self.context.version == 18:
 			stream.write_float(self.unknown_07)
 		stream.write_type(self.flag)
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_uint(self.zero_uac)
 
 		self.io_size = stream.tell() - self.io_start

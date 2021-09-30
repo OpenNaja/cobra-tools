@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.Mdl2FourtyInfo import Mdl2FourtyInfo
 
@@ -8,14 +9,17 @@ class Mdl2ModelInfo:
 	Wraps a CoreModelInfo
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.fourty = Mdl2FourtyInfo(None, None)
-		self.info = CoreModelInfo(None, None)
+		self.fourty = Mdl2FourtyInfo(context, None, None)
+		self.info = CoreModelInfo(context, None, None)
 
 	def read(self, stream):
 

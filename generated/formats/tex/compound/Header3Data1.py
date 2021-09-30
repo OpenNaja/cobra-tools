@@ -1,3 +1,6 @@
+from generated.context import ContextReference
+
+
 class Header3Data1:
 
 	"""
@@ -6,8 +9,11 @@ class Header3Data1:
 	24 bytes per texture buffer
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

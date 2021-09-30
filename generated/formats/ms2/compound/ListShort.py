@@ -8,19 +8,19 @@ class ListShort(Descriptor):
 	used in JWE dinos
 	"""
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		super().__init__(arg, template)
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# location of the joint
-		self.loc = Vector3(None, None)
+		self.loc = Vector3(context, None, None)
 
 		# normalized
-		self.direction = Vector3(None, None)
+		self.direction = Vector3(context, None, None)
 
 		# min, le 0
 		self.min = 0

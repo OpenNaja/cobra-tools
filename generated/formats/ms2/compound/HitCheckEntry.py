@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.ConvexHull import ConvexHull
@@ -9,8 +10,11 @@ from generated.formats.ms2.enum.CollisionType import CollisionType
 
 class HitCheckEntry:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -30,17 +34,25 @@ class HitCheckEntry:
 
 		# JWE: 46, PZ: same as above
 		self.unknown_4 = 0
-		self.zero_extra_pc_unk = 0
+		if self.context.version == 18:
+			self.zero_extra_pc_unk = 0
 
 		# offset into joint names
 		self.name_offset = 0
-		self.collider = Sphere(None, None)
-		self.collider = BoundingBox(None, None)
-		self.collider = Capsule(None, None)
-		self.collider = Cylinder(None, None)
-		self.collider = ConvexHull(None, None)
-		self.collider = ConvexHull(None, None)
-		self.collider = MeshCollision(None, None)
+		if self.type == 0:
+			self.collider = Sphere(context, None, None)
+		if self.type == 1:
+			self.collider = BoundingBox(context, None, None)
+		if self.type == 2:
+			self.collider = Capsule(context, None, None)
+		if self.type == 3:
+			self.collider = Cylinder(context, None, None)
+		if self.type == 7:
+			self.collider = ConvexHull(context, None, None)
+		if self.type == 8:
+			self.collider = ConvexHull(context, None, None)
+		if self.type == 10:
+			self.collider = MeshCollision(context, None, None)
 
 	def read(self, stream):
 
@@ -52,7 +64,7 @@ class HitCheckEntry:
 		self.unknown_2_d = stream.read_ubyte()
 		self.unknown_3 = stream.read_uint()
 		self.unknown_4 = stream.read_uint()
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.zero_extra_pc_unk = stream.read_uint()
 		self.name_offset = stream.read_uint()
 		if self.type == 0:
@@ -82,7 +94,7 @@ class HitCheckEntry:
 		stream.write_ubyte(self.unknown_2_d)
 		stream.write_uint(self.unknown_3)
 		stream.write_uint(self.unknown_4)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_uint(self.zero_extra_pc_unk)
 		stream.write_uint(self.name_offset)
 		if self.type == 0:

@@ -21,9 +21,9 @@ class Header(GenericHeader):
 	Found at the beginning of every OVL file
 	"""
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		super().__init__(arg, template)
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -99,22 +99,24 @@ class Header(GenericHeader):
 		self.reserved = numpy.zeros((12), dtype='uint')
 
 		# Name buffer for assets and file mime types.
-		self.names = ZStringBuffer(self.len_names, None)
+		self.names = ZStringBuffer(context, self.len_names, None)
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
 		self.mimes = Array()
 
 		# ?
-		self.triplets = Array()
+		if self.context.version >= 20:
+			self.triplets = Array()
 
 		# ?
-		self.triplets_pad = PadAlign(self.triplets, 4)
+		if self.context.version >= 20:
+			self.triplets_pad = PadAlign(context, self.triplets, 4)
 
 		# Array of FileEntry objects.
 		self.files = Array()
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
-		self.archive_names = ZStringBuffer(self.len_archive_names, None)
+		self.archive_names = ZStringBuffer(context, self.len_archive_names, None)
 
 		# Array of ArchiveEntry objects.
 		self.archives = Array()
@@ -123,13 +125,15 @@ class Header(GenericHeader):
 		self.dirs = Array()
 
 		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array()
+		if not (self.context.version == 17):
+			self.dependencies = Array()
 
 		# Array of AuxEntry objects.
 		self.aux_entries = Array()
 
 		# after aux in ZTUAC
-		self.dependencies = Array()
+		if self.context.version == 17:
+			self.dependencies = Array()
 
 		# Array of UnknownEntry objects.
 		self.unknowns = Array()
@@ -166,17 +170,17 @@ class Header(GenericHeader):
 		self.reserved = stream.read_uints((12))
 		self.names = stream.read_type(ZStringBuffer, (self.len_names, None))
 		self.mimes.read(stream, MimeEntry, self.num_mimes, None)
-		if stream.version >= 20:
+		if self.context.version >= 20:
 			self.triplets.read(stream, Triplet, self.num_triplets, None)
 			self.triplets_pad = stream.read_type(PadAlign, (self.triplets, 4))
 		self.files.read(stream, FileEntry, self.num_files, None)
 		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names, None))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.read(stream, DirEntry, self.num_dirs, None)
-		if not (stream.version == 17):
+		if not (self.context.version == 17):
 			self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.read(stream, AuxEntry, self.num_aux_entries, None)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
 		self.unknowns.read(stream, UnknownEntry, self.num_files_ovs, None)
 		self.zlibs.read(stream, ZlibInfo, self.num_archives, None)
@@ -212,17 +216,17 @@ class Header(GenericHeader):
 		stream.write_uints(self.reserved)
 		stream.write_type(self.names)
 		self.mimes.write(stream, MimeEntry, self.num_mimes, None)
-		if stream.version >= 20:
+		if self.context.version >= 20:
 			self.triplets.write(stream, Triplet, self.num_triplets, None)
 			stream.write_type(self.triplets_pad)
 		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.write(stream, DirEntry, self.num_dirs, None)
-		if not (stream.version == 17):
+		if not (self.context.version == 17):
 			self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.write(stream, AuxEntry, self.num_aux_entries, None)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
 		self.unknowns.write(stream, UnknownEntry, self.num_files_ovs, None)
 		self.zlibs.write(stream, ZlibInfo, self.num_archives, None)

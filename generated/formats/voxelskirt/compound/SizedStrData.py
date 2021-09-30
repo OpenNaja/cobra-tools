@@ -1,11 +1,17 @@
+from generated.context import ContextReference
+
+
 class SizedStrData:
 
 	"""
 	# size varies according to game
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -20,18 +26,24 @@ class SizedStrData:
 		self.padding = 0
 
 		# zero, for PC only
-		self.zero_pc = 0
+		if self.context.version == 18:
+			self.zero_pc = 0
 
 		# x*y*4, for PC only
-		self.height_array_size_pc = 0
-		self.data_offset = 0
+		if self.context.version == 18:
+			self.height_array_size_pc = 0
+		if not (self.context.version == 18):
+			self.data_offset = 0
 
 		# entries of 32 bytes
-		self.data_count = 0
-		self.size_offset = 0
+		if not (self.context.version == 18):
+			self.data_count = 0
+		if not (self.context.version == 18):
+			self.size_offset = 0
 
 		# entries of 40 bytes
-		self.size_count = 0
+		if not (self.context.version == 18):
+			self.size_count = 0
 
 		# slightly smaller than total size of buffer data
 		self.position_offset = 0
@@ -58,12 +70,13 @@ class SizedStrData:
 		self.y = stream.read_uint64()
 		self.scale = stream.read_float()
 		self.padding = stream.read_float()
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.zero_pc = stream.read_uint64()
 			self.height_array_size_pc = stream.read_uint64()
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			self.data_offset = stream.read_uint64()
 			self.data_count = stream.read_uint64()
+		if not (self.context.version == 18):
 			self.size_offset = stream.read_uint64()
 			self.size_count = stream.read_uint64()
 		self.position_offset = stream.read_uint64()
@@ -84,12 +97,13 @@ class SizedStrData:
 		stream.write_uint64(self.y)
 		stream.write_float(self.scale)
 		stream.write_float(self.padding)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_uint64(self.zero_pc)
 			stream.write_uint64(self.height_array_size_pc)
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			stream.write_uint64(self.data_offset)
 			stream.write_uint64(self.data_count)
+		if not (self.context.version == 18):
 			stream.write_uint64(self.size_offset)
 			stream.write_uint64(self.size_count)
 		stream.write_uint64(self.position_offset)

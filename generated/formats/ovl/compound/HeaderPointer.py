@@ -4,12 +4,17 @@ from generated.io import BinaryStream
 from modules.formats.shared import assign_versions, get_padding
 
 
+from generated.context import ContextReference
+
+
 class HeaderPointer:
 
 	"""
 	Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
 	8 bytes
 	"""
+
+	context = ContextReference()
 
 	def read(self, stream):
 

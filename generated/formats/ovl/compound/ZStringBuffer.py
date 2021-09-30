@@ -6,11 +6,16 @@ from modules.formats.shared import get_padding
 ZERO = b"\x00"
 
 
+from generated.context import ContextReference
+
+
 class ZStringBuffer:
 
 	"""
 	Holds a buffer of zero-terminated strings
 	"""
+
+	context = ContextReference()
 
 	def __init__(self, arg=None, template=None):
 		# arg is byte count

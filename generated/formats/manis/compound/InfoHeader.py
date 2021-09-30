@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.manis.compound.ManiInfo import ManiInfo
 from generated.formats.manis.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.SizedStrData import SizedStrData
@@ -12,8 +13,11 @@ class InfoHeader:
 	Custom header struct
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -25,13 +29,13 @@ class InfoHeader:
 		self.user_version = 0
 		self.mani_count = 0
 		self.names = Array()
-		self.header = SizedStrData(None, None)
+		self.header = SizedStrData(context, None, None)
 		self.mani_infos = Array()
 		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
 		self.bone_names = Array()
 
 		# ?
-		self.bone_pad = PadAlign(self.bone_names, 4)
+		self.bone_pad = PadAlign(context, self.bone_names, 4)
 
 	def read(self, stream):
 

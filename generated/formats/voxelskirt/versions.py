@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 def is_ztuac(inst):
 	if inst.version == 17:
 		return True
@@ -37,29 +40,29 @@ def set_jwe(inst):
 	inst.user_version._value = 24724
 
 
+games = Enum('Games',[('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
+
+
 def get_game(inst):
 	if is_ztuac(inst):
-		return 'Zoo Tycoon Ultimate Animal Collection'
+		return [games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION]
 	if is_pc(inst):
-		return 'Planet Coaster'
+		return [games.PLANET_COASTER]
 	if is_pz(inst):
-		return 'Planet Zoo'
+		return [games.PLANET_ZOO]
 	if is_jwe(inst):
-		return 'Jurassic World Evolution'
-	return 'Unknown Game'
+		return [games.JURASSIC_WORLD_EVOLUTION]
+	return [games.UNKOWN_GAME]
 
 
 def set_game(inst, game):
-	if game == 'Zoo Tycoon Ultimate Animal Collection':
-		set_ztuac(inst)
-	if game == 'Planet Coaster':
-		set_pc(inst)
-	if game == 'Planet Zoo':
-		set_pz(inst)
-	if game == 'Jurassic World Evolution':
-		set_jwe(inst)
-
-
-games = ['Jurassic World Evolution', 'Planet Coaster', 'Planet Zoo', 'Zoo Tycoon Ultimate Animal Collection', 'Unknown Game']
+	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
+		return set_ztuac(inst)
+	if game in {games.PLANET_COASTER}:
+		return set_pc(inst)
+	if game in {games.PLANET_ZOO}:
+		return set_pz(inst)
+	if game in {games.JURASSIC_WORLD_EVOLUTION}:
+		return set_jwe(inst)
 
 

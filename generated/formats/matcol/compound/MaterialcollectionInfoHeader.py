@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.matcol.compound.LayeredWrapper import LayeredWrapper
 from generated.formats.matcol.compound.Root0 import Root0
 from generated.formats.matcol.compound.Root1 import Root1
@@ -17,8 +18,11 @@ class MaterialcollectionInfoHeader:
 	This reads a whole custom Matcol file
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -31,12 +35,16 @@ class MaterialcollectionInfoHeader:
 
 		# bool
 		self.has_texture_list = 0
-		self.root_0 = Root0(None, None)
-		self.root_1 = Root1(None, None)
-		self.root_1_pad = Root1Pad(None, None)
-		self.texture_wrapper = TextureWrapper(None, None)
-		self.variant_wrapper = VariantWrapper(None, None)
-		self.layered_wrapper = LayeredWrapper(None, None)
+		self.root_0 = Root0(context, None, None)
+		self.root_1 = Root1(context, None, None)
+		if self.has_texture_list == 0:
+			self.root_1_pad = Root1Pad(context, None, None)
+		if self.has_texture_list == 1:
+			self.texture_wrapper = TextureWrapper(context, None, None)
+		if self.root_1.flag == 3:
+			self.variant_wrapper = VariantWrapper(context, None, None)
+		if self.root_1.flag == 2:
+			self.layered_wrapper = LayeredWrapper(context, None, None)
 
 	def read(self, stream):
 

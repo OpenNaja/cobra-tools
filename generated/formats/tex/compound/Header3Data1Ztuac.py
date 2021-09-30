@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.tex.compound.Header3Data1ZTUACEntry import Header3Data1ZTUACEntry
 
 
@@ -10,8 +11,11 @@ class Header3Data1Ztuac:
 	Data struct for headers of type 7
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

@@ -1,8 +1,13 @@
+from generated.context import ContextReference
+
+
 class FixedString:
 
 	"""
 	Holds a string of a fixed size, given as an argument.
 	"""
+
+	context = ContextReference()
 
 	def __init__(self, arg=None, template=None):
 		# arg is byte count

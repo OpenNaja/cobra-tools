@@ -1,13 +1,17 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
 
 
 class Struct7:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -20,7 +24,8 @@ class Struct7:
 		self.zero = 0
 
 		# only for recent versions of PZ
-		self.zeros_pz = numpy.zeros((2), dtype='uint64')
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.zeros_pz = numpy.zeros((2), dtype='uint64')
 
 		# 60 bytes per entry
 		self.unknown_list = Array()
@@ -33,7 +38,7 @@ class Struct7:
 		self.io_start = stream.tell()
 		self.count_7 = stream.read_uint64()
 		self.zero = stream.read_uint64()
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			self.zeros_pz = stream.read_uint64s((2))
 		self.unknown_list.read(stream, NasutoJointEntry, self.count_7, None)
 		self.padding = stream.read_ubytes(((8 - ((self.count_7 * 60) % 8)) % 8))
@@ -45,7 +50,7 @@ class Struct7:
 		self.io_start = stream.tell()
 		stream.write_uint64(self.count_7)
 		stream.write_uint64(self.zero)
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			stream.write_uint64s(self.zeros_pz)
 		self.unknown_list.write(stream, NasutoJointEntry, self.count_7, None)
 		stream.write_ubytes(self.padding)

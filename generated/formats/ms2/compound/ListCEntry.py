@@ -1,13 +1,17 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class ListCEntry:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -17,7 +21,7 @@ class ListCEntry:
 		self.one = 0
 
 		# center of the collider
-		self.loc = Vector3(None, None)
+		self.loc = Vector3(context, None, None)
 
 		# -1 for PZ, 80 for JWE
 		self.constant = 0

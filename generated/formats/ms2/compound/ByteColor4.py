@@ -1,11 +1,17 @@
+from generated.context import ContextReference
+
+
 class ByteColor4:
 
 	"""
 	A color with alpha (red, green, blue, alpha).
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

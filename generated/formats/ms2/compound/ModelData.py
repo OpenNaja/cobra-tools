@@ -10,6 +10,7 @@ FUR_OVERHEAD = 2
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
 
@@ -21,8 +22,11 @@ class ModelData:
 	If there is more than one of these, the fragments appear as a list according to
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

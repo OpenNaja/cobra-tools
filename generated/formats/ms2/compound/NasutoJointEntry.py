@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector4 import Vector4
 
@@ -8,8 +9,11 @@ class NasutoJointEntry:
 	60 bytes
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -25,10 +29,10 @@ class NasutoJointEntry:
 		self.zero = 0
 
 		# ?
-		self.matrix = Matrix33(None, None)
+		self.matrix = Matrix33(context, None, None)
 
 		# ?
-		self.vector = Vector4(None, None)
+		self.vector = Vector4(context, None, None)
 
 		# 1
 		self.one = 0

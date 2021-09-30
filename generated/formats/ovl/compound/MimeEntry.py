@@ -3,6 +3,9 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz
 
 
+from generated.context import ContextReference
+
+
 class MimeEntry:
 
 	"""
@@ -10,8 +13,11 @@ class MimeEntry:
 	Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -36,10 +42,12 @@ class MimeEntry:
 		self.file_count = 0
 
 		# constant per mime, grab this many triplets
-		self.triplet_count = 0
+		if self.context.version >= 20:
+			self.triplet_count = 0
 
 		# index into triplets list
-		self.triplet_offset = 0
+		if self.context.version >= 20:
+			self.triplet_offset = 0
 
 	def read(self, stream):
 
@@ -51,7 +59,7 @@ class MimeEntry:
 		stream.mime_version = self.mime_version
 		self.file_index_offset = stream.read_uint()
 		self.file_count = stream.read_uint()
-		if stream.version >= 20:
+		if self.context.version >= 20:
 			self.triplet_count = stream.read_uint()
 			self.triplet_offset = stream.read_uint()
 
@@ -67,7 +75,7 @@ class MimeEntry:
 		stream.mime_version = self.mime_version
 		stream.write_uint(self.file_index_offset)
 		stream.write_uint(self.file_count)
-		if stream.version >= 20:
+		if self.context.version >= 20:
 			stream.write_uint(self.triplet_count)
 			stream.write_uint(self.triplet_offset)
 

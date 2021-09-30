@@ -7,7 +7,7 @@
     <version id="PZ" version="19" user_version="8340 8724">Planet Zoo</version>
     <version id="JWE" version_flag="1" version="19" user_version="24724 25108">Jurassic World Evolution</version>
 
-    <token name="verexpr" attrs="vercond cond">
+    <token name="verexpr" attrs="vercond">
         Commonly used version expressions.
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
@@ -15,7 +15,7 @@
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
     </token>
 
-    <token name="global" attrs="vercond cond">
+    <token name="global" attrs="vercond">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#USER#" string="user_version" />

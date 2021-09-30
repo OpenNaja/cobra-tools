@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 
 
 class Type2:
@@ -9,6 +10,8 @@ class Type2:
 	Sound SFX/Sound Voice
 	02 -- identifier for Sound SFX section
 	"""
+
+	context = ContextReference()
 
 	def read(self, stream):
 

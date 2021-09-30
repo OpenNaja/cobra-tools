@@ -1,8 +1,13 @@
+from generated.context import ContextReference
+
+
 class FixedString:
 
 	"""
 	The string "DDS ".
 	"""
+
+	context = ContextReference()
 
 	def __init__(self, arg=None, template=None):
 		# arg is byte count

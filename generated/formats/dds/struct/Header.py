@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.dds.bitstruct.Caps1 import Caps1
 from generated.formats.dds.bitstruct.Caps2 import Caps2
 from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
@@ -11,15 +12,18 @@ from generated.formats.dds.struct.PixelFormat import PixelFormat
 
 class Header:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# DDS
-		self.header_string = FixedString(4, None)
+		self.header_string = FixedString(context, 4, None)
 
 		# Always 124 + 4 bytes for headerstring, header ends at 128.
 		self.size = 124
@@ -34,13 +38,14 @@ class Header:
 		self.depth = 0
 		self.mipmap_count = 0
 		self.reserved_1 = numpy.zeros((11), dtype='uint')
-		self.pixel_format = PixelFormat(None, None)
+		self.pixel_format = PixelFormat(context, None, None)
 		self.caps_1 = Caps1()
 		self.caps_2 = Caps2()
 		self.caps_3 = 0
 		self.caps_4 = 0
 		self.unused = 0
-		self.dx_10 = Dxt10Header(None, None)
+		if self.pixel_format.four_c_c == 808540228:
+			self.dx_10 = Dxt10Header(context, None, None)
 
 	def read(self, stream):
 

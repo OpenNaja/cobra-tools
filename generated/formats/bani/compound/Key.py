@@ -1,17 +1,21 @@
+from generated.context import ContextReference
 from generated.formats.bani.compound.Vector3Short import Vector3Short
 from generated.formats.bani.compound.Vector3Ushort import Vector3Ushort
 
 
 class Key:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.euler = Vector3Short(None, None)
-		self.translation = Vector3Ushort(None, None)
+		self.euler = Vector3Short(context, None, None)
+		self.translation = Vector3Ushort(context, None, None)
 
 	def read(self, stream):
 

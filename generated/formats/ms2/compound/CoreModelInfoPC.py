@@ -10,30 +10,33 @@ class CoreModelInfoPC(CoreModelInfo):
 	152 bytes
 	"""
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		super().__init__(arg, template)
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros = numpy.zeros((5), dtype='uint64')
-		self.zeros = numpy.zeros((9), dtype='uint64')
+		if self.context.version == 18:
+			self.zeros = numpy.zeros((5), dtype='uint64')
+		if self.context.version == 17:
+			self.zeros = numpy.zeros((9), dtype='uint64')
 		self.one = 0
 		self.zero = 0
-		self.zero_zt = 0
+		if self.context.version == 17:
+			self.zero_zt = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		super().read(stream)
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.zeros = stream.read_uint64s((5))
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.zeros = stream.read_uint64s((9))
 		self.one = stream.read_uint64()
 		self.zero = stream.read_uint64()
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.zero_zt = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
@@ -42,13 +45,13 @@ class CoreModelInfoPC(CoreModelInfo):
 
 		self.io_start = stream.tell()
 		super().write(stream)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_uint64s(self.zeros)
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_uint64s(self.zeros)
 		stream.write_uint64(self.one)
 		stream.write_uint64(self.zero)
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_uint64(self.zero_zt)
 
 		self.io_size = stream.tell() - self.io_start

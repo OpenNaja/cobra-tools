@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.FixedString import FixedString
 from generated.formats.ms2.compound.Ms2Buffer0 import Ms2Buffer0
 from generated.formats.ms2.compound.Ms2BufferInfo import Ms2BufferInfo
@@ -11,15 +12,18 @@ class Ms2InfoHeader:
 	includes fragments but none of the 3 data buffers
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# 'MS2 '
-		self.magic = FixedString(4, None)
+		self.magic = FixedString(context, 4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -35,9 +39,10 @@ class Ms2InfoHeader:
 		self.user_version = 0
 		self.bone_names_size = 0
 		self.bone_info_size = 0
-		self.general_info = Ms2SizedStrData(None, None)
-		self.buffer_info = Ms2BufferInfo(None, None)
-		self.buffer_0 = Ms2Buffer0(self.general_info, None)
+		self.general_info = Ms2SizedStrData(context, None, None)
+		if not (self.context.version < 19) and self.general_info.vertex_buffer_count:
+			self.buffer_info = Ms2BufferInfo(context, None, None)
+		self.buffer_0 = Ms2Buffer0(context, self.general_info, None)
 
 	def read(self, stream):
 
@@ -54,7 +59,7 @@ class Ms2InfoHeader:
 		self.bone_names_size = stream.read_uint()
 		self.bone_info_size = stream.read_uint()
 		self.general_info = stream.read_type(Ms2SizedStrData)
-		if not (stream.version < 19) and self.general_info.vertex_buffer_count:
+		if not (self.context.version < 19) and self.general_info.vertex_buffer_count:
 			self.buffer_info = stream.read_type(Ms2BufferInfo)
 		self.buffer_0 = stream.read_type(Ms2Buffer0, (self.general_info, None))
 
@@ -75,7 +80,7 @@ class Ms2InfoHeader:
 		stream.write_uint(self.bone_names_size)
 		stream.write_uint(self.bone_info_size)
 		stream.write_type(self.general_info)
-		if not (stream.version < 19) and self.general_info.vertex_buffer_count:
+		if not (self.context.version < 19) and self.general_info.vertex_buffer_count:
 			stream.write_type(self.buffer_info)
 		stream.write_type(self.buffer_0)
 

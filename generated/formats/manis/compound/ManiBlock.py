@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.manis.compound.Empty import Empty
 from generated.formats.manis.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.Repeat import Repeat
@@ -9,36 +10,50 @@ from generated.formats.manis.compound.SmartPadding import SmartPadding
 
 class ManiBlock:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ref = Empty(None, None)
-		self.indices_c_2 = numpy.zeros((), dtype='ushort')
-		self.indices_c_2 = numpy.zeros((), dtype='uint')
-		self.indices_0 = numpy.zeros((), dtype='ushort')
-		self.indices_0 = numpy.zeros((), dtype='uint')
-		self.indices_1 = numpy.zeros((), dtype='ushort')
-		self.indices_1 = numpy.zeros((), dtype='uint')
-		self.indices_e_2 = numpy.zeros((), dtype='ushort')
-		self.indices_e_2 = numpy.zeros((), dtype='uint')
+		self.ref = Empty(context, None, None)
+		if self.context.version == 18:
+			self.indices_c_2 = numpy.zeros((), dtype='ushort')
+		if not (self.context.version == 18):
+			self.indices_c_2 = numpy.zeros((), dtype='uint')
+		if self.context.version == 18:
+			self.indices_0 = numpy.zeros((), dtype='ushort')
+		if not (self.context.version == 18):
+			self.indices_0 = numpy.zeros((), dtype='uint')
+		if self.context.version == 18:
+			self.indices_1 = numpy.zeros((), dtype='ushort')
+		if not (self.context.version == 18):
+			self.indices_1 = numpy.zeros((), dtype='uint')
+		if self.context.version == 18:
+			self.indices_e_2 = numpy.zeros((), dtype='ushort')
+		if not (self.context.version == 18):
+			self.indices_e_2 = numpy.zeros((), dtype='uint')
 		self.p_indices_00 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_00 = numpy.zeros((), dtype='ubyte')
+		if self.context.version == 18:
+			self.p_indices_00 = numpy.zeros((), dtype='ubyte')
 		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
+		if self.context.version == 18:
+			self.p_indices_0 = numpy.zeros((), dtype='ubyte')
 		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
+		if self.arg.e_2 > 0:
+			self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
 
 		# ?
-		self.pad = PadAlign(self.ref, 4)
+		self.pad = PadAlign(context, self.ref, 4)
 
 		# these are likely a scale reference or factor
 		self.floatsa = numpy.zeros((), dtype='float')
 
 		# ?
-		self.pad_2 = SmartPadding(None, None)
+		self.pad_2 = SmartPadding(context, None, None)
 
 		# likely
 		self.frame_count = 0
@@ -51,11 +66,11 @@ class ManiBlock:
 
 		# usually / always 420
 		self.four_and_twenty = 0
-		self.ref_2 = Empty(None, None)
+		self.ref_2 = Empty(context, None, None)
 		self.zeros = numpy.zeros((self.c), dtype='ubyte')
 
 		# ?
-		self.anoth_pad = SmartPadding(None, None)
+		self.anoth_pad = SmartPadding(context, None, None)
 
 		# these are likely a scale reference or factor
 		self.floatsb = numpy.zeros((6), dtype='float')
@@ -65,27 +80,27 @@ class ManiBlock:
 
 		self.io_start = stream.tell()
 		self.ref = stream.read_type(Empty)
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.indices_c_2 = stream.read_ushorts((self.arg.c_2))
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			self.indices_c_2 = stream.read_uints((self.arg.c_2))
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.indices_0 = stream.read_ushorts((self.arg.c))
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			self.indices_0 = stream.read_uints((self.arg.c))
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.indices_1 = stream.read_ushorts((self.arg.name_count))
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			self.indices_1 = stream.read_uints((self.arg.name_count))
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.indices_e_2 = stream.read_ushorts((self.arg.e_2))
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			self.indices_e_2 = stream.read_uints((self.arg.e_2))
 		self.p_indices_00 = stream.read_ubytes((self.arg.c_2))
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.p_indices_00 = stream.read_ubytes((self.arg.c_2))
 		self.p_indices_0 = stream.read_ubytes((self.arg.c))
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.p_indices_0 = stream.read_ubytes((self.arg.c))
 		self.p_indices_0_b = stream.read_ubytes((self.arg.e))
 		if self.arg.e_2 > 0:
@@ -111,27 +126,27 @@ class ManiBlock:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.ref)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ushorts(self.indices_c_2)
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			stream.write_uints(self.indices_c_2)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ushorts(self.indices_0)
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			stream.write_uints(self.indices_0)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ushorts(self.indices_1)
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			stream.write_uints(self.indices_1)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ushorts(self.indices_e_2)
-		if not (stream.version == 18):
+		if not (self.context.version == 18):
 			stream.write_uints(self.indices_e_2)
 		stream.write_ubytes(self.p_indices_00)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ubytes(self.p_indices_00)
 		stream.write_ubytes(self.p_indices_0)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ubytes(self.p_indices_0)
 		stream.write_ubytes(self.p_indices_0_b)
 		if self.arg.e_2 > 0:

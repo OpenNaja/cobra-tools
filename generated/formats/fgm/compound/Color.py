@@ -1,11 +1,17 @@
+from generated.context import ContextReference
+
+
 class Color:
 
 	"""
 	4 bytes
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

@@ -1,11 +1,17 @@
+from generated.context import ContextReference
+
+
 class SetEntry:
 
 	"""
 	the asset indices of two consecutive SetEntries define a set of AssetEntries
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -15,7 +21,8 @@ class SetEntry:
 		self.file_hash = 0
 
 		# always (?) matches an archive header's hash
-		self.ext_hash = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
 
 		# add from last set's entry up to this index to this set
 		self.start = 0
@@ -24,7 +31,7 @@ class SetEntry:
 
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			self.ext_hash = stream.read_uint()
 		self.start = stream.read_uint()
 
@@ -34,7 +41,7 @@ class SetEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			stream.write_uint(self.ext_hash)
 		stream.write_uint(self.start)
 

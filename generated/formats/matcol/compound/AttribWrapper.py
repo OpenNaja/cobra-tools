@@ -1,15 +1,19 @@
+from generated.context import ContextReference
 from generated.formats.matcol.compound.Attrib import Attrib
 
 
 class AttribWrapper:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.attrib = Attrib(None, None)
+		self.attrib = Attrib(context, None, None)
 		self.name = 0
 
 	def read(self, stream):

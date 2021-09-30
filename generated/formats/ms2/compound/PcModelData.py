@@ -7,6 +7,7 @@ from plugin.utils.tristrip import triangulate
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
 
@@ -18,8 +19,11 @@ class PcModelData:
 	If there is more than one of these, the fragments appear as a list according to
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -62,19 +66,23 @@ class PcModelData:
 		self.vert_offset_within_lod = 0
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
+		if self.context.version == 18:
+			self.poweroftwo = 0
 
 		# always zero
-		self.zero = 0
+		if self.context.version == 18:
+			self.zero = 0
 
 		# some floats
-		self.unknown_07 = 0
+		if self.context.version == 18:
+			self.unknown_07 = 0
 
 		# bitfield
 		self.flag = ModelFlag()
 
 		# always zero
-		self.zero_uac = 0
+		if self.context.version == 17:
+			self.zero_uac = 0
 
 	def read(self, stream):
 
@@ -91,12 +99,13 @@ class PcModelData:
 		self.zero_b = stream.read_uint()
 		self.vertex_color_offset = stream.read_uint()
 		self.vert_offset_within_lod = stream.read_uint()
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.poweroftwo = stream.read_uint()
 			self.zero = stream.read_uint()
+		if self.context.version == 18:
 			self.unknown_07 = stream.read_float()
 		self.flag = stream.read_type(ModelFlag)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.zero_uac = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -116,12 +125,13 @@ class PcModelData:
 		stream.write_uint(self.zero_b)
 		stream.write_uint(self.vertex_color_offset)
 		stream.write_uint(self.vert_offset_within_lod)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_uint(self.poweroftwo)
 			stream.write_uint(self.zero)
+		if self.context.version == 18:
 			stream.write_float(self.unknown_07)
 		stream.write_type(self.flag)
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_uint(self.zero_uac)
 
 		self.io_size = stream.tell() - self.io_start

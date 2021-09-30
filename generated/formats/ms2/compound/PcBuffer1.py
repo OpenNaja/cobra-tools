@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.CoreModelInfoPC import CoreModelInfoPC
 from generated.formats.ms2.compound.Ms2BufferInfoPC import Ms2BufferInfoPC
 from generated.formats.ms2.compound.Ms2BufferInfoZT import Ms2BufferInfoZT
@@ -12,22 +13,27 @@ class PcBuffer1:
 	cond="general info \ ms2 version == 32"
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.buffer_info_pc = Ms2BufferInfoZT(self.arg, None)
-		self.buffer_info_pc = Ms2BufferInfoPC(None, None)
+		if self.context.version == 17:
+			self.buffer_info_pc = Ms2BufferInfoZT(context, self.arg, None)
+		if self.context.version == 18:
+			self.buffer_info_pc = Ms2BufferInfoPC(context, None, None)
 		self.model_infos = Array()
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT, (self.arg, None))
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoPC)
 		self.model_infos.read(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)
 
@@ -36,9 +42,9 @@ class PcBuffer1:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_type(self.buffer_info_pc)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_type(self.buffer_info_pc)
 		self.model_infos.write(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)
 

@@ -4,11 +4,16 @@ from generated.io import MAX_LEN
 ZERO = b"\x00"
 
 
+from generated.context import ContextReference
+
+
 class SmartPadding:
 
 	"""
 	Grabs 00 bytes only
 	"""
+
+	context = ContextReference()
 
 	def __init__(self, arg=None, template=None):
 		# arg is byte count

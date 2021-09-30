@@ -61,12 +61,12 @@ class Compound(BaseClass):
 					continue
 				f.write(f"\n\n\tdef {method_type}(self, stream):")
 				f.write(f"\n\n\t\tself.io_start = stream.tell()")
-				last_condition = ""
+				condition = ""
 				# classes that this class inherits from have to be read first
 				if self.class_basename:
 					f.write(f"\n\t\tsuper().{method_type}(stream)")
 				for union in self.field_unions:
-					last_condition = union.write_io(f, method_type, last_condition)
+					condition = union.write_io(f, method_type, condition)
 
 				f.write(f"\n\n\t\tself.io_size = stream.tell() - self.io_start")
 

@@ -1,11 +1,17 @@
+from generated.context import ContextReference
+
+
 class ArchiveEntry:
 
 	"""
 	Description of one archive
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -63,10 +69,12 @@ class ArchiveEntry:
 		self.pools_end = 0
 
 		# doesn't work like that because order of ovl files is wrong! - files of this archive start here in ovl file list, + count num files
-		self.file_index_offset = 0
+		if self.context.version == 15:
+			self.file_index_offset = 0
 
 		# Seemingly unused, can be zeroed without effect ingame in JWE
-		self.ovs_offset = 0
+		if not (self.context.version == 15):
+			self.ovs_offset = 0
 
 	def read(self, stream):
 
@@ -88,9 +96,9 @@ class ArchiveEntry:
 		self.zeros_3 = stream.read_uint()
 		self.pools_start = stream.read_uint()
 		self.pools_end = stream.read_uint()
-		if stream.version == 15:
+		if self.context.version == 15:
 			self.file_index_offset = stream.read_uint()
-		if not (stream.version == 15):
+		if not (self.context.version == 15):
 			self.ovs_offset = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -115,9 +123,9 @@ class ArchiveEntry:
 		stream.write_uint(self.zeros_3)
 		stream.write_uint(self.pools_start)
 		stream.write_uint(self.pools_end)
-		if stream.version == 15:
+		if self.context.version == 15:
 			stream.write_uint(self.file_index_offset)
-		if not (stream.version == 15):
+		if not (self.context.version == 15):
 			stream.write_uint(self.ovs_offset)
 
 		self.io_size = stream.tell() - self.io_start

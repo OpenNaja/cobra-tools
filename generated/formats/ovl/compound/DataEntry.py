@@ -1,11 +1,17 @@
+from generated.context import ContextReference
+
+
 class DataEntry:
 
 	"""
 	32 bytes
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -15,14 +21,16 @@ class DataEntry:
 		self.file_hash = 0
 
 		# DJB hash for extension; always (?) matches an archive header's hash
-		self.ext_hash = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
 
 		# 1-based indexing into set_header.sets; 0 if data is not part of a set
 		self.set_index = 0
 
 		# number of buffers that should be read from list for this entry
 		self.buffer_count = 0
-		self.zero = 0
+		if self.context.version >= 19:
+			self.zero = 0
 
 		# size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together
 		self.size_1 = 0
@@ -34,11 +42,11 @@ class DataEntry:
 
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			self.ext_hash = stream.read_uint()
 		self.set_index = stream.read_ushort()
 		self.buffer_count = stream.read_ushort()
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			self.zero = stream.read_uint()
 		self.size_1 = stream.read_uint64()
 		self.size_2 = stream.read_uint64()
@@ -49,11 +57,11 @@ class DataEntry:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			stream.write_uint(self.ext_hash)
 		stream.write_ushort(self.set_index)
 		stream.write_ushort(self.buffer_count)
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			stream.write_uint(self.zero)
 		stream.write_uint64(self.size_1)
 		stream.write_uint64(self.size_2)

@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.FloatsY import FloatsY
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.LodInfoZT import LodInfoZT
@@ -14,8 +15,11 @@ from generated.formats.ms2.compound.ZtModelData import ZtModelData
 
 class PcModel:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -23,38 +27,44 @@ class PcModel:
 
 		# uses uint here, two uints elsewhere
 		self.materials = Array()
-		self.lods = Array()
-		self.lods = Array()
+		if self.context.version == 17:
+			self.lods = Array()
+		if self.context.version == 18:
+			self.lods = Array()
 		self.objects = Array()
 
 		# pad to 8 bytes alignment
-		self.padding = 0
-		self.models = Array()
-		self.models = Array()
-		self.ztuac_pre_bones = ZTPreBones(None, None)
+		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
+			self.padding = 0
+		if self.context.version == 18:
+			self.models = Array()
+		if self.context.version == 17:
+			self.models = Array()
+		if self.context.version == 17 and self.arg.last_count:
+			self.ztuac_pre_bones = ZTPreBones(context, None, None)
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
 		self.floatsy = Array()
 
 		# sometimes 00 byte
-		self.weird_padding = SmartPadding(None, None)
+		self.weird_padding = SmartPadding(context, None, None)
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.materials.read(stream, MaterialName, self.arg.num_materials, None)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.lods.read(stream, LodInfoZT, self.arg.num_lods, None)
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.lods.read(stream, LodInfo, self.arg.num_lods, None)
 		self.objects.read(stream, MeshLink, self.arg.num_objects, None)
-		if stream.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
+		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.padding = stream.read_uint()
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.models.read(stream, PcModelData, self.arg.num_models, None)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.models.read(stream, ZtModelData, self.arg.num_models, None)
-		if stream.version == 17 and self.arg.last_count:
+		if self.context.version == 17 and self.arg.last_count:
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones)
 		self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
 		self.weird_padding = stream.read_type(SmartPadding)
@@ -65,18 +75,18 @@ class PcModel:
 
 		self.io_start = stream.tell()
 		self.materials.write(stream, MaterialName, self.arg.num_materials, None)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.lods.write(stream, LodInfoZT, self.arg.num_lods, None)
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.lods.write(stream, LodInfo, self.arg.num_lods, None)
 		self.objects.write(stream, MeshLink, self.arg.num_objects, None)
-		if stream.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
+		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			stream.write_uint(self.padding)
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.models.write(stream, PcModelData, self.arg.num_models, None)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.models.write(stream, ZtModelData, self.arg.num_models, None)
-		if stream.version == 17 and self.arg.last_count:
+		if self.context.version == 17 and self.arg.last_count:
 			stream.write_type(self.ztuac_pre_bones)
 		self.floatsy.write(stream, FloatsY, self.arg.render_flag, None)
 		stream.write_type(self.weird_padding)

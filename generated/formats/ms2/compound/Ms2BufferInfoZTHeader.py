@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.InfoZTMemPool import InfoZTMemPool
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
 
@@ -13,15 +14,18 @@ class Ms2BufferInfoZTHeader:
 	very end of buffer 0 after the names list
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# sometimes 00 byte
-		self.weird_padding = SmartPadding(None, None)
+		self.weird_padding = SmartPadding(context, None, None)
 		self.unks = Array()
 
 	def read(self, stream):

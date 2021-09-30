@@ -1,11 +1,17 @@
+from generated.context import ContextReference
+
+
 class BaniFragmentData1:
 
 	"""
 	Seems to be the same for all bani anims of one bani file
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

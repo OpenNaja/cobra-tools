@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FourFragFgm import FourFragFgm
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
@@ -15,8 +16,11 @@ class FgmInfoHeader:
 	This reads a whole custom FGM file
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -56,11 +60,13 @@ class FgmInfoHeader:
 		# byte count to check for quirks
 		self.data_lib_size = 0
 		self.texture_names = Array()
-		self.fgm_info = FourFragFgm(None, None)
+		self.fgm_info = FourFragFgm(context, None, None)
 		self.two_frags_pad = Array()
 		self.textures = Array()
-		self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 24)), dtype='byte')
-		self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 12)), dtype='byte')
+		if not (self.context.version == 17):
+			self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 24)), dtype='byte')
+		if self.context.version == 17:
+			self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 12)), dtype='byte')
 		self.attributes = Array()
 
 	def read(self, stream):
@@ -85,9 +91,9 @@ class FgmInfoHeader:
 		self.fgm_info = stream.read_type(FourFragFgm)
 		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
-		if not (stream.version == 17):
+		if not (self.context.version == 17):
 			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 24)))
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.texpad = stream.read_bytes((self.tex_info_size - (self.fgm_info.texture_count * 12)))
 		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 
@@ -115,9 +121,9 @@ class FgmInfoHeader:
 		stream.write_type(self.fgm_info)
 		self.two_frags_pad.write(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
-		if not (stream.version == 17):
+		if not (self.context.version == 17):
 			stream.write_bytes(self.texpad)
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_bytes(self.texpad)
 		self.attributes.write(stream, AttributeInfo, self.fgm_info.attribute_count, None)
 

@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.tex.compound.Header7MipmapInfo import Header7MipmapInfo
 
 
@@ -10,8 +11,11 @@ class Header7Data1:
 	Data struct for headers of type 7
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -42,7 +46,8 @@ class Header7Data1:
 		self.pad = 0
 
 		# only found in PZ
-		self.unk_pz = 0
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.unk_pz = 0
 
 		# info about mip levels
 		self.mip_maps = Array()
@@ -58,7 +63,7 @@ class Header7Data1:
 		self.array_size = stream.read_uint()
 		self.num_mips = stream.read_uint()
 		self.pad = stream.read_byte()
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			self.unk_pz = stream.read_uint64()
 		self.mip_maps.read(stream, Header7MipmapInfo, self.num_mips, None)
 
@@ -75,7 +80,7 @@ class Header7Data1:
 		stream.write_uint(self.array_size)
 		stream.write_uint(self.num_mips)
 		stream.write_byte(self.pad)
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			stream.write_uint64(self.unk_pz)
 		self.mip_maps.write(stream, Header7MipmapInfo, self.num_mips, None)
 

@@ -1,7 +1,13 @@
+from generated.context import ContextReference
+
+
 class ZerosPadding:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -9,10 +15,12 @@ class ZerosPadding:
 		self.hier_2_padding_0 = 0
 
 		# 128 still has 16 bytes
-		self.hier_2_padding_1 = 0
+		if 64 < self.arg:
+			self.hier_2_padding_1 = 0
 
 		# 129 is the first with 24 bytes
-		self.hier_2_padding_2 = 0
+		if 128 < self.arg:
+			self.hier_2_padding_2 = 0
 
 	def read(self, stream):
 

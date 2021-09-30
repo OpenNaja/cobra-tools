@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 
 
 class ManiInfo:
@@ -10,8 +11,11 @@ class ManiInfo:
 	312 bytes for PC
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -38,14 +42,16 @@ class ManiInfo:
 		# always FF FF
 		self.ff_2 = 0
 		self.e = 0
-		self.extra_pc = numpy.zeros((5), dtype='ushort')
+		if self.context.version == 18:
+			self.extra_pc = numpy.zeros((5), dtype='ushort')
 		self.g = 0
 
 		# rest 228 bytes
 		self.zeros_2 = numpy.zeros((57), dtype='uint')
 
 		# rest 14 bytes
-		self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
+		if self.context.version == 18:
+			self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
 		self.i = 0
 		self.j = 0
 
@@ -70,11 +76,11 @@ class ManiInfo:
 		self.ff_1 = stream.read_ubyte()
 		self.ff_2 = stream.read_ubyte()
 		self.e = stream.read_ushort()
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.extra_pc = stream.read_ushorts((5))
 		self.g = stream.read_ushort()
 		self.zeros_2 = stream.read_uints((57))
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.extra_zeros_pc = stream.read_ushorts((7))
 		self.i = stream.read_ushort()
 		self.j = stream.read_ushort()
@@ -100,11 +106,11 @@ class ManiInfo:
 		stream.write_ubyte(self.ff_1)
 		stream.write_ubyte(self.ff_2)
 		stream.write_ushort(self.e)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ushorts(self.extra_pc)
 		stream.write_ushort(self.g)
 		stream.write_uints(self.zeros_2)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_ushorts(self.extra_zeros_pc)
 		stream.write_ushort(self.i)
 		stream.write_ushort(self.j)

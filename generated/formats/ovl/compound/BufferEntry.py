@@ -1,32 +1,40 @@
+from generated.context import ContextReference
+
+
 class BufferEntry:
 
 	"""
 	8 bytes
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# index of buffer in file, up to pz 1.6
-		self.index = 0
+		if self.context.version <= 20:
+			self.index = 0
 
 		# in bytes
 		self.size = 0
 
 		# id, new for pz 1.6
-		self.file_hash = 0
+		if self.context.version >= 20:
+			self.file_hash = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		if stream.version < 20:
+		if self.context.version <= 20:
 			self.index = stream.read_uint()
 		self.size = stream.read_uint()
-		if stream.version >= 20:
+		if self.context.version >= 20:
 			self.file_hash = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -34,10 +42,10 @@ class BufferEntry:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		if stream.version < 20:
+		if self.context.version <= 20:
 			stream.write_uint(self.index)
 		stream.write_uint(self.size)
-		if stream.version >= 20:
+		if self.context.version >= 20:
 			stream.write_uint(self.file_hash)
 
 		self.io_size = stream.tell() - self.io_start

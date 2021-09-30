@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.bitfield.RenderFlag import RenderFlag
 from generated.formats.ms2.compound.Vector3 import Vector3
 
@@ -13,39 +14,47 @@ class CoreModelInfo:
 	The mdl2's fragment informs the first mdl2
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(None, None)
+		self.bounds_min = Vector3(context, None, None)
 
 		# not sure, for PZ often 40 00 00 37 for animals
-		self.unk_float_a = 0
+		if not (self.context.version < 19):
+			self.unk_float_a = 0
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(None, None)
+		self.bounds_max = Vector3(context, None, None)
 
 		# scale: pack_offset / 512, also added as offset
-		self.pack_offset = 0
+		if not (self.context.version < 19):
+			self.pack_offset = 0
 
 		# cog? medium of bounds?
-		self.center = Vector3(None, None)
+		self.center = Vector3(context, None, None)
 
 		# probably from center to max
 		self.radius = 0
 
 		# PZ only, zero-ish
-		self.unknowns = numpy.zeros((4), dtype='float')
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.unknowns = numpy.zeros((4), dtype='float')
 
 		# verbatim repeat
-		self.bounds_min_repeat = Vector3(None, None)
+		if not (self.context.version == 17):
+			self.bounds_min_repeat = Vector3(context, None, None)
 
 		# verbatim repeat
-		self.bounds_max_repeat = Vector3(None, None)
+		if not (self.context.version == 17):
+			self.bounds_max_repeat = Vector3(context, None, None)
 		self.num_materials = 0
 		self.num_lods = 0
 		self.num_objects = 0
@@ -67,16 +76,16 @@ class CoreModelInfo:
 
 		self.io_start = stream.tell()
 		self.bounds_min = stream.read_type(Vector3)
-		if not (stream.version < 19):
+		if not (self.context.version < 19):
 			self.unk_float_a = stream.read_float()
 		self.bounds_max = stream.read_type(Vector3)
-		if not (stream.version < 19):
+		if not (self.context.version < 19):
 			self.pack_offset = stream.read_float()
 		self.center = stream.read_type(Vector3)
 		self.radius = stream.read_float()
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			self.unknowns = stream.read_floats((4))
-		if not (stream.version == 17):
+		if not (self.context.version == 17):
 			self.bounds_min_repeat = stream.read_type(Vector3)
 			self.bounds_max_repeat = stream.read_type(Vector3)
 		self.num_materials = stream.read_ushort()
@@ -94,16 +103,16 @@ class CoreModelInfo:
 
 		self.io_start = stream.tell()
 		stream.write_type(self.bounds_min)
-		if not (stream.version < 19):
+		if not (self.context.version < 19):
 			stream.write_float(self.unk_float_a)
 		stream.write_type(self.bounds_max)
-		if not (stream.version < 19):
+		if not (self.context.version < 19):
 			stream.write_float(self.pack_offset)
 		stream.write_type(self.center)
 		stream.write_float(self.radius)
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			stream.write_floats(self.unknowns)
-		if not (stream.version == 17):
+		if not (self.context.version == 17):
 			stream.write_type(self.bounds_min_repeat)
 			stream.write_type(self.bounds_max_repeat)
 		stream.write_ushort(self.num_materials)

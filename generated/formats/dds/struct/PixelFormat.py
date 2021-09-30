@@ -1,11 +1,15 @@
+from generated.context import ContextReference
 from generated.formats.dds.bitstruct.PixelFormatFlags import PixelFormatFlags
 from generated.formats.dds.enum.FourCC import FourCC
 
 
 class PixelFormat:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

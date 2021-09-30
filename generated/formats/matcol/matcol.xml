@@ -2,13 +2,13 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-    <token name="verexpr" attrs="vercond cond">
+    <token name="verexpr" attrs="vercond">
         Commonly used version expressions.
         <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
         <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
     </token>
 	
-    <token name="global" attrs="vercond cond">
+    <token name="global" attrs="vercond">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#USER#" string="user_version" />

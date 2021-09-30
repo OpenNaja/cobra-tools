@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.bani.compound.BaniFragmentData0 import BaniFragmentData0
 from generated.formats.bani.compound.BaniFragmentData1 import BaniFragmentData1
 
@@ -12,8 +13,11 @@ class BaniInfoHeader:
 	includes fragments but none of the 3 data buffers
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -24,8 +28,8 @@ class BaniInfoHeader:
 
 		# name of the banis file buffer
 		self.banis_name = 0
-		self.data_0 = BaniFragmentData0(None, None)
-		self.data_1 = BaniFragmentData1(None, None)
+		self.data_0 = BaniFragmentData0(context, None, None)
+		self.data_1 = BaniFragmentData1(context, None, None)
 
 	def read(self, stream):
 

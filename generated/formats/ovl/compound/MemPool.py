@@ -1,18 +1,25 @@
+from generated.context import ContextReference
+
+
 class MemPool:
 
 	"""
 	Description of one archive header entry
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# always 0
-		self.zero_1 = 0
+		if not (self.context.version == 15):
+			self.zero_1 = 0
 
 		# the number of bytes representing the text files data
 		self.size = 0
@@ -21,7 +28,8 @@ class MemPool:
 		self.offset = 0
 
 		# always 0
-		self.zero_2 = 0
+		if self.context.version == 15:
+			self.zero_2 = 0
 
 		# DJB hash of the first file in the txt data block
 		self.file_hash = 0
@@ -30,23 +38,25 @@ class MemPool:
 		self.num_files = 0
 
 		# JWE: DJB hash for extension, 0 for PZ
-		self.ext_hash = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
 
 		# always 0
-		self.zero_3 = 0
+		if self.context.version >= 19:
+			self.zero_3 = 0
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		if not (stream.version == 15):
+		if not (self.context.version == 15):
 			self.zero_1 = stream.read_uint64()
 		self.size = stream.read_uint()
 		self.offset = stream.read_uint()
-		if stream.version == 15:
+		if self.context.version == 15:
 			self.zero_2 = stream.read_uint64()
 		self.file_hash = stream.read_uint()
 		self.num_files = stream.read_uint()
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			self.ext_hash = stream.read_uint()
 			self.zero_3 = stream.read_uint()
 
@@ -55,15 +65,15 @@ class MemPool:
 	def write(self, stream):
 
 		self.io_start = stream.tell()
-		if not (stream.version == 15):
+		if not (self.context.version == 15):
 			stream.write_uint64(self.zero_1)
 		stream.write_uint(self.size)
 		stream.write_uint(self.offset)
-		if stream.version == 15:
+		if self.context.version == 15:
 			stream.write_uint64(self.zero_2)
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.num_files)
-		if stream.version >= 19:
+		if self.context.version >= 19:
 			stream.write_uint(self.ext_hash)
 			stream.write_uint(self.zero_3)
 

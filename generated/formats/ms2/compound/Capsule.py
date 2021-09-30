@@ -1,20 +1,24 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class Capsule:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# relative to the armature, ie. not in bone space
-		self.offset = Vector3(None, None)
+		self.offset = Vector3(context, None, None)
 
 		# normalized
-		self.direction = Vector3(None, None)
+		self.direction = Vector3(context, None, None)
 
 		# radius of the caps
 		self.radius = 0

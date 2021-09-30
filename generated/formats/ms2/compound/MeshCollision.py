@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.MeshCollisionBit import MeshCollisionBit
 from generated.formats.ms2.compound.Vector3 import Vector3
@@ -8,16 +9,19 @@ from generated.formats.ms2.compound.Vector3 import Vector3
 
 class MeshCollision:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33(None, None)
+		self.rotation = Matrix33(context, None, None)
 
 		# offset of mesh
-		self.offset = Vector3(None, None)
+		self.offset = Vector3(context, None, None)
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
 		self.unk_1 = numpy.zeros((3, 2), dtype='ushort')
@@ -29,10 +33,10 @@ class MeshCollision:
 		self.tri_count = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(None, None)
+		self.bounds_min = Vector3(context, None, None)
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(None, None)
+		self.bounds_max = Vector3(context, None, None)
 
 		# seemingly fixed
 		self.ones_or_zeros = numpy.zeros((7), dtype='uint64')
@@ -41,10 +45,10 @@ class MeshCollision:
 		self.ff_or_zero = numpy.zeros((10), dtype='int')
 
 		# verbatim
-		self.bounds_min_repeat = Vector3(None, None)
+		self.bounds_min_repeat = Vector3(context, None, None)
 
 		# verbatim
-		self.bounds_max_repeat = Vector3(None, None)
+		self.bounds_max_repeat = Vector3(context, None, None)
 
 		# seems to repeat tri_count
 		self.tri_flags_count = 0
@@ -71,7 +75,8 @@ class MeshCollision:
 		self.const = 0
 
 		# always 25
-		self.triangle_flags = numpy.zeros((self.tri_flags_count), dtype='uint')
+		if self.const:
+			self.triangle_flags = numpy.zeros((self.tri_flags_count), dtype='uint')
 
 		# might be padding!
 		self.zero_end = 0

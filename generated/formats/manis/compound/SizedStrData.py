@@ -1,12 +1,16 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 
 
 class SizedStrData:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -15,7 +19,8 @@ class SizedStrData:
 		self.hash_block_size = 0
 		self.zeros = numpy.zeros((2), dtype='int')
 		self.c = 0
-		self.zeros_end = numpy.zeros((9), dtype='ushort')
+		if self.context.version == 20:
+			self.zeros_end = numpy.zeros((9), dtype='ushort')
 
 	def read(self, stream):
 
@@ -24,7 +29,7 @@ class SizedStrData:
 		self.hash_block_size = stream.read_ushort()
 		self.zeros = stream.read_ints((2))
 		self.c = stream.read_ushort()
-		if stream.version == 20:
+		if self.context.version == 20:
 			self.zeros_end = stream.read_ushorts((9))
 
 		self.io_size = stream.tell() - self.io_start
@@ -36,7 +41,7 @@ class SizedStrData:
 		stream.write_ushort(self.hash_block_size)
 		stream.write_ints(self.zeros)
 		stream.write_ushort(self.c)
-		if stream.version == 20:
+		if self.context.version == 20:
 			stream.write_ushorts(self.zeros_end)
 
 		self.io_size = stream.tell() - self.io_start

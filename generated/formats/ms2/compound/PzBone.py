@@ -1,3 +1,4 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Vector3 import Vector3
 from generated.formats.ms2.compound.Vector4 import Vector4
 
@@ -8,14 +9,17 @@ class PzBone:
 	32 bytes
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rot = Vector4(None, None)
-		self.loc = Vector3(None, None)
+		self.rot = Vector4(context, None, None)
+		self.loc = Vector3(context, None, None)
 		self.scale = 0
 
 	def read(self, stream):

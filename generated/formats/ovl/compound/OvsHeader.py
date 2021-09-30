@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.DataEntry import DataEntry
@@ -17,8 +18,11 @@ class OvsHeader:
 	Description of one archive's content
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -30,7 +34,7 @@ class OvsHeader:
 		self.new_entries = Array()
 		self.sized_str_entries = Array()
 		self.fragments = Array()
-		self.set_header = SetHeader(None, None)
+		self.set_header = SetHeader(context, None, None)
 
 	def read(self, stream):
 

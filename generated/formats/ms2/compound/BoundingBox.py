@@ -1,28 +1,33 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class BoundingBox:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33(None, None)
+		self.rotation = Matrix33(context, None, None)
 
 		# center of the box
-		self.center = Vector3(None, None)
+		self.center = Vector3(context, None, None)
 
 		# total width
-		self.extent = Vector3(None, None)
+		self.extent = Vector3(context, None, None)
 
 		# probably padding
-		self.zeros = numpy.zeros((3), dtype='uint')
+		if self.context.version == 18:
+			self.zeros = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
 
@@ -30,7 +35,7 @@ class BoundingBox:
 		self.rotation = stream.read_type(Matrix33)
 		self.center = stream.read_type(Vector3)
 		self.extent = stream.read_type(Vector3)
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.zeros = stream.read_uints((3))
 
 		self.io_size = stream.tell() - self.io_start
@@ -41,7 +46,7 @@ class BoundingBox:
 		stream.write_type(self.rotation)
 		stream.write_type(self.center)
 		stream.write_type(self.extent)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_uints(self.zeros)
 
 		self.io_size = stream.tell() - self.io_start

@@ -1,17 +1,21 @@
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class Sphere:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# center of the sphere
-		self.center = Vector3(None, None)
+		self.center = Vector3(context, None, None)
 
 		# radius around the center
 		self.radius = 0

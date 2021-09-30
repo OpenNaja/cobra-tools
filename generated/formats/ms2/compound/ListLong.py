@@ -11,16 +11,16 @@ class ListLong(Descriptor):
 	probably ragdoll, lots of angles
 	"""
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		super().__init__(arg, template)
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# the location of the child joint
-		self.loc = Vector3(None, None)
+		self.loc = Vector3(context, None, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
 		self.floats = numpy.zeros((5, 3), dtype='float')

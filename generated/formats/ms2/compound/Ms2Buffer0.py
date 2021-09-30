@@ -1,14 +1,18 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Ms2BufferInfoZTHeader import Ms2BufferInfoZTHeader
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
 
 
 class Ms2Buffer0:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -21,17 +25,19 @@ class Ms2Buffer0:
 		self.names = Array()
 
 		# todo - pad to 8; for pz 1.6
-		self.new_padding = SmartPadding(None, None)
-		self.zt_streams_header = Ms2BufferInfoZTHeader(self.arg, None)
+		if self.context.version == 20:
+			self.new_padding = SmartPadding(context, None, None)
+		if self.context.version == 17:
+			self.zt_streams_header = Ms2BufferInfoZTHeader(context, self.arg, None)
 
 	def read(self, stream):
 
 		self.io_start = stream.tell()
 		self.name_hashes = stream.read_uints((self.arg.name_count))
 		self.names = stream.read_zstrings((self.arg.name_count))
-		if stream.version == 20:
+		if self.context.version == 20:
 			self.new_padding = stream.read_type(SmartPadding)
-		if stream.version == 17:
+		if self.context.version == 17:
 			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.arg, None))
 
 		self.io_size = stream.tell() - self.io_start
@@ -41,9 +47,9 @@ class Ms2Buffer0:
 		self.io_start = stream.tell()
 		stream.write_uints(self.name_hashes)
 		stream.write_zstrings(self.names)
-		if stream.version == 20:
+		if self.context.version == 20:
 			stream.write_type(self.new_padding)
-		if stream.version == 17:
+		if self.context.version == 17:
 			stream.write_type(self.zt_streams_header)
 
 		self.io_size = stream.tell() - self.io_start

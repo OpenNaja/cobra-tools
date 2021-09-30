@@ -1,3 +1,6 @@
+from generated.context import ContextReference
+
+
 class StreamInfo:
 
 	"""
@@ -6,8 +9,11 @@ class StreamInfo:
 	this has the starting offsets of tri buffers per streamed buffer
 	"""
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

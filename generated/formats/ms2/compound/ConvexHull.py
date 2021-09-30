@@ -1,14 +1,18 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.context import ContextReference
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
 class ConvexHull:
 
-	def __init__(self, arg=None, template=None):
+	context = ContextReference()
+
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -16,16 +20,18 @@ class ConvexHull:
 
 		# 16 for anubis: 4 hulls * 16 * 12 (size of vert)
 		self.vertex_count = 0
-		self.rotation = Matrix33(None, None)
+		self.rotation = Matrix33(context, None, None)
 
 		# center of the box
-		self.offset = Vector3(None, None)
+		self.offset = Vector3(context, None, None)
 
 		# probably padding
-		self.zeros = numpy.zeros((5), dtype='uint')
+		if self.context.version == 18:
+			self.zeros = numpy.zeros((5), dtype='uint')
 
 		# probably padding
-		self.zeros = numpy.zeros((2), dtype='uint')
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.zeros = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
 
@@ -33,9 +39,9 @@ class ConvexHull:
 		self.vertex_count = stream.read_uint()
 		self.rotation = stream.read_type(Matrix33)
 		self.offset = stream.read_type(Vector3)
-		if stream.version == 18:
+		if self.context.version == 18:
 			self.zeros = stream.read_uints((5))
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			self.zeros = stream.read_uints((2))
 
 		self.io_size = stream.tell() - self.io_start
@@ -46,9 +52,9 @@ class ConvexHull:
 		stream.write_uint(self.vertex_count)
 		stream.write_type(self.rotation)
 		stream.write_type(self.offset)
-		if stream.version == 18:
+		if self.context.version == 18:
 			stream.write_uints(self.zeros)
-		if ((stream.user_version == 8340) or (stream.user_version == 8724)) and (stream.version >= 19):
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			stream.write_uints(self.zeros)
 
 		self.io_size = stream.tell() - self.io_start

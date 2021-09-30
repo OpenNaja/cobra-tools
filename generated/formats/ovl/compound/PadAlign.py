@@ -5,11 +5,16 @@ from modules.formats.shared import get_padding_size
 ZERO = b"\x00"
 
 
+from generated.context import ContextReference
+
+
 class PadAlign:
 
 	"""
 	Grabs 00 bytes only
 	"""
+
+	context = ContextReference()
 
 	def __init__(self, arg=None, template=None):
 		# arg is reference object
