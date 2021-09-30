@@ -36,8 +36,8 @@ class BaniInfoHeader:
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.banis_name = stream.read_string()
-		self.data_0 = stream.read_type(BaniFragmentData0)
-		self.data_1 = stream.read_type(BaniFragmentData1)
+		self.data_0 = stream.read_type(BaniFragmentData0, (self.context, None, None))
+		self.data_1 = stream.read_type(BaniFragmentData1, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

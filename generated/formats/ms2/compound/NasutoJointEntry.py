@@ -43,8 +43,8 @@ class NasutoJointEntry:
 		self.child = stream.read_ubyte()
 		self.parent = stream.read_ubyte()
 		self.zero = stream.read_ushort()
-		self.matrix = stream.read_type(Matrix33)
-		self.vector = stream.read_type(Vector4)
+		self.matrix = stream.read_type(Matrix33, (self.context, None, None))
+		self.vector = stream.read_type(Vector4, (self.context, None, None))
 		self.one = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start

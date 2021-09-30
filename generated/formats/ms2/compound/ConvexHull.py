@@ -37,8 +37,8 @@ class ConvexHull:
 
 		self.io_start = stream.tell()
 		self.vertex_count = stream.read_uint()
-		self.rotation = stream.read_type(Matrix33)
-		self.offset = stream.read_type(Vector3)
+		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
+		self.offset = stream.read_type(Vector3, (self.context, None, None))
 		if self.context.version == 18:
 			self.zeros = stream.read_uints((5))
 		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):

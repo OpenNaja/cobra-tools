@@ -209,17 +209,17 @@ class Ms2BoneInfo:
 		if self.context.version == 17:
 			self.zt_weirdness = stream.read_ushorts((10))
 		if not (self.context.version < 19) and self.zeros_count:
-			self.zeros_padding = stream.read_type(ZerosPadding, (self.zeros_count, None))
+			self.zeros_padding = stream.read_type(ZerosPadding, (self.context, self.zeros_count, None))
 		if self.context.version < 19 and self.zeros_count:
-			self.minus_padding = stream.read_type(MinusPadding, (self.zeros_count, None))
+			self.minus_padding = stream.read_type(MinusPadding, (self.context, self.zeros_count, None))
 		if not (self.context.version < 19) and self.count_7:
-			self.struct_7 = stream.read_type(Struct7)
+			self.struct_7 = stream.read_type(Struct7, (self.context, None, None))
 		if self.context.version == 18 and self.joint_count:
-			self.weird_padding = stream.read_type(SmartPadding)
+			self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		if not (self.context.version == 17) and self.joint_count:
-			self.joints = stream.read_type(JointData)
+			self.joints = stream.read_type(JointData, (self.context, None, None))
 		if self.context.version == 18 and not self.joint_count:
-			self.weird_padding_2 = stream.read_type(SmartPadding)
+			self.weird_padding_2 = stream.read_type(SmartPadding, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

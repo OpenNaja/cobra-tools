@@ -151,6 +151,8 @@ class XmlParser:
         # template or custom type
         if "template" in dtype.lower() or self.tag_dict[dtype.lower()] != "basic":
             io_func = f"{mode}_type"
+            if self.tag_dict[dtype.lower()] != "bitfield":
+                args = f", (self.context, {arg}, {template})"
         # basic type
         else:
             io_func = f"{mode}_{dtype.lower()}"

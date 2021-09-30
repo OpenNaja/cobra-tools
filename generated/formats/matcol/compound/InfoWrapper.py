@@ -19,7 +19,7 @@ class InfoWrapper:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.info = stream.read_type(Info)
+		self.info = stream.read_type(Info, (self.context, None, None))
 		self.name = stream.read_zstring()
 
 		self.io_size = stream.tell() - self.io_start

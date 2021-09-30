@@ -32,8 +32,8 @@ class Capsule:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.offset = stream.read_type(Vector3)
-		self.direction = stream.read_type(Vector3)
+		self.offset = stream.read_type(Vector3, (self.context, None, None))
+		self.direction = stream.read_type(Vector3, (self.context, None, None))
 		self.radius = stream.read_float()
 		self.extent = stream.read_float()
 		self.zero = stream.read_uint()

@@ -258,7 +258,7 @@ class Union:
             else:
                 f.write(
                     f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arg=arg, template=template)}")
-            # store version related stuff on stream
+            # store version related stuff on self.context
             if "version" in field_name:
-                f.write(f"{indent}stream.{field_name} = self.{field_name}")
+                f.write(f"{indent}self.context.{field_name} = self.{field_name}")
         return condition

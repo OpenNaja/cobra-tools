@@ -23,7 +23,7 @@ class LayeredWrapper:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.info = stream.read_type(MaterialInfo)
+		self.info = stream.read_type(MaterialInfo, (self.context, None, None))
 		self.layers.read(stream, Layer, self.info.material_count, None)
 
 		self.io_size = stream.tell() - self.io_start

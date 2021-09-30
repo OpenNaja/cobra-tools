@@ -160,7 +160,7 @@ class JointData:
 		if not (self.context.version == 18):
 			self.long_list.read(stream, ListLong, self.count_2, None)
 		if self.context.version == 18:
-			self.pc_ffs = stream.read_type(PcFFCounter)
+			self.pc_ffs = stream.read_type(PcFFCounter, (self.context, None, None))
 			self.pc_bytes = stream.read_bytes((9))
 		if self.context.version == 18:
 			self.pc_hitcheck_count = stream.read_uint64()
@@ -169,8 +169,8 @@ class JointData:
 			self.pc_floats = stream.read_floats((self.pc_count, 10))
 		self.joint_indices = stream.read_ints((self.joint_count))
 		self.bone_indices = stream.read_ints((self.bone_count))
-		self.joint_names = stream.read_type(ZStringBuffer, (self.namespace_length, None))
-		self.joint_names_padding = stream.read_type(SmartPadding)
+		self.joint_names = stream.read_type(ZStringBuffer, (self.context, self.namespace_length, None))
+		self.joint_names_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		if not (self.context.version == 18):
 			self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
 		if self.context.version == 18:

@@ -42,16 +42,16 @@ class InfoHeader:
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.version = stream.read_uint()
-		stream.version = self.version
+		self.context.version = self.version
 		self.user_version = stream.read_uint()
-		stream.user_version = self.user_version
+		self.context.user_version = self.user_version
 		self.mani_count = stream.read_uint()
 		self.names = stream.read_zstrings((self.mani_count))
-		self.header = stream.read_type(SizedStrData)
+		self.header = stream.read_type(SizedStrData, (self.context, None, None))
 		self.mani_infos.read(stream, ManiInfo, self.mani_count, None)
 		self.bone_hashes = stream.read_uints((int(self.header.hash_block_size / 4)))
 		self.bone_names = stream.read_zstrings((int(self.header.hash_block_size / 4)))
-		self.bone_pad = stream.read_type(PadAlign, (self.bone_names, 4))
+		self.bone_pad = stream.read_type(PadAlign, (self.context, self.bone_names, 4))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -60,9 +60,9 @@ class InfoHeader:
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_uint(self.version)
-		stream.version = self.version
+		self.context.version = self.version
 		stream.write_uint(self.user_version)
-		stream.user_version = self.user_version
+		self.context.user_version = self.user_version
 		stream.write_uint(self.mani_count)
 		stream.write_zstrings(self.names)
 		stream.write_type(self.header)

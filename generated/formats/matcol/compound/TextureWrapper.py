@@ -23,7 +23,7 @@ class TextureWrapper:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.info = stream.read_type(TextureInfo)
+		self.info = stream.read_type(TextureInfo, (self.context, None, None))
 		self.textures.read(stream, Texture, self.info.texture_count, None)
 
 		self.io_size = stream.tell() - self.io_start

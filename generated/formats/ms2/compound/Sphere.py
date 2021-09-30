@@ -26,7 +26,7 @@ class Sphere:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.center = stream.read_type(Vector3)
+		self.center = stream.read_type(Vector3, (self.context, None, None))
 		self.radius = stream.read_float()
 		self.zero = stream.read_uint()
 

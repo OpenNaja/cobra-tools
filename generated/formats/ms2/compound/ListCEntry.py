@@ -39,7 +39,7 @@ class ListCEntry:
 
 		self.io_start = stream.tell()
 		self.one = stream.read_uint()
-		self.loc = stream.read_type(Vector3)
+		self.loc = stream.read_type(Vector3, (self.context, None, None))
 		self.constant = stream.read_float()
 		self.a = stream.read_float()
 		self.floats = stream.read_floats((4))

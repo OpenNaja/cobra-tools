@@ -168,13 +168,13 @@ class Header(GenericHeader):
 		self.len_type_names = stream.read_uint()
 		self.num_triplets = stream.read_uint()
 		self.reserved = stream.read_uints((12))
-		self.names = stream.read_type(ZStringBuffer, (self.len_names, None))
+		self.names = stream.read_type(ZStringBuffer, (self.context, self.len_names, None))
 		self.mimes.read(stream, MimeEntry, self.num_mimes, None)
 		if self.context.version >= 20:
 			self.triplets.read(stream, Triplet, self.num_triplets, None)
-			self.triplets_pad = stream.read_type(PadAlign, (self.triplets, 4))
+			self.triplets_pad = stream.read_type(PadAlign, (self.context, self.triplets, 4))
 		self.files.read(stream, FileEntry, self.num_files, None)
-		self.archive_names = stream.read_type(ZStringBuffer, (self.len_archive_names, None))
+		self.archive_names = stream.read_type(ZStringBuffer, (self.context, self.len_archive_names, None))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
 		self.dirs.read(stream, DirEntry, self.num_dirs, None)
 		if not (self.context.version == 17):

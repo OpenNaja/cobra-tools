@@ -20,8 +20,8 @@ class Key:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.euler = stream.read_type(Vector3Short)
-		self.translation = stream.read_type(Vector3Ushort)
+		self.euler = stream.read_type(Vector3Short, (self.context, None, None))
+		self.translation = stream.read_type(Vector3Ushort, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

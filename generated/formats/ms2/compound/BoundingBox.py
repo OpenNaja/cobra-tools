@@ -32,9 +32,9 @@ class BoundingBox:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.rotation = stream.read_type(Matrix33)
-		self.center = stream.read_type(Vector3)
-		self.extent = stream.read_type(Vector3)
+		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
+		self.center = stream.read_type(Vector3, (self.context, None, None))
+		self.extent = stream.read_type(Vector3, (self.context, None, None))
 		if self.context.version == 18:
 			self.zeros = stream.read_uints((3))
 

@@ -27,9 +27,9 @@ class HircPointer:
 		self.io_start = stream.tell()
 		self.id = stream.read_byte()
 		if self.id == 2:
-			self.data = stream.read_type(Type2)
+			self.data = stream.read_type(Type2, (self.context, None, None))
 		if self.id != 2:
-			self.data = stream.read_type(TypeOther)
+			self.data = stream.read_type(TypeOther, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

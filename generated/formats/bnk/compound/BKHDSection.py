@@ -36,7 +36,7 @@ class BKHDSection:
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.version = stream.read_uint()
-		stream.version = self.version
+		self.context.version = self.version
 		self.id_a = stream.read_uint()
 		self.id_b = stream.read_uint()
 		self.constant_a = stream.read_uint()
@@ -50,7 +50,7 @@ class BKHDSection:
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_uint(self.version)
-		stream.version = self.version
+		self.context.version = self.version
 		stream.write_uint(self.id_a)
 		stream.write_uint(self.id_b)
 		stream.write_uint(self.constant_a)

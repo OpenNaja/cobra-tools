@@ -5,6 +5,7 @@ import traceback
 import logging
 import tempfile
 
+from generated.formats.ovl import OvlContext
 
 try:
 	import numpy as np
@@ -31,7 +32,7 @@ class MainWindow(widgets.MainWindow):
 		widgets.MainWindow.__init__(self, "OVL Archive Editor", )
 		self.resize(800, 600)
 
-		self.ovl_data = OvlFile(progress_callback=self.update_progress)
+		self.ovl_data = OvlFile(OvlContext(), progress_callback=self.update_progress)
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in extract.SUPPORTED_TYPES))
 
@@ -46,7 +47,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_action_current_message = "No operation in progress"
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
-		self.game_container = widgets.LabelCombo("Game:", games)
+		self.game_container = widgets.LabelCombo("Game:", [g.value for g in games])
 		# only listen to user changes
 		self.game_container.entry.textActivated.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)

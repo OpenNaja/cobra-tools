@@ -42,7 +42,7 @@ class Ms2SizedStrData:
 
 		self.io_start = stream.tell()
 		self.ms_2_version = stream.read_uint()
-		stream.ms_2_version = self.ms_2_version
+		self.context.ms_2_version = self.ms_2_version
 		self.vertex_buffer_count = stream.read_ushort()
 		self.mdl_2_count = stream.read_ushort()
 		self.name_count = stream.read_ushort()
@@ -55,7 +55,7 @@ class Ms2SizedStrData:
 
 		self.io_start = stream.tell()
 		stream.write_uint(self.ms_2_version)
-		stream.ms_2_version = self.ms_2_version
+		self.context.ms_2_version = self.ms_2_version
 		stream.write_ushort(self.vertex_buffer_count)
 		stream.write_ushort(self.mdl_2_count)
 		stream.write_ushort(self.name_count)

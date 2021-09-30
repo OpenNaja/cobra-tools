@@ -25,8 +25,8 @@ class PzBone:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.rot = stream.read_type(Vector4)
-		self.loc = stream.read_type(Vector3)
+		self.rot = stream.read_type(Vector4, (self.context, None, None))
+		self.loc = stream.read_type(Vector3, (self.context, None, None))
 		self.scale = stream.read_float()
 
 		self.io_size = stream.tell() - self.io_start

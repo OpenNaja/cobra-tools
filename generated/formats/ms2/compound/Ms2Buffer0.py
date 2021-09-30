@@ -36,9 +36,9 @@ class Ms2Buffer0:
 		self.name_hashes = stream.read_uints((self.arg.name_count))
 		self.names = stream.read_zstrings((self.arg.name_count))
 		if self.context.version == 20:
-			self.new_padding = stream.read_type(SmartPadding)
+			self.new_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		if self.context.version == 17:
-			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.arg, None))
+			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.context, self.arg, None))
 
 		self.io_size = stream.tell() - self.io_start
 

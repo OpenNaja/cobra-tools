@@ -75,19 +75,19 @@ class CoreModelInfo:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.bounds_min = stream.read_type(Vector3)
+		self.bounds_min = stream.read_type(Vector3, (self.context, None, None))
 		if not (self.context.version < 19):
 			self.unk_float_a = stream.read_float()
-		self.bounds_max = stream.read_type(Vector3)
+		self.bounds_max = stream.read_type(Vector3, (self.context, None, None))
 		if not (self.context.version < 19):
 			self.pack_offset = stream.read_float()
-		self.center = stream.read_type(Vector3)
+		self.center = stream.read_type(Vector3, (self.context, None, None))
 		self.radius = stream.read_float()
 		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			self.unknowns = stream.read_floats((4))
 		if not (self.context.version == 17):
-			self.bounds_min_repeat = stream.read_type(Vector3)
-			self.bounds_max_repeat = stream.read_type(Vector3)
+			self.bounds_min_repeat = stream.read_type(Vector3, (self.context, None, None))
+			self.bounds_max_repeat = stream.read_type(Vector3, (self.context, None, None))
 		self.num_materials = stream.read_ushort()
 		self.num_lods = stream.read_ushort()
 		self.num_objects = stream.read_ushort()

@@ -32,7 +32,7 @@ class ListLong(Descriptor):
 
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.loc = stream.read_type(Vector3)
+		self.loc = stream.read_type(Vector3, (self.context, None, None))
 		self.floats = stream.read_floats((5, 3))
 		self.radians = stream.read_floats((8))
 

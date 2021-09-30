@@ -60,10 +60,15 @@ def get_loader(ext, ovl):
 		return cls(ovl)
 
 
+class OvlContext(object):
+	def __init__(self):
+		self.version = 0
+
+
 class OvsFile(OvsHeader):
 
-	def __init__(self, ovl_inst, archive_entry):
-		super().__init__()
+	def __init__(self, context, ovl_inst, archive_entry):
+		super().__init__(context)
 		self.ovl = ovl_inst
 		self.arg = archive_entry
 		# this determines if fragments are written back to header datas
@@ -896,8 +901,8 @@ class OvsFile(OvsHeader):
 
 class OvlFile(Header, IoFile):
 
-	def __init__(self, progress_callback=None):
-		super().__init__()
+	def __init__(self, context, progress_callback=None):
+		super().__init__(context)
 		self.fres.data = b'FRES'
 
 		self.last_print = None
@@ -980,7 +985,7 @@ class OvlFile(Header, IoFile):
 		self.archives.append(archive_entry)
 		self.static_archive = archive_entry
 
-		content = OvsFile(self, archive_entry)
+		content = OvsFile(self.context, self, archive_entry)
 		archive_entry.content = content
 		archive_entry.name = "STATIC"
 		archive_entry.offset = 0
@@ -1244,7 +1249,7 @@ class OvlFile(Header, IoFile):
 				read_start = self.eof
 			else:
 				read_start = archive_entry.read_start
-			archive_entry.content = OvsFile(self, archive_entry)
+			archive_entry.content = OvsFile(self.context, self, archive_entry)
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
 			except BaseException as err:

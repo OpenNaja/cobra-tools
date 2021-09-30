@@ -22,7 +22,7 @@ class VariantWrapper:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.info = stream.read_type(MaterialInfo)
+		self.info = stream.read_type(MaterialInfo, (self.context, None, None))
 		self.materials = stream.read_zstrings((self.info.material_count))
 
 		self.io_size = stream.tell() - self.io_start

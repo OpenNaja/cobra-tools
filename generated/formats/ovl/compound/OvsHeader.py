@@ -46,7 +46,7 @@ class OvsHeader:
 		self.new_entries.read(stream, BufferGroup, self.arg.num_new, None)
 		self.sized_str_entries.read(stream, SizedStringEntry, self.arg.num_files, None)
 		self.fragments.read(stream, Fragment, self.arg.num_fragments, None)
-		self.set_header = stream.read_type(SetHeader)
+		self.set_header = stream.read_type(SetHeader, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

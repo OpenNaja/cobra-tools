@@ -50,23 +50,23 @@ class Header:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.header_string = stream.read_type(FixedString, (4, None))
+		self.header_string = stream.read_type(FixedString, (self.context, 4, None))
 		self.size = stream.read_uint()
-		self.flags = stream.read_type(HeaderFlags)
+		self.flags = stream.read_type(HeaderFlags, (self.context, None, None))
 		self.height = stream.read_uint()
 		self.width = stream.read_uint()
 		self.linear_size = stream.read_uint()
 		self.depth = stream.read_uint()
 		self.mipmap_count = stream.read_uint()
 		self.reserved_1 = stream.read_uints((11))
-		self.pixel_format = stream.read_type(PixelFormat)
-		self.caps_1 = stream.read_type(Caps1)
-		self.caps_2 = stream.read_type(Caps2)
+		self.pixel_format = stream.read_type(PixelFormat, (self.context, None, None))
+		self.caps_1 = stream.read_type(Caps1, (self.context, None, None))
+		self.caps_2 = stream.read_type(Caps2, (self.context, None, None))
 		self.caps_3 = stream.read_uint()
 		self.caps_4 = stream.read_uint()
 		self.unused = stream.read_uint()
 		if self.pixel_format.four_c_c == 808540228:
-			self.dx_10 = stream.read_type(Dxt10Header)
+			self.dx_10 = stream.read_type(Dxt10Header, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

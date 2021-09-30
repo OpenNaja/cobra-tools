@@ -65,9 +65,9 @@ class PcModel:
 		if self.context.version == 17:
 			self.models.read(stream, ZtModelData, self.arg.num_models, None)
 		if self.context.version == 17 and self.arg.last_count:
-			self.ztuac_pre_bones = stream.read_type(ZTPreBones)
+			self.ztuac_pre_bones = stream.read_type(ZTPreBones, (self.context, None, None))
 		self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
-		self.weird_padding = stream.read_type(SmartPadding)
+		self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

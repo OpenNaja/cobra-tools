@@ -19,7 +19,7 @@ class AttribWrapper:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.attrib = stream.read_type(Attrib)
+		self.attrib = stream.read_type(Attrib, (self.context, None, None))
 		self.name = stream.read_zstring()
 
 		self.io_size = stream.tell() - self.io_start

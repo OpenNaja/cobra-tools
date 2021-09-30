@@ -24,8 +24,8 @@ class Mdl2ModelInfo:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.fourty = stream.read_type(Mdl2FourtyInfo)
-		self.info = stream.read_type(CoreModelInfo)
+		self.fourty = stream.read_type(Mdl2FourtyInfo, (self.context, None, None))
+		self.info = stream.read_type(CoreModelInfo, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 

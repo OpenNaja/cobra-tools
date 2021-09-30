@@ -32,8 +32,8 @@ class ListShort(Descriptor):
 
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.loc = stream.read_type(Vector3)
-		self.direction = stream.read_type(Vector3)
+		self.loc = stream.read_type(Vector3, (self.context, None, None))
+		self.direction = stream.read_type(Vector3, (self.context, None, None))
 		self.min = stream.read_float()
 		self.max = stream.read_float()
 

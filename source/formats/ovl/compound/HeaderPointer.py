@@ -12,8 +12,9 @@ class HeaderPointer:
 # START_CLASS
 
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
 		self.name = ''
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0

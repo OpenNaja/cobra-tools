@@ -79,7 +79,7 @@ class ManiBlock:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.ref = stream.read_type(Empty)
+		self.ref = stream.read_type(Empty, (self.context, None, None))
 		if self.context.version == 18:
 			self.indices_c_2 = stream.read_ushorts((self.arg.c_2))
 		if not (self.context.version == 18):
@@ -105,18 +105,18 @@ class ManiBlock:
 		self.p_indices_0_b = stream.read_ubytes((self.arg.e))
 		if self.arg.e_2 > 0:
 			self.p_indices_0_c = stream.read_ubytes((self.arg.e))
-		self.pad = stream.read_type(PadAlign, (self.ref, 4))
+		self.pad = stream.read_type(PadAlign, (self.context, self.ref, 4))
 		self.floatsa = stream.read_floats((self.arg.frame_count, self.arg.e_2))
-		self.pad_2 = stream.read_type(SmartPadding)
+		self.pad_2 = stream.read_type(SmartPadding, (self.context, None, None))
 		self.frame_count = stream.read_uint()
 		self.c = stream.read_uint()
 		self.e = stream.read_uint()
 		self.zeros_19 = stream.read_uints((19))
 		self.count = stream.read_ushort()
 		self.four_and_twenty = stream.read_ushort()
-		self.ref_2 = stream.read_type(Empty)
+		self.ref_2 = stream.read_type(Empty, (self.context, None, None))
 		self.zeros = stream.read_ubytes((self.c))
-		self.anoth_pad = stream.read_type(SmartPadding)
+		self.anoth_pad = stream.read_type(SmartPadding, (self.context, None, None))
 		self.floatsb = stream.read_floats((6))
 		self.repeats.read(stream, Repeat, self.count, None)
 

@@ -51,20 +51,20 @@ class MaterialcollectionInfoHeader:
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.version = stream.read_uint()
-		stream.version = self.version
+		self.context.version = self.version
 		self.user_version = stream.read_uint()
-		stream.user_version = self.user_version
+		self.context.user_version = self.user_version
 		self.has_texture_list = stream.read_ubyte()
-		self.root_0 = stream.read_type(Root0)
-		self.root_1 = stream.read_type(Root1)
+		self.root_0 = stream.read_type(Root0, (self.context, None, None))
+		self.root_1 = stream.read_type(Root1, (self.context, None, None))
 		if self.has_texture_list == 0:
-			self.root_1_pad = stream.read_type(Root1Pad)
+			self.root_1_pad = stream.read_type(Root1Pad, (self.context, None, None))
 		if self.has_texture_list == 1:
-			self.texture_wrapper = stream.read_type(TextureWrapper)
+			self.texture_wrapper = stream.read_type(TextureWrapper, (self.context, None, None))
 		if self.root_1.flag == 3:
-			self.variant_wrapper = stream.read_type(VariantWrapper)
+			self.variant_wrapper = stream.read_type(VariantWrapper, (self.context, None, None))
 		if self.root_1.flag == 2:
-			self.layered_wrapper = stream.read_type(LayeredWrapper)
+			self.layered_wrapper = stream.read_type(LayeredWrapper, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -73,9 +73,9 @@ class MaterialcollectionInfoHeader:
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_uint(self.version)
-		stream.version = self.version
+		self.context.version = self.version
 		stream.write_uint(self.user_version)
-		stream.user_version = self.user_version
+		self.context.user_version = self.user_version
 		stream.write_ubyte(self.has_texture_list)
 		stream.write_type(self.root_0)
 		stream.write_type(self.root_1)

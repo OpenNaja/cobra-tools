@@ -31,7 +31,7 @@ class Ms2BufferInfoZTHeader:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.weird_padding = stream.read_type(SmartPadding)
+		self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		self.unks.read(stream, InfoZTMemPool, self.arg.unk_count, None)
 
 		self.io_size = stream.tell() - self.io_start

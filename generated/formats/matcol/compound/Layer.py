@@ -29,9 +29,9 @@ class Layer:
 
 		self.io_start = stream.tell()
 		self.name = stream.read_zstring()
-		self.info_info = stream.read_type(LayeredInfo)
+		self.info_info = stream.read_type(LayeredInfo, (self.context, None, None))
 		self.infos.read(stream, InfoWrapper, self.info_info.info_count, None)
-		self.attrib_info = stream.read_type(LayeredAttrib)
+		self.attrib_info = stream.read_type(LayeredAttrib, (self.context, None, None))
 		self.attribs.read(stream, AttribWrapper, self.attrib_info.attrib_count, None)
 
 		self.io_size = stream.tell() - self.io_start

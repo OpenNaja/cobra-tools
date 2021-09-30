@@ -74,13 +74,13 @@ class FgmInfoHeader:
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.version_flag = stream.read_byte()
-		stream.version_flag = self.version_flag
+		self.context.version_flag = self.version_flag
 		self.version = stream.read_byte()
-		stream.version = self.version
+		self.context.version = self.version
 		self.bitswap = stream.read_byte()
 		self.seventh_byte = stream.read_byte()
 		self.user_version = stream.read_uint()
-		stream.user_version = self.user_version
+		self.context.user_version = self.user_version
 		self.num_frags = stream.read_uint()
 		self.num_textures = stream.read_uint()
 		self.tex_info_size = stream.read_uint()
@@ -88,7 +88,7 @@ class FgmInfoHeader:
 		self.zeros_size = stream.read_uint()
 		self.data_lib_size = stream.read_uint()
 		self.texture_names = stream.read_zstrings((self.num_textures))
-		self.fgm_info = stream.read_type(FourFragFgm)
+		self.fgm_info = stream.read_type(FourFragFgm, (self.context, None, None))
 		self.two_frags_pad.read(stream, TwoFragFgmExtra, self.num_frags == 2, None)
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
 		if not (self.context.version == 17):
@@ -104,13 +104,13 @@ class FgmInfoHeader:
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_byte(self.version_flag)
-		stream.version_flag = self.version_flag
+		self.context.version_flag = self.version_flag
 		stream.write_byte(self.version)
-		stream.version = self.version
+		self.context.version = self.version
 		stream.write_byte(self.bitswap)
 		stream.write_byte(self.seventh_byte)
 		stream.write_uint(self.user_version)
-		stream.user_version = self.user_version
+		self.context.user_version = self.user_version
 		stream.write_uint(self.num_frags)
 		stream.write_uint(self.num_textures)
 		stream.write_uint(self.tex_info_size)

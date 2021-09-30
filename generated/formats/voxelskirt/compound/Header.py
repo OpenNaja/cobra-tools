@@ -44,16 +44,16 @@ class Header:
 	def read(self, stream):
 
 		self.io_start = stream.tell()
-		self.magic = stream.read_type(FixedString, (4, None))
+		self.magic = stream.read_type(FixedString, (self.context, 4, None))
 		self.version_flag = stream.read_byte()
-		stream.version_flag = self.version_flag
+		self.context.version_flag = self.version_flag
 		self.version = stream.read_byte()
-		stream.version = self.version
+		self.context.version = self.version
 		self.bitswap = stream.read_byte()
 		self.seventh_byte = stream.read_byte()
 		self.user_version = stream.read_type(VersionInfo)
-		stream.user_version = self.user_version
-		self.info = stream.read_type(SizedStrData)
+		self.context.user_version = self.user_version
+		self.info = stream.read_type(SizedStrData, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -62,13 +62,13 @@ class Header:
 		self.io_start = stream.tell()
 		stream.write_type(self.magic)
 		stream.write_byte(self.version_flag)
-		stream.version_flag = self.version_flag
+		self.context.version_flag = self.version_flag
 		stream.write_byte(self.version)
-		stream.version = self.version
+		self.context.version = self.version
 		stream.write_byte(self.bitswap)
 		stream.write_byte(self.seventh_byte)
 		stream.write_type(self.user_version)
-		stream.user_version = self.user_version
+		self.context.user_version = self.user_version
 		stream.write_type(self.info)
 
 		self.io_size = stream.tell() - self.io_start

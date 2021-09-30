@@ -68,19 +68,19 @@ class HitCheckEntry:
 			self.zero_extra_pc_unk = stream.read_uint()
 		self.name_offset = stream.read_uint()
 		if self.type == 0:
-			self.collider = stream.read_type(Sphere)
+			self.collider = stream.read_type(Sphere, (self.context, None, None))
 		if self.type == 1:
-			self.collider = stream.read_type(BoundingBox)
+			self.collider = stream.read_type(BoundingBox, (self.context, None, None))
 		if self.type == 2:
-			self.collider = stream.read_type(Capsule)
+			self.collider = stream.read_type(Capsule, (self.context, None, None))
 		if self.type == 3:
-			self.collider = stream.read_type(Cylinder)
+			self.collider = stream.read_type(Cylinder, (self.context, None, None))
 		if self.type == 7:
-			self.collider = stream.read_type(ConvexHull)
+			self.collider = stream.read_type(ConvexHull, (self.context, None, None))
 		if self.type == 8:
-			self.collider = stream.read_type(ConvexHull)
+			self.collider = stream.read_type(ConvexHull, (self.context, None, None))
 		if self.type == 10:
-			self.collider = stream.read_type(MeshCollision)
+			self.collider = stream.read_type(MeshCollision, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 
