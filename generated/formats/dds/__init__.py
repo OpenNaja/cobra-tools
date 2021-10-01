@@ -2,15 +2,23 @@ import io
 import logging
 
 from generated.formats.dds.struct.Header import Header
-from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.io import IoFile
 from modules.formats.shared import get_padding
+
+
+class DdsContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
 
 
 class DdsFile(Header, IoFile):
 
 	def __init__(self,):
-		super().__init__()
+		super().__init__(DdsContext())
 		self.buffer = b""
 		self.mips = []
 
@@ -131,8 +139,3 @@ class DdsFile(Header, IoFile):
 if __name__ == "__main__":
 	m = DdsFile()
 	m.load("C:/Users/arnfi/Desktop/parrot/parrot.pbasecolourtexture.dds")
-	print(m)
-	# d = D3D10ResourceDimension()
-	# print(d)
-	# d = D3D10ResourceDimension(1)
-	# print(d)

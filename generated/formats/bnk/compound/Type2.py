@@ -66,7 +66,8 @@ class Type2:
 		s += '\n'
 		return s
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
+		self._context = context
 		self.name = ''
 		self.arg = arg
 		self.template = template

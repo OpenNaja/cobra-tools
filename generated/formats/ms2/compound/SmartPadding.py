@@ -18,7 +18,9 @@ class SmartPadding:
 	def set_defaults(self):
 		pass
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
+		self.name = ''
+		self._context = context
 		# arg is byte count
 		self.arg = arg
 		self.template = template

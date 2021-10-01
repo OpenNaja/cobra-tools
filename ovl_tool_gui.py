@@ -304,8 +304,8 @@ class MainWindow(widgets.MainWindow):
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
 			self.update_gui_table()
-			game = get_game(self.ovl_data)
-			self.game_container.entry.setText(game)
+			game = get_game(self.ovl_data)[0]
+			self.game_container.entry.setText(game.value)
 
 	def create_ovl(self, ovl_dir):
 		# clear the ovl

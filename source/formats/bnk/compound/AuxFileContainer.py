@@ -1,5 +1,7 @@
 import os
 import struct
+
+from generated.context import ContextReference
 from generated.formats.bnk.compound.BKHDSection import BKHDSection
 from generated.formats.bnk.compound.DIDXSection import DIDXSection
 from generated.formats.bnk.compound.HIRCSection import HIRCSection
@@ -9,7 +11,10 @@ from modules.formats.shared import get_padding
 class AuxFileContainer:
     # Custom file struct
 
-    def __init__(self, arg=None, template=None):
+    context = ContextReference()
+
+    def __init__(self, context, arg=None, template=None):
+        self._context = context
         self.arg = arg
         self.template = template
         self.chunks = []

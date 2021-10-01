@@ -102,7 +102,7 @@ class HeaderPointer:
 			assign_versions(stream, version_info)
 			insts = []
 			for i in range(num):
-				inst = cls(*args)
+				inst = cls(self.context, *args)
 				inst.read(stream)
 				insts.append(inst)
 		return insts
