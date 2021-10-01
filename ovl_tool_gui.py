@@ -5,8 +5,6 @@ import traceback
 import logging
 import tempfile
 
-from generated.formats.ovl import OvlContext
-
 try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
@@ -32,7 +30,7 @@ class MainWindow(widgets.MainWindow):
 		widgets.MainWindow.__init__(self, "OVL Archive Editor", )
 		self.resize(800, 600)
 
-		self.ovl_data = OvlFile(OvlContext(), progress_callback=self.update_progress)
+		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in extract.SUPPORTED_TYPES))
 

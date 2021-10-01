@@ -901,8 +901,9 @@ class OvsFile(OvsHeader):
 
 class OvlFile(Header, IoFile):
 
-	def __init__(self, context, progress_callback=None):
-		super().__init__(context)
+	def __init__(self, progress_callback=None):
+		# create a context
+		super().__init__(OvlContext())
 		self.fres.data = b'FRES'
 
 		self.last_print = None

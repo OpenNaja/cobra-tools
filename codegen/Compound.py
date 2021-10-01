@@ -73,7 +73,6 @@ class Compound(BaseClass):
 				if f.tell() == end:
 					self.write_line(f, 2, "pass")
 
-
 			# write the load() method
 			for method_type in ("read", "write"):
 				method_str = f"def {method_type}(self, stream):"
