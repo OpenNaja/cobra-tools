@@ -100,6 +100,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	count_unique = 0
 	count_reused = 0
 	shell_ob = None
+	shapekey = None
 	# fin models have to grab tangents from shell
 	# if model.flag == 565:
 	if is_fin(b_ob):
@@ -136,6 +137,15 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 			else:
 				tangent = b_loop.tangent
 				normal = b_loop.normal
+
+			# shape key morphing
+			b_key = b_me.shape_keys
+			if b_key and len(b_key.key_blocks) > 1:
+				lod_key = b_key.key_blocks[1]
+				# yes, there is a key object attached
+				if lod_key.name.startswith("LOD"):
+					shapekey = lod_key.data[b_loop.vertex_index].co
+
 			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
 			# create a dummy bytes str for indexing
 			float_items = [*position, *[c for uv in uvs[:2] for c in uv], *tangent]
@@ -164,7 +174,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
 				# store all raw blender data
 				verts.append((position, residue, normal, unk_0, tangent, bone_ids[0], uvs, vcols, bone_ids,
-					bone_weights, fur_length, fur_width))
+					bone_weights, fur_length, fur_width, shapekey))
 			tri.append(v_index)
 		tris.append(tri)
 

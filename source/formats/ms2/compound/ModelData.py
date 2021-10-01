@@ -201,7 +201,6 @@ class ModelData:
 				second = self.verts_data[i]["shapekeys1"]
 				packed = struct.pack("LL", first, second)
 				unpacked = struct.unpack("Q", packed)[0]
-				# self.shapekeys[i] = unpack_swizzle((in_pos_packed + self.base) * scale)
 				vert, residue = unpack_longint_vec(unpacked, self.base)
 				self.shapekeys[i] = unpack_swizzle(vert)
 			# print(self.shapekeys)
@@ -255,8 +254,9 @@ class ModelData:
 		self.verts_data = np.zeros(len(verts), dtype=self.dt)
 		for i, (
 				position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
-				fur_length, fur_width) in enumerate(
+				fur_length, fur_width, shapekey) in enumerate(
 			verts):
+			# print("shapekey", shapekey)
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
 			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
 			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
@@ -277,6 +277,14 @@ class ModelData:
 				self.verts_data[i]["fur_shell"] = pack_ushort_vector((fur_length, remap(fur_width, 0, 1, -16, 16)))
 			if "colors" in self.dt.fields:
 				self.verts_data[i]["colors"] = list(list(round(c * 255) for c in vcol) for vcol in vcols)
+			if "shapekeys0" in self.dt.fields:
+				# first pack it as uint64
+				raw_packed = pack_longint_vec(pack_swizzle(shapekey), 0, self.base)
+				raw_bytes = struct.pack("Q", raw_packed)
+				# unpack to 2 uints again and assign data
+				first, second = struct.unpack("LL", raw_bytes)
+				self.verts_data[i]["shapekeys0"] = first
+				self.verts_data[i]["shapekeys1"] = second
 
 	def update_shell_count(self):
 		# 853 in aardvark is a shell mesh, but has no tri shells

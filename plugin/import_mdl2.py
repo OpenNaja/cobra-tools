@@ -124,9 +124,9 @@ def import_mesh_layers(b_me, model, use_custom_normals):
 def import_shapekeys(b_obj, model):
 	if model.shapekeys is not None:
 		b_mesh = b_obj.data
-		# insert base key at frame 1, using absolute keys
+		# insert base key
 		sk_basis = b_obj.shape_key_add(name="Basis")
-		b_mesh.shape_keys.use_relative = False
+		b_mesh.shape_keys.use_relative = True
 
 		# base_verts = [v.co for v in b_mesh.vertices]
 		# for morph_verts, key_name in morphs:
