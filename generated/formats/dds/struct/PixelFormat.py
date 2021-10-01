@@ -56,7 +56,7 @@ class PixelFormat:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.size = stream.read_uint()
-		self.flags = stream.read_type(PixelFormatFlags, (self.context, None, None))
+		self.flags = stream.read_type(PixelFormatFlags)
 		self.four_c_c = FourCC(stream.read_uint())
 		self.bit_count = stream.read_uint()
 		self.r_mask = stream.read_uint()

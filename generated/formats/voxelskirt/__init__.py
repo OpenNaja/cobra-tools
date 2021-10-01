@@ -13,10 +13,19 @@ from generated.io import IoFile, BinaryStream
 from modules.formats.shared import get_padding_size, get_padding
 
 
+class VoxelskirtContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
 class VoxelskirtFile(Header, IoFile):
 
 	def __init__(self, ):
-		super().__init__()
+		super().__init__(VoxelskirtContext())
 
 	def name_items(self, array):
 		for item in array:

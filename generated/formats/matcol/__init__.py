@@ -2,10 +2,19 @@ from generated.formats.matcol.compound.MaterialcollectionInfoHeader import Mater
 from generated.io import IoFile
 
 
+class MatcolContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
 class MatcolFile(MaterialcollectionInfoHeader, IoFile):
 
-	def __init__(self,):
-		super().__init__()
+	def __init__(self):
+		super().__init__(MatcolContext())
 
 	def load(self, filepath, commands=(), mute=False):
 		eof = super().load(filepath)

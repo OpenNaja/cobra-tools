@@ -22,10 +22,19 @@ def export_key(key):
 	return k
 
 
+class BaniContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
 class BaniFile(BaniInfoHeader, IoFile):
 
 	def __init__(self):
-		super().__init__()
+		super().__init__(BaniContext())
 		# the output array
 		self.bones_frames_eulers = []
 		self.bones_frames_locs = []

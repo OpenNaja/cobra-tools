@@ -8,7 +8,19 @@ import struct
 dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}
 
 
+class FgmContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
 class FgmFile(FgmInfoHeader, IoFile):
+
+	def __init__(self):
+		super().__init__(FgmContext())
 
 	# def get_texture_file(self, target_suffix):
 	# 	for tex_file in self.texture_names:

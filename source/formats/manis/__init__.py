@@ -2,7 +2,6 @@ from generated.formats.manis.compound.ManiBlock import ManiBlock
 from generated.formats.manis.compound.InfoHeader import InfoHeader
 from generated.io import IoFile
 import os
-import binascii
 
 from modules.formats.shared import get_padding_size
 
@@ -13,7 +12,19 @@ def hex_test():
 		print(i, bin(i), x, bin(x))
 
 
+class ManisContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
 class ManisFile(InfoHeader, IoFile):
+
+	def __init__(self):
+		super().__init__(ManisContext())
 
 	@staticmethod
 	def read_z_str(stream, pos):
@@ -32,7 +43,7 @@ class ManisFile(InfoHeader, IoFile):
 			#
 			# read the first mani data
 			mani_info = self.mani_infos[0]
-			mani_block = stream.read_type(ManiBlock, (mani_info,))
+			mani_block = stream.read_type(ManiBlock, (self.context, mani_info,))
 			print(mani_info)
 			print(mani_block)
 			return

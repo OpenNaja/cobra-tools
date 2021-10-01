@@ -4,7 +4,19 @@ from generated.io import IoFile
 import os
 
 
+class AuxContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
 class BnkFile(BnkFileContainer, IoFile):
+
+	def __init__(self):
+		super().__init__(AuxContext())
 
 	def load(self, filepath):
 		with self.reader(filepath) as stream:
@@ -17,6 +29,9 @@ class BnkFile(BnkFileContainer, IoFile):
 
 
 class AuxFile(AuxFileContainer, IoFile):
+
+	def __init__(self):
+		super().__init__(AuxContext())
 
 	def load(self, filepath):
 		with self.reader(filepath) as stream:

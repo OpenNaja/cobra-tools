@@ -171,9 +171,11 @@ class Union:
                     if type_of_field_type in self.compound.parser.struct_types:
                         arguments = f"{CONTEXT}, {arg}, {template}"
                     else:
+                        # it is callable, but has no arguments
                         arguments = ""
                     default_string = f"{field_type}({arguments})"
                 else:
+                    # it is a basic type
                     default_string = 0
 
         if arr1:
