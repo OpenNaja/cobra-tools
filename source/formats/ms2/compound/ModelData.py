@@ -57,6 +57,11 @@ class ModelData:
 			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 		except:
 			self.colors = None
+		try:
+			shapekeys_shape = self.dt["shapekeys"].shape
+			self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
+		except:
+			self.shapekeys = None
 		self.weights = []
 
 	def get_vcol_count(self, ):
@@ -124,8 +129,17 @@ class ModelData:
 		elif self.flag == 517:
 			dt.extend([
 				# trees seem to have two uvs, then something like normals
-				("uvs", np.ushort, (2, 2)),
-				("colors", np.ubyte, (6, 4)),
+				# ("uvs", np.ushort, (1, 2)),
+				# ("shapekeys", np.uint64),
+				# ("colors", np.ubyte, (5, 4)),
+				#
+				# ("uvs", np.ushort, (2, 2)),
+				# ("shapekeys", np.uint64),
+				# ("colors", np.ubyte, (4, 4)),
+
+				("uvs", np.ushort, (1, 2)),
+				("shapekeys", np.uint32, 3),
+				("colors", np.ubyte, (4, 4)),
 			])
 		elif self.flag == 545:
 			dt.extend([
@@ -186,6 +200,23 @@ class ModelData:
 		# normalize
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
 		self.tangents = (self.tangents - 128) / 128
+		# unpack the shapekeys
+		if self.shapekeys is not None:
+			import struct
+			scale = self.base / 512 / 2048
+			for i in range(self.vertex_count):
+				in_pos_packed = self.verts_data[i]["shapekeys"]
+				# vert, residue = unpack_longint_vec(in_pos_packed, self.base)
+				# self.shapekeys[i] = unpack_swizzle(vert)
+				clipped = (in_pos_packed[0], in_pos_packed[2])
+				# print(clipped)
+				packed = struct.pack("LL", *clipped)
+				unpacked = struct.unpack("Q",packed)[0]
+				# self.shapekeys[i] = unpack_swizzle((in_pos_packed + self.base) * scale)
+				vert, residue = unpack_longint_vec(unpacked, self.base)
+				self.shapekeys[i] = unpack_swizzle(vert)
+
+			# print(self.shapekeys)
 		for i in range(self.vertex_count):
 			in_pos_packed = self.verts_data[i]["pos"]
 			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
@@ -193,6 +224,8 @@ class ModelData:
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, residue))
+		# if self.flag == 517:
+		# 	print(self.verts_data)
 
 	def write_verts(self, stream):
 		stream.write(self.verts_data.tobytes())

@@ -21,7 +21,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	bare_name = os.path.splitext(mdl2_name)[0]
 	mdl2 = Mdl2File()
 	mdl2.load(filepath, entry=True, read_editable=True, read_bytes=False)
-	print(mdl2)
+	# print(mdl2)
 	mdl2.update_lod_vertex_counts()
 	messages = set()
 	bone_names = get_bone_names(mdl2)
@@ -67,6 +67,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				b_ob["bone_index"] = m_lod.bone_index
 
 				import_vertex_groups(b_ob, model, bone_names)
+				import_shapekeys(b_ob, model)
 				# link to armature, only after mirror so the order is good and weights are mirrored
 				append_armature_modifier(b_ob, b_armature_obj)
 				if mirror_mesh:
@@ -118,6 +119,25 @@ def import_mesh_layers(b_me, model, use_custom_normals):
 		b_me.normals_split_custom_set_from_vertices(model.normals)
 	# else:
 	# 	remove_doubles_bmesh(b_me)
+
+
+def import_shapekeys(b_obj, model):
+	if model.shapekeys is not None:
+		b_mesh = b_obj.data
+		# insert base key at frame 1, using absolute keys
+		sk_basis = b_obj.shape_key_add(name="Basis")
+		b_mesh.shape_keys.use_relative = False
+
+		# base_verts = [v.co for v in b_mesh.vertices]
+		# for morph_verts, key_name in morphs:
+		# 	# convert tuples into vector here so we can simply add in morph_mesh()
+		# 	for b_v_index, (bv, mv) in enumerate(zip(base_verts, morph_verts)):
+		# 		b_mesh.vertices[b_v_index].co = bv + mathutils.Vector(mv)
+		# 	# TODO [animation] unused variable is it required
+		# 	shape_key = b_obj.shape_key_add(name=key_name, from_mix=False)
+		for v_index, v in enumerate(model.shapekeys):
+			b_mesh.vertices[v_index].co = v
+		shape_key = b_obj.shape_key_add(name="LOD", from_mix=False)
 
 
 def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):
