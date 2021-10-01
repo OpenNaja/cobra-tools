@@ -16,11 +16,15 @@ class VariantWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = MaterialInfo(context, None, None)
-		self.materials = Array()
+		self.info = MaterialInfo(self.context, None, None)
+		self.materials = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.info = MaterialInfo(self.context, None, None)
+		self.materials = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.info = stream.read_type(MaterialInfo, (self.context, None, None))
 		self.materials = stream.read_zstrings((self.info.material_count))
@@ -28,7 +32,6 @@ class VariantWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.info)
 		stream.write_zstrings(self.materials)

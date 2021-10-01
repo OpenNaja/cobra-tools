@@ -16,6 +16,9 @@ class PadAlign:
 
 	context = ContextReference()
 
+	def set_defaults(self):
+		pass
+
 	def __init__(self, context, arg=None, template=None):
 		# arg is reference object
 		self.name = ''

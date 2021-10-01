@@ -22,14 +22,19 @@ class PcBuffer1:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.buffer_info_pc = Ms2BufferInfoZT(self.context, self.arg, None)
+		self.buffer_info_pc = Ms2BufferInfoPC(self.context, None, None)
+		self.model_infos = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
 		if self.context.version == 17:
-			self.buffer_info_pc = Ms2BufferInfoZT(context, self.arg, None)
+			self.buffer_info_pc = Ms2BufferInfoZT(self.context, self.arg, None)
 		if self.context.version == 18:
-			self.buffer_info_pc = Ms2BufferInfoPC(context, None, None)
-		self.model_infos = Array()
+			self.buffer_info_pc = Ms2BufferInfoPC(self.context, None, None)
+		self.model_infos = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		if self.context.version == 17:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT, (self.context, self.arg, None))
@@ -40,7 +45,6 @@ class PcBuffer1:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		if self.context.version == 17:
 			stream.write_type(self.buffer_info_pc)

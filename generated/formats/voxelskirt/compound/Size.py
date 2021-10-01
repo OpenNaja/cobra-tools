@@ -19,9 +19,16 @@ class Size:
 		self.height_1 = 0
 		self.width_2 = 0
 		self.height_2 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.id = 0
+		self.width_1 = 0
+		self.height_1 = 0
+		self.width_2 = 0
+		self.height_2 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.id = stream.read_uint64()
 		self.width_1 = stream.read_uint64()
@@ -32,7 +39,6 @@ class Size:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.id)
 		stream.write_uint64(self.width_1)

@@ -16,9 +16,13 @@ class PosInfo(Material):
 
 		# -1, 0 for PC
 		self.ff_or_zero = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.ff = 0
+		self.ff_or_zero = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		super().read(stream)
 		self.ff = stream.read_int()
@@ -27,7 +31,6 @@ class PosInfo(Material):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_int(self.ff)

@@ -46,14 +46,26 @@ class Header7Data1:
 		self.pad = 0
 
 		# only found in PZ
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
-			self.unk_pz = 0
+		self.unk_pz = 0
 
 		# info about mip levels
-		self.mip_maps = Array()
+		self.mip_maps = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zero = 0
+		self.data_size = 0
+		self.width = 0
+		self.height = 0
+		self.depth = 0
+		self.array_size = 0
+		self.num_mips = 0
+		self.pad = 0
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.unk_pz = 0
+		self.mip_maps = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zero = stream.read_uint64()
 		self.data_size = stream.read_uint()
@@ -70,7 +82,6 @@ class Header7Data1:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.zero)
 		stream.write_uint(self.data_size)

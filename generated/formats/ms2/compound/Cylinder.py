@@ -14,16 +14,18 @@ class Cylinder(Capsule):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		pass
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		super().read(stream)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		super().write(stream)
 

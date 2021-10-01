@@ -25,9 +25,14 @@ class UbyteVector3:
 
 		# Third coordinate.
 		self.z = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.x = 0
+		self.y = 0
+		self.z = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.x = stream.read_ubyte()
 		self.y = stream.read_ubyte()
@@ -36,7 +41,6 @@ class UbyteVector3:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ubyte(self.x)
 		stream.write_ubyte(self.y)

@@ -31,10 +31,16 @@ class DependencyEntry:
 		self.file_index = 0
 
 		# pointer into flattened list of all archives' pools
-		self.pointers = Array()
+		self.pointers = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.file_hash = 0
+		self.offset = 0
+		self.file_index = 0
+		self.pointers = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
 		self.offset = stream.read_uint()
@@ -44,7 +50,6 @@ class DependencyEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.offset)

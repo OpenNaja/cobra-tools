@@ -17,20 +17,26 @@ class BoundingBox:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33(context, None, None)
+		self.rotation = Matrix33(self.context, None, None)
 
 		# center of the box
-		self.center = Vector3(context, None, None)
+		self.center = Vector3(self.context, None, None)
 
 		# total width
-		self.extent = Vector3(context, None, None)
+		self.extent = Vector3(self.context, None, None)
 
 		# probably padding
+		self.zeros = numpy.zeros((3), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.rotation = Matrix33(self.context, None, None)
+		self.center = Vector3(self.context, None, None)
+		self.extent = Vector3(self.context, None, None)
 		if self.context.version == 18:
 			self.zeros = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
 		self.center = stream.read_type(Vector3, (self.context, None, None))
@@ -41,7 +47,6 @@ class BoundingBox:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.rotation)
 		stream.write_type(self.center)

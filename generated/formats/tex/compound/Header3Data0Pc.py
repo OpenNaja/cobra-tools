@@ -36,9 +36,17 @@ class Header3Data0Pc:
 
 		# 0, might be first 4 bytes of tex buffer for ztuac
 		self.pad = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zeros = 0
+		self.compression_type = DdsTypeCoaster()
+		self.one_0 = 0
+		self.one_1 = 0
+		self.one_2 = 0
+		self.pad = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zeros = stream.read_uint64()
 		self.compression_type = DdsTypeCoaster(stream.read_ubyte())
@@ -50,7 +58,6 @@ class Header3Data0Pc:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.zeros)
 		stream.write_ubyte(self.compression_type.value)

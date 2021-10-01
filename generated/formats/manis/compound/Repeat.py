@@ -20,9 +20,14 @@ class Repeat:
 		# to be read sequentially starting after this array
 		self.byte_size = 0
 		self.zeros_1 = numpy.zeros((4), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zeros_0 = numpy.zeros((15), dtype='uint')
+		self.byte_size = 0
+		self.zeros_1 = numpy.zeros((4), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zeros_0 = stream.read_uints((15))
 		self.byte_size = stream.read_uint()
@@ -31,7 +36,6 @@ class Repeat:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uints(self.zeros_0)
 		stream.write_uint(self.byte_size)

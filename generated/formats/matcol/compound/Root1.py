@@ -14,9 +14,13 @@ class Root1:
 		self.io_start = 0
 		self.flag = 0
 		self.zero_1 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.flag = 0
+		self.zero_1 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.flag = stream.read_uint()
 		self.zero_1 = stream.read_uint()
@@ -24,7 +28,6 @@ class Root1:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.flag)
 		stream.write_uint(self.zero_1)

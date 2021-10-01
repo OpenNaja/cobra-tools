@@ -25,9 +25,14 @@ class Triplet:
 
 		# ?
 		self.c = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.a = 0
+		self.b = 0
+		self.c = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.a = stream.read_ubyte()
 		self.b = stream.read_ubyte()
@@ -36,7 +41,6 @@ class Triplet:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ubyte(self.a)
 		stream.write_ubyte(self.b)

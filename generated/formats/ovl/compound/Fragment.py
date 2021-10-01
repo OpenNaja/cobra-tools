@@ -22,17 +22,19 @@ class Fragment:
 		self.io_start = 0
 
 		# points into header datas section
-		self.pointers = Array()
+		self.pointers = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.pointers = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.pointers.read(stream, HeaderPointer, 2, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		self.pointers.write(stream, HeaderPointer, 2, None)
 

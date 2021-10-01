@@ -25,9 +25,13 @@ class MinusPadding:
 
 		# 0
 		self.padding = numpy.zeros((), dtype='byte')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.indices = numpy.zeros((), dtype='short')
+		self.padding = numpy.zeros((), dtype='byte')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.indices = stream.read_shorts((self.arg))
 		self.padding = stream.read_bytes(((16 - ((self.arg * 2) % 16)) % 16))
@@ -35,7 +39,6 @@ class MinusPadding:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_shorts(self.indices)
 		stream.write_bytes(self.padding)

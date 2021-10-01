@@ -22,16 +22,22 @@ class Ms2Buffer0:
 		self.name_hashes = numpy.zeros((), dtype='uint')
 
 		# names
-		self.names = Array()
+		self.names = Array(self.context)
 
 		# todo - pad to 8; for pz 1.6
+		self.new_padding = SmartPadding(self.context, None, None)
+		self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.name_hashes = numpy.zeros((), dtype='uint')
+		self.names = Array(self.context)
 		if self.context.version == 20:
-			self.new_padding = SmartPadding(context, None, None)
+			self.new_padding = SmartPadding(self.context, None, None)
 		if self.context.version == 17:
-			self.zt_streams_header = Ms2BufferInfoZTHeader(context, self.arg, None)
+			self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.name_hashes = stream.read_uints((self.arg.name_count))
 		self.names = stream.read_zstrings((self.arg.name_count))
@@ -43,7 +49,6 @@ class Ms2Buffer0:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uints(self.name_hashes)
 		stream.write_zstrings(self.names)

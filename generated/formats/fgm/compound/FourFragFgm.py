@@ -24,9 +24,15 @@ class FourFragFgm:
 		# Number of Attribute Info Entries
 		self.attribute_count = 0
 		self.zero_1 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.texture_count = 0
+		self.zero_0 = 0
+		self.attribute_count = 0
+		self.zero_1 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.texture_count = stream.read_uint()
 		self.zero_0 = stream.read_uint()
@@ -36,7 +42,6 @@ class FourFragFgm:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.texture_count)
 		stream.write_uint(self.zero_0)

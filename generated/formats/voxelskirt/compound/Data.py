@@ -28,9 +28,15 @@ class Data:
 
 		# data size of this layer, in bytes
 		self.dsize = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.id = 0
+		self.type = 0
+		self.offset = 0
+		self.dsize = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.id = stream.read_uint64()
 		self.type = stream.read_uint64()
@@ -40,7 +46,6 @@ class Data:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.id)
 		stream.write_uint64(self.type)

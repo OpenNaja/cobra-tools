@@ -18,10 +18,10 @@ class MeshCollision:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33(context, None, None)
+		self.rotation = Matrix33(self.context, None, None)
 
 		# offset of mesh
-		self.offset = Vector3(context, None, None)
+		self.offset = Vector3(self.context, None, None)
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
 		self.unk_1 = numpy.zeros((3, 2), dtype='ushort')
@@ -33,10 +33,10 @@ class MeshCollision:
 		self.tri_count = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(context, None, None)
+		self.bounds_min = Vector3(self.context, None, None)
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(context, None, None)
+		self.bounds_max = Vector3(self.context, None, None)
 
 		# seemingly fixed
 		self.ones_or_zeros = numpy.zeros((7), dtype='uint64')
@@ -45,10 +45,10 @@ class MeshCollision:
 		self.ff_or_zero = numpy.zeros((10), dtype='int')
 
 		# verbatim
-		self.bounds_min_repeat = Vector3(context, None, None)
+		self.bounds_min_repeat = Vector3(self.context, None, None)
 
 		# verbatim
-		self.bounds_max_repeat = Vector3(context, None, None)
+		self.bounds_max_repeat = Vector3(self.context, None, None)
 
 		# seems to repeat tri_count
 		self.tri_flags_count = 0
@@ -60,7 +60,7 @@ class MeshCollision:
 		self.stuff = numpy.zeros((9), dtype='ushort')
 
 		# ?
-		self.collision_bits = Array()
+		self.collision_bits = Array(self.context)
 
 		# always 25
 		self.zeros = numpy.zeros((4), dtype='uint')
@@ -75,14 +75,37 @@ class MeshCollision:
 		self.const = 0
 
 		# always 25
-		if self.const:
-			self.triangle_flags = numpy.zeros((self.tri_flags_count), dtype='uint')
+		self.triangle_flags = numpy.zeros((self.tri_flags_count), dtype='uint')
 
 		# might be padding!
 		self.zero_end = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.rotation = Matrix33(self.context, None, None)
+		self.offset = Vector3(self.context, None, None)
+		self.unk_1 = numpy.zeros((3, 2), dtype='ushort')
+		self.vertex_count = 0
+		self.tri_count = 0
+		self.bounds_min = Vector3(self.context, None, None)
+		self.bounds_max = Vector3(self.context, None, None)
+		self.ones_or_zeros = numpy.zeros((7), dtype='uint64')
+		self.ff_or_zero = numpy.zeros((10), dtype='int')
+		self.bounds_min_repeat = Vector3(self.context, None, None)
+		self.bounds_max_repeat = Vector3(self.context, None, None)
+		self.tri_flags_count = 0
+		self.count_bits = 0
+		self.stuff = numpy.zeros((9), dtype='ushort')
+		self.collision_bits = Array(self.context)
+		self.zeros = numpy.zeros((4), dtype='uint')
+		self.vertices = numpy.zeros((self.vertex_count, 3), dtype='float')
+		self.triangles = numpy.zeros((self.tri_count, 3), dtype='ushort')
+		self.const = 0
+		if self.const:
+			self.triangle_flags = numpy.zeros((self.tri_flags_count), dtype='uint')
+		self.zero_end = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
 		self.offset = stream.read_type(Vector3, (self.context, None, None))
@@ -110,7 +133,6 @@ class MeshCollision:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.rotation)
 		stream.write_type(self.offset)

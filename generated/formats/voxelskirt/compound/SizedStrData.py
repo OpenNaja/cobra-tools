@@ -26,24 +26,18 @@ class SizedStrData:
 		self.padding = 0
 
 		# zero, for PC only
-		if self.context.version == 18:
-			self.zero_pc = 0
+		self.zero_pc = 0
 
 		# x*y*4, for PC only
-		if self.context.version == 18:
-			self.height_array_size_pc = 0
-		if not (self.context.version == 18):
-			self.data_offset = 0
+		self.height_array_size_pc = 0
+		self.data_offset = 0
 
 		# entries of 32 bytes
-		if not (self.context.version == 18):
-			self.data_count = 0
-		if not (self.context.version == 18):
-			self.size_offset = 0
+		self.data_count = 0
+		self.size_offset = 0
 
 		# entries of 40 bytes
-		if not (self.context.version == 18):
-			self.size_count = 0
+		self.size_count = 0
 
 		# slightly smaller than total size of buffer data
 		self.position_offset = 0
@@ -60,9 +54,35 @@ class SizedStrData:
 
 		# also counts the stuff after names
 		self.name_count = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zero = 0
+		self.data_size = 0
+		self.x = 0
+		self.y = 0
+		self.scale = 0
+		self.padding = 0
+		if self.context.version == 18:
+			self.zero_pc = 0
+		if self.context.version == 18:
+			self.height_array_size_pc = 0
+		if not (self.context.version == 18):
+			self.data_offset = 0
+		if not (self.context.version == 18):
+			self.data_count = 0
+		if not (self.context.version == 18):
+			self.size_offset = 0
+		if not (self.context.version == 18):
+			self.size_count = 0
+		self.position_offset = 0
+		self.position_count = 0
+		self.mat_offset = 0
+		self.mat_count = 0
+		self.name_buffer_offset = 0
+		self.name_count = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zero = stream.read_uint64()
 		self.data_size = stream.read_uint64()
@@ -89,7 +109,6 @@ class SizedStrData:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.zero)
 		stream.write_uint64(self.data_size)

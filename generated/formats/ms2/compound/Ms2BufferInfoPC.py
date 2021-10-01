@@ -25,9 +25,14 @@ class Ms2BufferInfoPC:
 		# Total size of vertex buffer for PC, starting with the 0 - 16 byte indices
 		self.vertex_buffer_size = 0
 		self.zero_2 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zeros_1 = numpy.zeros((2), dtype='uint64')
+		self.vertex_buffer_size = 0
+		self.zero_2 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zeros_1 = stream.read_uint64s((2))
 		self.vertex_buffer_size = stream.read_uint64()
@@ -36,7 +41,6 @@ class Ms2BufferInfoPC:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64s(self.zeros_1)
 		stream.write_uint64(self.vertex_buffer_size)

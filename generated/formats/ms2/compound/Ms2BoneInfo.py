@@ -28,14 +28,11 @@ class Ms2BoneInfo:
 		self.name_count = 0
 
 		# this is always FFFF for now
-		if not (self.context.version == 17):
-			self.knownff = 0
+		self.knownff = 0
 
 		# this is always 0000 for now
-		if not (self.context.version == 17):
-			self.zero_0 = 0
-		if not (self.context.version == 17):
-			self.unknown_0_c = 0
+		self.zero_0 = 0
+		self.unknown_0_c = 0
 
 		# almost always 4, 1 for male african lion
 		self.unk_count = 0
@@ -52,12 +49,10 @@ class Ms2BoneInfo:
 		self.bone_parents_count = 0
 
 		# pZ only
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
-			self.extra_uint_0 = 0
+		self.extra_uint_0 = 0
 
 		# zero
-		if self.context.version == 17:
-			self.unk_zero_zt = 0
+		self.unk_zero_zt = 0
 
 		# index count 5
 		self.enum_count = 0
@@ -75,88 +70,134 @@ class Ms2BoneInfo:
 		self.count_7 = 0
 
 		# zero
-		if self.context.version < 19:
-			self.unknownextra = 0
+		self.unknownextra = 0
 
 		# joint count
 		self.joint_count = 0
 
 		# unnk 78 count
-		if not (self.context.version < 19):
-			self.unk_78_count = 0
+		self.unk_78_count = 0
 
 		# jwe only, everything is shifted a bit due to extra uint 0
-		if (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19)) or (self.context.version < 19):
-			self.unknown_88 = 0
+		self.unknown_88 = 0
 
 		# index into ms2 string table for bones used here
-		if not (self.context.version < 19):
-			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
+		self.name_indices = numpy.zeros((self.name_count), dtype='uint')
 
 		# index into ms2 string table for bones used here
-		if self.context.version < 19:
-			self.name_indices = numpy.zeros((self.name_count), dtype='ushort')
+		self.name_indices = numpy.zeros((self.name_count), dtype='ushort')
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		if not (self.context.version < 19):
-			self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype='byte')
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype='byte')
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		if self.context.version < 19:
-			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
 
 		# used for skinning
-		self.inverse_bind_matrices = Array()
+		self.inverse_bind_matrices = Array(self.context)
 
 		# bones, rot first
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
-			self.bones = Array()
+		self.bones = Array(self.context)
 
 		# bones, loc first
-		if (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19)) or (self.context.version < 19):
-			self.bones = Array()
+		self.bones = Array(self.context)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
 		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
 
 		# zeros
-		if not (self.context.version == 17):
-			self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
+		self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
 
 		# enumerates all bone indices, 4 may be flags
-		if not (self.context.version == 17) and self.one:
-			self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
+		self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
 
 		# enumerates all bone indices, 4 may be flags
-		if self.context.version == 17 and self.one:
-			self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
+		self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
 
 		# zeros
-		if self.context.version == 17:
-			self.zt_weirdness = numpy.zeros((10), dtype='ushort')
+		self.zt_weirdness = numpy.zeros((10), dtype='ushort')
 
 		# weird zeros
-		if not (self.context.version < 19) and self.zeros_count:
-			self.zeros_padding = ZerosPadding(context, self.zeros_count, None)
+		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 
 		# weird -1s
-		if self.context.version < 19 and self.zeros_count:
-			self.minus_padding = MinusPadding(context, self.zeros_count, None)
+		self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
 
 		# ragdoll links?
-		if not (self.context.version < 19) and self.count_7:
-			self.struct_7 = Struct7(context, None, None)
-		if self.context.version == 18 and self.joint_count:
-			self.weird_padding = SmartPadding(context, None, None)
+		self.struct_7 = Struct7(self.context, None, None)
+		self.weird_padding = SmartPadding(self.context, None, None)
 
 		# joints
+		self.joints = JointData(self.context, None, None)
+		self.weird_padding_2 = SmartPadding(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.name_count = 0
+		if not (self.context.version == 17):
+			self.knownff = 0
+		if not (self.context.version == 17):
+			self.zero_0 = 0
+		if not (self.context.version == 17):
+			self.unknown_0_c = 0
+		self.unk_count = 0
+		self.bind_matrix_count = 0
+		self.zeros = numpy.zeros((3), dtype='uint64')
+		self.bone_count = 0
+		self.unknown_40 = 0
+		self.bone_parents_count = 0
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.extra_uint_0 = 0
+		if self.context.version == 17:
+			self.unk_zero_zt = 0
+		self.enum_count = 0
+		self.unknown_58 = 0
+		self.one = 0
+		self.zeros_count = 0
+		self.count_7 = 0
+		if self.context.version < 19:
+			self.unknownextra = 0
+		self.joint_count = 0
+		if not (self.context.version < 19):
+			self.unk_78_count = 0
+		if (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19)) or (self.context.version < 19):
+			self.unknown_88 = 0
+		if not (self.context.version < 19):
+			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
+		if self.context.version < 19:
+			self.name_indices = numpy.zeros((self.name_count), dtype='ushort')
+		if not (self.context.version < 19):
+			self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype='byte')
+		if self.context.version < 19:
+			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
+		self.inverse_bind_matrices = Array(self.context)
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.bones = Array(self.context)
+		if (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19)) or (self.context.version < 19):
+			self.bones = Array(self.context)
+		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
+		if not (self.context.version == 17):
+			self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
+		if not (self.context.version == 17) and self.one:
+			self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
+		if self.context.version == 17 and self.one:
+			self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
+		if self.context.version == 17:
+			self.zt_weirdness = numpy.zeros((10), dtype='ushort')
+		if not (self.context.version < 19) and self.zeros_count:
+			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
+		if self.context.version < 19 and self.zeros_count:
+			self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
+		if not (self.context.version < 19) and self.count_7:
+			self.struct_7 = Struct7(self.context, None, None)
+		if self.context.version == 18 and self.joint_count:
+			self.weird_padding = SmartPadding(self.context, None, None)
 		if not (self.context.version == 17) and self.joint_count:
-			self.joints = JointData(context, None, None)
+			self.joints = JointData(self.context, None, None)
 		if self.context.version == 18 and not self.joint_count:
-			self.weird_padding_2 = SmartPadding(context, None, None)
+			self.weird_padding_2 = SmartPadding(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.name_count = stream.read_uint64()
 		if not (self.context.version == 17):
@@ -224,7 +265,6 @@ class Ms2BoneInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.name_count)
 		if not (self.context.version == 17):

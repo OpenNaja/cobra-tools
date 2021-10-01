@@ -13,11 +13,15 @@ class AttribWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.attrib = Attrib(context, None, None)
+		self.attrib = Attrib(self.context, None, None)
+		self.name = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.attrib = Attrib(self.context, None, None)
 		self.name = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.attrib = stream.read_type(Attrib, (self.context, None, None))
 		self.name = stream.read_zstring()
@@ -25,7 +29,6 @@ class AttribWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.attrib)
 		stream.write_zstring(self.name)

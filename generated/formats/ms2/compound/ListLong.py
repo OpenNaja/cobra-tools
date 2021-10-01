@@ -20,16 +20,21 @@ class ListLong(Descriptor):
 		self.io_start = 0
 
 		# the location of the child joint
-		self.loc = Vector3(context, None, None)
+		self.loc = Vector3(self.context, None, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
 		self.floats = numpy.zeros((5, 3), dtype='float')
 
 		# radians
 		self.radians = numpy.zeros((8), dtype='float')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.loc = Vector3(self.context, None, None)
+		self.floats = numpy.zeros((5, 3), dtype='float')
+		self.radians = numpy.zeros((8), dtype='float')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		super().read(stream)
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
@@ -39,7 +44,6 @@ class ListLong(Descriptor):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_type(self.loc)

@@ -23,7 +23,7 @@ class Header:
 		self.io_start = 0
 
 		# DDS
-		self.header_string = FixedString(context, 4, None)
+		self.header_string = FixedString(self.context, 4, None)
 
 		# Always 124 + 4 bytes for headerstring, header ends at 128.
 		self.size = 124
@@ -38,17 +38,35 @@ class Header:
 		self.depth = 0
 		self.mipmap_count = 0
 		self.reserved_1 = numpy.zeros((11), dtype='uint')
-		self.pixel_format = PixelFormat(context, None, None)
+		self.pixel_format = PixelFormat(self.context, None, None)
+		self.caps_1 = Caps1()
+		self.caps_2 = Caps2()
+		self.caps_3 = 0
+		self.caps_4 = 0
+		self.unused = 0
+		self.dx_10 = Dxt10Header(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.header_string = FixedString(self.context, 4, None)
+		self.size = 124
+		self.flags = HeaderFlags()
+		self.height = 0
+		self.width = 0
+		self.linear_size = 0
+		self.depth = 0
+		self.mipmap_count = 0
+		self.reserved_1 = numpy.zeros((11), dtype='uint')
+		self.pixel_format = PixelFormat(self.context, None, None)
 		self.caps_1 = Caps1()
 		self.caps_2 = Caps2()
 		self.caps_3 = 0
 		self.caps_4 = 0
 		self.unused = 0
 		if self.pixel_format.four_c_c == 808540228:
-			self.dx_10 = Dxt10Header(context, None, None)
+			self.dx_10 = Dxt10Header(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.header_string = stream.read_type(FixedString, (self.context, 4, None))
 		self.size = stream.read_uint()
@@ -71,7 +89,6 @@ class Header:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.header_string)
 		stream.write_uint(self.size)

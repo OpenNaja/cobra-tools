@@ -40,9 +40,21 @@ class BaniFragmentData1:
 
 		# translation range
 		self.translation_first = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.unknown_0 = 0
+		self.unknown_1 = 0
+		self.unknown_2 = 0
+		self.unknown_3 = 0
+		self.bytes_per_frame = 0
+		self.bytes_per_bone = 0
+		self.num_frames = 0
+		self.num_bones = 0
+		self.translation_center = 0
+		self.translation_first = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.unknown_0 = stream.read_uint()
 		self.unknown_1 = stream.read_uint()
@@ -58,7 +70,6 @@ class BaniFragmentData1:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.unknown_0)
 		stream.write_uint(self.unknown_1)

@@ -37,9 +37,17 @@ class Ms2SizedStrData:
 
 		# seems to be zeros
 		self.unknown_1 = numpy.zeros((3), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.ms_2_version = 0
+		self.vertex_buffer_count = 0
+		self.mdl_2_count = 0
+		self.name_count = 0
+		self.unk_count = 0
+		self.unknown_1 = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.ms_2_version = stream.read_uint()
 		self.context.ms_2_version = self.ms_2_version
@@ -52,7 +60,6 @@ class Ms2SizedStrData:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.ms_2_version)
 		self.context.ms_2_version = self.ms_2_version

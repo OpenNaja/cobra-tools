@@ -14,11 +14,15 @@ class Key:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.euler = Vector3Short(context, None, None)
-		self.translation = Vector3Ushort(context, None, None)
+		self.euler = Vector3Short(self.context, None, None)
+		self.translation = Vector3Ushort(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.euler = Vector3Short(self.context, None, None)
+		self.translation = Vector3Ushort(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.euler = stream.read_type(Vector3Short, (self.context, None, None))
 		self.translation = stream.read_type(Vector3Ushort, (self.context, None, None))
@@ -26,7 +30,6 @@ class Key:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.euler)
 		stream.write_type(self.translation)

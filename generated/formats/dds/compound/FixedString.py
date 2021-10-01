@@ -9,6 +9,9 @@ class FixedString:
 
 	context = ContextReference()
 
+	def set_defaults(self):
+		pass
+
 	def __init__(self, arg=None, template=None):
 		# arg is byte count
 		self.arg = arg

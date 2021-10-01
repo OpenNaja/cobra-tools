@@ -17,19 +17,25 @@ class ListShort(Descriptor):
 		self.io_start = 0
 
 		# location of the joint
-		self.loc = Vector3(context, None, None)
+		self.loc = Vector3(self.context, None, None)
 
 		# normalized
-		self.direction = Vector3(context, None, None)
+		self.direction = Vector3(self.context, None, None)
 
 		# min, le 0
 		self.min = 0
 
 		# max, ge 0
 		self.max = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.loc = Vector3(self.context, None, None)
+		self.direction = Vector3(self.context, None, None)
+		self.min = 0
+		self.max = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		super().read(stream)
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
@@ -40,7 +46,6 @@ class ListShort(Descriptor):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_type(self.loc)

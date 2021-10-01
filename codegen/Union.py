@@ -2,7 +2,8 @@ from codegen.expression import Expression, Version
 from codegen.Versions import Versions
 from .naming_conventions import clean_comment_str
 
-VER = "self.context.version"
+CONTEXT = "self.context"
+VER = f"{CONTEXT}.version"
 
 
 def get_attr_with_backups(field, attribute_keys):
@@ -42,7 +43,7 @@ def get_conditions(field):
         vercond = Expression(vercond, g_vars=True)
         conditionals.append(f"{vercond}")
     if versions:
-        conditionals.append(f"({' or '.join([f'is_{version}(self.context)' for version in versions])})")
+        conditionals.append(f"({' or '.join([f'is_{version}({CONTEXT})' for version in versions])})")
     if cond:
         cond = Expression(cond)
         conditionals.append(f"{cond}")
@@ -101,46 +102,46 @@ class Union:
     def append(self, member):
         self.members.append(member)
 
-    def write_declaration(self, f):
-
-        field_types = []
-        for field in self.members:
-            field_type = field.attrib["type"]
-            # todo - make consistent / merge with map_type()
-            if field_type.lower() in ("byte", "ubyte", "short", "ushort", "int", "uint", "int64", "uint64"):
-                field_type = "int"
-            elif field_type.lower() in ("float", "hfloat"):
-                field_type = "float"
-            elif field_type.lower() in ("bool",):
-                field_type = "bool"
-            elif field_type.lower() in ("zstring", "string", "sizedstring"):
-                field_type = "str"
-            field_types.append(field_type)
-            field_default = field.attrib.get("default")
-            field_debug_str = clean_comment_str(field.text, indent="\t")
-
-            if field_debug_str.strip():
-                f.write(field_debug_str)
-        field_types = set(field_types)
-        if len(field_types) > 1:
-            field_types_str = f"typing.Union[{', '.join(sorted(field_types))}]"
-        else:
-            field_types_str = field_type
-
-        # write the field type
-        # arrays
-        if field.attrib.get("arr1"):
-            f.write(f"\n\t{self.name}: typing.List[{field_types_str}]")
-        # plain
-        else:
-            f.write(f"\n\t{self.name}: {field_types_str}")
-
-        # write the field's default, if it exists
-        if field_default:
-            # we have to check if the default is an enum default value, in which case it has to be a member of that enum
-            if self.compound.parser.tag_dict[field_type.lower()] == "enum":
-                field_default = field_type + "." + field_default
-            f.write(f" = {field_default}")
+    # def write_declaration(self, f):
+    #
+    #     field_types = []
+    #     for field in self.members:
+    #         field_type = field.attrib["type"]
+    #         # todo - make consistent / merge with map_type()
+    #         if field_type.lower() in ("byte", "ubyte", "short", "ushort", "int", "uint", "int64", "uint64"):
+    #             field_type = "int"
+    #         elif field_type.lower() in ("float", "hfloat"):
+    #             field_type = "float"
+    #         elif field_type.lower() in ("bool",):
+    #             field_type = "bool"
+    #         elif field_type.lower() in ("zstring", "string", "sizedstring"):
+    #             field_type = "str"
+    #         field_types.append(field_type)
+    #         field_default = field.attrib.get("default")
+    #         field_debug_str = clean_comment_str(field.text, indent="\t")
+    #
+    #         if field_debug_str.strip():
+    #             f.write(field_debug_str)
+    #     field_types = set(field_types)
+    #     if len(field_types) > 1:
+    #         field_types_str = f"typing.Union[{', '.join(sorted(field_types))}]"
+    #     else:
+    #         field_types_str = field_type
+    #
+    #     # write the field type
+    #     # arrays
+    #     if field.attrib.get("arr1"):
+    #         f.write(f"\n\t{self.name}: typing.List[{field_types_str}]")
+    #     # plain
+    #     else:
+    #         f.write(f"\n\t{self.name}: {field_types_str}")
+    #
+    #     # write the field's default, if it exists
+    #     if field_default:
+    #         # we have to check if the default is an enum default value, in which case it has to be a member of that enum
+    #         if self.compound.parser.tag_dict[field_type.lower()] == "enum":
+    #             field_default = field_type + "." + field_default
+    #         f.write(f" = {field_default}")
 
     def get_basic_type(self):
         """If this union has just one field, return its dtype if it is basic"""
@@ -168,7 +169,7 @@ class Union:
                 if type_of_field_type in (
                 "compound", "struct", "niobject", "enum", "bitfield", "bitflags", "bitstruct"):
                     if type_of_field_type in self.compound.parser.struct_types:
-                        arguments = f"context, {arg}, {template}"
+                        arguments = f"{CONTEXT}, {arg}, {template}"
                     else:
                         arguments = ""
                     default_string = f"{field_type}({arguments})"
@@ -176,7 +177,7 @@ class Union:
                     default_string = 0
 
         if arr1:
-            default_string = "Array()"
+            default_string = f"Array({CONTEXT})"
             if self.compound.parser.tag_dict[field_type_lower] == "basic":
                 valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr and ".arg" not in str(arr))
                 arr_str = ", ".join(valid_arrs)
@@ -217,7 +218,6 @@ class Union:
         return defaults
 
     def write_init(self, f):
-        condition = ""
         base_indent = "\n\t\t"
         for field in self.members:
             field_debug_str = clean_comment_str(field.text, indent="\t\t")
@@ -225,15 +225,29 @@ class Union:
             if field_debug_str.strip():
                 f.write(field_debug_str)
 
+            # we init each field with its basic default string so that the field exists regardless of any condition
+            field_default = self.get_default_string(field.attrib.get('default'), arg, template, arr1, arr2, field_name,
+                                                    field_type)
+            f.write(f'{base_indent}self.{field_name} = {field_default}')
+
+    def write_defaults(self, f, condition=""):
+        base_indent = "\n\t\t"
+        for field in self.members:
+            field_debug_str = clean_comment_str(field.text, indent="\t\t")
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+
             indent, condition = condition_indent(base_indent, conditionals, condition)
-            if condition:
-                f.write(f"{base_indent}{condition}")
 
             defaults = self.default_assigns(field, arg, template, arr1, arr2, field_name, field_type, indent)
+
+            # if defaults:
+            if condition:
+                f.write(f"{base_indent}{condition}")
             for condition, default in defaults:
                 if condition:
                     f.write(condition)
                 f.write(default)
+        return condition
 
     def write_io(self, f, method_type, condition=""):
         base_indent = "\n\t\t"
@@ -260,5 +274,5 @@ class Union:
                     f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arg=arg, template=template)}")
             # store version related stuff on self.context
             if "version" in field_name:
-                f.write(f"{indent}self.context.{field_name} = self.{field_name}")
+                f.write(f"{indent}{CONTEXT}.{field_name} = self.{field_name}")
         return condition

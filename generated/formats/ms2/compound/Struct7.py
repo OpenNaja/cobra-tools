@@ -24,17 +24,24 @@ class Struct7:
 		self.zero = 0
 
 		# only for recent versions of PZ
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
-			self.zeros_pz = numpy.zeros((2), dtype='uint64')
+		self.zeros_pz = numpy.zeros((2), dtype='uint64')
 
 		# 60 bytes per entry
-		self.unknown_list = Array()
+		self.unknown_list = Array(self.context)
 
 		# align list to multiples of 8
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.count_7 = 0
+		self.zero = 0
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.zeros_pz = numpy.zeros((2), dtype='uint64')
+		self.unknown_list = Array(self.context)
+		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.count_7 = stream.read_uint64()
 		self.zero = stream.read_uint64()
@@ -46,7 +53,6 @@ class Struct7:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.count_7)
 		stream.write_uint64(self.zero)

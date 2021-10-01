@@ -35,19 +35,31 @@ class MaterialcollectionInfoHeader:
 
 		# bool
 		self.has_texture_list = 0
-		self.root_0 = Root0(context, None, None)
-		self.root_1 = Root1(context, None, None)
+		self.root_0 = Root0(self.context, None, None)
+		self.root_1 = Root1(self.context, None, None)
+		self.root_1_pad = Root1Pad(self.context, None, None)
+		self.texture_wrapper = TextureWrapper(self.context, None, None)
+		self.variant_wrapper = VariantWrapper(self.context, None, None)
+		self.layered_wrapper = LayeredWrapper(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.magic = numpy.zeros((4), dtype='byte')
+		self.version = 0
+		self.user_version = 0
+		self.has_texture_list = 0
+		self.root_0 = Root0(self.context, None, None)
+		self.root_1 = Root1(self.context, None, None)
 		if self.has_texture_list == 0:
-			self.root_1_pad = Root1Pad(context, None, None)
+			self.root_1_pad = Root1Pad(self.context, None, None)
 		if self.has_texture_list == 1:
-			self.texture_wrapper = TextureWrapper(context, None, None)
+			self.texture_wrapper = TextureWrapper(self.context, None, None)
 		if self.root_1.flag == 3:
-			self.variant_wrapper = VariantWrapper(context, None, None)
+			self.variant_wrapper = VariantWrapper(self.context, None, None)
 		if self.root_1.flag == 2:
-			self.layered_wrapper = LayeredWrapper(context, None, None)
+			self.layered_wrapper = LayeredWrapper(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.version = stream.read_uint()
@@ -69,7 +81,6 @@ class MaterialcollectionInfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_uint(self.version)

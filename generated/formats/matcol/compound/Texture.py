@@ -19,9 +19,14 @@ class Texture:
 		self.fgm_name = 0
 		self.texture_suffix = 0
 		self.texture_type = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.fgm_name = 0
+		self.texture_suffix = 0
+		self.texture_type = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.fgm_name = stream.read_zstring()
 		self.texture_suffix = stream.read_zstring()
@@ -30,7 +35,6 @@ class Texture:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_zstring(self.fgm_name)
 		stream.write_zstring(self.texture_suffix)

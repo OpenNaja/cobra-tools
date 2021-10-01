@@ -70,9 +70,24 @@ class ModelData:
 
 		# bitfield, determines vertex format
 		self.flag = ModelFlag()
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.stream_index = 0
+		self.zeros = numpy.zeros((3), dtype='uint')
+		self.vertex_count = 0
+		self.tri_index_count = 0
+		self.zero_0 = 0
+		self.poweroftwo = 0
+		self.vertex_offset = 0
+		self.size_of_vertex = 0
+		self.tri_offset = 0
+		self.zero_1 = 0
+		self.unk_floats = numpy.zeros((2), dtype='float')
+		self.zero_2 = 0
+		self.flag = ModelFlag()
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.stream_index = stream.read_uint()
 		self.zeros = stream.read_uints((3))
@@ -91,7 +106,6 @@ class ModelData:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.stream_index)
 		stream.write_uints(self.zeros)

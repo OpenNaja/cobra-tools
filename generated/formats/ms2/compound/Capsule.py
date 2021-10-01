@@ -15,10 +15,10 @@ class Capsule:
 		self.io_start = 0
 
 		# relative to the armature, ie. not in bone space
-		self.offset = Vector3(context, None, None)
+		self.offset = Vector3(self.context, None, None)
 
 		# normalized
-		self.direction = Vector3(context, None, None)
+		self.direction = Vector3(self.context, None, None)
 
 		# radius of the caps
 		self.radius = 0
@@ -28,9 +28,16 @@ class Capsule:
 
 		# apparently unused
 		self.zero = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.offset = Vector3(self.context, None, None)
+		self.direction = Vector3(self.context, None, None)
+		self.radius = 0
+		self.extent = 0
+		self.zero = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.offset = stream.read_type(Vector3, (self.context, None, None))
 		self.direction = stream.read_type(Vector3, (self.context, None, None))
@@ -41,7 +48,6 @@ class Capsule:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.offset)
 		stream.write_type(self.direction)

@@ -25,9 +25,13 @@ class TypeOther:
 
 		# id of this Sound SFX object
 		self.raw = numpy.zeros((self.length), dtype='byte')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.length = 0
+		self.raw = numpy.zeros((self.length), dtype='byte')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.raw = stream.read_bytes((self.length))
@@ -35,7 +39,6 @@ class TypeOther:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_bytes(self.raw)

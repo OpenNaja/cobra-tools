@@ -20,13 +20,17 @@ class Header3Data1Ztuac:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.lods = Array()
+		self.lods = Array(self.context)
 
 		# ?not sure if this isn't just junk data
 		self.data_size = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.lods = Array(self.context)
+		self.data_size = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.lods.read(stream, Header3Data1ZTUACEntry, self.arg, None)
 		self.data_size = stream.read_ushort()
@@ -34,7 +38,6 @@ class Header3Data1Ztuac:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		self.lods.write(stream, Header3Data1ZTUACEntry, self.arg, None)
 		stream.write_ushort(self.data_size)

@@ -26,9 +26,15 @@ class AttributeInfo:
 		# byte offset to first value in the 4th fragment entry
 		self.first_value_offset = 0
 		self.zero = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.offset = 0
+		self.dtype = 0
+		self.first_value_offset = 0
+		self.zero = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.dtype = stream.read_uint()
@@ -38,7 +44,6 @@ class AttributeInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.dtype)

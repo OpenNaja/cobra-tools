@@ -39,13 +39,23 @@ class BnkFileContainer:
 		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
 
 		# data
-		self.names = Array()
+		self.names = Array(self.context)
 
 		# ext format subtypes
-		self.extensions = Array()
+		self.extensions = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.size_b = 0
+		self.name_count = 0
+		self.unk = 0
+		self.stream_info_count = 0
+		self.zeros = numpy.zeros((11), dtype='uint')
+		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
+		self.names = Array(self.context)
+		self.extensions = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.size_b = stream.read_uint64()
 		self.name_count = stream.read_uint()
@@ -59,7 +69,6 @@ class BnkFileContainer:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.size_b)
 		stream.write_uint(self.name_count)

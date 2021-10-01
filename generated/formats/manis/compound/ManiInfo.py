@@ -42,16 +42,14 @@ class ManiInfo:
 		# always FF FF
 		self.ff_2 = 0
 		self.e = 0
-		if self.context.version == 18:
-			self.extra_pc = numpy.zeros((5), dtype='ushort')
+		self.extra_pc = numpy.zeros((5), dtype='ushort')
 		self.g = 0
 
 		# rest 228 bytes
 		self.zeros_2 = numpy.zeros((57), dtype='uint')
 
 		# rest 14 bytes
-		if self.context.version == 18:
-			self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
+		self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
 		self.i = 0
 		self.j = 0
 
@@ -60,9 +58,35 @@ class ManiInfo:
 		self.k = 0
 		self.l = 0
 		self.zeros_end = numpy.zeros((3), dtype='ushort')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.duration = 0
+		self.frame_count = 0
+		self.b = 0
+		self.zeros_0 = numpy.zeros((6), dtype='ushort')
+		self.c_2 = 0
+		self.c = 0
+		self.name_count = 0
+		self.zeros_1 = numpy.zeros((3), dtype='ushort')
+		self.e_2 = 0
+		self.ff_1 = 0
+		self.ff_2 = 0
+		self.e = 0
+		if self.context.version == 18:
+			self.extra_pc = numpy.zeros((5), dtype='ushort')
+		self.g = 0
+		self.zeros_2 = numpy.zeros((57), dtype='uint')
+		if self.context.version == 18:
+			self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
+		self.i = 0
+		self.j = 0
+		self.ff = 0
+		self.k = 0
+		self.l = 0
+		self.zeros_end = numpy.zeros((3), dtype='ushort')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.duration = stream.read_float()
 		self.frame_count = stream.read_uint()
@@ -92,7 +116,6 @@ class ManiInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_float(self.duration)
 		stream.write_uint(self.frame_count)

@@ -20,13 +20,17 @@ class JointEntry:
 		self.io_start = 0
 
 		# the rotation of the joint, inverted
-		self.rot = Matrix33(context, None, None)
+		self.rot = Matrix33(self.context, None, None)
 
 		# the location of the joint
-		self.loc = Vector3(context, None, None)
+		self.loc = Vector3(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.rot = Matrix33(self.context, None, None)
+		self.loc = Vector3(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.rot = stream.read_type(Matrix33, (self.context, None, None))
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
@@ -34,7 +38,6 @@ class JointEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.rot)
 		stream.write_type(self.loc)

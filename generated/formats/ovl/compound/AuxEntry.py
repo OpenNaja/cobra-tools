@@ -25,9 +25,14 @@ class AuxEntry:
 
 		# byte count of the complete external resource file
 		self.size = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.file_index = 0
+		self.extension_index = 0
+		self.size = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.file_index = stream.read_uint()
 		self.extension_index = stream.read_uint()
@@ -36,7 +41,6 @@ class AuxEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_index)
 		stream.write_uint(self.extension_index)

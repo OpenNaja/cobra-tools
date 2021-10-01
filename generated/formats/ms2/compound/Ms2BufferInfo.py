@@ -23,27 +23,36 @@ class Ms2BufferInfo:
 		self.io_start = 0
 
 		# JWE, 16 bytes of 00 padding
-		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
-			self.skip_1 = numpy.zeros((4), dtype='uint')
+		self.skip_1 = numpy.zeros((4), dtype='uint')
 		self.vertexdatasize = 0
 
 		# 8 empty bytes
 		self.ptr_1 = 0
 
 		# PZ, another 8 empty bytes
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
-			self.unk_0 = 0
+		self.unk_0 = 0
 		self.facesdatasize = 0
 
 		# 8 empty bytes
 		self.ptr_2 = 0
 
 		# PZ, another 16 empty bytes
+		self.unk_2 = numpy.zeros((2), dtype='uint64')
+		self.set_defaults()
+
+	def set_defaults(self):
+		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
+			self.skip_1 = numpy.zeros((4), dtype='uint')
+		self.vertexdatasize = 0
+		self.ptr_1 = 0
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.unk_0 = 0
+		self.facesdatasize = 0
+		self.ptr_2 = 0
 		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			self.unk_2 = numpy.zeros((2), dtype='uint64')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
 			self.skip_1 = stream.read_uints((4))
@@ -59,7 +68,6 @@ class Ms2BufferInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
 			stream.write_uints(self.skip_1)

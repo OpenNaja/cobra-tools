@@ -69,15 +69,36 @@ class ArchiveEntry:
 		self.pools_end = 0
 
 		# doesn't work like that because order of ovl files is wrong! - files of this archive start here in ovl file list, + count num files
-		if self.context.version == 15:
-			self.file_index_offset = 0
+		self.file_index_offset = 0
 
 		# Seemingly unused, can be zeroed without effect ingame in JWE
+		self.ovs_offset = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.offset = 0
+		self.pools_offset = 0
+		self.ovs_file_offset = 0
+		self.num_pools = 0
+		self.num_datas = 0
+		self.num_pool_types = 0
+		self.num_new = 0
+		self.num_buffers = 0
+		self.num_fragments = 0
+		self.num_files = 0
+		self.read_start = 0
+		self.set_data_size = 0
+		self.compressed_size = 0
+		self.uncompressed_size = 0
+		self.zeros_3 = 0
+		self.pools_start = 0
+		self.pools_end = 0
+		if self.context.version == 15:
+			self.file_index_offset = 0
 		if not (self.context.version == 15):
 			self.ovs_offset = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.pools_offset = stream.read_uint()
@@ -104,7 +125,6 @@ class ArchiveEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.pools_offset)

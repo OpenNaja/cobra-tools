@@ -32,43 +32,68 @@ class Compound(BaseClass):
 			super().write(f)
 
 			if not self.class_basename:
-				f.write(f"\n\n\tcontext = ContextReference()")
+				self.write_line(f)
+				self.write_line(f, 1, "context = ContextReference()")
 
 			# check all fields/members in this class and write them as fields
 			# for union in self.field_unions.values():
 			# 	union.write_declaration(f)
-
 			if "def __init__" not in self.src_code:
-				f.write(f"\n\n\tdef __init__(self, context, arg=None, template=None):")
-				f.write(f"\n\t\tself.name = ''")
+				self.write_line(f)
+				self.write_line(f, 1, "def __init__(self, context, arg=None, template=None):")
 				# classes that this class inherits from have to be read first
 				if self.class_basename:
-					f.write(f"\n\t\tsuper().__init__(context, arg, template)")
+					# context is set by the parent class
+					super_line = f"super().__init__(context, arg, template)"
 				else:
-					f.write(f"\n\t\tself._context = context")
-				f.write(f"\n\t\tself.arg = arg")
-				f.write(f"\n\t\tself.template = template")
-				f.write(f"\n\t\tself.io_size = 0")
-				f.write(f"\n\t\tself.io_start = 0")
+					# no inheritance, so set context
+					super_line = f"self._context = context"
+				self.write_lines(f, 2, (
+					"self.name = ''",
+					super_line,
+					"self.arg = arg",
+					"self.template = template",
+					"self.io_size = 0",
+					"self.io_start = 0"
+				))
 
 				for union in self.field_unions:
 					union.write_init(f)
+				self.write_line(f, 2, "self.set_defaults()")
+
+			if "def set_defaults(" not in self.src_code:
+				self.write_line(f)
+				self.write_line(f, 1, "def set_defaults(self):")
+				end = f.tell()
+				# write all fields, merge conditions
+				condition = ""
+				for union in self.field_unions:
+					condition = union.write_defaults(f, condition)
+				# if no defaults have been written
+				if f.tell() == end:
+					self.write_line(f, 2, "pass")
+
 
 			# write the load() method
 			for method_type in ("read", "write"):
+				method_str = f"def {method_type}(self, stream):"
 				# check all fields/members in this class and write them as fields
-				if f"def {method_type}(" in self.src_code:
+				if method_str in self.src_code:
 					continue
-				f.write(f"\n\n\tdef {method_type}(self, stream):")
-				f.write(f"\n\n\t\tself.io_start = stream.tell()")
-				condition = ""
+				self.write_line(f)
+				self.write_line(f, 1, method_str)
+				self.write_line(f, 2, "self.io_start = stream.tell()")
 				# classes that this class inherits from have to be read first
 				if self.class_basename:
-					f.write(f"\n\t\tsuper().{method_type}(stream)")
+					self.write_line(f, 2, f"super().{method_type}(stream)")
+
+				# write all fields, merge conditions
+				condition = ""
 				for union in self.field_unions:
 					condition = union.write_io(f, method_type, condition)
 
-				f.write(f"\n\n\t\tself.io_size = stream.tell() - self.io_start")
+				self.write_line(f)
+				self.write_line(f, 2, "self.io_size = stream.tell() - self.io_start")
 
 			if "def __repr__(" not in self.src_code:
 				f.write(f"\n\n\tdef get_info_str(self):")

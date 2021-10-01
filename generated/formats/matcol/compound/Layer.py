@@ -20,13 +20,20 @@ class Layer:
 		self.io_size = 0
 		self.io_start = 0
 		self.name = 0
-		self.info_info = LayeredInfo(context, None, None)
-		self.infos = Array()
-		self.attrib_info = LayeredAttrib(context, None, None)
-		self.attribs = Array()
+		self.info_info = LayeredInfo(self.context, None, None)
+		self.infos = Array(self.context)
+		self.attrib_info = LayeredAttrib(self.context, None, None)
+		self.attribs = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.name = 0
+		self.info_info = LayeredInfo(self.context, None, None)
+		self.infos = Array(self.context)
+		self.attrib_info = LayeredAttrib(self.context, None, None)
+		self.attribs = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.name = stream.read_zstring()
 		self.info_info = stream.read_type(LayeredInfo, (self.context, None, None))
@@ -37,7 +44,6 @@ class Layer:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_zstring(self.name)
 		stream.write_type(self.info_info)

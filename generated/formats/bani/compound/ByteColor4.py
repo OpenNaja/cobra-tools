@@ -28,9 +28,15 @@ class ByteColor4:
 
 		# Alpha color component.
 		self.a = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.r = 0
+		self.g = 0
+		self.b = 0
+		self.a = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.r = stream.read_ubyte()
 		self.g = stream.read_ubyte()
@@ -40,7 +46,6 @@ class ByteColor4:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ubyte(self.r)
 		stream.write_ubyte(self.g)

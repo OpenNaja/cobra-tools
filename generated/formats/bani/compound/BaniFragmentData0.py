@@ -30,9 +30,17 @@ class BaniFragmentData0:
 
 		# if 1381323599 then looped
 		self.loop_flag = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.unknown_0 = 0
+		self.unknown_1 = 0
+		self.read_start_frame = 0
+		self.num_frames = 0
+		self.animation_length = 0
+		self.loop_flag = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.unknown_0 = stream.read_uint()
 		self.unknown_1 = stream.read_uint()
@@ -44,7 +52,6 @@ class BaniFragmentData0:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.unknown_0)
 		stream.write_uint(self.unknown_1)

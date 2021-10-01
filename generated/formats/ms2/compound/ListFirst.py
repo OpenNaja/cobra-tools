@@ -14,9 +14,12 @@ class ListFirst(Descriptor):
 		self.io_size = 0
 		self.io_start = 0
 		self.floats = numpy.zeros((3), dtype='float')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.floats = numpy.zeros((3), dtype='float')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		super().read(stream)
 		self.floats = stream.read_floats((3))
@@ -24,7 +27,6 @@ class ListFirst(Descriptor):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_floats(self.floats)

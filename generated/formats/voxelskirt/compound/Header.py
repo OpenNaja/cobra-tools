@@ -21,7 +21,7 @@ class Header:
 		self.io_start = 0
 
 		# 'VOXE'
-		self.magic = FixedString(context, 4, None)
+		self.magic = FixedString(self.context, 4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
 		self.version_flag = 0
@@ -39,10 +39,19 @@ class Header:
 		self.user_version = VersionInfo()
 
 		# always = 0
-		self.info = SizedStrData(context, None, None)
+		self.info = SizedStrData(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.magic = FixedString(self.context, 4, None)
+		self.version_flag = 0
+		self.version = 0
+		self.bitswap = 0
+		self.seventh_byte = 1
+		self.user_version = VersionInfo()
+		self.info = SizedStrData(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.magic = stream.read_type(FixedString, (self.context, 4, None))
 		self.version_flag = stream.read_byte()
@@ -58,7 +67,6 @@ class Header:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.magic)
 		stream.write_byte(self.version_flag)

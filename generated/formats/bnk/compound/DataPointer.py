@@ -23,9 +23,14 @@ class DataPointer:
 
 		# length of the wem file
 		self.wem_filesize = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.wem_id = 0
+		self.data_section_offset = 0
+		self.wem_filesize = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.wem_id = stream.read_uint()
 		self.data_section_offset = stream.read_uint()
@@ -34,7 +39,6 @@ class DataPointer:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.wem_id)
 		stream.write_uint(self.data_section_offset)

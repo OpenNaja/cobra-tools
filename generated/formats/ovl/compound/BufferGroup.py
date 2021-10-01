@@ -37,9 +37,18 @@ class BufferGroup:
 
 		# number of data entries to populate buffers into
 		self.data_count = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.buffer_offset = 0
+		self.buffer_count = 0
+		self.ext_index = 0
+		self.buffer_index = 0
+		self.size = 0
+		self.data_offset = 0
+		self.data_count = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.buffer_offset = stream.read_uint()
 		self.buffer_count = stream.read_uint()
@@ -52,7 +61,6 @@ class BufferGroup:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.buffer_offset)
 		stream.write_uint(self.buffer_count)

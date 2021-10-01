@@ -28,9 +28,15 @@ class Vector4:
 
 		# Third coordinate.
 		self.z = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.w = 0
+		self.x = 0
+		self.y = 0
+		self.z = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.w = stream.read_float()
 		self.x = stream.read_float()
@@ -40,7 +46,6 @@ class Vector4:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_float(self.w)
 		stream.write_float(self.x)

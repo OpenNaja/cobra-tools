@@ -26,31 +26,43 @@ class PcModel:
 		self.io_start = 0
 
 		# uses uint here, two uints elsewhere
-		self.materials = Array()
-		if self.context.version == 17:
-			self.lods = Array()
-		if self.context.version == 18:
-			self.lods = Array()
-		self.objects = Array()
+		self.materials = Array(self.context)
+		self.lods = Array(self.context)
+		self.lods = Array(self.context)
+		self.objects = Array(self.context)
 
 		# pad to 8 bytes alignment
+		self.padding = 0
+		self.models = Array(self.context)
+		self.models = Array(self.context)
+		self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
+
+		# see if it is a flag for ztuac too, so might be totally wrong here
+		self.floatsy = Array(self.context)
+
+		# sometimes 00 byte
+		self.weird_padding = SmartPadding(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.materials = Array(self.context)
+		if self.context.version == 17:
+			self.lods = Array(self.context)
+		if self.context.version == 18:
+			self.lods = Array(self.context)
+		self.objects = Array(self.context)
 		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.padding = 0
 		if self.context.version == 18:
-			self.models = Array()
+			self.models = Array(self.context)
 		if self.context.version == 17:
-			self.models = Array()
+			self.models = Array(self.context)
 		if self.context.version == 17 and self.arg.last_count:
-			self.ztuac_pre_bones = ZTPreBones(context, None, None)
-
-		# see if it is a flag for ztuac too, so might be totally wrong here
-		self.floatsy = Array()
-
-		# sometimes 00 byte
-		self.weird_padding = SmartPadding(context, None, None)
+			self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
+		self.floatsy = Array(self.context)
+		self.weird_padding = SmartPadding(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.materials.read(stream, MaterialName, self.arg.num_materials, None)
 		if self.context.version == 17:
@@ -72,7 +84,6 @@ class PcModel:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		self.materials.write(stream, MaterialName, self.arg.num_materials, None)
 		if self.context.version == 17:

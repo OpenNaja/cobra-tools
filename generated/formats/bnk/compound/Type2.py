@@ -13,8 +13,16 @@ class Type2:
 
 	context = ContextReference()
 
-	def read(self, stream):
+	def set_defaults(self):
+		self.length = 0
+		self.sfx_id = 0
+		self.const_a = 0
+		self.const_b = 0
+		self.didx_id = 0
+		self.wem_length = 0
+		self.extra = numpy.zeros((self.length - 17), dtype='byte')
 
+	def read(self, stream):
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.sfx_id = stream.read_uint()
@@ -27,7 +35,6 @@ class Type2:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_uint(self.sfx_id)

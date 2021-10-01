@@ -20,21 +20,28 @@ class ConvexHull:
 
 		# 16 for anubis: 4 hulls * 16 * 12 (size of vert)
 		self.vertex_count = 0
-		self.rotation = Matrix33(context, None, None)
+		self.rotation = Matrix33(self.context, None, None)
 
 		# center of the box
-		self.offset = Vector3(context, None, None)
+		self.offset = Vector3(self.context, None, None)
 
 		# probably padding
+		self.zeros = numpy.zeros((5), dtype='uint')
+
+		# probably padding
+		self.zeros = numpy.zeros((2), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.vertex_count = 0
+		self.rotation = Matrix33(self.context, None, None)
+		self.offset = Vector3(self.context, None, None)
 		if self.context.version == 18:
 			self.zeros = numpy.zeros((5), dtype='uint')
-
-		# probably padding
 		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
 			self.zeros = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.vertex_count = stream.read_uint()
 		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
@@ -47,7 +54,6 @@ class ConvexHull:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.vertex_count)
 		stream.write_type(self.rotation)

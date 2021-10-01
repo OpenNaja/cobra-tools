@@ -29,16 +29,24 @@ class NasutoJointEntry:
 		self.zero = 0
 
 		# ?
-		self.matrix = Matrix33(context, None, None)
+		self.matrix = Matrix33(self.context, None, None)
 
 		# ?
-		self.vector = Vector4(context, None, None)
+		self.vector = Vector4(self.context, None, None)
 
 		# 1
 		self.one = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.child = 0
+		self.parent = 0
+		self.zero = 0
+		self.matrix = Matrix33(self.context, None, None)
+		self.vector = Vector4(self.context, None, None)
+		self.one = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.child = stream.read_ubyte()
 		self.parent = stream.read_ubyte()
@@ -50,7 +58,6 @@ class NasutoJointEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ubyte(self.child)
 		stream.write_ubyte(self.parent)

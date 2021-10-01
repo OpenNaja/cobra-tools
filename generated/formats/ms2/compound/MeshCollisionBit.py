@@ -21,9 +21,13 @@ class MeshCollisionBit:
 
 		# always 2954754766?
 		self.consts = numpy.zeros((3), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.countd = numpy.zeros((34), dtype='ushort')
+		self.consts = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.countd = stream.read_ushorts((34))
 		self.consts = stream.read_uints((3))
@@ -31,7 +35,6 @@ class MeshCollisionBit:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushorts(self.countd)
 		stream.write_uints(self.consts)

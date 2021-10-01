@@ -13,11 +13,15 @@ class InfoWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = Info(context, None, None)
+		self.info = Info(self.context, None, None)
+		self.name = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.info = Info(self.context, None, None)
 		self.name = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.info = stream.read_type(Info, (self.context, None, None))
 		self.name = stream.read_zstring()
@@ -25,7 +29,6 @@ class InfoWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.info)
 		stream.write_zstring(self.name)

@@ -42,15 +42,25 @@ class MimeEntry:
 		self.file_count = 0
 
 		# constant per mime, grab this many triplets
-		if self.context.version >= 20:
-			self.triplet_count = 0
+		self.triplet_count = 0
 
 		# index into triplets list
+		self.triplet_offset = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.offset = 0
+		self.unknown = 0
+		self.mime_hash = 0
+		self.mime_version = 0
+		self.file_index_offset = 0
+		self.file_count = 0
+		if self.context.version >= 20:
+			self.triplet_count = 0
 		if self.context.version >= 20:
 			self.triplet_offset = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.unknown = stream.read_uint()
@@ -66,7 +76,6 @@ class MimeEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.unknown)

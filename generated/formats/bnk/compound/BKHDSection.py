@@ -30,9 +30,18 @@ class BKHDSection:
 
 		# filler zeroes
 		self.zeroes = numpy.zeros((3), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.length = 0
+		self.version = 0
+		self.id_a = 0
+		self.id_b = 0
+		self.constant_a = 0
+		self.constant_b = 0
+		self.zeroes = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.version = stream.read_uint()
@@ -46,7 +55,6 @@ class BKHDSection:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_uint(self.version)

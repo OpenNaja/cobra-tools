@@ -30,6 +30,13 @@ class BaseClass:
         if self.class_debug_str:
             stream.write(self.class_debug_str)
 
+    def write_line(self, stream, indent=0, line=""):
+        stream.write("\n" + indent*"\t" + line)
+
+    def write_lines(self, stream, indent, lines):
+        for line in lines:
+            self.write_line(stream, indent, line)
+
     def get_code_from_src(self,):
         cwd = os.getcwd()
         src_dir = os.path.join(cwd, "source")

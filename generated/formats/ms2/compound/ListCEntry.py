@@ -21,7 +21,7 @@ class ListCEntry:
 		self.one = 0
 
 		# center of the collider
-		self.loc = Vector3(context, None, None)
+		self.loc = Vector3(self.context, None, None)
 
 		# -1 for PZ, 80 for JWE
 		self.constant = 0
@@ -34,9 +34,17 @@ class ListCEntry:
 
 		# sometimes repeat of a
 		self.a_2 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.one = 0
+		self.loc = Vector3(self.context, None, None)
+		self.constant = 0
+		self.a = 0
+		self.floats = numpy.zeros((4), dtype='float')
+		self.a_2 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.one = stream.read_uint()
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
@@ -48,7 +56,6 @@ class ListCEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.one)
 		stream.write_type(self.loc)

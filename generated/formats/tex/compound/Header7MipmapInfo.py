@@ -31,9 +31,16 @@ class Header7MipmapInfo:
 
 		# repeat of height or width
 		self.unkn_3 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.offset = 0
+		self.width = 0
+		self.height = 0
+		self.unknown_0_c = 0
+		self.unkn_3 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.width = stream.read_uint()
@@ -44,7 +51,6 @@ class Header7MipmapInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.width)

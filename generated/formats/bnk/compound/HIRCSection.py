@@ -24,10 +24,15 @@ class HIRCSection:
 		# length of following data
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array()
+		self.hirc_pointers = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.length = 0
+		self.count = 0
+		self.hirc_pointers = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.count = stream.read_uint()
@@ -36,7 +41,6 @@ class HIRCSection:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_uint(self.count)

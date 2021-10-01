@@ -19,9 +19,16 @@ class Dxt10Header:
 		self.misc_flag = 0
 		self.array_size = 0
 		self.misc_flag_2 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.dxgi_format = DxgiFormat()
+		self.resource_dimension = D3D10ResourceDimension()
+		self.misc_flag = 0
+		self.array_size = 0
+		self.misc_flag_2 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.dxgi_format = DxgiFormat(stream.read_uint())
 		self.resource_dimension = D3D10ResourceDimension(stream.read_uint())
@@ -32,7 +39,6 @@ class Dxt10Header:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.dxgi_format.value)
 		stream.write_uint(self.resource_dimension.value)

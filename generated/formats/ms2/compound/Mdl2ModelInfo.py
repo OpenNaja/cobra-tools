@@ -18,11 +18,15 @@ class Mdl2ModelInfo:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.fourty = Mdl2FourtyInfo(context, None, None)
-		self.info = CoreModelInfo(context, None, None)
+		self.fourty = Mdl2FourtyInfo(self.context, None, None)
+		self.info = CoreModelInfo(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.fourty = Mdl2FourtyInfo(self.context, None, None)
+		self.info = CoreModelInfo(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.fourty = stream.read_type(Mdl2FourtyInfo, (self.context, None, None))
 		self.info = stream.read_type(CoreModelInfo, (self.context, None, None))
@@ -30,7 +34,6 @@ class Mdl2ModelInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.fourty)
 		stream.write_type(self.info)

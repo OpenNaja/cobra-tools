@@ -18,9 +18,13 @@ class Descriptor:
 
 		# index into JointInfoList
 		self.child = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.parent = 0
+		self.child = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.parent = stream.read_ushort()
 		self.child = stream.read_ushort()
@@ -28,7 +32,6 @@ class Descriptor:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushort(self.parent)
 		stream.write_ushort(self.child)

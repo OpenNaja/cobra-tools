@@ -22,16 +22,18 @@ class Matrix44:
 
 		# Stored in OpenGL column-major format.
 		self.data = numpy.zeros((4, 4), dtype='float')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.data = numpy.zeros((4, 4), dtype='float')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.data = stream.read_floats((4, 4))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_floats(self.data)
 

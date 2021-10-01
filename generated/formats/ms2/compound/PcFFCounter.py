@@ -21,9 +21,13 @@ class PcFFCounter:
 		self.io_start = 0
 		self.count = 0
 		self.f_fs = numpy.zeros((self.count), dtype='byte')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.count = 0
+		self.f_fs = numpy.zeros((self.count), dtype='byte')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.count = stream.read_uint()
 		self.f_fs = stream.read_bytes((self.count))
@@ -31,7 +35,6 @@ class PcFFCounter:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.count)
 		stream.write_bytes(self.f_fs)

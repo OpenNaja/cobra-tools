@@ -28,17 +28,29 @@ class InfoHeader:
 		self.version = 0
 		self.user_version = 0
 		self.mani_count = 0
-		self.names = Array()
-		self.header = SizedStrData(context, None, None)
-		self.mani_infos = Array()
+		self.names = Array(self.context)
+		self.header = SizedStrData(self.context, None, None)
+		self.mani_infos = Array(self.context)
 		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
-		self.bone_names = Array()
+		self.bone_names = Array(self.context)
 
 		# ?
-		self.bone_pad = PadAlign(context, self.bone_names, 4)
+		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.magic = numpy.zeros((4), dtype='byte')
+		self.version = 0
+		self.user_version = 0
+		self.mani_count = 0
+		self.names = Array(self.context)
+		self.header = SizedStrData(self.context, None, None)
+		self.mani_infos = Array(self.context)
+		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
+		self.bone_names = Array(self.context)
+		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.version = stream.read_uint()
@@ -56,7 +68,6 @@ class InfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_uint(self.version)

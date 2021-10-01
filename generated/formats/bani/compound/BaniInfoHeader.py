@@ -28,11 +28,17 @@ class BaniInfoHeader:
 
 		# name of the banis file buffer
 		self.banis_name = 0
-		self.data_0 = BaniFragmentData0(context, None, None)
-		self.data_1 = BaniFragmentData1(context, None, None)
+		self.data_0 = BaniFragmentData0(self.context, None, None)
+		self.data_1 = BaniFragmentData1(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.magic = numpy.zeros((4), dtype='byte')
+		self.banis_name = 0
+		self.data_0 = BaniFragmentData0(self.context, None, None)
+		self.data_1 = BaniFragmentData1(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.banis_name = stream.read_string()
@@ -42,7 +48,6 @@ class BaniInfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_string(self.banis_name)

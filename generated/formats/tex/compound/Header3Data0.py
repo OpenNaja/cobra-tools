@@ -36,9 +36,17 @@ class Header3Data0:
 
 		# 0
 		self.pad = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zeros = 0
+		self.compression_type = DdsType()
+		self.one_0 = 0
+		self.one_1 = 0
+		self.one_2 = 0
+		self.pad = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zeros = stream.read_uint64()
 		self.compression_type = DdsType(stream.read_ubyte())
@@ -50,7 +58,6 @@ class Header3Data0:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.zeros)
 		stream.write_ubyte(self.compression_type.value)

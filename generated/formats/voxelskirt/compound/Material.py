@@ -21,9 +21,14 @@ class Material:
 
 		# index into name list
 		self.id = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.offset = 0
+		self.count = 0
+		self.id = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint64()
 		self.count = stream.read_uint64()
@@ -32,7 +37,6 @@ class Material:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.offset)
 		stream.write_uint64(self.count)

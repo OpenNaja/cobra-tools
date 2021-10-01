@@ -71,30 +71,53 @@ class ZtModelData:
 		self.one_1 = 0
 
 		# ?
-		if self.context.version == 17:
-			self.poweroftwo = 0
+		self.poweroftwo = 0
 
 		# power of 2 increasing with lod index
-		if self.context.version == 18:
-			self.poweroftwo = 0
+		self.poweroftwo = 0
 
 		# always zero
-		if self.context.version == 18:
-			self.zero = 0
+		self.zero = 0
 
 		# some floats
-		if self.context.version == 18:
-			self.unknown_07 = 0
+		self.unknown_07 = 0
 
 		# bitfield
 		self.flag = ModelFlagZT()
 
 		# always zero
+		self.zero_uac = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.stream_index = 0
+		self.zero_a = 0
+		self.some_index = 0
+		self.zero_b = 0
+		self.tri_index_count = 0
+		self.vertex_count = 0
+		self.tri_info_offset = 0
+		self.vert_info_offset = 0
+		self.known_ff_0 = 0
+		self.tri_offset = 0
+		self.uv_offset = 0
+		self.vert_offset = 0
+		self.known_ff_1 = 0
+		self.one_0 = 0
+		self.one_1 = 0
+		if self.context.version == 17:
+			self.poweroftwo = 0
+		if self.context.version == 18:
+			self.poweroftwo = 0
+		if self.context.version == 18:
+			self.zero = 0
+		if self.context.version == 18:
+			self.unknown_07 = 0
+		self.flag = ModelFlagZT()
 		if self.context.version == 17:
 			self.zero_uac = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.stream_index = stream.read_uint()
 		self.zero_a = stream.read_uint()
@@ -125,7 +148,6 @@ class ZtModelData:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.stream_index)
 		stream.write_uint(self.zero_a)

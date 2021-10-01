@@ -36,9 +36,16 @@ class FileEntry:
 
 		# index into 'Extensions' array
 		self.extension = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.offset = 0
+		self.file_hash = 0
+		self.unkn_0 = 0
+		self.unkn_1 = 0
+		self.extension = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.file_hash = stream.read_uint()
@@ -49,7 +56,6 @@ class FileEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.file_hash)

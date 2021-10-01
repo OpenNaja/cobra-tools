@@ -18,18 +18,23 @@ class BufferEntry:
 		self.io_start = 0
 
 		# index of buffer in file, up to pz 1.6
-		if self.context.version <= 20:
-			self.index = 0
+		self.index = 0
 
 		# in bytes
 		self.size = 0
 
 		# id, new for pz 1.6
+		self.file_hash = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		if self.context.version <= 20:
+			self.index = 0
+		self.size = 0
 		if self.context.version >= 20:
 			self.file_hash = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		if self.context.version <= 20:
 			self.index = stream.read_uint()
@@ -40,7 +45,6 @@ class BufferEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		if self.context.version <= 20:
 			stream.write_uint(self.index)

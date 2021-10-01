@@ -18,9 +18,13 @@ class MeshLink:
 
 		# index into models array
 		self.model_index = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.material_index = 0
+		self.model_index = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.material_index = stream.read_ushort()
 		self.model_index = stream.read_ushort()
@@ -28,7 +32,6 @@ class MeshLink:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushort(self.material_index)
 		stream.write_ushort(self.model_index)

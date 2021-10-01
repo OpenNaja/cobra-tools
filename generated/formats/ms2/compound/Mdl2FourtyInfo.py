@@ -18,16 +18,18 @@ class Mdl2FourtyInfo:
 
 		# 0, 1 or 0, 0, 0, 0
 		self.unknowns = numpy.zeros((5), dtype='uint64')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.unknowns = numpy.zeros((5), dtype='uint64')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.unknowns = stream.read_uint64s((5))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64s(self.unknowns)
 

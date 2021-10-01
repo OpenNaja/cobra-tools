@@ -30,10 +30,19 @@ class JointInfo:
 
 		# 8 bytes of zeros per hitcheck
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
-		self.hit_check = Array()
+		self.hit_check = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.eleven = 0
+		self.f_fs = numpy.zeros((3), dtype='int')
+		self.name_offset = 0
+		self.hitcheck_count = 0
+		self.zero = 0
+		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
+		self.hit_check = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.eleven = stream.read_uint()
 		self.f_fs = stream.read_ints((3))
@@ -46,7 +55,6 @@ class JointInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.eleven)
 		stream.write_ints(self.f_fs)

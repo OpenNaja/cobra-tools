@@ -22,16 +22,18 @@ class PCJointThing:
 
 		# -1
 		self.shorts = numpy.zeros((4), dtype='short')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.shorts = numpy.zeros((4), dtype='short')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.shorts = stream.read_shorts((4))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_shorts(self.shorts)
 

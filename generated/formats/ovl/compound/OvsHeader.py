@@ -27,17 +27,27 @@ class OvsHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.pool_types = Array()
-		self.pools = Array()
-		self.data_entries = Array()
-		self.buffer_entries = Array()
-		self.new_entries = Array()
-		self.sized_str_entries = Array()
-		self.fragments = Array()
-		self.set_header = SetHeader(context, None, None)
+		self.pool_types = Array(self.context)
+		self.pools = Array(self.context)
+		self.data_entries = Array(self.context)
+		self.buffer_entries = Array(self.context)
+		self.new_entries = Array(self.context)
+		self.sized_str_entries = Array(self.context)
+		self.fragments = Array(self.context)
+		self.set_header = SetHeader(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.pool_types = Array(self.context)
+		self.pools = Array(self.context)
+		self.data_entries = Array(self.context)
+		self.buffer_entries = Array(self.context)
+		self.new_entries = Array(self.context)
+		self.sized_str_entries = Array(self.context)
+		self.fragments = Array(self.context)
+		self.set_header = SetHeader(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.pool_types.read(stream, PoolType, self.arg.num_pool_types, None)
 		self.pools.read(stream, MemPool, self.arg.num_pools, None)
@@ -51,7 +61,6 @@ class OvsHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		self.pool_types.write(stream, PoolType, self.arg.num_pool_types, None)
 		self.pools.write(stream, MemPool, self.arg.num_pools, None)

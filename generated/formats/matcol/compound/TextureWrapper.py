@@ -17,11 +17,15 @@ class TextureWrapper:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = TextureInfo(context, None, None)
-		self.textures = Array()
+		self.info = TextureInfo(self.context, None, None)
+		self.textures = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.info = TextureInfo(self.context, None, None)
+		self.textures = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.info = stream.read_type(TextureInfo, (self.context, None, None))
 		self.textures.read(stream, Texture, self.info.texture_count, None)
@@ -29,7 +33,6 @@ class TextureWrapper:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.info)
 		self.textures.write(stream, Texture, self.info.texture_count, None)

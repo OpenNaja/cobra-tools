@@ -19,7 +19,55 @@ class ManiBlock:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ref = Empty(context, None, None)
+		self.ref = Empty(self.context, None, None)
+		self.indices_c_2 = numpy.zeros((), dtype='ushort')
+		self.indices_c_2 = numpy.zeros((), dtype='uint')
+		self.indices_0 = numpy.zeros((), dtype='ushort')
+		self.indices_0 = numpy.zeros((), dtype='uint')
+		self.indices_1 = numpy.zeros((), dtype='ushort')
+		self.indices_1 = numpy.zeros((), dtype='uint')
+		self.indices_e_2 = numpy.zeros((), dtype='ushort')
+		self.indices_e_2 = numpy.zeros((), dtype='uint')
+		self.p_indices_00 = numpy.zeros((), dtype='ubyte')
+		self.p_indices_00 = numpy.zeros((), dtype='ubyte')
+		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
+		self.p_indices_0 = numpy.zeros((), dtype='ubyte')
+		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
+		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
+
+		# ?
+		self.pad = PadAlign(self.context, self.ref, 4)
+
+		# these are likely a scale reference or factor
+		self.floatsa = numpy.zeros((), dtype='float')
+
+		# ?
+		self.pad_2 = SmartPadding(self.context, None, None)
+
+		# likely
+		self.frame_count = 0
+		self.c = 0
+		self.e = 0
+
+		# fixed
+		self.zeros_19 = numpy.zeros((19), dtype='uint')
+		self.count = 0
+
+		# usually / always 420
+		self.four_and_twenty = 0
+		self.ref_2 = Empty(self.context, None, None)
+		self.zeros = numpy.zeros((self.c), dtype='ubyte')
+
+		# ?
+		self.anoth_pad = SmartPadding(self.context, None, None)
+
+		# these are likely a scale reference or factor
+		self.floatsb = numpy.zeros((6), dtype='float')
+		self.repeats = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.ref = Empty(self.context, None, None)
 		if self.context.version == 18:
 			self.indices_c_2 = numpy.zeros((), dtype='ushort')
 		if not (self.context.version == 18):
@@ -45,39 +93,22 @@ class ManiBlock:
 		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
 		if self.arg.e_2 > 0:
 			self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
-
-		# ?
-		self.pad = PadAlign(context, self.ref, 4)
-
-		# these are likely a scale reference or factor
+		self.pad = PadAlign(self.context, self.ref, 4)
 		self.floatsa = numpy.zeros((), dtype='float')
-
-		# ?
-		self.pad_2 = SmartPadding(context, None, None)
-
-		# likely
+		self.pad_2 = SmartPadding(self.context, None, None)
 		self.frame_count = 0
 		self.c = 0
 		self.e = 0
-
-		# fixed
 		self.zeros_19 = numpy.zeros((19), dtype='uint')
 		self.count = 0
-
-		# usually / always 420
 		self.four_and_twenty = 0
-		self.ref_2 = Empty(context, None, None)
+		self.ref_2 = Empty(self.context, None, None)
 		self.zeros = numpy.zeros((self.c), dtype='ubyte')
-
-		# ?
-		self.anoth_pad = SmartPadding(context, None, None)
-
-		# these are likely a scale reference or factor
+		self.anoth_pad = SmartPadding(self.context, None, None)
 		self.floatsb = numpy.zeros((6), dtype='float')
-		self.repeats = Array()
+		self.repeats = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.ref = stream.read_type(Empty, (self.context, None, None))
 		if self.context.version == 18:
@@ -123,7 +154,6 @@ class ManiBlock:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.ref)
 		if self.context.version == 18:

@@ -22,9 +22,13 @@ class PoolType:
 
 		# Amount of the headers of that type that follow the headers block
 		self.num_pools = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.type = 0
+		self.num_pools = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.type = stream.read_ushort()
 		self.num_pools = stream.read_ushort()
@@ -32,7 +36,6 @@ class PoolType:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushort(self.type)
 		stream.write_ushort(self.num_pools)

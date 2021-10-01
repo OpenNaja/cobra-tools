@@ -41,9 +41,19 @@ class PixelFormat:
 		# For non-compressed types, this determines
 		# the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.
 		self.a_mask = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.size = 32
+		self.flags = PixelFormatFlags()
+		self.four_c_c = FourCC()
+		self.bit_count = 0
+		self.r_mask = 0
+		self.g_mask = 0
+		self.b_mask = 0
+		self.a_mask = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.size = stream.read_uint()
 		self.flags = stream.read_type(PixelFormatFlags, (self.context, None, None))
@@ -57,7 +67,6 @@ class PixelFormat:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.size)
 		stream.write_type(self.flags)

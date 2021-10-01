@@ -21,25 +21,34 @@ class DataEntry:
 		self.file_hash = 0
 
 		# DJB hash for extension; always (?) matches an archive header's hash
-		if self.context.version >= 19:
-			self.ext_hash = 0
+		self.ext_hash = 0
 
 		# 1-based indexing into set_header.sets; 0 if data is not part of a set
 		self.set_index = 0
 
 		# number of buffers that should be read from list for this entry
 		self.buffer_count = 0
-		if self.context.version >= 19:
-			self.zero = 0
+		self.zero = 0
 
 		# size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together
 		self.size_1 = 0
 
 		# size of last buffer; tex and texstream have all size here
 		self.size_2 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.file_hash = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
+		self.set_index = 0
+		self.buffer_count = 0
+		if self.context.version >= 19:
+			self.zero = 0
+		self.size_1 = 0
+		self.size_2 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
 		if self.context.version >= 19:
@@ -54,7 +63,6 @@ class DataEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
 		if self.context.version >= 19:

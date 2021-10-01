@@ -59,18 +59,39 @@ class FgmInfoHeader:
 
 		# byte count to check for quirks
 		self.data_lib_size = 0
-		self.texture_names = Array()
-		self.fgm_info = FourFragFgm(context, None, None)
-		self.two_frags_pad = Array()
-		self.textures = Array()
+		self.texture_names = Array(self.context)
+		self.fgm_info = FourFragFgm(self.context, None, None)
+		self.two_frags_pad = Array(self.context)
+		self.textures = Array(self.context)
+		self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 24)), dtype='byte')
+		self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 12)), dtype='byte')
+		self.attributes = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.magic = numpy.zeros((4), dtype='byte')
+		self.version_flag = 0
+		self.version = 0
+		self.bitswap = 0
+		self.seventh_byte = 1
+		self.user_version = 0
+		self.num_frags = 0
+		self.num_textures = 0
+		self.tex_info_size = 0
+		self.attr_info_size = 0
+		self.zeros_size = 0
+		self.data_lib_size = 0
+		self.texture_names = Array(self.context)
+		self.fgm_info = FourFragFgm(self.context, None, None)
+		self.two_frags_pad = Array(self.context)
+		self.textures = Array(self.context)
 		if not (self.context.version == 17):
 			self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 24)), dtype='byte')
 		if self.context.version == 17:
 			self.texpad = numpy.zeros((self.tex_info_size - (self.fgm_info.texture_count * 12)), dtype='byte')
-		self.attributes = Array()
+		self.attributes = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.version_flag = stream.read_byte()
@@ -100,7 +121,6 @@ class FgmInfoHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_byte(self.version_flag)

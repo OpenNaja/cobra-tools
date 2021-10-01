@@ -66,26 +66,45 @@ class PcModelData:
 		self.vert_offset_within_lod = 0
 
 		# power of 2 increasing with lod index
-		if self.context.version == 18:
-			self.poweroftwo = 0
+		self.poweroftwo = 0
 
 		# always zero
-		if self.context.version == 18:
-			self.zero = 0
+		self.zero = 0
 
 		# some floats
-		if self.context.version == 18:
-			self.unknown_07 = 0
+		self.unknown_07 = 0
 
 		# bitfield
 		self.flag = ModelFlag()
 
 		# always zero
+		self.zero_uac = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.stream_index = 0
+		self.zeros_a = numpy.zeros((3), dtype='uint')
+		self.tri_index_count_a = 0
+		self.vertex_count = 0
+		self.tri_offset = 0
+		self.tri_index_count = 0
+		self.vertex_offset = 0
+		self.weights_offset = 0
+		self.uv_offset = 0
+		self.zero_b = 0
+		self.vertex_color_offset = 0
+		self.vert_offset_within_lod = 0
+		if self.context.version == 18:
+			self.poweroftwo = 0
+		if self.context.version == 18:
+			self.zero = 0
+		if self.context.version == 18:
+			self.unknown_07 = 0
+		self.flag = ModelFlag()
 		if self.context.version == 17:
 			self.zero_uac = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.stream_index = stream.read_uint()
 		self.zeros_a = stream.read_uints((3))
@@ -111,7 +130,6 @@ class PcModelData:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.stream_index)
 		stream.write_uints(self.zeros_a)

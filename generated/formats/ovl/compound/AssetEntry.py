@@ -23,17 +23,25 @@ class AssetEntry:
 		self.zero_0 = 0
 
 		# always (?) matches an archive header's hash
-		if self.context.version >= 19:
-			self.ext_hash = 0
-		if self.context.version >= 19:
-			self.zero_1 = 0
+		self.ext_hash = 0
+		self.zero_1 = 0
 
 		# index into sized string entries array; hash of targeted file matches this assetentry's hash.
 		self.file_index = 0
 		self.zero_2 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.file_hash = 0
+		self.zero_0 = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
+		if self.context.version >= 19:
+			self.zero_1 = 0
+		self.file_index = 0
+		self.zero_2 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
 		self.zero_0 = stream.read_uint()
@@ -46,7 +54,6 @@ class AssetEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
 		stream.write_uint(self.zero_0)

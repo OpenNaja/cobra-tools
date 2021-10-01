@@ -64,9 +64,27 @@ class Matrix44:
 
 		# The (4,4) element.
 		self.m_44 = 1.0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.m_11 = 1.0
+		self.m_21 = 0.0
+		self.m_31 = 0.0
+		self.m_41 = 0.0
+		self.m_12 = 0.0
+		self.m_22 = 1.0
+		self.m_32 = 0.0
+		self.m_42 = 0.0
+		self.m_13 = 0.0
+		self.m_23 = 0.0
+		self.m_33 = 1.0
+		self.m_43 = 0.0
+		self.m_14 = 0.0
+		self.m_24 = 0.0
+		self.m_34 = 0.0
+		self.m_44 = 1.0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.m_11 = stream.read_float()
 		self.m_21 = stream.read_float()
@@ -88,7 +106,6 @@ class Matrix44:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_float(self.m_11)
 		stream.write_float(self.m_21)

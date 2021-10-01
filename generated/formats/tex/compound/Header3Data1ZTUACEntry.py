@@ -25,9 +25,14 @@ class Header3Data1ZTUACEntry:
 
 		# num_mips
 		self.num_mips = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.width = 0
+		self.height = 0
+		self.num_mips = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.width = stream.read_ushort()
 		self.height = stream.read_ushort()
@@ -36,7 +41,6 @@ class Header3Data1ZTUACEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushort(self.width)
 		stream.write_ushort(self.height)

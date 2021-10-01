@@ -32,9 +32,19 @@ class StreamInfo:
 		self.uv_buffer_length = 0
 		self.zero_3 = 0
 		self.zero_4 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.vertex_buffer_length = 0
+		self.zero_0 = 0
+		self.tris_buffer_length = 0
+		self.zero_1 = 0
+		self.zero_2 = 0
+		self.uv_buffer_length = 0
+		self.zero_3 = 0
+		self.zero_4 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.vertex_buffer_length = stream.read_uint64()
 		self.zero_0 = stream.read_uint64()
@@ -48,7 +58,6 @@ class StreamInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.vertex_buffer_length)
 		stream.write_uint64(self.zero_0)

@@ -21,14 +21,19 @@ class SetEntry:
 		self.file_hash = 0
 
 		# always (?) matches an archive header's hash
-		if self.context.version >= 19:
-			self.ext_hash = 0
+		self.ext_hash = 0
 
 		# add from last set's entry up to this index to this set
 		self.start = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.file_hash = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
+		self.start = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
 		if self.context.version >= 19:
@@ -38,7 +43,6 @@ class SetEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
 		if self.context.version >= 19:

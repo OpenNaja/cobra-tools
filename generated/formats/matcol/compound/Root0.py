@@ -16,9 +16,15 @@ class Root0:
 		self.zero_1 = 0
 		self.collection_count = 0
 		self.zero_4 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zero_0 = 0
+		self.zero_1 = 0
+		self.collection_count = 0
+		self.zero_4 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zero_0 = stream.read_uint()
 		self.zero_1 = stream.read_uint()
@@ -28,7 +34,6 @@ class Root0:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.zero_0)
 		stream.write_uint(self.zero_1)

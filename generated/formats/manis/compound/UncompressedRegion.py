@@ -25,9 +25,21 @@ class UncompressedRegion:
 		self.unk_4 = 0
 		self.unk_5 = 0
 		self.zeros_3 = numpy.zeros((2), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zeros_0 = numpy.zeros((2), dtype='uint')
+		self.unk_0 = 0
+		self.unk_1 = 0
+		self.zeros_1 = numpy.zeros((3), dtype='uint')
+		self.unk_2 = 0
+		self.unk_3 = 0
+		self.zeros_2 = numpy.zeros((2), dtype='uint')
+		self.unk_4 = 0
+		self.unk_5 = 0
+		self.zeros_3 = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zeros_0 = stream.read_uints((2))
 		self.unk_0 = stream.read_ushort()
@@ -43,7 +55,6 @@ class UncompressedRegion:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uints(self.zeros_0)
 		stream.write_ushort(self.unk_0)

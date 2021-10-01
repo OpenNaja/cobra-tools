@@ -27,9 +27,14 @@ class Header3Data1:
 
 		# is also related to data size
 		self.unkn = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.data_size_previous = 0
+		self.data_size = 0
+		self.unkn = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.data_size_previous = stream.read_uint64()
 		self.data_size = stream.read_uint64()
@@ -38,7 +43,6 @@ class Header3Data1:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.data_size_previous)
 		stream.write_uint64(self.data_size)

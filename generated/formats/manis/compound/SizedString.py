@@ -24,10 +24,14 @@ class SizedString:
 		self.length = 0
 
 		# The string itself.
-		self.value = Array()
+		self.value = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.length = 0
+		self.value = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.value = stream.read_chars((self.length))
@@ -35,7 +39,6 @@ class SizedString:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		stream.write_chars(self.value)

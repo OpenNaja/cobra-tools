@@ -23,9 +23,13 @@ class UnknownEntry:
 		# ?
 		self.unknowns = numpy.zeros((2, 2), dtype='ushort')
 		self.zero = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.unknowns = numpy.zeros((2, 2), dtype='ushort')
+		self.zero = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.unknowns = stream.read_ushorts((2, 2))
 		self.zero = stream.read_uint()
@@ -33,7 +37,6 @@ class UnknownEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushorts(self.unknowns)
 		stream.write_uint(self.zero)

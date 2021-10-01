@@ -18,12 +18,17 @@ class JweBone:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.loc = Vector3(context, None, None)
+		self.loc = Vector3(self.context, None, None)
 		self.scale = 0
-		self.rot = Vector4(context, None, None)
+		self.rot = Vector4(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.loc = Vector3(self.context, None, None)
+		self.scale = 0
+		self.rot = Vector4(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
 		self.scale = stream.read_float()
@@ -32,7 +37,6 @@ class JweBone:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.loc)
 		stream.write_float(self.scale)

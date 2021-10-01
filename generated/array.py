@@ -1,7 +1,8 @@
 class Array(list):
 
-	def __init__(self, default=()):
+	def __init__(self, context, default=()):
 		super().__init__(self)
+		self.context = context
 		if default:
 			self.extend(default)
 		self.dtype = None
@@ -23,7 +24,7 @@ class Array(list):
 			# it is a class
 			if mode == "read":
 				def func():
-					return stream.read_type(self.dtype, (self.arg, self.template))
+					return stream.read_type(self.dtype, (self.context, self.arg, self.template))
 			else:
 				def func(obj):
 					return stream.write_type(obj)

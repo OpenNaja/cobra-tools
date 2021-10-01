@@ -15,16 +15,21 @@ class Sphere:
 		self.io_start = 0
 
 		# center of the sphere
-		self.center = Vector3(context, None, None)
+		self.center = Vector3(self.context, None, None)
 
 		# radius around the center
 		self.radius = 0
 
 		# apparently unused
 		self.zero = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.center = Vector3(self.context, None, None)
+		self.radius = 0
+		self.zero = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.center = stream.read_type(Vector3, (self.context, None, None))
 		self.radius = stream.read_float()
@@ -33,7 +38,6 @@ class Sphere:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.center)
 		stream.write_float(self.radius)

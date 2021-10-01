@@ -25,36 +25,31 @@ class CoreModelInfo:
 		self.io_start = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(context, None, None)
+		self.bounds_min = Vector3(self.context, None, None)
 
 		# not sure, for PZ often 40 00 00 37 for animals
-		if not (self.context.version < 19):
-			self.unk_float_a = 0
+		self.unk_float_a = 0
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(context, None, None)
+		self.bounds_max = Vector3(self.context, None, None)
 
 		# scale: pack_offset / 512, also added as offset
-		if not (self.context.version < 19):
-			self.pack_offset = 0
+		self.pack_offset = 0
 
 		# cog? medium of bounds?
-		self.center = Vector3(context, None, None)
+		self.center = Vector3(self.context, None, None)
 
 		# probably from center to max
 		self.radius = 0
 
 		# PZ only, zero-ish
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
-			self.unknowns = numpy.zeros((4), dtype='float')
+		self.unknowns = numpy.zeros((4), dtype='float')
 
 		# verbatim repeat
-		if not (self.context.version == 17):
-			self.bounds_min_repeat = Vector3(context, None, None)
+		self.bounds_min_repeat = Vector3(self.context, None, None)
 
 		# verbatim repeat
-		if not (self.context.version == 17):
-			self.bounds_max_repeat = Vector3(context, None, None)
+		self.bounds_max_repeat = Vector3(self.context, None, None)
 		self.num_materials = 0
 		self.num_lods = 0
 		self.num_objects = 0
@@ -71,9 +66,33 @@ class CoreModelInfo:
 		# ?
 		self.unks = numpy.zeros((7), dtype='ushort')
 		self.pad = numpy.zeros((3), dtype='ushort')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.bounds_min = Vector3(self.context, None, None)
+		if not (self.context.version < 19):
+			self.unk_float_a = 0
+		self.bounds_max = Vector3(self.context, None, None)
+		if not (self.context.version < 19):
+			self.pack_offset = 0
+		self.center = Vector3(self.context, None, None)
+		self.radius = 0
+		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+			self.unknowns = numpy.zeros((4), dtype='float')
+		if not (self.context.version == 17):
+			self.bounds_min_repeat = Vector3(self.context, None, None)
+		if not (self.context.version == 17):
+			self.bounds_max_repeat = Vector3(self.context, None, None)
+		self.num_materials = 0
+		self.num_lods = 0
+		self.num_objects = 0
+		self.num_models = 0
+		self.last_count = 0
+		self.render_flag = RenderFlag()
+		self.unks = numpy.zeros((7), dtype='ushort')
+		self.pad = numpy.zeros((3), dtype='ushort')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.bounds_min = stream.read_type(Vector3, (self.context, None, None))
 		if not (self.context.version < 19):
@@ -100,7 +119,6 @@ class CoreModelInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.bounds_min)
 		if not (self.context.version < 19):

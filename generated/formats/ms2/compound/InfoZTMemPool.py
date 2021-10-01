@@ -17,9 +17,13 @@ class InfoZTMemPool:
 		self.io_start = 0
 		self.unk_count = 0
 		self.unks = numpy.zeros((self.unk_count, 2), dtype='ushort')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.unk_count = 0
+		self.unks = numpy.zeros((self.unk_count, 2), dtype='ushort')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.unk_count = stream.read_ushort()
 		self.unks = stream.read_ushorts((self.unk_count, 2))
@@ -27,7 +31,6 @@ class InfoZTMemPool:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushort(self.unk_count)
 		stream.write_ushorts(self.unks)

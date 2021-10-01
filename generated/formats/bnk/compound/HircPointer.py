@@ -17,13 +17,18 @@ class HircPointer:
 
 		# length of following data
 		self.id = 0
+		self.data = Type2(self.context, None, None)
+		self.data = TypeOther(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.id = 0
 		if self.id == 2:
-			self.data = Type2(context, None, None)
+			self.data = Type2(self.context, None, None)
 		if self.id != 2:
-			self.data = TypeOther(context, None, None)
+			self.data = TypeOther(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.id = stream.read_byte()
 		if self.id == 2:
@@ -34,7 +39,6 @@ class HircPointer:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_byte(self.id)
 		if self.id == 2:

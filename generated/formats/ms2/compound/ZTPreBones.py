@@ -20,9 +20,16 @@ class ZTPreBones:
 		self.unks_2 = numpy.zeros((10), dtype='uint')
 		self.floats = numpy.zeros((4), dtype='float')
 		self.unks_3 = numpy.zeros((2), dtype='uint')
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.zeros = numpy.zeros((2), dtype='uint64')
+		self.unks = numpy.zeros((8), dtype='uint')
+		self.unks_2 = numpy.zeros((10), dtype='uint')
+		self.floats = numpy.zeros((4), dtype='float')
+		self.unks_3 = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.zeros = stream.read_uint64s((2))
 		self.unks = stream.read_uints((8))
@@ -33,7 +40,6 @@ class ZTPreBones:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64s(self.zeros)
 		stream.write_uints(self.unks)

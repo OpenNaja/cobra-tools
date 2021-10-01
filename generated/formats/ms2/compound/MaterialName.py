@@ -14,23 +14,29 @@ class MaterialName:
 		self.io_start = 0
 
 		# index into ms2 names array
-		if not (self.context.version < 19):
-			self.name_index = 0
+		self.name_index = 0
 
 		# index into ms2 names array
+		self.name_index = 0
+
+		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
+		self.some_index = 0
+
+		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
+		self.some_index = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		if not (self.context.version < 19):
+			self.name_index = 0
 		if self.context.version < 19:
 			self.name_index = 0
-
-		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
 		if not (self.context.version < 19):
 			self.some_index = 0
-
-		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
 		if self.context.version < 19:
 			self.some_index = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		if not (self.context.version < 19):
 			self.name_index = stream.read_uint()
@@ -44,7 +50,6 @@ class MaterialName:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		if not (self.context.version < 19):
 			stream.write_uint(self.name_index)

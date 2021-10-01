@@ -25,9 +25,14 @@ class Vector3Ushort:
 
 		# Third coordinate.
 		self.z = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.x = 0
+		self.y = 0
+		self.z = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.x = stream.read_ushort()
 		self.y = stream.read_ushort()
@@ -36,7 +41,6 @@ class Vector3Ushort:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushort(self.x)
 		stream.write_ushort(self.y)

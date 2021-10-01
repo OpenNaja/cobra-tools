@@ -34,28 +34,46 @@ class HitCheckEntry:
 
 		# JWE: 46, PZ: same as above
 		self.unknown_4 = 0
-		if self.context.version == 18:
-			self.zero_extra_pc_unk = 0
+		self.zero_extra_pc_unk = 0
 
 		# offset into joint names
 		self.name_offset = 0
+		self.collider = Sphere(self.context, None, None)
+		self.collider = BoundingBox(self.context, None, None)
+		self.collider = Capsule(self.context, None, None)
+		self.collider = Cylinder(self.context, None, None)
+		self.collider = ConvexHull(self.context, None, None)
+		self.collider = ConvexHull(self.context, None, None)
+		self.collider = MeshCollision(self.context, None, None)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.type = CollisionType()
+		self.unknown_2_a = 0
+		self.unknown_2_b = 0
+		self.unknown_2_c = 0
+		self.unknown_2_d = 0
+		self.unknown_3 = 0
+		self.unknown_4 = 0
+		if self.context.version == 18:
+			self.zero_extra_pc_unk = 0
+		self.name_offset = 0
 		if self.type == 0:
-			self.collider = Sphere(context, None, None)
+			self.collider = Sphere(self.context, None, None)
 		if self.type == 1:
-			self.collider = BoundingBox(context, None, None)
+			self.collider = BoundingBox(self.context, None, None)
 		if self.type == 2:
-			self.collider = Capsule(context, None, None)
+			self.collider = Capsule(self.context, None, None)
 		if self.type == 3:
-			self.collider = Cylinder(context, None, None)
+			self.collider = Cylinder(self.context, None, None)
 		if self.type == 7:
-			self.collider = ConvexHull(context, None, None)
+			self.collider = ConvexHull(self.context, None, None)
 		if self.type == 8:
-			self.collider = ConvexHull(context, None, None)
+			self.collider = ConvexHull(self.context, None, None)
 		if self.type == 10:
-			self.collider = MeshCollision(context, None, None)
+			self.collider = MeshCollision(self.context, None, None)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.type = CollisionType(stream.read_uint())
 		self.unknown_2_a = stream.read_ubyte()
@@ -85,7 +103,6 @@ class HitCheckEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.type.value)
 		stream.write_ubyte(self.unknown_2_a)

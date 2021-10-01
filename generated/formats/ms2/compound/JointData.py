@@ -43,8 +43,7 @@ class JointData:
 		self.count_2 = 0
 
 		# 0s, might be related to count 7 in PC
-		if self.context.version == 18:
-			self.zeros_extra = numpy.zeros((2), dtype='uint')
+		self.zeros_extra = numpy.zeros((2), dtype='uint')
 
 		# size of the name buffer below, including trailing zeros
 		self.namespace_length = 0
@@ -59,8 +58,7 @@ class JointData:
 		self.zeros_1 = numpy.zeros((7), dtype='uint')
 
 		# 0s
-		if self.context.version == 18:
-			self.extra_zeros_pc = numpy.zeros((4), dtype='uint')
+		self.extra_zeros_pc = numpy.zeros((4), dtype='uint')
 
 		# 1, 1
 		self.ones = numpy.zeros((2), dtype='uint64')
@@ -75,41 +73,31 @@ class JointData:
 		self.zeros_2 = numpy.zeros((4), dtype='uint')
 
 		# corresponds to bone transforms
-		self.joint_transforms = Array()
+		self.joint_transforms = Array(self.context)
 
 		# might be pointers
-		if not (self.context.version == 18):
-			self.zeros_3 = numpy.zeros((self.joint_count), dtype='uint64')
-		if not (self.context.version == 18):
-			self.unknown_listc = Array()
+		self.zeros_3 = numpy.zeros((self.joint_count), dtype='uint64')
+		self.unknown_listc = Array(self.context)
 
 		# used by ptero, 16 bytes per entry
-		if not (self.context.version == 18):
-			self.first_list = Array()
-		if not (self.context.version == 18):
-			self.short_list = Array()
-		if not (self.context.version == 18):
-			self.long_list = Array()
+		self.first_list = Array(self.context)
+		self.short_list = Array(self.context)
+		self.long_list = Array(self.context)
 
 		# ?
-		if self.context.version == 18:
-			self.pc_ffs = PcFFCounter(context, None, None)
+		self.pc_ffs = PcFFCounter(self.context, None, None)
 
 		# 1FAA FFAAFF00 000000
-		if self.context.version == 18:
-			self.pc_bytes = numpy.zeros((9), dtype='byte')
+		self.pc_bytes = numpy.zeros((9), dtype='byte')
 
 		# counts hitchecks for pz
-		if self.context.version == 18:
-			self.pc_hitcheck_count = 0
+		self.pc_hitcheck_count = 0
 
 		# 0
-		if self.context.version == 18:
-			self.pc_zero_0 = 0
+		self.pc_zero_0 = 0
 
 		# sometimes an array of floats
-		if self.context.version == 18:
-			self.pc_floats = numpy.zeros((self.pc_count, 10), dtype='float')
+		self.pc_floats = numpy.zeros((self.pc_count, 10), dtype='float')
 
 		# index into bone info bones for each joint; bone that the joint is attached to
 		self.joint_indices = numpy.zeros((self.joint_count), dtype='int')
@@ -118,21 +106,66 @@ class JointData:
 		self.bone_indices = numpy.zeros((self.bone_count), dtype='int')
 
 		# zstring name buffer
-		self.joint_names = ZStringBuffer(context, self.namespace_length, None)
+		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
 
 		# ?
-		self.joint_names_padding = SmartPadding(context, None, None)
+		self.joint_names_padding = SmartPadding(self.context, None, None)
 
 		# includes name ptrs, some flags, and the hitchecks
-		if not (self.context.version == 18):
-			self.joint_info_list = Array()
+		self.joint_info_list = Array(self.context)
 
 		# bare hitchecks
+		self.hitchecks_pc = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.joint_count = 0
+		self.count_0 = 0
+		self.count_1 = 0
+		self.count_2 = 0
 		if self.context.version == 18:
-			self.hitchecks_pc = Array()
+			self.zeros_extra = numpy.zeros((2), dtype='uint')
+		self.namespace_length = 0
+		self.zeros_0 = numpy.zeros((5), dtype='uint')
+		self.pc_count = 0
+		self.zeros_1 = numpy.zeros((7), dtype='uint')
+		if self.context.version == 18:
+			self.extra_zeros_pc = numpy.zeros((4), dtype='uint')
+		self.ones = numpy.zeros((2), dtype='uint64')
+		self.bone_count = 0
+		self.joint_entry_count = 0
+		self.zeros_2 = numpy.zeros((4), dtype='uint')
+		self.joint_transforms = Array(self.context)
+		if not (self.context.version == 18):
+			self.zeros_3 = numpy.zeros((self.joint_count), dtype='uint64')
+		if not (self.context.version == 18):
+			self.unknown_listc = Array(self.context)
+		if not (self.context.version == 18):
+			self.first_list = Array(self.context)
+		if not (self.context.version == 18):
+			self.short_list = Array(self.context)
+		if not (self.context.version == 18):
+			self.long_list = Array(self.context)
+		if self.context.version == 18:
+			self.pc_ffs = PcFFCounter(self.context, None, None)
+		if self.context.version == 18:
+			self.pc_bytes = numpy.zeros((9), dtype='byte')
+		if self.context.version == 18:
+			self.pc_hitcheck_count = 0
+		if self.context.version == 18:
+			self.pc_zero_0 = 0
+		if self.context.version == 18:
+			self.pc_floats = numpy.zeros((self.pc_count, 10), dtype='float')
+		self.joint_indices = numpy.zeros((self.joint_count), dtype='int')
+		self.bone_indices = numpy.zeros((self.bone_count), dtype='int')
+		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
+		self.joint_names_padding = SmartPadding(self.context, None, None)
+		if not (self.context.version == 18):
+			self.joint_info_list = Array(self.context)
+		if self.context.version == 18:
+			self.hitchecks_pc = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.joint_count = stream.read_uint()
 		self.count_0 = stream.read_uint()
@@ -179,7 +212,6 @@ class JointData:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.joint_count)
 		stream.write_uint(self.count_0)

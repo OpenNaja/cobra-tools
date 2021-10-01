@@ -99,50 +99,88 @@ class Header(GenericHeader):
 		self.reserved = numpy.zeros((12), dtype='uint')
 
 		# Name buffer for assets and file mime types.
-		self.names = ZStringBuffer(context, self.len_names, None)
+		self.names = ZStringBuffer(self.context, self.len_names, None)
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array()
+		self.mimes = Array(self.context)
 
 		# ?
-		if self.context.version >= 20:
-			self.triplets = Array()
+		self.triplets = Array(self.context)
 
 		# ?
-		if self.context.version >= 20:
-			self.triplets_pad = PadAlign(context, self.triplets, 4)
+		self.triplets_pad = PadAlign(self.context, self.triplets, 4)
 
 		# Array of FileEntry objects.
-		self.files = Array()
+		self.files = Array(self.context)
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
-		self.archive_names = ZStringBuffer(context, self.len_archive_names, None)
+		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 
 		# Array of ArchiveEntry objects.
-		self.archives = Array()
+		self.archives = Array(self.context)
 
 		# Array of DirEntry objects.
-		self.dirs = Array()
+		self.dirs = Array(self.context)
 
 		# aka InstancesArray of DependencyEntry objects.
-		if not (self.context.version == 17):
-			self.dependencies = Array()
+		self.dependencies = Array(self.context)
 
 		# Array of AuxEntry objects.
-		self.aux_entries = Array()
+		self.aux_entries = Array(self.context)
 
 		# after aux in ZTUAC
-		if self.context.version == 17:
-			self.dependencies = Array()
+		self.dependencies = Array(self.context)
 
 		# Array of UnknownEntry objects.
-		self.unknowns = Array()
+		self.unknowns = Array(self.context)
 
 		# repeats by archive count
-		self.zlibs = Array()
+		self.zlibs = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.lod_depth = 0
+		self.len_names = 0
+		self.zero_2 = 0
+		self.num_aux_entries = 0
+		self.num_dirs = 0
+		self.num_mimes = 0
+		self.num_files = 0
+		self.num_files_2 = 0
+		self.num_dependencies = 0
+		self.num_archives = 0
+		self.num_pool_types = 0
+		self.num_pools = 0
+		self.num_datas = 0
+		self.num_buffers = 0
+		self.num_files_ovs = 0
+		self.ztuac_unk_0 = 0
+		self.ztuac_unk_1 = 0
+		self.ztuac_unk_2 = 0
+		self.len_archive_names = 0
+		self.num_files_3 = 0
+		self.len_type_names = 0
+		self.num_triplets = 0
+		self.reserved = numpy.zeros((12), dtype='uint')
+		self.names = ZStringBuffer(self.context, self.len_names, None)
+		self.mimes = Array(self.context)
+		if self.context.version >= 20:
+			self.triplets = Array(self.context)
+		if self.context.version >= 20:
+			self.triplets_pad = PadAlign(self.context, self.triplets, 4)
+		self.files = Array(self.context)
+		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
+		self.archives = Array(self.context)
+		self.dirs = Array(self.context)
+		if not (self.context.version == 17):
+			self.dependencies = Array(self.context)
+		self.aux_entries = Array(self.context)
+		if self.context.version == 17:
+			self.dependencies = Array(self.context)
+		self.unknowns = Array(self.context)
+		self.zlibs = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		super().read(stream)
 		self.lod_depth = stream.read_uint()
@@ -188,7 +226,6 @@ class Header(GenericHeader):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_uint(self.lod_depth)

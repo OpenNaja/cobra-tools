@@ -18,12 +18,17 @@ class PzBone:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rot = Vector4(context, None, None)
-		self.loc = Vector3(context, None, None)
+		self.rot = Vector4(self.context, None, None)
+		self.loc = Vector3(self.context, None, None)
+		self.scale = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.rot = Vector4(self.context, None, None)
+		self.loc = Vector3(self.context, None, None)
 		self.scale = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.rot = stream.read_type(Vector4, (self.context, None, None))
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
@@ -32,7 +37,6 @@ class PzBone:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.rot)
 		stream.write_type(self.loc)

@@ -41,9 +41,19 @@ class LodInfoZT:
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
 		self.last_object_index = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.full = 0
+		self.half = 0
+		self.lod_index = 0
+		self.bone_index = 0
+		self.first_object_index = 0
+		self.some_index = 0
+		self.some_index_2 = 0
+		self.last_object_index = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.full = stream.read_short()
 		self.half = stream.read_short()
@@ -57,7 +67,6 @@ class LodInfoZT:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_short(self.full)
 		stream.write_short(self.half)

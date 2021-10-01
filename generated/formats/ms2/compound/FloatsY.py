@@ -17,9 +17,13 @@ class FloatsY:
 		self.io_start = 0
 		self.floats = numpy.zeros((8), dtype='float')
 		self.index = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.floats = numpy.zeros((8), dtype='float')
+		self.index = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.floats = stream.read_floats((8))
 		self.index = stream.read_uint()
@@ -27,7 +31,6 @@ class FloatsY:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_floats(self.floats)
 		stream.write_uint(self.index)

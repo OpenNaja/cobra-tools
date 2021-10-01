@@ -16,8 +16,11 @@ class HeaderPointer:
 
 	context = ContextReference()
 
-	def read(self, stream):
+	def set_defaults(self):
+		self.pool_index = 0
+		self.data_offset = 0
 
+	def read(self, stream):
 		self.io_start = stream.tell()
 		self.pool_index = stream.read_int()
 		self.data_offset = stream.read_uint()
@@ -25,7 +28,6 @@ class HeaderPointer:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_int(self.pool_index)
 		stream.write_uint(self.data_offset)

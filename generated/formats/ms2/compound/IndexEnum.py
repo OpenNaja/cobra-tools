@@ -16,9 +16,13 @@ class IndexEnum:
 
 		# linear increase
 		self.index = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.four = 0
+		self.index = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.four = stream.read_uint()
 		self.index = stream.read_uint()
@@ -26,7 +30,6 @@ class IndexEnum:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.four)
 		stream.write_uint(self.index)

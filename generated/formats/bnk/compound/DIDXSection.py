@@ -23,10 +23,14 @@ class DIDXSection:
 
 		# length of following data
 		self.length = 0
-		self.data_pointers = Array()
+		self.data_pointers = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.length = 0
+		self.data_pointers = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.length = stream.read_uint()
 		self.data_pointers.read(stream, DataPointer, int(self.length / 12), None)
@@ -34,7 +38,6 @@ class DIDXSection:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.length)
 		self.data_pointers.write(stream, DataPointer, int(self.length / 12), None)

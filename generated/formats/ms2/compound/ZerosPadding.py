@@ -15,15 +15,20 @@ class ZerosPadding:
 		self.hier_2_padding_0 = 0
 
 		# 128 still has 16 bytes
-		if 64 < self.arg:
-			self.hier_2_padding_1 = 0
+		self.hier_2_padding_1 = 0
 
 		# 129 is the first with 24 bytes
+		self.hier_2_padding_2 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.hier_2_padding_0 = 0
+		if 64 < self.arg:
+			self.hier_2_padding_1 = 0
 		if 128 < self.arg:
 			self.hier_2_padding_2 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.hier_2_padding_0 = stream.read_uint64()
 		if 64 < self.arg:
@@ -34,7 +39,6 @@ class ZerosPadding:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint64(self.hier_2_padding_0)
 		if 64 < self.arg:

@@ -20,7 +20,7 @@ class GenericHeader:
 		self.io_start = 0
 
 		# 'FRES'
-		self.fres = FixedString(context, 4, None)
+		self.fres = FixedString(self.context, 4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform
 		self.version_flag = 0
@@ -36,9 +36,17 @@ class GenericHeader:
 
 		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
 		self.user_version = VersionInfo()
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.fres = FixedString(self.context, 4, None)
+		self.version_flag = 0
+		self.version = 0
+		self.bitswap = 0
+		self.seventh_byte = 1
+		self.user_version = VersionInfo()
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.fres = stream.read_type(FixedString, (self.context, 4, None))
 		self.version_flag = stream.read_byte()
@@ -53,7 +61,6 @@ class GenericHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_type(self.fres)
 		stream.write_byte(self.version_flag)

@@ -30,11 +30,19 @@ class SetHeader:
 
 		# must be 16909320
 		self.sig_b = 16909320
-		self.sets = Array()
-		self.assets = Array()
+		self.sets = Array(self.context)
+		self.assets = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.set_count = 0
+		self.asset_count = 0
+		self.sig_a = 1065336831
+		self.sig_b = 16909320
+		self.sets = Array(self.context)
+		self.assets = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.set_count = stream.read_uint()
 		self.asset_count = stream.read_uint()
@@ -46,7 +54,6 @@ class SetHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.set_count)
 		stream.write_uint(self.asset_count)

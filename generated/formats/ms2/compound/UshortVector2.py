@@ -22,9 +22,13 @@ class UshortVector2:
 
 		# Second coordinate.
 		self.v = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.u = 0
+		self.v = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.u = stream.read_ushort()
 		self.v = stream.read_ushort()
@@ -32,7 +36,6 @@ class UshortVector2:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_ushort(self.u)
 		stream.write_ushort(self.v)

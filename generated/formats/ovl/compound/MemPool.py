@@ -18,8 +18,7 @@ class MemPool:
 		self.io_start = 0
 
 		# always 0
-		if not (self.context.version == 15):
-			self.zero_1 = 0
+		self.zero_1 = 0
 
 		# the number of bytes representing the text files data
 		self.size = 0
@@ -28,8 +27,7 @@ class MemPool:
 		self.offset = 0
 
 		# always 0
-		if self.context.version == 15:
-			self.zero_2 = 0
+		self.zero_2 = 0
 
 		# DJB hash of the first file in the txt data block
 		self.file_hash = 0
@@ -38,15 +36,27 @@ class MemPool:
 		self.num_files = 0
 
 		# JWE: DJB hash for extension, 0 for PZ
-		if self.context.version >= 19:
-			self.ext_hash = 0
+		self.ext_hash = 0
 
 		# always 0
+		self.zero_3 = 0
+		self.set_defaults()
+
+	def set_defaults(self):
+		if not (self.context.version == 15):
+			self.zero_1 = 0
+		self.size = 0
+		self.offset = 0
+		if self.context.version == 15:
+			self.zero_2 = 0
+		self.file_hash = 0
+		self.num_files = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
 		if self.context.version >= 19:
 			self.zero_3 = 0
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		if not (self.context.version == 15):
 			self.zero_1 = stream.read_uint64()
@@ -63,7 +73,6 @@ class MemPool:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		if not (self.context.version == 15):
 			stream.write_uint64(self.zero_1)

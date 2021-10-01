@@ -25,14 +25,19 @@ class SizedStringEntry:
 		self.file_hash = 0
 
 		# djb of extension
-		if self.context.version >= 19:
-			self.ext_hash = 0
+		self.ext_hash = 0
 
 		# one pointer OR -1 pointer for assets
-		self.pointers = Array()
+		self.pointers = Array(self.context)
+		self.set_defaults()
+
+	def set_defaults(self):
+		self.file_hash = 0
+		if self.context.version >= 19:
+			self.ext_hash = 0
+		self.pointers = Array(self.context)
 
 	def read(self, stream):
-
 		self.io_start = stream.tell()
 		self.file_hash = stream.read_uint()
 		if self.context.version >= 19:
@@ -42,7 +47,6 @@ class SizedStringEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-
 		self.io_start = stream.tell()
 		stream.write_uint(self.file_hash)
 		if self.context.version >= 19:
