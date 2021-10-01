@@ -78,7 +78,7 @@ def get_collider_matrix(ob):
 
 def export_spherebv(b_obj, hitcheck):
 	hitcheck.type = CollisionType.Sphere
-	hitcheck.collider = Sphere()
+	hitcheck.collider = Sphere(hitcheck.context)
 
 	matrix = get_collider_matrix(b_obj)
 	hitcheck.collider.radius = b_obj.dimensions.x / 2
@@ -88,7 +88,7 @@ def export_spherebv(b_obj, hitcheck):
 
 def export_boxbv(b_obj, hitcheck, corrector):
 	hitcheck.type = CollisionType.BoundingBox
-	hitcheck.collider = BoundingBox()
+	hitcheck.collider = BoundingBox(hitcheck.context)
 
 	matrix = get_collider_matrix(b_obj)
 	c = hitcheck.collider.center
@@ -106,13 +106,13 @@ def set_rot_matrix(b_matrix_4x4, m_rot_3x3, corrector):
 
 def export_capsulebv(b_obj, hitcheck):
 	hitcheck.type = CollisionType.Capsule
-	hitcheck.collider = Capsule()
+	hitcheck.collider = Capsule(hitcheck.context)
 	_capsule_transform(b_obj, hitcheck)
 
 
 def export_cylinderbv(b_obj, hitcheck):
 	hitcheck.type = CollisionType.Cylinder
-	hitcheck.collider = Cylinder()
+	hitcheck.collider = Cylinder(hitcheck.context)
 	_capsule_transform(b_obj, hitcheck)
 	# sole difference
 	hitcheck.collider.extent = b_obj.dimensions.z
@@ -123,7 +123,7 @@ def export_meshbv(b_obj, hitcheck, corrector):
 	matrix = get_collider_matrix(b_obj)
 
 	hitcheck.type = CollisionType.MeshCollision
-	hitcheck.collider = MeshCollision()
+	hitcheck.collider = MeshCollision(hitcheck.context)
 	coll = hitcheck.collider
 
 	bounds_max, bounds_min = get_bounds((b_obj.bound_box, ))
@@ -157,7 +157,7 @@ def export_hullbv(b_obj, hitcheck, corrector):
 	matrix = get_collider_matrix(b_obj)
 
 	hitcheck.type = CollisionType.ConvexHull
-	hitcheck.collider = ConvexHull()
+	hitcheck.collider = ConvexHull(hitcheck.context)
 	coll = hitcheck.collider
 
 	# export rotation

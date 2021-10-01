@@ -41,7 +41,7 @@ def has_objects_in_scene():
 
 
 def export_material(mdl2, b_mat):
-	mat = MaterialName()
+	mat = MaterialName(mdl2.context)
 	mat.some_index = get_property(b_mat, "some_index")
 	mat.name = b_mat.name
 	mdl2.materials.append(mat)
@@ -50,7 +50,7 @@ def export_material(mdl2, b_mat):
 def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we get the corresponding mdl2 model
-	model = ModelData()
+	model = ModelData(mdl2.context)
 	# set data
 	model.size_of_vertex = 48
 	model.flag._value = get_property(b_me, "flag")
@@ -289,7 +289,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 		lod_coll = get_collection(lod_group_name)
 		if not lod_coll:
 			break
-		m_lod = LodInfo()
+		m_lod = LodInfo(mdl2.context)
 		m_lod.distance = math.pow(30+15*lod_i, 2)
 		m_lod.first_object_index = len(mdl2.objects)
 		m_lod.models = []
@@ -311,7 +311,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 					if "." in b_mat.name:
 						messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
 				# create one unique model per material
-				m_ob = MeshLink()
+				m_ob = MeshLink(mdl2.context)
 				m_ob.model_index = b_models.index(b_me)
 				m_ob.material_index = b_materials.index(b_mat)
 				mdl2.objects.append(m_ob)

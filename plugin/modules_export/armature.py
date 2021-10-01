@@ -127,7 +127,7 @@ def export_bones_custom(b_armature_ob, mdl2):
 		else:
 			mat_local_to_parent = mat_local
 
-		ms2_bone = bone_class()
+		ms2_bone = bone_class(mdl2.context)
 		ms2_bone.name = bone_name_for_ovl(b_bone_name)
 		# set parent index
 		if b_bone.parent:
@@ -137,7 +137,7 @@ def export_bones_custom(b_armature_ob, mdl2):
 		ms2_bone.set_bone(mat_local_to_parent)
 
 		bone_info.bones.append(ms2_bone)
-		ms2_inv_bind = Matrix44()
+		ms2_inv_bind = Matrix44(mdl2.context)
 		ms2_inv_bind.set_rows(mat_local.inverted())
 		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
 
