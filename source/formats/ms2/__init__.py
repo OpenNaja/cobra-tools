@@ -37,10 +37,19 @@ def findall_diff(s, p0, p1):
 		i = s.find(p0, i + 1)
 
 
+class Ms2Context(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
+
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
 class Ms2File(Ms2InfoHeader, IoFile):
 
 	def __init__(self, ):
-		super().__init__()
+		super().__init__(Ms2Context())
 
 	def assign_bone_names(self, bone_info):
 		try:
@@ -59,7 +68,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"mdl2 count {self.general_info.mdl_2_count}")
 			for i in range(self.general_info.mdl_2_count):
 				logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
-				bone_info = Ms2BoneInfo()
+				bone_info = Ms2BoneInfo(self.context)
 				try:
 					bone_info.read(stream)
 					self.assign_bone_names(bone_info)
@@ -297,12 +306,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def read_pc_buffer_1(self, stream):
 		"""Reads the model info buffer for PC / ZTUAC which includes MDL2s + bone infos interleaved"""
 		self.bone_infos = []
-		self.pc_buffer1 = stream.read_type(PcBuffer1, (self,))
+		self.pc_buffer1 = stream.read_type(PcBuffer1, (self.context, self,))
 		logging.debug(self.pc_buffer1)
 		for i, model_info in enumerate(self.pc_buffer1.model_infos):
 			logging.debug(f"\n\nMDL2 {i}")
 			# print(model_info)
-			model_info.pc_model = stream.read_type(PcModel, (model_info,))
+			model_info.pc_model = stream.read_type(PcModel, (self.context, model_info,))
 			logging.debug(model_info.pc_model)
 			if is_pc(self):
 				model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset))
@@ -422,7 +431,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 class Mdl2File(Mdl2InfoHeader, IoFile):
 
 	def __init__(self, ):
-		super().__init__()
+		super().__init__(Ms2Context())
 		self.ms2_file = None
 
 	def load(self, filepath, read_editable=False, map_bytes=False, read_bytes=False, entry=False):

@@ -229,7 +229,8 @@ class BinaryStream(BytesIO):
 			write(b'\x00')
 
 		def read_zstrings(shape):
-			arr = Array()
+			# pass empty context
+			arr = Array(None)
 			arr.read(self, "zstring", shape)
 			return arr
 
