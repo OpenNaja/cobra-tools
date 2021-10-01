@@ -224,19 +224,6 @@
         <add name="ovs offset" type="uint" vercond="!#DLA#" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
-    <compound name="OvsHeader" >
-        Description of one archive's content
-        <add name="pool_types" type="PoolType" arr1="#ARG#\num_pool_types"/>
-        <add name="pools" type="MemPool" arr1="#ARG#\num_pools"/>
-        <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
-        <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
-        <add name="new entries" type="BufferGroup" arr1="#ARG#\num_new"/>
-        <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"/>
-        <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
-        <add name="set header " type="SetHeader"/>
-    </compound>
-
-
     <compound name="DirEntry" >
         Description of one directory in the archive
         <add name="Offset" type="uint">offset in the header's Names block</add>
@@ -264,6 +251,18 @@
     </compound>
 
 	<!-- From here, structs are for the deflated stream -->
+
+    <compound name="OvsHeader" >
+        Description of one archive's content
+        <add name="pool_types" type="PoolType" arr1="#ARG#\num_pool_types"/>
+        <add name="pools" type="MemPool" arr1="#ARG#\num_pools"/>
+        <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
+        <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
+        <add name="new entries" type="BufferGroup" arr1="#ARG#\num_new"/>
+        <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"/>
+        <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
+        <add name="set header " type="SetHeader"/>
+    </compound>
 
 	<compound name="PoolType">
 		Located at start of deflated archive stream
@@ -294,6 +293,13 @@
 		<add name="Size 2" type="uint64">size of last buffer; tex and texstream have all size here</add>
     </compound>
 
+	<compound name="BufferEntry" >
+		8 bytes
+		<add name="index" type="uint" until="19">index of buffer in file, up to pz 1.6</add>
+		<add name="size" type="uint">in bytes</add>
+		<add name="file_hash" type="uint" since="20">id, new for pz 1.6</add>
+    </compound>
+
 	<compound name="BufferGroup" >
 		32 bytes
 		<add name="buffer_offset" type="uint">first buffer index</add>
@@ -305,13 +311,6 @@
 		<add name="data_count" type="uint">number of data entries to populate buffers into</add>
     </compound>
 
-	<compound name="BufferEntry" >
-		8 bytes
-		<add name="index" type="uint" until="20">index of buffer in file, up to pz 1.6</add>
-		<add name="size" type="uint">in bytes</add>
-		<add name="file_hash" type="uint" since="20">id, new for pz 1.6</add>
-    </compound>
-	
 	<compound name="HeaderPointer" >
 		Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
 		8 bytes

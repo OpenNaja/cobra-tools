@@ -28,7 +28,7 @@ class BufferEntry:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if self.context.version <= 20:
+		if self.context.version <= 19:
 			self.index = 0
 		self.size = 0
 		if self.context.version >= 20:
@@ -36,7 +36,7 @@ class BufferEntry:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 20:
+		if self.context.version <= 19:
 			self.index = stream.read_uint()
 		self.size = stream.read_uint()
 		if self.context.version >= 20:
@@ -46,7 +46,7 @@ class BufferEntry:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 20:
+		if self.context.version <= 19:
 			stream.write_uint(self.index)
 		stream.write_uint(self.size)
 		if self.context.version >= 20:
