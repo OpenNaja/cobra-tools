@@ -2,6 +2,7 @@
 import logging
 import math
 import numpy as np
+import struct
 from generated.formats.ms2.compound.packing_utils import *
 
 FUR_OVERHEAD = 2
@@ -193,7 +194,7 @@ class ModelData:
 		except:
 			self.colors = None
 		try:
-			shapekeys_shape = self.dt["shapekeys"].shape
+			shapekeys_shape = self.dt["shapekeys0"].shape
 			self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
 		except:
 			self.shapekeys = None
@@ -263,18 +264,11 @@ class ModelData:
 			])
 		elif self.flag == 517:
 			dt.extend([
-				# trees seem to have two uvs, then something like normals
-				# ("uvs", np.ushort, (1, 2)),
-				# ("shapekeys", np.uint64),
-				# ("colors", np.ubyte, (5, 4)),
-				#
-				# ("uvs", np.ushort, (2, 2)),
-				# ("shapekeys", np.uint64),
-				# ("colors", np.ubyte, (4, 4)),
-
 				("uvs", np.ushort, (1, 2)),
-				("shapekeys", np.uint32, 3),
-				("colors", np.ubyte, (4, 4)),
+				("shapekeys0", np.uint32, 1),
+				("colors", np.ubyte, (1, 4)),  # this appears to be normals, or something similar
+				("shapekeys1", np.uint32, 1),
+				("colors1", np.ubyte, (4, 4)),
 			])
 		elif self.flag == 545:
 			dt.extend([
@@ -337,21 +331,16 @@ class ModelData:
 		self.tangents = (self.tangents - 128) / 128
 		# unpack the shapekeys
 		if self.shapekeys is not None:
-			import struct
-			scale = self.base / 512 / 2048
 			for i in range(self.vertex_count):
-				in_pos_packed = self.verts_data[i]["shapekeys"]
-				# vert, residue = unpack_longint_vec(in_pos_packed, self.base)
-				# self.shapekeys[i] = unpack_swizzle(vert)
-				clipped = (in_pos_packed[0], in_pos_packed[2])
-				# print(clipped)
-				packed = struct.pack("LL", *clipped)
-				unpacked = struct.unpack("Q",packed)[0]
+				first = self.verts_data[i]["shapekeys0"]
+				second = self.verts_data[i]["shapekeys1"]
+				packed = struct.pack("LL", first, second)
+				unpacked = struct.unpack("Q", packed)[0]
 				# self.shapekeys[i] = unpack_swizzle((in_pos_packed + self.base) * scale)
 				vert, residue = unpack_longint_vec(unpacked, self.base)
 				self.shapekeys[i] = unpack_swizzle(vert)
-
 			# print(self.shapekeys)
+
 		for i in range(self.vertex_count):
 			in_pos_packed = self.verts_data[i]["pos"]
 			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
