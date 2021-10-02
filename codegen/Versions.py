@@ -46,6 +46,7 @@ class Versions:
 							val = v.strip()
 							if " " in val:
 								val = val.split(" ")[0]
+							# todo - this should instead be detected by field type
 							if name == "user_version":
 								suffix = "._value"
 							else:
