@@ -186,6 +186,8 @@ class MainWindow(widgets.MainWindow):
 
 	def game_changed(self,):
 		game = self.game_container.entry.currentText()
+		# we must set both the context, and the local variable
+		set_game(self.ovl_data.context, game)
 		set_game(self.ovl_data, game)
 
 	@property
@@ -304,7 +306,7 @@ class MainWindow(widgets.MainWindow):
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
 			self.update_gui_table()
-			game = get_game(self.ovl_data)[0]
+			game = get_game(self.ovl_data.context)[0]
 			self.game_container.entry.setText(game.value)
 
 	def create_ovl(self, ovl_dir):
