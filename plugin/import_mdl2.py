@@ -128,13 +128,6 @@ def import_shapekeys(b_obj, model):
 		sk_basis = b_obj.shape_key_add(name="Basis")
 		b_mesh.shape_keys.use_relative = True
 
-		# base_verts = [v.co for v in b_mesh.vertices]
-		# for morph_verts, key_name in morphs:
-		# 	# convert tuples into vector here so we can simply add in morph_mesh()
-		# 	for b_v_index, (bv, mv) in enumerate(zip(base_verts, morph_verts)):
-		# 		b_mesh.vertices[b_v_index].co = bv + mathutils.Vector(mv)
-		# 	# TODO [animation] unused variable is it required
-		# 	shape_key = b_obj.shape_key_add(name=key_name, from_mix=False)
 		for v_index, v in enumerate(model.shapekeys):
 			b_mesh.vertices[v_index].co = v
 		shape_key = b_obj.shape_key_add(name="LOD", from_mix=False)

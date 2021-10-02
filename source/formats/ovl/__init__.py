@@ -354,13 +354,13 @@ class OvsFile(OvsHeader):
 		ss_index_table = {file.name: i for i, file in enumerate(self.sized_str_entries)}
 		for ss_entry in self.sized_str_entries:
 			if ss_entry.children:
-				set_entry = SetEntry()
+				set_entry = SetEntry(self.context)
 				set_entry.start = start
 				set_entry.end = start + len(ss_entry.children)
 				self.transfer_identity(set_entry, ss_entry)
 				self.set_header.sets.append(set_entry)
 				for ss_child in ss_entry.children:
-					asset_entry = AssetEntry()
+					asset_entry = AssetEntry(self.context)
 					asset_entry.file_index = ss_index_table[ss_child.name]
 					self.transfer_identity(asset_entry, ss_child)
 					self.set_header.assets.append(asset_entry)
@@ -403,7 +403,7 @@ class OvsFile(OvsHeader):
 					# 	if buffer.ext != last_ext:
 					# 		data_offset += new_entry.data_count
 					# now create the new new_entry and update its initial data
-					new_entry = BufferGroup()
+					new_entry = BufferGroup(self.context)
 					new_entry.ext = buffer.ext
 					new_entry.ext_index = mime_lut.get(buffer.ext)
 					new_entry.buffer_index = buffer.index
@@ -965,7 +965,7 @@ class OvlFile(Header, IoFile):
 		"""Create a file entry from a file path"""
 		filename = os.path.basename(file_path)
 		logging.debug(f"Creating {filename}")
-		file_entry = FileEntry()
+		file_entry = FileEntry(self.context)
 		file_entry.path = file_path
 		file_entry.name = filename
 		file_entry.basename, file_entry.ext = os.path.splitext(filename)
@@ -987,7 +987,7 @@ class OvlFile(Header, IoFile):
 		self.update_hashes()
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 
-		archive_entry = ArchiveEntry()
+		archive_entry = ArchiveEntry(self.context)
 		self.archives.append(archive_entry)
 		self.static_archive = archive_entry
 
@@ -999,7 +999,7 @@ class OvlFile(Header, IoFile):
 		archive_entry.ovs_file_offset = 0
 		archive_entry.ovs_offset = 0
 
-		new_zlib = ZlibInfo()
+		new_zlib = ZlibInfo(self.context)
 		self.zlibs.append(new_zlib)
 
 		# create loaders for supported files
@@ -1048,7 +1048,7 @@ class OvlFile(Header, IoFile):
 				return
 
 		# store file name for later
-		new_directory = DirEntry()
+		new_directory = DirEntry(self.context)
 		new_directory.name = directory_name
 		new_directory.basename = directory_name
 		self.dirs.append(new_directory)
@@ -1195,7 +1195,7 @@ class OvlFile(Header, IoFile):
 		# now create the mimes
 		file_index_offset = 0
 		for file_ext, files in sorted(files_by_extension.items()):
-			mime_entry = MimeEntry()
+			mime_entry = MimeEntry(self.context)
 			mime_entry.ext = file_ext
 			try:
 				mime_entry.update_constants(self)
@@ -1222,7 +1222,7 @@ class OvlFile(Header, IoFile):
 					mime.triplet_count = len(triplet_grab)
 					triplet_offset += len(triplet_grab)
 					for triplet in triplet_grab:
-						trip = Triplet()
+						trip = Triplet(self.context)
 						trip.a, trip.b, trip.c = triplet
 						self.triplets.append(trip)
 
