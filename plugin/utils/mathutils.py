@@ -65,16 +65,16 @@ def float_to_int(value):
     try:
         return int(value + 0.5 if value > 0 else value - 0.5)
     except ValueError:
-        logging.getLogger("pyffi.utils.mathutils").warn(
+        logging.getLogger("pyffi.utils.mathutils").warning(
             "float_to_int converted nan to 0.")
         return 0
     except OverflowError:
         if value > 0:
-            logging.getLogger("pyffi.utils.mathutils").warn(
+            logging.getLogger("pyffi.utils.mathutils").warning(
                 "float_to_int converted +inf to +2147483648.")
             return 2147483648
         else:
-            logging.getLogger("pyffi.utils.mathutils").warn(
+            logging.getLogger("pyffi.utils.mathutils").warning(
                 "float_to_int converted -inf to -2147483648.")
             return -2147483648
 

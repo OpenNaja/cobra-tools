@@ -82,10 +82,10 @@ def handle_transforms(ob, me, apply=True):
 		if apply:
 			# we only transform the evaluated mesh and leave the actual scene alone
 			me.transform(ob.matrix_local)
-			logging.warn(f"{ob.name} has had its object transforms applied on the fly to avoid ingame distortion!")
+			logging.warning(f"{ob.name} has had its object transforms applied on the fly to avoid ingame distortion!")
 		else:
 			# we simply ignore the transforms and export the mesh as is, but warn the user
-			logging.warn(
+			logging.warning(
 				f"Ignored object transforms for {ob.name} - orientation will not match what you see in blender!\n"
 				f"Check 'Apply Transforms' on export or apply them manually with CTRL+A!")
 
