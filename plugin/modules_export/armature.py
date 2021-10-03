@@ -106,6 +106,7 @@ def export_bones_custom(b_armature_ob, mdl2):
 	bone_info.bones.clear()
 	bone_info.inverse_bind_matrices.clear()
 
+	# map joint objects by the bone they are attached to
 	bone_2_ob = {}
 	for ob in bpy.data.collections["joints"].objects:
 		assert ob.parent_type == "BONE"
