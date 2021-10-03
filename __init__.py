@@ -358,7 +358,7 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.scene.cobra
+    del bpy.types.Scene.cobra
 
 
 if __name__ == "__main__":
