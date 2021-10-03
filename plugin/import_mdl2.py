@@ -26,8 +26,12 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	messages = set()
 	bone_names = get_bone_names(mdl2)
 	b_armature_obj = import_armature(mdl2, bone_names)
-	
-	bpy.context.scene["render_flag"] = int(mdl2.model_info.render_flag)
+
+	# store scene properties
+	scene = bpy.context.scene
+	scene["render_flag"] = int(mdl2.model_info.render_flag)
+	scene.cobra.pack_base = mdl2.model_info.pack_offset
+
 	created_materials = {}
 	mesh_dict = {}
 	ob_dict = {}

@@ -2,6 +2,7 @@ USHORT_SCALE = 2048
 USHORT_OFFSET = 32766.5
 USHORT_MIN = 0
 USHORT_MAX = 65535
+PACKEDVEC_MAX = 2 ** 20  # 0x100000
 
 
 def unpack_ushort_vector(vec):
@@ -30,13 +31,14 @@ def pack_ubyte_vector(vec):
     return [min(int(round(x * 128 + 128)), 255) for x in vec]
 
 
+def scale(base):
+    return base / PACKEDVEC_MAX
+
+
 def unpack_longint_vec(input, base):
     """Unpacks and returns the self.raw_pos uint64"""
     # numpy uint64 does not like the bit operations so we cast to default int
     input = int(input)
-    # correct for size according to base, relative to 512
-    scale = base / 512 / 2048
-    # input = self.raw_pos
     output = []
     # print("inp",bin(input))
     for i in range(3):
@@ -57,10 +59,9 @@ def unpack_longint_vec(input, base):
             # rightmost bit was 0
             # print("rightmost_bit == 0")
             # bit representation: 0b100000000000000000000
-            twenty_bits -= 0x100000
+            twenty_bits -= PACKEDVEC_MAX
         # print("final int", twenty_bits)
-        o = (twenty_bits + base) * scale
-        output.append(o)
+        output.append(twenty_bits * scale(base))
         # shift to skip the sign bit
         input >>= 1
     # input at this point is either 0 or 1
@@ -69,15 +70,15 @@ def unpack_longint_vec(input, base):
 
 def pack_longint_vec(vec, residue, base):
     """Packs the input vector + residue bit into a uint64 (1, 21, 21, 21)"""
-    # correct for size according to base, relative to 512
-    scale = base / 512 / 2048
     output = 0
     for i, f in enumerate(vec):
-        o = int(round(f / scale - base))
+        o = int(round(f / scale(base)))
         # print("restored int", o)
-        if o < 0x100000:
+        # we are 'clamping' here if we - essentially wrapping the range around
+        # probably not correct!
+        if o < PACKEDVEC_MAX:
             # 0b100000000000000000000
-            o += 0x100000
+            o += PACKEDVEC_MAX
         else:
             # set the 1 bit flag
             output |= 1 << (21 * (i + 1) - 1)
@@ -96,7 +97,8 @@ def unpack_weights(model, i, residue, extra=True):
     if "bone ids" in model.dt.fields:
         vert_w = [(i, w) for i, w in zip(model.verts_data[i]["bone ids"], model.verts_data[i]["bone weights"]) if w > 0]
     elif hasattr(model, "weights_data"):
-        vert_w = [(i, w) for i, w in zip(model.weights_data[i]["bone ids"], model.weights_data[i]["bone weights"]) if w > 0]
+        vert_w = [(i, w) for i, w in zip(model.weights_data[i]["bone ids"], model.weights_data[i]["bone weights"]) if
+                  w > 0]
     if extra:
         # fallback: skin parition
         if not vert_w:

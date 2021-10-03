@@ -415,6 +415,9 @@ class ModelData:
 			if "shapekeys0" in self.dt.fields:
 				# first pack it as uint64
 				raw_packed = pack_longint_vec(pack_swizzle(shapekey), 0, self.base)
+				if raw_packed < 0:
+					logging.error(f"Shapekey {raw_packed} could not be packed into uint64")
+					raw_packed = 0
 				raw_bytes = struct.pack("Q", raw_packed)
 				# unpack to 2 uints again and assign data
 				first, second = struct.unpack("LL", raw_bytes)
