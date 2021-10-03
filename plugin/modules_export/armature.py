@@ -108,11 +108,12 @@ def export_bones_custom(b_armature_ob, mdl2):
 
 	# map joint objects by the bone they are attached to
 	bone_2_ob = {}
-	for ob in bpy.data.collections["joints"].objects:
-		assert ob.parent_type == "BONE"
-		if ob.parent_bone not in bone_2_ob:
-			bone_2_ob[ob.parent_bone] = []
-		bone_2_ob[ob.parent_bone].append(ob)
+	if "joints" in bpy.data.collections:
+		for ob in bpy.data.collections["joints"].objects:
+			assert ob.parent_type == "BONE"
+			if ob.parent_bone not in bone_2_ob:
+				bone_2_ob[ob.parent_bone] = []
+			bone_2_ob[ob.parent_bone].append(ob)
 
 	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
 	# print(lut_dic)
