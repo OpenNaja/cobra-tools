@@ -76,6 +76,7 @@ def pack_longint_vec(vec, residue, base):
         # print("restored int", o)
         # we are 'clamping' here if we - essentially wrapping the range around
         # probably not correct!
+        # i think the cond might be o < 0
         if o < PACKEDVEC_MAX:
             # 0b100000000000000000000
             o += PACKEDVEC_MAX

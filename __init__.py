@@ -276,33 +276,27 @@ class SCENE_PT_CobraTools(bpy.types.Panel):
         layout = self.layout
         row = layout.row(align=True)
         row.prop(context.scene.cobra, "pack_base")
-        row.prop(context.scene.cobra, "max_vertex_value")
+        row.prop(context.scene.cobra, "resolution")
 
 
 def update_pack_base(self, context):
-    print("update_pack_base", self, )
-    self.max_vertex_value = PACKEDVEC_MAX / 2 * scale(self.pack_base)
-
-
-def update_max_vertex_value(self, context):
-    print("update_max_vertex_value", self)
+    self.resolution = self.pack_base / PACKEDVEC_MAX
 
 
 class CobraSceneSettings(PropertyGroup):
     pack_base: IntProperty(
         name="Pack Base",
-        description="Base value used to pack vertices.",
+        description="Base value used to pack vertices, also min and max value that a coordinate can assume.",
         default=0,
-        subtype="FACTOR",
+        subtype="DISTANCE",
         update=update_pack_base
     )
 
-    max_vertex_value: FloatProperty(
-        name="Max. Value",
-        description="Maximum value that a vertex can take with the current base value.",
+    resolution: FloatProperty(
+        name="Resolution",
+        description="Minimum distance between two vertices on export - closer snaps together.",
         default=0,
-        subtype="DISTANCE",
-        update=update_max_vertex_value
+        subtype="DISTANCE"
     )
 
 
