@@ -32,13 +32,13 @@ class AuxFileContainer:
             chunk_id = stream.read(4)
             print("reading chunk", chunk_id)
             if chunk_id == b"BKHD":
-                self.bhkd = stream.read_type(BKHDSection, (self.context))
+                self.bhkd = stream.read_type(BKHDSection, (self.context,))
                 self.chunks.append((chunk_id, self.bhkd))
             elif chunk_id == b"HIRC":
-                self.hirc = stream.read_type(HIRCSection, (self.context))
+                self.hirc = stream.read_type(HIRCSection, (self.context,))
                 self.chunks.append((chunk_id, self.hirc))
             elif chunk_id == b"DIDX":
-                self.didx = stream.read_type(DIDXSection, (self.context))
+                self.didx = stream.read_type(DIDXSection, (self.context,))
                 self.chunks.append((chunk_id, self.didx))
             elif chunk_id == b"DATA":
                 size = stream.read_uint()
