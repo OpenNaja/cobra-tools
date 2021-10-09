@@ -220,7 +220,10 @@ class ZtModelData:
 		for s in self.streams[:self.stream_index]:
 			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.uv_buffer_length
 		self.buffer_2_offset = buffer_2_offset
+		# determine end of vertex stream to seek back from
+		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.streams[self.stream_index].vertex_buffer_length
 		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
+		print("Vertex Stream end", self.vert_stream_end)
 		print("Tri info address", self.buffer_2_offset+self.stream_offset+self.tri_info_offset)
 		print("Vertex info address", self.buffer_2_offset+self.stream_offset+self.vert_info_offset)
 		print(self)
@@ -306,16 +309,19 @@ class ZtModelData:
 		self.init_arrays()
 		# read a vertices of this model
 		if 4294967295 == self.vert_offset:
-			# self.vert_offset = 0
 			print(f"Warning, vert_offset is -1, seeking to last vert offset {self.last_vert_offset}")
-			# stream.seek(self.last_vert_offset - (self.vertex_count * self.dt.itemsize))
-			stream.seek(self.last_vert_offset)
+			if self.last_vert_offset == 0:
+				self.last_vert_offset = self.buffer_2_offset + self.stream_offset
+				# stream.seek(self.vert_stream_end - (self.vertex_count * self.dt.itemsize))
+				print(f"Zero, starting at buffer start {stream.tell()}")
+			else:
+				stream.seek(self.last_vert_offset)
 		else:
 			stream.seek(self.buffer_2_offset + self.stream_offset + self.vert_offset)
 		print("VERTS", stream.tell(), self.vertex_count)
-		self.new_vert_offset = stream.tell()
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
-		print(self.verts_data.shape)
+		self.new_vert_offset = stream.tell()
+		# print(self.verts_data.shape)
 		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
 		self.colors_data = np.fromfile(stream, dtype=self.dt_colors, count=self.vertex_count)
