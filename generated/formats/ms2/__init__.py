@@ -156,7 +156,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			else:
 				logging.error("No bone info found")
 		try:
-			bone_info = bone_info_cls()
+			bone_info = bone_info_cls(self.context)
 			bone_info.read(stream)
 			self.read_hitcheck_verts(bone_info, stream)
 			# print(bone_info)

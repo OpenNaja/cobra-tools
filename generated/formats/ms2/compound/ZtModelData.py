@@ -226,6 +226,7 @@ class ZtModelData:
 		print(self)
 		self.ms2_file = ms2_file
 		self.base = base
+		self.shapekeys = None
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
 		return self.new_vert_offset
