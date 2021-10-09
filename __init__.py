@@ -35,7 +35,7 @@ from . import addon_updater_ops
 from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
 from plugin.utils import shell
-from generated.formats.ms2.compound.packing_utils import scale, PACKEDVEC_MAX
+from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
 
 
 preview_collection = bpy.utils.previews.new()

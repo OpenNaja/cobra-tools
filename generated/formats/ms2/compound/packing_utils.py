@@ -31,8 +31,16 @@ def pack_ubyte_vector(vec):
     return [min(int(round(x * 128 + 128)), 255) for x in vec]
 
 
-def scale(base):
-    return base / PACKEDVEC_MAX
+def scale_unpack(f, base):
+    """Converts a packed int component into a float in the range specified by base"""
+    scale = base / PACKEDVEC_MAX
+    return (f + base) * scale
+
+
+def scale_pack(f, base):
+    """Packs a float into the range specified by base"""
+    scale = base / PACKEDVEC_MAX
+    return int(round(f / scale - base))
 
 
 def unpack_longint_vec(input, base):
@@ -61,7 +69,7 @@ def unpack_longint_vec(input, base):
             # bit representation: 0b100000000000000000000
             twenty_bits -= PACKEDVEC_MAX
         # print("final int", twenty_bits)
-        output.append(twenty_bits * scale(base))
+        output.append(scale_unpack(twenty_bits, base))
         # shift to skip the sign bit
         input >>= 1
     # input at this point is either 0 or 1
@@ -72,7 +80,7 @@ def pack_longint_vec(vec, residue, base):
     """Packs the input vector + residue bit into a uint64 (1, 21, 21, 21)"""
     output = 0
     for i, f in enumerate(vec):
-        o = int(round(f / scale(base)))
+        o = scale_pack(f, base)
         # print("restored int", o)
         # we are 'clamping' here if we - essentially wrapping the range around
         # probably not correct!
