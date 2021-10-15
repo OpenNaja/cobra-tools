@@ -325,7 +325,7 @@
 
 		<add name="model info" type="CoreModelInfo" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
 		<add name="materials" type="MaterialName" arr1="model info\num_materials" vercond="!#OLD#" >name pointers for each material</add>
-		<add name="lods" type="LodInfo" arr1="model info\num_lods" vercond="!#OLD#" con="model info\num_models" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
+		<add name="lods" type="LodInfo" arr1="model info\num_lods" vercond="!#OLD#" cond="model info\num_models" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="MeshLink" arr1="model info\num_objects" vercond="!#OLD#" >instantiate the meshes with materials</add>
 		<add name="models" type="ModelData" arr1="model info\num_models" vercond="!#OLD#" >model data blocks for this mdl2</add>
 	</compound>

@@ -83,7 +83,7 @@ class Mdl2InfoHeader:
 			self.model_info = CoreModelInfo(self.context, None, None)
 		if not (self.context.version < 19):
 			self.materials = Array(self.context)
-		if not (self.context.version < 19):
+		if not (self.context.version < 19) and self.model_info.num_models:
 			self.lods = Array(self.context)
 		if not (self.context.version < 19):
 			self.objects = Array(self.context)
@@ -107,10 +107,10 @@ class Mdl2InfoHeader:
 		if not (self.context.version < 19):
 			self.model_info = stream.read_type(CoreModelInfo, (self.context, None, None))
 			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
-		if not (self.context.version < 19):
+		if not (self.context.version < 19) and self.model_info.num_models:
 			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
-			self.objects.read(stream, MeshLink, self.model_info.num_objects, None)
 		if not (self.context.version < 19):
+			self.objects.read(stream, MeshLink, self.model_info.num_objects, None)
 			self.models.read(stream, ModelData, self.model_info.num_models, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -132,10 +132,10 @@ class Mdl2InfoHeader:
 		if not (self.context.version < 19):
 			stream.write_type(self.model_info)
 			self.materials.write(stream, MaterialName, self.model_info.num_materials, None)
-		if not (self.context.version < 19):
+		if not (self.context.version < 19) and self.model_info.num_models:
 			self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
-			self.objects.write(stream, MeshLink, self.model_info.num_objects, None)
 		if not (self.context.version < 19):
+			self.objects.write(stream, MeshLink, self.model_info.num_objects, None)
 			self.models.write(stream, ModelData, self.model_info.num_models, None)
 
 		self.io_size = stream.tell() - self.io_start
