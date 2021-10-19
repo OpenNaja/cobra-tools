@@ -2,6 +2,7 @@ import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.fgm.bitfield.VersionInfo import VersionInfo
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FourFragFgm import FourFragFgm
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
@@ -40,7 +41,7 @@ class FgmInfoHeader:
 
 		# always = 1
 		self.seventh_byte = 1
-		self.user_version = 0
+		self.user_version = VersionInfo()
 
 		# fragment count
 		self.num_frags = 0
@@ -74,7 +75,7 @@ class FgmInfoHeader:
 		self.version = 0
 		self.bitswap = 0
 		self.seventh_byte = 1
-		self.user_version = 0
+		self.user_version = VersionInfo()
 		self.num_frags = 0
 		self.num_textures = 0
 		self.tex_info_size = 0
@@ -100,7 +101,7 @@ class FgmInfoHeader:
 		self.context.version = self.version
 		self.bitswap = stream.read_byte()
 		self.seventh_byte = stream.read_byte()
-		self.user_version = stream.read_uint()
+		self.user_version = stream.read_type(VersionInfo)
 		self.context.user_version = self.user_version
 		self.num_frags = stream.read_uint()
 		self.num_textures = stream.read_uint()
@@ -124,13 +125,10 @@ class FgmInfoHeader:
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_byte(self.version_flag)
-		self.context.version_flag = self.version_flag
 		stream.write_byte(self.version)
-		self.context.version = self.version
 		stream.write_byte(self.bitswap)
 		stream.write_byte(self.seventh_byte)
-		stream.write_uint(self.user_version)
-		self.context.user_version = self.user_version
+		stream.write_type(self.user_version)
 		stream.write_uint(self.num_frags)
 		stream.write_uint(self.num_textures)
 		stream.write_uint(self.tex_info_size)

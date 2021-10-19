@@ -2,7 +2,8 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-
+	<verattr name="version" access="#VER#" index="0" />
+	<verattr name="user_version" access="#USER#" index="1" />
 
     <token name="verexpr" attrs="vercond">
         Commonly used version expressions.
@@ -12,7 +13,7 @@
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
     </token>
 
-    <token name="global" attrs="vercond">
+    <token name="global" attrs="vercond access">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#USER#" string="user_version" />

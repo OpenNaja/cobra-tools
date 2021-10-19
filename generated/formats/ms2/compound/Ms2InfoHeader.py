@@ -82,13 +82,10 @@ class Ms2InfoHeader:
 		self.io_start = stream.tell()
 		stream.write_type(self.magic)
 		stream.write_byte(self.version_flag)
-		self.context.version_flag = self.version_flag
 		stream.write_byte(self.version)
-		self.context.version = self.version
 		stream.write_byte(self.bitswap)
 		stream.write_byte(self.seventh_byte)
 		stream.write_uint(self.user_version)
-		self.context.user_version = self.user_version
 		stream.write_uint(self.bone_names_size)
 		stream.write_uint(self.bone_info_size)
 		stream.write_type(self.general_info)

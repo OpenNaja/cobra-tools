@@ -2,6 +2,9 @@
 <!DOCTYPE fileformat>
 <fileformat>
 
+	<verattr name="version" access="#VER#" index="0" />
+	<verattr name="user_version" access="#USER#" index="1" type="VersionInfo" />
+
     <version id="DLA" version="15">Disneyland Adventure</version>
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
     <version id="PC" version="18">Planet Coaster</version>
@@ -19,7 +22,7 @@
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch</verexpr>
     </token>
 
-    <token name="global" attrs="vercond">
+    <token name="global" attrs="vercond access">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#USER#" string="user_version" />

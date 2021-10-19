@@ -274,7 +274,12 @@ class Union:
             else:
                 f.write(
                     f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arg=arg, template=template)}")
-            # store version related stuff on self.context
-            if "version" in field_name:
-                f.write(f"{indent}{CONTEXT}.{field_name} = self.{field_name}")
+            if method_type == 'read':
+                # store version related stuff on self.context on read
+                for k, (access, dtype) in self.compound.parser.verattrs.items():
+                    attr_path = access.split('.')
+                    if field_name == attr_path[0]:
+                        if dtype is None or len(attr_path) > 1 or field_type == dtype:
+                            f.write(f"{indent}{CONTEXT}.{field_name} = self.{field_name}")
+                            break
         return condition

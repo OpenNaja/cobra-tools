@@ -37,6 +37,8 @@ class XmlParser:
         self.tokens = []
         self.versions = [([], ("versions", "until", "since")), ]
 
+        # maps version attribute name to [access, type]
+        self.verattrs = {}
         # maps each type to its generated py file's relative path
         self.path_dict = {}
         # enum name -> storage name
@@ -74,17 +76,24 @@ class XmlParser:
         self.path_dict["UintEnum"] = "base_enum"
         self.path_dict["Uint64Enum"] = "base_enum"
 
+    def register_tokens(self, root):
+        """Register tokens before anything else"""
+        for child in root:
+            if child.tag == "token":
+                self.read_token(child)
+
     def load_xml(self, xml_file):
         """Loads an XML (can be filepath or open file) and does all parsing
         Goes over all children of the root node and calls the appropriate function depending on type of the child"""
         tree = ET.parse(xml_file)
         root = tree.getroot()
         self.generate_module_paths(root)
+        self.register_tokens(root)
         versions = Versions(self)
 
         for child in root:
             self.replace_tokens(child)
-            if child.tag not in ('version', 'module'):
+            if child.tag not in ('version', 'verattr', 'module'):
                 self.apply_conventions(child)
             try:
                 if child.tag in self.struct_types:
@@ -99,8 +108,8 @@ class XmlParser:
                     Module(self, child)
                 elif child.tag == "version":
                     versions.read(child)
-                elif child.tag == "token":
-                    self.read_token(child)
+                elif child.tag == "verattr":
+                    self.read_verattr(child)
             except Exception as err:
                 logging.error(err)
                 traceback.print_exc()
@@ -113,6 +122,16 @@ class XmlParser:
         self.tokens.append(([(sub_token.attrib["token"], sub_token.attrib["string"])
                             for sub_token in token],
                             token.attrib["attrs"].split(" ")))
+
+    def read_verattr(self, verattr):
+        """Reads an xml <verattr> and stores it in the verattrs dict"""
+        name = verattr.attrib['name']
+        assert name not in self.verattrs, f"verattr {name} already defined!"
+        access = '.'.join(convention.name_attribute(comp) for comp in verattr.attrib["access"].split('.'))
+        attr_type = verattr.attrib.get("type")
+        if attr_type:
+            attr_type = convention.name_class(attr_type)
+        self.verattrs[name] = [access, attr_type]
 
     @staticmethod
     def apply_convention(struct, func, params):
