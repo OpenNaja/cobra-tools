@@ -95,7 +95,7 @@ def export_boxbv(b_obj, hitcheck, corrector):
 	c.x, c.y, c.z = pack_swizzle(matrix.translation)
 	e = hitcheck.collider.extent
 	dim = b_obj.dimensions
-	e.x, e.y, e.z = pack_swizzle((dim.y, dim.x, dim.z))
+	e.x, e.y, e.z = np.abs(pack_swizzle((dim.y, dim.x, dim.z)))
 	set_rot_matrix(matrix, hitcheck.collider.rotation, corrector)
 
 
