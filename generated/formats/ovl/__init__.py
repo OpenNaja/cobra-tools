@@ -8,6 +8,7 @@ import traceback
 import logging
 from contextlib import contextmanager
 
+from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
 from hashes import constants_pz
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
@@ -63,7 +64,7 @@ def get_loader(ext, ovl):
 class OvlContext(object):
 	def __init__(self):
 		self.version = 0
-		self.user_version = 0
+		self.user_version = VersionInfo()
 
 	def __repr__(self):
 		return f"{self.version} | {self.user_version}"
@@ -73,7 +74,7 @@ class OvsFile(OvsHeader):
 
 	def __init__(self, context, ovl_inst, archive_entry):
 		super().__init__(context)
-		print(self.context)
+		# print(self.context)
 		self.ovl = ovl_inst
 		self.arg = archive_entry
 		# this determines if fragments are written back to header datas
