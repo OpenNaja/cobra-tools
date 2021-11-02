@@ -1,13 +1,10 @@
-import traceback
 import webbrowser
 from PyQt5 import QtGui, QtCore, QtWidgets
 import os
 
-from PyQt5.QtCore import QSortFilterProxyModel, Qt, pyqtSignal
-
 from ovl_util.interaction import showdialog
 from ovl_util import config, qt_theme
-from modules import extract, inject
+from modules import extract
 
 MAX_UINT = 4294967295
 myFont = QtGui.QFont()
@@ -64,7 +61,7 @@ class DelayedMimeData(QtCore.QMimeData):
 		return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
 
 
-class CustomSortFilterProxyModel(QSortFilterProxyModel):
+class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 	"""
 	Implements a QSortFilterProxyModel that allows for custom
 	filtering. Add new filter functions using addFilterFunction().
@@ -144,7 +141,7 @@ class CustomSortFilterProxyModel(QSortFilterProxyModel):
 
 
 class TableModel(QtCore.QAbstractTableModel):
-	member_renamed = pyqtSignal(str, str)
+	member_renamed = QtCore.pyqtSignal(str, str)
 
 	def __init__(self, data, header_names):
 		super(TableModel, self).__init__()
@@ -267,9 +264,9 @@ class SortableTable(QtWidgets.QWidget):
 
 
 class TableView(QtWidgets.QTableView):
-	files_dragged = pyqtSignal(list)
-	files_dropped = pyqtSignal(list)
-	file_selected = pyqtSignal(int)
+	files_dragged = QtCore.pyqtSignal(list)
+	files_dropped = QtCore.pyqtSignal(list)
+	file_selected = QtCore.pyqtSignal(int)
 
 	def __init__(self, header_names):
 		super().__init__()
@@ -294,7 +291,7 @@ class TableView(QtWidgets.QTableView):
 
 		self.setSortingEnabled(True)
 		# sort by index; -1 means don't sort
-		self.sortByColumn(-1, Qt.AscendingOrder)
+		self.sortByColumn(-1, QtCore.Qt.AscendingOrder)
 		self.proxyModel.setFilterFixedString("")
 		self.proxyModel.setFilterKeyColumn(0)
 		self.rev_check = False
@@ -328,7 +325,7 @@ class TableView(QtWidgets.QTableView):
 	def clear_filter(self, ):
 		# self.proxyModel.setFilterFixedString("")
 		self.proxyModel.setFilterFixedString("")
-		self.sortByColumn(-1, Qt.AscendingOrder)
+		self.sortByColumn(-1, QtCore.Qt.AscendingOrder)
 
 	def get_selected_line_indices(self):
 		return set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
