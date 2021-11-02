@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import time
 import traceback
@@ -140,8 +141,8 @@ class MainWindow(widgets.MainWindow):
 	def drag_files(self, file_names):
 		logging.info(f"DRAGGING {file_names}")
 		drag = QtGui.QDrag(self)
+		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
-			temp_dir = tempfile.gettempdir()
 			out_paths, errors, skips = self.ovl_data.extract(
 				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
 
@@ -153,6 +154,7 @@ class MainWindow(widgets.MainWindow):
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
 			logging.error(ex)
+		shutil.rmtree(temp_dir)
 
 	# todo - clear temp sub dir
 	# mime = DelayedMimeData()

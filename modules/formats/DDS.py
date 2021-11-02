@@ -170,6 +170,7 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 
 		# start out
 		dds_file_path = out_dir(name)
+		print(dds_file_path)
 		if len(dds_compression_types) > 1:
 			dds_file_path += f"_{dds_type}.dds"
 

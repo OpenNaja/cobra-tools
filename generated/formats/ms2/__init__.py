@@ -50,6 +50,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def __init__(self, ):
 		super().__init__(Ms2Context())
+		self.mdl2s = {}
+		self.bone_infos = []
 
 	def assign_bone_names(self, bone_info):
 		try:
@@ -351,21 +353,35 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		# todo - update joint JointData.names buffer + JointInfo.name_offset
 
+	def rename(self, name_tups):
+		"""Renames strings in the main name buffer"""
+		for old, new in name_tups:
+			old_lower = old.lower()
+			for i, name in enumerate(self.buffer_0.names):
+				if old in name:
+					logging.debug(f"Match for '{old}' in '{name}'")
+					self.buffer_0.names[i] = name.replace(old, new)
+				elif old_lower in name.lower():
+					logging.debug(f"Case-insensitive match '{old}' in '{name}'")
+					self.buffer_0.names[i] = name.lower().replace(old, new)
+
 	def update_names(self):
 		logging.info("Updating MS2 name buffer")
-		self.buffer_0.names.clear()
-		for mdl2 in self.mdl2s.values():
-			for material in mdl2.materials:
-				if material.name not in self.buffer_0.names:
-					self.buffer_0.names.append(material.name)
-				material.name_index = self.buffer_0.names.index(material.name)
-		for bone_info in self.bone_infos:
-			for bone_index, bone in enumerate(bone_info.bones):
-				if bone.name not in self.buffer_0.names:
-					self.buffer_0.names.append(bone.name)
-				bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
-		for bone_info in self.bone_infos:
-			self.update_joints(bone_info)
+		# only update the names buffer if mdl2s have been loaded
+		if self.mdl2s:
+			self.buffer_0.names.clear()
+			for mdl2 in self.mdl2s.values():
+				for material in mdl2.materials:
+					if material.name not in self.buffer_0.names:
+						self.buffer_0.names.append(material.name)
+					material.name_index = self.buffer_0.names.index(material.name)
+			for bone_info in self.bone_infos:
+				for bone_index, bone in enumerate(bone_info.bones):
+					if bone.name not in self.buffer_0.names:
+						self.buffer_0.names.append(bone.name)
+					bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
+			for bone_info in self.bone_infos:
+				self.update_joints(bone_info)
 		# print(self.buffer_0.names)
 		logging.info("Updating MS2 name hashes")
 		# update hashes from new names
@@ -384,40 +400,43 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.bone_names_size = len(self.buffer_0_bytes)
 
 	def update_buffer_1_bytes(self):
-		with BinaryStream() as temp_bone_writer:
-			assign_versions(temp_bone_writer, get_versions(self))
-			temp_bone_writer.ms_2_version = self.general_info.ms_2_version
-			self.write_all_bone_infos(temp_bone_writer)
-			self.buffer_1_bytes = temp_bone_writer.getvalue()
+		# can only update this if bone infos have been loaded
+		if self.bone_infos:
+			with BinaryStream() as temp_bone_writer:
+				assign_versions(temp_bone_writer, get_versions(self))
+				temp_bone_writer.ms_2_version = self.general_info.ms_2_version
+				self.write_all_bone_infos(temp_bone_writer)
+				self.buffer_1_bytes = temp_bone_writer.getvalue()
 
 	def update_buffer_2_bytes(self):
-
-		# write each model's vert & tri block to a temporary buffer
-		temp_vert_writer = io.BytesIO()
-		temp_tris_writer = io.BytesIO()
-		for mdl2_path, mdl2 in self.mdl2s.items():
-			for model in mdl2.models:
-				# update ModelData struct
-				model.vertex_offset = temp_vert_writer.tell()
-				model.tri_offset = temp_tris_writer.tell()
-				logging.debug(f"{os.path.basename(mdl2_path)} {mdl2.read_editable}")
-				if mdl2.read_editable:
-					model.vertex_count = len(model.verts)
-					model.tri_index_count = len(model.tri_indices) * model.shell_count
-					# write data
-					model.write_verts(temp_vert_writer)
-					model.write_tris(temp_tris_writer)
-				else:
-					temp_vert_writer.write(model.verts_bytes)
-					temp_tris_writer.write(model.tris_bytes)
-			mdl2.update_lod_vertex_counts()
-		# get bytes from IO obj
-		vert_bytes = temp_vert_writer.getvalue()
-		tris_bytes = temp_tris_writer.getvalue()
-		# modify buffer size
-		self.buffer_info.vertexdatasize = len(vert_bytes)
-		self.buffer_info.facesdatasize = len(tris_bytes)
-		self.buffer_2_bytes = vert_bytes + tris_bytes
+		# can only update this if mdl2s have been loaded
+		if self.mdl2s:
+			# write each model's vert & tri block to a temporary buffer
+			temp_vert_writer = io.BytesIO()
+			temp_tris_writer = io.BytesIO()
+			for mdl2_path, mdl2 in self.mdl2s.items():
+				for model in mdl2.models:
+					# update ModelData struct
+					model.vertex_offset = temp_vert_writer.tell()
+					model.tri_offset = temp_tris_writer.tell()
+					logging.debug(f"{os.path.basename(mdl2_path)} {mdl2.read_editable}")
+					if mdl2.read_editable:
+						model.vertex_count = len(model.verts)
+						model.tri_index_count = len(model.tri_indices) * model.shell_count
+						# write data
+						model.write_verts(temp_vert_writer)
+						model.write_tris(temp_tris_writer)
+					else:
+						temp_vert_writer.write(model.verts_bytes)
+						temp_tris_writer.write(model.tris_bytes)
+				mdl2.update_lod_vertex_counts()
+			# get bytes from IO obj
+			vert_bytes = temp_vert_writer.getvalue()
+			tris_bytes = temp_tris_writer.getvalue()
+			# modify buffer size
+			self.buffer_info.vertexdatasize = len(vert_bytes)
+			self.buffer_info.facesdatasize = len(tris_bytes)
+			self.buffer_2_bytes = vert_bytes + tris_bytes
 
 	def save(self, filepath):
 		logging.info("Writing verts and tris to temporary buffer")

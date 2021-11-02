@@ -41,6 +41,23 @@ def extract_kernel(ovl, entry, out_dir_func, show_temp_files, progress_callback)
 		raise AttributeError(f"No function to export {entry.name}")
 
 
+def get_files(ovl, only_names, only_types, skip_files):
+	extract_files = []
+	for file in ovl.files:
+		# for batch operations, only export those that we need
+		if only_types and file.ext not in only_types:
+			skip_files.append(file.name)
+			continue
+		if only_names and file.name not in only_names:
+			skip_files.append(file.name)
+			continue
+		# ignore types in the count that we export from inside other type exporters
+		if file.ext in IGNORE_TYPES:
+			continue
+		extract_files.append(file)
+	return extract_files
+
+
 def write_gfx(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
 	name = sized_str_entry.name
 	print(f"\nWriting {name}")

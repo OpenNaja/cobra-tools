@@ -48,9 +48,6 @@ def wem_handle(wem_files, show_temp_files, progress_callback):
 	return processed_files
 
 
-# clear_tmp(wem_file, show_temp_files)
-
-
 def bin_to_lua(bin_file):
 	try:
 		out_file = os.path.splitext(bin_file)[0]
@@ -130,7 +127,7 @@ def make_tmp(in_dir, show_temp_files):
 	if show_temp_files:
 		return in_dir
 	else:
-		return tempfile.mkdtemp("-cobra-dds")
+		return tempfile.mkdtemp("-cobra")
 
 
 def clear_tmp(dds_file_path, show_temp_files):

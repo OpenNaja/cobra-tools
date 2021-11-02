@@ -922,7 +922,6 @@ class OvlFile(Header, IoFile):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
 		logging.info(f"Extracting from {len(self.files)} files...")
-		from modules.extract import IGNORE_TYPES, extract_kernel
 		os.makedirs(out_dir, exist_ok=True)
 
 		def out_dir_func(n):
@@ -933,19 +932,8 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		skip_files = []
 		out_paths = []
-		extract_files = []
-		for file in self.files:
-			# for batch operations, only export those that we need
-			if only_types and file.ext not in only_types:
-				skip_files.append(file.name)
-				continue
-			if only_names and file.name not in only_names:
-				skip_files.append(file.name)
-				continue
-			# ignore types in the count that we export from inside other type exporters
-			if file.ext in IGNORE_TYPES:
-				continue
-			extract_files.append(file)
+		from modules.extract import extract_kernel, get_files
+		extract_files = get_files(self, only_names, only_types, skip_files)
 		for ss_index, file in enumerate(extract_files):
 			self.progress_callback("Extracting...", value=ss_index, vmax=len(extract_files))
 			sized_str_entry = self.get_sized_str_entry(file.name)

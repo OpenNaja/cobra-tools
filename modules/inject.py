@@ -20,7 +20,7 @@ from modules.helpers import split_path
 from ovl_util import imarray, interaction
 
 
-def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=None):
+def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 	logging.info(f"Injecting {len(file_paths)}")
 	# write modified version to tmp dir
 	tmp_dir = tempfile.mkdtemp("-cobra-png")
@@ -54,7 +54,7 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 			name_ext = bnk_name + ".bnk"
 		# find the sizedstr entry that refers to this file
 		try:
-			sized_str_entry = ovl_data.get_sized_str_entry(name_ext)
+			sized_str_entry = ovl.get_sized_str_entry(name_ext)
 		except KeyError:
 			if interaction.showdialog(f"Do you want to add {name_ext} to this ovl?", ask=True):
 				logging.info(f"Adding new file {name_ext}")
@@ -62,33 +62,33 @@ def inject(ovl_data, file_paths, show_temp_files, hack_2k, progress_callback=Non
 			continue
 		# do the actual injection, varies per file type
 		if ext == ".ms2":
-			load_ms2(ovl_data, file_path, sized_str_entry)
+			load_ms2(ovl, file_path, sized_str_entry)
 		elif ext == ".fgm":
-			load_fgm(ovl_data, file_path, sized_str_entry)
+			load_fgm(ovl, file_path, sized_str_entry)
 		elif ext == ".png":
-			load_png(ovl_data, file_path, sized_str_entry, show_temp_files, hack_2k)
+			load_png(ovl, file_path, sized_str_entry, show_temp_files, hack_2k)
 		elif ext == ".dds":
-			load_dds(ovl_data, file_path, sized_str_entry, hack_2k)
+			load_dds(ovl, file_path, sized_str_entry, hack_2k)
 		elif ext == ".txt":
-			load_txt(ovl_data, file_path, sized_str_entry)
+			load_txt(ovl, file_path, sized_str_entry)
 		elif ext == ".wem":
-			load_wem(ovl_data, file_path, sized_str_entry, bnk_name, wem_name)
+			load_wem(ovl, file_path, sized_str_entry, bnk_name, wem_name)
 		elif ext == ".xmlconfig":
-			load_xmlconfig(ovl_data, file_path, sized_str_entry)
+			load_xmlconfig(ovl, file_path, sized_str_entry)
 		elif ext == ".fdb":
-			load_fdb(ovl_data, file_path, sized_str_entry, name)
+			load_fdb(ovl, file_path, sized_str_entry, name)
 		elif ext == ".matcol":
-			load_materialcollection(ovl_data, file_path, sized_str_entry)
+			load_materialcollection(ovl, file_path, sized_str_entry)
 		elif ext == ".lua":
-			load_lua(ovl_data, file_path, sized_str_entry)
+			load_lua(ovl, file_path, sized_str_entry)
 		elif ext == ".fct":
-			load_fct(ovl_data, file_path, sized_str_entry, name[-1])
+			load_fct(ovl, file_path, sized_str_entry, name[-1])
 		elif ext == ".assetpkg":
-			load_assetpkg(ovl_data, file_path, sized_str_entry)
+			load_assetpkg(ovl, file_path, sized_str_entry)
 		elif ext == ".userinterfaceicondata":
-			load_userinterfaceicondata(ovl_data, file_path, sized_str_entry)
+			load_userinterfaceicondata(ovl, file_path, sized_str_entry)
 		elif ext == ".voxelskirt":
-			load_voxelskirt(ovl_data, file_path, sized_str_entry)
+			load_voxelskirt(ovl, file_path, sized_str_entry)
 		else:
 			logging.warning(f"Skipping injection of {file_path} because its extension is not supported.")
 	shutil.rmtree(tmp_dir)
