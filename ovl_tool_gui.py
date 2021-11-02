@@ -6,6 +6,8 @@ import traceback
 import logging
 import tempfile
 
+from modules.walker import walk_type
+
 try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
@@ -53,6 +55,24 @@ class MainWindow(widgets.MainWindow):
 
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
 
+		self.model = QtWidgets.QFileSystemModel()
+		dir_game = self.get_game_dir()
+		rt_index = self.model.setRootPath(dir_game)
+		self.dirs_container = QtWidgets.QTreeView()
+		self.dirs_container.setModel(self.model)
+		self.dirs_container.setRootIndex(rt_index)
+		self.dirs_container.setColumnHidden(1, True)
+		self.dirs_container.setColumnHidden(2, True)
+		self.dirs_container.setColumnHidden(3, True)
+		self.dirs_container.doubleClicked.connect(self.dirs_clicked)
+
+		self.dirs_container.setAnimated(False)
+		self.dirs_container.setIndentation(20)
+		self.dirs_container.setSortingEnabled(True)
+
+		self.dirs_container.setWindowTitle("Dir View")
+		self.dirs_container.resize(640, 480)
+
 		# create the table
 		self.files_container = widgets.SortableTable(header_names)
 		# connect the interaction functions
@@ -62,6 +82,19 @@ class MainWindow(widgets.MainWindow):
 		# self.files_container.table.file_selected.connect(self.show_dependencies)
 
 		self.dir_container = widgets.EditCombo(self)
+
+		self.dat_widget = widgets.FileWidget(self, self.cfg, ask_user=False, dtype="DAT", poll=False)
+		self.dat_widget.setToolTip("External .dat file path")
+		self.dat_widget.hide()
+
+		right_frame = QtWidgets.QWidget()
+		hbox = QtWidgets.QVBoxLayout()
+		hbox.addWidget(self.file_widget,)
+		hbox.addWidget(self.files_container)
+		hbox.addWidget(self.dir_container)
+		hbox.addWidget(self.dat_widget)
+		right_frame.setLayout(hbox)
+
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip(
@@ -76,37 +109,46 @@ class MainWindow(widgets.MainWindow):
 		self.sp_hash.setToolTip("Experimental")
 		self.sp_hash.setChecked(False)
 
+		self.in_folder = QtWidgets.QCheckBox("Process Folder")
+		self.in_folder.setToolTip("Runs commands on all OVLs of current folder")
+		self.in_folder.setChecked(False)
+
 		self.ext_dat = QtWidgets.QCheckBox("Use External DAT")
 		self.ext_dat.setToolTip("Experimental: Save the ovl with an external STATIC DAT instead of one in memory")
 		self.ext_dat.setChecked(False)
 		self.ext_dat.stateChanged.connect(self.dat_show)
 
-		self.dat_widget = widgets.FileWidget(self, self.cfg, ask_user=False, dtype="DAT", poll=False)
-		self.dat_widget.setToolTip("External .dat file path")
-		self.dat_widget.hide()
-
-		self.e_name_old = QtWidgets.QLineEdit("old")
-		self.e_name_new = QtWidgets.QLineEdit("new")
+		self.e_name_old = QtWidgets.QTextEdit("old")
+		self.e_name_new = QtWidgets.QTextEdit("new")
+		self.e_name_old.setFixedHeight(100)
+		self.e_name_new.setFixedHeight(100)
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
 		self.t_write_dat.setChecked(False)
 		self.t_write_dat.stateChanged.connect(self.load)
 
+		self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
+		self.splitter.addWidget(self.dirs_container)
+		self.splitter.addWidget(right_frame)
+		self.splitter.setSizes([200, 400])
+		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 5)
-		self.qgrid.addWidget(self.t_show_temp_files, 1, 0)
-		self.qgrid.addWidget(self.t_write_dat, 1, 1)
-		self.qgrid.addWidget(self.ext_dat, 1, 2)
-		self.qgrid.addWidget(self.sp_hash, 1, 3)
-		self.qgrid.addWidget(self.e_name_old, 2, 0, 1, 2)
-		self.qgrid.addWidget(self.e_name_new, 2, 2, 1, 2)
-		self.qgrid.addWidget(self.game_container, 2, 4,)
-		self.qgrid.addWidget(self.files_container, 3, 0, 1, 5)
-		self.qgrid.addWidget(self.dir_container, 4, 0, 1, 5)
-		self.qgrid.addWidget(self.p_action, 5, 0, 1, 5)
-		self.qgrid.addWidget(self.t_action, 6, 0, 1, 5)
-		self.qgrid.addWidget(self.dat_widget, 7, 0, 1, 5)
+		self.qgrid.addWidget(self.e_name_old, 0, 0, 5, 1)
+		self.qgrid.addWidget(self.e_name_new, 0, 1, 5, 1)
+
+		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
+		self.qgrid.addWidget(self.t_write_dat, 1, 3)
+		self.qgrid.addWidget(self.ext_dat, 2, 3)
+		self.qgrid.addWidget(self.sp_hash, 3, 3)
+		self.qgrid.addWidget(self.in_folder, 4, 3)
+		self.qgrid.addWidget(self.game_container, 0, 4,)
+
+		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
+		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
+		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
+
 		self.central_widget.setLayout(self.qgrid)
 
 		main_menu = self.menuBar()
@@ -134,6 +176,49 @@ class MainWindow(widgets.MainWindow):
 		self.add_to_menu(button_data)
 		self.check_version()
 		self.load_hash_table()
+
+	def get_game_dir(self):
+		dir_game = self.cfg.get("dir_game", "")
+		if not dir_game:
+			dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
+			self.cfg["dir_game"] = dir_game
+		return dir_game
+
+	def get_selected_dir(self):
+		model = self.dirs_container.model()
+		ind = self.dirs_container.currentIndex()
+		file_path = model.filePath(ind)
+		if os.path.isdir(file_path):
+			return file_path
+
+	def handle_path(self):
+		# get path
+		# walk path
+		# open ovl files
+		# process each
+		# for ovl in
+		if self.in_folder.isChecked():
+			root_dir = self.get_selected_dir()
+			if root_dir:
+				ovls = walk_type(root_dir, extension="ovl")
+				# print(ovls)
+				for ovl_path in ovls:
+					self.file_widget.decide_open(ovl_path)
+					yield self.ovl_data
+					self.ovl_data.save(ovl_path, "")
+			else:
+				interaction.showdialog("Select a root directory!")
+		else:
+			yield self.ovl_data
+
+	def dirs_clicked(self, ind):
+		# handle double clicked file paths
+		try:
+			file_path = ind.model().filePath(ind)
+			if file_path.lower().endswith(".ovl"):
+				self.file_widget.decide_open(file_path)
+		except BaseException as err:
+			print(err)
 
 	def open_tools_dir(self):
 		os.startfile(os.getcwd())
@@ -382,20 +467,37 @@ class MainWindow(widgets.MainWindow):
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
 
+	def get_replace_strings(self):
+		try:
+			newline = "\n"
+			old = self.e_name_old.toPlainText()
+			new = self.e_name_new.toPlainText()
+			old = old.split(newline)
+			new = new.split(newline)
+			if len(old) != len(new):
+				interaction.showdialog(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
+			return list(zip(old, new))
+		except BaseException as err:
+			print(err)
+
 	def hasher(self):
-		if self.is_open_ovl():
-			names = [(self.e_name_old.text(), self.e_name_new.text())]
-			hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
-			self.update_gui_table()
+		names = self.get_replace_strings()
+		if names:
+			for ovl in self.handle_path():
+				if self.is_open_ovl():
+					hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
+					self.update_gui_table()
 
 	def dat_replacement(self):
-		if self.is_open_ovl():
-			names = [(self.e_name_old.text(), self.e_name_new.text())]
-			if self.species_hash:
-				hasher.species_dat_replacer(self.ovl_data, names)
-			else:
-				hasher.dat_replacer(self.ovl_data, names)
-			self.update_gui_table()
+		names = self.get_replace_strings()
+		if names:
+			for ovl in self.handle_path():
+				if self.is_open_ovl():
+					if self.species_hash:
+						hasher.species_dat_replacer(self.ovl_data, names)
+					else:
+						hasher.dat_replacer(self.ovl_data, names)
+					self.update_gui_table()
 
 	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
 	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
@@ -406,6 +508,7 @@ class MainWindow(widgets.MainWindow):
 	def remover(self):
 		if self.is_open_ovl():
 			selected_file_names = self.files_container.table.get_selected_files()
+			# todo - might want to check self.files_container.hasFocus(), but does not seem to work!
 			if selected_file_names:
 				try:
 					remover.file_remover(self.ovl_data, selected_file_names)

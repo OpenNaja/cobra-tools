@@ -855,13 +855,15 @@ class FileWidget(QtWidgets.QWidget):
 		urls = self.get_files(event)
 		if urls:
 			filepath = str(urls[0].path())[1:]
-			if self.accept_file(filepath) and self.poll:
-				self.parent.poll()
+			self.decide_open(filepath)
 
 	def ask_open(self):
 		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}',
 														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://"),
 														 f"{self.dtype} files (*.{self.dtype_l})")[0]
+		self.decide_open(filepath)
+
+	def decide_open(self, filepath):
 		if self.accept_file(filepath) and self.poll:
 			self.parent.poll()
 
