@@ -1,15 +1,14 @@
 import numpy
 import typing
 from generated.array import Array
-from generated.context import ContextReference
-from generated.formats.fgm.bitfield.VersionInfo import VersionInfo
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FourFragFgm import FourFragFgm
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
 from generated.formats.fgm.compound.TwoFragFgmExtra import TwoFragFgmExtra
+from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 
 
-class FgmInfoHeader:
+class FgmInfoHeader(GenericHeader):
 
 	"""
 	Custom header struct
@@ -17,31 +16,13 @@ class FgmInfoHeader:
 	This reads a whole custom FGM file
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# 'FGM '
-		self.magic = numpy.zeros((4), dtype='byte')
-
-		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC
-		self.version_flag = 0
-
-		# 0x12 = PC, 0x13 = JWE, PZ
-		self.version = 0
-
-		# endianness?, usually zero
-		self.bitswap = 0
-
-		# always = 1
-		self.seventh_byte = 1
-		self.user_version = VersionInfo()
 
 		# fragment count
 		self.num_frags = 0
@@ -70,12 +51,6 @@ class FgmInfoHeader:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.magic = numpy.zeros((4), dtype='byte')
-		self.version_flag = 0
-		self.version = 0
-		self.bitswap = 0
-		self.seventh_byte = 1
-		self.user_version = VersionInfo()
 		self.num_frags = 0
 		self.num_textures = 0
 		self.tex_info_size = 0
@@ -94,15 +69,7 @@ class FgmInfoHeader:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.magic = stream.read_bytes((4))
-		self.version_flag = stream.read_byte()
-		self.context.version_flag = self.version_flag
-		self.version = stream.read_byte()
-		self.context.version = self.version
-		self.bitswap = stream.read_byte()
-		self.seventh_byte = stream.read_byte()
-		self.user_version = stream.read_type(VersionInfo)
-		self.context.user_version = self.user_version
+		super().read(stream)
 		self.num_frags = stream.read_uint()
 		self.num_textures = stream.read_uint()
 		self.tex_info_size = stream.read_uint()
@@ -123,12 +90,7 @@ class FgmInfoHeader:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_bytes(self.magic)
-		stream.write_byte(self.version_flag)
-		stream.write_byte(self.version)
-		stream.write_byte(self.bitswap)
-		stream.write_byte(self.seventh_byte)
-		stream.write_type(self.user_version)
+		super().write(stream)
 		stream.write_uint(self.num_frags)
 		stream.write_uint(self.num_textures)
 		stream.write_uint(self.tex_info_size)
@@ -152,12 +114,7 @@ class FgmInfoHeader:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* magic = {self.magic.__repr__()}'
-		s += f'\n	* version_flag = {self.version_flag.__repr__()}'
-		s += f'\n	* version = {self.version.__repr__()}'
-		s += f'\n	* bitswap = {self.bitswap.__repr__()}'
-		s += f'\n	* seventh_byte = {self.seventh_byte.__repr__()}'
-		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += super().get_fields_str()
 		s += f'\n	* num_frags = {self.num_frags.__repr__()}'
 		s += f'\n	* num_textures = {self.num_textures.__repr__()}'
 		s += f'\n	* tex_info_size = {self.tex_info_size.__repr__()}'

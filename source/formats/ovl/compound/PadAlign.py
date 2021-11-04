@@ -7,10 +7,16 @@ ZERO = b"\x00"
 
 # END_GLOBALS
 
+
+from generated.context import ContextReference
+
+
 class PadAlign:
 	"""Automatically aligns to arg's start and pads so aligned with align"""
 
 # START_CLASS
+
+	context = ContextReference()
 
 	def __init__(self, context, arg=None, template=None):
 		# arg is reference object

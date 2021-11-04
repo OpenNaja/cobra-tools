@@ -2,123 +2,12 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-	<verattr name="version" access="#VER#" index="0" />
-	<verattr name="user_version" access="#USER#" index="1" type="VersionInfo" />
-	<verattr name="version_flag" access="#FLAG#" index="2" />
-
-    <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
-    <version id="PC" version="18">Planet Coaster</version>
-    <version id="PZ" version="19" user_version="8340 8724">Planet Zoo</version>
-    <version id="JWE" version_flag="1" version="19" user_version="24724 25108">Jurassic World Evolution</version>
-
-    <token name="verexpr" attrs="vercond">
-        Commonly used version expressions.
-        <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
-		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
-        <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #EQ# 19))">PZ</verexpr>
-        <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19) #AND# (#FLAG# #EQ# 1))">JWE, 25108 is JWE on switch</verexpr>
-    </token>
-
-    <token name="global" attrs="vercond access">
-        Global Tokens.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <global token="#USER#" string="user_version" />
-        <global token="#VER#" string="version" />
-        <global token="#FLAG#" string="version_flag" />
-    </token>
-	
-    <token name="operator" attrs="cond vercond arr1 arr2 arg">
-        All Operators except for unary not (!), parentheses, and member of (\)
-        NOTE: These can be ignored entirely by string substitution and dealt with directly.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <operator token="#ADD#" string="+" />
-        <operator token="#SUB#" string="-" />
-        <operator token="#MUL#" string="*" />
-        <operator token="#DIV#" string="/" />
-        <operator token="#AND#" string="&amp;&amp;" />
-        <operator token="#OR#" string="||" />
-        <operator token="#LT#" string="&lt;" />
-        <operator token="#GT#" string="&gt;" />
-        <operator token="#LTE#" string="&lt;=" />
-        <operator token="#GTE#" string="&gt;=" />
-        <operator token="#EQ#" string="==" />
-        <operator token="#NEQ#" string="!=" />
-        <operator token="#RSH#" string="&gt;&gt;" />
-        <operator token="#LSH#" string="&lt;&lt;" />
-        <operator token="#BITAND#" string="&amp;" />
-        <operator token="#BITOR#" string="|" />
-        <operator token="#MOD#" string="%" />
-    </token>
-
-    <basic name="bool" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-    <basic name="byte" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-    <basic name="ubyte" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-
-    <basic name="uint64" count="1">
-        An unsigned 64-bit integer.
-    </basic>
-    <basic name="uint" count="1">
-        An unsigned 32-bit integer.
-    </basic>
-    <basic name="ushort" count="1" >
-        An unsigned 16-bit integer.
-    </basic>
-
-    <basic name="int" count="1" >
-        A signed 32-bit integer.
-    </basic>
-
-    <basic name="short" count="1" >
-        A signed 16-bit integer.
-    </basic>
-	
-    <basic name="char" count="0" >
-        An 8-bit character.
-    </basic>
-	
-    <basic name="float" count="0" >
-        A standard 32-bit floating point number.
-    </basic>
-
-    <basic name="ZString">
-        Null terminated string.
-    </basic>
-
-    <bitfield name="VersionInfo" storage="uint">
-        Determines the format of the OVL file held by a mesh.
-        n.b. pos counts from the end!
-        <member width="1" pos="2" name="unk1" type="bool"></member>
-        <member width="1" pos="4" name="unk2" type="bool"></member>
-        <member width="1" pos="7" name="use zlib" type="bool"></member>
-        <member width="1" pos="9" name="use oodle" type="bool"></member>
-        <member width="1" pos="13" name="unk3" type="bool"></member>
-        <member width="1" pos="14" name="is jwe" type="bool"></member>
-    </bitfield>
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
 	<!-- Structs for the OVL file -->
 
-    <compound name="ZStringBuffer" count="0" >
-        Holds a buffer of zero-terminated strings
-    </compound>
-
-    <compound name="FixedString" count="0" >
-        Holds a string of a fixed size, given as an argument.
-    </compound>
-
-    <compound name="Header">
+    <compound name="Header" inherit="GenericHeader">
         Found at the beginning of every OVL file
-        <add name="magic" type="FixedString" arg="4">'VOXE'</add>
-        <add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC</add>
-        <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
-        <add name="Bitswap" type="byte" >endianness?, usually zero</add>
-        <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-        <add name="user version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
 
         <add name="info" type="SizedStrData" >always = 0</add>
 

@@ -1,23 +1,22 @@
-
+# START_GLOBALS
 from generated.io import MAX_LEN
 from modules.formats.shared import get_padding_size
 
 ZERO = b"\x00"
 
 
+# END_GLOBALS
+
+
 from generated.context import ContextReference
 
 
 class PadAlign:
+	"""Automatically aligns to arg's start and pads so aligned with align"""
 
-	"""
-	Grabs 00 bytes only
-	"""
+# START_CLASS
 
 	context = ContextReference()
-
-	def set_defaults(self):
-		pass
 
 	def __init__(self, context, arg=None, template=None):
 		# arg is reference object
@@ -40,4 +39,3 @@ class PadAlign:
 
 	def __repr__(self):
 		return f"{self.data} Size: {len(self.data)}"
-
