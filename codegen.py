@@ -90,6 +90,7 @@ class XmlParser:
         except AttributeError:
             # if attribute error, assume it was a file path
             xml_path = xml_file
+        xml_path = os.path.realpath(xml_path)
         tree = ET.parse(xml_file)
         root = tree.getroot()
         self.generate_module_paths(root)
