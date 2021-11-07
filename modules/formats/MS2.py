@@ -91,7 +91,7 @@ def write_ms2(ovl, ms2_sized_str_entry, out_dir, show_temp_files, progress_callb
 					# 40 bytes (0,1 or 0,0,0,0)
 					has_bone_info = model_info.pointers[0].data
 				elif (is_jwe(ovl) and model_info.pointers[0].data_size == 144) \
-						or ((is_pz(ovl) or is_pz16(ovl)) and model_info.pointers[0].data_size == 160):
+						or ((is_pz(ovl) or is_pz16(ovl) or is_jwe2(ovl)) and model_info.pointers[0].data_size == 160):
 					# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
 					next_model_info_data = model_info.pointers[0].data[40:]
 					has_bone_info = model_info.pointers[0].data[:40]
@@ -201,7 +201,7 @@ def load_ms2(ovl, ms2_file_path, ms2_entry):
 			# get its model info fragment
 			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
 			if (is_jwe(ovl) and model_info.pointers[0].data_size == 144) \
-					or ((is_pz(ovl) or is_pz16(ovl)) and model_info.pointers[0].data_size == 160):
+					or ((is_pz(ovl) or is_pz16(ovl) or is_jwe2(ovl)) and model_info.pointers[0].data_size == 160):
 				data = model_info.pointers[0].data[:40] + data
 				model_info.pointers[0].update_data(data, update_copies=True)
 
@@ -254,7 +254,7 @@ class Ms2Loader(BaseFile):
 				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
 				pink = mdl2_entry.fragments[4]
 				if (is_jwe(self.ovl) and pink.pointers[0].data_size == 144) \
-						or ((is_pz(self.ovl) or is_pz16(self.ovl)) and pink.pointers[0].data_size == 160):
+						or ((is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(ovl)) and pink.pointers[0].data_size == 160):
 					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		else:
