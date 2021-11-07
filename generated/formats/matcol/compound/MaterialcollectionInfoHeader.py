@@ -84,9 +84,7 @@ class MaterialcollectionInfoHeader:
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_uint(self.version)
-		self.context.version = self.version
 		stream.write_uint(self.user_version)
-		self.context.user_version = self.user_version
 		stream.write_ubyte(self.has_texture_list)
 		stream.write_type(self.root_0)
 		stream.write_type(self.root_1)

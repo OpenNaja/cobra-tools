@@ -17,7 +17,8 @@ class Version(object):
                 byte_number_strs = expr_str.split(".")
                 self.value = sum(int(n) << shift for n, shift in zip(byte_number_strs, self.shifts))
             else:
-                self.value = int(expr_str)
+                # use int(x, 0) to evaluate x as an int literal, allowing for non-decimal (e.g. hex) values to be read
+                self.value = int(expr_str, 0)
                 # print(self)
 
     def version_number(version_str):

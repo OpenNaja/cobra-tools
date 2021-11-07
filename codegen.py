@@ -31,12 +31,13 @@ class XmlParser:
         self.encoding='utf-8'
 
         # elements for versions
-        self.version_string = None
+        self.versions = None
 
         # ordered (!) list of tuples ({tokens}, (target_attribs)) for each <token>
         self.tokens = []
-        self.versions = [([], ("versions", "until", "since")), ]
 
+        # maps version attribute name to [access, type]
+        self.verattrs = {}
         # maps each type to its generated py file's relative path
         self.path_dict = {}
         # enum name -> storage name
@@ -48,7 +49,7 @@ class XmlParser:
         """preprocessing - generate module paths for imports relative to the output dir"""
         for child in root:
             # only check stuff that has a name - ignore version tags
-            if child.tag not in ("version", "token"):
+            if child.tag.split('}')[-1] not in ("version", "token", "include"):
                 base_segments = os.path.join("formats", self.format_name)
                 if child.tag == "module":
                     # for modules, set the path to base/module_name
@@ -74,17 +75,35 @@ class XmlParser:
         self.path_dict["UintEnum"] = "base_enum"
         self.path_dict["Uint64Enum"] = "base_enum"
 
-    def load_xml(self, xml_file):
+    def register_tokens(self, root):
+        """Register tokens before anything else"""
+        for child in root:
+            if child.tag == "token":
+                self.read_token(child)
+
+    def load_xml(self, xml_file, parsed_xmls=None):
         """Loads an XML (can be filepath or open file) and does all parsing
         Goes over all children of the root node and calls the appropriate function depending on type of the child"""
+        try:
+            # try for case where xml_file is a passed file object
+            xml_path = xml_file.name
+        except AttributeError:
+            # if attribute error, assume it was a file path
+            xml_path = xml_file
+        xml_path = os.path.realpath(xml_path)
         tree = ET.parse(xml_file)
         root = tree.getroot()
         self.generate_module_paths(root)
-        versions = Versions(self)
+        self.register_tokens(root)
+        self.versions = Versions(self)
+
+        # dictionary of xml file: XmlParser
+        if parsed_xmls is None:
+            parsed_xmls = {}
 
         for child in root:
             self.replace_tokens(child)
-            if child.tag not in ('version', 'module'):
+            if child.tag not in ('version', 'verattr', 'module'):
                 self.apply_conventions(child)
             try:
                 if child.tag in self.struct_types:
@@ -98,14 +117,17 @@ class XmlParser:
                 elif child.tag == "module":
                     Module(self, child)
                 elif child.tag == "version":
-                    versions.read(child)
-                elif child.tag == "token":
-                    self.read_token(child)
+                    self.versions.read(child)
+                elif child.tag == "verattr":
+                    self.read_verattr(child)
+                elif child.tag.split('}')[-1] == "include":
+                    self.read_xinclude(child, xml_path, parsed_xmls)
             except Exception as err:
                 logging.error(err)
                 traceback.print_exc()
         out_file = os.path.join(os.getcwd(), "generated", "formats", self.format_name, "versions.py")
-        versions.write(out_file)
+        self.versions.write(out_file)
+        parsed_xmls[xml_path] = self
 
     # the following constructs do not create classes
     def read_token(self, token):
@@ -113,6 +135,31 @@ class XmlParser:
         self.tokens.append(([(sub_token.attrib["token"], sub_token.attrib["string"])
                             for sub_token in token],
                             token.attrib["attrs"].split(" ")))
+
+    def read_verattr(self, verattr):
+        """Reads an xml <verattr> and stores it in the verattrs dict"""
+        name = verattr.attrib['name']
+        assert name not in self.verattrs, f"verattr {name} already defined!"
+        access = '.'.join(convention.name_attribute(comp) for comp in verattr.attrib["access"].split('.'))
+        attr_type = verattr.attrib.get("type")
+        if attr_type:
+            attr_type = convention.name_class(attr_type)
+        self.verattrs[name] = [access, attr_type]
+
+    def read_xinclude(self, xinclude, xml_path, parsed_xmls):
+        """Reads an xi:include element, and parses the linked xml if it doesn't exist yet in parsed xmls"""
+        # convert the linked relative path to an absolute one
+        new_path = os.path.realpath(os.path.join(os.path.dirname(xml_path), xinclude.attrib['href']))
+        # check if the xml file was already parsed
+        if new_path not in parsed_xmls:
+            # if not, parse it now
+            format_name = os.path.splitext(os.path.basename(new_path))[0]
+            new_parser = XmlParser(format_name)
+            new_parser.load_xml(new_path, parsed_xmls)
+        else:
+            new_parser = parsed_xmls[new_path]
+        # append all pertinent information (file paths etc) to self for access
+        self.copy_xml_dicts(new_parser)
 
     @staticmethod
     def apply_convention(struct, func, params):
@@ -177,7 +224,7 @@ class XmlParser:
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
         # replace versions after tokens because tokens include versions
-        for tokens, target_attribs in self.tokens + self.versions:
+        for tokens, target_attribs in self.tokens:
             for target_attrib in target_attribs:
                 if target_attrib in xml_struct.attrib:
                     expr_str = xml_struct.attrib[target_attrib]
@@ -194,6 +241,22 @@ class XmlParser:
             xml_struct.attrib[attrib] = expr_str
         for xml_child in xml_struct:
             self.replace_tokens(xml_child)
+
+    @staticmethod
+    def copy_dict_info(own_dict, other_dict):
+        """Add information from other dict if we didn't have it yet"""
+        for key in other_dict.keys():
+            if key not in own_dict:
+                own_dict[key] = other_dict[key]
+
+    def copy_xml_dicts(self, other_parser):
+        """Copy information necessary for linking and generation from another parser as if we'd read the file"""
+        [self.versions.read(version) for version in other_parser.versions.versions]
+        self.tokens.extend(other_parser.tokens)
+        self.copy_dict_info(self.verattrs, other_parser.verattrs)
+        self.copy_dict_info(self.path_dict, other_parser.path_dict)
+        self.copy_dict_info(self.storage_dict, other_parser.storage_dict)
+        self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
 
 
 def copy_src_to_generated():
@@ -220,14 +283,18 @@ def generate_classes():
     cwd = os.getcwd()
     root_dir = os.path.join(cwd, "source\\formats")
     copy_src_to_generated()
+    parsed_xmls = {}
     for format_name in os.listdir(root_dir):
         dir_path = os.path.join(root_dir, format_name)
         if os.path.isdir(dir_path):
             xml_path = os.path.join(dir_path, format_name+".xml")
             if os.path.isfile(xml_path):
-                logging.info(f"Reading {format_name} format")
+                if os.path.realpath(xml_path) in parsed_xmls:
+                    logging.info(f"Already read {format_name}, skipping")
+                else:
+                    logging.info(f"Reading {format_name} format")
                 xmlp = XmlParser(format_name)
-                xmlp.load_xml(xml_path)
+                xmlp.load_xml(xml_path, parsed_xmls)
     create_inits()
 
 
