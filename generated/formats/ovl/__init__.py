@@ -188,7 +188,7 @@ class OvsFile(OvsHeader):
 					self.data_entries,
 					self.set_header.sets,
 					self.set_header.assets]
-		if is_pz16(self.ovl):
+		if is_pz16(self.ovl) or is_jwe2(self.ovl):
 			entry_lists.append(self.buffer_entries)
 		for entry_list in entry_lists:
 			for entry in entry_list:
@@ -374,7 +374,7 @@ class OvsFile(OvsHeader):
 	def rebuild_buffer_groups(self):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
 		self.new_entries.clear()
-		if is_pz16(self.ovl) and len(self.data_entries) > 0:
+		if (is_pz16(self.ovl) or is_jwe2(self.ovl)) and len(self.data_entries) > 0:
 			# sort the buffers to be what 1.6 needs
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
@@ -641,7 +641,7 @@ class OvsFile(OvsHeader):
 	@property
 	def buffers_io_order(self):
 		"""sort buffers into load order"""
-		if is_pz16(self.ovl):
+		if is_pz16(self.ovl) or is_jwe2(self.ovl):
 			return self.buffer_entries
 		else:
 			# this holds the buffers in the order they are read from the file
@@ -1202,7 +1202,7 @@ class OvlFile(Header, IoFile):
 	def update_triplets(self):
 		logging.info("Updating triplets")
 		self.triplets.clear()
-		if is_pz16(self):
+		if is_pz16(self) or is_jwe2(self):
 			triplet_offset = 0
 			for mime in self.mimes:
 				mime.triplet_offset = triplet_offset
