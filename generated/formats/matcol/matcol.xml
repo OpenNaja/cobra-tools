@@ -8,71 +8,17 @@
         <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
     </token>
 	
-    <token name="global" attrs="vercond">
+    <token name="global" attrs="vercond access">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <global token="#VER#" string="version" />
         <global token="#USER#" string="user_version" />
     </token>
-	
-    <token name="operator" attrs="cond vercond arr1 arr2 arg">
-        All Operators except for unary not (!), parentheses, and member of (\)
-        NOTE: These can be ignored entirely by string substitution and dealt with directly.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <operator token="#ADD#" string="+" />
-        <operator token="#SUB#" string="-" />
-        <operator token="#MUL#" string="*" />
-        <operator token="#DIV#" string="/" />
-        <operator token="#AND#" string="&amp;&amp;" />
-        <operator token="#OR#" string="||" />
-        <operator token="#LT#" string="&lt;" />
-        <operator token="#GT#" string="&gt;" />
-        <operator token="#LTE#" string="&lt;=" />
-        <operator token="#GTE#" string="&gt;=" />
-        <operator token="#EQ#" string="==" />
-        <operator token="#NEQ#" string="!=" />
-        <operator token="#RSH#" string="&gt;&gt;" />
-        <operator token="#LSH#" string="&lt;&lt;" />
-        <operator token="#BITAND#" string="&amp;" />
-        <operator token="#BITOR#" string="|" />
-        <operator token="#MOD#" string="%" />
-    </token>
-    <!--Basic Types-->
 
-    <basic name="ubyte" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-	
-    <basic name="byte" count="1">
-        A signed 8-bit integer.
-    </basic>
+	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <basic name="uint" count="1">
-        An unsigned 32-bit integer.
-    </basic>
-	
-	<basic name="uint64" count="1">
-        An unsigned 64-bit integer.
-    </basic>
-	
-    <basic name="ushort" count="1" >
-        An unsigned 16-bit integer.
-    </basic>
-
-    <basic name="int" count="1" >
-        A signed 32-bit integer.
-    </basic>
-
-    <basic name="short" count="1" >
-        A signed 16-bit integer.
-    </basic>
-	
-    <basic name="char" count="0" >
-        An 8-bit character.
-    </basic>
-	
-    <basic name="float" count="0" >
-        A standard 32-bit floating point number.
-    </basic>
+	<verattr name="version" access="#VER#" index="0" />
+	<verattr name="user_version" access="#USER#" index="1" />
 
     <basic name="ZString">
         Null terminated string.

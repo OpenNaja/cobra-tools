@@ -16,7 +16,11 @@ class Module:
         self.custom = bool(eval(element.attrib.get("custom","true").replace("true","True").replace("false","False"),{}))
 
     def write(self, rel_path):
-        with open(os.path.join(os.getcwd(), "generated", rel_path, "__init__.py"), "w", encoding=self.parser.encoding) as file:
+        abs_path = os.path.join(os.getcwd(), "generated", rel_path, "__init__.py")
+        out_dir = os.path.dirname(abs_path)
+        if not os.path.isdir(out_dir):
+            os.makedirs(out_dir)
+        with open(abs_path, "w", encoding=self.parser.encoding) as file:
             file.write(self.comment_str)
             file.write(f'\n\n__priority__ = {repr(self.priority)}')
             file.write(f'\n__depends__ = {repr(self.depends)}')

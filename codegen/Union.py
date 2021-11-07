@@ -235,7 +235,6 @@ class Union:
     def write_defaults(self, f, condition=""):
         base_indent = "\n\t\t"
         for field in self.members:
-            field_debug_str = clean_comment_str(field.text, indent="\t\t")
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
 
             indent, condition = condition_indent(base_indent, conditionals, condition)
@@ -274,7 +273,14 @@ class Union:
             else:
                 f.write(
                     f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arg=arg, template=template)}")
-            # store version related stuff on self.context
-            if "version" in field_name:
-                f.write(f"{indent}{CONTEXT}.{field_name} = self.{field_name}")
+            if method_type == 'read':
+                # store version related fields on self.context on read
+                for k, (access, dtype) in self.compound.parser.verattrs.items():
+                    # check all version-related global variables registered with the verattr tag
+                    attr_path = access.split('.')
+                    if field_name == attr_path[0]:
+                        if dtype is None or len(attr_path) > 1 or field_type == dtype:
+                            # the verattr type isn't known, we can't check it or it matches
+                            f.write(f"{indent}{CONTEXT}.{field_name} = self.{field_name}")
+                            break
         return condition

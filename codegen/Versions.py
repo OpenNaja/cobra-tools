@@ -2,6 +2,8 @@ from codegen.naming_conventions import name_enum_key
 from codegen.expression import Version
 
 
+base_ver_attrs = ("id", "supported", "custom", "ext")
+
 class Versions:
 	"""Creates and writes a version block"""
 
@@ -25,34 +27,34 @@ class Versions:
 					stream.write(f"def is_{self.format_id(version.attrib['id'])}(context):")
 					conds_list = []
 					for k, v in version.attrib.items():
-						if k != "id":
-							name = k.lower()
-							val = v.strip()
-							if name == 'num':
-								val = str(Version(val))
-							if " " in val:
-								conds_list.append(f"context.{name} in ({val.replace(' ', ', ')})")
+						if k not in base_ver_attrs:
+							if k in self.parent.verattrs:
+								name = self.parent.verattrs[k][0]
 							else:
-								conds_list.append(f"context.{name} == {val}")
+								name = k.lower()
+							val = v.strip()
+							if " " in val:
+								conds_list.append(f"context.{name} in ({', '.join([str(Version(nr)) for nr in val.split(' ')])})")
+							else:
+								conds_list.append(f"context.{name} == {str(Version(val))}")
 					stream.write("\n\tif " + " and ".join(conds_list) + ":")
 					stream.write("\n\t\treturn True")
 					stream.write("\n\n\n")
 
 					stream.write(f"def set_{self.format_id(version.attrib['id'])}(context):")
 					for k, v in version.attrib.items():
-						if k != "id":
-							name = k.lower()
+						if k not in base_ver_attrs:
+							suffix = ""
+							if k in self.parent.verattrs:
+								name, attr_type = self.parent.verattrs[k]
+								if attr_type and self.parent.tag_dict[attr_type.lower()] == 'bitfield':
+									suffix = "._value"
+							else:
+								name = k.lower()
 							val = v.strip()
 							if " " in val:
 								val = val.split(" ")[0]
-							# todo - this should instead be detected by field type
-							if name == "user_version":
-								suffix = "._value"
-							else:
-								suffix = ""
-								if name == "num":
-									val = str(Version(val))
-							stream.write(f"\n\tcontext.{name}{suffix} = {val}")
+							stream.write(f"\n\tcontext.{name}{suffix} = {str(Version(val))}")
 					stream.write("\n\n\n")
 
 				# go through all the games, record them and map defaults to versions

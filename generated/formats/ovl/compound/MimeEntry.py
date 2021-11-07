@@ -81,7 +81,6 @@ class MimeEntry:
 		stream.write_uint(self.unknown)
 		stream.write_uint(self.mime_hash)
 		stream.write_uint(self.mime_version)
-		self.context.mime_version = self.mime_version
 		stream.write_uint(self.file_index_offset)
 		stream.write_uint(self.file_count)
 		if self.context.version >= 20:

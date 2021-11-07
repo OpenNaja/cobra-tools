@@ -1,4 +1,4 @@
-
+# START_GLOBALS
 import logging
 from generated.io import BinaryStream
 from modules.formats.shared import get_padding
@@ -6,24 +6,17 @@ from modules.formats.shared import get_padding
 ZERO = b"\x00"
 
 
-from generated.context import ContextReference
-
+# END_GLOBALS
 
 class ZStringBuffer:
+	"""Holds a buffer of zero-terminated strings"""
 
-	"""
-	Holds a buffer of zero-terminated strings
-	"""
-
-	context = ContextReference()
-
-	def set_defaults(self):
-		pass
+# START_CLASS
 
 	def __init__(self, context, arg=None, template=None):
-		# arg is byte count
 		self.name = ''
 		self._context = context
+		# arg is byte count
 		self.arg = arg
 		self.template = template
 		self.data = b""
@@ -70,4 +63,3 @@ class ZStringBuffer:
 
 	def __repr__(self):
 		return str(self.strings)
-

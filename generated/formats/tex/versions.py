@@ -29,7 +29,7 @@ def set_pc(context):
 
 
 def is_pz(context):
-	if context.version in (19, 20) and context.user_version in (8340, 8724):
+	if context.version == 19 and context.user_version in (8340, 8724):
 		return True
 
 
@@ -58,7 +58,7 @@ def set_jwe(context):
 	context.user_version._value = 24724
 
 
-games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
+games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6+'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
 
 
 def get_game(context):
@@ -69,7 +69,7 @@ def get_game(context):
 	if is_pc(context):
 		return [games.PLANET_COASTER]
 	if is_pz(context):
-		return [games.PLANET_ZOO]
+		return [games.PLANET_ZOO_PRE_1_6]
 	if is_pz16(context):
 		return [games.PLANET_ZOO_1_6]
 	if is_jwe(context):
@@ -86,7 +86,7 @@ def set_game(context, game):
 		return set_ztuac(context)
 	if game in {games.PLANET_COASTER}:
 		return set_pc(context)
-	if game in {games.PLANET_ZOO}:
+	if game in {games.PLANET_ZOO_PRE_1_6}:
 		return set_pz(context)
 	if game in {games.PLANET_ZOO_1_6}:
 		return set_pz16(context)

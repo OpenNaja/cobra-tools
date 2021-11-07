@@ -11,7 +11,7 @@ from generated.formats.ms2.compound.ListLong import ListLong
 from generated.formats.ms2.compound.ListShort import ListShort
 from generated.formats.ms2.compound.PcFFCounter import PcFFCounter
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
-from generated.formats.ms2.compound.ZStringBuffer import ZStringBuffer
+from generated.formats.ovl_base.compound.ZStringBuffer import ZStringBuffer
 
 
 class JointData:

@@ -6,13 +6,13 @@ from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.GenericHeader import GenericHeader
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.PadAlign import PadAlign
 from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
-from generated.formats.ovl.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
+from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
+from generated.formats.ovl_base.compound.PadAlign import PadAlign
+from generated.formats.ovl_base.compound.ZStringBuffer import ZStringBuffer
 
 
 class Header(GenericHeader):

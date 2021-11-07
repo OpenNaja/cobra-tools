@@ -71,9 +71,7 @@ class InfoHeader:
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_uint(self.version)
-		self.context.version = self.version
 		stream.write_uint(self.user_version)
-		self.context.user_version = self.user_version
 		stream.write_uint(self.mani_count)
 		stream.write_zstrings(self.names)
 		stream.write_type(self.header)
