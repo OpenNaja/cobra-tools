@@ -598,7 +598,7 @@ class OvsFile(OvsHeader):
 		# print(self.data_entries)
 		# print(self.buffer_entries)
 		# print(self.new_entries)
-		if is_pz16(self.ovl):
+		if is_pz16(self.ovl) or is_jwe2(self.ovl):
 			for data in self.data_entries:
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
@@ -1308,10 +1308,13 @@ class OvlFile(Header, IoFile):
 
 	def dump_frag_log(self):
 		for archive_entry in self.archives:
-			archive_entry.content.assign_frag_names()
-			archive_entry.content.dump_frag_log()
-			archive_entry.content.dump_buffer_groups_log()
-			archive_entry.content.dump_pools()
+			try:
+				archive_entry.content.assign_frag_names()
+				archive_entry.content.dump_frag_log()
+				archive_entry.content.dump_buffer_groups_log()
+				archive_entry.content.dump_pools()
+			except BaseException as err:
+				print(err)
 
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
