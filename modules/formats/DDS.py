@@ -103,7 +103,7 @@ def write_tex(ovl, entry, out_dir, show_temp_files, progress_callback):
 	print("\nWriting", name)
 	logging.debug(f"Num streams: {len(entry.data_entry.stream_datas)}")
 	# get joined output buffer
-	buffer_data = b"".join(entry.data_entry.stream_datas)
+	buffer_data = b"".join(sorted(entry.data_entry.stream_datas, key=len, reverse=True))
 	dds_file = create_dds_struct()
 	dds_file.buffer = buffer_data
 	versions = get_versions(ovl)

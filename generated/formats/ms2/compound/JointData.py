@@ -30,6 +30,9 @@ class JointData:
 		self.io_size = 0
 		self.io_start = 0
 
+		# A7 2D A8 10   00 00 00 00
+		self.new_extra = numpy.zeros((2), dtype='uint')
+
 		# repeat
 		self.joint_count = 0
 
@@ -119,6 +122,8 @@ class JointData:
 		self.set_defaults()
 
 	def set_defaults(self):
+		if (self.context.user_version == 25108) and (self.context.version == 20):
+			self.new_extra = numpy.zeros((2), dtype='uint')
 		self.joint_count = 0
 		self.count_0 = 0
 		self.count_1 = 0
@@ -167,6 +172,8 @@ class JointData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
+		if (self.context.user_version == 25108) and (self.context.version == 20):
+			self.new_extra = stream.read_uints((2))
 		self.joint_count = stream.read_uint()
 		self.count_0 = stream.read_uint()
 		self.count_1 = stream.read_uint()
@@ -213,6 +220,8 @@ class JointData:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
+		if (self.context.user_version == 25108) and (self.context.version == 20):
+			stream.write_uints(self.new_extra)
 		stream.write_uint(self.joint_count)
 		stream.write_uint(self.count_0)
 		stream.write_uint(self.count_1)
@@ -262,6 +271,7 @@ class JointData:
 
 	def get_fields_str(self):
 		s = ''
+		s += f'\n	* new_extra = {self.new_extra.__repr__()}'
 		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
 		s += f'\n	* count_0 = {self.count_0.__repr__()}'
 		s += f'\n	* count_1 = {self.count_1.__repr__()}'

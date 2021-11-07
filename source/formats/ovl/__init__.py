@@ -604,6 +604,8 @@ class OvsFile(OvsHeader):
 			logging.debug("Assigning buffer indices")
 			for b_group in self.new_entries:
 				b_group.ext = self.ovl.mimes[b_group.ext_index].ext
+				# print(b_group.ext)
+				# print(b_group)
 				# print(b_group.buffer_count, b_group.data_count)
 				# note that datas can be bigger than buffers
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset + b_group.buffer_count]

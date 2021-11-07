@@ -322,10 +322,10 @@
 		<add name="skip1" type="uint" arr1="4" vercond="#JWE#">JWE, 16 bytes of 00 padding</add>
 		<add name="vertexdatasize" type="uint64" > </add>
 		<add name="ptr1" type="uint64">8 empty bytes</add>
-		<add name="unk 0" type="uint64" vercond="#PZ#" > PZ, another 8 empty bytes </add>
+		<add name="unk 0" type="uint64" vercond="#PZ# #OR# #JWE2#" > PZ, another 8 empty bytes </add>
 		<add name="facesdatasize" type="uint64" ></add>
 		<add name="ptr2" type="uint64">8 empty bytes</add>
-		<add name="unk 2" type="uint64" arr1="2" vercond="#PZ#" > PZ, another 16 empty bytes </add>
+		<add name="unk 2" type="uint64" arr1="2" vercond="#PZ# #OR# #JWE2#" > PZ, another 16 empty bytes </add>
 	</compound>
 
 	<compound name="Ms2BufferInfoPC" >
@@ -414,7 +414,7 @@
 		<add name="bone count" type="uint64" >index count3</add>
 		<add name="unknown40" type="uint64" ></add>
 		<add name="bone parents count" type="uint64" >index count4</add>
-		<add name="extra uint 0" type="uint64" vercond="#PZ#">pZ only</add>
+		<add name="extra uint 0" type="uint64" vercond="#PZ# #OR# #JWE2#">pZ only</add>
 		<add name="unk zero zt" type="uint64" vercond="#ZTUAC#" >zero</add>
 		<add name="enum count" type="uint64" >index count 5</add>
 		<add name="unknown58" type="uint64" >usually zero</add>
@@ -431,7 +431,7 @@
 		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
-		<add name="bones" type="PzBone" arr1="bone count" vercond="#PZ#">bones, rot first</add>
+		<add name="bones" type="PzBone" arr1="bone count" vercond="#PZ# #OR# #JWE2#">bones, rot first</add>
 		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #OLD#">bones, loc first</add>
 		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="hier1padding" padding="1" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
@@ -477,7 +477,7 @@
 	<compound name="Struct7">
 		<add name="count7" type="uint64">repeat</add>
 		<add name="zero" type="uint64" >seen 0</add>
-		<add name="zeros pz" type="uint64" vercond="#PZ#" arr1="2">only for recent versions of PZ</add>
+		<add name="zeros pz" type="uint64" vercond="#PZ# #OR# #JWE2#" arr1="2">only for recent versions of PZ</add>
 		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" >60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
 	</compound>
@@ -494,6 +494,7 @@
 
 	<compound name="JointData">
 		appears in dinos and static meshes
+		<add name="new extra" type="uint" arr1="2" vercond="#JWE2#">A7 2D A8 10   00 00 00 00</add>
 		<add name="joint_count" type="uint" >repeat</add>
 		<add name="count_0" type="uint" >small number</add>
 		<add name="count_1" type="uint" >small number</add>
@@ -647,7 +648,7 @@
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >center of the box</add>
 		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
-		<add name="zeros" type="uint" arr1="2" vercond="#PZ#" >probably padding</add>
+		<add name="zeros" type="uint" arr1="2" vercond="#PZ# #OR# #JWE2#" >probably padding</add>
 	</compound>
 
 	<compound name="MeshCollision">
