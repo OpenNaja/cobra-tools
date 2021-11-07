@@ -1375,7 +1375,7 @@ class OvlFile(Header, IoFile):
 			archive_entry.ovs_path = self.filepath
 		else:
 			# JWE style
-			if is_jwe(self):
+			if is_jwe(self) or is_jwe2(self):
 				archive_entry.ovs_path = f"{self.file_no_ext}.ovs.{archive_entry.name.lower()}"
 			# PZ, PC, ZTUAC Style
 			else:
