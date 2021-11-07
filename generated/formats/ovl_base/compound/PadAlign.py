@@ -1,3 +1,10 @@
+
+from generated.io import MAX_LEN
+from modules.formats.shared import get_padding_size
+
+ZERO = b"\x00"
+
+
 from generated.context import ContextReference
 
 
@@ -9,37 +16,30 @@ class PadAlign:
 
 	context = ContextReference()
 
+	def set_defaults(self):
+		pass
+
+	context = ContextReference()
+
 	def __init__(self, context, arg=None, template=None):
+		# arg is reference object
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.set_defaults()
-
-	def set_defaults(self):
-		pass
+		self.data = b""
 
 	def read(self, stream):
-		self.io_start = stream.tell()
-
-		self.io_size = stream.tell() - self.io_start
+		self.data = stream.read(self.get_pad(stream))
 
 	def write(self, stream):
-		self.io_start = stream.tell()
+		self.data = ZERO * self.get_pad(stream)
+		stream.write(self.data)
 
-		self.io_size = stream.tell() - self.io_start
-
-	def get_info_str(self):
-		return f'PadAlign [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self):
-		s = ''
-		return s
+	def get_pad(self, stream):
+		distance = stream.tell() - self.arg.io_start
+		return get_padding_size(distance, alignment=self.template)
 
 	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
-		return s
+		return f"{self.data} Size: {len(self.data)}"
+

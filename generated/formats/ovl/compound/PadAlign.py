@@ -27,6 +27,7 @@ class PadAlign:
 		self.data = b""
 
 	def read(self, stream):
+		print("get pad")
 		self.data = stream.read(self.get_pad(stream))
 
 	def write(self, stream):
@@ -34,7 +35,9 @@ class PadAlign:
 		stream.write(self.data)
 
 	def get_pad(self, stream):
+		print("get pad")
 		distance = stream.tell() - self.arg.io_start
+		print("distance", distance)
 		return get_padding_size(distance, alignment=self.template)
 
 	def __repr__(self):

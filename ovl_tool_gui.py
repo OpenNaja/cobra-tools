@@ -388,10 +388,10 @@ class MainWindow(widgets.MainWindow):
 				# self.ovl_thread.kwargs = {"commands": self.commands, "hash_table": self.hash_table}
 				# self.ovl_thread.start()
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
-				# print(self.ovl_data)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
+				print(self.ovl_data)
 			self.update_gui_table()
 			game = get_game(self.ovl_data.context)[0]
 			self.game_container.entry.setText(game.value)
