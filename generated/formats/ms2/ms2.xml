@@ -389,7 +389,7 @@
 		<add name="pack offset" type="float" vercond="!#OLD#">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
-		<add name="unknowns" type="float" arr1="4" vercond="#PZ#">PZ only, zero-ish</add>
+		<add name="unknowns" type="float" arr1="4" vercond="#PZ# #OR# #JWE2#">PZ only, zero-ish</add>
 		<add name="bounds min repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
 		<add name="bounds max repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
 <!--		array counts-->
