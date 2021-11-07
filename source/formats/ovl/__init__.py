@@ -8,11 +8,11 @@ import traceback
 import logging
 from contextlib import contextmanager
 
-from generated.formats.ovl.bitfield.VersionInfo import VersionInfo
 from hashes import constants_pz
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile, BinaryStream
+from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl.versions import *
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
@@ -910,7 +910,7 @@ class OvlFile(Header, IoFile):
 	def __init__(self, progress_callback=None):
 		# create a context
 		super().__init__(OvlContext())
-		self.fres.data = b'FRES'
+		self.magic.data = b'FRES'
 
 		self.last_print = None
 		if progress_callback:

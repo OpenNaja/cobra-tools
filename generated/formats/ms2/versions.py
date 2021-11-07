@@ -1,6 +1,15 @@
 from enum import Enum
 
 
+def is_old(context):
+	if context.version in (17, 18):
+		return True
+
+
+def set_old(context):
+	context.version = 17
+
+
 def is_dla(context):
 	if context.version == 15:
 		return True
@@ -58,10 +67,22 @@ def set_jwe(context):
 	context.user_version._value = 24724
 
 
-games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6+'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
+def is_jwe2(context):
+	if context.version == 20 and context.user_version == 25108:
+		return True
+
+
+def set_jwe2(context):
+	context.version = 20
+	context.user_version._value = 25108
+
+
+games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('OLD', 'Old'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6+'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
 
 
 def get_game(context):
+	if is_old(context):
+		return [games.OLD]
 	if is_dla(context):
 		return [games.DISNEYLAND_ADVENTURE]
 	if is_ztuac(context):
@@ -74,12 +95,16 @@ def get_game(context):
 		return [games.PLANET_ZOO_1_6]
 	if is_jwe(context):
 		return [games.JURASSIC_WORLD_EVOLUTION]
+	if is_jwe2(context):
+		return [games.JURASSIC_WORLD_EVOLUTION_2]
 	return [games.UNKOWN_GAME]
 
 
 def set_game(context, game):
 	if isinstance(game, str):
 		game = games(game)
+	if game in {games.OLD}:
+		return set_old(context)
 	if game in {games.DISNEYLAND_ADVENTURE}:
 		return set_dla(context)
 	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
@@ -92,5 +117,7 @@ def set_game(context, game):
 		return set_pz16(context)
 	if game in {games.JURASSIC_WORLD_EVOLUTION}:
 		return set_jwe(context)
+	if game in {games.JURASSIC_WORLD_EVOLUTION_2}:
+		return set_jwe2(context)
 
 

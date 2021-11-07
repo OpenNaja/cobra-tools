@@ -2,6 +2,8 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
+    <version id="old" version="17 18" >Old</version>
+
     <token name="verexpr" attrs="vercond">
 		<verexpr token="#OLD#" string="(#VER# #LT# 19)">PC, ZTUAC</verexpr>
     </token>

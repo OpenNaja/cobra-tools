@@ -58,7 +58,17 @@ def set_jwe(context):
 	context.user_version._value = 24724
 
 
-games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6+'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
+def is_jwe2(context):
+	if context.version == 20 and context.user_version == 25108:
+		return True
+
+
+def set_jwe2(context):
+	context.version = 20
+	context.user_version._value = 25108
+
+
+games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6+'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
 
 
 def get_game(context):
@@ -74,6 +84,8 @@ def get_game(context):
 		return [games.PLANET_ZOO_1_6]
 	if is_jwe(context):
 		return [games.JURASSIC_WORLD_EVOLUTION]
+	if is_jwe2(context):
+		return [games.JURASSIC_WORLD_EVOLUTION_2]
 	return [games.UNKOWN_GAME]
 
 
@@ -92,5 +104,7 @@ def set_game(context, game):
 		return set_pz16(context)
 	if game in {games.JURASSIC_WORLD_EVOLUTION}:
 		return set_jwe(context)
+	if game in {games.JURASSIC_WORLD_EVOLUTION_2}:
+		return set_jwe2(context)
 
 
