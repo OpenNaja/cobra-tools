@@ -5,6 +5,9 @@ import logging
 
 from plugin.utils.matrix_util import evaluate_mesh
 
+# a bit of safety to avoid breaking normalization
+FAC = 1.9
+
 
 def find_modifier_for_particle_system(b_ob, particle_system):
 	for modifier in b_ob.modifiers:
@@ -69,22 +72,28 @@ def vcol_to_comb():
 			vertex = me.vertices[vert.vertex_index]
 			tangent_space_mat = get_tangent_space_mat(vert)
 			vcol = vcol_layer[loop_index].color
-			a = vcol[0] - 0.5
-			# this is like uv, so we do 1-v
-			b = -vcol[2] + 0.5
+			r = (vcol[0] - 0.5)*FAC
+			# g = (vcol[1] - 0.5)*FAC
+			b = (vcol[2] - 0.5)*FAC
 			# not sure what this does, kinda random
-			c = vcol[3] - 0.5
-			# print((a * a) + (b * b) + (c*c))
-			# calculate third component for unit vector
-			z = math.sqrt(-(a * a) - (b * b) + 1)
-			# d = math.sqrt((a * a + b * b + z * z))
-			# print("normalized", d)
+			# a = (vcol[3] - 0.5)*FAC
+			# print((r * r) + (b * b) + (g*g), (b * b) + (r * r))
+			try:
+				# calculate third component for unit vector
+				# z = math.sqrt((r * r) + (b * b) - 1)
+				z = math.sqrt(1 - (r * r) - (b * b))
+			except:
+				# print("EXCEPT", r, b, a, (r * r) + (b * b) - 1)
+				z = 0
+			# n = math.sqrt((r * r + b * b + z * z))
+			# print("normalized", n)
 			# this is the raw vector, in tangent space
-			vec = mathutils.Vector((a, b, z))
+			# this is like uv, so we do 1-v
+			vec = mathutils.Vector((r, -b, z))
 
 			# convert to object space
 			hair_direction = tangent_space_mat @ vec
-			# print("t+v+d", tangent, vec, dir)
+			# print("t+v+g", tangent, vec, dir)
 			# print("dir",dir, vec)
 
 			# calculate root and tip of the hair
@@ -121,8 +130,8 @@ def comb_to_vcol():
 			hair_direction = (tip - root).normalized()
 			vec = tangent_space_mat.inverted() @ hair_direction
 			vcol = vcol_layer[loop_index].color
-			vcol[0] = vec.x + 0.5
-			vcol[2] = -vec.y + 0.5
+			vcol[0] = (vec.x/FAC) + 0.5
+			vcol[2] = -(vec.y/FAC) + 0.5
 
 	return f"Converted Combing to Vertex Color for {ob_eval.name}",
 
