@@ -29,17 +29,46 @@ def add_psys(ob, model):
 	psys.settings.display_step = 1
 
 
+def comb_common():
+	context = bpy.context
+	ob = context.object
+	if not ob:
+		raise AttributeError("No object in context")
+	# particle edit mode has to be entered so that hair strands are generated
+	# otherwise the non-eval ob's particle count is 0
+	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
+	bpy.ops.object.mode_set(mode='OBJECT')
+	ob_eval, me_eval = evaluate_mesh(ob)
+	me = ob.data
+	particle_system = ob.particle_systems[0]
+	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
+	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
+	particle_system_eval = ob_eval.particle_systems[0]
+	vertices = me.vertices
+	num_particles = len(particle_system.particles)
+	num_particles2 = len(particle_system_eval.particles)
+	assert num_particles == num_particles2
+	if not (len(vertices) == num_particles):
+		raise IndexError(
+			f"Mesh has {len(vertices)} vertices, while particle system has {num_particles}. "
+			f"Adjust the particle system's vertex count and try again.")
+	# tangents have to be pre-calculated
+	# this will also calculate loop normal
+	me.calc_tangents()
+	return me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval
+
+
 def vcol_to_comb():
 	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
 	# loop faces
+	vcol_layer = me.vertex_colors[0].data
 	for i, face in enumerate(me.polygons):
 		# loop over face loop
 		for loop_index in face.loop_indices:
 			vert = me.loops[loop_index]
 			vertex = me.vertices[vert.vertex_index]
 			tangent_space_mat = get_tangent_space_mat(vert)
-			vcol_layer = me.vertex_colors[0]
-			vcol = vcol_layer.data[loop_index].color
+			vcol = vcol_layer[loop_index].color
 			a = vcol[0] - 0.5
 			# this is like uv, so we do 1-v
 			b = -vcol[2] + 0.5
@@ -72,38 +101,10 @@ def vcol_to_comb():
 	return f"Converted Vertex Color to Combing for {ob_eval.name}",
 
 
-def comb_common():
-	context = bpy.context
-	ob = context.object
-	if not ob:
-		raise AttributeError("No object in context")
-	# particle edit mode has to be entered so that hair strands are generated
-	# otherwise the non-eval ob's particle count is 0
-	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
-	bpy.ops.object.mode_set(mode='OBJECT')
-	ob_eval, me_eval = evaluate_mesh(ob)
-	me = ob.data
-	particle_system = ob.particle_systems[0]
-	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
-	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
-	particle_system_eval = ob_eval.particle_systems[0]
-	vertices = me.vertices
-	num_particles = len(particle_system.particles)
-	num_particles2 = len(particle_system_eval.particles)
-	assert num_particles == num_particles2
-	if not (len(vertices) == num_particles):
-		raise IndexError(
-			f"Mesh has {len(vertices)} vertices, while particle system has {num_particles}. "
-			f"Adjust the particle system's vertex count and try again.")
-	# tangents have to be pre-calculated
-	# this will also calculate loop normal
-	me.calc_tangents()
-	return me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval
-
-
 def comb_to_vcol():
 	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
 	# loop faces
+	vcol_layer = me.vertex_colors[0].data
 	for i, face in enumerate(me.polygons):
 		# loop over face loop
 		for loop_index in face.loop_indices:
@@ -119,8 +120,7 @@ def comb_to_vcol():
 
 			hair_direction = (tip - root).normalized()
 			vec = tangent_space_mat.inverted() @ hair_direction
-			vcol_layer = me.vertex_colors[0]
-			vcol = vcol_layer.data[loop_index].color
+			vcol = vcol_layer[loop_index].color
 			vcol[0] = vec.x + 0.5
 			vcol[2] = -vec.y + 0.5
 
