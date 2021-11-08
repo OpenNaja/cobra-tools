@@ -30,17 +30,15 @@ def add_psys(ob, model):
 
 
 def vcol_to_comb():
-	me_eval, ob, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
-	me_eval.calc_tangents()
-
+	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
 	# loop faces
-	for i, face in enumerate(me_eval.polygons):
+	for i, face in enumerate(me.polygons):
 		# loop over face loop
 		for loop_index in face.loop_indices:
-			vert = me_eval.loops[loop_index]
-			vertex = me_eval.vertices[vert.vertex_index]
+			vert = me.loops[loop_index]
+			vertex = me.vertices[vert.vertex_index]
 			tangent_space_mat = get_tangent_space_mat(vert)
-			vcol_layer = me_eval.vertex_colors[0]
+			vcol_layer = me.vertex_colors[0]
 			vcol = vcol_layer.data[loop_index].color
 			a = vcol[0] - 0.5
 			# this is like uv, so we do 1-v
@@ -71,7 +69,7 @@ def vcol_to_comb():
 				hair_key = particle.hair_keys[hair_key_index]
 				hair_key.co_object_set(ob_eval, particle_modifier_eval, particle_eval, root.lerp(tip, hair_key_index/(num_hair_keys-1)))
 
-	return f"Converted Vertex Color to Combing for {ob.name}",
+	return f"Converted Vertex Color to Combing for {ob_eval.name}",
 
 
 def comb_common():
@@ -84,11 +82,12 @@ def comb_common():
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
 	ob_eval, me_eval = evaluate_mesh(ob)
+	me = ob.data
 	particle_system = ob.particle_systems[0]
 	particle_modifier = find_modifier_for_particle_system(ob, particle_system)
 	particle_modifier_eval = ob_eval.modifiers[particle_modifier.name]
 	particle_system_eval = ob_eval.particle_systems[0]
-	vertices = me_eval.vertices
+	vertices = me.vertices
 	num_particles = len(particle_system.particles)
 	num_particles2 = len(particle_system_eval.particles)
 	assert num_particles == num_particles2
@@ -98,14 +97,12 @@ def comb_common():
 			f"Adjust the particle system's vertex count and try again.")
 	# tangents have to be pre-calculated
 	# this will also calculate loop normal
-	# me_eval.calc_tangents()
-	return me_eval, ob, ob_eval, particle_modifier_eval, particle_system, particle_system_eval
+	me.calc_tangents()
+	return me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval
 
 
 def comb_to_vcol():
-	me_eval, ob, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
-	me = ob.data
-	me.calc_tangents()
+	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
 	# loop faces
 	for i, face in enumerate(me.polygons):
 		# loop over face loop
@@ -127,7 +124,7 @@ def comb_to_vcol():
 			vcol[0] = vec.x + 0.5
 			vcol[2] = -vec.y + 0.5
 
-	return f"Converted Combing to Vertex Color for {ob.name}",
+	return f"Converted Combing to Vertex Color for {ob_eval.name}",
 
 
 def get_tangent_space_mat(vert):
