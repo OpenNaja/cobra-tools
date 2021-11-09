@@ -1491,7 +1491,7 @@ class OvlFile(Header, IoFile):
 				uncompressed)
 			# update set data size
 			archive_entry.set_data_size = archive_entry.content.set_header.io_size
-			if i == 0:
+			if archive_entry.name == "STATIC":
 				ovl_compressed = compressed
 				archive_entry.read_start = 0
 			else:
