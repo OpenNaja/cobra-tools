@@ -11,12 +11,6 @@ def flip_gb(im):
 	im[:, :, 2] = 255 - im[:, :, 2]
 
 
-def scale_b(im):
-	"""Puts B to 255"""
-	# im[:, :, 1] = 255 - im[:, :, 1]
-	im[:, :, 2] = 255
-
-
 def check_any(iterable, string):
 	"""Returns true if any of the entries of the iterable occur in string"""
 	return any([i in string for i in iterable])
@@ -34,11 +28,7 @@ def has_vectors(png_file_path):
 	return check_any(("pnormaltexture", "pbasenormaltexture", "playered_warpoffset"), png_file_path)
 
 
-def has_rgb_a(png_file_path):
-	return check_any(("pbasenormaltexture",), png_file_path)
-
-
-def has_scale_b(png_file_path):
+def has_rg_b_a(png_file_path):
 	return check_any(("pbasenormaltexture",), png_file_path)
 
 
@@ -47,8 +37,7 @@ def wrapper(png_file_path, header_7, ovl):
 	must_split = False
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
-	split_rgb_a = has_rgb_a(png_file_path)
-	must_scale_b = has_scale_b(png_file_path)
+	split_rg_b_a = has_rg_b_a(png_file_path)
 	if is_ztuac(ovl):
 		must_flip_gb = False
 	h = header_7.height
@@ -60,12 +49,11 @@ def wrapper(png_file_path, header_7, ovl):
 		must_split = True
 	print("split_components", split_components)
 	print("must_split", must_split)
-	print("split_rgb_a", split_rgb_a)
+	print("split_rg_b_a", split_rg_b_a)
 	print("must_flip_gb", must_flip_gb)
-	print("must_scale_b", must_scale_b)
 	print("Splitting PNG array")
 	print(f"h {h}, w {w}, array_size {array_size}")
-	if must_split or must_flip_gb or split_components or split_rgb_a:
+	if must_split or must_flip_gb or split_components or split_rg_b_a:
 		im = imageio.imread(png_file_path)
 		# print(im.shape)
 		# (4096, 1024, 4)
@@ -74,8 +62,6 @@ def wrapper(png_file_path, header_7, ovl):
 		name, ext = os.path.splitext(png_file_path)
 		if must_flip_gb:
 			flip_gb(im)
-		if must_scale_b:
-			scale_b(im)
 		layer_i = 0
 		# split components and or tiles if present
 		if split_components:
@@ -94,15 +80,20 @@ def wrapper(png_file_path, header_7, ovl):
 				out_files.append(file_path)
 			os.remove(png_file_path)
 		# separate into rgb and a components
-		elif split_rgb_a:
+		elif split_rg_b_a:
 			for hi in range(array_size):
 				file_path = f"{name}_[{layer_i}]{ext}"
-				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 0:3], compress_level=2)
+				normal = np.array(im[hi * h:(hi + 1) * h, :, 0:3])
+				normal[:, :, 2] = 255
+				imageio.imwrite(file_path, normal, compress_level=2)
 				out_files.append(file_path)
 				file_path = f"{name}_[{layer_i+1}]{ext}"
+				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 2], compress_level=2)
+				out_files.append(file_path)
+				file_path = f"{name}_[{layer_i+2}]{ext}"
 				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
 				out_files.append(file_path)
-				layer_i += 2
+				layer_i += 3
 			os.remove(png_file_path)
 		# don't split at all, overwrite
 		else:
@@ -149,7 +140,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 
 	must_join = False
 	join_components = has_components(png_file_path)
-	join_rgb_a = has_rgb_a(png_file_path)
+	join_rg_b_a = has_rg_b_a(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
 
 	print("PNG injection wrapper input", png_file_path)
@@ -169,7 +160,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 
 	print("must_join", must_join)
 	print("join_components", join_components)
-	print("join_rgb_a", join_rgb_a)
+	print("join_rg_b_a", join_rg_b_a)
 	print("must_flip_gb", must_flip_gb)
 
 	# we can just return the original file
@@ -182,7 +173,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 		im = imageio.imread(png_file_path)
 
 	# rebuild array from separated tiles
-	if must_join or join_components or join_rgb_a:
+	if must_join or join_components or join_rg_b_a:
 		array_textures = [file for file in os.listdir(in_dir) if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
 		ims = [imageio.imread(os.path.join(in_dir, file)) for file in array_textures]
@@ -200,7 +191,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 				h, w, d = in_shape
 				if d != 4:
 					# rgba files, obvious need to have RGB components, so don't complain
-					if not join_rgb_a:
+					if not join_rg_b_a:
 						raise AttributeError(f"{file} does not have all 4 channels (RGBA) that are expected, it has {d}")
 			# no 3rd dimension, ie. single channel greyscale image
 			else:
@@ -209,10 +200,10 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 		if join_components:
 			d = 4
 			array_size //= d
-		if join_rgb_a:
+		if join_rg_b_a:
 			d = 4
 			# since we have 2 components per tile
-			array_size //= 2
+			array_size //= 3
 
 		print("array_size", array_size)
 		if array_size == 0:
@@ -234,25 +225,22 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 							f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
 						im[hi * h:(hi + 1) * h, :, di] = ims[layer_i][:, :, 0]
 					layer_i += 1
-		elif join_rgb_a:
-			print("Rebuilding array texture from RGB + A")
+		elif join_rg_b_a:
+			print("Rebuilding array texture from RG + B + A")
 			layer_i = 0
 			for hi in range(array_size):
-				# RGB
+				# RG
 				tile_shape = ims[layer_i].shape
 				if len(tile_shape) == 3:
-					im[hi * h:(hi + 1) * h, :, 0:3] = ims[layer_i][:, :, 0:3]
+					im[hi * h:(hi + 1) * h, :, 0:2] = ims[layer_i][:, :, 0:2]
 				else:
 					raise AttributeError("RGB component must be RGB or RGBA")
 				layer_i += 1
+				# B
+				im[hi * h:(hi + 1) * h, :, 2] = get_single_channel(ims[layer_i], array_textures[layer_i])
+				layer_i += 1
 				# A
-				tile_shape = ims[layer_i].shape
-				if len(tile_shape) == 2:
-					im[hi * h:(hi + 1) * h, :, 3] = ims[layer_i]
-				elif len(tile_shape) == 3:
-					print(
-						f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
-					im[hi * h:(hi + 1) * h, :, 3] = ims[layer_i][:, :, 0]
+				im[hi * h:(hi + 1) * h, :, 3] = get_single_channel(ims[layer_i], array_textures[layer_i])
 				layer_i += 1
 		else:
 			print("Rebuilding array texture from RGBA tiles")
@@ -267,3 +255,13 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	print("Writing png output")
 	imageio.imwrite(out_file_path, im, compress_level=2)
 	return out_file_path
+
+
+def get_single_channel(im, name):
+	tile_shape = im.shape
+	if len(tile_shape) == 2:
+		return im
+	elif len(tile_shape) == 3:
+		print(
+			f"Tile {name} is not the expected single-channel float format, using first channel.")
+		return im[:, :, 0]

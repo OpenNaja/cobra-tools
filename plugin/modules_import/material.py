@@ -115,7 +115,7 @@ def create_material(in_dir, matname):
 			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# PZ - roughness?
-	for roughness_name in ("proughnesspackedtexture_[01]", "pbasenormaltexture_[1]"): # "pspecularmaptexture_[01]" ?
+	for roughness_name in ("proughnesspackedtexture_[01]", "pbasenormaltexture_[2]"): # "pspecularmaptexture_[01]" ?
 		if roughness_name in tex_dic:
 			roughness = tex_dic[roughness_name]
 			roughness.image.colorspace_settings.name = "Non-Color"
