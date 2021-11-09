@@ -66,9 +66,9 @@
         Holds a string of a fixed size, given as an argument.
     </compound>
 
-	<compound name="PadAlign">
-		Grabs 00 bytes only
-	</compound>
+    <compound name="PadAlign">
+        Grabs 00 bytes only
+    </compound>
 
     <compound name="GenericHeader">
         Found at the beginning of every OVL file

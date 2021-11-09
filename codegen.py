@@ -6,6 +6,7 @@ from html import unescape
 import traceback
 
 from codegen import naming_conventions as convention
+from codegen.BaseClass import BaseClass
 from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
@@ -27,6 +28,7 @@ class XmlParser:
         """Set up the xml parser."""
 
         self.format_name = format_name
+        self.base_segments = os.path.join("formats", self.format_name)
         # which encoding to use for the output files
         self.encoding='utf-8'
 
@@ -50,7 +52,7 @@ class XmlParser:
         for child in root:
             # only check stuff that has a name - ignore version tags
             if child.tag.split('}')[-1] not in ("version", "token", "include"):
-                base_segments = os.path.join("formats", self.format_name)
+                base_segments = self.base_segments
                 if child.tag == "module":
                     # for modules, set the path to base/module_name
                     class_name = convention.name_module(child.attrib["name"])
@@ -125,7 +127,7 @@ class XmlParser:
             except Exception as err:
                 logging.error(err)
                 traceback.print_exc()
-        out_file = os.path.join(os.getcwd(), "generated", "formats", self.format_name, "versions.py")
+        out_file = BaseClass.get_out_path(os.path.join(self.base_segments ,"versions"))
         self.versions.write(out_file)
         parsed_xmls[xml_path] = self
 
