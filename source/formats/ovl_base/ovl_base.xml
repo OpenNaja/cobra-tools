@@ -10,7 +10,7 @@
         <verexpr token="#PZ#" string="(((#USER# #EQ# 8340) #OR# (#USER# #EQ# 8724)) #AND# (#VER# #GTE# 19))">PZ</verexpr>
         <verexpr token="#PZ16#" string="(#VER# #EQ# 20)">PZ</verexpr>
         <verexpr token="#JWE#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 19))">JWE, 25108 is JWE on switch</verexpr>
-        <verexpr token="#JWE2#" string="((#USER# #EQ# 25108) #AND# (#VER# #EQ# 20))">JWE2</verexpr>
+        <verexpr token="#JWE2#" string="(((#USER# #EQ# 24724) #OR# (#USER# #EQ# 25108)) #AND# (#VER# #EQ# 20))">JWE2</verexpr>
     </token>
 
 	<token name="global" attrs="vercond access">
@@ -33,7 +33,7 @@
     <version id="PZ" version="19" user_version="8340 8724">Planet Zoo pre-1.6</version>
     <version id="PZ16" version="20" user_version="8340 8724">Planet Zoo 1.6+</version>
     <version id="JWE" version="19" user_version="24724 25108">Jurassic World Evolution</version>
-    <version id="JWE2" version="20" user_version="25108">Jurassic World Evolution 2</version>
+    <version id="JWE2" version="20" user_version="24724 25108">Jurassic World Evolution 2</version>
 
     <bitfield name="VersionInfo" storage="uint">
         Determines the format of the OVL file.

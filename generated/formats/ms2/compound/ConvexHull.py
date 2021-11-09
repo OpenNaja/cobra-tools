@@ -38,7 +38,7 @@ class ConvexHull:
 		self.offset = Vector3(self.context, None, None)
 		if self.context.version == 18:
 			self.zeros = numpy.zeros((5), dtype='uint')
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or ((self.context.user_version == 25108) and (self.context.version == 20)):
+		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
 			self.zeros = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
@@ -48,7 +48,7 @@ class ConvexHull:
 		self.offset = stream.read_type(Vector3, (self.context, None, None))
 		if self.context.version == 18:
 			self.zeros = stream.read_uints((5))
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or ((self.context.user_version == 25108) and (self.context.version == 20)):
+		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
 			self.zeros = stream.read_uints((2))
 
 		self.io_size = stream.tell() - self.io_start
@@ -60,7 +60,7 @@ class ConvexHull:
 		stream.write_type(self.offset)
 		if self.context.version == 18:
 			stream.write_uints(self.zeros)
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or ((self.context.user_version == 25108) and (self.context.version == 20)):
+		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
 			stream.write_uints(self.zeros)
 
 		self.io_size = stream.tell() - self.io_start

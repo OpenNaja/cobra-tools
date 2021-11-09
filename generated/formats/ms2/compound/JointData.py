@@ -122,7 +122,7 @@ class JointData:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if (self.context.user_version == 25108) and (self.context.version == 20):
+		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20):
 			self.new_extra = numpy.zeros((2), dtype='uint')
 		self.joint_count = 0
 		self.count_0 = 0
@@ -172,7 +172,7 @@ class JointData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if (self.context.user_version == 25108) and (self.context.version == 20):
+		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20):
 			self.new_extra = stream.read_uints((2))
 		self.joint_count = stream.read_uint()
 		self.count_0 = stream.read_uint()
@@ -220,7 +220,7 @@ class JointData:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if (self.context.user_version == 25108) and (self.context.version == 20):
+		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20):
 			stream.write_uints(self.new_extra)
 		stream.write_uint(self.joint_count)
 		stream.write_uint(self.count_0)
