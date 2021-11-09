@@ -885,10 +885,10 @@ class OvsFile(OvsHeader):
 		# the ugly stuff with all fragments and sizedstr entries
 		for pool in self.pools:
 			pool_bytes = pool.data.getvalue()
-			# JWE style stores relative offset for each pool
-			if is_jwe(self.ovl):
+			# JWE, JWE2: relative offset for each pool
+			if self.ovl.user_version.is_jwe:
 				pool.offset = pools_data_writer.tell()
-			# PZ, PC Style has offsets relative to the whole pool block
+			# PZ, PC: offsets relative to the whole pool block
 			else:
 				pool.offset = self.arg.pools_start + pools_data_writer.tell()
 			logging.debug(f"header.offset {pool.offset}, pools_start {self.arg.pools_start}")
