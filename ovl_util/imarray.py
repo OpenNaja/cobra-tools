@@ -25,7 +25,11 @@ def has_components(png_file_path):
 
 
 def has_vectors(png_file_path):
-	return check_any(("pnormaltexture", "playered_warpoffset"), png_file_path)
+	return check_any(("pnormaltexture", "pbasenormaltexture", "playered_warpoffset"), png_file_path)
+
+
+def has_rgb_a(png_file_path):
+	return check_any(("pbasenormaltexture",), png_file_path)
 
 
 def wrapper(png_file_path, header_7, ovl):
@@ -33,6 +37,7 @@ def wrapper(png_file_path, header_7, ovl):
 	must_split = False
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
+	split_rgb_a = has_rgb_a(png_file_path)
 	if is_ztuac(ovl):
 		must_flip_gb = False
 	h = header_7.height
@@ -45,9 +50,10 @@ def wrapper(png_file_path, header_7, ovl):
 	print("split_components", split_components)
 	print("must_split", must_split)
 	print("must_flip_gb", must_flip_gb)
+	print("split_rgb_a", split_rgb_a)
 	print("Splitting PNG array")
 	print(f"h {h}, w {w}, array_size {array_size}")
-	if must_split or must_flip_gb or split_components:
+	if must_split or must_flip_gb or split_components or split_rgb_a:
 		im = imageio.imread(png_file_path)
 		# print(im.shape)
 		# (4096, 1024, 4)
@@ -73,6 +79,16 @@ def wrapper(png_file_path, header_7, ovl):
 				imageio.imwrite(file_path, im[layer_i * h:(layer_i + 1) * h, :, :], compress_level=2)
 				out_files.append(file_path)
 			os.remove(png_file_path)
+		# separate into rgb and a components
+		elif split_rgb_a:
+			for hi in range(array_size):
+				file_path = f"{name}_[{layer_i}]{ext}"
+				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 0:3], compress_level=2)
+				out_files.append(file_path)
+				file_path = f"{name}_[{layer_i+1}]{ext}"
+				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
+				out_files.append(file_path)
+				layer_i += 2
 		# don't split at all, overwrite
 		else:
 			imageio.imwrite(png_file_path, im, compress_level=2)
@@ -118,6 +134,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 
 	must_join = False
 	join_components = has_components(png_file_path)
+	join_rgb_a = has_rgb_a(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
 
 	print("PNG injection wrapper input", png_file_path)
@@ -137,6 +154,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 
 	print("must_join", must_join)
 	print("join_components", join_components)
+	print("join_rgb_a", join_rgb_a)
 	print("must_flip_gb", must_flip_gb)
 
 	# we can just return the original file
@@ -149,7 +167,7 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 		im = imageio.imread(png_file_path)
 
 	# rebuild array from separated tiles
-	if must_join or join_components:
+	if must_join or join_components or join_rgb_a:
 		array_textures = [file for file in os.listdir(in_dir) if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
 		ims = [imageio.imread(os.path.join(in_dir, file)) for file in array_textures]
