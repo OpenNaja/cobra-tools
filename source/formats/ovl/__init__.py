@@ -194,7 +194,7 @@ class OvsFile(OvsHeader):
 			for entry in entry_list:
 				file_index = file_name_lut[entry.name]
 				file = self.ovl.files[file_index]
-				if is_jwe(self.ovl):
+				if self.ovl.user_version.is_jwe:
 					entry.file_hash = file.file_hash
 				else:
 					entry.file_hash = file_index
