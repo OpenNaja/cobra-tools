@@ -1,6 +1,6 @@
 
 from generated.formats.ovl.versions import *
-from hashes import constants_jwe, constants_pz
+from hashes import constants_jwe, constants_pz, constants_jwe2
 
 
 from generated.context import ContextReference
@@ -91,6 +91,8 @@ class FileEntry:
 			constants = constants_jwe
 		elif is_pz(ovl) or is_pz16(ovl):
 			constants = constants_pz
+		elif is_jwe2(ovl):
+			constants = constants_jwe2
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
 		self.unkn_0 = constants.files_unkn_0[self.ext]
