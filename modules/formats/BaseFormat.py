@@ -29,11 +29,11 @@ class BaseFile:
 			if pool.type == pool_type_key:
 				return pool_index, pool
 		# nope, means we gotta create pool type and pool
-		pool_type = PoolType()
+		pool_type = PoolType(self.ovl.context)
 		pool_type.type = pool_type_key
 		pool_type.num_pools = 1
 
-		pool = MemPool()
+		pool = MemPool(self.ovl.context)
 		pool.data = BinaryStream()
 		# the real address isn't known until it is written, but declare it anyway
 		pool.address = 0
@@ -57,32 +57,32 @@ class BaseFile:
 				return file_entry
 
 	def create_ss_entry(self, file_entry):
-		ss_entry = SizedStringEntry()
+		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
 		ss_entry.fragments = []
 		self.ovs.transfer_identity(ss_entry, file_entry)
-		new_pointss = HeaderPointer()
+		new_pointss = HeaderPointer(self.ovl.context)
 		ss_entry.pointers.append(new_pointss)
 		self.ovs.sized_str_entries.append(ss_entry)
 		return ss_entry
 
 	def create_fragment(self):
-		new_frag = Fragment()
-		new_point0 = HeaderPointer()
-		new_point1 = HeaderPointer()
+		new_frag = Fragment(self.ovl.context)
+		new_point0 = HeaderPointer(self.ovl.context)
+		new_point1 = HeaderPointer(self.ovl.context)
 		new_frag.pointers.append(new_point0)
 		new_frag.pointers.append(new_point1)
 		self.ovs.fragments.append(new_frag)
 		return new_frag
 
 	def create_data_entry(self, ss_entry, buffer_bytes):
-		new_data = DataEntry()
+		new_data = DataEntry(self.ovl.context)
 		self.ovs.transfer_identity(new_data, ss_entry)
 		ss_entry.data_entry = new_data
 		new_data.buffer_count = len(buffer_bytes)
 		new_data.buffers = []
 		for i, b in enumerate(buffer_bytes):
-			new_buff = BufferEntry()
+			new_buff = BufferEntry(self.ovl.context)
 			self.ovs.transfer_identity(new_buff, ss_entry)
 			new_buff.index = i
 			new_data.buffers.append(new_buff)
