@@ -11,6 +11,12 @@ def flip_gb(im):
 	im[:, :, 2] = 255 - im[:, :, 2]
 
 
+def scale_b(im):
+	"""Puts B to 255"""
+	# im[:, :, 1] = 255 - im[:, :, 1]
+	im[:, :, 2] = 255
+
+
 def check_any(iterable, string):
 	"""Returns true if any of the entries of the iterable occur in string"""
 	return any([i in string for i in iterable])
@@ -32,12 +38,17 @@ def has_rgb_a(png_file_path):
 	return check_any(("pbasenormaltexture",), png_file_path)
 
 
+def has_scale_b(png_file_path):
+	return check_any(("pbasenormaltexture",), png_file_path)
+
+
 def wrapper(png_file_path, header_7, ovl):
 	out_files = []
 	must_split = False
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
 	split_rgb_a = has_rgb_a(png_file_path)
+	must_scale_b = has_scale_b(png_file_path)
 	if is_ztuac(ovl):
 		must_flip_gb = False
 	h = header_7.height
@@ -49,8 +60,9 @@ def wrapper(png_file_path, header_7, ovl):
 		must_split = True
 	print("split_components", split_components)
 	print("must_split", must_split)
-	print("must_flip_gb", must_flip_gb)
 	print("split_rgb_a", split_rgb_a)
+	print("must_flip_gb", must_flip_gb)
+	print("must_scale_b", must_scale_b)
 	print("Splitting PNG array")
 	print(f"h {h}, w {w}, array_size {array_size}")
 	if must_split or must_flip_gb or split_components or split_rgb_a:
@@ -62,6 +74,8 @@ def wrapper(png_file_path, header_7, ovl):
 		name, ext = os.path.splitext(png_file_path)
 		if must_flip_gb:
 			flip_gb(im)
+		if must_scale_b:
+			scale_b(im)
 		layer_i = 0
 		# split components and or tiles if present
 		if split_components:
@@ -89,6 +103,7 @@ def wrapper(png_file_path, header_7, ovl):
 				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
 				out_files.append(file_path)
 				layer_i += 2
+			os.remove(png_file_path)
 		# don't split at all, overwrite
 		else:
 			imageio.imwrite(png_file_path, im, compress_level=2)
