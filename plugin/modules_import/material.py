@@ -57,7 +57,7 @@ def create_material(in_dir, matname):
 		if diffuse_name in tex_dic:
 			diffuse = tex_dic[diffuse_name]
 			# get AO
-			for ao_name in ("paotexture", "pbasepackedtexture_[03]"):
+			for ao_name in ("paotexture", "pbasepackedtexture_[03]", "pbaseaotexture"):
 				if ao_name in tex_dic:
 					ao = tex_dic[ao_name]
 					ao.image.colorspace_settings.name = "Non-Color"
@@ -97,13 +97,15 @@ def create_material(in_dir, matname):
 			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 			break
 
-	if "pnormaltexture" in tex_dic:
-		normal = tex_dic["pnormaltexture"]
-		normal.image.colorspace_settings.name = "Non-Color"
-		normal_map = tree.nodes.new('ShaderNodeNormalMap')
-		tree.links.new(normal.outputs[0], normal_map.inputs[1])
-		# normal_map.inputs["Strength"].default_value = 1.0
-		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
+	for normal_name in ("pnormaltexture", "pbasenormaltexture_[0]"):
+		# get diffuse
+		if normal_name in tex_dic:
+			normal = tex_dic[normal_name]
+			normal.image.colorspace_settings.name = "Non-Color"
+			normal_map = tree.nodes.new('ShaderNodeNormalMap')
+			tree.links.new(normal.outputs[0], normal_map.inputs[1])
+			# normal_map.inputs["Strength"].default_value = 1.0
+			tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
 	# PZ - specularity?
 	for spec_name in ("proughnesspackedtexture_[02]", "pspecularmaptexture_[00]",):
@@ -113,7 +115,7 @@ def create_material(in_dir, matname):
 			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# PZ - roughness?
-	for roughness_name in ("proughnesspackedtexture_[01]", ): # "pspecularmaptexture_[01]" ?
+	for roughness_name in ("proughnesspackedtexture_[01]", "pbasenormaltexture_[1]"): # "pspecularmaptexture_[01]" ?
 		if roughness_name in tex_dic:
 			roughness = tex_dic[roughness_name]
 			roughness.image.colorspace_settings.name = "Non-Color"
