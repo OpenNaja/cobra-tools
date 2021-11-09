@@ -209,6 +209,11 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 		if join_components:
 			d = 4
 			array_size //= d
+		if join_rgb_a:
+			d = 4
+			# since we have 2 components per tile
+			array_size //= 2
+
 		print("array_size", array_size)
 		if array_size == 0:
 			raise FileNotFoundError(
