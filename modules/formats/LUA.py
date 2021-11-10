@@ -2,6 +2,7 @@ import struct
 
 from generated.formats.ovl.versions import *
 from modules.formats.BaseFormat import BaseFile
+from modules.formats.shared import get_padding
 from modules.helpers import zstr
 from ovl_util import texconv
 from ovl_util.interaction import showdialog
@@ -87,6 +88,7 @@ class LuaLoader(BaseFile):
 		pool.data.write(struct.pack("8s", b''))  # room for 2 ints
 		pool.data.write(b'\x00')  # one more char for the 2nd ptr
 		pool.data.write(zstr(file_name_bytes))
+		pool.data.write(get_padding(pool.data.tell(), 4))
 
 		new_frag0 = self.create_fragment()
 		new_frag0.pointers[0].pool_index = pool_index
