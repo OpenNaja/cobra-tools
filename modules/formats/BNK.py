@@ -4,6 +4,7 @@ import struct
 import traceback
 
 from generated.formats.bnk import BnkFile, AuxFile
+from generated.formats.ovl_base.versions import is_jwe2
 from ovl_util import texconv
 
 
@@ -14,15 +15,20 @@ def write_bnk(ovl, entry, out_dir_func, show_temp_files, progress_callback):
 	out_path = out_dir_func(entry.name)
 	with open(out_path, "wb") as f:
 		f.write(entry.data_entry.buffer_datas[0])
+
 	wem_files = []
 	try:
 		# first read the bnk file which informs of any streams
 		bnk = BnkFile()
 		bnk.load(out_path)
-		# print(bnk)
+		print(bnk)
 		# extract streamed files
 		for ext in bnk.extensions:
 			aux_path = f"{ovl.file_no_ext}_{bnk_name}_bnk_{ext}.aux"
+			if is_jwe2(ovl):
+				with open(aux_path, "wb") as f:
+					for b in entry.data_entry.buffer_datas[1:]:
+						f.write(b)
 			if ext and not os.path.isfile(aux_path):
 				raise FileNotFoundError(f"AUX file expected at {aux_path}!")
 			if ext.lower() == "s":
@@ -35,16 +41,18 @@ def write_bnk(ovl, entry, out_dir_func, show_temp_files, progress_callback):
 						with open(wem_path, "wb") as wem:
 							wem.write(d)
 						wem_files.append(wem_path)
-			elif ext.lower() == "b":
+			elif ext.lower() == "b" or is_jwe2(ovl):
 				aux = AuxFile()
 				aux.load(aux_path)
 				wem_files.extend(aux.extract_audio(out_dir_func, bnk_name))
+			if is_jwe2(ovl):
+				break
 	except BaseException as err:
 		logging.error(err)
 		traceback.print_exc()
 	processed_files = texconv.wem_handle(wem_files, show_temp_files, progress_callback)
 	if show_temp_files:
-		return [out_path, ] + wem_files + processed_files
+		return [out_path, aux_path] + wem_files + processed_files
 	else:
 		return [out_path, ] + processed_files
 
