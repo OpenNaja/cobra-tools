@@ -20,10 +20,6 @@
 	<verattr name="version" access="#VER#" index="0" />
 	<verattr name="user_version" access="#USER#" index="1" />
 
-    <basic name="ZString">
-        Null terminated string.
-    </basic>
-
     <compound name="Root0" >
         <add name="zero0" type="uint" ></add>
         <add name="zero1" type="uint" ></add>

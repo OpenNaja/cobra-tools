@@ -49,9 +49,9 @@ class Imports:
                             if attrib_type:
                                 self.add(attrib_type)
 
-    def add(self, cls_to_import, import_from=None):
+    def add(self, cls_to_import, array=False):
         if cls_to_import:
-            must_import, import_type = self.parent.map_type(cls_to_import)
+            must_import, import_type = self.parent.map_type(cls_to_import, array)
             if must_import:
                 self.imports.append(import_type)
 
@@ -63,7 +63,7 @@ class Imports:
             if class_import in NO_CLASSES:
                 continue
             if class_import in self.path_dict:
-                import_path = "generated." + self.path_dict[class_import].replace(sep, ".")
+                import_path = self.import_from_module_path(self.path_dict[class_import])
                 local_imports.append(f"from {import_path} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
@@ -73,3 +73,7 @@ class Imports:
             stream.write(line)
         if self.imports:
             stream.write("\n\n")
+
+    @staticmethod
+    def import_from_module_path(module_path):
+        return f"generated.{module_path.replace(sep, '.')}"

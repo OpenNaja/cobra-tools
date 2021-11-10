@@ -4,9 +4,11 @@ import os
 import distutils.dir_util as dir_util
 from html import unescape
 import traceback
+from numpy import ndarray
 
 from codegen import naming_conventions as convention
 from codegen.BaseClass import BaseClass
+from codegen.Basics import Basics
 from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
@@ -17,6 +19,7 @@ from codegen.naming_conventions import clean_comment_str
 logging.basicConfig(level=logging.DEBUG)
 
 FIELD_TYPES = ("add", "field")
+BITFIELD_MEMBERS = ("member")
 VER = "self.context.version"
 
 
@@ -47,6 +50,8 @@ class XmlParser:
         # maps each type to its member tag type
         self.tag_dict = {}
 
+        self.basics = None
+
     def generate_module_paths(self, root):
         """preprocessing - generate module paths for imports relative to the output dir"""
         for child in root:
@@ -57,6 +62,9 @@ class XmlParser:
                     # for modules, set the path to base/module_name
                     class_name = convention.name_module(child.attrib["name"])
                     class_segments = [class_name]
+                elif child.tag == "basic":
+                    class_segments = ["basic"]
+                    class_name = convention.name_class(child.attrib["name"])
                 else:
                     # for classes, set the path to module_path/tag/class_name or
                     # base/tag/class_name if it's not part of a module
@@ -71,6 +79,7 @@ class XmlParser:
         self.path_dict["Array"] = "array"
         self.path_dict["BasicBitfield"] = "bitfield"
         self.path_dict["BitfieldMember"] = "bitfield"
+        self.path_dict["basic_map"] = os.path.join(base_segments, "basic")
         self.path_dict["ContextReference"] = "context"
         self.path_dict["UbyteEnum"] = "base_enum"
         self.path_dict["UshortEnum"] = "base_enum"
@@ -98,6 +107,8 @@ class XmlParser:
         self.generate_module_paths(root)
         self.register_tokens(root)
         self.versions = Versions(self)
+        self.basics = Basics(self, BaseClass.get_out_path(self.path_dict["basic_map"]))
+        self.basics.load_base_module()
 
         # dictionary of xml file: XmlParser
         if parsed_xmls is None:
@@ -112,8 +123,8 @@ class XmlParser:
                     Compound(self, child)
                 elif child.tag in self.bitstruct_types:
                     Bitfield(self, child)
-                # elif child.tag == "basic":
-                #     self.write_basic(child)
+                elif child.tag == "basic":
+                    self.basics.read(child)
                 elif child.tag == "enum":
                     Enum(self, child)
                 elif child.tag == "module":
@@ -129,6 +140,7 @@ class XmlParser:
                 traceback.print_exc()
         out_file = BaseClass.get_out_path(os.path.join(self.base_segments ,"versions"))
         self.versions.write(out_file)
+        self.basics.write_basic_map()
         parsed_xmls[xml_path] = self
 
     # the following constructs do not create classes
@@ -172,15 +184,20 @@ class XmlParser:
     def apply_conventions(self, struct):
         # struct top level
         self.apply_convention(struct, convention.name_class, ("name", "inherit"))
-        # a struct's fields
-        for field in struct:
-            if field.tag in FIELD_TYPES:
+        if struct.tag in self.struct_types:
+            # a struct's fields
+            for field in struct:
                 self.apply_convention(field, convention.name_attribute, ("name",))
                 self.apply_convention(field, convention.name_class, ("type",))
                 self.apply_convention(field, convention.name_class, ("onlyT",))
                 self.apply_convention(field, convention.name_class, ("excludeT",))
                 for default in field:
                     self.apply_convention(field, convention.name_class, ("onlyT",))
+        elif struct.tag in self.bitstruct_types:
+            # a bitfield/bitflags fields
+            for field in struct:
+                self.apply_convention(field, convention.name_attribute, ("name", ))
+                self.apply_convention(field, convention.name_class, ("type", ))
 
         # filter comment str
         struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
@@ -211,17 +228,30 @@ class XmlParser:
         elif mode == "write":
             return f"stream.{io_func}({attr})"
 
-    def map_type(self, in_type):
+    def map_type(self, in_type, array=False):
         l_type = in_type.lower()
-        if self.tag_dict.get(l_type) != "basic":
-            return True, in_type
-        else:
-            if "float" in l_type:
-                return False, "float"
-            elif l_type == "bool":
-                return False, "bool"
-            else:
-                return False, "int"
+        if in_type in self.path_dict:
+            if self.tag_dict.get(l_type) == "basic":
+                # --------- don't forget to remove after debugging!
+                if in_type in self.basics.basic_map:
+                    basic_class = self.basics.basic_map[in_type]
+                else:
+                    logging.warn(f"basic type {in_type} used before definition in {self.format_name}.xml")
+                    return True, "flurp"
+                if callable(getattr(basic_class, "functions_for_stream", None)):
+                    # we don't need to import it for read/write
+                    if array:
+                        if callable(getattr(basic_class, "create_array", None)):
+                            test = basic_class.create_array(1)
+                            if isinstance(ndarray):
+                                return True, "numpy"
+                    else:
+                        if callable(getattr(basic_class, "from_value", None)):
+                            # check from_value to see which builtin it returns
+                            test = basic_class.from_value(0)
+                            if type(test) in (float, bool, int, str, ):
+                                return False, type(test).__name__
+        return True, in_type
             
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
@@ -259,13 +289,11 @@ class XmlParser:
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
         self.copy_dict_info(self.storage_dict, other_parser.storage_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
+        self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
 
 
-def copy_src_to_generated():
+def copy_src_to_generated(src_dir, trg_dir):
     """copies the files from the source folder to the generated folder"""
-    cwd = os.getcwd()
-    src_dir = os.path.join(cwd, "source")
-    trg_dir = os.path.join(cwd, "generated")
     # remove old codegen
     dir_util.remove_tree(trg_dir)
     # necessary to not error if you have manually removed a subdirectory in generated
@@ -274,9 +302,8 @@ def copy_src_to_generated():
     dir_util.copy_tree(src_dir, trg_dir)
 
 
-def create_inits():
+def create_inits(base_dir):
     """Create a __init__.py file in all subdirectories that don't have one, to prevent error on second import"""
-    base_dir = os.path.join(os.getcwd(), 'generated')
     init_file = "__init__.py"
     for root, dirs, files in os.walk(base_dir):
         if init_file not in files:
@@ -285,11 +312,40 @@ def create_inits():
         # don't go into subdirectories that start with a double underscore
         dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
 
+
+def stash_inits(target_dir):
+    """Move all __init__.py files over to a temporary directory to prevent execution when loading submodules
+    and replace them with empty init files"""
+    init_file = "__init__.py"
+    i = 0
+    temp_base = os.path.join(os.getcwd(), ".temp")
+    temp_dir = f'{temp_base}{i}'
+    while os.path.exists(temp_dir):
+        i += 1
+        temp_dir = f'{temp_base}{i}'
+    os.makedirs(temp_dir)
+    for dirpath, dirnames, filenames in os.walk(target_dir):
+        if init_file in filenames:
+            rel_path = os.path.relpath(dirpath, target_dir)
+            os.renames(os.path.join(dirpath, init_file), os.path.join(temp_dir, rel_path, init_file))
+    create_inits(target_dir)
+    return temp_dir
+
+
+def apply_stash(stashed_dir, target_dir):
+    """Move the files in a stashed directory to the target directory, removing the temporary directory"""
+    dir_util.copy_tree(stashed_dir, target_dir)
+    dir_util.remove_tree(stashed_dir)
+
+
 def generate_classes():
     logging.info("Starting class generation")
     cwd = os.getcwd()
-    root_dir = os.path.join(cwd, "source\\formats")
-    copy_src_to_generated()
+    source_dir = os.path.join(cwd, "source")
+    target_dir = os.path.join(cwd, "generated")
+    root_dir = os.path.join(source_dir, "formats")
+    copy_src_to_generated(source_dir, target_dir)
+    stashed_dir = stash_inits(target_dir)
     parsed_xmls = {}
     for format_name in os.listdir(root_dir):
         dir_path = os.path.join(root_dir, format_name)
@@ -300,9 +356,10 @@ def generate_classes():
                     logging.info(f"Already read {format_name}, skipping")
                 else:
                     logging.info(f"Reading {format_name} format")
-                xmlp = XmlParser(format_name)
-                xmlp.load_xml(xml_path, parsed_xmls)
-    create_inits()
+                    xmlp = XmlParser(format_name)
+                    xmlp.load_xml(xml_path, parsed_xmls)
+    apply_stash(stashed_dir, target_dir)
+    create_inits(target_dir)
 
 
 generate_classes()

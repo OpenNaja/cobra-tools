@@ -1,6 +1,5 @@
 from .BaseClass import BaseClass
-from . import naming_conventions as convention
-
+import logging
 
 class Bitfield(BaseClass):
 
@@ -55,15 +54,15 @@ class Bitfield(BaseClass):
 			self.map_pos()
 			self.get_mask()
 			for field in self.struct:
-				field_name = convention.name_attribute(field.attrib["name"])
-				_, field_type = self.parser.map_type(convention.name_class(field.attrib.get("type", "int")))
+				field_name = field.attrib["name"]
+				_, field_type = self.parser.map_type(field.attrib.get("type", "int"))
 				f.write(f"\n\t{field_name} = BitfieldMember(pos={field.attrib['pos']}, mask={field.attrib['mask']}, return_type={field_type})")
 
 			f.write("\n\n\tdef set_defaults(self):")
 			defaults = []
 			for field in self.struct:
-				field_name = convention.name_attribute(field.attrib["name"])
-				field_type = convention.name_class(field.attrib.get("type", "int"))
+				field_name = field.attrib["name"]
+				field_type = field.attrib.get("type", "int")
 				field_default = field.attrib.get("default")
 				# write the field's default, if it exists
 				if field_default:

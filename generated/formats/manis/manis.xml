@@ -18,10 +18,6 @@
         Grabs 00 bytes only
     </compound>
 
-    <basic name="ZString">
-        A string of given length.
-    </basic>
-
     <compound name="Matrix44" size="64">
         A 4x4 transformation matrix.
         <field name="m11" type="float" default="1.0">The (1,1) element.</field>

@@ -36,6 +36,12 @@
     <version id="JWE" version="19" user_version="24724 25108 24596">Jurassic World Evolution</version>
     <version id="JWE2" version="20" user_version="24724 25108 24596">Jurassic World Evolution 2</version>
 
+    <!-- Extra basic types -->
+
+    <basic name="bool" count="1">
+        An unsigned 8-bit integer.
+    </basic>
+
     <bitfield name="VersionInfo" storage="uint">
         Determines the format of the OVL file.
         n.b. pos counts from the end!
@@ -59,16 +65,6 @@
         <option value="1" name="ZLIB" />
         <option value="4" name="OODLE" />
     </enum>
-
-    <!-- Extra basic types -->
-
-    <basic name="bool" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-
-    <basic name="ZString">
-        A string of given length.
-    </basic>
 
 	<!-- Structs for the OVL file -->
 

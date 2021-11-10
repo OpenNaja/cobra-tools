@@ -58,4 +58,8 @@
         A standard 32-bit floating point number.
     </basic>
 
+    <basic name="ZString">
+        A string of given length.
+    </basic>
+
 </niftoolsxml>

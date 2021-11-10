@@ -6,10 +6,6 @@
 
     <!--Basic Types-->
 
-	<basic name="ZString">
-		Null terminated string.
-	</basic>
-
     <basic name="int64" count="1" >
         A signed 64-bit integer.
     </basic>
