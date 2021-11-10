@@ -43,6 +43,7 @@ def get_loader(ext, ovl):
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.SPECDEF import SpecdefLoader
 	from modules.formats.MATCOL import MatcolLoader
+	from modules.formats.MATLAYERS import MatlayersLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	ext_2_class = {
 		".assetpkg": AssetpkgLoader,
@@ -54,6 +55,7 @@ def get_loader(ext, ovl):
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".specdef": SpecdefLoader,
 		".materialcollection": MatcolLoader,
+		".dinosaurmateriallayers": MatlayersLoader,
 		".scaleformlanguagedata": ScaleformLoader,
 	}
 	cls = ext_2_class.get(ext, None)
