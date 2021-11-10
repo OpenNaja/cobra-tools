@@ -578,7 +578,7 @@ class OvsFile(OvsHeader):
 					except:
 						logging.error("fragment bug")
 				elif sized_str_entry.ext == ".fgm":
-					sized_str_entry.fragments = self.get_frag_after_terminator(sized_str_entry.pointers[0])
+					sized_str_entry.fragments = self.get_frag_after_terminator(sized_str_entry.pointers[0], (24, 32))
 				elif sized_str_entry.ext in (".enumnamer", ".motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
 				elif sized_str_entry.ext == ".motiongraph":
@@ -699,7 +699,7 @@ class OvsFile(OvsHeader):
 				lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(entries)]
 				f.write("\n".join(lines))
 
-	def get_frag_after_terminator(self, ptr, terminator=24):
+	def get_frag_after_terminator(self, ptr, terminator=(24,)):
 		"""Returns entries of l matching h_types that have not been processed until it reaches a frag of terminator size."""
 		frags = self.frags_for_pointer(ptr)
 		out = []
@@ -710,7 +710,7 @@ class OvsFile(OvsHeader):
 			if f.pointers[0].data_offset >= ptr.data_offset:
 				f.done = True
 				out.append(f)
-				if f.pointers[0].data_size == terminator:
+				if f.pointers[0].data_size in terminator:
 					break
 		else:
 			raise AttributeError(
@@ -734,7 +734,7 @@ class OvsFile(OvsHeader):
 		else:
 			if len(out) != count:
 				raise AttributeError(
-					f"Could not find {count} fragments after initpos {initpos}, only found {len(out)}!")
+					f"Could not find {count} fragments in {len(frags)} frags after initpos {initpos}, only found {len(out)}!")
 		return out
 
 	@staticmethod

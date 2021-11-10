@@ -191,7 +191,7 @@ class MainWindow(widgets.MainWindow):
 		if os.path.isdir(file_path):
 			return file_path
 
-	def handle_path(self):
+	def handle_path(self, save_over=True):
 		# get path
 		# walk path
 		# open ovl files
@@ -205,7 +205,8 @@ class MainWindow(widgets.MainWindow):
 				for ovl_path in ovls:
 					self.file_widget.decide_open(ovl_path)
 					yield self.ovl_data
-					self.ovl_data.save(ovl_path, "")
+					if save_over:
+						self.ovl_data.save(ovl_path, "")
 			else:
 				interaction.showdialog("Select a root directory!")
 		else:
@@ -438,17 +439,19 @@ class MainWindow(widgets.MainWindow):
 					interaction.showdialog(str(ex))
 
 	def extract_all(self):
-		if self.is_open_ovl():
-			out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
-																 self.cfg.get("dir_extract", "C://"), )
-			if out_dir:
-				self.cfg["dir_extract"] = out_dir
-				try:
-					out_paths, error_files, skip_files = self.ovl_data.extract(out_dir, show_temp_files=self.show_temp_files)
-					interaction.skip_messages(error_files, skip_files)
-				except Exception as ex:
-					traceback.print_exc()
-					interaction.showdialog(str(ex))
+		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
+															 self.cfg.get("dir_extract", "C://"), )
+		if out_dir:
+			self.cfg["dir_extract"] = out_dir
+
+			for ovl in self.handle_path(save_over=False):
+				if self.is_open_ovl():
+					try:
+						out_paths, error_files, skip_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files)
+						interaction.skip_messages(error_files, skip_files)
+					except Exception as ex:
+						traceback.print_exc()
+						interaction.showdialog(str(ex))
 
 	def inject_ask(self):
 		if self.is_open_ovl():
