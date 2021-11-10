@@ -107,5 +107,5 @@ class LuaLoader(BaseFile):
 		new_data.set_index = 0
 
 	def collect(self, ovl, file_entry):
-		if is_jwe(ovl) or is_pz(ovl) or is_pc(ovl):
+		if is_jwe(ovl) or is_pz(ovl) or is_pc(ovl) or is_jwe2(ovl):
 			self.assign_fixed_frags(ovl, file_entry, 2)
