@@ -1,7 +1,7 @@
-import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.base.basic import ZString
 from generated.formats.matcol.compound.MaterialInfo import MaterialInfo
 
 

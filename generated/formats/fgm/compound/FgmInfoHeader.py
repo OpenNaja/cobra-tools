@@ -1,6 +1,7 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.formats.base.basic import ZString
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.fgm.compound.TextureInfo import TextureInfo

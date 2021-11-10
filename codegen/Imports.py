@@ -23,19 +23,14 @@ class Imports:
             if field.tag in ("add", "field", "member"):
                 field_type = field.attrib["type"]
                 # template = field.attrib.get("template")
-                # self.add(template)
-                # if field_type == "self.template":
-                #     self.add("typing")
-                # else:
-                #     self.add(field_type)
-                self.add(field_type)
-                # arr1 needs typing.List
                 arr1 = field.attrib.get("arr1")
                 if arr1 is None:
                     arr1 = field.attrib.get("length")
                 if arr1:
-                    self.add("typing")
                     self.add("Array")
+                    self.add(field_type, array=True)
+                else:
+                    self.add(field_type)
                 type_attribs = ("onlyT", "excludeT")
                 for attrib in type_attribs:
                     attrib_type = field.attrib.get(attrib)

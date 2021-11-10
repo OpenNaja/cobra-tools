@@ -243,7 +243,7 @@ class XmlParser:
                     if array:
                         if callable(getattr(basic_class, "create_array", None)):
                             test = basic_class.create_array(1)
-                            if isinstance(ndarray):
+                            if isinstance(test, ndarray):
                                 return True, "numpy"
                     else:
                         if callable(getattr(basic_class, "from_value", None)):

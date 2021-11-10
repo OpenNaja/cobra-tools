@@ -23,8 +23,6 @@ class Compound(BaseClass):
 					self.field_unions.append(union)
 				union.append(field)
 			arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
-			if arr1:
-				self.imports.add("numpy")
 
 		# write to python file
 		with open(self.out_file, "w", encoding=self.parser.encoding) as f:

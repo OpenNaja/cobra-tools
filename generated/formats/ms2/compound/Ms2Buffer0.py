@@ -2,6 +2,7 @@ import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.base.basic import ZString
 from generated.formats.ms2.compound.Ms2BufferInfoZTHeader import Ms2BufferInfoZTHeader
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
 
