@@ -21,7 +21,8 @@ class MainWindow(widgets.MainWindow):
 		self.widgets = []
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.shaders = {}
-		for game in games:
+		self.games = [g.value for g in games]
+		for game in self.games:
 			self.shaders[game] = config.read_list(f"ovl_util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
@@ -34,7 +35,7 @@ class MainWindow(widgets.MainWindow):
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		self.game_container = widgets.LabelCombo("Game:", games)
+		self.game_container = widgets.LabelCombo("Game:", self.games)
 		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
@@ -108,9 +109,9 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.fgm_data.load(self.file_widget.filepath)
 				print(self.fgm_data)
-				game = get_game(self.fgm_data)
+				game = get_game(self.fgm_data)[0]
 				print("from game", game)
-				self.game_container.entry.setText(game)
+				self.game_container.entry.setText(game.value)
 				# also for
 				self.game_changed()
 				self.shader_container.entry.setText(self.fgm_data.shader_name)
