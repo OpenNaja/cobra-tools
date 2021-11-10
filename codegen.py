@@ -1,7 +1,7 @@
 import logging
 import xml.etree.ElementTree as ET
 import os
-from distutils.dir_util import copy_tree
+import distutils.dir_util as dir_util
 from html import unescape
 import traceback
 
@@ -266,7 +266,12 @@ def copy_src_to_generated():
     cwd = os.getcwd()
     src_dir = os.path.join(cwd, "source")
     trg_dir = os.path.join(cwd, "generated")
-    copy_tree(src_dir, trg_dir)
+    # remove old codegen
+    dir_util.remove_tree(trg_dir)
+    # necessary to not error if you have manually removed a subdirectory in generated
+    dir_util._path_created = {}
+    # do the actual copying
+    dir_util.copy_tree(src_dir, trg_dir)
 
 
 def create_inits():
