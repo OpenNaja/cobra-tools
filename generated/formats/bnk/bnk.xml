@@ -31,7 +31,7 @@
         <add name="IdB" type="uint" ></add>
         <add name="constantA" type="uint" ></add>
         <add name="constantB" type="uint" ></add>
-        <add name="zeroes" type="uint" arr1="3">filler zeroes</add>
+<!--        <add name="zeroes" type="uint" arr1="3">filler zeroes, seems to be gone now</add>-->
     </compound>
 
     <compound name="DIDXSection">

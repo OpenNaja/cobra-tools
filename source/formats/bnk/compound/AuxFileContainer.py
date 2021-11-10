@@ -33,6 +33,7 @@ class AuxFileContainer:
             print("reading chunk", chunk_id)
             if chunk_id == b"BKHD":
                 self.bhkd = stream.read_type(BKHDSection, (self.context,))
+                print(self.bhkd)
                 self.chunks.append((chunk_id, self.bhkd))
             elif chunk_id == b"HIRC":
                 self.hirc = stream.read_type(HIRCSection, (self.context,))
