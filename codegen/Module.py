@@ -14,9 +14,9 @@ class Module:
 
     def read(self, element):
         self.comment_str = clean_comment_str(element.text, indent="", class_comment='"""')[2:]
-        self.priority = int(element.attrib.get("priority", ""))
-        self.depends = [name_module(module) for module in element.attrib.get("depends", "").split(" ")]
-        self.custom = bool(eval(element.attrib.get("custom", "true").replace(
+        self.priority = int(element.attrib.get("priority", "0"))
+        self.depends = [name_module(module) for module in element.attrib.get("depends", "").split()]
+        self.custom = bool(eval(element.attrib.get("custom", "false").replace(
             "true", "True").replace("false", "False"), {}))
 
     def write(self, module_path):
