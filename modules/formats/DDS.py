@@ -290,13 +290,14 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, hack_2k):
 		# 	dds_file.write(stream)
 		# 	stream.write(out_bytes)
 
-		sum_of_buffers = sum(buffer.size for buffer in tex_sized_str_entry.data_entry.sorted_streams)
+		sorted_streams = sorted(tex_sized_str_entry.data_entry.sorted_streams, key=lambda b: len(b.data), reverse=True)
+		sum_of_buffers = sum(buffer.size for buffer in sorted_streams)
 		if len(out_bytes) != sum_of_buffers:
 			print(
 				f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes.")
 
 		with io.BytesIO(out_bytes) as reader:
-			for buffer in tex_sized_str_entry.data_entry.sorted_streams:
+			for buffer in sorted_streams:
 				print(buffer)
 				dds_buff = reader.read(buffer.size)
 				if len(dds_buff) < buffer.size:
