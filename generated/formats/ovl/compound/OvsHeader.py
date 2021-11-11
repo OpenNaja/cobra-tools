@@ -1,4 +1,3 @@
-import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ovl.compound.BufferEntry import BufferEntry

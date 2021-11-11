@@ -1,5 +1,4 @@
 import numpy
-import typing
 from generated.array import Array
 from generated.formats.manis.compound.ManiInfo import ManiInfo
 from generated.formats.manis.compound.PadAlign import PadAlign

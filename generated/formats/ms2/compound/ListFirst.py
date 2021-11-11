@@ -1,5 +1,4 @@
 import numpy
-import typing
 from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
 

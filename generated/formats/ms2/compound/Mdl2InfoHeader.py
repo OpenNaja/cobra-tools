@@ -1,4 +1,3 @@
-import typing
 from generated.array import Array
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo

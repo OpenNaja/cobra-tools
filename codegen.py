@@ -320,9 +320,14 @@ def stash_inits(target_dir):
     i = 0
     temp_base = os.path.join(os.getcwd(), ".temp")
     temp_dir = f'{temp_base}{i}'
-    while os.path.exists(temp_dir):
-        i += 1
-        temp_dir = f'{temp_base}{i}'
+    no_overwrite = False
+    if no_overwrite:
+        while os.path.exists(temp_dir):
+            i += 1
+            temp_dir = f'{temp_base}{i}'
+    else:
+        if os.path.exists(temp_dir):
+            dir_util.remove_tree(temp_dir)
     os.makedirs(temp_dir)
     for dirpath, dirnames, filenames in os.walk(target_dir):
         if init_file in filenames:

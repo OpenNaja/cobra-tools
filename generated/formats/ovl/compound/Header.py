@@ -1,5 +1,4 @@
 import numpy
-import typing
 from generated.array import Array
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.AuxEntry import AuxEntry

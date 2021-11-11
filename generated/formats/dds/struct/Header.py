@@ -1,5 +1,4 @@
 import numpy
-import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.dds.bitstruct.Caps1 import Caps1

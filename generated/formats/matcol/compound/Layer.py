@@ -1,4 +1,3 @@
-import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.matcol.compound.AttribWrapper import AttribWrapper

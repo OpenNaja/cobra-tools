@@ -1,4 +1,3 @@
-import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.bnk.compound.HircPointer import HircPointer
