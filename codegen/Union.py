@@ -27,9 +27,9 @@ def get_conditions(field):
     if ver2:
         ver2 = Version(ver2)
     vercond = field.attrib.get("vercond")
-    versions = field.attrib.get("versions")
-    if versions:
-        versions = [Versions.format_id(version) for version in versions.split(" ")]
+    valid_versions = field.attrib.get("versions")
+    if valid_versions:
+        valid_versions = [Versions.format_id(version) for version in valid_versions.split(" ")]
     cond = field.attrib.get("cond")
     onlyT = field.attrib.get("onlyT")
     excludeT = field.attrib.get("excludeT")
@@ -42,15 +42,15 @@ def get_conditions(field):
     if vercond:
         vercond = Expression(vercond, g_vars=True)
         conditionals.append(f"{vercond}")
-    if versions:
-        conditionals.append(f"({' or '.join([f'is_{version}({CONTEXT})' for version in versions])})")
+    if valid_versions:
+        conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
     if cond:
         cond = Expression(cond)
         conditionals.append(f"{cond}")
     if onlyT:
-        conditionals.append(f"isinstance(self, {onlyT})")
+        conditionals.append(f"'{onlyT}' in [parent.__name__ for parent in type(self).__mro__]")
     if excludeT:
-        conditionals.append(f"not isinstance(self, {excludeT})")
+        conditionals.append(f"'{excludeT}' not in [parent.__name__ for parent in type(self).__mro__]")
     return conditionals
 
 

@@ -80,6 +80,7 @@ class XmlParser:
         self.path_dict["BasicBitfield"] = "bitfield"
         self.path_dict["BitfieldMember"] = "bitfield"
         self.path_dict["basic_map"] = os.path.join(base_segments, "basic")
+        self.path_dict["versions"] = "versions"
         self.path_dict["ContextReference"] = "context"
         self.path_dict["UbyteEnum"] = "base_enum"
         self.path_dict["UshortEnum"] = "base_enum"

@@ -31,18 +31,11 @@ class Imports:
                     self.add(field_type, array=True)
                 else:
                     self.add(field_type)
-                type_attribs = ("onlyT", "excludeT")
-                for attrib in type_attribs:
-                    attrib_type = field.attrib.get(attrib)
-                    if attrib_type:
-                        self.add(attrib_type)
 
                 for default in field:
                     if default.tag in ("default",):
-                        for attrib in type_attribs:
-                            attrib_type = default.attrib.get(attrib)
-                            if attrib_type:
-                                self.add(attrib_type)
+                        if default.attrib.get("versions"):
+                            self.add("versions")
 
     def add(self, cls_to_import, array=False):
         if cls_to_import:
