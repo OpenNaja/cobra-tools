@@ -102,56 +102,6 @@ class Union:
     def append(self, member):
         self.members.append(member)
 
-    # def write_declaration(self, f):
-    #
-    #     field_types = []
-    #     for field in self.members:
-    #         field_type = field.attrib["type"]
-    #         # todo - make consistent / merge with map_type()
-    #         if field_type.lower() in ("byte", "ubyte", "short", "ushort", "int", "uint", "int64", "uint64"):
-    #             field_type = "int"
-    #         elif field_type.lower() in ("float", "hfloat"):
-    #             field_type = "float"
-    #         elif field_type.lower() in ("bool",):
-    #             field_type = "bool"
-    #         elif field_type.lower() in ("zstring", "string", "sizedstring"):
-    #             field_type = "str"
-    #         field_types.append(field_type)
-    #         field_default = field.attrib.get("default")
-    #         field_debug_str = clean_comment_str(field.text, indent="\t")
-    #
-    #         if field_debug_str.strip():
-    #             f.write(field_debug_str)
-    #     field_types = set(field_types)
-    #     if len(field_types) > 1:
-    #         field_types_str = f"typing.Union[{', '.join(sorted(field_types))}]"
-    #     else:
-    #         field_types_str = field_type
-    #
-    #     # write the field type
-    #     # arrays
-    #     if field.attrib.get("arr1"):
-    #         f.write(f"\n\t{self.name}: typing.List[{field_types_str}]")
-    #     # plain
-    #     else:
-    #         f.write(f"\n\t{self.name}: {field_types_str}")
-    #
-    #     # write the field's default, if it exists
-    #     if field_default:
-    #         # we have to check if the default is an enum default value, in which case it has to be a member of that enum
-    #         if self.compound.parser.tag_dict[field_type.lower()] == "enum":
-    #             field_default = field_type + "." + field_default
-    #         f.write(f" = {field_default}")
-
-    def get_basic_type(self):
-        """If this union has just one field, return its dtype if it is basic"""
-        # types = set(field.attrib["type"] for field in self.members)
-        if len(self.members) == 1:
-            field = self.members[0]
-            t = field.attrib["type"]
-            if self.compound.parser.tag_dict[t.lower()] == "basic":
-                return t
-
     def get_default_string(self, default_string, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()

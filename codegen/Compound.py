@@ -118,10 +118,3 @@ class Compound(BaseClass):
 
 			f.write(self.grab_src_snippet("# START_CLASS"))
 			self.write_line(f)
-
-	def get_static_dtype(self):
-		dtypes = [union.get_basic_type() for union in self.field_unions]
-		if None not in dtypes:
-			print(self.class_name, dtypes)
-		else:
-			print(self.class_name, "NOT static")
