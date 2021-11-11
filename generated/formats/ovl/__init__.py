@@ -471,6 +471,18 @@ class OvsFile(OvsHeader):
 			# -> exceedingly slow
 			fs.extend(self.get_frags_after_count(self.fragments, p.data_offset, 1))
 		return fs
+        
+	def frags_accumulate_from_pointer(self, p, d_size):
+		# get frags whose pointers 0 datas together occupy d_size bytes
+		fs = []
+		frags = self.frags_for_pointer(p)
+		while sum((f.pointers[0].data_size for f in fs)) < d_size:
+			# frags = self.frags_for_pointer(p)
+			# frags = self.fragments
+			# the frag list crosses header borders at Deinonychus_events, so use full frag list
+			# -> exceedingly slow
+			fs.extend(self.get_frags_after_count(frags, p.data_offset, 1))
+		return fs
 
 	def frags_from_pointer(self, ptr, count):
 		# print(ptr)
@@ -629,7 +641,7 @@ class OvsFile(OvsHeader):
 			# for buffer, data in zip(buffers, datas):
 			# 	buffer.index = b_group.buffer_index
 			# 	data.buffers.append(buffer)
-			# print(self.buffer_entries)
+			#print(self.buffer_entries)
 			# print(self.new_entries)
 			for data in self.data_entries:
 				data.streams = list(data.buffers)
