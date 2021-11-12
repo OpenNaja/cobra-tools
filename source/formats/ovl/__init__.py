@@ -52,6 +52,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.TXT import TxtLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.VOXELSKIRT import VoxelskirtLoader
+	from modules.formats.XMLCONFIG import XmlconfigLoader
 	ext_2_class = {
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".assetpkg": AssetpkgLoader,
@@ -71,6 +72,7 @@ def get_loader(ext, ovl, file_entry):
 		".txt": TxtLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
+		".xmlconfig": XmlconfigLoader,
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
@@ -567,7 +569,6 @@ class OvsFile(OvsHeader):
 		dic = {
 			".bani": 1,
 			".tex": 2,
-			".xmlconfig": 1,
 			# ".hier": ( (4,6) for x in range(19) ),
 			".spl": 1,
 			# ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order

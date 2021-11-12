@@ -6,7 +6,6 @@ from modules.formats.BNK import load_wem
 from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
 from modules.formats.MATCOL import load_materialcollection
-from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.helpers import split_path
 
 from ovl_util import imarray, interaction
@@ -58,14 +57,10 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			load_dds(ovl, file_path, sized_str_entry, hack_2k)
 		elif ext == ".wem":
 			load_wem(ovl, file_path, sized_str_entry, bnk_name, wem_name)
-		elif ext == ".xmlconfig":
-			load_xmlconfig(ovl, file_path, sized_str_entry)
 		elif ext == ".matcol":
 			load_materialcollection(ovl, file_path, sized_str_entry)
 		elif ext == ".fct":
 			load_fct(ovl, file_path, sized_str_entry, name[-1])
-		elif ext == ".userinterfaceicondata":
-			load_userinterfaceicondata(ovl, file_path, sized_str_entry)
 		else:
 			logging.warning(f"Skipping injection of {file_path} because its extension is not supported.")
 	shutil.rmtree(tmp_dir)

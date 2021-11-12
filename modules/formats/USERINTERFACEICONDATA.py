@@ -11,7 +11,7 @@ class UserinterfaceicondataLoader(BaseFile):
 		ss, f_01, f_11 = self._get_data(self.file_entry.path)
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()
-		# todo - are the 8 bytes needed or just superfluous padding?
+		# todo - are the 8 bytes needed or just superfluous padding? compare sizes to stock
 		pool.data.write(f_01 + f_11 + struct.pack('8s', b''))
 		newoffset = pool.data.tell()
 		pool.data.write(ss)
