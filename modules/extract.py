@@ -14,7 +14,6 @@ from modules.formats.FGM import write_fgm
 from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MOTIONGRAPHVARS import write_motiongraphvars
-from modules.formats.MS2 import write_ms2
 from modules.formats.SPECDEF import write_specdef
 from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig

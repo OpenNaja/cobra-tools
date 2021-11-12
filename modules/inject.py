@@ -7,7 +7,6 @@ from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
 from modules.formats.FGM import load_fgm
 from modules.formats.MATCOL import load_materialcollection
-from modules.formats.MS2 import load_ms2
 from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.formats.USERINTERFACEICONDATA import load_userinterfaceicondata
@@ -56,9 +55,7 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			# ignore this file for injection
 			continue
 		# do the actual injection, varies per file type
-		if ext == ".ms2":
-			load_ms2(ovl, file_path, sized_str_entry)
-		elif ext == ".fgm":
+		if ext == ".fgm":
 			load_fgm(ovl, file_path, sized_str_entry)
 		elif ext == ".png":
 			load_png(ovl, file_path, sized_str_entry, show_temp_files, hack_2k)
