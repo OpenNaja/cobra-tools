@@ -102,11 +102,9 @@ def write_specdef(ovl, sized_str_entry, out_dir, show_temp_files, progress_callb
 
 class SpecdefLoader(BaseFile):
 
-	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.assign_ss_entry(file_entry)
+	def collect(self):
+		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
-		self.ovs = ovl.static_archive.content
 		print("\nSPECDEF:", self.sized_str_entry.name)
 		ss_data = struct.unpack("<2H4B", ss_pointer.data)
 		if ss_data[0] == 0:

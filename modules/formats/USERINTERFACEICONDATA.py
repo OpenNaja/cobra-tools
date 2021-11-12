@@ -55,6 +55,6 @@ class UserinterfaceicondataLoader(BaseFile):
 		new_ss.pointers[0].data_offset = newoffset
 
 	def collect(self, ovl, file_entry):
-		self.assign_fixed_frags(ovl, file_entry, 2)
+		self.assign_fixed_frags(2)
 
 

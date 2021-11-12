@@ -21,7 +21,7 @@ def write_scaleformlanguagedata(ovl, sized_str_entry, out_dir, show_temp_files, 
 class ScaleformLoader(BaseFile):
 
 	def collect(self, ovl, file_entry):
-		self.assign_fixed_frags(ovl, file_entry, 1)
+		self.assign_fixed_frags(1)
 		f0_d0 = struct.unpack("<8I", self.sized_str_entry.fragments[0].pointers[0].data)
 		if is_pc(self.ovl):
 			# data is organized differently here

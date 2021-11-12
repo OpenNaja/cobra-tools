@@ -34,7 +34,7 @@ REVERSED_TYPES = (
 	".txt")
 
 
-def get_loader(ext, ovl):
+def get_loader(ext, ovl, file_entry):
 	from modules.formats.ASSETPKG import AssetpkgLoader
 	from modules.formats.MS2 import Ms2Loader
 	from modules.formats.LUA import LuaLoader
@@ -67,7 +67,7 @@ def get_loader(ext, ovl):
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
-		return cls(ovl)
+		return cls(ovl, file_entry)
 
 
 class OvlContext(object):
@@ -954,23 +954,42 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		skip_files = []
 		out_paths = []
-		from modules.extract import extract_kernel, get_files
+		from modules.extract import get_files
 		extract_files = get_files(self, only_names, only_types, skip_files)
-		for ss_index, file in enumerate(extract_files):
-			self.progress_callback("Extracting...", value=ss_index, vmax=len(extract_files))
-			sized_str_entry = self.get_sized_str_entry(file.name)
+		for file_index, file in enumerate(extract_files):
+			self.progress_callback("Extracting...", value=file_index, vmax=len(extract_files))
 			try:
-				out_paths.extend(
-					extract_kernel(self, sized_str_entry, out_dir_func, show_temp_files, self.progress_callback))
-
+				out_paths.extend(file.loader.extract(out_dir_func, show_temp_files, self.progress_callback))
 			except BaseException as error:
-				logging.error(f"An exception occurred while extracting {sized_str_entry.name}")
+				logging.error(f"An exception occurred while extracting {file.name}")
 				logging.error(error)
 				traceback.print_exc()
-				error_files.append(sized_str_entry.name)
+				error_files.append(file.name)
 		self.progress_callback("Extraction completed!", value=1, vmax=1)
 
 		return out_paths, error_files, skip_files
+
+	def inject(self, file_paths, show_temp_files, hack_2k):
+		"""Inject files into archive"""
+		error_files = []
+		# key with name+ext
+		_files_dict = {file.name: file for file in self.files}
+
+		from modules.helpers import split_path
+		for file_index, file_path in enumerate(file_paths):
+			self.progress_callback("Injecting...", value=file_index, vmax=len(file_paths))
+			name_ext, name, ext = split_path(file_path)
+			try:
+				file = _files_dict[name_ext]
+				file.loader.load(file_path)
+			except BaseException as error:
+				logging.error(f"An exception occurred while injecting {name_ext}")
+				logging.error(error)
+				traceback.print_exc()
+				error_files.append(name_ext)
+		self.progress_callback("Injection completed!", value=1, vmax=1)
+
+		return error_files
 
 	def create_file(self, file_path):
 		"""Create a file entry from a file path"""
@@ -1015,9 +1034,9 @@ class OvlFile(Header, IoFile):
 
 		# create loaders for supported files
 		for file_entry in self.files:
-			file_entry.loader = get_loader(file_entry.ext, self)
+			file_entry.loader = get_loader(file_entry.ext, self, file_entry)
 			if file_entry.loader:
-				file_entry.loader.create(content, file_entry)
+				file_entry.loader.create()
 		# ensure that each pool data is padded to 4
 		for pool in content.pools:
 			pool.data.write(get_padding(pool.data.tell(), 4))
@@ -1341,10 +1360,10 @@ class OvlFile(Header, IoFile):
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
 		for file in self.files:
-			file.loader = get_loader(file.ext, self)
+			file.loader = get_loader(file.ext, self, file)
 			if file.loader:
 				try:
-					file.loader.collect(self, file)
+					file.loader.collect()
 				except Exception as err:
 					logging.error(err)
 					traceback.print_exc()

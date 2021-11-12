@@ -2,16 +2,12 @@ import tempfile
 import shutil
 import logging
 
-from modules.formats.ASSETPKG import load_assetpkg
 from modules.formats.BNK import load_wem
 from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
-from modules.formats.FDB import load_fdb
 from modules.formats.FGM import load_fgm
-from modules.formats.LUA import load_lua
 from modules.formats.MATCOL import load_materialcollection
 from modules.formats.MS2 import load_ms2
-from modules.formats.TXT import load_txt
 from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.formats.USERINTERFACEICONDATA import load_userinterfaceicondata
@@ -37,7 +33,6 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			# skip dupes
 			if not out_path:
 				logging.warning(f"Skipping injection of {file_path}")
-				continue
 			# update the file path to the temp file with flipped channels or rebuilt array
 			file_path = out_path
 			name_ext, name, ext = split_path(file_path)
@@ -69,22 +64,14 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			load_png(ovl, file_path, sized_str_entry, show_temp_files, hack_2k)
 		elif ext == ".dds":
 			load_dds(ovl, file_path, sized_str_entry, hack_2k)
-		elif ext == ".txt":
-			load_txt(ovl, file_path, sized_str_entry)
 		elif ext == ".wem":
 			load_wem(ovl, file_path, sized_str_entry, bnk_name, wem_name)
 		elif ext == ".xmlconfig":
 			load_xmlconfig(ovl, file_path, sized_str_entry)
-		elif ext == ".fdb":
-			load_fdb(ovl, file_path, sized_str_entry, name)
 		elif ext == ".matcol":
 			load_materialcollection(ovl, file_path, sized_str_entry)
-		elif ext == ".lua":
-			load_lua(ovl, file_path, sized_str_entry)
 		elif ext == ".fct":
 			load_fct(ovl, file_path, sized_str_entry, name[-1])
-		elif ext == ".assetpkg":
-			load_assetpkg(ovl, file_path, sized_str_entry)
 		elif ext == ".userinterfaceicondata":
 			load_userinterfaceicondata(ovl, file_path, sized_str_entry)
 		elif ext == ".voxelskirt":

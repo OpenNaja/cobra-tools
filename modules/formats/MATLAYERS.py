@@ -106,10 +106,8 @@ def load_materialcollection(ovl_data, matcol_file_path, sized_str_entry):
 
 class MatlayersLoader(BaseFile):
 
-	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.assign_ss_entry(file_entry)
-		self.ovs = ovl.static_archive.content
+	def collect(self):
+		self.assign_ss_entry()
 		print("\nMatlayers:", self.sized_str_entry.name)
 
 		# Sized string initpos = position of first fragment for matcol
@@ -149,10 +147,8 @@ class MatlayersLoader(BaseFile):
 
 class MatvarsLoader(BaseFile):
 
-	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.assign_ss_entry(file_entry)
-		self.ovs = ovl.static_archive.content
+	def collect(self):
+		self.assign_ss_entry()
 		print("\nMatvars:", self.sized_str_entry.name)
 
 		# Sized string initpos = position of first fragment for matcol
@@ -179,10 +175,8 @@ class MatvarsLoader(BaseFile):
 
 class MateffsLoader(BaseFile):
 
-	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.assign_ss_entry(file_entry)
-		self.ovs = ovl.static_archive.content
+	def collect(self):
+		self.assign_ss_entry()
 		print("\nMateffs:", self.sized_str_entry.name)
 
 		# Sized string initpos = position of first fragment for matcol
@@ -210,10 +204,8 @@ class MateffsLoader(BaseFile):
 
 class MatpatsLoader(BaseFile):
 
-	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.assign_ss_entry(file_entry)
-		self.ovs = ovl.static_archive.content
+	def collect(self):
+		self.assign_ss_entry()
 		print("\nMatpats:", self.sized_str_entry.name)
 
 		# Sized string initpos = position of first fragment for matcol

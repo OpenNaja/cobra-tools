@@ -226,21 +226,19 @@ def load_ms2(ovl, ms2_file_path, ms2_entry):
 
 class Ms2Loader(BaseFile):
 
-	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.assign_ss_entry(file_entry)
+	def collect(self):
+		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
-		self.ovs = ovl.static_archive.content
 		if not is_old(self.ovl):
 			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
 			# print(self.sized_str_entry.fragments)
 			# second pass: collect model fragments
 			versions = get_versions(self.ovl)
 			if ss_pointer.data_size != 24:
-				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {file_entry.name}")
+				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {self.file_entry.name}")
 			if self.sized_str_entry.fragments[2].pointers[1].data not in (struct.pack("<ii", -1, 0), b""):
 				logging.warning(
-					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {file_entry.name}")
+					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {self.file_entry.name}")
 			# print(self.sized_str_entry.fragments[2].pointers[1].address, self.sized_str_entry.fragments[2].pointers[1].data)
 
 			# assign the mdl2 frags to their sized str entry
@@ -285,21 +283,19 @@ class Ms2Loader(BaseFile):
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(model_data_ptr.pointers[1],
 																  core_model_info.num_models)
 
-	def create(self, ovs, file_entry):
-		self.ovs = ovs
-		self.ovl = ovs.ovl
+	def create(self):
 		ms2_file = Ms2File()
-		ms2_file.load(file_entry.path, read_bytes=True)
+		ms2_file.load(self.file_entry.path, read_bytes=True)
 
-		ms2_entry = self.create_ss_entry(file_entry)
+		ms2_entry = self.create_ss_entry(self.file_entry)
 		ms2_entry.children = []
 
-		versions = get_versions(ovs.ovl)
+		versions = get_versions(self.ovl)
 
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()
 
-		ms2_dir, ms2_basename = os.path.split(file_entry.path)
+		ms2_dir, ms2_basename = os.path.split(self.file_entry.path)
 		mdl2_names = [f for f in os.listdir(ms2_dir) if f.lower().endswith(".mdl2")]
 		mdl2s = []
 		for mdl2_name in mdl2_names:

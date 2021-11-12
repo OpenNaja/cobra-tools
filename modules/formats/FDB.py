@@ -3,54 +3,41 @@ import struct
 from modules.formats.BaseFormat import BaseFile
 
 
-def write_fdb(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
-	name = sized_str_entry.name
-	print("\nWriting", name)
-
-	try:
-		buff = sized_str_entry.data_entry.buffer_datas[1]
-	except:
-		print("Found no buffer data for", name)
-		return
-	out_path = out_dir(name)
-	with open(out_path, 'wb') as outfile:
-		# write the buffer, only buffer 1
-		# buffer 0 is just the bare file name, boring
-		# sizedstr data is just size of the buffer
-		outfile.write(buff)
-	return out_path,
-
-
-def load_fdb(ovl_data, fdb_file_path, fdb_sized_str_entry, fdb_name):
-	# read fdb
-	# inject fdb buffers
-	# update sized string
-
-	with open(fdb_file_path, "rb") as fdb_stream:
-		# load the new buffers
-		buffer1_bytes = fdb_stream.read()
-		buffer0_bytes = fdb_name.encode()
-		# update the buffers
-		fdb_sized_str_entry.data_entry.update_data( (buffer0_bytes, buffer1_bytes) )
-		# update the sizedstring entry
-		data = struct.pack("<8I", len(buffer1_bytes), 0, 0, 0, 0, 0, 0, 0)
-		fdb_sized_str_entry.pointers[0].update_data(data, update_copies=True)
-
-
 class FdbLoader(BaseFile):
 
-	def create(self, ovs, file_entry):
-		self.ovs = ovs
-		dbuffer = self.get_content(file_entry.path)
-		file_name_bytes = file_entry.basename.encode(encoding='utf8')
+	def create(self):
+		ss, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()
-		pool.data.write(struct.pack("I28s", len(dbuffer), b''))
-		new_ss = self.create_ss_entry(file_entry)
-		new_ss.pointers[0].pool_index = pool_index
-		new_ss.pointers[0].data_offset = offset
-		new_data = self.create_data_entry(new_ss, (file_name_bytes, dbuffer))
-		# new_data.set_index = 0
+		pool.data.write(ss)
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		self.sized_str_entry.pointers[0].pool_index = pool_index
+		self.sized_str_entry.pointers[0].data_offset = offset
+		self.create_data_entry(self.sized_str_entry, (buffer_0, buffer_1))
 
-	def collect(self, ovl, file_entry):
-		pass
+	def collect(self):
+		self.assign_ss_entry()
+
+	def load(self, file_path):
+		ss, buffer_0, buffer_1 = self._get_data(file_path)
+		self.sized_str_entry.data_entry.update_data((buffer_0, buffer_1))
+		self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
+
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		name = self.sized_str_entry.name
+		try:
+			buff = self.sized_str_entry.data_entry.buffer_datas[1]
+		except:
+			print("Found no buffer data for", name)
+			return
+		out_path = out_dir(name)
+		with open(out_path, 'wb') as outfile:
+			outfile.write(buff)
+		return out_path,
+
+	def _get_data(self, file_path):
+		"""Loads and returns the data for an FDB"""
+		buffer_0 = self.file_entry.basename.encode(encoding='utf8')
+		buffer_1 = self.get_content(file_path)
+		ss = struct.pack("I28s", len(buffer_1), b'')
+		return ss, buffer_0, buffer_1

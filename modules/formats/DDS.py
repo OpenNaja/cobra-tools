@@ -270,7 +270,7 @@ def load_dds(ovl_data, dds_file_path, tex_sized_str_entry, hack_2k):
 	# read archive tex header to make sure we have the right mip count
 	# even when users import DDS with mips when it should have none
 	if hack_2k:
-		ovs_sized_str_entry = ovl_data.assign_ss_entry(f"{tex_sized_str_entry.basename}_lod0.texturestream")
+		ovs_sized_str_entry = ovl_data.get_sized_str_entry(f"{tex_sized_str_entry.basename}_lod0.texturestream")
 		tex_to_2K(tex_sized_str_entry, ovs_sized_str_entry)
 
 	# load dds

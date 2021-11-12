@@ -12,12 +12,12 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 	def collect(self, ovl, file_entry):
 		self.ovl = ovl
 		self.ovs = ovl.static_archive.content
-		self.assign_ss_entry(file_entry)
+		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
 		_, count = unpack("<QQ", ss_pointer.data)
 		logging.debug(ss_pointer.data)
 		logging.debug(f"{file_entry.name} has {count} entries")
-		self.assign_fixed_frags(ovl, file_entry, 1)
+		self.assign_fixed_frags(1)
 		frag = self.sized_str_entry.fragments[0]
 		logging.debug(frag)
 		p1 = frag.pointers[1]

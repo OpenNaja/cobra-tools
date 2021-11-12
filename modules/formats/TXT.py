@@ -1,52 +1,44 @@
 import struct
-
 from generated.formats.ovl.versions import is_dla
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_padding
-from modules.helpers import zstr
-
-
-def write_txt(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
-	# a bare sized str
-	# print("write txt")
-	b = sized_str_entry.pointers[0].data
-	# print(b)
-	if is_dla(ovl):
-		# not sure, not standard sized strings
-		size, unk = struct.unpack("<2B", b[:2])
-		data = b[2:2+size*2]
-	else:
-		size = struct.unpack("<I", b[:4])[0]
-		data = b[4:4+size]
-	out_path = out_dir(sized_str_entry.name)
-	with open(out_path, "wb") as f:
-		f.write(data)
-	return out_path,
-
-
-def load_txt(ovl_data, txt_file_path, txt_sized_str_entry):
-	txt_pointer = txt_sized_str_entry.pointers[0]
-	with open(txt_file_path, 'rb') as stream:
-		raw_txt_bytes = stream.read()
-		data = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + b"\x00"
-	# make sure all are updated, and pad to 8 bytes
-	txt_pointer.update_data(data, update_copies=True, pad_to=8)
 
 
 class TxtLoader(BaseFile):
 
-	def create(self, ovs, file_entry):
-		self.ovs = ovs
-		dbuffer = self.get_content(file_entry.path)
+	def create(self):
+		ss = self._get_data(self.file_entry.path)
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()
-		new_ss = self.create_ss_entry(file_entry)
-		new_ss.pointers[0].pool_index = pool_index
-		new_ss.pointers[0].data_offset = offset
-		data = struct.pack("I", len(dbuffer)) + zstr(dbuffer)
-		pool.data.write(data + get_padding(len(data), alignment=8))
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		self.sized_str_entry.pointers[0].pool_index = pool_index
+		self.sized_str_entry.pointers[0].data_offset = offset
+		pool.data.write(ss)
 		pool.num_files += 1
 
-	def collect(self, ovl, file_entry):
-		# no fragments
-		pass
+	def collect(self):
+		self.assign_ss_entry()
+	
+	def load(self, file_path):
+		ss = self._get_data(file_path)
+		self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
+
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		b = self.sized_str_entry.pointers[0].data
+		if is_dla(self.ovl):
+			# not sure, not standard sized strings
+			size, unk = struct.unpack("<2B", b[:2])
+			data = b[2:2+size*2]
+		else:
+			size = struct.unpack("<I", b[:4])[0]
+			data = b[4:4+size]
+		out_path = out_dir(self.sized_str_entry.name)
+		with open(out_path, "wb") as f:
+			f.write(data)
+		return out_path,
+
+	def _get_data(self, file_path):
+		"""Loads and returns the data for a TXT"""
+		raw_txt_bytes = self.get_content(file_path)
+		ss = struct.pack("<I", len(raw_txt_bytes)) + raw_txt_bytes + b"\x00"
+		return ss + get_padding(len(ss), alignment=8)
