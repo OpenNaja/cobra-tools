@@ -6,17 +6,15 @@ from modules.formats.BaseFormat import BaseFile
 
 class AnimalresearchunlockssettingsLoader(BaseFile):
 
-	def create(self, ovs, file_entry):
+	def create(self):
 		pass
 
-	def collect(self, ovl, file_entry):
-		self.ovl = ovl
-		self.ovs = ovl.static_archive.content
+	def collect(self):
 		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
 		_, count = unpack("<QQ", ss_pointer.data)
 		logging.debug(ss_pointer.data)
-		logging.debug(f"{file_entry.name} has {count} entries")
+		logging.debug(f"{self.file_entry.name} has {count} entries")
 		self.assign_fixed_frags(1)
 		frag = self.sized_str_entry.fragments[0]
 		logging.debug(frag)
