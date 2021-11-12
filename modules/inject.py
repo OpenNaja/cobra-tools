@@ -3,7 +3,6 @@ import shutil
 import logging
 
 from modules.formats.BNK import load_wem
-from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
 from modules.helpers import split_path
 
@@ -30,14 +29,6 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			# update the file path to the temp file with flipped channels or rebuilt array
 			file_path = out_path
 			name_ext, name, ext = split_path(file_path)
-		# image files are stored as tex files in the archive
-		if ext in (".dds", ".png"):
-			name_ext = name+".tex"
-		elif ext == ".matcol":
-			name_ext = name+".materialcollection"
-		elif ext == ".otf" or ext == ".ttf":
-			name_ext = name[:-1]
-			ext = ".fct"
 		if ext == ".wem":
 			bnk_name, wem_name = name.rsplit("_", 1)
 			name_ext = bnk_name + ".bnk"
@@ -50,11 +41,7 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			# ignore this file for injection
 			continue
 		# do the actual injection, varies per file type
-		if ext == ".png":
-			load_png(ovl, file_path, sized_str_entry, show_temp_files, hack_2k)
-		elif ext == ".dds":
-			load_dds(ovl, file_path, sized_str_entry, hack_2k)
-		elif ext == ".wem":
+		if ext == ".wem":
 			load_wem(ovl, file_path, sized_str_entry, bnk_name, wem_name)
 		elif ext == ".fct":
 			load_fct(ovl, file_path, sized_str_entry, name[-1])
