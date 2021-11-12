@@ -35,40 +35,42 @@ REVERSED_TYPES = (
 
 
 def get_loader(ext, ovl, file_entry):
+	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.ASSETPKG import AssetpkgLoader
-	from modules.formats.MS2 import Ms2Loader
-	from modules.formats.LUA import LuaLoader
-	from modules.formats.TXT import TxtLoader
+	from modules.formats.ENUMNAMER import EnumnamerLoader
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.FGM import FgmLoader
-	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
-	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
-	from modules.formats.SPECDEF import SpecdefLoader
+	from modules.formats.LUA import LuaLoader
 	from modules.formats.MATCOL import MatcolLoader
-	from modules.formats.MATLAYERS import MatlayersLoader
-	from modules.formats.MATLAYERS import MatvarsLoader
-	from modules.formats.MATLAYERS import MatpatsLoader
 	from modules.formats.MATLAYERS import MateffsLoader
+	from modules.formats.MATLAYERS import MatlayersLoader
+	from modules.formats.MATLAYERS import MatpatsLoader
+	from modules.formats.MATLAYERS import MatvarsLoader
+	from modules.formats.MS2 import Ms2Loader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
-	from modules.formats.ENUMNAMER import EnumnamerLoader
+	from modules.formats.SPECDEF import SpecdefLoader
+	from modules.formats.TXT import TxtLoader
+	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
+	from modules.formats.VOXELSKIRT import VoxelskirtLoader
 	ext_2_class = {
+		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".assetpkg": AssetpkgLoader,
-		".ms2": Ms2Loader,
-		".lua": LuaLoader,
-		".txt": TxtLoader,
+		".dinosaurmaterialeffects": MateffsLoader,
+		".dinosaurmateriallayers": MatlayersLoader,
+		".dinosaurmaterialpatterns": MatpatsLoader,
+		".dinosaurmaterialvariants": MatvarsLoader,
+		".enumnamer": EnumnamerLoader,
 		".fdb": FdbLoader,
 		".fgm": FgmLoader,
-		".userinterfaceicondata": UserinterfaceicondataLoader,
-		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
-		".specdef": SpecdefLoader,
-		".enumnamer": EnumnamerLoader,
-		".motiongraphvars": EnumnamerLoader,
+		".lua": LuaLoader,
 		".materialcollection": MatcolLoader,
-		".dinosaurmateriallayers": MatlayersLoader,
-		".dinosaurmaterialvariants": MatvarsLoader,
-		".dinosaurmaterialpatterns": MatpatsLoader,
-		".dinosaurmaterialeffects": MateffsLoader,
+		".motiongraphvars": EnumnamerLoader,
+		".ms2": Ms2Loader,
 		".scaleformlanguagedata": ScaleformLoader,
+		".specdef": SpecdefLoader,
+		".txt": TxtLoader,
+		".userinterfaceicondata": UserinterfaceicondataLoader,
+		".voxelskirt": VoxelskirtLoader,
 	}
 	cls = ext_2_class.get(ext, None)
 	if cls:
@@ -963,6 +965,7 @@ class OvlFile(Header, IoFile):
 
 	def inject(self, file_paths, show_temp_files, hack_2k):
 		"""Inject files into archive"""
+		logging.info(f"Injecting {len(file_paths)} files...")
 		error_files = []
 		# key with name+ext
 		_files_dict = {file.name: file for file in self.files}

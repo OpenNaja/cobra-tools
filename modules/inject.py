@@ -6,7 +6,6 @@ from modules.formats.BNK import load_wem
 from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
 from modules.formats.MATCOL import load_materialcollection
-from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
 from modules.formats.USERINTERFACEICONDATA import load_userinterfaceicondata
 from modules.helpers import split_path
@@ -68,8 +67,6 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			load_fct(ovl, file_path, sized_str_entry, name[-1])
 		elif ext == ".userinterfaceicondata":
 			load_userinterfaceicondata(ovl, file_path, sized_str_entry)
-		elif ext == ".voxelskirt":
-			load_voxelskirt(ovl, file_path, sized_str_entry)
 		else:
 			logging.warning(f"Skipping injection of {file_path} because its extension is not supported.")
 	shutil.rmtree(tmp_dir)

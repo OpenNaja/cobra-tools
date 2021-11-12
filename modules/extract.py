@@ -12,7 +12,6 @@ from modules.formats.FCT import write_fct
 from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MOTIONGRAPHVARS import write_motiongraphvars
-from modules.formats.VOXELSKIRT import write_voxelskirt
 from modules.formats.XMLCONFIG import write_xmlconfig
 from modules.formats.SCALEFORMLANGUAGEDATA import write_scaleformlanguagedata
 from modules.formats.USERINTERFACEICONDATA import write_userinterfaceicondata
