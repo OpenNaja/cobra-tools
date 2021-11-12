@@ -33,6 +33,8 @@ REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
 	".txt")
 
+aliases = {".matcol": ".materialcollection"}
+
 
 def get_loader(ext, ovl, file_entry):
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
@@ -975,6 +977,8 @@ class OvlFile(Header, IoFile):
 		for file_index, file_path in enumerate(file_paths):
 			self.progress_callback("Injecting...", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
+			if ext in aliases:
+				name_ext = name_ext.replace(ext, aliases[ext])
 			try:
 				file = _files_dict[name_ext]
 				file.loader.load(file_path)
