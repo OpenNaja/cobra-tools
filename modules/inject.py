@@ -7,7 +7,6 @@ from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
 from modules.formats.MATCOL import load_materialcollection
 from modules.formats.XMLCONFIG import load_xmlconfig
-from modules.formats.USERINTERFACEICONDATA import load_userinterfaceicondata
 from modules.helpers import split_path
 
 from ovl_util import imarray, interaction

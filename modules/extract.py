@@ -14,7 +14,6 @@ from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MOTIONGRAPHVARS import write_motiongraphvars
 from modules.formats.XMLCONFIG import write_xmlconfig
 from modules.formats.SCALEFORMLANGUAGEDATA import write_scaleformlanguagedata
-from modules.formats.USERINTERFACEICONDATA import write_userinterfaceicondata
 from ovl_util import widgets
 
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
