@@ -40,6 +40,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.LUA import LuaLoader
 	from modules.formats.TXT import TxtLoader
 	from modules.formats.FDB import FdbLoader
+	from modules.formats.FGM import FgmLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.SPECDEF import SpecdefLoader
@@ -55,6 +56,7 @@ def get_loader(ext, ovl, file_entry):
 		".lua": LuaLoader,
 		".txt": TxtLoader,
 		".fdb": FdbLoader,
+		".fgm": FgmLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".specdef": SpecdefLoader,
@@ -595,8 +597,6 @@ class OvsFile(OvsHeader):
 						sized_str_entry.fragments = self.frags_from_pointer(sized_str_entry.pointers[0], t)
 					except:
 						logging.error("fragment bug")
-				elif sized_str_entry.ext == ".fgm":
-					sized_str_entry.fragments = self.get_frag_after_terminator(sized_str_entry.pointers[0], (24, 32))
 				elif sized_str_entry.ext in (".enumnamer", ".motiongraphvars"):
 					self.collect_enumnamer(sized_str_entry)
 				elif sized_str_entry.ext == ".motiongraph":

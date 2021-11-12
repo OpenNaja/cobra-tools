@@ -10,7 +10,6 @@ from modules.formats.BNK import write_bnk
 from modules.formats.DDS import write_tex
 from modules.formats.ENUMNAMER import write_enumnamer
 from modules.formats.FCT import write_fct
-from modules.formats.FGM import write_fgm
 from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
 from modules.formats.MOTIONGRAPHVARS import write_motiongraphvars
