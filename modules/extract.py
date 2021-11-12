@@ -8,7 +8,6 @@ import modules.formats.shared
 from modules.formats.BANI import write_banis, write_bani
 from modules.formats.BNK import write_bnk
 from modules.formats.DDS import write_tex
-from modules.formats.ENUMNAMER import write_enumnamer
 from modules.formats.FCT import write_fct
 from modules.formats.MANI import write_manis
 from modules.formats.MATCOL import write_materialcollection
@@ -20,7 +19,6 @@ from modules.formats.USERINTERFACEICONDATA import write_userinterfaceicondata
 from ovl_util import widgets
 
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
-SUPPORTED_TYPES = (".dds", ".png", ".ms2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
 
 
 def extract_kernel(ovl, entry, out_dir_func, show_temp_files, progress_callback):

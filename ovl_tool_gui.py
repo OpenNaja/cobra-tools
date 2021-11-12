@@ -20,11 +20,13 @@ try:
 	logging.info(f"Running cobra-tools {get_version_str()}")
 
 	from ovl_util import widgets, interaction, qt_threads
-	from modules import extract, inject, hasher, walker, remover
+	from modules import hasher, walker, remover
 	from generated.formats.ovl import OvlFile, games, get_game, set_game
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
+
+SUPPORTED_TYPES = (".dds", ".png", ".ms2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
 
 
 class MainWindow(widgets.MainWindow):
@@ -35,7 +37,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 
-		self.filter = "Supported files ({})".format(" ".join("*" + t for t in extract.SUPPORTED_TYPES))
+		self.filter = "Supported files ({})".format(" ".join("*" + t for t in SUPPORTED_TYPES))
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 		self.file_widget.setToolTip("The name of the OVL file that is currently open.")

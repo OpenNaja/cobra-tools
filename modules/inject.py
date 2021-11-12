@@ -5,7 +5,6 @@ import logging
 from modules.formats.BNK import load_wem
 from modules.formats.DDS import load_png, load_dds
 from modules.formats.FCT import load_fct
-from modules.formats.FGM import load_fgm
 from modules.formats.MATCOL import load_materialcollection
 from modules.formats.VOXELSKIRT import load_voxelskirt
 from modules.formats.XMLCONFIG import load_xmlconfig
@@ -55,9 +54,7 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 			# ignore this file for injection
 			continue
 		# do the actual injection, varies per file type
-		if ext == ".fgm":
-			load_fgm(ovl, file_path, sized_str_entry)
-		elif ext == ".png":
+		if ext == ".png":
 			load_png(ovl, file_path, sized_str_entry, show_temp_files, hack_2k)
 		elif ext == ".dds":
 			load_dds(ovl, file_path, sized_str_entry, hack_2k)

@@ -50,6 +50,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.MATLAYERS import MatpatsLoader
 	from modules.formats.MATLAYERS import MateffsLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
+	from modules.formats.ENUMNAMER import EnumnamerLoader
 	ext_2_class = {
 		".assetpkg": AssetpkgLoader,
 		".ms2": Ms2Loader,
@@ -60,6 +61,8 @@ def get_loader(ext, ovl, file_entry):
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".specdef": SpecdefLoader,
+		".enumnamer": EnumnamerLoader,
+		".motiongraphvars": EnumnamerLoader,
 		".materialcollection": MatcolLoader,
 		".dinosaurmateriallayers": MatlayersLoader,
 		".dinosaurmaterialvariants": MatvarsLoader,
@@ -516,17 +519,6 @@ class OvsFile(OvsHeader):
 
 	def frags_for_pointer(self, p):
 		return self.pools[p.pool_index].fragments
-
-	def collect_enumnamer(self, ss_entry):
-		# Sized string initpos = position of first fragment
-		ss_entry.fragments = self.frags_from_pointer(ss_entry.pointers[0], 1)
-		count, _ = struct.unpack("<2I", ss_entry.pointers[0].data)
-		ss_entry.vars = self.frags_from_pointer(ss_entry.fragments[0].pointers[1], count)
-		# pointers[1].data is the name
-		for var in ss_entry.vars:
-			var.pointers[1].strip_zstring_padding()
-		# The last fragment has padding that may be junk data to pad the size of the name block to multiples of 64
-		ss_entry.fragments.extend(ss_entry.vars)
 
 	def collect_motiongraph(self, ss_entry):
 		# Sized string initpos = position of first fragment
