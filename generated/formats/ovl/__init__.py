@@ -30,7 +30,8 @@ from modules.formats.shared import get_versions, djb, assign_versions, get_paddi
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 REVERSED_TYPES = (
-	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection", ".txt")
+	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
+	".txt")
 
 
 def get_loader(ext, ovl):
@@ -191,11 +192,11 @@ class OvsFile(OvsHeader):
 		logging.debug(f"Game: {get_game(self.ovl)}")
 		self.header_name_finder()
 		entry_lists = [
-					self.pools,
-					self.sized_str_entries,
-					self.data_entries,
-					self.set_header.sets,
-					self.set_header.assets]
+			self.pools,
+			self.sized_str_entries,
+			self.data_entries,
+			self.set_header.sets,
+			self.set_header.assets]
 		if is_pz16(self.ovl) or is_jwe2(self.ovl):
 			entry_lists.append(self.buffer_entries)
 		for entry_list in entry_lists:
@@ -461,28 +462,25 @@ class OvsFile(OvsHeader):
 				for x in range(self.new_entries[-1].buffer_index + 1):
 					self.new_entries[-1 - x].data_count = len(self.data_entries) - self.new_entries[-1 - x].data_offset
 
-	def frags_accumulate(self, p, d_size):
+	def frags_accumulate(self, p, d_size, frags=None):
 		# get frags whose pointers 0 datas together occupy d_size bytes
 		fs = []
-		while sum((f.pointers[0].data_size for f in fs)) < d_size:
-			# frags = self.frags_for_pointer(p)
-			# frags = self.fragments
-			# the frag list crosses header borders at Deinonychus_events, so use full frag list
-			# -> exceedingly slow
-			fs.extend(self.get_frags_after_count(self.fragments, p.data_offset, 1))
+		# the frag list crosses header borders at Deinonychus_events, so use full frag list
+		if frags is None:
+			frags = self.fragments
+		for frag in frags:
+			if frag.done:
+				continue
+			if sum((f.pointers[0].data_size for f in fs)) >= d_size:
+				# we now have the data size that we need
+				break
+			if frag.pointers[0].data_offset >= p.data_offset:
+				frag.done = True
+				fs.append(frag)
 		return fs
-        
+
 	def frags_accumulate_from_pointer(self, p, d_size):
-		# get frags whose pointers 0 datas together occupy d_size bytes
-		fs = []
-		frags = self.frags_for_pointer(p)
-		while sum((f.pointers[0].data_size for f in fs)) < d_size:
-			# frags = self.frags_for_pointer(p)
-			# frags = self.fragments
-			# the frag list crosses header borders at Deinonychus_events, so use full frag list
-			# -> exceedingly slow
-			fs.extend(self.get_frags_after_count(frags, p.data_offset, 1))
-		return fs
+		return self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
 
 	def frags_from_pointer(self, ptr, count):
 		# print(ptr)
@@ -641,7 +639,7 @@ class OvsFile(OvsHeader):
 			# for buffer, data in zip(buffers, datas):
 			# 	buffer.index = b_group.buffer_index
 			# 	data.buffers.append(buffer)
-			#print(self.buffer_entries)
+			# print(self.buffer_entries)
 			# print(self.new_entries)
 			for data in self.data_entries:
 				data.streams = list(data.buffers)
@@ -658,7 +656,8 @@ class OvsFile(OvsHeader):
 					data.buffers.append(buffer)
 					buff_ind += 1
 				data.streams = list(data.buffers)
-		# print(self.buffer_entries)
+
+	# print(self.buffer_entries)
 
 	@property
 	def buffers_io_order(self):
@@ -691,7 +690,7 @@ class OvsFile(OvsHeader):
 	@staticmethod
 	def get_ptr_debug_str(entry, ind):
 		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name}"
-	
+
 	def dump_pools(self):
 		"""for debugging"""
 		logging.info(f"Dumping pools to {self.ovl.dir}")
@@ -705,7 +704,8 @@ class OvsFile(OvsHeader):
 		logging.info(f"Dumping buffer log to {buff_log_path}")
 		with open(buff_log_path, "w") as f:
 			for x, new_entry in enumerate(self.new_entries):
-				f.write(f"\n{new_entry.ext} {new_entry.buffer_offset} {new_entry.buffer_count} {new_entry.buffer_index} | {new_entry.size} {new_entry.data_offset} {new_entry.data_count} ")
+				f.write(
+					f"\n{new_entry.ext} {new_entry.buffer_offset} {new_entry.buffer_count} {new_entry.buffer_index} | {new_entry.size} {new_entry.data_offset} {new_entry.data_count} ")
 
 	def dump_frag_log(self):
 		"""for development; collect info about fragment types"""
@@ -1163,10 +1163,10 @@ class OvlFile(Header, IoFile):
 			h = dependency_entry.file_hash
 			if h in self.hash_table_local:
 				dependency_entry.basename = self.hash_table_local[h]
-				# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
+			# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
 			elif h in self.hash_table_global:
 				dependency_entry.basename = self.hash_table_global[h]
-				# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
+			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
 				logging.warning(f"UNRESOLVED DEPENDENCY: {h} -> ?")
 				dependency_entry.basename = "bad hash"
@@ -1381,7 +1381,7 @@ class OvlFile(Header, IoFile):
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-						# sized_str_entry.streams.append(other_sizedstr)
+					# sized_str_entry.streams.append(other_sizedstr)
 			if sized_str_entry.ext == ".ms2":
 				for lod_i in range(4):
 					for archive in self.archives:
@@ -1391,8 +1391,9 @@ class OvlFile(Header, IoFile):
 							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
 								# print("model2stream")
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-						# sized_str_entry.streams.append(other_sizedstr)
-		# print(sized_str_entry.data_entry.buffers)
+					# sized_str_entry.streams.append(other_sizedstr)
+
+	# print(sized_str_entry.data_entry.buffers)
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
@@ -1540,6 +1541,8 @@ class OvlFile(Header, IoFile):
 			# grab and update size
 			if os.path.isfile(bnkpath):
 				aux.size = os.path.getsize(bnkpath)
+
+
 # print(aux.size)
 
 
