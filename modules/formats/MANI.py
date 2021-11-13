@@ -1,7 +1,6 @@
 import logging
 import struct
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import pack_header
 
 
 class ManisLoader(BaseFile):
@@ -18,7 +17,7 @@ class ManisLoader(BaseFile):
 		# print(len(ss_data), ss_data)
 		buffers = self.sized_str_entry.data_entry.buffer_datas
 		# print(len(buffers))
-		ovl_header = pack_header(self.ovl, b"MANI")
+		ovl_header = self.pack_header(b"MANI")
 		manis_header = struct.pack("<I", len(self.sized_str_entry.children))
 	
 		# sizedstr data + 3 buffers

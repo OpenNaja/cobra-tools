@@ -8,7 +8,7 @@ from generated.formats.ms2 import Mdl2File, Ms2File, is_old
 
 from generated.formats.ovl.versions import *
 
-from modules.formats.shared import pack_header, get_versions, get_padding
+from modules.formats.shared import get_versions, get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import write_sized_str, as_bytes
 from ovl_util import interaction
@@ -246,7 +246,7 @@ class Ms2Loader(BaseFile):
 		# ms2_general_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
 		# print("Ms2SizedStrData", self.sized_str_entry.pointers[0].address, ms2_general_info)
 	
-		ovl_header = pack_header(self.ovl, b"MS2 ")
+		ovl_header = self.pack_header(b"MS2 ")
 		ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
 	
 		# for i, buffer in enumerate(buffers):

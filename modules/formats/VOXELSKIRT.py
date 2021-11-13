@@ -1,6 +1,5 @@
 from generated.formats.voxelskirt import VoxelskirtFile
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import pack_header
 
 
 class VoxelskirtLoader(BaseFile):
@@ -15,7 +14,7 @@ class VoxelskirtLoader(BaseFile):
 		name = self.sized_str_entry.name
 		print(f"\nWriting {name}")
 
-		ovl_header = pack_header(self.ovl, b"VOXE")
+		ovl_header = self.pack_header(b"VOXE")
 		out_path = out_dir(name)
 		buffers = self.sized_str_entry.data_entry.buffer_datas
 		# write voxelskirt

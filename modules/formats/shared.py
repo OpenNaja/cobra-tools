@@ -15,10 +15,6 @@ def rgetattr(obj, attr, *args):
 	return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 
-def pack_header(ovl, fmt_name):
-	return struct.pack("<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
-
-
 def get_versions(ovl):
 	# dynamically get the versions
 	return {k: v for k, v in ((k, rgetattr(ovl, k, None)) for k in VERSION_FIELDS if rgetattr(ovl, k, None) is not None)}

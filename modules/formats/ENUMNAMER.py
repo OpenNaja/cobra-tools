@@ -1,6 +1,5 @@
 import struct
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import pack_header
 
 
 class EnumnamerLoader(BaseFile):
@@ -27,7 +26,7 @@ class EnumnamerLoader(BaseFile):
 		name = self.sized_str_entry.name
 		print(f"\nWriting {name}")
 
-		ovl_header = pack_header(self.ovl, b"ENUM")
+		ovl_header = self.pack_header(b"ENUM")
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
 			outfile.write(ovl_header)

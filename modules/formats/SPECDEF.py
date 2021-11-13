@@ -1,5 +1,4 @@
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import pack_header
 import struct
 
 
@@ -43,7 +42,7 @@ class SpecdefLoader(BaseFile):
 		name = self.sized_str_entry.name
 		print(f"\nWriting {name}")
 
-		ovl_header = pack_header(self.ovl, b"SPEC")
+		ovl_header = self.pack_header(b"SPEC")
 		out_path = out_dir(name)
 
 		# save .bin data

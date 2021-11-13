@@ -1,4 +1,4 @@
-
+import struct
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.MemPool import MemPool
@@ -22,6 +22,11 @@ class BaseFile:
 
 	def collect(self):
 		raise NotImplementedError
+
+	def pack_header(self, fmt_name):
+		ovl = self.ovl
+		return struct.pack(
+			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
 
 	def assign_ss_entry(self):
 		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)

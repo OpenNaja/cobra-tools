@@ -1,7 +1,7 @@
 import struct
 
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import pack_header, get_versions, djb
+from modules.formats.shared import get_versions, djb
 from modules.helpers import as_bytes
 from generated.formats.fgm import FgmFile
 
@@ -93,7 +93,7 @@ class FgmLoader(BaseFile):
 		# 		outfile.write( f.pointers[1].data )
 		with open(out_path, 'wb') as outfile:
 			# write custom FGM header
-			outfile.write(pack_header(self.ovl, b"FGM "))
+			outfile.write(self.pack_header(b"FGM "))
 			outfile.write(fgm_header)
 			for tex in self.file_entry.dependencies:
 				outfile.write(tex.basename.encode())
