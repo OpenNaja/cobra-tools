@@ -1,3 +1,4 @@
+import logging
 import struct
 
 from generated.formats.ovl.versions import is_pc
@@ -18,7 +19,7 @@ class ScaleformLoader(BaseFile):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		print(f"\nWriting {name}")
+		logging.info(f"Writing {name}")
 
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:

@@ -1,3 +1,4 @@
+import logging
 import struct
 from modules.formats.BaseFormat import BaseFile
 
@@ -24,7 +25,7 @@ class EnumnamerLoader(BaseFile):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		print(f"\nWriting {name}")
+		logging.info(f"Writing {name}")
 
 		ovl_header = self.pack_header(b"ENUM")
 		out_path = out_dir(name)
