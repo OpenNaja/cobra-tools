@@ -466,8 +466,13 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				self.ovl_data.inject(files, self.show_temp_files, self.write_2K)
+				error_files, foreign_files = self.ovl_data.inject(files, self.show_temp_files, self.write_2K)
 				self.file_widget.dirty = True
+				if foreign_files:
+					for name_ext in foreign_files:
+						if interaction.showdialog(f"Do you want to add {name_ext} to this ovl?", ask=True):
+							logging.info(f"Adding new file {name_ext}")
+							# todo - new function to add to existing ovl
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))

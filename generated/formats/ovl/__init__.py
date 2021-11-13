@@ -921,6 +921,7 @@ class OvlFile(Header, IoFile):
 		"""Inject files into archive"""
 		logging.info(f"Injecting {len(file_paths)} files...")
 		error_files = []
+		foreign_files = []
 		# key with name+ext
 		_files_dict = {file.name: file for file in self.files}
 
@@ -930,8 +931,13 @@ class OvlFile(Header, IoFile):
 			name_ext, name, ext = split_path(file_path)
 			if ext in aliases:
 				name_ext = name_ext.replace(ext, aliases[ext])
+			# check if this file exists in this ovl
+			if name_ext.lower() in _files_dict:
+				file = _files_dict[name_ext.lower()]
+			else:
+				foreign_files.append(name_ext)
+				continue
 			try:
-				file = _files_dict[name_ext]
 				file.loader.load(file_path)
 			except BaseException as error:
 				logging.error(f"An exception occurred while injecting {name_ext}")
@@ -940,7 +946,7 @@ class OvlFile(Header, IoFile):
 				error_files.append(name_ext)
 		self.progress_callback("Injection completed!", value=1, vmax=1)
 
-		return error_files
+		return error_files, foreign_files
 
 	def create_file(self, file_path):
 		"""Create a file entry from a file path"""
