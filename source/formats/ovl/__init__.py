@@ -50,6 +50,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.ASSETPKG import AssetpkgLoader
 	from modules.formats.BANI import BanisLoader
+	from modules.formats.BNK import BnkLoader
 	from modules.formats.DDS import DdsLoader
 	from modules.formats.ENUMNAMER import EnumnamerLoader
 	from modules.formats.FCT import FctLoader
@@ -74,6 +75,7 @@ def get_loader(ext, ovl, file_entry):
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".assetpkg": AssetpkgLoader,
 		".banis": BanisLoader,
+		".bnk": BnkLoader,
 		".dinosaurmaterialeffects": MateffsLoader,
 		".dinosaurmateriallayers": MatlayersLoader,
 		".dinosaurmaterialpatterns": MatpatsLoader,
