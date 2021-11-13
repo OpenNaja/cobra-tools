@@ -21,7 +21,7 @@ def has_components(png_file_path):
 		"playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture",
 		"markingbaldnessscartexture", "markingscartexture", "pflexicolourmaskssamplertexture",
 		"pmetalsmoothnesscavitysamplertexture", "pmetalsmoothnesscavityopacitysamplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture"), png_file_path)
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture"), png_file_path)
 
 
 def has_vectors(png_file_path):

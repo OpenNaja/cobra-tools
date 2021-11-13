@@ -8,6 +8,7 @@ from modules.helpers import split_path
 from ovl_util import imarray, interaction
 
 
+
 def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 	logging.info(f"Injecting {len(file_paths)}")
 	# write modified version to tmp dir

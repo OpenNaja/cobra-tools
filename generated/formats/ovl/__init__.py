@@ -1,6 +1,8 @@
 import os
 import itertools
+import shutil
 import struct
+import tempfile
 import zlib
 import io
 import time
@@ -9,6 +11,7 @@ import logging
 from contextlib import contextmanager
 
 from hashes import constants_pz
+from ovl_util import imarray
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile, BinaryStream
@@ -923,14 +926,32 @@ class OvlFile(Header, IoFile):
 
 		return out_paths, error_files, skip_files
 
+	def preprocess_files(self, file_paths, tmp_dir):
+		"""Check the files that should be injected and piece them back together"""
+		out_file_paths = []
+		for file_path in file_paths:
+			name_ext, name, ext = split_path(file_path)
+			if ext == ".png":
+				out_path = imarray.inject_wrapper(file_path, out_file_paths, tmp_dir)
+				# skip dupes and bad files
+				if not out_path:
+					logging.warning(f"Skipping injection of {file_path}")
+					continue
+				# update the file path to the temp file with flipped channels or rebuilt array
+				file_path = out_path
+			out_file_paths.append(file_path)
+		return out_file_paths
+
 	def inject(self, file_paths, show_temp_files):
 		"""Inject files into archive"""
 		logging.info(f"Injecting {len(file_paths)} files...")
+		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		error_files = []
 		foreign_files = []
 		# key with name+ext
 		_files_dict = {file.name.lower(): file for file in self.files}
-
+		# handle dupes and piece separated files back together
+		file_paths = self.preprocess_files(file_paths, tmp_dir)
 		for file_index, file_path in enumerate(file_paths):
 			self.progress_callback("Injecting...", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
@@ -950,8 +971,8 @@ class OvlFile(Header, IoFile):
 				logging.error(error)
 				traceback.print_exc()
 				error_files.append(name_ext)
+		shutil.rmtree(tmp_dir)
 		self.progress_callback("Injection completed!", value=1, vmax=1)
-
 		return error_files, foreign_files
 
 	def create_file(self, file_path):
