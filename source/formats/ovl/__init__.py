@@ -62,6 +62,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.MATLAYERS import MatlayersLoader
 	from modules.formats.MATLAYERS import MatpatsLoader
 	from modules.formats.MATLAYERS import MatvarsLoader
+	from modules.formats.MOTIONGRAPHVARS import MotiongraphvarsLoader
 	from modules.formats.MS2 import Ms2Loader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
@@ -84,7 +85,7 @@ def get_loader(ext, ovl, file_entry):
 		".lua": LuaLoader,
 		".manis": ManisLoader,
 		".materialcollection": MatcolLoader,
-		".motiongraphvars": EnumnamerLoader,
+		".motiongraphvars": MotiongraphvarsLoader,
 		".ms2": Ms2Loader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,

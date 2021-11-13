@@ -37,6 +37,3 @@ class EnumnamerLoader(BaseFile):
 				# print(f.pointers[1].data)
 				outfile.write(f.pointers[1].data)
 		return out_path,
-
-
-
