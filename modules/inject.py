@@ -3,7 +3,6 @@ import shutil
 import logging
 
 from modules.formats.BNK import load_wem
-from modules.formats.FCT import load_fct
 from modules.helpers import split_path
 
 from ovl_util import imarray, interaction
@@ -43,8 +42,6 @@ def inject(ovl, file_paths, show_temp_files, hack_2k, progress_callback=None):
 		# do the actual injection, varies per file type
 		if ext == ".wem":
 			load_wem(ovl, file_path, sized_str_entry, bnk_name, wem_name)
-		elif ext == ".fct":
-			load_fct(ovl, file_path, sized_str_entry, name[-1])
 		else:
 			logging.warning(f"Skipping injection of {file_path} because its extension is not supported.")
 	shutil.rmtree(tmp_dir)

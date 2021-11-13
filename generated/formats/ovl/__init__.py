@@ -51,6 +51,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.BANI import BanisLoader
 	from modules.formats.DDS import DdsLoader
 	from modules.formats.ENUMNAMER import EnumnamerLoader
+	from modules.formats.FCT import FctLoader
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.FGM import FgmLoader
 	from modules.formats.LUA import LuaLoader
@@ -74,8 +75,8 @@ def get_loader(ext, ovl, file_entry):
 		".dinosaurmateriallayers": MatlayersLoader,
 		".dinosaurmaterialpatterns": MatpatsLoader,
 		".dinosaurmaterialvariants": MatvarsLoader,
-		".tex": DdsLoader,
 		".enumnamer": EnumnamerLoader,
+		".fct": FctLoader,
 		".fdb": FdbLoader,
 		".fgm": FgmLoader,
 		".lua": LuaLoader,
@@ -84,6 +85,7 @@ def get_loader(ext, ovl, file_entry):
 		".ms2": Ms2Loader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,
+		".tex": DdsLoader,
 		".txt": TxtLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
@@ -321,11 +323,6 @@ class OvsFile(OvsHeader):
 			for pointer in entry.pointers:
 				pointer.link_to_pool(self.pools)
 
-	def resolve_pointers(self):
-		"""Handle all of the pointer logic that goes beyond loading the pools"""
-		self.build_frag_lut()
-		self.map_frags()
-
 	def read_pools(self, stream):
 		for pool in self.pools:
 			pool.address = stream.tell()
@@ -345,7 +342,7 @@ class OvsFile(OvsHeader):
 			pool.fragments = []
 		# link into flattened list of fragments
 		for frag_i, frag in enumerate(self.fragments):
-			# we assign these later during map_frags or when the loader classes run collect()
+			# we assign these later when the loader classes run collect()
 			frag.done = False
 			frag.name = None
 			ptr = frag.pointers[0]
@@ -538,36 +535,6 @@ class OvsFile(OvsHeader):
 
 	def frags_for_pointer(self, p):
 		return self.pools[p.pool_index].fragments
-
-	def map_frags(self):
-		if not self.fragments:
-			return
-		logging.info(f"Mapping SizedStrs to {len(self.fragments)} Fragments")
-
-		dic = {
-			# ".hier": ( (4,6) for x in range(19) ),
-			".spl": 1,
-			# ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
-		}
-		# include formats that are known to have no fragments
-		no_frags = (".txt", ".mani", ".manis",)
-		ss_max = len(self.sized_str_entries)
-		for ss_index, sized_str_entry in enumerate(self.sized_str_entries):
-			if sized_str_entry.ext in no_frags:
-				continue
-			self.ovl.print_and_callback("Collecting fragments", value=ss_index, max_value=ss_max)
-			logging.debug(f"Collecting fragments for {sized_str_entry.name}")
-			try:
-				# get fixed fragments
-				if sized_str_entry.ext in dic:
-					t = dic[sized_str_entry.ext]
-					# get and set fragments
-					try:
-						sized_str_entry.fragments = self.frags_from_pointer(sized_str_entry.pointers[0], t)
-					except:
-						logging.error("fragment bug")
-			except Exception as err:
-				logging.error(err)
 
 	def assign_frag_names(self):
 		# for debugging only:
@@ -1308,7 +1275,7 @@ class OvlFile(Header, IoFile):
 				logging.warning(f"Unexpected data for dependency ptr {dep.name}: {dep.pointers[0].data}")
 		for archive_entry in self.archives:
 			ovs = archive_entry.content
-			ovs.resolve_pointers()
+			ovs.build_frag_lut()
 
 	def calc_pointer_sizes(self):
 		"""Assign an estimated size to every pointer"""

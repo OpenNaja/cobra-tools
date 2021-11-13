@@ -6,7 +6,6 @@ import sys
 import ovl_util.interaction
 import modules.formats.shared
 from modules.formats.BNK import write_bnk
-from modules.formats.FCT import write_fct
 from modules.formats.MANI import write_manis
 from modules.formats.MOTIONGRAPHVARS import write_motiongraphvars
 from modules.formats.SCALEFORMLANGUAGEDATA import write_scaleformlanguagedata
