@@ -39,7 +39,7 @@ IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".m
 
 aliases = {
 	".matcol": ".materialcollection",
-	".png": ".text",
+	".png": ".tex",
 	".dds": ".tex",
 	".otf": ".fct",
 	".ttf": ".fct",
@@ -934,11 +934,12 @@ class OvlFile(Header, IoFile):
 		for file_index, file_path in enumerate(file_paths):
 			self.progress_callback("Injecting...", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
+			name_lower = name_ext.lower()
 			if ext in aliases:
-				name_ext = name_ext.replace(ext, aliases[ext])
+				name_lower = name_lower.replace(ext, aliases[ext])
 			# check if this file exists in this ovl
-			if name_ext.lower() in _files_dict:
-				file = _files_dict[name_ext.lower()]
+			if name_lower in _files_dict:
+				file = _files_dict[name_lower]
 			else:
 				foreign_files.append(name_ext)
 				continue

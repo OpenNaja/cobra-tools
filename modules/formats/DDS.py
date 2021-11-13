@@ -45,6 +45,7 @@ class DdsLoader(BaseFile):
 
 	def load(self, file_path):
 		# todo -handle different extensions
+		logging.debug(f"Loading image {file_path}")
 		# handle imarray processing
 		pass
 
