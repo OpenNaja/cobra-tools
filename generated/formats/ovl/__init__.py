@@ -917,7 +917,7 @@ class OvlFile(Header, IoFile):
 
 		return out_paths, error_files, skip_files
 
-	def inject(self, file_paths, show_temp_files, hack_2k):
+	def inject(self, file_paths, show_temp_files):
 		"""Inject files into archive"""
 		logging.info(f"Injecting {len(file_paths)} files...")
 		error_files = []

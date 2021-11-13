@@ -103,10 +103,6 @@ class MainWindow(widgets.MainWindow):
 			"By default, temporary files are converted to usable ones and back on the fly.")
 		self.t_show_temp_files.setChecked(False)
 
-		self.t_2K = QtWidgets.QCheckBox("Inject 2K")
-		self.t_2K.setToolTip("Experimental: Increase a JWE Diffuse or Normal map to 2048x2048 resolution.")
-		self.t_2K.setChecked(False)
-
 		self.sp_hash = QtWidgets.QCheckBox("New Species Hash")
 		self.sp_hash.setToolTip("Experimental")
 		self.sp_hash.setChecked(False)
@@ -290,10 +286,6 @@ class MainWindow(widgets.MainWindow):
 		return self.t_show_temp_files.isChecked()
 
 	@property
-	def write_2K(self, ):
-		return self.t_2K.isChecked()
-
-	@property
 	def species_hash(self, ):
 		return self.sp_hash.isChecked()
 
@@ -466,7 +458,7 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				error_files, foreign_files = self.ovl_data.inject(files, self.show_temp_files, self.write_2K)
+				error_files, foreign_files = self.ovl_data.inject(files, self.show_temp_files)
 				self.file_widget.dirty = True
 				if foreign_files:
 					for name_ext in foreign_files:
