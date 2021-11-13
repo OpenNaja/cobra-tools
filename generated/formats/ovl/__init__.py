@@ -923,7 +923,7 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		foreign_files = []
 		# key with name+ext
-		_files_dict = {file.name: file for file in self.files}
+		_files_dict = {file.name.lower(): file for file in self.files}
 
 		from modules.helpers import split_path
 		for file_index, file_path in enumerate(file_paths):
