@@ -67,6 +67,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.MATLAYERS import MatvarsLoader
 	from modules.formats.MOTIONGRAPHVARS import MotiongraphvarsLoader
 	from modules.formats.MS2 import Ms2Loader
+	from modules.formats.PREFAB import PrefabLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
 	from modules.formats.TXT import TxtLoader
@@ -91,6 +92,7 @@ def get_loader(ext, ovl, file_entry):
 		".materialcollection": MatcolLoader,
 		".motiongraphvars": MotiongraphvarsLoader,
 		".ms2": Ms2Loader,
+		".prefab": PrefabLoader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,
 		".tex": DdsLoader,
@@ -285,6 +287,7 @@ class OvsFile(OvsHeader):
 				sized_str_entry.children = []
 				sized_str_entry.fragments = []
 				sized_str_entry.model_data_frags = []
+				sized_str_entry.specdef_name_fragments = []
 				# get data entry for link to buffers, or none
 				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
 
