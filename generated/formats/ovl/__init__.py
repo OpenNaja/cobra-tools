@@ -11,7 +11,6 @@ import logging
 from contextlib import contextmanager
 
 from hashes import constants_pz
-from ovl_util import imarray
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile, BinaryStream
@@ -928,6 +927,8 @@ class OvlFile(Header, IoFile):
 
 	def preprocess_files(self, file_paths, tmp_dir):
 		"""Check the files that should be injected and piece them back together"""
+		# only import locally to avoid dependency on imageio for plugin
+		from ovl_util import imarray
 		out_file_paths = []
 		for file_path in file_paths:
 			name_ext, name, ext = split_path(file_path)
