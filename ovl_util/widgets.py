@@ -1,10 +1,9 @@
 import webbrowser
-from PyQt5 import QtGui, QtCore, QtWidgets
 import os
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 from ovl_util.interaction import showdialog
 from ovl_util import config, qt_theme
-from modules import extract
 
 MAX_UINT = 4294967295
 myFont = QtGui.QFont()
@@ -143,10 +142,11 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 class TableModel(QtCore.QAbstractTableModel):
 	member_renamed = QtCore.pyqtSignal(str, str)
 
-	def __init__(self, data, header_names):
+	def __init__(self, data, header_names, ignore_types):
 		super(TableModel, self).__init__()
 		self._data = data
 		self.header_labels = header_names
+		self.ignore_types = ignore_types
 		# self.member_renamed.connect(self.member_renamed_debug_print)
 
 	@staticmethod
@@ -162,7 +162,7 @@ class TableModel(QtCore.QAbstractTableModel):
 
 		if role == QtCore.Qt.ForegroundRole:
 			dtype = self._data[index.row()][1]
-			if dtype in extract.IGNORE_TYPES:
+			if dtype in self.ignore_types:
 				return QtGui.QColor('grey')
 
 		if role == QtCore.Qt.DecorationRole:
@@ -208,7 +208,7 @@ class TableModel(QtCore.QAbstractTableModel):
 
 	def flags(self, index):
 		dtype = self._data[index.row()][1]
-		if dtype in extract.IGNORE_TYPES:
+		if dtype in self.ignore_types:
 			return QtCore.Qt.ItemIsDropEnabled
 		else:
 			# names
@@ -222,9 +222,9 @@ class TableModel(QtCore.QAbstractTableModel):
 
 
 class SortableTable(QtWidgets.QWidget):
-	def __init__(self, header_names):
+	def __init__(self, header_names, ignore_types):
 		super().__init__()
-		self.table = TableView(header_names)
+		self.table = TableView(header_names, ignore_types)
 		self.filter_entry = LabelEdit("Filter:")
 		self.filter_entry.entry.textChanged.connect(self.table.set_filter)
 		self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
@@ -268,13 +268,13 @@ class TableView(QtWidgets.QTableView):
 	files_dropped = QtCore.pyqtSignal(list)
 	file_selected = QtCore.pyqtSignal(int)
 
-	def __init__(self, header_names):
+	def __init__(self, header_names, ignore_types):
 		super().__init__()
 		# list of lists
 		# row first
 		self.data = [[], ]
-
-		self.model = TableModel(self.data, header_names)
+		self.ignore_types = ignore_types
+		self.model = TableModel(self.data, header_names, ignore_types)
 		# self.proxyModel = QSortFilterProxyModel()
 		self.proxyModel = CustomSortFilterProxyModel()
 		self.proxyModel.setSourceModel(self.model)
@@ -316,7 +316,7 @@ class TableView(QtWidgets.QTableView):
 		ext_filter_name = "ext_filter"
 		if hide:
 			def ext_filter(r, s):
-				return r[1] not in extract.IGNORE_TYPES
+				return r[1] not in self.ignore_types
 
 			self.proxyModel.addFilterFunction(ext_filter_name, ext_filter)
 		else:

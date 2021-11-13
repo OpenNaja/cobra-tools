@@ -1,43 +1,49 @@
+import logging
+
+from modules.formats.BaseFormat import BaseFile
 from modules.helpers import write_sized_str
 
 
-def write_banis(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
-	name = sized_str_entry.name
-	if not sized_str_entry.data_entry:
-		print("No data entry for ",name)
-		return
-	buffers = sized_str_entry.data_entry.buffer_datas
-	if len(buffers) != 1:
-		print("Wrong amount of buffers for",name)
-		return
-	print("\nWriting",name)
-	out_path = out_dir(name)
-	with open(out_path, 'wb') as outfile:
-		outfile.write(buffers[0])
-	return out_path,
+class BanisLoader(BaseFile):
 
+	def collect(self):
+		self.assign_ss_entry()
 
-def write_bani(ovl, sized_str_entry, out_dir, show_temp_files, progress_callback):
-	name = sized_str_entry.name
-	print("\nWriting", name)
-	if len(sized_str_entry.fragments) != 1:
-		print("must have 1 fragment")
-		return
-	for file_entry in ovl.files:
-		if file_entry.ext == ".banis":
-			banis_name = file_entry.name
-			break
-	else:
-		print("Found no banis file for bani animation!")
-		return
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		# banis
+		name = self.sized_str_entry.name
+		if not self.sized_str_entry.data_entry:
+			raise AttributeError(f"No data entry for {name}")
+		buffers = self.sized_str_entry.data_entry.buffer_datas
+		if len(buffers) != 1:
+			raise AttributeError(f"Wrong amount of buffers for {name}")
+		logging.info(f"Writing {name}")
+		out_path = out_dir(name)
+		with open(out_path, 'wb') as outfile:
+			outfile.write(buffers[0])
+		return out_path,
 
-	f = sized_str_entry.fragments[0]
+	def write_bani(self, out_dir, show_temp_files, progress_callback):
+		name = self.sized_str_entry.name
+		print("\nWriting", name)
+		if len(self.sized_str_entry.fragments) != 1:
+			print("must have 1 fragment")
+			return
+		for file_entry in self.ovl.files:
+			if file_entry.ext == ".banis":
+				banis_name = file_entry.name
+				break
+		else:
+			print("Found no banis file for bani animation!")
+			return
 
-	# write banis file
-	out_path = out_dir(name)
-	with open(out_path, 'wb') as outfile:
-		outfile.write(b"BANI")
-		write_sized_str(outfile, banis_name)
-		outfile.write(f.pointers[0].data)
-		outfile.write(f.pointers[1].data)
-	return out_path,
+		f = self.sized_str_entry.fragments[0]
+
+		# write banis file
+		out_path = out_dir(name)
+		with open(out_path, 'wb') as outfile:
+			outfile.write(b"BANI")
+			write_sized_str(outfile, banis_name)
+			outfile.write(f.pointers[0].data)
+			outfile.write(f.pointers[1].data)
+		return out_path,

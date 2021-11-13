@@ -21,7 +21,7 @@ try:
 
 	from ovl_util import widgets, interaction, qt_threads
 	from modules import hasher, walker, remover
-	from generated.formats.ovl import OvlFile, games, get_game, set_game
+	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
@@ -76,7 +76,7 @@ class MainWindow(widgets.MainWindow):
 		self.dirs_container.resize(640, 480)
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names)
+		self.files_container = widgets.SortableTable(header_names, IGNORE_TYPES)
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)

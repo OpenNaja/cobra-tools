@@ -1,18 +1,13 @@
 import logging
+import os
 import shutil
+import struct
 import tempfile
 
 from generated.formats.ms2 import Ms2File
-from modules.formats.shared import djb
-from modules.extract import get_files, extract_kernel
-import struct
-import io
-import os
 from generated.formats.ovl.versions import *
-from modules.inject import inject
-from ovl_util import texconv
+from modules.formats.shared import djb
 from ovl_util.interaction import showdialog
-from ovl_util.texconv import make_tmp
 
 SPECIES_ONLY_FMTS = (".mdl2", ".ms2", ".motiongraph", ".materialcollection")
 
@@ -82,10 +77,9 @@ def ms2_renamer(ovl, name_tups):
 		"""Helper function to generate temporary output file name"""
 		return os.path.normpath(os.path.join(temp_dir, n))
 
-	for ms2_entry in get_files(ovl, (), (".ms2",), []):
+	for ms2_entry in ovl.get_files((), (".ms2",), []):
 		try:
-			ms2_ss = ovl.get_sized_str_entry(ms2_entry.name)
-			ms2_mdl2_files = extract_kernel(ovl, ms2_ss, out_dir_func, False, None)
+			ms2_mdl2_files = ms2_entry.loader.extract(out_dir_func, False, None)
 			# there is always just one ms2 in one entry's files
 			ms2_path = [f for f in ms2_mdl2_files if f.endswith(".ms2")][0]
 
@@ -97,7 +91,7 @@ def ms2_renamer(ovl, name_tups):
 			# update the hashes & save
 			ms2_file.save(ms2_path)
 			# inject again
-			inject(ovl, (ms2_path,), False, False)
+			ms2_entry.loader.inject((ms2_path,), False, False)
 		except BaseException as err:
 			print(err)
 	# delete temp dir again

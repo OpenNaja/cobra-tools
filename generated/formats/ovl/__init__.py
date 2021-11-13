@@ -29,9 +29,12 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
+
 REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
 	".txt")
+# types that have no loader themselves, but are handled by other classes
+IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
 aliases = {
 	".matcol": ".materialcollection",
@@ -45,6 +48,7 @@ aliases = {
 def get_loader(ext, ovl, file_entry):
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.ASSETPKG import AssetpkgLoader
+	from modules.formats.BANI import BanisLoader
 	from modules.formats.DDS import DdsLoader
 	from modules.formats.ENUMNAMER import EnumnamerLoader
 	from modules.formats.FDB import FdbLoader
@@ -65,6 +69,7 @@ def get_loader(ext, ovl, file_entry):
 	ext_2_class = {
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".assetpkg": AssetpkgLoader,
+		".banis": BanisLoader,
 		".dinosaurmaterialeffects": MateffsLoader,
 		".dinosaurmateriallayers": MatlayersLoader,
 		".dinosaurmaterialpatterns": MatpatsLoader,
@@ -901,6 +906,23 @@ class OvlFile(Header, IoFile):
 		else:
 			self.progress_callback = self.dummy_callback
 
+	def get_extract_files(self, only_names, only_types, skip_files):
+		"""Returns files that are suitable for extraction"""
+		extract_files = []
+		for file in self.files:
+			# for batch operations, only export those that we need
+			if only_types and file.ext not in only_types:
+				skip_files.append(file.name)
+				continue
+			if only_names and file.name not in only_names:
+				skip_files.append(file.name)
+				continue
+			# ignore types in the count that we export from inside other type exporters
+			if file.ext in IGNORE_TYPES:
+				continue
+			extract_files.append(file)
+		return extract_files
+
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
@@ -915,8 +937,7 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		skip_files = []
 		out_paths = []
-		from modules.extract import get_files
-		extract_files = get_files(self, only_names, only_types, skip_files)
+		extract_files = self.get_extract_files(only_names, only_types, skip_files)
 		for file_index, file in enumerate(extract_files):
 			self.progress_callback("Extracting...", value=file_index, vmax=len(extract_files))
 			try:
