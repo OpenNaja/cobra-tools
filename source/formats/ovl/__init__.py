@@ -27,6 +27,7 @@ from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import get_versions, djb, assign_versions, get_padding
+from modules.helpers import split_path
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
@@ -55,6 +56,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.FGM import FgmLoader
 	from modules.formats.LUA import LuaLoader
+	from modules.formats.MANI import ManisLoader
 	from modules.formats.MATCOL import MatcolLoader
 	from modules.formats.MATLAYERS import MateffsLoader
 	from modules.formats.MATLAYERS import MatlayersLoader
@@ -80,6 +82,7 @@ def get_loader(ext, ovl, file_entry):
 		".fdb": FdbLoader,
 		".fgm": FgmLoader,
 		".lua": LuaLoader,
+		".manis": ManisLoader,
 		".materialcollection": MatcolLoader,
 		".motiongraphvars": EnumnamerLoader,
 		".ms2": Ms2Loader,
@@ -925,7 +928,6 @@ class OvlFile(Header, IoFile):
 		# key with name+ext
 		_files_dict = {file.name.lower(): file for file in self.files}
 
-		from modules.helpers import split_path
 		for file_index, file_path in enumerate(file_paths):
 			self.progress_callback("Injecting...", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
