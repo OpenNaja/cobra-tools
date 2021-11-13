@@ -44,7 +44,6 @@ class DdsLoader(BaseFile):
 			self.assign_fixed_frags(1)
 
 	def load(self, file_path):
-		# todo - handle imarray
 		logging.debug(f"Loading image {file_path}")
 		name_ext, name, ext = split_path(file_path)
 		if ext == ".png":
