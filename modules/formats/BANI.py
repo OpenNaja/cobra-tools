@@ -8,9 +8,13 @@ class BanisLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
+		self.bani_files = self.ovl.get_extract_files((), (".bani",), [], ignore=False)
+		for bani in self.bani_files:
+			b_ss = self.ovl.get_sized_str_entry(bani.name)
+			ss_pointer = b_ss.pointers[0]
+			b_ss.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		# banis
 		name = self.sized_str_entry.name
 		if not self.sized_str_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
@@ -19,31 +23,24 @@ class BanisLoader(BaseFile):
 			raise AttributeError(f"Wrong amount of buffers for {name}")
 		logging.info(f"Writing {name}")
 		out_path = out_dir(name)
+		out_paths = [out_path, ]
 		with open(out_path, 'wb') as outfile:
 			outfile.write(buffers[0])
-		return out_path,
 
-	def write_bani(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
-		print("\nWriting", name)
-		if len(self.sized_str_entry.fragments) != 1:
-			print("must have 1 fragment")
-			return
-		for file_entry in self.ovl.files:
-			if file_entry.ext == ".banis":
-				banis_name = file_entry.name
-				break
-		else:
-			print("Found no banis file for bani animation!")
-			return
+		for bani in self.bani_files:
+			b_ss = self.ovl.get_sized_str_entry(bani.name)
+			logging.info(f"Writing {bani.name}")
+			if len(b_ss.fragments) != 1:
+				raise AttributeError(f"{bani.name} must have 1 fragment")
+			f = b_ss.fragments[0]
+			# write banis file
+			out_path = out_dir(bani.name)
+			with open(out_path, 'wb') as outfile:
+				outfile.write(b"BANI")
+				write_sized_str(outfile, name)
+				outfile.write(f.pointers[0].data)
+				outfile.write(f.pointers[1].data)
+			out_paths.append(out_path)
+		return out_paths
 
-		f = self.sized_str_entry.fragments[0]
 
-		# write banis file
-		out_path = out_dir(name)
-		with open(out_path, 'wb') as outfile:
-			outfile.write(b"BANI")
-			write_sized_str(outfile, banis_name)
-			outfile.write(f.pointers[0].data)
-			outfile.write(f.pointers[1].data)
-		return out_path,

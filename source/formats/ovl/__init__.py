@@ -545,7 +545,6 @@ class OvsFile(OvsHeader):
 		logging.info(f"Mapping SizedStrs to {len(self.fragments)} Fragments")
 
 		dic = {
-			".bani": 1,
 			# ".hier": ( (4,6) for x in range(19) ),
 			".spl": 1,
 			# ".world": will be a variable length one with a 4,4; 4,6; then another variable length 4,6 set : set world before assetpkg in order
@@ -906,7 +905,7 @@ class OvlFile(Header, IoFile):
 		else:
 			self.progress_callback = self.dummy_callback
 
-	def get_extract_files(self, only_names, only_types, skip_files):
+	def get_extract_files(self, only_names, only_types, skip_files, ignore=True):
 		"""Returns files that are suitable for extraction"""
 		extract_files = []
 		for file in self.files:
@@ -918,7 +917,7 @@ class OvlFile(Header, IoFile):
 				skip_files.append(file.name)
 				continue
 			# ignore types in the count that we export from inside other type exporters
-			if file.ext in IGNORE_TYPES:
+			if ignore and file.ext in IGNORE_TYPES:
 				continue
 			extract_files.append(file)
 		return extract_files
