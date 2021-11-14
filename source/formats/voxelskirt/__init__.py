@@ -26,6 +26,10 @@ class VoxelskirtFile(Header, IoFile):
 
 	def __init__(self, ):
 		super().__init__(VoxelskirtContext())
+		self.datas = Array(self.context)
+		self.sizes = Array(self.context)
+		self.positions = Array(self.context)
+		self.materials = Array(self.context)
 
 	def name_items(self, array):
 		for item in array:
@@ -51,16 +55,16 @@ class VoxelskirtFile(Header, IoFile):
 				self.names.append(stream.read_zstring())
 
 			stream.seek(self.eoh + self.info.data_offset)
-			self.datas = stream.read_types(Data, (), (self.info.data_count,))
+			self.datas.read(stream, Data, self.info.data_count, None)
 
 			stream.seek(self.eoh + self.info.size_offset)
-			self.sizes = stream.read_types(Size, (), (self.info.size_count,))
+			self.sizes.read(stream, Size, self.info.size_count, None)
 
 			stream.seek(self.eoh + self.info.position_offset)
-			self.positions = stream.read_types(PosInfo, (), (self.info.position_count,))
+			self.positions.read(stream, PosInfo, self.info.position_count, None)
 
 			stream.seek(self.eoh + self.info.mat_offset)
-			self.materials = stream.read_types(Material, (), (self.info.mat_count,))
+			self.materials.read(stream, Material, self.info.mat_count, None)
 
 			# assign names...
 			for s in (self.datas, self.sizes, self.positions, self.materials):

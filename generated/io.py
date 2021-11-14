@@ -148,17 +148,6 @@ class BinaryStream(BytesIO):
 	def write_type(self, obj):
 		obj.write(self)
 
-	def read_types(self, cls, args=(), shape=()):
-		# obj = cls.__new__(cls, *args)
-		array = Array()
-		array.read(self, cls, *shape, *args)
-		# obj = cls(*args)
-		# obj.read(self)
-		return array
-
-	def write_types(self, obj):
-		obj.write(self)
-
 	def make_read_write_for_zstring(self,):
 		# declare these in the local scope for faster name resolutions
 		read = self.read
