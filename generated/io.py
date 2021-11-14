@@ -182,9 +182,9 @@ class BinaryStream(BytesIO):
 
 	def get_io_func(self, dtype, mode="read"):
 		func = f"{mode}_{dtype.lower()}"
-		if func in self.__slots__:
+		try:
 			return getattr(self, func)
-		else:
+		except:
 			raise NotImplementedError(f"No basic io function '{func}' for dtype {dtype}!")
 
 
