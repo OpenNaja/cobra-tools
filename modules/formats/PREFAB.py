@@ -256,7 +256,7 @@ class PrefabLoader(BaseFile):
 
 
 		elif (ssdata[4] != 0) and (ssdata[6] != 0):
-			if len(ss_entry.fragments[5].pointers[0].data) != 24:
+			if (len(ss_entry.fragments[5].pointers[0].data) != 24) and (len(ss_entry.fragments[5].pointers[0].data) != 8):
 				gub = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
 				ss_entry.fragments += gub
 			ss_entry.specdef_name_fragments += self.ovs.frags_from_pointer(ss_entry.fragments[0].pointers[1], ssdata[4])
@@ -282,7 +282,8 @@ class PrefabLoader(BaseFile):
 						print("AssetPackageLoader has : "+str(check))
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], check+1))
 						for i in range(check+1):
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[i+1].pointers[1], 1))
+							ccc = self.prefab_unpack_temp(len(name_frag.data_frags[i+1].pointers[0].data),name_frag.data_frags[i+1].pointers[0].data)[2]
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[i+1].pointers[1], ccc))
 					elif b'AudioDinosaurCore' == name_frag.pointers[1].data.rstrip(b'\x00'):
 						check = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
 										name_frag.data_frags[0].pointers[1].data)[2] 
@@ -326,7 +327,7 @@ class PrefabLoader(BaseFile):
                                            
 					ss_entry.fragments += name_frag.data_frags
 
-			if len(ss_entry.fragments[5].pointers[0].data) != 24:
+			if (len(ss_entry.fragments[5].pointers[0].data) != 24) and (len(ss_entry.fragments[5].pointers[0].data) != 8):
 				fug += self.ovs.frags_from_pointer_equalsb_counts(gub[0].pointers[1], 5) #attr types, attr names, attr datas, list of some ints, list of short-like things
 				print(gub)
 				ss_entry.fragments += fug
