@@ -1,11 +1,12 @@
 import logging
 import xml.etree.ElementTree as ET
 import os
-from distutils.dir_util import copy_tree
+import distutils.dir_util as dir_util
 from html import unescape
 import traceback
 
 from codegen import naming_conventions as convention
+from codegen.BaseClass import BaseClass
 from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
@@ -27,6 +28,7 @@ class XmlParser:
         """Set up the xml parser."""
 
         self.format_name = format_name
+        self.base_segments = os.path.join("formats", self.format_name)
         # which encoding to use for the output files
         self.encoding='utf-8'
 
@@ -50,7 +52,7 @@ class XmlParser:
         for child in root:
             # only check stuff that has a name - ignore version tags
             if child.tag.split('}')[-1] not in ("version", "token", "include"):
-                base_segments = os.path.join("formats", self.format_name)
+                base_segments = self.base_segments
                 if child.tag == "module":
                     # for modules, set the path to base/module_name
                     class_name = convention.name_module(child.attrib["name"])
@@ -125,7 +127,7 @@ class XmlParser:
             except Exception as err:
                 logging.error(err)
                 traceback.print_exc()
-        out_file = os.path.join(os.getcwd(), "generated", "formats", self.format_name, "versions.py")
+        out_file = BaseClass.get_out_path(os.path.join(self.base_segments ,"versions"))
         self.versions.write(out_file)
         parsed_xmls[xml_path] = self
 
@@ -264,7 +266,12 @@ def copy_src_to_generated():
     cwd = os.getcwd()
     src_dir = os.path.join(cwd, "source")
     trg_dir = os.path.join(cwd, "generated")
-    copy_tree(src_dir, trg_dir)
+    # remove old codegen
+    dir_util.remove_tree(trg_dir)
+    # necessary to not error if you have manually removed a subdirectory in generated
+    dir_util._path_created = {}
+    # do the actual copying
+    dir_util.copy_tree(src_dir, trg_dir)
 
 
 def create_inits():
