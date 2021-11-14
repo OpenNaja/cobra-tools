@@ -129,7 +129,26 @@ class PrefabLoader(BaseFile):
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], check+1))
 						for i in range(check+1):
 							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[i+1].pointers[1], 1))
-
+					elif b'AudioDinosaurCore' == name_frag.pointers[1].data.rstrip(b'\x00'):
+						check = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
+										name_frag.data_frags[0].pointers[1].data)[2] 
+						print("AudioDinosaurCore has : "+str(check))
+						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
+						if len(name_frag.data_frags[2].pointers[0].data) != 32:
+							print("len len ",len(name_frag.data_frags[2].pointers[0].data))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
+					elif b'IKFootPlant' == name_frag.pointers[1].data.rstrip(b'\x00'):   
+						if len(name_frag.data_frags[0].pointers[1].data) == 16:
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 3))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], 1))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[3].pointers[1], specdef_frag_counts[3]))
+                            
+						else:
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], specdef_frag_counts[3]))
+                            
 					elif len(specdef_frag_counts) == 2:
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
 					elif len(specdef_frag_counts) == 3:
@@ -268,12 +287,25 @@ class PrefabLoader(BaseFile):
 						check = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
 										name_frag.data_frags[0].pointers[1].data)[2] 
 						print("AudioDinosaurCore has : "+str(check))
-						#if check == 9:
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 1))
-						#elif check == 258:
-						#	name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 4))
-						#else:
-						#	print("ERROR - AUDIODINOSAURCORE")
+						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
+						if len(name_frag.data_frags[2].pointers[0].data) != 32:
+							print("len len ",len(name_frag.data_frags[2].pointers[0].data))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
+					elif b'IKFootPlant' == name_frag.pointers[1].data.rstrip(b'\x00'):   
+						if len(name_frag.data_frags[0].pointers[1].data) == 16:
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 3))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], 1))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[3].pointers[1], specdef_frag_counts[3]))
+                            
+						else:
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
+							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], specdef_frag_counts[3]))
+                    
+                    
+                    
+                    
 					elif len(specdef_frag_counts) == 2:
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
 					elif len(specdef_frag_counts) == 3:
@@ -291,9 +323,7 @@ class PrefabLoader(BaseFile):
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], specdef_frag_counts[2]))
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], self.specdef_thing(county,specdef_frag_counts[3])))
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[3].pointers[1], specdef_frag_counts[4]))
-                        
-					else:
-						print("\n")                    
+                                           
 					ss_entry.fragments += name_frag.data_frags
 
 			if len(ss_entry.fragments[5].pointers[0].data) != 24:
