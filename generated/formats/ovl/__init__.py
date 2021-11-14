@@ -983,19 +983,20 @@ class OvlFile(Header, IoFile):
 		return error_files, foreign_files
 
 	def create_file(self, file_path):
-		"""Create a file entry from a file path"""
-		filename = os.path.basename(file_path)
+		"""Create and register a file entry from a file path"""
+		# capital letters in the name buffer crash JWE2, apparently
+		filename = os.path.basename(file_path).lower()
 		logging.debug(f"Creating {filename}")
 		file_entry = FileEntry(self.context)
 		file_entry.path = file_path
 		file_entry.name = filename
 		file_entry.basename, file_entry.ext = os.path.splitext(filename)
+		file_entry.dependencies = []
 		try:
 			file_entry.update_constants(self)
 		except KeyError:
-			logging.warning(f"Unsupported extension {filename}")
+			logging.warning(f"Unsupported file type: {filename}")
 			return
-		file_entry.dependencies = []
 		self.files.append(file_entry)
 
 	def create(self, ovl_dir):
