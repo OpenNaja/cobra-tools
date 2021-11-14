@@ -288,6 +288,9 @@ class OvsFile(OvsHeader):
 				sized_str_entry.fragments = []
 				sized_str_entry.model_data_frags = []
 				sized_str_entry.specdef_name_fragments = []
+				sized_str_entry.specdef_attr_names = []
+				sized_str_entry.specdef_attr_datas = []
+				sized_str_entry.specdef_other_list = []
 				# get data entry for link to buffers, or none
 				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
 
