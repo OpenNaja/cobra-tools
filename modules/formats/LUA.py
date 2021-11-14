@@ -95,6 +95,6 @@ class LuaLoader(BaseFile):
 			confirmed = showdialog(
 				f"{file_path} has not been successfully decompiled and may crash your game. Inject anyway?", ask=True)
 			if not confirmed:
-				return
+				raise UserWarning(f"Injection aborted for {file_path}")
 		ss = struct.pack("IIII", len(buffer_0), 16000, 0x00, 0x00)
 		return ss, buffer_0
