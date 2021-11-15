@@ -238,6 +238,7 @@ class MainWindow(widgets.MainWindow):
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
 			logging.error(ex)
+		logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors, {len(skips)} skips.")
 		shutil.rmtree(temp_dir)
 
 	# todo - clear temp sub dir

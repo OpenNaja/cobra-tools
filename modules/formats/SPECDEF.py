@@ -1,3 +1,5 @@
+import logging
+
 from modules.formats.BaseFormat import BaseFile
 import struct
 
@@ -7,36 +9,31 @@ class SpecdefLoader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
-		print("\nSPECDEF:", self.sized_str_entry.name)
+		logging.info(f"SPECDEF: {self.sized_str_entry.name}")
 		ss_data = struct.unpack("<2H4B", ss_pointer.data)
+		logging.info(f"{ss_data}")
 		if ss_data[0] == 0:
-			print("spec is zero ", ss_data[0])
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
-		if ss_data[2] > 0:
-			data2_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			self.sized_str_entry.fragments.extend(data2_frag)
-		if ss_data[3] > 0:
-			data3_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			self.sized_str_entry.fragments.extend(data3_frag)
-		if ss_data[4] > 0:
-			data4_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			self.sized_str_entry.fragments.extend(data4_frag)
-		if ss_data[5] > 0:
-			data5_frag = self.ovs.frags_from_pointer(ss_pointer, 1)
-			self.sized_str_entry.fragments.extend(data5_frag)
+			logging.info(f"spec is zero ")
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3, reuse=False)
+		attrib_count = ss_data[0]
+		conditions = ss_data[2:]
+		self.condition_frags = []
+		for condition in conditions:
+			if condition > 0:
+				frag = self.ovs.frags_from_pointer(ss_pointer, 1, reuse=False)[0]
+				self.sized_str_entry.fragments.append(frag)
+				# logging.debug(frag.pointers[0].data)
+				self.condition_frags.append(frag)
+			else:
+				self.condition_frags.append(None)
 
-		if ss_data[0] > 0:
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], ss_data[0]))
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], ss_data[0]))
+		if attrib_count > 0:
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], attrib_count, reuse=False))
+			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False))
 
-		if ss_data[2] > 0:
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data2_frag[0].pointers[1], ss_data[2]))
-		if ss_data[3] > 0:
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data3_frag[0].pointers[1], ss_data[3]))
-		if ss_data[4] > 0:
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data4_frag[0].pointers[1], ss_data[4]))
-		if ss_data[5] > 0:
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(data5_frag[0].pointers[1], ss_data[5]))
+		for cond_frag, cond_count in zip(self.condition_frags, conditions):
+			if cond_frag:
+				self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(cond_frag.pointers[1], cond_count, reuse=False))
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
@@ -57,9 +54,8 @@ class SpecdefLoader(BaseFile):
 		# save .text file
 		with open(out_path, 'w') as outfile:
 			print("Exporting text specdef file")
-			attribcount, flags, namecount, childspeccount, managercount, scriptcount = struct.unpack("<2H4B",
-																									 self.sized_str_entry.pointers[
-																										 0].data)
+			attrib_count, flags, name_count, childspec_count, manager_count, script_count = struct.unpack(
+				"<2H4B", self.sized_str_entry.pointers[0].data)
 			outfile.write(f"Name : {name}\nFlags: {flags:x}\n")
 
 			# debug print all fragments
@@ -67,69 +63,80 @@ class SpecdefLoader(BaseFile):
 			#	print(f.pointers[1].data)
 
 			# skip frags here based on counts
-			offset = 3 + (namecount > 0) + (childspeccount > 0) + (managercount > 0) + (scriptcount > 0)
+			offset = 3 + (name_count > 0) + (childspec_count > 0) + (manager_count > 0) + (script_count > 0)
 
-			if attribcount > 0:
+			if attrib_count > 0:
 				outfile.write(f"Attributes:\n")
 				lend = len(self.sized_str_entry.fragments[0].pointers[1].data)
 
 				# this frag has padding
-				dtypes = struct.unpack(f"<{attribcount}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attribcount])
+				dtypes = struct.unpack(f"<{attrib_count}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
 
-				for i in range(0, attribcount):
+				for i in range(0, attrib_count):
 					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
 					dtype = dtypes[i]
 					# todo: the tflags structure depends on the dtype value
-					# tflags = struct.unpack(f"<{4}I", sized_str_entry.fragments[offset + attribcount + i].pointers[1].data)
-					tflags = self.sized_str_entry.fragments[offset + attribcount + i].pointers[1].data
+					# tflags = struct.unpack(f"<{4}I", sized_str_entry.fragments[offset + attrib_count + i].pointers[1].data)
+					tflags = self.sized_str_entry.fragments[offset + attrib_count + i].pointers[1].data
+
+					try:
+						if dtype == 0:
+							# boot on the second byte
+							tflags = bool(tflags[1])
+						elif dtype == 9:
+							# vector3 float
+							tflags = struct.unpack("3fI", tflags[:16])
+						elif dtype == 12:
+							# vector3 float
+							tflags = struct.unpack("3f", tflags[:12])
+					except:
+						logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
 					outstr = f" - Type: {dtype:02} Name: {iname}  Flags: {tflags}"
 					# print(outstr)
 					outfile.write(outstr + "\n")
 
 				# skip the attrib names and data
-				offset += 2 * attribcount
+				offset += 2 * attrib_count
 
-			if namecount > 0:
+			if name_count > 0:
 				outfile.write(f"Names:\n")
-				for i in range(0, namecount):
+				for i in range(0, name_count):
 					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
 					outstr = f" - Name: {iname}"
 					# print(outstr)
 					outfile.write(outstr + "\n")
 
 				# skip the names
-				offset += namecount
+				offset += name_count
 
-			if childspeccount > 0:
+			if childspec_count > 0:
 				outfile.write(f"Child Specdefs:\n")
-				for i in range(0, childspeccount):
+				for i in range(0, childspec_count):
 					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
 					outstr = f" - Specdef: {iname}"
 					# print(outstr)
 					outfile.write(outstr + "\n")
 
 				# skip the names
-				offset += childspeccount
+				offset += childspec_count
 
-			if managercount > 0:
+			if manager_count > 0:
 				outfile.write(f"Managers:\n")
-				for i in range(0, managercount):
+				for i in range(0, manager_count):
 					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
 					outstr = f" - Manager: {iname}"
 					# print(outstr)
 					outfile.write(outstr + "\n")
 
 				# skip the names
-				offset += managercount
+				offset += manager_count
 
-			if scriptcount > 0:
+			if script_count > 0:
 				outfile.write(f"Scripts:\n")
-				for i in range(0, scriptcount):
+				for i in range(0, script_count):
 					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
 					outstr = f" - Script: {iname}"
 					# print(outstr)
 					outfile.write(outstr + "\n")
-
-			outfile.close()
 
 		return out_path + ".bin", out_path,

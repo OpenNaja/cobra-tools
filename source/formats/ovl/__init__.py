@@ -517,10 +517,10 @@ class OvsFile(OvsHeader):
 	def frags_accumulate_from_pointer(self, p, d_size):
 		return self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
 
-	def frags_from_pointer(self, ptr, count):
+	def frags_from_pointer(self, ptr, count, reuse=False):
 		# print(ptr)
 		frags = self.frags_for_pointer(ptr)
-		return self.get_frags_after_count(frags, ptr.data_offset, count)
+		return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
 
 	def get_frags_from_ptr_lut(self, ptr, count):
 		"""Use the fragment lookup table to retrieve count fragments starting at a given pointer"""
@@ -684,7 +684,7 @@ class OvsFile(OvsHeader):
 		return out
 
 	@staticmethod
-	def get_frags_after_count(frags, initpos, count):
+	def get_frags_after_count(frags, initpos, count, reuse=False):
 		"""Returns count entries of frags that have not been processed and occur after initpos."""
 		out = []
 		for f in frags:
@@ -692,11 +692,13 @@ class OvsFile(OvsHeader):
 			if len(out) == count:
 				break
 			# can't add fragments that have already been added elsewhere
-			if f.done:
+			if f.done and not reuse:
 				continue
 			if f.pointers[0].data_offset >= initpos:
 				f.done = True
 				out.append(f)
+				if f.done and reuse:
+					logging.debug(f"Reusing fragment {f.pointers[0].pool_index} | {f.pointers[0].data_offset} for count {count}, initpos {initpos}")
 		else:
 			if len(out) != count:
 				raise AttributeError(
