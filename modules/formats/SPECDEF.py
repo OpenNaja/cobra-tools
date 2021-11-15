@@ -78,7 +78,24 @@ class SpecdefLoader(BaseFile):
 					# todo: the tflags structure depends on the dtype value
 					# tflags = struct.unpack(f"<{4}I", sized_str_entry.fragments[offset + attrib_count + i].pointers[1].data)
 					tflags = self.sized_str_entry.fragments[offset + attrib_count + i].pointers[1].data
-
+					# 00 boolean(true or false)
+					# 01Unused
+					# 02 Unused
+					# 03 UInt8(I think)
+					# 04 Unused
+					# DeTy
+					# 05 Enum type({Default =, Enum = filename, Type = "uint8"} 00ff02010000000000000000000000000000000000000000
+					# 06 Uint64 with dependencies({Type = "uint64", Default = 0})
+					# 07 table ( or String List) (list of ptr)  00000000ffffffff0000000001 << this to 1 seen when it can be just a string (no list)
+					# 08 uint64 (used for entities as well)
+					# 09 float
+					# 10 string (expected ptr)
+					# 11 Vector2
+					# 12 Vector3
+					# 13 String list (0000000000000000 0a < could be max)
+					# 14 table
+					# 15 String or table
+					# 16 also string
 					try:
 						if dtype == 0:
 							# boot on the second byte, todo maybe more
