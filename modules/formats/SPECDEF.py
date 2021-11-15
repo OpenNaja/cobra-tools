@@ -81,14 +81,14 @@ class SpecdefLoader(BaseFile):
 
 					try:
 						if dtype == 0:
-							# boot on the second byte
+							# boot on the second byte, todo maybe more
 							tflags = bool(tflags[1])
 						elif dtype == 9:
-							# vector3 float
+							# lower_bound, upper_bound, float, 1
 							tflags = struct.unpack("3fI", tflags[:16])
 						elif dtype == 12:
-							# vector3 float
-							tflags = struct.unpack("3f", tflags[:12])
+							# vector3 float, 1
+							tflags = struct.unpack("3fI", tflags[:16])
 					except:
 						logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
 					outstr = f" - Type: {dtype:02} Name: {iname}  Flags: {tflags}"

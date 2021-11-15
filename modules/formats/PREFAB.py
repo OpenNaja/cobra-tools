@@ -62,6 +62,7 @@ class PrefabLoader(BaseFile):
         
 	def collect(self,):
 		self.assign_ss_entry()
+		return
 		ss_entry = self.sized_str_entry
         
         
