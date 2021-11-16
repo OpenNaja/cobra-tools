@@ -31,6 +31,20 @@ def create_material(in_dir, matname):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
+	color_ramp = fgm_data.get_color_ramp("colourKey", "RGB")
+	opacity_ramp = fgm_data.get_color_ramp("opacityKey", "Value")
+	if color_ramp and opacity_ramp:
+		# print(color_ramp, list(zip(color_ramp)))
+		positions, colors = zip(*color_ramp)
+		positions_2, opacities = zip(*color_ramp)
+		ramp = tree.nodes.new('ShaderNodeValToRGB')
+		for position, color, opacity in zip(positions, colors, opacities):
+			print(position, color, opacity)
+			pos_relative = (position-min(positions)) / (max(positions)-min(positions))
+			e = ramp.color_ramp.elements.new(pos_relative)
+			e.color[:3] = color
+			e.alpha = opacity[0]
+
 	all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
 	# map texture names to node
 	tex_dic = {}
@@ -151,10 +165,9 @@ def create_material(in_dir, matname):
 		# transparency
 		b_mat.blend_method = "CLIP"
 		b_mat.shadow_method = "CLIP"
-		for attrib in fgm_data.attributes:
-			if attrib.name.lower() == "palphatestref":
-				b_mat.alpha_threshold = attrib.value[0]
-				break
+		attr_dict = fgm_data.get_attr_dict()
+		if "palphatestref" in attr_dict:
+			b_mat.alpha_threshold = attr_dict["palphatestref"].value[0]
 		transp = tree.nodes.new('ShaderNodeBsdfTransparent')
 		alpha_mixer = tree.nodes.new('ShaderNodeMixShader')
 		tree.links.new(alpha_pass, alpha_mixer.inputs[0])
@@ -189,3 +202,4 @@ def import_material(created_materials, in_dir, b_me, material):
 		b_me.materials.append(b_mat)
 	except:
 		print("material failed")
+

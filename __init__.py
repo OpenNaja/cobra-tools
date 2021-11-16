@@ -32,7 +32,7 @@ from bpy.types import PropertyGroup, Object
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
 
-from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt
+from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt, import_fgm
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
 from plugin.utils import shell
 from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
@@ -138,6 +138,19 @@ class ImportMatcol(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
         return handle_errors(self, import_matcol.load, keywords)
+
+
+class ImportFgm(bpy.types.Operator, ImportHelper):
+    """Import from Fgm file format (.fgm)"""
+    bl_idname = "import_scene.cobra_fgm"
+    bl_label = 'Import Fgm'
+    bl_options = {'UNDO'}
+    filename_ext = ".fgm"
+    filter_glob: StringProperty(default="*.fgm", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
+        return handle_errors(self, import_fgm.load, keywords)
 
 
 class ImportMDL2(bpy.types.Operator, ImportHelper):
@@ -307,6 +320,7 @@ def menu_func_export(self, context):
 
 def menu_func_import(self, context):
     icon = preview_collection["frontier.png"].icon_id
+    self.layout.operator(ImportFgm.bl_idname, text="Cobra Material (.fgm)", icon_value=icon)
     self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol)", icon_value=icon)
     self.layout.operator(ImportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=icon)
     self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=icon)
@@ -318,6 +332,7 @@ classes = (
     ImportBani,
     ImportManis,
     ImportMatcol,
+    ImportFgm,
     ImportMDL2,
     ExportMDL2,
     ImportVoxelskirt,

@@ -122,9 +122,29 @@ class FgmFile(FgmInfoHeader, IoFile):
 			stream.write(data_writer.getvalue())
 			stream.write(names_writer.getvalue())
 
+	def get_attr_dict(self):
+		return {attrib.name.lower(): attrib for attrib in self.attributes}
+
+	def get_color_ramp(self, key_type, d_type):
+		attr_dict = self.get_attr_dict()
+		out = []
+		for i in range(1, 13):
+			try:
+				k = f"u_{key_type}_{i:02}_Position"
+				pos = attr_dict[k.lower()].value[0]
+				k = f"u_{key_type}_{i:02}_{d_type}"
+				rgb = attr_dict[k.lower()].value
+				print(i, pos, rgb)
+				out.append((pos, rgb))
+			except:
+				pass
+		return out
+
 
 if __name__ == "__main__":
 	fgm = FgmFile()
-	fgm.load("C:/Users/arnfi/Desktop/parrot/parrot.fgm")
-	fgm.save("C:/Users/arnfi/Desktop/parrot/parrot2.fgm")
+	# fgm.load("C:/Users/arnfi/Desktop/parrot/parrot.fgm")
+	fgm.load("C:/Users/arnfi/Desktop/Coding/Frontier/JWE2/ichthyo/ichthyosaurus_pattern_01_04.fgm")
+	fgm.get_color_ramp()
+	# fgm.save("C:/Users/arnfi/Desktop/parrot/parrot2.fgm")
 	# print(fgm)
