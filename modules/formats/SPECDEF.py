@@ -27,24 +27,25 @@ class SpecdefLoader(BaseFile):
 			else:
 				self.condition_frags.append(None)
 
-		if attrib_count > 0:
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], attrib_count, reuse=False))
-			self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False))
+		self.attrib_names = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], attrib_count, reuse=False)
+		self.attrib_datas = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False)
+		self.sized_str_entry.fragments.extend(self.attrib_names + self.attrib_datas)
 
 		for cond_frag, cond_count in zip(self.condition_frags, conditions):
 			if cond_frag:
-				self.sized_str_entry.fragments.extend(self.ovs.frags_from_pointer(cond_frag.pointers[1], cond_count, reuse=False))
+				cond_frag.child_frags = self.ovs.frags_from_pointer(cond_frag.pointers[1], cond_count, reuse=False)
+				self.sized_str_entry.fragments.extend(cond_frag.child_frags)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		print(f"\nWriting {name}")
+		logging.info(f"Writing {name}")
 
 		ovl_header = self.pack_header(b"SPEC")
 		out_path = out_dir(name)
 
 		# save .bin data
 		with open(out_path + ".bin", 'wb') as outfile:
-			print("Exporting binary specdef file")
+			logging.debug("Exporting binary specdef file")
 			outfile.write(ovl_header)
 			outfile.write(self.sized_str_entry.pointers[0].data)
 			for f in self.sized_str_entry.fragments:
@@ -53,33 +54,22 @@ class SpecdefLoader(BaseFile):
 
 		# save .text file
 		with open(out_path, 'w') as outfile:
-			print("Exporting text specdef file")
+			logging.debug("Exporting text specdef file")
 			attrib_count, flags, name_count, childspec_count, manager_count, script_count = struct.unpack(
 				"<2H4B", self.sized_str_entry.pointers[0].data)
 			outfile.write(f"Name : {name}\nFlags: {flags:x}\n")
 
-			# debug print all fragments
-			# for f in sized_str_entry.fragments:
-			#	print(f.pointers[1].data)
-
-			# skip frags here based on counts
-			offset = 3 + (name_count > 0) + (childspec_count > 0) + (manager_count > 0) + (script_count > 0)
-
-			if attrib_count > 0:
+			if self.attrib_names:
 				outfile.write(f"Attributes:\n")
-				lend = len(self.sized_str_entry.fragments[0].pointers[1].data)
-
 				# this frag has padding
 				dtypes = struct.unpack(f"<{attrib_count}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
 
-				for i in range(0, attrib_count):
-					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
-					dtype = dtypes[i]
-					# todo: the tflags structure depends on the dtype value
-					# tflags = struct.unpack(f"<{4}I", sized_str_entry.fragments[offset + attrib_count + i].pointers[1].data)
-					tflags = self.sized_str_entry.fragments[offset + attrib_count + i].pointers[1].data
+				for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, dtypes):
+					iname = attrib_name.pointers[1].data.decode().rstrip('\x00')
+					# the tflags structure depends on the dtype value
+					tflags = attrib_data.pointers[1].data
 					# 00 boolean(true or false)
-					# 01Unused
+					# 01 Unused
 					# 02 Unused
 					# 03 UInt8(I think)
 					# 04 Unused
@@ -96,64 +86,39 @@ class SpecdefLoader(BaseFile):
 					# 14 table
 					# 15 String or table
 					# 16 also string
+
 					try:
 						if dtype == 0:
 							# boot on the second byte, todo maybe more
 							tflags = bool(tflags[1])
+						elif dtype == 3:
+							# int16
+							tflags = struct.unpack("8h", tflags[:16])
+						# elif dtype == 5:
+						# 	# boot on the second byte,
+						# 	logging.info(f"type 5 {tflags}")
 						elif dtype == 9:
 							# lower_bound, upper_bound, float, 1
 							tflags = struct.unpack("3fI", tflags[:16])
+						elif dtype == 11:
+							# vector2 float, 1, 0 (padding?)
+							tflags = struct.unpack("2fII", tflags[:16])
 						elif dtype == 12:
 							# vector3 float, 1
 							tflags = struct.unpack("3fI", tflags[:16])
 					except:
 						logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
 					outstr = f" - Type: {dtype:02} Name: {iname}  Flags: {tflags}"
-					# print(outstr)
+					logging.debug(outstr)
 					outfile.write(outstr + "\n")
 
-				# skip the attrib names and data
-				offset += 2 * attrib_count
-
-			if name_count > 0:
-				outfile.write(f"Names:\n")
-				for i in range(0, name_count):
-					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
-					outstr = f" - Name: {iname}"
-					# print(outstr)
-					outfile.write(outstr + "\n")
-
-				# skip the names
-				offset += name_count
-
-			if childspec_count > 0:
-				outfile.write(f"Child Specdefs:\n")
-				for i in range(0, childspec_count):
-					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
-					outstr = f" - Specdef: {iname}"
-					# print(outstr)
-					outfile.write(outstr + "\n")
-
-				# skip the names
-				offset += childspec_count
-
-			if manager_count > 0:
-				outfile.write(f"Managers:\n")
-				for i in range(0, manager_count):
-					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
-					outstr = f" - Manager: {iname}"
-					# print(outstr)
-					outfile.write(outstr + "\n")
-
-				# skip the names
-				offset += manager_count
-
-			if script_count > 0:
-				outfile.write(f"Scripts:\n")
-				for i in range(0, script_count):
-					iname = self.sized_str_entry.fragments[offset + i].pointers[1].data.decode().rstrip('\x00')
-					outstr = f" - Script: {iname}"
-					# print(outstr)
-					outfile.write(outstr + "\n")
+			condition_names = ("Name", "Child Specdef", "Manager", "Script")
+			for cond_frag, cond_name in zip(self.condition_frags, condition_names):
+				if cond_frag:
+					outfile.write(f"{cond_name}s:\n")
+					for child_frag in cond_frag.child_frags:
+						iname = child_frag.pointers[1].data.decode().rstrip('\x00')
+						outstr = f" - {cond_name}: {iname}"
+						outfile.write(outstr + "\n")
 
 		return out_path + ".bin", out_path,
