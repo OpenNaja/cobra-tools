@@ -98,7 +98,7 @@ class BaniFile(BaniInfoHeader, IoFile):
 					self.eulers[frame_i, bone_i] = e
 
 					l = data[frame_i, bone_i]["loc"]
-					self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (first, center - first))
+					self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (first - center, center - first))
 
 	def encode_eulers(self, ):
 		# todo: update array size

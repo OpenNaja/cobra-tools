@@ -6,6 +6,7 @@ import mathutils
 
 from generated.formats.bani import BaniFile
 from plugin.modules_export.armature import get_armature
+from plugin.helpers import create_ob
 
 
 def load_bani(file_path):
@@ -49,6 +50,16 @@ def load(files=[], filepath="", set_fps=False):
 	# assert( len(bone_names) == len(data.bones_frames_eulers) == len(data.bones_frames_locs) )
 	action = create_anim(ob, filename)
 	# go over list of euler keys
+	for i, bone_name in bones_table:
+		empty = create_ob(bone_name, None)
+		empty.scale = (0.01, 0.01, 0.01)
+		for frame_i in range(data.data_0.num_frames):
+			bpy.context.scene.frame_set(frame_i)
+			euler = data.eulers[frame_i, i]
+			loc = data.locs[frame_i, i]
+			bpy.context.scene.frame_set(frame_i)
+			empty.location = loc
+			empty.keyframe_insert(data_path="location", frame=frame_i)
 
 	for i, bone_name in bones_table:
 		print(i, bone_name)
