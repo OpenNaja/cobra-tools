@@ -1,11 +1,11 @@
 import os
-import time
 import math
 
 import bpy
 import mathutils
 
 from generated.formats.bani import BaniFile
+from plugin.modules_export.armature import get_armature
 
 
 def load_bani(file_path):
@@ -18,20 +18,8 @@ def load_bani(file_path):
 	return data
 
 
-def get_armature():
-	src_armatures = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Armature]
-	# do we have armatures?
-	if src_armatures:
-		# see if one of these is selected -> get only that one
-		if len(src_armatures) > 1:
-			sel_armatures = [ob for ob in src_armatures if ob.select_get()]
-			if sel_armatures:
-				return sel_armatures[0]
-		return src_armatures[0]
-
-
 def create_anim(ob, anim_name):
-	action = bpy.data.actions.new(name = anim_name)
+	action = bpy.data.actions.new(name=anim_name)
 	action.use_fake_user = True
 	ob.animation_data_create()
 	ob.animation_data.action = action
@@ -39,15 +27,14 @@ def create_anim(ob, anim_name):
 
 
 def load(files=[], filepath="", set_fps=False):
-	starttime = time.clock()
 	dirname, filename = os.path.split(filepath)
 	data = load_bani(filepath)
-
+	print(data)
 	# data 0 has various scales and counts
 	anim_length = data.data_0.animation_length
 	num_frames = data.data_0.num_frames
 	
-	global_corr_euler = mathutils.Euler( [math.radians(k) for k in (0,-90,-90)] )
+	global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
 	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 	
 	fps = int(round(num_frames/anim_length))
