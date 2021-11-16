@@ -38,7 +38,7 @@ class DdsLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		if is_jwe(self.ovl) or is_pz(self.ovl) or is_jwe2(self.ovl):
+		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
 			self.assign_fixed_frags(2)
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
 			self.assign_fixed_frags(1)
