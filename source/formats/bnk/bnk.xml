@@ -84,8 +84,8 @@
         <add name="zeros2" type="uint" arr1="2" vercond="#JWE# #OR# #JWE2#">0</add>
         <add name="stream infos" type="uint64" arr1="stream info count" arr2="3">data</add>
 <!--        <add name="zero 3" type="uint">0</add>-->
-        <add name="names" type="zstring" arr1="name count">data</add>
-        <add name="extensions" type="zstring" arr1="count 2">ext format subtypes</add>
+        <add name="names" type="ZString" arr1="name count">data</add>
+        <add name="extensions" type="ZString" arr1="count 2">ext format subtypes</add>
     </compound>
 
 </niftoolsxml>

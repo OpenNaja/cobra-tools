@@ -233,12 +233,7 @@ class XmlParser:
         l_type = in_type.lower()
         if in_type in self.path_dict:
             if self.tag_dict.get(l_type) == "basic":
-                # --------- don't forget to remove after debugging!
-                if in_type in self.basics.basic_map:
-                    basic_class = self.basics.basic_map[in_type]
-                else:
-                    logging.warn(f"basic type {in_type} used before definition in {self.format_name}.xml")
-                    return True, "flurp"
+                basic_class = self.basics.basic_map[in_type]
                 if callable(getattr(basic_class, "functions_for_stream", None)):
                     # we don't need to import it for read/write
                     if array:

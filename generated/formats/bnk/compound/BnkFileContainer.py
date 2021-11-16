@@ -1,7 +1,7 @@
-import Zstring
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.base.basic import ZString
 
 
 class BnkFileContainer:

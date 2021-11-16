@@ -5,7 +5,7 @@ from importlib import import_module
 from .Imports import Imports
 
 
-class Basics():
+class Basics:
 
     def __init__(self, parser, basics_file, ):
         self.parser = parser
@@ -26,7 +26,7 @@ class Basics():
         if hasattr(self.base_module, basic_name):
             self.basic_map[basic_name] = getattr(self.base_module, basic_name)
         else:
-            logging.warn(f"Basic type {basic_name} in {self.parser.format_name}.xml but not in basic.py module!")
+            raise AttributeError(f"Basic type {basic_name} in {self.parser.format_name}.xml but not in associated basic.py module!")
 
     def add_other_basics(self, other_basics, other_basic_path):
         to_import = []
