@@ -1,3 +1,4 @@
+from generated.formats.manis.basic import basic_map
 from generated.formats.manis.compound.ManiBlock import ManiBlock
 from generated.formats.manis.compound.InfoHeader import InfoHeader
 from generated.io import IoFile
@@ -22,6 +23,8 @@ class ManisContext(object):
 
 
 class ManisFile(InfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(ManisContext())

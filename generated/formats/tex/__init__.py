@@ -2,6 +2,7 @@ import io
 
 from generated.formats.ovl_base.versions import is_pc, is_ztuac
 from generated.formats.tex.compound.TexInfoHeader import TexInfoHeader
+from generated.formats.tex.basic import basic_map
 from generated.io import IoFile
 
 
@@ -15,6 +16,8 @@ class DdsContext(object):
 
 
 class TexFile(TexInfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, context=None):
 		if not context:

@@ -4,6 +4,7 @@ import time
 import traceback
 import logging
 
+from generated.formats.ms2.compound.basic import basic_map
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
@@ -48,6 +49,8 @@ class Ms2Context(OvlContext):
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, ):
 		super().__init__(Ms2Context())
@@ -459,6 +462,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 
 class Mdl2File(Mdl2InfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, ):
 		super().__init__(Ms2Context())

@@ -231,7 +231,9 @@ class XmlParser:
 
     def map_type(self, in_type, array=False):
         l_type = in_type.lower()
-        if in_type in self.path_dict:
+        if in_type == 'self.template':
+            return False, in_type
+        elif in_type in self.path_dict:
             if self.tag_dict.get(l_type) == "basic":
                 basic_class = self.basics.basic_map[in_type]
                 if callable(getattr(basic_class, "functions_for_stream", None)):
@@ -261,7 +263,6 @@ class XmlParser:
                     # get rid of any remaining html escape characters
                     xml_struct.attrib[target_attrib] = unescape(expr_str)
         # additional tokens that are not specified by nif.xml
-        # ("User Version", "user_version"), ("BS Header\\BS Version", "bs_header\\bs_version"), ("Version", "version")
         fixed_tokens = (("\\", "."), ("#ARG#", "arg"), ("#T#", "self.template"))
         for attrib, expr_str in xml_struct.attrib.items():
             for op_token, op_str in fixed_tokens:

@@ -1,3 +1,4 @@
+from generated.formats.matcol.basic import basic_map
 from generated.formats.matcol.compound.MaterialcollectionInfoHeader import MaterialcollectionInfoHeader
 from generated.io import IoFile
 
@@ -12,6 +13,8 @@ class MatcolContext(object):
 
 
 class MatcolFile(MaterialcollectionInfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(MatcolContext())

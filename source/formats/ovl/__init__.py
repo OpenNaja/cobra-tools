@@ -18,6 +18,7 @@ from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile, BinaryStream
 from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
+from generated.formats.ovl.basic import basic_map
 from generated.formats.ovl.versions import *
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
@@ -839,6 +840,8 @@ class OvsFile(OvsHeader):
 
 
 class OvlFile(Header, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, progress_callback=None):
 		# create a context

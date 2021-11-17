@@ -1,5 +1,6 @@
 import numpy
 from generated.array import Array
+from generated.formats.base.basic import ZString
 from generated.formats.manis.compound.ManiInfo import ManiInfo
 from generated.formats.manis.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.SizedStrData import SizedStrData

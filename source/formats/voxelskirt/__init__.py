@@ -7,6 +7,7 @@ from generated.formats.ovl.versions import *
 from generated.formats.voxelskirt.compound.Data import Data
 from generated.formats.voxelskirt.compound.Header import Header
 # from generated.formats.ovl.versions import *
+from generated.formats.voxelskirt.basic import basic_map
 from generated.formats.voxelskirt.compound.Material import Material
 from generated.formats.voxelskirt.compound.PosInfo import PosInfo
 from generated.formats.voxelskirt.compound.Size import Size
@@ -24,6 +25,8 @@ class VoxelskirtContext(object):
 
 
 class VoxelskirtFile(Header, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, ):
 		super().__init__(VoxelskirtContext())

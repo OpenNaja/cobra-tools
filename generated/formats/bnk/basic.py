@@ -8,7 +8,7 @@ Int64 = class_from_struct(Struct("<q"), lambda value: (int(value) + 922337203685
 
 from generated.formats.ovl_base.basic import Byte, Ubyte, Uint64, Uint, Ushort, Int, Short, Char, Float, ZString, Bool
 
-base_map = {
+basic_map = {
 			'Byte': Byte,
 			'Ubyte': Ubyte,
 			'Uint64': Uint64,

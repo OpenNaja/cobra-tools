@@ -1,11 +1,13 @@
 import numpy as np
 from struct import Struct
 
+from generated.array import Array
+
 
 MAX_LEN = 1000
 
 def class_from_struct(struct, from_value_func):
-
+    # declare these in the local scope for faster name resolutions
     base_value = from_value_func(0)
     pack = struct.pack
     unpack = struct.unpack
@@ -30,33 +32,31 @@ def class_from_struct(struct, from_value_func):
             stream.write(pack(instance))
 
         @staticmethod
-        def create_array(arr1=0, arr2=None, default=None, context=None, arg=None, template=None):
-            shape = (arr1, ) if arr2 is None else (arr1, arr2)
+        def create_array(shape, default=None, context=None, arg=None, template=None):
             if default:
                 return np.full(shape, default, dtype)
             else:
                 return np.zeros(shape, dtype)
 
         @staticmethod
-        def read_array(stream, arr1=0, arr2=None, default=None, context=None, arg=None, template=None):
-            shape = (arr1, ) if arr2 is None else (arr1, arr2)
+        def read_array(stream, shape, context=None, arg=None, template=None):
             array = empty(shape, dtype)
             stream.readinto(array)
             return array
 
         @staticmethod
-        def write_array(stream, array):
+        def write_array(stream, instance):
             # check that it is a numpy array
-            if not isinstance(array, np.ndarray):
-                array = np.array(array, dtype)
+            if not isinstance(instance, np.ndarray):
+                instance = np.array(instance, dtype)
             # cast if wrong incoming dtype
-            elif array.dtype != dtype:
-                array = array.astype(dtype)
-            stream.write(array.tobytes())
+            elif instance.dtype != dtype:
+                instance = instance.astype(dtype)
+            stream.write(instance.tobytes())
 
         @staticmethod
         def functions_for_stream(stream):
-
+            # declare these in the local scope for faster name resolutions
             read = stream.read
             write = stream.write
             readinto = stream.readinto
@@ -64,8 +64,8 @@ def class_from_struct(struct, from_value_func):
             def read_value():
                 return unpack(read(size))[0]
 
-            def write_value(value):
-                write(pack(value))
+            def write_value(instance):
+                write(pack(instance))
 
             def read_values(shape):
                 array = empty(shape, dtype)
@@ -73,14 +73,15 @@ def class_from_struct(struct, from_value_func):
                 readinto(array)
                 return array
 
-            def write_values(array):
+            def write_values(instance):
                 # check that it is a numpy array
-                if not isinstance(array, np.ndarray):
-                    array = np.array(array, dtype)
+                if not isinstance(instance, np.ndarray):
+                    instance = np.array(instance, dtype)
                 # cast if wrong incoming dtype
-                elif array.dtype != dtype:
-                    array = array.astype(dtype)
-                write(array.tobytes())
+                elif instance.dtype != dtype:
+                    instance = instance.astype(dtype)
+                write(instance.tobytes())
+                write(instance.tobytes())
 
             return read_value, write_value, read_values, write_values
 
@@ -126,10 +127,38 @@ class ZString:
 
     @classmethod
     def functions_for_stream(cls, stream):
-        raise NotImplementedError()
+        # declare these in the local scope for faster name resolutions
+        read = stream.read
+        write = stream.write
+
+        def read_zstring():
+            i = 0
+            val = b''
+            char = b''
+            while char != b'\x00':
+                i += 1
+                if i > MAX_LEN:
+                    raise ValueError('string too long')
+                val += char
+                char = read(1)
+            return val.decode(errors="surrogateescape")
+
+        def write_zstring(instance):
+            write(instance.encode(errors="surrogateescape"))
+            write(b'\x00')
+
+        def read_zstrings(shape):
+            # pass empty context
+            return Array.from_stream(stream, shape, cls, None)
+
+        def write_zstrings(stream, instance):
+            # pass empty context
+            return Array.to_stream(stream, instance, cls, None)
+
+        return read_zstring, write_zstring, read_zstrings, write_zstrings
 
 
-base_map = {
+basic_map = {
 			'Byte': Byte,
 			'Ubyte': Ubyte,
 			'Uint64': Uint64,

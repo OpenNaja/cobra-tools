@@ -1,4 +1,3 @@
-import numpy
 from generated.array import Array
 from generated.formats.base.basic import ZString
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo

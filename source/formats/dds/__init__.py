@@ -1,6 +1,7 @@
 import io
 import logging
 
+from generated.formats.dds.basic import basic_map
 from generated.formats.dds.struct.Header import Header
 from generated.io import IoFile
 from modules.formats.shared import get_padding
@@ -16,6 +17,8 @@ class DdsContext(object):
 
 
 class DdsFile(Header, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self,):
 		super().__init__(DdsContext())

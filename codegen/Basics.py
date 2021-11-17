@@ -41,7 +41,7 @@ class Basics:
 
     def write_basic_map(self, ):
         with open(self.basics_file, "a", encoding=self.parser.encoding) as f:
-            f.write("\n\nbase_map = {")
+            f.write("\n\nbasic_map = {")
             for basic in self.basic_map:
                 f.write(f"\n\t\t\t'{basic}': {basic},")
             f.write("\n}")

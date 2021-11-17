@@ -1,5 +1,4 @@
 import numpy
-import typing
 from generated.array import Array
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 from generated.formats.wsm.compound.WsmHeader import WsmHeader
