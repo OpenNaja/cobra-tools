@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.bitfield.RenderFlag import RenderFlag
 from generated.formats.ms2.compound.Vector3 import Vector3

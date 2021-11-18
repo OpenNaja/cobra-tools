@@ -17,7 +17,7 @@ class Mdl2InfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -65,7 +65,6 @@ class Mdl2InfoHeader(GenericHeader):
 			self.models = Array(self.context)
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.index = stream.read_uint()
 		self.bone_info_index = stream.read_uint()
@@ -82,7 +81,6 @@ class Mdl2InfoHeader(GenericHeader):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_uint(self.index)
 		stream.write_uint(self.bone_info_index)

@@ -1,7 +1,7 @@
 from os.path import sep
 
 
-NO_CLASSES = ("Padding",)
+NO_CLASSES = ("Padding", "self")
 
 
 class Imports:
@@ -27,7 +27,6 @@ class Imports:
                 if arr1 is None:
                     arr1 = field.attrib.get("length")
                 if arr1:
-                    self.add("Array")
                     self.add(field_type, array=True)
                 else:
                     self.add(field_type)
@@ -39,9 +38,14 @@ class Imports:
 
     def add(self, cls_to_import, array=False):
         if cls_to_import:
-            must_import, import_type = self.parent.map_type(cls_to_import, array)
-            if must_import:
-                self.imports.append(import_type)
+            has_stream_functions, import_type = self.parent.map_type(cls_to_import, array)
+            if has_stream_functions and not array and import_type in self.parent.builtin_literals:
+                return
+            else:
+                if not array:
+                    import_type = (import_type, )
+            [self.imports.append(import_class.split('.')[0]) for import_class in import_type]
+
 
     def write(self, stream):
         module_imports = []

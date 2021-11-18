@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 
 
@@ -11,7 +10,7 @@ class CoreModelInfoPC(CoreModelInfo):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -35,7 +34,6 @@ class CoreModelInfoPC(CoreModelInfo):
 			self.zero_zt = 0
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		if self.context.version == 18:
 			self.zeros = stream.read_uint64s((5))
@@ -49,7 +47,6 @@ class CoreModelInfoPC(CoreModelInfo):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		if self.context.version == 18:
 			stream.write_uint64s(self.zeros)

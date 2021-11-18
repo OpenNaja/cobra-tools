@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
 from generated.formats.ms2.compound.Vector3 import Vector3
 
@@ -12,7 +11,7 @@ class ListLong(Descriptor):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -35,7 +34,6 @@ class ListLong(Descriptor):
 		self.radians = numpy.zeros((8), dtype='float')
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
 		self.floats = stream.read_floats((5, 3))
@@ -44,7 +42,6 @@ class ListLong(Descriptor):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_type(self.loc)
 		stream.write_floats(self.floats)

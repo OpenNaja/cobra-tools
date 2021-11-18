@@ -10,7 +10,7 @@ class ListShort(Descriptor):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -37,7 +37,6 @@ class ListShort(Descriptor):
 		self.max = 0
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.loc = stream.read_type(Vector3, (self.context, None, None))
 		self.direction = stream.read_type(Vector3, (self.context, None, None))
@@ -47,7 +46,6 @@ class ListShort(Descriptor):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_type(self.loc)
 		stream.write_type(self.direction)

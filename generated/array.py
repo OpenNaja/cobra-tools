@@ -34,6 +34,7 @@ class Array(list):
         :type set_default: bool, optional
         '''
         super().__init__(self)
+        self._shape = None
         self.shape = shape
         self.ndim = len(self.shape)
         self.dtype = dtype
@@ -96,7 +97,11 @@ class Array(list):
         except TypeError:
             # if this can't be converted to a tuple, try instead to convert an integer-like to (int, )
             shape = (index(shape_input), )
-        self._shape = shape
+        if self._shape is None:
+            self._shape = shape
+        else:
+            if self._shape != shape:
+                raise ValueError('tried to assign non-compatible shape to array')
 
     @property
     def ndim(self):

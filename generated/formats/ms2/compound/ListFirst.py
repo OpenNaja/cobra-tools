@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
 
 
@@ -7,7 +6,7 @@ class ListFirst(Descriptor):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -20,14 +19,12 @@ class ListFirst(Descriptor):
 		self.floats = numpy.zeros((3), dtype='float')
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.floats = stream.read_floats((3))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_floats(self.floats)
 

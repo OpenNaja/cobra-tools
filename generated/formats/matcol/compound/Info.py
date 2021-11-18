@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 
 

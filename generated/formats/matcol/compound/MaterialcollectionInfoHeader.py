@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.matcol.compound.LayeredWrapper import LayeredWrapper
 from generated.formats.matcol.compound.Root0 import Root0

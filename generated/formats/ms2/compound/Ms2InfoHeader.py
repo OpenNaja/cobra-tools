@@ -13,7 +13,7 @@ class Ms2InfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -35,7 +35,6 @@ class Ms2InfoHeader(GenericHeader):
 		self.buffer_0 = Ms2Buffer0(self.context, self.general_info, None)
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.bone_names_size = stream.read_uint()
 		self.bone_info_size = stream.read_uint()
@@ -47,7 +46,6 @@ class Ms2InfoHeader(GenericHeader):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_uint(self.bone_names_size)
 		stream.write_uint(self.bone_info_size)

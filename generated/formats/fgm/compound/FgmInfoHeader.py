@@ -15,7 +15,7 @@ class FgmInfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -38,7 +38,6 @@ class FgmInfoHeader(GenericHeader):
 		self.attributes = Array(self.context)
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.data_lib_size = stream.read_uint()
 		self.dependency_count = stream.read_uint()
@@ -50,7 +49,6 @@ class FgmInfoHeader(GenericHeader):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_uint(self.data_lib_size)
 		stream.write_uint(self.dependency_count)

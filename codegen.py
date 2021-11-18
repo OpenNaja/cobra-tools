@@ -26,6 +26,7 @@ VER = "self.context.version"
 class XmlParser:
     struct_types = ("compound", "niobject", "struct")
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
+    builtin_literals = {'str': '', 'float': 0.0, 'int': 0, 'bool': False}
 
     def __init__(self, format_name):
         """Set up the xml parser."""
@@ -230,26 +231,30 @@ class XmlParser:
             return f"stream.{io_func}({attr})"
 
     def map_type(self, in_type, array=False):
-        l_type = in_type.lower()
-        if in_type == 'self.template':
-            return False, in_type
-        elif in_type in self.path_dict:
+        has_stream_functions = False
+        if array:
+            out_type = ('Array', in_type)
+        else:
+            out_type = in_type
+        if in_type in self.path_dict:
+            l_type = in_type.lower()
             if self.tag_dict.get(l_type) == "basic":
                 basic_class = self.basics.basic_map[in_type]
                 if callable(getattr(basic_class, "functions_for_stream", None)):
-                    # we don't need to import it for read/write
+                    has_stream_functions = True
                     if array:
                         if callable(getattr(basic_class, "create_array", None)):
                             test = basic_class.create_array(1)
                             if isinstance(test, ndarray):
-                                return True, "numpy"
+                                out_type = ('numpy', f'numpy.dtype({str(test.dtype)})')
                     else:
                         if callable(getattr(basic_class, "from_value", None)):
                             # check from_value to see which builtin it returns
                             test = basic_class.from_value(0)
-                            if type(test) in (float, bool, int, str, ):
-                                return False, type(test).__name__
-        return True, in_type
+                            test_type = type(test).__name__
+                            if test_type in self.builtin_literals:
+                                out_type = test_type
+        return has_stream_functions, out_type
             
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""

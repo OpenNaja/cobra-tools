@@ -9,7 +9,7 @@ class Cylinder(Capsule):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -21,13 +21,11 @@ class Cylinder(Capsule):
 		pass
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 
 		self.io_size = stream.tell() - self.io_start

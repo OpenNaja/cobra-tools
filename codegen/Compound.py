@@ -42,7 +42,7 @@ class Compound(BaseClass):
                 # classes that this class inherits from have to be read first
                 if self.class_basename:
                     # context is set by the parent class
-                    super_line = f"super().__init__(context, arg, template)"
+                    super_line = f"super().__init__(context, arg, template, set_default)"
                 else:
                     # no inheritance, so set context
                     super_line = f"self._context = context"
@@ -80,10 +80,11 @@ class Compound(BaseClass):
                     continue
                 self.write_line(f)
                 self.write_line(f, 1, method_str)
-                self.write_line(f, 2, "self.io_start = stream.tell()")
-                # classes that this class inherits from have to be read first
+                # classes that this class inherits from have to be read/written first
                 if self.class_basename:
                     self.write_line(f, 2, f"super().{method_type}(stream)")
+                else:
+                    self.write_line(f, 2, "self.io_start = stream.tell()")
 
                 # write all fields, merge conditions
                 condition = ""

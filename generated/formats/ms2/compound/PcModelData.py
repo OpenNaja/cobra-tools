@@ -5,7 +5,6 @@ import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 

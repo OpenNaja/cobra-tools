@@ -9,7 +9,6 @@ FUR_OVERHEAD = 2
 
 
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
