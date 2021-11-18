@@ -516,6 +516,15 @@ class OvsFile(OvsHeader):
 
 	def frags_accumulate_from_pointer(self, p, d_size):
 		return self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
+        
+	def frags_accumulate_from_pointer_till_count(self, p, d_size, count):
+		frags = self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
+		#print(d_size, len(frags))
+		if len(frags) > count:
+			frags[-1].done = False
+			return frags[0:count]
+		else:
+			return frags
 
 	def frags_from_pointer(self, ptr, count, reuse=False):
 		# print(ptr)
