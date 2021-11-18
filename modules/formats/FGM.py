@@ -110,6 +110,7 @@ class FgmLoader(BaseFile):
 		# todo - verify this is the right / needed padding by comparing to stock FGMs
 		textures_bytes += get_padding(len(textures_bytes), alignment=16)
 		attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
+		# todo - decide what datas returns according to the fgm file
 		if len(self.sized_str_entry.fragments) == 4:
 			deps_region = self.sized_str_entry.fragments[2]
 			datas = (textures_bytes, attributes_bytes, deps_region.pointers[1].data, fgm_data.data_bytes)
