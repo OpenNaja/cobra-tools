@@ -12,7 +12,43 @@ from generated.formats.fgm import FgmFile
 class FgmLoader(BaseFile):
 
 	def create(self):
-		pass
+		texture_files, datas, sizedstr_bytes, buffer_bytes = self._get_data(self.file_entry.path)
+		pool_index, pool = self.get_pool(2)
+		offset = pool.data.tell()
+		# lua, ss, 2 frag + buffer
+		pool.data.write(sizedstr_bytes)  # ss data
+		# pool.data.write(struct.pack("24s", b''))  # room for 3 pointers
+		# pool.data.write(struct.pack("8s", b''))  # room for 2 ints
+		# pool.data.write(b'\x00')  # one more char for the 2nd ptr
+		# pool.data.write(zstr(file_name_bytes))
+		# pool.data.write(get_padding(pool.data.tell(), 4))
+
+		# new_frag0 = self.create_fragment()
+		# new_frag0.pointers[0].pool_index = pool_index
+		# new_frag0.pointers[0].data_offset = offset + 0x10
+		# new_frag0.pointers[1].pool_index = pool_index
+		# new_frag0.pointers[1].data_offset = offset + 0x31
+		# new_frag1 = self.create_fragment()
+		# new_frag1.pointers[0].pool_index = pool_index
+		# new_frag1.pointers[0].data_offset = offset + 0x18
+		# new_frag1.pointers[1].pool_index = pool_index
+		# new_frag1.pointers[1].data_offset = offset + 0x30
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		self.sized_str_entry.pointers[0].pool_index = pool_index
+		self.sized_str_entry.pointers[0].data_offset = offset
+		self.create_data_entry(self.sized_str_entry, (buffer_bytes,))
+		#
+		# self.sized_str_entry.data_entry.update_data((buffer_bytes,))
+		# self.sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
+		#
+		# # inject fragment datas
+		# for frag, data in zip(self.sized_str_entry.fragments, datas):
+		# 	frag.pointers[1].update_data(data, update_copies=True)
+		#
+		# create dependencies
+		for tex_name in texture_files:
+			self.create_dependency(f"{tex_name}.tex")
+		# todo - write and address dependency pointers
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -61,10 +97,8 @@ class FgmLoader(BaseFile):
 			frag.pointers[1].update_data(data, update_copies=True)
 
 		# update dependencies on ovl
-		for dep_entry, tex_name in zip(self.file_entry.dependencies, texture_files):
-			dep_entry.basename = tex_name
-			dep_entry.name = dep_entry.basename + dep_entry.ext.replace(":", ".")
-			dep_entry.file_hash = djb(tex_name.lower())
+		for dependency, tex_name in zip(self.file_entry.dependencies, texture_files):
+			self.set_dependency_identity(dependency, f"{tex_name}.tex")
 
 	def _get_data(self, file_path):
 		versions = get_versions(self.ovl)

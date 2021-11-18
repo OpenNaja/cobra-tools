@@ -1,4 +1,7 @@
+import os
 import struct
+
+from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.MemPool import MemPool
@@ -7,6 +10,7 @@ from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.io import BinaryStream
+from modules.formats.shared import djb
 
 
 class BaseFile:
@@ -71,17 +75,28 @@ class BaseFile:
 		ss_entry.children = []
 		ss_entry.fragments = []
 		self.ovs.transfer_identity(ss_entry, file_entry)
-		new_pointss = HeaderPointer(self.ovl.context)
-		ss_entry.pointers.append(new_pointss)
+		ss_entry.pointers.append(HeaderPointer(self.ovl.context))
 		self.ovs.sized_str_entries.append(ss_entry)
 		return ss_entry
 
+	def set_dependency_identity(self, dependency, file_name):
+		"""Use a standard file name with extension"""
+		dependency.name = file_name
+		dependency.basename, dependency.ext = os.path.splitext(file_name)
+		dependency.ext = dependency.ext.replace(".", ":")
+		dependency.file_hash = djb(dependency.basename.lower())
+
+	def create_dependency(self, name):
+		dependency = DependencyEntry(self.ovl.context)
+		self.set_dependency_identity(dependency, name)
+		dependency.pointers.append(HeaderPointer(self.ovl.context))
+		self.file_entry.dependencies.append(dependency)
+		return dependency
+
 	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
-		new_point0 = HeaderPointer(self.ovl.context)
-		new_point1 = HeaderPointer(self.ovl.context)
-		new_frag.pointers.append(new_point0)
-		new_frag.pointers.append(new_point1)
+		new_frag.pointers.append(HeaderPointer(self.ovl.context))
+		new_frag.pointers.append(HeaderPointer(self.ovl.context))
 		self.ovs.fragments.append(new_frag)
 		return new_frag
 
