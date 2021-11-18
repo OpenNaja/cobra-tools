@@ -24,21 +24,21 @@ class AttributeInfo:
 		self.dtype = 0
 
 		# byte offset to first value in the 4th fragment entry
-		self.first_value_offset = 0
+		self.value_offset = 0
 		self.zero = 0
 		self.set_defaults()
 
 	def set_defaults(self):
 		self.offset = 0
 		self.dtype = 0
-		self.first_value_offset = 0
+		self.value_offset = 0
 		self.zero = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.dtype = stream.read_uint()
-		self.first_value_offset = stream.read_uint()
+		self.value_offset = stream.read_uint()
 		self.zero = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -47,7 +47,7 @@ class AttributeInfo:
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.dtype)
-		stream.write_uint(self.first_value_offset)
+		stream.write_uint(self.value_offset)
 		stream.write_uint(self.zero)
 
 		self.io_size = stream.tell() - self.io_start
@@ -59,7 +59,7 @@ class AttributeInfo:
 		s = ''
 		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* dtype = {self.dtype.__repr__()}'
-		s += f'\n	* first_value_offset = {self.first_value_offset.__repr__()}'
+		s += f'\n	* value_offset = {self.value_offset.__repr__()}'
 		s += f'\n	* zero = {self.zero.__repr__()}'
 		return s
 

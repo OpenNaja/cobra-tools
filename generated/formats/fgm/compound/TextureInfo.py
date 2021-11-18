@@ -24,7 +24,7 @@ class TextureInfo:
 		# byte offset to name in fgm buffer
 		self.offset = 0
 
-		# 7=has 2 8=uses texture indices
+		# 7=has RGB 8=uses texture indices
 		self.is_textured = 0
 
 		# stores index into shader and array index of texture

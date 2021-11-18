@@ -12,33 +12,16 @@
         <add name="a" type="ubyte"/>
     </compound>
 
-    <compound name="FourFragFgm" >
+    <compound name="FgmHeader" >
         Sized str entry of 16 bytes
-        <add name="Texture count" type="uint" >Number of Texture Info Entries</add>
-        <add name="zero0" type="uint" ></add>
-        <add name="Attribute count" type="uint" >Number of Attribute Info Entries</add>
-        <add name="zero1" type="uint" ></add>
-    </compound>
-
-    <compound name="TwoFragFgm" >
-        Sized str entry of 24 bytes
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="Attribute Info count" type="uint" >Number of Attribute Info Entries</add>
-        <add name="zero2" type="uint" ></add>
-        <add name="zero3" type="uint" ></add>
-        <add name="zero4" type="uint" ></add>
-    </compound>
-
-    <compound name="TwoFragFgmExtra" >
-        <add name="zero3" type="uint" ></add>
-        <add name="zero4" type="uint" ></add>
+        <add name="Texture count" type="uint64" >Number of Texture Info Entries</add>
+        <add name="Attribute count" type="uint64" >Number of Attribute Info Entries</add>
     </compound>
 
 	<compound name="TextureInfo" >
 		part of fgm fragment, per texture involved
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
-		<add name="is textured" type="uint">7=has 2 8=uses texture indices</add>
+		<add name="is textured" type="uint">7=has RGB 8=uses texture indices</add>
 		<add name="indices" type="uint" arr1="4" cond="is textured == 8" vercond="!#ZTUAC#">stores index into shader and array index of texture</add>
 		<add name="colors" type="Color" arr1="4" cond="is textured == 7" vercond="!#ZTUAC#">Stores (usually) 2 rgba colors</add>
 		<add name="indices" type="uint" arr1="1" cond="is textured == 8" vercond="#ZTUAC#">stores index into shader</add>
@@ -49,28 +32,19 @@
 		part of fgm fragment, repeated per attribute
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
 		<add name="dtype" type="uint">6=bool 5=integer 0=float</add>
-		<add name="first value offset" type="uint" >byte offset to first value in the 4th fragment entry</add>
+		<add name="value offset" type="uint" >byte offset to first value in the 4th fragment entry</add>
 		<add name="zero" type="uint" ></add>
     </compound>
 
     <compound name="FgmInfoHeader" inherit="GenericHeader">
         Custom header struct
-		
 		This reads a whole custom FGM file
-        <add name="num frags" type="uint" >fragment count</add>
-        <add name="num textures" type="uint" >texture ref count</add>
-        <add name="tex info size" type="uint" >byte count to check for quirks</add>
-        <add name="attr info size" type="uint" >byte count to check for quirks</add>
-        <add name="zeros size" type="uint" >byte count to check for quirks</add>
-        <add name="data lib size" type="uint" >byte count to check for quirks</add>
-        <add name="texture names" type="ZString" arr1="num textures" ></add>
-        <add name="fgm info" type="FourFragFgm" ></add>
-		<add name="two frags pad" type="TwoFragFgmExtra" arr1="num frags == 2" ></add>
-
+        <add name="data_lib_size" type="uint" ></add>
+        <add name="dependency count" type="uint" ></add>
+        <add name="fgm info" type="FgmHeader" ></add>
+        <add name="texture files" type="ZString" arr1="dependency count" ></add>
 		<add name="textures" type="TextureInfo" arr1="fgm info\texture count"></add>
-        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 24)" vercond="!#ZTUAC#"></add>
-        <add name="texpad" type="byte" arr1="tex info size-(fgm info\texture count * 12)" vercond="#ZTUAC#"></add>
 		<add name="attributes" type="AttributeInfo" arr1="fgm info\attribute count" ></add>
-        
     </compound>
+
 </niftoolsxml>

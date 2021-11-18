@@ -1,3 +1,4 @@
+import logging
 import os
 import traceback
 
@@ -7,7 +8,12 @@ import modules.formats.shared
 import ovl_util.interaction
 from generated.formats.fgm import FgmFile
 from generated.formats.ovl.versions import *
-from ovl_util import widgets, config
+from ovl_util import widgets, config, interaction
+from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT
+
+from ovl_util.config import logging_setup
+
+logging_setup("fgm_editor")
 
 
 class MainWindow(widgets.MainWindow):
@@ -18,7 +24,6 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 
 		self.fgm_data = FgmFile()
-		self.widgets = []
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.shaders = {}
 		self.games = [g.value for g in games]
@@ -41,8 +46,8 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
 		self.shader_container = widgets.LabelCombo("Shader:", ())
 		self.shader_container.entry.activated.connect(self.shader_changed)
-		self.tex_container = QtWidgets.QGroupBox("Textures")
-		self.attrib_container = QtWidgets.QGroupBox("Attributes")
+		self.tex_container = ProptertyContainer(self, "Textures")
+		self.attrib_container = ProptertyContainer(self, "Attributes")
 
 		vbox = QtWidgets.QVBoxLayout()
 		vbox.addWidget(self.file_widget)
@@ -53,28 +58,26 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
-		self.tex_grid = self.create_grid()
 		self.attrib_grid = self.create_grid()
 
-		self.tex_container.setLayout(self.tex_grid)
 		self.attrib_container.setLayout(self.attrib_grid)
 
-		mainMenu = self.menuBar()
-		fileMenu = mainMenu.addMenu('File')
-		helpMenu = mainMenu.addMenu('Help')
-		button_data = ( (fileMenu, "Open", self.file_widget.ask_open, "CTRL+O", ""), \
-						(fileMenu, "Save", self.save_fgm, "CTRL+S", ""), \
-						(fileMenu, "Exit", self.close, "", ""), \
-						(helpMenu, "Report Bug", self.report_bug, "", ""), \
-						(helpMenu, "Documentation", self.online_support, "", ""), \
-						)
+		main_menu = self.menuBar()
+		file_menu = main_menu.addMenu('File')
+		help_menu = main_menu.addMenu('Help')
+		button_data = (
+			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", ""),
+			(file_menu, "Save", self.save_fgm, "CTRL+S", ""),
+			(file_menu, "Exit", self.close, "", ""),
+			(help_menu, "Report Bug", self.report_bug, "", ""),
+			(help_menu, "Documentation", self.online_support, "", ""),
+		)
 		self.add_to_menu(button_data)
 
 	def game_changed(self,):
-		if self.file_widget.filepath:
-			self.shader_container.entry.clear()
-			game = self.game_container.entry.currentText()
-			self.shader_container.entry.addItems(self.shaders[game])
+		self.shader_container.entry.clear()
+		game = self.game_container.entry.currentText()
+		self.shader_container.entry.addItems(self.shaders[game])
 		
 	def shader_changed(self,):
 		"""Change the fgm data shader name if gui changes"""
@@ -104,55 +107,149 @@ class MainWindow(widgets.MainWindow):
 
 	def load(self):
 		if self.file_widget.filepath:
-			for w in self.widgets:
-				w.deleteLater()
 			try:
 				self.fgm_data.load(self.file_widget.filepath)
-				print(self.fgm_data)
 				game = get_game(self.fgm_data)[0]
-				print("from game", game)
+				logging.debug(f"from game {game}")
 				self.game_container.entry.setText(game.value)
-				# also for
 				self.game_changed()
 				self.shader_container.entry.setText(self.fgm_data.shader_name)
-
-				# delete existing widgets
-				self.clear_layout(self.tex_grid)
-				self.clear_layout(self.attrib_grid)
-
-				self.tex_grid = self.create_grid()
-				self.tex_grid.setColumnStretch(1, 3)
-				self.tex_grid.setColumnStretch(2, 1)
-				self.attrib_grid = self.create_grid()
-
-				self.tex_container.setLayout(self.tex_grid)
-				self.attrib_container.setLayout(self.attrib_grid)
-				for line_i, tex in enumerate(self.fgm_data.textures):
-					w = widgets.VectorEntry(tex, self.tooltips)
-					self.tex_grid.addWidget(w.delete, line_i, 0)
-					self.tex_grid.addWidget(w.entry, line_i, 1)
-					self.tex_grid.addWidget(w.data, line_i, 2)
-
-				for line_i, attrib in enumerate(self.fgm_data.attributes):
-					w = widgets.VectorEntry(attrib, self.tooltips)
-					self.attrib_grid.addWidget(w.delete, line_i, 0)
-					self.attrib_grid.addWidget(w.entry, line_i, 1)
-					self.attrib_grid.addWidget(w.data, line_i, 2)
+				self.tex_container.update_gui(self.fgm_data.textures)
+				self.attrib_container.update_gui(self.fgm_data.attributes)
 
 			except Exception as ex:
 				traceback.print_exc()
 				ovl_util.interaction.showdialog(str(ex))
-				print(ex)
-			print("Done!")
-		
+				logging.warning(ex)
+			logging.info("Done!")
+
 	def save_fgm(self):
 		if self.file_widget.filepath:
 			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
 			if file_out:
 				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
-				self.fgm_data.save(file_out)
-				print("Done!")
-			
-	
+				try:
+					self.fgm_data.save(file_out)
+				except BaseException as err:
+					traceback.print_exc()
+					interaction.showdialog(str(err))
+					logging.error(err)
+				logging.info("Done!")
+
+
+class ProptertyContainer(QtWidgets.QGroupBox):
+	def __init__(self, gui, name):
+		super().__init__(name)
+		self.gui = gui
+		self.data_list = []
+		self.widgets = []
+
+	def update_gui(self, data_list):
+		logging.debug(f"Populating table with {len(data_list)} entries")
+		self.data_list = data_list
+		self.clear_layout()
+		grid = self.gui.create_grid()
+		grid.setColumnStretch(1, 3)
+		grid.setColumnStretch(2, 3)
+		self.setLayout(grid)
+		self.widgets = []
+		for line_i, tex in enumerate(self.data_list):
+			w = TextureVisual(self, tex)
+			self.widgets.append(w)
+			grid.addWidget(w.delete_btn, line_i, 0)
+			grid.addWidget(w.entry, line_i, 1)
+			grid.addWidget(w.data, line_i, 2)
+
+	def clear_layout(self):
+		layout = self.layout()
+		if layout is not None:
+			w = QtWidgets.QWidget()
+			w.setLayout(layout)
+
+
+class TextureVisual:
+	def __init__(self, container, property):
+		self.container = container
+		self.property = property
+		self.entry = QtWidgets.QLineEdit(property.name)
+		self.entry.textEdited.connect(self.update_name)
+		self.delete_btn = QtWidgets.QPushButton("x")
+		self.delete_btn.setMaximumWidth(15)
+		self.delete_btn.clicked.connect(self.delete)
+		self.data = QtWidgets.QWidget()
+		layout = QtWidgets.QHBoxLayout()
+		self.fields = self.create_fields()
+		for button in self.fields:
+			layout.addWidget(button)
+		self.data.setLayout(layout)
+
+		# get tooltip
+		tooltip = self.container.gui.tooltips.get(self.property.name, "Undocumented textureute.")
+		self.data.setToolTip(tooltip)
+		self.entry.setToolTip(tooltip)
+
+	def delete(self):
+		self.container.data_list.remove(self.property)
+		self.container.update_gui(self.container.data_list)
+
+	def update_name(self, name):
+		self.property.name = name
+
+	def update_file(self, file):
+		self.property.file = file
+
+	def create_fields(self):
+		if hasattr(self.property, "file") and self.property.file:
+			self.file_w = QtWidgets.QLineEdit(self.property.file)
+			self.file_w.textEdited.connect(self.update_file)
+			return self.file_w,
+		else:
+			return [self.create_field(i) for i in range(len(self.property.value))]
+
+	def create_field(self, ind):
+		default = self.property.value[ind]
+
+		def update_ind_color(c):
+			# use a closure to remember index
+			color = self.property.value[ind]
+			color.r, color.g, color.b, color.a = c.getRgb()
+
+		def update_ind(v):
+			# use a closure to remember index
+			# print(self.attrib, ind, v)
+			self.property.value[ind] = v
+
+		def update_ind_int(v):
+			# use a closure to remember index
+			# print(self.attrib, ind, v)
+			self.property.value[ind] = int(v)
+
+		t = str(type(default))
+		# print(t)
+		if "float" in t:
+			field = QtWidgets.QDoubleSpinBox()
+			field.setDecimals(3)
+			field.setRange(-10000, 10000)
+			field.setSingleStep(.05)
+			field.valueChanged.connect(update_ind)
+		elif "bool" in t:
+			field = MySwitch()
+			field.clicked.connect(update_ind)
+		elif "int" in t:
+			default = int(default)
+			field = QtWidgets.QDoubleSpinBox()
+			field.setDecimals(0)
+			field.setRange(-MAX_UINT, MAX_UINT)
+			field.valueChanged.connect(update_ind_int)
+		elif "Color" in t:
+			field = QColorButton()
+			field.colorChanged.connect(update_ind_color)
+		else:
+			raise AttributeError(f"Unsupported field type {t}")
+		field.setValue(default)
+		field.setMinimumWidth(50)
+		return field
+
+
 if __name__ == '__main__':
 	widgets.startup(MainWindow)
