@@ -667,8 +667,11 @@ class OvsFile(OvsHeader):
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}.log")
 		logging.info(f"Dumping fragment log to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
+			f.write(f"Overview\n")
 			for i, pool in enumerate(self.pools):
-				f.write(f"\n\nHeader[{i}] at {pool.address} with {len(pool.fragments)} fragments\n")
+				f.write(f"Pool[{i}] (type: {pool.type})\n")
+			for i, pool in enumerate(self.pools):
+				f.write(f"\n\nPool[{i}] (type: {pool.type}) at {pool.address} with {len(pool.fragments)} fragments\n")
 				entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i]
 				entries.sort(key=lambda entry: entry.pointers[0].data_offset)
 				lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(entries)]
