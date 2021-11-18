@@ -11,7 +11,7 @@ class BanisHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -37,7 +37,8 @@ class BanisHeader:
 
 		# translation range
 		self.loc_offset = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zeros = numpy.zeros((2), dtype='uint64')

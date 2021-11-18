@@ -5,7 +5,7 @@ from generated.formats.ms2.compound.Descriptor import Descriptor
 
 class ListFirst(Descriptor):
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -13,7 +13,8 @@ class ListFirst(Descriptor):
 		self.io_size = 0
 		self.io_start = 0
 		self.floats = numpy.zeros((3), dtype='float')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.floats = numpy.zeros((3), dtype='float')

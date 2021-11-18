@@ -11,7 +11,7 @@ class SizedStringEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -27,7 +27,8 @@ class SizedStringEntry:
 
 		# one pointer OR -1 pointer for assets
 		self.pointers = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.file_hash = 0

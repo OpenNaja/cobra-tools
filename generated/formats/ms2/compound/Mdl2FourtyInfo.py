@@ -7,7 +7,7 @@ class Mdl2FourtyInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -17,7 +17,8 @@ class Mdl2FourtyInfo:
 
 		# 0, 1 or 0, 0, 0, 0
 		self.unknowns = numpy.zeros((5), dtype='uint64')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.unknowns = numpy.zeros((5), dtype='uint64')

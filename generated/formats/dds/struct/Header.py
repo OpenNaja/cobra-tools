@@ -13,7 +13,7 @@ class Header:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -44,7 +44,8 @@ class Header:
 		self.caps_4 = 0
 		self.unused = 0
 		self.dx_10 = Dxt10Header(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.header_string = FixedString(self.context, 4, None)

@@ -19,7 +19,7 @@ class MaterialcollectionInfoHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -40,7 +40,8 @@ class MaterialcollectionInfoHeader:
 		self.texture_wrapper = TextureWrapper(self.context, None, None)
 		self.variant_wrapper = VariantWrapper(self.context, None, None)
 		self.layered_wrapper = LayeredWrapper(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.magic = numpy.zeros((4), dtype='byte')

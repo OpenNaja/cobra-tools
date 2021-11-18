@@ -11,7 +11,7 @@ class StreamInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -32,7 +32,8 @@ class StreamInfo:
 		self.uv_buffer_length = 0
 		self.zero_3 = 0
 		self.zero_4 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.vertex_buffer_length = 0

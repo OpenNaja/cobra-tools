@@ -5,7 +5,7 @@ class LayeredInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -20,7 +20,8 @@ class LayeredInfo:
 		self.zero_4 = 0
 		self.zero_5 = 0
 		self.zero_6 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zero_0 = 0

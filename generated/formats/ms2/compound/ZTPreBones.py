@@ -7,7 +7,7 @@ class ZTPreBones:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,7 +19,8 @@ class ZTPreBones:
 		self.unks_2 = numpy.zeros((10), dtype='uint')
 		self.floats = numpy.zeros((4), dtype='float')
 		self.unks_3 = numpy.zeros((2), dtype='uint')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zeros = numpy.zeros((2), dtype='uint64')

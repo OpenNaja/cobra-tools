@@ -9,7 +9,7 @@ class Color:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -20,7 +20,8 @@ class Color:
 		self.g = 0
 		self.b = 0
 		self.a = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.r = 0

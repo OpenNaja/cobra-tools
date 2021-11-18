@@ -9,7 +9,7 @@ class Frag00:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,7 +19,8 @@ class Frag00:
 
 		# ?
 		self.zero_0 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zero_0 = 0

@@ -11,7 +11,7 @@ from generated.formats.tex.compound.TexHeader import TexHeader
 
 class TexInfoHeader(GenericHeader):
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -30,7 +30,8 @@ class TexInfoHeader(GenericHeader):
 
 		# pad whole frag_11 struct to 320 bytes
 		self.padding = numpy.zeros((384 - self.frag_11.io_size), dtype='ubyte')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.tex_info = TexHeader(self.context, None, None)

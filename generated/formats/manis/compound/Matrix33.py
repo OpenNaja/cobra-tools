@@ -9,7 +9,7 @@ class Matrix33:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -43,7 +43,8 @@ class Matrix33:
 
 		# Member 3,3 (bottom left)
 		self.m_33 = 1.0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.m_11 = 1.0

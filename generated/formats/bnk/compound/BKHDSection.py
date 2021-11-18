@@ -11,7 +11,7 @@ class BKHDSection:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -27,7 +27,8 @@ class BKHDSection:
 		self.constant_a = 0
 		self.constant_b = 0
 		self.unk = numpy.zeros((2), dtype='uint')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0

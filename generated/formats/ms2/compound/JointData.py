@@ -21,7 +21,7 @@ class JointData:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -118,7 +118,8 @@ class JointData:
 
 		# bare hitchecks
 		self.hitchecks_pc = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.user_version.is_jwe and (self.context.version == 20):

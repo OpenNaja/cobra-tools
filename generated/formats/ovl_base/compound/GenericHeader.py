@@ -11,7 +11,7 @@ class GenericHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -36,7 +36,8 @@ class GenericHeader:
 
 		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
 		self.user_version = VersionInfo()
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.magic = FixedString(self.context, 4, None)

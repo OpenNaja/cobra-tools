@@ -7,7 +7,7 @@ class Key:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -16,7 +16,8 @@ class Key:
 		self.io_start = 0
 		self.euler = Vector3Short(self.context, None, None)
 		self.translation = Vector3Ushort(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.euler = Vector3Short(self.context, None, None)

@@ -10,7 +10,7 @@ class AssetEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,7 +29,8 @@ class AssetEntry:
 		# index into sized string entries array; hash of targeted file matches this assetentry's hash.
 		self.file_index = 0
 		self.zero_2 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.file_hash = 0

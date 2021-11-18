@@ -15,7 +15,7 @@ class PcModel:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -40,7 +40,8 @@ class PcModel:
 
 		# sometimes 00 byte
 		self.weird_padding = SmartPadding(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.materials = Array(self.context)

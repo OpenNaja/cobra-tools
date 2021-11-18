@@ -20,7 +20,7 @@ class Header(GenericHeader):
 	Found at the beginning of every OVL file
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -135,7 +135,8 @@ class Header(GenericHeader):
 
 		# repeats by archive count
 		self.zlibs = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.lod_depth = 0

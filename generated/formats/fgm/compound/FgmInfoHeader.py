@@ -13,7 +13,7 @@ class FgmInfoHeader(GenericHeader):
 	This reads a whole custom FGM file
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -26,7 +26,8 @@ class FgmInfoHeader(GenericHeader):
 		self.texture_files = Array(self.context)
 		self.textures = Array(self.context)
 		self.attributes = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.data_lib_size = 0

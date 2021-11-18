@@ -10,7 +10,7 @@ class ListLong(Descriptor):
 	probably ragdoll, lots of angles
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -26,7 +26,8 @@ class ListLong(Descriptor):
 
 		# radians
 		self.radians = numpy.zeros((8), dtype='float')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.loc = Vector3(self.context, None, None)

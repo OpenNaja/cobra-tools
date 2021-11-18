@@ -5,7 +5,7 @@ class Root1:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -14,7 +14,8 @@ class Root1:
 		self.io_start = 0
 		self.flag = 0
 		self.zero_1 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.flag = 0

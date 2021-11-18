@@ -5,7 +5,7 @@ class IndexEnum:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -16,7 +16,8 @@ class IndexEnum:
 
 		# linear increase
 		self.index = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.four = 0

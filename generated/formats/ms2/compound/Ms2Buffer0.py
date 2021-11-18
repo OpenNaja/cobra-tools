@@ -10,7 +10,7 @@ class Ms2Buffer0:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -27,7 +27,8 @@ class Ms2Buffer0:
 		# todo - pad to 8; for pz 1.6
 		self.new_padding = SmartPadding(self.context, None, None)
 		self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.name_hashes = numpy.zeros((), dtype='uint')

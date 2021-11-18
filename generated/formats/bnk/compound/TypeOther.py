@@ -11,7 +11,7 @@ class TypeOther:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -24,7 +24,8 @@ class TypeOther:
 
 		# id of this Sound SFX object
 		self.raw = numpy.zeros((self.length), dtype='byte')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0

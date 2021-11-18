@@ -11,7 +11,7 @@ class DATASection:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -22,7 +22,8 @@ class DATASection:
 		# length of following data
 		self.length = 0
 		self.wem_datas = numpy.zeros((self.length), dtype='byte')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0

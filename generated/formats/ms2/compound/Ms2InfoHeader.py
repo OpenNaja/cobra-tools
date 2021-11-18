@@ -11,7 +11,7 @@ class Ms2InfoHeader(GenericHeader):
 	includes fragments but none of the 3 data buffers
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -23,7 +23,8 @@ class Ms2InfoHeader(GenericHeader):
 		self.general_info = Ms2SizedStrData(self.context, None, None)
 		self.buffer_info = Ms2BufferInfo(self.context, None, None)
 		self.buffer_0 = Ms2Buffer0(self.context, self.general_info, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.bone_names_size = 0

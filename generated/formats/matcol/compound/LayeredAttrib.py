@@ -5,7 +5,7 @@ class LayeredAttrib:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -16,7 +16,8 @@ class LayeredAttrib:
 		self.zero_1 = 0
 		self.attrib_count = 0
 		self.zero_2 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zero_0 = 0

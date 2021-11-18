@@ -14,7 +14,7 @@ class Ms2BufferInfoZTHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -25,7 +25,8 @@ class Ms2BufferInfoZTHeader:
 		# sometimes 00 byte
 		self.weird_padding = SmartPadding(self.context, None, None)
 		self.unks = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.weird_padding = SmartPadding(self.context, None, None)

@@ -13,7 +13,7 @@ class PcBuffer1:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -23,7 +23,8 @@ class PcBuffer1:
 		self.buffer_info_pc = Ms2BufferInfoZT(self.context, self.arg, None)
 		self.buffer_info_pc = Ms2BufferInfoPC(self.context, None, None)
 		self.model_infos = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.version == 17:

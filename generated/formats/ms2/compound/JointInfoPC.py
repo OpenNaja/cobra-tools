@@ -8,7 +8,7 @@ class JointInfoPC:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -30,7 +30,8 @@ class JointInfoPC:
 		# 8 bytes of zeros per hitcheck
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
 		self.hit_check = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.eleven = 0

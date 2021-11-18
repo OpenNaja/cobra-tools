@@ -8,7 +8,7 @@ class LayeredWrapper:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -17,7 +17,8 @@ class LayeredWrapper:
 		self.io_start = 0
 		self.info = MaterialInfo(self.context, None, None)
 		self.layers = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.info = MaterialInfo(self.context, None, None)

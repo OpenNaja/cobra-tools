@@ -22,7 +22,7 @@ class Array(list):
         '''Create a new array of the specified shape and type.
         :param shape: Shape of the resulting array. Zero-dimensional arrays are not supported.
         :type shape: Union[int, Tuple[int, ...]]
-        :param dtype: The class to use for instancing objects in this array. If it supports create_array, that will 
+        :param dtype: The class to use for instancing objects in this array. If it supports create_array, that will
         be used instead.
         :type dtype: type
         :param context: The context object to use for this array (necessary for version and other global conditions).
@@ -42,9 +42,6 @@ class Array(list):
         self.template = template
         if set_default:
             self.set_defaults()
-
-    def test(self):
-        self.__init__()
 
     def set_defaults(self):
         self[:] = self.create_nested_list(lambda : self.dtype(self.context, self.arg, self.template), self.shape)
@@ -66,7 +63,6 @@ class Array(list):
             return dtype.read_array(stream, shape, context, arg, template)
         else:
             new_array = cls(shape, dtype, context, arg, template, set_default=False)
-            
             new_array.read(stream, shape, dtype, context, arg, template)
             return new_array
 
@@ -105,7 +101,6 @@ class Array(list):
     @property
     def ndim(self):
         return len(self.shape)
-        
 
     @property
     def size(self):

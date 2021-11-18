@@ -9,7 +9,7 @@ class ZlibInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -22,7 +22,8 @@ class ZlibInfo:
 
 		# seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header
 		self.zlib_thing_2 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zlib_thing_1 = 0

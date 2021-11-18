@@ -9,7 +9,7 @@ class CoreModelInfoPC(CoreModelInfo):
 	152 bytes
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -21,7 +21,8 @@ class CoreModelInfoPC(CoreModelInfo):
 		self.one = 0
 		self.zero = 0
 		self.zero_zt = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.version == 18:

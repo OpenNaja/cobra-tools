@@ -12,7 +12,7 @@ class HitCheckEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -45,7 +45,8 @@ class HitCheckEntry:
 		self.collider = ConvexHull(self.context, None, None)
 		self.collider = ConvexHull(self.context, None, None)
 		self.collider = MeshCollision(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.type = CollisionType()

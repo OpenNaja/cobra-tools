@@ -12,7 +12,7 @@ class Ms2BufferInfoPC:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -24,7 +24,8 @@ class Ms2BufferInfoPC:
 		# Total size of vertex buffer for PC, starting with the 0 - 16 byte indices
 		self.vertex_buffer_size = 0
 		self.zero_2 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zeros_1 = numpy.zeros((2), dtype='uint64')

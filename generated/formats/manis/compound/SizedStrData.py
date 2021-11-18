@@ -7,7 +7,7 @@ class SizedStrData:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,7 +19,8 @@ class SizedStrData:
 		self.zeros = numpy.zeros((2), dtype='int')
 		self.c_1 = 0
 		self.zeros_end = numpy.zeros((9), dtype='ushort')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.a = 0

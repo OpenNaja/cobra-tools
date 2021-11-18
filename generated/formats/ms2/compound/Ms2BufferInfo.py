@@ -13,7 +13,7 @@ class Ms2BufferInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -37,7 +37,8 @@ class Ms2BufferInfo:
 
 		# PZ, another 16 empty bytes
 		self.unk_2 = numpy.zeros((2), dtype='uint64')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.user_version.is_jwe and (self.context.version == 19):

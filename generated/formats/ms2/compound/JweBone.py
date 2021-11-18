@@ -11,7 +11,7 @@ class JweBone:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -21,7 +21,8 @@ class JweBone:
 		self.loc = Vector3(self.context, None, None)
 		self.scale = 0
 		self.rot = Vector4(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.loc = Vector3(self.context, None, None)

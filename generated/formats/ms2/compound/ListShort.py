@@ -8,7 +8,7 @@ class ListShort(Descriptor):
 	used in JWE dinos
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -27,7 +27,8 @@ class ListShort(Descriptor):
 
 		# max, ge 0
 		self.max = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.loc = Vector3(self.context, None, None)

@@ -15,7 +15,7 @@ class Ms2BoneInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -129,7 +129,8 @@ class Ms2BoneInfo:
 		# joints
 		self.joints = JointData(self.context, None, None)
 		self.weird_padding_2 = SmartPadding(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.name_count = 0

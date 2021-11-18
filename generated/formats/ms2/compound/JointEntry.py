@@ -11,7 +11,7 @@ class JointEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -24,7 +24,8 @@ class JointEntry:
 
 		# the location of the joint
 		self.loc = Vector3(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.rot = Matrix33(self.context, None, None)

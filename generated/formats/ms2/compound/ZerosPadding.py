@@ -5,7 +5,7 @@ class ZerosPadding:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,7 +19,8 @@ class ZerosPadding:
 
 		# 129 is the first with 24 bytes
 		self.hier_2_padding_2 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.hier_2_padding_0 = 0

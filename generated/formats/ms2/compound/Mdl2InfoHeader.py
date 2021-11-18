@@ -15,7 +15,7 @@ class Mdl2InfoHeader(GenericHeader):
 	This reads a whole custom mdl2 file
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -46,7 +46,8 @@ class Mdl2InfoHeader(GenericHeader):
 
 		# model data blocks for this mdl2
 		self.models = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.index = 0

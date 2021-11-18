@@ -6,7 +6,7 @@ from generated.formats.wsm.compound.WsmHeader import WsmHeader
 
 class Wsm(GenericHeader):
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -20,7 +20,8 @@ class Wsm(GenericHeader):
 
 		# xyzw
 		self.quats = numpy.zeros((self.header.frame_count, 4), dtype='float')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.header = WsmHeader(self.context, None, None)

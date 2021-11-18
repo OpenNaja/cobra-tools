@@ -10,7 +10,7 @@ class LodInfoZT:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -41,7 +41,8 @@ class LodInfoZT:
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
 		self.last_object_index = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.full = 0

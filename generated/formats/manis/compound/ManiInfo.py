@@ -12,7 +12,7 @@ class ManiInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -61,7 +61,8 @@ class ManiInfo:
 		self.c_4 = 0
 		self.c_5 = 0
 		self.zeros_end = numpy.zeros((3), dtype='ushort')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.duration = 0

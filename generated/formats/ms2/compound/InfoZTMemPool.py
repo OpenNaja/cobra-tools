@@ -7,7 +7,7 @@ class InfoZTMemPool:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -16,7 +16,8 @@ class InfoZTMemPool:
 		self.io_start = 0
 		self.unk_count = 0
 		self.unks = numpy.zeros((self.unk_count, 2), dtype='ushort')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.unk_count = 0

@@ -11,7 +11,7 @@ class ManiBlock:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -69,7 +69,8 @@ class ManiBlock:
 		# this seems to be vaguely related, but not always there?
 		self.unk_for_e_2 = 0
 		self.repeats = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.ref = Empty(self.context, None, None)

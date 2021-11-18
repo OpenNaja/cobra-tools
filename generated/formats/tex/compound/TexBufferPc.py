@@ -9,7 +9,7 @@ class TexBufferPc:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -24,7 +24,8 @@ class TexBufferPc:
 
 		# max mip in this buffer
 		self.mip_index = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.width = 0

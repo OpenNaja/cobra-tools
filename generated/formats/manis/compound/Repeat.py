@@ -7,7 +7,7 @@ class Repeat:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,7 +19,8 @@ class Repeat:
 		# to be read sequentially starting after this array
 		self.byte_size = 0
 		self.zeros_1 = numpy.zeros((5), dtype='uint')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zeros_0 = numpy.zeros((14), dtype='uint')

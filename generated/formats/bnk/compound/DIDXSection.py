@@ -11,7 +11,7 @@ class DIDXSection:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -22,7 +22,8 @@ class DIDXSection:
 		# length of following data
 		self.length = 0
 		self.data_pointers = Array(self.context)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0

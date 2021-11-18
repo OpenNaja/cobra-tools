@@ -13,7 +13,7 @@ class InfoHeader(GenericHeader):
 	Custom header struct
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template)
 		self.arg = arg
@@ -29,7 +29,8 @@ class InfoHeader(GenericHeader):
 
 		# ?
 		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.mani_count = 0

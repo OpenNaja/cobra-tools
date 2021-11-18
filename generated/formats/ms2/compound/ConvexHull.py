@@ -9,7 +9,7 @@ class ConvexHull:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,7 +29,8 @@ class ConvexHull:
 
 		# probably padding
 		self.zeros = numpy.zeros((2), dtype='uint')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.vertex_count = 0

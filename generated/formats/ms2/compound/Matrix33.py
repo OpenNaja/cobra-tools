@@ -11,7 +11,7 @@ class Matrix33:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -21,7 +21,8 @@ class Matrix33:
 
 		# Stored in OpenGL column-major format.
 		self.data = numpy.zeros((3, 3), dtype='float')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.data = numpy.zeros((3, 3), dtype='float')

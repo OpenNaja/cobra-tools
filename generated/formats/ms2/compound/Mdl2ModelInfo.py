@@ -11,7 +11,7 @@ class Mdl2ModelInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -20,7 +20,8 @@ class Mdl2ModelInfo:
 		self.io_start = 0
 		self.fourty = Mdl2FourtyInfo(self.context, None, None)
 		self.info = CoreModelInfo(self.context, None, None)
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.fourty = Mdl2FourtyInfo(self.context, None, None)

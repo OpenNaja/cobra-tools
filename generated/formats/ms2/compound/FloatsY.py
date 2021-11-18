@@ -7,7 +7,7 @@ class FloatsY:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -16,7 +16,8 @@ class FloatsY:
 		self.io_start = 0
 		self.floats = numpy.zeros((8), dtype='float')
 		self.index = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.floats = numpy.zeros((8), dtype='float')

@@ -15,7 +15,7 @@ class CoreModelInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -65,7 +65,8 @@ class CoreModelInfo:
 		# ?
 		self.unks = numpy.zeros((7), dtype='ushort')
 		self.pad = numpy.zeros((3), dtype='ushort')
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.bounds_min = Vector3(self.context, None, None)
