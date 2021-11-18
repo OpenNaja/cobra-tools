@@ -1003,6 +1003,7 @@ class OvlFile(Header, IoFile):
 		file_entry.name = filename
 		file_entry.basename, file_entry.ext = os.path.splitext(filename)
 		file_entry.dependencies = []
+		file_entry.aux_entries = []
 		try:
 			file_entry.update_constants(self)
 		except KeyError:
@@ -1163,6 +1164,7 @@ class OvlFile(Header, IoFile):
 			file_entry.basename = file_name
 			file_entry.name = file_name + file_entry.ext
 			file_entry.dependencies = []
+			file_entry.aux_entries = []
 			self.hash_table_local[file_entry.file_hash] = file_name
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
@@ -1197,7 +1199,6 @@ class OvlFile(Header, IoFile):
 			try:
 				file_entry = self.files[dependency_entry.file_index]
 				file_entry.dependencies.append(dependency_entry)
-				dependency_entry.file = file_entry
 			# funky bug due to some PC ovls using a different DependencyEntry struct
 			except IndexError as err:
 				logging.error(err)
@@ -1206,7 +1207,8 @@ class OvlFile(Header, IoFile):
 			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
 
 		for aux_entry in self.aux_entries:
-			aux_entry.file = self.files[aux_entry.file_index]
+			file_entry = self.files[aux_entry.file_index]
+			file_entry.aux_entries.append(aux_entry)
 
 		self.static_archive = None
 		for archive_entry in self.archives:
@@ -1431,16 +1433,19 @@ class OvlFile(Header, IoFile):
 
 	def update_hashes(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
+		# rebuild the dependencies list
+		self.dependencies.clear()
 		# update file hashes
 		for file in self.files:
 			file.file_hash = djb(file.basename)
 			file.ext_hash = djb(file.ext[1:])
-		# update dependency hashes
-		for dependency in self.dependencies:
-			if dependency.basename == "bad hash":
-				logging.warning(f"Bad hash on dependency entry - cannot resolve this")
-			else:
-				dependency.file_hash = djb(dependency.basename)
+			# update dependency hashes
+			for dependency in file.dependencies:
+				if dependency.basename == "bad hash":
+					logging.warning(f"Bad hash on dependency entry - cannot resolve this")
+				else:
+					dependency.file_hash = djb(dependency.basename)
+			self.dependencies.extend(file.dependencies)
 
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
@@ -1449,8 +1454,9 @@ class OvlFile(Header, IoFile):
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
 		# update the file indices
-		for entry in self.dependencies + self.aux_entries:
-			entry.file_index = file_name_lut[entry.file.name]
+		for file in self.files:
+			for entry in file.dependencies + file.aux_entries:
+				entry.file_index = file_name_lut[file.name]
 
 		for archive in self.archives:
 			# change the hashes / indices of all entries to be valid for the current game version
