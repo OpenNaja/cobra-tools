@@ -1,9 +1,13 @@
 from operator import index
+from math import prod
 
 from generated.context import ContextReference
 
 
 class Array(list):
+    '''Main class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
+    mostly like an array.
+    '''
 
     context = ContextReference()
 
@@ -15,8 +19,22 @@ class Array(list):
             return super(cls, cls).__new__(cls)
 
     def __init__(self, shape, dtype, context, arg=None, template=None, set_default=True):
+        '''Create a new array of the specified shape and type.
+        :param shape: Shape of the resulting array. Zero-dimensional arrays are not supported.
+        :type shape: Union[int, Tuple[int, ...]]
+        :param dtype: The class to use for instancing objects in this array. If it supports create_array, that will
+        be used instead.
+        :type dtype: type
+        :param context: The context object to use for this array (necessary for version and other global conditions).
+        :type context: Any object which supports accessing for global conditions.
+        :param arg: 'arg' parameter to use for instancing objects in this array.
+        :param template: 'template' parameter to use for instancing objects in this array.
+        :param set_default: Whether to create the elements of this array on init. If false, it is assumed that these
+        elements will be created by another process immediately after init.
+        :type set_default: bool, optional
+        '''
         super().__init__(self)
-        self.shape = self.to_shape(shape)
+        self.shape = shape
         self.ndim = len(self.shape)
         self.dtype = dtype
         self._context = context
@@ -28,15 +46,14 @@ class Array(list):
     def set_defaults(self):
         self[:] = self.create_nested_list(lambda : self.dtype(self.context, self.arg, self.template), self.shape)
 
-    def read(self, stream, shape, dtype, context, arg, template):
+    def read(self, stream):
         self.io_start = stream.tell()
-        self[:] = self.create_nested_list(lambda : dtype.from_stream(stream, context, arg, template), self.shape)
+        self[:] = self.create_nested_list(lambda : self.dtype.from_stream(stream, self.context, self.arg, self.template), self.shape)
         self.io_size = stream.tell() - self.io_start
 
-    def write(self, stream, shape, dtype, context, arg=None, template=None):
+    def write(self, stream):
         self.io_start = stream.tell()
-        self.store_params(shape, dtype, context, arg, template)
-        self.perform_nested_func(self, lambda x: dtype.to_stream(stream, x), self.ndim)
+        self.perform_nested_func(self, lambda x: self.dtype.to_stream(stream, x), self.ndim)
         self.io_size = stream.tell() - self.io_start
 
 
@@ -54,7 +71,8 @@ class Array(list):
         if callable(getattr(dtype, 'write_array', None)):
             dtype.write_array(stream, instance)
         else:
-            instance.write(stream, shape, dtype, context, arg, template)
+            instance.store_params(shape, dtype, context, arg, template)
+            instance.write(stream)
 
     @classmethod
     def from_value(cls, shape, dtype, value):
@@ -71,11 +89,12 @@ class Array(list):
 
     @shape.setter
     def shape(self, shape_input):
+        # conversion to int happens using the 'index' operator
         try:
-            # try to convert iterable to a tuple
-            shape = tuple(shape_input)
+            # try to convert iterable to a tuple of ints
+            shape = tuple(index(i) for i in shape_input)
         except TypeError:
-            # if this errored, try instead to convert an integer-like to (int, )
+            # if this can't be converted to a tuple, try instead to convert an integer-like to (int, )
             shape = (index(shape_input), )
         self._shape = shape
 
@@ -85,29 +104,26 @@ class Array(list):
 
     @property
     def size(self):
-        # start with 1, because array of 0 dimensions have 1 value
-        size = 1
-        for dim in self.shape:
-            size *= dim
-        return size
+        return prod(self.shape)
 
     @classmethod
     def create_nested_list(cls, function_to_generate, shape):
+		# create a nested list with the specified shape, where every element is created by function_to_generate()
         if len(shape) > 1:
             return [cls.create_nested_list(function_to_generate, shape[1:]) for _ in range(shape[0])]
         else:
             return [function_to_generate() for _ in range(shape[0])]
-    
+
     @classmethod
     def perform_nested_func(cls, nested_iterable, efunc, ndim):
-        # perform a function efunc(element) on every element in a nested iterable
+        # perform a function efunc(element) on every element in a nested iterable and return the result
         if ndim > 1:
             return [cls.perform_nested_func(sublist, efunc, ndim - 1) for sublist in nested_iterable]
         else:
             return [efunc(element) for element in nested_iterable]
 
     def store_params(self, shape, dtype, context, arg, template):
-        self.shape = self.to_shape(shape)
+        self.shape = shape
         self.dtype = dtype
         self._context = context
         self.arg = arg
