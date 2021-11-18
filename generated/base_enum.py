@@ -10,12 +10,15 @@ class DefaultEnumMeta(EnumMeta):
 			# Assume the first enum is default
 			return next(iter(cls))
 		return super().__call__(value, *args, **kwargs)
-		# return super(DefaultEnumMeta, cls).__call__(value, *args, **kwargs) # PY2
-	#
-	# def __new__(cls, value=0):
-	# 	member = object.__new__(cls)
-	# 	member._value_ = value
-	# 	return member
+
+	# Execute base __new__ https://github.com/python/cpython/blob/32959108f9c543e3cb9f2b68bbc782bddded6f42/Lib/enum.py#L410
+	# and then move __new__ to from_value, while the new __new__ accepts the standardized arguments
+	def __new__(metacls, cls, bases, classdict):
+		enum_class = super(metacls, metacls).__new__(metacls, cls, bases, classdict)
+		new_function = enum_class.__new__
+		enum_class.from_value = lambda value: new_function(enum_class, value)
+		enum_class.__new__ = lambda cls, context=None, arg=None, template=None, set_default=True: new_function(cls)
+		return enum_class
 
 
 class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
