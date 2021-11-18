@@ -62,221 +62,68 @@ class PrefabLoader(BaseFile):
         
 	def collect(self,):
 		self.assign_ss_entry()
-		return
 		ss_entry = self.sized_str_entry
-        
-        
+		return
 		att_type_dict = [0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0]
 		att_type_dict2 = [0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0]
-        
-        
 		ssdata = self.prefab_unpack_ss(len(ss_entry.pointers[0].data), ss_entry.pointers[0].data)
 		print("\nPREFAB:", ss_entry.name)
 		print(ssdata)
-		gub = []
+		ss_entry.fragments = self.ovs.frags_accumulate_from_pointer_till_count(ss_entry.pointers[0], 88-len(ss_entry.pointers[0].data), 7)
+		init_frag_count = len(ss_entry.fragments)
+		has_properties = False
+		has_components = False
+		has_children = False
 		fug = []
-
-		if (ssdata[4] == 0) and (ssdata[6] == 0):
-			ss_entry.fragments = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
-		elif (ssdata[4] != 0) and (ssdata[6] == 0):
-			ss_entry.fragments = self.ovs.frags_from_pointer(ss_entry.pointers[0], 4)
-			f3_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[3].pointers[0].data),
-											ss_entry.fragments[3].pointers[0].data)
-			f2_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-											ss_entry.fragments[2].pointers[0].data)
-		elif (ssdata[4] == 0) and (ssdata[6] != 0):
-			ss_entry.fragments = self.ovs.frags_from_pointer(ss_entry.pointers[0], 3)
-			f3_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-											ss_entry.fragments[2].pointers[0].data)
-			f2_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-										ss_entry.fragments[2].pointers[0].data)
-		elif (ssdata[4] != 0) and (ssdata[6] != 0):
-			ss_entry.fragments = self.ovs.frags_from_pointer(ss_entry.pointers[0], 6)
-			f5_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[5].pointers[0].data),
-											ss_entry.fragments[5].pointers[0].data)
-			f2_d0 = self.prefab_unpack_temp(len(ss_entry.fragments[2].pointers[0].data),
-											ss_entry.fragments[2].pointers[0].data)
-		else:
-			ss_entry.fragments = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
-
-        
-                
 		if (ssdata[4] != 0) and (ssdata[6] == 0):
-			if len(ss_entry.fragments[3].pointers[0].data) != 40:
-				gub = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
-				ss_entry.fragments += gub
-
-			ss_entry.specdef_name_fragments += self.ovs.frags_from_pointer(ss_entry.fragments[0].pointers[1], ssdata[4])
-			for i, entry in enumerate(ss_entry.specdef_name_fragments):
-				entry.data_frags = []
-			ss_entry.fragments += ss_entry.specdef_name_fragments
+			print("has components but no children")
+			component_name_frag = 0
+			component_data_frag = 2
+			has_components = True
             
-			for name_frag in ss_entry.specdef_name_fragments:
+			if init_frag_count == 5:
+				has_properties = True
+				print("has properties")
             
-				if name_frag.pointers[1].data.rstrip(b'\x00') in specdefs_jwe.jwe_specdefs:
-                
-					print(name_frag.pointers[1].data.rstrip(b'\x00'))
-					specdef_frag_counts = specdefs_jwe.jwe_specdefs[name_frag.pointers[1].data.rstrip(b'\x00')]
-					print(specdef_frag_counts)
-					if specdef_frag_counts[0] != 0:
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(ss_entry.fragments[2].pointers[1], specdef_frag_counts[0]))
-						if len(name_frag.data_frags[0].pointers[1].data) >= 16:
-							countt = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
-											name_frag.data_frags[0].pointers[1].data)[2]
-					if b'AssetPackageLoader' == name_frag.pointers[1].data.rstrip(b'\x00'):
-						check = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
-										name_frag.data_frags[0].pointers[1].data)[2] 
-						print("AssetPackageLoader has : "+str(check))
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], check+1))
-						for i in range(check+1):
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[i+1].pointers[1], 1))
-					elif b'AudioDinosaurCore' == name_frag.pointers[1].data.rstrip(b'\x00'):
-						check = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
-										name_frag.data_frags[0].pointers[1].data)[2] 
-						print("AudioDinosaurCore has : "+str(check))
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
-						if len(name_frag.data_frags[2].pointers[0].data) != 32:
-							print("len len ",len(name_frag.data_frags[2].pointers[0].data))
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
-					elif b'IKFootPlant' == name_frag.pointers[1].data.rstrip(b'\x00'):   
-						if len(name_frag.data_frags[0].pointers[1].data) == 16:
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 3))
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], 1))
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[3].pointers[1], specdef_frag_counts[3]))
-                            
-						else:
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
-							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], specdef_frag_counts[3]))
-                            
-					elif len(specdef_frag_counts) == 2:
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
-					elif len(specdef_frag_counts) == 3:
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
-					elif len(specdef_frag_counts) == 4:
-
-
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], specdef_frag_counts[3]))
-                        
-					elif len(specdef_frag_counts) == 5:
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
-						county = self.prefab_unpack_temp(len(name_frag.data_frags[2].pointers[0].data),name_frag.data_frags[2].pointers[0].data)[2]
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], specdef_frag_counts[2]))
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], self.specdef_thing(county,specdef_frag_counts[3])))
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[3].pointers[1], specdef_frag_counts[4]))
-                        
-					ss_entry.fragments += name_frag.data_frags
-                    
-			if len(ss_entry.fragments[3].pointers[0].data) != 40:
-				fug += self.ovs.frags_from_pointer_equalsb_counts(gub[0].pointers[1], 5)
-				ss_entry.fragments += fug
-				gub_d1 = self.prefab_unpack_gub(len(gub[0].pointers[1].data), gub[0].pointers[1].data)
-				fug0_d1 = self.prefab_unpack_temp(len(fug[0].pointers[1].data), fug[0].pointers[1].data)
-				fug1_d1 = self.prefab_unpack_temp(len(fug[1].pointers[1].data), fug[1].pointers[1].data)
-				fug2_d1 = self.prefab_unpack_temp(len(fug[2].pointers[1].data), fug[2].pointers[1].data)
-				fug3_d1 = self.prefab_unpack_temp(len(fug[3].pointers[1].data), fug[3].pointers[1].data)
-				fug4_d1 = self.prefab_unpack_temp(len(fug[4].pointers[1].data), fug[4].pointers[1].data)
-
-				
-				ss_entry.specdef_attr_names += self.ovs.frags_from_pointer_equalsb_counts(fug[1].pointers[1], gub_d1[0])  
-				ss_entry.specdef_attr_datas += self.ovs.frags_from_pointer_equalsb_counts(fug[2].pointers[1], gub_d1[0])
-				for entry in ss_entry.specdef_attr_datas:
-					entry.child_datas = []
-				ss_entry.fragments += ss_entry.specdef_attr_names
-				ss_entry.fragments += ss_entry.specdef_attr_datas
-				cc = 0
-				for i, entry in enumerate(ss_entry.specdef_attr_datas):
-					count = att_type_dict[fug0_d1[i]]
-					count2 = att_type_dict2[fug0_d1[i]]
-					cc+=count2
-					entry.child_datas.extend(self.ovs.frags_from_pointer(entry.pointers[1],count))
-					ss_entry.fragments += entry.child_datas
-					ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], count2))
-				if cc == 0:
-					ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], 1))
-                
-              
-				
-				for i, entry in enumerate(ss_entry.specdef_other_list):
-					entry.other_datas = []
-				ss_entry.fragments += ss_entry.specdef_other_list
-                
-				for frag in ss_entry.specdef_other_list:
-					count = self.prefab_unpack_temp(len(frag.pointers[0].data), frag.pointers[0].data)
-					frag.other_datas.extend(self.ovs.frags_from_pointer_equalsb_counts(frag.pointers[1], count[2]))
-					ss_entry.fragments += frag.other_datas
-
-		elif (ssdata[4] == 0) and (ssdata[6] != 0):
-			if len(ss_entry.fragments[2].pointers[0].data) != 24:
-				gub = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
-				ss_entry.fragments += gub
-			ss_entry.fragments += self.ovs.frags_from_pointer(ss_entry.fragments[1].pointers[1], ssdata[6])
-            
-			if len(ss_entry.fragments[2].pointers[0].data) != 24:
-				fug += self.ovs.frags_from_pointer_equalsb_counts(gub[0].pointers[1], 5)
-				ss_entry.fragments += fug
-				gub_d1 = self.prefab_unpack_gub(len(gub[0].pointers[1].data), gub[0].pointers[1].data)
-				fug0_d1 = self.prefab_unpack_temp(len(fug[0].pointers[1].data), fug[0].pointers[1].data)
-				fug1_d1 = self.prefab_unpack_temp(len(fug[1].pointers[1].data), fug[1].pointers[1].data)
-				fug2_d1 = self.prefab_unpack_temp(len(fug[2].pointers[1].data), fug[2].pointers[1].data)
-				fug3_d1 = self.prefab_unpack_temp(len(fug[3].pointers[1].data), fug[3].pointers[1].data)
-				fug4_d1 = self.prefab_unpack_temp(len(fug[4].pointers[1].data), fug[4].pointers[1].data)
-
-				
-				ss_entry.specdef_attr_names += self.ovs.frags_from_pointer_equalsb_counts(fug[1].pointers[1], gub_d1[0])  
-				ss_entry.specdef_attr_datas += self.ovs.frags_from_pointer_equalsb_counts(fug[2].pointers[1], gub_d1[0])
-				for entry in ss_entry.specdef_attr_datas:
-					entry.child_datas = []
-				ss_entry.fragments += ss_entry.specdef_attr_names
-				ss_entry.fragments += ss_entry.specdef_attr_datas
-				cc = 0
-				for i, entry in enumerate(ss_entry.specdef_attr_datas):
-					count = att_type_dict[fug0_d1[i]]
-					count2 = att_type_dict2[fug0_d1[i]]
-					cc+=count2
-					entry.child_datas.extend(self.ovs.frags_from_pointer(entry.pointers[1],count))
-					ss_entry.fragments += entry.child_datas
-					ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], count2))
-				if cc == 0:
-					ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], 1))
-                
-              
-				
-				for i, entry in enumerate(ss_entry.specdef_other_list):
-					entry.other_datas = []
-				ss_entry.fragments += ss_entry.specdef_other_list
-                
-				for frag in ss_entry.specdef_other_list:
-					count = self.prefab_unpack_temp(len(frag.pointers[0].data), frag.pointers[0].data)
-					frag.other_datas.extend(self.ovs.frags_from_pointer_equalsb_counts(frag.pointers[1], count[2]))
-					ss_entry.fragments += frag.other_datas
-
-
 		elif (ssdata[4] != 0) and (ssdata[6] != 0):
-			if (len(ss_entry.fragments[5].pointers[0].data) != 24) and (len(ss_entry.fragments[5].pointers[0].data) != 8):
-				gub = self.ovs.frags_from_pointer(ss_entry.pointers[0], 1)
-				ss_entry.fragments += gub
-			ss_entry.specdef_name_fragments += self.ovs.frags_from_pointer(ss_entry.fragments[0].pointers[1], ssdata[4])
+			print("has components and children")
+			component_name_frag = 0
+			component_data_frag = 2
+			child_frag = 4
+			has_components = True
+			has_children = True
+            
+			if init_frag_count == 7:
+				has_properties = True
+				print("has properties")
+            
+		elif (ssdata[4] == 0) and (ssdata[6] != 0):
+			print("has children but no components")
+			has_children = True
+			child_frag = 1
+            
+			if init_frag_count == 4:
+				has_properties = True
+				print("has properties")
+            
+		else:
+			print("has no components and no children")
+            
+            
+		if has_components == True:
+			ss_entry.specdef_name_fragments += self.ovs.frags_from_pointer(ss_entry.fragments[component_name_frag].pointers[1], ssdata[4])
 			for i, entry in enumerate(ss_entry.specdef_name_fragments):
 				entry.data_frags = []
 			ss_entry.fragments += ss_entry.specdef_name_fragments
-            
 			for name_frag in ss_entry.specdef_name_fragments:
-            
 				if name_frag.pointers[1].data.rstrip(b'\x00') in specdefs_jwe.jwe_specdefs:
-                
 					print(name_frag.pointers[1].data.rstrip(b'\x00'))
 					specdef_frag_counts = specdefs_jwe.jwe_specdefs[name_frag.pointers[1].data.rstrip(b'\x00')]
 					print(specdef_frag_counts)
 					if specdef_frag_counts[0] != 0:
-						name_frag.data_frags.extend(self.ovs.frags_from_pointer(ss_entry.fragments[2].pointers[1], specdef_frag_counts[0]))
+						name_frag.data_frags.extend(self.ovs.frags_from_pointer(ss_entry.fragments[component_data_frag].pointers[1], specdef_frag_counts[0]))
 						if len(name_frag.data_frags[0].pointers[1].data) >= 16:
-							countt = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
-											name_frag.data_frags[0].pointers[1].data)[2]     
+							countt = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data), name_frag.data_frags[0].pointers[1].data)[2]     
 					if b'AssetPackageLoader' == name_frag.pointers[1].data.rstrip(b'\x00'):
 						check = self.prefab_unpack_temp(len(name_frag.data_frags[0].pointers[1].data),
 										name_frag.data_frags[0].pointers[1].data)[2] 
@@ -291,9 +138,9 @@ class PrefabLoader(BaseFile):
 						print("AudioDinosaurCore has : "+str(check))
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
 						if len(name_frag.data_frags[2].pointers[0].data) != 32:
-							print("len len ",len(name_frag.data_frags[2].pointers[0].data))
+							#print("len len ",len(name_frag.data_frags[2].pointers[0].data))
 							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
-					elif b'IKFootPlant' == name_frag.pointers[1].data.rstrip(b'\x00'):   
+					elif b'IKFootPlant' == name_frag.pointers[1].data.rstrip(b'\x00'):  
 						if len(name_frag.data_frags[0].pointers[1].data) == 16:
 							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 3))
 							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
@@ -304,10 +151,7 @@ class PrefabLoader(BaseFile):
 							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], 2))
 							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], self.specdef_thing(countt,specdef_frag_counts[2])))
 							name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], specdef_frag_counts[3]))
-                    
-                    
-                    
-                    
+                            
 					elif len(specdef_frag_counts) == 2:
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
 					elif len(specdef_frag_counts) == 3:
@@ -321,56 +165,60 @@ class PrefabLoader(BaseFile):
                         
 					elif len(specdef_frag_counts) == 5:
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[0].pointers[1], specdef_frag_counts[1]))
-						county = self.prefab_unpack_temp(len(name_frag.data_frags[2].pointers[1].data),name_frag.data_frags[2].pointers[1].data)[2]
+						county = self.prefab_unpack_temp(len(name_frag.data_frags[2].pointers[0].data),name_frag.data_frags[2].pointers[0].data)[2]
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[1].pointers[1], specdef_frag_counts[2]))
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[2].pointers[1], self.specdef_thing(county,specdef_frag_counts[3])))
 						name_frag.data_frags.extend(self.ovs.frags_from_pointer(name_frag.data_frags[3].pointers[1], specdef_frag_counts[4]))
-                                           
+                        
 					ss_entry.fragments += name_frag.data_frags
-
-			if (len(ss_entry.fragments[5].pointers[0].data) != 24) and (len(ss_entry.fragments[5].pointers[0].data) != 8):
-				fug += self.ovs.frags_from_pointer_equalsb_counts(gub[0].pointers[1], 5) #attr types, attr names, attr datas, list of some ints, list of short-like things
-				print(gub)
-				ss_entry.fragments += fug
-				gub_d1 = self.prefab_unpack_gub(len(gub[0].pointers[1].data), gub[0].pointers[1].data)
-				fug0_d1 = self.prefab_unpack_temp(len(fug[0].pointers[1].data), fug[0].pointers[1].data)
-				fug1_d1 = self.prefab_unpack_temp(len(fug[1].pointers[1].data), fug[1].pointers[1].data)
-				fug2_d1 = self.prefab_unpack_temp(len(fug[2].pointers[1].data), fug[2].pointers[1].data)
-				fug3_d1 = self.prefab_unpack_temp(len(fug[3].pointers[1].data), fug[3].pointers[1].data)
-				fug4_d1 = self.prefab_unpack_temp(len(fug[4].pointers[1].data), fug[4].pointers[1].data)
+                    
+		if has_children == True:
+			ss_entry.fragments += self.ovs.frags_from_pointer(ss_entry.fragments[child_frag].pointers[1], ssdata[6])
+            
+		if has_properties == True:
+			gub = ss_entry.fragments[init_frag_count-1]
+			fug += self.ovs.frags_from_pointer_equalsb_counts(gub.pointers[1], 5) #attr types, attr names, attr datas, list of some ints, list of short-like things
+			#print(gub)
+			ss_entry.fragments += fug
+			gub_d1 = self.prefab_unpack_gub(len(gub.pointers[1].data), gub.pointers[1].data)
+			fug0_d1 = self.prefab_unpack_temp(len(fug[0].pointers[1].data), fug[0].pointers[1].data)
+			fug1_d1 = self.prefab_unpack_temp(len(fug[1].pointers[1].data), fug[1].pointers[1].data)
+			fug2_d1 = self.prefab_unpack_temp(len(fug[2].pointers[1].data), fug[2].pointers[1].data)
+			fug3_d1 = self.prefab_unpack_temp(len(fug[3].pointers[1].data), fug[3].pointers[1].data)
+			fug4_d1 = self.prefab_unpack_temp(len(fug[4].pointers[1].data), fug[4].pointers[1].data)
 
 				
-				ss_entry.specdef_attr_names += self.ovs.frags_from_pointer_equalsb_counts(fug[1].pointers[1], gub_d1[0])
-				ss_entry.specdef_attr_datas += self.ovs.frags_from_pointer_equalsb_counts(fug[2].pointers[1], gub_d1[0])
-				for entry in ss_entry.specdef_attr_datas:
-					entry.child_datas = []
-				ss_entry.fragments += ss_entry.specdef_attr_names
-				ss_entry.fragments += ss_entry.specdef_attr_datas
-				cc = 0
-				for i, entry in enumerate(ss_entry.specdef_attr_datas):
-					count = att_type_dict[fug0_d1[i]]
-					count2 = att_type_dict2[fug0_d1[i]]
-					cc+=count2
-					entry.child_datas.extend(self.ovs.frags_from_pointer(entry.pointers[1],count))
-					ss_entry.fragments += entry.child_datas
-					ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], count2))
-				if cc == 0:
-					ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], 1))
+			ss_entry.specdef_attr_names += self.ovs.frags_from_pointer_equalsb_counts(fug[1].pointers[1], gub_d1[0])
+			ss_entry.specdef_attr_datas += self.ovs.frags_from_pointer_equalsb_counts(fug[2].pointers[1], gub_d1[0])
+			for entry in ss_entry.specdef_attr_datas:
+				entry.child_datas = []
+			ss_entry.fragments += ss_entry.specdef_attr_names
+			ss_entry.fragments += ss_entry.specdef_attr_datas
+			cc = 0
+			for i, entry in enumerate(ss_entry.specdef_attr_datas):
+				count = att_type_dict[fug0_d1[i]]
+				count2 = att_type_dict2[fug0_d1[i]]
+				cc+=count2
+				entry.child_datas.extend(self.ovs.frags_from_pointer(entry.pointers[1],count))
+				ss_entry.fragments += entry.child_datas
+				ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], count2))
+			if cc == 0:
+				ss_entry.specdef_other_list.extend(self.ovs.frags_from_pointer(fug[4].pointers[1], 1))
 
                 
                 
 				
-				for i, entry in enumerate(ss_entry.specdef_other_list):
-					entry.other_datas = []
-				ss_entry.fragments += ss_entry.specdef_other_list
+			for i, entry in enumerate(ss_entry.specdef_other_list):
+				entry.other_datas = []
+			ss_entry.fragments += ss_entry.specdef_other_list
                 
-				for frag in ss_entry.specdef_other_list:
-					count = self.prefab_unpack_temp(len(frag.pointers[0].data), frag.pointers[0].data)
-					frag.other_datas.extend(self.ovs.frags_from_pointer_equalsb_counts(frag.pointers[1], count[2]))
-					ss_entry.fragments += frag.other_datas
-      
-			#child Prefabs in the archive
-			ss_entry.fragments += self.ovs.frags_from_pointer(ss_entry.fragments[4].pointers[1], ssdata[6])
+			for frag in ss_entry.specdef_other_list:
+				count = self.prefab_unpack_temp(len(frag.pointers[0].data), frag.pointers[0].data)
+				frag.other_datas.extend(self.ovs.frags_from_pointer_equalsb_counts(frag.pointers[1], count[2]))
+				ss_entry.fragments += frag.other_datas
+            
+        
+
 	
 		try:
 			print("gub", gub_d1)
