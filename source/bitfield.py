@@ -34,13 +34,17 @@ class BasicBitfield(object):
     def __int__(self):
         return self._value
 
-    def __init__(self, value=None):
-        super().__init__()
-        if value is not None:
-            self._value = value
+    def __init__(self, context=None, arg=None, template=None, set_default=True):
+        if set_default:
+            self.set_defaults()
         else:
             self._value = 0
-            self.set_defaults()
+
+    @classmethod
+    def from_value(cls, value):
+        instance = cls(None, set_default=False)
+        instance._value = value
+        return instance
 
     def __repr__(self):
         return self.__str__()
@@ -289,6 +293,6 @@ if __name__ == "__main__":
     print(temp)
 
 
-    temp2 = BasicBitfield(2)
+    temp2 = BasicBitfield.from_value(2)
     # temp3 = BasicBitfield()
     print(temp2)
