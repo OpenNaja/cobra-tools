@@ -122,8 +122,8 @@
 		<add name="offset" type="uint">starting offset into the texture buffer for this mip level</add>
 		<add name="size" type="uint" >bytes for one array entry</add>
 		<add name="size array" type="uint">bytes for all array entries</add>
-		<add name="unknown" type="uint" >decreases quadratically</add>
-		<add name="size 2" type="uint">may be size of actual data - usually, repeat of size, not for the last lods</add>
+		<add name="size scan" type="uint" >size of a scan line of blocks, including padding that is added to the end of the line</add>
+		<add name="size data" type="uint">size of the non-empty scanline blocks, ie. the last lods add empty scanlines as this is smaller than size</add>
     </compound>
 
     <compound name="TexHeader" >

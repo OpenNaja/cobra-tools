@@ -194,7 +194,7 @@ class DdsLoader(BaseFile):
 
 		tex_file = TexFile(self.ovl.context)
 		tex_file.load(tex_path)
-		print(tex_file)
+		# print(tex_file)
 		# return out_files
 		dds_file = self.create_dds_struct()
 		dds_file.buffer = buffer_data

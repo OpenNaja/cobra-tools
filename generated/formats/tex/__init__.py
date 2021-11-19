@@ -48,7 +48,7 @@ class TexFile(TexInfoHeader, IoFile):
 			mip_data = stream.read(mip.size_array)
 			self.mips.append(mip_data)
 			print(mip)
-			print(mip_data)
+			# print(mip_data)
 
 	def read_mips(self, stream):
 		print("\nReading mips")
