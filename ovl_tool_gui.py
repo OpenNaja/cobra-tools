@@ -510,8 +510,6 @@ class MainWindow(widgets.MainWindow):
 			if filelist_src:
 				try:
 					file_names = self.files_container.table.get_files()
-					print(filelist_src)
-					print(file_names)
 					with open(filelist_src, 'w') as f:
 	 					f.write("\n".join(file_names))
 
