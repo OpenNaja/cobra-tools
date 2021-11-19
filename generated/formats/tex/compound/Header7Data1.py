@@ -33,10 +33,10 @@ class Header7Data1:
 		# y size in pixels
 		self.height = 0
 
-		# aka tile_width; may be depth
+		# may be depth
 		self.depth = 0
 
-		# aka tile_height; may be array_size
+		# amount of repeats of the data for each lod
 		self.array_size = 0
 
 		# amount of mip map levels
@@ -47,6 +47,9 @@ class Header7Data1:
 
 		# info about mip levels
 		self.mip_maps = Array(self.context)
+
+		# pad whole struct to 320 bytes
+		self.padding = 0
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -60,6 +63,7 @@ class Header7Data1:
 		if self.context.version >= 20:
 			self.unk_pz = 0
 		self.mip_maps = Array(self.context)
+		self.padding = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -73,6 +77,7 @@ class Header7Data1:
 		if self.context.version >= 20:
 			self.unk_pz = stream.read_uint64()
 		self.mip_maps.read(stream, Mipmap, self.num_mips, None)
+		self.padding = stream.read_ubyte()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -88,6 +93,7 @@ class Header7Data1:
 		if self.context.version >= 20:
 			stream.write_uint64(self.unk_pz)
 		self.mip_maps.write(stream, Mipmap, self.num_mips, None)
+		stream.write_ubyte(self.padding)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -105,6 +111,7 @@ class Header7Data1:
 		s += f'\n	* num_mips = {self.num_mips.__repr__()}'
 		s += f'\n	* unk_pz = {self.unk_pz.__repr__()}'
 		s += f'\n	* mip_maps = {self.mip_maps.__repr__()}'
+		s += f'\n	* padding = {self.padding.__repr__()}'
 		return s
 
 	def __repr__(self):
