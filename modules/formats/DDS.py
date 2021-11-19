@@ -160,11 +160,8 @@ class DdsLoader(BaseFile):
 		# pixel format flags
 		dds_file.pixel_format.flags.four_c_c = 1
 		dds_file.pixel_format.four_c_c = FourCC.DX10
-	
-		# possibly the two 1s in header_3_0
+
 		dds_file.dx_10.resource_dimension = D3D10ResourceDimension.D3D10_RESOURCE_DIMENSION_TEXTURE2D
-		# not properly supported by paint net and PS, only gimp
-		# header.dx_10.array_size = header_7.array_size
 		dds_file.dx_10.array_size = 1
 	
 		# caps 1
@@ -176,6 +173,9 @@ class DdsLoader(BaseFile):
 		basename = os.path.splitext(tex_name)[0]
 		dds_name = basename + ".dds"
 		logging.info(f"Writing {tex_name}")
+		logging.debug(f"Num streams: {len(self.sized_str_entry.data_entry.stream_datas)}")
+		# get joined output buffer
+		buffer_data = b"".join(sorted(self.sized_str_entry.data_entry.stream_datas, key=len, reverse=True))
 
 		out_files = []
 		tex_path = out_dir(tex_name)
@@ -186,71 +186,62 @@ class DdsLoader(BaseFile):
 			# num_buffers
 			# tex_file.write(struct.pack("I", 1+len(self.file_entry.streams)))
 			tex_file.write(self.sized_str_entry.pointers[0].data)
-			# tex_file.write(b"FRAG0")
 			for frag in self.sized_str_entry.fragments:
 				tex_file.write(frag.pointers[0].data)
-			# tex_file.write(b"FRAG1")
 			for frag in self.sized_str_entry.fragments:
 				tex_file.write(frag.pointers[1].data)
+			tex_file.write(buffer_data)
 
 		tex_file = TexFile(self.ovl.context)
 		tex_file.load(tex_path)
 		print(tex_file)
-		return out_files
-		logging.debug(f"Num streams: {len(self.sized_str_entry.data_entry.stream_datas)}")
-		# get joined output buffer
-		buffer_data = b"".join(sorted(self.sized_str_entry.data_entry.stream_datas, key=len, reverse=True))
+		# return out_files
 		dds_file = self.create_dds_struct()
 		dds_file.buffer = buffer_data
-		versions = get_versions(self.ovl)
-		if is_ztuac(self.ovl):
-			header_3_0, headers_3_1, header_7 = self.get_tex_structs_ztuac(self.sized_str_entry)
-			dds_file.width = header_7.width
-			dds_file.height = header_7.height
-			dds_file.mipmap_count = header_7.num_mips
-			dds_file.linear_size = len(buffer_data)
-			header_7.array_size = 1
-			dds_file.depth = header_3_0.one_0
-		elif is_pc(self.ovl):
-			header_3_0, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
-			# print(header_7)
-			dds_file.width = header_7.width
-			# hack until we have proper support for array_size on the image editors
-			# todo - this is most assuredly not array size for ED
-			dds_file.height = header_7.height# * max(1, header_7.array_size)
-			dds_file.mipmap_count = header_7.num_mips
-			dds_file.linear_size = len(buffer_data)
-			dds_file.depth = header_3_0.one_0
-	
-		else:
-			header_3_0, headers_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
-	
-			sum_of_parts = sum(header_3_1.data_size for header_3_1 in headers_3_1)
-			if not sum_of_parts == header_7.data_size:
-				raise BufferError(
-					f"Data sizes of all 3_1 structs ({sum_of_parts}) and 7_1 fragments ({header_7.data_size}) do not match up")
-	
-			if not len(buffer_data) == header_7.data_size:
-				print(
-					f"7_1 data size ({header_7.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")
-	
-			dds_file.width = header_7.width
-			# hack until we have proper support for array_size on the image editors
-			dds_file.height = header_7.height * header_7.array_size
-			dds_file.depth = header_7.depth
-			dds_file.linear_size = header_7.data_size
-			dds_file.mipmap_count = header_7.num_mips
+		# versions = get_versions(self.ovl)
+		# if is_ztuac(self.ovl):
+		# 	header_3_0, headers_3_1, header_7 = self.get_tex_structs_ztuac(self.sized_str_entry)
+		# 	dds_file.width = header_7.width
+		# 	dds_file.height = header_7.height
+		# 	dds_file.mipmap_count = header_7.num_mips
+		# 	dds_file.linear_size = len(buffer_data)
+		# 	header_7.array_size = 1
+		# 	dds_file.depth = header_3_0.one_0
+		# elif is_pc(self.ovl):
+		# 	header_3_0, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
+		# 	# print(header_7)
+		# 	dds_file.width = header_7.width
+		# 	# hack until we have proper support for array_size on the image editors
+		# 	# todo - this is most assuredly not array size for ED
+		# 	dds_file.height = header_7.height# * max(1, header_7.array_size)
+		# 	dds_file.mipmap_count = header_7.num_mips
+		# 	dds_file.linear_size = len(buffer_data)
+		# 	dds_file.depth = header_3_0.one_0
+		#
+		# else:
+		# 	header_3_0, headers_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
+		#
+		if not len(buffer_data) == tex_file.frag_11.data_size:
+			print(
+				f"7_1 data size ({tex_file.frag_11.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")
+
+		dds_file.width = tex_file.frag_11.width
+		# hack until we have proper support for array_size on the image editors
+		dds_file.height = tex_file.frag_11.height * tex_file.frag_11.array_size
+		dds_file.depth = tex_file.frag_11.depth
+		dds_file.linear_size = tex_file.frag_11.data_size
+		dds_file.mipmap_count = tex_file.frag_11.num_mips
 	
 		try:
-			dds_type = header_3_0.compression_type.name
-			print(header_3_0.compression_type)
+			dds_type = tex_file.frag_10.compression_type.name
+			print(tex_file.frag_10.compression_type)
 			# account for aliases
 			if dds_type.endswith(("_B", "_C")):
 				dds_type = dds_type[:-2]
 			dds_compression_types = ((dds_type, DxgiFormat[dds_type]),)
 		except KeyError:
 			dds_compression_types = [(x.name, x) for x in DxgiFormat]
-			print(f"Unknown compression type {header_3_0.compression_type}, trying all compression types")
+			print(f"Unknown compression type {tex_file.frag_10.compression_type}, trying all compression types")
 		print("dds_compression_type", dds_compression_types)
 
 		# write out everything for each compression type
@@ -259,14 +250,12 @@ class DdsLoader(BaseFile):
 			# header attribs
 			if not is_ztuac(self.ovl):
 				dds_file.width = align_to(dds_file.width, dds_type)
-			# print(dds_file.width)
 	
 			# dx 10 stuff
 			dds_file.dx_10.dxgi_format = dds_value
 	
 			# start out
 			dds_path = out_dir(dds_name)
-			print(dds_path)
 			if len(dds_compression_types) > 1:
 				dds_path += f"_{dds_type}.dds"
 	
@@ -281,7 +270,7 @@ class DdsLoader(BaseFile):
 	
 			if os.path.isfile(png_file_path):
 				# postprocessing of the png
-				out_files.extend(imarray.wrapper(png_file_path, header_7, self.ovl))
+				out_files.extend(imarray.wrapper(png_file_path, tex_file.frag_11, self.ovl))
 		return out_files
 
 	def load_png(self, file_path):

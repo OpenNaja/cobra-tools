@@ -27,11 +27,28 @@ class TexFile(TexInfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			# self.read_mips(stream)
+			self.read_mips_infos(stream)
+
+			sum_of_parts = sum(header_3_1.data_size for header_3_1 in self.frag_01)
+			if not sum_of_parts == self.frag_11.data_size:
+				raise BufferError(
+					f"Data sizes of all 3_1 structs ({sum_of_parts}) and 7_1 fragments ({self.frag_11.data_size}) do not match up")
 
 	def save(self, filepath):
 		with self.writer(filepath) as stream:
 			self.write(stream)
 			# stream.write(self.buffer)
+
+	def read_mips_infos(self, stream):
+		print("\nReading mips from infos")
+		self.mips = []
+		self.eoh = stream.tell()
+		for mip in self.frag_11.mip_maps:
+			print(stream.tell())
+			mip_data = stream.read(mip.size_array)
+			self.mips.append(mip_data)
+			print(mip)
+			print(mip_data)
 
 	def read_mips(self, stream):
 		print("\nReading mips")
