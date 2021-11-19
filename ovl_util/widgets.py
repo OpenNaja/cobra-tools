@@ -334,6 +334,11 @@ class TableView(QtWidgets.QTableView):
 		# map the selected indices to the actual underlying data, which is in its original order
 		return [self.model._data[x][0] for x in self.get_selected_line_indices()]
 
+	def get_files(self):
+		# returns the list of all file names
+		return [x[0] for x in self.model._data]
+
+
 	def startDrag(self, actions):
 		"""Emits a signal with the file names of all files that are being dragged"""
 		self.files_dragged.emit(self.get_selected_files())

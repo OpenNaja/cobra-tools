@@ -11,7 +11,6 @@ from modules.walker import walk_type
 try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
-	from importlib import reload
 
 	from ovl_util.config import logging_setup, get_version_str
 	logging_setup("ovl_tool_gui")
@@ -168,7 +167,7 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
 			(util_menu, "Save Frag Log", self.ovl_data.dump_frag_log, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
-			# (edit_menu, "Reload", self.reload, "", ""),
+			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
@@ -502,11 +501,26 @@ class MainWindow(widgets.MainWindow):
 						hasher.dat_replacer(self.ovl_data, names)
 					self.update_gui_table()
 
-	# reload modules, debug feature, allows reloading extraction modules without restarting the gui
-	# modules need to be imported completely, import xxxx, from xxx import yyy will not work.
-	# def reload(self):
-	# 	reload(modules.formats.SPECDEF)
-	# 	reload(modules.extract)
+	# Save the OVL file list to disk
+	def save_file_list(self):
+		if self.is_open_ovl():
+			filelist_src = QtWidgets.QFileDialog.getSaveFileName(
+				self, 'Save File List', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename + ".files.txt" ),
+				"Txt file (*.txt)", )[0]
+			if filelist_src:
+				try:
+					file_names = self.files_container.table.get_files()
+					print(filelist_src)
+					print(file_names)
+					with open(filelist_src, 'w') as f:
+	 					f.write("\n".join(file_names))
+
+					self.update_progress("Operation completed!", value=1, vmax=1)
+				except BaseException as ex:
+					traceback.print_exc()
+					interaction.showdialog(str(ex))
+
+
 
 	def remover(self):
 		if self.is_open_ovl():
