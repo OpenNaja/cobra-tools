@@ -6,7 +6,52 @@ from modules.formats.BaseFormat import BaseFile
 class EnumnamerLoader(BaseFile):
 
 	def create(self):
-		pass
+		ss = self.get_content(self.file_entry.path)
+		pool_index, pool = self.get_pool(2)
+		offset = pool.data.tell()
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		self.sized_str_entry.pointers[0].pool_index = pool_index
+		self.sized_str_entry.pointers[0].data_offset = offset
+
+		# replace \n with 0x00
+		content = ss.decode('utf-8'). splitlines()
+		count   = len(content)
+		logging.debug(f"enumnamer {count} data {content}")
+
+		# enum needs 8 bytes for the entry count, +8 bytes to point to the string list
+		# then also needs 8 bytes per string + the stringz data 
+		pool.data.write(struct.pack("<I8s", count, b''))  # room for 16 bytes
+
+		# offset where first string starts
+		doffset = pool.data.tell()
+
+		# pack data now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
+		pool.data.write("\00".join(content).encode('utf-8'))
+
+		# new offset for list pointers
+		poffset = pool.data.tell()
+
+		# point the list frag to the end of the data now.
+		new_frag0 = self.create_fragment()
+		new_frag0.pointers[0].pool_index = pool_index
+		new_frag0.pointers[0].data_offset = offset + 0x8
+		new_frag0.pointers[1].pool_index = pool_index
+		new_frag0.pointers[1].data_offset = poffset
+
+		# for each line, add the frag ptr space and create the frag ptr
+		for x in content:
+			pool.data.write(struct.pack("<8s", b''))
+			strfrag = self.create_fragment()
+			strfrag.pointers[0].pool_index = pool_index
+			strfrag.pointers[0].data_offset = poffset
+			strfrag.pointers[1].pool_index = pool_index
+			strfrag.pointers[1].data_offset = doffset
+
+			poffset += 8
+			doffset += len(x) + 1 # skip string lenght
+
+		# done
+
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -25,16 +70,16 @@ class EnumnamerLoader(BaseFile):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		logging.info(f"Writing {name}")
-
-		ovl_header = self.pack_header(b"ENUM")
+		logging.debug(f"Writing {name}")
+		# enumnamer only has a list of strings
 		out_path = out_dir(name)
-		with open(out_path, 'wb') as outfile:
-			outfile.write(ovl_header)
-			outfile.write(self.sized_str_entry.pointers[0].data)
-			# print(sized_str_entry.pointers[0].address)
+		with open(out_path, 'w') as outfile:
 			for f in self.sized_str_entry.vars:
-				# print(f)
-				# print(f.pointers[1].data)
-				outfile.write(f.pointers[1].data)
+				# convert from bytes to string, remove trailing 0x00 and add \n
+				strval = f.pointers[1].data.decode('utf-8')
+				if strval[-1] == '\x00':
+					strval = strval[:-1]
+				outfile.write(f"{strval}\n")
+				#logging.debug(f"enumnamer {strval}")
+
 		return out_path,
