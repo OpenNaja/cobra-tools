@@ -53,18 +53,20 @@
 		Data struct for headers of type 3, read by data 0 of 3,7 frag.
 		16 bytes
 		<add name="zeros" type="uint64" >32 bytes, all 0</add>
-		<add name="compression type" type="DdsType">flag, not direct index into DDS enum</add>
+		<add name="compression type" type="DdsType" vercond="!#OLD#">flag, not direct index into DDS enum</add>
+		<add name="compression type" type="DdsType_Coaster" vercond="#OLD#">flag, not direct index into DDS enum</add>
 		<add name="one 0" type="ubyte">0 or 1</add>
-		<add name="one 1" type="ubyte">1 or 2</add>
-		<add name="one 2" type="ubyte">1 or 2</add>
+		<add name="stream_count" type="ubyte">amount of files combined in this texture, usually 1 or 2, 3 for JWE2 rex</add>
+		<add name="stream_count repeat" type="ubyte">usually as above</add>
 		<add name="pad" type="uint">0</add>
     </compound>
 
 	<compound name="Header3Data0Pc" >
+		todo remove
 		Data struct for headers of type 3, read by data 0 of 3,7 frag.
 		16 bytes
 		<add name="zeros" type="uint64" >8 bytes, all 0</add>
-		<add name="compression type" type="DdsType_Coaster">flag, not direct index into DDS enum</add>
+		<add name="compression type" type="DdsType_Coaster" >flag, not direct index into DDS enum</add>
 		<add name="one 0" type="ubyte">0 or 1</add>
 		<add name="one 1" type="ubyte">1 or 2</add>
 		<add name="one 2" type="ubyte">1 or 2</add>
@@ -111,19 +113,38 @@
 		<add name="depth" type="uint" >aka tile_width; may be depth</add>
 		<add name="array_size" type="uint">aka tile_height; may be array_size</add>
 		<add name="num mips" type="uint">amount of mip map levels</add>
-		<add name="pad" type="byte" >skipped by barbasol</add>
-		<add name="unk_pz" type="uint64" vercond="#PZ#">only found in PZ</add>
-		<add name="mip maps" type="Header7MipmapInfo" arr1="num mips">info about mip levels</add>
+		<add name="unk_pz" type="uint64" since="20">only found in PZ and JWE2</add>
+		<add name="mip maps" type="Mipmap" arr1="num mips">info about mip levels</add>
     </compound>
 
-	<compound name="Header7MipmapInfo" >
+	<compound name="Mipmap" >
 		Data struct for one mipmap, part of a data 1 struct in headers of type 7
-		<add name="offset" type="uint">cumulative sum of the preceding values</add>
-		<add name="width" type="uint" >not pixels</add>
-		<add name="height" type="uint">not pixels</add>
+		<add name="offset" type="uint">starting offset into the texture buffer for this mip level</add>
+		<add name="size" type="uint" >bytes</add>
+		<add name="size repeat" type="uint">bytes</add>
 		<add name="unknown0C" type="uint" >decreases quadratically</add>
-		<add name="unkn3" type="uint">repeat of height or width</add>
+		<add name="unkn3" type="uint">may be size of actual data - usually, repeat of size, not for the last lods</add>
     </compound>
 
+    <compound name="TexHeader" >
+        Sized str entry of 8 or 16 bytes
+        <add name="zero 0" type="uint64" >?</add>
+        <add name="zero 1" type="uint64" vercond="!#OLD#">?</add>
+    </compound>
+
+    <compound name="Frag00" >
+        8 bytes, empty?
+        <add name="zero 0" type="uint64" >?</add>
+    </compound>
+
+    <compound name="TexInfoHeader" inherit="GenericHeader">
+<!--		<add name="num buffers" type="uint" >total dds buffer size</add>-->
+		<add name="tex info" type="TexHeader"/>
+		<add name="frag_00" type="Frag00" vercond="!#OLD#"/>
+		<add name="frag_10" type="Header3Data0"/>
+		<add name="frag_01" type="Header3Data1" arr1="frag_10 \ stream_count"/>
+<!--		<add name="frag_01" type="Header3Data1" arr1="num buffers"/>-->
+		<add name="frag_11" type="Header7Data1"/>
+    </compound>
 </fileformat>
 

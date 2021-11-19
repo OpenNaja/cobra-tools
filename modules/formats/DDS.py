@@ -1,11 +1,14 @@
 import io
 import logging
 import os
+import struct
+
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.ovl.versions import *
+from generated.formats.tex import TexFile
 from generated.formats.tex.compound.Header3Data0 import Header3Data0
 from generated.formats.tex.compound.Header3Data0Pc import Header3Data0Pc
 from generated.formats.tex.compound.Header3Data1 import Header3Data1
@@ -38,6 +41,8 @@ class DdsLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
+		# verify that it's empty - not always true
+		# assert self.sized_str_entry.pointers[0].data == b"\x00" * 16
 		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
 			self.assign_fixed_frags(2)
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
@@ -167,9 +172,31 @@ class DdsLoader(BaseFile):
 		return dds_file
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		basename = os.path.splitext(self.sized_str_entry.name)[0]
-		name = basename + ".dds"
-		print("\nWriting", name)
+		tex_name = self.sized_str_entry.name
+		basename = os.path.splitext(tex_name)[0]
+		dds_name = basename + ".dds"
+		logging.info(f"Writing {tex_name}")
+
+		out_files = []
+		tex_path = out_dir(tex_name)
+		if show_temp_files:
+			out_files.append(tex_path)
+		with open(tex_path, "wb") as tex_file:
+			tex_file.write(self.pack_header(b"TEX"))
+			# num_buffers
+			# tex_file.write(struct.pack("I", 1+len(self.file_entry.streams)))
+			tex_file.write(self.sized_str_entry.pointers[0].data)
+			# tex_file.write(b"FRAG0")
+			for frag in self.sized_str_entry.fragments:
+				tex_file.write(frag.pointers[0].data)
+			# tex_file.write(b"FRAG1")
+			for frag in self.sized_str_entry.fragments:
+				tex_file.write(frag.pointers[1].data)
+
+		tex_file = TexFile(self.ovl.context)
+		tex_file.load(tex_path)
+		print(tex_file)
+		return out_files
 		logging.debug(f"Num streams: {len(self.sized_str_entry.data_entry.stream_datas)}")
 		# get joined output buffer
 		buffer_data = b"".join(sorted(self.sized_str_entry.data_entry.stream_datas, key=len, reverse=True))
@@ -225,8 +252,8 @@ class DdsLoader(BaseFile):
 			dds_compression_types = [(x.name, x) for x in DxgiFormat]
 			print(f"Unknown compression type {header_3_0.compression_type}, trying all compression types")
 		print("dds_compression_type", dds_compression_types)
+
 		# write out everything for each compression type
-		out_files = []
 		for dds_type, dds_value in dds_compression_types:
 			# print(dds_file.width)
 			# header attribs
@@ -238,19 +265,19 @@ class DdsLoader(BaseFile):
 			dds_file.dx_10.dxgi_format = dds_value
 	
 			# start out
-			file_path = out_dir(name)
-			print(file_path)
+			dds_path = out_dir(dds_name)
+			print(dds_path)
 			if len(dds_compression_types) > 1:
-				file_path += f"_{dds_type}.dds"
+				dds_path += f"_{dds_type}.dds"
 	
 			# write dds
-			dds_file.save(file_path)
+			dds_file.save(dds_path)
 			# print(dds_file)
 			if show_temp_files:
-				out_files.append(file_path)
+				out_files.append(dds_path)
 	
 			# convert the dds to PNG, PNG must be visible so put it in out_dir
-			png_file_path = texconv.dds_to_png(file_path, dds_file.height)
+			png_file_path = texconv.dds_to_png(dds_path, dds_file.height)
 	
 			if os.path.isfile(png_file_path):
 				# postprocessing of the png

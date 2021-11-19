@@ -1,27 +1,37 @@
 import io
 
-from generated.formats.dds.struct.Header import Header
-from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
+from generated.formats.tex.compound.TexInfoHeader import TexInfoHeader
+# from generated.formats.tex.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.io import IoFile
 
 
-class DdsFile(Header, IoFile):
+class DdsContext(object):
+	def __init__(self):
+		self.version = 0
+		self.user_version = 0
 
-	def __init__(self,):
-		super().__init__()
+	def __repr__(self):
+		return f"{self.version} | {self.user_version}"
+
+
+class TexFile(TexInfoHeader, IoFile):
+
+	def __init__(self, context=None):
+		if not context:
+			context = DdsContext()
+		super().__init__(context)
 		self.buffer = b""
-		self.emmpty_block = b""
 		self.mips = []
 
 	def load(self, filepath):
 		with self.reader(filepath) as stream:
 			self.read(stream)
-			self.read_mips(stream)
+			# self.read_mips(stream)
 
 	def save(self, filepath):
 		with self.writer(filepath) as stream:
 			self.write(stream)
-			stream.write(self.buffer)
+			# stream.write(self.buffer)
 
 	def read_mips(self, stream):
 		print("\nReading mips")
@@ -120,10 +130,10 @@ class DdsFile(Header, IoFile):
 
 
 if __name__ == "__main__":
-	m = DdsFile()
-	m.load("C:/Users/arnfi/Desktop/parrot/parrot.pbasecolourtexture.dds")
+	m = TexFile()
+	m.load("C:/Users/arnfi/Desktop/parrot/parrot.pbasecolourtexture.tex")
 	print(m)
-	d = D3D10ResourceDimension()
-	print(d)
-	d = D3D10ResourceDimension(1)
-	print(d)
+	# d = D3D10ResourceDimension()
+	# print(d)
+	# d = D3D10ResourceDimension(1)
+	# print(d)

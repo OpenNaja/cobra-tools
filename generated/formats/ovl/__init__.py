@@ -1397,6 +1397,14 @@ class OvlFile(Header, IoFile):
 		if not self.archives:
 			return
 		logging.info("Linking streams...")
+		for file in self.files:
+			if file.ext == ".tex":
+				file.streams = []
+				for stream_file in self.files:
+					for lod_i in range(3):
+						if f"{file.basename}_lod{lod_i}" in stream_file.name:
+							file.streams.append(stream_file)
+							break
 		# find texstream buffers
 		for tb_index, sized_str_entry in enumerate(self.static_archive.content.sized_str_entries):
 			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)

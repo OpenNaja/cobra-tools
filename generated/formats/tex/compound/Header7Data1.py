@@ -2,7 +2,7 @@ import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
-from generated.formats.tex.compound.Header7MipmapInfo import Header7MipmapInfo
+from generated.formats.tex.compound.Mipmap import Mipmap
 
 
 class Header7Data1:
@@ -42,10 +42,7 @@ class Header7Data1:
 		# amount of mip map levels
 		self.num_mips = 0
 
-		# skipped by barbasol
-		self.pad = 0
-
-		# only found in PZ
+		# only found in PZ and JWE2
 		self.unk_pz = 0
 
 		# info about mip levels
@@ -60,8 +57,7 @@ class Header7Data1:
 		self.depth = 0
 		self.array_size = 0
 		self.num_mips = 0
-		self.pad = 0
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+		if self.context.version >= 20:
 			self.unk_pz = 0
 		self.mip_maps = Array(self.context)
 
@@ -74,10 +70,9 @@ class Header7Data1:
 		self.depth = stream.read_uint()
 		self.array_size = stream.read_uint()
 		self.num_mips = stream.read_uint()
-		self.pad = stream.read_byte()
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+		if self.context.version >= 20:
 			self.unk_pz = stream.read_uint64()
-		self.mip_maps.read(stream, Header7MipmapInfo, self.num_mips, None)
+		self.mip_maps.read(stream, Mipmap, self.num_mips, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -90,10 +85,9 @@ class Header7Data1:
 		stream.write_uint(self.depth)
 		stream.write_uint(self.array_size)
 		stream.write_uint(self.num_mips)
-		stream.write_byte(self.pad)
-		if ((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19):
+		if self.context.version >= 20:
 			stream.write_uint64(self.unk_pz)
-		self.mip_maps.write(stream, Header7MipmapInfo, self.num_mips, None)
+		self.mip_maps.write(stream, Mipmap, self.num_mips, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -109,7 +103,6 @@ class Header7Data1:
 		s += f'\n	* depth = {self.depth.__repr__()}'
 		s += f'\n	* array_size = {self.array_size.__repr__()}'
 		s += f'\n	* num_mips = {self.num_mips.__repr__()}'
-		s += f'\n	* pad = {self.pad.__repr__()}'
 		s += f'\n	* unk_pz = {self.unk_pz.__repr__()}'
 		s += f'\n	* mip_maps = {self.mip_maps.__repr__()}'
 		return s

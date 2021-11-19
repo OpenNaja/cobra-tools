@@ -1,5 +1,6 @@
 from generated.context import ContextReference
 from generated.formats.tex.enum.DdsType import DdsType
+from generated.formats.tex.enum.DdsTypeCoaster import DdsTypeCoaster
 
 
 class Header3Data0:
@@ -25,14 +26,17 @@ class Header3Data0:
 		# flag, not direct index into DDS enum
 		self.compression_type = DdsType()
 
+		# flag, not direct index into DDS enum
+		self.compression_type = DdsTypeCoaster()
+
 		# 0 or 1
 		self.one_0 = 0
 
-		# 1 or 2
-		self.one_1 = 0
+		# amount of files combined in this texture, usually 1 or 2, 3 for JWE2 rex
+		self.stream_count = 0
 
-		# 1 or 2
-		self.one_2 = 0
+		# usually as above
+		self.stream_count_repeat = 0
 
 		# 0
 		self.pad = 0
@@ -40,19 +44,25 @@ class Header3Data0:
 
 	def set_defaults(self):
 		self.zeros = 0
-		self.compression_type = DdsType()
+		if not (self.context.version < 19):
+			self.compression_type = DdsType()
+		if self.context.version < 19:
+			self.compression_type = DdsTypeCoaster()
 		self.one_0 = 0
-		self.one_1 = 0
-		self.one_2 = 0
+		self.stream_count = 0
+		self.stream_count_repeat = 0
 		self.pad = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.zeros = stream.read_uint64()
-		self.compression_type = DdsType(stream.read_ubyte())
+		if not (self.context.version < 19):
+			self.compression_type = DdsType(stream.read_ubyte())
+		if self.context.version < 19:
+			self.compression_type = DdsTypeCoaster(stream.read_ubyte())
 		self.one_0 = stream.read_ubyte()
-		self.one_1 = stream.read_ubyte()
-		self.one_2 = stream.read_ubyte()
+		self.stream_count = stream.read_ubyte()
+		self.stream_count_repeat = stream.read_ubyte()
 		self.pad = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -60,10 +70,13 @@ class Header3Data0:
 	def write(self, stream):
 		self.io_start = stream.tell()
 		stream.write_uint64(self.zeros)
-		stream.write_ubyte(self.compression_type.value)
+		if not (self.context.version < 19):
+			stream.write_ubyte(self.compression_type.value)
+		if self.context.version < 19:
+			stream.write_ubyte(self.compression_type.value)
 		stream.write_ubyte(self.one_0)
-		stream.write_ubyte(self.one_1)
-		stream.write_ubyte(self.one_2)
+		stream.write_ubyte(self.stream_count)
+		stream.write_ubyte(self.stream_count_repeat)
 		stream.write_uint(self.pad)
 
 		self.io_size = stream.tell() - self.io_start
@@ -76,8 +89,8 @@ class Header3Data0:
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* compression_type = {self.compression_type.__repr__()}'
 		s += f'\n	* one_0 = {self.one_0.__repr__()}'
-		s += f'\n	* one_1 = {self.one_1.__repr__()}'
-		s += f'\n	* one_2 = {self.one_2.__repr__()}'
+		s += f'\n	* stream_count = {self.stream_count.__repr__()}'
+		s += f'\n	* stream_count_repeat = {self.stream_count_repeat.__repr__()}'
 		s += f'\n	* pad = {self.pad.__repr__()}'
 		return s
 

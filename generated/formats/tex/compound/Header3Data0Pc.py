@@ -5,6 +5,7 @@ from generated.formats.tex.enum.DdsTypeCoaster import DdsTypeCoaster
 class Header3Data0Pc:
 
 	"""
+	todo remove
 	Data struct for headers of type 3, read by data 0 of 3,7 frag.
 	16 bytes
 	"""
