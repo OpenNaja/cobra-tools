@@ -23,6 +23,9 @@ class TexInfoHeader(GenericHeader):
 		self.frag_10 = Header3Data0(self.context, None, None)
 		self.frag_01 = Array(self.context)
 		self.frag_11 = Header7Data1(self.context, None, None)
+
+		# pad whole struct to 320 bytes
+		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -32,6 +35,7 @@ class TexInfoHeader(GenericHeader):
 		self.frag_10 = Header3Data0(self.context, None, None)
 		self.frag_01 = Array(self.context)
 		self.frag_11 = Header7Data1(self.context, None, None)
+		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -42,6 +46,7 @@ class TexInfoHeader(GenericHeader):
 		self.frag_10 = stream.read_type(Header3Data0, (self.context, None, None))
 		self.frag_01.read(stream, Header3Data1, self.frag_10.stream_count, None)
 		self.frag_11 = stream.read_type(Header7Data1, (self.context, None, None))
+		self.padding = stream.read_ubytes((320 - self.frag_11.io_size))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -54,6 +59,7 @@ class TexInfoHeader(GenericHeader):
 		stream.write_type(self.frag_10)
 		self.frag_01.write(stream, Header3Data1, self.frag_10.stream_count, None)
 		stream.write_type(self.frag_11)
+		stream.write_ubytes(self.padding)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -68,6 +74,7 @@ class TexInfoHeader(GenericHeader):
 		s += f'\n	* frag_10 = {self.frag_10.__repr__()}'
 		s += f'\n	* frag_01 = {self.frag_01.__repr__()}'
 		s += f'\n	* frag_11 = {self.frag_11.__repr__()}'
+		s += f'\n	* padding = {self.padding.__repr__()}'
 		return s
 
 	def __repr__(self):

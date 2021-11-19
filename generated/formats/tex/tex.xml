@@ -115,7 +115,6 @@
 		<add name="num mips" type="uint">amount of mip map levels</add>
 		<add name="unk_pz" type="uint64" since="20">only found in PZ and JWE2</add>
 		<add name="mip maps" type="Mipmap" arr1="num mips">info about mip levels</add>
-		<add name="padding" type="ubyte" >pad whole struct to 320 bytes</add>
     </compound>
 
 	<compound name="Mipmap" >
@@ -146,6 +145,7 @@
 		<add name="frag_01" type="Header3Data1" arr1="frag_10 \ stream_count"/>
 <!--		<add name="frag_01" type="Header3Data1" arr1="num buffers"/>-->
 		<add name="frag_11" type="Header7Data1"/>
+		<add name="padding" type="ubyte" arr1="320 - (frag_11 \ io_size)">pad whole struct to 320 bytes</add>
     </compound>
 </fileformat>
 
