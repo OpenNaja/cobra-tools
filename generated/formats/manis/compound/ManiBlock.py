@@ -19,26 +19,26 @@ class ManiBlock:
 		self.io_size = 0
 		self.io_start = 0
 		self.ref = Empty(self.context, None, None)
-		self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint16'))
-		self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint32'))
-		self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
-		self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
-		self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
-		self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
-		self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint16'))
-		self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint32'))
-		self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_0_b = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_0_c = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint16'))
+		self.indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint32'))
+		self.indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint16'))
+		self.indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint32'))
+		self.indices_1 = numpy.zeros((self.arg.name_count), dtype=numpy.dtype('uint16'))
+		self.indices_1 = numpy.zeros((self.arg.name_count), dtype=numpy.dtype('uint32'))
+		self.indices_e_2 = numpy.zeros((self.arg.e_2), dtype=numpy.dtype('uint16'))
+		self.indices_e_2 = numpy.zeros((self.arg.e_2), dtype=numpy.dtype('uint32'))
+		self.p_indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_b = numpy.zeros(((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min) + 1), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_c = numpy.zeros(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1), dtype=numpy.dtype('uint8'))
 
 		# ?
 		self.pad = PadAlign(self.context, self.ref, 4)
 
 		# these are likely a scale reference or factor
-		self.floatsa = numpy.zeros((), dtype=numpy.dtype('float32'))
+		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.e_2), dtype=numpy.dtype('float32'))
 
 		# ?
 		self.pad_2 = SmartPadding(self.context, None, None)
@@ -75,31 +75,31 @@ class ManiBlock:
 	def set_defaults(self):
 		self.ref = Empty(self.context, None, None)
 		if self.context.version == 18:
-			self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+			self.indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+			self.indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint32'))
 		if self.context.version == 18:
-			self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+			self.indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+			self.indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint32'))
 		if self.context.version == 18:
-			self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+			self.indices_1 = numpy.zeros((self.arg.name_count), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+			self.indices_1 = numpy.zeros((self.arg.name_count), dtype=numpy.dtype('uint32'))
 		if self.context.version == 18:
-			self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+			self.indices_e_2 = numpy.zeros((self.arg.e_2), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint32'))
-		self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+			self.indices_e_2 = numpy.zeros((self.arg.e_2), dtype=numpy.dtype('uint32'))
+		self.p_indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint8'))
 		if self.context.version == 18:
-			self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+			self.p_indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint8'))
 		if self.context.version == 18:
-			self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_0_b = numpy.zeros((), dtype=numpy.dtype('uint8'))
-		self.p_indices_0_c = numpy.zeros((), dtype=numpy.dtype('uint8'))
+			self.p_indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_b = numpy.zeros(((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min) + 1), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_c = numpy.zeros(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1), dtype=numpy.dtype('uint8'))
 		self.pad = PadAlign(self.context, self.ref, 4)
-		self.floatsa = numpy.zeros((), dtype=numpy.dtype('float32'))
+		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.e_2), dtype=numpy.dtype('float32'))
 		self.pad_2 = SmartPadding(self.context, None, None)
 		self.frame_count = 0
 		self.c_1 = 0

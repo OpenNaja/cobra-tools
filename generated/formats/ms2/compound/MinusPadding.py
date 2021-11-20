@@ -19,16 +19,16 @@ class MinusPadding:
 		self.io_start = 0
 
 		# -1
-		self.indices = numpy.zeros((), dtype=numpy.dtype('int16'))
+		self.indices = numpy.zeros((self.arg), dtype=numpy.dtype('int16'))
 
 		# 0
-		self.padding = numpy.zeros((), dtype=numpy.dtype('int8'))
+		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.indices = numpy.zeros((), dtype=numpy.dtype('int16'))
-		self.padding = numpy.zeros((), dtype=numpy.dtype('int8'))
+		self.indices = numpy.zeros((self.arg), dtype=numpy.dtype('int16'))
+		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

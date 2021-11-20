@@ -111,8 +111,7 @@ class Union:
             default_string = f'{field_type}.{default_string}'
 
         if arr1:
-            valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr and ".arg" not in str(arr))
-            arr_str = f'({", ".join(valid_arrs)})'
+            arr_str = self.compound.parser.arrs_to_tuple(arr1, arr2)
             if default_string:
                 if return_type[0] == 'numpy':
                     return f'numpy.full({arr_str}, dtype={return_type[1]}, fill_value={default_string})'
@@ -211,14 +210,13 @@ class Union:
                 f.write(f"{base_indent}{condition}")
             if arr1:
                 if self.compound.parser.tag_dict[field_type.lower()] == "basic":
-                    valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr)
-                    arr_str = ", ".join(valid_arrs)
+                    arr_str = self.compound.parser.arrs_to_tuple(arr1, arr2)
                     if method_type == "read":
-                        f.write(f"{indent}self.{field_name} = stream.{method_type}_{field_type.lower()}s(({arr_str}))")
+                        f.write(f"{indent}self.{field_name} = stream.{method_type}_{field_type.lower()}s({arr_str})")
                     else:
                         if pad_mode:
                             # resize numpy arrays that represent padding so we need not worry about them
-                            f.write(f"{indent}self.{field_name}.resize(({arr_str}))")
+                            f.write(f"{indent}self.{field_name}.resize({arr_str})")
                         f.write(f"{indent}stream.{method_type}_{field_type.lower()}s(self.{field_name})")
                 else:
                     f.write(f"{indent}self.{field_name}.{method_type}(stream, {field_type}, {arr1}, {arr2})")

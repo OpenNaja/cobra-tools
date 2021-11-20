@@ -204,6 +204,12 @@ class XmlParser:
         # filter comment str
         struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 
+    @staticmethod
+    def arrs_to_tuple(*args):
+        valid_arrs = tuple(str(arr) for arr in args if arr)
+        arr_str = f'({", ".join(valid_arrs)})'
+        return arr_str
+
     def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arg=None, template=None):
         if self.tag_dict[dtype.lower()] == "enum":
             storage = self.storage_dict[dtype]

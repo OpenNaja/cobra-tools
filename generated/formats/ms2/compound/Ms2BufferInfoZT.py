@@ -19,12 +19,12 @@ class Ms2BufferInfoZT:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.streams = Array((), StreamInfo, self.context, None, None)
+		self.streams = Array((self.arg.general_info.vertex_buffer_count), StreamInfo, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.streams = Array((), StreamInfo, self.context, None, None)
+		self.streams = Array((self.arg.general_info.vertex_buffer_count), StreamInfo, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

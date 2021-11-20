@@ -25,25 +25,25 @@ class OvsHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.pool_groups = Array((), PoolGroup, self.context, None, None)
-		self.pools = Array((), MemPool, self.context, None, None)
-		self.data_entries = Array((), DataEntry, self.context, None, None)
-		self.buffer_entries = Array((), BufferEntry, self.context, None, None)
-		self.buffer_groups = Array((), BufferGroup, self.context, None, None)
-		self.sized_str_entries = Array((), SizedStringEntry, self.context, None, None)
-		self.fragments = Array((), Fragment, self.context, None, None)
+		self.pool_groups = Array((self.arg.num_pool_groups), PoolGroup, self.context, None, None)
+		self.pools = Array((self.arg.num_pools), MemPool, self.context, None, None)
+		self.data_entries = Array((self.arg.num_datas), DataEntry, self.context, None, None)
+		self.buffer_entries = Array((self.arg.num_buffers), BufferEntry, self.context, None, None)
+		self.buffer_groups = Array((self.arg.num_buffer_groups), BufferGroup, self.context, None, None)
+		self.sized_str_entries = Array((self.arg.num_files), SizedStringEntry, self.context, None, None)
+		self.fragments = Array((self.arg.num_fragments), Fragment, self.context, None, None)
 		self.set_header = SetHeader(self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.pool_groups = Array((), PoolGroup, self.context, None, None)
-		self.pools = Array((), MemPool, self.context, None, None)
-		self.data_entries = Array((), DataEntry, self.context, None, None)
-		self.buffer_entries = Array((), BufferEntry, self.context, None, None)
-		self.buffer_groups = Array((), BufferGroup, self.context, None, None)
-		self.sized_str_entries = Array((), SizedStringEntry, self.context, None, None)
-		self.fragments = Array((), Fragment, self.context, None, None)
+		self.pool_groups = Array((self.arg.num_pool_groups), PoolGroup, self.context, None, None)
+		self.pools = Array((self.arg.num_pools), MemPool, self.context, None, None)
+		self.data_entries = Array((self.arg.num_datas), DataEntry, self.context, None, None)
+		self.buffer_entries = Array((self.arg.num_buffers), BufferEntry, self.context, None, None)
+		self.buffer_groups = Array((self.arg.num_buffer_groups), BufferGroup, self.context, None, None)
+		self.sized_str_entries = Array((self.arg.num_files), SizedStringEntry, self.context, None, None)
+		self.fragments = Array((self.arg.num_fragments), Fragment, self.context, None, None)
 		self.set_header = SetHeader(self.context, None, None)
 
 	def read(self, stream):

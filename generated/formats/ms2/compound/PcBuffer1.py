@@ -22,7 +22,7 @@ class PcBuffer1:
 		self.io_start = 0
 		self.buffer_info_pc = Ms2BufferInfoZT(self.context, self.arg, None)
 		self.buffer_info_pc = Ms2BufferInfoPC(self.context, None, None)
-		self.model_infos = Array((), CoreModelInfoPC, self.context, None, None)
+		self.model_infos = Array((self.arg.general_info.mdl_2_count), CoreModelInfoPC, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -31,7 +31,7 @@ class PcBuffer1:
 			self.buffer_info_pc = Ms2BufferInfoZT(self.context, self.arg, None)
 		if self.context.version == 18:
 			self.buffer_info_pc = Ms2BufferInfoPC(self.context, None, None)
-		self.model_infos = Array((), CoreModelInfoPC, self.context, None, None)
+		self.model_infos = Array((self.arg.general_info.mdl_2_count), CoreModelInfoPC, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

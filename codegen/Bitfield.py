@@ -56,6 +56,8 @@ class Bitfield(BaseClass):
             for field in self.struct:
                 field_name = field.attrib["name"]
                 _, field_type = self.parser.map_type(field.attrib.get("type", "int"))
+                if field_type not in self.parser.builtin_literals:
+                    field_type = f'{field_type}.from_value'
                 f.write(f"\n\t{field_name} = BitfieldMember(pos={field.attrib['pos']}, mask={field.attrib['mask']}, return_type={field_type})")
 
             f.write("\n\n\tdef set_defaults(self):")
