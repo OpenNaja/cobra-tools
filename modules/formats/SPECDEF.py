@@ -16,17 +16,31 @@ class SpecdefLoader(BaseFile):
 		# ignore content, just write an empty specdef 
 		ss, buffer_0 = self._get_data(self.file_entry.path)
 		file_name_bytes = self.file_entry.basename.encode(encoding='utf8')
+
 		pool_index, pool = self.get_pool(2)
 		offset = pool.data.tell()
-		print(f"pool type: {pool.type}")
+
+		# add empty specdef, 64b size struct
+		#empty_buffer  = struct.pack("<64s", b'') # empty buffer
+		empty_buffer  = struct.pack("<2sH60s",b'',101, b'') # Set flags to 1
+
+		#empty_buffer  = struct.pack("<6sB57s", b'',1,b'') #managers
+		#empty_buffer  = struct.pack("<7sB56s", b'',1,b'')  # scripts
+		pool.data.write(empty_buffer) 
+
 		dpool_index, dpool = self.get_pool(2)
 		doffset = dpool.data.tell()
 
-		# add empty specdef, 64b size struct
-		empty_buffer  = struct.pack("<64s", b'')
-		pool.data.write(empty_buffer) 
+		# add empty data buffer for now
 		empty_data    = struct.pack("<I4s", 0x87126e, b'') 
 		dpool.data.write(empty_data)  
+		luaoffset = dpool.data.tell()
+		dpool.data.write(b"building")  
+		dpool.data.write(b'')
+		pluaoffset = dpool.data.tell()
+		dpool.data.write(struct.pack("<8s", b''))
+		# add space for the lua ptr
+
 
 		# add three required fragments for the specdef
 		# ignoring the current specdef struct, point all
@@ -47,10 +61,25 @@ class SpecdefLoader(BaseFile):
 		new_frag2.pointers[1].pool_index = dpool_index
 		new_frag2.pointers[1].data_offset = doffset + 0x00
 
+		if False:
+			## this is the pointer to the lua string
+			new_frag3 = self.create_fragment()
+			new_frag3.pointers[0].pool_index = dpool_index
+			new_frag3.pointers[0].data_offset = pluaoffset
+			new_frag3.pointers[1].pool_index = dpool_index
+			new_frag3.pointers[1].data_offset = luaoffset
+
+
+			## this is the pointer to the lua list
+			new_frag4 = self.create_fragment()
+			new_frag4.pointers[0].pool_index = pool_index
+			new_frag4.pointers[0].data_offset = offset + 0x38
+			new_frag4.pointers[1].pool_index = dpool_index
+			new_frag4.pointers[1].data_offset = pluaoffset
+
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		self.sized_str_entry.pointers[0].pool_index = pool_index
 		self.sized_str_entry.pointers[0].data_offset = offset
-		self.create_data_entry(self.sized_str_entry, (empty_buffer,))
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -125,7 +154,7 @@ class SpecdefLoader(BaseFile):
 					# 02 Unused
 					# 03 UInt8(I think)
 					# 04 Unused
-					# DeTy
+					#                                                                DeTy
 					# 05 Enum type({Default =, Enum = filename, Type = "uint8"} 00ff02010000000000000000000000000000000000000000
 					# 06 Uint64 with dependencies({Type = "uint64", Default = 0})
 					# 07 table ( or String List) (list of ptr)  00000000ffffffff0000000001 << this to 1 seen when it can be just a string (no list)
