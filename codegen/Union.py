@@ -105,7 +105,7 @@ class Union:
     def get_default_string(self, default_string, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
-        tag_of_field_type = self.compound.parser.tag_dict[field_type_lower]
+        tag_of_field_type = self.compound.parser.tag_dict.get(field_type_lower)
         _, return_type = self.compound.parser.map_type(field_type, arr1)
         if tag_of_field_type == "enum" and default_string:
             default_string = f'{field_type}.{default_string}'
