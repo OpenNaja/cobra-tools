@@ -13,18 +13,18 @@ class Repeat:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_0 = numpy.zeros((14), dtype='uint')
+		self.zeros_0 = numpy.zeros((14), dtype=numpy.dtype('uint32'))
 
 		# to be read sequentially starting after this array
 		self.byte_size = 0
-		self.zeros_1 = numpy.zeros((5), dtype='uint')
+		self.zeros_1 = numpy.zeros((5), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.zeros_0 = numpy.zeros((14), dtype='uint')
+		self.zeros_0 = numpy.zeros((14), dtype=numpy.dtype('uint32'))
 		self.byte_size = 0
-		self.zeros_1 = numpy.zeros((5), dtype='uint')
+		self.zeros_1 = numpy.zeros((5), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

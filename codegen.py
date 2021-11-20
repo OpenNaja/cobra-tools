@@ -246,7 +246,7 @@ class XmlParser:
                         if callable(getattr(basic_class, "create_array", None)):
                             test = basic_class.create_array(1)
                             if isinstance(test, ndarray):
-                                out_type = ('numpy', f'numpy.dtype({str(test.dtype)})')
+                                out_type = ('numpy', f'numpy.{repr(test.dtype)}')
                     else:
                         if callable(getattr(basic_class, "from_value", None)):
                             # check from_value to see which builtin it returns

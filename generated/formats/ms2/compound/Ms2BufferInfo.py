@@ -21,7 +21,7 @@ class Ms2BufferInfo:
 		self.io_start = 0
 
 		# JWE, 16 bytes of 00 padding
-		self.skip_1 = numpy.zeros((4), dtype='uint')
+		self.skip_1 = numpy.zeros((4), dtype=numpy.dtype('uint32'))
 		self.vertexdatasize = 0
 
 		# 8 empty bytes
@@ -35,13 +35,13 @@ class Ms2BufferInfo:
 		self.ptr_2 = 0
 
 		# PZ, another 16 empty bytes
-		self.unk_2 = numpy.zeros((2), dtype='uint64')
+		self.unk_2 = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.user_version.is_jwe and (self.context.version == 19):
-			self.skip_1 = numpy.zeros((4), dtype='uint')
+			self.skip_1 = numpy.zeros((4), dtype=numpy.dtype('uint32'))
 		self.vertexdatasize = 0
 		self.ptr_1 = 0
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
@@ -49,7 +49,7 @@ class Ms2BufferInfo:
 		self.facesdatasize = 0
 		self.ptr_2 = 0
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.unk_2 = numpy.zeros((2), dtype='uint64')
+			self.unk_2 = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

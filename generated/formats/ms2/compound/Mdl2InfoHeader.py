@@ -30,39 +30,39 @@ class Mdl2InfoHeader(GenericHeader):
 		self.bone_info_index = 0
 
 		# name of ms2
-		self.ms_2_name = 0
+		self.ms_2_name = ''
 
 		# gives relevant info on the mdl, including counts and pack base
 		self.model_info = CoreModelInfo(self.context, None, None)
 
 		# name pointers for each material
-		self.materials = Array(self.context)
+		self.materials = Array((self.model_info.num_materials), MaterialName, self.context, None, None)
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
-		self.lods = Array(self.context)
+		self.lods = Array((self.model_info.num_lods), LodInfo, self.context, None, None)
 
 		# instantiate the meshes with materials
-		self.objects = Array(self.context)
+		self.objects = Array((self.model_info.num_objects), MeshLink, self.context, None, None)
 
 		# model data blocks for this mdl2
-		self.models = Array(self.context)
+		self.models = Array((self.model_info.num_models), ModelData, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.index = 0
 		self.bone_info_index = 0
-		self.ms_2_name = 0
+		self.ms_2_name = ''
 		if not (self.context.version < 19):
 			self.model_info = CoreModelInfo(self.context, None, None)
 		if not (self.context.version < 19):
-			self.materials = Array(self.context)
+			self.materials = Array((self.model_info.num_materials), MaterialName, self.context, None, None)
 		if not (self.context.version < 19) and self.model_info.num_models:
-			self.lods = Array(self.context)
+			self.lods = Array((self.model_info.num_lods), LodInfo, self.context, None, None)
 		if not (self.context.version < 19):
-			self.objects = Array(self.context)
+			self.objects = Array((self.model_info.num_objects), MeshLink, self.context, None, None)
 		if not (self.context.version < 19):
-			self.models = Array(self.context)
+			self.models = Array((self.model_info.num_models), ModelData, self.context, None, None)
 
 	def read(self, stream):
 		super().read(stream)

@@ -20,12 +20,12 @@ class Fragment:
 		self.io_start = 0
 
 		# points into header datas section
-		self.pointers = Array(self.context)
+		self.pointers = Array((2), HeaderPointer, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.pointers = Array(self.context)
+		self.pointers = Array((2), HeaderPointer, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

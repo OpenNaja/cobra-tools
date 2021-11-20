@@ -16,16 +16,16 @@ class Texture:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.fgm_name = 0
-		self.texture_suffix = 0
-		self.texture_type = 0
+		self.fgm_name = ''
+		self.texture_suffix = ''
+		self.texture_type = ''
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.fgm_name = 0
-		self.texture_suffix = 0
-		self.texture_type = 0
+		self.fgm_name = ''
+		self.texture_suffix = ''
+		self.texture_type = ''
 
 	def read(self, stream):
 		self.io_start = stream.tell()

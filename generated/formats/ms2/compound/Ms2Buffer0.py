@@ -19,10 +19,10 @@ class Ms2Buffer0:
 		self.io_start = 0
 
 		# djb hashes
-		self.name_hashes = numpy.zeros((), dtype='uint')
+		self.name_hashes = numpy.zeros((), dtype=numpy.dtype('uint32'))
 
 		# names
-		self.names = Array(self.context)
+		self.names = Array((), ZString, self.context, None, None)
 
 		# todo - pad to 8; for pz 1.6
 		self.new_padding = SmartPadding(self.context, None, None)
@@ -31,8 +31,8 @@ class Ms2Buffer0:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.name_hashes = numpy.zeros((), dtype='uint')
-		self.names = Array(self.context)
+		self.name_hashes = numpy.zeros((), dtype=numpy.dtype('uint32'))
+		self.names = Array((), ZString, self.context, None, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.new_padding = SmartPadding(self.context, None, None)
 		if self.context.version == 17:

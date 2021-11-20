@@ -19,7 +19,7 @@ class LodInfo:
 		self.io_start = 0
 
 		# usually first lod is 900
-		self.distance = 0
+		self.distance = 0.0
 
 		# always 0
 		self.zero = 0
@@ -42,7 +42,7 @@ class LodInfo:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.distance = 0
+		self.distance = 0.0
 		self.zero = 0
 		self.bone_index = 0
 		self.first_object_index = 0

@@ -35,7 +35,7 @@ class ModelData:
 		self.stream_index = 0
 
 		# always zero
-		self.zeros = numpy.zeros((3), dtype='uint')
+		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 
 		# vertex count of model
 		self.vertex_count = 0
@@ -62,19 +62,19 @@ class ModelData:
 		self.zero_1 = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = numpy.zeros((2), dtype='float')
+		self.unk_floats = numpy.zeros((2), dtype=numpy.dtype('float32'))
 
 		# always zero
 		self.zero_2 = 0
 
 		# bitfield, determines vertex format
-		self.flag = ModelFlag()
+		self.flag = ModelFlag(self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.stream_index = 0
-		self.zeros = numpy.zeros((3), dtype='uint')
+		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 		self.vertex_count = 0
 		self.tri_index_count = 0
 		self.zero_0 = 0
@@ -83,9 +83,9 @@ class ModelData:
 		self.size_of_vertex = 0
 		self.tri_offset = 0
 		self.zero_1 = 0
-		self.unk_floats = numpy.zeros((2), dtype='float')
+		self.unk_floats = numpy.zeros((2), dtype=numpy.dtype('float32'))
 		self.zero_2 = 0
-		self.flag = ModelFlag()
+		self.flag = ModelFlag(self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

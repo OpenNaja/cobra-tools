@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -18,20 +17,20 @@ class WsmHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.duration = 0
+		self.duration = 0.0
 
 		# likely
 		self.frame_count = 0
 
 		# unk
-		self.unknowns = numpy.zeros((8), dtype='float')
+		self.unknowns = numpy.zeros((8), dtype=numpy.dtype('float32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.duration = 0
+		self.duration = 0.0
 		self.frame_count = 0
-		self.unknowns = numpy.zeros((8), dtype='float')
+		self.unknowns = numpy.zeros((8), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

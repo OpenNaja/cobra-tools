@@ -19,26 +19,26 @@ class ManiBlock:
 		self.io_size = 0
 		self.io_start = 0
 		self.ref = Empty(self.context, None, None)
-		self.indices_c_0 = numpy.zeros((), dtype='ushort')
-		self.indices_c_0 = numpy.zeros((), dtype='uint')
-		self.indices_c_1 = numpy.zeros((), dtype='ushort')
-		self.indices_c_1 = numpy.zeros((), dtype='uint')
-		self.indices_1 = numpy.zeros((), dtype='ushort')
-		self.indices_1 = numpy.zeros((), dtype='uint')
-		self.indices_e_2 = numpy.zeros((), dtype='ushort')
-		self.indices_e_2 = numpy.zeros((), dtype='uint')
-		self.p_indices_c_0 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_c_0 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_c_1 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_c_1 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
+		self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+		self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+		self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+		self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+		self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+		self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+		self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint16'))
+		self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+		self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_b = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_c = numpy.zeros((), dtype=numpy.dtype('uint8'))
 
 		# ?
 		self.pad = PadAlign(self.context, self.ref, 4)
 
 		# these are likely a scale reference or factor
-		self.floatsa = numpy.zeros((), dtype='float')
+		self.floatsa = numpy.zeros((), dtype=numpy.dtype('float32'))
 
 		# ?
 		self.pad_2 = SmartPadding(self.context, None, None)
@@ -49,72 +49,72 @@ class ManiBlock:
 		self.e = 0
 
 		# fixed
-		self.zeros_19 = numpy.zeros((19), dtype='uint')
+		self.zeros_19 = numpy.zeros((19), dtype=numpy.dtype('uint32'))
 		self.count = 0
 
 		# usually / always 420
 		self.four_and_twenty = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((self.c_1), dtype='ubyte')
+		self.zeros = numpy.zeros((self.c_1), dtype=numpy.dtype('uint8'))
 
 		# ?
 		self.anoth_pad = SmartPadding(self.context, None, None)
 
 		# these are likely a scale reference or factor
-		self.floatsb = numpy.zeros((6), dtype='float')
+		self.floatsb = numpy.zeros((6), dtype=numpy.dtype('float32'))
 
 		# ?
 		self.unk = 0
 
 		# this seems to be vaguely related, but not always there?
 		self.unk_for_e_2 = 0
-		self.repeats = Array(self.context)
+		self.repeats = Array((self.count), Repeat, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.ref = Empty(self.context, None, None)
 		if self.context.version == 18:
-			self.indices_c_0 = numpy.zeros((), dtype='ushort')
+			self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_c_0 = numpy.zeros((), dtype='uint')
+			self.indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint32'))
 		if self.context.version == 18:
-			self.indices_c_1 = numpy.zeros((), dtype='ushort')
+			self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_c_1 = numpy.zeros((), dtype='uint')
+			self.indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
 		if self.context.version == 18:
-			self.indices_1 = numpy.zeros((), dtype='ushort')
+			self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_1 = numpy.zeros((), dtype='uint')
+			self.indices_1 = numpy.zeros((), dtype=numpy.dtype('uint32'))
 		if self.context.version == 18:
-			self.indices_e_2 = numpy.zeros((), dtype='ushort')
+			self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
-			self.indices_e_2 = numpy.zeros((), dtype='uint')
-		self.p_indices_c_0 = numpy.zeros((), dtype='ubyte')
+			self.indices_e_2 = numpy.zeros((), dtype=numpy.dtype('uint32'))
+		self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
 		if self.context.version == 18:
-			self.p_indices_c_0 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_c_1 = numpy.zeros((), dtype='ubyte')
+			self.p_indices_c_0 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
 		if self.context.version == 18:
-			self.p_indices_c_1 = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
+			self.p_indices_c_1 = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_b = numpy.zeros((), dtype=numpy.dtype('uint8'))
+		self.p_indices_0_c = numpy.zeros((), dtype=numpy.dtype('uint8'))
 		self.pad = PadAlign(self.context, self.ref, 4)
-		self.floatsa = numpy.zeros((), dtype='float')
+		self.floatsa = numpy.zeros((), dtype=numpy.dtype('float32'))
 		self.pad_2 = SmartPadding(self.context, None, None)
 		self.frame_count = 0
 		self.c_1 = 0
 		self.e = 0
-		self.zeros_19 = numpy.zeros((19), dtype='uint')
+		self.zeros_19 = numpy.zeros((19), dtype=numpy.dtype('uint32'))
 		self.count = 0
 		self.four_and_twenty = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((self.c_1), dtype='ubyte')
+		self.zeros = numpy.zeros((self.c_1), dtype=numpy.dtype('uint8'))
 		self.anoth_pad = SmartPadding(self.context, None, None)
-		self.floatsb = numpy.zeros((6), dtype='float')
+		self.floatsb = numpy.zeros((6), dtype=numpy.dtype('float32'))
 		self.unk = 0
 		if self.arg.e_2:
 			self.unk_for_e_2 = 0
-		self.repeats = Array(self.context)
+		self.repeats = Array((self.count), Repeat, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

@@ -80,10 +80,10 @@ class ZtModelData:
 		self.zero = 0
 
 		# some floats
-		self.unknown_07 = 0
+		self.unknown_07 = 0.0
 
 		# bitfield
-		self.flag = ModelFlagZT()
+		self.flag = ModelFlagZT(self.context, None, None)
 
 		# always zero
 		self.zero_uac = 0
@@ -113,8 +113,8 @@ class ZtModelData:
 		if self.context.version == 18:
 			self.zero = 0
 		if self.context.version == 18:
-			self.unknown_07 = 0
-		self.flag = ModelFlagZT()
+			self.unknown_07 = 0.0
+		self.flag = ModelFlagZT(self.context, None, None)
 		if self.context.version == 17:
 			self.zero_uac = 0
 

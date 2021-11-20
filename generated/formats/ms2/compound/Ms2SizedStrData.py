@@ -34,7 +34,7 @@ class Ms2SizedStrData:
 		self.unk_count = 0
 
 		# seems to be zeros
-		self.unknown_1 = numpy.zeros((3), dtype='uint')
+		self.unknown_1 = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
@@ -44,7 +44,7 @@ class Ms2SizedStrData:
 		self.mdl_2_count = 0
 		self.name_count = 0
 		self.unk_count = 0
-		self.unknown_1 = numpy.zeros((3), dtype='uint')
+		self.unknown_1 = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

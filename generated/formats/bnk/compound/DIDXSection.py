@@ -21,13 +21,13 @@ class DIDXSection:
 
 		# length of following data
 		self.length = 0
-		self.data_pointers = Array(self.context)
+		self.data_pointers = Array((int(self.length / 12)), DataPointer, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0
-		self.data_pointers = Array(self.context)
+		self.data_pointers = Array((int(self.length / 12)), DataPointer, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

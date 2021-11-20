@@ -14,13 +14,13 @@ class InfoZTMemPool:
 		self.io_size = 0
 		self.io_start = 0
 		self.unk_count = 0
-		self.unks = numpy.zeros((self.unk_count, 2), dtype='ushort')
+		self.unks = numpy.zeros((self.unk_count, 2), dtype=numpy.dtype('uint16'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.unk_count = 0
-		self.unks = numpy.zeros((self.unk_count, 2), dtype='ushort')
+		self.unks = numpy.zeros((self.unk_count, 2), dtype=numpy.dtype('uint16'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

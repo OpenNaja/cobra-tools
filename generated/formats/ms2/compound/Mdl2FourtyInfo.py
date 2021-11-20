@@ -15,12 +15,12 @@ class Mdl2FourtyInfo:
 		self.io_start = 0
 
 		# 0, 1 or 0, 0, 0, 0
-		self.unknowns = numpy.zeros((5), dtype='uint64')
+		self.unknowns = numpy.zeros((5), dtype=numpy.dtype('uint64'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.unknowns = numpy.zeros((5), dtype='uint64')
+		self.unknowns = numpy.zeros((5), dtype=numpy.dtype('uint64'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

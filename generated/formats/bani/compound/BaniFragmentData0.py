@@ -25,7 +25,7 @@ class BaniFragmentData0:
 		self.num_frames = 0
 
 		# length of the animation, can easily get keyframe spacing now
-		self.animation_length = 0
+		self.animation_length = 0.0
 
 		# if 1381323599 then looped
 		self.loop_flag = 0
@@ -36,7 +36,7 @@ class BaniFragmentData0:
 		self.zero = 0
 		self.read_start_frame = 0
 		self.num_frames = 0
-		self.animation_length = 0
+		self.animation_length = 0.0
 		self.loop_flag = 0
 
 	def read(self, stream):

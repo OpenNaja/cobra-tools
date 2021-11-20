@@ -25,25 +25,25 @@ class OvsHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.pool_groups = Array(self.context)
-		self.pools = Array(self.context)
-		self.data_entries = Array(self.context)
-		self.buffer_entries = Array(self.context)
-		self.buffer_groups = Array(self.context)
-		self.sized_str_entries = Array(self.context)
-		self.fragments = Array(self.context)
+		self.pool_groups = Array((), PoolGroup, self.context, None, None)
+		self.pools = Array((), MemPool, self.context, None, None)
+		self.data_entries = Array((), DataEntry, self.context, None, None)
+		self.buffer_entries = Array((), BufferEntry, self.context, None, None)
+		self.buffer_groups = Array((), BufferGroup, self.context, None, None)
+		self.sized_str_entries = Array((), SizedStringEntry, self.context, None, None)
+		self.fragments = Array((), Fragment, self.context, None, None)
 		self.set_header = SetHeader(self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.pool_groups = Array(self.context)
-		self.pools = Array(self.context)
-		self.data_entries = Array(self.context)
-		self.buffer_entries = Array(self.context)
-		self.buffer_groups = Array(self.context)
-		self.sized_str_entries = Array(self.context)
-		self.fragments = Array(self.context)
+		self.pool_groups = Array((), PoolGroup, self.context, None, None)
+		self.pools = Array((), MemPool, self.context, None, None)
+		self.data_entries = Array((), DataEntry, self.context, None, None)
+		self.buffer_entries = Array((), BufferEntry, self.context, None, None)
+		self.buffer_groups = Array((), BufferGroup, self.context, None, None)
+		self.sized_str_entries = Array((), SizedStringEntry, self.context, None, None)
+		self.fragments = Array((), Fragment, self.context, None, None)
 		self.set_header = SetHeader(self.context, None, None)
 
 	def read(self, stream):

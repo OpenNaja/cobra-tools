@@ -38,7 +38,7 @@ class Ms2BoneInfo:
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = numpy.zeros((3), dtype='uint64')
+		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint64'))
 
 		# index count3
 		self.bone_count = 0
@@ -81,40 +81,40 @@ class Ms2BoneInfo:
 		self.unknown_88 = 0
 
 		# index into ms2 string table for bones used here
-		self.name_indices = numpy.zeros((self.name_count), dtype='uint')
+		self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint32'))
 
 		# index into ms2 string table for bones used here
-		self.name_indices = numpy.zeros((self.name_count), dtype='ushort')
+		self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint16'))
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype='byte')
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype=numpy.dtype('int8'))
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
 
 		# used for skinning
-		self.inverse_bind_matrices = Array(self.context)
+		self.inverse_bind_matrices = Array((self.bind_matrix_count), Matrix44, self.context, None, None)
 
 		# bones, rot first
-		self.bones = Array(self.context)
+		self.bones = Array((self.bone_count), PzBone, self.context, None, None)
 
 		# bones, loc first
-		self.bones = Array(self.context)
+		self.bones = Array((self.bone_count), JweBone, self.context, None, None)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
+		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype=numpy.dtype('uint8'))
 
 		# zeros
-		self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
+		self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype=numpy.dtype('int8'))
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
+		self.enumeration = numpy.zeros((self.enum_count, 2), dtype=numpy.dtype('uint32'))
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
+		self.enumeration = numpy.zeros((self.enum_count), dtype=numpy.dtype('uint8'))
 
 		# zeros
-		self.zt_weirdness = numpy.zeros((10), dtype='ushort')
+		self.zt_weirdness = numpy.zeros((10), dtype=numpy.dtype('uint16'))
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
@@ -142,7 +142,7 @@ class Ms2BoneInfo:
 			self.unknown_0_c = 0
 		self.unk_count = 0
 		self.bind_matrix_count = 0
-		self.zeros = numpy.zeros((3), dtype='uint64')
+		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint64'))
 		self.bone_count = 0
 		self.unknown_40 = 0
 		self.bone_parents_count = 0
@@ -163,27 +163,27 @@ class Ms2BoneInfo:
 		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
 			self.unknown_88 = 0
 		if not (self.context.version < 19):
-			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
+			self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint32'))
 		if self.context.version < 19:
-			self.name_indices = numpy.zeros((self.name_count), dtype='ushort')
+			self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint16'))
 		if not (self.context.version < 19):
-			self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype='byte')
+			self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype=numpy.dtype('int8'))
 		if self.context.version < 19:
-			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
-		self.inverse_bind_matrices = Array(self.context)
+			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
+		self.inverse_bind_matrices = Array((self.bind_matrix_count), Matrix44, self.context, None, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.bones = Array(self.context)
+			self.bones = Array((self.bone_count), PzBone, self.context, None, None)
 		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
-			self.bones = Array(self.context)
-		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
+			self.bones = Array((self.bone_count), JweBone, self.context, None, None)
+		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype=numpy.dtype('uint8'))
 		if not (self.context.version == 17):
-			self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
+			self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype=numpy.dtype('int8'))
 		if not (self.context.version == 17) and self.one:
-			self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
+			self.enumeration = numpy.zeros((self.enum_count, 2), dtype=numpy.dtype('uint32'))
 		if self.context.version == 17 and self.one:
-			self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
+			self.enumeration = numpy.zeros((self.enum_count), dtype=numpy.dtype('uint8'))
 		if self.context.version == 17:
-			self.zt_weirdness = numpy.zeros((10), dtype='ushort')
+			self.zt_weirdness = numpy.zeros((10), dtype=numpy.dtype('uint16'))
 		if not (self.context.version < 19) and self.zeros_count:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 		if self.context.version < 19 and self.zeros_count:

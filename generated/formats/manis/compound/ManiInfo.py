@@ -18,33 +18,33 @@ class ManiInfo:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.duration = 0
+		self.duration = 0.0
 
 		# likely
 		self.frame_count = 0
 		self.b = 0
 
 		# rest
-		self.zeros_0 = numpy.zeros((6), dtype='ushort')
+		self.zeros_0 = numpy.zeros((6), dtype=numpy.dtype('uint16'))
 		self.c_0 = 0
 		self.c_1 = 0
 		self.name_count = 0
 
 		# rest
-		self.zeros_1 = numpy.zeros((3), dtype='ushort')
+		self.zeros_1 = numpy.zeros((3), dtype=numpy.dtype('uint16'))
 		self.e_2 = 0
 
 		# always FF FF
 		self.minus_1_a = 0
 		self.e = 0
-		self.extra_pc = numpy.zeros((5), dtype='ushort')
+		self.extra_pc = numpy.zeros((5), dtype=numpy.dtype('uint16'))
 		self.g = 0
 
 		# rest 228 bytes
-		self.zeros_2 = numpy.zeros((57), dtype='uint')
+		self.zeros_2 = numpy.zeros((57), dtype=numpy.dtype('uint32'))
 
 		# rest 14 bytes
-		self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
+		self.extra_zeros_pc = numpy.zeros((7), dtype=numpy.dtype('uint16'))
 		self.p_indices_c_0_min = 0
 		self.p_indices_c_0_max = 0
 		self.p_indices_c_1_min = 0
@@ -59,28 +59,28 @@ class ManiInfo:
 		self.c_3 = 0
 		self.c_4 = 0
 		self.c_5 = 0
-		self.zeros_end = numpy.zeros((3), dtype='ushort')
+		self.zeros_end = numpy.zeros((3), dtype=numpy.dtype('uint16'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.duration = 0
+		self.duration = 0.0
 		self.frame_count = 0
 		self.b = 0
-		self.zeros_0 = numpy.zeros((6), dtype='ushort')
+		self.zeros_0 = numpy.zeros((6), dtype=numpy.dtype('uint16'))
 		self.c_0 = 0
 		self.c_1 = 0
 		self.name_count = 0
-		self.zeros_1 = numpy.zeros((3), dtype='ushort')
+		self.zeros_1 = numpy.zeros((3), dtype=numpy.dtype('uint16'))
 		self.e_2 = 0
 		self.minus_1_a = 0
 		self.e = 0
 		if self.context.version == 18:
-			self.extra_pc = numpy.zeros((5), dtype='ushort')
+			self.extra_pc = numpy.zeros((5), dtype=numpy.dtype('uint16'))
 		self.g = 0
-		self.zeros_2 = numpy.zeros((57), dtype='uint')
+		self.zeros_2 = numpy.zeros((57), dtype=numpy.dtype('uint32'))
 		if self.context.version == 18:
-			self.extra_zeros_pc = numpy.zeros((7), dtype='ushort')
+			self.extra_zeros_pc = numpy.zeros((7), dtype=numpy.dtype('uint16'))
 		self.p_indices_c_0_min = 0
 		self.p_indices_c_0_max = 0
 		self.p_indices_c_1_min = 0
@@ -91,7 +91,7 @@ class ManiInfo:
 		self.c_3 = 0
 		self.c_4 = 0
 		self.c_5 = 0
-		self.zeros_end = numpy.zeros((3), dtype='ushort')
+		self.zeros_end = numpy.zeros((3), dtype=numpy.dtype('uint16'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

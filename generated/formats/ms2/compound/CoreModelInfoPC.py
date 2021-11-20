@@ -15,8 +15,8 @@ class CoreModelInfoPC(CoreModelInfo):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros = numpy.zeros((5), dtype='uint64')
-		self.zeros = numpy.zeros((9), dtype='uint64')
+		self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint64'))
+		self.zeros = numpy.zeros((9), dtype=numpy.dtype('uint64'))
 		self.one = 0
 		self.zero = 0
 		self.zero_zt = 0
@@ -25,9 +25,9 @@ class CoreModelInfoPC(CoreModelInfo):
 
 	def set_defaults(self):
 		if self.context.version == 18:
-			self.zeros = numpy.zeros((5), dtype='uint64')
+			self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint64'))
 		if self.context.version == 17:
-			self.zeros = numpy.zeros((9), dtype='uint64')
+			self.zeros = numpy.zeros((9), dtype=numpy.dtype('uint64'))
 		self.one = 0
 		self.zero = 0
 		if self.context.version == 17:

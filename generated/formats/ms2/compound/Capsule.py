@@ -21,10 +21,10 @@ class Capsule:
 		self.direction = Vector3(self.context, None, None)
 
 		# radius of the caps
-		self.radius = 0
+		self.radius = 0.0
 
 		# distance between the center points of the capsule caps, total extent is 2 * radius + extent
-		self.extent = 0
+		self.extent = 0.0
 
 		# apparently unused
 		self.zero = 0
@@ -34,8 +34,8 @@ class Capsule:
 	def set_defaults(self):
 		self.offset = Vector3(self.context, None, None)
 		self.direction = Vector3(self.context, None, None)
-		self.radius = 0
-		self.extent = 0
+		self.radius = 0.0
+		self.extent = 0.0
 		self.zero = 0
 
 	def read(self, stream):

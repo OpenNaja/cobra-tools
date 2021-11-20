@@ -19,12 +19,12 @@ class PCJointThing:
 		self.io_start = 0
 
 		# -1
-		self.shorts = numpy.zeros((4), dtype='short')
+		self.shorts = numpy.zeros((4), dtype=numpy.dtype('int16'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.shorts = numpy.zeros((4), dtype='short')
+		self.shorts = numpy.zeros((4), dtype=numpy.dtype('int16'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

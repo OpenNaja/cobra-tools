@@ -15,19 +15,19 @@ class SizedStrData:
 		self.io_start = 0
 		self.a = 0
 		self.hash_block_size = 0
-		self.zeros = numpy.zeros((2), dtype='int')
+		self.zeros = numpy.zeros((2), dtype=numpy.dtype('int32'))
 		self.c_1 = 0
-		self.zeros_end = numpy.zeros((9), dtype='ushort')
+		self.zeros_end = numpy.zeros((9), dtype=numpy.dtype('uint16'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.a = 0
 		self.hash_block_size = 0
-		self.zeros = numpy.zeros((2), dtype='int')
+		self.zeros = numpy.zeros((2), dtype=numpy.dtype('int32'))
 		self.c_1 = 0
 		if (not self.context.user_version.is_jwe) and (self.context.version == 20):
-			self.zeros_end = numpy.zeros((9), dtype='ushort')
+			self.zeros_end = numpy.zeros((9), dtype=numpy.dtype('uint16'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

@@ -21,17 +21,17 @@ class ListLong(Descriptor):
 		self.loc = Vector3(self.context, None, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
-		self.floats = numpy.zeros((5, 3), dtype='float')
+		self.floats = numpy.zeros((5, 3), dtype=numpy.dtype('float32'))
 
 		# radians
-		self.radians = numpy.zeros((8), dtype='float')
+		self.radians = numpy.zeros((8), dtype=numpy.dtype('float32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.loc = Vector3(self.context, None, None)
-		self.floats = numpy.zeros((5, 3), dtype='float')
-		self.radians = numpy.zeros((8), dtype='float')
+		self.floats = numpy.zeros((5, 3), dtype=numpy.dtype('float32'))
+		self.radians = numpy.zeros((8), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):
 		super().read(stream)

@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -26,7 +25,7 @@ class BKHDSection:
 		self.id_b = 0
 		self.constant_a = 0
 		self.constant_b = 0
-		self.unk = numpy.zeros((2), dtype='uint')
+		self.unk = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
@@ -37,7 +36,7 @@ class BKHDSection:
 		self.id_b = 0
 		self.constant_a = 0
 		self.constant_b = 0
-		self.unk = numpy.zeros((2), dtype='uint')
+		self.unk = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

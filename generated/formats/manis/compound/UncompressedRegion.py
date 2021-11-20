@@ -13,30 +13,30 @@ class UncompressedRegion:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_0 = numpy.zeros((2), dtype='uint')
+		self.zeros_0 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		self.unk_0 = 0
 		self.unk_1 = 0
-		self.zeros_1 = numpy.zeros((3), dtype='uint')
+		self.zeros_1 = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 		self.unk_2 = 0
 		self.unk_3 = 0
-		self.zeros_2 = numpy.zeros((2), dtype='uint')
+		self.zeros_2 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		self.unk_4 = 0
 		self.unk_5 = 0
-		self.zeros_3 = numpy.zeros((2), dtype='uint')
+		self.zeros_3 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.zeros_0 = numpy.zeros((2), dtype='uint')
+		self.zeros_0 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		self.unk_0 = 0
 		self.unk_1 = 0
-		self.zeros_1 = numpy.zeros((3), dtype='uint')
+		self.zeros_1 = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 		self.unk_2 = 0
 		self.unk_3 = 0
-		self.zeros_2 = numpy.zeros((2), dtype='uint')
+		self.zeros_2 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		self.unk_4 = 0
 		self.unk_5 = 0
-		self.zeros_3 = numpy.zeros((2), dtype='uint')
+		self.zeros_3 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

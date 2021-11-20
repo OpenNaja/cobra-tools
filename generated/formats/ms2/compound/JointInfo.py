@@ -20,7 +20,7 @@ class JointInfo:
 		self.eleven = 0
 
 		# bunch of -1's
-		self.f_fs = numpy.zeros((3), dtype='int')
+		self.f_fs = numpy.zeros((3), dtype=numpy.dtype('int32'))
 		self.name_offset = 0
 		self.hitcheck_count = 0
 
@@ -28,19 +28,19 @@ class JointInfo:
 		self.zero = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
-		self.hit_check = Array(self.context)
+		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype=numpy.dtype('uint64'))
+		self.hit_check = Array((self.hitcheck_count), HitCheckEntry, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.eleven = 0
-		self.f_fs = numpy.zeros((3), dtype='int')
+		self.f_fs = numpy.zeros((3), dtype=numpy.dtype('int32'))
 		self.name_offset = 0
 		self.hitcheck_count = 0
 		self.zero = 0
-		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
-		self.hit_check = Array(self.context)
+		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype=numpy.dtype('uint64'))
+		self.hit_check = Array((self.hitcheck_count), HitCheckEntry, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

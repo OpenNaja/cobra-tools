@@ -27,7 +27,7 @@ class MaterialcollectionInfoHeader:
 		self.io_start = 0
 
 		# 'FGM '
-		self.magic = numpy.zeros((4), dtype='byte')
+		self.magic = numpy.zeros((4), dtype=numpy.dtype('int8'))
 		self.version = 0
 		self.user_version = 0
 
@@ -43,7 +43,7 @@ class MaterialcollectionInfoHeader:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.magic = numpy.zeros((4), dtype='byte')
+		self.magic = numpy.zeros((4), dtype=numpy.dtype('int8'))
 		self.version = 0
 		self.user_version = 0
 		self.has_texture_list = 0

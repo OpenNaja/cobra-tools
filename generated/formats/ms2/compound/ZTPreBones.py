@@ -13,20 +13,20 @@ class ZTPreBones:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros = numpy.zeros((2), dtype='uint64')
-		self.unks = numpy.zeros((8), dtype='uint')
-		self.unks_2 = numpy.zeros((10), dtype='uint')
-		self.floats = numpy.zeros((4), dtype='float')
-		self.unks_3 = numpy.zeros((2), dtype='uint')
+		self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint64'))
+		self.unks = numpy.zeros((8), dtype=numpy.dtype('uint32'))
+		self.unks_2 = numpy.zeros((10), dtype=numpy.dtype('uint32'))
+		self.floats = numpy.zeros((4), dtype=numpy.dtype('float32'))
+		self.unks_3 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.zeros = numpy.zeros((2), dtype='uint64')
-		self.unks = numpy.zeros((8), dtype='uint')
-		self.unks_2 = numpy.zeros((10), dtype='uint')
-		self.floats = numpy.zeros((4), dtype='float')
-		self.unks_3 = numpy.zeros((2), dtype='uint')
+		self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint64'))
+		self.unks = numpy.zeros((8), dtype=numpy.dtype('uint32'))
+		self.unks_2 = numpy.zeros((10), dtype=numpy.dtype('uint32'))
+		self.floats = numpy.zeros((4), dtype=numpy.dtype('float32'))
+		self.unks_3 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

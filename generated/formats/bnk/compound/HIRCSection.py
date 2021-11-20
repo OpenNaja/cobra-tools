@@ -22,14 +22,14 @@ class HIRCSection:
 		# length of following data
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array(self.context)
+		self.hirc_pointers = Array((self.count), HircPointer, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array(self.context)
+		self.hirc_pointers = Array((self.count), HircPointer, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

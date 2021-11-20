@@ -35,7 +35,7 @@ class GenericHeader:
 		self.seventh_byte = 1
 
 		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
-		self.user_version = VersionInfo()
+		self.user_version = VersionInfo(self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -45,7 +45,7 @@ class GenericHeader:
 		self.version = 0
 		self.bitswap = 0
 		self.seventh_byte = 1
-		self.user_version = VersionInfo()
+		self.user_version = VersionInfo(self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

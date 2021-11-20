@@ -23,9 +23,9 @@ class FgmInfoHeader(GenericHeader):
 		self.data_lib_size = 0
 		self.dependency_count = 0
 		self.fgm_info = FgmHeader(self.context, None, None)
-		self.texture_files = Array(self.context)
-		self.textures = Array(self.context)
-		self.attributes = Array(self.context)
+		self.texture_files = Array((self.dependency_count), ZString, self.context, None, None)
+		self.textures = Array((self.fgm_info.texture_count), TextureInfo, self.context, None, None)
+		self.attributes = Array((self.fgm_info.attribute_count), AttributeInfo, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -33,9 +33,9 @@ class FgmInfoHeader(GenericHeader):
 		self.data_lib_size = 0
 		self.dependency_count = 0
 		self.fgm_info = FgmHeader(self.context, None, None)
-		self.texture_files = Array(self.context)
-		self.textures = Array(self.context)
-		self.attributes = Array(self.context)
+		self.texture_files = Array((self.dependency_count), ZString, self.context, None, None)
+		self.textures = Array((self.fgm_info.texture_count), TextureInfo, self.context, None, None)
+		self.attributes = Array((self.fgm_info.attribute_count), AttributeInfo, self.context, None, None)
 
 	def read(self, stream):
 		super().read(stream)

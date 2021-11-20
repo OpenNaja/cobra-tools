@@ -15,17 +15,17 @@ class InfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 		self.mani_count = 0
-		self.names = Array(self.context)
+		self.names = Array((self.mani_count), ZString, self.context, None, None)
 		self.header = SizedStrData(self.context, None, None)
-		self.mani_infos = Array(self.context)
-		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
-		self.bone_names = Array(self.context)
+		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, None, None)
+		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype=numpy.dtype('uint32'))
+		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, None, None)
 
 		# ?
 		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
@@ -34,15 +34,14 @@ class InfoHeader(GenericHeader):
 
 	def set_defaults(self):
 		self.mani_count = 0
-		self.names = Array(self.context)
+		self.names = Array((self.mani_count), ZString, self.context, None, None)
 		self.header = SizedStrData(self.context, None, None)
-		self.mani_infos = Array(self.context)
-		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
-		self.bone_names = Array(self.context)
+		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, None, None)
+		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype=numpy.dtype('uint32'))
+		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, None, None)
 		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.mani_count = stream.read_uint()
 		self.names = stream.read_zstrings((self.mani_count))
@@ -55,7 +54,6 @@ class InfoHeader(GenericHeader):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_uint(self.mani_count)
 		stream.write_zstrings(self.names)

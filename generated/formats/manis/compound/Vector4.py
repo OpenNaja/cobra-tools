@@ -18,24 +18,24 @@ class Vector4:
 		self.io_start = 0
 
 		# zeroth coordinate.
-		self.w = 0
+		self.w = 0.0
 
 		# First coordinate.
-		self.x = 0
+		self.x = 0.0
 
 		# Second coordinate.
-		self.y = 0
+		self.y = 0.0
 
 		# Third coordinate.
-		self.z = 0
+		self.z = 0.0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.w = 0
-		self.x = 0
-		self.y = 0
-		self.z = 0
+		self.w = 0.0
+		self.x = 0.0
+		self.y = 0.0
+		self.z = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()

@@ -14,8 +14,8 @@ class Dxt10Header:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.dxgi_format = DxgiFormat()
-		self.resource_dimension = D3D10ResourceDimension()
+		self.dxgi_format = DxgiFormat(self.context, None, None)
+		self.resource_dimension = D3D10ResourceDimension(self.context, None, None)
 		self.misc_flag = 0
 		self.array_size = 0
 		self.misc_flag_2 = 0
@@ -23,8 +23,8 @@ class Dxt10Header:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.dxgi_format = DxgiFormat()
-		self.resource_dimension = D3D10ResourceDimension()
+		self.dxgi_format = DxgiFormat(self.context, None, None)
+		self.resource_dimension = D3D10ResourceDimension(self.context, None, None)
 		self.misc_flag = 0
 		self.array_size = 0
 		self.misc_flag_2 = 0

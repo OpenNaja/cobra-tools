@@ -24,10 +24,10 @@ class ConvexHull:
 		self.offset = Vector3(self.context, None, None)
 
 		# probably padding
-		self.zeros = numpy.zeros((5), dtype='uint')
+		self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint32'))
 
 		# probably padding
-		self.zeros = numpy.zeros((2), dtype='uint')
+		self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
@@ -36,9 +36,9 @@ class ConvexHull:
 		self.rotation = Matrix33(self.context, None, None)
 		self.offset = Vector3(self.context, None, None)
 		if self.context.version == 18:
-			self.zeros = numpy.zeros((5), dtype='uint')
+			self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint32'))
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.zeros = numpy.zeros((2), dtype='uint')
+			self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

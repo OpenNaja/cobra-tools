@@ -19,12 +19,12 @@ class Matrix33:
 		self.io_start = 0
 
 		# Stored in OpenGL column-major format.
-		self.data = numpy.zeros((3, 3), dtype='float')
+		self.data = numpy.zeros((3, 3), dtype=numpy.dtype('float32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.data = numpy.zeros((3, 3), dtype='float')
+		self.data = numpy.zeros((3, 3), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

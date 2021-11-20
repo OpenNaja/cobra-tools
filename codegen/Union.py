@@ -105,39 +105,41 @@ class Union:
     def get_default_string(self, default_string, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
-        if field_type_lower in self.compound.parser.tag_dict:
-            type_of_field_type = self.compound.parser.tag_dict[field_type_lower]
-            # get the field's default, if it exists
-            if default_string:
-                # we have to check if the default is an enum default value, in which case it has to be a member of that enum
-                if type_of_field_type == "enum":
-                    default_string = f'{field_type}.{default_string}'
-                elif type_of_field_type in ("bitfield", "bitflags"):
-                    default_string = f'{field_type}({default_string})'
-            # no default, so guess one
-            else:
-                if type_of_field_type in (
-                "compound", "struct", "niobject", "enum", "bitfield", "bitflags", "bitstruct"):
-                    if type_of_field_type in self.compound.parser.struct_types:
-                        arguments = f"{CONTEXT}, {arg}, {template}"
-                    else:
-                        # it is callable, but has no arguments
-                        arguments = ""
-                    default_string = f"{field_type}({arguments})"
-                else:
-                    # it is a basic type
-                    default_string = 0
+        tag_of_field_type = self.compound.parser.tag_dict[field_type_lower]
+        _, return_type = self.compound.parser.map_type(field_type, arr1)
+        if tag_of_field_type == "enum" and default_string:
+            default_string = f'{field_type}.{default_string}'
 
         if arr1:
-            default_string = f"Array({CONTEXT})"
-            if self.compound.parser.tag_dict[field_type_lower] == "basic":
-                valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr and ".arg" not in str(arr))
-                arr_str = ", ".join(valid_arrs)
-                if field_type_lower in ("ubyte", "byte", "short", "ushort", "int", "uint", "uint64", "int64", "float"):
-                    default_string = f"numpy.zeros(({arr_str}), dtype='{field_type_lower}')"
-            # todo - if we do this, it breaks when arg is used in array
-            # default_string = f"[{default_string} for _ in range({Expression(arr1)})]"
-        return default_string
+            valid_arrs = tuple(str(arr) for arr in (arr1, arr2) if arr and ".arg" not in str(arr))
+            arr_str = f'({", ".join(valid_arrs)})'
+            if default_string:
+                if return_type[0] == 'numpy':
+                    return f'numpy.full({arr_str}, dtype={return_type[1]}, fill_value={default_string})'
+                else:
+                    return f'Array.from_value({arr_str}, {field_type}, {default_string})'
+            else:
+                if return_type[0] == 'numpy':
+                    return f'numpy.zeros({arr_str}, dtype={return_type[1]})'
+                else:
+                    return f'Array({arr_str}, {field_type}, {CONTEXT}, {arg}, {template})'
+        else:
+            if default_string:
+                if return_type in self.compound.parser.builtin_literals or tag_of_field_type == "enum":
+                    # the default string, when evaluated, gives the correct type
+                    return default_string
+                else:
+                    # the default sring needs to be converted to an object of the proper type
+                    return f'{field_type}.from_value({default_string})'
+            else:
+                # we don't have a specified default, guess one
+                if return_type in self.compound.parser.builtin_literals:
+                    # this type can be returned from a literal
+                    return repr(self.compound.parser.builtin_literals[return_type])
+                else:
+                    # instantiate like a generic type: dtype(context, arg, template)
+                    return f'{field_type}({CONTEXT}, {arg}, {template})'
+
 
     def default_assigns(self, field, arg, template, arr1, arr2, field_name, field_type, base_indent):
         field_default = self.get_default_string(field.attrib.get('default'), arg, template, arr1, arr2, field_name,

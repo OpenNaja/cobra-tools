@@ -21,17 +21,17 @@ class BaniInfoHeader:
 		self.io_start = 0
 
 		# 'BANI'
-		self.magic = numpy.zeros((4), dtype='byte')
+		self.magic = numpy.zeros((4), dtype=numpy.dtype('int8'))
 
 		# name of the banis file buffer
-		self.banis_name = 0
+		self.banis_name = ''
 		self.data = BaniFragmentData0(self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.magic = numpy.zeros((4), dtype='byte')
-		self.banis_name = 0
+		self.magic = numpy.zeros((4), dtype=numpy.dtype('int8'))
+		self.banis_name = ''
 		self.data = BaniFragmentData0(self.context, None, None)
 
 	def read(self, stream):

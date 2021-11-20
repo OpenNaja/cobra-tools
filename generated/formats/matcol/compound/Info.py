@@ -15,8 +15,8 @@ class Info:
 		self.io_start = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.flags = numpy.zeros((4), dtype='byte')
-		self.value = numpy.zeros((4), dtype='float')
+		self.flags = numpy.zeros((4), dtype=numpy.dtype('int8'))
+		self.value = numpy.zeros((4), dtype=numpy.dtype('float32'))
 		self.zero_3 = 0
 		if set_default:
 			self.set_defaults()
@@ -24,8 +24,8 @@ class Info:
 	def set_defaults(self):
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.flags = numpy.zeros((4), dtype='byte')
-		self.value = numpy.zeros((4), dtype='float')
+		self.flags = numpy.zeros((4), dtype=numpy.dtype('int8'))
+		self.value = numpy.zeros((4), dtype=numpy.dtype('float32'))
 		self.zero_3 = 0
 
 	def read(self, stream):

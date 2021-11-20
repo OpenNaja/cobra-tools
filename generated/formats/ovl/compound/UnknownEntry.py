@@ -19,13 +19,13 @@ class UnknownEntry:
 		self.io_start = 0
 
 		# ?
-		self.unknowns = numpy.zeros((2, 2), dtype='ushort')
+		self.unknowns = numpy.zeros((2, 2), dtype=numpy.dtype('uint16'))
 		self.zero = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.unknowns = numpy.zeros((2, 2), dtype='ushort')
+		self.unknowns = numpy.zeros((2, 2), dtype=numpy.dtype('uint16'))
 		self.zero = 0
 
 	def read(self, stream):

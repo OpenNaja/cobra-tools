@@ -44,7 +44,7 @@ class Header7Data1:
 		self.unk_pz = 0
 
 		# info about mip levels
-		self.mip_maps = Array(self.context)
+		self.mip_maps = Array((self.num_mips), Mipmap, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -58,7 +58,7 @@ class Header7Data1:
 		self.num_mips = 0
 		if self.context.version >= 20:
 			self.unk_pz = 0
-		self.mip_maps = Array(self.context)
+		self.mip_maps = Array((self.num_mips), Mipmap, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

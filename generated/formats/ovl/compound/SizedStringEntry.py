@@ -26,7 +26,7 @@ class SizedStringEntry:
 		self.ext_hash = 0
 
 		# one pointer OR -1 pointer for assets
-		self.pointers = Array(self.context)
+		self.pointers = Array((1), HeaderPointer, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -34,7 +34,7 @@ class SizedStringEntry:
 		self.file_hash = 0
 		if self.context.version >= 19:
 			self.ext_hash = 0
-		self.pointers = Array(self.context)
+		self.pointers = Array((1), HeaderPointer, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

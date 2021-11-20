@@ -33,19 +33,19 @@ class BnkFileContainer:
 		self.stream_info_count = 0
 
 		# 0
-		self.zeros = numpy.zeros((7), dtype='uint')
+		self.zeros = numpy.zeros((7), dtype=numpy.dtype('uint32'))
 
 		# 0
-		self.zeros_2 = numpy.zeros((2), dtype='uint')
+		self.zeros_2 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 
 		# data
-		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
+		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype=numpy.dtype('uint64'))
 
 		# data
-		self.names = Array(self.context)
+		self.names = Array((self.name_count), ZString, self.context, None, None)
 
 		# ext format subtypes
-		self.extensions = Array(self.context)
+		self.extensions = Array((self.count_2), ZString, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -54,12 +54,12 @@ class BnkFileContainer:
 		self.name_count = 0
 		self.count_2 = 0
 		self.stream_info_count = 0
-		self.zeros = numpy.zeros((7), dtype='uint')
+		self.zeros = numpy.zeros((7), dtype=numpy.dtype('uint32'))
 		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.zeros_2 = numpy.zeros((2), dtype='uint')
-		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
-		self.names = Array(self.context)
-		self.extensions = Array(self.context)
+			self.zeros_2 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
+		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype=numpy.dtype('uint64'))
+		self.names = Array((self.name_count), ZString, self.context, None, None)
+		self.extensions = Array((self.count_2), ZString, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

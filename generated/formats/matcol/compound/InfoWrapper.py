@@ -14,13 +14,13 @@ class InfoWrapper:
 		self.io_size = 0
 		self.io_start = 0
 		self.info = Info(self.context, None, None)
-		self.name = 0
+		self.name = ''
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.info = Info(self.context, None, None)
-		self.name = 0
+		self.name = ''
 
 	def read(self, stream):
 		self.io_start = stream.tell()

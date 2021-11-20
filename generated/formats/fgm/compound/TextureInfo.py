@@ -27,16 +27,16 @@ class TextureInfo:
 		self.is_textured = 0
 
 		# stores index into shader and array index of texture
-		self.indices = numpy.zeros((4), dtype='uint')
+		self.indices = numpy.zeros((4), dtype=numpy.dtype('uint32'))
 
 		# Stores (usually) 2 rgba colors
-		self.colors = Array(self.context)
+		self.colors = Array((4), Color, self.context, None, None)
 
 		# stores index into shader
-		self.indices = numpy.zeros((1), dtype='uint')
+		self.indices = numpy.zeros((1), dtype=numpy.dtype('uint32'))
 
 		# Stores rgba color
-		self.colors = Array(self.context)
+		self.colors = Array((1), Color, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -44,13 +44,13 @@ class TextureInfo:
 		self.offset = 0
 		self.is_textured = 0
 		if not (self.context.version == 17) and self.is_textured == 8:
-			self.indices = numpy.zeros((4), dtype='uint')
+			self.indices = numpy.zeros((4), dtype=numpy.dtype('uint32'))
 		if not (self.context.version == 17) and self.is_textured == 7:
-			self.colors = Array(self.context)
+			self.colors = Array((4), Color, self.context, None, None)
 		if self.context.version == 17 and self.is_textured == 8:
-			self.indices = numpy.zeros((1), dtype='uint')
+			self.indices = numpy.zeros((1), dtype=numpy.dtype('uint32'))
 		if self.context.version == 17 and self.is_textured == 7:
-			self.colors = Array(self.context)
+			self.colors = Array((1), Color, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

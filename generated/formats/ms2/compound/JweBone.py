@@ -19,14 +19,14 @@ class JweBone:
 		self.io_size = 0
 		self.io_start = 0
 		self.loc = Vector3(self.context, None, None)
-		self.scale = 0
+		self.scale = 0.0
 		self.rot = Vector4(self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.loc = Vector3(self.context, None, None)
-		self.scale = 0
+		self.scale = 0.0
 		self.rot = Vector4(self.context, None, None)
 
 	def read(self, stream):

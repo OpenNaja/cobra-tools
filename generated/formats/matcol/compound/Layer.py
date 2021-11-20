@@ -17,20 +17,20 @@ class Layer:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.name = 0
+		self.name = ''
 		self.info_info = LayeredInfo(self.context, None, None)
-		self.infos = Array(self.context)
+		self.infos = Array((self.info_info.info_count), InfoWrapper, self.context, None, None)
 		self.attrib_info = LayeredAttrib(self.context, None, None)
-		self.attribs = Array(self.context)
+		self.attribs = Array((self.attrib_info.attrib_count), AttribWrapper, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.name = 0
+		self.name = ''
 		self.info_info = LayeredInfo(self.context, None, None)
-		self.infos = Array(self.context)
+		self.infos = Array((self.info_info.info_count), InfoWrapper, self.context, None, None)
 		self.attrib_info = LayeredAttrib(self.context, None, None)
-		self.attribs = Array(self.context)
+		self.attribs = Array((self.attrib_info.attrib_count), AttribWrapper, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

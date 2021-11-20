@@ -16,13 +16,13 @@ class VariantWrapper:
 		self.io_size = 0
 		self.io_start = 0
 		self.info = MaterialInfo(self.context, None, None)
-		self.materials = Array(self.context)
+		self.materials = Array((self.info.material_count), ZString, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.info = MaterialInfo(self.context, None, None)
-		self.materials = Array(self.context)
+		self.materials = Array((self.info.material_count), ZString, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

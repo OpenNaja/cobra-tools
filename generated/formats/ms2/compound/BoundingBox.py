@@ -24,7 +24,7 @@ class BoundingBox:
 		self.extent = Vector3(self.context, None, None)
 
 		# probably padding
-		self.zeros = numpy.zeros((3), dtype='uint')
+		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
@@ -33,7 +33,7 @@ class BoundingBox:
 		self.center = Vector3(self.context, None, None)
 		self.extent = Vector3(self.context, None, None)
 		if self.context.version == 18:
-			self.zeros = numpy.zeros((3), dtype='uint')
+			self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

@@ -19,7 +19,7 @@ class HitCheckEntry:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.type = CollisionType()
+		self.type = CollisionType(self.context, None, None)
 		self.unknown_2_a = 0
 		self.unknown_2_b = 0
 
@@ -49,7 +49,7 @@ class HitCheckEntry:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.type = CollisionType()
+		self.type = CollisionType(self.context, None, None)
 		self.unknown_2_a = 0
 		self.unknown_2_b = 0
 		self.unknown_2_c = 0

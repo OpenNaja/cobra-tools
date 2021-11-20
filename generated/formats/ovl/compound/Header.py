@@ -95,46 +95,46 @@ class Header(GenericHeader):
 		self.num_triplets = 0
 
 		# zeros
-		self.reserved = numpy.zeros((12), dtype='uint')
+		self.reserved = numpy.zeros((12), dtype=numpy.dtype('uint32'))
 
 		# Name buffer for assets and file mime types.
 		self.names = ZStringBuffer(self.context, self.len_names, None)
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array(self.context)
+		self.mimes = Array((self.num_mimes), MimeEntry, self.context, None, None)
 
 		# ?
-		self.triplets = Array(self.context)
+		self.triplets = Array((self.num_triplets), Triplet, self.context, None, None)
 
 		# ?
 		self.triplets_pad = PadAlign(self.context, self.triplets, 4)
 
 		# Array of FileEntry objects.
-		self.files = Array(self.context)
+		self.files = Array((self.num_files), FileEntry, self.context, None, None)
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 
 		# Array of ArchiveEntry objects.
-		self.archives = Array(self.context)
+		self.archives = Array((self.num_archives), ArchiveEntry, self.context, None, None)
 
 		# Array of DirEntry objects.
-		self.dirs = Array(self.context)
+		self.dirs = Array((self.num_dirs), DirEntry, self.context, None, None)
 
 		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array(self.context)
+		self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
 
 		# Array of AuxEntry objects.
-		self.aux_entries = Array(self.context)
+		self.aux_entries = Array((self.num_aux_entries), AuxEntry, self.context, None, None)
 
 		# after aux in ZTUAC
-		self.dependencies = Array(self.context)
+		self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
 
 		# Array of UnknownEntry objects.
-		self.unknowns = Array(self.context)
+		self.unknowns = Array((self.num_files_ovs), UnknownEntry, self.context, None, None)
 
 		# repeats by archive count
-		self.zlibs = Array(self.context)
+		self.zlibs = Array((self.num_archives), ZlibInfo, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
@@ -161,24 +161,24 @@ class Header(GenericHeader):
 		self.num_files_3 = 0
 		self.len_type_names = 0
 		self.num_triplets = 0
-		self.reserved = numpy.zeros((12), dtype='uint')
+		self.reserved = numpy.zeros((12), dtype=numpy.dtype('uint32'))
 		self.names = ZStringBuffer(self.context, self.len_names, None)
-		self.mimes = Array(self.context)
+		self.mimes = Array((self.num_mimes), MimeEntry, self.context, None, None)
 		if self.context.version >= 20:
-			self.triplets = Array(self.context)
+			self.triplets = Array((self.num_triplets), Triplet, self.context, None, None)
 		if self.context.version >= 20:
 			self.triplets_pad = PadAlign(self.context, self.triplets, 4)
-		self.files = Array(self.context)
+		self.files = Array((self.num_files), FileEntry, self.context, None, None)
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
-		self.archives = Array(self.context)
-		self.dirs = Array(self.context)
+		self.archives = Array((self.num_archives), ArchiveEntry, self.context, None, None)
+		self.dirs = Array((self.num_dirs), DirEntry, self.context, None, None)
 		if not (self.context.version == 17):
-			self.dependencies = Array(self.context)
-		self.aux_entries = Array(self.context)
+			self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
+		self.aux_entries = Array((self.num_aux_entries), AuxEntry, self.context, None, None)
 		if self.context.version == 17:
-			self.dependencies = Array(self.context)
-		self.unknowns = Array(self.context)
-		self.zlibs = Array(self.context)
+			self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
+		self.unknowns = Array((self.num_files_ovs), UnknownEntry, self.context, None, None)
+		self.zlibs = Array((self.num_archives), ZlibInfo, self.context, None, None)
 
 	def read(self, stream):
 		super().read(stream)

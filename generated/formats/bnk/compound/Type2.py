@@ -18,7 +18,7 @@ class Type2:
 		self.const_b = 0
 		self.didx_id = 0
 		self.wem_length = 0
-		self.extra = numpy.zeros((self.length - 17), dtype='byte')
+		self.extra = numpy.zeros((self.length - 17), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

@@ -13,13 +13,13 @@ class FloatsY:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = numpy.zeros((8), dtype='float')
+		self.floats = numpy.zeros((8), dtype=numpy.dtype('float32'))
 		self.index = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.floats = numpy.zeros((8), dtype='float')
+		self.floats = numpy.zeros((8), dtype=numpy.dtype('float32'))
 		self.index = 0
 
 	def read(self, stream):

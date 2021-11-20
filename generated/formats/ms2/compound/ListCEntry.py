@@ -22,26 +22,26 @@ class ListCEntry:
 		self.loc = Vector3(self.context, None, None)
 
 		# -1 for PZ, 80 for JWE
-		self.constant = 0
+		self.constant = 0.0
 
 		# ?
-		self.a = 0
+		self.a = 0.0
 
 		# ?
-		self.floats = numpy.zeros((4), dtype='float')
+		self.floats = numpy.zeros((4), dtype=numpy.dtype('float32'))
 
 		# sometimes repeat of a
-		self.a_2 = 0
+		self.a_2 = 0.0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.one = 0
 		self.loc = Vector3(self.context, None, None)
-		self.constant = 0
-		self.a = 0
-		self.floats = numpy.zeros((4), dtype='float')
-		self.a_2 = 0
+		self.constant = 0.0
+		self.a = 0.0
+		self.floats = numpy.zeros((4), dtype=numpy.dtype('float32'))
+		self.a_2 = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()

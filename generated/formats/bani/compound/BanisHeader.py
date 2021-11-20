@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -18,7 +17,7 @@ class BanisHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros = numpy.zeros((2), dtype='uint64')
+		self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 
 		# bytes per bone * num bones
 		self.bytes_per_frame = 0
@@ -33,21 +32,21 @@ class BanisHeader:
 		self.num_bones = 0
 
 		# translation range
-		self.loc_scale = 0
+		self.loc_scale = 0.0
 
 		# translation range
-		self.loc_offset = 0
+		self.loc_offset = 0.0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.zeros = numpy.zeros((2), dtype='uint64')
+		self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 		self.bytes_per_frame = 0
 		self.bytes_per_bone = 0
 		self.num_frames = 0
 		self.num_bones = 0
-		self.loc_scale = 0
-		self.loc_offset = 0
+		self.loc_scale = 0.0
+		self.loc_offset = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()

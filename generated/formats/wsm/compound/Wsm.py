@@ -1,5 +1,4 @@
 import numpy
-from generated.array import Array
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 from generated.formats.wsm.compound.WsmHeader import WsmHeader
 
@@ -8,7 +7,7 @@ class Wsm(GenericHeader):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -16,20 +15,19 @@ class Wsm(GenericHeader):
 		self.header = WsmHeader(self.context, None, None)
 
 		# xyz
-		self.locs = numpy.zeros((self.header.frame_count, 3), dtype='float')
+		self.locs = numpy.zeros((self.header.frame_count, 3), dtype=numpy.dtype('float32'))
 
 		# xyzw
-		self.quats = numpy.zeros((self.header.frame_count, 4), dtype='float')
+		self.quats = numpy.zeros((self.header.frame_count, 4), dtype=numpy.dtype('float32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.header = WsmHeader(self.context, None, None)
-		self.locs = numpy.zeros((self.header.frame_count, 3), dtype='float')
-		self.quats = numpy.zeros((self.header.frame_count, 4), dtype='float')
+		self.locs = numpy.zeros((self.header.frame_count, 3), dtype=numpy.dtype('float32'))
+		self.quats = numpy.zeros((self.header.frame_count, 4), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.header = stream.read_type(WsmHeader, (self.context, None, None))
 		self.locs = stream.read_floats((self.header.frame_count, 3))
@@ -38,7 +36,6 @@ class Wsm(GenericHeader):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_type(self.header)
 		stream.write_floats(self.locs)

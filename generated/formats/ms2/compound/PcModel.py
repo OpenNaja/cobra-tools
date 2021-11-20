@@ -24,19 +24,19 @@ class PcModel:
 		self.io_start = 0
 
 		# uses uint here, two uints elsewhere
-		self.materials = Array(self.context)
-		self.lods = Array(self.context)
-		self.lods = Array(self.context)
-		self.objects = Array(self.context)
+		self.materials = Array((), MaterialName, self.context, None, None)
+		self.lods = Array((), LodInfoZT, self.context, None, None)
+		self.lods = Array((), LodInfo, self.context, None, None)
+		self.objects = Array((), MeshLink, self.context, None, None)
 
 		# pad to 8 bytes alignment
 		self.padding = 0
-		self.models = Array(self.context)
-		self.models = Array(self.context)
+		self.models = Array((), PcModelData, self.context, None, None)
+		self.models = Array((), ZtModelData, self.context, None, None)
 		self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
-		self.floatsy = Array(self.context)
+		self.floatsy = Array((), FloatsY, self.context, None, None)
 
 		# sometimes 00 byte
 		self.weird_padding = SmartPadding(self.context, None, None)
@@ -44,21 +44,21 @@ class PcModel:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.materials = Array(self.context)
+		self.materials = Array((), MaterialName, self.context, None, None)
 		if self.context.version == 17:
-			self.lods = Array(self.context)
+			self.lods = Array((), LodInfoZT, self.context, None, None)
 		if self.context.version == 18:
-			self.lods = Array(self.context)
-		self.objects = Array(self.context)
+			self.lods = Array((), LodInfo, self.context, None, None)
+		self.objects = Array((), MeshLink, self.context, None, None)
 		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.padding = 0
 		if self.context.version == 18:
-			self.models = Array(self.context)
+			self.models = Array((), PcModelData, self.context, None, None)
 		if self.context.version == 17:
-			self.models = Array(self.context)
+			self.models = Array((), ZtModelData, self.context, None, None)
 		if self.context.version == 17 and self.arg.last_count:
 			self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
-		self.floatsy = Array(self.context)
+		self.floatsy = Array((), FloatsY, self.context, None, None)
 		self.weird_padding = SmartPadding(self.context, None, None)
 
 	def read(self, stream):

@@ -16,13 +16,13 @@ class LayeredWrapper:
 		self.io_size = 0
 		self.io_start = 0
 		self.info = MaterialInfo(self.context, None, None)
-		self.layers = Array(self.context)
+		self.layers = Array((self.info.material_count), Layer, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.info = MaterialInfo(self.context, None, None)
-		self.layers = Array(self.context)
+		self.layers = Array((self.info.material_count), Layer, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

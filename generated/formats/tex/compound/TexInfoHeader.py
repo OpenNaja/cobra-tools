@@ -13,7 +13,7 @@ class TexInfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -21,15 +21,15 @@ class TexInfoHeader(GenericHeader):
 		self.tex_info = TexHeader(self.context, None, None)
 		self.frag_00 = Frag00(self.context, None, None)
 		self.frag_10 = Header3Data0(self.context, None, None)
-		self.frag_01 = Array(self.context)
-		self.frag_01 = Array(self.context)
+		self.frag_01 = Array((self.frag_10.stream_count), TexBuffer, self.context, None, None)
+		self.frag_01 = Array((self.frag_10.stream_count), TexBufferPc, self.context, None, None)
 		self.frag_11 = Header7Data1(self.context, None, None)
 
 		# pad whole frag_11 struct to 320 bytes
-		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
+		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype=numpy.dtype('uint8'))
 
 		# pad whole frag_11 struct to 320 bytes
-		self.padding = numpy.zeros((384 - self.frag_11.io_size), dtype='ubyte')
+		self.padding = numpy.zeros((384 - self.frag_11.io_size), dtype=numpy.dtype('uint8'))
 		if set_default:
 			self.set_defaults()
 
@@ -39,18 +39,17 @@ class TexInfoHeader(GenericHeader):
 			self.frag_00 = Frag00(self.context, None, None)
 		self.frag_10 = Header3Data0(self.context, None, None)
 		if not (self.context.version < 19):
-			self.frag_01 = Array(self.context)
+			self.frag_01 = Array((self.frag_10.stream_count), TexBuffer, self.context, None, None)
 		if self.context.version < 19:
-			self.frag_01 = Array(self.context)
+			self.frag_01 = Array((self.frag_10.stream_count), TexBufferPc, self.context, None, None)
 		if not (self.context.version < 19):
 			self.frag_11 = Header7Data1(self.context, None, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
-			self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
+			self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype=numpy.dtype('uint8'))
 		if self.context.user_version.is_jwe and (self.context.version == 19):
-			self.padding = numpy.zeros((384 - self.frag_11.io_size), dtype='ubyte')
+			self.padding = numpy.zeros((384 - self.frag_11.io_size), dtype=numpy.dtype('uint8'))
 
 	def read(self, stream):
-		self.io_start = stream.tell()
 		super().read(stream)
 		self.tex_info = stream.read_type(TexHeader, (self.context, None, None))
 		if not (self.context.version < 19):
@@ -70,7 +69,6 @@ class TexInfoHeader(GenericHeader):
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_type(self.tex_info)
 		if not (self.context.version < 19):

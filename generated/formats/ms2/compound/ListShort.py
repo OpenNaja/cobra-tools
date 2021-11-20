@@ -23,18 +23,18 @@ class ListShort(Descriptor):
 		self.direction = Vector3(self.context, None, None)
 
 		# min, le 0
-		self.min = 0
+		self.min = 0.0
 
 		# max, ge 0
-		self.max = 0
+		self.max = 0.0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.loc = Vector3(self.context, None, None)
 		self.direction = Vector3(self.context, None, None)
-		self.min = 0
-		self.max = 0
+		self.min = 0.0
+		self.max = 0.0
 
 	def read(self, stream):
 		super().read(stream)

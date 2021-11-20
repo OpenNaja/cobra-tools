@@ -15,7 +15,7 @@ class Attrib:
 		self.io_start = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.attrib = numpy.zeros((4), dtype='byte')
+		self.attrib = numpy.zeros((4), dtype=numpy.dtype('int8'))
 		self.zero_2 = 0
 		if set_default:
 			self.set_defaults()
@@ -23,7 +23,7 @@ class Attrib:
 	def set_defaults(self):
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.attrib = numpy.zeros((4), dtype='byte')
+		self.attrib = numpy.zeros((4), dtype=numpy.dtype('int8'))
 		self.zero_2 = 0
 
 	def read(self, stream):

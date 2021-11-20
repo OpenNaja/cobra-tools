@@ -18,7 +18,7 @@ class Ms2BufferInfoPC:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_1 = numpy.zeros((2), dtype='uint64')
+		self.zeros_1 = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 
 		# Total size of vertex buffer for PC, starting with the 0 - 16 byte indices
 		self.vertex_buffer_size = 0
@@ -27,7 +27,7 @@ class Ms2BufferInfoPC:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.zeros_1 = numpy.zeros((2), dtype='uint64')
+		self.zeros_1 = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 		self.vertex_buffer_size = 0
 		self.zero_2 = 0
 

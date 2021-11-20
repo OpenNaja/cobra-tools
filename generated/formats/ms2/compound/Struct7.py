@@ -23,13 +23,13 @@ class Struct7:
 		self.zero = 0
 
 		# only for recent versions of PZ
-		self.zeros_pz = numpy.zeros((2), dtype='uint64')
+		self.zeros_pz = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 
 		# 60 bytes per entry
-		self.unknown_list = Array(self.context)
+		self.unknown_list = Array((self.count_7), NasutoJointEntry, self.context, None, None)
 
 		# align list to multiples of 8
-		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
+		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype=numpy.dtype('uint8'))
 		if set_default:
 			self.set_defaults()
 
@@ -37,9 +37,9 @@ class Struct7:
 		self.count_7 = 0
 		self.zero = 0
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.zeros_pz = numpy.zeros((2), dtype='uint64')
-		self.unknown_list = Array(self.context)
-		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
+			self.zeros_pz = numpy.zeros((2), dtype=numpy.dtype('uint64'))
+		self.unknown_list = Array((self.count_7), NasutoJointEntry, self.context, None, None)
+		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype=numpy.dtype('uint8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

@@ -22,13 +22,13 @@ class SizedString:
 		self.length = 0
 
 		# The string itself.
-		self.value = Array(self.context)
+		self.value = numpy.zeros((self.length), dtype=numpy.dtype('int8'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0
-		self.value = Array(self.context)
+		self.value = numpy.zeros((self.length), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

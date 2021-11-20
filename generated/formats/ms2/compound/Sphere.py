@@ -18,7 +18,7 @@ class Sphere:
 		self.center = Vector3(self.context, None, None)
 
 		# radius around the center
-		self.radius = 0
+		self.radius = 0.0
 
 		# apparently unused
 		self.zero = 0
@@ -27,7 +27,7 @@ class Sphere:
 
 	def set_defaults(self):
 		self.center = Vector3(self.context, None, None)
-		self.radius = 0
+		self.radius = 0.0
 		self.zero = 0
 
 	def read(self, stream):

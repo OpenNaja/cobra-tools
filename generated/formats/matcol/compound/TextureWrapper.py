@@ -16,13 +16,13 @@ class TextureWrapper:
 		self.io_size = 0
 		self.io_start = 0
 		self.info = TextureInfo(self.context, None, None)
-		self.textures = Array(self.context)
+		self.textures = Array((self.info.texture_count), Texture, self.context, None, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.info = TextureInfo(self.context, None, None)
-		self.textures = Array(self.context)
+		self.textures = Array((self.info.texture_count), Texture, self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

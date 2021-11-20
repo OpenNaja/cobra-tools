@@ -20,14 +20,14 @@ class PzBone:
 		self.io_start = 0
 		self.rot = Vector4(self.context, None, None)
 		self.loc = Vector3(self.context, None, None)
-		self.scale = 0
+		self.scale = 0.0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.rot = Vector4(self.context, None, None)
 		self.loc = Vector3(self.context, None, None)
-		self.scale = 0
+		self.scale = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()

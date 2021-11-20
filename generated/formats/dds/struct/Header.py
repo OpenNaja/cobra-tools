@@ -25,7 +25,7 @@ class Header:
 
 		# Always 124 + 4 bytes for headerstring, header ends at 128.
 		self.size = 124
-		self.flags = HeaderFlags()
+		self.flags = HeaderFlags(self.context, None, None)
 
 		# The texture height.
 		self.height = 0
@@ -35,10 +35,10 @@ class Header:
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
-		self.reserved_1 = numpy.zeros((11), dtype='uint')
+		self.reserved_1 = numpy.zeros((11), dtype=numpy.dtype('uint32'))
 		self.pixel_format = PixelFormat(self.context, None, None)
-		self.caps_1 = Caps1()
-		self.caps_2 = Caps2()
+		self.caps_1 = Caps1(self.context, None, None)
+		self.caps_2 = Caps2(self.context, None, None)
 		self.caps_3 = 0
 		self.caps_4 = 0
 		self.unused = 0
@@ -49,16 +49,16 @@ class Header:
 	def set_defaults(self):
 		self.header_string = FixedString(self.context, 4, None)
 		self.size = 124
-		self.flags = HeaderFlags()
+		self.flags = HeaderFlags(self.context, None, None)
 		self.height = 0
 		self.width = 0
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
-		self.reserved_1 = numpy.zeros((11), dtype='uint')
+		self.reserved_1 = numpy.zeros((11), dtype=numpy.dtype('uint32'))
 		self.pixel_format = PixelFormat(self.context, None, None)
-		self.caps_1 = Caps1()
-		self.caps_2 = Caps2()
+		self.caps_1 = Caps1(self.context, None, None)
+		self.caps_2 = Caps2(self.context, None, None)
 		self.caps_3 = 0
 		self.caps_4 = 0
 		self.unused = 0

@@ -18,13 +18,13 @@ class PcFFCounter:
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.f_fs = numpy.zeros((self.count), dtype='byte')
+		self.f_fs = numpy.zeros((self.count), dtype=numpy.dtype('int8'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.count = 0
-		self.f_fs = numpy.zeros((self.count), dtype='byte')
+		self.f_fs = numpy.zeros((self.count), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()

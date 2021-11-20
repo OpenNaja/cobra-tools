@@ -31,7 +31,7 @@ class PcModelData:
 		self.stream_index = 0
 
 		# always zero
-		self.zeros_a = numpy.zeros((3), dtype='uint')
+		self.zeros_a = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 
 		# repeat
 		self.tri_index_count_a = 0
@@ -70,10 +70,10 @@ class PcModelData:
 		self.zero = 0
 
 		# some floats
-		self.unknown_07 = 0
+		self.unknown_07 = 0.0
 
 		# bitfield
-		self.flag = ModelFlag()
+		self.flag = ModelFlag(self.context, None, None)
 
 		# always zero
 		self.zero_uac = 0
@@ -82,7 +82,7 @@ class PcModelData:
 
 	def set_defaults(self):
 		self.stream_index = 0
-		self.zeros_a = numpy.zeros((3), dtype='uint')
+		self.zeros_a = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 		self.tri_offset = 0
@@ -98,8 +98,8 @@ class PcModelData:
 		if self.context.version == 18:
 			self.zero = 0
 		if self.context.version == 18:
-			self.unknown_07 = 0
-		self.flag = ModelFlag()
+			self.unknown_07 = 0.0
+		self.flag = ModelFlag(self.context, None, None)
 		if self.context.version == 17:
 			self.zero_uac = 0
 
