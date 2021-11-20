@@ -8,25 +8,25 @@ class LayeredWrapper:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = MaterialInfo(self.context, None, None)
-		self.layers = Array((self.info.material_count), Layer, self.context, None, None)
+		self.info = MaterialInfo(self.context, 0, None)
+		self.layers = Array((self.info.material_count), Layer, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.info = MaterialInfo(self.context, None, None)
-		self.layers = Array((self.info.material_count), Layer, self.context, None, None)
+		self.info = MaterialInfo(self.context, 0, None)
+		self.layers = Array((self.info.material_count), Layer, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.info = stream.read_type(MaterialInfo, (self.context, None, None))
+		self.info = stream.read_type(MaterialInfo, (self.context, 0, None))
 		self.layers.read(stream, Layer, self.info.material_count, None)
 
 		self.io_size = stream.tell() - self.io_start

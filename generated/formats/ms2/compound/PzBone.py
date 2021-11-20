@@ -11,28 +11,28 @@ class PzBone:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rot = Vector4(self.context, None, None)
-		self.loc = Vector3(self.context, None, None)
+		self.rot = Vector4(self.context, 0, None)
+		self.loc = Vector3(self.context, 0, None)
 		self.scale = 0.0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.rot = Vector4(self.context, None, None)
-		self.loc = Vector3(self.context, None, None)
+		self.rot = Vector4(self.context, 0, None)
+		self.loc = Vector3(self.context, 0, None)
 		self.scale = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.rot = stream.read_type(Vector4, (self.context, None, None))
-		self.loc = stream.read_type(Vector3, (self.context, None, None))
+		self.rot = stream.read_type(Vector4, (self.context, 0, None))
+		self.loc = stream.read_type(Vector3, (self.context, 0, None))
 		self.scale = stream.read_float()
 
 		self.io_size = stream.tell() - self.io_start

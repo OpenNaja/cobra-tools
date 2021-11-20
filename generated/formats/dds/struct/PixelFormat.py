@@ -7,7 +7,7 @@ class PixelFormat:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,10 +19,10 @@ class PixelFormat:
 		self.size = 32
 
 		# Non-zero for DX9, zero for DX10.
-		self.flags = PixelFormatFlags(self.context, None, None)
+		self.flags = PixelFormatFlags(self.context, 0, None)
 
 		# Determines compression type. Zero means no compression.
-		self.four_c_c = FourCC(self.context, None, None)
+		self.four_c_c = FourCC(self.context, 0, None)
 
 		# For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.
 		self.bit_count = 0
@@ -46,8 +46,8 @@ class PixelFormat:
 
 	def set_defaults(self):
 		self.size = 32
-		self.flags = PixelFormatFlags(self.context, None, None)
-		self.four_c_c = FourCC(self.context, None, None)
+		self.flags = PixelFormatFlags(self.context, 0, None)
+		self.four_c_c = FourCC(self.context, 0, None)
 		self.bit_count = 0
 		self.r_mask = 0
 		self.g_mask = 0

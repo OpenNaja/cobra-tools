@@ -18,7 +18,7 @@ class MaterialcollectionInfoHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -33,12 +33,12 @@ class MaterialcollectionInfoHeader:
 
 		# bool
 		self.has_texture_list = 0
-		self.root_0 = Root0(self.context, None, None)
-		self.root_1 = Root1(self.context, None, None)
-		self.root_1_pad = Root1Pad(self.context, None, None)
-		self.texture_wrapper = TextureWrapper(self.context, None, None)
-		self.variant_wrapper = VariantWrapper(self.context, None, None)
-		self.layered_wrapper = LayeredWrapper(self.context, None, None)
+		self.root_0 = Root0(self.context, 0, None)
+		self.root_1 = Root1(self.context, 0, None)
+		self.root_1_pad = Root1Pad(self.context, 0, None)
+		self.texture_wrapper = TextureWrapper(self.context, 0, None)
+		self.variant_wrapper = VariantWrapper(self.context, 0, None)
+		self.layered_wrapper = LayeredWrapper(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -47,16 +47,16 @@ class MaterialcollectionInfoHeader:
 		self.version = 0
 		self.user_version = 0
 		self.has_texture_list = 0
-		self.root_0 = Root0(self.context, None, None)
-		self.root_1 = Root1(self.context, None, None)
+		self.root_0 = Root0(self.context, 0, None)
+		self.root_1 = Root1(self.context, 0, None)
 		if self.has_texture_list == 0:
-			self.root_1_pad = Root1Pad(self.context, None, None)
+			self.root_1_pad = Root1Pad(self.context, 0, None)
 		if self.has_texture_list == 1:
-			self.texture_wrapper = TextureWrapper(self.context, None, None)
+			self.texture_wrapper = TextureWrapper(self.context, 0, None)
 		if self.root_1.flag == 3:
-			self.variant_wrapper = VariantWrapper(self.context, None, None)
+			self.variant_wrapper = VariantWrapper(self.context, 0, None)
 		if self.root_1.flag == 2:
-			self.layered_wrapper = LayeredWrapper(self.context, None, None)
+			self.layered_wrapper = LayeredWrapper(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -66,16 +66,16 @@ class MaterialcollectionInfoHeader:
 		self.user_version = stream.read_uint()
 		self.context.user_version = self.user_version
 		self.has_texture_list = stream.read_ubyte()
-		self.root_0 = stream.read_type(Root0, (self.context, None, None))
-		self.root_1 = stream.read_type(Root1, (self.context, None, None))
+		self.root_0 = stream.read_type(Root0, (self.context, 0, None))
+		self.root_1 = stream.read_type(Root1, (self.context, 0, None))
 		if self.has_texture_list == 0:
-			self.root_1_pad = stream.read_type(Root1Pad, (self.context, None, None))
+			self.root_1_pad = stream.read_type(Root1Pad, (self.context, 0, None))
 		if self.has_texture_list == 1:
-			self.texture_wrapper = stream.read_type(TextureWrapper, (self.context, None, None))
+			self.texture_wrapper = stream.read_type(TextureWrapper, (self.context, 0, None))
 		if self.root_1.flag == 3:
-			self.variant_wrapper = stream.read_type(VariantWrapper, (self.context, None, None))
+			self.variant_wrapper = stream.read_type(VariantWrapper, (self.context, 0, None))
 		if self.root_1.flag == 2:
-			self.layered_wrapper = stream.read_type(LayeredWrapper, (self.context, None, None))
+			self.layered_wrapper = stream.read_type(LayeredWrapper, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

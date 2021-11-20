@@ -13,7 +13,7 @@ class InfoHeader(GenericHeader):
 	Custom header struct
 	"""
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
@@ -21,35 +21,35 @@ class InfoHeader(GenericHeader):
 		self.io_size = 0
 		self.io_start = 0
 		self.mani_count = 0
-		self.names = Array((self.mani_count), ZString, self.context, None, None)
-		self.header = SizedStrData(self.context, None, None)
-		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, None, None)
+		self.names = Array((self.mani_count), ZString, self.context, 0, None)
+		self.header = SizedStrData(self.context, 0, None)
+		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, 0, None)
 		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, None, None)
+		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, 0, None)
 
 		# ?
-		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
+		self.bone_pad = PadAlign(self.context, 4, bone names)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.mani_count = 0
-		self.names = Array((self.mani_count), ZString, self.context, None, None)
-		self.header = SizedStrData(self.context, None, None)
-		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, None, None)
+		self.names = Array((self.mani_count), ZString, self.context, 0, None)
+		self.header = SizedStrData(self.context, 0, None)
+		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, 0, None)
 		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, None, None)
-		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
+		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, 0, None)
+		self.bone_pad = PadAlign(self.context, 4, bone names)
 
 	def read(self, stream):
 		super().read(stream)
 		self.mani_count = stream.read_uint()
 		self.names = stream.read_zstrings((self.mani_count))
-		self.header = stream.read_type(SizedStrData, (self.context, None, None))
+		self.header = stream.read_type(SizedStrData, (self.context, 0, None))
 		self.mani_infos.read(stream, ManiInfo, self.mani_count, None)
 		self.bone_hashes = stream.read_uints((int(self.header.hash_block_size / 4)))
 		self.bone_names = stream.read_zstrings((int(self.header.hash_block_size / 4)))
-		self.bone_pad = stream.read_type(PadAlign, (self.context, self.bone_names, 4))
+		self.bone_pad = stream.read_type(PadAlign, (self.context, 4, bone names))
 
 		self.io_size = stream.tell() - self.io_start
 

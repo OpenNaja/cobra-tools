@@ -11,7 +11,7 @@ class GenericHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -35,7 +35,7 @@ class GenericHeader:
 		self.seventh_byte = 1
 
 		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
-		self.user_version = VersionInfo(self.context, None, None)
+		self.user_version = VersionInfo(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -45,7 +45,7 @@ class GenericHeader:
 		self.version = 0
 		self.bitswap = 0
 		self.seventh_byte = 1
-		self.user_version = VersionInfo(self.context, None, None)
+		self.user_version = VersionInfo(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

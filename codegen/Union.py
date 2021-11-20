@@ -64,7 +64,7 @@ def get_params(field):
 
     conditionals = get_conditions(field)
 
-    arg = field.attrib.get("arg")
+    arg = field.attrib.get("arg", 0)
     arr1 = get_attr_with_backups(field, ["arr1", "length"])
     arr2 = get_attr_with_backups(field, ["arr2", "width"])
     if arg:

@@ -12,19 +12,19 @@ class Ms2BufferInfoZT:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.streams = Array((self.arg.general_info.vertex_buffer_count), StreamInfo, self.context, None, None)
+		self.streams = Array((self.arg.general_info.vertex_buffer_count), StreamInfo, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.streams = Array((self.arg.general_info.vertex_buffer_count), StreamInfo, self.context, None, None)
+		self.streams = Array((self.arg.general_info.vertex_buffer_count), StreamInfo, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

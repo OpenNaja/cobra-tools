@@ -19,7 +19,7 @@ class PcModelData:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -73,7 +73,7 @@ class PcModelData:
 		self.unknown_07 = 0.0
 
 		# bitfield
-		self.flag = ModelFlag(self.context, None, None)
+		self.flag = ModelFlag(self.context, 0, None)
 
 		# always zero
 		self.zero_uac = 0
@@ -99,7 +99,7 @@ class PcModelData:
 			self.zero = 0
 		if self.context.version == 18:
 			self.unknown_07 = 0.0
-		self.flag = ModelFlag(self.context, None, None)
+		self.flag = ModelFlag(self.context, 0, None)
 		if self.context.version == 17:
 			self.zero_uac = 0
 

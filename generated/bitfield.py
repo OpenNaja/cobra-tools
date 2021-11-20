@@ -34,7 +34,7 @@ class BasicBitfield(object):
     def __int__(self):
         return self._value
 
-    def __init__(self, context=None, arg=None, template=None, set_default=True):
+    def __init__(self, context=None, arg=0, template=None, set_default=True):
         if set_default:
             self.set_defaults()
         else:

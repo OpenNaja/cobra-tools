@@ -8,7 +8,7 @@ class ConvexHull:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -18,10 +18,10 @@ class ConvexHull:
 
 		# 16 for anubis: 4 hulls * 16 * 12 (size of vert)
 		self.vertex_count = 0
-		self.rotation = Matrix33(self.context, None, None)
+		self.rotation = Matrix33(self.context, 0, None)
 
 		# center of the box
-		self.offset = Vector3(self.context, None, None)
+		self.offset = Vector3(self.context, 0, None)
 
 		# probably padding
 		self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint32'))
@@ -33,8 +33,8 @@ class ConvexHull:
 
 	def set_defaults(self):
 		self.vertex_count = 0
-		self.rotation = Matrix33(self.context, None, None)
-		self.offset = Vector3(self.context, None, None)
+		self.rotation = Matrix33(self.context, 0, None)
+		self.offset = Vector3(self.context, 0, None)
 		if self.context.version == 18:
 			self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint32'))
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
@@ -43,8 +43,8 @@ class ConvexHull:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.vertex_count = stream.read_uint()
-		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
-		self.offset = stream.read_type(Vector3, (self.context, None, None))
+		self.rotation = stream.read_type(Matrix33, (self.context, 0, None))
+		self.offset = stream.read_type(Vector3, (self.context, 0, None))
 		if self.context.version == 18:
 			self.zeros = stream.read_uints((5))
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):

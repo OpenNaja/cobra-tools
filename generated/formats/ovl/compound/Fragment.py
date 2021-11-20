@@ -11,7 +11,7 @@ class Fragment:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -20,12 +20,12 @@ class Fragment:
 		self.io_start = 0
 
 		# points into header datas section
-		self.pointers = Array((2), HeaderPointer, self.context, None, None)
+		self.pointers = Array((2), HeaderPointer, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.pointers = Array((2), HeaderPointer, self.context, None, None)
+		self.pointers = Array((2), HeaderPointer, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

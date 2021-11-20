@@ -21,7 +21,7 @@ class JointData:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -75,19 +75,19 @@ class JointData:
 		self.zeros_2 = numpy.zeros((4), dtype=numpy.dtype('uint32'))
 
 		# corresponds to bone transforms
-		self.joint_transforms = Array((self.joint_count), JointEntry, self.context, None, None)
+		self.joint_transforms = Array((self.joint_count), JointEntry, self.context, 0, None)
 
 		# might be pointers
 		self.zeros_3 = numpy.zeros((self.joint_count), dtype=numpy.dtype('uint64'))
-		self.unknown_listc = Array((self.joint_count), ListCEntry, self.context, None, None)
+		self.unknown_listc = Array((self.joint_count), ListCEntry, self.context, 0, None)
 
 		# used by ptero, 16 bytes per entry
-		self.first_list = Array((self.count_0), ListFirst, self.context, None, None)
-		self.short_list = Array((self.count_1), ListShort, self.context, None, None)
-		self.long_list = Array((self.count_2), ListLong, self.context, None, None)
+		self.first_list = Array((self.count_0), ListFirst, self.context, 0, None)
+		self.short_list = Array((self.count_1), ListShort, self.context, 0, None)
+		self.long_list = Array((self.count_2), ListLong, self.context, 0, None)
 
 		# ?
-		self.pc_ffs = PcFFCounter(self.context, None, None)
+		self.pc_ffs = PcFFCounter(self.context, 0, None)
 
 		# 1FAA FFAAFF00 000000
 		self.pc_bytes = numpy.zeros((9), dtype=numpy.dtype('int8'))
@@ -111,13 +111,13 @@ class JointData:
 		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
 
 		# ?
-		self.joint_names_padding = SmartPadding(self.context, None, None)
+		self.joint_names_padding = SmartPadding(self.context, 0, None)
 
 		# includes name ptrs, some flags, and the hitchecks
-		self.joint_info_list = Array((self.joint_count), JointInfo, self.context, None, None)
+		self.joint_info_list = Array((self.joint_count), JointInfo, self.context, 0, None)
 
 		# bare hitchecks
-		self.hitchecks_pc = Array((self.pc_hitcheck_count), HitCheckEntry, self.context, None, None)
+		self.hitchecks_pc = Array((self.pc_hitcheck_count), HitCheckEntry, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -140,19 +140,19 @@ class JointData:
 		self.bone_count = 0
 		self.joint_entry_count = 0
 		self.zeros_2 = numpy.zeros((4), dtype=numpy.dtype('uint32'))
-		self.joint_transforms = Array((self.joint_count), JointEntry, self.context, None, None)
+		self.joint_transforms = Array((self.joint_count), JointEntry, self.context, 0, None)
 		if not (self.context.version == 18):
 			self.zeros_3 = numpy.zeros((self.joint_count), dtype=numpy.dtype('uint64'))
 		if not (self.context.version == 18):
-			self.unknown_listc = Array((self.joint_count), ListCEntry, self.context, None, None)
+			self.unknown_listc = Array((self.joint_count), ListCEntry, self.context, 0, None)
 		if not (self.context.version == 18):
-			self.first_list = Array((self.count_0), ListFirst, self.context, None, None)
+			self.first_list = Array((self.count_0), ListFirst, self.context, 0, None)
 		if not (self.context.version == 18):
-			self.short_list = Array((self.count_1), ListShort, self.context, None, None)
+			self.short_list = Array((self.count_1), ListShort, self.context, 0, None)
 		if not (self.context.version == 18):
-			self.long_list = Array((self.count_2), ListLong, self.context, None, None)
+			self.long_list = Array((self.count_2), ListLong, self.context, 0, None)
 		if self.context.version == 18:
-			self.pc_ffs = PcFFCounter(self.context, None, None)
+			self.pc_ffs = PcFFCounter(self.context, 0, None)
 		if self.context.version == 18:
 			self.pc_bytes = numpy.zeros((9), dtype=numpy.dtype('int8'))
 		if self.context.version == 18:
@@ -164,11 +164,11 @@ class JointData:
 		self.joint_indices = numpy.zeros((self.joint_count), dtype=numpy.dtype('int32'))
 		self.bone_indices = numpy.zeros((self.bone_count), dtype=numpy.dtype('int32'))
 		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
-		self.joint_names_padding = SmartPadding(self.context, None, None)
+		self.joint_names_padding = SmartPadding(self.context, 0, None)
 		if not (self.context.version == 18):
-			self.joint_info_list = Array((self.joint_count), JointInfo, self.context, None, None)
+			self.joint_info_list = Array((self.joint_count), JointInfo, self.context, 0, None)
 		if self.context.version == 18:
-			self.hitchecks_pc = Array((self.pc_hitcheck_count), HitCheckEntry, self.context, None, None)
+			self.hitchecks_pc = Array((self.pc_hitcheck_count), HitCheckEntry, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -200,7 +200,7 @@ class JointData:
 		if not (self.context.version == 18):
 			self.long_list.read(stream, ListLong, self.count_2, None)
 		if self.context.version == 18:
-			self.pc_ffs = stream.read_type(PcFFCounter, (self.context, None, None))
+			self.pc_ffs = stream.read_type(PcFFCounter, (self.context, 0, None))
 			self.pc_bytes = stream.read_bytes((9))
 		if self.context.version == 18:
 			self.pc_hitcheck_count = stream.read_uint64()
@@ -210,7 +210,7 @@ class JointData:
 		self.joint_indices = stream.read_ints((self.joint_count))
 		self.bone_indices = stream.read_ints((self.bone_count))
 		self.joint_names = stream.read_type(ZStringBuffer, (self.context, self.namespace_length, None))
-		self.joint_names_padding = stream.read_type(SmartPadding, (self.context, None, None))
+		self.joint_names_padding = stream.read_type(SmartPadding, (self.context, 0, None))
 		if not (self.context.version == 18):
 			self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
 		if self.context.version == 18:

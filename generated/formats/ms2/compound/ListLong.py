@@ -9,7 +9,7 @@ class ListLong(Descriptor):
 	probably ragdoll, lots of angles
 	"""
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
@@ -18,7 +18,7 @@ class ListLong(Descriptor):
 		self.io_start = 0
 
 		# the location of the child joint
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
 		self.floats = numpy.zeros((5, 3), dtype=numpy.dtype('float32'))
@@ -29,13 +29,13 @@ class ListLong(Descriptor):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 		self.floats = numpy.zeros((5, 3), dtype=numpy.dtype('float32'))
 		self.radians = numpy.zeros((8), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):
 		super().read(stream)
-		self.loc = stream.read_type(Vector3, (self.context, None, None))
+		self.loc = stream.read_type(Vector3, (self.context, 0, None))
 		self.floats = stream.read_floats((5, 3))
 		self.radians = stream.read_floats((8))
 

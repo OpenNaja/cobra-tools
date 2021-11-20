@@ -10,7 +10,7 @@ class Layer:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -18,26 +18,26 @@ class Layer:
 		self.io_size = 0
 		self.io_start = 0
 		self.name = ''
-		self.info_info = LayeredInfo(self.context, None, None)
-		self.infos = Array((self.info_info.info_count), InfoWrapper, self.context, None, None)
-		self.attrib_info = LayeredAttrib(self.context, None, None)
-		self.attribs = Array((self.attrib_info.attrib_count), AttribWrapper, self.context, None, None)
+		self.info_info = LayeredInfo(self.context, 0, None)
+		self.infos = Array((self.info_info.info_count), InfoWrapper, self.context, 0, None)
+		self.attrib_info = LayeredAttrib(self.context, 0, None)
+		self.attribs = Array((self.attrib_info.attrib_count), AttribWrapper, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.name = ''
-		self.info_info = LayeredInfo(self.context, None, None)
-		self.infos = Array((self.info_info.info_count), InfoWrapper, self.context, None, None)
-		self.attrib_info = LayeredAttrib(self.context, None, None)
-		self.attribs = Array((self.attrib_info.attrib_count), AttribWrapper, self.context, None, None)
+		self.info_info = LayeredInfo(self.context, 0, None)
+		self.infos = Array((self.info_info.info_count), InfoWrapper, self.context, 0, None)
+		self.attrib_info = LayeredAttrib(self.context, 0, None)
+		self.attribs = Array((self.attrib_info.attrib_count), AttribWrapper, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.name = stream.read_zstring()
-		self.info_info = stream.read_type(LayeredInfo, (self.context, None, None))
+		self.info_info = stream.read_type(LayeredInfo, (self.context, 0, None))
 		self.infos.read(stream, InfoWrapper, self.info_info.info_count, None)
-		self.attrib_info = stream.read_type(LayeredAttrib, (self.context, None, None))
+		self.attrib_info = stream.read_type(LayeredAttrib, (self.context, 0, None))
 		self.attribs.read(stream, AttribWrapper, self.attrib_info.attrib_count, None)
 
 		self.io_size = stream.tell() - self.io_start

@@ -10,17 +10,17 @@ class MeshCollision:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33(self.context, None, None)
+		self.rotation = Matrix33(self.context, 0, None)
 
 		# offset of mesh
-		self.offset = Vector3(self.context, None, None)
+		self.offset = Vector3(self.context, 0, None)
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
 		self.unk_1 = numpy.zeros((3, 2), dtype=numpy.dtype('uint16'))
@@ -32,10 +32,10 @@ class MeshCollision:
 		self.tri_count = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(self.context, None, None)
+		self.bounds_min = Vector3(self.context, 0, None)
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(self.context, None, None)
+		self.bounds_max = Vector3(self.context, 0, None)
 
 		# seemingly fixed
 		self.ones_or_zeros = numpy.zeros((7), dtype=numpy.dtype('uint64'))
@@ -44,10 +44,10 @@ class MeshCollision:
 		self.ff_or_zero = numpy.zeros((10), dtype=numpy.dtype('int32'))
 
 		# verbatim
-		self.bounds_min_repeat = Vector3(self.context, None, None)
+		self.bounds_min_repeat = Vector3(self.context, 0, None)
 
 		# verbatim
-		self.bounds_max_repeat = Vector3(self.context, None, None)
+		self.bounds_max_repeat = Vector3(self.context, 0, None)
 
 		# seems to repeat tri_count
 		self.tri_flags_count = 0
@@ -59,7 +59,7 @@ class MeshCollision:
 		self.stuff = numpy.zeros((9), dtype=numpy.dtype('uint16'))
 
 		# ?
-		self.collision_bits = Array((self.count_bits), MeshCollisionBit, self.context, None, None)
+		self.collision_bits = Array((self.count_bits), MeshCollisionBit, self.context, 0, None)
 
 		# always 25
 		self.zeros = numpy.zeros((4), dtype=numpy.dtype('uint32'))
@@ -82,21 +82,21 @@ class MeshCollision:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.rotation = Matrix33(self.context, None, None)
-		self.offset = Vector3(self.context, None, None)
+		self.rotation = Matrix33(self.context, 0, None)
+		self.offset = Vector3(self.context, 0, None)
 		self.unk_1 = numpy.zeros((3, 2), dtype=numpy.dtype('uint16'))
 		self.vertex_count = 0
 		self.tri_count = 0
-		self.bounds_min = Vector3(self.context, None, None)
-		self.bounds_max = Vector3(self.context, None, None)
+		self.bounds_min = Vector3(self.context, 0, None)
+		self.bounds_max = Vector3(self.context, 0, None)
 		self.ones_or_zeros = numpy.zeros((7), dtype=numpy.dtype('uint64'))
 		self.ff_or_zero = numpy.zeros((10), dtype=numpy.dtype('int32'))
-		self.bounds_min_repeat = Vector3(self.context, None, None)
-		self.bounds_max_repeat = Vector3(self.context, None, None)
+		self.bounds_min_repeat = Vector3(self.context, 0, None)
+		self.bounds_max_repeat = Vector3(self.context, 0, None)
 		self.tri_flags_count = 0
 		self.count_bits = 0
 		self.stuff = numpy.zeros((9), dtype=numpy.dtype('uint16'))
-		self.collision_bits = Array((self.count_bits), MeshCollisionBit, self.context, None, None)
+		self.collision_bits = Array((self.count_bits), MeshCollisionBit, self.context, 0, None)
 		self.zeros = numpy.zeros((4), dtype=numpy.dtype('uint32'))
 		self.vertices = numpy.zeros((self.vertex_count, 3), dtype=numpy.dtype('float32'))
 		self.triangles = numpy.zeros((self.tri_count, 3), dtype=numpy.dtype('uint16'))
@@ -107,17 +107,17 @@ class MeshCollision:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
-		self.offset = stream.read_type(Vector3, (self.context, None, None))
+		self.rotation = stream.read_type(Matrix33, (self.context, 0, None))
+		self.offset = stream.read_type(Vector3, (self.context, 0, None))
 		self.unk_1 = stream.read_ushorts((3, 2))
 		self.vertex_count = stream.read_uint64()
 		self.tri_count = stream.read_uint64()
-		self.bounds_min = stream.read_type(Vector3, (self.context, None, None))
-		self.bounds_max = stream.read_type(Vector3, (self.context, None, None))
+		self.bounds_min = stream.read_type(Vector3, (self.context, 0, None))
+		self.bounds_max = stream.read_type(Vector3, (self.context, 0, None))
 		self.ones_or_zeros = stream.read_uint64s((7))
 		self.ff_or_zero = stream.read_ints((10))
-		self.bounds_min_repeat = stream.read_type(Vector3, (self.context, None, None))
-		self.bounds_max_repeat = stream.read_type(Vector3, (self.context, None, None))
+		self.bounds_min_repeat = stream.read_type(Vector3, (self.context, 0, None))
+		self.bounds_max_repeat = stream.read_type(Vector3, (self.context, 0, None))
 		self.tri_flags_count = stream.read_uint()
 		self.count_bits = stream.read_ushort()
 		self.stuff = stream.read_ushorts((9))

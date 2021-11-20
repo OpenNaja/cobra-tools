@@ -11,7 +11,7 @@ class HIRCSection:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -22,14 +22,14 @@ class HIRCSection:
 		# length of following data
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array((self.count), HircPointer, self.context, None, None)
+		self.hirc_pointers = Array((self.count), HircPointer, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array((self.count), HircPointer, self.context, None, None)
+		self.hirc_pointers = Array((self.count), HircPointer, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

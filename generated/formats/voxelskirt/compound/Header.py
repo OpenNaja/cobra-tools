@@ -8,7 +8,7 @@ class Header(GenericHeader):
 	Found at the beginning of every OVL file
 	"""
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
@@ -17,16 +17,16 @@ class Header(GenericHeader):
 		self.io_start = 0
 
 		# always = 0
-		self.info = SizedStrData(self.context, None, None)
+		self.info = SizedStrData(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.info = SizedStrData(self.context, None, None)
+		self.info = SizedStrData(self.context, 0, None)
 
 	def read(self, stream):
 		super().read(stream)
-		self.info = stream.read_type(SizedStrData, (self.context, None, None))
+		self.info = stream.read_type(SizedStrData, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

@@ -11,14 +11,14 @@ class ManiBlock:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ref = Empty(self.context, None, None)
+		self.ref = Empty(self.context, 0, None)
 		self.indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint16'))
 		self.indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint32'))
 		self.indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint16'))
@@ -35,13 +35,13 @@ class ManiBlock:
 		self.p_indices_0_c = numpy.zeros(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1), dtype=numpy.dtype('uint8'))
 
 		# ?
-		self.pad = PadAlign(self.context, self.ref, 4)
+		self.pad = PadAlign(self.context, 4, ref)
 
 		# these are likely a scale reference or factor
 		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.e_2), dtype=numpy.dtype('float32'))
 
 		# ?
-		self.pad_2 = SmartPadding(self.context, None, None)
+		self.pad_2 = SmartPadding(self.context, 0, None)
 
 		# likely
 		self.frame_count = 0
@@ -54,11 +54,11 @@ class ManiBlock:
 
 		# usually / always 420
 		self.four_and_twenty = 0
-		self.ref_2 = Empty(self.context, None, None)
+		self.ref_2 = Empty(self.context, 0, None)
 		self.zeros = numpy.zeros((self.c_1), dtype=numpy.dtype('uint8'))
 
 		# ?
-		self.anoth_pad = SmartPadding(self.context, None, None)
+		self.anoth_pad = SmartPadding(self.context, 0, None)
 
 		# these are likely a scale reference or factor
 		self.floatsb = numpy.zeros((6), dtype=numpy.dtype('float32'))
@@ -68,12 +68,12 @@ class ManiBlock:
 
 		# this seems to be vaguely related, but not always there?
 		self.unk_for_e_2 = 0
-		self.repeats = Array((self.count), Repeat, self.context, None, None)
+		self.repeats = Array((self.count), Repeat, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.ref = Empty(self.context, None, None)
+		self.ref = Empty(self.context, 0, None)
 		if self.context.version == 18:
 			self.indices_c_0 = numpy.zeros((self.arg.c_0), dtype=numpy.dtype('uint16'))
 		if not (self.context.version == 18):
@@ -98,27 +98,27 @@ class ManiBlock:
 			self.p_indices_c_1 = numpy.zeros((self.arg.c_1), dtype=numpy.dtype('uint8'))
 		self.p_indices_0_b = numpy.zeros(((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min) + 1), dtype=numpy.dtype('uint8'))
 		self.p_indices_0_c = numpy.zeros(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1), dtype=numpy.dtype('uint8'))
-		self.pad = PadAlign(self.context, self.ref, 4)
+		self.pad = PadAlign(self.context, 4, ref)
 		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.e_2), dtype=numpy.dtype('float32'))
-		self.pad_2 = SmartPadding(self.context, None, None)
+		self.pad_2 = SmartPadding(self.context, 0, None)
 		self.frame_count = 0
 		self.c_1 = 0
 		self.e = 0
 		self.zeros_19 = numpy.zeros((19), dtype=numpy.dtype('uint32'))
 		self.count = 0
 		self.four_and_twenty = 0
-		self.ref_2 = Empty(self.context, None, None)
+		self.ref_2 = Empty(self.context, 0, None)
 		self.zeros = numpy.zeros((self.c_1), dtype=numpy.dtype('uint8'))
-		self.anoth_pad = SmartPadding(self.context, None, None)
+		self.anoth_pad = SmartPadding(self.context, 0, None)
 		self.floatsb = numpy.zeros((6), dtype=numpy.dtype('float32'))
 		self.unk = 0
 		if self.arg.e_2:
 			self.unk_for_e_2 = 0
-		self.repeats = Array((self.count), Repeat, self.context, None, None)
+		self.repeats = Array((self.count), Repeat, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.ref = stream.read_type(Empty, (self.context, None, None))
+		self.ref = stream.read_type(Empty, (self.context, 0, None))
 		if self.context.version == 18:
 			self.indices_c_0 = stream.read_ushorts((self.arg.c_0))
 		if not (self.context.version == 18):
@@ -143,18 +143,18 @@ class ManiBlock:
 			self.p_indices_c_1 = stream.read_ubytes((self.arg.c_1))
 		self.p_indices_0_b = stream.read_ubytes(((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min) + 1))
 		self.p_indices_0_c = stream.read_ubytes(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1))
-		self.pad = stream.read_type(PadAlign, (self.context, self.ref, 4))
+		self.pad = stream.read_type(PadAlign, (self.context, 4, ref))
 		self.floatsa = stream.read_floats((self.arg.frame_count, self.arg.e_2))
-		self.pad_2 = stream.read_type(SmartPadding, (self.context, None, None))
+		self.pad_2 = stream.read_type(SmartPadding, (self.context, 0, None))
 		self.frame_count = stream.read_uint()
 		self.c_1 = stream.read_uint()
 		self.e = stream.read_uint()
 		self.zeros_19 = stream.read_uints((19))
 		self.count = stream.read_ushort()
 		self.four_and_twenty = stream.read_ushort()
-		self.ref_2 = stream.read_type(Empty, (self.context, None, None))
+		self.ref_2 = stream.read_type(Empty, (self.context, 0, None))
 		self.zeros = stream.read_ubytes((self.c_1))
-		self.anoth_pad = stream.read_type(SmartPadding, (self.context, None, None))
+		self.anoth_pad = stream.read_type(SmartPadding, (self.context, 0, None))
 		self.floatsb = stream.read_floats((6))
 		self.unk = stream.read_uint()
 		if self.arg.e_2:

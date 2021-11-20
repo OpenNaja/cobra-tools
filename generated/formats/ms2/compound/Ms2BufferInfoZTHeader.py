@@ -14,7 +14,7 @@ class Ms2BufferInfoZTHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -23,18 +23,18 @@ class Ms2BufferInfoZTHeader:
 		self.io_start = 0
 
 		# sometimes 00 byte
-		self.weird_padding = SmartPadding(self.context, None, None)
-		self.unks = Array((self.arg.unk_count), InfoZTMemPool, self.context, None, None)
+		self.weird_padding = SmartPadding(self.context, 0, None)
+		self.unks = Array((self.arg.unk_count), InfoZTMemPool, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.weird_padding = SmartPadding(self.context, None, None)
-		self.unks = Array((self.arg.unk_count), InfoZTMemPool, self.context, None, None)
+		self.weird_padding = SmartPadding(self.context, 0, None)
+		self.unks = Array((self.arg.unk_count), InfoZTMemPool, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
+		self.weird_padding = stream.read_type(SmartPadding, (self.context, 0, None))
 		self.unks.read(stream, InfoZTMemPool, self.arg.unk_count, None)
 
 		self.io_size = stream.tell() - self.io_start

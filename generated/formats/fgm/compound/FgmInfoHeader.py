@@ -13,7 +13,7 @@ class FgmInfoHeader(GenericHeader):
 	This reads a whole custom FGM file
 	"""
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
@@ -22,26 +22,26 @@ class FgmInfoHeader(GenericHeader):
 		self.io_start = 0
 		self.data_lib_size = 0
 		self.dependency_count = 0
-		self.fgm_info = FgmHeader(self.context, None, None)
-		self.texture_files = Array((self.dependency_count), ZString, self.context, None, None)
-		self.textures = Array((self.fgm_info.texture_count), TextureInfo, self.context, None, None)
-		self.attributes = Array((self.fgm_info.attribute_count), AttributeInfo, self.context, None, None)
+		self.fgm_info = FgmHeader(self.context, 0, None)
+		self.texture_files = Array((self.dependency_count), ZString, self.context, 0, None)
+		self.textures = Array((self.fgm_info.texture_count), TextureInfo, self.context, 0, None)
+		self.attributes = Array((self.fgm_info.attribute_count), AttributeInfo, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.data_lib_size = 0
 		self.dependency_count = 0
-		self.fgm_info = FgmHeader(self.context, None, None)
-		self.texture_files = Array((self.dependency_count), ZString, self.context, None, None)
-		self.textures = Array((self.fgm_info.texture_count), TextureInfo, self.context, None, None)
-		self.attributes = Array((self.fgm_info.attribute_count), AttributeInfo, self.context, None, None)
+		self.fgm_info = FgmHeader(self.context, 0, None)
+		self.texture_files = Array((self.dependency_count), ZString, self.context, 0, None)
+		self.textures = Array((self.fgm_info.texture_count), TextureInfo, self.context, 0, None)
+		self.attributes = Array((self.fgm_info.attribute_count), AttributeInfo, self.context, 0, None)
 
 	def read(self, stream):
 		super().read(stream)
 		self.data_lib_size = stream.read_uint()
 		self.dependency_count = stream.read_uint()
-		self.fgm_info = stream.read_type(FgmHeader, (self.context, None, None))
+		self.fgm_info = stream.read_type(FgmHeader, (self.context, 0, None))
 		self.texture_files = stream.read_zstrings((self.dependency_count))
 		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
 		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)

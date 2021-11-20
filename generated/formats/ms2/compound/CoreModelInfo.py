@@ -14,7 +14,7 @@ class CoreModelInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -23,19 +23,19 @@ class CoreModelInfo:
 		self.io_start = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(self.context, None, None)
+		self.bounds_min = Vector3(self.context, 0, None)
 
 		# not sure, for PZ often 40 00 00 37 for animals
 		self.unk_float_a = 0.0
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(self.context, None, None)
+		self.bounds_max = Vector3(self.context, 0, None)
 
 		# scale: pack_offset / 512, also added as offset
 		self.pack_offset = 0.0
 
 		# cog? medium of bounds?
-		self.center = Vector3(self.context, None, None)
+		self.center = Vector3(self.context, 0, None)
 
 		# probably from center to max
 		self.radius = 0.0
@@ -44,10 +44,10 @@ class CoreModelInfo:
 		self.unknowns = numpy.zeros((4), dtype=numpy.dtype('float32'))
 
 		# verbatim repeat
-		self.bounds_min_repeat = Vector3(self.context, None, None)
+		self.bounds_min_repeat = Vector3(self.context, 0, None)
 
 		# verbatim repeat
-		self.bounds_max_repeat = Vector3(self.context, None, None)
+		self.bounds_max_repeat = Vector3(self.context, 0, None)
 		self.num_materials = 0
 		self.num_lods = 0
 		self.num_objects = 0
@@ -59,7 +59,7 @@ class CoreModelInfo:
 		self.last_count = 0
 
 		# this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female
-		self.render_flag = RenderFlag(self.context, None, None)
+		self.render_flag = RenderFlag(self.context, 0, None)
 
 		# ?
 		self.unks = numpy.zeros((7), dtype=numpy.dtype('uint16'))
@@ -68,44 +68,44 @@ class CoreModelInfo:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.bounds_min = Vector3(self.context, None, None)
+		self.bounds_min = Vector3(self.context, 0, None)
 		if not (self.context.version < 19):
 			self.unk_float_a = 0.0
-		self.bounds_max = Vector3(self.context, None, None)
+		self.bounds_max = Vector3(self.context, 0, None)
 		if not (self.context.version < 19):
 			self.pack_offset = 0.0
-		self.center = Vector3(self.context, None, None)
+		self.center = Vector3(self.context, 0, None)
 		self.radius = 0.0
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unknowns = numpy.zeros((4), dtype=numpy.dtype('float32'))
 		if not (self.context.version == 17):
-			self.bounds_min_repeat = Vector3(self.context, None, None)
+			self.bounds_min_repeat = Vector3(self.context, 0, None)
 		if not (self.context.version == 17):
-			self.bounds_max_repeat = Vector3(self.context, None, None)
+			self.bounds_max_repeat = Vector3(self.context, 0, None)
 		self.num_materials = 0
 		self.num_lods = 0
 		self.num_objects = 0
 		self.num_models = 0
 		self.last_count = 0
-		self.render_flag = RenderFlag(self.context, None, None)
+		self.render_flag = RenderFlag(self.context, 0, None)
 		self.unks = numpy.zeros((7), dtype=numpy.dtype('uint16'))
 		self.pad = numpy.zeros((3), dtype=numpy.dtype('uint16'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.bounds_min = stream.read_type(Vector3, (self.context, None, None))
+		self.bounds_min = stream.read_type(Vector3, (self.context, 0, None))
 		if not (self.context.version < 19):
 			self.unk_float_a = stream.read_float()
-		self.bounds_max = stream.read_type(Vector3, (self.context, None, None))
+		self.bounds_max = stream.read_type(Vector3, (self.context, 0, None))
 		if not (self.context.version < 19):
 			self.pack_offset = stream.read_float()
-		self.center = stream.read_type(Vector3, (self.context, None, None))
+		self.center = stream.read_type(Vector3, (self.context, 0, None))
 		self.radius = stream.read_float()
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unknowns = stream.read_floats((4))
 		if not (self.context.version == 17):
-			self.bounds_min_repeat = stream.read_type(Vector3, (self.context, None, None))
-			self.bounds_max_repeat = stream.read_type(Vector3, (self.context, None, None))
+			self.bounds_min_repeat = stream.read_type(Vector3, (self.context, 0, None))
+			self.bounds_max_repeat = stream.read_type(Vector3, (self.context, 0, None))
 		self.num_materials = stream.read_ushort()
 		self.num_lods = stream.read_ushort()
 		self.num_objects = stream.read_ushort()

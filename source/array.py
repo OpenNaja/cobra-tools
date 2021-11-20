@@ -11,14 +11,14 @@ class Array(list):
 
     context = ContextReference()
 
-    def __new__(cls, shape, dtype, context, arg=None, template=None, set_default=True):
+    def __new__(cls, shape, dtype, context, arg=0, template=None, set_default=True):
         if callable(getattr(dtype, 'create_array', None)):
             # there is a more efficient method of creating this array on the class (which may not return Array class type)
             return dtype.create_array(shape, None, context, arg, template)
         else:
             return super(cls, cls).__new__(cls)
 
-    def __init__(self, shape, dtype, context, arg=None, template=None, set_default=True):
+    def __init__(self, shape, dtype, context, arg=0, template=None, set_default=True):
         '''Create a new array of the specified shape and type.
         :param shape: Shape of the resulting array. Zero-dimensional arrays are not supported.
         :type shape: Union[int, Tuple[int, ...]]
@@ -59,7 +59,7 @@ class Array(list):
 
 
     @classmethod
-    def from_stream(cls, stream, shape, dtype, context, arg=None, template=None):
+    def from_stream(cls, stream, shape, dtype, context, arg=0, template=None):
         if callable(getattr(dtype, 'read_array', None)):
             return dtype.read_array(stream, shape, context, arg, template)
         else:
@@ -68,7 +68,7 @@ class Array(list):
             return new_array
 
     @classmethod
-    def to_stream(cls, stream, instance, shape, dtype, context, arg=None, template=None):
+    def to_stream(cls, stream, instance, shape, dtype, context, arg=0, template=None):
         if callable(getattr(dtype, 'write_array', None)):
             dtype.write_array(stream, instance)
         else:

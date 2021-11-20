@@ -4,7 +4,7 @@ from generated.formats.ms2.compound.Descriptor import Descriptor
 
 class ListFirst(Descriptor):
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg

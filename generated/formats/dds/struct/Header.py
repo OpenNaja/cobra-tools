@@ -12,7 +12,7 @@ class Header:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -25,7 +25,7 @@ class Header:
 
 		# Always 124 + 4 bytes for headerstring, header ends at 128.
 		self.size = 124
-		self.flags = HeaderFlags(self.context, None, None)
+		self.flags = HeaderFlags(self.context, 0, None)
 
 		# The texture height.
 		self.height = 0
@@ -36,34 +36,34 @@ class Header:
 		self.depth = 0
 		self.mipmap_count = 0
 		self.reserved_1 = numpy.zeros((11), dtype=numpy.dtype('uint32'))
-		self.pixel_format = PixelFormat(self.context, None, None)
-		self.caps_1 = Caps1(self.context, None, None)
-		self.caps_2 = Caps2(self.context, None, None)
+		self.pixel_format = PixelFormat(self.context, 0, None)
+		self.caps_1 = Caps1(self.context, 0, None)
+		self.caps_2 = Caps2(self.context, 0, None)
 		self.caps_3 = 0
 		self.caps_4 = 0
 		self.unused = 0
-		self.dx_10 = Dxt10Header(self.context, None, None)
+		self.dx_10 = Dxt10Header(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.header_string = FixedString(self.context, 4, None)
 		self.size = 124
-		self.flags = HeaderFlags(self.context, None, None)
+		self.flags = HeaderFlags(self.context, 0, None)
 		self.height = 0
 		self.width = 0
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
 		self.reserved_1 = numpy.zeros((11), dtype=numpy.dtype('uint32'))
-		self.pixel_format = PixelFormat(self.context, None, None)
-		self.caps_1 = Caps1(self.context, None, None)
-		self.caps_2 = Caps2(self.context, None, None)
+		self.pixel_format = PixelFormat(self.context, 0, None)
+		self.caps_1 = Caps1(self.context, 0, None)
+		self.caps_2 = Caps2(self.context, 0, None)
 		self.caps_3 = 0
 		self.caps_4 = 0
 		self.unused = 0
 		if self.pixel_format.four_c_c == 808540228:
-			self.dx_10 = Dxt10Header(self.context, None, None)
+			self.dx_10 = Dxt10Header(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -76,14 +76,14 @@ class Header:
 		self.depth = stream.read_uint()
 		self.mipmap_count = stream.read_uint()
 		self.reserved_1 = stream.read_uints((11))
-		self.pixel_format = stream.read_type(PixelFormat, (self.context, None, None))
+		self.pixel_format = stream.read_type(PixelFormat, (self.context, 0, None))
 		self.caps_1 = stream.read_type(Caps1)
 		self.caps_2 = stream.read_type(Caps2)
 		self.caps_3 = stream.read_uint()
 		self.caps_4 = stream.read_uint()
 		self.unused = stream.read_uint()
 		if self.pixel_format.four_c_c == 808540228:
-			self.dx_10 = stream.read_type(Dxt10Header, (self.context, None, None))
+			self.dx_10 = stream.read_type(Dxt10Header, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

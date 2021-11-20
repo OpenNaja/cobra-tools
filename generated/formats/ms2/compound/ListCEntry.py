@@ -7,7 +7,7 @@ class ListCEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,7 +19,7 @@ class ListCEntry:
 		self.one = 0
 
 		# center of the collider
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 
 		# -1 for PZ, 80 for JWE
 		self.constant = 0.0
@@ -37,7 +37,7 @@ class ListCEntry:
 
 	def set_defaults(self):
 		self.one = 0
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 		self.constant = 0.0
 		self.a = 0.0
 		self.floats = numpy.zeros((4), dtype=numpy.dtype('float32'))
@@ -46,7 +46,7 @@ class ListCEntry:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.one = stream.read_uint()
-		self.loc = stream.read_type(Vector3, (self.context, None, None))
+		self.loc = stream.read_type(Vector3, (self.context, 0, None))
 		self.constant = stream.read_float()
 		self.a = stream.read_float()
 		self.floats = stream.read_floats((4))

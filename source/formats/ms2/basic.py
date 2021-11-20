@@ -9,11 +9,11 @@ class String:
     _count_pack = _count_struct.pack
     _count_unpack = _count_struct.unpack
 
-    def __new__(cls, context=None, arg=None, template=None):
+    def __new__(cls, context=None, arg=0, template=None):
         return ''
 
     @staticmethod
-    def from_stream(stream, context=None, arg=None, template=None):
+    def from_stream(stream, context=None, arg=0, template=None):
         value = stream.read(*_count_unpack(stream.read(4)))
         return value.decode(errors="surrogateescape")
 
@@ -23,7 +23,7 @@ class String:
         stream.write(_count_pack(len(value)) + value)
 
     @staticmethod
-    def from_value(value, context=None, arg=None, template=None):
+    def from_value(value, context=None, arg=0, template=None):
         return str(value)
 
     @classmethod

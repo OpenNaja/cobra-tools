@@ -12,7 +12,7 @@ class SetHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -27,8 +27,8 @@ class SetHeader:
 
 		# must be 16909320
 		self.sig_b = 16909320
-		self.sets = Array((self.set_count), SetEntry, self.context, None, None)
-		self.assets = Array((self.asset_count), AssetEntry, self.context, None, None)
+		self.sets = Array((self.set_count), SetEntry, self.context, 0, None)
+		self.assets = Array((self.asset_count), AssetEntry, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -37,8 +37,8 @@ class SetHeader:
 		self.asset_count = 0
 		self.sig_a = 1065336831
 		self.sig_b = 16909320
-		self.sets = Array((self.set_count), SetEntry, self.context, None, None)
-		self.assets = Array((self.asset_count), AssetEntry, self.context, None, None)
+		self.sets = Array((self.set_count), SetEntry, self.context, 0, None)
+		self.assets = Array((self.asset_count), AssetEntry, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

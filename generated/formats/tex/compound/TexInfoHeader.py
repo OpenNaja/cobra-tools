@@ -11,19 +11,19 @@ from generated.formats.tex.compound.TexHeader import TexHeader
 
 class TexInfoHeader(GenericHeader):
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.tex_info = TexHeader(self.context, None, None)
-		self.frag_00 = Frag00(self.context, None, None)
-		self.frag_10 = Header3Data0(self.context, None, None)
-		self.frag_01 = Array((self.frag_10.stream_count), TexBuffer, self.context, None, None)
-		self.frag_01 = Array((self.frag_10.stream_count), TexBufferPc, self.context, None, None)
-		self.frag_11 = Header7Data1(self.context, None, None)
+		self.tex_info = TexHeader(self.context, 0, None)
+		self.frag_00 = Frag00(self.context, 0, None)
+		self.frag_10 = Header3Data0(self.context, 0, None)
+		self.frag_01 = Array((self.frag_10.stream_count), TexBuffer, self.context, 0, None)
+		self.frag_01 = Array((self.frag_10.stream_count), TexBufferPc, self.context, 0, None)
+		self.frag_11 = Header7Data1(self.context, 0, None)
 
 		# pad whole frag_11 struct to 320 bytes
 		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype=numpy.dtype('uint8'))
@@ -34,16 +34,16 @@ class TexInfoHeader(GenericHeader):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.tex_info = TexHeader(self.context, None, None)
+		self.tex_info = TexHeader(self.context, 0, None)
 		if not (self.context.version < 19):
-			self.frag_00 = Frag00(self.context, None, None)
-		self.frag_10 = Header3Data0(self.context, None, None)
+			self.frag_00 = Frag00(self.context, 0, None)
+		self.frag_10 = Header3Data0(self.context, 0, None)
 		if not (self.context.version < 19):
-			self.frag_01 = Array((self.frag_10.stream_count), TexBuffer, self.context, None, None)
+			self.frag_01 = Array((self.frag_10.stream_count), TexBuffer, self.context, 0, None)
 		if self.context.version < 19:
-			self.frag_01 = Array((self.frag_10.stream_count), TexBufferPc, self.context, None, None)
+			self.frag_01 = Array((self.frag_10.stream_count), TexBufferPc, self.context, 0, None)
 		if not (self.context.version < 19):
-			self.frag_11 = Header7Data1(self.context, None, None)
+			self.frag_11 = Header7Data1(self.context, 0, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype=numpy.dtype('uint8'))
 		if self.context.user_version.is_jwe and (self.context.version == 19):
@@ -51,16 +51,16 @@ class TexInfoHeader(GenericHeader):
 
 	def read(self, stream):
 		super().read(stream)
-		self.tex_info = stream.read_type(TexHeader, (self.context, None, None))
+		self.tex_info = stream.read_type(TexHeader, (self.context, 0, None))
 		if not (self.context.version < 19):
-			self.frag_00 = stream.read_type(Frag00, (self.context, None, None))
-		self.frag_10 = stream.read_type(Header3Data0, (self.context, None, None))
+			self.frag_00 = stream.read_type(Frag00, (self.context, 0, None))
+		self.frag_10 = stream.read_type(Header3Data0, (self.context, 0, None))
 		if not (self.context.version < 19):
 			self.frag_01.read(stream, TexBuffer, self.frag_10.stream_count, None)
 		if self.context.version < 19:
 			self.frag_01.read(stream, TexBufferPc, self.frag_10.stream_count, None)
 		if not (self.context.version < 19):
-			self.frag_11 = stream.read_type(Header7Data1, (self.context, None, None))
+			self.frag_11 = stream.read_type(Header7Data1, (self.context, 0, None))
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			self.padding = stream.read_ubytes((320 - self.frag_11.io_size))
 		if self.context.user_version.is_jwe and (self.context.version == 19):

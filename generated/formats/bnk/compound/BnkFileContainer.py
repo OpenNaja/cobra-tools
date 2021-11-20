@@ -12,7 +12,7 @@ class BnkFileContainer:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -42,10 +42,10 @@ class BnkFileContainer:
 		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype=numpy.dtype('uint64'))
 
 		# data
-		self.names = Array((self.name_count), ZString, self.context, None, None)
+		self.names = Array((self.name_count), ZString, self.context, 0, None)
 
 		# ext format subtypes
-		self.extensions = Array((self.count_2), ZString, self.context, None, None)
+		self.extensions = Array((self.count_2), ZString, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -58,8 +58,8 @@ class BnkFileContainer:
 		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.zeros_2 = numpy.zeros((2), dtype=numpy.dtype('uint32'))
 		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype=numpy.dtype('uint64'))
-		self.names = Array((self.name_count), ZString, self.context, None, None)
-		self.extensions = Array((self.count_2), ZString, self.context, None, None)
+		self.names = Array((self.name_count), ZString, self.context, 0, None)
+		self.extensions = Array((self.count_2), ZString, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

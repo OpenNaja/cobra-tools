@@ -22,7 +22,7 @@ class PadAlign:
 	context = ContextReference()
 
 	def __init__(self, context, arg=None, template=None):
-		# arg is reference object
+		# template is reference object
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -37,8 +37,8 @@ class PadAlign:
 		stream.write(self.data)
 
 	def get_pad(self, stream):
-		distance = stream.tell() - self.arg.io_start
-		return get_padding_size(distance, alignment=self.template)
+		distance = stream.tell() - self.template.io_start
+		return get_padding_size(distance, alignment=self.arg)
 
 	def __repr__(self):
 		return f"{self.data} Size: {len(self.data)}"

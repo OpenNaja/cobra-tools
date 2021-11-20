@@ -15,7 +15,7 @@ class AuxFileContainer:
 
     context = ContextReference()
 
-    def __init__(self, context, arg=None, template=None):
+    def __init__(self, context, arg=0, template=None):
         self._context = context
         self.arg = arg
         self.template = template

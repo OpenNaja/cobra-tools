@@ -8,7 +8,7 @@ class Struct7:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -26,7 +26,7 @@ class Struct7:
 		self.zeros_pz = numpy.zeros((2), dtype=numpy.dtype('uint64'))
 
 		# 60 bytes per entry
-		self.unknown_list = Array((self.count_7), NasutoJointEntry, self.context, None, None)
+		self.unknown_list = Array((self.count_7), NasutoJointEntry, self.context, 0, None)
 
 		# align list to multiples of 8
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype=numpy.dtype('uint8'))
@@ -38,7 +38,7 @@ class Struct7:
 		self.zero = 0
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.zeros_pz = numpy.zeros((2), dtype=numpy.dtype('uint64'))
-		self.unknown_list = Array((self.count_7), NasutoJointEntry, self.context, None, None)
+		self.unknown_list = Array((self.count_7), NasutoJointEntry, self.context, 0, None)
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype=numpy.dtype('uint8'))
 
 	def read(self, stream):

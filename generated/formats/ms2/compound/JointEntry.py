@@ -11,7 +11,7 @@ class JointEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -20,21 +20,21 @@ class JointEntry:
 		self.io_start = 0
 
 		# the rotation of the joint, inverted
-		self.rot = Matrix33(self.context, None, None)
+		self.rot = Matrix33(self.context, 0, None)
 
 		# the location of the joint
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.rot = Matrix33(self.context, None, None)
-		self.loc = Vector3(self.context, None, None)
+		self.rot = Matrix33(self.context, 0, None)
+		self.loc = Vector3(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.rot = stream.read_type(Matrix33, (self.context, None, None))
-		self.loc = stream.read_type(Vector3, (self.context, None, None))
+		self.rot = stream.read_type(Matrix33, (self.context, 0, None))
+		self.loc = stream.read_type(Vector3, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

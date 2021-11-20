@@ -18,13 +18,13 @@ def class_from_struct(struct, from_value_func):
 
     class ConstructedClass:
 
-        def __new__(cls, context=None, arg=None, template=None):
+        def __new__(cls, context=None, arg=0, template=None):
             return base_value
 
         from_value = staticmethod(from_value_func)
 
         @staticmethod
-        def from_stream(stream, context=None, arg=None, template=None):
+        def from_stream(stream, context=None, arg=0, template=None):
             return unpack(stream.read(size))
 
         @staticmethod
@@ -32,14 +32,14 @@ def class_from_struct(struct, from_value_func):
             stream.write(pack(instance))
 
         @staticmethod
-        def create_array(shape, default=None, context=None, arg=None, template=None):
+        def create_array(shape, default=None, context=None, arg=0, template=None):
             if default:
                 return np.full(shape, default, dtype)
             else:
                 return np.zeros(shape, dtype)
 
         @staticmethod
-        def read_array(stream, shape, context=None, arg=None, template=None):
+        def read_array(stream, shape, context=None, arg=0, template=None):
             array = empty(shape, dtype)
             stream.readinto(array)
             return array
@@ -100,11 +100,11 @@ Float = class_from_struct(Struct("<f"), float)
 
 class ZString:
 
-    def __new__(cls, context=None, arg=None, template=None):
+    def __new__(cls, context=None, arg=0, template=None):
         return ''
 
     @staticmethod
-    def from_stream(stream, context=None, arg=None, template=None):
+    def from_stream(stream, context=None, arg=0, template=None):
         i = 0
         val = b''
         char = b''
@@ -122,7 +122,7 @@ class ZString:
         stream.write(b'\x00')
 
     @staticmethod
-    def from_value(value, context=None, arg=None, template=None):
+    def from_value(value, context=None, arg=0, template=None):
         return str(value)
 
     @classmethod

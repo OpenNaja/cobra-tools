@@ -11,26 +11,26 @@ class Mdl2ModelInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.fourty = Mdl2FourtyInfo(self.context, None, None)
-		self.info = CoreModelInfo(self.context, None, None)
+		self.fourty = Mdl2FourtyInfo(self.context, 0, None)
+		self.info = CoreModelInfo(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.fourty = Mdl2FourtyInfo(self.context, None, None)
-		self.info = CoreModelInfo(self.context, None, None)
+		self.fourty = Mdl2FourtyInfo(self.context, 0, None)
+		self.info = CoreModelInfo(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.fourty = stream.read_type(Mdl2FourtyInfo, (self.context, None, None))
-		self.info = stream.read_type(CoreModelInfo, (self.context, None, None))
+		self.fourty = stream.read_type(Mdl2FourtyInfo, (self.context, 0, None))
+		self.info = stream.read_type(CoreModelInfo, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

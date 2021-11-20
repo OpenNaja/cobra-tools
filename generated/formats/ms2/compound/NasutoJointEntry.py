@@ -11,7 +11,7 @@ class NasutoJointEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,10 +29,10 @@ class NasutoJointEntry:
 		self.zero = 0
 
 		# ?
-		self.matrix = Matrix33(self.context, None, None)
+		self.matrix = Matrix33(self.context, 0, None)
 
 		# ?
-		self.vector = Vector4(self.context, None, None)
+		self.vector = Vector4(self.context, 0, None)
 
 		# 1
 		self.one = 0
@@ -43,8 +43,8 @@ class NasutoJointEntry:
 		self.child = 0
 		self.parent = 0
 		self.zero = 0
-		self.matrix = Matrix33(self.context, None, None)
-		self.vector = Vector4(self.context, None, None)
+		self.matrix = Matrix33(self.context, 0, None)
+		self.vector = Vector4(self.context, 0, None)
 		self.one = 0
 
 	def read(self, stream):
@@ -52,8 +52,8 @@ class NasutoJointEntry:
 		self.child = stream.read_ubyte()
 		self.parent = stream.read_ubyte()
 		self.zero = stream.read_ushort()
-		self.matrix = stream.read_type(Matrix33, (self.context, None, None))
-		self.vector = stream.read_type(Vector4, (self.context, None, None))
+		self.matrix = stream.read_type(Matrix33, (self.context, 0, None))
+		self.vector = stream.read_type(Vector4, (self.context, 0, None))
 		self.one = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start

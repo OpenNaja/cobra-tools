@@ -3,7 +3,7 @@ from generated.formats.voxelskirt.compound.Material import Material
 
 class PosInfo(Material):
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg

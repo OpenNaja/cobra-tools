@@ -23,7 +23,7 @@ class ModelData:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -68,7 +68,7 @@ class ModelData:
 		self.zero_2 = 0
 
 		# bitfield, determines vertex format
-		self.flag = ModelFlag(self.context, None, None)
+		self.flag = ModelFlag(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -85,7 +85,7 @@ class ModelData:
 		self.zero_1 = 0
 		self.unk_floats = numpy.zeros((2), dtype=numpy.dtype('float32'))
 		self.zero_2 = 0
-		self.flag = ModelFlag(self.context, None, None)
+		self.flag = ModelFlag(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

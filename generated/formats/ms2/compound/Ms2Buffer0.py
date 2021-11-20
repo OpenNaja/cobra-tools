@@ -10,7 +10,7 @@ class Ms2Buffer0:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -22,19 +22,19 @@ class Ms2Buffer0:
 		self.name_hashes = numpy.zeros((self.arg.name_count), dtype=numpy.dtype('uint32'))
 
 		# names
-		self.names = Array((self.arg.name_count), ZString, self.context, None, None)
+		self.names = Array((self.arg.name_count), ZString, self.context, 0, None)
 
 		# todo - pad to 8; for pz 1.6
-		self.new_padding = SmartPadding(self.context, None, None)
+		self.new_padding = SmartPadding(self.context, 0, None)
 		self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.name_hashes = numpy.zeros((self.arg.name_count), dtype=numpy.dtype('uint32'))
-		self.names = Array((self.arg.name_count), ZString, self.context, None, None)
+		self.names = Array((self.arg.name_count), ZString, self.context, 0, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.new_padding = SmartPadding(self.context, None, None)
+			self.new_padding = SmartPadding(self.context, 0, None)
 		if self.context.version == 17:
 			self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
 
@@ -43,7 +43,7 @@ class Ms2Buffer0:
 		self.name_hashes = stream.read_uints((self.arg.name_count))
 		self.names = stream.read_zstrings((self.arg.name_count))
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.new_padding = stream.read_type(SmartPadding, (self.context, None, None))
+			self.new_padding = stream.read_type(SmartPadding, (self.context, 0, None))
 		if self.context.version == 17:
 			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.context, self.arg, None))
 

@@ -12,7 +12,7 @@ class BaniInfoHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -25,20 +25,20 @@ class BaniInfoHeader:
 
 		# name of the banis file buffer
 		self.banis_name = ''
-		self.data = BaniFragmentData0(self.context, None, None)
+		self.data = BaniFragmentData0(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.magic = numpy.zeros((4), dtype=numpy.dtype('int8'))
 		self.banis_name = ''
-		self.data = BaniFragmentData0(self.context, None, None)
+		self.data = BaniFragmentData0(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.banis_name = stream.read_zstring()
-		self.data = stream.read_type(BaniFragmentData0, (self.context, None, None))
+		self.data = stream.read_type(BaniFragmentData0, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

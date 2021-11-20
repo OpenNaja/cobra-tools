@@ -6,7 +6,7 @@ class Capsule:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -15,10 +15,10 @@ class Capsule:
 		self.io_start = 0
 
 		# relative to the armature, ie. not in bone space
-		self.offset = Vector3(self.context, None, None)
+		self.offset = Vector3(self.context, 0, None)
 
 		# normalized
-		self.direction = Vector3(self.context, None, None)
+		self.direction = Vector3(self.context, 0, None)
 
 		# radius of the caps
 		self.radius = 0.0
@@ -32,16 +32,16 @@ class Capsule:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.offset = Vector3(self.context, None, None)
-		self.direction = Vector3(self.context, None, None)
+		self.offset = Vector3(self.context, 0, None)
+		self.direction = Vector3(self.context, 0, None)
 		self.radius = 0.0
 		self.extent = 0.0
 		self.zero = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.offset = stream.read_type(Vector3, (self.context, None, None))
-		self.direction = stream.read_type(Vector3, (self.context, None, None))
+		self.offset = stream.read_type(Vector3, (self.context, 0, None))
+		self.direction = stream.read_type(Vector3, (self.context, 0, None))
 		self.radius = stream.read_float()
 		self.extent = stream.read_float()
 		self.zero = stream.read_uint()

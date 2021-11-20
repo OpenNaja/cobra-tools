@@ -6,7 +6,7 @@ class Sphere:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -15,7 +15,7 @@ class Sphere:
 		self.io_start = 0
 
 		# center of the sphere
-		self.center = Vector3(self.context, None, None)
+		self.center = Vector3(self.context, 0, None)
 
 		# radius around the center
 		self.radius = 0.0
@@ -26,13 +26,13 @@ class Sphere:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.center = Vector3(self.context, None, None)
+		self.center = Vector3(self.context, 0, None)
 		self.radius = 0.0
 		self.zero = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.center = stream.read_type(Vector3, (self.context, None, None))
+		self.center = stream.read_type(Vector3, (self.context, 0, None))
 		self.radius = stream.read_float()
 		self.zero = stream.read_uint()
 

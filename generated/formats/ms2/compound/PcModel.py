@@ -15,7 +15,7 @@ class PcModel:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -24,42 +24,42 @@ class PcModel:
 		self.io_start = 0
 
 		# uses uint here, two uints elsewhere
-		self.materials = Array((self.arg.num_materials), MaterialName, self.context, None, None)
-		self.lods = Array((self.arg.num_lods), LodInfoZT, self.context, None, None)
-		self.lods = Array((self.arg.num_lods), LodInfo, self.context, None, None)
-		self.objects = Array((self.arg.num_objects), MeshLink, self.context, None, None)
+		self.materials = Array((self.arg.num_materials), MaterialName, self.context, 0, None)
+		self.lods = Array((self.arg.num_lods), LodInfoZT, self.context, 0, None)
+		self.lods = Array((self.arg.num_lods), LodInfo, self.context, 0, None)
+		self.objects = Array((self.arg.num_objects), MeshLink, self.context, 0, None)
 
 		# pad to 8 bytes alignment
 		self.padding = 0
-		self.models = Array((self.arg.num_models), PcModelData, self.context, None, None)
-		self.models = Array((self.arg.num_models), ZtModelData, self.context, None, None)
-		self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
+		self.models = Array((self.arg.num_models), PcModelData, self.context, 0, None)
+		self.models = Array((self.arg.num_models), ZtModelData, self.context, 0, None)
+		self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
-		self.floatsy = Array((self.arg.render_flag), FloatsY, self.context, None, None)
+		self.floatsy = Array((self.arg.render_flag), FloatsY, self.context, 0, None)
 
 		# sometimes 00 byte
-		self.weird_padding = SmartPadding(self.context, None, None)
+		self.weird_padding = SmartPadding(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.materials = Array((self.arg.num_materials), MaterialName, self.context, None, None)
+		self.materials = Array((self.arg.num_materials), MaterialName, self.context, 0, None)
 		if self.context.version == 17:
-			self.lods = Array((self.arg.num_lods), LodInfoZT, self.context, None, None)
+			self.lods = Array((self.arg.num_lods), LodInfoZT, self.context, 0, None)
 		if self.context.version == 18:
-			self.lods = Array((self.arg.num_lods), LodInfo, self.context, None, None)
-		self.objects = Array((self.arg.num_objects), MeshLink, self.context, None, None)
+			self.lods = Array((self.arg.num_lods), LodInfo, self.context, 0, None)
+		self.objects = Array((self.arg.num_objects), MeshLink, self.context, 0, None)
 		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.padding = 0
 		if self.context.version == 18:
-			self.models = Array((self.arg.num_models), PcModelData, self.context, None, None)
+			self.models = Array((self.arg.num_models), PcModelData, self.context, 0, None)
 		if self.context.version == 17:
-			self.models = Array((self.arg.num_models), ZtModelData, self.context, None, None)
+			self.models = Array((self.arg.num_models), ZtModelData, self.context, 0, None)
 		if self.context.version == 17 and self.arg.last_count:
-			self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
-		self.floatsy = Array((self.arg.render_flag), FloatsY, self.context, None, None)
-		self.weird_padding = SmartPadding(self.context, None, None)
+			self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
+		self.floatsy = Array((self.arg.render_flag), FloatsY, self.context, 0, None)
+		self.weird_padding = SmartPadding(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -76,9 +76,9 @@ class PcModel:
 		if self.context.version == 17:
 			self.models.read(stream, ZtModelData, self.arg.num_models, None)
 		if self.context.version == 17 and self.arg.last_count:
-			self.ztuac_pre_bones = stream.read_type(ZTPreBones, (self.context, None, None))
+			self.ztuac_pre_bones = stream.read_type(ZTPreBones, (self.context, 0, None))
 		self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
-		self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
+		self.weird_padding = stream.read_type(SmartPadding, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

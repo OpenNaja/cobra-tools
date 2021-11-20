@@ -12,7 +12,7 @@ class Header3Data0:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -24,10 +24,10 @@ class Header3Data0:
 		self.zeros = 0
 
 		# flag, not direct index into DDS enum
-		self.compression_type = DdsType(self.context, None, None)
+		self.compression_type = DdsType(self.context, 0, None)
 
 		# flag, not direct index into DDS enum
-		self.compression_type = DdsTypeCoaster(self.context, None, None)
+		self.compression_type = DdsTypeCoaster(self.context, 0, None)
 
 		# 0 or 1
 		self.one_0 = 0
@@ -46,9 +46,9 @@ class Header3Data0:
 	def set_defaults(self):
 		self.zeros = 0
 		if not (self.context.version < 19):
-			self.compression_type = DdsType(self.context, None, None)
+			self.compression_type = DdsType(self.context, 0, None)
 		if self.context.version < 19:
-			self.compression_type = DdsTypeCoaster(self.context, None, None)
+			self.compression_type = DdsTypeCoaster(self.context, 0, None)
 		self.one_0 = 0
 		self.stream_count = 0
 		self.stream_count_repeat = 0

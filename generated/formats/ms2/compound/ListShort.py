@@ -8,7 +8,7 @@ class ListShort(Descriptor):
 	used in JWE dinos
 	"""
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
@@ -17,10 +17,10 @@ class ListShort(Descriptor):
 		self.io_start = 0
 
 		# location of the joint
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 
 		# normalized
-		self.direction = Vector3(self.context, None, None)
+		self.direction = Vector3(self.context, 0, None)
 
 		# min, le 0
 		self.min = 0.0
@@ -31,15 +31,15 @@ class ListShort(Descriptor):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.loc = Vector3(self.context, None, None)
-		self.direction = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
+		self.direction = Vector3(self.context, 0, None)
 		self.min = 0.0
 		self.max = 0.0
 
 	def read(self, stream):
 		super().read(stream)
-		self.loc = stream.read_type(Vector3, (self.context, None, None))
-		self.direction = stream.read_type(Vector3, (self.context, None, None))
+		self.loc = stream.read_type(Vector3, (self.context, 0, None))
+		self.direction = stream.read_type(Vector3, (self.context, 0, None))
 		self.min = stream.read_float()
 		self.max = stream.read_float()
 

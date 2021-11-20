@@ -8,7 +8,7 @@ class JointInfoPC:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,7 +29,7 @@ class JointInfoPC:
 
 		# 8 bytes of zeros per hitcheck
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype=numpy.dtype('uint64'))
-		self.hit_check = Array((self.hitcheck_count), HitCheckEntry, self.context, None, None)
+		self.hit_check = Array((self.hitcheck_count), HitCheckEntry, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -40,7 +40,7 @@ class JointInfoPC:
 		self.hitcheck_count = 0
 		self.zero = 0
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype=numpy.dtype('uint64'))
-		self.hit_check = Array((self.hitcheck_count), HitCheckEntry, self.context, None, None)
+		self.hit_check = Array((self.hitcheck_count), HitCheckEntry, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

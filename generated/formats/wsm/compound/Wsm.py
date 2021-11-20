@@ -5,14 +5,14 @@ from generated.formats.wsm.compound.WsmHeader import WsmHeader
 
 class Wsm(GenericHeader):
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.header = WsmHeader(self.context, None, None)
+		self.header = WsmHeader(self.context, 0, None)
 
 		# xyz
 		self.locs = numpy.zeros((self.header.frame_count, 3), dtype=numpy.dtype('float32'))
@@ -23,13 +23,13 @@ class Wsm(GenericHeader):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.header = WsmHeader(self.context, None, None)
+		self.header = WsmHeader(self.context, 0, None)
 		self.locs = numpy.zeros((self.header.frame_count, 3), dtype=numpy.dtype('float32'))
 		self.quats = numpy.zeros((self.header.frame_count, 4), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):
 		super().read(stream)
-		self.header = stream.read_type(WsmHeader, (self.context, None, None))
+		self.header = stream.read_type(WsmHeader, (self.context, 0, None))
 		self.locs = stream.read_floats((self.header.frame_count, 3))
 		self.quats = stream.read_floats((self.header.frame_count, 4))
 

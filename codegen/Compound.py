@@ -38,7 +38,7 @@ class Compound(BaseClass):
             #   union.write_declaration(f)
             if "def __init__" not in self.src_code:
                 self.write_line(f)
-                self.write_line(f, 1, "def __init__(self, context, arg=None, template=None, set_default=True):")
+                self.write_line(f, 1, "def __init__(self, context, arg=0, template=None, set_default=True):")
                 # classes that this class inherits from have to be read first
                 if self.class_basename:
                     # context is set by the parent class

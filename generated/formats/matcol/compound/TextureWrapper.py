@@ -8,25 +8,25 @@ class TextureWrapper:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.info = TextureInfo(self.context, None, None)
-		self.textures = Array((self.info.texture_count), Texture, self.context, None, None)
+		self.info = TextureInfo(self.context, 0, None)
+		self.textures = Array((self.info.texture_count), Texture, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.info = TextureInfo(self.context, None, None)
-		self.textures = Array((self.info.texture_count), Texture, self.context, None, None)
+		self.info = TextureInfo(self.context, 0, None)
+		self.textures = Array((self.info.texture_count), Texture, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.info = stream.read_type(TextureInfo, (self.context, None, None))
+		self.info = stream.read_type(TextureInfo, (self.context, 0, None))
 		self.textures.read(stream, Texture, self.info.texture_count, None)
 
 		self.io_size = stream.tell() - self.io_start

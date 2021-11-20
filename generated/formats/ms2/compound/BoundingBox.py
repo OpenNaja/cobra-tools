@@ -8,20 +8,20 @@ class BoundingBox:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.rotation = Matrix33(self.context, None, None)
+		self.rotation = Matrix33(self.context, 0, None)
 
 		# center of the box
-		self.center = Vector3(self.context, None, None)
+		self.center = Vector3(self.context, 0, None)
 
 		# total width
-		self.extent = Vector3(self.context, None, None)
+		self.extent = Vector3(self.context, 0, None)
 
 		# probably padding
 		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint32'))
@@ -29,17 +29,17 @@ class BoundingBox:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.rotation = Matrix33(self.context, None, None)
-		self.center = Vector3(self.context, None, None)
-		self.extent = Vector3(self.context, None, None)
+		self.rotation = Matrix33(self.context, 0, None)
+		self.center = Vector3(self.context, 0, None)
+		self.extent = Vector3(self.context, 0, None)
 		if self.context.version == 18:
 			self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
-		self.center = stream.read_type(Vector3, (self.context, None, None))
-		self.extent = stream.read_type(Vector3, (self.context, None, None))
+		self.rotation = stream.read_type(Matrix33, (self.context, 0, None))
+		self.center = stream.read_type(Vector3, (self.context, 0, None))
+		self.extent = stream.read_type(Vector3, (self.context, 0, None))
 		if self.context.version == 18:
 			self.zeros = stream.read_uints((3))
 

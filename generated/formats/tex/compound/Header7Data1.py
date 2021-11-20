@@ -11,7 +11,7 @@ class Header7Data1:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -44,7 +44,7 @@ class Header7Data1:
 		self.unk_pz = 0
 
 		# info about mip levels
-		self.mip_maps = Array((self.num_mips), Mipmap, self.context, None, None)
+		self.mip_maps = Array((self.num_mips), Mipmap, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -58,7 +58,7 @@ class Header7Data1:
 		self.num_mips = 0
 		if self.context.version >= 20:
 			self.unk_pz = 0
-		self.mip_maps = Array((self.num_mips), Mipmap, self.context, None, None)
+		self.mip_maps = Array((self.num_mips), Mipmap, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

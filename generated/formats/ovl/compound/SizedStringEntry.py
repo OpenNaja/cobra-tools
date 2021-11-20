@@ -11,7 +11,7 @@ class SizedStringEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -26,7 +26,7 @@ class SizedStringEntry:
 		self.ext_hash = 0
 
 		# one pointer OR -1 pointer for assets
-		self.pointers = Array((1), HeaderPointer, self.context, None, None)
+		self.pointers = Array((1), HeaderPointer, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -34,7 +34,7 @@ class SizedStringEntry:
 		self.file_hash = 0
 		if self.context.version >= 19:
 			self.ext_hash = 0
-		self.pointers = Array((1), HeaderPointer, self.context, None, None)
+		self.pointers = Array((1), HeaderPointer, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

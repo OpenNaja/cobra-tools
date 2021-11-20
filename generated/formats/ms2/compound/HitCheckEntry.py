@@ -12,14 +12,14 @@ class HitCheckEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.type = CollisionType(self.context, None, None)
+		self.type = CollisionType(self.context, 0, None)
 		self.unknown_2_a = 0
 		self.unknown_2_b = 0
 
@@ -38,18 +38,18 @@ class HitCheckEntry:
 
 		# offset into joint names
 		self.name_offset = 0
-		self.collider = Sphere(self.context, None, None)
-		self.collider = BoundingBox(self.context, None, None)
-		self.collider = Capsule(self.context, None, None)
-		self.collider = Cylinder(self.context, None, None)
-		self.collider = ConvexHull(self.context, None, None)
-		self.collider = ConvexHull(self.context, None, None)
-		self.collider = MeshCollision(self.context, None, None)
+		self.collider = Sphere(self.context, 0, None)
+		self.collider = BoundingBox(self.context, 0, None)
+		self.collider = Capsule(self.context, 0, None)
+		self.collider = Cylinder(self.context, 0, None)
+		self.collider = ConvexHull(self.context, 0, None)
+		self.collider = ConvexHull(self.context, 0, None)
+		self.collider = MeshCollision(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.type = CollisionType(self.context, None, None)
+		self.type = CollisionType(self.context, 0, None)
 		self.unknown_2_a = 0
 		self.unknown_2_b = 0
 		self.unknown_2_c = 0
@@ -60,19 +60,19 @@ class HitCheckEntry:
 			self.zero_extra_pc_unk = 0
 		self.name_offset = 0
 		if self.type == 0:
-			self.collider = Sphere(self.context, None, None)
+			self.collider = Sphere(self.context, 0, None)
 		if self.type == 1:
-			self.collider = BoundingBox(self.context, None, None)
+			self.collider = BoundingBox(self.context, 0, None)
 		if self.type == 2:
-			self.collider = Capsule(self.context, None, None)
+			self.collider = Capsule(self.context, 0, None)
 		if self.type == 3:
-			self.collider = Cylinder(self.context, None, None)
+			self.collider = Cylinder(self.context, 0, None)
 		if self.type == 7:
-			self.collider = ConvexHull(self.context, None, None)
+			self.collider = ConvexHull(self.context, 0, None)
 		if self.type == 8:
-			self.collider = ConvexHull(self.context, None, None)
+			self.collider = ConvexHull(self.context, 0, None)
 		if self.type == 10:
-			self.collider = MeshCollision(self.context, None, None)
+			self.collider = MeshCollision(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -87,19 +87,19 @@ class HitCheckEntry:
 			self.zero_extra_pc_unk = stream.read_uint()
 		self.name_offset = stream.read_uint()
 		if self.type == 0:
-			self.collider = stream.read_type(Sphere, (self.context, None, None))
+			self.collider = stream.read_type(Sphere, (self.context, 0, None))
 		if self.type == 1:
-			self.collider = stream.read_type(BoundingBox, (self.context, None, None))
+			self.collider = stream.read_type(BoundingBox, (self.context, 0, None))
 		if self.type == 2:
-			self.collider = stream.read_type(Capsule, (self.context, None, None))
+			self.collider = stream.read_type(Capsule, (self.context, 0, None))
 		if self.type == 3:
-			self.collider = stream.read_type(Cylinder, (self.context, None, None))
+			self.collider = stream.read_type(Cylinder, (self.context, 0, None))
 		if self.type == 7:
-			self.collider = stream.read_type(ConvexHull, (self.context, None, None))
+			self.collider = stream.read_type(ConvexHull, (self.context, 0, None))
 		if self.type == 8:
-			self.collider = stream.read_type(ConvexHull, (self.context, None, None))
+			self.collider = stream.read_type(ConvexHull, (self.context, 0, None))
 		if self.type == 10:
-			self.collider = stream.read_type(MeshCollision, (self.context, None, None))
+			self.collider = stream.read_type(MeshCollision, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 

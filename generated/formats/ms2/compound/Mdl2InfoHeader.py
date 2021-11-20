@@ -15,7 +15,7 @@ class Mdl2InfoHeader(GenericHeader):
 	This reads a whole custom mdl2 file
 	"""
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
@@ -33,19 +33,19 @@ class Mdl2InfoHeader(GenericHeader):
 		self.ms_2_name = ''
 
 		# gives relevant info on the mdl, including counts and pack base
-		self.model_info = CoreModelInfo(self.context, None, None)
+		self.model_info = CoreModelInfo(self.context, 0, None)
 
 		# name pointers for each material
-		self.materials = Array((self.model_info.num_materials), MaterialName, self.context, None, None)
+		self.materials = Array((self.model_info.num_materials), MaterialName, self.context, 0, None)
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
-		self.lods = Array((self.model_info.num_lods), LodInfo, self.context, None, None)
+		self.lods = Array((self.model_info.num_lods), LodInfo, self.context, 0, None)
 
 		# instantiate the meshes with materials
-		self.objects = Array((self.model_info.num_objects), MeshLink, self.context, None, None)
+		self.objects = Array((self.model_info.num_objects), MeshLink, self.context, 0, None)
 
 		# model data blocks for this mdl2
-		self.models = Array((self.model_info.num_models), ModelData, self.context, None, None)
+		self.models = Array((self.model_info.num_models), ModelData, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -54,15 +54,15 @@ class Mdl2InfoHeader(GenericHeader):
 		self.bone_info_index = 0
 		self.ms_2_name = ''
 		if not (self.context.version < 19):
-			self.model_info = CoreModelInfo(self.context, None, None)
+			self.model_info = CoreModelInfo(self.context, 0, None)
 		if not (self.context.version < 19):
-			self.materials = Array((self.model_info.num_materials), MaterialName, self.context, None, None)
+			self.materials = Array((self.model_info.num_materials), MaterialName, self.context, 0, None)
 		if not (self.context.version < 19) and self.model_info.num_models:
-			self.lods = Array((self.model_info.num_lods), LodInfo, self.context, None, None)
+			self.lods = Array((self.model_info.num_lods), LodInfo, self.context, 0, None)
 		if not (self.context.version < 19):
-			self.objects = Array((self.model_info.num_objects), MeshLink, self.context, None, None)
+			self.objects = Array((self.model_info.num_objects), MeshLink, self.context, 0, None)
 		if not (self.context.version < 19):
-			self.models = Array((self.model_info.num_models), ModelData, self.context, None, None)
+			self.models = Array((self.model_info.num_models), ModelData, self.context, 0, None)
 
 	def read(self, stream):
 		super().read(stream)
@@ -70,7 +70,7 @@ class Mdl2InfoHeader(GenericHeader):
 		self.bone_info_index = stream.read_uint()
 		self.ms_2_name = stream.read_string()
 		if not (self.context.version < 19):
-			self.model_info = stream.read_type(CoreModelInfo, (self.context, None, None))
+			self.model_info = stream.read_type(CoreModelInfo, (self.context, 0, None))
 			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
 		if not (self.context.version < 19) and self.model_info.num_models:
 			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)

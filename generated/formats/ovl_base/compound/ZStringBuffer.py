@@ -20,7 +20,7 @@ class ZStringBuffer:
 	def set_defaults(self):
 		pass
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None):
 		self.name = ''
 		self._context = context
 		# arg is byte count

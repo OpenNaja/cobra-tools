@@ -20,7 +20,7 @@ class Header(GenericHeader):
 	Found at the beginning of every OVL file
 	"""
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
 		self.arg = arg
@@ -101,40 +101,40 @@ class Header(GenericHeader):
 		self.names = ZStringBuffer(self.context, self.len_names, None)
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array((self.num_mimes), MimeEntry, self.context, None, None)
+		self.mimes = Array((self.num_mimes), MimeEntry, self.context, 0, None)
 
 		# ?
-		self.triplets = Array((self.num_triplets), Triplet, self.context, None, None)
+		self.triplets = Array((self.num_triplets), Triplet, self.context, 0, None)
 
 		# ?
 		self.triplets_pad = PadAlign(self.context, self.triplets, 4)
 
 		# Array of FileEntry objects.
-		self.files = Array((self.num_files), FileEntry, self.context, None, None)
+		self.files = Array((self.num_files), FileEntry, self.context, 0, None)
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 
 		# Array of ArchiveEntry objects.
-		self.archives = Array((self.num_archives), ArchiveEntry, self.context, None, None)
+		self.archives = Array((self.num_archives), ArchiveEntry, self.context, 0, None)
 
 		# Array of DirEntry objects.
-		self.dirs = Array((self.num_dirs), DirEntry, self.context, None, None)
+		self.dirs = Array((self.num_dirs), DirEntry, self.context, 0, None)
 
 		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
+		self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, 0, None)
 
 		# Array of AuxEntry objects.
-		self.aux_entries = Array((self.num_aux_entries), AuxEntry, self.context, None, None)
+		self.aux_entries = Array((self.num_aux_entries), AuxEntry, self.context, 0, None)
 
 		# after aux in ZTUAC
-		self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
+		self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, 0, None)
 
 		# Array of UnknownEntry objects.
-		self.unknowns = Array((self.num_files_ovs), UnknownEntry, self.context, None, None)
+		self.unknowns = Array((self.num_files_ovs), UnknownEntry, self.context, 0, None)
 
 		# repeats by archive count
-		self.zlibs = Array((self.num_archives), ZlibInfo, self.context, None, None)
+		self.zlibs = Array((self.num_archives), ZlibInfo, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -163,22 +163,22 @@ class Header(GenericHeader):
 		self.num_triplets = 0
 		self.reserved = numpy.zeros((12), dtype=numpy.dtype('uint32'))
 		self.names = ZStringBuffer(self.context, self.len_names, None)
-		self.mimes = Array((self.num_mimes), MimeEntry, self.context, None, None)
+		self.mimes = Array((self.num_mimes), MimeEntry, self.context, 0, None)
 		if self.context.version >= 20:
-			self.triplets = Array((self.num_triplets), Triplet, self.context, None, None)
+			self.triplets = Array((self.num_triplets), Triplet, self.context, 0, None)
 		if self.context.version >= 20:
 			self.triplets_pad = PadAlign(self.context, self.triplets, 4)
-		self.files = Array((self.num_files), FileEntry, self.context, None, None)
+		self.files = Array((self.num_files), FileEntry, self.context, 0, None)
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
-		self.archives = Array((self.num_archives), ArchiveEntry, self.context, None, None)
-		self.dirs = Array((self.num_dirs), DirEntry, self.context, None, None)
+		self.archives = Array((self.num_archives), ArchiveEntry, self.context, 0, None)
+		self.dirs = Array((self.num_dirs), DirEntry, self.context, 0, None)
 		if not (self.context.version == 17):
-			self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
-		self.aux_entries = Array((self.num_aux_entries), AuxEntry, self.context, None, None)
+			self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, 0, None)
+		self.aux_entries = Array((self.num_aux_entries), AuxEntry, self.context, 0, None)
 		if self.context.version == 17:
-			self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, None, None)
-		self.unknowns = Array((self.num_files_ovs), UnknownEntry, self.context, None, None)
-		self.zlibs = Array((self.num_archives), ZlibInfo, self.context, None, None)
+			self.dependencies = Array((self.num_dependencies), DependencyEntry, self.context, 0, None)
+		self.unknowns = Array((self.num_files_ovs), UnknownEntry, self.context, 0, None)
+		self.zlibs = Array((self.num_archives), ZlibInfo, self.context, 0, None)
 
 	def read(self, stream):
 		super().read(stream)

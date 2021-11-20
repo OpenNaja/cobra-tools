@@ -13,7 +13,7 @@ class PcBuffer1:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -21,8 +21,8 @@ class PcBuffer1:
 		self.io_size = 0
 		self.io_start = 0
 		self.buffer_info_pc = Ms2BufferInfoZT(self.context, self.arg, None)
-		self.buffer_info_pc = Ms2BufferInfoPC(self.context, None, None)
-		self.model_infos = Array((self.arg.general_info.mdl_2_count), CoreModelInfoPC, self.context, None, None)
+		self.buffer_info_pc = Ms2BufferInfoPC(self.context, 0, None)
+		self.model_infos = Array((self.arg.general_info.mdl_2_count), CoreModelInfoPC, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -30,15 +30,15 @@ class PcBuffer1:
 		if self.context.version == 17:
 			self.buffer_info_pc = Ms2BufferInfoZT(self.context, self.arg, None)
 		if self.context.version == 18:
-			self.buffer_info_pc = Ms2BufferInfoPC(self.context, None, None)
-		self.model_infos = Array((self.arg.general_info.mdl_2_count), CoreModelInfoPC, self.context, None, None)
+			self.buffer_info_pc = Ms2BufferInfoPC(self.context, 0, None)
+		self.model_infos = Array((self.arg.general_info.mdl_2_count), CoreModelInfoPC, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		if self.context.version == 17:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT, (self.context, self.arg, None))
 		if self.context.version == 18:
-			self.buffer_info_pc = stream.read_type(Ms2BufferInfoPC, (self.context, None, None))
+			self.buffer_info_pc = stream.read_type(Ms2BufferInfoPC, (self.context, 0, None))
 		self.model_infos.read(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)
 
 		self.io_size = stream.tell() - self.io_start

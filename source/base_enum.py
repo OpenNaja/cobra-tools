@@ -18,7 +18,7 @@ class DefaultEnumMeta(EnumMeta):
 		new_function = enum_class.__new__
 		# from_value doesn't need to be a proper __new__-like function, because specified enums can't be inherited from
 		enum_class.from_value = classmethod(lambda cls, value: new_function(cls, value))
-		enum_class.__new__ = lambda cls, context=None, arg=None, template=None, set_default=True: new_function(cls)
+		enum_class.__new__ = lambda cls, context=None, arg=0, template=None, set_default=True: new_function(cls)
 		return enum_class
 
 

@@ -11,7 +11,7 @@ class DependencyEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,7 +29,7 @@ class DependencyEntry:
 		self.file_index = 0
 
 		# pointer into flattened list of all archives' pools
-		self.pointers = Array((1), HeaderPointer, self.context, None, None)
+		self.pointers = Array((1), HeaderPointer, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -37,7 +37,7 @@ class DependencyEntry:
 		self.file_hash = 0
 		self.offset = 0
 		self.file_index = 0
-		self.pointers = Array((1), HeaderPointer, self.context, None, None)
+		self.pointers = Array((1), HeaderPointer, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()

@@ -7,26 +7,26 @@ class Key:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None, set_default=True):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.euler = Vector3Short(self.context, None, None)
-		self.translation = Vector3Ushort(self.context, None, None)
+		self.euler = Vector3Short(self.context, 0, None)
+		self.translation = Vector3Ushort(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.euler = Vector3Short(self.context, None, None)
-		self.translation = Vector3Ushort(self.context, None, None)
+		self.euler = Vector3Short(self.context, 0, None)
+		self.translation = Vector3Ushort(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.euler = stream.read_type(Vector3Short, (self.context, None, None))
-		self.translation = stream.read_type(Vector3Ushort, (self.context, None, None))
+		self.euler = stream.read_type(Vector3Short, (self.context, 0, None))
+		self.translation = stream.read_type(Vector3Ushort, (self.context, 0, None))
 
 		self.io_size = stream.tell() - self.io_start
 
