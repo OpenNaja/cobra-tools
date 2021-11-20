@@ -1,14 +1,12 @@
-import numpy
-import typing
-from generated.array import Array
 from generated.context import ContextReference
-from generated.formats.tex.compound.Header3Data1ZTUACEntry import Header3Data1ZTUACEntry
 
 
-class Header3Data1Ztuac:
+class TexBuffer:
 
 	"""
-	Data struct for headers of type 7
+	Part of a fragment, repeated for count of texture LODs / buffers.
+	Data struct for headers of type 3
+	24 bytes per texture buffer
 	"""
 
 	context = ContextReference()
@@ -20,37 +18,46 @@ class Header3Data1Ztuac:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.lods = Array(self.context)
 
-		# ?not sure if this isn't just junk data
+		# Size of previous tex buffer
+		self.data_size_previous = 0
+
+		# Size of this tex buffer
 		self.data_size = 0
+
+		# is also related to data size
+		self.unkn = 0
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.lods = Array(self.context)
+		self.data_size_previous = 0
 		self.data_size = 0
+		self.unkn = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.lods.read(stream, Header3Data1ZTUACEntry, self.arg, None)
-		self.data_size = stream.read_ushort()
+		self.data_size_previous = stream.read_uint64()
+		self.data_size = stream.read_uint64()
+		self.unkn = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		self.lods.write(stream, Header3Data1ZTUACEntry, self.arg, None)
-		stream.write_ushort(self.data_size)
+		stream.write_uint64(self.data_size_previous)
+		stream.write_uint64(self.data_size)
+		stream.write_uint64(self.unkn)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Header3Data1Ztuac [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'TexBuffer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* lods = {self.lods.__repr__()}'
+		s += f'\n	* data_size_previous = {self.data_size_previous.__repr__()}'
 		s += f'\n	* data_size = {self.data_size.__repr__()}'
+		s += f'\n	* unkn = {self.unkn.__repr__()}'
 		return s
 
 	def __repr__(self):

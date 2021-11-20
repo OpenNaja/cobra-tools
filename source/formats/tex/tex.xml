@@ -61,19 +61,7 @@
 		<add name="pad" type="uint">0</add>
     </compound>
 
-	<compound name="Header3Data0Pc" >
-		todo remove
-		Data struct for headers of type 3, read by data 0 of 3,7 frag.
-		16 bytes
-		<add name="zeros" type="uint64" >8 bytes, all 0</add>
-		<add name="compression type" type="DdsType_Coaster" >flag, not direct index into DDS enum</add>
-		<add name="one 0" type="ubyte">0 or 1</add>
-		<add name="one 1" type="ubyte">1 or 2</add>
-		<add name="one 2" type="ubyte">1 or 2</add>
-		<add name="pad" type="uint">0, might be first 4 bytes of tex buffer for ztuac</add>
-    </compound>
-
-	<compound name="Header3Data1" >
+	<compound name="TexBuffer" >
 		Part of a fragment, repeated for count of texture LODs / buffers.
 		Data struct for headers of type 3
 		24 bytes per texture buffer
@@ -82,26 +70,12 @@
 		<add name="unkn" type="uint64">is also related to data size</add>
     </compound>
 
-	<compound name="Header3Data1Pc" >
+	<compound name="TexBufferPc" >
 		Data struct for headers of type 7
-		<add name="width" type="ushort"></add>
-		<add name="height" type="ushort" > </add>
-		<add name="array size" type="ushort">may be depth</add>
-		<add name="num mips" type="ushort">num_mips</add>
-    </compound>
-
-	<compound name="Header3Data1ZTUAC" >
-		Data struct for headers of type 7
-		<add name="lods" type="Header3Data1ZTUACEntry" arr1="#ARG#"></add>
-		<add name="data size" type="ushort">?not sure if this isn't just junk data</add>
-        is something remains, it seems to be padding!
-    </compound>
-
-	<compound name="Header3Data1ZTUACEntry" >
-		Data struct for headers of type 7
-		<add name="width" type="ushort">x</add>
-		<add name="height" type="ushort" >y</add>
-		<add name="num mips" type="ushort">num_mips</add>
+		<add name="width" type="ushort"/>
+		<add name="height" type="ushort"/>
+		<add name="array size" type="ushort" vercond="!#ZTUAC#">may be depth</add>
+		<add name="mip index" type="ushort">max mip in this buffer</add>
     </compound>
 
 	<compound name="Header7Data1" >
@@ -142,10 +116,11 @@
 		<add name="tex info" type="TexHeader"/>
 		<add name="frag_00" type="Frag00" vercond="!#OLD#"/>
 		<add name="frag_10" type="Header3Data0"/>
-		<add name="frag_01" type="Header3Data1" arr1="frag_10 \ stream_count"/>
-<!--		<add name="frag_01" type="Header3Data1" arr1="num buffers"/>-->
-		<add name="frag_11" type="Header7Data1"/>
-		<add name="padding" type="ubyte" arr1="320 - (frag_11 \ io_size)">pad whole struct to 320 bytes</add>
+		<add name="frag_01" type="TexBuffer" arr1="frag_10 \ stream_count" vercond="!#OLD#"/>
+		<add name="frag_01" type="TexBufferPc" arr1="frag_10 \ stream_count" vercond="#OLD#"/>
+<!--		<add name="frag_01" type="TexBuffer" arr1="num buffers"/>-->
+		<add name="frag_11" type="Header7Data1" vercond="!#OLD#"/>
+		<add name="padding" type="ubyte" arr1="320 - (frag_11 \ io_size)" vercond="!#OLD#">pad whole frag_11 struct to 320 bytes</add>
     </compound>
 </fileformat>
 

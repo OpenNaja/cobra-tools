@@ -4,8 +4,9 @@ from generated.array import Array
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 from generated.formats.tex.compound.Frag00 import Frag00
 from generated.formats.tex.compound.Header3Data0 import Header3Data0
-from generated.formats.tex.compound.Header3Data1 import Header3Data1
 from generated.formats.tex.compound.Header7Data1 import Header7Data1
+from generated.formats.tex.compound.TexBuffer import TexBuffer
+from generated.formats.tex.compound.TexBufferPc import TexBufferPc
 from generated.formats.tex.compound.TexHeader import TexHeader
 
 
@@ -22,9 +23,10 @@ class TexInfoHeader(GenericHeader):
 		self.frag_00 = Frag00(self.context, None, None)
 		self.frag_10 = Header3Data0(self.context, None, None)
 		self.frag_01 = Array(self.context)
+		self.frag_01 = Array(self.context)
 		self.frag_11 = Header7Data1(self.context, None, None)
 
-		# pad whole struct to 320 bytes
+		# pad whole frag_11 struct to 320 bytes
 		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
 		self.set_defaults()
 
@@ -33,9 +35,14 @@ class TexInfoHeader(GenericHeader):
 		if not (self.context.version < 19):
 			self.frag_00 = Frag00(self.context, None, None)
 		self.frag_10 = Header3Data0(self.context, None, None)
-		self.frag_01 = Array(self.context)
-		self.frag_11 = Header7Data1(self.context, None, None)
-		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
+		if not (self.context.version < 19):
+			self.frag_01 = Array(self.context)
+		if self.context.version < 19:
+			self.frag_01 = Array(self.context)
+		if not (self.context.version < 19):
+			self.frag_11 = Header7Data1(self.context, None, None)
+		if not (self.context.version < 19):
+			self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -44,9 +51,13 @@ class TexInfoHeader(GenericHeader):
 		if not (self.context.version < 19):
 			self.frag_00 = stream.read_type(Frag00, (self.context, None, None))
 		self.frag_10 = stream.read_type(Header3Data0, (self.context, None, None))
-		self.frag_01.read(stream, Header3Data1, self.frag_10.stream_count, None)
-		self.frag_11 = stream.read_type(Header7Data1, (self.context, None, None))
-		self.padding = stream.read_ubytes((320 - self.frag_11.io_size))
+		if not (self.context.version < 19):
+			self.frag_01.read(stream, TexBuffer, self.frag_10.stream_count, None)
+		if self.context.version < 19:
+			self.frag_01.read(stream, TexBufferPc, self.frag_10.stream_count, None)
+		if not (self.context.version < 19):
+			self.frag_11 = stream.read_type(Header7Data1, (self.context, None, None))
+			self.padding = stream.read_ubytes((320 - self.frag_11.io_size))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -57,9 +68,13 @@ class TexInfoHeader(GenericHeader):
 		if not (self.context.version < 19):
 			stream.write_type(self.frag_00)
 		stream.write_type(self.frag_10)
-		self.frag_01.write(stream, Header3Data1, self.frag_10.stream_count, None)
-		stream.write_type(self.frag_11)
-		stream.write_ubytes(self.padding)
+		if not (self.context.version < 19):
+			self.frag_01.write(stream, TexBuffer, self.frag_10.stream_count, None)
+		if self.context.version < 19:
+			self.frag_01.write(stream, TexBufferPc, self.frag_10.stream_count, None)
+		if not (self.context.version < 19):
+			stream.write_type(self.frag_11)
+			stream.write_ubytes(self.padding)
 
 		self.io_size = stream.tell() - self.io_start
 

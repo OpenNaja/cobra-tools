@@ -1,7 +1,7 @@
 from generated.context import ContextReference
 
 
-class Header3Data1Pc:
+class TexBufferPc:
 
 	"""
 	Data struct for headers of type 7
@@ -22,22 +22,24 @@ class Header3Data1Pc:
 		# may be depth
 		self.array_size = 0
 
-		# num_mips
-		self.num_mips = 0
+		# max mip in this buffer
+		self.mip_index = 0
 		self.set_defaults()
 
 	def set_defaults(self):
 		self.width = 0
 		self.height = 0
-		self.array_size = 0
-		self.num_mips = 0
+		if not (self.context.version == 17):
+			self.array_size = 0
+		self.mip_index = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.width = stream.read_ushort()
 		self.height = stream.read_ushort()
-		self.array_size = stream.read_ushort()
-		self.num_mips = stream.read_ushort()
+		if not (self.context.version == 17):
+			self.array_size = stream.read_ushort()
+		self.mip_index = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -45,20 +47,21 @@ class Header3Data1Pc:
 		self.io_start = stream.tell()
 		stream.write_ushort(self.width)
 		stream.write_ushort(self.height)
-		stream.write_ushort(self.array_size)
-		stream.write_ushort(self.num_mips)
+		if not (self.context.version == 17):
+			stream.write_ushort(self.array_size)
+		stream.write_ushort(self.mip_index)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Header3Data1Pc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'TexBufferPc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* width = {self.width.__repr__()}'
 		s += f'\n	* height = {self.height.__repr__()}'
 		s += f'\n	* array_size = {self.array_size.__repr__()}'
-		s += f'\n	* num_mips = {self.num_mips.__repr__()}'
+		s += f'\n	* mip_index = {self.mip_index.__repr__()}'
 		return s
 
 	def __repr__(self):

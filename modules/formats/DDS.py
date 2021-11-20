@@ -10,10 +10,7 @@ from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.ovl.versions import *
 from generated.formats.tex import TexFile
 from generated.formats.tex.compound.Header3Data0 import Header3Data0
-from generated.formats.tex.compound.Header3Data0Pc import Header3Data0Pc
-from generated.formats.tex.compound.Header3Data1 import Header3Data1
-from generated.formats.tex.compound.Header3Data1Pc import Header3Data1Pc
-from generated.formats.tex.compound.Header3Data1Ztuac import Header3Data1Ztuac
+from generated.formats.tex.compound.TexBuffer import TexBuffer
 from generated.formats.tex.compound.Header7Data1 import Header7Data1
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_versions
@@ -89,9 +86,6 @@ class DdsLoader(BaseFile):
 				buffer.update_data(dds_buff)
 		else:
 			out_bytes = dds_file.pack_mips(header_7.num_mips)
-			# with dds_file.writer(file_path+"dump.dds") as stream:
-			# 	dds_file.write(stream)
-			# 	stream.write(out_bytes)
 	
 			sorted_streams = sorted(self.sized_str_entry.data_entry.sorted_streams, key=lambda b: len(b.data), reverse=True)
 			sum_of_buffers = sum(buffer.size for buffer in sorted_streams)
@@ -113,7 +107,7 @@ class DdsLoader(BaseFile):
 		f_3_3, f_3_7 = sized_str_entry.fragments
 	
 		header_3_0 = f_3_7.pointers[0].load_as(Header3Data0, version_info=ovl_version)[0]
-		headers_3_1 = f_3_3.pointers[1].load_as(Header3Data1, num=f_3_3.pointers[1].data_size//24, version_info=ovl_version)
+		headers_3_1 = f_3_3.pointers[1].load_as(TexBuffer, num=f_3_3.pointers[1].data_size//24, version_info=ovl_version)
 		# print(f_3_3.pointers[1].data_size // 24)
 		print(header_3_0)
 		print(headers_3_1)
@@ -194,43 +188,31 @@ class DdsLoader(BaseFile):
 
 		tex_file = TexFile(self.ovl.context)
 		tex_file.load(tex_path)
-		# print(tex_file)
+		print(tex_file)
 		# return out_files
 		dds_file = self.create_dds_struct()
 		dds_file.buffer = buffer_data
-		# versions = get_versions(self.ovl)
-		# if is_ztuac(self.ovl):
-		# 	header_3_0, headers_3_1, header_7 = self.get_tex_structs_ztuac(self.sized_str_entry)
-		# 	dds_file.width = header_7.width
-		# 	dds_file.height = header_7.height
-		# 	dds_file.mipmap_count = header_7.num_mips
-		# 	dds_file.linear_size = len(buffer_data)
-		# 	header_7.array_size = 1
-		# 	dds_file.depth = header_3_0.one_0
-		# elif is_pc(self.ovl):
-		# 	header_3_0, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
-		# 	# print(header_7)
-		# 	dds_file.width = header_7.width
-		# 	# hack until we have proper support for array_size on the image editors
-		# 	# todo - this is most assuredly not array size for ED
-		# 	dds_file.height = header_7.height# * max(1, header_7.array_size)
-		# 	dds_file.mipmap_count = header_7.num_mips
-		# 	dds_file.linear_size = len(buffer_data)
-		# 	dds_file.depth = header_3_0.one_0
-		#
-		# else:
-		# 	header_3_0, headers_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
-		#
-		if not len(buffer_data) == tex_file.frag_11.data_size:
-			print(
-				f"7_1 data size ({tex_file.frag_11.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")
 
-		dds_file.width = tex_file.frag_11.width
-		# hack until we have proper support for array_size on the image editors
-		dds_file.height = tex_file.frag_11.height * tex_file.frag_11.array_size
-		dds_file.depth = tex_file.frag_11.depth
-		dds_file.linear_size = tex_file.frag_11.data_size
-		dds_file.mipmap_count = tex_file.frag_11.num_mips
+		if is_pc(self.ovl) or is_ztuac(self.ovl):
+			tex_info = tex_file.frag_01[0]
+			dds_file.width = tex_info.width
+			# hack until we have proper support for array_size on the image editors
+			# todo - this is most assuredly not array size for ED
+			dds_file.height = tex_info.height  # * max(1, header_7.array_size)
+			dds_file.mipmap_count = tex_info.mip_index
+			dds_file.linear_size = len(buffer_data)
+			dds_file.depth = 1
+		else:
+			tex_info = tex_file.frag_11
+			if not len(buffer_data) == tex_info.data_size:
+				print(
+					f"7_1 data size ({tex_info.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")
+			dds_file.width = tex_info.width
+			# hack until we have proper support for array_size on the image editors
+			dds_file.height = tex_info.height * tex_info.array_size
+			dds_file.depth = tex_info.depth
+			dds_file.linear_size = tex_info.data_size
+			dds_file.mipmap_count = tex_info.num_mips
 	
 		try:
 			dds_type = tex_file.frag_10.compression_type.name
