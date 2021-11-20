@@ -135,3 +135,19 @@ def name_module(name):
     'bshavok'
     """
     return name.lower()
+
+
+def format_potential_tuple(value):
+    """Converts xml attribute value lists to tuples if space is present,
+    otherwise leaves it alone.
+    :param value: the string that is the value of an attribute
+    :return: original string if no space is present, or commas as separators
+    and surrounding parentheses if whitespace is present.
+    >>> format_potential_tuple('1.0')
+    '1.0
+    >>> format_potential_tuple('1.0 1.0 1.0')
+    '(1.0, 1.0, 1.0)'"""
+    if ' ' in value:
+        return f"({', '.join(value.split())})"
+    else:
+        return value
