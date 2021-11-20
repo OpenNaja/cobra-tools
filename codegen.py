@@ -236,6 +236,50 @@ class XmlParser:
         elif mode == "write":
             return f"stream.{io_func}({attr})"
 
+    def read_for_type(self, dtype, arg, template, arr1, arr2):
+        type_tag = self.tag_dict.get(dtype.lower())
+        if type_tag == "basic":
+            # check for presence of stream registering functions
+            if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
+                # if they're present, use them
+                if arr1:
+                    return 'stream.read_{dtype.lower()}s({self.arrs_to_tuple(arr1, arr2)})'
+                else:
+                    return 'stream.read{dtype.lower()}()'
+        if arr1:
+            return f'Array.from_stream(stream, {self.arrs_to_tuple(arr1, arr2)},'\
+                   f' {dtype}, self.context, {arg}, {template})'
+        else:
+            if type_tag == "enum":
+                # enum is a special case where you can convert the basic type to a enum using from_value
+                storage = self.storage_dict[dtype]
+                return f'{dtype}.from_value({self.read_for_type(storage, arg, template, arr1, arr2)})'
+
+            # use the standard functionality
+            return f'{dtype}.from_stream(stream, self.context, {arg}, {template})'
+
+    def write_for_type(self, dtype, attr, arg, template, arr1, arr2):
+        type_tag = self.tag_dict.get(dtype.lower())
+        if type_tag == "basic":
+            # check for presence of stream registering functions
+            if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
+                # if they're present, use them
+                if arr1:
+                    return 'stream.write{dtype.lower()}s({attr})'
+                else:
+                    return 'stream.write{dtype.lower()}({attr})'
+        if arr1:
+            return f'Array.to_stream(stream, attr, {self.arrs_to_tuple(arr1, arr2)},'\
+                   f'{dtype}, self.context, {arg}, {template})'
+        else:
+            if type_tag == "enum":
+                # enum is a special case where you can treat the enum like a basic type
+                storage = self.storage_dict[dtype]
+                return f'{self.write_for_type(storage, attr, arg, template, arr1, arr2)}'
+            
+            # use the standard functionality
+            return f'{dtype}.to_stream(stream, {attr})'
+
     def map_type(self, in_type, array=False):
         has_stream_functions = False
         if array:
