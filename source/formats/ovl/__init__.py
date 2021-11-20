@@ -35,7 +35,7 @@ OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
-	".txt", ".gfx")
+	".txt", ".gfx", ".world")
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -74,6 +74,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.TXT import TxtLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.VOXELSKIRT import VoxelskirtLoader
+	from modules.formats.WORLD import WorldLoader
 	from modules.formats.XMLCONFIG import XmlconfigLoader
 	ext_2_class = {
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
@@ -101,6 +102,7 @@ def get_loader(ext, ovl, file_entry):
 		".txt": TxtLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
+		".world": WorldLoader,
 		".xmlconfig": XmlconfigLoader,
 	}
 	cls = ext_2_class.get(ext, None)

@@ -61,7 +61,7 @@ class SpecdefLoader(BaseFile):
 		new_frag2.pointers[1].pool_index = dpool_index
 		new_frag2.pointers[1].data_offset = doffset + 0x00
 
-		if False:
+		if False: #commented out, used to test adding Feature or Dependencies
 			## this is the pointer to the lua string
 			new_frag3 = self.create_fragment()
 			new_frag3.pointers[0].pool_index = dpool_index
