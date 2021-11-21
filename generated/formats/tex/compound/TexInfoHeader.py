@@ -28,6 +28,9 @@ class TexInfoHeader(GenericHeader):
 
 		# pad whole frag_11 struct to 320 bytes
 		self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
+
+		# pad whole frag_11 struct to 320 bytes
+		self.padding = numpy.zeros((384 - self.frag_11.io_size), dtype='ubyte')
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -41,8 +44,10 @@ class TexInfoHeader(GenericHeader):
 			self.frag_01 = Array(self.context)
 		if not (self.context.version < 19):
 			self.frag_11 = Header7Data1(self.context, None, None)
-		if not (self.context.version < 19):
+		if (self.context.version == 20) or ((((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20))):
 			self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
+		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
+			self.padding = numpy.zeros((384 - self.frag_11.io_size), dtype='ubyte')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -57,7 +62,10 @@ class TexInfoHeader(GenericHeader):
 			self.frag_01.read(stream, TexBufferPc, self.frag_10.stream_count, None)
 		if not (self.context.version < 19):
 			self.frag_11 = stream.read_type(Header7Data1, (self.context, None, None))
+		if (self.context.version == 20) or ((((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20))):
 			self.padding = stream.read_ubytes((320 - self.frag_11.io_size))
+		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
+			self.padding = stream.read_ubytes((384 - self.frag_11.io_size))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -74,6 +82,9 @@ class TexInfoHeader(GenericHeader):
 			self.frag_01.write(stream, TexBufferPc, self.frag_10.stream_count, None)
 		if not (self.context.version < 19):
 			stream.write_type(self.frag_11)
+		if (self.context.version == 20) or ((((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20))):
+			stream.write_ubytes(self.padding)
+		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
 			stream.write_ubytes(self.padding)
 
 		self.io_size = stream.tell() - self.io_start

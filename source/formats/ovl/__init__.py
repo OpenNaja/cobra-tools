@@ -673,7 +673,7 @@ class OvsFile(OvsHeader):
 		with open(frag_log_path, "w") as f:
 			f.write(f"Overview\n")
 			for i, pool in enumerate(self.pools):
-				f.write(f"Pool[{i}] (type: {pool.type})\n")
+				f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
 			for i, pool in enumerate(self.pools):
 				f.write(f"\n\nPool[{i}] (type: {pool.type}) at {pool.address} with {len(pool.fragments)} fragments\n")
 				entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i]

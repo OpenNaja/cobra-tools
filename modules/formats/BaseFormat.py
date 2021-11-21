@@ -93,6 +93,10 @@ class BaseFile:
 		self.file_entry.dependencies.append(dependency)
 		return dependency
 
+	def create_fragments(self, ss, count):
+		for i in range(count):
+			ss.fragments.append(self.create_fragment())
+
 	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
 		new_frag.pointers.append(HeaderPointer(self.ovl.context))

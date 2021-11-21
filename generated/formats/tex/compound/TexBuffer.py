@@ -19,33 +19,33 @@ class TexBuffer:
 		self.io_size = 0
 		self.io_start = 0
 
-		# Size of previous tex buffer
-		self.data_size_previous = 0
+		# byte offset in the combined buffer
+		self.offset = 0
 
-		# Size of this tex buffer
-		self.data_size = 0
+		# byte size of this tex buffer
+		self.size = 0
 
 		# is also related to data size
 		self.unkn = 0
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.data_size_previous = 0
-		self.data_size = 0
+		self.offset = 0
+		self.size = 0
 		self.unkn = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.data_size_previous = stream.read_uint64()
-		self.data_size = stream.read_uint64()
+		self.offset = stream.read_uint64()
+		self.size = stream.read_uint64()
 		self.unkn = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.data_size_previous)
-		stream.write_uint64(self.data_size)
+		stream.write_uint64(self.offset)
+		stream.write_uint64(self.size)
 		stream.write_uint64(self.unkn)
 
 		self.io_size = stream.tell() - self.io_start
@@ -55,8 +55,8 @@ class TexBuffer:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* data_size_previous = {self.data_size_previous.__repr__()}'
-		s += f'\n	* data_size = {self.data_size.__repr__()}'
+		s += f'\n	* offset = {self.offset.__repr__()}'
+		s += f'\n	* size = {self.size.__repr__()}'
 		s += f'\n	* unkn = {self.unkn.__repr__()}'
 		return s
 

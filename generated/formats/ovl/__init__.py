@@ -35,7 +35,7 @@ OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
-	".txt")
+	".txt", ".gfx", ".world")
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -58,6 +58,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.FCT import FctLoader
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.FGM import FgmLoader
+	from modules.formats.GFX import GfxLoader
 	from modules.formats.LUA import LuaLoader
 	from modules.formats.MANI import ManisLoader
 	from modules.formats.MATCOL import MatcolLoader
@@ -73,6 +74,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.TXT import TxtLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.VOXELSKIRT import VoxelskirtLoader
+	from modules.formats.WORLD import WorldLoader
 	from modules.formats.XMLCONFIG import XmlconfigLoader
 	ext_2_class = {
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
@@ -87,6 +89,7 @@ def get_loader(ext, ovl, file_entry):
 		".fct": FctLoader,
 		".fdb": FdbLoader,
 		".fgm": FgmLoader,
+		".gfx": GfxLoader,
 		".lua": LuaLoader,
 		".manis": ManisLoader,
 		".materialcollection": MatcolLoader,
@@ -99,6 +102,7 @@ def get_loader(ext, ovl, file_entry):
 		".txt": TxtLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
+		".world": WorldLoader,
 		".xmlconfig": XmlconfigLoader,
 	}
 	cls = ext_2_class.get(ext, None)
@@ -669,7 +673,7 @@ class OvsFile(OvsHeader):
 		with open(frag_log_path, "w") as f:
 			f.write(f"Overview\n")
 			for i, pool in enumerate(self.pools):
-				f.write(f"Pool[{i}] (type: {pool.type})\n")
+				f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
 			for i, pool in enumerate(self.pools):
 				f.write(f"\n\nPool[{i}] (type: {pool.type}) at {pool.address} with {len(pool.fragments)} fragments\n")
 				entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i]

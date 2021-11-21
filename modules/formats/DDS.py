@@ -14,7 +14,7 @@ from generated.formats.tex.compound.TexBuffer import TexBuffer
 from generated.formats.tex.compound.Header7Data1 import Header7Data1
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_versions
-from modules.helpers import split_path
+from modules.helpers import split_path, as_bytes
 
 from ovl_util import texconv, imarray
 
@@ -33,8 +33,47 @@ def align_to(width, comp, alignment=64):
 
 class DdsLoader(BaseFile):
 
+	def _get_data(self, file_path):
+		tex_file = TexFile(self.ovl.context)
+		tex_file.load(file_path)
+		ss = as_bytes(tex_file.tex_info)
+		f00 = as_bytes(tex_file.frag_00)
+		f10 = as_bytes(tex_file.frag_10)
+		f01 = as_bytes(tex_file.frag_01)
+		f11 = as_bytes(tex_file.frag_11) + as_bytes(tex_file.padding)
+		buffers = tex_file.buffers
+		return ss, f00, f10, f01, f11, buffers
+
 	def create(self):
-		pass
+		name_ext, name, ext = split_path(self.file_entry.path)
+		logging.debug(f"Creating image {name_ext}")
+		if ext == ".tex":
+			if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
+				ss, f00, f10, f01, f11, buffers = self._get_data(self.file_entry.path)
+				# two separate pools
+				pool3_index, pool3 = self.get_pool(3)
+				pool4_index, pool4 = self.get_pool(4)
+
+				self.sized_str_entry = self.create_ss_entry(self.file_entry)
+				self.create_fragments(self.sized_str_entry, 2)
+				frag0, frag1 = self.sized_str_entry.fragments
+
+				# pool type 3
+				data3 = (ss, f00, f10, f01)
+				ptrs3 = (self.sized_str_entry.pointers[0], frag0.pointers[0], frag1.pointers[0], frag0.pointers[1])
+				for ptr, data in zip(ptrs3, data3):
+					ptr.pool_index = pool3_index
+					ptr.data_offset = pool3.data.tell()
+					pool3.data.write(data)
+				# pool type 4
+				frag1.pointers[1].pool_index = pool4_index
+				frag1.pointers[1].data_offset = pool4.data.tell()
+				pool4.data.write(f11)
+				self.create_data_entry(self.sized_str_entry, buffers)
+			elif is_pc(self.ovl) or is_ztuac(self.ovl):
+				logging.error(f"Only modern texture format supported for now!")
+		else:
+			logging.error(f"Only tex supported for now!")
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -52,6 +91,9 @@ class DdsLoader(BaseFile):
 			self.load_png(file_path)
 		elif ext == ".dds":
 			self.load_dds(file_path)
+		elif ext == ".tex":
+			pass
+			# self.load_dds(file_path)
 
 	def load_dds(self, file_path):
 		versions = get_versions(self.ovl)
