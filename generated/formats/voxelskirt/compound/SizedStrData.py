@@ -85,55 +85,76 @@ class SizedStrData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.zero = stream.read_uint64()
-		self.data_size = stream.read_uint64()
-		self.x = stream.read_uint64()
-		self.y = stream.read_uint64()
-		self.scale = stream.read_float()
-		self.padding = stream.read_float()
-		if self.context.version == 18:
-			self.zero_pc = stream.read_uint64()
-			self.height_array_size_pc = stream.read_uint64()
-		if not (self.context.version == 18):
-			self.data_offset = stream.read_uint64()
-			self.data_count = stream.read_uint64()
-		if not (self.context.version == 18):
-			self.size_offset = stream.read_uint64()
-			self.size_count = stream.read_uint64()
-		self.position_offset = stream.read_uint64()
-		self.position_count = stream.read_uint64()
-		self.mat_offset = stream.read_uint64()
-		self.mat_count = stream.read_uint64()
-		self.name_buffer_offset = stream.read_uint64()
-		self.name_count = stream.read_uint64()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.zero)
-		stream.write_uint64(self.data_size)
-		stream.write_uint64(self.x)
-		stream.write_uint64(self.y)
-		stream.write_float(self.scale)
-		stream.write_float(self.padding)
-		if self.context.version == 18:
-			stream.write_uint64(self.zero_pc)
-			stream.write_uint64(self.height_array_size_pc)
-		if not (self.context.version == 18):
-			stream.write_uint64(self.data_offset)
-			stream.write_uint64(self.data_count)
-		if not (self.context.version == 18):
-			stream.write_uint64(self.size_offset)
-			stream.write_uint64(self.size_count)
-		stream.write_uint64(self.position_offset)
-		stream.write_uint64(self.position_count)
-		stream.write_uint64(self.mat_offset)
-		stream.write_uint64(self.mat_count)
-		stream.write_uint64(self.name_buffer_offset)
-		stream.write_uint64(self.name_count)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.zero = stream.read_uint64()
+		instance.data_size = stream.read_uint64()
+		instance.x = stream.read_uint64()
+		instance.y = stream.read_uint64()
+		instance.scale = stream.read_float()
+		instance.padding = stream.read_float()
+		if instance.context.version == 18:
+			instance.zero_pc = stream.read_uint64()
+			instance.height_array_size_pc = stream.read_uint64()
+		if not (instance.context.version == 18):
+			instance.data_offset = stream.read_uint64()
+			instance.data_count = stream.read_uint64()
+		if not (instance.context.version == 18):
+			instance.size_offset = stream.read_uint64()
+			instance.size_count = stream.read_uint64()
+		instance.position_offset = stream.read_uint64()
+		instance.position_count = stream.read_uint64()
+		instance.mat_offset = stream.read_uint64()
+		instance.mat_count = stream.read_uint64()
+		instance.name_buffer_offset = stream.read_uint64()
+		instance.name_count = stream.read_uint64()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.zero)
+		stream.write_uint64(instance.data_size)
+		stream.write_uint64(instance.x)
+		stream.write_uint64(instance.y)
+		stream.write_float(instance.scale)
+		stream.write_float(instance.padding)
+		if instance.context.version == 18:
+			stream.write_uint64(instance.zero_pc)
+			stream.write_uint64(instance.height_array_size_pc)
+		if not (instance.context.version == 18):
+			stream.write_uint64(instance.data_offset)
+			stream.write_uint64(instance.data_count)
+		if not (instance.context.version == 18):
+			stream.write_uint64(instance.size_offset)
+			stream.write_uint64(instance.size_count)
+		stream.write_uint64(instance.position_offset)
+		stream.write_uint64(instance.position_count)
+		stream.write_uint64(instance.mat_offset)
+		stream.write_uint64(instance.mat_count)
+		stream.write_uint64(instance.name_buffer_offset)
+		stream.write_uint64(instance.name_count)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -2,8 +2,7 @@ from codegen.expression import Expression, Version
 from codegen.Versions import Versions
 from .naming_conventions import clean_comment_str
 
-CONTEXT = "self.context"
-VER = f"{CONTEXT}.version"
+CONTEXT_SUFFIX = "context"
 
 
 def get_attr_with_backups(field, attribute_keys):
@@ -17,7 +16,9 @@ def get_attr_with_backups(field, attribute_keys):
         return None
 
 
-def get_conditions(field):
+def get_conditions(field, expression_prefix="self."):
+    CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
+    VER = f"{CONTEXT}.version"
     conditionals = []
     ver1 = get_attr_with_backups(field, ["ver1", "since"])
     if ver1:
@@ -40,12 +41,12 @@ def get_conditions(field):
     elif ver2:
         conditionals.append(f"{VER} <= {ver2}")
     if vercond:
-        vercond = Expression(vercond, g_vars=True)
+        vercond = Expression(vercond, f'{expression_prefix}context.')
         conditionals.append(f"{vercond}")
     if valid_versions:
         conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
     if cond:
-        cond = Expression(cond)
+        cond = Expression(cond, f'{expression_prefix}')
         conditionals.append(f"{cond}")
     if onlyT:
         conditionals.append(f"'{onlyT}' in [parent.__name__ for parent in type(self).__mro__]")
@@ -54,7 +55,7 @@ def get_conditions(field):
     return conditionals
 
 
-def get_params(field):
+def get_params(field, expression_prefix="self."):
     # parse all attributes and return the python-evaluatable string
 
     field_name = field.attrib["name"]
@@ -62,17 +63,17 @@ def get_params(field):
     pad_mode = field.attrib.get("padding")
     template = field.attrib.get("template")
 
-    conditionals = get_conditions(field)
+    conditionals = get_conditions(field, expression_prefix)
 
     arg = field.attrib.get("arg", 0)
     arr1 = get_attr_with_backups(field, ["arr1", "length"])
     arr2 = get_attr_with_backups(field, ["arr2", "width"])
     if arg:
-        arg = Expression(arg)
+        arg = Expression(arg, expression_prefix)
     if arr1:
-        arr1 = Expression(arr1)
+        arr1 = Expression(arr1, expression_prefix)
     if arr2:
-        arr2 = Expression(arr2)
+        arr2 = Expression(arr2, expression_prefix)
     return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode
 
 
@@ -102,7 +103,7 @@ class Union:
     def append(self, member):
         self.members.append(member)
 
-    def get_default_string(self, default_string, arg, template, arr1, arr2, field_name, field_type):
+    def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compound.parser.tag_dict.get(field_type_lower)
@@ -121,7 +122,7 @@ class Union:
                 if return_type[0] == 'numpy':
                     return f'numpy.zeros({arr_str}, dtype={return_type[1]})'
                 else:
-                    return f'Array({arr_str}, {field_type}, {CONTEXT}, {arg}, {template})'
+                    return f'Array({arr_str}, {field_type}, {context}, {arg}, {template})'
         else:
             if default_string:
                 if return_type in self.compound.parser.builtin_literals or tag_of_field_type == "enum":
@@ -137,11 +138,11 @@ class Union:
                     return repr(self.compound.parser.builtin_literals[return_type])
                 else:
                     # instantiate like a generic type: dtype(context, arg, template)
-                    return f'{field_type}({CONTEXT}, {arg}, {template})'
+                    return f'{field_type}({context}, {arg}, {template})'
 
 
-    def default_assigns(self, field, arg, template, arr1, arr2, field_name, field_type, base_indent):
-        field_default = self.get_default_string(field.attrib.get('default'), arg, template, arr1, arr2, field_name,
+    def default_assigns(self, field, context, arg, template, arr1, arr2, field_name, field_type, base_indent):
+        field_default = self.get_default_string(field.attrib.get('default'), context, arg, template, arr1, arr2, field_name,
                                                 field_type)
         default_children = field.findall("default")
         if default_children:
@@ -161,7 +162,7 @@ class Union:
                 else:
                     condition = f'{base_indent}{condition}'
 
-                default = self.get_default_string(default_element.attrib.get("value"), arg, template, arr1, arr2,
+                default = self.get_default_string(default_element.attrib.get("value"), context, arg, template, arr1, arr2,
                                                   field_name, field_type)
                 defaults.append((condition, f'{indent}self.{field_name} = {default}'))
 
@@ -179,7 +180,7 @@ class Union:
                 f.write(field_debug_str)
 
             # we init each field with its basic default string so that the field exists regardless of any condition
-            field_default = self.get_default_string(field.attrib.get('default'), arg, template, arr1, arr2, field_name,
+            field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name,
                                                     field_type)
             f.write(f'{base_indent}self.{field_name} = {field_default}')
 
@@ -190,7 +191,7 @@ class Union:
 
             indent, condition = condition_indent(base_indent, conditionals, condition)
 
-            defaults = self.default_assigns(field, arg, template, arr1, arr2, field_name, field_type, indent)
+            defaults = self.default_assigns(field, f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name, field_type, indent)
 
             # if defaults:
             if condition:
@@ -201,36 +202,28 @@ class Union:
                 f.write(default)
         return condition
 
-    def write_io(self, f, method_type, condition=""):
+    def write_io(self, f, method_type, condition="", target_variable="self"):
+        CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field, f'{target_variable}.')
             indent, condition = condition_indent(base_indent, conditionals, condition)
             if condition:
                 f.write(f"{base_indent}{condition}")
-            if arr1:
-                if self.compound.parser.tag_dict[field_type.lower()] == "basic":
-                    arr_str = self.compound.parser.arrs_to_tuple(arr1, arr2)
-                    if method_type == "read":
-                        f.write(f"{indent}self.{field_name} = stream.{method_type}_{field_type.lower()}s({arr_str})")
-                    else:
-                        if pad_mode:
-                            # resize numpy arrays that represent padding so we need not worry about them
-                            f.write(f"{indent}self.{field_name}.resize({arr_str})")
-                        f.write(f"{indent}stream.{method_type}_{field_type.lower()}s(self.{field_name})")
-                else:
-                    f.write(f"{indent}self.{field_name}.{method_type}(stream, {field_type}, {arr1}, {arr2})")
-            else:
-                f.write(
-                    f"{indent}{self.compound.parser.method_for_type(field_type, mode=method_type, attr=f'self.{field_name}', arg=arg, template=template)}")
             if method_type == 'read':
-                # store version related fields on self.context on read
+                f.write(f"{indent}{target_variable}.{field_name} = {self.compound.parser.read_for_type(field_type, CONTEXT, arg, template, arr1, arr2)}")
+                # store version related fields on the context on read
                 for k, (access, dtype) in self.compound.parser.verattrs.items():
                     # check all version-related global variables registered with the verattr tag
                     attr_path = access.split('.')
                     if field_name == attr_path[0]:
                         if dtype is None or len(attr_path) > 1 or field_type == dtype:
                             # the verattr type isn't known, we can't check it or it matches
-                            f.write(f"{indent}{CONTEXT}.{field_name} = self.{field_name}")
+                            f.write(f"{indent}{CONTEXT}.{field_name} = {target_variable}.{field_name}")
                             break
+            else:
+                # if arr1 and pad_mode: resize array to the specified size
+                if arr1 and pad_mode and self.compound.parser.tag_dict[field_type.lower()] == "basic":
+                    f.write(f"{indent}{target_variable}.{field_name}.resize({self.compound.parser.arrs_to_tuple(arr1, arr2)})")
+                f.write(f"{indent}{self.compound.parser.write_for_type(field_type, f'{target_variable}.{field_name}', CONTEXT, arg, template, arr1, arr2)}")
         return condition

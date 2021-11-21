@@ -38,7 +38,7 @@ class Ms2BoneInfo:
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint64'))
+		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint64'))
 
 		# index count3
 		self.bone_count = 0
@@ -81,40 +81,40 @@ class Ms2BoneInfo:
 		self.unknown_88 = 0
 
 		# index into ms2 string table for bones used here
-		self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint32'))
+		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint32'))
 
 		# index into ms2 string table for bones used here
-		self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint16'))
+		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint16'))
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype=numpy.dtype('int8'))
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16,), dtype=numpy.dtype('int8'))
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
+		self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
 
 		# used for skinning
-		self.inverse_bind_matrices = Array((self.bind_matrix_count), Matrix44, self.context, 0, None)
+		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
 
 		# bones, rot first
-		self.bones = Array((self.bone_count), PzBone, self.context, 0, None)
+		self.bones = Array((self.bone_count,), PzBone, self.context, 0, None)
 
 		# bones, loc first
-		self.bones = Array((self.bone_count), JweBone, self.context, 0, None)
+		self.bones = Array((self.bone_count,), JweBone, self.context, 0, None)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype=numpy.dtype('uint8'))
+		self.bone_parents = numpy.zeros((self.bone_parents_count,), dtype=numpy.dtype('uint8'))
 
 		# zeros
-		self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype=numpy.dtype('int8'))
+		self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = numpy.zeros((self.enum_count, 2), dtype=numpy.dtype('uint32'))
+		self.enumeration = numpy.zeros((self.enum_count, 2,), dtype=numpy.dtype('uint32'))
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = numpy.zeros((self.enum_count), dtype=numpy.dtype('uint8'))
+		self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
 
 		# zeros
-		self.zt_weirdness = numpy.zeros((10), dtype=numpy.dtype('uint16'))
+		self.zt_weirdness = numpy.zeros((10,), dtype=numpy.dtype('uint16'))
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
@@ -142,7 +142,7 @@ class Ms2BoneInfo:
 			self.unknown_0_c = 0
 		self.unk_count = 0
 		self.bind_matrix_count = 0
-		self.zeros = numpy.zeros((3), dtype=numpy.dtype('uint64'))
+		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint64'))
 		self.bone_count = 0
 		self.unknown_40 = 0
 		self.bone_parents_count = 0
@@ -163,27 +163,27 @@ class Ms2BoneInfo:
 		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
 			self.unknown_88 = 0
 		if not (self.context.version < 19):
-			self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint32'))
+			self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint32'))
 		if self.context.version < 19:
-			self.name_indices = numpy.zeros((self.name_count), dtype=numpy.dtype('uint16'))
+			self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint16'))
 		if not (self.context.version < 19):
-			self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16), dtype=numpy.dtype('int8'))
+			self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16,), dtype=numpy.dtype('int8'))
 		if self.context.version < 19:
-			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
-		self.inverse_bind_matrices = Array((self.bind_matrix_count), Matrix44, self.context, 0, None)
+			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.bones = Array((self.bone_count), PzBone, self.context, 0, None)
+			self.bones = Array((self.bone_count,), PzBone, self.context, 0, None)
 		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
-			self.bones = Array((self.bone_count), JweBone, self.context, 0, None)
-		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype=numpy.dtype('uint8'))
+			self.bones = Array((self.bone_count,), JweBone, self.context, 0, None)
+		self.bone_parents = numpy.zeros((self.bone_parents_count,), dtype=numpy.dtype('uint8'))
 		if not (self.context.version == 17):
-			self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype=numpy.dtype('int8'))
+			self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
 		if not (self.context.version == 17) and self.one:
-			self.enumeration = numpy.zeros((self.enum_count, 2), dtype=numpy.dtype('uint32'))
+			self.enumeration = numpy.zeros((self.enum_count, 2,), dtype=numpy.dtype('uint32'))
 		if self.context.version == 17 and self.one:
-			self.enumeration = numpy.zeros((self.enum_count), dtype=numpy.dtype('uint8'))
+			self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
 		if self.context.version == 17:
-			self.zt_weirdness = numpy.zeros((10), dtype=numpy.dtype('uint16'))
+			self.zt_weirdness = numpy.zeros((10,), dtype=numpy.dtype('uint16'))
 		if not (self.context.version < 19) and self.zeros_count:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 		if self.context.version < 19 and self.zeros_count:
@@ -199,140 +199,161 @@ class Ms2BoneInfo:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.name_count = stream.read_uint64()
-		if not (self.context.version == 17):
-			self.knownff = stream.read_short()
-			self.zero_0 = stream.read_short()
-		if not (self.context.version == 17):
-			self.unknown_0_c = stream.read_uint()
-		self.unk_count = stream.read_uint64()
-		self.bind_matrix_count = stream.read_uint64()
-		self.zeros = stream.read_uint64s((3))
-		self.bone_count = stream.read_uint64()
-		self.unknown_40 = stream.read_uint64()
-		self.bone_parents_count = stream.read_uint64()
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.extra_uint_0 = stream.read_uint64()
-		if self.context.version == 17:
-			self.unk_zero_zt = stream.read_uint64()
-		self.enum_count = stream.read_uint64()
-		self.unknown_58 = stream.read_uint64()
-		self.one = stream.read_uint64()
-		self.zeros_count = stream.read_uint64()
-		self.count_7 = stream.read_uint64()
-		if self.context.version < 19:
-			self.unknownextra = stream.read_uint64()
-		self.joint_count = stream.read_uint64()
-		if not (self.context.version < 19):
-			self.unk_78_count = stream.read_uint64()
-		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
-			self.unknown_88 = stream.read_uint64()
-		if not (self.context.version < 19):
-			self.name_indices = stream.read_uints((self.name_count))
-		if self.context.version < 19:
-			self.name_indices = stream.read_ushorts((self.name_count))
-		if not (self.context.version < 19):
-			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 4) % 16)) % 16))
-		if self.context.version < 19:
-			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
-		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.bones.read(stream, PzBone, self.bone_count, None)
-		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
-			self.bones.read(stream, JweBone, self.bone_count, None)
-		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
-		if not (self.context.version == 17):
-			self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
-		if not (self.context.version == 17) and self.one:
-			self.enumeration = stream.read_uints((self.enum_count, 2))
-		if self.context.version == 17 and self.one:
-			self.enumeration = stream.read_ubytes((self.enum_count))
-		if self.context.version == 17:
-			self.zt_weirdness = stream.read_ushorts((10))
-		if not (self.context.version < 19) and self.zeros_count:
-			self.zeros_padding = stream.read_type(ZerosPadding, (self.context, self.zeros_count, None))
-		if self.context.version < 19 and self.zeros_count:
-			self.minus_padding = stream.read_type(MinusPadding, (self.context, self.zeros_count, None))
-		if not (self.context.version < 19) and self.count_7:
-			self.struct_7 = stream.read_type(Struct7, (self.context, 0, None))
-		if self.context.version == 18 and self.joint_count:
-			self.weird_padding = stream.read_type(SmartPadding, (self.context, 0, None))
-		if not (self.context.version == 17) and self.joint_count:
-			self.joints = stream.read_type(JointData, (self.context, 0, None))
-		if self.context.version == 18 and not self.joint_count:
-			self.weird_padding_2 = stream.read_type(SmartPadding, (self.context, 0, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.name_count)
-		if not (self.context.version == 17):
-			stream.write_short(self.knownff)
-			stream.write_short(self.zero_0)
-		if not (self.context.version == 17):
-			stream.write_uint(self.unknown_0_c)
-		stream.write_uint64(self.unk_count)
-		stream.write_uint64(self.bind_matrix_count)
-		stream.write_uint64s(self.zeros)
-		stream.write_uint64(self.bone_count)
-		stream.write_uint64(self.unknown_40)
-		stream.write_uint64(self.bone_parents_count)
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			stream.write_uint64(self.extra_uint_0)
-		if self.context.version == 17:
-			stream.write_uint64(self.unk_zero_zt)
-		stream.write_uint64(self.enum_count)
-		stream.write_uint64(self.unknown_58)
-		stream.write_uint64(self.one)
-		stream.write_uint64(self.zeros_count)
-		stream.write_uint64(self.count_7)
-		if self.context.version < 19:
-			stream.write_uint64(self.unknownextra)
-		stream.write_uint64(self.joint_count)
-		if not (self.context.version < 19):
-			stream.write_uint64(self.unk_78_count)
-		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
-			stream.write_uint64(self.unknown_88)
-		if not (self.context.version < 19):
-			stream.write_uints(self.name_indices)
-		if self.context.version < 19:
-			stream.write_ushorts(self.name_indices)
-		if not (self.context.version < 19):
-			self.name_padding.resize(((16 - ((self.name_count * 4) % 16)) % 16))
-			stream.write_bytes(self.name_padding)
-		if self.context.version < 19:
-			self.name_padding.resize(((16 - ((self.name_count * 2) % 16)) % 16))
-			stream.write_bytes(self.name_padding)
-		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.bones.write(stream, PzBone, self.bone_count, None)
-		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.version < 19):
-			self.bones.write(stream, JweBone, self.bone_count, None)
-		stream.write_ubytes(self.bone_parents)
-		if not (self.context.version == 17):
-			self.hier_1_padding.resize(((8 - (self.bone_parents_count % 8)) % 8))
-			stream.write_bytes(self.hier_1_padding)
-		if not (self.context.version == 17) and self.one:
-			stream.write_uints(self.enumeration)
-		if self.context.version == 17 and self.one:
-			stream.write_ubytes(self.enumeration)
-		if self.context.version == 17:
-			stream.write_ushorts(self.zt_weirdness)
-		if not (self.context.version < 19) and self.zeros_count:
-			stream.write_type(self.zeros_padding)
-		if self.context.version < 19 and self.zeros_count:
-			stream.write_type(self.minus_padding)
-		if not (self.context.version < 19) and self.count_7:
-			stream.write_type(self.struct_7)
-		if self.context.version == 18 and self.joint_count:
-			stream.write_type(self.weird_padding)
-		if not (self.context.version == 17) and self.joint_count:
-			stream.write_type(self.joints)
-		if self.context.version == 18 and not self.joint_count:
-			stream.write_type(self.weird_padding_2)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.name_count = stream.read_uint64()
+		if not (instance.context.version == 17):
+			instance.knownff = stream.read_short()
+			instance.zero_0 = stream.read_short()
+		if not (instance.context.version == 17):
+			instance.unknown_0_c = stream.read_uint()
+		instance.unk_count = stream.read_uint64()
+		instance.bind_matrix_count = stream.read_uint64()
+		instance.zeros = stream.read_uint64s((3,))
+		instance.bone_count = stream.read_uint64()
+		instance.unknown_40 = stream.read_uint64()
+		instance.bone_parents_count = stream.read_uint64()
+		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
+			instance.extra_uint_0 = stream.read_uint64()
+		if instance.context.version == 17:
+			instance.unk_zero_zt = stream.read_uint64()
+		instance.enum_count = stream.read_uint64()
+		instance.unknown_58 = stream.read_uint64()
+		instance.one = stream.read_uint64()
+		instance.zeros_count = stream.read_uint64()
+		instance.count_7 = stream.read_uint64()
+		if instance.context.version < 19:
+			instance.unknownextra = stream.read_uint64()
+		instance.joint_count = stream.read_uint64()
+		if not (instance.context.version < 19):
+			instance.unk_78_count = stream.read_uint64()
+		if (instance.context.user_version.is_jwe and (instance.context.version == 19)) or (instance.context.version < 19):
+			instance.unknown_88 = stream.read_uint64()
+		if not (instance.context.version < 19):
+			instance.name_indices = stream.read_uints((instance.name_count,))
+		if instance.context.version < 19:
+			instance.name_indices = stream.read_ushorts((instance.name_count,))
+		if not (instance.context.version < 19):
+			instance.name_padding = stream.read_bytes(((16 - ((instance.name_count * 4) % 16)) % 16,))
+		if instance.context.version < 19:
+			instance.name_padding = stream.read_bytes(((16 - ((instance.name_count * 2) % 16)) % 16,))
+		instance.inverse_bind_matrices = Array.from_stream(stream, (instance.bind_matrix_count,), Matrix44, instance.context, 0, None)
+		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
+			instance.bones = Array.from_stream(stream, (instance.bone_count,), PzBone, instance.context, 0, None)
+		if (instance.context.user_version.is_jwe and (instance.context.version == 19)) or (instance.context.version < 19):
+			instance.bones = Array.from_stream(stream, (instance.bone_count,), JweBone, instance.context, 0, None)
+		instance.bone_parents = stream.read_ubytes((instance.bone_parents_count,))
+		if not (instance.context.version == 17):
+			instance.hier_1_padding = stream.read_bytes(((8 - (instance.bone_parents_count % 8)) % 8,))
+		if not (instance.context.version == 17) and instance.one:
+			instance.enumeration = stream.read_uints((instance.enum_count, 2,))
+		if instance.context.version == 17 and instance.one:
+			instance.enumeration = stream.read_ubytes((instance.enum_count,))
+		if instance.context.version == 17:
+			instance.zt_weirdness = stream.read_ushorts((10,))
+		if not (instance.context.version < 19) and instance.zeros_count:
+			instance.zeros_padding = ZerosPadding.from_stream(stream, instance.context, instance.zeros_count, None)
+		if instance.context.version < 19 and instance.zeros_count:
+			instance.minus_padding = MinusPadding.from_stream(stream, instance.context, instance.zeros_count, None)
+		if not (instance.context.version < 19) and instance.count_7:
+			instance.struct_7 = Struct7.from_stream(stream, instance.context, 0, None)
+		if instance.context.version == 18 and instance.joint_count:
+			instance.weird_padding = SmartPadding.from_stream(stream, instance.context, 0, None)
+		if not (instance.context.version == 17) and instance.joint_count:
+			instance.joints = JointData.from_stream(stream, instance.context, 0, None)
+		if instance.context.version == 18 and not instance.joint_count:
+			instance.weird_padding_2 = SmartPadding.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.name_count)
+		if not (instance.context.version == 17):
+			stream.write_short(instance.knownff)
+			stream.write_short(instance.zero_0)
+		if not (instance.context.version == 17):
+			stream.write_uint(instance.unknown_0_c)
+		stream.write_uint64(instance.unk_count)
+		stream.write_uint64(instance.bind_matrix_count)
+		stream.write_uint64s(instance.zeros)
+		stream.write_uint64(instance.bone_count)
+		stream.write_uint64(instance.unknown_40)
+		stream.write_uint64(instance.bone_parents_count)
+		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
+			stream.write_uint64(instance.extra_uint_0)
+		if instance.context.version == 17:
+			stream.write_uint64(instance.unk_zero_zt)
+		stream.write_uint64(instance.enum_count)
+		stream.write_uint64(instance.unknown_58)
+		stream.write_uint64(instance.one)
+		stream.write_uint64(instance.zeros_count)
+		stream.write_uint64(instance.count_7)
+		if instance.context.version < 19:
+			stream.write_uint64(instance.unknownextra)
+		stream.write_uint64(instance.joint_count)
+		if not (instance.context.version < 19):
+			stream.write_uint64(instance.unk_78_count)
+		if (instance.context.user_version.is_jwe and (instance.context.version == 19)) or (instance.context.version < 19):
+			stream.write_uint64(instance.unknown_88)
+		if not (instance.context.version < 19):
+			stream.write_uints(instance.name_indices)
+		if instance.context.version < 19:
+			stream.write_ushorts(instance.name_indices)
+		if not (instance.context.version < 19):
+			instance.name_padding.resize(((16 - ((instance.name_count * 4) % 16)) % 16,))
+			stream.write_bytes(instance.name_padding)
+		if instance.context.version < 19:
+			instance.name_padding.resize(((16 - ((instance.name_count * 2) % 16)) % 16,))
+			stream.write_bytes(instance.name_padding)
+		Array.to_stream(stream, instance.inverse_bind_matrices, (instance.bind_matrix_count,),Matrix44, instance.context, 0, None)
+		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
+			Array.to_stream(stream, instance.bones, (instance.bone_count,),PzBone, instance.context, 0, None)
+		if (instance.context.user_version.is_jwe and (instance.context.version == 19)) or (instance.context.version < 19):
+			Array.to_stream(stream, instance.bones, (instance.bone_count,),JweBone, instance.context, 0, None)
+		stream.write_ubytes(instance.bone_parents)
+		if not (instance.context.version == 17):
+			instance.hier_1_padding.resize(((8 - (instance.bone_parents_count % 8)) % 8,))
+			stream.write_bytes(instance.hier_1_padding)
+		if not (instance.context.version == 17) and instance.one:
+			stream.write_uints(instance.enumeration)
+		if instance.context.version == 17 and instance.one:
+			stream.write_ubytes(instance.enumeration)
+		if instance.context.version == 17:
+			stream.write_ushorts(instance.zt_weirdness)
+		if not (instance.context.version < 19) and instance.zeros_count:
+			ZerosPadding.to_stream(stream, instance.zeros_padding)
+		if instance.context.version < 19 and instance.zeros_count:
+			MinusPadding.to_stream(stream, instance.minus_padding)
+		if not (instance.context.version < 19) and instance.count_7:
+			Struct7.to_stream(stream, instance.struct_7)
+		if instance.context.version == 18 and instance.joint_count:
+			SmartPadding.to_stream(stream, instance.weird_padding)
+		if not (instance.context.version == 17) and instance.joint_count:
+			JointData.to_stream(stream, instance.joints)
+		if instance.context.version == 18 and not instance.joint_count:
+			SmartPadding.to_stream(stream, instance.weird_padding_2)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Ms2BoneInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

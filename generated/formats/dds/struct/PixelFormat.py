@@ -56,29 +56,50 @@ class PixelFormat:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.size = stream.read_uint()
-		self.flags = stream.read_type(PixelFormatFlags)
-		self.four_c_c = FourCC(stream.read_uint())
-		self.bit_count = stream.read_uint()
-		self.r_mask = stream.read_uint()
-		self.g_mask = stream.read_uint()
-		self.b_mask = stream.read_uint()
-		self.a_mask = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.size)
-		stream.write_type(self.flags)
-		stream.write_uint(self.four_c_c.value)
-		stream.write_uint(self.bit_count)
-		stream.write_uint(self.r_mask)
-		stream.write_uint(self.g_mask)
-		stream.write_uint(self.b_mask)
-		stream.write_uint(self.a_mask)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.size = stream.read_uint()
+		instance.flags = PixelFormatFlags.from_stream(stream, instance.context, 0, None)
+		instance.four_c_c = FourCC.from_value(stream.read_uint())
+		instance.bit_count = stream.read_uint()
+		instance.r_mask = stream.read_uint()
+		instance.g_mask = stream.read_uint()
+		instance.b_mask = stream.read_uint()
+		instance.a_mask = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.size)
+		PixelFormatFlags.to_stream(stream, instance.flags)
+		stream.write_uint(instance.four_c_c.value)
+		stream.write_uint(instance.bit_count)
+		stream.write_uint(instance.r_mask)
+		stream.write_uint(instance.g_mask)
+		stream.write_uint(instance.b_mask)
+		stream.write_uint(instance.a_mask)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'PixelFormat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

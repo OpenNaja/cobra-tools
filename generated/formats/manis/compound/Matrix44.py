@@ -87,45 +87,66 @@ class Matrix44:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.m_11 = stream.read_float()
-		self.m_21 = stream.read_float()
-		self.m_31 = stream.read_float()
-		self.m_41 = stream.read_float()
-		self.m_12 = stream.read_float()
-		self.m_22 = stream.read_float()
-		self.m_32 = stream.read_float()
-		self.m_42 = stream.read_float()
-		self.m_13 = stream.read_float()
-		self.m_23 = stream.read_float()
-		self.m_33 = stream.read_float()
-		self.m_43 = stream.read_float()
-		self.m_14 = stream.read_float()
-		self.m_24 = stream.read_float()
-		self.m_34 = stream.read_float()
-		self.m_44 = stream.read_float()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_float(self.m_11)
-		stream.write_float(self.m_21)
-		stream.write_float(self.m_31)
-		stream.write_float(self.m_41)
-		stream.write_float(self.m_12)
-		stream.write_float(self.m_22)
-		stream.write_float(self.m_32)
-		stream.write_float(self.m_42)
-		stream.write_float(self.m_13)
-		stream.write_float(self.m_23)
-		stream.write_float(self.m_33)
-		stream.write_float(self.m_43)
-		stream.write_float(self.m_14)
-		stream.write_float(self.m_24)
-		stream.write_float(self.m_34)
-		stream.write_float(self.m_44)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.m_11 = stream.read_float()
+		instance.m_21 = stream.read_float()
+		instance.m_31 = stream.read_float()
+		instance.m_41 = stream.read_float()
+		instance.m_12 = stream.read_float()
+		instance.m_22 = stream.read_float()
+		instance.m_32 = stream.read_float()
+		instance.m_42 = stream.read_float()
+		instance.m_13 = stream.read_float()
+		instance.m_23 = stream.read_float()
+		instance.m_33 = stream.read_float()
+		instance.m_43 = stream.read_float()
+		instance.m_14 = stream.read_float()
+		instance.m_24 = stream.read_float()
+		instance.m_34 = stream.read_float()
+		instance.m_44 = stream.read_float()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_float(instance.m_11)
+		stream.write_float(instance.m_21)
+		stream.write_float(instance.m_31)
+		stream.write_float(instance.m_41)
+		stream.write_float(instance.m_12)
+		stream.write_float(instance.m_22)
+		stream.write_float(instance.m_32)
+		stream.write_float(instance.m_42)
+		stream.write_float(instance.m_13)
+		stream.write_float(instance.m_23)
+		stream.write_float(instance.m_33)
+		stream.write_float(instance.m_43)
+		stream.write_float(instance.m_14)
+		stream.write_float(instance.m_24)
+		stream.write_float(instance.m_34)
+		stream.write_float(instance.m_44)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Matrix44 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

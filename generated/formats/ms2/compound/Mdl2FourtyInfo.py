@@ -15,24 +15,45 @@ class Mdl2FourtyInfo:
 		self.io_start = 0
 
 		# 0, 1 or 0, 0, 0, 0
-		self.unknowns = numpy.zeros((5), dtype=numpy.dtype('uint64'))
+		self.unknowns = numpy.zeros((5,), dtype=numpy.dtype('uint64'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.unknowns = numpy.zeros((5), dtype=numpy.dtype('uint64'))
+		self.unknowns = numpy.zeros((5,), dtype=numpy.dtype('uint64'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.unknowns = stream.read_uint64s((5))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64s(self.unknowns)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.unknowns = stream.read_uint64s((5,))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64s(instance.unknowns)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Mdl2FourtyInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

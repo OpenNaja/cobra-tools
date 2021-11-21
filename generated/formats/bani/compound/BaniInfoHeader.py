@@ -21,7 +21,7 @@ class BaniInfoHeader:
 		self.io_start = 0
 
 		# 'BANI'
-		self.magic = numpy.zeros((4), dtype=numpy.dtype('int8'))
+		self.magic = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 
 		# name of the banis file buffer
 		self.banis_name = ''
@@ -30,25 +30,46 @@ class BaniInfoHeader:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.magic = numpy.zeros((4), dtype=numpy.dtype('int8'))
+		self.magic = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 		self.banis_name = ''
 		self.data = BaniFragmentData0(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.magic = stream.read_bytes((4))
-		self.banis_name = stream.read_zstring()
-		self.data = stream.read_type(BaniFragmentData0, (self.context, 0, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_bytes(self.magic)
-		stream.write_zstring(self.banis_name)
-		stream.write_type(self.data)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.magic = stream.read_bytes((4,))
+		instance.banis_name = stream.read_zstring()
+		instance.data = BaniFragmentData0.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_bytes(instance.magic)
+		stream.write_zstring(instance.banis_name)
+		BaniFragmentData0.to_stream(stream, instance.data)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'BaniInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

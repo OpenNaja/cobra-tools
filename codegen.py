@@ -18,10 +18,6 @@ from codegen.naming_conventions import clean_comment_str
 
 logging.basicConfig(level=logging.DEBUG)
 
-FIELD_TYPES = ("add", "field")
-BITFIELD_MEMBERS = ("member")
-VER = "self.context.version"
-
 
 class XmlParser:
     struct_types = ("compound", "niobject", "struct")
@@ -34,7 +30,7 @@ class XmlParser:
         self.format_name = format_name
         self.base_segments = os.path.join("formats", self.format_name)
         # which encoding to use for the output files
-        self.encoding='utf-8'
+        self.encoding = 'utf-8'
 
         # elements for versions
         self.versions = None
@@ -140,7 +136,7 @@ class XmlParser:
             except Exception as err:
                 logging.error(err)
                 traceback.print_exc()
-        out_file = BaseClass.get_out_path(os.path.join(self.base_segments ,"versions"))
+        out_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
         self.versions.write(out_file)
         self.basics.write_basic_map()
         parsed_xmls[xml_path] = self
@@ -191,15 +187,18 @@ class XmlParser:
             for field in struct:
                 self.apply_convention(field, convention.name_attribute, ("name",))
                 self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
-                self.apply_convention(field, convention.format_potential_tuple, ("default", ))
+                self.apply_convention(field, convention.format_potential_tuple, ("default",))
                 for default in field:
                     self.apply_convention(field, convention.name_class, ("onlyT",))
-                    self.apply_convention(field, convention.format_potential_tuple, ("value", ))
+                    self.apply_convention(field, convention.format_potential_tuple, ("value",))
         elif struct.tag in self.bitstruct_types:
+            self.apply_convention(struct, convention.name_class, ("storage",))
             # a bitfield/bitflags fields
             for field in struct:
-                self.apply_convention(field, convention.name_attribute, ("name", ))
-                self.apply_convention(field, convention.name_class, ("type", ))
+                self.apply_convention(field, convention.name_attribute, ("name",))
+                self.apply_convention(field, convention.name_class, ("type",))
+        elif struct.tag == "enum":
+            self.apply_convention(struct, convention.name_class, ("storage",))
 
         # filter comment str
         struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
@@ -207,48 +206,22 @@ class XmlParser:
     @staticmethod
     def arrs_to_tuple(*args):
         valid_arrs = tuple(str(arr) for arr in args if arr)
-        arr_str = f'({", ".join(valid_arrs)})'
+        arr_str = f'({", ".join(valid_arrs)},)'
         return arr_str
 
-    def method_for_type(self, dtype: str, mode="read", attr="self.dummy", arg=None, template=None):
-        if self.tag_dict[dtype.lower()] == "enum":
-            storage = self.storage_dict[dtype]
-            io_func = f"{mode}_{storage.lower()}"
-            if mode == "read":
-                return f"{attr} = {dtype}(stream.{io_func}())"
-            elif mode == "write":
-                return f"stream.{io_func}({attr}.value)"
-
-        args = ""
-        if arg:
-            args = f", ({arg}, {template})"
-        # template or custom type
-        if "template" in dtype.lower() or self.tag_dict[dtype.lower()] != "basic":
-            io_func = f"{mode}_type"
-            if self.tag_dict[dtype.lower()] in self.struct_types:
-                args = f", (self.context, {arg}, {template})"
-        # basic type
-        else:
-            io_func = f"{mode}_{dtype.lower()}"
-            dtype = ""
-        if mode == "read":
-            return f"{attr} = stream.{io_func}({dtype}{args})"
-        elif mode == "write":
-            return f"stream.{io_func}({attr})"
-
-    def read_for_type(self, dtype, arg, template, arr1, arr2):
+    def read_for_type(self, dtype, context, arg=0, template=None, arr1=None, arr2=None):
         type_tag = self.tag_dict.get(dtype.lower())
         if type_tag == "basic":
             # check for presence of stream registering functions
             if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
                 # if they're present, use them
                 if arr1:
-                    return 'stream.read_{dtype.lower()}s({self.arrs_to_tuple(arr1, arr2)})'
+                    return f'stream.read_{dtype.lower()}s({self.arrs_to_tuple(arr1, arr2)})'
                 else:
-                    return 'stream.read{dtype.lower()}()'
+                    return f'stream.read_{dtype.lower()}()'
         if arr1:
             return f'Array.from_stream(stream, {self.arrs_to_tuple(arr1, arr2)},'\
-                   f' {dtype}, self.context, {arg}, {template})'
+                   f' {dtype}, {context}, {arg}, {template})'
         else:
             if type_tag == "enum":
                 # enum is a special case where you can convert the basic type to a enum using from_value
@@ -256,27 +229,27 @@ class XmlParser:
                 return f'{dtype}.from_value({self.read_for_type(storage, arg, template, arr1, arr2)})'
 
             # use the standard functionality
-            return f'{dtype}.from_stream(stream, self.context, {arg}, {template})'
+            return f'{dtype}.from_stream(stream, {context}, {arg}, {template})'
 
-    def write_for_type(self, dtype, attr, arg, template, arr1, arr2):
+    def write_for_type(self, dtype, attr, context, arg=0, template=None, arr1=None, arr2=None):
         type_tag = self.tag_dict.get(dtype.lower())
         if type_tag == "basic":
             # check for presence of stream registering functions
             if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
                 # if they're present, use them
                 if arr1:
-                    return 'stream.write{dtype.lower()}s({attr})'
+                    return f'stream.write_{dtype.lower()}s({attr})'
                 else:
-                    return 'stream.write{dtype.lower()}({attr})'
+                    return f'stream.write_{dtype.lower()}({attr})'
         if arr1:
-            return f'Array.to_stream(stream, attr, {self.arrs_to_tuple(arr1, arr2)},'\
-                   f'{dtype}, self.context, {arg}, {template})'
+            return f'Array.to_stream(stream, {attr}, {self.arrs_to_tuple(arr1, arr2)},'\
+                   f'{dtype}, {context}, {arg}, {template})'
         else:
             if type_tag == "enum":
-                # enum is a special case where you can treat the enum like a basic type
+                # enum is a special case where you can treat the enum.value like a basic type
                 storage = self.storage_dict[dtype]
-                return f'{self.write_for_type(storage, attr, arg, template, arr1, arr2)}'
-            
+                return f"{self.write_for_type(storage, f'{attr}.value', arg, template, arr1, arr2)}"
+
             # use the standard functionality
             return f'{dtype}.to_stream(stream, {attr})'
 
@@ -305,7 +278,7 @@ class XmlParser:
                             if test_type in self.builtin_literals:
                                 out_type = test_type
         return has_stream_functions, out_type
-            
+
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
         # replace versions after tokens because tokens include versions
@@ -360,7 +333,8 @@ def create_inits(base_dir):
     for root, dirs, files in os.walk(base_dir):
         if init_file not in files:
             # __init__.py does not exist, create it
-            with open(os.path.join(root, init_file), 'x'): pass
+            with open(os.path.join(root, init_file), 'x'):
+                pass
         # don't go into subdirectories that start with a double underscore
         dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
 

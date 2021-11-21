@@ -63,32 +63,53 @@ class MimeEntry:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.offset = stream.read_uint()
-		self.unknown = stream.read_uint()
-		self.mime_hash = stream.read_uint()
-		self.mime_version = stream.read_uint()
-		self.context.mime_version = self.mime_version
-		self.file_index_offset = stream.read_uint()
-		self.file_count = stream.read_uint()
-		if self.context.version >= 20:
-			self.triplet_count = stream.read_uint()
-			self.triplet_offset = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.offset)
-		stream.write_uint(self.unknown)
-		stream.write_uint(self.mime_hash)
-		stream.write_uint(self.mime_version)
-		stream.write_uint(self.file_index_offset)
-		stream.write_uint(self.file_count)
-		if self.context.version >= 20:
-			stream.write_uint(self.triplet_count)
-			stream.write_uint(self.triplet_offset)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.offset = stream.read_uint()
+		instance.unknown = stream.read_uint()
+		instance.mime_hash = stream.read_uint()
+		instance.mime_version = stream.read_uint()
+		instance.context.mime_version = instance.mime_version
+		instance.file_index_offset = stream.read_uint()
+		instance.file_count = stream.read_uint()
+		if instance.context.version >= 20:
+			instance.triplet_count = stream.read_uint()
+			instance.triplet_offset = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.offset)
+		stream.write_uint(instance.unknown)
+		stream.write_uint(instance.mime_hash)
+		stream.write_uint(instance.mime_version)
+		stream.write_uint(instance.file_index_offset)
+		stream.write_uint(instance.file_count)
+		if instance.context.version >= 20:
+			stream.write_uint(instance.triplet_count)
+			stream.write_uint(instance.triplet_offset)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'MimeEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -39,29 +39,50 @@ class MaterialName:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version < 19):
-			self.name_index = stream.read_uint()
-		if self.context.version < 19:
-			self.name_index = stream.read_ushort()
-		if not (self.context.version < 19):
-			self.some_index = stream.read_uint()
-		if self.context.version < 19:
-			self.some_index = stream.read_ushort()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version < 19):
-			stream.write_uint(self.name_index)
-		if self.context.version < 19:
-			stream.write_ushort(self.name_index)
-		if not (self.context.version < 19):
-			stream.write_uint(self.some_index)
-		if self.context.version < 19:
-			stream.write_ushort(self.some_index)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		if not (instance.context.version < 19):
+			instance.name_index = stream.read_uint()
+		if instance.context.version < 19:
+			instance.name_index = stream.read_ushort()
+		if not (instance.context.version < 19):
+			instance.some_index = stream.read_uint()
+		if instance.context.version < 19:
+			instance.some_index = stream.read_ushort()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		if not (instance.context.version < 19):
+			stream.write_uint(instance.name_index)
+		if instance.context.version < 19:
+			stream.write_ushort(instance.name_index)
+		if not (instance.context.version < 19):
+			stream.write_uint(instance.some_index)
+		if instance.context.version < 19:
+			stream.write_ushort(instance.some_index)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'MaterialName [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

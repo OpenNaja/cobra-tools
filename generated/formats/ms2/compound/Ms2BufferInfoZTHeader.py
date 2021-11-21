@@ -24,27 +24,48 @@ class Ms2BufferInfoZTHeader:
 
 		# sometimes 00 byte
 		self.weird_padding = SmartPadding(self.context, 0, None)
-		self.unks = Array((self.arg.unk_count), InfoZTMemPool, self.context, 0, None)
+		self.unks = Array((self.arg.unk_count,), InfoZTMemPool, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.weird_padding = SmartPadding(self.context, 0, None)
-		self.unks = Array((self.arg.unk_count), InfoZTMemPool, self.context, 0, None)
+		self.unks = Array((self.arg.unk_count,), InfoZTMemPool, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.weird_padding = stream.read_type(SmartPadding, (self.context, 0, None))
-		self.unks.read(stream, InfoZTMemPool, self.arg.unk_count, None)
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_type(self.weird_padding)
-		self.unks.write(stream, InfoZTMemPool, self.arg.unk_count, None)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.weird_padding = SmartPadding.from_stream(stream, instance.context, 0, None)
+		instance.unks = Array.from_stream(stream, (instance.arg.unk_count,), InfoZTMemPool, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		SmartPadding.to_stream(stream, instance.weird_padding)
+		Array.to_stream(stream, instance.unks, (instance.arg.unk_count,),InfoZTMemPool, instance.context, 0, None)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Ms2BufferInfoZTHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

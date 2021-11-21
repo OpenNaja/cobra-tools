@@ -37,21 +37,42 @@ class AttributeInfo:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.offset = stream.read_uint()
-		self.dtype = stream.read_uint()
-		self.value_offset = stream.read_uint()
-		self.zero = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.offset)
-		stream.write_uint(self.dtype)
-		stream.write_uint(self.value_offset)
-		stream.write_uint(self.zero)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.offset = stream.read_uint()
+		instance.dtype = stream.read_uint()
+		instance.value_offset = stream.read_uint()
+		instance.zero = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.offset)
+		stream.write_uint(instance.dtype)
+		stream.write_uint(instance.value_offset)
+		stream.write_uint(instance.zero)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'AttributeInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

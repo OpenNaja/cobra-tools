@@ -35,7 +35,7 @@ class Header:
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
-		self.reserved_1 = numpy.zeros((11), dtype=numpy.dtype('uint32'))
+		self.reserved_1 = numpy.zeros((11,), dtype=numpy.dtype('uint32'))
 		self.pixel_format = PixelFormat(self.context, 0, None)
 		self.caps_1 = Caps1(self.context, 0, None)
 		self.caps_2 = Caps2(self.context, 0, None)
@@ -55,7 +55,7 @@ class Header:
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
-		self.reserved_1 = numpy.zeros((11), dtype=numpy.dtype('uint32'))
+		self.reserved_1 = numpy.zeros((11,), dtype=numpy.dtype('uint32'))
 		self.pixel_format = PixelFormat(self.context, 0, None)
 		self.caps_1 = Caps1(self.context, 0, None)
 		self.caps_2 = Caps2(self.context, 0, None)
@@ -67,47 +67,68 @@ class Header:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.header_string = stream.read_type(FixedString, (self.context, 4, None))
-		self.size = stream.read_uint()
-		self.flags = stream.read_type(HeaderFlags)
-		self.height = stream.read_uint()
-		self.width = stream.read_uint()
-		self.linear_size = stream.read_uint()
-		self.depth = stream.read_uint()
-		self.mipmap_count = stream.read_uint()
-		self.reserved_1 = stream.read_uints((11))
-		self.pixel_format = stream.read_type(PixelFormat, (self.context, 0, None))
-		self.caps_1 = stream.read_type(Caps1)
-		self.caps_2 = stream.read_type(Caps2)
-		self.caps_3 = stream.read_uint()
-		self.caps_4 = stream.read_uint()
-		self.unused = stream.read_uint()
-		if self.pixel_format.four_c_c == 808540228:
-			self.dx_10 = stream.read_type(Dxt10Header, (self.context, 0, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_type(self.header_string)
-		stream.write_uint(self.size)
-		stream.write_type(self.flags)
-		stream.write_uint(self.height)
-		stream.write_uint(self.width)
-		stream.write_uint(self.linear_size)
-		stream.write_uint(self.depth)
-		stream.write_uint(self.mipmap_count)
-		stream.write_uints(self.reserved_1)
-		stream.write_type(self.pixel_format)
-		stream.write_type(self.caps_1)
-		stream.write_type(self.caps_2)
-		stream.write_uint(self.caps_3)
-		stream.write_uint(self.caps_4)
-		stream.write_uint(self.unused)
-		if self.pixel_format.four_c_c == 808540228:
-			stream.write_type(self.dx_10)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.header_string = FixedString.from_stream(stream, instance.context, 4, None)
+		instance.size = stream.read_uint()
+		instance.flags = HeaderFlags.from_stream(stream, instance.context, 0, None)
+		instance.height = stream.read_uint()
+		instance.width = stream.read_uint()
+		instance.linear_size = stream.read_uint()
+		instance.depth = stream.read_uint()
+		instance.mipmap_count = stream.read_uint()
+		instance.reserved_1 = stream.read_uints((11,))
+		instance.pixel_format = PixelFormat.from_stream(stream, instance.context, 0, None)
+		instance.caps_1 = Caps1.from_stream(stream, instance.context, 0, None)
+		instance.caps_2 = Caps2.from_stream(stream, instance.context, 0, None)
+		instance.caps_3 = stream.read_uint()
+		instance.caps_4 = stream.read_uint()
+		instance.unused = stream.read_uint()
+		if instance.pixel_format.four_c_c == 808540228:
+			instance.dx_10 = Dxt10Header.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		FixedString.to_stream(stream, instance.header_string)
+		stream.write_uint(instance.size)
+		HeaderFlags.to_stream(stream, instance.flags)
+		stream.write_uint(instance.height)
+		stream.write_uint(instance.width)
+		stream.write_uint(instance.linear_size)
+		stream.write_uint(instance.depth)
+		stream.write_uint(instance.mipmap_count)
+		stream.write_uints(instance.reserved_1)
+		PixelFormat.to_stream(stream, instance.pixel_format)
+		Caps1.to_stream(stream, instance.caps_1)
+		Caps2.to_stream(stream, instance.caps_2)
+		stream.write_uint(instance.caps_3)
+		stream.write_uint(instance.caps_4)
+		stream.write_uint(instance.unused)
+		if instance.pixel_format.four_c_c == 808540228:
+			Dxt10Header.to_stream(stream, instance.dx_10)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

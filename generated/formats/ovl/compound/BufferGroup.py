@@ -51,27 +51,48 @@ class BufferGroup:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.buffer_offset = stream.read_uint()
-		self.buffer_count = stream.read_uint()
-		self.ext_index = stream.read_uint()
-		self.buffer_index = stream.read_uint()
-		self.size = stream.read_uint64()
-		self.data_offset = stream.read_uint()
-		self.data_count = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.buffer_offset)
-		stream.write_uint(self.buffer_count)
-		stream.write_uint(self.ext_index)
-		stream.write_uint(self.buffer_index)
-		stream.write_uint64(self.size)
-		stream.write_uint(self.data_offset)
-		stream.write_uint(self.data_count)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.buffer_offset = stream.read_uint()
+		instance.buffer_count = stream.read_uint()
+		instance.ext_index = stream.read_uint()
+		instance.buffer_index = stream.read_uint()
+		instance.size = stream.read_uint64()
+		instance.data_offset = stream.read_uint()
+		instance.data_count = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.buffer_offset)
+		stream.write_uint(instance.buffer_count)
+		stream.write_uint(instance.ext_index)
+		stream.write_uint(instance.buffer_index)
+		stream.write_uint64(instance.size)
+		stream.write_uint(instance.data_offset)
+		stream.write_uint(instance.data_count)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'BufferGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

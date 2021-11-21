@@ -61,11 +61,11 @@ class Expression(object):
 
     operators = {'==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
 
-    def __init__(self, expr_str, g_vars=False):
+    def __init__(self, expr_str, attribute_prefix=""):
         try:
             left, self._op, right = self._partition(expr_str)
-            self._left = self._parse(left, g_vars)
-            self._right = self._parse(right, g_vars)
+            self._left = self._parse(left, attribute_prefix)
+            self._right = self._parse(right, attribute_prefix)
         except:
             print("error while parsing expression '%s'" % expr_str)
             raise
@@ -91,7 +91,7 @@ class Expression(object):
         return f"{left} {op} {right}".strip()
 
     @classmethod
-    def _parse(cls, expr_str, g_vars=False):
+    def _parse(cls, expr_str, prefix=""):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         if not expr_str:
@@ -99,10 +99,10 @@ class Expression(object):
             return None
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
-            return Expression(expr_str, g_vars)
+            return Expression(expr_str, prefix)
         for op in cls.operators:
             if expr_str.find(op) != -1:
-                return Expression(expr_str, g_vars)
+                return Expression(expr_str, prefix)
         # try to convert it to one of the following classes
         for create_cls in (int, Version):
             try:
@@ -113,11 +113,6 @@ class Expression(object):
         # at this point, expr_str is a single attribute
         # apply name filter on each component separately
         # (where a dot separates components)
-        if g_vars:
-            # globals are stored on the context
-            prefix = "self.context."
-        else:
-            prefix = "self."
         return prefix + ('.'.join(name_attribute(comp) for comp in expr_str.split(".")))
 
     @classmethod

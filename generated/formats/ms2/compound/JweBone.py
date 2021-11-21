@@ -31,19 +31,40 @@ class JweBone:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.loc = stream.read_type(Vector3, (self.context, 0, None))
-		self.scale = stream.read_float()
-		self.rot = stream.read_type(Vector4, (self.context, 0, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_type(self.loc)
-		stream.write_float(self.scale)
-		stream.write_type(self.rot)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
+		instance.scale = stream.read_float()
+		instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		Vector3.to_stream(stream, instance.loc)
+		stream.write_float(instance.scale)
+		Vector4.to_stream(stream, instance.rot)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'JweBone [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -37,23 +37,44 @@ class BufferEntry:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 19:
-			self.index = stream.read_uint()
-		self.size = stream.read_uint()
-		if self.context.version >= 20:
-			self.file_hash = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 19:
-			stream.write_uint(self.index)
-		stream.write_uint(self.size)
-		if self.context.version >= 20:
-			stream.write_uint(self.file_hash)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		if instance.context.version <= 19:
+			instance.index = stream.read_uint()
+		instance.size = stream.read_uint()
+		if instance.context.version >= 20:
+			instance.file_hash = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		if instance.context.version <= 19:
+			stream.write_uint(instance.index)
+		stream.write_uint(instance.size)
+		if instance.context.version >= 20:
+			stream.write_uint(instance.file_hash)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'BufferEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -21,11 +21,11 @@ class InfoHeader(GenericHeader):
 		self.io_size = 0
 		self.io_start = 0
 		self.mani_count = 0
-		self.names = Array((self.mani_count), ZString, self.context, 0, None)
+		self.names = Array((self.mani_count,), ZString, self.context, 0, None)
 		self.header = SizedStrData(self.context, 0, None)
-		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, 0, None)
-		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, 0, None)
+		self.mani_infos = Array((self.mani_count,), ManiInfo, self.context, 0, None)
+		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4),), dtype=numpy.dtype('uint32'))
+		self.bone_names = Array((int(self.header.hash_block_size / 4),), ZString, self.context, 0, None)
 
 		# ?
 		self.bone_pad = PadAlign(self.context, 4, bone names)
@@ -34,36 +34,59 @@ class InfoHeader(GenericHeader):
 
 	def set_defaults(self):
 		self.mani_count = 0
-		self.names = Array((self.mani_count), ZString, self.context, 0, None)
+		self.names = Array((self.mani_count,), ZString, self.context, 0, None)
 		self.header = SizedStrData(self.context, 0, None)
-		self.mani_infos = Array((self.mani_count), ManiInfo, self.context, 0, None)
-		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array((int(self.header.hash_block_size / 4)), ZString, self.context, 0, None)
+		self.mani_infos = Array((self.mani_count,), ManiInfo, self.context, 0, None)
+		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4),), dtype=numpy.dtype('uint32'))
+		self.bone_names = Array((int(self.header.hash_block_size / 4),), ZString, self.context, 0, None)
 		self.bone_pad = PadAlign(self.context, 4, bone names)
 
 	def read(self, stream):
-		super().read(stream)
-		self.mani_count = stream.read_uint()
-		self.names = stream.read_zstrings((self.mani_count))
-		self.header = stream.read_type(SizedStrData, (self.context, 0, None))
-		self.mani_infos.read(stream, ManiInfo, self.mani_count, None)
-		self.bone_hashes = stream.read_uints((int(self.header.hash_block_size / 4)))
-		self.bone_names = stream.read_zstrings((int(self.header.hash_block_size / 4)))
-		self.bone_pad = stream.read_type(PadAlign, (self.context, 4, bone names))
-
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		super().write(stream)
-		stream.write_uint(self.mani_count)
-		stream.write_zstrings(self.names)
-		stream.write_type(self.header)
-		self.mani_infos.write(stream, ManiInfo, self.mani_count, None)
-		stream.write_uints(self.bone_hashes)
-		stream.write_zstrings(self.bone_names)
-		stream.write_type(self.bone_pad)
-
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.mani_count = stream.read_uint()
+		instance.names = stream.read_zstrings((instance.mani_count,))
+		instance.header = SizedStrData.from_stream(stream, instance.context, 0, None)
+		instance.mani_infos = Array.from_stream(stream, (instance.mani_count,), ManiInfo, instance.context, 0, None)
+		instance.bone_hashes = stream.read_uints((int(instance.header.hash_block_size / 4),))
+		instance.bone_names = stream.read_zstrings((int(instance.header.hash_block_size / 4),))
+		instance.bone_pad = PadAlign.from_stream(stream, instance.context, 4, bone names)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_uint(instance.mani_count)
+		stream.write_zstrings(instance.names)
+		SizedStrData.to_stream(stream, instance.header)
+		Array.to_stream(stream, instance.mani_infos, (instance.mani_count,),ManiInfo, instance.context, 0, None)
+		stream.write_uints(instance.bone_hashes)
+		stream.write_zstrings(instance.bone_names)
+		PadAlign.to_stream(stream, instance.bone_pad)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -39,21 +39,42 @@ class Data:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.id = stream.read_uint64()
-		self.type = stream.read_uint64()
-		self.offset = stream.read_uint64()
-		self.dsize = stream.read_uint64()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.id)
-		stream.write_uint64(self.type)
-		stream.write_uint64(self.offset)
-		stream.write_uint64(self.dsize)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.id = stream.read_uint64()
+		instance.type = stream.read_uint64()
+		instance.offset = stream.read_uint64()
+		instance.dsize = stream.read_uint64()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.id)
+		stream.write_uint64(instance.type)
+		stream.write_uint64(instance.offset)
+		stream.write_uint64(instance.dsize)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

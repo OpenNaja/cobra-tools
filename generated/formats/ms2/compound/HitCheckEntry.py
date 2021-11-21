@@ -76,61 +76,82 @@ class HitCheckEntry:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.type = CollisionType(stream.read_uint())
-		self.unknown_2_a = stream.read_ubyte()
-		self.unknown_2_b = stream.read_ubyte()
-		self.unknown_2_c = stream.read_ubyte()
-		self.unknown_2_d = stream.read_ubyte()
-		self.unknown_3 = stream.read_uint()
-		self.unknown_4 = stream.read_uint()
-		if self.context.version == 18:
-			self.zero_extra_pc_unk = stream.read_uint()
-		self.name_offset = stream.read_uint()
-		if self.type == 0:
-			self.collider = stream.read_type(Sphere, (self.context, 0, None))
-		if self.type == 1:
-			self.collider = stream.read_type(BoundingBox, (self.context, 0, None))
-		if self.type == 2:
-			self.collider = stream.read_type(Capsule, (self.context, 0, None))
-		if self.type == 3:
-			self.collider = stream.read_type(Cylinder, (self.context, 0, None))
-		if self.type == 7:
-			self.collider = stream.read_type(ConvexHull, (self.context, 0, None))
-		if self.type == 8:
-			self.collider = stream.read_type(ConvexHull, (self.context, 0, None))
-		if self.type == 10:
-			self.collider = stream.read_type(MeshCollision, (self.context, 0, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.type.value)
-		stream.write_ubyte(self.unknown_2_a)
-		stream.write_ubyte(self.unknown_2_b)
-		stream.write_ubyte(self.unknown_2_c)
-		stream.write_ubyte(self.unknown_2_d)
-		stream.write_uint(self.unknown_3)
-		stream.write_uint(self.unknown_4)
-		if self.context.version == 18:
-			stream.write_uint(self.zero_extra_pc_unk)
-		stream.write_uint(self.name_offset)
-		if self.type == 0:
-			stream.write_type(self.collider)
-		if self.type == 1:
-			stream.write_type(self.collider)
-		if self.type == 2:
-			stream.write_type(self.collider)
-		if self.type == 3:
-			stream.write_type(self.collider)
-		if self.type == 7:
-			stream.write_type(self.collider)
-		if self.type == 8:
-			stream.write_type(self.collider)
-		if self.type == 10:
-			stream.write_type(self.collider)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.type = CollisionType.from_value(stream.read_uint())
+		instance.unknown_2_a = stream.read_ubyte()
+		instance.unknown_2_b = stream.read_ubyte()
+		instance.unknown_2_c = stream.read_ubyte()
+		instance.unknown_2_d = stream.read_ubyte()
+		instance.unknown_3 = stream.read_uint()
+		instance.unknown_4 = stream.read_uint()
+		if instance.context.version == 18:
+			instance.zero_extra_pc_unk = stream.read_uint()
+		instance.name_offset = stream.read_uint()
+		if instance.type == 0:
+			instance.collider = Sphere.from_stream(stream, instance.context, 0, None)
+		if instance.type == 1:
+			instance.collider = BoundingBox.from_stream(stream, instance.context, 0, None)
+		if instance.type == 2:
+			instance.collider = Capsule.from_stream(stream, instance.context, 0, None)
+		if instance.type == 3:
+			instance.collider = Cylinder.from_stream(stream, instance.context, 0, None)
+		if instance.type == 7:
+			instance.collider = ConvexHull.from_stream(stream, instance.context, 0, None)
+		if instance.type == 8:
+			instance.collider = ConvexHull.from_stream(stream, instance.context, 0, None)
+		if instance.type == 10:
+			instance.collider = MeshCollision.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.type.value)
+		stream.write_ubyte(instance.unknown_2_a)
+		stream.write_ubyte(instance.unknown_2_b)
+		stream.write_ubyte(instance.unknown_2_c)
+		stream.write_ubyte(instance.unknown_2_d)
+		stream.write_uint(instance.unknown_3)
+		stream.write_uint(instance.unknown_4)
+		if instance.context.version == 18:
+			stream.write_uint(instance.zero_extra_pc_unk)
+		stream.write_uint(instance.name_offset)
+		if instance.type == 0:
+			Sphere.to_stream(stream, instance.collider)
+		if instance.type == 1:
+			BoundingBox.to_stream(stream, instance.collider)
+		if instance.type == 2:
+			Capsule.to_stream(stream, instance.collider)
+		if instance.type == 3:
+			Cylinder.to_stream(stream, instance.collider)
+		if instance.type == 7:
+			ConvexHull.to_stream(stream, instance.collider)
+		if instance.type == 8:
+			ConvexHull.to_stream(stream, instance.collider)
+		if instance.type == 10:
+			MeshCollision.to_stream(stream, instance.collider)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'HitCheckEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

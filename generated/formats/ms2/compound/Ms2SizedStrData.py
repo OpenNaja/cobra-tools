@@ -34,7 +34,7 @@ class Ms2SizedStrData:
 		self.unk_count = 0
 
 		# seems to be zeros
-		self.unknown_1 = numpy.zeros((3), dtype=numpy.dtype('uint32'))
+		self.unknown_1 = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
@@ -44,30 +44,51 @@ class Ms2SizedStrData:
 		self.mdl_2_count = 0
 		self.name_count = 0
 		self.unk_count = 0
-		self.unknown_1 = numpy.zeros((3), dtype=numpy.dtype('uint32'))
+		self.unknown_1 = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.ms_2_version = stream.read_uint()
-		self.context.ms_2_version = self.ms_2_version
-		self.vertex_buffer_count = stream.read_ushort()
-		self.mdl_2_count = stream.read_ushort()
-		self.name_count = stream.read_ushort()
-		self.unk_count = stream.read_ushort()
-		self.unknown_1 = stream.read_uints((3))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.ms_2_version)
-		stream.write_ushort(self.vertex_buffer_count)
-		stream.write_ushort(self.mdl_2_count)
-		stream.write_ushort(self.name_count)
-		stream.write_ushort(self.unk_count)
-		stream.write_uints(self.unknown_1)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.ms_2_version = stream.read_uint()
+		instance.context.ms_2_version = instance.ms_2_version
+		instance.vertex_buffer_count = stream.read_ushort()
+		instance.mdl_2_count = stream.read_ushort()
+		instance.name_count = stream.read_ushort()
+		instance.unk_count = stream.read_ushort()
+		instance.unknown_1 = stream.read_uints((3,))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.ms_2_version)
+		stream.write_ushort(instance.vertex_buffer_count)
+		stream.write_ushort(instance.mdl_2_count)
+		stream.write_ushort(instance.name_count)
+		stream.write_ushort(instance.unk_count)
+		stream.write_uints(instance.unknown_1)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Ms2SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

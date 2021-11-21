@@ -35,26 +35,49 @@ class Ms2InfoHeader(GenericHeader):
 		self.buffer_0 = Ms2Buffer0(self.context, self.general_info, None)
 
 	def read(self, stream):
-		super().read(stream)
-		self.bone_names_size = stream.read_uint()
-		self.bone_info_size = stream.read_uint()
-		self.general_info = stream.read_type(Ms2SizedStrData, (self.context, 0, None))
-		if not (self.context.version < 19) and self.general_info.vertex_buffer_count:
-			self.buffer_info = stream.read_type(Ms2BufferInfo, (self.context, 0, None))
-		self.buffer_0 = stream.read_type(Ms2Buffer0, (self.context, self.general_info, None))
-
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		super().write(stream)
-		stream.write_uint(self.bone_names_size)
-		stream.write_uint(self.bone_info_size)
-		stream.write_type(self.general_info)
-		if not (self.context.version < 19) and self.general_info.vertex_buffer_count:
-			stream.write_type(self.buffer_info)
-		stream.write_type(self.buffer_0)
-
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.bone_names_size = stream.read_uint()
+		instance.bone_info_size = stream.read_uint()
+		instance.general_info = Ms2SizedStrData.from_stream(stream, instance.context, 0, None)
+		if not (instance.context.version < 19) and instance.general_info.vertex_buffer_count:
+			instance.buffer_info = Ms2BufferInfo.from_stream(stream, instance.context, 0, None)
+		instance.buffer_0 = Ms2Buffer0.from_stream(stream, instance.context, instance.general_info, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_uint(instance.bone_names_size)
+		stream.write_uint(instance.bone_info_size)
+		Ms2SizedStrData.to_stream(stream, instance.general_info)
+		if not (instance.context.version < 19) and instance.general_info.vertex_buffer_count:
+			Ms2BufferInfo.to_stream(stream, instance.buffer_info)
+		Ms2Buffer0.to_stream(stream, instance.buffer_0)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Ms2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

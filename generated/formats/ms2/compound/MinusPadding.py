@@ -19,30 +19,51 @@ class MinusPadding:
 		self.io_start = 0
 
 		# -1
-		self.indices = numpy.zeros((self.arg), dtype=numpy.dtype('int16'))
+		self.indices = numpy.zeros((self.arg,), dtype=numpy.dtype('int16'))
 
 		# 0
-		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
+		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.indices = numpy.zeros((self.arg), dtype=numpy.dtype('int16'))
-		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16), dtype=numpy.dtype('int8'))
+		self.indices = numpy.zeros((self.arg,), dtype=numpy.dtype('int16'))
+		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.indices = stream.read_shorts((self.arg))
-		self.padding = stream.read_bytes(((16 - ((self.arg * 2) % 16)) % 16))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_shorts(self.indices)
-		stream.write_bytes(self.padding)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.indices = stream.read_shorts((instance.arg,))
+		instance.padding = stream.read_bytes(((16 - ((instance.arg * 2) % 16)) % 16,))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_shorts(instance.indices)
+		stream.write_bytes(instance.padding)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'MinusPadding [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

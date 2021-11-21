@@ -65,35 +65,56 @@ class MemPool:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version == 15):
-			self.zero_1 = stream.read_uint64()
-		self.size = stream.read_uint()
-		self.offset = stream.read_uint()
-		if self.context.version == 15:
-			self.zero_2 = stream.read_uint64()
-		self.file_hash = stream.read_uint()
-		self.num_files = stream.read_uint()
-		if self.context.version >= 19:
-			self.ext_hash = stream.read_uint()
-			self.zero_3 = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version == 15):
-			stream.write_uint64(self.zero_1)
-		stream.write_uint(self.size)
-		stream.write_uint(self.offset)
-		if self.context.version == 15:
-			stream.write_uint64(self.zero_2)
-		stream.write_uint(self.file_hash)
-		stream.write_uint(self.num_files)
-		if self.context.version >= 19:
-			stream.write_uint(self.ext_hash)
-			stream.write_uint(self.zero_3)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		if not (instance.context.version == 15):
+			instance.zero_1 = stream.read_uint64()
+		instance.size = stream.read_uint()
+		instance.offset = stream.read_uint()
+		if instance.context.version == 15:
+			instance.zero_2 = stream.read_uint64()
+		instance.file_hash = stream.read_uint()
+		instance.num_files = stream.read_uint()
+		if instance.context.version >= 19:
+			instance.ext_hash = stream.read_uint()
+			instance.zero_3 = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		if not (instance.context.version == 15):
+			stream.write_uint64(instance.zero_1)
+		stream.write_uint(instance.size)
+		stream.write_uint(instance.offset)
+		if instance.context.version == 15:
+			stream.write_uint64(instance.zero_2)
+		stream.write_uint(instance.file_hash)
+		stream.write_uint(instance.num_files)
+		if instance.context.version >= 19:
+			stream.write_uint(instance.ext_hash)
+			stream.write_uint(instance.zero_3)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'MemPool [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

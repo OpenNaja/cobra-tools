@@ -29,17 +29,38 @@ class Mdl2ModelInfo:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.fourty = stream.read_type(Mdl2FourtyInfo, (self.context, 0, None))
-		self.info = stream.read_type(CoreModelInfo, (self.context, 0, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_type(self.fourty)
-		stream.write_type(self.info)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.fourty = Mdl2FourtyInfo.from_stream(stream, instance.context, 0, None)
+		instance.info = CoreModelInfo.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		Mdl2FourtyInfo.to_stream(stream, instance.fourty)
+		CoreModelInfo.to_stream(stream, instance.info)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Mdl2ModelInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

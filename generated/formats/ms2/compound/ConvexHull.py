@@ -24,10 +24,10 @@ class ConvexHull:
 		self.offset = Vector3(self.context, 0, None)
 
 		# probably padding
-		self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint32'))
+		self.zeros = numpy.zeros((5,), dtype=numpy.dtype('uint32'))
 
 		# probably padding
-		self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint32'))
+		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 
@@ -36,33 +36,54 @@ class ConvexHull:
 		self.rotation = Matrix33(self.context, 0, None)
 		self.offset = Vector3(self.context, 0, None)
 		if self.context.version == 18:
-			self.zeros = numpy.zeros((5), dtype=numpy.dtype('uint32'))
+			self.zeros = numpy.zeros((5,), dtype=numpy.dtype('uint32'))
 		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.zeros = numpy.zeros((2), dtype=numpy.dtype('uint32'))
+			self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.vertex_count = stream.read_uint()
-		self.rotation = stream.read_type(Matrix33, (self.context, 0, None))
-		self.offset = stream.read_type(Vector3, (self.context, 0, None))
-		if self.context.version == 18:
-			self.zeros = stream.read_uints((5))
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.zeros = stream.read_uints((2))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.vertex_count)
-		stream.write_type(self.rotation)
-		stream.write_type(self.offset)
-		if self.context.version == 18:
-			stream.write_uints(self.zeros)
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			stream.write_uints(self.zeros)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.vertex_count = stream.read_uint()
+		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
+		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
+		if instance.context.version == 18:
+			instance.zeros = stream.read_uints((5,))
+		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
+			instance.zeros = stream.read_uints((2,))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.vertex_count)
+		Matrix33.to_stream(stream, instance.rotation)
+		Vector3.to_stream(stream, instance.offset)
+		if instance.context.version == 18:
+			stream.write_uints(instance.zeros)
+		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
+			stream.write_uints(instance.zeros)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'ConvexHull [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

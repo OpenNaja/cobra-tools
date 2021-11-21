@@ -56,31 +56,52 @@ class Header3Data0:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.zeros = stream.read_uint64()
-		if not (self.context.version < 19):
-			self.compression_type = DdsType(stream.read_ubyte())
-		if self.context.version < 19:
-			self.compression_type = DdsTypeCoaster(stream.read_ubyte())
-		self.one_0 = stream.read_ubyte()
-		self.stream_count = stream.read_ubyte()
-		self.stream_count_repeat = stream.read_ubyte()
-		self.pad = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.zeros)
-		if not (self.context.version < 19):
-			stream.write_ubyte(self.compression_type.value)
-		if self.context.version < 19:
-			stream.write_ubyte(self.compression_type.value)
-		stream.write_ubyte(self.one_0)
-		stream.write_ubyte(self.stream_count)
-		stream.write_ubyte(self.stream_count_repeat)
-		stream.write_uint(self.pad)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.zeros = stream.read_uint64()
+		if not (instance.context.version < 19):
+			instance.compression_type = DdsType.from_value(stream.read_ubyte())
+		if instance.context.version < 19:
+			instance.compression_type = DdsTypeCoaster.from_value(stream.read_ubyte())
+		instance.one_0 = stream.read_ubyte()
+		instance.stream_count = stream.read_ubyte()
+		instance.stream_count_repeat = stream.read_ubyte()
+		instance.pad = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.zeros)
+		if not (instance.context.version < 19):
+			stream.write_ubyte(instance.compression_type.value)
+		if instance.context.version < 19:
+			stream.write_ubyte(instance.compression_type.value)
+		stream.write_ubyte(instance.one_0)
+		stream.write_ubyte(instance.stream_count)
+		stream.write_ubyte(instance.stream_count_repeat)
+		stream.write_uint(instance.pad)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Header3Data0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

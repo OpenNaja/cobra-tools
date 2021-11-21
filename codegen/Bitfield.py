@@ -36,8 +36,22 @@ class Bitfield(BaseClass):
 
     def write_storage_io_methods(self, f, storage, attr='self._value'):
         for method_type in ("read", "write"):
-            f.write(f"\n\n\tdef {method_type}(self, stream):")
-            f.write(f"\n\t\t{self.parser.method_for_type(storage, mode=method_type, attr=attr)}")
+            self.write_line(f)
+            self.write_line(f, 1, f"def {method_type}(self, stream):")
+            if method_type == "read":
+                self.write_line(f, 2, f"self._value = {self.parser.read_for_type(storage, 'self.context')}")
+            elif method_type == "write":
+                self.write_line(f, 2, f"{self.parser.write_for_type(storage, attr, 'self.context')}")
+
+        self.write_line(f)
+        self.write_line(f, 1, "@classmethod")
+        self.write_line(f, 1, "def from_stream(cls, stream, context=None, arg=0, template=None):")
+        self.write_line(f, 2, f"return cls.from_value({self.parser.read_for_type(storage, 'context')})")
+
+        self.write_line(f)
+        self.write_line(f, 1, "@classmethod")
+        self.write_line(f, 1, "def to_stream(cls, stream, instance):")
+        self.write_line(f, 2, f"{self.parser.write_for_type(storage, 'instance._value', 'context')}")
         # f.write(f"\n")
 
     def read(self):

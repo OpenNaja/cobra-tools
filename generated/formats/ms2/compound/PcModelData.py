@@ -31,7 +31,7 @@ class PcModelData:
 		self.stream_index = 0
 
 		# always zero
-		self.zeros_a = numpy.zeros((3), dtype=numpy.dtype('uint32'))
+		self.zeros_a = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 
 		# repeat
 		self.tri_index_count_a = 0
@@ -82,7 +82,7 @@ class PcModelData:
 
 	def set_defaults(self):
 		self.stream_index = 0
-		self.zeros_a = numpy.zeros((3), dtype=numpy.dtype('uint32'))
+		self.zeros_a = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 		self.tri_offset = 0
@@ -105,53 +105,74 @@ class PcModelData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.stream_index = stream.read_uint()
-		self.zeros_a = stream.read_uints((3))
-		self.tri_index_count_a = stream.read_uint()
-		self.vertex_count = stream.read_uint()
-		self.tri_offset = stream.read_uint()
-		self.tri_index_count = stream.read_uint()
-		self.vertex_offset = stream.read_uint()
-		self.weights_offset = stream.read_uint()
-		self.uv_offset = stream.read_uint()
-		self.zero_b = stream.read_uint()
-		self.vertex_color_offset = stream.read_uint()
-		self.vert_offset_within_lod = stream.read_uint()
-		if self.context.version == 18:
-			self.poweroftwo = stream.read_uint()
-			self.zero = stream.read_uint()
-		if self.context.version == 18:
-			self.unknown_07 = stream.read_float()
-		self.flag = stream.read_type(ModelFlag)
-		if self.context.version == 17:
-			self.zero_uac = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.stream_index)
-		stream.write_uints(self.zeros_a)
-		stream.write_uint(self.tri_index_count_a)
-		stream.write_uint(self.vertex_count)
-		stream.write_uint(self.tri_offset)
-		stream.write_uint(self.tri_index_count)
-		stream.write_uint(self.vertex_offset)
-		stream.write_uint(self.weights_offset)
-		stream.write_uint(self.uv_offset)
-		stream.write_uint(self.zero_b)
-		stream.write_uint(self.vertex_color_offset)
-		stream.write_uint(self.vert_offset_within_lod)
-		if self.context.version == 18:
-			stream.write_uint(self.poweroftwo)
-			stream.write_uint(self.zero)
-		if self.context.version == 18:
-			stream.write_float(self.unknown_07)
-		stream.write_type(self.flag)
-		if self.context.version == 17:
-			stream.write_uint(self.zero_uac)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.stream_index = stream.read_uint()
+		instance.zeros_a = stream.read_uints((3,))
+		instance.tri_index_count_a = stream.read_uint()
+		instance.vertex_count = stream.read_uint()
+		instance.tri_offset = stream.read_uint()
+		instance.tri_index_count = stream.read_uint()
+		instance.vertex_offset = stream.read_uint()
+		instance.weights_offset = stream.read_uint()
+		instance.uv_offset = stream.read_uint()
+		instance.zero_b = stream.read_uint()
+		instance.vertex_color_offset = stream.read_uint()
+		instance.vert_offset_within_lod = stream.read_uint()
+		if instance.context.version == 18:
+			instance.poweroftwo = stream.read_uint()
+			instance.zero = stream.read_uint()
+		if instance.context.version == 18:
+			instance.unknown_07 = stream.read_float()
+		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
+		if instance.context.version == 17:
+			instance.zero_uac = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.stream_index)
+		stream.write_uints(instance.zeros_a)
+		stream.write_uint(instance.tri_index_count_a)
+		stream.write_uint(instance.vertex_count)
+		stream.write_uint(instance.tri_offset)
+		stream.write_uint(instance.tri_index_count)
+		stream.write_uint(instance.vertex_offset)
+		stream.write_uint(instance.weights_offset)
+		stream.write_uint(instance.uv_offset)
+		stream.write_uint(instance.zero_b)
+		stream.write_uint(instance.vertex_color_offset)
+		stream.write_uint(instance.vert_offset_within_lod)
+		if instance.context.version == 18:
+			stream.write_uint(instance.poweroftwo)
+			stream.write_uint(instance.zero)
+		if instance.context.version == 18:
+			stream.write_float(instance.unknown_07)
+		ModelFlag.to_stream(stream, instance.flag)
+		if instance.context.version == 17:
+			stream.write_uint(instance.zero_uac)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'PcModelData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -41,23 +41,44 @@ class BaniFragmentData0:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.zero = stream.read_uint64()
-		self.read_start_frame = stream.read_uint()
-		self.num_frames = stream.read_uint()
-		self.animation_length = stream.read_float()
-		self.loop_flag = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.zero)
-		stream.write_uint(self.read_start_frame)
-		stream.write_uint(self.num_frames)
-		stream.write_float(self.animation_length)
-		stream.write_uint(self.loop_flag)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.zero = stream.read_uint64()
+		instance.read_start_frame = stream.read_uint()
+		instance.num_frames = stream.read_uint()
+		instance.animation_length = stream.read_float()
+		instance.loop_flag = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.zero)
+		stream.write_uint(instance.read_start_frame)
+		stream.write_uint(instance.num_frames)
+		stream.write_float(instance.animation_length)
+		stream.write_uint(instance.loop_flag)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'BaniFragmentData0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

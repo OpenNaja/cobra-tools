@@ -37,22 +37,45 @@ class ListShort(Descriptor):
 		self.max = 0.0
 
 	def read(self, stream):
-		super().read(stream)
-		self.loc = stream.read_type(Vector3, (self.context, 0, None))
-		self.direction = stream.read_type(Vector3, (self.context, 0, None))
-		self.min = stream.read_float()
-		self.max = stream.read_float()
-
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		super().write(stream)
-		stream.write_type(self.loc)
-		stream.write_type(self.direction)
-		stream.write_float(self.min)
-		stream.write_float(self.max)
-
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
+		instance.direction = Vector3.from_stream(stream, instance.context, 0, None)
+		instance.min = stream.read_float()
+		instance.max = stream.read_float()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		Vector3.to_stream(stream, instance.loc)
+		Vector3.to_stream(stream, instance.direction)
+		stream.write_float(instance.min)
+		stream.write_float(instance.max)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'ListShort [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

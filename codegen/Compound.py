@@ -3,7 +3,6 @@ from .BaseClass import BaseClass
 from .Union import Union, get_params
 
 FIELD_TYPES = ("add", "field")
-VER = "self.context.version"
 
 
 class Compound(BaseClass):
@@ -75,24 +74,56 @@ class Compound(BaseClass):
             # write the load() method
             for method_type in ("read", "write"):
                 method_str = f"def {method_type}(self, stream):"
-                # check all fields/members in this class and write them as fields
+                # read/write the fields for an object from the stream
                 if method_str in self.src_code:
                     continue
                 self.write_line(f)
                 self.write_line(f, 1, method_str)
+                # retain the io_start
+                self.write_line(f, 2, "self.io_start = stream.tell()")
+                self.write_line(f, 2, f"self.{method_type}_fields(stream, self)")
+                self.write_line(f, 2, "self.io_size = stream.tell() - self.io_start")
+
+            # write the read_fields/write_fields methods
+            for method_type in ("read", "write"):
+                method_str = f"def {method_type}_fields(cls, stream, instance):"
+                if method_str in self.src_code:
+                    continue
+                self.write_line(f)
+                self.write_line(f, 1, '@classmethod')
+                self.write_line(f, 1, method_str)
                 # classes that this class inherits from have to be read/written first
                 if self.class_basename:
-                    self.write_line(f, 2, f"super().{method_type}(stream)")
-                else:
-                    self.write_line(f, 2, "self.io_start = stream.tell()")
+                    self.write_line(f, 2, f"super().{method_type}_fields(stream, instance)")
 
                 # write all fields, merge conditions
                 condition = ""
                 for union in self.field_unions:
-                    condition = union.write_io(f, method_type, condition)
+                    condition = union.write_io(f, method_type, condition, target_variable="instance")
 
+            # write the from_stream method
+            method_str = "def from_stream(cls, stream, context, arg=0, template=None):"
+            if method_str not in self.src_code:
                 self.write_line(f)
-                self.write_line(f, 2, "self.io_size = stream.tell() - self.io_start")
+                self.write_line(f, 1, '@classmethod')
+                self.write_line(f, 1, method_str)
+                # create the object
+                self.write_line(f, 2, 'instance = cls(context, arg, template, set_default=False)')
+                self.write_line(f, 2, 'instance.io_start = stream.tell()')
+                self.write_line(f, 2, 'cls.read_fields(stream, instance)')
+                self.write_line(f, 2, 'instance.io_size = stream.tell() - instance.io_start')
+                self.write_line(f, 2, 'return instance')
+
+            # write the to_stream method
+            method_str = "def to_stream(cls, stream, instance):"
+            if method_str not in self.src_code:
+                self.write_line(f)
+                self.write_line(f, 1, '@classmethod')
+                self.write_line(f, 1, method_str)
+                self.write_line(f, 2, 'instance.io_start = stream.tell()')
+                self.write_line(f, 2, 'cls.write_fields(stream, instance)')
+                self.write_line(f, 2, 'instance.io_size = stream.tell() - instance.io_start')
+                self.write_line(f, 2, 'return instance')
 
             if "def __repr__(" not in self.src_code:
                 self.write_line(f)

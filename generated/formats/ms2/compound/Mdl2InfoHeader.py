@@ -36,16 +36,16 @@ class Mdl2InfoHeader(GenericHeader):
 		self.model_info = CoreModelInfo(self.context, 0, None)
 
 		# name pointers for each material
-		self.materials = Array((self.model_info.num_materials), MaterialName, self.context, 0, None)
+		self.materials = Array((self.model_info.num_materials,), MaterialName, self.context, 0, None)
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
-		self.lods = Array((self.model_info.num_lods), LodInfo, self.context, 0, None)
+		self.lods = Array((self.model_info.num_lods,), LodInfo, self.context, 0, None)
 
 		# instantiate the meshes with materials
-		self.objects = Array((self.model_info.num_objects), MeshLink, self.context, 0, None)
+		self.objects = Array((self.model_info.num_objects,), MeshLink, self.context, 0, None)
 
 		# model data blocks for this mdl2
-		self.models = Array((self.model_info.num_models), ModelData, self.context, 0, None)
+		self.models = Array((self.model_info.num_models,), ModelData, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -56,45 +56,68 @@ class Mdl2InfoHeader(GenericHeader):
 		if not (self.context.version < 19):
 			self.model_info = CoreModelInfo(self.context, 0, None)
 		if not (self.context.version < 19):
-			self.materials = Array((self.model_info.num_materials), MaterialName, self.context, 0, None)
+			self.materials = Array((self.model_info.num_materials,), MaterialName, self.context, 0, None)
 		if not (self.context.version < 19) and self.model_info.num_models:
-			self.lods = Array((self.model_info.num_lods), LodInfo, self.context, 0, None)
+			self.lods = Array((self.model_info.num_lods,), LodInfo, self.context, 0, None)
 		if not (self.context.version < 19):
-			self.objects = Array((self.model_info.num_objects), MeshLink, self.context, 0, None)
+			self.objects = Array((self.model_info.num_objects,), MeshLink, self.context, 0, None)
 		if not (self.context.version < 19):
-			self.models = Array((self.model_info.num_models), ModelData, self.context, 0, None)
+			self.models = Array((self.model_info.num_models,), ModelData, self.context, 0, None)
 
 	def read(self, stream):
-		super().read(stream)
-		self.index = stream.read_uint()
-		self.bone_info_index = stream.read_uint()
-		self.ms_2_name = stream.read_string()
-		if not (self.context.version < 19):
-			self.model_info = stream.read_type(CoreModelInfo, (self.context, 0, None))
-			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
-		if not (self.context.version < 19) and self.model_info.num_models:
-			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)
-		if not (self.context.version < 19):
-			self.objects.read(stream, MeshLink, self.model_info.num_objects, None)
-			self.models.read(stream, ModelData, self.model_info.num_models, None)
-
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
-		super().write(stream)
-		stream.write_uint(self.index)
-		stream.write_uint(self.bone_info_index)
-		stream.write_string(self.ms_2_name)
-		if not (self.context.version < 19):
-			stream.write_type(self.model_info)
-			self.materials.write(stream, MaterialName, self.model_info.num_materials, None)
-		if not (self.context.version < 19) and self.model_info.num_models:
-			self.lods.write(stream, LodInfo, self.model_info.num_lods, None)
-		if not (self.context.version < 19):
-			self.objects.write(stream, MeshLink, self.model_info.num_objects, None)
-			self.models.write(stream, ModelData, self.model_info.num_models, None)
-
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.index = stream.read_uint()
+		instance.bone_info_index = stream.read_uint()
+		instance.ms_2_name = stream.read_string()
+		if not (instance.context.version < 19):
+			instance.model_info = CoreModelInfo.from_stream(stream, instance.context, 0, None)
+			instance.materials = Array.from_stream(stream, (instance.model_info.num_materials,), MaterialName, instance.context, 0, None)
+		if not (instance.context.version < 19) and instance.model_info.num_models:
+			instance.lods = Array.from_stream(stream, (instance.model_info.num_lods,), LodInfo, instance.context, 0, None)
+		if not (instance.context.version < 19):
+			instance.objects = Array.from_stream(stream, (instance.model_info.num_objects,), MeshLink, instance.context, 0, None)
+			instance.models = Array.from_stream(stream, (instance.model_info.num_models,), ModelData, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_uint(instance.index)
+		stream.write_uint(instance.bone_info_index)
+		stream.write_string(instance.ms_2_name)
+		if not (instance.context.version < 19):
+			CoreModelInfo.to_stream(stream, instance.model_info)
+			Array.to_stream(stream, instance.materials, (instance.model_info.num_materials,),MaterialName, instance.context, 0, None)
+		if not (instance.context.version < 19) and instance.model_info.num_models:
+			Array.to_stream(stream, instance.lods, (instance.model_info.num_lods,),LodInfo, instance.context, 0, None)
+		if not (instance.context.version < 19):
+			Array.to_stream(stream, instance.objects, (instance.model_info.num_objects,),MeshLink, instance.context, 0, None)
+			Array.to_stream(stream, instance.models, (instance.model_info.num_models,),ModelData, instance.context, 0, None)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Mdl2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

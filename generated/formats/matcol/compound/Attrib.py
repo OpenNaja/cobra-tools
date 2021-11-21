@@ -15,7 +15,7 @@ class Attrib:
 		self.io_start = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.attrib = numpy.zeros((4), dtype=numpy.dtype('int8'))
+		self.attrib = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 		self.zero_2 = 0
 		if set_default:
 			self.set_defaults()
@@ -23,26 +23,47 @@ class Attrib:
 	def set_defaults(self):
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.attrib = numpy.zeros((4), dtype=numpy.dtype('int8'))
+		self.attrib = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 		self.zero_2 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.zero_0 = stream.read_uint()
-		self.zero_1 = stream.read_uint()
-		self.attrib = stream.read_bytes((4))
-		self.zero_2 = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.zero_0)
-		stream.write_uint(self.zero_1)
-		stream.write_bytes(self.attrib)
-		stream.write_uint(self.zero_2)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.zero_0 = stream.read_uint()
+		instance.zero_1 = stream.read_uint()
+		instance.attrib = stream.read_bytes((4,))
+		instance.zero_2 = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.zero_0)
+		stream.write_uint(instance.zero_1)
+		stream.write_bytes(instance.attrib)
+		stream.write_uint(instance.zero_2)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Attrib [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

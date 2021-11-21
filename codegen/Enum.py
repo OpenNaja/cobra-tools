@@ -1,8 +1,5 @@
 from .BaseClass import BaseClass
 
-FIELD_TYPES = ("add", "field")
-VER = "self.context.version"
-
 
 class Enum(BaseClass):
 

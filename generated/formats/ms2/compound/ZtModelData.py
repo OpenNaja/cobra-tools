@@ -120,63 +120,84 @@ class ZtModelData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.stream_index = stream.read_uint()
-		self.zero_a = stream.read_uint()
-		self.some_index = stream.read_uint()
-		self.zero_b = stream.read_uint()
-		self.tri_index_count = stream.read_uint()
-		self.vertex_count = stream.read_uint()
-		self.tri_info_offset = stream.read_uint()
-		self.vert_info_offset = stream.read_uint()
-		self.known_ff_0 = stream.read_int()
-		self.tri_offset = stream.read_uint()
-		self.uv_offset = stream.read_uint()
-		self.vert_offset = stream.read_uint()
-		self.known_ff_1 = stream.read_short()
-		self.one_0 = stream.read_ushort()
-		self.one_1 = stream.read_ushort()
-		if self.context.version == 17:
-			self.poweroftwo = stream.read_ushort()
-		if self.context.version == 18:
-			self.poweroftwo = stream.read_uint()
-			self.zero = stream.read_uint()
-		if self.context.version == 18:
-			self.unknown_07 = stream.read_float()
-		self.flag = stream.read_type(ModelFlagZT)
-		if self.context.version == 17:
-			self.zero_uac = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.stream_index)
-		stream.write_uint(self.zero_a)
-		stream.write_uint(self.some_index)
-		stream.write_uint(self.zero_b)
-		stream.write_uint(self.tri_index_count)
-		stream.write_uint(self.vertex_count)
-		stream.write_uint(self.tri_info_offset)
-		stream.write_uint(self.vert_info_offset)
-		stream.write_int(self.known_ff_0)
-		stream.write_uint(self.tri_offset)
-		stream.write_uint(self.uv_offset)
-		stream.write_uint(self.vert_offset)
-		stream.write_short(self.known_ff_1)
-		stream.write_ushort(self.one_0)
-		stream.write_ushort(self.one_1)
-		if self.context.version == 17:
-			stream.write_ushort(self.poweroftwo)
-		if self.context.version == 18:
-			stream.write_uint(self.poweroftwo)
-			stream.write_uint(self.zero)
-		if self.context.version == 18:
-			stream.write_float(self.unknown_07)
-		stream.write_type(self.flag)
-		if self.context.version == 17:
-			stream.write_uint(self.zero_uac)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.stream_index = stream.read_uint()
+		instance.zero_a = stream.read_uint()
+		instance.some_index = stream.read_uint()
+		instance.zero_b = stream.read_uint()
+		instance.tri_index_count = stream.read_uint()
+		instance.vertex_count = stream.read_uint()
+		instance.tri_info_offset = stream.read_uint()
+		instance.vert_info_offset = stream.read_uint()
+		instance.known_ff_0 = stream.read_int()
+		instance.tri_offset = stream.read_uint()
+		instance.uv_offset = stream.read_uint()
+		instance.vert_offset = stream.read_uint()
+		instance.known_ff_1 = stream.read_short()
+		instance.one_0 = stream.read_ushort()
+		instance.one_1 = stream.read_ushort()
+		if instance.context.version == 17:
+			instance.poweroftwo = stream.read_ushort()
+		if instance.context.version == 18:
+			instance.poweroftwo = stream.read_uint()
+			instance.zero = stream.read_uint()
+		if instance.context.version == 18:
+			instance.unknown_07 = stream.read_float()
+		instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
+		if instance.context.version == 17:
+			instance.zero_uac = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.stream_index)
+		stream.write_uint(instance.zero_a)
+		stream.write_uint(instance.some_index)
+		stream.write_uint(instance.zero_b)
+		stream.write_uint(instance.tri_index_count)
+		stream.write_uint(instance.vertex_count)
+		stream.write_uint(instance.tri_info_offset)
+		stream.write_uint(instance.vert_info_offset)
+		stream.write_int(instance.known_ff_0)
+		stream.write_uint(instance.tri_offset)
+		stream.write_uint(instance.uv_offset)
+		stream.write_uint(instance.vert_offset)
+		stream.write_short(instance.known_ff_1)
+		stream.write_ushort(instance.one_0)
+		stream.write_ushort(instance.one_1)
+		if instance.context.version == 17:
+			stream.write_ushort(instance.poweroftwo)
+		if instance.context.version == 18:
+			stream.write_uint(instance.poweroftwo)
+			stream.write_uint(instance.zero)
+		if instance.context.version == 18:
+			stream.write_float(instance.unknown_07)
+		ModelFlagZT.to_stream(stream, instance.flag)
+		if instance.context.version == 17:
+			stream.write_uint(instance.zero_uac)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'ZtModelData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
