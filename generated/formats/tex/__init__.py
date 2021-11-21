@@ -52,6 +52,7 @@ class TexFile(TexInfoHeader, IoFile):
 		print("\nReading mips from infos")
 		self.mips = []
 		for mip in self.frag_11.mip_maps:
+			stream.seek(self.eoh + mip.offset)
 			print(stream.tell())
 			mip_data = stream.read(mip.size_array)
 			self.mips.append(mip_data)
