@@ -77,8 +77,9 @@ class FgmLoader(BaseFile):
 			else:
 				tex_size = fgm_header.texture_count * 24
 			self.tex_info.pointers[1].split_data_padding(tex_size)
-		# this likely has no padding anyway
-		self.attr_info.pointers[1].split_data_padding(fgm_header.attribute_count * 16)
+		if self.attr_info:
+			# this likely has no padding anyway
+			self.attr_info.pointers[1].split_data_padding(fgm_header.attribute_count * 16)
 		for i, f in enumerate(self.sized_str_entry.fragments):
 			p = f.pointers[1]
 			logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
