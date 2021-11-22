@@ -1,5 +1,15 @@
+import logging
 import struct
 from modules.formats.BaseFormat import BaseFile
+
+
+def unpack_name(b):
+	b = bytearray(b)
+	# print(shader)
+	# decode the names
+	for i in range(len(b)):
+		b[i] = max(0, b[i] - 1)
+	return bytes(b)
 
 
 class MatlayersLoader(BaseFile):
@@ -12,11 +22,7 @@ class MatlayersLoader(BaseFile):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
 		self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
-		shader = bytearray(self.sized_str_entry.f0.pointers[1].data)
-		print(shader)
-		# decode the names
-		for i in range(len(shader)):
-			shader[i] = max(0, shader[i]-1)
+		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
 		print(shader)
 		# print(self.sized_str_entry.f0)
 		# 0,0,collection count,0, 0,0,
@@ -34,11 +40,16 @@ class MatlayersLoader(BaseFile):
 		# self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.f1.pointers[1],
 		# 															 layer_count)
 
+		print("self.sized_str_entry.pointers[0].data")
+		print(self.sized_str_entry.pointers[0].data)
+		print("self.sized_str_entry.f1.pointers[1]")
+		print(self.sized_str_entry.f1.pointers[1].data)
 		for tex in self.sized_str_entry.tex_frags:
 			# p0 is just 1 or 0, but weird since 8 and 16 bytes alternate
 			# first is fgm name, second layer identity name
 			# b'Swatch_Thero_TRex_LumpySkin\x00'
 			# b'Ichthyosaurus_Layer_01\x00'
+			print(tex.pointers[0].data)
 			print(tex.pointers[1].data)
 			tex.name = self.sized_str_entry.name
 
@@ -48,16 +59,27 @@ class MatvarsLoader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		print("\nMatvars:", self.sized_str_entry.name)
-
+		print(self.sized_str_entry.pointers[0].data)
 		# Sized string initpos = position of first fragment for matcol
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
-		self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
-		print(self.sized_str_entry.f0.pointers[1].data)
+		ss_d = struct.unpack("<4I", self.sized_str_entry.pointers[0].data[:16])
+		cnt = ss_d[2]
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2+cnt)
+		if cnt:
+			# rex 93
+			self.sized_str_entry.f0, self.sized_str_entry.extra, self.sized_str_entry.f1 = self.sized_str_entry.fragments
+		else:
+			# ichthyo
+			self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
+
+		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		print(shader)
+		f1_ptr = self.sized_str_entry.f1.pointers[0].data
 		# print(self.sized_str_entry.f0)
 		# 0,0,collection count,0, 0,0,
 		# print(self.sized_str_entry.f1.pointers[0].data, len(self.sized_str_entry.f1.pointers[0].data))
-		f0_d0 = struct.unpack("<6I", self.sized_str_entry.f1.pointers[0].data)
+
+		f0_d0 = struct.unpack("<4I", f1_ptr[:16])
 		layer_count = f0_d0[2] - 1
 		print(f0_d0)
 		self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.f1.pointers[1],
@@ -81,7 +103,8 @@ class MateffsLoader(BaseFile):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
 		self.sized_str_entry.f0 = self.sized_str_entry.fragments[0]
 
-		print(self.sized_str_entry.f0.pointers[1].data)
+		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		print(shader)
 		print(self.sized_str_entry.f0.pointers[0].data)
 	# print(self.sized_str_entry.f0)
 	# 0,0,collection count,0, 0,0,
@@ -110,7 +133,8 @@ class MatpatsLoader(BaseFile):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
 		self.sized_str_entry.f0 = self.sized_str_entry.fragments[0]
 
-		print(self.sized_str_entry.f0.pointers[1].data)
+		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		print(shader)
 		# print(self.sized_str_entry.f0)
 		# 0,0,collection count,0, 0,0,
 		# print(self.sized_str_entry.f1.pointers[0].data, len(self.sized_str_entry.f1.pointers[0].data))
