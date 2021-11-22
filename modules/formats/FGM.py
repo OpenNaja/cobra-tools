@@ -34,7 +34,7 @@ class FgmLoader(BaseFile):
 		for frag_i in range(frag_count):
 			frag = self.create_fragment()
 			self.sized_str_entry.fragments.append(frag)
-		self._tag_fragments(frag_count)
+		self._tag_fragments(fgm_data.fgm_info)
 
 		# these are eyeballed, not sure if they will work
 		if frag_count == 2:
@@ -65,9 +65,10 @@ class FgmLoader(BaseFile):
 		self.assign_ss_entry()
 		fgm_header = self.sized_str_entry.pointers[0].load_as(FgmHeader)[0]
 		frag_count = self._get_frag_count(fgm_header)
+		logging.debug(f"FGM: {self.sized_str_entry.name} {frag_count}")
 		self.assign_fixed_frags(frag_count)
 
-		self._tag_fragments(frag_count)
+		self._tag_fragments(fgm_header)
 
 		if self.tex_info:
 			# size of a texture info varies
@@ -82,25 +83,33 @@ class FgmLoader(BaseFile):
 			p = f.pointers[1]
 			logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
 
-	def _tag_fragments(self, frag_count):
-		logging.info(f"Tagging {frag_count} fragments")
+	def _tag_fragments(self, fgm_header):
+		logging.info(f"Tagging {len(self.sized_str_entry.fragments)} fragments")
 		# basic fgms - zeros is the ptr to the dependencies block, which is only present if they are present
-		if frag_count == 4:
+		if fgm_header.attribute_count and fgm_header.texture_count and self.file_entry.dependencies:
 			self.tex_info, self.attr_info, self.dependencies_ptr, self.data_lib = self.sized_str_entry.fragments
 		# no dependencies_ptr, otherwise same as basic
-		elif frag_count == 3:
+		elif fgm_header.attribute_count and fgm_header.texture_count:
 			self.tex_info, self.attr_info, self.data_lib = self.sized_str_entry.fragments
 		# fgms for variants
-		elif frag_count == 2:
+		elif fgm_header.attribute_count:
 			self.attr_info, self.data_lib = self.sized_str_entry.fragments
 			self.tex_info = None
+		# fgms for patternset
+		elif fgm_header.texture_count:
+			self.tex_info, self.dependencies_ptr = self.sized_str_entry.fragments
+			self.attr_info = None
+			self.data_lib = None
 		else:
 			raise AttributeError("Fgm length is wrong")
 
 	def _get_frag_count(self, fgm_header):
-		frag_count = 2
+		frag_count = 0
 		if fgm_header.texture_count:
 			frag_count += 1
+		if fgm_header.attribute_count:
+			# attrib + data frag
+			frag_count += 2
 		if self.file_entry.dependencies:
 			frag_count += 1
 		return frag_count
@@ -155,7 +164,8 @@ class FgmLoader(BaseFile):
 		with open(out_path, 'wb') as outfile:
 			outfile.write(self.pack_header(b"FGM "))
 			# we need this as its size is not predetermined
-			outfile.write(struct.pack("II", len(self.data_lib.pointers[1].data), len(self.file_entry.dependencies)))
+			data_lib_size = len(self.data_lib.pointers[1].data) if self.data_lib else 0
+			outfile.write(struct.pack("II", data_lib_size, len(self.file_entry.dependencies)))
 			# if there are 2 fragments, it is 24 bytes instead of 16
 			outfile.write(self.sized_str_entry.pointers[0].data[:16])
 			for tex in self.file_entry.dependencies:

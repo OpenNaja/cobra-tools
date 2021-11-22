@@ -1,7 +1,6 @@
 import io
 
 from generated.formats.tex.compound.TexInfoHeader import TexInfoHeader
-# from generated.formats.tex.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.io import IoFile
 
 
