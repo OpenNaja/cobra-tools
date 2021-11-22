@@ -1,3 +1,4 @@
+import importlib
 import logging
 import xml.etree.ElementTree as ET
 import os
@@ -367,6 +368,16 @@ def apply_stash(stashed_dir, target_dir):
     """Move the files in a stashed directory to the target directory, removing the temporary directory"""
     dir_util.copy_tree(stashed_dir, target_dir)
     dir_util.remove_tree(stashed_dir)
+
+
+def apply_autopep8(target_dir):
+    """Run autopep8 --in-place on the target directory, if that package is installed"""
+    if importlib.util.find_spec("autopep8"):
+        import autopep8
+        options = autopep8.parse_args(arguments=['-i', '-r', target_dir])
+        autopep8.fix_multiple_files([target_dir], options=options)
+    else:
+        logging.warn("Tried to run autopep8, but module not found.")
 
 
 def generate_classes():
