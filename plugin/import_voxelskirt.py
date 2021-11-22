@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 import bpy
@@ -55,7 +56,7 @@ def import_vertex_groups(ob, weights):
 
 
 def load(filepath=""):
-	starttime = time.clock()
+	starttime = time.time()
 	errors = []
 
 	sculpt_settings = bpy.context.scene.tool_settings.sculpt
@@ -67,8 +68,9 @@ def load(filepath=""):
 		bpy.ops.object.mode_set(mode='OBJECT')
 	except:
 		pass
+	file_name = os.path.basename(filepath)
 
-	print("\nImporting", os.path.basename(filepath))
+	logging.info(f"Importing {file_name}")
 	vox = VoxelskirtFile()
 	vox.load(filepath)
 	# old for JWE
@@ -94,6 +96,5 @@ def load(filepath=""):
 	# for face in me.polygons:
 	# 	face.use_smooth = True
 
-	success = f'Finished Import in %.2f seconds\n' % (time.clock() - starttime)
-	print(success)
+	logging.info(f'Finished Import in {time.time() - starttime: .2f} seconds')
 	return errors

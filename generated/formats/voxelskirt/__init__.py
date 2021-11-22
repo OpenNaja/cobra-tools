@@ -1,3 +1,4 @@
+import logging
 import time
 import numpy as np
 import os
@@ -101,19 +102,31 @@ class VoxelskirtFile(Header, IoFile):
 	def extract(self, ):
 		"""Stores the embedded height map and masks as separate images, lossless."""
 		start_time = time.time()
+		image_paths = []
 		import imageio
 		bare_name = os.path.splitext(self.filepath)[0]
 		if is_pc(self):
-			imageio.imwrite(f"{bare_name}_height.tiff", self.heightmap)
+			p = f"{bare_name}_height.tiff"
+			image_paths.append(p)
+			imageio.imwrite(p, self.heightmap)
 			for i in range(4):
-				imageio.imwrite(f"{bare_name}_mask{i}.png", self.weights[:, :, i], compress_level=2)
+				p = f"{bare_name}_mask{i}.png"
+				image_paths.append(p)
+				imageio.imwrite(p, self.weights[:, :, i], compress_level=2)
 		else:
 			for data in self.datas:
 				if data.type == 0:
-					imageio.imwrite(f"{bare_name}_{data.name}.png", data.im, compress_level=2)
+					p = f"{bare_name}_{data.name}.png"
+					imageio.imwrite(p, data.im, compress_level=2)
 				elif data.type == 2:
-					imageio.imwrite(f"{bare_name}_{data.name}.tiff", data.im)
-		print(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds!")
+					p = f"{bare_name}_{data.name}.tiff"
+					imageio.imwrite(p, data.im)
+				else:
+					logging.warning(f"Unknown data type {data.type}")
+					continue
+				image_paths.append(p)
+		logging.info(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds!")
+		return image_paths
 
 	def inject(self, filepaths):
 		"""Replaces images"""

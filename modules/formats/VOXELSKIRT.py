@@ -16,6 +16,7 @@ class VoxelskirtLoader(BaseFile):
 
 		ovl_header = self.pack_header(b"VOXE")
 		out_path = out_dir(name)
+		out_paths = [out_path, ]
 		buffers = self.sized_str_entry.data_entry.buffer_datas
 		# write voxelskirt
 		with open(out_path, 'wb') as outfile:
@@ -25,7 +26,11 @@ class VoxelskirtLoader(BaseFile):
 			outfile.write(self.sized_str_entry.pointers[0].data)
 			for buff in buffers:
 				outfile.write(buff)
-		return out_path,
+
+		vox = VoxelskirtFile()
+		vox.load(out_path)
+		out_paths.extend(vox.extract())
+		return out_paths
 
 	def load(self, file_path):
 		vox = VoxelskirtFile()
