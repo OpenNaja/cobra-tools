@@ -38,7 +38,7 @@
 
     <!-- Extra basic types -->
 
-    <basic name="bool" count="1">
+    <basic name="bool" integral="true" countable="false" >
         An unsigned 8-bit integer.
     </basic>
 

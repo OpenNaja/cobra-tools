@@ -6,7 +6,7 @@
 
     <!--Basic Types-->
 
-    <basic name="int64" count="1" >
+    <basic name="int64" integral="true" countable="false">
         A signed 64-bit integer.
     </basic>
 	

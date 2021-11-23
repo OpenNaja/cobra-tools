@@ -50,7 +50,7 @@
 		Grabs 00 bytes only
 	</compound>
 
-	<basic name="string">
+	<basic name="string" integral="false">
 		A string of given length.
 	</basic>
 	

@@ -151,3 +151,27 @@ def format_potential_tuple(value):
         return f"({', '.join(value.split())})"
     else:
         return value
+
+
+def force_bool(value):
+    """Converts true/false or an integer to either 'True' or 'False'
+    with all the usual rules of integer conversion to bools.
+    :param value: the string to converts
+    :return: 'True' or 'False' if the string converts to a bool, otherwise the original string
+    >>> force_bool('0')
+    'False'
+    >>> force_bool('true')
+    'True'
+    >>> force_bool('some nonsense')
+    'some nonsense'
+    """
+    bools = ("False", "True")
+    capitalized = value.capitalize()
+    if capitalized in bools:
+        return capitalized
+    else:
+        try:
+            int_value = int(value)
+        except:
+            return value
+        return repr(bool(int_value))

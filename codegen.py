@@ -58,17 +58,19 @@ class XmlParser:
                 base_segments = self.base_segments
                 if child.tag == "module":
                     # for modules, set the path to base/module_name
-                    class_name = convention.name_module(child.attrib["name"])
+                    class_name = child.attrib["name"]
                     class_segments = [class_name]
                 elif child.tag == "basic":
                     class_segments = ["basic"]
-                    class_name = convention.name_class(child.attrib["name"])
+                    class_name = child.attrib["name"]
+                    if Basics.suitable_for_enum(child):
+                        self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enum',)
                 else:
                     # for classes, set the path to module_path/tag/class_name or
                     # base/tag/class_name if it's not part of a module
-                    class_name = convention.name_class(child.attrib["name"])
+                    class_name = child.attrib["name"]
                     if child.attrib.get("module"):
-                        base_segments = self.path_dict[convention.name_module(child.attrib["module"])]
+                        base_segments = self.path_dict[child.attrib["module"]]
                     class_segments = [child.tag, class_name, ]
                 # store the final relative module path for this class
                 self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
@@ -80,10 +82,7 @@ class XmlParser:
         self.path_dict["basic_map"] = os.path.join(base_segments, "basic")
         self.path_dict["versions"] = "versions"
         self.path_dict["ContextReference"] = "context"
-        self.path_dict["UbyteEnum"] = "base_enum"
-        self.path_dict["UshortEnum"] = "base_enum"
-        self.path_dict["UintEnum"] = "base_enum"
-        self.path_dict["Uint64Enum"] = "base_enum"
+        self.path_dict["BaseEnum"] = "base_enum"
 
     def register_tokens(self, root):
         """Register tokens before anything else"""
@@ -103,11 +102,11 @@ class XmlParser:
         xml_path = os.path.realpath(xml_path)
         tree = ET.parse(xml_file)
         root = tree.getroot()
+        self.apply_conventions(root)
         self.generate_module_paths(root)
         self.register_tokens(root)
         self.versions = Versions(self)
         self.basics = Basics(self, BaseClass.get_out_path(self.path_dict["basic_map"]))
-        self.basics.load_base_module()
 
         # dictionary of xml file: XmlParser
         if parsed_xmls is None:
@@ -115,8 +114,6 @@ class XmlParser:
 
         for child in root:
             self.replace_tokens(child)
-            if child.tag not in ('version', 'verattr', 'module'):
-                self.apply_conventions(child)
             try:
                 if child.tag in self.struct_types:
                     Compound(self, child)
@@ -180,29 +177,44 @@ class XmlParser:
             if struct.attrib.get(k):
                 struct.attrib[k] = func(struct.attrib[k])
 
-    def apply_conventions(self, struct):
-        # struct top level
-        self.apply_convention(struct, convention.name_class, ("name", "inherit"))
-        if struct.tag in self.struct_types:
-            # a struct's fields
-            for field in struct:
-                self.apply_convention(field, convention.name_attribute, ("name",))
-                self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
-                self.apply_convention(field, convention.format_potential_tuple, ("default",))
-                for default in field:
-                    self.apply_convention(field, convention.name_class, ("onlyT",))
-                    self.apply_convention(field, convention.format_potential_tuple, ("value",))
-        elif struct.tag in self.bitstruct_types:
-            self.apply_convention(struct, convention.name_class, ("storage",))
-            # a bitfield/bitflags fields
-            for field in struct:
-                self.apply_convention(field, convention.name_attribute, ("name",))
-                self.apply_convention(field, convention.name_class, ("type",))
-        elif struct.tag == "enum":
-            self.apply_convention(struct, convention.name_class, ("storage",))
-
-        # filter comment str
-        struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
+    def apply_conventions(self, root):
+        for struct in root:
+            # struct top level
+            if struct.tag in ("version", "verattr"):
+                # don't apply conventions to these types (or there are none to apply)
+                continue
+            elif struct.tag == "module":
+                self.apply_convention(struct, convention.name_module, ("name", "depends"))
+                self.apply_convention(struct, convention.force_bool, ("custom",))
+                struct.text = clean_comment_str(struct.text, indent="", class_comment='"""')[2:]
+            else:
+                # it is a tag with a class
+                self.apply_convention(struct, convention.name_class, ("name", "inherit"))
+                self.apply_convention(struct, convention.name_module, ("module",))
+                if struct.tag in self.struct_types:
+                    # a struct's fields
+                    for field in struct:
+                        self.apply_convention(field, convention.name_attribute, ("name",))
+                        self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
+                        self.apply_convention(field, convention.format_potential_tuple, ("default",))
+                        for default in field:
+                            self.apply_convention(field, convention.name_class, ("onlyT",))
+                            self.apply_convention(field, convention.format_potential_tuple, ("value",))
+                elif struct.tag in self.bitstruct_types:
+                    self.apply_convention(struct, convention.name_class, ("storage",))
+                    # a bitfield/bitflags fields
+                    for field in struct:
+                        self.apply_convention(field, convention.name_attribute, ("name",))
+                        self.apply_convention(field, convention.name_class, ("type",))
+                elif struct.tag == "enum":
+                    self.apply_convention(struct, convention.name_class, ("storage",))
+                elif struct.tag == "basic":
+                    self.apply_convention(struct, convention.force_bool, ("boolean", "integral", "countable", "generic"))
+                elif struct.tag == "module":
+                    continue
+    
+                # filter comment str
+                struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 
     @staticmethod
     def arrs_to_tuple(*args):
@@ -216,11 +228,11 @@ class XmlParser:
             # check for presence of stream registering functions
             if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
                 # if they're present, use them
-                if arr1:
+                if arr1 is not None:
                     return f'stream.read_{dtype.lower()}s({self.arrs_to_tuple(arr1, arr2)})'
                 else:
                     return f'stream.read_{dtype.lower()}()'
-        if arr1:
+        if arr1 is not None:
             return f'Array.from_stream(stream, {self.arrs_to_tuple(arr1, arr2)},'\
                    f' {dtype}, {context}, {arg}, {template})'
         else:

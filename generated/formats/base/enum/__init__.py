@@ -18,21 +18,21 @@ class UbyteEnum(BaseEnum):
 		stream.write_ubyte(instance.value)
 
 
-class UshortEnum(BaseEnum):
+class Uint64Enum(BaseEnum):
 
 	def read(self, stream):
-		self._value_ = stream.read_ushort()
+		self._value_ = stream.read_uint64()
 
 	def write(self, stream):
-		stream.write_ushort(self.value)
+		stream.write_uint64(self.value)
 
 	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
-		cls.from_value(stream.read_ushort())
+		cls.from_value(stream.read_uint64())
 
 	@classmethod
 	def to_stream(cls, stream, instance):
-		stream.write_ushort(instance.value)
+		stream.write_uint64(instance.value)
 
 
 class UintEnum(BaseEnum):
@@ -50,3 +50,20 @@ class UintEnum(BaseEnum):
 	@classmethod
 	def to_stream(cls, stream, instance):
 		stream.write_uint(instance.value)
+
+
+class UshortEnum(BaseEnum):
+
+	def read(self, stream):
+		self._value_ = stream.read_ushort()
+
+	def write(self, stream):
+		stream.write_ushort(self.value)
+
+	@classmethod
+	def from_stream(cls, stream, context=None, arg=0, template=None):
+		cls.from_value(stream.read_ushort())
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		stream.write_ushort(instance.value)
