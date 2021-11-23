@@ -72,8 +72,11 @@ class HeaderPointer:
 		if self.pool_index == -1:
 			self.data = None
 		else:
-			self.pool.data.seek(self.data_offset)
-			self.data = self.pool.data.read(self.data_size)
+			self.data = self.read_from_pool(self.data_size)
+
+	def read_from_pool(self, data_size):
+		self.pool.data.seek(self.data_offset)
+		return self.pool.data.read(data_size)
 
 	def write_data(self, update_copies=False):
 		"""Write data to header data, update offset, also for copies if told"""
