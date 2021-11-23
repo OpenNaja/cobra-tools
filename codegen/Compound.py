@@ -1,8 +1,12 @@
 import collections
+import re
+
 from .BaseClass import BaseClass
 from .Union import Union, get_params
 
 FIELD_TYPES = ("add", "field")
+from_stream_re = re.compile(r"def from_stream\((([a-z]*), )?stream, context(=.*)?, arg(=.*)?, template.*\):")
+to_stream_re = re.compile(r"def to_stream\((([a-z]*), )?stream, instance\):")
 
 
 class Compound(BaseClass):
@@ -103,7 +107,7 @@ class Compound(BaseClass):
 
             # write the from_stream method
             method_str = "def from_stream(cls, stream, context, arg=0, template=None):"
-            if method_str not in self.src_code:
+            if not from_stream_re.search(self.src_code):
                 self.write_line(f)
                 self.write_line(f, 1, '@classmethod')
                 self.write_line(f, 1, method_str)
@@ -116,7 +120,7 @@ class Compound(BaseClass):
 
             # write the to_stream method
             method_str = "def to_stream(cls, stream, instance):"
-            if method_str not in self.src_code:
+            if not to_stream_re.search(self.src_code):
                 self.write_line(f)
                 self.write_line(f, 1, '@classmethod')
                 self.write_line(f, 1, method_str)
