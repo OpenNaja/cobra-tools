@@ -34,7 +34,7 @@ from modules.helpers import split_path
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
-	".tex", ".texturestream", ".mdl2", ".ms2", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
+	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
 	".txt", ".gfx", ".world")
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
@@ -59,6 +59,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.FGM import FgmLoader
 	from modules.formats.GFX import GfxLoader
+	from modules.formats.ISLAND import IslandLoader
 	from modules.formats.LUA import LuaLoader
 	from modules.formats.MANI import ManisLoader
 	from modules.formats.MATCOL import MatcolLoader
@@ -90,6 +91,7 @@ def get_loader(ext, ovl, file_entry):
 		".fdb": FdbLoader,
 		".fgm": FgmLoader,
 		".gfx": GfxLoader,
+		".island": IslandLoader,
 		".lua": LuaLoader,
 		".manis": ManisLoader,
 		".materialcollection": MatcolLoader,
