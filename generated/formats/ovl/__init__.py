@@ -824,6 +824,9 @@ class OvsFile(OvsHeader):
 					f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
 			n = file.basename
 			e = file.ext
+		# island.island
+		if e[0] != ".":
+			e = f".{e}"
 		entry.ext = e
 		entry.basename = n
 		entry.name = f"{n}{e}"
