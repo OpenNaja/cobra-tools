@@ -28,12 +28,30 @@ class MatlayersLoader(BaseFile):
 		# 0,0,collection count,0, 0,0,
 		# print(self.sized_str_entry.f1.pointers[0].data, len(self.sized_str_entry.f1.pointers[0].data))
 		f0_d0 = struct.unpack("<6I", self.sized_str_entry.f1.pointers[0].data)
-
 		layer_count = f0_d0[2]
-		byte_size = 16 + ((layer_count - 1) * 24)
+
+		entry_size = 24
+		ptr11 = self.sized_str_entry.f1.pointers[1]
+		out_frags, array_data = self.collect_array(ptr11, layer_count, entry_size)
+		# todo - the mapping is not quite right
+		frag_i = 1
+		for x in range(0, len(array_data), entry_size):
+			fd = struct.unpack("<6I", array_data[x:x+entry_size])
+			has_fgm_name = fd[0]
+			print(has_fgm_name)
+			f_count = 2 if has_fgm_name else 1
+			frags = out_frags[frag_i:frag_i+f_count]
+			for tex in frags:
+				print(tex.pointers[1].data)
+			frag_i += f_count
+
+		# array_data = ptr11.read_from_pool(24 * layer_count)
+		# print(array_data)
+		byte_size = 16 + ((layer_count - 1) * entry_size)
 		print(f0_d0, byte_size)
 		self.sized_str_entry.tex_frags = self.ovs.frags_accumulate_from_pointer(
-			self.sized_str_entry.f1.pointers[1], byte_size)
+			ptr11, byte_size)
+		print(len(self.sized_str_entry.tex_frags), len(out_frags))
 
 		# layer_count = f0_d0[2]
 		# print(f0_d0)

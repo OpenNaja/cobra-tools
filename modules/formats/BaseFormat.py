@@ -1,3 +1,4 @@
+import logging
 import os
 import struct
 
@@ -31,6 +32,22 @@ class BaseFile:
 		ovl = self.ovl
 		return struct.pack(
 			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
+
+	def collect_array(self, ptr, count, entry_size):
+		logging.debug(f"Collecting array {count} {entry_size}")
+		array_size = count * entry_size
+		array_data = ptr.read_from_pool(array_size)
+		frags = self.ovs.frags_for_pointer(ptr)
+		logging.debug(f"frags {len(frags)}")
+		offset_start = ptr.data_offset
+		offset_end = offset_start + array_size
+		out_frags = []
+		for frag in frags:
+			o = frag.pointers[0].data_offset
+			if offset_start <= o < offset_end:
+				out_frags.append(frag)
+		logging.debug(f"out_frags {len(out_frags)}")
+		return out_frags, array_data
 
 	def assign_ss_entry(self):
 		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)
