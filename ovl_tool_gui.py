@@ -433,19 +433,25 @@ class MainWindow(widgets.MainWindow):
 					interaction.showdialog(str(ex))
 
 	def extract_all(self):
-		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
-															 self.cfg.get("dir_extract", "C://"), )
+		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
-
+			_out_dir = out_dir
+			all_error_files = []
+			all_skip_files = []
 			for ovl in self.handle_path(save_over=False):
 				if self.is_open_ovl():
+					# for bulk extraction, add the ovl basename to the path to avoid overwriting
+					if self.in_folder.isChecked():
+						out_dir = os.path.join(_out_dir, ovl.basename)
 					try:
 						out_paths, error_files, skip_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files)
-						interaction.skip_messages(error_files, skip_files)
+						all_error_files += error_files
+						all_skip_files += skip_files
 					except Exception as ex:
 						traceback.print_exc()
 						interaction.showdialog(str(ex))
+			interaction.skip_messages(all_error_files, all_skip_files)
 
 	def inject_ask(self):
 		if self.is_open_ovl():
