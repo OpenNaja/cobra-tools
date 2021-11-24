@@ -57,6 +57,7 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
 
 		self.model = QtWidgets.QFileSystemModel()
+		# self.model.sort(1, QtCore.Qt.AscendingOrder)
 		dir_game = self.get_game_dir()
 		rt_index = self.model.setRootPath(dir_game)
 		self.dirs_container = QtWidgets.QTreeView()
@@ -66,6 +67,10 @@ class MainWindow(widgets.MainWindow):
 		self.dirs_container.setColumnHidden(2, True)
 		self.dirs_container.setColumnHidden(3, True)
 		self.dirs_container.doubleClicked.connect(self.dirs_clicked)
+
+		self.dirs_container.header().setSortIndicator(0, QtCore.Qt.AscendingOrder)
+		self.dirs_container.model().sort(self.dirs_container.header().sortIndicatorSection(),
+						 self.dirs_container.header().sortIndicatorOrder())
 
 		self.dirs_container.setAnimated(False)
 		self.dirs_container.setIndentation(20)
