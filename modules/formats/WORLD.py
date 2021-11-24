@@ -4,8 +4,6 @@ from generated.formats.ovl.versions import *
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_padding
 from modules.helpers import zstr
-from ovl_util import texconv
-from ovl_util.interaction import showdialog
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
 # NOTE, World struct in JWE1 has an extra pointer this import/export is not accounting for yet
