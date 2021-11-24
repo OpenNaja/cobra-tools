@@ -3,6 +3,7 @@ import os
 import traceback
 
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtGui import QColor
 
 import modules.formats.shared
 import ovl_util.interaction
@@ -203,8 +204,21 @@ class TextureVisual:
 			self.file_w = QtWidgets.QLineEdit(self.property.file)
 			self.file_w.textEdited.connect(self.update_file)
 			return self.file_w,
+		elif "_RGB" in self.property.name:
+			return self.create_rgb_field(),
 		else:
 			return [self.create_field(i) for i in range(len(self.property.value))]
+
+	def update_rgb_field(self, c):
+		self.property.value = [x / 255 for x in c.getRgb()[:3]]
+
+	def create_rgb_field(self):
+		field = QColorButton()
+		field.colorChanged.connect(self.update_rgb_field)
+		d = [x * 255 for x in self.property.value]
+		c = QColor(*d, 255)
+		field.setColor(c)
+		return field
 
 	def create_field(self, ind):
 		default = self.property.value[ind]
@@ -226,7 +240,10 @@ class TextureVisual:
 
 		t = str(type(default))
 		# print(t)
-		if "float" in t:
+		if "Color" in t:
+			field = QColorButton()
+			field.colorChanged.connect(update_ind_color)
+		elif "float" in t:
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(3)
 			field.setRange(-10000, 10000)
@@ -241,9 +258,6 @@ class TextureVisual:
 			field.setDecimals(0)
 			field.setRange(-MAX_UINT, MAX_UINT)
 			field.valueChanged.connect(update_ind_int)
-		elif "Color" in t:
-			field = QColorButton()
-			field.colorChanged.connect(update_ind_color)
 		else:
 			raise AttributeError(f"Unsupported field type {t}")
 		field.setValue(default)
