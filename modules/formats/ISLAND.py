@@ -31,8 +31,6 @@ class IslandLoader(BaseFile):
 
 
 	def load(self, file_path):
-		if True:
-			pass
 		f_0, f_1 = self._get_data(file_path)
 		self.sized_str_entry.fragments[0].pointers[1].update_data(f_1, update_copies=True)
 
