@@ -33,6 +33,8 @@ class MatlayersLoader(BaseFile):
 		entry_size = 24
 		ptr11 = self.sized_str_entry.f1.pointers[1]
 		out_frags, array_data = self.collect_array(ptr11, layer_count, entry_size)
+		# it's already sorted
+		# out_frags.sort(key=lambda x:x.pointers[0].data_offset)
 		# todo - the mapping is not quite right
 		frag_i = 1
 		for x in range(0, len(array_data), entry_size):
