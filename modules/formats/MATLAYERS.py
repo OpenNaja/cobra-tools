@@ -23,25 +23,29 @@ class MatlayersLoader(BaseFile):
 		self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
 		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		print(shader)
 		# print(self.sized_str_entry.f0)
 		# 0,0,collection count,0, 0,0,
 		# print(self.sized_str_entry.f1.pointers[0].data, len(self.sized_str_entry.f1.pointers[0].data))
 		f0_d0 = struct.unpack("<6I", self.sized_str_entry.f1.pointers[0].data)
 		layer_count = f0_d0[2]
 
+		print(shader, layer_count)
 		entry_size = 24
 		ptr11 = self.sized_str_entry.f1.pointers[1]
 		out_frags, array_data = self.collect_array(ptr11, layer_count, entry_size)
+		for tex in out_frags:
+			print(tex.pointers[1].data)
 		# it's already sorted
 		# out_frags.sort(key=lambda x:x.pointers[0].data_offset)
 		# todo - the mapping is not quite right
-		frag_i = 1
-		for x in range(0, len(array_data), entry_size):
+		frag_i = 0
+		# for x in range(0, len(array_data), entry_size):
+		for i in range(layer_count):
+			x = i * entry_size
 			fd = struct.unpack("<6I", array_data[x:x+entry_size])
 			has_fgm_name = fd[0]
-			print(has_fgm_name)
-			f_count = 2 if has_fgm_name else 1
+			print(i, has_fgm_name)
+			f_count = 2 if has_fgm_name else 0
 			frags = out_frags[frag_i:frag_i+f_count]
 			for tex in frags:
 				print(tex.pointers[1].data)
