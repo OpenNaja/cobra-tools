@@ -42,12 +42,14 @@ class MatlayersLoader(BaseFile):
 		# for x in range(0, len(array_data), entry_size):
 		for i in range(layer_count):
 			x = i * entry_size
+			frags_entry = self.get_frags_between(out_frags, x, x+entry_size)
+			# print(frags_entry)
 			fd = struct.unpack("<6I", array_data[x:x+entry_size])
 			has_fgm_name = fd[0]
 			print(i, has_fgm_name)
 			f_count = 2 if has_fgm_name else 0
 			frags = out_frags[frag_i:frag_i+f_count]
-			for tex in frags:
+			for tex in frags_entry:
 				print(tex.pointers[1].data)
 			frag_i += f_count
 
@@ -76,6 +78,9 @@ class MatlayersLoader(BaseFile):
 			print(tex.pointers[0].data)
 			print(tex.pointers[1].data)
 			tex.name = self.sized_str_entry.name
+
+	def extract(self):
+		pass
 
 
 class MatvarsLoader(BaseFile):

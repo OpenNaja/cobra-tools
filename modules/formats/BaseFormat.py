@@ -41,13 +41,17 @@ class BaseFile:
 		logging.debug(f"frags {len(frags)}")
 		offset_start = ptr.data_offset
 		offset_end = offset_start + array_size
+		out_frags = self.get_frags_between(frags, offset_start, offset_end)
+		return out_frags, array_data
+
+	def get_frags_between(self, frags, offset_start, offset_end):
 		out_frags = []
 		for frag in frags:
 			o = frag.pointers[0].data_offset
 			if offset_start <= o < offset_end:
 				out_frags.append(frag)
 		logging.debug(f"out_frags {len(out_frags)}")
-		return out_frags, array_data
+		return out_frags
 
 	def assign_ss_entry(self):
 		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)
