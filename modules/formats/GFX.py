@@ -36,7 +36,6 @@ class GfxLoader(BaseFile):
         out_path = out_dir(name)
         buffers = self.sized_str_entry.data_entry.buffer_datas
         with open(out_path, 'wb') as outfile:
-            outfile.write(self.sized_str_entry.pointers[0].data)
             for buff in buffers:
                 outfile.write(buff)
         return [out_path]
