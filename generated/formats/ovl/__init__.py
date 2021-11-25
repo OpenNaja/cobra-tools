@@ -76,6 +76,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.TXT import TxtLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.VOXELSKIRT import VoxelskirtLoader
+	from modules.formats.WSM import WsmLoader
 	from modules.formats.WORLD import WorldLoader
 	from modules.formats.XMLCONFIG import XmlconfigLoader
 	ext_2_class = {
@@ -106,6 +107,7 @@ def get_loader(ext, ovl, file_entry):
 		".txt": TxtLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
+		".wsm": WsmLoader,
 		".world": WorldLoader,
 		".xmlconfig": XmlconfigLoader,
 	}
@@ -652,7 +654,10 @@ class OvsFile(OvsHeader):
 
 	@staticmethod
 	def get_ptr_debug_str(entry, ind):
-		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name}"
+		d_str = ""
+		if len(entry.pointers) == 2:
+			d_str = str(entry.pointers[1].data)
+		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name} {d_str}"
 
 	def dump_pools(self):
 		"""for debugging"""
