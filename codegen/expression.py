@@ -1,7 +1,7 @@
 """Expression parser (for arr1, arr2, cond, and vercond xml attributes of
 <add> tag)."""
 
-from codegen.naming_conventions import name_attribute
+from codegen.naming_conventions import name_access
 
 
 class Version(object):
@@ -113,7 +113,7 @@ class Expression(object):
         # at this point, expr_str is a single attribute
         # apply name filter on each component separately
         # (where a dot separates components)
-        return prefix + ('.'.join(name_attribute(comp) for comp in expr_str.split(".")))
+        return prefix + name_access(expr_str)
 
     @classmethod
     def _partition(cls, expr_str):

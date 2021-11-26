@@ -88,6 +88,11 @@ def name_attribute(name):
     return '_'.join(part.lower() for part in name_parts(name))
 
 
+def name_access(access):
+    """Applies name_attribute to every part of a dot-separated string"""
+    return '.'.join([name_attribute(attr) for attr in access.split('.')])
+
+
 def name_class(name):
     """Converts a class name, as in the xsd file, into a name usable
     by python.
