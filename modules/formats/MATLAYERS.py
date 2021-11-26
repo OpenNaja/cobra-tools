@@ -43,7 +43,7 @@ class MatlayersLoader(BaseFile):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
 		xmldata = ET.Element('Matlayers')
-		xmldata.set('shader', str(self.shader))
+		xmldata.set('shader', self.get_zstr(self.shader))
 
 		for frags, entry_bytes in self.frag_data_pairs:
 			layer = ET.SubElement(xmldata, 'layer')
@@ -58,10 +58,10 @@ class MatlayersLoader(BaseFile):
 			else:
 				raise AttributeError(f"Not sure how to handle {len(frags)} on {self.file_entry.name}")
 			layer_name = l.pointers[1].data
-			layer.set('name', str(layer_name))
+			layer.set('name', self.get_zstr(layer_name))
 			if fgm:
 				fgm_name = fgm.pointers[1].data
-				layer.set('fgm', str(fgm_name))
+				layer.set('fgm', self.get_zstr(fgm_name))
 
 		self.write_xml(out_path, xmldata)
 		return out_path,

@@ -178,6 +178,9 @@ class BaseFile:
 	def write_xml(self, out_path, xml_data):
 		self.indent(xml_data)
 		xml_text = ET.tostring(xml_data)
-		with open(out_path, 'w') as outfile:
-			outfile.write(xml_text.decode('utf-8'))
+		with open(out_path, 'wb') as outfile:
+			outfile.write(xml_text)
 
+	def get_zstr(self, d):
+		end = d.find(b'\x00')
+		return d[:end].decode()
