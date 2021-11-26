@@ -12,6 +12,7 @@ from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.io import BinaryStream
 from modules.formats.shared import djb
+import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
 
 class BaseFile:
@@ -43,6 +44,20 @@ class BaseFile:
 		offset_end = offset_start + array_size
 		out_frags = self.get_frags_between(frags, offset_start, offset_end)
 		return out_frags, array_data
+
+	# def collect_array_elements(self, ptr, count, entry_size):
+	# 	logging.debug(f"Collecting array {count} {entry_size}")
+	# 	offset_start = ptr.data_offset
+	# 	data_frags = []
+	# 	array_size = count * entry_size
+	# 	array_data = ptr.read_from_pool(array_size)
+	# 	for i in range(count):
+	# 		offset_start += entry_size
+	# 	frags = self.ovs.frags_for_pointer(ptr)
+	# 	logging.debug(f"frags {len(frags)}")
+	# 	offset_end = offset_start + array_size
+	# 	out_frags = self.get_frags_between(frags, offset_start, offset_end)
+	# 	return out_frags, array_data
 
 	def get_frags_between(self, frags, offset_start, offset_end):
 		out_frags = []
@@ -144,3 +159,25 @@ class BaseFile:
 	def update(self):
 		"""Don't do anything by default, overwrite if needed"""
 		pass
+
+	def indent(self, e, level=0):
+		i = "\n" + level*"	"
+		if len(e):
+			if not e.text or not e.text.strip():
+				e.text = i + "	"
+			if not e.tail or not e.tail.strip():
+				e.tail = i
+			for e in e:
+				self.indent(e, level+1)
+			if not e.tail or not e.tail.strip():
+				e.tail = i
+		else:
+			if level and (not e.tail or not e.tail.strip()):
+				e.tail = i
+
+	def write_xml(self, out_path, xml_data):
+		self.indent(xml_data)
+		xml_text = ET.tostring(xml_data)
+		with open(out_path, 'w') as outfile:
+			outfile.write(xml_text.decode('utf-8'))
+
