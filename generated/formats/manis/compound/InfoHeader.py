@@ -28,7 +28,7 @@ class InfoHeader(GenericHeader):
 		self.bone_names = Array((int(self.header.hash_block_size / 4),), ZString, self.context, 0, None)
 
 		# ?
-		self.bone_pad = PadAlign(self.context, 4, bone names)
+		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
 		if set_default:
 			self.set_defaults()
 
@@ -39,7 +39,7 @@ class InfoHeader(GenericHeader):
 		self.mani_infos = Array((self.mani_count,), ManiInfo, self.context, 0, None)
 		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4),), dtype=numpy.dtype('uint32'))
 		self.bone_names = Array((int(self.header.hash_block_size / 4),), ZString, self.context, 0, None)
-		self.bone_pad = PadAlign(self.context, 4, bone names)
+		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -60,7 +60,7 @@ class InfoHeader(GenericHeader):
 		instance.mani_infos = Array.from_stream(stream, (instance.mani_count,), ManiInfo, instance.context, 0, None)
 		instance.bone_hashes = stream.read_uints((int(instance.header.hash_block_size / 4),))
 		instance.bone_names = stream.read_zstrings((int(instance.header.hash_block_size / 4),))
-		instance.bone_pad = PadAlign.from_stream(stream, instance.context, 4, bone names)
+		instance.bone_pad = PadAlign.from_stream(stream, instance.context, 4, instance.bone_names)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

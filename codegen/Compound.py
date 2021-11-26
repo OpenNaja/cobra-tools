@@ -2,7 +2,7 @@ import collections
 import re
 
 from .BaseClass import BaseClass
-from .Union import Union, get_params
+from .Union import Union
 
 FIELD_TYPES = ("add", "field")
 from_stream_re = re.compile(r"def from_stream\((([a-z]*), )?stream, context(=.*)?, arg(=.*)?, template.*\):")
@@ -25,7 +25,6 @@ class Compound(BaseClass):
                     union = Union(self, field_name)
                     self.field_unions.append(union)
                 union.append(field)
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
 
         # write to python file
         with open(self.out_file, "w", encoding=self.parser.encoding) as f:

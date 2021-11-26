@@ -207,6 +207,7 @@ class XmlParser:
                 for field in struct:
                     self.apply_convention(field, convention.name_attribute, ("name",))
                     self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
+                    # template can refer to a type of an attribute
                     self.apply_convention(field, convention.format_potential_tuple, ("default",))
                     for default in field:
                         self.apply_convention(field, convention.name_class, ("onlyT",))

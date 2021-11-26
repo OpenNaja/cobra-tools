@@ -1,5 +1,7 @@
 from os.path import sep
 
+import codegen.naming_conventions as convention
+
 
 NO_CLASSES = ("Padding", "self")
 
@@ -22,7 +24,13 @@ class Imports:
         for field in xml_struct:
             if field.tag in ("add", "field", "member"):
                 field_type = field.attrib["type"]
-                # template = field.attrib.get("template")
+                template = field.attrib.get("template")
+                if template:
+                    # template can be either a type or a reference to a local field
+                    # only import if a type
+                    template_class = convention.name_class(template)
+                    if template_class in self.path_dict:
+                        self.add(template_class)
                 arr1 = field.attrib.get("arr1")
                 if arr1 is None:
                     arr1 = field.attrib.get("length")

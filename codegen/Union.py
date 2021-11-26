@@ -1,6 +1,6 @@
 from codegen.expression import Expression, Version
 from codegen.Versions import Versions
-from .naming_conventions import clean_comment_str
+import codegen.naming_conventions as convention
 
 CONTEXT_SUFFIX = "context"
 
@@ -55,30 +55,6 @@ def get_conditions(field, expression_prefix="self."):
     return conditionals
 
 
-def get_params(field, expression_prefix="self."):
-    # parse all attributes and return the python-evaluatable string
-
-    field_name = field.attrib["name"]
-    field_type = field.attrib["type"]
-    if field_type == "template":
-        field_type = f'{expression_prefix}{field_type}'
-    pad_mode = field.attrib.get("padding")
-    template = field.attrib.get("template")
-
-    conditionals = get_conditions(field, expression_prefix)
-
-    arg = field.attrib.get("arg", 0)
-    arr1 = get_attr_with_backups(field, ["arr1", "length"])
-    arr2 = get_attr_with_backups(field, ["arr2", "width"])
-    if arg:
-        arg = Expression(arg, expression_prefix)
-    if arr1:
-        arr1 = Expression(arr1, expression_prefix)
-    if arr2:
-        arr2 = Expression(arr2, expression_prefix)
-    return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode
-
-
 def condition_indent(base_indent, conditionals, condition=""):
     # determine the python condition and indentation level based on whether the
     # last used condition was the same.
@@ -104,6 +80,36 @@ class Union:
 
     def append(self, member):
         self.members.append(member)
+
+    def get_params(self, field, expression_prefix="self."):
+        # parse all attributes and return the python-evaluatable string
+
+        field_name = field.attrib["name"]
+        field_type = field.attrib["type"]
+        if field_type == "template":
+            field_type = f'{expression_prefix}{field_type}'
+        pad_mode = field.attrib.get("padding")
+        template = field.attrib.get("template")
+
+        conditionals = get_conditions(field, expression_prefix)
+
+        arg = field.attrib.get("arg", 0)
+        arr1 = get_attr_with_backups(field, ["arr1", "length"])
+        arr2 = get_attr_with_backups(field, ["arr2", "width"])
+        if template:
+            # template can be either a type or a reference to a local field
+            template_class = convention.name_class(template)
+            if template_class not in self.compound.parser.path_dict:
+                template = Expression(template, expression_prefix)
+            else:
+                template = template_class
+        if arg:
+            arg = Expression(arg, expression_prefix)
+        if arr1:
+            arr1 = Expression(arr1, expression_prefix)
+        if arr2:
+            arr2 = Expression(arr2, expression_prefix)
+        return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode
 
     def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
@@ -176,8 +182,8 @@ class Union:
     def write_init(self, f):
         base_indent = "\n\t\t"
         for field in self.members:
-            field_debug_str = clean_comment_str(field.text, indent="\t\t")
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+            field_debug_str = convention.clean_comment_str(field.text, indent="\t\t")
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
             if field_debug_str.strip():
                 f.write(field_debug_str)
 
@@ -189,7 +195,7 @@ class Union:
     def write_defaults(self, f, condition=""):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
 
             indent, condition = condition_indent(base_indent, conditionals, condition)
 
@@ -208,7 +214,7 @@ class Union:
         CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = get_params(field, f'{target_variable}.')
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'{target_variable}.')
             indent, condition = condition_indent(base_indent, conditionals, condition)
             if condition:
                 f.write(f"{base_indent}{condition}")

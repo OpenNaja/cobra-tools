@@ -35,7 +35,7 @@ class ManiBlock:
 		self.p_indices_0_c = numpy.zeros(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1,), dtype=numpy.dtype('uint8'))
 
 		# ?
-		self.pad = PadAlign(self.context, 4, ref)
+		self.pad = PadAlign(self.context, 4, self.ref)
 
 		# these are likely a scale reference or factor
 		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.e_2,), dtype=numpy.dtype('float32'))
@@ -98,7 +98,7 @@ class ManiBlock:
 			self.p_indices_c_1 = numpy.zeros((self.arg.c_1,), dtype=numpy.dtype('uint8'))
 		self.p_indices_0_b = numpy.zeros(((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min) + 1,), dtype=numpy.dtype('uint8'))
 		self.p_indices_0_c = numpy.zeros(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1,), dtype=numpy.dtype('uint8'))
-		self.pad = PadAlign(self.context, 4, ref)
+		self.pad = PadAlign(self.context, 4, self.ref)
 		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.e_2,), dtype=numpy.dtype('float32'))
 		self.pad_2 = SmartPadding(self.context, 0, None)
 		self.frame_count = 0
@@ -153,7 +153,7 @@ class ManiBlock:
 			instance.p_indices_c_1 = stream.read_ubytes((instance.arg.c_1,))
 		instance.p_indices_0_b = stream.read_ubytes(((instance.arg.p_indices_c_0_max - instance.arg.p_indices_c_0_min) + 1,))
 		instance.p_indices_0_c = stream.read_ubytes(((instance.arg.p_indices_c_1_max - instance.arg.p_indices_c_1_min) + 1,))
-		instance.pad = PadAlign.from_stream(stream, instance.context, 4, ref)
+		instance.pad = PadAlign.from_stream(stream, instance.context, 4, instance.ref)
 		instance.floatsa = stream.read_floats((instance.arg.frame_count, instance.arg.e_2,))
 		instance.pad_2 = SmartPadding.from_stream(stream, instance.context, 0, None)
 		instance.frame_count = stream.read_uint()
