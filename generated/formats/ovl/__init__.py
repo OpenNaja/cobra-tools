@@ -35,7 +35,7 @@ OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
-	".pscollection", ".txt", ".gfx", ".world")
+	".pscollection", ".txt", ".gfx", ".uimovidefinition", ".world")
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -74,6 +74,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
 	from modules.formats.TXT import TxtLoader
+	from modules.formats.UIMOVIEDEFINITION import UIMovieDefinitionLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.VOXELSKIRT import VoxelskirtLoader
 	from modules.formats.WSM import WsmLoader
@@ -105,6 +106,7 @@ def get_loader(ext, ovl, file_entry):
 		".specdef": SpecdefLoader,
 		".tex": DdsLoader,
 		".txt": TxtLoader,
+		".uimoviedefinition": UIMovieDefinitionLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
 		".wsm": WsmLoader,
