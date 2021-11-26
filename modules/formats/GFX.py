@@ -20,7 +20,7 @@ class GfxLoader(BaseFile):
 
 
     def load(self, file_path):
-        # all meta data of the lua except the sized str entries lua size value seems to just be meta data, can be zeroed
+        # all meta data of the lua except the sized str entries gfx size value seems to just be meta data, can be zeroed
         ss, buffer_0 = self._get_data(file_path)
         self.sized_str_entry.data_entry.update_data((buffer_0,))
         self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
@@ -41,7 +41,7 @@ class GfxLoader(BaseFile):
         return [out_path]
 
     def _get_data(self, file_path):
-        """Loads and returns the data for a LUA"""
+        """Loads and returns the data for a GFX"""
         buffer_0 = self.get_content(file_path)
-        ss = struct.pack("<IIII", 0, len(buffer_0), 0x00, 0x00)
+        ss = struct.pack("<QQQQ", 0, len(buffer_0), 0,0)
         return ss, buffer_0

@@ -36,6 +36,7 @@ class WorldLoader(BaseFile):
 
         # pack assetpackage list now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
         pool.data.write("\00".join(assetPkgList).encode('utf-8'))
+        pool.data.write(b"\00")
 
         # new offset for list pointers
         poffset = pool.data.tell()
