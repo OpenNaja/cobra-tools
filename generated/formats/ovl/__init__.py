@@ -659,7 +659,7 @@ class OvsFile(OvsHeader):
 		d_str = ""
 		if len(entry.pointers) == 2:
 			d_str = str(entry.pointers[1].data)
-		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.address} {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name} {d_str}"
+		return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name} {d_str}"
 
 	def dump_pools(self):
 		"""for debugging"""

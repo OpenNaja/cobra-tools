@@ -96,6 +96,11 @@ class BaseFile:
 		self.ovs.pools.append(pool)
 		return len(self.ovs.pools)-1, pool
 
+	def write_to_pool(self, ptr, pool_type_key, data):
+		ptr.pool_index, ptr.pool = self.get_pool(pool_type_key)
+		ptr.data = data
+		ptr.write_data()
+
 	def get_content(self, filepath):
 		with open(filepath, 'rb') as f:
 			content = f.read()
@@ -130,8 +135,9 @@ class BaseFile:
 		return dependency
 
 	def create_fragments(self, ss, count):
-		for i in range(count):
-			ss.fragments.append(self.create_fragment())
+		frags = [self.create_fragment() for i in range(count)]
+		ss.fragments.extend(frags)
+		return frags
 
 	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
@@ -174,6 +180,10 @@ class BaseFile:
 		else:
 			if level and (not e.tail or not e.tail.strip()):
 				e.tail = i
+
+	def load_xml(self, xml_path):
+		xml_data = ET.ElementTree(ET.fromstring(xml_path))
+		return xml_data.getroot()
 
 	def write_xml(self, out_path, xml_data):
 		self.indent(xml_data)
