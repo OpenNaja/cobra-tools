@@ -51,7 +51,7 @@ class HIRCSection:
 	def write_fields(cls, stream, instance):
 		stream.write_uint(instance.length)
 		stream.write_uint(instance.count)
-		Array.to_stream(stream, instance.hirc_pointers, (instance.count,),HircPointer, instance.context, 0, None)
+		Array.to_stream(stream, instance.hirc_pointers, (instance.count,), HircPointer, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

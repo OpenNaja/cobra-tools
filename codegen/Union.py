@@ -60,6 +60,8 @@ def get_params(field, expression_prefix="self."):
 
     field_name = field.attrib["name"]
     field_type = field.attrib["type"]
+    if field_type == "template":
+        field_type = f'{expression_prefix}{field_type}'
     pad_mode = field.attrib.get("padding")
     template = field.attrib.get("template")
 

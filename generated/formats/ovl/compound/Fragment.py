@@ -43,7 +43,7 @@ class Fragment:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		Array.to_stream(stream, instance.pointers, (2,),HeaderPointer, instance.context, 0, None)
+		Array.to_stream(stream, instance.pointers, (2,), HeaderPointer, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

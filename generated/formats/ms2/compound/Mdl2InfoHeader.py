@@ -97,12 +97,12 @@ class Mdl2InfoHeader(GenericHeader):
 		stream.write_string(instance.ms_2_name)
 		if not (instance.context.version < 19):
 			CoreModelInfo.to_stream(stream, instance.model_info)
-			Array.to_stream(stream, instance.materials, (instance.model_info.num_materials,),MaterialName, instance.context, 0, None)
+			Array.to_stream(stream, instance.materials, (instance.model_info.num_materials,), MaterialName, instance.context, 0, None)
 		if not (instance.context.version < 19) and instance.model_info.num_models:
-			Array.to_stream(stream, instance.lods, (instance.model_info.num_lods,),LodInfo, instance.context, 0, None)
+			Array.to_stream(stream, instance.lods, (instance.model_info.num_lods,), LodInfo, instance.context, 0, None)
 		if not (instance.context.version < 19):
-			Array.to_stream(stream, instance.objects, (instance.model_info.num_objects,),MeshLink, instance.context, 0, None)
-			Array.to_stream(stream, instance.models, (instance.model_info.num_models,),ModelData, instance.context, 0, None)
+			Array.to_stream(stream, instance.objects, (instance.model_info.num_objects,), MeshLink, instance.context, 0, None)
+			Array.to_stream(stream, instance.models, (instance.model_info.num_models,), ModelData, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

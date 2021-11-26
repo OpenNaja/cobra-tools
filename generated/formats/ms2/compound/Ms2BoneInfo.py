@@ -312,11 +312,11 @@ class Ms2BoneInfo:
 		if instance.context.version < 19:
 			instance.name_padding.resize(((16 - ((instance.name_count * 2) % 16)) % 16,))
 			stream.write_bytes(instance.name_padding)
-		Array.to_stream(stream, instance.inverse_bind_matrices, (instance.bind_matrix_count,),Matrix44, instance.context, 0, None)
+		Array.to_stream(stream, instance.inverse_bind_matrices, (instance.bind_matrix_count,), Matrix44, instance.context, 0, None)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
-			Array.to_stream(stream, instance.bones, (instance.bone_count,),PzBone, instance.context, 0, None)
+			Array.to_stream(stream, instance.bones, (instance.bone_count,), PzBone, instance.context, 0, None)
 		if (instance.context.user_version.is_jwe and (instance.context.version == 19)) or (instance.context.version < 19):
-			Array.to_stream(stream, instance.bones, (instance.bone_count,),JweBone, instance.context, 0, None)
+			Array.to_stream(stream, instance.bones, (instance.bone_count,), JweBone, instance.context, 0, None)
 		stream.write_ubytes(instance.bone_parents)
 		if not (instance.context.version == 17):
 			instance.hier_1_padding.resize(((8 - (instance.bone_parents_count % 8)) % 8,))

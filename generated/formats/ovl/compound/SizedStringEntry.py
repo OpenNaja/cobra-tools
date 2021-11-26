@@ -58,7 +58,7 @@ class SizedStringEntry:
 		stream.write_uint(instance.file_hash)
 		if instance.context.version >= 19:
 			stream.write_uint(instance.ext_hash)
-		Array.to_stream(stream, instance.pointers, (1,),HeaderPointer, instance.context, 0, None)
+		Array.to_stream(stream, instance.pointers, (1,), HeaderPointer, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

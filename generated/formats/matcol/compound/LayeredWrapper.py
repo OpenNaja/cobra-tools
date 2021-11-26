@@ -42,7 +42,7 @@ class LayeredWrapper:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		MaterialInfo.to_stream(stream, instance.info)
-		Array.to_stream(stream, instance.layers, (instance.info.material_count,),Layer, instance.context, 0, None)
+		Array.to_stream(stream, instance.layers, (instance.info.material_count,), Layer, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

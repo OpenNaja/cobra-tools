@@ -214,7 +214,7 @@ class ManiBlock:
 		stream.write_uint(instance.unk)
 		if instance.arg.e_2:
 			stream.write_uint64(instance.unk_for_e_2)
-		Array.to_stream(stream, instance.repeats, (instance.count,),Repeat, instance.context, 0, None)
+		Array.to_stream(stream, instance.repeats, (instance.count,), Repeat, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

@@ -246,15 +246,15 @@ class JointData:
 		stream.write_uint(instance.bone_count)
 		stream.write_uint(instance.joint_entry_count)
 		stream.write_uints(instance.zeros_2)
-		Array.to_stream(stream, instance.joint_transforms, (instance.joint_count,),JointEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.joint_transforms, (instance.joint_count,), JointEntry, instance.context, 0, None)
 		if not (instance.context.version == 18):
 			stream.write_uint64s(instance.zeros_3)
-			Array.to_stream(stream, instance.unknown_listc, (instance.joint_count,),ListCEntry, instance.context, 0, None)
+			Array.to_stream(stream, instance.unknown_listc, (instance.joint_count,), ListCEntry, instance.context, 0, None)
 		if not (instance.context.version == 18):
-			Array.to_stream(stream, instance.first_list, (instance.count_0,),ListFirst, instance.context, 0, None)
-			Array.to_stream(stream, instance.short_list, (instance.count_1,),ListShort, instance.context, 0, None)
+			Array.to_stream(stream, instance.first_list, (instance.count_0,), ListFirst, instance.context, 0, None)
+			Array.to_stream(stream, instance.short_list, (instance.count_1,), ListShort, instance.context, 0, None)
 		if not (instance.context.version == 18):
-			Array.to_stream(stream, instance.long_list, (instance.count_2,),ListLong, instance.context, 0, None)
+			Array.to_stream(stream, instance.long_list, (instance.count_2,), ListLong, instance.context, 0, None)
 		if instance.context.version == 18:
 			PcFFCounter.to_stream(stream, instance.pc_ffs)
 			stream.write_bytes(instance.pc_bytes)
@@ -268,9 +268,9 @@ class JointData:
 		ZStringBuffer.to_stream(stream, instance.joint_names)
 		SmartPadding.to_stream(stream, instance.joint_names_padding)
 		if not (instance.context.version == 18):
-			Array.to_stream(stream, instance.joint_info_list, (instance.joint_count,),JointInfo, instance.context, 0, None)
+			Array.to_stream(stream, instance.joint_info_list, (instance.joint_count,), JointInfo, instance.context, 0, None)
 		if instance.context.version == 18:
-			Array.to_stream(stream, instance.hitchecks_pc, (instance.pc_hitcheck_count,),HitCheckEntry, instance.context, 0, None)
+			Array.to_stream(stream, instance.hitchecks_pc, (instance.pc_hitcheck_count,), HitCheckEntry, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

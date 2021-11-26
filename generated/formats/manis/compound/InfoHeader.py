@@ -68,7 +68,7 @@ class InfoHeader(GenericHeader):
 		stream.write_uint(instance.mani_count)
 		stream.write_zstrings(instance.names)
 		SizedStrData.to_stream(stream, instance.header)
-		Array.to_stream(stream, instance.mani_infos, (instance.mani_count,),ManiInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.mani_infos, (instance.mani_count,), ManiInfo, instance.context, 0, None)
 		stream.write_uints(instance.bone_hashes)
 		stream.write_zstrings(instance.bone_names)
 		PadAlign.to_stream(stream, instance.bone_pad)

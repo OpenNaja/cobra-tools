@@ -47,7 +47,7 @@ class DIDXSection:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_uint(instance.length)
-		Array.to_stream(stream, instance.data_pointers, (int(instance.length / 12),),DataPointer, instance.context, 0, None)
+		Array.to_stream(stream, instance.data_pointers, (int(instance.length / 12),), DataPointer, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

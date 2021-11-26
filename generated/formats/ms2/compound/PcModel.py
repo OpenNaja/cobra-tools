@@ -92,21 +92,21 @@ class PcModel:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		Array.to_stream(stream, instance.materials, (instance.arg.num_materials,),MaterialName, instance.context, 0, None)
+		Array.to_stream(stream, instance.materials, (instance.arg.num_materials,), MaterialName, instance.context, 0, None)
 		if instance.context.version == 17:
-			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,),LodInfoZT, instance.context, 0, None)
+			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfoZT, instance.context, 0, None)
 		if instance.context.version == 18:
-			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,),LodInfo, instance.context, 0, None)
-		Array.to_stream(stream, instance.objects, (instance.arg.num_objects,),MeshLink, instance.context, 0, None)
+			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.objects, (instance.arg.num_objects,), MeshLink, instance.context, 0, None)
 		if instance.context.version == 17 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
 			stream.write_uint(instance.padding)
 		if instance.context.version == 18:
-			Array.to_stream(stream, instance.models, (instance.arg.num_models,),PcModelData, instance.context, 0, None)
+			Array.to_stream(stream, instance.models, (instance.arg.num_models,), PcModelData, instance.context, 0, None)
 		if instance.context.version == 17:
-			Array.to_stream(stream, instance.models, (instance.arg.num_models,),ZtModelData, instance.context, 0, None)
+			Array.to_stream(stream, instance.models, (instance.arg.num_models,), ZtModelData, instance.context, 0, None)
 		if instance.context.version == 17 and instance.arg.last_count:
 			ZTPreBones.to_stream(stream, instance.ztuac_pre_bones)
-		Array.to_stream(stream, instance.floatsy, (instance.arg.render_flag,),FloatsY, instance.context, 0, None)
+		Array.to_stream(stream, instance.floatsy, (instance.arg.render_flag,), FloatsY, instance.context, 0, None)
 		SmartPadding.to_stream(stream, instance.weird_padding)
 
 	@classmethod

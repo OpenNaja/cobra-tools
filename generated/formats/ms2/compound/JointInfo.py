@@ -70,7 +70,7 @@ class JointInfo:
 		stream.write_uint(instance.hitcheck_count)
 		stream.write_uint64(instance.zero)
 		stream.write_uint64s(instance.zeros_per_hitcheck)
-		Array.to_stream(stream, instance.hit_check, (instance.hitcheck_count,),HitCheckEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.hit_check, (instance.hitcheck_count,), HitCheckEntry, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

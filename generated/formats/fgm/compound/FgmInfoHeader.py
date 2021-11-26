@@ -64,8 +64,8 @@ class FgmInfoHeader(GenericHeader):
 		stream.write_uint(instance.dependency_count)
 		FgmHeader.to_stream(stream, instance.fgm_info)
 		stream.write_zstrings(instance.texture_files)
-		Array.to_stream(stream, instance.textures, (instance.fgm_info.texture_count,),TextureInfo, instance.context, 0, None)
-		Array.to_stream(stream, instance.attributes, (instance.fgm_info.attribute_count,),AttributeInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.textures, (instance.fgm_info.texture_count,), TextureInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.attributes, (instance.fgm_info.attribute_count,), AttributeInfo, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

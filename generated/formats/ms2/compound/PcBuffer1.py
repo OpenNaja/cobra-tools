@@ -57,7 +57,7 @@ class PcBuffer1:
 			Ms2BufferInfoZT.to_stream(stream, instance.buffer_info_pc)
 		if instance.context.version == 18:
 			Ms2BufferInfoPC.to_stream(stream, instance.buffer_info_pc)
-		Array.to_stream(stream, instance.model_infos, (instance.arg.general_info.mdl_2_count,),CoreModelInfoPC, instance.context, 0, None)
+		Array.to_stream(stream, instance.model_infos, (instance.arg.general_info.mdl_2_count,), CoreModelInfoPC, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

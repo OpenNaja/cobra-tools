@@ -54,7 +54,7 @@ class XmlParser:
         """preprocessing - generate module paths for imports relative to the output dir"""
         for child in root:
             # only check stuff that has a name - ignore version tags
-            if child.tag.split('}')[-1] not in ("version", "token", "include"):
+            if child.tag.split('}')[-1] not in ("version", "token", "include", "verattr"):
                 base_segments = self.base_segments
                 if child.tag == "module":
                     # for modules, set the path to base/module_name
@@ -151,9 +151,7 @@ class XmlParser:
         name = verattr.attrib['name']
         assert name not in self.verattrs, f"verattr {name} already defined!"
         access = '.'.join(convention.name_attribute(comp) for comp in verattr.attrib["access"].split('.'))
-        attr_type = verattr.attrib.get("type")
-        if attr_type:
-            attr_type = convention.name_class(attr_type)
+        attr_type = verattr.attrib.get('type')
         self.verattrs[name] = [access, attr_type]
 
     def read_xinclude(self, xinclude, xml_path, parsed_xmls):
@@ -183,6 +181,8 @@ class XmlParser:
             if struct.tag in ("version", "verattr"):
                 # don't apply conventions to these types (or there are none to apply)
                 continue
+            elif struct.tag == "verattr":
+                self.apply_convention(struct, convention.name_class, ("type",))
             elif struct.tag == "module":
                 self.apply_convention(struct, convention.name_module, ("name", "depends"))
                 self.apply_convention(struct, convention.force_bool, ("custom",))
@@ -233,8 +233,8 @@ class XmlParser:
                 else:
                     return f'stream.read_{dtype.lower()}()'
         if arr1 is not None:
-            return f'Array.from_stream(stream, {self.arrs_to_tuple(arr1, arr2)},'\
-                   f' {dtype}, {context}, {arg}, {template})'
+            return f'Array.from_stream(stream, {self.arrs_to_tuple(arr1, arr2)}, '\
+                   f'{dtype}, {context}, {arg}, {template})'
         else:
             if type_tag == "enum":
                 # enum is a special case where you can convert the basic type to a enum using from_value
@@ -255,7 +255,7 @@ class XmlParser:
                 else:
                     return f'stream.write_{dtype.lower()}({attr})'
         if arr1:
-            return f'Array.to_stream(stream, {attr}, {self.arrs_to_tuple(arr1, arr2)},'\
+            return f'Array.to_stream(stream, {attr}, {self.arrs_to_tuple(arr1, arr2)}, '\
                    f'{dtype}, {context}, {arg}, {template})'
         else:
             if type_tag == "enum":
@@ -304,7 +304,7 @@ class XmlParser:
                     # get rid of any remaining html escape characters
                     xml_struct.attrib[target_attrib] = unescape(expr_str)
         # additional tokens that are not specified by nif.xml
-        fixed_tokens = (("\\", "."), ("#ARG#", "arg"), ("#T#", "self.template"))
+        fixed_tokens = (("\\", "."), ("#ARG#", "arg"), ("#T#", "template"))
         for attrib, expr_str in xml_struct.attrib.items():
             for op_token, op_str in fixed_tokens:
                 expr_str = expr_str.replace(op_token, op_str)

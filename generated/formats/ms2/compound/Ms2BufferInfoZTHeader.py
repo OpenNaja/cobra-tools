@@ -50,7 +50,7 @@ class Ms2BufferInfoZTHeader:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		SmartPadding.to_stream(stream, instance.weird_padding)
-		Array.to_stream(stream, instance.unks, (instance.arg.unk_count,),InfoZTMemPool, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks, (instance.arg.unk_count,), InfoZTMemPool, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

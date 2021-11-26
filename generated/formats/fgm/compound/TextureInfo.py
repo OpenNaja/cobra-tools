@@ -82,11 +82,11 @@ class TextureInfo:
 		if not (instance.context.version == 17) and instance.is_textured == 8:
 			stream.write_uints(instance.indices)
 		if not (instance.context.version == 17) and instance.is_textured == 7:
-			Array.to_stream(stream, instance.colors, (4,),Color, instance.context, 0, None)
+			Array.to_stream(stream, instance.colors, (4,), Color, instance.context, 0, None)
 		if instance.context.version == 17 and instance.is_textured == 8:
 			stream.write_uints(instance.indices)
 		if instance.context.version == 17 and instance.is_textured == 7:
-			Array.to_stream(stream, instance.colors, (1,),Color, instance.context, 0, None)
+			Array.to_stream(stream, instance.colors, (1,), Color, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

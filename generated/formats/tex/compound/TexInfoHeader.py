@@ -85,9 +85,9 @@ class TexInfoHeader(GenericHeader):
 			Frag00.to_stream(stream, instance.frag_00)
 		Header3Data0.to_stream(stream, instance.frag_10)
 		if not (instance.context.version < 19):
-			Array.to_stream(stream, instance.frag_01, (instance.frag_10.stream_count,),TexBuffer, instance.context, 0, None)
+			Array.to_stream(stream, instance.frag_01, (instance.frag_10.stream_count,), TexBuffer, instance.context, 0, None)
 		if instance.context.version < 19:
-			Array.to_stream(stream, instance.frag_01, (instance.frag_10.stream_count,),TexBufferPc, instance.context, 0, None)
+			Array.to_stream(stream, instance.frag_01, (instance.frag_10.stream_count,), TexBufferPc, instance.context, 0, None)
 		if not (instance.context.version < 19):
 			Header7Data1.to_stream(stream, instance.frag_11)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):

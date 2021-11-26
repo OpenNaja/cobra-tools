@@ -94,7 +94,7 @@ class Header7Data1:
 		stream.write_uint(instance.num_mips)
 		if instance.context.version >= 20:
 			stream.write_uint64(instance.unk_pz)
-		Array.to_stream(stream, instance.mip_maps, (instance.num_mips,),Mipmap, instance.context, 0, None)
+		Array.to_stream(stream, instance.mip_maps, (instance.num_mips,), Mipmap, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

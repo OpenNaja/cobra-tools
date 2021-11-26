@@ -66,7 +66,7 @@ class Struct7:
 		stream.write_uint64(instance.zero)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20)):
 			stream.write_uint64s(instance.zeros_pz)
-		Array.to_stream(stream, instance.unknown_list, (instance.count_7,),NasutoJointEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.unknown_list, (instance.count_7,), NasutoJointEntry, instance.context, 0, None)
 		stream.write_ubytes(instance.padding)
 
 	@classmethod

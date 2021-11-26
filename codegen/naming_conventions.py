@@ -97,7 +97,7 @@ def name_class(name):
     >>> name_class('this IS a sillyNAME')
     'ThisIsASillyNAME'
     """
-    if name == "self.template":
+    if name == "template":
         return name
     return ''.join(part.capitalize() for part in name_parts(name))
 

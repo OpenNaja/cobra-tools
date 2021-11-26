@@ -156,7 +156,7 @@ class MeshCollision:
 		stream.write_uint(instance.tri_flags_count)
 		stream.write_ushort(instance.count_bits)
 		stream.write_ushorts(instance.stuff)
-		Array.to_stream(stream, instance.collision_bits, (instance.count_bits,),MeshCollisionBit, instance.context, 0, None)
+		Array.to_stream(stream, instance.collision_bits, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
 		stream.write_uints(instance.zeros)
 		stream.write_floats(instance.vertices)
 		stream.write_ushorts(instance.triangles)

@@ -260,21 +260,21 @@ class Header(GenericHeader):
 		stream.write_uint(instance.num_triplets)
 		stream.write_uints(instance.reserved)
 		ZStringBuffer.to_stream(stream, instance.names)
-		Array.to_stream(stream, instance.mimes, (instance.num_mimes,),MimeEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.mimes, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
 		if instance.context.version >= 20:
-			Array.to_stream(stream, instance.triplets, (instance.num_triplets,),Triplet, instance.context, 0, None)
+			Array.to_stream(stream, instance.triplets, (instance.num_triplets,), Triplet, instance.context, 0, None)
 			PadAlign.to_stream(stream, instance.triplets_pad)
-		Array.to_stream(stream, instance.files, (instance.num_files,),FileEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.files, (instance.num_files,), FileEntry, instance.context, 0, None)
 		ZStringBuffer.to_stream(stream, instance.archive_names)
-		Array.to_stream(stream, instance.archives, (instance.num_archives,),ArchiveEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.dirs, (instance.num_dirs,),DirEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.archives, (instance.num_archives,), ArchiveEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.dirs, (instance.num_dirs,), DirEntry, instance.context, 0, None)
 		if not (instance.context.version == 17):
-			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,),DependencyEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.aux_entries, (instance.num_aux_entries,),AuxEntry, instance.context, 0, None)
+			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.aux_entries, (instance.num_aux_entries,), AuxEntry, instance.context, 0, None)
 		if instance.context.version == 17:
-			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,),DependencyEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.unknowns, (instance.num_files_ovs,),UnknownEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.zlibs, (instance.num_archives,),ZlibInfo, instance.context, 0, None)
+			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.unknowns, (instance.num_files_ovs,), UnknownEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.zlibs, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

@@ -69,13 +69,13 @@ class OvsHeader:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		Array.to_stream(stream, instance.pool_groups, (instance.arg.num_pool_groups,),PoolGroup, instance.context, 0, None)
-		Array.to_stream(stream, instance.pools, (instance.arg.num_pools,),MemPool, instance.context, 0, None)
-		Array.to_stream(stream, instance.data_entries, (instance.arg.num_datas,),DataEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.buffer_entries, (instance.arg.num_buffers,),BufferEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.buffer_groups, (instance.arg.num_buffer_groups,),BufferGroup, instance.context, 0, None)
-		Array.to_stream(stream, instance.sized_str_entries, (instance.arg.num_files,),SizedStringEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.fragments, (instance.arg.num_fragments,),Fragment, instance.context, 0, None)
+		Array.to_stream(stream, instance.pool_groups, (instance.arg.num_pool_groups,), PoolGroup, instance.context, 0, None)
+		Array.to_stream(stream, instance.pools, (instance.arg.num_pools,), MemPool, instance.context, 0, None)
+		Array.to_stream(stream, instance.data_entries, (instance.arg.num_datas,), DataEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.buffer_entries, (instance.arg.num_buffers,), BufferEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.buffer_groups, (instance.arg.num_buffer_groups,), BufferGroup, instance.context, 0, None)
+		Array.to_stream(stream, instance.sized_str_entries, (instance.arg.num_files,), SizedStringEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.fragments, (instance.arg.num_fragments,), Fragment, instance.context, 0, None)
 		SetHeader.to_stream(stream, instance.set_header)
 
 	@classmethod

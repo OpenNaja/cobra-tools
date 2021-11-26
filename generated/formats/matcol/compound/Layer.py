@@ -54,9 +54,9 @@ class Layer:
 	def write_fields(cls, stream, instance):
 		stream.write_zstring(instance.name)
 		LayeredInfo.to_stream(stream, instance.info_info)
-		Array.to_stream(stream, instance.infos, (instance.info_info.info_count,),InfoWrapper, instance.context, 0, None)
+		Array.to_stream(stream, instance.infos, (instance.info_info.info_count,), InfoWrapper, instance.context, 0, None)
 		LayeredAttrib.to_stream(stream, instance.attrib_info)
-		Array.to_stream(stream, instance.attribs, (instance.attrib_info.attrib_count,),AttribWrapper, instance.context, 0, None)
+		Array.to_stream(stream, instance.attribs, (instance.attrib_info.attrib_count,), AttribWrapper, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

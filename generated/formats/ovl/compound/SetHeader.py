@@ -65,8 +65,8 @@ class SetHeader:
 		stream.write_uint(instance.asset_count)
 		stream.write_uint(instance.sig_a)
 		stream.write_uint(instance.sig_b)
-		Array.to_stream(stream, instance.sets, (instance.set_count,),SetEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.assets, (instance.asset_count,),AssetEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.sets, (instance.set_count,), SetEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.assets, (instance.asset_count,), AssetEntry, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
