@@ -104,6 +104,7 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# pack data now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
 			pool.data.write("\00".join(moviedef['UITriggerList']).encode('utf-8'))
+			pool.data.write(b"\00")
 
 			# new offset for list pointers
 			poffset = pool.data.tell()
@@ -135,6 +136,7 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# pack data now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
 			pool.data.write("\00".join(moviedef['ControlList']).encode('utf-8'))
+			pool.data.write(b"\00")
 
 			# new offset for list pointers
 			poffset = pool.data.tell()
@@ -165,6 +167,8 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# pack data now.. 
 			pool.data.write( struct.pack(f"<{len(moviedef['Count1List'])}I", *moviedef['Count1List']))
+			# add some extra 00
+			pool.data.write( struct.pack("<Q", 0))
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
@@ -181,6 +185,8 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# pack data now.. 
 			pool.data.write( struct.pack(f"<{len(moviedef['Count2List'])}I", *moviedef['Count2List']))
+			# add some extra 00
+			pool.data.write( struct.pack("<Q", 0))
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
@@ -197,7 +203,7 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# pack data now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
 			pool.data.write("\00".join(moviedef['InterfaceList']).encode('utf-8'))
-
+			pool.data.write(b"\00")
 			# new offset for list pointers
 			poffset = pool.data.tell()
 
@@ -275,7 +281,10 @@ class UIMovieDefinitionLoader(BaseFile):
 			uitriggerlist = []
 			for var in tmpfragment:
 				var.pointers[1].strip_zstring_padding()
-				uitriggerlist.append(var.pointers[1].data.decode('utf-8')[:-1])
+				strval = var.pointers[1].data.decode('utf-8')
+				if strval[-1] == '\x00':
+					strval = strval[:-1]
+				uitriggerlist.append(strval)
 			self.sized_str_entry.moviedef['UITriggerList'] = uitriggerlist
 
 		# list of UI controls
@@ -285,7 +294,10 @@ class UIMovieDefinitionLoader(BaseFile):
 			uinamelist = []
 			for var in tmpfragment:
 				var.pointers[1].strip_zstring_padding()
-				uinamelist.append(var.pointers[1].data.decode('utf-8')[:-1])
+				strval = var.pointers[1].data.decode('utf-8')
+				if strval[-1] == '\x00':
+					strval = strval[:-1]
+				uinamelist.append(strval)
 			self.sized_str_entry.moviedef['ControlList'] = uinamelist
 
 		if count1:
@@ -306,10 +318,13 @@ class UIMovieDefinitionLoader(BaseFile):
 			uiInterfacelist = []
 			for var in tmpfragment:
 				var.pointers[1].strip_zstring_padding()
-				uiInterfacelist.append(var.pointers[1].data.decode('utf-8')[:-1])
+				strval = var.pointers[1].data.decode('utf-8')
+				if strval[-1] == '\x00':
+					strval = strval[:-1]
+				uiInterfacelist.append(strval)
 			self.sized_str_entry.moviedef['InterfaceList'] = uiInterfacelist
 
-		#print(self.sized_str_entry.moviedef)
+		print(self.sized_str_entry.moviedef)
 		pass
 
 	def load(self, file_path):

@@ -133,13 +133,19 @@ class PSCollectionLoader(BaseFile):
 			# get name
 			namefragment = self.ovs.frags_from_pointer(psfragment.pointers[1], 1)[0]
 			namefragment.pointers[1].strip_zstring_padding()
-			name = namefragment.pointers[1].data.decode('utf-8')[:-1]
+			strval = namefragment.pointers[1].data.decode('utf-8')
+			if strval[-1] == '\x00':
+				strval = strval[:-1]
+			name = strval
 			#print(name)
 
 			# get sql
 			sqlfragment = self.ovs.frags_from_pointer(psfragment.pointers[1], 1)[0]
 			sqlfragment.pointers[1].strip_zstring_padding()
-			sqldata = sqlfragment.pointers[1].data.decode('utf-8')[:-1]
+			strval = sqlfragment.pointers[1].data.decode('utf-8')
+			if strval[-1] == '\x00':
+				strval = strval[:-1]
+			sqldata = strval
 			#print(sqldata)
 			#print("----")
 			# update offset
