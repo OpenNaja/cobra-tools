@@ -1,4 +1,5 @@
 from codegen.expression import Expression, Version
+from codegen.Imports import Imports
 from codegen.Versions import Versions
 import codegen.naming_conventions as convention
 
@@ -49,9 +50,9 @@ def get_conditions(field, expression_prefix="self."):
         cond = Expression(cond, f'{expression_prefix}')
         conditionals.append(f"{cond}")
     if onlyT:
-        conditionals.append(f"'{onlyT}' in [parent.__name__ for parent in type(self).__mro__]")
+        conditionals.append(f"'{onlyT}' in [parent.__name__ for parent in type({expression_prefix[:-1]}).__mro__]")
     if excludeT:
-        conditionals.append(f"'{excludeT}' not in [parent.__name__ for parent in type(self).__mro__]")
+        conditionals.append(f"'{excludeT}' not in [parent.__name__ for parent in type({expression_prefix[:-1]}).__mro__]")
     return conditionals
 
 
@@ -102,7 +103,7 @@ class Union:
             if template_class not in self.compound.parser.path_dict:
                 template = Expression(template, expression_prefix)
             else:
-                template = template_class
+                template = f'{Imports.import_from_module_path(self.compound.parser.path_dict[template_class])}.{template_class}'
         if arg:
             arg = Expression(arg, expression_prefix)
         if arr1:

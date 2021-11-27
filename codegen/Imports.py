@@ -30,7 +30,7 @@ class Imports:
                     # only import if a type
                     template_class = convention.name_class(template)
                     if template_class in self.path_dict:
-                        self.add(template_class)
+                        self.add_module(template_class)
                 arr1 = field.attrib.get("arr1")
                 if arr1 is None:
                     arr1 = field.attrib.get("length")
@@ -48,12 +48,17 @@ class Imports:
         if cls_to_import:
             has_stream_functions, import_type = self.parent.map_type(cls_to_import, array)
             if has_stream_functions and not array and import_type in self.parent.builtin_literals:
+                # import not necessary (read/write on stream, and init can happen from literal)
                 return
             else:
                 if not array:
                     import_type = (import_type, )
             [self.imports.append(import_class.split('.')[0]) for import_class in import_type]
 
+    def add_module(self, cls_to_import):
+        # provide class access through the module to prevent circular import
+        if cls_to_import:
+            self.imports.append(self.import_from_module_path(self.path_dict[cls_to_import]))
 
     def write(self, stream):
         module_imports = []
