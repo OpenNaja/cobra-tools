@@ -49,7 +49,9 @@ def create_material(in_dir, matname):
 	# map texture names to node
 	tex_dic = {}
 	for fgm_texture in fgm_data.textures:
-		png_base = fgm_texture.name.lower()
+		if not fgm_texture.file:
+			continue
+		png_base = fgm_texture.file.lower()
 		if "blendweights" in png_base or "warpoffset" in png_base:
 			continue
 		textures = [file for file in all_textures if file.lower().startswith(png_base)]
