@@ -58,15 +58,13 @@ class MainWindow(widgets.MainWindow):
 
 		self.model = QtWidgets.QFileSystemModel()
 		# self.model.sort(1, QtCore.Qt.AscendingOrder)
-		dir_game = self.get_game_dir()
-		rt_index = self.model.setRootPath(dir_game)
 		self.dirs_container = QtWidgets.QTreeView()
 		self.dirs_container.setModel(self.model)
-		self.dirs_container.setRootIndex(rt_index)
 		self.dirs_container.setColumnHidden(1, True)
 		self.dirs_container.setColumnHidden(2, True)
 		self.dirs_container.setColumnHidden(3, True)
 		self.dirs_container.doubleClicked.connect(self.dirs_clicked)
+		self.set_game_dir()
 
 		self.dirs_container.header().setSortIndicator(0, QtCore.Qt.AscendingOrder)
 		self.dirs_container.model().sort(self.dirs_container.header().sortIndicatorSection(),
@@ -173,18 +171,25 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Save Frag Log", self.ovl_data.dump_frag_log, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
+			(util_menu, "Set Game Dir", self.ask_game_dir, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
 		self.load_hash_table()
 
-	def get_game_dir(self):
+	def ask_game_dir(self):
+		dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
+		self.cfg["dir_game"] = dir_game
+		return dir_game
+
+	def set_game_dir(self):
 		dir_game = self.cfg.get("dir_game", "")
 		if not dir_game:
-			dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
-			self.cfg["dir_game"] = dir_game
-		return dir_game
+			dir_game = self.ask_game_dir()
+		if dir_game:
+			rt_index = self.model.setRootPath(dir_game)
+			self.dirs_container.setRootIndex(rt_index)
 
 	def get_selected_dir(self):
 		model = self.dirs_container.model()
@@ -522,14 +527,12 @@ class MainWindow(widgets.MainWindow):
 				try:
 					file_names = self.files_container.table.get_files()
 					with open(filelist_src, 'w') as f:
-	 					f.write("\n".join(file_names))
+						f.write("\n".join(file_names))
 
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except BaseException as ex:
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
-
-
 
 	def remover(self):
 		if self.is_open_ovl():
