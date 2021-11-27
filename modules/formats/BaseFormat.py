@@ -182,8 +182,8 @@ class BaseFile:
 				e.tail = i
 
 	def load_xml(self, xml_path):
-		xml_data = ET.ElementTree(ET.fromstring(xml_path))
-		return xml_data.getroot()
+		tree = ET.parse(xml_path)
+		return tree.getroot()
 
 	def write_xml(self, out_path, xml_data):
 		self.indent(xml_data)

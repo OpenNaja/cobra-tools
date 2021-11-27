@@ -3,16 +3,23 @@ import struct
 from modules.formats.BaseFormat import BaseFile
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
-from modules.helpers import zstr
+from modules.helpers import zstr, as_bytes
 
 
 def unpack_name(b):
 	b = bytearray(b)
-	# print(shader)
 	# decode the names
 	for i in range(len(b)):
 		b[i] = max(0, b[i] - 1)
 	return bytes(b)
+
+
+def pack_name(b):
+	b = bytearray(b.encode())
+	# decode the names
+	for i in range(len(b)):
+		b[i] = max(0, b[i] + 1)
+	return b.decode()
 
 
 class MatlayersLoader(BaseFile):
@@ -25,11 +32,11 @@ class MatlayersLoader(BaseFile):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
 		self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
-		self.shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		# self.shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
 		f0_d0 = struct.unpack("<6I", self.sized_str_entry.f1.pointers[0].data)
 		layer_count = f0_d0[2]
 
-		logging.debug(f"{self.shader} {layer_count}")
+		# logging.debug(f"{self.shader} {layer_count}")
 		entry_size = 24
 		ptr11 = self.sized_str_entry.f1.pointers[1]
 		out_frags, array_data = self.collect_array(ptr11, layer_count, entry_size)
@@ -49,7 +56,8 @@ class MatlayersLoader(BaseFile):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
 		xmldata = ET.Element('Matlayers')
-		xmldata.set('shader', self.get_zstr(self.shader))
+		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		xmldata.set('shader', self.get_zstr(shader))
 
 		for frags, entry_bytes in self.frag_data_pairs:
 			layer = ET.SubElement(xmldata, 'layer')
@@ -73,37 +81,44 @@ class MatlayersLoader(BaseFile):
 		return out_path,
 
 	def create(self):
-
 		xml = self.load_xml(self.file_entry.path)
 		# pool2_index, pool2 = self.get_pool(2)
 		# pool4_index, pool4 = self.get_pool(4)
 		# offset = pool4.data.tell()
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 4, b"")
 		f0, f1 = self.create_fragments(self.sized_str_entry, 2)
 
 		# first write the array
 		data = b""
 		for layer in xml:
-			data += struct.pack("<6I", int(layer["flag"]), 0, 0, 0, 0, 0)
+			layer_data = struct.pack("<6I", int(layer.attrib["flag"]), 0, 0, 0, 0, 0)
+			data += layer_data
 
-		self.write_to_pool(f1.pointers[1], 2, data)  # ptr to array
-
+		self.write_to_pool(f1.pointers[1], 4, data)  # ptr to array
+		# empty ss, followed by 2 frags
+		self.write_to_pool(self.sized_str_entry.pointers[0], 4, b"")
 		self.write_to_pool(f0.pointers[0], 4, b"\x00" * 8)
 		self.write_to_pool(f1.pointers[0], 4, struct.pack("<6I", 0, 0, len(xml), 0, 0, 0))
 
-		self.write_to_pool(f0.pointers[1], 2, zstr(xml["shader"]))
+		shader = pack_name(xml.attrib["shader"])
+		# first entry to name buffer
+		self.write_to_pool(f0.pointers[1], 2, as_bytes(shader))
 
+		# write the layers
 		offset = f1.pointers[1].data_offset
 		for layer in xml:
-			name = layer["name"]
-			n_frag = self.create_fragments(self.sized_str_entry, 1)[0]
-			n_frag.pointers[0].data_offset = offset + 16
-			self.write_to_pool(n_frag.pointers[1], 2, zstr(name))
-			if layer["fgm"]:
+			# fgms go first if they exist
+			if "fgm" in layer.attrib:
 				fgm_frag = self.create_fragments(self.sized_str_entry, 1)[0]
 				fgm_frag.pointers[0].data_offset = offset + 8
+				fgm_name = layer.attrib["fgm"]
+				self.write_to_pool(fgm_frag.pointers[1], 2, as_bytes(fgm_name))
+			name = layer.attrib["name"]
+			n_frag = self.create_fragments(self.sized_str_entry, 1)[0]
+			n_frag.pointers[0].data_offset = offset + 16
+			self.write_to_pool(n_frag.pointers[1], 2, as_bytes(name))
 			offset += 24
+		# todo - might need padding after the names buffer
 
 
 class MatvarsLoader(BaseFile):
