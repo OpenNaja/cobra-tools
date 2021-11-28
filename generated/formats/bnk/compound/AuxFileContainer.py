@@ -1,3 +1,4 @@
+import logging
 import os
 import struct
 
@@ -30,7 +31,7 @@ class AuxFileContainer:
         chunk_id = "DUMM"
         while len(chunk_id) == 4:
             chunk_id = stream.read(4)
-            print("reading chunk", chunk_id)
+            logging.info(f"reading chunk {chunk_id} at {stream.tell()}")
             if chunk_id == b"BKHD":
                 self.bhkd = stream.read_type(BKHDSection, (self.context,))
                 print(self.bhkd)

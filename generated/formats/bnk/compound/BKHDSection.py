@@ -1,3 +1,6 @@
+import numpy
+import typing
+from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -24,6 +27,7 @@ class BKHDSection:
 		self.id_b = 0
 		self.constant_a = 0
 		self.constant_b = 0
+		self.unk = numpy.zeros((2), dtype='uint')
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -33,6 +37,7 @@ class BKHDSection:
 		self.id_b = 0
 		self.constant_a = 0
 		self.constant_b = 0
+		self.unk = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -43,6 +48,7 @@ class BKHDSection:
 		self.id_b = stream.read_uint()
 		self.constant_a = stream.read_uint()
 		self.constant_b = stream.read_uint()
+		self.unk = stream.read_uints((2))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -54,6 +60,7 @@ class BKHDSection:
 		stream.write_uint(self.id_b)
 		stream.write_uint(self.constant_a)
 		stream.write_uint(self.constant_b)
+		stream.write_uints(self.unk)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -68,6 +75,7 @@ class BKHDSection:
 		s += f'\n	* id_b = {self.id_b.__repr__()}'
 		s += f'\n	* constant_a = {self.constant_a.__repr__()}'
 		s += f'\n	* constant_b = {self.constant_b.__repr__()}'
+		s += f'\n	* unk = {self.unk.__repr__()}'
 		return s
 
 	def __repr__(self):

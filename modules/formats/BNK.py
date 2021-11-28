@@ -4,7 +4,7 @@ import struct
 import traceback
 
 from generated.formats.bnk import BnkFile, AuxFile
-from generated.formats.ovl_base.versions import is_jwe2
+from generated.formats.ovl_base.versions import is_jwe2, is_pz16
 from modules.formats.BaseFormat import BaseFile
 from ovl_util import texconv
 
@@ -18,12 +18,21 @@ class BnkLoader(BaseFile):
 		self.assign_ss_entry()
 			
 	def extract(self, out_dir, show_temp_files, progress_callback):
+		for aux_file in self.file_entry.aux_entries:
+			print(aux_file)
 		bnk_name = os.path.splitext(self.sized_str_entry.name)[0]
 		# print(self.sized_str_entry.pointers[0].address, self.sized_str_entry.pointers[0].data)
 		# print(self.sized_str_entry.data_entry.buffer_datas)
 		out_path = out_dir(self.sized_str_entry.name)
+		out_files = [out_path, ]
 		with open(out_path, "wb") as f:
 			f.write(self.sized_str_entry.data_entry.buffer_datas[0])
+		# for i in range(1, len(self.sized_str_entry.data_entry.buffer_datas)):
+		# 	buffer_path = out_path+str(i)
+		# 	out_files.append(buffer_path)
+		# 	with open(buffer_path, "wb") as f:
+		# 		f.write(self.sized_str_entry.data_entry.buffer_datas[i])
+		logging.debug(f"Num buffers {len(self.sized_str_entry.data_entry.buffer_datas)}")
 	
 		wem_files = []
 		try:
@@ -34,12 +43,12 @@ class BnkLoader(BaseFile):
 			# extract streamed files
 			for ext in bnk.extensions:
 				aux_path = f"{self.ovl.file_no_ext}_{bnk_name}_bnk_{ext}.aux"
-				if is_jwe2(self.ovl):
+				if not self.file_entry.aux_entries:
 					with open(aux_path, "wb") as f:
 						for b in self.sized_str_entry.data_entry.buffer_datas[1:]:
 							f.write(b)
-				if ext and not os.path.isfile(aux_path):
-					raise FileNotFoundError(f"AUX file expected at {aux_path}!")
+				# if ext and not os.path.isfile(aux_path):
+					# raise FileNotFoundError(f"AUX file expected at {aux_path}!")
 				if ext.lower() == "s":
 					with open(aux_path, "rb") as f:
 						for i, stream_info in enumerate(bnk.stream_infos):
@@ -50,7 +59,7 @@ class BnkLoader(BaseFile):
 							with open(wem_path, "wb") as wem:
 								wem.write(d)
 							wem_files.append(wem_path)
-				elif ext.lower() == "b" or is_jwe2(self.ovl):
+				elif ext.lower() in ("b", ""):
 					aux = AuxFile()
 					aux.load(aux_path)
 					wem_files.extend(aux.extract_audio(out_dir, bnk_name))
@@ -61,9 +70,10 @@ class BnkLoader(BaseFile):
 			traceback.print_exc()
 		processed_files = texconv.wem_handle(wem_files, show_temp_files, progress_callback)
 		if show_temp_files:
-			return [out_path, aux_path] + wem_files + processed_files
+			out_files.append(aux_path)
+			return out_files + wem_files + processed_files
 		else:
-			return [out_path, ] + processed_files
+			return out_files + processed_files
 	
 	def load(self, wem_file_path):
 		# todo - resolve and get these

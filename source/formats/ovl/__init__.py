@@ -50,6 +50,7 @@ aliases = {
 
 def get_loader(ext, ovl, file_entry):
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
+	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchstartunlockedssettingsLoader
 	from modules.formats.ASSETPKG import AssetpkgLoader
 	from modules.formats.BANI import BanisLoader
 	from modules.formats.BNK import BnkLoader
@@ -82,6 +83,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.XMLCONFIG import XmlconfigLoader
 	ext_2_class = {
 		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
+		".animalresearchstartunlockedsettings": AnimalresearchstartunlockedssettingsLoader,
 		".assetpkg": AssetpkgLoader,
 		".banis": BanisLoader,
 		".bnk": BnkLoader,
