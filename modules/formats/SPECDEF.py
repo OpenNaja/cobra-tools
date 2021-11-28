@@ -90,7 +90,7 @@ class SpecdefLoader(BaseFile):
 		if ss_data[0] == 0:
 			logging.info(f"spec is zero ")
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3, reuse=False)
-		logging.info(f"SPECDEF fragments: {self.sized_str_entry.fragments}")
+		# logging.debug(f"SPECDEF fragments: {self.sized_str_entry.fragments}")
 		attrib_count = ss_data[0]
 		conditions = ss_data[2:]
 		self.condition_frags = []
@@ -121,15 +121,14 @@ class SpecdefLoader(BaseFile):
 
 		# save .bin data
 		with open(out_path + ".bin", 'wb') as outfile:
-			logging.warning("Exporting binary specdef file")
-			logging.warning(f"SPECDEF: {self.sized_str_entry.pointers}")
-			logging.warning(f"SPECDEF: {self.sized_str_entry.fragments}")
-			logging.warning(f"SPECDEF: {self.sized_str_entry.pointers[0].data}")
+			logging.debug("Exporting binary specdef file")
+			# logging.debug(f"SPECDEF: {self.sized_str_entry.pointers}")
+			# logging.debug(f"SPECDEF: {self.sized_str_entry.fragments}")
+			# logging.debug(f"SPECDEF: {self.sized_str_entry.pointers[0].data}")
 			outfile.write(ovl_header)
 			outfile.write(self.sized_str_entry.pointers[0].data)
 			for f in self.sized_str_entry.fragments:
-				logging.warning(f"SPECDEF: dumping pool type {f}")
-
+				# logging.debug(f"SPECDEF: dumping pool type {f}")
 				outfile.write(f.pointers[1].data)
 			outfile.close()
 
@@ -190,7 +189,7 @@ class SpecdefLoader(BaseFile):
 					except:
 						logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
 					outstr = f" - Type: {dtype:02} Name: {iname}  Flags: {tflags}"
-					logging.debug(outstr)
+					# logging.debug(outstr)
 					outfile.write(outstr + "\n")
 
 			condition_names = ("Name", "Child Specdef", "Manager", "Script")
