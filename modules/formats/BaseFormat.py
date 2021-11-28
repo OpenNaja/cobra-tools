@@ -65,7 +65,7 @@ class BaseFile:
 			o = frag.pointers[0].data_offset
 			if offset_start <= o < offset_end:
 				out_frags.append(frag)
-		logging.debug(f"out_frags {len(out_frags)}")
+		logging.debug(f"foung {len(out_frags)} frags between {offset_start} and {offset_end}")
 		return out_frags
 
 	def assign_ss_entry(self):

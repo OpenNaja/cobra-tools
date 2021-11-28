@@ -1,7 +1,8 @@
 import logging
-from struct import unpack
+import struct
 
 from modules.formats.BaseFormat import BaseFile
+import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
 
 class AnimalresearchunlockssettingsLoader(BaseFile):
@@ -12,56 +13,70 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
-		_, count = unpack("<QQ", ss_pointer.data)
-		logging.debug(ss_pointer.data)
-		logging.debug(f"{self.file_entry.name} has {count} entries")
+		_, count = struct.unpack("<QQ", ss_pointer.data)
+		# logging.debug(ss_pointer.data)
+		# logging.debug(f"{self.file_entry.name} has {count} entries")
 		self.assign_fixed_frags(1)
 		frag = self.sized_str_entry.fragments[0]
-		logging.debug(frag)
-		p1 = frag.pointers[1]
-		count_of_triples = count-1
-		# plus 1 fragment of variable size - 40ish
-		triples = self.ovs.frags_from_pointer(p1, (count_of_triples*3)+1)
-		frags_pt_1 = self.ovs.get_frags_from_ptr_lut(p1, count_of_triples)
-		for f in frags_pt_1:
-			name = f.pointers[1].data
-			logging.debug(f"new: {name}")
+		# logging.debug(frag)
+		ptr1 = frag.pointers[1]
 
-		# logging.debug(triples)
-		b_set = set()
-		self.sized_str_entry.fragments += triples
-		for i in range(count_of_triples):
-			triple = triples[i*3:i*3+3]
-			a, b, c = triple
-			name = a.pointers[1].data
-			b_v0, b_v1 = unpack("<QQ", b.pointers[0].data)
-			c_v0, c_v1 = unpack("<QQ", c.pointers[0].data)
-			logging.debug(f"{name}, {b_v1}, {c_v1}")
-			# another link - this is 1 frag, usually after ss frag, might be b_v1
-			b_ptr = c.pointers[1]
-			# this bugs out for some reason, so get count of individual ones
-			# self.sized_str_entry.fragments += self.get_frags_from_ptr_lut(b_ptr, 1)
-			b_set.add(b_ptr.data_offset)
+		entry_size = 40
+		out_frags, array_data = self.collect_array(ptr1, count, entry_size)
+		self.sized_str_entry.fragments.extend(out_frags)
 
-			# more names
-			c_ptr = c.pointers[1]
-			names = self.ovs.frags_from_pointer(c_ptr, c_v1)
-			for nf in names:
-				name = nf.pointers[1].data
-				# b_v0, b_v1 = unpack("<QQ", b.pointers[0].data)
-				logging.debug(f"{name}, {nf.pointers[0].data}")
-			self.sized_str_entry.fragments += names
+		self.frag_data_pairs = []
+		for i in range(count):
+			x = i * entry_size
+			# level x
+			# has children x + 8
+			# num children x + 24
+			frags_entry = self.get_frags_between(out_frags, ptr1.data_offset + x, ptr1.data_offset + x+entry_size)
+			entry_bytes = array_data[x:x+entry_size]
+			self.frag_data_pairs.append((frags_entry, entry_bytes))
+			# rel_offsets = [f.pointers[0].data_offset-x for f in frags_entry]
+			data = struct.unpack("<QQQQQ", entry_bytes)
+			next_level = data[2]
+			children_count = data[4]
+			if not frags_entry:
+				continue
+			level_frag = frags_entry[0]
+			level_frag.children = []
+			level_frag.next = []
+			name = level_frag.pointers[1].data
+			# logging.debug(f"level_frag: {name}")
+			if children_count:
+				ptr_frag = frags_entry[2]
+				level_frag.children = self.ovs.frags_from_pointer(ptr_frag.pointers[1], children_count)
+				for f in level_frag.children:
+					name = f.pointers[1].data
+					# logging.debug(f"child: {name}")
+			if next_level:
+				ptr_frag = frags_entry[1]
+				level_frag.next = self.ovs.frags_from_pointer(ptr_frag.pointers[1], next_level)
+				for f in level_frag.next:
+					name = f.pointers[1].data
+					# logging.debug(f"next: {name}")
+			self.sized_str_entry.fragments.extend(level_frag.children)
+			self.sized_str_entry.fragments.extend(level_frag.next)
 
-		end_f = triples[-1]
-		logging.debug(f"{end_f.pointers[1].data}, {end_f.pointers[0].data}")
-
-		# names = self.ovs.get_frags_from_ptr_lut(p1, (count_of_triples*3)+1)
-		self.sized_str_entry.fragments += triples
-
-		logging.debug(f"{len(b_set)} following levels")
-		rest = self.ovs.frags_from_pointer(frag.pointers[0], len(b_set))
-		for nf in rest:
-			name = nf.pointers[1].data
-			assert nf.pointers[0].data == b'\x00' * 16
-			logging.debug(f"following: {name}")
-		self.sized_str_entry.fragments += rest
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		name = self.sized_str_entry.name
+		out_path = out_dir(name)
+		xmldata = ET.Element('AnimalResearchUnlockSettings')
+		for frags, entry_bytes in self.frag_data_pairs:
+			layer = ET.SubElement(xmldata, 'level')
+			if not frags:
+				continue
+			level = frags[0]
+			layer.set('name', self.get_zstr(level.pointers[1].data))
+			unlockables = ET.SubElement(layer, 'unlockables')
+			for unlockable_f in level.children:
+				unlockable = ET.SubElement(unlockables, 'unlockable')
+				unlockable.set('name', self.get_zstr(unlockable_f.pointers[1].data))
+			followups = ET.SubElement(layer, 'followups')
+			for next_f in level.next:
+				followup = ET.SubElement(followups, 'followup')
+				followup.set('name', self.get_zstr(next_f.pointers[1].data))
+		self.write_xml(out_path, xmldata)
+		return out_path,
