@@ -18,13 +18,6 @@ def file_remover(ovl, filenames):
 			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)
 
-			# remove dependencies for removed file
-			for dep_i, dep in sorted(enumerate(ovl.dependencies), reverse=True):
-				if dep.file_index == i:
-					ovl.dependencies.pop(dep_i)
-				elif dep.file_index > i:
-					dep.file_index -= 1
-
 	remove_from_ovs(ovl, filenames)
 
 	if children_names:

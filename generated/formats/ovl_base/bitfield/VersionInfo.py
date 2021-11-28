@@ -7,6 +7,11 @@ class VersionInfo(BasicBitfield):
 	"""
 	Determines the format of the OVL file.
 	n.b. pos counts from the end!
+	# pc/pz zlib			8340	00100000 10010100
+	# pc/pz uncompressed	8212	00100000 00010100
+	# pc/pz oodle			8724	00100010 00010100
+	# JWE zlib				24724	01100000 10010100
+	# JWE oodle (switch)	25108	01100010 00010100
 	"""
 	unk_1 = BitfieldMember(pos=2, mask=0x4, return_type=bool)
 	unk_2 = BitfieldMember(pos=4, mask=0x10, return_type=bool)

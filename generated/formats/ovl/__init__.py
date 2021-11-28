@@ -208,21 +208,11 @@ class OvsFile(OvsHeader):
 
 	def compress(self, uncompressed_bytes):
 		# compress data
-		# change to zipped format for saving of uncompressed or oodled ovls
-		if not self.ovl.user_version.use_zlib:
+		# change to zipped format for saving of oodled ovls
+		if self.ovl.user_version.use_oodle:
 			logging.info("HACK: setting compression to zlib")
 			self.ovl.user_version.use_oodle = False
 			self.ovl.user_version.use_zlib = True
-		# pc/pz zlib			8340	00100000 10010100
-		# pc/pz uncompressed	8212	00100000 00010100
-		# pc/pz oodle			8724	00100010 00010100
-		# JWE zlib				24724	01100000 10010100
-		# JWE oodle (switch)	25108	01100010 00010100
-		# vs = (8340, 8212, 8724, 24724, 25108)
-		# for v in vs:
-		# 	print(v)
-		# 	print(bin(v))
-		# 	print()
 		if self.ovl.user_version.use_oodle:
 			assert self.compression_header.startswith(OODLE_MAGIC)
 			a, raw_algo = struct.unpack("BB", self.compression_header)
@@ -239,14 +229,14 @@ class OvsFile(OvsHeader):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		logging.debug(f"Game: {get_game(self.ovl)}")
 		self.header_name_finder()
-		entry_lists = [
+		entry_lists = (
 			self.pools,
 			self.sized_str_entries,
 			self.data_entries,
 			self.set_header.sets,
-			self.set_header.assets]
-		if is_pz16(self.ovl) or is_jwe2(self.ovl):
-			entry_lists.append(self.buffer_entries)
+			self.set_header.assets,
+			self.buffer_entries
+		)
 		for entry_list in entry_lists:
 			for entry in entry_list:
 				file_index = file_name_lut[entry.name]
@@ -256,9 +246,6 @@ class OvsFile(OvsHeader):
 				else:
 					entry.file_hash = file_index
 				entry.ext_hash = file.ext_hash
-
-	# these seem to be sorted, but they are indexed into by other lists so gotta be careful when sorting them
-	# self.sized_str_entries.sort(key=lambda x: x.file_hash)
 
 	def update_counts(self):
 		"""Update counts of this archive"""
@@ -1464,6 +1451,7 @@ class OvlFile(Header, IoFile):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
 		# rebuild the dependencies list
 		self.dependencies.clear()
+		self.aux_entries.clear()
 		# update file hashes
 		for file in self.files:
 			file.file_hash = djb(file.basename)
@@ -1471,14 +1459,16 @@ class OvlFile(Header, IoFile):
 			# update dependency hashes
 			for dependency in file.dependencies:
 				if dependency.basename == "bad hash":
-					logging.warning(f"Bad hash on dependency entry - cannot resolve this")
+					logging.warning(f"Bad hash on dependency entry - won't update hash")
 				else:
 					dependency.file_hash = djb(dependency.basename)
 			self.dependencies.extend(file.dependencies)
+			self.aux_entries.extend(file.aux_entries)
 
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		self.dependencies.sort(key=lambda x: x.file_hash)
+		self.aux_entries.sort(key=lambda x: x.file_hash)
 
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
