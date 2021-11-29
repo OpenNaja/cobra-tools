@@ -72,7 +72,7 @@ class Basics:
             f.write("\n\nbasic_map = {")
             for basic in self.basic_map:
                 f.write(f"\n\t\t\t'{basic}': {basic},")
-            f.write("\n}")
+            f.write("\n}\n")
 
     @staticmethod
     def suitable_for_enum(basic_struct):
