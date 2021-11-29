@@ -4,7 +4,7 @@ import struct
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.ovl_base.versions import is_ztuac
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import get_versions, djb, get_padding
+from modules.formats.shared import get_versions, get_padding
 from modules.helpers import as_bytes, zstr
 from generated.formats.fgm import FgmFile
 
@@ -12,7 +12,6 @@ from generated.formats.fgm import FgmFile
 class FgmLoader(BaseFile):
 
 	def create(self):
-		logging.debug(f"Creating {self.file_entry.name}")
 		fgm_data = self._get_data(self.file_entry.path)
 		# first create dependencies
 		for tex_name in fgm_data.texture_files:

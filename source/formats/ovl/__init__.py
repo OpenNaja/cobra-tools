@@ -1009,7 +1009,7 @@ class OvlFile(Header, IoFile):
 		"""Create and register a file entry from a file path"""
 		# capital letters in the name buffer crash JWE2, apparently
 		filename = os.path.basename(file_path).lower()
-		logging.debug(f"Creating {filename}")
+		logging.info(f"Creating {filename}")
 		file_entry = FileEntry(self.context)
 		file_entry.path = file_path
 		file_entry.name = filename
@@ -1021,17 +1021,17 @@ class OvlFile(Header, IoFile):
 		except KeyError:
 			logging.warning(f"Unsupported file type: {filename}")
 			return
+		file_entry.loader = get_loader(file_entry.ext, self, file_entry)
+		try:
+			file_entry.loader.create()
+		except BaseException as err:
+			logging.warning(f"Could not create: {filename}")
+			return
 		self.files.append(file_entry)
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		logging.info(f"Game: {get_game(self)}")
-		for file_name in os.listdir(ovl_dir):
-			file_path = os.path.join(ovl_dir, file_name)
-			self.create_file(file_path)
-		# generate hashes so we can sort the files
-		self.update_hashes()
-		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 
 		archive_entry = ArchiveEntry(self.context)
 		self.archives.append(archive_entry)
@@ -1048,11 +1048,13 @@ class OvlFile(Header, IoFile):
 		new_zlib = ZlibInfo(self.context)
 		self.zlibs.append(new_zlib)
 
-		# create loaders for supported files
-		for file_entry in self.files:
-			file_entry.loader = get_loader(file_entry.ext, self, file_entry)
-			if file_entry.loader:
-				file_entry.loader.create()
+		for file_name in os.listdir(ovl_dir):
+			file_path = os.path.join(ovl_dir, file_name)
+			self.create_file(file_path)
+		# generate hashes so we can sort the files
+		self.update_hashes()
+		self.files.sort(key=lambda x: (x.ext, x.file_hash))
+
 		# ensure that each pool data is padded to 4
 		for pool in content.pools:
 			pool.data.write(get_padding(pool.data.tell(), 4))
