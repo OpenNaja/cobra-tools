@@ -35,7 +35,7 @@ OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
-	".pscollection", ".txt", ".gfx", ".uimovidefinition", ".world")
+	".pscollection", ".mergedetails", ".txt", ".gfx", ".uimovidefinition", ".world")
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -72,6 +72,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.MS2 import Ms2Loader
 	from modules.formats.PREFAB import PrefabLoader
 	from modules.formats.PSCOLLECTION import PSCollectionLoader
+	from modules.formats.MERGEDETAILS import MergeDetailsLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
 	from modules.formats.TXT import TxtLoader
@@ -104,6 +105,7 @@ def get_loader(ext, ovl, file_entry):
 		".ms2": Ms2Loader,
 		".prefab": PrefabLoader,
 		".pscollection": PSCollectionLoader,
+		".mergedetails": MergeDetailsLoader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,
 		".tex": DdsLoader,

@@ -969,7 +969,7 @@ class DirWidget(QtWidgets.QWidget):
             pass
 
     def ask_open_dir(self):
-        filepath = QFileDialog.getExistingDirectory()
+        filepath = QtWidgets.QFileDialog.getExistingDirectory()
         if self.accept_dir(filepath):
            pass
 

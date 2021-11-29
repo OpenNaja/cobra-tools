@@ -6,8 +6,6 @@
 
 # TODO: split getting src folder list, watcher folder should contain all 
 # directiories, or it wont detect changes in empty folders.
-# TODO: allow loading project settings from cmd line
-
 
 
 import sys
