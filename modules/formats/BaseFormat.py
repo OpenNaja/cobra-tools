@@ -101,6 +101,10 @@ class BaseFile:
 		ptr.data = data
 		ptr.write_data()
 
+	def ptr_relative(self, ptr, other_ptr, rel_offset):
+		ptr.pool_index = other_ptr.pool_index
+		ptr.data_offset = other_ptr.data_offset + rel_offset
+
 	def get_content(self, filepath):
 		with open(filepath, 'rb') as f:
 			content = f.read()

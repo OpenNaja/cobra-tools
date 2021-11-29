@@ -23,20 +23,19 @@ class LuaLoader(BaseFile):
 		pool.data.write(zstr(file_name_bytes))
 		pool.data.write(get_padding(pool.data.tell(), 4))
 
-		new_frag0 = self.create_fragment()
-		new_frag0.pointers[0].pool_index = pool_index
-		new_frag0.pointers[0].data_offset = offset + 0x10
-		new_frag0.pointers[1].pool_index = pool_index
-		new_frag0.pointers[1].data_offset = offset + 0x31
-		new_frag1 = self.create_fragment()
-		new_frag1.pointers[0].pool_index = pool_index
-		new_frag1.pointers[0].data_offset = offset + 0x18
-		new_frag1.pointers[1].pool_index = pool_index
-		new_frag1.pointers[1].data_offset = offset + 0x30
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		self.sized_str_entry.pointers[0].pool_index = pool_index
 		self.sized_str_entry.pointers[0].data_offset = offset
 		self.create_data_entry(self.sized_str_entry, (buffer_0,))
+		f_0, f_1 = self.create_fragments(self.sized_str_entry, 2)
+		f_0.pointers[0].pool_index = pool_index
+		f_0.pointers[0].data_offset = offset + 0x10
+		f_0.pointers[1].pool_index = pool_index
+		f_0.pointers[1].data_offset = offset + 0x31
+		f_1.pointers[0].pool_index = pool_index
+		f_1.pointers[0].data_offset = offset + 0x18
+		f_1.pointers[1].pool_index = pool_index
+		f_1.pointers[1].data_offset = offset + 0x30
 
 	def collect(self):
 		self.assign_ss_entry()

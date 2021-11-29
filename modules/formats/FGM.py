@@ -12,54 +12,48 @@ from generated.formats.fgm import FgmFile
 class FgmLoader(BaseFile):
 
 	def create(self):
-
-		fgm_data, datas, sizedstr_bytes = self._get_data(self.file_entry.path)
+		logging.debug(f"Creating {self.file_entry.name}")
+		fgm_data = self._get_data(self.file_entry.path)
 		# first create dependencies
 		for tex_name in fgm_data.texture_files:
 			self.create_dependency(f"{tex_name}.tex")
+		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 		# now check for frags
-		frag_count = self._get_frag_count(fgm_data.fgm_info)
+		fgm_header = fgm_data.fgm_info
+		frag_count = self._get_frag_count(fgm_header)
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
-		pool_index, pool = self.get_pool(2)
-		offset = pool.data.tell()
 
 		# all ss + ptr 0 frag data
-		pool.data.write(sizedstr_bytes + get_padding(len(sizedstr_bytes), alignment=64))
+		ss_bytes_padded = sizedstr_bytes + get_padding(len(sizedstr_bytes), alignment=64)
 
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
-		self.sized_str_entry.pointers[0].data_offset = offset
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss_bytes_padded)
 		self.create_data_entry(self.sized_str_entry, (fgm_data.buffer_bytes,))
-
-		for frag_i in range(frag_count):
-			frag = self.create_fragment()
-			self.sized_str_entry.fragments.append(frag)
+		self.create_fragments(self.sized_str_entry, frag_count)
 		self._tag_fragments(fgm_data.fgm_info)
 
-		# these are eyeballed, not sure if they will work
-		if frag_count == 2:
-			offsets = (24, 50)
-		elif frag_count == 3:
-			offsets = (16, 24, 32)
-		elif frag_count == 4:
-			offsets = (16, 24, 32, 40)
-		for frag, rel_offset in zip(self.sized_str_entry.fragments, offsets):
-			frag.pointers[0].pool_index = pool_index
-			frag.pointers[0].data_offset = offset + rel_offset
+		# self.tex_info, self.attr_info, self.dependencies_ptr, self.data_lib
+		offsets = []
+		if fgm_header.attribute_count:
+			offsets.append(24)
+			offsets.append(40)
+		if fgm_header.texture_count:
+			offsets.append(16)
+		if self.file_entry.dependencies:
+			offsets.append(32)
+		for frag, rel_offset in zip(self.sized_str_entry.fragments, sorted(offsets)):
+			self.ptr_relative(frag.pointers[0], self.sized_str_entry.pointers[0], rel_offset)
 
 		# write the actual data
 		for frag, data in zip(self._valid_frags(), datas):
-			frag.pointers[1].pool_index = pool_index
-			frag.pointers[1].data_offset = pool.data.tell()
-			pool.data.write(data)
+			self.write_to_pool(frag.pointers[1], 2, data)
 
 		if fgm_data.texture_files:
-			# points to the start of the dependencies region
-			self.dependencies_ptr.pointers[1].data_offset = pool.data.tell()
 			for dependency in self.file_entry.dependencies:
-				dependency.pointers[0].data_offset = pool.data.tell()
 				# todo - check size for dependency pointers, IIRC it varies
-				pool.data.write(b"\x00" * 8)
+				self.write_to_pool(dependency.pointers[0], 2, b"\x00" * 8)
+			# points to the start of the dependencies region
+			self.dependencies_ptr.pointers[1].data_offset = self.file_entry.dependencies[0].pointers[0].data_offset
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -85,7 +79,7 @@ class FgmLoader(BaseFile):
 			logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
 
 	def _tag_fragments(self, fgm_header):
-		logging.info(f"Tagging {len(self.sized_str_entry.fragments)} fragments")
+		# logging.info(f"Tagging {len(self.sized_str_entry.fragments)} fragments")
 		# basic fgms - zeros is the ptr to the dependencies block, which is only present if they are present
 		if fgm_header.attribute_count and fgm_header.texture_count and self.file_entry.dependencies:
 			self.tex_info, self.attr_info, self.dependencies_ptr, self.data_lib = self.sized_str_entry.fragments
@@ -97,7 +91,7 @@ class FgmLoader(BaseFile):
 			self.attr_info, self.data_lib = self.sized_str_entry.fragments
 			self.tex_info = None
 		# fgms for patternset
-		elif fgm_header.texture_count:
+		elif fgm_header.texture_count and self.file_entry.dependencies:
 			self.tex_info, self.dependencies_ptr = self.sized_str_entry.fragments
 			self.attr_info = None
 			self.data_lib = None
@@ -113,10 +107,12 @@ class FgmLoader(BaseFile):
 			frag_count += 2
 		if self.file_entry.dependencies:
 			frag_count += 1
+		logging.debug(f"Count {frag_count}: textures {bool(fgm_header.texture_count)} attributes {bool(fgm_header.attribute_count)} dependencies {bool(self.file_entry.dependencies)}")
 		return frag_count
 
 	def load(self, file_path):
-		fgm_data, datas, sizedstr_bytes = self._get_data(file_path)
+		fgm_data = self._get_data(file_path)
+		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 
 		self.sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))
 		self.sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
@@ -130,31 +126,26 @@ class FgmLoader(BaseFile):
 			self.set_dependency_identity(dependency, f"{tex_name}.tex")
 
 	def _get_data(self, file_path):
-		versions = get_versions(self.ovl)
 		fgm_data = FgmFile()
 		fgm_data.load(file_path)
+		return fgm_data
+
+	def _get_frag_datas(self, fgm_data):
+		versions = get_versions(self.ovl)
 		sizedstr_bytes = as_bytes(fgm_data.fgm_info, version_info=versions)
 		textures_bytes = as_bytes(fgm_data.textures, version_info=versions)
 		attributes_bytes = as_bytes(fgm_data.attributes, version_info=versions)
 		# todo - verify this is the right / needed padding by comparing to stock FGMs
 		textures_bytes += get_padding(len(textures_bytes), alignment=16)
 		attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
-		frag_count = self._get_frag_count(fgm_data.fgm_info)
-		if frag_count == 4:
-			# todo - somehow handle the pointers - we don't know their size before
-			deps_region = self.sized_str_entry.fragments[2]
-			datas = (textures_bytes, attributes_bytes, fgm_data.data_bytes)
-		# fgms without dependencies
-		elif frag_count == 3:
-			datas = (textures_bytes, attributes_bytes, fgm_data.data_bytes)
-		# fgms for variants
-		elif frag_count == 2:
-			datas = (attributes_bytes, fgm_data.data_bytes)
-			# we have some additional bytes here
-			sizedstr_bytes += b"\x00" * 8
-		else:
-			raise AttributeError("Unexpected fgm frag count")
-		return fgm_data, datas, sizedstr_bytes
+		fgm_header = fgm_data.fgm_info
+		datas = []
+		if fgm_header.texture_count:
+			datas.append(textures_bytes)
+		if fgm_header.attribute_count:
+			datas.append(attributes_bytes)
+			datas.append(fgm_data.data_bytes)
+		return datas, sizedstr_bytes
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name

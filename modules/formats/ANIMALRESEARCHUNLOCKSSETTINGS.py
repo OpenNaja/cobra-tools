@@ -8,7 +8,8 @@ import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers 
 class AnimalresearchunlockssettingsLoader(BaseFile):
 
 	def create(self):
-		pass
+		xml = self._get_data(self.file_entry.path)
+
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -80,6 +81,9 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 				followup.set('name', self.get_zstr(next_f.pointers[1].data))
 		self.write_xml(out_path, xmldata)
 		return out_path,
+
+	def _get_data(self, file_path):
+		return self.load_xml(file_path)
 
 
 class AnimalresearchstartunlockedssettingsLoader(BaseFile):
