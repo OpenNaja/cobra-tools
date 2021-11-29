@@ -6,7 +6,6 @@
 
 # TODO: split getting src folder list, watcher folder should contain all 
 # directiories, or it wont detect changes in empty folders.
-# TODO: allow save, open, new 'project' files with the settings 
 # TODO: allow loading project settings from cmd line
 
 
@@ -14,6 +13,7 @@
 import sys
 import os
 import pathlib
+import webbrowser
 
 # Import QApplication and the required widgets from PyQt5.QtWidgets
 from PyQt5.QtWidgets import QApplication
@@ -48,6 +48,9 @@ class ModToolGUI(QMainWindow):
         """View initializer."""
         super().__init__()
 
+        # save config file name from args
+        self.config_path = ''
+
         # Set some main window's properties
         self.setWindowTitle('Mod Pack Tool ' + __version__ )
         self.setFixedSize(435, 125)
@@ -56,7 +59,13 @@ class ModToolGUI(QMainWindow):
         main_menu = QMenuBar(self)
         file_menu = main_menu.addMenu('File')
         help_menu = main_menu.addMenu('Help')
-
+        button_data = (
+            (file_menu, "Open", self.load_config, "CTRL+O", "dir"),
+            (file_menu, "Save", self.save_config, "CTRL+S", "save"),
+            (file_menu, "Exit", self.close, "", "exit"),
+            (help_menu, "Report Bug", self.report_bug, "", "report"),
+            (help_menu, "Documentation", self.online_support, "", "manual"))
+        self.add_to_menu(button_data)
         self.setMenuBar(main_menu)
         self.aboutAction = QAction("&About", self)        
         help_menu.addAction(self.aboutAction)
@@ -95,6 +104,77 @@ class ModToolGUI(QMainWindow):
         self.packButton = QPushButton("Pack")
         self.boxLayout.addWidget(self.packButton)
         self.packButton.clicked.connect(self.pack_mod)
+
+        if len(sys.argv) > 1:
+            self.apply_from_config(sys.argv[1])
+
+    def report_bug(self):
+        webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
+
+    def online_support(self):
+        webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
+
+    def add_to_menu(self, button_data):
+        for submenu, name, func, shortcut, icon_name in button_data:
+            button = QAction(name, self)
+            #if icon_name:
+                #icon = get_icon(icon_name)
+                # if not icon:
+                #   icon = self.style().standardIcon(getattr(QtWidgets.QStyle, icon))
+                #button.setIcon(icon)
+            button.triggered.connect(func)
+            if shortcut:
+                button.setShortcut(shortcut)
+            submenu.addAction(button)
+
+    def apply_from_config(self, path):
+        try:
+            tconfig = config.read_config(path)
+            self.src_widget.filepath = tconfig['src_path'] or ''
+            self.src_widget.setText(tconfig['src_path'] or '')
+            self.dst_widget.filepath = tconfig['dst_path'] or ''
+            self.dst_widget.setText(tconfig['dst_path'] or '')
+            self.game_container.entry.setText(tconfig['game'] or '')
+            self.watch.setChecked(bool(tconfig['watcher_enabled']) or False)
+        except IOError:
+            print("Config load failed.")         
+        pass
+
+
+    def load_config(self):
+        filedialog = QFileDialog(self)
+        filedialog.setDefaultSuffix("mptconfig")
+        filedialog.setNameFilter("Mod Packing Tool Files (*.mptconfig);;All files (*.*)")
+        filedialog.setFileMode(QFileDialog.ExistingFile)
+        selected = filedialog.exec()
+        if selected:
+            self.config_path = filedialog.selectedFiles()[0]
+        else:
+            return
+        if self.config_path == "":
+            print("No file name selected.")
+            return
+        self.apply_from_config(self.config_path)
+
+    def save_config(self):
+        filedialog = QFileDialog(self)
+        filedialog.setDefaultSuffix("mptconfig")
+        filedialog.setNameFilter("Mod Packing Tool Files (*.mptconfig);;All files (*.*)")
+        filedialog.setAcceptMode(QFileDialog.AcceptSave)
+        selected = filedialog.exec()
+        if selected:
+            self.config_path = filedialog.selectedFiles()[0]
+        else:
+            return
+        if self.config_path == "":
+            print("No file name selected.")
+            return
+        try:
+            tconfig = {'src_path': self.src_widget.filepath, 'dst_path': self.dst_widget.filepath, 'game': self.game_container.entry.currentText(), 'watcher_enabled': self.watch.isChecked()}
+            config.write_config(self.config_path, tconfig)
+        except IOError:
+            print("Config save failed.")         
+        pass
 
     def aboutAction(self):
         pass
