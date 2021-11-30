@@ -1198,6 +1198,13 @@ class OvlFile(Header, IoFile):
 		ht_max = len(self.dependencies)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
 			self.print_and_callback("Getting dependency names", value=ht_index, max_value=ht_max)
+			try:
+				file_entry = self.files[dependency_entry.file_index]
+				file_entry.dependencies.append(dependency_entry)
+			# funky bug due to some PC ovls using a different DependencyEntry struct
+			except IndexError as err:
+				logging.error(err)
+				continue
 			# nb: these use : instead of . at the start, eg. :tex
 			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
 			h = dependency_entry.file_hash
@@ -1208,16 +1215,10 @@ class OvlFile(Header, IoFile):
 				dependency_entry.basename = self.hash_table_global[h]
 			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
-				logging.warning(f"UNRESOLVED DEPENDENCY: {h} -> ?")
+				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
 				dependency_entry.basename = "bad hash"
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
-			try:
-				file_entry = self.files[dependency_entry.file_index]
-				file_entry.dependencies.append(dependency_entry)
-			# funky bug due to some PC ovls using a different DependencyEntry struct
-			except IndexError as err:
-				logging.error(err)
 		# sort dependencies by their pool offset
 		for file_entry in self.files:
 			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
