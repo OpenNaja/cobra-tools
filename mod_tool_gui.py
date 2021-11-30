@@ -266,6 +266,7 @@ class ModToolGUI(QMainWindow):
             self.watch.setChecked(False)
             print("Watch disabled")
             self.fs_watcher.directoryChanged.disconnect(self.directory_changed)
+            self.fs_watcher.fileChanged.disconnect(self.file_changed)
 
     def settings_changed(self):
         basepath = self.src_widget.filepath
