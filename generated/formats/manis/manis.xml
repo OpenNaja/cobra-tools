@@ -2,25 +2,7 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-    <token name="verexpr" attrs="vercond">
-        Commonly used version expressions.
-        <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
-        <verexpr token="#PZ16#" string="(#VER# #EQ# 20)">PZ</verexpr>
-        <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
-		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
-    </token>
-
-    <token name="global" attrs="vercond access">
-        Global Tokens.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <global token="#USER#" string="user_version" />
-        <global token="#VER#" string="version" />
-    </token>
-
-	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-
-	<verattr name="version" access="#VER#" index="0" />
-	<verattr name="user_version" access="#USER#" index="1" />
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="SizedString">
         A string of given length.
@@ -130,16 +112,13 @@
         <add name="a" type="ushort"/>
         <add name="hash block size" type="ushort"/>
         <add name="zeros" type="int" arr1="2"/>
-        <add name="c" type="ushort"/>
+        <add name="c1" type="ushort"/>
 <!--        <add name="unk" type="uint" arr1="3" vercond="#PZ16#"/>-->
 		<add name="zeros end" type="ushort" vercond="#PZ16#" arr1="9" > </add>
     </compound>
 
-    <compound name="InfoHeader">
+    <compound name="InfoHeader" inherit="GenericHeader">
         Custom header struct
-        <add name="magic" type="byte" arr1="4">'MANI'</add>
-        <add name="version" type="uint"/>
-        <add name="user version" type="uint"/>
         <add name="mani count" type="uint"/>
         <add name="names" type="ZString" arr1="mani count"/>
         <add name="header" type="SizedStrData"/>
@@ -154,28 +133,31 @@
 	<compound name="ManiInfo" >
         288 bytes for JWE / PZ
         312 bytes for PC
-<!--		<add name="zeros start" type="ushort" arr1="5" > </add>-->
         <add name="duration" type="float"/>
 		<add name="frame count" type="uint" >likely</add>
 		<add name="b" type="uint" > </add>
 		<add name="zeros 0 " type="ushort" arr1="6"  > rest </add>
-		<add name="c2" type="ushort" > </add>
-		<add name="c" type="ushort" > </add>
+		<add name="c0" type="ushort" > </add>
+		<add name="c1" type="ushort" > </add>
 		<add name="name count" type="ushort" > </add>
 		<add name="zeros 1" type="ushort" arr1="3" > rest </add>
 		<add name="e2" type="ushort" > </add>
-		<add name="ff1" type="ubyte" >always FF FF</add>
-		<add name="ff2" type="ubyte" >always FF FF</add>
+		<add name="minus 1 a" type="short" >always FF FF</add>
 		<add name="e" type="ushort" > </add>
 		<add name="extra pc" type="ushort" arr1="5" vercond="#PC#"> </add>
 		<add name="g" type="ushort" > </add>
 		<add name="zeros 2" type="uint" arr1="57"  > rest 228 bytes </add>
 		<add name="extra zeros pc" type="ushort" arr1="7" vercond="#PC#" > rest 14 bytes </add>
-		<add name="i" type="ushort" > </add>
-		<add name="j" type="ushort" > </add>
-		<add name="ff" type="ushort" > always FF </add>
-		<add name="k" type="ushort" > </add>
-		<add name="l" type="ushort" > </add>
+		<add name="p indices c0 min" type="ubyte" > </add>
+		<add name="p indices c0 max" type="ubyte" > </add>
+		<add name="p indices c1 min" type="ubyte" > </add>
+		<add name="p indices c1 max" type="ubyte" > </add>
+		<add name="minus 1 b" type="byte" > always FF</add>
+		<add name="zero" type="byte" > always 00</add>
+		<add name="c2" type="ubyte" > </add>
+		<add name="c3" type="ubyte" > </add>
+		<add name="c4" type="ubyte" > </add>
+		<add name="c5" type="ubyte" > </add>
 		<add name="zeros end" type="ushort" arr1="3" > </add>
     </compound>
 
@@ -184,11 +166,11 @@
 <!--    JWE uses uint-->
 
 		<add name="ref" type="Empty" > </add>
-		<add name="indices c 2" type="ushort" arr1="#ARG#\c2" vercond="#PC#" > </add>
-		<add name="indices c 2" type="uint" arr1="#ARG#\c2" vercond="!#PC#" > </add>
+		<add name="indices c0" type="ushort" arr1="#ARG#\c0" vercond="#PC#" > </add>
+		<add name="indices c0" type="uint" arr1="#ARG#\c0" vercond="!#PC#" > </add>
 
-		<add name="indices 0" type="ushort" arr1="#ARG#\c" vercond="#PC#" > </add>
-		<add name="indices 0" type="uint" arr1="#ARG#\c" vercond="!#PC#" > </add>
+		<add name="indices c1" type="ushort" arr1="#ARG#\c1" vercond="#PC#" > </add>
+		<add name="indices c1" type="uint" arr1="#ARG#\c1" vercond="!#PC#" > </add>
 
 		<add name="indices 1" type="ushort" arr1="#ARG#\name count" vercond="#PC#" > </add>
 		<add name="indices 1" type="uint" arr1="#ARG#\name count" vercond="!#PC#" > </add>
@@ -201,11 +183,11 @@
 <!--		<add name="indices 2" type="ushort" arr1="#ARG#\e" cond="#PC#" > </add>-->
 <!--		<add name="indices 2" type="uint" arr1="#ARG#\e" cond="!#PC#" > </add>-->
 
-		<add name="p indices 00" type="ubyte" arr1="#ARG#\c2" > </add>
-		<add name="p indices 00" type="ubyte" arr1="#ARG#\c2" vercond="#PC#"> </add>
+		<add name="p indices c0" type="ubyte" arr1="#ARG#\c0" > </add>
+		<add name="p indices c0" type="ubyte" arr1="#ARG#\c0" vercond="#PC#"> </add>
 
-		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" > </add>
-		<add name="p indices 0" type="ubyte" arr1="#ARG#\c" vercond="#PC#"> </add>
+		<add name="p indices c1" type="ubyte" arr1="#ARG#\c1" > </add>
+		<add name="p indices c1" type="ubyte" arr1="#ARG#\c1" vercond="#PC#"> </add>
 
 		<add name="p indices 0b" type="ubyte" arr1="#ARG#\e" > </add>
 
@@ -222,22 +204,22 @@
 <!--		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" > </add>-->
 <!--		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>-->
 
-<!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
+<!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\c1 + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
 <!--		two uint zeros, or padding-->
 <!--	<add name="zero" type="uint64" cond="(#ARG#\e2) #GT# (0)"> </add>-->
 		<add name="frame count" type="uint" >likely</add>
-		<add name="c" type="uint" > </add>
+		<add name="c1" type="uint" > </add>
 		<add name="e" type="uint" > </add>
 		<add name="zeros 19" type="uint" arr1="19">fixed</add>
 		<add name="count" type="ushort" > </add>
 		<add name="four and twenty" type="ushort" >usually / always 420</add>
 		<add name="ref2" type="Empty" > </add>
-		<add name="zeros" type="ubyte" arr1="c" > </add>
+		<add name="zeros" type="ubyte" arr1="c1" > </add>
 <!--		<add name="anoth pad" type="PadAlign" arg="ref2" template="8" > </add>-->
 		<add name="anoth pad" type="SmartPadding" >?</add>
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 		<add name="floatsb" type="float" arr1="6" >these are likely a scale reference or factor</add>
-		<add name="repeats" type="Repeat" arr1="count" > </add>
+<!--		<add name="repeats" type="Repeat" arr1="count" > </add>-->
 
     </compound>
 

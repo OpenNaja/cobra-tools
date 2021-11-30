@@ -18,7 +18,7 @@ class SizedStrData:
 		self.a = 0
 		self.hash_block_size = 0
 		self.zeros = numpy.zeros((2), dtype='int')
-		self.c = 0
+		self.c_1 = 0
 		self.zeros_end = numpy.zeros((9), dtype='ushort')
 		self.set_defaults()
 
@@ -26,7 +26,7 @@ class SizedStrData:
 		self.a = 0
 		self.hash_block_size = 0
 		self.zeros = numpy.zeros((2), dtype='int')
-		self.c = 0
+		self.c_1 = 0
 		if self.context.version == 20:
 			self.zeros_end = numpy.zeros((9), dtype='ushort')
 
@@ -35,7 +35,7 @@ class SizedStrData:
 		self.a = stream.read_ushort()
 		self.hash_block_size = stream.read_ushort()
 		self.zeros = stream.read_ints((2))
-		self.c = stream.read_ushort()
+		self.c_1 = stream.read_ushort()
 		if self.context.version == 20:
 			self.zeros_end = stream.read_ushorts((9))
 
@@ -46,7 +46,7 @@ class SizedStrData:
 		stream.write_ushort(self.a)
 		stream.write_ushort(self.hash_block_size)
 		stream.write_ints(self.zeros)
-		stream.write_ushort(self.c)
+		stream.write_ushort(self.c_1)
 		if self.context.version == 20:
 			stream.write_ushorts(self.zeros_end)
 
@@ -60,7 +60,7 @@ class SizedStrData:
 		s += f'\n	* a = {self.a.__repr__()}'
 		s += f'\n	* hash_block_size = {self.hash_block_size.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* c = {self.c.__repr__()}'
+		s += f'\n	* c_1 = {self.c_1.__repr__()}'
 		s += f'\n	* zeros_end = {self.zeros_end.__repr__()}'
 		return s
 

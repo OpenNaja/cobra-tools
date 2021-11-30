@@ -1,32 +1,25 @@
 import numpy
 import typing
 from generated.array import Array
-from generated.context import ContextReference
 from generated.formats.manis.compound.ManiInfo import ManiInfo
 from generated.formats.manis.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.SizedStrData import SizedStrData
+from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 
 
-class InfoHeader:
+class InfoHeader(GenericHeader):
 
 	"""
 	Custom header struct
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# 'MANI'
-		self.magic = numpy.zeros((4), dtype='byte')
-		self.version = 0
-		self.user_version = 0
 		self.mani_count = 0
 		self.names = Array(self.context)
 		self.header = SizedStrData(self.context, None, None)
@@ -39,9 +32,6 @@ class InfoHeader:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.magic = numpy.zeros((4), dtype='byte')
-		self.version = 0
-		self.user_version = 0
 		self.mani_count = 0
 		self.names = Array(self.context)
 		self.header = SizedStrData(self.context, None, None)
@@ -52,11 +42,7 @@ class InfoHeader:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.magic = stream.read_bytes((4))
-		self.version = stream.read_uint()
-		self.context.version = self.version
-		self.user_version = stream.read_uint()
-		self.context.user_version = self.user_version
+		super().read(stream)
 		self.mani_count = stream.read_uint()
 		self.names = stream.read_zstrings((self.mani_count))
 		self.header = stream.read_type(SizedStrData, (self.context, None, None))
@@ -69,9 +55,7 @@ class InfoHeader:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_bytes(self.magic)
-		stream.write_uint(self.version)
-		stream.write_uint(self.user_version)
+		super().write(stream)
 		stream.write_uint(self.mani_count)
 		stream.write_zstrings(self.names)
 		stream.write_type(self.header)
@@ -87,9 +71,7 @@ class InfoHeader:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* magic = {self.magic.__repr__()}'
-		s += f'\n	* version = {self.version.__repr__()}'
-		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += super().get_fields_str()
 		s += f'\n	* mani_count = {self.mani_count.__repr__()}'
 		s += f'\n	* names = {self.names.__repr__()}'
 		s += f'\n	* header = {self.header.__repr__()}'

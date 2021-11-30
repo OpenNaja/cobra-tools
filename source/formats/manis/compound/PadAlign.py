@@ -12,7 +12,8 @@ class PadAlign:
 
 # START_CLASS
 
-	def __init__(self, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None):
+		self._context = context
 		# arg is reference object
 		self.arg = arg
 		self.template = template
