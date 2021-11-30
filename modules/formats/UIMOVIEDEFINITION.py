@@ -324,7 +324,7 @@ class UIMovieDefinitionLoader(BaseFile):
 				uiInterfacelist.append(strval)
 			self.sized_str_entry.moviedef['InterfaceList'] = uiInterfacelist
 
-		print(self.sized_str_entry.moviedef)
+		#print(self.sized_str_entry.moviedef)
 		pass
 
 	def load(self, file_path):
