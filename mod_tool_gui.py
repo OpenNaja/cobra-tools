@@ -192,7 +192,7 @@ class ModToolGUI(QMainWindow):
         set_game(self.ovl_data, game)
 
     def directory_changed(self,path):
-        print('Directory Changed!!!'  + path)
+        print('Detected changes in '  + path)
         # read the current folder list and proceed to pack that folder
         folders = self.get_src_folder_list()
         self.watcher_add_folders(folders)
@@ -202,8 +202,12 @@ class ModToolGUI(QMainWindow):
         if relpath == '.':
             return
 
-        print('re-packing ' + relpath)
+        print('re-packing ovl: ' + relpath)
         self.pack_folder(relpath)
+
+    def file_changed(self,path):
+        print('Detected file changes in '  + path)
+
 
     def get_src_folder_list(self, basepath = ''):
 
@@ -215,12 +219,28 @@ class ModToolGUI(QMainWindow):
 
         return non_empty_dirs
 
+    def get_src_file_list(self, basepath = ''):
+
+        if basepath == '':
+            basepath = self.src_widget.filepath
+
+        file_list = list()
+        for (dirpath, dirnames, filenames) in os.walk(basepath):
+            file_list += [os.path.join(dirpath, file) for file in filenames]
+
+        return file_list
+
+
     def watcher_add_folders(self, folders):
-        print(folders)
         if self.fs_watcher:
             srcpath = self.src_widget.filepath
-            subfolders = [os.path.join(srcpath, x) for x in folders]
+            subfolders = ["/".join([srcpath, x]) for x in folders]
             self.fs_watcher.addPaths( subfolders )
+
+    def watcher_add_files(self, files):
+        if self.fs_watcher:
+            srcpath = self.src_widget.filepath
+            self.fs_watcher.addPaths( files )
 
     def watchChanged(self):
         if self.src_widget.filepath == '':
@@ -236,18 +256,23 @@ class ModToolGUI(QMainWindow):
         if self.watch.isChecked():
             self.fs_watcher = QtCore.QFileSystemWatcher()
             self.fs_watcher.directoryChanged.connect(self.directory_changed)
+            self.fs_watcher.fileChanged.connect(self.file_changed)
             folders = self.get_src_folder_list()
             self.watcher_add_folders(folders)
-            print("Watch enabled on ")
+            files = self.get_src_file_list()
+            self.watcher_add_files(files)
+            print("Watch enabled")
         else:
             self.watch.setChecked(False)
+            print("Watch disabled")
             self.fs_watcher.directoryChanged.disconnect(self.directory_changed)
 
     def settings_changed(self):
         basepath = self.src_widget.filepath
-        print("Settings Changed to " + basepath)
         folders = self.get_src_folder_list()
         self.watcher_add_folders(folders)
+        files = self.get_src_file_list()
+        self.watcher_add_files(files)
 
 
     def create_ovl(self, ovl_dir, dst_file):
@@ -255,7 +280,6 @@ class ModToolGUI(QMainWindow):
         self.ovl_data = OvlFile()
         self.game_changed()
         try:
-            print(f"Packing {ovl_dir}")
             self.ovl_data.create(ovl_dir)
             print(f"Saving {dst_file}")
             self.ovl_data.save(dst_file, "")
@@ -270,7 +294,6 @@ class ModToolGUI(QMainWindow):
         print(f"Packing {folder}")
         srcbasepath = self.src_widget.filepath
         dstbasepath = self.dst_widget.filepath
-        print(f"Packing {srcbasepath} {folder}")
 
         src_path = os.path.join(srcbasepath, folder)
         dst_file = os.path.join(dstbasepath, folder) + ".ovl"
@@ -282,13 +305,12 @@ class ModToolGUI(QMainWindow):
 
 
     def pack_mod(self):
-        print("packing mod")
+        print("Packing mod")
         subfolders = self.get_src_folder_list()
-        print(subfolders)
         for folder in subfolders:
             # ignore the project root for packing
             if folder == '.':
-                print(f"Skipping {folder}: root")
+                #print(f"Skipping {folder}: root")
                 continue
             self.pack_folder(folder)
 
@@ -303,7 +325,7 @@ def main():
     mToolApp.setPalette(qt_theme.dark_palette)
     mToolApp.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
 
-    # Show the calculator's GUI
+    # Show the GUI
     view = ModToolGUI()
     view.show()
 
