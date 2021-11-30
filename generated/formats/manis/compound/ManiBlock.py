@@ -4,6 +4,7 @@ from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.manis.compound.Empty import Empty
 from generated.formats.manis.compound.PadAlign import PadAlign
+from generated.formats.manis.compound.Repeat import Repeat
 from generated.formats.manis.compound.SmartPadding import SmartPadding
 
 
@@ -55,13 +56,17 @@ class ManiBlock:
 		# usually / always 420
 		self.four_and_twenty = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((self.c_1), dtype='ubyte')
+		self.zeros = numpy.zeros((), dtype='ubyte')
 
 		# ?
 		self.anoth_pad = SmartPadding(self.context, None, None)
 
 		# these are likely a scale reference or factor
 		self.floatsb = numpy.zeros((6), dtype='float')
+
+		# ?
+		self.unk = 0
+		self.repeats = Array(self.context)
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -89,8 +94,7 @@ class ManiBlock:
 		if self.context.version == 18:
 			self.p_indices_c_1 = numpy.zeros((), dtype='ubyte')
 		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		if self.arg.e_2 > 0:
-			self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
+		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
 		self.pad = PadAlign(self.context, self.ref, 4)
 		self.floatsa = numpy.zeros((), dtype='float')
 		self.pad_2 = SmartPadding(self.context, None, None)
@@ -101,9 +105,11 @@ class ManiBlock:
 		self.count = 0
 		self.four_and_twenty = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((self.c_1), dtype='ubyte')
+		self.zeros = numpy.zeros((), dtype='ubyte')
 		self.anoth_pad = SmartPadding(self.context, None, None)
 		self.floatsb = numpy.zeros((6), dtype='float')
+		self.unk = 0
+		self.repeats = Array(self.context)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -130,9 +136,8 @@ class ManiBlock:
 		self.p_indices_c_1 = stream.read_ubytes((self.arg.c_1))
 		if self.context.version == 18:
 			self.p_indices_c_1 = stream.read_ubytes((self.arg.c_1))
-		self.p_indices_0_b = stream.read_ubytes((self.arg.e))
-		if self.arg.e_2 > 0:
-			self.p_indices_0_c = stream.read_ubytes((self.arg.e))
+		self.p_indices_0_b = stream.read_ubytes(((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min) + 1))
+		self.p_indices_0_c = stream.read_ubytes(((self.arg.p_indices_c_1_max - self.arg.p_indices_c_1_min) + 1))
 		self.pad = stream.read_type(PadAlign, (self.context, self.ref, 4))
 		self.floatsa = stream.read_floats((self.arg.frame_count, self.arg.e_2))
 		self.pad_2 = stream.read_type(SmartPadding, (self.context, None, None))
@@ -143,9 +148,11 @@ class ManiBlock:
 		self.count = stream.read_ushort()
 		self.four_and_twenty = stream.read_ushort()
 		self.ref_2 = stream.read_type(Empty, (self.context, None, None))
-		self.zeros = stream.read_ubytes((self.c_1))
+		self.zeros = stream.read_ubytes((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min))
 		self.anoth_pad = stream.read_type(SmartPadding, (self.context, None, None))
 		self.floatsb = stream.read_floats((6))
+		self.unk = stream.read_uint()
+		self.repeats.read(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -175,8 +182,7 @@ class ManiBlock:
 		if self.context.version == 18:
 			stream.write_ubytes(self.p_indices_c_1)
 		stream.write_ubytes(self.p_indices_0_b)
-		if self.arg.e_2 > 0:
-			stream.write_ubytes(self.p_indices_0_c)
+		stream.write_ubytes(self.p_indices_0_c)
 		stream.write_type(self.pad)
 		stream.write_floats(self.floatsa)
 		stream.write_type(self.pad_2)
@@ -190,6 +196,8 @@ class ManiBlock:
 		stream.write_ubytes(self.zeros)
 		stream.write_type(self.anoth_pad)
 		stream.write_floats(self.floatsb)
+		stream.write_uint(self.unk)
+		self.repeats.write(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -220,6 +228,8 @@ class ManiBlock:
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* anoth_pad = {self.anoth_pad.__repr__()}'
 		s += f'\n	* floatsb = {self.floatsb.__repr__()}'
+		s += f'\n	* unk = {self.unk.__repr__()}'
+		s += f'\n	* repeats = {self.repeats.__repr__()}'
 		return s
 
 	def __repr__(self):

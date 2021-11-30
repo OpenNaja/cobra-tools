@@ -189,10 +189,8 @@
 		<add name="p indices c1" type="ubyte" arr1="#ARG#\c1" > </add>
 		<add name="p indices c1" type="ubyte" arr1="#ARG#\c1" vercond="#PC#"> </add>
 
-		<add name="p indices 0b" type="ubyte" arr1="#ARG#\e" > </add>
-
-
-		<add name="p indices 0c" type="ubyte" arr1="#ARG#\e" cond="(#ARG#\e2) #GT# (0)"> </add>
+		<add name="p indices 0b" type="ubyte" arr1="(#ARG#\p indices c0 max - #ARG#\p indices c0 min) + 1" > </add>
+		<add name="p indices 0c" type="ubyte" arr1="(#ARG#\p indices c1 max - #ARG#\p indices c1 min) + 1"> </add>
 
 <!--		<add name="pad" type="ubyte" arr1="3"> </add>-->
         <add name="pad" type="PadAlign" arg="ref" template="4" >?</add>
@@ -214,12 +212,16 @@
 		<add name="count" type="ushort" > </add>
 		<add name="four and twenty" type="ushort" >usually / always 420</add>
 		<add name="ref2" type="Empty" > </add>
-		<add name="zeros" type="ubyte" arr1="c1" > </add>
+<!--		<add name="zeros" type="ubyte" arr1="c1" > </add>-->
+        # maybe b + c 4 + 8 for partials, 12 bytes
+		<add name="zeros" type="ubyte" arr1="#ARG#\p indices c0 max - #ARG#\p indices c0 min" > </add>
 <!--		<add name="anoth pad" type="PadAlign" arg="ref2" template="8" > </add>-->
 		<add name="anoth pad" type="SmartPadding" >?</add>
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 		<add name="floatsb" type="float" arr1="6" >these are likely a scale reference or factor</add>
-<!--		<add name="repeats" type="Repeat" arr1="count" > </add>-->
+		<add name="unk" type="uint" >?</add>
+<!--		<add name="floats extra" type="float" arr1="#ARG#\e2" >nope likely wrong</add>-->
+		<add name="repeats" type="Repeat" arr1="count" > </add>
 
     </compound>
 
