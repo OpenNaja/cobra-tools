@@ -4,6 +4,7 @@ import struct
 
 from generated.context import ContextReference
 from generated.formats.bnk.compound.BKHDSection import BKHDSection
+from generated.formats.bnk.compound.DATASection import DATASection
 from generated.formats.bnk.compound.DIDXSection import DIDXSection
 from generated.formats.bnk.compound.HIRCSection import HIRCSection
 from modules.formats.shared import get_padding
@@ -31,10 +32,11 @@ class AuxFileContainer:
         chunk_id = "DUMM"
         while len(chunk_id) == 4:
             chunk_id = stream.read(4)
+            after_size_pos = stream.tell() + 4
             logging.info(f"reading chunk {chunk_id} at {stream.tell()}")
             if chunk_id == b"BKHD":
                 self.bhkd = stream.read_type(BKHDSection, (self.context,))
-                print(self.bhkd)
+                # print(self.bhkd)
                 self.chunks.append((chunk_id, self.bhkd))
             elif chunk_id == b"HIRC":
                 self.hirc = stream.read_type(HIRCSection, (self.context,))
@@ -43,21 +45,22 @@ class AuxFileContainer:
                 self.didx = stream.read_type(DIDXSection, (self.context,))
                 self.chunks.append((chunk_id, self.didx))
             elif chunk_id == b"DATA":
-                size = stream.read_uint()
-                self.data = stream.read(size)
-            elif chunk_id == b'\x00\x00\x00\x00':
-                break
-            elif chunk_id == b'\x00':
-                break
-            elif not chunk_id:
+                self.data = stream.read_type(DATASection, (self.context,))
+                self.chunks.append((chunk_id, self.data))
+            elif chunk_id == b'\x00' * len(chunk_id):
+                # empty chunk, could be end
                 break
             else:
                 raise NotImplementedError(f"Unknown chunk {chunk_id}!")
+            desired_end = after_size_pos + self.chunks[-1][1].length
+            if stream.tell() != desired_end:
+                logging.info(f"Seeking to {desired_end}")
+                stream.seek(desired_end)
         # if not self.hirc:
         if self.didx:
             for pointer in self.didx.data_pointers:
-                pointer.data = self.data[
-                               pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize]
+                pointer.data = bytes(self.data.wem_datas[
+                               pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize])
                 pointer.hash = "".join([f"{b:02X}" for b in struct.pack("<I", pointer.wem_id)])
                 pointer.pad = b""
 

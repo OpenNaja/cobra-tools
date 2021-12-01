@@ -43,7 +43,7 @@
     <compound name="DATASection">
         second Section of a soundback aux
         <add name="length" type="uint" >length of following data</add>
-        <add name="wem files datas" type="byte" arr1="length" ></add>
+        <add name="wem datas" type="byte" arr1="length" ></add>
     </compound>
 
     <compound name="HIRCSection">
