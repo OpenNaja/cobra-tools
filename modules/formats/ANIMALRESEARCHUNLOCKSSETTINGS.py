@@ -1,14 +1,68 @@
 import logging
 import struct
+import traceback
 
 from modules.formats.BaseFormat import BaseFile
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
+
+from modules.helpers import as_bytes
 
 
 class AnimalresearchunlockssettingsLoader(BaseFile):
 
 	def create(self):
 		xml = self._get_data(self.file_entry.path)
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		# type 4 throughout
+		root_f = self.create_fragments(self.sized_str_entry, 1)[0]
+		array_bytes = b""
+		data = []
+		for level in xml:
+			# ptr to start always exists
+			f = self.create_fragments(self.sized_str_entry, 1)[0]
+			# print(level.unlockables)
+			followups = level.find('followups')
+			unlockables = level.find('unlockables')
+			# 40 bytes
+			array_bytes += struct.pack("<5Q", 0, 0, len(followups), 0, len(unlockables))
+			# only create these pointers if the arrays exist
+			# we create the arrays later once we have written the main array
+			f_followups = self.create_fragments(self.sized_str_entry, bool(followups))
+			f_unlockables = self.create_fragments(self.sized_str_entry, bool(unlockables))
+			data.append((f, f_followups, f_unlockables, level.attrib["name"], followups, unlockables))
+
+		# write array data
+		self.write_to_pool(root_f.pointers[1], 4, array_bytes)
+
+		# now the levels
+		offset = 0
+		for f, f_followup, f_unlockable, name, followups, unlockables in data:
+			self.ptr_relative(f.pointers[0], root_f.pointers[1], offset)
+			self.write_to_pool(f.pointers[1], 2, as_bytes(name))
+			if len(followups):
+				f_followups = self.create_fragments(self.sized_str_entry, len(followups))
+				for f_u, f_e in zip(f_followups, followups):
+					self.write_to_pool(f_u.pointers[0], 4, b"\x00" * 16)
+					self.write_to_pool(f_u.pointers[1], 2, as_bytes(f_e.attrib["name"]))
+				# make level's ptr point to start of followups region
+				f_u_ptr = f_followup[0]
+				self.ptr_relative(f_u_ptr.pointers[0], root_f.pointers[1], offset+8)
+				self.ptr_relative(f_u_ptr.pointers[1], f_followups[0].pointers[0])
+			# point to unlockables
+			if len(unlockables):
+				f_unlockables = self.create_fragments(self.sized_str_entry, len(unlockables))
+				for f_u, f_e in zip(f_unlockables, unlockables):
+					self.write_to_pool(f_u.pointers[0], 4, b"\x00" * 8)
+					self.write_to_pool(f_u.pointers[1], 2, as_bytes(f_e.attrib["name"]))
+				# make level's ptr point to start of unlockables region
+				f_u_ptr = f_unlockable[0]
+				self.ptr_relative(f_u_ptr.pointers[0], root_f.pointers[1], offset+24)
+				self.ptr_relative(f_u_ptr.pointers[1], f_unlockables[0].pointers[0])
+			offset += 40
+
+		# write the basics - array count + its data
+		self.write_to_pool(self.sized_str_entry.pointers[0], 4, b"")
+		self.write_to_pool(root_f.pointers[0], 4, struct.pack("<2Q", 0, len(xml)))
 
 
 	def collect(self):
