@@ -39,29 +39,35 @@ class ManisFile(InfoHeader, IoFile):
 
 		with self.reader(filepath) as stream:
 			self.read(stream)
-			print(self)
-			#
+			for mi, name in zip(self.mani_infos, self.names):
+				mi.name = name
+			# print(self)
 			# read the first mani data
 			mani_info = self.mani_infos[0]
-			mani_block = stream.read_type(ManiBlock, (self.context, mani_info,))
-			print(mani_info)
-			print(mani_block)
-			# return
-			# is this correct??
-			zeros = stream.read(4)
-			print(zeros, stream.tell())
-			sum_bytes = sum(mb.byte_size for mb in mani_block.repeats)
-			print("sum_bytes", sum_bytes)
-			sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_block.repeats)
-			print("sum_bytes + padding", sum_bytes2)
-			for mb, bone_name in zip(mani_block.repeats, self.bone_names):
-				data = stream.read(mb.byte_size)
-				pad_size = get_padding_size(mb.byte_size)
-				padding = stream.read(pad_size)
-				# print(binascii.hexlify(data[:40]), padding, stream.tell())
-				with open(os.path.join(self.dir, f"{self.file_no_ext}_{bone_name}.maniskeys"), "wb") as f:
-					f.write(data)
-			stream.tell()
+			for mani_info in self.mani_infos:
+				mani_block = stream.read_type(ManiBlock, (self.context, mani_info,))
+				print(mani_info)
+				print(mani_block)
+				# # return
+				# # is this correct??
+				# zeros = stream.read(4)
+				# print(zeros, stream.tell())
+				sum_bytes = sum(mb.byte_size for mb in mani_block.repeats)
+				print("sum_bytes", sum_bytes)
+				sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_block.repeats)
+				print("sum_bytes + padding", sum_bytes2)
+				for mb, bone_name in zip(mani_block.repeats, self.bone_names):
+					print(bone_name, stream.tell())
+					data = stream.read(mb.byte_size)
+					pad_size = get_padding_size(mb.byte_size)
+					padding = stream.read(pad_size)
+					print("end", stream.tell())
+					# print(binascii.hexlify(data[:40]), padding, stream.tell())
+					with open(os.path.join(self.dir, f"{self.file_no_ext}_{bone_name}.maniskeys"), "wb") as f:
+						f.write(data)
+			for i, bone_name in enumerate(self.bone_names):
+				print(i, bone_name)
+
 			# print()
 			#
 			# # seems to be pretty good until here, then it breaks
@@ -94,5 +100,6 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedpartials.maniset919dac12.manis")
 	# mani.load("C:/Users/arnfi/Desktop/lemur/animationmotionextractedfighting.maniset9c749130.manis")
 	mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedlocomotion.maniset87d072d8.manis")
+	# mani.load("C:/Users/arnfi/Desktop/sealion/animationnotmotionextractedpartials.maniset3f847039.manis")
 	# print(mani)
 	# hex_test()

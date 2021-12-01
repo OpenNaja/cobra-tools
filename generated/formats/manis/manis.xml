@@ -212,23 +212,24 @@
 		<add name="count" type="ushort" > </add>
 		<add name="four and twenty" type="ushort" >usually / always 420</add>
 		<add name="ref2" type="Empty" > </add>
-<!--		<add name="zeros" type="ubyte" arr1="c1" > </add>-->
+		<add name="zeros" type="ubyte" arr1="c1" > </add>
         # maybe b + c 4 + 8 for partials, 12 bytes
-		<add name="zeros" type="ubyte" arr1="#ARG#\p indices c0 max - #ARG#\p indices c0 min" > </add>
+<!--		<add name="zeros" type="ubyte" arr1="#ARG#\p indices c0 max - #ARG#\p indices c0 min" > </add>-->
 <!--		<add name="anoth pad" type="PadAlign" arg="ref2" template="8" > </add>-->
 		<add name="anoth pad" type="SmartPadding" >?</add>
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 		<add name="floatsb" type="float" arr1="6" >these are likely a scale reference or factor</add>
 		<add name="unk" type="uint" >?</add>
+		<add name="unk for e2" type="uint64" cond="#ARG# \ e_2">this seems to be vaguely related, but not always there?</add>
 <!--		<add name="floats extra" type="float" arr1="#ARG#\e2" >nope likely wrong</add>-->
 		<add name="repeats" type="Repeat" arr1="count" > </add>
 
     </compound>
 
     <compound name="Repeat" >
-		<add name="zeros 0" type="uint" arr1="15" > </add>
+		<add name="zeros 0" type="uint" arr1="14" > </add>
 		<add name="byte size" type="uint" >to be read sequentially starting after this array </add>
-		<add name="zeros 1" type="uint" arr1="4" > </add>
+		<add name="zeros 1" type="uint" arr1="5" > </add>
     </compound>
 	
 	

@@ -56,7 +56,7 @@ class ManiBlock:
 		# usually / always 420
 		self.four_and_twenty = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((), dtype='ubyte')
+		self.zeros = numpy.zeros((self.c_1), dtype='ubyte')
 
 		# ?
 		self.anoth_pad = SmartPadding(self.context, None, None)
@@ -66,6 +66,9 @@ class ManiBlock:
 
 		# ?
 		self.unk = 0
+
+		# this seems to be vaguely related, but not always there?
+		self.unk_for_e_2 = 0
 		self.repeats = Array(self.context)
 		self.set_defaults()
 
@@ -105,10 +108,12 @@ class ManiBlock:
 		self.count = 0
 		self.four_and_twenty = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((), dtype='ubyte')
+		self.zeros = numpy.zeros((self.c_1), dtype='ubyte')
 		self.anoth_pad = SmartPadding(self.context, None, None)
 		self.floatsb = numpy.zeros((6), dtype='float')
 		self.unk = 0
+		if self.arg.e_2:
+			self.unk_for_e_2 = 0
 		self.repeats = Array(self.context)
 
 	def read(self, stream):
@@ -148,10 +153,12 @@ class ManiBlock:
 		self.count = stream.read_ushort()
 		self.four_and_twenty = stream.read_ushort()
 		self.ref_2 = stream.read_type(Empty, (self.context, None, None))
-		self.zeros = stream.read_ubytes((self.arg.p_indices_c_0_max - self.arg.p_indices_c_0_min))
+		self.zeros = stream.read_ubytes((self.c_1))
 		self.anoth_pad = stream.read_type(SmartPadding, (self.context, None, None))
 		self.floatsb = stream.read_floats((6))
 		self.unk = stream.read_uint()
+		if self.arg.e_2:
+			self.unk_for_e_2 = stream.read_uint64()
 		self.repeats.read(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -197,6 +204,8 @@ class ManiBlock:
 		stream.write_type(self.anoth_pad)
 		stream.write_floats(self.floatsb)
 		stream.write_uint(self.unk)
+		if self.arg.e_2:
+			stream.write_uint64(self.unk_for_e_2)
 		self.repeats.write(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -229,6 +238,7 @@ class ManiBlock:
 		s += f'\n	* anoth_pad = {self.anoth_pad.__repr__()}'
 		s += f'\n	* floatsb = {self.floatsb.__repr__()}'
 		s += f'\n	* unk = {self.unk.__repr__()}'
+		s += f'\n	* unk_for_e_2 = {self.unk_for_e_2.__repr__()}'
 		s += f'\n	* repeats = {self.repeats.__repr__()}'
 		return s
 
