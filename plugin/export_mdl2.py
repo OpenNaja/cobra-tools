@@ -285,6 +285,8 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 		pbone.matrix_basis = mathutils.Matrix()
 
 	scene = bpy.context.scene
+	if not scene.cobra.pack_base:
+		raise AttributeError(f"Set the pack base value for this scene!")
 	mdl2.model_info.pack_offset = scene.cobra.pack_base
 	mdl2.model_info.render_flag._value = get_property(scene, "render_flag")
 	if edit_bones:

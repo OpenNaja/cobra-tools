@@ -300,7 +300,7 @@ class CobraSceneSettings(PropertyGroup):
     pack_base: IntProperty(
         name="Pack Base",
         description="Base value used to pack vertices, also min and max value that a coordinate can assume.",
-        default=0,
+        default=256,
         subtype="DISTANCE",
         update=update_pack_base
     )
