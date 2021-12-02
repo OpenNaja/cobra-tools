@@ -1,5 +1,6 @@
 import io
 
+from generated.formats.ovl_base.versions import is_pc
 from generated.formats.tex.compound.TexInfoHeader import TexInfoHeader
 from generated.io import IoFile
 
@@ -36,11 +37,15 @@ class TexFile(TexInfoHeader, IoFile):
 			# 		f"Data sizes of all 3_1 structs ({sum_of_parts}) and 7_1 fragments ({self.frag_11.data_size}) do not match up")
 
 	def load_buffers(self, stream):
-		self.buffers = []
-		for tex_buffer_info in self.frag_01:
-			stream.seek(self.eoh + tex_buffer_info.offset)
-			b = stream.read(tex_buffer_info.size)
-			self.buffers.append(b)
+		if is_pc(self):
+			# apparently we have no buffer size definitions anywhere
+			self.buffers = [stream.read(), ]
+		else:
+			self.buffers = []
+			for tex_buffer_info in self.frag_01:
+				stream.seek(self.eoh + tex_buffer_info.offset)
+				b = stream.read(tex_buffer_info.size)
+				self.buffers.append(b)
 
 	def save(self, filepath):
 		with self.writer(filepath) as stream:
