@@ -72,6 +72,9 @@ class Ms2Loader(BaseFile):
 		logging.debug(f"Num model data frags = {core_model_info.num_models}")
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(
 			model_data_ptr.pointers[1], core_model_info.num_models)
+		# just assign name for those here
+		for f in mdl2_entry.model_data_frags:
+			f.name = mdl2_entry.name
 
 	def create(self):
 		ms2_file = Ms2File()

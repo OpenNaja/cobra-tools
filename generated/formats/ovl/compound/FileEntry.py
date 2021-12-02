@@ -28,11 +28,11 @@ class FileEntry:
 		# this hash is used to retrieve the file name from inside the archive
 		self.file_hash = 0
 
-		# ? constant per file type
-		self.unkn_0 = 0
+		# pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type
+		self.pool_type = 0
 
-		# ? constant per file type
-		self.unkn_1 = 0
+		# if this file is part of a set, the set's sizedstr entry's pool type, else 0
+		self.set_pool_type = 0
 
 		# index into 'Extensions' array
 		self.extension = 0
@@ -41,16 +41,16 @@ class FileEntry:
 	def set_defaults(self):
 		self.offset = 0
 		self.file_hash = 0
-		self.unkn_0 = 0
-		self.unkn_1 = 0
+		self.pool_type = 0
+		self.set_pool_type = 0
 		self.extension = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.file_hash = stream.read_uint()
-		self.unkn_0 = stream.read_byte()
-		self.unkn_1 = stream.read_byte()
+		self.pool_type = stream.read_byte()
+		self.set_pool_type = stream.read_byte()
 		self.extension = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
@@ -59,8 +59,8 @@ class FileEntry:
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.file_hash)
-		stream.write_byte(self.unkn_0)
-		stream.write_byte(self.unkn_1)
+		stream.write_byte(self.pool_type)
+		stream.write_byte(self.set_pool_type)
 		stream.write_ushort(self.extension)
 
 		self.io_size = stream.tell() - self.io_start
@@ -72,8 +72,8 @@ class FileEntry:
 		s = ''
 		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
-		s += f'\n	* unkn_0 = {self.unkn_0.__repr__()}'
-		s += f'\n	* unkn_1 = {self.unkn_1.__repr__()}'
+		s += f'\n	* pool_type = {self.pool_type.__repr__()}'
+		s += f'\n	* set_pool_type = {self.set_pool_type.__repr__()}'
 		s += f'\n	* extension = {self.extension.__repr__()}'
 		return s
 
@@ -95,6 +95,6 @@ class FileEntry:
 			constants = constants_jwe2
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
-		self.unkn_0 = constants.files_unkn_0[self.ext]
-		self.unkn_1 = constants.files_unkn_1[self.ext]
+		self.pool_type = constants.files_unkn_0[self.ext]
+		self.set_pool_type = constants.files_unkn_1[self.ext]
 

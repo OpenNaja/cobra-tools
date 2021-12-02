@@ -51,12 +51,6 @@
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
     </compound>
 
-    <compound name="ZlibInfo" >
-        Description of one zlib archive
-        <add name="Zlib thing1" type="uint">seemingly unused in JWE</add>
-        <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header</add>
-    </compound>
-
     <compound name="MimeEntry" >
         Description of one mime type, which is sort of a container for
 		Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
@@ -79,11 +73,11 @@
 
     <compound name="FileEntry" >
         Description of one file in the archive
-        <add name="Offset" type="uint">offset in the ovl's names block; start offset of zero terminated string</add>
+        <add name="offset" type="uint">offset in the ovl's names block; start offset of zero terminated string</add>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
-        <add name="unkn0" type="byte" >? constant per file type</add>
-        <add name="unkn1" type="byte" >? constant per file type</add>
-        <add name="Extension" type="ushort" >index into 'Extensions' array</add>
+        <add name="pool type" type="byte" >pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type</add>
+        <add name="set pool type" type="byte" >if this file is part of a set, the set's sizedstr entry's pool type, else 0</add>
+        <add name="extension" type="ushort" >index into 'Extensions' array</add>
     </compound>
 
     <compound name="ArchiveEntry" >
@@ -133,6 +127,12 @@
         Description of one file type
         <add name="unknowns" type="ushort" arr1="2" arr2="2">?</add>
         <add name="zero" type="uint"/>
+    </compound>
+
+    <compound name="ZlibInfo" >
+        Description of one zlib archive
+        <add name="Zlib thing1" type="uint">seemingly unused in JWE</add>
+        <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header</add>
     </compound>
 
 	<!-- From here, structs are for the deflated stream -->

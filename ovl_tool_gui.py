@@ -54,7 +54,7 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.textActivated.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 
-		header_names = ["Name", "File Type", "DJB", "Unk0", "Unk1"]
+		header_names = ["Name", "File Type", "DJB"]
 
 		self.model = QtWidgets.QFileSystemModel()
 		# self.model.sort(1, QtCore.Qt.AscendingOrder)
@@ -421,7 +421,7 @@ class MainWindow(widgets.MainWindow):
 	def update_gui_table(self, ):
 		start_time = time.time()
 		logging.info(f"Loading {len(self.ovl_data.files)} files into gui...")
-		self.files_container.set_data([[f.name, f.ext, f.file_hash, f.unkn_0, f.unkn_1] for f in self.ovl_data.files])
+		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in self.ovl_data.files])
 		self.dir_container.set_data(self.ovl_data.dir_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)

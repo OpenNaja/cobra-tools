@@ -34,7 +34,8 @@ from modules.helpers import split_path
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
-	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg", ".materialcollection",
+	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg",
+	".materialcollection",
 	".pscollection", ".logicalcontrols", ".mergedetails", ".txt", ".gfx", ".uimovidefinition", ".world")
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
@@ -291,11 +292,6 @@ class OvsFile(OvsHeader):
 				self.assign_name(sized_str_entry)
 				sized_str_entry.children = []
 				sized_str_entry.fragments = []
-				sized_str_entry.model_data_frags = []
-				sized_str_entry.specdef_name_fragments = []
-				sized_str_entry.specdef_attr_names = []
-				sized_str_entry.specdef_attr_datas = []
-				sized_str_entry.specdef_other_list = []
 				# get data entry for link to buffers, or none
 				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
 
@@ -521,10 +517,10 @@ class OvsFile(OvsHeader):
 
 	def frags_accumulate_from_pointer(self, p, d_size):
 		return self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
-        
+
 	def frags_accumulate_from_pointer_till_count(self, p, d_size, count):
 		frags = self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
-		#print(d_size, len(frags))
+		# print(d_size, len(frags))
 		if len(frags) > count:
 			frags[-1].done = False
 			return frags[0:count]
@@ -567,7 +563,7 @@ class OvsFile(OvsHeader):
 	def assign_frag_names(self):
 		# for debugging only:
 		for sized_str_entry in self.sized_str_entries:
-			for frag in sized_str_entry.model_data_frags + sized_str_entry.fragments:
+			for frag in sized_str_entry.fragments:
 				frag.name = sized_str_entry.name
 
 	def map_buffers(self):
@@ -685,24 +681,6 @@ class OvsFile(OvsHeader):
 				lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(entries)]
 				f.write("\n".join(lines))
 
-	def get_frag_after_terminator(self, ptr, terminator=(24,)):
-		"""Returns entries of l matching h_types that have not been processed until it reaches a frag of terminator size."""
-		frags = self.frags_for_pointer(ptr)
-		out = []
-		for f in frags:
-			# can't add fragments that have already been added elsewhere
-			if f.done:
-				continue
-			if f.pointers[0].data_offset >= ptr.data_offset:
-				f.done = True
-				out.append(f)
-				if f.pointers[0].data_size in terminator:
-					break
-		else:
-			raise AttributeError(
-				f"Could not find a terminator fragment matching initpos {ptr.data_offset} and pointer[0].size {terminator}")
-		return out
-
 	@staticmethod
 	def get_frags_after_count(frags, initpos, count, reuse=False):
 		"""Returns count entries of frags that have not been processed and occur after initpos."""
@@ -718,7 +696,8 @@ class OvsFile(OvsHeader):
 				f.done = True
 				out.append(f)
 				if f.done and reuse:
-					logging.debug(f"Reusing fragment {f.pointers[0].pool_index} | {f.pointers[0].data_offset} for count {count}, initpos {initpos}")
+					logging.debug(
+						f"Reusing fragment {f.pointers[0].pool_index} | {f.pointers[0].data_offset} for count {count}, initpos {initpos}")
 		else:
 			if len(out) != count:
 				raise AttributeError(
@@ -1231,7 +1210,28 @@ class OvlFile(Header, IoFile):
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
+		# self.debug_unks()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
+
+	def debug_unks(self):
+		pool_type = set()
+		set_pool_type = set()
+		for file in self.files:
+			pool_type.add(file.pool_type)
+			set_pool_type.add(file.set_pool_type)
+			ss = self.get_sized_str_entry(file.name)
+			ss_ptr = ss.pointers[0]
+			if not file.set_pool_type:
+				if file.pool_type != ss_ptr.pool.type:
+					raise AttributeError(f"No match: {file.pool_type},  {ss_ptr.pool.type}")
+				else:
+					pass
+					# logging.debug(f"match: {file.pool_type},  {ss_ptr.pool.type}")
+			else:
+				pass
+		logging.info(f"pool_type {pool_type}")
+		logging.info(f"set_pool_type {set_pool_type}")
+		logging.info(self.unknowns)
 
 	def update_mimes(self):
 		"""Rebuilds the mimes list according to the ovl's current file entries"""
@@ -1402,7 +1402,7 @@ class OvlFile(Header, IoFile):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
 		logging.info("Updating the entry dict...")
 		self.ss_dict = {}
-		for archive_index, archive_entry in enumerate(self.archives):
+		for archive_entry in self.archives:
 			for file in archive_entry.content.sized_str_entries:
 				self.ss_dict[file.name.lower()] = file
 
@@ -1430,7 +1430,7 @@ class OvlFile(Header, IoFile):
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-					# sized_str_entry.streams.append(other_sizedstr)
+				# sized_str_entry.streams.append(other_sizedstr)
 			if sized_str_entry.ext == ".ms2":
 				for lod_i in range(4):
 					for archive in self.archives:
@@ -1440,7 +1440,7 @@ class OvlFile(Header, IoFile):
 							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
 								# print("model2stream")
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-					# sized_str_entry.streams.append(other_sizedstr)
+				# sized_str_entry.streams.append(other_sizedstr)
 
 	# print(sized_str_entry.data_entry.buffers)
 

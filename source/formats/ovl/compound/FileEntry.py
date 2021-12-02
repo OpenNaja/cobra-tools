@@ -22,5 +22,5 @@ class FileEntry:
 			constants = constants_jwe2
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
-		self.unkn_0 = constants.files_unkn_0[self.ext]
-		self.unkn_1 = constants.files_unkn_1[self.ext]
+		self.pool_type = constants.files_unkn_0[self.ext]
+		self.set_pool_type = constants.files_unkn_1[self.ext]
