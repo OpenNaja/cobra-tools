@@ -184,6 +184,10 @@ class PrefabLoader(BaseFile):
 		self.assign_ss_entry()
 		#return
 		ss_entry = self.sized_str_entry
+		ss_entry.specdef_name_fragments = []
+		ss_entry.specdef_attr_names = []
+		ss_entry.specdef_attr_datas = []
+		ss_entry.specdef_other_list = []
 		att_type_dict = [0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0]
 		att_type_dict2 = [0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0]
 		ssdata = self.prefab_unpack_ss(len(ss_entry.pointers[0].data), ss_entry.pointers[0].data)
