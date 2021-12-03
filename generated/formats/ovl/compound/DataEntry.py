@@ -17,10 +17,10 @@ class DataEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# DJB hash; sometimes matches an archive header's first File Hash
+		# DJB hash
 		self.file_hash = 0
 
-		# DJB hash for extension; always (?) matches an archive header's hash
+		# DJB hash for extension
 		self.ext_hash = 0
 
 		# 1-based indexing into set_header.sets; 0 if data is not part of a set

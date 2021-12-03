@@ -32,6 +32,8 @@ from modules.formats.shared import get_versions, djb, assign_versions, get_paddi
 from modules.helpers import split_path
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
+# apparently JWE has 16 bytes, PZ seems to have either?
+valid_dep_ptrs = (b'\x00' * 8, b'\x00' * 16)
 
 REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg",
@@ -330,13 +332,6 @@ class OvsFile(OvsHeader):
 			self.read_pools(stream)
 			self.map_buffers()
 			self.read_buffer_datas(stream)
-
-	def link_ptrs_to_pools(self):
-		logging.debug("Linking pointers to pools")
-		# append all valid pointers to their respective dicts
-		for entry in itertools.chain(self.fragments, self.sized_str_entries):
-			for pointer in entry.pointers:
-				pointer.link_to_pool(self.pools)
 
 	def read_pools(self, stream):
 		for pool in self.pools:
@@ -1213,26 +1208,6 @@ class OvlFile(Header, IoFile):
 		# self.debug_unks()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
 
-	def debug_unks(self):
-		pool_type = set()
-		set_pool_type = set()
-		for file in self.files:
-			pool_type.add(file.pool_type)
-			set_pool_type.add(file.set_pool_type)
-			ss = self.get_sized_str_entry(file.name)
-			ss_ptr = ss.pointers[0]
-			if not file.set_pool_type:
-				if file.pool_type != ss_ptr.pool.type:
-					raise AttributeError(f"No match: {file.pool_type},  {ss_ptr.pool.type}")
-				else:
-					pass
-					# logging.debug(f"match: {file.pool_type},  {ss_ptr.pool.type}")
-			else:
-				pass
-		logging.info(f"pool_type {pool_type}")
-		logging.info(f"set_pool_type {set_pool_type}")
-		logging.info(self.unknowns)
-
 	def update_mimes(self):
 		"""Rebuilds the mimes list according to the ovl's current file entries"""
 		logging.info("Updating mimes")
@@ -1278,23 +1253,6 @@ class OvlFile(Header, IoFile):
 						trip.a, trip.b, trip.c = triplet
 						self.triplets.append(trip)
 
-	def load_headers(self):
-		"""Create flattened list of pools"""
-		self.pools = [None for _ in range(self.num_pools)]
-		for archive_entry in self.archives:
-			if archive_entry.num_pools:
-				self.pools[
-				archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
-
-	def link_ptrs_to_pools(self):
-		""""Link all pointers to their respective pools"""
-		for dep in self.dependencies:
-			# the index goes into the flattened list of pools
-			dep.pointers[0].link_to_pool(self.pools)
-		for archive_entry in self.archives:
-			ovs = archive_entry.content
-			ovs.link_ptrs_to_pools()
-
 	def load_archives(self):
 		logging.info("Loading archives...")
 		start_time = time.time()
@@ -1324,10 +1282,18 @@ class OvlFile(Header, IoFile):
 	def postprocessing(self):
 		self.update_ss_dict()
 		self.link_streams()
-		self.load_headers()
+		self.load_pools()
 		self.load_pointers()
 		self.load_file_classes()
 
+	def load_pools(self):
+		"""Create flattened list of pools"""
+		self.pools = [None for _ in range(self.num_pools)]
+		for archive_entry in self.archives:
+			if archive_entry.num_pools:
+				self.pools[
+				archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
+		
 	def load_pointers(self):
 		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
 		logging.info("Loading pointers")
@@ -1335,49 +1301,27 @@ class OvlFile(Header, IoFile):
 		for pool in self.pools:
 			pool.pointer_map = {}
 		self.link_ptrs_to_pools()
-		self.calc_pointer_sizes()
-		self.resolve_pointers()
-
-	def resolve_pointers(self):
-		# apparently JWE has 16 bytes, PZ seems to have either?
-		valid_dep_ptrs = (b'\x00' * 8, b'\x00' * 16)
-		for dep in self.dependencies:
-			if dep.pointers[0].data not in valid_dep_ptrs:
-				logging.warning(f"Unexpected data for dependency ptr {dep.name}: {dep.pointers[0].data}")
+		for pool in self.pools:
+			pool.calc_pointer_sizes()
 		for archive_entry in self.archives:
 			ovs = archive_entry.content
 			ovs.build_frag_lut()
 
-	def calc_pointer_sizes(self):
-		"""Assign an estimated size to every pointer"""
-		logging.info("Calculating pointer sizes, addresses, copies & reading data")
-		# calculate pointer data sizes
-		for pool in self.pools:
-			# make them unique and sort them
-			sorted_items = sorted(pool.pointer_map.items())
-			# add the end of the header data block
-			sorted_items.append((pool.size, None))
-			# get the size of each pointer
-			for i, (offset, pointers) in enumerate(sorted_items[:-1]):
-				# get the offset of the next pointer, substract this offset
-				data_size = sorted_items[i + 1][0] - offset
-				# also calculate address of pointer
-				address = pool.address + offset
-				for pointer in pointers:
-					pointer.data_size = data_size
-					pointer.address = address
-					pointer.copies = pointers
-					pointer.read_data()
-
-	def dump_frag_log(self):
+	def link_ptrs_to_pools(self):
+		""""Link all pointers to their respective pools"""
+		logging.debug("Linking pointers to pools")
+		for dep in self.dependencies:
+			dep_ptr = dep.pointers[0]
+			# the index goes into the flattened list of pools
+			dep_ptr.link_to_pool(self.pools)
+			if dep_ptr.data not in valid_dep_ptrs:
+				logging.warning(f"Unexpected data for dependency ptr {dep.name}: {dep_ptr.data}")
 		for archive_entry in self.archives:
-			try:
-				archive_entry.content.assign_frag_names()
-				archive_entry.content.dump_frag_log()
-				archive_entry.content.dump_buffer_groups_log()
-				archive_entry.content.dump_pools()
-			except BaseException as err:
-				print(err)
+			ovs = archive_entry.content
+			for entry in itertools.chain(ovs.fragments, ovs.sized_str_entries):
+				for pointer in entry.pointers:
+					# the index goes into the ovs file's pools
+					pointer.link_to_pool(ovs.pools)
 
 	def load_file_classes(self):
 		logging.info("Loading file classes...")
@@ -1545,6 +1489,36 @@ class OvlFile(Header, IoFile):
 		for file in self.files:
 			if file.loader:
 				file.loader.update()
+
+	def debug_unks(self):
+		pool_type = set()
+		set_pool_type = set()
+		for file in self.files:
+			pool_type.add(file.pool_type)
+			set_pool_type.add(file.set_pool_type)
+			ss = self.get_sized_str_entry(file.name)
+			ss_ptr = ss.pointers[0]
+			if not file.set_pool_type:
+				if file.pool_type != ss_ptr.pool.type:
+					raise AttributeError(f"No match: {file.pool_type},  {ss_ptr.pool.type}")
+				else:
+					pass
+			# logging.debug(f"match: {file.pool_type},  {ss_ptr.pool.type}")
+			else:
+				pass
+		logging.info(f"pool_type {pool_type}")
+		logging.info(f"set_pool_type {set_pool_type}")
+		logging.info(self.unknowns)
+
+	def dump_frag_log(self):
+		for archive_entry in self.archives:
+			try:
+				archive_entry.content.assign_frag_names()
+				archive_entry.content.dump_frag_log()
+				archive_entry.content.dump_buffer_groups_log()
+				archive_entry.content.dump_pools()
+			except BaseException as err:
+				print(err)
 
 	def save(self, filepath, dat_path):
 		logging.info("Writing OVL")

@@ -10,7 +10,6 @@ class SetHeader:
 
 	"""
 	defines amount of sets and assets
-	(not a struct in barbasol)
 	"""
 
 	context = ContextReference()

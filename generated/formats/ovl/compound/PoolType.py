@@ -17,10 +17,10 @@ class PoolType:
 		self.io_size = 0
 		self.io_start = 0
 
-		# Type of the headers that follow
+		# Type of the pools that follow
 		self.type = 0
 
-		# Amount of the headers of that type that follow the headers block
+		# Amount of pools of that type that follow the pool types block
 		self.num_pools = 0
 		self.set_defaults()
 

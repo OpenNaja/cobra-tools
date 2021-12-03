@@ -151,26 +151,26 @@
 
 	<compound name="PoolType">
 		Located at start of deflated archive stream
-		<add name="Type" type="ushort" >Type of the headers that follow</add>
-		<add name="num_pools" type="ushort" >Amount of the headers of that type that follow the headers block</add>
+		<add name="Type" type="ushort" >Type of the pools that follow</add>
+		<add name="num_pools" type="ushort" >Amount of pools of that type that follow the pool types block</add>
 	</compound>
 
     <compound name="MemPool" >
         Description of one archive header entry
 		<add name="zero1" type="uint64" vercond="!#DLA#">always 0</add>
-		<add name="Size" type="uint">the number of bytes representing the text files data</add>
-		<add name="Offset" type="uint">starting point to read text file data</add>
+		<add name="Size" type="uint">the number of bytes inside this mempool</add>
+		<add name="Offset" type="uint">byte offset from the start of the mempools region</add>
 		<add name="zero2" type="uint64" vercond="#DLA#">always 0</add>
-		<add name="File Hash" type="uint">DJB hash of the first file in the txt data block</add>
-		<add name="Num Files" type="uint">unknown count (number of .txt files)</add>
+		<add name="File Hash" type="uint">DJB hash of the first file that points into this mempool</add>
+		<add name="Num Files" type="uint">unknown count (related to number of files or pointers)</add>
 		<add name="Ext Hash" type="uint" since="19">JWE: DJB hash for extension, 0 for PZ</add>
 		<add name="zero3" type="uint" since="19">always 0</add>
     </compound>
 	
 	<compound name="DataEntry" >
 		32 bytes
-		<add name="File Hash" type="uint"> DJB hash; sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint" since="19">DJB hash for extension; always (?) matches an archive header's hash</add>
+		<add name="File Hash" type="uint"> DJB hash</add>
+		<add name="Ext Hash" type="uint" since="19">DJB hash for extension</add>
 		<add name="set index" type="ushort" >1-based indexing into set_header.sets; 0 if data is not part of a set</add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
 		<add name="zero" type="uint" since="19"> </add>
@@ -217,9 +217,8 @@
 	
 	<compound name="SetHeader" >
 		defines amount of sets and assets
-		(not a struct in barbasol)
-		<add name="set count" type="uint"> </add>
-		<add name="asset count" type="uint"> </add>
+        <add name="set count" type="uint"/>
+        <add name="asset count" type="uint"/>
 		<add name="sig a" type="uint" default="1065336831">must be 1065336831</add>
 		<add name="sig b" type="uint" default="16909320">must be 16909320</add>
 		<add name="sets" type="SetEntry" arr1="set count"> </add>
