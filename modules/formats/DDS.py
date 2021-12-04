@@ -209,9 +209,15 @@ class DdsLoader(BaseFile):
 		basename = os.path.splitext(tex_name)[0]
 		dds_name = basename + ".dds"
 		logging.info(f"Writing {tex_name}")
-		logging.debug(f"Num streams: {len(self.sized_str_entry.data_entry.stream_datas)}")
+
+		all_buffers = [*self.sized_str_entry.data_entry.buffers]
+		for stream_file in self.file_entry.streams:
+			stream_ss = self.ovl.get_sized_str_entry(stream_file.name)
+			all_buffers.extend(stream_ss.data_entry.buffers)
+		all_buffer_bytes = [buffer.data for buffer in all_buffers]
+		logging.debug(f"Num streams: {len(self.file_entry.streams)}")
 		# get joined output buffer
-		buffer_data = b"".join(sorted(self.sized_str_entry.data_entry.stream_datas, key=len, reverse=True))
+		buffer_data = b"".join(sorted(all_buffer_bytes, key=len, reverse=True))
 
 		out_files = []
 		tex_path = out_dir(tex_name)
