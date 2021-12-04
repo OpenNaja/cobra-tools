@@ -965,12 +965,18 @@ class OvlFile(Header, IoFile):
 		except KeyError:
 			logging.warning(f"Unsupported file type: {filename}")
 			return
-		file_entry.loader = get_loader(file_entry.ext, self, file_entry)
-		try:
-			file_entry.loader.create()
-		except BaseException as err:
-			logging.warning(f"Could not create: {filename}")
-			return
+		# some file types do not have a loader, but we need to create their entries anyway
+		if file_entry.ext not in (".mdl2", ):
+			file_entry.loader = get_loader(file_entry.ext, self, file_entry)
+			try:
+				file_entry.loader.create()
+			except NotImplementedError:
+				logging.warning(f"Creation not implemented for {filename}")
+				return
+			except BaseException as err:
+				logging.warning(f"Could not create: {filename}")
+				traceback.print_exc()
+				return
 		self.files.append(file_entry)
 
 	def create(self, ovl_dir):
