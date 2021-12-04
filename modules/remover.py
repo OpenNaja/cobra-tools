@@ -61,4 +61,4 @@ def remove_from_ovs(ovl, filenames):
 				buffer.update_data(b"")
 				ovs.content.buffer_entries.remove(buffer)
 			ovs.content.data_entries.remove(data)
-	ovs.content.write_pointers_to_pools(ignore_unaccounted_bytes=True)
+	# ovs.content.write_pointers_to_pools(ignore_unaccounted_bytes=True)

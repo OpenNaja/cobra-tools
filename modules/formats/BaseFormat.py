@@ -77,9 +77,9 @@ class BaseFile:
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, count)
 
 	def get_pool(self, pool_type_key):
-		# get one if it exists
+		# get one directly editable pool, if it exists
 		for pool_index, pool in enumerate(self.ovs.pools):
-			if pool.type == pool_type_key:
+			if pool.type == pool_type_key and not pool.update_from_ptrs:
 				return pool_index, pool
 		# nope, means we gotta create pool type and pool
 		pool_type = PoolType(self.ovl.context)
@@ -92,6 +92,8 @@ class BaseFile:
 		pool.address = 0
 		# assign_versions(pool.data, get_versions(self.ovl))
 		pool.type = pool_type_key
+		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
+		pool.update_from_ptrs = False
 		self.ovs.pool_types.append(pool_type)
 		self.ovs.pools.append(pool)
 		return len(self.ovs.pools)-1, pool

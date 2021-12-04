@@ -141,8 +141,6 @@ class OvsFile(OvsHeader):
 		# print(self.context)
 		self.ovl = ovl_inst
 		self.arg = archive_entry
-		# this determines if fragments are written back to header datas
-		self.force_update_pools = True
 
 	@staticmethod
 	def add_pointer(pointer, ss_entry, pointers_to_ss):
@@ -178,9 +176,9 @@ class OvsFile(OvsHeader):
 			logging.debug(f"Header[{pool_index}]: {pool.name} -> {ss.name}")
 			self.transfer_identity(pool, ss)
 
-	def get_bytes(self, archive_index, external_path):
+	def get_bytes(self, external_path):
 		# load external uncompressed data
-		if external_path and archive_index == 0:
+		if external_path and self.arg.name == "STATIC":
 			with open(external_path, "rb") as f:
 				return f.read()
 		# write the internal data
@@ -273,7 +271,7 @@ class OvsFile(OvsHeader):
 		logging.debug(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
-			logging.debug("Reading unzipped stream...")
+			logging.debug("Reading unzipped stream")
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
 			# print(self)
@@ -812,41 +810,13 @@ class OvsFile(OvsHeader):
 		return self.start_of_pools + sum(pool.size for pool in self.pools) + sum(
 			buffer.size for buffer in self.buffer_entries)
 
-	def write_pointers_to_pools(self, ignore_unaccounted_bytes=False):
-		"""Pre-writing step to convert all edits that were done on individual points back into the consolidated header
-		data io blocks"""
-		for i, pool in enumerate(self.pools):
-			# maintain sorting order
-			# grab the first pointer for each address
-			# it is assumed that subsequent pointers to that address share the same data
-			sorted_first_pointers = [pointers[0] for offset, pointers in sorted(pool.pointer_map.items())]
-			if sorted_first_pointers:
-				# only known from indominus
-				first_offset = sorted_first_pointers[0].data_offset
-				if first_offset != 0 and not ignore_unaccounted_bytes:
-					logging.debug(f"Found {first_offset} unaccounted bytes at start of header data {i}")
-					unaccounted_bytes = pool.data.getvalue()[:first_offset]
-				else:
-					unaccounted_bytes = b""
-
-				# clear io objects
-				pool.data = io.BytesIO()
-				pool.data.write(unaccounted_bytes)
-				# write updated strings
-				for pointer in sorted_first_pointers:
-					pointer.write_data(update_copies=True)
-			else:
-				# todo - shouldn't we delete the header entry in that case?
-				logging.debug(f"No pointers into header entry {i} - keeping its stock data!")
-
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
-		if self.force_update_pools:
-			self.write_pointers_to_pools()
 		# do this first so pools can be updated
 		pools_data_writer = io.BytesIO()
-		# the ugly stuff with all fragments and sizedstr entries
 		for pool in self.pools:
+			# if the pool has editable pointers, flush them to the pool writer first
+			pool.flush_pointers()
 			pool_bytes = pool.data.getvalue()
 			# JWE, JWE2: relative offset for each pool
 			if self.ovl.user_version.is_jwe:
@@ -854,7 +824,7 @@ class OvsFile(OvsHeader):
 			# PZ, PC: offsets relative to the whole pool block
 			else:
 				pool.offset = self.arg.pools_start + pools_data_writer.tell()
-			logging.debug(f"header.offset {pool.offset}, pools_start {self.arg.pools_start}")
+			logging.debug(f"pool.offset {pool.offset}, pools_start {self.arg.pools_start}")
 			pool.size = len(pool_bytes)
 			pools_data_writer.write(pool_bytes)
 		self.pools_data = pools_data_writer.getvalue()
@@ -903,7 +873,7 @@ class OvlFile(Header, IoFile):
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
-		logging.info(f"Extracting from {len(self.files)} files...")
+		logging.info(f"Extracting from {len(self.files)} files")
 		os.makedirs(out_dir, exist_ok=True)
 
 		def out_dir_func(n):
@@ -916,7 +886,7 @@ class OvlFile(Header, IoFile):
 		out_paths = []
 		extract_files = self.get_extract_files(only_names, only_types, skip_files)
 		for file_index, file in enumerate(extract_files):
-			self.progress_callback("Extracting...", value=file_index, vmax=len(extract_files))
+			self.progress_callback("Extracting", value=file_index, vmax=len(extract_files))
 			try:
 				out_paths.extend(file.loader.extract(out_dir_func, show_temp_files, self.progress_callback))
 			except BaseException as error:
@@ -948,7 +918,7 @@ class OvlFile(Header, IoFile):
 
 	def inject(self, file_paths, show_temp_files):
 		"""Inject files into archive"""
-		logging.info(f"Injecting {len(file_paths)} files...")
+		logging.info(f"Injecting {len(file_paths)} files")
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		error_files = []
 		foreign_files = []
@@ -957,7 +927,7 @@ class OvlFile(Header, IoFile):
 		# handle dupes and piece separated files back together
 		file_paths = self.preprocess_files(file_paths, tmp_dir)
 		for file_index, file_path in enumerate(file_paths):
-			self.progress_callback("Injecting...", value=file_index, vmax=len(file_paths))
+			self.progress_callback("Injecting", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
 			name_lower = name_ext.lower()
 			if ext in aliases:
@@ -1025,15 +995,14 @@ class OvlFile(Header, IoFile):
 		for file_name in os.listdir(ovl_dir):
 			file_path = os.path.join(ovl_dir, file_name)
 			self.create_file(file_path)
-		# generate hashes so we can sort the files
-		self.update_hashes()
-		self.files.sort(key=lambda x: (x.ext, x.file_hash))
+		# # generate hashes so we can sort the files
+		# self.update_hashes()
+		# self.files.sort(key=lambda x: (x.ext, x.file_hash))
 
 		# ensure that each pool data is padded to 4
 		for pool in content.pools:
 			pool.data.write(get_padding(pool.data.tell(), 4))
-		content.force_update_pools = False
-		content.map_buffers()
+		# content.map_buffers()
 
 		self.update_hashes()
 		self.update_counts()
@@ -1252,7 +1221,7 @@ class OvlFile(Header, IoFile):
 						self.triplets.append(trip)
 
 	def load_archives(self):
-		logging.info("Loading archives...")
+		logging.info("Loading archives")
 		start_time = time.time()
 		self.open_ovs_streams(mode="rb")
 		for archive_index, archive_entry in enumerate(self.archives):
@@ -1298,6 +1267,7 @@ class OvlFile(Header, IoFile):
 		# reset pointer map for each header entry
 		for pool in self.pools:
 			pool.pointer_map = {}
+			pool.update_from_ptrs = True
 		self.link_ptrs_to_pools()
 		for pool in self.pools:
 			pool.calc_pointer_sizes()
@@ -1319,7 +1289,7 @@ class OvlFile(Header, IoFile):
 					pointer.link_to_pool(ovs.pools)
 
 	def load_file_classes(self):
-		logging.info("Loading file classes...")
+		logging.info("Loading file classes")
 		for file in self.files:
 			file.loader = get_loader(file.ext, self, file)
 			if file.loader:
@@ -1331,7 +1301,6 @@ class OvlFile(Header, IoFile):
 
 	def get_sized_str_entry(self, name):
 		"""Retrieves the desired ss entry"""
-		# logging.debug(f"Getting {name.lower()}")
 		if name.lower() in self.ss_dict:
 			return self.ss_dict[name.lower()]
 		else:
@@ -1339,17 +1308,15 @@ class OvlFile(Header, IoFile):
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
-		logging.info("Updating the entry dict...")
+		logging.info("Updating the entry dict")
 		self.ss_dict = {}
 		for archive_entry in self.archives:
 			for file in archive_entry.content.sized_str_entries:
 				self.ss_dict[file.name.lower()] = file
 
 	def link_streams(self):
-		"""Attach the data buffers of streamed filed to standard files from the first archive"""
-		if not self.archives:
-			return
-		logging.info("Linking streams...")
+		"""Attach the data buffers of streamed files to standard files from the first archive"""
+		logging.info("Linking streams")
 		for file in self.files:
 			if file.ext == ".tex":
 				file.streams = []
@@ -1369,7 +1336,6 @@ class OvlFile(Header, IoFile):
 						for other_sizedstr in archive.content.sized_str_entries:
 							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-				# sized_str_entry.streams.append(other_sizedstr)
 			if sized_str_entry.ext == ".ms2":
 				for lod_i in range(4):
 					for archive in self.archives:
@@ -1379,9 +1345,6 @@ class OvlFile(Header, IoFile):
 							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
 								# print("model2stream")
 								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-				# sized_str_entry.streams.append(other_sizedstr)
-
-	# print(sized_str_entry.data_entry.buffers)
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
@@ -1452,7 +1415,7 @@ class OvlFile(Header, IoFile):
 		self.num_archives = len(self.archives)
 
 	def open_ovs_streams(self, mode="wb"):
-		logging.info("Opening OVS streams...")
+		logging.info("Opening OVS streams")
 		self.ovs_dict = {}
 		for archive_entry in self.archives:
 			# gotta update it here
@@ -1464,7 +1427,7 @@ class OvlFile(Header, IoFile):
 					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
 
 	def close_ovs_streams(self):
-		logging.info("Closing OVS streams...")
+		logging.info("Closing OVS streams")
 		# we don't use context manager so gotta close them
 		for ovs_file in self.ovs_dict.values():
 			ovs_file.close()
@@ -1480,7 +1443,7 @@ class OvlFile(Header, IoFile):
 			pools_offset += 4
 
 	def update_files(self):
-		logging.info("Updating files...")
+		logging.info("Updating files")
 		for file in self.files:
 			if file.loader:
 				file.loader.update()
@@ -1531,8 +1494,8 @@ class OvlFile(Header, IoFile):
 		# compress data stream
 		for i, archive_entry in enumerate(self.archives):
 			# write archive into bytes IO stream
-			self.progress_callback("Saving archives...", value=i, vmax=len(self.archives))
-			uncompressed = archive_entry.content.get_bytes(i, dat_path)
+			self.progress_callback("Saving archives", value=i, vmax=len(self.archives))
+			uncompressed = archive_entry.content.get_bytes(dat_path)
 			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.compress(
 				uncompressed)
 			# update set data size
@@ -1549,9 +1512,7 @@ class OvlFile(Header, IoFile):
 		self.close_ovs_streams()
 		eof = super().save(filepath)
 		with self.writer(filepath) as stream:
-			# first header
 			self.write(stream)
-			# write zlib block
 			stream.write(ovl_compressed)
 
 	def update_aux_sizes(self):

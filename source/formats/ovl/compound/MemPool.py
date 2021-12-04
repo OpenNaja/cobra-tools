@@ -9,7 +9,7 @@ class MemPool:
 
 # START_CLASS
 
-	def write_pointers_to_pools(self, ignore_unaccounted_bytes=False):
+	def flush_pointers(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual pointers back into the consolidated header
 		data io block"""
 		if self.update_from_ptrs:

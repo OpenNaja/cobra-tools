@@ -1,3 +1,4 @@
+import logging
 import struct
 
 from generated.formats.ovl.versions import *
@@ -50,10 +51,9 @@ class LuaLoader(BaseFile):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		print("\nWriting", name)
-
+		logging.info(f"Writing {name}")
 		buffer_data = self.sized_str_entry.data_entry.buffer_datas[0]
-		print("buffer size", len(buffer_data))
+		logging.debug(f"buffer size: {len(buffer_data)}")
 		# write lua
 		out_path = out_dir(name)
 		# print(out_path)
@@ -62,10 +62,10 @@ class LuaLoader(BaseFile):
 			buffer_data = buffer_data[8:]
 		else:
 			if len(self.sized_str_entry.fragments) != 2:
-				print("must have 2 fragments")
+				logging.warning("must have 2 fragments")
 		out_files = []
 		if buffer_data[1:4] == b"Lua":
-			print("compiled lua")
+			logging.debug("compiled lua")
 			bin_path = out_path + ".bin"
 			with open(bin_path, 'wb') as outfile:
 				# write the buffer
@@ -80,7 +80,7 @@ class LuaLoader(BaseFile):
 			else:
 				out_files.append(bin_path)
 		else:
-			print("uncompiled lua")
+			logging.debug("uncompiled lua")
 			with open(out_path, 'wb') as outfile:
 				# write the buffer
 				outfile.write(buffer_data)
