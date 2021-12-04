@@ -14,29 +14,19 @@ class LuaLoader(BaseFile):
 	def create(self):
 		ss, buffer_0 = self._get_data(self.file_entry.path)
 		file_name_bytes = self.file_entry.basename.encode(encoding='utf8')
-		pool_index, pool = self.get_pool(2)
-		offset = pool.data.tell()
-		# lua, ss, 2 frag + buffer
-		pool.data.write(ss)  # ss data
-		pool.data.write(struct.pack("24s", b''))  # room for 3 pointers
-		pool.data.write(struct.pack("8s", b''))  # room for 2 ints
-		pool.data.write(b'\x00')  # one more char for the 2nd ptr
-		pool.data.write(zstr(file_name_bytes))
-		pool.data.write(get_padding(pool.data.tell(), 4))
-
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
-		self.sized_str_entry.pointers[0].data_offset = offset
 		self.create_data_entry(self.sized_str_entry, (buffer_0,))
 		f_0, f_1 = self.create_fragments(self.sized_str_entry, 2)
-		f_0.pointers[0].pool_index = pool_index
-		f_0.pointers[0].data_offset = offset + 0x10
-		f_0.pointers[1].pool_index = pool_index
-		f_0.pointers[1].data_offset = offset + 0x31
-		f_1.pointers[0].pool_index = pool_index
-		f_1.pointers[0].data_offset = offset + 0x18
-		f_1.pointers[1].pool_index = pool_index
-		f_1.pointers[1].data_offset = offset + 0x30
+
+		# first these
+		self.write_to_pool(f_0.pointers[1], 2, zstr(file_name_bytes))
+		self.write_to_pool(f_1.pointers[1], 2, b'\x00')
+		# now pad
+		f_1.pointers[0].pool.data.write(get_padding(f_1.pointers[0].pool.data.tell(), 4))
+		# finally the rest, already alignd
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
+		self.write_to_pool(f_0.pointers[0], 2, b'\x00' * 8)
+		self.write_to_pool(f_1.pointers[0], 2, b'\x00' * 24)
 
 	def collect(self):
 		self.assign_ss_entry()
