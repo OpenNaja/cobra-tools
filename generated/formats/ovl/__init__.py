@@ -32,8 +32,6 @@ from modules.formats.shared import get_versions, djb, assign_versions, get_paddi
 from modules.helpers import split_path
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
-# apparently JWE has 16 bytes, PZ seems to have either?
-valid_dep_ptrs = (b'\x00' * 8, b'\x00' * 16)
 
 REVERSED_TYPES = (
 	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg",
@@ -1311,11 +1309,8 @@ class OvlFile(Header, IoFile):
 		""""Link all pointers to their respective pools"""
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
-			dep_ptr = dep.pointers[0]
 			# the index goes into the flattened list of pools
-			dep_ptr.link_to_pool(self.pools)
-			if dep_ptr.data not in valid_dep_ptrs:
-				logging.warning(f"Unexpected data for dependency ptr {dep.name}: {dep_ptr.data}")
+			dep.pointers[0].link_to_pool(self.pools)
 		for archive_entry in self.archives:
 			ovs = archive_entry.content
 			for entry in itertools.chain(ovs.fragments, ovs.sized_str_entries):
