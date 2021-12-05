@@ -16,8 +16,7 @@ class BaniFragmentData0:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.unknown_0 = 0
-		self.unknown_1 = 0
+		self.zero = 0
 
 		# The frame in the banis where this bani starts reading
 		self.read_start_frame = 0
@@ -33,8 +32,7 @@ class BaniFragmentData0:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.unknown_0 = 0
-		self.unknown_1 = 0
+		self.zero = 0
 		self.read_start_frame = 0
 		self.num_frames = 0
 		self.animation_length = 0
@@ -42,8 +40,7 @@ class BaniFragmentData0:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.unknown_0 = stream.read_uint()
-		self.unknown_1 = stream.read_uint()
+		self.zero = stream.read_uint64()
 		self.read_start_frame = stream.read_uint()
 		self.num_frames = stream.read_uint()
 		self.animation_length = stream.read_float()
@@ -53,8 +50,7 @@ class BaniFragmentData0:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.unknown_0)
-		stream.write_uint(self.unknown_1)
+		stream.write_uint64(self.zero)
 		stream.write_uint(self.read_start_frame)
 		stream.write_uint(self.num_frames)
 		stream.write_float(self.animation_length)
@@ -67,8 +63,7 @@ class BaniFragmentData0:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* unknown_0 = {self.unknown_0.__repr__()}'
-		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* zero = {self.zero.__repr__()}'
 		s += f'\n	* read_start_frame = {self.read_start_frame.__repr__()}'
 		s += f'\n	* num_frames = {self.num_frames.__repr__()}'
 		s += f'\n	* animation_length = {self.animation_length.__repr__()}'

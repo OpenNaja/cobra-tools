@@ -41,7 +41,7 @@ class BaniInfoHeader:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
-		self.banis_name = stream.read_string()
+		self.banis_name = stream.read_zstring()
 		self.data_0 = stream.read_type(BaniFragmentData0, (self.context, None, None))
 		self.data_1 = stream.read_type(BaniFragmentData1, (self.context, None, None))
 
@@ -50,7 +50,7 @@ class BaniInfoHeader:
 	def write(self, stream):
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
-		stream.write_string(self.banis_name)
+		stream.write_zstring(self.banis_name)
 		stream.write_type(self.data_0)
 		stream.write_type(self.data_1)
 

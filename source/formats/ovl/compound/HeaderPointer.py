@@ -121,3 +121,7 @@ class HeaderPointer:
 			if self.data_offset in entry.pointer_map:
 				entry.pointer_map.pop(self.data_offset)
 
+	def __eq__(self, other):
+		if isinstance(other, HeaderPointer):
+			return self.data_offset == other.data_offset and self.pool_index == other.pool_index
+

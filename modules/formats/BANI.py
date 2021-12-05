@@ -1,18 +1,27 @@
 import logging
 
 from modules.formats.BaseFormat import BaseFile
-from modules.helpers import write_sized_str
+from modules.helpers import as_bytes
 
 
 class BanisLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		self.bani_files = self.ovl.get_extract_files((), (".bani",), [], ignore=False)
-		for bani in self.bani_files:
+		all_bani_files = self.ovl.get_extract_files((), (".bani",), [], ignore=False)
+		self.bani_files = []
+		for bani in all_bani_files:
 			b_ss = self.ovl.get_sized_str_entry(bani.name)
 			ss_pointer = b_ss.pointers[0]
-			b_ss.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
+			# since we run this several times if we have several banis, only grab once
+			if not b_ss.fragments:
+				b_ss.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
+			# check if the pointers match
+			if b_ss.fragments[0].pointers[1] == self.sized_str_entry.pointers[0]:
+				self.bani_files.append(bani)
+				logging.debug(f"{bani.name} uses {self.file_entry.name}")
+			else:
+				logging.debug(f"{bani.name} uses a different banis file")
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
@@ -30,17 +39,16 @@ class BanisLoader(BaseFile):
 		for bani in self.bani_files:
 			b_ss = self.ovl.get_sized_str_entry(bani.name)
 			logging.info(f"Writing {bani.name}")
-			if len(b_ss.fragments) != 1:
-				raise AttributeError(f"{bani.name} must have 1 fragment")
 			f = b_ss.fragments[0]
 			# write banis file
 			out_path = out_dir(bani.name)
 			with open(out_path, 'wb') as outfile:
 				outfile.write(b"BANI")
-				write_sized_str(outfile, name)
+				outfile.write(as_bytes(name))
 				outfile.write(f.pointers[0].data)
 				outfile.write(f.pointers[1].data)
 			out_paths.append(out_path)
 		return out_paths
 
-
+	def load(self, file_path):
+		pass

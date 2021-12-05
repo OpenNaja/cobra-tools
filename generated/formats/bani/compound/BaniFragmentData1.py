@@ -1,3 +1,6 @@
+import numpy
+import typing
+from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -16,14 +19,9 @@ class BaniFragmentData1:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.unknown_0 = 0
-		self.unknown_1 = 0
-		self.unknown_2 = 0
+		self.zeros = numpy.zeros((2), dtype='uint64')
 
-		# these first 4 are zeros but I think may be offset stuff we've seen before
-		self.unknown_3 = 0
-
-		# 96 in parrots case
+		# bytes per bone * num bones
 		self.bytes_per_frame = 0
 
 		# how many bytes for each bone per frame
@@ -43,10 +41,7 @@ class BaniFragmentData1:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.unknown_0 = 0
-		self.unknown_1 = 0
-		self.unknown_2 = 0
-		self.unknown_3 = 0
+		self.zeros = numpy.zeros((2), dtype='uint64')
 		self.bytes_per_frame = 0
 		self.bytes_per_bone = 0
 		self.num_frames = 0
@@ -56,10 +51,7 @@ class BaniFragmentData1:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.unknown_0 = stream.read_uint()
-		self.unknown_1 = stream.read_uint()
-		self.unknown_2 = stream.read_uint()
-		self.unknown_3 = stream.read_uint()
+		self.zeros = stream.read_uint64s((2))
 		self.bytes_per_frame = stream.read_uint()
 		self.bytes_per_bone = stream.read_uint()
 		self.num_frames = stream.read_uint()
@@ -71,10 +63,7 @@ class BaniFragmentData1:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.unknown_0)
-		stream.write_uint(self.unknown_1)
-		stream.write_uint(self.unknown_2)
-		stream.write_uint(self.unknown_3)
+		stream.write_uint64s(self.zeros)
 		stream.write_uint(self.bytes_per_frame)
 		stream.write_uint(self.bytes_per_bone)
 		stream.write_uint(self.num_frames)
@@ -89,10 +78,7 @@ class BaniFragmentData1:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* unknown_0 = {self.unknown_0.__repr__()}'
-		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
-		s += f'\n	* unknown_2 = {self.unknown_2.__repr__()}'
-		s += f'\n	* unknown_3 = {self.unknown_3.__repr__()}'
+		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* bytes_per_frame = {self.bytes_per_frame.__repr__()}'
 		s += f'\n	* bytes_per_bone = {self.bytes_per_bone.__repr__()}'
 		s += f'\n	* num_frames = {self.num_frames.__repr__()}'
