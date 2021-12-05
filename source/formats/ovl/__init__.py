@@ -254,6 +254,9 @@ class OvsFile(OvsHeader):
 
 	def update_counts(self):
 		"""Update counts of this archive"""
+		# make sure that all pools are padded
+		for pool in self.pools:
+			pool.pad()
 		# adjust the counts
 		self.arg.num_pools = len(self.pools)
 		self.arg.num_datas = len(self.data_entries)
@@ -936,7 +939,7 @@ class OvlFile(Header, IoFile):
 			if name_lower in _files_dict:
 				file = _files_dict[name_lower]
 			else:
-				foreign_files.append(name_ext)
+				foreign_files.append(file_path)
 				continue
 			try:
 				file.loader.load(file_path)
@@ -982,22 +985,18 @@ class OvlFile(Header, IoFile):
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
+		# todo - create archives on demand per file
+		self.create_archive()
 		self.add_files(file_paths)
 
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)}")
-
-		content = self.create_archive()
 		for file_path in file_paths:
 			self.create_file(file_path)
-
-		# ensure that each pool data is padded to 4
-		for pool in content.pools:
-			pool.data.write(get_padding(pool.data.tell(), 4))
-
 		self.update_hashes()
 		self.update_counts()
+		self.update_pool_datas()
 		self.postprocessing()
 
 	def create_archive(self, name="STATIC"):
@@ -1308,6 +1307,9 @@ class OvlFile(Header, IoFile):
 		if name.lower() in self.ss_dict:
 			return self.ss_dict[name.lower()]
 		else:
+			for archive_entry in self.archives:
+				for file in archive_entry.content.sized_str_entries:
+					print(file.name.lower())
 			raise KeyError(f"Can't find a sizedstr entry for {name}, not from this archive?")
 
 	def update_ss_dict(self):
@@ -1423,14 +1425,17 @@ class OvlFile(Header, IoFile):
 			ovs_file.close()
 
 	def update_pool_datas(self):
+		pools_byte_offset = 0
 		pools_offset = 0
 		for i, archive_entry in enumerate(self.archives):
-			archive_entry.pools_start = pools_offset
+			archive_entry.pools_offset = pools_offset
+			archive_entry.pools_start = pools_byte_offset
 			archive_entry.content.write_pools()
-			pools_offset += len(archive_entry.content.pools_data)
-			archive_entry.pools_end = pools_offset
+			pools_byte_offset += len(archive_entry.content.pools_data)
+			archive_entry.pools_end = pools_byte_offset
 			# at least PZ & JWE require 4 additional bytes after each pool
-			pools_offset += 4
+			pools_byte_offset += 4
+			pools_offset += len(archive_entry.content.pools)
 
 	def update_files(self):
 		logging.info("Updating files")

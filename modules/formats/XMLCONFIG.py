@@ -6,9 +6,6 @@ from modules.helpers import zstr
 
 class XmlconfigLoader(BaseFile):
 
-	def create(self):
-		pass
-
 	def collect(self):
 		self.assign_ss_entry()
 		self.assign_fixed_frags(1)

@@ -132,6 +132,7 @@ class BaseFile:
 		self.ovs.transfer_identity(ss_entry, file_entry)
 		ss_entry.pointers.append(HeaderPointer(self.ovl.context))
 		self.ovs.sized_str_entries.append(ss_entry)
+		print(self.ovs.sized_str_entries[-1])
 		return ss_entry
 
 	def set_dependency_identity(self, dependency, file_name):

@@ -1,6 +1,7 @@
 
 import logging
 import io
+from modules.formats.shared import get_padding
 
 
 from generated.context import ContextReference
@@ -159,4 +160,8 @@ class MemPool:
 				pointer.address = address
 				pointer.copies = pointers
 				pointer.read_data()
+
+	def pad(self, alignment=4):
+		if self.update_from_ptrs:
+			self.data.write(get_padding(self.data.tell(), alignment))
 

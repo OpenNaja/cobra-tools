@@ -477,10 +477,9 @@ class MainWindow(widgets.MainWindow):
 				error_files, foreign_files = self.ovl_data.inject(files, self.show_temp_files)
 				self.file_widget.dirty = True
 				if foreign_files:
-					for name_ext in foreign_files:
-						if interaction.showdialog(f"Do you want to add {name_ext} to this ovl?", ask=True):
-							logging.info(f"Adding new file {name_ext}")
-							# todo - new function to add to existing ovl
+					if interaction.showdialog(f"Do you want to add {len(foreign_files)} files to this ovl?", ask=True):
+						self.ovl_data.add_files(foreign_files)
+						self.update_gui_table()
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
