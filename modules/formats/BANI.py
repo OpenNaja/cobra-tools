@@ -1,5 +1,7 @@
 import logging
+import os
 
+from generated.formats.bani import BaniFile
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
 
@@ -54,10 +56,26 @@ class BanisLoader(BaseFile):
 		ss, buffer_0 = self._get_data(file_path)
 		self.sized_str_entry.data_entry.update_data((buffer_0,))
 		self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
+		banis_dir = os.path.dirname(file_path)
+		for bani_file_name in os.listdir(banis_dir):
+			if bani_file_name.endswith(".bani"):
+				for bani_file in self.bani_files:
+					if bani_file_name == bani_file.name:
+						logging.debug(f"Found matching bani {bani_file_name}")
+						fp = os.path.join(banis_dir, bani_file_name)
+						f0 = self._get_bani_data(fp)
+						b_ss = self.ovl.get_sized_str_entry(bani_file_name)
+						b_ss.pointers[0].update_data(f0, update_copies=True)
+						break
 
 	def _get_data(self, file_path):
 		with open(file_path, 'rb') as stream:
 			header = stream.read(40)
 			data = stream.read()
 		return header, data
+
+	def _get_bani_data(self, file_path):
+		bani = BaniFile()
+		bani.load(file_path)
+		return as_bytes(bani.data)
 

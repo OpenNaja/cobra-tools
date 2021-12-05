@@ -30,6 +30,7 @@ def create_anim(ob, anim_name):
 def load(files=[], filepath="", set_fps=False):
 	dirname, filename = os.path.split(filepath)
 	data = load_bani(filepath)
+	data.read_banis()
 	print(data)
 	# data 0 has various scales and counts
 	anim_length = data.data.animation_length

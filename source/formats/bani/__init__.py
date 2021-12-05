@@ -52,9 +52,6 @@ class BaniFile(BaniInfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 
-		# read banis array according to bani header
-		self.read_banis()
-
 	def read_banis(self, ):
 		# get banis file
 		banis_path = os.path.join(self.dir, self.banis_name)
