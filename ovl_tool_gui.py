@@ -160,6 +160,7 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
 			(file_menu, "Save", self.save_ovl, "CTRL+S", "save"),
+			(file_menu, "Save As", self.save_as_ovl, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
@@ -426,21 +427,28 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
-	def save_ovl(self):
+	def save_as_ovl(self):
 		if self.is_open_ovl():
-			file_src = QtWidgets.QFileDialog.getSaveFileName(
+			filepath = QtWidgets.QFileDialog.getSaveFileName(
 				self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
 				"OVL files (*.ovl)", )[0]
-			if file_src:
-				self.cfg["dir_ovls_out"], ovl_name = os.path.split(file_src)
-				try:
-					ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
-					self.ovl_data.save(file_src, ext_path)
-					self.file_widget.dirty = False
-					self.update_progress("Operation completed!", value=1, vmax=1)
-				except BaseException as ex:
-					traceback.print_exc()
-					interaction.showdialog(str(ex))
+			if filepath:
+				self.cfg["dir_ovls_out"], ovl_name = os.path.split(filepath)
+				self._save_ovl(filepath)
+
+	def save_ovl(self):
+		if self.is_open_ovl():
+			self._save_ovl(self.file_widget.filepath)
+
+	def _save_ovl(self, filepath):
+		try:
+			ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
+			self.ovl_data.save(filepath, ext_path)
+			self.file_widget.dirty = False
+			self.update_progress("Operation completed!", value=1, vmax=1)
+		except BaseException as ex:
+			traceback.print_exc()
+			interaction.showdialog(str(ex))
 
 	def extract_all(self):
 		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
