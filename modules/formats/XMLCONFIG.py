@@ -20,20 +20,9 @@ class XmlconfigLoader(BaseFile):
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
 		logging.info(f"Writing {name}")
-
-		if len(self.sized_str_entry.fragments) == 1:
-			f_0 = self.sized_str_entry.fragments[0]
-		else:
-			raise AttributeError(f"Found wrong amount of frags [{len(self.sized_str_entry.fragments)}] for {name}")
-		# write xml
+		f_0 = self.sized_str_entry.fragments[0]
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			# 8 x b00
-			# sized_str_entry.pointers[0].data
-			# 8 x b00
-			# outfile.write( f_0.pointers[0].data )
-			# the actual xml data
-			# often with extra junk at the end (probably z str)
 			f_0.pointers[1].strip_zstring_padding()
 			# strip the b00 zstr terminator byte
 			outfile.write(f_0.pointers[1].data[:-1])
