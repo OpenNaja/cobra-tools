@@ -66,8 +66,8 @@
         <add name="bytes per bone" type="uint">how many bytes for each bone per frame</add>
         <add name="num frames" type="uint">Number of frames for all bani files in banis buffer</add>
         <add name="num bones" type="uint">matches number of bones parrot has</add>
-        <add name="translation center" type="float">translation range</add>
-        <add name="translation first" type="float">translation range</add>
+        <add name="loc scale" type="float">translation range</add>
+        <add name="loc offset" type="float">translation range</add>
     </compound>
 	
     <compound name="Key">

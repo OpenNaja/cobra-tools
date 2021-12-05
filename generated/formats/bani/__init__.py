@@ -52,9 +52,6 @@ class BaniFile(BaniInfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 
-		# read banis array according to bani header
-		self.read_banis()
-
 	def read_banis(self, ):
 		# get banis file
 		banis_path = os.path.join(self.dir, self.banis_name)
@@ -64,8 +61,8 @@ class BaniFile(BaniInfoHeader, IoFile):
 	def decode_keys(self):
 
 		# create function for doing interpolation of the desired ranges
-		center = self.banis.translation_center
-		first = self.banis.translation_first
+		# center = self.banis.loc_center
+		# first = self.banis.translation_first
 		self.eulers = np.empty((self.data.num_frames, self.banis.num_bones, 3), dtype=np.float32)
 		self.locs = np.empty((self.data.num_frames, self.banis.num_bones, 3), dtype=np.float32)
 		ft = np.dtype([
@@ -91,7 +88,10 @@ class BaniFile(BaniInfoHeader, IoFile):
 				self.eulers[frame_i, bone_i] = e
 
 				l = data[self.data.read_start_frame+frame_i, bone_i]["loc"]
-				self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (first - center, center - first))
+				# 32768 * self.loc_scale + self.loc_offset
+				a = -32768 * self.banis.loc_scale + self.banis.loc_offset
+				b = 32768 * self.banis.loc_scale + self.banis.loc_offset
+				self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (a, b))
 
 	def encode_eulers(self, ):
 		# todo: update array size
@@ -143,33 +143,23 @@ class BanisFile(BanisHeader, IoFile):
 			self.data = np.empty(dtype=dt, shape=(self.num_frames, self.num_bones))
 			stream.readinto(self.data)
 
-	def encode_eulers(self, ):
-		# todo: update array size
-
-		eulers = [self.eulers_dict[bone_name] for bone_name in self.names]
-		# print(eulers)
-		# print(list(zip(eulers)))
-		num_bones = len(self.names)
-		num_frames = len(eulers[0])
-		for bone_i in range(num_bones):
-			for frame_i in range(num_frames):
-				in_key = eulers[bone_i][frame_i]
-				out_key = self.keys[frame_i][bone_i]
-			# todo: actually store the exported value
-			# print(export_key(in_key), out_key)
-
 	def save(self, filepath):
-		# write the file
-		# todo - this is not properly implemented
-		self.encode_eulers()
+		self.num_frames, self.num_bones = self.data.shape
 		with self.writer(filepath) as stream:
-			# first header
 			self.write(stream)
-		# got to write the banis too
+			stream.write(self.data.tobytes())
 
 
 if __name__ == "__main__":
-	bani = BaniFile()
-	bani.load("C:/Users/arnfi/Desktop/parrot/parrot@flying.bani")
-	# bani.save("C:/Users/arnfi/Desktop/parrot/parrot2.fgm")
-	print(bani)
+	banis = BanisFile()
+	banis.load("C:/Users/arnfi/Desktop/gila/gila_monster_idles.banisetc1b711e6.banis")
+	# i = np.interp()
+	x = np.linspace(-np.pi, np.pi, banis.num_frames)
+	# sin_dat = (np.sin(x)+1)*32768
+	sin_dat = np.sin(x)*25 + 32768
+	banis.data[:, 7]["loc"][:, 2] = sin_dat
+	sin2_dat = np.sin(x)*32768
+	banis.data[:, 7]["euler"][:, 2] = sin2_dat
+	head_keys = banis.data[:, 7]["loc"][:, 2]
+	banis.save("C:/Users/arnfi/Desktop/gila/gila_monster_idles.banisetc1b711e6.banis")
+	print(head_keys)

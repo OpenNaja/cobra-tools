@@ -34,10 +34,10 @@ class BanisHeader:
 		self.num_bones = 0
 
 		# translation range
-		self.translation_center = 0
+		self.loc_scale = 0
 
 		# translation range
-		self.translation_first = 0
+		self.loc_offset = 0
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -46,8 +46,8 @@ class BanisHeader:
 		self.bytes_per_bone = 0
 		self.num_frames = 0
 		self.num_bones = 0
-		self.translation_center = 0
-		self.translation_first = 0
+		self.loc_scale = 0
+		self.loc_offset = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -56,8 +56,8 @@ class BanisHeader:
 		self.bytes_per_bone = stream.read_uint()
 		self.num_frames = stream.read_uint()
 		self.num_bones = stream.read_uint()
-		self.translation_center = stream.read_float()
-		self.translation_first = stream.read_float()
+		self.loc_scale = stream.read_float()
+		self.loc_offset = stream.read_float()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -68,8 +68,8 @@ class BanisHeader:
 		stream.write_uint(self.bytes_per_bone)
 		stream.write_uint(self.num_frames)
 		stream.write_uint(self.num_bones)
-		stream.write_float(self.translation_center)
-		stream.write_float(self.translation_first)
+		stream.write_float(self.loc_scale)
+		stream.write_float(self.loc_offset)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -83,8 +83,8 @@ class BanisHeader:
 		s += f'\n	* bytes_per_bone = {self.bytes_per_bone.__repr__()}'
 		s += f'\n	* num_frames = {self.num_frames.__repr__()}'
 		s += f'\n	* num_bones = {self.num_bones.__repr__()}'
-		s += f'\n	* translation_center = {self.translation_center.__repr__()}'
-		s += f'\n	* translation_first = {self.translation_first.__repr__()}'
+		s += f'\n	* loc_scale = {self.loc_scale.__repr__()}'
+		s += f'\n	* loc_offset = {self.loc_offset.__repr__()}'
 		return s
 
 	def __repr__(self):
