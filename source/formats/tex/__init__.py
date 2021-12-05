@@ -1,6 +1,6 @@
 import io
 
-from generated.formats.ovl_base.versions import is_pc
+from generated.formats.ovl_base.versions import is_pc, is_ztuac
 from generated.formats.tex.compound.TexInfoHeader import TexInfoHeader
 from generated.io import IoFile
 
@@ -37,7 +37,7 @@ class TexFile(TexInfoHeader, IoFile):
 			# 		f"Data sizes of all 3_1 structs ({sum_of_parts}) and 7_1 fragments ({self.frag_11.data_size}) do not match up")
 
 	def load_buffers(self, stream):
-		if is_pc(self):
+		if is_pc(self) or is_ztuac(self):
 			# apparently we have no buffer size definitions anywhere
 			self.buffers = [stream.read(), ]
 		else:

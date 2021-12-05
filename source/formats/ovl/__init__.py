@@ -1327,7 +1327,7 @@ class OvlFile(Header, IoFile):
 			file.streams = []
 			if file.ext == ".tex":
 				for lod_i in range(3):
-					stream_file = file_lut.get(f"{file.basename}_lod{lod_i}.tex", None)
+					stream_file = file_lut.get(f"{file.basename}_lod{lod_i}.texturestream", None)
 					if stream_file:
 						file.streams.append(stream_file)
 			elif file.ext == ".ms2":

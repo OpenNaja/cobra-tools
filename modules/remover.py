@@ -15,6 +15,7 @@ def file_remover(ovl, filenames):
 		if file_entry.name in filenames:
 			ss_entry = ovl.get_sized_str_entry(file_entry.name)
 			children_names.extend([ss.name for ss in ss_entry.children])
+			children_names.extend([stream.name for stream in file_entry.streams])
 			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)
 
