@@ -160,7 +160,13 @@ if __name__ == "__main__":
 	banis.data[:, 7]["loc"][:, 2] = sin_dat
 	# sin2_dat = (np.sin(x)+1)*32768  # for ushort
 	sin2_dat = np.sin(x)*2000-10834
-	print(sin2_dat)
+	# print(sin2_dat)
+
+	# it does not appear to be the normalized remainder of a quat
+	# for bone in range(banis.num_bones):
+	# 	print(bone)
+	# 	for x, y, z in banis.data[:, bone]["euler"].astype(dtype=np.float32):
+	# 		print(bone, math.sqrt(x*x+y*y+z*z))
 	# banis.data[:, 7]["euler"][:, 0] = 0
 	# banis.data[:, 7]["euler"][:, 2] = 32768
 	# banis.data[:, 7]["euler"][:, 2] = sin2_dat
