@@ -3,7 +3,6 @@ import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.bani.compound.BaniFragmentData0 import BaniFragmentData0
-from generated.formats.bani.compound.BaniFragmentData1 import BaniFragmentData1
 
 
 class BaniInfoHeader:
@@ -28,22 +27,19 @@ class BaniInfoHeader:
 
 		# name of the banis file buffer
 		self.banis_name = 0
-		self.data_0 = BaniFragmentData0(self.context, None, None)
-		self.data_1 = BaniFragmentData1(self.context, None, None)
+		self.data = BaniFragmentData0(self.context, None, None)
 		self.set_defaults()
 
 	def set_defaults(self):
 		self.magic = numpy.zeros((4), dtype='byte')
 		self.banis_name = 0
-		self.data_0 = BaniFragmentData0(self.context, None, None)
-		self.data_1 = BaniFragmentData1(self.context, None, None)
+		self.data = BaniFragmentData0(self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.magic = stream.read_bytes((4))
 		self.banis_name = stream.read_zstring()
-		self.data_0 = stream.read_type(BaniFragmentData0, (self.context, None, None))
-		self.data_1 = stream.read_type(BaniFragmentData1, (self.context, None, None))
+		self.data = stream.read_type(BaniFragmentData0, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -51,8 +47,7 @@ class BaniInfoHeader:
 		self.io_start = stream.tell()
 		stream.write_bytes(self.magic)
 		stream.write_zstring(self.banis_name)
-		stream.write_type(self.data_0)
-		stream.write_type(self.data_1)
+		stream.write_type(self.data)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -63,8 +58,7 @@ class BaniInfoHeader:
 		s = ''
 		s += f'\n	* magic = {self.magic.__repr__()}'
 		s += f'\n	* banis_name = {self.banis_name.__repr__()}'
-		s += f'\n	* data_0 = {self.data_0.__repr__()}'
-		s += f'\n	* data_1 = {self.data_1.__repr__()}'
+		s += f'\n	* data = {self.data.__repr__()}'
 		return s
 
 	def __repr__(self):

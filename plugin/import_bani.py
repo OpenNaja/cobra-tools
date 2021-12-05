@@ -32,8 +32,8 @@ def load(files=[], filepath="", set_fps=False):
 	data = load_bani(filepath)
 	print(data)
 	# data 0 has various scales and counts
-	anim_length = data.data_0.animation_length
-	num_frames = data.data_0.num_frames
+	anim_length = data.data.animation_length
+	num_frames = data.data.num_frames
 	
 	global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
 	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
@@ -53,7 +53,7 @@ def load(files=[], filepath="", set_fps=False):
 	for i, bone_name in bones_table:
 		empty = create_ob(bone_name, None)
 		empty.scale = (0.01, 0.01, 0.01)
-		for frame_i in range(data.data_0.num_frames):
+		for frame_i in range(data.data.num_frames):
 			bpy.context.scene.frame_set(frame_i)
 			euler = data.eulers[frame_i, i]
 			loc = data.locs[frame_i, i]
@@ -71,7 +71,7 @@ def load(files=[], filepath="", set_fps=False):
 		armature_space_matrix = obone.matrix_local
 		data_type = "rotation_euler"
 		# fcu = [action.fcurves.new(data_path=f'pose.bones["{bone_name}"].{data_type}', index=i, action_group=bone_name) for i in (0, 1, 2)]
-		for frame_i in range(data.data_0.num_frames):
+		for frame_i in range(data.data.num_frames):
 			bpy.context.scene.frame_set(frame_i)
 			euler = data.eulers[frame_i, i]
 			loc = data.locs[frame_i, i]

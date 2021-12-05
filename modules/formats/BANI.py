@@ -34,6 +34,7 @@ class BanisLoader(BaseFile):
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as outfile:
+			outfile.write(self.sized_str_entry.pointers[0].data)
 			outfile.write(buffers[0])
 
 		for bani in self.bani_files:
@@ -46,9 +47,17 @@ class BanisLoader(BaseFile):
 				outfile.write(b"BANI")
 				outfile.write(as_bytes(name))
 				outfile.write(f.pointers[0].data)
-				outfile.write(f.pointers[1].data)
 			out_paths.append(out_path)
 		return out_paths
 
 	def load(self, file_path):
-		pass
+		ss, buffer_0 = self._get_data(file_path)
+		self.sized_str_entry.data_entry.update_data((buffer_0,))
+		self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
+
+	def _get_data(self, file_path):
+		with open(file_path, 'rb') as stream:
+			header = stream.read(40)
+			data = stream.read()
+		return header, data
+

@@ -4,7 +4,7 @@ from generated.array import Array
 from generated.context import ContextReference
 
 
-class BaniFragmentData1:
+class BanisHeader:
 
 	"""
 	Seems to be the same for all bani anims of one bani file
@@ -27,7 +27,7 @@ class BaniFragmentData1:
 		# how many bytes for each bone per frame
 		self.bytes_per_bone = 0
 
-		# Number of frames for all bani files in banis buffer, 18*96 gives the size of banis buffer for parrot
+		# Number of frames for all bani files in banis buffer
 		self.num_frames = 0
 
 		# matches number of bones parrot has
@@ -74,7 +74,7 @@ class BaniFragmentData1:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'BaniFragmentData1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BanisHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

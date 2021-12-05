@@ -38,8 +38,8 @@
 		includes fragments but none of the 3 data buffers
         <add name="magic" type="byte" arr1="4">'BANI'</add>
         <add name="banis name" type="ZString" >name of the banis file buffer</add>
-        <add name="data 0" type="BaniFragmentData0"/>
-        <add name="data 1" type="BaniFragmentData1"/>
+        <add name="data" type="BaniFragmentData0"/>
+<!--        <add name="data 1" type="BaniFragmentData1"/>-->
         <!-- <add name="names" type="string" arr1="data 1\number of bones" ></add> -->
         <!-- <add name="keys" type="Key" arr1="data 1\number of frames" arr2="data 1\number of bones" ></add> -->
         <!-- <add name="frames" type="Frame" arr1="data 1\number of frames" arg="data 1\number of bones" ></add> -->
@@ -54,12 +54,17 @@
         <add name="LoopFlag" type="uint">if 1381323599 then looped</add>
     </compound>
 
-    <compound name="BaniFragmentData1">
+<!--    <compound name="BaniInfoHeader">-->
+<!--        <add name="header" type="BanisHeader" />-->
+<!--        <add name="data" type="ushort" />-->
+<!--    </compound>-->
+
+    <compound name="BanisHeader">
 		Seems to be the same for all bani anims of one bani file
         <add name="zeros" type="uint64" arr1="2"/>
         <add name="bytes per frame" type="uint">bytes per bone * num bones</add>
         <add name="bytes per bone" type="uint">how many bytes for each bone per frame</add>
-        <add name="num frames" type="uint">Number of frames for all bani files in banis buffer, 18*96 gives the size of banis buffer for parrot</add>
+        <add name="num frames" type="uint">Number of frames for all bani files in banis buffer</add>
         <add name="num bones" type="uint">matches number of bones parrot has</add>
         <add name="translation center" type="float">translation range</add>
         <add name="translation first" type="float">translation range</add>
