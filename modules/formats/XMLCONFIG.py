@@ -1,8 +1,6 @@
 import logging
-
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_padding
-from modules.helpers import zstr
 
 
 class XmlconfigLoader(BaseFile):
