@@ -76,6 +76,14 @@ class BaseFile:
 		ss_pointer = self.sized_str_entry.pointers[0]
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, count)
 
+	def get_streams(self):
+		logging.debug(f"Num streams: {len(self.file_entry.streams)}")
+		all_buffers = [*self.sized_str_entry.data_entry.buffers]
+		for stream_file in self.file_entry.streams:
+			stream_ss = self.ovl.get_sized_str_entry(stream_file.name)
+			all_buffers.extend(stream_ss.data_entry.buffers)
+		return all_buffers
+
 	def get_pool(self, pool_type_key):
 		# get one directly editable pool, if it exists
 		for pool_index, pool in enumerate(self.ovs.pools):

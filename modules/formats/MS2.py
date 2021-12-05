@@ -356,13 +356,13 @@ class Ms2Loader(BaseFile):
 	
 	def get_ms2_buffer_datas(self):
 		assert self.sized_str_entry.data_entry
-		buffers = self.sized_str_entry.data_entry.stream_datas
-		name_buffer = buffers[0]
-		bone_infos = buffers[1]
-		verts = b"".join(buffers[2:])
-		for i, vbuff in enumerate(buffers[2:]):
+		all_buffer_bytes = [buffer.data for buffer in self.get_streams()]
+		name_buffer = all_buffer_bytes[0]
+		bone_infos = all_buffer_bytes[1]
+		verts = b"".join(all_buffer_bytes[2:])
+		for i, vbuff in enumerate(all_buffer_bytes[2:]):
 			print(f"Vertex buffer {i}, size {len(vbuff)} bytes")
-		print("buffers", len(buffers))
+		print("buffers", len(all_buffer_bytes))
 		print(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
 		return name_buffer, bone_infos, verts
 	

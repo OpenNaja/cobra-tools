@@ -981,38 +981,36 @@ class OvlFile(Header, IoFile):
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
+		file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
+		self.add_files(file_paths)
+
+	def add_files(self, file_paths):
+		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)}")
 
-		archive_entry = ArchiveEntry(self.context)
-		self.archives.append(archive_entry)
-		self.static_archive = archive_entry
-
-		content = OvsFile(self.context, self, archive_entry)
-		archive_entry.content = content
-		archive_entry.name = "STATIC"
-		archive_entry.offset = 0
-		archive_entry.pools_offset = 0
-		archive_entry.ovs_file_offset = 0
-		archive_entry.ovs_offset = 0
-
-		new_zlib = ZlibInfo(self.context)
-		self.zlibs.append(new_zlib)
-
-		for file_name in os.listdir(ovl_dir):
-			file_path = os.path.join(ovl_dir, file_name)
+		content = self.create_archive()
+		for file_path in file_paths:
 			self.create_file(file_path)
-		# # generate hashes so we can sort the files
-		# self.update_hashes()
-		# self.files.sort(key=lambda x: (x.ext, x.file_hash))
 
 		# ensure that each pool data is padded to 4
 		for pool in content.pools:
 			pool.data.write(get_padding(pool.data.tell(), 4))
-		# content.map_buffers()
 
 		self.update_hashes()
 		self.update_counts()
 		self.postprocessing()
+
+	def create_archive(self, name="STATIC"):
+		archive_entry = ArchiveEntry(self.context)
+		self.archives.append(archive_entry)
+		if name == "STATIC":
+			self.static_archive = archive_entry
+		archive_entry.name = name
+		content = OvsFile(self.context, self, archive_entry)
+		archive_entry.content = content
+		new_zlib = ZlibInfo(self.context)
+		self.zlibs.append(new_zlib)
+		return content
 
 	# dummy (black hole) callback for if we decide we don't want one
 	def dummy_callback(self, *args, **kwargs):
@@ -1323,34 +1321,20 @@ class OvlFile(Header, IoFile):
 	def link_streams(self):
 		"""Attach the data buffers of streamed files to standard files from the first archive"""
 		logging.info("Linking streams")
+
+		file_lut = {file.name: file for file in self.files}
 		for file in self.files:
+			file.streams = []
 			if file.ext == ".tex":
-				file.streams = []
-				for stream_file in self.files:
-					for lod_i in range(3):
-						if f"{file.basename}_lod{lod_i}" in stream_file.name:
-							file.streams.append(stream_file)
-							break
-		# find texstream buffers
-		for tb_index, sized_str_entry in enumerate(self.static_archive.content.sized_str_entries):
-			# self.print_and_callback("Finding texstream buffers", value=tb_index, max_value=tb_max)
-			if sized_str_entry.ext == ".tex":
 				for lod_i in range(3):
-					for archive in self.archives:
-						if archive == self.static_archive:
-							continue
-						for other_sizedstr in archive.content.sized_str_entries:
-							if f"{sized_str_entry.basename}_lod{lod_i}" in other_sizedstr.name:
-								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
-			if sized_str_entry.ext == ".ms2":
+					stream_file = file_lut.get(f"{file.basename}_lod{lod_i}.tex", None)
+					if stream_file:
+						file.streams.append(stream_file)
+			elif file.ext == ".ms2":
 				for lod_i in range(4):
-					for archive in self.archives:
-						if archive == self.static_archive:
-							continue
-						for other_sizedstr in archive.content.sized_str_entries:
-							if f"{sized_str_entry.basename[:-1]}{lod_i}.model2stream" in other_sizedstr.name:
-								# print("model2stream")
-								sized_str_entry.data_entry.streams.extend(other_sizedstr.data_entry.buffers)
+					stream_file = file_lut.get(f"{file.basename[:-1]}{lod_i}.model2stream", None)
+					if stream_file:
+						file.streams.append(stream_file)
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
