@@ -127,7 +127,7 @@ class MemPool:
 				# only known from indominus
 				first_offset = sorted_first_pointers[0].data_offset
 				if first_offset != 0 and not ignore_unaccounted_bytes:
-					logging.debug(f"Found {first_offset} unaccounted bytes at start of header data {i}")
+					logging.debug(f"Found {first_offset} unaccounted bytes at start of pool")
 					unaccounted_bytes = self.data.getvalue()[:first_offset]
 				else:
 					unaccounted_bytes = b""

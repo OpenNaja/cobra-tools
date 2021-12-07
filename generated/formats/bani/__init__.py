@@ -152,14 +152,27 @@ class BanisFile(BanisHeader, IoFile):
 
 if __name__ == "__main__":
 	banis = BanisFile()
-	banis.load("C:/Users/arnfi/Desktop/gila/gila_monster_idles.banisetc1b711e6.banis")
+	banis.load("C:/Users/arnfi/Desktop/gila/gila_monster_idles.banisetc1b711e6 - just one anim.banis")
 	# i = np.interp()
 	x = np.linspace(-np.pi, np.pi, banis.num_frames)
 	# sin_dat = (np.sin(x)+1)*32768
-	sin_dat = np.sin(x)*25 + 32768
+	sin_dat = np.sin(x)*25000 + 32768
 	banis.data[:, 7]["loc"][:, 2] = sin_dat
-	sin2_dat = np.sin(x)*32768
-	banis.data[:, 7]["euler"][:, 2] = sin2_dat
-	head_keys = banis.data[:, 7]["loc"][:, 2]
+	# sin2_dat = (np.sin(x)+1)*32768  # for ushort
+	sin2_dat = np.sin(x)*2000-10834
+	# print(sin2_dat)
+
+	# it does not appear to be the normalized remainder of a quat
+	# for bone in range(banis.num_bones):
+	# 	print(bone)
+	# 	for x, y, z in banis.data[:, bone]["euler"].astype(dtype=np.float32):
+	# 		print(bone, math.sqrt(x*x+y*y+z*z))
+	# banis.data[:, 7]["euler"][:, 0] = 0
+	# banis.data[:, 7]["euler"][:, 2] = 32768
+	# banis.data[:, 7]["euler"][:, 2] = sin2_dat
+	# 0 = rotate about global X in blender
+	# 1 = rotate about global Z in blender
+	# 2 = rotate about global Y in blender
+	head_keys = banis.data[:, 7]["euler"][:, 2]
 	banis.save("C:/Users/arnfi/Desktop/gila/gila_monster_idles.banisetc1b711e6.banis")
 	print(head_keys)
