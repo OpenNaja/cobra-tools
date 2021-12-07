@@ -818,24 +818,23 @@ class FileWidget(QtWidgets.QWidget):
 				new_filepath) + "? You will lose unsaved work on " + os.path.basename(self.filepath) + "!",
 										qm.Yes | qm.No)
 
+	def set_file_path(self, filepath):
+		if not self.abort_open_new_file(filepath):
+			self.filepath = filepath
+			self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(self.filepath)
+			self.setText(self.filename)
+			return True
+
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
 			if os.path.splitext(filepath)[1].lower() in (f".{self.dtype_l}",):
-				if not self.abort_open_new_file(filepath):
-					self.filepath = filepath
-					self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(filepath)
-					self.setText(self.filename)
-					return True
+				return self.set_file_path(filepath)
 			else:
 				showdialog("Unsupported File Format")
 
 	def accept_dir(self, dirpath):
 		if os.path.isdir(dirpath):
-			if not self.abort_open_new_file(dirpath):
-				self.filepath = dirpath
-				self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(dirpath)
-				self.setText(self.filename)
-				return True
+			return self.set_file_path(f"{dirpath}.ovl")
 
 	def setText(self, text):
 		self.entry.setText(text)
@@ -873,9 +872,9 @@ class FileWidget(QtWidgets.QWidget):
 			self.parent.poll()
 
 	def ask_open_dir(self):
-		filepath = QtWidgets.QFileDialog.getExistingDirectory()
-		if self.accept_dir(filepath):
-			self.parent.create_ovl(filepath)
+		file_dir = QtWidgets.QFileDialog.getExistingDirectory()
+		if self.accept_dir(file_dir):
+			self.parent.create_ovl(file_dir)
 
 	def ignoreEvent(self, event):
 		event.ignore()
