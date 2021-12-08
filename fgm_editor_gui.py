@@ -8,6 +8,7 @@ from PyQt5.QtGui import QColor
 import hashes.fgm_pz as fgm_dict
 import ovl_util.interaction
 from generated.formats.fgm import FgmFile
+from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.ovl.versions import *
 from ovl_util import widgets, config, interaction
 from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT
@@ -103,10 +104,14 @@ class MainWindow(widgets.MainWindow):
 		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
 
 	def add_attribute(self,):
-		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
+		attrib_name = self.attribute_choice.entry.currentText()
+		self.fgm_data.add_attrib(attrib_name, fgm_dict.attributes[attrib_name])
+		self.attrib_container.update_gui(self.fgm_data.attributes)
 
 	def add_texture(self,):
-		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
+		tex_name = self.texture_choice.entry.currentText()
+		self.fgm_data.add_texture(tex_name)
+		self.tex_container.update_gui(self.fgm_data.textures)
 
 	@property
 	def fgm_name(self,):

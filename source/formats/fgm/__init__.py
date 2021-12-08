@@ -1,4 +1,8 @@
+import logging
+
+from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
+from generated.formats.fgm.compound.TextureInfo import TextureInfo
 from generated.io import IoFile, BinaryStream
 import os
 import struct
@@ -56,13 +60,46 @@ class FgmFile(FgmInfoHeader, IoFile):
 			# read float / bool / int values
 			for attrib in self.attributes:
 				attrib.name = self.read_z_str(stream, name_start + attrib.offset)
-				fmt = dtypes[attrib.dtype]
 				stream.seek(data_start + attrib.value_offset)
-				attrib.value = list(struct.unpack("<" + fmt, stream.read(struct.calcsize(fmt))))
+				self.get_value(attrib, stream)
 				if attrib.dtype == 6:
 					attrib.value = list(bool(v) for v in attrib.value)
 
-		# self.print_readable()
+	def get_value(self, attrib, stream=None):
+		fmt = dtypes[attrib.dtype]
+		d_size = struct.calcsize(fmt)
+		if stream:
+			data = stream.read(d_size)
+		else:
+			data = b"\x00" * d_size
+		attrib.value = list(struct.unpack(f"<{fmt}", data))
+
+	def add_attrib(self, attr_name, attr_dtype):
+		for attrib in self.attributes:
+			if attrib.name == attr_name:
+				logging.debug(f"Attribute '{attr_name}' already exists")
+				return
+		logging.debug(f"Adding attribute '{attr_name}'")
+		attrib = AttributeInfo(self.context)
+		attrib.name = attr_name
+		attrib.dtype = attr_dtype
+		self.get_value(attrib)
+		self.attributes.append(attrib)
+
+	def add_texture(self, tex_name, textured=True):
+		for tex in self.textures:
+			if tex.name == tex_name:
+				logging.debug(f"Texture '{tex_name}' already exists")
+				return
+		logging.debug(f"Adding attribute '{tex_name}'")
+		tex = TextureInfo(self.context)
+		tex.name = tex_name
+		if textured:
+			tex.file = tex_name.lower()
+			tex.is_textured = 8
+		else:
+			raise NotImplementedError(f"Unsure how to create texture '{tex_name}'")
+		self.textures.append(tex)
 
 	def print_readable(self, ):
 		print("\nShader =", self.shader_name)
