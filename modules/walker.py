@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import json
 
+from generated.formats.fgm import FgmFile
 from generated.formats.ms2 import Mdl2File
 from generated.formats.ovl import OvlFile
 from ovl_util import interaction
@@ -79,30 +80,9 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 	errors = []
 	if start_dir:
 		export_dir = os.path.join(start_dir, "walker_export")
-		# don't use internal data
-		ovl_data = OvlFile()
 		mdl2_data = Mdl2File()
 		if walk_ovls:
-			error_files = []
-			skip_files = []
-			ovl_files = walk_type(start_dir, extension="ovl")
-			of_max = len(ovl_files)
-			for of_index, ovl_path in enumerate(ovl_files):
-				gui.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index,
-									vmax=of_max)
-				try:
-					# read ovl file
-					ovl_data.load(ovl_path, commands=gui.commands)
-					# create an output folder for it
-					outdir = os.path.join(export_dir, os.path.basename(ovl_path[:-4]))
-					out_paths, error_files_new, skip_files_new = ovl_data.extract(outdir, only_types=(".ms2",))
-					error_files += error_files_new
-					skip_files += skip_files_new
-				except Exception as ex:
-					traceback.print_exc()
-					errors.append((ovl_path, ex))
-
-			interaction.skip_messages(error_files, skip_files)
+			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".ms2",))
 
 		# holds different types of flag - list of byte maps pairs
 		type_dic = {}
@@ -143,4 +123,70 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print("min", np.min(mins, axis=0))
 			print()
 		print(f"another_counts: {another_counts}")
+		gui.update_progress("Operation completed!", value=1, vmax=1)
+
+
+def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
+	# don't use internal data
+	ovl_data = OvlFile()
+	error_files = []
+	skip_files = []
+	ovl_files = walk_type(start_dir, extension="ovl")
+	of_max = len(ovl_files)
+	for of_index, ovl_path in enumerate(ovl_files):
+		gui.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
+		try:
+			# read ovl file
+			ovl_data.load(ovl_path, commands=gui.commands)
+			# create an output folder for it
+			rel_p = os.path.relpath(ovl_path, start=start_dir)
+			rel_d = os.path.dirname(rel_p)
+			outdir = os.path.join(export_dir, rel_d)
+			out_paths, error_files_new, skip_files_new = ovl_data.extract(outdir, only_types=only_types)
+			error_files += error_files_new
+			skip_files += skip_files_new
+		except Exception as ex:
+			traceback.print_exc()
+			errors.append((ovl_path, ex))
+	interaction.skip_messages(error_files, skip_files)
+
+
+def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
+	errors = []
+	if start_dir:
+		export_dir = os.path.join(start_dir, "walker_export")
+		if walk_ovls:
+			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".fgm",))
+
+		attributes = {}
+		textures = set()
+		shaders = set()
+		if walk_fgms:
+			fgm_data = FgmFile()
+			fgm_files = walk_type(export_dir, extension="fgm")
+			mf_max = len(fgm_files)
+			for mf_index, fgm_path in enumerate(fgm_files):
+				fgm_name = os.path.basename(fgm_path)
+				gui.update_progress("Walking FGM files: " + fgm_name, value=mf_index, vmax=mf_max)
+				try:
+					fgm_data.load(fgm_path)
+					shaders.add(fgm_data.shader_name)
+					for attrib in fgm_data.attributes:
+						attributes[attrib.name] = attrib.dtype
+					for texture in fgm_data.textures:
+						textures.add(texture.name)
+				except Exception as ex:
+					traceback.print_exc()
+					errors.append((fgm_path, ex))
+		# report
+		print("\nThe following errors occured:")
+		for file_path, ex in errors:
+			print(file_path, str(ex))
+
+		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}.py")
+		with open(out_path, "w") as f:
+			f.write(f"attributes = {attributes}\n\n")
+			f.write(f"textures = {textures}\n\n")
+			f.write(f"shaders = {shaders}\n\n")
+		print(f"Written to {out_path}")
 		gui.update_progress("Operation completed!", value=1, vmax=1)

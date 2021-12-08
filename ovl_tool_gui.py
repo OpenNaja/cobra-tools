@@ -168,6 +168,7 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
 			(edit_menu, "Remove Selected", self.remover, "DEL", ""),
 			(util_menu, "Inspect Models", self.walker, "", ""),
+			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
 			(util_menu, "Save Frag Log", self.ovl_data.dump_frag_log, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
@@ -244,11 +245,11 @@ class MainWindow(widgets.MainWindow):
 			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
+			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors, {len(skips)} skips.")
 		except BaseException as ex:
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
 			logging.error(ex)
-		logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors, {len(skips)} skips.")
 		shutil.rmtree(temp_dir)
 
 	# todo - clear temp sub dir
@@ -557,8 +558,13 @@ class MainWindow(widgets.MainWindow):
 		walker.generate_hash_table(self, start_dir)
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
+	def walker_fgm(self,):
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+		walker.get_fgm_values(self, start_dir)
+		self.update_progress("Operation completed!", value=1, vmax=1)
+
 	def walker(self):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"), )
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.bulk_test_models(self, start_dir)
 		self.update_progress("Operation completed!", value=1, vmax=1)
 

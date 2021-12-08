@@ -5,7 +5,7 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
-import modules.formats.shared
+import hashes.fgm_pz as fgm_dict
 import ovl_util.interaction
 from generated.formats.fgm import FgmFile
 from generated.formats.ovl.versions import *
@@ -26,10 +26,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.fgm_data = FgmFile()
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
-		self.shaders = {}
 		self.games = [g.value for g in games]
-		for game in self.games:
-			self.shaders[game] = config.read_list(f"ovl_util/tooltips/fgm-shaders-{game.lower().replace(' ', '-')}.txt")
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
 
@@ -45,15 +42,29 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
-		self.shader_container = widgets.LabelCombo("Shader:", ())
-		self.shader_container.entry.activated.connect(self.shader_changed)
+
+		self.shader_choice = widgets.LabelCombo("Shader:", ())
+		self.shader_choice.entry.activated.connect(self.shader_changed)
+		self.attribute_choice = widgets.LabelCombo("Attribute:", ())
+		self.texture_choice = widgets.LabelCombo("Texture:", ())
+		self.attribute_add = QtWidgets.QPushButton("Add Attribute")
+		self.attribute_add.clicked.connect(self.add_attribute)
+		self.texture_add = QtWidgets.QPushButton("Add Texture")
+		self.texture_add.clicked.connect(self.add_texture)
+
 		self.tex_container = ProptertyContainer(self, "Textures")
 		self.attrib_container = ProptertyContainer(self, "Attributes")
+
+		self.populate_choices()
 
 		vbox = QtWidgets.QVBoxLayout()
 		vbox.addWidget(self.file_widget)
 		vbox.addWidget(self.game_container)
-		vbox.addWidget(self.shader_container)
+		vbox.addWidget(self.shader_choice)
+		vbox.addWidget(self.attribute_choice)
+		vbox.addWidget(self.attribute_add)
+		vbox.addWidget(self.texture_choice)
+		vbox.addWidget(self.texture_add)
 		vbox.addWidget(self.tex_container)
 		vbox.addWidget(self.attrib_container)
 		vbox.addStretch(1)
@@ -76,14 +87,26 @@ class MainWindow(widgets.MainWindow):
 		self.add_to_menu(button_data)
 
 	def game_changed(self,):
-		self.shader_container.entry.clear()
 		game = self.game_container.entry.currentText()
-		self.shader_container.entry.addItems(self.shaders[game])
+		# self.populate_choices(game)
+
+	def populate_choices(self, game=None):
+		# todo - make version dependant
+		self.shader_choice.entry.clear()
+		self.shader_choice.entry.addItems(sorted(fgm_dict.shaders))
+		self.attribute_choice.entry.clear()
+		self.attribute_choice.entry.addItems(sorted(fgm_dict.attributes))
+		self.texture_choice.entry.clear()
+		self.texture_choice.entry.addItems(sorted(fgm_dict.textures))
 		
 	def shader_changed(self,):
-		"""Change the fgm data shader name if gui changes"""
-		if self.file_widget.filepath:
-			self.fgm_data.shader_name = self.shader_container.entry.currentText()
+		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
+
+	def add_attribute(self,):
+		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
+
+	def add_texture(self,):
+		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
 
 	@property
 	def fgm_name(self,):
@@ -114,7 +137,7 @@ class MainWindow(widgets.MainWindow):
 				logging.debug(f"from game {game}")
 				self.game_container.entry.setText(game.value)
 				self.game_changed()
-				self.shader_container.entry.setText(self.fgm_data.shader_name)
+				self.shader_choice.entry.setText(self.fgm_data.shader_name)
 				self.tex_container.update_gui(self.fgm_data.textures)
 				self.attrib_container.update_gui(self.fgm_data.attributes)
 
