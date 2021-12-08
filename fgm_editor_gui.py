@@ -208,8 +208,9 @@ class TextureVisual:
 	def __init__(self, container, property):
 		self.container = container
 		self.property = property
-		self.entry = QtWidgets.QLineEdit(property.name)
-		self.entry.textEdited.connect(self.update_name)
+		self.entry = QtWidgets.QLabel(property.name)
+		# self.entry = QtWidgets.QLineEdit(property.name)
+		# self.entry.textEdited.connect(self.update_name)
 		self.delete_btn = QtWidgets.QPushButton("x")
 		self.delete_btn.setMaximumWidth(15)
 		self.delete_btn.clicked.connect(self.delete)
@@ -221,16 +222,17 @@ class TextureVisual:
 		self.data.setLayout(layout)
 
 		# get tooltip
-		tooltip = self.container.gui.tooltips.get(self.property.name, "Undocumented textureute.")
+		tooltip = self.container.gui.tooltips.get(self.property.name, "Undocumented attribute.")
 		self.data.setToolTip(tooltip)
 		self.entry.setToolTip(tooltip)
+		self.delete_btn.setToolTip(f"Delete {property.name}")
 
 	def delete(self):
 		self.container.data_list.remove(self.property)
 		self.container.update_gui(self.container.data_list)
 
-	def update_name(self, name):
-		self.property.name = name
+	# def update_name(self, name):
+	# 	self.property.name = name
 
 	def update_file(self, file):
 		self.property.file = file
