@@ -57,6 +57,8 @@ class MainWindow(widgets.MainWindow):
 		self.attrib_container = ProptertyContainer(self, "Attributes")
 
 		self.populate_choices()
+		self.shader_changed()
+		self.game_changed()
 
 		vbox = QtWidgets.QVBoxLayout()
 		vbox.addWidget(self.file_widget)
@@ -71,24 +73,26 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
-		self.attrib_grid = self.create_grid()
-
-		self.attrib_container.setLayout(self.attrib_grid)
-
 		main_menu = self.menuBar()
 		file_menu = main_menu.addMenu('File')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
-			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", ""),
-			(file_menu, "Save", self.save_fgm, "CTRL+S", ""),
-			(file_menu, "Exit", self.close, "", ""),
-			(help_menu, "Report Bug", self.report_bug, "", ""),
-			(help_menu, "Documentation", self.online_support, "", ""),
+			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
+			(file_menu, "Save", self.save_fgm, "CTRL+S", "save"),
+			(file_menu, "Save As", self.save_as_fgm, "CTRL+SHIFT+S", "save"),
+			(file_menu, "Exit", self.close, "", "exit"),
+			(help_menu, "Report Bug", self.report_bug, "", "report"),
+			(help_menu, "Documentation", self.online_support, "", "manual")
 		)
 		self.add_to_menu(button_data)
 
 	def game_changed(self,):
 		game = self.game_container.entry.currentText()
+		try:
+			set_game(self.fgm_data.context, game)
+			set_game(self.fgm_data, game)
+		except BaseException as err:
+			print(err)
 		# self.populate_choices(game)
 
 	def populate_choices(self, game=None):
@@ -154,16 +158,20 @@ class MainWindow(widgets.MainWindow):
 
 	def save_fgm(self):
 		if self.file_widget.filepath:
-			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
-			if file_out:
-				self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
-				try:
-					self.fgm_data.save(file_out)
-				except BaseException as err:
-					traceback.print_exc()
-					interaction.showdialog(str(err))
-					logging.error(err)
-				logging.info("Done!")
+			self.fgm_data.save(self.file_widget.filepath)
+
+	def save_as_fgm(self):
+		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
+		if file_out:
+			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
+			try:
+				self.fgm_data.save(file_out)
+				print(self.fgm_data)
+			except BaseException as err:
+				traceback.print_exc()
+				interaction.showdialog(str(err))
+				logging.error(err)
+			logging.info("Done!")
 
 
 class ProptertyContainer(QtWidgets.QGroupBox):

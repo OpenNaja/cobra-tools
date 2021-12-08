@@ -10,6 +10,7 @@ import traceback
 import logging
 from contextlib import contextmanager
 
+from generated.formats.ovl_base import OvlContext
 from hashes import constants_pz
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
@@ -123,15 +124,6 @@ def get_loader(ext, ovl, file_entry):
 	cls = ext_2_class.get(ext, None)
 	if cls:
 		return cls(ovl, file_entry)
-
-
-class OvlContext(object):
-	def __init__(self):
-		self.version = 0
-		self.user_version = VersionInfo()
-
-	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
 
 
 class OvsFile(OvsHeader):

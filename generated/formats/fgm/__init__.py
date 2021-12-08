@@ -3,28 +3,21 @@ import logging
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
+from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile, BinaryStream
 import os
 import struct
 
 # maps FGM dtype to struct dtype
-# dtypes = {0:"f", 1:"ff", 2:"fff", 3:"ffff", 4:"I", 5:"i", 6:"i", 8:"I"}
-dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}
-
-
-class FgmContext(object):
-	def __init__(self):
-		self.version = 0
-		self.user_version = 0
-
-	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
+dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}  # 4:"I", 8:"I"
 
 
 class FgmFile(FgmInfoHeader, IoFile):
 
 	def __init__(self):
-		super().__init__(FgmContext())
+		super().__init__(OvlContext())
+		self.magic.data = b'FGM '
+		self.shader_name = ""
 
 	@staticmethod
 	def read_z_str(stream, pos):
@@ -94,11 +87,13 @@ class FgmFile(FgmInfoHeader, IoFile):
 		logging.debug(f"Adding attribute '{tex_name}'")
 		tex = TextureInfo(self.context)
 		tex.name = tex_name
+		tex.textured = textured
 		if textured:
 			tex.file = tex_name.lower()
 			tex.is_textured = 8
 		else:
 			raise NotImplementedError(f"Unsure how to create texture '{tex_name}'")
+		tex.indices.resize(4)
 		self.textures.append(tex)
 
 	def print_readable(self, ):
