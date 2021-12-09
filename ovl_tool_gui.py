@@ -105,10 +105,6 @@ class MainWindow(widgets.MainWindow):
 			"By default, temporary files are converted to usable ones and back on the fly.")
 		self.t_show_temp_files.setChecked(False)
 
-		self.sp_hash = QtWidgets.QCheckBox("New Species Hash")
-		self.sp_hash.setToolTip("Experimental")
-		self.sp_hash.setChecked(False)
-
 		self.in_folder = QtWidgets.QCheckBox("Process Folder")
 		self.in_folder.setToolTip("Runs commands on all OVLs of current folder")
 		self.in_folder.setChecked(False)
@@ -141,8 +137,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
 		self.qgrid.addWidget(self.t_write_dat, 1, 3)
 		self.qgrid.addWidget(self.ext_dat, 2, 3)
-		self.qgrid.addWidget(self.sp_hash, 3, 3)
-		self.qgrid.addWidget(self.in_folder, 4, 3)
+		self.qgrid.addWidget(self.in_folder, 3, 3)
 		self.qgrid.addWidget(self.game_container, 0, 4,)
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
@@ -279,7 +274,7 @@ class MainWindow(widgets.MainWindow):
 
 	def rename_handle(self, old_name, new_name):
 		names = [(old_name, new_name), ]
-		hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
+		hasher.rename(self.ovl_data, names)
 		self.update_gui_table()
 
 	def game_changed(self,):
@@ -296,10 +291,6 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def show_temp_files(self, ):
 		return self.t_show_temp_files.isChecked()
-
-	@property
-	def species_hash(self, ):
-		return self.sp_hash.isChecked()
 
 	@property
 	def use_ext_dat(self, ):
@@ -511,7 +502,7 @@ class MainWindow(widgets.MainWindow):
 		if names:
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
-					hasher.rename(self.ovl_data, names, species_mode=self.species_hash)
+					hasher.rename(self.ovl_data, names)
 					self.update_gui_table()
 
 	def dat_replacement(self):
@@ -519,10 +510,7 @@ class MainWindow(widgets.MainWindow):
 		if names:
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
-					if self.species_hash:
-						hasher.species_dat_replacer(self.ovl_data, names)
-					else:
-						hasher.dat_replacer(self.ovl_data, names)
+					hasher.dat_replacer(self.ovl_data, names)
 					self.update_gui_table()
 
 	# Save the OVL file list to disk
