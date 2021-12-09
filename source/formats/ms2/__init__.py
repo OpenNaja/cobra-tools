@@ -355,13 +355,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def rename(self, name_tups):
 		"""Renames strings in the main name buffer"""
-		for old, new in name_tups:
-			old_lower = old.lower()
-			for i, name in enumerate(self.buffer_0.names):
-				if old in name:
+		for i, name in enumerate(self.buffer_0.names):
+			# first a cases sensitive pass
+			for old, new in name_tups:
+				name = self.buffer_0.names[i]
+				if old in self.buffer_0.names[i]:
 					logging.debug(f"Match for '{old}' in '{name}'")
 					self.buffer_0.names[i] = name.replace(old, new)
-				elif old_lower in name.lower():
+			for old, new in name_tups:
+				name = self.buffer_0.names[i]
+				if old.lower() in name.lower():
 					logging.debug(f"Case-insensitive match '{old}' in '{name}'")
 					self.buffer_0.names[i] = name.lower().replace(old, new)
 
