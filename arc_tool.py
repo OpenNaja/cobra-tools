@@ -5,9 +5,28 @@ import zlib
 import sys
 import struct
 
-header_str  = b''
-data_offset = 0
-compressed  = False
+
+class xfxd3f(object):
+    def __init__(self, data = b''):
+        self.header = b''
+        self.fromBytes(data)
+
+    def fromBytes(self, data):
+        self.header = data[0:16]
+        self.data = data[16:]
+
+
+class ahsd3f(object):
+    def __init__(self, data = b''):
+        self.header = b''
+        self.fromBytes(data)
+
+    def fromBytes(self, data):
+        self.header = data[0:16]
+        self.data = data[16:]
+
+
+
 
 class Archive(object):
     def __init__(self, objectList = [], useCompression=True, filePath=''):
@@ -64,6 +83,7 @@ class Archive(object):
         # we arrived here, we can save the data
         self.content = data
         self.useCompression = compressed
+        self.filePath = path
 
         # debug temp write content file
         f = open(path + ".uncomp", 'wb')
@@ -71,6 +91,27 @@ class Archive(object):
         f.close()
 
         # split the content into blobs
+        offset = 0
+        while offset < len(data):
+            cheader = data[offset:offset+16]
+            cvL, cvH, cmagic, ccompressedSize, cuncompressedSize = self.read_header(cheader)
+
+            lobject = b''
+
+            offset += ccompressedSize
+            if cmagic == b"xfxd3f":
+                lobject = xfxd3f(data[offset:offset+ccompressedSize])
+                pass
+            elif cmagic == b'ahsd3f':
+                lobject = ahsd3f(data[offset:offset+ccompressedSize])
+                pass
+            else:
+                print(f"Unknown magic type: {cmagic}")
+
+            self.objectList.append(lobject)
+
+
+
 
 
     def saveAs(self, path):
