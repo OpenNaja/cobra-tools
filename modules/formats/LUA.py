@@ -22,7 +22,7 @@ class LuaLoader(BaseFile):
 		self.write_to_pool(f_0.pointers[1], 2, zstr(file_name_bytes))
 		self.write_to_pool(f_1.pointers[1], 2, b'\x00')
 		# now pad
-		f_1.pointers[0].pool.data.write(get_padding(f_1.pointers[0].pool.data.tell(), 4))
+		f_1.pointers[1].pool.data.write(get_padding(f_1.pointers[1].pool.data.tell(), 4))
 		# finally the rest, already alignd
 		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
 		self.write_to_pool(f_0.pointers[0], 2, b'\x00' * 8)
