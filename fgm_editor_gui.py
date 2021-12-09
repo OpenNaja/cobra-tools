@@ -5,10 +5,9 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
-import hashes.fgm_pz as fgm_dict
+from hashes import fgm_pz, fgm_jwe2
 import ovl_util.interaction
 from generated.formats.fgm import FgmFile
-from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.ovl.versions import *
 from ovl_util import widgets, config, interaction
 from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT
@@ -28,6 +27,7 @@ class MainWindow(widgets.MainWindow):
 		self.fgm_data = FgmFile()
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
+		self.fgm_dict = None
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
 
@@ -56,9 +56,9 @@ class MainWindow(widgets.MainWindow):
 		self.tex_container = ProptertyContainer(self, "Textures")
 		self.attrib_container = ProptertyContainer(self, "Attributes")
 
-		self.populate_choices()
-		self.shader_changed()
 		self.game_changed()
+		# self.populate_choices()
+		self.shader_changed()
 
 		vbox = QtWidgets.QVBoxLayout()
 		vbox.addWidget(self.file_widget)
@@ -88,29 +88,38 @@ class MainWindow(widgets.MainWindow):
 
 	def game_changed(self,):
 		game = self.game_container.entry.currentText()
+		logging.info(f"Changed game to {game}")
 		try:
 			set_game(self.fgm_data.context, game)
 			set_game(self.fgm_data, game)
 		except BaseException as err:
 			print(err)
-		# self.populate_choices(game)
 
-	def populate_choices(self, game=None):
-		# todo - make version dependant
-		self.shader_choice.entry.clear()
-		self.shader_choice.entry.addItems(sorted(fgm_dict.shaders))
-		self.attribute_choice.entry.clear()
-		self.attribute_choice.entry.addItems(sorted(fgm_dict.attributes))
-		self.texture_choice.entry.clear()
-		self.texture_choice.entry.addItems(sorted(fgm_dict.textures))
+		if is_jwe2(self.fgm_data):
+			self.fgm_dict = fgm_jwe2
+		elif is_pz16(self.fgm_data) or is_pz(self.fgm_data):
+			self.fgm_dict = fgm_pz
+		else:
+			self.fgm_dict = None
+		self.populate_choices()
+
+	def populate_choices(self):
+		if self.fgm_dict:
+			self.shader_choice.entry.clear()
+			self.shader_choice.entry.addItems(sorted(self.fgm_dict.shaders))
+			self.attribute_choice.entry.clear()
+			self.attribute_choice.entry.addItems(sorted(self.fgm_dict.attributes))
+			self.texture_choice.entry.clear()
+			self.texture_choice.entry.addItems(sorted(self.fgm_dict.textures))
 		
 	def shader_changed(self,):
 		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
 
 	def add_attribute(self,):
-		attrib_name = self.attribute_choice.entry.currentText()
-		self.fgm_data.add_attrib(attrib_name, fgm_dict.attributes[attrib_name])
-		self.attrib_container.update_gui(self.fgm_data.attributes)
+		if self.fgm_dict:
+			attrib_name = self.attribute_choice.entry.currentText()
+			self.fgm_data.add_attrib(attrib_name, self.fgm_dict.attributes[attrib_name])
+			self.attrib_container.update_gui(self.fgm_data.attributes)
 
 	def add_texture(self,):
 		tex_name = self.texture_choice.entry.currentText()
