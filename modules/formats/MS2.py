@@ -442,7 +442,7 @@ class Ms2Loader(BaseFile):
 		# update ms2 data
 		self.sized_str_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
 
-	def rename_content(self, name_tuple_bytes):
+	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()
 		try:
 			ms2_mdl2_files = self.extract(out_dir_func, False, None)
@@ -453,7 +453,7 @@ class Ms2Loader(BaseFile):
 			ms2_file = Ms2File()
 			ms2_file.load(ms2_path, read_bytes=True)
 			# rename the materials
-			ms2_file.rename(name_tuple_bytes)
+			ms2_file.rename(name_tuples)
 			# update the hashes & save
 			ms2_file.save(ms2_path)
 			# inject again

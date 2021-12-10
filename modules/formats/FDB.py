@@ -1,5 +1,10 @@
+import logging
+import os
+import shutil
+import sqlite3
 import struct
 
+from generated.formats.ovl_base.versions import is_pz, is_pz16
 from modules.formats.BaseFormat import BaseFile
 
 
@@ -41,3 +46,36 @@ class FdbLoader(BaseFile):
 		buffer_1 = self.get_content(file_path)
 		ss = struct.pack("I28s", len(buffer_1), b'')
 		return ss, buffer_0, buffer_1
+
+	def open_command(self, f):
+		command_path = os.path.join(os.getcwd(), "sql_commands", f+".sql")
+		print(command_path, os.path.isfile(command_path))
+		with open(command_path, "r") as file:
+			return file.read()
+
+	def rename_content(self, name_tuples):
+		command = None
+		if is_pz(self.ovl) or is_pz16(self.ovl):
+			if "zoopedia" in self.file_entry.name:
+				command = self.open_command("pz_zoopedia")
+		if command:
+
+			logging.info(f"Executing command '' on {self.file_entry.name}")
+			try:
+				temp_dir, out_dir_func = self.get_tmp_dir()
+				fdb_path = self.extract(out_dir_func, False, None)[0]
+				con = sqlite3.connect(fdb_path)
+				cur = con.cursor()
+
+				for old, new in name_tuples:
+					command_replaced = command.replace("ORIGINAL", old).replace("NEW", new)
+					# print(command_replaced)
+					cur.executescript(command_replaced)
+				# Save (commit) the changes
+				con.commit()
+				con.close()
+				self.load(fdb_path)
+				shutil.rmtree(temp_dir)
+			except BaseException as err:
+				print(err)
+
