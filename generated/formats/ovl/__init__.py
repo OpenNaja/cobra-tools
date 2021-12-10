@@ -405,15 +405,16 @@ class OvsFile(OvsHeader):
 	def rebuild_buffer_groups(self):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
 		self.new_entries.clear()
-		if (is_pz16(self.ovl) or is_jwe2(self.ovl)) and len(self.data_entries) > 0:
-			# sort the buffers to be what 1.6 needs
+		if (is_pz16(self.ovl) or is_jwe2(self.ovl)) and self.data_entries:
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
 					self.transfer_identity(buffer, data_entry)
+			# sort the buffers to be what 1.6 needs
 			# cobra < 20 used buffer index per data entry
+			self.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
 
-			# print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
+			print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
 			# generate a mime lut to know the index of the mimes
 			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
 			# generate the buffergroup entries
@@ -564,7 +565,7 @@ class OvsFile(OvsHeader):
 			logging.debug("Assigning buffer indices")
 			for b_group in self.new_entries:
 				b_group.ext = self.ovl.mimes[b_group.ext_index].ext
-				# print(b_group.ext)
+				logging.debug(f"Buffer group {b_group.ext}, index {b_group.buffer_index}")
 				# print(b_group)
 				# print(b_group.buffer_count, b_group.data_count)
 				# note that datas can be bigger than buffers
@@ -572,19 +573,16 @@ class OvsFile(OvsHeader):
 				datas = self.data_entries[b_group.data_offset: b_group.data_offset + b_group.data_count]
 				for buffer in buffers:
 					buffer.index = b_group.buffer_index
+					logging.debug(f"Buffer hash {buffer.file_hash}")
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
 							buffer.name = data.name
 							buffer.ext = data.ext
 							data.buffers.append(buffer)
+							logging.debug(f"Buffer group match {buffer.name}{buffer.ext}")
 							break
-			# for buffer, data in zip(buffers, datas):
-			# 	buffer.index = b_group.buffer_index
-			# 	data.buffers.append(buffer)
-			# print(self.buffer_entries)
-			# print(self.new_entries)
-			for data in self.data_entries:
-				data.streams = list(data.buffers)
+					else:
+						raise BufferError(f"Buffer group {b_group.ext}, index {b_group.buffer_index} did not find a data entry for buffer {buffer.file_hash}")
 		else:
 			# sequentially attach buffers to data entries by each entry's buffer count
 			buff_ind = 0
@@ -597,9 +595,6 @@ class OvsFile(OvsHeader):
 					buffer.ext = data.ext
 					data.buffers.append(buffer)
 					buff_ind += 1
-				data.streams = list(data.buffers)
-
-	# print(self.buffer_entries)
 
 	@property
 	def buffers_io_order(self):
@@ -986,6 +981,8 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Game: {get_game(self)}")
 		for file_path in file_paths:
 			self.create_file(file_path)
+		# for archive in self.archives:
+		# 	archive.content.map_buffers()
 		self.update_hashes()
 		self.update_counts()
 		self.update_pool_datas()

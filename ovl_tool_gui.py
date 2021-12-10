@@ -386,6 +386,9 @@ class MainWindow(widgets.MainWindow):
 				# self.ovl_thread.kwargs = {"commands": self.commands, "hash_table": self.hash_table}
 				# self.ovl_thread.start()
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
+				print(self.ovl_data)
+				for a in self.ovl_data.archives:
+					print(a.content)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
@@ -433,6 +436,10 @@ class MainWindow(widgets.MainWindow):
 			self._save_ovl(self.file_widget.filepath)
 
 	def _save_ovl(self, filepath):
+
+		print(self.ovl_data)
+		for a in self.ovl_data.archives:
+			print(a.content)
 		try:
 			ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
 			self.ovl_data.save(filepath, ext_path)

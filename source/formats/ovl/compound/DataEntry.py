@@ -8,7 +8,7 @@ class DataEntry:
 		for buffer, data in zip(self.sorted_buffers, datas):
 			buffer.update_data(data)
 		# update data 0, 1 size
-		total = sum(len(d) for d in datas)
+		# total = sum(len(d) for d in datas)
 		if len(datas) == 1:
 			self.size_1 = len(datas[0])
 			self.size_2 = 0
@@ -25,16 +25,6 @@ class DataEntry:
 		return sorted(self.buffers, key=lambda buffer: buffer.index)
 
 	@property
-	def sorted_streams(self):
-		"""Get buffers sorted by index"""
-		return sorted(self.streams, key=lambda buffer: buffer.index)
-
-	@property
 	def buffer_datas(self):
 		"""Get data for each buffer"""
 		return list(buffer.data for buffer in self.sorted_buffers)
-
-	@property
-	def stream_datas(self):
-		"""Get data for each buffer, including streamed ones from other entries"""
-		return list(buffer.data for buffer in self.sorted_streams)

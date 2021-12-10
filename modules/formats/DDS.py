@@ -120,8 +120,9 @@ class DdsLoader(BaseFile):
 		dds_file = DdsFile()
 		dds_file.load(file_path)
 		self.ensure_size_match(dds_file, tex_h, tex_w, tex_d, tex_a, comp)
+		sorted_streams = self.get_streams()
 		if is_pc(self.ovl):
-			for buffer, tex_header_3 in zip(self.sized_str_entry.data_entry.sorted_streams, headers_3_1):
+			for buffer, tex_header_3 in zip(sorted_streams, headers_3_1):
 				dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 				if len(dds_buff) < buffer.size:
 					print(f"Last {buffer.size - len(dds_buff)} bytes of DDS buffer are not overwritten!")
@@ -129,8 +130,7 @@ class DdsLoader(BaseFile):
 				buffer.update_data(dds_buff)
 		else:
 			out_bytes = dds_file.pack_mips(header_7.num_mips)
-	
-			sorted_streams = sorted(self.sized_str_entry.data_entry.sorted_streams, key=lambda b: len(b.data), reverse=True)
+
 			sum_of_buffers = sum(buffer.size for buffer in sorted_streams)
 			if len(out_bytes) != sum_of_buffers:
 				print(
