@@ -130,7 +130,6 @@ class OvsFile(OvsHeader):
 
 	def __init__(self, context, ovl_inst, archive_entry):
 		super().__init__(context)
-		# print(self.context)
 		self.ovl = ovl_inst
 		self.arg = archive_entry
 
@@ -507,7 +506,6 @@ class OvsFile(OvsHeader):
 
 	def frags_accumulate_from_pointer_till_count(self, p, d_size, count):
 		frags = self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
-		# print(d_size, len(frags))
 		if len(frags) > count:
 			frags[-1].done = False
 			return frags[0:count]
@@ -515,7 +513,6 @@ class OvsFile(OvsHeader):
 			return frags
 
 	def frags_from_pointer(self, ptr, count, reuse=False):
-		# print(ptr)
 		frags = self.frags_for_pointer(ptr)
 		return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
 
@@ -1511,9 +1508,6 @@ class OvlFile(Header, IoFile):
 			# grab and update size
 			if os.path.isfile(bnkpath):
 				aux.size = os.path.getsize(bnkpath)
-
-
-# print(aux.size)
 
 
 if __name__ == "__main__":
