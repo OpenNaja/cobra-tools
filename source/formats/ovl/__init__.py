@@ -409,12 +409,12 @@ class OvsFile(OvsHeader):
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
 					self.transfer_identity(buffer, data_entry)
-			# sort the buffers to be what 1.6 needs
+			# sort datas and buffers to be what 1.6 needs
 			# cobra < 20 used buffer index per data entry
 			self.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
 
-			print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
+			# print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
 			# generate a mime lut to know the index of the mimes
 			mime_lut = {mime.ext: i for i, mime in enumerate(self.ovl.mimes)}
 			# generate the buffergroup entries
