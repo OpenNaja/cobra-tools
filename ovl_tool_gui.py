@@ -159,8 +159,8 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
-			(edit_menu, "Rename", self.hasher, "CTRL+R", ""),
-			(edit_menu, "Dat Edit", self.dat_replacement, "CTRL+J", ""),
+			(edit_menu, "Rename", self.rename, "CTRL+R", ""),
+			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
 			(edit_menu, "Remove Selected", self.remover, "DEL", ""),
 			(util_menu, "Inspect Models", self.walker, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
@@ -273,6 +273,7 @@ class MainWindow(widgets.MainWindow):
 	# drag.exec_(QtCore.Qt.CopyAction)
 
 	def rename_handle(self, old_name, new_name):
+		"""this manages the renaming of a single entry"""
 		names = [(old_name, new_name), ]
 		hasher.rename(self.ovl_data, names)
 		self.update_gui_table()
@@ -497,7 +498,7 @@ class MainWindow(widgets.MainWindow):
 		except BaseException as err:
 			print(err)
 
-	def hasher(self):
+	def rename(self):
 		names = self.get_replace_strings()
 		if names:
 			for ovl in self.handle_path():
@@ -505,12 +506,12 @@ class MainWindow(widgets.MainWindow):
 					hasher.rename(self.ovl_data, names)
 					self.update_gui_table()
 
-	def dat_replacement(self):
+	def rename_contents(self):
 		names = self.get_replace_strings()
 		if names:
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
-					hasher.dat_replacer(self.ovl_data, names)
+					hasher.rename_contents(self.ovl_data, names)
 					self.update_gui_table()
 
 	# Save the OVL file list to disk
