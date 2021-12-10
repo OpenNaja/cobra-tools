@@ -1,6 +1,7 @@
 import logging
 import os
 import struct
+import tempfile
 
 from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.Fragment import Fragment
@@ -208,3 +209,25 @@ class BaseFile:
 	def get_zstr(self, d):
 		end = d.find(b'\x00')
 		return d[:end].decode()
+
+	def rename_content(self, name_tuple_bytes):
+		# try:
+		# 	# hash the internal buffers
+		# 	for archive_entry in ovl.archives:
+		# 		ovs = archive_entry.content
+		# 		for fragment in ovs.fragments:
+		# 			for ptr in fragment.pointers:
+		# 				ptr.data = replace_bytes(ptr.data, name_tups_new)
+		# except Exception as err:
+		# 	showdialog(str(err))
+		# logging.info("Done!")
+		pass
+
+	def get_tmp_dir(self):
+		temp_dir = tempfile.mkdtemp("-cobra")
+
+		def out_dir_func(n):
+			"""Helper function to generate temporary output file name"""
+			return os.path.normpath(os.path.join(temp_dir, n))
+
+		return temp_dir, out_dir_func

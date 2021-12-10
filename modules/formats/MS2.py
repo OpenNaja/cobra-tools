@@ -1,6 +1,8 @@
 import os
+import shutil
 import struct
 import logging
+import tempfile
 
 from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
@@ -439,3 +441,24 @@ class Ms2Loader(BaseFile):
 	
 		# update ms2 data
 		self.sized_str_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
+
+	def rename_content(self, name_tuple_bytes):
+		temp_dir, out_dir_func = self.get_tmp_dir()
+		try:
+			ms2_mdl2_files = self.extract(out_dir_func, False, None)
+			# there is always just one ms2 in one entry's files
+			ms2_path = [f for f in ms2_mdl2_files if f.endswith(".ms2")][0]
+
+			# open the ms2 file
+			ms2_file = Ms2File()
+			ms2_file.load(ms2_path, read_bytes=True)
+			# rename the materials
+			ms2_file.rename(name_tuple_bytes)
+			# update the hashes & save
+			ms2_file.save(ms2_path)
+			# inject again
+			self.load(ms2_path)
+		except BaseException as err:
+			print(err)
+		# delete temp dir again
+		shutil.rmtree(temp_dir)

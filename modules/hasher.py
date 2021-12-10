@@ -43,52 +43,22 @@ def rename(ovl, name_tups):
 	logging.info("Finished renaming!")
 
 
-def ms2_renamer(ovl, name_tups):
-	logging.info(f"Replacing names in MS2 files for {name_tups}")
-
-	temp_dir = tempfile.mkdtemp("-cobra")
-
-	def out_dir_func(n):
-		"""Helper function to generate temporary output file name"""
-		return os.path.normpath(os.path.join(temp_dir, n))
-
-	for ms2_entry in ovl.get_extract_files((), (".ms2",), []):
-		try:
-			ms2_mdl2_files = ms2_entry.loader.extract(out_dir_func, False, None)
-			# there is always just one ms2 in one entry's files
-			ms2_path = [f for f in ms2_mdl2_files if f.endswith(".ms2")][0]
-
-			# open the ms2 file
-			ms2_file = Ms2File()
-			ms2_file.load(ms2_path, read_bytes=True)
-			# rename the materials
-			ms2_file.rename(name_tups)
-			# update the hashes & save
-			ms2_file.save(ms2_path)
-			# inject again
-			ms2_entry.loader.load(ms2_path)
-		except BaseException as err:
-			print(err)
-	# delete temp dir again
-	shutil.rmtree(temp_dir)
-
-
-def dat_replacer(ovl, name_tups):
-	ms2_renamer(ovl, name_tups)
-	logging.info(f"Replacing Dat contents for {name_tups}")
+def rename_contents(ovl, name_tups):
+	logging.info(f"Renaming contents for {name_tups}")
 	if check_length(name_tups):
 		return
-	name_tups_new = [(name_bytes(o), name_bytes(n)) for o, n in name_tups]
-	try:
-		# hash the internal buffers
-		for archive_entry in ovl.archives:
-			ovs = archive_entry.content
-			for fragment in ovs.fragments:
-				for ptr in fragment.pointers:
-					ptr.data = replace_bytes(ptr.data, name_tups_new)
-	except Exception as err:
-		showdialog(str(err))
-	logging.info("Done!")
+	name_tuple_bytes = [(name_bytes(o), name_bytes(n)) for o, n in name_tups]
+	for file in ovl.files:
+		if file.loader:
+			file.loader.rename_content(name_tups)
+	# old style
+	# hash the internal buffers
+	for archive_entry in ovl.archives:
+		ovs = archive_entry.content
+		for fragment in ovs.fragments:
+			for ptr in fragment.pointers:
+				ptr.data = replace_bytes(ptr.data, name_tuple_bytes)
+	logging.info("Finished renaming contents!")
 
 
 def check_length(name_tups):
