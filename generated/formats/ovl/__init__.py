@@ -256,7 +256,7 @@ class OvsFile(OvsHeader):
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
-		self.arg.num_new = len(self.new_entries)
+		self.arg.num_buffer_groups = len(self.buffer_groups)
 
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
@@ -270,7 +270,7 @@ class OvsFile(OvsHeader):
 			assign_versions(stream, get_versions(self.ovl))
 			super().read(stream)
 			# print(self)
-			# print(self.new_entries)
+			# print(self.buffer_groups)
 			pool_index = 0
 			for pool_type in self.pool_types:
 				for i in range(pool_type.num_pools):
@@ -404,7 +404,7 @@ class OvsFile(OvsHeader):
 
 	def rebuild_buffer_groups(self):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
-		self.new_entries.clear()
+		self.buffer_groups.clear()
 		if (is_pz16(self.ovl) or is_jwe2(self.ovl)) and self.data_entries:
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
@@ -442,7 +442,7 @@ class OvsFile(OvsHeader):
 					new_entry.buffer_index = buffer.index
 					new_entry.buffer_offset = buffer_offset
 					new_entry.data_offset = data_offset
-					self.new_entries.append(new_entry)
+					self.buffer_groups.append(new_entry)
 				# gotta add this buffer to the current group
 				new_entry.buffer_count += 1
 				new_entry.size += buffer.size
@@ -452,21 +452,21 @@ class OvsFile(OvsHeader):
 				last_index = buffer.index
 
 			# fix the offsets of the buffergroups
-			for x, new_entry in enumerate(self.new_entries):
+			for x, new_entry in enumerate(self.buffer_groups):
 				if x > 0:
-					new_entry.buffer_offset = self.new_entries[x - 1].buffer_offset + self.new_entries[
+					new_entry.buffer_offset = self.buffer_groups[x - 1].buffer_offset + self.buffer_groups[
 						x - 1].buffer_count
-					if new_entry.ext != self.new_entries[x - 1].ext:
-						new_entry.data_offset = self.new_entries[x - 1].data_offset + self.new_entries[x - 1].data_count
+					if new_entry.ext != self.buffer_groups[x - 1].ext:
+						new_entry.data_offset = self.buffer_groups[x - 1].data_offset + self.buffer_groups[x - 1].data_count
 					else:
-						new_entry.data_offset = self.new_entries[x - 1].data_offset
-						if new_entry.data_count < self.new_entries[x - 1].data_count:
-							new_entry.data_count = self.new_entries[x - 1].data_count
+						new_entry.data_offset = self.buffer_groups[x - 1].data_offset
+						if new_entry.data_count < self.buffer_groups[x - 1].data_count:
+							new_entry.data_count = self.buffer_groups[x - 1].data_count
 			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
 			tex_fixa = 0
 			tex_fixb = 0
 			tex_fixc = 0
-			for new_entry in self.new_entries:
+			for new_entry in self.buffer_groups:
 				if ".tex" == new_entry.ext:
 					if new_entry.buffer_count > tex_fixb:
 						tex_fixb = new_entry.buffer_count
@@ -474,16 +474,16 @@ class OvsFile(OvsHeader):
 						tex_fixa = new_entry.data_offset
 				elif ".texturestream" == new_entry.ext:
 					tex_fixc += new_entry.buffer_count
-			for new_entry in self.new_entries:
+			for new_entry in self.buffer_groups:
 				if ".tex" == new_entry.ext:
 					new_entry.data_offset = tex_fixa
 					new_entry.data_count = tex_fixb
 				elif ".texturestream" == new_entry.ext:
 					new_entry.data_count = tex_fixc
 
-			if (self.new_entries[-1].data_count + self.new_entries[-1].data_offset) < len(self.data_entries):
-				for x in range(self.new_entries[-1].buffer_index + 1):
-					self.new_entries[-1 - x].data_count = len(self.data_entries) - self.new_entries[-1 - x].data_offset
+			if (self.buffer_groups[-1].data_count + self.buffer_groups[-1].data_offset) < len(self.data_entries):
+				for x in range(self.buffer_groups[-1].buffer_index + 1):
+					self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[-1 - x].data_offset
 
 	def frags_accumulate(self, p, d_size, frags=None):
 		# get frags whose pointers 0 datas together occupy d_size bytes
@@ -558,12 +558,12 @@ class OvsFile(OvsHeader):
 		logging.info("Mapping buffers")
 		# print(self.data_entries)
 		# print(self.buffer_entries)
-		# print(self.new_entries)
+		# print(self.buffer_groups)
 		if is_pz16(self.ovl) or is_jwe2(self.ovl):
 			for data in self.data_entries:
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
-			for b_group in self.new_entries:
+			for b_group in self.buffer_groups:
 				b_group.ext = self.ovl.mimes[b_group.ext_index].ext
 				logging.debug(f"Buffer group {b_group.ext}, index {b_group.buffer_index}")
 				# print(b_group)
@@ -643,7 +643,7 @@ class OvsFile(OvsHeader):
 		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}_buffers.log")
 		logging.info(f"Dumping buffer log to {buff_log_path}")
 		with open(buff_log_path, "w") as f:
-			for x, new_entry in enumerate(self.new_entries):
+			for x, new_entry in enumerate(self.buffer_groups):
 				f.write(
 					f"\n{new_entry.ext} {new_entry.buffer_offset} {new_entry.buffer_count} {new_entry.buffer_index} | {new_entry.size} {new_entry.data_offset} {new_entry.data_count} ")
 

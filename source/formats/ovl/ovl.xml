@@ -88,7 +88,7 @@
         <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolType.num_pools</add>
         <add name="Num Datas" type="ushort" >Amount of Data Entries</add>
         <add name="num_pool_types" type="ushort" >Amount of PoolType objects at start of this deflated archive.</add>
-        <add name="num_new" type="uint">used in pz 1.6</add>
+        <add name="num_buffer_groups" type="uint">used in pz 1.6</add>
         <add name="Num Buffers" type="uint">Amount of buffers in the archive</add>
         <add name="Num Fragments" type="uint" >Amount of Fragments in the archive</add>
         <add name="Num Files" type="uint">Number of files in the archive</add>
@@ -143,7 +143,7 @@
         <add name="pools" type="MemPool" arr1="#ARG#\num_pools"/>
         <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
-        <add name="new entries" type="BufferGroup" arr1="#ARG#\num_new"/>
+        <add name="buffer groups" type="BufferGroup" arr1="#ARG#\num_buffer_groups"/>
         <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"/>
         <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
         <add name="set header " type="SetHeader"/>
