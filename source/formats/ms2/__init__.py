@@ -355,6 +355,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def rename(self, name_tups):
 		"""Renames strings in the main name buffer"""
+		logging.info(f"Renaming on {self.basename}")
 		for i, name in enumerate(self.buffer_0.names):
 			# first a cases sensitive pass
 			for old, new in name_tups:
