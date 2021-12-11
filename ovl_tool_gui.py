@@ -220,7 +220,9 @@ class MainWindow(widgets.MainWindow):
 		# handle double clicked file paths
 		try:
 			file_path = ind.model().filePath(ind)
-			if file_path.lower().endswith(".ovl"):
+			if os.path.isdir(file_path):
+				os.startfile(file_path)
+			elif file_path.lower().endswith(".ovl"):
 				self.file_widget.decide_open(file_path)
 		except BaseException as err:
 			print(err)
