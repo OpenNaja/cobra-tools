@@ -107,7 +107,9 @@ class Ms2Loader(BaseFile):
 		# create sized str entries and model data fragments
 		for mdl2_name, mdl2 in mdl2s:
 			pool.num_files += 2
-			mdl2_file_entry = self.get_file_entry(mdl2_name)
+			mdl2_path = os.path.join(ms2_dir, mdl2_name)
+			mdl2_file_entry = self.get_file_entry(mdl2_path)
+
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
 			mdl2_entry.pointers[0].pool_index = -1
 			mdl2_entry.pointers[0].data_offset = 0

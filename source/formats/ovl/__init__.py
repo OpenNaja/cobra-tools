@@ -235,6 +235,9 @@ class OvsFile(OvsHeader):
 		)
 		for entry_list in entry_lists:
 			for entry in entry_list:
+				if not entry.name:
+					logging.warning(f"{entry} has no name assigned to it, cannot assign proper ID")
+					continue
 				file_index = file_name_lut[entry.name]
 				file = self.ovl.files[file_index]
 				if self.ovl.user_version.is_jwe:
@@ -933,8 +936,8 @@ class OvlFile(Header, IoFile):
 		self.progress_callback("Injection completed!", value=1, vmax=1)
 		return error_files, foreign_files
 
-	def create_file(self, file_path):
-		"""Create and register a file entry from a file path"""
+	def create_file_entry(self, file_path):
+		"""Create a file entry from a file path"""
 		# capital letters in the name buffer crash JWE2, apparently
 		filename = os.path.basename(file_path).lower()
 		logging.info(f"Creating {filename}")
@@ -946,21 +949,26 @@ class OvlFile(Header, IoFile):
 		file_entry.aux_entries = []
 		try:
 			file_entry.update_constants(self)
+			return file_entry
 		except KeyError:
 			logging.warning(f"Unsupported file type: {filename}")
 			return
-		# some file types do not have a loader, but we need to create their entries anyway
-		if file_entry.ext not in (".mdl2", ):
-			file_entry.loader = get_loader(file_entry.ext, self, file_entry)
-			try:
-				file_entry.loader.create()
-			except NotImplementedError:
-				logging.warning(f"Creation not implemented for {filename}")
-				return
-			except BaseException as err:
-				logging.warning(f"Could not create: {filename}")
-				traceback.print_exc()
-				return
+
+	def create_file(self, file_path):
+		"""Register a file entry from a file path, add a loader"""
+		file_entry = self.create_file_entry(file_path)
+		if not file_entry:
+			return
+		file_entry.loader = get_loader(file_entry.ext, self, file_entry)
+		try:
+			file_entry.loader.create()
+		except NotImplementedError:
+			logging.warning(f"Creation not implemented for {file_entry.ext}")
+			return
+		except BaseException as err:
+			logging.warning(f"Could not create: {file_entry.name}")
+			traceback.print_exc()
+			return
 		self.files.append(file_entry)
 
 	def create(self, ovl_dir):
@@ -1342,6 +1350,7 @@ class OvlFile(Header, IoFile):
 		for file in self.files:
 			file.file_hash = djb(file.basename)
 			file.ext_hash = djb(file.ext[1:])
+			logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
 			# update dependency hashes
 			for dependency in file.dependencies:
 				if dependency.basename == "bad hash":

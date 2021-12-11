@@ -121,10 +121,14 @@ class BaseFile:
 			content = f.read()
 		return content
 
-	def get_file_entry(self, file_name):
+	def get_file_entry(self, file_path):
+		file_name = os.path.basename(file_path)
 		for file_entry in self.ovl.files:
 			if file_entry.name == file_name:
 				return file_entry
+		file_entry = self.ovl.create_file_entry(file_path)
+		self.ovl.files.append(file_entry)
+		return file_entry
 
 	def create_ss_entry(self, file_entry):
 		ss_entry = SizedStringEntry(self.ovl.context)
