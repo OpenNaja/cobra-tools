@@ -96,6 +96,9 @@ class DdsLoader(BaseFile):
 			pass
 			# self.load_dds(file_path)
 
+	def get_sorted_streams(self):
+		return list(sorted(self.get_streams(), key=lambda buffer: buffer.size, reverse=True))
+
 	def load_dds(self, file_path):
 		versions = get_versions(self.ovl)
 		if is_pc(self.ovl):
@@ -120,7 +123,7 @@ class DdsLoader(BaseFile):
 		dds_file = DdsFile()
 		dds_file.load(file_path)
 		self.ensure_size_match(dds_file, tex_h, tex_w, tex_d, tex_a, comp)
-		sorted_streams = self.get_streams()
+		sorted_streams = self.get_sorted_streams()
 		if is_pc(self.ovl):
 			for buffer, tex_header_3 in zip(sorted_streams, headers_3_1):
 				dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
@@ -211,9 +214,8 @@ class DdsLoader(BaseFile):
 		dds_name = basename + ".dds"
 		logging.info(f"Writing {tex_name}")
 
-		all_buffer_bytes = [buffer.data for buffer in self.get_streams()]
 		# get joined output buffer
-		buffer_data = b"".join(sorted(all_buffer_bytes, key=len, reverse=True))
+		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 
 		out_files = []
 		tex_path = out_dir(tex_name)
