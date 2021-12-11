@@ -1,3 +1,4 @@
+import logging
 import os
 import imageio
 import numpy as np
@@ -135,15 +136,14 @@ def split_name_suffix(in_name):
 	return in_name_bare, suffix
 
 
-def inject_wrapper(png_file_path, dupecheck, tmp_dir):
+def inject_wrapper(png_file_path, out_file_paths, tmp_dir):
 	"""This handles PNG modifications (arrays or flipped channels) and ensures the costly IO is only done once"""
 
-	must_join = False
+	logging.info(f"PNG injection wrapper input {png_file_path}")
 	join_components = has_components(png_file_path)
 	join_rg_b_a = has_rg_b_a(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
 
-	print("PNG injection wrapper input", png_file_path)
 	in_dir, in_name_ext = os.path.split(png_file_path)
 	in_name, ext = os.path.splitext(in_name_ext)
 
@@ -152,20 +152,23 @@ def inject_wrapper(png_file_path, dupecheck, tmp_dir):
 	must_join = suffix is not None
 
 	# update output path
-	out_file_path = os.path.join(tmp_dir, in_name_bare + ext)
-	print("checking if dupe", out_file_path)
-	if out_file_path in dupecheck:
+	if not must_join and not join_components and not must_flip_gb:
+		logging.debug(f"Need not process {png_file_path}")
+		out_file_path = png_file_path
+		out_file_paths.add(out_file_path)
 		return
-	dupecheck.append(out_file_path)
+	else:
+		out_file_path = os.path.join(tmp_dir, in_name_bare + ext)
+		logging.debug(f"checking if {out_file_path} has been processed")
+		if out_file_path in out_file_paths:
+			logging.warning(f"{png_file_path} has already been processed")
+			return
+		out_file_paths.add(out_file_path)
 
 	print("must_join", must_join)
 	print("join_components", join_components)
 	print("join_rg_b_a", join_rg_b_a)
 	print("must_flip_gb", must_flip_gb)
-
-	# we can just return the original file
-	if not must_join and not join_components and not must_flip_gb:
-		return png_file_path
 
 	# non-tiled files that need fixes - normal maps
 	if not must_join and not join_components:

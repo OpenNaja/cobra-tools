@@ -114,11 +114,13 @@ class FgmLoader(BaseFile):
 		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 
 		self.sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))
+		logging.debug(f"ss: len old {len(self.sized_str_entry.pointers[0].data)} len new {len(sizedstr_bytes)}")
 		self.sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
 
 		# inject fragment datas
 		for frag, data in zip(self._valid_frags(), datas):
 			frag.pointers[1].update_data(data, update_copies=True)
+			logging.debug(f"frag: len old {len(frag.pointers[1].data)} len new {len(data)}")
 
 		# update dependencies on ovl
 		for dependency, tex_name in zip(self.file_entry.dependencies, fgm_data.texture_files):

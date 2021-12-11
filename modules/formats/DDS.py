@@ -100,6 +100,7 @@ class DdsLoader(BaseFile):
 		return list(sorted(self.get_streams(), key=lambda buffer: buffer.size, reverse=True))
 
 	def load_dds(self, file_path):
+		logging.info(f"Loading DDS {file_path}")
 		versions = get_versions(self.ovl)
 		if is_pc(self.ovl):
 			header_3_0, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
@@ -155,10 +156,10 @@ class DdsLoader(BaseFile):
 		header_3_0 = f_3_7.pointers[0].load_as(Header3Data0, version_info=ovl_version)[0]
 		headers_3_1 = f_3_3.pointers[1].load_as(TexBuffer, num=f_3_3.pointers[1].data_size//24, version_info=ovl_version)
 		# print(f_3_3.pointers[1].data_size // 24)
-		print(header_3_0)
-		print(headers_3_1)
+		# print(header_3_0)
+		# print(headers_3_1)
 		header_7 = f_3_7.pointers[1].load_as(Header7Data1, version_info=ovl_version)[0]
-		print(header_7)
+		# print(header_7)
 		return header_3_0, headers_3_1, header_7
 	
 	def get_tex_structs_pc(self, sized_str_entry):
@@ -302,6 +303,7 @@ class DdsLoader(BaseFile):
 		return out_files
 
 	def load_png(self, file_path):
+		logging.info(f"Loading PNG {file_path}")
 		# convert the png into a dds, then inject that
 		versions = get_versions(self.ovl)
 		if is_pc(self.ovl):

@@ -888,19 +888,16 @@ class OvlFile(Header, IoFile):
 	def preprocess_files(self, file_paths, tmp_dir):
 		"""Check the files that should be injected and piece them back together"""
 		# only import locally to avoid dependency on imageio for plugin
+		# logging.debug(f"file_paths {file_paths}")
 		from ovl_util import imarray
-		out_file_paths = []
+		out_file_paths = set()
 		for file_path in file_paths:
 			name_ext, name, ext = split_path(file_path)
 			if ext == ".png":
-				out_path = imarray.inject_wrapper(file_path, out_file_paths, tmp_dir)
-				# skip dupes and bad files
-				if not out_path:
-					logging.warning(f"Skipping injection of {file_path}")
-					continue
-				# update the file path to the temp file with flipped channels or rebuilt array
-				file_path = out_path
-			out_file_paths.append(file_path)
+				imarray.inject_wrapper(file_path, out_file_paths, tmp_dir)
+			else:
+				out_file_paths.add(file_path)
+		# logging.debug(f"out_file_paths {out_file_paths}")
 		return out_file_paths
 
 	def inject(self, file_paths, show_temp_files):
