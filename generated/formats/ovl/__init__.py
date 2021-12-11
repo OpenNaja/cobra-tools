@@ -576,7 +576,7 @@ class OvsFile(OvsHeader):
 							buffer.name = data.name
 							buffer.ext = data.ext
 							data.buffers.append(buffer)
-							logging.debug(f"Buffer group match {buffer.name}{buffer.ext}")
+							logging.debug(f"Buffer group match {buffer.name}")
 							break
 					else:
 						raise BufferError(f"Buffer group {b_group.ext}, index {b_group.buffer_index} did not find a data entry for buffer {buffer.file_hash}")

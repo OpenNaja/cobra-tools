@@ -119,21 +119,12 @@ def is_array_tile(fp, array_name_bare):
 
 def split_name_suffix(in_name):
 	# grab the basic name, and the array index suffix if it exists
-	try:
-		in_name_bare, suffix = in_name.rsplit("_", 1)
-		print(in_name_bare, suffix)
-		if "[" in suffix:
-			suffix = suffix[1:-1]
-			suffix = int(suffix)
-		else:
-			in_name_bare = in_name
-			suffix = None
-	except:
-		in_name_bare = in_name
-		suffix = None
-	print("bare name", in_name_bare)
-	print("suffix", suffix)
-	return in_name_bare, suffix
+	in_name_bare, suffix = in_name.rsplit("_", 1)
+	if suffix and "[" in suffix:
+		suffix = suffix[1:-1]
+		suffix = int(suffix)
+		return in_name_bare, suffix
+	return in_name, None
 
 
 def inject_wrapper(png_file_path, out_file_paths, tmp_dir):
