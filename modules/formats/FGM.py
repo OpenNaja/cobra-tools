@@ -69,10 +69,14 @@ class FgmLoader(BaseFile):
 				tex_size = fgm_header.texture_count * 12
 			else:
 				tex_size = fgm_header.texture_count * 24
-			self.tex_info.pointers[1].split_data_padding(tex_size)
+			ptr = self.tex_info.pointers[1]
+			ptr.split_data_padding(tex_size)
+			logging.debug(f"Texture data {len(ptr.data)} padding {len(ptr.padding)}")
 		if self.attr_info:
 			# this likely has no padding anyway
-			self.attr_info.pointers[1].split_data_padding(fgm_header.attribute_count * 16)
+			ptr = self.attr_info.pointers[1]
+			ptr.split_data_padding(fgm_header.attribute_count * 16)
+			logging.debug(f"Attribute data {len(ptr.data)} padding {len(ptr.padding)}")
 		for i, f in enumerate(self.sized_str_entry.fragments):
 			p = f.pointers[1]
 			logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
@@ -114,13 +118,13 @@ class FgmLoader(BaseFile):
 		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 
 		self.sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))
-		logging.debug(f"ss: len old {len(self.sized_str_entry.pointers[0].data)} len new {len(sizedstr_bytes)}")
+		logging.debug(f"ss: len old {len(self.sized_str_entry.pointers[0].data)} len padding {len(self.sized_str_entry.pointers[0].padding)} len new {len(sizedstr_bytes)}")
 		self.sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
 
 		# inject fragment datas
 		for frag, data in zip(self._valid_frags(), datas):
+			logging.debug(f"frag: len old {len(frag.pointers[1].data)} len padding {len(frag.pointers[1].padding)} len new {len(data)}")
 			frag.pointers[1].update_data(data, update_copies=True)
-			logging.debug(f"frag: len old {len(frag.pointers[1].data)} len new {len(data)}")
 
 		# update dependencies on ovl
 		for dependency, tex_name in zip(self.file_entry.dependencies, fgm_data.texture_files):
@@ -136,9 +140,11 @@ class FgmLoader(BaseFile):
 		sizedstr_bytes = as_bytes(fgm_data.fgm_info, version_info=versions)
 		textures_bytes = as_bytes(fgm_data.textures, version_info=versions)
 		attributes_bytes = as_bytes(fgm_data.attributes, version_info=versions)
-		# todo - verify this is the right / needed padding by comparing to stock FGMs
-		textures_bytes += get_padding(len(textures_bytes), alignment=16)
-		attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
+		# todo - this is definitely NOT right/ needed padding by comparing to stock FGMs
+		# no clue what the 'rule' here is, it may not be padding but be appear if another ptr is missing
+		# textures_bytes += get_padding(len(textures_bytes), alignment=16)
+		# attributes never seem to have padding
+		# attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
 		fgm_header = fgm_data.fgm_info
 		datas = []
 		if fgm_header.texture_count:

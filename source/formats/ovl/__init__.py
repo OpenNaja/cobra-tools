@@ -565,7 +565,7 @@ class OvsFile(OvsHeader):
 			logging.debug("Assigning buffer indices")
 			for b_group in self.buffer_groups:
 				b_group.ext = self.ovl.mimes[b_group.ext_index].ext
-				logging.debug(f"Buffer group {b_group.ext}, index {b_group.buffer_index}")
+				# logging.debug(f"Buffer group {b_group.ext}, index {b_group.buffer_index}")
 				# print(b_group)
 				# print(b_group.buffer_count, b_group.data_count)
 				# note that datas can be bigger than buffers
@@ -573,13 +573,13 @@ class OvsFile(OvsHeader):
 				datas = self.data_entries[b_group.data_offset: b_group.data_offset + b_group.data_count]
 				for buffer in buffers:
 					buffer.index = b_group.buffer_index
-					logging.debug(f"Buffer hash {buffer.file_hash}")
+					# logging.debug(f"Buffer hash {buffer.file_hash}")
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
 							buffer.name = data.name
 							buffer.ext = data.ext
 							data.buffers.append(buffer)
-							logging.debug(f"Buffer group match {buffer.name}")
+							# logging.debug(f"Buffer group match {buffer.name}")
 							break
 					else:
 						raise BufferError(f"Buffer group {b_group.ext}, index {b_group.buffer_index} did not find a data entry for buffer {buffer.file_hash}")
