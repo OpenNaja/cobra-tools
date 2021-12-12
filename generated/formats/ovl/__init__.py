@@ -12,6 +12,7 @@ from contextlib import contextmanager
 
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl_base import OvlContext
+from generated.formats.ovl_base.enum.Compression import Compression
 from hashes import constants_pz
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
@@ -184,10 +185,10 @@ class OvsFile(OvsHeader):
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
 		self.compression_header = compressed_bytes[:2]
 		logging.debug(f"Compression magic bytes: {self.compression_header}")
-		if self.ovl.user_version.use_oodle:
+		if self.ovl.user_version.compression == Compression.OODLE:
 			logging.debug("Oodle compression")
 			decompressed = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
-		elif self.ovl.user_version.use_zlib:
+		elif self.ovl.user_version.compression == Compression.ZLIB:
 			logging.debug("Zlib compression")
 			# https://stackoverflow.com/questions/1838699/how-can-i-decompress-a-gzip-stream-with-zlib
 			# we avoid the two zlib magic bytes to get our unzipped content
@@ -206,20 +207,20 @@ class OvsFile(OvsHeader):
 	def compress(self, uncompressed_bytes):
 		# compress data
 		# change to zipped format for saving of oodled ovls
-		if self.ovl.user_version.use_oodle:
+		if self.ovl.user_version.compression == Compression.OODLE:
 			logging.info("HACK: setting compression to zlib")
-			self.ovl.user_version.use_oodle = False
-			self.ovl.user_version.use_zlib = True
-		if self.ovl.user_version.use_oodle:
+			self.ovl.user_version.compression = Compression.ZLIB
+		if self.ovl.user_version.compression == Compression.OODLE:
 			assert self.compression_header.startswith(OODLE_MAGIC)
 			a, raw_algo = struct.unpack("BB", self.compression_header)
 			algo = OodleDecompressEnum(raw_algo)
 			logging.debug(f"Oodle compression {a} {raw_algo} {algo.name}")
 			compressed = oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
-		elif self.ovl.user_version.use_zlib:
+		elif self.ovl.user_version.compression == Compression.ZLIB:
 			compressed = zlib.compress(uncompressed_bytes)
 		else:
-			compressed = uncompressed_bytes
+			# uncompressed only stores the raw length, 0 for decompressed size
+			return 0, len(uncompressed_bytes), uncompressed_bytes
 		return len(uncompressed_bytes), len(compressed), compressed
 
 	def update_hashes(self, file_name_lut):

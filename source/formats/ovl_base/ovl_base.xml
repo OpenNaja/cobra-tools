@@ -46,11 +46,16 @@
 		# JWE oodle (switch)	25108	01100010 00010100
         <member width="1" pos="2" name="unk1" type="bool"/>
         <member width="1" pos="4" name="unk2" type="bool"/>
-        <member width="1" pos="7" name="use zlib" type="bool"/>
-        <member width="1" pos="9" name="use oodle" type="bool"/>
+        <member width="3" pos="7" name="compression" type="Compression"/>
         <member width="1" pos="13" name="unk3" type="bool"/>
         <member width="1" pos="14" name="is jwe" type="bool"/>
     </bitfield>
+
+    <enum name="Compression" numbytes="4" storage="uint" default="0">
+        <option value="0" name="NONE" />
+        <option value="1" name="ZLIB" />
+        <option value="4" name="OODLE" />
+    </enum>
 
     <!-- Extra basic types -->
 
