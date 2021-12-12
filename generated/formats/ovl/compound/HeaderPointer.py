@@ -66,6 +66,7 @@ class HeaderPointer:
 
 		# define this already
 		self.padding = b""
+		self.pool = None
 
 	def read_data(self):
 		"""Load data from archive header data readers into pointer for modification and io"""
@@ -112,6 +113,14 @@ class HeaderPointer:
 			if self.data_offset not in self.pool.pointer_map:
 				self.pool.pointer_map[self.data_offset] = []
 			self.pool.pointer_map[self.data_offset].append(self)
+
+	def update_pool_index(self, pools_lut):
+		"""Changes self.pool_index according to self.pool in pools_lut"""
+
+		if self.pool:
+			self.pool_index = pools_lut[self.pool]
+		else:
+			self.pool_index = -1
 
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""

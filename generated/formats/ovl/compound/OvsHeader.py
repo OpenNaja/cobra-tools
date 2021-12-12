@@ -7,7 +7,7 @@ from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.MemPool import MemPool
-from generated.formats.ovl.compound.PoolType import PoolType
+from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.SetHeader import SetHeader
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 
@@ -27,7 +27,7 @@ class OvsHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.pool_types = Array(self.context)
+		self.pool_groups = Array(self.context)
 		self.pools = Array(self.context)
 		self.data_entries = Array(self.context)
 		self.buffer_entries = Array(self.context)
@@ -38,7 +38,7 @@ class OvsHeader:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.pool_types = Array(self.context)
+		self.pool_groups = Array(self.context)
 		self.pools = Array(self.context)
 		self.data_entries = Array(self.context)
 		self.buffer_entries = Array(self.context)
@@ -49,7 +49,7 @@ class OvsHeader:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.pool_types.read(stream, PoolType, self.arg.num_pool_types, None)
+		self.pool_groups.read(stream, PoolGroup, self.arg.num_pool_groups, None)
 		self.pools.read(stream, MemPool, self.arg.num_pools, None)
 		self.data_entries.read(stream, DataEntry, self.arg.num_datas, None)
 		self.buffer_entries.read(stream, BufferEntry, self.arg.num_buffers, None)
@@ -62,7 +62,7 @@ class OvsHeader:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		self.pool_types.write(stream, PoolType, self.arg.num_pool_types, None)
+		self.pool_groups.write(stream, PoolGroup, self.arg.num_pool_groups, None)
 		self.pools.write(stream, MemPool, self.arg.num_pools, None)
 		self.data_entries.write(stream, DataEntry, self.arg.num_datas, None)
 		self.buffer_entries.write(stream, BufferEntry, self.arg.num_buffers, None)
@@ -78,7 +78,7 @@ class OvsHeader:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* pool_types = {self.pool_types.__repr__()}'
+		s += f'\n	* pool_groups = {self.pool_groups.__repr__()}'
 		s += f'\n	* pools = {self.pools.__repr__()}'
 		s += f'\n	* data_entries = {self.data_entries.__repr__()}'
 		s += f'\n	* buffer_entries = {self.buffer_entries.__repr__()}'

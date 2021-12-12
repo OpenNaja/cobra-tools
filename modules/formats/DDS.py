@@ -145,7 +145,7 @@ class DdsLoader(BaseFile):
 		buffer.update_data(dds_buff)
 
 	def get_tex_structs(self, sized_str_entry, ovl_version):
-		# we have exactly two fragments, pointing into these pool_types
+		# we have exactly two fragments, pointing into these pool_groups
 		f_3_3, f_3_7 = sized_str_entry.fragments
 	
 		header_3_0 = f_3_7.pointers[0].load_as(Header3Data0, version_info=ovl_version)[0]

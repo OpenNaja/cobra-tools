@@ -7,7 +7,7 @@ from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.MemPool import MemPool
-from generated.formats.ovl.compound.PoolType import PoolType
+from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from generated.formats.ovl.compound.DataEntry import DataEntry
@@ -91,7 +91,7 @@ class BaseFile:
 			if pool.type == pool_type_key and not pool.update_from_ptrs:
 				return pool_index, pool
 		# nope, means we gotta create pool type and pool
-		pool_type = PoolType(self.ovl.context)
+		pool_type = PoolGroup(self.ovl.context)
 		pool_type.type = pool_type_key
 		pool_type.num_pools = 1
 
@@ -103,7 +103,7 @@ class BaseFile:
 		pool.type = pool_type_key
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
 		pool.update_from_ptrs = False
-		self.ovs.pool_types.append(pool_type)
+		self.ovs.pool_groups.append(pool_type)
 		self.ovs.pools.append(pool)
 		return len(self.ovs.pools)-1, pool
 

@@ -10,6 +10,7 @@ import traceback
 import logging
 from contextlib import contextmanager
 
+from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl_base import OvlContext
 from hashes import constants_pz
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
@@ -254,7 +255,7 @@ class OvsFile(OvsHeader):
 		# adjust the counts
 		self.arg.num_pools = len(self.pools)
 		self.arg.num_datas = len(self.data_entries)
-		self.arg.num_pool_types = len(self.pool_types)
+		self.arg.num_pool_groups = len(self.pool_groups)
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
@@ -274,7 +275,7 @@ class OvsFile(OvsHeader):
 			# print(self)
 			# print(self.buffer_groups)
 			pool_index = 0
-			for pool_type in self.pool_types:
+			for pool_type in self.pool_groups:
 				for i in range(pool_type.num_pools):
 					pool = self.pools[pool_index]
 					pool.type = pool_type.type
@@ -1243,11 +1244,11 @@ class OvlFile(Header, IoFile):
 	def postprocessing(self):
 		self.update_ss_dict()
 		self.link_streams()
-		self.load_pools()
+		self.load_flattened_pools()
 		self.load_pointers()
 		self.load_file_classes()
 
-	def load_pools(self):
+	def load_flattened_pools(self):
 		"""Create flattened list of pools"""
 		self.pools = [None for _ in range(self.num_pools)]
 		for archive_entry in self.archives:
@@ -1376,17 +1377,58 @@ class OvlFile(Header, IoFile):
 			# change the hashes / indices of all entries to be valid for the current game version
 			archive.content.update_hashes(file_name_lut)
 
+	def sort_pools_and_update_groups(self):
+		logging.debug(f"Sorting pools by type and updating pool groups")
+		for archive in self.archives:
+
+			logging.debug(f"Sorting pools for {archive.name}")
+			ovs = archive.content
+			ovs.pools.sort(key=lambda pool: pool.type)
+
+			pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
+			for entry in itertools.chain(ovs.fragments, ovs.sized_str_entries):
+				for pointer in entry.pointers:
+					# the index goes into the ovs file's pools
+					pointer.update_pool_index(pools_lut)
+
+			# map the pool types to pools
+			pools_by_type = {}
+			for pool in ovs.pools:
+				if pool.type not in pools_by_type:
+					pools_by_type[pool.type] = []
+				pools_by_type[pool.type].append(pool)
+			
+			# rebuild pool groups
+			ovs.pool_groups.clear()
+			for pool_type, pools in pools_by_type.items():
+				pool_group = PoolGroup(self.context)
+				pool_group.type = pool_type
+				pool_group.num_pools = len(pools)
+				ovs.pool_groups.append(pool_group)
+
+			# update the counts
+			archive.num_pool_groups = len(ovs.pool_groups)
+			archive.num_pools = len(ovs.pools)
+
+		# update the flattened list of pools
+		self.load_flattened_pools()
+		# dependencies index goes into the flattened list of pools
+		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
+		for dep in self.dependencies:
+			dep.pointers[0].update_pool_index(pools_lut)
+
 	def update_counts(self):
 		"""Update counts of this ovl and all of its archives"""
 		self.update_mimes()
 		self.update_triplets()
+		self.sort_pools_and_update_groups()
 		# adjust the counts
 		for archive in self.archives:
 			archive.content.rebuild_buffer_groups()
 			archive.content.update_counts()
 			archive.content.rebuild_assets()
 		# sum content of individual archives
-		self.num_pool_types = sum(a.num_pool_types for a in self.archives)
+		self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
 		self.num_pools = sum(a.num_pools for a in self.archives)
 		self.num_datas = sum(a.num_datas for a in self.archives)
 		self.num_buffers = sum(a.num_buffers for a in self.archives)

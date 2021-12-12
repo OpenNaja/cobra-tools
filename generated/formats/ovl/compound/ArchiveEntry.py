@@ -26,14 +26,14 @@ class ArchiveEntry:
 		# starting index of file entries
 		self.ovs_file_offset = 0
 
-		# Total amount of pools in this archive; sum of all PoolType.num_pools
+		# Total amount of pools in this archive; sum of all PoolGroup.num_pools
 		self.num_pools = 0
 
 		# Amount of Data Entries
 		self.num_datas = 0
 
-		# Amount of PoolType objects at start of this deflated archive.
-		self.num_pool_types = 0
+		# Amount of PoolGroup objects at start of this deflated archive.
+		self.num_pool_groups = 0
 
 		# used in pz 1.6
 		self.num_buffer_groups = 0
@@ -81,7 +81,7 @@ class ArchiveEntry:
 		self.ovs_file_offset = 0
 		self.num_pools = 0
 		self.num_datas = 0
-		self.num_pool_types = 0
+		self.num_pool_groups = 0
 		self.num_buffer_groups = 0
 		self.num_buffers = 0
 		self.num_fragments = 0
@@ -105,7 +105,7 @@ class ArchiveEntry:
 		self.ovs_file_offset = stream.read_uint()
 		self.num_pools = stream.read_uint()
 		self.num_datas = stream.read_ushort()
-		self.num_pool_types = stream.read_ushort()
+		self.num_pool_groups = stream.read_ushort()
 		self.num_buffer_groups = stream.read_uint()
 		self.num_buffers = stream.read_uint()
 		self.num_fragments = stream.read_uint()
@@ -131,7 +131,7 @@ class ArchiveEntry:
 		stream.write_uint(self.ovs_file_offset)
 		stream.write_uint(self.num_pools)
 		stream.write_ushort(self.num_datas)
-		stream.write_ushort(self.num_pool_types)
+		stream.write_ushort(self.num_pool_groups)
 		stream.write_uint(self.num_buffer_groups)
 		stream.write_uint(self.num_buffers)
 		stream.write_uint(self.num_fragments)
@@ -160,7 +160,7 @@ class ArchiveEntry:
 		s += f'\n	* ovs_file_offset = {self.ovs_file_offset.__repr__()}'
 		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
 		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
-		s += f'\n	* num_pool_types = {self.num_pool_types.__repr__()}'
+		s += f'\n	* num_pool_groups = {self.num_pool_groups.__repr__()}'
 		s += f'\n	* num_buffer_groups = {self.num_buffer_groups.__repr__()}'
 		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
 		s += f'\n	* num_fragments = {self.num_fragments.__repr__()}'

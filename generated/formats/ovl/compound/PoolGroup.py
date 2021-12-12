@@ -1,7 +1,7 @@
 from generated.context import ContextReference
 
 
-class PoolType:
+class PoolGroup:
 
 	"""
 	Located at start of deflated archive stream
@@ -43,7 +43,7 @@ class PoolType:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'PoolType [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'PoolGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

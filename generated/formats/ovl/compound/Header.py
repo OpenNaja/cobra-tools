@@ -59,8 +59,8 @@ class Header(GenericHeader):
 		# number of archives
 		self.num_archives = 0
 
-		# number of pool_types across all archives
-		self.num_pool_types = 0
+		# number of pool_groups across all archives
+		self.num_pool_groups = 0
 
 		# number of headers of all types across all archives
 		self.num_pools = 0
@@ -149,7 +149,7 @@ class Header(GenericHeader):
 		self.num_files_2 = 0
 		self.num_dependencies = 0
 		self.num_archives = 0
-		self.num_pool_types = 0
+		self.num_pool_groups = 0
 		self.num_pools = 0
 		self.num_datas = 0
 		self.num_buffers = 0
@@ -193,7 +193,7 @@ class Header(GenericHeader):
 		self.num_files_2 = stream.read_uint()
 		self.num_dependencies = stream.read_uint()
 		self.num_archives = stream.read_uint()
-		self.num_pool_types = stream.read_uint()
+		self.num_pool_groups = stream.read_uint()
 		self.num_pools = stream.read_uint()
 		self.num_datas = stream.read_uint()
 		self.num_buffers = stream.read_uint()
@@ -238,7 +238,7 @@ class Header(GenericHeader):
 		stream.write_uint(self.num_files_2)
 		stream.write_uint(self.num_dependencies)
 		stream.write_uint(self.num_archives)
-		stream.write_uint(self.num_pool_types)
+		stream.write_uint(self.num_pool_groups)
 		stream.write_uint(self.num_pools)
 		stream.write_uint(self.num_datas)
 		stream.write_uint(self.num_buffers)
@@ -286,7 +286,7 @@ class Header(GenericHeader):
 		s += f'\n	* num_files_2 = {self.num_files_2.__repr__()}'
 		s += f'\n	* num_dependencies = {self.num_dependencies.__repr__()}'
 		s += f'\n	* num_archives = {self.num_archives.__repr__()}'
-		s += f'\n	* num_pool_types = {self.num_pool_types.__repr__()}'
+		s += f'\n	* num_pool_groups = {self.num_pool_groups.__repr__()}'
 		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
 		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
 		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'

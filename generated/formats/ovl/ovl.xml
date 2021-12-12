@@ -20,7 +20,7 @@
         <add name="Num Dependencies" type="uint" >count of parts</add>
         <add name="Num Archives" type="uint" >number of archives</add>
 
-        <add name="num_pool_types" type="uint" >number of pool_types across all archives</add>
+        <add name="num_pool_groups" type="uint" >number of pool_groups across all archives</add>
         <add name="num_pools" type="uint" >number of headers of all types across all archives</add>
         <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
         <add name="Num Buffers" type="uint" >number of BufferEntries across all archives</add>
@@ -85,9 +85,9 @@
         <add name="Offset" type="uint">offset in the ovl's Archive Names block</add>
         <add name="pools_offset" type="uint">starting index in ovl list of pools, this archive's pools continue for num_pools</add>
         <add name="ovs file offset" type="uint">starting index of file entries</add>
-        <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolType.num_pools</add>
+        <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolGroup.num_pools</add>
         <add name="Num Datas" type="ushort" >Amount of Data Entries</add>
-        <add name="num_pool_types" type="ushort" >Amount of PoolType objects at start of this deflated archive.</add>
+        <add name="num_pool_groups" type="ushort" >Amount of PoolGroup objects at start of this deflated archive.</add>
         <add name="num_buffer_groups" type="uint">used in pz 1.6</add>
         <add name="Num Buffers" type="uint">Amount of buffers in the archive</add>
         <add name="Num Fragments" type="uint" >Amount of Fragments in the archive</add>
@@ -139,7 +139,7 @@
 
     <compound name="OvsHeader" >
         Description of one archive's content
-        <add name="pool_types" type="PoolType" arr1="#ARG#\num_pool_types"/>
+        <add name="pool_groups" type="PoolGroup" arr1="#ARG#\num_pool_groups"/>
         <add name="pools" type="MemPool" arr1="#ARG#\num_pools"/>
         <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
@@ -149,7 +149,7 @@
         <add name="set header " type="SetHeader"/>
     </compound>
 
-	<compound name="PoolType">
+	<compound name="PoolGroup">
 		Located at start of deflated archive stream
 		<add name="Type" type="ushort" >Type of the pools that follow</add>
 		<add name="num_pools" type="ushort" >Amount of pools of that type that follow the pool types block</add>
