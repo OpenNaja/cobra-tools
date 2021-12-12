@@ -51,10 +51,6 @@ class DdsLoader(BaseFile):
 		if ext == ".tex":
 			if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
 				ss, f00, f10, f01, f11, buffers = self._get_data(self.file_entry.path)
-				# two separate pools
-				pool3_index, pool3 = self.get_pool(3)
-				pool4_index, pool4 = self.get_pool(4)
-
 				self.sized_str_entry = self.create_ss_entry(self.file_entry)
 				self.create_fragments(self.sized_str_entry, 2)
 				frag0, frag1 = self.sized_str_entry.fragments
@@ -63,18 +59,14 @@ class DdsLoader(BaseFile):
 				data3 = (ss, f00, f10, f01)
 				ptrs3 = (self.sized_str_entry.pointers[0], frag0.pointers[0], frag1.pointers[0], frag0.pointers[1])
 				for ptr, data in zip(ptrs3, data3):
-					ptr.pool_index = pool3_index
-					ptr.data_offset = pool3.data.tell()
-					pool3.data.write(data)
+					self.write_to_pool(ptr, 3, data)
 				# pool type 4
-				frag1.pointers[1].pool_index = pool4_index
-				frag1.pointers[1].data_offset = pool4.data.tell()
-				pool4.data.write(f11)
+				self.write_to_pool(frag1.pointers[1], 4, f11)
 				self.create_data_entry(self.sized_str_entry, buffers)
 			elif is_pc(self.ovl) or is_ztuac(self.ovl):
 				logging.error(f"Only modern texture format supported for now!")
 		else:
-			logging.error(f"Only tex supported for now!")
+			logging.error(f"Only .tex supported for now!")
 
 	def collect(self):
 		self.assign_ss_entry()
