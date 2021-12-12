@@ -9,7 +9,7 @@ class AssetpkgLoader(BaseFile):
 
 	def create(self):
 		f_0, f_1 = self._get_data(self.file_entry.path)
-		self.create_ss_entry(self.file_entry)
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		f = self.create_fragments(self.sized_str_entry, 1)[0]
 		self.write_to_pool(f.pointers[1], 2, f_1)
 		self.write_to_pool(f.pointers[0], 2, f_0)
