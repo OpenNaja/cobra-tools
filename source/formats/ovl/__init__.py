@@ -1509,8 +1509,8 @@ class OvlFile(Header, IoFile):
 				print(err)
 
 	def save(self, filepath, dat_path):
-		logging.info("Writing OVL")
 		self.store_filepath(filepath)
+		logging.info(f"Writing {self.basename}")
 		self.update_files()
 		self.update_counts()
 		# do this last so we also catch the assets & sets
