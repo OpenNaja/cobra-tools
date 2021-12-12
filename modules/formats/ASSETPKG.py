@@ -1,3 +1,4 @@
+import logging
 import struct
 from modules.formats.shared import get_padding
 from modules.formats.BaseFormat import BaseFile
@@ -8,18 +9,11 @@ class AssetpkgLoader(BaseFile):
 
 	def create(self):
 		f_0, f_1 = self._get_data(self.file_entry.path)
-		pool_index, pool = self.get_pool(2)
-		offset = pool.data.tell()
-		pool.data.write(f_1)
-		pool.data.write(f_0)
-		new_frag = self.create_fragment()
-		new_frag.pointers[0].pool_index = pool_index
-		new_frag.pointers[0].data_offset = offset + len(f_1)
-		new_frag.pointers[1].pool_index = pool_index
-		new_frag.pointers[1].data_offset = offset
-		new_ss = self.create_ss_entry(self.file_entry)
-		new_ss.pointers[0].pool_index = pool_index
-		new_ss.pointers[0].data_offset = offset + len(f_1)
+		self.create_ss_entry(self.file_entry)
+		f = self.create_fragments(self.sized_str_entry, 1)[0]
+		self.write_to_pool(f.pointers[1], 2, f_1)
+		self.write_to_pool(f.pointers[0], 2, f_0)
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, b"")
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -31,7 +25,7 @@ class AssetpkgLoader(BaseFile):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		print("\nWriting", name)
+		logging.info(f"Writing {name}")
 		f_0 = self.sized_str_entry.fragments[0]
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:

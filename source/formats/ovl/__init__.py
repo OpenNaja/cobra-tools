@@ -411,13 +411,14 @@ class OvsFile(OvsHeader):
 	def rebuild_buffer_groups(self):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
 		self.buffer_groups.clear()
+		self.sized_str_entries.sort(key=lambda b: (b.ext, b.file_hash))
+		self.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 		if (is_pz16(self.ovl) or is_jwe2(self.ovl)) and self.data_entries:
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
 					self.transfer_identity(buffer, data_entry)
 			# sort datas and buffers to be what 1.6 needs
 			# cobra < 20 used buffer index per data entry
-			self.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 			self.buffer_entries.sort(key=lambda b: (b.ext, b.index, b.file_hash))
 
 			# print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)

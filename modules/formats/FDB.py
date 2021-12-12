@@ -12,12 +12,8 @@ class FdbLoader(BaseFile):
 
 	def create(self):
 		ss, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
-		pool_index, pool = self.get_pool(2)
-		offset = pool.data.tell()
-		pool.data.write(ss)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
-		self.sized_str_entry.pointers[0].data_offset = offset
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
 		self.create_data_entry(self.sized_str_entry, (buffer_0, buffer_1))
 
 	def collect(self):
