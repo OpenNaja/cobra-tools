@@ -38,7 +38,7 @@ def set_pc(context):
 
 
 def is_pz(context):
-	if context.version == 19 and context.user_version in (8340, 8724):
+	if context.version == 19 and context.user_version in (8340, 8724, 8212):
 		return True
 
 
@@ -48,7 +48,7 @@ def set_pz(context):
 
 
 def is_pz16(context):
-	if context.version == 20 and context.user_version in (8340, 8724):
+	if context.version == 20 and context.user_version in (8340, 8724, 8212):
 		return True
 
 
@@ -58,7 +58,7 @@ def set_pz16(context):
 
 
 def is_jwe(context):
-	if context.version == 19 and context.user_version in (24724, 25108):
+	if context.version == 19 and context.user_version in (24724, 25108, 24596):
 		return True
 
 
@@ -68,7 +68,7 @@ def set_jwe(context):
 
 
 def is_jwe2(context):
-	if context.version == 20 and context.user_version in (24724, 25108):
+	if context.version == 20 and context.user_version in (24724, 25108, 24596):
 		return True
 
 

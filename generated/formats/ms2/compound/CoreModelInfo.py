@@ -77,7 +77,7 @@ class CoreModelInfo:
 			self.pack_offset = 0
 		self.center = Vector3(self.context, None, None)
 		self.radius = 0
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unknowns = numpy.zeros((4), dtype='float')
 		if not (self.context.version == 17):
 			self.bounds_min_repeat = Vector3(self.context, None, None)
@@ -102,7 +102,7 @@ class CoreModelInfo:
 			self.pack_offset = stream.read_float()
 		self.center = stream.read_type(Vector3, (self.context, None, None))
 		self.radius = stream.read_float()
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unknowns = stream.read_floats((4))
 		if not (self.context.version == 17):
 			self.bounds_min_repeat = stream.read_type(Vector3, (self.context, None, None))
@@ -128,7 +128,7 @@ class CoreModelInfo:
 			stream.write_float(self.pack_offset)
 		stream.write_type(self.center)
 		stream.write_float(self.radius)
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			stream.write_floats(self.unknowns)
 		if not (self.context.version == 17):
 			stream.write_type(self.bounds_min_repeat)

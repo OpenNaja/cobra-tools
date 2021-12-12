@@ -54,7 +54,7 @@ class BnkFileContainer:
 		self.count_2 = 0
 		self.stream_info_count = 0
 		self.zeros = numpy.zeros((7), dtype='uint')
-		if (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.zeros_2 = numpy.zeros((2), dtype='uint')
 		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
 		self.names = Array(self.context)
@@ -67,7 +67,7 @@ class BnkFileContainer:
 		self.count_2 = stream.read_uint()
 		self.stream_info_count = stream.read_uint()
 		self.zeros = stream.read_uints((7))
-		if (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.zeros_2 = stream.read_uints((2))
 		self.stream_infos = stream.read_uint64s((self.stream_info_count, 3))
 		self.names = stream.read_zstrings((self.name_count))
@@ -82,7 +82,7 @@ class BnkFileContainer:
 		stream.write_uint(self.count_2)
 		stream.write_uint(self.stream_info_count)
 		stream.write_uints(self.zeros)
-		if (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			stream.write_uints(self.zeros_2)
 		stream.write_uint64s(self.stream_infos)
 		stream.write_zstrings(self.names)

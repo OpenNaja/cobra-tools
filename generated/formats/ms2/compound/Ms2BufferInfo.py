@@ -41,43 +41,43 @@ class Ms2BufferInfo:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
+		if self.context.user_version.is_jwe and (self.context.version == 19):
 			self.skip_1 = numpy.zeros((4), dtype='uint')
 		self.vertexdatasize = 0
 		self.ptr_1 = 0
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unk_0 = 0
 		self.facesdatasize = 0
 		self.ptr_2 = 0
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unk_2 = numpy.zeros((2), dtype='uint64')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
+		if self.context.user_version.is_jwe and (self.context.version == 19):
 			self.skip_1 = stream.read_uints((4))
 		self.vertexdatasize = stream.read_uint64()
 		self.ptr_1 = stream.read_uint64()
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unk_0 = stream.read_uint64()
 		self.facesdatasize = stream.read_uint64()
 		self.ptr_2 = stream.read_uint64()
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			self.unk_2 = stream.read_uint64s((2))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if ((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 19):
+		if self.context.user_version.is_jwe and (self.context.version == 19):
 			stream.write_uints(self.skip_1)
 		stream.write_uint64(self.vertexdatasize)
 		stream.write_uint64(self.ptr_1)
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			stream.write_uint64(self.unk_0)
 		stream.write_uint64(self.facesdatasize)
 		stream.write_uint64(self.ptr_2)
-		if (((self.context.user_version == 8340) or (self.context.user_version == 8724)) and (self.context.version >= 19)) or (((self.context.user_version == 24724) or (self.context.user_version == 25108)) and (self.context.version == 20)):
+		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
 			stream.write_uint64s(self.unk_2)
 
 		self.io_size = stream.tell() - self.io_start

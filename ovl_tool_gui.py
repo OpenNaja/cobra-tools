@@ -6,6 +6,7 @@ import traceback
 import logging
 import tempfile
 
+from generated.formats.ovl_base.enum.Compression import Compression
 from modules.walker import walk_type
 
 try:
@@ -49,10 +50,15 @@ class MainWindow(widgets.MainWindow):
 		self.t_action_current_message = "No operation in progress"
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
-		self.game_container = widgets.LabelCombo("Game:", [g.value for g in games])
+		self.game_choice = widgets.LabelCombo("Game:", [g.value for g in games])
 		# only listen to user changes
-		self.game_container.entry.textActivated.connect(self.game_changed)
-		self.game_container.entry.setEditable(False)
+		self.game_choice.entry.textActivated.connect(self.game_changed)
+		self.game_choice.entry.setEditable(False)
+		
+		self.compression_choice = widgets.LabelCombo("Compression:", [c.name for c in Compression])
+		# only listen to user changes
+		self.compression_choice.entry.textActivated.connect(self.compression_changed)
+		self.compression_choice.entry.setEditable(False)
 
 		header_names = ["Name", "File Type", "DJB"]
 
@@ -138,7 +144,8 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_write_dat, 1, 3)
 		self.qgrid.addWidget(self.ext_dat, 2, 3)
 		self.qgrid.addWidget(self.in_folder, 3, 3)
-		self.qgrid.addWidget(self.game_container, 0, 4,)
+		self.qgrid.addWidget(self.game_choice, 0, 4,)
+		self.qgrid.addWidget(self.compression_choice, 1, 4,)
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
@@ -281,10 +288,24 @@ class MainWindow(widgets.MainWindow):
 		self.update_gui_table()
 
 	def game_changed(self,):
-		game = self.game_container.entry.currentText()
+		game = self.game_choice.entry.currentText()
 		# we must set both the context, and the local variable
 		set_game(self.ovl_data.context, game)
 		set_game(self.ovl_data, game)
+
+	def compression_changed(self,):
+		try:
+			# self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
+			compression = self.compression_choice.entry.currentText()
+			# we must set both the context, and the local variable
+			# set_game(self.ovl_data.context, game)
+			# set_game(self.ovl_data, game)
+			compression_value = Compression[compression]
+			self.ovl_data.context.user_version.compression = compression_value
+			self.ovl_data.user_version.compression = compression_value
+			print(self.ovl_data.user_version)
+		except BaseException as err:
+			print(err)
 
 	@property
 	def commands(self, ):
@@ -395,8 +416,9 @@ class MainWindow(widgets.MainWindow):
 				interaction.showdialog(str(ex))
 				print(self.ovl_data)
 			self.update_gui_table()
-			game = get_game(self.ovl_data.context)[0]
-			self.game_container.entry.setText(game.value)
+			game = get_game(self.ovl_data)[0]
+			self.game_choice.entry.setText(game.value)
+			self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
 
 	def create_ovl(self, ovl_dir):
 		# clear the ovl

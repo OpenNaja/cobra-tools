@@ -27,7 +27,7 @@ class SizedStrData:
 		self.hash_block_size = 0
 		self.zeros = numpy.zeros((2), dtype='int')
 		self.c_1 = 0
-		if self.context.version == 20:
+		if (not self.context.user_version.is_jwe) and (self.context.version == 20):
 			self.zeros_end = numpy.zeros((9), dtype='ushort')
 
 	def read(self, stream):
@@ -36,7 +36,7 @@ class SizedStrData:
 		self.hash_block_size = stream.read_ushort()
 		self.zeros = stream.read_ints((2))
 		self.c_1 = stream.read_ushort()
-		if self.context.version == 20:
+		if (not self.context.user_version.is_jwe) and (self.context.version == 20):
 			self.zeros_end = stream.read_ushorts((9))
 
 		self.io_size = stream.tell() - self.io_start
@@ -47,7 +47,7 @@ class SizedStrData:
 		stream.write_ushort(self.hash_block_size)
 		stream.write_ints(self.zeros)
 		stream.write_ushort(self.c_1)
-		if self.context.version == 20:
+		if (not self.context.user_version.is_jwe) and (self.context.version == 20):
 			stream.write_ushorts(self.zeros_end)
 
 		self.io_size = stream.tell() - self.io_start
