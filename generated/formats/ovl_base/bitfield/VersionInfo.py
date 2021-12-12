@@ -8,6 +8,7 @@ class VersionInfo(BasicBitfield):
 	"""
 	Determines the format of the OVL file.
 	n.b. pos counts from the end!
+	# compression                         __ _
 	# pc/pz uncompressed	8212	00100000 00010100
 	# pc/pz zlib			8340	00100000 10010100
 	# pc/pz oodle			8724	00100010 00010100
