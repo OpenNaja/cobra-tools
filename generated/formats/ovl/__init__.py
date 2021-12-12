@@ -416,7 +416,7 @@ class OvsFile(OvsHeader):
 			# sort datas and buffers to be what 1.6 needs
 			# cobra < 20 used buffer index per data entry
 			self.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
-			self.buffer_entries.sort(key=lambda b: (b.ext, b.index))
+			self.buffer_entries.sort(key=lambda b: (b.ext, b.index, b.file_hash))
 
 			# print("AYAYA\n", self.data_entries, "AYAYA\n", self.buffer_entries)
 			# generate a mime lut to know the index of the mimes
