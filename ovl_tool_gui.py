@@ -411,8 +411,8 @@ class MainWindow(widgets.MainWindow):
 				# self.ovl_thread.start()
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
 				# print(self.ovl_data.user_version)
-				# for a in self.ovl_data.archives:
-				# 	print(a.content)
+				for a in self.ovl_data.archives:
+					print(a)
 				# print(self.ovl_data.user_version)
 			except Exception as ex:
 				traceback.print_exc()

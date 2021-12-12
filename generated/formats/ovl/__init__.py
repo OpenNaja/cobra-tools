@@ -261,6 +261,8 @@ class OvsFile(OvsHeader):
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
 		self.arg.num_buffer_groups = len(self.buffer_groups)
+		# todo - self.arg.ovs_file_offset
+		# todo - self.arg.ovs_offset
 
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
