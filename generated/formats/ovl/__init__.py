@@ -153,7 +153,7 @@ class OvsFile(OvsHeader):
 			logging.debug(f"pool_index {pool_index}")
 			# if we are dealing with a pool loaded from an ovl, see if its extension has been figured out
 			if hasattr(pool, "ext") and pool.ext not in REVERSED_TYPES:
-				logging.debug(f"Keeping header name {pool.name} as it has not been reverse engineered!")
+				logging.debug(f"Keeping pool name {pool.name} as it has not been reverse engineered!")
 				continue
 			ss_map = pointers_to_ss[pool_index]
 			results = tuple(sorted(ss_map.items()))
@@ -162,7 +162,7 @@ class OvsFile(OvsHeader):
 				ss_map = pointers_to_ss_frag[pool_index]
 				results = tuple(sorted(ss_map.items()))
 				if not results:
-					logging.error(f"No pointer found for header {pool_index}, error!")
+					logging.error(f"No pointer found for pool {pool_index}, error!")
 					continue
 			ss = results[0][1]
 			logging.debug(f"Header[{pool_index}]: {pool.name} -> {ss.name}")
@@ -1351,7 +1351,7 @@ class OvlFile(Header, IoFile):
 		for file in self.files:
 			file.file_hash = djb(file.basename)
 			file.ext_hash = djb(file.ext[1:])
-			logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
+			# logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
 			# update dependency hashes
 			for dependency in file.dependencies:
 				if dependency.basename == "bad hash":

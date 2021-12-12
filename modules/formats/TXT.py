@@ -8,13 +8,9 @@ class TxtLoader(BaseFile):
 
 	def create(self):
 		ss = self._get_data(self.file_entry.path)
-		pool_index, pool = self.get_pool(2)
-		offset = pool.data.tell()
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
-		self.sized_str_entry.pointers[0].data_offset = offset
-		pool.data.write(ss)
-		pool.num_files += 1
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
+		self.sized_str_entry.pointers[0].pool.num_files += 1
 
 	def collect(self):
 		self.assign_ss_entry()
