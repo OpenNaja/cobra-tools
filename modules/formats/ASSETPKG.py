@@ -12,8 +12,8 @@ class AssetpkgLoader(BaseFile):
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		f = self.create_fragments(self.sized_str_entry, 1)[0]
 		self.write_to_pool(f.pointers[1], 2, f_1)
-		self.write_to_pool(f.pointers[0], 2, f_0)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, b"")
+		self.write_to_pool(self.sized_str_entry.pointers[0], 4, b"")
+		self.write_to_pool(f.pointers[0], 4, f_0)
 
 	def collect(self):
 		self.assign_ss_entry()
