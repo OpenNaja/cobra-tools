@@ -961,7 +961,7 @@ class SingletonUpdater:
             self._subfolder_path.replace('\\', os.path.sep)
 
         # Either directly in root of zip/one subfolder, or use specified path.
-        if not os.path.isfile(os.path.join(unpath, "__init__.py")):
+        if not os.path.isfile(os.path.join(unpath, "../../Desktop/__init__.py")):
             dirlist = os.listdir(unpath)
             if len(dirlist) > 0:
                 if self._subfolder_path == "" or self._subfolder_path is None:
@@ -971,7 +971,7 @@ class SingletonUpdater:
 
             # Smarter check for additional sub folders for a single folder
             # containing the __init__.py file.
-            if not os.path.isfile(os.path.join(unpath, "__init__.py")):
+            if not os.path.isfile(os.path.join(unpath, "../../Desktop/__init__.py")):
                 print("Not a valid addon found")
                 print("Paths:")
                 print(dirlist)
