@@ -12,6 +12,7 @@ from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from generated.formats.ovl.versions import *
 from generated.formats.ms2.versions import *
+from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile, BinaryStream
 from modules.formats.shared import get_padding_size, assign_versions, get_versions, djb, get_padding
 
@@ -37,13 +38,13 @@ def findall_diff(s, p0, p1):
 		i = s.find(p0, i + 1)
 
 
-class Ms2Context(object):
+class Ms2Context(OvlContext):
 	def __init__(self):
-		self.version = 0
-		self.user_version = 0
+		super().__init__()
+		self.ms2_version = 0
 
 	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
+		return f"{self.version} | {self.user_version} | {self.ms2_version}"
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
