@@ -37,9 +37,8 @@ from modules.helpers import split_path
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
-	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg",
-	".materialcollection",
-	".pscollection", ".logicalcontrols", ".mergedetails", ".txt", ".gfx", ".uimovidefinition", ".world")
+	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".curve", ".spl", ".lua", ".fdb", ".xmlconfig", ".fgm", ".assetpkg",
+	".materialcollection",	".pscollection", ".logicalcontrols", ".mergedetails", ".txt", ".gfx", ".uimovidefinition", ".world")
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -58,6 +57,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.ASSETPKG import AssetpkgLoader
 	from modules.formats.BANI import BanisLoader
 	from modules.formats.BNK import BnkLoader
+	from modules.formats.CURVE import CurveLoader
 	from modules.formats.DDS import DdsLoader
 	from modules.formats.ENUMNAMER import EnumnamerLoader
 	from modules.formats.FCT import FctLoader
@@ -80,6 +80,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.MERGEDETAILS import MergeDetailsLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
+	from modules.formats.SPL import SplineLoader
 	from modules.formats.TXT import TxtLoader
 	from modules.formats.UIMOVIEDEFINITION import UIMovieDefinitionLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
@@ -93,6 +94,7 @@ def get_loader(ext, ovl, file_entry):
 		".assetpkg": AssetpkgLoader,
 		".banis": BanisLoader,
 		".bnk": BnkLoader,
+		".curve": CurveLoader,
 		".dinosaurmaterialeffects": MateffsLoader,
 		".dinosaurmateriallayers": MatlayersLoader,
 		".dinosaurmaterialpatterns": MatpatsLoader,
@@ -114,6 +116,7 @@ def get_loader(ext, ovl, file_entry):
 		".mergedetails": MergeDetailsLoader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,
+		".spl": SplineLoader,
 		".tex": DdsLoader,
 		".txt": TxtLoader,
 		".uimoviedefinition": UIMovieDefinitionLoader,
