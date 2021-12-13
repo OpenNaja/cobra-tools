@@ -985,6 +985,8 @@ class OvlFile(Header, IoFile):
 		# todo - create archives on demand per file
 		self.create_archive()
 		self.add_files(file_paths)
+		# Add included ovls, (old dir entries)
+		self.add_ovls(os.path.join(ovl_dir, "ovls.include"))
 
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
@@ -1033,6 +1035,15 @@ class OvlFile(Header, IoFile):
 		self.filepath = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.filepath)[0]
+
+	def add_ovls(self, path):
+		if os.path.isfile(path):
+			# load file, split lines, rtrim and remove .ovl extension if existing?
+			f = open(path)
+			dirs = f.readlines()
+			f.close()
+			for dir_entry in dirs:
+				self.inject_dir(dir_entry)
 
 	def inject_dir(self, directory_name):
 		# validate can't insert same directory twice
