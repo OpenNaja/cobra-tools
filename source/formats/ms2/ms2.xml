@@ -214,7 +214,7 @@
 	
 	<compound name="Ms2SizedStrData">
 		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
-		<add name="ms2 version" type="uint" >32 if PC, 47 if JWE, 48 if PZ</add>
+		<add name="ms2 version" type="uint" >32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
 		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
 		<add name="mdl2 count" type="ushort" >3 in stairwell</add>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
@@ -263,7 +263,7 @@
 	<compound name="Ms2Buffer0" >
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
-		<add name="new padding" type="SmartPadding" vercond="#PZ16#" >todo - pad to 8; for pz 1.6</add>
+		<add name="new padding" type="SmartPadding" vercond="#PZ16# #OR# #JWE2#" >todo - pad to 8; for pz 1.6</add>
 		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
 	</compound>
 
@@ -494,7 +494,7 @@
 
 	<compound name="JointData">
 		appears in dinos and static meshes
-		<add name="new extra" type="uint" arr1="2" vercond="#JWE2#">A7 2D A8 10   00 00 00 00</add>
+		<add name="new extra" type="uint" arr1="2" vercond="#JWE2#">A7 2D A8 10   00 00 00 00, since ms_2_version 51</add>
 		<add name="joint_count" type="uint" >repeat</add>
 		<add name="count_0" type="uint" >small number</add>
 		<add name="count_1" type="uint" >small number</add>

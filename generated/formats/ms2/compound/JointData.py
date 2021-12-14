@@ -30,7 +30,7 @@ class JointData:
 		self.io_size = 0
 		self.io_start = 0
 
-		# A7 2D A8 10   00 00 00 00
+		# A7 2D A8 10   00 00 00 00, since ms_2_version 51
 		self.new_extra = numpy.zeros((2), dtype='uint')
 
 		# repeat

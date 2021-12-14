@@ -478,7 +478,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		logging.info(f"Loading {self.basename} [map_bytes = {self.map_bytes}]")
 		# read the file
 		super().load(filepath)
-
+		# print(self)
 		if entry:
 			# print(self)
 			self.ms2_path = os.path.join(self.dir, self.ms_2_name)
@@ -583,11 +583,12 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/frb/frbmodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/ichthyo/ichthyosaurus.mdl2", entry=True, read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/frb/frbmodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
 	# for model in m.models:
 	# 	print(model.tris)
 	# 	model.validate_tris()
-	m.load("C:/Users/arnfi/Desktop/fra/framodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/fra/framodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
 
 	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
 	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
