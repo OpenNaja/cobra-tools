@@ -5,7 +5,12 @@ from modules.formats.BaseFormat import BaseFile
 class VoxelskirtLoader(BaseFile):
 
 	def create(self):
-		pass
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		vox = VoxelskirtFile()
+		ss_bytes, buffer_bytes = vox.get_structs(self.file_entry.path)
+		self.create_data_entry(self.sized_str_entry, (buffer_bytes,))
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss_bytes)
+		
 
 	def collect(self):
 		self.assign_ss_entry()
