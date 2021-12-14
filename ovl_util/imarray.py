@@ -119,11 +119,12 @@ def is_array_tile(fp, array_name_bare):
 
 def split_name_suffix(in_name):
 	# grab the basic name, and the array index suffix if it exists
-	in_name_bare, suffix = in_name.rsplit("_", 1)
-	if suffix and "[" in suffix:
-		suffix = suffix[1:-1]
-		suffix = int(suffix)
-		return in_name_bare, suffix
+	if "_" in in_name:
+		in_name_bare, suffix = in_name.rsplit("_", 1)
+		if suffix and "[" in suffix:
+			suffix = suffix[1:-1]
+			suffix = int(suffix)
+			return in_name_bare, suffix
 	return in_name, None
 
 
