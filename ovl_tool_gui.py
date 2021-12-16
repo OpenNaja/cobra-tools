@@ -41,7 +41,7 @@ class MainWindow(widgets.MainWindow):
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in SUPPORTED_TYPES))
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
-		self.file_widget.setToolTip("The name of the OVL file that is currently open.")
+		self.file_widget.setToolTip("The name of the OVL file that is currently open")
 
 		self.p_action = QtWidgets.QProgressBar(self)
 		self.p_action.setGeometry(0, 0, 200, 15)
@@ -64,7 +64,6 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "DJB"]
 
 		self.model = QtWidgets.QFileSystemModel()
-		# self.model.sort(1, QtCore.Qt.AscendingOrder)
 		self.dirs_container = QtWidgets.QTreeView()
 		self.dirs_container.setModel(self.model)
 		self.dirs_container.setColumnHidden(1, True)
@@ -93,11 +92,11 @@ class MainWindow(widgets.MainWindow):
 		# self.files_container.table.file_selected.connect(self.show_dependencies)
 
 		self.included_ovls_view = widgets.EditCombo(self)
-		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included.")
+		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included")
 		self.included_ovls_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
 
 		self.dat_widget = widgets.FileWidget(self, self.cfg, ask_user=False, dtype="DAT", poll=False)
-		self.dat_widget.setToolTip("External .dat file path")
+		self.dat_widget.setToolTip("External .dat file path to overwrite internal OVS data")
 		self.dat_widget.hide()
 
 		right_frame = QtWidgets.QWidget()
@@ -111,7 +110,7 @@ class MainWindow(widgets.MainWindow):
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip(
-			"By default, temporary files are converted to usable ones and back on the fly.")
+			"By default, temporary files are converted to usable ones and back on the fly")
 		self.t_show_temp_files.setChecked(False)
 
 		self.in_folder = QtWidgets.QCheckBox("Process Folder")
@@ -129,7 +128,7 @@ class MainWindow(widgets.MainWindow):
 		self.e_name_new.setFixedHeight(100)
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
-		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging.")
+		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging")
 		self.t_write_dat.setChecked(False)
 		self.t_write_dat.stateChanged.connect(self.load)
 
@@ -251,7 +250,7 @@ class MainWindow(widgets.MainWindow):
 			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
-			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors, {len(skips)} skips.")
+			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors, {len(skips)} skips")
 		except BaseException as ex:
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
@@ -418,7 +417,7 @@ class MainWindow(widgets.MainWindow):
 
 	def update_gui_table(self, ):
 		start_time = time.time()
-		logging.info(f"Loading {len(self.ovl_data.files)} files into gui...")
+		logging.info(f"Loading {len(self.ovl_data.files)} files into gui")
 		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in self.ovl_data.files])
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
