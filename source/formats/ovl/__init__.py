@@ -892,8 +892,10 @@ class OvlFile(Header, IoFile):
 				logging.error(error)
 				traceback.print_exc()
 				error_files.append(file.name)
+		include_dir = os.path.join(out_dir, "ovls.include")
+		self.save_included_ovls(include_dir)
+		out_paths.append(include_dir)
 		self.progress_callback("Extraction completed!", value=1, vmax=1)
-
 		return out_paths, error_files, skip_files
 
 	def preprocess_files(self, file_paths, tmp_dir):
@@ -985,7 +987,6 @@ class OvlFile(Header, IoFile):
 		# todo - create archives on demand per file
 		self.create_archive()
 		self.add_files(file_paths)
-		# Add included ovls, (old dir entries)
 		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
 	def add_files(self, file_paths):
@@ -1035,13 +1036,34 @@ class OvlFile(Header, IoFile):
 	@property
 	def included_ovl_names(self):
 		return [included_ovl.name for included_ovl in self.included_ovls]
-	
+
+	# @included_ovl_names.setter
+	def set_included_ovl_names(self, ovl_names):
+		# remove duplicates
+		ovl_names = set(ovl_names)
+		logging.debug(f"Setting {len(ovl_names)} included OVLs")
+		self.included_ovls.clear()
+		for ovl_name in ovl_names:
+			if not ovl_name.lower().endswith(".ovl"):
+				ovl_name += ".ovl"
+			included_ovl = IncludedOvl(self.context)
+			included_ovl.name = ovl_name
+			included_ovl.basename, included_ovl.ext = os.path.splitext(included_ovl.name)
+			logging.debug(f"Including {included_ovl.name}")
+			self.included_ovls.append(included_ovl)
+
 	def load_included_ovls(self, path):
 		if os.path.isfile(path):
 			# load file, split lines, rtrim and remove .ovl extension if existing?
 			with open(path) as f:
 				for included_ovl in f.readlines():
 					self.add_included_ovl(included_ovl)
+
+	def save_included_ovls(self, path):
+		with open(path, "w") as f:
+			# f.writelines(self.included_ovl_names)
+			for ovl_name in self.included_ovl_names:
+				f.write(f"{ovl_name}\n")
 
 	def add_included_ovl(self, included_ovl_name):
 		if not included_ovl_name.lower().endswith(".ovl"):

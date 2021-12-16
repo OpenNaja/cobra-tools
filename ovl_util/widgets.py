@@ -387,7 +387,7 @@ class CleverCombo(QtWidgets.QComboBox):
 	""""A combo box that supports setting content (existing or new), and a callback"""
 
 	def __init__(self, options=[], link_inst=None, link_attr=None, *args, **kwargs):
-		super(CleverCombo, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 		self.addItems(options)
 		self.link_inst = link_inst
 		self.link_attr = link_attr
@@ -411,10 +411,11 @@ class CleverCombo(QtWidgets.QComboBox):
 
 
 class EditCombo(QtWidgets.QWidget):
-	def __init__(self, parent, container=()):
-		super(EditCombo, self).__init__(parent)
+	entries_changed = QtCore.pyqtSignal(list)
+
+	def __init__(self, parent):
+		super().__init__(parent)
 		self.main_window = parent
-		self.container = container
 		self.add_button = QtWidgets.QPushButton("+")
 		self.add_button.clicked.connect(self.add)
 		self.delete_button = QtWidgets.QPushButton("-")
@@ -429,28 +430,25 @@ class EditCombo(QtWidgets.QWidget):
 		vbox.addWidget(self.delete_button)
 		vbox.setContentsMargins(0, 0, 0, 0)
 
-	def setText(self, txt):
-		flag = QtCore.Qt.MatchFixedString
-		indx = self.findText(txt, flags=flag)
-		# add new item if not found
-		if indx == -1:
-			self.addItem(txt)
-			indx = self.findText(txt, flags=flag)
-		self.setCurrentIndex(indx)
+	@property
+	def items(self):
+		return [self.entry.itemText(i) for i in range(self.entry.count())]
 
-	def add(self, ):
-		included_ovl_name = self.entry.currentText()
-		if included_ovl_name:
-			self.main_window.ovl_data.add_included_ovl(included_ovl_name)
-			self.set_data(self.main_window.ovl_data.included_ovl_names)
+	def add(self):
+		name = self.entry.currentText()
+		if name:
+			self.entry.addItem(name)
+			self.entries_changed.emit(self.items)
 
-	def delete(self, ):
-		included_ovl_name = self.entry.currentText()
-		if included_ovl_name:
-			self.main_window.ovl_data.remove_included_ovl(included_ovl_name)
-			self.set_data(self.main_window.ovl_data.included_ovl_names)
+	def delete(self):
+		name = self.entry.currentText()
+		if name:
+			ind = self.entry.findText(name)
+			self.entry.removeItem(ind)
+			self.entries_changed.emit(self.items)
 
 	def set_data(self, items):
+		items = set(items)
 		self.entry.clear()
 		self.entry.addItems(items)
 
@@ -518,7 +516,7 @@ class MySwitch(QtWidgets.QPushButton):
 
 class CollapsibleBox(QtWidgets.QWidget):
 	def __init__(self, title="", parent=None):
-		super(CollapsibleBox, self).__init__(parent)
+		super().__init__(parent)
 
 		self.toggle_button = QtWidgets.QToolButton(
 			text=title, checkable=True, checked=False
@@ -644,7 +642,7 @@ class QColorButton(QtWidgets.QPushButton):
 	colorChanged = QtCore.pyqtSignal(object)
 
 	def __init__(self, *args, **kwargs):
-		super(QColorButton, self).__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)
 
 		self._color = None
 		self.setMaximumWidth(32)
@@ -681,7 +679,7 @@ class QColorButton(QtWidgets.QPushButton):
 		if e.button() == QtCore.Qt.RightButton:
 			self.setColor(None)
 
-		return super(QColorButton, self).mousePressEvent(e)
+		return super().mousePressEvent(e)
 
 	def setValue(self, c):
 		self.setColor(QtGui.QColor(c.r, c.g, c.b, c.a))
@@ -771,7 +769,7 @@ class FileWidget(QtWidgets.QWidget):
 	"""
 
 	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True):
-		super(FileWidget, self).__init__(parent)
+		super().__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
 		self.icon.setIcon(get_icon("dir"))

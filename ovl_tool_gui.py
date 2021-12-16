@@ -93,6 +93,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.included_ovls_view = widgets.EditCombo(self)
 		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included.")
+		self.included_ovls_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
 
 		self.dat_widget = widgets.FileWidget(self, self.cfg, ask_user=False, dtype="DAT", poll=False)
 		self.dat_widget.setToolTip("External .dat file path")
@@ -100,7 +101,7 @@ class MainWindow(widgets.MainWindow):
 
 		right_frame = QtWidgets.QWidget()
 		hbox = QtWidgets.QVBoxLayout()
-		hbox.addWidget(self.file_widget,)
+		hbox.addWidget(self.file_widget)
 		hbox.addWidget(self.files_container)
 		hbox.addWidget(self.included_ovls_view)
 		hbox.addWidget(self.dat_widget)
