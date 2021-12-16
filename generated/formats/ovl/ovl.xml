@@ -13,7 +13,7 @@
         <add name="Zero 2" type="uint" >always = 0</add>
 
         <add name="Num Aux Entries" type="uint" >count of external aux files, ie audio banks</add>
-        <add name="Num Dirs" type="ushort" >count of directories</add>
+        <add name="num_included_ovls" type="ushort" >count of included ovl files that are available to this ovl</add>
         <add name="Num Mimes" type="ushort" >count of file mime types, aka. extensions with metadata</add>
         <add name="Num Files" type="uint" >count of files</add>
         <add name="Num Files 2" type="uint" >repeat count of files ??</add>
@@ -43,7 +43,7 @@
         <add name="Files" type="FileEntry" arr1="Num Files">Array of FileEntry objects.</add>
         <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
-        <add name="Dirs" type="DirEntry" arr1="Num Dirs">Array of DirEntry objects.</add>
+        <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls">Array of IncludedOvl objects.</add>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" vercond="!#ZTUAC#">aka InstancesArray of DependencyEntry objects.</add>
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" vercond="#ZTUAC#">after aux in ZTUAC</add>
@@ -102,9 +102,9 @@
         <add name="ovs offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
-    <compound name="DirEntry" >
-        Description of one directory in the archive
-        <add name="Offset" type="uint">offset in the header's Names block</add>
+    <compound name="IncludedOvl" >
+        Description of one included ovl file that is force-loaded by this ovl
+        <add name="Offset" type="uint">offset in the header's names block. path is relative to this ovl's directory, without the .ovl suffix</add>
     </compound>
 
     <compound name="DependencyEntry" >

@@ -1,10 +1,10 @@
 from generated.context import ContextReference
 
 
-class DirEntry:
+class IncludedOvl:
 
 	"""
-	Description of one directory in the archive
+	Description of one included ovl file that is force-loaded by this ovl
 	"""
 
 	context = ContextReference()
@@ -17,7 +17,7 @@ class DirEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# offset in the header's Names block
+		# offset in the header's names block. path is relative to this ovl's directory, without the .ovl suffix
 		self.offset = 0
 		self.set_defaults()
 
@@ -37,7 +37,7 @@ class DirEntry:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'DirEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'IncludedOvl [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

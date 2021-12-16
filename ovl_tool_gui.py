@@ -91,7 +91,8 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.files_dropped.connect(self.inject_files)
 		# self.files_container.table.file_selected.connect(self.show_dependencies)
 
-		self.dir_container = widgets.EditCombo(self)
+		self.included_ovls_view = widgets.EditCombo(self)
+		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included.")
 
 		self.dat_widget = widgets.FileWidget(self, self.cfg, ask_user=False, dtype="DAT", poll=False)
 		self.dat_widget.setToolTip("External .dat file path")
@@ -101,7 +102,7 @@ class MainWindow(widgets.MainWindow):
 		hbox = QtWidgets.QVBoxLayout()
 		hbox.addWidget(self.file_widget,)
 		hbox.addWidget(self.files_container)
-		hbox.addWidget(self.dir_container)
+		hbox.addWidget(self.included_ovls_view)
 		hbox.addWidget(self.dat_widget)
 		right_frame.setLayout(hbox)
 
@@ -444,7 +445,7 @@ class MainWindow(widgets.MainWindow):
 		start_time = time.time()
 		logging.info(f"Loading {len(self.ovl_data.files)} files into gui...")
 		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in self.ovl_data.files])
-		self.dir_container.set_data(self.ovl_data.dir_names)
+		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 

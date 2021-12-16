@@ -411,9 +411,10 @@ class CleverCombo(QtWidgets.QComboBox):
 
 
 class EditCombo(QtWidgets.QWidget):
-	def __init__(self, parent):
+	def __init__(self, parent, container=()):
 		super(EditCombo, self).__init__(parent)
 		self.main_window = parent
+		self.container = container
 		self.add_button = QtWidgets.QPushButton("+")
 		self.add_button.clicked.connect(self.add)
 		self.delete_button = QtWidgets.QPushButton("-")
@@ -438,16 +439,16 @@ class EditCombo(QtWidgets.QWidget):
 		self.setCurrentIndex(indx)
 
 	def add(self, ):
-		dir_name = self.entry.currentText()
-		if dir_name:
-			self.main_window.ovl_data.inject_dir(dir_name)
-			self.set_data(self.main_window.ovl_data.dir_names)
+		included_ovl_name = self.entry.currentText()
+		if included_ovl_name:
+			self.main_window.ovl_data.add_included_ovl(included_ovl_name)
+			self.set_data(self.main_window.ovl_data.included_ovl_names)
 
 	def delete(self, ):
-		dir_name = self.entry.currentText()
-		if dir_name:
-			self.main_window.ovl_data.remove_dir(dir_name)
-			self.set_data(self.main_window.ovl_data.dir_names)
+		included_ovl_name = self.entry.currentText()
+		if included_ovl_name:
+			self.main_window.ovl_data.remove_included_ovl(included_ovl_name)
+			self.set_data(self.main_window.ovl_data.included_ovl_names)
 
 	def set_data(self, items):
 		self.entry.clear()

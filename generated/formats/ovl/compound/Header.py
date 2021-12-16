@@ -4,8 +4,8 @@ from generated.array import Array
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
-from generated.formats.ovl.compound.DirEntry import DirEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
+from generated.formats.ovl.compound.IncludedOvl import IncludedOvl
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
 from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
@@ -41,8 +41,8 @@ class Header(GenericHeader):
 		# count of external aux files, ie audio banks
 		self.num_aux_entries = 0
 
-		# count of directories
-		self.num_dirs = 0
+		# count of included ovl files that are available to this ovl
+		self.num_included_ovls = 0
 
 		# count of file mime types, aka. extensions with metadata
 		self.num_mimes = 0
@@ -119,8 +119,8 @@ class Header(GenericHeader):
 		# Array of ArchiveEntry objects.
 		self.archives = Array(self.context)
 
-		# Array of DirEntry objects.
-		self.dirs = Array(self.context)
+		# Array of IncludedOvl objects.
+		self.included_ovls = Array(self.context)
 
 		# aka InstancesArray of DependencyEntry objects.
 		self.dependencies = Array(self.context)
@@ -143,7 +143,7 @@ class Header(GenericHeader):
 		self.len_names = 0
 		self.zero_2 = 0
 		self.num_aux_entries = 0
-		self.num_dirs = 0
+		self.num_included_ovls = 0
 		self.num_mimes = 0
 		self.num_files = 0
 		self.num_files_2 = 0
@@ -171,7 +171,7 @@ class Header(GenericHeader):
 		self.files = Array(self.context)
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 		self.archives = Array(self.context)
-		self.dirs = Array(self.context)
+		self.included_ovls = Array(self.context)
 		if not (self.context.version == 17):
 			self.dependencies = Array(self.context)
 		self.aux_entries = Array(self.context)
@@ -187,7 +187,7 @@ class Header(GenericHeader):
 		self.len_names = stream.read_uint()
 		self.zero_2 = stream.read_uint()
 		self.num_aux_entries = stream.read_uint()
-		self.num_dirs = stream.read_ushort()
+		self.num_included_ovls = stream.read_ushort()
 		self.num_mimes = stream.read_ushort()
 		self.num_files = stream.read_uint()
 		self.num_files_2 = stream.read_uint()
@@ -214,7 +214,7 @@ class Header(GenericHeader):
 		self.files.read(stream, FileEntry, self.num_files, None)
 		self.archive_names = stream.read_type(ZStringBuffer, (self.context, self.len_archive_names, None))
 		self.archives.read(stream, ArchiveEntry, self.num_archives, None)
-		self.dirs.read(stream, DirEntry, self.num_dirs, None)
+		self.included_ovls.read(stream, IncludedOvl, self.num_included_ovls, None)
 		if not (self.context.version == 17):
 			self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.read(stream, AuxEntry, self.num_aux_entries, None)
@@ -232,7 +232,7 @@ class Header(GenericHeader):
 		stream.write_uint(self.len_names)
 		stream.write_uint(self.zero_2)
 		stream.write_uint(self.num_aux_entries)
-		stream.write_ushort(self.num_dirs)
+		stream.write_ushort(self.num_included_ovls)
 		stream.write_ushort(self.num_mimes)
 		stream.write_uint(self.num_files)
 		stream.write_uint(self.num_files_2)
@@ -259,7 +259,7 @@ class Header(GenericHeader):
 		self.files.write(stream, FileEntry, self.num_files, None)
 		stream.write_type(self.archive_names)
 		self.archives.write(stream, ArchiveEntry, self.num_archives, None)
-		self.dirs.write(stream, DirEntry, self.num_dirs, None)
+		self.included_ovls.write(stream, IncludedOvl, self.num_included_ovls, None)
 		if not (self.context.version == 17):
 			self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
 		self.aux_entries.write(stream, AuxEntry, self.num_aux_entries, None)
@@ -280,7 +280,7 @@ class Header(GenericHeader):
 		s += f'\n	* len_names = {self.len_names.__repr__()}'
 		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
 		s += f'\n	* num_aux_entries = {self.num_aux_entries.__repr__()}'
-		s += f'\n	* num_dirs = {self.num_dirs.__repr__()}'
+		s += f'\n	* num_included_ovls = {self.num_included_ovls.__repr__()}'
 		s += f'\n	* num_mimes = {self.num_mimes.__repr__()}'
 		s += f'\n	* num_files = {self.num_files.__repr__()}'
 		s += f'\n	* num_files_2 = {self.num_files_2.__repr__()}'
@@ -306,7 +306,7 @@ class Header(GenericHeader):
 		s += f'\n	* files = {self.files.__repr__()}'
 		s += f'\n	* archive_names = {self.archive_names.__repr__()}'
 		s += f'\n	* archives = {self.archives.__repr__()}'
-		s += f'\n	* dirs = {self.dirs.__repr__()}'
+		s += f'\n	* included_ovls = {self.included_ovls.__repr__()}'
 		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
 		s += f'\n	* aux_entries = {self.aux_entries.__repr__()}'
 		s += f'\n	* dependencies = {self.dependencies.__repr__()}'

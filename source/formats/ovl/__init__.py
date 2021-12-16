@@ -24,7 +24,7 @@ from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
 from generated.formats.ovl.compound.SetEntry import SetEntry
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compound.DirEntry import DirEntry
+from generated.formats.ovl.compound.IncludedOvl import IncludedOvl
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
@@ -986,7 +986,7 @@ class OvlFile(Header, IoFile):
 		self.create_archive()
 		self.add_files(file_paths)
 		# Add included ovls, (old dir entries)
-		self.add_ovls(os.path.join(ovl_dir, "ovls.include"))
+		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
@@ -1026,48 +1026,50 @@ class OvlFile(Header, IoFile):
 		# call the callback
 		self.progress_callback(message, value, max_value)
 
-	@property
-	def dir_names(self):
-		return [dir_entry.basename for dir_entry in self.dirs]
-
 	def store_filepath(self, filepath):
 		# store file name for later
 		self.filepath = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.file_no_ext = os.path.splitext(self.filepath)[0]
 
-	def add_ovls(self, path):
+	@property
+	def included_ovl_names(self):
+		return [included_ovl.name for included_ovl in self.included_ovls]
+	
+	def load_included_ovls(self, path):
 		if os.path.isfile(path):
 			# load file, split lines, rtrim and remove .ovl extension if existing?
-			f = open(path)
-			dirs = f.readlines()
-			f.close()
-			for dir_entry in dirs:
-				self.inject_dir(dir_entry)
+			with open(path) as f:
+				for included_ovl in f.readlines():
+					self.add_included_ovl(included_ovl)
 
-	def inject_dir(self, directory_name):
-		# validate can't insert same directory twice
-		for dir_entry in self.dirs:
-			if dir_entry.name == directory_name:
+	def add_included_ovl(self, included_ovl_name):
+		if not included_ovl_name.lower().endswith(".ovl"):
+			included_ovl_name += ".ovl"
+		included_ovl_basename, ext = os.path.splitext(included_ovl_name)
+		# validate can't insert same included ovl twice
+		for included_ovl in self.included_ovls:
+			if included_ovl.name == included_ovl_name:
 				return
 
-		# store file name for later
-		new_directory = DirEntry(self.context)
-		new_directory.name = directory_name
-		new_directory.basename = directory_name
-		self.dirs.append(new_directory)
+		# store file name
+		included_ovl = IncludedOvl(self.context)
+		included_ovl.name = included_ovl_name
+		included_ovl.basename = included_ovl_basename
+		included_ovl.ext = ext
+		self.included_ovls.append(included_ovl)
 
-	def remove_dir(self, directory_name):
-		for dir_entry in self.dirs:
-			if dir_entry.name == directory_name:
-				self.dirs.remove(dir_entry)
+	def remove_included_ovl(self, included_ovl_name):
+		for included_ovl in self.included_ovls:
+			if included_ovl.name == included_ovl_name:
+				self.included_ovls.remove(included_ovl)
 
-	def rename_dir(self, directory_name, directory_new_name):
+	def rename_included_ovl(self, included_ovl_name, included_ovl_name_new):
 		# find an existing entry in the list
-		for idx, dir_entry in enumerate(self.dirs):
-			if dir_entry.name == directory_name:
-				dir_entry.name = directory_new_name
-				dir_entry.basename = directory_new_name
+		for included_ovl in self.included_ovls:
+			if included_ovl.name == included_ovl_name:
+				included_ovl.name = included_ovl_name_new
+				included_ovl.basename = included_ovl_name_new
 
 	def update_names(self):
 		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
@@ -1077,7 +1079,7 @@ class OvlFile(Header, IoFile):
 		# regenerate the name buffer
 		self.names.update_with((
 			(self.dependencies, "ext"),
-			(self.dirs, "basename"),
+			(self.included_ovls, "basename"),
 			(self.mimes, "name"),
 			(self.files, "basename")
 		))
@@ -1139,14 +1141,13 @@ class OvlFile(Header, IoFile):
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
 
-		# get directories
-		hd_max = len(self.dirs)
-		for hd_index, dir_entry in enumerate(self.dirs):
-			self.print_and_callback("Creating directories", value=hd_index, max_value=hd_max)
-			# get dir name from name table
-			dir_entry.basename = self.names.get_str_at(dir_entry.offset)
-			dir_entry.ext = ""
-			dir_entry.name = dir_entry.basename + dir_entry.ext
+		# get included ovls
+		hd_max = len(self.included_ovls)
+		for hd_index, included_ovl in enumerate(self.included_ovls):
+			self.print_and_callback("Loading includes", value=hd_index, max_value=hd_max)
+			included_ovl.basename = self.names.get_str_at(included_ovl.offset)
+			included_ovl.ext = ".ovl"
+			included_ovl.name = included_ovl.basename + included_ovl.ext
 
 		# get names of all dependencies
 		ht_max = len(self.dependencies)
@@ -1451,7 +1452,7 @@ class OvlFile(Header, IoFile):
 		self.num_datas = sum(a.num_datas for a in self.archives)
 		self.num_buffers = sum(a.num_buffers for a in self.archives)
 
-		self.num_dirs = len(self.dirs)
+		self.num_included_ovls = len(self.included_ovls)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 		self.num_dependencies = len(self.dependencies)
 		self.num_mimes = len(self.mimes)
