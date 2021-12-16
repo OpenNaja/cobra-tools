@@ -1044,6 +1044,7 @@ class OvlFile(Header, IoFile):
 		logging.debug(f"Setting {len(ovl_names)} included OVLs")
 		self.included_ovls.clear()
 		for ovl_name in ovl_names:
+			ovl_name = ovl_name.strip()
 			if not ovl_name.lower().endswith(".ovl"):
 				ovl_name += ".ovl"
 			included_ovl = IncludedOvl(self.context)
@@ -1054,10 +1055,8 @@ class OvlFile(Header, IoFile):
 
 	def load_included_ovls(self, path):
 		if os.path.isfile(path):
-			# load file, split lines, rtrim and remove .ovl extension if existing?
 			with open(path) as f:
-				for included_ovl in f.readlines():
-					self.add_included_ovl(included_ovl)
+				self.set_included_ovl_names(f.readlines())
 
 	def save_included_ovls(self, path):
 		with open(path, "w") as f:
