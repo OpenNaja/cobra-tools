@@ -36,6 +36,7 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
+		self.ovl_data.load_hash_table()
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in SUPPORTED_TYPES))
 
@@ -182,7 +183,6 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
-		self.load_hash_table()
 
 	def ask_game_dir(self):
 		dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
@@ -361,19 +361,6 @@ class MainWindow(widgets.MainWindow):
 			self.t_action.setText(message)
 			self.t_action_current_message = message
 
-	def load_hash_table(self):
-		logging.info("Loading hash table...")
-		start_time = time.time()
-		self.hash_table = {}
-		hashes_dir = os.path.join(os.getcwd(), "hashes")
-		try:
-			for file in os.listdir(hashes_dir):
-				self.read_table(os.path.join(hashes_dir, file), self.hash_table, int_key=True)
-		except:
-			pass
-		# print(self.hash_table)
-		logging.info(f"Loaded {len(self.hash_table)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
-
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
@@ -388,30 +375,17 @@ class MainWindow(widgets.MainWindow):
 			p1 = f.pointers[1]
 			logging.debug(f"Fragment: {p0.pool_index} {p0.data_offset} {p1.pool_index} {p1.data_offset}")
 
-	@staticmethod
-	def read_table(fp, dic, int_key=False):
-		if fp.endswith(".txt"):
-			with open(fp, "r") as f:
-				for line in f:
-					line = line.strip()
-					if line:
-						k, v = line.split(" = ")
-						if int_key:
-							dic[int(k)] = v
-						else:
-							dic[k] = v
-
 	def load(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			try:
-				# runTask(self.ovl_data.load, (self.file_widget.filepath,), {"commands": self.commands, "hash_table": self.hash_table})
+				# runTask(self.ovl_data.load, (self.file_widget.filepath,), {"commands": self.commands,})
 				# test(2)
 				# self.ovl_thread.func = self.ovl_thread.ovl_data.load
 				# self.ovl_thread.args = (self.file_widget.filepath,)
-				# self.ovl_thread.kwargs = {"commands": self.commands, "hash_table": self.hash_table}
+				# self.ovl_thread.kwargs = {"commands": self.commands,}
 				# self.ovl_thread.start()
-				self.ovl_data.load(self.file_widget.filepath, commands=self.commands, hash_table=self.hash_table)
+				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
 				# print(self.ovl_data.user_version)
 				# for a in self.ovl_data.archives:
 				# 	print(a.content)
