@@ -10,47 +10,32 @@ from modules.formats.shared import get_padding
 class PSCollectionLoader(BaseFile):
 
 	def create(self):
-		ss = self.get_content(self.file_entry.path)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-
-		# read all in a dict from the xml
-		psdata = ET.ElementTree(ET.fromstring(ss))
-
-		pslistdata = psdata.findall('.//PreparedStatement')
-		pslist = []
-		for psdata in pslistdata:
-			psentry = {'name': psdata.attrib['name'], 'sql': psdata.attrib['sql'], 'args': []}
-
-			argdata = psdata.findall('.//ArgumentType')
-			psargs = []
-			for arg in argdata:
-				psargs.append(int(arg.text))
-			psentry['args'] = psargs
-			pslist.append(psentry)
+		pscollection = self.load_xml(self.file_entry.path)
 
 		# pscollection needs 8 bytes for the ptr and the array count
 		# then also needs more per each entry and each arg
 		f_0 = self.create_fragments(self.sized_str_entry, 1)[0]
 		self.write_to_pool(f_0.pointers[0], 2, b"")
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, struct.pack("<QQ", 0, len(pslist)))
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, struct.pack("<QQ", 0, len(pscollection)))
 		# point the first frag to the array of data now
 		# ptr, count, ptr ptr
-		self.write_to_pool(f_0.pointers[1], 2, b"".join(struct.pack("<QQQQ", 0, len(ps['args']), 0, 0) for ps in pslist))
+		self.write_to_pool(f_0.pointers[1], 2, b"".join(struct.pack("<QQQQ", 0, len(ps), 0, 0) for ps in pscollection))
 		rel_offset = 0
-		for ps in pslist:
+		for prepared_statment in pscollection:
 			# if there are args, make a frag for it
-			if ps['args']:
+			if len(prepared_statment):
 				f = self.create_fragments(self.sized_str_entry, 1)[0]
-				args_data = b"".join(struct.pack('<BBBBIQQ', 0, argtype, 1+i, 0, 0, 0, 0) for i, argtype in enumerate(ps['args']))
+				args_data = b"".join(struct.pack('<BBBBIQQ', 0, int(arg.text), 1+i, 0, 0, 0, 0) for i, arg in enumerate(prepared_statment))
 				self.ptr_relative(f.pointers[0], f_0.pointers[1], rel_offset=rel_offset)
-				self.write_to_pool(f.pointers[1], 2, args_data + get_padding(args_data, alignment=16))
+				self.write_to_pool(f.pointers[1], 2, args_data + get_padding(len(args_data), alignment=16))
 
 			# write name and sql as a name ptr each
 			f_name, f_sql = self.create_fragments(self.sized_str_entry, 2)
 			self.ptr_relative(f_name.pointers[0], f_0.pointers[1], rel_offset=rel_offset + 0x10)
-			self.write_to_pool(f_name.pointers[1], 2, f"{ps['name']}\00".encode('utf-8'))
+			self.write_to_pool(f_name.pointers[1], 2, f"{prepared_statment.attrib['name']}\00".encode('utf-8'))
 			self.ptr_relative(f_sql.pointers[0], f_0.pointers[1], rel_offset=rel_offset + 0x18)
-			self.write_to_pool(f_sql.pointers[1], 2, f"{ps['sql']}\00".encode('utf-8'))
+			self.write_to_pool(f_sql.pointers[1], 2, f"{prepared_statment.attrib['sql']}\00".encode('utf-8'))
 
 			# increase psptr to the next array member
 			rel_offset += 0x20
@@ -110,22 +95,17 @@ class PSCollectionLoader(BaseFile):
 			psentry = {'name': name, 'sql': sqldata, 'args': psargs}
 			self.sized_str_entry.pslist.append(psentry)
 
-		# print(self.sized_str_entry.pslist)
-		pass
-
 	def load(self, file_path):
 		pass
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		print(f"Writing {name}")
-		# enumnamer only has a list of strings
-		out_files = []
+		logging.info(f"Writing {name}")
 		out_path = out_dir(name)
-		xmldata = ET.Element('PSCollection')
+		xml_data = ET.Element('PSCollection')
 
 		for ps in self.sized_str_entry.pslist:
-			psitem = ET.SubElement(xmldata, 'PreparedStatement')
+			psitem = ET.SubElement(xml_data, 'PreparedStatement')
 			psitem.set('name', str(ps['name']))
 			psitem.set('sql', str(ps['sql']))
 
@@ -134,10 +114,5 @@ class PSCollectionLoader(BaseFile):
 					argitem = ET.SubElement(psitem, 'ArgumentType')
 					argitem.text = str(arg)
 
-		xmltext = ET.tostring(xmldata)
-
-		with open(out_path, 'w') as outfile:
-			outfile.write(xmltext.decode('utf-8'))
-			out_files.append(out_path)
-
-		return out_files
+		self.write_xml(out_path, xml_data)
+		return out_path,
