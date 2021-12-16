@@ -30,7 +30,7 @@ class LuaLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pc(self.ovl) or is_jwe2(self.ovl):
+		if not is_ztuac(self.ovl):
 			self.assign_fixed_frags(2)
 
 	def load(self, file_path):
@@ -52,7 +52,7 @@ class LuaLoader(BaseFile):
 			buffer_data = buffer_data[8:]
 		else:
 			if len(self.sized_str_entry.fragments) != 2:
-				logging.warning("must have 2 fragments")
+				logging.warning(f"{name} must have 2 fragments, has {len(self.sized_str_entry.fragments)}")
 		out_files = []
 		if buffer_data[1:4] == b"Lua":
 			logging.debug("compiled lua")
