@@ -52,8 +52,7 @@ class DdsLoader(BaseFile):
 			if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
 				ss, f00, f10, f01, f11, buffers = self._get_data(self.file_entry.path)
 				self.sized_str_entry = self.create_ss_entry(self.file_entry)
-				self.create_fragments(self.sized_str_entry, 2)
-				frag0, frag1 = self.sized_str_entry.fragments
+				frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
 
 				# pool type 3
 				data3 = (ss, f00, f10, f01)
