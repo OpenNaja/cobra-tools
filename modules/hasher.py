@@ -1,9 +1,6 @@
 import logging
 import os
-import shutil
-import tempfile
 
-from generated.formats.ms2 import Ms2File
 from ovl_util.interaction import showdialog
 
 
@@ -22,7 +19,7 @@ def rename_entry(entry, name_tups):
 
 def rename(ovl, name_tups):
 	logging.info(f"Renaming for {name_tups}")
-	ovl_lists = [ovl.files, ovl.dependencies, ovl.dirs]
+	ovl_lists = [ovl.files, ovl.dependencies, ovl.included_ovls]
 	ovs_lists = []
 	for archive_entry in ovl.archives:
 		content = archive_entry.content
