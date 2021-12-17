@@ -8,26 +8,18 @@ from modules.helpers import zstr
 class UserinterfaceicondataLoader(BaseFile):
 
 	def create(self):
-		ss, f_01, f_11 = self._get_data(self.file_entry.path)
-		pool_index, pool = self.get_pool(2)
-		offset = pool.data.tell()
-		# todo - are the 8 bytes needed or just superfluous padding? compare sizes to stock
-		pool.data.write(f_01 + f_11 + struct.pack('8s', b''))
-		newoffset = pool.data.tell()
-		pool.data.write(ss)
-		new_frag0 = self.create_fragment()
-		new_frag0.pointers[0].pool_index = pool_index
-		new_frag0.pointers[0].data_offset = newoffset
-		new_frag0.pointers[1].pool_index = pool_index
-		new_frag0.pointers[1].data_offset = offset
-		new_frag1 = self.create_fragment()
-		new_frag1.pointers[0].pool_index = pool_index
-		new_frag1.pointers[0].data_offset = newoffset + 8
-		new_frag1.pointers[1].pool_index = pool_index
-		new_frag1.pointers[1].data_offset = offset + len(f_01)
+
+
+		ss, f_0, f_1 = self._get_data(self.file_entry.path)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
-		self.sized_str_entry.pointers[0].data_offset = newoffset
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
+
+		# write name and sql as a name ptr each
+		f_name, f_package = self.create_fragments(self.sized_str_entry, 2)
+		self.ptr_relative(f_name.pointers[0], self.sized_str_entry.pointers[0], rel_offset=0)
+		self.write_to_pool(f_name.pointers[1], 2, f"{f_0}".encode('utf-8'))
+		self.ptr_relative(f_package.pointers[0], self.sized_str_entry.pointers[0], rel_offset=0x10)
+		self.write_to_pool(f_package.pointers[1], 2, f"{f_1}".encode('utf-8'))
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -50,11 +42,11 @@ class UserinterfaceicondataLoader(BaseFile):
 		return out_path,
 
 	def _get_data(self, file_path):
-		"""Loads and returns the data for a LUA"""
+		"""Loads and returns the data for a USERINTERFACEICON"""
 		ss = struct.pack('16s', b'')
 		raw_bytes = self.get_content(file_path)
 		icname, icpath = [line.strip() for line in raw_bytes.split(b'\n') if line.strip()]
 		f_01 = zstr(icname)
-		f_11 = zstr(icpath)
-		return ss, f_01, f_11 + get_padding(len(f_01) + len(f_11), 64)
+		f_02 = zstr(icpath)
+		return ss, f_01, f_02 + get_padding(len(f_01) + len(f_02), 64)
 
