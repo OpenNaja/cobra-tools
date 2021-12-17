@@ -10,8 +10,8 @@ class UserinterfaceicondataLoader(BaseFile):
 
 	def create(self):
 		f_01, f_11 = self._get_data(self.file_entry.path)
-		frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
 		self.write_to_pool(frag0.pointers[0], 2, b"\x00" * 8)
 		self.write_to_pool(frag1.pointers[0], 2, b"\x00" * 8)
 		self.write_to_pool(frag0.pointers[1], 2, f_01)
