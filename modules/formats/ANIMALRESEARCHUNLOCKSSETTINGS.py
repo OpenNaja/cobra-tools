@@ -64,7 +64,6 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 		self.write_to_pool(self.sized_str_entry.pointers[0], 4, b"")
 		self.write_to_pool(root_f.pointers[0], 4, struct.pack("<2Q", 0, len(xml)))
 
-
 	def collect(self):
 		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
@@ -79,7 +78,6 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 		entry_size = 40
 		out_frags, array_data = self.collect_array(ptr1, count, entry_size)
 		self.sized_str_entry.fragments.extend(out_frags)
-
 		self.frag_data_pairs = []
 		for i in range(count):
 			x = i * entry_size
@@ -98,20 +96,17 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 			level_frag = frags_entry[0]
 			level_frag.children = []
 			level_frag.next = []
-			name = level_frag.pointers[1].data
-			# logging.debug(f"level_frag: {name}")
+			# logging.debug(f"level_frag: {level_frag.pointers[1].data}")
 			if children_count:
 				ptr_frag = frags_entry[2]
 				level_frag.children = self.ovs.frags_from_pointer(ptr_frag.pointers[1], children_count)
-				for f in level_frag.children:
-					name = f.pointers[1].data
-					# logging.debug(f"child: {name}")
+				# for f in level_frag.children:
+				# 	logging.debug(f"child: {f.pointers[1].data}")
 			if next_level:
 				ptr_frag = frags_entry[1]
 				level_frag.next = self.ovs.frags_from_pointer(ptr_frag.pointers[1], next_level)
-				for f in level_frag.next:
-					name = f.pointers[1].data
-					# logging.debug(f"next: {name}")
+				# for f in level_frag.next:
+				# 	logging.debug(f"next: {f.pointers[1].data}")
 			self.sized_str_entry.fragments.extend(level_frag.children)
 			self.sized_str_entry.fragments.extend(level_frag.next)
 
