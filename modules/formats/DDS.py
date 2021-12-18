@@ -36,6 +36,7 @@ class DdsLoader(BaseFile):
 	def _get_data(self, file_path):
 		tex_file = TexFile(self.ovl.context)
 		tex_file.load(file_path)
+		# print(tex_file)
 		ss = as_bytes(tex_file.tex_info)
 		f00 = as_bytes(tex_file.frag_00)
 		f10 = as_bytes(tex_file.frag_10)
@@ -59,8 +60,11 @@ class DdsLoader(BaseFile):
 				ptrs3 = (self.sized_str_entry.pointers[0], frag0.pointers[0], frag1.pointers[0], frag0.pointers[1])
 				for ptr, data in zip(ptrs3, data3):
 					self.write_to_pool(ptr, 3, data)
-				# pool type 4
-				self.write_to_pool(frag1.pointers[1], 4, f11)
+				if is_jwe(self.ovl):
+					f11_pool_type = 7
+				else:
+					f11_pool_type = 4
+				self.write_to_pool(frag1.pointers[1], f11_pool_type, f11)
 				self.create_data_entry(self.sized_str_entry, buffers)
 			elif is_pc(self.ovl) or is_ztuac(self.ovl):
 				logging.error(f"Only modern texture format supported for now!")
