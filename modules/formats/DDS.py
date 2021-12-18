@@ -79,6 +79,9 @@ class DdsLoader(BaseFile):
 			self.assign_fixed_frags(2)
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
 			self.assign_fixed_frags(1)
+		# all_buffers = self.get_sorted_streams()
+		# for buff in all_buffers:
+		# 	print(buff.index, buff.size)
 
 	def load(self, file_path):
 		logging.debug(f"Loading image {file_path}")

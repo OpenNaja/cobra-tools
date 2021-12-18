@@ -1,24 +1,16 @@
 import io
 
+from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.versions import is_pc, is_ztuac
 from generated.formats.tex.compound.TexInfoHeader import TexInfoHeader
 from generated.io import IoFile
-
-
-class DdsContext(object):
-	def __init__(self):
-		self.version = 0
-		self.user_version = 0
-
-	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
 
 
 class TexFile(TexInfoHeader, IoFile):
 
 	def __init__(self, context=None):
 		if not context:
-			context = DdsContext()
+			context = OvlContext()
 		super().__init__(context)
 		self.buffer = b""
 		self.mips = []
@@ -46,6 +38,8 @@ class TexFile(TexInfoHeader, IoFile):
 				stream.seek(self.eoh + tex_buffer_info.offset)
 				b = stream.read(tex_buffer_info.size)
 				self.buffers.append(b)
+			# always add an empty buffer at the end
+			self.buffers.append(b"")
 
 	def save(self, filepath):
 		with self.writer(filepath) as stream:
