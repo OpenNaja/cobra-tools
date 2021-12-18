@@ -182,7 +182,7 @@ class PrefabLoader(BaseFile):
         
 	def collect(self,):
 		self.assign_ss_entry()
-		#return
+		return
 		ss_entry = self.sized_str_entry
 		ss_entry.specdef_name_fragments = []
 		ss_entry.specdef_attr_names = []
