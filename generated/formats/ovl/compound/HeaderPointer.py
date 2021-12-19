@@ -34,21 +34,6 @@ class HeaderPointer:
 
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
-		return f'HeaderPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self):
-		s = ''
-		s += f'\n	* pool_index = {self.pool_index.__repr__()}'
-		s += f'\n	* data_offset = {self.data_offset.__repr__()}'
-		return s
-
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
-		return s
-
 
 	def __init__(self, context, arg=None, template=None):
 		self.name = ''
@@ -172,4 +157,6 @@ class HeaderPointer:
 		if isinstance(other, HeaderPointer):
 			return self.data_offset == other.data_offset and self.pool_index == other.pool_index
 
+	def __repr__(self):
+		return f"[{self.pool_index} | {self.data_offset}]"
 

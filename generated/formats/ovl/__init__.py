@@ -640,10 +640,11 @@ class OvsFile(OvsHeader):
 
     @staticmethod
     def get_ptr_debug_str(entry, ind):
-        d_str = ""
-        if len(entry.pointers) == 2:
-            d_str = str(entry.pointers[1].data)
-        return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name} {d_str}"
+        # d_str = ""
+        # if len(entry.pointers) == 2:
+        #     d_str = str(entry.pointers[1].data)
+        # return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name} {d_str}"
+        return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size} ({len(p.padding)})]' for p in entry.pointers))} ({ind}) {entry.name}"
 
     def dump_pools(self):
         """for debugging"""
@@ -670,7 +671,7 @@ class OvsFile(OvsHeader):
             for i, pool in enumerate(self.pools):
                 f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
             for i, pool in enumerate(self.pools):
-                f.write(f"\n\nPool[{i}] (type: {pool.type}) at {pool.address} with {len(pool.fragments)} fragments\n")
+                f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size} at {pool.offset} with {len(pool.fragments)} fragments\n")
                 entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i]
                 entries.sort(key=lambda entry: entry.pointers[0].data_offset)
                 lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(entries)]

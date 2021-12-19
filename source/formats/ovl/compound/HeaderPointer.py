@@ -134,3 +134,5 @@ class HeaderPointer:
 		if isinstance(other, HeaderPointer):
 			return self.data_offset == other.data_offset and self.pool_index == other.pool_index
 
+	def __repr__(self):
+		return f"[{self.pool_index} | {self.data_offset}]"

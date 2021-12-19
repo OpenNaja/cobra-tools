@@ -402,6 +402,7 @@ class Ms2Loader(BaseFile):
 		logging.info(f"Injecting MDL2s")
 		# actual injection starts here
 		for mdl2_entry, mdl2 in zip(self.sized_str_entry.children, mdl2s):
+			logging.debug(f"Injecting mdl2 {mdl2.basename} ")
 			# overwrite mdl2 modeldata frags
 			for frag, modeldata in zip(mdl2_entry.model_data_frags, mdl2.models):
 				frag_data = as_bytes(modeldata, version_info=versions)
@@ -414,10 +415,15 @@ class Ms2Loader(BaseFile):
 					(objects, mdl2.objects)):
 				if len(mdl2_list) > 0:
 					data = as_bytes(mdl2_list, version_info=versions)
-					frag.pointers[1].update_data(data, update_copies=True, pad_to=8)
+					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
+					# frag.pointers[1].update_data(data, update_copies=True, pad_to=8)
+					# the above breaks injecting minmi
+					frag.pointers[1].update_data(data, update_copies=True)
+					logging.debug(f"Result {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
 	
 		for mdl2 in mdl2s:
 			data = as_bytes(mdl2.model_info, version_info=versions)
+			logging.debug(f"Injecting mdl2 model_info {mdl2.index}")
 			if mdl2.index == 0:
 				f_0, f_1, f_2 = self.sized_str_entry.fragments
 				f_1.pointers[1].update_data(data, update_copies=True)

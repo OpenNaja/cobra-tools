@@ -388,7 +388,7 @@ class MainWindow(widgets.MainWindow):
 				# print(self.ovl_data.user_version)
 				# print(self.ovl_data)
 				# for a in self.ovl_data.archives:
-				# 	print(a.content)
+				# 	logging.debug(a.content)
 				# print(self.ovl_data.user_version)
 			except Exception as ex:
 				traceback.print_exc()
