@@ -3,6 +3,7 @@ import os
 import shutil
 import sqlite3
 import struct
+import traceback
 
 from generated.formats.ovl_base.versions import is_pz, is_pz16
 from modules.formats.BaseFormat import BaseFile
@@ -45,18 +46,19 @@ class FdbLoader(BaseFile):
 
 	def open_command(self, f):
 		command_path = os.path.join(os.getcwd(), "sql_commands", f+".sql")
-		print(command_path, os.path.isfile(command_path))
 		with open(command_path, "r") as file:
 			return file.read()
 
 	def rename_content(self, name_tuples):
 		command = None
+		s = None
 		if is_pz(self.ovl) or is_pz16(self.ovl):
-			if "zoopedia" in self.file_entry.name:
-				command = self.open_command("pz_zoopedia")
+			for s in ("zoopedia", "research", "education", "animals"):
+				if s in self.file_entry.name:
+					command = self.open_command(f"pz_{s}")
+					break
 		if command:
-
-			logging.info(f"Executing command '' on {self.file_entry.name}")
+			logging.info(f"Executing command '{s}' on {self.file_entry.name}")
 			try:
 				temp_dir, out_dir_func = self.get_tmp_dir()
 				fdb_path = self.extract(out_dir_func, False, None)[0]
@@ -73,5 +75,5 @@ class FdbLoader(BaseFile):
 				self.load(fdb_path)
 				shutil.rmtree(temp_dir)
 			except BaseException as err:
-				print(err)
+				traceback.print_exc()
 
