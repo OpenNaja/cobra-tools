@@ -70,7 +70,8 @@ delete from EnrichmentPartialTypesToUse where AnimalType not like ('%'||(select 
 Delete from AudioPerActionCallData where ifnull(AnimalType,(select original from replacement)) not like ('%'||(select Original from Replacement)||'%');
 delete from FixRagdollMethodData where AnimalType not like ('%'||(select Original from Replacement)||'%');
 delete from PounceVariablesData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-Delete * from SocialEnrichmentData;
+/*unfinished*/
+/*Delete * from SocialEnrichmentData;*/
 
 delete from AnimalDefinitions where AnimalType not like ('%'||(select Original from Replacement)||'%');
 
