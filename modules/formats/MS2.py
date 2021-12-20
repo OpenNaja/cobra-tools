@@ -415,6 +415,7 @@ class Ms2Loader(BaseFile):
 					(objects, mdl2.objects)):
 				if len(mdl2_list) > 0:
 					data = as_bytes(mdl2_list, version_info=versions)
+					# objects.pointers[1] has padding in stock, apparently as each entry is 4 bytes
 					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
 					# frag.pointers[1].update_data(data, update_copies=True, pad_to=8)
 					# the above breaks injecting minmi
