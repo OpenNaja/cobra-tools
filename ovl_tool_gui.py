@@ -178,6 +178,7 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Set Game Dir", self.ask_game_dir, "", ""),
+			(util_menu, "Export included ovl list", self.save_included_ovls, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
@@ -530,6 +531,20 @@ class MainWindow(widgets.MainWindow):
 					with open(filelist_src, 'w') as f:
 						f.write("\n".join(file_names))
 
+					self.update_progress("Operation completed!", value=1, vmax=1)
+				except BaseException as ex:
+					traceback.print_exc()
+					interaction.showdialog(str(ex))
+
+	# Save the OVL include list to disk
+	def save_included_ovls(self):
+		if self.is_open_ovl():
+			filelist_src = QtWidgets.QFileDialog.getSaveFileName(
+				self, 'ovls.include', os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include" ),
+				"Include file (*.include)", )[0]
+			if filelist_src:
+				try:
+					self.ovl_data.save_included_ovls(filelist_src)
 					self.update_progress("Operation completed!", value=1, vmax=1)
 				except BaseException as ex:
 					traceback.print_exc()

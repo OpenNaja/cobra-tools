@@ -900,9 +900,7 @@ class OvlFile(Header, IoFile):
                 logging.error(error)
                 traceback.print_exc()
                 error_files.append(file.name)
-        include_dir = os.path.join(out_dir, "ovls.include")
-        self.save_included_ovls(include_dir)
-        out_paths.append(include_dir)
+
         self.progress_callback("Extraction completed!", value=1, vmax=1)
         return out_paths, error_files, skip_files
 
