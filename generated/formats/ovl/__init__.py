@@ -1521,15 +1521,23 @@ class OvlFile(Header, IoFile):
     def update_pool_datas(self):
         pools_byte_offset = 0
         pools_offset = 0
-        for i, archive_entry in enumerate(self.archives):
-            archive_entry.pools_offset = pools_offset
-            archive_entry.pools_start = pools_byte_offset
-            archive_entry.content.write_pools()
-            pools_byte_offset += len(archive_entry.content.pools_data)
-            archive_entry.pools_end = pools_byte_offset
+        for archive in self.archives:
+            if archive.name != "STATIC":
+                # hack - update mem offset relatively until we know how to handle stream files better
+                streams = self.stream_files[archive.stream_files_offset: archive.stream_files_offset+archive.num_files]
+                for stream in streams:
+                    stream.relative_offset = stream.mem_offset - archive.pools_start
+            archive.pools_offset = pools_offset
+            archive.pools_start = pools_byte_offset
+            archive.content.write_pools()
+            pools_byte_offset += len(archive.content.pools_data)
+            archive.pools_end = pools_byte_offset
+            if archive.name != "STATIC":
+                for stream in streams:
+                    stream.mem_offset = stream.relative_offset + archive.pools_start
             # at least PZ & JWE require 4 additional bytes after each pool
             pools_byte_offset += 4
-            pools_offset += len(archive_entry.content.pools)
+            pools_offset += len(archive.content.pools)
 
     def update_files(self):
         logging.info("Updating files")
