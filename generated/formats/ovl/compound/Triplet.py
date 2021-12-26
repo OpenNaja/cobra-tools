@@ -4,7 +4,7 @@ from generated.context import ContextReference
 class Triplet:
 
 	"""
-	3 bytes - seemingly constant per mime
+	3 bytes - constant per mime (and probably version)
 	"""
 
 	context = ContextReference()

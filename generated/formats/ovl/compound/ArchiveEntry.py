@@ -23,8 +23,8 @@ class ArchiveEntry:
 		# starting index in ovl list of pools, this archive's pools continue for num_pools
 		self.pools_offset = 0
 
-		# starting index of file entries
-		self.ovs_file_offset = 0
+		# starting index into ovl.stream_files
+		self.stream_files_offset = 0
 
 		# Total amount of pools in this archive; sum of all PoolGroup.num_pools
 		self.num_pools = 0
@@ -59,13 +59,10 @@ class ArchiveEntry:
 		# size of the uncompressed data for this archive
 		self.uncompressed_size = 0
 
-		# ?
-		self.zeros_3 = 0
-
 		# byte offset, cumulative size of all pools preceding this archive
 		self.pools_start = 0
 
-		# byte offset, sum of the archives header entry data blocks + the pools_start
+		# byte offset, pools_start + sum of this archive's pools' sizes
 		self.pools_end = 0
 
 		# Seemingly unused, can be zeroed without effect ingame in JWE
@@ -75,7 +72,7 @@ class ArchiveEntry:
 	def set_defaults(self):
 		self.offset = 0
 		self.pools_offset = 0
-		self.ovs_file_offset = 0
+		self.stream_files_offset = 0
 		self.num_pools = 0
 		self.num_datas = 0
 		self.num_pool_groups = 0
@@ -87,7 +84,6 @@ class ArchiveEntry:
 		self.set_data_size = 0
 		self.compressed_size = 0
 		self.uncompressed_size = 0
-		self.zeros_3 = 0
 		self.pools_start = 0
 		self.pools_end = 0
 		self.ovs_offset = 0
@@ -96,7 +92,7 @@ class ArchiveEntry:
 		self.io_start = stream.tell()
 		self.offset = stream.read_uint()
 		self.pools_offset = stream.read_uint()
-		self.ovs_file_offset = stream.read_uint()
+		self.stream_files_offset = stream.read_uint()
 		self.num_pools = stream.read_uint()
 		self.num_datas = stream.read_ushort()
 		self.num_pool_groups = stream.read_ushort()
@@ -107,8 +103,7 @@ class ArchiveEntry:
 		self.read_start = stream.read_uint()
 		self.set_data_size = stream.read_uint()
 		self.compressed_size = stream.read_uint()
-		self.uncompressed_size = stream.read_uint()
-		self.zeros_3 = stream.read_uint()
+		self.uncompressed_size = stream.read_uint64()
 		self.pools_start = stream.read_uint()
 		self.pools_end = stream.read_uint()
 		self.ovs_offset = stream.read_uint()
@@ -119,7 +114,7 @@ class ArchiveEntry:
 		self.io_start = stream.tell()
 		stream.write_uint(self.offset)
 		stream.write_uint(self.pools_offset)
-		stream.write_uint(self.ovs_file_offset)
+		stream.write_uint(self.stream_files_offset)
 		stream.write_uint(self.num_pools)
 		stream.write_ushort(self.num_datas)
 		stream.write_ushort(self.num_pool_groups)
@@ -130,8 +125,7 @@ class ArchiveEntry:
 		stream.write_uint(self.read_start)
 		stream.write_uint(self.set_data_size)
 		stream.write_uint(self.compressed_size)
-		stream.write_uint(self.uncompressed_size)
-		stream.write_uint(self.zeros_3)
+		stream.write_uint64(self.uncompressed_size)
 		stream.write_uint(self.pools_start)
 		stream.write_uint(self.pools_end)
 		stream.write_uint(self.ovs_offset)
@@ -145,7 +139,7 @@ class ArchiveEntry:
 		s = ''
 		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* pools_offset = {self.pools_offset.__repr__()}'
-		s += f'\n	* ovs_file_offset = {self.ovs_file_offset.__repr__()}'
+		s += f'\n	* stream_files_offset = {self.stream_files_offset.__repr__()}'
 		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
 		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
 		s += f'\n	* num_pool_groups = {self.num_pool_groups.__repr__()}'
@@ -157,7 +151,6 @@ class ArchiveEntry:
 		s += f'\n	* set_data_size = {self.set_data_size.__repr__()}'
 		s += f'\n	* compressed_size = {self.compressed_size.__repr__()}'
 		s += f'\n	* uncompressed_size = {self.uncompressed_size.__repr__()}'
-		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
 		s += f'\n	* pools_start = {self.pools_start.__repr__()}'
 		s += f'\n	* pools_end = {self.pools_end.__repr__()}'
 		s += f'\n	* ovs_offset = {self.ovs_offset.__repr__()}'

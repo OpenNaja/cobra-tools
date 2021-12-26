@@ -388,7 +388,19 @@ class MainWindow(widgets.MainWindow):
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
 				# print(self.ovl_data.user_version)
 				# print(self.ovl_data)
-				# for a in self.ovl_data.archives:
+				# print(self.ovl_data.stream_files)
+				for i, f in enumerate(self.ovl_data.files):
+					if f.ext == ".texturestream":
+						print(i, f.name)
+				for a in self.ovl_data.archives:
+					print(a)
+				for sf in self.ovl_data.stream_files:
+					print(sf)
+					for a in self.ovl_data.archives:
+						if a.pools_start <= sf.mem_offset < a.pools_end:
+							print(f"is in {a.name}")
+							print(f"pool offset relative {sf.mem_offset - a.pools_start}")
+							print(a.content.sized_str_entries)
 				# 	logging.debug(a.content)
 				# print(self.ovl_data.user_version)
 			except Exception as ex:

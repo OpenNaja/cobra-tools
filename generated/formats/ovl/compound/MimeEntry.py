@@ -9,8 +9,8 @@ from generated.context import ContextReference
 class MimeEntry:
 
 	"""
-	Description of one mime type, which is sort of a container for
-	Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
+	Description of one mime type or file class.
+	Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
 	"""
 
 	context = ContextReference()
@@ -29,7 +29,7 @@ class MimeEntry:
 		# usually zero
 		self.unknown = 0
 
-		# changes with game version; hash of this file extension; same across all files, but seemingly not used anywhere else in the archive
+		# changes with game version; hash of this file extension; same across all files, but not used anywhere else in the archive
 		self.mime_hash = 0
 
 		# usually increments with game

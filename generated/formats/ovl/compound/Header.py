@@ -7,8 +7,8 @@ from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.IncludedOvl import IncludedOvl
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
+from generated.formats.ovl.compound.StreamEntry import StreamEntry
 from generated.formats.ovl.compound.Triplet import Triplet
-from generated.formats.ovl.compound.UnknownEntry import UnknownEntry
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 from generated.formats.ovl_base.compound.PadAlign import PadAlign
@@ -71,7 +71,7 @@ class Header(GenericHeader):
 		# number of BufferEntries across all archives
 		self.num_buffers = 0
 
-		# number of files in external OVS archive
+		# number of files in external OVS archives
 		self.num_files_ovs = 0
 
 		# used in ZTUAC elephants
@@ -131,8 +131,8 @@ class Header(GenericHeader):
 		# after aux in ZTUAC
 		self.dependencies = Array(self.context)
 
-		# Array of UnknownEntry objects.
-		self.unknowns = Array(self.context)
+		# Array of StreamEntry objects.
+		self.stream_files = Array(self.context)
 
 		# repeats by archive count
 		self.zlibs = Array(self.context)
@@ -177,7 +177,7 @@ class Header(GenericHeader):
 		self.aux_entries = Array(self.context)
 		if self.context.version == 17:
 			self.dependencies = Array(self.context)
-		self.unknowns = Array(self.context)
+		self.stream_files = Array(self.context)
 		self.zlibs = Array(self.context)
 
 	def read(self, stream):
@@ -220,7 +220,7 @@ class Header(GenericHeader):
 		self.aux_entries.read(stream, AuxEntry, self.num_aux_entries, None)
 		if self.context.version == 17:
 			self.dependencies.read(stream, DependencyEntry, self.num_dependencies, None)
-		self.unknowns.read(stream, UnknownEntry, self.num_files_ovs, None)
+		self.stream_files.read(stream, StreamEntry, self.num_files_ovs, None)
 		self.zlibs.read(stream, ZlibInfo, self.num_archives, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -265,7 +265,7 @@ class Header(GenericHeader):
 		self.aux_entries.write(stream, AuxEntry, self.num_aux_entries, None)
 		if self.context.version == 17:
 			self.dependencies.write(stream, DependencyEntry, self.num_dependencies, None)
-		self.unknowns.write(stream, UnknownEntry, self.num_files_ovs, None)
+		self.stream_files.write(stream, StreamEntry, self.num_files_ovs, None)
 		self.zlibs.write(stream, ZlibInfo, self.num_archives, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -310,7 +310,7 @@ class Header(GenericHeader):
 		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
 		s += f'\n	* aux_entries = {self.aux_entries.__repr__()}'
 		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
-		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
+		s += f'\n	* stream_files = {self.stream_files.__repr__()}'
 		s += f'\n	* zlibs = {self.zlibs.__repr__()}'
 		return s
 

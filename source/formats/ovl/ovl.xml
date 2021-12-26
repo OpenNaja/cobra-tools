@@ -24,7 +24,7 @@
         <add name="num_pools" type="uint" >number of headers of all types across all archives</add>
         <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
         <add name="Num Buffers" type="uint" >number of BufferEntries across all archives</add>
-        <add name="Num Files OVS" type="uint" >number of files in external OVS archive</add>
+        <add name="Num Files OVS" type="uint" >number of files in external OVS archives</add>
         <add name="ztuac unk 0" type="uint" >used in ZTUAC elephants</add>
         <add name="ztuac unk 1" type="uint" >used in ZTUAC elephants</add>
         <add name="ztuac unk 2" type="uint" >used in ZTUAC elephants</add>
@@ -47,16 +47,16 @@
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" vercond="!#ZTUAC#">aka InstancesArray of DependencyEntry objects.</add>
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" vercond="#ZTUAC#">after aux in ZTUAC</add>
-        <add name="Unknowns" type="UnknownEntry" arr1="Num Files OVS">Array of UnknownEntry objects.</add>
+        <add name="stream_files" type="StreamEntry" arr1="Num Files OVS">Array of StreamEntry objects.</add>
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
     </compound>
 
     <compound name="MimeEntry" >
-        Description of one mime type, which is sort of a container for
-		Note that for JWE at least, inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
+        Description of one mime type or file class.
+		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
         <add name="Offset" type="uint">offset in the header's Names block</add>
         <add name="unknown" type="uint">usually zero</add>
-        <add name="Mime Hash" type="uint">changes with game version; hash of this file extension; same across all files, but seemingly not used anywhere else in the archive</add>
+        <add name="Mime Hash" type="uint">changes with game version; hash of this file extension; same across all files, but not used anywhere else in the archive</add>
         <add name="mime version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
@@ -65,7 +65,7 @@
     </compound>
 
     <compound name="Triplet" >
-        3 bytes - seemingly constant per mime
+        3 bytes - constant per mime (and probably version)
         <add name="a" type="ubyte">?</add>
         <add name="b" type="ubyte">?</add>
         <add name="c" type="ubyte">?</add>
@@ -84,7 +84,7 @@
         Description of one archive
         <add name="Offset" type="uint">offset in the ovl's Archive Names block</add>
         <add name="pools_offset" type="uint">starting index in ovl list of pools, this archive's pools continue for num_pools</add>
-        <add name="ovs file offset" type="uint">starting index of file entries</add>
+        <add name="stream_files_offset" type="uint">starting index into ovl.stream_files</add>
         <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolGroup.num_pools</add>
         <add name="Num Datas" type="ushort" >Amount of Data Entries</add>
         <add name="num_pool_groups" type="ushort" >Amount of PoolGroup objects at start of this deflated archive.</add>
@@ -95,10 +95,9 @@
         <add name="read start" type="uint">Seek to pos to get zlib header for this archive</add>
         <add name="set data size" type="uint" >size of the set and asset entry data</add>
         <add name="compressed_size" type="uint">size of the compressed data for this archive</add>
-        <add name="uncompressed_size" type="uint" >size of the uncompressed data for this archive</add>
-        <add name="zeros 3" type="uint">?</add>
+        <add name="uncompressed_size" type="uint64" >size of the uncompressed data for this archive</add>
         <add name="pools_start" type="uint">byte offset, cumulative size of all pools preceding this archive</add>
-        <add name="pools_end" type="uint" >byte offset, sum of the archives header entry data blocks + the pools_start</add>
+        <add name="pools_end" type="uint" >byte offset, pools_start + sum of this archive's pools' sizes</add>
         <add name="ovs offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
@@ -122,9 +121,13 @@
         <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
 
-    <compound name="UnknownEntry" >
-        Description of one file type
-        <add name="unknowns" type="ushort" arr1="2" arr2="2">?</add>
+    <compound name="StreamEntry" >
+        Description of one streamed file instance. One for every file stored in an ovs.
+        --These appear sorted in the order of sizedstr entries per ovs.-- only true for lod0, not lod1
+        the order does not seem to be consistent
+        interestingly, the order of ss entries per ovs is consistent with decreasing pool offset
+        <add name="mem offset" type="uint">offset to the file's ss pointer inside the flattened mempools</add>
+        <add name="offset rel" type="uint">not sure what this does</add>
         <add name="zero" type="uint"/>
     </compound>
 
