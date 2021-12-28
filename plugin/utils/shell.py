@@ -296,12 +296,16 @@ def gauge_uv_factors(src_ob, trg_ob):
 
 
 def is_fin(ob):
+	if not ob.data.materials:
+		raise AttributeError(f"{ob.name} has no materials!")
 	for b_mat in ob.data.materials:
 		if "_fur_fin" in b_mat.name.lower():
 			return True
 
 
 def is_shell(ob):
+	if not ob.data.materials:
+		raise AttributeError(f"{ob.name} has no materials!")
 	for b_mat in ob.data.materials:
 		if "_fur_shell" in b_mat.name.lower():
 			return True

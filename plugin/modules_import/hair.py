@@ -15,7 +15,6 @@ def find_modifier_for_particle_system(b_ob, particle_system):
 			continue
 		if modifier.particle_system == particle_system:
 			return modifier
-	return None
 
 
 def add_psys(ob, model):
@@ -39,6 +38,8 @@ def comb_common():
 		raise AttributeError("No object in context")
 	# particle edit mode has to be entered so that hair strands are generated
 	# otherwise the non-eval ob's particle count is 0
+	if not ob.particle_systems:
+		raise AttributeError(f"No particle system on {ob.name}")
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
 	ob_eval, me_eval = evaluate_mesh(ob)
