@@ -386,7 +386,7 @@ class Ms2Loader(BaseFile):
 			missing_materials = []
 			for material in mdl2.materials:
 				fgm_name = f"{material.name.lower()}.fgm"
-				if fgm_name not in self.ovl.ss_dict:
+				if fgm_name not in self.ovl._ss_dict:
 					missing_materials.append(fgm_name)
 			if missing_materials:
 				mats = '\n'.join(missing_materials)

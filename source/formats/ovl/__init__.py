@@ -11,13 +11,12 @@ import logging
 from contextlib import contextmanager
 
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
+from generated.formats.ovl.compound.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.enum.Compression import Compression
-from hashes import constants_pz
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile, BinaryStream
-from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl.versions import *
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
@@ -28,10 +27,9 @@ from generated.formats.ovl.compound.IncludedOvl import IncludedOvl
 from generated.formats.ovl.compound.FileEntry import FileEntry
 from generated.formats.ovl.compound.MimeEntry import MimeEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
-from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
-from modules.formats.shared import get_versions, djb, assign_versions, get_padding
+from modules.formats.shared import get_versions, djb, assign_versions
 from modules.helpers import split_path
 
 OODLE_MAGIC = (b'\x8c', b'\xcc')
@@ -1232,8 +1230,9 @@ class OvlFile(Header, IoFile):
 
     def update_mimes(self):
         """Rebuilds the mimes list according to the ovl's current file entries"""
-        logging.info("Updating mimes")
+        logging.info("Updating mimes and triplets")
         self.mimes.clear()
+        self.triplets.clear()
         # map all files by their extension
         files_by_extension = {}
         for file in self.files:
@@ -1258,22 +1257,8 @@ class OvlFile(Header, IoFile):
                 file_entry.update_constants(self)
                 file_entry.extension = len(self.mimes)
             self.mimes.append(mime_entry)
-
-    def update_triplets(self):
-        logging.info("Updating triplets")
-        self.triplets.clear()
-        if is_pz16(self) or is_jwe2(self):
-            triplet_offset = 0
-            for mime in self.mimes:
-                mime.triplet_offset = triplet_offset
-                if mime.ext in constants_pz.mimes_triplets:
-                    triplet_grab = constants_pz.mimes_triplets[mime.ext]
-                    mime.triplet_count = len(triplet_grab)
-                    triplet_offset += len(triplet_grab)
-                    for triplet in triplet_grab:
-                        trip = Triplet(self.context)
-                        trip.a, trip.b, trip.c = triplet
-                        self.triplets.append(trip)
+        self.num_mimes = len(self.mimes)
+        self.num_triplets = len(self.triplets)
 
     def load_archives(self):
         logging.info("Loading archives")
@@ -1356,8 +1341,8 @@ class OvlFile(Header, IoFile):
 
     def get_sized_str_entry(self, name):
         """Retrieves the desired ss entry"""
-        if name.lower() in self.ss_dict:
-            return self.ss_dict[name.lower()]
+        if name.lower() in self._ss_dict:
+            return self._ss_dict[name.lower()][0]
         else:
             for archive_entry in self.archives:
                 for file in archive_entry.content.sized_str_entries:
@@ -1367,10 +1352,10 @@ class OvlFile(Header, IoFile):
     def update_ss_dict(self):
         """Stores a reference to each sizedstring entry in a dict so they can be extracted"""
         logging.info("Updating the entry dict")
-        self.ss_dict = {}
-        for archive_entry in self.archives:
-            for file in archive_entry.content.sized_str_entries:
-                self.ss_dict[file.name.lower()] = file
+        self._ss_dict = {}
+        for archive in self.archives:
+            for file in archive.content.sized_str_entries:
+                self._ss_dict[file.name.lower()] = file, archive
 
     def link_streams(self):
         """Attach the data buffers of streamed files to standard files from the first archive"""
@@ -1480,7 +1465,6 @@ class OvlFile(Header, IoFile):
     def update_counts(self):
         """Update counts of this ovl and all of its archives"""
         self.update_mimes()
-        self.update_triplets()
         self.sort_pools_and_update_groups()
         # adjust the counts
         for archive in self.archives:
@@ -1496,8 +1480,6 @@ class OvlFile(Header, IoFile):
         self.num_included_ovls = len(self.included_ovls)
         self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
         self.num_dependencies = len(self.dependencies)
-        self.num_mimes = len(self.mimes)
-        self.num_triplets = len(self.triplets)
         self.num_archives = len(self.archives)
 
     def open_ovs_streams(self, mode="wb"):
@@ -1522,22 +1504,45 @@ class OvlFile(Header, IoFile):
         pools_byte_offset = 0
         pools_offset = 0
         for archive in self.archives:
-            if archive.name != "STATIC":
-                # hack - update mem offset relatively until we know how to handle stream files better
-                streams = self.stream_files[archive.stream_files_offset: archive.stream_files_offset+archive.num_files]
-                for stream in streams:
-                    stream.relative_offset = stream.mem_offset - archive.pools_start
             archive.pools_offset = pools_offset
             archive.pools_start = pools_byte_offset
             archive.content.write_pools()
             pools_byte_offset += len(archive.content.pools_data)
             archive.pools_end = pools_byte_offset
-            if archive.name != "STATIC":
-                for stream in streams:
-                    stream.mem_offset = stream.relative_offset + archive.pools_start
-            # at least PZ & JWE require 4 additional bytes after each pool
+            # at least PZ & JWE require 4 additional bytes after each pool region
             pools_byte_offset += 4
             pools_offset += len(archive.content.pools)
+        # pools are updated, gotta rebuild stream files now
+        self.update_stream_files()
+
+    def update_stream_files(self):
+        logging.info("Updating stream file memory links")
+        self.stream_files.clear()
+        for file in self.files:
+            if file.streams:
+                file_ss, file_archive = self._ss_dict[file.name.lower()]
+                for stream in file.streams:
+                    stream_ss, stream_archive = self._ss_dict[stream.name.lower()]
+                    stream_entry = StreamEntry(self.context)
+                    steam_ptr = stream_ss.pointers[0]
+                    stream_entry.stream_offset = stream_archive.pools_start + steam_ptr.pool.offset + steam_ptr.data_offset
+                    file_ptr = file_ss.pointers[0]
+                    stream_entry.file_offset = file_archive.pools_start + file_ptr.pool.offset + file_ptr.data_offset
+                    stream_entry.archive_name = stream_archive.name
+                    self.stream_files.append(stream_entry)
+        # sort stream files by archive
+        self.stream_files.sort(key=lambda s: s.archive_name)
+        self.num_files_ovs = len(self.stream_files)
+        # update the archive entries to point to the stream files
+        for archive in self.archives:
+            archive.stream_files_offset = 0
+            if archive.name != "STATIC":
+                files = [f for f in self.stream_files if f.archive_name == archive.name]
+                if not files:
+                    logging.warning(f"No files in archive {archive.name}")
+                    continue
+                archive.num_files = len(files)
+                archive.stream_files_offset = self.stream_files.index(files[0])
 
     def update_files(self):
         logging.info("Updating files")

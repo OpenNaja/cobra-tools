@@ -123,11 +123,12 @@
 
     <compound name="StreamEntry" >
         Description of one streamed file instance. One for every file stored in an ovs.
+        Links the main pointers of a streamed file to its user, eg. a texturestream to a tex file.
         --These appear sorted in the order of sizedstr entries per ovs.-- only true for lod0, not lod1
         the order does not seem to be consistent
         interestingly, the order of ss entries per ovs is consistent with decreasing pool offset
-        <add name="mem offset" type="uint">offset to the file's ss pointer inside the flattened mempools</add>
-        <add name="offset rel" type="uint">not sure what this does</add>
+        <add name="stream_offset" type="uint">offset to the stream's ss pointer inside the flattened mempools</add>
+        <add name="file_offset" type="uint">offset to the user file's ss pointer (in STATIC) inside the flattened mempools</add>
         <add name="zero" type="uint"/>
     </compound>
 

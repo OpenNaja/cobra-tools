@@ -1,4 +1,5 @@
 
+from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2
 
@@ -125,4 +126,14 @@ class MimeEntry:
 		self.name = constants.mimes_name[self.ext]
 		self.mime_hash = constants.mimes_mime_hash[self.ext]
 		self.mime_version = constants.mimes_mime_version[self.ext]
+
+		# update triplets
+		if is_pz16(ovl) or is_jwe2(ovl):
+			triplet_grab = constants.mimes_triplets[self.ext]
+			self.triplet_offset = len(ovl.triplets)
+			self.triplet_count = len(triplet_grab)
+			for triplet in triplet_grab:
+				trip = Triplet(self.context)
+				trip.a, trip.b, trip.c = triplet
+				ovl.triplets.append(trip)
 
