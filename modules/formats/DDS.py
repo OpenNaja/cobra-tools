@@ -47,7 +47,6 @@ class DdsLoader(BaseFile):
 
 	def create(self):
 		name_ext, name, ext = split_path(self.file_entry.path)
-		self.file_entry.streams = []
 		logging.debug(f"Creating image {name_ext}")
 		if ext == ".tex":
 			if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):

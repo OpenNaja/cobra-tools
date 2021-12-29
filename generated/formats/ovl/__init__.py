@@ -961,6 +961,7 @@ class OvlFile(Header, IoFile):
         file_entry.basename, file_entry.ext = os.path.splitext(filename)
         file_entry.dependencies = []
         file_entry.aux_entries = []
+        file_entry.streams = []
         try:
             file_entry.update_constants(self)
             return file_entry
