@@ -131,37 +131,24 @@ class MatvarsLoader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		logging.info(f"Matlayers: {self.sized_str_entry.name}")
-		# total data seems to be 48 bytes: 0, 1, 0, 0, 1, 0
-		# print(self.sized_str_entry.pointers[0].data)
-		# Sized string initpos = position of first fragment for matcol
+		# total data seems to be 48 bytes: 0, set_count, 0, 0, variant_count, 0
+		all_bytes = self.sized_str_entry.pointers[0].read_from_pool(48)
+		_, set_count, _, _, variant_count, _ = struct.unpack("<6Q", all_bytes)
+		logging.debug(f"set_count: {set_count} variant_count: {variant_count}")
 
-		ss_d = struct.unpack("<4I", self.sized_str_entry.pointers[0].data[:16])
-		# print(ss_d)
-		cnt = ss_d[2]
 		# seen either 0 or 1, could possibly be more, would need refactor in that case
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2+cnt)
-		if cnt:
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2+set_count)
+		if set_count:
 			# rex 93
 			self.sized_str_entry.f0, self.sized_str_entry.extra, self.sized_str_entry.f1 = self.sized_str_entry.fragments
-			# self.sized_str_entry.extra is just 16 * x00
+			# self.sized_str_entry.extra is the set name
 		else:
 			# ichthyo
 			self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
-		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		# print(shader)
-		f1_ptr = self.sized_str_entry.f1.pointers[0].data
-		# print(self.sized_str_entry.f0)
-		# 0,0,collection count,0, 0,0,
-		# print(self.sized_str_entry.f1.pointers[0].data, len(self.sized_str_entry.f1.pointers[0].data))
-
-		f0_d0 = struct.unpack("<4I", f1_ptr[:16])
-		layer_count = f0_d0[2] - 1
-		# print(f0_d0)
-		self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.f1.pointers[1],
-																	 layer_count)
+		# shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.f1.pointers[1], variant_count-1)
 		for tex in self.sized_str_entry.tex_frags:
-			# print(tex.pointers[1].data)
 			tex.name = self.sized_str_entry.name
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
