@@ -138,7 +138,7 @@ class MatvarsLoader(BaseFile):
 		ss_d = struct.unpack("<4I", self.sized_str_entry.pointers[0].data[:16])
 		# print(ss_d)
 		cnt = ss_d[2]
-		# either 0 or 1
+		# seen either 0 or 1, could possibly be more, would need refactor in that case
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2+cnt)
 		if cnt:
 			# rex 93
