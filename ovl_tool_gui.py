@@ -126,6 +126,8 @@ class MainWindow(widgets.MainWindow):
 		self.e_name_new = QtWidgets.QTextEdit("new")
 		self.e_name_old.setFixedHeight(100)
 		self.e_name_new.setFixedHeight(100)
+		self.e_name_old.setTabChangesFocus(True)
+		self.e_name_new.setTabChangesFocus(True)
 
 		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
 		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging")
