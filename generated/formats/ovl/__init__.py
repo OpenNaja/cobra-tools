@@ -1506,8 +1506,8 @@ class OvlFile(Header, IoFile):
                     stream_entry.file_offset = file_archive.pools_start + file_ptr.pool.offset + file_ptr.data_offset
                     stream_entry.archive_name = stream_archive.name
                     self.stream_files.append(stream_entry)
-        # sort stream files by archive
-        self.stream_files.sort(key=lambda s: s.archive_name)
+        # sort stream files by archive and then the file offset in the pool
+        self.stream_files.sort(key=lambda s: (s.archive_name, s.file_offset))
         self.num_files_ovs = len(self.stream_files)
         # update the archive entries to point to the stream files
         for archive in self.archives:

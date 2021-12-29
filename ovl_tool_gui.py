@@ -390,6 +390,10 @@ class MainWindow(widgets.MainWindow):
 				# print(self.ovl_data)
 				# print(self.ovl_data.mimes)
 				# print(self.ovl_data.triplets)
+				# for a in self.ovl_data.archives:
+				# 	if a.name != "STATIC":
+				# 		streams = self.ovl_data.stream_files[a.stream_files_offset: a.stream_files_offset+a.num_files]
+				# 		print(a.name, streams)
 				# print(self.ovl_data.stream_files)
 				# for i, f in enumerate(self.ovl_data.files):
 				# 	if f.ext == ".texturestream":
