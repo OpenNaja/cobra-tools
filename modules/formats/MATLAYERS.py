@@ -36,7 +36,7 @@ class MatlayersLoader(BaseFile):
 		f0_d0 = struct.unpack("<6I", self.sized_str_entry.f1.pointers[0].data)
 		layer_count = f0_d0[2]
 
-		# logging.debug(f"{self.shader} {layer_count}")
+		logging.debug(f"layer_count {layer_count}")
 		entry_size = 24
 		ptr11 = self.sized_str_entry.f1.pointers[1]
 		out_frags, array_data = self.collect_array(ptr11, layer_count, entry_size)
@@ -45,12 +45,14 @@ class MatlayersLoader(BaseFile):
 		self.frag_data_pairs = []
 		for i in range(layer_count):
 			x = i * entry_size
+			abs_offset = ptr11.data_offset+x
 			# fgm name x + 8
 			# layer name x + 16
-			frags_entry = self.get_frags_between(out_frags, x, x+entry_size)
+			frags_entry = self.get_frags_between(out_frags, abs_offset, abs_offset+entry_size)
 			self.frag_data_pairs.append((frags_entry, array_data[x:x+entry_size]))
-			rel_offsets = [f.pointers[0].data_offset-x for f in frags_entry]
-			print(rel_offsets)
+			rel_offsets = [f.pointers[0].data_offset-abs_offset for f in frags_entry]
+			# we can have unused tiles, as in JWE2 trex (the last 2), which are all black and do not have an fgm
+			# print(rel_offsets)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
@@ -69,6 +71,8 @@ class MatlayersLoader(BaseFile):
 				fgm = None
 			elif len(frags) == 2:
 				fgm, l = frags
+			elif len(frags) == 0:
+				continue
 			else:
 				raise AttributeError(f"Not sure how to handle {len(frags)} on {self.file_entry.name}")
 			layer_name = l.pointers[1].data
