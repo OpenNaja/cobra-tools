@@ -76,6 +76,7 @@ def get_loader(ext, ovl, file_entry):
     from modules.formats.MS2 import Ms2Loader
     from modules.formats.PREFAB import PrefabLoader
     from modules.formats.PSCOLLECTION import PSCollectionLoader
+    from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
     from modules.formats.LOGICALCONTROLS import LogicalControlsLoader
     from modules.formats.MERGEDETAILS import MergeDetailsLoader
     from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
@@ -113,6 +114,7 @@ def get_loader(ext, ovl, file_entry):
         ".ms2": Ms2Loader,
         ".prefab": PrefabLoader,
         ".pscollection": PSCollectionLoader,
+        ".posedriverdef": PosedriverdefLoader,
         ".mergedetails": MergeDetailsLoader,
         ".scaleformlanguagedata": ScaleformLoader,
         ".specdef": SpecdefLoader,

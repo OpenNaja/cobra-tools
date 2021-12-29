@@ -117,10 +117,11 @@ class MatlayersLoader(BaseFile):
 				fgm_frag.pointers[0].data_offset = offset + 8
 				fgm_name = layer.attrib["fgm"]
 				self.write_to_pool(fgm_frag.pointers[1], 2, as_bytes(fgm_name))
-			name = layer.attrib["name"]
-			n_frag = self.create_fragments(self.sized_str_entry, 1)[0]
-			n_frag.pointers[0].data_offset = offset + 16
-			self.write_to_pool(n_frag.pointers[1], 2, as_bytes(name))
+			if "name" in layer.attrib:
+				name = layer.attrib["name"]
+				n_frag = self.create_fragments(self.sized_str_entry, 1)[0]
+				n_frag.pointers[0].data_offset = offset + 16
+				self.write_to_pool(n_frag.pointers[1], 2, as_bytes(name))
 			offset += 24
 		# todo - might need padding after the names buffer
 
