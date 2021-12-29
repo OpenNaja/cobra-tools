@@ -1498,7 +1498,7 @@ class OvlFile(Header, IoFile):
             pools_byte_offset += 4
             pools_offset += len(archive.content.pools)
         # pools are updated, gotta rebuild stream files now
-        self.update_stream_files()
+        # self.update_stream_files()
 
     def update_stream_files(self):
         logging.info("Updating stream file memory links")
