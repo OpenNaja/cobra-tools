@@ -978,7 +978,7 @@ class OvlFile(Header, IoFile):
         self.postprocessing()
 
     def create_archive(self, name="STATIC"):
-        logging.debug(f"Getting archive '{name}'")
+        # logging.debug(f"Getting archive '{name}'")
         # see if it exists
         for archive in self.archives:
             if archive.name == name:
@@ -1312,7 +1312,6 @@ class OvlFile(Header, IoFile):
                 frag.done = False
                 frag.name = None
                 ptr = frag.pointers[0]
-                print(frag, ptr.pool)
                 ptr.pool.fragments.append(frag)
 
     def load_file_classes(self):

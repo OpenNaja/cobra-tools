@@ -130,22 +130,26 @@ class MatvarsLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		print("\nMatvars:", self.sized_str_entry.name)
-		print(self.sized_str_entry.pointers[0].data)
+		logging.info(f"Matlayers: {self.sized_str_entry.name}")
+		# total data seems to be 48 bytes: 0, 1, 0, 0, 1, 0
+		# print(self.sized_str_entry.pointers[0].data)
 		# Sized string initpos = position of first fragment for matcol
 
 		ss_d = struct.unpack("<4I", self.sized_str_entry.pointers[0].data[:16])
+		# print(ss_d)
 		cnt = ss_d[2]
+		# either 0 or 1
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2+cnt)
 		if cnt:
 			# rex 93
 			self.sized_str_entry.f0, self.sized_str_entry.extra, self.sized_str_entry.f1 = self.sized_str_entry.fragments
+			# self.sized_str_entry.extra is just 16 * x00
 		else:
 			# ichthyo
 			self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
 		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		print(shader)
+		# print(shader)
 		f1_ptr = self.sized_str_entry.f1.pointers[0].data
 		# print(self.sized_str_entry.f0)
 		# 0,0,collection count,0, 0,0,
@@ -153,16 +157,30 @@ class MatvarsLoader(BaseFile):
 
 		f0_d0 = struct.unpack("<4I", f1_ptr[:16])
 		layer_count = f0_d0[2] - 1
-		print(f0_d0)
+		# print(f0_d0)
 		self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.f1.pointers[1],
 																	 layer_count)
 		for tex in self.sized_str_entry.tex_frags:
-			# p0 is just 1 or 0, but weird since 8 and 16 bytes alternate
-			# first is fgm name, second layer identity name
-			# b'Swatch_Thero_TRex_LumpySkin\x00'
-			# b'Ichthyosaurus_Layer_01\x00'
-			print(tex.pointers[1].data)
+			# print(tex.pointers[1].data)
 			tex.name = self.sized_str_entry.name
+
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		name = self.sized_str_entry.name
+		out_path = out_dir(name)
+		xmldata = ET.Element('MaterialVariants')
+		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		xmldata.set('shader', self.get_zstr(shader))
+
+		if self.sized_str_entry.tex_frags:
+			for frag in self.sized_str_entry.tex_frags:
+				variant = ET.SubElement(xmldata, 'variant')
+				variant.set('name', self.get_zstr(frag.pointers[1].data))
+		else:
+			variantset = ET.SubElement(xmldata, 'variantset')
+			variantset.set('name', self.get_zstr(self.sized_str_entry.extra.pointers[1].data))
+
+		self.write_xml(out_path, xmldata)
+		return out_path,
 
 
 class MateffsLoader(BaseFile):
