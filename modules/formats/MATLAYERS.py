@@ -174,30 +174,23 @@ class MateffsLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		print("\nMateffs:", self.sized_str_entry.name)
+		logging.info(f"Mateffs: {self.sized_str_entry.name}")
 
 		# Sized string initpos = position of first fragment for matcol
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
 		self.sized_str_entry.f0 = self.sized_str_entry.fragments[0]
 
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		name = self.sized_str_entry.name
+		out_path = out_dir(name)
+		xmldata = ET.Element('MaterialEffects')
 		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		print(shader)
-		print(self.sized_str_entry.f0.pointers[0].data)
-	# print(self.sized_str_entry.f0)
-	# 0,0,collection count,0, 0,0,
-	# print(self.sized_str_entry.f1.pointers[0].data, len(self.sized_str_entry.f1.pointers[0].data))
-	# f0_d0 = struct.unpack("<6I", self.sized_str_entry.f1.pointers[0].data)
-	# layer_count = f0_d0[2] - 1
-	# print(f0_d0)
-	# self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.f1.pointers[1],
-	#															 layer_count)
-	# for tex in self.sized_str_entry.tex_frags:
-	# p0 is just 1 or 0, but weird since 8 and 16 bytes alternate
-	# first is fgm name, second layer identity name
-	# b'Swatch_Thero_TRex_LumpySkin\x00'
-	# b'Ichthyosaurus_Layer_01\x00'
-	# print(tex.pointers[1].data)
-	# tex.name = self.sized_str_entry.name
+		xmldata.set('shader', self.get_zstr(shader))
+		# not 100% sold on these just yet
+		data = struct.unpack("<8f 2I 12f 2I 2f I 39f I f", self.sized_str_entry.f0.pointers[0].data)
+		xmldata.set('data', data)
+		self.write_xml(out_path, xmldata)
+		return out_path,
 
 
 class MatpatsLoader(BaseFile):
