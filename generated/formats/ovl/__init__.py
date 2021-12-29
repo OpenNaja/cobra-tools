@@ -1498,7 +1498,15 @@ class OvlFile(Header, IoFile):
             pools_byte_offset += 4
             pools_offset += len(archive.content.pools)
         # pools are updated, gotta rebuild stream files now
-        # self.update_stream_files()
+        self.update_stream_files()
+
+    def _get_abs_mem_offset(self, archive, ptr):
+        # JWE, JWE2: relative offset for each pool
+        if self.user_version.is_jwe:
+            return archive.pools_start + ptr.pool.offset + ptr.data_offset
+        # PZ, PC: offsets relative to the whole pool block
+        else:
+            return ptr.pool.offset + ptr.data_offset
 
     def update_stream_files(self):
         logging.info("Updating stream file memory links")
@@ -1510,9 +1518,9 @@ class OvlFile(Header, IoFile):
                     stream_ss, stream_archive = self._ss_dict[stream.name.lower()]
                     stream_entry = StreamEntry(self.context)
                     steam_ptr = stream_ss.pointers[0]
-                    stream_entry.stream_offset = stream_archive.pools_start + steam_ptr.pool.offset + steam_ptr.data_offset
+                    stream_entry.stream_offset = self._get_abs_mem_offset(stream_archive, steam_ptr)
                     file_ptr = file_ss.pointers[0]
-                    stream_entry.file_offset = file_archive.pools_start + file_ptr.pool.offset + file_ptr.data_offset
+                    stream_entry.file_offset = self._get_abs_mem_offset(file_archive, file_ptr)
                     stream_entry.archive_name = stream_archive.name
                     self.stream_files.append(stream_entry)
         # sort stream files by archive and then the file offset in the pool
