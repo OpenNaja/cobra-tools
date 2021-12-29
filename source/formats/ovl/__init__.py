@@ -958,8 +958,8 @@ class OvlFile(Header, IoFile):
     def create(self, ovl_dir):
         logging.info(f"Creating OVL from {ovl_dir}")
         file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
-        # todo - create archives on demand per file
-        self.create_archive()
+        # # todo - create archives on demand per file
+        # self.create_archive()
         self.add_files(file_paths)
         self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
@@ -976,13 +976,20 @@ class OvlFile(Header, IoFile):
         self.postprocessing()
 
     def create_archive(self, name="STATIC"):
-        archive_entry = ArchiveEntry(self.context)
-        self.archives.append(archive_entry)
+        logging.debug(f"Getting archive '{name}'")
+        # see if it exists
+        for archive in self.archives:
+            if archive.name == name:
+                return archive.content
+        # nope, gotta create it
+        logging.debug(f"Creating archive '{name}'")
+        archive = ArchiveEntry(self.context)
+        self.archives.append(archive)
         if name == "STATIC":
-            self.static_archive = archive_entry
-        archive_entry.name = name
-        content = OvsFile(self.context, self, archive_entry)
-        archive_entry.content = content
+            self.static_archive = archive
+        archive.name = name
+        content = OvsFile(self.context, self, archive)
+        archive.content = content
         new_zlib = ZlibInfo(self.context)
         self.zlibs.append(new_zlib)
         return content
@@ -1303,6 +1310,7 @@ class OvlFile(Header, IoFile):
                 frag.done = False
                 frag.name = None
                 ptr = frag.pointers[0]
+                print(frag, ptr.pool)
                 ptr.pool.fragments.append(frag)
 
     def load_file_classes(self):

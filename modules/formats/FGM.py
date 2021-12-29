@@ -52,7 +52,7 @@ class FgmLoader(BaseFile):
 				# todo - check size for dependency pointers, IIRC it varies
 				self.write_to_pool(dependency.pointers[0], 2, b"\x00" * 8)
 			# points to the start of the dependencies region
-			self.dependencies_ptr.pointers[1].data_offset = self.file_entry.dependencies[0].pointers[0].data_offset
+			self.ptr_relative(self.dependencies_ptr.pointers[1], self.file_entry.dependencies[0].pointers[0])
 
 	def collect(self):
 		self.assign_ss_entry()

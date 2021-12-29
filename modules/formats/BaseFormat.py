@@ -20,7 +20,7 @@ class BaseFile:
 
 	def __init__(self, ovl, file_entry):
 		self.ovl = ovl
-		self.ovs = ovl.static_archive.content
+		self.ovs = ovl.create_archive()
 		self.file_entry = file_entry
 		self.sized_str_entry = None
 
@@ -90,11 +90,7 @@ class BaseFile:
 		for pool_index, pool in enumerate(self.ovs.pools):
 			if pool.type == pool_type_key and not pool.update_from_ptrs:
 				return pool_index, pool
-		# nope, means we gotta create pool type and pool
-		# pool_type = PoolGroup(self.ovl.context)
-		# pool_type.type = pool_type_key
-		# pool_type.num_pools = 1
-
+		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
 		pool.data = BinaryStream()
 		# the real address isn't known until it is written, but declare it anyway
@@ -103,7 +99,6 @@ class BaseFile:
 		pool.type = pool_type_key
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
 		pool.update_from_ptrs = False
-		# self.ovs.pool_groups.append(pool_type)
 		self.ovs.pools.append(pool)
 		return len(self.ovs.pools)-1, pool
 
@@ -115,6 +110,8 @@ class BaseFile:
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
 		ptr.pool_index = other_ptr.pool_index
 		ptr.data_offset = other_ptr.data_offset + rel_offset
+		# hack
+		ptr.data = other_ptr.data
 		ptr.pool = other_ptr.pool
 
 	def get_content(self, filepath):
