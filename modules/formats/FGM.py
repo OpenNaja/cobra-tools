@@ -49,7 +49,6 @@ class FgmLoader(BaseFile):
 
 		if fgm_data.texture_files:
 			for dependency in self.file_entry.dependencies:
-				# todo - check size for dependency pointers, IIRC it varies
 				self.write_to_pool(dependency.pointers[0], 2, b"\x00" * 8)
 			# points to the start of the dependencies region
 			self.ptr_relative(self.dependencies_ptr.pointers[1], self.file_entry.dependencies[0].pointers[0])
@@ -77,9 +76,9 @@ class FgmLoader(BaseFile):
 			ptr = self.attr_info.pointers[1]
 			ptr.split_data_padding(fgm_header.attribute_count * 16)
 			logging.debug(f"Attribute data {len(ptr.data)} padding {len(ptr.padding)}")
-		for i, f in enumerate(self.sized_str_entry.fragments):
-			p = f.pointers[1]
-			logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
+		# for i, f in enumerate(self.sized_str_entry.fragments):
+		# 	p = f.pointers[1]
+		# 	logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
 
 	def _tag_fragments(self, fgm_header):
 		# logging.info(f"Tagging {len(self.sized_str_entry.fragments)} fragments")
