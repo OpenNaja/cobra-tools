@@ -264,9 +264,7 @@ class OvsFile(OvsHeader):
         self.arg.num_fragments = len(self.fragments)
         self.arg.num_files = len(self.sized_str_entries)
         self.arg.num_buffer_groups = len(self.buffer_groups)
-
-    # todo - self.arg.ovs_file_offset
-    # todo - self.arg.ovs_offset
+        # todo - self.arg.ovs_offset
 
     def unzip(self, archive_entry, start):
         filepath = archive_entry.ovs_path
@@ -339,27 +337,6 @@ class OvsFile(OvsHeader):
             pool.address = stream.tell()
             pool.data = BinaryStream(stream.read(pool.size))
             assign_versions(pool.data, get_versions(self.ovl))
-
-    def build_frag_lut(self):
-        """Create a lookup table for fragments"""
-        logging.info("Building frag lookup table")
-
-        # first sort fragments by their first pointer
-        self.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset))
-        # create a lut per pool
-        for pool in self.pools:
-            pool.frag_lut = {}
-            # store fragments per header for faster lookup
-            pool.fragments = []
-        # link into flattened list of fragments
-        for frag_i, frag in enumerate(self.fragments):
-            # we assign these later when the loader classes run collect()
-            frag.done = False
-            frag.name = None
-            ptr = frag.pointers[0]
-            pool = self.pools[ptr.pool_index]
-            pool.fragments.append(frag)
-            pool.frag_lut[ptr.data_offset] = frag_i
 
     def map_assets(self):
         """Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
@@ -529,15 +506,6 @@ class OvsFile(OvsHeader):
     def frags_from_pointer(self, ptr, count, reuse=False):
         frags = self.frags_for_pointer(ptr)
         return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
-
-    def get_frags_from_ptr_lut(self, ptr, count):
-        """Use the fragment lookup table to retrieve count fragments starting at a given pointer"""
-        pool = self.pools[ptr.pool_index]
-        try:
-            frag_i = pool.frag_lut[ptr.data_offset]
-        except:
-            print("error", ptr.data_offset, pool.frag_lut)
-        return self.fragments[frag_i:frag_i + count]
 
     def frags_from_pointer_equals(self, p):
         frags = self.frags_for_pointer(p)
@@ -776,7 +744,8 @@ class OvsFile(OvsHeader):
                     out.append(f)
         return out
 
-    def find_entry(self, entries, src_entry):
+    @staticmethod
+    def find_entry(entries, src_entry):
         """ returns entry from list l whose file hash matches hash, or none"""
         for entry in entries:
             if entry.name == src_entry.name:
@@ -1297,10 +1266,9 @@ class OvlFile(Header, IoFile):
     def load_flattened_pools(self):
         """Create flattened list of pools"""
         self.pools = [None for _ in range(self.num_pools)]
-        for archive_entry in self.archives:
-            if archive_entry.num_pools:
-                self.pools[
-                archive_entry.pools_offset: archive_entry.pools_offset + archive_entry.num_pools] = archive_entry.content.pools
+        for archive in self.archives:
+            if archive.num_pools:
+                self.pools[archive.pools_offset: archive.pools_offset + archive.num_pools] = archive.content.pools
 
     def load_pointers(self):
         """Handle all pointers of this file, including dependencies, fragments and ss entries"""
@@ -1309,12 +1277,11 @@ class OvlFile(Header, IoFile):
         for pool in self.pools:
             pool.pointer_map = {}
             pool.update_from_ptrs = True
+            # store fragments per header for faster lookup
+            pool.fragments = []
         self.link_ptrs_to_pools()
         for pool in self.pools:
             pool.calc_pointer_sizes()
-        for archive_entry in self.archives:
-            ovs = archive_entry.content
-            ovs.build_frag_lut()
 
     def link_ptrs_to_pools(self):
         """"Link all pointers to their respective pools"""
@@ -1322,12 +1289,21 @@ class OvlFile(Header, IoFile):
         for dep in self.dependencies:
             # the index goes into the flattened list of pools
             dep.pointers[0].link_to_pool(self.pools)
-        for archive_entry in self.archives:
-            ovs = archive_entry.content
+        for archive in self.archives:
+            ovs = archive.content
+            # sort fragments by their first pointer
+            ovs.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset))
+            # attach all pointers to their pool
             for entry in itertools.chain(ovs.fragments, ovs.sized_str_entries):
                 for pointer in entry.pointers:
                     # the index goes into the ovs file's pools
                     pointer.link_to_pool(ovs.pools)
+            for frag in ovs.fragments:
+                # we assign these later when the loader classes run collect()
+                frag.done = False
+                frag.name = None
+                ptr = frag.pointers[0]
+                ptr.pool.fragments.append(frag)
 
     def load_file_classes(self):
         logging.info("Loading file classes")
@@ -1465,7 +1441,6 @@ class OvlFile(Header, IoFile):
 
     def update_counts(self):
         """Update counts of this ovl and all of its archives"""
-        self.update_mimes()
         self.sort_pools_and_update_groups()
         # adjust the counts
         for archive in self.archives:
@@ -1551,25 +1526,25 @@ class OvlFile(Header, IoFile):
             if file.loader:
                 file.loader.update()
 
-    def debug_unks(self):
-        pool_type = set()
-        set_pool_type = set()
-        for file in self.files:
-            pool_type.add(file.pool_type)
-            set_pool_type.add(file.set_pool_type)
-            ss = self.get_sized_str_entry(file.name)
-            ss_ptr = ss.pointers[0]
-            if not file.set_pool_type:
-                if file.pool_type != ss_ptr.pool.type:
-                    raise AttributeError(f"No match: {file.pool_type},  {ss_ptr.pool.type}")
-                else:
-                    pass
-            # logging.debug(f"match: {file.pool_type},  {ss_ptr.pool.type}")
-            else:
-                pass
-        logging.info(f"pool_type {pool_type}")
-        logging.info(f"set_pool_type {set_pool_type}")
-        logging.info(self.unknowns)
+    # def debug_unks(self):
+    #     pool_type = set()
+    #     set_pool_type = set()
+    #     for file in self.files:
+    #         pool_type.add(file.pool_type)
+    #         set_pool_type.add(file.set_pool_type)
+    #         ss = self.get_sized_str_entry(file.name)
+    #         ss_ptr = ss.pointers[0]
+    #         if not file.set_pool_type:
+    #             if file.pool_type != ss_ptr.pool.type:
+    #                 raise AttributeError(f"No match: {file.pool_type},  {ss_ptr.pool.type}")
+    #             else:
+    #                 pass
+    #         # logging.debug(f"match: {file.pool_type},  {ss_ptr.pool.type}")
+    #         else:
+    #             pass
+    #     logging.info(f"pool_type {pool_type}")
+    #     logging.info(f"set_pool_type {set_pool_type}")
+    #     logging.info(self.stream_files)
 
     def dump_frag_log(self):
         for archive_entry in self.archives:
@@ -1585,6 +1560,7 @@ class OvlFile(Header, IoFile):
         self.store_filepath(filepath)
         logging.info(f"Writing {self.basename}")
         self.update_files()
+        self.update_mimes()
         self.update_counts()
         # do this last so we also catch the assets & sets
         self.update_hashes()
