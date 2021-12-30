@@ -63,4 +63,4 @@ class CurveLoader(BaseFile):
 		f_0 = struct.pack('<QQ', 0x00, len(curvedata))  # fragment pointer 0 data
 
 		# there is not a reason to add this padding but just to be safe
-		return f_0, f_1 + get_padding(len(f_1), alignment=16)
+		return f_0, f_1 + get_padding(len(f_1), alignment=8)
