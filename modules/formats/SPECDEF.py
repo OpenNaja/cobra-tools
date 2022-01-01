@@ -1,4 +1,5 @@
 import logging
+import xml.etree.ElementTree as ET  # prob move this to a custom modules.helpers or utils?
 
 from modules.formats.BaseFormat import BaseFile
 import struct
@@ -84,33 +85,34 @@ class SpecdefLoader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		ss_pointer = self.sized_str_entry.pointers[0]
-		logging.info(f"SPECDEF: {self.sized_str_entry.name}")
+		logging.info(f"Collecting specdef: {self.sized_str_entry.name}")
+
 		ss_data = struct.unpack("<2H4B", ss_pointer.data)
 		logging.info(f"{ss_data}")
 		if ss_data[0] == 0:
-			logging.info(f"spec is zero ")
+			logging.info(f"specdef has no attributes")
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3, reuse=False)
+		
 		# logging.debug(f"SPECDEF fragments: {self.sized_str_entry.fragments}")
 		attrib_count = ss_data[0]
-		conditions = ss_data[2:]
-		self.condition_frags = []
-		for condition in conditions:
-			if condition > 0:
+		lists = ss_data[2:]
+		self.lists_frags = []
+		for listItems in lists:
+			if listItems > 0:
 				frag = self.ovs.frags_from_pointer(ss_pointer, 1, reuse=False)[0]
 				self.sized_str_entry.fragments.append(frag)
-				# logging.debug(frag.pointers[0].data)
-				self.condition_frags.append(frag)
+				self.lists_frags.append(frag)
 			else:
-				self.condition_frags.append(None)
+				self.lists_frags.append(None)
 
 		self.attrib_names = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], attrib_count, reuse=False)
 		self.attrib_datas = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False)
 		self.sized_str_entry.fragments.extend(self.attrib_names + self.attrib_datas)
 
-		for cond_frag, cond_count in zip(self.condition_frags, conditions):
-			if cond_frag:
-				cond_frag.child_frags = self.ovs.frags_from_pointer(cond_frag.pointers[1], cond_count, reuse=False)
-				self.sized_str_entry.fragments.extend(cond_frag.child_frags)
+		for list_frag, list_count in zip(self.lists_frags, lists):
+			if list_frag:
+				list_frag.child_frags = self.ovs.frags_from_pointer(list_frag.pointers[1], list_count, reuse=False)
+				self.sized_str_entry.fragments.extend(list_frag.child_frags)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
@@ -131,6 +133,45 @@ class SpecdefLoader(BaseFile):
 				# logging.debug(f"SPECDEF: dumping pool type {f}")
 				outfile.write(f.pointers[1].data)
 			outfile.close()
+
+
+		# save .xml file
+		logging.debug("Exporting xml specdef file")
+		attrib_count, flags, name_count, childspec_count, manager_count, script_count = struct.unpack(
+			"<2H4B", self.sized_str_entry.pointers[0].data)
+
+		xml_data = ET.Element('Specdef')
+		xml_data.set('Name', name[:-8])
+		xml_data.set('Flags', str(flags))
+
+		if self.attrib_names:
+			xml_attribs = ET.SubElement(xml_data, 'Attributes')
+			dtypes = struct.unpack(f"<{attrib_count}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
+			for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, dtypes):
+				iname = attrib_name.pointers[1].data.decode().rstrip('\x00')
+				# the tflags structure depends on the dtype value
+				tflags = attrib_data.pointers[1].data
+				xml_attrib = ET.SubElement(xml_attribs, 'Attribute')
+				xml_attrib.set('Type', str(dtype))
+				xml_attrib.set('Name', iname)
+				xml_attrib.set('Flags', str(tflags))
+
+		list_names = ("Name", "Requirement", "Manager", "Script")
+		for list_frag, list_name in zip(self.lists_frags, list_names):
+			if list_frag:
+				list_xml = ET.SubElement(xml_data, f"{list_name}s")
+				for child_frag in list_frag.child_frags:
+					iname = child_frag.pointers[1].data.decode().rstrip('\x00')
+					item_xml = ET.SubElement(list_xml, list_name)
+					item_xml.text = iname
+
+		xmlstr = ET.tostring(xml_data, encoding='utf8', method='xml')
+		with open(out_path + ".xml", 'wb') as outfile:
+			outfile.write(xmlstr)
+			outfile.close()
+
+		#self.write_xml(out_path, xml_data)
+
 
 		# save .text file
 		with open(out_path, 'w') as outfile:
@@ -192,14 +233,14 @@ class SpecdefLoader(BaseFile):
 					# logging.debug(outstr)
 					outfile.write(outstr + "\n")
 
-			condition_names = ("Name", "Child Specdef", "Manager", "Script")
-			for cond_frag, cond_name in zip(self.condition_frags, condition_names):
-				if cond_frag:
-					outfile.write(f"{cond_name}s:\n")
-					for child_frag in cond_frag.child_frags:
+			list_names = ("Name", "Child Specdef", "Manager", "Script")
+			for list_frag, list_name in zip(self.lists_frags, list_names):
+				if list_frag:
+					outfile.write(f"{list_name}s:\n")
+					for child_frag in list_frag.child_frags:
 						iname = child_frag.pointers[1].data.decode().rstrip('\x00')
-						outstr = f" - {cond_name}: {iname}"
+						outstr = f" - {list_name}: {iname}"
 						outfile.write(outstr + "\n")
 
-		return out_path + ".bin", out_path,
+		return out_path + ".bin", out_path + ".xml", out_path, 
 
