@@ -117,8 +117,10 @@ class SpecdefLoader(BaseFile):
 			attrib_default = None
 			if dtype == 10:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
-			logging.debug(f"{attrib_name} {attrib_data.pointers[1].data} {attrib_default}")
-			self.attributes.append((dtype, attrib_name, attrib_data, attrib_default))
+			if dtype == 5:
+				#attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=8)
+				#logging.debug(f" TEST {attrib_name} {attrib_data.pointers[1].data} {attrib_default}")
+			self.attributes.append([dtype, attrib_name, attrib_data, attrib_default])
 
 		self.sized_str_entry.fragments.extend(self.attrib_names + self.attrib_datas)
 
@@ -242,17 +244,13 @@ class SpecdefLoader(BaseFile):
 					elif dtype == 10: # String
 						# 1ptr, and 1 int
 						iptr, ioptional = struct.unpack("<QI", tflags[0:12])
+
 						# find the default value through the pointed frag, but only if it belongs to this data
 						strname = ""
-						namefragment = self.ovs.frags_from_pointer(attrib_data.pointers[1], 1, reuse=True)[0]
-						print(f"values: {namefragment.pointers[0]} {attrib_data.pointers[1]}")
-						# grab this frag as default string value if it belongs to this data array 
-						#if namefragment.pointers[0].offset == attrib_data.pointers[1].offset:
-						#	namefragment.pointers[1].strip_zstring_padding()
-						#	strval = namefragment.pointers[1].data.decode('utf-8')
-						#	if strval[-1] == '\x00':
-						#		strval = strval[:-1]
-						#	strname = str(strval)
+						test = next((sub[3] for sub in self.attributes if sub[1].pointers[1].data.decode().rstrip('\x00') == iname), None)
+						if test:
+							strname = test.pointers[1].data.decode().rstrip('\x00')
+
 						xml_attrib.set('Type', "string")
 						xml_attrib.set('Value', strname) 
 						xml_attrib.set('Optional', str(bool(ioptional)))

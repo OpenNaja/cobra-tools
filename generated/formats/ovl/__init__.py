@@ -508,7 +508,7 @@ class OvsFile(OvsHeader):
     def frag_at_pointer(self, ptr, offset=0):
         frags = self.frags_for_pointer(ptr)
         for frag in frags:
-            if frag.pointers[0].data_offset == ptr.data_offset + offset:
+            if frag.pointers[0].pool_index == ptr.pool_index and frag.pointers[0].data_offset == ptr.data_offset + offset:
                 frag.done = True
                 return frag
 
