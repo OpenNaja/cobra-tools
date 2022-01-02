@@ -118,6 +118,7 @@ class SpecdefLoader(BaseFile):
 			if dtype == 10:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
 			if dtype == 5:
+				pass
 				#attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=8)
 				#logging.debug(f" TEST {attrib_name} {attrib_data.pointers[1].data} {attrib_default}")
 			self.attributes.append([dtype, attrib_name, attrib_data, attrib_default])
