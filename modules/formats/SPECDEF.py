@@ -152,9 +152,120 @@ class SpecdefLoader(BaseFile):
 				# the tflags structure depends on the dtype value
 				tflags = attrib_data.pointers[1].data
 				xml_attrib = ET.SubElement(xml_attribs, 'Attribute')
-				xml_attrib.set('Type', str(dtype))
 				xml_attrib.set('Name', iname)
-				xml_attrib.set('Flags', str(tflags))
+				try: # all flags data seems to be padded to 8 bytes
+					if dtype == 0: # Boolean type
+						# 8 bytes of data, only 2 bytes used
+						xml_attrib.set('Type', "bool")
+						xml_attrib.set('Value',    str(bool(tflags[0])))
+						xml_attrib.set('Optional', str(bool(tflags[1])))
+					elif dtype == 1: # Unused, int8
+						imin, imax, ivalue, ioptional = struct.unpack("<4b", tflags[0:4])
+						xml_attrib.set('Type', "int8")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 2: # Unused, int16
+						imin, imax, ivalue, ioptional  = struct.unpack("<4h", tflags[0:8])
+						xml_attrib.set('Type', "int16")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 3: # int32 type
+						# 8 ints of data, only five used?
+						imin, imax, ivalue, ioptional = struct.unpack("<4i", tflags[0:16])
+						xml_attrib.set('Type', "int32")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 4: # Unused, int64
+						imin, imax, ivalue, ioptional = struct.unpack("<4q", tflags[0:32])
+						xml_attrib.set('Type', "int64")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 5: #UInt8
+						# 8 bytes, only 4 used
+						imin, imax, ivalue, ioptional = struct.unpack("<4B", tflags[0:4])
+						xml_attrib.set('Type', "uint8")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 6: #UInt16
+						# 8 short, only 4 used
+						imin, imax, ivalue, ioptional  = struct.unpack("<4H", tflags[0:8])
+						xml_attrib.set('Type', "uint16")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 7: # UInt32 type
+						# 8 ints of data, only 4 used?
+						imin, imax, ivalue, ioptional = struct.unpack("<4I", tflags[0:16])
+						xml_attrib.set('Type', "uint32")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 8: # UInt64 type
+						# 8 longs of data, only 4 used?, last one here could just be an int
+						imin, imax, ivalue, ioptional = struct.unpack("<4Q", tflags[0:32])
+						xml_attrib.set('Type', "uint64")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 9: # Float type
+						# 3 floats of data, and 1 int
+						imin, imax, ivalue, ioptional = struct.unpack("<3fI", tflags[0:16])
+						xml_attrib.set('Type', "float")
+						xml_attrib.set('Min', str(imin))
+						xml_attrib.set('Max', str(imax))
+						xml_attrib.set('Value', str(ivalue))
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 10: # String
+						# 1ptr, and 1 int
+						iptr, ioptional = struct.unpack("<QI", tflags[0:12])
+						# find the default value through the pointed frag, but only if it belongs to this data
+						strname = ""
+						namefragment = self.ovs.frags_from_pointer(attrib_data.pointers[1], 1, reuse=True)[0]
+						print(f"values: {namefragment.pointers[0]} {attrib_data.pointers[1]}")
+						# grab this frag as default string value if it belongs to this data array 
+						#if namefragment.pointers[0].offset == attrib_data.pointers[1].offset:
+						#	namefragment.pointers[1].strip_zstring_padding()
+						#	strval = namefragment.pointers[1].data.decode('utf-8')
+						#	if strval[-1] == '\x00':
+						#		strval = strval[:-1]
+						#	strname = str(strval)
+						xml_attrib.set('Type', "string")
+						xml_attrib.set('Value', strname) 
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 11: # Vector2
+						# vector2 float, 1, 0 (padding?)
+						ix, iy, ioptional = struct.unpack("<2fI", tflags[0:12])
+						xml_attrib.set('Type', "Vector2")
+						xml_attrib.set('Value', f"({ix},{iy})")
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 12: # Vector3
+						# vector3 float, 1
+						ix, iy, iz, ioptional = struct.unpack("<3fI", tflags[0:16])
+						xml_attrib.set('Type', "Vector3")
+						xml_attrib.set('Value', f"({ix},{iy},{iz})")
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					else:
+						xml_attrib.set('dType', str(dtype))  # remove once finished
+						xml_attrib.set('Flags', str(tflags)) # remove once finished
+				except:
+					logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
+				#outstr = f" - Type: {dtype:02} Name: {iname}  Flags: {tflags}"
+				# logging.debug(outstr)
+				#outfile.write(outstr + "\n")
+
 
 		list_names = ("Name", "Requirement", "Manager", "Script")
 		for list_frag, list_name in zip(self.lists_frags, list_names):
