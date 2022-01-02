@@ -96,6 +96,7 @@ class SpecdefLoader(BaseFile):
 		# logging.debug(f"SPECDEF fragments: {self.sized_str_entry.fragments}")
 		attrib_count = ss_data[0]
 		lists = ss_data[2:]
+		logging.debug(f"SPECDEF lists: {lists}")
 		self.lists_frags = []
 		for listItems in lists:
 			if listItems > 0:
@@ -105,8 +106,20 @@ class SpecdefLoader(BaseFile):
 			else:
 				self.lists_frags.append(None)
 
+		self.attributes = []
+		# this frag has padding
+		self.dtypes = struct.unpack(f"<{attrib_count}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
 		self.attrib_names = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], attrib_count, reuse=False)
 		self.attrib_datas = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False)
+		# self.attrib_datas = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False)
+
+		for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
+			attrib_default = None
+			if dtype == 10:
+				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
+			logging.debug(f"{attrib_name} {attrib_data.pointers[1].data} {attrib_default}")
+			self.attributes.append((dtype, attrib_name, attrib_data, attrib_default))
+
 		self.sized_str_entry.fragments.extend(self.attrib_names + self.attrib_datas)
 
 		for list_frag, list_count in zip(self.lists_frags, lists):
@@ -134,7 +147,6 @@ class SpecdefLoader(BaseFile):
 				outfile.write(f.pointers[1].data)
 			outfile.close()
 
-
 		# save .xml file
 		logging.debug("Exporting xml specdef file")
 		attrib_count, flags, name_count, childspec_count, manager_count, script_count = struct.unpack(
@@ -146,8 +158,7 @@ class SpecdefLoader(BaseFile):
 
 		if self.attrib_names:
 			xml_attribs = ET.SubElement(xml_data, 'Attributes')
-			dtypes = struct.unpack(f"<{attrib_count}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
-			for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, dtypes):
+			for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
 				iname = attrib_name.pointers[1].data.decode().rstrip('\x00')
 				# the tflags structure depends on the dtype value
 				tflags = attrib_data.pointers[1].data
@@ -262,10 +273,6 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Flags', str(tflags)) # remove once finished
 				except:
 					logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
-				#outstr = f" - Type: {dtype:02} Name: {iname}  Flags: {tflags}"
-				# logging.debug(outstr)
-				#outfile.write(outstr + "\n")
-
 
 		list_names = ("Name", "Requirement", "Manager", "Script")
 		for list_frag, list_name in zip(self.lists_frags, list_names):
@@ -276,13 +283,7 @@ class SpecdefLoader(BaseFile):
 					item_xml = ET.SubElement(list_xml, list_name)
 					item_xml.text = iname
 
-		xmlstr = ET.tostring(xml_data, encoding='utf8', method='xml')
-		with open(out_path + ".xml", 'wb') as outfile:
-			outfile.write(xmlstr)
-			outfile.close()
-
-		#self.write_xml(out_path, xml_data)
-
+		self.write_xml(out_path + ".xml", xml_data)
 
 		# save .text file
 		with open(out_path, 'w') as outfile:
@@ -293,10 +294,7 @@ class SpecdefLoader(BaseFile):
 
 			if self.attrib_names:
 				outfile.write(f"Attributes:\n")
-				# this frag has padding
-				dtypes = struct.unpack(f"<{attrib_count}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
-
-				for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, dtypes):
+				for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
 					iname = attrib_name.pointers[1].data.decode().rstrip('\x00')
 					# the tflags structure depends on the dtype value
 					tflags = attrib_data.pointers[1].data

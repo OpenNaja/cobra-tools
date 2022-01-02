@@ -505,6 +505,13 @@ class OvsFile(OvsHeader):
         else:
             return frags
 
+    def frag_at_pointer(self, ptr, offset=0):
+        frags = self.frags_for_pointer(ptr)
+        for frag in frags:
+            if frag.pointers[0].data_offset == ptr.data_offset + offset:
+                frag.done = True
+                return frag
+
     def frags_from_pointer(self, ptr, count, reuse=False):
         frags = self.frags_for_pointer(ptr)
         return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
