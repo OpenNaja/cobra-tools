@@ -22,26 +22,25 @@ class SpecdefLoader(BaseFile):
 		offset = pool.data.tell()
 
 		# add empty specdef, 64b size struct
-		#empty_buffer  = struct.pack("<64s", b'') # empty buffer
-		empty_buffer  = struct.pack("<2sH60s",b'',101, b'') # Set flags to 1
+		# empty_buffer  = struct.pack("<64s", b'') # empty buffer
+		empty_buffer = struct.pack("<2sH60s", b'', 101, b'')  # Set flags to 1
 
-		#empty_buffer  = struct.pack("<6sB57s", b'',1,b'') #managers
-		#empty_buffer  = struct.pack("<7sB56s", b'',1,b'')  # scripts
-		pool.data.write(empty_buffer) 
+		# empty_buffer  = struct.pack("<6sB57s", b'',1,b'') #managers
+		# empty_buffer  = struct.pack("<7sB56s", b'',1,b'')  # scripts
+		pool.data.write(empty_buffer)
 
 		dpool_index, dpool = self.get_pool(2)
 		doffset = dpool.data.tell()
 
 		# add empty data buffer for now
-		empty_data    = struct.pack("<I4s", 0x87126e, b'') 
-		dpool.data.write(empty_data)  
+		empty_data = struct.pack("<I4s", 0x87126e, b'')
+		dpool.data.write(empty_data)
 		luaoffset = dpool.data.tell()
-		dpool.data.write(b"building")  
+		dpool.data.write(b"building")
 		dpool.data.write(b'')
 		pluaoffset = dpool.data.tell()
 		dpool.data.write(struct.pack("<8s", b''))
 		# add space for the lua ptr
-
 
 		# add three required fragments for the specdef
 		# ignoring the current specdef struct, point all
@@ -62,14 +61,13 @@ class SpecdefLoader(BaseFile):
 		new_frag2.pointers[1].pool_index = dpool_index
 		new_frag2.pointers[1].data_offset = doffset + 0x00
 
-		if False: #commented out, used to test adding Feature or Dependencies
+		if False:  # commented out, used to test adding Feature or Dependencies
 			## this is the pointer to the lua string
 			new_frag3 = self.create_fragment()
 			new_frag3.pointers[0].pool_index = dpool_index
 			new_frag3.pointers[0].data_offset = pluaoffset
 			new_frag3.pointers[1].pool_index = dpool_index
 			new_frag3.pointers[1].data_offset = luaoffset
-
 
 			## this is the pointer to the lua list
 			new_frag4 = self.create_fragment()
@@ -89,18 +87,18 @@ class SpecdefLoader(BaseFile):
 
 		ss_data = struct.unpack("<2H4B", ss_pointer.data)
 		logging.info(f"{ss_data}")
-		if ss_data[0] == 0:
-			logging.info(f"specdef has no attributes")
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3, reuse=False)
-		
-		# logging.debug(f"SPECDEF fragments: {self.sized_str_entry.fragments}")
+		# if ss_data[0] == 0:
+		# 	logging.info(f"specdef has no attributes")
+		# we always have 3 fragments for attributes, even if there are none
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
+
 		attrib_count = ss_data[0]
 		lists = ss_data[2:]
 		logging.debug(f"SPECDEF lists: {lists}")
 		self.lists_frags = []
 		for listItems in lists:
 			if listItems > 0:
-				frag = self.ovs.frags_from_pointer(ss_pointer, 1, reuse=False)[0]
+				frag = self.ovs.frags_from_pointer(ss_pointer, 1)[0]
 				self.sized_str_entry.fragments.append(frag)
 				self.lists_frags.append(frag)
 			else:
@@ -108,26 +106,32 @@ class SpecdefLoader(BaseFile):
 
 		self.attributes = []
 		# this frag has padding
-		self.dtypes = struct.unpack(f"<{attrib_count}I", self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
-		self.attrib_names = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], attrib_count, reuse=False)
-		self.attrib_datas = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False)
-		# self.attrib_datas = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count, reuse=False)
-
+		self.dtypes = struct.unpack(f"<{attrib_count}I",
+									self.sized_str_entry.fragments[0].pointers[1].data[:4 * attrib_count])
+		self.attrib_names = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[1].pointers[1], attrib_count)
+		self.attrib_datas = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[2].pointers[1], attrib_count)
+		# get any default data linked to in data pointers
 		for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
 			attrib_default = None
+			if dtype == 5:
+				# there doesn't seem to be a frag at this offset, even if the data is shorter?!
+				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=8)
+				iname = self.get_zstr(attrib_name.pointers[1].data)
+				d = None
+				if attrib_default:
+					d = attrib_default.pointers[1].data
+				logging.debug(f"TEST {iname} {attrib_data.pointers[1].data} {attrib_data.pointers[1]} {d}")
+				pass
 			if dtype == 10:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
-			if dtype == 5:
-				pass
-				#attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=8)
-				#logging.debug(f" TEST {attrib_name} {attrib_data.pointers[1].data} {attrib_default}")
-			self.attributes.append([dtype, attrib_name, attrib_data, attrib_default])
+			# if attrib_default:
+			self.attributes.append((dtype, attrib_name, attrib_data, attrib_default))
 
 		self.sized_str_entry.fragments.extend(self.attrib_names + self.attrib_datas)
 
 		for list_frag, list_count in zip(self.lists_frags, lists):
 			if list_frag:
-				list_frag.child_frags = self.ovs.frags_from_pointer(list_frag.pointers[1], list_count, reuse=False)
+				list_frag.child_frags = self.ovs.frags_from_pointer(list_frag.pointers[1], list_count)
 				self.sized_str_entry.fragments.extend(list_frag.child_frags)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
@@ -137,8 +141,8 @@ class SpecdefLoader(BaseFile):
 		ovl_header = self.pack_header(b"SPEC")
 		out_path = out_dir(name)
 
-		# save .bin data
-		with open(out_path + ".bin", 'wb') as outfile:
+		# save .raw data
+		with open(out_path, 'wb') as outfile:
 			logging.debug("Exporting binary specdef file")
 			# logging.debug(f"SPECDEF: {self.sized_str_entry.pointers}")
 			# logging.debug(f"SPECDEF: {self.sized_str_entry.fragments}")
@@ -161,33 +165,33 @@ class SpecdefLoader(BaseFile):
 
 		if self.attrib_names:
 			xml_attribs = ET.SubElement(xml_data, 'Attributes')
-			for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
-				iname = attrib_name.pointers[1].data.decode().rstrip('\x00')
+			for dtype, attrib_name, attrib_data, attrib_default in self.attributes:
+				iname = self.get_zstr(attrib_name.pointers[1].data)
 				# the tflags structure depends on the dtype value
 				tflags = attrib_data.pointers[1].data
 				xml_attrib = ET.SubElement(xml_attribs, 'Attribute')
 				xml_attrib.set('Name', iname)
-				try: # all flags data seems to be padded to 8 bytes
-					if dtype == 0: # Boolean type
+				try:  # all flags data seems to be padded to 8 bytes
+					if dtype == 0:  # Boolean type
 						# 8 bytes of data, only 2 bytes used
 						xml_attrib.set('Type', "bool")
-						xml_attrib.set('Value',    str(bool(tflags[0])))
+						xml_attrib.set('Value', str(bool(tflags[0])))
 						xml_attrib.set('Optional', str(bool(tflags[1])))
-					elif dtype == 1: # Unused, int8
+					elif dtype == 1:  # Unused, int8
 						imin, imax, ivalue, ioptional = struct.unpack("<4b", tflags[0:4])
 						xml_attrib.set('Type', "int8")
 						xml_attrib.set('Min', str(imin))
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 2: # Unused, int16
-						imin, imax, ivalue, ioptional  = struct.unpack("<4h", tflags[0:8])
+					elif dtype == 2:  # Unused, int16
+						imin, imax, ivalue, ioptional = struct.unpack("<4h", tflags[0:8])
 						xml_attrib.set('Type', "int16")
 						xml_attrib.set('Min', str(imin))
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 3: # int32 type
+					elif dtype == 3:  # int32 type
 						# 8 ints of data, only five used?
 						imin, imax, ivalue, ioptional = struct.unpack("<4i", tflags[0:16])
 						xml_attrib.set('Type', "int32")
@@ -195,14 +199,14 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 4: # Unused, int64
+					elif dtype == 4:  # Unused, int64
 						imin, imax, ivalue, ioptional = struct.unpack("<4q", tflags[0:32])
 						xml_attrib.set('Type', "int64")
 						xml_attrib.set('Min', str(imin))
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 5: #UInt8
+					elif dtype == 5:  # UInt8
 						# 8 bytes, only 4 used
 						imin, imax, ivalue, ioptional = struct.unpack("<4B", tflags[0:4])
 						xml_attrib.set('Type', "uint8")
@@ -210,15 +214,15 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 6: #UInt16
+					elif dtype == 6:  # UInt16
 						# 8 short, only 4 used
-						imin, imax, ivalue, ioptional  = struct.unpack("<4H", tflags[0:8])
+						imin, imax, ivalue, ioptional = struct.unpack("<4H", tflags[0:8])
 						xml_attrib.set('Type', "uint16")
 						xml_attrib.set('Min', str(imin))
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 7: # UInt32 type
+					elif dtype == 7:  # UInt32 type
 						# 8 ints of data, only 4 used?
 						imin, imax, ivalue, ioptional = struct.unpack("<4I", tflags[0:16])
 						xml_attrib.set('Type', "uint32")
@@ -226,7 +230,7 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 8: # UInt64 type
+					elif dtype == 8:  # UInt64 type
 						# 8 longs of data, only 4 used?, last one here could just be an int
 						imin, imax, ivalue, ioptional = struct.unpack("<4Q", tflags[0:32])
 						xml_attrib.set('Type', "uint64")
@@ -234,7 +238,7 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 9: # Float type
+					elif dtype == 9:  # Float type
 						# 3 floats of data, and 1 int
 						imin, imax, ivalue, ioptional = struct.unpack("<3fI", tflags[0:16])
 						xml_attrib.set('Type', "float")
@@ -242,26 +246,23 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Max', str(imax))
 						xml_attrib.set('Value', str(ivalue))
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 10: # String
+					elif dtype == 10:  # String
 						# 1ptr, and 1 int
 						iptr, ioptional = struct.unpack("<QI", tflags[0:12])
 
 						# find the default value through the pointed frag, but only if it belongs to this data
-						strname = ""
-						test = next((sub[3] for sub in self.attributes if sub[1].pointers[1].data.decode().rstrip('\x00') == iname), None)
-						if test:
-							strname = test.pointers[1].data.decode().rstrip('\x00')
+						strname = self.get_zstr(attrib_default.pointers[1].data) if attrib_default else ""
 
 						xml_attrib.set('Type', "string")
-						xml_attrib.set('Value', strname) 
+						xml_attrib.set('Value', strname)
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 11: # Vector2
+					elif dtype == 11:  # Vector2
 						# vector2 float, 1, 0 (padding?)
 						ix, iy, ioptional = struct.unpack("<2fI", tflags[0:12])
 						xml_attrib.set('Type', "Vector2")
 						xml_attrib.set('Value', f"({ix},{iy})")
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 12: # Vector3
+					elif dtype == 12:  # Vector3
 						# vector3 float, 1
 						ix, iy, iz, ioptional = struct.unpack("<3fI", tflags[0:16])
 						xml_attrib.set('Type', "Vector3")
@@ -269,7 +270,7 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Optional', str(bool(ioptional)))
 					else:
 						xml_attrib.set('dType', str(dtype))  # remove once finished
-						xml_attrib.set('Flags', str(tflags)) # remove once finished
+						xml_attrib.set('Flags', str(tflags))  # remove once finished
 				except:
 					logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
 
@@ -284,71 +285,4 @@ class SpecdefLoader(BaseFile):
 
 		self.write_xml(out_path + ".xml", xml_data)
 
-		# save .text file
-		with open(out_path, 'w') as outfile:
-			logging.debug("Exporting text specdef file")
-			attrib_count, flags, name_count, childspec_count, manager_count, script_count = struct.unpack(
-				"<2H4B", self.sized_str_entry.pointers[0].data)
-			outfile.write(f"Name : {name}\nFlags: {flags:x}\n")
-
-			if self.attrib_names:
-				outfile.write(f"Attributes:\n")
-				for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
-					iname = attrib_name.pointers[1].data.decode().rstrip('\x00')
-					# the tflags structure depends on the dtype value
-					tflags = attrib_data.pointers[1].data
-					# 00 boolean(true or false)
-					# 01 Unused
-					# 02 Unused
-					# 03 UInt8(I think)
-					# 04 Unused
-					#                                                                DeTy
-					# 05 Enum type({Default =, Enum = filename, Type = "uint8"} 00ff02010000000000000000000000000000000000000000
-					# 06 Uint64 with dependencies({Type = "uint64", Default = 0})
-					# 07 table ( or String List) (list of ptr)  00000000ffffffff0000000001 << this to 1 seen when it can be just a string (no list)
-					# 08 uint64 (used for entities as well)
-					# 09 float
-					# 10 string (expected ptr)
-					# 11 Vector2
-					# 12 Vector3
-					# 13 String list (0000000000000000 0a < could be max)
-					# 14 table
-					# 15 String or table
-					# 16 also string
-
-					try:
-						if dtype == 0:
-							# boot on the second byte, todo maybe more
-							tflags = bool(tflags[1])
-						elif dtype == 3:
-							# int16
-							tflags = struct.unpack("8h", tflags[:16])
-						# elif dtype == 5:
-						# 	# boot on the second byte,
-						# 	logging.info(f"type 5 {tflags}")
-						elif dtype == 9:
-							# lower_bound, upper_bound, float, 1
-							tflags = struct.unpack("3fI", tflags[:16])
-						elif dtype == 11:
-							# vector2 float, 1, 0 (padding?)
-							tflags = struct.unpack("2fII", tflags[:16])
-						elif dtype == 12:
-							# vector3 float, 1
-							tflags = struct.unpack("3fI", tflags[:16])
-					except:
-						logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
-					outstr = f" - Type: {dtype:02} Name: {iname}  Flags: {tflags}"
-					# logging.debug(outstr)
-					outfile.write(outstr + "\n")
-
-			list_names = ("Name", "Child Specdef", "Manager", "Script")
-			for list_frag, list_name in zip(self.lists_frags, list_names):
-				if list_frag:
-					outfile.write(f"{list_name}s:\n")
-					for child_frag in list_frag.child_frags:
-						iname = child_frag.pointers[1].data.decode().rstrip('\x00')
-						outstr = f" - {list_name}: {iname}"
-						outfile.write(outstr + "\n")
-
-		return out_path + ".bin", out_path + ".xml", out_path, 
-
+		return out_path + ".xml", out_path,
