@@ -1,4 +1,5 @@
 import logging
+import traceback
 import xml.etree.ElementTree as ET  # prob move this to a custom modules.helpers or utils?
 
 from modules.formats.BaseFormat import BaseFile
@@ -131,7 +132,7 @@ class SpecdefLoader(BaseFile):
 				else:
 					dep = None
 
-			if dtype == 10:
+			if dtype == 10 or dtype == 15:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
 
 			if dtype == 13:
@@ -298,11 +299,30 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Type', "Vector3")
 						xml_attrib.set('Value', f"({ix},{iy},{iz})")
 						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 13:  # List of items
+						iptr, iCType, iOptional = struct.unpack("<QII", tflags[0:16])
+						xml_attrib.set('Type', "list")
+						xml_attrib.set('Optional', str(bool(ioptional)))
+						xml_attrib.set('ChildType', str(iCType))
+					elif dtype == 14:  # Child item
+						xml_attrib.set('Type', "specdef")
+						xml_attrib.set('Optional', str(bool(ioptional)))
+					elif dtype == 15:  # String
+						# 1ptr, and 1 int
+						iptr, ioptional = struct.unpack("<QI", tflags[0:12])
+
+						# find the default value through the pointed frag, but only if it belongs to this data
+						strname = self.get_zstr(attrib_default.pointers[1].data) if attrib_default else ""
+
+						xml_attrib.set('Type', "reference")
+						xml_attrib.set('Value', strname)
+						xml_attrib.set('Optional', str(bool(ioptional)))
 					else:
 						xml_attrib.set('dType', str(dtype))  # remove once finished
 						xml_attrib.set('Flags', str(tflags))  # remove once finished
 				except:
 					logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
+					traceback.print_exc()
 
 		list_names = ("Name", "Requirement", "Manager", "Script")
 		for list_frag, list_name in zip(self.lists_frags, list_names):
