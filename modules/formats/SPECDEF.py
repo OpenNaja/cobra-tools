@@ -1,5 +1,4 @@
 import logging
-import traceback
 import xml.etree.ElementTree as ET  # prob move this to a custom modules.helpers or utils?
 
 from modules.formats.BaseFormat import BaseFile
@@ -9,77 +8,10 @@ import struct
 class SpecdefLoader(BaseFile):
 
 	def _get_data(self, file_path):
-		"""Loads and returns the data for a specdef"""
-		buffer_0 = self.get_content(file_path)
-		ss = struct.pack("IIII", len(buffer_0), 16000, 0x00, 0x00)
-		return ss, buffer_0
+		pass
 
 	def create(self):
-		# ignore content, just write an empty specdef 
-		ss, buffer_0 = self._get_data(self.file_entry.path)
-		file_name_bytes = self.file_entry.basename.encode(encoding='utf8')
-
-		pool_index, pool = self.get_pool(2)
-		offset = pool.data.tell()
-
-		# add empty specdef, 64b size struct
-		# empty_buffer  = struct.pack("<64s", b'') # empty buffer
-		empty_buffer = struct.pack("<2sH60s", b'', 101, b'')  # Set flags to 1
-
-		# empty_buffer  = struct.pack("<6sB57s", b'',1,b'') #managers
-		# empty_buffer  = struct.pack("<7sB56s", b'',1,b'')  # scripts
-		pool.data.write(empty_buffer)
-
-		dpool_index, dpool = self.get_pool(2)
-		doffset = dpool.data.tell()
-
-		# add empty data buffer for now
-		empty_data = struct.pack("<I4s", 0x87126e, b'')
-		dpool.data.write(empty_data)
-		luaoffset = dpool.data.tell()
-		dpool.data.write(b"building")
-		dpool.data.write(b'')
-		pluaoffset = dpool.data.tell()
-		dpool.data.write(struct.pack("<8s", b''))
-		# add space for the lua ptr
-
-		# add three required fragments for the specdef
-		# ignoring the current specdef struct, point all
-		# fragments to the beginning of the buffer
-		new_frag0 = self.create_fragment()
-		new_frag0.pointers[0].pool_index = pool_index
-		new_frag0.pointers[0].data_offset = offset + 0x08
-		new_frag0.pointers[1].pool_index = dpool_index
-		new_frag0.pointers[1].data_offset = doffset + 0x00
-		new_frag1 = self.create_fragment()
-		new_frag1.pointers[0].pool_index = pool_index
-		new_frag1.pointers[0].data_offset = offset + 0x10
-		new_frag1.pointers[1].pool_index = dpool_index
-		new_frag1.pointers[1].data_offset = doffset + 0x00
-		new_frag2 = self.create_fragment()
-		new_frag2.pointers[0].pool_index = pool_index
-		new_frag2.pointers[0].data_offset = offset + 0x18
-		new_frag2.pointers[1].pool_index = dpool_index
-		new_frag2.pointers[1].data_offset = doffset + 0x00
-
-		if False:  # commented out, used to test adding Feature or Dependencies
-			## this is the pointer to the lua string
-			new_frag3 = self.create_fragment()
-			new_frag3.pointers[0].pool_index = dpool_index
-			new_frag3.pointers[0].data_offset = pluaoffset
-			new_frag3.pointers[1].pool_index = dpool_index
-			new_frag3.pointers[1].data_offset = luaoffset
-
-			## this is the pointer to the lua list
-			new_frag4 = self.create_fragment()
-			new_frag4.pointers[0].pool_index = pool_index
-			new_frag4.pointers[0].data_offset = offset + 0x38
-			new_frag4.pointers[1].pool_index = dpool_index
-			new_frag4.pointers[1].data_offset = pluaoffset
-
-		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
-		self.sized_str_entry.pointers[0].data_offset = offset
+		pass
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -132,6 +64,7 @@ class SpecdefLoader(BaseFile):
 				else:
 					dep = None
 
+			# TODO: Other types might also have default values, specially 13 and 14
 			if dtype == 10 or dtype == 15:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
 
@@ -290,24 +223,22 @@ class SpecdefLoader(BaseFile):
 					elif dtype == 11:  # Vector2
 						# vector2 float, 1, 0 (padding?)
 						ix, iy, ioptional = struct.unpack("<2fI", tflags[0:12])
-						xml_attrib.set('Type', "Vector2")
+						xml_attrib.set('Type', "vector2")
 						xml_attrib.set('Value', f"({ix},{iy})")
 						xml_attrib.set('Optional', str(bool(ioptional)))
 					elif dtype == 12:  # Vector3
 						# vector3 float, 1
 						ix, iy, iz, ioptional = struct.unpack("<3fI", tflags[0:16])
-						xml_attrib.set('Type', "Vector3")
+						xml_attrib.set('Type', "vector3")
 						xml_attrib.set('Value', f"({ix},{iy},{iz})")
 						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 13:  # List of items
-						iptr, iCType, iOptional = struct.unpack("<QII", tflags[0:16])
-						xml_attrib.set('Type', "list")
-						xml_attrib.set('Optional', str(bool(ioptional)))
-						xml_attrib.set('ChildType', str(iCType))
+					elif dtype == 13:  # array of items
+						iptr, iCType = struct.unpack("<QI", tflags[0:12])
+						xml_attrib.set('Type', "array")
+						xml_attrib.set('ChildrenType', str(iCType))
 					elif dtype == 14:  # Child item
-						xml_attrib.set('Type', "specdef")
-						xml_attrib.set('Optional', str(bool(ioptional)))
-					elif dtype == 15:  # String
+						xml_attrib.set('Type', "struct")
+					elif dtype == 15:  # Reference to an object
 						# 1ptr, and 1 int
 						iptr, ioptional = struct.unpack("<QI", tflags[0:12])
 
@@ -322,7 +253,6 @@ class SpecdefLoader(BaseFile):
 						xml_attrib.set('Flags', str(tflags))  # remove once finished
 				except:
 					logging.warning(f"Unexpected data {tflags} (size: {len(tflags)}) for type {dtype}")
-					traceback.print_exc()
 
 		list_names = ("Name", "Requirement", "Manager", "Script")
 		for list_frag, list_name in zip(self.lists_frags, list_names):
