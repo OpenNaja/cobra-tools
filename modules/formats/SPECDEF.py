@@ -113,19 +113,22 @@ class SpecdefLoader(BaseFile):
 		# get any default data linked to in data pointers
 		for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
 			attrib_default = None
+			dep = None
 			if dtype == 5:
-				# there doesn't seem to be a frag at this offset, even if the data is shorter?!
-				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=8)
-				iname = self.get_zstr(attrib_name.pointers[1].data)
-				d = None
-				if attrib_default:
-					d = attrib_default.pointers[1].data
-				logging.debug(f"TEST {iname} {attrib_data.pointers[1].data} {attrib_data.pointers[1]} {d}")
-				pass
+				for dep in self.file_entry.dependencies:
+					# there may be more possible offsets
+					if dep.pointers[0].data_offset == attrib_data.pointers[1].data_offset + 8:
+						# attrib_default = dep
+						break
+				# iname = self.get_zstr(attrib_name.pointers[1].data)
+				# d = None
+				# if attrib_default:
+				# 	d = attrib_default.name
+				# logging.debug(f"TEST {iname} {attrib_data.pointers[1].data} {d}")
 			if dtype == 10:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
-			# if attrib_default:
-			self.attributes.append((dtype, attrib_name, attrib_data, attrib_default))
+
+			self.attributes.append((dtype, attrib_name, attrib_data, attrib_default, dep))
 
 		self.sized_str_entry.fragments.extend(self.attrib_names + self.attrib_datas)
 
@@ -165,13 +168,15 @@ class SpecdefLoader(BaseFile):
 
 		if self.attrib_names:
 			xml_attribs = ET.SubElement(xml_data, 'Attributes')
-			for dtype, attrib_name, attrib_data, attrib_default in self.attributes:
+			for dtype, attrib_name, attrib_data, attrib_default, dep in self.attributes:
 				iname = self.get_zstr(attrib_name.pointers[1].data)
 				# the tflags structure depends on the dtype value
 				tflags = attrib_data.pointers[1].data
 				xml_attrib = ET.SubElement(xml_attribs, 'Attribute')
 				xml_attrib.set('Name', iname)
 				try:  # all flags data seems to be padded to 8 bytes
+					if dep:
+						xml_attrib.set('Enum', dep.name)
 					if dtype == 0:  # Boolean type
 						# 8 bytes of data, only 2 bytes used
 						xml_attrib.set('Type', "bool")

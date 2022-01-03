@@ -613,14 +613,6 @@ class OvsFile(OvsHeader):
             # read buffer data and store it in buffer object
             buffer.read_data(stream)
 
-    @staticmethod
-    def get_ptr_debug_str(entry, ind):
-        # d_str = ""
-        # if len(entry.pointers) == 2:
-        #     d_str = str(entry.pointers[1].data)
-        # return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size}]' for p in entry.pointers))} ({ind}) {entry.name} {d_str}"
-        return f"{' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size} ({len(p.padding)})]' for p in entry.pointers))} ({ind}) {entry.name}"
-
     def dump_pools(self):
         """for debugging"""
         logging.info(f"Dumping pools to {self.ovl.dir}")
@@ -637,6 +629,14 @@ class OvsFile(OvsHeader):
                 f.write(
                     f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
 
+    @staticmethod
+    def get_ptr_debug_str(entry):
+        # d_str = ""
+        # if len(entry.pointers) == 2:
+        #     d_str = str(entry.pointers[1].data)
+        ptr_str = ' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size} ({len(p.padding)})]' for p in entry.pointers))
+        return f"{ptr_str} {entry.name}"
+
     def dump_frag_log(self):
         """for development; collect info about fragment types"""
         frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}.log")
@@ -647,9 +647,9 @@ class OvsFile(OvsHeader):
                 f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
             for i, pool in enumerate(self.pools):
                 f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size} at {pool.offset} with {len(pool.fragments)} fragments\n")
-                entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i]
+                entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i] + [dep for dep in self.ovl.dependencies if dep.pointers[0].pool_index == i + self.arg.pools_offset]
                 entries.sort(key=lambda entry: entry.pointers[0].data_offset)
-                lines = [self.get_ptr_debug_str(frag, j) for j, frag in enumerate(entries)]
+                lines = [self.get_ptr_debug_str(entry) for entry in entries]
                 f.write("\n".join(lines))
 
     @staticmethod
