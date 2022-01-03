@@ -113,18 +113,20 @@ class SpecdefLoader(BaseFile):
 		# get any default data linked to in data pointers
 		for attrib_name, attrib_data, dtype in zip(self.attrib_names, self.attrib_datas, self.dtypes):
 			attrib_default = None
-			dep = None
-			if dtype == 5:
-				for dep in self.file_entry.dependencies:
-					# there may be more possible offsets
-					if dep.pointers[0].data_offset == attrib_data.pointers[1].data_offset + 8:
-						# attrib_default = dep
-						break
-				# iname = self.get_zstr(attrib_name.pointers[1].data)
-				# d = None
-				# if attrib_default:
-				# 	d = attrib_default.name
-				# logging.debug(f"TEST {iname} {attrib_data.pointers[1].data} {d}")
+			# iname = self.get_zstr(attrib_name.pointers[1].data)
+			# if dtype == 5:
+			# 	tflags = attrib_data.pointers[1].data
+			# 	imin, imax, ivalue, ioptional = struct.unpack("<4B", tflags[0:4])
+			# 	# logging.debug(f"TEST {iname} {len(attrib_data.pointers[1].data)} {ioptional}")
+			# see if this file has a dependency that starts where the attrib data ends
+			ptr = attrib_data.pointers[1]
+			for dep in self.file_entry.dependencies:
+				# there may be more possible offsets
+				if dep.pointers[0].data_offset == ptr.data_offset + ptr.data_size:
+					break
+			else:
+				dep = None
+
 			if dtype == 10:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
 
