@@ -144,6 +144,15 @@ class SpecdefLoader(BaseFile):
 				else:
 					dep = None
 
+			if dtype == 14:
+				# data frag points to the dependency ptr
+				ptr = attrib_data.pointers[1]
+				for dep in self.file_entry.dependencies:
+					if dep.pointers[0].data_offset == ptr.data_offset:
+						break
+				else:
+					dep = None
+
 			self.attributes.append((dtype, attrib_name, attrib_data, attrib_default, dep))
 
 		self.sized_str_entry.fragments.extend(self.attrib_names + self.attrib_datas)
