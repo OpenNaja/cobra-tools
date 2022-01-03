@@ -95,6 +95,8 @@ class SpecdefLoader(BaseFile):
 		attrib_count = ss_data[0]
 		lists = ss_data[2:]
 		logging.debug(f"SPECDEF lists: {lists}")
+		for dep in self.file_entry.dependencies:
+			logging.debug(f"SPECDEF dependency: {dep.name}")
 		self.lists_frags = []
 		for listItems in lists:
 			if listItems > 0:
@@ -118,17 +120,29 @@ class SpecdefLoader(BaseFile):
 			# 	tflags = attrib_data.pointers[1].data
 			# 	imin, imax, ivalue, ioptional = struct.unpack("<4B", tflags[0:4])
 			# 	# logging.debug(f"TEST {iname} {len(attrib_data.pointers[1].data)} {ioptional}")
-			# see if this file has a dependency that starts where the attrib data ends
-			ptr = attrib_data.pointers[1]
-			for dep in self.file_entry.dependencies:
-				# there may be more possible offsets
-				if dep.pointers[0].data_offset == ptr.data_offset + ptr.data_size:
-					break
-			else:
-				dep = None
+			dep = None
+			if dtype < 9:  # only int types may use enums
+				# see if this file has a dependency that starts where the attrib data ends
+				ptr = attrib_data.pointers[1]
+				for dep in self.file_entry.dependencies:
+					# there may be more possible offsets
+					if dep.pointers[0].data_offset == ptr.data_offset + ptr.data_size:
+						break
+				else:
+					dep = None
 
 			if dtype == 10:
 				attrib_default = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
+
+			if dtype == 13:
+				# has a linking frag that points to the dependency ptr
+				attrib_link = self.ovs.frag_at_pointer(attrib_data.pointers[1], offset=0)
+				ptr = attrib_link.pointers[1]
+				for dep in self.file_entry.dependencies:
+					if dep.pointers[0].data_offset == ptr.data_offset:
+						break
+				else:
+					dep = None
 
 			self.attributes.append((dtype, attrib_name, attrib_data, attrib_default, dep))
 
