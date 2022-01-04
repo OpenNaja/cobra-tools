@@ -1348,10 +1348,12 @@ class OvlFile(Header, IoFile):
 			# sort fragments by their first pointer
 			ovs.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset))
 			# attach all pointers to their pool
-			for entry in itertools.chain(ovs.fragments, ovs.sized_str_entries):
-				for pointer in entry.pointers:
-					# the index goes into the ovs file's pools
-					pointer.link_to_pool(ovs.pools)
+			# however we no longer break up at fragments' ptr 0
+			for entry in ovs.fragments:
+				entry.pointers[0].link_to_pool(ovs.pools, add_to_map=False)
+				entry.pointers[1].link_to_pool(ovs.pools)
+			for entry in ovs.sized_str_entries:
+				entry.pointers[0].link_to_pool(ovs.pools)
 			for frag in ovs.fragments:
 				# we assign these later when the loader classes run collect()
 				frag.done = False

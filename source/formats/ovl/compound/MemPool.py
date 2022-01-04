@@ -49,11 +49,8 @@ class MemPool:
 		for i, (offset, pointers) in enumerate(sorted_items[:-1]):
 			# get the offset of the next pointer, substract this offset
 			data_size = sorted_items[i + 1][0] - offset
-			# also calculate address of pointer
-			address = self.address + offset
 			for pointer in pointers:
 				pointer.data_size = data_size
-				pointer.address = address
 				pointer.copies = pointers
 				pointer.read_data()
 

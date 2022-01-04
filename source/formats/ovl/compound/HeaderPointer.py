@@ -66,15 +66,19 @@ class HeaderPointer:
 		self.padding = _d[cut:]
 		self.data = _d[:cut]
 
-	def link_to_pool(self, pools):
+	def link_to_pool(self, pools, add_to_map=True):
 		"""Link this pointer to its pool"""
 
 		if self.pool_index != -1:
 			# get pool
 			self.pool = pools[self.pool_index]
-			if self.data_offset not in self.pool.pointer_map:
-				self.pool.pointer_map[self.data_offset] = []
-			self.pool.pointer_map[self.data_offset].append(self)
+			if add_to_map:
+				if self.data_offset not in self.pool.pointer_map:
+					self.pool.pointer_map[self.data_offset] = []
+				self.pool.pointer_map[self.data_offset].append(self)
+			else:
+				self.data_size = 8
+				self.data = b"\x00" * self.data_size
 
 	def update_pool_index(self, pools_lut):
 		"""Changes self.pool_index according to self.pool in pools_lut"""

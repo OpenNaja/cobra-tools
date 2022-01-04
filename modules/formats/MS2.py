@@ -26,7 +26,7 @@ class Ms2Loader(BaseFile):
 			# print(self.sized_str_entry.fragments)
 			# second pass: collect model fragments
 			versions = get_versions(self.ovl)
-			if ss_pointer.data_size != 24:
+			if ss_pointer.data_size != 48:
 				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {self.file_entry.name}")
 			if self.sized_str_entry.fragments[2].pointers[1].data not in (struct.pack("<ii", -1, 0), b""):
 				logging.warning(
@@ -36,7 +36,8 @@ class Ms2Loader(BaseFile):
 			# assign the mdl2 frags to their sized str entry
 
 			# 3 fixed fragments laid out like
-			# sse p0: ms2_general_info_data (24 bytes)
+			# 48 bytes in total
+			# sse p0: ms2_general_info_data (24 bytes) + 24 bytes for 3 pointers
 			# 0 - p0: 8*00 				p1: buffer_info or empty (if no buffers)
 			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
 			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0 or empty (if no buffers)
@@ -46,9 +47,9 @@ class Ms2Loader(BaseFile):
 			for mdl2_entry in self.sized_str_entry.children:
 				assert mdl2_entry.ext == ".mdl2"
 				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
-				pink = mdl2_entry.fragments[4]
-				if self.size_check(pink):
-					core_model_info = pink.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
+				model_info = mdl2_entry.fragments[4]
+				if self.size_check(model_info):
+					core_model_info = model_info.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
 
 		else:
 			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)

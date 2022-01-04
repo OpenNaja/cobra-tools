@@ -38,27 +38,29 @@ class DdsLoader(BaseFile):
 		tex_file.load(file_path)
 		# print(tex_file)
 		ss = as_bytes(tex_file.tex_info)
-		f00 = as_bytes(tex_file.frag_00)
-		f10 = as_bytes(tex_file.frag_10)
 		f01 = as_bytes(tex_file.frag_01)
 		f11 = as_bytes(tex_file.frag_11) + as_bytes(tex_file.padding)
 		buffers = tex_file.buffers
-		return ss, f00, f10, f01, f11, buffers
+		return ss, f01, f11, buffers
 
 	def create(self):
 		name_ext, name, ext = split_path(self.file_entry.path)
 		logging.debug(f"Creating image {name_ext}")
 		if ext == ".tex":
 			if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
-				ss, f00, f10, f01, f11, buffers = self._get_data(self.file_entry.path)
+				ss, f01, f11, buffers = self._get_data(self.file_entry.path)
 				self.sized_str_entry = self.create_ss_entry(self.file_entry)
 				frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
-
+				ss_ptr = self.sized_str_entry.pointers[0]
 				# pool type 3
-				data3 = (ss, f00, f10, f01)
-				ptrs3 = (self.sized_str_entry.pointers[0], frag0.pointers[0], frag1.pointers[0], frag0.pointers[1])
+				data3 = (ss, f01)
+				ptrs3 = (ss_ptr, frag0.pointers[1])
 				for ptr, data in zip(ptrs3, data3):
 					self.write_to_pool(ptr, 3, data)
+
+				self.ptr_relative(frag0.pointers[0], ss_ptr, rel_offset=16)
+				self.ptr_relative(frag1.pointers[0], ss_ptr, rel_offset=24)
+
 				if is_jwe(self.ovl):
 					f11_pool_type = 7
 				else:
@@ -219,8 +221,6 @@ class DdsLoader(BaseFile):
 			# num_buffers
 			# tex_file.write(struct.pack("I", 1+len(self.file_entry.streams)))
 			tex_file.write(self.sized_str_entry.pointers[0].data)
-			for frag in self.sized_str_entry.fragments:
-				tex_file.write(frag.pointers[0].data)
 			for frag in self.sized_str_entry.fragments:
 				tex_file.write(frag.pointers[1].data)
 			tex_file.write(buffer_data)
