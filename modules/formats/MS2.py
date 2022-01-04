@@ -132,10 +132,14 @@ class Ms2Loader(BaseFile):
 
 		# write model info
 		self.write_to_pool(model_info_frag.pointers[1], 2, self.get_model_info_bytes(mdl2s, versions))
-		# todo, offsets are for PZ/PZ16/JWE2 (192 bytes total) - check JWE, should be 16 bytes less there
 		offset = 0
 		for mdl2, mdl2_entry in zip(mdl2s, ms2_entry.children):
-			offset += 120
+			# byte size of modelinfo varies - JWE1 (176 bytes total)
+			if is_jwe(self.ovl):
+				offset += 104
+			# 16 additional bytes for PZ/PZ16/JWE2 (192 bytes total)
+			else:
+				offset += 120
 			for frag in mdl2_entry.fragments:
 				self.ptr_relative(frag.pointers[0], model_info_frag.pointers[1], rel_offset=offset)
 				offset += 8
