@@ -1,3 +1,6 @@
+import logging
+import traceback
+
 import bpy
 import os
 
@@ -9,13 +12,8 @@ from plugin.utils.node_util import get_tree, load_tex
 
 def create_material(in_dir, matname):
 
-	print(f"Importing material {matname}")
-	# only create the material if it doesn't exist in the blend file, then just grab it
-	# but we overwrite its contents anyway
-	if matname not in bpy.data.materials:
-		b_mat = bpy.data.materials.new(matname)
-	else:
-		b_mat = bpy.data.materials[matname]
+	logging.info(f"Importing material {matname}")
+	b_mat = bpy.data.materials.new(matname)
 
 	fgm_path = os.path.join(in_dir, matname + ".fgm")
 	# print(fgm_path)
@@ -23,7 +21,7 @@ def create_material(in_dir, matname):
 		fgm_data = FgmFile()
 		fgm_data.load(fgm_path)
 	except FileNotFoundError:
-		print(f"{fgm_path} does not exist!")
+		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
 	# base_index = fgm_data.textures[0].layers[1]
 	# height_index = fgm_data.textures[1].layers[1]
@@ -204,4 +202,5 @@ def import_material(created_materials, in_dir, b_me, material):
 		b_me.materials.append(b_mat)
 	except:
 		print("material failed")
+		traceback.print_exc()
 
