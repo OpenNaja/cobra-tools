@@ -13,9 +13,17 @@
     </compound>
 
     <compound name="FgmHeader" >
-        Sized str entry of 16 bytes
+        Sized str entry of 16 bytes, then ptrs, then padding
         <add name="Texture count" type="uint64" >Number of Texture Info Entries</add>
         <add name="Attribute count" type="uint64" >Number of Attribute Info Entries</add>
+        followed by 32 bytes for 4 pointers, which are not always all used
+        <add name="tex ptr" type="uint64"/>
+        <add name="attr ptr" type="uint64"/>
+        <add name="dependencies ptr" type="uint64"/>
+        <add name="data ptr" type="uint64"/>
+        and finally 16 bytes, apparently unused
+        <add name="unk 0" type="uint64"/>
+        <add name="unk 1" type="uint64"/>
     </compound>
 
 	<compound name="TextureInfo" >

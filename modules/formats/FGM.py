@@ -22,11 +22,8 @@ class FgmLoader(BaseFile):
 		frag_count = self._get_frag_count(fgm_header)
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
 
-		# all ss + ptr 0 frag data
-		ss_bytes_padded = sizedstr_bytes + get_padding(len(sizedstr_bytes), alignment=64)
-
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss_bytes_padded)
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, sizedstr_bytes)
 		self.create_data_entry(self.sized_str_entry, (fgm_data.buffer_bytes,))
 		self.create_fragments(self.sized_str_entry, frag_count)
 		self._tag_fragments(fgm_data.fgm_info)
@@ -117,8 +114,7 @@ class FgmLoader(BaseFile):
 		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 
 		self.sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))
-		logging.debug(f"ss: len old {len(self.sized_str_entry.pointers[0].data)} len padding {len(self.sized_str_entry.pointers[0].padding)} len new {len(sizedstr_bytes)}")
-		self.sized_str_entry.pointers[0].update_data(sizedstr_bytes, update_copies=True)
+		self.sized_str_entry.pointers[0].update_data(sizedstr_bytes)
 
 		# inject fragment datas
 		for frag, data in zip(self._valid_frags(), datas):
@@ -129,7 +125,8 @@ class FgmLoader(BaseFile):
 		for dependency, tex_name in zip(self.file_entry.dependencies, fgm_data.texture_files):
 			self.set_dependency_identity(dependency, f"{tex_name}.tex")
 
-	def _get_data(self, file_path):
+	@staticmethod
+	def _get_data(file_path):
 		fgm_data = FgmFile()
 		fgm_data.load(file_path)
 		return fgm_data
@@ -164,8 +161,7 @@ class FgmLoader(BaseFile):
 			# we need this as its size is not predetermined
 			data_lib_size = len(self.data_lib.pointers[1].data) if self.data_lib else 0
 			outfile.write(struct.pack("II", data_lib_size, len(self.file_entry.dependencies)))
-			# if there are 2 fragments, it is 24 bytes instead of 16
-			outfile.write(self.sized_str_entry.pointers[0].data[:16])
+			outfile.write(self.sized_str_entry.pointers[0].data)
 			for tex in self.file_entry.dependencies:
 				outfile.write(zstr(tex.basename.encode()))
 			# write each of the fragments
