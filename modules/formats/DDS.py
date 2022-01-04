@@ -12,6 +12,7 @@ from generated.formats.tex import TexFile
 from generated.formats.tex.compound.Header3Data0 import Header3Data0
 from generated.formats.tex.compound.TexBuffer import TexBuffer
 from generated.formats.tex.compound.Header7Data1 import Header7Data1
+from generated.formats.tex.compound.TexHeader import TexHeader
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_versions
 from modules.helpers import split_path, as_bytes
@@ -102,15 +103,15 @@ class DdsLoader(BaseFile):
 		logging.info(f"Loading DDS {file_path}")
 		versions = get_versions(self.ovl)
 		if is_pc(self.ovl):
-			header_3_0, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
-			tex_d = header_3_0.one_0
+			tex_header, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
+			tex_d = tex_header.one_0
 		else:
-			header_3_0, header_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
+			tex_header, header_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
 			tex_d = header_7.depth
 		tex_h = header_7.height
 		tex_w = header_7.width
 		tex_a = header_7.array_size
-		comp = header_3_0.compression_type.name
+		comp = tex_header.compression_type.name
 		tex_w = align_to(tex_w, comp)
 	
 		# read archive tex header to make sure we have the right mip count
@@ -147,40 +148,26 @@ class DdsLoader(BaseFile):
 		# we have exactly two fragments, pointing into these pool_groups
 		f_3_3, f_3_7 = sized_str_entry.fragments
 	
-		header_3_0 = f_3_7.pointers[0].load_as(Header3Data0, version_info=ovl_version)[0]
+		tex_header = sized_str_entry.pointers[0].load_as(TexHeader, version_info=ovl_version)[0]
 		headers_3_1 = f_3_3.pointers[1].load_as(TexBuffer, num=f_3_3.pointers[1].data_size//24, version_info=ovl_version)
 		# print(f_3_3.pointers[1].data_size // 24)
-		# print(header_3_0)
+		# print(tex_header)
 		# print(headers_3_1)
 		header_7 = f_3_7.pointers[1].load_as(Header7Data1, version_info=ovl_version)[0]
 		# print(header_7)
-		return header_3_0, headers_3_1, header_7
+		return tex_header, headers_3_1, header_7
 	
 	def get_tex_structs_pc(self, sized_str_entry):
 		frag = sized_str_entry.fragments[0]
-		print(frag.pointers[0].address, frag.pointers[0].data_size)
-		print(frag.pointers[1].address, frag.pointers[1].data_size)
-		header_3_0 = frag.pointers[0].load_as(Header3Data0Pc)[0]
-		# headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=header_3_0.one_2)
+		tex_header = frag.pointers[0].load_as(Header3Data0Pc)[0]
+		# headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=tex_header.one_2)
 		# alternative?
 		headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=frag.pointers[1].data_size//8, args=())
-		print(header_3_0)
+		print(tex_header)
 		print(headers_3_1)
 		# this corresponds to a stripped down header_7
 		header_7 = headers_3_1[0]
-		return header_3_0, headers_3_1, header_7
-	
-	def get_tex_structs_ztuac(self, sized_str_entry):
-		frag = sized_str_entry.fragments[0]
-		# print(frag.pointers[0].address, frag.pointers[0].data_size)
-		# print(frag.pointers[1].address, frag.pointers[1].data_size)
-		header_3_0 = frag.pointers[0].load_as(Header3Data0Pc)[0]
-		# print(header_3_0)
-		header_3_1 = frag.pointers[1].load_as(Header3Data1Ztuac, args=(header_3_0.one_1,))[0]
-		# print(header_3_1)
-		# this corresponds to a stripped down header_7
-		header_7 = header_3_1.lods[0]
-		return header_3_0, header_3_1.lods, header_7	
+		return tex_header, headers_3_1, header_7
 	
 	def create_dds_struct(self):
 		dds_file = DdsFile()
@@ -299,10 +286,10 @@ class DdsLoader(BaseFile):
 		# convert the png into a dds, then inject that
 		versions = get_versions(self.ovl)
 		if is_pc(self.ovl):
-			header_3_0, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
+			tex_header, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
 		else:
-			header_3_0, header_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
-		dds_compression_type = header_3_0.compression_type.name
+			tex_header, header_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
+		dds_compression_type = tex_header.compression_type.name
 		# texconv works without prefix
 		compression = dds_compression_type.replace("DXGI_FORMAT_", "")
 		show_temp = False
@@ -328,4 +315,3 @@ class DdsLoader(BaseFile):
 				f"OVL Texture: {tex_h} x {tex_w} x {tex_d} [{tex_a}]\n"
 				f"Injected texture: {dds_h} x {dds_w} x {dds_d} [{dds_a}]\n\n"
 				f"Make the external texture's dimensions match the OVL texture and try again!")
-	
