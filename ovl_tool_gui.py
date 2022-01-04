@@ -6,11 +6,6 @@ import traceback
 import logging
 import tempfile
 
-import source.formats.ovl
-from generated.formats.ovl_base.enum.Compression import Compression
-from modules.walker import walk_type
-from ovl_util.interaction import showdialog
-
 try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
@@ -24,6 +19,7 @@ try:
 	from ovl_util import widgets, interaction, qt_threads
 	from modules import walker, remover
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
+	from generated.formats.ovl_base.enum.Compression import Compression
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
@@ -210,22 +206,21 @@ class MainWindow(widgets.MainWindow):
 
 	def handle_path(self, save_over=True):
 		# get path
-		# walk path
-		# open ovl files
-		# process each
-		# for ovl in
 		if self.in_folder.isChecked():
 			root_dir = self.get_selected_dir()
 			if root_dir:
-				ovls = walk_type(root_dir, extension="ovl")
-				# print(ovls)
+				# walk path
+				ovls = walker.walk_type(root_dir, extension="ovl")
 				for ovl_path in ovls:
+					# open ovl file
 					self.file_widget.decide_open(ovl_path)
+					# process each
 					yield self.ovl_data
 					if save_over:
 						self.ovl_data.save(ovl_path, "")
 			else:
 				interaction.showdialog("Select a root directory!")
+		# just the one that's currently open
 		else:
 			yield self.ovl_data
 
@@ -240,7 +235,8 @@ class MainWindow(widgets.MainWindow):
 		except BaseException as err:
 			print(err)
 
-	def open_tools_dir(self):
+	@staticmethod
+	def open_tools_dir():
 		os.startfile(os.getcwd())
 
 	def drag_files(self, file_names):
@@ -268,28 +264,20 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.rename(names)
 		self.update_gui_table()
 
-	def game_changed(self,):
+	def game_changed(self):
 		game = self.game_choice.entry.currentText()
 		# we must set both the context, and the local variable
 		set_game(self.ovl_data.context, game)
 		set_game(self.ovl_data, game)
 
-	def compression_changed(self,):
-		try:
-			# self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
-			compression = self.compression_choice.entry.currentText()
-			# we must set both the context, and the local variable
-			# set_game(self.ovl_data.context, game)
-			# set_game(self.ovl_data, game)
-			compression_value = Compression[compression]
-			self.ovl_data.context.user_version.compression = compression_value
-			self.ovl_data.user_version.compression = compression_value
-			# print(self.ovl_data.user_version)
-		except BaseException as err:
-			print(err)
+	def compression_changed(self):
+		compression = self.compression_choice.entry.currentText()
+		compression_value = Compression[compression]
+		self.ovl_data.context.user_version.compression = compression_value
+		self.ovl_data.user_version.compression = compression_value
 
 	@property
-	def commands(self, ):
+	def commands(self):
 		# get those commands that are set to True
 		return [x for x in ("write_dat", ) if getattr(self, x)]
 
@@ -597,7 +585,7 @@ class MainWindow(widgets.MainWindow):
 		# Ask and return true if error is found and process should be stopped
 		for old, new in name_tups:
 			if len(old) != len(new):
-				if showdialog(
+				if interaction.showdialog(
 						f"WARNING: length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
 						f"Stop renaming?", ask=True):
 					return True
