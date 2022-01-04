@@ -11,7 +11,7 @@ class XmlconfigLoader(BaseFile):
 		f_0 = self.create_fragments(self.sized_str_entry, 1)[0]
 		self.write_to_pool(f_0.pointers[1], 2, data)
 		self.write_to_pool(self.sized_str_entry.pointers[0], 2, b'\x00' * 16)
-		self.ptr_relative(f_0.pointers[0], self.sized_str_entry.pointers[0], 8)
+		self.ptr_relative(f_0.pointers[0], self.sized_str_entry.pointers[0], rel_offset=8)
 
 	def collect(self):
 		self.assign_ss_entry()
