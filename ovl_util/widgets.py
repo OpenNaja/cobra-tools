@@ -44,22 +44,6 @@ def vbox(parent, grid):
 	parent.setLayout(grid)
 
 
-class DelayedMimeData(QtCore.QMimeData):
-	def __init__(self):
-		super().__init__()
-		self.callbacks = []
-
-	def add_callback(self, callback):
-		self.callbacks.append(callback)
-
-	def retrieveData(self, mime_type: str, preferred_type: QtCore.QVariant.Type):
-		for callback in self.callbacks.copy():
-			result = callback()
-			if result:
-				self.callbacks.remove(callback)
-		return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
-
-
 class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 	"""
 	Implements a QSortFilterProxyModel that allows for custom

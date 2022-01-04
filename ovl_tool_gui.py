@@ -262,31 +262,6 @@ class MainWindow(widgets.MainWindow):
 			logging.error(ex)
 		shutil.rmtree(temp_dir)
 
-	# todo - clear temp sub dir
-	# mime = DelayedMimeData()
-	# path_list = []
-	# for name in names:
-	# 	path = os.path.join(tempfile.gettempdir(), 'DragTest', name)
-	# 	os.makedirs(os.path.dirname(path), exist_ok=True)
-	#
-	# 	def write_to_file(path=path, contents=name, widget=self):
-	# 		if widget.underMouse():
-	# 			return False
-	# 		else:
-	# 			with open(path, 'w') as f:
-	# 				import time
-	# 				# time.sleep(1)  # simulate large file
-	# 				f.write(contents)
-	#
-	# 			return True
-	#
-	# 	mime.add_callback(write_to_file)
-	#
-	# 	path_list.append(QtCore.QUrl.fromLocalFile(path))
-	# mime.setUrls(path_list)
-	# drag.setMimeData(mime)
-	# drag.exec_(QtCore.Qt.CopyAction)
-
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
 		names = [(old_name, new_name), ]
