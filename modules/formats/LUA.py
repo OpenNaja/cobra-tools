@@ -24,9 +24,10 @@ class LuaLoader(BaseFile):
 		# now pad
 		f_1.pointers[1].pool.data.write(get_padding(f_1.pointers[1].pool.data.tell(), 4))
 		# finally the rest, already alignd
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
-		self.write_to_pool(f_0.pointers[0], 2, b'\x00' * 8)
-		self.write_to_pool(f_1.pointers[0], 2, b'\x00' * 24)
+		ss_ptr = self.sized_str_entry.pointers[0]
+		self.write_to_pool(ss_ptr, 2, ss)
+		self.ptr_relative(f_0.pointers[0], ss_ptr, rel_offset=16)
+		self.ptr_relative(f_1.pointers[0], ss_ptr, rel_offset=24)
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -85,5 +86,6 @@ class LuaLoader(BaseFile):
 				f"{file_path} has not been successfully decompiled and may crash your game. Inject anyway?", ask=True)
 			if not confirmed:
 				raise UserWarning(f"Injection aborted for {file_path}")
-		ss = struct.pack("IIII", len(buffer_0), 16000, 0x00, 0x00)
+		# 4 uint, 2 ptrs, 16 unused bytes
+		ss = struct.pack("4I 2Q 2Q", len(buffer_0), 16000, 0, 0, 0, 0, 0, 0)
 		return ss, buffer_0
