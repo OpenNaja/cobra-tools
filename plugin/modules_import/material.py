@@ -187,7 +187,6 @@ def create_material(in_dir, matname):
 
 def import_material(created_materials, in_dir, b_me, material):
 	material_name = material.name
-
 	try:
 		# additionally keep track here so we create a node tree only once during import
 		# but make sure that we overwrite existing materials:
@@ -195,12 +194,12 @@ def import_material(created_materials, in_dir, b_me, material):
 			b_mat = create_material(in_dir, material_name)
 			created_materials[material_name] = b_mat
 		else:
-			print(f"Already imported material {material_name}")
+			logging.info(f"Already imported material {material_name}")
 			b_mat = created_materials[material_name]
-		# store ob / material unknowns
+		# store material unknowns
 		b_mat["some_index"] = material.some_index
 		b_me.materials.append(b_mat)
 	except:
-		print("material failed")
+		logging.warning(f"Material {material_name} failed")
 		traceback.print_exc()
 
