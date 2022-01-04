@@ -30,8 +30,7 @@ class FdbLoader(BaseFile):
 		try:
 			buff = self.sized_str_entry.data_entry.buffer_datas[1]
 		except:
-			print("Found no buffer data for", name)
-			return
+			raise AttributeError(f"Found no buffer data for {name}")
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
 			outfile.write(buff)

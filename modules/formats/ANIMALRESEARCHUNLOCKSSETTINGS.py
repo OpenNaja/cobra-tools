@@ -61,8 +61,8 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 			offset += 40
 
 		# write the basics - array count + its data
-		self.write_to_pool(self.sized_str_entry.pointers[0], 4, b"")
-		self.write_to_pool(root_f.pointers[0], 4, struct.pack("<2Q", 0, len(xml)))
+		self.write_to_pool(self.sized_str_entry.pointers[0], 4, struct.pack("<2Q", 0, len(xml)))
+		self.ptr_relative(root_f.pointers[0], self.sized_str_entry.pointers[0])
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -71,9 +71,9 @@ class AnimalresearchunlockssettingsLoader(BaseFile):
 		# logging.debug(ss_pointer.data)
 		# logging.debug(f"{self.file_entry.name} has {count} entries")
 		self.assign_fixed_frags(1)
-		frag = self.sized_str_entry.fragments[0]
-		# logging.debug(frag)
-		ptr1 = frag.pointers[1]
+		root_f = self.sized_str_entry.fragments[0]
+		# logging.debug(root_f)
+		ptr1 = root_f.pointers[1]
 
 		entry_size = 40
 		out_frags, array_data = self.collect_array(ptr1, count, entry_size)
@@ -147,9 +147,9 @@ class AnimalresearchstartunlockedssettingsLoader(BaseFile):
 		# logging.debug(ss_pointer.data)
 		# logging.debug(f"{self.file_entry.name} has {count} entries")
 		self.assign_fixed_frags(1)
-		frag = self.sized_str_entry.fragments[0]
-		# logging.debug(frag)
-		ptr1 = frag.pointers[1]
+		root_f = self.sized_str_entry.fragments[0]
+		# logging.debug(root_f)
+		ptr1 = root_f.pointers[1]
 
 		entry_size = 16
 		out_frags, array_data = self.collect_array(ptr1, count, entry_size)
