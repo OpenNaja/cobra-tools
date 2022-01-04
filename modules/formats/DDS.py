@@ -1,7 +1,6 @@
 import io
 import logging
 import os
-import struct
 
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
@@ -9,7 +8,6 @@ from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.ovl.versions import *
 from generated.formats.tex import TexFile
-from generated.formats.tex.compound.Header3Data0 import Header3Data0
 from generated.formats.tex.compound.TexBuffer import TexBuffer
 from generated.formats.tex.compound.Header7Data1 import Header7Data1
 from generated.formats.tex.compound.TexHeader import TexHeader
