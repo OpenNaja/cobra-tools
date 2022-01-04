@@ -208,6 +208,12 @@ class BaseFile:
 		with open(out_path, 'wb') as outfile:
 			outfile.write(xml_text)
 
+	def p1_ztsr(self, frag):
+		ptr = frag.pointers[1]
+		# not needed here, but for good measure
+		ptr.strip_zstring_padding()
+		return self.get_zstr(ptr.data)
+
 	def get_zstr(self, d):
 		end = d.find(b'\x00')
 		return d[:end].decode()

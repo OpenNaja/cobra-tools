@@ -1,7 +1,8 @@
+import logging
 import struct
 
 from modules.formats.BaseFormat import BaseFile
-import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
+import xml.etree.ElementTree as ET  # prob move this to a custom modules.helpers or utils?
 
 
 class UIMovieDefinitionLoader(BaseFile):
@@ -18,49 +19,28 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.sized_str_entry.pointers[0].pool_index = pool_index
 		self.sized_str_entry.pointers[0].data_offset = offset
 
-		moviedef  = {
-			'ControlList'  : [],
-			'InterfaceList': [],
-			'UITriggerList': [],
-			'Count1List'   : [],
-			'Count2List'   : []
-		}
-
 		# read all in a dict from the xml
 		xmldata = ET.ElementTree(ET.fromstring(ss))
-
 		movie = xmldata.getroot()
 
-		listdata = xmldata.findall('.//Control')
-		for data in listdata:
-			moviedef['ControlList'].append(data.text)
-
-		listdata = xmldata.findall('.//UITrigger')
-		for data in listdata:
-			moviedef['UITriggerList'].append(data.text)
-
-		listdata = xmldata.findall('.//Interface')
-		for data in listdata:
-			moviedef['InterfaceList'].append(data.text)
-
-		listdata = xmldata.findall('.//List1')
-		for data in listdata:
-			moviedef['Count1List'].append(int(data.text))
-
-		listdata = xmldata.findall('.//List2')
-		for data in listdata:
-			moviedef['Count2List'].append(int(data.text))
+		self.uinamelist = [data.text for data in xmldata.findall('.//Control')]
+		self.uitriggerlist = [data.text for data in xmldata.findall('.//UITrigger')]
+		self.uiInterfacelist = [data.text for data in xmldata.findall('.//Interface')]
+		self.Count1List = [int(data.text) for data in xmldata.findall('.//List1')]
+		self.Count2List = [int(data.text) for data in xmldata.findall('.//List2')]
 
 		# writting the data in several chunks because of readability 
-		pool.data.write(struct.pack("<32sI2H", b'', int(movie.attrib['flags1']),int(movie.attrib['flags2']),int(movie.attrib['flags3'])))
-		pool.data.write(struct.pack("<3f", float(movie.attrib['float1']),float(movie.attrib['float2']),float(movie.attrib['float3'])))
-		pool.data.write(struct.pack("<4B", 0, len(moviedef['UITriggerList']), 0, len(moviedef['ControlList'])))
-		pool.data.write(struct.pack("<4B", 0, 0, len(moviedef['Count1List']), len(moviedef['Count2List'])))
-		pool.data.write(struct.pack("<4B", len(moviedef['InterfaceList']), 0, 0, 0))
+		pool.data.write(struct.pack("<32sI2H", b'', int(movie.attrib['flags1']), int(movie.attrib['flags2']),
+									int(movie.attrib['flags3'])))
+		pool.data.write(struct.pack("<3f", float(movie.attrib['float1']), float(movie.attrib['float2']),
+									float(movie.attrib['float3'])))
+		pool.data.write(struct.pack("<4B", 0, len(self.uitriggerlist), 0, len(self.uinamelist)))
+		pool.data.write(struct.pack("<4B", 0, 0, len(self.Count1List), len(self.Count2List)))
+		pool.data.write(struct.pack("<4B", len(self.uiInterfacelist), 0, 0, 0))
 		pool.data.write(struct.pack("<80s", b''))
 
 		# write name and add ptr
-		nameptr = pool.data.tell() # 
+		nameptr = pool.data.tell()  #
 		pool.data.write(f"{movie.attrib['MovieName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
@@ -69,7 +49,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write pkgname and add ptr
-		nameptr = pool.data.tell() # 
+		nameptr = pool.data.tell()  #
 		pool.data.write(f"{movie.attrib['PkgName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
@@ -78,7 +58,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write CategoryName and add ptr
-		nameptr = pool.data.tell() # 
+		nameptr = pool.data.tell()  #
 		pool.data.write(f"{movie.attrib['CategoryName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
@@ -87,7 +67,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write TypeName and add ptr
-		nameptr = pool.data.tell() # 
+		nameptr = pool.data.tell()  #
 		pool.data.write(f"{movie.attrib['TypeName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
@@ -95,15 +75,14 @@ class UIMovieDefinitionLoader(BaseFile):
 		new_frag.pointers[1].pool_index = pool_index
 		new_frag.pointers[1].data_offset = nameptr
 
-
 		# write triggers at offset+0x48
-		if len(moviedef['UITriggerList']):
+		if len(self.uitriggerlist):
 
 			# offset where first string starts
 			doffset = pool.data.tell()
 
 			# pack data now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
-			pool.data.write("\00".join(moviedef['UITriggerList']).encode('utf-8'))
+			pool.data.write("\00".join(self.uitriggerlist).encode('utf-8'))
 			pool.data.write(b"\00")
 
 			# new offset for list pointers
@@ -117,7 +96,7 @@ class UIMovieDefinitionLoader(BaseFile):
 			new_frag0.pointers[1].data_offset = poffset
 
 			# for each line, add the frag ptr space and create the frag ptr
-			for x in moviedef['UITriggerList']:
+			for x in self.uitriggerlist:
 				pool.data.write(struct.pack("<8s", b''))
 				strfrag = self.create_fragment()
 				strfrag.pointers[0].pool_index = pool_index
@@ -126,16 +105,16 @@ class UIMovieDefinitionLoader(BaseFile):
 				strfrag.pointers[1].data_offset = doffset
 
 				poffset += 8
-				doffset += len(x) + 1 # skip string lenght
+				doffset += len(x) + 1  # skip string lenght
 
 		# write Controls at offset+0x58
-		if len(moviedef['ControlList']):
+		if self.uinamelist:
 
 			# offset where first string starts
 			doffset = pool.data.tell()
 
 			# pack data now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
-			pool.data.write("\00".join(moviedef['ControlList']).encode('utf-8'))
+			pool.data.write("\00".join(self.uinamelist).encode('utf-8'))
 			pool.data.write(b"\00")
 
 			# new offset for list pointers
@@ -149,7 +128,7 @@ class UIMovieDefinitionLoader(BaseFile):
 			new_frag0.pointers[1].data_offset = poffset
 
 			# for each line, add the frag ptr space and create the frag ptr
-			for x in moviedef['ControlList']:
+			for x in self.uinamelist:
 				pool.data.write(struct.pack("<8s", b''))
 				strfrag = self.create_fragment()
 				strfrag.pointers[0].pool_index = pool_index
@@ -158,17 +137,17 @@ class UIMovieDefinitionLoader(BaseFile):
 				strfrag.pointers[1].data_offset = doffset
 
 				poffset += 8
-				doffset += len(x) + 1 # skip string lenght
+				doffset += len(x) + 1  # skip string lenght
 
 		# write List1 at offset+0x70
-		if len(moviedef['Count1List']):
+		if len(self.Count1List):
 			# offset where first string starts
 			doffset = pool.data.tell()
 
 			# pack data now.. 
-			pool.data.write( struct.pack(f"<{len(moviedef['Count1List'])}I", *moviedef['Count1List']))
+			pool.data.write(struct.pack(f"<{len(self.Count1List)}I", *self.Count1List))
 			# add some extra 00
-			pool.data.write( struct.pack("<Q", 0))
+			pool.data.write(struct.pack("<Q", 0))
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
@@ -177,16 +156,15 @@ class UIMovieDefinitionLoader(BaseFile):
 			new_frag0.pointers[1].pool_index = pool_index
 			new_frag0.pointers[1].data_offset = doffset
 
-
 		# write List2 at offset+0x78
-		if len(moviedef['Count2List']):
+		if len(self.Count2List):
 			# offset where first string starts
 			doffset = pool.data.tell()
 
 			# pack data now.. 
-			pool.data.write( struct.pack(f"<{len(moviedef['Count2List'])}I", *moviedef['Count2List']))
+			pool.data.write(struct.pack(f"<{len(self.Count2List)}I", *self.Count2List))
 			# add some extra 00
-			pool.data.write( struct.pack("<Q", 0))
+			pool.data.write(struct.pack("<Q", 0))
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
@@ -196,13 +174,13 @@ class UIMovieDefinitionLoader(BaseFile):
 			new_frag0.pointers[1].data_offset = doffset
 
 		# write interfaces at offset+0x80
-		if len(moviedef['InterfaceList']):
+		if len(self.uiInterfacelist):
 
 			# offset where first string starts
 			doffset = pool.data.tell()
 
 			# pack data now.. we are not doing rstrip to the lines.. worth considering to remove extra spaces
-			pool.data.write("\00".join(moviedef['InterfaceList']).encode('utf-8'))
+			pool.data.write("\00".join(self.uiInterfacelist).encode('utf-8'))
 			pool.data.write(b"\00")
 			# new offset for list pointers
 			poffset = pool.data.tell()
@@ -215,7 +193,7 @@ class UIMovieDefinitionLoader(BaseFile):
 			new_frag0.pointers[1].data_offset = poffset
 
 			# for each line, add the frag ptr space and create the frag ptr
-			for x in moviedef['InterfaceList']:
+			for x in self.uiInterfacelist:
 				pool.data.write(struct.pack("<8s", b''))
 				strfrag = self.create_fragment()
 				strfrag.pointers[0].pool_index = pool_index
@@ -224,159 +202,106 @@ class UIMovieDefinitionLoader(BaseFile):
 				strfrag.pointers[1].data_offset = doffset
 
 				poffset += 8
-				doffset += len(x) + 1 # skip string lenght
-
-		pass
+				doffset += len(x) + 1  # skip string lenght
 
 	def collect(self):
 		self.assign_ss_entry()
-		print(f"Collecting {self.sized_str_entry.name}")
+		logging.info(f"Collecting {self.sized_str_entry.name}")
 
 		# it is a long struct
-		unpackstr = "<32sI2H3f12B80s" 
-		_,flags1,flags2,flags3,fval1,fval2,fval3,counta,count4,countc,ctrlcount,counte, countf,count1,count2,count3,countj,_,_,_ =\
-		struct.unpack(unpackstr, self.sized_str_entry.pointers[0].read_from_pool(0x90))
-
-		self.sized_str_entry.moviedef  = {
-			'flags1': flags1,
-			'flags2': flags2,
-			'flags3': flags3,
-			'float1': fval1,
-			'float2': fval2,
-			'float3': fval3,
-			'ControlList': [],
-			'InterfaceList': [],
-			'UITriggerList': [],
-			'Count1List': [],
-			'Count2List':[]
-		}
+		unpackstr = "<32sI2H3f12B80s"
+		_, self.flags1, self.flags2, self.flags3, self.float1, self.float2, self.float3, counta, count4, countc, ctrlcount, counte, countf, count1, count2, count3, countj, _, _, _ = \
+			struct.unpack(unpackstr, self.sized_str_entry.pointers[0].read_from_pool(0x90))
 
 		# get name
 		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		tmpfragment.pointers[1].strip_zstring_padding()
-		self.sized_str_entry.moviedef['MovieName'] = tmpfragment.pointers[1].data.decode('utf-8')[:-1]
+		self.MovieName = self.p1_ztsr(tmpfragment)
 
 		# get package (guess)
 		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		tmpfragment.pointers[1].strip_zstring_padding()
-		self.sized_str_entry.moviedef['PkgName'] = tmpfragment.pointers[1].data.decode('utf-8')[:-1]
+		self.PkgName = self.p1_ztsr(tmpfragment)
 
-		# get category (gues)
+		# get category (guess)
 		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		tmpfragment.pointers[1].strip_zstring_padding()
-		self.sized_str_entry.moviedef['CategoryName'] = tmpfragment.pointers[1].data.decode('utf-8')[:-1]
+		self.CategoryName = self.p1_ztsr(tmpfragment)
 
-		# get type (gues)
+		# get type
 		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		tmpfragment.pointers[1].strip_zstring_padding()
-		self.sized_str_entry.moviedef['TypeName'] = tmpfragment.pointers[1].data.decode('utf-8')[:-1]
-		#print(ctrlcount)
-		#print(self.sized_str_entry.moviedef)
+		self.TypeName = self.p1_ztsr(tmpfragment)
 
 		# will be finding frags now depending on the counts, starting with count4
 		# corresponding to a list of strings of UI events/triggers
+		self.uitriggerlist = []
 		if count4:
-			uilistfrag  = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmpfragment = self.ovs.frags_from_pointer(uilistfrag.pointers[1], count4)
-			uitriggerlist = []
-			for var in tmpfragment:
-				var.pointers[1].strip_zstring_padding()
-				strval = var.pointers[1].data.decode('utf-8')
-				if strval[-1] == '\x00':
-					strval = strval[:-1]
-				uitriggerlist.append(strval)
-			self.sized_str_entry.moviedef['UITriggerList'] = uitriggerlist
+			uilistfrag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
+			tmpfragments = self.ovs.frags_from_pointer(uilistfrag.pointers[1], count4)
+			for frag in tmpfragments:
+				self.uitriggerlist.append(self.p1_ztsr(frag))
 
 		# list of UI controls
+		self.uinamelist = []
 		if ctrlcount:
-			uilistfrag  = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmpfragment = self.ovs.frags_from_pointer(uilistfrag.pointers[1], ctrlcount)
-			uinamelist = []
-			for var in tmpfragment:
-				var.pointers[1].strip_zstring_padding()
-				strval = var.pointers[1].data.decode('utf-8')
-				if strval[-1] == '\x00':
-					strval = strval[:-1]
-				uinamelist.append(strval)
-			self.sized_str_entry.moviedef['ControlList'] = uinamelist
-
+			uilistfrag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
+			tmpfragments = self.ovs.frags_from_pointer(uilistfrag.pointers[1], ctrlcount)
+			for frag in tmpfragments:
+				self.uinamelist.append(self.p1_ztsr(frag))
+				
+		self.Count1List = []
 		if count1:
 			tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			templlist = struct.unpack(f"<{count1}I", tmpfragment.pointers[1].read_from_pool(0x4 * count1))
-			self.sized_str_entry.moviedef['Count1List'] = templlist
-			pass
-
+			self.Count1List = list(struct.unpack(f"<{count1}I", tmpfragment.pointers[1].read_from_pool(0x4 * count1)))
+		
+		self.Count2List = []
 		if count2:
 			tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			templlist = struct.unpack(f"<{count2}I", tmpfragment.pointers[1].read_from_pool(0x4 * count2))
-			self.sized_str_entry.moviedef['Count2List'] = templlist
-			pass
+			self.Count2List = list(struct.unpack(f"<{count2}I", tmpfragment.pointers[1].read_from_pool(0x4 * count2)))
 
+		self.uiInterfacelist = []
 		if count3:
-			uilistfrag  = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmpfragment = self.ovs.frags_from_pointer(uilistfrag.pointers[1], count3)
-			uiInterfacelist = []
-			for var in tmpfragment:
-				var.pointers[1].strip_zstring_padding()
-				strval = var.pointers[1].data.decode('utf-8')
-				if strval[-1] == '\x00':
-					strval = strval[:-1]
-				uiInterfacelist.append(strval)
-			self.sized_str_entry.moviedef['InterfaceList'] = uiInterfacelist
-
-		#print(self.sized_str_entry.moviedef)
-		pass
+			uilistfrag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
+			tmpfragments = self.ovs.frags_from_pointer(uilistfrag.pointers[1], count3)
+			for frag in tmpfragments:
+				self.uiInterfacelist.append(self.p1_ztsr(frag))
 
 	def load(self, file_path):
 		pass
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
-		print(f"Writing {name}")
-
-		out_files = []
-		out_path = out_dir(name)
-
-		md = self.sized_str_entry.moviedef
+		logging.info(f"Writing {name}")
 
 		xmldata = ET.Element('UIMovieDefinition')
-		xmldata.set('MovieName', str(md['MovieName']))
-		xmldata.set('PkgName',  str(md['PkgName']))
-		xmldata.set('CategoryName', str(md['CategoryName']))
-		xmldata.set('TypeName',  str(md['TypeName']))
-		xmldata.set('flags1',  str(md['flags1']))
-		xmldata.set('flags2',  str(md['flags2']))
-		xmldata.set('flags3',  str(md['flags3']))
-		xmldata.set('float1',  str(md['float1']))
-		xmldata.set('float2',  str(md['float2']))
-		xmldata.set('float3',  str(md['float3']))
+		xmldata.set('MovieName', str(self.MovieName))
+		xmldata.set('PkgName', str(self.PkgName))
+		xmldata.set('CategoryName', str(self.CategoryName))
+		xmldata.set('TypeName', str(self.TypeName))
+		xmldata.set('flags1', str(self.flags1))
+		xmldata.set('flags2', str(self.flags2))
+		xmldata.set('flags3', str(self.flags3))
+		xmldata.set('float1', str(self.float1))
+		xmldata.set('float2', str(self.float2))
+		xmldata.set('float3', str(self.float3))
 
-		for cl in md['UITriggerList']:
+		for cl in self.uitriggerlist:
 			clitem = ET.SubElement(xmldata, 'UITrigger')
 			clitem.text = cl
 
-		for cl in md['ControlList']:
+		for cl in self.uinamelist:
 			clitem = ET.SubElement(xmldata, 'Control')
 			clitem.text = cl
 
-		for cl in md['InterfaceList']:
+		for cl in self.uiInterfacelist:
 			clitem = ET.SubElement(xmldata, 'Interface')
 			clitem.text = cl
 
-		for cl in md['Count1List']:
+		for cl in self.Count1List:
 			clitem = ET.SubElement(xmldata, 'List1')
 			clitem.text = str(cl)
 
-		for cl in md['Count2List']:
+		for cl in self.Count2List:
 			clitem = ET.SubElement(xmldata, 'List2')
 			clitem.text = str(cl)
 
-		xmltext = ET.tostring(xmldata)
-
-		with open(out_path, 'w') as outfile:
-			outfile.write(xmltext.decode('utf-8'))
-			out_files.append(out_path)
-		    
-		return out_files
-
-
+		out_path = out_dir(name)
+		self.write_xml(out_path, xmldata)
+		return out_path,
