@@ -105,7 +105,7 @@ class SpecdefLoader(BaseFile):
 		ovl_header = self.pack_header(b"SPEC")
 		out_path = out_dir(name)
 
-		ss_pointer = self.sized_str_entry.pointers[0].data
+		ss_pointer = self.sized_str_entry.pointers[0]
 		# save .raw data
 		with open(out_path, 'wb') as outfile:
 			logging.debug("Exporting binary specdef file")
@@ -113,7 +113,7 @@ class SpecdefLoader(BaseFile):
 			# logging.debug(f"SPECDEF: {self.sized_str_entry.fragments}")
 			# logging.debug(f"SPECDEF: {self.sized_str_entry.pointers[0].data}")
 			outfile.write(ovl_header)
-			outfile.write(ss_pointer)
+			outfile.write(ss_pointer.data)
 			for f in self.sized_str_entry.fragments:
 				# logging.debug(f"SPECDEF: dumping pool type {f}")
 				outfile.write(f.pointers[1].data)
