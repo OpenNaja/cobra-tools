@@ -12,11 +12,12 @@ class UserinterfaceicondataLoader(BaseFile):
 		f_01, f_11 = self._get_data(self.file_entry.path)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
-		self.write_to_pool(frag0.pointers[0], 2, b"\x00" * 8)
-		self.write_to_pool(frag1.pointers[0], 2, b"\x00" * 8)
+		ss_ptr = self.sized_str_entry.pointers[0]
+		self.write_to_pool(ss_ptr, 2, b"\x00" * 16)
+		self.ptr_relative(frag0.pointers[0], ss_ptr)
+		self.ptr_relative(frag1.pointers[0], ss_ptr, rel_offset=8)
 		self.write_to_pool(frag0.pointers[1], 2, f_01)
 		self.write_to_pool(frag1.pointers[1], 2, f_11)
-		self.ptr_relative(self.sized_str_entry.pointers[0], frag0.pointers[0])
 
 	def collect(self):
 		self.assign_ss_entry()
