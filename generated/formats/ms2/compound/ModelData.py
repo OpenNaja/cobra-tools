@@ -21,6 +21,7 @@ class ModelData:
 	Defines one model's data. Both LODs and mdl2 files may contain several of these.
 	This is a fragment from headers of type (0,0)
 	If there is more than one of these, the fragments appear as a list according to
+	PZ and JWE have a ptr at the start instead of the stream index
 	"""
 
 	context = ContextReference()

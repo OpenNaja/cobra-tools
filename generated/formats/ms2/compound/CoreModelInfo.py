@@ -9,9 +9,8 @@ from generated.formats.ms2.compound.Vector3 import Vector3
 class CoreModelInfo:
 
 	"""
-	Used by ms2 or in Mdl2ModelInfo
-	In load order it always defines the variable fragments for the next mdl2
-	The mdl2's fragment informs the first mdl2
+	Linked to by the ms2, part of an array
+	120 bytes for JWE2
 	"""
 
 	context = ContextReference()

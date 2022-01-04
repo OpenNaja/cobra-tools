@@ -1,9 +1,9 @@
 import numpy
 import typing
 from generated.array import Array
-from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.MaterialName import MaterialName
+from generated.formats.ms2.compound.Mdl2Descriptor import Mdl2Descriptor
 from generated.formats.ms2.compound.MeshLink import MeshLink
 from generated.formats.ms2.compound.ModelData import ModelData
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
@@ -35,7 +35,7 @@ class Mdl2InfoHeader(GenericHeader):
 		self.ms_2_name = 0
 
 		# gives relevant info on the mdl, including counts and pack base
-		self.model_info = CoreModelInfo(self.context, None, None)
+		self.model_info = Mdl2Descriptor(self.context, None, None)
 
 		# name pointers for each material
 		self.materials = Array(self.context)
@@ -55,7 +55,7 @@ class Mdl2InfoHeader(GenericHeader):
 		self.bone_info_index = 0
 		self.ms_2_name = 0
 		if not (self.context.version < 19):
-			self.model_info = CoreModelInfo(self.context, None, None)
+			self.model_info = Mdl2Descriptor(self.context, None, None)
 		if not (self.context.version < 19):
 			self.materials = Array(self.context)
 		if not (self.context.version < 19) and self.model_info.num_models:
@@ -72,7 +72,7 @@ class Mdl2InfoHeader(GenericHeader):
 		self.bone_info_index = stream.read_uint()
 		self.ms_2_name = stream.read_string()
 		if not (self.context.version < 19):
-			self.model_info = stream.read_type(CoreModelInfo, (self.context, None, None))
+			self.model_info = stream.read_type(Mdl2Descriptor, (self.context, None, None))
 			self.materials.read(stream, MaterialName, self.model_info.num_materials, None)
 		if not (self.context.version < 19) and self.model_info.num_models:
 			self.lods.read(stream, LodInfo, self.model_info.num_lods, None)

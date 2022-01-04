@@ -143,7 +143,8 @@
 	<compound name="ModelData" >
 		Defines one model's data. Both LODs and mdl2 files may contain several of these.
 		This is a fragment from headers of type (0,0)
-		If there is more than one of these, the fragments appear as a list according to 
+		If there is more than one of these, the fragments appear as a list according to
+		PZ and JWE have a ptr at the start instead of the stream index
 		<add name="stream index" type="uint" >index into streamed buffers, streaming is not used for JWE or PZ</add>
 		<add name="zeros" type="uint" arr1="3" >always zero</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
@@ -220,6 +221,10 @@
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
 		<add name="unk count" type="ushort" >usually 0, rarely 1</add>
 		<add name="unknown1" type="uint" arr1="3" >seems to be zeros</add>
+		3 pointers
+		<add name="ptr 0" type="uint64">8 empty bytes</add>
+		<add name="ptr 1" type="uint64">8 empty bytes</add>
+		<add name="ptr 2" type="uint64">8 empty bytes</add>
 	</compound>
 	
 	<compound name="Mdl2InfoHeader" inherit="GenericHeader">
@@ -230,7 +235,7 @@
 		<add name="bone info index" type="uint" >used to find bone info</add>
 		<add name="ms2 name" type="string" >name of ms2</add>
 
-		<add name="model info" type="CoreModelInfo" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="model info" type="Mdl2Descriptor" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
 		<add name="materials" type="MaterialName" arr1="model info\num_materials" vercond="!#OLD#" >name pointers for each material</add>
 		<add name="lods" type="LodInfo" arr1="model info\num_lods" vercond="!#OLD#" cond="model info\num_models" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="MeshLink" arr1="model info\num_objects" vercond="!#OLD#" >instantiate the meshes with materials</add>
@@ -380,9 +385,8 @@
 	</compound>
 	
 	<compound name="CoreModelInfo" >
-		Used by ms2 or in Mdl2ModelInfo
-		In load order it always defines the variable fragments for the next mdl2
-		The mdl2's fragment informs the first mdl2
+		Linked to by the ms2, part of an array
+		120 bytes for JWE2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="unk float a" type="float" vercond="!#OLD#">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
@@ -402,7 +406,20 @@
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 	</compound>
-	
+
+	<compound name="Mdl2Descriptor" inherit="CoreModelInfo">
+		Wraps a CoreModelInfo
+		<add name="materials ptr" type="uint64"/>
+		<add name="lods ptr" type="uint64"/>
+		<add name="objects ptr" type="uint64"/>
+		<add name="models ptr" type="uint64"/>
+		<add name="first materials ptr" type="uint64"/>
+		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
+		<add name="zero 0" type="uint64"/>
+		<add name="zero 1" type="uint64"/>
+		<add name="zero 2" type="uint64"/>
+	</compound>
+
 	<compound name="Ms2BoneInfo">
 		<add name="name count" type="uint64" >counts the names</add>
 		<add name="knownff" type="short" vercond="!#ZTUAC#" >this is always FFFF for now</add>

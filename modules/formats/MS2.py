@@ -2,10 +2,8 @@ import os
 import shutil
 import struct
 import logging
-import tempfile
 
-from generated.formats.ms2.compound.CoreModelInfo import CoreModelInfo
-from generated.formats.ms2.compound.Mdl2ModelInfo import Mdl2ModelInfo
+from generated.formats.ms2.compound.Mdl2Descriptor import Mdl2Descriptor
 from generated.formats.ms2 import Mdl2File, Ms2File, is_old
 
 from generated.formats.ovl.versions import *
@@ -42,19 +40,14 @@ class Ms2Loader(BaseFile):
 			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
 			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0 or empty (if no buffers)
 			f_1 = self.sized_str_entry.fragments[1]
-			core_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)[0]
-			# print("next model info:", core_model_info)
-			for mdl2_entry in self.sized_str_entry.children:
+			model_infos = f_1.pointers[1].load_as(Mdl2Descriptor, version_info=versions, num=len(self.sized_str_entry.children))
+			for mdl2_entry, mdl2_info in zip(self.sized_str_entry.children, model_infos):
 				assert mdl2_entry.ext == ".mdl2"
-				self.collect_mdl2(mdl2_entry, core_model_info, f_1.pointers[1])
-				model_info = mdl2_entry.fragments[4]
-				if self.size_check(model_info):
-					core_model_info = model_info.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)[0].info
-
+				self.collect_mdl2(mdl2_entry, mdl2_info, f_1.pointers[1])
 		else:
 			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
 
-	def collect_mdl2(self, mdl2_entry, core_model_info, mdl2_pointer):
+	def collect_mdl2(self, mdl2_entry, mdl2_info, mdl2_pointer):
 		logging.info(f"MDL2: {mdl2_entry.name}")
 		mdl2_entry.fragments = self.ovs.frags_from_pointer(mdl2_pointer, 5)
 		# these 5 fixed fragments are laid out like
@@ -66,15 +59,13 @@ class Ms2Loader(BaseFile):
 		#         or just 40 bytes
 		# plus fragments counted by num_models
 		# i - p0: ModelData (64b)	p1: -> buffer_info
-		materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
+		materials, lods, objects, models, model_info = mdl2_entry.fragments
 		# remove padding
-		objects.pointers[1].split_data_padding(4 * core_model_info.num_objects)
-		# store for export
-		mdl2_entry.num_models = core_model_info.num_objects
+		objects.pointers[1].split_data_padding(4 * mdl2_info.num_objects)
 		# get and set fragments
-		logging.debug(f"Num model data frags = {core_model_info.num_models}")
+		logging.debug(f"Num model data frags = {mdl2_info.num_models}")
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(
-			model_data_ptr.pointers[1], core_model_info.num_models)
+			models.pointers[1], mdl2_info.num_models)
 		# just assign name for those here
 		for f in mdl2_entry.model_data_frags:
 			f.name = mdl2_entry.name
@@ -88,8 +79,6 @@ class Ms2Loader(BaseFile):
 
 		versions = get_versions(self.ovl)
 
-		pool_index, pool = self.get_pool(2)
-
 		ms2_dir, ms2_basename = os.path.split(self.file_entry.path)
 		mdl2_names = [f for f in os.listdir(ms2_dir) if f.lower().endswith(".mdl2")]
 		mdl2s = []
@@ -98,21 +87,20 @@ class Ms2Loader(BaseFile):
 			mdl2 = Mdl2File()
 			mdl2.load(mdl2_path)
 			if mdl2.ms_2_name == ms2_basename:
-				mdl2s.append((mdl2_name, mdl2))
+				mdl2s.append(mdl2)
 		# sort them by model index
-		mdl2s.sort(key=lambda tup: tup[1].index)
+		mdl2s.sort(key=lambda m: m.index)
 
 		# 1 for the ms2, 2 for each mdl2
 		# pool.num_files += 1
 		# create sized str entries and model data fragments
-		for mdl2_name, mdl2 in mdl2s:
+		for mdl2 in mdl2s:
 			# pool.num_files += 2
-			mdl2_path = os.path.join(ms2_dir, mdl2_name)
+			mdl2_path = os.path.join(ms2_dir, mdl2.basename)
 			mdl2_file_entry = self.get_file_entry(mdl2_path)
 
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
 			mdl2_entry.pointers[0].pool_index = -1
-			# mdl2_entry.pointers[0].data_offset = 0
 			ms2_entry.children.append(mdl2_entry)
 
 			# first, create all ModelData structs as fragments
@@ -120,9 +108,9 @@ class Ms2Loader(BaseFile):
 
 		first_materials_ptr = None
 		# create the 5 fixed frags per MDL2 and write their data
-		for (mdl2_name, mdl2), mdl2_entry in zip(mdl2s, ms2_entry.children):
+		for mdl2, mdl2_entry in zip(mdl2s, ms2_entry.children):
 			mdl2_entry.fragments = [self.create_fragment() for _ in range(5)]
-			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
+			materials, lods, objects, models, model_info = mdl2_entry.fragments
 
 			if first_materials_ptr is None:
 				first_materials_ptr = materials.pointers[1]
@@ -131,48 +119,29 @@ class Ms2Loader(BaseFile):
 			self.write_to_pool(lods.pointers[1], 2, as_bytes(mdl2.lods, version_info=versions))
 			objects_bytes = as_bytes(mdl2.objects, version_info=versions)
 			self.write_to_pool(objects.pointers[1], 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
+			self.write_to_pool(models.pointers[1], 2, as_bytes(mdl2.models, version_info=versions))
 
-			# modeldatas start here
 			self.ptr_relative(model_info.pointers[1], first_materials_ptr)
-			# write mdl2 modeldata frags
-			for frag, modeldata in zip(mdl2_entry.model_data_frags, mdl2.models):
-				self.write_to_pool(frag.pointers[0], 2, as_bytes(modeldata, version_info=versions))
-			# point to start of modeldata
-			self.ptr_relative(model_data_ptr.pointers[1], mdl2_entry.model_data_frags[0].pointers[0])
-
+			# point to start of each modeldata
+			offset = 0
+			for frag in mdl2_entry.model_data_frags:
+				self.ptr_relative(frag.pointers[0], models.pointers[1], rel_offset=offset)
+				offset += 64
 		# create fragments for ms2
-		ms2_entry.fragments = [self.create_fragment() for _ in range(3)]
-		buffer_info_frag, model_info_frag, end_frag = ms2_entry.fragments
+		buffer_info_frag, model_info_frag, end_frag = self.create_fragments(ms2_entry, 3)
 
 		# write model info
-		for mdl2_name, mdl2 in mdl2s:
-			model_info_bytes = as_bytes(mdl2.model_info, version_info=versions)
-			if mdl2.index == 0:
-				# only write core model info
-				self.write_to_pool(model_info_frag.pointers[1], 2, model_info_bytes)
-			else:
-				# grab the preceding mdl2 entry since it points ahead
-				prev_mdl2_entry = ms2_entry.children[mdl2.index - 1]
-				# get its model info fragment
-				materials, lods, objects, model_data_ptr, model_info = prev_mdl2_entry.fragments
-				# todo - get the actual data
-				core_model_data = struct.pack("<5Q", 0, 1, 0, 0, 0)
-				self.write_to_pool(model_info.pointers[0], 2, core_model_data + model_info_bytes)
-
-			this_mdl2_entry = ms2_entry.children[mdl2.index]
-			materials, lods, objects, model_data_ptr, model_info = this_mdl2_entry.fragments
-			for frag in (materials, lods, objects, model_data_ptr):
-				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
-		# write last 40 bytes to model_info
-		if mdl2s:
-			# todo - get the actual data
-			core_model_data = struct.pack("<5Q", 0, 1, 0, 0, 0)
-			self.write_to_pool(model_info.pointers[0], 2, core_model_data)
-
+		self.write_to_pool(model_info_frag.pointers[1], 2, self.get_model_info_bytes(mdl2s, versions))
+		# todo, offsets are for JWE2 (192 bytes total), check PZ
+		offset = 0
+		for mdl2, mdl2_entry in zip(mdl2s, ms2_entry.children):
+			offset += 120
+			for frag in mdl2_entry.fragments:
+				self.ptr_relative(frag.pointers[0], model_info_frag.pointers[1], rel_offset=offset)
+				offset += 8
+			offset += 32
 		# buffer info data
-		# todo - from the frag log, buffer_info_bytes should be 48 bytes but is 32
 		buffer_info_bytes = as_bytes(ms2_file.buffer_info, version_info=versions)
-		logging.debug(f"len(buffer_info_bytes) {len(buffer_info_bytes)}")
 		self.write_to_pool(buffer_info_frag.pointers[1], 2, buffer_info_bytes)
 		# set ptr to buffer info for each ModelData frag
 		for mdl2_entry in ms2_entry.children:
@@ -180,12 +149,11 @@ class Ms2Loader(BaseFile):
 				self.ptr_relative(frag.pointers[1], buffer_info_frag.pointers[1])
 
 		# ms2 ss data
-		ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions)  # + ms2_entry.pointers[0].data[24:]
+		ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions)
 		self.write_to_pool(ms2_entry.pointers[0], 2, ms2_ss_bytes)
-
-		# first, 3 * 8 bytes of 00
-		for frag in ms2_entry.fragments:
-			self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
+		# set frag ptr 0
+		for frag, offset in zip(ms2_entry.fragments, (24, 32, 40)):
+			self.ptr_relative(frag.pointers[0], ms2_entry.pointers[0], rel_offset=offset)
 
 		# the last ms2 fragment
 		self.write_to_pool(end_frag.pointers[1], 2, struct.pack("<ii", -1, 0))
@@ -200,21 +168,14 @@ class Ms2Loader(BaseFile):
 			padding = get_padding(len(name_buffer), 4)
 			if padding:
 				self.sized_str_entry.data_entry.update_data([name_buffer + padding, bone_infos, verts])
-
-	def size_check(self, model_info):
-		if (is_jwe(self.ovl) and model_info.pointers[0].data_size == 144) \
-				or ((is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl)) and model_info.pointers[0].data_size == 160):
-			return True
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
+		versions = get_versions(self.ovl)
 		name = self.sized_str_entry.name
-		print("\nWriting", name)
+		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		# sizedstr data has bone count
-		ms2_general_info_data = self.sized_str_entry.pointers[0].data[:24]
-		# print("ms2 ss rest", self.sized_str_entry.pointers[0].data[24:])
-		# ms2_general_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, version_info=versions)
-		# print("Ms2SizedStrData", self.sized_str_entry.pointers[0].address, ms2_general_info)
+		ms2_general_info_data = self.sized_str_entry.pointers[0].data
 	
 		ovl_header = self.pack_header(b"MS2 ")
 		ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
@@ -228,21 +189,17 @@ class Ms2Loader(BaseFile):
 		if is_pc(self.ovl) or is_ztuac(self.ovl):
 			# only ss entry holds any useful stuff
 			ms2_buffer_info_data = b""
-			next_model_info_data = b""
 		# Planet Zoo, JWE
 		else:
 			if len(self.sized_str_entry.fragments) != 3:
-				print("must have 3 fragments")
-				return
-			f_0, f_1, f_2 = self.sized_str_entry.fragments
-	
-			# f0 has information on vert & tri buffer sizes
-			ms2_buffer_info_data = f_0.pointers[1].data
+				raise AttributeError(f"{name} must have 3 fragments")
+
+			buffer_info_frag, model_info_frag, end_frag = self.sized_str_entry.fragments
+			# information on vert & tri buffer sizes
+			ms2_buffer_info_data = buffer_info_frag.pointers[1].data
 			# this fragment informs us about the model count of the next mdl2 that is read
 			# so we can use it to collect the variable mdl2 fragments describing a model each
-			next_model_info_data = f_1.pointers[1].data
-		# next_model_info = f_1.pointers[1].load_as(CoreModelInfo, version_info=versions)
-		# print("next_model_info", f_1.pointers[1].address, next_model_info)
+			model_infos = model_info_frag.pointers[1].load_as(Mdl2Descriptor, version_info=versions, num=len(self.sized_str_entry.children))
 	
 		# write the ms2 file
 		out_path = out_dir(name)
@@ -255,16 +212,14 @@ class Ms2Loader(BaseFile):
 			outfile.write(name_buffer)
 			outfile.write(bone_infos)
 			outfile.write(verts)
-	
-		# zeros = []
-		# ones = []
+
 		bone_info_index = 0
 		# export each mdl2
 		for mdl2_index, mdl2_entry in enumerate(self.sized_str_entry.children):
 			mdl2_path = out_dir(mdl2_entry.name)
 			out_paths.append(mdl2_path)
 			with open(mdl2_path, 'wb') as outfile:
-				print("Writing", mdl2_entry.name, mdl2_index)
+				logging.info(f"Writing {mdl2_entry.name} [{mdl2_index}]")
 	
 				mdl2_header = struct.pack("<2I", mdl2_index, bone_info_index)
 				outfile.write(ovl_header)
@@ -274,51 +229,17 @@ class Ms2Loader(BaseFile):
 	
 				if not (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					# the fixed fragments
-					materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
-					print("num_models", mdl2_entry.num_models)
+					materials, lods, objects, models, model_info = mdl2_entry.fragments
 					# write the model info for this model, buffered from the previous model or ms2 (model_info fragments)
-					outfile.write(next_model_info_data)
-					# print("model_info",model_info.pointers[0].address,model_info.pointers[0].data_size,model_info.pointers[1].address, model_info.pointers[1].data_size)
-					if model_info.pointers[0].data_size == 40:
-						# 40 bytes (0,1 or 0,0,0,0)
-						has_bone_info = model_info.pointers[0].data
-					elif self.size_check(model_info):
-						# read model info for next model, but just the core part without the 40 bytes of 'padding' (0,1,0,0,0)
-						next_model_info_data = model_info.pointers[0].data[40:]
-						has_bone_info = model_info.pointers[0].data[:40]
-					# core_model_data = model_info.pointers[0].load_as(Mdl2ModelInfo, version_info=versions)
-					# print(core_model_data)
-					else:
-						raise ValueError(
-							f"Unexpected size {len(model_info.pointers[0].data)} for model_info fragment for {mdl2_entry.name}")
-	
-					core_model_data = struct.unpack("<5Q", has_bone_info)
-					# print(core_model_data)
-					var = core_model_data[1]
-					bone_info_index += var
-					# if var == 1:
-					# 	ones.append((mdl2_index, mdl2_entry.name))
-					# elif var == 0:
-					# 	zeros.append((mdl2_index, mdl2_entry.name))
-	
+					mdl2_info = model_infos[mdl2_index]
+					# print(mdl2_info)
+					outfile.write(as_bytes(mdl2_info, versions))
+					bone_info_index += mdl2_info.increment_flag
+
 					# avoid writing bad fragments that should be empty
-					if mdl2_entry.num_models:
-						# need not write model_data_ptr
-						for f in (materials, lods, objects):
-							# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
+					if mdl2_info.num_objects:
+						for f in (materials, lods, objects, models):
 							outfile.write(f.pointers[1].data)
-							# data 0 must be empty
-							assert f.pointers[0].data == b'\x00\x00\x00\x00\x00\x00\x00\x00'
-	
-					# print("modeldata frags")
-					for f in mdl2_entry.model_data_frags:
-						# each address_0 points to ms2's f_0 address_1 (size of vert & tri buffer)
-						# print(f.pointers[0].address,f.pointers[0].data_size,f.pointers[1].address, f.pointers[1].data_size)
-						# model_data = f.pointers[0].load_as(ModelData, version_info=versions)
-						# print(model_data)
-						outfile.write(f.pointers[0].data)
-		# print("ones", len(ones), ones)
-		# print("zeros", len(zeros), zeros)
 		return out_paths
 	
 	def get_ms2_buffer_datas(self):
@@ -328,9 +249,9 @@ class Ms2Loader(BaseFile):
 		bone_infos = all_buffer_bytes[1]
 		verts = b"".join(all_buffer_bytes[2:])
 		for i, vbuff in enumerate(all_buffer_bytes[2:]):
-			print(f"Vertex buffer {i}, size {len(vbuff)} bytes")
-		print("buffers", len(all_buffer_bytes))
-		print(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
+			logging.debug(f"Vertex buffer {i}, size {len(vbuff)} bytes")
+		logging.debug(f"len buffers: {len(all_buffer_bytes)}")
+		logging.debug(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
 		return name_buffer, bone_infos, verts
 	
 	def load(self, ms2_file_path):
@@ -366,53 +287,42 @@ class Ms2Loader(BaseFile):
 		# actual injection starts here
 		for mdl2_entry, mdl2 in zip(self.sized_str_entry.children, mdl2s):
 			logging.debug(f"Injecting mdl2 {mdl2.basename} ")
-			# overwrite mdl2 modeldata frags
-			for frag, modeldata in zip(mdl2_entry.model_data_frags, mdl2.models):
-				frag_data = as_bytes(modeldata, version_info=versions)
-				frag.pointers[0].update_data(frag_data, update_copies=True)
 	
-			materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
+			materials, lods, objects, models, model_info = mdl2_entry.fragments
 			for frag, mdl2_list in (
 					(materials, mdl2.materials,),
 					(lods, mdl2.lods),
-					(objects, mdl2.objects)):
+					(objects, mdl2.objects),
+					(models, mdl2.models)):
 				if len(mdl2_list) > 0:
 					data = as_bytes(mdl2_list, version_info=versions)
 					# objects.pointers[1] has padding in stock, apparently as each entry is 4 bytes
 					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
-					# frag.pointers[1].update_data(data, update_copies=True, pad_to=8)
+					# frag.pointers[1].update_data(data, pad_to=8)
 					# the above breaks injecting minmi
-					frag.pointers[1].update_data(data, update_copies=True)
+					frag.pointers[1].update_data(data)
 					logging.debug(f"Result {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
-	
-		for mdl2 in mdl2s:
-			data = as_bytes(mdl2.model_info, version_info=versions)
-			logging.debug(f"Injecting mdl2 model_info {mdl2.index}")
-			if mdl2.index == 0:
-				f_0, f_1, f_2 = self.sized_str_entry.fragments
-				f_1.pointers[1].update_data(data, update_copies=True)
-			else:
-				# grab the preceding mdl2 entry since it points ahead
-				mdl2_entry = self.sized_str_entry.children[mdl2.index - 1]
-				# get its model info fragment
-				materials, lods, objects, model_data_ptr, model_info = mdl2_entry.fragments
-				if self.size_check(model_info):
-					data = model_info.pointers[0].data[:40] + data
-					model_info.pointers[0].update_data(data, update_copies=True)
-	
+
 		logging.info(f"Injecting MS2")
 		ms2_file = Ms2File()
 		ms2_file.load(ms2_file_path, read_bytes=True)
 		# load ms2 ss data
-		ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions) + self.sized_str_entry.pointers[0].data[24:]
-		self.sized_str_entry.pointers[0].update_data(ms2_ss_bytes, update_copies=True)
+		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.general_info, version_info=versions))
 	
-		# overwrite ms2 buffer info frag
-		buffer_info_frag = self.sized_str_entry.fragments[0]
+		buffer_info_frag, model_info_frag, end_frag = self.sized_str_entry.fragments
 		buffer_info_frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
+		model_info_frag.pointers[1].update_data(self.get_model_info_bytes(mdl2s, versions))
 	
 		# update ms2 data
 		self.sized_str_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
+
+	def get_model_info_bytes(self, mdl2s, versions):
+		all_model_infos = []
+		for mdl2 in mdl2s:
+			data = as_bytes(mdl2.model_info, version_info=versions)
+			all_model_infos.append(data)
+		model_infos_bytes = b"".join(all_model_infos)
+		return model_infos_bytes
 
 	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()

@@ -991,6 +991,8 @@ class OvlFile(Header, IoFile):
 		if not file_entry:
 			return
 		file_entry.loader = get_loader(file_entry.ext, self, file_entry)
+		if not file_entry.loader:
+			return
 		try:
 			file_entry.loader.create()
 		except NotImplementedError:
@@ -1354,13 +1356,15 @@ class OvlFile(Header, IoFile):
 				entry.pointers[1].link_to_pool(ovs.pools)
 			for entry in ovs.sized_str_entries:
 				entry.pointers[0].link_to_pool(ovs.pools)
-			for frag in ovs.fragments:
+			for i, frag in enumerate(ovs.fragments):
 				# we assign these later when the loader classes run collect()
 				frag.done = False
 				frag.name = None
 				ptr = frag.pointers[0]
-				ptr.pool.fragments.append(frag)
-
+				try:
+					ptr.pool.fragments.append(frag)
+				except:
+					logging.warning(f"frag {i} failed")
 	def load_file_classes(self):
 		logging.info("Loading file classes")
 		for file in self.files:

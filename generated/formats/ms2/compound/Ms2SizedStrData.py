@@ -37,6 +37,15 @@ class Ms2SizedStrData:
 
 		# seems to be zeros
 		self.unknown_1 = numpy.zeros((3), dtype='uint')
+
+		# 8 empty bytes
+		self.ptr_0 = 0
+
+		# 8 empty bytes
+		self.ptr_1 = 0
+
+		# 8 empty bytes
+		self.ptr_2 = 0
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -46,6 +55,9 @@ class Ms2SizedStrData:
 		self.name_count = 0
 		self.unk_count = 0
 		self.unknown_1 = numpy.zeros((3), dtype='uint')
+		self.ptr_0 = 0
+		self.ptr_1 = 0
+		self.ptr_2 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -56,6 +68,9 @@ class Ms2SizedStrData:
 		self.name_count = stream.read_ushort()
 		self.unk_count = stream.read_ushort()
 		self.unknown_1 = stream.read_uints((3))
+		self.ptr_0 = stream.read_uint64()
+		self.ptr_1 = stream.read_uint64()
+		self.ptr_2 = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -67,6 +82,9 @@ class Ms2SizedStrData:
 		stream.write_ushort(self.name_count)
 		stream.write_ushort(self.unk_count)
 		stream.write_uints(self.unknown_1)
+		stream.write_uint64(self.ptr_0)
+		stream.write_uint64(self.ptr_1)
+		stream.write_uint64(self.ptr_2)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -81,6 +99,9 @@ class Ms2SizedStrData:
 		s += f'\n	* name_count = {self.name_count.__repr__()}'
 		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
 		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
+		s += f'\n	* ptr_0 = {self.ptr_0.__repr__()}'
+		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
+		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
 		return s
 
 	def __repr__(self):
