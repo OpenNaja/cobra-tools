@@ -47,9 +47,9 @@ class TexInfoHeader(GenericHeader):
 		super().read(stream)
 		self.tex_info = stream.read_type(TexHeader, (self.context, None, None))
 		if not (self.context.version < 19):
-			self.frag_01.read(stream, TexBuffer, self.frag_10.stream_count, None)
+			self.frag_01.read(stream, TexBuffer, self.tex_info.stream_count, None)
 		if self.context.version < 19:
-			self.frag_01.read(stream, TexBufferPc, self.frag_10.stream_count, None)
+			self.frag_01.read(stream, TexBufferPc, self.tex_info.stream_count, None)
 		if not (self.context.version < 19):
 			self.frag_11 = stream.read_type(Header7Data1, (self.context, None, None))
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
@@ -64,9 +64,9 @@ class TexInfoHeader(GenericHeader):
 		super().write(stream)
 		stream.write_type(self.tex_info)
 		if not (self.context.version < 19):
-			self.frag_01.write(stream, TexBuffer, self.frag_10.stream_count, None)
+			self.frag_01.write(stream, TexBuffer, self.tex_info.stream_count, None)
 		if self.context.version < 19:
-			self.frag_01.write(stream, TexBufferPc, self.frag_10.stream_count, None)
+			self.frag_01.write(stream, TexBufferPc, self.tex_info.stream_count, None)
 		if not (self.context.version < 19):
 			stream.write_type(self.frag_11)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):

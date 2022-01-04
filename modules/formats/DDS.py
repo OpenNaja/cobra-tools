@@ -254,16 +254,16 @@ class DdsLoader(BaseFile):
 			dds_file.mipmap_count = tex_info.num_mips
 	
 		try:
-			dds_type = tex_file.frag_10.compression_type.name
-			print(tex_file.frag_10.compression_type)
+			dds_type = tex_file.tex_info.compression_type.name
+			logging.info(tex_file.tex_info.compression_type)
 			# account for aliases
 			if dds_type.endswith(("_B", "_C")):
 				dds_type = dds_type[:-2]
 			dds_compression_types = ((dds_type, DxgiFormat[dds_type]),)
 		except KeyError:
 			dds_compression_types = [(x.name, x) for x in DxgiFormat]
-			print(f"Unknown compression type {tex_file.frag_10.compression_type}, trying all compression types")
-		print("dds_compression_type", dds_compression_types)
+			logging.warning(f"Unknown compression type {tex_file.tex_info.compression_type}, trying all compression types")
+		logging.debug(f"dds_compression_type {dds_compression_types}")
 
 		# write out everything for each compression type
 		for dds_type, dds_value in dds_compression_types:
