@@ -1,5 +1,4 @@
 import logging
-import struct
 
 from generated.formats.wsm import WsmFile
 from modules.formats.BaseFormat import BaseFile
