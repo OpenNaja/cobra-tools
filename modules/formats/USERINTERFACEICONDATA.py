@@ -32,11 +32,10 @@ class UserinterfaceicondataLoader(BaseFile):
 		name = self.sized_str_entry.name
 		logging.info(f"Writing {name}")
 		out_path = out_dir(name)
-		with open(out_path, 'wb') as outfile:
+		with open(out_path, 'w') as outfile:
 			for frag in self.sized_str_entry.fragments:
-				frag.pointers[1].strip_zstring_padding()
-				outfile.write(frag.pointers[1].data[:-1])
-				outfile.write(b"\n")
+				outfile.write(self.p1_ztsr(frag))
+				outfile.write("\n")
 		return out_path,
 
 	def _get_data(self, file_path):
