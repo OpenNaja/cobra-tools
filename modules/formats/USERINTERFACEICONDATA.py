@@ -1,5 +1,4 @@
 import logging
-import struct
 
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_padding
