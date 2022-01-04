@@ -6,8 +6,10 @@ import traceback
 import logging
 import tempfile
 
+import source.formats.ovl
 from generated.formats.ovl_base.enum.Compression import Compression
 from modules.walker import walk_type
+from ovl_util.interaction import showdialog
 
 try:
 	import numpy as np
@@ -20,7 +22,7 @@ try:
 	logging.info(f"Running cobra-tools {get_version_str()}")
 
 	from ovl_util import widgets, interaction, qt_threads
-	from modules import hasher, walker, remover
+	from modules import walker, remover
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
 except Exception as err:
 	traceback.print_exc()
@@ -288,7 +290,7 @@ class MainWindow(widgets.MainWindow):
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
 		names = [(old_name, new_name), ]
-		hasher.rename(self.ovl_data, names)
+		self.ovl_data.rename(names)
 		self.update_gui_table()
 
 	def game_changed(self,):
@@ -537,15 +539,17 @@ class MainWindow(widgets.MainWindow):
 		if names:
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
-					hasher.rename(self.ovl_data, names)
+					self.ovl_data.rename(names)
 					self.update_gui_table()
 
 	def rename_contents(self):
 		names = self.get_replace_strings()
 		if names:
+			if self.check_length(names):
+				return
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
-					hasher.rename_contents(self.ovl_data, names)
+					self.ovl_data.rename_contents(names)
 					self.update_gui_table()
 
 	# Save the OVL file list to disk
@@ -613,6 +617,15 @@ class MainWindow(widgets.MainWindow):
 				return
 		event.accept()
 
+	@staticmethod
+	def check_length(name_tups):
+		# Ask and return true if error is found and process should be stopped
+		for old, new in name_tups:
+			if len(old) != len(new):
+				if showdialog(
+						f"WARNING: length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
+						f"Stop renaming?", ask=True):
+					return True
 	@staticmethod
 	def check_version():
 		is_64bits = sys.maxsize > 2 ** 32
