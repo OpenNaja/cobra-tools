@@ -18,15 +18,16 @@ class SpecdefLoader(BaseFile):
 		ss_pointer = self.sized_str_entry.pointers[0]
 		logging.info(f"Collecting specdef: {self.sized_str_entry.name}")
 
-		ss_data = struct.unpack("<2H4B", ss_pointer.data)
-		logging.info(f"{ss_data}")
+		# p0, p1, p2 for attribs
+		# p3, p4, p5, p6 only used for each of the 4 counts
+		attrib_count, flags, name_count, childspec_count, manager_count, script_count, p0, p1, p2, p3, p4, p5, p6 = struct.unpack("<2H4B 7Q", ss_pointer.data)
+		lists = (name_count, childspec_count, manager_count, script_count)
+		# logging.info(f"{ss_data}")
 		# if ss_data[0] == 0:
 		# 	logging.info(f"specdef has no attributes")
 		# we always have 3 fragments for attributes, even if there are none
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
 
-		attrib_count = ss_data[0]
-		lists = ss_data[2:]
 		logging.debug(f"SPECDEF lists: {lists}")
 		for dep in self.file_entry.dependencies:
 			logging.debug(f"SPECDEF dependency: {dep.name}")
