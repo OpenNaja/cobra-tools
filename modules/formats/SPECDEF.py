@@ -20,7 +20,8 @@ class SpecdefLoader(BaseFile):
 
 		# p0, p1, p2 for attribs
 		# p3, p4, p5, p6 only used for each of the 4 counts
-		attrib_count, flags, name_count, childspec_count, manager_count, script_count, p0, p1, p2, p3, p4, p5, p6 = struct.unpack("<2H4B 7Q", ss_pointer.data)
+		attrib_count, flags, name_count, childspec_count, manager_count, script_count, \
+			p0, p1, p2, p3, p4, p5, p6 = struct.unpack("<2H4B 7Q", ss_pointer.data)
 		lists = (name_count, childspec_count, manager_count, script_count)
 		# logging.info(f"{ss_data}")
 		# if ss_data[0] == 0:
@@ -104,6 +105,7 @@ class SpecdefLoader(BaseFile):
 		ovl_header = self.pack_header(b"SPEC")
 		out_path = out_dir(name)
 
+		ss_pointer = self.sized_str_entry.pointers[0].data
 		# save .raw data
 		with open(out_path, 'wb') as outfile:
 			logging.debug("Exporting binary specdef file")
@@ -111,7 +113,7 @@ class SpecdefLoader(BaseFile):
 			# logging.debug(f"SPECDEF: {self.sized_str_entry.fragments}")
 			# logging.debug(f"SPECDEF: {self.sized_str_entry.pointers[0].data}")
 			outfile.write(ovl_header)
-			outfile.write(self.sized_str_entry.pointers[0].data)
+			outfile.write(ss_pointer)
 			for f in self.sized_str_entry.fragments:
 				# logging.debug(f"SPECDEF: dumping pool type {f}")
 				outfile.write(f.pointers[1].data)
@@ -119,8 +121,8 @@ class SpecdefLoader(BaseFile):
 
 		# save .xml file
 		logging.debug("Exporting xml specdef file")
-		attrib_count, flags, name_count, childspec_count, manager_count, script_count = struct.unpack(
-			"<2H4B", self.sized_str_entry.pointers[0].data)
+		attrib_count, flags, name_count, childspec_count, manager_count, script_count, \
+			p0, p1, p2, p3, p4, p5, p6 = struct.unpack("<2H4B 7Q", ss_pointer.data)
 
 		xml_data = ET.Element('Specdef')
 		xml_data.set('Name', name[:-8])
