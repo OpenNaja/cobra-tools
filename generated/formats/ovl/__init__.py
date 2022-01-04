@@ -10,6 +10,7 @@ import traceback
 import logging
 from contextlib import contextmanager
 
+from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
@@ -635,7 +636,10 @@ class OvsFile(OvsHeader):
 		# if len(entry.pointers) == 2:
 		#     d_str = str(entry.pointers[1].data)
 		ptr_str = ' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size} ({len(p.padding)})]' for p in entry.pointers))
-		return f"{ptr_str} {entry.name}"
+		infix = ""
+		if isinstance(entry, DependencyEntry):
+			infix = "->"
+		return f"{ptr_str} {infix} {entry.name}"
 
 	def dump_frag_log(self):
 		"""for development; collect info about fragment types"""
@@ -1007,8 +1011,6 @@ class OvlFile(Header, IoFile):
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
-		# # todo - create archives on demand per file
-		# self.create_archive()
 		self.add_files(file_paths)
 		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 

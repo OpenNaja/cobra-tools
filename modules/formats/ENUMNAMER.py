@@ -20,16 +20,15 @@ class EnumnamerLoader(BaseFile):
 		# self.sized_str_entry.vars[-1].pointers[1].pool.pad(alignment=4)
 		for frag in self.sized_str_entry.vars:
 			self.write_to_pool(frag.pointers[0], 4, b"\x00" * 8)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 4, struct.pack("<Q", len(content)))
-		self.write_to_pool(root_f.pointers[0], 4, b"\x00" * 8)
+		self.write_to_pool(self.sized_str_entry.pointers[0], 4, struct.pack("<Q Q", len(content), 0))
+		self.ptr_relative(root_f.pointers[0], self.sized_str_entry.pointers[0], rel_offset=8)
 		# point to start of options array
 		self.ptr_relative(root_f.pointers[1], self.sized_str_entry.vars[0].pointers[0])
 
 	def collect(self):
 		self.assign_ss_entry()
-		# Sized string initpos = position of first fragment
 		self.assign_fixed_frags(1)
-		count, _ = struct.unpack("<2I", self.sized_str_entry.pointers[0].data)
+		count, ptr = struct.unpack("<Q Q", self.sized_str_entry.pointers[0].data)
 		self.sized_str_entry.vars = self.ovs.frags_from_pointer(self.sized_str_entry.fragments[0].pointers[1], count)
 		# pointers[1].data is the name
 		for var in self.sized_str_entry.vars:
@@ -43,9 +42,8 @@ class EnumnamerLoader(BaseFile):
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
 		logging.debug(f"Writing {name}")
-		# only has a list of strings
 		out_path = out_dir(name)
 		with open(out_path, 'w') as outfile:
 			for f in self.sized_str_entry.vars:
-				outfile.write(f"{self.get_zstr(f.pointers[1].data)}\n")
+				outfile.write(f"{self.p1_ztsr(f)}\n")
 		return out_path,
