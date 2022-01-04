@@ -40,7 +40,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		pool.data.write(struct.pack("<80s", b''))
 
 		# write name and add ptr
-		nameptr = pool.data.tell()  #
+		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['MovieName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
@@ -49,7 +49,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write pkgname and add ptr
-		nameptr = pool.data.tell()  #
+		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['PkgName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
@@ -58,7 +58,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write CategoryName and add ptr
-		nameptr = pool.data.tell()  #
+		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['CategoryName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
@@ -67,7 +67,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write TypeName and add ptr
-		nameptr = pool.data.tell()  #
+		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['TypeName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
 		new_frag.pointers[0].pool_index = pool_index
