@@ -69,6 +69,7 @@ class DdsLoader(BaseFile):
 				static_lods = 2
 				streamed_lods = len(buffers) - static_lods
 				logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
+				ss_entries = [self.sized_str_entry, ]
 				for i in range(streamed_lods):
 					# generate ovs name
 					ovs_name = f"Textures_L{i}"
@@ -77,6 +78,7 @@ class DdsLoader(BaseFile):
 					self.file_entry.streams.append(texstream_file)
 					# ss entry
 					texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
+					ss_entries.append(texstream_ss)
 					self.write_to_pool(texstream_ss.pointers[0], 3, b"\x00" * 8, ovs=ovs_name)
 					# data entry, assign buffer
 					self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
@@ -84,8 +86,9 @@ class DdsLoader(BaseFile):
 				# patch buffer indices for PZ, JWE1
 				if not is_jwe2(self.ovl):
 					logging.debug(f"Using absolute buffer indices for streams")
-					all_buffers = self.get_sorted_streams()
-					for i, buffer in all_buffers:
+					all_buffers = [buffer for ss in ss_entries for buffer in ss.data_entry.buffers]
+					all_buffers.sort(key=lambda b: b.size, reverse=True)
+					for i, buffer in enumerate(all_buffers):
 						buffer.index = i
 			elif is_pc(self.ovl) or is_ztuac(self.ovl):
 				logging.error(f"Only modern texture format supported for now!")
