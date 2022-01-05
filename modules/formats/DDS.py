@@ -81,7 +81,12 @@ class DdsLoader(BaseFile):
 					# data entry, assign buffer
 					self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
 				self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
-				# todo - patch buffer indices if needed for PZ
+				# patch buffer indices for PZ, JWE1
+				if not is_jwe2(self.ovl):
+					logging.debug(f"Using absolute buffer indices for streams")
+					all_buffers = self.get_sorted_streams()
+					for i, buffer in all_buffers:
+						buffer.index = i
 			elif is_pc(self.ovl) or is_ztuac(self.ovl):
 				logging.error(f"Only modern texture format supported for now!")
 		else:
