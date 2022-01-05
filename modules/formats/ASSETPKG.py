@@ -26,7 +26,7 @@ class AssetpkgLoader(BaseFile):
 		name = self.sized_str_entry.name
 		logging.info(f"Writing {name}")
 		out_path = out_dir(name)
-		with open(out_path, 'wb') as outfile:
+		with open(out_path, 'w') as outfile:
 			outfile.write(self.p1_ztsr(self.sized_str_entry.fragments[0]))
 		return out_path,
 
