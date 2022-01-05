@@ -1495,6 +1495,7 @@ class OvlFile(Header, IoFile):
 			archive.num_pools = len(ovs.pools)
 
 		# update the flattened list of pools
+		self.update_pool_datas()
 		self.load_flattened_pools()
 		# dependencies index goes into the flattened list of pools
 		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
