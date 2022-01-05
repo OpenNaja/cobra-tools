@@ -3,9 +3,7 @@ import logging
 import os
 
 from generated.formats.dds import DdsFile
-from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
-from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.ovl.versions import *
 from generated.formats.tex import TexFile
 from generated.formats.tex.compound.TexBuffer import TexBuffer
@@ -74,8 +72,6 @@ class DdsLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		# verify that it's empty - not always true
-		# assert self.sized_str_entry.pointers[0].data == b"\x00" * 16
 		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
 			self.assign_fixed_frags(2)
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
@@ -158,27 +154,6 @@ class DdsLoader(BaseFile):
 		# print(header_7)
 		return tex_header, tex_buffers, header_7
 
-	def create_dds_struct(self):
-		dds_file = DdsFile()
-		dds_file.header_string.data = b"DDS "
-	
-		# header flags
-		dds_file.flags.height = 1
-		dds_file.flags.width = 1
-		dds_file.flags.mipmap_count = 1
-		dds_file.flags.linear_size = 1
-	
-		# pixel format flags
-		dds_file.pixel_format.flags.four_c_c = 1
-		dds_file.pixel_format.four_c_c = FourCC.DX10
-
-		dds_file.dx_10.resource_dimension = D3D10ResourceDimension.D3D10_RESOURCE_DIMENSION_TEXTURE2D
-		dds_file.dx_10.array_size = 1
-	
-		# caps 1
-		dds_file.caps_1.texture = 0
-		return dds_file
-
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		tex_name = self.sized_str_entry.name
 		basename = os.path.splitext(tex_name)[0]
@@ -205,7 +180,7 @@ class DdsLoader(BaseFile):
 		tex_file.load(tex_path)
 		# print(tex_file)
 		# return out_files
-		dds_file = self.create_dds_struct()
+		dds_file = DdsFile()
 		dds_file.buffer = buffer_data
 
 		if is_pc(self.ovl) or is_ztuac(self.ovl):

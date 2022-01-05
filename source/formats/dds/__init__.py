@@ -1,6 +1,8 @@
 import io
 import logging
 
+from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
+from generated.formats.dds.enum.FourCC import FourCC
 from generated.formats.dds.struct.Header import Header
 from generated.io import IoFile
 from modules.formats.shared import get_padding
@@ -19,6 +21,25 @@ class DdsFile(Header, IoFile):
 
 	def __init__(self,):
 		super().__init__(DdsContext())
+		self.header_string.data = b"DDS "
+	
+		# header flags
+		self.flags.height = 1
+		self.flags.width = 1
+		self.flags.mipmap_count = 1
+		self.flags.linear_size = 1
+	
+		# pixel format flags
+		self.pixel_format.flags.four_c_c = 1
+		self.pixel_format.four_c_c = FourCC.DX10
+
+		self.dx_10.resource_dimension = D3D10ResourceDimension.D3D10_RESOURCE_DIMENSION_TEXTURE2D
+		self.dx_10.array_size = 1
+	
+		# caps 1
+		self.caps_1.texture = 0
+
+		# other stuff
 		self.buffer = b""
 		self.mips = []
 
