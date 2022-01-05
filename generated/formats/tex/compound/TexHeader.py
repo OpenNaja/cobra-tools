@@ -6,7 +6,8 @@ from generated.formats.tex.enum.DdsTypeCoaster import DdsTypeCoaster
 class TexHeader:
 
 	"""
-	40 bytes, with 2 pointers
+	ZTUAC, PC: 24 bytes, with 1 pointer
+	JWE, PZ, JWE2: 40 bytes, with 2 pointers
 	"""
 
 	context = ContextReference()
@@ -25,10 +26,10 @@ class TexHeader:
 		# ?
 		self.zero_1 = 0
 
-		# 32 bytes, all 0
+		# 8 bytes, all 0
 		self.ptr_0 = 0
 
-		# 32 bytes, all 0
+		# 8 bytes, all 0
 		self.ptr_1 = 0
 
 		# flag, not direct index into DDS enum
@@ -55,7 +56,8 @@ class TexHeader:
 		if not (self.context.version < 19):
 			self.zero_1 = 0
 		self.ptr_0 = 0
-		self.ptr_1 = 0
+		if not (self.context.version < 19):
+			self.ptr_1 = 0
 		if not (self.context.version < 19):
 			self.compression_type = DdsType()
 		if self.context.version < 19:
@@ -71,8 +73,8 @@ class TexHeader:
 		if not (self.context.version < 19):
 			self.zero_1 = stream.read_uint64()
 		self.ptr_0 = stream.read_uint64()
-		self.ptr_1 = stream.read_uint64()
 		if not (self.context.version < 19):
+			self.ptr_1 = stream.read_uint64()
 			self.compression_type = DdsType(stream.read_ubyte())
 		if self.context.version < 19:
 			self.compression_type = DdsTypeCoaster(stream.read_ubyte())
@@ -89,8 +91,8 @@ class TexHeader:
 		if not (self.context.version < 19):
 			stream.write_uint64(self.zero_1)
 		stream.write_uint64(self.ptr_0)
-		stream.write_uint64(self.ptr_1)
 		if not (self.context.version < 19):
+			stream.write_uint64(self.ptr_1)
 			stream.write_ubyte(self.compression_type.value)
 		if self.context.version < 19:
 			stream.write_ubyte(self.compression_type.value)

@@ -10,6 +10,7 @@ from generated.formats.ovl.versions import *
 from generated.formats.tex import TexFile
 from generated.formats.tex.compound.TexBuffer import TexBuffer
 from generated.formats.tex.compound.Header7Data1 import Header7Data1
+from generated.formats.tex.compound.TexBufferPc import TexBufferPc
 from generated.formats.tex.compound.TexHeader import TexHeader
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_versions
@@ -99,13 +100,10 @@ class DdsLoader(BaseFile):
 
 	def load_dds(self, file_path):
 		logging.info(f"Loading DDS {file_path}")
-		versions = get_versions(self.ovl)
-		if is_pc(self.ovl):
-			tex_header, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
-			tex_d = tex_header.one_0
-		else:
-			tex_header, header_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
-			tex_d = header_7.depth
+		tex_header, tex_buffers, header_7 = self.get_tex_structs(self.sized_str_entry)
+		# tex_d = tex_header.one_0
+		# tex_d = header_7.depth
+		tex_d = 1
 		tex_h = header_7.height
 		tex_w = header_7.width
 		tex_a = header_7.array_size
@@ -121,7 +119,7 @@ class DdsLoader(BaseFile):
 		self.ensure_size_match(dds_file, tex_h, tex_w, tex_d, tex_a, comp)
 		sorted_streams = self.get_sorted_streams()
 		if is_pc(self.ovl):
-			for buffer, tex_header_3 in zip(sorted_streams, headers_3_1):
+			for buffer, tex_header_3 in zip(sorted_streams, tex_buffers):
 				dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 				self.overwrite_buffer(buffer, dds_buff)
 		else:
@@ -142,31 +140,24 @@ class DdsLoader(BaseFile):
 			dds_buff = dds_buff + buffer.data[len(dds_buff):]
 		buffer.update_data(dds_buff)
 
-	def get_tex_structs(self, sized_str_entry, ovl_version):
-		# we have exactly two fragments, pointing into these pool_groups
-		f_3_3, f_3_7 = sized_str_entry.fragments
-	
-		tex_header = sized_str_entry.pointers[0].load_as(TexHeader, version_info=ovl_version)[0]
-		headers_3_1 = f_3_3.pointers[1].load_as(TexBuffer, num=f_3_3.pointers[1].data_size//24, version_info=ovl_version)
-		# print(f_3_3.pointers[1].data_size // 24)
-		# print(tex_header)
-		# print(headers_3_1)
-		header_7 = f_3_7.pointers[1].load_as(Header7Data1, version_info=ovl_version)[0]
+	def get_tex_structs(self, sized_str_entry):
+
+		versions = get_versions(self.ovl)
+		tex_header = sized_str_entry.pointers[0].load_as(TexHeader, version_info=versions)[0]
+
+		if is_pc(self.ovl) or is_ztuac(self.ovl):
+			frag = sized_str_entry.fragments[0]
+			tex_buffers = frag.pointers[1].load_as(TexBufferPc, num=tex_header.stream_count, version_info=versions)
+			# this corresponds to a stripped down header_7
+			header_7 = tex_buffers[0]
+		else:
+			# we have exactly two fragments, pointing into these pool_groups
+			f_3_3, f_3_7 = sized_str_entry.fragments
+			tex_buffers = f_3_3.pointers[1].load_as(TexBuffer, num=tex_header.stream_count, version_info=versions)
+			header_7 = f_3_7.pointers[1].load_as(Header7Data1, version_info=versions)[0]
 		# print(header_7)
-		return tex_header, headers_3_1, header_7
-	
-	def get_tex_structs_pc(self, sized_str_entry):
-		frag = sized_str_entry.fragments[0]
-		tex_header = frag.pointers[0].load_as(Header3Data0Pc)[0]
-		# headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=tex_header.one_2)
-		# alternative?
-		headers_3_1 = frag.pointers[1].load_as(Header3Data1Pc, num=frag.pointers[1].data_size//8, args=())
-		print(tex_header)
-		print(headers_3_1)
-		# this corresponds to a stripped down header_7
-		header_7 = headers_3_1[0]
-		return tex_header, headers_3_1, header_7
-	
+		return tex_header, tex_buffers, header_7
+
 	def create_dds_struct(self):
 		dds_file = DdsFile()
 		dds_file.header_string.data = b"DDS "
@@ -282,11 +273,7 @@ class DdsLoader(BaseFile):
 	def load_png(self, file_path):
 		logging.info(f"Loading PNG {file_path}")
 		# convert the png into a dds, then inject that
-		versions = get_versions(self.ovl)
-		if is_pc(self.ovl):
-			tex_header, headers_3_1, header_7 = self.get_tex_structs_pc(self.sized_str_entry)
-		else:
-			tex_header, header_3_1, header_7 = self.get_tex_structs(self.sized_str_entry, versions)
+		tex_header, tex_buffers, header_7 = self.get_tex_structs(self.sized_str_entry)
 		dds_compression_type = tex_header.compression_type.name
 		# texconv works without prefix
 		compression = dds_compression_type.replace("DXGI_FORMAT_", "")
