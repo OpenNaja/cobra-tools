@@ -860,8 +860,8 @@ class OvlFile(Header, IoFile):
 		"""Returns all loader instances for this ovl"""
 		return [file.loader for file in self.files if hasattr(file, 'loader')]
 
-	def rename(self, name_tups):
-		logging.info(f"Renaming for {name_tups}")
+	def rename(self, name_tups, animal_mode=False):
+		logging.info(f"Renaming for {name_tups}, animal mode = {animal_mode}")
 		lists = [self.files, self.dependencies, self.included_ovls]
 		for archive in self.archives:
 			ovs = archive.content
@@ -875,6 +875,8 @@ class OvlFile(Header, IoFile):
 			))
 		for entry_list in lists:
 			for entry in entry_list:
+				if animal_mode and entry.ext in (".ms2", ".mdl2", ".motiongraph"):
+					continue
 				rename_entry(entry, name_tups)
 		self.update_hashes()
 		self.update_ss_dict()

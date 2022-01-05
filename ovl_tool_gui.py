@@ -120,6 +120,14 @@ class MainWindow(widgets.MainWindow):
 		self.ext_dat.setChecked(False)
 		self.ext_dat.stateChanged.connect(self.dat_show)
 
+		self.t_animal_ovl = QtWidgets.QCheckBox("Animal OVL Mode")
+		self.t_animal_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
+		self.t_animal_ovl.setChecked(False)
+
+		self.t_unsafe = QtWidgets.QCheckBox("Unsafe Mode")
+		self.t_unsafe.setToolTip("Forces unsafe (brute force) replacement. May break your files.")
+		self.t_unsafe.setChecked(False)
+
 		self.e_name_old = QtWidgets.QTextEdit("old")
 		self.e_name_new = QtWidgets.QTextEdit("new")
 		self.e_name_old.setFixedHeight(100)
@@ -148,6 +156,8 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.in_folder, 3, 3)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
+		self.qgrid.addWidget(self.t_animal_ovl, 2, 4)
+		self.qgrid.addWidget(self.t_unsafe, 3, 4)
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
@@ -357,8 +367,10 @@ class MainWindow(widgets.MainWindow):
 				# print(self.ovl_data)
 				# print(self.ovl_data.mimes)
 				# print(self.ovl_data.triplets)
-				# for a in self.ovl_data.archives:
-				# 	print(a)
+				for a in self.ovl_data.archives:
+					print(a)
+				for a in self.ovl_data.zlibs:
+					print(a)
 				# 	if a.name != "STATIC":
 				# 		streams = self.ovl_data.stream_files[a.stream_files_offset: a.stream_files_offset+a.num_files]
 				# 		print(a.name, streams)
@@ -502,7 +514,7 @@ class MainWindow(widgets.MainWindow):
 		if names:
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
-					self.ovl_data.rename(names)
+					self.ovl_data.rename(names, animal_mode=self.t_animal_ovl.isChecked())
 					self.update_gui_table()
 
 	def rename_contents(self):
