@@ -1023,7 +1023,6 @@ class OvlFile(Header, IoFile):
 		# 	archive.content.map_buffers()
 		self.update_hashes()
 		self.update_counts()
-		self.update_pool_datas()
 		self.postprocessing()
 
 	def create_archive(self, name="STATIC"):
@@ -1501,6 +1500,8 @@ class OvlFile(Header, IoFile):
 		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
 		for dep in self.dependencies:
 			dep.pointers[0].update_pool_index(pools_lut)
+		# pools are updated, gotta rebuild stream files now
+		self.update_stream_files()
 
 	def update_counts(self):
 		"""Update counts of this ovl and all of its archives"""
@@ -1551,8 +1552,6 @@ class OvlFile(Header, IoFile):
 			# at least PZ & JWE require 4 additional bytes after each pool region
 			pools_byte_offset += 4
 			pools_offset += len(archive.content.pools)
-		# pools are updated, gotta rebuild stream files now
-		self.update_stream_files()
 
 	def _get_abs_mem_offset(self, archive, ptr):
 		# JWE, JWE2: relative offset for each pool
@@ -1639,7 +1638,6 @@ class OvlFile(Header, IoFile):
 		self.update_hashes()
 		# update the name buffer and offsets
 		self.update_names()
-		self.update_pool_datas()
 		self.update_aux_sizes()
 		self.open_ovs_streams()
 		ovl_compressed = b""
