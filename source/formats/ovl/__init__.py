@@ -858,7 +858,7 @@ class OvlFile(Header, IoFile):
 
 	def get_loaders(self):
 		"""Returns all loader instances for this ovl"""
-		return [file.loader for file in self.files if hasattr(file, 'loader')]
+		return [file.loader for file in self.files if hasattr(file, 'loader') and file.loader is not None]
 
 	def rename(self, name_tups, animal_mode=False):
 		logging.info(f"Renaming for {name_tups}, animal mode = {animal_mode}")
