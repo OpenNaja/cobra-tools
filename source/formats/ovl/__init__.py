@@ -1564,6 +1564,8 @@ class OvlFile(Header, IoFile):
 	def update_stream_files(self):
 		logging.info("Updating stream file memory links")
 		self.stream_files.clear()
+		# ensure we have an up to date ss dict
+		self.update_ss_dict()
 		for file in self.files:
 			if file.streams:
 				file_ss, file_archive = self._ss_dict[file.name.lower()]

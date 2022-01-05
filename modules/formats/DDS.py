@@ -64,7 +64,24 @@ class DdsLoader(BaseFile):
 				else:
 					f11_pool_type = 4
 				self.write_to_pool(frag1.pointers[1], f11_pool_type, f11)
-				self.create_data_entry(self.sized_str_entry, buffers)
+
+				# decide where to store the buffers
+				static_lods = 2
+				streamed_lods = len(buffers) - static_lods
+				logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
+				for i in range(streamed_lods):
+					# generate ovs name
+					ovs_name = f"Textures_L{i}"
+					# create texturestream file
+					texstream_file = self.get_file_entry(f"test/{name}_lod{i}.texturestream")
+					self.file_entry.streams.append(texstream_file)
+					# ss entry
+					texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
+					self.write_to_pool(texstream_ss.pointers[0], 3, b"\x00" * 8, ovs=ovs_name)
+					# data entry, assign buffer
+					self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
+				self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
+				# todo - patch buffer indices if needed for PZ
 			elif is_pc(self.ovl) or is_ztuac(self.ovl):
 				logging.error(f"Only modern texture format supported for now!")
 		else:
@@ -92,6 +109,10 @@ class DdsLoader(BaseFile):
 			# self.load_dds(file_path)
 
 	def get_sorted_streams(self):
+		# lod0 | lod1 | static
+		# PZ assigns the buffer index for the complete struct 0 | 1 | 2, 3
+		# from JWE2, buffer index for streams is 0 | 0 | 0, 1
+		# the last buffer is always 0 bytes
 		return list(sorted(self.get_streams(), key=lambda buffer: buffer.size, reverse=True))
 
 	def load_dds(self, file_path):

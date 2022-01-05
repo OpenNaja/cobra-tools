@@ -80,14 +80,17 @@ class BaseFile:
 	def get_streams(self):
 		logging.debug(f"Num streams: {len(self.file_entry.streams)}")
 		all_buffers = [*self.sized_str_entry.data_entry.buffers]
+		logging.debug(f"Static buffers: {all_buffers}")
 		for stream_file in self.file_entry.streams:
 			stream_ss = self.ovl.get_sized_str_entry(stream_file.name)
 			all_buffers.extend(stream_ss.data_entry.buffers)
+			logging.debug(f"Stream buffers: {stream_ss.data_entry.buffers} {stream_file.name}")
 		return all_buffers
 
-	def get_pool(self, pool_type_key):
+	def get_pool(self, pool_type_key, ovs="STATIC"):
+		ovs_file = self.ovl.create_archive(ovs)
 		# get one directly editable pool, if it exists
-		for pool_index, pool in enumerate(self.ovs.pools):
+		for pool_index, pool in enumerate(ovs_file.pools):
 			if pool.type == pool_type_key and not pool.update_from_ptrs:
 				return pool_index, pool
 		# nope, means we gotta create pool
@@ -99,11 +102,11 @@ class BaseFile:
 		pool.type = pool_type_key
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
 		pool.update_from_ptrs = False
-		self.ovs.pools.append(pool)
-		return len(self.ovs.pools)-1, pool
+		ovs_file.pools.append(pool)
+		return len(ovs_file.pools)-1, pool
 
-	def write_to_pool(self, ptr, pool_type_key, data):
-		ptr.pool_index, ptr.pool = self.get_pool(pool_type_key)
+	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC"):
+		ptr.pool_index, ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
 		ptr.data = data
 		ptr.write_data()
 
@@ -128,13 +131,14 @@ class BaseFile:
 		self.ovl.files.append(file_entry)
 		return file_entry
 
-	def create_ss_entry(self, file_entry):
+	def create_ss_entry(self, file_entry, ovs="STATIC"):
 		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
 		ss_entry.fragments = []
-		self.ovs.transfer_identity(ss_entry, file_entry)
 		ss_entry.pointers.append(HeaderPointer(self.ovl.context))
-		self.ovs.sized_str_entries.append(ss_entry)
+		ovs_file = self.ovl.create_archive(ovs)
+		ovs_file.transfer_identity(ss_entry, file_entry)
+		ovs_file.sized_str_entries.append(ss_entry)
 		return ss_entry
 
 	def set_dependency_identity(self, dependency, file_name):
@@ -163,21 +167,22 @@ class BaseFile:
 		self.ovs.fragments.append(new_frag)
 		return new_frag
 
-	def create_data_entry(self, ss_entry, buffer_bytes):
-		new_data = DataEntry(self.ovl.context)
-		self.ovs.transfer_identity(new_data, ss_entry)
-		ss_entry.data_entry = new_data
-		new_data.buffer_count = len(buffer_bytes)
-		new_data.buffers = []
-		for i, b in enumerate(buffer_bytes):
-			new_buff = BufferEntry(self.ovl.context)
-			self.ovs.transfer_identity(new_buff, ss_entry)
-			new_buff.index = i
-			new_data.buffers.append(new_buff)
-			self.ovs.buffer_entries.append(new_buff)
-		self.ovs.data_entries.append(new_data)
-		new_data.update_data(buffer_bytes)
-		return new_data
+	def create_data_entry(self, ss_entry, buffers_bytes, ovs="STATIC"):
+		ovs_file = self.ovl.create_archive(ovs)
+		data = DataEntry(self.ovl.context)
+		ss_entry.data_entry = data
+		data.buffer_count = len(buffers_bytes)
+		data.buffers = []
+		for i, buffer_bytes in enumerate(buffers_bytes):
+			buffer = BufferEntry(self.ovl.context)
+			buffer.index = i
+			data.buffers.append(buffer)
+			ovs_file.transfer_identity(buffer, ss_entry)
+			ovs_file.buffer_entries.append(buffer)
+		ovs_file.transfer_identity(data, ss_entry)
+		ovs_file.data_entries.append(data)
+		data.update_data(buffers_bytes)
+		return data
 
 	def update(self):
 		"""Don't do anything by default, overwrite if needed"""
