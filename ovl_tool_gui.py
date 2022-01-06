@@ -367,10 +367,14 @@ class MainWindow(widgets.MainWindow):
 				# print(self.ovl_data)
 				# print(self.ovl_data.mimes)
 				# print(self.ovl_data.triplets)
-				for a in self.ovl_data.archives:
-					print(a)
-				for a in self.ovl_data.zlibs:
-					print(a)
+				for a, z in zip(self.ovl_data.archives, self.ovl_data.zlibs):
+					print(a, z)
+					print(f"zlib sum {z.zlib_thing_1 + z.zlib_thing_2 - 68}")
+					print(f"pool size {a.pools_end - a.pools_start}")
+					print(f"stream links size {12 * a.num_files}")
+					print(f"buffer size {sum([buff.size for buff in a.content.buffer_entries])}")
+					print(f"d1 size {sum([data.size_1 for data in a.content.data_entries])}")
+					print(f"d2 size {sum([data.size_2 for data in a.content.data_entries])}")
 				# 	if a.name != "STATIC":
 				# 		streams = self.ovl_data.stream_files[a.stream_files_offset: a.stream_files_offset+a.num_files]
 				# 		print(a.name, streams)

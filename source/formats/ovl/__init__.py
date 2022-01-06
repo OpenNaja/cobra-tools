@@ -1021,8 +1021,6 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Game: {get_game(self)}")
 		for file_path in file_paths:
 			self.create_file(file_path)
-		# for archive in self.archives:
-		# 	archive.content.map_buffers()
 		self.update_hashes()
 		self.update_counts()
 		self.postprocessing()
@@ -1644,22 +1642,26 @@ class OvlFile(Header, IoFile):
 		self.open_ovs_streams()
 		ovl_compressed = b""
 		# compress data stream
-		for i, archive_entry in enumerate(self.archives):
+		for i, archive in enumerate(self.archives):
 			# write archive into bytes IO stream
 			self.progress_callback("Saving archives", value=i, vmax=len(self.archives))
-			uncompressed = archive_entry.content.get_bytes(dat_path)
-			archive_entry.uncompressed_size, archive_entry.compressed_size, compressed = archive_entry.content.compress(
+			uncompressed = archive.content.get_bytes(dat_path)
+			archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
 				uncompressed)
 			# update set data size
-			archive_entry.set_data_size = archive_entry.content.set_header.io_size
-			if archive_entry.name == "STATIC":
+			archive.set_data_size = archive.content.set_header.io_size
+			if archive.name == "STATIC":
 				ovl_compressed = compressed
-				archive_entry.read_start = 0
+				archive.read_start = 0
 			else:
-				ovs_stream = self.ovs_dict[archive_entry.ovs_path]
-				archive_entry.read_start = ovs_stream.tell()
+				ovs_stream = self.ovs_dict[archive.ovs_path]
+				archive.read_start = ovs_stream.tell()
 				ovs_stream.write(compressed)
-			self.zlibs[i].zlib_thing_1 = 68 + archive_entry.uncompressed_size
+			# size of the archive entry = 68
+			# this is true for jwe2 tylo, but not for jwe2 rex 93 and many others
+			self.zlibs[i].zlib_thing_1 = 68 + archive.uncompressed_size
+			# this is fairly good, doesn't work for tylo static but all others, all of jwe2 rex 93, jwe1 parrot, pz fallow deer
+			self.zlibs[i].zlib_thing_2 = sum([data.size_2 for data in archive.content.data_entries])
 
 		self.close_ovs_streams()
 		eof = super().save(filepath)
