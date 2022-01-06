@@ -875,7 +875,7 @@ class OvlFile(Header, IoFile):
 			))
 		for entry_list in lists:
 			for entry in entry_list:
-				if animal_mode and entry.ext in (".ms2", ".mdl2", ".motiongraph"):
+				if animal_mode and entry.ext not in (".ms2", ".mdl2", ".motiongraph"):
 					continue
 				rename_entry(entry, name_tups)
 		self.update_hashes()
