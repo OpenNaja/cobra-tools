@@ -18,6 +18,8 @@ def file_remover(ovl, filenames):
 			children_names.extend([stream.name for stream in file_entry.streams])
 			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)
+			for dep in file_entry.dependencies:
+				dep.pointers[0].remove()
 
 	remove_from_ovs(ovl, filenames)
 
@@ -42,16 +44,11 @@ def remove_from_ovs(ovl, filenames):
 		# delete the sized string and fragment data
 		if ss_entry.name in filenames:
 			# wipe out ss and frag data
-			ss_entry.pointers[0].update_data(b"", update_copies=True)
-
 			for frag in ss_entry.fragments:
-				frag.pointers[0].update_data(b"", update_copies=True)
-				frag.pointers[1].update_data(b"", update_copies=True)
-				frag.pointers[0].remove(ovs.content)
-				frag.pointers[1].remove(ovs.content)
-				# remove frag and then ss entry
+				frag.pointers[1].remove()
 				ovs.content.fragments.remove(frag)
-			ss_entry.pointers[0].remove(ovs.content)
+			ss_entry.pointers[0].remove()
+			# remove frag and then ss entry
 			ovs.content.sized_str_entries.remove(ss_entry)
 
 	# remove data entry for file
@@ -62,4 +59,6 @@ def remove_from_ovs(ovl, filenames):
 				buffer.update_data(b"")
 				ovs.content.buffer_entries.remove(buffer)
 			ovs.content.data_entries.remove(data)
-	# ovs.content.write_pointers_to_pools(ignore_unaccounted_bytes=True)
+	for pool in ovl.pools:
+		# if the pool has editable pointers, flush them to the pool writer first
+		pool.flush_pointers()

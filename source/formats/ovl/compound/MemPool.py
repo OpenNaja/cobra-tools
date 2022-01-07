@@ -1,6 +1,8 @@
 # START_GLOBALS
 import logging
 import io
+
+from generated.io import BinaryStream
 from modules.formats.shared import get_padding
 
 
@@ -14,46 +16,87 @@ class MemPool:
 	def flush_pointers(self, ignore_unaccounted_bytes=False):
 		"""Pre-writing step to convert all edits that were done on individual pointers back into the consolidated header
 		data io block"""
-		if self.update_from_ptrs:
-			# maintain sorting order
-			# grab the first pointer for each address
-			# it is assumed that subsequent pointers to that address share the same data
-			sorted_first_pointers = [pointers[0] for offset, pointers in sorted(self.pointer_map.items())]
-			if sorted_first_pointers:
-				# only known from indominus
-				first_offset = sorted_first_pointers[0].data_offset
-				if first_offset != 0 and not ignore_unaccounted_bytes:
-					logging.debug(f"Found {first_offset} unaccounted bytes at start of pool")
-					unaccounted_bytes = self.data.getvalue()[:first_offset]
-				else:
-					unaccounted_bytes = b""
 
-				# clear io objects
-				self.data = io.BytesIO()
-				self.data.write(unaccounted_bytes)
-				# write updated strings
-				for pointer in sorted_first_pointers:
-					pointer.write_data(update_copies=True)
-			else:
-				# todo - shouldn't we delete the pool in that case?
-				logging.debug(f"No pointers into pool {self.offset} - keeping its stock data!")
+		logging.debug(f"Flushing ptrs")
+		# first, get all ptrs that have data to write
+		sorted_ptrs_map = sorted(self.pointer_map.items())
+
+		stack = []
+		last_offset = -1
+		for i, (offset, pointers) in enumerate(sorted_ptrs_map):
+			for ptr in pointers:
+				if ptr._data is not None:
+					if last_offset == offset:
+						logging.warning(f"last offset is same as offset {offset}, skipping ptr for update")
+						continue
+					stack.append((ptr, i, offset))
+					last_offset = offset
+
+		# check if rewriting is needed
+		if not stack:
+			return
+		# create new data writer
+		data = BinaryStream()
+		last_offset = 0
+		# now go sequentially over all ptrs in the stack
+		for ptr, i, offset in stack:
+			from_end_of_last_to_start_of_this = self.get_at(last_offset, size=offset-last_offset)
+			# write old data before this chunk and new data
+			data.write(from_end_of_last_to_start_of_this)
+			logging.debug(f"Flushing stack member {i} at original offset {offset} to {data.tell()}")
+
+			data.write(ptr._data)
+			# update offset to end of the original ptr
+			last_offset = offset + ptr.data_size
+			# check delta
+			# todo - padding
+			ptr._padding_size = ptr.padding_size
+			delta = (len(ptr._data) + ptr._padding_size) - (ptr.data_size + ptr.padding_size)
+			# update new data size on ptr
+			ptr.data_size = len(ptr._data)
+			if delta:
+				logging.warning(f"data size of stack [{len(sorted_ptrs_map)}] member {i} has changed")
+				# get all ptrs that point into this pool, but after this ptr
+				if i < len(sorted_ptrs_map):
+					for offset_later, pointers in sorted_ptrs_map[i+1:]:
+						logging.debug(f"Moving {offset_later} to {offset_later+delta}")
+						# update their data offsets
+						for p in pointers:
+							p.data_offset += delta
+			# todo - remove from ptr map or force regenerating it each time
+			# if self.data_offset in self.pool.pointer_map:
+			# 	ptrs = self.pool.pointer_map[self.data_offset]
+			# 	ptrs.remove(self)
+			# 	if not ptrs:
+			# 		self.pool.pointer_map.pop(self.data_offset)
+		# write the rest of the data
+		data.write(self.get_at(last_offset))
+		# clear ptr data and stack
+		for ptr, i, offset in stack:
+			ptr._data = None
+		# overwrite internal data
+		self.data = data
 
 	def calc_pointer_sizes(self):
 		"""Assign an estimated size to every pointer"""
 		# calculate pointer data sizes
 		# make them unique and sort them
 		sorted_items = sorted(self.pointer_map.items())
+		# pick all ptrs except frag ptr0
+		sorted_items_filtered = [(offset, pointers) for offset, pointers in sorted_items if any(p.is_ref_ptr for p in pointers)]
+		# logging.info(f"len(sorted_items) {len(sorted_items)}, len(sorted_items_filtered) {len(sorted_items_filtered)}")
 		# add the end of the header data block
-		sorted_items.append((self.size, None))
+		sorted_items_filtered.append((self.size, None))
 		# get the size of each pointer
-		for i, (offset, pointers) in enumerate(sorted_items[:-1]):
+		for i, (offset, pointers) in enumerate(sorted_items_filtered[:-1]):
 			# get the offset of the next pointer, substract this offset
-			data_size = sorted_items[i + 1][0] - offset
+			data_size = sorted_items_filtered[i + 1][0] - offset
 			for pointer in pointers:
 				pointer.data_size = data_size
-				pointer.copies = pointers
-				pointer.read_data()
+
+	def get_at(self, offset, size=-1):
+		self.data.seek(offset)
+		return self.data.read(size)
 
 	def pad(self, alignment=4):
-		if self.update_from_ptrs:
-			self.data.write(get_padding(self.data.tell(), alignment))
+		self.data.write(get_padding(self.data.tell(), alignment))

@@ -1,5 +1,7 @@
 
 import io
+import logging
+
 from generated.io import BinaryStream
 from modules.formats.shared import assign_versions, get_padding
 
@@ -50,31 +52,56 @@ class HeaderPointer:
 		self.data_offset = 0
 
 		# define this already
-		self.padding = b""
 		self.pool = None
+		self.data_size = 0
+		self.padding_size = 0
 
-	def read_data(self):
-		"""Load data from archive header data readers into pointer for modification and io"""
-		if self.pool_index == -1:
-			self.data = None
-		else:
-			self.data = self.read_from_pool(self.data_size)
+		# temp data for flushing
+		self._data = None
+
+		# generally all ptrs store data, only frag ptr 0 is just a reference
+		self.is_ref_ptr = True
+
+	# def read_data(self):
+	# 	"""Load data from archive header data readers into pointer for modification and io"""
+	# 	if self.pool_index == -1:
+	# 		self.data = None
+	# 	else:
+	# 		self.data = self.read_from_pool(self.data_size)
+
+	@property
+	def data(self, with_padding=False):
+		"""Get data from pool writer"""
+		if self.pool:
+			s = self.data_size
+			if with_padding:
+				s += self.padding_size
+			return self.read_from_pool(s)
+
+	@property
+	def padding(self):
+		"""Get padding from pool writer"""
+		if self.pool:
+			return self.pool.get_at(self.data_offset+self.data_size, self.padding_size)
 
 	def read_from_pool(self, data_size):
+		return self.pool.get_at(self.data_offset, data_size)
+
+	def write_to_pool(self, data):
 		self.pool.data.seek(self.data_offset)
-		return self.pool.data.read(data_size)
+		return self.pool.data.write(data)
 
-	def write_data(self, update_copies=False):
-		"""Write data to header data, update offset, also for copies if told"""
-
-		if self.pool_index != -1:
-			# update data offset
-			self.data_offset = self.pool.data.tell()
-			if update_copies:
-				for other_pointer in self.copies:
-					other_pointer.data_offset = self.pool.data.tell()
-			# write data to io, adjusting the cursor for that header
-			self.pool.data.write(self.data + self.padding)
+	# def write_data(self, update_copies=False):
+	# 	"""Write data to header data, update offset, also for copies if told"""
+	#
+	# 	if self.pool_index != -1:
+	# 		# update data offset
+	# 		self.data_offset = self.pool.data.tell()
+	# 		if update_copies:
+	# 			for other_pointer in self.copies:
+	# 				other_pointer.data_offset = self.pool.data.tell()
+	# 		# write data to io, adjusting the cursor for that header
+	# 		self.pool.data.write(self.data + self.padding)
 
 	def strip_zstring_padding(self):
 		"""Move surplus padding into the padding attribute"""
@@ -85,23 +112,22 @@ class HeaderPointer:
 
 	def split_data_padding(self, cut):
 		"""Move a fixed surplus padding into the padding attribute"""
-		_d = self.data + self.padding
-		self.padding = _d[cut:]
-		self.data = _d[:cut]
+		_d = self.data_size + self.padding_size
+		self.data_size = cut
+		self.padding_size = _d - cut
 
-	def link_to_pool(self, pools, add_to_map=True):
+	def link_to_pool(self, pools, is_ref_ptr=True):
 		"""Link this pointer to its pool"""
 
+		self.is_ref_ptr = is_ref_ptr
 		if self.pool_index != -1:
 			# get pool
 			self.pool = pools[self.pool_index]
-			if add_to_map:
-				if self.data_offset not in self.pool.pointer_map:
-					self.pool.pointer_map[self.data_offset] = []
-				self.pool.pointer_map[self.data_offset].append(self)
-			else:
+			if not is_ref_ptr:
 				self.data_size = 8
-				self.data = b"\x00" * self.data_size
+			if self.data_offset not in self.pool.pointer_map:
+				self.pool.pointer_map[self.data_offset] = []
+			self.pool.pointer_map[self.data_offset].append(self)
 
 	def update_pool_index(self, pools_lut):
 		"""Changes self.pool_index according to self.pool in pools_lut"""
@@ -113,49 +139,23 @@ class HeaderPointer:
 
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""
-		self.data = data
-		# only change padding if a new alignment is given
-		if pad_to:
-			len_d = len(data)
-			# consider the old padding for alignment?
-			if include_old_pad:
-				len_d += len(self.padding)
-			new_pad = get_padding(len_d, pad_to)
-			# append new to the old padding
-			if include_old_pad:
-				self.padding = self.padding + new_pad
-			# overwrite the old padding
-			else:
-				self.padding = new_pad
-		self.data_size = len(self.data + self.padding)
-		# update other pointers if asked to by the injector
-		if update_copies and self.pool_index != -1:
-			for other_pointer in self.copies:
-				if other_pointer is not self:
-					other_pointer.update_data(data, pad_to=pad_to, include_old_pad=include_old_pad)
+		self._data = data
 
 	def load_as(self, cls, num=1, version_info={}, args=()):
-		"""Return self.data as codegen cls
-		version_info must be a dict that has version & user_version attributes"""
+		"""Return self.data as codegen cls"""
+		insts = []
 		with BinaryStream(self.data) as stream:
-			assign_versions(stream, version_info)
-			insts = []
 			for i in range(num):
 				inst = cls(self.context, *args)
 				inst.read(stream)
 				insts.append(inst)
 		return insts
 
-	def remove(self, archive):
-		"""Remove this pointer from suitable header entry"""
-
-		if self.pool_index == -1:
-			pass
-		else:
-			# get header entry
-			entry = archive.pools[self.pool_index]
-			if self.data_offset in entry.pointer_map:
-				entry.pointer_map.pop(self.data_offset)
+	def remove(self):
+		"""Remove this pointer from suitable pool"""
+		if self.pool:
+			# add it to the stack
+			self._data = b""
 
 	def __eq__(self, other):
 		if isinstance(other, HeaderPointer):

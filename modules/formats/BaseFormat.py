@@ -90,8 +90,10 @@ class BaseFile:
 	def get_pool(self, pool_type_key, ovs="STATIC"):
 		ovs_file = self.ovl.create_archive(ovs)
 		# get one directly editable pool, if it exists
+		# todo - remove pool index throughout all formats
 		for pool_index, pool in enumerate(ovs_file.pools):
-			if pool.type == pool_type_key and not pool.update_from_ptrs:
+			# todo - reasonable add size condition
+			if pool.type == pool_type_key:
 				return pool_index, pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)

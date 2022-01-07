@@ -11,6 +11,7 @@ import logging
 from contextlib import contextmanager
 
 from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
+from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
@@ -636,6 +637,10 @@ class OvsFile(OvsHeader):
 		# if len(entry.pointers) == 2:
 		#     d_str = str(entry.pointers[1].data)
 		ptr_str = ' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size} ({len(p.padding)})]' for p in entry.pointers))
+		if isinstance(entry, Fragment):
+			p0, p1 = entry.pointers
+			ptr_str = f"@ {p0.data_offset} -> [{p1.pool_index} {p1.data_offset} | {p1.data_size} ({len(p1.padding)})]"\
+
 		infix = ""
 		if isinstance(entry, DependencyEntry):
 			infix = "->"
@@ -800,8 +805,6 @@ class OvsFile(OvsHeader):
 		# do this first so pools can be updated
 		pools_data_writer = io.BytesIO()
 		for pool in self.pools:
-			# if the pool has editable pointers, flush them to the pool writer first
-			pool.flush_pointers()
 			pool_bytes = pool.data.getvalue()
 			# JWE, JWE2: relative offset for each pool
 			if self.ovl.user_version.is_jwe:
@@ -968,6 +971,9 @@ class OvlFile(Header, IoFile):
 				logging.error(error)
 				traceback.print_exc()
 				error_files.append(name_ext)
+		for pool in self.pools:
+			# if the pool has editable pointers, flush them to the pool writer first
+			pool.flush_pointers()
 		shutil.rmtree(tmp_dir)
 		self.progress_callback("Injection completed!", value=1, vmax=1)
 		return error_files, foreign_files
@@ -1333,15 +1339,10 @@ class OvlFile(Header, IoFile):
 		# reset pointer map for each header entry
 		for pool in self.pools:
 			pool.pointer_map = {}
-			pool.update_from_ptrs = True
 			# store fragments per header for faster lookup
 			pool.fragments = []
-		self.link_ptrs_to_pools()
-		for pool in self.pools:
-			pool.calc_pointer_sizes()
-
-	def link_ptrs_to_pools(self):
-		""""Link all pointers to their respective pools"""
+			# pool.dependencies = []
+			# pool.ss_entries = []
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of pools
@@ -1353,7 +1354,7 @@ class OvlFile(Header, IoFile):
 			# attach all pointers to their pool
 			# however we no longer break up at fragments' ptr 0
 			for entry in ovs.fragments:
-				entry.pointers[0].link_to_pool(ovs.pools, add_to_map=False)
+				entry.pointers[0].link_to_pool(ovs.pools, is_ref_ptr=False)
 				entry.pointers[1].link_to_pool(ovs.pools)
 			for entry in ovs.sized_str_entries:
 				entry.pointers[0].link_to_pool(ovs.pools)
@@ -1366,6 +1367,10 @@ class OvlFile(Header, IoFile):
 					ptr.pool.fragments.append(frag)
 				except:
 					logging.warning(f"frag {i} failed")
+		logging.debug("Calculating pointer sizes")
+		for pool in self.pools:
+			pool.calc_pointer_sizes()
+
 	def load_file_classes(self):
 		logging.info("Loading file classes")
 		for file in self.files:
@@ -1448,6 +1453,8 @@ class OvlFile(Header, IoFile):
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		self.dependencies.sort(key=lambda x: x.file_hash)
 		self.aux_entries.sort(key=lambda x: x.file_hash)
+		self.num_dependencies = len(self.dependencies)
+		self.num_aux_entries = len(self.aux_entries)
 
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
@@ -1519,7 +1526,6 @@ class OvlFile(Header, IoFile):
 
 		self.num_included_ovls = len(self.included_ovls)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
-		self.num_dependencies = len(self.dependencies)
 		self.num_archives = len(self.archives)
 
 	def open_ovs_streams(self, mode="wb"):
