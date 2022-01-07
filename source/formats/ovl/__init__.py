@@ -892,11 +892,8 @@ class OvlFile(Header, IoFile):
 			loader.rename_content(name_tups)
 		# old style
 		# hash the internal buffers
-		for archive_entry in self.archives:
-			ovs = archive_entry.content
-			for fragment in ovs.fragments:
-				for ptr in fragment.pointers:
-					ptr.data = replace_bytes(ptr.data, name_tuple_bytes)
+		for pool in self.pools:
+			pool.data = BinaryStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
