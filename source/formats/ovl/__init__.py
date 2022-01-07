@@ -891,7 +891,7 @@ class OvlFile(Header, IoFile):
 		for loader in self.get_loaders():
 			loader.rename_content(name_tups)
 		# old style
-		# hash the internal buffers
+		# hash all the pools
 		for pool in self.pools:
 			pool.data = BinaryStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
 		logging.info("Finished renaming contents!")
