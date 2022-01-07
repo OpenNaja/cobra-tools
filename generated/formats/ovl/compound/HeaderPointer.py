@@ -88,20 +88,10 @@ class HeaderPointer:
 		return self.pool.get_at(self.data_offset, data_size)
 
 	def write_to_pool(self, data):
-		self.pool.data.seek(self.data_offset)
-		return self.pool.data.write(data)
-
-	# def write_data(self, update_copies=False):
-	# 	"""Write data to header data, update offset, also for copies if told"""
-	#
-	# 	if self.pool_index != -1:
-	# 		# update data offset
-	# 		self.data_offset = self.pool.data.tell()
-	# 		if update_copies:
-	# 			for other_pointer in self.copies:
-	# 				other_pointer.data_offset = self.pool.data.tell()
-	# 		# write data to io, adjusting the cursor for that header
-	# 		self.pool.data.write(self.data + self.padding)
+		if self.pool:
+			self.data_offset = self.pool.data.tell()
+			self.data_size = len(data)
+			self.pool.data.write(data)
 
 	def strip_zstring_padding(self):
 		"""Move surplus padding into the padding attribute"""

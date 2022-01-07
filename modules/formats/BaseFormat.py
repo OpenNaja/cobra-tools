@@ -109,14 +109,11 @@ class BaseFile:
 
 	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC"):
 		ptr.pool_index, ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
-		ptr.data = data
-		ptr.write_data()
+		ptr.write_to_pool(data)
 
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
 		ptr.pool_index = other_ptr.pool_index
 		ptr.data_offset = other_ptr.data_offset + rel_offset
-		# hack
-		ptr.data = other_ptr.data
 		ptr.pool = other_ptr.pool
 
 	def get_content(self, filepath):
