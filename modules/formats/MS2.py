@@ -10,7 +10,7 @@ from generated.formats.ovl.versions import *
 
 from modules.formats.shared import get_versions, get_padding
 from modules.formats.BaseFormat import BaseFile
-from modules.helpers import write_sized_str, as_bytes
+from modules.helpers import as_bytes
 from ovl_util import interaction
 
 
@@ -228,8 +228,7 @@ class Ms2Loader(BaseFile):
 				mdl2_header = struct.pack("<2I", mdl2_index, bone_info_index)
 				outfile.write(ovl_header)
 				outfile.write(mdl2_header)
-				# pack ms2 name as a sized string
-				write_sized_str(outfile, self.sized_str_entry.name)
+				outfile.write(as_bytes(self.sized_str_entry.name))
 	
 				if not (is_pc(self.ovl) or is_ztuac(self.ovl)):
 					# the fixed fragments

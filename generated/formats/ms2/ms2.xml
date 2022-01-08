@@ -233,7 +233,7 @@
 		This reads a whole custom mdl2 file
 		<add name="index" type="uint" >index of this model inside the ms2</add>
 		<add name="bone info index" type="uint" >used to find bone info</add>
-		<add name="ms2 name" type="string" >name of ms2</add>
+		<add name="ms2 name" type="ZString" >name of ms2</add>
 
 		<add name="model info" type="Mdl2Descriptor" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
 		<add name="materials" type="MaterialName" arr1="model info\num_materials" vercond="!#OLD#" >name pointers for each material</add>

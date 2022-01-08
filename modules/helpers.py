@@ -7,13 +7,6 @@ from generated.array import Array
 from modules.formats.shared import assign_versions
 
 
-def write_sized_str(stream, s):
-	"""Returns content of stream from pos"""
-	size = struct.pack("<I", len(s))
-	stream.write(size)
-	stream.write(s.encode())
-
-
 def split_path(fp):
 	in_dir, name_ext = os.path.split(fp)
 	name, ext = os.path.splitext(name_ext)
