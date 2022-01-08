@@ -159,11 +159,11 @@ class MemPool:
 			# update new data size on ptr
 			ptr.data_size = len(ptr._data)
 			if delta:
-				logging.warning(f"data size of stack [{len(sorted_ptrs_map)}] member {i} has changed")
+				# logging.debug(f"data size of stack [len: {len(sorted_ptrs_map)}] member {i} has changed")
 				# get all ptrs that point into this pool, but after this ptr
 				if i < len(sorted_ptrs_map):
 					for offset_later, pointers in sorted_ptrs_map[i+1:]:
-						logging.debug(f"Moving {offset_later} to {offset_later+delta}")
+						# logging.debug(f"Moving {offset_later} to {offset_later+delta}")
 						# update their data offsets
 						for p in pointers:
 							p.data_offset += delta

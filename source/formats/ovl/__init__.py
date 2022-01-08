@@ -37,10 +37,28 @@ from modules.helpers import split_path
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
-	".tex", ".texturestream", ".mdl2", ".ms2", ".island", ".curve", ".spl", ".lua", ".fdb", ".xmlconfig", ".fgm",
 	".assetpkg",
-	".materialcollection", ".pscollection", ".logicalcontrols", ".mergedetails", ".txt", ".gfx", ".uimovidefinition",
-	".world")
+	".curve",
+	".fdb",
+	".fgm",
+	".gfx",
+	".island",
+	".logicalcontrols",
+	".lua",
+	".materialcollection",
+	".mdl2",
+	".mergedetails",
+	".ms2",
+	".pscollection",
+	".spl",
+	".tex",
+	".texturestream",
+	".txt",
+	".uimovidefinition",
+	".userinterfaceicondata",
+	".world"
+	".xmlconfig",
+)
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -54,8 +72,8 @@ aliases = {
 
 
 def get_loader(ext, ovl, file_entry):
-	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchstartunlockedssettingsLoader
+	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
 	from modules.formats.ASSETPKG import AssetpkgLoader
 	from modules.formats.BANI import BanisLoader
 	from modules.formats.BNK import BnkLoader
@@ -67,6 +85,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.FGM import FgmLoader
 	from modules.formats.GFX import GfxLoader
 	from modules.formats.ISLAND import IslandLoader
+	from modules.formats.LOGICALCONTROLS import LogicalControlsLoader
 	from modules.formats.LUA import LuaLoader
 	from modules.formats.MANI import ManisLoader
 	from modules.formats.MATCOL import MatcolLoader
@@ -74,13 +93,12 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.MATLAYERS import MatlayersLoader
 	from modules.formats.MATLAYERS import MatpatsLoader
 	from modules.formats.MATLAYERS import MatvarsLoader
+	from modules.formats.MERGEDETAILS import MergeDetailsLoader
 	from modules.formats.MOTIONGRAPHVARS import MotiongraphvarsLoader
 	from modules.formats.MS2 import Ms2Loader
+	from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
 	from modules.formats.PREFAB import PrefabLoader
 	from modules.formats.PSCOLLECTION import PSCollectionLoader
-	from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
-	from modules.formats.LOGICALCONTROLS import LogicalControlsLoader
-	from modules.formats.MERGEDETAILS import MergeDetailsLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
 	from modules.formats.SPL import SplineLoader
@@ -88,12 +106,12 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.UIMOVIEDEFINITION import UIMovieDefinitionLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.VOXELSKIRT import VoxelskirtLoader
-	from modules.formats.WSM import WsmLoader
 	from modules.formats.WORLD import WorldLoader
+	from modules.formats.WSM import WsmLoader
 	from modules.formats.XMLCONFIG import XmlconfigLoader
 	ext_2_class = {
-		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".animalresearchstartunlockedsettings": AnimalresearchstartunlockedssettingsLoader,
+		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
 		".assetpkg": AssetpkgLoader,
 		".banis": BanisLoader,
 		".bnk": BnkLoader,
@@ -108,16 +126,16 @@ def get_loader(ext, ovl, file_entry):
 		".fgm": FgmLoader,
 		".gfx": GfxLoader,
 		".island": IslandLoader,
+		".logicalcontrols": LogicalControlsLoader,
 		".lua": LuaLoader,
 		".manis": ManisLoader,
 		".materialcollection": MatcolLoader,
-		".logicalcontrols": LogicalControlsLoader,
+		".mergedetails": MergeDetailsLoader,
 		".motiongraphvars": MotiongraphvarsLoader,
 		".ms2": Ms2Loader,
+		".posedriverdef": PosedriverdefLoader,
 		".prefab": PrefabLoader,
 		".pscollection": PSCollectionLoader,
-		".posedriverdef": PosedriverdefLoader,
-		".mergedetails": MergeDetailsLoader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,
 		".spl": SplineLoader,
@@ -126,8 +144,8 @@ def get_loader(ext, ovl, file_entry):
 		".uimoviedefinition": UIMovieDefinitionLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
-		".wsm": WsmLoader,
 		".world": WorldLoader,
+		".wsm": WsmLoader,
 		".xmlconfig": XmlconfigLoader,
 	}
 	cls = ext_2_class.get(ext, None)
@@ -247,7 +265,11 @@ class OvsFile(OvsHeader):
 				if not entry.name:
 					logging.warning(f"{entry} has no name assigned to it, cannot assign proper ID")
 					continue
-				file_index = file_name_lut[entry.name]
+				if entry.name in file_name_lut:
+					file_index = file_name_lut[entry.name]
+				else:
+					logging.debug(file_name_lut)
+					raise KeyError(f"Can't find '{entry.name}' [{entry.__class__.__name__}] in name LUT")
 				file = self.ovl.files[file_index]
 				if self.ovl.user_version.is_jwe:
 					entry.file_hash = file.file_hash
