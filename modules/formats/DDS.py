@@ -70,12 +70,15 @@ class DdsLoader(BaseFile):
 				streamed_lods = len(buffers) - static_lods
 				logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
 				ss_entries = [self.sized_str_entry, ]
+				# ovs name generation only works for up to 2 streams
+				assert streamed_lods < 3
 				for i in range(streamed_lods):
 					# generate ovs name - highly idiosyncratic
-					# would need to know ahead to know how many tex lods exist in the ovl
-					# ovs_name = f"Textures_L{len(streamed_lods)-i}"
-					# game expects L1
-					ovs_name = f"Textures_L1"
+					# game expects to start with L1
+					# if there are 2 lods
+					# stock puts the first stream lod0 in L1, lod1 in L0
+					# a file with just one stream lod0 goes into L1 too
+					ovs_name = f"Textures_L{1-i}"
 					# create texturestream file
 					texstream_file = self.get_file_entry(f"test/{name}_lod{i}.texturestream")
 					self.file_entry.streams.append(texstream_file)
