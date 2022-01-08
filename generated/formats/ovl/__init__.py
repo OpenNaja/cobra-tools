@@ -978,7 +978,8 @@ class OvlFile(Header, IoFile):
 	def create_file_entry(self, file_path):
 		"""Create a file entry from a file path"""
 		# capital letters in the name buffer crash JWE2, apparently
-		filename = os.path.basename(file_path).lower()
+		file_path = file_path.lower()
+		filename = os.path.basename(file_path)
 		logging.info(f"Creating {filename}")
 		file_entry = FileEntry(self.context)
 		file_entry.path = file_path

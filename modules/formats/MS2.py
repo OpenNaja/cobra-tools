@@ -80,13 +80,13 @@ class Ms2Loader(BaseFile):
 		versions = get_versions(self.ovl)
 
 		ms2_dir, ms2_basename = os.path.split(self.file_entry.path)
-		mdl2_names = [f.lower() for f in os.listdir(ms2_dir) if f.lower().endswith(".mdl2")]
+		mdl2_names = [f for f in os.listdir(ms2_dir) if f.lower().endswith(".mdl2")]
 		mdl2s = []
 		for mdl2_name in mdl2_names:
 			mdl2_path = os.path.join(ms2_dir, mdl2_name)
 			mdl2 = Mdl2File()
 			mdl2.load(mdl2_path)
-			if mdl2.ms_2_name == ms2_basename:
+			if mdl2.ms_2_name.lower() == ms2_basename:
 				mdl2s.append(mdl2)
 		# sort them by model index
 		mdl2s.sort(key=lambda m: m.index)
