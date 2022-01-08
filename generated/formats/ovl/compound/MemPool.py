@@ -202,6 +202,14 @@ class MemPool:
 		self.data.seek(offset)
 		return self.data.read(size)
 
+	def get_size(self):
+		# seek to end of stream
+		self.data.seek(0, 2)
+		return self.data.tell()
+
 	def pad(self, alignment=4):
-		self.data.write(get_padding(self.data.tell(), alignment))
+		size = self.get_size()
+		padding_bytes = get_padding(size, alignment)
+		logging.debug(f"Padded pool of ({size} bytes) with {len(padding_bytes)}, alignment = {alignment}")
+		self.data.write(padding_bytes)
 
