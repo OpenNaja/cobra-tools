@@ -71,8 +71,11 @@ class DdsLoader(BaseFile):
 				logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
 				ss_entries = [self.sized_str_entry, ]
 				for i in range(streamed_lods):
-					# generate ovs name
-					ovs_name = f"Textures_L{i}"
+					# generate ovs name - highly idiosyncratic
+					# would need to know ahead to know how many tex lods exist in the ovl
+					# ovs_name = f"Textures_L{len(streamed_lods)-i}"
+					# game expects L1
+					ovs_name = f"Textures_L1"
 					# create texturestream file
 					texstream_file = self.get_file_entry(f"test/{name}_lod{i}.texturestream")
 					self.file_entry.streams.append(texstream_file)
