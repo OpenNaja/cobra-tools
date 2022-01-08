@@ -117,6 +117,7 @@ class FgmFile(FgmInfoHeader, IoFile):
 		data_writer = BinaryStream()
 		# shader name is at 0
 		names_writer.write_zstring(self.shader_name)
+		names_writer.write(b"\x00")
 		# attribs are written first
 		for attrib in self.attributes:
 			attrib.offset = names_writer.tell()
