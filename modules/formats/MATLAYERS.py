@@ -3,10 +3,19 @@ import struct
 from modules.formats.BaseFormat import BaseFile
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
+from modules.formats.shared import djb
 from modules.helpers import zstr, as_bytes
 
 
 def unpack_name(b):
+	_hash, _name = b.split(b"::")
+	hash_int = int(_hash)
+	name_str = _unpack_name(_name)#.decode()[:-1]
+	# logging.info(f"{hash_int} {djb('::'+name_str.lower())} {name_str}")
+	return hash_int, name_str
+
+
+def _unpack_name(b):
 	b = bytearray(b)
 	# decode the names
 	for i in range(len(b)):
@@ -22,7 +31,15 @@ def pack_name(b):
 	return b.decode()
 
 
-class MatlayersLoader(BaseFile):
+class MatAbstract(BaseFile):
+
+	def assign_shader(self, xmldata):
+		_hash, _shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		xmldata.set('shader', self.get_zstr(_shader))
+		xmldata.set('hash', str(_hash))
+
+
+class MatlayersLoader(MatAbstract):
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -32,7 +49,7 @@ class MatlayersLoader(BaseFile):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
 		self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
-		# self.shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		self.shader_hash, self.shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
 		# 2 ptrs, 2 counts, only one is used
 		p0, p1, layer_count, _ = struct.unpack("<2Q 2Q", self.sized_str_entry.pointers[0].data)
 
@@ -58,8 +75,7 @@ class MatlayersLoader(BaseFile):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
 		xmldata = ET.Element('Matlayers')
-		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		xmldata.set('shader', self.get_zstr(shader))
+		self.assign_shader(xmldata)
 
 		for frags, entry_bytes in self.frag_data_pairs:
 			layer = ET.SubElement(xmldata, 'layer')
@@ -123,7 +139,7 @@ class MatlayersLoader(BaseFile):
 		# todo - might need padding after the names buffer
 
 
-class MatvarsLoader(BaseFile):
+class MatvarsLoader(MatAbstract):
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -151,8 +167,7 @@ class MatvarsLoader(BaseFile):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
 		xmldata = ET.Element('MaterialVariants')
-		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		xmldata.set('shader', self.get_zstr(shader))
+		self.assign_shader(xmldata)
 
 		if self.sized_str_entry.tex_frags:
 			for frag in self.sized_str_entry.tex_frags:
@@ -166,7 +181,7 @@ class MatvarsLoader(BaseFile):
 		return out_path,
 
 
-class MateffsLoader(BaseFile):
+class MateffsLoader(MatAbstract):
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -180,8 +195,7 @@ class MateffsLoader(BaseFile):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
 		xmldata = ET.Element('MaterialEffects')
-		shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		xmldata.set('shader', self.get_zstr(shader))
+		self.assign_shader(xmldata)
 		# 1 ptr at the start, not 100% sold on these just yet
 		data = struct.unpack("<Q 6f 2I 12f 2I 2f I 39f I f", self.sized_str_entry.pointers[0].data)
 		xmldata.set('data', data)
@@ -189,7 +203,7 @@ class MateffsLoader(BaseFile):
 		return out_path,
 
 
-class MatpatsLoader(BaseFile):
+class MatpatsLoader(MatAbstract):
 
 	def collect(self):
 		self.assign_ss_entry()
