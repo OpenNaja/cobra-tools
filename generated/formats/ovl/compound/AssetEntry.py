@@ -21,8 +21,6 @@ class AssetEntry:
 		# sometimes matches an archive header's first File Hash
 		self.file_hash = 0
 		self.zero_0 = 0
-
-		# always (?) matches an archive header's hash
 		self.ext_hash = 0
 		self.zero_1 = 0
 

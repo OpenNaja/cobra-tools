@@ -16,11 +16,7 @@ class SetEntry:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# sometimes matches an archive header's first File Hash
 		self.file_hash = 0
-
-		# always (?) matches an archive header's hash
 		self.ext_hash = 0
 
 		# add from last set's entry up to this index to this set

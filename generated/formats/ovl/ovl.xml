@@ -214,8 +214,11 @@
     </compound>
 	
     <compound name="Fragment" >
-		often huge amount of tiny files
-        <add name="pointers" type="HeaderPointer" arr1="2" >points into header datas section</add>
+		These are to be thought of as instructions for loading.
+        Their order is irrelevant.
+        pointers[0] determines where to write a pointer
+        pointers[1] describes the address that is written at pointers[0]
+        <add name="pointers" type="HeaderPointer" arr1="2" >points into pools</add>
     </compound>
 	
 	<compound name="SetHeader" >
@@ -230,8 +233,8 @@
 	
 	<compound name="SetEntry" >
 		the asset indices of two consecutive SetEntries define a set of AssetEntries
-		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
-		<add name="Ext Hash" type="uint" since="19">always (?) matches an archive header's hash</add>
+        <add name="File Hash" type="uint"/>
+        <add name="Ext Hash" type="uint" since="19"/>
 		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
     </compound>
 	
@@ -240,8 +243,8 @@
 		It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
 		<add name="zero 0" type="uint" > </add>
-		<add name="Ext Hash" type="uint" since="19">always (?) matches an archive header's hash</add>
-		<add name="zero 1" type="uint" since="19"> </add>
+        <add name="Ext Hash" type="uint" since="19"/>
+        <add name="zero 1" type="uint" since="19"/>
 		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
         <add name="zero 2" type="uint"/>
     </compound>

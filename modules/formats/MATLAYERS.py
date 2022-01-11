@@ -23,7 +23,7 @@ def _unpack_name(b):
 	return bytes(b)
 
 
-def pack_name(b):
+def _pack_name(b):
 	b = bytearray(b.encode())
 	# decode the names
 	for i in range(len(b)):
@@ -33,10 +33,19 @@ def pack_name(b):
 
 class MatAbstract(BaseFile):
 
-	def assign_shader(self, xmldata):
+	def assign_shader(self, xml):
 		_hash, _shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		xmldata.set('shader', self.get_zstr(_shader))
-		xmldata.set('hash', str(_hash))
+		xml.set('shader', self.get_zstr(_shader))
+		xml.set('hash', str(_hash))
+
+	def get_shader(self, xml):
+		_shader = _pack_name(xml.attrib["shader"])
+		return as_bytes(f"{xml.attrib['hash']}::{_shader}")
+
+	def rename_content(self, name_tuples):
+		_hash, _shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		for old, new in name_tuples:
+			_shader = _shader.replace(old, new)
 
 
 class MatlayersLoader(MatAbstract):
@@ -49,7 +58,6 @@ class MatlayersLoader(MatAbstract):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
 		self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
 
-		self.shader_hash, self.shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
 		# 2 ptrs, 2 counts, only one is used
 		p0, p1, layer_count, _ = struct.unpack("<2Q 2Q", self.sized_str_entry.pointers[0].data)
 
@@ -117,9 +125,8 @@ class MatlayersLoader(MatAbstract):
 		self.ptr_relative(f0.pointers[0], self.sized_str_entry.pointers[0])
 		self.ptr_relative(f1.pointers[0], self.sized_str_entry.pointers[0], rel_offset=8)
 
-		shader = pack_name(xml.attrib["shader"])
 		# first entry to name buffer
-		self.write_to_pool(f0.pointers[1], 2, as_bytes(shader))
+		self.write_to_pool(f0.pointers[1], 2, self.get_shader(xml))
 
 		# write the layers
 		offset = 0

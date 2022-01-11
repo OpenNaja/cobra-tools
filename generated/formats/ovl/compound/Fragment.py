@@ -8,7 +8,10 @@ from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 class Fragment:
 
 	"""
-	often huge amount of tiny files
+	These are to be thought of as instructions for loading.
+	Their order is irrelevant.
+	pointers[0] determines where to write a pointer
+	pointers[1] describes the address that is written at pointers[0]
 	"""
 
 	context = ContextReference()
@@ -21,7 +24,7 @@ class Fragment:
 		self.io_size = 0
 		self.io_start = 0
 
-		# points into header datas section
+		# points into pools
 		self.pointers = Array(self.context)
 		self.set_defaults()
 
