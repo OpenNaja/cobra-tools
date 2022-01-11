@@ -37,6 +37,7 @@ from modules.helpers import split_path
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
+	".animalresearchunlockssettings",
 	".assetpkg",
 	".curve",
 	".fdb",

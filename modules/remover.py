@@ -37,28 +37,34 @@ def bulk_delete(input_list, entries_to_delete):
 
 
 def remove_from_ovs(ovl, filenames):
-	ovs = ovl.archives[0]
+	ovs = ovl.archives[0].content
 
 	# remove sizedstring entry for file and remove its fragments if mapped
-	for ss_index, ss_entry in sorted(enumerate(ovs.content.sized_str_entries), reverse=True):
+	for ss_index, ss_entry in sorted(enumerate(ovs.sized_str_entries), reverse=True):
 		# delete the sized string and fragment data
 		if ss_entry.name in filenames:
 			# wipe out ss and frag data
 			for frag in ss_entry.fragments:
+				frag.pointers[0].remove()
 				frag.pointers[1].remove()
-				ovs.content.fragments.remove(frag)
+				ovs.fragments.remove(frag)
 			ss_entry.pointers[0].remove()
 			# remove frag and then ss entry
-			ovs.content.sized_str_entries.remove(ss_entry)
+			ovs.sized_str_entries.remove(ss_entry)
 
 	# remove data entry for file
-	for data_index, data in sorted(enumerate(ovs.content.data_entries), reverse=True):
+	for data_index, data in sorted(enumerate(ovs.data_entries), reverse=True):
 		if data.name in filenames:
 			# buffers_to_delete.extend(data.buffers)
 			for buffer in data.buffers:
 				buffer.update_data(b"")
-				ovs.content.buffer_entries.remove(buffer)
-			ovs.content.data_entries.remove(data)
+				ovs.buffer_entries.remove(buffer)
+			ovs.data_entries.remove(data)
 	for pool in ovl.pools:
 		# if the pool has editable pointers, flush them to the pool writer first
 		pool.flush_pointers()
+		print(pool.pointer_map)
+		if not pool.pointer_map:
+			logging.debug(f"Deleting pool {pool.name} as it has no pointers")
+			ovs.pools.remove(pool)
+			ovl.pools.remove(pool)

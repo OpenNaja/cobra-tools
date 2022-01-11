@@ -167,12 +167,11 @@ class MemPool:
 						# update their data offsets
 						for p in pointers:
 							p.data_offset += delta
-			# todo - remove from ptr map or force regenerating it each time
-			# if self.data_offset in self.pool.pointer_map:
-			# 	ptrs = self.pool.pointer_map[self.data_offset]
-			# 	ptrs.remove(self)
-			# 	if not ptrs:
-			# 		self.pool.pointer_map.pop(self.data_offset)
+			# remove from ptr map, so pool can be deleted if it's empty
+			if not ptr._data:
+				if offset in self.pointer_map:
+					logging.debug(f"Removed offset {offset} from pool")
+					self.pointer_map.pop(offset)
 		# write the rest of the data
 		data.write(self.get_at(last_offset))
 		# clear ptr data and stack
