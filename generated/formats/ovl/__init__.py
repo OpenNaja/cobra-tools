@@ -106,6 +106,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.UIMOVIEDEFINITION import UIMovieDefinitionLoader
 	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
 	from modules.formats.VOXELSKIRT import VoxelskirtLoader
+	from modules.formats.WMETA import WmetaLoader
 	from modules.formats.WORLD import WorldLoader
 	from modules.formats.WSM import WsmLoader
 	from modules.formats.XMLCONFIG import XmlconfigLoader
@@ -144,6 +145,7 @@ def get_loader(ext, ovl, file_entry):
 		".uimoviedefinition": UIMovieDefinitionLoader,
 		".userinterfaceicondata": UserinterfaceicondataLoader,
 		".voxelskirt": VoxelskirtLoader,
+		".wmetasb": WmetaLoader,
 		".world": WorldLoader,
 		".wsm": WsmLoader,
 		".xmlconfig": XmlconfigLoader,
@@ -661,7 +663,7 @@ class OvsFile(OvsHeader):
 		ptr_str = ' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size} ({len(p.padding)})]' for p in entry.pointers))
 		if isinstance(entry, Fragment):
 			p0, p1 = entry.pointers
-			ptr_str = f"@ {p0.data_offset} -> [{p1.pool_index} {p1.data_offset} | {p1.data_size} ({len(p1.padding)})]"\
+			ptr_str = f"@ {p0.pool_index} {p0.data_offset} -> [{p1.pool_index} {p1.data_offset} | {p1.data_size} ({len(p1.padding)})]"\
 
 		infix = ""
 		if isinstance(entry, DependencyEntry):

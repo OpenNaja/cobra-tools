@@ -1,3 +1,67 @@
+import logging
+import struct
+import traceback
+
+from generated.formats.ovl_base.versions import is_pz
+from modules.formats.BaseFormat import BaseFile
+import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
+
+from modules.helpers import as_bytes
+
+
+class WmetaLoader(BaseFile):
+
+	def collect(self):
+		self.assign_ss_entry()
+		ss_pointer = self.sized_str_entry.pointers[0]
+		_, count = struct.unpack("<QQ", ss_pointer.data)
+		logging.debug(f"{self.file_entry.name} has {count} entries")
+		self.assign_fixed_frags(1)
+		root_f = self.sized_str_entry.fragments[0]
+		# logging.debug(root_f)
+		ptr1 = root_f.pointers[1]
+
+		# JWE1
+		# entry_size = 112
+		if is_pz(self.ovl) or is_pz(self.ovl):
+			# PZ
+			entry_size = 32
+			out_frags, array_data = self.collect_array(ptr1, count, entry_size)
+			self.sized_str_entry.fragments.extend(out_frags)
+			self.frag_data_pairs = []
+			for i in range(count):
+				x = i * entry_size
+				# type x + 8
+				# data x + 16
+				frags_entry = self.get_frags_between(out_frags, ptr1.data_offset + x, ptr1.data_offset + x+entry_size)
+				entry_bytes = array_data[x:x+entry_size]
+				# print(entry_bytes)
+				self.frag_data_pairs.append((frags_entry, entry_bytes))
+				rel_offsets = [f.pointers[0].data_offset-x-ptr1.data_offset for f in frags_entry]
+				# print(x)
+				# print(rel_offsets)
+				_hash, _, p0, p1, count2 = struct.unpack("<II 2Q Q", entry_bytes)
+				print(_hash, _, p0, p1, count2)
+				# next_level = data[2]
+				# children_count = data[4]
+				# if not frags_entry:
+				# 	continue
+				level_frag = frags_entry[0]
+				# level_frag.children = []
+				# level_frag.next = []
+				print(f"bnk type: {level_frag.pointers[1].data}")
+				if count2:
+					ptr_frag = frags_entry[1]
+					# print(f"ratio: {len(ptr_frag.pointers[1].data)} {count2} {len(ptr_frag.pointers[1].data)/count2}")
+					level_frags, level_data = self.collect_array(ptr_frag.pointers[1], count2, 40)
+					assert not level_frags
+					# print(level_data)
+					for j in range(count2):
+						b = j * 40
+						_hash, float_limit, c0, c1, c2, _hash2, _hash3, _, _, _ = struct.unpack("<If 3I I I 3I", level_data[b:b+40])
+						# print(_hash, float_limit, c0, c1, c2, _hash2, _hash3)
+
+
 def collect_wmeta(self, ss_entry, address_0_fragments):
 	print("\nwmeta:", ss_entry.name)
 	return
