@@ -41,7 +41,7 @@ class WmetaLoader(BaseFile):
 				# print(x)
 				# print(rel_offsets)
 				_hash, _, p0, p1, count2 = struct.unpack("<II 2Q Q", entry_bytes)
-				print(_hash, _, p0, p1, count2)
+				# print(_hash, _, p0, p1, count2)
 				# next_level = data[2]
 				# children_count = data[4]
 				# if not frags_entry:
@@ -49,7 +49,7 @@ class WmetaLoader(BaseFile):
 				level_frag = frags_entry[0]
 				# level_frag.children = []
 				# level_frag.next = []
-				print(f"bnk type: {level_frag.pointers[1].data}")
+				# print(f"bnk type: {level_frag.pointers[1].data}")
 				if count2:
 					ptr_frag = frags_entry[1]
 					# print(f"ratio: {len(ptr_frag.pointers[1].data)} {count2} {len(ptr_frag.pointers[1].data)/count2}")
