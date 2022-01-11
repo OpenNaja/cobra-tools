@@ -1615,10 +1615,10 @@ class OvlFile(Header, IoFile):
 			archive.stream_files_offset = 0
 			if archive.name != "STATIC":
 				files = [f for f in self.stream_files if f.archive_name == archive.name]
+				archive.num_files = len(files)
 				if not files:
 					logging.warning(f"No files in archive {archive.name}")
 					continue
-				archive.num_files = len(files)
 				archive.stream_files_offset = self.stream_files.index(files[0])
 
 	def update_files(self):

@@ -38,6 +38,7 @@ class MemPool:
 		# create new data writer
 		data = BinaryStream()
 		last_offset = 0
+		logging.debug(f"Stack size = {len(stack)}")
 		# now go sequentially over all ptrs in the stack
 		for ptr, i, offset in stack:
 			from_end_of_last_to_start_of_this = self.get_at(last_offset, size=offset-last_offset)
