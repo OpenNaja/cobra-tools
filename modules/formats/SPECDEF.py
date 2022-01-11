@@ -2,6 +2,7 @@ import logging
 import xml.etree.ElementTree as ET  # prob move this to a custom modules.helpers or utils?
 
 from modules.formats.BaseFormat import BaseFile
+from modules.helpers import as_bytes
 import struct
 
 
@@ -11,7 +12,52 @@ class SpecdefLoader(BaseFile):
 		pass
 
 	def create(self):
-		pass
+		# Note: this version of create ignores specdef attributes
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		specdef = self.load_xml(self.file_entry.path)
+
+		namelistdata = specdef.findall('.//Name')
+		names = []
+		for name in namelistdata:
+			names.append(name.text)
+
+		attrib_count = 0 
+		name_count = len(names)
+		childspec_count = 0
+		manager_count = 0
+		script_count = 0
+		ss = struct.pack("<2H4B 7Q", attrib_count, int(specdef.attrib['Flags']), name_count, childspec_count, manager_count, script_count, 0, 0, 0, 0, 0, 0, 0)
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
+
+		# need to write 3 frags always
+		frags = self.create_fragments(self.sized_str_entry, 3)
+		self.write_to_pool(frags[0].pointers[0], 2, b"\x00" * 8)
+		self.ptr_relative(frags[0].pointers[0], self.sized_str_entry.pointers[0], 8)
+		self.ptr_relative(frags[1].pointers[0], self.sized_str_entry.pointers[0], 16)
+		self.ptr_relative(frags[2].pointers[0], self.sized_str_entry.pointers[0], 24)
+		self.ptr_relative(frags[0].pointers[1], self.sized_str_entry.pointers[0], 64)
+		self.ptr_relative(frags[1].pointers[1], self.sized_str_entry.pointers[0], 64)
+		self.ptr_relative(frags[2].pointers[1], self.sized_str_entry.pointers[0], 64)
+
+		if len(names) > 0:
+			# write features, name count
+			root_f = self.create_fragments(self.sized_str_entry, 1)[0]
+			self.sized_str_entry.vars = self.create_fragments(self.sized_str_entry, len(names))
+
+			# write the options
+			for option, frag in zip(names, self.sized_str_entry.vars):
+				self.write_to_pool(frag.pointers[1], 2, as_bytes(option))
+			# apparently no padding
+			# self.sized_str_entry.vars[-1].pointers[1].pool.pad(alignment=4)
+			for frag in self.sized_str_entry.vars:
+				self.write_to_pool(frag.pointers[0], 4, b"\x00" * 8)
+			self.ptr_relative(root_f.pointers[0], self.sized_str_entry.pointers[0], 32)
+			# point to start of options array
+			self.ptr_relative(root_f.pointers[1], self.sized_str_entry.vars[0].pointers[0])
+
+
+
+
 
 	def collect(self):
 		self.assign_ss_entry()
