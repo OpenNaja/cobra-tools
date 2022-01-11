@@ -26,9 +26,7 @@ def _remove_files(ovl, filenames):
 	# remove file entry
 	for i, file_entry in sorted(enumerate(ovl.files), reverse=True):
 		if file_entry.name in filenames:
-			ss_entry = ovl.get_sized_str_entry(file_entry.name)
-			children_names.extend([ss.name for ss in ss_entry.children])
-			children_names.extend([stream.name for stream in file_entry.streams])
+			children_names.extend(ovl.get_children(file_entry))
 			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)
 			for dep in file_entry.dependencies:

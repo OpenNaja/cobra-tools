@@ -910,6 +910,13 @@ class OvlFile(Header, IoFile):
 		self.update_ss_dict()
 		logging.info("Finished renaming!")
 
+	def get_children(self, file_entry):
+		children_names = []
+		ss_entry = self.get_sized_str_entry(file_entry.name)
+		children_names.extend([ss.name for ss in ss_entry.children])
+		children_names.extend([stream.name for stream in file_entry.streams])
+		return children_names
+
 	def rename_contents(self, name_tups):
 		logging.info(f"Renaming contents for {name_tups}")
 		name_tuple_bytes = [(o.encode(), n.encode()) for o, n in name_tups]
