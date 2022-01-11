@@ -15,10 +15,10 @@ class LogicalControlsLoader(BaseFile):
 		print(f"Importing {self.file_entry.path}")
 		ss = self.get_content(self.file_entry.path)
 
-		pool_index, pool = self.get_pool(2)
+		pool = self.get_pool(2)
 		offset = pool.data.tell()
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
+		self.sized_str_entry.pointers[0].pool = pool
 		self.sized_str_entry.pointers[0].data_offset = offset
 
 		# read all in a dict from the xml
@@ -49,9 +49,9 @@ class LogicalControlsLoader(BaseFile):
 		if lccount > 0:
 			# point the first frag to the array of data now
 			new_frag0 = self.create_fragment()
-			new_frag0.pointers[0].pool_index = pool_index
+			new_frag0.pointers[0].pool = pool
 			new_frag0.pointers[0].data_offset = offset + 0x00
-			new_frag0.pointers[1].pool_index = pool_index
+			new_frag0.pointers[1].pool = pool
 			new_frag0.pointers[1].data_offset = poffset
 
 			# it is an array so pack all data in it first, then we make pointers
@@ -64,9 +64,9 @@ class LogicalControlsLoader(BaseFile):
 				nameptr = pool.data.tell()
 				pool.data.write(f"{lc['name']}\00".encode('utf-8'))
 				new_frag = self.create_fragment()
-				new_frag.pointers[0].pool_index = pool_index
+				new_frag.pointers[0].pool = pool
 				new_frag.pointers[0].data_offset = poffset
-				new_frag.pointers[1].pool_index = pool_index
+				new_frag.pointers[1].pool = pool
 				new_frag.pointers[1].data_offset = nameptr
 
 				# write default options now
@@ -77,9 +77,9 @@ class LogicalControlsLoader(BaseFile):
 
 					#add frag to the data
 					new_frag = self.create_fragment()
-					new_frag.pointers[0].pool_index = pool_index
+					new_frag.pointers[0].pool = pool
 					new_frag.pointers[0].data_offset = poffset+0x08
-					new_frag.pointers[1].pool_index = pool_index
+					new_frag.pointers[1].pool = pool
 					new_frag.pointers[1].data_offset = dataptr
 
 				# next entry

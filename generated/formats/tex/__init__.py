@@ -1,4 +1,5 @@
 import io
+import logging
 
 from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.versions import is_pc, is_ztuac
@@ -47,18 +48,18 @@ class TexFile(TexInfoHeader, IoFile):
 			# stream.write(self.buffer)
 
 	def read_mips_infos(self, stream):
-		print("\nReading mips from infos")
+		logging.debug("Reading mips from infos")
 		self.mips = []
 		for mip in self.frag_11.mip_maps:
 			stream.seek(self.eoh + mip.offset)
-			print(stream.tell())
+			# print(stream.tell())
 			mip_data = stream.read(mip.size_array)
 			self.mips.append(mip_data)
-			print(mip)
+			# print(mip)
 			# print(mip_data)
 
 	def read_mips(self, stream):
-		print("\nReading mips")
+		logging.debug("Reading mips")
 
 		# get compression type
 		comp = self.dx_10.dxgi_format.name
@@ -86,7 +87,7 @@ class TexFile(TexInfoHeader, IoFile):
 			w //= 2
 		# print(self.mips)
 		self.buffer = b"".join([b for h, w, b in self.mips])
-		print("End of mips", stream.tell())
+		logging.debug(f"End of mips {stream.tell()}")
 
 	def pack_mips(self, num_mips):
 		"""From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
@@ -104,7 +105,7 @@ class TexFile(TexInfoHeader, IoFile):
 
 		# no packing at all, just grab desired mips and done
 		if not packed_levels:
-			print(f"Info: MIP packing is not needed.")
+			logging.debug(f"MIP packing is not needed")
 			return b"".join(out_mips)
 
 		with io.BytesIO() as packed_writer:
@@ -147,7 +148,7 @@ class TexFile(TexInfoHeader, IoFile):
 	def pack_mips_pc(self, num_mips):
 		"""Grab the lower mip levels according to the count"""
 		first_mip_index = self.mipmap_count - num_mips
-		print("first mip", first_mip_index)
+		logging.debug(f"first mip {first_mip_index}")
 
 		# get final merged output bytes
 		return b"".join([b for h, w, b in self.mips[first_mip_index:]])

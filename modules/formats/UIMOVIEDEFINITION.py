@@ -13,10 +13,10 @@ class UIMovieDefinitionLoader(BaseFile):
 
 	def create(self):
 		ss = self.get_content(self.file_entry.path)
-		pool_index, pool = self.get_pool(2)
+		pool = self.get_pool(2)
 		offset = pool.data.tell()
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.pointers[0].pool_index = pool_index
+		self.sized_str_entry.pointers[0].pool = pool
 		self.sized_str_entry.pointers[0].data_offset = offset
 
 		# read all in a dict from the xml
@@ -43,36 +43,36 @@ class UIMovieDefinitionLoader(BaseFile):
 		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['MovieName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
-		new_frag.pointers[0].pool_index = pool_index
+		new_frag.pointers[0].pool = pool
 		new_frag.pointers[0].data_offset = offset + 0x00
-		new_frag.pointers[1].pool_index = pool_index
+		new_frag.pointers[1].pool = pool
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write pkgname and add ptr
 		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['PkgName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
-		new_frag.pointers[0].pool_index = pool_index
+		new_frag.pointers[0].pool = pool
 		new_frag.pointers[0].data_offset = offset + 0x08
-		new_frag.pointers[1].pool_index = pool_index
+		new_frag.pointers[1].pool = pool
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write CategoryName and add ptr
 		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['CategoryName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
-		new_frag.pointers[0].pool_index = pool_index
+		new_frag.pointers[0].pool = pool
 		new_frag.pointers[0].data_offset = offset + 0x10
-		new_frag.pointers[1].pool_index = pool_index
+		new_frag.pointers[1].pool = pool
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write TypeName and add ptr
 		nameptr = pool.data.tell()
 		pool.data.write(f"{movie.attrib['TypeName']}\00".encode('utf-8'))
 		new_frag = self.create_fragment()
-		new_frag.pointers[0].pool_index = pool_index
+		new_frag.pointers[0].pool = pool
 		new_frag.pointers[0].data_offset = offset + 0x18
-		new_frag.pointers[1].pool_index = pool_index
+		new_frag.pointers[1].pool = pool
 		new_frag.pointers[1].data_offset = nameptr
 
 		# write triggers at offset+0x48
@@ -90,18 +90,18 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
-			new_frag0.pointers[0].pool_index = pool_index
+			new_frag0.pointers[0].pool = pool
 			new_frag0.pointers[0].data_offset = offset + 0x48
-			new_frag0.pointers[1].pool_index = pool_index
+			new_frag0.pointers[1].pool = pool
 			new_frag0.pointers[1].data_offset = poffset
 
 			# for each line, add the frag ptr space and create the frag ptr
 			for x in self.uitriggerlist:
 				pool.data.write(struct.pack("<8s", b''))
 				strfrag = self.create_fragment()
-				strfrag.pointers[0].pool_index = pool_index
+				strfrag.pointers[0].pool = pool
 				strfrag.pointers[0].data_offset = poffset
-				strfrag.pointers[1].pool_index = pool_index
+				strfrag.pointers[1].pool = pool
 				strfrag.pointers[1].data_offset = doffset
 
 				poffset += 8
@@ -122,18 +122,18 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
-			new_frag0.pointers[0].pool_index = pool_index
+			new_frag0.pointers[0].pool = pool
 			new_frag0.pointers[0].data_offset = offset + 0x58
-			new_frag0.pointers[1].pool_index = pool_index
+			new_frag0.pointers[1].pool = pool
 			new_frag0.pointers[1].data_offset = poffset
 
 			# for each line, add the frag ptr space and create the frag ptr
 			for x in self.uinamelist:
 				pool.data.write(struct.pack("<8s", b''))
 				strfrag = self.create_fragment()
-				strfrag.pointers[0].pool_index = pool_index
+				strfrag.pointers[0].pool = pool
 				strfrag.pointers[0].data_offset = poffset
-				strfrag.pointers[1].pool_index = pool_index
+				strfrag.pointers[1].pool = pool
 				strfrag.pointers[1].data_offset = doffset
 
 				poffset += 8
@@ -151,9 +151,9 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
-			new_frag0.pointers[0].pool_index = pool_index
+			new_frag0.pointers[0].pool = pool
 			new_frag0.pointers[0].data_offset = offset + 0x70
-			new_frag0.pointers[1].pool_index = pool_index
+			new_frag0.pointers[1].pool = pool
 			new_frag0.pointers[1].data_offset = doffset
 
 		# write List2 at offset+0x78
@@ -168,9 +168,9 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
-			new_frag0.pointers[0].pool_index = pool_index
+			new_frag0.pointers[0].pool = pool
 			new_frag0.pointers[0].data_offset = offset + 0x78
-			new_frag0.pointers[1].pool_index = pool_index
+			new_frag0.pointers[1].pool = pool
 			new_frag0.pointers[1].data_offset = doffset
 
 		# write interfaces at offset+0x80
@@ -187,18 +187,18 @@ class UIMovieDefinitionLoader(BaseFile):
 
 			# point the list frag to the end of the data now.
 			new_frag0 = self.create_fragment()
-			new_frag0.pointers[0].pool_index = pool_index
+			new_frag0.pointers[0].pool = pool
 			new_frag0.pointers[0].data_offset = offset + 0x80
-			new_frag0.pointers[1].pool_index = pool_index
+			new_frag0.pointers[1].pool = pool
 			new_frag0.pointers[1].data_offset = poffset
 
 			# for each line, add the frag ptr space and create the frag ptr
 			for x in self.uiInterfacelist:
 				pool.data.write(struct.pack("<8s", b''))
 				strfrag = self.create_fragment()
-				strfrag.pointers[0].pool_index = pool_index
+				strfrag.pointers[0].pool = pool
 				strfrag.pointers[0].data_offset = poffset
-				strfrag.pointers[1].pool_index = pool_index
+				strfrag.pointers[1].pool = pool
 				strfrag.pointers[1].data_offset = doffset
 
 				poffset += 8

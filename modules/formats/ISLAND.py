@@ -12,17 +12,17 @@ class IslandLoader(BaseFile):
 			pass
 
 		f_0, f_1 = self._get_data(self.file_entry.path)
-		pool_index, pool = self.get_pool(2)
+		pool = self.get_pool(2)
 		offset = pool.data.tell()
 		pool.data.write(f_1)
 		pool.data.write(f_0)
 		new_frag = self.create_fragment()
-		new_frag.pointers[0].pool_index = pool_index
+		new_frag.pointers[0].pool = pool
 		new_frag.pointers[0].data_offset = offset + len(f_1)
-		new_frag.pointers[1].pool_index = pool_index
+		new_frag.pointers[1].pool = pool
 		new_frag.pointers[1].data_offset = offset
 		new_ss = self.create_ss_entry(self.file_entry)
-		new_ss.pointers[0].pool_index = pool_index
+		new_ss.pointers[0].pool = pool
 		new_ss.pointers[0].data_offset = offset + len(f_1)
 
 	def collect(self):

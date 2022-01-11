@@ -1129,9 +1129,8 @@ class OvlFile(Header, IoFile):
 			included_ovl_name += ".ovl"
 		included_ovl_basename, ext = os.path.splitext(included_ovl_name)
 		# validate can't insert same included ovl twice
-		for included_ovl in self.included_ovls:
-			if included_ovl.name == included_ovl_name:
-				return
+		if included_ovl_name in self.included_ovl_names:
+			return
 
 		# store file name
 		included_ovl = IncludedOvl(self.context)
@@ -1362,6 +1361,7 @@ class OvlFile(Header, IoFile):
 		# reset pointer map for each header entry
 		for pool in self.pools:
 			pool.pointer_map = {}
+			pool.new = False
 			# store fragments per header for faster lookup
 			pool.fragments = []
 			# pool.dependencies = []

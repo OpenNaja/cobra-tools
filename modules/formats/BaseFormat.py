@@ -93,8 +93,8 @@ class BaseFile:
 		# todo - remove pool index throughout all formats
 		for pool_index, pool in enumerate(ovs_file.pools):
 			# todo - reasonable add size condition
-			if pool.type == pool_type_key:
-				return pool_index, pool
+			if pool.type == pool_type_key and pool.new:
+				return pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
 		pool.data = BinaryStream()
@@ -103,12 +103,12 @@ class BaseFile:
 		# assign_versions(pool.data, get_versions(self.ovl))
 		pool.type = pool_type_key
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
-		pool.update_from_ptrs = False
+		pool.new = True
 		ovs_file.pools.append(pool)
-		return len(ovs_file.pools)-1, pool
+		return pool
 
 	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC"):
-		ptr.pool_index, ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
+		ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
 		ptr.write_to_pool(data)
 
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):

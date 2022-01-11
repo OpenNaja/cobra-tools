@@ -89,6 +89,8 @@ class HeaderPointer:
 
 	def write_to_pool(self, data):
 		if self.pool:
+			# seek to end of pool
+			self.pool.data.seek(0, 2)
 			self.data_offset = self.pool.data.tell()
 			self.data_size = len(data)
 			self.pool.data.write(data)
