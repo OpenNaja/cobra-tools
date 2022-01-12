@@ -6,7 +6,7 @@ from plugin.utils.tristrip import triangulate
 # END_GLOBALS
 
 
-class ZtModelData:
+class ZtMeshData:
 
 	# START_CLASS
 
@@ -51,7 +51,7 @@ class ZtModelData:
 		self.weights = []
 
 	def update_dtype(self):
-		"""Update ModelData.dt (numpy dtype) according to ModelData.flag"""
+		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
 			("bone ids", np.ubyte, (4,)),
@@ -88,10 +88,10 @@ class ZtModelData:
 			self.shell_count = 1
 
 	def read_tris(self, stream):
-		# read all tri indices for this model
+		# read all tri indices for this mesh
 		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
 		print("tris offset", stream.tell())
-		# read all tri indices for this model segment
+		# read all tri indices for this mesh segment
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
 
 	@property
@@ -107,7 +107,7 @@ class ZtModelData:
 		self.update_dtype()
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
-		# read a vertices of this model
+		# read a vertices of this mesh
 		if 4294967295 == self.vert_offset:
 			print(f"Warning, vert_offset is -1, seeking to last vert offset {self.last_vert_offset}")
 			if self.last_vert_offset == 0:

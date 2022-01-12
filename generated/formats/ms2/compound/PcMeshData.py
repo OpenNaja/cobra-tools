@@ -11,13 +11,7 @@ from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
 
-class PcModelData:
-
-	"""
-	Defines one model's data. Both LODs and mdl2 files may contain several of these.
-	This is a fragment from headers of type (0,0)
-	If there is more than one of these, the fragments appear as a list according to
-	"""
+class PcMeshData:
 
 	context = ContextReference()
 
@@ -155,7 +149,7 @@ class PcModelData:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'PcModelData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'PcMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''
@@ -210,7 +204,7 @@ class PcModelData:
 		self.weights = []
 
 	def update_dtype(self):
-		"""Update ModelData.dt (numpy dtype) according to ModelData.flag"""
+		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
 			("pos", np.uint64),
@@ -236,11 +230,11 @@ class PcModelData:
 		print("PC size of weights:", self.dt_w.itemsize)
 
 	def read_tris(self, stream):
-		# read all tri indices for this model
+		# read all tri indices for this mesh
 		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}, count {self.tri_offset}")
 		stream.seek(self.buffer_2_offset + (self.tri_offset * 16))
 		logging.debug(f"tris offset at {stream.tell()}")
-		# read all tri indices for this model segment
+		# read all tri indices for this mesh segment
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count)
 
 	@property
@@ -249,7 +243,7 @@ class PcModelData:
 		return triangulate((self.tri_indices,))
 
 	def read_verts(self, stream):
-		# read a vertices of this model
+		# read a vertices of this mesh
 		stream.seek(self.buffer_2_offset + (self.vertex_offset * 16))
 		print("VERTS", stream.tell())
 		# get dtype according to which the vertices are packed

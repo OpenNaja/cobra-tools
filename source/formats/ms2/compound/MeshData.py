@@ -11,14 +11,14 @@ FUR_OVERHEAD = 2
 # END_GLOBALS
 
 
-class ModelData:
+class MeshData:
 
 	# START_CLASS
 
 	def read_bytes(self, buffer_2_offset, vertex_data_size, stream):
-		"""Used to store raw binary vertex and tri data on the model, for merging"""
-		# print("reading binary model data")
-		# read a vertices of this model
+		"""Used to store raw binary vertex and tri data on the mesh, for merging"""
+		# print("reading binary mesh data")
+		# read a vertices of this mesh
 		stream.seek(buffer_2_offset + self.vertex_offset)
 		self.verts_bytes = stream.read(self.size_of_vertex * self.vertex_count)
 		stream.seek(buffer_2_offset + vertex_data_size + self.tri_offset)
@@ -28,7 +28,7 @@ class ModelData:
 
 	def read_bytes_map(self, buffer_2_offset, stream):
 		"""Used to document byte usage of different vertex formats"""
-		# read a vertices of this model
+		# read a vertices of this mesh
 		stream.seek(buffer_2_offset + self.vertex_offset)
 		# read the packed ms2_file
 		ms2_file = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
@@ -76,7 +76,7 @@ class ModelData:
 		return 0
 
 	def update_dtype(self):
-		"""Update ModelData.dt (numpy dtype) according to ModelData.flag"""
+		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
 			("pos", np.uint64),
@@ -156,7 +156,7 @@ class ModelData:
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
 
 	def read_verts(self, stream):
-		# read a vertices of this model
+		# read a vertices of this mesh
 		stream.seek(self.buffer_2_offset + self.vertex_offset)
 		logging.debug(f"Reading {self.vertex_count} verts at {stream.tell()}")
 		# get dtype according to which the vertices are packed
@@ -219,9 +219,9 @@ class ModelData:
 		stream.write(self.verts_data.tobytes())
 
 	def read_tris(self, stream):
-		# read all tri indices for this model
+		# read all tri indices for this mesh
 		stream.seek(self.buffer_2_offset + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset)
-		# read all tri indices for this model segment
+		# read all tri indices for this mesh segment
 		index_count = self.tri_index_count // self.shell_count
 		logging.debug(f"Reading {index_count} indices at {stream.tell()}")
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=index_count)

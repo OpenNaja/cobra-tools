@@ -1,7 +1,7 @@
 import functools
 import struct
 
-VERSION_FIELDS = ("version", "user_version", "version_flag", "general_info.ms2_version")
+VERSION_FIELDS = ("version", "user_version", "version_flag", "general_info.ms_2_version")
 
 
 def rsetattr(obj, attr, val):
@@ -22,7 +22,7 @@ def get_versions(ovl):
 
 def assign_versions(inst, versions):
 	for k, v in versions.items():
-		# for stuff like x.general_info.ms2_version we want to assign the global to stream.ms2_version
+		# for stuff like x.general_info.ms_2_version we want to assign the global to stream.ms_2_version
 		k = k.rsplit(".")[-1]
 		setattr(inst, k, v)
 

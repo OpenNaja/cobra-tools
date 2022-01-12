@@ -119,10 +119,7 @@
 		<add name="last object index" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 	</compound>
 
-	<compound name="ModelData" >
-		Defines one model's data. Both LODs and mdl2 files may contain several of these.
-		This is a fragment from headers of type (0,0)
-		If there is more than one of these, the fragments appear as a list according to
+	<compound name="MeshData" >
 		PZ and JWE have a ptr at the start instead of the stream index
 		<add name="stream index" type="uint" >index into streamed buffers, streaming is not used for JWE or PZ</add>
 		<add name="zeros" type="uint" arr1="3" >always zero</add>
@@ -140,10 +137,7 @@
 	</compound>
 
 
-	<compound name="PcModelData" >
-		Defines one model's data. Both LODs and mdl2 files may contain several of these.
-		This is a fragment from headers of type (0,0)
-		If there is more than one of these, the fragments appear as a list according to
+	<compound name="PcMeshData" >
 		<add name="stream index" type="uint" >index into streamed buffers</add>
 		<add name="zeros a" type="uint" arr1="3" >always zero</add>
 		<add name="tri index count a" type="uint" >repeat</add>
@@ -164,11 +158,7 @@
 <!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
 	</compound>
 
-	<compound name="ZtModelData" >
-		Defines one model's data. Both LODs and mdl2 files may contain several of these.
-		This is a fragment from headers of type (0,0)
-		If there is more than one of these, the fragments appear as a list according to
-		<add name="stream index" type="uint" >index into streamed buffers</add>
+	<compound name="ZtMeshData" >
 		<add name="zero a" type="uint" >always zero</add>
 		<add name="some index" type="uint" >increments somewhat in platypus</add>
 		<add name="zero b" type="uint" >always zero</add>
@@ -194,7 +184,7 @@
 	
 	<compound name="Ms2SizedStrData">
 		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
-		<add name="ms2 version" type="uint" >32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
+		<add name="ms2 version" type="uint" >13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
 		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
 		<add name="mdl2 count" type="ushort" >3 in stairwell</add>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
@@ -207,18 +197,36 @@
 	</compound>
 	
 	<compound name="Mdl2InfoHeader" inherit="GenericHeader">
-		Custom header struct
-		
-		This reads a whole custom mdl2 file
+		This reads a whole exported mdl2 file
+		<add name="ms2 version" type="uint" >ms2 version</add>
 		<add name="index" type="uint" >index of this model inside the ms2</add>
 		<add name="bone info index" type="uint" >used to find bone info</add>
 		<add name="ms2 name" type="ZString" >name of ms2</add>
+		<add name="model_info" type="ModelInfo" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="model" type="Model" arg="model_info" vercond="!#OLD#" >describes a model</add>
+<!--		<add name="mesh" type="Model" since="47" >describes a mesh</add>-->
+	</compound>
 
-		<add name="model info" type="Mdl2Descriptor" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="materials" type="MaterialName" arr1="model info\num_materials" vercond="!#OLD#" >name pointers for each material</add>
-		<add name="lods" type="LodInfo" arr1="model info\num_lods" vercond="!#OLD#" cond="model info\num_models" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
-		<add name="objects" type="MeshLink" arr1="model info\num_objects" vercond="!#OLD#" >instantiate the meshes with materials</add>
-		<add name="models" type="ModelData" arr1="model info\num_models" vercond="!#OLD#" >model data blocks for this mdl2</add>
+	<compound name="Model">
+		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
+		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" cond="#ARG#\num_meshes" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
+		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
+		<add name="meshes" type="MeshData" arr1="#ARG#\num_meshes" >mesh data blocks for this model</add>
+	</compound>
+
+	<compound name="PcModel" >
+		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >uses uint here, two uints elsewhere</add>
+		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" vercond="#ZTUAC#" ></add>
+		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" vercond="#PC#" ></add>
+		<add name="objects" type="Object" arr1="#ARG#\num_objects" ></add>
+		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" vercond="#ZTUAC#" >pad to 8 bytes alignment
+		rhino: start of model - end of objects: 124 - 4 bytes padding
+		ele: start of model - end of objects: 120 - 0 bytes padding</add>
+		<add name="models" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#" ></add>
+		<add name="models" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#" ></add>
+		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
+		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" >see if it is a flag for ztuac too, so might be totally wrong here</add>
+		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
 	</compound>
 
 	<compound name="MaterialName">
@@ -228,9 +236,9 @@
 		<add name="some index" type="ushort" vercond="#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
 	</compound>
 
-	<compound name="MeshLink">
+	<compound name="Object">
 		<add name="material index" type="ushort" >index into material name array</add>
-		<add name="model index" type="ushort" >index into models array</add>
+		<add name="mesh index" type="ushort" >index into mesh array</add>
 	</compound>
 
 	<compound name="Ms2InfoHeader" inherit="GenericHeader">
@@ -255,26 +263,8 @@
 		cond="general info \ ms2 version == 32"
 		<add name="buffer info pc" type="Ms2BufferInfoZT" vercond="#ZTUAC#" arg="#ARG#"/>
 		<add name="buffer info pc" type="Ms2BufferInfoPC" vercond="#PC#" />
-		<add name="model infos" type="CoreModelInfoPC" arr1="#ARG#\general info\mdl2 count" ></add>
+		<add name="model infos" type="ModelInfo" arr1="#ARG#\general info\mdl2 count" ></add>
 <!--		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>-->
-	</compound>
-
-	<compound name="PcModel" >
-		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >uses uint here, two uints elsewhere</add>
-		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" vercond="#ZTUAC#" ></add>
-		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" vercond="#PC#" ></add>
-		<add name="objects" type="MeshLink" arr1="#ARG#\num_objects" ></add>
-
-<!--		<add name="unk" type="uint" >may be padding instead, present on rhino</add>-->
-		rhino: start of model - end of mesh links: 124 - 4 bytes padding
-		ele: start of model - end of mesh links: 120 - 0 bytes padding
-		<add name="padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" vercond="#ZTUAC#" >pad to 8 bytes alignment</add>
-<!--		<add name="unk" type="uint" cond="#ARG#\another_count" >may be padding instead</add>-->
-		<add name="models" type="PcModelData" arr1="#ARG#\num_models" vercond="#PC#" ></add>
-		<add name="models" type="ZtModelData" arr1="#ARG#\num_models" vercond="#ZTUAC#" ></add>
-		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
-		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" >see if it is a flag for ztuac too, so might be totally wrong here</add>
-		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
 	</compound>
 
 	<compound name="ZTPreBones">
@@ -288,15 +278,6 @@
 	<compound name="FloatsY">
 		<add name="floats" type="float" arr1="8" />
 		<add name="index" type="uint" />
-	</compound>
-
-	<compound name="CoreModelInfoPC" inherit="CoreModelInfo">
-		152 bytes
-		<add name="zeros" type="uint64" arr1="5" vercond="#PC#"/>
-		<add name="zeros" type="uint64" arr1="9" vercond="#ZTUAC#"/>
-		<add name="one" type="uint64"/>
-		<add name="zero" type="uint64"/>
-		<add name="zero zt" type="uint64" vercond="#ZTUAC#"/>
 	</compound>
 
 	<compound name="Ms2BufferInfo" >
@@ -352,18 +333,8 @@
 		<add name="zero 3" type="uint64"/>
 		<add name="zero 4" type="uint64"/>
 	</compound>
-
-	<compound name="Mdl2FourtyInfo" >
-		<add name="unknowns" type="uint64" arr1="5" >0, 1 or 0, 0, 0, 0</add>
-	</compound>
 	
-	<compound name="Mdl2ModelInfo" >
-		Wraps a CoreModelInfo
-		<add name="fourty" type="Mdl2FourtyInfo" > </add>
-		<add name="info" type="CoreModelInfo" > </add>
-	</compound>
-	
-	<compound name="CoreModelInfo" >
+	<compound name="ModelInfo" >
 		Linked to by the ms2, part of an array
 		120 bytes for JWE2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
@@ -372,47 +343,45 @@
 		<add name="pack offset" type="float" vercond="!#OLD#">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
-		<add name="unknowns" type="float" arr1="4" vercond="#PZ# #OR# #JWE2#">PZ only, zero-ish</add>
+		<add name="num_lods_2" type="uint64" vercond="#PZ# #OR# #JWE2#">seen 6 or 1, matches lod count</add>
+		<add name="zero" type="uint64" vercond="#PZ# #OR# #JWE2#">zero</add>
 		<add name="bounds min repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
 		<add name="bounds max repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
 <!--		array counts-->
 		<add name="num_materials" type="ushort"/>
 		<add name="num_lods" type="ushort"/>
 		<add name="num_objects" type="ushort"/>
-		<add name="num_models" type="ushort">count of modeldata fragments for the mdl2 this struct refers to</add>
+		<add name="num_meshes" type="ushort">count of MeshData fragments for the mdl2 this struct refers to</add>
 		<add name="last count" type="ushort">?</add>
 		<add name="render flag" type="RenderFlag">this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female</add>
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
-	</compound>
 
-	<compound name="Mdl2Descriptor" inherit="CoreModelInfo">
-		Wraps a CoreModelInfo
 		<add name="materials ptr" type="uint64"/>
 		<add name="lods ptr" type="uint64"/>
 		<add name="objects ptr" type="uint64"/>
 		<add name="models ptr" type="uint64"/>
 		<add name="first materials ptr" type="uint64"/>
+		<add name="zeros ztuac" type="uint64" arr1="3" vercond="#ZTUAC#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
 		<add name="zero 0" type="uint64"/>
-		<add name="zero 1" type="uint64"/>
-		<add name="zero 2" type="uint64"/>
+		<add name="zero 1" type="uint64" vercond="!#PC#"/>
+		<add name="zero 2" type="uint64" vercond="!#OLD#"/>
 	</compound>
 
 	<compound name="Ms2BoneInfo">
 		<add name="name count" type="uint64" >counts the names</add>
 		<add name="knownff" type="short" vercond="!#ZTUAC#" >this is always FFFF for now</add>
 		<add name="zero0" type="short" vercond="!#ZTUAC#" >this is always 0000 for now</add>
-		<add name="unknown0c" type="uint" vercond="!#ZTUAC#" ></add>
+		<add name="unknown0c" type="uint" vercond="!#ZTUAC#"/>
 		<add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
 		<add name="bind matrix count" type="uint64" >seems to match bone count</add>
-		<add name="zeros" type="uint64" arr1="3"></add>
-		<add name="bone count" type="uint64" >index count3</add>
-		<add name="unknown40" type="uint64" ></add>
-		<add name="bone parents count" type="uint64" >index count4</add>
-		<add name="extra uint 0" type="uint64" vercond="#PZ# #OR# #JWE2#">pZ only</add>
-		<add name="unk zero zt" type="uint64" vercond="#ZTUAC#" >zero</add>
-		<add name="enum count" type="uint64" >index count 5</add>
+		<add name="zeros" type="uint64" arr1="3"/>
+		<add name="bone count" type="uint64"/>
+		<add name="unknown40" type="uint64"/>
+		<add name="bone parents count" type="uint64"/>
+		<add name="extra zero" type="uint64" vercond="#ZTUAC# #OR# #PZ# #OR# #JWE2#">not PC, JWE1</add>
+		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>

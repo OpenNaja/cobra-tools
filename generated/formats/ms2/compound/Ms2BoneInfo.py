@@ -40,21 +40,12 @@ class Ms2BoneInfo:
 		# seems to match bone count
 		self.bind_matrix_count = 0
 		self.zeros = numpy.zeros((3), dtype='uint64')
-
-		# index count3
 		self.bone_count = 0
 		self.unknown_40 = 0
-
-		# index count4
 		self.bone_parents_count = 0
 
-		# pZ only
-		self.extra_uint_0 = 0
-
-		# zero
-		self.unk_zero_zt = 0
-
-		# index count 5
+		# not PC, JWE1
+		self.extra_zero = 0
 		self.enum_count = 0
 
 		# usually zero
@@ -146,10 +137,8 @@ class Ms2BoneInfo:
 		self.bone_count = 0
 		self.unknown_40 = 0
 		self.bone_parents_count = 0
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.extra_uint_0 = 0
-		if self.context.version == 17:
-			self.unk_zero_zt = 0
+		if (self.context.version == 17) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
+			self.extra_zero = 0
 		self.enum_count = 0
 		self.unknown_58 = 0
 		self.one = 0
@@ -211,10 +200,8 @@ class Ms2BoneInfo:
 		self.bone_count = stream.read_uint64()
 		self.unknown_40 = stream.read_uint64()
 		self.bone_parents_count = stream.read_uint64()
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.extra_uint_0 = stream.read_uint64()
-		if self.context.version == 17:
-			self.unk_zero_zt = stream.read_uint64()
+		if (self.context.version == 17) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
+			self.extra_zero = stream.read_uint64()
 		self.enum_count = stream.read_uint64()
 		self.unknown_58 = stream.read_uint64()
 		self.one = stream.read_uint64()
@@ -278,10 +265,8 @@ class Ms2BoneInfo:
 		stream.write_uint64(self.bone_count)
 		stream.write_uint64(self.unknown_40)
 		stream.write_uint64(self.bone_parents_count)
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			stream.write_uint64(self.extra_uint_0)
-		if self.context.version == 17:
-			stream.write_uint64(self.unk_zero_zt)
+		if (self.context.version == 17) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
+			stream.write_uint64(self.extra_zero)
 		stream.write_uint64(self.enum_count)
 		stream.write_uint64(self.unknown_58)
 		stream.write_uint64(self.one)
@@ -349,8 +334,7 @@ class Ms2BoneInfo:
 		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
 		s += f'\n	* unknown_40 = {self.unknown_40.__repr__()}'
 		s += f'\n	* bone_parents_count = {self.bone_parents_count.__repr__()}'
-		s += f'\n	* extra_uint_0 = {self.extra_uint_0.__repr__()}'
-		s += f'\n	* unk_zero_zt = {self.unk_zero_zt.__repr__()}'
+		s += f'\n	* extra_zero = {self.extra_zero.__repr__()}'
 		s += f'\n	* enum_count = {self.enum_count.__repr__()}'
 		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
 		s += f'\n	* one = {self.one.__repr__()}'

@@ -92,7 +92,7 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 			filterString. The function should return True if
 			the filter accepts the row, False otherwise.
 			ex:
-			model.addFilterFunction(
+			mesh.addFilterFunction(
 				'test_columns_1_and_2',
 				lambda r,s: (s in r[1] and s in r[2]))
 		"""
@@ -116,7 +116,7 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 		of custom filtering.
 		"""
 		model = self.sourceModel()
-		# The source model should have a method called row()
+		# The source mesh should have a method called row()
 		# which returns the table row as a python list.
 		tests = [func(model.row(row_num), self.filterString)
 				 for func in self.filterFunctions.values()]

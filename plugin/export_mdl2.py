@@ -9,8 +9,8 @@ import mathutils
 
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.MaterialName import MaterialName
-from generated.formats.ms2.compound.MeshLink import MeshLink
-from generated.formats.ms2.compound.ModelData import ModelData
+from generated.formats.ms2.compound.Object import Object
+from generated.formats.ms2.compound.MeshData import MeshData
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
@@ -44,48 +44,48 @@ def export_material(mdl2, b_mat):
 	mat = MaterialName(mdl2.context)
 	mat.some_index = get_property(b_mat, "some_index")
 	mat.name = b_mat.name
-	mdl2.materials.append(mat)
+	mdl2.model.materials.append(mat)
 
 
 def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms):
 	logging.info(f"Exporting mesh {b_me.name}")
-	# we get the corresponding mdl2 model
-	model = ModelData(mdl2.context)
+	# we get the corresponding mdl2 mesh
+	mesh = MeshData(mdl2.context)
 	# set data
-	model.size_of_vertex = 48
-	model.flag._value = get_property(b_me, "flag")
-	model.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
+	mesh.size_of_vertex = 48
+	mesh.flag._value = get_property(b_me, "flag")
+	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
 
-	model.update_dtype()
-	num_uvs = model.get_uv_count()
-	num_vcols = model.get_vcol_count()
+	mesh.update_dtype()
+	num_uvs = mesh.get_uv_count()
+	num_vcols = mesh.get_vcol_count()
 	# ensure that these are initialized
-	model.tri_indices = []
-	model.verts = []
-	mdl2.models.append(model)
+	mesh.tri_indices = []
+	mesh.verts = []
+	mdl2.model.meshes.append(mesh)
 
 	if not len(b_me.vertices):
-		raise AttributeError(f"Model {b_ob.name} has no vertices!")
+		raise AttributeError(f"Mesh {b_ob.name} has no vertices!")
 
 	if not len(b_me.polygons):
-		raise AttributeError(f"Model {b_ob.name} has no polygons!")
+		raise AttributeError(f"Mesh {b_ob.name} has no polygons!")
 
 	for len_type, num_type, name_type in (
 			(len(b_me.uv_layers), num_uvs, "UV"),
 			(len(b_me.vertex_colors), num_vcols, "Vertex Color")):
 		logging.debug(f"{name_type} count: {num_type}")
 		if len_type != num_type:
-			raise AttributeError(f"Model {b_ob.name} has {len_type} {name_type} layers, but {num_type} were expected!")
+			raise AttributeError(f"Mesh {b_ob.name} has {len_type} {name_type} layers, but {num_type} were expected!")
 	
-	# make sure the model has a triangulation modifier
+	# make sure the mesh has a triangulation modifier
 	ensure_tri_modifier(b_ob)
 	eval_obj, eval_me = evaluate_mesh(b_ob)
 	handle_transforms(eval_obj, eval_me, apply=apply_transforms)
-	# print("Model slot", ind)
+	# print("Mesh slot", ind)
 	bounds.append(eval_obj.bound_box)
 
 	hair_length = get_hair_length(b_ob)
-	model.fur_length = hair_length
+	mesh.fur_length = hair_length
 
 	unweighted_vertices = []
 	tris = []
@@ -101,8 +101,8 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	count_reused = 0
 	shell_ob = None
 	shapekey = None
-	# fin models have to grab tangents from shell
-	# if model.flag == 565:
+	# fin meshes have to grab tangents from shell
+	# if mesh.flag == 565:
 	if is_fin(b_ob):
 		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob) and ob is not b_ob]
 		if shell_obs:
@@ -117,7 +117,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	for face in eval_me.polygons:
 		if len(face.loop_indices) != 3:
 			# this is a bug - we are applying the triangulation modifier above
-			raise AttributeError(f"Model {b_ob.name} is not triangulated!")
+			raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
 		# build indices into vertex buffer for the current face
 		tri = []
 		# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
@@ -182,20 +182,20 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	print("count_reused", count_reused)
 
 	# report unweighted vertices
-	if model.flag.weights:
+	if mesh.flag.weights:
 		if unweighted_vertices:
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
 	# update vert & tri array
-	model.base = mdl2.model_info.pack_offset
-	# transfer raw verts into model data packed array
+	mesh.base = mdl2.model_info.pack_offset
+	# transfer raw verts into mesh data packed array
 	try:
-		model.set_verts(verts)
+		mesh.set_verts(verts)
 	except ValueError as err:
 		raise AttributeError(f"Could not export {b_ob.name}!")
 
-	model.tris = tris
-	return model
+	mesh.tris = tris
+	return mesh
 
 
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
@@ -305,10 +305,10 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 			break
 		m_lod = LodInfo(mdl2.context)
 		m_lod.distance = math.pow(30+15*lod_i, 2)
-		m_lod.first_object_index = len(mdl2.objects)
-		m_lod.models = []
+		m_lod.first_object_index = len(mdl2.model.objects)
+		m_lod.meshes = []
 		m_lod.objects = []
-		mdl2.lods.append(m_lod)
+		mdl2.model.lods.append(m_lod)
 		for b_ob in lod_coll.objects:
 			# store & set bone index for lod
 			m_lod.bone_index = get_property(b_ob, "bone_index")
@@ -324,14 +324,14 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 					export_material(mdl2, b_mat)
 					if "." in b_mat.name:
 						messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
-				# create one unique model per material
-				m_ob = MeshLink(mdl2.context)
-				m_ob.model_index = b_models.index(b_me)
+				# create one unique mesh per material
+				m_ob = Object(mdl2.context)
+				m_ob.mesh_index = b_models.index(b_me)
 				m_ob.material_index = b_materials.index(b_mat)
-				mdl2.objects.append(m_ob)
-				m_lod.models.append(mdl2.models[m_ob.model_index])
+				mdl2.model.objects.append(m_ob)
+				m_lod.meshes.append(mdl2.model.meshes[m_ob.mesh_index])
 				m_lod.objects.append(m_ob)
-		m_lod.last_object_index = len(mdl2.objects)
+		m_lod.last_object_index = len(mdl2.model.objects)
 
 	export_bounds(bounds, mdl2)
 	mdl2.update_counts()

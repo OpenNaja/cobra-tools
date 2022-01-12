@@ -41,10 +41,10 @@ def findall_diff(s, p0, p1):
 class Ms2Context(OvlContext):
 	def __init__(self):
 		super().__init__()
-		self.ms2_version = 0
+		self.ms_2_version = 0
 
 	def __repr__(self):
-		return f"{self.version} | {self.user_version} | {self.ms2_version}"
+		return f"{self.version} | {self.user_version} | {self.ms_2_version}"
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
@@ -273,47 +273,44 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				mdl2_name = os.path.basename(mdl2_path)
 				if is_old(self):
 					model_info = self.pc_buffer1.model_infos[mdl2.index]
-					logging.debug(f"PC model, {len(model_info.pc_model.models)} meshes")
+					logging.debug(f"PC mesh, {len(model_info.pc_model.meshes)} meshes")
 					if mdl2.read_editable:
 						sum_uv_dict = {}
-						for model_data in model_info.pc_model.models:
+						for model_data in model_info.pc_model.meshes:
 							if model_data.stream_index not in sum_uv_dict:
 								sum_uv_dict[model_data.stream_index] = 0
 							sum_uv_dict[model_data.stream_index] += model_data.vertex_count
 						last_vert_offset = 0
 						# sort by lod, read those with offset first
-						# sorted_models = sorted(reversed(list(enumerate(model_info.pc_model.models))), key=lambda x: (x[1].poweroftwo, x[1].vert_offset))
-						# sorted_models = sorted(reversed(list(enumerate(model_info.pc_model.models))), key=lambda x: x[1].vert_offset)
-						sorted_models = list(enumerate(model_info.pc_model.models))
-						for i, model_data in sorted_models:
+						# sorted_meshes = sorted(reversed(list(enumerate(model_info.pc_model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vert_offset))
+						# sorted_meshes = sorted(reversed(list(enumerate(model_info.pc_model.meshes))), key=lambda x: x[1].vert_offset)
+						sorted_meshes = list(enumerate(model_info.pc_model.meshes))
+						for i, model_data in sorted_meshes:
 							print(i, model_data.vert_offset, model_data.vert_offset + model_data.vertex_count*24)
-						for i, model_data in sorted_models:
+						for i, model_data in sorted_meshes:
 							logging.info(f"\nModel {i}")
 							last_vert_offset = model_data.populate(
 								self, stream, self.buffer_2_offset, 512, last_vert_offset=last_vert_offset, sum_uv_dict=sum_uv_dict)
-						mdl2.lods = model_info.pc_model.lods
-						mdl2.objects = model_info.pc_model.objects
-						mdl2.models = model_info.pc_model.models
-						mdl2.materials = model_info.pc_model.materials
+						mdl2.model = model_info.pc_model
 				else:
 					if mdl2.read_editable:
 						logging.debug(f"Loading editable mesh data for {mdl2_name}")
-						for model in mdl2.models:
+						for model in mdl2.model.meshes:
 							model.populate(self, stream, self.buffer_2_offset, mdl2.model_info.pack_offset)
 
 					elif mdl2.map_bytes:
 						logging.debug(f"Reading mesh statistics for {mdl2_name}")
-						for model in mdl2.models:
+						for model in mdl2.model.meshes:
 							model.read_bytes_map(self.buffer_2_offset, stream)
 
-					# store binary data for verts and tris on the model
+					# store binary data for verts and tris on the mesh
 					elif mdl2.read_bytes:
 						logging.debug(f"Copying mesh data for {mdl2_name}")
-						for model in mdl2.models:
+						for model in mdl2.model.meshes:
 							model.read_bytes(self.buffer_2_offset, self.buffer_info.vertexdatasize, stream)
 
 	def read_pc_buffer_1(self, stream):
-		"""Reads the model info buffer for PC / ZTUAC which includes MDL2s + bone infos interleaved"""
+		"""Reads the mesh info buffer for PC / ZTUAC which includes MDL2s + bone infos interleaved"""
 		self.bone_infos = []
 		self.pc_buffer1 = stream.read_type(PcBuffer1, (self.context, self,))
 		logging.debug(self.pc_buffer1)
@@ -376,7 +373,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		if self.mdl2s:
 			self.buffer_0.names.clear()
 			for mdl2 in self.mdl2s.values():
-				for material in mdl2.materials:
+				for material in mdl2.model.materials:
 					if material.name not in self.buffer_0.names:
 						self.buffer_0.names.append(material.name)
 					material.name_index = self.buffer_0.names.index(material.name)
@@ -416,24 +413,24 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def update_buffer_2_bytes(self):
 		# can only update this if mdl2s have been loaded
 		if self.mdl2s:
-			# write each model's vert & tri block to a temporary buffer
+			# write each mesh's vert & tri block to a temporary buffer
 			temp_vert_writer = io.BytesIO()
 			temp_tris_writer = io.BytesIO()
 			for mdl2_path, mdl2 in self.mdl2s.items():
-				for model in mdl2.models:
-					# update ModelData struct
-					model.vertex_offset = temp_vert_writer.tell()
-					model.tri_offset = temp_tris_writer.tell()
+				for mesh in mdl2.model.meshes:
+					# update MeshData struct
+					mesh.vertex_offset = temp_vert_writer.tell()
+					mesh.tri_offset = temp_tris_writer.tell()
 					logging.debug(f"{os.path.basename(mdl2_path)} {mdl2.read_editable}")
 					if mdl2.read_editable:
-						model.vertex_count = len(model.verts)
-						model.tri_index_count = len(model.tri_indices) * model.shell_count
+						mesh.vertex_count = len(mesh.verts)
+						mesh.tri_index_count = len(mesh.tri_indices) * mesh.shell_count
 						# write data
-						model.write_verts(temp_vert_writer)
-						model.write_tris(temp_tris_writer)
+						mesh.write_verts(temp_vert_writer)
+						mesh.write_tris(temp_tris_writer)
 					else:
-						temp_vert_writer.write(model.verts_bytes)
-						temp_tris_writer.write(model.tris_bytes)
+						temp_vert_writer.write(mesh.verts_bytes)
+						temp_tris_writer.write(mesh.tris_bytes)
 				mdl2.update_lod_vertex_counts()
 			# get bytes from IO obj
 			vert_bytes = temp_vert_writer.getvalue()
@@ -477,8 +474,10 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 		self.file_no_ext = os.path.splitext(self.file)[0]
 		logging.info(f"Loading {self.basename} [map_bytes = {self.map_bytes}]")
 		# read the file
-		super().load(filepath)
-		# print(self)
+		try:
+			super().load(filepath)
+		except:
+			print(self)
 		if entry:
 			# print(self)
 			self.ms2_path = os.path.join(self.dir, self.ms_2_name)
@@ -526,41 +525,41 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 	def lookup_material(self):
 		logging.debug(f"Mapping links for {self.basename}")
-		for lod_index, lod in enumerate(self.lods):
-			lod.objects = self.objects[lod.first_object_index:lod.last_object_index]
-			# todo - investigate how duplicate models are handled for the lod's vertex count0
-			lod.models = tuple(self.models[obj.model_index] for obj in lod.objects)
+		for lod_index, lod in enumerate(self.model.lods):
+			lod.objects = self.model.objects[lod.first_object_index:lod.last_object_index]
+			# todo - investigate how duplicate meshes are handled for the lod's vertex count0
+			lod.meshes = tuple(self.model.meshes[obj.mesh_index] for obj in lod.objects)
 			logging.debug(f"LOD{lod_index}")
 			for obj in lod.objects:
 				try:
-					material = self.materials[obj.material_index]
+					material = self.model.materials[obj.material_index]
 					material.name = self.ms2_file.buffer_0.names[material.name_index]
-					obj.model = self.models[obj.model_index]
+					obj.mesh = self.model.meshes[obj.mesh_index]
 					obj.material = material
 					logging.debug(
-						f"Model: {obj.model_index} Material: {material.name} Material Unk: {material.some_index} "
-						f"Lod Index: {obj.model.poweroftwo} Flag: {int(obj.model.flag)}")
+						f"Mesh: {obj.mesh_index} Material: {material.name} Material Unk: {material.some_index} "
+						f"Lod Index: {obj.mesh.poweroftwo} Flag: {int(obj.mesh.flag)}")
 				except Exception as err:
 					logging.error(err)
-					logging.error(f"Couldn't match material {obj.material_index} to model {obj.model_index}")
+					logging.error(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")
 
 	def clear(self):
-		self.materials.clear()
-		self.lods.clear()
-		self.objects.clear()
-		self.models.clear()
+		self.model.materials.clear()
+		self.model.lods.clear()
+		self.model.objects.clear()
+		self.model.meshes.clear()
 
 	def update_counts(self):
-		self.model_info.num_materials = len(self.materials)
-		self.model_info.num_lods = len(self.lods)
-		self.model_info.num_objects = len(self.objects)
-		self.model_info.num_models = len(self.models)
+		self.model_info.num_materials = len(self.model.materials)
+		self.model_info.num_lods = len(self.model.lods)
+		self.model_info.num_objects = len(self.model.objects)
+		self.model_info.num_meshes = len(self.model.meshes)
 
 	def update_lod_vertex_counts(self):
 		logging.debug(f"Updating lod vertex counts...")
-		for lod in self.lods:
-			lod.vertex_count = sum(model.vertex_count for model in lod.models)
-			lod.tri_index_count = sum(model.tri_index_count for model in lod.models)
+		for lod in self.model.lods:
+			lod.vertex_count = sum(model.vertex_count for model in lod.meshes)
+			lod.tri_index_count = sum(model.tri_index_count for model in lod.meshes)
 			logging.debug(f"lod.vertex_count = {lod.vertex_count}")
 			logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
 
@@ -585,9 +584,9 @@ if __name__ == "__main__":
 	m = Mdl2File()
 	m.load("C:/Users/arnfi/Desktop/ichthyo/ichthyosaurus.mdl2", entry=True, read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/frb/frbmodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
-	# for model in m.models:
-	# 	print(model.tris)
-	# 	model.validate_tris()
+	# for mesh in m.meshes:
+	# 	print(mesh.tris)
+	# 	mesh.validate_tris()
 	# m.load("C:/Users/arnfi/Desktop/fra/framodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
 
 	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
@@ -606,13 +605,13 @@ if __name__ == "__main__":
 # m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
 # m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
 # 	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2", entry=True, read_editable=True)
-# 	for model in m.models:
-# 		b = list(model.tris)
+# 	for mesh in m.meshes:
+# 		b = list(mesh.tris)
 # m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
 # m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
 # m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
 # m = Mdl2File()
-# # m.load("C:/Users/arnfi/Desktop/prim/models.ms2")
+# # m.load("C:/Users/arnfi/Desktop/prim/meshes.ms2")
 # print(m)
 #
 # idir = "C:/Users/arnfi/Desktop/out"
@@ -632,7 +631,7 @@ if __name__ == "__main__":
 # 	# print(list(lod.bone_index for lod in m.lods))
 # 	# print(m.model_info)
 # 	# lod_indices = list(lod.bone_index for lod in m.lods)
-# 	flags = list(mo.flag for mo in m.models)
+# 	flags = list(mo.flag for mo in m.meshes)
 # 	print(flags)
 # 	# indices.extend(unk)
 # # 		dic[file] = lod_indices

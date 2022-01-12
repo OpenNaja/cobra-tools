@@ -7,13 +7,7 @@ from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 
 
-class ZtModelData:
-
-	"""
-	Defines one model's data. Both LODs and mdl2 files may contain several of these.
-	This is a fragment from headers of type (0,0)
-	If there is more than one of these, the fragments appear as a list according to
-	"""
+class ZtMeshData:
 
 	context = ContextReference()
 
@@ -24,9 +18,6 @@ class ZtModelData:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# index into streamed buffers
-		self.stream_index = 0
 
 		# always zero
 		self.zero_a = 0
@@ -90,7 +81,6 @@ class ZtModelData:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.stream_index = 0
 		self.zero_a = 0
 		self.some_index = 0
 		self.zero_b = 0
@@ -119,7 +109,6 @@ class ZtModelData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.stream_index = stream.read_uint()
 		self.zero_a = stream.read_uint()
 		self.some_index = stream.read_uint()
 		self.zero_b = stream.read_uint()
@@ -149,7 +138,6 @@ class ZtModelData:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.stream_index)
 		stream.write_uint(self.zero_a)
 		stream.write_uint(self.some_index)
 		stream.write_uint(self.zero_b)
@@ -178,11 +166,10 @@ class ZtModelData:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'ZtModelData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'ZtMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
 		s += f'\n	* zero_a = {self.zero_a.__repr__()}'
 		s += f'\n	* some_index = {self.some_index.__repr__()}'
 		s += f'\n	* zero_b = {self.zero_b.__repr__()}'
@@ -251,7 +238,7 @@ class ZtModelData:
 		self.weights = []
 
 	def update_dtype(self):
-		"""Update ModelData.dt (numpy dtype) according to ModelData.flag"""
+		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
 			("bone ids", np.ubyte, (4,)),
@@ -288,10 +275,10 @@ class ZtModelData:
 			self.shell_count = 1
 
 	def read_tris(self, stream):
-		# read all tri indices for this model
+		# read all tri indices for this mesh
 		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
 		print("tris offset", stream.tell())
-		# read all tri indices for this model segment
+		# read all tri indices for this mesh segment
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
 
 	@property
@@ -307,7 +294,7 @@ class ZtModelData:
 		self.update_dtype()
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
-		# read a vertices of this model
+		# read a vertices of this mesh
 		if 4294967295 == self.vert_offset:
 			print(f"Warning, vert_offset is -1, seeking to last vert offset {self.last_vert_offset}")
 			if self.last_vert_offset == 0:

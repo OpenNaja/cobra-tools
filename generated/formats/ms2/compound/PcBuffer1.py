@@ -2,7 +2,7 @@ import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
-from generated.formats.ms2.compound.CoreModelInfoPC import CoreModelInfoPC
+from generated.formats.ms2.compound.ModelInfo import ModelInfo
 from generated.formats.ms2.compound.Ms2BufferInfoPC import Ms2BufferInfoPC
 from generated.formats.ms2.compound.Ms2BufferInfoZT import Ms2BufferInfoZT
 
@@ -40,7 +40,7 @@ class PcBuffer1:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoZT, (self.context, self.arg, None))
 		if self.context.version == 18:
 			self.buffer_info_pc = stream.read_type(Ms2BufferInfoPC, (self.context, None, None))
-		self.model_infos.read(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)
+		self.model_infos.read(stream, ModelInfo, self.arg.general_info.mdl_2_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -50,7 +50,7 @@ class PcBuffer1:
 			stream.write_type(self.buffer_info_pc)
 		if self.context.version == 18:
 			stream.write_type(self.buffer_info_pc)
-		self.model_infos.write(stream, CoreModelInfoPC, self.arg.general_info.mdl_2_count, None)
+		self.model_infos.write(stream, ModelInfo, self.arg.general_info.mdl_2_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
