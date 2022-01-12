@@ -431,7 +431,6 @@
 		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #OLD#">bones, loc first</add>
 		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="hier1padding" padding="1" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
-<!--        <add name="enumeration" type="IndexEnum"  arr1="enum count" cond="one" >enumerates all bone indices, 4 may be flags</add>-->
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
 		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" vercond="#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
 		<add name="ZT weirdness" type="ushort" arr1="10" vercond="#ZTUAC#">zeros</add>
@@ -463,11 +462,6 @@
 	<compound name="PCJointThing">
 		8 bytes
 		<add name="shorts" type="short" arr1="4" >-1</add>
-	</compound>
-
-	<compound name="IndexEnum">
-		<add name="four" type="uint"></add>
-		<add name="index" type="uint">linear increase</add>
 	</compound>
 
 	<compound name="Struct7">
