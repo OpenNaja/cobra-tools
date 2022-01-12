@@ -57,7 +57,7 @@ class PcMeshData:
 		self.vertex_color_offset = 0
 
 		# ?
-		self.vert_offset_within_lod = 0
+		self.vertex_offset_within_lod = 0
 
 		# power of 2 increasing with lod index
 		self.poweroftwo = 0
@@ -87,7 +87,7 @@ class PcMeshData:
 		self.uv_offset = 0
 		self.zero_b = 0
 		self.vertex_color_offset = 0
-		self.vert_offset_within_lod = 0
+		self.vertex_offset_within_lod = 0
 		if self.context.version == 18:
 			self.poweroftwo = 0
 		if self.context.version == 18:
@@ -111,7 +111,7 @@ class PcMeshData:
 		self.uv_offset = stream.read_uint()
 		self.zero_b = stream.read_uint()
 		self.vertex_color_offset = stream.read_uint()
-		self.vert_offset_within_lod = stream.read_uint()
+		self.vertex_offset_within_lod = stream.read_uint()
 		if self.context.version == 18:
 			self.poweroftwo = stream.read_uint()
 			self.zero = stream.read_uint()
@@ -136,7 +136,7 @@ class PcMeshData:
 		stream.write_uint(self.uv_offset)
 		stream.write_uint(self.zero_b)
 		stream.write_uint(self.vertex_color_offset)
-		stream.write_uint(self.vert_offset_within_lod)
+		stream.write_uint(self.vertex_offset_within_lod)
 		if self.context.version == 18:
 			stream.write_uint(self.poweroftwo)
 			stream.write_uint(self.zero)
@@ -164,7 +164,7 @@ class PcMeshData:
 		s += f'\n	* uv_offset = {self.uv_offset.__repr__()}'
 		s += f'\n	* zero_b = {self.zero_b.__repr__()}'
 		s += f'\n	* vertex_color_offset = {self.vertex_color_offset.__repr__()}'
-		s += f'\n	* vert_offset_within_lod = {self.vert_offset_within_lod.__repr__()}'
+		s += f'\n	* vertex_offset_within_lod = {self.vertex_offset_within_lod.__repr__()}'
 		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
 		s += f'\n	* zero = {self.zero.__repr__()}'
 		s += f'\n	* unknown_07 = {self.unknown_07.__repr__()}'
@@ -178,7 +178,7 @@ class PcMeshData:
 		s += '\n'
 		return s
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0, sum_uv_dict={}):
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
@@ -255,6 +255,8 @@ class PcMeshData:
 		self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
 		stream.seek(self.buffer_2_offset + (self.weights_offset * 16))
 		print("WEIGHtS", stream.tell())
+		# print(self)
+		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
 		# print(self.verts_data)
 		# create arrays for the unpacked ms2_file

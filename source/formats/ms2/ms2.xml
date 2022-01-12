@@ -149,7 +149,7 @@
 		<add name="uv offset" type="uint" >x*16 = offset in buffer 2</add>
 		<add name="zero b" type="uint">always zero</add>
 		<add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
-		<add name="vert offset within lod" type="uint" > ?</add>
+		<add name="vertex offset within lod" type="uint" > ?</add>
 		<add name="poweroftwo" type="uint" vercond="#PC#">power of 2 increasing with lod index</add>
 		<add name="zero" type="uint" vercond="#PC#">always zero</add>
 		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
@@ -169,7 +169,7 @@
 		<add name="known ff 0" type="int" >x*16 = offset in buffer 2</add>
 		<add name="tri offset" type="uint">relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri index count</add>
 		<add name="uv offset" type="uint" >relative to start of buffer[i], blocks of 8 bytes, count vertex_count</add>
-		<add name="vert offset" type="uint">relative to start of buffer[i], blocks of 24 bytes, count vertex_count</add>
+		<add name="vertex offset" type="uint">relative to start of buffer[i], blocks of 24 bytes, count vertex_count</add>
 		<add name="known ff 1" type="short">x*16 = offset in buffer 2</add>
 		<add name="one 0" type="ushort">x*16 = offset in buffer 2</add>
 		<add name="one 1" type="ushort" > ?</add>
@@ -222,8 +222,8 @@
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" vercond="#ZTUAC#" >pad to 8 bytes alignment
 		rhino: start of model - end of objects: 124 - 4 bytes padding
 		ele: start of model - end of objects: 120 - 0 bytes padding</add>
-		<add name="models" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#" ></add>
-		<add name="models" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#" ></add>
+		<add name="meshes" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#" ></add>
+		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#" ></add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" >see if it is a flag for ztuac too, so might be totally wrong here</add>
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>

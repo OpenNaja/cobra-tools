@@ -11,7 +11,7 @@ class PcMeshData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0, sum_uv_dict={}):
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
@@ -88,6 +88,8 @@ class PcMeshData:
 		self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
 		stream.seek(self.buffer_2_offset + (self.weights_offset * 16))
 		print("WEIGHtS", stream.tell())
+		# print(self)
+		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
 		# print(self.verts_data)
 		# create arrays for the unpacked ms2_file

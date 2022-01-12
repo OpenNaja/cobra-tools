@@ -35,8 +35,8 @@ class PcModel:
 		# rhino: start of model - end of objects: 124 - 4 bytes padding
 		# ele: start of model - end of objects: 120 - 0 bytes padding
 		self.objects_padding = 0
-		self.models = Array(self.context)
-		self.models = Array(self.context)
+		self.meshes = Array(self.context)
+		self.meshes = Array(self.context)
 		self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
@@ -56,9 +56,9 @@ class PcModel:
 		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = 0
 		if self.context.version == 18:
-			self.models = Array(self.context)
+			self.meshes = Array(self.context)
 		if self.context.version == 17:
-			self.models = Array(self.context)
+			self.meshes = Array(self.context)
 		if self.context.version == 17 and self.arg.last_count:
 			self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
 		self.floatsy = Array(self.context)
@@ -75,9 +75,9 @@ class PcModel:
 		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = stream.read_uint()
 		if self.context.version == 18:
-			self.models.read(stream, PcMeshData, self.arg.num_meshes, None)
+			self.meshes.read(stream, PcMeshData, self.arg.num_meshes, None)
 		if self.context.version == 17:
-			self.models.read(stream, ZtMeshData, self.arg.num_meshes, None)
+			self.meshes.read(stream, ZtMeshData, self.arg.num_meshes, None)
 		if self.context.version == 17 and self.arg.last_count:
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones, (self.context, None, None))
 		self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
@@ -96,9 +96,9 @@ class PcModel:
 		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			stream.write_uint(self.objects_padding)
 		if self.context.version == 18:
-			self.models.write(stream, PcMeshData, self.arg.num_meshes, None)
+			self.meshes.write(stream, PcMeshData, self.arg.num_meshes, None)
 		if self.context.version == 17:
-			self.models.write(stream, ZtMeshData, self.arg.num_meshes, None)
+			self.meshes.write(stream, ZtMeshData, self.arg.num_meshes, None)
 		if self.context.version == 17 and self.arg.last_count:
 			stream.write_type(self.ztuac_pre_bones)
 		self.floatsy.write(stream, FloatsY, self.arg.render_flag, None)
@@ -115,7 +115,7 @@ class PcModel:
 		s += f'\n	* lods = {self.lods.__repr__()}'
 		s += f'\n	* objects = {self.objects.__repr__()}'
 		s += f'\n	* objects_padding = {self.objects_padding.__repr__()}'
-		s += f'\n	* models = {self.models.__repr__()}'
+		s += f'\n	* meshes = {self.meshes.__repr__()}'
 		s += f'\n	* ztuac_pre_bones = {self.ztuac_pre_bones.__repr__()}'
 		s += f'\n	* floatsy = {self.floatsy.__repr__()}'
 		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'

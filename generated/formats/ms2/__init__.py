@@ -280,17 +280,17 @@ class Ms2File(Ms2InfoHeader, IoFile):
 							if model_data.stream_index not in sum_uv_dict:
 								sum_uv_dict[model_data.stream_index] = 0
 							sum_uv_dict[model_data.stream_index] += model_data.vertex_count
-						last_vert_offset = 0
+						last_vertex_offset = 0
 						# sort by lod, read those with offset first
-						# sorted_meshes = sorted(reversed(list(enumerate(model_info.pc_model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vert_offset))
-						# sorted_meshes = sorted(reversed(list(enumerate(model_info.pc_model.meshes))), key=lambda x: x[1].vert_offset)
+						# sorted_meshes = sorted(reversed(list(enumerate(model_info.pc_model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
+						# sorted_meshes = sorted(reversed(list(enumerate(model_info.pc_model.meshes))), key=lambda x: x[1].vertex_offset)
 						sorted_meshes = list(enumerate(model_info.pc_model.meshes))
 						for i, model_data in sorted_meshes:
-							print(i, model_data.vert_offset, model_data.vert_offset + model_data.vertex_count*24)
+							print(i, model_data.vertex_offset, model_data.vertex_offset + model_data.vertex_count*24)
 						for i, model_data in sorted_meshes:
 							logging.info(f"\nModel {i}")
-							last_vert_offset = model_data.populate(
-								self, stream, self.buffer_2_offset, 512, last_vert_offset=last_vert_offset, sum_uv_dict=sum_uv_dict)
+							last_vertex_offset = model_data.populate(
+								self, stream, self.buffer_2_offset, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
 						mdl2.model = model_info.pc_model
 				else:
 					if mdl2.read_editable:

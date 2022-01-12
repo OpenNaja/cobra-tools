@@ -50,7 +50,7 @@ class ZtMeshData:
 		self.uv_offset = 0
 
 		# relative to start of buffer[i], blocks of 24 bytes, count vertex_count
-		self.vert_offset = 0
+		self.vertex_offset = 0
 
 		# x*16 = offset in buffer 2
 		self.known_ff_1 = 0
@@ -91,7 +91,7 @@ class ZtMeshData:
 		self.known_ff_0 = 0
 		self.tri_offset = 0
 		self.uv_offset = 0
-		self.vert_offset = 0
+		self.vertex_offset = 0
 		self.known_ff_1 = 0
 		self.one_0 = 0
 		self.one_1 = 0
@@ -119,7 +119,7 @@ class ZtMeshData:
 		self.known_ff_0 = stream.read_int()
 		self.tri_offset = stream.read_uint()
 		self.uv_offset = stream.read_uint()
-		self.vert_offset = stream.read_uint()
+		self.vertex_offset = stream.read_uint()
 		self.known_ff_1 = stream.read_short()
 		self.one_0 = stream.read_ushort()
 		self.one_1 = stream.read_ushort()
@@ -148,7 +148,7 @@ class ZtMeshData:
 		stream.write_int(self.known_ff_0)
 		stream.write_uint(self.tri_offset)
 		stream.write_uint(self.uv_offset)
-		stream.write_uint(self.vert_offset)
+		stream.write_uint(self.vertex_offset)
 		stream.write_short(self.known_ff_1)
 		stream.write_ushort(self.one_0)
 		stream.write_ushort(self.one_1)
@@ -180,7 +180,7 @@ class ZtMeshData:
 		s += f'\n	* known_ff_0 = {self.known_ff_0.__repr__()}'
 		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
 		s += f'\n	* uv_offset = {self.uv_offset.__repr__()}'
-		s += f'\n	* vert_offset = {self.vert_offset.__repr__()}'
+		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
 		s += f'\n	* known_ff_1 = {self.known_ff_1.__repr__()}'
 		s += f'\n	* one_0 = {self.one_0.__repr__()}'
 		s += f'\n	* one_1 = {self.one_1.__repr__()}'
@@ -197,10 +197,10 @@ class ZtMeshData:
 		s += '\n'
 		return s
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vert_offset=0, sum_uv_dict={}):
+	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
-		self.last_vert_offset = last_vert_offset
-		self.new_vert_offset = 0
+		self.last_vertex_offset = last_vertex_offset
+		self.new_vertex_offset = 0
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
@@ -219,7 +219,7 @@ class ZtMeshData:
 		self.shapekeys = None
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
-		return self.new_vert_offset
+		return self.new_vertex_offset
 
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
@@ -295,19 +295,19 @@ class ZtMeshData:
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# read a vertices of this mesh
-		if 4294967295 == self.vert_offset:
-			print(f"Warning, vert_offset is -1, seeking to last vert offset {self.last_vert_offset}")
-			if self.last_vert_offset == 0:
-				self.last_vert_offset = self.buffer_2_offset + self.stream_offset
+		if 4294967295 == self.vertex_offset:
+			print(f"Warning, vertex_offset is -1, seeking to last vertex offset {self.last_vertex_offset}")
+			if self.last_vertex_offset == 0:
+				self.last_vertex_offset = self.buffer_2_offset + self.stream_offset
 				# stream.seek(self.vert_stream_end - (self.vertex_count * self.dt.itemsize))
 				print(f"Zero, starting at buffer start {stream.tell()}")
 			else:
-				stream.seek(self.last_vert_offset)
+				stream.seek(self.last_vertex_offset)
 		else:
-			stream.seek(self.buffer_2_offset + self.stream_offset + self.vert_offset)
+			stream.seek(self.buffer_2_offset + self.stream_offset + self.vertex_offset)
 		print("VERTS", stream.tell(), self.vertex_count)
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
-		self.new_vert_offset = stream.tell()
+		self.new_vertex_offset = stream.tell()
 		# print(self.verts_data.shape)
 		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		print("UV", stream.tell())
