@@ -4,9 +4,6 @@ import logging
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
-import numpy
-import typing
-from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
@@ -26,8 +23,8 @@ class PcMeshData:
 		# index into streamed buffers
 		self.stream_index = 0
 
-		# always zero
-		self.zeros_a = numpy.zeros((3), dtype='uint')
+		# increments somewhat in ZTUAC platypus
+		self.some_index = 0
 
 		# repeat
 		self.tri_index_count_a = 0
@@ -77,7 +74,7 @@ class PcMeshData:
 
 	def set_defaults(self):
 		self.stream_index = 0
-		self.zeros_a = numpy.zeros((3), dtype='uint')
+		self.some_index = 0
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 		self.tri_offset = 0
@@ -100,8 +97,8 @@ class PcMeshData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.stream_index = stream.read_uint()
-		self.zeros_a = stream.read_uints((3))
+		self.stream_index = stream.read_uint64()
+		self.some_index = stream.read_uint64()
 		self.tri_index_count_a = stream.read_uint()
 		self.vertex_count = stream.read_uint()
 		self.tri_offset = stream.read_uint()
@@ -125,8 +122,8 @@ class PcMeshData:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.stream_index)
-		stream.write_uints(self.zeros_a)
+		stream.write_uint64(self.stream_index)
+		stream.write_uint64(self.some_index)
 		stream.write_uint(self.tri_index_count_a)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_offset)
@@ -154,7 +151,7 @@ class PcMeshData:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
-		s += f'\n	* zeros_a = {self.zeros_a.__repr__()}'
+		s += f'\n	* some_index = {self.some_index.__repr__()}'
 		s += f'\n	* tri_index_count_a = {self.tri_index_count_a.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'

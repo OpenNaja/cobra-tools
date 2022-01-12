@@ -19,14 +19,11 @@ class ZtMeshData:
 		self.io_size = 0
 		self.io_start = 0
 
-		# always zero
-		self.zero_a = 0
+		# index into streamed buffers
+		self.stream_index = 0
 
-		# increments somewhat in platypus
+		# increments somewhat in ZTUAC platypus
 		self.some_index = 0
-
-		# always zero
-		self.zero_b = 0
 
 		# repeat
 		self.tri_index_count = 0
@@ -81,9 +78,8 @@ class ZtMeshData:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.zero_a = 0
+		self.stream_index = 0
 		self.some_index = 0
-		self.zero_b = 0
 		self.tri_index_count = 0
 		self.vertex_count = 0
 		self.tri_info_offset = 0
@@ -109,9 +105,8 @@ class ZtMeshData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.zero_a = stream.read_uint()
-		self.some_index = stream.read_uint()
-		self.zero_b = stream.read_uint()
+		self.stream_index = stream.read_uint64()
+		self.some_index = stream.read_uint64()
 		self.tri_index_count = stream.read_uint()
 		self.vertex_count = stream.read_uint()
 		self.tri_info_offset = stream.read_uint()
@@ -138,9 +133,8 @@ class ZtMeshData:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.zero_a)
-		stream.write_uint(self.some_index)
-		stream.write_uint(self.zero_b)
+		stream.write_uint64(self.stream_index)
+		stream.write_uint64(self.some_index)
 		stream.write_uint(self.tri_index_count)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_info_offset)
@@ -170,9 +164,8 @@ class ZtMeshData:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* zero_a = {self.zero_a.__repr__()}'
+		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
 		s += f'\n	* some_index = {self.some_index.__repr__()}'
-		s += f'\n	* zero_b = {self.zero_b.__repr__()}'
 		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_info_offset = {self.tri_info_offset.__repr__()}'
@@ -202,6 +195,7 @@ class ZtMeshData:
 		self.last_vertex_offset = last_vertex_offset
 		self.new_vertex_offset = 0
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
+		print(self.streams, self.stream_index, self)
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
 		for s in self.streams[:self.stream_index]:

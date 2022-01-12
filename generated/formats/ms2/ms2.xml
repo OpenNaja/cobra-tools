@@ -138,8 +138,8 @@
 
 
 	<compound name="PcMeshData" >
-		<add name="stream index" type="uint" >index into streamed buffers</add>
-		<add name="zeros a" type="uint" arr1="3" >always zero</add>
+		<add name="stream index" type="uint64" >index into streamed buffers</add>
+		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus</add>
 		<add name="tri index count a" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
@@ -159,9 +159,8 @@
 	</compound>
 
 	<compound name="ZtMeshData" >
-		<add name="zero a" type="uint" >always zero</add>
-		<add name="some index" type="uint" >increments somewhat in platypus</add>
-		<add name="zero b" type="uint" >always zero</add>
+		<add name="stream index" type="uint64" >index into streamed buffers</add>
+		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus</add>
 		<add name="tri index count" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri info offset" type="uint">stores count, -1 as ints</add>
@@ -362,7 +361,7 @@
 		<add name="objects ptr" type="uint64"/>
 		<add name="models ptr" type="uint64"/>
 		<add name="first materials ptr" type="uint64"/>
-		<add name="zeros ztuac" type="uint64" arr1="3" vercond="#ZTUAC#"/>
+		<add name="zeros ztuac" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
 		<add name="zero 0" type="uint64"/>
 		<add name="zero 1" type="uint64" vercond="!#PC#"/>

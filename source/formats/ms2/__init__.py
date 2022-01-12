@@ -287,10 +287,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						sorted_meshes = list(enumerate(model_info.pc_model.meshes))
 						for i, model_data in sorted_meshes:
 							print(i, model_data.vertex_offset, model_data.vertex_offset + model_data.vertex_count*24)
-						for i, model_data in sorted_meshes:
-							logging.info(f"\nModel {i}")
-							last_vertex_offset = model_data.populate(
-								self, stream, self.buffer_2_offset, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+						try:
+							for i, model_data in sorted_meshes:
+								logging.info(f"\nModel {i}")
+								last_vertex_offset = model_data.populate(
+									self, stream, self.buffer_2_offset, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+						except:
+							print(self, self.pc_buffer1)
 						mdl2.model = model_info.pc_model
 				else:
 					if mdl2.read_editable:

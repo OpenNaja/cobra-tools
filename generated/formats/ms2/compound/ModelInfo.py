@@ -73,7 +73,7 @@ class ModelInfo:
 		self.objects_ptr = 0
 		self.models_ptr = 0
 		self.first_materials_ptr = 0
-		self.zeros_ztuac = numpy.zeros((3), dtype='uint64')
+		self.zeros_ztuac = numpy.zeros((4), dtype='uint64')
 
 		# unknown, probably used to increment skeleton
 		self.increment_flag = 0
@@ -113,7 +113,7 @@ class ModelInfo:
 		self.models_ptr = 0
 		self.first_materials_ptr = 0
 		if self.context.version == 17:
-			self.zeros_ztuac = numpy.zeros((3), dtype='uint64')
+			self.zeros_ztuac = numpy.zeros((4), dtype='uint64')
 		self.increment_flag = 0
 		self.zero_0 = 0
 		if not (self.context.version == 18):
@@ -151,7 +151,7 @@ class ModelInfo:
 		self.models_ptr = stream.read_uint64()
 		self.first_materials_ptr = stream.read_uint64()
 		if self.context.version == 17:
-			self.zeros_ztuac = stream.read_uint64s((3))
+			self.zeros_ztuac = stream.read_uint64s((4))
 		self.increment_flag = stream.read_uint64()
 		self.zero_0 = stream.read_uint64()
 		if not (self.context.version == 18):
