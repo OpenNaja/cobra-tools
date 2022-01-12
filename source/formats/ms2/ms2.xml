@@ -220,9 +220,8 @@
 		<add name="index" type="uint" >index of this model inside the ms2</add>
 		<add name="bone info index" type="uint" >used to find bone info</add>
 		<add name="ms2 name" type="ZString" >name of ms2</add>
-		<add name="model_info" type="ModelInfo" vercond="!#OLD#" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="model" type="Model" arg="model_info" vercond="!#OLD#" >describes a model</add>
-<!--		<add name="mesh" type="Model" since="47" >describes a mesh</add>-->
+		<add name="model_info" type="ModelInfo" since="47" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="model" type="Model" arg="model_info" since="47" >describes a model</add>
 	</compound>
 
 	<compound name="Model">
@@ -273,7 +272,7 @@
 	<compound name="Ms2Buffer0" >
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
-		<add name="new padding" type="SmartPadding" vercond="#PZ16# #OR# #JWE2#" >todo - pad to 8; for pz 1.6</add>
+		<add name="names padding" type="SmartPadding" since="50" >todo - pad to 8; for pz 1.6</add>
 		<add name="zt streams header" type="Ms2BufferInfoZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
 	</compound>
 

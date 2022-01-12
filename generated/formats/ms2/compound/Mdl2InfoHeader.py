@@ -43,9 +43,9 @@ class Mdl2InfoHeader:
 		self.index = 0
 		self.bone_info_index = 0
 		self.ms_2_name = 0
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			self.model_info = ModelInfo(self.context, None, None)
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			self.model = Model(self.context, self.model_info, None)
 
 	def read(self, stream):
@@ -55,7 +55,7 @@ class Mdl2InfoHeader:
 		self.index = stream.read_uint()
 		self.bone_info_index = stream.read_uint()
 		self.ms_2_name = stream.read_zstring()
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			self.model_info = stream.read_type(ModelInfo, (self.context, None, None))
 			self.model = stream.read_type(Model, (self.context, self.model_info, None))
 
@@ -67,7 +67,7 @@ class Mdl2InfoHeader:
 		stream.write_uint(self.index)
 		stream.write_uint(self.bone_info_index)
 		stream.write_zstring(self.ms_2_name)
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			stream.write_type(self.model_info)
 			stream.write_type(self.model)
 
