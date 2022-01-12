@@ -5,7 +5,7 @@ import traceback
 import bpy
 import mathutils
 
-from generated.formats.ovl.versions import is_ztuac
+from generated.formats.ms2.versions import is_ztuac
 from plugin.modules_import.collision import import_collider
 
 from plugin.helpers import create_ob
