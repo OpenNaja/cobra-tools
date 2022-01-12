@@ -60,17 +60,14 @@ class BoneInfo:
 		# index count 7
 		self.count_7 = 0
 
-		# zero
-		self.unknownextra = 0
-
 		# joint count
 		self.joint_count = 0
 
 		# unnk 78 count
 		self.unk_78_count = 0
 
-		# jwe only, everything is shifted a bit due to extra uint 0
-		self.unknown_88 = 0
+		# zero
+		self.unk_extra = 0
 
 		# index into ms2 string table for bones used here
 		self.name_indices = numpy.zeros((self.name_count), dtype='uint')
@@ -144,12 +141,10 @@ class BoneInfo:
 		self.one = 0
 		self.zeros_count = 0
 		self.count_7 = 0
-		if self.context.version < 47:
-			self.unknownextra = 0
 		self.joint_count = 0
 		self.unk_78_count = 0
-		if self.context.version == 47:
-			self.unknown_88 = 0
+		if self.context.version <= 47:
+			self.unk_extra = 0
 		if not (self.context.version < 47):
 			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
 		if self.context.version < 47:
@@ -180,7 +175,7 @@ class BoneInfo:
 			self.struct_7 = Struct7(self.context, None, None)
 		if self.context.version == 32 and self.joint_count:
 			self.weird_padding = SmartPadding(self.context, None, None)
-		if not (self.context.version == 13) and self.joint_count:
+		if not (self.context.version < 47) and self.joint_count:
 			self.joints = JointData(self.context, None, None)
 		if self.context.version == 32 and not self.joint_count:
 			self.weird_padding_2 = SmartPadding(self.context, None, None)
@@ -206,12 +201,10 @@ class BoneInfo:
 		self.one = stream.read_uint64()
 		self.zeros_count = stream.read_uint64()
 		self.count_7 = stream.read_uint64()
-		if self.context.version < 47:
-			self.unknownextra = stream.read_uint64()
 		self.joint_count = stream.read_uint64()
 		self.unk_78_count = stream.read_uint64()
-		if self.context.version == 47:
-			self.unknown_88 = stream.read_uint64()
+		if self.context.version <= 47:
+			self.unk_extra = stream.read_uint64()
 		if not (self.context.version < 47):
 			self.name_indices = stream.read_uints((self.name_count))
 		if self.context.version < 47:
@@ -242,7 +235,7 @@ class BoneInfo:
 			self.struct_7 = stream.read_type(Struct7, (self.context, None, None))
 		if self.context.version == 32 and self.joint_count:
 			self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
-		if not (self.context.version == 13) and self.joint_count:
+		if not (self.context.version < 47) and self.joint_count:
 			self.joints = stream.read_type(JointData, (self.context, None, None))
 		if self.context.version == 32 and not self.joint_count:
 			self.weird_padding_2 = stream.read_type(SmartPadding, (self.context, None, None))
@@ -270,12 +263,10 @@ class BoneInfo:
 		stream.write_uint64(self.one)
 		stream.write_uint64(self.zeros_count)
 		stream.write_uint64(self.count_7)
-		if self.context.version < 47:
-			stream.write_uint64(self.unknownextra)
 		stream.write_uint64(self.joint_count)
 		stream.write_uint64(self.unk_78_count)
-		if self.context.version == 47:
-			stream.write_uint64(self.unknown_88)
+		if self.context.version <= 47:
+			stream.write_uint64(self.unk_extra)
 		if not (self.context.version < 47):
 			stream.write_uints(self.name_indices)
 		if self.context.version < 47:
@@ -309,7 +300,7 @@ class BoneInfo:
 			stream.write_type(self.struct_7)
 		if self.context.version == 32 and self.joint_count:
 			stream.write_type(self.weird_padding)
-		if not (self.context.version == 13) and self.joint_count:
+		if not (self.context.version < 47) and self.joint_count:
 			stream.write_type(self.joints)
 		if self.context.version == 32 and not self.joint_count:
 			stream.write_type(self.weird_padding_2)
@@ -337,10 +328,9 @@ class BoneInfo:
 		s += f'\n	* one = {self.one.__repr__()}'
 		s += f'\n	* zeros_count = {self.zeros_count.__repr__()}'
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
-		s += f'\n	* unknownextra = {self.unknownextra.__repr__()}'
 		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
 		s += f'\n	* unk_78_count = {self.unk_78_count.__repr__()}'
-		s += f'\n	* unknown_88 = {self.unknown_88.__repr__()}'
+		s += f'\n	* unk_extra = {self.unk_extra.__repr__()}'
 		s += f'\n	* name_indices = {self.name_indices.__repr__()}'
 		s += f'\n	* name_padding = {self.name_padding.__repr__()}'
 		s += f'\n	* inverse_bind_matrices = {self.inverse_bind_matrices.__repr__()}'

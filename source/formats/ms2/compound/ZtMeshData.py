@@ -15,7 +15,6 @@ class ZtMeshData:
 		self.last_vertex_offset = last_vertex_offset
 		self.new_vertex_offset = 0
 		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
-		print(self.streams, self.stream_index, self)
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
 		for s in self.streams[:self.stream_index]:
@@ -27,7 +26,7 @@ class ZtMeshData:
 		print("Vertex Stream end", self.vert_stream_end)
 		print("Tri info address", self.buffer_2_offset+self.stream_offset+self.tri_info_offset)
 		print("Vertex info address", self.buffer_2_offset+self.stream_offset+self.vert_info_offset)
-		print(self)
+		# print(self)
 		self.ms2_file = ms2_file
 		self.base = base
 		self.shapekeys = None

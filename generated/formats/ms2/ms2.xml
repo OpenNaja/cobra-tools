@@ -63,6 +63,7 @@
 		<option value="7" name="ConvexHull" />
 		<option value="8" name="ConvexHullPC" />
 		<option value="10" name="MeshCollision" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>
+		<option value="11" name="UnkRhino" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>
 	</enum>
 
 	<compound name="SmartPadding">
@@ -402,10 +403,9 @@
 		<add name="one" type="uint64" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="count7" type="uint64" >index count 7</add>
-		<add name="unknownextra" type="uint64" vercond="#OLD#" >zero</add>
 		<add name="joint count" type="uint64" >joint count</add>
 		<add name="unk78count" type="uint64" >unnk 78 count</add>
-		<add name="unknown88" type="uint64" vercond="#JWE#" >jwe only, everything is shifted a bit due to extra uint 0</add>
+		<add name="unk extra" type="uint64" until="47" >zero</add>
 
 		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
 		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#">index into ms2 string table for bones used here</add>
@@ -421,10 +421,10 @@
 		<add name="ZT weirdness" type="ushort" arr1="10" vercond="#ZTUAC#">zeros</add>
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
-		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#">ragdoll links?</add>
-<!--		<add name="struct 7" type="uint64" arr1="count7" vercond="#PC#">ragdoll links?</add>-->
+		keep disabled for the old formats for now
+		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#" >ragdoll links?</add>
 		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
-		<add name="joints" type="JointData" cond="joint count" vercond="!#ZTUAC#">joints</add>
+		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
 		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>
 
@@ -450,11 +450,19 @@
 	</compound>
 
 	<compound name="Struct7">
+		<add name="zeros start" type="ubyte" until="32" arr1="6">guess for ZTUAC rhino</add>
 		<add name="count7" type="uint64">repeat</add>
 		<add name="zero" type="uint64" >seen 0</add>
 		<add name="zeros pz" type="uint64" since="48" arr1="2">only for recent versions of PZ</add>
-		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" >60 bytes per entry</add>
+		<add name="UnknownList" type="UACJoint" arr1="count7" until="32">36 bytes per entry</add>
+		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="47">60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
+	</compound>
+
+	<compound name="UACJoint">
+		36 bytes
+		<add name="unk" type="ushort" arr1="6" >variable</add>
+		<add name="floats" type="float" arr1="6">some at least</add>
 	</compound>
 
 	<compound name="NasutoJointEntry">
@@ -469,42 +477,43 @@
 
 	<compound name="JointData">
 		appears in dinos and static meshes
-		<add name="new extra" type="uint" arr1="2" vercond="#JWE2#">A7 2D A8 10   00 00 00 00, since ms_2_version 51</add>
+		<add name="new extra" type="uint" arr1="2" since="51">A7 2D A8 10   00 00 00 00, since ms_2_version 51</add>
 		<add name="joint_count" type="uint" >repeat</add>
 		<add name="count_0" type="uint" >small number</add>
 		<add name="count_1" type="uint" >small number</add>
 		<add name="count_2" type="uint" >small number</add>
-		<add name="zeros extra" type="uint" arr1="2" vercond="#PC#">0s, might be related to count 7 in PC</add>
+		<add name="zeros extra" type="uint" arr1="2" vercond="#OLD#">0s, might be related to count 7 in PC</add>
 		<add name="namespace length" type="uint" >size of the name buffer below, including trailing zeros</add>
 		<add name="zeros 0" type="uint" arr1="5" >0s</add>
 		<add name="pc count" type="uint" >0 or 1</add>
 		<add name="zeros 1" type="uint" arr1="7">0s</add>
-		<add name="extra zeros pc" type="uint" arr1="4" vercond="#PC#">0s</add>
+		<add name="extra zeros pc" type="uint" arr1="4" vercond="#OLD#">0s</add>
 		<add name="ones" type="uint64" arr1="2" >1, 1</add>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
 		<add name="joint entry count" type="uint" >0</add>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
-		<add name="zeros 3" type="uint64" arr1="joint_count" vercond="!#PC#">might be pointers</add>
-		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" vercond="!#PC#" ></add>
-		<add name="first list" type="ListFirst" arr1="count_0" vercond="!#PC#" >used by ptero, 16 bytes per entry</add>
-		<add name="short list" type="ListShort" arr1="count_1" vercond="!#PC#" ></add>
-		<add name="long list" type="ListLong" arr1="count_2" vercond="!#PC#" ></add>
+		<add name="zeros 3" type="uint64" arr1="joint_count" vercond="!#OLD#">might be pointers</add>
+		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" vercond="!#OLD#" ></add>
+		<add name="first list" type="ListFirst" arr1="count_0" vercond="!#OLD#" >used by ptero, 16 bytes per entry</add>
+		<add name="short list" type="ListShort" arr1="count_1" vercond="!#OLD#" ></add>
+		<add name="long list" type="ListLong" arr1="count_2" vercond="!#OLD#" ></add>
 
-		<add name="pc ffs" type="PcFFCounter" vercond="#PC#" >?</add>
-		<add name="pc bytes" type="byte" arr1="9" vercond="#PC#" >1FAA FFAAFF00 000000</add>
-		<add name="pc hitcheck count" type="uint64" vercond="#PC#">counts hitchecks for pz</add>
-		<add name="pc zero 0" type="uint64" vercond="#PC#">0</add>
-		<add name="pc floats" type="float" arr1="pc count" arr2="10" vercond="#PC#">sometimes an array of floats</add>
+		<add name="JointInfoList" type="UACJointFF" vercond="#OLD#" arr1="joint count" >?</add>
+<!--		<add name="pc bytes" type="byte" arr1="9" vercond="#OLD#" >1FAA FFAAFF00 000000</add>-->
+<!--		<add name="pc hitcheck count" type="uint64" vercond="#OLD#">counts hitchecks for pz</add>-->
+<!--		<add name="pc zero 0" type="uint64" vercond="#OLD#">0</add>-->
+		<add name="pc floats" type="float" arr1="pc count" arr2="10" vercond="#OLD#">sometimes an array of floats</add>
 
 		<add name="joint indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint names" type="ZStringBuffer" arg="namespace length">zstring name buffer</add>
 <!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
 		<add name="JointNamesPadding" type="SmartPadding" >?</add>
-		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#PC#">includes name ptrs, some flags, and the hitchecks</add>
-		<add name="hitchecks pc" type="HitCheck Entry" arr1="pc hitcheck count" vercond="#PC#">bare hitchecks</add>
+		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#OLD#">includes name ptrs, some flags, and the hitchecks</add>
+needs more work for ZTUAC rhino
+		<!--		<add name="hitchecks pc" type="HitCheck Entry" arr1="joint count" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>-->
 	</compound>
 
 	<compound name="Descriptor">
@@ -553,24 +562,25 @@
 		<add name="a 2" type="float">sometimes repeat of a</add>
 	</compound>
 
-	<compound name="JointInfo">
+	<compound name="CommonJointInfo">
 		<add name="eleven" type="uint">must be 11</add>
 		<add name="FFs" type="int" arr1="3">bunch of -1's</add>
 		<add name="name offset" type="uint"/>
 		<add name="hitcheck count" type="uint"/>
+	</compound>
+
+	<compound name="JointInfo" inherit="CommonJointInfo">
 		<add name="zero" type="uint64" >8 bytes of zeros</add>
 		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
 		<add name="HitCheck" type="HitCheck Entry" arr1="hitcheck count"/>
 	</compound>
 
-	<compound name="JointInfoPC">
+	<compound name="UACJointFF">
 		<add name="eleven" type="uint">must be 11</add>
-		<add name="FFs" type="int" arr1="3">bunch of -1's</add>
+		<add name="FFs" type="int" arr1="4">bunch of -1's, and constants</add>
 		<add name="name offset" type="uint"/>
 		<add name="hitcheck count" type="uint"/>
-		<add name="zero" type="uint64" >8 bytes of zeros</add>
-		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
-		<add name="HitCheck" type="HitCheck Entry" arr1="hitcheck count"/>
+		<add name="zeros" type="uint" arr1="3" >12 bytes of zeros</add>
 	</compound>
 
 	<compound name="HitCheck Entry">
@@ -581,7 +591,7 @@
 		<add name="unknown2d" type="ubyte">0</add>
 		<add name="unknown3" type="uint">JWE: 564267, PZ: seen 17 and 22</add>
 		<add name="unknown4" type="uint">JWE: 46, PZ: same as above</add>
-		<add name="zero extra pc unk" type="uint" vercond="#PC#"></add>
+		<add name="zero extra pc unk" type="uint" vercond="#OLD#"></add>
 		<add name="name offset" type="uint">offset into joint names</add>
 
 		<add name="collider" type="Sphere" cond="type == 0" />
