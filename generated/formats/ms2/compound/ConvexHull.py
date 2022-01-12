@@ -36,9 +36,9 @@ class ConvexHull:
 		self.vertex_count = 0
 		self.rotation = Matrix33(self.context, None, None)
 		self.offset = Vector3(self.context, None, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zeros = numpy.zeros((5), dtype='uint')
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
 			self.zeros = numpy.zeros((2), dtype='uint')
 
 	def read(self, stream):
@@ -46,9 +46,9 @@ class ConvexHull:
 		self.vertex_count = stream.read_uint()
 		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
 		self.offset = stream.read_type(Vector3, (self.context, None, None))
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zeros = stream.read_uints((5))
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
 			self.zeros = stream.read_uints((2))
 
 		self.io_size = stream.tell() - self.io_start
@@ -58,9 +58,9 @@ class ConvexHull:
 		stream.write_uint(self.vertex_count)
 		stream.write_type(self.rotation)
 		stream.write_type(self.offset)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uints(self.zeros)
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
 			stream.write_uints(self.zeros)
 
 		self.io_size = stream.tell() - self.io_start

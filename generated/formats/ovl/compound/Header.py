@@ -1,6 +1,8 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.formats.base.compound.PadAlign import PadAlign
+from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compound.AuxEntry import AuxEntry
 from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
@@ -11,8 +13,6 @@ from generated.formats.ovl.compound.StreamEntry import StreamEntry
 from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
-from generated.formats.ovl_base.compound.PadAlign import PadAlign
-from generated.formats.ovl_base.compound.ZStringBuffer import ZStringBuffer
 
 
 class Header(GenericHeader):

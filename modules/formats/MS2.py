@@ -4,10 +4,10 @@ import struct
 import logging
 
 from generated.formats.ms2.compound.ModelInfo import ModelInfo
-from generated.formats.ms2 import Mdl2File, Ms2File, is_old
+from generated.formats.ms2 import Mdl2File, Ms2File, Ms2Context
 from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
 
-from generated.formats.ovl.versions import *
+import generated.formats.ovl.versions as ovl_versions
 
 from modules.formats.shared import get_versions, get_padding
 from modules.formats.BaseFormat import BaseFile
@@ -17,14 +17,24 @@ from ovl_util import interaction
 
 class Ms2Loader(BaseFile):
 
+	def get_version(self):
+		ss_pointer = self.sized_str_entry.pointers[0]
+		version = struct.unpack(f"I", ss_pointer.data[:4])[0]
+		vdic = {"version": version}
+		# print(vdic)
+		self.context = Ms2Context()
+		self.context.version = version
+		# print(self.context)
+		return vdic
+
 	def collect(self):
 		self.assign_ss_entry()
+		self.get_version()
 		ss_pointer = self.sized_str_entry.pointers[0]
-		if not is_old(self.ovl):
+		if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
 			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
 			# print(self.sized_str_entry.fragments)
 			# second pass: collect mesh fragments
-			versions = get_versions(self.ovl)
 			if ss_pointer.data_size != 48:
 				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {self.file_entry.name}")
 			if self.sized_str_entry.fragments[2].pointers[1].data not in (struct.pack("<ii", -1, 0), b""):
@@ -41,7 +51,8 @@ class Ms2Loader(BaseFile):
 			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
 			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0 or empty (if no buffers)
 			f_1 = self.sized_str_entry.fragments[1]
-			model_infos = f_1.pointers[1].load_as(ModelInfo, version_info=versions, num=len(self.sized_str_entry.children))
+			model_infos = f_1.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
+			# print(model_infos)
 			for mdl2_entry, mdl2_info in zip(self.sized_str_entry.children, model_infos):
 				assert mdl2_entry.ext == ".mdl2"
 				self.collect_mdl2(mdl2_entry, mdl2_info, f_1.pointers[1])
@@ -136,7 +147,7 @@ class Ms2Loader(BaseFile):
 		offset = 0
 		for mdl2, mdl2_entry in zip(mdl2s, ms2_entry.children):
 			# byte size of modelinfo varies - JWE1 (176 bytes total)
-			if is_jwe(self.ovl):
+			if ovl_versions.is_jwe(self.ovl):
 				offset += 104
 			# 16 additional bytes for PZ/PZ16/JWE2 (192 bytes total)
 			else:
@@ -166,7 +177,7 @@ class Ms2Loader(BaseFile):
 		self.create_data_entry(ms2_entry, (ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes))
 
 	def update(self):
-		if is_pz16(self.ovl):
+		if ovl_versions.is_pz16(self.ovl):
 			logging.info(f"Updating MS2 buffer 0 with padding for {self.sized_str_entry.name}")
 			name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 			# make sure buffer 0 is padded to 4 bytes
@@ -175,16 +186,15 @@ class Ms2Loader(BaseFile):
 				self.sized_str_entry.data_entry.update_data([name_buffer + padding, bone_infos, verts])
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		versions = get_versions(self.ovl)
+		versions = self.get_version()
 		name = self.sized_str_entry.name
 		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		# sizedstr data has bone count
 		ms2_general_info_data = self.sized_str_entry.pointers[0].data
-		ms2_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData)[0]
+		ms2_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, context=self.context)[0]
 		print(ms2_info)
 
-		ovl_header = self.pack_header(b"MS2 ")
 		ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
 	
 		# for i, buffer in enumerate(buffers):
@@ -193,7 +203,7 @@ class Ms2Loader(BaseFile):
 		# 		outfile.write(buffer)
 	
 		# Planet coaster
-		if is_pc(self.ovl) or is_ztuac(self.ovl):
+		if ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl):
 			# only ss entry holds any useful stuff
 			ms2_buffer_info_data = b""
 		# Planet Zoo, JWE
@@ -206,13 +216,13 @@ class Ms2Loader(BaseFile):
 			ms2_buffer_info_data = buffer_info_frag.pointers[1].data
 			# this fragment informs us about the mesh count of the next mdl2 that is read
 			# so we can use it to collect the variable mdl2 fragments describing a mesh each
-			model_infos = model_info_frag.pointers[1].load_as(ModelInfo, version_info=versions, num=len(self.sized_str_entry.children))
+			model_infos = model_info_frag.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
 			print(model_infos)
 		# write the ms2 file
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as outfile:
-			outfile.write(ovl_header)
+			# outfile.write(ovl_header)
 			outfile.write(ms2_header)
 			outfile.write(ms2_general_info_data)
 			outfile.write(ms2_buffer_info_data)
@@ -228,12 +238,12 @@ class Ms2Loader(BaseFile):
 			with open(mdl2_path, 'wb') as outfile:
 				logging.info(f"Writing {mdl2_entry.name} [{mdl2_index}]")
 	
-				mdl2_header = struct.pack("<3I", ms2_info.ms_2_version, mdl2_index, bone_info_index)
-				outfile.write(ovl_header)
+				mdl2_header = struct.pack("<3I", ms2_info.version, mdl2_index, bone_info_index)
+				# outfile.write(ovl_header)
 				outfile.write(mdl2_header)
 				outfile.write(as_bytes(self.sized_str_entry.name))
 	
-				if not (is_pc(self.ovl) or is_ztuac(self.ovl)):
+				if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
 					# the fixed fragments
 					materials, lods, objects, models, model_info = mdl2_entry.fragments
 					# write the mesh info for this mesh, buffered from the previous mesh or ms2 (model_info fragments)

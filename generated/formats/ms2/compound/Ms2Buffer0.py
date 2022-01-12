@@ -32,18 +32,18 @@ class Ms2Buffer0:
 	def set_defaults(self):
 		self.name_hashes = numpy.zeros((), dtype='uint')
 		self.names = Array(self.context)
-		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if (self.context.version == 50) or (self.context.version == 51):
 			self.new_padding = SmartPadding(self.context, None, None)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.name_hashes = stream.read_uints((self.arg.name_count))
 		self.names = stream.read_zstrings((self.arg.name_count))
-		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if (self.context.version == 50) or (self.context.version == 51):
 			self.new_padding = stream.read_type(SmartPadding, (self.context, None, None))
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.context, self.arg, None))
 
 		self.io_size = stream.tell() - self.io_start
@@ -52,9 +52,9 @@ class Ms2Buffer0:
 		self.io_start = stream.tell()
 		stream.write_uints(self.name_hashes)
 		stream.write_zstrings(self.names)
-		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if (self.context.version == 50) or (self.context.version == 51):
 			stream.write_type(self.new_padding)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			stream.write_type(self.zt_streams_header)
 
 		self.io_size = stream.tell() - self.io_start

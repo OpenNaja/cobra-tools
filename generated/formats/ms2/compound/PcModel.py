@@ -48,18 +48,18 @@ class PcModel:
 
 	def set_defaults(self):
 		self.materials = Array(self.context)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.lods = Array(self.context)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.lods = Array(self.context)
 		self.objects = Array(self.context)
-		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
+		if self.context.version == 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.meshes = Array(self.context)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.meshes = Array(self.context)
-		if self.context.version == 17 and self.arg.last_count:
+		if self.context.version == 13 and self.arg.last_count:
 			self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
 		self.floatsy = Array(self.context)
 		self.weird_padding = SmartPadding(self.context, None, None)
@@ -67,18 +67,18 @@ class PcModel:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.materials.read(stream, MaterialName, self.arg.num_materials, None)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.lods.read(stream, LodInfoZT, self.arg.num_lods, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.lods.read(stream, LodInfo, self.arg.num_lods, None)
 		self.objects.read(stream, Object, self.arg.num_objects, None)
-		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
+		if self.context.version == 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = stream.read_uint()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.meshes.read(stream, PcMeshData, self.arg.num_meshes, None)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.meshes.read(stream, ZtMeshData, self.arg.num_meshes, None)
-		if self.context.version == 17 and self.arg.last_count:
+		if self.context.version == 13 and self.arg.last_count:
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones, (self.context, None, None))
 		self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
 		self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
@@ -88,18 +88,18 @@ class PcModel:
 	def write(self, stream):
 		self.io_start = stream.tell()
 		self.materials.write(stream, MaterialName, self.arg.num_materials, None)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.lods.write(stream, LodInfoZT, self.arg.num_lods, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.lods.write(stream, LodInfo, self.arg.num_lods, None)
 		self.objects.write(stream, Object, self.arg.num_objects, None)
-		if self.context.version == 17 and (self.arg.num_materials + self.arg.num_objects) % 2:
+		if self.context.version == 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			stream.write_uint(self.objects_padding)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.meshes.write(stream, PcMeshData, self.arg.num_meshes, None)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.meshes.write(stream, ZtMeshData, self.arg.num_meshes, None)
-		if self.context.version == 17 and self.arg.last_count:
+		if self.context.version == 13 and self.arg.last_count:
 			stream.write_type(self.ztuac_pre_bones)
 		self.floatsy.write(stream, FloatsY, self.arg.render_flag, None)
 		stream.write_type(self.weird_padding)

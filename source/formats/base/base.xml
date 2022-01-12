@@ -58,4 +58,20 @@
         A standard 32-bit floating point number.
     </basic>
 
+    <basic name="bool" count="1">
+        An unsigned 8-bit integer.
+    </basic>
+
+    <basic name="ZString">
+        A string terminated by a 00 byte.
+    </basic>
+
+    <compound name="ZStringBuffer" count="0" >
+        Holds a buffer of zero-terminated strings
+    </compound>
+
+    <compound name="PadAlign">
+        Grabs 00 bytes only
+    </compound>
+
 </niftoolsxml>

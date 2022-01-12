@@ -84,20 +84,20 @@ class ModelInfo:
 
 	def set_defaults(self):
 		self.bounds_min = Vector3(self.context, None, None)
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			self.unk_float_a = 0
 		self.bounds_max = Vector3(self.context, None, None)
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			self.pack_offset = 0
 		self.center = Vector3(self.context, None, None)
 		self.radius = 0
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
 			self.num_lods_2 = 0
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
 			self.zero = 0
-		if not (self.context.version == 17):
+		if not (self.context.version == 13):
 			self.bounds_min_repeat = Vector3(self.context, None, None)
-		if not (self.context.version == 17):
+		if not (self.context.version == 13):
 			self.bounds_max_repeat = Vector3(self.context, None, None)
 		self.num_materials = 0
 		self.num_lods = 0
@@ -112,29 +112,29 @@ class ModelInfo:
 		self.objects_ptr = 0
 		self.models_ptr = 0
 		self.first_materials_ptr = 0
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zeros_ztuac = numpy.zeros((4), dtype='uint64')
 		self.increment_flag = 0
 		self.zero_0 = 0
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.zero_1 = 0
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			self.zero_2 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.bounds_min = stream.read_type(Vector3, (self.context, None, None))
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			self.unk_float_a = stream.read_float()
 		self.bounds_max = stream.read_type(Vector3, (self.context, None, None))
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			self.pack_offset = stream.read_float()
 		self.center = stream.read_type(Vector3, (self.context, None, None))
 		self.radius = stream.read_float()
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
 			self.num_lods_2 = stream.read_uint64()
 			self.zero = stream.read_uint64()
-		if not (self.context.version == 17):
+		if not (self.context.version == 13):
 			self.bounds_min_repeat = stream.read_type(Vector3, (self.context, None, None))
 			self.bounds_max_repeat = stream.read_type(Vector3, (self.context, None, None))
 		self.num_materials = stream.read_ushort()
@@ -150,13 +150,13 @@ class ModelInfo:
 		self.objects_ptr = stream.read_uint64()
 		self.models_ptr = stream.read_uint64()
 		self.first_materials_ptr = stream.read_uint64()
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zeros_ztuac = stream.read_uint64s((4))
 		self.increment_flag = stream.read_uint64()
 		self.zero_0 = stream.read_uint64()
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.zero_1 = stream.read_uint64()
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			self.zero_2 = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
@@ -164,17 +164,17 @@ class ModelInfo:
 	def write(self, stream):
 		self.io_start = stream.tell()
 		stream.write_type(self.bounds_min)
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			stream.write_float(self.unk_float_a)
 		stream.write_type(self.bounds_max)
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			stream.write_float(self.pack_offset)
 		stream.write_type(self.center)
 		stream.write_float(self.radius)
-		if ((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
+		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
 			stream.write_uint64(self.num_lods_2)
 			stream.write_uint64(self.zero)
-		if not (self.context.version == 17):
+		if not (self.context.version == 13):
 			stream.write_type(self.bounds_min_repeat)
 			stream.write_type(self.bounds_max_repeat)
 		stream.write_ushort(self.num_materials)
@@ -190,13 +190,13 @@ class ModelInfo:
 		stream.write_uint64(self.objects_ptr)
 		stream.write_uint64(self.models_ptr)
 		stream.write_uint64(self.first_materials_ptr)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			stream.write_uint64s(self.zeros_ztuac)
 		stream.write_uint64(self.increment_flag)
 		stream.write_uint64(self.zero_0)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			stream.write_uint64(self.zero_1)
-		if not (self.context.version < 19):
+		if not (self.context.version < 47):
 			stream.write_uint64(self.zero_2)
 
 		self.io_size = stream.tell() - self.io_start

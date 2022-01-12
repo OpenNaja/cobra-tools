@@ -1,6 +1,7 @@
 # START_GLOBALS
 import io
 import logging
+import traceback
 
 from generated.io import BinaryStream
 from modules.formats.shared import assign_versions, get_padding
@@ -110,14 +111,22 @@ class HeaderPointer:
 		"""Update data and size of this pointer"""
 		self._data = data
 
-	def load_as(self, cls, num=1, version_info={}, args=()):
+	def load_as(self, cls, num=1, version_info={}, args=(), context=None):
 		"""Return self.data as codegen cls"""
 		insts = []
+		if context:
+			con = context
+		else:
+			con = self.context
 		with BinaryStream(self.data) as stream:
-			for i in range(num):
-				inst = cls(self.context, *args)
-				inst.read(stream)
-				insts.append(inst)
+			try:
+				for i in range(num):
+					inst = cls(con, *args)
+					inst.read(stream)
+					insts.append(inst)
+			except:
+				traceback.print_exc()
+				print(insts)
 		return insts
 
 	def remove(self):

@@ -10,9 +10,7 @@ from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ms2.enum.CollisionType import CollisionType
-from generated.formats.ovl.versions import *
 from generated.formats.ms2.versions import *
-from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile, BinaryStream
 from modules.formats.shared import get_padding_size, assign_versions, get_versions, djb, get_padding
 
@@ -38,13 +36,12 @@ def findall_diff(s, p0, p1):
 		i = s.find(p0, i + 1)
 
 
-class Ms2Context(OvlContext):
+class Ms2Context:
 	def __init__(self):
-		super().__init__()
-		self.ms_2_version = 0
+		self.version = 0
 
 	def __repr__(self):
-		return f"{self.version} | {self.user_version} | {self.ms_2_version}"
+		return f"{self.version}"
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
@@ -249,7 +246,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_2_bytes = stream.read()
 			else:
 				# read buffer 1
-				if is_old(self):
+				if is_old(self.general_info):
 					self.read_pc_buffer_1(stream)
 				else:
 					self.read_all_bone_infos(stream)
@@ -271,7 +268,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"buffer_2_offset {self.buffer_2_offset}")
 			for mdl2_path, mdl2 in self.mdl2s.items():
 				mdl2_name = os.path.basename(mdl2_path)
-				if is_old(self):
+				if is_old(self.general_info):
 					model_info = self.pc_buffer1.model_infos[mdl2.index]
 					logging.debug(f"PC mesh, {len(model_info.pc_model.meshes)} meshes")
 					if mdl2.read_editable:
@@ -322,7 +319,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# print(model_info)
 			model_info.pc_model = stream.read_type(PcModel, (self.context, model_info,))
 			logging.debug(model_info.pc_model)
-			if is_pc(self):
+			if is_pc(self.general_info):
 				model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset))
 			self.bone_infos.append(self.get_bone_info(0, stream, Ms2BoneInfo, hack=False))
 

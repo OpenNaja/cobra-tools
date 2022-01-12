@@ -2,15 +2,34 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-    <version id="old" version="17 18" >Old</version>
+
+	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <token name="verexpr" attrs="vercond">
-		<verexpr token="#OLD#" string="(#VER# #LT# 19)">PC, ZTUAC</verexpr>
+		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC</verexpr>
+		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
+		<verexpr token="#PC#" string="(#VER# #EQ# 32)">PC</verexpr>
+		<verexpr token="#JWE#" string="(#VER# #EQ# 47)">JWE1</verexpr>
+		<verexpr token="#PZ#" string="((#VER# #EQ# 48) #OR# (#VER# #EQ# 50))">PZ all</verexpr>
+		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
+		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
     </token>
 
-	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+	<token name="global" attrs="vercond access">
+        Global Tokens.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <global token="#VER#" string="version" />
+    </token>
 
-	<verattr name="ms_2_version" access="ms2 version" index="3" />
+	<verattr name="version" access="#VER#" index="0" />
+
+	13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
+    <version id="old" version="13 32" >Old</version>
+    <version id="ZTUAC" version="13" >ZTUAC</version>
+    <version id="PC" version="32" >PC</version>
+    <version id="PZ" version="48 50" >PZ</version>
+    <version id="PZ16" version="50" >PZ16</version>
+    <version id="JWE2" version="51" >JWE2</version>
 
 <!--Count from the end!!!-->
 	<bitfield name="ModelFlag" storage="uint">
@@ -183,7 +202,7 @@
 	
 	<compound name="Ms2SizedStrData">
 		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
-		<add name="ms2 version" type="uint" >13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
+		<add name="version" type="uint" >13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
 		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
 		<add name="mdl2 count" type="ushort" >3 in stairwell</add>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
@@ -195,9 +214,9 @@
 		<add name="ptr 2" type="uint64">8 empty bytes</add>
 	</compound>
 	
-	<compound name="Mdl2InfoHeader" inherit="GenericHeader">
+	<compound name="Mdl2InfoHeader">
 		This reads a whole exported mdl2 file
-		<add name="ms2 version" type="uint" >ms2 version</add>
+		<add name="version" type="uint" >ms2 version</add>
 		<add name="index" type="uint" >index of this model inside the ms2</add>
 		<add name="bone info index" type="uint" >used to find bone info</add>
 		<add name="ms2 name" type="ZString" >name of ms2</add>
@@ -240,12 +259,12 @@
 		<add name="mesh index" type="ushort" >index into mesh array</add>
 	</compound>
 
-	<compound name="Ms2InfoHeader" inherit="GenericHeader">
+	<compound name="Ms2InfoHeader">
 		Custom header struct
 		includes fragments but none of the 3 data buffers
-		<add name="bone names size" type="uint" ></add>
-		<add name="bone info size" type="uint" ></add>
-		<add name="general info" type="Ms2SizedStrData" ></add>
+		<add name="bone names size" type="uint"/>
+		<add name="bone info size" type="uint"/>
+		<add name="general info" type="Ms2SizedStrData"/>
 		<add name="buffer info" type="Ms2BufferInfo" cond="general info \ vertex buffer count" vercond="!#OLD#"/>
 <!--		the actual buffer datas-->
 		<add name="buffer 0" type="Ms2Buffer0" arg="general info" />

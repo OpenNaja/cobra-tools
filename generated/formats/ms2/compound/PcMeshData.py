@@ -85,14 +85,14 @@ class PcMeshData:
 		self.zero_b = 0
 		self.vertex_color_offset = 0
 		self.vertex_offset_within_lod = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.poweroftwo = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zero = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.unknown_07 = 0
 		self.flag = ModelFlag()
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zero_uac = 0
 
 	def read(self, stream):
@@ -109,13 +109,13 @@ class PcMeshData:
 		self.zero_b = stream.read_uint()
 		self.vertex_color_offset = stream.read_uint()
 		self.vertex_offset_within_lod = stream.read_uint()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.poweroftwo = stream.read_uint()
 			self.zero = stream.read_uint()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.unknown_07 = stream.read_float()
 		self.flag = stream.read_type(ModelFlag)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zero_uac = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -134,13 +134,13 @@ class PcMeshData:
 		stream.write_uint(self.zero_b)
 		stream.write_uint(self.vertex_color_offset)
 		stream.write_uint(self.vertex_offset_within_lod)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uint(self.poweroftwo)
 			stream.write_uint(self.zero)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_float(self.unknown_07)
 		stream.write_type(self.flag)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			stream.write_uint(self.zero_uac)
 
 		self.io_size = stream.tell() - self.io_start

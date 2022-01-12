@@ -2,6 +2,7 @@ import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.JointInfo import JointInfo
@@ -11,7 +12,6 @@ from generated.formats.ms2.compound.ListLong import ListLong
 from generated.formats.ms2.compound.ListShort import ListShort
 from generated.formats.ms2.compound.PcFFCounter import PcFFCounter
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
-from generated.formats.ovl_base.compound.ZStringBuffer import ZStringBuffer
 
 
 class JointData:
@@ -122,146 +122,146 @@ class JointData:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if self.context.user_version.is_jwe and (self.context.version == 20):
+		if self.context.version == 51:
 			self.new_extra = numpy.zeros((2), dtype='uint')
 		self.joint_count = 0
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zeros_extra = numpy.zeros((2), dtype='uint')
 		self.namespace_length = 0
 		self.zeros_0 = numpy.zeros((5), dtype='uint')
 		self.pc_count = 0
 		self.zeros_1 = numpy.zeros((7), dtype='uint')
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.extra_zeros_pc = numpy.zeros((4), dtype='uint')
 		self.ones = numpy.zeros((2), dtype='uint64')
 		self.bone_count = 0
 		self.joint_entry_count = 0
 		self.zeros_2 = numpy.zeros((4), dtype='uint')
 		self.joint_transforms = Array(self.context)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.zeros_3 = numpy.zeros((self.joint_count), dtype='uint64')
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.unknown_listc = Array(self.context)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.first_list = Array(self.context)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.short_list = Array(self.context)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.long_list = Array(self.context)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_ffs = PcFFCounter(self.context, None, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_bytes = numpy.zeros((9), dtype='byte')
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_hitcheck_count = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_zero_0 = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_floats = numpy.zeros((self.pc_count, 10), dtype='float')
 		self.joint_indices = numpy.zeros((self.joint_count), dtype='int')
 		self.bone_indices = numpy.zeros((self.bone_count), dtype='int')
 		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
 		self.joint_names_padding = SmartPadding(self.context, None, None)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.joint_info_list = Array(self.context)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.hitchecks_pc = Array(self.context)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.user_version.is_jwe and (self.context.version == 20):
+		if self.context.version == 51:
 			self.new_extra = stream.read_uints((2))
 		self.joint_count = stream.read_uint()
 		self.count_0 = stream.read_uint()
 		self.count_1 = stream.read_uint()
 		self.count_2 = stream.read_uint()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zeros_extra = stream.read_uints((2))
 		self.namespace_length = stream.read_uint()
 		self.zeros_0 = stream.read_uints((5))
 		self.pc_count = stream.read_uint()
 		self.zeros_1 = stream.read_uints((7))
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.extra_zeros_pc = stream.read_uints((4))
 		self.ones = stream.read_uint64s((2))
 		self.bone_count = stream.read_uint()
 		self.joint_entry_count = stream.read_uint()
 		self.zeros_2 = stream.read_uints((4))
 		self.joint_transforms.read(stream, JointEntry, self.joint_count, None)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.zeros_3 = stream.read_uint64s((self.joint_count))
 			self.unknown_listc.read(stream, ListCEntry, self.joint_count, None)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.first_list.read(stream, ListFirst, self.count_0, None)
 			self.short_list.read(stream, ListShort, self.count_1, None)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.long_list.read(stream, ListLong, self.count_2, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_ffs = stream.read_type(PcFFCounter, (self.context, None, None))
 			self.pc_bytes = stream.read_bytes((9))
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_hitcheck_count = stream.read_uint64()
 			self.pc_zero_0 = stream.read_uint64()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.pc_floats = stream.read_floats((self.pc_count, 10))
 		self.joint_indices = stream.read_ints((self.joint_count))
 		self.bone_indices = stream.read_ints((self.bone_count))
 		self.joint_names = stream.read_type(ZStringBuffer, (self.context, self.namespace_length, None))
 		self.joint_names_padding = stream.read_type(SmartPadding, (self.context, None, None))
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.hitchecks_pc.read(stream, HitCheckEntry, self.pc_hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.user_version.is_jwe and (self.context.version == 20):
+		if self.context.version == 51:
 			stream.write_uints(self.new_extra)
 		stream.write_uint(self.joint_count)
 		stream.write_uint(self.count_0)
 		stream.write_uint(self.count_1)
 		stream.write_uint(self.count_2)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uints(self.zeros_extra)
 		stream.write_uint(self.namespace_length)
 		stream.write_uints(self.zeros_0)
 		stream.write_uint(self.pc_count)
 		stream.write_uints(self.zeros_1)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uints(self.extra_zeros_pc)
 		stream.write_uint64s(self.ones)
 		stream.write_uint(self.bone_count)
 		stream.write_uint(self.joint_entry_count)
 		stream.write_uints(self.zeros_2)
 		self.joint_transforms.write(stream, JointEntry, self.joint_count, None)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			stream.write_uint64s(self.zeros_3)
 			self.unknown_listc.write(stream, ListCEntry, self.joint_count, None)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.first_list.write(stream, ListFirst, self.count_0, None)
 			self.short_list.write(stream, ListShort, self.count_1, None)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.long_list.write(stream, ListLong, self.count_2, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_type(self.pc_ffs)
 			stream.write_bytes(self.pc_bytes)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uint64(self.pc_hitcheck_count)
 			stream.write_uint64(self.pc_zero_0)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_floats(self.pc_floats)
 		stream.write_ints(self.joint_indices)
 		stream.write_ints(self.bone_indices)
 		stream.write_type(self.joint_names)
 		stream.write_type(self.joint_names_padding)
-		if not (self.context.version == 18):
+		if not (self.context.version == 32):
 			self.joint_info_list.write(stream, JointInfo, self.joint_count, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.hitchecks_pc.write(stream, HitCheckEntry, self.pc_hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start

@@ -33,7 +33,7 @@ class BoundingBox:
 		self.rotation = Matrix33(self.context, None, None)
 		self.center = Vector3(self.context, None, None)
 		self.extent = Vector3(self.context, None, None)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zeros = numpy.zeros((3), dtype='uint')
 
 	def read(self, stream):
@@ -41,7 +41,7 @@ class BoundingBox:
 		self.rotation = stream.read_type(Matrix33, (self.context, None, None))
 		self.center = stream.read_type(Vector3, (self.context, None, None))
 		self.extent = stream.read_type(Vector3, (self.context, None, None))
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zeros = stream.read_uints((3))
 
 		self.io_size = stream.tell() - self.io_start
@@ -51,7 +51,7 @@ class BoundingBox:
 		stream.write_type(self.rotation)
 		stream.write_type(self.center)
 		stream.write_type(self.extent)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uints(self.zeros)
 
 		self.io_size = stream.tell() - self.io_start

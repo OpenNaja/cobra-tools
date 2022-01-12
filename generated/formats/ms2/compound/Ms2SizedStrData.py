@@ -21,7 +21,7 @@ class Ms2SizedStrData:
 		self.io_start = 0
 
 		# 13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
-		self.ms_2_version = 0
+		self.version = 0
 
 		# 1 if yes, 0 if no
 		self.vertex_buffer_count = 0
@@ -49,7 +49,7 @@ class Ms2SizedStrData:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.ms_2_version = 0
+		self.version = 0
 		self.vertex_buffer_count = 0
 		self.mdl_2_count = 0
 		self.name_count = 0
@@ -61,8 +61,8 @@ class Ms2SizedStrData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.ms_2_version = stream.read_uint()
-		self.context.ms_2_version = self.ms_2_version
+		self.version = stream.read_uint()
+		self.context.version = self.version
 		self.vertex_buffer_count = stream.read_ushort()
 		self.mdl_2_count = stream.read_ushort()
 		self.name_count = stream.read_ushort()
@@ -76,7 +76,7 @@ class Ms2SizedStrData:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.ms_2_version)
+		stream.write_uint(self.version)
 		stream.write_ushort(self.vertex_buffer_count)
 		stream.write_ushort(self.mdl_2_count)
 		stream.write_ushort(self.name_count)
@@ -93,7 +93,7 @@ class Ms2SizedStrData:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* ms_2_version = {self.ms_2_version.__repr__()}'
+		s += f'\n	* version = {self.version.__repr__()}'
 		s += f'\n	* vertex_buffer_count = {self.vertex_buffer_count.__repr__()}'
 		s += f'\n	* mdl_2_count = {self.mdl_2_count.__repr__()}'
 		s += f'\n	* name_count = {self.name_count.__repr__()}'

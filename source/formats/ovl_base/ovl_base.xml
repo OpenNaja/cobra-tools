@@ -60,28 +60,10 @@
         <option value="4" name="OODLE" />
     </enum>
 
-    <!-- Extra basic types -->
-
-    <basic name="bool" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-
-    <basic name="ZString">
-        A string of given length.
-    </basic>
-
 	<!-- Structs for the OVL file -->
-
-    <compound name="ZStringBuffer" count="0" >
-        Holds a buffer of zero-terminated strings
-    </compound>
 
     <compound name="FixedString" count="0" >
         Holds a string of a fixed size, given as an argument.
-    </compound>
-
-    <compound name="PadAlign">
-        Grabs 00 bytes only
     </compound>
 
     <compound name="GenericHeader">

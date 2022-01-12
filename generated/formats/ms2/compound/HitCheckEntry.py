@@ -55,7 +55,7 @@ class HitCheckEntry:
 		self.unknown_2_d = 0
 		self.unknown_3 = 0
 		self.unknown_4 = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zero_extra_pc_unk = 0
 		self.name_offset = 0
 		if self.type == 0:
@@ -82,7 +82,7 @@ class HitCheckEntry:
 		self.unknown_2_d = stream.read_ubyte()
 		self.unknown_3 = stream.read_uint()
 		self.unknown_4 = stream.read_uint()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zero_extra_pc_unk = stream.read_uint()
 		self.name_offset = stream.read_uint()
 		if self.type == 0:
@@ -111,7 +111,7 @@ class HitCheckEntry:
 		stream.write_ubyte(self.unknown_2_d)
 		stream.write_uint(self.unknown_3)
 		stream.write_uint(self.unknown_4)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uint(self.zero_extra_pc_unk)
 		stream.write_uint(self.name_offset)
 		if self.type == 0:

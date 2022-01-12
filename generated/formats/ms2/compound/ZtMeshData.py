@@ -91,16 +91,16 @@ class ZtMeshData:
 		self.known_ff_1 = 0
 		self.one_0 = 0
 		self.one_1 = 0
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.poweroftwo = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.poweroftwo = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.zero = 0
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.unknown_07 = 0
 		self.flag = ModelFlagZT()
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zero_uac = 0
 
 	def read(self, stream):
@@ -118,15 +118,15 @@ class ZtMeshData:
 		self.known_ff_1 = stream.read_short()
 		self.one_0 = stream.read_ushort()
 		self.one_1 = stream.read_ushort()
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.poweroftwo = stream.read_ushort()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.poweroftwo = stream.read_uint()
 			self.zero = stream.read_uint()
-		if self.context.version == 18:
+		if self.context.version == 32:
 			self.unknown_07 = stream.read_float()
 		self.flag = stream.read_type(ModelFlagZT)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			self.zero_uac = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
@@ -146,15 +146,15 @@ class ZtMeshData:
 		stream.write_short(self.known_ff_1)
 		stream.write_ushort(self.one_0)
 		stream.write_ushort(self.one_1)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			stream.write_ushort(self.poweroftwo)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_uint(self.poweroftwo)
 			stream.write_uint(self.zero)
-		if self.context.version == 18:
+		if self.context.version == 32:
 			stream.write_float(self.unknown_07)
 		stream.write_type(self.flag)
-		if self.context.version == 17:
+		if self.context.version == 13:
 			stream.write_uint(self.zero_uac)
 
 		self.io_size = stream.tell() - self.io_start
