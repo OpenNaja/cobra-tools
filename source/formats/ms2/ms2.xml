@@ -277,7 +277,6 @@
 	</compound>
 
 	<compound name="PcBuffer1" >
-		cond="general info \ ms2 version == 32"
 		<add name="buffer info pc" type="Ms2BufferInfoZT" vercond="#ZTUAC#" arg="#ARG#"/>
 		<add name="buffer info pc" type="Ms2BufferInfoPC" vercond="#PC#" />
 		<add name="model infos" type="ModelInfo" arr1="#ARG#\general info\mdl2 count" ></add>
@@ -301,21 +300,21 @@
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		JWE: 48 bytes
 		PZ: 56 bytes
-		<add name="skip1" type="uint" arr1="4" vercond="#JWE#">JWE, 16 bytes of 00 padding</add>
-		<add name="vertexdatasize" type="uint64" > </add>
+		<add name="skip1" type="uint64" arr1="2" vercond="#JWE#">JWE, 16 bytes of 00 padding</add>
+		<add name="vertexdatasize" type="uint64"/>
 		<add name="ptr1" type="uint64">8 empty bytes</add>
-		<add name="unk 0" type="uint64" vercond="#PZ# #OR# #JWE2#" > PZ, another 8 empty bytes </add>
-		<add name="facesdatasize" type="uint64" ></add>
+		<add name="unk 0" type="uint64" since="48" > PZ+, another 8 empty bytes </add>
+		<add name="facesdatasize" type="uint64"/>
 		<add name="ptr2" type="uint64">8 empty bytes</add>
-		<add name="unk 2" type="uint64" arr1="2" vercond="#PZ# #OR# #JWE2#" > PZ, another 16 empty bytes </add>
+		<add name="unk 2" type="uint64" arr1="2" since="48" > PZ+, another 16 empty bytes </add>
 	</compound>
 
 	<compound name="Ms2BufferInfoPC" >
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		PC: 32 bytes
-		<add name="zeros 1" type="uint64" arr1="2" ></add>
+		<add name="zeros 1" type="uint64" arr1="2"/>
 		<add name="vertex buffer size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
-		<add name="zero 2" type="uint64" ></add>
+		<add name="zero 2" type="uint64"/>
 	</compound>
 
 	<compound name="Ms2BufferInfoZTHeader" >
@@ -355,15 +354,15 @@
 		Linked to by the ms2, part of an array
 		120 bytes for JWE2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-		<add name="unk float a" type="float" vercond="!#OLD#">not sure, for PZ often 40 00 00 37 for animals</add>
+		<add name="unk float a" type="float" since="47">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="pack offset" type="float" vercond="!#OLD#">scale: pack_offset / 512, also added as offset</add>
+		<add name="pack offset" type="float" since="47">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
-		<add name="num_lods_2" type="uint64" vercond="#PZ# #OR# #JWE2#">seen 6 or 1, matches lod count</add>
-		<add name="zero" type="uint64" vercond="#PZ# #OR# #JWE2#">zero</add>
-		<add name="bounds min repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
-		<add name="bounds max repeat" type="Vector3" vercond="!#ZTUAC#">verbatim repeat</add>
+		<add name="num_lods_2" type="uint64" since="48">seen 6 or 1, matches lod count</add>
+		<add name="zero" type="uint64" since="48">zero</add>
+		<add name="bounds min repeat" type="Vector3" since="32">verbatim repeat</add>
+		<add name="bounds max repeat" type="Vector3" since="32">verbatim repeat</add>
 <!--		array counts-->
 		<add name="num_materials" type="ushort"/>
 		<add name="num_lods" type="ushort"/>
@@ -383,14 +382,14 @@
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
 		<add name="zero 0" type="uint64"/>
 		<add name="zero 1" type="uint64" vercond="!#PC#"/>
-		<add name="zero 2" type="uint64" vercond="!#OLD#"/>
+		<add name="zero 2" type="uint64" since="47"/>
 	</compound>
 
-	<compound name="Ms2BoneInfo">
+	<compound name="BoneInfo">
 		<add name="name count" type="uint64" >counts the names</add>
-		<add name="knownff" type="short" vercond="!#ZTUAC#" >this is always FFFF for now</add>
-		<add name="zero0" type="short" vercond="!#ZTUAC#" >this is always 0000 for now</add>
-		<add name="unknown0c" type="uint" vercond="!#ZTUAC#"/>
+		<add name="knownff" type="short" since="32" >this is always FFFF for now</add>
+		<add name="zero0" type="short" since="32" >this is always 0000 for now</add>
+		<add name="unknown0c" type="uint" since="32"/>
 		<add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
 		<add name="bind matrix count" type="uint64" >seems to match bone count</add>
 		<add name="zeros" type="uint64" arr1="3"/>
@@ -405,16 +404,16 @@
 		<add name="count7" type="uint64" >index count 7</add>
 		<add name="unknownextra" type="uint64" vercond="#OLD#" >zero</add>
 		<add name="joint count" type="uint64" >joint count</add>
-		<add name="unk78count" type="uint64" vercond="!#OLD#" >unnk 78 count</add>
-		<add name="unknown88" type="uint64" vercond="#JWE# #OR# #OLD#" >jwe only, everything is shifted a bit due to extra uint 0</add>
+		<add name="unk78count" type="uint64" >unnk 78 count</add>
+		<add name="unknown88" type="uint64" vercond="#JWE#" >jwe only, everything is shifted a bit due to extra uint 0</add>
 
 		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
 		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#">index into ms2 string table for bones used here</add>
 		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
-		<add name="bones" type="PzBone" arr1="bone count" vercond="#PZ# #OR# #JWE2#">bones, rot first</add>
-		<add name="bones" type="JweBone" arr1="bone count" vercond="#JWE# #OR# #OLD#">bones, loc first</add>
+		<add name="bones" type="JweBone" arr1="bone count" until="47">bones, loc first</add>
+		<add name="bones" type="PzBone" arr1="bone count" since="48">bones, rot first</add>
 		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="hier1padding" padding="1" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
@@ -453,7 +452,7 @@
 	<compound name="Struct7">
 		<add name="count7" type="uint64">repeat</add>
 		<add name="zero" type="uint64" >seen 0</add>
-		<add name="zeros pz" type="uint64" vercond="#PZ# #OR# #JWE2#" arr1="2">only for recent versions of PZ</add>
+		<add name="zeros pz" type="uint64" since="48" arr1="2">only for recent versions of PZ</add>
 		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" >60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
 	</compound>

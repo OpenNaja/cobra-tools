@@ -23,46 +23,46 @@ class Ms2BufferInfo:
 		self.io_start = 0
 
 		# JWE, 16 bytes of 00 padding
-		self.skip_1 = numpy.zeros((4), dtype='uint')
+		self.skip_1 = numpy.zeros((2), dtype='uint64')
 		self.vertexdatasize = 0
 
 		# 8 empty bytes
 		self.ptr_1 = 0
 
-		# PZ, another 8 empty bytes
+		# PZ+, another 8 empty bytes
 		self.unk_0 = 0
 		self.facesdatasize = 0
 
 		# 8 empty bytes
 		self.ptr_2 = 0
 
-		# PZ, another 16 empty bytes
+		# PZ+, another 16 empty bytes
 		self.unk_2 = numpy.zeros((2), dtype='uint64')
 		self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.version == 47:
-			self.skip_1 = numpy.zeros((4), dtype='uint')
+			self.skip_1 = numpy.zeros((2), dtype='uint64')
 		self.vertexdatasize = 0
 		self.ptr_1 = 0
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
+		if self.context.version >= 48:
 			self.unk_0 = 0
 		self.facesdatasize = 0
 		self.ptr_2 = 0
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
+		if self.context.version >= 48:
 			self.unk_2 = numpy.zeros((2), dtype='uint64')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		if self.context.version == 47:
-			self.skip_1 = stream.read_uints((4))
+			self.skip_1 = stream.read_uint64s((2))
 		self.vertexdatasize = stream.read_uint64()
 		self.ptr_1 = stream.read_uint64()
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
+		if self.context.version >= 48:
 			self.unk_0 = stream.read_uint64()
 		self.facesdatasize = stream.read_uint64()
 		self.ptr_2 = stream.read_uint64()
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
+		if self.context.version >= 48:
 			self.unk_2 = stream.read_uint64s((2))
 
 		self.io_size = stream.tell() - self.io_start
@@ -70,14 +70,14 @@ class Ms2BufferInfo:
 	def write(self, stream):
 		self.io_start = stream.tell()
 		if self.context.version == 47:
-			stream.write_uints(self.skip_1)
+			stream.write_uint64s(self.skip_1)
 		stream.write_uint64(self.vertexdatasize)
 		stream.write_uint64(self.ptr_1)
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
+		if self.context.version >= 48:
 			stream.write_uint64(self.unk_0)
 		stream.write_uint64(self.facesdatasize)
 		stream.write_uint64(self.ptr_2)
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
+		if self.context.version >= 48:
 			stream.write_uint64s(self.unk_2)
 
 		self.io_size = stream.tell() - self.io_start

@@ -6,7 +6,7 @@ import logging
 
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
-from generated.formats.ms2.compound.Ms2BoneInfo import Ms2BoneInfo
+from generated.formats.ms2.compound.BoneInfo import BoneInfo
 from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ms2.enum.CollisionType import CollisionType
@@ -68,7 +68,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"mdl2 count {self.general_info.mdl_2_count}")
 			for i in range(self.general_info.mdl_2_count):
 				logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
-				bone_info = Ms2BoneInfo(self.context)
+				bone_info = BoneInfo(self.context)
 				try:
 					bone_info.read(stream)
 					self.assign_bone_names(bone_info)
@@ -321,7 +321,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(model_info.pc_model)
 			if is_pc(self.general_info):
 				model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset))
-			self.bone_infos.append(self.get_bone_info(0, stream, Ms2BoneInfo, hack=False))
+			self.bone_infos.append(self.get_bone_info(0, stream, BoneInfo, hack=False))
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}

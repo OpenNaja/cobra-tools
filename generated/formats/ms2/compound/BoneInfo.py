@@ -12,7 +12,7 @@ from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
 
 
-class Ms2BoneInfo:
+class BoneInfo:
 
 	context = ContextReference()
 
@@ -87,10 +87,10 @@ class Ms2BoneInfo:
 		# used for skinning
 		self.inverse_bind_matrices = Array(self.context)
 
-		# bones, rot first
+		# bones, loc first
 		self.bones = Array(self.context)
 
-		# bones, loc first
+		# bones, rot first
 		self.bones = Array(self.context)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
@@ -125,11 +125,11 @@ class Ms2BoneInfo:
 
 	def set_defaults(self):
 		self.name_count = 0
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			self.knownff = 0
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			self.zero_0 = 0
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			self.unknown_0_c = 0
 		self.unk_count = 0
 		self.bind_matrix_count = 0
@@ -147,9 +147,8 @@ class Ms2BoneInfo:
 		if self.context.version < 47:
 			self.unknownextra = 0
 		self.joint_count = 0
-		if not (self.context.version < 47):
-			self.unk_78_count = 0
-		if (self.context.version == 47) or (self.context.version < 47):
+		self.unk_78_count = 0
+		if self.context.version == 47:
 			self.unknown_88 = 0
 		if not (self.context.version < 47):
 			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
@@ -160,9 +159,9 @@ class Ms2BoneInfo:
 		if self.context.version < 47:
 			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
 		self.inverse_bind_matrices = Array(self.context)
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
+		if self.context.version <= 47:
 			self.bones = Array(self.context)
-		if (self.context.version == 47) or (self.context.version < 47):
+		if self.context.version >= 48:
 			self.bones = Array(self.context)
 		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
 		if not (self.context.version == 13):
@@ -189,10 +188,10 @@ class Ms2BoneInfo:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.name_count = stream.read_uint64()
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			self.knownff = stream.read_short()
 			self.zero_0 = stream.read_short()
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			self.unknown_0_c = stream.read_uint()
 		self.unk_count = stream.read_uint64()
 		self.bind_matrix_count = stream.read_uint64()
@@ -210,9 +209,8 @@ class Ms2BoneInfo:
 		if self.context.version < 47:
 			self.unknownextra = stream.read_uint64()
 		self.joint_count = stream.read_uint64()
-		if not (self.context.version < 47):
-			self.unk_78_count = stream.read_uint64()
-		if (self.context.version == 47) or (self.context.version < 47):
+		self.unk_78_count = stream.read_uint64()
+		if self.context.version == 47:
 			self.unknown_88 = stream.read_uint64()
 		if not (self.context.version < 47):
 			self.name_indices = stream.read_uints((self.name_count))
@@ -223,10 +221,10 @@ class Ms2BoneInfo:
 		if self.context.version < 47:
 			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
 		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
-			self.bones.read(stream, PzBone, self.bone_count, None)
-		if (self.context.version == 47) or (self.context.version < 47):
+		if self.context.version <= 47:
 			self.bones.read(stream, JweBone, self.bone_count, None)
+		if self.context.version >= 48:
+			self.bones.read(stream, PzBone, self.bone_count, None)
 		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
 		if not (self.context.version == 13):
 			self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
@@ -254,10 +252,10 @@ class Ms2BoneInfo:
 	def write(self, stream):
 		self.io_start = stream.tell()
 		stream.write_uint64(self.name_count)
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			stream.write_short(self.knownff)
 			stream.write_short(self.zero_0)
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			stream.write_uint(self.unknown_0_c)
 		stream.write_uint64(self.unk_count)
 		stream.write_uint64(self.bind_matrix_count)
@@ -275,9 +273,8 @@ class Ms2BoneInfo:
 		if self.context.version < 47:
 			stream.write_uint64(self.unknownextra)
 		stream.write_uint64(self.joint_count)
-		if not (self.context.version < 47):
-			stream.write_uint64(self.unk_78_count)
-		if (self.context.version == 47) or (self.context.version < 47):
+		stream.write_uint64(self.unk_78_count)
+		if self.context.version == 47:
 			stream.write_uint64(self.unknown_88)
 		if not (self.context.version < 47):
 			stream.write_uints(self.name_indices)
@@ -290,10 +287,10 @@ class Ms2BoneInfo:
 			self.name_padding.resize(((16 - ((self.name_count * 2) % 16)) % 16))
 			stream.write_bytes(self.name_padding)
 		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
-			self.bones.write(stream, PzBone, self.bone_count, None)
-		if (self.context.version == 47) or (self.context.version < 47):
+		if self.context.version <= 47:
 			self.bones.write(stream, JweBone, self.bone_count, None)
+		if self.context.version >= 48:
+			self.bones.write(stream, PzBone, self.bone_count, None)
 		stream.write_ubytes(self.bone_parents)
 		if not (self.context.version == 13):
 			self.hier_1_padding.resize(((8 - (self.bone_parents_count % 8)) % 8))
@@ -320,7 +317,7 @@ class Ms2BoneInfo:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Ms2BoneInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BoneInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

@@ -21,7 +21,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	bare_name = os.path.splitext(mdl2_name)[0]
 	mdl2 = Mdl2File()
 	mdl2.load(filepath, entry=True, read_editable=True, read_bytes=False)
-	print(mdl2)
+	# print(mdl2)
 	mdl2.update_lod_vertex_counts()
 	messages = set()
 	bone_names = get_bone_names(mdl2)

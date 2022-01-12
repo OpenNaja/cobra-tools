@@ -19,7 +19,7 @@ def import_armature(mdl2, b_bone_names):
 	of the bones before skins are attached."""
 	corrector = matrix_util.Corrector(is_ztuac(mdl2))
 	bone_info = mdl2.bone_info
-	# print(bone_info)
+	print(bone_info)
 	if bone_info:
 		armature_name = b_bone_names[0]
 		b_armature_data = bpy.data.armatures.new(armature_name)

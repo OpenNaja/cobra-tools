@@ -9,10 +9,6 @@ from generated.formats.ms2.compound.Ms2BufferInfoZT import Ms2BufferInfoZT
 
 class PcBuffer1:
 
-	"""
-	cond="general info \ ms2 version == 32"
-	"""
-
 	context = ContextReference()
 
 	def __init__(self, context, arg=None, template=None):
