@@ -18,7 +18,7 @@ class Struct7:
 		self.io_size = 0
 		self.io_start = 0
 
-		# guess for ZTUAC rhino
+		# guess for ZTUAC rhino, wrong for afr ele child
 		self.zeros_start = numpy.zeros((6), dtype='ubyte')
 
 		# repeat

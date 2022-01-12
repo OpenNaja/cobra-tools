@@ -103,7 +103,7 @@ class BoneInfo:
 		self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
 
 		# zeros
-		self.zt_weirdness = numpy.zeros((10), dtype='ushort')
+		self.zt_weirdness = numpy.zeros((10), dtype='short')
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
@@ -166,7 +166,7 @@ class BoneInfo:
 		if self.context.version == 13 and self.one:
 			self.enumeration = numpy.zeros((self.enum_count), dtype='ubyte')
 		if self.context.version == 13:
-			self.zt_weirdness = numpy.zeros((10), dtype='ushort')
+			self.zt_weirdness = numpy.zeros((10), dtype='short')
 		if not (self.context.version < 47) and self.zeros_count:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 		if self.context.version < 47 and self.zeros_count:
@@ -226,7 +226,7 @@ class BoneInfo:
 		if self.context.version == 13 and self.one:
 			self.enumeration = stream.read_ubytes((self.enum_count))
 		if self.context.version == 13:
-			self.zt_weirdness = stream.read_ushorts((10))
+			self.zt_weirdness = stream.read_shorts((10))
 		if not (self.context.version < 47) and self.zeros_count:
 			self.zeros_padding = stream.read_type(ZerosPadding, (self.context, self.zeros_count, None))
 		if self.context.version < 47 and self.zeros_count:
@@ -291,7 +291,7 @@ class BoneInfo:
 		if self.context.version == 13 and self.one:
 			stream.write_ubytes(self.enumeration)
 		if self.context.version == 13:
-			stream.write_ushorts(self.zt_weirdness)
+			stream.write_shorts(self.zt_weirdness)
 		if not (self.context.version < 47) and self.zeros_count:
 			stream.write_type(self.zeros_padding)
 		if self.context.version < 47 and self.zeros_count:

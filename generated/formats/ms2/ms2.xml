@@ -418,11 +418,12 @@
 		<add name="hier1padding" padding="1" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
 		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" vercond="#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
-		<add name="ZT weirdness" type="ushort" arr1="10" vercond="#ZTUAC#">zeros</add>
+		<add name="ZT weirdness" type="short" arr1="10" vercond="#ZTUAC#">zeros</add>
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
 		keep disabled for the old formats for now
 		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#" >ragdoll links?</add>
+<!--		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>-->
 		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
 		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
@@ -450,7 +451,7 @@
 	</compound>
 
 	<compound name="Struct7">
-		<add name="zeros start" type="ubyte" until="32" arr1="6">guess for ZTUAC rhino</add>
+		<add name="zeros start" type="ubyte" until="32" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>
 		<add name="count7" type="uint64">repeat</add>
 		<add name="zero" type="uint64" >seen 0</add>
 		<add name="zeros pz" type="uint64" since="48" arr1="2">only for recent versions of PZ</add>
