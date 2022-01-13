@@ -139,9 +139,9 @@ def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 		if hasattr(joint_info, "hit_check"):
 			for hitcheck in joint_info.hit_check:
 				import_collider(hitcheck, armature_ob, bone_name, corrector)
-	for bone_index, hitcheck in zip(bone_info.joints.joint_indices, bone_info.joints.hitchecks_pc):
-		bone_name = b_bone_names[bone_index]
-		import_collider(hitcheck, armature_ob, bone_name, corrector)
+	# for bone_index, hitcheck in zip(bone_info.joints.joint_indices, bone_info.joints.hitchecks_pc):
+	# 	bone_name = b_bone_names[bone_index]
+	# 	import_collider(hitcheck, armature_ob, bone_name, corrector)
 	for bone_index, joint_transform in zip(bone_info.joints.joint_indices, bone_info.joints.joint_transforms):
 		bone_name = b_bone_names[bone_index]
 		joint = create_ob("joint_"+bone_name, None)

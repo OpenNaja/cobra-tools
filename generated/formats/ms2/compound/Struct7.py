@@ -41,29 +41,29 @@ class Struct7:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if self.context.version <= 32:
+		if self.context.version <= 13:
 			self.zeros_start = numpy.zeros((6), dtype='ubyte')
 		self.count_7 = 0
 		self.zero = 0
 		if self.context.version >= 48:
 			self.zeros_pz = numpy.zeros((2), dtype='uint64')
-		if self.context.version <= 32:
+		if self.context.version <= 13:
 			self.unknown_list = Array(self.context)
-		if self.context.version >= 47:
+		if self.context.version >= 32:
 			self.unknown_list = Array(self.context)
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 32:
+		if self.context.version <= 13:
 			self.zeros_start = stream.read_ubytes((6))
 		self.count_7 = stream.read_uint64()
 		self.zero = stream.read_uint64()
 		if self.context.version >= 48:
 			self.zeros_pz = stream.read_uint64s((2))
-		if self.context.version <= 32:
+		if self.context.version <= 13:
 			self.unknown_list.read(stream, UACJoint, self.count_7, None)
-		if self.context.version >= 47:
+		if self.context.version >= 32:
 			self.unknown_list.read(stream, NasutoJointEntry, self.count_7, None)
 		self.padding = stream.read_ubytes(((8 - ((self.count_7 * 60) % 8)) % 8))
 
@@ -71,15 +71,15 @@ class Struct7:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 32:
+		if self.context.version <= 13:
 			stream.write_ubytes(self.zeros_start)
 		stream.write_uint64(self.count_7)
 		stream.write_uint64(self.zero)
 		if self.context.version >= 48:
 			stream.write_uint64s(self.zeros_pz)
-		if self.context.version <= 32:
+		if self.context.version <= 13:
 			self.unknown_list.write(stream, UACJoint, self.count_7, None)
-		if self.context.version >= 47:
+		if self.context.version >= 32:
 			self.unknown_list.write(stream, NasutoJointEntry, self.count_7, None)
 		stream.write_ubytes(self.padding)
 

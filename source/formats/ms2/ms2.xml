@@ -402,10 +402,11 @@
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
+		<add name="unk pc count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but count7 is not present</add>
 		<add name="count7" type="uint64" >index count 7</add>
 		<add name="joint count" type="uint64" >joint count</add>
-		<add name="unk78count" type="uint64" >unnk 78 count</add>
-		<add name="unk extra" type="uint64" until="47" >zero</add>
+		<add name="unk78count" type="uint64" >zero</add>
+		<add name="unk extra" type="uint64" until="13" >zero</add>
 
 		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
 		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#">index into ms2 string table for bones used here</add>
@@ -422,11 +423,11 @@
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
 		keep disabled for the old formats for now
-		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#" >ragdoll links?</add>
-<!--		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>-->
+<!--		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#" >ragdoll links?</add>-->
+		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>
 		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
-		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>
-<!--		<add name="joints" type="JointData" cond="joint count" >joints</add>-->
+<!--		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>-->
+		<add name="joints" type="JointData" cond="joint count" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
 		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>
 
@@ -452,12 +453,12 @@
 	</compound>
 
 	<compound name="Struct7">
-		<add name="zeros start" type="ubyte" until="32" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>
+		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>
 		<add name="count7" type="uint64">repeat</add>
 		<add name="zero" type="uint64" >seen 0</add>
 		<add name="zeros pz" type="uint64" since="48" arr1="2">only for recent versions of PZ</add>
-		<add name="UnknownList" type="UACJoint" arr1="count7" until="32">36 bytes per entry</add>
-		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="47">60 bytes per entry</add>
+		<add name="UnknownList" type="UACJoint" arr1="count7" until="13">36 bytes per entry</add>
+		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="32">60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
 	</compound>
 
@@ -502,7 +503,7 @@
 		<add name="short list" type="ListShort" arr1="count_1" vercond="!#OLD#" ></add>
 		<add name="long list" type="ListLong" arr1="count_2" vercond="!#OLD#" ></add>
 
-		<add name="JointInfoList" type="UACJointFF" vercond="#OLD#" arr1="joint count" >?</add>
+		<add name="joint infos old" type="UACJointFF" vercond="#OLD#" arr1="joint count" >?</add>
 <!--		<add name="pc bytes" type="byte" arr1="9" vercond="#OLD#" >1FAA FFAAFF00 000000</add>-->
 <!--		<add name="pc hitcheck count" type="uint64" vercond="#OLD#">counts hitchecks for pz</add>-->
 <!--		<add name="pc zero 0" type="uint64" vercond="#OLD#">0</add>-->
@@ -515,8 +516,12 @@
 		<add name="JointNamesPadding" type="SmartPadding" >?</add>
 		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#OLD#">includes name ptrs, some flags, and the hitchecks</add>
 needs more work for ZTUAC rhino
-				<add name="hitchecks pc" type="HitCheck Entry" arr1="joint count" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>
+		<add name="hitcheck_reader" type="HitcheckReader" arg="joint infos old" >for each joint, read the hitchecks</add>
+<!--				<add name="hitchecks pc" type="HitCheck Entry" arr1="joint count" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>-->
 <!--				<add name="hitchecks pc" type="HitCheck Entry" arr1="2" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>-->
+	</compound>
+
+	<compound name="HitcheckReader">
 	</compound>
 
 	<compound name="Descriptor">

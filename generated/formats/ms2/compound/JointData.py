@@ -3,7 +3,7 @@ import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
-from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
+from generated.formats.ms2.compound.HitcheckReader import HitcheckReader
 from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.JointInfo import JointInfo
 from generated.formats.ms2.compound.ListCEntry import ListCEntry
@@ -88,7 +88,7 @@ class JointData:
 		self.long_list = Array(self.context)
 
 		# ?
-		self.joint_info_list = Array(self.context)
+		self.joint_infos_old = Array(self.context)
 
 		# sometimes an array of floats
 		self.pc_floats = numpy.zeros((self.pc_count, 10), dtype='float')
@@ -108,8 +108,8 @@ class JointData:
 		# includes name ptrs, some flags, and the hitchecks
 		self.joint_info_list = Array(self.context)
 
-		# bare hitchecks, should in fact be counted for sum of JointInfoList joint counts
-		self.hitchecks_pc = Array(self.context)
+		# for each joint, read the hitchecks
+		self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos_old, None)
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -143,7 +143,7 @@ class JointData:
 		if not (self.context.version < 47):
 			self.long_list = Array(self.context)
 		if self.context.version < 47:
-			self.joint_info_list = Array(self.context)
+			self.joint_infos_old = Array(self.context)
 		if self.context.version < 47:
 			self.pc_floats = numpy.zeros((self.pc_count, 10), dtype='float')
 		self.joint_indices = numpy.zeros((self.joint_count), dtype='int')
@@ -152,8 +152,7 @@ class JointData:
 		self.joint_names_padding = SmartPadding(self.context, None, None)
 		if not (self.context.version < 47):
 			self.joint_info_list = Array(self.context)
-		if self.context.version < 47:
-			self.hitchecks_pc = Array(self.context)
+		self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos_old, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -185,7 +184,7 @@ class JointData:
 		if not (self.context.version < 47):
 			self.long_list.read(stream, ListLong, self.count_2, None)
 		if self.context.version < 47:
-			self.joint_info_list.read(stream, UACJointFF, self.joint_count, None)
+			self.joint_infos_old.read(stream, UACJointFF, self.joint_count, None)
 			self.pc_floats = stream.read_floats((self.pc_count, 10))
 		self.joint_indices = stream.read_ints((self.joint_count))
 		self.bone_indices = stream.read_ints((self.bone_count))
@@ -193,8 +192,7 @@ class JointData:
 		self.joint_names_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		if not (self.context.version < 47):
 			self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
-		if self.context.version < 47:
-			self.hitchecks_pc.read(stream, HitCheckEntry, self.joint_count, None)
+		self.hitcheck_reader = stream.read_type(HitcheckReader, (self.context, self.joint_infos_old, None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -228,7 +226,7 @@ class JointData:
 		if not (self.context.version < 47):
 			self.long_list.write(stream, ListLong, self.count_2, None)
 		if self.context.version < 47:
-			self.joint_info_list.write(stream, UACJointFF, self.joint_count, None)
+			self.joint_infos_old.write(stream, UACJointFF, self.joint_count, None)
 			stream.write_floats(self.pc_floats)
 		stream.write_ints(self.joint_indices)
 		stream.write_ints(self.bone_indices)
@@ -236,8 +234,7 @@ class JointData:
 		stream.write_type(self.joint_names_padding)
 		if not (self.context.version < 47):
 			self.joint_info_list.write(stream, JointInfo, self.joint_count, None)
-		if self.context.version < 47:
-			self.hitchecks_pc.write(stream, HitCheckEntry, self.joint_count, None)
+		stream.write_type(self.hitcheck_reader)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -267,14 +264,14 @@ class JointData:
 		s += f'\n	* first_list = {self.first_list.__repr__()}'
 		s += f'\n	* short_list = {self.short_list.__repr__()}'
 		s += f'\n	* long_list = {self.long_list.__repr__()}'
-		s += f'\n	* joint_info_list = {self.joint_info_list.__repr__()}'
+		s += f'\n	* joint_infos_old = {self.joint_infos_old.__repr__()}'
 		s += f'\n	* pc_floats = {self.pc_floats.__repr__()}'
 		s += f'\n	* joint_indices = {self.joint_indices.__repr__()}'
 		s += f'\n	* bone_indices = {self.bone_indices.__repr__()}'
 		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
 		s += f'\n	* joint_names_padding = {self.joint_names_padding.__repr__()}'
 		s += f'\n	* joint_info_list = {self.joint_info_list.__repr__()}'
-		s += f'\n	* hitchecks_pc = {self.hitchecks_pc.__repr__()}'
+		s += f'\n	* hitcheck_reader = {self.hitcheck_reader.__repr__()}'
 		return s
 
 	def __repr__(self):

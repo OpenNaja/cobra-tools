@@ -57,13 +57,16 @@ class BoneInfo:
 		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
 		self.zeros_count = 0
 
+		# matches the other count on dino entertainer, but count7 is not present
+		self.unk_pc_count = 0
+
 		# index count 7
 		self.count_7 = 0
 
 		# joint count
 		self.joint_count = 0
 
-		# unnk 78 count
+		# zero
 		self.unk_78_count = 0
 
 		# zero
@@ -140,10 +143,12 @@ class BoneInfo:
 		self.unknown_58 = 0
 		self.one = 0
 		self.zeros_count = 0
+		if self.context.version == 32:
+			self.unk_pc_count = 0
 		self.count_7 = 0
 		self.joint_count = 0
 		self.unk_78_count = 0
-		if self.context.version <= 47:
+		if self.context.version <= 13:
 			self.unk_extra = 0
 		if not (self.context.version < 47):
 			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
@@ -171,11 +176,11 @@ class BoneInfo:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 		if self.context.version < 47 and self.zeros_count:
 			self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
-		if not (self.context.version < 47) and self.count_7:
+		if self.count_7:
 			self.struct_7 = Struct7(self.context, None, None)
 		if self.context.version == 32 and self.joint_count:
 			self.weird_padding = SmartPadding(self.context, None, None)
-		if not (self.context.version < 47) and self.joint_count:
+		if self.joint_count:
 			self.joints = JointData(self.context, None, None)
 		if self.context.version == 32 and not self.joint_count:
 			self.weird_padding_2 = SmartPadding(self.context, None, None)
@@ -200,10 +205,12 @@ class BoneInfo:
 		self.unknown_58 = stream.read_uint64()
 		self.one = stream.read_uint64()
 		self.zeros_count = stream.read_uint64()
+		if self.context.version == 32:
+			self.unk_pc_count = stream.read_uint64()
 		self.count_7 = stream.read_uint64()
 		self.joint_count = stream.read_uint64()
 		self.unk_78_count = stream.read_uint64()
-		if self.context.version <= 47:
+		if self.context.version <= 13:
 			self.unk_extra = stream.read_uint64()
 		if not (self.context.version < 47):
 			self.name_indices = stream.read_uints((self.name_count))
@@ -231,11 +238,11 @@ class BoneInfo:
 			self.zeros_padding = stream.read_type(ZerosPadding, (self.context, self.zeros_count, None))
 		if self.context.version < 47 and self.zeros_count:
 			self.minus_padding = stream.read_type(MinusPadding, (self.context, self.zeros_count, None))
-		if not (self.context.version < 47) and self.count_7:
+		if self.count_7:
 			self.struct_7 = stream.read_type(Struct7, (self.context, None, None))
 		if self.context.version == 32 and self.joint_count:
 			self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
-		if not (self.context.version < 47) and self.joint_count:
+		if self.joint_count:
 			self.joints = stream.read_type(JointData, (self.context, None, None))
 		if self.context.version == 32 and not self.joint_count:
 			self.weird_padding_2 = stream.read_type(SmartPadding, (self.context, None, None))
@@ -262,10 +269,12 @@ class BoneInfo:
 		stream.write_uint64(self.unknown_58)
 		stream.write_uint64(self.one)
 		stream.write_uint64(self.zeros_count)
+		if self.context.version == 32:
+			stream.write_uint64(self.unk_pc_count)
 		stream.write_uint64(self.count_7)
 		stream.write_uint64(self.joint_count)
 		stream.write_uint64(self.unk_78_count)
-		if self.context.version <= 47:
+		if self.context.version <= 13:
 			stream.write_uint64(self.unk_extra)
 		if not (self.context.version < 47):
 			stream.write_uints(self.name_indices)
@@ -296,11 +305,11 @@ class BoneInfo:
 			stream.write_type(self.zeros_padding)
 		if self.context.version < 47 and self.zeros_count:
 			stream.write_type(self.minus_padding)
-		if not (self.context.version < 47) and self.count_7:
+		if self.count_7:
 			stream.write_type(self.struct_7)
 		if self.context.version == 32 and self.joint_count:
 			stream.write_type(self.weird_padding)
-		if not (self.context.version < 47) and self.joint_count:
+		if self.joint_count:
 			stream.write_type(self.joints)
 		if self.context.version == 32 and not self.joint_count:
 			stream.write_type(self.weird_padding_2)
@@ -327,6 +336,7 @@ class BoneInfo:
 		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
 		s += f'\n	* one = {self.one.__repr__()}'
 		s += f'\n	* zeros_count = {self.zeros_count.__repr__()}'
+		s += f'\n	* unk_pc_count = {self.unk_pc_count.__repr__()}'
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
 		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
 		s += f'\n	* unk_78_count = {self.unk_78_count.__repr__()}'
