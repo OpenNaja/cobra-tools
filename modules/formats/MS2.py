@@ -21,10 +21,8 @@ class Ms2Loader(BaseFile):
 		ss_pointer = self.sized_str_entry.pointers[0]
 		version = struct.unpack(f"I", ss_pointer.data[:4])[0]
 		vdic = {"version": version}
-		# print(vdic)
 		self.context = Ms2Context()
 		self.context.version = version
-		# print(self.context)
 		return vdic
 
 	def collect(self):
@@ -33,14 +31,12 @@ class Ms2Loader(BaseFile):
 		ss_pointer = self.sized_str_entry.pointers[0]
 		if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
 			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
-			# print(self.sized_str_entry.fragments)
 			# second pass: collect mesh fragments
 			if ss_pointer.data_size != 48:
 				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {self.file_entry.name}")
 			if self.sized_str_entry.fragments[2].pointers[1].data not in (struct.pack("<ii", -1, 0), b""):
 				logging.warning(
 					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {self.file_entry.name}")
-			# print(self.sized_str_entry.fragments[2].pointers[1].address, self.sized_str_entry.fragments[2].pointers[1].data)
 
 			# assign the mdl2 frags to their sized str entry
 
@@ -52,7 +48,6 @@ class Ms2Loader(BaseFile):
 			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0 or empty (if no buffers)
 			f_1 = self.sized_str_entry.fragments[1]
 			model_infos = f_1.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
-			# print(model_infos)
 			for mdl2_entry, mdl2_info in zip(self.sized_str_entry.children, model_infos):
 				assert mdl2_entry.ext == ".mdl2"
 				self.collect_mdl2(mdl2_entry, mdl2_info, f_1.pointers[1])
@@ -193,7 +188,6 @@ class Ms2Loader(BaseFile):
 		# sizedstr data has bone count
 		ms2_general_info_data = self.sized_str_entry.pointers[0].data
 		ms2_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, context=self.context)[0]
-		print(ms2_info)
 
 		ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
 	
@@ -217,7 +211,6 @@ class Ms2Loader(BaseFile):
 			# this fragment informs us about the mesh count of the next mdl2 that is read
 			# so we can use it to collect the variable mdl2 fragments describing a mesh each
 			model_infos = model_info_frag.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
-			print(model_infos)
 		# write the ms2 file
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
@@ -248,7 +241,6 @@ class Ms2Loader(BaseFile):
 					materials, lods, objects, models, model_info = mdl2_entry.fragments
 					# write the mesh info for this mesh, buffered from the previous mesh or ms2 (model_info fragments)
 					mdl2_info = model_infos[mdl2_index]
-					# print(mdl2_info)
 					outfile.write(as_bytes(mdl2_info, versions))
 					bone_info_index += mdl2_info.increment_flag
 
@@ -357,6 +349,6 @@ class Ms2Loader(BaseFile):
 			# inject again
 			self.load(ms2_path)
 		except BaseException as err:
-			print(err)
+			logging.warning(err)
 		# delete temp dir again
 		shutil.rmtree(temp_dir)
