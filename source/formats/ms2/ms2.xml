@@ -426,6 +426,7 @@
 <!--		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>-->
 		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
 		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>
+<!--		<add name="joints" type="JointData" cond="joint count" >joints</add>-->
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
 		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>
 
@@ -471,8 +472,8 @@
 		<add name="child" type="ubyte" >index into bone list</add>
 		<add name="parent" type="ubyte" >index into bone list</add>
 		<add name="zero" type="ushort" >0</add>
-		<add name="matrix" type="Matrix33" >?</add>
-		<add name="vector" type="Vector4" >?</add>
+		<add name="matrix" type="Matrix33" >no clue what space this is in</add>
+		<add name="vector" type="Vector4" >seems to be degrees of freedom or something like that, possibly an ellipsoid</add>
 		<add name="one" type="uint" >1</add>
 	</compound>
 
@@ -514,7 +515,8 @@
 		<add name="JointNamesPadding" type="SmartPadding" >?</add>
 		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#OLD#">includes name ptrs, some flags, and the hitchecks</add>
 needs more work for ZTUAC rhino
-		<!--		<add name="hitchecks pc" type="HitCheck Entry" arr1="joint count" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>-->
+				<add name="hitchecks pc" type="HitCheck Entry" arr1="joint count" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>
+<!--				<add name="hitchecks pc" type="HitCheck Entry" arr1="2" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>-->
 	</compound>
 
 	<compound name="Descriptor">
@@ -540,12 +542,6 @@ needs more work for ZTUAC rhino
 <!--		<add name="rot" type="Matrix33" >the rotation of the joint, inverted?? - first line == first line of child JointEntry</add>-->
 		<add name="floats" type="float" arr1="5" arr2="3" >each of the vec3 components is normalized, these might represent axes for the angles</add>
 		<add name="radians" type="float" arr1="8">radians</add>
-	</compound>
-
-	<compound name="PcFFCounter">
-		count is nonzero in PZ broken birch model
-		<add name="count" type="uint" ></add>
-		<add name="FFs" type="byte" arr1="count"></add>
 	</compound>
 
 	<compound name="JointEntry">
@@ -602,6 +598,7 @@ needs more work for ZTUAC rhino
 		<add name="collider" type="ConvexHull" cond="type == 7" />
 		<add name="collider" type="ConvexHull" cond="type == 8" />
 		<add name="collider" type="MeshCollision" cond="type == 10" />
+		<add name="zero extra zt" type="uint" vercond="#ZTUAC#"></add>
 	</compound>
 
 	<compound name="Sphere">

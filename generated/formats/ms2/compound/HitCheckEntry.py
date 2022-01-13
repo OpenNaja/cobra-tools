@@ -45,6 +45,7 @@ class HitCheckEntry:
 		self.collider = ConvexHull(self.context, None, None)
 		self.collider = ConvexHull(self.context, None, None)
 		self.collider = MeshCollision(self.context, None, None)
+		self.zero_extra_zt = 0
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -72,6 +73,8 @@ class HitCheckEntry:
 			self.collider = ConvexHull(self.context, None, None)
 		if self.type == 10:
 			self.collider = MeshCollision(self.context, None, None)
+		if self.context.version == 13:
+			self.zero_extra_zt = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -99,6 +102,8 @@ class HitCheckEntry:
 			self.collider = stream.read_type(ConvexHull, (self.context, None, None))
 		if self.type == 10:
 			self.collider = stream.read_type(MeshCollision, (self.context, None, None))
+		if self.context.version == 13:
+			self.zero_extra_zt = stream.read_uint()
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -128,6 +133,8 @@ class HitCheckEntry:
 			stream.write_type(self.collider)
 		if self.type == 10:
 			stream.write_type(self.collider)
+		if self.context.version == 13:
+			stream.write_uint(self.zero_extra_zt)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -146,6 +153,7 @@ class HitCheckEntry:
 		s += f'\n	* zero_extra_pc_unk = {self.zero_extra_pc_unk.__repr__()}'
 		s += f'\n	* name_offset = {self.name_offset.__repr__()}'
 		s += f'\n	* collider = {self.collider.__repr__()}'
+		s += f'\n	* zero_extra_zt = {self.zero_extra_zt.__repr__()}'
 		return s
 
 	def __repr__(self):

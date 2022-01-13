@@ -28,10 +28,10 @@ class NasutoJointEntry:
 		# 0
 		self.zero = 0
 
-		# ?
+		# no clue what space this is in
 		self.matrix = Matrix33(self.context, None, None)
 
-		# ?
+		# seems to be degrees of freedom or something like that, possibly an ellipsoid
 		self.vector = Vector4(self.context, None, None)
 
 		# 1

@@ -3,6 +3,7 @@ import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
+from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.formats.ms2.compound.JointEntry import JointEntry
 from generated.formats.ms2.compound.JointInfo import JointInfo
 from generated.formats.ms2.compound.ListCEntry import ListCEntry
@@ -106,6 +107,9 @@ class JointData:
 
 		# includes name ptrs, some flags, and the hitchecks
 		self.joint_info_list = Array(self.context)
+
+		# bare hitchecks, should in fact be counted for sum of JointInfoList joint counts
+		self.hitchecks_pc = Array(self.context)
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -148,6 +152,8 @@ class JointData:
 		self.joint_names_padding = SmartPadding(self.context, None, None)
 		if not (self.context.version < 47):
 			self.joint_info_list = Array(self.context)
+		if self.context.version < 47:
+			self.hitchecks_pc = Array(self.context)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -187,6 +193,8 @@ class JointData:
 		self.joint_names_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		if not (self.context.version < 47):
 			self.joint_info_list.read(stream, JointInfo, self.joint_count, None)
+		if self.context.version < 47:
+			self.hitchecks_pc.read(stream, HitCheckEntry, self.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -228,6 +236,8 @@ class JointData:
 		stream.write_type(self.joint_names_padding)
 		if not (self.context.version < 47):
 			self.joint_info_list.write(stream, JointInfo, self.joint_count, None)
+		if self.context.version < 47:
+			self.hitchecks_pc.write(stream, HitCheckEntry, self.joint_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -264,6 +274,7 @@ class JointData:
 		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
 		s += f'\n	* joint_names_padding = {self.joint_names_padding.__repr__()}'
 		s += f'\n	* joint_info_list = {self.joint_info_list.__repr__()}'
+		s += f'\n	* hitchecks_pc = {self.hitchecks_pc.__repr__()}'
 		return s
 
 	def __repr__(self):

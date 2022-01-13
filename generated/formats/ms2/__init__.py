@@ -175,7 +175,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def get_hitchecks(self, bone_info):
 		# collect all hitchecks in a flat list
-		return [hitcheck for hitcheck in bone_info.joints.hitchecks_pc] + [hitcheck for joint in bone_info.joints.joint_info_list for hitcheck in joint.hit_check]
+		h = [hitcheck for joint in bone_info.joints.joint_info_list for hitcheck in joint.hit_check]
+		if hasattr(bone_info.joints, "hitchecks_pc"):
+			h.extend([hitcheck for hitcheck in bone_info.joints.hitchecks_pc])
+		return h
 
 	def read_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Reading additional hitcheck data")
@@ -204,7 +207,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		assert bone_info.one == 1
 		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.bone_parents_count == bone_info.enum_count
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
-		assert bone_info.unk_78_count == 0 and bone_info.unknown_88 == 0 and bone_info.unknownextra == 0
+		assert bone_info.unk_78_count == 0 and bone_info.unknownextra == 0
 		joints = bone_info.joints
 		for joint_info in joints.joint_info_list:
 			joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)

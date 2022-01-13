@@ -37,9 +37,7 @@ def import_armature(mdl2, b_bone_names):
 		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.bone_parents):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
 
-			# local space matrix, in ms2 orientation
-			n_bind = mathutils.Quaternion((bone.rot.w, bone.rot.x, bone.rot.y, bone.rot.z)).to_matrix().to_4x4()
-			n_bind.translation = (bone.loc.x, bone.loc.y, bone.loc.z)
+			n_bind = get_local_bone_matrix(bone)
 
 			# link to parent
 			try:
@@ -90,6 +88,13 @@ def import_armature(mdl2, b_bone_names):
 		return b_armature_obj
 
 
+def get_local_bone_matrix(bone):
+	# local space matrix, in ms2 orientation
+	n_bind = mathutils.Quaternion((bone.rot.w, bone.rot.x, bone.rot.y, bone.rot.z)).to_matrix().to_4x4()
+	n_bind.translation = (bone.loc.x, bone.loc.y, bone.loc.z)
+	return n_bind
+
+
 def set_transform1(b_bind, b_edit_bone):
 	# now simplified to handle tail = -Y
 	tail, roll = mat3_to_vec_roll(b_bind.to_3x3())
@@ -131,8 +136,12 @@ def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
 		bone_name = b_bone_names[bone_index]
 		print("joint", joint_info.name)
-		for hitcheck in joint_info.hit_check:
-			import_collider(hitcheck, armature_ob, bone_name, corrector)
+		if hasattr(joint_info, "hit_check"):
+			for hitcheck in joint_info.hit_check:
+				import_collider(hitcheck, armature_ob, bone_name, corrector)
+	for bone_index, hitcheck in zip(bone_info.joints.joint_indices, bone_info.joints.hitchecks_pc):
+		bone_name = b_bone_names[bone_index]
+		import_collider(hitcheck, armature_ob, bone_name, corrector)
 	for bone_index, joint_transform in zip(bone_info.joints.joint_indices, bone_info.joints.joint_transforms):
 		bone_name = b_bone_names[bone_index]
 		joint = create_ob("joint_"+bone_name, None)
@@ -142,6 +151,38 @@ def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 		joint.empty_display_type = "ARROWS"
 		joint.empty_display_size = 0.03
 		joint.matrix_local = b_bind
+	# try:
+	# 	for item in bone_info.struct_7.unknown_list:
+	# 		bone_name_0 = b_bone_names[item.parent]
+	# 		bone_name_1 = b_bone_names[item.child]
+	# 		print("struct7", bone_name_0, bone_name_1)
+	# 		# print("struct7", item.vector)
+	# 		print(mathutils.Matrix(item.matrix.data))
+	# 		b0 = bone_info.bones[item.parent]
+	# 		b1 = bone_info.bones[item.child]
+	# 		m0 = get_local_bone_matrix(b0).to_3x3()
+	# 		m1 = get_local_bone_matrix(b1).to_3x3()
+	# 		# print(m0)
+	# 		# print(m1)
+	# 		# print(m0.inverted())
+	# 		# print(m1.inverted())
+	# 		print(m0 @ m1)
+	# 		print((m0 @ m1).inverted())
+	# 		it0 = bone_info.inverse_bind_matrices[item.parent]
+	# 		it1 = bone_info.inverse_bind_matrices[item.child]
+	# 		i0 = mathutils.Matrix(it0.data).inverted()
+	# 		i1 = mathutils.Matrix(it1.data).inverted()
+	# 		print(i0)
+	# 		print(i1)
+	# 		joint = create_ob("struct7_"+bone_name_0, None)
+	# 		n_bind = mathutils.Matrix(item.matrix.data).inverted().to_4x4()
+	# 		# n_bind.translation = (item.vector.x, item.vector.y, item.vector.z)
+	# 		b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+	# 		joint.empty_display_type = "ARROWS"
+	# 		joint.empty_display_size = 0.03
+	# 		joint.matrix_local = b_bind
+	# except:
+	# 	pass
 
 
 def fix_bone_lengths(b_armature_data):
