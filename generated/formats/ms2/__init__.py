@@ -90,28 +90,32 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		bone_info = BoneInfo(self.context)
 		try:
 			bone_info.read(stream)
-			# print(bone_info)
 			self.assign_bone_names(bone_info)
 			try:
 				self.read_joints(bone_info)
 			except:
 				logging.error(f"Joints {i} failed...")
 				traceback.print_exc()
+			logging.debug(bone_info)
 			self.read_hitcheck_verts(bone_info, stream)
 			self.bone_infos.append(bone_info)
 			logging.debug(f"end of bone info {i} at {stream.tell()}")
-			# logging.debug(bone_info)
 			# last one has no padding, so stop here
 			if stream.tell() >= self.buffer_1_offset + self.bone_info_size:
 				logging.debug(f"Exhausted bone info buffer at {stream.tell()}")
 				return bone_info
-			if not is_pc(self.general_info):
-				relative_offset = stream.tell() - self.buffer_1_offset
-				# currently no other way to predict the padding, no correlation to joint count
-				padding_len = get_padding_size(relative_offset)
-				padding = stream.read(padding_len)
-				assert padding == b'\x00' * padding_len
-				logging.debug(f"padding: {padding_len}")
+			# if is_pc(self.general_info):
+			relative_offset = stream.tell() - self.buffer_1_offset
+			# currently no other way to predict the padding, no correlation to joint count
+			padding_len = get_padding_size(relative_offset)
+			padding = stream.read(padding_len)
+			assert padding == b'\x00' * padding_len
+			if bone_info.joints:
+				names_l = bone_info.joints.namespace_length
+				pad_l = len(bone_info.joints.joint_names_padding.data)
+				hits = sum(j.hitcheck_count for j in bone_info.joints.joint_infos_old)
+				logging.debug(f"names total len: {names_l + pad_l} names: {names_l} padding: {pad_l} hits: {hits} joints: {bone_info.joints.joint_count}")
+			logging.debug(f"padding: {padding_len}")
 		except Exception as err:
 			traceback.print_exc()
 			logging.error(f"Bone info {i} failed:")
@@ -224,7 +228,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				mdl2_name = os.path.basename(mdl2_path)
 				if is_old(self.general_info):
 					model_info = self.pc_buffer1.model_infos[mdl2.index]
-					logging.debug(f"PC mesh, {len(model_info.pc_model.meshes)} meshes")
+					# logging.debug(f"PC mesh, {len(model_info.pc_model.meshes)} meshes")
 					if mdl2.read_editable:
 						sum_uv_dict = {}
 						for model_data in model_info.pc_model.meshes:
@@ -267,14 +271,20 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		"""Reads the mesh info buffer for PC / ZTUAC which includes MDL2s + bone infos interleaved"""
 		self.bone_infos = []
 		self.pc_buffer1 = stream.read_type(PcBuffer1, (self.context, self,))
-		logging.debug(self.pc_buffer1)
+		# logging.debug(self.pc_buffer1)
 		for i, model_info in enumerate(self.pc_buffer1.model_infos):
 			logging.debug(f"MDL2 {i}")
-			# print(model_info)
 			model_info.pc_model = stream.read_type(PcModel, (self.context, model_info,))
+			logging.debug(model_info)
 			logging.debug(model_info.pc_model)
 			if is_pc(self.general_info):
-				model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset))
+				# alignment is probably wrong
+				if model_info.increment_flag:
+					model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset, alignment=16))
+				else:
+					model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset, alignment=8))
+				logging.debug(f"model padding {model_info.pc_model_padding}")
+
 			if model_info.increment_flag:
 				self.bone_infos.append(self.read_bone_info(stream, i))
 

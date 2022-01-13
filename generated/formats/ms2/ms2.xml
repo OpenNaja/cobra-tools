@@ -64,6 +64,7 @@
 		<option value="8" name="ConvexHullPC" />
 		<option value="10" name="MeshCollision" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>
 		<option value="11" name="UnkRhino" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>
+<!--		<option value="32" name="Unk2Rhino" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>-->
 	</enum>
 
 	<compound name="SmartPadding">
@@ -244,7 +245,7 @@
 		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#" ></add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" >see if it is a flag for ztuac too, so might be totally wrong here</add>
-		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
+<!--		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>-->
 	</compound>
 
 	<compound name="MaterialName">
@@ -429,7 +430,7 @@
 <!--		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>-->
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
-		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>
+<!--		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>-->
 
 	</compound>
 
@@ -514,6 +515,7 @@
 		<add name="joint names" type="ZStringBuffer" arg="namespace length">zstring name buffer</add>
 <!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
 		<add name="JointNamesPadding" type="SmartPadding" >?</add>
+		the padding goes wrong on 144 because its first hitcheck has collision type 0
 		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#OLD#">includes name ptrs, some flags, and the hitchecks</add>
 needs more work for ZTUAC rhino
 		<add name="hitcheck_reader" type="HitcheckReader" arg="joint infos old" >for each joint, read the hitchecks</add>

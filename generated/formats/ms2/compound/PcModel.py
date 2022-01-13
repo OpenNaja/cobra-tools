@@ -8,7 +8,6 @@ from generated.formats.ms2.compound.LodInfoZT import LodInfoZT
 from generated.formats.ms2.compound.MaterialName import MaterialName
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2.compound.PcMeshData import PcMeshData
-from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.ZTPreBones import ZTPreBones
 from generated.formats.ms2.compound.ZtMeshData import ZtMeshData
 
@@ -41,9 +40,6 @@ class PcModel:
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
 		self.floatsy = Array(self.context)
-
-		# sometimes 00 byte
-		self.weird_padding = SmartPadding(self.context, None, None)
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -62,7 +58,6 @@ class PcModel:
 		if self.context.version == 13 and self.arg.last_count:
 			self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
 		self.floatsy = Array(self.context)
-		self.weird_padding = SmartPadding(self.context, None, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -81,7 +76,6 @@ class PcModel:
 		if self.context.version == 13 and self.arg.last_count:
 			self.ztuac_pre_bones = stream.read_type(ZTPreBones, (self.context, None, None))
 		self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
-		self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -102,7 +96,6 @@ class PcModel:
 		if self.context.version == 13 and self.arg.last_count:
 			stream.write_type(self.ztuac_pre_bones)
 		self.floatsy.write(stream, FloatsY, self.arg.render_flag, None)
-		stream.write_type(self.weird_padding)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -118,7 +111,6 @@ class PcModel:
 		s += f'\n	* meshes = {self.meshes.__repr__()}'
 		s += f'\n	* ztuac_pre_bones = {self.ztuac_pre_bones.__repr__()}'
 		s += f'\n	* floatsy = {self.floatsy.__repr__()}'
-		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
 		return s
 
 	def __repr__(self):
