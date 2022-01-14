@@ -109,7 +109,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# currently no other way to predict the padding, no correlation to joint count
 		padding_len = get_padding_size(relative_offset)
 		padding = stream.read(padding_len)
-		assert padding == b'\x00' * padding_len
+		if padding != b'\x00' * padding_len:
+			logging.warning(f"Padding is nonzero {padding}")
 		logging.debug(f"padding: {padding_len}")
 		if bone_info.joints:
 			names_l = bone_info.joints.namespace_length
@@ -387,8 +388,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def update_buffer_0_bytes(self):
 		# update self.bone_names_size
 		with BinaryStream() as temp_writer:
-			assign_versions(temp_writer, get_versions(self))
-			temp_writer.ms_2_version = self.general_info.ms_2_version
 			self.buffer_0.write(temp_writer)
 			self.buffer_0_bytes = temp_writer.getvalue()
 			self.bone_names_size = len(self.buffer_0_bytes)
@@ -397,8 +396,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# can only update this if bone infos have been loaded
 		if self.bone_infos:
 			with BinaryStream() as temp_bone_writer:
-				assign_versions(temp_bone_writer, get_versions(self))
-				temp_bone_writer.ms_2_version = self.general_info.ms_2_version
 				self.write_all_bone_infos(temp_bone_writer)
 				self.buffer_1_bytes = temp_bone_writer.getvalue()
 

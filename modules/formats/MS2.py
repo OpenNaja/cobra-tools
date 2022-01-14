@@ -66,13 +66,13 @@ class Ms2Loader(BaseFile):
 		#         or just 40 bytes
 		# plus fragments counted by num_meshes
 		# i - p0: MeshData (64b)	p1: -> buffer_info
-		materials, lods, objects, models, model_info = mdl2_entry.fragments
+		materials, lods, objects, meshes, model_info = mdl2_entry.fragments
 		# remove padding
 		objects.pointers[1].split_data_padding(4 * mdl2_info.num_objects)
 		# get and set fragments
 		logging.debug(f"Num model data frags = {mdl2_info.num_meshes}")
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(
-			models.pointers[1], mdl2_info.num_meshes)
+			meshes.pointers[1], mdl2_info.num_meshes)
 		# just assign name for those here
 		for f in mdl2_entry.model_data_frags:
 			f.name = mdl2_entry.name
@@ -117,22 +117,22 @@ class Ms2Loader(BaseFile):
 		# create the 5 fixed frags per MDL2 and write their data
 		for mdl2, mdl2_entry in zip(mdl2s, ms2_entry.children):
 			mdl2_entry.fragments = [self.create_fragment() for _ in range(5)]
-			materials, lods, objects, models, model_info = mdl2_entry.fragments
+			materials, lods, objects, meshes, model_info = mdl2_entry.fragments
 
 			if first_materials_ptr is None:
 				first_materials_ptr = materials.pointers[1]
 
-			self.write_to_pool(materials.pointers[1], 2, as_bytes(mdl2.materials, version_info=versions))
-			self.write_to_pool(lods.pointers[1], 2, as_bytes(mdl2.lods, version_info=versions))
-			objects_bytes = as_bytes(mdl2.objects, version_info=versions)
+			self.write_to_pool(materials.pointers[1], 2, as_bytes(mdl2.model.materials, version_info=versions))
+			self.write_to_pool(lods.pointers[1], 2, as_bytes(mdl2.model.lods, version_info=versions))
+			objects_bytes = as_bytes(mdl2.model.objects, version_info=versions)
 			self.write_to_pool(objects.pointers[1], 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
-			self.write_to_pool(models.pointers[1], 2, as_bytes(mdl2.models, version_info=versions))
+			self.write_to_pool(meshes.pointers[1], 2, as_bytes(mdl2.model.meshes, version_info=versions))
 
 			self.ptr_relative(model_info.pointers[1], first_materials_ptr)
 			# point to start of each modeldata
 			offset = 0
 			for frag in mdl2_entry.model_data_frags:
-				self.ptr_relative(frag.pointers[0], models.pointers[1], rel_offset=offset)
+				self.ptr_relative(frag.pointers[0], meshes.pointers[1], rel_offset=offset)
 				offset += 64
 		# create fragments for ms2
 		buffer_info_frag, model_info_frag, end_frag = self.create_fragments(ms2_entry, 3)
@@ -238,7 +238,7 @@ class Ms2Loader(BaseFile):
 	
 				if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
 					# the fixed fragments
-					materials, lods, objects, models, model_info = mdl2_entry.fragments
+					materials, lods, objects, meshes, model_info = mdl2_entry.fragments
 					# write the mesh info for this mesh, buffered from the previous mesh or ms2 (model_info fragments)
 					mdl2_info = model_infos[mdl2_index]
 					outfile.write(as_bytes(mdl2_info, versions))
@@ -246,7 +246,7 @@ class Ms2Loader(BaseFile):
 
 					# avoid writing bad fragments that should be empty
 					if mdl2_info.num_objects:
-						for f in (materials, lods, objects, models):
+						for f in (materials, lods, objects, meshes):
 							outfile.write(f.pointers[1].data)
 		return out_paths
 	
@@ -276,7 +276,7 @@ class Ms2Loader(BaseFile):
 			mdl2s.append(mdl2)
 	
 			missing_materials = []
-			for material in mdl2.materials:
+			for material in mdl2.model.materials:
 				fgm_name = f"{material.name.lower()}.fgm"
 				if fgm_name not in self.ovl._ss_dict:
 					missing_materials.append(fgm_name)
@@ -288,7 +288,7 @@ class Ms2Loader(BaseFile):
 				if not interaction.showdialog(msg, ask=True):
 					logging.info("Injection was canceled by the user")
 					return
-			if len(mdl2_entry.model_data_frags) != len(mdl2.models):
+			if len(mdl2_entry.model_data_frags) != len(mdl2.model.meshes):
 				raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
 	
 		logging.info(f"Injecting MDL2s")
@@ -296,12 +296,12 @@ class Ms2Loader(BaseFile):
 		for mdl2_entry, mdl2 in zip(self.sized_str_entry.children, mdl2s):
 			logging.debug(f"Injecting mdl2 {mdl2.basename} ")
 	
-			materials, lods, objects, models, model_info = mdl2_entry.fragments
+			materials, lods, objects, meshes, model_info = mdl2_entry.fragments
 			for frag, mdl2_list in (
-					(materials, mdl2.materials,),
-					(lods, mdl2.lods),
-					(objects, mdl2.objects),
-					(models, mdl2.models)):
+					(materials, mdl2.model.materials,),
+					(lods, mdl2.model.lods),
+					(objects, mdl2.model.objects),
+					(meshes, mdl2.model.meshes)):
 				if len(mdl2_list) > 0:
 					data = as_bytes(mdl2_list, version_info=versions)
 					# objects.pointers[1] has padding in stock, apparently as each entry is 4 bytes

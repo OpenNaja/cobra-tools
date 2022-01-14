@@ -25,10 +25,13 @@ class Struct7:
 		self.count_7 = 0
 
 		# seen 0
-		self.zero = 0
+		self.zero_0 = 0
+
+		# usually 2 - only for recent versions of PZ
+		self.count_2 = 0
 
 		# only for recent versions of PZ
-		self.zeros_pz = numpy.zeros((2), dtype='uint64')
+		self.zero_2 = 0
 
 		# 36 bytes per entry
 		self.unknown_list = Array(self.context)
@@ -44,9 +47,11 @@ class Struct7:
 		if self.context.version <= 13:
 			self.zeros_start = numpy.zeros((6), dtype='ubyte')
 		self.count_7 = 0
-		self.zero = 0
+		self.zero_0 = 0
 		if self.context.version >= 48:
-			self.zeros_pz = numpy.zeros((2), dtype='uint64')
+			self.count_2 = 0
+		if self.context.version >= 48:
+			self.zero_2 = 0
 		if self.context.version <= 13:
 			self.unknown_list = Array(self.context)
 		if self.context.version >= 32:
@@ -58,9 +63,10 @@ class Struct7:
 		if self.context.version <= 13:
 			self.zeros_start = stream.read_ubytes((6))
 		self.count_7 = stream.read_uint64()
-		self.zero = stream.read_uint64()
+		self.zero_0 = stream.read_uint64()
 		if self.context.version >= 48:
-			self.zeros_pz = stream.read_uint64s((2))
+			self.count_2 = stream.read_uint64()
+			self.zero_2 = stream.read_uint64()
 		if self.context.version <= 13:
 			self.unknown_list.read(stream, UACJoint, self.count_7, None)
 		if self.context.version >= 32:
@@ -74,9 +80,10 @@ class Struct7:
 		if self.context.version <= 13:
 			stream.write_ubytes(self.zeros_start)
 		stream.write_uint64(self.count_7)
-		stream.write_uint64(self.zero)
+		stream.write_uint64(self.zero_0)
 		if self.context.version >= 48:
-			stream.write_uint64s(self.zeros_pz)
+			stream.write_uint64(self.count_2)
+			stream.write_uint64(self.zero_2)
 		if self.context.version <= 13:
 			self.unknown_list.write(stream, UACJoint, self.count_7, None)
 		if self.context.version >= 32:
@@ -92,8 +99,9 @@ class Struct7:
 		s = ''
 		s += f'\n	* zeros_start = {self.zeros_start.__repr__()}'
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* zeros_pz = {self.zeros_pz.__repr__()}'
+		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
+		s += f'\n	* count_2 = {self.count_2.__repr__()}'
+		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
 		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
 		s += f'\n	* padding = {self.padding.__repr__()}'
 		return s

@@ -454,13 +454,17 @@
 	</compound>
 
 	<compound name="Struct7">
+<!--		<add name="weird padding" type="SmartPadding">needed for jwe2 raptor69</add>-->
 		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>
 		<add name="count7" type="uint64">repeat</add>
-		<add name="zero" type="uint64" >seen 0</add>
-		<add name="zeros pz" type="uint64" since="48" arr1="2">only for recent versions of PZ</add>
+		<add name="zero 0" type="uint64" >seen 0</add>
+		<add name="count2" type="uint64" since="48">usually 2 - only for recent versions of PZ</add>
+		<add name="zero 2" type="uint64" since="48">only for recent versions of PZ</add>
 		<add name="UnknownList" type="UACJoint" arr1="count7" until="13">36 bytes per entry</add>
 		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="32">60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
+		probably wrong
+<!--		<add name="array2" type="uint" arr1="count2" since="48">in JWE2 velo69 bone info 1, could also be, 2 * 2 ubyte + 4 bytes padding</add>-->
 	</compound>
 
 	<compound name="UACJoint">
