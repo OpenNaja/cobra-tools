@@ -46,19 +46,17 @@ class BaseFile:
 		out_frags = self.get_frags_between(frags, offset_start, offset_end)
 		return out_frags, array_data
 
-	# def collect_array_elements(self, ptr, count, entry_size):
-	# 	logging.debug(f"Collecting array {count} {entry_size}")
-	# 	offset_start = ptr.data_offset
-	# 	data_frags = []
-	# 	array_size = count * entry_size
-	# 	array_data = ptr.read_from_pool(array_size)
-	# 	for i in range(count):
-	# 		offset_start += entry_size
-	# 	frags = self.ovs.frags_for_pointer(ptr)
-	# 	logging.debug(f"frags {len(frags)}")
-	# 	offset_end = offset_start + array_size
-	# 	out_frags = self.get_frags_between(frags, offset_start, offset_end)
-	# 	return out_frags, array_data
+	def collect_array_elements(self, ptr, count, entry_size):
+		out_frags, array_data = self.collect_array(ptr, count, entry_size)
+		frag_data_pairs = []
+		for i in range(count):
+			x = i * entry_size
+			abs_offset = ptr.data_offset + x
+			frags_entry = self.get_frags_between(out_frags, abs_offset, abs_offset+entry_size)
+			rel_offsets = [f.pointers[0].data_offset-abs_offset for f in frags_entry]
+			# frag_data_pairs.append((frags_entry, array_data[x:x+entry_size], rel_offsets))
+			frag_data_pairs.append((frags_entry, array_data[x:x+entry_size]))
+		return frag_data_pairs
 
 	def get_frags_between(self, frags, offset_start, offset_end):
 		out_frags = []

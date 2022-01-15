@@ -145,6 +145,21 @@
 		<add name="zero" type="uint" ></add>
     </compound>
 
+	<compound name="MatcolRoot" >
+		<add name="ptr" type="uint64" >root ptr</add>
+		<add name="one" type="uint64" >always 1</add>
+    </compound>
+
+	<compound name="RootFrag" >
+        mat_type, ptr0, tex_count, ptr1, mat_count, ptr2
+        <add name="mat_type" type="uint64"/>
+        <add name="ptr0" type="uint64"/>
+        <add name="tex_count" type="uint64"/>
+        <add name="ptr1" type="uint64"/>
+        <add name="mat_count" type="uint64"/>
+        <add name="ptr2" type="uint64"/>
+    </compound>
+
     <compound name="MaterialcollectionInfoHeader">
         Custom header struct
 		
@@ -152,12 +167,11 @@
         <add name="magic" type="byte" arr1="4">'FGM '</add>
         <add name="version" type="uint" ></add>
         <add name="user version" type="uint" ></add>
-        <add name="has texture list" type="ubyte" >bool</add>
 
-        <add name="root 0" type="Root0" ></add>
-		<add name="root 1" type="Root1" ></add>
-		<add name="root 1 pad" type="Root1Pad" cond="has texture list == 0" ></add>
-		<add name="texture wrapper" type="TextureWrapper" cond="has texture list == 1" ></add>
+        <add name="root" type="MatcolRoot"/>
+        <add name="info" type="RootFrag"/>
+        <add name="textures" type="Texture" arr1="info\texture count"></add>
+		<add name="texture wrapper" type="TextureWrapper" ></add>
 		<add name="variant wrapper" type="VariantWrapper"  cond="root 1 \ flag == 3" ></add>
 		<add name="layered wrapper" type="LayeredWrapper"  cond="root 1 \ flag == 2" ></add>
 

@@ -565,8 +565,13 @@ class OvsFile(OvsHeader):
 	def assign_frag_names(self):
 		# for debugging only:
 		for sized_str_entry in self.sized_str_entries:
-			for frag in sized_str_entry.fragments:
-				frag.name = sized_str_entry.name
+			try:
+				for frag in sized_str_entry.fragments:
+					frag.name = sized_str_entry.name
+			except BaseException as err:
+				logging.error(f"Assigning frag names failed for {sized_str_entry.name}")
+				logging.error(sized_str_entry.fragments)
+				traceback.print_exc()
 
 	def map_buffers(self):
 		"""Map buffers to data entries"""
@@ -1662,7 +1667,7 @@ class OvlFile(Header, IoFile):
 				archive_entry.content.dump_buffer_groups_log()
 				archive_entry.content.dump_pools()
 			except BaseException as err:
-				print(err)
+				traceback.print_exc()
 
 	def save(self, filepath, dat_path):
 		self.store_filepath(filepath)
