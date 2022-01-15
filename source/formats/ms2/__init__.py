@@ -130,7 +130,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						rel_size = size-sub
 						for al in (32, 40, 48, 64):
 							mod = rel_size % al
-							logging.debug(f"rel_size: {rel_size} mod{al}: {mod}")
+							# logging.debug(f"rel_size: {rel_size} mod{al}: {mod}")
 							k = (t, sub, al)
 							# see if it modulos to 0
 							if not mod:

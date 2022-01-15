@@ -3,6 +3,7 @@ import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
+from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.UACJoint import UACJoint
 
 
@@ -18,8 +19,8 @@ class Struct7:
 		self.io_size = 0
 		self.io_start = 0
 
-		# guess for ZTUAC rhino, wrong for afr ele child
-		self.zeros_start = numpy.zeros((6), dtype='ubyte')
+		# needed for ZTUAC
+		self.weird_padding = SmartPadding(self.context, None, None)
 
 		# repeat
 		self.count_7 = 0
@@ -45,7 +46,7 @@ class Struct7:
 
 	def set_defaults(self):
 		if self.context.version <= 13:
-			self.zeros_start = numpy.zeros((6), dtype='ubyte')
+			self.weird_padding = SmartPadding(self.context, None, None)
 		self.count_7 = 0
 		self.zero_0 = 0
 		if self.context.version >= 48:
@@ -61,7 +62,7 @@ class Struct7:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		if self.context.version <= 13:
-			self.zeros_start = stream.read_ubytes((6))
+			self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		self.count_7 = stream.read_uint64()
 		self.zero_0 = stream.read_uint64()
 		if self.context.version >= 48:
@@ -78,7 +79,7 @@ class Struct7:
 	def write(self, stream):
 		self.io_start = stream.tell()
 		if self.context.version <= 13:
-			stream.write_ubytes(self.zeros_start)
+			stream.write_type(self.weird_padding)
 		stream.write_uint64(self.count_7)
 		stream.write_uint64(self.zero_0)
 		if self.context.version >= 48:
@@ -97,7 +98,7 @@ class Struct7:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* zeros_start = {self.zeros_start.__repr__()}'
+		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
 		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
 		s += f'\n	* count_2 = {self.count_2.__repr__()}'
