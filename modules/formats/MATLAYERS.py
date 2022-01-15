@@ -10,9 +10,13 @@ from modules.helpers import zstr, as_bytes
 def unpack_name(b):
 	_hash, _name = b.split(b"::")
 	hash_int = int(_hash)
-	name_str = _unpack_name(_name)#.decode()[:-1]
+	name_str = _unpack_name(_name).decode()[:-1]
 	# logging.info(f"{hash_int} {djb('::'+name_str.lower())} {name_str}")
 	return hash_int, name_str
+
+
+def pack_name(h_int, name_str):
+	return str(h_int).encode() + b"::" + _pack_name(name_str.encode()) + b"\x00"
 
 
 def _unpack_name(b):
@@ -24,18 +28,18 @@ def _unpack_name(b):
 
 
 def _pack_name(b):
-	b = bytearray(b.encode())
+	b = bytearray(b)
 	# decode the names
 	for i in range(len(b)):
 		b[i] = max(0, b[i] + 1)
-	return b.decode()
+	return bytes(b)
 
 
 class MatAbstract(BaseFile):
 
 	def assign_shader(self, xml):
 		_hash, _shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		xml.set('shader', self.get_zstr(_shader))
+		xml.set('shader', _shader)
 		xml.set('hash', str(_hash))
 
 	def get_shader(self, xml):
@@ -46,6 +50,7 @@ class MatAbstract(BaseFile):
 		_hash, _shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
 		for old, new in name_tuples:
 			_shader = _shader.replace(old, new)
+		self.sized_str_entry.f0.pointers[1].update_data(pack_name(_hash, _shader))
 
 
 class MatlayersLoader(MatAbstract):
