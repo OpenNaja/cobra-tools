@@ -301,7 +301,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			model_info.pc_model = stream.read_type(PcModel, (self.context, model_info,))
 			logging.debug(model_info)
 			logging.debug(model_info.pc_model)
-			if is_pc(self.general_info):
+			if is_pc(self.general_info) or is_ztuac(self.general_info):
 				# alignment is probably wrong
 				if model_info.increment_flag:
 					model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset, alignment=16))

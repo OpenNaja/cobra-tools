@@ -245,7 +245,7 @@
 		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#" ></add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" >see if it is a flag for ztuac too, so might be totally wrong here</add>
-<!--		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>-->
+		alignment here is handled by py code, seems to depend on whether a bone info follows
 	</compound>
 
 	<compound name="MaterialName">
@@ -426,7 +426,7 @@
 		keep disabled for the old formats for now
 <!--		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#" >ragdoll links?</add>-->
 		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>
-		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>
+<!--		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>-->
 <!--		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>-->
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->

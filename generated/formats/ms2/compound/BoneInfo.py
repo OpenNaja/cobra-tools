@@ -7,7 +7,6 @@ from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.MinusPadding import MinusPadding
 from generated.formats.ms2.compound.PzBone import PzBone
-from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
 
@@ -116,7 +115,6 @@ class BoneInfo:
 
 		# ragdoll links?
 		self.struct_7 = Struct7(self.context, None, None)
-		self.weird_padding = SmartPadding(self.context, None, None)
 
 		# joints
 		self.joints = JointData(self.context, None, None)
@@ -177,8 +175,6 @@ class BoneInfo:
 			self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
 		if self.count_7:
 			self.struct_7 = Struct7(self.context, None, None)
-		if self.context.version == 32 and self.joint_count:
-			self.weird_padding = SmartPadding(self.context, None, None)
 		if self.joint_count:
 			self.joints = JointData(self.context, None, None)
 
@@ -237,8 +233,6 @@ class BoneInfo:
 			self.minus_padding = stream.read_type(MinusPadding, (self.context, self.zeros_count, None))
 		if self.count_7:
 			self.struct_7 = stream.read_type(Struct7, (self.context, None, None))
-		if self.context.version == 32 and self.joint_count:
-			self.weird_padding = stream.read_type(SmartPadding, (self.context, None, None))
 		if self.joint_count:
 			self.joints = stream.read_type(JointData, (self.context, None, None))
 
@@ -302,8 +296,6 @@ class BoneInfo:
 			stream.write_type(self.minus_padding)
 		if self.count_7:
 			stream.write_type(self.struct_7)
-		if self.context.version == 32 and self.joint_count:
-			stream.write_type(self.weird_padding)
 		if self.joint_count:
 			stream.write_type(self.joints)
 
@@ -345,7 +337,6 @@ class BoneInfo:
 		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
 		s += f'\n	* minus_padding = {self.minus_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
-		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
 		s += f'\n	* joints = {self.joints.__repr__()}'
 		return s
 
