@@ -275,11 +275,14 @@ class Ms2Loader(BaseFile):
 			mdl2.load(mdl2_path, entry=True)
 			mdl2s.append(mdl2)
 	
-			missing_materials = []
+			missing_materials = set()
 			for material in mdl2.model.materials:
 				fgm_name = f"{material.name.lower()}.fgm"
+				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
+					# don't cry about this
+					continue
 				if fgm_name not in self.ovl._ss_dict:
-					missing_materials.append(fgm_name)
+					missing_materials.add(fgm_name)
 			if missing_materials:
 				mats = '\n'.join(missing_materials)
 				msg = f"The following materials are used by {mdl2_entry.name}, but are missing from the OVL:\n" \
