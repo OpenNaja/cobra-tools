@@ -4,7 +4,7 @@ from generated.context import ContextReference
 class RootFrag:
 
 	"""
-	mat_type, ptr0, tex_count, ptr1, mat_count, ptr2
+	first frag data
 	"""
 
 	context = ContextReference()

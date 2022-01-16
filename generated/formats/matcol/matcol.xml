@@ -2,156 +2,47 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-    <token name="verexpr" attrs="vercond">
-        Commonly used version expressions.
-        <verexpr token="#PZ#" string="(#USER# #EQ# 8340)">PZ</verexpr>
-        <verexpr token="#JWE#" string="(#USER# #EQ# 24724)">JWE</verexpr>
-    </token>
-	
-    <token name="global" attrs="vercond access">
-        Global Tokens.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <global token="#VER#" string="version" />
-        <global token="#USER#" string="user_version" />
-    </token>
-
-	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-
-	<verattr name="version" access="#VER#" index="0" />
-	<verattr name="user_version" access="#USER#" index="1" />
-
-    <basic name="ZString">
-        Null terminated string.
-    </basic>
-
-    <compound name="Root0" >
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="collection count" type="uint" ></add>
-        <add name="zero4" type="uint" ></add>
-    </compound>
-
-    <compound name="Root1" >
-        <add name="flag" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-    </compound>
-
-    <compound name="Root1Pad" >
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="zero2" type="uint" ></add>
-        <add name="zero3" type="uint" ></add>
-    </compound>
-    
-    <compound name="LayeredWrapper" >
-        <add name="info" type="MaterialInfo" ></add>
-        <add name="layers" type="Layer" arr1="info\material count"></add>
-    </compound>
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
 	<compound name="Layer" >
-		
-		<add name="name" type="ZString" ></add>
-		<add name="info info" type="LayeredInfo" ></add>
+        <add name="info" type="LayerFrag"/>
+        <add name="name" type="ZString"/>
 
-		<add name="infos" type="InfoWrapper" arr1="info info\info count"></add>
+        <add name="infos" type="Info" arr1="info\info_count"/>
+        <add name="info_names" type="ZString" arr1="info\info_count"/>
 
-		<add name="attrib info" type="LayeredAttrib" ></add>
-
-		<add name="attribs" type="AttribWrapper" arr1="attrib info\attrib count"></add>
-    </compound>
-
-    <compound name="AttribWrapper" >
-        <add name="attrib" type="Attrib" ></add>
-        <add name="name" type="ZString"></add>
+        <add name="attribs" type="Attrib" arr1="info\attrib_count"/>
+        <add name="attrib_names" type="ZString" arr1="info\attrib_count"/>
     </compound>
 
     <compound name="Attrib" >
-    <!-- 2I4BI -->
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="attrib" type="byte" arr1="4" ></add>
-        <add name="zero2" type="uint" ></add>
-    </compound>
-
-    <compound name="LayeredAttrib" >
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="attrib count" type="uint" ></add>
-        <add name="zero2" type="uint" ></add>
-    </compound>
-
-    <compound name="LayeredInfo" >
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="info count" type="uint" ></add>
-        <add name="zero2" type="uint" ></add>
-        <add name="zero3" type="uint" ></add>
-        <add name="zero4" type="uint" ></add>
-        <add name="zero5" type="uint" ></add>
-        <add name="zero6" type="uint" ></add>
-    </compound>
-
-    <compound name="InfoWrapper" >
-        <add name="info" type="Info" ></add>
-        <add name="name" type="ZString"></add>
+        <add name="name ptr" type="uint64"/>
+        <add name="attrib" type="byte" arr1="4"/>
+        <add name="padding" type="uint"/>
     </compound>
 
     <compound name="Info" >
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="flags" type="byte" arr1="4"></add>
-        <add name="value" type="float" arr1="4"></add>
-        <add name="zero3" type="uint" ></add>
-    </compound>
-
-    <compound name="VariantWrapper" >
-        <add name="info" type="MaterialInfo" ></add>
-        <add name="materials" type="ZString" arr1="info\material count"></add>
-    </compound>
-
-    <compound name="TextureWrapper" >
-        <add name="info" type="TextureInfo" ></add>
-        <add name="textures" type="Texture" arr1="info\texture count"></add>
-    </compound>
-
-    <compound name="MaterialInfo" >
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="material count" type="uint" ></add>
-        <add name="zero2" type="uint" ></add>
-        <add name="zero3" type="uint" ></add>
-        <add name="zero4" type="uint" ></add>
-    </compound>
-
-    <compound name="TextureInfo" >
-        <add name="zero0" type="uint" ></add>
-        <add name="zero1" type="uint" ></add>
-        <add name="texture count" type="uint" ></add>
-        <add name="zero4" type="uint" ></add>
+        <add name="name ptr" type="uint64"/>
+        <add name="flags" type="byte" arr1="4"/>
+        <add name="value" type="float" arr1="4"/>
+        <add name="padding" type="uint"/>
     </compound>
 
 	<compound name="Texture" >
 		each texture = three fragments of format: data0 = 8 bytes zeros | data1 = null terminating string (scale texture name)
-		<add name="fgm name" type="ZString" ></add>
+		<add name="fgm name" type="ZString" >first fgm slot</add>
 		<add name="texture suffix" type="ZString" ></add>
         <add name="texture type" type="ZString" ></add>
     </compound>
-	
-	<compound name="AttributeInfo" >
-		part of fgm fragment, repeated per attribute
-		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
-		<add name="dtype" type="uint">6=bool 5=integer 0=float</add>
-		<add name="first value offset" type="uint" >byte offset to first value in the 4th fragment entry</add>
-		<add name="zero" type="uint" ></add>
-    </compound>
 
 	<compound name="MatcolRoot" >
+        ss data
 		<add name="ptr" type="uint64" >root ptr</add>
 		<add name="one" type="uint64" >always 1</add>
     </compound>
 
 	<compound name="RootFrag" >
-        mat_type, ptr0, tex_count, ptr1, mat_count, ptr2
+        first frag data
         <add name="mat_type" type="uint64"/>
         <add name="ptr0" type="uint64"/>
         <add name="tex_count" type="uint64"/>
@@ -160,20 +51,24 @@
         <add name="ptr2" type="uint64"/>
     </compound>
 
-    <compound name="MaterialcollectionInfoHeader">
-        Custom header struct
-		
-		This reads a whole custom Matcol file
-        <add name="magic" type="byte" arr1="4">'FGM '</add>
-        <add name="version" type="uint" ></add>
-        <add name="user version" type="uint" ></add>
+	<compound name="LayerFrag" >
+        name_ptr, u0, u1, info_ptr, info_count, u2, u3, attrib_ptr, attrib_count
+        <add name="name_ptr" type="uint64"/>
+        <add name="u0" type="uint64"/>
+        <add name="u1" type="uint64"/>
+        <add name="info_ptr" type="uint64"/>
+        <add name="info_count" type="uint64"/>
+        <add name="u2" type="uint64"/>
+        <add name="u3" type="uint64"/>
+        <add name="attrib_ptr" type="uint64"/>
+        <add name="attrib_count" type="uint64"/>
+    </compound>
 
+    <compound name="MaterialcollectionInfoHeader" inherit="GenericHeader">
+		This reads a whole custom Matcol file
         <add name="root" type="MatcolRoot"/>
         <add name="info" type="RootFrag"/>
-        <add name="textures" type="Texture" arr1="info\texture count"></add>
-		<add name="texture wrapper" type="TextureWrapper" ></add>
-		<add name="variant wrapper" type="VariantWrapper"  cond="root 1 \ flag == 3" ></add>
-		<add name="layered wrapper" type="LayeredWrapper"  cond="root 1 \ flag == 2" ></add>
-
+        <add name="textures" type="Texture" arr1="info\tex_count"/>
+        <add name="layers" type="Layer" arr1="info\mat_count" />
     </compound>
 </niftoolsxml>

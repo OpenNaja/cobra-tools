@@ -1,6 +1,8 @@
 import logging
 import struct
 
+from generated.formats.matcol.compound.LayerFrag import LayerFrag
+from generated.formats.matcol.compound.RootFrag import RootFrag
 from modules.formats.BaseFormat import BaseFile
 from modules.formats.shared import get_padding
 from modules.helpers import as_bytes
@@ -17,37 +19,36 @@ class MatcolLoader(BaseFile):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
 		self.sized_str_entry.f0 = self.sized_str_entry.fragments[0]
 		# ptr, one = struct.unpack("<2Q", self.sized_str_entry.pointers[0].data)
-		mat_type, ptr0, tex_count, ptr1, mat_count, ptr2 = struct.unpack("<6Q", self.sized_str_entry.f0.pointers[1].data)
+		header = self.sized_str_entry.f0.pointers[1].load_as(RootFrag)[0]
 		# print(ptr, one)
-		# print(mat_type, ptr0, tex_count, ptr1, mat_count, ptr2)
+		print(header)
 		# mat_type (3=variant, 2=layered)
-		self.sized_str_entry.is_variant = mat_type == 3
-		self.sized_str_entry.is_layered = mat_type == 2
-		if tex_count:
+		self.sized_str_entry.is_variant = header.mat_type == 3
+		self.sized_str_entry.is_layered = header.mat_type == 2
+		if header.tex_count:
 			self.sized_str_entry.tex_pointer = self.ovs.frags_from_pointer(self.sized_str_entry.f0.pointers[1], 1)[0]
-			self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.tex_pointer.pointers[1], tex_count * 3)
+			self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.tex_pointer.pointers[1], header.tex_count * 3)
 			self.sized_str_entry.fragments.extend(self.sized_str_entry.tex_frags)
 			self.sized_str_entry.fragments.append(self.sized_str_entry.tex_pointer)
 		else:
 			self.sized_str_entry.tex_frags = []
 		# material pointer frag
 		self.sized_str_entry.mat_pointer = self.ovs.frags_from_pointer(self.sized_str_entry.f0.pointers[1], 1)[0]
-		self.sized_str_entry.mat_frags = self.collect_array_elements(self.sized_str_entry.mat_pointer.pointers[1], mat_count, 72)
-		# todo - this is broken, as mat_frags is not a list of fragments atm, maybe rethink the nesting
-		# self.sized_str_entry.fragments.extend(self.sized_str_entry.mat_frags)
 		self.sized_str_entry.fragments.append(self.sized_str_entry.mat_pointer)
-		# print(self.sized_str_entry.mat_pointer.pointers[1])
-		for frags, data in self.sized_str_entry.mat_frags:
+		self.sized_str_entry.mat_structs = self.collect_array_structs(self.sized_str_entry.mat_pointer.pointers[1], header.mat_count, LayerFrag)
+		for frags, data in self.sized_str_entry.mat_structs:
+			self.sized_str_entry.fragments.extend(frags)
 			# print(rel_offsets, data)
 			# rel [0, 24, 56] or [0]
-			name_ptr, u0, u1, info_ptr, info_count, u2, u3, attrib_ptr, attrib_count = struct.unpack("<9Q", data)
 			if self.sized_str_entry.is_layered:
 				m0, info, attrib = frags
-				info.children, info.data = self.collect_array(info.pointers[1], info_count, 32)
-				attrib.children, attrib.data = self.collect_array(attrib.pointers[1], attrib_count, 16)
+				info.children, info.data = self.collect_array(info.pointers[1], data.info_count, 32)
+				attrib.children, attrib.data = self.collect_array(attrib.pointers[1], data.attrib_count, 16)
 				self.sized_str_entry.fragments.extend(info.children)
 				self.sized_str_entry.fragments.extend(attrib.children)
-			# self.sized_str_entry.mat_frags.append((frags[0],))
+				# for f in info.children + attrib.children:
+				# 	f.pointers[1].strip_zstring_padding()
+			# self.sized_str_entry.mat_structs.append((frags[0],))
 				# m0.pointers[1].strip_zstring_padding()
 				# print("info_count", info_count)
 				# print("info_count", info)
@@ -67,7 +68,7 @@ class MatcolLoader(BaseFile):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name.replace("materialcollection", "matcol")
-		print(f"Writing {name}")
+		logging.info(f"Writing {name}")
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
 			# write custom matcol header
@@ -80,16 +81,22 @@ class MatcolLoader(BaseFile):
 			for tex in self.sized_str_entry.tex_frags:
 				outfile.write(tex.pointers[1].data)
 
-			for frags, data in self.sized_str_entry.mat_frags:
+			# outfile.write(self.sized_str_entry.mat_pointer.pointers[1].data)
+			for frags, data in self.sized_str_entry.mat_structs:
 				# write root frag, always present
 				m0 = frags[0]
+				# counts
+				outfile.write(as_bytes(data))
 				# the name of the material slot or variant
 				outfile.write(m0.pointers[1].data)
 				# material layers only: write info and attrib frags + children
 				for f in frags[1:]:
 					outfile.write(f.pointers[1].data)
-					# for children, data in f.children:
-					# 	outfile.write(data)
+					for c in f.children:
+						outfile.write(as_bytes(self.p1_ztsr(c)))
+		m = MatcolFile()
+		m.load(out_path)
+		print(m)
 		return out_path,
 
 	def update_matcol_pointers(self, pointers, new_names):
@@ -131,12 +138,12 @@ class MatcolLoader(BaseFile):
 			new_names = []
 
 		if self.sized_str_entry.is_variant:
-			for (m0,), variant in zip(self.sized_str_entry.mat_frags, matcol_data.variant_wrapper.materials):
+			for (m0,), variant in zip(self.sized_str_entry.mat_structs, matcol_data.variant_wrapper.materials):
 				# print(layer.name)
 				pointers.append(m0.pointers[1])
 				new_names.append(variant)
 		elif self.sized_str_entry.is_layered:
-			for (m0, info, attrib), layer in zip(self.sized_str_entry.mat_frags, matcol_data.layered_wrapper.layers):
+			for (m0, info, attrib), layer in zip(self.sized_str_entry.mat_structs, matcol_data.layered_wrapper.layers):
 				# print(layer.name)
 				pointers.append(m0.pointers[1])
 				new_names.append(layer.name)

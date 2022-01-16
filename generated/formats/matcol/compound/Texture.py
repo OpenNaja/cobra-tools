@@ -16,6 +16,8 @@ class Texture:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# first fgm slot
 		self.fgm_name = 0
 		self.texture_suffix = 0
 		self.texture_type = 0
