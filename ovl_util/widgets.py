@@ -573,10 +573,9 @@ class CollapsibleBox(QtWidgets.QWidget):
 		content_animation.setEndValue(content_height)
 
 
-class MatcolInfo():
+class MatcolInfo:
 	def __init__(self, attrib, tooltips={}):
 		"""attrib must be pyffi matcol InfoWrapper object"""
-		# QtWidgets.QWidget.__init__(self,)
 		self.attrib = attrib
 		self.label = QtWidgets.QLabel(str(attrib.name))
 
@@ -584,7 +583,7 @@ class MatcolInfo():
 		layout = QtWidgets.QHBoxLayout()
 		layout.setSpacing(0)
 		layout.setContentsMargins(0, 0, 0, 0)
-		buttons = [self.create_field(i) for i, v in enumerate(attrib.info.flags) if v]
+		buttons = [self.create_field(i) for i, v in enumerate(attrib.flags) if v]
 		for button in buttons:
 			layout.addWidget(button)
 		self.data.setLayout(layout)
@@ -594,12 +593,12 @@ class MatcolInfo():
 		self.label.setToolTip(tooltip)
 
 	def create_field(self, ind):
-		default = self.attrib.info.value[ind]
+		default = self.attrib.value[ind]
 
 		def update_ind(v):
 			# use a closure to remember index
 			# print(self.attrib, ind, v)
-			self.attrib.info.value[ind] = v
+			self.attrib.value[ind] = v
 
 		# always float
 		field = QtWidgets.QDoubleSpinBox()

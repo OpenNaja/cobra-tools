@@ -5,6 +5,7 @@ from PyQt5 import QtWidgets, QtCore
 import modules.formats.shared
 import ovl_util.interaction
 from generated.formats.matcol import MatcolFile
+from generated.formats.ovl_base.versions import get_game
 from ovl_util import widgets, config
 
 
@@ -74,7 +75,6 @@ class MainWindow(widgets.MainWindow):
 	def materialcollection_name(self,):
 		return self.materialcollection_container.entry.text()
 
-
 	def open_materialcollection(self):
 		"""Just a wrapper so we can also reload via code"""
 		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Matcol', self.cfg.get("dir_materialcollections_in", "C://"), "Matcol files (*.matcol)")[0]
@@ -104,9 +104,9 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_materialcollections_in"], materialcollection_name = os.path.split(self.file_src)
 			try:
 				self.matcol_data.load(self.file_src)
-				game = self.matcol_data.game
+				game = get_game(self.matcol_data)[0]
 				print("from game", game)
-				self.game_container.entry.setText(game)
+				self.game_container.entry.setText(game.value)
 
 				self.materialcollection_container.entry.setText( materialcollection_name )
 
@@ -120,7 +120,7 @@ class MainWindow(widgets.MainWindow):
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
 				line_i = 0
-				for i, tex in enumerate(self.matcol_data.texture_wrapper.textures):
+				for i, tex in enumerate(self.matcol_data.textures):
 					# w = widgets.VectorEntry(tex, self.tooltips)
 					# form.addRow(w.label, w.data)
 					box = widgets.CollapsibleBox(f"Slot {i}")
@@ -143,9 +143,8 @@ class MainWindow(widgets.MainWindow):
 					box.setLayout(lay)
 
 				line_i = 0
-				for i, attrib in enumerate(self.matcol_data.layered_wrapper.layers):
+				for i, attrib in enumerate(self.matcol_data.layers):
 					box = widgets.CollapsibleBox(f"Slot {i}")
-					# box = QtWidgets.QGroupBox(attrib.name)
 					self.attrib_grid.addWidget(box, line_i, 0)
 					line_i += 1
 					lay = self.create_grid()
@@ -161,13 +160,13 @@ class MainWindow(widgets.MainWindow):
 					box.setLayout(lay)
 				
 				line_i = 0
-				for zstr in self.matcol_data.variant_wrapper.materials:
-
-					a = QtWidgets.QLabel("variant fgm")
-					b = QtWidgets.QLineEdit(zstr)
-					self.attrib_grid.addWidget(a, line_i, 0)
-					self.attrib_grid.addWidget(b, line_i, 1)
-					line_i += 1
+				# for zstr in self.matcol_data.layers:
+				#
+				# 	a = QtWidgets.QLabel("variant fgm")
+				# 	b = QtWidgets.QLineEdit(zstr)
+				# 	self.attrib_grid.addWidget(a, line_i, 0)
+				# 	self.attrib_grid.addWidget(b, line_i, 1)
+				# 	line_i += 1
 				
 			except Exception as ex:
 				ovl_util.interaction.showdialog(str(ex))

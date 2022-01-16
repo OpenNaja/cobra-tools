@@ -38,7 +38,6 @@ class MatcolLoader(BaseFile):
 		self.sized_str_entry.mat_structs = self.collect_array_structs(self.sized_str_entry.mat_pointer.pointers[1], header.mat_count, LayerFrag)
 		for frags, data in self.sized_str_entry.mat_structs:
 			self.sized_str_entry.fragments.extend(frags)
-			# print(rel_offsets, data)
 			# rel [0, 24, 56] or [0]
 			if self.sized_str_entry.is_layered:
 				m0, info, attrib = frags
@@ -46,25 +45,6 @@ class MatcolLoader(BaseFile):
 				attrib.children, attrib.data = self.collect_array(attrib.pointers[1], data.attrib_count, 16)
 				self.sized_str_entry.fragments.extend(info.children)
 				self.sized_str_entry.fragments.extend(attrib.children)
-				# for f in info.children + attrib.children:
-				# 	f.pointers[1].strip_zstring_padding()
-			# self.sized_str_entry.mat_structs.append((frags[0],))
-				# m0.pointers[1].strip_zstring_padding()
-				# print("info_count", info_count)
-				# print("info_count", info)
-				# for fr, info_data in self.collect_array_elements(info.pointers[1], info_count, 32):
-				# 	# print(fr, info_data, rel_offsets)
-				# 	fr[0].pointers[1].strip_zstring_padding()
-				# 	info_child_d0 = struct.unpack("<Q 4B 4f I", info_data)
-				# 	# print(info_child_d0)
-				# attrib.pointers[0].split_data_padding(16)
-				# attrib_d0 = struct.unpack("<4I", attrib.pointers[0].data)
-				# print("attrib_count",attrib_count)
-				# for fr, attr_data in self.collect_array_elements(attrib.pointers[1], attrib_count, 16):
-				# 	# print(fr, info_data, rel_offsets)
-				# 	fr[0].pointers[1].strip_zstring_padding()
-				# 	attr_child_d0 = struct.unpack("<2I4BI", attr_data)
-				# 	# print(attr_child_d0)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name.replace("materialcollection", "matcol")
