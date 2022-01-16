@@ -104,9 +104,14 @@ class Compound(BaseClass):
 				self.write_line(f, 2, "s = ''")
 				if self.class_basename:
 					self.write_line(f, 2, "s += super().get_fields_str()")
+				dupe_check = []
 				for union in self.field_unions:
-					rep = f"self.{union.name}.__repr__()"
-					self.write_line(f, 2, f"s += f'\\n\t* {union.name} = {{{rep}}}'")
+					# avoid printing the same name repeatedly for repeated unions
+					name = union.name
+					if name not in dupe_check:
+						dupe_check.append(name)
+						rep = f"self.{name}.__repr__()"
+						self.write_line(f, 2, f"s += f'\\n\t* {name} = {{{rep}}}'")
 				self.write_line(f, 2, "return s")
 
 				self.write_line(f)

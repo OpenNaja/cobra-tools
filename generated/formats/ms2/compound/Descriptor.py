@@ -13,10 +13,10 @@ class Descriptor:
 		self.io_size = 0
 		self.io_start = 0
 
-		# index into JointInfoList
+		# index into joint_infos
 		self.parent = 0
 
-		# index into JointInfoList
+		# index into joint_infos
 		self.child = 0
 		self.set_defaults()
 

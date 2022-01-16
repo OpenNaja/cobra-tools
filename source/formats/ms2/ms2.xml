@@ -485,34 +485,31 @@
 
 	<compound name="JointData">
 		appears in dinos and static meshes
-		<add name="new extra" type="uint" arr1="2" since="51">A7 2D A8 10   00 00 00 00, since ms_2_version 51</add>
+		<add name="new extra" type="uint" arr1="2" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>
 		<add name="joint_count" type="uint" >repeat</add>
-		<add name="count_0" type="uint" >small number</add>
-		<add name="count_1" type="uint" >small number</add>
-		<add name="count_2" type="uint" >small number</add>
-		<add name="zeros extra" type="uint" arr1="2" vercond="#OLD#">0s, might be related to count 7 in PC</add>
+		<add name="count_0" type="uint"/>
+		<add name="count_1" type="uint"/>
+		<add name="count_2" type="uint"/>
+		<add name="zeros extra" type="uint" arr1="2" until="32">0s, might be related to count 7 in PC</add>
 		<add name="namespace length" type="uint" >size of the name buffer below, including trailing zeros</add>
 		<add name="zeros 0" type="uint" arr1="5" >0s</add>
 		<add name="pc count" type="uint" >0 or 1</add>
 		<add name="zeros 1" type="uint" arr1="7">0s</add>
-		<add name="extra zeros pc" type="uint" arr1="4" vercond="#OLD#">0s</add>
+		<add name="extra zeros pc" type="uint" arr1="4" until="32">0s</add>
 		<add name="ones" type="uint64" arr1="2" >1, 1</add>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
 		<add name="joint entry count" type="uint" >0</add>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
-		<add name="zeros 3" type="uint64" arr1="joint_count" vercond="!#OLD#">might be pointers</add>
-		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" vercond="!#OLD#" ></add>
-		<add name="first list" type="ListFirst" arr1="count_0" vercond="!#OLD#" >used by ptero, 16 bytes per entry</add>
-		<add name="short list" type="ListShort" arr1="count_1" vercond="!#OLD#" ></add>
-		<add name="long list" type="ListLong" arr1="count_2" vercond="!#OLD#" ></add>
+		<add name="zeros 3" type="uint64" arr1="joint_count" since="47">might be pointers</add>
+		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" since="47">?</add>
+		<add name="first list" type="ListFirst" arr1="count_0" since="47">used by ptero, 16 bytes per entry</add>
+		<add name="short list" type="ListShort" arr1="count_1" since="47">?</add>
+		<add name="long list" type="ListLong" arr1="count_2" since="47">?</add>
 
-		<add name="joint infos old" type="UACJointFF" vercond="#OLD#" arr1="joint count" >?</add>
-<!--		<add name="pc bytes" type="byte" arr1="9" vercond="#OLD#" >1FAA FFAAFF00 000000</add>-->
-<!--		<add name="pc hitcheck count" type="uint64" vercond="#OLD#">counts hitchecks for pz</add>-->
-<!--		<add name="pc zero 0" type="uint64" vercond="#OLD#">0</add>-->
-		<add name="pc floats" type="float" arr1="pc count" arr2="10" vercond="#OLD#">sometimes an array of floats</add>
+		<add name="joint_infos" type="UACJointFF" arr1="joint count" until="32">old style - joint infos, without hitchecks, they are added later</add>
+		<add name="pc floats" type="float" arr1="pc count" arr2="10" until="32">sometimes an array of floats</add>
 
 		<add name="joint indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
@@ -520,19 +517,17 @@
 <!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
 		<add name="JointNamesPadding" type="SmartPadding" >?</add>
 		the padding goes wrong on 144 because its first hitcheck has collision type 0
-		<add name="JointInfoList" type="JointInfo" arr1="joint count" vercond="!#OLD#">includes name ptrs, some flags, and the hitchecks</add>
-needs more work for ZTUAC rhino
-		<add name="hitcheck_reader" type="HitcheckReader" arg="joint infos old" >for each joint, read the hitchecks</add>
-<!--				<add name="hitchecks pc" type="HitCheck Entry" arr1="joint count" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>-->
-<!--				<add name="hitchecks pc" type="HitCheck Entry" arr1="2" vercond="#OLD#">bare hitchecks, should in fact be counted for sum of JointInfoList joint counts</add>-->
+		<add name="joint_infos" type="JointInfo" arr1="joint count" since="47">new style - includes name offset, some flags and the hitchecks</add>
+		<add name="hitcheck_reader" type="HitcheckReader" arg="joint infos" until="32">old style - for each joint, read the hitchecks</add>
 	</compound>
 
 	<compound name="HitcheckReader">
+		This reads and assigns hitchecks to each jointinfo that is passed to it
 	</compound>
 
 	<compound name="Descriptor">
-		<add name="parent" type="ushort" >index into JointInfoList</add>
-		<add name="child" type="ushort" >index into JointInfoList</add>
+		<add name="parent" type="ushort" >index into joint_infos</add>
+		<add name="child" type="ushort" >index into joint_infos</add>
 	</compound>
 
 	<compound name="ListFirst" inherit="Descriptor">
@@ -580,7 +575,7 @@ needs more work for ZTUAC rhino
 	<compound name="JointInfo" inherit="CommonJointInfo">
 		<add name="zero" type="uint64" >8 bytes of zeros</add>
 		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
-		<add name="HitCheck" type="HitCheck Entry" arr1="hitcheck count"/>
+		<add name="hitchecks" type="HitCheck Entry" arr1="hitcheck count"/>
 	</compound>
 
 	<compound name="UACJointFF">

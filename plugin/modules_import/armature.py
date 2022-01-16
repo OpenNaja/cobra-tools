@@ -133,11 +133,11 @@ def get_bone_names(mdl2):
 
 def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 	print("Importing joints")
-	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
+	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
 		bone_name = b_bone_names[bone_index]
 		print("joint", joint_info.name)
-		if hasattr(joint_info, "hit_check"):
-			for hitcheck in joint_info.hit_check:
+		if hasattr(joint_info, "hitchecks"):
+			for hitcheck in joint_info.hitchecks:
 				import_collider(hitcheck, armature_ob, bone_name, corrector)
 	# for bone_index, hitcheck in zip(bone_info.joints.joint_indices, bone_info.joints.hitchecks_pc):
 	# 	bone_name = b_bone_names[bone_index]

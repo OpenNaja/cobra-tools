@@ -164,10 +164,10 @@ def export_bones_custom(b_armature_ob, mdl2):
 
 def export_joints(armature_ob, bone_info, b_bone_names, corrector):
 	print("Exporting joints")
-	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_info_list):
+	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
 		# bone_name = b_bone_names[bone_index]
 		print("joint", joint_info.name)
-		for hitcheck in joint_info.hit_check:
+		for hitcheck in joint_info.hitchecks:
 			b_obj = bpy.data.objects.get(hitcheck.name, None)
 			if b_obj:
 				export_hitcheck(b_obj, hitcheck, corrector)

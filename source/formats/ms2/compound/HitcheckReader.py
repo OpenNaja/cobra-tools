@@ -25,11 +25,11 @@ class HitcheckReader:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		for jointinfo in self.arg:
-			jointinfo.hit_check = []
+			jointinfo.hitchecks = []
 			for i in range(jointinfo.hitcheck_count):
 				hc = HitCheckEntry(self.context)
 				hc.read(stream)
-				jointinfo.hit_check.append(hc)
+				jointinfo.hitchecks.append(hc)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
@@ -43,7 +43,7 @@ class HitcheckReader:
 	def get_fields_str(self):
 		s = ''
 		for jointinfo in self.arg:
-			s += str(jointinfo.hit_check)
+			s += str(jointinfo.hitchecks)
 		return s
 
 	def __repr__(self):

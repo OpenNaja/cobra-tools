@@ -88,7 +88,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
 		bone_info = BoneInfo(self.context)
-		# try:
 		bone_info.read(stream)
 		self.assign_bone_names(bone_info)
 		try:
@@ -104,22 +103,22 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		if stream.tell() >= self.buffer_1_offset + self.bone_info_size:
 			logging.debug(f"Exhausted bone info buffer at {stream.tell()}")
 			return bone_info
-		# if is_pc(self.general_info):
-		relative_offset = stream.tell() - self.buffer_1_offset
+		abs_offset = stream.tell()
+		relative_offset = abs_offset - self.buffer_1_offset
 		# currently no other way to predict the padding, no correlation to joint count
 		padding_len = get_padding_size(relative_offset)
 		padding = stream.read(padding_len)
 		if padding != b'\x00' * padding_len:
-			logging.warning(f"Padding is nonzero {padding}")
+			logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
 		logging.debug(f"padding: {padding_len}")
-		if bone_info.joints:
+		if bone_info.joints and is_old(self.general_info):
 			names_l = bone_info.joints.namespace_length
 			pad_l = len(bone_info.joints.joint_names_padding.data)
 			hits = sum(j.hitcheck_count for j in bone_info.joints.joint_infos_old)
 			logging.debug(f"names total len: {names_l + pad_l} names: {names_l} padding: {pad_l} hits: {hits} joints: {bone_info.joints.joint_count}")
 			if bone_info.joints.joint_infos_old:
 				j = bone_info.joints.joint_infos_old[0]
-				h = j.hit_check[0]
+				h = j.hitchecks[0]
 				for t, size in enumerate(
 						(h.io_start - self.buffer_1_offset,
 						h.io_start - bone_info.io_start,
@@ -137,23 +136,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 								if k not in self.dic:
 									self.dic[k] = 0
 								self.dic[k] += 1
-		# except Exception as err:
-		# 	traceback.print_exc()
-		# 	logging.error(f"Bone info {i} failed:")
-		# 	logging.error(bone_info)
-		#
-		# 	if self.bone_infos:
-		# 		logging.error(f"Last bone info that worked:")
-		# 		logging.error(self.bone_infos[-1])
 		return bone_info
 
 	def get_hitchecks(self, bone_info):
 		# collect all hitchecks in a flat list
-		h = [hitcheck for joint in bone_info.joints.joint_info_list for hitcheck in joint.hit_check]
-		if hasattr(bone_info.joints, "hitchecks_pc"):
-			h.extend([hitcheck for hitcheck in bone_info.joints.hitchecks_pc])
-		if hasattr(bone_info.joints, "joint_infos_old"):
-			h.extend([hitcheck for joint in bone_info.joints.joint_infos_old for hitcheck in joint.hit_check])
+		h = [hitcheck for joint in bone_info.joints.joint_infos for hitcheck in joint.hitchecks]
 		return h
 
 	def read_hitcheck_verts(self, bone_info, stream):
@@ -185,9 +172,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
 		assert bone_info.unk_78_count == 0 and bone_info.unk_extra == 0
 		joints = bone_info.joints
-		for joint_info in joints.joint_info_list:
+		for joint_info in joints.joint_infos:
 			joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
-			for hit in joint_info.hit_check:
+			for hit in joint_info.hitchecks:
 				hit.name = joints.joint_names.get_str_at(hit.name_offset)
 		# print(joints)
 
@@ -195,16 +182,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# 	print(f"List {ix}")
 		# 	for i, x in enumerate(li):
 		# 		print(i)
-		# 		print(joints.joint_info_list[x.parent].name, x.parent)
-		# 		print(joints.joint_info_list[x.child].name, x.child)
+		# 		print(joints.joint_infos[x.parent].name, x.parent)
+		# 		print(joints.joint_infos[x.child].name, x.child)
 
 		if bone_info.joint_count:
-			for bone_i, joint_info in zip(joints.joint_indices, joints.joint_info_list):
+			for bone_i, joint_info in zip(joints.joint_indices, joints.joint_infos):
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
 				if not joint_info.bone_name == joint_info.name:
 					logging.debug(f"Info: bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
-				if joints.joint_info_list[joints.bone_indices[bone_i]] != joint_info:
+				if joints.joint_infos[joints.bone_indices[bone_i]] != joint_info:
 					logging.debug(f"Info: bone index [{bone_i}] doesn't point to expected joint info")
 
 	def load(self, filepath, read_bytes=False):
@@ -328,7 +315,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		joints = bone_info.joints
 		for l_list in (joints.first_list, joints.short_list, joints.long_list,):
 			for l_entry in l_list:
-				# these link into joints.joint_info_list
+				# these link into joints.joint_infos
 				# no need to update right now, but later
 				pass
 		# make sure these have the correct size
@@ -337,7 +324,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
 		joints.bone_indices[:] = -1
 		# linke between bones and joints, in both directions
-		for joint_i, joint_info in enumerate(joints.joint_info_list):
+		for joint_i, joint_info in enumerate(joints.joint_infos):
 			bone_i = bone_lut[joint_info.bone_name]
 			joints.joint_indices[joint_i] = bone_i
 			joints.bone_indices[bone_i] = joint_i

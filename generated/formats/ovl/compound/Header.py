@@ -309,7 +309,6 @@ class Header(GenericHeader):
 		s += f'\n	* included_ovls = {self.included_ovls.__repr__()}'
 		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
 		s += f'\n	* aux_entries = {self.aux_entries.__repr__()}'
-		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
 		s += f'\n	* stream_files = {self.stream_files.__repr__()}'
 		s += f'\n	* zlibs = {self.zlibs.__repr__()}'
 		return s

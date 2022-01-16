@@ -20,20 +20,20 @@ class JointInfo(CommonJointInfo):
 
 		# 8 bytes of zeros per hitcheck
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
-		self.hit_check = Array(self.context)
+		self.hitchecks = Array(self.context)
 		self.set_defaults()
 
 	def set_defaults(self):
 		self.zero = 0
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count), dtype='uint64')
-		self.hit_check = Array(self.context)
+		self.hitchecks = Array(self.context)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		super().read(stream)
 		self.zero = stream.read_uint64()
 		self.zeros_per_hitcheck = stream.read_uint64s((self.hitcheck_count))
-		self.hit_check.read(stream, HitCheckEntry, self.hitcheck_count, None)
+		self.hitchecks.read(stream, HitCheckEntry, self.hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -42,7 +42,7 @@ class JointInfo(CommonJointInfo):
 		super().write(stream)
 		stream.write_uint64(self.zero)
 		stream.write_uint64s(self.zeros_per_hitcheck)
-		self.hit_check.write(stream, HitCheckEntry, self.hitcheck_count, None)
+		self.hitchecks.write(stream, HitCheckEntry, self.hitcheck_count, None)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -54,7 +54,7 @@ class JointInfo(CommonJointInfo):
 		s += super().get_fields_str()
 		s += f'\n	* zero = {self.zero.__repr__()}'
 		s += f'\n	* zeros_per_hitcheck = {self.zeros_per_hitcheck.__repr__()}'
-		s += f'\n	* hit_check = {self.hit_check.__repr__()}'
+		s += f'\n	* hitchecks = {self.hitchecks.__repr__()}'
 		return s
 
 	def __repr__(self):
