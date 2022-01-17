@@ -1504,6 +1504,7 @@ class OvlFile(Header, IoFile):
 
 	def sort_pools_and_update_groups(self):
 		logging.debug(f"Sorting pools by type and updating pool groups")
+		self.archives.sort(key=lambda a: a.name)
 		for archive in self.archives:
 
 			logging.debug(f"Sorting pools for {archive.name}")
