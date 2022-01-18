@@ -47,55 +47,16 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.ptr_relative(frag1.pointers[0], ss_ptr, rel_offset=8)
 		self.ptr_relative(frag2.pointers[0], ss_ptr, rel_offset=16)
 		self.ptr_relative(frag3.pointers[0], ss_ptr, rel_offset=24)
-		self.write_to_pool(frag0.pointers[1], 2, f"{moviedef.attrib['MovieName']}\00".encode('utf-8'))
-		self.write_to_pool(frag1.pointers[1], 2, f"{moviedef.attrib['PkgName']}\00".encode('utf-8'))
-		self.write_to_pool(frag2.pointers[1], 2, f"{moviedef.attrib['CategoryName']}\00".encode('utf-8'))
-		self.write_to_pool(frag3.pointers[1], 2, f"{moviedef.attrib['TypeName']}\00".encode('utf-8'))
+		self.write_to_pool(frag0.pointers[1], 2, as_bytes(moviedef.attrib['MovieName']))
+		self.write_to_pool(frag1.pointers[1], 2, as_bytes(moviedef.attrib['PkgName']))
+		self.write_to_pool(frag2.pointers[1], 2, as_bytes(moviedef.attrib['CategoryName']))
+		self.write_to_pool(frag3.pointers[1], 2, as_bytes(moviedef.attrib['TypeName']))
 
-		# Up to here should be enough to build almost any move without list
+		# Up to here should be enough to build almost any movie without list
 		# time now to attach all the lists
-
-		if len(self.uitriggerlist):
-			# for each line, add the frag ptr space and create the frag ptr
-			item_frags = self.create_fragments(self.sized_str_entry, len(self.uitriggerlist))
-			for frag in item_frags:
-				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
-
-			for item, frag in zip(self.uitriggerlist, item_frags):
-				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
-
-			# point the list frag to the end of the data now.
-			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 0x48)
-			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
-
-		if len(self.uinamelist):
-			# for each line, add the frag ptr space and create the frag ptr
-			item_frags = self.create_fragments(self.sized_str_entry, len(self.uinamelist))
-			for frag in item_frags:
-				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
-
-			for item, frag in zip(self.uinamelist, item_frags):
-				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
-
-			# point the list frag to the end of the data now.
-			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 0x58)
-			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
-
-		if len(self.assetpkglist):
-			# for each line, add the frag ptr space and create the frag ptr
-			item_frags = self.create_fragments(self.sized_str_entry, len(self.assetpkglist))
-			for frag in item_frags:
-				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
-
-			for item, frag in zip(self.assetpkglist, item_frags):
-				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
-
-			# point the list frag to the end of the data now.
-			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 0x60)
-			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
+		self.write_list_at_rel_offset(self.uitriggerlist, self.sized_str_entry.pointers[0], 0x48)
+		self.write_list_at_rel_offset(self.uinamelist, self.sized_str_entry.pointers[0], 0x58)
+		self.write_list_at_rel_offset(self.assetpkglist, self.sized_str_entry.pointers[0], 0x60)
 
 		if len(self.Count1List):
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
@@ -129,6 +90,18 @@ class UIMovieDefinitionLoader(BaseFile):
 			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 0x80)
 			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
 
+	def write_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+		if items_list:
+			# for each line, add the frag ptr space and create the frag ptr
+			item_frags = self.create_fragments(self.sized_str_entry, len(items_list))
+			for frag in item_frags:
+				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
+			for item, frag in zip(items_list, item_frags):
+				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
+			# point the list frag to the end of the data now.
+			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
+			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
+			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
 
 	def collect(self):
 		self.assign_ss_entry()
