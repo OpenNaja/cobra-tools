@@ -41,16 +41,8 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
 
 		# main names list
-		frag0, frag1, frag2, frag3 = self.create_fragments(self.sized_str_entry, 4)
-		ss_ptr = self.sized_str_entry.pointers[0]
-		self.ptr_relative(frag0.pointers[0], ss_ptr)
-		self.ptr_relative(frag1.pointers[0], ss_ptr, rel_offset=8)
-		self.ptr_relative(frag2.pointers[0], ss_ptr, rel_offset=16)
-		self.ptr_relative(frag3.pointers[0], ss_ptr, rel_offset=24)
-		self.write_to_pool(frag0.pointers[1], 2, as_bytes(moviedef.attrib['MovieName']))
-		self.write_to_pool(frag1.pointers[1], 2, as_bytes(moviedef.attrib['PkgName']))
-		self.write_to_pool(frag2.pointers[1], 2, as_bytes(moviedef.attrib['CategoryName']))
-		self.write_to_pool(frag3.pointers[1], 2, as_bytes(moviedef.attrib['TypeName']))
+		data = (moviedef.attrib['MovieName'], moviedef.attrib['PkgName'], moviedef.attrib['CategoryName'], moviedef.attrib['TypeName'])
+		self.link_list_at_rel_offset(data, self.sized_str_entry.pointers[0], 0)
 
 		# Up to here should be enough to build almost any movie without list
 		# time now to attach all the lists
@@ -77,7 +69,16 @@ class UIMovieDefinitionLoader(BaseFile):
 
 		self.write_list_at_rel_offset(self.uiInterfacelist, self.sized_str_entry.pointers[0], 0x80)
 
+	def link_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+		"""Links a list of pointers relative to rel_offset to the items"""
+		frags = self.create_fragments(self.sized_str_entry, len(items_list))
+		for item, frag in zip(items_list, frags):
+			self.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
+			rel_offset += 8
+			self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
+
 	def write_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+		"""Writes a list of pointers and items, and reference it from a ptr at rel_offset from the ref_ptr"""
 		if items_list:
 			# for each line, add the frag ptr space and create the frag ptr
 			item_frags = self.create_fragments(self.sized_str_entry, len(items_list))
