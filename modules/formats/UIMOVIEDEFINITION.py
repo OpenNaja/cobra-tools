@@ -75,20 +75,7 @@ class UIMovieDefinitionLoader(BaseFile):
 				itembytes += struct.pack("<I", int(item))
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
-
-		if len(self.uiInterfacelist):
-			# for each line, add the frag ptr space and create the frag ptr
-			item_frags = self.create_fragments(self.sized_str_entry, len(self.uiInterfacelist))
-			for frag in item_frags:
-				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
-
-			for item, frag in zip(self.uiInterfacelist, item_frags):
-				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
-
-			# point the list frag to the end of the data now.
-			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 0x80)
-			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
+		self.write_list_at_rel_offset(self.uiInterfacelist, self.sized_str_entry.pointers[0], 0x80)
 
 	def write_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
 		if items_list:
