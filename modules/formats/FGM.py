@@ -73,9 +73,9 @@ class FgmLoader(BaseFile):
 			ptr = self.attr_info.pointers[1]
 			ptr.split_data_padding(fgm_header.attribute_count * 16)
 			logging.debug(f"Attribute data {len(ptr.data)} padding {len(ptr.padding)}")
-		# for i, f in enumerate(self.sized_str_entry.fragments):
-		# 	p = f.pointers[1]
-		# 	logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
+		for i, f in enumerate(self.sized_str_entry.fragments):
+			p = f.pointers[1]
+			logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
 
 	def _tag_fragments(self, fgm_header):
 		# logging.info(f"Tagging {len(self.sized_str_entry.fragments)} fragments")

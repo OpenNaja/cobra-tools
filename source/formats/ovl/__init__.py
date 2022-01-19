@@ -280,11 +280,14 @@ class OvsFile(OvsHeader):
 					entry.file_hash = file_index
 				entry.ext_hash = file.ext_hash
 
-	def update_counts(self):
-		"""Update counts of this archive"""
+	def pad_pools(self):
 		# make sure that all pools are padded
 		for pool in self.pools:
 			pool.pad()
+
+	def update_counts(self):
+		"""Update counts of this archive"""
+		self.pad_pools()
 		# adjust the counts
 		self.arg.num_pools = len(self.pools)
 		self.arg.num_datas = len(self.data_entries)
@@ -1032,6 +1035,11 @@ class OvlFile(Header, IoFile):
 			logging.warning(f"Unsupported file type: {filename}")
 			return
 
+	def pad_pools(self):
+		# make sure that all pools are padded
+		for archive in self.archives:
+			archive.content.pad_pools()
+
 	def create_file(self, file_path):
 		"""Register a file entry from a file path, add a loader"""
 		file_entry = self.create_file_entry(file_path)
@@ -1049,6 +1057,7 @@ class OvlFile(Header, IoFile):
 			logging.warning(f"Could not create: {file_entry.name}")
 			traceback.print_exc()
 			return
+		self.pad_pools()
 		self.files.append(file_entry)
 
 	def create(self, ovl_dir):
