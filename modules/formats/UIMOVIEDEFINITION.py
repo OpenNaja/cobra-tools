@@ -1,6 +1,7 @@
 import logging
 import struct
 
+from generated.formats.uimoviedefinition.compound.UiMovieHeader import UiMovieHeader
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
 import xml.etree.ElementTree as ET  # prob move this to a custom modules.helpers or utils?
@@ -22,22 +23,28 @@ class UIMovieDefinitionLoader(BaseFile):
 		for name in namelistdata:
 			names.append(name.text)
 
-		self.uinamelist = [data.text for data in moviedef.findall('.//Control')]
-		self.assetpkglist = [data.text for data in moviedef.findall('.//AssetPackage')]
-		self.uitriggerlist = [data.text for data in moviedef.findall('.//UITrigger')]
-		self.uiInterfacelist = [data.text for data in moviedef.findall('.//Interface')]
+		self.ui_names = [data.text for data in moviedef.findall('.//Control')]
+		self.assetpkgs = [data.text for data in moviedef.findall('.//AssetPackage')]
+		self.ui_triggers = [data.text for data in moviedef.findall('.//UITrigger')]
+		self.ui_interfaces = [data.text for data in moviedef.findall('.//Interface')]
 		self.Count1List = [int(data.text) for data in moviedef.findall('.//List1')]
 		self.Count2List = [int(data.text) for data in moviedef.findall('.//List2')]
-		# writting the data in several chunks because of readability 
-		ss = struct.pack("<32sI2H", b'', int(moviedef.attrib['flags1']), int(moviedef.attrib['flags2']),
-									int(moviedef.attrib['flags3']))
-		ss += struct.pack("<3f", float(moviedef.attrib['float1']), float(moviedef.attrib['float2']),
-									float(moviedef.attrib['float3']))
-		ss += struct.pack("<4B", 0, len(self.uitriggerlist), 0, len(self.uinamelist))
-		ss += struct.pack("<4B", len(self.assetpkglist), 0, len(self.Count1List), len(self.Count2List))
-		ss += struct.pack("<4B", len(self.uiInterfacelist), 0, 0, 0)
-		ss += struct.pack("<80s", b'')
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
+
+		self.header = UiMovieHeader(self.ovl.context)
+		self.header.flag_1 = int(moviedef.attrib['flags1'])
+		self.header.flag_2 = int(moviedef.attrib['flags2'])
+		self.header.flag_3 = int(moviedef.attrib['flags3'])
+		self.header.floats[0] = float(moviedef.attrib['float1'])
+		self.header.floats[1] = float(moviedef.attrib['float2'])
+		self.header.floats[2] = float(moviedef.attrib['float3'])
+		self.header.num_ui_triggers = len(self.ui_triggers)
+		self.header.num_ui_names = len(self.ui_names)
+		self.header.num_assetpkgs = len(self.assetpkgs)
+		self.header.num_ui_names = len(self.ui_names)
+		self.header.num_list1 = len(self.Count1List)
+		self.header.num_list2 = len(self.Count2List)
+		self.header.num_ui_interfaces = len(self.ui_interfaces)
+		self.write_to_pool(self.sized_str_entry.pointers[0], 2, as_bytes(self.header))
 
 		# main names list
 		data = (moviedef.attrib['MovieName'], moviedef.attrib['PkgName'], moviedef.attrib['CategoryName'], moviedef.attrib['TypeName'])
@@ -45,13 +52,13 @@ class UIMovieDefinitionLoader(BaseFile):
 
 		# Up to here should be enough to build almost any movie without list
 		# time now to attach all the lists
-		self.write_list_at_rel_offset(self.uitriggerlist, self.sized_str_entry.pointers[0], 0x48)
-		self.write_list_at_rel_offset(self.uinamelist, self.sized_str_entry.pointers[0], 0x58)
-		self.write_list_at_rel_offset(self.assetpkglist, self.sized_str_entry.pointers[0], 0x60)
+		self.write_list_at_rel_offset(self.ui_triggers, self.sized_str_entry.pointers[0], 72)
+		self.write_list_at_rel_offset(self.ui_names, self.sized_str_entry.pointers[0], 88)
+		self.write_list_at_rel_offset(self.assetpkgs, self.sized_str_entry.pointers[0], 96)
 
 		if len(self.Count1List):
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 0x70)
+			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 112)
 			itembytes = b''
 			for item in self.Count1List:
 				itembytes += struct.pack("<I", int(item))
@@ -63,7 +70,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		if len(self.Count2List):
 			# point the list frag to the end of the data now.
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 0x78)
+			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 120)
 			itembytes = b''
 			for item in self.Count2List:
 				itembytes += struct.pack("<I", int(item))
@@ -72,7 +79,7 @@ class UIMovieDefinitionLoader(BaseFile):
 				itembytes += struct.pack(f"<{padding}s", b'')
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
-		self.write_list_at_rel_offset(self.uiInterfacelist, self.sized_str_entry.pointers[0], 0x80)
+		self.write_list_at_rel_offset(self.ui_interfaces, self.sized_str_entry.pointers[0], 128)
 
 	def link_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
 		"""Links a list of pointers relative to rel_offset to the items"""
@@ -100,72 +107,41 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.assign_ss_entry()
 		logging.info(f"Collecting {self.sized_str_entry.name}")
 
-		# it is a long struct
-		unpackstr = "<32sI2H3f12B80s"
-		_, self.flags1, self.flags2, self.flags3, self.float1, self.float2, self.float3, counta, count4, countc, ctrlcount, assetpkgcount, countf, count1, count2, count3, countj, _, _, _ = \
-			struct.unpack(unpackstr, self.sized_str_entry.pointers[0].read_from_pool(0x90))
+		self.header = self.sized_str_entry.pointers[0].load_as(UiMovieHeader)
 
 		# get name
-		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		self.MovieName = self.p1_ztsr(tmpfragment)
+		frags = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 4)[0]
+		self.MovieName = self.p1_ztsr(frags[0])
+		self.PkgName = self.p1_ztsr(frags[1])
+		self.CategoryName = self.p1_ztsr(frags[2])
+		self.TypeName = self.p1_ztsr(frags[3])
 
-		# get package (guess)
-		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		self.PkgName = self.p1_ztsr(tmpfragment)
+		self.ui_triggers = self.get_string_list(self.header.num_ui_triggers)
+		self.assetpkgs = self.get_string_list(self.header.num_assetpkgs)
+		self.ui_names = self.get_string_list(self.header.num_ui_names)
 
-		# get category (guess)
-		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		self.CategoryName = self.p1_ztsr(tmpfragment)
-
-		# get type
-		tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-		self.TypeName = self.p1_ztsr(tmpfragment)
-
-		# will be finding frags now depending on the counts, starting with count4
-		# corresponding to a list of strings of UI events/triggers
-		self.uitriggerlist = []
-		if count4:
-			uilistfrag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmpfragments = self.ovs.frags_from_pointer(uilistfrag.pointers[1], count4)
-			for frag in tmpfragments:
-				self.uitriggerlist.append(self.p1_ztsr(frag))
-
-		# will be finding frags now depending on the counts, starting with count4
-		# corresponding to a list of strings of UI events/triggers
-		self.assetpkglist = []
-		if assetpkgcount:
-			assetpkgfrag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmpfragments = self.ovs.frags_from_pointer(assetpkgfrag.pointers[1], assetpkgcount)
-			for frag in tmpfragments:
-				self.assetpkglist.append(self.p1_ztsr(frag))
-
-		# list of UI controls
-		self.uinamelist = []
-		if ctrlcount:
-			uilistfrag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmpfragments = self.ovs.frags_from_pointer(uilistfrag.pointers[1], ctrlcount)
-			for frag in tmpfragments:
-				self.uinamelist.append(self.p1_ztsr(frag))
-				
 		self.Count1List = []
-		if count1:
+		if self.header.num_list1:
 			tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			self.Count1List = list(struct.unpack(f"<{count1}I", tmpfragment.pointers[1].read_from_pool(0x4 * count1)))
+			self.Count1List = list(struct.unpack(f"<{self.header.num_list1}I", tmpfragment.pointers[1].read_from_pool(0x4 * self.header.num_list1)))
 		
 		self.Count2List = []
-		if count2:
+		if self.header.num_list2:
 			tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			self.Count2List = list(struct.unpack(f"<{count2}I", tmpfragment.pointers[1].read_from_pool(0x4 * count2)))
+			self.Count2List = list(struct.unpack(f"<{self.header.num_list2}I", tmpfragment.pointers[1].read_from_pool(0x4 * self.header.num_list2)))
 
-		self.uiInterfacelist = []
-		if count3:
-			uilistfrag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmpfragments = self.ovs.frags_from_pointer(uilistfrag.pointers[1], count3)
-			for frag in tmpfragments:
-				self.uiInterfacelist.append(self.p1_ztsr(frag))
+		self.ui_interfaces = self.get_string_list(self.header.num_ui_interfaces)
 
-	def load(self, file_path):
-		pass
+	def get_string_list(self, count):
+		# todo - this assumes the pointer exists if the count exists, and relies on the correct call order
+		# change to get frag at offset?
+		output = []
+		if count:
+			link_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
+			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], self.header.num_ui_interfaces)
+			for frag in tmp_fragments:
+				output.append(self.p1_ztsr(frag))
+		return output
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
@@ -176,26 +152,26 @@ class UIMovieDefinitionLoader(BaseFile):
 		xmldata.set('PkgName', str(self.PkgName))
 		xmldata.set('CategoryName', str(self.CategoryName))
 		xmldata.set('TypeName', str(self.TypeName))
-		xmldata.set('flags1', str(self.flags1))
-		xmldata.set('flags2', str(self.flags2))
-		xmldata.set('flags3', str(self.flags3))
-		xmldata.set('float1', str(self.float1))
-		xmldata.set('float2', str(self.float2))
-		xmldata.set('float3', str(self.float3))
+		xmldata.set('flags1', str(self.header.flag_1))
+		xmldata.set('flags2', str(self.header.flag_2))
+		xmldata.set('flags3', str(self.header.flag_3))
+		xmldata.set('float1', str(self.header.floats[0]))
+		xmldata.set('float2', str(self.header.floats[1]))
+		xmldata.set('float3', str(self.header.floats[2]))
 
-		for cl in self.uitriggerlist:
+		for cl in self.ui_triggers:
 			clitem = ET.SubElement(xmldata, 'UITrigger')
 			clitem.text = cl
 
-		for cl in self.uinamelist:
+		for cl in self.ui_names:
 			clitem = ET.SubElement(xmldata, 'Control')
 			clitem.text = cl
 
-		for cl in self.assetpkglist:
+		for cl in self.assetpkgs:
 			clitem = ET.SubElement(xmldata, 'AssetPackage')
 			clitem.text = cl
 
-		for cl in self.uiInterfacelist:
+		for cl in self.ui_interfaces:
 			clitem = ET.SubElement(xmldata, 'Interface')
 			clitem.text = cl
 
