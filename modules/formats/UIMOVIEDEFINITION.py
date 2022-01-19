@@ -55,8 +55,8 @@ class UIMovieDefinitionLoader(BaseFile):
 			itembytes = b''
 			for item in self.Count1List:
 				itembytes += struct.pack("<I", int(item))
-			if self.Count1List < 4:
-				padding = 4*(4 - self.Count1List)
+			if len(self.Count1List) < 4:
+				padding = 4*(4 - len(self.Count1List))
 				itembytes += struct.pack(f"<{padding}s", b'')
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
@@ -67,8 +67,8 @@ class UIMovieDefinitionLoader(BaseFile):
 			itembytes = b''
 			for item in self.Count2List:
 				itembytes += struct.pack("<I", int(item))
-			if self.Count2List < 4:
-				padding = 4*(4 - self.Count2List)
+			if len(self.Count2List) < 4:
+				padding = 4*(4 - len(self.Count2List))
 				itembytes += struct.pack(f"<{padding}s", b'')
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
