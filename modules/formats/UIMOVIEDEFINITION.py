@@ -37,8 +37,8 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.header.num_ui_names = len(self.ui_names)
 		self.header.num_assetpkgs = len(self.assetpkgs)
 		self.header.num_ui_names = len(self.ui_names)
-		self.header.num_list1 = len(self.Count1List)
-		self.header.num_list2 = len(self.Count2List)
+		self.header.num_list_1 = len(self.Count1List)
+		self.header.num_list_2 = len(self.Count2List)
 		self.header.num_ui_interfaces = len(self.ui_interfaces)
 		self.write_to_pool(self.sized_str_entry.pointers[0], 2, as_bytes(self.header))
 
@@ -103,10 +103,10 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.assign_ss_entry()
 		logging.info(f"Collecting {self.sized_str_entry.name}")
 
-		self.header = self.sized_str_entry.pointers[0].load_as(UiMovieHeader)
+		self.header = self.sized_str_entry.pointers[0].load_as(UiMovieHeader)[0]
 
 		# get name
-		frags = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 4)[0]
+		frags = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 4)
 		self.MovieName = self.p1_ztsr(frags[0])
 		self.PkgName = self.p1_ztsr(frags[1])
 		self.CategoryName = self.p1_ztsr(frags[2])
@@ -117,14 +117,14 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.assetpkgs = self.get_string_list(self.header.num_assetpkgs)
 
 		self.Count1List = []
-		if self.header.num_list1:
+		if self.header.num_list_1:
 			tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			self.Count1List = list(struct.unpack(f"<{self.header.num_list1}I", tmpfragment.pointers[1].read_from_pool(0x4 * self.header.num_list1)))
+			self.Count1List = list(struct.unpack(f"<{self.header.num_list_1}I", tmpfragment.pointers[1].read_from_pool(0x4 * self.header.num_list_1)))
 		
 		self.Count2List = []
-		if self.header.num_list2:
+		if self.header.num_list_2:
 			tmpfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			self.Count2List = list(struct.unpack(f"<{self.header.num_list2}I", tmpfragment.pointers[1].read_from_pool(0x4 * self.header.num_list2)))
+			self.Count2List = list(struct.unpack(f"<{self.header.num_list_2}I", tmpfragment.pointers[1].read_from_pool(0x4 * self.header.num_list_2)))
 
 		self.ui_interfaces = self.get_string_list(self.header.num_ui_interfaces)
 
@@ -134,7 +134,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		output = []
 		if count:
 			link_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], self.header.num_ui_interfaces)
+			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], count)
 			for frag in tmp_fragments:
 				output.append(self.p1_ztsr(frag))
 		return output

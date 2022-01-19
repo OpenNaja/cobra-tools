@@ -24,8 +24,8 @@
         <add name="num_ui_names" type="ubyte"/>
         <add name="num_assetpkgs" type="ubyte"/>
         <add name="u2" type="ubyte"/>
-        <add name="num_list1" type="ubyte"/>
-        <add name="num_list2" type="ubyte"/>
+        <add name="num_list_1" type="ubyte"/>
+        <add name="num_list_2" type="ubyte"/>
         <add name="num_ui_interfaces" type="ubyte"/>
         <add name="u3" type="ubyte"/>
         <add name="u4" type="ubyte"/>
@@ -37,8 +37,8 @@
         <add name="ptr_ui_names" type="Pointer"/>
         <add name="ptr_assetpkgs" type="Pointer"/>
         <add name="ptr_2" type="Pointer"/>
-        <add name="ptr_list1" type="Pointer"/>
-        <add name="ptr_list2" type="Pointer"/>
+        <add name="ptr_list_1" type="Pointer"/>
+        <add name="ptr_list_2" type="Pointer"/>
         <add name="ptr_ui_interfaces" type="Pointer"/>
         <add name="ptr_3" type="Pointer"/>
     </compound>
