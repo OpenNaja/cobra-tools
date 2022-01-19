@@ -95,6 +95,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.MATLAYERS import MatpatsLoader
 	from modules.formats.MATLAYERS import MatvarsLoader
 	from modules.formats.MERGEDETAILS import MergeDetailsLoader
+	from modules.formats.MOTIONGRAPH import MotiongraphLoader
 	from modules.formats.MOTIONGRAPHVARS import MotiongraphvarsLoader
 	from modules.formats.MS2 import Ms2Loader
 	from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
@@ -133,6 +134,7 @@ def get_loader(ext, ovl, file_entry):
 		".manis": ManisLoader,
 		".materialcollection": MatcolLoader,
 		".mergedetails": MergeDetailsLoader,
+		".motiongraph": MotiongraphLoader,
 		".motiongraphvars": MotiongraphvarsLoader,
 		".ms2": Ms2Loader,
 		".posedriverdef": PosedriverdefLoader,

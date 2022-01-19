@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="Pointer" >
+        <add name="offset" type="uint64"/>
+    </compound>
+
+    <compound name="MotiongraphHeader" >
+        <add name="ptr_0" type="Pointer"/>
+        points to 64 bytes which seem to be 4 * (Q count, ptr)
+        <add name="ptr_1" type="Pointer"/>
+        points to 16 bytes, Q count, ptr
+        <add name="ptr_2" type="Pointer"/>
+        points to 16 bytes, Q count, ptr
+        <add name="ptr_3" type="Pointer"/>
+
+        <add name="count_0" type="uint"/>
+        <add name="count_1" type="uint"/>
+
+        <add name="ptr_4" type="Pointer"/>
+        <add name="ptr_5" type="Pointer"/>
+        <add name="ptr_6" type="Pointer"/>
+        <add name="ptr_7" type="Pointer"/>
+    </compound>
+
+</niftoolsxml>
