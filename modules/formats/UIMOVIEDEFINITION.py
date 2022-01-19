@@ -117,8 +117,8 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.TypeName = self.p1_ztsr(frags[3])
 
 		self.ui_triggers = self.get_string_list(self.header.num_ui_triggers)
-		self.assetpkgs = self.get_string_list(self.header.num_assetpkgs)
 		self.ui_names = self.get_string_list(self.header.num_ui_names)
+		self.assetpkgs = self.get_string_list(self.header.num_assetpkgs)
 
 		self.Count1List = []
 		if self.header.num_list1:
