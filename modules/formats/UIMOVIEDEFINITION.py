@@ -9,10 +9,6 @@ import xml.etree.ElementTree as ET  # prob move this to a custom modules.helpers
 
 class UIMovieDefinitionLoader(BaseFile):
 
-	# the final format will be after the 3 float values there are 12 count (bytes) values, and 
-	# then 10 ptr values (one for each count in order), however all uimoviedefinition in jwe1/2
-	# have most of these counters to 0 so their ptr type is unknown.
-
 	def create(self):
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 
