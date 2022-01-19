@@ -28,7 +28,6 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.uiInterfacelist = [data.text for data in moviedef.findall('.//Interface')]
 		self.Count1List = [int(data.text) for data in moviedef.findall('.//List1')]
 		self.Count2List = [int(data.text) for data in moviedef.findall('.//List2')]
-
 		# writting the data in several chunks because of readability 
 		ss = struct.pack("<32sI2H", b'', int(moviedef.attrib['flags1']), int(moviedef.attrib['flags2']),
 									int(moviedef.attrib['flags3']))
@@ -56,6 +55,9 @@ class UIMovieDefinitionLoader(BaseFile):
 			itembytes = b''
 			for item in self.Count1List:
 				itembytes += struct.pack("<I", int(item))
+			if self.Count1List < 4:
+				padding = 4*(4 - self.Count1List)
+				itembytes += struct.pack(f"<{padding}s", b'')
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
 		if len(self.Count2List):
@@ -65,6 +67,9 @@ class UIMovieDefinitionLoader(BaseFile):
 			itembytes = b''
 			for item in self.Count2List:
 				itembytes += struct.pack("<I", int(item))
+			if self.Count2List < 4:
+				padding = 4*(4 - self.Count2List)
+				itembytes += struct.pack(f"<{padding}s", b'')
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
 		self.write_list_at_rel_offset(self.uiInterfacelist, self.sized_str_entry.pointers[0], 0x80)
