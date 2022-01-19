@@ -10,8 +10,11 @@
 
     <compound name="MotiongraphHeader" >
         <add name="ptr_0" type="Pointer"/>
+        points to 64 bytes which seem to be 4 * (Q count, ptr)
         <add name="ptr_1" type="Pointer"/>
+        points to 16 bytes, Q count, ptr
         <add name="ptr_2" type="Pointer"/>
+        points to 16 bytes, Q count, ptr
         <add name="ptr_3" type="Pointer"/>
 
         <add name="count_0" type="uint"/>
@@ -21,6 +24,20 @@
         <add name="ptr_5" type="Pointer"/>
         <add name="ptr_6" type="Pointer"/>
         <add name="ptr_7" type="Pointer"/>
+    </compound>
+
+    <compound name="MotiongraphRootFrag" >
+        <add name="count_0" type="uint64"/>
+        <add name="ptr_0" type="Pointer"/>
+
+        <add name="count_1" type="uint64"/>
+        <add name="ptr_1" type="Pointer"/>
+
+        <add name="count_2" type="uint64"/>
+        <add name="ptr_2" type="Pointer"/>
+
+        <add name="num_xmls" type="uint64"/>
+        <add name="ptr_xmls" type="Pointer"/>
     </compound>
 
 </niftoolsxml>

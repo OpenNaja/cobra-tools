@@ -26,4 +26,18 @@
         <add name="ptr_7" type="Pointer"/>
     </compound>
 
+    <compound name="MotiongraphRootFrag" >
+        <add name="count_0" type="uint64"/>
+        <add name="ptr_0" type="Pointer"/>
+
+        <add name="count_1" type="uint64"/>
+        <add name="ptr_1" type="Pointer"/>
+
+        <add name="count_2" type="uint64"/>
+        <add name="ptr_2" type="Pointer"/>
+
+        <add name="num_xmls" type="uint64"/>
+        <add name="ptr_xmls" type="Pointer"/>
+    </compound>
+
 </niftoolsxml>
