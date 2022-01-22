@@ -59,7 +59,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.error("Names failed...")
 
 	def read_all_bone_infos(self, stream):
-		# functional for JWE detailobjects.ms2, if joint_data is read
 		start = stream.tell()
 		self.buffer_1_bytes = stream.read(self.bone_info_size)
 		stream.seek(start)
@@ -67,7 +66,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		if self.bone_info_size:
 			logging.debug(f"mdl2 count {self.general_info.mdl_2_count}")
 			for i in range(self.general_info.mdl_2_count):
-				self.read_bone_info(stream, i)
+				# quick hack here until mdl2 is integrated, so we know the bone info increment flags for each mdl2
+				if stream.tell() < start + self.bone_info_size:
+					self.read_bone_info(stream, i)
 		stream.seek(start)
 
 	def write_all_bone_infos(self, stream):
