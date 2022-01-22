@@ -28,7 +28,7 @@ class FgmFile(FgmInfoHeader, IoFile):
 		# store file name for later
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
-		self.file_no_ext = os.path.splitext(self.file)[0]
+		self.path_no_ext = os.path.splitext(self.file)[0]
 
 		with self.reader(filepath) as stream:
 			self.read(stream)

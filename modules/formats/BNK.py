@@ -42,7 +42,7 @@ class BnkLoader(BaseFile):
 			print(bnk)
 			# extract streamed files
 			for ext in bnk.extensions:
-				aux_path = f"{self.ovl.file_no_ext}_{bnk_name}_bnk_{ext}.aux"
+				aux_path = f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{ext}.aux"
 				if not self.file_entry.aux_entries:
 					with open(aux_path, "wb") as f:
 						for b in self.sized_str_entry.data_entry.buffer_datas[1:]:
@@ -80,7 +80,7 @@ class BnkLoader(BaseFile):
 		bnk_name = None
 		wem_id = None
 		bnk = os.path.splitext(self.sized_str_entry.name)[0]
-		aux_path = f"{self.ovl.file_no_ext}_{bnk}_bnk_b.aux"
+		aux_path = f"{self.ovl.path_no_ext}_{bnk}_bnk_b.aux"
 		if os.path.isfile(aux_path):
 			if "_media_" not in aux_path:
 				print("skipping events bnk", aux_path)
@@ -92,7 +92,7 @@ class BnkLoader(BaseFile):
 			data.save(aux_path)
 			events = AuxFile()
 			ss = self.sized_str_entry.name.rsplit("_", 1)[0]
-			eventspath = f"{self.ovl.file_no_ext}_{ss}_events_bnk_b.aux"
+			eventspath = f"{self.ovl.path_no_ext}_{ss}_events_bnk_b.aux"
 			events.load(eventspath)
 			print(events)
 			events.inject_hirc(wem_file_path, wem_id)

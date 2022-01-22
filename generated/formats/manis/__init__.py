@@ -35,7 +35,7 @@ class ManisFile(InfoHeader, IoFile):
 		# store file name for later
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
-		self.file_no_ext = os.path.splitext(self.file)[0]
+		self.path_no_ext = os.path.splitext(self.file)[0]
 
 		with self.reader(filepath) as stream:
 			self.read(stream)
@@ -63,7 +63,7 @@ class ManisFile(InfoHeader, IoFile):
 					padding = stream.read(pad_size)
 					print("end", stream.tell())
 					# print(binascii.hexlify(data[:40]), padding, stream.tell())
-					with open(os.path.join(self.dir, f"{self.file_no_ext}_{bone_name}.maniskeys"), "wb") as f:
+					with open(os.path.join(self.dir, f"{self.path_no_ext}_{bone_name}.maniskeys"), "wb") as f:
 						f.write(data)
 			for i, bone_name in enumerate(self.bone_names):
 				print(i, bone_name)

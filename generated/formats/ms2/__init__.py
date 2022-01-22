@@ -448,7 +448,7 @@ class Mdl2File(Mdl2InfoHeader, IoFile):
 
 		self.file = filepath
 		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
-		self.file_no_ext = os.path.splitext(self.file)[0]
+		self.path_no_ext = os.path.splitext(self.file)[0]
 		logging.info(f"Loading {self.basename} [map_bytes = {self.map_bytes}]")
 		# read the file
 		try:

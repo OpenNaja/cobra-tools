@@ -654,12 +654,12 @@ class OvsFile(OvsHeader):
 		"""for debugging"""
 		logging.info(f"Dumping pools to {self.ovl.dir}")
 		for i, pool in enumerate(self.pools):
-			pool_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}_pool[{i}].dmp")
+			pool_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_pool[{i}].dmp")
 			with open(pool_path, "wb") as f:
 				f.write(pool.data.getvalue())
 
 	def dump_buffer_groups_log(self):
-		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}_buffers.log")
+		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_buffers.log")
 		logging.info(f"Dumping buffer log to {buff_log_path}")
 		with open(buff_log_path, "w") as f:
 			for x, buffer_group in enumerate(self.buffer_groups):
@@ -683,7 +683,7 @@ class OvsFile(OvsHeader):
 
 	def dump_frag_log(self):
 		"""for development; collect info about fragment types"""
-		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{self.arg.name}.log")
+		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}.log")
 		logging.info(f"Dumping fragment log to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
 			f.write(f"Overview\n")
@@ -1110,8 +1110,9 @@ class OvlFile(Header, IoFile):
 	def store_filepath(self, filepath):
 		# store file name for later
 		self.filepath = filepath
-		self.dir, self.basename = os.path.split(filepath)
-		self.file_no_ext = os.path.splitext(self.filepath)[0]
+		self.dir, self.name = os.path.split(filepath)
+		self.basename, self.ext = os.path.splitext(self.name)
+		self.path_no_ext = os.path.splitext(self.filepath)[0]
 
 	@property
 	def included_ovl_names(self):
@@ -1220,7 +1221,7 @@ class OvlFile(Header, IoFile):
 		# store commands
 		self.commands = commands
 		self.store_filepath(filepath)
-		logging.info(f"Loading {self.basename}")
+		logging.info(f"Loading {self.name}")
 		self.eof = super().load(filepath)
 		logging.info(f"Game: {get_game(self)}")
 
@@ -1468,10 +1469,10 @@ class OvlFile(Header, IoFile):
 		else:
 			# JWE style
 			if is_jwe(self) or is_jwe2(self):
-				archive_entry.ovs_path = f"{self.file_no_ext}.ovs.{archive_entry.name.lower()}"
+				archive_entry.ovs_path = f"{self.path_no_ext}.ovs.{archive_entry.name.lower()}"
 			# PZ, PC, ZTUAC Style
 			else:
-				archive_entry.ovs_path = f"{self.file_no_ext}.ovs"
+				archive_entry.ovs_path = f"{self.path_no_ext}.ovs"
 
 	def update_hashes(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
@@ -1680,7 +1681,7 @@ class OvlFile(Header, IoFile):
 
 	def save(self, filepath, dat_path):
 		self.store_filepath(filepath)
-		logging.info(f"Writing {self.basename}")
+		logging.info(f"Writing {self.name}")
 		self.update_files()
 		self.update_mimes()
 		self.update_counts()
@@ -1724,9 +1725,9 @@ class OvlFile(Header, IoFile):
 		for aux in self.aux_entries:
 			name = aux.file.basename
 			if aux.extension_index != 0:
-				bnkpath = f"{self.file_no_ext}_{name}_bnk_s.aux"
+				bnkpath = f"{self.path_no_ext}_{name}_bnk_s.aux"
 			else:
-				bnkpath = f"{self.file_no_ext}_{name}_bnk_b.aux"
+				bnkpath = f"{self.path_no_ext}_{name}_bnk_b.aux"
 
 			# grab and update size
 			if os.path.isfile(bnkpath):

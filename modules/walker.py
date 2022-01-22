@@ -139,7 +139,7 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 			ovl_data.load(ovl_path, commands=gui.commands)
 			# create an output folder for it
 			rel_p = os.path.relpath(ovl_path, start=start_dir)
-			rel_d = os.path.dirname(rel_p)
+			rel_d = os.path.splitext(rel_p)[0]
 			outdir = os.path.join(export_dir, rel_d)
 			out_paths, error_files_new = ovl_data.extract(outdir, only_types=only_types)
 			error_files += error_files_new

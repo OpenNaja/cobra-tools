@@ -44,6 +44,9 @@ class MeshCollision:
 		# seemingly fixed
 		self.ff_or_zero = numpy.zeros((10), dtype='int')
 
+		# seemingly fixed
+		self.ff_or_zero = numpy.zeros((8), dtype='int')
+
 		# verbatim
 		self.bounds_min_repeat = Vector3(self.context, None, None)
 
@@ -90,18 +93,29 @@ class MeshCollision:
 		self.bounds_min = Vector3(self.context, None, None)
 		self.bounds_max = Vector3(self.context, None, None)
 		self.ones_or_zeros = numpy.zeros((7), dtype='uint64')
-		self.ff_or_zero = numpy.zeros((10), dtype='int')
-		self.bounds_min_repeat = Vector3(self.context, None, None)
-		self.bounds_max_repeat = Vector3(self.context, None, None)
-		self.tri_flags_count = 0
-		self.count_bits = 0
-		self.stuff = numpy.zeros((9), dtype='ushort')
-		self.collision_bits = Array(self.context)
-		self.zeros = numpy.zeros((4), dtype='uint')
+		if self.context.version <= 32:
+			self.ff_or_zero = numpy.zeros((10), dtype='int')
+		if self.context.version >= 47:
+			self.ff_or_zero = numpy.zeros((8), dtype='int')
+		if self.context.version <= 32:
+			self.bounds_min_repeat = Vector3(self.context, None, None)
+		if self.context.version <= 32:
+			self.bounds_max_repeat = Vector3(self.context, None, None)
+		if self.context.version <= 32:
+			self.tri_flags_count = 0
+		if self.context.version <= 32:
+			self.count_bits = 0
+		if self.context.version <= 32:
+			self.stuff = numpy.zeros((9), dtype='ushort')
+		if self.context.version <= 32:
+			self.collision_bits = Array(self.context)
+		if self.context.version <= 32:
+			self.zeros = numpy.zeros((4), dtype='uint')
 		self.vertices = numpy.zeros((self.vertex_count, 3), dtype='float')
 		self.triangles = numpy.zeros((self.tri_count, 3), dtype='ushort')
-		self.const = 0
-		if self.const:
+		if self.context.version <= 32:
+			self.const = 0
+		if self.context.version <= 32 and self.const:
 			self.triangle_flags = numpy.zeros((self.tri_flags_count), dtype='uint')
 		self.zero_end = 0
 
@@ -115,18 +129,26 @@ class MeshCollision:
 		self.bounds_min = stream.read_type(Vector3, (self.context, None, None))
 		self.bounds_max = stream.read_type(Vector3, (self.context, None, None))
 		self.ones_or_zeros = stream.read_uint64s((7))
-		self.ff_or_zero = stream.read_ints((10))
-		self.bounds_min_repeat = stream.read_type(Vector3, (self.context, None, None))
-		self.bounds_max_repeat = stream.read_type(Vector3, (self.context, None, None))
-		self.tri_flags_count = stream.read_uint()
-		self.count_bits = stream.read_ushort()
-		self.stuff = stream.read_ushorts((9))
-		self.collision_bits.read(stream, MeshCollisionBit, self.count_bits, None)
-		self.zeros = stream.read_uints((4))
+		if self.context.version <= 32:
+			self.ff_or_zero = stream.read_ints((10))
+		if self.context.version >= 47:
+			self.ff_or_zero = stream.read_ints((8))
+		if self.context.version <= 32:
+			self.bounds_min_repeat = stream.read_type(Vector3, (self.context, None, None))
+			self.bounds_max_repeat = stream.read_type(Vector3, (self.context, None, None))
+		if self.context.version <= 32:
+			self.tri_flags_count = stream.read_uint()
+			self.count_bits = stream.read_ushort()
+		if self.context.version <= 32:
+			self.stuff = stream.read_ushorts((9))
+			self.collision_bits.read(stream, MeshCollisionBit, self.count_bits, None)
+		if self.context.version <= 32:
+			self.zeros = stream.read_uints((4))
 		self.vertices = stream.read_floats((self.vertex_count, 3))
 		self.triangles = stream.read_ushorts((self.tri_count, 3))
-		self.const = stream.read_uint()
-		if self.const:
+		if self.context.version <= 32:
+			self.const = stream.read_uint()
+		if self.context.version <= 32 and self.const:
 			self.triangle_flags = stream.read_uints((self.tri_flags_count))
 		self.zero_end = stream.read_uint()
 
@@ -142,18 +164,26 @@ class MeshCollision:
 		stream.write_type(self.bounds_min)
 		stream.write_type(self.bounds_max)
 		stream.write_uint64s(self.ones_or_zeros)
-		stream.write_ints(self.ff_or_zero)
-		stream.write_type(self.bounds_min_repeat)
-		stream.write_type(self.bounds_max_repeat)
-		stream.write_uint(self.tri_flags_count)
-		stream.write_ushort(self.count_bits)
-		stream.write_ushorts(self.stuff)
-		self.collision_bits.write(stream, MeshCollisionBit, self.count_bits, None)
-		stream.write_uints(self.zeros)
+		if self.context.version <= 32:
+			stream.write_ints(self.ff_or_zero)
+		if self.context.version >= 47:
+			stream.write_ints(self.ff_or_zero)
+		if self.context.version <= 32:
+			stream.write_type(self.bounds_min_repeat)
+			stream.write_type(self.bounds_max_repeat)
+		if self.context.version <= 32:
+			stream.write_uint(self.tri_flags_count)
+			stream.write_ushort(self.count_bits)
+		if self.context.version <= 32:
+			stream.write_ushorts(self.stuff)
+			self.collision_bits.write(stream, MeshCollisionBit, self.count_bits, None)
+		if self.context.version <= 32:
+			stream.write_uints(self.zeros)
 		stream.write_floats(self.vertices)
 		stream.write_ushorts(self.triangles)
-		stream.write_uint(self.const)
-		if self.const:
+		if self.context.version <= 32:
+			stream.write_uint(self.const)
+		if self.context.version <= 32 and self.const:
 			stream.write_uints(self.triangle_flags)
 		stream.write_uint(self.zero_end)
 

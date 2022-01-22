@@ -474,7 +474,9 @@ class MainWindow(widgets.MainWindow):
 				if self.is_open_ovl():
 					# for bulk extraction, add the ovl basename to the path to avoid overwriting
 					if self.in_folder.isChecked():
-						out_dir = os.path.join(_out_dir, ovl.basename)
+						root_dir = self.get_selected_dir()
+						rel_p = os.path.relpath(ovl.path_no_ext, start=root_dir)
+						out_dir = os.path.join(_out_dir, rel_p)
 					try:
 						out_paths, error_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files)
 						all_error_files += error_files
@@ -589,7 +591,7 @@ class MainWindow(widgets.MainWindow):
 
 	def walker(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		walker.bulk_test_models(self, start_dir)
+		walker.bulk_test_models(self, start_dir, walk_ovls=False)
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def closeEvent(self, event):
