@@ -818,11 +818,12 @@ class OvsFile(OvsHeader):
 			# file_hash is an index into ovl files
 			try:
 				file = self.ovl.files[entry.file_hash]
+				n = file.basename
+				e = file.ext
 			except IndexError:
-				raise IndexError(
-					f"Entry ID {entry.file_hash} does not index into ovl file table of length {len(self.ovl.files)}")
-			n = file.basename
-			e = file.ext
+				logging.warning(f"Entry ID {entry.file_hash} [{entry.__class__.__name__}] does not index into ovl file table of length {len(self.ovl.files)}")
+				n = "none"
+				e = ".ext"
 		# fix for island.island, force extension to start with .
 		if e[0] != ".":
 			e = f".{e}"
