@@ -34,7 +34,7 @@ def import_armature(mdl2, b_bone_names):
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 		mats = {}
 		z_dic = {}
-		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.bone_parents):
+		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.parents):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
 
 			n_bind = get_local_bone_matrix(bone)

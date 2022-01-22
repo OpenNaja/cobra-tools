@@ -41,7 +41,7 @@ class BoneInfo:
 		self.zeros = numpy.zeros((3), dtype='uint64')
 		self.bone_count = 0
 		self.unknown_40 = 0
-		self.bone_parents_count = 0
+		self.parents_count = 0
 
 		# not PC, JWE1
 		self.extra_zero = 0
@@ -93,10 +93,10 @@ class BoneInfo:
 		self.bones = Array(self.context)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
+		self.parents = numpy.zeros((self.parents_count), dtype='ubyte')
 
 		# zeros
-		self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
+		self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8), dtype='byte')
 
 		# enumerates all bone indices, 4 may be flags
 		self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
@@ -116,6 +116,9 @@ class BoneInfo:
 		# ragdoll links?
 		self.struct_7 = Struct7(self.context, None, None)
 
+		# A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex
+		self.new_extra = numpy.zeros(((self.io_start - (self.struct_7.io_start + self.struct_7.io_size)) % 16), dtype='byte')
+
 		# joints
 		self.joints = JointData(self.context, None, None)
 		self.set_defaults()
@@ -133,7 +136,7 @@ class BoneInfo:
 		self.zeros = numpy.zeros((3), dtype='uint64')
 		self.bone_count = 0
 		self.unknown_40 = 0
-		self.bone_parents_count = 0
+		self.parents_count = 0
 		if (self.context.version == 13) or (((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51)):
 			self.extra_zero = 0
 		self.enum_count = 0
@@ -160,9 +163,9 @@ class BoneInfo:
 			self.bones = Array(self.context)
 		if self.context.version >= 48:
 			self.bones = Array(self.context)
-		self.bone_parents = numpy.zeros((self.bone_parents_count), dtype='ubyte')
+		self.parents = numpy.zeros((self.parents_count), dtype='ubyte')
 		if not (self.context.version == 13):
-			self.hier_1_padding = numpy.zeros(((8 - (self.bone_parents_count % 8)) % 8), dtype='byte')
+			self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8), dtype='byte')
 		if not (self.context.version == 13) and self.one:
 			self.enumeration = numpy.zeros((self.enum_count, 2), dtype='uint')
 		if self.context.version == 13 and self.one:
@@ -175,6 +178,8 @@ class BoneInfo:
 			self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
 		if self.count_7:
 			self.struct_7 = Struct7(self.context, None, None)
+		if self.context.version >= 51:
+			self.new_extra = numpy.zeros(((self.io_start - (self.struct_7.io_start + self.struct_7.io_size)) % 16), dtype='byte')
 		if self.joint_count:
 			self.joints = JointData(self.context, None, None)
 
@@ -191,7 +196,7 @@ class BoneInfo:
 		self.zeros = stream.read_uint64s((3))
 		self.bone_count = stream.read_uint64()
 		self.unknown_40 = stream.read_uint64()
-		self.bone_parents_count = stream.read_uint64()
+		self.parents_count = stream.read_uint64()
 		if (self.context.version == 13) or (((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51)):
 			self.extra_zero = stream.read_uint64()
 		self.enum_count = stream.read_uint64()
@@ -218,9 +223,9 @@ class BoneInfo:
 			self.bones.read(stream, JweBone, self.bone_count, None)
 		if self.context.version >= 48:
 			self.bones.read(stream, PzBone, self.bone_count, None)
-		self.bone_parents = stream.read_ubytes((self.bone_parents_count))
+		self.parents = stream.read_ubytes((self.parents_count))
 		if not (self.context.version == 13):
-			self.hier_1_padding = stream.read_bytes(((8 - (self.bone_parents_count % 8)) % 8))
+			self.parents_padding = stream.read_bytes(((8 - (self.parents_count % 8)) % 8))
 		if not (self.context.version == 13) and self.one:
 			self.enumeration = stream.read_uints((self.enum_count, 2))
 		if self.context.version == 13 and self.one:
@@ -233,6 +238,8 @@ class BoneInfo:
 			self.minus_padding = stream.read_type(MinusPadding, (self.context, self.zeros_count, None))
 		if self.count_7:
 			self.struct_7 = stream.read_type(Struct7, (self.context, None, None))
+		if self.context.version >= 51:
+			self.new_extra = stream.read_bytes(((self.io_start - (self.struct_7.io_start + self.struct_7.io_size)) % 16))
 		if self.joint_count:
 			self.joints = stream.read_type(JointData, (self.context, None, None))
 
@@ -251,7 +258,7 @@ class BoneInfo:
 		stream.write_uint64s(self.zeros)
 		stream.write_uint64(self.bone_count)
 		stream.write_uint64(self.unknown_40)
-		stream.write_uint64(self.bone_parents_count)
+		stream.write_uint64(self.parents_count)
 		if (self.context.version == 13) or (((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51)):
 			stream.write_uint64(self.extra_zero)
 		stream.write_uint64(self.enum_count)
@@ -280,10 +287,10 @@ class BoneInfo:
 			self.bones.write(stream, JweBone, self.bone_count, None)
 		if self.context.version >= 48:
 			self.bones.write(stream, PzBone, self.bone_count, None)
-		stream.write_ubytes(self.bone_parents)
+		stream.write_ubytes(self.parents)
 		if not (self.context.version == 13):
-			self.hier_1_padding.resize(((8 - (self.bone_parents_count % 8)) % 8))
-			stream.write_bytes(self.hier_1_padding)
+			self.parents_padding.resize(((8 - (self.parents_count % 8)) % 8))
+			stream.write_bytes(self.parents_padding)
 		if not (self.context.version == 13) and self.one:
 			stream.write_uints(self.enumeration)
 		if self.context.version == 13 and self.one:
@@ -296,6 +303,8 @@ class BoneInfo:
 			stream.write_type(self.minus_padding)
 		if self.count_7:
 			stream.write_type(self.struct_7)
+		if self.context.version >= 51:
+			stream.write_bytes(self.new_extra)
 		if self.joint_count:
 			stream.write_type(self.joints)
 
@@ -315,7 +324,7 @@ class BoneInfo:
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
 		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
 		s += f'\n	* unknown_40 = {self.unknown_40.__repr__()}'
-		s += f'\n	* bone_parents_count = {self.bone_parents_count.__repr__()}'
+		s += f'\n	* parents_count = {self.parents_count.__repr__()}'
 		s += f'\n	* extra_zero = {self.extra_zero.__repr__()}'
 		s += f'\n	* enum_count = {self.enum_count.__repr__()}'
 		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
@@ -330,13 +339,14 @@ class BoneInfo:
 		s += f'\n	* name_padding = {self.name_padding.__repr__()}'
 		s += f'\n	* inverse_bind_matrices = {self.inverse_bind_matrices.__repr__()}'
 		s += f'\n	* bones = {self.bones.__repr__()}'
-		s += f'\n	* bone_parents = {self.bone_parents.__repr__()}'
-		s += f'\n	* hier_1_padding = {self.hier_1_padding.__repr__()}'
+		s += f'\n	* parents = {self.parents.__repr__()}'
+		s += f'\n	* parents_padding = {self.parents_padding.__repr__()}'
 		s += f'\n	* enumeration = {self.enumeration.__repr__()}'
 		s += f'\n	* zt_weirdness = {self.zt_weirdness.__repr__()}'
 		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
 		s += f'\n	* minus_padding = {self.minus_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
+		s += f'\n	* new_extra = {self.new_extra.__repr__()}'
 		s += f'\n	* joints = {self.joints.__repr__()}'
 		return s
 

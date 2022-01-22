@@ -117,7 +117,7 @@ def export_bones_custom(b_armature_ob, mdl2):
 
 	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
 	# print(lut_dic)
-	bone_info.bone_parents.resize(len(b_bone_names))
+	bone_info.parents.resize(len(b_bone_names))
 	for bone_i, b_bone_name in enumerate(b_bone_names):
 		b_bone = b_armature_ob.data.bones.get(b_bone_name)
 
@@ -133,9 +133,9 @@ def export_bones_custom(b_armature_ob, mdl2):
 		ms2_bone.name = bone_name_for_ovl(b_bone_name)
 		# set parent index
 		if b_bone.parent:
-			bone_info.bone_parents[bone_i] = lut_dic[b_bone.parent.name]
+			bone_info.parents[bone_i] = lut_dic[b_bone.parent.name]
 		else:
-			bone_info.bone_parents[bone_i] = 255
+			bone_info.parents[bone_i] = 255
 		ms2_bone.set_bone(mat_local_to_parent)
 
 		bone_info.bones.append(ms2_bone)
@@ -149,7 +149,7 @@ def export_bones_custom(b_armature_ob, mdl2):
 
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
-		bone_info.name_count = bone_info.bone_parents_count = bone_info.enum_count = len(b_bone_names)
+		bone_info.name_count = bone_info.parents_count = bone_info.enum_count = len(b_bone_names)
 	if bone_info.zeros_count:
 		bone_info.zeros_count = len(b_bone_names)
 		bone_info.zeros_padding.arg = bone_info.zeros_count

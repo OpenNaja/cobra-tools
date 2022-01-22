@@ -168,7 +168,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			assert x.zero == 0
 			assert x.one == 1
 		assert bone_info.one == 1
-		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.bone_parents_count == bone_info.enum_count
+		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.parents_count == bone_info.enum_count
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
 		assert bone_info.unk_78_count == 0 and bone_info.unk_extra == 0
 		joints = bone_info.joints

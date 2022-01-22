@@ -281,8 +281,7 @@
 	<compound name="PcBuffer1" >
 		<add name="buffer info pc" type="Ms2BufferInfoZT" vercond="#ZTUAC#" arg="#ARG#"/>
 		<add name="buffer info pc" type="Ms2BufferInfoPC" vercond="#PC#" />
-		<add name="model infos" type="ModelInfo" arr1="#ARG#\general info\mdl2 count" ></add>
-<!--		<add name="some zero" type="uint" >the padding between end of the modelinfo array and start of lodinfos</add>-->
+		<add name="model infos" type="ModelInfo" arr1="#ARG#\general info\mdl2 count"/>
 	</compound>
 
 	<compound name="ZTPreBones">
@@ -370,8 +369,8 @@
 		<add name="num_lods" type="ushort"/>
 		<add name="num_objects" type="ushort"/>
 		<add name="num_meshes" type="ushort">count of MeshData fragments for the mdl2 this struct refers to</add>
-		<add name="last count" type="ushort">?</add>
-		<add name="render flag" type="RenderFlag">this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female</add>
+		<add name="last_count" type="ushort">?</add>
+		<add name="render_flag" type="RenderFlag">this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female</add>
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 
@@ -397,7 +396,7 @@
 		<add name="zeros" type="uint64" arr1="3"/>
 		<add name="bone count" type="uint64"/>
 		<add name="unknown40" type="uint64"/>
-		<add name="bone parents count" type="uint64"/>
+		<add name="parents count" type="uint64"/>
 		<add name="extra zero" type="uint64" vercond="#ZTUAC# #OR# #PZ# #OR# #JWE2#">not PC, JWE1</add>
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
@@ -416,21 +415,20 @@
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
 		<add name="bones" type="JweBone" arr1="bone count" until="47">bones, loc first</add>
 		<add name="bones" type="PzBone" arr1="bone count" since="48">bones, rot first</add>
-		<add name="bone parents" type="ubyte" arr1="bone parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
-		<add name="hier1padding" padding="1" type="byte" arr1="(8 - (bone parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
+		<add name="parents" type="ubyte" arr1="parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
+		<add name="parents_padding" padding="1" type="byte" arr1="(8 - (parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
 		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" vercond="#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
 		<add name="ZT weirdness" type="short" arr1="10" vercond="#ZTUAC#">zeros</add>
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
-		keep disabled for the old formats for now
-<!--		<add name="struct 7" type="Struct7" cond="count7" vercond="!#OLD#" >ragdoll links?</add>-->
 		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>
-<!--		<add name="weird padding" type="SmartPadding" cond="joint count" vercond="#PC#"></add>-->
-<!--		<add name="joints" type="JointData" cond="joint count" vercond="!#OLD#" >joints</add>-->
+		it seems that the JWE2 extra 8 bytes that are sometimes present here just represent an alignment
+<!--		<add name="new extra" type="uint" arr1="2" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
+<!--		<add name="new extra" type="uint" arr1="2" cond="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
+		<add name="new extra" type="byte" arr1="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>
+
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
-<!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#"></add>-->
-<!--		<add name="weird padding 2" type="SmartPadding" cond="! joint count" vercond="#PC#"></add>-->
 
 	</compound>
 
@@ -485,7 +483,6 @@
 
 	<compound name="JointData">
 		appears in dinos and static meshes
-		<add name="new extra" type="uint" arr1="2" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>
 		<add name="joint_count" type="uint" >repeat</add>
 		<add name="count_0" type="uint"/>
 		<add name="count_1" type="uint"/>
