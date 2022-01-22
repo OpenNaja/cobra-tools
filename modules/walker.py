@@ -112,7 +112,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 
 		print("\nThe following type - map pairs were found:")
 		for flag, tup in sorted(type_dic.items()):
-			print(flag, bin(flag))
+			print(flag)
 			names, maps_list = tup
 			print("Some files:", list(set(names))[:25])
 			print("num meshes", len(maps_list))
@@ -130,7 +130,6 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 	# don't use internal data
 	ovl_data = OvlFile()
 	error_files = []
-	skip_files = []
 	ovl_files = walk_type(start_dir, extension="ovl")
 	of_max = len(ovl_files)
 	for of_index, ovl_path in enumerate(ovl_files):
@@ -142,13 +141,12 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 			rel_p = os.path.relpath(ovl_path, start=start_dir)
 			rel_d = os.path.dirname(rel_p)
 			outdir = os.path.join(export_dir, rel_d)
-			out_paths, error_files_new, skip_files_new = ovl_data.extract(outdir, only_types=only_types)
+			out_paths, error_files_new = ovl_data.extract(outdir, only_types=only_types)
 			error_files += error_files_new
-			skip_files += skip_files_new
 		except Exception as ex:
 			traceback.print_exc()
 			errors.append((ovl_path, ex))
-	interaction.skip_messages(error_files, skip_files)
+	interaction.extract_error_warning(error_files)
 
 
 def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):

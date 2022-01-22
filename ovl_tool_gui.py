@@ -254,14 +254,14 @@ class MainWindow(widgets.MainWindow):
 		drag = QtGui.QDrag(self)
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
-			out_paths, errors, skips = self.ovl_data.extract(
+			out_paths, errors = self.ovl_data.extract(
 				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
 
 			data = QtCore.QMimeData()
 			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
-			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors, {len(skips)} skips")
+			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors")
 		except BaseException as ex:
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
@@ -470,20 +470,18 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_extract"] = out_dir
 			_out_dir = out_dir
 			all_error_files = []
-			all_skip_files = []
 			for ovl in self.handle_path(save_over=False):
 				if self.is_open_ovl():
 					# for bulk extraction, add the ovl basename to the path to avoid overwriting
 					if self.in_folder.isChecked():
 						out_dir = os.path.join(_out_dir, ovl.basename)
 					try:
-						out_paths, error_files, skip_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files)
+						out_paths, error_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files)
 						all_error_files += error_files
-						all_skip_files += skip_files
 					except Exception as ex:
 						traceback.print_exc()
 						interaction.showdialog(str(ex))
-			interaction.skip_messages(all_error_files, all_skip_files)
+			interaction.extract_error_warning(all_error_files)
 
 	def inject_ask(self):
 		if self.is_open_ovl():

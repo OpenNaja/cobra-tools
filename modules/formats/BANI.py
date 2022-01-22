@@ -10,7 +10,7 @@ class BanisLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		all_bani_files = self.ovl.get_extract_files((), (".bani",), [], ignore=False)
+		all_bani_files = self.ovl.get_extract_files((), (".bani",), ignore=False)
 		self.bani_files = []
 		for bani in all_bani_files:
 			b_ss = self.ovl.get_sized_str_entry(bani.name)

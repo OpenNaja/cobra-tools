@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5 import QtWidgets
 
 
@@ -14,19 +16,11 @@ def showdialog(info, ask=False):
 	return msg.exec_() == msg.Yes
 
 
-def skip_messages(error_files, skip_files):
-	error_count = len(error_files)
-	skip_count = len(skip_files)
-	if error_count:
-		print("Files not extracted due to error:")
+def extract_error_warning(error_files):
+	if error_files:
+		logging.warning("Files not extracted due to error:")
 		for ef in error_files:
-			print("\t", ef)
+			logging.warning(ef)
 
-	if skip_count:
-		print("Unsupported files not extracted:")
-		for sf in skip_files:
-			print("\t", sf)
-
-	if error_count or skip_count:
-		message = f"{error_count + skip_count} files were not extracted from the archive and may be missing from the output folder. {skip_count} were unsupported, while {error_count} produced errors."
+		message = f"{len(error_files)} files have errored and were not extracted."
 		showdialog(message)

@@ -877,16 +877,14 @@ class OvlFile(Header, IoFile):
 		else:
 			self.progress_callback = self.dummy_callback
 
-	def get_extract_files(self, only_names, only_types, skip_files, ignore=True):
+	def get_extract_files(self, only_names, only_types, ignore=True):
 		"""Returns files that are suitable for extraction"""
 		extract_files = []
 		for file in self.files:
 			# for batch operations, only export those that we need
 			if only_types and file.ext not in only_types:
-				skip_files.append(file.name)
 				continue
 			if only_names and file.name not in only_names:
-				skip_files.append(file.name)
 				continue
 			# ignore types in the count that we export from inside other type exporters
 			if ignore and file.ext in IGNORE_TYPES:
@@ -948,11 +946,9 @@ class OvlFile(Header, IoFile):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
 
-		# the actual export, per file type
 		error_files = []
-		skip_files = []
 		out_paths = []
-		extract_files = self.get_extract_files(only_names, only_types, skip_files)
+		extract_files = self.get_extract_files(only_names, only_types)
 		for file_index, file in enumerate(extract_files):
 			self.progress_callback("Extracting", value=file_index, vmax=len(extract_files))
 			try:
@@ -964,7 +960,7 @@ class OvlFile(Header, IoFile):
 				error_files.append(file.name)
 
 		self.progress_callback("Extraction completed!", value=1, vmax=1)
-		return out_paths, error_files, skip_files
+		return out_paths, error_files
 
 	def preprocess_files(self, file_paths, tmp_dir):
 		"""Check the files that should be injected and piece them back together"""
