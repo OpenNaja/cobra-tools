@@ -35,9 +35,11 @@ class ModelReader:
 		self.io_start = stream.tell()
 		self.bone_infos = []
 		for model_info in self.arg:
+			logging.debug(model_info)
 			model_info.model = Model(self.context, model_info)
 			if model_info.num_objects:
 				model_info.model.read(stream)
+				logging.debug(model_info.model)
 		i = 0
 		self.bone_info_start = stream.tell()
 		for model_info in self.arg:

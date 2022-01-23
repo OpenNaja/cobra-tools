@@ -23,8 +23,8 @@ class Buffer0:
 		# names
 		self.names = Array(self.context)
 
-		# todo - pad to 8; for pz 1.6
-		self.names_padding = numpy.zeros((self.names.io_size % 4), dtype='ubyte')
+		# align to 4
+		self.names_padding = numpy.zeros(((4 - (self.names.io_size % 4)) % 4), dtype='ubyte')
 		self.zt_streams_header = BufferInfoZTHeader(self.context, self.arg, None)
 		self.set_defaults()
 
@@ -32,7 +32,7 @@ class Buffer0:
 		self.name_hashes = numpy.zeros((), dtype='uint')
 		self.names = Array(self.context)
 		if self.context.version >= 50:
-			self.names_padding = numpy.zeros((self.names.io_size % 4), dtype='ubyte')
+			self.names_padding = numpy.zeros(((4 - (self.names.io_size % 4)) % 4), dtype='ubyte')
 		if self.context.version == 13:
 			self.zt_streams_header = BufferInfoZTHeader(self.context, self.arg, None)
 
@@ -41,7 +41,7 @@ class Buffer0:
 		self.name_hashes = stream.read_uints((self.arg.name_count))
 		self.names = stream.read_zstrings((self.arg.name_count))
 		if self.context.version >= 50:
-			self.names_padding = stream.read_ubytes((self.names.io_size % 4))
+			self.names_padding = stream.read_ubytes(((4 - (self.names.io_size % 4)) % 4))
 		if self.context.version == 13:
 			self.zt_streams_header = stream.read_type(BufferInfoZTHeader, (self.context, self.arg, None))
 
@@ -52,6 +52,7 @@ class Buffer0:
 		stream.write_uints(self.name_hashes)
 		stream.write_zstrings(self.names)
 		if self.context.version >= 50:
+			self.names_padding.resize(((4 - (self.names.io_size % 4)) % 4))
 			stream.write_ubytes(self.names_padding)
 		if self.context.version == 13:
 			stream.write_type(self.zt_streams_header)
