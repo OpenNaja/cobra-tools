@@ -37,11 +37,11 @@ class ModelReader:
 		self.io_start = stream.tell()
 		self.bone_infos = []
 		for model_info in self.arg:
-			logging.debug(model_info)
+			# logging.debug(model_info)
 			model_info.model = Model(self.context, model_info)
 			if model_info.num_objects:
 				model_info.model.read(stream)
-				logging.debug(model_info.model)
+				# logging.debug(model_info.model)
 		i = 0
 		self.bone_info_start = stream.tell()
 		for model_info in self.arg:
@@ -74,6 +74,7 @@ class ModelReader:
 	def read_bone_info(self, stream, i):
 
 		logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
+		# there's never padding before the first bone info, and after the last
 		if i:
 			abs_offset = stream.tell()
 			relative_offset = abs_offset - self.bone_info_start
@@ -85,13 +86,7 @@ class ModelReader:
 			logging.debug(f"padding: {padding_len}")
 		bone_info = BoneInfo(self.context)
 		bone_info.read(stream)
-		# self.assign_bone_names(bone_info)
-		# try:
-		# 	self.assign_joints(bone_info)
-		# except:
-		# 	logging.error(f"Joints {i} failed...")
-		# 	traceback.print_exc()
-		logging.debug(bone_info)
+		# logging.debug(bone_info)
 		self.read_hitcheck_verts(bone_info, stream)
 		logging.debug(f"end of bone info {i} at {stream.tell()}")
 

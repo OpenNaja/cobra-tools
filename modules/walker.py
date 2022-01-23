@@ -1,4 +1,5 @@
 import os
+import time
 import traceback
 import logging
 import numpy as np
@@ -89,6 +90,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		# for last_count
 		last_counts = set()
 		if walk_models:
+			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
 			mf_max = len(ms2_files)
 			for mf_index, ms2_path in enumerate(ms2_files):
@@ -125,7 +127,9 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print("min", np.min(mins, axis=0))
 			print()
 		print(f"last_counts: {last_counts}")
-		gui.update_progress("Operation completed!", value=1, vmax=1)
+		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds."
+		logging.info(msg)
+		gui.update_progress(msg, value=1, vmax=1)
 
 
 def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
