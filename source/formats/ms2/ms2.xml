@@ -407,7 +407,7 @@
 		it seems that the JWE2 extra 8 bytes that are sometimes present here just represent an alignment
 <!--		<add name="new extra" type="uint" arr1="2" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
 <!--		<add name="new extra" type="uint" arr1="2" cond="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
-		<add name="new extra" type="byte" arr1="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>
+<!--		<add name="new extra" type="byte" arr1="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
 
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 
@@ -443,7 +443,8 @@
 		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="32">60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
 		probably wrong
-<!--		<add name="array2" type="uint" arr1="count2" since="48">in JWE2 velo69 bone info 1, could also be, 2 * 2 ubyte + 4 bytes padding</add>-->
+		<add name="array2" type="uint" arr1="count2" since="51">in JWE2 velo69 bone info 1, could also be, 2 * 2 ubyte + 4 bytes padding
+		this catches elasmo</add>
 	</compound>
 
 	<compound name="UACJoint">

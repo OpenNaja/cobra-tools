@@ -116,9 +116,6 @@ class BoneInfo:
 		# ragdoll links?
 		self.struct_7 = Struct7(self.context, None, None)
 
-		# A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex
-		self.new_extra = numpy.zeros(((self.io_start - (self.struct_7.io_start + self.struct_7.io_size)) % 16), dtype='byte')
-
 		# joints
 		self.joints = JointData(self.context, None, None)
 		self.set_defaults()
@@ -178,8 +175,6 @@ class BoneInfo:
 			self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
 		if self.count_7:
 			self.struct_7 = Struct7(self.context, None, None)
-		if self.context.version >= 51:
-			self.new_extra = numpy.zeros(((self.io_start - (self.struct_7.io_start + self.struct_7.io_size)) % 16), dtype='byte')
 		if self.joint_count:
 			self.joints = JointData(self.context, None, None)
 
@@ -238,8 +233,6 @@ class BoneInfo:
 			self.minus_padding = stream.read_type(MinusPadding, (self.context, self.zeros_count, None))
 		if self.count_7:
 			self.struct_7 = stream.read_type(Struct7, (self.context, None, None))
-		if self.context.version >= 51:
-			self.new_extra = stream.read_bytes(((self.io_start - (self.struct_7.io_start + self.struct_7.io_size)) % 16))
 		if self.joint_count:
 			self.joints = stream.read_type(JointData, (self.context, None, None))
 
@@ -303,8 +296,6 @@ class BoneInfo:
 			stream.write_type(self.minus_padding)
 		if self.count_7:
 			stream.write_type(self.struct_7)
-		if self.context.version >= 51:
-			stream.write_bytes(self.new_extra)
 		if self.joint_count:
 			stream.write_type(self.joints)
 
@@ -346,7 +337,6 @@ class BoneInfo:
 		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
 		s += f'\n	* minus_padding = {self.minus_padding.__repr__()}'
 		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
-		s += f'\n	* new_extra = {self.new_extra.__repr__()}'
 		s += f'\n	* joints = {self.joints.__repr__()}'
 		return s
 
