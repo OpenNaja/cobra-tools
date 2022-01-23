@@ -13,12 +13,12 @@ from plugin.utils import matrix_util
 from plugin.utils.matrix_util import mat3_to_vec_roll
 
 
-def import_armature(mdl2, b_bone_names):
+def import_armature(scene, model_info, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
-	corrector = matrix_util.Corrector(is_ztuac(mdl2))
-	bone_info = mdl2.bone_info
+	corrector = matrix_util.Corrector(is_ztuac(model_info.context))
+	bone_info = model_info.bone_info
 	print(bone_info)
 	if bone_info:
 		armature_name = b_bone_names[0]
@@ -28,7 +28,7 @@ def import_armature(mdl2, b_bone_names):
 		# set axis orientation for export
 		# b_armature_data.niftools.axis_forward = NifOp.props.axis_forward
 		# b_armature_data.niftools.axis_up = NifOp.props.axis_up
-		b_armature_obj = create_ob(armature_name, b_armature_data)
+		b_armature_obj = create_ob(scene, armature_name, b_armature_data)
 		b_armature_obj.show_in_front = True
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -81,7 +81,7 @@ def import_armature(mdl2, b_bone_names):
 			bone = b_armature_obj.pose.bones[bone_name]
 			bone["index"] = i
 		try:
-			import_joints(b_armature_obj, bone_info, b_bone_names, corrector)
+			import_joints(scene, b_armature_obj, bone_info, b_bone_names, corrector)
 		except Exception as err:
 			print("Importing joints failed...", err)
 			traceback.print_exc()
@@ -125,13 +125,13 @@ def set_transform4(b_bind, b_edit_bone):
 	b_edit_bone.roll = roll
 
 
-def get_bone_names(mdl2):
-	if not mdl2.bone_info:
+def get_bone_names(model_info):
+	if not model_info.bone_info:
 		return []
-	return [matrix_util.bone_name_for_blender(bone.name) for bone in mdl2.bone_info.bones]
+	return [matrix_util.bone_name_for_blender(bone.name) for bone in model_info.bone_info.bones]
 
 
-def import_joints(armature_ob, bone_info, b_bone_names, corrector):
+def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 	print("Importing joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
 		bone_name = b_bone_names[bone_index]
@@ -144,7 +144,7 @@ def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 	# 	import_collider(hitcheck, armature_ob, bone_name, corrector)
 	for bone_index, joint_transform in zip(bone_info.joints.joint_indices, bone_info.joints.joint_transforms):
 		bone_name = b_bone_names[bone_index]
-		joint = create_ob("joint_"+bone_name, None)
+		joint = create_ob(scene, "joint_"+bone_name, None)
 		n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
 		n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
 		b_bind = corrector.nif_bind_to_blender_bind(n_bind)
@@ -174,7 +174,7 @@ def import_joints(armature_ob, bone_info, b_bone_names, corrector):
 	# 		i1 = mathutils.Matrix(it1.data).inverted()
 	# 		print(i0)
 	# 		print(i1)
-	# 		joint = create_ob("struct7_"+bone_name_0, None)
+	# 		joint = create_ob(scene, "struct7_"+bone_name_0, None)
 	# 		n_bind = mathutils.Matrix(item.matrix.data).inverted().to_4x4()
 	# 		# n_bind.translation = (item.vector.x, item.vector.y, item.vector.z)
 	# 		b_bind = corrector.nif_bind_to_blender_bind(n_bind)

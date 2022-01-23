@@ -4,7 +4,7 @@ import struct
 import logging
 
 from generated.formats.ms2.compound.ModelInfo import ModelInfo
-from generated.formats.ms2 import Mdl2File, Ms2File, Ms2Context
+from generated.formats.ms2 import Ms2File, Ms2Context
 from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
 
 import generated.formats.ovl.versions as ovl_versions
@@ -91,18 +91,6 @@ class Ms2Loader(BaseFile):
 
 		versions = get_versions(self.ovl)
 
-		ms2_dir, ms2_basename = os.path.split(self.file_entry.path)
-		mdl2_names = [f for f in os.listdir(ms2_dir) if f.lower().endswith(".mdl2")]
-		mdl2s = []
-		for mdl2_name in mdl2_names:
-			mdl2_path = os.path.join(ms2_dir, mdl2_name)
-			mdl2 = Mdl2File()
-			mdl2.load(mdl2_path)
-			if mdl2.ms_2_name.lower() == ms2_basename:
-				mdl2s.append(mdl2)
-		# sort them by mesh index
-		mdl2s.sort(key=lambda m: m.index)
-
 		# 1 for the ms2, 2 for each mdl2
 		# pool.num_files += 1
 		# create sized str entries and mesh data fragments
@@ -186,13 +174,13 @@ class Ms2Loader(BaseFile):
 				self.sized_str_entry.data_entry.update_data([name_buffer + padding, bone_infos, verts])
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		versions = self.get_version()
+		self.get_version()
 		name = self.sized_str_entry.name
 		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		# sizedstr data has bone count
 		ms2_general_info_data = self.sized_str_entry.pointers[0].data
-		ms2_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, context=self.context)[0]
+		# ms2_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, context=self.context)[0]
 
 		ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
 	
@@ -218,42 +206,32 @@ class Ms2Loader(BaseFile):
 			model_infos = model_info_frag.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
 		# write the ms2 file
 		out_path = out_dir(name)
-		out_paths = [out_path, ]
 		with open(out_path, 'wb') as outfile:
-			# outfile.write(ovl_header)
 			outfile.write(ms2_header)
 			outfile.write(ms2_general_info_data)
-			outfile.write(ms2_buffer_info_data)
+			for mdl2_entry in self.sized_str_entry.children:
+				logging.debug(f"Writing {mdl2_entry.name}")
+				outfile.write(as_bytes(mdl2_entry.basename))
 			outfile.write(name_buffer)
-			outfile.write(bone_infos)
-			outfile.write(verts)
-
-		bone_info_index = 0
-		# export each mdl2
-		for mdl2_index, mdl2_entry in enumerate(self.sized_str_entry.children):
-			mdl2_path = out_dir(mdl2_entry.name)
-			out_paths.append(mdl2_path)
-			with open(mdl2_path, 'wb') as outfile:
-				logging.info(f"Writing {mdl2_entry.name} [{mdl2_index}]")
-	
-				mdl2_header = struct.pack("<3I", ms2_info.version, mdl2_index, bone_info_index)
-				# outfile.write(ovl_header)
-				outfile.write(mdl2_header)
-				outfile.write(as_bytes(self.sized_str_entry.name))
-	
-				if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
-					# the fixed fragments
+			# this corresponds to pc buffer 1 already
+			outfile.write(ms2_buffer_info_data)
+			# export each mdl2
+			if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
+				outfile.write(model_info_frag.pointers[1].data)
+				for mdl2_info, mdl2_entry in zip(model_infos, self.sized_str_entry.children):
 					materials, lods, objects, meshes, model_info = mdl2_entry.fragments
-					# write the mesh info for this mesh, buffered from the previous mesh or ms2 (model_info fragments)
-					mdl2_info = model_infos[mdl2_index]
-					outfile.write(as_bytes(mdl2_info, versions))
-					bone_info_index += mdl2_info.increment_flag
 
 					# avoid writing bad fragments that should be empty
 					if mdl2_info.num_objects:
 						for f in (materials, lods, objects, meshes):
 							outfile.write(f.pointers[1].data)
-		return out_paths
+			outfile.write(bone_infos)
+			outfile.write(verts)
+
+		m = Ms2File()
+		m.load(out_path, read_editable=True)
+		print(m)
+		return out_path,
 	
 	def get_ms2_buffer_datas(self):
 		assert self.sized_str_entry.data_entry
@@ -271,33 +249,33 @@ class Ms2Loader(BaseFile):
 		versions = get_versions(self.ovl)
 	
 		ms2_dir = os.path.dirname(ms2_file_path)
-		mdl2s = []
-		# load and check if everything is valid
-		for mdl2_entry in self.sized_str_entry.children:
-			mdl2_path = os.path.join(ms2_dir, mdl2_entry.name)
-			mdl2 = Mdl2File()
-			# todo - entry is costly, but needed for the mapping of materials - refactor to use entry just once
-			mdl2.load(mdl2_path, entry=True)
-			mdl2s.append(mdl2)
-	
-			missing_materials = set()
-			for material in mdl2.model.materials:
-				fgm_name = f"{material.name.lower()}.fgm"
-				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
-					# don't cry about this
-					continue
-				if fgm_name not in self.ovl._ss_dict:
-					missing_materials.add(fgm_name)
-			if missing_materials:
-				mats = '\n'.join(missing_materials)
-				msg = f"The following materials are used by {mdl2_entry.name}, but are missing from the OVL:\n" \
-					f"{mats}\n" \
-					f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
-				if not interaction.showdialog(msg, ask=True):
-					logging.info("Injection was canceled by the user")
-					return
-			if len(mdl2_entry.model_data_frags) != len(mdl2.model.meshes):
-				raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
+		# mdl2s = []
+		# # load and check if everything is valid
+		# for mdl2_entry in self.sized_str_entry.children:
+		# 	mdl2_path = os.path.join(ms2_dir, mdl2_entry.name)
+		# 	mdl2 = Mdl2File()
+		# 	# todo - entry is costly, but needed for the mapping of materials - refactor to use entry just once
+		# 	mdl2.load(mdl2_path, entry=True)
+		# 	mdl2s.append(mdl2)
+		#
+		# 	missing_materials = set()
+		# 	for material in mdl2.model.materials:
+		# 		fgm_name = f"{material.name.lower()}.fgm"
+		# 		if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
+		# 			# don't cry about this
+		# 			continue
+		# 		if fgm_name not in self.ovl._ss_dict:
+		# 			missing_materials.add(fgm_name)
+		# 	if missing_materials:
+		# 		mats = '\n'.join(missing_materials)
+		# 		msg = f"The following materials are used by {mdl2_entry.name}, but are missing from the OVL:\n" \
+		# 			f"{mats}\n" \
+		# 			f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
+		# 		if not interaction.showdialog(msg, ask=True):
+		# 			logging.info("Injection was canceled by the user")
+		# 			return
+		# 	if len(mdl2_entry.model_data_frags) != len(mdl2.model.meshes):
+		# 		raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
 	
 		logging.info(f"Injecting MDL2s")
 		# actual injection starts here

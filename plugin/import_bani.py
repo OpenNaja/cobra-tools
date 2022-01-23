@@ -40,8 +40,9 @@ def load(files=[], filepath="", set_fps=False):
 	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 	
 	fps = int(round(num_frames/anim_length))
-	bpy.context.scene.frame_start = 0
-	bpy.context.scene.frame_end = num_frames-1
+	scene = bpy.context.scene
+	scene.frame_start = 0
+	scene.frame_end = num_frames-1
 	print("Banis fps", fps)
 	ob = get_armature()
 
@@ -52,7 +53,7 @@ def load(files=[], filepath="", set_fps=False):
 	action = create_anim(ob, filename)
 	# go over list of euler keys
 	for i, bone_name in bones_table:
-		empty = create_ob(bone_name, None)
+		empty = create_ob(scene, bone_name, None)
 		empty.scale = (0.01, 0.01, 0.01)
 		for frame_i in range(data.data.num_frames):
 			bpy.context.scene.frame_set(frame_i)

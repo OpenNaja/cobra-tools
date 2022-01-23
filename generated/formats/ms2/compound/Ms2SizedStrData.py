@@ -25,8 +25,6 @@ class Ms2SizedStrData:
 
 		# 1 if yes, 0 if no
 		self.vertex_buffer_count = 0
-
-		# 3 in stairwell
 		self.mdl_2_count = 0
 
 		# count of names in ms2 buffer0

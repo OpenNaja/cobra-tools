@@ -181,7 +181,7 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Rename", self.rename, "CTRL+R", ""),
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
 			(edit_menu, "Remove Selected", self.remover, "DEL", ""),
-			(util_menu, "Inspect Models", self.walker, "", ""),
+			(util_menu, "Inspect Models", self.inspect_models, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
 			(util_menu, "Save Frag Log", self.ovl_data.dump_frag_log, "", ""),
@@ -220,7 +220,7 @@ class MainWindow(widgets.MainWindow):
 			root_dir = self.get_selected_dir()
 			if root_dir:
 				# walk path
-				ovls = walker.walk_type(root_dir, extension="ovl")
+				ovls = walker.walk_type(root_dir, extension=".ovl")
 				for ovl_path in ovls:
 					# open ovl file
 					self.file_widget.decide_open(ovl_path)
@@ -589,9 +589,9 @@ class MainWindow(widgets.MainWindow):
 		walker.get_fgm_values(self, start_dir)
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
-	def walker(self):
+	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		walker.bulk_test_models(self, start_dir, walk_ovls=False)
+		walker.bulk_test_models(self, start_dir, walk_ovls=True)
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def closeEvent(self, event):

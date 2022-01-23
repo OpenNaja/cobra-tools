@@ -1,21 +1,59 @@
+import logging
+
 import bpy
 import time
 
 
-def mesh_from_data(name, verts, faces, wireframe=False):
+def mesh_from_data(scene, name, verts, faces, wireframe=False):
 	me = bpy.data.meshes.new(name)
 	start_time = time.time()
 	me.from_pydata(verts, [], faces)
-	print(f"from_pydata() took {time.time()-start_time:.2f} seconds for {len(verts)} verts")
+	# print(f"from_pydata() took {time.time()-start_time:.2f} seconds for {len(verts)} verts")
 	# me.update()
-	ob = create_ob(name, me)
+	ob = create_ob(scene, name, me)
 	if wireframe:
 		ob.draw_type = 'WIRE'
 	return ob, me
 
 
-def create_ob(ob_name, ob_data):
+def create_ob(scene, ob_name, ob_data):
+	logging.debug(f"Adding {ob_name} to scene {scene.name}")
 	ob = bpy.data.objects.new(ob_name, ob_data)
-	bpy.context.scene.collection.objects.link(ob)
+	scene.collection.objects.link(ob)
 	bpy.context.view_layer.objects.active = ob
 	return ob
+
+
+def get_lod(ob):
+	for coll in bpy.data.collections:
+		if "LOD" in coll.name and ob.name in coll.objects:
+			return coll.name
+
+
+def to_lod(scene, ob, level=0, lod=None):
+	# level is given, but not lod
+	if not lod:
+		lod = "LOD"+str(level)
+	# lod is given, but no level
+	else:
+		level = int(lod[3:])
+		# print(level)
+	link_to_collection(scene, ob, lod)
+	# link_to_collection(scene, ob, f"{scene.name}_{lod}")
+	# show lod 0, hide the others
+	should_hide = level != 0
+	# get view layer, hide collection there
+	vlayer = bpy.context.view_layer
+	vlayer.layer_collection.children[lod].hide_viewport = should_hide
+	# hide object in view layer
+	ob.hide_set(should_hide, view_layer=vlayer)
+
+
+def link_to_collection(scene, ob, coll_name):
+	if coll_name not in bpy.data.collections:
+		coll = bpy.data.collections.new(coll_name)
+		scene.collection.children.link(coll)
+	else:
+		coll = bpy.data.collections[coll_name]
+	# Link active object to the new collection
+	coll.objects.link(ob)

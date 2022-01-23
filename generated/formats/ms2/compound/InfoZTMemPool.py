@@ -15,7 +15,11 @@ class InfoZTMemPool:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# ?
 		self.unk_count = 0
+
+		# ?
 		self.unks = numpy.zeros((self.unk_count, 2), dtype='ushort')
 		self.set_defaults()
 

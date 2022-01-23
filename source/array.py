@@ -10,6 +10,8 @@ class Array(list):
 		self.arr2 = 0
 		self.arg = None
 		self.template = None
+		self.io_start = 0
+		self.io_size = 0
 
 	def get_rfunc(self, stream, mode="read"):
 		if not self.dtype:

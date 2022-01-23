@@ -3,8 +3,7 @@ import mathutils
 
 from generated.formats.ms2.compound.packing_utils import unpack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
-from plugin.helpers import mesh_from_data
-from plugin.utils.matrix_util import link_to_collection
+from plugin.helpers import mesh_from_data, link_to_collection
 from plugin.utils.quickhull import qhull3d
 
 
@@ -28,7 +27,7 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 		print(f"Unsupported collider type {hitcheck.type}")
 		return
 	parent_to(armature_ob, ob, bone_name)
-	link_to_collection(ob, "joints")
+	link_to_collection(bpy.context.scene, ob, "joints")
 	# h = HitCheckEntry()
 	# print(export_hitcheck(ob, h))
 

@@ -5,17 +5,17 @@ import numpy as np
 import json
 
 from generated.formats.fgm import FgmFile
-from generated.formats.ms2 import Mdl2File
+from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from ovl_util import interaction
 
 
-def walk_type(start_dir, extension="ovl"):
+def walk_type(start_dir, extension=".ovl"):
 	logging.info(f"Scanning {start_dir} for {extension} files")
 	ret = []
 	for root, dirs, files in os.walk(start_dir, topdown=False):
 		for name in files:
-			if name.lower().endswith("."+extension):
+			if name.lower().endswith(extension):
 				ret.append(os.path.join(root, name))
 	return ret
 
@@ -32,7 +32,7 @@ def generate_hash_table(gui, start_dir):
 			for attr_name in attr_names:
 				dic[list_name][attr_name] = {}
 		error_files = []
-		ovl_files = walk_type(start_dir, extension="ovl")
+		ovl_files = walk_type(start_dir, extension=".ovl")
 		of_max = len(ovl_files)
 		for of_index, ovl_path in enumerate(ovl_files):
 			gui.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
@@ -80,7 +80,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 	errors = []
 	if start_dir:
 		export_dir = os.path.join(start_dir, "walker_export")
-		mdl2_data = Mdl2File()
+		ms2_data = Ms2File()
 		if walk_ovls:
 			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".ms2",))
 
@@ -89,22 +89,24 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		# for last_count
 		last_counts = set()
 		if walk_models:
-			mdl2_files = walk_type(export_dir, extension="mdl2")
-			mf_max = len(mdl2_files)
-			for mf_index, mdl2_path in enumerate(mdl2_files):
-				mdl2_name = os.path.basename(mdl2_path)
-				gui.update_progress("Walking MDL2 files: " + mdl2_name, value=mf_index, vmax=mf_max)
+			ms2_files = walk_type(export_dir, extension=".ms2")
+			mf_max = len(ms2_files)
+			for mf_index, ms2_path in enumerate(ms2_files):
+				mdl2_name = os.path.basename(ms2_path)
+				gui.update_progress("Walking MS2 files: " + mdl2_name, value=mf_index, vmax=mf_max)
 				try:
-					mdl2_data.load(mdl2_path, map_bytes=True, entry=True)
-					for model in mdl2_data.model.meshes:
-						if model.flag not in type_dic:
-							type_dic[model.flag] = ([], [])
-						type_dic[model.flag][0].append(mdl2_name)
-						type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
-					last_counts.add(mdl2_data.model_info.last_count)
+					# ms2_data.load(ms2_path, map_bytes=True, entry=True)
+					ms2_data.load(ms2_path)
+					for model_info in ms2_data.model_infos:
+						# for model in ms2_data.model.meshes:
+						# 	if model.flag not in type_dic:
+						# 		type_dic[model.flag] = ([], [])
+						# 	type_dic[model.flag][0].append(mdl2_name)
+						# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
+						last_counts.add(model_info.last_count)
 				except Exception as ex:
 					traceback.print_exc()
-					errors.append((mdl2_path, ex))
+					errors.append((ms2_path, ex))
 		# report
 		print("\nThe following errors occured:")
 		for file_path, ex in errors:
@@ -130,7 +132,7 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 	# don't use internal data
 	ovl_data = OvlFile()
 	error_files = []
-	ovl_files = walk_type(start_dir, extension="ovl")
+	ovl_files = walk_type(start_dir, extension=".ovl")
 	of_max = len(ovl_files)
 	for of_index, ovl_path in enumerate(ovl_files):
 		gui.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
@@ -161,7 +163,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		shaders = set()
 		if walk_fgms:
 			fgm_data = FgmFile()
-			fgm_files = walk_type(export_dir, extension="fgm")
+			fgm_files = walk_type(export_dir, extension=".fgm")
 			mf_max = len(fgm_files)
 			for mf_index, fgm_path in enumerate(fgm_files):
 				fgm_name = os.path.basename(fgm_path)

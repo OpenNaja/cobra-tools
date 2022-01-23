@@ -108,40 +108,6 @@ def import_matrix(m):
 	return mathutils.Matrix(m.as_list())
 
 
-def get_lod(ob):
-	for coll in bpy.data.collections:
-		if "LOD" in coll.name and ob.name in coll.objects:
-			return coll.name
-
-
-def to_lod(ob, level=0, lod=None):
-	# level is given, but not lod
-	if not lod:
-		lod = "LOD"+str(level)
-	# lod is given, but no level
-	else:
-		level = int(lod[3:])
-		# print(level)
-	link_to_collection(ob, lod)
-	# show lod 0, hide the others
-	should_hide = level != 0
-	# get view layer, hide collection there
-	vlayer = bpy.context.view_layer
-	vlayer.layer_collection.children[lod].hide_viewport = should_hide
-	# hide object in view layer
-	ob.hide_set(should_hide, view_layer=vlayer)
-
-
-def link_to_collection(ob, coll_name):
-	if coll_name not in bpy.data.collections:
-		coll = bpy.data.collections.new(coll_name)
-		bpy.context.scene.collection.children.link(coll)
-	else:
-		coll = bpy.data.collections[coll_name]
-	# Link active object to the new collection
-	coll.objects.link(ob)
-
-
 def evaluate_mesh(ob):
 	dg = bpy.context.evaluated_depsgraph_get()
 	# make a copy with all modifiers applied

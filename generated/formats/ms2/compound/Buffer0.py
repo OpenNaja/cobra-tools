@@ -2,11 +2,10 @@ import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
-from generated.formats.ms2.compound.Ms2BufferInfoZTHeader import Ms2BufferInfoZTHeader
-from generated.formats.ms2.compound.SmartPadding import SmartPadding
+from generated.formats.ms2.compound.BufferInfoZTHeader import BufferInfoZTHeader
 
 
-class Ms2Buffer0:
+class Buffer0:
 
 	context = ContextReference()
 
@@ -25,26 +24,26 @@ class Ms2Buffer0:
 		self.names = Array(self.context)
 
 		# todo - pad to 8; for pz 1.6
-		self.names_padding = SmartPadding(self.context, None, None)
-		self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
+		self.names_padding = numpy.zeros((self.names.io_size % 4), dtype='ubyte')
+		self.zt_streams_header = BufferInfoZTHeader(self.context, self.arg, None)
 		self.set_defaults()
 
 	def set_defaults(self):
 		self.name_hashes = numpy.zeros((), dtype='uint')
 		self.names = Array(self.context)
 		if self.context.version >= 50:
-			self.names_padding = SmartPadding(self.context, None, None)
+			self.names_padding = numpy.zeros((self.names.io_size % 4), dtype='ubyte')
 		if self.context.version == 13:
-			self.zt_streams_header = Ms2BufferInfoZTHeader(self.context, self.arg, None)
+			self.zt_streams_header = BufferInfoZTHeader(self.context, self.arg, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.name_hashes = stream.read_uints((self.arg.name_count))
 		self.names = stream.read_zstrings((self.arg.name_count))
 		if self.context.version >= 50:
-			self.names_padding = stream.read_type(SmartPadding, (self.context, None, None))
+			self.names_padding = stream.read_ubytes((self.names.io_size % 4))
 		if self.context.version == 13:
-			self.zt_streams_header = stream.read_type(Ms2BufferInfoZTHeader, (self.context, self.arg, None))
+			self.zt_streams_header = stream.read_type(BufferInfoZTHeader, (self.context, self.arg, None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -53,14 +52,14 @@ class Ms2Buffer0:
 		stream.write_uints(self.name_hashes)
 		stream.write_zstrings(self.names)
 		if self.context.version >= 50:
-			stream.write_type(self.names_padding)
+			stream.write_ubytes(self.names_padding)
 		if self.context.version == 13:
 			stream.write_type(self.zt_streams_header)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Ms2Buffer0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Buffer0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

@@ -4,91 +4,93 @@ import time
 
 import bpy
 # import bmesh
-
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names, get_weights
-from plugin.helpers import create_ob
+from plugin.helpers import create_ob, to_lod
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
-from plugin.utils import matrix_util
-from generated.formats.ms2 import Mdl2File, is_old
+from generated.formats.ms2 import Ms2File, is_old
 from plugin.utils.shell import is_fin
 
 
 def load(filepath="", use_custom_normals=False, mirror_mesh=False):
-	start_time = time.time()
-	in_dir, mdl2_name = os.path.split(filepath)
-	bare_name = os.path.splitext(mdl2_name)[0]
-	mdl2 = Mdl2File()
-	mdl2.load(filepath, entry=True, read_editable=True, read_bytes=False)
-	# print(mdl2)
-	mdl2.update_lod_vertex_counts()
 	messages = set()
-	bone_names = get_bone_names(mdl2)
-	b_armature_obj = import_armature(mdl2, bone_names)
+	start_time = time.time()
+	in_dir, ms2_name = os.path.split(filepath)
+	bare_name = os.path.splitext(ms2_name)[0]
+	ms2 = Ms2File()
+	# mdl2.load(filepath, entry=True, read_editable=True, read_bytes=False)
+	ms2.load(filepath, read_editable=True)
+	# print(ms2)
+	ms2.update_lod_vertex_counts()
+	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
+		scene = bpy.data.scenes.new(mdl2_name)
+		bpy.context.window.scene = scene
+		# print(mdl2)
+		bone_names = get_bone_names(model_info)
+		b_armature_obj = import_armature(scene, model_info, bone_names)
 
-	# store scene properties
-	scene = bpy.context.scene
-	scene["render_flag"] = int(mdl2.model_info.render_flag)
-	scene.cobra.pack_base = mdl2.model_info.pack_offset
+		# store scene properties
+		scene["render_flag"] = int(model_info.render_flag)
+		scene.cobra.pack_base = model_info.pack_offset
 
-	created_materials = {}
-	mesh_dict = {}
-	ob_dict = {}
-	# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
-	for lod_i, m_lod in enumerate(mdl2.model.lods):
-		print("lod_i", lod_i)
-		for ob_i, m_ob in enumerate(m_lod.objects):
-			mesh = mdl2.model.meshes[m_ob.mesh_index]
-			# lod_i = mesh.lod_index
-			print("flag", mesh.flag)
-			if m_ob.mesh_index in mesh_dict:
-				b_me = mesh_dict[m_ob.mesh_index]
-			# create object and mesh from data
-			else:
-				mesh.weights_info = get_weights(mesh)
-				b_me = bpy.data.meshes.new(f"{bare_name}_model{m_ob.mesh_index}")
-				# cast array to prevent truth check in from_pydata
-				b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
-				# store mesh unknowns
-				# cast the bitfield to int
-				b_me["flag"] = int(mesh.flag)
-				if not is_old(mdl2):
-					b_me["unk_f0"] = float(mesh.unk_floats[0])
-					b_me["unk_f1"] = float(mesh.unk_floats[1])
-				mesh_dict[m_ob.mesh_index] = b_me
-				import_mesh_layers(b_me, mesh, use_custom_normals)
+		created_materials = {}
+		mesh_dict = {}
+		ob_dict = {}
+		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
+		for lod_i, m_lod in enumerate(model_info.model.lods):
+			print("lod_i", lod_i)
+			for ob_i, m_ob in enumerate(m_lod.objects):
+				mesh = model_info.model.meshes[m_ob.mesh_index]
+				# lod_i = mesh.lod_index
+				print("flag", mesh.flag)
+				if m_ob.mesh_index in mesh_dict:
+					b_me = mesh_dict[m_ob.mesh_index]
+				# create object and mesh from data
+				else:
+					mesh.weights_info = get_weights(mesh)
+					b_me = bpy.data.meshes.new(f"{mdl2_name}_model{m_ob.mesh_index}")
+					# cast array to prevent truth check in from_pydata
+					b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
+					# store mesh unknowns
+					# cast the bitfield to int
+					b_me["flag"] = int(mesh.flag)
+					if not is_old(ms2.info):
+						b_me["unk_f0"] = float(mesh.unk_floats[0])
+						b_me["unk_f1"] = float(mesh.unk_floats[1])
+					mesh_dict[m_ob.mesh_index] = b_me
+					import_mesh_layers(b_me, mesh, use_custom_normals)
 
-			# link material to mesh
-			import_material(created_materials, in_dir, b_me, m_ob.material)
+				# link material to mesh
+				import_material(created_materials, in_dir, b_me, m_ob.material)
 
-			if m_ob.mesh_index not in ob_dict:
-				b_ob = create_ob(f"{bare_name}_lod{lod_i}_ob{ob_i}", b_me)
+				if m_ob.mesh_index not in ob_dict:
+					b_ob = create_ob(scene, f"{mdl2_name}_lod{lod_i}_ob{ob_i}", b_me)
 
-				# parenting
-				b_ob.parent = b_armature_obj
+					# parenting
+					b_ob.parent = b_armature_obj
 
-				b_ob["bone_index"] = m_lod.bone_index
+					b_ob["bone_index"] = m_lod.bone_index
 
-				import_vertex_groups(b_ob, mesh, bone_names)
-				import_shapekeys(b_ob, mesh)
-				# link to armature, only after mirror so the order is good and weights are mirrored
-				append_armature_modifier(b_ob, b_armature_obj)
-				if mirror_mesh:
-					append_bisect_modifier(b_ob)
-				ob_postpro(b_ob, mirror_mesh, use_custom_normals)
-				if not is_old(mdl2) and mesh.flag.fur_shells:
-					add_psys(b_ob, mesh)
-				# only set the lod index here so that hiding it does not mess with any operators applied above
-				matrix_util.to_lod(b_ob, lod_i)
-				ob_dict[m_ob.mesh_index] = b_ob
-			else:
-				b_ob = ob_dict[m_ob.mesh_index]
+					import_vertex_groups(b_ob, mesh, bone_names)
+					import_shapekeys(b_ob, mesh)
+					# link to armature, only after mirror so the order is good and weights are mirrored
+					append_armature_modifier(b_ob, b_armature_obj)
+					if mirror_mesh:
+						append_bisect_modifier(b_ob)
+					ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+					if not is_old(ms2.info) and mesh.flag.fur_shells:
+						add_psys(b_ob, mesh)
+					# only set the lod index here so that hiding it does not mess with any operators applied above
+					# to_lod(scene, b_ob, lod_i)
+					ob_dict[m_ob.mesh_index] = b_ob
+				else:
+					b_ob = ob_dict[m_ob.mesh_index]
 
-			# from plugin.modules_import.tangents import visualize_tangents
-			# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
-			# matrix_util.to_lod(ob2, lod_i)
-	messages.add(f"Finished MDL2 import in {time.time() - start_time:.2f} seconds")
+				# from plugin.modules_import.tangents import visualize_tangents
+				# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
+				# to_lod(scene, ob2, lod_i)
+	messages.add(f"Finished MS2 import in {time.time() - start_time:.2f} seconds")
 	return messages
 
 

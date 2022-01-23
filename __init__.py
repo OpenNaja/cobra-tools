@@ -32,7 +32,7 @@ from bpy.types import PropertyGroup, Object
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
 
-from plugin import import_bani, import_manis, import_matcol, import_mdl2, export_mdl2, import_voxelskirt, import_fgm
+from plugin import import_bani, import_manis, import_matcol, import_ms2, export_mdl2, import_voxelskirt, import_fgm
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
 from plugin.utils import shell
 from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
@@ -153,21 +153,21 @@ class ImportFgm(bpy.types.Operator, ImportHelper):
         return handle_errors(self, import_fgm.load, keywords)
 
 
-class ImportMDL2(bpy.types.Operator, ImportHelper):
-    """Import from MDL2 file format (.MDL2)"""
-    bl_idname = "import_scene.cobra_mdl2"
-    bl_label = 'Import MDL2'
+class ImportMS2(bpy.types.Operator, ImportHelper):
+    """Import from MS2 file format (.MS2)"""
+    bl_idname = "import_scene.cobra_ms2"
+    bl_label = 'Import MS2'
     bl_options = {'UNDO'}
-    filename_ext = ".mdl2"
-    filter_glob: StringProperty(default="*.mdl2", options={'HIDDEN'})
-    use_custom_normals: BoolProperty(name="Use MDL2 Normals", description="Preserves the original shading of a MDL2.",
+    filename_ext = ".ms2"
+    filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
+    use_custom_normals: BoolProperty(name="Use MS2 Normals", description="Preserves the original shading of a MS2.",
                                      default=False)
     mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match!",
                               default=False)
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-        return handle_errors(self, import_mdl2.load, keywords)
+        return handle_errors(self, import_ms2.load, keywords)
 
 
 class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
@@ -322,7 +322,7 @@ def menu_func_import(self, context):
     icon = preview_collection["frontier.png"].icon_id
     self.layout.operator(ImportFgm.bl_idname, text="Cobra Material (.fgm)", icon_value=icon)
     self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol)", icon_value=icon)
-    self.layout.operator(ImportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=icon)
+    self.layout.operator(ImportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
     self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=icon)
     self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
     self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
@@ -333,7 +333,7 @@ classes = (
     ImportManis,
     ImportMatcol,
     ImportFgm,
-    ImportMDL2,
+    ImportMS2,
     ExportMDL2,
     ImportVoxelskirt,
     CreateFins,

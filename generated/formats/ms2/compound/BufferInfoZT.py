@@ -5,10 +5,9 @@ from generated.context import ContextReference
 from generated.formats.ms2.compound.StreamInfo import StreamInfo
 
 
-class Ms2BufferInfoZT:
+class BufferInfoZT:
 
 	"""
-	Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 	from here on, it's buffer 1
 	"""
 
@@ -29,18 +28,18 @@ class Ms2BufferInfoZT:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.streams.read(stream, StreamInfo, self.arg.general_info.vertex_buffer_count, None)
+		self.streams.read(stream, StreamInfo, self.arg, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		self.streams.write(stream, StreamInfo, self.arg.general_info.vertex_buffer_count, None)
+		self.streams.write(stream, StreamInfo, self.arg, None)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Ms2BufferInfoZT [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BufferInfoZT [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

@@ -6,7 +6,7 @@ from struct import unpack_from, iter_unpack, calcsize
 import numpy as np
 
 from generated.formats.voxelskirt import VoxelskirtFile
-from plugin.helpers import mesh_from_data
+from plugin.helpers import mesh_from_data, create_ob
 
 
 def generate_mesh(x_verts, y_verts, scale, heights):
@@ -24,13 +24,6 @@ def generate_mesh(x_verts, y_verts, scale, heights):
 			i += 1
 		i += 1
 	return verts, quads
-
-
-def create_ob(ob_name, ob_data):
-	ob = bpy.data.objects.new(ob_name, ob_data)
-	bpy.context.scene.collection.objects.link(ob)
-	bpy.context.view_layer.objects.active = ob
-	return ob
 
 
 def get_weights(weights):
@@ -88,7 +81,7 @@ def load(filepath=""):
 	verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.heightmap / vox.info.height)
 	map_ob, me = mesh_from_data("map", verts, quads, False)
 	for i, (x, z, y, r) in enumerate(vox.positions):
-		ob = create_ob(f"Position{i}", None)
+		ob = create_ob(bpy.context.scene, f"Position{i}", None)
 		ob.location = (x, y, z)
 		ob.rotation_euler.z = r
 	import_vertex_groups(map_ob, vox.weights)

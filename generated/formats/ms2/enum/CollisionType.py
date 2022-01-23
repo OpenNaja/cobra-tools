@@ -10,5 +10,5 @@ class CollisionType(UintEnum):
 	ConvexHullPC = 8
 	# widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods
 	MeshCollision = 10
-	# widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods
+	# ?
 	UnkRhino = 11

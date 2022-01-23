@@ -6,7 +6,7 @@ from generated.formats.ms2.compound.InfoZTMemPool import InfoZTMemPool
 from generated.formats.ms2.compound.SmartPadding import SmartPadding
 
 
-class Ms2BufferInfoZTHeader:
+class BufferInfoZTHeader:
 
 	"""
 	Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
@@ -26,6 +26,8 @@ class Ms2BufferInfoZTHeader:
 
 		# sometimes 00 byte
 		self.weird_padding = SmartPadding(self.context, None, None)
+
+		# ?
 		self.unks = Array(self.context)
 		self.set_defaults()
 
@@ -48,7 +50,7 @@ class Ms2BufferInfoZTHeader:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Ms2BufferInfoZTHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BufferInfoZTHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''

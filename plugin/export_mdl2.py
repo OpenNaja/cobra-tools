@@ -14,7 +14,7 @@ from generated.formats.ms2.compound.MeshData import MeshData
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
-from generated.formats.ms2 import Mdl2File
+from generated.formats.ms2 import Ms2File
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.shell import get_collection, is_shell, is_fin
 
@@ -272,7 +272,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 	if not os.path.isfile(filepath):
 		raise FileNotFoundError(f"{filepath} does not exist. You must open an existing MDL2 file for exporting.")
 
-	mdl2 = Mdl2File()
+	mdl2 = Ms2File()
 	mdl2.load(filepath, entry=True, read_bytes=True)
 	mdl2.read_editable = True
 	mdl2.clear()

@@ -4,10 +4,9 @@ from generated.array import Array
 from generated.context import ContextReference
 
 
-class Ms2BufferInfoPC:
+class BufferInfoPC:
 
 	"""
-	Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 	PC: 32 bytes
 	"""
 
@@ -49,7 +48,7 @@ class Ms2BufferInfoPC:
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
-		return f'Ms2BufferInfoPC [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BufferInfoPC [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self):
 		s = ''
