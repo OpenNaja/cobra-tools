@@ -178,8 +178,8 @@ class Ms2Loader(BaseFile):
 		name = self.sized_str_entry.name
 		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
-		# sizedstr data has bone count
-		ms2_general_info_data = self.sized_str_entry.pointers[0].data
+		# truncate to 48 bytes for PZ af_keeperbodyparts
+		ms2_general_info_data = self.sized_str_entry.pointers[0].data[:48]
 		# ms2_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, context=self.context)[0]
 
 		ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
@@ -228,9 +228,9 @@ class Ms2Loader(BaseFile):
 			outfile.write(bone_infos)
 			outfile.write(verts)
 
-		# m = Ms2File()
-		# m.load(out_path, read_editable=True)
-		# print(m)
+		m = Ms2File()
+		m.load(out_path, read_editable=True)
+		print(m)
 		return out_path,
 	
 	def get_ms2_buffer_datas(self):
