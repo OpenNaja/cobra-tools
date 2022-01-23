@@ -17,10 +17,6 @@ from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
 class MeshData:
 
-	"""
-	PZ and JWE have a ptr at the start instead of the stream index
-	"""
-
 	context = ContextReference()
 
 	def __init__(self, context, arg=None, template=None):
@@ -31,11 +27,11 @@ class MeshData:
 		self.io_size = 0
 		self.io_start = 0
 
-		# index into streamed buffers, streaming is not used for JWE or PZ
-		self.stream_index = 0
+		# PZ and JWE have a ptr at the start instead of the stream index
+		self.ptr = 0
 
-		# always zero
-		self.zeros = numpy.zeros((3), dtype='uint')
+		# unused
+		self.zero_0 = 0
 
 		# vertex count of model
 		self.vertex_count = 0
@@ -44,7 +40,7 @@ class MeshData:
 		self.tri_index_count = 0
 
 		# always zero
-		self.zero_0 = 0
+		self.zero_1 = 0
 
 		# power of 2 increasing with lod index
 		self.poweroftwo = 0
@@ -59,65 +55,65 @@ class MeshData:
 		self.tri_offset = 0
 
 		# always zero
-		self.zero_1 = 0
+		self.zero_2 = 0
 
 		# some floats, purpose unknown
 		self.unk_floats = numpy.zeros((2), dtype='float')
 
 		# always zero
-		self.zero_2 = 0
+		self.zero_3 = 0
 
 		# bitfield, determines vertex format
 		self.flag = ModelFlag()
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.stream_index = 0
-		self.zeros = numpy.zeros((3), dtype='uint')
+		self.ptr = 0
+		self.zero_0 = 0
 		self.vertex_count = 0
 		self.tri_index_count = 0
-		self.zero_0 = 0
+		self.zero_1 = 0
 		self.poweroftwo = 0
 		self.vertex_offset = 0
 		self.size_of_vertex = 0
 		self.tri_offset = 0
-		self.zero_1 = 0
-		self.unk_floats = numpy.zeros((2), dtype='float')
 		self.zero_2 = 0
+		self.unk_floats = numpy.zeros((2), dtype='float')
+		self.zero_3 = 0
 		self.flag = ModelFlag()
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.stream_index = stream.read_uint()
-		self.zeros = stream.read_uints((3))
+		self.ptr = stream.read_uint64()
+		self.zero_0 = stream.read_uint64()
 		self.vertex_count = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
-		self.zero_0 = stream.read_uint()
+		self.zero_1 = stream.read_uint()
 		self.poweroftwo = stream.read_uint()
 		self.vertex_offset = stream.read_uint()
 		self.size_of_vertex = stream.read_uint()
 		self.tri_offset = stream.read_uint()
-		self.zero_1 = stream.read_uint()
-		self.unk_floats = stream.read_floats((2))
 		self.zero_2 = stream.read_uint()
+		self.unk_floats = stream.read_floats((2))
+		self.zero_3 = stream.read_uint()
 		self.flag = stream.read_type(ModelFlag)
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.stream_index)
-		stream.write_uints(self.zeros)
+		stream.write_uint64(self.ptr)
+		stream.write_uint64(self.zero_0)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_index_count)
-		stream.write_uint(self.zero_0)
+		stream.write_uint(self.zero_1)
 		stream.write_uint(self.poweroftwo)
 		stream.write_uint(self.vertex_offset)
 		stream.write_uint(self.size_of_vertex)
 		stream.write_uint(self.tri_offset)
-		stream.write_uint(self.zero_1)
-		stream.write_floats(self.unk_floats)
 		stream.write_uint(self.zero_2)
+		stream.write_floats(self.unk_floats)
+		stream.write_uint(self.zero_3)
 		stream.write_type(self.flag)
 
 		self.io_size = stream.tell() - self.io_start
@@ -127,18 +123,18 @@ class MeshData:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* ptr = {self.ptr.__repr__()}'
+		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
-		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
+		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
 		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
 		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
 		s += f'\n	* size_of_vertex = {self.size_of_vertex.__repr__()}'
 		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
-		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
-		s += f'\n	* unk_floats = {self.unk_floats.__repr__()}'
 		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
+		s += f'\n	* unk_floats = {self.unk_floats.__repr__()}'
+		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
 		s += f'\n	* flag = {self.flag.__repr__()}'
 		return s
 

@@ -27,37 +27,37 @@ class MaterialName:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			self.name_index = 0
-		if self.context.version < 47:
+		if self.context.version <= 32:
 			self.name_index = 0
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			self.some_index = 0
-		if self.context.version < 47:
+		if self.context.version <= 32:
 			self.some_index = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			self.name_index = stream.read_uint()
-		if self.context.version < 47:
+		if self.context.version <= 32:
 			self.name_index = stream.read_ushort()
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			self.some_index = stream.read_uint()
-		if self.context.version < 47:
+		if self.context.version <= 32:
 			self.some_index = stream.read_ushort()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			stream.write_uint(self.name_index)
-		if self.context.version < 47:
+		if self.context.version <= 32:
 			stream.write_ushort(self.name_index)
-		if not (self.context.version < 47):
+		if self.context.version >= 47:
 			stream.write_uint(self.some_index)
-		if self.context.version < 47:
+		if self.context.version <= 32:
 			stream.write_ushort(self.some_index)
 
 		self.io_size = stream.tell() - self.io_start

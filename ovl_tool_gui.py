@@ -365,8 +365,8 @@ class MainWindow(widgets.MainWindow):
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
 				# print(self.ovl_data.user_version)
 				# print(self.ovl_data)
-				for a in self.ovl_data.archives:
-					print(a)
+				# for a in self.ovl_data.archives:
+				# 	print(a)
 				# for a in self.ovl_data.archives[1:]:
 				# 	print(a.name)
 				# 	for ss in a.content.sized_str_entries:

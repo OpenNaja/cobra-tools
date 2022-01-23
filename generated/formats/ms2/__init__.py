@@ -7,7 +7,6 @@ import logging
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compound.Mdl2InfoHeader import Mdl2InfoHeader
 from generated.formats.ms2.compound.BoneInfo import BoneInfo
-from generated.formats.ms2.compound.PcModel import PcModel
 from generated.formats.ms2.compound.PcBuffer1 import PcBuffer1
 from generated.formats.ms2.enum.CollisionType import CollisionType
 from generated.formats.ms2.versions import *
@@ -286,7 +285,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# logging.debug(self.pc_buffer1)
 		for i, model_info in enumerate(self.pc_buffer1.model_infos):
 			logging.debug(f"MDL2 {i}")
-			model_info.pc_model = stream.read_type(PcModel, (self.context, model_info,))
+			model_info.pc_model = stream.read_type(Model, (self.context, model_info,))
 			logging.debug(model_info)
 			logging.debug(model_info.pc_model)
 			if is_pc(self.general_info) or is_ztuac(self.general_info):

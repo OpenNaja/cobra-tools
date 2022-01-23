@@ -68,7 +68,12 @@ class Ms2Loader(BaseFile):
 		# i - p0: MeshData (64b)	p1: -> buffer_info
 		materials, lods, objects, meshes, model_info = mdl2_entry.fragments
 		# remove padding
-		objects.pointers[1].split_data_padding(4 * mdl2_info.num_objects)
+		objects_ptr = objects.pointers[1]
+		objects_ptr.split_data_padding(4 * mdl2_info.num_objects)
+		logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
+		logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
+		logging.debug(f"rel offset {meshes.pointers[1].data_offset-materials.pointers[1].data_offset}")
+		logging.debug(f"rel mod 8 {(meshes.pointers[1].data_offset-materials.pointers[1].data_offset) % 8}")
 		# get and set fragments
 		logging.debug(f"Num model data frags = {mdl2_info.num_meshes}")
 		mdl2_entry.model_data_frags = self.ovs.frags_from_pointer(

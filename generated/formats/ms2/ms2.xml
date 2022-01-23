@@ -114,6 +114,53 @@
 		<add name="rot" type="Vector4" />
 	</compound>
 	
+	<compound name="Ms2SizedStrData">
+		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
+		<add name="version" type="uint" >13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
+		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
+		<add name="mdl2 count" type="ushort" >3 in stairwell</add>
+		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
+		<add name="unk count" type="ushort" >usually 0, rarely 1</add>
+		<add name="unknown1" type="uint" arr1="3" >seems to be zeros</add>
+		3 pointers
+		<add name="ptr 0" type="uint64">8 empty bytes</add>
+		<add name="ptr 1" type="uint64">8 empty bytes</add>
+		<add name="ptr 2" type="uint64">8 empty bytes</add>
+	</compound>
+	
+	<compound name="Mdl2InfoHeader">
+		This reads a whole exported mdl2 file
+		<add name="version" type="uint" >ms2 version</add>
+		<add name="index" type="uint" >index of this model inside the ms2</add>
+		<add name="bone info index" type="uint" >used to find bone info</add>
+		<add name="ms2 name" type="ZString" >name of ms2</add>
+		<add name="model_info" type="ModelInfo" since="47" >gives relevant info on the mdl, including counts and pack base</add>
+		<add name="model" type="Model" arg="model_info" since="47" >describes a model</add>
+	</compound>
+
+	<compound name="Model">
+		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
+		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" until="13" />
+		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" cond="#ARG#\num_meshes" since="32">lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
+		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
+		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
+		rhino: start of model - end of objects: 124 - 4 bytes padding
+		ele: start of model - end of objects: 120 - 0 bytes padding</add>
+		<add name="meshes" type="MeshData" arr1="#ARG#\num_meshes" since="47">mesh data blocks for this model</add>
+		<add name="meshes" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#"/>
+		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#"/>
+		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
+		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" until="32">see if it is a flag for ztuac too, so might be totally wrong here</add>
+		alignment here is handled by py code, seems to depend on whether a bone info follows
+	</compound>
+
+	<compound name="MaterialName">
+		<add name="name index" type="uint" since="47">index into ms2 names array</add>
+		<add name="name index" type="ushort" until="32">index into ms2 names array</add>
+		<add name="some index" type="uint" since="47">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
+		<add name="some index" type="ushort" until="32">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
+	</compound>
+
 	<compound name="LodInfo">
 		Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
 		20 bytes
@@ -127,36 +174,36 @@
 	</compound>
 
 	<compound name="LodInfoZT">
-		Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
-		20 bytes
 		<add name="full" type="short" >FFFF</add>
 		<add name="half" type="short" >7F7F</add>
 		<add name="lod index" type="ushort" >increasing</add>
 		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
 		<add name="first object index" type="ushort" >first model for this lod in models list</add>
-<!--		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>-->
 		<add name="some index" type="ushort" >not included in interval (python style indexing)</add>
 		<add name="some index 2" type="ushort" >vertex count of lod</add>
 		<add name="last object index" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 	</compound>
 
+	<compound name="Object">
+		<add name="material index" type="ushort" >index into material name array</add>
+		<add name="mesh index" type="ushort" >index into mesh array</add>
+	</compound>
+
 	<compound name="MeshData" >
-		PZ and JWE have a ptr at the start instead of the stream index
-		<add name="stream index" type="uint" >index into streamed buffers, streaming is not used for JWE or PZ</add>
-		<add name="zeros" type="uint" arr1="3" >always zero</add>
+		<add name="ptr" type="uint64" >PZ and JWE have a ptr at the start instead of the stream index</add>
+		<add name="zero0" type="uint64" >unused</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
-		<add name="zero0" type="uint">always zero</add>
+		<add name="zero1" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
 		<add name="size of vertex" type="uint" >usually 48</add>
 		<add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
-		<add name="zero1" type="uint">always zero</add>
-		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="zero2" type="uint">always zero</add>
+		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
+		<add name="zero3" type="uint">always zero</add>
 		<add name="flag" type="ModelFlag">bitfield, determines vertex format</add>
 	</compound>
-
 
 	<compound name="PcMeshData" >
 		<add name="stream index" type="uint64" >index into streamed buffers</add>
@@ -200,64 +247,6 @@
 		<add name="flag" type="ModelFlagZT">bitfield</add>
 		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
 <!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
-	</compound>
-	
-	<compound name="Ms2SizedStrData">
-		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
-		<add name="version" type="uint" >13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
-		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
-		<add name="mdl2 count" type="ushort" >3 in stairwell</add>
-		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
-		<add name="unk count" type="ushort" >usually 0, rarely 1</add>
-		<add name="unknown1" type="uint" arr1="3" >seems to be zeros</add>
-		3 pointers
-		<add name="ptr 0" type="uint64">8 empty bytes</add>
-		<add name="ptr 1" type="uint64">8 empty bytes</add>
-		<add name="ptr 2" type="uint64">8 empty bytes</add>
-	</compound>
-	
-	<compound name="Mdl2InfoHeader">
-		This reads a whole exported mdl2 file
-		<add name="version" type="uint" >ms2 version</add>
-		<add name="index" type="uint" >index of this model inside the ms2</add>
-		<add name="bone info index" type="uint" >used to find bone info</add>
-		<add name="ms2 name" type="ZString" >name of ms2</add>
-		<add name="model_info" type="ModelInfo" since="47" >gives relevant info on the mdl, including counts and pack base</add>
-		<add name="model" type="Model" arg="model_info" since="47" >describes a model</add>
-	</compound>
-
-	<compound name="Model">
-		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
-		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" cond="#ARG#\num_meshes" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
-		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
-		<add name="meshes" type="MeshData" arr1="#ARG#\num_meshes" >mesh data blocks for this model</add>
-	</compound>
-
-	<compound name="PcModel" >
-		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >uses uint here, two uints elsewhere</add>
-		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" vercond="#ZTUAC#" ></add>
-		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" vercond="#PC#" ></add>
-		<add name="objects" type="Object" arr1="#ARG#\num_objects" ></add>
-		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" vercond="#ZTUAC#" >pad to 8 bytes alignment
-		rhino: start of model - end of objects: 124 - 4 bytes padding
-		ele: start of model - end of objects: 120 - 0 bytes padding</add>
-		<add name="meshes" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#" ></add>
-		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#" ></add>
-		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count"></add>
-		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" >see if it is a flag for ztuac too, so might be totally wrong here</add>
-		alignment here is handled by py code, seems to depend on whether a bone info follows
-	</compound>
-
-	<compound name="MaterialName">
-		<add name="name index" type="uint" vercond="!#OLD#">index into ms2 names array</add>
-		<add name="name index" type="ushort" vercond="#OLD#">index into ms2 names array</add>
-		<add name="some index" type="uint" vercond="!#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
-		<add name="some index" type="ushort" vercond="#OLD#">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
-	</compound>
-
-	<compound name="Object">
-		<add name="material index" type="ushort" >index into material name array</add>
-		<add name="mesh index" type="ushort" >index into mesh array</add>
 	</compound>
 
 	<compound name="Ms2InfoHeader">

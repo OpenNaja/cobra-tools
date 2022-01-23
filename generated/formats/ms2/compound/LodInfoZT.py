@@ -3,11 +3,6 @@ from generated.context import ContextReference
 
 class LodInfoZT:
 
-	"""
-	Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
-	20 bytes
-	"""
-
 	context = ContextReference()
 
 	def __init__(self, context, arg=None, template=None):
