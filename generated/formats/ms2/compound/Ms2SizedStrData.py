@@ -7,7 +7,7 @@ from generated.context import ContextReference
 class Ms2SizedStrData:
 
 	"""
-	Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
+	Seems to be the 'root header' of the ms2.
 	"""
 
 	context = ContextReference()

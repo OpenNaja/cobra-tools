@@ -115,7 +115,7 @@
 	</compound>
 	
 	<compound name="Ms2SizedStrData">
-		Read at the entry point of the sized str entry for the ms2. Seems to be the 'root header' of the ms2.
+		Seems to be the 'root header' of the ms2.
 		<add name="version" type="uint" >13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
 		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
 		<add name="mdl2 count" type="ushort"/>

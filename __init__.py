@@ -32,7 +32,7 @@ from bpy.types import PropertyGroup, Object
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
 
-from plugin import import_bani, import_manis, import_matcol, import_ms2, export_mdl2, import_voxelskirt, import_fgm
+from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
 from plugin.utils import shell
 from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
@@ -178,20 +178,17 @@ class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
     filename_ext = ".voxelskirt"
     filter_glob: StringProperty(default="*.voxelskirt", options={'HIDDEN'})
 
-    # use_custom_normals: BoolProperty(name="Use MDL2 Normals", description="Preserves the original shading of a MDL2.", default=False)
-    # mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match!", default=False)
-
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
         return handle_errors(self, import_voxelskirt.load, keywords)
 
 
-class ExportMDL2(bpy.types.Operator, ExportHelper):
-    """Export to MDL2 file format (.MDL2)"""
-    bl_idname = "export_scene.cobra_mdl2"
-    bl_label = 'Export MDL2'
-    filename_ext = ".mdl2"
-    filter_glob: StringProperty(default="*.mdl2", options={'HIDDEN'})
+class ExportMS2(bpy.types.Operator, ExportHelper):
+    """Export to MS2 file format (.MS2)"""
+    bl_idname = "export_scene.cobra_ms2"
+    bl_label = 'Export MS2'
+    filename_ext = ".ms2"
+    filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
     apply_transforms: BoolProperty(name="Apply Transforms",
                                    description="Automatically applies object transforms to meshes.", default=False)
     edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - tends to break skeletons!",
@@ -199,7 +196,7 @@ class ExportMDL2(bpy.types.Operator, ExportHelper):
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
-        return handle_errors(self, export_mdl2.save, keywords)
+        return handle_errors(self, export_ms2.save, keywords)
 
 
 class CreateFins(bpy.types.Operator):
@@ -315,7 +312,7 @@ class CobraSceneSettings(PropertyGroup):
 
 def menu_func_export(self, context):
     icon = preview_collection["frontier.png"].icon_id
-    self.layout.operator(ExportMDL2.bl_idname, text="Cobra Model (.mdl2)", icon_value=icon)
+    self.layout.operator(ExportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
 
 
 def menu_func_import(self, context):
@@ -334,7 +331,7 @@ classes = (
     ImportMatcol,
     ImportFgm,
     ImportMS2,
-    ExportMDL2,
+    ExportMS2,
     ImportVoxelskirt,
     CreateFins,
     GaugeUVScale,

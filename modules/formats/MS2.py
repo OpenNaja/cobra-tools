@@ -246,48 +246,41 @@ class Ms2Loader(BaseFile):
 		return name_buffer, bone_infos, verts
 	
 	def load(self, ms2_file_path):
+		logging.info(f"Injecting MS2")
 		versions = get_versions(self.ovl)
+
+		ms2_file = Ms2File()
+		ms2_file.load(ms2_file_path, read_bytes=True)
+
+		missing_materials = set()
+		for model_info, mdl2_name, mdl2_entry in zip(ms2_file.model_infos, ms2_file.mdl_2_names, self.sized_str_entry.children):
+			for material in model_info.model.materials:
+				fgm_name = f"{material.name.lower()}.fgm"
+				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
+					# don't cry about this
+					continue
+				if fgm_name not in self.ovl._ss_dict:
+					missing_materials.add(fgm_name)
+			if len(mdl2_entry.model_data_frags) != len(model_info.model.meshes):
+				raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
+		if missing_materials:
+			mats = '\n'.join(missing_materials)
+			msg = f"The following materials are used by {self.file_entry.name}, but are missing from the OVL:\n" \
+				f"{mats}\n" \
+				f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
+			if not interaction.showdialog(msg, ask=True):
+				logging.info("Injection was canceled by the user")
+				return
+
+		for mdl2_entry, model_info in zip(self.sized_str_entry.children, ms2_file.model_infos):
+			logging.debug(f"Injecting {mdl2_entry.name} ")
 	
-		ms2_dir = os.path.dirname(ms2_file_path)
-		# mdl2s = []
-		# # load and check if everything is valid
-		# for mdl2_entry in self.sized_str_entry.children:
-		# 	mdl2_path = os.path.join(ms2_dir, mdl2_entry.name)
-		# 	mdl2 = Mdl2File()
-		# 	# todo - entry is costly, but needed for the mapping of materials - refactor to use entry just once
-		# 	mdl2.load(mdl2_path, entry=True)
-		# 	mdl2s.append(mdl2)
-		#
-		# 	missing_materials = set()
-		# 	for material in mdl2.model.materials:
-		# 		fgm_name = f"{material.name.lower()}.fgm"
-		# 		if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
-		# 			# don't cry about this
-		# 			continue
-		# 		if fgm_name not in self.ovl._ss_dict:
-		# 			missing_materials.add(fgm_name)
-		# 	if missing_materials:
-		# 		mats = '\n'.join(missing_materials)
-		# 		msg = f"The following materials are used by {mdl2_entry.name}, but are missing from the OVL:\n" \
-		# 			f"{mats}\n" \
-		# 			f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
-		# 		if not interaction.showdialog(msg, ask=True):
-		# 			logging.info("Injection was canceled by the user")
-		# 			return
-		# 	if len(mdl2_entry.model_data_frags) != len(mdl2.model.meshes):
-		# 		raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
-	
-		logging.info(f"Injecting MDL2s")
-		# actual injection starts here
-		for mdl2_entry, mdl2 in zip(self.sized_str_entry.children, mdl2s):
-			logging.debug(f"Injecting mdl2 {mdl2.basename} ")
-	
-			materials, lods, objects, meshes, model_info = mdl2_entry.fragments
+			materials, lods, objects, meshes, model_info_ptr = mdl2_entry.fragments
 			for frag, mdl2_list in (
-					(materials, mdl2.model.materials,),
-					(lods, mdl2.model.lods),
-					(objects, mdl2.model.objects),
-					(meshes, mdl2.model.meshes)):
+					(materials, model_info.model.materials,),
+					(lods, model_info.model.lods),
+					(objects, model_info.model.objects),
+					(meshes, model_info.model.meshes)):
 				if len(mdl2_list) > 0:
 					data = as_bytes(mdl2_list, version_info=versions)
 					# objects.pointers[1] has padding in stock, apparently as each entry is 4 bytes
@@ -297,26 +290,15 @@ class Ms2Loader(BaseFile):
 					frag.pointers[1].update_data(data)
 					logging.debug(f"Result {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
 
-		logging.info(f"Injecting MS2")
-		ms2_file = Ms2File()
-		ms2_file.load(ms2_file_path, read_bytes=True)
 		# load ms2 ss data
-		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.general_info, version_info=versions))
+		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.info, version_info=versions))
 	
 		buffer_info_frag, model_info_frag, end_frag = self.sized_str_entry.fragments
 		buffer_info_frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
-		model_info_frag.pointers[1].update_data(self.get_model_info_bytes(mdl2s, versions))
+		model_info_frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
 		self.sized_str_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
-
-	def get_model_info_bytes(self, mdl2s, versions):
-		all_model_infos = []
-		for mdl2 in mdl2s:
-			data = as_bytes(mdl2.model_info, version_info=versions)
-			all_model_infos.append(data)
-		model_infos_bytes = b"".join(all_model_infos)
-		return model_infos_bytes
 
 	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()

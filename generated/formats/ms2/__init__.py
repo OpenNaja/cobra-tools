@@ -135,23 +135,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.assign_bone_names(bone_info)
 				self.assign_joints(bone_info)
 
+			self.lookup_material()
 			if read_editable:
-				self.lookup_material()
 				self.load_mesh_data()
-			# if read_bytes:
-			# 	# make all 3 buffers accesible as bytes
-			# 	self.update_buffer_0_bytes()
-			# 	self.buffer_1_bytes = stream.read(self.bone_info_size)
-			# 	self.buffer_2_bytes = stream.read()
-			# else:
-			# 	# read buffer 1
-			# 	self.dic = {}
-			# 	if is_old(self.info):
-			# 		self.read_pc_buffer_1(stream)
-			# 	else:
-			# 		self.read_all_bone_infos(stream)
-			# 	print(list(sorted(self.dic.items(), key=lambda x: x[1])))
-			# 	print(f"num bone infos: {len(self.bone_infos)}")
+			if read_bytes:
+				# make all 3 buffers accesible as bytes
+				self.update_buffer_0_bytes()
+				stream.seek(self.buffer_1_offset)
+				self.buffer_1_bytes = stream.read(self.bone_info_size)
+				self.buffer_2_bytes = stream.read()
 
 	def load_mesh_data(self):
 		# numpy chokes on bytes io objects
