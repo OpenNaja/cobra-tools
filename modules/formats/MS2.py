@@ -85,6 +85,7 @@ class Ms2Loader(BaseFile):
 	def create(self):
 		ms2_file = Ms2File()
 		ms2_file.load(self.file_entry.path, read_bytes=True)
+		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		ms2_entry = self.create_ss_entry(self.file_entry)
 		ms2_entry.children = []
@@ -94,9 +95,9 @@ class Ms2Loader(BaseFile):
 		# 1 for the ms2, 2 for each mdl2
 		# pool.num_files += 1
 		# create sized str entries and mesh data fragments
-		for mdl2 in mdl2s:
+		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
 			# pool.num_files += 2
-			mdl2_path = os.path.join(ms2_dir, mdl2.basename)
+			mdl2_path = os.path.join(ms2_dir, mdl2_name)
 			mdl2_file_entry = self.get_file_entry(mdl2_path)
 
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
@@ -104,24 +105,25 @@ class Ms2Loader(BaseFile):
 			ms2_entry.children.append(mdl2_entry)
 
 			# first, create all MeshData structs as fragments
-			mdl2_entry.model_data_frags = [self.create_fragment() for _ in range(mdl2.model_info.num_meshes)]
+			mdl2_entry.model_data_frags = [self.create_fragment() for _ in range(model_info.num_meshes)]
 
 		first_materials_ptr = None
 		# create the 5 fixed frags per MDL2 and write their data
-		for mdl2, mdl2_entry in zip(mdl2s, ms2_entry.children):
+		for model_info, mdl2_entry in zip(ms2_file.model_infos, ms2_entry.children):
 			mdl2_entry.fragments = [self.create_fragment() for _ in range(5)]
-			materials, lods, objects, meshes, model_info = mdl2_entry.fragments
+			materials, lods, objects, meshes, model_info_ptr = mdl2_entry.fragments
 
 			if first_materials_ptr is None:
 				first_materials_ptr = materials.pointers[1]
 
-			self.write_to_pool(materials.pointers[1], 2, as_bytes(mdl2.model.materials, version_info=versions))
-			self.write_to_pool(lods.pointers[1], 2, as_bytes(mdl2.model.lods, version_info=versions))
-			objects_bytes = as_bytes(mdl2.model.objects, version_info=versions)
+			self.write_to_pool(materials.pointers[1], 2, as_bytes(model_info.model.materials, version_info=versions))
+			self.write_to_pool(lods.pointers[1], 2, as_bytes(model_info.model.lods, version_info=versions))
+			objects_bytes = as_bytes(model_info.model.objects, version_info=versions)
+			# todo - padding like this is likely wrong, probably relative to start of materials
 			self.write_to_pool(objects.pointers[1], 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
-			self.write_to_pool(meshes.pointers[1], 2, as_bytes(mdl2.model.meshes, version_info=versions))
+			self.write_to_pool(meshes.pointers[1], 2, as_bytes(model_info.model.meshes, version_info=versions))
 
-			self.ptr_relative(model_info.pointers[1], first_materials_ptr)
+			self.ptr_relative(model_info_ptr.pointers[1], first_materials_ptr)
 			# point to start of each modeldata
 			offset = 0
 			for frag in mdl2_entry.model_data_frags:
@@ -131,9 +133,9 @@ class Ms2Loader(BaseFile):
 		buffer_info_frag, model_info_frag, end_frag = self.create_fragments(ms2_entry, 3)
 
 		# write mesh info
-		self.write_to_pool(model_info_frag.pointers[1], 2, self.get_model_info_bytes(mdl2s, versions))
+		self.write_to_pool(model_info_frag.pointers[1], 2, as_bytes(ms2_file.model_infos, version_info=versions))
 		offset = 0
-		for mdl2, mdl2_entry in zip(mdl2s, ms2_entry.children):
+		for mdl2_entry in ms2_entry.children:
 			# byte size of modelinfo varies - JWE1 (176 bytes total)
 			if ovl_versions.is_jwe(self.ovl):
 				offset += 104
@@ -153,7 +155,7 @@ class Ms2Loader(BaseFile):
 				self.ptr_relative(frag.pointers[1], buffer_info_frag.pointers[1])
 
 		# ms2 ss data
-		ms2_ss_bytes = as_bytes(ms2_file.general_info, version_info=versions)
+		ms2_ss_bytes = as_bytes(ms2_file.info, version_info=versions)
 		self.write_to_pool(ms2_entry.pointers[0], 2, ms2_ss_bytes)
 		# set frag ptr 0
 		for frag, offset in zip(ms2_entry.fragments, (24, 32, 40)):
@@ -303,10 +305,7 @@ class Ms2Loader(BaseFile):
 	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()
 		try:
-			ms2_mdl2_files = self.extract(out_dir_func, False, None)
-			# there is always just one ms2 in one entry's files
-			ms2_path = [f for f in ms2_mdl2_files if f.endswith(".ms2")][0]
-
+			ms2_path = self.extract(out_dir_func, False, None)[0]
 			# open the ms2 file
 			ms2_file = Ms2File()
 			ms2_file.load(ms2_path, read_bytes=True)
