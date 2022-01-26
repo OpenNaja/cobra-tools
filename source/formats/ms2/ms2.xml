@@ -388,6 +388,7 @@
 		<add name="joint count" type="uint64" >joint count</add>
 		<add name="unk78count" type="uint64" >zero</add>
 		<add name="unk extra" type="uint64" until="13" >zero</add>
+		<add name="unk extra jwe" type="uint64" vercond="#JWE#" >zero</add>
 
 		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
 		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#">index into ms2 string table for bones used here</add>

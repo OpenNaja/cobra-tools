@@ -65,7 +65,8 @@ def box_from_extents(b_name, minx, maxx, miny, maxy, minz, maxz):
 			for z in [minz, maxz]:
 				verts.append((x, y, z))
 	faces = [[0, 1, 3, 2], [6, 7, 5, 4], [0, 2, 6, 4], [3, 1, 5, 7], [4, 5, 1, 0], [7, 6, 2, 3]]
-	return mesh_from_data(b_name, verts, faces)
+	scene = bpy.context.scene
+	return mesh_from_data(scene, b_name, verts, faces)
 
 
 def center_origin_to_matrix(n_center, n_dir):
@@ -135,7 +136,8 @@ def import_cylinderbv(cylinder, hitcheck_name):
 
 def import_meshbv(coll, hitcheck_name, corrector):
 	# print(coll)
-	b_obj, b_me = mesh_from_data(hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles))
+	scene = bpy.context.scene
+	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles))
 	mat = import_collision_matrix(coll.rotation, corrector)
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
@@ -151,7 +153,8 @@ def unpack_swizzle2(vec):
 
 def import_hullbv(coll, hitcheck_name, corrector):
 	# print(coll)
-	b_obj, b_me = mesh_from_data(hitcheck_name, *qhull3d([unpack_swizzle2(v) for v in coll.vertices]))
+	scene = bpy.context.scene
+	b_obj, b_me = mesh_from_data(scene, hitcheck_name, *qhull3d([unpack_swizzle2(v) for v in coll.vertices]))
 	mat = import_collision_matrix(coll.rotation, corrector)
 	# mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat

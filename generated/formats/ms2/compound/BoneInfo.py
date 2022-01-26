@@ -71,6 +71,9 @@ class BoneInfo:
 		# zero
 		self.unk_extra = 0
 
+		# zero
+		self.unk_extra_jwe = 0
+
 		# index into ms2 string table for bones used here
 		self.name_indices = numpy.zeros((self.name_count), dtype='uint')
 
@@ -147,6 +150,8 @@ class BoneInfo:
 		self.unk_78_count = 0
 		if self.context.version <= 13:
 			self.unk_extra = 0
+		if self.context.version == 47:
+			self.unk_extra_jwe = 0
 		if not (self.context.version < 47):
 			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
 		if self.context.version < 47:
@@ -205,6 +210,8 @@ class BoneInfo:
 		self.unk_78_count = stream.read_uint64()
 		if self.context.version <= 13:
 			self.unk_extra = stream.read_uint64()
+		if self.context.version == 47:
+			self.unk_extra_jwe = stream.read_uint64()
 		if not (self.context.version < 47):
 			self.name_indices = stream.read_uints((self.name_count))
 		if self.context.version < 47:
@@ -265,6 +272,8 @@ class BoneInfo:
 		stream.write_uint64(self.unk_78_count)
 		if self.context.version <= 13:
 			stream.write_uint64(self.unk_extra)
+		if self.context.version == 47:
+			stream.write_uint64(self.unk_extra_jwe)
 		if not (self.context.version < 47):
 			stream.write_uints(self.name_indices)
 		if self.context.version < 47:
@@ -326,6 +335,7 @@ class BoneInfo:
 		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
 		s += f'\n	* unk_78_count = {self.unk_78_count.__repr__()}'
 		s += f'\n	* unk_extra = {self.unk_extra.__repr__()}'
+		s += f'\n	* unk_extra_jwe = {self.unk_extra_jwe.__repr__()}'
 		s += f'\n	* name_indices = {self.name_indices.__repr__()}'
 		s += f'\n	* name_padding = {self.name_padding.__repr__()}'
 		s += f'\n	* inverse_bind_matrices = {self.inverse_bind_matrices.__repr__()}'
