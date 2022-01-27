@@ -21,10 +21,10 @@ def import_armature(scene, model_info, b_bone_names):
 	bone_info = model_info.bone_info
 	logging.debug(bone_info)
 	if bone_info:
-		armature_name = b_bone_names[0]
+		armature_name = f"{scene.name}_armature"
 		b_armature_data = bpy.data.armatures.new(armature_name)
 		b_armature_data.display_type = 'STICK'
-		# b_armature_data.show_axes = True
+		b_armature_data.show_axes = True
 		# set axis orientation for export
 		# b_armature_data.niftools.axis_forward = NifOp.props.axis_forward
 		# b_armature_data.niftools.axis_up = NifOp.props.axis_up
@@ -150,6 +150,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		joint.empty_display_type = "ARROWS"
 		joint.empty_display_size = 0.03
 		joint.matrix_local = b_bind
+		joint.parent = armature_ob
 	# try:
 	# 	for item in bone_info.struct_7.unknown_list:
 	# 		bone_name_0 = b_bone_names[item.parent]

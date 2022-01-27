@@ -6,11 +6,11 @@ import bpy
 # import bmesh
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names, get_weights
-from plugin.utils.object import create_ob
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
-from generated.formats.ms2 import Ms2File, is_old
 from plugin.utils.shell import is_fin
+from plugin.utils.object import create_ob, to_lod
+from generated.formats.ms2 import Ms2File, is_old
 
 
 def load(filepath="", use_custom_normals=False, mirror_mesh=False):
@@ -82,7 +82,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					if not is_old(ms2.info) and mesh.flag.fur_shells:
 						add_psys(b_ob, mesh)
 					# only set the lod index here so that hiding it does not mess with any operators applied above
-					# to_lod(scene, b_ob, lod_i)
+					to_lod(scene, b_ob, lod_i)
 					ob_dict[m_ob.mesh_index] = b_ob
 				else:
 					b_ob = ob_dict[m_ob.mesh_index]

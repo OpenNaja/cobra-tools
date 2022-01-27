@@ -38,13 +38,12 @@ def to_lod(scene, ob, level=0, lod=None):
 	else:
 		level = int(lod[3:])
 		# print(level)
-	link_to_collection(scene, ob, lod)
-	# link_to_collection(scene, ob, f"{scene.name}_{lod}")
+	coll_name = link_to_collection(scene, ob, lod)
 	# show lod 0, hide the others
 	should_hide = level != 0
 	# get view layer, hide collection there
 	vlayer = bpy.context.view_layer
-	vlayer.layer_collection.children[lod].hide_viewport = should_hide
+	vlayer.layer_collection.children[coll_name].hide_viewport = should_hide
 	# hide object in view layer
 	ob.hide_set(should_hide, view_layer=vlayer)
 
@@ -58,3 +57,4 @@ def link_to_collection(scene, ob, coll_name):
 		coll = bpy.data.collections[coll_name]
 	# Link active object to the new collection
 	coll.objects.link(ob)
+	return coll_name
