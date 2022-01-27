@@ -37,7 +37,7 @@ class Ms2InfoHeader:
 		self.buffer_info = BufferInfoPC(self.context, None, None)
 		self.model_infos = Array(self.context)
 
-		# new style
+		# handles interleaved (old) or separate (new) styles for models and bone infos
 		self.models_reader = ModelReader(self.context, self.model_infos, None)
 		self.set_defaults()
 

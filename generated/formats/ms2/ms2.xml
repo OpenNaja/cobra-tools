@@ -266,7 +266,8 @@
 		<add name="buffer_info" type="BufferInfoPC" vercond="#PC#" />
 		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2 count"/>
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
-		<add name="models_reader" type="ModelReader" arg="model_infos" >new style</add>
+		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>
+		many ZTUAC models have a big undecoded array of uints here
 	</compound>
 
 	<compound name="ModelReader">
