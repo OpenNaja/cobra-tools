@@ -48,15 +48,17 @@ class ModelReader:
 				# logging.debug(model_info)
 				model_info.model = Model(self.context, model_info)
 				if model_info.num_objects:
+					# self.get_padding(stream, alignment=8) # 21346
+					# self.get_padding(stream)
 					model_info.model.read(stream)
-					# logging.debug(model_info.model)
+				# logging.debug(model_info.model)
 				# alignment, not sure if really correct
 				if model_info.increment_flag:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
 				else:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=8))
-				logging.debug(f"model padding {model_info.model_padding}")
-				self.assign_bone_info(i, model_info, stream)
+				# logging.debug(f"model padding {model_info.model_padding}")
+				i = self.assign_bone_info(i, model_info, stream)
 
 		else:
 			for model_info in self.arg:
@@ -67,13 +69,14 @@ class ModelReader:
 					# logging.debug(model_info.model)
 			self.bone_info_start = stream.tell()
 			for model_info in self.arg:
-				self.assign_bone_info(i, model_info, stream)
+				i = self.assign_bone_info(i, model_info, stream)
 		self.io_size = stream.tell() - self.io_start
 
 	def assign_bone_info(self, i, model_info, stream):
 		if model_info.increment_flag:
 			logging.debug(f"Reading bone info")
 			model_info.bone_info = self.read_bone_info(stream, i)
+			logging.debug(model_info.bone_info)
 			self.bone_infos.append(model_info.bone_info)
 			i += 1
 		else:
@@ -82,6 +85,7 @@ class ModelReader:
 				model_info.bone_info = self.bone_infos[-1]
 			else:
 				model_info.bone_info = None
+		return i
 
 	def get_hitchecks(self, bone_info):
 		# collect all hitchecks in a flat list
@@ -92,15 +96,9 @@ class ModelReader:
 
 		logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
 		# there's never padding before the first bone info, and after the last
-		if i:
-			abs_offset = stream.tell()
-			relative_offset = abs_offset - self.bone_info_start
-			# currently no other way to predict the padding, no correlation to joint count
-			padding_len = get_padding_size(relative_offset)
-			padding = stream.read(padding_len)
-			if padding != b'\x00' * padding_len:
-				logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
-			logging.debug(f"padding: {padding_len}")
+		# if not is_old(self.context) and i == 0:
+		if (not is_old(self.context)) and i:
+			self.get_padding(stream)
 		bone_info = BoneInfo(self.context)
 		bone_info.read(stream)
 		# logging.debug(bone_info)
@@ -133,6 +131,16 @@ class ModelReader:
 		# 							self.dic[k] = 0
 		# 						self.dic[k] += 1
 		return bone_info
+
+	def get_padding(self, stream, alignment=16):
+		abs_offset = stream.tell()
+		relative_offset = abs_offset - self.bone_info_start
+		# currently no other way to predict the padding, no correlation to joint count
+		padding_len = get_padding_size(relative_offset, alignment=alignment)
+		padding = stream.read(padding_len)
+		if padding != b'\x00' * padding_len:
+			logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
+		logging.debug(f"padding: {padding_len} aligned to {alignment}")
 
 	def read_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Reading additional hitcheck data")

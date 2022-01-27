@@ -412,6 +412,7 @@
 <!--		<add name="new extra" type="byte" arr1="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
 
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
+<!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#">?</add>-->
 
 	</compound>
 
@@ -467,6 +468,7 @@
 
 	<compound name="JointData">
 		appears in dinos and static meshes
+		<add name="start_pc" type="SmartPadding" vercond="#PC#">seemingly additional alignment, unsure about the rule</add>
 		<add name="joint_count" type="uint" >repeat</add>
 		<add name="count_0" type="uint"/>
 		<add name="count_1" type="uint"/>
