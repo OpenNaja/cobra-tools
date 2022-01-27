@@ -50,6 +50,7 @@ def to_lod(scene, ob, level=0, lod=None):
 
 
 def link_to_collection(scene, ob, coll_name):
+	coll_name = f"{scene.name}_{coll_name}"
 	if coll_name not in bpy.data.collections:
 		coll = bpy.data.collections.new(coll_name)
 		scene.collection.children.link(coll)

@@ -29,6 +29,7 @@ class ModelReader:
 		self.io_start = 0
 		self.bone_infos = []
 		self.set_defaults()
+		self.bone_info_start = 0
 
 	def set_defaults(self):
 		pass
@@ -36,35 +37,51 @@ class ModelReader:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.bone_infos = []
-		for model_info in self.arg:
-			# logging.debug(model_info)
-			model_info.model = Model(self.context, model_info)
-			if model_info.num_objects:
-				model_info.model.read(stream)
-				# logging.debug(model_info.model)
 		i = 0
-		self.bone_info_start = stream.tell()
-		for model_info in self.arg:
-			if model_info.increment_flag:
-				logging.debug(f"Reading bone info")
-				model_info.bone_info = self.read_bone_info(stream, i)
-				self.bone_infos.append(model_info.bone_info)
-				i += 1
-			else:
-				logging.debug(f"Using previous bone info")
-				if self.bone_infos:
-					model_info.bone_info = self.bone_infos[-1]
+		if self.context.version < 47:
+			#
+			# start = self.io_start
+			start = self.arg.io_start
+			# meh, add it here even though it's really interleaved
+			self.bone_info_start = stream.tell()
+			for model_info in self.arg:
+				# logging.debug(model_info)
+				model_info.model = Model(self.context, model_info)
+				if model_info.num_objects:
+					model_info.model.read(stream)
+					# logging.debug(model_info.model)
+				# alignment, not sure if really correct
+				if model_info.increment_flag:
+					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
 				else:
-					model_info.bone_info = None
+					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=8))
+				logging.debug(f"model padding {model_info.model_padding}")
+				self.assign_bone_info(i, model_info, stream)
+
+		else:
+			for model_info in self.arg:
+				# logging.debug(model_info)
+				model_info.model = Model(self.context, model_info)
+				if model_info.num_objects:
+					model_info.model.read(stream)
+					# logging.debug(model_info.model)
+			self.bone_info_start = stream.tell()
+			for model_info in self.arg:
+				self.assign_bone_info(i, model_info, stream)
 		self.io_size = stream.tell() - self.io_start
 
-		# todo - implement PC style, with this padding between model and bone_info
-		# # alignment is probably wrong
-		# if model_info.increment_flag:
-		# 	model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset, alignment=16))
-		# else:
-		# 	model_info.pc_model_padding = stream.read(get_padding_size(stream.tell() - self.buffer_1_offset, alignment=8))
-		# logging.debug(f"model padding {model_info.pc_model_padding}")
+	def assign_bone_info(self, i, model_info, stream):
+		if model_info.increment_flag:
+			logging.debug(f"Reading bone info")
+			model_info.bone_info = self.read_bone_info(stream, i)
+			self.bone_infos.append(model_info.bone_info)
+			i += 1
+		else:
+			logging.debug(f"Using previous bone info")
+			if self.bone_infos:
+				model_info.bone_info = self.bone_infos[-1]
+			else:
+				model_info.bone_info = None
 
 	def get_hitchecks(self, bone_info):
 		# collect all hitchecks in a flat list

@@ -2,11 +2,9 @@ import logging
 import os
 import time
 import bpy
-from struct import unpack_from, iter_unpack, calcsize
-import numpy as np
 
 from generated.formats.voxelskirt import VoxelskirtFile
-from plugin.helpers import mesh_from_data, create_ob
+from plugin.utils.object import mesh_from_data, create_ob
 
 
 def generate_mesh(x_verts, y_verts, scale, heights):

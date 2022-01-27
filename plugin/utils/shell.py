@@ -4,9 +4,7 @@ import bpy
 import bmesh
 import numpy as np
 import mathutils
-import plugin.helpers
-
-from . import matrix_util
+import plugin.utils.object
 
 # X_START = -16.0
 # Y_START = 1.00049
@@ -65,7 +63,7 @@ def build_fins(src_ob, trg_ob):
 	except:
 		raise AttributeError(f"{src_ob.name} has no UV scale properties. Run 'Gauge UV Scale' first!")
 
-	lod_group_name = plugin.helpers.get_lod(src_ob)
+	lod_group_name = plugin.utils.object.get_lod(src_ob)
 	ob = copy_ob(src_ob)
 	me = ob.data
 	# transfer the material
@@ -129,7 +127,7 @@ def build_fins(src_ob, trg_ob):
 			ob.modifiers.remove(mod)
 
 	# only set the lod index here so that hiding it does not mess with any operators applied above
-	plugin.helpers.to_lod(bpy.context.scene, ob, None, lod=lod_group_name)
+	plugin.utils.object.to_lod(bpy.context.scene, ob, None, lod=lod_group_name)
 
 	return f'Generated fin geometry {trg_name} from {src_ob.name}'
 

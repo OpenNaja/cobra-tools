@@ -78,15 +78,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def assign_joints(self, bone_info):
 
-		for i, x in enumerate(bone_info.struct_7.unknown_list):
-			# print(i)
-			# print(self.bone_info.bones[x.child], x.child)
-			# print(self.bone_info.bones[x.parent], x.parent)
-			x.child_name = bone_info.bones[x.child].name
-			x.parent_name = bone_info.bones[x.parent].name
-			assert x.zero == 0
-			assert x.one == 1
-		assert bone_info.one == 1
+		if self.context.version >= 47:
+			for i, x in enumerate(bone_info.struct_7.unknown_list):
+				# print(i)
+				# print(self.bone_info.bones[x.child], x.child)
+				# print(self.bone_info.bones[x.parent], x.parent)
+				x.child_name = bone_info.bones[x.child].name
+				x.parent_name = bone_info.bones[x.parent].name
+				assert x.zero == 0
+				assert x.one == 1
+			assert bone_info.one == 1
 		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.parents_count == bone_info.enum_count
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
 		assert bone_info.unk_78_count == 0 and bone_info.unk_extra == 0
@@ -109,9 +110,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
 				if not joint_info.bone_name == joint_info.name:
-					logging.debug(f"Info: bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
+					logging.warning(f"bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
 				if joints.joint_infos[joints.bone_indices[bone_i]] != joint_info:
-					logging.debug(f"Info: bone index [{bone_i}] doesn't point to expected joint info")
+					logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")
 
 	def assign_bone_names(self, bone_info):
 		try:
@@ -126,18 +127,20 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		logging.debug(f"Reading {self.basename}")
 		with self.reader(filepath) as stream:
 			self.read(stream)
-			# buffer 0 (hashes and names) has been read by the header
-			self.buffer_1_offset = self.models_reader.bone_info_start
+			if is_old(self.info):
+				self.buffer_1_offset = self.buffer_info.io_start
+			else:
+				self.buffer_1_offset = self.models_reader.bone_info_start
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
 			# logging.debug(self)
-			logging.debug(f"end of header: {self.buffer_1_offset}")
+			# logging.debug(f"end of header: {self.buffer_1_offset}")
 			for bone_info in self.models_reader.bone_infos:
 				self.assign_bone_names(bone_info)
 				self.assign_joints(bone_info)
 
 			self.lookup_material()
 			if read_editable:
-				self.load_mesh_data()
+				self.load_mesh()
 			if read_bytes:
 				# make all 3 buffers accesible as bytes
 				self.update_buffer_0_bytes()
@@ -145,7 +148,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
 
-	def load_mesh_data(self):
+	def load_mesh(self):
 		# numpy chokes on bytes io objects
 		with open(self.filepath, "rb") as stream:
 			stream.seek(self.buffer_2_offset)
@@ -154,29 +157,30 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if is_old(self.info):
 					# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
 					sum_uv_dict = {}
-					for model_data in model_info.model.meshes:
-						if model_data.stream_index not in sum_uv_dict:
-							sum_uv_dict[model_data.stream_index] = 0
-						sum_uv_dict[model_data.stream_index] += model_data.vertex_count
+					for mesh in model_info.model.meshes:
+						if mesh.stream_index not in sum_uv_dict:
+							sum_uv_dict[mesh.stream_index] = 0
+						sum_uv_dict[mesh.stream_index] += mesh.vertex_count
 					last_vertex_offset = 0
 					# sort by lod, read those with offset first
 					# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
 					# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: x[1].vertex_offset)
 					sorted_meshes = list(enumerate(model_info.model.meshes))
-					for i, model_data in sorted_meshes:
-						print(i, model_data.vertex_offset, model_data.vertex_offset + model_data.vertex_count*24)
+					for i, mesh in sorted_meshes:
+						print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
 					try:
-						for i, model_data in sorted_meshes:
-							logging.info(f"\nModel {i}")
-							last_vertex_offset = model_data.populate(
+						for i, mesh in sorted_meshes:
+							logging.info(f"Populating mesh {i}")
+							last_vertex_offset = mesh.populate(
 								self, stream, self.buffer_2_offset, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
 					except:
-						print(self)
+						traceback.print_exc()
+						# print(self)
 				else:
 					# if mdl2.read_editable:
 					logging.debug(f"Loading editable mesh data for {mdl2_name}")
-					for model in model_info.model.meshes:
-						model.populate(self, stream, self.buffer_2_offset, model_info.pack_offset)
+					for mesh in model_info.model.meshes:
+						mesh.populate(self, stream, self.buffer_2_offset, model_info.pack_offset)
 					#
 					# elif mdl2.map_bytes:
 					# 	logging.debug(f"Reading mesh statistics for {mdl2_name}")

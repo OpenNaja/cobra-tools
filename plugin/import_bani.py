@@ -6,7 +6,7 @@ import mathutils
 
 from generated.formats.bani import BaniFile
 from plugin.modules_export.armature import get_armature
-from plugin.helpers import create_ob
+from plugin.utils.object import create_ob
 
 
 def load_bani(file_path):

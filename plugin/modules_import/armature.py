@@ -8,7 +8,7 @@ import mathutils
 from generated.formats.ms2.versions import is_ztuac
 from plugin.modules_import.collision import import_collider
 
-from plugin.helpers import create_ob
+from plugin.utils.object import create_ob, link_to_collection
 from plugin.utils import matrix_util
 from plugin.utils.matrix_util import mat3_to_vec_roll
 
@@ -19,7 +19,7 @@ def import_armature(scene, model_info, b_bone_names):
 	of the bones before skins are attached."""
 	corrector = matrix_util.Corrector(is_ztuac(model_info.context))
 	bone_info = model_info.bone_info
-	print(bone_info)
+	logging.debug(bone_info)
 	if bone_info:
 		armature_name = b_bone_names[0]
 		b_armature_data = bpy.data.armatures.new(armature_name)
@@ -83,7 +83,8 @@ def import_armature(scene, model_info, b_bone_names):
 		try:
 			import_joints(scene, b_armature_obj, bone_info, b_bone_names, corrector)
 		except Exception as err:
-			print("Importing joints failed...", err)
+			logging.error("Importing joints failed...")
+			logging.error(err)
 			traceback.print_exc()
 		return b_armature_obj
 
@@ -132,19 +133,17 @@ def get_bone_names(model_info):
 
 
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
-	print("Importing joints")
+	logging.info("Importing joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
 		bone_name = b_bone_names[bone_index]
-		print("joint", joint_info.name)
-		if hasattr(joint_info, "hitchecks"):
-			for hitcheck in joint_info.hitchecks:
-				import_collider(hitcheck, armature_ob, bone_name, corrector)
-	# for bone_index, hitcheck in zip(bone_info.joints.joint_indices, bone_info.joints.hitchecks_pc):
-	# 	bone_name = b_bone_names[bone_index]
-	# 	import_collider(hitcheck, armature_ob, bone_name, corrector)
+		logging.debug(f"joint {joint_info.name}")
+		# if hasattr(joint_info, "hitchecks"):
+		for hitcheck in joint_info.hitchecks:
+			import_collider(hitcheck, armature_ob, bone_name, corrector)
 	for bone_index, joint_transform in zip(bone_info.joints.joint_indices, bone_info.joints.joint_transforms):
 		bone_name = b_bone_names[bone_index]
 		joint = create_ob(scene, "joint_"+bone_name, None)
+		link_to_collection(scene, joint, "joints")
 		n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
 		n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
 		b_bind = corrector.nif_bind_to_blender_bind(n_bind)

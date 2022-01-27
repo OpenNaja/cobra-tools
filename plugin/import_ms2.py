@@ -6,7 +6,7 @@ import bpy
 # import bmesh
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names, get_weights
-from plugin.helpers import create_ob, to_lod
+from plugin.utils.object import create_ob
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from generated.formats.ms2 import Ms2File, is_old

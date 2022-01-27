@@ -230,14 +230,17 @@ class Ms2Loader(BaseFile):
 			outfile.write(bone_infos)
 			outfile.write(verts)
 
-		# m = Ms2File()
-		# m.load(out_path, read_editable=True)
-		# print(m)
+		m = Ms2File()
+		m.load(out_path, read_editable=True)
+		print(m)
 		return out_path,
 	
 	def get_ms2_buffer_datas(self):
 		assert self.sized_str_entry.data_entry
-		all_buffer_bytes = [buffer.data for buffer in self.get_streams()]
+		buffers_in_order = list(sorted(self.get_streams(), key=lambda b: b.index))
+		for buff in buffers_in_order:
+			logging.debug(f"buffer {buff.index}, size {buff.size} bytes")
+		all_buffer_bytes = [buffer.data for buffer in buffers_in_order]
 		name_buffer = all_buffer_bytes[0]
 		bone_infos = all_buffer_bytes[1]
 		verts = b"".join(all_buffer_bytes[2:])

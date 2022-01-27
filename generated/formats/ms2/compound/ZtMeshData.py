@@ -1,4 +1,5 @@
 
+import logging
 import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
@@ -194,18 +195,20 @@ class ZtMeshData:
 		self.sum_uv_dict = sum_uv_dict
 		self.last_vertex_offset = last_vertex_offset
 		self.new_vertex_offset = 0
-		self.streams = ms2_file.pc_buffer1.buffer_info_pc.streams
+		self.streams = ms2_file.buffer_info.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
 		for s in self.streams[:self.stream_index]:
-			self.stream_offset += s.vertex_buffer_length + s.tris_buffer_length + s.uv_buffer_length
+			s.size = s.vertex_buffer_length + s.tris_buffer_length + s.uv_buffer_length
+			self.stream_offset += s.size
+			logging.debug(f"Stream {s.size}")
 		self.buffer_2_offset = buffer_2_offset
 		# determine end of vertex stream to seek back from
-		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.streams[self.stream_index].vertex_buffer_length
-		print(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
-		print("Vertex Stream end", self.vert_stream_end)
-		print("Tri info address", self.buffer_2_offset+self.stream_offset+self.tri_info_offset)
-		print("Vertex info address", self.buffer_2_offset+self.stream_offset+self.vert_info_offset)
+		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length
+		logging.debug(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
+		logging.debug(f"Vertex Stream end {self.vert_stream_end}")
+		logging.debug(f"Tri info address {self.buffer_2_offset+self.stream_offset+self.tri_info_offset}")
+		logging.debug(f"Vertex info address {self.buffer_2_offset+self.stream_offset+self.vert_info_offset}")
 		# print(self)
 		self.ms2_file = ms2_file
 		self.base = base
@@ -258,8 +261,8 @@ class ZtMeshData:
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
 		self.update_shell_count()
-		print("PC size of vertex:", self.dt.itemsize)
-		print("PC size of vcol+uv:", self.dt_colors.itemsize)
+		logging.debug(f"PC size of vertex: {self.dt.itemsize}")
+		logging.debug(f"PC size of vcol+uv: {self.dt_colors.itemsize}")
 
 	def update_shell_count(self):
 		if self.flag.repeat_tris:
@@ -270,7 +273,7 @@ class ZtMeshData:
 	def read_tris(self, stream):
 		# read all tri indices for this mesh
 		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
-		print("tris offset", stream.tell())
+		logging.debug(f"tris offset {stream.tell()}")
 		# read all tri indices for this mesh segment
 		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
 
@@ -289,21 +292,21 @@ class ZtMeshData:
 		self.init_arrays()
 		# read a vertices of this mesh
 		if 4294967295 == self.vertex_offset:
-			print(f"Warning, vertex_offset is -1, seeking to last vertex offset {self.last_vertex_offset}")
+			logging.warning(f"vertex_offset is -1, seeking to last vertex offset {self.last_vertex_offset}")
 			if self.last_vertex_offset == 0:
 				self.last_vertex_offset = self.buffer_2_offset + self.stream_offset
 				# stream.seek(self.vert_stream_end - (self.vertex_count * self.dt.itemsize))
-				print(f"Zero, starting at buffer start {stream.tell()}")
+				logging.warning(f"Zero, starting at buffer start {stream.tell()}")
 			else:
 				stream.seek(self.last_vertex_offset)
 		else:
 			stream.seek(self.buffer_2_offset + self.stream_offset + self.vertex_offset)
-		print("VERTS", stream.tell(), self.vertex_count)
+		logging.debug(f"{self.vertex_count} VERTS at {stream.tell()}")
 		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
 		self.new_vertex_offset = stream.tell()
 		# print(self.verts_data.shape)
 		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
-		print("UV", stream.tell())
+		logging.debug(f"UV at {stream.tell()}")
 		self.colors_data = np.fromfile(stream, dtype=self.dt_colors, count=self.vertex_count)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.colors is not None:
@@ -313,7 +316,7 @@ class ZtMeshData:
 		if self.uvs is not None:
 			self.uvs[:] = self.colors_data[:]["uvs"]
 			self.uvs /= 2048
-		print(self.normals.shape)
+		logging.debug(self.normals.shape)
 		self.normals[:] = self.verts_data[:]["normal"]
 		# self.tangents[:] = self.verts_data[:]["tangent"]
 		self.vertices[:] = self.verts_data[:]["pos"]
@@ -342,7 +345,7 @@ class ZtMeshData:
 			lod_i = int(math.log2(self.poweroftwo))
 		except:
 			lod_i = 0
-			print("EXCEPTION: math domain for lod", self.poweroftwo)
+			logging.warning(f"math domain for lod {self.poweroftwo}")
 		return lod_i
 
 	@lod_index.setter
