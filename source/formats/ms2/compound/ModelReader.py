@@ -74,7 +74,7 @@ class ModelReader:
 		if model_info.increment_flag:
 			logging.debug(f"Reading bone info")
 			model_info.bone_info = self.read_bone_info(stream, i)
-			logging.debug(model_info.bone_info)
+			# logging.debug(model_info.bone_info)
 			self.bone_infos.append(model_info.bone_info)
 			i += 1
 		else:
