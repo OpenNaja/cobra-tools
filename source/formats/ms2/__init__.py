@@ -4,34 +4,12 @@ import time
 import traceback
 import logging
 
-from generated.formats.ms2.compound.Model import Model
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
-from generated.formats.ms2.compound.BoneInfo import BoneInfo
-from generated.formats.ms2.enum.CollisionType import CollisionType
 from generated.formats.ms2.versions import *
 from generated.io import IoFile, BinaryStream
 from modules.formats.shared import get_padding_size, djb, get_padding
 
 logging.basicConfig(level=logging.DEBUG)
-
-
-def findall(p, s):
-	'''Yields all the positions of
-	the pattern p in the string s.'''
-	i = s.find(p)
-	while i != -1:
-		yield i
-		i = s.find(p, i + 1)
-
-
-def findall_diff(s, p0, p1):
-	'''Yields all the positions of
-	the pattern p in the string s.'''
-	i = s.find(p0)
-	while i != -1:
-		if s[i + 20:i + 24] == p1:
-			yield i
-		i = s.find(p0, i + 1)
 
 
 class Ms2Context:
@@ -46,21 +24,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def __init__(self, ):
 		super().__init__(Ms2Context())
-		self.mdl2s = {}
-		self.bone_infos = []
-
-	def read_all_bone_infos(self, stream):
-		start = stream.tell()
-		self.buffer_1_bytes = stream.read(self.bone_info_size)
-		stream.seek(start)
-		self.bone_infos = []
-		if self.bone_info_size:
-			logging.debug(f"mdl2 count {self.info.mdl_2_count}")
-			for i in range(self.info.mdl_2_count):
-				# quick hack here until mdl2 is integrated, so we know the bone info increment flags for each mdl2
-				if stream.tell() < start + self.bone_info_size:
-					self.read_bone_info(stream, i)
-		stream.seek(start)
 
 	def write_all_bone_infos(self, stream):
 		# functional for JWE detailobjects.ms2, if joint_data is read
@@ -77,7 +40,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.bone_info_size = stream.tell() - bone_infos_start
 
 	def assign_joints(self, bone_info):
-
 		if self.context.version >= 47:
 			for i, x in enumerate(bone_info.struct_7.unknown_list):
 				# print(i)
@@ -124,6 +86,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def load(self, filepath, read_bytes=False, read_editable=False):
 		self.filepath = filepath
 		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
+		self.read_editable = read_editable
 		logging.debug(f"Reading {self.basename}")
 		with self.reader(filepath) as stream:
 			self.read(stream)
@@ -240,20 +203,18 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def update_names(self):
 		logging.info("Updating MS2 name buffer")
 		# only update the names buffer if mdl2s have been loaded
-		if self.mdl2s:
+		if self.model_infos:
 			self.buffer_0.names.clear()
-			for mdl2 in self.mdl2s.values():
-				for material in mdl2.model.materials:
+			for model_info in self.model_infos:
+				for material in model_info.model.materials:
 					if material.name not in self.buffer_0.names:
 						self.buffer_0.names.append(material.name)
 					material.name_index = self.buffer_0.names.index(material.name)
-			for bone_info in self.bone_infos:
-				for bone_index, bone in enumerate(bone_info.bones):
+				for bone_index, bone in enumerate(model_info.bone_info.bones):
 					if bone.name not in self.buffer_0.names:
 						self.buffer_0.names.append(bone.name)
-					bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
-			for bone_info in self.bone_infos:
-				self.update_joints(bone_info)
+					model_info.bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
+				self.update_joints(model_info.bone_info)
 		# print(self.buffer_0.names)
 		logging.info("Updating MS2 name hashes")
 		# update hashes from new names
@@ -277,27 +238,23 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_1_bytes = temp_bone_writer.getvalue()
 
 	def update_buffer_2_bytes(self):
-		# can only update this if mdl2s have been loaded
-		if self.mdl2s:
+		if self.read_editable:
+			logging.debug(f"Updating buffer 2")
 			# write each mesh's vert & tri block to a temporary buffer
 			temp_vert_writer = io.BytesIO()
 			temp_tris_writer = io.BytesIO()
-			for mdl2_path, mdl2 in self.mdl2s.items():
-				for mesh in mdl2.model.meshes:
+			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
+				for mesh in model_info.model.meshes:
 					# update MeshData struct
 					mesh.vertex_offset = temp_vert_writer.tell()
 					mesh.tri_offset = temp_tris_writer.tell()
-					logging.debug(f"{os.path.basename(mdl2_path)} {mdl2.read_editable}")
-					if mdl2.read_editable:
-						mesh.vertex_count = len(mesh.verts)
-						mesh.tri_index_count = len(mesh.tri_indices) * mesh.shell_count
-						# write data
-						mesh.write_verts(temp_vert_writer)
-						mesh.write_tris(temp_tris_writer)
-					else:
-						temp_vert_writer.write(mesh.verts_bytes)
-						temp_tris_writer.write(mesh.tris_bytes)
-				mdl2.update_lod_vertex_counts()
+					logging.debug(f"Storing {mdl2_name}")
+					mesh.vertex_count = len(mesh.verts)
+					mesh.tri_index_count = len(mesh.tri_indices) * mesh.shell_count
+					# write data
+					mesh.write_verts(temp_vert_writer)
+					mesh.write_tris(temp_tris_writer)
+			self.update_lod_vertex_counts()
 			# get bytes from IO obj
 			vert_bytes = temp_vert_writer.getvalue()
 			tris_bytes = temp_tris_writer.getvalue()
@@ -382,8 +339,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 
 if __name__ == "__main__":
-	m = Mdl2File()
-	m.load("C:/Users/arnfi/Desktop/ichthyo/ichthyosaurus.mdl2", entry=True, read_editable=True)
+	m = Ms2File()
+	m.load("C:/Users/arnfi/Desktop/ichthyo/ichthyosaurus.mdl2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/frb/frbmodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
 	# for mesh in m.meshes:
 	# 	print(mesh.tris)
