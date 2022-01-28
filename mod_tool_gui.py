@@ -10,6 +10,7 @@
 
 import sys
 import os
+import shutil
 import pathlib
 import webbrowser
 
@@ -305,6 +306,13 @@ class ModToolGUI(QMainWindow):
         self.create_ovl(src_path, dst_file)
 
 
+    def copy_file(self, srcpath, dstpath, fname):
+        try:
+            shutil.copyfile( os.path.join(srcpath, fname), os.path.join(dstpath, fname))
+        except:
+            print("error copying: " + fname)
+
+
     def pack_mod(self):
         print("Packing mod")
         subfolders = self.get_src_folder_list()
@@ -315,6 +323,11 @@ class ModToolGUI(QMainWindow):
                 continue
             self.pack_folder(folder)
 
+        # Also copy Manifest.xml and Readme.md files if any
+        srcbasepath = self.src_widget.filepath
+        dstbasepath = self.dst_widget.filepath
+        self.copy_file(srcbasepath, dstbasepath, "Manifest.xml")
+        self.copy_file(srcbasepath, dstbasepath, "Readme.md")
 
 
 # cmd line code
