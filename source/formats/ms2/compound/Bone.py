@@ -1,4 +1,4 @@
-class PzBone:
+class Bone:
 
 	# START_CLASS
 
