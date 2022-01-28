@@ -184,7 +184,7 @@ class Ms2Loader(BaseFile):
 		ms2_general_info_data = self.sized_str_entry.pointers[0].data[:48]
 		# ms2_info = self.sized_str_entry.pointers[0].load_as(Ms2SizedStrData, context=self.context)[0]
 
-		ms2_header = struct.pack("<2I", len(name_buffer), len(bone_infos))
+		ms2_header = struct.pack("<I", len(bone_infos))
 	
 		# for i, buffer in enumerate(buffers):
 		# 	p = out_dir(name+str(i)+".ms2")

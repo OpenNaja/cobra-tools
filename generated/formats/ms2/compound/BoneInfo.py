@@ -2,11 +2,10 @@ import numpy
 import typing
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.ms2.compound.Bone import Bone
 from generated.formats.ms2.compound.JointData import JointData
-from generated.formats.ms2.compound.JweBone import JweBone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.MinusPadding import MinusPadding
-from generated.formats.ms2.compound.PzBone import PzBone
 from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
 
@@ -88,11 +87,6 @@ class BoneInfo:
 
 		# used for skinning
 		self.inverse_bind_matrices = Array(self.context)
-
-		# bones, loc first
-		self.bones = Array(self.context)
-
-		# bones, rot first
 		self.bones = Array(self.context)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
@@ -161,10 +155,7 @@ class BoneInfo:
 		if self.context.version < 47:
 			self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16), dtype='byte')
 		self.inverse_bind_matrices = Array(self.context)
-		if self.context.version <= 47:
-			self.bones = Array(self.context)
-		if self.context.version >= 48:
-			self.bones = Array(self.context)
+		self.bones = Array(self.context)
 		self.parents = numpy.zeros((self.parents_count), dtype='ubyte')
 		if not (self.context.version == 13):
 			self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8), dtype='byte')
@@ -221,10 +212,7 @@ class BoneInfo:
 		if self.context.version < 47:
 			self.name_padding = stream.read_bytes(((16 - ((self.name_count * 2) % 16)) % 16))
 		self.inverse_bind_matrices.read(stream, Matrix44, self.bind_matrix_count, None)
-		if self.context.version <= 47:
-			self.bones.read(stream, JweBone, self.bone_count, None)
-		if self.context.version >= 48:
-			self.bones.read(stream, PzBone, self.bone_count, None)
+		self.bones.read(stream, Bone, self.bone_count, None)
 		self.parents = stream.read_ubytes((self.parents_count))
 		if not (self.context.version == 13):
 			self.parents_padding = stream.read_bytes(((8 - (self.parents_count % 8)) % 8))
@@ -285,10 +273,7 @@ class BoneInfo:
 			self.name_padding.resize(((16 - ((self.name_count * 2) % 16)) % 16))
 			stream.write_bytes(self.name_padding)
 		self.inverse_bind_matrices.write(stream, Matrix44, self.bind_matrix_count, None)
-		if self.context.version <= 47:
-			self.bones.write(stream, JweBone, self.bone_count, None)
-		if self.context.version >= 48:
-			self.bones.write(stream, PzBone, self.bone_count, None)
+		self.bones.write(stream, Bone, self.bone_count, None)
 		stream.write_ubytes(self.parents)
 		if not (self.context.version == 13):
 			self.parents_padding.resize(((8 - (self.parents_count % 8)) % 8))

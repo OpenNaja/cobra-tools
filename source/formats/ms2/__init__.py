@@ -176,7 +176,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		joints.bone_indices.resize(joints.bone_count)
 		# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
 		joints.bone_indices[:] = -1
-		# linke between bones and joints, in both directions
+		# link between bones and joints, in both directions
 		for joint_i, joint_info in enumerate(joints.joint_infos):
 			bone_i = bone_lut[joint_info.bone_name]
 			joints.joint_indices[joint_i] = bone_i
@@ -224,11 +224,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_0.name_hashes[name_i] = djb(name.lower())
 
 	def update_buffer_0_bytes(self):
-		# update self.bone_names_size
 		with BinaryStream() as temp_writer:
 			self.buffer_0.write(temp_writer)
 			self.buffer_0_bytes = temp_writer.getvalue()
-			self.bone_names_size = len(self.buffer_0_bytes)
 
 	def update_buffer_1_bytes(self):
 		# can only update this if bone infos have been loaded

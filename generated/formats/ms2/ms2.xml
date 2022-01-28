@@ -70,10 +70,6 @@
 	<compound name="SmartPadding">
 		Grabs 00 bytes only
 	</compound>
-
-	<basic name="string">
-		A string of given length.
-	</basic>
 	
 	<compound name="Matrix44" size="64">
 		A 4x4 transformation matrix.
@@ -100,18 +96,16 @@
 		<field name="w" type="float">zeroth coordinate.</field>
 	</compound>
 
-	<compound name="PzBone">
+	<compound name="Bone">
 		32 bytes
-		<add name="rot" type="Vector4" />
-		<add name="loc" type="Vector3"/>
-		<add name="scale" type="float" />
-	</compound>
-
-	<compound name="JweBone">
-		32 bytes
-		<add name="loc" type="Vector3"/>
-		<add name="scale" type="float" />
-		<add name="rot" type="Vector4" />
+		bones, rot first
+		<add name="loc" type="Vector3" until="47" />
+		<add name="scale" type="float" until="47" />
+		<add name="rot" type="Vector4" until="47" />
+		bones, loc first
+		<add name="rot" type="Vector4" since="48" />
+		<add name="loc" type="Vector3" since="48" />
+		<add name="scale" type="float" since="48" />
 	</compound>
 	
 	<compound name="Ms2SizedStrData">
@@ -254,8 +248,6 @@
 
 	<compound name="Ms2InfoHeader">
 		Custom header struct
-		includes fragments but none of the 3 data buffers
-		<add name="bone names size" type="uint"/>
 		<add name="bone info size" type="uint"/>
 		<add name="info" type="Ms2SizedStrData"/>
 		<add name="mdl2 names" type="ZString" arr1="info \ mdl2 count"/>
@@ -268,6 +260,7 @@
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
 		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>
 		many ZTUAC models have a big undecoded array of uints here
+		the vertex and face data buffers follow
 	</compound>
 
 	<compound name="ModelReader">
@@ -396,8 +389,7 @@
 		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
-		<add name="bones" type="JweBone" arr1="bone count" until="47">bones, loc first</add>
-		<add name="bones" type="PzBone" arr1="bone count" since="48">bones, rot first</add>
+		<add name="bones" type="Bone" arr1="bone count"/>
 		<add name="parents" type="ubyte" arr1="parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="parents_padding" padding="1" type="byte" arr1="(8 - (parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>

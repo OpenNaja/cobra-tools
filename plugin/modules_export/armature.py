@@ -3,7 +3,7 @@ import logging
 import bpy
 import mathutils
 
-from generated.formats.ms2.compound.JweBone import JweBone
+from generated.formats.ms2.compound.Bone import Bone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ovl.versions import is_ztuac, is_jwe
 from plugin.modules_export.collision import export_hitcheck
@@ -98,11 +98,6 @@ def export_bones_custom(b_armature_ob, mdl2):
 	else:
 		b_bone_names = get_bone_names_from_armature(b_armature_ob)
 	bone_info = mdl2.bone_info
-	# get bone type based on version, or based on bone that previously was used in bones
-	if bone_info.bones:
-		bone_class = bone_info.bones[0].__class__
-	else:
-		bone_class = JweBone
 	bone_info.bones.clear()
 	bone_info.inverse_bind_matrices.clear()
 
@@ -129,7 +124,7 @@ def export_bones_custom(b_armature_ob, mdl2):
 		else:
 			mat_local_to_parent = mat_local
 
-		ms2_bone = bone_class(mdl2.context)
+		ms2_bone = Bone(mdl2.context)
 		ms2_bone.name = bone_name_for_ovl(b_bone_name)
 		# set parent index
 		if b_bone.parent:

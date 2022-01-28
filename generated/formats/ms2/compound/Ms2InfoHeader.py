@@ -15,7 +15,6 @@ class Ms2InfoHeader:
 
 	"""
 	Custom header struct
-	includes fragments but none of the 3 data buffers
 	"""
 
 	context = ContextReference()
@@ -27,7 +26,6 @@ class Ms2InfoHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.bone_names_size = 0
 		self.bone_info_size = 0
 		self.info = Ms2SizedStrData(self.context, None, None)
 		self.mdl_2_names = Array(self.context)
@@ -42,7 +40,6 @@ class Ms2InfoHeader:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.bone_names_size = 0
 		self.bone_info_size = 0
 		self.info = Ms2SizedStrData(self.context, None, None)
 		self.mdl_2_names = Array(self.context)
@@ -58,7 +55,6 @@ class Ms2InfoHeader:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.bone_names_size = stream.read_uint()
 		self.bone_info_size = stream.read_uint()
 		self.info = stream.read_type(Ms2SizedStrData, (self.context, None, None))
 		self.mdl_2_names = stream.read_zstrings((self.info.mdl_2_count))
@@ -76,7 +72,6 @@ class Ms2InfoHeader:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.bone_names_size)
 		stream.write_uint(self.bone_info_size)
 		stream.write_type(self.info)
 		stream.write_zstrings(self.mdl_2_names)
@@ -97,7 +92,6 @@ class Ms2InfoHeader:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* bone_names_size = {self.bone_names_size.__repr__()}'
 		s += f'\n	* bone_info_size = {self.bone_info_size.__repr__()}'
 		s += f'\n	* info = {self.info.__repr__()}'
 		s += f'\n	* mdl_2_names = {self.mdl_2_names.__repr__()}'
