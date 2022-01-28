@@ -232,7 +232,8 @@ class Ms2Loader(BaseFile):
 
 		m = Ms2File()
 		m.load(out_path, read_editable=True)
-		print(m)
+		m.save(out_path+"_.ms2")
+		# print(m)
 		return out_path,
 	
 	def get_ms2_buffer_datas(self):

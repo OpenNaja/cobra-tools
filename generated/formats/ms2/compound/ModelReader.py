@@ -7,7 +7,8 @@ from generated.formats.ms2.versions import is_old
 from generated.formats.ms2.compound.Model import Model
 from generated.formats.ms2.compound.BoneInfo import BoneInfo
 from generated.formats.ms2.enum.CollisionType import CollisionType
-from modules.formats.shared import get_padding_size
+from modules.formats.shared import get_padding_size, get_padding
+
 
 from generated.context import ContextReference
 
@@ -158,8 +159,32 @@ class ModelReader:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-
+		i = 0
+		if self.context.version < 47:
+			raise NotImplementedError("Can't write old style mesh and bone info blocks")
+		else:
+			for model_info in self.arg:
+				model_info.model.write(stream)
+			self.bone_info_start = stream.tell()
+			for model_info in self.arg:
+				i = self.assign_bone_info(i, model_info, stream)
 		self.io_size = stream.tell() - self.io_start
+
+	def write_all_bone_infos(self, stream):
+		i = 0
+		bone_infos_start = stream.tell()
+		for model_info in self.arg:
+			if model_info.increment_flag:
+				logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
+				model_info.bone_info.write(stream)
+				self.write_hitcheck_verts(model_info.bone_info, stream)
+				if i + 1 < len(self.bone_infos):
+					relative_offset = stream.tell() - bone_infos_start
+					padding = get_padding(relative_offset)
+					logging.debug(f"Writing padding {padding}")
+					stream.write(padding)
+				i += 1
+		self.bone_info_size = stream.tell() - bone_infos_start
 
 	def get_info_str(self):
 		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

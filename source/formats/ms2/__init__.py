@@ -25,20 +25,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def __init__(self, ):
 		super().__init__(Ms2Context())
 
-	def write_all_bone_infos(self, stream):
-		# functional for JWE detailobjects.ms2, if joint_data is read
-		bone_infos_start = stream.tell()
-		for bone_info_index, bone_info in enumerate(self.bone_infos):
-			logging.debug(f"BONE INFO {bone_info_index} starts at {stream.tell()}")
-			bone_info.write(stream)
-			self.write_hitcheck_verts(bone_info, stream)
-			if bone_info_index + 1 < len(self.bone_infos):
-				relative_offset = stream.tell() - bone_infos_start
-				padding = get_padding(relative_offset)
-				logging.debug(f"Writing padding {padding}")
-				stream.write(padding)
-		self.bone_info_size = stream.tell() - bone_infos_start
-
 	def assign_joints(self, bone_info):
 		if self.context.version >= 47:
 			for i, x in enumerate(bone_info.struct_7.unknown_list):
@@ -229,11 +215,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_0_bytes = temp_writer.getvalue()
 
 	def update_buffer_1_bytes(self):
-		# can only update this if bone infos have been loaded
-		if self.bone_infos:
-			with BinaryStream() as temp_bone_writer:
-				self.write_all_bone_infos(temp_bone_writer)
-				self.buffer_1_bytes = temp_bone_writer.getvalue()
+		with BinaryStream() as temp_bone_writer:
+			self.write_all_bone_infos(temp_bone_writer)
+			self.buffer_1_bytes = temp_bone_writer.getvalue()
+			self.bone_info_size = temp_bone_writer.tell() - self.models_reader.bone_info_start
 
 	def update_buffer_2_bytes(self):
 		if self.read_editable:
@@ -262,6 +247,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_2_bytes = vert_bytes + tris_bytes
 
 	def save(self, filepath):
+		# exp = "export"
+		# exp_dir = os.path.join(self.dir, exp)
+		# os.makedirs(exp_dir, exist_ok=True)
+
 		logging.info("Writing verts and tris to temporary buffer")
 		self.update_names()
 
@@ -318,22 +307,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				lod.tri_index_count = sum(model.tri_index_count for model in lod.meshes)
 				logging.debug(f"lod.vertex_count = {lod.vertex_count}")
 				logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
-
-	def save(self, filepath):
-		exp = "export"
-		exp_dir = os.path.join(self.dir, exp)
-		os.makedirs(exp_dir, exist_ok=True)
-
-		# create output ms2
-		ms2_path = os.path.join(exp_dir, self.ms_2_name)
-		self.ms2_file.save(ms2_path)
-
-		# write final mdl2s
-		for mdl2_path, mdl2 in self.mdl2_siblings.items():
-			mdl2_name = os.path.basename(mdl2_path)
-			mdl2_exp_path = os.path.join(exp_dir, mdl2_name)
-			with self.writer(mdl2_exp_path) as stream:
-				mdl2.write(stream)
 
 
 if __name__ == "__main__":
