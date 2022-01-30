@@ -360,7 +360,7 @@ class MeshData:
 	def write_tris(self, stream):
 		tri_bytes = self.tri_indices.tobytes()
 		# extend tri array according to shell count
-		logging.debug(f"Writing {self.shell_count} shells of triangles")
+		logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
 		for shell in range(self.shell_count):
 			stream.write(tri_bytes)
 

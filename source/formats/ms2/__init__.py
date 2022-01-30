@@ -216,7 +216,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_buffer_1_bytes(self):
 		with BinaryStream() as temp_bone_writer:
-			self.write_all_bone_infos(temp_bone_writer)
+			# self.write_all_bone_infos(temp_bone_writer)
 			self.buffer_1_bytes = temp_bone_writer.getvalue()
 			self.bone_info_size = temp_bone_writer.tell() - self.models_reader.bone_info_start
 
@@ -232,7 +232,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					mesh.vertex_offset = temp_vert_writer.tell()
 					mesh.tri_offset = temp_tris_writer.tell()
 					logging.debug(f"Storing {mdl2_name}")
-					mesh.vertex_count = len(mesh.verts)
+					mesh.vertex_count = len(mesh.verts_data)
 					mesh.tri_index_count = len(mesh.tri_indices) * mesh.shell_count
 					# write data
 					mesh.write_verts(temp_vert_writer)

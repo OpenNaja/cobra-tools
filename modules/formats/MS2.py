@@ -232,7 +232,7 @@ class Ms2Loader(BaseFile):
 
 		m = Ms2File()
 		m.load(out_path, read_editable=True)
-		m.save(out_path+"_.ms2")
+		# m.save(out_path+"_.ms2")
 		# print(m)
 		return out_path,
 	
