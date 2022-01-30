@@ -18,12 +18,6 @@ class PcMeshData(MeshData):
 		self.io_size = 0
 		self.io_start = 0
 
-		# index into streamed buffers
-		self.stream_index = 0
-
-		# increments somewhat in ZTUAC platypus
-		self.some_index = 0
-
 		# repeat
 		self.tri_index_count_a = 0
 
@@ -71,8 +65,6 @@ class PcMeshData(MeshData):
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.stream_index = 0
-		self.some_index = 0
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 		self.tri_offset = 0
@@ -96,8 +88,6 @@ class PcMeshData(MeshData):
 	def read(self, stream):
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.stream_index = stream.read_uint64()
-		self.some_index = stream.read_uint64()
 		self.tri_index_count_a = stream.read_uint()
 		self.vertex_count = stream.read_uint()
 		self.tri_offset = stream.read_uint()
@@ -122,8 +112,6 @@ class PcMeshData(MeshData):
 	def write(self, stream):
 		self.io_start = stream.tell()
 		super().write(stream)
-		stream.write_uint64(self.stream_index)
-		stream.write_uint64(self.some_index)
 		stream.write_uint(self.tri_index_count_a)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_offset)
@@ -151,8 +139,6 @@ class PcMeshData(MeshData):
 	def get_fields_str(self):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
-		s += f'\n	* some_index = {self.some_index.__repr__()}'
 		s += f'\n	* tri_index_count_a = {self.tri_index_count_a.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
@@ -232,11 +218,6 @@ class PcMeshData(MeshData):
 	def tris_address(self):
 		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}, count {self.tri_offset}")
 		return self.buffer_2_offset + (self.tri_offset * 16)
-
-	@property
-	def tris(self, ):
-		# tri strip
-		return triangulate((self.tri_indices,))
 
 	def read_verts(self, stream):
 		# read a vertices of this mesh

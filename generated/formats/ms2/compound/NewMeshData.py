@@ -25,12 +25,6 @@ class NewMeshData(MeshData):
 		self.io_size = 0
 		self.io_start = 0
 
-		# PZ and JWE have a ptr at the start instead of the stream index
-		self.ptr = 0
-
-		# unused
-		self.zero_0 = 0
-
 		# vertex count of model
 		self.vertex_count = 0
 
@@ -66,8 +60,6 @@ class NewMeshData(MeshData):
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.ptr = 0
-		self.zero_0 = 0
 		self.vertex_count = 0
 		self.tri_index_count = 0
 		self.zero_1 = 0
@@ -83,8 +75,6 @@ class NewMeshData(MeshData):
 	def read(self, stream):
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.ptr = stream.read_uint64()
-		self.zero_0 = stream.read_uint64()
 		self.vertex_count = stream.read_uint()
 		self.tri_index_count = stream.read_uint()
 		self.zero_1 = stream.read_uint()
@@ -102,8 +92,6 @@ class NewMeshData(MeshData):
 	def write(self, stream):
 		self.io_start = stream.tell()
 		super().write(stream)
-		stream.write_uint64(self.ptr)
-		stream.write_uint64(self.zero_0)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_index_count)
 		stream.write_uint(self.zero_1)
@@ -124,8 +112,6 @@ class NewMeshData(MeshData):
 	def get_fields_str(self):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ptr = {self.ptr.__repr__()}'
-		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
 		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'

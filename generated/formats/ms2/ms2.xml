@@ -34,10 +34,11 @@
 <!--Count from the end!!!-->
 	<bitfield name="ModelFlag" storage="uint">
 		Determines the data held by a mesh.
-		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
+		<member width="1" pos="3" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
 		<member width="1" pos="4" name="weights" type="bool">at least 529</member>
 		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>
 		<member width="1" pos="8" name="fur shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
+		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
 	</bitfield>
 
 	<bitfield name="ModelFlagZT" storage="uint">
@@ -175,11 +176,12 @@
 
 	<compound name="MeshData" >
 		used for shared functions
+		<add name="stream index" type="uint64" until="32">index into streamed buffers</add>
+		<add name="ptr" type="uint64" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
+		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
 	</compound>
 
 	<compound name="NewMeshData" inherit="MeshData">
-		<add name="ptr" type="uint64" >PZ and JWE have a ptr at the start instead of the stream index</add>
-		<add name="zero0" type="uint64" >unused</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 		<add name="zero1" type="uint">always zero</add>
@@ -194,8 +196,6 @@
 	</compound>
 
 	<compound name="PcMeshData" inherit="MeshData">
-		<add name="stream index" type="uint64" >index into streamed buffers</add>
-		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus</add>
 		<add name="tri index count a" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
@@ -214,8 +214,6 @@
 	</compound>
 
 	<compound name="ZtMeshData" inherit="MeshData">
-		<add name="stream index" type="uint64" >index into streamed buffers</add>
-		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus</add>
 		<add name="tri index count" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri info offset" type="uint">stores count, -1 as ints</add>

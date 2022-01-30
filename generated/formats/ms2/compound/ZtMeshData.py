@@ -18,12 +18,6 @@ class ZtMeshData(MeshData):
 		self.io_size = 0
 		self.io_start = 0
 
-		# index into streamed buffers
-		self.stream_index = 0
-
-		# increments somewhat in ZTUAC platypus
-		self.some_index = 0
-
 		# repeat
 		self.tri_index_count = 0
 
@@ -77,8 +71,6 @@ class ZtMeshData(MeshData):
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.stream_index = 0
-		self.some_index = 0
 		self.tri_index_count = 0
 		self.vertex_count = 0
 		self.tri_info_offset = 0
@@ -105,8 +97,6 @@ class ZtMeshData(MeshData):
 	def read(self, stream):
 		self.io_start = stream.tell()
 		super().read(stream)
-		self.stream_index = stream.read_uint64()
-		self.some_index = stream.read_uint64()
 		self.tri_index_count = stream.read_uint()
 		self.vertex_count = stream.read_uint()
 		self.tri_info_offset = stream.read_uint()
@@ -134,8 +124,6 @@ class ZtMeshData(MeshData):
 	def write(self, stream):
 		self.io_start = stream.tell()
 		super().write(stream)
-		stream.write_uint64(self.stream_index)
-		stream.write_uint64(self.some_index)
 		stream.write_uint(self.tri_index_count)
 		stream.write_uint(self.vertex_count)
 		stream.write_uint(self.tri_info_offset)
@@ -166,8 +154,6 @@ class ZtMeshData(MeshData):
 	def get_fields_str(self):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
-		s += f'\n	* some_index = {self.some_index.__repr__()}'
 		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
 		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
 		s += f'\n	* tri_info_offset = {self.tri_info_offset.__repr__()}'

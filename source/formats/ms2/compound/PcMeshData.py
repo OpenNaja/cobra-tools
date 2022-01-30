@@ -68,11 +68,6 @@ class PcMeshData:
 		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}, count {self.tri_offset}")
 		return self.buffer_2_offset + (self.tri_offset * 16)
 
-	@property
-	def tris(self, ):
-		# tri strip
-		return triangulate((self.tri_indices,))
-
 	def read_verts(self, stream):
 		# read a vertices of this mesh
 		stream.seek(self.buffer_2_offset + (self.vertex_offset * 16))

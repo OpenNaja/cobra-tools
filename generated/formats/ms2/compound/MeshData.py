@@ -27,18 +27,41 @@ class MeshData:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+
+		# index into streamed buffers
+		self.stream_index = 0
+
+		# PZ and JWE have a ptr at the start instead of the stream index
+		self.ptr = 0
+
+		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
+		self.some_index = 0
 		self.set_defaults()
 
 	def set_defaults(self):
-		pass
+		if self.context.version <= 32:
+			self.stream_index = 0
+		if self.context.version >= 47:
+			self.ptr = 0
+		self.some_index = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
+		if self.context.version <= 32:
+			self.stream_index = stream.read_uint64()
+		if self.context.version >= 47:
+			self.ptr = stream.read_uint64()
+		self.some_index = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
+		if self.context.version <= 32:
+			stream.write_uint64(self.stream_index)
+		if self.context.version >= 47:
+			stream.write_uint64(self.ptr)
+		stream.write_uint64(self.some_index)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -47,6 +70,9 @@ class MeshData:
 
 	def get_fields_str(self):
 		s = ''
+		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
+		s += f'\n	* ptr = {self.ptr.__repr__()}'
+		s += f'\n	* some_index = {self.some_index.__repr__()}'
 		return s
 
 	def __repr__(self):
