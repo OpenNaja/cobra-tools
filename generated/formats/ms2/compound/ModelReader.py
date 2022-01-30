@@ -70,7 +70,10 @@ class ModelReader:
 					# logging.debug(model_info.model)
 			self.bone_info_start = stream.tell()
 			for model_info in self.arg:
-				i = self.assign_bone_info(i, model_info, stream)
+				try:
+					i = self.assign_bone_info(i, model_info, stream)
+				except:
+					raise AttributeError(f"Bone info {i} failed")
 		self.io_size = stream.tell() - self.io_start
 
 	def assign_bone_info(self, i, model_info, stream):

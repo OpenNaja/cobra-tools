@@ -73,7 +73,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.filepath = filepath
 		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
 		self.read_editable = read_editable
-		logging.debug(f"Reading {self.basename}")
+		logging.debug(f"Reading {self.filepath}")
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			if is_old(self.info):

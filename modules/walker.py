@@ -110,7 +110,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 					traceback.print_exc()
 					errors.append((ms2_path, ex))
 		# report
-		print("\nThe following errors occured:")
+		print(f"\nThe following {len(errors)} errors occured:")
 		for file_path, ex in errors:
 			print(file_path, str(ex))
 
