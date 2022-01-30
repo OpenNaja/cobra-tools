@@ -89,7 +89,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		type_dic = {}
 		# for last_count
 		last_counts = set()
-		count2s = set()
+		flags = set()
 		if walk_models:
 			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
@@ -108,7 +108,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 						# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 						last_counts.add(model_info.last_count)
 						if model_info.bone_info.count_7:
-							count2s.add(model_info.bone_info.struct_7.count_2)
+							flags.add(model_info.bone_info.struct_7.flag)
 						last_counts.add(model_info.last_count)
 				except Exception as ex:
 					traceback.print_exc()
@@ -131,7 +131,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print("min", np.min(mins, axis=0))
 			print()
 		print(f"last_counts: {last_counts}")
-		print(f"count2s: {count2s}")
+		print(f"flags: {flags}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds."
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)
