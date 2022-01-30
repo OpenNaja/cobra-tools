@@ -432,18 +432,13 @@
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
 		<add name="count7" type="uint64">repeat</add>
 		<add name="zero 0" type="uint64" >seen 0</add>
-		<add name="count2" type="uint64" since="48">usually 2 - only for recent versions of PZ, can vary in JWE2</add>
-		<add name="zero 2" type="uint64" since="48">only for recent versions of PZ</add>
+		<add name="flag" type="uint64" since="48">seen 0, 2, 4</add>
+		<add name="zero 2" type="uint64" since="48"/>
 		<add name="UnknownList" type="UACJoint" arr1="count7" until="13">36 bytes per entry</add>
 		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="32">60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
-		probably wrong
-<!--		<add name="joint debug 1" type="StreamDebugger" >joints</add>-->
-		<add name="alignment" type="uint64" cond="count2" since="51">jwe2 only if present, 8 bytes.</add>
-<!--		<add name="new extra" type="uint" arr1="2" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
-<!--		<add name="new extra" type="uint" arr1="2" cond="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
-<!--		<add name="new extra" type="byte" arr1="(io_start - (struct_7.io_start + struct_7.io_size)) #MOD# 16" since="51">A7 2D A8 10   00 00 00 00, JWE2 only, this might be repeated at the end of the joints, on rex</add>-->
-
+<!--		<add name="joint debug" type="StreamDebugger" >joints</add>-->
+		<add name="alignment" type="uint64" cond="flag" since="51">jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
 	</compound>
 
 	<compound name="UACJoint">

@@ -28,10 +28,8 @@ class Struct7:
 		# seen 0
 		self.zero_0 = 0
 
-		# usually 2 - only for recent versions of PZ, can vary in JWE2
-		self.count_2 = 0
-
-		# only for recent versions of PZ
+		# seen 0, 2, 4
+		self.flag = 0
 		self.zero_2 = 0
 
 		# 36 bytes per entry
@@ -43,7 +41,7 @@ class Struct7:
 		# align list to multiples of 8
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
 
-		# jwe2 only if present, 8 bytes.
+		# jwe2 only - if flag is non-zero, 8 bytes, else 0
 		self.alignment = 0
 		self.set_defaults()
 
@@ -53,7 +51,7 @@ class Struct7:
 		self.count_7 = 0
 		self.zero_0 = 0
 		if self.context.version >= 48:
-			self.count_2 = 0
+			self.flag = 0
 		if self.context.version >= 48:
 			self.zero_2 = 0
 		if self.context.version <= 13:
@@ -61,7 +59,7 @@ class Struct7:
 		if self.context.version >= 32:
 			self.unknown_list = Array(self.context)
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8), dtype='ubyte')
-		if self.context.version >= 51 and self.count_2:
+		if self.context.version >= 51 and self.flag:
 			self.alignment = 0
 
 	def read(self, stream):
@@ -71,14 +69,14 @@ class Struct7:
 		self.count_7 = stream.read_uint64()
 		self.zero_0 = stream.read_uint64()
 		if self.context.version >= 48:
-			self.count_2 = stream.read_uint64()
+			self.flag = stream.read_uint64()
 			self.zero_2 = stream.read_uint64()
 		if self.context.version <= 13:
 			self.unknown_list.read(stream, UACJoint, self.count_7, None)
 		if self.context.version >= 32:
 			self.unknown_list.read(stream, NasutoJointEntry, self.count_7, None)
 		self.padding = stream.read_ubytes(((8 - ((self.count_7 * 60) % 8)) % 8))
-		if self.context.version >= 51 and self.count_2:
+		if self.context.version >= 51 and self.flag:
 			self.alignment = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
@@ -90,14 +88,14 @@ class Struct7:
 		stream.write_uint64(self.count_7)
 		stream.write_uint64(self.zero_0)
 		if self.context.version >= 48:
-			stream.write_uint64(self.count_2)
+			stream.write_uint64(self.flag)
 			stream.write_uint64(self.zero_2)
 		if self.context.version <= 13:
 			self.unknown_list.write(stream, UACJoint, self.count_7, None)
 		if self.context.version >= 32:
 			self.unknown_list.write(stream, NasutoJointEntry, self.count_7, None)
 		stream.write_ubytes(self.padding)
-		if self.context.version >= 51 and self.count_2:
+		if self.context.version >= 51 and self.flag:
 			stream.write_uint64(self.alignment)
 
 		self.io_size = stream.tell() - self.io_start
@@ -110,7 +108,7 @@ class Struct7:
 		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
 		s += f'\n	* count_7 = {self.count_7.__repr__()}'
 		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
-		s += f'\n	* count_2 = {self.count_2.__repr__()}'
+		s += f'\n	* flag = {self.flag.__repr__()}'
 		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
 		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
 		s += f'\n	* padding = {self.padding.__repr__()}'

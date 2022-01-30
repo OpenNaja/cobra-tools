@@ -26,7 +26,7 @@ class StreamDebugger:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		logging.debug(f"{self.name} at {stream.tell()}")
+		logging.debug(f"Debugger at {stream.tell()}")
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
