@@ -6,7 +6,7 @@ from generated.formats.ms2.compound.FloatsY import FloatsY
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.LodInfoZT import LodInfoZT
 from generated.formats.ms2.compound.MaterialName import MaterialName
-from generated.formats.ms2.compound.MeshData import MeshData
+from generated.formats.ms2.compound.NewMeshData import NewMeshData
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2.compound.PcMeshData import PcMeshData
 from generated.formats.ms2.compound.ZTPreBones import ZTPreBones
@@ -83,7 +83,7 @@ class Model:
 		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = stream.read_uint()
 		if self.context.version >= 47:
-			self.meshes.read(stream, MeshData, self.arg.num_meshes, None)
+			self.meshes.read(stream, NewMeshData, self.arg.num_meshes, None)
 		if self.context.version == 32:
 			self.meshes.read(stream, PcMeshData, self.arg.num_meshes, None)
 		if self.context.version == 13:
@@ -106,7 +106,7 @@ class Model:
 		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			stream.write_uint(self.objects_padding)
 		if self.context.version >= 47:
-			self.meshes.write(stream, MeshData, self.arg.num_meshes, None)
+			self.meshes.write(stream, NewMeshData, self.arg.num_meshes, None)
 		if self.context.version == 32:
 			self.meshes.write(stream, PcMeshData, self.arg.num_meshes, None)
 		if self.context.version == 13:

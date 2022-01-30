@@ -84,26 +84,9 @@ class ZtMeshData:
 		logging.debug(f"PC size of vertex: {self.dt.itemsize}")
 		logging.debug(f"PC size of vcol+uv: {self.dt_colors.itemsize}")
 
-	def update_shell_count(self):
-		if self.flag.repeat_tris:
-			self.shell_count = 6
-		else:
-			self.shell_count = 1
-
-	def read_tris(self, stream):
-		# read all tri indices for this mesh
-		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset)
-		logging.debug(f"tris offset {stream.tell()}")
-		# read all tri indices for this mesh segment
-		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count // self.shell_count)
-
 	@property
-	def tris(self, ):
-		# tri strip
-		if self.flag.stripify:
-			return triangulate((self.tri_indices,))
-		else:
-			return list([(self.tri_indices[i], self.tri_indices[i+1], self.tri_indices[i+2]) for i in range(0, len(self.tri_indices), 3)])
+	def tris_address(self):
+		return self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset
 
 	def read_verts(self, stream):
 		# get dtype according to which the vertices are packed
@@ -122,12 +105,14 @@ class ZtMeshData:
 		else:
 			stream.seek(self.buffer_2_offset + self.stream_offset + self.vertex_offset)
 		logging.debug(f"{self.vertex_count} VERTS at {stream.tell()}")
-		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
+		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
+		stream.readinto(self.verts_data)
 		self.new_vertex_offset = stream.tell()
 		# print(self.verts_data.shape)
 		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
 		logging.debug(f"UV at {stream.tell()}")
-		self.colors_data = np.fromfile(stream, dtype=self.dt_colors, count=self.vertex_count)
+		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
+		stream.readinto(self.colors_data)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
@@ -155,19 +140,3 @@ class ZtMeshData:
 		# print(self.vertices)
 		# print(self.weights)
 
-	@staticmethod
-	def get_weights(bone_ids, bone_weights):
-		return [(i, w / 255) for i, w in zip(bone_ids, bone_weights) if w > 0]
-
-	@property
-	def lod_index(self, ):
-		try:
-			lod_i = int(math.log2(self.poweroftwo))
-		except:
-			lod_i = 0
-			logging.warning(f"math domain for lod {self.poweroftwo}")
-		return lod_i
-
-	@lod_index.setter
-	def lod_index(self, lod_i):
-		self.poweroftwo = int(math.pow(2, lod_i))

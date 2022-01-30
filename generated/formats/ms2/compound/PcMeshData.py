@@ -4,17 +4,15 @@ import logging
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
-from generated.context import ContextReference
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
+from generated.formats.ms2.compound.MeshData import MeshData
 
 
-class PcMeshData:
-
-	context = ContextReference()
+class PcMeshData(MeshData):
 
 	def __init__(self, context, arg=None, template=None):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -97,6 +95,7 @@ class PcMeshData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
+		super().read(stream)
 		self.stream_index = stream.read_uint64()
 		self.some_index = stream.read_uint64()
 		self.tri_index_count_a = stream.read_uint()
@@ -122,6 +121,7 @@ class PcMeshData:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
+		super().write(stream)
 		stream.write_uint64(self.stream_index)
 		stream.write_uint64(self.some_index)
 		stream.write_uint(self.tri_index_count_a)
@@ -150,6 +150,7 @@ class PcMeshData:
 
 	def get_fields_str(self):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* stream_index = {self.stream_index.__repr__()}'
 		s += f'\n	* some_index = {self.some_index.__repr__()}'
 		s += f'\n	* tri_index_count_a = {self.tri_index_count_a.__repr__()}'
@@ -222,17 +223,15 @@ class PcMeshData:
 		self.dt = np.dtype(dt)
 		self.dt_uv = np.dtype(dt_uv)
 		self.dt_w = np.dtype(dt_w)
-		print("PC size of vertex:", self.dt.itemsize)
-		print("PC size of uv:", self.dt_uv.itemsize)
-		print("PC size of weights:", self.dt_w.itemsize)
+		self.update_shell_count()
+		logging.debug(f"PC size of vertex: {self.dt.itemsize}")
+		logging.debug(f"PC size of uv: {self.dt_uv.itemsize}")
+		logging.debug(f"PC size of weights: {self.dt_w.itemsize}")
 
-	def read_tris(self, stream):
-		# read all tri indices for this mesh
+	@property
+	def tris_address(self):
 		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}, count {self.tri_offset}")
-		stream.seek(self.buffer_2_offset + (self.tri_offset * 16))
-		logging.debug(f"tris offset at {stream.tell()}")
-		# read all tri indices for this mesh segment
-		self.tri_indices = np.fromfile(stream, dtype=np.uint16, count=self.tri_index_count)
+		return self.buffer_2_offset + (self.tri_offset * 16)
 
 	@property
 	def tris(self, ):
@@ -242,19 +241,22 @@ class PcMeshData:
 	def read_verts(self, stream):
 		# read a vertices of this mesh
 		stream.seek(self.buffer_2_offset + (self.vertex_offset * 16))
-		print("VERTS", stream.tell())
+		logging.debug(f"VERTS at {stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
-		self.verts_data = np.fromfile(stream, dtype=self.dt, count=self.vertex_count)
+		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
+		stream.readinto(self.verts_data)
 		stream.seek(self.buffer_2_offset + (self.uv_offset * 16))
-		print("UV", stream.tell())
-		self.uv_data = np.fromfile(stream, dtype=self.dt_uv, count=self.vertex_count)
+		logging.debug(f"UV at {stream.tell()}")
+		self.uv_data = np.empty(dtype=self.dt_uv, shape=self.vertex_count)
+		stream.readinto(self.uv_data)
 		stream.seek(self.buffer_2_offset + (self.weights_offset * 16))
-		print("WEIGHtS", stream.tell())
+		logging.debug(f"WEIGHTS at {stream.tell()}")
 		# print(self)
 		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
-		self.weights_data = np.fromfile(stream, dtype=self.dt_w, count=self.vertex_count)
+		self.weights_data = np.empty(dtype=self.dt_w, shape=self.vertex_count)
+		stream.readinto(self.weights_data)
 		# print(self.verts_data)
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
@@ -279,21 +281,4 @@ class PcMeshData:
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, residue, extra=False))
 		# print(self.vertices)
-
-	@staticmethod
-	def get_weights(bone_ids, bone_weights):
-		return [(i, w / 255) for i, w in zip(bone_ids, bone_weights) if w > 0]
-
-	@property
-	def lod_index(self, ):
-		try:
-			lod_i = int(math.log2(self.poweroftwo))
-		except:
-			lod_i = 0
-			print("EXCEPTION: math domain for lod", self.poweroftwo)
-		return lod_i
-
-	@lod_index.setter
-	def lod_index(self, lod_i):
-		self.poweroftwo = int(math.pow(2, lod_i))
 

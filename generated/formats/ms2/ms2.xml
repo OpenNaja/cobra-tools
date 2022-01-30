@@ -130,7 +130,7 @@
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
 		rhino: start of model - end of objects: 124 - 4 bytes padding
 		ele: start of model - end of objects: 120 - 0 bytes padding</add>
-		<add name="meshes" type="MeshData" arr1="#ARG#\num_meshes" since="47">mesh data blocks for this model</add>
+		<add name="meshes" type="NewMeshData" arr1="#ARG#\num_meshes" since="47">mesh data blocks for this model</add>
 		<add name="meshes" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#"/>
 		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#"/>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
@@ -174,6 +174,10 @@
 	</compound>
 
 	<compound name="MeshData" >
+		used for shared functions
+	</compound>
+
+	<compound name="NewMeshData" inherit="MeshData">
 		<add name="ptr" type="uint64" >PZ and JWE have a ptr at the start instead of the stream index</add>
 		<add name="zero0" type="uint64" >unused</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
@@ -189,7 +193,7 @@
 		<add name="flag" type="ModelFlag">bitfield, determines vertex format</add>
 	</compound>
 
-	<compound name="PcMeshData" >
+	<compound name="PcMeshData" inherit="MeshData">
 		<add name="stream index" type="uint64" >index into streamed buffers</add>
 		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus</add>
 		<add name="tri index count a" type="uint" >repeat</add>
@@ -207,10 +211,9 @@
 		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
 		<add name="flag" type="ModelFlag">bitfield</add>
 		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
-<!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
 	</compound>
 
-	<compound name="ZtMeshData" >
+	<compound name="ZtMeshData" inherit="MeshData">
 		<add name="stream index" type="uint64" >index into streamed buffers</add>
 		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus</add>
 		<add name="tri index count" type="uint" >repeat</add>
@@ -230,7 +233,6 @@
 		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
 		<add name="flag" type="ModelFlagZT">bitfield</add>
 		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
-<!--        <add name="zeros b" type="uint" arr1="3">always zero</add>-->
 	</compound>
 
 	<compound name="ZTPreBones">

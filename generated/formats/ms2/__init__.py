@@ -89,7 +89,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 			self.lookup_material()
 			if read_editable:
-				self.load_mesh()
+				self.load_mesh(stream)
 			if read_bytes:
 				# make all 3 buffers accesible as bytes
 				self.update_buffer_0_bytes()
@@ -97,50 +97,48 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
 
-	def load_mesh(self):
-		# numpy chokes on bytes io objects
-		with open(self.filepath, "rb") as stream:
-			stream.seek(self.buffer_2_offset)
-			logging.debug(f"buffer_2_offset {self.buffer_2_offset}")
-			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
-				if is_old(self.info):
-					# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
-					sum_uv_dict = {}
-					for mesh in model_info.model.meshes:
-						if mesh.stream_index not in sum_uv_dict:
-							sum_uv_dict[mesh.stream_index] = 0
-						sum_uv_dict[mesh.stream_index] += mesh.vertex_count
-					last_vertex_offset = 0
-					# sort by lod, read those with offset first
-					# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
-					# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: x[1].vertex_offset)
-					sorted_meshes = list(enumerate(model_info.model.meshes))
+	def load_mesh(self, stream):
+		stream.seek(self.buffer_2_offset)
+		logging.debug(f"buffer_2_offset {self.buffer_2_offset}")
+		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
+			if is_old(self.info):
+				# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
+				sum_uv_dict = {}
+				for mesh in model_info.model.meshes:
+					if mesh.stream_index not in sum_uv_dict:
+						sum_uv_dict[mesh.stream_index] = 0
+					sum_uv_dict[mesh.stream_index] += mesh.vertex_count
+				last_vertex_offset = 0
+				# sort by lod, read those with offset first
+				# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
+				# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: x[1].vertex_offset)
+				sorted_meshes = list(enumerate(model_info.model.meshes))
+				for i, mesh in sorted_meshes:
+					print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
+				try:
 					for i, mesh in sorted_meshes:
-						print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
-					try:
-						for i, mesh in sorted_meshes:
-							logging.info(f"Populating mesh {i}")
-							last_vertex_offset = mesh.populate(
-								self, stream, self.buffer_2_offset, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
-					except:
-						traceback.print_exc()
-						# print(self)
-				else:
-					# if mdl2.read_editable:
-					logging.debug(f"Loading editable mesh data for {mdl2_name}")
-					for mesh in model_info.model.meshes:
-						mesh.populate(self, stream, self.buffer_2_offset, model_info.pack_offset)
-					#
-					# elif mdl2.map_bytes:
-					# 	logging.debug(f"Reading mesh statistics for {mdl2_name}")
-					# 	for model in mdl2.model.meshes:
-					# 		model.read_bytes_map(self.buffer_2_offset, stream)
-					#
-					# # store binary data for verts and tris on the mesh
-					# elif mdl2.read_bytes:
-					# 	logging.debug(f"Copying mesh data for {mdl2_name}")
-					# 	for model in mdl2.model.meshes:
-					# 		model.read_bytes(self.buffer_2_offset, self.buffer_info.vertexdatasize, stream)
+						logging.info(f"Populating mesh {i}")
+						last_vertex_offset = mesh.populate(
+							self, stream, self.buffer_2_offset, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+				except:
+					traceback.print_exc()
+					# print(self)
+			else:
+				# if mdl2.read_editable:
+				logging.debug(f"Loading editable mesh data for {mdl2_name}")
+				for mesh in model_info.model.meshes:
+					mesh.populate(self, stream, self.buffer_2_offset, model_info.pack_offset)
+				#
+				# elif mdl2.map_bytes:
+				# 	logging.debug(f"Reading mesh statistics for {mdl2_name}")
+				# 	for model in mdl2.model.meshes:
+				# 		model.read_bytes_map(self.buffer_2_offset, stream)
+				#
+				# # store binary data for verts and tris on the mesh
+				# elif mdl2.read_bytes:
+				# 	logging.debug(f"Copying mesh data for {mdl2_name}")
+				# 	for model in mdl2.model.meshes:
+				# 		model.read_bytes(self.buffer_2_offset, self.buffer_info.vertexdatasize, stream)
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
