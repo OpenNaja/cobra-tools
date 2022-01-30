@@ -90,6 +90,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		# for last_count
 		last_counts = set()
 		flags = set()
+		no_bones = set()
 		if walk_models:
 			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
@@ -107,9 +108,11 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 						# 	type_dic[model.flag][0].append(mdl2_name)
 						# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 						last_counts.add(model_info.last_count)
-						if model_info.bone_info.count_7:
-							flags.add(model_info.bone_info.struct_7.flag)
-						last_counts.add(model_info.last_count)
+						if model_info.bone_info:
+							if model_info.bone_info.count_7:
+								flags.add(model_info.bone_info.struct_7.flag)
+						else:
+							no_bones.add(ms2_path)
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((ms2_path, ex))
@@ -132,6 +135,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print()
 		print(f"last_counts: {last_counts}")
 		print(f"flags: {flags}")
+		print(f"no_bones: {no_bones}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds."
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)
