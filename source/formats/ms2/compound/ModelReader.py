@@ -168,24 +168,18 @@ class ModelReader:
 				model_info.model.write(stream)
 			self.bone_info_start = stream.tell()
 			for model_info in self.arg:
-				i = self.assign_bone_info(i, model_info, stream)
+				if model_info.increment_flag:
+					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
+					model_info.bone_info.write(stream)
+					self.write_hitcheck_verts(model_info.bone_info, stream)
+					if i + 1 < len(self.bone_infos):
+						relative_offset = stream.tell() - self.bone_info_start
+						padding = get_padding(relative_offset)
+						logging.debug(f"Writing padding {padding}")
+						stream.write(padding)
+					i += 1
+			self.bone_info_size = stream.tell() - self.bone_info_start
 		self.io_size = stream.tell() - self.io_start
-
-	def write_all_bone_infos(self, stream):
-		i = 0
-		bone_infos_start = stream.tell()
-		for model_info in self.arg:
-			if model_info.increment_flag:
-				logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
-				model_info.bone_info.write(stream)
-				self.write_hitcheck_verts(model_info.bone_info, stream)
-				if i + 1 < len(self.bone_infos):
-					relative_offset = stream.tell() - bone_infos_start
-					padding = get_padding(relative_offset)
-					logging.debug(f"Writing padding {padding}")
-					stream.write(padding)
-				i += 1
-		self.bone_info_size = stream.tell() - bone_infos_start
 
 	def get_info_str(self):
 		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

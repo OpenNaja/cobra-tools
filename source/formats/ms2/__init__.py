@@ -91,11 +91,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if read_editable:
 				self.load_mesh(stream)
 			if read_bytes:
-				# make all 3 buffers accesible as bytes
-				self.update_buffer_0_bytes()
-				stream.seek(self.buffer_1_offset)
-				self.buffer_1_bytes = stream.read(self.bone_info_size)
-				self.buffer_2_bytes = stream.read()
+				self.get_buffers()
 
 	def load_mesh(self, stream):
 		stream.seek(self.buffer_2_offset)
@@ -214,9 +210,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_buffer_1_bytes(self):
 		with BinaryStream() as temp_bone_writer:
-			# self.write_all_bone_infos(temp_bone_writer)
-			self.buffer_1_bytes = temp_bone_writer.getvalue()
-			self.bone_info_size = temp_bone_writer.tell() - self.models_reader.bone_info_start
+			self.models_reader.write(temp_bone_writer)
+			self.buffer_1_bytes = temp_bone_writer.getvalue()[self.models_reader.bone_info_start:]
+			self.bone_info_size = self.models_reader.bone_info_size
 
 	def update_buffer_2_bytes(self):
 		if self.read_editable:
@@ -225,17 +221,28 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			temp_vert_writer = io.BytesIO()
 			temp_tris_writer = io.BytesIO()
 			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
+				logging.debug(f"Storing {mdl2_name}")
+				# update ModelInfo
+				model_info.num_materials = len(model_info.model.materials)
+				model_info.num_lods = len(model_info.model.lods)
+				model_info.num_objects = len(model_info.model.objects)
+				model_info.num_meshes = len(model_info.model.meshes)
+				# update MeshData structs
 				for mesh in model_info.model.meshes:
-					# update MeshData struct
 					mesh.vertex_offset = temp_vert_writer.tell()
 					mesh.tri_offset = temp_tris_writer.tell()
-					logging.debug(f"Storing {mdl2_name}")
 					mesh.vertex_count = len(mesh.verts_data)
 					mesh.tri_index_count = len(mesh.tri_indices) * mesh.shell_count
 					# write data
 					mesh.write_verts(temp_vert_writer)
 					mesh.write_tris(temp_tris_writer)
-			self.update_lod_vertex_counts()
+				# update LodInfo structs
+				logging.debug(f"Updating lod vertex counts...")
+				for lod in model_info.model.lods:
+					lod.vertex_count = sum(model.vertex_count for model in lod.meshes)
+					lod.tri_index_count = sum(model.tri_index_count for model in lod.meshes)
+					logging.debug(f"lod.vertex_count = {lod.vertex_count}")
+					logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
 			# get bytes from IO obj
 			vert_bytes = temp_vert_writer.getvalue()
 			tris_bytes = temp_tris_writer.getvalue()
@@ -244,22 +251,33 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_info.facesdatasize = len(tris_bytes)
 			self.buffer_2_bytes = vert_bytes + tris_bytes
 
-	def save(self, filepath):
-		# exp = "export"
-		# exp_dir = os.path.join(self.dir, exp)
-		# os.makedirs(exp_dir, exist_ok=True)
+	# def get_buffers(self, stream):
+	# 	"""Returns a list of buffer datas for this ms2"""
+	# 	stream.seek(self.buffer_0.io_start)
+	# 	buffer_0 = stream.read(self.buffer_0.io_size)
+	# 	stream.seek(self.buffer_1_offset)
+	# 	buffer_1 = stream.read(self.bone_info_size)
+	# 	buffer_2 = stream.read()
+	# 	return buffer_0, buffer_1, buffer_2
 
-		logging.info("Writing verts and tris to temporary buffer")
+	def get_buffers(self):
+		"""Returns a list of buffer datas for this ms2"""
+		logging.info("Pre-writing buffers")
 		self.update_names()
-
 		self.update_buffer_0_bytes()
 		self.update_buffer_1_bytes()
 		self.update_buffer_2_bytes()
-		# write output ms2
+		return self.buffer_0_bytes, self.buffer_1_bytes, self.buffer_2_bytes
+
+	def save(self, filepath):
+		exp = "export"
+		exp_dir = os.path.join(self.dir, exp)
+		os.makedirs(exp_dir, exist_ok=True)
+
+		self.get_buffers()
 		logging.info("Writing final output")
 		with self.writer(filepath) as f:
 			self.write(f)
-			f.write(self.buffer_1_bytes)
 			f.write(self.buffer_2_bytes)
 
 	def lookup_material(self):
@@ -290,92 +308,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			model_info.model.objects.clear()
 			model_info.model.meshes.clear()
 
-	def update_counts(self):
-		for model_info in self.model_infos:
-			model_info.num_materials = len(model_info.model.materials)
-			model_info.num_lods = len(model_info.model.lods)
-			model_info.num_objects = len(model_info.model.objects)
-			model_info.num_meshes = len(model_info.model.meshes)
-
-	def update_lod_vertex_counts(self):
-		logging.debug(f"Updating lod vertex counts...")
-		for model_info in self.model_infos:
-			for lod in model_info.model.lods:
-				lod.vertex_count = sum(model.vertex_count for model in lod.meshes)
-				lod.tri_index_count = sum(model.tri_index_count for model in lod.meshes)
-				logging.debug(f"lod.vertex_count = {lod.vertex_count}")
-				logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
-
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/ichthyo/ichthyosaurus.mdl2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/frb/frbmodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
-	# for mesh in m.meshes:
-	# 	print(mesh.tris)
-	# 	mesh.validate_tris()
-	# m.load("C:/Users/arnfi/Desktop/fra/framodel_rock_tree_branch_01.mdl2", entry=True, read_editable=True)
-
-	# m.load("C:/Users/arnfi/Desktop/armadillo/ninebanded_armadillo.mdl2", entry=True)
-	# m.load("C:/Users/arnfi/Desktop/test/fine/wm_skeleton_base_02.mdl2")
-	# m.load("C:/Users/arnfi/Desktop/test/test/wm_skeleton_base_02.mdl2")
-# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2", read_editable=True)
-# m.load("C:/Users/arnfi/Desktop/Coding/ovl/dev/out/PZ/Main PZ big/widgetball_test.mdl2")
-# m.load("C:/Users/arnfi/Desktop/redwood/tris1_scr_redwood_01.mdl2")
-# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblacksouthcentral_child.mdl2")
-# m.load("C:/Users/arnfi/Desktop/rhinos/rhinoblack_female.mdl2")
-# m.load("C:/Users/arnfi/Desktop/rhinos/africanelephant_child.mdl2")
-# m.load("C:/Users/arnfi/Desktop/rhinos/platypus.mdl2")
-# m.load("C:/Users/arnfi/Desktop/rattle/western_diamondback_rattlesnake.mdl2")
-# m.load("C:/Users/arnfi/Desktop/anteater/giant_anteater.mdl2")
-# m.load("C:/Users/arnfi/Desktop/ele/africanelephant_female.mdl2")
-# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres.mdl2")
-# m.load("C:/Users/arnfi/Desktop/ostrich/ugcres_hitcheck.mdl2")
-# 	m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf.mdl2", entry=True, read_editable=True)
-# 	for mesh in m.meshes:
-# 		b = list(mesh.tris)
-# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_bogfl.mdl2")
-# m.load("C:/Users/arnfi/Desktop/anubis/cc_anubis_carf_hitcheck.mdl2")
-# m.load("C:/Users/arnfi/Desktop/gharial/gharial_male.mdl2")
-# m = Mdl2File()
-# # m.load("C:/Users/arnfi/Desktop/prim/meshes.ms2")
-# print(m)
-#
-# idir = "C:/Users/arnfi/Desktop/out"
-# # idir = "C:/Users/arnfi/Desktop/Coding/ovl/export_save/detailobjects"
-# dic = {}
-# name = "nat_grassdune_02.mdl2"
-# name = "nat_groundcover_searocket_patchy_01.mdl2"
-# indices = []
-#
-# for fp in walker.walk_type(idir, ".mdl2"):
-# 	if "hitcheck" in fp or "skeleton" in fp or "airliftstraps" in fp:
-# 		continue
-# 	print(fp)
-# 	m.load(fp, read_editable=True)
-# 	# indices.append(m.index)
-# 	print(fp)
-# 	# print(list(lod.bone_index for lod in m.lods))
-# 	# print(m.model_info)
-# 	# lod_indices = list(lod.bone_index for lod in m.lods)
-# 	flags = list(mo.flag for mo in m.meshes)
-# 	print(flags)
-# 	# indices.extend(unk)
-# # 		dic[file] = lod_indices
-# # 		if file.lower() == name:
-# # 			print(m.ms2_file.bone_info)
-# # 		# print(m.ms2_file.bone_info)
-# # 		print(m.ms2_file.bone_info.name_indices, lod_indices)
-# # 		lod_names = [m.ms2_file.bone_names[i-1] for i in lod_indices]
-# # 		print(lod_names)
-# # print(dic)
-# # # print(m.ms2_file.buffer_0.names)
-# # for i, n in enumerate(m.ms2_file.buffer_0.names):
-# # 	print(i,n)
-# # l = dic[name]
-# # print(l)
-# # print(indices, max(indices))
-# # fp = os.path.join(idir, name)
-# # m.load(fp, read_editable=True)
-#
-# print(set(indices))
+	m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
+	m.save("C:/Users/arnfi/Desktop/test.ms2")

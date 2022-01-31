@@ -164,7 +164,7 @@ class Ms2Loader(BaseFile):
 		# the last ms2 fragment
 		self.write_to_pool(end_frag.pointers[1], 2, struct.pack("<ii", -1, 0))
 		# create ms2 data
-		self.create_data_entry(ms2_entry, (ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes))
+		self.create_data_entry(ms2_entry, ms2_file.get_buffers())
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
@@ -304,7 +304,7 @@ class Ms2Loader(BaseFile):
 		model_info_frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
-		self.sized_str_entry.data_entry.update_data([ms2_file.buffer_0_bytes, ms2_file.buffer_1_bytes, ms2_file.buffer_2_bytes])
+		self.sized_str_entry.data_entry.update_data(ms2_file.get_buffers())
 
 	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()
