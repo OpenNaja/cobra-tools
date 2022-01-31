@@ -271,13 +271,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		return self.buffer_0_bytes, self.buffer_1_bytes, self.buffer_2_bytes
 
 	def save(self, filepath):
-		exp = "export"
-		exp_dir = os.path.join(self.dir, exp)
+		self.dir, self.name = os.path.split(os.path.normpath(filepath))
+		exp_dir = os.path.join(self.dir, "export")
 		os.makedirs(exp_dir, exist_ok=True)
+		export_path = os.path.join(exp_dir, self.name)
 
 		self.get_buffers()
-		logging.info("Writing final output")
-		with self.writer(filepath) as f:
+		logging.info(f"Writing to {export_path}")
+		with self.writer(export_path) as f:
 			self.write(f)
 			f.write(self.buffer_2_bytes)
 
