@@ -3,7 +3,6 @@ import time
 import traceback
 import logging
 import numpy as np
-import json
 
 from generated.formats.fgm import FgmFile
 from generated.formats.ms2 import Ms2File
@@ -72,8 +71,6 @@ def generate_hash_table(gui, start_dir):
 
 		except BaseException as err:
 			print(err)
-		# with open(file, 'r') as f:
-		# 	data = json.load(f)
 		logging.info(f"Wrote {len(hash_dict)} items to {out_path}")
 
 
