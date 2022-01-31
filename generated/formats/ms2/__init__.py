@@ -72,7 +72,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def load(self, filepath, read_bytes=False, read_editable=False):
 		start_time = time.time()
 		self.filepath = filepath
-		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
+		self.dir, self.name = os.path.split(os.path.normpath(filepath))
 		self.read_editable = read_editable
 		logging.debug(f"Reading {self.filepath}")
 		with self.reader(filepath) as stream:
@@ -99,7 +99,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_2_bytes = stream.read()
 				# self.get_buffers()
 
-		logging.debug(f"Read {self.basename} in {time.time() - start_time:.2f} seconds.")
+		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds.")
 
 	def load_mesh(self, stream):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
@@ -172,7 +172,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def rename(self, name_tups):
 		"""Renames strings in the main name buffer"""
-		logging.info(f"Renaming on {self.basename}")
+		logging.info(f"Renaming in {self.name}")
 		for i, name in enumerate(self.buffer_0.names):
 			# first a cases sensitive pass
 			for old, new in name_tups:
