@@ -296,7 +296,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 		model_info.pack_offset = scene.cobra.pack_base
 		model_info.render_flag._value = get_property(scene, "render_flag")
 		if edit_bones:
-			export_bones_custom(b_armature_ob, ms2)
+			export_bones_custom(b_armature_ob, model_info)
 		# used to get index from bone name for faster weights
 		bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(model_info))))
 	

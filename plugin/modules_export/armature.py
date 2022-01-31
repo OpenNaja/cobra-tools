@@ -90,14 +90,14 @@ def handle_transforms(ob, me, apply=True):
 				f"Check 'Apply Transforms' on export or apply them manually with CTRL+A!")
 
 
-def export_bones_custom(b_armature_ob, mdl2):
-	corrector = matrix_util.Corrector(is_ztuac(mdl2))
+def export_bones_custom(b_armature_ob, model_info):
+	corrector = matrix_util.Corrector(is_ztuac(model_info))
 	# now get bone names from b_armature.data
-	if is_jwe(mdl2):
+	if is_jwe(model_info):
 		b_bone_names = ovl_bones_jwe(b_armature_ob)
 	else:
 		b_bone_names = get_bone_names_from_armature(b_armature_ob)
-	bone_info = mdl2.bone_info
+	bone_info = model_info.bone_info
 	bone_info.bones.clear()
 	bone_info.inverse_bind_matrices.clear()
 
@@ -111,7 +111,6 @@ def export_bones_custom(b_armature_ob, mdl2):
 			bone_2_ob[ob.parent_bone].append(ob)
 
 	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
-	# print(lut_dic)
 	bone_info.parents.resize(len(b_bone_names))
 	for bone_i, b_bone_name in enumerate(b_bone_names):
 		b_bone = b_armature_ob.data.bones.get(b_bone_name)
@@ -124,7 +123,7 @@ def export_bones_custom(b_armature_ob, mdl2):
 		else:
 			mat_local_to_parent = mat_local
 
-		ms2_bone = Bone(mdl2.context)
+		ms2_bone = Bone(model_info.context)
 		ms2_bone.name = bone_name_for_ovl(b_bone_name)
 		# set parent index
 		if b_bone.parent:
@@ -134,13 +133,13 @@ def export_bones_custom(b_armature_ob, mdl2):
 		ms2_bone.set_bone(mat_local_to_parent)
 
 		bone_info.bones.append(ms2_bone)
-		ms2_inv_bind = Matrix44(mdl2.context)
+		ms2_inv_bind = Matrix44(model_info.context)
 		ms2_inv_bind.set_rows(mat_local.inverted())
 		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
 
 		# then it is considered a joint, so append data to the joints lists (joint_count)
 		if b_bone_name in bone_2_ob:
-			print(f"Bone {b_bone_name} has {len(bone_2_ob[b_bone_name])} hitchecks")
+			logging.debug(f"Bone {b_bone_name} has {len(bone_2_ob[b_bone_name])} hitchecks")
 
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
@@ -158,12 +157,11 @@ def export_bones_custom(b_armature_ob, mdl2):
 
 
 def export_joints(armature_ob, bone_info, b_bone_names, corrector):
-	print("Exporting joints")
+	logging.info("Exporting joints")
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
 		# bone_name = b_bone_names[bone_index]
-		print("joint", joint_info.name)
+		logging.debug(f"joint {joint_info.name}")
 		for hitcheck in joint_info.hitchecks:
 			b_obj = bpy.data.objects.get(hitcheck.name, None)
 			if b_obj:
 				export_hitcheck(b_obj, hitcheck, corrector)
-
