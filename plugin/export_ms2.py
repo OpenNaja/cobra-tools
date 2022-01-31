@@ -10,7 +10,7 @@ import mathutils
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.MaterialName import MaterialName
 from generated.formats.ms2.compound.Object import Object
-from generated.formats.ms2.compound.MeshData import MeshData
+from generated.formats.ms2.compound.NewMeshData import NewMeshData
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
@@ -30,27 +30,27 @@ def ensure_tri_modifier(ob):
 		ob.modifiers.new('Triangulate', 'TRIANGULATE')
 
 
-def has_objects_in_scene():
-	if bpy.context.scene.objects:
+def has_objects_in_scene(scene):
+	if scene.objects:
 		# operator needs an active object, set one if missing (eg. user had deleted the active object)
 		if not bpy.context.view_layer.objects.active:
-			bpy.context.view_layer.objects.active = bpy.context.scene.objects[0]
+			bpy.context.view_layer.objects.active = scene.objects[0]
 		# now enter object mode on the active object, if we aren't already in it
 		bpy.ops.object.mode_set(mode="OBJECT")
 		return True
 
 
-def export_material(mdl2, b_mat):
-	mat = MaterialName(mdl2.context)
+def export_material(ms2, b_mat):
+	mat = MaterialName(ms2.context)
 	mat.some_index = get_property(b_mat, "some_index")
 	mat.name = b_mat.name
-	mdl2.model.materials.append(mat)
+	ms2.model.materials.append(mat)
 
 
-def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms):
+def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms):
 	logging.info(f"Exporting mesh {b_me.name}")
-	# we get the corresponding mdl2 mesh
-	mesh = MeshData(mdl2.context)
+	# we create a ms2 mesh
+	mesh = NewMeshData(model_info.context)
 	# set data
 	mesh.size_of_vertex = 48
 	mesh.flag._value = get_property(b_me, "flag")
@@ -62,7 +62,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	# ensure that these are initialized
 	mesh.tri_indices = []
 	mesh.verts = []
-	mdl2.model.meshes.append(mesh)
+	model_info.model.meshes.append(mesh)
 
 	if not len(b_me.vertices):
 		raise AttributeError(f"Mesh {b_ob.name} has no vertices!")
@@ -92,10 +92,10 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 	# tangents have to be pre-calculated
 	# this will also calculate loop normal
 	eval_me.calc_tangents()
-	# stores values retrieved from blender, will be packed into array by pyffi
+	# stores values retrieved from blender, will be packed into array later
 	verts = []
 	# use a dict mapping dummy vertices to their index for fast lookup
-	# this is used to convert blender vertices (several UVs, normals per face corner) to mdl2 vertices
+	# this is used to convert blender vertices (several UVs, normals per face corner) to ms2 vertices
 	dummy_vertices = {}
 	count_unique = 0
 	count_reused = 0
@@ -160,7 +160,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 				v_index = count_unique
 				if v_index > MAX_USHORT:
 					raise OverflowError(
-						f"{b_ob.name} has too many MDL2 verts. The limit is {MAX_USHORT}. "
+						f"{b_ob.name} has too many ms2 verts. The limit is {MAX_USHORT}. "
 						f"\nBlender vertices have to be duplicated on every UV seam, hence the increase.")
 				dummy_vertices[dummy] = v_index
 				count_unique += 1
@@ -178,8 +178,8 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 			tri.append(v_index)
 		tris.append(tri)
 
-	print("count_unique", count_unique)
-	print("count_reused", count_reused)
+	logging.debug(f"count_unique {count_unique}")
+	logging.debug(f"count_reused {count_reused}")
 
 	# report unweighted vertices
 	if mesh.flag.weights:
@@ -187,7 +187,7 @@ def export_model(mdl2, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transf
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
 	# update vert & tri array
-	mesh.base = mdl2.model_info.pack_offset
+	mesh.base = model_info.pack_offset
 	# transfer raw verts into mesh data packed array
 	try:
 		mesh.set_verts(verts)
@@ -264,82 +264,87 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 	messages = set()
 	start_time = time.time()
 
-	# ensure that we have objects in the scene
-	if not has_objects_in_scene():
-		raise AttributeError("No objects in scene, nothing to export!")
-
-	print(f"\nExporting {filepath} into export subfolder...")
+	logging.info(f"Exporting {filepath} into export subfolder...")
 	if not os.path.isfile(filepath):
-		raise FileNotFoundError(f"{filepath} does not exist. You must open an existing MDL2 file for exporting.")
+		raise FileNotFoundError(f"{filepath} does not exist. You must open an existing ms2 file for exporting.")
 
-	mdl2 = Ms2File()
-	mdl2.load(filepath, entry=True, read_bytes=True)
-	mdl2.read_editable = True
-	mdl2.clear()
+	ms2 = Ms2File()
+	ms2.load(filepath)
+	ms2.read_editable = True
+	ms2.clear()
 
-	b_armature_ob = get_armature()
-	if not b_armature_ob:
-		raise AttributeError(f"No armature was found - did you delete it?")
-	# clear pose
-	for pbone in b_armature_ob.pose.bones:
-		pbone.matrix_basis = mathutils.Matrix()
+	model_info_lut = {mdl2_name: model_info for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos)}
+	for scene in bpy.data.scenes:
+		if scene.name not in model_info_lut:
+			logging.warning(f"Scene '{scene.name}' was not found in the MS2 file, skipping")
+			continue
 
-	scene = bpy.context.scene
-	if not scene.cobra.pack_base:
-		raise AttributeError(f"Set the pack base value for this scene!")
-	mdl2.model_info.pack_offset = scene.cobra.pack_base
-	mdl2.model_info.render_flag._value = get_property(scene, "render_flag")
-	if edit_bones:
-		export_bones_custom(b_armature_ob, mdl2)
-	# used to get index from bone name for faster weights
-	bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(mdl2))))
+		# ensure that we have objects in the scene
+		if not has_objects_in_scene(scene):
+			raise AttributeError(f"No objects in scene '{scene.name}', nothing to export!")
+		b_armature_ob = get_armature(scene)
+		if not b_armature_ob:
+			raise AttributeError(f"No armature was found in scene '{scene.name}' - did you delete it?")
+		# clear pose
+		for pbone in b_armature_ob.pose.bones:
+			pbone.matrix_basis = mathutils.Matrix()
+	
+		if not scene.cobra.pack_base:
+			raise AttributeError(f"Set the pack base value for scene '{scene.name}'!")
 
-	b_models = []
-	b_materials = []
-	bounds = []
-	# mesh_objects = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Mesh and not ob.rigid_body]
-	for lod_i in range(6):
-		lod_group_name = f"LOD{lod_i}"
-		lod_coll = get_collection(lod_group_name)
-		if not lod_coll:
-			break
-		m_lod = LodInfo(mdl2.context)
-		m_lod.distance = math.pow(30+15*lod_i, 2)
-		m_lod.first_object_index = len(mdl2.model.objects)
-		m_lod.meshes = []
-		m_lod.objects = []
-		mdl2.model.lods.append(m_lod)
-		for b_ob in lod_coll.objects:
-			# store & set bone index for lod
-			m_lod.bone_index = get_property(b_ob, "bone_index")
+		model_info = model_info_lut[scene.name]
+		model_info.pack_offset = scene.cobra.pack_base
+		model_info.render_flag._value = get_property(scene, "render_flag")
+		if edit_bones:
+			export_bones_custom(b_armature_ob, ms2)
+		# used to get index from bone name for faster weights
+		bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(model_info))))
+	
+		b_models = []
+		b_materials = []
+		bounds = []
+		# mesh_objects = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Mesh and not ob.rigid_body]
+		for lod_i in range(6):
+			lod_group_name = f"{scene.name}_LOD{lod_i}"
+			lod_coll = get_collection(lod_group_name)
+			if not lod_coll:
+				break
+			m_lod = LodInfo(ms2.context)
+			m_lod.distance = math.pow(30+15*lod_i, 2)
+			m_lod.first_object_index = len(model_info.model.objects)
+			m_lod.meshes = []
+			m_lod.objects = []
+			model_info.model.lods.append(m_lod)
+			for b_ob in lod_coll.objects:
+				# store & set bone index for lod
+				m_lod.bone_index = get_property(b_ob, "bone_index")
+	
+				b_me = b_ob.data
+				if b_me not in b_models:
+					b_models.append(b_me)
+					m_mesh = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms)
+					m_mesh.lod_index = lod_i
+				for b_mat in b_me.materials:
+					if b_mat not in b_materials:
+						b_materials.append(b_mat)
+						export_material(model_info, b_mat)
+						if "." in b_mat.name:
+							messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
+					# create one unique mesh per material
+					m_ob = Object(ms2.context)
+					m_ob.mesh_index = b_models.index(b_me)
+					m_ob.material_index = b_materials.index(b_mat)
+					model_info.model.objects.append(m_ob)
+					m_lod.meshes.append(model_info.model.meshes[m_ob.mesh_index])
+					m_lod.objects.append(m_ob)
+			m_lod.last_object_index = len(model_info.model.objects)
+	
+		export_bounds(bounds, model_info)
 
-			b_me = b_ob.data
-			if b_me not in b_models:
-				b_models.append(b_me)
-				m_mesh = export_model(mdl2, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms)
-				m_mesh.lod_index = lod_i
-			for b_mat in b_me.materials:
-				if b_mat not in b_materials:
-					b_materials.append(b_mat)
-					export_material(mdl2, b_mat)
-					if "." in b_mat.name:
-						messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
-				# create one unique mesh per material
-				m_ob = Object(mdl2.context)
-				m_ob.mesh_index = b_models.index(b_me)
-				m_ob.material_index = b_materials.index(b_mat)
-				mdl2.model.objects.append(m_ob)
-				m_lod.meshes.append(mdl2.model.meshes[m_ob.mesh_index])
-				m_lod.objects.append(m_ob)
-		m_lod.last_object_index = len(mdl2.model.objects)
+	# write modified ms2
+	ms2.save(filepath)
 
-	export_bounds(bounds, mdl2)
-	mdl2.update_counts()
-
-	# write modified mdl2
-	mdl2.save(filepath)
-
-	messages.add(f"Finished MDL2 export in {time.time() - start_time:.2f} seconds")
+	messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
 	return messages
 
 

@@ -59,8 +59,8 @@ def assign_p_bone_indices(b_armature_ob):
 		print(f"{p_bone.name} = {max_index}")
 
 
-def get_armature():
-	src_armatures = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Armature]
+def get_armature(scene):
+	src_armatures = [ob for ob in scene.objects if type(ob.data) == bpy.types.Armature]
 	# do we have armatures?
 	if src_armatures:
 		# see if one of these is selected

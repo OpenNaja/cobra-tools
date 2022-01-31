@@ -1,3 +1,5 @@
+import logging
+
 import mathutils
 import numpy as np
 
@@ -13,11 +15,11 @@ from generated.formats.ms2.enum.CollisionType import CollisionType
 v = 9999
 
 
-def export_bounds(bounds, mdl2):
-	print("Exporting bounds")
+def export_bounds(bounds, model_info):
+	logging.info("Exporting bounds")
 	bounds_max, bounds_min = get_bounds(bounds)
 	center = (bounds_min+bounds_max)/2
-	model_info = mdl2.model_info
+	model_info = model_info
 	assign_bounds(model_info, bounds_max, bounds_min)
 	model_info.center.set(center)
 	model_info.radius = (center-bounds_max).length*0.77

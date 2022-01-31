@@ -17,12 +17,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	messages = set()
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
-	bare_name = os.path.splitext(ms2_name)[0]
 	ms2 = Ms2File()
-	# mdl2.load(filepath, entry=True, read_editable=True, read_bytes=False)
 	ms2.load(filepath, read_editable=True)
-	# print(ms2)
-	ms2.update_lod_vertex_counts()
 	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
 		scene = bpy.data.scenes.new(mdl2_name)
 		bpy.context.window.scene = scene
