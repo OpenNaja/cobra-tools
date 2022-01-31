@@ -70,6 +70,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.error("Names failed...")
 			
 	def load(self, filepath, read_bytes=False, read_editable=False):
+		start_time = time.time()
 		self.filepath = filepath
 		self.dir, self.basename = os.path.split(os.path.normpath(filepath))
 		self.read_editable = read_editable
@@ -91,11 +92,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if read_editable:
 				self.load_mesh(stream)
 			if read_bytes:
-				self.get_buffers()
+				stream.seek(self.buffer_0.io_start)
+				self.buffer_0_bytes = stream.read(self.buffer_0.io_size)
+				stream.seek(self.buffer_1_offset)
+				self.buffer_1_bytes = stream.read(self.bone_info_size)
+				self.buffer_2_bytes = stream.read()
+				# self.get_buffers()
+
+		logging.debug(f"Read {self.basename} in {time.time() - start_time:.2f} seconds.")
 
 	def load_mesh(self, stream):
-		stream.seek(self.buffer_2_offset)
-		logging.debug(f"buffer_2_offset {self.buffer_2_offset}")
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 			if is_old(self.info):
 				# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
@@ -190,11 +196,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					if material.name not in self.buffer_0.names:
 						self.buffer_0.names.append(material.name)
 					material.name_index = self.buffer_0.names.index(material.name)
-				for bone_index, bone in enumerate(model_info.bone_info.bones):
-					if bone.name not in self.buffer_0.names:
-						self.buffer_0.names.append(bone.name)
-					model_info.bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
-				self.update_joints(model_info.bone_info)
+				if model_info.bone_info:
+					for bone_index, bone in enumerate(model_info.bone_info.bones):
+						if bone.name not in self.buffer_0.names:
+							self.buffer_0.names.append(bone.name)
+						model_info.bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
+					self.update_joints(model_info.bone_info)
 		# print(self.buffer_0.names)
 		logging.info("Updating MS2 name hashes")
 		# update hashes from new names
@@ -251,15 +258,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_info.facesdatasize = len(tris_bytes)
 			self.buffer_2_bytes = vert_bytes + tris_bytes
 
-	# def get_buffers(self, stream):
-	# 	"""Returns a list of buffer datas for this ms2"""
-	# 	stream.seek(self.buffer_0.io_start)
-	# 	buffer_0 = stream.read(self.buffer_0.io_size)
-	# 	stream.seek(self.buffer_1_offset)
-	# 	buffer_1 = stream.read(self.bone_info_size)
-	# 	buffer_2 = stream.read()
-	# 	return buffer_0, buffer_1, buffer_2
-
 	def get_buffers(self):
 		"""Returns a list of buffer datas for this ms2"""
 		logging.info("Pre-writing buffers")
@@ -267,6 +265,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.update_buffer_0_bytes()
 		self.update_buffer_1_bytes()
 		self.update_buffer_2_bytes()
+
+	@property
+	def buffers(self):
 		return self.buffer_0_bytes, self.buffer_1_bytes, self.buffer_2_bytes
 
 	def save(self, filepath):

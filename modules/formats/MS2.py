@@ -164,7 +164,7 @@ class Ms2Loader(BaseFile):
 		# the last ms2 fragment
 		self.write_to_pool(end_frag.pointers[1], 2, struct.pack("<ii", -1, 0))
 		# create ms2 data
-		self.create_data_entry(ms2_entry, ms2_file.get_buffers())
+		self.create_data_entry(ms2_entry, ms2_file.buffers)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
@@ -268,7 +268,9 @@ class Ms2Loader(BaseFile):
 				if fgm_name not in self.ovl._ss_dict:
 					missing_materials.add(fgm_name)
 			if len(mdl2_entry.model_data_frags) != len(model_info.model.meshes):
-				raise AttributeError(f"{mdl2_entry.name} doesn't have the right amount of meshes!")
+				raise AttributeError(
+					f"{mdl2_entry.name} ({len(model_info.model.meshes)}) doesn't have the "
+					f"expected amount ({len(mdl2_entry.model_data_frags)}) of meshes!")
 		if missing_materials:
 			mats = '\n'.join(missing_materials)
 			msg = f"The following materials are used by {self.file_entry.name}, but are missing from the OVL:\n" \
@@ -304,7 +306,7 @@ class Ms2Loader(BaseFile):
 		model_info_frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
-		self.sized_str_entry.data_entry.update_data(ms2_file.get_buffers())
+		self.sized_str_entry.data_entry.update_data(ms2_file.buffers)
 
 	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()

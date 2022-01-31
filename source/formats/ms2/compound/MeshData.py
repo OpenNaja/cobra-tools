@@ -104,9 +104,11 @@ class MeshData:
 
 	def validate_tris(self):
 		"""See if all tri indices point into the vertex buffer, raise an error if they don't"""
-		# max_ind = np.max(self.tri_indices)
-		# if max_ind >= len(self.verts_data):
-		for max_ind in self.tri_indices:
-			if max_ind >= len(self.verts_data):
-				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices")
-		logging.debug("All tri indices are valid")
+		pass
+		# this is fairly costly (10 % of total loading time), so don't do it by default
+		# # max_ind = np.max(self.tri_indices)
+		# # if max_ind >= len(self.verts_data):
+		# for max_ind in self.tri_indices:
+		# 	if max_ind >= len(self.verts_data):
+		# 		raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices")
+		# logging.debug("All tri indices are valid")
