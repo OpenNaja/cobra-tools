@@ -91,9 +91,9 @@ def handle_transforms(ob, me, apply=True):
 
 
 def export_bones_custom(b_armature_ob, model_info):
-	corrector = matrix_util.Corrector(is_ztuac(model_info))
+	corrector = matrix_util.Corrector(is_ztuac(model_info.context))
 	# now get bone names from b_armature.data
-	if is_jwe(model_info):
+	if is_jwe(model_info.context):
 		b_bone_names = ovl_bones_jwe(b_armature_ob)
 	else:
 		b_bone_names = get_bone_names_from_armature(b_armature_ob)
