@@ -279,6 +279,8 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 			logging.warning(f"Scene '{scene.name}' was not found in the MS2 file, skipping")
 			continue
 
+		# make active scene
+		bpy.context.window.scene = scene
 		# ensure that we have objects in the scene
 		if not has_objects_in_scene(scene):
 			raise AttributeError(f"No objects in scene '{scene.name}', nothing to export!")
