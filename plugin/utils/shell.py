@@ -298,6 +298,8 @@ def is_fin(ob):
 	if not ob.data.materials:
 		raise AttributeError(f"{ob.name} has no materials!")
 	for b_mat in ob.data.materials:
+		if not b_mat:
+			raise AttributeError(f"{ob.name} has an empty material slot!")
 		if "_fur_fin" in b_mat.name.lower():
 			return True
 
@@ -306,6 +308,8 @@ def is_shell(ob):
 	if not ob.data.materials:
 		raise AttributeError(f"{ob.name} has no materials!")
 	for b_mat in ob.data.materials:
+		if not b_mat:
+			raise AttributeError(f"{ob.name} has an empty material slot!")
 		if "_fur_shell" in b_mat.name.lower():
 			return True
 
