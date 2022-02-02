@@ -268,8 +268,12 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 	if not os.path.isfile(filepath):
 		raise FileNotFoundError(f"{filepath} does not exist. You must open an existing ms2 file for exporting.")
 
+	old_dir, name = os.path.split(os.path.normpath(filepath))
+	exp_dir = os.path.join(old_dir, "export")
+	os.makedirs(exp_dir, exist_ok=True)
+	export_path = os.path.join(exp_dir, name)
 	ms2 = Ms2File()
-	ms2.load(filepath)
+	ms2.load(export_path)
 	ms2.read_editable = True
 	ms2.clear()
 

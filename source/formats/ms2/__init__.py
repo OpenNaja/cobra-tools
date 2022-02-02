@@ -173,35 +173,40 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def rename(self, name_tups):
 		"""Renames strings in the main name buffer"""
 		logging.info(f"Renaming in {self.name}")
-		for i, name in enumerate(self.buffer_0.names):
-			# first a cases sensitive pass
-			for old, new in name_tups:
-				name = self.buffer_0.names[i]
-				if old in self.buffer_0.names[i]:
-					logging.debug(f"Match for '{old}' in '{name}'")
-					self.buffer_0.names[i] = name.replace(old, new)
-			for old, new in name_tups:
-				name = self.buffer_0.names[i]
-				if old.lower() in name.lower():
-					logging.debug(f"Case-insensitive match '{old}' in '{name}'")
-					self.buffer_0.names[i] = name.lower().replace(old, new)
+
+		for model_info in self.model_infos:
+			for material in model_info.model.materials:
+				self._rename(material, name_tups)
+			if model_info.bone_info:
+				for bone in model_info.bone_info.bones:
+					self._rename(bone, name_tups)
+
+	def _rename(self, element, name_tups):
+		# first a cases sensitive pass
+		for old, new in name_tups:
+			if old in element.name:
+				logging.debug(f"Match for '{old}' in '{element.name}'")
+				element.name = element.name.replace(old, new)
+		for old, new in name_tups:
+			if old.lower() in element.name.lower():
+				logging.debug(f"Case-insensitive match '{old}' in '{element.name}'")
+				element.name = element.name.lower().replace(old, new)
+
+	def get_name_index(self, name):
+		if name not in self.buffer_0.names:
+			self.buffer_0.names.append(name)
+		return self.buffer_0.names.index(name)
 
 	def update_names(self):
 		logging.info("Updating MS2 name buffer")
-		# only update the names buffer if mdl2s have been loaded
-		if self.model_infos:
-			self.buffer_0.names.clear()
-			for model_info in self.model_infos:
-				for material in model_info.model.materials:
-					if material.name not in self.buffer_0.names:
-						self.buffer_0.names.append(material.name)
-					material.name_index = self.buffer_0.names.index(material.name)
-				if model_info.bone_info:
-					for bone_index, bone in enumerate(model_info.bone_info.bones):
-						if bone.name not in self.buffer_0.names:
-							self.buffer_0.names.append(bone.name)
-						model_info.bone_info.name_indices[bone_index] = self.buffer_0.names.index(bone.name)
-					self.update_joints(model_info.bone_info)
+		self.buffer_0.names.clear()
+		for model_info in self.model_infos:
+			for material in model_info.model.materials:
+				material.name_index = self.get_name_index(material.name)
+			if model_info.bone_info:
+				for bone_index, bone in enumerate(model_info.bone_info.bones):
+					model_info.bone_info.name_indices[bone_index] = self.get_name_index(bone.name)
+				self.update_joints(model_info.bone_info)
 		# print(self.buffer_0.names)
 		logging.info("Updating MS2 name hashes")
 		# update hashes from new names
@@ -272,13 +277,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def save(self, filepath):
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
-		exp_dir = os.path.join(self.dir, "export")
-		os.makedirs(exp_dir, exist_ok=True)
-		export_path = os.path.join(exp_dir, self.name)
-
 		self.get_buffers()
-		logging.info(f"Writing to {export_path}")
-		with self.writer(export_path) as f:
+		logging.info(f"Writing to {filepath}")
+		with self.writer(filepath) as f:
 			self.write(f)
 			f.write(self.buffer_2_bytes)
 
