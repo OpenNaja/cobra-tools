@@ -273,7 +273,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 	os.makedirs(exp_dir, exist_ok=True)
 	export_path = os.path.join(exp_dir, name)
 	ms2 = Ms2File()
-	ms2.load(export_path)
+	ms2.load(filepath)
 	ms2.read_editable = True
 	ms2.clear()
 
@@ -348,7 +348,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 		export_bounds(bounds, model_info)
 
 	# write modified ms2
-	ms2.save(filepath)
+	ms2.save(export_path)
 
 	messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
 	return messages
