@@ -562,13 +562,11 @@
 
 	<compound name="HitCheck Entry">
 		<add name="type" type="CollisionType"/>
-		<add name="unknown2a" type="ubyte"></add>
-		<add name="unknown2b" type="ubyte"></add>
-		<add name="unknown2c" type="ubyte">16</add>
-		<add name="unknown2d" type="ubyte">0</add>
-		<add name="unknown3" type="uint">JWE: 564267, PZ: seen 17 and 22</add>
-		<add name="unknown4" type="uint">JWE: 46, PZ: same as above</add>
-		<add name="zero extra pc unk" type="uint" vercond="#OLD#"></add>
+		<add name="flag 0" type="ushort">0</add>
+		<add name="flag 1" type="ushort">JWE1: 16, PZ, JWE2: 0</add>
+		<add name="flag 2" type="uint">JWE1: 564267, PZ: seen 17 and 22, JWE2: 34, 30</add>
+		<add name="flag 3" type="uint">JWE1: 46, PZ: same as above, JWE2: 21, 27</add>
+		<add name="zero extra pc unk" type="uint" vercond="#OLD#">?</add>
 		<add name="name offset" type="uint">offset into joint names</add>
 
 		<add name="collider" type="Sphere" cond="type == 0" />
@@ -578,7 +576,7 @@
 		<add name="collider" type="ConvexHull" cond="type == 7" />
 		<add name="collider" type="ConvexHull" cond="type == 8" />
 		<add name="collider" type="MeshCollision" cond="type == 10" />
-		<add name="zero extra zt" type="uint" vercond="#ZTUAC#"></add>
+		<add name="zero extra zt" type="uint" vercond="#ZTUAC#">?</add>
 	</compound>
 
 	<compound name="Sphere">

@@ -313,5 +313,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
-	m.save("C:/Users/arnfi/Desktop/test.ms2")
+	m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
+	# m.save("C:/Users/arnfi/Desktop/test.ms2")
+	print(m.model_infos[0].bone_info.joints.joint_infos)
+	# print(m.model_infos[1].bone_info.joints.joint_infos)
