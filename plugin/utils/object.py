@@ -33,9 +33,10 @@ def get_lod(ob):
 def to_lod(scene, ob, level=0, lod=None):
 	# level is given, but not lod
 	if not lod:
-		lod = "LOD"+str(level)
-	# lod is given, but no level
+		lod = f"LOD{level}"
+	# lod group name is given, but no level
 	else:
+		scene_name, lod = lod.rsplit("_", 1)
 		level = int(lod[3:])
 		# print(level)
 	coll_name = link_to_collection(scene, ob, lod)
