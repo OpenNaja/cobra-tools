@@ -6,10 +6,10 @@
 	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <token name="verexpr" attrs="vercond">
-		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC</verexpr>
+		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE1</verexpr>
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 32)">PC</verexpr>
-		<verexpr token="#JWE#" string="(#VER# #EQ# 47)">JWE1</verexpr>
+		<verexpr token="#JWE#" string="((#VER# #EQ# 47) #OR# (#VER# #EQ# 39))">JWE1</verexpr>
 		<verexpr token="#PZ#" string="((#VER# #EQ# 48) #OR# (#VER# #EQ# 50))">PZ all</verexpr>
 		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
@@ -23,10 +23,11 @@
 
 	<verattr name="version" access="#VER#" index="0" />
 
-	13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
+	13 if ZTUAC, 32 if PC, 39 if old JWE1, 47 if JWE1, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
     <version id="old" version="13 32" >Old</version>
     <version id="ZTUAC" version="13" >ZTUAC</version>
     <version id="PC" version="32" >PC</version>
+    <version id="JWE1" version="47 39" >JWE1</version>
     <version id="PZ" version="48 50" >PZ</version>
     <version id="PZ16" version="50" >PZ16</version>
     <version id="JWE2" version="51" >JWE2</version>
@@ -115,7 +116,7 @@
 	
 	<compound name="Ms2SizedStrData">
 		Seems to be the 'root header' of the ms2.
-		<add name="version" type="uint" >13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2</add>
+		<add name="version" type="uint" >see version tag</add>
 		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
 		<add name="mdl2 count" type="ushort"/>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>

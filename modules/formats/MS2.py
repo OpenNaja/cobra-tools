@@ -29,7 +29,9 @@ class Ms2Loader(BaseFile):
 		self.assign_ss_entry()
 		self.get_version()
 		ss_pointer = self.sized_str_entry.pointers[0]
-		if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
+		self.ms2_info = ss_pointer.load_as(Ms2SizedStrData, context=self.context)[0]
+		# old JWE1 still uses 1 fragment
+		if self.ms2_info.version > 39:
 			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
 			# second pass: collect mesh fragments
 			if ss_pointer.data_size != 48:
@@ -192,7 +194,7 @@ class Ms2Loader(BaseFile):
 		# 		outfile.write(buffer)
 	
 		# Planet coaster
-		if ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl):
+		if self.ms2_info.version <= 39:
 			# only ss entry holds any useful stuff
 			ms2_buffer_info_data = b""
 		# Planet Zoo, JWE
@@ -218,7 +220,7 @@ class Ms2Loader(BaseFile):
 			# this corresponds to pc buffer 1 already
 			outfile.write(ms2_buffer_info_data)
 			# export each mdl2
-			if not (ovl_versions.is_pc(self.ovl) or ovl_versions.is_ztuac(self.ovl)):
+			if self.ms2_info.version > 39:
 				outfile.write(model_info_frag.pointers[1].data)
 				for mdl2_info, mdl2_entry in zip(model_infos, self.sized_str_entry.children):
 					materials, lods, objects, meshes, model_info = mdl2_entry.fragments

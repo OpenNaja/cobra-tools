@@ -28,6 +28,15 @@ def set_pc(context):
 	context.version = 32
 
 
+def is_jwe1(context):
+	if context.version in (47, 39):
+		return True
+
+
+def set_jwe1(context):
+	context.version = 47
+
+
 def is_pz(context):
 	if context.version in (48, 50):
 		return True
@@ -55,7 +64,7 @@ def set_jwe2(context):
 	context.version = 51
 
 
-games = Enum('Games',[('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN_GAME', 'Unknown Game')])
+games = Enum('Games',[('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN_GAME', 'Unknown Game')])
 
 
 def get_game(context):
@@ -65,6 +74,8 @@ def get_game(context):
 		return [games.ZTUAC]
 	if is_pc(context):
 		return [games.PC]
+	if is_jwe1(context):
+		return [games.JWE_1]
 	if is_pz(context):
 		return [games.PZ]
 	if is_pz16(context):
@@ -83,6 +94,8 @@ def set_game(context, game):
 		return set_ztuac(context)
 	if game in {games.PC}:
 		return set_pc(context)
+	if game in {games.JWE_1}:
+		return set_jwe1(context)
 	if game in {games.PZ}:
 		return set_pz(context)
 	if game in {games.PZ_16}:

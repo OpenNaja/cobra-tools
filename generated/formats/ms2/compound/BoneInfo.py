@@ -144,7 +144,7 @@ class BoneInfo:
 		self.unk_78_count = 0
 		if self.context.version <= 13:
 			self.unk_extra = 0
-		if self.context.version == 47:
+		if (self.context.version == 47) or (self.context.version == 39):
 			self.unk_extra_jwe = 0
 		if not (self.context.version < 47):
 			self.name_indices = numpy.zeros((self.name_count), dtype='uint')
@@ -201,7 +201,7 @@ class BoneInfo:
 		self.unk_78_count = stream.read_uint64()
 		if self.context.version <= 13:
 			self.unk_extra = stream.read_uint64()
-		if self.context.version == 47:
+		if (self.context.version == 47) or (self.context.version == 39):
 			self.unk_extra_jwe = stream.read_uint64()
 		if not (self.context.version < 47):
 			self.name_indices = stream.read_uints((self.name_count))
@@ -260,7 +260,7 @@ class BoneInfo:
 		stream.write_uint64(self.unk_78_count)
 		if self.context.version <= 13:
 			stream.write_uint64(self.unk_extra)
-		if self.context.version == 47:
+		if (self.context.version == 47) or (self.context.version == 39):
 			stream.write_uint64(self.unk_extra_jwe)
 		if not (self.context.version < 47):
 			stream.write_uints(self.name_indices)

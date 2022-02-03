@@ -20,7 +20,7 @@ class Ms2SizedStrData:
 		self.io_size = 0
 		self.io_start = 0
 
-		# 13 if ZTUAC, 32 if PC, 47 if JWE, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
+		# see version tag
 		self.version = 0
 
 		# 1 if yes, 0 if no

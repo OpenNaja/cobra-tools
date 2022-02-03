@@ -41,7 +41,7 @@ class BufferInfo:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if self.context.version == 47:
+		if (self.context.version == 47) or (self.context.version == 39):
 			self.skip_1 = numpy.zeros((2), dtype='uint64')
 		self.vertexdatasize = 0
 		self.ptr_1 = 0
@@ -54,7 +54,7 @@ class BufferInfo:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version == 47:
+		if (self.context.version == 47) or (self.context.version == 39):
 			self.skip_1 = stream.read_uint64s((2))
 		self.vertexdatasize = stream.read_uint64()
 		self.ptr_1 = stream.read_uint64()
@@ -69,7 +69,7 @@ class BufferInfo:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version == 47:
+		if (self.context.version == 47) or (self.context.version == 39):
 			stream.write_uint64s(self.skip_1)
 		stream.write_uint64(self.vertexdatasize)
 		stream.write_uint64(self.ptr_1)
