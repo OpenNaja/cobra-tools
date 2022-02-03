@@ -160,12 +160,14 @@
 
     <compound name="MemPool" >
         Description of one archive header entry
-		<add name="zero1" type="uint64" vercond="!#DLA#">always 0</add>
+		<add name="zero1" type="uint64" since="17">always 0</add>
 		<add name="Size" type="uint">the number of bytes inside this mempool</add>
 		<add name="Offset" type="uint">byte offset from the start of the mempools region</add>
-		<add name="zero2" type="uint64" vercond="#DLA#">always 0</add>
+		<add name="zero2" type="uint64" until="15">always 0</add>
 		<add name="File Hash" type="uint">DJB hash of the first file that points into this mempool</add>
-		<add name="Num Files" type="uint">unknown count (related to number of files or pointers)</add>
+		<add name="disney zero" type="ushort" until="15">zero</add>
+		<add name="Num Files" type="ushort" until="15">unknown count (related to number of files or pointers)</add>
+		<add name="Num Files" type="uint" since="17">unknown count (related to number of files or pointers)</add>
 		<add name="Ext Hash" type="uint" since="19">JWE: DJB hash for extension, 0 for PZ</add>
 		<add name="zero3" type="uint" since="19">always 0</add>
     </compound>

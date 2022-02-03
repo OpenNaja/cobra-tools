@@ -40,6 +40,12 @@ class MemPool:
 		# DJB hash of the first file that points into this mempool
 		self.file_hash = 0
 
+		# zero
+		self.disney_zero = 0
+
+		# unknown count (related to number of files or pointers)
+		self.num_files = 0
+
 		# unknown count (related to number of files or pointers)
 		self.num_files = 0
 
@@ -51,14 +57,19 @@ class MemPool:
 		self.set_defaults()
 
 	def set_defaults(self):
-		if not (self.context.version == 15):
+		if self.context.version >= 17:
 			self.zero_1 = 0
 		self.size = 0
 		self.offset = 0
-		if self.context.version == 15:
+		if self.context.version <= 15:
 			self.zero_2 = 0
 		self.file_hash = 0
-		self.num_files = 0
+		if self.context.version <= 15:
+			self.disney_zero = 0
+		if self.context.version <= 15:
+			self.num_files = 0
+		if self.context.version >= 17:
+			self.num_files = 0
 		if self.context.version >= 19:
 			self.ext_hash = 0
 		if self.context.version >= 19:
@@ -66,14 +77,18 @@ class MemPool:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version == 15):
+		if self.context.version >= 17:
 			self.zero_1 = stream.read_uint64()
 		self.size = stream.read_uint()
 		self.offset = stream.read_uint()
-		if self.context.version == 15:
+		if self.context.version <= 15:
 			self.zero_2 = stream.read_uint64()
 		self.file_hash = stream.read_uint()
-		self.num_files = stream.read_uint()
+		if self.context.version <= 15:
+			self.disney_zero = stream.read_ushort()
+			self.num_files = stream.read_ushort()
+		if self.context.version >= 17:
+			self.num_files = stream.read_uint()
 		if self.context.version >= 19:
 			self.ext_hash = stream.read_uint()
 			self.zero_3 = stream.read_uint()
@@ -82,14 +97,18 @@ class MemPool:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if not (self.context.version == 15):
+		if self.context.version >= 17:
 			stream.write_uint64(self.zero_1)
 		stream.write_uint(self.size)
 		stream.write_uint(self.offset)
-		if self.context.version == 15:
+		if self.context.version <= 15:
 			stream.write_uint64(self.zero_2)
 		stream.write_uint(self.file_hash)
-		stream.write_uint(self.num_files)
+		if self.context.version <= 15:
+			stream.write_ushort(self.disney_zero)
+			stream.write_ushort(self.num_files)
+		if self.context.version >= 17:
+			stream.write_uint(self.num_files)
 		if self.context.version >= 19:
 			stream.write_uint(self.ext_hash)
 			stream.write_uint(self.zero_3)
@@ -106,6 +125,7 @@ class MemPool:
 		s += f'\n	* offset = {self.offset.__repr__()}'
 		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
 		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
+		s += f'\n	* disney_zero = {self.disney_zero.__repr__()}'
 		s += f'\n	* num_files = {self.num_files.__repr__()}'
 		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
 		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
