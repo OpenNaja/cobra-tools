@@ -99,7 +99,7 @@ class Ms2Loader(BaseFile):
 		# create sized str entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
 			# pool.num_files += 2
-			mdl2_path = os.path.join(ms2_dir, mdl2_name)
+			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")
 			mdl2_file_entry = self.get_file_entry(mdl2_path)
 
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
