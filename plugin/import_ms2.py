@@ -19,6 +19,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2 = Ms2File()
 	ms2.load(filepath, read_editable=True)
+	created_materials = {}
 	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
 		scene = bpy.data.scenes.new(mdl2_name)
 		bpy.context.window.scene = scene
@@ -30,7 +31,6 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 		scene["render_flag"] = int(model_info.render_flag)
 		scene.cobra.pack_base = model_info.pack_offset
 
-		created_materials = {}
 		mesh_dict = {}
 		ob_dict = {}
 		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
