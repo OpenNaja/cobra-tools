@@ -78,6 +78,7 @@ class FgmFile(FgmInfoHeader, IoFile):
 		attrib.dtype = attr_dtype
 		self.get_value(attrib)
 		self.attributes.append(attrib)
+		self.attributes.sort(key=lambda a: a.name)
 
 	def add_texture(self, tex_name, textured=True):
 		for tex in self.textures:
@@ -95,6 +96,7 @@ class FgmFile(FgmInfoHeader, IoFile):
 			raise NotImplementedError(f"Unsure how to create texture '{tex_name}'")
 		tex.indices.resize(4)
 		self.textures.append(tex)
+		self.textures.sort(key=lambda t: t.name)
 
 	def print_readable(self, ):
 		print("\nShader =", self.shader_name)
