@@ -49,7 +49,8 @@ class LuaLoader(BaseFile):
 		out_path = out_dir(name)
 		# print(out_path)
 		# clip away the start (fragment data at start of buffer?)
-		if is_ztuac(self.ovl):
+		# DLA & ZTUAC
+		if self.ovl.context.version <= 17:
 			buffer_data = buffer_data[8:]
 		else:
 			if len(self.sized_str_entry.fragments) != 2:
