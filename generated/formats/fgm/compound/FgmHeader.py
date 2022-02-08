@@ -16,11 +16,9 @@ class FgmHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# Number of Texture Info Entries
 		self.texture_count = 0
-
-		# Number of Attribute Info Entries
+		self.texture_count = 0
+		self.attribute_count = 0
 		self.attribute_count = 0
 		self.tex_ptr = 0
 		self.attr_ptr = 0
@@ -31,8 +29,14 @@ class FgmHeader:
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.texture_count = 0
-		self.attribute_count = 0
+		if self.context.version <= 15:
+			self.texture_count = 0
+		if self.context.version >= 17:
+			self.texture_count = 0
+		if self.context.version <= 15:
+			self.attribute_count = 0
+		if self.context.version >= 17:
+			self.attribute_count = 0
 		self.tex_ptr = 0
 		self.attr_ptr = 0
 		self.dependencies_ptr = 0
@@ -42,8 +46,14 @@ class FgmHeader:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.texture_count = stream.read_uint64()
-		self.attribute_count = stream.read_uint64()
+		if self.context.version <= 15:
+			self.texture_count = stream.read_uint()
+		if self.context.version >= 17:
+			self.texture_count = stream.read_uint64()
+		if self.context.version <= 15:
+			self.attribute_count = stream.read_uint()
+		if self.context.version >= 17:
+			self.attribute_count = stream.read_uint64()
 		self.tex_ptr = stream.read_uint64()
 		self.attr_ptr = stream.read_uint64()
 		self.dependencies_ptr = stream.read_uint64()
@@ -55,8 +65,14 @@ class FgmHeader:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.texture_count)
-		stream.write_uint64(self.attribute_count)
+		if self.context.version <= 15:
+			stream.write_uint(self.texture_count)
+		if self.context.version >= 17:
+			stream.write_uint64(self.texture_count)
+		if self.context.version <= 15:
+			stream.write_uint(self.attribute_count)
+		if self.context.version >= 17:
+			stream.write_uint64(self.attribute_count)
 		stream.write_uint64(self.tex_ptr)
 		stream.write_uint64(self.attr_ptr)
 		stream.write_uint64(self.dependencies_ptr)

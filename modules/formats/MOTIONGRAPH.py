@@ -14,12 +14,12 @@ class MotiongraphLoader(BaseFile):
     def collect(self):
         self.assign_ss_entry()
         logging.info(f"Collecting {self.sized_str_entry.name}")
-
-        self.header = self.sized_str_entry.pointers[0].load_as(MotiongraphHeader)[0]
-        root_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-        print(self.header)
-        self.root_struct = root_frag.pointers[1].load_as(MotiongraphRootFrag)[0]
-        print(self.root_struct)
+        if self.ovl.context.version > 47:
+            self.header = self.sized_str_entry.pointers[0].load_as(MotiongraphHeader)[0]
+            root_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
+            print(self.header)
+            self.root_struct = root_frag.pointers[1].load_as(MotiongraphRootFrag)[0]
+            print(self.root_struct)
 
     def get_string_list(self, count):
         # todo - this assumes the pointer exists if the count exists, and relies on the correct call order
