@@ -218,7 +218,14 @@ class DdsLoader(BaseFile):
 		dds_file = DdsFile()
 		dds_file.buffer = buffer_data
 
-		if is_pc(self.ovl) or is_ztuac(self.ovl):
+		if is_dla(self.ovl):
+			tex_info = tex_file.tex_info
+			dds_file.width = tex_info.width
+			dds_file.height = tex_info.height
+			dds_file.mipmap_count = tex_info.num_mips
+			dds_file.linear_size = len(buffer_data)
+			dds_file.depth = 1
+		elif is_pc(self.ovl) or is_ztuac(self.ovl):
 			tex_info = tex_file.frag_01[0]
 			dds_file.width = tex_info.width
 			# hack until we have proper support for array_size on the image editors

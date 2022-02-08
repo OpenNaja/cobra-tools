@@ -2,7 +2,7 @@ import io
 import logging
 
 from generated.formats.ovl_base import OvlContext
-from generated.formats.ovl_base.versions import is_pc, is_ztuac
+from generated.formats.ovl_base.versions import is_pc, is_ztuac, is_dla
 from generated.formats.tex.compound.TexInfoHeader import TexInfoHeader
 from generated.io import IoFile
 
@@ -33,6 +33,8 @@ class TexFile(TexInfoHeader, IoFile):
 		if is_pc(self) or is_ztuac(self):
 			# apparently we have no buffer size definitions anywhere
 			self.buffers = [stream.read(), ]
+		elif is_dla(self):
+			pass
 		else:
 			self.buffers = []
 			for tex_buffer_info in self.frag_01:

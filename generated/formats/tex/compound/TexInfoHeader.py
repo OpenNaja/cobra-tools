@@ -31,11 +31,11 @@ class TexInfoHeader(GenericHeader):
 
 	def set_defaults(self):
 		self.tex_info = TexHeader(self.context, None, None)
-		if not (self.context.version < 19):
+		if 17 <= self.context.version <= 18:
 			self.frag_01 = Array(self.context)
-		if self.context.version < 19:
+		if self.context.version >= 19:
 			self.frag_01 = Array(self.context)
-		if not (self.context.version < 19):
+		if self.context.version >= 19:
 			self.frag_11 = Header7Data1(self.context, None, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			self.padding = numpy.zeros((320 - self.frag_11.io_size), dtype='ubyte')
@@ -46,11 +46,10 @@ class TexInfoHeader(GenericHeader):
 		self.io_start = stream.tell()
 		super().read(stream)
 		self.tex_info = stream.read_type(TexHeader, (self.context, None, None))
-		if not (self.context.version < 19):
-			self.frag_01.read(stream, TexBuffer, self.tex_info.stream_count, None)
-		if self.context.version < 19:
+		if 17 <= self.context.version <= 18:
 			self.frag_01.read(stream, TexBufferPc, self.tex_info.stream_count, None)
-		if not (self.context.version < 19):
+		if self.context.version >= 19:
+			self.frag_01.read(stream, TexBuffer, self.tex_info.stream_count, None)
 			self.frag_11 = stream.read_type(Header7Data1, (self.context, None, None))
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			self.padding = stream.read_ubytes((320 - self.frag_11.io_size))
@@ -63,11 +62,10 @@ class TexInfoHeader(GenericHeader):
 		self.io_start = stream.tell()
 		super().write(stream)
 		stream.write_type(self.tex_info)
-		if not (self.context.version < 19):
-			self.frag_01.write(stream, TexBuffer, self.tex_info.stream_count, None)
-		if self.context.version < 19:
+		if 17 <= self.context.version <= 18:
 			self.frag_01.write(stream, TexBufferPc, self.tex_info.stream_count, None)
-		if not (self.context.version < 19):
+		if self.context.version >= 19:
+			self.frag_01.write(stream, TexBuffer, self.tex_info.stream_count, None)
 			stream.write_type(self.frag_11)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			stream.write_ubytes(self.padding)
