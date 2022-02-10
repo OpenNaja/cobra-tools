@@ -88,11 +88,16 @@ class ManiInfo:
 		self.p_indices_c_1_max = 0
 		self.minus_1_b = 0
 		self.zero = 0
-		self.c_2 = 0
-		self.c_3 = 0
-		self.c_4 = 0
-		self.c_5 = 0
-		self.zeros_end = numpy.zeros((3), dtype='ushort')
+		if not (self.context.version == 18):
+			self.c_2 = 0
+		if not (self.context.version == 18):
+			self.c_3 = 0
+		if not (self.context.version == 18):
+			self.c_4 = 0
+		if not (self.context.version == 18):
+			self.c_5 = 0
+		if not (self.context.version == 18):
+			self.zeros_end = numpy.zeros((3), dtype='ushort')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -119,11 +124,14 @@ class ManiInfo:
 		self.p_indices_c_1_max = stream.read_ubyte()
 		self.minus_1_b = stream.read_byte()
 		self.zero = stream.read_byte()
-		self.c_2 = stream.read_ubyte()
-		self.c_3 = stream.read_ubyte()
-		self.c_4 = stream.read_ubyte()
-		self.c_5 = stream.read_ubyte()
-		self.zeros_end = stream.read_ushorts((3))
+		if not (self.context.version == 18):
+			self.c_2 = stream.read_ubyte()
+			self.c_3 = stream.read_ubyte()
+		if not (self.context.version == 18):
+			self.c_4 = stream.read_ubyte()
+			self.c_5 = stream.read_ubyte()
+		if not (self.context.version == 18):
+			self.zeros_end = stream.read_ushorts((3))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -152,11 +160,14 @@ class ManiInfo:
 		stream.write_ubyte(self.p_indices_c_1_max)
 		stream.write_byte(self.minus_1_b)
 		stream.write_byte(self.zero)
-		stream.write_ubyte(self.c_2)
-		stream.write_ubyte(self.c_3)
-		stream.write_ubyte(self.c_4)
-		stream.write_ubyte(self.c_5)
-		stream.write_ushorts(self.zeros_end)
+		if not (self.context.version == 18):
+			stream.write_ubyte(self.c_2)
+			stream.write_ubyte(self.c_3)
+		if not (self.context.version == 18):
+			stream.write_ubyte(self.c_4)
+			stream.write_ubyte(self.c_5)
+		if not (self.context.version == 18):
+			stream.write_ushorts(self.zeros_end)
 
 		self.io_size = stream.tell() - self.io_start
 

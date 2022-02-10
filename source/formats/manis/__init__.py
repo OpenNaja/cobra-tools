@@ -33,7 +33,7 @@ class ManisFile(InfoHeader, IoFile):
 			self.read(stream)
 			for mi, name in zip(self.mani_infos, self.names):
 				mi.name = name
-			# print(self)
+			print(self)
 			# read the first mani data
 			mani_info = self.mani_infos[0]
 			for mani_info in self.mani_infos:
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedpartials.maniset919dac12.manis")
 	# mani.load("C:/Users/arnfi/Desktop/lemur/animationmotionextractedfighting.maniset9c749130.manis")
 	# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedlocomotion.maniset87d072d8.manis")
-	mani.load("C:/Users/arnfi/Desktop/EA_WaterWheel/animation.maniset9637aeb4.manis")
-	# mani.load("C:/Users/arnfi/Desktop/sealion/animationnotmotionextractedpartials.maniset3f847039.manis")
+	# mani.load("C:/Users/arnfi/Desktop/EA_WaterWheel/animation.maniset9637aeb4.manis")
+	mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/Iron_piston/ugcres.maniset8982114c.manis")
 	# print(mani)
 	# hex_test()

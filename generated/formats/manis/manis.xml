@@ -4,12 +4,6 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="SizedString">
-        A string of given length.
-        <field name="Length" type="uint">The string length.</field>
-        <field name="Value" type="char" arr1="Length">The string itself.</field>
-    </compound>
-
     <compound name="PadAlign">
         Grabs 00 bytes only
     </compound>
@@ -21,59 +15,6 @@
     <basic name="ZString">
         A string of given length.
     </basic>
-
-    <compound name="Matrix44" size="64">
-        A 4x4 transformation matrix.
-        <field name="m11" type="float" default="1.0">The (1,1) element.</field>
-        <field name="m21" type="float" default="0.0">The (2,1) element.</field>
-        <field name="m31" type="float" default="0.0">The (3,1) element.</field>
-        <field name="m41" type="float" default="0.0">The (4,1) element.</field>
-        <field name="m12" type="float" default="0.0">The (1,2) element.</field>
-        <field name="m22" type="float" default="1.0">The (2,2) element.</field>
-        <field name="m32" type="float" default="0.0">The (3,2) element.</field>
-        <field name="m42" type="float" default="0.0">The (4,2) element.</field>
-        <field name="m13" type="float" default="0.0">The (1,3) element.</field>
-        <field name="m23" type="float" default="0.0">The (2,3) element.</field>
-        <field name="m33" type="float" default="1.0">The (3,3) element.</field>
-        <field name="m43" type="float" default="0.0">The (4,3) element.</field>
-        <field name="m14" type="float" default="0.0">The (1,4) element.</field>
-        <field name="m24" type="float" default="0.0">The (2,4) element.</field>
-        <field name="m34" type="float" default="0.0">The (3,4) element.</field>
-        <field name="m44" type="float" default="1.0">The (4,4) element.</field>
-    </compound>
-
-    <compound name="Matrix33" size="36">
-        A 3x3 rotation matrix; M^T M=identity, det(M)=1.    Stored in OpenGL column-major format.
-        <field name="m11" type="float" default="1.0">Member 1,1 (top left)</field>
-        <field name="m21" type="float" default="0.0">Member 2,1</field>
-        <field name="m31" type="float" default="0.0">Member 3,1 (bottom left)</field>
-        <field name="m12" type="float" default="0.0">Member 1,2</field>
-        <field name="m22" type="float" default="1.0">Member 2,2</field>
-        <field name="m32" type="float" default="0.0">Member 3,2</field>
-        <field name="m13" type="float" default="0.0">Member 1,3 (top right)</field>
-        <field name="m23" type="float" default="0.0">Member 2,3</field>
-        <field name="m33" type="float" default="1.0">Member 3,3 (bottom left)</field>
-    </compound>
-
-	    <compound name="Matrix24" size="32">
-        A 4x4 transformation matrix.
-        <field name="m11" type="float" default="1.0">The (1,1) element.</field>
-        <field name="m21" type="float" default="0.0">The (2,1) element.</field>
-        <field name="m31" type="float" default="0.0">The (3,1) element.</field>
-        <field name="m41" type="float" default="0.0">The (4,1) element.</field>
-        <field name="m12" type="float" default="0.0">The (1,2) element.</field>
-        <field name="m22" type="float" default="1.0">The (2,2) element.</field>
-        <field name="m32" type="float" default="0.0">The (3,2) element.</field>
-        <field name="m42" type="float" default="0.0">The (4,2) element.</field>
-    </compound>
-
-    <compound name="ByteColor4" size="4" convertible="Color4">
-        A color with alpha (red, green, blue, alpha).
-        <field name="r" type="ubyte">Red color component.</field>
-        <field name="g" type="ubyte">Green color component.</field>
-        <field name="b" type="ubyte">Blue color component.</field>
-        <field name="a" type="ubyte">Alpha color component.</field>
-    </compound>
 
     <compound name="UshortVector2" size="4">
         A vector in 2D space (x,y).
@@ -113,8 +54,8 @@
         <add name="hash block size" type="ushort"/>
         <add name="zeros" type="int" arr1="2"/>
         <add name="c1" type="ushort"/>
-<!--        <add name="unk" type="uint" arr1="3" vercond="#PZ16#"/>-->
-		<add name="zeros end" type="ushort" vercond="#PZ16#" arr1="9" > </add>
+		<add name="zeros end" type="ushort" vercond="#PC#" arr1="5"/>
+		<add name="zeros end" type="ushort" vercond="#PZ16#" arr1="9"/>
     </compound>
 
     <compound name="InfoHeader" inherit="GenericHeader">
@@ -154,11 +95,11 @@
 		<add name="p indices c1 max" type="ubyte" > </add>
 		<add name="minus 1 b" type="byte" > always FF</add>
 		<add name="zero" type="byte" > always 00</add>
-		<add name="c2" type="ubyte" > </add>
-		<add name="c3" type="ubyte" > </add>
-		<add name="c4" type="ubyte" > </add>
-		<add name="c5" type="ubyte" > </add>
-		<add name="zeros end" type="ushort" arr1="3" > </add>
+		<add name="c2" type="ubyte" vercond="!#PC#" > </add>
+		<add name="c3" type="ubyte" vercond="!#PC#" > </add>
+		<add name="c4" type="ubyte" vercond="!#PC#" > </add>
+		<add name="c5" type="ubyte" vercond="!#PC#" > </add>
+		<add name="zeros end" type="ushort" arr1="3" vercond="!#PC#" > </add>
     </compound>
 
 	<compound name="ManiBlock" >
