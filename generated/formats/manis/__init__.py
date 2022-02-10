@@ -1,5 +1,6 @@
 from generated.formats.manis.compound.ManiBlock import ManiBlock
 from generated.formats.manis.compound.InfoHeader import InfoHeader
+from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile
 import os
 
@@ -12,19 +13,10 @@ def hex_test():
 		print(i, bin(i), x, bin(x))
 
 
-class ManisContext(object):
-	def __init__(self):
-		self.version = 0
-		self.user_version = 0
-
-	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
-
-
 class ManisFile(InfoHeader, IoFile):
 
 	def __init__(self):
-		super().__init__(ManisContext())
+		super().__init__(OvlContext())
 
 	@staticmethod
 	def read_z_str(stream, pos):
@@ -99,7 +91,8 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedlocomotion.maniset58076276.manis")
 	# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedpartials.maniset919dac12.manis")
 	# mani.load("C:/Users/arnfi/Desktop/lemur/animationmotionextractedfighting.maniset9c749130.manis")
-	mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedlocomotion.maniset87d072d8.manis")
+	# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedlocomotion.maniset87d072d8.manis")
+	mani.load("C:/Users/arnfi/Desktop/EA_WaterWheel/animation.maniset9637aeb4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/sealion/animationnotmotionextractedpartials.maniset3f847039.manis")
 	# print(mani)
 	# hex_test()
