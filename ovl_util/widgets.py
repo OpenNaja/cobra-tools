@@ -192,17 +192,14 @@ class TableModel(QtCore.QAbstractTableModel):
 
 	def flags(self, index):
 		dtype = self._data[index.row()][1]
-		if dtype in self.ignore_types:
-			return QtCore.Qt.ItemIsDropEnabled
-		else:
-			# names
-			if index.column() == 0:
-				return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | \
-					   QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsEditable
-			# other stuff, can't be edited
-			else:
-				return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled | \
-					   QtCore.Qt.ItemIsDropEnabled
+		d_n_d = QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsSelectable
+		renamable = QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
+		state = QtCore.Qt.NoItemFlags
+		if index.column() == 0:
+			state |= renamable
+		if dtype not in self.ignore_types:
+			state |= d_n_d
+		return state
 
 
 class SortableTable(QtWidgets.QWidget):
