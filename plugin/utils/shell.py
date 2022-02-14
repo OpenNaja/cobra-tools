@@ -14,9 +14,9 @@ Y_START = 0.999756
 
 
 def create_lods():
+	"""Automatic LOD generator by NDP. Generates LOD objects and automatically decimates them for LOD0-LOD5"""
 	msgs = []
-	logging.info(f"Creating Lods")
-	# Automatic LOD generator by NDP. Generates LOD objects and automatically decimates them for LOD0-LOD5
+	logging.info(f"Generating LOD objects")
 
 	# Get active scene and root collection
 	scn = bpy.context.scene
@@ -35,49 +35,37 @@ def create_lods():
 			# delete old target
 			bpy.data.objects.remove(ob, do_unlink=True)
 
-	print("Generating LOD objects")
-
 	for lod_index, (lod_coll, ratio) in enumerate(zip(lod_collections, lod_ratios)):
 		if lod_index > 0:
-			for ob in lod_collections[0].objects:
-				obj1 = copy_ob(ob)
-
-				# Renaming duplicated object
-				obj1.name = obj1.name.replace("lod" + lod_collections[0].name[-1], "lod" + lod_collections[y].name[-1])
-				obj1.name = obj1.name.replace(".001", "")
+			for ob_index, ob in enumerate(lod_collections[0].objects):
+				# check if we want to copy this one
+				if is_fin(ob) and lod_index > 1:
+					continue
+				obj1 = copy_ob(ob, f"{scn.name}_LOD{lod_index}")
+				obj1.name = f"{scn.name}_lod{lod_index}_ob{ob_index}"
 
 				# Decimating duplicated object
 				decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
 				decimate.ratio = ratio
-				bpy.ops.object.modifier_apply(modifier="Decimate")
 
-				# Moving to respective collection
-				lod_coll.objects.link(obj1)
-				
-				# if lod_index > 1:
-				# 	#Deleting fins after LOD1
-				# 	if obj1.data["flag"] == 999999:
-				# 		obj1.select_set(True)
-				# 		obj.select_set(False)
-				# 		bpy.ops.object.delete()
-				# 	# I need this section to find materials that end in _Fin
-				#
-				# 	# Changing shells to skin
-				# 	elif obj1.data["flag"] == 885:
-				# 		obj1.data["flag"] = 565
-				# 		obj1.data.uv_layers.new(name='UV1')
-				# 		# --------------------still need to remove second material, cant figure out
+				# Changing shells to skin
+				if is_shell(ob) and lod_index > 1:
+					b_me = obj1.data
+					b_me["flag"] = 565
+					b_me.uv_layers.new(name='UV1')
+					# remove shell material
+					b_me.materials.pop(index=1)
 
 	msgs.append("LOD objects generated succesfully.")
 	return msgs
 
 
-def copy_ob(src_obj):
+def copy_ob(src_obj, lod_group_name):
 	new_obj = src_obj.copy()
 	new_obj.data = src_obj.data.copy()
 	new_obj.name = src_obj.name + "_copy"
 	new_obj.animation_data_clear()
-	# bpy.context.scene.collection.objects.link(new_obj)
+	plugin.utils.object.link_to_collection(bpy.context.scene, new_obj, lod_group_name)
 	bpy.context.view_layer.objects.active = new_obj
 	return new_obj
 
@@ -122,7 +110,9 @@ def build_fins(src_ob, trg_ob):
 	except:
 		raise AttributeError(f"{src_ob.name} has no UV scale properties. Run 'Gauge UV Scale' first!")
 
-	ob = copy_ob(src_ob)
+	lod_group_name = plugin.utils.object.get_lod(src_ob)
+	ob = copy_ob(src_ob, lod_group_name)
+
 	me = ob.data
 	# transfer the material
 	me.materials.clear()
@@ -183,10 +173,6 @@ def build_fins(src_ob, trg_ob):
 	for mod in ob.modifiers:
 		if mod.type == "PARTICLE_SYSTEM":
 			ob.modifiers.remove(mod)
-
-	# only set the lod index here so that hiding it does not mess with any operators applied above
-	lod_group_name = plugin.utils.object.get_lod(src_ob)
-	plugin.utils.object.link_to_collection(bpy.context.scene, ob, lod_group_name)
 
 	return f'Generated fin geometry {trg_name} from {src_ob.name}'
 
