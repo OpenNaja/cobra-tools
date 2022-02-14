@@ -63,7 +63,7 @@ def create_lods():
 	msgs.append("LOD objects generated succesfully")
 	new_ob_count = get_ob_count(lod_collections)
 	if orig_ob_count != new_ob_count:
-		msgs.append(f"Scene '{scn.name}' originally had {orig_ob_count} objects, now has {new_ob_count} - this MS2 won't inject")
+		msgs.append(f"Scene '{scn.name}' originally had {orig_ob_count} objects, now has {new_ob_count} - only works for newly created OVLs")
 	return msgs
 
 
