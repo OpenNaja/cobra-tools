@@ -5,31 +5,31 @@ import mathutils
 
 from generated.formats.ms2.compound.packing_utils import unpack_swizzle
 from generated.formats.ms2.enum.CollisionType import CollisionType
-from plugin.utils.object import mesh_from_data, link_to_collection
+from plugin.utils.object import mesh_from_data
 from plugin.utils.quickhull import qhull3d
 
 
 def import_collider(hitcheck, armature_ob, bone_name, corrector):
 	logging.info(f"{hitcheck.name} type {hitcheck.type}")
+	hitcheck_name = f"{bpy.context.scene.name}_{hitcheck.name}"
 	coll = hitcheck.collider
 	# print(hitcheck)
 	if hitcheck.type == CollisionType.Sphere:
-		ob = import_spherebv(coll, hitcheck.name)
+		ob = import_spherebv(coll, hitcheck_name)
 	elif hitcheck.type == CollisionType.BoundingBox:
-		ob = import_boxbv(coll, hitcheck.name, corrector)
+		ob = import_boxbv(coll, hitcheck_name, corrector)
 	elif hitcheck.type == CollisionType.Capsule:
-		ob = import_capsulebv(coll, hitcheck.name)
+		ob = import_capsulebv(coll, hitcheck_name)
 	elif hitcheck.type == CollisionType.Cylinder:
-		ob = import_cylinderbv(coll, hitcheck.name)
+		ob = import_cylinderbv(coll, hitcheck_name)
 	elif hitcheck.type == CollisionType.MeshCollision:
-		ob = import_meshbv(coll, hitcheck.name, corrector)
+		ob = import_meshbv(coll, hitcheck_name, corrector)
 	elif hitcheck.type == CollisionType.ConvexHull:
-		ob = import_hullbv(coll, hitcheck.name, corrector)
+		ob = import_hullbv(coll, hitcheck_name, corrector)
 	else:
 		logging.warning(f"Unsupported collider type {hitcheck.type}")
 		return
 	parent_to(armature_ob, ob, bone_name)
-	link_to_collection(bpy.context.scene, ob, "hitchecks")
 	# h = HitCheckEntry()
 	# print(export_hitcheck(ob, h))
 
@@ -68,7 +68,7 @@ def box_from_extents(b_name, minx, maxx, miny, maxy, minz, maxz):
 				verts.append((x, y, z))
 	faces = [[0, 1, 3, 2], [6, 7, 5, 4], [0, 2, 6, 4], [3, 1, 5, 7], [4, 5, 1, 0], [7, 6, 2, 3]]
 	scene = bpy.context.scene
-	return mesh_from_data(scene, b_name, verts, faces)
+	return mesh_from_data(scene, b_name, verts, faces, coll_name="hitchecks")
 
 
 def center_origin_to_matrix(n_center, n_dir):
@@ -139,7 +139,7 @@ def import_cylinderbv(cylinder, hitcheck_name):
 def import_meshbv(coll, hitcheck_name, corrector):
 	# print(coll)
 	scene = bpy.context.scene
-	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles))
+	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles), coll_name="hitchecks")
 	mat = import_collision_matrix(coll.rotation, corrector)
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
@@ -156,7 +156,7 @@ def unpack_swizzle2(vec):
 def import_hullbv(coll, hitcheck_name, corrector):
 	# print(coll)
 	scene = bpy.context.scene
-	b_obj, b_me = mesh_from_data(scene, hitcheck_name, *qhull3d([unpack_swizzle2(v) for v in coll.vertices]))
+	b_obj, b_me = mesh_from_data(scene, hitcheck_name, *qhull3d([unpack_swizzle2(v) for v in coll.vertices]), coll_name="hitchecks")
 	mat = import_collision_matrix(coll.rotation, corrector)
 	# mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat

@@ -63,7 +63,6 @@ def build_fins(src_ob, trg_ob):
 	except:
 		raise AttributeError(f"{src_ob.name} has no UV scale properties. Run 'Gauge UV Scale' first!")
 
-	lod_group_name = plugin.utils.object.get_lod(src_ob)
 	ob = copy_ob(src_ob)
 	me = ob.data
 	# transfer the material
@@ -127,7 +126,8 @@ def build_fins(src_ob, trg_ob):
 			ob.modifiers.remove(mod)
 
 	# only set the lod index here so that hiding it does not mess with any operators applied above
-	plugin.utils.object.to_lod(bpy.context.scene, ob, None, lod=lod_group_name)
+	lod_group_name = plugin.utils.object.get_lod(src_ob)
+	plugin.utils.object.link_to_collection(bpy.context.scene, ob, lod_group_name)
 
 	return f'Generated fin geometry {trg_name} from {src_ob.name}'
 

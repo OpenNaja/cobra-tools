@@ -142,8 +142,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 			import_collider(hitcheck, armature_ob, bone_name, corrector)
 	for bone_index, joint_transform in zip(bone_info.joints.joint_indices, bone_info.joints.joint_transforms):
 		bone_name = b_bone_names[bone_index]
-		joint = create_ob(scene, "joint_"+bone_name, None)
-		link_to_collection(scene, joint, "joints")
+		joint = create_ob(scene, "joint_"+bone_name, None, coll_name="joints")
 		n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
 		n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
 		b_bind = corrector.nif_bind_to_blender_bind(n_bind)

@@ -9,7 +9,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin
-from plugin.utils.object import create_ob, to_lod
+from plugin.utils.object import create_ob
 from generated.formats.ms2 import Ms2File, is_old
 
 
@@ -61,11 +61,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 
 				if m_ob.mesh_index not in ob_dict:
-					b_ob = create_ob(scene, f"{mdl2_name}_lod{lod_i}_ob{ob_i}", b_me)
-
-					# parenting
+					b_ob = create_ob(scene, f"{mdl2_name}_lod{lod_i}_ob{ob_i}", b_me, coll_name=f"LOD{lod_i}")
 					b_ob.parent = b_armature_obj
-
 					b_ob["bone_index"] = m_lod.bone_index
 
 					import_vertex_groups(b_ob, mesh, bone_names)
@@ -77,15 +74,14 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					ob_postpro(b_ob, mirror_mesh, use_custom_normals)
 					if not is_old(ms2.info) and mesh.flag.fur_shells:
 						add_psys(b_ob, mesh)
-					# only set the lod index here so that hiding it does not mess with any operators applied above
-					to_lod(scene, b_ob, lod_i)
 					ob_dict[m_ob.mesh_index] = b_ob
-				else:
-					b_ob = ob_dict[m_ob.mesh_index]
-
 				# from plugin.modules_import.tangents import visualize_tangents
 				# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
-				# to_lod(scene, ob2, lod_i)
+
+			coll_name = f"{scene.name}_LOD{lod_i}"
+			# get view layer, show lod 0, hide the others
+			bpy.context.view_layer.layer_collection.children[coll_name].hide_viewport = lod_i != 0
+
 	messages.add(f"Finished MS2 import in {time.time() - start_time:.2f} seconds")
 	return messages
 
