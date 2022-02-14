@@ -13,6 +13,83 @@ X_START = -15.9993
 Y_START = 0.999756
 
 
+def create_lods():
+	msgs = []
+	logging.info(f"Creating Lods")
+	# Automatic LOD generator by NDP. Generates LOD objects and automatically decimates them for LOD0-LOD5
+
+	# Get active scene and root collection
+	scn = bpy.context.scene
+	col = scn.collection
+	col_list = bpy.types.Collection(col).children
+
+	# Make list of all LOD collections
+	lod_list = [col for col in col_list if col.name[:-1].endswith("LOD")]
+
+	# Setup default lod ratio values
+	lodratio = [1, 0.8, 0.56, 0.34, 0.2, 0.08]
+
+	# Amount of LODS to do
+	y = len(lod_list) - 1
+	y1 = y
+
+	# Deleting old LODS
+	for lod_coll in lod_list[1:]:
+		for ob in lod_coll.objects:
+			# delete old target
+			bpy.data.objects.remove(ob, do_unlink=True)
+
+	print("Generating LOD objects")
+
+	for i in range(len(lod_list[0].all_objects)):
+		while y != 0:
+			# Selecting and duplicating object
+			obj = lod_list[0].all_objects[i]
+			obj.select_set(True)
+			bpy.context.view_layer.objects.active = obj
+			bpy.ops.object.duplicate(linked=False)
+			obj1 = bpy.context.active_object
+
+			# Renaming duplicated object
+			obj1.name = obj1.name.replace("lod" + lod_list[0].name[-1], "lod" + lod_list[y].name[-1])
+			obj1.name = obj1.name.replace(".001", "")
+
+			# Decimating duplicated object
+			decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
+			if y < len(lodratio):
+				decimate.ratio = lodratio[y]
+			else:
+				decimate.ratio = 0.08
+			bpy.ops.object.modifier_apply(modifier="Decimate")
+
+			# Moving to respective collection
+			lod_list[0].objects.unlink(obj1)
+			lod_list[y].objects.link(obj1)
+
+			#        if y > 1:
+			#            #Deleting fins after LOD1
+			#            if obj1.data["flag"] == 999999:
+			#                obj1.select_set(True)
+			#                obj.select_set(False)
+			#                bpy.ops.object.delete()
+			#            I need this section to find materials that end in _Fin
+
+			#
+			#            #Changing shells to skin
+			#            elif obj1.data["flag"] == 885:
+			#                obj1.data["flag"] = 565
+			#                obj1.data.uv_layers.new(name='UV1')
+			#                #--------------------still need to remove second material, cant figure out
+
+			for obj in bpy.context.selected_objects:
+				obj.select_set(False)
+			y -= 1
+		y = y1
+
+	msgs.append("LOD objects generated succesfully.")
+	return msgs
+
+
 def copy_ob(src_obj):
 	new_obj = src_obj.copy()
 	new_obj.data = src_obj.data.copy()

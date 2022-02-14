@@ -209,6 +209,16 @@ class CreateFins(bpy.types.Operator):
         return handle_errors(self, shell.create_fins_wrapper, {})
 
 
+class CreateLods(bpy.types.Operator):
+    """Create LODs for this scene"""
+    bl_idname = "object.create_lods"
+    bl_label = "Create LODs"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, shell.create_lods, {})
+
+
 class GaugeUVScale(bpy.types.Operator):
     """Measures the UV scale for fur fins"""
     bl_idname = "object.gauge_uv_scale"
@@ -261,6 +271,8 @@ class MESH_PT_CobraTools(bpy.types.Panel):
         row.operator("object.gauge_uv_scale", icon_value=icon)
         sub = row.row()
         sub.operator("object.create_fins", icon_value=icon)
+        sub = row.row()
+        sub.operator("object.create_lods", icon_value=icon)
 
         row = layout.row(align=True)
         row.operator("object.vcol_to_comb", icon_value=icon)
@@ -334,6 +346,7 @@ classes = (
     ExportMS2,
     ImportVoxelskirt,
     CreateFins,
+    CreateLods,
     GaugeUVScale,
     VcolToHair,
     HairToVcol,
