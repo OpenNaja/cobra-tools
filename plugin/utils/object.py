@@ -35,7 +35,9 @@ def get_lod(ob):
 
 
 def link_to_collection(scene, ob, coll_name):
-	coll_name = f"{scene.name}_{coll_name}"
+	# turn any relative collection names to include the scene prefix
+	if not coll_name.startswith(f"{scene.name}_"):
+		coll_name = f"{scene.name}_{coll_name}"
 	if coll_name not in bpy.data.collections:
 		coll = bpy.data.collections.new(coll_name)
 		scene.collection.children.link(coll)
