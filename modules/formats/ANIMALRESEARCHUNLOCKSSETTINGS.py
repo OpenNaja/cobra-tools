@@ -146,21 +146,23 @@ class AnimalresearchstartunlockedssettingsLoader(BaseFile):
 		_, count = struct.unpack("<QQ", ss_pointer.data)
 		# logging.debug(ss_pointer.data)
 		# logging.debug(f"{self.file_entry.name} has {count} entries")
-		self.assign_fixed_frags(1)
-		root_f = self.sized_str_entry.fragments[0]
-		# logging.debug(root_f)
-		ptr1 = root_f.pointers[1]
-
-		entry_size = 16
-		out_frags, array_data = self.collect_array(ptr1, count, entry_size)
-		self.sized_str_entry.fragments.extend(out_frags)
-
 		self.frag_data_pairs = []
-		for i in range(count):
-			x = i * entry_size
-			frags_entry = self.get_frags_between(out_frags, ptr1.data_offset + x, ptr1.data_offset + x+entry_size)
-			entry_bytes = array_data[x:x+entry_size]
-			self.frag_data_pairs.append((frags_entry, entry_bytes))
+		# content5 has one that lacks the fixed fragments
+		if count:
+			self.assign_fixed_frags(1)
+			root_f = self.sized_str_entry.fragments[0]
+			# logging.debug(root_f)
+			ptr1 = root_f.pointers[1]
+
+			entry_size = 16
+			out_frags, array_data = self.collect_array(ptr1, count, entry_size)
+			self.sized_str_entry.fragments.extend(out_frags)
+
+			for i in range(count):
+				x = i * entry_size
+				frags_entry = self.get_frags_between(out_frags, ptr1.data_offset + x, ptr1.data_offset + x+entry_size)
+				entry_bytes = array_data[x:x+entry_size]
+				self.frag_data_pairs.append((frags_entry, entry_bytes))
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
