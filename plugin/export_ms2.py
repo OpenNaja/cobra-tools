@@ -3,6 +3,7 @@ import math
 import os
 import time
 import struct
+import traceback
 
 import bpy
 import mathutils
@@ -208,28 +209,32 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# get the weights
 	w = []
 	for vertex_group in b_vert.groups:
-		vgroup_name = b_ob.vertex_groups[vertex_group.group].name
-		# get the unk0
-		if vgroup_name == "unk0":
-			unk_0 = vertex_group.weight
-		elif vgroup_name == "residue":
-			# if this is not rounded, somehow it affects the weights
-			# might be a bug, but can't figure out where the rest is affected
-			residue = int(round(vertex_group.weight))
-		elif vgroup_name == "fur_length":
-			fur_length = vertex_group.weight * hair_length
-		elif vgroup_name == "fur_width":
-			fur_width = vertex_group.weight
-		elif vgroup_name in bones_table:
-			# avoid dummy vertex groups without corresponding bones
-			bone_index = bones_table[vgroup_name]
-			if bone_index > bone_index_cutoff:
-				logging.error(
-					f"Mesh {b_ob.name} has weights for bone {vgroup_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
-					f"\nThis will cause distortions ingame!")
-			w.append([bone_index, vertex_group.weight])
-		else:
-			logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
+		try:
+			vgroup_name = b_ob.vertex_groups[vertex_group.group].name
+			# get the unk0
+			if vgroup_name == "unk0":
+				unk_0 = vertex_group.weight
+			elif vgroup_name == "residue":
+				# if this is not rounded, somehow it affects the weights
+				# might be a bug, but can't figure out where the rest is affected
+				residue = int(round(vertex_group.weight))
+			elif vgroup_name == "fur_length":
+				fur_length = vertex_group.weight * hair_length
+			elif vgroup_name == "fur_width":
+				fur_width = vertex_group.weight
+			elif vgroup_name in bones_table:
+				# avoid dummy vertex groups without corresponding bones
+				bone_index = bones_table[vgroup_name]
+				if bone_index > bone_index_cutoff:
+					logging.error(
+						f"Mesh {b_ob.name} has weights for bone {vgroup_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
+						f"\nThis will cause distortions ingame!")
+				w.append([bone_index, vertex_group.weight])
+			else:
+				logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
+		except BaseException as err:
+			logging.warning(f"Vert with {len(b_vert.groups)} groups, index {vertex_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
+			traceback.print_exc()
 	# print(residue, unk_0)
 	# get the 4 strongest influences on this vert
 	w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
