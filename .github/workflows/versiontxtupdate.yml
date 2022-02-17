@@ -25,4 +25,4 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: git log --pretty=format:"%h - %cd" -1 > version.txt
+        run: git log --pretty=format:"Version - %h - %cd" -1 > version.txt
