@@ -23,7 +23,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
 		scene = bpy.data.scenes.new(mdl2_name)
 		bpy.context.window.scene = scene
-		# print(mdl2)
+
 		bone_names = get_bone_names(model_info)
 		b_armature_obj = import_armature(scene, model_info, bone_names)
 
