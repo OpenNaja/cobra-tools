@@ -39,7 +39,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 			for ob_i, m_ob in enumerate(m_lod.objects):
 				mesh = model_info.model.meshes[m_ob.mesh_index]
 				# lod_i = mesh.lod_index
-				print("flag", mesh.flag)
+				logging.debug(f"flag {mesh.flag}")
 				if m_ob.mesh_index in mesh_dict:
 					b_me = mesh_dict[m_ob.mesh_index]
 				# create object and mesh from data
