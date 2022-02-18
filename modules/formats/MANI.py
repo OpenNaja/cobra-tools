@@ -1,6 +1,12 @@
 import logging
+import os
 import struct
+
+from generated.formats.manis.compound.SizedStrData import SizedStrData
+from generated.formats.manis import ManisFile
 from modules.formats.BaseFormat import BaseFile
+from modules.formats.shared import get_versions
+from modules.helpers import as_bytes
 
 
 class ManisLoader(BaseFile):
@@ -13,7 +19,9 @@ class ManisLoader(BaseFile):
 		logging.info(f"Writing {name}")
 		if not self.sized_str_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		ss_data = self.sized_str_entry.pointers[0].data
+		ss_ptr = self.sized_str_entry.pointers[0]
+		header = ss_ptr.load_as(SizedStrData)[0]
+		print(header)
 		# print(len(ss_data), ss_data)
 		buffers = self.sized_str_entry.data_entry.buffer_datas
 		# print(len(buffers))
@@ -30,17 +38,38 @@ class ManisLoader(BaseFile):
 			outfile.write(ovl_header)
 			outfile.write(manis_header)
 			for mani in self.sized_str_entry.children:
-				outfile.write(mani.name.encode() + b"\x00")
-			outfile.write(ss_data)
+				outfile.write(as_bytes(mani.name))
+			outfile.write(ss_ptr.data)
 			for buff in self.sized_str_entry.data_entry.buffers:
 				outfile.write(buff.data)
 	
 		# for i, buff in enumerate(self.sized_str_entry.data_entry.buffers):
 		# 	with open(out_path+str(i), 'wb') as outfile:
 		# 		outfile.write(buff.data)
-		# if "partials" in name:
-		# data = ManisFormat.Data()
-		# with open(out_path, "rb") as stream:
-		# 	data.read(stream)
 	
 		return out_path,
+
+	def create(self):
+		manis_file = ManisFile()
+		manis_file.load(self.file_entry.path)
+		ms2_dir = os.path.dirname(self.file_entry.path)
+
+		manis_entry = self.create_ss_entry(self.file_entry)
+		manis_entry.children = []
+
+		versions = get_versions(self.ovl)
+
+		# create mani files
+		for mani_name in manis_file.names:
+			mani_path = os.path.join(ms2_dir, mani_name+".mani")
+			mani_file_entry = self.get_file_entry(mani_path)
+
+			mani_entry = self.create_ss_entry(mani_file_entry)
+			mani_entry.pointers[0].pool_index = -1
+			manis_entry.children.append(mani_entry)
+
+		# todo - is the length right, also pool type
+		manis_ss_bytes = as_bytes(manis_file.header, version_info=versions)
+		self.write_to_pool(manis_entry.pointers[0], 2, manis_ss_bytes)
+
+		self.create_data_entry(manis_entry, manis_file.buffers)

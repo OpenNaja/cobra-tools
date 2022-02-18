@@ -50,7 +50,7 @@
 
 
     <compound name="SizedStrData">
-        <add name="a" type="ushort"/>
+		<add name="names size" type="ushort">seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed</add>
         <add name="hash block size" type="ushort"/>
         <add name="zeros" type="int" arr1="2"/>
         <add name="c1" type="ushort"/>
