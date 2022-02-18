@@ -10,8 +10,12 @@ Get the latest source code [here](https://github.com/OpenNaja/cobra-tools/archiv
 - [Python 3.7 x64 bit](https://www.python.org/downloads/windows/) (make sure you add it to the system path during installation; 32 bit versions of python will hit their memory limit trying to read large OVLs)
 - [Microsoft Visual C++ Redistributable 2017 x64](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
 - [Microsoft Visual C++ Redistributable 2013 x86](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
-- pyqt5 (run: `pip install pyqt5` in cmd)
-- imageio (run: `pip install imageio` in cmd)
+#### Install python dependencies
+- open a command shell, navigate to the cobra-tools folder and execute the following line: 
+```
+C:\Path\To\cobra-tools>pip install -r requirements.txt 
+```  
+In case this commands tells you upgrade pip, follow the instructions and then try again until all the requirements are met.
 
 ### Blender Plugin Installation
 - [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
