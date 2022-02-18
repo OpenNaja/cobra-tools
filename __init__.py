@@ -19,11 +19,11 @@ if not plugin_dir in sys.path:
     sys.path.append(plugin_dir)
 
 import logging
-from ovl_util.config import logging_setup, get_version_str
+from ovl_util.config import logging_setup, get_version_str, get_commit_str
 
 logging_setup("blender_plugin")
 logging.info(f"Running python {sys.version}")
-logging.info(f"Running cobra-tools {get_version_str()}")
+logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
 import bpy
 import bpy.utils.previews

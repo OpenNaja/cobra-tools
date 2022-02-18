@@ -10,11 +10,12 @@ try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
 
-	from ovl_util.config import logging_setup, get_version_str
+	from ovl_util.config import logging_setup, get_version_str, get_commit_str
+
 	logging_setup("ovl_tool_gui")
 
 	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running cobra-tools {get_version_str()}")
+	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
 	from ovl_util import widgets, interaction, qt_threads
 	from modules import walker, remover
@@ -193,6 +194,11 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
+		self.statusBar = QtWidgets.QStatusBar()
+		# self.statusBar.showMessage(get_commit_str())
+		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
+		self.statusBar.addWidget(label)
+		self.setStatusBar(self.statusBar)
 
 	def ask_game_dir(self):
 		dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")

@@ -74,6 +74,11 @@ def get_version_str():
 	return '.'.join([str(x) for x in version_tuple])
 
 
+def get_commit_str():
+	with open(os.path.join(plugin_dir, "version.txt"), "r") as f:
+		return f.read()
+
+
 if __name__ == '__main__':
 	cfg = read_config("config.ini")
 	print(cfg)
