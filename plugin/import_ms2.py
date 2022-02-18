@@ -35,7 +35,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 		ob_dict = {}
 		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
-			print("lod_i", lod_i)
+			logging.debug(f"lod_i {lod_i}")
 			for ob_i, m_ob in enumerate(m_lod.objects):
 				mesh = model_info.model.meshes[m_ob.mesh_index]
 				# lod_i = mesh.lod_index
