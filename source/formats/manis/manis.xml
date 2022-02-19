@@ -65,12 +65,16 @@
         <add name="mani count" type="uint"/>
         <add name="names" type="ZString" arr1="mani count"/>
         <add name="header" type="SizedStrData"/>
-<!--        end of sizedstr bytes + buffer 0-->
-        <add name="mani infos" type="ManiInfo" arr1="mani count"/>
-		<add name="bone hashes" type="uint" arr1="header\hash block size / 4" ></add>
-		<add name="bone names" type="ZString" arr1="header\hash block size / 4" ></add>
-        <add name="bone pad" type="PadAlign" arg="bone names" template="4" >?</add>
 
+        <add name="mani infos" type="ManiInfo" arr1="mani count"/>
+        <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
+		
+    </compound>
+
+    <compound name="Buffer1">
+		<add name="bone hashes" type="uint" arr1="#ARG#" ></add>
+		<add name="bone names" type="ZString" arr1="#ARG#" ></add>
+        <add name="bone pad" type="PadAlign" arg="bone names" template="4" >?</add>
     </compound>
 
 	<compound name="ManiInfo" >

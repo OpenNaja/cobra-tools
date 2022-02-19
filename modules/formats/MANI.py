@@ -20,19 +20,16 @@ class ManisLoader(BaseFile):
 		if not self.sized_str_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
 		ss_ptr = self.sized_str_entry.pointers[0]
-		header = ss_ptr.load_as(SizedStrData)[0]
-		print(header)
-		print(len(ss_ptr.data), ss_ptr.data)
-		buffers = self.sized_str_entry.data_entry.buffer_datas
+		# header = ss_ptr.load_as(SizedStrData)[0]
+		# buffers = self.sized_str_entry.data_entry.buffer_datas
 		# print(len(buffers))
 		ovl_header = self.pack_header(b"MANI")
 		manis_header = struct.pack("<I", len(self.sized_str_entry.children))
-	
-		# sizedstr data + 3 buffers
+
 		# sized str data gives general info
-		# buffer 0 holds all mani infos - weirdly enough, its first 10 bytes come from the sized str data!
-		# buffer 1 is list of hashes and zstrs for each bone name
-		# buffer 2 has the actual keys
+		# buffer 0 - all mani infos
+		# buffer 1 - list of hashes and zstrs for each bone name
+		# buffer 2 - actual keys
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
 			outfile.write(ovl_header)
@@ -50,14 +47,11 @@ class ManisLoader(BaseFile):
 		return out_path,
 
 	def create(self):
-		manis_file = ManisFile()
-		manis_file.load(self.file_entry.path)
+		manis_file, ss, b0, b1, b2 = self._get_data(self.file_entry.path)
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		manis_entry = self.create_ss_entry(self.file_entry)
 		manis_entry.children = []
-
-		versions = get_versions(self.ovl)
 
 		# create mani files
 		for mani_name in manis_file.names:
@@ -68,8 +62,13 @@ class ManisLoader(BaseFile):
 			mani_entry.pointers[0].pool_index = -1
 			manis_entry.children.append(mani_entry)
 
-		# todo - is the length right, also pool type
-		manis_ss_bytes = as_bytes(manis_file.header, version_info=versions)
-		self.write_to_pool(manis_entry.pointers[0], 2, manis_ss_bytes)
+		# todo - pool type
+		self.write_to_pool(manis_entry.pointers[0], 2, ss)
+		self.create_data_entry(manis_entry, (b0, b1, b2))
 
-		self.create_data_entry(manis_entry, manis_file.buffers)
+	def _get_data(self, file_path):
+		"""Loads and returns the data for a manis"""
+		versions = get_versions(self.ovl)
+		manis_file = ManisFile()
+		manis_file.load(file_path)
+		return manis_file, as_bytes(manis_file.header, version_info=versions), as_bytes(manis_file.mani_infos, version_info=versions), as_bytes(manis_file.name_buffer, version_info=versions), b""

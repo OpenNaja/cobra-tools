@@ -1,8 +1,8 @@
 import numpy
 import typing
 from generated.array import Array
+from generated.formats.manis.compound.Buffer1 import Buffer1
 from generated.formats.manis.compound.ManiInfo import ManiInfo
-from generated.formats.manis.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.SizedStrData import SizedStrData
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 
@@ -24,11 +24,7 @@ class InfoHeader(GenericHeader):
 		self.names = Array(self.context)
 		self.header = SizedStrData(self.context, None, None)
 		self.mani_infos = Array(self.context)
-		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
-		self.bone_names = Array(self.context)
-
-		# ?
-		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
+		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -36,9 +32,7 @@ class InfoHeader(GenericHeader):
 		self.names = Array(self.context)
 		self.header = SizedStrData(self.context, None, None)
 		self.mani_infos = Array(self.context)
-		self.bone_hashes = numpy.zeros((int(self.header.hash_block_size / 4)), dtype='uint')
-		self.bone_names = Array(self.context)
-		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
+		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -47,9 +41,7 @@ class InfoHeader(GenericHeader):
 		self.names = stream.read_zstrings((self.mani_count))
 		self.header = stream.read_type(SizedStrData, (self.context, None, None))
 		self.mani_infos.read(stream, ManiInfo, self.mani_count, None)
-		self.bone_hashes = stream.read_uints((int(self.header.hash_block_size / 4)))
-		self.bone_names = stream.read_zstrings((int(self.header.hash_block_size / 4)))
-		self.bone_pad = stream.read_type(PadAlign, (self.context, self.bone_names, 4))
+		self.name_buffer = stream.read_type(Buffer1, (self.context, int(self.header.hash_block_size / 4), None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -60,9 +52,7 @@ class InfoHeader(GenericHeader):
 		stream.write_zstrings(self.names)
 		stream.write_type(self.header)
 		self.mani_infos.write(stream, ManiInfo, self.mani_count, None)
-		stream.write_uints(self.bone_hashes)
-		stream.write_zstrings(self.bone_names)
-		stream.write_type(self.bone_pad)
+		stream.write_type(self.name_buffer)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -76,9 +66,7 @@ class InfoHeader(GenericHeader):
 		s += f'\n	* names = {self.names.__repr__()}'
 		s += f'\n	* header = {self.header.__repr__()}'
 		s += f'\n	* mani_infos = {self.mani_infos.__repr__()}'
-		s += f'\n	* bone_hashes = {self.bone_hashes.__repr__()}'
-		s += f'\n	* bone_names = {self.bone_names.__repr__()}'
-		s += f'\n	* bone_pad = {self.bone_pad.__repr__()}'
+		s += f'\n	* name_buffer = {self.name_buffer.__repr__()}'
 		return s
 
 	def __repr__(self):

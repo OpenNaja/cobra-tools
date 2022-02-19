@@ -26,6 +26,7 @@ class ManisFile(InfoHeader, IoFile):
 
 		with self.reader(filepath) as stream:
 			self.read(stream)
+			self.eoh = stream.tell()
 			for mi, name in zip(self.mani_infos, self.names):
 				mi.name = name
 			print(self)
@@ -34,15 +35,12 @@ class ManisFile(InfoHeader, IoFile):
 				mani_block = stream.read_type(ManiBlock, (self.context, mani_info,))
 				print(mani_info)
 				print(mani_block)
-				# # return
-				# # is this correct??
-				# zeros = stream.read(4)
-				# print(zeros, stream.tell())
+
 				sum_bytes = sum(mb.byte_size for mb in mani_block.repeats)
 				print("sum_bytes", sum_bytes)
 				sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_block.repeats)
 				print("sum_bytes + padding", sum_bytes2)
-				for mb, bone_name in zip(mani_block.repeats, self.bone_names):
+				for mb, bone_name in zip(mani_block.repeats, self.name_buffer.bone_names):
 					print(bone_name, stream.tell())
 					data = stream.read(mb.byte_size)
 					pad_size = get_padding_size(mb.byte_size)
@@ -51,12 +49,8 @@ class ManisFile(InfoHeader, IoFile):
 					# print(binascii.hexlify(data[:40]), padding, stream.tell())
 					with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{bone_name}.maniskeys"), "wb") as f:
 						f.write(data)
-			for i, bone_name in enumerate(self.bone_names):
+			for i, bone_name in enumerate(self.name_buffer.bone_names):
 				print(i, bone_name)
-
-	@property
-	def buffers(self):
-		return self.buffer_0_bytes, self.buffer_1_bytes, self.buffer_2_bytes
 
 
 if __name__ == "__main__":
