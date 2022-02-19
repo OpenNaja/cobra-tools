@@ -71,4 +71,6 @@ class ManisLoader(BaseFile):
 		versions = get_versions(self.ovl)
 		manis_file = ManisFile()
 		manis_file.load(file_path)
-		return manis_file, as_bytes(manis_file.header, version_info=versions), as_bytes(manis_file.mani_infos, version_info=versions), as_bytes(manis_file.name_buffer, version_info=versions), b""
+		return manis_file, as_bytes(manis_file.header, version_info=versions), \
+			as_bytes(manis_file.mani_infos, version_info=versions), as_bytes(manis_file.name_buffer, version_info=versions), \
+			as_bytes(manis_file.keys_buffer, version_info=versions)

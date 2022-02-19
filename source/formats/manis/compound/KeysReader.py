@@ -51,7 +51,11 @@ class KeysReader:
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-
+		for mani_info in self.arg:
+			mani_info.keys.write(stream)
+			for mb in mani_info.keys.repeats:
+				stream.write(mb.data)
+				stream.write(get_padding(mb.byte_size))
 		self.io_size = stream.tell() - self.io_start
 
 	def get_info_str(self):
