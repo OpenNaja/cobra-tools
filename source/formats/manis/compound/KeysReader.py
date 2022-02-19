@@ -4,9 +4,6 @@ import traceback
 
 from generated.context import ContextReference
 from generated.formats.manis.compound import ManiBlock
-from generated.formats.ms2.versions import is_old
-from generated.formats.ms2.compound.Model import Model
-from generated.formats.ms2.compound.BoneInfo import BoneInfo
 from modules.formats.shared import get_padding_size, get_padding
 
 
