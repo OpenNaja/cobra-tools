@@ -35,7 +35,7 @@ class ManisLoader(BaseFile):
 			outfile.write(ovl_header)
 			outfile.write(manis_header)
 			for mani in self.sized_str_entry.children:
-				outfile.write(as_bytes(mani.name))
+				outfile.write(as_bytes(mani.basename))
 			outfile.write(ss_ptr.data)
 			for buff in self.sized_str_entry.data_entry.buffers:
 				outfile.write(buff.data)
