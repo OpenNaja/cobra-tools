@@ -22,7 +22,7 @@ class ManisLoader(BaseFile):
 		ss_ptr = self.sized_str_entry.pointers[0]
 		header = ss_ptr.load_as(SizedStrData)[0]
 		print(header)
-		# print(len(ss_data), ss_data)
+		print(len(ss_ptr.data), ss_ptr.data)
 		buffers = self.sized_str_entry.data_entry.buffer_datas
 		# print(len(buffers))
 		ovl_header = self.pack_header(b"MANI")

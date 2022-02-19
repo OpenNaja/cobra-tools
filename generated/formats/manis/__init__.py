@@ -18,11 +18,6 @@ class ManisFile(InfoHeader, IoFile):
 	def __init__(self):
 		super().__init__(OvlContext())
 
-	@staticmethod
-	def read_z_str(stream, pos):
-		stream.seek(pos)
-		return stream.read_zstring()
-
 	def load(self, filepath):
 		# store file name for later
 		self.file = filepath
@@ -35,7 +30,6 @@ class ManisFile(InfoHeader, IoFile):
 				mi.name = name
 			print(self)
 			# read the first mani data
-			mani_info = self.mani_infos[0]
 			for mani_info in self.mani_infos:
 				mani_block = stream.read_type(ManiBlock, (self.context, mani_info,))
 				print(mani_info)
@@ -55,27 +49,14 @@ class ManisFile(InfoHeader, IoFile):
 					padding = stream.read(pad_size)
 					print("end", stream.tell())
 					# print(binascii.hexlify(data[:40]), padding, stream.tell())
-					with open(os.path.join(self.dir, f"{self.path_no_ext}_{bone_name}.maniskeys"), "wb") as f:
+					with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{bone_name}.maniskeys"), "wb") as f:
 						f.write(data)
 			for i, bone_name in enumerate(self.bone_names):
 				print(i, bone_name)
 
-			# print()
-			#
-			# # seems to be pretty good until here, then it breaks
-			#
-			# # flags per frame?
-			# frames_0 = [struct.unpack(f"<4B", stream.read(4)) for i in range(mani_info.frame_count)]
-			# print("frames_0", frames_0)
-			# print("pad", stream.read(1))
-			# # could be bitfields per frame?
-			# frames_1 = struct.unpack(f"<{mani_info.frame_count}I", stream.read(mani_info.frame_count * 4))
-			# print("frames_1", frames_1)
-			# zerom, frame_count, name_count, c_count = struct.unpack(f"<4I", stream.read(4 * 4))
-			# print("zerom, frame_count, name_count, c_count", zerom, frame_count, name_count, c_count)
-			# print("zeros", stream.read(76))
-			# x, y = struct.unpack(f"<2H", stream.read(4))
-			# print("x, y", x, y)
+	@property
+	def buffers(self):
+		return self.buffer_0_bytes, self.buffer_1_bytes, self.buffer_2_bytes
 
 
 if __name__ == "__main__":

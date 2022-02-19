@@ -1,10 +1,12 @@
-import numpy
-import typing
-from generated.array import Array
 from generated.context import ContextReference
 
 
 class SizedStrData:
+
+	"""
+	24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
+	32 bytes for PZ1.6+, JWE2
+	"""
 
 	context = ContextReference()
 
@@ -15,47 +17,48 @@ class SizedStrData:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.a = 0
+
+		# seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed
+		self.names_size = 0
 		self.hash_block_size = 0
-		self.zeros = numpy.zeros((2), dtype='int')
-		self.c_1 = 0
-		self.zeros_end = numpy.zeros((5), dtype='ushort')
-		self.zeros_end = numpy.zeros((9), dtype='ushort')
+		self.zero_0 = 0
+
+		# haven't seen this one actually used, may be wrong
+		self.count = 0
+		self.zero_1 = 0
+		self.zero_2 = 0
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.a = 0
+		self.names_size = 0
 		self.hash_block_size = 0
-		self.zeros = numpy.zeros((2), dtype='int')
-		self.c_1 = 0
-		if self.context.version == 18:
-			self.zeros_end = numpy.zeros((5), dtype='ushort')
-		if (not self.context.user_version.is_jwe) and (self.context.version == 20):
-			self.zeros_end = numpy.zeros((9), dtype='ushort')
+		self.zero_0 = 0
+		self.count = 0
+		self.zero_1 = 0
+		if self.context.version >= 20:
+			self.zero_2 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.a = stream.read_ushort()
+		self.names_size = stream.read_ushort()
 		self.hash_block_size = stream.read_ushort()
-		self.zeros = stream.read_ints((2))
-		self.c_1 = stream.read_ushort()
-		if self.context.version == 18:
-			self.zeros_end = stream.read_ushorts((5))
-		if (not self.context.user_version.is_jwe) and (self.context.version == 20):
-			self.zeros_end = stream.read_ushorts((9))
+		self.zero_0 = stream.read_uint64()
+		self.count = stream.read_uint()
+		self.zero_1 = stream.read_uint64()
+		if self.context.version >= 20:
+			self.zero_2 = stream.read_uint64()
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_ushort(self.a)
+		stream.write_ushort(self.names_size)
 		stream.write_ushort(self.hash_block_size)
-		stream.write_ints(self.zeros)
-		stream.write_ushort(self.c_1)
-		if self.context.version == 18:
-			stream.write_ushorts(self.zeros_end)
-		if (not self.context.user_version.is_jwe) and (self.context.version == 20):
-			stream.write_ushorts(self.zeros_end)
+		stream.write_uint64(self.zero_0)
+		stream.write_uint(self.count)
+		stream.write_uint64(self.zero_1)
+		if self.context.version >= 20:
+			stream.write_uint64(self.zero_2)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -64,11 +67,12 @@ class SizedStrData:
 
 	def get_fields_str(self):
 		s = ''
-		s += f'\n	* a = {self.a.__repr__()}'
+		s += f'\n	* names_size = {self.names_size.__repr__()}'
 		s += f'\n	* hash_block_size = {self.hash_block_size.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* c_1 = {self.c_1.__repr__()}'
-		s += f'\n	* zeros_end = {self.zeros_end.__repr__()}'
+		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
+		s += f'\n	* count = {self.count.__repr__()}'
+		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
+		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
 		return s
 
 	def __repr__(self):

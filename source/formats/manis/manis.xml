@@ -50,12 +50,14 @@
 
 
     <compound name="SizedStrData">
+		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
+		32 bytes for PZ1.6+, JWE2
 		<add name="names size" type="ushort">seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed</add>
         <add name="hash block size" type="ushort"/>
-        <add name="zeros" type="int" arr1="2"/>
-        <add name="c1" type="ushort"/>
-		<add name="zeros end" type="ushort" vercond="#PC#" arr1="5"/>
-		<add name="zeros end" type="ushort" vercond="#PZ16#" arr1="9"/>
+        <add name="zero 0" type="uint64" />
+		<add name="count" type="uint">haven't seen this one actually used, may be wrong</add>
+        <add name="zero 1" type="uint64" />
+        <add name="zero 2" type="uint64" since="20" />
     </compound>
 
     <compound name="InfoHeader" inherit="GenericHeader">
