@@ -29,28 +29,15 @@ class ManisFile(InfoHeader, IoFile):
 			self.eoh = stream.tell()
 			for mi, name in zip(self.mani_infos, self.names):
 				mi.name = name
-			print(self)
-			# read the first mani data
-			for mani_info in self.mani_infos:
-				mani_block = stream.read_type(ManiBlock, (self.context, mani_info,))
-				print(mani_info)
-				print(mani_block)
-
-				sum_bytes = sum(mb.byte_size for mb in mani_block.repeats)
-				print("sum_bytes", sum_bytes)
-				sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_block.repeats)
-				print("sum_bytes + padding", sum_bytes2)
-				for mb, bone_name in zip(mani_block.repeats, self.name_buffer.bone_names):
-					print(bone_name, stream.tell())
-					data = stream.read(mb.byte_size)
-					pad_size = get_padding_size(mb.byte_size)
-					padding = stream.read(pad_size)
-					print("end", stream.tell())
-					# print(binascii.hexlify(data[:40]), padding, stream.tell())
-					with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{bone_name}.maniskeys"), "wb") as f:
-						f.write(data)
 			for i, bone_name in enumerate(self.name_buffer.bone_names):
 				print(i, bone_name)
+
+	def dump_keys(self):
+		for mani_info in self.mani_infos:
+			for mb, bone_name in zip(mani_info.keys.repeats, self.name_buffer.bone_names):
+				# print(binascii.hexlify(data[:40]), padding, stream.tell())
+				with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{bone_name}.maniskeys"), "wb") as f:
+					f.write(mb.data)
 
 
 if __name__ == "__main__":
