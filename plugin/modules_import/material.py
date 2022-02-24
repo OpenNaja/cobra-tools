@@ -91,21 +91,28 @@ def create_material(in_dir, matname):
 				marking = tex_dic[sorted(fur_names)[0]]
 				lut = tex_dic[sorted(lut_names)[0]]
 				marking.image.colorspace_settings.name = "Non-Color"
-
-				# PZ LUTs usually occupy half of the texture, so scale the incoming greyscale coordinates so that
-				# 1 lands in the center of the LUT
-				scaler = tree.nodes.new('ShaderNodeMath')
-				scaler.operation = "MULTIPLY"
+				# PZ LUTs usually occupy half of the texture
+				scaler = tree.nodes.new('ShaderNodeMapping')
+				scaler.vector_type = "POINT"
 				tree.links.new(marking.outputs[0], scaler.inputs[0])
-				scaler.inputs[1].default_value = 0.5
 				tree.links.new(scaler.outputs[0], lut.inputs[0])
-
+				# texture needs to use extend mode so that it doesn't interpolate with the repeated image
+				lut.extension = "EXTEND"
+				# also to prevent interpolation at the middle of the image, set to closest
+				lut.interpolation = "Closest"
+				# location - put it into the first line (variants may use other lines, not sure where the FGM defines that)
+				scaler.inputs[1].default_value = (0, 1, 0)
+				# so scale the incoming greyscale coordinates so that X 1 lands in the center of the LUT, flatten it on Y
+				scaler.inputs[3].default_value = (0.499, 0, 0)
 				# apply AO to diffuse
 				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
 				diffuse_premix.blend_type = "MIX"
+
 				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
 				tree.links.new(lut.outputs[0], diffuse_premix.inputs["Color2"])
-				tree.links.new(marking.outputs[0], diffuse_premix.inputs["Fac"])
+				# now we use the alpha channel from the LUT
+				# tree.links.new(marking.outputs[0], diffuse_premix.inputs["Fac"])
+				tree.links.new(lut.outputs[1], diffuse_premix.inputs["Fac"])
 				diffuse = diffuse_premix
 			#  link finished diffuse to shader
 			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
