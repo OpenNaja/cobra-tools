@@ -16,9 +16,9 @@ You need to have installed:
 - [Microsoft Visual C++ Redistributable 2017 x64](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
 - [Microsoft Visual C++ Redistributable 2013 x86](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
 #### Install python dependencies
-- open a command shell, navigate to the cobra-tools folder and execute the following line: 
+- open a command shell and execute the following line: 
 ```
-C:\Path\To\cobra-tools>pip install -r requirements.txt 
+pip install pyqt5 imageio
 ```  
 In case this commands tells you upgrade pip, follow the instructions and then try again until all the requirements are met.
 
