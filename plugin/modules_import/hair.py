@@ -31,7 +31,7 @@ def add_psys(ob, model):
 	psys.settings.display_step = 1
 
 
-def comb_common():
+def comb_common(adjust_psys_count=False):
 	context = bpy.context
 	ob = context.object
 	if not ob:
@@ -53,9 +53,16 @@ def comb_common():
 	num_particles2 = len(particle_system_eval.particles)
 	assert num_particles == num_particles2
 	if not (len(vertices) == num_particles):
-		raise IndexError(
-			f"Mesh has {len(vertices)} vertices, while particle system has {num_particles}. "
-			f"Adjust the particle system's vertex count and try again.")
+		if not adjust_psys_count:
+			raise IndexError(
+				f"Mesh {ob.name} has {len(vertices)} vertices, while particle system has {num_particles}. "
+				f"Adjust the particle system's vertex count and try again.")
+		else:
+			logging.warning(f"Changed {ob.name}'s particle count to {len(vertices)} to match vertices")
+			# set particle count on non evaluated mesh, and start over
+			bpy.ops.particle.edited_clear()
+			particle_system.settings.count = len(vertices)
+			return comb_common()
 	# tangents have to be pre-calculated
 	# this will also calculate loop normal
 	me.calc_tangents()
@@ -63,7 +70,7 @@ def comb_common():
 
 
 def vcol_to_comb():
-	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common()
+	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common(adjust_psys_count=True)
 	# loop faces
 	vcol_layer = me.vertex_colors[0].data
 	for i, face in enumerate(me.polygons):
