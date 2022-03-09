@@ -165,7 +165,7 @@
 		<add name="ref2" type="Empty" > </add>
 		<add name="zeros" type="ubyte" arr1="OriBoneCount" > </add>
         # maybe b + c 4 + 8 for partials, 12 bytes
-<!--		<add name="zeros" type="ubyte" arr1="#ARG#\p indices PosBoneCount max - #ARG#\p indices PosBoneCount min" > </add>-->
+<!--		<add name="zeros" type="ubyte" arr1="#ARG#\PosBoneMax - #ARG#\PosBoneMin" > </add>-->
 <!--		<add name="anoth pad" type="PadAlign" arg="ref2" template="8" > </add>-->
 		<add name="anoth pad" type="SmartPadding" >?</add>
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
