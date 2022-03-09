@@ -5,7 +5,7 @@ class SizedStrData:
 
 	"""
 	24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
-	32 bytes for PZ1.6+, JWE2
+	32 bytes for PZ1.6+, JWFloatCount
 	"""
 
 	context = ContextReference()
