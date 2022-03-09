@@ -163,11 +163,12 @@
 		<add name="count" type="ushort" > </add>
 		<add name="QuantisationLevel" type="ushort" >usually 420, or 0</add>
 		<add name="ref2" type="Empty" > </add>
-		<add name="zeros" type="ubyte" arr1="OriBoneCount" > </add>
+		<add name="zeros" type="ubyte" arr1="PosBoneCount" > </add>
+		<add name="flags" type="ubyte" arr1="4" > </add>
         # maybe b + c 4 + 8 for partials, 12 bytes
 <!--		<add name="zeros" type="ubyte" arr1="#ARG#\PosBoneMax - #ARG#\PosBoneMin" > </add>-->
-<!--		<add name="anoth pad" type="PadAlign" arg="ref2" template="8" > </add>-->
-		<add name="anoth pad" type="SmartPadding" >?</add>
+		<add name="anoth pad" type="PadAlign" arg="ref2" template="4" > </add>
+<!--		<add name="anoth pad" type="SmartPadding" >?</add>-->
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 		<add name="floatsb" type="float" arr1="6" >these are likely a scale reference or factor</add>
 		<add name="unk" type="uint" >?</add>
@@ -178,9 +179,9 @@
     </compound>
 
     <compound name="Repeat" >
-		<add name="zeros 0" type="uint" arr1="14" > </add>
-		<add name="byte size" type="uint" >to be read sequentially starting after this array </add>
-		<add name="zeros 1" type="uint" arr1="5" > </add>
+		<add name="zeros 0" type="uint64" arr1="7" > </add>
+		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
+		<add name="zeros 1" type="uint64" arr1="2" > </add>
     </compound>
 	
 	

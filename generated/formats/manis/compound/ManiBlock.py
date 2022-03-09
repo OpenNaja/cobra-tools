@@ -56,10 +56,9 @@ class ManiBlock:
 		# usually 420, or 0
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((self.ori_bone_count), dtype='ubyte')
-
-		# ?
-		self.anoth_pad = SmartPadding(self.context, None, None)
+		self.zeros = numpy.zeros((self.pos_bone_count), dtype='ubyte')
+		self.flags = numpy.zeros((4), dtype='ubyte')
+		self.anoth_pad = PadAlign(self.context, self.ref_2, 4)
 
 		# these are likely a scale reference or factor
 		self.floatsb = numpy.zeros((6), dtype='float')
@@ -108,8 +107,9 @@ class ManiBlock:
 		self.count = 0
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, None, None)
-		self.zeros = numpy.zeros((self.ori_bone_count), dtype='ubyte')
-		self.anoth_pad = SmartPadding(self.context, None, None)
+		self.zeros = numpy.zeros((self.pos_bone_count), dtype='ubyte')
+		self.flags = numpy.zeros((4), dtype='ubyte')
+		self.anoth_pad = PadAlign(self.context, self.ref_2, 4)
 		self.floatsb = numpy.zeros((6), dtype='float')
 		self.unk = 0
 		if self.arg.float_count:
@@ -153,8 +153,9 @@ class ManiBlock:
 		self.count = stream.read_ushort()
 		self.quantisation_level = stream.read_ushort()
 		self.ref_2 = stream.read_type(Empty, (self.context, None, None))
-		self.zeros = stream.read_ubytes((self.ori_bone_count))
-		self.anoth_pad = stream.read_type(SmartPadding, (self.context, None, None))
+		self.zeros = stream.read_ubytes((self.pos_bone_count))
+		self.flags = stream.read_ubytes((4))
+		self.anoth_pad = stream.read_type(PadAlign, (self.context, self.ref_2, 4))
 		self.floatsb = stream.read_floats((6))
 		self.unk = stream.read_uint()
 		if self.arg.float_count:
@@ -201,6 +202,7 @@ class ManiBlock:
 		stream.write_ushort(self.quantisation_level)
 		stream.write_type(self.ref_2)
 		stream.write_ubytes(self.zeros)
+		stream.write_ubytes(self.flags)
 		stream.write_type(self.anoth_pad)
 		stream.write_floats(self.floatsb)
 		stream.write_uint(self.unk)
@@ -235,6 +237,7 @@ class ManiBlock:
 		s += f'\n	* quantisation_level = {self.quantisation_level.__repr__()}'
 		s += f'\n	* ref_2 = {self.ref_2.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* flags = {self.flags.__repr__()}'
 		s += f'\n	* anoth_pad = {self.anoth_pad.__repr__()}'
 		s += f'\n	* floatsb = {self.floatsb.__repr__()}'
 		s += f'\n	* unk = {self.unk.__repr__()}'

@@ -15,31 +15,31 @@ class Repeat:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_0 = numpy.zeros((14), dtype='uint')
+		self.zeros_0 = numpy.zeros((7), dtype='uint64')
 
 		# to be read sequentially starting after this array
 		self.byte_size = 0
-		self.zeros_1 = numpy.zeros((5), dtype='uint')
+		self.zeros_1 = numpy.zeros((2), dtype='uint64')
 		self.set_defaults()
 
 	def set_defaults(self):
-		self.zeros_0 = numpy.zeros((14), dtype='uint')
+		self.zeros_0 = numpy.zeros((7), dtype='uint64')
 		self.byte_size = 0
-		self.zeros_1 = numpy.zeros((5), dtype='uint')
+		self.zeros_1 = numpy.zeros((2), dtype='uint64')
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.zeros_0 = stream.read_uints((14))
-		self.byte_size = stream.read_uint()
-		self.zeros_1 = stream.read_uints((5))
+		self.zeros_0 = stream.read_uint64s((7))
+		self.byte_size = stream.read_uint64()
+		self.zeros_1 = stream.read_uint64s((2))
 
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uints(self.zeros_0)
-		stream.write_uint(self.byte_size)
-		stream.write_uints(self.zeros_1)
+		stream.write_uint64s(self.zeros_0)
+		stream.write_uint64(self.byte_size)
+		stream.write_uint64s(self.zeros_1)
 
 		self.io_size = stream.tell() - self.io_start
 
