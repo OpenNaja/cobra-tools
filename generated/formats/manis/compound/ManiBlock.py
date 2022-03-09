@@ -57,17 +57,23 @@ class ManiBlock:
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, None, None)
 		self.zeros = numpy.zeros((self.pos_bone_count), dtype='ubyte')
-		self.flags = numpy.zeros((4), dtype='ubyte')
+		self.flag_0 = 0
+		self.flag_1 = 0
+		self.flag_2 = 0
+		self.flag_3 = 0
 		self.anoth_pad = PadAlign(self.context, self.ref_2, 4)
 
 		# these are likely a scale reference or factor
 		self.floatsb = numpy.zeros((6), dtype='float')
 
+		# these are likely a scale reference or factor
+		self.floats_second = numpy.zeros((self.flag_1, 6), dtype='float')
+
+		# these are likely a scale reference or factor
+		self.floats_third = numpy.zeros((6), dtype='float')
+
 		# ?
 		self.unk = 0
-
-		# this seems to be vaguely related, but not always there?
-		self.unk_for_float_count = 0
 		self.repeats = Array(self.context)
 		self.set_defaults()
 
@@ -108,12 +114,16 @@ class ManiBlock:
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, None, None)
 		self.zeros = numpy.zeros((self.pos_bone_count), dtype='ubyte')
-		self.flags = numpy.zeros((4), dtype='ubyte')
+		self.flag_0 = 0
+		self.flag_1 = 0
+		self.flag_2 = 0
+		self.flag_3 = 0
 		self.anoth_pad = PadAlign(self.context, self.ref_2, 4)
 		self.floatsb = numpy.zeros((6), dtype='float')
+		self.floats_second = numpy.zeros((self.flag_1, 6), dtype='float')
+		if self.flag_2 > 1:
+			self.floats_third = numpy.zeros((6), dtype='float')
 		self.unk = 0
-		if self.arg.float_count:
-			self.unk_for_float_count = 0
 		self.repeats = Array(self.context)
 
 	def read(self, stream):
@@ -154,12 +164,16 @@ class ManiBlock:
 		self.quantisation_level = stream.read_ushort()
 		self.ref_2 = stream.read_type(Empty, (self.context, None, None))
 		self.zeros = stream.read_ubytes((self.pos_bone_count))
-		self.flags = stream.read_ubytes((4))
+		self.flag_0 = stream.read_ubyte()
+		self.flag_1 = stream.read_ubyte()
+		self.flag_2 = stream.read_ubyte()
+		self.flag_3 = stream.read_ubyte()
 		self.anoth_pad = stream.read_type(PadAlign, (self.context, self.ref_2, 4))
 		self.floatsb = stream.read_floats((6))
+		self.floats_second = stream.read_floats((self.flag_1, 6))
+		if self.flag_2 > 1:
+			self.floats_third = stream.read_floats((6))
 		self.unk = stream.read_uint()
-		if self.arg.float_count:
-			self.unk_for_float_count = stream.read_uint64()
 		self.repeats.read(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -202,12 +216,16 @@ class ManiBlock:
 		stream.write_ushort(self.quantisation_level)
 		stream.write_type(self.ref_2)
 		stream.write_ubytes(self.zeros)
-		stream.write_ubytes(self.flags)
+		stream.write_ubyte(self.flag_0)
+		stream.write_ubyte(self.flag_1)
+		stream.write_ubyte(self.flag_2)
+		stream.write_ubyte(self.flag_3)
 		stream.write_type(self.anoth_pad)
 		stream.write_floats(self.floatsb)
+		stream.write_floats(self.floats_second)
+		if self.flag_2 > 1:
+			stream.write_floats(self.floats_third)
 		stream.write_uint(self.unk)
-		if self.arg.float_count:
-			stream.write_uint64(self.unk_for_float_count)
 		self.repeats.write(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -237,11 +255,15 @@ class ManiBlock:
 		s += f'\n	* quantisation_level = {self.quantisation_level.__repr__()}'
 		s += f'\n	* ref_2 = {self.ref_2.__repr__()}'
 		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* flags = {self.flags.__repr__()}'
+		s += f'\n	* flag_0 = {self.flag_0.__repr__()}'
+		s += f'\n	* flag_1 = {self.flag_1.__repr__()}'
+		s += f'\n	* flag_2 = {self.flag_2.__repr__()}'
+		s += f'\n	* flag_3 = {self.flag_3.__repr__()}'
 		s += f'\n	* anoth_pad = {self.anoth_pad.__repr__()}'
 		s += f'\n	* floatsb = {self.floatsb.__repr__()}'
+		s += f'\n	* floats_second = {self.floats_second.__repr__()}'
+		s += f'\n	* floats_third = {self.floats_third.__repr__()}'
 		s += f'\n	* unk = {self.unk.__repr__()}'
-		s += f'\n	* unk_for_float_count = {self.unk_for_float_count.__repr__()}'
 		s += f'\n	* repeats = {self.repeats.__repr__()}'
 		return s
 
