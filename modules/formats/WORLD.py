@@ -69,9 +69,6 @@ class WorldLoader(BaseFile):
         self.sized_str_entry.LuaFilename = None
         self.sized_str_entry.InstancesFile = None
 
-        if len(self.sized_str_entry.pointers[0].data) == 80:  # no pointers into the data
-            return
-
         if assetPkgCount > 0:  # we have assetPackage list
             assetpgklistfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
             logging.info(f"AssetCount  {assetPkgCount}")
@@ -82,16 +79,16 @@ class WorldLoader(BaseFile):
                 var.pointers[1].strip_zstring_padding()
                 strval = var.pointers[1].data.decode('utf-8')
 
-        # if we still have pointers, it has to be the Lua controller present in the world definition
-        if len(self.sized_str_entry.pointers[0].data) == 24 or len(assetpgklistfragment[0].pointers[0].data) == 16:
-            luaFilefragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
+        luaFilefragment = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=18)
+        logging.info(f"Lua file fragment: {luaFilefragment}")
+        if luaFilefragment:
             luaFilefragment[0].pointers[1].strip_zstring_padding()
             self.sized_str_entry.LuaFilename = luaFilefragment[0].pointers[1].data.decode('utf-8')
             logging.info(f"Lua file: {self.sized_str_entry.LuaFilename}")
 
         if prefabCount > 0:
             prefablistfragment = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
-            #logging.info(f"prefabCount  {prefabCount}")
+            logging.info(f"prefabCount  {prefabCount}")
 
             self.sized_str_entry.PrefabCount = prefabCount
             self.sized_str_entry.prefabs = self.ovs.frags_from_pointer(prefablistfragment[0].pointers[1], prefabCount)
@@ -100,6 +97,7 @@ class WorldLoader(BaseFile):
                 strval = var.pointers[1].data.decode('utf-8')
                 logging.info(strval)
 
+        print(self.sized_str_entry)
     # in JWE1 at offset 0x40 there is a ptr to the lighting options
     # in JWE2 at offset 0x30 there is a list of prefabs to add to the world
 
