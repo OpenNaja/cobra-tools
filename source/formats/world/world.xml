@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="Pointer" >
+        <add name="offset" type="uint64"/>
+    </compound>
+
+    <compound name="WorldHeader" >
+        <add name="worldType" type="uint64"/>
+        <add name="ptr_assetPkg" type="Pointer"/>
+        <add name="assetPkgCount" type="uint64"/>
+        <add name="ptr_lua" type="Pointer"/>
+        <add name="ptr_0" type="Pointer"/>
+        <add name="ptr_1" type="Pointer"/>
+        <add name="ptr_prefab" type="Pointer"/>
+        <add name="ptr_2" type="Pointer"/>
+        # in JWE1 at offset 64 there is a ptr to the lighting options
+        <add name="prefabCount" type="uint64"/>
+        <add name="ptr_3" type="Pointer"/>
+    </compound>
+
+</niftoolsxml>

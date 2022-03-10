@@ -40,21 +40,22 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.header.num_list_1 = len(self.Count1List)
 		self.header.num_list_2 = len(self.Count2List)
 		self.header.num_ui_interfaces = len(self.ui_interfaces)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, as_bytes(self.header))
+		ss_ptr = self.sized_str_entry.pointers[0]
+		self.write_to_pool(ss_ptr, 2, as_bytes(self.header))
 
 		# main names list
 		data = (moviedef.attrib['MovieName'], moviedef.attrib['PkgName'], moviedef.attrib['CategoryName'], moviedef.attrib['TypeName'])
-		self.link_list_at_rel_offset(data, self.sized_str_entry.pointers[0], 0)
+		self.link_list_at_rel_offset(data, ss_ptr, 0)
 
 		# Up to here should be enough to build almost any movie without list
 		# time now to attach all the lists
-		self.write_list_at_rel_offset(self.ui_triggers, self.sized_str_entry.pointers[0], 72)
-		self.write_list_at_rel_offset(self.ui_names, self.sized_str_entry.pointers[0], 88)
-		self.write_list_at_rel_offset(self.assetpkgs, self.sized_str_entry.pointers[0], 96)
+		self.write_list_at_rel_offset(self.ui_triggers, ss_ptr, 72)
+		self.write_list_at_rel_offset(self.ui_names, ss_ptr, 88)
+		self.write_list_at_rel_offset(self.assetpkgs, ss_ptr, 96)
 
 		if len(self.Count1List):
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 112)
+			self.ptr_relative(new_frag1.pointers[0], ss_ptr, 112)
 			itembytes = b''
 			for item in self.Count1List:
 				itembytes += struct.pack("<I", int(item))
@@ -66,7 +67,7 @@ class UIMovieDefinitionLoader(BaseFile):
 		if len(self.Count2List):
 			# point the list frag to the end of the data now.
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], self.sized_str_entry.pointers[0], 120)
+			self.ptr_relative(new_frag1.pointers[0], ss_ptr, 120)
 			itembytes = b''
 			for item in self.Count2List:
 				itembytes += struct.pack("<I", int(item))
@@ -75,29 +76,7 @@ class UIMovieDefinitionLoader(BaseFile):
 				itembytes += struct.pack(f"<{padding}s", b'')
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
-		self.write_list_at_rel_offset(self.ui_interfaces, self.sized_str_entry.pointers[0], 128)
-
-	def link_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
-		"""Links a list of pointers relative to rel_offset to the items"""
-		frags = self.create_fragments(self.sized_str_entry, len(items_list))
-		for item, frag in zip(items_list, frags):
-			self.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
-			rel_offset += 8
-			self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
-
-	def write_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
-		"""Writes a list of pointers and items, and reference it from a ptr at rel_offset from the ref_ptr"""
-		if items_list:
-			# for each line, add the frag ptr space and create the frag ptr
-			item_frags = self.create_fragments(self.sized_str_entry, len(items_list))
-			for frag in item_frags:
-				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
-			for item, frag in zip(items_list, item_frags):
-				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
-			# point the list frag to the end of the data now.
-			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
-			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
-			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
+		self.write_list_at_rel_offset(self.ui_interfaces, ss_ptr, 128)
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -127,17 +106,6 @@ class UIMovieDefinitionLoader(BaseFile):
 			self.Count2List = list(struct.unpack(f"<{self.header.num_list_2}I", tmpfragment.pointers[1].read_from_pool(0x4 * self.header.num_list_2)))
 
 		self.ui_interfaces = self.get_string_list(self.header.num_ui_interfaces)
-
-	def get_string_list(self, count):
-		# todo - this assumes the pointer exists if the count exists, and relies on the correct call order
-		# change to get frag at offset?
-		output = []
-		if count:
-			link_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], count)
-			for frag in tmp_fragments:
-				output.append(self.p1_ztsr(frag))
-		return output
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name

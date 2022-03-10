@@ -15,6 +15,8 @@ from generated.io import BinaryStream
 from modules.formats.shared import djb
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
+from modules.helpers import as_bytes
+
 
 class BaseFile:
 
@@ -80,6 +82,49 @@ class BaseFile:
 				out_frags.append(frag)
 		logging.debug(f"found {len(out_frags)} frags between {offset_start} and {offset_end}")
 		return out_frags
+
+	def get_string_list_at_offset(self, count, offset):
+		"""Gets list of strings pointed to at offset from ss ptr"""
+		output = []
+		if count:
+			link_frag = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=offset)
+			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], count)
+			for frag in tmp_fragments:
+				output.append(self.p1_ztsr(frag))
+		return output
+
+	def link_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+		"""Links a list of pointers relative to rel_offset to the items"""
+		frags = self.create_fragments(self.sized_str_entry, len(items_list))
+		for item, frag in zip(items_list, frags):
+			self.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
+			rel_offset += 8
+			self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
+
+	def write_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+		"""Writes a list of pointers and items, and reference it from a ptr at rel_offset from the ref_ptr"""
+		if items_list:
+			# for each line, add the frag ptr space and create the frag ptr
+			item_frags = self.create_fragments(self.sized_str_entry, len(items_list))
+			for frag in item_frags:
+				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
+			for item, frag in zip(items_list, item_frags):
+				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
+			# point the list frag to the end of the data now.
+			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
+			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
+			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
+
+	def get_string_list(self, count):
+		# todo - this assumes the pointer exists if the count exists, and relies on the correct call order
+		# change to get frag at offset?
+		output = []
+		if count:
+			link_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
+			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], count)
+			for frag in tmp_fragments:
+				output.append(self.p1_ztsr(frag))
+		return output
 
 	def assign_ss_entry(self):
 		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)
