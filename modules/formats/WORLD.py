@@ -24,17 +24,17 @@ class WorldLoader(BaseFile):
 
         self.write_to_pool(self.sized_str_entry.pointers[0], 2, as_bytes(self.header))
         self.write_str_at_rel_offset(luaController[0].text, ss_ptr, 24)
-        self.write_list_at_rel_offset([e.text for e in assetPackages], ss_ptr, 8)
-        self.write_list_at_rel_offset([e.text for e in Prefabs], ss_ptr, 48)
+        self.write_str_list_at_rel_offset([e.text for e in assetPackages], ss_ptr, 8)
+        self.write_str_list_at_rel_offset([e.text for e in Prefabs], ss_ptr, 48)
 
     def collect(self):
         self.assign_ss_entry()
         logging.info(f"Collecting {self.sized_str_entry.name}")
 
         self.header = self.sized_str_entry.pointers[0].load_as(WorldHeader)[0]
-        self.sized_str_entry.lua_name = self.get_string_at_offset(24)
-        self.sized_str_entry.asset_pkgs = self.get_string_list_at_offset(self.header.asset_pkg_count, 8)
-        self.sized_str_entry.prefabs = self.get_string_list_at_offset(self.header.prefab_count, 48)
+        self.sized_str_entry.lua_name = self.get_str_at_offset(24)
+        self.sized_str_entry.asset_pkgs = self.get_str_list_at_offset(self.header.asset_pkg_count, 8)
+        self.sized_str_entry.prefabs = self.get_str_list_at_offset(self.header.prefab_count, 48)
 
     def load(self, file_path):
         pass

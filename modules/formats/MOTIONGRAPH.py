@@ -21,17 +21,6 @@ class MotiongraphLoader(BaseFile):
             self.root_struct = root_frag.pointers[1].load_as(MotiongraphRootFrag)[0]
             print(self.root_struct)
 
-    def get_string_list(self, count):
-        # todo - this assumes the pointer exists if the count exists, and relies on the correct call order
-        # change to get frag at offset?
-        output = []
-        if count:
-            link_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-            tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], count)
-            for frag in tmp_fragments:
-                output.append(self.p1_ztsr(frag))
-        return output
-    #
     # def extract(self, out_dir, show_temp_files, progress_callback):
     #     name = self.sized_str_entry.name
     #     logging.info(f"Writing {name}")

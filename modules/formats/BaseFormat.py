@@ -83,7 +83,7 @@ class BaseFile:
 		logging.debug(f"found {len(out_frags)} frags between {offset_start} and {offset_end}")
 		return out_frags
 
-	def get_string_list_at_offset(self, count, offset):
+	def get_str_list_at_offset(self, count, offset):
 		"""Gets list of strings pointed to at offset from ss ptr"""
 		output = []
 		if count:
@@ -93,7 +93,14 @@ class BaseFile:
 				output.append(self.p1_ztsr(frag))
 		return output
 
-	def get_string_at_offset(self, offset):
+	def get_int_list_at_offset(self, count, offset):
+		"""Gets list of ints pointed to at offset from ss ptr"""
+		if count:
+			link_frag = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=offset)
+			return list(struct.unpack(f"<{count}I", link_frag.pointers[1].read_from_pool(4 * count)))
+		return []
+
+	def get_str_at_offset(self, offset):
 		"""Gets string pointed to at offset from ss ptr"""
 		f = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=offset)
 		if f:
@@ -107,7 +114,7 @@ class BaseFile:
 			rel_offset += 8
 			self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
 
-	def write_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+	def write_str_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
 		"""Writes a list of pointers and items, and reference it from a ptr at rel_offset from the ref_ptr"""
 		if items_list:
 			# for each line, add the frag ptr space and create the frag ptr
@@ -121,6 +128,20 @@ class BaseFile:
 			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
 			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
 
+	def write_int_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+		"""Writes a list of ints, and reference it from a ptr at rel_offset from the ref_ptr"""
+		if items_list:
+			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
+			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
+
+			itembytes = b''
+			for item in items_list:
+				itembytes += struct.pack("<I", int(item))
+			if len(items_list) < 4:
+				padding = 4 * (4 - len(items_list))
+				itembytes += struct.pack(f"<{padding}s", b'')
+			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
+
 	def write_str_at_rel_offset(self, s, ref_ptr, rel_offset):
 		"""Writes a string, and reference it from a ptr at rel_offset from the ref_ptr"""
 		if s:
@@ -129,6 +150,7 @@ class BaseFile:
 			self.write_to_pool(new_frag1.pointers[1], 2, as_bytes(s))
 
 	def get_string_list(self, count):
+		# deprecated
 		# todo - this assumes the pointer exists if the count exists, and relies on the correct call order
 		# change to get frag at offset?
 		output = []
