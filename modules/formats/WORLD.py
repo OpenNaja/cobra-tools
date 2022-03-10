@@ -12,13 +12,13 @@ class WorldLoader(BaseFile):
         self.sized_str_entry = self.create_ss_entry(self.file_entry)
         ss_ptr = self.sized_str_entry.pointers[0]
 
-        world = self.load_xml(self.file_entry.path)
-        assetPackages = world.findall('.//AssetPackage')
-        luaController = world.findall('.//LuaController')
-        Prefabs = world.findall('.//Prefab')
+        xml = self.load_xml(self.file_entry.path)
+        assetPackages = xml.findall('.//AssetPackage')
+        luaController = xml.findall('.//LuaController')
+        Prefabs = xml.findall('.//Prefab')
 
         self.header = WorldHeader(self.ovl.context)
-        self.header.world_type = int(world.attrib['WorldType'])
+        self.header.world_type = int(xml.attrib['WorldType'])
         self.header.asset_pkg_count = len(assetPackages)
         self.header.prefab_count = len(Prefabs)
 
@@ -42,23 +42,23 @@ class WorldLoader(BaseFile):
     def extract(self, out_dir, show_temp_files, progress_callback):
         name = self.sized_str_entry.name
         logging.info(f"Writing {name}")
-        xmldata = ET.Element('World')
-        xmldata.set('WorldType', str(self.header.world_type))
+        xml = ET.Element('World')
+        xml.set('WorldType', str(self.header.world_type))
 
-        assetPkgs = ET.SubElement(xmldata, 'AssetPackages')
+        assetPkgs = ET.SubElement(xml, 'AssetPackages')
         for f in self.sized_str_entry.asset_pkgs:
             assetpkg = ET.SubElement(assetPkgs, 'AssetPackage')
             assetpkg.text = f
 
         if self.sized_str_entry.lua_name:
-            luafile = ET.SubElement(xmldata, 'LuaController')
+            luafile = ET.SubElement(xml, 'LuaController')
             luafile.text = self.sized_str_entry.lua_name
 
-        prefabs = ET.SubElement(xmldata, 'Prefabs')
+        prefabs = ET.SubElement(xml, 'Prefabs')
         for f in self.sized_str_entry.prefabs:
             prefab = ET.SubElement(prefabs, 'Prefab')
             prefab.text = f
 
         out_path = out_dir(name)
-        self.write_xml(out_path, xmldata)
+        self.write_xml(out_path, xml)
         return out_path,
