@@ -65,6 +65,7 @@ class WorldLoader(BaseFile):
 
         self.sized_str_entry.worldType = worldType
         self.sized_str_entry.vars = []
+        self.sized_str_entry.prefabs = []
         self.sized_str_entry.LuaFilename = None
         self.sized_str_entry.InstancesFile = None
 
