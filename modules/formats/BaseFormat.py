@@ -93,6 +93,12 @@ class BaseFile:
 				output.append(self.p1_ztsr(frag))
 		return output
 
+	def get_string_at_offset(self, offset):
+		"""Gets string pointed to at offset from ss ptr"""
+		f = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=offset)
+		if f:
+			return self.p1_ztsr(f)
+
 	def link_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
 		"""Links a list of pointers relative to rel_offset to the items"""
 		frags = self.create_fragments(self.sized_str_entry, len(items_list))
@@ -114,6 +120,13 @@ class BaseFile:
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
 			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
 			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
+
+	def write_str_at_rel_offset(self, s, ref_ptr, rel_offset):
+		"""Writes a string, and reference it from a ptr at rel_offset from the ref_ptr"""
+		if s:
+			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
+			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
+			self.write_to_pool(new_frag1.pointers[1], 2, as_bytes(s))
 
 	def get_string_list(self, count):
 		# todo - this assumes the pointer exists if the count exists, and relies on the correct call order

@@ -9,6 +9,7 @@
     </compound>
 
     <compound name="WorldHeader" >
+        # NOTE, World struct in JWE1 has an extra pointer this import/export is not accounting for yet
         <add name="worldType" type="uint64"/>
         <add name="ptr_assetPkg" type="Pointer"/>
         <add name="assetPkgCount" type="uint64"/>
