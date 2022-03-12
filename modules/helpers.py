@@ -24,6 +24,8 @@ def as_bytes(inst, version_info={}):
 	# zero terminated strings show up as strings
 	if isinstance(inst, str):
 		return inst.encode() + b"\x00"
+	if isinstance(inst, (bytes, bytearray)):
+		return inst
 	with BinaryStream() as stream:
 		assign_versions(stream, version_info)
 		inst.write(stream)

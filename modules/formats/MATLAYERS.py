@@ -43,8 +43,9 @@ class MatAbstract(BaseFile):
 		xml.set('hash', str(_hash))
 
 	def get_shader(self, xml):
-		_shader = _pack_name(xml.attrib["shader"])
-		return as_bytes(f"{xml.attrib['hash']}::{_shader}")
+		_shader = _pack_name(xml.attrib["shader"].encode())
+		b = as_bytes(f"{xml.attrib['hash']}::{_shader}")
+		return b
 
 	def rename_content(self, name_tuples):
 		_hash, _shader = unpack_name(self.f0.pointers[1].data)
@@ -257,16 +258,15 @@ class MatpatsLoader(MatAbstract):
 		return out_path,
 
 	def create(self):
-		xml = self.load_xml(self.file_entry.path)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		patternset = xml[0]
-		# print(patternset, patternset.attrib)
-		ptr = 0
-
 		ss_ptr = self.sized_str_entry.pointers[0]
-		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(patternset), 0))
 
+		xml = self.load_xml(self.file_entry.path)
+		# there's just 1 patternset for now
+		patternset = xml[0]
 		patterns = [pattern.attrib["name"] for pattern in patternset]
+		ptr = 0
+		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(patternset), 0))
 		self.write_str_at_rel_offset(self.get_shader(xml), ss_ptr, 0)
 		self.write_str_at_rel_offset(patternset.attrib["name"], ss_ptr, 16)
 		self.write_str_list_at_rel_offset(patterns, ss_ptr, 24)
