@@ -38,7 +38,7 @@ def _pack_name(b):
 class MatAbstract(BaseFile):
 
 	def assign_shader(self, xml):
-		_hash, _shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		_hash, _shader = unpack_name(self.f0.pointers[1].data)
 		xml.set('shader', _shader)
 		xml.set('hash', str(_hash))
 
@@ -47,10 +47,10 @@ class MatAbstract(BaseFile):
 		return as_bytes(f"{xml.attrib['hash']}::{_shader}")
 
 	def rename_content(self, name_tuples):
-		_hash, _shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
+		_hash, _shader = unpack_name(self.f0.pointers[1].data)
 		for old, new in name_tuples:
 			_shader = _shader.replace(old, new)
-		self.sized_str_entry.f0.pointers[1].update_data(pack_name(_hash, _shader))
+		self.f0.pointers[1].update_data(pack_name(_hash, _shader))
 
 
 class MatlayersLoader(MatAbstract):
@@ -61,14 +61,14 @@ class MatlayersLoader(MatAbstract):
 
 		# Sized string initpos = position of first fragment for matcol
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
-		self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
+		self.f0, self.f1 = self.sized_str_entry.fragments
 
 		# 2 ptrs, 2 counts, only one is used
 		p0, p1, layer_count, _ = struct.unpack("<2Q 2Q", self.sized_str_entry.pointers[0].data)
 
 		logging.debug(f"layer_count {layer_count}")
 		entry_size = 24
-		ptr11 = self.sized_str_entry.f1.pointers[1]
+		ptr11 = self.f1.pointers[1]
 		out_frags, array_data = self.collect_array(ptr11, layer_count, entry_size)
 		self.sized_str_entry.fragments.extend(out_frags)
 
@@ -164,14 +164,14 @@ class MatvarsLoader(MatAbstract):
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2+set_count)
 		if set_count:
 			# rex 93 - has not materialpatterns, so that's probably why it's different
-			self.sized_str_entry.f0, self.sized_str_entry.extra, self.sized_str_entry.f1 = self.sized_str_entry.fragments
+			self.f0, self.sized_str_entry.extra, self.f1 = self.sized_str_entry.fragments
 			# self.sized_str_entry.extra is the set name
 		else:
 			# ichthyo
-			self.sized_str_entry.f0, self.sized_str_entry.f1 = self.sized_str_entry.fragments
+			self.f0, self.f1 = self.sized_str_entry.fragments
 
-		# shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.sized_str_entry.f1.pointers[1], variant_count-1)
+		# shader = unpack_name(self.f0.pointers[1].data)
+		self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.f1.pointers[1], variant_count-1)
 		for tex in self.sized_str_entry.tex_frags:
 			tex.name = self.sized_str_entry.name
 
@@ -201,7 +201,7 @@ class MateffsLoader(MatAbstract):
 
 		# Sized string initpos = position of first fragment for matcol
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)
-		self.sized_str_entry.f0 = self.sized_str_entry.fragments[0]
+		self.f0 = self.sized_str_entry.fragments[0]
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
@@ -222,20 +222,17 @@ class MatpatsLoader(MatAbstract):
 		logging.info(f"Matpats: {self.sized_str_entry.name}")
 
 		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 3)
-		self.sized_str_entry.f0 = self.sized_str_entry.fragments[0]
+		self.f0 = self.sized_str_entry.fragments[0]
+		self.f1 = self.sized_str_entry.fragments[1]
+		self.f2 = self.sized_str_entry.fragments[2]
 
-		# shader = unpack_name(self.sized_str_entry.f0.pointers[1].data)
-		# print(shader)
 		# todo - support multiple sets, if set_count can be other than 1
 		ptr0, set_count, ptr1, ptr2, pattern_count, _ = struct.unpack("<Q Q 2Q Q Q", self.sized_str_entry.pointers[0].data)
 		assert set_count == 1
 		print(ptr0, set_count, ptr1, ptr2, pattern_count, _)
 
-		self.sized_str_entry.f1 = self.sized_str_entry.fragments[1]
-		self.sized_str_entry.f2 = self.sized_str_entry.fragments[2]
-
-		logging.info(f"set {self.sized_str_entry.f1.pointers[1].data}")
-		self.sized_str_entry.patterns = self.ovs.frags_from_pointer(self.sized_str_entry.f2.pointers[1], pattern_count-1)
+		logging.info(f"set {self.f1.pointers[1].data}")
+		self.sized_str_entry.patterns = self.ovs.frags_from_pointer(self.f2.pointers[1], pattern_count-1)
 		for tex in self.sized_str_entry.patterns:
 			logging.info(f"pattern {tex.pointers[1].data}")
 			tex.name = self.sized_str_entry.name
@@ -248,17 +245,28 @@ class MatpatsLoader(MatAbstract):
 		# It is not a shader, it is the main pattern material name (an fgm).
 		self.assign_shader(xmldata)
 
+		# there is no proper support for more than 1 patternset
 		if self.sized_str_entry.patterns:
+			patternset = ET.SubElement(xmldata, 'patternset')
+			patternset.set('name', self.p1_ztsr(self.f1))
 			for frag in self.sized_str_entry.patterns:
-				variant = ET.SubElement(xmldata, 'pattern')
-				variant.set('name', self.get_zstr(frag.pointers[1].data))
-		# there is no support for more than 1 patternset
-		#else:
-		#	variantset = ET.SubElement(xmldata, 'variantset')
-		#	variantset.set('name', self.get_zstr(self.sized_str_entry.extra.pointers[1].data))
+				variant = ET.SubElement(patternset, 'pattern')
+				variant.set('name', self.p1_ztsr(frag))
 
 		self.write_xml(out_path, xmldata)
-		return [out_path]
+		return out_path,
 
 	def create(self):
-		pass
+		xml = self.load_xml(self.file_entry.path)
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		patternset = xml[0]
+		# print(patternset, patternset.attrib)
+		ptr = 0
+
+		ss_ptr = self.sized_str_entry.pointers[0]
+		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(patternset), 0))
+
+		patterns = [pattern.attrib["name"] for pattern in patternset]
+		self.write_str_at_rel_offset(self.get_shader(xml), ss_ptr, 0)
+		self.write_str_at_rel_offset(patternset.attrib["name"], ss_ptr, 16)
+		self.write_str_list_at_rel_offset(patterns, ss_ptr, 24)
