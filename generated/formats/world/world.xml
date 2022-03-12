@@ -9,6 +9,7 @@
     </compound>
 
     <compound name="WorldHeader" >
+        # NOTE, World struct in JWE1 has an extra pointer this import/export is not accounting for yet
         <add name="worldType" type="uint64"/>
         <add name="ptr_assetPkg" type="Pointer"/>
         <add name="assetPkgCount" type="uint64"/>
@@ -17,6 +18,7 @@
         <add name="ptr_1" type="Pointer"/>
         <add name="ptr_prefab" type="Pointer"/>
         <add name="ptr_2" type="Pointer"/>
+        # in JWE1 at offset 64 there is a ptr to the lighting options
         <add name="prefabCount" type="uint64"/>
         <add name="ptr_3" type="Pointer"/>
     </compound>

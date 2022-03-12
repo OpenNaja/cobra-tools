@@ -4,6 +4,10 @@ from generated.formats.world.compound.Pointer import Pointer
 
 class WorldHeader:
 
+	"""
+	# NOTE, World struct in JWE1 has an extra pointer this import/export is not accounting for yet
+	"""
+
 	context = ContextReference()
 
 	def __init__(self, context, arg=None, template=None):

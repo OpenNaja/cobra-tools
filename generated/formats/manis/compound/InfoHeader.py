@@ -2,7 +2,6 @@ import numpy
 import typing
 from generated.array import Array
 from generated.formats.manis.compound.Buffer1 import Buffer1
-from generated.formats.manis.compound.KeysReader import KeysReader
 from generated.formats.manis.compound.ManiInfo import ManiInfo
 from generated.formats.manis.compound.SizedStrData import SizedStrData
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
@@ -26,7 +25,6 @@ class InfoHeader(GenericHeader):
 		self.header = SizedStrData(self.context, None, None)
 		self.mani_infos = Array(self.context)
 		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
-		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
 		self.set_defaults()
 
 	def set_defaults(self):
@@ -35,7 +33,6 @@ class InfoHeader(GenericHeader):
 		self.header = SizedStrData(self.context, None, None)
 		self.mani_infos = Array(self.context)
 		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
-		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -45,7 +42,6 @@ class InfoHeader(GenericHeader):
 		self.header = stream.read_type(SizedStrData, (self.context, None, None))
 		self.mani_infos.read(stream, ManiInfo, self.mani_count, None)
 		self.name_buffer = stream.read_type(Buffer1, (self.context, int(self.header.hash_block_size / 4), None))
-		self.keys_buffer = stream.read_type(KeysReader, (self.context, self.mani_infos, None))
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -57,7 +53,6 @@ class InfoHeader(GenericHeader):
 		stream.write_type(self.header)
 		self.mani_infos.write(stream, ManiInfo, self.mani_count, None)
 		stream.write_type(self.name_buffer)
-		stream.write_type(self.keys_buffer)
 
 		self.io_size = stream.tell() - self.io_start
 
@@ -72,7 +67,6 @@ class InfoHeader(GenericHeader):
 		s += f'\n	* header = {self.header.__repr__()}'
 		s += f'\n	* mani_infos = {self.mani_infos.__repr__()}'
 		s += f'\n	* name_buffer = {self.name_buffer.__repr__()}'
-		s += f'\n	* keys_buffer = {self.keys_buffer.__repr__()}'
 		return s
 
 	def __repr__(self):

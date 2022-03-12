@@ -68,7 +68,7 @@
 
         <add name="mani infos" type="ManiInfo" arr1="mani count"/>
         <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
-        <add name="keys buffer" type="KeysReader" arg="mani infos"/>
+<!--        <add name="keys buffer" type="KeysReader" arg="mani infos"/>-->
 
     </compound>
 
@@ -83,33 +83,42 @@
 
 	<compound name="ManiInfo" >
         288 bytes for JWE / PZ
-        312 bytes for PC
+        304 bytes for PC
         <add name="duration" type="float"/>
 		<add name="FrameCount" type="uint"/>
-		<add name="b" type="uint" > </add>
-		<add name="zeros 0 " type="ushort" arr1="6"  > rest </add>
+		<add name="b" type="uint" >?</add>
+		<add name="zeros 0 " type="ushort" arr1="6"/>
+		<add name="extra pc 1" type="ushort" vercond="#PC#"> </add>
 		<add name="PosBoneCount" type="ushort"/>
 		<add name="OriBoneCount" type="ushort"/>
-		<add name="name count" type="ushort" > </add>
-		<add name="zeros 1" type="ushort" arr1="3" > rest </add>
+		<add name="SclBoneCount" type="ushort" >likely</add>
+		<add name="extra pc" type="uint64" vercond="#PC#">zero</add>
+		<add name="PosBoneCount Repeat" type="ushort" vercond="#PC#"/>
+		<add name="OriBoneCount Repeat" type="ushort" vercond="#PC#"/>
+		<add name="SclBoneCount Repeat" type="ushort" vercond="#PC#"> </add>
+		<add name="zeros 1" type="ushort" />
+		<add name="zeros 1 new" type="uint" vercond="!#PC#"/>
 		<add name="FloatCount" type="ushort" > </add>
-		<add name="minus 1 a" type="short" >always FF FF</add>
-		<add name="e" type="ushort" > </add>
-		<add name="extra pc" type="ushort" arr1="5" vercond="#PC#"> </add>
-		<add name="g" type="ushort" > </add>
-		<add name="zeros 2" type="uint" arr1="57"  > rest 228 bytes </add>
-		<add name="extra zeros pc" type="ushort" arr1="7" vercond="#PC#" > rest 14 bytes </add>
+		<add name="count a" type="ubyte">FF if unused</add>
+		<add name="count b" type="ubyte">FF if unused</add>
+		<add name="target bone count" type="ushort" >usually matches ms2 bone count, at least for JWE2 dinos. Doesn't match for PZ water wheel 5 vs ms2 2</add>
+		<add name="g" type="ushort" >zero</add>
+		<add name="zeros 2" type="uint" arr1="57" > rest 228 bytes </add>
+		<add name="extra zeros pc" type="ushort" arr1="6" vercond="#PC#" > rest 14 bytes </add>
 		<add name="PosBoneMin" type="ubyte"/>
 		<add name="PosBoneMax" type="ubyte"/>
 		<add name="OriBoneMin" type="ubyte"/>
 		<add name="OriBoneMax" type="ubyte"/>
-		<add name="minus 1 b" type="byte" > always FF</add>
-		<add name="zero" type="byte" > always 00</add>
-		<add name="c2" type="ubyte" vercond="!#PC#" > </add>
-		<add name="c3" type="ubyte" vercond="!#PC#" > </add>
-		<add name="c4" type="ubyte" vercond="!#PC#" > </add>
-		<add name="c5" type="ubyte" vercond="!#PC#" > </add>
-		<add name="zeros end" type="ushort" arr1="3" vercond="!#PC#" > </add>
+		<add name="SclBoneMin" type="ubyte" >always FF</add>
+		<add name="SclBoneMax" type="ubyte" >always 00</add>
+		<add name="PosBoneCount Related" type="ubyte" vercond="!#PC#" > </add>
+		<add name="PosBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
+		<add name="OriBoneCount Related" type="ubyte" vercond="!#PC#" > </add>
+		<add name="OriBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
+		<add name="SclBoneCount Related" type="ubyte" vercond="!#PC#" >maybe, not observed yet</add>
+		<add name="SclBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
+		<add name="zeros end" type="ushort" vercond="!#PC#" > </add>
+		<add name="zero 2 end" type="ushort"> </add>
     </compound>
 
 	<compound name="ManiBlock" >
