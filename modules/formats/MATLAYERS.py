@@ -229,7 +229,7 @@ class MatpatsLoader(MatAbstract):
 		# todo - support multiple sets, if set_count can be other than 1
 		ptr0, set_count, ptr1, ptr2, pattern_count, _ = struct.unpack("<Q Q 2Q Q Q", self.sized_str_entry.pointers[0].data)
 		assert set_count == 1
-		# print(ptr0, set_count, ptr1, ptr2, pattern_count, _)
+		print(ptr0, set_count, ptr1, ptr2, pattern_count, _)
 
 		self.sized_str_entry.f1 = self.sized_str_entry.fragments[1]
 		self.sized_str_entry.f2 = self.sized_str_entry.fragments[2]
@@ -239,3 +239,26 @@ class MatpatsLoader(MatAbstract):
 		for tex in self.sized_str_entry.patterns:
 			logging.info(f"pattern {tex.pointers[1].data}")
 			tex.name = self.sized_str_entry.name
+
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		name = self.sized_str_entry.name
+		out_path = out_dir(name)
+		xmldata = ET.Element('MaterialPatterns')
+
+		# It is not a shader, it is the main pattern material name (an fgm).
+		self.assign_shader(xmldata)
+
+		if self.sized_str_entry.patterns:
+			for frag in self.sized_str_entry.patterns:
+				variant = ET.SubElement(xmldata, 'pattern')
+				variant.set('name', self.get_zstr(frag.pointers[1].data))
+		# there is no support for more than 1 patternset
+		#else:
+		#	variantset = ET.SubElement(xmldata, 'variantset')
+		#	variantset.set('name', self.get_zstr(self.sized_str_entry.extra.pointers[1].data))
+
+		self.write_xml(out_path, xmldata)
+		return [out_path]
+
+	def create(self):
+		pass
