@@ -37,16 +37,16 @@ class UIMovieDefinitionLoader(BaseFile):
 		self.write_to_pool(ss_ptr, 2, as_bytes(self.header))
 
 		# attach all the data
-		self.write_str_at_rel_offset(xml.attrib['MovieName'], ss_ptr, 0)
-		self.write_str_at_rel_offset(xml.attrib['PkgName'], ss_ptr, 8)
-		self.write_str_at_rel_offset(xml.attrib['CategoryName'], ss_ptr, 16)
-		self.write_str_at_rel_offset(xml.attrib['TypeName'], ss_ptr, 24)
-		self.write_str_list_at_rel_offset(self.ui_triggers, ss_ptr, 72)
-		self.write_str_list_at_rel_offset(self.ui_names, ss_ptr, 88)
-		self.write_str_list_at_rel_offset(self.assetpkgs, ss_ptr, 96)
-		self.write_int_list_at_rel_offset(self.Count1List, ss_ptr, 112)
-		self.write_int_list_at_rel_offset(self.Count2List, ss_ptr, 120)
-		self.write_str_list_at_rel_offset(self.ui_interfaces, ss_ptr, 128)
+		self.write_str_at_rel_offset(ss_ptr, 0, xml.attrib['MovieName'])
+		self.write_str_at_rel_offset(ss_ptr, 8, xml.attrib['PkgName'])
+		self.write_str_at_rel_offset(ss_ptr, 16, xml.attrib['CategoryName'])
+		self.write_str_at_rel_offset(ss_ptr, 24, xml.attrib['TypeName'])
+		self.write_str_list_at_rel_offset(ss_ptr, 72, self.ui_triggers)
+		self.write_str_list_at_rel_offset(ss_ptr, 88, self.ui_names)
+		self.write_str_list_at_rel_offset(ss_ptr, 96, self.assetpkgs)
+		self.write_int_list_at_rel_offset(ss_ptr, 112, self.Count1List)
+		self.write_int_list_at_rel_offset(ss_ptr, 120, self.Count2List)
+		self.write_str_list_at_rel_offset(ss_ptr, 128, self.ui_interfaces)
 
 	def collect(self):
 		self.assign_ss_entry()

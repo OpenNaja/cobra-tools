@@ -222,21 +222,15 @@ class MatpatsLoader(MatAbstract):
 		self.assign_ss_entry()
 		logging.info(f"Matpats: {self.sized_str_entry.name}")
 
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 3)
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
 		self.f0 = self.sized_str_entry.fragments[0]
 		self.f1 = self.sized_str_entry.fragments[1]
-		self.f2 = self.sized_str_entry.fragments[2]
 
 		# todo - support multiple sets, if set_count can be other than 1
 		ptr0, set_count, ptr1, ptr2, pattern_count, _ = struct.unpack("<Q Q 2Q Q Q", self.sized_str_entry.pointers[0].data)
 		assert set_count == 1
-		print(ptr0, set_count, ptr1, ptr2, pattern_count, _)
-
-		logging.info(f"set {self.f1.pointers[1].data}")
-		self.sized_str_entry.patterns = self.ovs.frags_from_pointer(self.f2.pointers[1], pattern_count-1)
-		for tex in self.sized_str_entry.patterns:
-			logging.info(f"pattern {tex.pointers[1].data}")
-			tex.name = self.sized_str_entry.name
+		# print(ptr0, set_count, ptr1, ptr2, pattern_count, _)
+		self.patterns = self.get_str_list_at_offset(pattern_count-1, 24)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
@@ -247,12 +241,12 @@ class MatpatsLoader(MatAbstract):
 		self.assign_shader(xmldata)
 
 		# there is no proper support for more than 1 patternset
-		if self.sized_str_entry.patterns:
+		if self.patterns:
 			patternset = ET.SubElement(xmldata, 'patternset')
 			patternset.set('name', self.p1_ztsr(self.f1))
-			for frag in self.sized_str_entry.patterns:
+			for name in self.patterns:
 				variant = ET.SubElement(patternset, 'pattern')
-				variant.set('name', self.p1_ztsr(frag))
+				variant.set('name', name)
 
 		self.write_xml(out_path, xmldata)
 		return out_path,
@@ -264,9 +258,9 @@ class MatpatsLoader(MatAbstract):
 		xml = self.load_xml(self.file_entry.path)
 		# there's just 1 patternset for now
 		patternset = xml[0]
-		patterns = [pattern.attrib["name"] for pattern in patternset]
+		self.patterns = [pattern.attrib["name"] for pattern in patternset]
 		ptr = 0
 		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(patternset), 0))
-		self.write_str_at_rel_offset(self.get_shader(xml), ss_ptr, 0)
-		self.write_str_at_rel_offset(patternset.attrib["name"], ss_ptr, 16)
-		self.write_str_list_at_rel_offset(patterns, ss_ptr, 24)
+		self.write_str_at_rel_offset(ss_ptr, 0, self.get_shader(xml))
+		self.write_str_at_rel_offset(ss_ptr, 16, patternset.attrib["name"])
+		self.write_str_list_at_rel_offset(ss_ptr, 24, self.patterns)

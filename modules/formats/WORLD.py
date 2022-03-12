@@ -23,9 +23,9 @@ class WorldLoader(BaseFile):
         self.header.prefab_count = len(Prefabs)
 
         self.write_to_pool(self.sized_str_entry.pointers[0], 2, as_bytes(self.header))
-        self.write_str_at_rel_offset(luaController[0].text, ss_ptr, 24)
-        self.write_str_list_at_rel_offset([e.text for e in assetPackages], ss_ptr, 8)
-        self.write_str_list_at_rel_offset([e.text for e in Prefabs], ss_ptr, 48)
+        self.write_str_at_rel_offset(ss_ptr, 24, luaController[0].text)
+        self.write_str_list_at_rel_offset(ss_ptr, 8, [e.text for e in assetPackages])
+        self.write_str_list_at_rel_offset(ss_ptr, 48, [e.text for e in Prefabs])
 
     def collect(self):
         self.assign_ss_entry()

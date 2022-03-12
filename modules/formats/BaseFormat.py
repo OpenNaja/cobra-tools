@@ -106,15 +106,7 @@ class BaseFile:
 		if f:
 			return self.p1_ztsr(f)
 
-	def link_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
-		"""Links a list of pointers relative to rel_offset to the items"""
-		frags = self.create_fragments(self.sized_str_entry, len(items_list))
-		for item, frag in zip(items_list, frags):
-			self.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
-			rel_offset += 8
-			self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
-
-	def write_str_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+	def write_str_list_at_rel_offset(self, ref_ptr, rel_offset, items_list):
 		"""Writes a list of pointers and items, and reference it from a ptr at rel_offset from the ref_ptr"""
 		if items_list:
 			# for each line, add the frag ptr space and create the frag ptr
@@ -128,7 +120,7 @@ class BaseFile:
 			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
 			self.ptr_relative(new_frag1.pointers[1], item_frags[0].pointers[0])
 
-	def write_int_list_at_rel_offset(self, items_list, ref_ptr, rel_offset):
+	def write_int_list_at_rel_offset(self, ref_ptr, rel_offset, items_list):
 		"""Writes a list of ints, and reference it from a ptr at rel_offset from the ref_ptr"""
 		if items_list:
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
@@ -142,7 +134,7 @@ class BaseFile:
 				itembytes += struct.pack(f"<{padding}s", b'')
 			self.write_to_pool(new_frag1.pointers[1], 2, itembytes)
 
-	def write_str_at_rel_offset(self, s, ref_ptr, rel_offset):
+	def write_str_at_rel_offset(self, ref_ptr, rel_offset, s):
 		"""Writes a string, and reference it from a ptr at rel_offset from the ref_ptr"""
 		if s:
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
