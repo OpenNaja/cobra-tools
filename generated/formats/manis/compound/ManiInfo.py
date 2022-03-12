@@ -164,8 +164,8 @@ class ManiInfo:
 		self.pos_bone_max = stream.read_ubyte()
 		self.ori_bone_min = stream.read_ubyte()
 		self.ori_bone_max = stream.read_ubyte()
-		self.scl_bone_min = stream.read_ubyte()
-		self.scl_bone_max = stream.read_ubyte()
+		self.scl_bone_min = stream.read_byte()
+		self.scl_bone_max = stream.read_byte()
 		if not (self.context.version == 18):
 			self.pos_bone_count_related = stream.read_ubyte()
 			self.pos_bone_count_repeat = stream.read_ubyte()
@@ -173,8 +173,8 @@ class ManiInfo:
 			self.ori_bone_count_related = stream.read_ubyte()
 			self.ori_bone_count_repeat = stream.read_ubyte()
 		if not (self.context.version == 18):
-			self.scl_bone_count_related = stream.read_ubyte()
-			self.scl_bone_count_repeat = stream.read_ubyte()
+			self.scl_bone_count_related = stream.read_byte()
+			self.scl_bone_count_repeat = stream.read_byte()
 		if not (self.context.version == 18):
 			self.zeros_end = stream.read_ushort()
 		self.zero_2_end = stream.read_ushort()
@@ -213,8 +213,8 @@ class ManiInfo:
 		stream.write_ubyte(self.pos_bone_max)
 		stream.write_ubyte(self.ori_bone_min)
 		stream.write_ubyte(self.ori_bone_max)
-		stream.write_ubyte(self.scl_bone_min)
-		stream.write_ubyte(self.scl_bone_max)
+		stream.write_byte(self.scl_bone_min)
+		stream.write_byte(self.scl_bone_max)
 		if not (self.context.version == 18):
 			stream.write_ubyte(self.pos_bone_count_related)
 			stream.write_ubyte(self.pos_bone_count_repeat)
@@ -222,8 +222,8 @@ class ManiInfo:
 			stream.write_ubyte(self.ori_bone_count_related)
 			stream.write_ubyte(self.ori_bone_count_repeat)
 		if not (self.context.version == 18):
-			stream.write_ubyte(self.scl_bone_count_related)
-			stream.write_ubyte(self.scl_bone_count_repeat)
+			stream.write_byte(self.scl_bone_count_related)
+			stream.write_byte(self.scl_bone_count_repeat)
 		if not (self.context.version == 18):
 			stream.write_ushort(self.zeros_end)
 		stream.write_ushort(self.zero_2_end)

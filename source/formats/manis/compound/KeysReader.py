@@ -33,8 +33,9 @@ class KeysReader:
 	def read(self, stream):
 		self.io_start = stream.tell()
 		for mani_info in self.arg:
-			mani_info.keys = stream.read_type(ManiBlock, (self.context, mani_info,))
 			print(mani_info)
+			print(stream.tell())
+			mani_info.keys = stream.read_type(ManiBlock, (self.context, mani_info,))
 			print(mani_info.keys)
 
 			sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)

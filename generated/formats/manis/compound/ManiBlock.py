@@ -20,20 +20,20 @@ class ManiBlock:
 		self.io_size = 0
 		self.io_start = 0
 		self.ref = Empty(self.context, None, None)
-		self.indices_pos_bone = numpy.zeros((), dtype='ushort')
-		self.indices_pos_bone = numpy.zeros((), dtype='uint')
-		self.indices_ori_bone = numpy.zeros((), dtype='ushort')
-		self.indices_ori_bone = numpy.zeros((), dtype='uint')
-		self.indices_1 = numpy.zeros((), dtype='ushort')
-		self.indices_1 = numpy.zeros((), dtype='uint')
-		self.indices_float = numpy.zeros((), dtype='ushort')
-		self.indices_float = numpy.zeros((), dtype='uint')
-		self.p_indices_pos_bone = numpy.zeros((), dtype='ubyte')
-		self.p_indices_pos_bone = numpy.zeros((), dtype='ubyte')
-		self.p_indices_ori_bone = numpy.zeros((), dtype='ubyte')
-		self.p_indices_ori_bone = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
+		self.pos_bones = numpy.zeros((), dtype='ushort')
+		self.pos_bones = numpy.zeros((), dtype='uint')
+		self.ori_bones = numpy.zeros((), dtype='ushort')
+		self.ori_bones = numpy.zeros((), dtype='uint')
+		self.scl_bones = numpy.zeros((), dtype='ushort')
+		self.scl_bones = numpy.zeros((), dtype='uint')
+		self.floats = numpy.zeros((), dtype='ushort')
+		self.floats = numpy.zeros((), dtype='uint')
+		self.pos_bones_p = numpy.zeros((), dtype='ubyte')
+		self.ori_bones_p = numpy.zeros((), dtype='ubyte')
+		self.scl_bones_p = numpy.zeros((), dtype='ubyte')
+		self.pos_bones_delta = numpy.zeros((), dtype='ubyte')
+		self.ori_bones_delta = numpy.zeros((), dtype='ubyte')
+		self.scl_bones_delta = numpy.zeros((), dtype='ubyte')
 
 		# ?
 		self.pad = PadAlign(self.context, self.ref, 4)
@@ -43,14 +43,15 @@ class ManiBlock:
 
 		# ?
 		self.pad_2 = SmartPadding(self.context, None, None)
-
-		# likely
 		self.frame_count = 0
 		self.ori_bone_count = 0
 		self.pos_bone_count = 0
 
+		# maybe
+		self.scl_bone_count = 0
+
 		# fixed
-		self.zeros_19 = numpy.zeros((19), dtype='uint')
+		self.zeros_18 = numpy.zeros((18), dtype='uint')
 		self.count = 0
 
 		# usually 420, or 0
@@ -74,42 +75,47 @@ class ManiBlock:
 
 		# ?
 		self.unk = 0
+
+		# this seems to be vaguely related, but not always there?
+		self.extra_pc_zero = 0
 		self.repeats = Array(self.context)
 		self.set_defaults()
 
 	def set_defaults(self):
 		self.ref = Empty(self.context, None, None)
 		if self.context.version == 18:
-			self.indices_pos_bone = numpy.zeros((), dtype='ushort')
+			self.pos_bones = numpy.zeros((), dtype='ushort')
 		if not (self.context.version == 18):
-			self.indices_pos_bone = numpy.zeros((), dtype='uint')
+			self.pos_bones = numpy.zeros((), dtype='uint')
 		if self.context.version == 18:
-			self.indices_ori_bone = numpy.zeros((), dtype='ushort')
+			self.ori_bones = numpy.zeros((), dtype='ushort')
 		if not (self.context.version == 18):
-			self.indices_ori_bone = numpy.zeros((), dtype='uint')
+			self.ori_bones = numpy.zeros((), dtype='uint')
 		if self.context.version == 18:
-			self.indices_1 = numpy.zeros((), dtype='ushort')
+			self.scl_bones = numpy.zeros((), dtype='ushort')
 		if not (self.context.version == 18):
-			self.indices_1 = numpy.zeros((), dtype='uint')
+			self.scl_bones = numpy.zeros((), dtype='uint')
 		if self.context.version == 18:
-			self.indices_float = numpy.zeros((), dtype='ushort')
+			self.floats = numpy.zeros((), dtype='ushort')
 		if not (self.context.version == 18):
-			self.indices_float = numpy.zeros((), dtype='uint')
-		self.p_indices_pos_bone = numpy.zeros((), dtype='ubyte')
-		if self.context.version == 18:
-			self.p_indices_pos_bone = numpy.zeros((), dtype='ubyte')
-		self.p_indices_ori_bone = numpy.zeros((), dtype='ubyte')
-		if self.context.version == 18:
-			self.p_indices_ori_bone = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_b = numpy.zeros((), dtype='ubyte')
-		self.p_indices_0_c = numpy.zeros((), dtype='ubyte')
+			self.floats = numpy.zeros((), dtype='uint')
+		self.pos_bones_p = numpy.zeros((), dtype='ubyte')
+		self.ori_bones_p = numpy.zeros((), dtype='ubyte')
+		self.scl_bones_p = numpy.zeros((), dtype='ubyte')
+		if self.arg.pos_bone_min >= 0:
+			self.pos_bones_delta = numpy.zeros((), dtype='ubyte')
+		if self.arg.ori_bone_min >= 0:
+			self.ori_bones_delta = numpy.zeros((), dtype='ubyte')
+		if self.arg.scl_bone_min >= 0:
+			self.scl_bones_delta = numpy.zeros((), dtype='ubyte')
 		self.pad = PadAlign(self.context, self.ref, 4)
 		self.floatsa = numpy.zeros((), dtype='float')
 		self.pad_2 = SmartPadding(self.context, None, None)
 		self.frame_count = 0
 		self.ori_bone_count = 0
 		self.pos_bone_count = 0
-		self.zeros_19 = numpy.zeros((19), dtype='uint')
+		self.scl_bone_count = 0
+		self.zeros_18 = numpy.zeros((18), dtype='uint')
 		self.count = 0
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, None, None)
@@ -124,42 +130,46 @@ class ManiBlock:
 		if self.flag_2 > 1:
 			self.floats_third = numpy.zeros((6), dtype='float')
 		self.unk = 0
+		if self.context.version == 18:
+			self.extra_pc_zero = 0
 		self.repeats = Array(self.context)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
 		self.ref = stream.read_type(Empty, (self.context, None, None))
 		if self.context.version == 18:
-			self.indices_pos_bone = stream.read_ushorts((self.arg.pos_bone_count))
+			self.pos_bones = stream.read_ushorts((self.arg.pos_bone_count))
 		if not (self.context.version == 18):
-			self.indices_pos_bone = stream.read_uints((self.arg.pos_bone_count))
+			self.pos_bones = stream.read_uints((self.arg.pos_bone_count))
 		if self.context.version == 18:
-			self.indices_ori_bone = stream.read_ushorts((self.arg.ori_bone_count))
+			self.ori_bones = stream.read_ushorts((self.arg.ori_bone_count))
 		if not (self.context.version == 18):
-			self.indices_ori_bone = stream.read_uints((self.arg.ori_bone_count))
+			self.ori_bones = stream.read_uints((self.arg.ori_bone_count))
 		if self.context.version == 18:
-			self.indices_1 = stream.read_ushorts((self.arg.name_count))
+			self.scl_bones = stream.read_ushorts((self.arg.scl_bone_count))
 		if not (self.context.version == 18):
-			self.indices_1 = stream.read_uints((self.arg.name_count))
+			self.scl_bones = stream.read_uints((self.arg.scl_bone_count))
 		if self.context.version == 18:
-			self.indices_float = stream.read_ushorts((self.arg.float_count))
+			self.floats = stream.read_ushorts((self.arg.float_count))
 		if not (self.context.version == 18):
-			self.indices_float = stream.read_uints((self.arg.float_count))
-		self.p_indices_pos_bone = stream.read_ubytes((self.arg.pos_bone_count))
-		if self.context.version == 18:
-			self.p_indices_pos_bone = stream.read_ubytes((self.arg.pos_bone_count))
-		self.p_indices_ori_bone = stream.read_ubytes((self.arg.ori_bone_count))
-		if self.context.version == 18:
-			self.p_indices_ori_bone = stream.read_ubytes((self.arg.ori_bone_count))
-		self.p_indices_0_b = stream.read_ubytes(((self.arg.pos_bone_max - self.arg.pos_bone_min) + 1))
-		self.p_indices_0_c = stream.read_ubytes(((self.arg.ori_bone_max - self.arg.ori_bone_min) + 1))
+			self.floats = stream.read_uints((self.arg.float_count))
+		self.pos_bones_p = stream.read_ubytes((self.arg.pos_bone_count))
+		self.ori_bones_p = stream.read_ubytes((self.arg.ori_bone_count))
+		self.scl_bones_p = stream.read_ubytes((self.arg.scl_bone_count))
+		if self.arg.pos_bone_min >= 0:
+			self.pos_bones_delta = stream.read_ubytes(((self.arg.pos_bone_max - self.arg.pos_bone_min) + 1))
+		if self.arg.ori_bone_min >= 0:
+			self.ori_bones_delta = stream.read_ubytes(((self.arg.ori_bone_max - self.arg.ori_bone_min) + 1))
+		if self.arg.scl_bone_min >= 0:
+			self.scl_bones_delta = stream.read_ubytes(((self.arg.scl_bone_max - self.arg.scl_bone_min) + 1))
 		self.pad = stream.read_type(PadAlign, (self.context, self.ref, 4))
 		self.floatsa = stream.read_floats((self.arg.frame_count, self.arg.float_count))
 		self.pad_2 = stream.read_type(SmartPadding, (self.context, None, None))
 		self.frame_count = stream.read_uint()
 		self.ori_bone_count = stream.read_uint()
 		self.pos_bone_count = stream.read_uint()
-		self.zeros_19 = stream.read_uints((19))
+		self.scl_bone_count = stream.read_uint()
+		self.zeros_18 = stream.read_uints((18))
 		self.count = stream.read_ushort()
 		self.quantisation_level = stream.read_ushort()
 		self.ref_2 = stream.read_type(Empty, (self.context, None, None))
@@ -174,6 +184,8 @@ class ManiBlock:
 		if self.flag_2 > 1:
 			self.floats_third = stream.read_floats((6))
 		self.unk = stream.read_uint()
+		if self.context.version == 18:
+			self.extra_pc_zero = stream.read_uint64()
 		self.repeats.read(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -182,36 +194,38 @@ class ManiBlock:
 		self.io_start = stream.tell()
 		stream.write_type(self.ref)
 		if self.context.version == 18:
-			stream.write_ushorts(self.indices_pos_bone)
+			stream.write_ushorts(self.pos_bones)
 		if not (self.context.version == 18):
-			stream.write_uints(self.indices_pos_bone)
+			stream.write_uints(self.pos_bones)
 		if self.context.version == 18:
-			stream.write_ushorts(self.indices_ori_bone)
+			stream.write_ushorts(self.ori_bones)
 		if not (self.context.version == 18):
-			stream.write_uints(self.indices_ori_bone)
+			stream.write_uints(self.ori_bones)
 		if self.context.version == 18:
-			stream.write_ushorts(self.indices_1)
+			stream.write_ushorts(self.scl_bones)
 		if not (self.context.version == 18):
-			stream.write_uints(self.indices_1)
+			stream.write_uints(self.scl_bones)
 		if self.context.version == 18:
-			stream.write_ushorts(self.indices_float)
+			stream.write_ushorts(self.floats)
 		if not (self.context.version == 18):
-			stream.write_uints(self.indices_float)
-		stream.write_ubytes(self.p_indices_pos_bone)
-		if self.context.version == 18:
-			stream.write_ubytes(self.p_indices_pos_bone)
-		stream.write_ubytes(self.p_indices_ori_bone)
-		if self.context.version == 18:
-			stream.write_ubytes(self.p_indices_ori_bone)
-		stream.write_ubytes(self.p_indices_0_b)
-		stream.write_ubytes(self.p_indices_0_c)
+			stream.write_uints(self.floats)
+		stream.write_ubytes(self.pos_bones_p)
+		stream.write_ubytes(self.ori_bones_p)
+		stream.write_ubytes(self.scl_bones_p)
+		if self.arg.pos_bone_min >= 0:
+			stream.write_ubytes(self.pos_bones_delta)
+		if self.arg.ori_bone_min >= 0:
+			stream.write_ubytes(self.ori_bones_delta)
+		if self.arg.scl_bone_min >= 0:
+			stream.write_ubytes(self.scl_bones_delta)
 		stream.write_type(self.pad)
 		stream.write_floats(self.floatsa)
 		stream.write_type(self.pad_2)
 		stream.write_uint(self.frame_count)
 		stream.write_uint(self.ori_bone_count)
 		stream.write_uint(self.pos_bone_count)
-		stream.write_uints(self.zeros_19)
+		stream.write_uint(self.scl_bone_count)
+		stream.write_uints(self.zeros_18)
 		stream.write_ushort(self.count)
 		stream.write_ushort(self.quantisation_level)
 		stream.write_type(self.ref_2)
@@ -226,6 +240,8 @@ class ManiBlock:
 		if self.flag_2 > 1:
 			stream.write_floats(self.floats_third)
 		stream.write_uint(self.unk)
+		if self.context.version == 18:
+			stream.write_uint64(self.extra_pc_zero)
 		self.repeats.write(stream, Repeat, self.count, None)
 
 		self.io_size = stream.tell() - self.io_start
@@ -236,21 +252,24 @@ class ManiBlock:
 	def get_fields_str(self):
 		s = ''
 		s += f'\n	* ref = {self.ref.__repr__()}'
-		s += f'\n	* indices_pos_bone = {self.indices_pos_bone.__repr__()}'
-		s += f'\n	* indices_ori_bone = {self.indices_ori_bone.__repr__()}'
-		s += f'\n	* indices_1 = {self.indices_1.__repr__()}'
-		s += f'\n	* indices_float = {self.indices_float.__repr__()}'
-		s += f'\n	* p_indices_pos_bone = {self.p_indices_pos_bone.__repr__()}'
-		s += f'\n	* p_indices_ori_bone = {self.p_indices_ori_bone.__repr__()}'
-		s += f'\n	* p_indices_0_b = {self.p_indices_0_b.__repr__()}'
-		s += f'\n	* p_indices_0_c = {self.p_indices_0_c.__repr__()}'
+		s += f'\n	* pos_bones = {self.pos_bones.__repr__()}'
+		s += f'\n	* ori_bones = {self.ori_bones.__repr__()}'
+		s += f'\n	* scl_bones = {self.scl_bones.__repr__()}'
+		s += f'\n	* floats = {self.floats.__repr__()}'
+		s += f'\n	* pos_bones_p = {self.pos_bones_p.__repr__()}'
+		s += f'\n	* ori_bones_p = {self.ori_bones_p.__repr__()}'
+		s += f'\n	* scl_bones_p = {self.scl_bones_p.__repr__()}'
+		s += f'\n	* pos_bones_delta = {self.pos_bones_delta.__repr__()}'
+		s += f'\n	* ori_bones_delta = {self.ori_bones_delta.__repr__()}'
+		s += f'\n	* scl_bones_delta = {self.scl_bones_delta.__repr__()}'
 		s += f'\n	* pad = {self.pad.__repr__()}'
 		s += f'\n	* floatsa = {self.floatsa.__repr__()}'
 		s += f'\n	* pad_2 = {self.pad_2.__repr__()}'
 		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
 		s += f'\n	* ori_bone_count = {self.ori_bone_count.__repr__()}'
 		s += f'\n	* pos_bone_count = {self.pos_bone_count.__repr__()}'
-		s += f'\n	* zeros_19 = {self.zeros_19.__repr__()}'
+		s += f'\n	* scl_bone_count = {self.scl_bone_count.__repr__()}'
+		s += f'\n	* zeros_18 = {self.zeros_18.__repr__()}'
 		s += f'\n	* count = {self.count.__repr__()}'
 		s += f'\n	* quantisation_level = {self.quantisation_level.__repr__()}'
 		s += f'\n	* ref_2 = {self.ref_2.__repr__()}'
@@ -264,6 +283,7 @@ class ManiBlock:
 		s += f'\n	* floats_second = {self.floats_second.__repr__()}'
 		s += f'\n	* floats_third = {self.floats_third.__repr__()}'
 		s += f'\n	* unk = {self.unk.__repr__()}'
+		s += f'\n	* extra_pc_zero = {self.extra_pc_zero.__repr__()}'
 		s += f'\n	* repeats = {self.repeats.__repr__()}'
 		return s
 

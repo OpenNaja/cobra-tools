@@ -68,7 +68,7 @@
 
         <add name="mani infos" type="ManiInfo" arr1="mani count"/>
         <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
-<!--        <add name="keys buffer" type="KeysReader" arg="mani infos"/>-->
+        <add name="keys buffer" type="KeysReader" arg="mani infos"/>
 
     </compound>
 
@@ -109,66 +109,54 @@
 		<add name="PosBoneMax" type="ubyte"/>
 		<add name="OriBoneMin" type="ubyte"/>
 		<add name="OriBoneMax" type="ubyte"/>
-		<add name="SclBoneMin" type="ubyte" >always FF</add>
-		<add name="SclBoneMax" type="ubyte" >always 00</add>
+		<add name="SclBoneMin" type="byte" >always FF</add>
+		<add name="SclBoneMax" type="byte" >always 00</add>
 		<add name="PosBoneCount Related" type="ubyte" vercond="!#PC#" > </add>
 		<add name="PosBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
 		<add name="OriBoneCount Related" type="ubyte" vercond="!#PC#" > </add>
 		<add name="OriBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
-		<add name="SclBoneCount Related" type="ubyte" vercond="!#PC#" >maybe, not observed yet</add>
-		<add name="SclBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
+		<add name="SclBoneCount Related" type="byte" vercond="!#PC#" >maybe, not observed yet</add>
+		<add name="SclBoneCount Repeat" type="byte" vercond="!#PC#"/>
 		<add name="zeros end" type="ushort" vercond="!#PC#" > </add>
 		<add name="zero 2 end" type="ushort"> </add>
     </compound>
 
 	<compound name="ManiBlock" >
+		<add name="ref" type="Empty"/>
 <!--    PC uses ushort-->
 <!--    JWE uses uint-->
+		<add name="PosBones" type="ushort" arr1="#ARG#\PosBoneCount" vercond="#PC#" > </add>
+		<add name="PosBones" type="uint" arr1="#ARG#\PosBoneCount" vercond="!#PC#" > </add>
 
-		<add name="ref" type="Empty" > </add>
-		<add name="indices PosBone" type="ushort" arr1="#ARG#\PosBoneCount" vercond="#PC#" > </add>
-		<add name="indices PosBone" type="uint" arr1="#ARG#\PosBoneCount" vercond="!#PC#" > </add>
+		<add name="OriBones" type="ushort" arr1="#ARG#\OriBoneCount" vercond="#PC#" > </add>
+		<add name="OriBones" type="uint" arr1="#ARG#\OriBoneCount" vercond="!#PC#" > </add>
 
-		<add name="indices OriBone" type="ushort" arr1="#ARG#\OriBoneCount" vercond="#PC#" > </add>
-		<add name="indices OriBone" type="uint" arr1="#ARG#\OriBoneCount" vercond="!#PC#" > </add>
+		<add name="SclBones" type="ushort" arr1="#ARG#\SclBoneCount" vercond="#PC#" > </add>
+		<add name="SclBones" type="uint" arr1="#ARG#\SclBoneCount" vercond="!#PC#" > </add>
 
-		<add name="indices 1" type="ushort" arr1="#ARG#\name count" vercond="#PC#" > </add>
-		<add name="indices 1" type="uint" arr1="#ARG#\name count" vercond="!#PC#" > </add>
+		<add name="Floats" type="ushort" arr1="#ARG#\FloatCount" vercond="#PC#" > </add>
+		<add name="Floats" type="uint" arr1="#ARG#\FloatCount" vercond="!#PC#" > </add>
 
-		<add name="indices Float" type="ushort" arr1="#ARG#\FloatCount" vercond="#PC#" > </add>
-		<add name="indices Float" type="uint" arr1="#ARG#\FloatCount" vercond="!#PC#" > </add>
+		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount" > </add>
+		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount" > </add>
+		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount" > </add>
 
-<!--		<add name="indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>-->
-<!--		<add name="indices 2" type="ubyte" arr1="#ARG#\e" cond="!#PC#" > </add>-->
-<!--		<add name="indices 2" type="ushort" arr1="#ARG#\e" cond="#PC#" > </add>-->
-<!--		<add name="indices 2" type="uint" arr1="#ARG#\e" cond="!#PC#" > </add>-->
+		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #GTE# 0"> </add>
+		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #GTE# 0"> </add>
+		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>
 
-		<add name="p indices PosBone" type="ubyte" arr1="#ARG#\PosBoneCount" > </add>
-		<add name="p indices PosBone" type="ubyte" arr1="#ARG#\PosBoneCount" vercond="#PC#"> </add>
-
-		<add name="p indices OriBone" type="ubyte" arr1="#ARG#\OriBoneCount" > </add>
-		<add name="p indices OriBone" type="ubyte" arr1="#ARG#\OriBoneCount" vercond="#PC#"> </add>
-
-		<add name="p indices 0b" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" > </add>
-		<add name="p indices 0c" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1"> </add>
-
-<!--		<add name="pad" type="ubyte" arr1="3"> </add>-->
         <add name="pad" type="PadAlign" arg="ref" template="4" >?</add>
         <add name="floatsa" type="float" arr2="#ARG#\FloatCount" arr1="#ARG#\FrameCount" >these are likely a scale reference or factor</add>
-        <add name="pad 2" type="SmartPadding" >?</add>
-<!--		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" > </add>-->
-<!--		<add name="p indices 1" type="ubyte" arr1="#ARG#\name count" cond="#PC#" > </add>-->
 
-<!--		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" > </add>-->
-<!--		<add name="p indices 2" type="ubyte" arr1="#ARG#\e" cond="#PC#" > </add>-->
-
-<!--		<add name="padding" type="ubyte" arr1="(16 - (((#ARG#\OriBoneCount + #ARG#\name count + #ARG#\e) * 4)  % 16)) % 16" > </add>-->
 <!--		two uint zeros, or padding-->
+		<add name="pad 2" type="SmartPadding" >?</add>
 <!--	<add name="zero" type="uint64" cond="(#ARG#\FloatCount) #GT# (0)"> </add>-->
-		<add name="FrameCount" type="uint" >likely</add>
-		<add name="OriBoneCount" type="uint" > </add>
-		<add name="PosBoneCount" type="uint" > </add>
-		<add name="zeros 19" type="uint" arr1="19">fixed</add>
+
+		<add name="FrameCount" type="uint"/>
+		<add name="OriBoneCount" type="uint"/>
+		<add name="PosBoneCount" type="uint"/>
+		<add name="SclBoneCount" type="uint" >maybe</add>
+		<add name="zeros 18" type="uint" arr1="18">fixed</add>
 		<add name="count" type="ushort" > </add>
 		<add name="QuantisationLevel" type="ushort" >usually 420, or 0</add>
 		<add name="ref2" type="Empty" > </add>
@@ -184,6 +172,7 @@
 		<add name="floats second" type="float" arr1="flag 1" arr2="6"  >these are likely a scale reference or factor</add>
 		<add name="floats third" type="float" arr1="6" cond="flag 2 #GT# 1" >these are likely a scale reference or factor</add>
 		<add name="unk" type="uint" >?</add>
+		<add name="extra pc zero" type="uint64" vercond="#PC#" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
 <!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
 		<add name="repeats" type="Repeat" arr1="count" > </add>
