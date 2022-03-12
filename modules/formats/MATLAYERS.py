@@ -37,10 +37,21 @@ def _pack_name(b):
 
 class MatAbstract(BaseFile):
 
+	def assign_fgm(self, xml):
+		_hash, _fgm = unpack_name(as_bytes(self.fgm))
+		xml.set('fgm', _fgm)
+		xml.set('hash', str(_hash))
+
 	def assign_shader(self, xml):
 		_hash, _shader = unpack_name(self.f0.pointers[1].data)
 		xml.set('shader', _shader)
 		xml.set('hash', str(_hash))
+
+	def get_fgm(self, xml):
+		_shader = _pack_name(xml.attrib["fgm"].encode())
+		b = as_bytes(f"{xml.attrib['hash']}::{_shader}")
+		print(b)
+		return b
 
 	def get_shader(self, xml):
 		_shader = _pack_name(xml.attrib["shader"].encode())
@@ -221,15 +232,16 @@ class MatpatsLoader(MatAbstract):
 	def collect(self):
 		self.assign_ss_entry()
 		logging.info(f"Matpats: {self.sized_str_entry.name}")
-
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2)
+		ss_ptr = self.sized_str_entry.pointers[0]
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_ptr, 1)
 		self.f0 = self.sized_str_entry.fragments[0]
-		self.f1 = self.sized_str_entry.fragments[1]
 
 		# todo - support multiple sets, if set_count can be other than 1
-		ptr0, set_count, ptr1, ptr2, pattern_count, _ = struct.unpack("<Q Q 2Q Q Q", self.sized_str_entry.pointers[0].data)
+		ptr0, set_count, ptr1, ptr2, pattern_count, _ = struct.unpack("<Q Q 2Q Q Q", ss_ptr.data)
 		assert set_count == 1
 		# print(ptr0, set_count, ptr1, ptr2, pattern_count, _)
+		self.fgm = self.get_str_at_offset(0)
+		self.patternset = self.get_str_at_offset(16)
 		self.patterns = self.get_str_list_at_offset(pattern_count-1, 24)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
@@ -238,12 +250,12 @@ class MatpatsLoader(MatAbstract):
 		xmldata = ET.Element('MaterialPatterns')
 
 		# It is not a shader, it is the main pattern material name (an fgm).
-		self.assign_shader(xmldata)
+		self.assign_fgm(xmldata)
 
 		# there is no proper support for more than 1 patternset
 		if self.patterns:
 			patternset = ET.SubElement(xmldata, 'patternset')
-			patternset.set('name', self.p1_ztsr(self.f1))
+			patternset.set('name', self.patternset)
 			for name in self.patterns:
 				variant = ET.SubElement(patternset, 'pattern')
 				variant.set('name', name)
@@ -258,9 +270,12 @@ class MatpatsLoader(MatAbstract):
 		xml = self.load_xml(self.file_entry.path)
 		# there's just 1 patternset for now
 		patternset = xml[0]
+		self.patternset = patternset.attrib["name"]
 		self.patterns = [pattern.attrib["name"] for pattern in patternset]
 		ptr = 0
-		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(patternset), 0))
-		self.write_str_at_rel_offset(ss_ptr, 0, self.get_shader(xml))
-		self.write_str_at_rel_offset(ss_ptr, 16, patternset.attrib["name"])
+		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(patternset)+1, 0))
+		# todo - may use wrong pools !
+		self.write_str_at_rel_offset(ss_ptr, 0, self.get_fgm(xml))
+		self.write_str_at_rel_offset(ss_ptr, 16, self.patternset)
 		self.write_str_list_at_rel_offset(ss_ptr, 24, self.patterns)
+		# todo - may need padding here
