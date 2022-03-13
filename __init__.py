@@ -306,10 +306,10 @@ def update_pack_base(self, context):
 
 
 class CobraSceneSettings(PropertyGroup):
-    pack_base: IntProperty(
+    pack_base: FloatProperty(
         name="Pack Base",
         description="Base value used to pack vertices, also min and max value that a coordinate can assume.",
-        default=256,
+        default=256.0,
         subtype="DISTANCE",
         update=update_pack_base
     )
