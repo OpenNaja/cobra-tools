@@ -11,12 +11,14 @@ def unpack_name(b):
 	_hash, _name = b.split(b"::")
 	hash_int = int(_hash)
 	name_str = _unpack_name(_name).decode()[:-1]
-	# logging.info(f"{hash_int} {djb('::'+name_str.lower())} {name_str}")
+	logging.info(f"unpack_name: {hash_int} {djb('::'+name_str.lower())} {name_str}")
 	return hash_int, name_str
 
 
 def pack_name(h_int, name_str):
-	return str(h_int).encode() + b"::" + _pack_name(name_str.encode()) + b"\x00"
+	a = str(h_int).encode() + b"::" + _pack_name(name_str.encode()) + b"\x00"
+	logging.info(f"pack_name: {a}")
+	return a
 
 
 def _unpack_name(b):
@@ -39,6 +41,7 @@ class MatAbstract(BaseFile):
 
 	def assign_fgm(self, xml):
 		_hash, _fgm = unpack_name(as_bytes(self.fgm))
+		print("fgm string: " + _fgm)
 		xml.set('fgm', _fgm)
 		xml.set('hash', str(_hash))
 
@@ -48,9 +51,8 @@ class MatAbstract(BaseFile):
 		xml.set('hash', str(_hash))
 
 	def get_fgm(self, xml):
-		_shader = _pack_name(xml.attrib["fgm"].encode())
-		b = as_bytes(f"{xml.attrib['hash']}::{_shader}")
-		print(b)
+		_shader = _pack_name(xml.attrib["fgm"].encode()).decode('utf-8')
+		b = as_bytes(xml.attrib['hash'] + "::"+ _shader)
 		return b
 
 	def get_shader(self, xml):
@@ -240,7 +242,9 @@ class MatpatsLoader(MatAbstract):
 		ptr0, set_count, ptr1, ptr2, pattern_count, _ = struct.unpack("<Q Q 2Q Q Q", ss_ptr.data)
 		assert set_count == 1
 		# print(ptr0, set_count, ptr1, ptr2, pattern_count, _)
-		self.fgm = self.get_str_at_offset(0)
+		self.fgm = str(self.get_str_at_offset(0))
+		# fgm looks like 3545960137::Bmcfsuptbvsvt`QbuufsoTfu`12
+
 		self.patternset = self.get_str_at_offset(16)
 		self.patterns = self.get_str_list_at_offset(pattern_count-1, 24)
 
@@ -273,9 +277,10 @@ class MatpatsLoader(MatAbstract):
 		self.patternset = patternset.attrib["name"]
 		self.patterns = [pattern.attrib["name"] for pattern in patternset]
 		ptr = 0
-		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(patternset)+1, 0))
+		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(self.patterns)+1, 0))
 		# todo - may use wrong pools !
-		self.write_str_at_rel_offset(ss_ptr, 0, self.get_fgm(xml))
+		fgm_string = self.get_fgm(xml)
+		self.write_str_at_rel_offset(ss_ptr, 0, fgm_string)
 		self.write_str_at_rel_offset(ss_ptr, 16, self.patternset)
 		self.write_str_list_at_rel_offset(ss_ptr, 24, self.patterns)
 		# todo - may need padding here
