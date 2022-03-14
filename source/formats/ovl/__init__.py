@@ -43,6 +43,7 @@ REVERSED_TYPES = (
 	".fdb",
 	".fgm",
 	".gfx",
+	".guesteconomy",
 	".island",
 	".logicalcontrols",
 	".lua",
@@ -51,6 +52,7 @@ REVERSED_TYPES = (
 	".mergedetails",
 	".ms2",
 	".pscollection",
+	".renderparametercurves",
 	".spl",
 	".tex",
 	".texturestream",
@@ -85,6 +87,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.FDB import FdbLoader
 	from modules.formats.FGM import FgmLoader
 	from modules.formats.GFX import GfxLoader
+	from modules.formats.GUESTECONOMY import GuestEconomyLoader
 	from modules.formats.ISLAND import IslandLoader
 	from modules.formats.LOGICALCONTROLS import LogicalControlsLoader
 	from modules.formats.LUA import LuaLoader
@@ -101,6 +104,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
 	from modules.formats.PREFAB import PrefabLoader
 	from modules.formats.PSCOLLECTION import PSCollectionLoader
+	from modules.formats.RENDERPARAMETERCURVES import RenderParameterCurvesLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
 	from modules.formats.SPL import SplineLoader
@@ -128,6 +132,7 @@ def get_loader(ext, ovl, file_entry):
 		".fdb": FdbLoader,
 		".fgm": FgmLoader,
 		".gfx": GfxLoader,
+		".guesteconomy": GuestEconomyLoader,
 		".island": IslandLoader,
 		".logicalcontrols": LogicalControlsLoader,
 		".lua": LuaLoader,
@@ -140,6 +145,7 @@ def get_loader(ext, ovl, file_entry):
 		".posedriverdef": PosedriverdefLoader,
 		".prefab": PrefabLoader,
 		".pscollection": PSCollectionLoader,
+		".renderparametercurves": RenderParameterCurvesLoader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,
 		".spl": SplineLoader,
