@@ -23,13 +23,29 @@ class RenderParameterCurvesLoader(BaseFile):
         self.assign_ss_entry()
         print(f"Collecting {self.sized_str_entry.name}")
         # offset  x0: ptr to string
-        # offset  x8: ptr to list of data entries
+        # offset  x8: ptr to list of ptrs to data entries
         # offset x10: count of data entries
         # offset x14: not used?
         # offset x18: not used?
         # offset x1c: not used?
         self.sized_str_entry.curve_name = self.get_str_at_offset(0)
         print(f"buffer size: {len(self.sized_str_entry.curve_name)} : {self.sized_str_entry.curve_name}")
+
+        # data entries:
+        # offset  x0: strz attribute name
+        # offset  x8: int  type
+        # offset  xc: int unused (probably type is int64)
+        # offset x10: list of ptr to curve entries
+        # offset x18: count of curve entries
+        # offset x1c: int unused (probably count is int64)
+
+
+        # curve entry: I think this one is just x10 bytes
+        # offset x0: float
+        # offset x4: float
+        # offset x8: int? float?
+        # offset xc: int? float?
+
         pass
 
 
