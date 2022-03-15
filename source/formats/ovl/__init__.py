@@ -52,6 +52,7 @@ REVERSED_TYPES = (
 	".mergedetails",
 	".ms2",
 	".pscollection",
+	".renderparameters",
 	".renderparametercurves",
 	".spl",
 	".tex",
@@ -104,6 +105,7 @@ def get_loader(ext, ovl, file_entry):
 	from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
 	from modules.formats.PREFAB import PrefabLoader
 	from modules.formats.PSCOLLECTION import PSCollectionLoader
+	from modules.formats.RENDERPARAMETERS import RenderParametersLoader
 	from modules.formats.RENDERPARAMETERCURVES import RenderParameterCurvesLoader
 	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
 	from modules.formats.SPECDEF import SpecdefLoader
@@ -145,6 +147,7 @@ def get_loader(ext, ovl, file_entry):
 		".posedriverdef": PosedriverdefLoader,
 		".prefab": PrefabLoader,
 		".pscollection": PSCollectionLoader,
+		".renderparameters": RenderParametersLoader,
 		".renderparametercurves": RenderParameterCurvesLoader,
 		".scaleformlanguagedata": ScaleformLoader,
 		".specdef": SpecdefLoader,
