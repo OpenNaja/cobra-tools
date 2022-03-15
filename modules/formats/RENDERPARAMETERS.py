@@ -3,6 +3,19 @@ import struct
 
 from modules.formats.BaseFormat import BaseFile
 
+"""
+        RenderParameterType_Bool = 0,
+        RenderParameterType_Float = 1,
+        RenderParameterType_Int = 2,
+        RenderParameterType_UInt = 3,
+        RenderParameterType_Vector2 = 4,
+        RenderParameterType_Vector3 = 5,
+        RenderParameterType_Vector4 = 6,
+        RenderParameterType_Colour = 7,
+        RenderParameterType_ColourHDR = 8,
+        RenderParameterType_String = 9,
+"""        
+
 
 class RenderParametersLoader(BaseFile):
 
