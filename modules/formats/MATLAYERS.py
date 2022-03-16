@@ -206,6 +206,25 @@ class MatvarsLoader(MatAbstract):
 		self.write_xml(out_path, xmldata)
 		return out_path,
 
+	def create(self):
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		ss_ptr = self.sized_str_entry.pointers[0]
+
+		xml = self.load_xml(self.file_entry.path)
+		# there's just 1 variantset for now
+		variantset = xml[0]
+		self.variantset = variantset.attrib["name"]
+		self.variants = [variant.attrib["name"] for variant in variantset]
+		ptr = 0
+		# I used 0 but I have no idea what to use, just 0 wasn't giving errors
+		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q Q Q Q Q", ptr, 0, ptr, ptr, len(self.variants)+1, 0))
+		# todo - may use wrong pools !
+		fgm_string = self.get_fgm(xml)
+		self.write_str_at_rel_offset(ss_ptr, 0, fgm_string)
+		self.write_str_at_rel_offset(ss_ptr, 16, self.variantset)
+		self.write_str_list_at_rel_offset(ss_ptr, 24, self.variants)
+		# todo - may need padding here
+
 
 class MateffsLoader(MatAbstract):
 
