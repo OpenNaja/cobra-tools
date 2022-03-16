@@ -169,39 +169,29 @@ class MatvarsLoader(MatAbstract):
 
 	def collect(self):
 		self.assign_ss_entry()
-		logging.info(f"Matlayers: {self.sized_str_entry.name}")
+		logging.info(f"Matvars: {self.sized_str_entry.name}")
 		# 48 bytes
-		_, set_count, p0, p1, variant_count, _ = struct.unpack("<6Q", self.sized_str_entry.pointers[0].data)
-		logging.debug(f"set_count: {set_count} variant_count: {variant_count}")
-
-		# seen either 0 or 1, could possibly be more, would need refactor in that case
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 2+set_count)
-		if set_count:
-			# rex 93 - has not materialpatterns, so that's probably why it's different
-			self.f0, self.sized_str_entry.extra, self.f1 = self.sized_str_entry.fragments
-			# self.sized_str_entry.extra is the set name
-		else:
-			# ichthyo
-			self.f0, self.f1 = self.sized_str_entry.fragments
-
-		# shader = unpack_name(self.f0.pointers[1].data)
-		self.sized_str_entry.tex_frags = self.ovs.frags_from_pointer(self.f1.pointers[1], variant_count-1)
-		for tex in self.sized_str_entry.tex_frags:
-			tex.name = self.sized_str_entry.name
+		p0, has_sets, p1, p2, variant_count, _ = struct.unpack("<6Q", self.sized_str_entry.pointers[0].data)
+		logging.debug(f"has_sets: {has_sets} variant_count: {variant_count}")
+		# set_count - seen either 0 or 1, could possibly be more, would need refactor in that case
+		# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
+		self.fgm = str(self.get_str_at_offset(0))
+		self.variantset = self.get_str_at_offset(16)
+		self.variants = self.get_str_list_at_offset(variant_count-1, 24)
+		logging.info(f"{self.fgm} {self.variantset} {self.variants}")
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
 		xmldata = ET.Element('MaterialVariants')
-		self.assign_shader(xmldata)
+		self.assign_fgm(xmldata)
 
-		if self.sized_str_entry.tex_frags:
-			for frag in self.sized_str_entry.tex_frags:
-				variant = ET.SubElement(xmldata, 'variant')
-				variant.set('name', self.get_zstr(frag.pointers[1].data))
-		else:
+		for var in self.variants:
+			variant = ET.SubElement(xmldata, 'variant')
+			variant.set('name', var)
+		if self.variantset:
 			variantset = ET.SubElement(xmldata, 'variantset')
-			variantset.set('name', self.get_zstr(self.sized_str_entry.extra.pointers[1].data))
+			variantset.set('name', self.variantset)
 
 		self.write_xml(out_path, xmldata)
 		return out_path,
@@ -211,13 +201,16 @@ class MatvarsLoader(MatAbstract):
 		ss_ptr = self.sized_str_entry.pointers[0]
 
 		xml = self.load_xml(self.file_entry.path)
-		# there's just 1 variantset for now
-		variantset = xml[0]
-		self.variantset = variantset.attrib["name"]
-		self.variants = [variant.attrib["name"] for variant in variantset]
+		# there's just 0 or 1 variantset for now
+		variantset = xml.findall('.//variantset')
+		if variantset:
+			self.variantset = variantset[0].attrib.get("name")
+		else:
+			self.variantset = None
+		self.variants = [variant.attrib["name"] for variant in xml.findall('.//variant')]
 		ptr = 0
-		# I used 0 but I have no idea what to use, just 0 wasn't giving errors
-		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q Q Q Q Q", ptr, 0, ptr, ptr, len(self.variants)+1, 0))
+		has_sets = 1 if self.variantset else 0
+		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q Q Q Q Q", ptr, has_sets, ptr, ptr, len(self.variants)+1, 0))
 		# todo - may use wrong pools !
 		fgm_string = self.get_fgm(xml)
 		self.write_str_at_rel_offset(ss_ptr, 0, fgm_string)

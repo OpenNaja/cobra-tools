@@ -55,10 +55,12 @@ def create_lods():
 				# Changing shells to skin
 				if is_shell(ob) and lod_index > 1:
 					b_me = obj1.data
+					# todo - actually toggle the flag on the bitfield to maintain the other bits
 					b_me["flag"] = 565
 					b_me.uv_layers.new(name='UV1')
 					# remove shell material
 					b_me.materials.pop(index=1)
+					# delete vertex groups
 
 	msgs.append("LOD objects generated succesfully")
 	new_ob_count = get_ob_count(lod_collections)
