@@ -5,7 +5,7 @@ from enum import EnumMeta, IntEnum
 class DefaultEnumMeta(EnumMeta):
 	default = object()
 
-	def __call__(cls, value=default, *args, **kwargs):
+	def __call__(cls, *args, value=default, **kwargs):
 		if value is DefaultEnumMeta.default:
 			# Assume the first enum is default
 			return next(iter(cls))
