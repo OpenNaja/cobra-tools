@@ -107,7 +107,7 @@ class Header(GenericHeader):
 		self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
 
 		# ?
-		self.triplets_pad = PadAlign(self.context, self.triplets, 4)
+		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
 
 		# Array of FileEntry objects.
 		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
@@ -167,7 +167,7 @@ class Header(GenericHeader):
 		if self.context.version >= 20:
 			self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
 		if self.context.version >= 20:
-			self.triplets_pad = PadAlign(self.context, self.triplets, 4)
+			self.triplets_pad = PadAlign(self.context, 4, self.triplets)
 		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 		self.archives = Array((self.num_archives,), ArchiveEntry, self.context, 0, None)
@@ -220,7 +220,7 @@ class Header(GenericHeader):
 		instance.mimes = Array.from_stream(stream, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
 		if instance.context.version >= 20:
 			instance.triplets = Array.from_stream(stream, (instance.num_triplets,), Triplet, instance.context, 0, None)
-			instance.triplets_pad = PadAlign.from_stream(stream, instance.context, instance.triplets, 4)
+			instance.triplets_pad = PadAlign.from_stream(stream, instance.context, 4, instance.triplets)
 		instance.files = Array.from_stream(stream, (instance.num_files,), FileEntry, instance.context, 0, None)
 		instance.archive_names = ZStringBuffer.from_stream(stream, instance.context, instance.len_archive_names, None)
 		instance.archives = Array.from_stream(stream, (instance.num_archives,), ArchiveEntry, instance.context, 0, None)

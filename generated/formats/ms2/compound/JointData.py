@@ -9,8 +9,8 @@ from generated.formats.ms2.compound.ListCEntry import ListCEntry
 from generated.formats.ms2.compound.ListFirst import ListFirst
 from generated.formats.ms2.compound.ListLong import ListLong
 from generated.formats.ms2.compound.ListShort import ListShort
-from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.UACJointFF import UACJointFF
+from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
 
 
 class JointData:

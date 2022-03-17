@@ -2,7 +2,7 @@ import numpy
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.base.basic import ZString
-from generated.formats.manis.compound.PadAlign import PadAlign
+from generated.formats.base.compound.PadAlign import PadAlign
 
 
 class Buffer1:
@@ -20,14 +20,14 @@ class Buffer1:
 		self.bone_names = Array((self.arg,), ZString, self.context, 0, None)
 
 		# ?
-		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
+		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.bone_hashes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
 		self.bone_names = Array((self.arg,), ZString, self.context, 0, None)
-		self.bone_pad = PadAlign(self.context, self.bone_names, 4)
+		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -43,7 +43,7 @@ class Buffer1:
 	def read_fields(cls, stream, instance):
 		instance.bone_hashes = stream.read_uints((instance.arg,))
 		instance.bone_names = stream.read_zstrings((instance.arg,))
-		instance.bone_pad = PadAlign.from_stream(stream, instance.context, instance.bone_names, 4)
+		instance.bone_pad = PadAlign.from_stream(stream, instance.context, 4, instance.bone_names)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -1,7 +1,7 @@
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.compound.InfoZTMemPool import InfoZTMemPool
-from generated.formats.ms2.compound.SmartPadding import SmartPadding
+from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
 
 
 class BufferInfoZTHeader:

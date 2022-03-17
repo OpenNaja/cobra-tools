@@ -36,7 +36,6 @@ class Array(list):
         super().__init__(self)
         self._shape = None
         self.shape = shape
-        self.ndim = len(self.shape)
         self.dtype = dtype
         self._context = context
         self.arg = arg
@@ -64,7 +63,7 @@ class Array(list):
             return dtype.read_array(stream, shape, context, arg, template)
         else:
             new_array = cls(shape, dtype, context, arg, template, set_default=False)
-            new_array.read(stream, shape, dtype, context, arg, template)
+            new_array.read(stream)
             return new_array
 
     @classmethod

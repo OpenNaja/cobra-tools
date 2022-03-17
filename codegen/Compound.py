@@ -103,6 +103,9 @@ class Compound(BaseClass):
                 condition = ""
                 for union in self.field_unions:
                     condition = union.write_io(f, method_type, condition, target_variable="instance")
+                # handle empty structs
+                if not self.field_unions:
+                    self.write_line(f, 2, "pass")
 
             # write the from_stream method
             method_str = "def from_stream(cls, stream, context, arg=0, template=None):"

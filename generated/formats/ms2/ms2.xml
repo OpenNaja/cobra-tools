@@ -67,10 +67,6 @@
 		<option value="11" name="UnkRhino" >?</option>
 <!--		<option value="32" name="Unk2Rhino" >?</option>-->
 	</enum>
-
-	<compound name="SmartPadding">
-		Grabs 00 bytes only
-	</compound>
 	
 	<compound name="Matrix44" size="64">
 		A 4x4 transformation matrix.

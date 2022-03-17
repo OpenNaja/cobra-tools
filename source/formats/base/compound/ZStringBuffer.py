@@ -22,13 +22,6 @@ class ZStringBuffer:
 		self.data = b""
 		self.strings = []
 
-	def read(self, stream):
-		self.data = stream.read(self.arg)
-		self.strings = self.data.split(ZERO)
-
-	def write(self, stream):
-		stream.write(self.data)
-
 	def get_str_at(self, pos):
 		end = self.data.find(ZERO, pos)
 		return self.data[pos:end].decode()
@@ -66,11 +59,11 @@ class ZStringBuffer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.data = stream.read(instance.get_pad(stream))
+		instance.data = stream.read(instance.arg)
+		instance.strings = instance.data.split(ZERO)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		instance.data = ZERO * instance.get_pad(stream)
 		stream.write(instance.data)
 
 	@classmethod

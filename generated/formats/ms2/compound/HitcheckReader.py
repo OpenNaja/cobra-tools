@@ -13,11 +13,15 @@ class HitcheckReader:
 
 	context = ContextReference()
 
-	@classmethod
-	def read_fields(cls, stream, instance):
+	def read(self, stream):
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
 
-	@classmethod
-	def write_fields(cls, stream, instance):
+	def write(self, stream):
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -46,20 +50,16 @@ class HitcheckReader:
 	def set_defaults(self):
 		pass
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		for jointinfo in self.arg:
+	def read_fields(cls, stream, instance):
+		for jointinfo in instance.arg:
 			jointinfo.hitchecks = []
 			for i in range(jointinfo.hitcheck_count):
-				hc = HitCheckEntry(self.context)
+				hc = HitCheckEntry(instance.context)
 				hc.read(stream)
 				jointinfo.hitchecks.append(hc)
-		self.io_size = stream.tell() - self.io_start
 
-	def write(self, stream):
-		self.io_start = stream.tell()
-
-		self.io_size = stream.tell() - self.io_start
+	def write_fields(cls, stream, instance):
+		pass
 
 	def get_info_str(self):
 		return f'HitcheckReader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

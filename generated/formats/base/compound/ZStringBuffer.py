@@ -20,6 +20,16 @@ class ZStringBuffer:
 	def set_defaults(self):
 		pass
 
+	def read(self, stream):
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
+	def write(self, stream):
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
 	def __init__(self, context, arg=0, template=None):
 		self.name = ''
 		self._context = context
@@ -28,13 +38,6 @@ class ZStringBuffer:
 		self.template = template
 		self.data = b""
 		self.strings = []
-
-	def read(self, stream):
-		self.data = stream.read(self.arg)
-		self.strings = self.data.split(ZERO)
-
-	def write(self, stream):
-		stream.write(self.data)
 
 	def get_str_at(self, pos):
 		end = self.data.find(ZERO, pos)
@@ -73,11 +76,11 @@ class ZStringBuffer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.data = stream.read(instance.get_pad(stream))
+		instance.data = stream.read(instance.arg)
+		instance.strings = instance.data.split(ZERO)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		instance.data = ZERO * instance.get_pad(stream)
 		stream.write(instance.data)
 
 	@classmethod

@@ -16,9 +16,11 @@ class KeysReader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		pass
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		pass
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

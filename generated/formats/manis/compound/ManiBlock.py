@@ -1,10 +1,10 @@
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.base.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.Empty import Empty
-from generated.formats.manis.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.Repeat import Repeat
-from generated.formats.manis.compound.SmartPadding import SmartPadding
+from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
 
 
 class ManiBlock:
@@ -35,7 +35,7 @@ class ManiBlock:
 		self.scl_bones_delta = numpy.zeros(((self.arg.scl_bone_max - self.arg.scl_bone_min) + 1,), dtype=numpy.dtype('uint8'))
 
 		# ?
-		self.pad = PadAlign(self.context, self.ref, 4)
+		self.pad = PadAlign(self.context, 4, self.ref)
 
 		# these are likely a scale reference or factor
 		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.float_count,), dtype=numpy.dtype('float32'))
@@ -61,7 +61,7 @@ class ManiBlock:
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
-		self.anoth_pad = PadAlign(self.context, self.ref_2, 4)
+		self.anoth_pad = PadAlign(self.context, 4, self.ref_2)
 
 		# these are likely a scale reference or factor
 		self.floatsb = numpy.zeros((6,), dtype=numpy.dtype('float32'))
@@ -108,7 +108,7 @@ class ManiBlock:
 			self.ori_bones_delta = numpy.zeros(((self.arg.ori_bone_max - self.arg.ori_bone_min) + 1,), dtype=numpy.dtype('uint8'))
 		if self.arg.scl_bone_min >= 0:
 			self.scl_bones_delta = numpy.zeros(((self.arg.scl_bone_max - self.arg.scl_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		self.pad = PadAlign(self.context, self.ref, 4)
+		self.pad = PadAlign(self.context, 4, self.ref)
 		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.float_count,), dtype=numpy.dtype('float32'))
 		self.pad_2 = SmartPadding(self.context, 0, None)
 		self.frame_count = 0
@@ -124,7 +124,7 @@ class ManiBlock:
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
-		self.anoth_pad = PadAlign(self.context, self.ref_2, 4)
+		self.anoth_pad = PadAlign(self.context, 4, self.ref_2)
 		self.floatsb = numpy.zeros((6,), dtype=numpy.dtype('float32'))
 		self.floats_second = numpy.zeros((self.flag_1, 6,), dtype=numpy.dtype('float32'))
 		if self.flag_2 > 1:
@@ -172,7 +172,7 @@ class ManiBlock:
 			instance.ori_bones_delta = stream.read_ubytes(((instance.arg.ori_bone_max - instance.arg.ori_bone_min) + 1,))
 		if instance.arg.scl_bone_min >= 0:
 			instance.scl_bones_delta = stream.read_ubytes(((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,))
-		instance.pad = PadAlign.from_stream(stream, instance.context, instance.ref, 4)
+		instance.pad = PadAlign.from_stream(stream, instance.context, 4, instance.ref)
 		instance.floatsa = stream.read_floats((instance.arg.frame_count, instance.arg.float_count,))
 		instance.pad_2 = SmartPadding.from_stream(stream, instance.context, 0, None)
 		instance.frame_count = stream.read_uint()
@@ -188,7 +188,7 @@ class ManiBlock:
 		instance.flag_1 = stream.read_ubyte()
 		instance.flag_2 = stream.read_ubyte()
 		instance.flag_3 = stream.read_ubyte()
-		instance.anoth_pad = PadAlign.from_stream(stream, instance.context, instance.ref_2, 4)
+		instance.anoth_pad = PadAlign.from_stream(stream, instance.context, 4, instance.ref_2)
 		instance.floatsb = stream.read_floats((6,))
 		instance.floats_second = stream.read_floats((instance.flag_1, 6,))
 		if instance.flag_2 > 1:

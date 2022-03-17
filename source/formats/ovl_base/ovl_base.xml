@@ -68,6 +68,10 @@
 
 	<!-- Structs for the OVL file -->
 
+	<compound name="SmartPadding">
+		Grabs 00 bytes only
+	</compound>
+
     <compound name="FixedString" count="0" >
         Holds a string of a fixed size, given as an argument.
     </compound>

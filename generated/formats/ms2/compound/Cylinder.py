@@ -33,10 +33,12 @@ class Cylinder(Capsule):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
+		pass
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
+		pass
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

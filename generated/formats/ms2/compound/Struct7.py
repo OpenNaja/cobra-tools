@@ -2,8 +2,8 @@ import numpy
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
-from generated.formats.ms2.compound.SmartPadding import SmartPadding
 from generated.formats.ms2.compound.UACJoint import UACJoint
+from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
 
 
 class Struct7:

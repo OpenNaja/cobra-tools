@@ -20,6 +20,7 @@ from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile, BinaryStream
 from generated.formats.ovl.versions import *
+from generated.formats.ovl.basic import basic_map
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
@@ -169,10 +170,12 @@ def get_loader(ext, ovl, file_entry):
 
 class OvsFile(OvsHeader):
 
+	basic_map = basic_map
+
 	def __init__(self, context, ovl_inst, archive_entry):
-		super().__init__(context)
+		super().__init__(context, archive_entry, None)
 		self.ovl = ovl_inst
-		self.arg = archive_entry
+		# self.arg = archive_entry
 
 	@staticmethod
 	def add_pointer(pointer, ss_entry, pointers_to_ss):
@@ -240,7 +243,10 @@ class OvsFile(OvsHeader):
 			# for debugging, write deflated content to dat
 			with open(save_temp_dat, 'wb') as out:
 				out.write(decompressed)
+		# todo - make use of io function?
 		with BinaryStream(decompressed) as stream:
+			if self.basic_map is not None:
+				stream.register_basic_functions(self.basic_map)
 			yield stream
 
 	def compress(self, uncompressed_bytes):
@@ -874,6 +880,8 @@ class OvsFile(OvsHeader):
 
 
 class OvlFile(Header, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, progress_callback=None):
 		# create a context

@@ -1,40 +1,23 @@
-
+# START_GLOBALS
 from generated.io import MAX_LEN
 
 ZERO = b"\x00"
 
 
-from generated.context import ContextReference
-
+# END_GLOBALS
 
 class SmartPadding:
+	"""Holds a buffer of zero-terminated strings"""
 
-	"""
-	Grabs 00 bytes only
-	"""
+# START_CLASS
 
-	context = ContextReference()
-
-	def set_defaults(self):
-		pass
-
-<<<<<<< HEAD
-	def __init__(self, context, arg=0, template=None):
-=======
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
->>>>>>> 693ff8b... Finished finalizing generalized interface.
 		self._context = context
 		# arg is byte count
 		self.arg = arg
 		self.template = template
 		self.data = b""
-
-	def read(self, stream):
-		self.read_fields(stream, self)
-
-	def write(self, stream):
-		self.write_fields(stream, fields)
 
 	def __repr__(self):
 		return f"{self.data} Size: {len(self.data)}"
@@ -57,15 +40,4 @@ class SmartPadding:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
-
-	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		cls.read_fields(stream, instance)
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		cls.write_fields(stream, instance)
-		return instance
 
