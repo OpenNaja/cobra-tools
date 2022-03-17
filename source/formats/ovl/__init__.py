@@ -219,6 +219,9 @@ class OvsFile(OvsHeader):
 		# write the internal data
 		else:
 			stream = BinaryStream()
+			# todo - make use of io function?
+			if self.basic_map is not None:
+				stream.register_basic_functions(self.basic_map)
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
 			return stream.getbuffer()
@@ -385,6 +388,9 @@ class OvsFile(OvsHeader):
 		for pool in self.pools:
 			pool.address = stream.tell()
 			pool.data = BinaryStream(stream.read(pool.size))
+			# todo - use io?
+			if self.basic_map is not None:
+				pool.data.register_basic_functions(self.basic_map)
 			assign_versions(pool.data, get_versions(self.ovl))
 
 	def map_assets(self):
@@ -951,7 +957,10 @@ class OvlFile(Header, IoFile):
 		# old style
 		# hash all the pools
 		for pool in self.pools:
+			# todo - make use of io function?
 			pool.data = BinaryStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
+			if self.basic_map is not None:
+				pool.data.register_basic_functions(self.basic_map)
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
