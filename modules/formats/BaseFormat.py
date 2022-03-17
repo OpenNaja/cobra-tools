@@ -91,12 +91,17 @@ class BaseFile:
 			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], count)
 			for frag in tmp_fragments:
 				output.append(self.p1_ztsr(frag))
+			# log the frags
+			self.sized_str_entry.fragments.append(link_frag)
+			self.sized_str_entry.fragments.extend(tmp_fragments)
 		return output
 
 	def get_int_list_at_offset(self, count, offset):
 		"""Gets list of ints pointed to at offset from ss ptr"""
 		if count:
 			link_frag = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=offset)
+			# log the frag
+			self.sized_str_entry.fragments.append(link_frag)
 			return list(struct.unpack(f"<{count}I", link_frag.pointers[1].read_from_pool(4 * count)))
 		return []
 
@@ -104,15 +109,20 @@ class BaseFile:
 		"""Gets string pointed to at offset from ss ptr"""
 		f = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=offset)
 		if f:
+			# log the frag
+			self.sized_str_entry.fragments.append(f)
 			return self.p1_ztsr(f)
 
-	def write_str_list_at_rel_offset(self, ref_ptr, rel_offset, items_list):
+	def write_str_list_at_rel_offset(self, ref_ptr, rel_offset, items_list, bytes_func=None):
 		"""Writes a list of pointers and items, and reference it from a ptr at rel_offset from the ref_ptr"""
 		if items_list:
+			if not bytes_func:
+				def bytes_func(s):
+					return b"\x00" * 8
 			# for each line, add the frag ptr space and create the frag ptr
 			item_frags = self.create_fragments(self.sized_str_entry, len(items_list))
-			for frag in item_frags:
-				self.write_to_pool(frag.pointers[0], 2, b"\x00" * 8)
+			for item, frag in zip(items_list, item_frags):
+				self.write_to_pool(frag.pointers[0], 2, bytes_func(item))
 			for item, frag in zip(items_list, item_frags):
 				self.write_to_pool(frag.pointers[1], 2, as_bytes(item))
 			# point the list frag to the end of the data now.
@@ -140,18 +150,6 @@ class BaseFile:
 			new_frag1 = self.create_fragments(self.sized_str_entry, 1)[0]
 			self.ptr_relative(new_frag1.pointers[0], ref_ptr, rel_offset)
 			self.write_to_pool(new_frag1.pointers[1], 2, as_bytes(s))
-
-	def get_string_list(self, count):
-		# deprecated
-		# todo - this assumes the pointer exists if the count exists, and relies on the correct call order
-		# change to get frag at offset?
-		output = []
-		if count:
-			link_frag = self.ovs.frags_from_pointer(self.sized_str_entry.pointers[0], 1)[0]
-			tmp_fragments = self.ovs.frags_from_pointer(link_frag.pointers[1], count)
-			for frag in tmp_fragments:
-				output.append(self.p1_ztsr(frag))
-		return output
 
 	def assign_ss_entry(self):
 		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)

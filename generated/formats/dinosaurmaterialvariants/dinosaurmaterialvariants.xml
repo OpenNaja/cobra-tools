@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="Pointer" >
+        <add name="offset" type="uint64"/>
+    </compound>
+
+    <compound name="VariantArray" >
+        <add name="variants" type="Variant" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="Variant" >
+        <add name="has_ptr" type="uint64"/>
+        <add name="name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="DinoVariantsHeader" >
+        <add name="name" type="Pointer" template="ZString"/>
+        <add name="has_sets" type="uint64"/>
+        <add name="set_name" type="Pointer" template="ZString"/>
+        <add name="variants" type="Pointer" template="VariantArray" arg="variant_count"/>
+        <add name="variant_count" type="uint64"/>
+        <add name="zero" type="uint64"/>
+    </compound>
+
+</niftoolsxml>
