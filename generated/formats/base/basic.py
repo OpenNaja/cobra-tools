@@ -81,11 +81,11 @@ def class_from_struct(struct, from_value_func):
                 elif instance.dtype != dtype:
                     instance = instance.astype(dtype)
                 write(instance.tobytes())
-                write(instance.tobytes())
 
             return read_value, write_value, read_values, write_values
 
     return ConstructedClass
+
 
 Byte = class_from_struct(Struct("<b"), lambda value: (int(value) + 128) % 256 - 128)
 Ubyte = class_from_struct(Struct("<B"), lambda value: int(value) % 256)
