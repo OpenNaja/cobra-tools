@@ -1,6 +1,5 @@
-import numpy
-import typing
 from generated.array import Array
+from generated.formats.base.basic import ZString
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
@@ -14,52 +13,74 @@ class FgmInfoHeader(GenericHeader):
 	This reads a whole custom FGM file
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 		self.data_lib_size = 0
 		self.dependency_count = 0
-		self.fgm_info = FgmHeader(self.context, None, None)
-		self.texture_files = Array(self.context)
-		self.textures = Array(self.context)
-		self.attributes = Array(self.context)
-		self.set_defaults()
+		self.fgm_info = FgmHeader(self.context, 0, None)
+		self.texture_files = Array((self.dependency_count,), ZString, self.context, 0, None)
+		self.textures = Array((self.fgm_info.texture_count,), TextureInfo, self.context, 0, None)
+		self.attributes = Array((self.fgm_info.attribute_count,), AttributeInfo, self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.data_lib_size = 0
 		self.dependency_count = 0
-		self.fgm_info = FgmHeader(self.context, None, None)
-		self.texture_files = Array(self.context)
-		self.textures = Array(self.context)
-		self.attributes = Array(self.context)
+		self.fgm_info = FgmHeader(self.context, 0, None)
+		self.texture_files = Array((self.dependency_count,), ZString, self.context, 0, None)
+		self.textures = Array((self.fgm_info.texture_count,), TextureInfo, self.context, 0, None)
+		self.attributes = Array((self.fgm_info.attribute_count,), AttributeInfo, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		super().read(stream)
-		self.data_lib_size = stream.read_uint()
-		self.dependency_count = stream.read_uint()
-		self.fgm_info = stream.read_type(FgmHeader, (self.context, None, None))
-		self.texture_files = stream.read_zstrings((self.dependency_count))
-		self.textures.read(stream, TextureInfo, self.fgm_info.texture_count, None)
-		self.attributes.read(stream, AttributeInfo, self.fgm_info.attribute_count, None)
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		super().write(stream)
-		stream.write_uint(self.data_lib_size)
-		stream.write_uint(self.dependency_count)
-		stream.write_type(self.fgm_info)
-		stream.write_zstrings(self.texture_files)
-		self.textures.write(stream, TextureInfo, self.fgm_info.texture_count, None)
-		self.attributes.write(stream, AttributeInfo, self.fgm_info.attribute_count, None)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.data_lib_size = stream.read_uint()
+		instance.dependency_count = stream.read_uint()
+		instance.fgm_info = FgmHeader.from_stream(stream, instance.context, 0, None)
+		instance.texture_files = stream.read_zstrings((instance.dependency_count,))
+		instance.textures = Array.from_stream(stream, (instance.fgm_info.texture_count,), TextureInfo, instance.context, 0, None)
+		instance.attributes = Array.from_stream(stream, (instance.fgm_info.attribute_count,), AttributeInfo, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_uint(instance.data_lib_size)
+		stream.write_uint(instance.dependency_count)
+		FgmHeader.to_stream(stream, instance.fgm_info)
+		stream.write_zstrings(instance.texture_files)
+		Array.to_stream(stream, instance.textures, (instance.fgm_info.texture_count,), TextureInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.attributes, (instance.fgm_info.attribute_count,), AttributeInfo, instance.context, 0, None)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'FgmInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

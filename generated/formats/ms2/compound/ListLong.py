@@ -1,6 +1,4 @@
 import numpy
-import typing
-from generated.array import Array
 from generated.formats.ms2.compound.Descriptor import Descriptor
 from generated.formats.ms2.compound.Vector3 import Vector3
 
@@ -11,46 +9,68 @@ class ListLong(Descriptor):
 	probably ragdoll, lots of angles
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# the location of the child joint
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
-		self.floats = numpy.zeros((5, 3), dtype='float')
+		self.floats = numpy.zeros((5, 3,), dtype=numpy.dtype('float32'))
 
 		# radians
-		self.radians = numpy.zeros((8), dtype='float')
-		self.set_defaults()
+		self.radians = numpy.zeros((8,), dtype=numpy.dtype('float32'))
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
-		self.loc = Vector3(self.context, None, None)
-		self.floats = numpy.zeros((5, 3), dtype='float')
-		self.radians = numpy.zeros((8), dtype='float')
+		self.loc = Vector3(self.context, 0, None)
+		self.floats = numpy.zeros((5, 3,), dtype=numpy.dtype('float32'))
+		self.radians = numpy.zeros((8,), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		super().read(stream)
-		self.loc = stream.read_type(Vector3, (self.context, None, None))
-		self.floats = stream.read_floats((5, 3))
-		self.radians = stream.read_floats((8))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		super().write(stream)
-		stream.write_type(self.loc)
-		stream.write_floats(self.floats)
-		stream.write_floats(self.radians)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
+		instance.floats = stream.read_floats((5, 3,))
+		instance.radians = stream.read_floats((8,))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		Vector3.to_stream(stream, instance.loc)
+		stream.write_floats(instance.floats)
+		stream.write_floats(instance.radians)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'ListLong [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

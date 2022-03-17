@@ -9,7 +9,7 @@ class Vector3Short:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -25,7 +25,8 @@ class Vector3Short:
 
 		# Third coordinate.
 		self.z = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.x = 0
@@ -34,19 +35,40 @@ class Vector3Short:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.x = stream.read_short()
-		self.y = stream.read_short()
-		self.z = stream.read_short()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_short(self.x)
-		stream.write_short(self.y)
-		stream.write_short(self.z)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.x = stream.read_short()
+		instance.y = stream.read_short()
+		instance.z = stream.read_short()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_short(instance.x)
+		stream.write_short(instance.y)
+		stream.write_short(instance.z)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Vector3Short [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

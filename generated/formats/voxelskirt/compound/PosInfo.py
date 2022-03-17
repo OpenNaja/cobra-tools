@@ -3,9 +3,9 @@ from generated.formats.voxelskirt.compound.Material import Material
 
 class PosInfo(Material):
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -16,7 +16,8 @@ class PosInfo(Material):
 
 		# -1, 0 for PC
 		self.ff_or_zero = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.ff = 0
@@ -24,19 +25,40 @@ class PosInfo(Material):
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		super().read(stream)
-		self.ff = stream.read_int()
-		self.ff_or_zero = stream.read_int()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		super().write(stream)
-		stream.write_int(self.ff)
-		stream.write_int(self.ff_or_zero)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.ff = stream.read_int()
+		instance.ff_or_zero = stream.read_int()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_int(instance.ff)
+		stream.write_int(instance.ff_or_zero)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'PosInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

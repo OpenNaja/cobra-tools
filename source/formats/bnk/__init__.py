@@ -1,3 +1,4 @@
+from generated.formats.bnk.basic import basic_map
 from generated.formats.bnk.compound.AuxFileContainer import AuxFileContainer
 from generated.formats.bnk.compound.BnkFileContainer import BnkFileContainer
 from generated.io import IoFile
@@ -15,6 +16,8 @@ class AuxContext(object):
 
 class BnkFile(BnkFileContainer, IoFile):
 
+	basic_map = basic_map
+
 	def __init__(self):
 		super().__init__(AuxContext())
 
@@ -29,6 +32,8 @@ class BnkFile(BnkFileContainer, IoFile):
 
 
 class AuxFile(AuxFileContainer, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(AuxContext())

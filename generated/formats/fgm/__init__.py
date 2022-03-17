@@ -1,6 +1,7 @@
 import logging
 
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
+from generated.formats.fgm.basic import basic_map
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
 from generated.formats.ovl_base import OvlContext
@@ -13,6 +14,8 @@ dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}  # 4:"I", 8:"I"
 
 
 class FgmFile(FgmInfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(OvlContext())

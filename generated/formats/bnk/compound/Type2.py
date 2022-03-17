@@ -1,6 +1,4 @@
 import numpy
-import typing
-from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -20,31 +18,52 @@ class Type2:
 		self.const_b = 0
 		self.didx_id = 0
 		self.wem_length = 0
-		self.extra = numpy.zeros((self.length - 17), dtype='byte')
+		self.extra = numpy.zeros((self.length - 17,), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.length = stream.read_uint()
-		self.sfx_id = stream.read_uint()
-		self.const_a = stream.read_uint()
-		self.const_b = stream.read_byte()
-		self.didx_id = stream.read_uint()
-		self.wem_length = stream.read_uint()
-		self.extra = stream.read_bytes((self.length - 17))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.length)
-		stream.write_uint(self.sfx_id)
-		stream.write_uint(self.const_a)
-		stream.write_byte(self.const_b)
-		stream.write_uint(self.didx_id)
-		stream.write_uint(self.wem_length)
-		stream.write_bytes(self.extra)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.length = stream.read_uint()
+		instance.sfx_id = stream.read_uint()
+		instance.const_a = stream.read_uint()
+		instance.const_b = stream.read_byte()
+		instance.didx_id = stream.read_uint()
+		instance.wem_length = stream.read_uint()
+		instance.extra = stream.read_bytes((instance.length - 17,))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.length)
+		stream.write_uint(instance.sfx_id)
+		stream.write_uint(instance.const_a)
+		stream.write_byte(instance.const_b)
+		stream.write_uint(instance.didx_id)
+		stream.write_uint(instance.wem_length)
+		stream.write_bytes(instance.extra)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Type2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -66,7 +85,7 @@ class Type2:
 		s += '\n'
 		return s
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self._context = context
 		self.name = ''
 		self.arg = arg

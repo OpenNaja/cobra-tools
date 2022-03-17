@@ -1,4 +1,4 @@
-from generated.base_enum import UbyteEnum
+from generated.formats.base.enum import UbyteEnum
 
 
 class DdsType(UbyteEnum):

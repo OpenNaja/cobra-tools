@@ -1,4 +1,4 @@
-from generated.base_enum import UintEnum
+from generated.formats.dds.enum import UintEnum
 
 
 class D3D10ResourceDimension(UintEnum):

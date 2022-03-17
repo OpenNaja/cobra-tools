@@ -1,6 +1,4 @@
 import numpy
-import typing
-from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -8,34 +6,56 @@ class FloatsY:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = numpy.zeros((8), dtype='float')
+		self.floats = numpy.zeros((8,), dtype=numpy.dtype('float32'))
 		self.index = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
-		self.floats = numpy.zeros((8), dtype='float')
+		self.floats = numpy.zeros((8,), dtype=numpy.dtype('float32'))
 		self.index = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.floats = stream.read_floats((8))
-		self.index = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_floats(self.floats)
-		stream.write_uint(self.index)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.floats = stream.read_floats((8,))
+		instance.index = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_floats(instance.floats)
+		stream.write_uint(instance.index)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'FloatsY [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

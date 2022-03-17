@@ -88,6 +88,11 @@ def name_attribute(name):
     return '_'.join(part.lower() for part in name_parts(name))
 
 
+def name_access(access):
+    """Applies name_attribute to every part of a dot-separated string"""
+    return '.'.join([name_attribute(attr) for attr in access.split('.')])
+
+
 def name_class(name):
     """Converts a class name, as in the xsd file, into a name usable
     by python.
@@ -97,7 +102,7 @@ def name_class(name):
     >>> name_class('this IS a sillyNAME')
     'ThisIsASillyNAME'
     """
-    if name == "self.template":
+    if name == "template":
         return name
     return ''.join(part.capitalize() for part in name_parts(name))
 
@@ -135,3 +140,43 @@ def name_module(name):
     'bshavok'
     """
     return name.lower()
+
+
+def format_potential_tuple(value):
+    """Converts xml attribute value lists to tuples if space is present,
+    otherwise leaves it alone.
+    :param value: the string that is the value of an attribute
+    :return: original string if no space is present, or commas as separators
+    and surrounding parentheses if whitespace is present.
+    >>> format_potential_tuple('1.0')
+    '1.0
+    >>> format_potential_tuple('1.0 1.0 1.0')
+    '(1.0, 1.0, 1.0)'"""
+    if ' ' in value:
+        return f"({', '.join(value.split())})"
+    else:
+        return value
+
+
+def force_bool(value):
+    """Converts true/false or an integer to either 'True' or 'False'
+    with all the usual rules of integer conversion to bools.
+    :param value: the string to converts
+    :return: 'True' or 'False' if the string converts to a bool, otherwise the original string
+    >>> force_bool('0')
+    'False'
+    >>> force_bool('true')
+    'True'
+    >>> force_bool('some nonsense')
+    'some nonsense'
+    """
+    bools = ("False", "True")
+    capitalized = value.capitalize()
+    if capitalized in bools:
+        return capitalized
+    else:
+        try:
+            int_value = int(value)
+        except:
+            return value
+        return repr(bool(int_value))

@@ -21,3 +21,11 @@ class RenderFlag(BasicBitfield):
 
 	def write(self, stream):
 		stream.write_ushort(self._value)
+
+	@classmethod
+	def from_stream(cls, stream, context=None, arg=0, template=None):
+		return cls.from_value(stream.read_ushort())
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		stream.write_ushort(instance._value)

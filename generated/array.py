@@ -1,80 +1,135 @@
+from operator import index
+from math import prod
+
+from generated.context import ContextReference
+
+
 class Array(list):
+    '''Main class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
+    mostly like an array.
+    '''
 
-	def __init__(self, context, default=()):
-		super().__init__(self)
-		self.context = context
-		if default:
-			self.extend(default)
-		self.dtype = None
-		self.arr1 = 0
-		self.arr2 = 0
-		self.arg = None
-		self.template = None
-		self.io_start = 0
-		self.io_size = 0
+    context = ContextReference()
 
-	def get_rfunc(self, stream, mode="read"):
-		if not self.dtype:
-			raise NotImplementedError("Dtype has not been set for array!")
+    def __new__(cls, shape, dtype, context, arg=0, template=None, set_default=True):
+        if callable(getattr(dtype, 'create_array', None)):
+            # there is a more efficient method of creating this array on the class (which may not return Array class type)
+            return dtype.create_array(shape, None, context, arg, template)
+        else:
+            return super(cls, cls).__new__(cls)
 
-		if isinstance(self.dtype, str):
-			# print("string dtype", self.dtype)
-			# for the basic types, dtype is a string
-			return stream.get_io_func(self.dtype, mode=mode)
-		else:
-			# print("object dtype", self.dtype)
-			# it is a class
-			if mode == "read":
-				def func():
-					return stream.read_type(self.dtype, (self.context, self.arg, self.template))
-			else:
-				def func(obj):
-					return stream.write_type(obj)
-			return func
+    def __init__(self, shape, dtype, context, arg=0, template=None, set_default=True):
+        '''Create a new array of the specified shape and type.
+        :param shape: Shape of the resulting array. Zero-dimensional arrays are not supported.
+        :type shape: Union[int, Tuple[int, ...]]
+        :param dtype: The class to use for instancing objects in this array. If it supports create_array, that will
+        be used instead.
+        :type dtype: type
+        :param context: The context object to use for this array (necessary for version and other global conditions).
+        :type context: Any object which supports accessing for global conditions.
+        :param arg: 'arg' parameter to use for instancing objects in this array.
+        :param template: 'template' parameter to use for instancing objects in this array.
+        :param set_default: Whether to create the elements of this array on init. If false, it is assumed that these
+        elements will be created by another process immediately after init.
+        :type set_default: bool, optional
+        '''
+        super().__init__(self)
+        self._shape = None
+        self.shape = shape
+        self.ndim = len(self.shape)
+        self.dtype = dtype
+        self._context = context
+        self.arg = arg
+        self.template = template
+        if set_default:
+            self.set_defaults()
 
-	def store_params(self, dtype, arr1, arr2, arg, template):
-		if dtype:
-			self.dtype = dtype
-		self.arr1 = arr1
-		self.arr2 = arr2
-		self.arg = arg
-		self.template = template
+    def set_defaults(self):
+        self[:] = self.create_nested_list(lambda : self.dtype(self.context, self.arg, self.template), self.shape)
 
-	def read(self, stream, dtype=None, arr1=0, arr2=None, arg=None, template=None):
-		self.io_start = stream.tell()
-		self.store_params(dtype, arr1, arr2, arg, template)
-		rfunc = self.get_rfunc(stream)
-		self.clear()
-		if self.arr2 is None:
-			self.extend([rfunc() for _ in range(self.arr1)])
-		else:
-			self.extend([[rfunc() for _ in range(self.arr2)] for _ in range(self.arr1)])
-		self.io_size = stream.tell() - self.io_start
+    def read(self, stream):
+        self.io_start = stream.tell()
+        self[:] = self.create_nested_list(lambda : self.dtype.from_stream(stream, self.context, self.arg, self.template), self.shape)
+        self.io_size = stream.tell() - self.io_start
 
-	def write(self, stream, dtype=None, arr1=0, arr2=None, arg=None, template=None):
-		self.io_start = stream.tell()
-		self.store_params(dtype, arr1, arr2, arg, template)
-		rfunc = self.get_rfunc(stream, mode="write")
-		if self.arr2 is None:
-			for x in self:
-				rfunc(x)
-		else:
-			for x in self:
-				for y in x:
-					rfunc(y)
-		self.io_size = stream.tell() - self.io_start
+    def write(self, stream):
+        self.io_start = stream.tell()
+        self.perform_nested_func(self, lambda x: self.dtype.to_stream(stream, x), self.ndim)
+        self.io_size = stream.tell() - self.io_start
 
 
-if __name__ == "__main__":
-	from generated.io import BinaryStream as Bs
-	from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
+    @classmethod
+    def from_stream(cls, stream, shape, dtype, context, arg=0, template=None):
+        if callable(getattr(dtype, 'read_array', None)):
+            return dtype.read_array(stream, shape, context, arg, template)
+        else:
+            new_array = cls(shape, dtype, context, arg, template, set_default=False)
+            new_array.read(stream, shape, dtype, context, arg, template)
+            return new_array
 
-	with Bs(b"asdasdasdasdasdsdsadasdsadsasd") as f:
-		array = Array()
-		# array.read(f, "Ubyte", 3, 2)
-		array.read(f, HeaderPointer, 1, 2)
-		print(array)
+    @classmethod
+    def to_stream(cls, stream, instance, shape, dtype, context, arg=0, template=None):
+        if callable(getattr(dtype, 'write_array', None)):
+            dtype.write_array(stream, instance)
+        else:
+            instance.store_params(shape, dtype, context, arg, template)
+            instance.write(stream)
 
-		with Bs() as b:
-			array.write(b)
-			print(b.getvalue())
+    @classmethod
+    def from_value(cls, shape, dtype, value):
+        if callable(getattr(dtype, 'create_array', None)):
+            return dtype.create_array(shape, default=value)
+        else:
+            new_array = cls(shape, dtype, None, set_default=False)
+            new_array[:] = cls.create_nested_list(lambda : dtype.from_value(value), shape)
+            return new_array
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, shape_input):
+        # conversion to int happens using the 'index' operator
+        try:
+            # try to convert iterable to a tuple of ints
+            shape = tuple(index(i) for i in shape_input)
+        except TypeError:
+            # if this can't be converted to a tuple, try instead to convert an integer-like to (int, )
+            shape = (index(shape_input), )
+        if self._shape is None:
+            self._shape = shape
+        else:
+            if self._shape != shape:
+                raise ValueError('tried to assign non-compatible shape to array')
+
+    @property
+    def ndim(self):
+        return len(self.shape)
+
+    @property
+    def size(self):
+        return prod(self.shape)
+
+    @classmethod
+    def create_nested_list(cls, function_to_generate, shape):
+		# create a nested list with the specified shape, where every element is created by function_to_generate()
+        if len(shape) > 1:
+            return [cls.create_nested_list(function_to_generate, shape[1:]) for _ in range(shape[0])]
+        else:
+            return [function_to_generate() for _ in range(shape[0])]
+
+    @classmethod
+    def perform_nested_func(cls, nested_iterable, efunc, ndim):
+        # perform a function efunc(element) on every element in a nested iterable and return the result
+        if ndim > 1:
+            return [cls.perform_nested_func(sublist, efunc, ndim - 1) for sublist in nested_iterable]
+        else:
+            return [efunc(element) for element in nested_iterable]
+
+    def store_params(self, shape, dtype, context, arg, template):
+        self.shape = shape
+        self.dtype = dtype
+        self._context = context
+        self.arg = arg
+        self.template = template

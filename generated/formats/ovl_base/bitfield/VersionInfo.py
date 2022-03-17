@@ -19,7 +19,7 @@ class VersionInfo(BasicBitfield):
 	"""
 	unk_1 = BitfieldMember(pos=2, mask=0x4, return_type=bool)
 	unk_2 = BitfieldMember(pos=4, mask=0x10, return_type=bool)
-	compression = BitfieldMember(pos=7, mask=0x380, return_type=Compression)
+	compression = BitfieldMember(pos=7, mask=0x380, return_type=Compression.from_value)
 	unk_3 = BitfieldMember(pos=13, mask=0x2000, return_type=bool)
 	is_jwe = BitfieldMember(pos=14, mask=0x4000, return_type=bool)
 
@@ -31,3 +31,11 @@ class VersionInfo(BasicBitfield):
 
 	def write(self, stream):
 		stream.write_uint(self._value)
+
+	@classmethod
+	def from_stream(cls, stream, context=None, arg=0, template=None):
+		return cls.from_value(stream.read_uint())
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		stream.write_uint(instance._value)

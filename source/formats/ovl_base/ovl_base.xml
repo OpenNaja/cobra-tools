@@ -36,6 +36,12 @@
     <version id="JWE" version="19" user_version="24724 25108 24596">Jurassic World Evolution</version>
     <version id="JWE2" version="20" user_version="24724 25108 24596">Jurassic World Evolution 2</version>
 
+    <!-- Extra basic types -->
+
+    <basic name="bool" integral="true" countable="false" >
+        An unsigned 8-bit integer.
+    </basic>
+
     <bitfield name="VersionInfo" storage="uint">
         Determines the format of the OVL file.
         n.b. pos counts from the end!

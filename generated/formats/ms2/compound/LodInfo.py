@@ -10,7 +10,7 @@ class LodInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -19,7 +19,7 @@ class LodInfo:
 		self.io_start = 0
 
 		# usually first lod is 900
-		self.distance = 0
+		self.distance = 0.0
 
 		# always 0
 		self.zero = 0
@@ -38,10 +38,11 @@ class LodInfo:
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models
 		self.tri_index_count = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
-		self.distance = 0
+		self.distance = 0.0
 		self.zero = 0
 		self.bone_index = 0
 		self.first_object_index = 0
@@ -51,27 +52,48 @@ class LodInfo:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.distance = stream.read_float()
-		self.zero = stream.read_ushort()
-		self.bone_index = stream.read_ushort()
-		self.first_object_index = stream.read_ushort()
-		self.last_object_index = stream.read_ushort()
-		self.vertex_count = stream.read_uint()
-		self.tri_index_count = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_float(self.distance)
-		stream.write_ushort(self.zero)
-		stream.write_ushort(self.bone_index)
-		stream.write_ushort(self.first_object_index)
-		stream.write_ushort(self.last_object_index)
-		stream.write_uint(self.vertex_count)
-		stream.write_uint(self.tri_index_count)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.distance = stream.read_float()
+		instance.zero = stream.read_ushort()
+		instance.bone_index = stream.read_ushort()
+		instance.first_object_index = stream.read_ushort()
+		instance.last_object_index = stream.read_ushort()
+		instance.vertex_count = stream.read_uint()
+		instance.tri_index_count = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_float(instance.distance)
+		stream.write_ushort(instance.zero)
+		stream.write_ushort(instance.bone_index)
+		stream.write_ushort(instance.first_object_index)
+		stream.write_ushort(instance.last_object_index)
+		stream.write_uint(instance.vertex_count)
+		stream.write_uint(instance.tri_index_count)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

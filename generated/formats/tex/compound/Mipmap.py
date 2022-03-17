@@ -9,7 +9,7 @@ class Mipmap:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -31,7 +31,8 @@ class Mipmap:
 
 		# size of the non-empty scanline blocks, ie. the last lods add empty scanlines as this is smaller than size
 		self.size_data = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.offset = 0
@@ -42,23 +43,44 @@ class Mipmap:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.offset = stream.read_uint()
-		self.size = stream.read_uint()
-		self.size_array = stream.read_uint()
-		self.size_scan = stream.read_uint()
-		self.size_data = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.offset)
-		stream.write_uint(self.size)
-		stream.write_uint(self.size_array)
-		stream.write_uint(self.size_scan)
-		stream.write_uint(self.size_data)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.offset = stream.read_uint()
+		instance.size = stream.read_uint()
+		instance.size_array = stream.read_uint()
+		instance.size_scan = stream.read_uint()
+		instance.size_data = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.offset)
+		stream.write_uint(instance.size)
+		stream.write_uint(instance.size_array)
+		stream.write_uint(instance.size_scan)
+		stream.write_uint(instance.size_data)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Mipmap [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

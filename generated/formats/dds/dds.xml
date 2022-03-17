@@ -10,39 +10,39 @@
     *******************
     -->
 
-    <basic name="ubyte">
+    <basic name="ubyte" integral="true" countable="true">
         An unsigned 8-bit integer.
     </basic>
 
-    <basic name="byte">
+    <basic name="byte" integral="true" countable="false">
         A signed 8-bit integer.
     </basic>
 
-    <basic name="ushort">
+    <basic name="ushort" integral="true" countable="true">
         An unsigned 16-bit integer.
     </basic>
 
-    <basic name="short">
+    <basic name="short" integral="true" countable="false">
         A signed 16-bit integer.
     </basic>
 
-    <basic name="uint">
+    <basic name="uint" integral="true" countable="true">
         An unsigned 32-bit integer.
     </basic>
 
-    <basic name="int">
+    <basic name="int" integral="true" countable="false">
         A signed 32-bit integer.
     </basic>
 
-    <basic name="char">
+    <basic name="char" integral="true" countable="false">
         An 8-bit character.
     </basic>
 
-    <basic name="float">
+    <basic name="float" integral="false">
         A standard 32-bit floating point number.
     </basic>
 
-    <compound name="FixedString">
+    <compound name="FixedString" integral="false">
         The string "DDS ".
     </compound>
 

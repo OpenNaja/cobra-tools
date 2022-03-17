@@ -1,5 +1,3 @@
-import numpy
-import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.bnk.compound.DataPointer import DataPointer
@@ -13,7 +11,7 @@ class DIDXSection:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -23,26 +21,48 @@ class DIDXSection:
 
 		# length of following data
 		self.length = 0
-		self.data_pointers = Array(self.context)
-		self.set_defaults()
+		self.data_pointers = Array((int(self.length / 12),), DataPointer, self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0
-		self.data_pointers = Array(self.context)
+		self.data_pointers = Array((int(self.length / 12),), DataPointer, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.length = stream.read_uint()
-		self.data_pointers.read(stream, DataPointer, int(self.length / 12), None)
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.length)
-		self.data_pointers.write(stream, DataPointer, int(self.length / 12), None)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.length = stream.read_uint()
+		instance.data_pointers = Array.from_stream(stream, (int(instance.length / 12),), DataPointer, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.length)
+		Array.to_stream(stream, instance.data_pointers, (int(instance.length / 12),), DataPointer, instance.context, 0, None)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'DIDXSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

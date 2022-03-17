@@ -13,7 +13,7 @@ class ZStringBuffer:
 
 # START_CLASS
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None):
 		self.name = ''
 		self._context = context
 		# arg is byte count
@@ -63,3 +63,23 @@ class ZStringBuffer:
 
 	def __repr__(self):
 		return str(self.strings)
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.data = stream.read(instance.get_pad(stream))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		instance.data = ZERO * instance.get_pad(stream)
+		stream.write(instance.data)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template)
+		cls.read_fields(stream, instance)
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		cls.write_fields(stream, instance)
+		return instance

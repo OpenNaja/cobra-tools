@@ -7,7 +7,7 @@ class Type2:
 
 	# START_CLASS
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self._context = context
 		self.name = ''
 		self.arg = arg

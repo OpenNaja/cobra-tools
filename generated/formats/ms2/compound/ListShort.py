@@ -8,52 +8,74 @@ class ListShort(Descriptor):
 	used in JWE dinos
 	"""
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# location of the joint
-		self.loc = Vector3(self.context, None, None)
+		self.loc = Vector3(self.context, 0, None)
 
 		# normalized
-		self.direction = Vector3(self.context, None, None)
+		self.direction = Vector3(self.context, 0, None)
 
 		# min, le 0
-		self.min = 0
+		self.min = 0.0
 
 		# max, ge 0
-		self.max = 0
-		self.set_defaults()
+		self.max = 0.0
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
-		self.loc = Vector3(self.context, None, None)
-		self.direction = Vector3(self.context, None, None)
-		self.min = 0
-		self.max = 0
+		self.loc = Vector3(self.context, 0, None)
+		self.direction = Vector3(self.context, 0, None)
+		self.min = 0.0
+		self.max = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		super().read(stream)
-		self.loc = stream.read_type(Vector3, (self.context, None, None))
-		self.direction = stream.read_type(Vector3, (self.context, None, None))
-		self.min = stream.read_float()
-		self.max = stream.read_float()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		super().write(stream)
-		stream.write_type(self.loc)
-		stream.write_type(self.direction)
-		stream.write_float(self.min)
-		stream.write_float(self.max)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
+		instance.direction = Vector3.from_stream(stream, instance.context, 0, None)
+		instance.min = stream.read_float()
+		instance.max = stream.read_float()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		Vector3.to_stream(stream, instance.loc)
+		Vector3.to_stream(stream, instance.direction)
+		stream.write_float(instance.min)
+		stream.write_float(instance.max)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'ListShort [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

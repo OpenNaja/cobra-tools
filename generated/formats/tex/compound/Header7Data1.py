@@ -1,5 +1,3 @@
-import numpy
-import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.tex.compound.Mipmap import Mipmap
@@ -13,7 +11,7 @@ class Header7Data1:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -46,8 +44,9 @@ class Header7Data1:
 		self.unk_pz = 0
 
 		# info about mip levels
-		self.mip_maps = Array(self.context)
-		self.set_defaults()
+		self.mip_maps = Array((self.num_mips,), Mipmap, self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.zero = 0
@@ -59,37 +58,58 @@ class Header7Data1:
 		self.num_mips = 0
 		if self.context.version >= 20:
 			self.unk_pz = 0
-		self.mip_maps = Array(self.context)
+		self.mip_maps = Array((self.num_mips,), Mipmap, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.zero = stream.read_uint64()
-		self.data_size = stream.read_uint()
-		self.width = stream.read_uint()
-		self.height = stream.read_uint()
-		self.depth = stream.read_uint()
-		self.array_size = stream.read_uint()
-		self.num_mips = stream.read_uint()
-		if self.context.version >= 20:
-			self.unk_pz = stream.read_uint64()
-		self.mip_maps.read(stream, Mipmap, self.num_mips, None)
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.zero)
-		stream.write_uint(self.data_size)
-		stream.write_uint(self.width)
-		stream.write_uint(self.height)
-		stream.write_uint(self.depth)
-		stream.write_uint(self.array_size)
-		stream.write_uint(self.num_mips)
-		if self.context.version >= 20:
-			stream.write_uint64(self.unk_pz)
-		self.mip_maps.write(stream, Mipmap, self.num_mips, None)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.zero = stream.read_uint64()
+		instance.data_size = stream.read_uint()
+		instance.width = stream.read_uint()
+		instance.height = stream.read_uint()
+		instance.depth = stream.read_uint()
+		instance.array_size = stream.read_uint()
+		instance.num_mips = stream.read_uint()
+		if instance.context.version >= 20:
+			instance.unk_pz = stream.read_uint64()
+		instance.mip_maps = Array.from_stream(stream, (instance.num_mips,), Mipmap, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.zero)
+		stream.write_uint(instance.data_size)
+		stream.write_uint(instance.width)
+		stream.write_uint(instance.height)
+		stream.write_uint(instance.depth)
+		stream.write_uint(instance.array_size)
+		stream.write_uint(instance.num_mips)
+		if instance.context.version >= 20:
+			stream.write_uint64(instance.unk_pz)
+		Array.to_stream(stream, instance.mip_maps, (instance.num_mips,), Mipmap, instance.context, 0, None)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Header7Data1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -11,7 +11,7 @@ class StreamInfo:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -32,7 +32,8 @@ class StreamInfo:
 		self.uv_buffer_length = 0
 		self.zero_3 = 0
 		self.zero_4 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.vertex_buffer_length = 0
@@ -46,29 +47,50 @@ class StreamInfo:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.vertex_buffer_length = stream.read_uint64()
-		self.zero_0 = stream.read_uint64()
-		self.tris_buffer_length = stream.read_uint64()
-		self.zero_1 = stream.read_uint64()
-		self.zero_2 = stream.read_uint64()
-		self.uv_buffer_length = stream.read_uint64()
-		self.zero_3 = stream.read_uint64()
-		self.zero_4 = stream.read_uint64()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.vertex_buffer_length)
-		stream.write_uint64(self.zero_0)
-		stream.write_uint64(self.tris_buffer_length)
-		stream.write_uint64(self.zero_1)
-		stream.write_uint64(self.zero_2)
-		stream.write_uint64(self.uv_buffer_length)
-		stream.write_uint64(self.zero_3)
-		stream.write_uint64(self.zero_4)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.vertex_buffer_length = stream.read_uint64()
+		instance.zero_0 = stream.read_uint64()
+		instance.tris_buffer_length = stream.read_uint64()
+		instance.zero_1 = stream.read_uint64()
+		instance.zero_2 = stream.read_uint64()
+		instance.uv_buffer_length = stream.read_uint64()
+		instance.zero_3 = stream.read_uint64()
+		instance.zero_4 = stream.read_uint64()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.vertex_buffer_length)
+		stream.write_uint64(instance.zero_0)
+		stream.write_uint64(instance.tris_buffer_length)
+		stream.write_uint64(instance.zero_1)
+		stream.write_uint64(instance.zero_2)
+		stream.write_uint64(instance.uv_buffer_length)
+		stream.write_uint64(instance.zero_3)
+		stream.write_uint64(instance.zero_4)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'StreamInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

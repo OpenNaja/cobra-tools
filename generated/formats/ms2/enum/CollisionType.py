@@ -1,4 +1,4 @@
-from generated.base_enum import UintEnum
+from generated.formats.base.enum import UintEnum
 
 
 class CollisionType(UintEnum):

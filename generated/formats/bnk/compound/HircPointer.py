@@ -7,7 +7,7 @@ class HircPointer:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -17,36 +17,58 @@ class HircPointer:
 
 		# length of following data
 		self.id = 0
-		self.data = Type2(self.context, None, None)
-		self.data = TypeOther(self.context, None, None)
-		self.set_defaults()
+		self.data = Type2(self.context, 0, None)
+		self.data = TypeOther(self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.id = 0
 		if self.id == 2:
-			self.data = Type2(self.context, None, None)
+			self.data = Type2(self.context, 0, None)
 		if self.id != 2:
-			self.data = TypeOther(self.context, None, None)
+			self.data = TypeOther(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.id = stream.read_byte()
-		if self.id == 2:
-			self.data = stream.read_type(Type2, (self.context, None, None))
-		if self.id != 2:
-			self.data = stream.read_type(TypeOther, (self.context, None, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_byte(self.id)
-		if self.id == 2:
-			stream.write_type(self.data)
-		if self.id != 2:
-			stream.write_type(self.data)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.id = stream.read_byte()
+		if instance.id == 2:
+			instance.data = Type2.from_stream(stream, instance.context, 0, None)
+		if instance.id != 2:
+			instance.data = TypeOther.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_byte(instance.id)
+		if instance.id == 2:
+			Type2.to_stream(stream, instance.data)
+		if instance.id != 2:
+			TypeOther.to_stream(stream, instance.data)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'HircPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

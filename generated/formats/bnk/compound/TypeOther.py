@@ -1,6 +1,4 @@
 import numpy
-import typing
-from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -12,7 +10,7 @@ class TypeOther:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -24,26 +22,48 @@ class TypeOther:
 		self.length = 0
 
 		# id of this Sound SFX object
-		self.raw = numpy.zeros((self.length), dtype='byte')
-		self.set_defaults()
+		self.raw = numpy.zeros((self.length,), dtype=numpy.dtype('int8'))
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0
-		self.raw = numpy.zeros((self.length), dtype='byte')
+		self.raw = numpy.zeros((self.length,), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.length = stream.read_uint()
-		self.raw = stream.read_bytes((self.length))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.length)
-		stream.write_bytes(self.raw)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.length = stream.read_uint()
+		instance.raw = stream.read_bytes((instance.length,))
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.length)
+		stream.write_bytes(instance.raw)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'TypeOther [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
