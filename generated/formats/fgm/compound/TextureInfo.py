@@ -112,6 +112,8 @@ class TextureInfo:
 		s += f'\n	* is_textured = {self.is_textured.__repr__()}'
 		s += f'\n	* indices = {self.indices.__repr__()}'
 		s += f'\n	* colors = {self.colors.__repr__()}'
+		s += f'\n	* indices = {self.indices.__repr__()}'
+		s += f'\n	* colors = {self.colors.__repr__()}'
 		return s
 
 	def __repr__(self):

@@ -62,10 +62,6 @@
         A string that ends with a null byte (0x00).
     </basic>
 
-    <basic name="bool" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-
     <compound name="ZStringBuffer" count="0" >
         Holds a buffer of zero-terminated strings
     </compound>

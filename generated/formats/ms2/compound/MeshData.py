@@ -20,7 +20,7 @@ class MeshData:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -36,7 +36,8 @@ class MeshData:
 
 		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
 		self.some_index = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.version <= 32:
@@ -47,23 +48,44 @@ class MeshData:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 32:
-			self.stream_index = stream.read_uint64()
-		if self.context.version >= 47:
-			self.ptr = stream.read_uint64()
-		self.some_index = stream.read_uint64()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 32:
-			stream.write_uint64(self.stream_index)
-		if self.context.version >= 47:
-			stream.write_uint64(self.ptr)
-		stream.write_uint64(self.some_index)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		if instance.context.version <= 32:
+			instance.stream_index = stream.read_uint64()
+		if instance.context.version >= 47:
+			instance.ptr = stream.read_uint64()
+		instance.some_index = stream.read_uint64()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		if instance.context.version <= 32:
+			stream.write_uint64(instance.stream_index)
+		if instance.context.version >= 47:
+			stream.write_uint64(instance.ptr)
+		stream.write_uint64(instance.some_index)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'MeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

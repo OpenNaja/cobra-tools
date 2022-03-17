@@ -2,9 +2,6 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-
-	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-
     <token name="verexpr" attrs="vercond">
 		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE1</verexpr>
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
@@ -20,6 +17,8 @@
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#VER#" string="version" />
     </token>
+
+	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
 	<verattr name="version" access="#VER#" index="0" />
 

@@ -13,7 +13,7 @@ class TexHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,8 +29,8 @@ class TexHeader:
 
 		# 8 bytes, all 0
 		self.ptr_1 = 0
-		self.compression_type = DdsType()
-		self.compression_type = DdsTypeCoaster()
+		self.compression_type = DdsType(self.context, 0, None)
+		self.compression_type = DdsTypeCoaster(self.context, 0, None)
 
 		# 0 or 1
 		self.one_0 = 0
@@ -47,7 +47,8 @@ class TexHeader:
 		# 0
 		self.pad = 0
 		self.pad_dla = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.version <= 15:
@@ -61,9 +62,9 @@ class TexHeader:
 		if self.context.version >= 19:
 			self.ptr_1 = 0
 		if not (self.context.version < 19):
-			self.compression_type = DdsType()
+			self.compression_type = DdsType(self.context, 0, None)
 		if self.context.version < 19:
-			self.compression_type = DdsTypeCoaster()
+			self.compression_type = DdsTypeCoaster(self.context, 0, None)
 		self.one_0 = 0
 		if self.context.version <= 15:
 			self.num_mips = 0
@@ -81,65 +82,86 @@ class TexHeader:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 15:
-			self.zero_0 = stream.read_uint()
-		if self.context.version >= 17:
-			self.zero_0 = stream.read_uint64()
-		if self.context.version >= 19:
-			self.zero_1 = stream.read_uint64()
-		if self.context.version >= 17:
-			self.ptr_0 = stream.read_uint64()
-		if self.context.version >= 19:
-			self.ptr_1 = stream.read_uint64()
-		if not (self.context.version < 19):
-			self.compression_type = DdsType(stream.read_ubyte())
-		if self.context.version < 19:
-			self.compression_type = DdsTypeCoaster(stream.read_ubyte())
-		self.one_0 = stream.read_ubyte()
-		if self.context.version <= 15:
-			self.num_mips = stream.read_ushort()
-			self.width = stream.read_ushort()
-		if self.context.version <= 15:
-			self.height = stream.read_ushort()
-		if self.context.version >= 17:
-			self.stream_count = stream.read_ubyte()
-			self.stream_count_repeat = stream.read_ubyte()
-		self.pad = stream.read_uint()
-		if self.context.version <= 15:
-			self.pad_dla = stream.read_uint64()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 15:
-			stream.write_uint(self.zero_0)
-		if self.context.version >= 17:
-			stream.write_uint64(self.zero_0)
-		if self.context.version >= 19:
-			stream.write_uint64(self.zero_1)
-		if self.context.version >= 17:
-			stream.write_uint64(self.ptr_0)
-		if self.context.version >= 19:
-			stream.write_uint64(self.ptr_1)
-		if not (self.context.version < 19):
-			stream.write_ubyte(self.compression_type.value)
-		if self.context.version < 19:
-			stream.write_ubyte(self.compression_type.value)
-		stream.write_ubyte(self.one_0)
-		if self.context.version <= 15:
-			stream.write_ushort(self.num_mips)
-			stream.write_ushort(self.width)
-		if self.context.version <= 15:
-			stream.write_ushort(self.height)
-		if self.context.version >= 17:
-			stream.write_ubyte(self.stream_count)
-			stream.write_ubyte(self.stream_count_repeat)
-		stream.write_uint(self.pad)
-		if self.context.version <= 15:
-			stream.write_uint64(self.pad_dla)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		if instance.context.version <= 15:
+			instance.zero_0 = stream.read_uint()
+		if instance.context.version >= 17:
+			instance.zero_0 = stream.read_uint64()
+		if instance.context.version >= 19:
+			instance.zero_1 = stream.read_uint64()
+		if instance.context.version >= 17:
+			instance.ptr_0 = stream.read_uint64()
+		if instance.context.version >= 19:
+			instance.ptr_1 = stream.read_uint64()
+		if not (instance.context.version < 19):
+			instance.compression_type = DdsType.from_value(stream.read_ubyte())
+		if instance.context.version < 19:
+			instance.compression_type = DdsTypeCoaster.from_value(stream.read_ubyte())
+		instance.one_0 = stream.read_ubyte()
+		if instance.context.version <= 15:
+			instance.num_mips = stream.read_ushort()
+			instance.width = stream.read_ushort()
+		if instance.context.version <= 15:
+			instance.height = stream.read_ushort()
+		if instance.context.version >= 17:
+			instance.stream_count = stream.read_ubyte()
+			instance.stream_count_repeat = stream.read_ubyte()
+		instance.pad = stream.read_uint()
+		if instance.context.version <= 15:
+			instance.pad_dla = stream.read_uint64()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		if instance.context.version <= 15:
+			stream.write_uint(instance.zero_0)
+		if instance.context.version >= 17:
+			stream.write_uint64(instance.zero_0)
+		if instance.context.version >= 19:
+			stream.write_uint64(instance.zero_1)
+		if instance.context.version >= 17:
+			stream.write_uint64(instance.ptr_0)
+		if instance.context.version >= 19:
+			stream.write_uint64(instance.ptr_1)
+		if not (instance.context.version < 19):
+			stream.write_ubyte(instance.compression_type.value)
+		if instance.context.version < 19:
+			stream.write_ubyte(instance.compression_type.value)
+		stream.write_ubyte(instance.one_0)
+		if instance.context.version <= 15:
+			stream.write_ushort(instance.num_mips)
+			stream.write_ushort(instance.width)
+		if instance.context.version <= 15:
+			stream.write_ushort(instance.height)
+		if instance.context.version >= 17:
+			stream.write_ubyte(instance.stream_count)
+			stream.write_ubyte(instance.stream_count_repeat)
+		stream.write_uint(instance.pad)
+		if instance.context.version <= 15:
+			stream.write_uint64(instance.pad_dla)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'TexHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

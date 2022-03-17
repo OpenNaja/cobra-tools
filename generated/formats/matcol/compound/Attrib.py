@@ -1,6 +1,4 @@
 import numpy
-import typing
-from generated.array import Array
 from generated.context import ContextReference
 
 
@@ -8,7 +6,7 @@ class Attrib:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -16,30 +14,52 @@ class Attrib:
 		self.io_size = 0
 		self.io_start = 0
 		self.name_ptr = 0
-		self.attrib = numpy.zeros((4), dtype='byte')
+		self.attrib = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 		self.padding = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.name_ptr = 0
-		self.attrib = numpy.zeros((4), dtype='byte')
+		self.attrib = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 		self.padding = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.name_ptr = stream.read_uint64()
-		self.attrib = stream.read_bytes((4))
-		self.padding = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.name_ptr)
-		stream.write_bytes(self.attrib)
-		stream.write_uint(self.padding)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.name_ptr = stream.read_uint64()
+		instance.attrib = stream.read_bytes((4,))
+		instance.padding = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.name_ptr)
+		stream.write_bytes(instance.attrib)
+		stream.write_uint(instance.padding)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Attrib [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

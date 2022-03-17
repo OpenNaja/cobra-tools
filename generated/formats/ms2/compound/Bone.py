@@ -12,64 +12,86 @@ class Bone:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.loc = Vector3(self.context, None, None)
-		self.scale = 0
-		self.rot = Vector4(self.context, None, None)
-		self.rot = Vector4(self.context, None, None)
-		self.loc = Vector3(self.context, None, None)
-		self.scale = 0
-		self.set_defaults()
+		self.loc = Vector3(self.context, 0, None)
+		self.scale = 0.0
+		self.rot = Vector4(self.context, 0, None)
+		self.rot = Vector4(self.context, 0, None)
+		self.loc = Vector3(self.context, 0, None)
+		self.scale = 0.0
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		if self.context.version <= 47:
-			self.loc = Vector3(self.context, None, None)
+			self.loc = Vector3(self.context, 0, None)
 		if self.context.version <= 47:
-			self.scale = 0
+			self.scale = 0.0
 		if self.context.version <= 47:
-			self.rot = Vector4(self.context, None, None)
+			self.rot = Vector4(self.context, 0, None)
 		if self.context.version >= 48:
-			self.rot = Vector4(self.context, None, None)
+			self.rot = Vector4(self.context, 0, None)
 		if self.context.version >= 48:
-			self.loc = Vector3(self.context, None, None)
+			self.loc = Vector3(self.context, 0, None)
 		if self.context.version >= 48:
-			self.scale = 0
+			self.scale = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 47:
-			self.loc = stream.read_type(Vector3, (self.context, None, None))
-			self.scale = stream.read_float()
-		if self.context.version <= 47:
-			self.rot = stream.read_type(Vector4, (self.context, None, None))
-		if self.context.version >= 48:
-			self.rot = stream.read_type(Vector4, (self.context, None, None))
-			self.loc = stream.read_type(Vector3, (self.context, None, None))
-		if self.context.version >= 48:
-			self.scale = stream.read_float()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		if self.context.version <= 47:
-			stream.write_type(self.loc)
-			stream.write_float(self.scale)
-		if self.context.version <= 47:
-			stream.write_type(self.rot)
-		if self.context.version >= 48:
-			stream.write_type(self.rot)
-			stream.write_type(self.loc)
-		if self.context.version >= 48:
-			stream.write_float(self.scale)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		if instance.context.version <= 47:
+			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
+			instance.scale = stream.read_float()
+		if instance.context.version <= 47:
+			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
+		if instance.context.version >= 48:
+			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
+			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
+		if instance.context.version >= 48:
+			instance.scale = stream.read_float()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		if instance.context.version <= 47:
+			Vector3.to_stream(stream, instance.loc)
+			stream.write_float(instance.scale)
+		if instance.context.version <= 47:
+			Vector4.to_stream(stream, instance.rot)
+		if instance.context.version >= 48:
+			Vector4.to_stream(stream, instance.rot)
+			Vector3.to_stream(stream, instance.loc)
+		if instance.context.version >= 48:
+			stream.write_float(instance.scale)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Bone [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -79,6 +101,8 @@ class Bone:
 		s += f'\n	* loc = {self.loc.__repr__()}'
 		s += f'\n	* scale = {self.scale.__repr__()}'
 		s += f'\n	* rot = {self.rot.__repr__()}'
+		s += f'\n	* loc = {self.loc.__repr__()}'
+		s += f'\n	* scale = {self.scale.__repr__()}'
 		return s
 
 	def __repr__(self):

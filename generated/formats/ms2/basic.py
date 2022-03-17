@@ -51,7 +51,7 @@ class String:
         return read_string, write_string, read_strings, write_strings
 
 
-from generated.formats.ovl_base.basic import Byte, Ubyte, Uint64, Uint, Ushort, Int, Short, Char, Float, ZString, Bool
+from generated.formats.base.basic import Byte, Ubyte, Uint64, Uint, Ushort, Int, Short, Char, Float, ZString
 
 basic_map = {
 			'Byte': Byte,
@@ -64,6 +64,4 @@ basic_map = {
 			'Char': Char,
 			'Float': Float,
 			'ZString': ZString,
-			'Bool': Bool,
-			'String': String,
 }

@@ -13,7 +13,7 @@ class StreamEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -27,7 +27,8 @@ class StreamEntry:
 		# offset to the user file's ss pointer (in STATIC) inside the flattened mempools
 		self.file_offset = 0
 		self.zero = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.stream_offset = 0
@@ -36,19 +37,40 @@ class StreamEntry:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.stream_offset = stream.read_uint()
-		self.file_offset = stream.read_uint()
-		self.zero = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.stream_offset)
-		stream.write_uint(self.file_offset)
-		stream.write_uint(self.zero)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.stream_offset = stream.read_uint()
+		instance.file_offset = stream.read_uint()
+		instance.zero = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.stream_offset)
+		stream.write_uint(instance.file_offset)
+		stream.write_uint(instance.zero)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'StreamEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

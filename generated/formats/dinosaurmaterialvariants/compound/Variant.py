@@ -1,3 +1,4 @@
+import generated.formats.base.basic
 from generated.context import ContextReference
 from generated.formats.dinosaurmaterialvariants.compound.Pointer import Pointer
 
@@ -6,7 +7,7 @@ class Variant:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -14,26 +15,48 @@ class Variant:
 		self.io_size = 0
 		self.io_start = 0
 		self.has_ptr = 0
-		self.name = Pointer(self.context, None, ZString)
-		self.set_defaults()
+		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.has_ptr = 0
-		self.name = Pointer(self.context, None, ZString)
+		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.has_ptr = stream.read_uint64()
-		self.name = stream.read_type(Pointer, (self.context, None, ZString))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.has_ptr)
-		stream.write_type(self.name)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.has_ptr = stream.read_uint64()
+		instance.name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.has_ptr)
+		Pointer.to_stream(stream, instance.name)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Variant [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -9,7 +9,7 @@ class LayerFrag:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -25,7 +25,8 @@ class LayerFrag:
 		self.u_3 = 0
 		self.attrib_ptr = 0
 		self.attrib_count = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.name_ptr = 0
@@ -40,31 +41,52 @@ class LayerFrag:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.name_ptr = stream.read_uint64()
-		self.u_0 = stream.read_uint64()
-		self.u_1 = stream.read_uint64()
-		self.info_ptr = stream.read_uint64()
-		self.info_count = stream.read_uint64()
-		self.u_2 = stream.read_uint64()
-		self.u_3 = stream.read_uint64()
-		self.attrib_ptr = stream.read_uint64()
-		self.attrib_count = stream.read_uint64()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.name_ptr)
-		stream.write_uint64(self.u_0)
-		stream.write_uint64(self.u_1)
-		stream.write_uint64(self.info_ptr)
-		stream.write_uint64(self.info_count)
-		stream.write_uint64(self.u_2)
-		stream.write_uint64(self.u_3)
-		stream.write_uint64(self.attrib_ptr)
-		stream.write_uint64(self.attrib_count)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.name_ptr = stream.read_uint64()
+		instance.u_0 = stream.read_uint64()
+		instance.u_1 = stream.read_uint64()
+		instance.info_ptr = stream.read_uint64()
+		instance.info_count = stream.read_uint64()
+		instance.u_2 = stream.read_uint64()
+		instance.u_3 = stream.read_uint64()
+		instance.attrib_ptr = stream.read_uint64()
+		instance.attrib_count = stream.read_uint64()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint64(instance.name_ptr)
+		stream.write_uint64(instance.u_0)
+		stream.write_uint64(instance.u_1)
+		stream.write_uint64(instance.info_ptr)
+		stream.write_uint64(instance.info_count)
+		stream.write_uint64(instance.u_2)
+		stream.write_uint64(instance.u_3)
+		stream.write_uint64(instance.attrib_ptr)
+		stream.write_uint64(instance.attrib_count)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'LayerFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

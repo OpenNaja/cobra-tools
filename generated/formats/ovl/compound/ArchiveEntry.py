@@ -9,7 +9,7 @@ class ArchiveEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -67,7 +67,8 @@ class ArchiveEntry:
 
 		# Seemingly unused, can be zeroed without effect ingame in JWE
 		self.ovs_offset = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.offset = 0
@@ -90,47 +91,68 @@ class ArchiveEntry:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.offset = stream.read_uint()
-		self.pools_offset = stream.read_uint()
-		self.stream_files_offset = stream.read_uint()
-		self.num_pools = stream.read_uint()
-		self.num_datas = stream.read_ushort()
-		self.num_pool_groups = stream.read_ushort()
-		self.num_buffer_groups = stream.read_uint()
-		self.num_buffers = stream.read_uint()
-		self.num_fragments = stream.read_uint()
-		self.num_files = stream.read_uint()
-		self.read_start = stream.read_uint()
-		self.set_data_size = stream.read_uint()
-		self.compressed_size = stream.read_uint()
-		self.uncompressed_size = stream.read_uint64()
-		self.pools_start = stream.read_uint()
-		self.pools_end = stream.read_uint()
-		self.ovs_offset = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.offset)
-		stream.write_uint(self.pools_offset)
-		stream.write_uint(self.stream_files_offset)
-		stream.write_uint(self.num_pools)
-		stream.write_ushort(self.num_datas)
-		stream.write_ushort(self.num_pool_groups)
-		stream.write_uint(self.num_buffer_groups)
-		stream.write_uint(self.num_buffers)
-		stream.write_uint(self.num_fragments)
-		stream.write_uint(self.num_files)
-		stream.write_uint(self.read_start)
-		stream.write_uint(self.set_data_size)
-		stream.write_uint(self.compressed_size)
-		stream.write_uint64(self.uncompressed_size)
-		stream.write_uint(self.pools_start)
-		stream.write_uint(self.pools_end)
-		stream.write_uint(self.ovs_offset)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.offset = stream.read_uint()
+		instance.pools_offset = stream.read_uint()
+		instance.stream_files_offset = stream.read_uint()
+		instance.num_pools = stream.read_uint()
+		instance.num_datas = stream.read_ushort()
+		instance.num_pool_groups = stream.read_ushort()
+		instance.num_buffer_groups = stream.read_uint()
+		instance.num_buffers = stream.read_uint()
+		instance.num_fragments = stream.read_uint()
+		instance.num_files = stream.read_uint()
+		instance.read_start = stream.read_uint()
+		instance.set_data_size = stream.read_uint()
+		instance.compressed_size = stream.read_uint()
+		instance.uncompressed_size = stream.read_uint64()
+		instance.pools_start = stream.read_uint()
+		instance.pools_end = stream.read_uint()
+		instance.ovs_offset = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.offset)
+		stream.write_uint(instance.pools_offset)
+		stream.write_uint(instance.stream_files_offset)
+		stream.write_uint(instance.num_pools)
+		stream.write_ushort(instance.num_datas)
+		stream.write_ushort(instance.num_pool_groups)
+		stream.write_uint(instance.num_buffer_groups)
+		stream.write_uint(instance.num_buffers)
+		stream.write_uint(instance.num_fragments)
+		stream.write_uint(instance.num_files)
+		stream.write_uint(instance.read_start)
+		stream.write_uint(instance.set_data_size)
+		stream.write_uint(instance.compressed_size)
+		stream.write_uint64(instance.uncompressed_size)
+		stream.write_uint(instance.pools_start)
+		stream.write_uint(instance.pools_end)
+		stream.write_uint(instance.ovs_offset)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'ArchiveEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

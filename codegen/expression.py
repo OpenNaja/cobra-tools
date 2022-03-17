@@ -163,7 +163,7 @@ class Expression(object):
                 if op_str in cls.operators:
                     break
             else:
-                raise ValueError("expression syntax error: expected operator at '%s'" % expr_str[op_startpos:])
+                raise ValueError(f"expression syntax error: expected operator at '{expr_str[op_startpos:]}'")
         else:
             # it's not... so we need to scan for the first operator
             for op_startpos, ch in enumerate(expr_str):

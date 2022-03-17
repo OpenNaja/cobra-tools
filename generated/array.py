@@ -1,5 +1,5 @@
 from operator import index
-from math import prod
+import math
 
 from generated.context import ContextReference
 
@@ -45,18 +45,18 @@ class Array(list):
             self.set_defaults()
 
     def set_defaults(self):
-        self[:] = self.create_nested_list(lambda : self.dtype(self.context, self.arg, self.template), self.shape)
+        self[:] = self.create_nested_list(lambda: self.dtype(self.context, self.arg, self.template), self.shape)
 
     def read(self, stream):
         self.io_start = stream.tell()
-        self[:] = self.create_nested_list(lambda : self.dtype.from_stream(stream, self.context, self.arg, self.template), self.shape)
+        self[:] = self.create_nested_list(lambda: self.dtype.from_stream(stream, self.context, self.arg, self.template),
+                                          self.shape)
         self.io_size = stream.tell() - self.io_start
 
     def write(self, stream):
         self.io_start = stream.tell()
         self.perform_nested_func(self, lambda x: self.dtype.to_stream(stream, x), self.ndim)
         self.io_size = stream.tell() - self.io_start
-
 
     @classmethod
     def from_stream(cls, stream, shape, dtype, context, arg=0, template=None):
@@ -81,7 +81,7 @@ class Array(list):
             return dtype.create_array(shape, default=value)
         else:
             new_array = cls(shape, dtype, None, set_default=False)
-            new_array[:] = cls.create_nested_list(lambda : dtype.from_value(value), shape)
+            new_array[:] = cls.create_nested_list(lambda: dtype.from_value(value), shape)
             return new_array
 
     @property
@@ -96,7 +96,7 @@ class Array(list):
             shape = tuple(index(i) for i in shape_input)
         except TypeError:
             # if this can't be converted to a tuple, try instead to convert an integer-like to (int, )
-            shape = (index(shape_input), )
+            shape = (index(shape_input),)
         if self._shape is None:
             self._shape = shape
         else:
@@ -109,11 +109,11 @@ class Array(list):
 
     @property
     def size(self):
-        return prod(self.shape)
+        return math.prod(self.shape)
 
     @classmethod
     def create_nested_list(cls, function_to_generate, shape):
-		# create a nested list with the specified shape, where every element is created by function_to_generate()
+        # create a nested list with the specified shape, where every element is created by function_to_generate()
         if len(shape) > 1:
             return [cls.create_nested_list(function_to_generate, shape[1:]) for _ in range(shape[0])]
         else:

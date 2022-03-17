@@ -12,10 +12,6 @@
         Grabs 00 bytes only
     </compound>
 
-    <basic name="ZString">
-        A string of given length.
-    </basic>
-
     <compound name="UshortVector2" size="4">
         A vector in 2D space (x,y).
         <field name="u" type="ushort">First coordinate.</field>

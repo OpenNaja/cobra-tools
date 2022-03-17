@@ -1,5 +1,3 @@
-import numpy
-import typing
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.compound.FloatsY import FloatsY
@@ -17,7 +15,7 @@ class Model:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -26,14 +24,14 @@ class Model:
 		self.io_start = 0
 
 		# name pointers for each material
-		self.materials = Array(self.context)
-		self.lods = Array(self.context)
+		self.materials = Array((self.arg.num_materials,), MaterialName, self.context, 0, None)
+		self.lods = Array((self.arg.num_lods,), LodInfoZT, self.context, 0, None)
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
-		self.lods = Array(self.context)
+		self.lods = Array((self.arg.num_lods,), LodInfo, self.context, 0, None)
 
 		# instantiate the meshes with materials
-		self.objects = Array(self.context)
+		self.objects = Array((self.arg.num_objects,), Object, self.context, 0, None)
 
 		# pad to 8 bytes alignment
 		# rhino: start of model - end of objects: 124 - 4 bytes padding
@@ -41,82 +39,104 @@ class Model:
 		self.objects_padding = 0
 
 		# mesh data blocks for this model
-		self.meshes = Array(self.context)
-		self.meshes = Array(self.context)
-		self.meshes = Array(self.context)
+		self.meshes = Array((self.arg.num_meshes,), NewMeshData, self.context, 0, None)
+		self.meshes = Array((self.arg.num_meshes,), PcMeshData, self.context, 0, None)
+		self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
 
 		# ?
-		self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
+		self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
-		self.floatsy = Array(self.context)
-		self.set_defaults()
+		self.floatsy = Array((self.arg.render_flag,), FloatsY, self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
-		self.materials = Array(self.context)
+		self.materials = Array((self.arg.num_materials,), MaterialName, self.context, 0, None)
 		if self.context.version <= 13:
-			self.lods = Array(self.context)
+			self.lods = Array((self.arg.num_lods,), LodInfoZT, self.context, 0, None)
 		if self.context.version >= 32 and self.arg.num_meshes:
-			self.lods = Array(self.context)
-		self.objects = Array(self.context)
+			self.lods = Array((self.arg.num_lods,), LodInfo, self.context, 0, None)
+		self.objects = Array((self.arg.num_objects,), Object, self.context, 0, None)
 		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = 0
 		if self.context.version >= 47:
-			self.meshes = Array(self.context)
+			self.meshes = Array((self.arg.num_meshes,), NewMeshData, self.context, 0, None)
 		if self.context.version == 32:
-			self.meshes = Array(self.context)
+			self.meshes = Array((self.arg.num_meshes,), PcMeshData, self.context, 0, None)
 		if self.context.version == 13:
-			self.meshes = Array(self.context)
+			self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
 		if self.context.version == 13 and self.arg.last_count:
-			self.ztuac_pre_bones = ZTPreBones(self.context, None, None)
+			self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
 		if self.context.version <= 32:
-			self.floatsy = Array(self.context)
+			self.floatsy = Array((self.arg.render_flag,), FloatsY, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.materials.read(stream, MaterialName, self.arg.num_materials, None)
-		if self.context.version <= 13:
-			self.lods.read(stream, LodInfoZT, self.arg.num_lods, None)
-		if self.context.version >= 32 and self.arg.num_meshes:
-			self.lods.read(stream, LodInfo, self.arg.num_lods, None)
-		self.objects.read(stream, Object, self.arg.num_objects, None)
-		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
-			self.objects_padding = stream.read_uint()
-		if self.context.version >= 47:
-			self.meshes.read(stream, NewMeshData, self.arg.num_meshes, None)
-		if self.context.version == 32:
-			self.meshes.read(stream, PcMeshData, self.arg.num_meshes, None)
-		if self.context.version == 13:
-			self.meshes.read(stream, ZtMeshData, self.arg.num_meshes, None)
-		if self.context.version == 13 and self.arg.last_count:
-			self.ztuac_pre_bones = stream.read_type(ZTPreBones, (self.context, None, None))
-		if self.context.version <= 32:
-			self.floatsy.read(stream, FloatsY, self.arg.render_flag, None)
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		self.materials.write(stream, MaterialName, self.arg.num_materials, None)
-		if self.context.version <= 13:
-			self.lods.write(stream, LodInfoZT, self.arg.num_lods, None)
-		if self.context.version >= 32 and self.arg.num_meshes:
-			self.lods.write(stream, LodInfo, self.arg.num_lods, None)
-		self.objects.write(stream, Object, self.arg.num_objects, None)
-		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
-			stream.write_uint(self.objects_padding)
-		if self.context.version >= 47:
-			self.meshes.write(stream, NewMeshData, self.arg.num_meshes, None)
-		if self.context.version == 32:
-			self.meshes.write(stream, PcMeshData, self.arg.num_meshes, None)
-		if self.context.version == 13:
-			self.meshes.write(stream, ZtMeshData, self.arg.num_meshes, None)
-		if self.context.version == 13 and self.arg.last_count:
-			stream.write_type(self.ztuac_pre_bones)
-		if self.context.version <= 32:
-			self.floatsy.write(stream, FloatsY, self.arg.render_flag, None)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.materials = Array.from_stream(stream, (instance.arg.num_materials,), MaterialName, instance.context, 0, None)
+		if instance.context.version <= 13:
+			instance.lods = Array.from_stream(stream, (instance.arg.num_lods,), LodInfoZT, instance.context, 0, None)
+		if instance.context.version >= 32 and instance.arg.num_meshes:
+			instance.lods = Array.from_stream(stream, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
+		instance.objects = Array.from_stream(stream, (instance.arg.num_objects,), Object, instance.context, 0, None)
+		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
+			instance.objects_padding = stream.read_uint()
+		if instance.context.version >= 47:
+			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), NewMeshData, instance.context, 0, None)
+		if instance.context.version == 32:
+			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), PcMeshData, instance.context, 0, None)
+		if instance.context.version == 13:
+			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
+		if instance.context.version == 13 and instance.arg.last_count:
+			instance.ztuac_pre_bones = ZTPreBones.from_stream(stream, instance.context, 0, None)
+		if instance.context.version <= 32:
+			instance.floatsy = Array.from_stream(stream, (instance.arg.render_flag,), FloatsY, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		Array.to_stream(stream, instance.materials, (instance.arg.num_materials,), MaterialName, instance.context, 0, None)
+		if instance.context.version <= 13:
+			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfoZT, instance.context, 0, None)
+		if instance.context.version >= 32 and instance.arg.num_meshes:
+			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.objects, (instance.arg.num_objects,), Object, instance.context, 0, None)
+		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
+			stream.write_uint(instance.objects_padding)
+		if instance.context.version >= 47:
+			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), NewMeshData, instance.context, 0, None)
+		if instance.context.version == 32:
+			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), PcMeshData, instance.context, 0, None)
+		if instance.context.version == 13:
+			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
+		if instance.context.version == 13 and instance.arg.last_count:
+			ZTPreBones.to_stream(stream, instance.ztuac_pre_bones)
+		if instance.context.version <= 32:
+			Array.to_stream(stream, instance.floatsy, (instance.arg.render_flag,), FloatsY, instance.context, 0, None)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def get_info_str(self):
 		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
