@@ -131,11 +131,8 @@ class MatlayersLoader(MatAbstract):
 				self.sized_str_entry.fragments[counter].pointers[1].update_data(layer_name_data, update_copies=True)
 				counter+=1
                 
-		pad = 8 - size%8
-		if pad == 8:
-			pad = 0
-		print(size,pad)
-		self.sized_str_entry.fragments[counter-1].pointers[1].update_data(layer_name_data+b"\x00"*pad, update_copies=True)
+
+		self.sized_str_entry.fragments[counter-1].pointers[1].update_data(layer_name_data+b"\x00"*7, update_copies=True)
                 
                 
                 
