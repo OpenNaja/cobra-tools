@@ -1,4 +1,3 @@
-import Bool
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 

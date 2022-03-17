@@ -18,9 +18,9 @@
         <global token="#VER#" string="version" />
     </token>
 
-	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	<verattr name="version" access="#VER#" index="0" />
+<!--	<verattr name="version" access="#VER#" index="0" />-->
 
 	13 if ZTUAC, 32 if PC, 39 if old JWE1, 47 if JWE1, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
     <version id="old" version="13 32" >Old</version>
