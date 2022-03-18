@@ -56,8 +56,8 @@ class MatAbstract(BaseFile):
 		return b
 
 	def get_shader(self, xml):
-		_shader = _pack_name(xml.attrib["shader"].encode())
-		b = as_bytes(f"{xml.attrib['hash']}::{_shader}")
+		_shader = _pack_name(xml.attrib["shader"].encode()).decode('utf-8')
+		b = as_bytes(xml.attrib['hash'] + "::"+ _shader)
 		return b
 
 	def rename_content(self, name_tuples):
@@ -85,7 +85,7 @@ class MatlayersLoader(MatAbstract):
 		ptr11 = self.f1.pointers[1]
 		out_frags, array_data = self.collect_array(ptr11, layer_count, entry_size)
 		self.sized_str_entry.fragments.extend(out_frags)
-
+		print(array_data)
 		self.frag_data_pairs = []
 		for i in range(layer_count):
 			x = i * entry_size
@@ -94,10 +94,48 @@ class MatlayersLoader(MatAbstract):
 			# layer name x + 16
 			frags_entry = self.get_frags_between(out_frags, abs_offset, abs_offset+entry_size)
 			self.frag_data_pairs.append((frags_entry, array_data[x:x+entry_size]))
+		print(self.frag_data_pairs)
 			# rel_offsets = [f.pointers[0].data_offset-abs_offset for f in frags_entry]
 			# we can have unused tiles, as in JWE2 trex (the last 2), which are all black and do not have an fgm
 			# print(rel_offsets)
+            
+	def load(self, file_path):
+		xml = self.load_xml(file_path)
+		#fgm data
+		shader_string = self.get_shader(xml)
+		print(shader_string)
+        
+        #update fgm string
+		print(shader_string,self.sized_str_entry.fragments[0].pointers[1].data)
+		self.sized_str_entry.fragments[0].pointers[1].update_data(shader_string, update_copies=True)
+		
+		counter = 2
+		size= 0
+		for layer in xml:
+        
+			if "fgm" in layer.attrib:
+				fgm_name = layer.attrib["fgm"]
 
+				fgm_name_data = fgm_name.encode() + b"\x00"
+				size+= len(fgm_name_data)
+				print(fgm_name_data,self.sized_str_entry.fragments[counter].pointers[1].data)
+				self.sized_str_entry.fragments[counter].pointers[1].update_data(fgm_name_data, update_copies=True)
+				counter+=1
+                
+			if "name" in layer.attrib:
+				layer_name = layer.attrib["name"]
+
+				layer_name_data = layer_name.encode() + b"\x00"
+				size+= len(layer_name_data)
+				print(layer_name_data,self.sized_str_entry.fragments[counter].pointers[1].data)
+				self.sized_str_entry.fragments[counter].pointers[1].update_data(layer_name_data, update_copies=True)
+				counter+=1
+                
+
+		self.sized_str_entry.fragments[counter-1].pointers[1].update_data(layer_name_data+b"\x00"*7, update_copies=True)
+                
+                
+                
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
@@ -123,7 +161,7 @@ class MatlayersLoader(MatAbstract):
 			if fgm:
 				fgm_name = fgm.pointers[1].data
 				layer.set('fgm', self.get_zstr(fgm_name))
-
+		print(xmldata)
 		self.write_xml(out_path, xmldata)
 		return out_path,
 
@@ -217,6 +255,48 @@ class MatvarsLoader(MatAbstract):
 		self.write_str_at_rel_offset(ss_ptr, 16, self.variantset)
 		self.write_str_list_at_rel_offset(ss_ptr, 24, self.variants)
 		# todo - may need padding here
+        
+        
+	def load(self, file_path):
+		xml = self.load_xml(file_path)
+        #fgm data
+		fgm_string = self.get_fgm(xml)
+        #variant set data
+		variantset = xml.findall('.//variantset')
+		if variantset:
+			self.variantset = variantset[0].attrib.get("name")
+			set_size = 4 - ((len(self.variantset)+1)%4)
+			if set_size == 4:
+				set_size = 0
+			varsetdata = self.variantset.encode() + b"\x00"*(set_size+1)
+		else:
+			self.variantset = None
+            
+        #variant string list data    
+		self.variants = [variant.attrib["name"] for variant in xml.findall('.//variant')]
+		for i, var in enumerate(self.variants):
+			pad_size = 4 - ((len(var)+1)%4)
+			if pad_size == 4:
+				pad_size = 0 
+			self.variants[i] = var.encode() + b"\x00"*(pad_size+1)
+            
+            
+		p0, has_sets, p1, p2, variant_count, _ = struct.unpack("<6Q", self.sized_str_entry.pointers[0].data)
+        
+        
+        #update fgm string
+		self.sized_str_entry.fragments[0].pointers[1].update_data(fgm_string, update_copies=True)
+        
+        #update set string if it has and set correct offset for variant list
+		if has_sets == 1:
+			thing = 3
+			self.sized_str_entry.fragments[1].pointers[1].update_data(varsetdata, update_copies=True)
+		else:
+			thing = 2
+         
+        #update variant list strings
+		for n, variants in enumerate(self.variants):
+			self.sized_str_entry.fragments[thing+n].pointers[1].update_data(self.variants[n], update_copies=True)
 
 
 class MateffsLoader(MatAbstract):
@@ -247,8 +327,6 @@ class MatpatsLoader(MatAbstract):
 		self.assign_ss_entry()
 		logging.info(f"Matpats: {self.sized_str_entry.name}")
 		ss_ptr = self.sized_str_entry.pointers[0]
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_ptr, 1)
-		self.f0 = self.sized_str_entry.fragments[0]
 
 		# todo - support multiple sets, if set_count can be other than 1
 		ptr0, set_count, ptr1, ptr2, pattern_count, _ = struct.unpack("<Q Q 2Q Q Q", ss_ptr.data)
@@ -296,3 +374,49 @@ class MatpatsLoader(MatAbstract):
 		self.write_str_at_rel_offset(ss_ptr, 16, self.patternset)
 		self.write_str_list_at_rel_offset(ss_ptr, 24, self.patterns)
 		# todo - may need padding here
+        
+	def load(self, file_path):
+		xml = self.load_xml(file_path)
+        #fgm data
+		fgm_string = self.get_fgm(xml)
+        #pattern set data
+		patternset = xml.findall('.//patternset')
+		if patternset:
+			self.patternset = patternset[0].attrib.get("name")
+			set_size = 4 - ((len(self.patternset)+1)%4)
+			if set_size == 4:
+				set_size = 0
+			varsetdata = self.patternset.encode() + b"\x00"*(set_size+1)
+		else:
+			self.patternset = None
+            
+        #pattern string list data    
+		self.patterns = [pattern.attrib["name"] for pattern in xml.findall('.//pattern')]
+		for i, var in enumerate(self.patterns):
+			pad_size = 4 - ((len(var)+1)%4)
+			if pad_size == 4:
+				pad_size = 0 
+			self.patterns[i] = var.encode() + b"\x00"*(pad_size+1)
+            
+            
+		p0, set_count, p1, p2, pattern_count, _ = struct.unpack("<6Q", self.sized_str_entry.pointers[0].data)
+        
+        
+        #update fgm string
+		print(fgm_string,self.sized_str_entry.fragments[0].pointers[1].data)
+		self.sized_str_entry.fragments[0].pointers[1].update_data(fgm_string, update_copies=True)
+        
+        #update set string if it has and set correct offset for pattern list
+		if set_count == 1:
+			thing = 3
+			print(varsetdata,self.sized_str_entry.fragments[1].pointers[1].data)
+			self.sized_str_entry.fragments[1].pointers[1].update_data(varsetdata, update_copies=True)
+
+		else:
+			thing = 2
+         
+        #update pattern list strings
+		for n, patterns in enumerate(self.patterns):
+			print(self.patterns[n],self.sized_str_entry.fragments[thing+n].pointers[1].data)
+			self.sized_str_entry.fragments[thing+n].pointers[1].update_data(self.patterns[n], update_copies=True)
+
