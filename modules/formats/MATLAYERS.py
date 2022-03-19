@@ -211,14 +211,12 @@ class MatvarsLoader(MatAbstract):
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = ss_ptr.load_as(DinoVariantsHeader)[0]
 		logging.debug(f"has_sets: {self.header.has_sets} variant_count: {self.header.variant_count}")
-		logging.info(self.header)
-		# set_count - seen either 0 or 1, could possibly be more, would need refactor in that case
-		# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
 		self.header.read_ptrs(self.ovs, ss_ptr)
-		self.fgm = str(self.get_str_at_offset(0))
-		self.variantset = self.get_str_at_offset(16)
-		self.variants = self.get_str_list_at_offset(self.header.variant_count - 1, 24)
-		logging.info(f"{self.fgm} {self.variantset} {self.variants}")
+		print(self.header)
+		# self.fgm = str(self.get_str_at_offset(0))
+		# self.variantset = self.get_str_at_offset(16)
+		# self.variants = self.get_str_list_at_offset(self.header.variant_count - 1, 24)
+		# logging.info(f"{self.fgm} {self.variantset} {self.variants}")
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name

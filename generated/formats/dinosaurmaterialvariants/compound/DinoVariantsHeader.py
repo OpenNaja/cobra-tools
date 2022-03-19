@@ -6,6 +6,11 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 
 class DinoVariantsHeader(MemStruct):
 
+	"""
+	# set_count - seen either 0 or 1, could possibly be more, would need refactor in that case
+	# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
+	"""
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
