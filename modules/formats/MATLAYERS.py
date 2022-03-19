@@ -213,10 +213,6 @@ class MatvarsLoader(MatAbstract):
 		logging.debug(f"has_sets: {self.header.has_sets} variant_count: {self.header.variant_count}")
 		self.header.read_ptrs(self.ovs, ss_ptr)
 		print(self.header)
-		# self.fgm = str(self.get_str_at_offset(0))
-		# self.variantset = self.get_str_at_offset(16)
-		# self.variants = self.get_str_list_at_offset(self.header.variant_count - 1, 24)
-		# logging.info(f"{self.fgm} {self.variantset} {self.variants}")
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name

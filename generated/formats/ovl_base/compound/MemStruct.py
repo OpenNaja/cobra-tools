@@ -62,19 +62,6 @@ class MemStruct:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
-		return f'MemStruct [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self):
-		s = ''
-		return s
-
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
-		return s
-
 	def get_ptrs(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, Pointer)]
 
@@ -136,3 +123,14 @@ class MemStruct:
 			ptr.data.read_ptrs(ovs, f_ptr)
 		# print(ptr.data)
 
+	def get_info_str(self):
+		return f'\nMemStruct'
+
+	def get_fields_str(self):
+		return ""
+
+	def __repr__(self):
+		s = self.get_info_str()
+		s += self.get_fields_str()
+		s += '\n'
+		return ""

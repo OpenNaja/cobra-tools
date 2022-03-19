@@ -10,13 +10,13 @@
 
     <compound name="Variant" inherit="MemStruct" >
         <add name="has_ptr" type="uint64"/>
-        <add name="name" type="Pointer" template="ZString"/>
+        <add name="variant_name" type="Pointer" template="ZString"/>
     </compound>
 
     <compound name="DinoVariantsHeader" inherit="MemStruct" >
 		# set_count - seen either 0 or 1, could possibly be more, would need refactor in that case
 		# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
-        <add name="name" type="Pointer" template="ZString"/>
+        <add name="fgm_name" type="Pointer" template="ZString"/>
         <add name="has_sets" type="uint64"/>
         <add name="set_name" type="Pointer" template="ZString"/>
         <add name="variants" type="Pointer" template="VariantArray" arg="variant_count"/>

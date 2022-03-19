@@ -71,3 +71,15 @@ class MemStruct:
 			print("is a memstruct")
 			ptr.data.read_ptrs(ovs, f_ptr)
 		# print(ptr.data)
+
+	def get_info_str(self):
+		return f'\nMemStruct'
+
+	def get_fields_str(self):
+		return ""
+
+	def __repr__(self):
+		s = self.get_info_str()
+		s += self.get_fields_str()
+		s += '\n'
+		return ""

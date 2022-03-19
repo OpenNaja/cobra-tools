@@ -13,13 +13,13 @@ class Variant(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.has_ptr = 0
-		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.variant_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.has_ptr = 0
-		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.variant_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -35,14 +35,14 @@ class Variant(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.has_ptr = stream.read_uint64()
-		instance.name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.name.arg = 0
+		instance.variant_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.variant_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		stream.write_uint64(instance.has_ptr)
-		Pointer.to_stream(stream, instance.name)
+		Pointer.to_stream(stream, instance.variant_name)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -66,7 +66,7 @@ class Variant(MemStruct):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* has_ptr = {self.has_ptr.__repr__()}'
-		s += f'\n	* name = {self.name.__repr__()}'
+		s += f'\n	* variant_name = {self.variant_name.__repr__()}'
 		return s
 
 	def __repr__(self):
