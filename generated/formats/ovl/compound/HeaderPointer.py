@@ -110,6 +110,13 @@ class HeaderPointer:
 		if self.pool:
 			return self.pool.get_at(self.data_offset+self.data_size, self.padding_size)
 
+	@property
+	def stream(self):
+		"""Get stream from pool"""
+		if self.pool:
+			self.pool.data.seek(self.data_offset)
+			return self.pool.data
+
 	def read_from_pool(self, data_size):
 		return self.pool.get_at(self.data_offset, data_size)
 
