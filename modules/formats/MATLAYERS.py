@@ -209,7 +209,7 @@ class MatvarsLoader(MatAbstract):
 		self.assign_ss_entry()
 		logging.info(f"Matvars: {self.sized_str_entry.name}")
 		ss_ptr = self.sized_str_entry.pointers[0]
-		self.header = ss_ptr.load_as(DinoVariantsHeader)[0]
+		self.header = DinoVariantsHeader.from_stream(ss_ptr.stream, self.ovl.context)
 		self.header.read_ptrs(self.ovs, ss_ptr)
 		print(self.header)
 
