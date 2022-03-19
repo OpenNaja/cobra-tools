@@ -4,6 +4,7 @@ import numpy as np
 
 from generated.io import BinaryStream
 from generated.array import Array
+from generated.formats.ovl.basic import basic_map
 from modules.formats.shared import assign_versions
 
 
@@ -15,8 +16,8 @@ def split_path(fp):
 
 
 def as_bytes(inst, version_info={}):
-	"""helper that returns the bytes representation of a pyffi struct"""
-	# we must make sure that pyffi arrays are not treated as a list although they are an instance of 'list'
+	"""helper that returns the bytes representation of a struct"""
+	# we must make sure that arrays are not treated as a list although they inherit from 'list'
 	if isinstance(inst, np.ndarray):
 		return inst.tobytes()
 	if isinstance(inst, list) and not isinstance(inst, Array):
@@ -27,6 +28,7 @@ def as_bytes(inst, version_info={}):
 	if isinstance(inst, (bytes, bytearray)):
 		return inst
 	with BinaryStream() as stream:
+		stream.register_basic_functions(basic_map)
 		assign_versions(stream, version_info)
 		inst.write(stream)
 		return stream.getvalue()
