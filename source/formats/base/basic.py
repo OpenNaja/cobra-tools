@@ -1,10 +1,7 @@
 import numpy as np
 from struct import Struct
-
 from generated.array import Array
-
-
-MAX_LEN = 1000
+from generated.io import MAX_LEN
 
 
 def fmt_member(member, indent=0):

@@ -4,6 +4,9 @@ from contextlib import contextmanager
 from typing import *
 
 
+MAX_LEN = 1000
+
+
 Byte = Struct("<b")  # int8
 UByte = Struct("<B")  # uint8
 Short = Struct("<h")  # int16
@@ -20,7 +23,7 @@ class BinaryStream(BytesIO):
 
 	def __init__(self, initial_bytes=None):
 		super().__init__(initial_bytes)
-	
+
 	def register_basic_functions(self, basic_map):
 		for basic_name, basic_class in basic_map.items():
 			if callable(getattr(basic_class, 'functions_for_stream')):

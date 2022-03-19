@@ -4,6 +4,9 @@ from contextlib import contextmanager
 from typing import *
 
 
+MAX_LEN = 1000
+
+
 Byte = Struct("<b")  # int8
 UByte = Struct("<B")  # uint8
 Short = Struct("<h")  # int16
