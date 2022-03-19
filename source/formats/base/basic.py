@@ -6,6 +6,7 @@ from generated.array import Array
 
 MAX_LEN = 1000
 
+
 def class_from_struct(struct, from_value_func):
     # declare these in the local scope for faster name resolutions
     base_value = from_value_func(0)
@@ -98,6 +99,26 @@ Char = Byte
 Float = class_from_struct(Struct("<f"), float)
 
 
+# @staticmethod
+def r_zstr(rfunc):
+    i = 0
+    val = b''
+    char = b''
+    while char != b'\x00':
+        i += 1
+        if i > MAX_LEN:
+            raise ValueError('string too long')
+        val += char
+        char = rfunc(1)
+    return val.decode(errors="surrogateescape")
+
+
+# @staticmethod
+def w_zstr(wfunc, val):
+    wfunc(val.encode(errors="surrogateescape"))
+    wfunc(b'\x00')
+
+
 class ZString:
 
     def __new__(cls, context=None, arg=0, template=None):
@@ -105,21 +126,11 @@ class ZString:
 
     @staticmethod
     def from_stream(stream, context=None, arg=0, template=None):
-        i = 0
-        val = b''
-        char = b''
-        while char != b'\x00':
-            i += 1
-            if i > MAX_LEN:
-                raise ValueError('string too long')
-            val += char
-            char = stream.read(1)
-        return val.decode(errors="surrogateescape")
+        return r_zstr(stream.read)
 
     @staticmethod
     def to_stream(stream, instance):
-        stream.write(instance.encode(errors="surrogateescape"))
-        stream.write(b'\x00')
+        w_zstr(stream.write, instance)
 
     @staticmethod
     def from_value(value, context=None, arg=0, template=None):
@@ -132,27 +143,17 @@ class ZString:
         write = stream.write
 
         def read_zstring():
-            i = 0
-            val = b''
-            char = b''
-            while char != b'\x00':
-                i += 1
-                if i > MAX_LEN:
-                    raise ValueError('string too long')
-                val += char
-                char = read(1)
-            return val.decode(errors="surrogateescape")
+            return r_zstr(read)
 
         def write_zstring(instance):
-            write(instance.encode(errors="surrogateescape"))
-            write(b'\x00')
+            w_zstr(write, instance)
 
         def read_zstrings(shape):
             # pass empty context
             return Array.from_stream(stream, shape, cls, None)
 
-        def write_zstrings(stream, instance):
+        def write_zstrings(instance):
             # pass empty context
-            return Array.to_stream(stream, instance, cls, None)
+            return Array.to_stream(stream, instance, instance.shape, cls, None)
 
         return read_zstring, write_zstring, read_zstrings, write_zstrings
