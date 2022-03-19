@@ -210,7 +210,6 @@ class MatvarsLoader(MatAbstract):
 		logging.info(f"Matvars: {self.sized_str_entry.name}")
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = ss_ptr.load_as(DinoVariantsHeader)[0]
-		logging.debug(f"has_sets: {self.header.has_sets} variant_count: {self.header.variant_count}")
 		self.header.read_ptrs(self.ovs, ss_ptr)
 		print(self.header)
 
