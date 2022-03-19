@@ -217,15 +217,16 @@ class MatvarsLoader(MatAbstract):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
 		xmldata = ET.Element('MaterialVariants')
-		self.assign_fgm(xmldata)
-
-		for var in self.variants:
-			variant = ET.SubElement(xmldata, 'variant')
-			variant.set('name', var)
-		if self.variantset:
-			variantset = ET.SubElement(xmldata, 'variantset')
-			variantset.set('name', self.variantset)
-
+		self.header.to_xml(xmldata)
+		# self.assign_fgm(xmldata)
+		#
+		# for var in self.variants:
+		# 	variant = ET.SubElement(xmldata, 'variant')
+		# 	variant.set('name', var)
+		# if self.variantset:
+		# 	variantset = ET.SubElement(xmldata, 'variantset')
+		# 	variantset.set('name', self.variantset)
+		#
 		self.write_xml(out_path, xmldata)
 		return out_path,
 

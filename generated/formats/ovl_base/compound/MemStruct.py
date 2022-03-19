@@ -1,6 +1,7 @@
 
 from generated.array import Array
 from generated.formats.ovl_base.compound.Pointer import Pointer
+import xml.etree.ElementTree as ET
 
 ZERO = b"\x00"
 
@@ -99,6 +100,39 @@ class MemStruct:
 		if isinstance(ptr.data, MemStruct):
 			# print("is a memstruct")
 			ptr.data.read_ptrs(ovs, f_ptr)
+
+	def to_xml_file(self, fp):
+		pass
+
+	def _to_xml(self, elem, prop, val):
+		subelement = ET.SubElement(elem, prop)
+		# pointer points to a memstruct
+		if isinstance(val, MemStruct):
+			print("memstruct")
+			val.to_xml(subelement)
+		# points to a basic type
+		else:
+			print("basic")
+			subelement.set("data", str(val))
+
+	def to_xml(self, elem):
+		nopes = ("_context", "arg", "name", "io_start", "io_size", "template")
+		for prop, val in vars(self).items():
+			if prop in nopes:
+				continue
+			if isinstance(val, Pointer):
+				print("pointer")
+				# subelement
+				self._to_xml(elem, prop, val.data)
+			elif isinstance(val, Array):
+				print("array")
+				# subelement with subelements
+				for member in val:
+					self._to_xml(elem, prop, member)
+			else:
+				# attribute
+				elem.set(prop, str(val))
+				pass
 
 	def get_info_str(self):
 		return f'\nMemStruct'
