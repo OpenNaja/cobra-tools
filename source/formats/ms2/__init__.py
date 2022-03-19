@@ -6,7 +6,8 @@ import logging
 
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
-from generated.io import IoFile, BinaryStream
+from generated.formats.ovl_base.basic import ConvStream
+from generated.io import IoFile
 from modules.formats.shared import get_padding_size, djb, get_padding
 
 logging.basicConfig(level=logging.DEBUG)
@@ -216,12 +217,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_0.name_hashes[name_i] = djb(name.lower())
 
 	def update_buffer_0_bytes(self):
-		with BinaryStream() as temp_writer:
+		with ConvStream() as temp_writer:
 			self.buffer_0.write(temp_writer)
 			self.buffer_0_bytes = temp_writer.getvalue()
 
 	def update_buffer_1_bytes(self):
-		with BinaryStream() as temp_bone_writer:
+		with ConvStream() as temp_bone_writer:
 			self.models_reader.write(temp_bone_writer)
 			self.buffer_1_bytes = temp_bone_writer.getvalue()[self.models_reader.bone_info_start:]
 			self.bone_info_size = self.models_reader.bone_info_size

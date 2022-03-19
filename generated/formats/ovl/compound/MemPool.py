@@ -2,7 +2,7 @@
 import logging
 import io
 
-from generated.io import BinaryStream
+from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 
@@ -183,7 +183,7 @@ class MemPool:
 		if not stack:
 			return
 		# create new data writer
-		data = BinaryStream()
+		data = ConvStream()
 		last_offset = 0
 		logging.debug(f"Stack size = {len(stack)}")
 		# now go sequentially over all ptrs in the stack

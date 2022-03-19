@@ -1,11 +1,7 @@
 # START_GLOBALS
-import io
-import logging
 import traceback
 
-from generated.io import BinaryStream
-from generated.formats.ovl.basic import basic_map
-from modules.formats.shared import assign_versions, get_padding
+from generated.formats.ovl_base.basic import ConvStream
 
 
 # END_GLOBALS
@@ -14,9 +10,6 @@ from modules.formats.shared import assign_versions, get_padding
 class HeaderPointer:
 
 # START_CLASS
-
-
-	basic_map = basic_map
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -128,10 +121,7 @@ class HeaderPointer:
 			con = context
 		else:
 			con = self.context
-		with BinaryStream(self.data) as stream:
-			# todo - make use of io function?
-			if self.basic_map is not None:
-				stream.register_basic_functions(self.basic_map)
+		with ConvStream(self.data) as stream:
 			try:
 				for i in range(num):
 					inst = cls(con, *args)

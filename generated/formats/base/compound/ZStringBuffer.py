@@ -1,6 +1,7 @@
 
 import logging
-from generated.io import BinaryStream
+
+from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 ZERO = b"\x00"
@@ -51,7 +52,7 @@ class ZStringBuffer:
 		logging.debug("Updating name buffer")
 		self.strings = []
 		offset_dic = {}
-		with BinaryStream() as stream:
+		with ConvStream() as stream:
 
 			for array, attrib in list_of_arrays:
 				for item in sorted(array, key=lambda i: getattr(i, attrib)):

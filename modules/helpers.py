@@ -2,9 +2,8 @@ import os
 import struct
 import numpy as np
 
-from generated.io import BinaryStream
+from generated.formats.ovl_base.basic import ConvStream
 from generated.array import Array
-from generated.formats.ovl.basic import basic_map
 from modules.formats.shared import assign_versions
 
 
@@ -27,8 +26,7 @@ def as_bytes(inst, version_info={}):
 		return inst.encode() + b"\x00"
 	if isinstance(inst, (bytes, bytearray)):
 		return inst
-	with BinaryStream() as stream:
-		stream.register_basic_functions(basic_map)
+	with ConvStream() as stream:
 		assign_versions(stream, version_info)
 		inst.write(stream)
 		return stream.getvalue()

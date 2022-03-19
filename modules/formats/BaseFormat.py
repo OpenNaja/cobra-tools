@@ -11,6 +11,7 @@ from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from generated.formats.ovl.compound.DataEntry import DataEntry
+from generated.formats.ovl_base.basic import ConvStream
 from generated.io import BinaryStream
 from modules.formats.shared import djb
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
@@ -179,7 +180,7 @@ class BaseFile:
 				return pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
-		pool.data = BinaryStream()
+		pool.data = ConvStream()
 		# the real address isn't known until it is written, but declare it anyway
 		pool.address = 0
 		# assign_versions(pool.data, get_versions(self.ovl))

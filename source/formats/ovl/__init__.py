@@ -15,10 +15,11 @@ from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
+from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.ovl_base.enum.Compression import Compression
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
-from generated.io import IoFile, BinaryStream
+from generated.io import IoFile
 from generated.formats.ovl.versions import *
 from generated.formats.ovl.basic import basic_map
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
@@ -218,10 +219,7 @@ class OvsFile(OvsHeader):
 				return f.read()
 		# write the internal data
 		else:
-			stream = BinaryStream()
-			# todo - make use of io function?
-			if self.basic_map is not None:
-				stream.register_basic_functions(self.basic_map)
+			stream = ConvStream()
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
 			return stream.getbuffer()
@@ -246,10 +244,7 @@ class OvsFile(OvsHeader):
 			# for debugging, write deflated content to dat
 			with open(save_temp_dat, 'wb') as out:
 				out.write(decompressed)
-		# todo - make use of io function?
-		with BinaryStream(decompressed) as stream:
-			if self.basic_map is not None:
-				stream.register_basic_functions(self.basic_map)
+		with ConvStream(decompressed) as stream:
 			yield stream
 
 	def compress(self, uncompressed_bytes):
@@ -387,10 +382,7 @@ class OvsFile(OvsHeader):
 	def read_pools(self, stream):
 		for pool in self.pools:
 			pool.address = stream.tell()
-			pool.data = BinaryStream(stream.read(pool.size))
-			# todo - use io?
-			if self.basic_map is not None:
-				pool.data.register_basic_functions(self.basic_map)
+			pool.data = ConvStream(stream.read(pool.size))
 			assign_versions(pool.data, get_versions(self.ovl))
 
 	def map_assets(self):
@@ -957,10 +949,7 @@ class OvlFile(Header, IoFile):
 		# old style
 		# hash all the pools
 		for pool in self.pools:
-			# todo - make use of io function?
-			pool.data = BinaryStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
-			if self.basic_map is not None:
-				pool.data.register_basic_functions(self.basic_map)
+			pool.data = ConvStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
