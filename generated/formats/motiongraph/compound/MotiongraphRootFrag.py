@@ -26,12 +26,12 @@ class MotiongraphRootFrag:
 
 	def set_defaults(self):
 		self.count_0 = 0
-		self.ptr_0 = Pointer(self.context, 0, None)
 		self.count_1 = 0
-		self.ptr_1 = Pointer(self.context, 0, None)
 		self.count_2 = 0
-		self.ptr_2 = Pointer(self.context, 0, None)
 		self.num_xmls = 0
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
 		self.ptr_xmls = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -54,6 +54,10 @@ class MotiongraphRootFrag:
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.num_xmls = stream.read_uint64()
 		instance.ptr_xmls = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_0.arg = 0
+		instance.ptr_1.arg = 0
+		instance.ptr_2.arg = 0
+		instance.ptr_xmls.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

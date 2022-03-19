@@ -1,15 +1,13 @@
 from generated.array import Array
-from generated.context import ContextReference
 from generated.formats.dinosaurmaterialvariants.compound.Variant import Variant
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class VariantArray:
-
-	context = ContextReference()
+class VariantArray(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -33,10 +31,12 @@ class VariantArray:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.variants = Array.from_stream(stream, (instance.arg,), Variant, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Array.to_stream(stream, instance.variants, (instance.arg,), Variant, instance.context, 0, None)
 
 	@classmethod
@@ -59,6 +59,7 @@ class VariantArray:
 
 	def get_fields_str(self):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* variants = {self.variants.__repr__()}'
 		return s
 

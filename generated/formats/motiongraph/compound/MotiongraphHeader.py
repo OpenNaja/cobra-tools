@@ -27,12 +27,12 @@ class MotiongraphHeader:
 			self.set_defaults()
 
 	def set_defaults(self):
+		self.count_0 = 0
+		self.count_1 = 0
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.ptr_3 = Pointer(self.context, 0, None)
-		self.count_0 = 0
-		self.count_1 = 0
 		self.ptr_4 = Pointer(self.context, 0, None)
 		self.ptr_5 = Pointer(self.context, 0, None)
 		self.ptr_6 = Pointer(self.context, 0, None)
@@ -60,6 +60,14 @@ class MotiongraphHeader:
 		instance.ptr_5 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_6 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_7 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_0.arg = 0
+		instance.ptr_1.arg = 0
+		instance.ptr_2.arg = 0
+		instance.ptr_3.arg = 0
+		instance.ptr_4.arg = 0
+		instance.ptr_5.arg = 0
+		instance.ptr_6.arg = 0
+		instance.ptr_7.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

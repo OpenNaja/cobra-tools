@@ -4,10 +4,6 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="Pointer" >
-        <add name="offset" type="uint64"/>
-    </compound>
-
     <compound name="UiMovieHeader" >
         <add name="ptr_movie_name" type="Pointer"/>
         <add name="ptr_pkg_name" type="Pointer"/>

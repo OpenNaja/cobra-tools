@@ -242,3 +242,10 @@ class Union:
                     f.write(f"{indent}{target_variable}.{field_name}.resize({self.compound.parser.arrs_to_tuple(arr1, arr2)})")
                 f.write(f"{indent}{self.compound.parser.write_for_type(field_type, f'{target_variable}.{field_name}', CONTEXT, arg, template, arr1, arr2)}")
         return condition
+
+    def write_arg_update(self, f, method_type):
+        base_indent = "\n\t\t"
+        for field in self.members:
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'instance.')
+            if method_type == 'read':
+                f.write(f"{base_indent}instance.{field_name}.arg = {arg}")

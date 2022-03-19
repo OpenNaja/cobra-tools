@@ -1,16 +1,14 @@
 import generated.formats.base.basic
 import generated.formats.dinosaurmaterialvariants.compound.VariantArray
-from generated.context import ContextReference
-from generated.formats.dinosaurmaterialvariants.compound.Pointer import Pointer
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class DinoVariantsHeader:
-
-	context = ContextReference()
+class DinoVariantsHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -25,12 +23,12 @@ class DinoVariantsHeader:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.has_sets = 0
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
 		self.variant_count = 0
 		self.zero = 0
+		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -44,15 +42,20 @@ class DinoVariantsHeader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.has_sets = stream.read_uint64()
 		instance.set_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.variants = Pointer.from_stream(stream, instance.context, instance.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
 		instance.variant_count = stream.read_uint64()
 		instance.zero = stream.read_uint64()
+		instance.name.arg = 0
+		instance.set_name.arg = 0
+		instance.variants.arg = instance.variant_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.name)
 		stream.write_uint64(instance.has_sets)
 		Pointer.to_stream(stream, instance.set_name)
@@ -80,6 +83,7 @@ class DinoVariantsHeader:
 
 	def get_fields_str(self):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* name = {self.name.__repr__()}'
 		s += f'\n	* has_sets = {self.has_sets.__repr__()}'
 		s += f'\n	* set_name = {self.set_name.__repr__()}'

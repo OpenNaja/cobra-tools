@@ -3,6 +3,10 @@ from generated.context import ContextReference
 
 class Pointer:
 
+	"""
+	a pointer in an ovl memory layout
+	"""
+
 	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

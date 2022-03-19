@@ -1,15 +1,13 @@
 import generated.formats.base.basic
-from generated.context import ContextReference
-from generated.formats.dinosaurmaterialvariants.compound.Pointer import Pointer
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class Variant:
-
-	context = ContextReference()
+class Variant(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -35,11 +33,14 @@ class Variant:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.has_ptr = stream.read_uint64()
 		instance.name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64(instance.has_ptr)
 		Pointer.to_stream(stream, instance.name)
 
@@ -63,6 +64,7 @@ class Variant:
 
 	def get_fields_str(self):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* has_ptr = {self.has_ptr.__repr__()}'
 		s += f'\n	* name = {self.name.__repr__()}'
 		return s

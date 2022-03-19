@@ -1,6 +1,6 @@
 import numpy
 from generated.context import ContextReference
-from generated.formats.uimoviedefinition.compound.Pointer import Pointer
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
 class UiMovieHeader:
@@ -48,10 +48,6 @@ class UiMovieHeader:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.ptr_movie_name = Pointer(self.context, 0, None)
-		self.ptr_pkg_name = Pointer(self.context, 0, None)
-		self.ptr_category_name = Pointer(self.context, 0, None)
-		self.ptr_type_name = Pointer(self.context, 0, None)
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
@@ -68,6 +64,10 @@ class UiMovieHeader:
 		self.u_3 = 0
 		self.u_4 = 0
 		self.u_5 = 0
+		self.ptr_movie_name = Pointer(self.context, 0, None)
+		self.ptr_pkg_name = Pointer(self.context, 0, None)
+		self.ptr_category_name = Pointer(self.context, 0, None)
+		self.ptr_type_name = Pointer(self.context, 0, None)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_ui_triggers = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
@@ -121,6 +121,20 @@ class UiMovieHeader:
 		instance.ptr_list_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_ui_interfaces = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_movie_name.arg = 0
+		instance.ptr_pkg_name.arg = 0
+		instance.ptr_category_name.arg = 0
+		instance.ptr_type_name.arg = 0
+		instance.ptr_0.arg = 0
+		instance.ptr_ui_triggers.arg = 0
+		instance.ptr_1.arg = 0
+		instance.ptr_ui_names.arg = 0
+		instance.ptr_assetpkgs.arg = 0
+		instance.ptr_2.arg = 0
+		instance.ptr_list_1.arg = 0
+		instance.ptr_list_2.arg = 0
+		instance.ptr_ui_interfaces.arg = 0
+		instance.ptr_3.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

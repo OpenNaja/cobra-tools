@@ -74,8 +74,14 @@ class Compound(BaseClass):
                 end = f.tell()
                 # write all fields, merge conditions
                 condition = ""
+                # for ovl memory structs, some pointers may have counts that are defined before the count
+                # so for set_defaults, write pointers last
                 for union in self.field_unions:
-                    condition = union.write_defaults(f, condition)
+                    if not union.is_ovl_ptr():
+                        condition = union.write_defaults(f, condition)
+                for union in self.field_unions:
+                    if union.is_ovl_ptr():
+                        condition = union.write_defaults(f, condition)
                 # if no defaults have been written
                 if f.tell() == end:
                     self.write_line(f, 2, "pass")
@@ -109,6 +115,11 @@ class Compound(BaseClass):
                 condition = ""
                 for union in self.field_unions:
                     condition = union.write_io(f, method_type, condition, target_variable="instance")
+                # for ovl memory structs, some pointers may have counts that are defined before the count
+                # so for set_defaults, write pointers last
+                for union in self.field_unions:
+                    if union.is_ovl_ptr():
+                        condition = union.write_arg_update(f, method_type)
                 # handle empty structs
                 if not self.field_unions:
                     self.write_line(f, 2, "pass")

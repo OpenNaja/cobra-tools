@@ -68,6 +68,15 @@
 
 	<!-- Structs for the OVL file -->
 
+    <compound name="Pointer" >
+        a pointer in an ovl memory layout
+        <add name="offset" type="uint64"/>
+    </compound>
+
+    <compound name="MemStruct" >
+        this is a struct that is capable of having pointers
+    </compound>
+
 	<compound name="SmartPadding">
 		Grabs 00 bytes only
 	</compound>

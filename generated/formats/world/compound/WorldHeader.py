@@ -1,5 +1,5 @@
 from generated.context import ContextReference
-from generated.formats.world.compound.Pointer import Pointer
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
 class WorldHeader:
@@ -32,14 +32,14 @@ class WorldHeader:
 
 	def set_defaults(self):
 		self.world_type = 0
-		self.ptr_asset_pkg = Pointer(self.context, 0, None)
 		self.asset_pkg_count = 0
+		self.prefab_count = 0
+		self.ptr_asset_pkg = Pointer(self.context, 0, None)
 		self.ptr_lua = Pointer(self.context, 0, None)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_prefab = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
-		self.prefab_count = 0
 		self.ptr_3 = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -64,6 +64,13 @@ class WorldHeader:
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.prefab_count = stream.read_uint64()
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_asset_pkg.arg = 0
+		instance.ptr_lua.arg = 0
+		instance.ptr_0.arg = 0
+		instance.ptr_1.arg = 0
+		instance.ptr_prefab.arg = 0
+		instance.ptr_2.arg = 0
+		instance.ptr_3.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
