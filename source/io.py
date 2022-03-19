@@ -1,12 +1,8 @@
 from io import BytesIO
 from struct import Struct
-
 from contextlib import contextmanager
 from typing import *
 
-import numpy as np
-
-from generated.array import Array
 
 Byte = Struct("<b")  # int8
 UByte = Struct("<B")  # uint8
@@ -19,22 +15,11 @@ UInt64 = Struct("<Q")  # uint64
 Float = Struct("<f")  # float32
 HFloat = Struct("<e")  # float16
 
-MAX_LEN = 1000
-
 
 class BinaryStream(BytesIO):
 
 	def __init__(self, initial_bytes=None):
 		super().__init__(initial_bytes)
-
-	def read_type(self, cls, args=()):
-		# obj = cls.__new__(cls, *args)
-		obj = cls(*args)
-		obj.read(self)
-		return obj
-
-	def write_type(self, obj):
-		obj.write(self)
 
 	def register_basic_functions(self, basic_map):
 		for basic_name, basic_class in basic_map.items():

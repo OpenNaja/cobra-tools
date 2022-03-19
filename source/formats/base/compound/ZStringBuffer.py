@@ -9,7 +9,7 @@ ZERO = b"\x00"
 # END_GLOBALS
 
 class ZStringBuffer:
-	"""Holds a buffer of zero-terminated strings"""
+	"""Holds a buffer of zero-terminated strings, which can be accessed by their offset"""
 
 # START_CLASS
 
@@ -34,7 +34,7 @@ class ZStringBuffer:
 		self.strings = []
 		offset_dic = {}
 		with BinaryStream() as stream:
-			# for name in self.names:
+
 			for array, attrib in list_of_arrays:
 				for item in sorted(array, key=lambda i: getattr(i, attrib)):
 					name = getattr(item, attrib)

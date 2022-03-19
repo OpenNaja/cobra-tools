@@ -36,17 +36,17 @@ class AuxFileContainer:
             after_size_pos = stream.tell() + 4
             logging.info(f"reading chunk {chunk_id} at {stream.tell()}")
             if chunk_id == b"BKHD":
-                instance.bhkd = stream.read_type(BKHDSection, (instance.context,))
+                instance.bhkd = BKHDSection.from_stream(stream, instance.context, 0, None)
                 # print(instance.bhkd)
                 instance.chunks.append((chunk_id, instance.bhkd))
             elif chunk_id == b"HIRC":
-                instance.hirc = stream.read_type(HIRCSection, (instance.context,))
+                instance.hirc = HIRCSection.from_stream(stream, instance.context, 0, None)
                 instance.chunks.append((chunk_id, instance.hirc))
             elif chunk_id == b"DIDX":
-                instance.didx = stream.read_type(DIDXSection, (instance.context,))
+                instance.didx = DIDXSection.from_stream(stream, instance.context, 0, None)
                 instance.chunks.append((chunk_id, instance.didx))
             elif chunk_id == b"DATA":
-                instance.data = stream.read_type(DATASection, (instance.context,))
+                instance.data = DATASection.from_stream(stream, instance.context, 0, None)
                 instance.chunks.append((chunk_id, instance.data))
             elif chunk_id == b'\x00' * len(chunk_id):
                 # empty chunk, could be end
