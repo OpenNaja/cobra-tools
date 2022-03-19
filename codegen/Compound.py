@@ -57,8 +57,14 @@ class Compound(BaseClass):
                     "self.io_start = 0"
                 ))
 
+                # for ovl memory structs, some pointers may have counts that are defined before the count
+                # so for init, write pointers last
                 for union in self.field_unions:
-                    union.write_init(f)
+                    if not union.is_ovl_ptr():
+                        union.write_init(f)
+                for union in self.field_unions:
+                    if union.is_ovl_ptr():
+                        union.write_init(f)
                 self.write_line(f, 2, "if set_default:")
                 self.write_line(f, 3, "self.set_defaults()")
 

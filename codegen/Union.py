@@ -79,6 +79,13 @@ class Union:
         self.name = union_name
         self.members = []
 
+    def is_ovl_ptr(self):
+        """Check if this union is used as an ovl memory pointer"""
+        for field in self.members:
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
+            if field_type == "Pointer":
+                return True
+
     def append(self, member):
         self.members.append(member)
 
@@ -148,7 +155,6 @@ class Union:
                 else:
                     # instantiate like a generic type: dtype(context, arg, template)
                     return f'{field_type}({context}, {arg}, {template})'
-
 
     def default_assigns(self, field, context, arg, template, arr1, arr2, field_name, field_type, base_indent):
         field_default = self.get_default_string(field.attrib.get('default'), context, arg, template, arr1, arr2, field_name,

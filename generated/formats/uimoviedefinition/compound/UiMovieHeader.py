@@ -14,10 +14,6 @@ class UiMovieHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ptr_movie_name = Pointer(self.context, 0, None)
-		self.ptr_pkg_name = Pointer(self.context, 0, None)
-		self.ptr_category_name = Pointer(self.context, 0, None)
-		self.ptr_type_name = Pointer(self.context, 0, None)
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
@@ -34,6 +30,10 @@ class UiMovieHeader:
 		self.u_3 = 0
 		self.u_4 = 0
 		self.u_5 = 0
+		self.ptr_movie_name = Pointer(self.context, 0, None)
+		self.ptr_pkg_name = Pointer(self.context, 0, None)
+		self.ptr_category_name = Pointer(self.context, 0, None)
+		self.ptr_type_name = Pointer(self.context, 0, None)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_ui_triggers = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)

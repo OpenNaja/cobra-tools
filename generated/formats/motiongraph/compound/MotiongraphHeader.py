@@ -13,12 +13,12 @@ class MotiongraphHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.count_0 = 0
+		self.count_1 = 0
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.ptr_3 = Pointer(self.context, 0, None)
-		self.count_0 = 0
-		self.count_1 = 0
 		self.ptr_4 = Pointer(self.context, 0, None)
 		self.ptr_5 = Pointer(self.context, 0, None)
 		self.ptr_6 = Pointer(self.context, 0, None)

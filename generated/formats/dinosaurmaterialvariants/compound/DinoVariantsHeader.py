@@ -15,12 +15,12 @@ class DinoVariantsHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.has_sets = 0
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
 		self.variant_count = 0
 		self.zero = 0
+		self.name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
 		if set_default:
 			self.set_defaults()
 

@@ -18,14 +18,14 @@ class WorldHeader:
 		self.io_size = 0
 		self.io_start = 0
 		self.world_type = 0
-		self.ptr_asset_pkg = Pointer(self.context, 0, None)
 		self.asset_pkg_count = 0
+		self.prefab_count = 0
+		self.ptr_asset_pkg = Pointer(self.context, 0, None)
 		self.ptr_lua = Pointer(self.context, 0, None)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_prefab = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
-		self.prefab_count = 0
 		self.ptr_3 = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
