@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -250,50 +251,50 @@ class ManiInfo:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'ManiInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* duration = {self.duration.__repr__()}'
-		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
-		s += f'\n	* b = {self.b.__repr__()}'
-		s += f'\n	* zeros_0 = {self.zeros_0.__repr__()}'
-		s += f'\n	* extra_pc_1 = {self.extra_pc_1.__repr__()}'
-		s += f'\n	* pos_bone_count = {self.pos_bone_count.__repr__()}'
-		s += f'\n	* ori_bone_count = {self.ori_bone_count.__repr__()}'
-		s += f'\n	* scl_bone_count = {self.scl_bone_count.__repr__()}'
-		s += f'\n	* extra_pc = {self.extra_pc.__repr__()}'
-		s += f'\n	* pos_bone_count_repeat = {self.pos_bone_count_repeat.__repr__()}'
-		s += f'\n	* ori_bone_count_repeat = {self.ori_bone_count_repeat.__repr__()}'
-		s += f'\n	* scl_bone_count_repeat = {self.scl_bone_count_repeat.__repr__()}'
-		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
-		s += f'\n	* zeros_1_new = {self.zeros_1_new.__repr__()}'
-		s += f'\n	* float_count = {self.float_count.__repr__()}'
-		s += f'\n	* count_a = {self.count_a.__repr__()}'
-		s += f'\n	* count_b = {self.count_b.__repr__()}'
-		s += f'\n	* target_bone_count = {self.target_bone_count.__repr__()}'
-		s += f'\n	* g = {self.g.__repr__()}'
-		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
-		s += f'\n	* extra_zeros_pc = {self.extra_zeros_pc.__repr__()}'
-		s += f'\n	* pos_bone_min = {self.pos_bone_min.__repr__()}'
-		s += f'\n	* pos_bone_max = {self.pos_bone_max.__repr__()}'
-		s += f'\n	* ori_bone_min = {self.ori_bone_min.__repr__()}'
-		s += f'\n	* ori_bone_max = {self.ori_bone_max.__repr__()}'
-		s += f'\n	* scl_bone_min = {self.scl_bone_min.__repr__()}'
-		s += f'\n	* scl_bone_max = {self.scl_bone_max.__repr__()}'
-		s += f'\n	* pos_bone_count_related = {self.pos_bone_count_related.__repr__()}'
-		s += f'\n	* pos_bone_count_repeat = {self.pos_bone_count_repeat.__repr__()}'
-		s += f'\n	* ori_bone_count_related = {self.ori_bone_count_related.__repr__()}'
-		s += f'\n	* ori_bone_count_repeat = {self.ori_bone_count_repeat.__repr__()}'
-		s += f'\n	* scl_bone_count_related = {self.scl_bone_count_related.__repr__()}'
-		s += f'\n	* scl_bone_count_repeat = {self.scl_bone_count_repeat.__repr__()}'
-		s += f'\n	* zeros_end = {self.zeros_end.__repr__()}'
-		s += f'\n	* zero_2_end = {self.zero_2_end.__repr__()}'
+		s += f'\n	* duration = {fmt_member(self.duration, indent+1)}'
+		s += f'\n	* frame_count = {fmt_member(self.frame_count, indent+1)}'
+		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
+		s += f'\n	* zeros_0 = {fmt_member(self.zeros_0, indent+1)}'
+		s += f'\n	* extra_pc_1 = {fmt_member(self.extra_pc_1, indent+1)}'
+		s += f'\n	* pos_bone_count = {fmt_member(self.pos_bone_count, indent+1)}'
+		s += f'\n	* ori_bone_count = {fmt_member(self.ori_bone_count, indent+1)}'
+		s += f'\n	* scl_bone_count = {fmt_member(self.scl_bone_count, indent+1)}'
+		s += f'\n	* extra_pc = {fmt_member(self.extra_pc, indent+1)}'
+		s += f'\n	* pos_bone_count_repeat = {fmt_member(self.pos_bone_count_repeat, indent+1)}'
+		s += f'\n	* ori_bone_count_repeat = {fmt_member(self.ori_bone_count_repeat, indent+1)}'
+		s += f'\n	* scl_bone_count_repeat = {fmt_member(self.scl_bone_count_repeat, indent+1)}'
+		s += f'\n	* zeros_1 = {fmt_member(self.zeros_1, indent+1)}'
+		s += f'\n	* zeros_1_new = {fmt_member(self.zeros_1_new, indent+1)}'
+		s += f'\n	* float_count = {fmt_member(self.float_count, indent+1)}'
+		s += f'\n	* count_a = {fmt_member(self.count_a, indent+1)}'
+		s += f'\n	* count_b = {fmt_member(self.count_b, indent+1)}'
+		s += f'\n	* target_bone_count = {fmt_member(self.target_bone_count, indent+1)}'
+		s += f'\n	* g = {fmt_member(self.g, indent+1)}'
+		s += f'\n	* zeros_2 = {fmt_member(self.zeros_2, indent+1)}'
+		s += f'\n	* extra_zeros_pc = {fmt_member(self.extra_zeros_pc, indent+1)}'
+		s += f'\n	* pos_bone_min = {fmt_member(self.pos_bone_min, indent+1)}'
+		s += f'\n	* pos_bone_max = {fmt_member(self.pos_bone_max, indent+1)}'
+		s += f'\n	* ori_bone_min = {fmt_member(self.ori_bone_min, indent+1)}'
+		s += f'\n	* ori_bone_max = {fmt_member(self.ori_bone_max, indent+1)}'
+		s += f'\n	* scl_bone_min = {fmt_member(self.scl_bone_min, indent+1)}'
+		s += f'\n	* scl_bone_max = {fmt_member(self.scl_bone_max, indent+1)}'
+		s += f'\n	* pos_bone_count_related = {fmt_member(self.pos_bone_count_related, indent+1)}'
+		s += f'\n	* pos_bone_count_repeat = {fmt_member(self.pos_bone_count_repeat, indent+1)}'
+		s += f'\n	* ori_bone_count_related = {fmt_member(self.ori_bone_count_related, indent+1)}'
+		s += f'\n	* ori_bone_count_repeat = {fmt_member(self.ori_bone_count_repeat, indent+1)}'
+		s += f'\n	* scl_bone_count_related = {fmt_member(self.scl_bone_count_related, indent+1)}'
+		s += f'\n	* scl_bone_count_repeat = {fmt_member(self.scl_bone_count_repeat, indent+1)}'
+		s += f'\n	* zeros_end = {fmt_member(self.zeros_end, indent+1)}'
+		s += f'\n	* zero_2_end = {fmt_member(self.zero_2_end, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

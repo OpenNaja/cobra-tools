@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -89,25 +90,25 @@ class UncompressedRegion:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'UncompressedRegion [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zeros_0 = {self.zeros_0.__repr__()}'
-		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
-		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
-		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
-		s += f'\n	* unk_2 = {self.unk_2.__repr__()}'
-		s += f'\n	* unk_3 = {self.unk_3.__repr__()}'
-		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
-		s += f'\n	* unk_4 = {self.unk_4.__repr__()}'
-		s += f'\n	* unk_5 = {self.unk_5.__repr__()}'
-		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
+		s += f'\n	* zeros_0 = {fmt_member(self.zeros_0, indent+1)}'
+		s += f'\n	* unk_0 = {fmt_member(self.unk_0, indent+1)}'
+		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'
+		s += f'\n	* zeros_1 = {fmt_member(self.zeros_1, indent+1)}'
+		s += f'\n	* unk_2 = {fmt_member(self.unk_2, indent+1)}'
+		s += f'\n	* unk_3 = {fmt_member(self.unk_3, indent+1)}'
+		s += f'\n	* zeros_2 = {fmt_member(self.zeros_2, indent+1)}'
+		s += f'\n	* unk_4 = {fmt_member(self.unk_4, indent+1)}'
+		s += f'\n	* unk_5 = {fmt_member(self.unk_5, indent+1)}'
+		s += f'\n	* zeros_3 = {fmt_member(self.zeros_3, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

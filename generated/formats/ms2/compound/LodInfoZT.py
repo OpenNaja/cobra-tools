@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -96,23 +97,23 @@ class LodInfoZT:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'LodInfoZT [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* full = {self.full.__repr__()}'
-		s += f'\n	* half = {self.half.__repr__()}'
-		s += f'\n	* lod_index = {self.lod_index.__repr__()}'
-		s += f'\n	* bone_index = {self.bone_index.__repr__()}'
-		s += f'\n	* first_object_index = {self.first_object_index.__repr__()}'
-		s += f'\n	* some_index = {self.some_index.__repr__()}'
-		s += f'\n	* some_index_2 = {self.some_index_2.__repr__()}'
-		s += f'\n	* last_object_index = {self.last_object_index.__repr__()}'
+		s += f'\n	* full = {fmt_member(self.full, indent+1)}'
+		s += f'\n	* half = {fmt_member(self.half, indent+1)}'
+		s += f'\n	* lod_index = {fmt_member(self.lod_index, indent+1)}'
+		s += f'\n	* bone_index = {fmt_member(self.bone_index, indent+1)}'
+		s += f'\n	* first_object_index = {fmt_member(self.first_object_index, indent+1)}'
+		s += f'\n	* some_index = {fmt_member(self.some_index, indent+1)}'
+		s += f'\n	* some_index_2 = {fmt_member(self.some_index_2, indent+1)}'
+		s += f'\n	* last_object_index = {fmt_member(self.last_object_index, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

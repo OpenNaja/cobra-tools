@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.formats.voxelskirt.compound.Material import Material
 
 
@@ -60,18 +61,18 @@ class PosInfo(Material):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'PosInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ff = {self.ff.__repr__()}'
-		s += f'\n	* ff_or_zero = {self.ff_or_zero.__repr__()}'
+		s += f'\n	* ff = {fmt_member(self.ff, indent+1)}'
+		s += f'\n	* ff_or_zero = {fmt_member(self.ff_or_zero, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

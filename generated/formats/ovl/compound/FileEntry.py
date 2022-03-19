@@ -3,6 +3,7 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -87,21 +88,21 @@ class FileEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'FileEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
-		s += f'\n	* pool_type = {self.pool_type.__repr__()}'
-		s += f'\n	* set_pool_type = {self.set_pool_type.__repr__()}'
-		s += f'\n	* extension = {self.extension.__repr__()}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* pool_type = {fmt_member(self.pool_type, indent+1)}'
+		s += f'\n	* set_pool_type = {fmt_member(self.set_pool_type, indent+1)}'
+		s += f'\n	* extension = {fmt_member(self.extension, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

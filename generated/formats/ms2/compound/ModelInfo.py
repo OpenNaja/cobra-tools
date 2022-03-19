@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 from generated.formats.ms2.bitfield.RenderFlag import RenderFlag
@@ -221,43 +222,43 @@ class ModelInfo:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'ModelInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* bounds_min = {self.bounds_min.__repr__()}'
-		s += f'\n	* unk_float_a = {self.unk_float_a.__repr__()}'
-		s += f'\n	* bounds_max = {self.bounds_max.__repr__()}'
-		s += f'\n	* pack_offset = {self.pack_offset.__repr__()}'
-		s += f'\n	* center = {self.center.__repr__()}'
-		s += f'\n	* radius = {self.radius.__repr__()}'
-		s += f'\n	* num_lods_2 = {self.num_lods_2.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* bounds_min_repeat = {self.bounds_min_repeat.__repr__()}'
-		s += f'\n	* bounds_max_repeat = {self.bounds_max_repeat.__repr__()}'
-		s += f'\n	* num_materials = {self.num_materials.__repr__()}'
-		s += f'\n	* num_lods = {self.num_lods.__repr__()}'
-		s += f'\n	* num_objects = {self.num_objects.__repr__()}'
-		s += f'\n	* num_meshes = {self.num_meshes.__repr__()}'
-		s += f'\n	* last_count = {self.last_count.__repr__()}'
-		s += f'\n	* render_flag = {self.render_flag.__repr__()}'
-		s += f'\n	* unks = {self.unks.__repr__()}'
-		s += f'\n	* pad = {self.pad.__repr__()}'
-		s += f'\n	* materials_ptr = {self.materials_ptr.__repr__()}'
-		s += f'\n	* lods_ptr = {self.lods_ptr.__repr__()}'
-		s += f'\n	* objects_ptr = {self.objects_ptr.__repr__()}'
-		s += f'\n	* models_ptr = {self.models_ptr.__repr__()}'
-		s += f'\n	* first_materials_ptr = {self.first_materials_ptr.__repr__()}'
-		s += f'\n	* zeros_ztuac = {self.zeros_ztuac.__repr__()}'
-		s += f'\n	* increment_flag = {self.increment_flag.__repr__()}'
-		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
-		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
+		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
+		s += f'\n	* unk_float_a = {fmt_member(self.unk_float_a, indent+1)}'
+		s += f'\n	* bounds_max = {fmt_member(self.bounds_max, indent+1)}'
+		s += f'\n	* pack_offset = {fmt_member(self.pack_offset, indent+1)}'
+		s += f'\n	* center = {fmt_member(self.center, indent+1)}'
+		s += f'\n	* radius = {fmt_member(self.radius, indent+1)}'
+		s += f'\n	* num_lods_2 = {fmt_member(self.num_lods_2, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* bounds_min_repeat = {fmt_member(self.bounds_min_repeat, indent+1)}'
+		s += f'\n	* bounds_max_repeat = {fmt_member(self.bounds_max_repeat, indent+1)}'
+		s += f'\n	* num_materials = {fmt_member(self.num_materials, indent+1)}'
+		s += f'\n	* num_lods = {fmt_member(self.num_lods, indent+1)}'
+		s += f'\n	* num_objects = {fmt_member(self.num_objects, indent+1)}'
+		s += f'\n	* num_meshes = {fmt_member(self.num_meshes, indent+1)}'
+		s += f'\n	* last_count = {fmt_member(self.last_count, indent+1)}'
+		s += f'\n	* render_flag = {fmt_member(self.render_flag, indent+1)}'
+		s += f'\n	* unks = {fmt_member(self.unks, indent+1)}'
+		s += f'\n	* pad = {fmt_member(self.pad, indent+1)}'
+		s += f'\n	* materials_ptr = {fmt_member(self.materials_ptr, indent+1)}'
+		s += f'\n	* lods_ptr = {fmt_member(self.lods_ptr, indent+1)}'
+		s += f'\n	* objects_ptr = {fmt_member(self.objects_ptr, indent+1)}'
+		s += f'\n	* models_ptr = {fmt_member(self.models_ptr, indent+1)}'
+		s += f'\n	* first_materials_ptr = {fmt_member(self.first_materials_ptr, indent+1)}'
+		s += f'\n	* zeros_ztuac = {fmt_member(self.zeros_ztuac, indent+1)}'
+		s += f'\n	* increment_flag = {fmt_member(self.increment_flag, indent+1)}'
+		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

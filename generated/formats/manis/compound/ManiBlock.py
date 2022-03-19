@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -267,49 +268,49 @@ class ManiBlock:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'ManiBlock [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* ref = {self.ref.__repr__()}'
-		s += f'\n	* pos_bones = {self.pos_bones.__repr__()}'
-		s += f'\n	* ori_bones = {self.ori_bones.__repr__()}'
-		s += f'\n	* scl_bones = {self.scl_bones.__repr__()}'
-		s += f'\n	* floats = {self.floats.__repr__()}'
-		s += f'\n	* pos_bones_p = {self.pos_bones_p.__repr__()}'
-		s += f'\n	* ori_bones_p = {self.ori_bones_p.__repr__()}'
-		s += f'\n	* scl_bones_p = {self.scl_bones_p.__repr__()}'
-		s += f'\n	* pos_bones_delta = {self.pos_bones_delta.__repr__()}'
-		s += f'\n	* ori_bones_delta = {self.ori_bones_delta.__repr__()}'
-		s += f'\n	* scl_bones_delta = {self.scl_bones_delta.__repr__()}'
-		s += f'\n	* pad = {self.pad.__repr__()}'
-		s += f'\n	* floatsa = {self.floatsa.__repr__()}'
-		s += f'\n	* pad_2 = {self.pad_2.__repr__()}'
-		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
-		s += f'\n	* ori_bone_count = {self.ori_bone_count.__repr__()}'
-		s += f'\n	* pos_bone_count = {self.pos_bone_count.__repr__()}'
-		s += f'\n	* scl_bone_count = {self.scl_bone_count.__repr__()}'
-		s += f'\n	* zeros_18 = {self.zeros_18.__repr__()}'
-		s += f'\n	* count = {self.count.__repr__()}'
-		s += f'\n	* quantisation_level = {self.quantisation_level.__repr__()}'
-		s += f'\n	* ref_2 = {self.ref_2.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* flag_0 = {self.flag_0.__repr__()}'
-		s += f'\n	* flag_1 = {self.flag_1.__repr__()}'
-		s += f'\n	* flag_2 = {self.flag_2.__repr__()}'
-		s += f'\n	* flag_3 = {self.flag_3.__repr__()}'
-		s += f'\n	* anoth_pad = {self.anoth_pad.__repr__()}'
-		s += f'\n	* floatsb = {self.floatsb.__repr__()}'
-		s += f'\n	* floats_second = {self.floats_second.__repr__()}'
-		s += f'\n	* floats_third = {self.floats_third.__repr__()}'
-		s += f'\n	* unk = {self.unk.__repr__()}'
-		s += f'\n	* extra_pc_zero = {self.extra_pc_zero.__repr__()}'
-		s += f'\n	* repeats = {self.repeats.__repr__()}'
+		s += f'\n	* ref = {fmt_member(self.ref, indent+1)}'
+		s += f'\n	* pos_bones = {fmt_member(self.pos_bones, indent+1)}'
+		s += f'\n	* ori_bones = {fmt_member(self.ori_bones, indent+1)}'
+		s += f'\n	* scl_bones = {fmt_member(self.scl_bones, indent+1)}'
+		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
+		s += f'\n	* pos_bones_p = {fmt_member(self.pos_bones_p, indent+1)}'
+		s += f'\n	* ori_bones_p = {fmt_member(self.ori_bones_p, indent+1)}'
+		s += f'\n	* scl_bones_p = {fmt_member(self.scl_bones_p, indent+1)}'
+		s += f'\n	* pos_bones_delta = {fmt_member(self.pos_bones_delta, indent+1)}'
+		s += f'\n	* ori_bones_delta = {fmt_member(self.ori_bones_delta, indent+1)}'
+		s += f'\n	* scl_bones_delta = {fmt_member(self.scl_bones_delta, indent+1)}'
+		s += f'\n	* pad = {fmt_member(self.pad, indent+1)}'
+		s += f'\n	* floatsa = {fmt_member(self.floatsa, indent+1)}'
+		s += f'\n	* pad_2 = {fmt_member(self.pad_2, indent+1)}'
+		s += f'\n	* frame_count = {fmt_member(self.frame_count, indent+1)}'
+		s += f'\n	* ori_bone_count = {fmt_member(self.ori_bone_count, indent+1)}'
+		s += f'\n	* pos_bone_count = {fmt_member(self.pos_bone_count, indent+1)}'
+		s += f'\n	* scl_bone_count = {fmt_member(self.scl_bone_count, indent+1)}'
+		s += f'\n	* zeros_18 = {fmt_member(self.zeros_18, indent+1)}'
+		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
+		s += f'\n	* quantisation_level = {fmt_member(self.quantisation_level, indent+1)}'
+		s += f'\n	* ref_2 = {fmt_member(self.ref_2, indent+1)}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* flag_0 = {fmt_member(self.flag_0, indent+1)}'
+		s += f'\n	* flag_1 = {fmt_member(self.flag_1, indent+1)}'
+		s += f'\n	* flag_2 = {fmt_member(self.flag_2, indent+1)}'
+		s += f'\n	* flag_3 = {fmt_member(self.flag_3, indent+1)}'
+		s += f'\n	* anoth_pad = {fmt_member(self.anoth_pad, indent+1)}'
+		s += f'\n	* floatsb = {fmt_member(self.floatsb, indent+1)}'
+		s += f'\n	* floats_second = {fmt_member(self.floats_second, indent+1)}'
+		s += f'\n	* floats_third = {fmt_member(self.floats_third, indent+1)}'
+		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
+		s += f'\n	* extra_pc_zero = {fmt_member(self.extra_pc_zero, indent+1)}'
+		s += f'\n	* repeats = {fmt_member(self.repeats, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

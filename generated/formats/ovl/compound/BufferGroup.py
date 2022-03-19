@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -94,22 +95,22 @@ class BufferGroup:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BufferGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* buffer_offset = {self.buffer_offset.__repr__()}'
-		s += f'\n	* buffer_count = {self.buffer_count.__repr__()}'
-		s += f'\n	* ext_index = {self.ext_index.__repr__()}'
-		s += f'\n	* buffer_index = {self.buffer_index.__repr__()}'
-		s += f'\n	* size = {self.size.__repr__()}'
-		s += f'\n	* data_offset = {self.data_offset.__repr__()}'
-		s += f'\n	* data_count = {self.data_count.__repr__()}'
+		s += f'\n	* buffer_offset = {fmt_member(self.buffer_offset, indent+1)}'
+		s += f'\n	* buffer_count = {fmt_member(self.buffer_count, indent+1)}'
+		s += f'\n	* ext_index = {fmt_member(self.ext_index, indent+1)}'
+		s += f'\n	* buffer_index = {fmt_member(self.buffer_index, indent+1)}'
+		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
+		s += f'\n	* data_offset = {fmt_member(self.data_offset, indent+1)}'
+		s += f'\n	* data_count = {fmt_member(self.data_count, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

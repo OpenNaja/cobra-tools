@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -106,24 +107,24 @@ class Ms2SizedStrData:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Ms2SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* version = {self.version.__repr__()}'
-		s += f'\n	* vertex_buffer_count = {self.vertex_buffer_count.__repr__()}'
-		s += f'\n	* mdl_2_count = {self.mdl_2_count.__repr__()}'
-		s += f'\n	* name_count = {self.name_count.__repr__()}'
-		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
-		s += f'\n	* unknown_1 = {self.unknown_1.__repr__()}'
-		s += f'\n	* ptr_0 = {self.ptr_0.__repr__()}'
-		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
-		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
+		s += f'\n	* version = {fmt_member(self.version, indent+1)}'
+		s += f'\n	* vertex_buffer_count = {fmt_member(self.vertex_buffer_count, indent+1)}'
+		s += f'\n	* mdl_2_count = {fmt_member(self.mdl_2_count, indent+1)}'
+		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
+		s += f'\n	* unk_count = {fmt_member(self.unk_count, indent+1)}'
+		s += f'\n	* unknown_1 = {fmt_member(self.unknown_1, indent+1)}'
+		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

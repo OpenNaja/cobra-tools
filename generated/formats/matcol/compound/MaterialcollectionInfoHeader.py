@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.matcol.compound.Layer import Layer
 from generated.formats.matcol.compound.MatcolRoot import MatcolRoot
@@ -73,20 +74,20 @@ class MaterialcollectionInfoHeader(GenericHeader):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'MaterialcollectionInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* root = {self.root.__repr__()}'
-		s += f'\n	* info = {self.info.__repr__()}'
-		s += f'\n	* textures = {self.textures.__repr__()}'
-		s += f'\n	* layers = {self.layers.__repr__()}'
+		s += f'\n	* root = {fmt_member(self.root, indent+1)}'
+		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
+		s += f'\n	* textures = {fmt_member(self.textures, indent+1)}'
+		s += f'\n	* layers = {fmt_member(self.layers, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

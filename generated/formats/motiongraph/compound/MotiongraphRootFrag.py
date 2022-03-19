@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.motiongraph.compound.Pointer import Pointer
 
@@ -85,23 +86,23 @@ class MotiongraphRootFrag:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'MotiongraphRootFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* count_0 = {self.count_0.__repr__()}'
-		s += f'\n	* ptr_0 = {self.ptr_0.__repr__()}'
-		s += f'\n	* count_1 = {self.count_1.__repr__()}'
-		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
-		s += f'\n	* count_2 = {self.count_2.__repr__()}'
-		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
-		s += f'\n	* num_xmls = {self.num_xmls.__repr__()}'
-		s += f'\n	* ptr_xmls = {self.ptr_xmls.__repr__()}'
+		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
+		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
+		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* num_xmls = {fmt_member(self.num_xmls, indent+1)}'
+		s += f'\n	* ptr_xmls = {fmt_member(self.ptr_xmls, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

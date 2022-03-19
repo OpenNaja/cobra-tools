@@ -4,6 +4,7 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -112,24 +113,24 @@ class MimeEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'MimeEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* unknown = {self.unknown.__repr__()}'
-		s += f'\n	* mime_hash = {self.mime_hash.__repr__()}'
-		s += f'\n	* mime_version = {self.mime_version.__repr__()}'
-		s += f'\n	* file_index_offset = {self.file_index_offset.__repr__()}'
-		s += f'\n	* file_count = {self.file_count.__repr__()}'
-		s += f'\n	* triplet_count = {self.triplet_count.__repr__()}'
-		s += f'\n	* triplet_offset = {self.triplet_offset.__repr__()}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += f'\n	* unknown = {fmt_member(self.unknown, indent+1)}'
+		s += f'\n	* mime_hash = {fmt_member(self.mime_hash, indent+1)}'
+		s += f'\n	* mime_version = {fmt_member(self.mime_version, indent+1)}'
+		s += f'\n	* file_index_offset = {fmt_member(self.file_index_offset, indent+1)}'
+		s += f'\n	* file_count = {fmt_member(self.file_count, indent+1)}'
+		s += f'\n	* triplet_count = {fmt_member(self.triplet_count, indent+1)}'
+		s += f'\n	* triplet_offset = {fmt_member(self.triplet_offset, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

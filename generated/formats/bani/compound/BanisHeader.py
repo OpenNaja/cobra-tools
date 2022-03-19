@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -93,22 +94,22 @@ class BanisHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BanisHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* bytes_per_frame = {self.bytes_per_frame.__repr__()}'
-		s += f'\n	* bytes_per_bone = {self.bytes_per_bone.__repr__()}'
-		s += f'\n	* num_frames = {self.num_frames.__repr__()}'
-		s += f'\n	* num_bones = {self.num_bones.__repr__()}'
-		s += f'\n	* loc_scale = {self.loc_scale.__repr__()}'
-		s += f'\n	* loc_offset = {self.loc_offset.__repr__()}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* bytes_per_frame = {fmt_member(self.bytes_per_frame, indent+1)}'
+		s += f'\n	* bytes_per_bone = {fmt_member(self.bytes_per_bone, indent+1)}'
+		s += f'\n	* num_frames = {fmt_member(self.num_frames, indent+1)}'
+		s += f'\n	* num_bones = {fmt_member(self.num_bones, indent+1)}'
+		s += f'\n	* loc_scale = {fmt_member(self.loc_scale, indent+1)}'
+		s += f'\n	* loc_offset = {fmt_member(self.loc_offset, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -69,18 +70,18 @@ class SetEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'SetEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
-		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
-		s += f'\n	* start = {self.start.__repr__()}'
+		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
+		s += f'\n	* start = {fmt_member(self.start, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

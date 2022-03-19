@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -70,18 +71,18 @@ class UbyteVector3:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'UbyteVector3 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* x = {self.x.__repr__()}'
-		s += f'\n	* y = {self.y.__repr__()}'
-		s += f'\n	* z = {self.z.__repr__()}'
+		s += f'\n	* x = {fmt_member(self.x, indent+1)}'
+		s += f'\n	* y = {fmt_member(self.y, indent+1)}'
+		s += f'\n	* z = {fmt_member(self.z, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

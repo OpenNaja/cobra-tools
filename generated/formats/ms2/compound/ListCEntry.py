@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 from generated.formats.ms2.compound.Vector3 import Vector3
@@ -86,21 +87,21 @@ class ListCEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'ListCEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* one = {self.one.__repr__()}'
-		s += f'\n	* loc = {self.loc.__repr__()}'
-		s += f'\n	* constant = {self.constant.__repr__()}'
-		s += f'\n	* a = {self.a.__repr__()}'
-		s += f'\n	* floats = {self.floats.__repr__()}'
-		s += f'\n	* a_2 = {self.a_2.__repr__()}'
+		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
+		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
+		s += f'\n	* constant = {fmt_member(self.constant, indent+1)}'
+		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
+		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
+		s += f'\n	* a_2 = {fmt_member(self.a_2, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

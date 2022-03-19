@@ -8,6 +8,7 @@ from generated.formats.ms2.compound.packing_utils import *
 FUR_OVERHEAD = 2
 
 
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 from generated.formats.ms2.compound.MeshData import MeshData
@@ -126,28 +127,28 @@ class NewMeshData(MeshData):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'NewMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
-		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
-		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
-		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
-		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
-		s += f'\n	* size_of_vertex = {self.size_of_vertex.__repr__()}'
-		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
-		s += f'\n	* unk_floats = {self.unk_floats.__repr__()}'
-		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
-		s += f'\n	* flag = {self.flag.__repr__()}'
+		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
+		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
+		s += f'\n	* size_of_vertex = {fmt_member(self.size_of_vertex, indent+1)}'
+		s += f'\n	* tri_offset = {fmt_member(self.tri_offset, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* unk_floats = {fmt_member(self.unk_floats, indent+1)}'
+		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

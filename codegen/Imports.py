@@ -16,6 +16,7 @@ class Imports:
         self.imports = []
         # import parent class
         self.add(xml_struct.attrib.get("inherit"))
+        # self.add("basic")
         # import ContextReference class
         if xml_struct.tag in parser.struct_types and not xml_struct.attrib.get("inherit"):
             self.add("ContextReference")
@@ -72,6 +73,8 @@ class Imports:
                 local_imports.append(f"from {import_path} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
+        # hard coded for now lol
+        module_imports.append(f"from source.formats.base.basic import fmt_member\n")
         module_imports.sort()
         local_imports.sort()
         for line in module_imports + local_imports:

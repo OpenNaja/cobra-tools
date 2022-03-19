@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.dds.bitstruct.PixelFormatFlags import PixelFormatFlags
 from generated.formats.dds.enum.FourCC import FourCC
@@ -101,23 +102,23 @@ class PixelFormat:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'PixelFormat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* size = {self.size.__repr__()}'
-		s += f'\n	* flags = {self.flags.__repr__()}'
-		s += f'\n	* four_c_c = {self.four_c_c.__repr__()}'
-		s += f'\n	* bit_count = {self.bit_count.__repr__()}'
-		s += f'\n	* r_mask = {self.r_mask.__repr__()}'
-		s += f'\n	* g_mask = {self.g_mask.__repr__()}'
-		s += f'\n	* b_mask = {self.b_mask.__repr__()}'
-		s += f'\n	* a_mask = {self.a_mask.__repr__()}'
+		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
+		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
+		s += f'\n	* four_c_c = {fmt_member(self.four_c_c, indent+1)}'
+		s += f'\n	* bit_count = {fmt_member(self.bit_count, indent+1)}'
+		s += f'\n	* r_mask = {fmt_member(self.r_mask, indent+1)}'
+		s += f'\n	* g_mask = {fmt_member(self.g_mask, indent+1)}'
+		s += f'\n	* b_mask = {fmt_member(self.b_mask, indent+1)}'
+		s += f'\n	* a_mask = {fmt_member(self.a_mask, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

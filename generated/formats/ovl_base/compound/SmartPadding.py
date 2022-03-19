@@ -4,6 +4,7 @@ from generated.io import MAX_LEN
 ZERO = b"\x00"
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 

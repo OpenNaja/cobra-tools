@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector4 import Vector4
@@ -90,21 +91,21 @@ class NasutoJointEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'NasutoJointEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* child = {self.child.__repr__()}'
-		s += f'\n	* parent = {self.parent.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* matrix = {self.matrix.__repr__()}'
-		s += f'\n	* vector = {self.vector.__repr__()}'
-		s += f'\n	* one = {self.one.__repr__()}'
+		s += f'\n	* child = {fmt_member(self.child, indent+1)}'
+		s += f'\n	* parent = {fmt_member(self.parent, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* matrix = {fmt_member(self.matrix, indent+1)}'
+		s += f'\n	* vector = {fmt_member(self.vector, indent+1)}'
+		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

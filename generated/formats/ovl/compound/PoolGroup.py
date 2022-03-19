@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -64,17 +65,17 @@ class PoolGroup:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'PoolGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* type = {self.type.__repr__()}'
-		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
+		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
+		s += f'\n	* num_pools = {fmt_member(self.num_pools, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl_base.compound.FixedString import FixedString
@@ -93,21 +94,21 @@ class GenericHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'GenericHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* magic = {self.magic.__repr__()}'
-		s += f'\n	* version_flag = {self.version_flag.__repr__()}'
-		s += f'\n	* version = {self.version.__repr__()}'
-		s += f'\n	* bitswap = {self.bitswap.__repr__()}'
-		s += f'\n	* seventh_byte = {self.seventh_byte.__repr__()}'
-		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* magic = {fmt_member(self.magic, indent+1)}'
+		s += f'\n	* version_flag = {fmt_member(self.version_flag, indent+1)}'
+		s += f'\n	* version = {fmt_member(self.version, indent+1)}'
+		s += f'\n	* bitswap = {fmt_member(self.bitswap, indent+1)}'
+		s += f'\n	* seventh_byte = {fmt_member(self.seventh_byte, indent+1)}'
+		s += f'\n	* user_version = {fmt_member(self.user_version, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

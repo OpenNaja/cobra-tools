@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -66,18 +67,18 @@ class Material:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Material [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* count = {self.count.__repr__()}'
-		s += f'\n	* id = {self.id.__repr__()}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
+		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

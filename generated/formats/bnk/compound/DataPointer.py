@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -68,18 +69,18 @@ class DataPointer:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'DataPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* wem_id = {self.wem_id.__repr__()}'
-		s += f'\n	* data_section_offset = {self.data_section_offset.__repr__()}'
-		s += f'\n	* wem_filesize = {self.wem_filesize.__repr__()}'
+		s += f'\n	* wem_id = {fmt_member(self.wem_id, indent+1)}'
+		s += f'\n	* data_section_offset = {fmt_member(self.data_section_offset, indent+1)}'
+		s += f'\n	* wem_filesize = {fmt_member(self.wem_filesize, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -154,32 +155,32 @@ class ArchiveEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'ArchiveEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* pools_offset = {self.pools_offset.__repr__()}'
-		s += f'\n	* stream_files_offset = {self.stream_files_offset.__repr__()}'
-		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
-		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
-		s += f'\n	* num_pool_groups = {self.num_pool_groups.__repr__()}'
-		s += f'\n	* num_buffer_groups = {self.num_buffer_groups.__repr__()}'
-		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
-		s += f'\n	* num_fragments = {self.num_fragments.__repr__()}'
-		s += f'\n	* num_files = {self.num_files.__repr__()}'
-		s += f'\n	* read_start = {self.read_start.__repr__()}'
-		s += f'\n	* set_data_size = {self.set_data_size.__repr__()}'
-		s += f'\n	* compressed_size = {self.compressed_size.__repr__()}'
-		s += f'\n	* uncompressed_size = {self.uncompressed_size.__repr__()}'
-		s += f'\n	* pools_start = {self.pools_start.__repr__()}'
-		s += f'\n	* pools_end = {self.pools_end.__repr__()}'
-		s += f'\n	* ovs_offset = {self.ovs_offset.__repr__()}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += f'\n	* pools_offset = {fmt_member(self.pools_offset, indent+1)}'
+		s += f'\n	* stream_files_offset = {fmt_member(self.stream_files_offset, indent+1)}'
+		s += f'\n	* num_pools = {fmt_member(self.num_pools, indent+1)}'
+		s += f'\n	* num_datas = {fmt_member(self.num_datas, indent+1)}'
+		s += f'\n	* num_pool_groups = {fmt_member(self.num_pool_groups, indent+1)}'
+		s += f'\n	* num_buffer_groups = {fmt_member(self.num_buffer_groups, indent+1)}'
+		s += f'\n	* num_buffers = {fmt_member(self.num_buffers, indent+1)}'
+		s += f'\n	* num_fragments = {fmt_member(self.num_fragments, indent+1)}'
+		s += f'\n	* num_files = {fmt_member(self.num_files, indent+1)}'
+		s += f'\n	* read_start = {fmt_member(self.read_start, indent+1)}'
+		s += f'\n	* set_data_size = {fmt_member(self.set_data_size, indent+1)}'
+		s += f'\n	* compressed_size = {fmt_member(self.compressed_size, indent+1)}'
+		s += f'\n	* uncompressed_size = {fmt_member(self.uncompressed_size, indent+1)}'
+		s += f'\n	* pools_start = {fmt_member(self.pools_start, indent+1)}'
+		s += f'\n	* pools_end = {fmt_member(self.pools_end, indent+1)}'
+		s += f'\n	* ovs_offset = {fmt_member(self.ovs_offset, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

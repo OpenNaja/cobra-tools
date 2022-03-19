@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -95,22 +96,22 @@ class LodInfo:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* distance = {self.distance.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* bone_index = {self.bone_index.__repr__()}'
-		s += f'\n	* first_object_index = {self.first_object_index.__repr__()}'
-		s += f'\n	* last_object_index = {self.last_object_index.__repr__()}'
-		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
-		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
+		s += f'\n	* distance = {fmt_member(self.distance, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* bone_index = {fmt_member(self.bone_index, indent+1)}'
+		s += f'\n	* first_object_index = {fmt_member(self.first_object_index, indent+1)}'
+		s += f'\n	* last_object_index = {fmt_member(self.last_object_index, indent+1)}'
+		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

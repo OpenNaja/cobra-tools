@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -75,20 +76,20 @@ class UACJointFF:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'UACJointFF [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* eleven = {self.eleven.__repr__()}'
-		s += f'\n	* f_fs = {self.f_fs.__repr__()}'
-		s += f'\n	* name_offset = {self.name_offset.__repr__()}'
-		s += f'\n	* hitcheck_count = {self.hitcheck_count.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* eleven = {fmt_member(self.eleven, indent+1)}'
+		s += f'\n	* f_fs = {fmt_member(self.f_fs, indent+1)}'
+		s += f'\n	* name_offset = {fmt_member(self.name_offset, indent+1)}'
+		s += f'\n	* hitcheck_count = {fmt_member(self.hitcheck_count, indent+1)}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

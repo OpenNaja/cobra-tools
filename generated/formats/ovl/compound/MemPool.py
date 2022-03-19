@@ -6,6 +6,7 @@ from generated.io import BinaryStream
 from modules.formats.shared import get_padding
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -137,25 +138,25 @@ class MemPool:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'MemPool [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
-		s += f'\n	* size = {self.size.__repr__()}'
-		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
-		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
-		s += f'\n	* disney_zero = {self.disney_zero.__repr__()}'
-		s += f'\n	* num_files = {self.num_files.__repr__()}'
-		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
-		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* disney_zero = {fmt_member(self.disney_zero, indent+1)}'
+		s += f'\n	* num_files = {fmt_member(self.num_files, indent+1)}'
+		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
+		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

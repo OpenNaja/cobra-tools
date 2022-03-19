@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -112,24 +113,24 @@ class BnkFileContainer:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BnkFileContainer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* size_b = {self.size_b.__repr__()}'
-		s += f'\n	* name_count = {self.name_count.__repr__()}'
-		s += f'\n	* count_2 = {self.count_2.__repr__()}'
-		s += f'\n	* stream_info_count = {self.stream_info_count.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
-		s += f'\n	* stream_infos = {self.stream_infos.__repr__()}'
-		s += f'\n	* names = {self.names.__repr__()}'
-		s += f'\n	* extensions = {self.extensions.__repr__()}'
+		s += f'\n	* size_b = {fmt_member(self.size_b, indent+1)}'
+		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
+		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* stream_info_count = {fmt_member(self.stream_info_count, indent+1)}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* zeros_2 = {fmt_member(self.zeros_2, indent+1)}'
+		s += f'\n	* stream_infos = {fmt_member(self.stream_infos, indent+1)}'
+		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
+		s += f'\n	* extensions = {fmt_member(self.extensions, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

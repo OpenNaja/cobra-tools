@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.compound.PadAlign import PadAlign
@@ -291,52 +292,52 @@ class Header(GenericHeader):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* lod_depth = {self.lod_depth.__repr__()}'
-		s += f'\n	* len_names = {self.len_names.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
-		s += f'\n	* num_aux_entries = {self.num_aux_entries.__repr__()}'
-		s += f'\n	* num_included_ovls = {self.num_included_ovls.__repr__()}'
-		s += f'\n	* num_mimes = {self.num_mimes.__repr__()}'
-		s += f'\n	* num_files = {self.num_files.__repr__()}'
-		s += f'\n	* num_files_2 = {self.num_files_2.__repr__()}'
-		s += f'\n	* num_dependencies = {self.num_dependencies.__repr__()}'
-		s += f'\n	* num_archives = {self.num_archives.__repr__()}'
-		s += f'\n	* num_pool_groups = {self.num_pool_groups.__repr__()}'
-		s += f'\n	* num_pools = {self.num_pools.__repr__()}'
-		s += f'\n	* num_datas = {self.num_datas.__repr__()}'
-		s += f'\n	* num_buffers = {self.num_buffers.__repr__()}'
-		s += f'\n	* num_files_ovs = {self.num_files_ovs.__repr__()}'
-		s += f'\n	* ztuac_unk_0 = {self.ztuac_unk_0.__repr__()}'
-		s += f'\n	* ztuac_unk_1 = {self.ztuac_unk_1.__repr__()}'
-		s += f'\n	* ztuac_unk_2 = {self.ztuac_unk_2.__repr__()}'
-		s += f'\n	* len_archive_names = {self.len_archive_names.__repr__()}'
-		s += f'\n	* num_files_3 = {self.num_files_3.__repr__()}'
-		s += f'\n	* len_type_names = {self.len_type_names.__repr__()}'
-		s += f'\n	* num_triplets = {self.num_triplets.__repr__()}'
-		s += f'\n	* reserved = {self.reserved.__repr__()}'
-		s += f'\n	* names = {self.names.__repr__()}'
-		s += f'\n	* mimes = {self.mimes.__repr__()}'
-		s += f'\n	* triplets = {self.triplets.__repr__()}'
-		s += f'\n	* triplets_pad = {self.triplets_pad.__repr__()}'
-		s += f'\n	* files = {self.files.__repr__()}'
-		s += f'\n	* archive_names = {self.archive_names.__repr__()}'
-		s += f'\n	* archives = {self.archives.__repr__()}'
-		s += f'\n	* included_ovls = {self.included_ovls.__repr__()}'
-		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
-		s += f'\n	* aux_entries = {self.aux_entries.__repr__()}'
-		s += f'\n	* dependencies = {self.dependencies.__repr__()}'
-		s += f'\n	* stream_files = {self.stream_files.__repr__()}'
-		s += f'\n	* zlibs = {self.zlibs.__repr__()}'
+		s += f'\n	* lod_depth = {fmt_member(self.lod_depth, indent+1)}'
+		s += f'\n	* len_names = {fmt_member(self.len_names, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* num_aux_entries = {fmt_member(self.num_aux_entries, indent+1)}'
+		s += f'\n	* num_included_ovls = {fmt_member(self.num_included_ovls, indent+1)}'
+		s += f'\n	* num_mimes = {fmt_member(self.num_mimes, indent+1)}'
+		s += f'\n	* num_files = {fmt_member(self.num_files, indent+1)}'
+		s += f'\n	* num_files_2 = {fmt_member(self.num_files_2, indent+1)}'
+		s += f'\n	* num_dependencies = {fmt_member(self.num_dependencies, indent+1)}'
+		s += f'\n	* num_archives = {fmt_member(self.num_archives, indent+1)}'
+		s += f'\n	* num_pool_groups = {fmt_member(self.num_pool_groups, indent+1)}'
+		s += f'\n	* num_pools = {fmt_member(self.num_pools, indent+1)}'
+		s += f'\n	* num_datas = {fmt_member(self.num_datas, indent+1)}'
+		s += f'\n	* num_buffers = {fmt_member(self.num_buffers, indent+1)}'
+		s += f'\n	* num_files_ovs = {fmt_member(self.num_files_ovs, indent+1)}'
+		s += f'\n	* ztuac_unk_0 = {fmt_member(self.ztuac_unk_0, indent+1)}'
+		s += f'\n	* ztuac_unk_1 = {fmt_member(self.ztuac_unk_1, indent+1)}'
+		s += f'\n	* ztuac_unk_2 = {fmt_member(self.ztuac_unk_2, indent+1)}'
+		s += f'\n	* len_archive_names = {fmt_member(self.len_archive_names, indent+1)}'
+		s += f'\n	* num_files_3 = {fmt_member(self.num_files_3, indent+1)}'
+		s += f'\n	* len_type_names = {fmt_member(self.len_type_names, indent+1)}'
+		s += f'\n	* num_triplets = {fmt_member(self.num_triplets, indent+1)}'
+		s += f'\n	* reserved = {fmt_member(self.reserved, indent+1)}'
+		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
+		s += f'\n	* mimes = {fmt_member(self.mimes, indent+1)}'
+		s += f'\n	* triplets = {fmt_member(self.triplets, indent+1)}'
+		s += f'\n	* triplets_pad = {fmt_member(self.triplets_pad, indent+1)}'
+		s += f'\n	* files = {fmt_member(self.files, indent+1)}'
+		s += f'\n	* archive_names = {fmt_member(self.archive_names, indent+1)}'
+		s += f'\n	* archives = {fmt_member(self.archives, indent+1)}'
+		s += f'\n	* included_ovls = {fmt_member(self.included_ovls, indent+1)}'
+		s += f'\n	* dependencies = {fmt_member(self.dependencies, indent+1)}'
+		s += f'\n	* aux_entries = {fmt_member(self.aux_entries, indent+1)}'
+		s += f'\n	* dependencies = {fmt_member(self.dependencies, indent+1)}'
+		s += f'\n	* stream_files = {fmt_member(self.stream_files, indent+1)}'
+		s += f'\n	* zlibs = {fmt_member(self.zlibs, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

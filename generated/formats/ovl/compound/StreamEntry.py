@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -72,18 +73,18 @@ class StreamEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'StreamEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* stream_offset = {self.stream_offset.__repr__()}'
-		s += f'\n	* file_offset = {self.file_offset.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* stream_offset = {fmt_member(self.stream_offset, indent+1)}'
+		s += f'\n	* file_offset = {fmt_member(self.file_offset, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

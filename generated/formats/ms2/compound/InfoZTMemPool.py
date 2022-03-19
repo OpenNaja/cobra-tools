@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -61,17 +62,17 @@ class InfoZTMemPool:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'InfoZTMemPool [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
-		s += f'\n	* unks = {self.unks.__repr__()}'
+		s += f'\n	* unk_count = {fmt_member(self.unk_count, indent+1)}'
+		s += f'\n	* unks = {fmt_member(self.unks, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

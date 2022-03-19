@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import ZString
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
@@ -82,22 +83,22 @@ class FgmInfoHeader(GenericHeader):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'FgmInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* data_lib_size = {self.data_lib_size.__repr__()}'
-		s += f'\n	* dependency_count = {self.dependency_count.__repr__()}'
-		s += f'\n	* fgm_info = {self.fgm_info.__repr__()}'
-		s += f'\n	* texture_files = {self.texture_files.__repr__()}'
-		s += f'\n	* textures = {self.textures.__repr__()}'
-		s += f'\n	* attributes = {self.attributes.__repr__()}'
+		s += f'\n	* data_lib_size = {fmt_member(self.data_lib_size, indent+1)}'
+		s += f'\n	* dependency_count = {fmt_member(self.dependency_count, indent+1)}'
+		s += f'\n	* fgm_info = {fmt_member(self.fgm_info, indent+1)}'
+		s += f'\n	* texture_files = {fmt_member(self.texture_files, indent+1)}'
+		s += f'\n	* textures = {fmt_member(self.textures, indent+1)}'
+		s += f'\n	* attributes = {fmt_member(self.attributes, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

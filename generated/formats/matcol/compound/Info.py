@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -65,19 +66,19 @@ class Info:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Info [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* name_ptr = {self.name_ptr.__repr__()}'
-		s += f'\n	* flags = {self.flags.__repr__()}'
-		s += f'\n	* value = {self.value.__repr__()}'
-		s += f'\n	* padding = {self.padding.__repr__()}'
+		s += f'\n	* name_ptr = {fmt_member(self.name_ptr, indent+1)}'
+		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
+		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
+		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -4,6 +4,7 @@ import logging
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
+from source.formats.base.basic import fmt_member
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 from generated.formats.ms2.compound.MeshData import MeshData
 
@@ -155,32 +156,32 @@ class PcMeshData(MeshData):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'PcMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* tri_index_count_a = {self.tri_index_count_a.__repr__()}'
-		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
-		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
-		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
-		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
-		s += f'\n	* weights_offset = {self.weights_offset.__repr__()}'
-		s += f'\n	* uv_offset = {self.uv_offset.__repr__()}'
-		s += f'\n	* zero_b = {self.zero_b.__repr__()}'
-		s += f'\n	* vertex_color_offset = {self.vertex_color_offset.__repr__()}'
-		s += f'\n	* vertex_offset_within_lod = {self.vertex_offset_within_lod.__repr__()}'
-		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* unknown_07 = {self.unknown_07.__repr__()}'
-		s += f'\n	* flag = {self.flag.__repr__()}'
-		s += f'\n	* zero_uac = {self.zero_uac.__repr__()}'
+		s += f'\n	* tri_index_count_a = {fmt_member(self.tri_index_count_a, indent+1)}'
+		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* tri_offset = {fmt_member(self.tri_offset, indent+1)}'
+		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'
+		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
+		s += f'\n	* weights_offset = {fmt_member(self.weights_offset, indent+1)}'
+		s += f'\n	* uv_offset = {fmt_member(self.uv_offset, indent+1)}'
+		s += f'\n	* zero_b = {fmt_member(self.zero_b, indent+1)}'
+		s += f'\n	* vertex_color_offset = {fmt_member(self.vertex_color_offset, indent+1)}'
+		s += f'\n	* vertex_offset_within_lod = {fmt_member(self.vertex_offset_within_lod, indent+1)}'
+		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* unknown_07 = {fmt_member(self.unknown_07, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
+		s += f'\n	* zero_uac = {fmt_member(self.zero_uac, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

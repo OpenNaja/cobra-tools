@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.base.basic import ZString
@@ -108,22 +109,22 @@ class Ms2InfoHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Ms2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* bone_info_size = {self.bone_info_size.__repr__()}'
-		s += f'\n	* info = {self.info.__repr__()}'
-		s += f'\n	* mdl_2_names = {self.mdl_2_names.__repr__()}'
-		s += f'\n	* buffer_0 = {self.buffer_0.__repr__()}'
-		s += f'\n	* buffer_info = {self.buffer_info.__repr__()}'
-		s += f'\n	* model_infos = {self.model_infos.__repr__()}'
-		s += f'\n	* models_reader = {self.models_reader.__repr__()}'
+		s += f'\n	* bone_info_size = {fmt_member(self.bone_info_size, indent+1)}'
+		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
+		s += f'\n	* mdl_2_names = {fmt_member(self.mdl_2_names, indent+1)}'
+		s += f'\n	* buffer_0 = {fmt_member(self.buffer_0, indent+1)}'
+		s += f'\n	* buffer_info = {fmt_member(self.buffer_info, indent+1)}'
+		s += f'\n	* model_infos = {fmt_member(self.model_infos, indent+1)}'
+		s += f'\n	* models_reader = {fmt_member(self.models_reader, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

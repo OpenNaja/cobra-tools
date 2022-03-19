@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 from generated.formats.ms2.compound.Matrix33 import Matrix33
@@ -76,19 +77,19 @@ class BoundingBox:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BoundingBox [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* rotation = {self.rotation.__repr__()}'
-		s += f'\n	* center = {self.center.__repr__()}'
-		s += f'\n	* extent = {self.extent.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
+		s += f'\n	* rotation = {fmt_member(self.rotation, indent+1)}'
+		s += f'\n	* center = {fmt_member(self.center, indent+1)}'
+		s += f'\n	* extent = {fmt_member(self.extent, indent+1)}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

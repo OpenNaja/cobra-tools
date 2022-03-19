@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -70,19 +71,19 @@ class Triplet:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Triplet [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* a = {self.a.__repr__()}'
-		s += f'\n	* b = {self.b.__repr__()}'
-		s += f'\n	* c = {self.c.__repr__()}'
+		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
+		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
+		s += f'\n	* c = {fmt_member(self.c, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

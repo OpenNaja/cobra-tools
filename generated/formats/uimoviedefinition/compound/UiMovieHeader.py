@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -184,45 +185,45 @@ class UiMovieHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'UiMovieHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* ptr_movie_name = {self.ptr_movie_name.__repr__()}'
-		s += f'\n	* ptr_pkg_name = {self.ptr_pkg_name.__repr__()}'
-		s += f'\n	* ptr_category_name = {self.ptr_category_name.__repr__()}'
-		s += f'\n	* ptr_type_name = {self.ptr_type_name.__repr__()}'
-		s += f'\n	* flag_1 = {self.flag_1.__repr__()}'
-		s += f'\n	* flag_2 = {self.flag_2.__repr__()}'
-		s += f'\n	* flag_3 = {self.flag_3.__repr__()}'
-		s += f'\n	* floats = {self.floats.__repr__()}'
-		s += f'\n	* u_0 = {self.u_0.__repr__()}'
-		s += f'\n	* num_ui_triggers = {self.num_ui_triggers.__repr__()}'
-		s += f'\n	* u_1 = {self.u_1.__repr__()}'
-		s += f'\n	* num_ui_names = {self.num_ui_names.__repr__()}'
-		s += f'\n	* num_assetpkgs = {self.num_assetpkgs.__repr__()}'
-		s += f'\n	* u_2 = {self.u_2.__repr__()}'
-		s += f'\n	* num_list_1 = {self.num_list_1.__repr__()}'
-		s += f'\n	* num_list_2 = {self.num_list_2.__repr__()}'
-		s += f'\n	* num_ui_interfaces = {self.num_ui_interfaces.__repr__()}'
-		s += f'\n	* u_3 = {self.u_3.__repr__()}'
-		s += f'\n	* u_4 = {self.u_4.__repr__()}'
-		s += f'\n	* u_5 = {self.u_5.__repr__()}'
-		s += f'\n	* ptr_0 = {self.ptr_0.__repr__()}'
-		s += f'\n	* ptr_ui_triggers = {self.ptr_ui_triggers.__repr__()}'
-		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
-		s += f'\n	* ptr_ui_names = {self.ptr_ui_names.__repr__()}'
-		s += f'\n	* ptr_assetpkgs = {self.ptr_assetpkgs.__repr__()}'
-		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
-		s += f'\n	* ptr_list_1 = {self.ptr_list_1.__repr__()}'
-		s += f'\n	* ptr_list_2 = {self.ptr_list_2.__repr__()}'
-		s += f'\n	* ptr_ui_interfaces = {self.ptr_ui_interfaces.__repr__()}'
-		s += f'\n	* ptr_3 = {self.ptr_3.__repr__()}'
+		s += f'\n	* ptr_movie_name = {fmt_member(self.ptr_movie_name, indent+1)}'
+		s += f'\n	* ptr_pkg_name = {fmt_member(self.ptr_pkg_name, indent+1)}'
+		s += f'\n	* ptr_category_name = {fmt_member(self.ptr_category_name, indent+1)}'
+		s += f'\n	* ptr_type_name = {fmt_member(self.ptr_type_name, indent+1)}'
+		s += f'\n	* flag_1 = {fmt_member(self.flag_1, indent+1)}'
+		s += f'\n	* flag_2 = {fmt_member(self.flag_2, indent+1)}'
+		s += f'\n	* flag_3 = {fmt_member(self.flag_3, indent+1)}'
+		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
+		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* num_ui_triggers = {fmt_member(self.num_ui_triggers, indent+1)}'
+		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* num_ui_names = {fmt_member(self.num_ui_names, indent+1)}'
+		s += f'\n	* num_assetpkgs = {fmt_member(self.num_assetpkgs, indent+1)}'
+		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* num_list_1 = {fmt_member(self.num_list_1, indent+1)}'
+		s += f'\n	* num_list_2 = {fmt_member(self.num_list_2, indent+1)}'
+		s += f'\n	* num_ui_interfaces = {fmt_member(self.num_ui_interfaces, indent+1)}'
+		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
+		s += f'\n	* u_4 = {fmt_member(self.u_4, indent+1)}'
+		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
+		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* ptr_ui_triggers = {fmt_member(self.ptr_ui_triggers, indent+1)}'
+		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* ptr_ui_names = {fmt_member(self.ptr_ui_names, indent+1)}'
+		s += f'\n	* ptr_assetpkgs = {fmt_member(self.ptr_assetpkgs, indent+1)}'
+		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* ptr_list_1 = {fmt_member(self.ptr_list_1, indent+1)}'
+		s += f'\n	* ptr_list_2 = {fmt_member(self.ptr_list_2, indent+1)}'
+		s += f'\n	* ptr_ui_interfaces = {fmt_member(self.ptr_ui_interfaces, indent+1)}'
+		s += f'\n	* ptr_3 = {fmt_member(self.ptr_3, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

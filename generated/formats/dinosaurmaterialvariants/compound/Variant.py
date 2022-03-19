@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -59,18 +60,18 @@ class Variant(MemStruct):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Variant [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* has_ptr = {self.has_ptr.__repr__()}'
-		s += f'\n	* variant_name = {self.variant_name.__repr__()}'
+		s += f'\n	* has_ptr = {fmt_member(self.has_ptr, indent+1)}'
+		s += f'\n	* variant_name = {fmt_member(self.variant_name, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

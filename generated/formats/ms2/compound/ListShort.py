@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.formats.ms2.compound.Descriptor import Descriptor
 from generated.formats.ms2.compound.Vector3 import Vector3
 
@@ -77,20 +78,20 @@ class ListShort(Descriptor):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'ListShort [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* loc = {self.loc.__repr__()}'
-		s += f'\n	* direction = {self.direction.__repr__()}'
-		s += f'\n	* min = {self.min.__repr__()}'
-		s += f'\n	* max = {self.max.__repr__()}'
+		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
+		s += f'\n	* direction = {fmt_member(self.direction, indent+1)}'
+		s += f'\n	* min = {fmt_member(self.min, indent+1)}'
+		s += f'\n	* max = {fmt_member(self.max, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

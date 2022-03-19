@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -70,18 +71,18 @@ class AuxEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'AuxEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* file_index = {self.file_index.__repr__()}'
-		s += f'\n	* extension_index = {self.extension_index.__repr__()}'
-		s += f'\n	* size = {self.size.__repr__()}'
+		s += f'\n	* file_index = {fmt_member(self.file_index, indent+1)}'
+		s += f'\n	* extension_index = {fmt_member(self.extension_index, indent+1)}'
+		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

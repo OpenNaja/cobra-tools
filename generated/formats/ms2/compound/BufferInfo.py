@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -102,22 +103,22 @@ class BufferInfo:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BufferInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* skip_1 = {self.skip_1.__repr__()}'
-		s += f'\n	* vertexdatasize = {self.vertexdatasize.__repr__()}'
-		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
-		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
-		s += f'\n	* facesdatasize = {self.facesdatasize.__repr__()}'
-		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
-		s += f'\n	* unk_2 = {self.unk_2.__repr__()}'
+		s += f'\n	* skip_1 = {fmt_member(self.skip_1, indent+1)}'
+		s += f'\n	* vertexdatasize = {fmt_member(self.vertexdatasize, indent+1)}'
+		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* unk_0 = {fmt_member(self.unk_0, indent+1)}'
+		s += f'\n	* facesdatasize = {fmt_member(self.facesdatasize, indent+1)}'
+		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* unk_2 = {fmt_member(self.unk_2, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -210,36 +211,36 @@ class MeshCollision:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'MeshCollision [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* rotation = {self.rotation.__repr__()}'
-		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
-		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
-		s += f'\n	* tri_count = {self.tri_count.__repr__()}'
-		s += f'\n	* bounds_min = {self.bounds_min.__repr__()}'
-		s += f'\n	* bounds_max = {self.bounds_max.__repr__()}'
-		s += f'\n	* ones_or_zeros = {self.ones_or_zeros.__repr__()}'
-		s += f'\n	* ff_or_zero = {self.ff_or_zero.__repr__()}'
-		s += f'\n	* bounds_min_repeat = {self.bounds_min_repeat.__repr__()}'
-		s += f'\n	* bounds_max_repeat = {self.bounds_max_repeat.__repr__()}'
-		s += f'\n	* tri_flags_count = {self.tri_flags_count.__repr__()}'
-		s += f'\n	* count_bits = {self.count_bits.__repr__()}'
-		s += f'\n	* stuff = {self.stuff.__repr__()}'
-		s += f'\n	* collision_bits = {self.collision_bits.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* vertices = {self.vertices.__repr__()}'
-		s += f'\n	* triangles = {self.triangles.__repr__()}'
-		s += f'\n	* const = {self.const.__repr__()}'
-		s += f'\n	* triangle_flags = {self.triangle_flags.__repr__()}'
-		s += f'\n	* zero_end = {self.zero_end.__repr__()}'
+		s += f'\n	* rotation = {fmt_member(self.rotation, indent+1)}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'
+		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* tri_count = {fmt_member(self.tri_count, indent+1)}'
+		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
+		s += f'\n	* bounds_max = {fmt_member(self.bounds_max, indent+1)}'
+		s += f'\n	* ones_or_zeros = {fmt_member(self.ones_or_zeros, indent+1)}'
+		s += f'\n	* ff_or_zero = {fmt_member(self.ff_or_zero, indent+1)}'
+		s += f'\n	* bounds_min_repeat = {fmt_member(self.bounds_min_repeat, indent+1)}'
+		s += f'\n	* bounds_max_repeat = {fmt_member(self.bounds_max_repeat, indent+1)}'
+		s += f'\n	* tri_flags_count = {fmt_member(self.tri_flags_count, indent+1)}'
+		s += f'\n	* count_bits = {fmt_member(self.count_bits, indent+1)}'
+		s += f'\n	* stuff = {fmt_member(self.stuff, indent+1)}'
+		s += f'\n	* collision_bits = {fmt_member(self.collision_bits, indent+1)}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* vertices = {fmt_member(self.vertices, indent+1)}'
+		s += f'\n	* triangles = {fmt_member(self.triangles, indent+1)}'
+		s += f'\n	* const = {fmt_member(self.const, indent+1)}'
+		s += f'\n	* triangle_flags = {fmt_member(self.triangle_flags, indent+1)}'
+		s += f'\n	* zero_end = {fmt_member(self.zero_end, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

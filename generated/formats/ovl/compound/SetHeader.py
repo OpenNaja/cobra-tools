@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
@@ -83,21 +84,21 @@ class SetHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'SetHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* set_count = {self.set_count.__repr__()}'
-		s += f'\n	* asset_count = {self.asset_count.__repr__()}'
-		s += f'\n	* sig_a = {self.sig_a.__repr__()}'
-		s += f'\n	* sig_b = {self.sig_b.__repr__()}'
-		s += f'\n	* sets = {self.sets.__repr__()}'
-		s += f'\n	* assets = {self.assets.__repr__()}'
+		s += f'\n	* set_count = {fmt_member(self.set_count, indent+1)}'
+		s += f'\n	* asset_count = {fmt_member(self.asset_count, indent+1)}'
+		s += f'\n	* sig_a = {fmt_member(self.sig_a, indent+1)}'
+		s += f'\n	* sig_b = {fmt_member(self.sig_b, indent+1)}'
+		s += f'\n	* sets = {fmt_member(self.sets, indent+1)}'
+		s += f'\n	* assets = {fmt_member(self.assets, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

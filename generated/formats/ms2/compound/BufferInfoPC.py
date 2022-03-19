@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -67,18 +68,18 @@ class BufferInfoPC:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BufferInfoPC [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
-		s += f'\n	* vertex_buffer_size = {self.vertex_buffer_size.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
+		s += f'\n	* zeros_1 = {fmt_member(self.zeros_1, indent+1)}'
+		s += f'\n	* vertex_buffer_size = {fmt_member(self.vertex_buffer_size, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

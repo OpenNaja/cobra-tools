@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.dinosaurmaterialvariants.compound.Variant import Variant
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -54,17 +55,17 @@ class VariantArray(MemStruct):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'VariantArray [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* variants = {self.variants.__repr__()}'
+		s += f'\n	* variants = {fmt_member(self.variants, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -80,20 +81,20 @@ class BaniFragmentData0:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BaniFragmentData0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* read_start_frame = {self.read_start_frame.__repr__()}'
-		s += f'\n	* num_frames = {self.num_frames.__repr__()}'
-		s += f'\n	* animation_length = {self.animation_length.__repr__()}'
-		s += f'\n	* loop_flag = {self.loop_flag.__repr__()}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* read_start_frame = {fmt_member(self.read_start_frame, indent+1)}'
+		s += f'\n	* num_frames = {fmt_member(self.num_frames, indent+1)}'
+		s += f'\n	* animation_length = {fmt_member(self.animation_length, indent+1)}'
+		s += f'\n	* loop_flag = {fmt_member(self.loop_flag, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

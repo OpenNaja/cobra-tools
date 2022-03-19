@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -104,23 +105,23 @@ class FgmHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'FgmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* texture_count = {self.texture_count.__repr__()}'
-		s += f'\n	* attribute_count = {self.attribute_count.__repr__()}'
-		s += f'\n	* tex_ptr = {self.tex_ptr.__repr__()}'
-		s += f'\n	* attr_ptr = {self.attr_ptr.__repr__()}'
-		s += f'\n	* dependencies_ptr = {self.dependencies_ptr.__repr__()}'
-		s += f'\n	* data_ptr = {self.data_ptr.__repr__()}'
-		s += f'\n	* unk_0 = {self.unk_0.__repr__()}'
-		s += f'\n	* unk_1 = {self.unk_1.__repr__()}'
+		s += f'\n	* texture_count = {fmt_member(self.texture_count, indent+1)}'
+		s += f'\n	* attribute_count = {fmt_member(self.attribute_count, indent+1)}'
+		s += f'\n	* tex_ptr = {fmt_member(self.tex_ptr, indent+1)}'
+		s += f'\n	* attr_ptr = {fmt_member(self.attr_ptr, indent+1)}'
+		s += f'\n	* dependencies_ptr = {fmt_member(self.dependencies_ptr, indent+1)}'
+		s += f'\n	* data_ptr = {fmt_member(self.data_ptr, indent+1)}'
+		s += f'\n	* unk_0 = {fmt_member(self.unk_0, indent+1)}'
+		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

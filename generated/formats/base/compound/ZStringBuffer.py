@@ -6,6 +6,7 @@ from modules.formats.shared import get_padding
 ZERO = b"\x00"
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.bnk.compound.Type2 import Type2
 from generated.formats.bnk.compound.TypeOther import TypeOther
@@ -70,17 +71,17 @@ class HircPointer:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'HircPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* id = {self.id.__repr__()}'
-		s += f'\n	* data = {self.data.__repr__()}'
+		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
+		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

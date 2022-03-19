@@ -2,6 +2,7 @@
 from generated.context import ContextReference
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 

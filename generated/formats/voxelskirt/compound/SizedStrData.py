@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -156,33 +157,33 @@ class SizedStrData:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* data_size = {self.data_size.__repr__()}'
-		s += f'\n	* x = {self.x.__repr__()}'
-		s += f'\n	* y = {self.y.__repr__()}'
-		s += f'\n	* scale = {self.scale.__repr__()}'
-		s += f'\n	* padding = {self.padding.__repr__()}'
-		s += f'\n	* zero_pc = {self.zero_pc.__repr__()}'
-		s += f'\n	* height_array_size_pc = {self.height_array_size_pc.__repr__()}'
-		s += f'\n	* data_offset = {self.data_offset.__repr__()}'
-		s += f'\n	* data_count = {self.data_count.__repr__()}'
-		s += f'\n	* size_offset = {self.size_offset.__repr__()}'
-		s += f'\n	* size_count = {self.size_count.__repr__()}'
-		s += f'\n	* position_offset = {self.position_offset.__repr__()}'
-		s += f'\n	* position_count = {self.position_count.__repr__()}'
-		s += f'\n	* mat_offset = {self.mat_offset.__repr__()}'
-		s += f'\n	* mat_count = {self.mat_count.__repr__()}'
-		s += f'\n	* name_buffer_offset = {self.name_buffer_offset.__repr__()}'
-		s += f'\n	* name_count = {self.name_count.__repr__()}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* data_size = {fmt_member(self.data_size, indent+1)}'
+		s += f'\n	* x = {fmt_member(self.x, indent+1)}'
+		s += f'\n	* y = {fmt_member(self.y, indent+1)}'
+		s += f'\n	* scale = {fmt_member(self.scale, indent+1)}'
+		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
+		s += f'\n	* zero_pc = {fmt_member(self.zero_pc, indent+1)}'
+		s += f'\n	* height_array_size_pc = {fmt_member(self.height_array_size_pc, indent+1)}'
+		s += f'\n	* data_offset = {fmt_member(self.data_offset, indent+1)}'
+		s += f'\n	* data_count = {fmt_member(self.data_count, indent+1)}'
+		s += f'\n	* size_offset = {fmt_member(self.size_offset, indent+1)}'
+		s += f'\n	* size_count = {fmt_member(self.size_count, indent+1)}'
+		s += f'\n	* position_offset = {fmt_member(self.position_offset, indent+1)}'
+		s += f'\n	* position_count = {fmt_member(self.position_count, indent+1)}'
+		s += f'\n	* mat_offset = {fmt_member(self.mat_offset, indent+1)}'
+		s += f'\n	* mat_count = {fmt_member(self.mat_count, indent+1)}'
+		s += f'\n	* name_buffer_offset = {fmt_member(self.name_buffer_offset, indent+1)}'
+		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

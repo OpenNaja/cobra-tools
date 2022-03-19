@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -100,25 +101,25 @@ class WorldHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'WorldHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* world_type = {self.world_type.__repr__()}'
-		s += f'\n	* ptr_asset_pkg = {self.ptr_asset_pkg.__repr__()}'
-		s += f'\n	* asset_pkg_count = {self.asset_pkg_count.__repr__()}'
-		s += f'\n	* ptr_lua = {self.ptr_lua.__repr__()}'
-		s += f'\n	* ptr_0 = {self.ptr_0.__repr__()}'
-		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
-		s += f'\n	* ptr_prefab = {self.ptr_prefab.__repr__()}'
-		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
-		s += f'\n	* prefab_count = {self.prefab_count.__repr__()}'
-		s += f'\n	* ptr_3 = {self.ptr_3.__repr__()}'
+		s += f'\n	* world_type = {fmt_member(self.world_type, indent+1)}'
+		s += f'\n	* ptr_asset_pkg = {fmt_member(self.ptr_asset_pkg, indent+1)}'
+		s += f'\n	* asset_pkg_count = {fmt_member(self.asset_pkg_count, indent+1)}'
+		s += f'\n	* ptr_lua = {fmt_member(self.ptr_lua, indent+1)}'
+		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* ptr_prefab = {fmt_member(self.ptr_prefab, indent+1)}'
+		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* prefab_count = {fmt_member(self.prefab_count, indent+1)}'
+		s += f'\n	* ptr_3 = {fmt_member(self.ptr_3, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

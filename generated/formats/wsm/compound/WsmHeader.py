@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -69,18 +70,18 @@ class WsmHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'WsmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* duration = {self.duration.__repr__()}'
-		s += f'\n	* frame_count = {self.frame_count.__repr__()}'
-		s += f'\n	* unknowns = {self.unknowns.__repr__()}'
+		s += f'\n	* duration = {fmt_member(self.duration, indent+1)}'
+		s += f'\n	* frame_count = {fmt_member(self.frame_count, indent+1)}'
+		s += f'\n	* unknowns = {fmt_member(self.unknowns, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

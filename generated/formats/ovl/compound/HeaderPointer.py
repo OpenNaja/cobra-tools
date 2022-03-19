@@ -8,6 +8,7 @@ from generated.formats.ovl.basic import basic_map
 from modules.formats.shared import assign_versions, get_padding
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 

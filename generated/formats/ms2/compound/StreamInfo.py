@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -92,23 +93,23 @@ class StreamInfo:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'StreamInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* vertex_buffer_length = {self.vertex_buffer_length.__repr__()}'
-		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
-		s += f'\n	* tris_buffer_length = {self.tris_buffer_length.__repr__()}'
-		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
-		s += f'\n	* uv_buffer_length = {self.uv_buffer_length.__repr__()}'
-		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
-		s += f'\n	* zero_4 = {self.zero_4.__repr__()}'
+		s += f'\n	* vertex_buffer_length = {fmt_member(self.vertex_buffer_length, indent+1)}'
+		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* tris_buffer_length = {fmt_member(self.tris_buffer_length, indent+1)}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* uv_buffer_length = {fmt_member(self.uv_buffer_length, indent+1)}'
+		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
+		s += f'\n	* zero_4 = {fmt_member(self.zero_4, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

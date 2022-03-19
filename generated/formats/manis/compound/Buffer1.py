@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -66,18 +67,18 @@ class Buffer1:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Buffer1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* bone_hashes = {self.bone_hashes.__repr__()}'
-		s += f'\n	* bone_names = {self.bone_names.__repr__()}'
-		s += f'\n	* bone_pad = {self.bone_pad.__repr__()}'
+		s += f'\n	* bone_hashes = {fmt_member(self.bone_hashes, indent+1)}'
+		s += f'\n	* bone_names = {fmt_member(self.bone_names, indent+1)}'
+		s += f'\n	* bone_pad = {fmt_member(self.bone_pad, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

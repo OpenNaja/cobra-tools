@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -69,20 +70,20 @@ class ZTPreBones:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'ZTPreBones [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* unks = {self.unks.__repr__()}'
-		s += f'\n	* unks_2 = {self.unks_2.__repr__()}'
-		s += f'\n	* floats = {self.floats.__repr__()}'
-		s += f'\n	* unks_3 = {self.unks_3.__repr__()}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* unks = {fmt_member(self.unks, indent+1)}'
+		s += f'\n	* unks_2 = {fmt_member(self.unks_2, indent+1)}'
+		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
+		s += f'\n	* unks_3 = {fmt_member(self.unks_3, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import ZString
 from generated.formats.manis.compound.Buffer1 import Buffer1
@@ -82,22 +83,22 @@ class InfoHeader(GenericHeader):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* mani_count = {self.mani_count.__repr__()}'
-		s += f'\n	* names = {self.names.__repr__()}'
-		s += f'\n	* header = {self.header.__repr__()}'
-		s += f'\n	* mani_infos = {self.mani_infos.__repr__()}'
-		s += f'\n	* name_buffer = {self.name_buffer.__repr__()}'
-		s += f'\n	* keys_buffer = {self.keys_buffer.__repr__()}'
+		s += f'\n	* mani_count = {fmt_member(self.mani_count, indent+1)}'
+		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
+		s += f'\n	* header = {fmt_member(self.header, indent+1)}'
+		s += f'\n	* mani_infos = {fmt_member(self.mani_infos, indent+1)}'
+		s += f'\n	* name_buffer = {fmt_member(self.name_buffer, indent+1)}'
+		s += f'\n	* keys_buffer = {fmt_member(self.keys_buffer, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

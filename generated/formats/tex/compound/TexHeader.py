@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.tex.enum.DdsType import DdsType
 from generated.formats.tex.enum.DdsTypeCoaster import DdsTypeCoaster
@@ -163,28 +164,28 @@ class TexHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'TexHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
-		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
-		s += f'\n	* ptr_0 = {self.ptr_0.__repr__()}'
-		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
-		s += f'\n	* compression_type = {self.compression_type.__repr__()}'
-		s += f'\n	* one_0 = {self.one_0.__repr__()}'
-		s += f'\n	* num_mips = {self.num_mips.__repr__()}'
-		s += f'\n	* width = {self.width.__repr__()}'
-		s += f'\n	* height = {self.height.__repr__()}'
-		s += f'\n	* stream_count = {self.stream_count.__repr__()}'
-		s += f'\n	* stream_count_repeat = {self.stream_count_repeat.__repr__()}'
-		s += f'\n	* pad = {self.pad.__repr__()}'
-		s += f'\n	* pad_dla = {self.pad_dla.__repr__()}'
+		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* compression_type = {fmt_member(self.compression_type, indent+1)}'
+		s += f'\n	* one_0 = {fmt_member(self.one_0, indent+1)}'
+		s += f'\n	* num_mips = {fmt_member(self.num_mips, indent+1)}'
+		s += f'\n	* width = {fmt_member(self.width, indent+1)}'
+		s += f'\n	* height = {fmt_member(self.height, indent+1)}'
+		s += f'\n	* stream_count = {fmt_member(self.stream_count, indent+1)}'
+		s += f'\n	* stream_count_repeat = {fmt_member(self.stream_count_repeat, indent+1)}'
+		s += f'\n	* pad = {fmt_member(self.pad, indent+1)}'
+		s += f'\n	* pad_dla = {fmt_member(self.pad_dla, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

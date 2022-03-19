@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.bnk.compound.DataPointer import DataPointer
@@ -64,17 +65,17 @@ class DIDXSection:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'DIDXSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* length = {self.length.__repr__()}'
-		s += f'\n	* data_pointers = {self.data_pointers.__repr__()}'
+		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
+		s += f'\n	* data_pointers = {fmt_member(self.data_pointers, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

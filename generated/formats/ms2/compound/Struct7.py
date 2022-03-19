@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -121,23 +122,23 @@ class Struct7:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Struct7 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* weird_padding = {self.weird_padding.__repr__()}'
-		s += f'\n	* count_7 = {self.count_7.__repr__()}'
-		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
-		s += f'\n	* flag = {self.flag.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
-		s += f'\n	* unknown_list = {self.unknown_list.__repr__()}'
-		s += f'\n	* padding = {self.padding.__repr__()}'
-		s += f'\n	* alignment = {self.alignment.__repr__()}'
+		s += f'\n	* weird_padding = {fmt_member(self.weird_padding, indent+1)}'
+		s += f'\n	* count_7 = {fmt_member(self.count_7, indent+1)}'
+		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* unknown_list = {fmt_member(self.unknown_list, indent+1)}'
+		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
+		s += f'\n	* alignment = {fmt_member(self.alignment, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

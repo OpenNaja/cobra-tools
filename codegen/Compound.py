@@ -150,24 +150,25 @@ class Compound(BaseClass):
 
             if "def __repr__(" not in self.src_code:
                 self.write_line(f)
-                self.write_line(f, 1, "def get_info_str(self):")
+                self.write_line(f, 1, "def get_info_str(self, indent=0):")
                 self.write_line(f, 2, f"return f'{self.class_name} [Size: {{self.io_size}}, Address: {{self.io_start}}] {{self.name}}'")
 
                 self.write_line(f)
-                self.write_line(f, 1, "def get_fields_str(self):")
+                self.write_line(f, 1, "def get_fields_str(self, indent=0):")
                 self.write_line(f, 2, "s = ''")
                 if self.class_basename:
                     self.write_line(f, 2, "s += super().get_fields_str()")
                 for union in self.field_unions:
-                    rep = f"self.{union.name}.__repr__()"
+                    # rep = f"self.{union.name}.__repr__(indent+1)"
+                    rep = f"fmt_member(self.{union.name}, indent+1)"
                     self.write_line(f, 2, f"s += f'\\n\t* {union.name} = {{{rep}}}'")
                 self.write_line(f, 2, "return s")
 
                 self.write_line(f)
-                self.write_line(f, 1, "def __repr__(self):")
+                self.write_line(f, 1, "def __repr__(self, indent=0):")
                 self.write_lines(f, 2, (
-                    "s = self.get_info_str()",
-                    "s += self.get_fields_str()",
+                    "s = self.get_info_str(indent)",
+                    "s += self.get_fields_str(indent)",
                     "s += '\\n'",
                     "return s"
                 ))

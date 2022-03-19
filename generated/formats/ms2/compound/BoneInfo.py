@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -316,48 +317,48 @@ class BoneInfo:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BoneInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* name_count = {self.name_count.__repr__()}'
-		s += f'\n	* knownff = {self.knownff.__repr__()}'
-		s += f'\n	* zero_0 = {self.zero_0.__repr__()}'
-		s += f'\n	* unknown_0_c = {self.unknown_0_c.__repr__()}'
-		s += f'\n	* unk_count = {self.unk_count.__repr__()}'
-		s += f'\n	* bind_matrix_count = {self.bind_matrix_count.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
-		s += f'\n	* unknown_40 = {self.unknown_40.__repr__()}'
-		s += f'\n	* parents_count = {self.parents_count.__repr__()}'
-		s += f'\n	* extra_zero = {self.extra_zero.__repr__()}'
-		s += f'\n	* enum_count = {self.enum_count.__repr__()}'
-		s += f'\n	* unknown_58 = {self.unknown_58.__repr__()}'
-		s += f'\n	* one = {self.one.__repr__()}'
-		s += f'\n	* zeros_count = {self.zeros_count.__repr__()}'
-		s += f'\n	* unk_pc_count = {self.unk_pc_count.__repr__()}'
-		s += f'\n	* count_7 = {self.count_7.__repr__()}'
-		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
-		s += f'\n	* unk_78_count = {self.unk_78_count.__repr__()}'
-		s += f'\n	* unk_extra = {self.unk_extra.__repr__()}'
-		s += f'\n	* unk_extra_jwe = {self.unk_extra_jwe.__repr__()}'
-		s += f'\n	* name_indices = {self.name_indices.__repr__()}'
-		s += f'\n	* name_padding = {self.name_padding.__repr__()}'
-		s += f'\n	* inverse_bind_matrices = {self.inverse_bind_matrices.__repr__()}'
-		s += f'\n	* bones = {self.bones.__repr__()}'
-		s += f'\n	* parents = {self.parents.__repr__()}'
-		s += f'\n	* parents_padding = {self.parents_padding.__repr__()}'
-		s += f'\n	* enumeration = {self.enumeration.__repr__()}'
-		s += f'\n	* zt_weirdness = {self.zt_weirdness.__repr__()}'
-		s += f'\n	* zeros_padding = {self.zeros_padding.__repr__()}'
-		s += f'\n	* minus_padding = {self.minus_padding.__repr__()}'
-		s += f'\n	* struct_7 = {self.struct_7.__repr__()}'
-		s += f'\n	* joints = {self.joints.__repr__()}'
+		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
+		s += f'\n	* knownff = {fmt_member(self.knownff, indent+1)}'
+		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* unknown_0_c = {fmt_member(self.unknown_0_c, indent+1)}'
+		s += f'\n	* unk_count = {fmt_member(self.unk_count, indent+1)}'
+		s += f'\n	* bind_matrix_count = {fmt_member(self.bind_matrix_count, indent+1)}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* bone_count = {fmt_member(self.bone_count, indent+1)}'
+		s += f'\n	* unknown_40 = {fmt_member(self.unknown_40, indent+1)}'
+		s += f'\n	* parents_count = {fmt_member(self.parents_count, indent+1)}'
+		s += f'\n	* extra_zero = {fmt_member(self.extra_zero, indent+1)}'
+		s += f'\n	* enum_count = {fmt_member(self.enum_count, indent+1)}'
+		s += f'\n	* unknown_58 = {fmt_member(self.unknown_58, indent+1)}'
+		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
+		s += f'\n	* zeros_count = {fmt_member(self.zeros_count, indent+1)}'
+		s += f'\n	* unk_pc_count = {fmt_member(self.unk_pc_count, indent+1)}'
+		s += f'\n	* count_7 = {fmt_member(self.count_7, indent+1)}'
+		s += f'\n	* joint_count = {fmt_member(self.joint_count, indent+1)}'
+		s += f'\n	* unk_78_count = {fmt_member(self.unk_78_count, indent+1)}'
+		s += f'\n	* unk_extra = {fmt_member(self.unk_extra, indent+1)}'
+		s += f'\n	* unk_extra_jwe = {fmt_member(self.unk_extra_jwe, indent+1)}'
+		s += f'\n	* name_indices = {fmt_member(self.name_indices, indent+1)}'
+		s += f'\n	* name_padding = {fmt_member(self.name_padding, indent+1)}'
+		s += f'\n	* inverse_bind_matrices = {fmt_member(self.inverse_bind_matrices, indent+1)}'
+		s += f'\n	* bones = {fmt_member(self.bones, indent+1)}'
+		s += f'\n	* parents = {fmt_member(self.parents, indent+1)}'
+		s += f'\n	* parents_padding = {fmt_member(self.parents_padding, indent+1)}'
+		s += f'\n	* enumeration = {fmt_member(self.enumeration, indent+1)}'
+		s += f'\n	* zt_weirdness = {fmt_member(self.zt_weirdness, indent+1)}'
+		s += f'\n	* zeros_padding = {fmt_member(self.zeros_padding, indent+1)}'
+		s += f'\n	* minus_padding = {fmt_member(self.minus_padding, indent+1)}'
+		s += f'\n	* struct_7 = {fmt_member(self.struct_7, indent+1)}'
+		s += f'\n	* joints = {fmt_member(self.joints, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

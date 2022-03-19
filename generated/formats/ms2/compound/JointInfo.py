@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.ms2.compound.CommonJointInfo import CommonJointInfo
@@ -67,19 +68,19 @@ class JointInfo(CommonJointInfo):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'JointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* zeros_per_hitcheck = {self.zeros_per_hitcheck.__repr__()}'
-		s += f'\n	* hitchecks = {self.hitchecks.__repr__()}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* zeros_per_hitcheck = {fmt_member(self.zeros_per_hitcheck, indent+1)}'
+		s += f'\n	* hitchecks = {fmt_member(self.hitchecks, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

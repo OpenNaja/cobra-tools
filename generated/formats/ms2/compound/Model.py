@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ms2.compound.FloatsY import FloatsY
@@ -138,22 +139,22 @@ class Model:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* materials = {self.materials.__repr__()}'
-		s += f'\n	* lods = {self.lods.__repr__()}'
-		s += f'\n	* objects = {self.objects.__repr__()}'
-		s += f'\n	* objects_padding = {self.objects_padding.__repr__()}'
-		s += f'\n	* meshes = {self.meshes.__repr__()}'
-		s += f'\n	* ztuac_pre_bones = {self.ztuac_pre_bones.__repr__()}'
-		s += f'\n	* floatsy = {self.floatsy.__repr__()}'
+		s += f'\n	* materials = {fmt_member(self.materials, indent+1)}'
+		s += f'\n	* lods = {fmt_member(self.lods, indent+1)}'
+		s += f'\n	* objects = {fmt_member(self.objects, indent+1)}'
+		s += f'\n	* objects_padding = {fmt_member(self.objects_padding, indent+1)}'
+		s += f'\n	* meshes = {fmt_member(self.meshes, indent+1)}'
+		s += f'\n	* ztuac_pre_bones = {fmt_member(self.ztuac_pre_bones, indent+1)}'
+		s += f'\n	* floatsy = {fmt_member(self.floatsy, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

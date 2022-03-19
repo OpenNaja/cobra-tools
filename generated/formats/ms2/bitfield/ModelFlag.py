@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 

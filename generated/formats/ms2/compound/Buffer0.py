@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -81,19 +82,19 @@ class Buffer0:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Buffer0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* name_hashes = {self.name_hashes.__repr__()}'
-		s += f'\n	* names = {self.names.__repr__()}'
-		s += f'\n	* names_padding = {self.names_padding.__repr__()}'
-		s += f'\n	* zt_streams_header = {self.zt_streams_header.__repr__()}'
+		s += f'\n	* name_hashes = {fmt_member(self.name_hashes, indent+1)}'
+		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
+		s += f'\n	* names_padding = {fmt_member(self.names_padding, indent+1)}'
+		s += f'\n	* zt_streams_header = {fmt_member(self.zt_streams_header, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

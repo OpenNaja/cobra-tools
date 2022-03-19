@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
@@ -95,20 +96,20 @@ class TexInfoHeader(GenericHeader):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'TexInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* tex_info = {self.tex_info.__repr__()}'
-		s += f'\n	* frag_01 = {self.frag_01.__repr__()}'
-		s += f'\n	* frag_11 = {self.frag_11.__repr__()}'
-		s += f'\n	* padding = {self.padding.__repr__()}'
+		s += f'\n	* tex_info = {fmt_member(self.tex_info, indent+1)}'
+		s += f'\n	* frag_01 = {fmt_member(self.frag_01, indent+1)}'
+		s += f'\n	* frag_11 = {fmt_member(self.frag_11, indent+1)}'
+		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

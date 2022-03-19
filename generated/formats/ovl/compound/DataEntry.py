@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -98,23 +99,23 @@ class DataEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'DataEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
-		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
-		s += f'\n	* set_index = {self.set_index.__repr__()}'
-		s += f'\n	* buffer_count = {self.buffer_count.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* size_1 = {self.size_1.__repr__()}'
-		s += f'\n	* size_2 = {self.size_2.__repr__()}'
+		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
+		s += f'\n	* set_index = {fmt_member(self.set_index, indent+1)}'
+		s += f'\n	* buffer_count = {fmt_member(self.buffer_count, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* size_1 = {fmt_member(self.size_1, indent+1)}'
+		s += f'\n	* size_2 = {fmt_member(self.size_2, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

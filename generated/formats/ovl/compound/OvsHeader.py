@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
@@ -93,23 +94,23 @@ class OvsHeader:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'OvsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* pool_groups = {self.pool_groups.__repr__()}'
-		s += f'\n	* pools = {self.pools.__repr__()}'
-		s += f'\n	* data_entries = {self.data_entries.__repr__()}'
-		s += f'\n	* buffer_entries = {self.buffer_entries.__repr__()}'
-		s += f'\n	* buffer_groups = {self.buffer_groups.__repr__()}'
-		s += f'\n	* sized_str_entries = {self.sized_str_entries.__repr__()}'
-		s += f'\n	* fragments = {self.fragments.__repr__()}'
-		s += f'\n	* set_header = {self.set_header.__repr__()}'
+		s += f'\n	* pool_groups = {fmt_member(self.pool_groups, indent+1)}'
+		s += f'\n	* pools = {fmt_member(self.pools, indent+1)}'
+		s += f'\n	* data_entries = {fmt_member(self.data_entries, indent+1)}'
+		s += f'\n	* buffer_entries = {fmt_member(self.buffer_entries, indent+1)}'
+		s += f'\n	* buffer_groups = {fmt_member(self.buffer_groups, indent+1)}'
+		s += f'\n	* sized_str_entries = {fmt_member(self.sized_str_entries, indent+1)}'
+		s += f'\n	* fragments = {fmt_member(self.fragments, indent+1)}'
+		s += f'\n	* set_header = {fmt_member(self.set_header, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

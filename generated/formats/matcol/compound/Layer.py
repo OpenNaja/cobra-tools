@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.base.basic import ZString
@@ -77,21 +78,21 @@ class Layer:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Layer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* info = {self.info.__repr__()}'
-		s += f'\n	* name = {self.name.__repr__()}'
-		s += f'\n	* infos = {self.infos.__repr__()}'
-		s += f'\n	* info_names = {self.info_names.__repr__()}'
-		s += f'\n	* attribs = {self.attribs.__repr__()}'
-		s += f'\n	* attrib_names = {self.attrib_names.__repr__()}'
+		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
+		s += f'\n	* name = {fmt_member(self.name, indent+1)}'
+		s += f'\n	* infos = {fmt_member(self.infos, indent+1)}'
+		s += f'\n	* info_names = {fmt_member(self.info_names, indent+1)}'
+		s += f'\n	* attribs = {fmt_member(self.attribs, indent+1)}'
+		s += f'\n	* attrib_names = {fmt_member(self.attrib_names, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

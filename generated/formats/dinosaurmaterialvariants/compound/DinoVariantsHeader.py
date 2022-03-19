@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.dinosaurmaterialvariants.compound.VariantArray
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -83,22 +84,22 @@ class DinoVariantsHeader(MemStruct):
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'DinoVariantsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* fgm_name = {self.fgm_name.__repr__()}'
-		s += f'\n	* has_sets = {self.has_sets.__repr__()}'
-		s += f'\n	* set_name = {self.set_name.__repr__()}'
-		s += f'\n	* variants = {self.variants.__repr__()}'
-		s += f'\n	* variant_count = {self.variant_count.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
+		s += f'\n	* fgm_name = {fmt_member(self.fgm_name, indent+1)}'
+		s += f'\n	* has_sets = {fmt_member(self.has_sets, indent+1)}'
+		s += f'\n	* set_name = {fmt_member(self.set_name, indent+1)}'
+		s += f'\n	* variants = {fmt_member(self.variants, indent+1)}'
+		s += f'\n	* variant_count = {fmt_member(self.variant_count, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

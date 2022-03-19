@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 from generated.formats.dds.bitstruct.Caps1 import Caps1
@@ -130,31 +131,31 @@ class Header:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* header_string = {self.header_string.__repr__()}'
-		s += f'\n	* size = {self.size.__repr__()}'
-		s += f'\n	* flags = {self.flags.__repr__()}'
-		s += f'\n	* height = {self.height.__repr__()}'
-		s += f'\n	* width = {self.width.__repr__()}'
-		s += f'\n	* linear_size = {self.linear_size.__repr__()}'
-		s += f'\n	* depth = {self.depth.__repr__()}'
-		s += f'\n	* mipmap_count = {self.mipmap_count.__repr__()}'
-		s += f'\n	* reserved_1 = {self.reserved_1.__repr__()}'
-		s += f'\n	* pixel_format = {self.pixel_format.__repr__()}'
-		s += f'\n	* caps_1 = {self.caps_1.__repr__()}'
-		s += f'\n	* caps_2 = {self.caps_2.__repr__()}'
-		s += f'\n	* caps_3 = {self.caps_3.__repr__()}'
-		s += f'\n	* caps_4 = {self.caps_4.__repr__()}'
-		s += f'\n	* unused = {self.unused.__repr__()}'
-		s += f'\n	* dx_10 = {self.dx_10.__repr__()}'
+		s += f'\n	* header_string = {fmt_member(self.header_string, indent+1)}'
+		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
+		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
+		s += f'\n	* height = {fmt_member(self.height, indent+1)}'
+		s += f'\n	* width = {fmt_member(self.width, indent+1)}'
+		s += f'\n	* linear_size = {fmt_member(self.linear_size, indent+1)}'
+		s += f'\n	* depth = {fmt_member(self.depth, indent+1)}'
+		s += f'\n	* mipmap_count = {fmt_member(self.mipmap_count, indent+1)}'
+		s += f'\n	* reserved_1 = {fmt_member(self.reserved_1, indent+1)}'
+		s += f'\n	* pixel_format = {fmt_member(self.pixel_format, indent+1)}'
+		s += f'\n	* caps_1 = {fmt_member(self.caps_1, indent+1)}'
+		s += f'\n	* caps_2 = {fmt_member(self.caps_2, indent+1)}'
+		s += f'\n	* caps_3 = {fmt_member(self.caps_3, indent+1)}'
+		s += f'\n	* caps_4 = {fmt_member(self.caps_4, indent+1)}'
+		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
+		s += f'\n	* dx_10 = {fmt_member(self.dx_10, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
 
@@ -84,22 +85,22 @@ class BKHDSection:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'BKHDSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* length = {self.length.__repr__()}'
-		s += f'\n	* version = {self.version.__repr__()}'
-		s += f'\n	* id_a = {self.id_a.__repr__()}'
-		s += f'\n	* id_b = {self.id_b.__repr__()}'
-		s += f'\n	* constant_a = {self.constant_a.__repr__()}'
-		s += f'\n	* constant_b = {self.constant_b.__repr__()}'
-		s += f'\n	* unk = {self.unk.__repr__()}'
+		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
+		s += f'\n	* version = {fmt_member(self.version, indent+1)}'
+		s += f'\n	* id_a = {fmt_member(self.id_a, indent+1)}'
+		s += f'\n	* id_b = {fmt_member(self.id_b, indent+1)}'
+		s += f'\n	* constant_a = {fmt_member(self.constant_a, indent+1)}'
+		s += f'\n	* constant_b = {fmt_member(self.constant_b, indent+1)}'
+		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

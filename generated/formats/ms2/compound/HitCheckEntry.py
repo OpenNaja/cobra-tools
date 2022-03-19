@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
@@ -156,24 +157,24 @@ class HitCheckEntry:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'HitCheckEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* type = {self.type.__repr__()}'
-		s += f'\n	* flag_0 = {self.flag_0.__repr__()}'
-		s += f'\n	* flag_1 = {self.flag_1.__repr__()}'
-		s += f'\n	* flag_2 = {self.flag_2.__repr__()}'
-		s += f'\n	* flag_3 = {self.flag_3.__repr__()}'
-		s += f'\n	* zero_extra_pc_unk = {self.zero_extra_pc_unk.__repr__()}'
-		s += f'\n	* name_offset = {self.name_offset.__repr__()}'
-		s += f'\n	* collider = {self.collider.__repr__()}'
-		s += f'\n	* zero_extra_zt = {self.zero_extra_zt.__repr__()}'
+		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
+		s += f'\n	* flag_0 = {fmt_member(self.flag_0, indent+1)}'
+		s += f'\n	* flag_1 = {fmt_member(self.flag_1, indent+1)}'
+		s += f'\n	* flag_2 = {fmt_member(self.flag_2, indent+1)}'
+		s += f'\n	* flag_3 = {fmt_member(self.flag_3, indent+1)}'
+		s += f'\n	* zero_extra_pc_unk = {fmt_member(self.zero_extra_pc_unk, indent+1)}'
+		s += f'\n	* name_offset = {fmt_member(self.name_offset, indent+1)}'
+		s += f'\n	* collider = {fmt_member(self.collider, indent+1)}'
+		s += f'\n	* zero_extra_zt = {fmt_member(self.zero_extra_zt, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

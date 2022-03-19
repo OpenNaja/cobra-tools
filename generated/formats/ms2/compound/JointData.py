@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.context import ContextReference
@@ -262,44 +263,44 @@ class JointData:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_info_str(self):
+	def get_info_str(self, indent=0):
 		return f'JointData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* start_pc = {self.start_pc.__repr__()}'
-		s += f'\n	* joint_count = {self.joint_count.__repr__()}'
-		s += f'\n	* count_0 = {self.count_0.__repr__()}'
-		s += f'\n	* count_1 = {self.count_1.__repr__()}'
-		s += f'\n	* count_2 = {self.count_2.__repr__()}'
-		s += f'\n	* zeros_extra = {self.zeros_extra.__repr__()}'
-		s += f'\n	* namespace_length = {self.namespace_length.__repr__()}'
-		s += f'\n	* zeros_0 = {self.zeros_0.__repr__()}'
-		s += f'\n	* pc_count = {self.pc_count.__repr__()}'
-		s += f'\n	* zeros_1 = {self.zeros_1.__repr__()}'
-		s += f'\n	* extra_zeros_pc = {self.extra_zeros_pc.__repr__()}'
-		s += f'\n	* ones = {self.ones.__repr__()}'
-		s += f'\n	* bone_count = {self.bone_count.__repr__()}'
-		s += f'\n	* joint_entry_count = {self.joint_entry_count.__repr__()}'
-		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
-		s += f'\n	* joint_transforms = {self.joint_transforms.__repr__()}'
-		s += f'\n	* zeros_3 = {self.zeros_3.__repr__()}'
-		s += f'\n	* unknown_listc = {self.unknown_listc.__repr__()}'
-		s += f'\n	* first_list = {self.first_list.__repr__()}'
-		s += f'\n	* short_list = {self.short_list.__repr__()}'
-		s += f'\n	* long_list = {self.long_list.__repr__()}'
-		s += f'\n	* joint_infos = {self.joint_infos.__repr__()}'
-		s += f'\n	* pc_floats = {self.pc_floats.__repr__()}'
-		s += f'\n	* joint_indices = {self.joint_indices.__repr__()}'
-		s += f'\n	* bone_indices = {self.bone_indices.__repr__()}'
-		s += f'\n	* joint_names = {self.joint_names.__repr__()}'
-		s += f'\n	* joint_names_padding = {self.joint_names_padding.__repr__()}'
-		s += f'\n	* joint_infos = {self.joint_infos.__repr__()}'
-		s += f'\n	* hitcheck_reader = {self.hitcheck_reader.__repr__()}'
+		s += f'\n	* start_pc = {fmt_member(self.start_pc, indent+1)}'
+		s += f'\n	* joint_count = {fmt_member(self.joint_count, indent+1)}'
+		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
+		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
+		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* zeros_extra = {fmt_member(self.zeros_extra, indent+1)}'
+		s += f'\n	* namespace_length = {fmt_member(self.namespace_length, indent+1)}'
+		s += f'\n	* zeros_0 = {fmt_member(self.zeros_0, indent+1)}'
+		s += f'\n	* pc_count = {fmt_member(self.pc_count, indent+1)}'
+		s += f'\n	* zeros_1 = {fmt_member(self.zeros_1, indent+1)}'
+		s += f'\n	* extra_zeros_pc = {fmt_member(self.extra_zeros_pc, indent+1)}'
+		s += f'\n	* ones = {fmt_member(self.ones, indent+1)}'
+		s += f'\n	* bone_count = {fmt_member(self.bone_count, indent+1)}'
+		s += f'\n	* joint_entry_count = {fmt_member(self.joint_entry_count, indent+1)}'
+		s += f'\n	* zeros_2 = {fmt_member(self.zeros_2, indent+1)}'
+		s += f'\n	* joint_transforms = {fmt_member(self.joint_transforms, indent+1)}'
+		s += f'\n	* zeros_3 = {fmt_member(self.zeros_3, indent+1)}'
+		s += f'\n	* unknown_listc = {fmt_member(self.unknown_listc, indent+1)}'
+		s += f'\n	* first_list = {fmt_member(self.first_list, indent+1)}'
+		s += f'\n	* short_list = {fmt_member(self.short_list, indent+1)}'
+		s += f'\n	* long_list = {fmt_member(self.long_list, indent+1)}'
+		s += f'\n	* joint_infos = {fmt_member(self.joint_infos, indent+1)}'
+		s += f'\n	* pc_floats = {fmt_member(self.pc_floats, indent+1)}'
+		s += f'\n	* joint_indices = {fmt_member(self.joint_indices, indent+1)}'
+		s += f'\n	* bone_indices = {fmt_member(self.bone_indices, indent+1)}'
+		s += f'\n	* joint_names = {fmt_member(self.joint_names, indent+1)}'
+		s += f'\n	* joint_names_padding = {fmt_member(self.joint_names_padding, indent+1)}'
+		s += f'\n	* joint_infos = {fmt_member(self.joint_infos, indent+1)}'
+		s += f'\n	* hitcheck_reader = {fmt_member(self.hitcheck_reader, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
