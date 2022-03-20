@@ -94,12 +94,26 @@ class MemStruct:
 		pool_type_key = 4
 
 		print("ref_ptr before", ref_ptr)
-		# first get all ptrs of this MemStruct
+		# get all arrays of this MemStruct
+		arrays = self.get_arrays()
+		print("arrays", arrays)
+		for array in arrays:
+			print(f"found array, len {len(array)}")
+			for member in array:
+				print("member")
+				member.write_ptrs(loader, ovs, ref_ptr)
+
+		# get all ptrs of this MemStruct
 		ptrs = self.get_ptrs()
+
+		# we only create them if they have data assigned
+		ptrs_with_data = [ptr for ptr in ptrs if ptr.data is not None]
+		print(f"{len(ptrs)} pointers, {len(ptrs_with_data)} with data")
 		# create frags for them
-		ptr_frags = loader.create_fragments(loader.sized_str_entry, len(ptrs))
+		ptr_frags = loader.create_fragments(loader.sized_str_entry, len(ptrs_with_data))
+		# print("frags immediate", ptr_frags)
 		# write their data and update frags
-		for ptr, frag in zip(ptrs, ptr_frags):
+		for ptr, frag in zip(ptrs_with_data, ptr_frags):
 			if isinstance(ptr.data, MemStruct):
 				ptr.data.write_ptrs(loader, ovs, frag.pointers[1])
 			else:
@@ -108,14 +122,18 @@ class MemStruct:
 				frag.pointers[1].write_instance(ptr.template, ptr.data)
 		# write this struct's data
 		ref_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-		print("ref_ptr.pool", ref_ptr.pool)
+		# print("ref_ptr.pool", ref_ptr.pool)
 		ref_ptr.write_instance(type(self), self)
 		print("ref_ptr after", ref_ptr)
 		# update positions for frag ptrs 0
 		for ptr, frag in zip(ptrs, ptr_frags):
 			rel_offset = ptr.io_start - self.io_start
 			loader.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
-		print(ovs.fragments)
+
+		# print(ovs.fragments)
+		for frag in ovs.fragments:
+			print(frag, frag.pointers[1].data)
+		print(ref_ptr.pool.data.getvalue())
 
 	def read_ptrs(self, ovs, ref_ptr, io_start=None):
 		if io_start is None:

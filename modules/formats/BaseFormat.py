@@ -244,8 +244,8 @@ class BaseFile:
 
 	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
-		new_frag.pointers.append(HeaderPointer(self.ovl.context))
-		new_frag.pointers.append(HeaderPointer(self.ovl.context))
+		# new_frag.pointers.append(HeaderPointer(self.ovl.context))
+		# new_frag.pointers.append(HeaderPointer(self.ovl.context))
 		self.ovs.fragments.append(new_frag)
 		return new_frag
 
