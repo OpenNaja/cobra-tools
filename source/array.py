@@ -132,3 +132,13 @@ class Array(list):
         self._context = context
         self.arg = arg
         self.template = template
+
+    @property
+    def class_name(self):
+        """Returns the lowercase name of the class, eg. 'variant'"""
+        dtype_str = str(self.dtype)
+        # <class 'generated.formats.dinosaurmaterialvariants.compound.Variant.Variant'>
+        _, a = dtype_str.rsplit(".", 1)
+        b, _ = a.rsplit("'", 1)
+        return b.lower()
+

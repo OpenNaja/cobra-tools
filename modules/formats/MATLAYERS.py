@@ -241,8 +241,7 @@ class MatvarsLoader(MatAbstract):
 		self.write_str_at_rel_offset(ss_ptr, 0, fgm_string)
 		self.write_str_at_rel_offset(ss_ptr, 16, self.variantset)
 		self.write_str_list_at_rel_offset(ss_ptr, 24, self.variants)
-
-	# todo - may need padding here
+		# todo - may need padding here
 
 	def load(self, file_path):
 		xml = self.load_xml(file_path)

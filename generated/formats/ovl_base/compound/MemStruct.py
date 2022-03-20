@@ -127,8 +127,9 @@ class MemStruct:
 			elif isinstance(val, Array):
 				print("array")
 				# subelement with subelements
+				# print(val.dtype)
 				for member in val:
-					self._to_xml(elem, prop, member)
+					self._to_xml(elem, val.class_name, member)
 			else:
 				# attribute
 				elem.set(prop, str(val))
@@ -145,3 +146,4 @@ class MemStruct:
 		s += self.get_fields_str()
 		s += '\n'
 		return ""
+

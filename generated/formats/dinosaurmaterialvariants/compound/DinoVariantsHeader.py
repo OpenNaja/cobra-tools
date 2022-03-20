@@ -1,6 +1,7 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.dinosaurmaterialvariants.compound.VariantArray
+import generated.formats.ovl_base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -22,7 +23,7 @@ class DinoVariantsHeader(MemStruct):
 		self.has_sets = 0
 		self.variant_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
 		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
 		if set_default:
@@ -32,7 +33,7 @@ class DinoVariantsHeader(MemStruct):
 		self.has_sets = 0
 		self.variant_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
 		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
 
@@ -49,7 +50,7 @@ class DinoVariantsHeader(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
 		instance.has_sets = stream.read_uint64()
 		instance.set_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.variants = Pointer.from_stream(stream, instance.context, instance.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)

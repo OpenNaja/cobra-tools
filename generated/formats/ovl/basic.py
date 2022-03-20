@@ -1,6 +1,6 @@
 
 
-from generated.formats.ovl_base.basic import Byte, Ubyte, Uint64, Uint, Ushort, Int, Short, Char, Float, ZString, Bool
+from generated.formats.ovl_base.basic import Byte, Ubyte, Uint64, Uint, Ushort, Int, Short, Char, Float, ZString, Bool, ZStringObfuscated
 
 basic_map = {
 			'Byte': Byte,
@@ -14,4 +14,5 @@ basic_map = {
 			'Float': Float,
 			'ZString': ZString,
 			'Bool': Bool,
+			'ZStringObfuscated': ZStringObfuscated,
 }
