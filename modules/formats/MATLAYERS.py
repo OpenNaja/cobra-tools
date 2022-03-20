@@ -220,19 +220,22 @@ class MatpatsLoader(BaseFile):
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		ss_ptr = self.sized_str_entry.pointers[0]
 
-		xml = self.load_xml(self.file_entry.path)
-		# there's just 1 patternset for now
-		patternset = xml[0]
-		self.patternset = patternset.attrib["name"]
-		self.patterns = [pattern.attrib["name"] for pattern in patternset]
-		ptr = 0
-		self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(self.patterns) + 1, 0))
-		# todo - may use wrong pools !
-		fgm_string = self.get_fgm(xml)
-		self.write_str_at_rel_offset(ss_ptr, 0, fgm_string)
-		self.write_str_at_rel_offset(ss_ptr, 16, self.patternset)
-		self.write_str_list_at_rel_offset(ss_ptr, 24, self.patterns)
-		# todo - may need padding here
+		self.header = DinoPatternsHeader.from_xml_file(self.file_entry.path, self.ovl.context)
+		print(self.header)
+		self.header.write_ptrs(self, self.ovs, ss_ptr)
+		# xml = self.load_xml(self.file_entry.path)
+		# # there's just 1 patternset for now
+		# patternset = xml[0]
+		# self.patternset = patternset.attrib["name"]
+		# self.patterns = [pattern.attrib["name"] for pattern in patternset]
+		# ptr = 0
+		# self.write_to_pool(ss_ptr, 4, struct.pack("<Q Q 2Q Q Q", ptr, len(xml), ptr, ptr, len(self.patterns) + 1, 0))
+		# # todo - may use wrong pools !
+		# fgm_string = self.get_fgm(xml)
+		# self.write_str_at_rel_offset(ss_ptr, 0, fgm_string)
+		# self.write_str_at_rel_offset(ss_ptr, 16, self.patternset)
+		# self.write_str_list_at_rel_offset(ss_ptr, 24, self.patterns)
+		# # todo - may need padding here
 
 	def load(self, file_path):
 		self.header = DinoPatternsHeader.from_xml_file(file_path, self.ovl.context)

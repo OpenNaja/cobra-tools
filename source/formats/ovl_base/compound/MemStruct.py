@@ -37,6 +37,34 @@ class MemStruct:
 	def get_arrays(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, Array)]
 
+	def write_ptrs(self, loader, ovs, ref_ptr):
+		# todo - get / set pool type
+		pool_type_key = 4
+
+		print("ref_ptr before", ref_ptr)
+		# first get all ptrs of this MemStruct
+		ptrs = self.get_ptrs()
+		# create frags for them
+		ptr_frags = loader.create_fragments(loader.sized_str_entry, len(ptrs))
+		# write their data and update frags
+		for ptr, frag in zip(ptrs, ptr_frags):
+			if isinstance(ptr.data, MemStruct):
+				ptr.data.write_ptrs(loader, ovs, frag.pointers[1])
+			else:
+				# basic pointer
+				frag.pointers[1].pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
+				frag.pointers[1].write_instance(ptr.template, ptr.data)
+		# write this struct's data
+		ref_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
+		print("ref_ptr.pool", ref_ptr.pool)
+		ref_ptr.write_instance(type(self), self)
+		print("ref_ptr after", ref_ptr)
+		# update positions for frag ptrs 0
+		for ptr, frag in zip(ptrs, ptr_frags):
+			rel_offset = ptr.io_start - self.io_start
+			loader.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
+		print(ovs.fragments)
+
 	def read_ptrs(self, ovs, ref_ptr, io_start=None):
 		if io_start is None:
 			io_start = self.io_start
