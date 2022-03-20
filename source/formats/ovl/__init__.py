@@ -310,8 +310,9 @@ class OvsFile(OvsHeader):
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
+		print("self.arg.num_files", self.arg.num_files)
 		self.arg.num_buffer_groups = len(self.buffer_groups)
-	# todo - self.arg.ovs_offset
+		# todo - self.arg.ovs_offset
 
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
@@ -1088,6 +1089,9 @@ class OvlFile(Header, IoFile):
 		self.update_hashes()
 		self.update_counts()
 		self.postprocessing()
+		for archive in self.archives:
+			print(archive)
+			print(archive.content)
 
 	def create_archive(self, name="STATIC"):
 		# logging.debug(f"Getting archive '{name}'")

@@ -217,7 +217,7 @@ class BaseFile:
 		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
 		ss_entry.fragments = []
-		ss_entry.pointers.append(HeaderPointer(self.ovl.context))
+		# ss_entry.pointers.append(HeaderPointer(self.ovl.context))
 		ovs_file = self.ovl.create_archive(ovs)
 		ovs_file.transfer_identity(ss_entry, file_entry)
 		ovs_file.sized_str_entries.append(ss_entry)
@@ -233,7 +233,7 @@ class BaseFile:
 	def create_dependency(self, name):
 		dependency = DependencyEntry(self.ovl.context)
 		self.set_dependency_identity(dependency, name)
-		dependency.pointers.append(HeaderPointer(self.ovl.context))
+		# dependency.pointers.append(HeaderPointer(self.ovl.context))
 		self.file_entry.dependencies.append(dependency)
 		return dependency
 
