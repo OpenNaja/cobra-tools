@@ -89,19 +89,11 @@ class MemStruct:
 	def get_arrays(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, Array)]
 
-	def write_ptrs(self, loader, ovs, ref_ptr):
+	def write_ptrs(self, loader, ovs, ref_ptr, is_member=False):
 		# todo - get / set pool type
 		pool_type_key = 4
 
 		print("ref_ptr before", ref_ptr)
-		# get all arrays of this MemStruct
-		arrays = self.get_arrays()
-		print("arrays", arrays)
-		for array in arrays:
-			print(f"found array, len {len(array)}")
-			for member in array:
-				print("member")
-				member.write_ptrs(loader, ovs, ref_ptr)
 
 		# get all ptrs of this MemStruct
 		ptrs = self.get_ptrs()
@@ -120,20 +112,35 @@ class MemStruct:
 				# basic pointer
 				frag.pointers[1].pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
 				frag.pointers[1].write_instance(ptr.template, ptr.data)
-		# write this struct's data
-		ref_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-		# print("ref_ptr.pool", ref_ptr.pool)
-		ref_ptr.write_instance(type(self), self)
-		print("ref_ptr after", ref_ptr)
+		# don't write array members again, they have already been written!
+		if not is_member:
+			# write this struct's data
+			ref_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
+			# print("ref_ptr.pool", ref_ptr.pool)
+			ref_ptr.write_instance(type(self), self)
+			print("ref_ptr after", ref_ptr)
 		# update positions for frag ptrs 0
 		for ptr, frag in zip(ptrs, ptr_frags):
-			rel_offset = ptr.io_start - self.io_start
-			loader.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
+			# rel_offset = ptr.io_start - self.io_start
+			# loader.ptr_relative(frag.pointers[0], ref_ptr, rel_offset=rel_offset)
+			p = frag.pointers[0]
+			p.pool_index = ref_ptr.pool_index
+			p.data_offset = ptr.io_start
+			p.pool = ref_ptr.pool
+
+		# get all arrays of this MemStruct
+		arrays = self.get_arrays()
+		print("arrays", arrays)
+		for array in arrays:
+			print(f"found array, len {len(array)}")
+			for member in array:
+				print("member")
+				member.write_ptrs(loader, ovs, ref_ptr, is_member=True)
 
 		# print(ovs.fragments)
 		for frag in ovs.fragments:
-			print(frag, frag.pointers[1].data)
-		print(ref_ptr.pool.data.getvalue())
+			print(frag, frag.pointers[1].data_size, frag.pointers[1].data)
+		# print(ref_ptr.pool.data.getvalue())
 
 	def read_ptrs(self, ovs, ref_ptr, io_start=None):
 		if io_start is None:

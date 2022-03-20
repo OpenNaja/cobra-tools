@@ -96,11 +96,11 @@ class Array(list):
         except TypeError:
             # if this can't be converted to a tuple, try instead to convert an integer-like to (int, )
             shape = (index(shape_input),)
-        if self._shape is None:
-            self._shape = shape
-        else:
-            if self._shape != shape:
-                raise ValueError('tried to assign non-compatible shape to array')
+        # if self._shape is None:
+        self._shape = shape
+        # else:
+        #     if self._shape != shape:
+        #         raise ValueError(f'tried to assign non-compatible shape {shape} to array {self._shape}')
 
     @property
     def ndim(self):
