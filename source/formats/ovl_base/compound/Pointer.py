@@ -20,6 +20,8 @@ class Pointer:
 		self.io_start = 0
 		self.offset = 0
 		self.data = None
+		# # todo - test if it is better to already create the template here, or on demand from MemStruct
+		# self.data = template(context, arg=0, template=None)
 		if set_default:
 			self.set_defaults()
 

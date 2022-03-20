@@ -24,4 +24,41 @@
         <add name="zero" type="uint64"/>
     </compound>
 
+
+    <compound name="LayerArray" inherit="MemStruct" >
+        <add name="layers" type="Layer" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="Layer" inherit="MemStruct" >
+        <add name="has_ptr" type="uint64"/>
+        <add name="fgm_name" type="Pointer" template="ZString"/>
+        <add name="layer_name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="DinoLayersHeader" inherit="MemStruct" >
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="layers" type="Pointer" template="LayerArray" arg="layer_count"/>
+        <add name="layer_count" type="uint64"/>
+        <add name="zero" type="uint64"/>
+    </compound>
+
+
+    <compound name="PatternArray" inherit="MemStruct" >
+        <add name="patterns" type="Pattern" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="Pattern" inherit="MemStruct" >
+        <add name="has_ptr" type="uint64"/>
+        <add name="pattern_name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="DinoPatternsHeader" inherit="MemStruct" >
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="set_count" type="uint64"/>
+        <add name="set_name" type="Pointer" template="ZString"/>
+        <add name="patterns" type="Pointer" template="PatternArray" arg="pattern_count"/>
+        <add name="pattern_count" type="uint64"/>
+        <add name="zero" type="uint64"/>
+    </compound>
+
 </niftoolsxml>
