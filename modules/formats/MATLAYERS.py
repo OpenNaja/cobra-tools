@@ -216,9 +216,7 @@ class MatvarsLoader(MatAbstract):
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name
 		out_path = out_dir(name)
-		xmldata = ET.Element('MaterialVariants')
-		self.header.to_xml(xmldata)
-		self.write_xml(out_path, xmldata)
+		self.header.to_xml_file(out_path)
 		return out_path,
 
 	def create(self):

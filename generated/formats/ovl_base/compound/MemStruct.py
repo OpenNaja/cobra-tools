@@ -1,9 +1,26 @@
 
-from generated.array import Array
+from generated.array import Array, _class_to_name
 from generated.formats.ovl_base.compound.Pointer import Pointer
 import xml.etree.ElementTree as ET
 
 ZERO = b"\x00"
+
+
+def indent(e, level=0):
+	i = "\n" + level*"	"
+	if len(e):
+		if not e.text or not e.text.strip():
+			e.text = i + "	"
+		if not e.tail or not e.tail.strip():
+			e.tail = i
+		for e in e:
+			indent(e, level+1)
+		if not e.tail or not e.tail.strip():
+			e.tail = i
+	else:
+		if level and (not e.tail or not e.tail.strip()):
+			e.tail = i
+
 
 
 from source.formats.base.basic import fmt_member
@@ -101,39 +118,46 @@ class MemStruct:
 			# print("is a memstruct")
 			ptr.data.read_ptrs(ovs, f_ptr)
 
-	def to_xml_file(self, fp):
-		pass
+	def to_xml_file(self, out_path):
+		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'out_path'"""
+		xml = ET.Element(_class_to_name(type(self)))
+		self.to_xml(xml)
+		indent(xml)
+		with open(out_path, 'wb') as outfile:
+			outfile.write(ET.tostring(xml))
 
 	def _to_xml(self, elem, prop, val):
+		"""Create a subelement named 'prop' that represents object 'val'"""
 		subelement = ET.SubElement(elem, prop)
-		# pointer points to a memstruct
+		# value is a memstruct
 		if isinstance(val, MemStruct):
-			print("memstruct")
+			# print("memstruct")
 			val.to_xml(subelement)
-		# points to a basic type
+		# it is a basic type
 		else:
-			print("basic")
+			# print("basic")
 			subelement.set("data", str(val))
 
 	def to_xml(self, elem):
-		nopes = ("_context", "arg", "name", "io_start", "io_size", "template")
+		"""Adds data of this MemStruct to 'elem', recursively"""
+		# go over all fields of this MemStruct
 		for prop, val in vars(self).items():
-			if prop in nopes:
+			# skip dummy properties
+			if prop in ("_context", "arg", "name", "io_start", "io_size", "template"):
 				continue
 			if isinstance(val, Pointer):
-				print("pointer")
+				# print("pointer")
 				# subelement
 				self._to_xml(elem, prop, val.data)
 			elif isinstance(val, Array):
-				print("array")
+				# print("array")
 				# subelement with subelements
 				# print(val.dtype)
 				for member in val:
 					self._to_xml(elem, val.class_name, member)
 			else:
-				# attribute
+				# a basic attribute
 				elem.set(prop, str(val))
-				pass
 
 	def get_info_str(self):
 		return f'\nMemStruct'

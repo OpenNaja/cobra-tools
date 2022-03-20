@@ -136,9 +136,12 @@ class Array(list):
     @property
     def class_name(self):
         """Returns the lowercase name of the class, eg. 'variant'"""
-        dtype_str = str(self.dtype)
-        # <class 'generated.formats.dinosaurmaterialvariants.compound.Variant.Variant'>
-        _, a = dtype_str.rsplit(".", 1)
-        b, _ = a.rsplit("'", 1)
-        return b.lower()
+        return _class_to_name(self.dtype).lower()
 
+
+def _class_to_name(cls):
+    cls_str = str(cls)
+    # <class 'generated.formats.dinosaurmaterialvariants.compound.Variant.Variant'>
+    _, a = cls_str.rsplit(".", 1)
+    b, _ = a.rsplit("'", 1)
+    return b
