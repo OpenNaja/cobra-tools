@@ -187,8 +187,10 @@
 		<add name="zero1" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
+<!--		<add name="vertex offset 2" type="ushort" >jwe2 ??</add>-->
 		<add name="size of vertex" type="uint" >usually 48</add>
 		<add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
+<!--		<add name="tri offset 2" type="ushort">jwe2 ??</add>-->
 		<add name="zero2" type="uint">always zero</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="zero3" type="uint">always zero</add>

@@ -72,7 +72,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				bone.name = self.buffer_0.names[name_i]
 		except:
 			logging.error("Names failed...")
-			
+
+	@property
+	def vbuff_size(self):
+		"""Calc actual size of vertex buffer. Data in buffer_info can be wrong???"""
+		# return self.buffer_info.vertexdatasize
+		v_buff = max(m.vertex_offset + m.vertex_count * m.size_of_vertex for model_info in self.model_infos for m in model_info.model.meshes)
+		if v_buff != self.buffer_info.vertexdatasize:
+			logging.warning(f"Mismatch for vertex buffer size - actual: {self.buffer_info.vertexdatasize}, calculated: {v_buff}")
+		return v_buff
+
 	def load(self, filepath, read_bytes=False, read_editable=False):
 		start_time = time.time()
 		self.filepath = filepath

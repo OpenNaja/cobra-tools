@@ -19,6 +19,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2 = Ms2File()
 	ms2.load(filepath, read_editable=True)
+	print(ms2.buffer_info)
 	created_materials = {}
 	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
 		scene = bpy.data.scenes.new(mdl2_name)
@@ -38,6 +39,9 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 			logging.debug(f"lod_i {lod_i}")
 			for ob_i, m_ob in enumerate(m_lod.objects):
 				mesh = model_info.model.meshes[m_ob.mesh_index]
+				print(model_info)
+				print(model_info.model)
+				print(mesh)
 				# lod_i = mesh.lod_index
 				logging.debug(f"flag {mesh.flag}")
 				if m_ob.mesh_index in mesh_dict:
@@ -48,6 +52,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					b_me = bpy.data.meshes.new(f"{mdl2_name}_model{m_ob.mesh_index}")
 					# cast array to prevent truth check in from_pydata
 					b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
+					# print(mesh.vertices, [], tuple(mesh.tris))
 					# store mesh unknowns
 					# cast the bitfield to int
 					b_me["flag"] = int(mesh.flag)
