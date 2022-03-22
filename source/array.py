@@ -40,6 +40,8 @@ class Array(list):
         self._context = context
         self.arg = arg
         self.template = template
+        self.io_start = 0
+        self.io_size = 0
         if set_default:
             self.set_defaults()
 

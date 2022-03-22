@@ -7,6 +7,7 @@ import logging
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
 from generated.formats.ovl_base.basic import ConvStream
+from generated.formats.ovl.basic import basic_map
 from generated.io import IoFile
 from modules.formats.shared import get_padding_size, djb, get_padding
 
@@ -22,6 +23,8 @@ class Ms2Context:
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, ):
 		super().__init__(Ms2Context())

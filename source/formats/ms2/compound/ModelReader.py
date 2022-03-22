@@ -19,7 +19,7 @@ class ModelReader:
 
 	# START_CLASS
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -27,7 +27,8 @@ class ModelReader:
 		self.io_size = 0
 		self.io_start = 0
 		self.bone_infos = []
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 		self.bone_info_start = 0
 
 	def set_defaults(self):
