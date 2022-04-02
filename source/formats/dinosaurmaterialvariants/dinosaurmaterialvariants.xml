@@ -61,4 +61,30 @@
         <add name="zero" type="uint64"/>
     </compound>
 
+    <compound name="Vector3f" >
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="z" type="float"/>
+    </compound>
+
+    <compound name="DinoEffectsHeader" inherit="MemStruct" >
+<!--"<Q 6f 2I 12f 2I 2f I 39f I f"-->
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="vec0" type="Vector3f"/>
+        <add name="vec1" type="Vector3f"/>
+        <add name="a" type="uint"/>
+        <add name="b" type="uint"/>
+        <add name="vec2" type="Vector3f"/>
+        <add name="vec3" type="Vector3f"/>
+        <add name="vec4" type="Vector3f"/>
+        <add name="c" type="uint"/>
+        <add name="d" type="uint"/>
+        <add name="e" type="float"/>
+        <add name="f" type="float"/>
+        <add name="g" type="uint"/>
+        <add name="floats" type="float" arr1="39"/>
+        <add name="d" type="uint"/>
+        <add name="e" type="float"/>
+    </compound>
+
 </niftoolsxml>
