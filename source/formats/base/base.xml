@@ -35,6 +35,11 @@
     <basic name="uint64" integral="true" countable="true">
         An unsigned 64-bit integer.
     </basic>
+
+    <basic name="int64" integral="true" countable="true">
+        A signed 64-bit integer.
+    </basic>
+
     <basic name="uint" integral="true" countable="true">
         An unsigned 32-bit integer.
     </basic>

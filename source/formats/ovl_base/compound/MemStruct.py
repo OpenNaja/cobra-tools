@@ -37,6 +37,9 @@ class MemStruct:
 	def get_arrays(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, Array)]
 
+	def get_memstructs(self):
+		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
+
 	def write_ptrs(self, loader, ovs, ref_ptr, is_member=False):
 		# todo - get / set pool type
 		pool_type_key = 4
@@ -105,12 +108,15 @@ class MemStruct:
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
 					member.read_ptrs(ovs, ref_ptr, sized_str_entry, array.io_start)
+		for memstr in self.get_memstructs():
+			memstr.read_ptrs(ovs, ref_ptr, sized_str_entry, io_start)
 
 	def handle_ptr(self, ptr, ovs, ref_ptr, io_start, sized_str_entry):
 		rel_offset = ptr.io_start-io_start
 		# print(f"handle_ptr dtype: {ptr.template.__name__} io_ref: {io_start} relative: {rel_offset} count: {ptr.arg}")
 		# get a fragment that is relative to pointer + offset
 		f = ovs.frag_at_pointer(ref_ptr, offset=rel_offset)
+		ptr.frag = f
 		# ptr may be a nullptr, so ignore
 		if not f:
 			# print("is a nullptr")
@@ -199,7 +205,7 @@ class MemStruct:
 		with open(file_path, 'wb') as outfile:
 			outfile.write(ET.tostring(xml))
 
-	def _to_xml(self, elem, prop, val):
+	def _to_xml(self, elem, prop, val, frag=None):
 		"""Create a subelement named 'prop' that represents object 'val'"""
 		subelement = ET.SubElement(elem, prop)
 		# value is a memstruct
@@ -209,7 +215,16 @@ class MemStruct:
 		# it is a basic type
 		else:
 			# print("basic")
-			subelement.set("data", str(val))
+			if prop == "xml_string":
+				# print(val)
+				subelement.append(ET.fromstring(val))
+			else:
+				subelement.set("data", str(val))
+		# set address for debugging
+		if frag:
+			f_ptr = frag.pointers[1]
+			subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+			subelement.set("_size", f"{f_ptr.data_size}")
 
 	def to_xml(self, elem):
 		"""Adds data of this MemStruct to 'elem', recursively"""
@@ -220,8 +235,9 @@ class MemStruct:
 				continue
 			if isinstance(val, Pointer):
 				# print("pointer")
-				# subelement
-				self._to_xml(elem, prop, val.data)
+				# subelementptr.frag
+				# print(val.template)
+				self._to_xml(elem, prop, val.data, val.frag)
 			elif isinstance(val, Array):
 				# print("array")
 				# subelement with subelements
@@ -229,8 +245,14 @@ class MemStruct:
 				for member in val:
 					self._to_xml(elem, val.class_name, member)
 			else:
-				# a basic attribute
-				elem.set(prop, str(val))
+				# todo - add this distinction for from_xml
+				# a MemStruct
+				if isinstance(val, MemStruct):
+					subelement = ET.SubElement(elem, prop)
+					val.to_xml(subelement)
+				# basic attribute
+				else:
+					elem.set(prop, str(val))
 
 	def get_info_str(self):
 		return f'\nMemStruct'

@@ -1,16 +1,13 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.motiongraph.compound.MRFArray0
-import generated.formats.motiongraph.compound.MRFArray1
-import generated.formats.motiongraph.compound.MRFArray2
-import generated.formats.motiongraph.compound.XMLArray
+import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class MotiongraphRootFrag(MemStruct):
+class MRFMember1(MemStruct):
 
 	"""
-	64 bytes
+	72 bytes, is like ThirdFrag, but different templates
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -23,11 +20,12 @@ class MotiongraphRootFrag(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.num_xmls = 0
-		self.ptr_0 = Pointer(self.context, self.count_0, generated.formats.motiongraph.compound.MRFArray0.MRFArray0)
-		self.ptr_1 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compound.MRFArray1.MRFArray1)
-		self.ptr_2 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compound.MRFArray2.MRFArray2)
-		self.ptr_xmls = Pointer(self.context, self.num_xmls, generated.formats.motiongraph.compound.XMLArray.XMLArray)
+		self.count_3 = 0
+		self.count_4 = 0
+		self.data_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
+		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -35,11 +33,12 @@ class MotiongraphRootFrag(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.num_xmls = 0
-		self.ptr_0 = Pointer(self.context, self.count_0, generated.formats.motiongraph.compound.MRFArray0.MRFArray0)
-		self.ptr_1 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compound.MRFArray1.MRFArray1)
-		self.ptr_2 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compound.MRFArray2.MRFArray2)
-		self.ptr_xmls = Pointer(self.context, self.num_xmls, generated.formats.motiongraph.compound.XMLArray.XMLArray)
+		self.count_3 = 0
+		self.count_4 = 0
+		self.data_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
+		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -54,30 +53,32 @@ class MotiongraphRootFrag(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
+		instance.data_type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.count_0 = stream.read_uint64()
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_0, generated.formats.motiongraph.compound.MRFArray0.MRFArray0)
 		instance.count_1 = stream.read_uint64()
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_1, generated.formats.motiongraph.compound.MRFArray1.MRFArray1)
+		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.count_2 = stream.read_uint64()
-		instance.ptr_2 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compound.MRFArray2.MRFArray2)
-		instance.num_xmls = stream.read_uint64()
-		instance.ptr_xmls = Pointer.from_stream(stream, instance.context, instance.num_xmls, generated.formats.motiongraph.compound.XMLArray.XMLArray)
-		instance.ptr_0.arg = instance.count_0
-		instance.ptr_1.arg = instance.count_1
-		instance.ptr_2.arg = instance.count_2
-		instance.ptr_xmls.arg = instance.num_xmls
+		instance.count_3 = stream.read_uint64()
+		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.count_4 = stream.read_uint64()
+		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.data_type.arg = 0
+		instance.ptr_1.arg = 0
+		instance.ptr_2.arg = 0
+		instance.id.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
+		Pointer.to_stream(stream, instance.data_type)
 		stream.write_uint64(instance.count_0)
-		Pointer.to_stream(stream, instance.ptr_0)
 		stream.write_uint64(instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_1)
 		stream.write_uint64(instance.count_2)
+		stream.write_uint64(instance.count_3)
 		Pointer.to_stream(stream, instance.ptr_2)
-		stream.write_uint64(instance.num_xmls)
-		Pointer.to_stream(stream, instance.ptr_xmls)
+		stream.write_uint64(instance.count_4)
+		Pointer.to_stream(stream, instance.id)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -95,19 +96,20 @@ class MotiongraphRootFrag(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'MotiongraphRootFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'MRFMember1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* data_type = {fmt_member(self.data_type, indent+1)}'
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
-		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
 		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* count_3 = {fmt_member(self.count_3, indent+1)}'
 		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* num_xmls = {fmt_member(self.num_xmls, indent+1)}'
-		s += f'\n	* ptr_xmls = {fmt_member(self.ptr_xmls, indent+1)}'
+		s += f'\n	* count_4 = {fmt_member(self.count_4, indent+1)}'
+		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

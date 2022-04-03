@@ -1,4 +1,5 @@
 from source.formats.base.basic import fmt_member
+import generated.formats.base.basic
 import generated.formats.motiongraph.compound.MGTwo
 import generated.formats.motiongraph.compound.MotiongraphRootFrag
 import generated.formats.motiongraph.compound.ThirdFrag
@@ -22,9 +23,9 @@ class MotiongraphHeader(MemStruct):
 		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.ThirdFrag.ThirdFrag)
 		self.ptr_4 = Pointer(self.context, 0, None)
-		self.ptr_5 = Pointer(self.context, 0, None)
+		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.ptr_6 = Pointer(self.context, 0, None)
-		self.ptr_7 = Pointer(self.context, 0, None)
+		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -36,9 +37,9 @@ class MotiongraphHeader(MemStruct):
 		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.ThirdFrag.ThirdFrag)
 		self.ptr_4 = Pointer(self.context, 0, None)
-		self.ptr_5 = Pointer(self.context, 0, None)
+		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.ptr_6 = Pointer(self.context, 0, None)
-		self.ptr_7 = Pointer(self.context, 0, None)
+		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -60,17 +61,17 @@ class MotiongraphHeader(MemStruct):
 		instance.count_0 = stream.read_uint()
 		instance.count_1 = stream.read_uint()
 		instance.ptr_4 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.ptr_5 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.lua_results = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ptr_6 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.ptr_7 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.empty_str = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ptr_0.arg = 0
 		instance.ptr_1.arg = 0
 		instance.ptr_2.arg = 0
 		instance.ptr_3.arg = 0
 		instance.ptr_4.arg = 0
-		instance.ptr_5.arg = 0
+		instance.lua_results.arg = 0
 		instance.ptr_6.arg = 0
-		instance.ptr_7.arg = 0
+		instance.empty_str.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -82,9 +83,9 @@ class MotiongraphHeader(MemStruct):
 		stream.write_uint(instance.count_0)
 		stream.write_uint(instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_4)
-		Pointer.to_stream(stream, instance.ptr_5)
+		Pointer.to_stream(stream, instance.lua_results)
 		Pointer.to_stream(stream, instance.ptr_6)
-		Pointer.to_stream(stream, instance.ptr_7)
+		Pointer.to_stream(stream, instance.empty_str)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -114,9 +115,9 @@ class MotiongraphHeader(MemStruct):
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* ptr_4 = {fmt_member(self.ptr_4, indent+1)}'
-		s += f'\n	* ptr_5 = {fmt_member(self.ptr_5, indent+1)}'
+		s += f'\n	* lua_results = {fmt_member(self.lua_results, indent+1)}'
 		s += f'\n	* ptr_6 = {fmt_member(self.ptr_6, indent+1)}'
-		s += f'\n	* ptr_7 = {fmt_member(self.ptr_7, indent+1)}'
+		s += f'\n	* empty_str = {fmt_member(self.empty_str, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

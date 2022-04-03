@@ -14,30 +14,162 @@
         <add name="count_1" type="uint"/>
 
         <add name="ptr_4" type="Pointer"/>
-        <add name="ptr_5" type="Pointer"/>
+        <add name="lua results" type="Pointer" template="ZString"/>
         <add name="ptr_6" type="Pointer"/>
-        <add name="ptr_7" type="Pointer"/>
+        <add name="empty str" type="Pointer" template="ZString"/>
     </compound>
 
     <compound name="MotiongraphRootFrag" inherit="MemStruct">
         64 bytes
         <add name="count_0" type="uint64"/>
-        <add name="ptr_0" type="Pointer"/>
+        <add name="ptr_0" type="Pointer" template="MRFArray0" arg="count_0"/>
 
         <add name="count_1" type="uint64"/>
-        <add name="ptr_1" type="Pointer"/>
+        <add name="ptr_1" type="Pointer" template="MRFArray1" arg="count_1"/>
 
         <add name="count_2" type="uint64"/>
-        <add name="ptr_2" type="Pointer"/>
+        <add name="ptr_2" type="Pointer" template="MRFArray2" arg="count_2"/>
 
         <add name="num_xmls" type="uint64"/>
-        <add name="ptr_xmls" type="Pointer"/>
+        <add name="ptr_xmls" type="Pointer" template="XMLArray" arg="num_xmls"/>
+    </compound>
+
+    <compound name="MRFArray0" inherit="MemStruct" >
+        <add name="states" type="MRFEntry0" arr1="#ARG#" />
+    </compound>
+
+    <compound name="MRFEntry0" inherit="MemStruct">
+        8 bytes
+        <add name="value" type="Pointer" template="MRFMember0"/>
+    </compound>
+
+    <compound name="MRFMember0" inherit="MemStruct">
+        48 bytes
+        <add name="data_type" type="Pointer" template="ZString"/>
+        # this one is weird, it can point to data of changing size
+        template has to be defined according to data type ie 'AnimationActivity' + 'Data'
+        <add name="ptr" type="Pointer" template="AnimationActivityData"/>
+        <add name="count_2" type="uint64"/>
+        <add name="count_3" type="uint64"/>
+        <add name="minus one" type="int64"/>
+        <add name="name b" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="MRFArray1" inherit="MemStruct" >
+        <add name="states" type="MRFEntry1" arr1="#ARG#" />
+    </compound>
+
+    <compound name="MRFEntry1" inherit="MemStruct">
+        8 bytes
+        <add name="value" type="Pointer" template="MRFMember1"/>
+    </compound>
+
+    <compound name="MRFMember1" inherit="MemStruct">
+        72 bytes, is like ThirdFrag, but different templates
+        <add name="data type" type="Pointer" template="ZString"/>
+
+        <add name="count_0" type="uint64"/>
+        <add name="count_1" type="uint64"/>
+
+        variable size, maybe related to counts
+        <add name="ptr_1" type="Pointer" />
+
+        <add name="count_2" type="uint64"/>
+        <add name="count_3" type="uint64"/>
+
+        variable size, maybe related to counts
+        <add name="ptr_2" type="Pointer" />
+
+        <add name="count_4" type="uint64"/>
+        <add name="id" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="MRFArray2" inherit="MemStruct" >
+        <add name="states" type="MRFEntry2" arr1="#ARG#" />
+    </compound>
+
+    <compound name="MRFEntry2" inherit="MemStruct">
+        8 bytes
+        <add name="value" type="Pointer" template="MRFMember2" />
+    </compound>
+
+    <compound name="MRFMember2" inherit="MemStruct">
+        72 bytes
+        only used if transition is in 'id'
+        <add name="transition" type="Pointer" template="Transition"/>
+
+        <add name="count_0" type="uint64"/>
+        <add name="count_1" type="uint64"/>
+
+        <add name="count_2" type="uint64" />
+
+        <add name="count_3" type="uint64"/>
+        <add name="count_4" type="uint64"/>
+
+        <add name="count_5" type="uint64" />
+
+        <add name="count_6" type="uint64"/>
+        <add name="id" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="Transition" inherit="MemStruct">
+        40 bytes
+        only used if transition is in 'id'
+        <add name="count_0" type="uint"/>
+        <add name="count_1" type="uint"/>
+
+        <add name="ptr 0" type="Pointer" />
+
+        <add name="count_2" type="uint64"/>
+
+        <add name="ptr 1" type="Pointer" />
+        <add name="id" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="XMLArray" inherit="MemStruct" >
+        <add name="xmls" type="XMLEntry" arr1="#ARG#" />
+    </compound>
+
+    <compound name="XMLEntry" inherit="MemStruct">
+        8 bytes
+        <add name="xml_string" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="AnimationActivityData" inherit="MemStruct">
+        96 bytes
+        <add name="mani" type="Pointer" template="ZString"/>
+
+        <add name="AnimationFlags" type="uint"/>
+        <add name="Priorities" type="uint"/>
+        <add name="Weight" type="FloatInputData"/>
+        <add name="Speed" type="FloatInputData"/>
+        <add name="StartingPropThrough" type="float"/>
+        <add name="LeadOutTime" type="float"/>
+        <add name="SyncPropThroughVariable" type="Pointer" template="ZString"/>
+
+        <add name="count_6" type="uint64"/>
+        <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
+
+        <add name="AdditionalDataStreams" type="DataStreamResourceDataList"/>
     </compound>
 
     <compound name="MGTwo" inherit="MemStruct">
         16 bytes
         <add name="count_0" type="uint64"/>
         <add name="ptr" type="Pointer" />
+    </compound>
+
+    <compound name="DataStreamResourceDataList" inherit="MemStruct">
+        16 bytes
+        <add name="count" type="uint64"/>
+        <add name="DataStreamResourceData" type="Pointer" />
+    </compound>
+
+    <compound name="FloatInputData" inherit="MemStruct">
+        16 bytes
+        <add name="float" type="float"/>
+        <add name="OptionalVarAndCurve count" type="uint" />
+        <add name="OptionalVarAndCurve" type="uint64" />
     </compound>
 
     <compound name="TwoPtrFirst" inherit="MemStruct">

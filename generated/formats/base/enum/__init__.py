@@ -35,6 +35,23 @@ class Uint64Enum(BaseEnum):
 		stream.write_uint64(instance.value)
 
 
+class Int64Enum(BaseEnum):
+
+	def read(self, stream):
+		self._value_ = stream.read_int64()
+
+	def write(self, stream):
+		stream.write_int64(self.value)
+
+	@classmethod
+	def from_stream(cls, stream, context=None, arg=0, template=None):
+		cls.from_value(stream.read_int64())
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		stream.write_int64(instance.value)
+
+
 class UintEnum(BaseEnum):
 
 	def read(self, stream):

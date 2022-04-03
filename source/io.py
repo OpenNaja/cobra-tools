@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from typing import *
 
 
-MAX_LEN = 1000
+MAX_LEN = 300000
 
 
 Byte = Struct("<b")  # int8

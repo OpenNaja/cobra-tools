@@ -97,6 +97,7 @@ Uint64 = class_from_struct(Struct("<Q"), lambda value: int(value) % 184467440737
 Uint = class_from_struct(Struct("<I"), lambda value: int(value) % 4294967296)
 Ushort = class_from_struct(Struct("<H"), lambda value: int(value) % 65536)
 Int = class_from_struct(Struct("<i"), lambda value: (int(value) + 2147483648) % 4294967296 - 2147483648)
+Int64 = class_from_struct(Struct("<q"), lambda value: (int(value) + 9223372036854775808) % 18446744073709551616 - 9223372036854775808)
 Short = class_from_struct(Struct("<h"), lambda value: (int(value) + 32768) % 65536 - 32768)
 Char = Byte
 Float = class_from_struct(Struct("<f"), float)
