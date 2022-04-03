@@ -3,7 +3,7 @@ from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class MotiongraphRootFrag(MemStruct):
+class Sixtyfour(MemStruct):
 
 	"""
 	64 bytes
@@ -19,11 +19,11 @@ class MotiongraphRootFrag(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.num_xmls = 0
+		self.count_3 = 0
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
-		self.ptr_xmls = Pointer(self.context, 0, None)
+		self.ptr_3 = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -31,11 +31,11 @@ class MotiongraphRootFrag(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.num_xmls = 0
+		self.count_3 = 0
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
-		self.ptr_xmls = Pointer(self.context, 0, None)
+		self.ptr_3 = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -52,28 +52,28 @@ class MotiongraphRootFrag(MemStruct):
 		super().read_fields(stream, instance)
 		instance.count_0 = stream.read_uint64()
 		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.count_1 = stream.read_uint64()
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.count_1 = stream.read_uint64()
 		instance.count_2 = stream.read_uint64()
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.num_xmls = stream.read_uint64()
-		instance.ptr_xmls = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.count_3 = stream.read_uint64()
 		instance.ptr_0.arg = 0
 		instance.ptr_1.arg = 0
 		instance.ptr_2.arg = 0
-		instance.ptr_xmls.arg = 0
+		instance.ptr_3.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		stream.write_uint64(instance.count_0)
 		Pointer.to_stream(stream, instance.ptr_0)
-		stream.write_uint64(instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_1)
+		stream.write_uint64(instance.count_1)
 		stream.write_uint64(instance.count_2)
 		Pointer.to_stream(stream, instance.ptr_2)
-		stream.write_uint64(instance.num_xmls)
-		Pointer.to_stream(stream, instance.ptr_xmls)
+		Pointer.to_stream(stream, instance.ptr_3)
+		stream.write_uint64(instance.count_3)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -91,19 +91,19 @@ class MotiongraphRootFrag(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'MotiongraphRootFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Sixtyfour [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
 		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
-		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
 		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* num_xmls = {fmt_member(self.num_xmls, indent+1)}'
-		s += f'\n	* ptr_xmls = {fmt_member(self.ptr_xmls, indent+1)}'
+		s += f'\n	* ptr_3 = {fmt_member(self.ptr_3, indent+1)}'
+		s += f'\n	* count_3 = {fmt_member(self.count_3, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

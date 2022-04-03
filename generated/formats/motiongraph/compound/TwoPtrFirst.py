@@ -1,24 +1,29 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class Pointer:
+class TwoPtrFirst(MemStruct):
 
-	context = ContextReference()
+	"""
+	16 bytes
+	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.offset = 0
+		self.count_0 = 0
+		self.ptr = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.offset = 0
+		self.count_0 = 0
+		self.ptr = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -32,11 +37,16 @@ class Pointer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.offset = stream.read_uint64()
+		super().read_fields(stream, instance)
+		instance.ptr = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.count_0 = stream.read_uint64()
+		instance.ptr.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_uint64(instance.offset)
+		super().write_fields(stream, instance)
+		Pointer.to_stream(stream, instance.ptr)
+		stream.write_uint64(instance.count_0)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -54,11 +64,13 @@ class Pointer:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Pointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'TwoPtrFirst [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += super().get_fields_str()
+		s += f'\n	* ptr = {fmt_member(self.ptr, indent+1)}'
+		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
