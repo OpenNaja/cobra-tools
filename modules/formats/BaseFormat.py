@@ -7,12 +7,9 @@ from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.MemPool import MemPool
-from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
-from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl_base.basic import ConvStream
-from generated.io import BinaryStream
 from modules.formats.shared import djb
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 

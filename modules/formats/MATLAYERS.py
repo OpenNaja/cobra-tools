@@ -13,7 +13,7 @@ class MatlayersLoader(BaseFile):
 		self.assign_ss_entry()
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = DinoLayersHeader.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(self.ovs, ss_ptr)
+		self.header.read_ptrs(self.ovs, ss_ptr, self.sized_str_entry)
 		# print(self.header)
 
 	def load(self, file_path):
@@ -42,7 +42,7 @@ class MatvarsLoader(BaseFile):
 		self.assign_ss_entry()
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = DinoVariantsHeader.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(self.ovs, ss_ptr)
+		self.header.read_ptrs(self.ovs, ss_ptr, self.sized_str_entry)
 		# print(self.header)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
@@ -66,7 +66,7 @@ class MateffsLoader(BaseFile):
 		self.assign_ss_entry()
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = DinoEffectsHeader.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(self.ovs, ss_ptr)
+		self.header.read_ptrs(self.ovs, ss_ptr, self.sized_str_entry)
 		print(self.header)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
@@ -82,7 +82,7 @@ class MatpatsLoader(BaseFile):
 		self.assign_ss_entry()
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = DinoPatternsHeader.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(self.ovs, ss_ptr)
+		self.header.read_ptrs(self.ovs, ss_ptr, self.sized_str_entry)
 		# print(self.header)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):

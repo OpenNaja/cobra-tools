@@ -142,23 +142,23 @@ class MemStruct:
 			print(frag, frag.pointers[1].data_size, frag.pointers[1].data)
 		# print(ref_ptr.pool.data.getvalue())
 
-	def read_ptrs(self, ovs, ref_ptr, io_start=None):
+	def read_ptrs(self, ovs, ref_ptr, sized_str_entry, io_start=None):
 		if io_start is None:
 			io_start = self.io_start
 		# print("read_ptrs")
 		# get all pointers in this struct
 		ptrs = self.get_ptrs()
 		for ptr in ptrs:
-			self.handle_ptr(ptr, ovs, ref_ptr, io_start)
+			self.handle_ptr(ptr, ovs, ref_ptr, io_start, sized_str_entry)
 		arrays = self.get_arrays()
 		for array in arrays:
 			# print(f"array, start at at {array.io_start}")
 			for member in array:
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
-					member.read_ptrs(ovs, ref_ptr, array.io_start)
+					member.read_ptrs(ovs, ref_ptr, sized_str_entry, array.io_start)
 
-	def handle_ptr(self, ptr, ovs, ref_ptr, io_start):
+	def handle_ptr(self, ptr, ovs, ref_ptr, io_start, sized_str_entry):
 		rel_offset = ptr.io_start-io_start
 		# print(f"handle_ptr dtype: {ptr.template.__name__} io_ref: {io_start} relative: {rel_offset} count: {ptr.arg}")
 		# get a fragment that is relative to pointer + offset
@@ -167,11 +167,12 @@ class MemStruct:
 		if not f:
 			# print("is a nullptr")
 			return
+		sized_str_entry.fragments.append(f)
 		f_ptr = f.pointers[1]
 		ptr.data = ptr.template.from_stream(f_ptr.stream, ptr.context, ptr.arg)
 		if isinstance(ptr.data, MemStruct):
 			# print("ptr is a memstruct")
-			ptr.data.read_ptrs(ovs, f_ptr)
+			ptr.data.read_ptrs(ovs, f_ptr, sized_str_entry)
 
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):
