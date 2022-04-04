@@ -1,11 +1,21 @@
+
+
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.AnimationActivityData
+import generated.formats.motiongraph.compound.FootPlantActivityData
+import generated.formats.motiongraph.compound.DataStreamProducerActivityData
+import generated.formats.motiongraph.compound.SelectActivityActivityData
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
+
+from source.formats.base.basic import fmt_member
+import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class MRFMember0(MemStruct):
+class Activity(MemStruct):
 
 	"""
 	48 bytes
@@ -22,7 +32,7 @@ class MRFMember0(MemStruct):
 		self.count_3 = 0
 		self.minus_one = 0
 		self.data_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr = Pointer(self.context, 0, generated.formats.motiongraph.compound.AnimationActivityData.AnimationActivityData)
+		self.ptr = Pointer(self.context, 0, None)
 		self.name_b = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
@@ -32,7 +42,7 @@ class MRFMember0(MemStruct):
 		self.count_3 = 0
 		self.minus_one = 0
 		self.data_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr = Pointer(self.context, 0, generated.formats.motiongraph.compound.AnimationActivityData.AnimationActivityData)
+		self.ptr = Pointer(self.context, 0, None)
 		self.name_b = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
@@ -49,7 +59,7 @@ class MRFMember0(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.data_type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.AnimationActivityData.AnimationActivityData)
+		instance.ptr = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.count_2 = stream.read_uint64()
 		instance.count_3 = stream.read_uint64()
 		instance.minus_one = stream.read_int64()
@@ -84,7 +94,7 @@ class MRFMember0(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'MRFMember0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Activity [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
@@ -102,3 +112,22 @@ class MRFMember0(MemStruct):
 		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
+
+	def get_ptr_template(self, prop):
+		"""Returns the appropriate template for a pointer named 'prop', if exists.
+		Must be overwritten in subclass"""
+		# print(f"get_ptr_template MRFMember0")
+		if prop == "ptr":
+			if self.data_type.data == "AnimationActivity":
+				# print(f"data_type {self.data_type.data}")
+				return generated.formats.motiongraph.compound.AnimationActivityData.AnimationActivityData
+			if self.data_type.data == "FootPlantActivity":
+				# print(f"data_type {self.data_type.data}")
+				return generated.formats.motiongraph.compound.FootPlantActivityData.FootPlantActivityData
+			if self.data_type.data == "DataStreamProducerActivity":
+				# print(f"data_type {self.data_type.data}")
+				return generated.formats.motiongraph.compound.DataStreamProducerActivityData.DataStreamProducerActivityData
+			if self.data_type.data == "SelectActivityActivity":
+				# print(f"data_type {self.data_type.data}")
+				return generated.formats.motiongraph.compound.SelectActivityActivityData.SelectActivityActivityData
+

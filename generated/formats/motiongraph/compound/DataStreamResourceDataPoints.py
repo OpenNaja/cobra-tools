@@ -1,13 +1,13 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.motiongraph.compound.MRFMember0
+from generated.array import Array
+from generated.formats.motiongraph.compound.DataStreamResourceData import DataStreamResourceData
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
-from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class MRFEntry0(MemStruct):
+class DataStreamResourceDataPoints(MemStruct):
 
 	"""
-	8 bytes
+	array
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -17,12 +17,12 @@ class MRFEntry0(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.value = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember0.MRFMember0)
+		self.data = Array((self.arg,), DataStreamResourceData, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.value = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember0.MRFMember0)
+		self.data = Array((self.arg,), DataStreamResourceData, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -37,13 +37,12 @@ class MRFEntry0(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.value = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MRFMember0.MRFMember0)
-		instance.value.arg = 0
+		instance.data = Array.from_stream(stream, (instance.arg,), DataStreamResourceData, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.value)
+		Array.to_stream(stream, instance.data, (instance.arg,), DataStreamResourceData, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -61,12 +60,12 @@ class MRFEntry0(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'MRFEntry0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'DataStreamResourceDataPoints [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
+		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

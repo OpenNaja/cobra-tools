@@ -86,6 +86,9 @@ class MemStruct:
 	def get_ptrs(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, Pointer)]
 
+	def get_props_and_ptrs(self):
+		return [(prop, val) for prop, val in vars(self).items() if isinstance(val, Pointer)]
+
 	def get_arrays(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, Array)]
 
@@ -150,9 +153,8 @@ class MemStruct:
 			io_start = self.io_start
 		# print("read_ptrs")
 		# get all pointers in this struct
-		ptrs = self.get_ptrs()
-		for ptr in ptrs:
-			self.handle_ptr(ptr, ovs, ref_ptr, io_start, sized_str_entry)
+		for prop, ptr in self.get_props_and_ptrs():
+			self.handle_ptr(prop, ptr, ovs, ref_ptr, io_start, sized_str_entry)
 		arrays = self.get_arrays()
 		for array in arrays:
 			# print(f"array, start at at {array.io_start}")
@@ -163,7 +165,12 @@ class MemStruct:
 		for memstr in self.get_memstructs():
 			memstr.read_ptrs(ovs, ref_ptr, sized_str_entry, io_start)
 
-	def handle_ptr(self, ptr, ovs, ref_ptr, io_start, sized_str_entry):
+	def get_ptr_template(self, prop):
+		"""Returns the appropriate template for a pointer named 'prop', if exists.
+		Must be overwritten in subclass"""
+		pass
+
+	def handle_ptr(self, prop, ptr, ovs, ref_ptr, io_start, sized_str_entry):
 		rel_offset = ptr.io_start-io_start
 		# print(f"handle_ptr dtype: {ptr.template.__name__} io_ref: {io_start} relative: {rel_offset} count: {ptr.arg}")
 		# get a fragment that is relative to pointer + offset
@@ -176,8 +183,11 @@ class MemStruct:
 		sized_str_entry.fragments.append(f)
 		f_ptr = f.pointers[1]
 		if not ptr.template:
-			logging.warning(f"Pointer's template hasn't been set, ignored")
-			return
+			# try the lookup function
+			ptr.template = self.get_ptr_template(prop)
+			if not ptr.template:
+				logging.warning(f"Pointer's template hasn't been set, ignored")
+				return
 		ptr.data = ptr.template.from_stream(f_ptr.stream, ptr.context, ptr.arg)
 		if isinstance(ptr.data, MemStruct):
 			# print("ptr is a memstruct")

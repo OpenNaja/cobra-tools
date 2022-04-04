@@ -1,5 +1,5 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.motiongraph.compound.MRFArray0
+import generated.formats.motiongraph.compound.Activities
 import generated.formats.motiongraph.compound.MRFArray1
 import generated.formats.motiongraph.compound.MRFArray2
 import generated.formats.motiongraph.compound.XMLArray
@@ -20,11 +20,11 @@ class MotiongraphRootFrag(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.count_0 = 0
+		self.num_activities = 0
 		self.count_1 = 0
 		self.count_2 = 0
 		self.num_xmls = 0
-		self.ptr_0 = Pointer(self.context, self.count_0, generated.formats.motiongraph.compound.MRFArray0.MRFArray0)
+		self.activities = Pointer(self.context, self.num_activities, generated.formats.motiongraph.compound.Activities.Activities)
 		self.ptr_1 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compound.MRFArray1.MRFArray1)
 		self.ptr_2 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compound.MRFArray2.MRFArray2)
 		self.ptr_xmls = Pointer(self.context, self.num_xmls, generated.formats.motiongraph.compound.XMLArray.XMLArray)
@@ -32,11 +32,11 @@ class MotiongraphRootFrag(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.count_0 = 0
+		self.num_activities = 0
 		self.count_1 = 0
 		self.count_2 = 0
 		self.num_xmls = 0
-		self.ptr_0 = Pointer(self.context, self.count_0, generated.formats.motiongraph.compound.MRFArray0.MRFArray0)
+		self.activities = Pointer(self.context, self.num_activities, generated.formats.motiongraph.compound.Activities.Activities)
 		self.ptr_1 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compound.MRFArray1.MRFArray1)
 		self.ptr_2 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compound.MRFArray2.MRFArray2)
 		self.ptr_xmls = Pointer(self.context, self.num_xmls, generated.formats.motiongraph.compound.XMLArray.XMLArray)
@@ -54,15 +54,15 @@ class MotiongraphRootFrag(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.count_0 = stream.read_uint64()
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_0, generated.formats.motiongraph.compound.MRFArray0.MRFArray0)
+		instance.num_activities = stream.read_uint64()
+		instance.activities = Pointer.from_stream(stream, instance.context, instance.num_activities, generated.formats.motiongraph.compound.Activities.Activities)
 		instance.count_1 = stream.read_uint64()
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_1, generated.formats.motiongraph.compound.MRFArray1.MRFArray1)
 		instance.count_2 = stream.read_uint64()
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compound.MRFArray2.MRFArray2)
 		instance.num_xmls = stream.read_uint64()
 		instance.ptr_xmls = Pointer.from_stream(stream, instance.context, instance.num_xmls, generated.formats.motiongraph.compound.XMLArray.XMLArray)
-		instance.ptr_0.arg = instance.count_0
+		instance.activities.arg = instance.num_activities
 		instance.ptr_1.arg = instance.count_1
 		instance.ptr_2.arg = instance.count_2
 		instance.ptr_xmls.arg = instance.num_xmls
@@ -70,8 +70,8 @@ class MotiongraphRootFrag(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.count_0)
-		Pointer.to_stream(stream, instance.ptr_0)
+		stream.write_uint64(instance.num_activities)
+		Pointer.to_stream(stream, instance.activities)
 		stream.write_uint64(instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_1)
 		stream.write_uint64(instance.count_2)
@@ -100,8 +100,8 @@ class MotiongraphRootFrag(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
-		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* num_activities = {fmt_member(self.num_activities, indent+1)}'
+		s += f'\n	* activities = {fmt_member(self.activities, indent+1)}'
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
 		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'

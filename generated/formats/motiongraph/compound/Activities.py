@@ -1,10 +1,10 @@
 from source.formats.base.basic import fmt_member
 from generated.array import Array
-from generated.formats.motiongraph.compound.MRFEntry0 import MRFEntry0
+from generated.formats.motiongraph.compound.ActivityEntry import ActivityEntry
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class MRFArray0(MemStruct):
+class Activities(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -13,12 +13,12 @@ class MRFArray0(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.states = Array((self.arg,), MRFEntry0, self.context, 0, None)
+		self.states = Array((self.arg,), ActivityEntry, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.states = Array((self.arg,), MRFEntry0, self.context, 0, None)
+		self.states = Array((self.arg,), ActivityEntry, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -33,12 +33,12 @@ class MRFArray0(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.states = Array.from_stream(stream, (instance.arg,), MRFEntry0, instance.context, 0, None)
+		instance.states = Array.from_stream(stream, (instance.arg,), ActivityEntry, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.states, (instance.arg,), MRFEntry0, instance.context, 0, None)
+		Array.to_stream(stream, instance.states, (instance.arg,), ActivityEntry, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -56,7 +56,7 @@ class MRFArray0(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'MRFArray0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Activities [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

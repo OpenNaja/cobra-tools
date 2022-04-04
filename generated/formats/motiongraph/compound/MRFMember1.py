@@ -22,7 +22,7 @@ class MRFMember1(MemStruct):
 		self.count_2 = 0
 		self.count_3 = 0
 		self.count_4 = 0
-		self.data_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.lua_method = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -35,7 +35,7 @@ class MRFMember1(MemStruct):
 		self.count_2 = 0
 		self.count_3 = 0
 		self.count_4 = 0
-		self.data_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.lua_method = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.ptr_1 = Pointer(self.context, 0, None)
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -53,7 +53,7 @@ class MRFMember1(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.data_type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.lua_method = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.count_0 = stream.read_uint64()
 		instance.count_1 = stream.read_uint64()
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
@@ -62,7 +62,7 @@ class MRFMember1(MemStruct):
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.count_4 = stream.read_uint64()
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.data_type.arg = 0
+		instance.lua_method.arg = 0
 		instance.ptr_1.arg = 0
 		instance.ptr_2.arg = 0
 		instance.id.arg = 0
@@ -70,7 +70,7 @@ class MRFMember1(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.data_type)
+		Pointer.to_stream(stream, instance.lua_method)
 		stream.write_uint64(instance.count_0)
 		stream.write_uint64(instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_1)
@@ -101,7 +101,7 @@ class MRFMember1(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* data_type = {fmt_member(self.data_type, indent+1)}'
+		s += f'\n	* lua_method = {fmt_member(self.lua_method, indent+1)}'
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'

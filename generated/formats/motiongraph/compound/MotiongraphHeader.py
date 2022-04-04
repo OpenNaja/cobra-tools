@@ -1,6 +1,7 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.MGTwo
+import generated.formats.motiongraph.compound.MRFMember2
 import generated.formats.motiongraph.compound.MotiongraphRootFrag
 import generated.formats.motiongraph.compound.ThirdFrag
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -24,7 +25,7 @@ class MotiongraphHeader(MemStruct):
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.ThirdFrag.ThirdFrag)
 		self.ptr_4 = Pointer(self.context, 0, None)
 		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_6 = Pointer(self.context, 0, None)
+		self.first_non_transition_state = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
 		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
@@ -38,7 +39,7 @@ class MotiongraphHeader(MemStruct):
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.ThirdFrag.ThirdFrag)
 		self.ptr_4 = Pointer(self.context, 0, None)
 		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_6 = Pointer(self.context, 0, None)
+		self.first_non_transition_state = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
 		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
@@ -62,7 +63,7 @@ class MotiongraphHeader(MemStruct):
 		instance.count_1 = stream.read_uint()
 		instance.ptr_4 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.lua_results = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr_6 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.first_non_transition_state = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
 		instance.empty_str = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ptr_0.arg = 0
 		instance.ptr_1.arg = 0
@@ -70,7 +71,7 @@ class MotiongraphHeader(MemStruct):
 		instance.ptr_3.arg = 0
 		instance.ptr_4.arg = 0
 		instance.lua_results.arg = 0
-		instance.ptr_6.arg = 0
+		instance.first_non_transition_state.arg = 0
 		instance.empty_str.arg = 0
 
 	@classmethod
@@ -84,7 +85,7 @@ class MotiongraphHeader(MemStruct):
 		stream.write_uint(instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_4)
 		Pointer.to_stream(stream, instance.lua_results)
-		Pointer.to_stream(stream, instance.ptr_6)
+		Pointer.to_stream(stream, instance.first_non_transition_state)
 		Pointer.to_stream(stream, instance.empty_str)
 
 	@classmethod
@@ -116,7 +117,7 @@ class MotiongraphHeader(MemStruct):
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* ptr_4 = {fmt_member(self.ptr_4, indent+1)}'
 		s += f'\n	* lua_results = {fmt_member(self.lua_results, indent+1)}'
-		s += f'\n	* ptr_6 = {fmt_member(self.ptr_6, indent+1)}'
+		s += f'\n	* first_non_transition_state = {fmt_member(self.first_non_transition_state, indent+1)}'
 		s += f'\n	* empty_str = {fmt_member(self.empty_str, indent+1)}'
 		return s
 

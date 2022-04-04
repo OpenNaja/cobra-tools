@@ -1,14 +1,9 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.motiongraph.compound.DataStreamResourceDataPoints
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class DataStreamResourceDataList(MemStruct):
-
-	"""
-	16 bytes
-	"""
+class ActivitiesLink(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -17,14 +12,12 @@ class DataStreamResourceDataList(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.count = 0
-		self.data_stream_resource_data = Pointer(self.context, self.count, generated.formats.motiongraph.compound.DataStreamResourceDataPoints.DataStreamResourceDataPoints)
+		self.linked = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.count = 0
-		self.data_stream_resource_data = Pointer(self.context, self.count, generated.formats.motiongraph.compound.DataStreamResourceDataPoints.DataStreamResourceDataPoints)
+		self.linked = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -39,15 +32,13 @@ class DataStreamResourceDataList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.count = stream.read_uint64()
-		instance.data_stream_resource_data = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.motiongraph.compound.DataStreamResourceDataPoints.DataStreamResourceDataPoints)
-		instance.data_stream_resource_data.arg = instance.count
+		instance.linked = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.linked.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.count)
-		Pointer.to_stream(stream, instance.data_stream_resource_data)
+		Pointer.to_stream(stream, instance.linked)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -65,13 +56,12 @@ class DataStreamResourceDataList(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'DataStreamResourceDataList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'ActivitiesLink [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* data_stream_resource_data = {fmt_member(self.data_stream_resource_data, indent+1)}'
+		s += f'\n	* linked = {fmt_member(self.linked, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
