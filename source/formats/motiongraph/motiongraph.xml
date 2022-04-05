@@ -6,9 +6,10 @@
 
     <compound name="MotiongraphHeader" inherit="MemStruct">
         <add name="ptr_0" type="Pointer" template="MotiongraphRootFrag"/>
-        <add name="ptr_1" type="Pointer" template="MGTwo"/>
+        points to all data of size 40 used in MRFentry1 if lua is MotionGraph.StateOutput
+        <add name="state output entries" type="Pointer" template="MGTwo"/>
         <add name="ptr_2" type="Pointer" template="MGTwo"/>
-        <add name="ptr_3" type="Pointer" template="MRFMember3"/>
+        <add name="ptr_3" type="Pointer" template="MRFMember1"/>
 
         <add name="count_0" type="uint"/>
         <add name="count_1" type="uint"/>
@@ -250,7 +251,17 @@
 
     <compound name="MGTwo" inherit="MemStruct">
         16 bytes
-        <add name="count_0" type="uint64"/>
+        <add name="count" type="uint64"/>
+        <add name="ptr" type="Pointer" template="DoublePtr" arg="count"/>
+    </compound>
+
+    <compound name="DoublePtr" inherit="MemStruct">
+        16 bytes
+        <add name="ptrs" type="SinglePtr" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="SinglePtr" inherit="MemStruct">
+        8 bytes
         <add name="ptr" type="Pointer" />
     </compound>
 
