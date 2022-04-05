@@ -1,5 +1,6 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
+import generated.formats.motiongraph.compound.LuaModules
 import generated.formats.motiongraph.compound.MGTwo
 import generated.formats.motiongraph.compound.MRFMember1
 import generated.formats.motiongraph.compound.MRFMember2
@@ -23,7 +24,7 @@ class MotiongraphHeader(MemStruct):
 		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
-		self.ptr_4 = Pointer(self.context, 0, None)
+		self.lua_modules = Pointer(self.context, 0, generated.formats.motiongraph.compound.LuaModules.LuaModules)
 		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.first_non_transition_state = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
 		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -37,7 +38,7 @@ class MotiongraphHeader(MemStruct):
 		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
-		self.ptr_4 = Pointer(self.context, 0, None)
+		self.lua_modules = Pointer(self.context, 0, generated.formats.motiongraph.compound.LuaModules.LuaModules)
 		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.first_non_transition_state = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
 		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -61,7 +62,7 @@ class MotiongraphHeader(MemStruct):
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
 		instance.count_0 = stream.read_uint()
 		instance.count_1 = stream.read_uint()
-		instance.ptr_4 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.lua_modules = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.LuaModules.LuaModules)
 		instance.lua_results = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.first_non_transition_state = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
 		instance.empty_str = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
@@ -69,7 +70,7 @@ class MotiongraphHeader(MemStruct):
 		instance.state_output_entries.arg = 0
 		instance.ptr_2.arg = 0
 		instance.ptr_3.arg = 0
-		instance.ptr_4.arg = 0
+		instance.lua_modules.arg = 0
 		instance.lua_results.arg = 0
 		instance.first_non_transition_state.arg = 0
 		instance.empty_str.arg = 0
@@ -83,7 +84,7 @@ class MotiongraphHeader(MemStruct):
 		Pointer.to_stream(stream, instance.ptr_3)
 		stream.write_uint(instance.count_0)
 		stream.write_uint(instance.count_1)
-		Pointer.to_stream(stream, instance.ptr_4)
+		Pointer.to_stream(stream, instance.lua_modules)
 		Pointer.to_stream(stream, instance.lua_results)
 		Pointer.to_stream(stream, instance.first_non_transition_state)
 		Pointer.to_stream(stream, instance.empty_str)
@@ -115,7 +116,7 @@ class MotiongraphHeader(MemStruct):
 		s += f'\n	* ptr_3 = {fmt_member(self.ptr_3, indent+1)}'
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
-		s += f'\n	* ptr_4 = {fmt_member(self.ptr_4, indent+1)}'
+		s += f'\n	* lua_modules = {fmt_member(self.lua_modules, indent+1)}'
 		s += f'\n	* lua_results = {fmt_member(self.lua_results, indent+1)}'
 		s += f'\n	* first_non_transition_state = {fmt_member(self.first_non_transition_state, indent+1)}'
 		s += f'\n	* empty_str = {fmt_member(self.empty_str, indent+1)}'

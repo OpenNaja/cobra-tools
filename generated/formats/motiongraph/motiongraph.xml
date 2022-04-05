@@ -14,10 +14,17 @@
         <add name="count_0" type="uint"/>
         <add name="count_1" type="uint"/>
 
-        <add name="ptr_4" type="Pointer"/>
+        <add name="LuaModules" type="Pointer" template="LuaModules"/>
         <add name="lua results" type="Pointer" template="ZString"/>
         <add name="first_non_transition_state" type="Pointer" template="MRFMember2"/>
         <add name="empty str" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="LuaModules" inherit="MemStruct">
+        24 bytes
+        <add name="MotionGraph" type="Pointer" template="ZString"/>
+        <add name="MotionGraphEventHandling" type="Pointer" template="ZString"/>
+        <add name="MotionGraphActions" type="Pointer" template="ZString"/>
     </compound>
 
     <compound name="MotiongraphRootFrag" inherit="MemStruct">
