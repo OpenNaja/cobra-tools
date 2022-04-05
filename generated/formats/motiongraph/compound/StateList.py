@@ -1,13 +1,14 @@
 from source.formats.base.basic import fmt_member
-from generated.formats.motiongraph.compound.StateArray import StateArray
+import generated.formats.motiongraph.compound.State
+from generated.array import Array
+from generated.formats.motiongraph.compound.SinglePtr import SinglePtr
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
-from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class TransStruct(MemStruct):
+class StateList(MemStruct):
 
 	"""
-	24 bytes
+	8 * arg bytes
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -17,14 +18,12 @@ class TransStruct(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.states = StateArray(self.context, 0, None)
-		self.another_mrfentry_2 = Pointer(self.context, 0, None)
+		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, generated.formats.motiongraph.compound.State.State)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.states = StateArray(self.context, 0, None)
-		self.another_mrfentry_2 = Pointer(self.context, 0, None)
+		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, generated.formats.motiongraph.compound.State.State)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -39,15 +38,12 @@ class TransStruct(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.another_mrfentry_2 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.states = StateArray.from_stream(stream, instance.context, 0, None)
-		instance.another_mrfentry_2.arg = 0
+		instance.ptrs = Array.from_stream(stream, (instance.arg,), SinglePtr, instance.context, 0, generated.formats.motiongraph.compound.State.State)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.another_mrfentry_2)
-		StateArray.to_stream(stream, instance.states)
+		Array.to_stream(stream, instance.ptrs, (instance.arg,), SinglePtr, instance.context, 0, generated.formats.motiongraph.compound.State.State)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -65,13 +61,12 @@ class TransStruct(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'TransStruct [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'StateList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* another_mrfentry_2 = {fmt_member(self.another_mrfentry_2, indent+1)}'
-		s += f'\n	* states = {fmt_member(self.states, indent+1)}'
+		s += f'\n	* ptrs = {fmt_member(self.ptrs, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -5,6 +5,7 @@ import generated.formats.motiongraph.compound.MGTwo
 import generated.formats.motiongraph.compound.MRFMember1
 import generated.formats.motiongraph.compound.MRFMember2
 import generated.formats.motiongraph.compound.MotiongraphRootFrag
+import generated.formats.motiongraph.compound.StateArray
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -21,7 +22,7 @@ class MotiongraphHeader(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.ptr_0 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MotiongraphRootFrag.MotiongraphRootFrag)
-		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
+		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.StateArray.StateArray)
 		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
 		self.lua_modules = Pointer(self.context, 0, generated.formats.motiongraph.compound.LuaModules.LuaModules)
@@ -35,7 +36,7 @@ class MotiongraphHeader(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.ptr_0 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MotiongraphRootFrag.MotiongraphRootFrag)
-		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
+		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.StateArray.StateArray)
 		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
 		self.lua_modules = Pointer(self.context, 0, generated.formats.motiongraph.compound.LuaModules.LuaModules)
@@ -57,7 +58,7 @@ class MotiongraphHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MotiongraphRootFrag.MotiongraphRootFrag)
-		instance.state_output_entries = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
+		instance.state_output_entries = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.StateArray.StateArray)
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
 		instance.count_0 = stream.read_uint()
