@@ -186,7 +186,7 @@ class MemStruct:
 			# try the lookup function
 			ptr.template = self.get_ptr_template(prop)
 			if not ptr.template:
-				logging.warning(f"Pointer's template hasn't been set, ignored")
+				# logging.warning(f"Pointer's template hasn't been set, ignored")
 				return
 		ptr.data = ptr.template.from_stream(f_ptr.stream, ptr.context, ptr.arg)
 		if isinstance(ptr.data, MemStruct):

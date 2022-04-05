@@ -1,13 +1,12 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.motiongraph.compound.PtrList
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class MGTwo(MemStruct):
+class TransStruct(MemStruct):
 
 	"""
-	16 bytes
+	24 bytes
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -18,13 +17,15 @@ class MGTwo(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.ptr = Pointer(self.context, self.count, generated.formats.motiongraph.compound.PtrList.PtrList)
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.count = 0
-		self.ptr = Pointer(self.context, self.count, generated.formats.motiongraph.compound.PtrList.PtrList)
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -39,15 +40,18 @@ class MGTwo(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
+		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.count = stream.read_uint64()
-		instance.ptr = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.motiongraph.compound.PtrList.PtrList)
-		instance.ptr.arg = instance.count
+		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_0.arg = 0
+		instance.ptr_2.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
+		Pointer.to_stream(stream, instance.ptr_0)
 		stream.write_uint64(instance.count)
-		Pointer.to_stream(stream, instance.ptr)
+		Pointer.to_stream(stream, instance.ptr_2)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -65,13 +69,14 @@ class MGTwo(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'MGTwo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'TransStruct [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
 		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* ptr = {fmt_member(self.ptr, indent+1)}'
+		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

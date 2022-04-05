@@ -4,10 +4,10 @@ from generated.formats.motiongraph.compound.SinglePtr import SinglePtr
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class DoublePtr(MemStruct):
+class PtrList(MemStruct):
 
 	"""
-	16 bytes
+	8 * arg bytes
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -17,12 +17,12 @@ class DoublePtr(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, None)
+		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, self.template)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, None)
+		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, self.template)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -37,12 +37,12 @@ class DoublePtr(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ptrs = Array.from_stream(stream, (instance.arg,), SinglePtr, instance.context, 0, None)
+		instance.ptrs = Array.from_stream(stream, (instance.arg,), SinglePtr, instance.context, 0, instance.template)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, (instance.arg,), SinglePtr, instance.context, 0, None)
+		Array.to_stream(stream, instance.ptrs, (instance.arg,), SinglePtr, instance.context, 0, instance.template)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -60,7 +60,7 @@ class DoublePtr(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'DoublePtr [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'PtrList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

@@ -124,14 +124,30 @@
         40 bytes
         only used if transition is in 'id'
         <add name="count_0" type="uint"/>
-        <add name="count_1" type="uint"/>
 
-        <add name="ptr 0" type="Pointer" />
+        <add name="count_1" type="uint"/>
+        <add name="ptr 0" type="Pointer" template="PtrList" arg="count_1" />
 
         <add name="count_2" type="uint64"/>
-
-        <add name="ptr 1" type="Pointer" />
+        <add name="ptr 1" type="Pointer" template="TransStructArray" arg="count_2"/>
         <add name="id" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="TransStructArray" inherit="MemStruct">
+        <add name="array" type="TransStruct" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="TransStruct" inherit="MemStruct">
+        24 bytes
+        <add name="ptr0" type="Pointer" />
+        <add name="count" type="uint64"/>
+        <add name="ptr2" type="Pointer" />
+    </compound>
+
+    <compound name="PointerArray" inherit="MemStruct">
+        16 bytes
+        <add name="count" type="uint64"/>
+        <add name="ptr1" type="SinglePtr" template="#T#" arr1="count"/>
     </compound>
 
     <compound name="XMLArray" inherit="MemStruct" >
@@ -259,17 +275,17 @@
     <compound name="MGTwo" inherit="MemStruct">
         16 bytes
         <add name="count" type="uint64"/>
-        <add name="ptr" type="Pointer" template="DoublePtr" arg="count"/>
+        <add name="ptr" type="Pointer" template="PtrList" arg="count"/>
     </compound>
 
-    <compound name="DoublePtr" inherit="MemStruct">
-        16 bytes
-        <add name="ptrs" type="SinglePtr" arr1="#ARG#"/>
+    <compound name="PtrList" inherit="MemStruct">
+        8 * arg bytes
+        <add name="ptrs" type="SinglePtr" arr1="#ARG#" template="#T#"/>
     </compound>
 
     <compound name="SinglePtr" inherit="MemStruct">
         8 bytes
-        <add name="ptr" type="Pointer" />
+        <add name="ptr" type="Pointer" template="#T#" />
     </compound>
 
     <compound name="DataStreamResourceDataList" inherit="MemStruct">

@@ -16,12 +16,12 @@ class SinglePtr(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ptr = Pointer(self.context, 0, None)
+		self.ptr = Pointer(self.context, 0, self.template)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.ptr = Pointer(self.context, 0, None)
+		self.ptr = Pointer(self.context, 0, self.template)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -36,7 +36,7 @@ class SinglePtr(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ptr = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr = Pointer.from_stream(stream, instance.context, 0, instance.template)
 		instance.ptr.arg = 0
 
 	@classmethod

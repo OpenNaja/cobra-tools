@@ -1,5 +1,7 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
+import generated.formats.motiongraph.compound.PtrList
+import generated.formats.motiongraph.compound.TransStructArray
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -21,8 +23,8 @@ class Transition(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_0 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compound.PtrList.PtrList)
+		self.ptr_1 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compound.TransStructArray.TransStructArray)
 		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
@@ -31,8 +33,8 @@ class Transition(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_0 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compound.PtrList.PtrList)
+		self.ptr_1 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compound.TransStructArray.TransStructArray)
 		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
@@ -50,12 +52,12 @@ class Transition(MemStruct):
 		super().read_fields(stream, instance)
 		instance.count_0 = stream.read_uint()
 		instance.count_1 = stream.read_uint()
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_1, generated.formats.motiongraph.compound.PtrList.PtrList)
 		instance.count_2 = stream.read_uint64()
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compound.TransStructArray.TransStructArray)
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr_0.arg = 0
-		instance.ptr_1.arg = 0
+		instance.ptr_0.arg = instance.count_1
+		instance.ptr_1.arg = instance.count_2
 		instance.id.arg = 0
 
 	@classmethod

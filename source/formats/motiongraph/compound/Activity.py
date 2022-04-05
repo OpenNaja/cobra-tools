@@ -1,4 +1,5 @@
 # START_GLOBALS
+import logging
 
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
@@ -25,15 +26,18 @@ class MRFMember0(MemStruct):
 		Must be overwritten in subclass"""
 		# print(f"get_ptr_template MRFMember0")
 		if prop == "ptr":
-			if self.data_type.data == "AnimationActivity":
+			activity = self.data_type.data
+			if activity == "AnimationActivity":
 				# print(f"data_type {self.data_type.data}")
 				return generated.formats.motiongraph.compound.AnimationActivityData.AnimationActivityData
-			if self.data_type.data == "FootPlantActivity":
+			elif activity == "FootPlantActivity":
 				# print(f"data_type {self.data_type.data}")
 				return generated.formats.motiongraph.compound.FootPlantActivityData.FootPlantActivityData
-			if self.data_type.data == "DataStreamProducerActivity":
+			elif activity == "DataStreamProducerActivity":
 				# print(f"data_type {self.data_type.data}")
 				return generated.formats.motiongraph.compound.DataStreamProducerActivityData.DataStreamProducerActivityData
-			if self.data_type.data == "SelectActivityActivity":
+			elif activity == "SelectActivityActivity":
 				# print(f"data_type {self.data_type.data}")
 				return generated.formats.motiongraph.compound.SelectActivityActivityData.SelectActivityActivityData
+			else:
+				logging.warning(f"Unsupported activity '{activity}'")
