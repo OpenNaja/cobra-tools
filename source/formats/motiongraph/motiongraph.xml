@@ -184,7 +184,7 @@
         96 bytes
         <add name="mani" type="Pointer" template="ZString"/>
 
-        <add name="AnimationFlags" type="uint"/>
+        <add name="AnimationFlags" type="AnimationFlags"/>
         <add name="Priorities" type="uint"/>
         <add name="Weight" type="FloatInputData"/>
         <add name="Speed" type="FloatInputData"/>
@@ -225,6 +225,16 @@
 		<option value="1" name="RestartChildrenOnSelection" />
 		<option value="2" name="ChooseOnceAtStart" />
     </enum>
+
+    <bitstruct name="AnimationFlags" numbytes="4" storage="uint">
+        <bits name="Looping" numbits="1" />
+        <bits name="Additive" numbits="1" />
+        <bits name="Mirrored" numbits="1" />
+        <bits name="AffectsMotion" numbits="1" />
+        <bits name="FlagOnLoop" numbits="1" />
+        <bits name="ResetRandomOnLoop" numbits="1" />
+        <bits name="SuppressResourceDataStreams" numbits="1" />
+    </bitstruct>
 
     <compound name="DataStreamProducerActivityData" inherit="MemStruct">
         72 bytes

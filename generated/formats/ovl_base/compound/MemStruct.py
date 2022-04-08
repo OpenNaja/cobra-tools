@@ -162,6 +162,8 @@ class MemStruct:
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
 					member.read_ptrs(ovs, ref_ptr, sized_str_entry, array.io_start)
+				elif isinstance(member, Pointer):
+					self.handle_ptr(None, member, ovs, ref_ptr, io_start, sized_str_entry)
 		for memstr in self.get_memstructs():
 			memstr.read_ptrs(ovs, ref_ptr, sized_str_entry, io_start)
 

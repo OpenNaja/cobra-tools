@@ -1,5 +1,6 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
+from generated.formats.motiongraph.bitstruct.AnimationFlags import AnimationFlags
 from generated.formats.motiongraph.compound.DataStreamResourceDataList import DataStreamResourceDataList
 from generated.formats.motiongraph.compound.FloatInputData import FloatInputData
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -19,7 +20,7 @@ class AnimationActivityData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.animation_flags = 0
+		self.animation_flags = AnimationFlags(self.context, 0, None)
 		self.priorities = 0
 		self.weight = FloatInputData(self.context, 0, None)
 		self.speed = FloatInputData(self.context, 0, None)
@@ -34,7 +35,7 @@ class AnimationActivityData(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.animation_flags = 0
+		self.animation_flags = AnimationFlags(self.context, 0, None)
 		self.priorities = 0
 		self.weight = FloatInputData(self.context, 0, None)
 		self.speed = FloatInputData(self.context, 0, None)
@@ -60,7 +61,7 @@ class AnimationActivityData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.mani = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.animation_flags = stream.read_uint()
+		instance.animation_flags = AnimationFlags.from_stream(stream, instance.context, 0, None)
 		instance.priorities = stream.read_uint()
 		instance.weight = FloatInputData.from_stream(stream, instance.context, 0, None)
 		instance.speed = FloatInputData.from_stream(stream, instance.context, 0, None)
@@ -78,7 +79,7 @@ class AnimationActivityData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.mani)
-		stream.write_uint(instance.animation_flags)
+		AnimationFlags.to_stream(stream, instance.animation_flags)
 		stream.write_uint(instance.priorities)
 		FloatInputData.to_stream(stream, instance.weight)
 		FloatInputData.to_stream(stream, instance.speed)

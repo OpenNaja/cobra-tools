@@ -1,4 +1,3 @@
-from enum import IntEnum
 import types
 
 
@@ -236,63 +235,3 @@ class BasicBitfield(object):
 
     def __index__(self):
         return self.__int__()
-
-
-class AlphaFunction(IntEnum):
-    """Describes alpha blend modes for NiAlphaProperty."""
-
-    ONE = 0
-    ZERO = 1
-    SRC_COLOR = 2
-    INV_SRC_COLOR = 3
-    DEST_COLOR = 4
-    INV_DEST_COLOR = 5
-    SRC_ALPHA = 6
-    INV_SRC_ALPHA = 7
-    DEST_ALPHA = 8
-    INV_DEST_ALPHA = 9
-    SRC_ALPHA_SATURATE = 10
-
-
-class AlphaFlags(BasicBitfield):
-    alpha_blend = BitfieldMember(0, 1, 0x0001, int)
-    src_blend = BitfieldMember(1, 4, 0x001E, AlphaFunction)
-
-    def set_defaults(self):
-        self.alpha_blend = 1
-        self.src_blend = AlphaFunction.SRC_ALPHA
-
-
-if __name__ == "__main__":
-    # AlphaFunction(1)
-    temp = AlphaFlags()
-    print(AlphaFunction.INV_DEST_ALPHA.value)
-    # # temp.value = 0
-    # print("alpha_blend", temp.alpha_blend, temp.value, bin(temp.value))
-    # temp.alpha_blend = 1
-    # print("alpha_blend", temp.alpha_blend, temp.value, bin(temp.value))
-    #
-    # print(temp)
-    print("src_blend", temp.src_blend, temp._value, bin(temp._value))
-    temp.src_blend = AlphaFunction.INV_DEST_ALPHA
-    print("src_blend", temp.src_blend, temp._value, bin(temp._value))
-    temp.src_blend &= 0
-    print("src_blend", temp.src_blend, temp._value, bin(temp._value))
-    # print("src_blend", temp.src_blend, temp.value, bin(temp.value))
-    temp += 3
-    print(temp)
-    temp = temp + 1
-    print(temp)
-    temp = temp +3
-    print(temp)
-    temp -= 2
-    print(temp)
-    temp *= 2
-    print(temp)
-    temp = temp // 4
-    print(temp)
-
-
-    temp2 = BasicBitfield.from_value(2)
-    # temp3 = BasicBitfield()
-    print(temp2)
