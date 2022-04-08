@@ -49,12 +49,10 @@ class BasicBitfield(object):
         return self.__str__()
 
     def __str__(self):
-        CALLABLES = types.FunctionType, types.MethodType
-        fields = [key for key, value in self.__class__.__dict__.items() if not isinstance(value, CALLABLES) and not key.startswith("_")]
-        info = f"<Bitfield> {self.__class__.__name__}: {self._value}, {bin(self._value)}"
-        for field in fields:
-            val = getattr(self, field)
-            info += f"\n\t{field} = {str(val)}"
+        fields = [(key, getattr(self, key)) for key, value in self.__class__.__dict__.items() if isinstance(value, BitfieldMember)]
+        items = [f"{key} = {str(val)}" for key, val in fields if val]
+        info = f"{self.__class__.__name__}: {self._value} {bin(self._value)} {items}"
+        # print(info)
         return info
 
     # rich comparison methods
