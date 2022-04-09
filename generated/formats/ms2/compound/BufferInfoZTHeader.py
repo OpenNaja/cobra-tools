@@ -27,13 +27,13 @@ class BufferInfoZTHeader:
 		self.weird_padding = SmartPadding(self.context, 0, None)
 
 		# ?
-		self.unks = Array((self.arg.unk_count,), InfoZTMemPool, self.context, 0, None)
+		self.unks = Array((self.arg.stream_count,), InfoZTMemPool, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.weird_padding = SmartPadding(self.context, 0, None)
-		self.unks = Array((self.arg.unk_count,), InfoZTMemPool, self.context, 0, None)
+		self.unks = Array((self.arg.stream_count,), InfoZTMemPool, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -48,12 +48,12 @@ class BufferInfoZTHeader:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.weird_padding = SmartPadding.from_stream(stream, instance.context, 0, None)
-		instance.unks = Array.from_stream(stream, (instance.arg.unk_count,), InfoZTMemPool, instance.context, 0, None)
+		instance.unks = Array.from_stream(stream, (instance.arg.stream_count,), InfoZTMemPool, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		SmartPadding.to_stream(stream, instance.weird_padding)
-		Array.to_stream(stream, instance.unks, (instance.arg.unk_count,), InfoZTMemPool, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks, (instance.arg.stream_count,), InfoZTMemPool, instance.context, 0, None)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

@@ -177,7 +177,7 @@
 	<compound name="MeshData" >
 		used for shared functions
 		<add name="stream index" type="uint64" until="32">index into streamed buffers</add>
-		<add name="ptr" type="uint64" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
+		<add name="buffer info" type="Pointer" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
 		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
 	</compound>
 
@@ -186,11 +186,9 @@
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 		<add name="zero1" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-		<add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
-<!--		<add name="vertex offset 2" type="ushort" >jwe2 ??</add>-->
+		<add name="vertex offset" type="uint" >byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
 		<add name="size of vertex" type="uint" >usually 48</add>
 		<add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
-<!--		<add name="tri offset 2" type="ushort">jwe2 ??</add>-->
 		<add name="zero2" type="uint">always zero</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="zero3" type="uint">always zero</add>
@@ -281,7 +279,7 @@
 		266 bytes
 		very end of buffer 0 after the names list
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
-		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ unk count" >?</add>
+		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ stream count" >?</add>
 	</compound>
 
 	<compound name="InfoZTMemPool" >
