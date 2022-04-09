@@ -171,16 +171,16 @@ class Ms2Loader(BaseFile):
 			if self.ms2_info.version > 39:
 				# this corresponds to pc buffer 1 already
 				# handle multiple buffer infos
-				buffer_infos = []
+				# grab all unique ptrs to buffer infos
+				ptrs = set(mesh.buffer_info.frag.pointers[1] for model_info in self.ms2_info.model_infos.data for mesh in model_info.meshes.data)
+				# get the sorted binary representations
+				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset, reverse=True)]
+				# turn the offset value of the pointers into a valid index
 				for model_info in self.ms2_info.model_infos.data:
 					for mesh in model_info.meshes.data:
 						buffer_info_bytes = mesh.buffer_info.frag.pointers[1].data
-						if buffer_info_bytes not in buffer_infos:
-							buffer_infos.append(buffer_info_bytes)
-						# print(mesh.buffer_info.offset)
 						mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
-						# print(mesh.buffer_info.offset)
-						print(mesh.buffer_info)
+						# print(mesh.buffer_info)
 				stream.write(b"".join(buffer_infos))
 				self.ms2_info.model_infos.data.write(stream)
 				for model_info in self.ms2_info.model_infos.data:
@@ -204,7 +204,7 @@ class Ms2Loader(BaseFile):
 		m = Ms2File()
 		m.load(out_path, read_editable=True)
 		# m.save(out_path+"_.ms2")
-		print(m)
+		# print(m)
 		return out_path,
 	
 	def get_ms2_buffer_datas(self):

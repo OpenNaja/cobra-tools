@@ -210,12 +210,12 @@ class ZtMeshData(MeshData):
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
 		for s in self.streams[:self.stream_index]:
-			s.size = s.vertex_buffer_length + s.tris_buffer_length + s.uv_buffer_length
+			s.size = s.vertex_buffer_size + s.tris_buffer_size + s.uv_buffer_size
 			self.stream_offset += s.size
 			logging.debug(f"Stream {s.size}")
 		self.buffer_2_offset = buffer_2_offset
 		# determine end of vertex stream to seek back from
-		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length
+		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size
 		logging.debug(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
 		logging.debug(f"Vertex Stream end {self.vert_stream_end}")
 		logging.debug(f"Tri info address {self.buffer_2_offset+self.stream_offset+self.tri_info_offset}")
@@ -260,7 +260,7 @@ class ZtMeshData(MeshData):
 		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
 		stream_info = self.streams[self.stream_index]
 		# hack for zt monitor
-		if stream_info.uv_buffer_length // vert_count_in_stream == 4:
+		if stream_info.uv_buffer_size // vert_count_in_stream == 4:
 			dt_colors = [
 				("uvs", np.ushort, (1, 2)),
 			]
@@ -277,7 +277,7 @@ class ZtMeshData(MeshData):
 
 	@property
 	def tris_address(self):
-		return self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset
+		return self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size + self.tri_offset
 
 	def read_verts(self, stream):
 		# get dtype according to which the vertices are packed
@@ -300,7 +300,7 @@ class ZtMeshData(MeshData):
 		stream.readinto(self.verts_data)
 		self.new_vertex_offset = stream.tell()
 		# print(self.verts_data.shape)
-		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
+		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
 		logging.debug(f"UV at {stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
 		stream.readinto(self.colors_data)

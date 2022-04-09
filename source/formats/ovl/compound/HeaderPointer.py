@@ -158,3 +158,6 @@ class HeaderPointer:
 
 	def __repr__(self):
 		return f"[{self.pool_index} | {self.data_offset}]"
+
+	def __hash__(self):
+		return hash((self.pool_index, self.data_offset))
