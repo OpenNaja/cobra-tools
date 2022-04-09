@@ -332,9 +332,9 @@ class NewMeshData(MeshData):
 
 	@property
 	def tris_address(self):
-		# return self.buffer_2_offset + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset
-		logging.info(f"tris_address {self.buffer_2_offset + self.ms2_file.vbuff_size + self.tri_offset}")
-		return self.buffer_2_offset + self.ms2_file.vbuff_size + self.tri_offset
+		return self.buffer_2_offset + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset
+		# logging.info(f"tris_address {self.buffer_2_offset + self.ms2_file.vbuff_size + self.tri_offset}")
+		# return self.buffer_2_offset + self.ms2_file.vbuff_size + self.tri_offset
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""

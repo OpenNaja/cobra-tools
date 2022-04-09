@@ -25,6 +25,16 @@ class Ms2Loader(BaseFile):
 		self.context.version = version
 		return vdic
 
+	def get_frag_3(self, ms2_info):
+		# some in JWE2 have a model2stream again
+		expected_frag = b""
+		if self.ms2_info.vertex_buffer_count:
+			for stream in range(self.ms2_info.stream_count):
+				expected_frag += struct.pack("<ii", 0, 0)
+			for stream in range(self.ms2_info.vertex_buffer_count - self.ms2_info.stream_count):
+				expected_frag += struct.pack("<ii", -1, 0)
+		return expected_frag
+
 	def collect(self):
 		self.assign_ss_entry()
 		self.get_version()
@@ -36,9 +46,10 @@ class Ms2Loader(BaseFile):
 			# second pass: collect mesh fragments
 			if ss_pointer.data_size != 48:
 				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {self.file_entry.name}")
-			if self.sized_str_entry.fragments[2].pointers[1].data not in (struct.pack("<ii", -1, 0), b""):
+			expected_frag = self.get_frag_3(self.ms2_info)
+			if self.sized_str_entry.fragments[2].pointers[1].data != expected_frag:
 				logging.warning(
-					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {self.file_entry.name}")
+					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {self.file_entry.name}, expected ({expected_frag})")
 
 			# assign the mdl2 frags to their sized str entry
 
@@ -164,7 +175,7 @@ class Ms2Loader(BaseFile):
 			self.ptr_relative(frag.pointers[0], ms2_entry.pointers[0], rel_offset=offset)
 
 		# the last ms2 fragment
-		self.write_to_pool(end_frag.pointers[1], 2, struct.pack("<ii", -1, 0))
+		self.write_to_pool(end_frag.pointers[1], 2, self.get_frag_3(ms2_file.info))
 		# create ms2 data
 		self.create_data_entry(ms2_entry, ms2_file.buffers)
 

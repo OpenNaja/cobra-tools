@@ -110,17 +110,17 @@
 	</compound>
 	
 	<compound name="Ms2SizedStrData">
-		Seems to be the 'root header' of the ms2.
+		root header of the ms2
 		<add name="version" type="uint" >see version tag</add>
-		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
+		<add name="vertex buffer count" type="ushort" >total count of vertex buffers, including streamed buffers</add>
 		<add name="mdl2 count" type="ushort"/>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
-		<add name="unk count" type="ushort" >usually 0, rarely 1</add>
-		<add name="unknown1" type="uint" arr1="3" >seems to be zeros</add>
+		<add name="stream count" type="short" >-1 if there is no vertex buffer at all; else count of streams</add>
+		<add name="zeros" type="uint" arr1="3"/>
 		3 pointers
-		<add name="ptr 0" type="uint64">8 empty bytes</add>
-		<add name="ptr 1" type="uint64">8 empty bytes</add>
-		<add name="ptr 2" type="uint64">8 empty bytes</add>
+		<add name="ptr 0" type="Pointer"/>
+		<add name="ptr 1" type="Pointer"/>
+		<add name="ptr 2" type="Pointer"/>
 	</compound>
 
 	<compound name="Model">

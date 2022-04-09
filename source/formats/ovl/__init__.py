@@ -1477,7 +1477,9 @@ class OvlFile(Header, IoFile):
 						file.streams.append(stream_file)
 			elif file.ext == ".ms2":
 				for lod_i in range(4):
-					stream_file = file_lut.get(f"{file.basename[:-1]}{lod_i}.model2stream", None)
+					# if the ms2 name ends in a trailing underscore, remove it
+					bare_name = file.basename.rstrip("_")
+					stream_file = file_lut.get(f"{bare_name}{lod_i}.model2stream", None)
 					if stream_file:
 						file.streams.append(stream_file)
 

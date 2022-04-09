@@ -1,12 +1,13 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
 class Ms2SizedStrData:
 
 	"""
-	Seems to be the 'root header' of the ms2.
+	root header of the ms2
 	"""
 
 	context = ContextReference()
@@ -22,27 +23,19 @@ class Ms2SizedStrData:
 		# see version tag
 		self.version = 0
 
-		# 1 if yes, 0 if no
+		# total count of vertex buffers, including streamed buffers
 		self.vertex_buffer_count = 0
 		self.mdl_2_count = 0
 
 		# count of names in ms2 buffer0
 		self.name_count = 0
 
-		# usually 0, rarely 1
-		self.unk_count = 0
-
-		# seems to be zeros
-		self.unknown_1 = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
-
-		# 8 empty bytes
-		self.ptr_0 = 0
-
-		# 8 empty bytes
-		self.ptr_1 = 0
-
-		# 8 empty bytes
-		self.ptr_2 = 0
+		# -1 if there is no vertex buffer at all; else count of streams
+		self.stream_count = 0
+		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -51,11 +44,11 @@ class Ms2SizedStrData:
 		self.vertex_buffer_count = 0
 		self.mdl_2_count = 0
 		self.name_count = 0
-		self.unk_count = 0
-		self.unknown_1 = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
-		self.ptr_0 = 0
-		self.ptr_1 = 0
-		self.ptr_2 = 0
+		self.stream_count = 0
+		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -74,11 +67,14 @@ class Ms2SizedStrData:
 		instance.vertex_buffer_count = stream.read_ushort()
 		instance.mdl_2_count = stream.read_ushort()
 		instance.name_count = stream.read_ushort()
-		instance.unk_count = stream.read_ushort()
-		instance.unknown_1 = stream.read_uints((3,))
-		instance.ptr_0 = stream.read_uint64()
-		instance.ptr_1 = stream.read_uint64()
-		instance.ptr_2 = stream.read_uint64()
+		instance.stream_count = stream.read_short()
+		instance.zeros = stream.read_uints((3,))
+		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_0.arg = 0
+		instance.ptr_1.arg = 0
+		instance.ptr_2.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -86,11 +82,11 @@ class Ms2SizedStrData:
 		stream.write_ushort(instance.vertex_buffer_count)
 		stream.write_ushort(instance.mdl_2_count)
 		stream.write_ushort(instance.name_count)
-		stream.write_ushort(instance.unk_count)
-		stream.write_uints(instance.unknown_1)
-		stream.write_uint64(instance.ptr_0)
-		stream.write_uint64(instance.ptr_1)
-		stream.write_uint64(instance.ptr_2)
+		stream.write_short(instance.stream_count)
+		stream.write_uints(instance.zeros)
+		Pointer.to_stream(stream, instance.ptr_0)
+		Pointer.to_stream(stream, instance.ptr_1)
+		Pointer.to_stream(stream, instance.ptr_2)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -116,8 +112,8 @@ class Ms2SizedStrData:
 		s += f'\n	* vertex_buffer_count = {fmt_member(self.vertex_buffer_count, indent+1)}'
 		s += f'\n	* mdl_2_count = {fmt_member(self.mdl_2_count, indent+1)}'
 		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
-		s += f'\n	* unk_count = {fmt_member(self.unk_count, indent+1)}'
-		s += f'\n	* unknown_1 = {fmt_member(self.unknown_1, indent+1)}'
+		s += f'\n	* stream_count = {fmt_member(self.stream_count, indent+1)}'
+		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
 		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
 		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
 		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
