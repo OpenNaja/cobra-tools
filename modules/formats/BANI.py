@@ -14,10 +14,10 @@ class BanisLoader(BaseFile):
 		self.bani_files = []
 		for bani in all_bani_files:
 			b_ss = self.ovl.get_sized_str_entry(bani.name)
-			ss_pointer = b_ss.pointers[0]
+			ss_ptr = b_ss.pointers[0]
 			# since we run this several times if we have several banis, only grab once
 			if not b_ss.fragments:
-				b_ss.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
+				b_ss.fragments = self.ovs.frags_from_pointer(ss_ptr, 1)
 			# check if the pointers match
 			if b_ss.fragments[0].pointers[1] == self.sized_str_entry.pointers[0]:
 				self.bani_files.append(bani)

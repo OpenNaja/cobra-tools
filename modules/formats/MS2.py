@@ -18,8 +18,8 @@ from ovl_util import interaction
 class Ms2Loader(BaseFile):
 
 	def get_version(self):
-		ss_pointer = self.sized_str_entry.pointers[0]
-		version = struct.unpack(f"I", ss_pointer.data[:4])[0]
+		ss_ptr = self.sized_str_entry.pointers[0]
+		version = struct.unpack(f"I", ss_ptr.data[:4])[0]
 		vdic = {"version": version}
 		self.context = Ms2Context()
 		self.context.version = version
@@ -38,34 +38,29 @@ class Ms2Loader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		self.get_version()
-		ss_pointer = self.sized_str_entry.pointers[0]
-		self.ms2_info = ss_pointer.load_as(Ms2SizedStrData, context=self.context)[0]
+		ss_ptr = self.sized_str_entry.pointers[0]
+		# self.ms2_info = ss_ptr.load_as(Ms2SizedStrData, context=self.context)[0]
+		self.ms2_info = Ms2SizedStrData.from_stream(ss_ptr.stream, self.ovl.context)
+		self.ms2_info.read_ptrs(self.ovs, ss_ptr, self.sized_str_entry)
 		# old JWE1 still uses 1 fragment
 		if self.ms2_info.version > 39:
-			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 3)
+			# self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_ptr, 3)
 			# second pass: collect mesh fragments
-			if ss_pointer.data_size != 48:
-				logging.warning(f"Unexpected SS ptr size ({ss_pointer.data_size}) for {self.file_entry.name}")
+			if ss_ptr.data_size != 48:
+				logging.warning(f"Unexpected SS ptr size ({ss_ptr.data_size}) for {self.file_entry.name}")
 			expected_frag = self.get_frag_3(self.ms2_info)
 			if self.sized_str_entry.fragments[2].pointers[1].data != expected_frag:
 				logging.warning(
 					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {self.file_entry.name}, expected ({expected_frag})")
 
 			# assign the mdl2 frags to their sized str entry
-
-			# 3 fixed fragments laid out like
-			# 48 bytes in total
-			# sse p0: ms2_general_info_data (24 bytes) + 24 bytes for 3 pointers
-			# 0 - p0: 8*00 				p1: ms2's static buffer_info or empty (if no buffers)
-			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
-			# 2 - p0: 8*00 				p1: data as in get_frag_3()
-			f_1 = self.sized_str_entry.fragments[1]
-			model_infos = f_1.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
-			for mdl2_entry, mdl2_info in zip(self.sized_str_entry.children, model_infos):
-				assert mdl2_entry.ext == ".mdl2"
-				self.collect_mdl2(mdl2_entry, mdl2_info, f_1.pointers[1])
-		else:
-			self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, 1)
+			# f_1 = self.sized_str_entry.fragments[1]
+			# model_infos = f_1.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
+			# for mdl2_entry, mdl2_info in zip(self.sized_str_entry.children, model_infos):
+			# 	self.collect_mdl2(mdl2_entry, mdl2_info, f_1.pointers[1])
+		# else:
+		# 	self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_ptr, 1)
+		print(self.ms2_info)
 
 	def collect_mdl2(self, mdl2_entry, mdl2_info, mdl2_pointer):
 		logging.info(f"MDL2: {mdl2_entry.name}")

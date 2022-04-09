@@ -12,8 +12,8 @@ class PosedriverdefLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		ss_pointer = self.sized_str_entry.pointers[0]
-		_, count = struct.unpack("<QQ", ss_pointer.data)
+		ss_ptr = self.sized_str_entry.pointers[0]
+		_, count = struct.unpack("<QQ", ss_ptr.data)
 		self.assign_fixed_frags(1)
 		frag = self.sized_str_entry.fragments[0]
 		ptr1 = frag.pointers[1]

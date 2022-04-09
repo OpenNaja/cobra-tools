@@ -13,8 +13,8 @@ class WmetaLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		ss_pointer = self.sized_str_entry.pointers[0]
-		_, count = struct.unpack("<QQ", ss_pointer.data)
+		ss_ptr = self.sized_str_entry.pointers[0]
+		_, count = struct.unpack("<QQ", ss_ptr.data)
 		logging.debug(f"{self.file_entry.name} has {count} entries")
 		self.assign_fixed_frags(1)
 		root_f = self.sized_str_entry.fragments[0]

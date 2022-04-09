@@ -109,7 +109,7 @@
 		<add name="scale" type="float" since="48" />
 	</compound>
 	
-	<compound name="Ms2SizedStrData">
+	<compound name="Ms2SizedStrData" inherit="MemStruct">
 		root header of the ms2
 		<add name="version" type="uint" >see version tag</add>
 		<add name="vertex buffer count" type="ushort" >total count of vertex buffers, including streamed buffers</add>
@@ -117,10 +117,10 @@
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
 		<add name="stream count" type="short" >-1 if there is no vertex buffer at all; else count of streams</add>
 		<add name="zeros" type="uint" arr1="3"/>
-		3 pointers
-		<add name="ptr 0" type="Pointer"/>
-		<add name="ptr 1" type="Pointer"/>
-		<add name="ptr 2" type="Pointer"/>
+
+		<add name="buffer_info" type="Pointer">ms2's static buffer_info or empty (if no buffers)</add>
+		<add name="model_infos" type="ArrayPointer" template="ModelInfo" arg="mdl2 count">one for each mdl2</add>
+		<add name="buffers_presence" type="Pointer">data as in get_frag_3()</add>
 	</compound>
 
 	<compound name="Model">
@@ -174,7 +174,7 @@
 		<add name="mesh index" type="ushort" >index into mesh array</add>
 	</compound>
 
-	<compound name="MeshData" >
+	<compound name="MeshData" inherit="MemStruct">
 		used for shared functions
 		<add name="stream index" type="uint64" until="32">index into streamed buffers</add>
 		<add name="buffer info" type="Pointer" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
@@ -264,6 +264,10 @@
 		the vertex and face data buffers follow
 	</compound>
 
+	<compound name="ModelInfos">
+		<add name="model_infos" type="ModelInfo" arr1="#ARG#"/>
+	</compound>
+
 	<compound name="ModelReader">
 		This reads and assigns models to each model_info that is passed to it
 	</compound>
@@ -318,7 +322,7 @@
 		<add name="zero 4" type="uint64"/>
 	</compound>
 	
-	<compound name="ModelInfo" >
+	<compound name="ModelInfo" inherit="MemStruct">
 		Linked to by the ms2, part of an array
 		120 bytes for JWE2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
@@ -341,11 +345,11 @@
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 
-		<add name="materials ptr" type="uint64"/>
-		<add name="lods ptr" type="uint64"/>
-		<add name="objects ptr" type="uint64"/>
-		<add name="models ptr" type="uint64"/>
-		<add name="first materials ptr" type="uint64"/>
+		<add name="materials" type="ArrayPointer" template="MaterialName" arg="num_materials"/>
+		<add name="lods" type="ArrayPointer" template="LodInfo" arg="num_lods"/>
+		<add name="objects" type="ArrayPointer" template="Object" arg="num_objects"/>
+		<add name="models" type="ArrayPointer" template="NewMeshData" arg="num_meshes"/>
+		<add name="first materials" type="Pointer"/>
 		<add name="zeros ztuac" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
 		<add name="zero 0" type="uint64"/>

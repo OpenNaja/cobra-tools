@@ -10,21 +10,19 @@ FUR_OVERHEAD = 2
 
 
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class MeshData:
+class MeshData(MemStruct):
 
 	"""
 	used for shared functions
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -60,6 +58,7 @@ class MeshData:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		if instance.context.version <= 32:
 			instance.stream_index = stream.read_uint64()
 		if instance.context.version >= 47:
@@ -69,6 +68,7 @@ class MeshData:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		if instance.context.version <= 32:
 			stream.write_uint64(instance.stream_index)
 		if instance.context.version >= 47:
@@ -95,6 +95,7 @@ class MeshData:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* stream_index = {fmt_member(self.stream_index, indent+1)}'
 		s += f'\n	* buffer_info = {fmt_member(self.buffer_info, indent+1)}'
 		s += f'\n	* some_index = {fmt_member(self.some_index, indent+1)}'

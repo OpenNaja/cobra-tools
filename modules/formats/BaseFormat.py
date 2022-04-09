@@ -154,8 +154,8 @@ class BaseFile:
 
 	def assign_fixed_frags(self, count):
 		self.assign_ss_entry()
-		ss_pointer = self.sized_str_entry.pointers[0]
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_pointer, count)
+		ss_ptr = self.sized_str_entry.pointers[0]
+		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_ptr, count)
 
 	def get_streams(self):
 		logging.debug(f"Num streams: {len(self.file_entry.streams)}")

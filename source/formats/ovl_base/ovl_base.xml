@@ -73,6 +73,10 @@
         <add name="offset" type="uint64"/>
     </compound>
 
+    <compound name="ArrayPointer" inherit="Pointer" >
+        a pointer to an array in an ovl memory layout
+    </compound>
+
     <compound name="MemStruct" >
         this is a struct that is capable of having pointers
     </compound>

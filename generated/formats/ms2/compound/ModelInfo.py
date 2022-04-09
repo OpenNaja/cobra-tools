@@ -1,22 +1,26 @@
 from source.formats.base.basic import fmt_member
+import generated.formats.ms2.compound.LodInfo
+import generated.formats.ms2.compound.MaterialName
+import generated.formats.ms2.compound.NewMeshData
+import generated.formats.ms2.compound.Object
 import numpy
-from generated.context import ContextReference
 from generated.formats.ms2.bitfield.RenderFlag import RenderFlag
 from generated.formats.ms2.compound.Vector3 import Vector3
+from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class ModelInfo:
+class ModelInfo(MemStruct):
 
 	"""
 	Linked to by the ms2, part of an array
 	120 bytes for JWE2
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -67,11 +71,10 @@ class ModelInfo:
 		# ?
 		self.unks = numpy.zeros((7,), dtype=numpy.dtype('uint16'))
 		self.pad = numpy.zeros((3,), dtype=numpy.dtype('uint16'))
-		self.materials_ptr = 0
-		self.lods_ptr = 0
-		self.objects_ptr = 0
-		self.models_ptr = 0
-		self.first_materials_ptr = 0
+		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
+		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
+		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
+		self.models = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		self.zeros_ztuac = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
 
 		# unknown, probably used to increment skeleton
@@ -79,6 +82,7 @@ class ModelInfo:
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
+		self.first_materials = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -107,11 +111,10 @@ class ModelInfo:
 		self.render_flag = RenderFlag(self.context, 0, None)
 		self.unks = numpy.zeros((7,), dtype=numpy.dtype('uint16'))
 		self.pad = numpy.zeros((3,), dtype=numpy.dtype('uint16'))
-		self.materials_ptr = 0
-		self.lods_ptr = 0
-		self.objects_ptr = 0
-		self.models_ptr = 0
-		self.first_materials_ptr = 0
+		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
+		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
+		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
+		self.models = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		if self.context.version == 13:
 			self.zeros_ztuac = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
 		self.increment_flag = 0
@@ -120,6 +123,7 @@ class ModelInfo:
 			self.zero_1 = 0
 		if self.context.version >= 47:
 			self.zero_2 = 0
+		self.first_materials = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -133,6 +137,7 @@ class ModelInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47:
 			instance.unk_float_a = stream.read_float()
@@ -155,11 +160,11 @@ class ModelInfo:
 		instance.render_flag = RenderFlag.from_stream(stream, instance.context, 0, None)
 		instance.unks = stream.read_ushorts((7,))
 		instance.pad = stream.read_ushorts((3,))
-		instance.materials_ptr = stream.read_uint64()
-		instance.lods_ptr = stream.read_uint64()
-		instance.objects_ptr = stream.read_uint64()
-		instance.models_ptr = stream.read_uint64()
-		instance.first_materials_ptr = stream.read_uint64()
+		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
+		instance.lods = ArrayPointer.from_stream(stream, instance.context, instance.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
+		instance.objects = ArrayPointer.from_stream(stream, instance.context, instance.num_objects, generated.formats.ms2.compound.Object.Object)
+		instance.models = ArrayPointer.from_stream(stream, instance.context, instance.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
+		instance.first_materials = Pointer.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
 			instance.zeros_ztuac = stream.read_uint64s((4,))
 		instance.increment_flag = stream.read_uint64()
@@ -168,9 +173,11 @@ class ModelInfo:
 			instance.zero_1 = stream.read_uint64()
 		if instance.context.version >= 47:
 			instance.zero_2 = stream.read_uint64()
+		instance.first_materials.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.bounds_min)
 		if instance.context.version >= 47:
 			stream.write_float(instance.unk_float_a)
@@ -193,11 +200,11 @@ class ModelInfo:
 		RenderFlag.to_stream(stream, instance.render_flag)
 		stream.write_ushorts(instance.unks)
 		stream.write_ushorts(instance.pad)
-		stream.write_uint64(instance.materials_ptr)
-		stream.write_uint64(instance.lods_ptr)
-		stream.write_uint64(instance.objects_ptr)
-		stream.write_uint64(instance.models_ptr)
-		stream.write_uint64(instance.first_materials_ptr)
+		ArrayPointer.to_stream(stream, instance.materials)
+		ArrayPointer.to_stream(stream, instance.lods)
+		ArrayPointer.to_stream(stream, instance.objects)
+		ArrayPointer.to_stream(stream, instance.models)
+		Pointer.to_stream(stream, instance.first_materials)
 		if instance.context.version == 13:
 			stream.write_uint64s(instance.zeros_ztuac)
 		stream.write_uint64(instance.increment_flag)
@@ -227,6 +234,7 @@ class ModelInfo:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
 		s += f'\n	* unk_float_a = {fmt_member(self.unk_float_a, indent+1)}'
 		s += f'\n	* bounds_max = {fmt_member(self.bounds_max, indent+1)}'
@@ -245,11 +253,11 @@ class ModelInfo:
 		s += f'\n	* render_flag = {fmt_member(self.render_flag, indent+1)}'
 		s += f'\n	* unks = {fmt_member(self.unks, indent+1)}'
 		s += f'\n	* pad = {fmt_member(self.pad, indent+1)}'
-		s += f'\n	* materials_ptr = {fmt_member(self.materials_ptr, indent+1)}'
-		s += f'\n	* lods_ptr = {fmt_member(self.lods_ptr, indent+1)}'
-		s += f'\n	* objects_ptr = {fmt_member(self.objects_ptr, indent+1)}'
-		s += f'\n	* models_ptr = {fmt_member(self.models_ptr, indent+1)}'
-		s += f'\n	* first_materials_ptr = {fmt_member(self.first_materials_ptr, indent+1)}'
+		s += f'\n	* materials = {fmt_member(self.materials, indent+1)}'
+		s += f'\n	* lods = {fmt_member(self.lods, indent+1)}'
+		s += f'\n	* objects = {fmt_member(self.objects, indent+1)}'
+		s += f'\n	* models = {fmt_member(self.models, indent+1)}'
+		s += f'\n	* first_materials = {fmt_member(self.first_materials, indent+1)}'
 		s += f'\n	* zeros_ztuac = {fmt_member(self.zeros_ztuac, indent+1)}'
 		s += f'\n	* increment_flag = {fmt_member(self.increment_flag, indent+1)}'
 		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
