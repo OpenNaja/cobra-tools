@@ -8,7 +8,7 @@ from generated.formats.ms2.compound.BufferInfoPC import BufferInfoPC
 from generated.formats.ms2.compound.BufferInfoZT import BufferInfoZT
 from generated.formats.ms2.compound.ModelInfo import ModelInfo
 from generated.formats.ms2.compound.ModelReader import ModelReader
-from generated.formats.ms2.compound.Ms2SizedStrData import Ms2SizedStrData
+from generated.formats.ms2.compound.Ms2Root import Ms2Root
 
 
 class Ms2InfoHeader:
@@ -27,7 +27,7 @@ class Ms2InfoHeader:
 		self.io_size = 0
 		self.io_start = 0
 		self.bone_info_size = 0
-		self.info = Ms2SizedStrData(self.context, 0, None)
+		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
 		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoZT, self.context, 0, None)
@@ -42,7 +42,7 @@ class Ms2InfoHeader:
 
 	def set_defaults(self):
 		self.bone_info_size = 0
-		self.info = Ms2SizedStrData(self.context, 0, None)
+		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
 		if self.context.version == 13:
@@ -67,7 +67,7 @@ class Ms2InfoHeader:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.bone_info_size = stream.read_uint()
-		instance.info = Ms2SizedStrData.from_stream(stream, instance.context, 0, None)
+		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
 		instance.buffer_0 = Buffer0.from_stream(stream, instance.context, instance.info, None)
 		if instance.context.version == 13:
@@ -82,7 +82,7 @@ class Ms2InfoHeader:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_uint(instance.bone_info_size)
-		Ms2SizedStrData.to_stream(stream, instance.info)
+		Ms2Root.to_stream(stream, instance.info)
 		stream.write_zstrings(instance.mdl_2_names)
 		Buffer0.to_stream(stream, instance.buffer_0)
 		if instance.context.version == 13:

@@ -2,6 +2,7 @@
 import logging
 
 from generated.array import Array, _class_to_name
+from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer
 import xml.etree.ElementTree as ET
 
@@ -129,6 +130,19 @@ class MemStruct:
 		if isinstance(ptr.data, MemStruct):
 			# print("ptr to a memstruct")
 			ptr.data.read_ptrs(ovs, ptr.frag.pointers[1], sized_str_entry)
+		# ArrayPointer
+		elif isinstance(ptr.data, Array):
+			assert isinstance(ptr, ArrayPointer)
+			# print("ArrayPointer")
+			for member in ptr.data:
+				if isinstance(member, MemStruct):
+					# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
+					member.read_ptrs(ovs, ref_ptr, sized_str_entry, io_start)
+				# elif isinstance(member, Pointer):
+				# 	self.handle_ptr(None, member, ovs, ref_ptr, io_start, sized_str_entry)
+		# else:
+		# 	# this points to a normal struct or basic type, which can't have any pointers
+		# 	pass
 
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):

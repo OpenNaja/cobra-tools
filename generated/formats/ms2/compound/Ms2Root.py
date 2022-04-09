@@ -6,7 +6,7 @@ from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class Ms2SizedStrData(MemStruct):
+class Ms2Root(MemStruct):
 
 	"""
 	root header of the ms2
@@ -111,7 +111,7 @@ class Ms2SizedStrData(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Ms2SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Ms2Root [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

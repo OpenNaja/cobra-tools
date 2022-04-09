@@ -74,7 +74,7 @@ class ModelInfo(MemStruct):
 		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
 		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
-		self.models = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
+		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		self.zeros_ztuac = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
 
 		# unknown, probably used to increment skeleton
@@ -114,7 +114,7 @@ class ModelInfo(MemStruct):
 		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
 		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
-		self.models = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
+		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		if self.context.version == 13:
 			self.zeros_ztuac = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
 		self.increment_flag = 0
@@ -163,7 +163,7 @@ class ModelInfo(MemStruct):
 		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
 		instance.lods = ArrayPointer.from_stream(stream, instance.context, instance.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		instance.objects = ArrayPointer.from_stream(stream, instance.context, instance.num_objects, generated.formats.ms2.compound.Object.Object)
-		instance.models = ArrayPointer.from_stream(stream, instance.context, instance.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
+		instance.meshes = ArrayPointer.from_stream(stream, instance.context, instance.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		instance.first_materials = Pointer.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
 			instance.zeros_ztuac = stream.read_uint64s((4,))
@@ -203,7 +203,7 @@ class ModelInfo(MemStruct):
 		ArrayPointer.to_stream(stream, instance.materials)
 		ArrayPointer.to_stream(stream, instance.lods)
 		ArrayPointer.to_stream(stream, instance.objects)
-		ArrayPointer.to_stream(stream, instance.models)
+		ArrayPointer.to_stream(stream, instance.meshes)
 		Pointer.to_stream(stream, instance.first_materials)
 		if instance.context.version == 13:
 			stream.write_uint64s(instance.zeros_ztuac)
@@ -256,7 +256,7 @@ class ModelInfo(MemStruct):
 		s += f'\n	* materials = {fmt_member(self.materials, indent+1)}'
 		s += f'\n	* lods = {fmt_member(self.lods, indent+1)}'
 		s += f'\n	* objects = {fmt_member(self.objects, indent+1)}'
-		s += f'\n	* models = {fmt_member(self.models, indent+1)}'
+		s += f'\n	* meshes = {fmt_member(self.meshes, indent+1)}'
 		s += f'\n	* first_materials = {fmt_member(self.first_materials, indent+1)}'
 		s += f'\n	* zeros_ztuac = {fmt_member(self.zeros_ztuac, indent+1)}'
 		s += f'\n	* increment_flag = {fmt_member(self.increment_flag, indent+1)}'

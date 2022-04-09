@@ -10,6 +10,7 @@ FUR_OVERHEAD = 2
 
 
 from source.formats.base.basic import fmt_member
+import generated.formats.ms2.compound.BufferInfo
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -35,7 +36,7 @@ class MeshData(MemStruct):
 		self.some_index = 0
 
 		# PZ and JWE have a ptr at the start instead of the stream index
-		self.buffer_info = Pointer(self.context, 0, None)
+		self.buffer_info = Pointer(self.context, 0, generated.formats.ms2.compound.BufferInfo.BufferInfo)
 		if set_default:
 			self.set_defaults()
 
@@ -44,7 +45,7 @@ class MeshData(MemStruct):
 			self.stream_index = 0
 		self.some_index = 0
 		if self.context.version >= 47:
-			self.buffer_info = Pointer(self.context, 0, None)
+			self.buffer_info = Pointer(self.context, 0, generated.formats.ms2.compound.BufferInfo.BufferInfo)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -62,7 +63,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			instance.stream_index = stream.read_uint64()
 		if instance.context.version >= 47:
-			instance.buffer_info = Pointer.from_stream(stream, instance.context, 0, None)
+			instance.buffer_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.ms2.compound.BufferInfo.BufferInfo)
 		instance.some_index = stream.read_uint64()
 		instance.buffer_info.arg = 0
 
