@@ -82,6 +82,8 @@ class ModelInfo(MemStruct):
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
+
+		# actually points to the start of ModelInfos array
 		self.first_materials = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()

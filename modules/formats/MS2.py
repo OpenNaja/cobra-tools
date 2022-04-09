@@ -46,9 +46,10 @@ class Ms2Loader(BaseFile):
 			if ss_ptr.data_size != 48:
 				logging.warning(f"Unexpected Root size ({ss_ptr.data_size}) for {self.file_entry.name}")
 			expected_frag = self.get_frag_3(self.ms2_info)
-			if self.sized_str_entry.fragments[2].pointers[1].data != expected_frag:
+			frag_data = self.ms2_info.buffers_presence.frag.pointers[1].data
+			if frag_data != expected_frag:
 				logging.warning(
-					f"Unexpected frag 2 ptr data ({self.sized_str_entry.fragments[2].pointers[1].data}) for {self.file_entry.name}, expected ({expected_frag})")
+					f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
 
 	def create(self):
 		ms2_file = Ms2File()
@@ -225,7 +226,7 @@ class Ms2Loader(BaseFile):
 		ms2_file.load(ms2_file_path, read_bytes=True)
 
 		missing_materials = set()
-		for model_info, mdl2_name, mdl2_entry in zip(ms2_file.model_infos, ms2_file.mdl_2_names, self.sized_str_entry.children):
+		for model_info, mdl2_name, ovl_model_info in zip(ms2_file.model_infos, ms2_file.mdl_2_names, self.ms2_info.model_infos.data):
 			for material in model_info.model.materials:
 				fgm_name = f"{material.name.lower()}.fgm"
 				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
@@ -233,10 +234,10 @@ class Ms2Loader(BaseFile):
 					continue
 				if fgm_name not in self.ovl._ss_dict:
 					missing_materials.add(fgm_name)
-			if len(mdl2_entry.model_data_frags) != len(model_info.model.meshes):
+			if ovl_model_info.num_meshes != model_info.num_meshes:
 				raise AttributeError(
-					f"{mdl2_entry.name} ({len(model_info.model.meshes)}) doesn't have the "
-					f"expected amount ({len(mdl2_entry.model_data_frags)}) of meshes!")
+					f"{mdl2_name} ({model_info.num_meshes}) doesn't have the "
+					f"expected amount ({ovl_model_info.num_meshes}) of meshes!")
 		if missing_materials:
 			mats = '\n'.join(missing_materials)
 			msg = f"The following materials are used by {self.file_entry.name}, but are missing from the OVL:\n" \
@@ -246,17 +247,15 @@ class Ms2Loader(BaseFile):
 				logging.info("Injection was canceled by the user")
 				return
 
-		for mdl2_entry, model_info in zip(self.sized_str_entry.children, ms2_file.model_infos):
-			logging.debug(f"Injecting {mdl2_entry.name} ")
-	
-			materials, lods, objects, meshes, model_info_ptr = mdl2_entry.fragments
-			for frag, mdl2_list in (
-					(materials, model_info.model.materials,),
-					(lods, model_info.model.lods),
-					(objects, model_info.model.objects),
-					(meshes, model_info.model.meshes)):
+		for ovl_model_info, model_info in zip(self.ms2_info.model_infos.data, ms2_file.model_infos):
+			for ptr, mdl2_list in (
+					(ovl_model_info.materials, model_info.model.materials,),
+					(ovl_model_info.lods, model_info.model.lods),
+					(ovl_model_info.objects, model_info.model.objects),
+					(ovl_model_info.meshes, model_info.model.meshes)):
 				if len(mdl2_list) > 0:
 					data = as_bytes(mdl2_list, version_info=versions)
+					frag = ptr.frag
 					# objects.pointers[1] has padding in stock, apparently as each entry is 4 bytes
 					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
 					# frag.pointers[1].update_data(data, pad_to=8)
@@ -266,10 +265,9 @@ class Ms2Loader(BaseFile):
 
 		# load ms2 ss data
 		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.info, version_info=versions))
-	
-		buffer_info_frag, model_info_frag, end_frag = self.sized_str_entry.fragments
-		buffer_info_frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
-		model_info_frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
+		# todo - multi buffer infos
+		self.ms2_info.buffer_info.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
+		self.ms2_info.model_infos.frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
 		self.sized_str_entry.data_entry.update_data(ms2_file.buffers)
