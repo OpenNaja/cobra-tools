@@ -196,7 +196,9 @@ class NewMeshData:
 	@property
 	def tris_address(self):
 		# todo buffer_info
-		return self.buffer_2_offset + self.ms2_file.buffer_info.vertex_buffer_size + self.tri_offset
+		print(self.buffer_info.offset)
+		buffer_info = self.ms2_file.buffer_info[self.buffer_info.offset]
+		return self.buffer_2_offset + buffer_info.vertex_buffer_size + self.tri_offset
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""

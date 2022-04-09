@@ -15,6 +15,7 @@ class ZtMeshData:
 		self.sum_uv_dict = sum_uv_dict
 		self.last_vertex_offset = last_vertex_offset
 		self.new_vertex_offset = 0
+		# todo buffer_info
 		self.streams = ms2_file.buffer_info.streams
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0

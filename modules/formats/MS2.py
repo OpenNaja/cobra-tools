@@ -3,11 +3,11 @@ import shutil
 import struct
 import logging
 
-from generated.formats.ms2.compound.ModelInfo import ModelInfo
 from generated.formats.ms2 import Ms2File, Ms2Context
 from generated.formats.ms2.compound.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
+from generated.formats.ovl_base.basic import ConvStream
 
 from modules.formats.shared import get_versions, get_padding
 from modules.formats.BaseFormat import BaseFile
@@ -39,7 +39,6 @@ class Ms2Loader(BaseFile):
 		self.assign_ss_entry()
 		self.get_version()
 		ss_ptr = self.sized_str_entry.pointers[0]
-		# self.ms2_info = ss_ptr.load_as(Ms2Root, context=self.context)[0]
 		self.ms2_info = Ms2Root.from_stream(ss_ptr.stream, self.ovl.context)
 		self.ms2_info.read_ptrs(self.ovs, ss_ptr, self.sized_str_entry)
 		# old JWE1 still uses 1 fragment
@@ -161,20 +160,32 @@ class Ms2Loader(BaseFile):
 
 		# write the ms2 file
 		out_path = out_dir(name)
-		with open(out_path, 'wb') as outfile:
-			outfile.write(ms2_header)
-			outfile.write(ms2_general_info_data)
+		with ConvStream() as stream:
+			stream.write(ms2_header)
+			stream.write(ms2_general_info_data)
 			for mdl2_entry in self.sized_str_entry.children:
 				logging.debug(f"Writing {mdl2_entry.name}")
-				outfile.write(as_bytes(mdl2_entry.basename))
-			outfile.write(name_buffer)
+				stream.write(as_bytes(mdl2_entry.basename))
+			stream.write(name_buffer)
 			# export each mdl2
 			if self.ms2_info.version > 39:
 				# this corresponds to pc buffer 1 already
-				# todo - handle multiple buffer infos
-				outfile.write(self.ms2_info.buffer_info.frag.pointers[1].data)
-				outfile.write(self.ms2_info.model_infos.frag.pointers[1].data)
+				# handle multiple buffer infos
+				buffer_infos = []
 				for model_info in self.ms2_info.model_infos.data:
+					for mesh in model_info.meshes.data:
+						buffer_info_bytes = mesh.buffer_info.frag.pointers[1].data
+						if buffer_info_bytes not in buffer_infos:
+							buffer_infos.append(buffer_info_bytes)
+						# print(mesh.buffer_info.offset)
+						mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
+						# print(mesh.buffer_info.offset)
+						print(mesh.buffer_info)
+				stream.write(b"".join(buffer_infos))
+				# self.ms2_info.model_infos.data.to_stream(stream, self.ms2_info.model_infos.data)
+				self.ms2_info.model_infos.data.write(stream)
+				for model_info in self.ms2_info.model_infos.data:
+					# todo - instead dump from the read data
 					objects_ptr = model_info.objects.frag.pointers[1]
 					objects_ptr.split_data_padding(4 * model_info.num_objects)
 					# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
@@ -184,10 +195,12 @@ class Ms2Loader(BaseFile):
 					# avoid writing bad fragments that should be empty
 					if model_info.num_objects:
 						for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
-							outfile.write(ptr.frag.pointers[1].data)
-			outfile.write(bone_infos)
-			outfile.write(verts)
-
+							stream.write(ptr.frag.pointers[1].data)
+			stream.write(bone_infos)
+			stream.write(verts)
+		
+			with open(out_path, 'wb') as outfile:
+				outfile.write(stream.getvalue())
 		# m = Ms2File()
 		# m.load(out_path, read_editable=True)
 		# # m.save(out_path+"_.ms2")
