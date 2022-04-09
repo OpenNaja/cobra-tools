@@ -88,6 +88,12 @@ class Ms2Loader(BaseFile):
 			self.write_to_pool(lods.pointers[1], 2, as_bytes(model_info.model.lods, version_info=versions))
 			objects_bytes = as_bytes(model_info.model.objects, version_info=versions)
 			# todo - padding like this is likely wrong, probably relative to start of materials
+			# objects_ptr = model_info.objects.frag.pointers[1]
+			# objects_ptr.split_data_padding(4 * model_info.num_objects)
+			# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
+			# logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
+			# logging.debug(f"rel offset {meshes.pointers[1].data_offset-materials.pointers[1].data_offset}")
+			# logging.debug(f"rel mod 8 {(meshes.pointers[1].data_offset-materials.pointers[1].data_offset) % 8}")
 			self.write_to_pool(objects.pointers[1], 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
 			self.write_to_pool(meshes.pointers[1], 2, as_bytes(model_info.model.meshes, version_info=versions))
 
@@ -180,29 +186,18 @@ class Ms2Loader(BaseFile):
 					for mesh in model_info.meshes.data:
 						buffer_info_bytes = mesh.buffer_info.frag.pointers[1].data
 						mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
-						# print(mesh.buffer_info)
 				stream.write(b"".join(buffer_infos))
 				self.ms2_info.model_infos.data.write(stream)
 				for model_info in self.ms2_info.model_infos.data:
-					# todo - instead dump from the read data
-					objects_ptr = model_info.objects.frag.pointers[1]
-					objects_ptr.split_data_padding(4 * model_info.num_objects)
-					# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
-					# logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
-					# logging.debug(f"rel offset {meshes.pointers[1].data_offset-materials.pointers[1].data_offset}")
-					# logging.debug(f"rel mod 8 {(meshes.pointers[1].data_offset-materials.pointers[1].data_offset) % 8}")
-					# avoid writing bad fragments that should be empty
-					if model_info.num_objects:
-						for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
-							# stream.write(ptr.frag.pointers[1].data)
-							ptr.data.write(stream)
-			stream.write(bone_infos)
-			stream.write(verts)
+					for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
+						ptr.data.write(stream)
 		
 			with open(out_path, 'wb') as outfile:
 				outfile.write(stream.getvalue())
-		m = Ms2File()
-		m.load(out_path, read_editable=True)
+				outfile.write(bone_infos)
+				outfile.write(verts)
+		# m = Ms2File()
+		# m.load(out_path, read_editable=True)
 		# m.save(out_path+"_.ms2")
 		# print(m)
 		return out_path,
