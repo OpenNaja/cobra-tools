@@ -253,9 +253,10 @@
 		<add name="mdl2 names" type="ZString" arr1="info \ mdl2 count"/>
 		<add name="buffer 0" type="Buffer0" arg="info" />
 <!--		corresponds to PC buffer 1-->
-		<add name="buffer_info" type="BufferInfo" cond="info \ vertex buffer count" since="47"/>
-		<add name="buffer_info" type="BufferInfoZT" vercond="#ZTUAC#" arg="info \ vertex buffer count"/>
-		<add name="buffer_info" type="BufferInfoPC" vercond="#PC#" />
+		<add name="buffer_info" type="BufferInfoZT" arr1="info \ vertex buffer count" vercond="#ZTUAC#" />
+		<add name="buffer_info" type="BufferInfoPC" arr1="info \ vertex buffer count" vercond="#PC#" />
+		<add name="buffer_info" type="BufferInfo" arr1="info \ vertex buffer count" since="47" />
+		
 		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2 count"/>
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
 		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>
@@ -271,12 +272,11 @@
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
 		<add name="names padding" padding="1" type="ubyte" since="50" arr1="(4 - ( names \ io_size #MOD# 4)) % 4">align to 4</add>
-		<add name="zt streams header" type="BufferInfoZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
+		<add name="zt streams header" type="StreamsZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
 	</compound>
 
-	<compound name="BufferInfoZTHeader" >
-		Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-		266 bytes
+	<compound name="StreamsZTHeader" >
+		266 bytes ?
 		very end of buffer 0 after the names list
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
 		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ stream count" >?</add>
@@ -292,10 +292,10 @@
 		JWE: 48 bytes
 		PZ: 56 bytes
 		<add name="skip1" type="uint64" arr1="2" vercond="#JWE#">JWE, 16 bytes of 00 padding</add>
-		<add name="vertexdatasize" type="uint64"/>
+		<add name="vertex_buffer_size" type="uint64"/>
 		<add name="ptr1" type="uint64">8 empty bytes</add>
 		<add name="unk 0" type="uint64" since="48" > PZ+, another 8 empty bytes </add>
-		<add name="facesdatasize" type="uint64"/>
+		<add name="tris_buffer_size" type="uint64"/>
 		<add name="ptr2" type="uint64">8 empty bytes</add>
 		<add name="unk 2" type="uint64" arr1="2" since="48" > PZ+, another 16 empty bytes </add>
 	</compound>
@@ -303,25 +303,17 @@
 	<compound name="BufferInfoPC" >
 		PC: 32 bytes
 		<add name="zeros 1" type="uint64" arr1="2"/>
-		<add name="vertex buffer size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
+		<add name="vertex_buffer_size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
 		<add name="zero 2" type="uint64"/>
 	</compound>
 
 	<compound name="BufferInfoZT" >
-		from here on, it's buffer 1
-		<add name="streams" type="StreamInfo" arr1="#ARG#" ></add>
-	</compound>
-
-	<compound name="StreamInfo" >
-		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-		64 bytes
-		this has the starting offsets of tri buffers per streamed buffer
-		<add name="vertex buffer length" type="uint64" >in bytes</add>
+		<add name="vertex_buffer_size" type="uint64" >in bytes</add>
 		<add name="zero 0" type="uint64"/>
-		<add name="tris buffer length" type="uint64" >from start of tris buffer</add>
+		<add name="tris_buffer_size" type="uint64" >from start of tris buffer</add>
 		<add name="zero 1" type="uint64"/>
 		<add name="zero 2" type="uint64"/>
-		<add name="uv buffer length" type="uint64" >from start of tris buffer</add>
+		<add name="uv_buffer_size" type="uint64" >from start of tris buffer</add>
 		<add name="zero 3" type="uint64"/>
 		<add name="zero 4" type="uint64"/>
 	</compound>

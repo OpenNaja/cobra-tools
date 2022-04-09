@@ -3,7 +3,7 @@ import numpy
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.base.basic import ZString
-from generated.formats.ms2.compound.BufferInfoZTHeader import BufferInfoZTHeader
+from generated.formats.ms2.compound.StreamsZTHeader import StreamsZTHeader
 
 
 class Buffer0:
@@ -26,7 +26,7 @@ class Buffer0:
 
 		# align to 4
 		self.names_padding = numpy.zeros(((4 - (self.names.io_size % 4)) % 4,), dtype=numpy.dtype('uint8'))
-		self.zt_streams_header = BufferInfoZTHeader(self.context, self.arg, None)
+		self.zt_streams_header = StreamsZTHeader(self.context, self.arg, None)
 		if set_default:
 			self.set_defaults()
 
@@ -36,7 +36,7 @@ class Buffer0:
 		if self.context.version >= 50:
 			self.names_padding = numpy.zeros(((4 - (self.names.io_size % 4)) % 4,), dtype=numpy.dtype('uint8'))
 		if self.context.version == 13:
-			self.zt_streams_header = BufferInfoZTHeader(self.context, self.arg, None)
+			self.zt_streams_header = StreamsZTHeader(self.context, self.arg, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -55,7 +55,7 @@ class Buffer0:
 		if instance.context.version >= 50:
 			instance.names_padding = stream.read_ubytes(((4 - (instance.names.io_size % 4)) % 4,))
 		if instance.context.version == 13:
-			instance.zt_streams_header = BufferInfoZTHeader.from_stream(stream, instance.context, instance.arg, None)
+			instance.zt_streams_header = StreamsZTHeader.from_stream(stream, instance.context, instance.arg, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -65,7 +65,7 @@ class Buffer0:
 			instance.names_padding.resize(((4 - (instance.names.io_size % 4)) % 4,))
 			stream.write_ubytes(instance.names_padding)
 		if instance.context.version == 13:
-			BufferInfoZTHeader.to_stream(stream, instance.zt_streams_header)
+			StreamsZTHeader.to_stream(stream, instance.zt_streams_header)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

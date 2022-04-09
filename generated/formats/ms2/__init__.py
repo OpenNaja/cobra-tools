@@ -73,15 +73,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		except:
 			logging.error("Names failed...")
 
-	@property
-	def vbuff_size(self):
-		"""Calc actual size of vertex buffer. Data in buffer_info can be wrong???"""
-		# return self.buffer_info.vertexdatasize
-		v_buff = max(m.vertex_offset + m.vertex_count * m.size_of_vertex for model_info in self.model_infos for m in model_info.model.meshes)
-		if v_buff != self.buffer_info.vertexdatasize:
-			logging.warning(f"Mismatch for vertex buffer size - actual: {self.buffer_info.vertexdatasize}, calculated: {v_buff}")
-		return v_buff
-
 	def load(self, filepath, read_bytes=False, read_editable=False):
 		start_time = time.time()
 		self.filepath = filepath
@@ -153,7 +144,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# elif mdl2.read_bytes:
 				# 	logging.debug(f"Copying mesh data for {mdl2_name}")
 				# 	for model in mdl2.model.meshes:
-				# 		model.read_bytes(self.buffer_2_offset, self.buffer_info.vertexdatasize, stream)
+				# 		model.read_bytes(self.buffer_2_offset, self.buffer_info.vertex_buffer_size, stream)
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
@@ -272,8 +263,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			vert_bytes = temp_vert_writer.getvalue()
 			tris_bytes = temp_tris_writer.getvalue()
 			# modify buffer size
-			self.buffer_info.vertexdatasize = len(vert_bytes)
-			self.buffer_info.facesdatasize = len(tris_bytes)
+			# todo buffer_info
+			self.buffer_info.vertex_buffer_size = len(vert_bytes)
+			self.buffer_info.tris_buffer_size = len(tris_bytes)
 			self.buffer_2_bytes = vert_bytes + tris_bytes
 
 	def get_buffers(self):

@@ -1,14 +1,8 @@
 from source.formats.base.basic import fmt_member
-from generated.array import Array
 from generated.context import ContextReference
-from generated.formats.ms2.compound.StreamInfo import StreamInfo
 
 
 class BufferInfoZT:
-
-	"""
-	from here on, it's buffer 1
-	"""
 
 	context = ContextReference()
 
@@ -19,12 +13,32 @@ class BufferInfoZT:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.streams = Array((self.arg,), StreamInfo, self.context, 0, None)
+
+		# in bytes
+		self.vertex_buffer_size = 0
+		self.zero_0 = 0
+
+		# from start of tris buffer
+		self.tris_buffer_size = 0
+		self.zero_1 = 0
+		self.zero_2 = 0
+
+		# from start of tris buffer
+		self.uv_buffer_size = 0
+		self.zero_3 = 0
+		self.zero_4 = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.streams = Array((self.arg,), StreamInfo, self.context, 0, None)
+		self.vertex_buffer_size = 0
+		self.zero_0 = 0
+		self.tris_buffer_size = 0
+		self.zero_1 = 0
+		self.zero_2 = 0
+		self.uv_buffer_size = 0
+		self.zero_3 = 0
+		self.zero_4 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -38,11 +52,25 @@ class BufferInfoZT:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.streams = Array.from_stream(stream, (instance.arg,), StreamInfo, instance.context, 0, None)
+		instance.vertex_buffer_size = stream.read_uint64()
+		instance.zero_0 = stream.read_uint64()
+		instance.tris_buffer_size = stream.read_uint64()
+		instance.zero_1 = stream.read_uint64()
+		instance.zero_2 = stream.read_uint64()
+		instance.uv_buffer_size = stream.read_uint64()
+		instance.zero_3 = stream.read_uint64()
+		instance.zero_4 = stream.read_uint64()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		Array.to_stream(stream, instance.streams, (instance.arg,), StreamInfo, instance.context, 0, None)
+		stream.write_uint64(instance.vertex_buffer_size)
+		stream.write_uint64(instance.zero_0)
+		stream.write_uint64(instance.tris_buffer_size)
+		stream.write_uint64(instance.zero_1)
+		stream.write_uint64(instance.zero_2)
+		stream.write_uint64(instance.uv_buffer_size)
+		stream.write_uint64(instance.zero_3)
+		stream.write_uint64(instance.zero_4)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -64,7 +92,14 @@ class BufferInfoZT:
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* streams = {fmt_member(self.streams, indent+1)}'
+		s += f'\n	* vertex_buffer_size = {fmt_member(self.vertex_buffer_size, indent+1)}'
+		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* tris_buffer_size = {fmt_member(self.tris_buffer_size, indent+1)}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* uv_buffer_size = {fmt_member(self.uv_buffer_size, indent+1)}'
+		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
+		s += f'\n	* zero_4 = {fmt_member(self.zero_4, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

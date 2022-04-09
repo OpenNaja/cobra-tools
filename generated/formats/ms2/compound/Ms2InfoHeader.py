@@ -30,9 +30,9 @@ class Ms2InfoHeader:
 		self.info = Ms2SizedStrData(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
-		self.buffer_info = BufferInfo(self.context, 0, None)
-		self.buffer_info = BufferInfoZT(self.context, self.info.vertex_buffer_count, None)
-		self.buffer_info = BufferInfoPC(self.context, 0, None)
+		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoZT, self.context, 0, None)
+		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoPC, self.context, 0, None)
+		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 
 		# handles interleaved (old) or separate (new) styles for models and bone infos
@@ -45,12 +45,12 @@ class Ms2InfoHeader:
 		self.info = Ms2SizedStrData(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
-		if self.context.version >= 47 and self.info.vertex_buffer_count:
-			self.buffer_info = BufferInfo(self.context, 0, None)
 		if self.context.version == 13:
-			self.buffer_info = BufferInfoZT(self.context, self.info.vertex_buffer_count, None)
+			self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoZT, self.context, 0, None)
 		if self.context.version == 32:
-			self.buffer_info = BufferInfoPC(self.context, 0, None)
+			self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoPC, self.context, 0, None)
+		if self.context.version >= 47:
+			self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 		self.models_reader = ModelReader(self.context, self.model_infos, None)
 
@@ -70,12 +70,12 @@ class Ms2InfoHeader:
 		instance.info = Ms2SizedStrData.from_stream(stream, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
 		instance.buffer_0 = Buffer0.from_stream(stream, instance.context, instance.info, None)
-		if instance.context.version >= 47 and instance.info.vertex_buffer_count:
-			instance.buffer_info = BufferInfo.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
-			instance.buffer_info = BufferInfoZT.from_stream(stream, instance.context, instance.info.vertex_buffer_count, None)
+			instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfoZT, instance.context, 0, None)
 		if instance.context.version == 32:
-			instance.buffer_info = BufferInfoPC.from_stream(stream, instance.context, 0, None)
+			instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfoPC, instance.context, 0, None)
+		if instance.context.version >= 47:
+			instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		instance.model_infos = Array.from_stream(stream, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
 		instance.models_reader = ModelReader.from_stream(stream, instance.context, instance.model_infos, None)
 
@@ -85,12 +85,12 @@ class Ms2InfoHeader:
 		Ms2SizedStrData.to_stream(stream, instance.info)
 		stream.write_zstrings(instance.mdl_2_names)
 		Buffer0.to_stream(stream, instance.buffer_0)
-		if instance.context.version >= 47 and instance.info.vertex_buffer_count:
-			BufferInfo.to_stream(stream, instance.buffer_info)
 		if instance.context.version == 13:
-			BufferInfoZT.to_stream(stream, instance.buffer_info)
+			Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfoZT, instance.context, 0, None)
 		if instance.context.version == 32:
-			BufferInfoPC.to_stream(stream, instance.buffer_info)
+			Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfoPC, instance.context, 0, None)
+		if instance.context.version >= 47:
+			Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.model_infos, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
 		ModelReader.to_stream(stream, instance.models_reader)
 

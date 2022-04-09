@@ -56,9 +56,9 @@ class Ms2Loader(BaseFile):
 			# 3 fixed fragments laid out like
 			# 48 bytes in total
 			# sse p0: ms2_general_info_data (24 bytes) + 24 bytes for 3 pointers
-			# 0 - p0: 8*00 				p1: buffer_info or empty (if no buffers)
+			# 0 - p0: 8*00 				p1: ms2's static buffer_info or empty (if no buffers)
 			# 1 - p0: 8*00 				p1: core_model_info for first mdl2 file
-			# 2 - p0: 8*00 				p1: 2 unk uints: -1, 0 or empty (if no buffers)
+			# 2 - p0: 8*00 				p1: data as in get_frag_3()
 			f_1 = self.sized_str_entry.fragments[1]
 			model_infos = f_1.pointers[1].load_as(ModelInfo, context=self.context, num=len(self.sized_str_entry.children))
 			for mdl2_entry, mdl2_info in zip(self.sized_str_entry.children, model_infos):
@@ -74,11 +74,11 @@ class Ms2Loader(BaseFile):
 		# 0 - p0: 8*00 				p1: materials
 		# 1 - p0: 8*00 				p1: lods
 		# 2 - p0: 8*00 				p1: objects
-		# 3 - p0: 8*00 				p1: -> first MeshData, start of MeshData fragments block
-		# 4 - p0: next_model_info	p1: -> materials of the first mdl2
+		# 3 - p0: 8*00 				p1: array of MeshData blocks
+		# 4 - p0: next_model_info	p1: materials of the first mdl2
 		#         or just 40 bytes
 		# plus fragments counted by num_meshes
-		# i - p0: MeshData (64b)	p1: -> buffer_info
+		# i - p0: MeshData (64b)	p1: -> buffer_info, can be different from the ms2's, ie. streamed
 		materials, lods, objects, meshes, model_info = mdl2_entry.fragments
 		# remove padding
 		objects_ptr = objects.pointers[1]

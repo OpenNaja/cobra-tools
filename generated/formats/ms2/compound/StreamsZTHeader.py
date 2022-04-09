@@ -5,11 +5,10 @@ from generated.formats.ms2.compound.InfoZTMemPool import InfoZTMemPool
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
 
 
-class BufferInfoZTHeader:
+class StreamsZTHeader:
 
 	"""
-	Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-	266 bytes
+	266 bytes ?
 	very end of buffer 0 after the names list
 	"""
 
@@ -71,7 +70,7 @@ class BufferInfoZTHeader:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'BufferInfoZTHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'StreamsZTHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
