@@ -182,7 +182,6 @@ class Ms2Loader(BaseFile):
 						# print(mesh.buffer_info.offset)
 						print(mesh.buffer_info)
 				stream.write(b"".join(buffer_infos))
-				# self.ms2_info.model_infos.data.to_stream(stream, self.ms2_info.model_infos.data)
 				self.ms2_info.model_infos.data.write(stream)
 				for model_info in self.ms2_info.model_infos.data:
 					# todo - instead dump from the read data
@@ -195,16 +194,17 @@ class Ms2Loader(BaseFile):
 					# avoid writing bad fragments that should be empty
 					if model_info.num_objects:
 						for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
-							stream.write(ptr.frag.pointers[1].data)
+							# stream.write(ptr.frag.pointers[1].data)
+							ptr.data.write(stream)
 			stream.write(bone_infos)
 			stream.write(verts)
 		
 			with open(out_path, 'wb') as outfile:
 				outfile.write(stream.getvalue())
-		# m = Ms2File()
-		# m.load(out_path, read_editable=True)
-		# # m.save(out_path+"_.ms2")
-		# print(m)
+		m = Ms2File()
+		m.load(out_path, read_editable=True)
+		# m.save(out_path+"_.ms2")
+		print(m)
 		return out_path,
 	
 	def get_ms2_buffer_datas(self):
