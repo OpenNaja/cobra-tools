@@ -32,12 +32,12 @@ class UiMovieHeader(MemStruct):
 		self.u_3 = 0
 		self.u_4 = 0
 		self.u_5 = 0
-		self.ptr_list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
-		self.ptr_list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
-		self.ptr_movie_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_pkg_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_category_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_type_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
+		self.list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
+		self.movie_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.pkg_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.category_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.type_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ui_triggers = Pointer(self.context, self.num_ui_triggers, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.ptr_1 = Pointer(self.context, 0, None)
@@ -66,12 +66,12 @@ class UiMovieHeader(MemStruct):
 		self.u_3 = 0
 		self.u_4 = 0
 		self.u_5 = 0
-		self.ptr_list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
-		self.ptr_list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
-		self.ptr_movie_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_pkg_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_category_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_type_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
+		self.list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
+		self.movie_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.pkg_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.category_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.type_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ui_triggers = Pointer(self.context, self.num_ui_triggers, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.ptr_1 = Pointer(self.context, 0, None)
@@ -94,10 +94,10 @@ class UiMovieHeader(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ptr_movie_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr_pkg_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr_category_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr_type_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.movie_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.pkg_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.category_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.type_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.flag_1 = stream.read_uint()
 		instance.flag_2 = stream.read_ushort()
 		instance.flag_3 = stream.read_ushort()
@@ -120,14 +120,14 @@ class UiMovieHeader(MemStruct):
 		instance.ui_names = Pointer.from_stream(stream, instance.context, instance.num_ui_names, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		instance.assetpkgs = Pointer.from_stream(stream, instance.context, instance.num_assetpkgs, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.ptr_list_1 = ArrayPointer.from_stream(stream, instance.context, instance.num_list_1, generated.formats.base.basic.Uint)
-		instance.ptr_list_2 = ArrayPointer.from_stream(stream, instance.context, instance.num_list_2, generated.formats.base.basic.Uint)
+		instance.list_1 = ArrayPointer.from_stream(stream, instance.context, instance.num_list_1, generated.formats.base.basic.Uint)
+		instance.list_2 = ArrayPointer.from_stream(stream, instance.context, instance.num_list_2, generated.formats.base.basic.Uint)
 		instance.ui_interfaces = Pointer.from_stream(stream, instance.context, instance.num_ui_interfaces, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.ptr_movie_name.arg = 0
-		instance.ptr_pkg_name.arg = 0
-		instance.ptr_category_name.arg = 0
-		instance.ptr_type_name.arg = 0
+		instance.movie_name.arg = 0
+		instance.pkg_name.arg = 0
+		instance.category_name.arg = 0
+		instance.type_name.arg = 0
 		instance.ptr_0.arg = 0
 		instance.ui_triggers.arg = instance.num_ui_triggers
 		instance.ptr_1.arg = 0
@@ -140,10 +140,10 @@ class UiMovieHeader(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.ptr_movie_name)
-		Pointer.to_stream(stream, instance.ptr_pkg_name)
-		Pointer.to_stream(stream, instance.ptr_category_name)
-		Pointer.to_stream(stream, instance.ptr_type_name)
+		Pointer.to_stream(stream, instance.movie_name)
+		Pointer.to_stream(stream, instance.pkg_name)
+		Pointer.to_stream(stream, instance.category_name)
+		Pointer.to_stream(stream, instance.type_name)
 		stream.write_uint(instance.flag_1)
 		stream.write_ushort(instance.flag_2)
 		stream.write_ushort(instance.flag_3)
@@ -166,8 +166,8 @@ class UiMovieHeader(MemStruct):
 		Pointer.to_stream(stream, instance.ui_names)
 		Pointer.to_stream(stream, instance.assetpkgs)
 		Pointer.to_stream(stream, instance.ptr_2)
-		ArrayPointer.to_stream(stream, instance.ptr_list_1)
-		ArrayPointer.to_stream(stream, instance.ptr_list_2)
+		ArrayPointer.to_stream(stream, instance.list_1)
+		ArrayPointer.to_stream(stream, instance.list_2)
 		Pointer.to_stream(stream, instance.ui_interfaces)
 		Pointer.to_stream(stream, instance.ptr_3)
 
@@ -192,10 +192,10 @@ class UiMovieHeader(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ptr_movie_name = {fmt_member(self.ptr_movie_name, indent+1)}'
-		s += f'\n	* ptr_pkg_name = {fmt_member(self.ptr_pkg_name, indent+1)}'
-		s += f'\n	* ptr_category_name = {fmt_member(self.ptr_category_name, indent+1)}'
-		s += f'\n	* ptr_type_name = {fmt_member(self.ptr_type_name, indent+1)}'
+		s += f'\n	* movie_name = {fmt_member(self.movie_name, indent+1)}'
+		s += f'\n	* pkg_name = {fmt_member(self.pkg_name, indent+1)}'
+		s += f'\n	* category_name = {fmt_member(self.category_name, indent+1)}'
+		s += f'\n	* type_name = {fmt_member(self.type_name, indent+1)}'
 		s += f'\n	* flag_1 = {fmt_member(self.flag_1, indent+1)}'
 		s += f'\n	* flag_2 = {fmt_member(self.flag_2, indent+1)}'
 		s += f'\n	* flag_3 = {fmt_member(self.flag_3, indent+1)}'
@@ -218,8 +218,8 @@ class UiMovieHeader(MemStruct):
 		s += f'\n	* ui_names = {fmt_member(self.ui_names, indent+1)}'
 		s += f'\n	* assetpkgs = {fmt_member(self.assetpkgs, indent+1)}'
 		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* ptr_list_1 = {fmt_member(self.ptr_list_1, indent+1)}'
-		s += f'\n	* ptr_list_2 = {fmt_member(self.ptr_list_2, indent+1)}'
+		s += f'\n	* list_1 = {fmt_member(self.list_1, indent+1)}'
+		s += f'\n	* list_2 = {fmt_member(self.list_2, indent+1)}'
 		s += f'\n	* ui_interfaces = {fmt_member(self.ui_interfaces, indent+1)}'
 		s += f'\n	* ptr_3 = {fmt_member(self.ptr_3, indent+1)}'
 		return s

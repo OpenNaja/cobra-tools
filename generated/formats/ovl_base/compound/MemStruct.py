@@ -308,6 +308,8 @@ class MemStruct:
 				# subelement with subelements
 				# print(val.dtype)
 				for member in val:
+					if isinstance(member, Pointer):
+						member = member.data
 					self._to_xml(elem, val.class_name, member)
 			else:
 				# todo - add this distinction for from_xml
