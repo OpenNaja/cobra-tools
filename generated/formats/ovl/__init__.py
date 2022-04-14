@@ -176,7 +176,6 @@ class OvsFile(OvsHeader):
 	def __init__(self, context, ovl_inst, archive_entry):
 		super().__init__(context, archive_entry, None)
 		self.ovl = ovl_inst
-		# self.arg = archive_entry
 
 	@staticmethod
 	def add_pointer(pointer, ss_entry, pointers_to_ss):
@@ -540,9 +539,6 @@ class OvsFile(OvsHeader):
 				fs.append(frag)
 		return fs
 
-	def frags_accumulate_from_pointer(self, p, d_size):
-		return self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
-
 	def frags_accumulate_from_pointer_till_count(self, p, d_size, count):
 		frags = self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
 		if len(frags) > count:
@@ -552,27 +548,15 @@ class OvsFile(OvsHeader):
 			return frags
 
 	def frag_at_pointer(self, ptr, offset=0):
-		frags = self.frags_for_pointer(ptr)
-		for frag in frags:
-			if frag.pointers[0].pool_index == ptr.pool_index and frag.pointers[0].data_offset == ptr.data_offset + offset:
-				frag.done = True
-				return frag
+		"""Returns the fragment found at offset in the pool's fragment lookup table"""
+		f = ptr.pool.fragments_lut.get(ptr.data_offset+offset, None)
+		if f:
+			f.done = True
+			return f
 
 	def frags_from_pointer(self, ptr, count, reuse=False):
 		frags = self.frags_for_pointer(ptr)
 		return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
-
-	def frags_from_pointer_equals(self, p):
-		frags = self.frags_for_pointer(p)
-		return self.get_frag_equal(frags, p.address)
-
-	def frags_from_pointer_equals_counts(self, p, count):
-		frags = self.frags_for_pointer(p)
-		return self.get_frag_equal_counts(frags, p.address, count)
-
-	def frags_from_pointer_equalsb(self, p):
-		frags = self.frags_for_pointer(p)
-		return self.get_frag_equalb(frags, p.address, len(p.data))
 
 	def frags_from_pointer_equalsb_counts(self, p, count):
 		frags = self.frags_for_pointer(p)
@@ -1398,12 +1382,14 @@ class OvlFile(Header, IoFile):
 	def load_pointers(self):
 		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
 		logging.info("Loading pointers")
+		start_time = time.time()
 		# reset pointer map for each header entry
 		for pool in self.pools:
 			pool.pointer_map = {}
 			pool.new = False
 			# store fragments per header for faster lookup
 			pool.fragments = []
+			pool.fragments_lut = {}
 			# pool.dependencies = []
 			# pool.ss_entries = []
 		logging.debug("Linking pointers to pools")
@@ -1428,14 +1414,17 @@ class OvlFile(Header, IoFile):
 				ptr = frag.pointers[0]
 				try:
 					ptr.pool.fragments.append(frag)
+					ptr.pool.fragments_lut[ptr.data_offset] = frag
 				except:
 					logging.warning(f"frag {i} failed")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_pointer_sizes()
+		logging.info(f"Loaded pointers in {time.time() - start_time:.2f} seconds.")
 
 	def load_file_classes(self):
 		logging.info("Loading file classes")
+		start_time = time.time()
 		for file in self.files:
 			file.loader = get_loader(file.ext, self, file)
 			if file.loader:
@@ -1444,6 +1433,7 @@ class OvlFile(Header, IoFile):
 				except Exception as err:
 					logging.error(err)
 					traceback.print_exc()
+		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds.")
 
 	def get_sized_str_entry(self, name):
 		"""Retrieves the desired ss entry"""
