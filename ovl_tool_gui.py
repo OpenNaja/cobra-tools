@@ -276,7 +276,8 @@ class MainWindow(widgets.MainWindow):
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
-		names = [(old_name, new_name), ]
+		# force new name to be lowercase
+		names = [(old_name, new_name.lower()), ]
 		self.ovl_data.rename(names)
 		self.update_gui_table()
 
