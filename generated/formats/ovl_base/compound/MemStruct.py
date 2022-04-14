@@ -1,5 +1,8 @@
 
 import logging
+import struct
+
+from numpy.core.multiarray import ndarray
 
 from generated.array import Array, _class_to_name
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
@@ -118,7 +121,10 @@ class MemStruct:
 			else:
 				# basic pointer
 				frag.pointers[1].pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-				frag.pointers[1].write_instance(ptr.template, ptr.data)
+				try:
+					frag.pointers[1].write_instance(ptr.template, ptr.data)
+				except struct.error:
+					raise TypeError(f"Failed to write pointer data {ptr.data} type: {type(ptr.data)} as {ptr.template}")
 		# don't write array members again, they have already been written!
 		if not is_member:
 			# write this struct's data
@@ -142,7 +148,10 @@ class MemStruct:
 			print(f"found array, len {len(array)}")
 			for member in array:
 				print("member")
-				member.write_ptrs(loader, ovs, ref_ptr, is_member=True)
+				if isinstance(member, MemStruct):
+					member.write_ptrs(loader, ovs, ref_ptr, is_member=True)
+				elif isinstance(member, Pointer):
+					logging.warning(f"Missing write_ptrs for ArrayPointer")
 
 		# print(ovs.fragments)
 		for frag in ovs.fragments:
@@ -217,24 +226,43 @@ class MemStruct:
 				# print("pointer")
 				# subelement
 				subelement = elem.find(f'.//{prop}')
-				self._from_xml(subelement, val, val.template)
+				# print("val.template", val.template)
+				if isinstance(val, ArrayPointer):
+					logging.warning(f"Setting ArrayPointer '{prop}' not supported yet")
+					pass
+					# val.data[:] = [val.data.dtype(self._context) for i in range(len(subelement))]
+					# # subelement with subelements
+					# for subelem, member in zip(elem, val.data):
+					# 	self._from_xml(subelem, member, val.data.dtype)
+				else:
+					self._from_xml(subelement, val, val.template)
 			elif isinstance(val, Array):
 				# print(f"array, len {len(elem)}")
 				# create array elements
 				val[:] = [val.dtype(self._context) for i in range(len(elem))]
 				# subelement with subelements
-				# print(val.dtype)
 				for subelem, member in zip(elem, val):
 					self._from_xml(subelem, member, val.dtype)
 			else:
 				# set basic attribute
 				cls = type(val)
-				setattr(self, prop, cls(elem.attrib[prop]))
+				if isinstance(val, ndarray):
+					logging.warning(f"Ignoring basic array '{prop}'")
+					continue
+				try:
+					setattr(self, prop, cls(elem.attrib[prop]))
+				except TypeError:
+					raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
 
 	def _from_xml(self, subelement, val, val_cls):
 		"""Populates this MemStruct from the xml elem"""
 		# print("\n_from_xml", subelement, subelement.attrib, type(val))
 		# print("cls", val_cls)
+		if not val_cls:
+			assert isinstance(val, Pointer)
+			assert not val.template
+			logging.warning(f"No template set for pointer on XML element '{subelement.tag}'")
+			return
 		# template class inherits from memstruct
 		if issubclass(val_cls, MemStruct):
 			if isinstance(val, Pointer):
