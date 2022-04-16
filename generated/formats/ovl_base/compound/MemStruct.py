@@ -184,7 +184,7 @@ class MemStruct:
 		ptr.read_ptr(pool, sized_str_entry)
 		if isinstance(ptr.data, MemStruct):
 			# print("ptr to a memstruct")
-			ptr.data.read_ptrs(ptr.frag.pointers[1], sized_str_entry)
+			ptr.data.read_ptrs(ptr.frag.pointers[1].pool, sized_str_entry)
 		# ArrayPointer
 		elif isinstance(ptr.data, Array):
 			assert isinstance(ptr, ArrayPointer)
@@ -192,7 +192,7 @@ class MemStruct:
 			for member in ptr.data:
 				if isinstance(member, MemStruct):
 					# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
-					member.read_ptrs(ptr.frag.pointers[1], sized_str_entry)
+					member.read_ptrs(ptr.frag.pointers[1].pool, sized_str_entry)
 		else:
 			# points to a normal struct or basic type, which can't have any pointers
 			pass
