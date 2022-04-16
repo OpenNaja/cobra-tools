@@ -20,10 +20,10 @@ class Pointer:
 		self.io_size = 0
 		self.io_start = 0
 		self.offset = 0
+		# todo - test if it is better to already create the template here, or on demand from MemStruct
+		# self.data = template(context, arg=0, template=None)
 		self.data = None
 		self.frag = None
-		# # todo - test if it is better to already create the template here, or on demand from MemStruct
-		# self.data = template(context, arg=0, template=None)
 		if set_default:
 			self.set_defaults()
 
@@ -39,14 +39,7 @@ class Pointer:
 	def read_ptr(self, pool, sized_str_entry):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
-		# calculate offset specified to relative io_start
-		# rel_offset = self.io_start - io_start
-		# print(f"handle_ptr dtype: {ptr.template.__name__} io_ref: {io_start} relative: {rel_offset} count: {ptr.arg}")
-		# get a fragment whose ptr[0] lands on ref_ptr + rel_offset
-		# self.frag = ovs.frag_at_pointer(ref_ptr, offset=rel_offset)
-		# pool = ovs.pools[ptr.pool_index]
-		# pool = ptr.pool
-		# abs_offset = ptr.data_offset+offset
+		# find the frag entry with matching pointers[0].data_offset
 		self.frag = pool.fragments_lut.get(self.io_start, None)
 		# ptr may be a nullptr, so ignore
 		if not self.frag:
