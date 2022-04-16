@@ -50,6 +50,9 @@ class Ms2Loader(BaseFile):
 			if frag_data != expected_frag:
 				logging.warning(
 					f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
+			for model_info in self.ms2_info.model_infos.data:
+				objects_ptr = model_info.objects.frag.pointers[1]
+				objects_ptr.split_data_padding(4 * model_info.num_objects)
 
 	def create(self):
 		ms2_file = Ms2File()
@@ -89,8 +92,6 @@ class Ms2Loader(BaseFile):
 			self.write_to_pool(lods.pointers[1], 2, as_bytes(model_info.model.lods, version_info=versions))
 			objects_bytes = as_bytes(model_info.model.objects, version_info=versions)
 			# todo - padding like this is likely wrong, probably relative to start of materials
-			# objects_ptr = model_info.objects.frag.pointers[1]
-			# objects_ptr.split_data_padding(4 * model_info.num_objects)
 			# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
 			# logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
 			# logging.debug(f"rel offset {meshes.pointers[1].data_offset-materials.pointers[1].data_offset}")
