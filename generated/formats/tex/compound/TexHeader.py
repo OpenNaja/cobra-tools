@@ -1,10 +1,15 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+import generated.formats.tex.compound.SizeInfo
+import generated.formats.tex.compound.TexBuffer
+import generated.formats.tex.compound.TexBufferPc
+from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 from generated.formats.tex.enum.DdsType import DdsType
 from generated.formats.tex.enum.DdsTypeCoaster import DdsTypeCoaster
 
 
-class TexHeader:
+class TexHeader(MemStruct):
 
 	"""
 	DLA: 24 bytes, no pointers
@@ -12,11 +17,9 @@ class TexHeader:
 	JWE, PZ, JWE2: 40 bytes, with 2 pointers
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -24,14 +27,8 @@ class TexHeader:
 		self.zero_0 = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-
-		# 8 bytes, all 0
-		self.ptr_0 = 0
-
-		# 8 bytes, all 0
-		self.ptr_1 = 0
-		self.compression_type = DdsType(self.context, 0, None)
 		self.compression_type = DdsTypeCoaster(self.context, 0, None)
+		self.compression_type = DdsType(self.context, 0, None)
 
 		# 0 or 1
 		self.one_0 = 0
@@ -48,6 +45,9 @@ class TexHeader:
 		# 0
 		self.pad = 0
 		self.pad_dla = 0
+		self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBufferPc.TexBufferPc)
+		self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBuffer.TexBuffer)
+		self.size_info = Pointer(self.context, 0, generated.formats.tex.compound.SizeInfo.SizeInfo)
 		if set_default:
 			self.set_defaults()
 
@@ -58,14 +58,10 @@ class TexHeader:
 			self.zero_0 = 0
 		if self.context.version >= 19:
 			self.zero_1 = 0
-		if self.context.version >= 17:
-			self.ptr_0 = 0
-		if self.context.version >= 19:
-			self.ptr_1 = 0
-		if not (self.context.version < 19):
-			self.compression_type = DdsType(self.context, 0, None)
 		if self.context.version < 19:
 			self.compression_type = DdsTypeCoaster(self.context, 0, None)
+		if not (self.context.version < 19):
+			self.compression_type = DdsType(self.context, 0, None)
 		self.one_0 = 0
 		if self.context.version <= 15:
 			self.num_mips = 0
@@ -80,6 +76,12 @@ class TexHeader:
 		self.pad = 0
 		if self.context.version <= 15:
 			self.pad_dla = 0
+		if 17 <= self.context.version <= 18:
+			self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBufferPc.TexBufferPc)
+		if self.context.version >= 19:
+			self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBuffer.TexBuffer)
+		if self.context.version >= 19:
+			self.size_info = Pointer(self.context, 0, generated.formats.tex.compound.SizeInfo.SizeInfo)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -93,20 +95,22 @@ class TexHeader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		if instance.context.version <= 15:
 			instance.zero_0 = stream.read_uint()
 		if instance.context.version >= 17:
 			instance.zero_0 = stream.read_uint64()
 		if instance.context.version >= 19:
 			instance.zero_1 = stream.read_uint64()
-		if instance.context.version >= 17:
-			instance.ptr_0 = stream.read_uint64()
+		if 17 <= instance.context.version <= 18:
+			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, generated.formats.tex.compound.TexBufferPc.TexBufferPc)
 		if instance.context.version >= 19:
-			instance.ptr_1 = stream.read_uint64()
-		if not (instance.context.version < 19):
-			instance.compression_type = DdsType.from_value(stream.read_ubyte())
+			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, generated.formats.tex.compound.TexBuffer.TexBuffer)
+			instance.size_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.tex.compound.SizeInfo.SizeInfo)
 		if instance.context.version < 19:
 			instance.compression_type = DdsTypeCoaster.from_value(stream.read_ubyte())
+		if not (instance.context.version < 19):
+			instance.compression_type = DdsType.from_value(stream.read_ubyte())
 		instance.one_0 = stream.read_ubyte()
 		if instance.context.version <= 15:
 			instance.num_mips = stream.read_ushort()
@@ -119,22 +123,27 @@ class TexHeader:
 		instance.pad = stream.read_uint()
 		if instance.context.version <= 15:
 			instance.pad_dla = stream.read_uint64()
+		instance.buffer_infos.arg = instance.stream_count
+		instance.buffer_infos.arg = instance.stream_count
+		instance.size_info.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		if instance.context.version <= 15:
 			stream.write_uint(instance.zero_0)
 		if instance.context.version >= 17:
 			stream.write_uint64(instance.zero_0)
 		if instance.context.version >= 19:
 			stream.write_uint64(instance.zero_1)
-		if instance.context.version >= 17:
-			stream.write_uint64(instance.ptr_0)
+		if 17 <= instance.context.version <= 18:
+			ArrayPointer.to_stream(stream, instance.buffer_infos)
 		if instance.context.version >= 19:
-			stream.write_uint64(instance.ptr_1)
-		if not (instance.context.version < 19):
-			stream.write_ubyte(instance.compression_type.value)
+			ArrayPointer.to_stream(stream, instance.buffer_infos)
+			Pointer.to_stream(stream, instance.size_info)
 		if instance.context.version < 19:
+			stream.write_ubyte(instance.compression_type.value)
+		if not (instance.context.version < 19):
 			stream.write_ubyte(instance.compression_type.value)
 		stream.write_ubyte(instance.one_0)
 		if instance.context.version <= 15:
@@ -169,10 +178,11 @@ class TexHeader:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
 		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
-		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* buffer_infos = {fmt_member(self.buffer_infos, indent+1)}'
+		s += f'\n	* size_info = {fmt_member(self.size_info, indent+1)}'
 		s += f'\n	* compression_type = {fmt_member(self.compression_type, indent+1)}'
 		s += f'\n	* one_0 = {fmt_member(self.one_0, indent+1)}'
 		s += f'\n	* num_mips = {fmt_member(self.num_mips, indent+1)}'

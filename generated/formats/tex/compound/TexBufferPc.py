@@ -4,10 +4,6 @@ from generated.context import ContextReference
 
 class TexBufferPc:
 
-	"""
-	Data struct for headers of type 7
-	"""
-
 	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

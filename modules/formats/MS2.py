@@ -39,7 +39,7 @@ class Ms2Loader(BaseFile):
 		self.assign_ss_entry()
 		self.get_version()
 		ss_ptr = self.sized_str_entry.pointers[0]
-		self.ms2_info = Ms2Root.from_stream(ss_ptr.stream, self.ovl.context)
+		self.ms2_info = Ms2Root.from_stream(ss_ptr.stream, self.context)
 		self.ms2_info.read_ptrs(ss_ptr.pool, self.sized_str_entry)
 		# old JWE1 still uses 1 fragment
 		if self.ms2_info.version > 39:

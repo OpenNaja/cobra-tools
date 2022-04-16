@@ -4,7 +4,7 @@ from generated.context import ContextReference
 from generated.formats.tex.compound.Mipmap import Mipmap
 
 
-class Header7Data1:
+class SizeInfo:
 
 	"""
 	Data struct for headers of type 7
@@ -113,7 +113,7 @@ class Header7Data1:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Header7Data1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'SizeInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
