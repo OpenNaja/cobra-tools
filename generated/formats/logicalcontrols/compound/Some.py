@@ -1,15 +1,15 @@
-
-from generated.array import Array
-from generated.context import ContextReference
-from generated.formats.ovl_base.compound.Pointer import Pointer
 from source.formats.base.basic import fmt_member
+import generated.formats.base.basic
+import generated.formats.logicalcontrols.compound.SomeData
+from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class ArrayPointer(Pointer):
+class Some(MemStruct):
 
 	"""
-	a pointer to an array in an ovl memory layout
+	24 bytes
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -19,11 +19,16 @@ class ArrayPointer(Pointer):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.some_count = 0
+		self.some_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.some_data = ArrayPointer(self.context, self.some_count, generated.formats.logicalcontrols.compound.SomeData.SomeData)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		pass
+		self.some_count = 0
+		self.some_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.some_data = ArrayPointer(self.context, self.some_count, generated.formats.logicalcontrols.compound.SomeData.SomeData)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -38,12 +43,18 @@ class ArrayPointer(Pointer):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		pass
+		instance.some_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.some_data = ArrayPointer.from_stream(stream, instance.context, instance.some_count, generated.formats.logicalcontrols.compound.SomeData.SomeData)
+		instance.some_count = stream.read_uint64()
+		instance.some_name.arg = 0
+		instance.some_data.arg = instance.some_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		pass
+		Pointer.to_stream(stream, instance.some_name)
+		ArrayPointer.to_stream(stream, instance.some_data)
+		stream.write_uint64(instance.some_count)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -61,11 +72,14 @@ class ArrayPointer(Pointer):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'ArrayPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Some [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* some_name = {fmt_member(self.some_name, indent+1)}'
+		s += f'\n	* some_data = {fmt_member(self.some_data, indent+1)}'
+		s += f'\n	* some_count = {fmt_member(self.some_count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
@@ -73,10 +87,3 @@ class ArrayPointer(Pointer):
 		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
-
-	def handle_template(self):
-		if self.template:
-			# self.data = self.template.from_stream(self.frag.pointers[1].stream, self.context, self.arg)
-			self.data = Array.from_stream(self.frag.pointers[1].stream, (self.arg,), self.template, self.context, 0, None)
-
-

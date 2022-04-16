@@ -1,16 +1,11 @@
-
-from generated.array import Array
-from generated.context import ContextReference
-from generated.formats.ovl_base.compound.Pointer import Pointer
 from source.formats.base.basic import fmt_member
+import generated.formats.base.basic
+from generated.array import Array
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class ArrayPointer(Pointer):
-
-	"""
-	a pointer to an array in an ovl memory layout
-	"""
+class PtrList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -19,11 +14,12 @@ class ArrayPointer(Pointer):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.ptrs = Array((self.arg,), Pointer, self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		pass
+		self.ptrs = Array((self.arg,), Pointer, self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -38,12 +34,13 @@ class ArrayPointer(Pointer):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		pass
+		instance.ptrs = Array.from_stream(stream, (instance.arg,), Pointer, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.ptrs.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		pass
+		Array.to_stream(stream, instance.ptrs, (instance.arg,), Pointer, instance.context, 0, generated.formats.base.basic.ZString)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -61,11 +58,12 @@ class ArrayPointer(Pointer):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'ArrayPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'PtrList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* ptrs = {fmt_member(self.ptrs, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
@@ -73,10 +71,3 @@ class ArrayPointer(Pointer):
 		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
-
-	def handle_template(self):
-		if self.template:
-			# self.data = self.template.from_stream(self.frag.pointers[1].stream, self.context, self.arg)
-			self.data = Array.from_stream(self.frag.pointers[1].stream, (self.arg,), self.template, self.context, 0, None)
-
-

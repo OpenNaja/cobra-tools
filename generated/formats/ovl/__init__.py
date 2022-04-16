@@ -549,7 +549,12 @@ class OvsFile(OvsHeader):
 
 	def frag_at_pointer(self, ptr, offset=0):
 		"""Returns the fragment found at offset in the pool's fragment lookup table"""
-		f = ptr.pool.fragments_lut.get(ptr.data_offset+offset, None)
+		pool = self.pools[ptr.pool_index]
+		# pool = ptr.pool
+		abs_offset = ptr.data_offset+offset
+		f = pool.fragments_lut.get(abs_offset, None)
+		if ptr.data_offset == 8944:
+			print(ptr.pool_index, abs_offset, f)
 		if f:
 			f.done = True
 			return f

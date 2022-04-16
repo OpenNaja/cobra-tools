@@ -1,15 +1,13 @@
-
-from generated.array import Array
-from generated.context import ContextReference
-from generated.formats.ovl_base.compound.Pointer import Pointer
 from source.formats.base.basic import fmt_member
-from generated.formats.ovl_base.compound.Pointer import Pointer
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class ArrayPointer(Pointer):
+class ButtonData(MemStruct):
 
 	"""
-	a pointer to an array in an ovl memory layout
+	# Apparently the binding value is from a = 1..
+	# HUD_MapMode:          13  209     m and M
+	# HUD_Notifications:    14  210     n and N
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -19,11 +17,20 @@ class ArrayPointer(Pointer):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.k_1_a = 0
+		self.k_1_b = 0
+		self.k_2 = 0
+		self.k_3 = 0
+		self.k_4 = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		pass
+		self.k_1_a = 0
+		self.k_1_b = 0
+		self.k_2 = 0
+		self.k_3 = 0
+		self.k_4 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -38,12 +45,20 @@ class ArrayPointer(Pointer):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		pass
+		instance.k_1_a = stream.read_ushort()
+		instance.k_1_b = stream.read_ushort()
+		instance.k_2 = stream.read_uint()
+		instance.k_3 = stream.read_uint()
+		instance.k_4 = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		pass
+		stream.write_ushort(instance.k_1_a)
+		stream.write_ushort(instance.k_1_b)
+		stream.write_uint(instance.k_2)
+		stream.write_uint(instance.k_3)
+		stream.write_uint(instance.k_4)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -61,11 +76,16 @@ class ArrayPointer(Pointer):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'ArrayPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'ButtonData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* k_1_a = {fmt_member(self.k_1_a, indent+1)}'
+		s += f'\n	* k_1_b = {fmt_member(self.k_1_b, indent+1)}'
+		s += f'\n	* k_2 = {fmt_member(self.k_2, indent+1)}'
+		s += f'\n	* k_3 = {fmt_member(self.k_3, indent+1)}'
+		s += f'\n	* k_4 = {fmt_member(self.k_4, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
@@ -73,10 +93,3 @@ class ArrayPointer(Pointer):
 		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
-
-	def handle_template(self):
-		if self.template:
-			# self.data = self.template.from_stream(self.frag.pointers[1].stream, self.context, self.arg)
-			self.data = Array.from_stream(self.frag.pointers[1].stream, (self.arg,), self.template, self.context, 0, None)
-
-
