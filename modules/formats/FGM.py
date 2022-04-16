@@ -3,13 +3,14 @@ import struct
 
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.ovl_base.versions import is_ztuac
-from modules.formats.BaseFormat import BaseFile
+from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_versions, get_padding
 from modules.helpers import as_bytes, zstr
 from generated.formats.fgm import FgmFile
 
 
-class FgmLoader(BaseFile):
+class FgmLoader(MemStructLoader):
+	target_class = FgmHeader
 
 	def create(self):
 		fgm_data = self._get_data(self.file_entry.path)
@@ -18,22 +19,22 @@ class FgmLoader(BaseFile):
 			self.create_dependency(f"{tex_name}.tex")
 		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 		# now check for frags
-		fgm_header = fgm_data.fgm_info
-		frag_count = self._get_frag_count(fgm_header)
+		self.header = fgm_data.fgm_info
+		frag_count = self._get_frag_count()
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
 
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		self.write_to_pool(self.sized_str_entry.pointers[0], 2, sizedstr_bytes)
 		self.create_data_entry(self.sized_str_entry, (fgm_data.buffer_bytes,))
 		self.create_fragments(self.sized_str_entry, frag_count)
-		self._tag_fragments(fgm_data.fgm_info)
+		self._tag_fragments()
 
 		# self.tex_info, self.attr_info, self.dependencies_ptr, self.data_lib
 		offsets = []
-		if fgm_header.attribute_count:
+		if self.header.attribute_count:
 			offsets.append(24)
 			offsets.append(40)
-		if fgm_header.texture_count:
+		if self.header.texture_count:
 			offsets.append(16)
 		if self.file_entry.dependencies:
 			offsets.append(32)
@@ -51,62 +52,43 @@ class FgmLoader(BaseFile):
 			self.ptr_relative(self.dependencies_ptr.pointers[1], self.file_entry.dependencies[0].pointers[0])
 
 	def collect(self):
-		self.assign_ss_entry()
-		fgm_header = self.sized_str_entry.pointers[0].load_as(FgmHeader)[0]
-		frag_count = self._get_frag_count(fgm_header)
-		logging.debug(f"FGM: {self.sized_str_entry.name} {frag_count}")
-		self.assign_fixed_frags(frag_count)
-
-		self._tag_fragments(fgm_header)
-
+		super().collect()
+		print(self.header)
+		self._tag_fragments()
 		if self.tex_info:
 			# size of a texture info varies
 			if is_ztuac(self.ovl):
-				tex_size = fgm_header.texture_count * 12
+				tex_size = self.header.texture_count * 12
 			else:
-				tex_size = fgm_header.texture_count * 24
+				tex_size = self.header.texture_count * 24
 			ptr = self.tex_info.pointers[1]
 			ptr.split_data_padding(tex_size)
 			logging.debug(f"Texture data {len(ptr.data)} padding {len(ptr.padding)}")
 		if self.attr_info:
 			# this likely has no padding anyway
 			ptr = self.attr_info.pointers[1]
-			ptr.split_data_padding(fgm_header.attribute_count * 16)
+			ptr.split_data_padding(self.header.attribute_count * 16)
 			logging.debug(f"Attribute data {len(ptr.data)} padding {len(ptr.padding)}")
-		for i, f in enumerate(self.sized_str_entry.fragments):
-			p = f.pointers[1]
-			logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
+		# for i, f in enumerate(self.sized_str_entry.fragments):
+		# 	p = f.pointers[1]
+		# 	logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
 
-	def _tag_fragments(self, fgm_header):
-		# logging.info(f"Tagging {len(self.sized_str_entry.fragments)} fragments")
-		# basic fgms - zeros is the ptr to the dependencies block, which is only present if they are present
-		if fgm_header.attribute_count and fgm_header.texture_count and self.file_entry.dependencies:
-			self.tex_info, self.attr_info, self.dependencies_ptr, self.data_lib = self.sized_str_entry.fragments
-		# no dependencies_ptr, otherwise same as basic
-		elif fgm_header.attribute_count and fgm_header.texture_count:
-			self.tex_info, self.attr_info, self.data_lib = self.sized_str_entry.fragments
-		# fgms for variants
-		elif fgm_header.attribute_count:
-			self.attr_info, self.data_lib = self.sized_str_entry.fragments
-			self.tex_info = None
-		# fgms for patternset
-		elif fgm_header.texture_count and self.file_entry.dependencies:
-			self.tex_info, self.dependencies_ptr = self.sized_str_entry.fragments
-			self.attr_info = None
-			self.data_lib = None
-		else:
-			raise AttributeError("Fgm length is wrong")
+	def _tag_fragments(self):
+		self.tex_info = self.header.textures.frag
+		self.attr_info = self.header.attributes.frag
+		self.dependencies_ptr = self.header.dependencies.frag
+		self.data_lib = self.header.data_lib.frag
 
-	def _get_frag_count(self, fgm_header):
+	def _get_frag_count(self):
 		frag_count = 0
-		if fgm_header.texture_count:
+		if self.header.texture_count:
 			frag_count += 1
-		if fgm_header.attribute_count:
+		if self.header.attribute_count:
 			# attrib + data frag
 			frag_count += 2
 		if self.file_entry.dependencies:
 			frag_count += 1
-		logging.debug(f"Count {frag_count}: textures {bool(fgm_header.texture_count)} attributes {bool(fgm_header.attribute_count)} dependencies {bool(self.file_entry.dependencies)}")
+		logging.debug(f"Count {frag_count}: textures {bool(self.header.texture_count)} attributes {bool(self.header.attribute_count)} dependencies {bool(self.file_entry.dependencies)}")
 		return frag_count
 
 	def load(self, file_path):
@@ -141,11 +123,11 @@ class FgmLoader(BaseFile):
 		# textures_bytes += get_padding(len(textures_bytes), alignment=16)
 		# attributes never seem to have padding
 		# attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
-		fgm_header = fgm_data.fgm_info
+		self.header = fgm_data.fgm_info
 		datas = []
-		if fgm_header.texture_count:
+		if self.header.texture_count:
 			datas.append(textures_bytes)
-		if fgm_header.attribute_count:
+		if self.header.attribute_count:
 			datas.append(attributes_bytes)
 			datas.append(fgm_data.data_bytes)
 		return datas, sizedstr_bytes

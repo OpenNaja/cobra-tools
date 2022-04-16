@@ -12,17 +12,17 @@
         <add name="a" type="ubyte"/>
     </compound>
 
-    <compound name="FgmHeader" >
+    <compound name="FgmHeader" inherit="MemStruct">
         Sized str entry of 16 bytes, then ptrs, then padding
-        <add name="Texture count" type="uint" until="15"/>
-        <add name="Texture count" type="uint64" since="17"/>
-        <add name="Attribute count" type="uint" until="15"/>
-        <add name="Attribute count" type="uint64" since="17"/>
+        <add name="texture_count" type="uint" until="15"/>
+        <add name="texture_count" type="uint64" since="17"/>
+        <add name="attribute_count" type="uint" until="15"/>
+        <add name="attribute_count" type="uint64" since="17"/>
         followed by 32 bytes for 4 pointers, which are not always all used
-        <add name="tex ptr" type="uint64"/>
-        <add name="attr ptr" type="uint64"/>
-        <add name="dependencies ptr" type="uint64"/>
-        <add name="data ptr" type="uint64"/>
+        <add name="textures" type="ArrayPointer" template="TextureInfo" arg="texture_count"/>
+        <add name="attributes" type="ArrayPointer" template="AttributeInfo" arg="attribute_count"/>
+        <add name="dependencies" type="Pointer"/>
+        <add name="data_lib" type="Pointer" />
         and finally 16 bytes, apparently unused
         <add name="unk 0" type="uint64"/>
         <add name="unk 1" type="uint64"/>
@@ -53,8 +53,8 @@
         <add name="dependency count" type="uint" ></add>
         <add name="fgm info" type="FgmHeader" ></add>
         <add name="texture files" type="ZString" arr1="dependency count" ></add>
-		<add name="textures" type="TextureInfo" arr1="fgm info\texture count"></add>
-		<add name="attributes" type="AttributeInfo" arr1="fgm info\attribute count" ></add>
+		<add name="textures" type="TextureInfo" arr1="fgm info\texture_count"></add>
+		<add name="attributes" type="AttributeInfo" arr1="fgm info\attribute_count" ></add>
     </compound>
 
 </niftoolsxml>
