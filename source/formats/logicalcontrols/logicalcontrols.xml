@@ -10,6 +10,7 @@
     <compound name="LogicalControls" inherit="MemStruct">
         <add name="buttons" type="ArrayPointer" template="Button" arg="button_count"/>
         <add name="axes" type="ArrayPointer" template="AxisValue" arg="axis_count"/>
+        todo
         <add name="c" type="ArrayPointer" template="" arg="count3"/>
         <add name="d" type="ArrayPointer" template="Some" arg="count4"/>
         <add name="button_count" type="ubyte" />
