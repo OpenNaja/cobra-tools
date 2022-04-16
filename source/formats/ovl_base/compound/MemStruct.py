@@ -104,29 +104,29 @@ class MemStruct:
 			print(frag, frag.pointers[1].data_size, frag.pointers[1].data)
 		# print(ref_ptr.pool.data.getvalue())
 
-	def read_ptrs(self, ovs, ref_ptr, sized_str_entry):
+	def read_ptrs(self, ref_ptr, sized_str_entry):
 		# print("read_ptrs")
 		# get all pointers in this struct
 		for prop, ptr in self.get_props_and_ptrs():
-			self.handle_ptr(prop, ptr, ovs, ref_ptr, sized_str_entry)
+			self.handle_ptr(prop, ptr, ref_ptr, sized_str_entry)
 		arrays = self.get_arrays()
 		for array in arrays:
 			# print(f"array, start at at {array.io_start}")
 			for member in array:
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
-					member.read_ptrs(ovs, ref_ptr, sized_str_entry)
+					member.read_ptrs(ref_ptr, sized_str_entry)
 				elif isinstance(member, Pointer):
-					self.handle_ptr(None, member, ovs, ref_ptr, sized_str_entry)
+					self.handle_ptr(None, member, ref_ptr, sized_str_entry)
 		for memstr in self.get_memstructs():
-			memstr.read_ptrs(ovs, ref_ptr, sized_str_entry)
+			memstr.read_ptrs(ref_ptr, sized_str_entry)
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
 		pass
 
-	def handle_ptr(self, prop, ptr, ovs, ref_ptr, sized_str_entry):
+	def handle_ptr(self, prop, ptr, ref_ptr, sized_str_entry):
 		"""Ensures a pointer has a valid template, load it, and continue processing the linked memstruct."""
 		if not ptr.template:
 			# try the lookup function
@@ -135,7 +135,7 @@ class MemStruct:
 		ptr.read_ptr(pool, sized_str_entry)
 		if isinstance(ptr.data, MemStruct):
 			# print("ptr to a memstruct")
-			ptr.data.read_ptrs(ovs, ptr.frag.pointers[1], sized_str_entry)
+			ptr.data.read_ptrs(ptr.frag.pointers[1], sized_str_entry)
 		# ArrayPointer
 		elif isinstance(ptr.data, Array):
 			assert isinstance(ptr, ArrayPointer)
@@ -143,7 +143,7 @@ class MemStruct:
 			for member in ptr.data:
 				if isinstance(member, MemStruct):
 					# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
-					member.read_ptrs(ovs, ptr.frag.pointers[1], sized_str_entry)
+					member.read_ptrs(ptr.frag.pointers[1], sized_str_entry)
 		# else:
 		# 	# this points to a normal struct or basic type, which can't have any pointers
 		# 	pass
