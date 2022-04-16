@@ -71,10 +71,6 @@ class ModelInfo(MemStruct):
 		# ?
 		self.unks = numpy.zeros((7,), dtype=numpy.dtype('uint16'))
 		self.pad = numpy.zeros((3,), dtype=numpy.dtype('uint16'))
-		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
-		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
-		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
-		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		self.zeros_ztuac = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
 
 		# unknown, probably used to increment skeleton
@@ -82,6 +78,10 @@ class ModelInfo(MemStruct):
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
+		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
+		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
+		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
+		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 
 		# actually points to the start of ModelInfos array
 		self.first_materials = Pointer(self.context, 0, None)
@@ -113,10 +113,6 @@ class ModelInfo(MemStruct):
 		self.render_flag = RenderFlag(self.context, 0, None)
 		self.unks = numpy.zeros((7,), dtype=numpy.dtype('uint16'))
 		self.pad = numpy.zeros((3,), dtype=numpy.dtype('uint16'))
-		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
-		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
-		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
-		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		if self.context.version == 13:
 			self.zeros_ztuac = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
 		self.increment_flag = 0
@@ -125,6 +121,10 @@ class ModelInfo(MemStruct):
 			self.zero_1 = 0
 		if self.context.version >= 47:
 			self.zero_2 = 0
+		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
+		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
+		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
+		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 		self.first_materials = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -175,6 +175,10 @@ class ModelInfo(MemStruct):
 			instance.zero_1 = stream.read_uint64()
 		if instance.context.version >= 47:
 			instance.zero_2 = stream.read_uint64()
+		instance.materials.arg = instance.num_materials
+		instance.lods.arg = instance.num_lods
+		instance.objects.arg = instance.num_objects
+		instance.meshes.arg = instance.num_meshes
 		instance.first_materials.arg = 0
 
 	@classmethod

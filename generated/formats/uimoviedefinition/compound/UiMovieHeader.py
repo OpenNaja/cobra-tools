@@ -32,8 +32,6 @@ class UiMovieHeader(MemStruct):
 		self.u_3 = 0
 		self.u_4 = 0
 		self.u_5 = 0
-		self.list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
-		self.list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
 		self.movie_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pkg_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.category_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -44,6 +42,8 @@ class UiMovieHeader(MemStruct):
 		self.ui_names = Pointer(self.context, self.num_ui_names, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.assetpkgs = Pointer(self.context, self.num_assetpkgs, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.ptr_2 = Pointer(self.context, 0, None)
+		self.list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
+		self.list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
 		self.ui_interfaces = Pointer(self.context, self.num_ui_interfaces, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.ptr_3 = Pointer(self.context, 0, None)
 		if set_default:
@@ -66,8 +66,6 @@ class UiMovieHeader(MemStruct):
 		self.u_3 = 0
 		self.u_4 = 0
 		self.u_5 = 0
-		self.list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
-		self.list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
 		self.movie_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pkg_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.category_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -78,6 +76,8 @@ class UiMovieHeader(MemStruct):
 		self.ui_names = Pointer(self.context, self.num_ui_names, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.assetpkgs = Pointer(self.context, self.num_assetpkgs, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.ptr_2 = Pointer(self.context, 0, None)
+		self.list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
+		self.list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
 		self.ui_interfaces = Pointer(self.context, self.num_ui_interfaces, generated.formats.uimoviedefinition.compound.PtrList.PtrList)
 		self.ptr_3 = Pointer(self.context, 0, None)
 
@@ -134,6 +134,8 @@ class UiMovieHeader(MemStruct):
 		instance.ui_names.arg = instance.num_ui_names
 		instance.assetpkgs.arg = instance.num_assetpkgs
 		instance.ptr_2.arg = 0
+		instance.list_1.arg = instance.num_list_1
+		instance.list_2.arg = instance.num_list_2
 		instance.ui_interfaces.arg = instance.num_ui_interfaces
 		instance.ptr_3.arg = 0
 

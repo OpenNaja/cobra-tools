@@ -5,6 +5,7 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="MotiongraphHeader" inherit="MemStruct">
+        # if self.ovl.context.version > 47:
         <add name="ptr_0" type="Pointer" template="MotiongraphRootFrag"/>
         points to all data of size 40 used in MRFentry1 if lua is MotionGraph.StateOutput
         <add name="state output entries" type="Pointer" template="StateArray"/>

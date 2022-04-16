@@ -12,6 +12,10 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 
 class MotiongraphHeader(MemStruct):
 
+	"""
+	# if self.ovl.context.version > 47:
+	"""
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)

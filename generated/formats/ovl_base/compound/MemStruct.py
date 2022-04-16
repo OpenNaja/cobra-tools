@@ -307,12 +307,21 @@ class MemStruct:
 			val.to_xml(subelement)
 		# it is a basic type
 		else:
+			if isinstance(val, Array):
+				# print("array")
+				# subelement with subelements
+				# print(val.dtype)
+				for member in val:
+					if isinstance(member, Pointer):
+						member = member.data
+					self._to_xml(subelement, val.class_name, member)
 			# print("basic")
-			if prop == "xml_string":
-				# print(val)
-				subelement.append(ET.fromstring(val))
 			else:
-				subelement.set("data", str(val))
+				if prop == "xml_string":
+					# print(val)
+					subelement.append(ET.fromstring(val))
+				else:
+					subelement.set("data", str(val))
 		# set address for debugging
 		if frag:
 			f_ptr = frag.pointers[1]

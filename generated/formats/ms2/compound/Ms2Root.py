@@ -34,11 +34,11 @@ class Ms2Root(MemStruct):
 		self.stream_count = 0
 		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 
-		# one for each mdl2
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compound.ModelInfo.ModelInfo)
-
 		# ms2's static buffer_info or empty (if no buffers)
 		self.buffer_info = Pointer(self.context, 0, None)
+
+		# one for each mdl2
+		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compound.ModelInfo.ModelInfo)
 
 		# data as in get_frag_3()
 		self.buffers_presence = Pointer(self.context, 0, None)
@@ -52,8 +52,8 @@ class Ms2Root(MemStruct):
 		self.name_count = 0
 		self.stream_count = 0
 		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compound.ModelInfo.ModelInfo)
 		self.buffer_info = Pointer(self.context, 0, None)
+		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compound.ModelInfo.ModelInfo)
 		self.buffers_presence = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -80,6 +80,7 @@ class Ms2Root(MemStruct):
 		instance.model_infos = ArrayPointer.from_stream(stream, instance.context, instance.mdl_2_count, generated.formats.ms2.compound.ModelInfo.ModelInfo)
 		instance.buffers_presence = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.buffer_info.arg = 0
+		instance.model_infos.arg = instance.mdl_2_count
 		instance.buffers_presence.arg = 0
 
 	@classmethod

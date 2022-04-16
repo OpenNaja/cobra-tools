@@ -83,7 +83,7 @@ class Union:
         """Check if this union is used as an ovl memory pointer"""
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
-            if field_type == "Pointer":
+            if field_type in ("Pointer", "ArrayPointer"):
                 return True
 
     def append(self, member):
