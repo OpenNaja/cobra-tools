@@ -53,7 +53,7 @@ class FgmLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
-		print(self.header)
+		# print(self.header)
 		self._tag_fragments()
 		if self.tex_info:
 			# size of a texture info varies
