@@ -57,11 +57,17 @@
         <add name="data_type" type="Pointer" template="ZString"/>
         # can point to data of changing size
         template has to be defined according to data type ie 'AnimationActivity' + 'Data'
-        <add name="ptr" type="Pointer"/>
+        <add name="ptr" type="Pointer" />
+<!--        <add name="ptr" type="Pointer" template="ActivityData" arg="data_type\data"/>-->
         <add name="count_2" type="uint64"/>
         <add name="count_3" type="uint64"/>
         <add name="minus one" type="int64"/>
         <add name="name b" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="ActivityData" inherit="MemStruct" >
+        # todo - investigate if this is a viable alternative, change codegen if needed to support string comparison
+        <add name="data" type="AnimationActivityData" cond="#ARG# #EQ# 'AnimationActivity'" />
     </compound>
 
     <compound name="MRFArray1" inherit="MemStruct" >
