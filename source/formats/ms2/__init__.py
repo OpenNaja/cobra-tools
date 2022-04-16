@@ -264,8 +264,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			tris_bytes = temp_tris_writer.getvalue()
 			# modify buffer size
 			# todo buffer_info
-			self.buffer_info.vertex_buffer_size = len(vert_bytes)
-			self.buffer_info.tris_buffer_size = len(tris_bytes)
+			self.buffer_info[0].vertex_buffer_size = len(vert_bytes)
+			self.buffer_info[0].tris_buffer_size = len(tris_bytes)
 			self.buffer_2_bytes = vert_bytes + tris_bytes
 
 	def get_buffers(self):
