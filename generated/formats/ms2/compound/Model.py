@@ -56,7 +56,7 @@ class Model:
 		self.materials = Array((self.arg.num_materials,), MaterialName, self.context, 0, None)
 		if self.context.version <= 13:
 			self.lods = Array((self.arg.num_lods,), LodInfoZT, self.context, 0, None)
-		if self.context.version >= 32 and self.arg.num_meshes:
+		if self.context.version >= 32:
 			self.lods = Array((self.arg.num_lods,), LodInfo, self.context, 0, None)
 		self.objects = Array((self.arg.num_objects,), Object, self.context, 0, None)
 		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
@@ -87,7 +87,7 @@ class Model:
 		instance.materials = Array.from_stream(stream, (instance.arg.num_materials,), MaterialName, instance.context, 0, None)
 		if instance.context.version <= 13:
 			instance.lods = Array.from_stream(stream, (instance.arg.num_lods,), LodInfoZT, instance.context, 0, None)
-		if instance.context.version >= 32 and instance.arg.num_meshes:
+		if instance.context.version >= 32:
 			instance.lods = Array.from_stream(stream, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
 		instance.objects = Array.from_stream(stream, (instance.arg.num_objects,), Object, instance.context, 0, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
@@ -108,7 +108,7 @@ class Model:
 		Array.to_stream(stream, instance.materials, (instance.arg.num_materials,), MaterialName, instance.context, 0, None)
 		if instance.context.version <= 13:
 			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfoZT, instance.context, 0, None)
-		if instance.context.version >= 32 and instance.arg.num_meshes:
+		if instance.context.version >= 32:
 			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.objects, (instance.arg.num_objects,), Object, instance.context, 0, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:

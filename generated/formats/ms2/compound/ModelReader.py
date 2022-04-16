@@ -66,9 +66,9 @@ class ModelReader:
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		instance.bone_infos = []
+		logging.info(f"ModelReader starts at {instance.io_start}")
 		i = 0
 		if instance.context.version < 47:
-			#
 			# start = instance.io_start
 			start = instance.arg.io_start
 			# meh, add it here even though it's really interleaved
@@ -93,9 +93,9 @@ class ModelReader:
 			for model_info in instance.arg:
 				# logging.debug(model_info)
 				model_info.model = Model(instance.context, model_info)
-				if model_info.num_objects:
-					model_info.model.read(stream)
-					# logging.debug(model_info.model)
+				# if model_info.num_objects:
+				model_info.model.read(stream)
+				# logging.debug(model_info.model)
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
 				try:
@@ -106,7 +106,7 @@ class ModelReader:
 
 	def assign_bone_info(self, i, model_info, stream):
 		if model_info.increment_flag:
-			logging.debug(f"Reading bone info")
+			logging.debug(f"Reading bone info at {stream.tell()}")
 			model_info.bone_info = self.read_bone_info(stream, i)
 			# logging.debug(model_info.bone_info)
 			self.bone_infos.append(model_info.bone_info)

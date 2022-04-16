@@ -126,7 +126,7 @@
 	<compound name="Model">
 		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
 		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" until="13" />
-		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" cond="#ARG#\num_meshes" since="32">lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
+		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" since="32">lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
 		rhino: start of model - end of objects: 124 - 4 bytes padding
