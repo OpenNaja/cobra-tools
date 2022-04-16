@@ -339,7 +339,7 @@ class MemStructLoader(BaseFile):
 		self.assign_ss_entry()
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = self.target_class.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(self.ovs, ss_ptr, self.sized_str_entry)
+		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
 		# print(self.header)
 
 	def create(self):

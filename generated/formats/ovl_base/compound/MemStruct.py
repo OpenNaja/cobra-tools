@@ -87,9 +87,6 @@ class MemStruct:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	def get_ptrs(self):
-		return [val for prop, val in vars(self).items() if isinstance(val, Pointer)]
-
 	def get_props_and_ptrs(self):
 		return [(prop, val) for prop, val in vars(self).items() if isinstance(val, Pointer)]
 
@@ -105,11 +102,9 @@ class MemStruct:
 
 		print("ref_ptr before", ref_ptr)
 
-		# get all ptrs of this MemStruct
-		ptrs = self.get_ptrs()
-
-		# we only create them if they have data assigned
-		ptrs_with_data = [ptr for ptr in ptrs if ptr.data is not None]
+		# get all ptrs of this MemStruct, butonly create them if they have data assigned
+		ptrs = self.get_props_and_ptrs()
+		ptrs_with_data = [ptr for prop, ptr in ptrs if ptr.data is not None]
 		print(f"{len(ptrs)} pointers, {len(ptrs_with_data)} with data")
 		# create frags for them
 		ptr_frags = loader.create_fragments(loader.sized_str_entry, len(ptrs_with_data))
@@ -156,38 +151,40 @@ class MemStruct:
 			print(frag, frag.pointers[1].data_size, frag.pointers[1].data)
 		# print(ref_ptr.pool.data.getvalue())
 
-	def read_ptrs(self, ovs, ref_ptr, sized_str_entry):
+	def read_ptrs(self, pool, sized_str_entry):
 		# print("read_ptrs")
 		# get all pointers in this struct
 		for prop, ptr in self.get_props_and_ptrs():
-			self.handle_ptr(prop, ptr, ovs, ref_ptr, sized_str_entry)
+			self.handle_ptr(prop, ptr, pool, sized_str_entry)
+		# read arrays attached to this memstruct
 		arrays = self.get_arrays()
 		for array in arrays:
 			# print(f"array, start at at {array.io_start}")
 			for member in array:
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
-					member.read_ptrs(ovs, ref_ptr, sized_str_entry)
+					member.read_ptrs(pool, sized_str_entry)
 				elif isinstance(member, Pointer):
-					self.handle_ptr(None, member, ovs, ref_ptr, sized_str_entry)
+					self.handle_ptr(None, member, pool, sized_str_entry)
+		# continue reading sub-memstructs directly attached to this memstruct
 		for memstr in self.get_memstructs():
-			memstr.read_ptrs(ovs, ref_ptr, sized_str_entry)
+			memstr.read_ptrs(pool, sized_str_entry)
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
-		pass
+		return None
 
-	def handle_ptr(self, prop, ptr, ovs, ref_ptr, sized_str_entry):
+	def handle_ptr(self, prop, ptr, pool, sized_str_entry):
 		"""Ensures a pointer has a valid template, load it, and continue processing the linked memstruct."""
 		if not ptr.template:
 			# try the lookup function
 			ptr.template = self.get_ptr_template(prop)
-		pool = ref_ptr.pool
+		# reads the template
 		ptr.read_ptr(pool, sized_str_entry)
 		if isinstance(ptr.data, MemStruct):
 			# print("ptr to a memstruct")
-			ptr.data.read_ptrs(ovs, ptr.frag.pointers[1], sized_str_entry)
+			ptr.data.read_ptrs(ptr.frag.pointers[1], sized_str_entry)
 		# ArrayPointer
 		elif isinstance(ptr.data, Array):
 			assert isinstance(ptr, ArrayPointer)
@@ -195,10 +192,10 @@ class MemStruct:
 			for member in ptr.data:
 				if isinstance(member, MemStruct):
 					# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
-					member.read_ptrs(ovs, ptr.frag.pointers[1], sized_str_entry)
-		# else:
-		# 	# this points to a normal struct or basic type, which can't have any pointers
-		# 	pass
+					member.read_ptrs(ptr.frag.pointers[1], sized_str_entry)
+		else:
+			# points to a normal struct or basic type, which can't have any pointers
+			pass
 
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):
