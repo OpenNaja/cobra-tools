@@ -6,47 +6,147 @@
 
 	<enum name="DdsType" storage="ubyte">
 		maps the OVL's dds type to name of compression format
-		<option value="35" name="DXGI_FORMAT_R8G8B8A8_UNORM"></option>
-		<option value="37" name="DXGI_FORMAT_R8G8B8A8_UNORM_SRGB">gharial_male.pclut.dds, or DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_R8G8B8A8_UNORM</option>
-		<option value="38" name="DXGI_FORMAT_D32_FLOAT_S8X24_UINT">atmospherics_stars_data.dds</option>
-		<option value="43" name="DXGI_FORMAT_R16G16_FLOAT"></option>
-		<!-- <option value="59" name="?"></option> -->
+<!--<option value="0" name="UNKNOWN" />-->
+<!--<option value="1" name="R32G32B32A32F" />-->
+<!--<option value="2" name="R32G32B32A32U" />-->
+<!--<option value="3" name="R32G32B32A32S" />-->
+<!--<option value="4" name="R32G32B32A32UN" />-->
+<!--<option value="5" name="R32G32B32A32SN" />-->
+<!--<option value="6" name="R32G32B32F" />-->
+<!--<option value="7" name="R32G32B32U" />-->
+<!--<option value="8" name="R32G32B32S" />-->
+<!--<option value="9" name="R32G32B32UN" />-->
+<!--<option value="10" name="R32G32B32SN" />-->
+<!--<option value="11" name="R32G32F" />-->
+<!--<option value="12" name="R32G32U" />-->
+<!--<option value="13" name="R32G32S" />-->
+<!--<option value="14" name="R32G32UN" />-->
+<!--<option value="15" name="R32G32SN" />-->
+<!--<option value="16" name="R32F" />-->
+<!--<option value="17" name="R32U" />-->
+<!--<option value="18" name="R32S" />-->
+<!--<option value="19" name="R32UN" />-->
+<!--<option value="20" name="R32SN" />-->
+<!--<option value="21" name="R11G11B10F" />-->
+<!--<option value="22" name="R11G11B10U" />-->
+<!--<option value="23" name="R11G11B10S" />-->
+<!--<option value="24" name="R11G11B10UN" />-->
+<!--<option value="25" name="R11G11B10SN" />-->
+<!--<option value="26" name="R10G10B10FA2UN" />-->
+<!--<option value="27" name="R10G10B10A2U" />-->
+<!--<option value="28" name="R10G10B10A2UN" />-->
+<!--<option value="29" name="R10G10B10X2U" />-->
+<!--<option value="30" name="R10G10B10X2S" />-->
+<!--<option value="31" name="R10G10B10X2UN" />-->
+<!--<option value="32" name="R10G10B10X2SN" />-->
+<!--<option value="33" name="R8G8B8A8U" />-->
+<!--<option value="34" name="R8G8B8A8S" />-->
+<!--<option value="35" name="R8G8B8A8UN" />-->
+<!--<option value="36" name="R8G8B8A8SN" />-->
+<!--<option value="37" name="R8G8B8A8UN_SRGB" />-->
+<!--<option value="38" name="R16G16B16A16F" />-->
+<!--<option value="39" name="R16G16B16A16U" />-->
+<!--<option value="40" name="R16G16B16A16S" />-->
+<!--<option value="41" name="R16G16B16A16UN" />-->
+<!--<option value="42" name="R16G16B16A16SN" />-->
+<!--<option value="43" name="R16G16F" />-->
+<!--<option value="44" name="R16G16U" />-->
+<!--<option value="45" name="R16G16S" />-->
+<!--<option value="46" name="R16G16UN" />-->
+<!--<option value="47" name="R16G16SN" />-->
+<!--<option value="48" name="R16F" />-->
+<!--<option value="49" name="R16U" />-->
+<!--<option value="50" name="R16S" />-->
+<!--<option value="51" name="R16UN" />-->
+<!--<option value="52" name="R16SN" />-->
+<!--<option value="53" name="R8G8U" />-->
+<!--<option value="54" name="R8G8S" />-->
+<!--<option value="55" name="R8G8UN" />-->
+<!--<option value="56" name="R8G8SN" />-->
+<!--<option value="57" name="R8U" />-->
+<!--<option value="58" name="R8S" />-->
+<!--<option value="59" name="R8UN" />-->
+<!--<option value="60" name="R8SN" />-->
+<!--<option value="61" name="B10G10R10A2UN" />-->
+<!--<option value="62" name="B10G10R10X2UN" />-->
+<!--<option value="63" name="B8G8R8A8UN" />-->
+<!--<option value="64" name="B8G8R8A8UN_SRGB" />-->
+<!--<option value="65" name="B8G8R8X8UN" />-->
+<!--<option value="66" name="B8G8UN" />-->
+<!--<option value="67" name="B8UN" />-->
+<!--<option value="68" name="D32FS8U" />-->
+<!--<option value="69" name="D32UN" />-->
+<!--<option value="70" name="D32F" />-->
+<!--<option value="71" name="D24UNS8U" />-->
+<!--<option value="72" name="D24FS8U" />-->
+<!--<option value="73" name="D24UNX8" />-->
+<!--<option value="74" name="D24FX8" />-->
+<!--<option value="75" name="D16UN" />-->
+<!--<option value="76" name="D16F" />-->
+<!--<option value="77" name="A8UN" />-->
+<!--<option value="78" name="BC1" />-->
+<!--<option value="79" name="BC1_SRGB" />-->
+<!--<option value="80" name="BC2" />-->
+<!--<option value="81" name="BC2_SRGB" />-->
+<!--<option value="82" name="BC3" />-->
+<!--<option value="83" name="BC3_SRGB" />-->
+<!--<option value="84" name="BC4_UNORM" />-->
+<!--<option value="85" name="BC4_SNORM" />-->
+<!--<option value="86" name="BC5_UNORM" />-->
+<!--<option value="87" name="BC5_SNORM" />-->
+<!--<option value="88" name="BC6H_UF16" />-->
+<!--<option value="89" name="BC6H_SF16" />-->
+<!--<option value="90" name="BC7" />-->
+<!--<option value="91" name="BC7_SRGB" />-->
+<!--<option value="92" name="FMASK_R8U" />-->
+<!--<option value="93" name="FMASK_R16U" />-->
+<!--<option value="94" name="FMASK_R32U" />-->
+<!--<option value="95" name="FMASK_R32G32U" />-->
+<!--<option value="96" name="X32TG8UX24T" />-->
+<!--<option value="97" name="X24TG8U" />-->
 
-		<option value="78" name="DXGI_FORMAT_BC1_UNORM"></option>
-		<option value="79" name="DXGI_FORMAT_BC1_UNORM_SRGB"></option>
-		<option value="80" name="DXGI_FORMAT_BC2_UNORM"></option>
-		<option value="81" name="DXGI_FORMAT_BC2_UNORM_SRGB"></option>
-		<option value="82" name="DXGI_FORMAT_BC3_UNORM">PZ wolf baldnessscars texture</option>
-		<option value="83" name="DXGI_FORMAT_BC3_UNORM_SRGB"></option>
-		<option value="84" name="DXGI_FORMAT_BC4_UNORM"></option>
-		<option value="85" name="DXGI_FORMAT_BC4_SNORM"></option>
-		<option value="86" name="DXGI_FORMAT_BC5_UNORM"></option>
-		<option value="87" name="DXGI_FORMAT_BC5_SNORM"></option>
-		<option value="88" name="DXGI_FORMAT_BC6H_UF16">ptero aviary</option>
-		<option value="89" name="DXGI_FORMAT_BC6H_SF16"></option>
-		<option value="90" name="DXGI_FORMAT_BC7_UNORM"></option>
-		<option value="91" name="DXGI_FORMAT_BC7_UNORM_SRGB">PZ titan beetle</option>
+		<option value="16" name="UNK16">seemingly in JWE2 main</option>
+		<option value="35" name="R8G8B8A8_UNORM"></option>
+		<option value="37" name="R8G8B8A8_UNORM_SRGB">gharial_male.pclut.dds, or D24_UNORM_S8_UINT, R8G8B8A8_UNORM</option>
+		<option value="38" name="D32_FLOAT_S8X24_UINT">atmospherics_stars_data.dds</option>
+		<option value="43" name="R16G16_FLOAT"></option>
+		<option value="59" name="UNK59">seemingly in JWE2 main</option>
+
+		<option value="78" name="BC1_UNORM"></option>
+		<option value="79" name="BC1_UNORM_SRGB"></option>
+		<option value="80" name="BC2_UNORM"></option>
+		<option value="81" name="BC2_UNORM_SRGB"></option>
+		<option value="82" name="BC3_UNORM">PZ wolf baldnessscars texture</option>
+		<option value="83" name="BC3_UNORM_SRGB"></option>
+		<option value="84" name="BC4_UNORM"></option>
+		<option value="85" name="BC4_SNORM"></option>
+		<option value="86" name="BC5_UNORM"></option>
+		<option value="87" name="BC5_SNORM"></option>
+		<option value="88" name="BC6H_UF16">ptero aviary</option>
+		<option value="89" name="BC6H_SF16"></option>
+		<option value="90" name="BC7_UNORM"></option>
+		<option value="91" name="BC7_UNORM_SRGB">PZ titan beetle</option>
     </enum>
 
     <enum name="DdsTypeCoaster" storage="ubyte">
 		maps the OVL's dds type to name of compression format
-		<option value="74" name="DXGI_FORMAT_D24_UNORM_S8_UINT">ZTUAC ele heights textures</option>
-		<option value="97" name="DXGI_FORMAT_BC1_UNORM"></option>
-		<option value="98" name="DXGI_FORMAT_BC1_UNORM_SRGB"></option>
-		<option value="99" name="DXGI_FORMAT_BC2_UNORM"></option>
-		<option value="100" name="DXGI_FORMAT_BC2_UNORM_SRGB"></option>
-		<option value="101" name="DXGI_FORMAT_BC3_UNORM"></option>
-		<option value="102" name="DXGI_FORMAT_BC3_UNORM_SRGB"></option>
-		<option value="103" name="DXGI_FORMAT_BC4_UNORM"></option>
-		<option value="104" name="DXGI_FORMAT_BC4_SNORM"></option>
-		<option value="105" name="DXGI_FORMAT_BC5_UNORM"></option>
-		<option value="106" name="DXGI_FORMAT_BC5_SNORM"></option>
+		<option value="74" name="D24_UNORM_S8_UINT">ZTUAC ele heights textures</option>
+		<option value="97" name="BC1_UNORM"></option>
+		<option value="98" name="BC1_UNORM_SRGB"></option>
+		<option value="99" name="BC2_UNORM"></option>
+		<option value="100" name="BC2_UNORM_SRGB"></option>
+		<option value="101" name="BC3_UNORM"></option>
+		<option value="102" name="BC3_UNORM_SRGB"></option>
+		<option value="103" name="BC4_UNORM"></option>
+		<option value="104" name="BC4_SNORM"></option>
+		<option value="105" name="BC5_UNORM"></option>
+		<option value="106" name="BC5_SNORM"></option>
 
-		<option value="121" name="DXGI_FORMAT_BC4_UNORM_B"></option>
-		<option value="126" name="DXGI_FORMAT_BC7_UNORM"></option>
-		<option value="127" name="DXGI_FORMAT_BC7_UNORM_SRGB"></option>
+		<option value="121" name="BC4_UNORM_B"></option>
+		<option value="126" name="BC7_UNORM"></option>
+		<option value="127" name="BC7_UNORM_SRGB"></option>
 
-		<option value="250" name="DXGI_FORMAT_ALL"></option>
+		<option value="250" name="ALL"></option>
     </enum>
 
 	<compound name="TexBuffer" >

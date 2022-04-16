@@ -280,9 +280,7 @@ class DdsLoader(MemStructLoader):
 		logging.info(f"Loading PNG {file_path}")
 		# convert the png into a dds, then inject that
 		tex_buffers, size_info = self.get_tex_structs()
-		dds_compression_type = self.header.compression_type.name
-		# texconv works without prefix
-		compression = dds_compression_type.replace("DXGI_FORMAT_", "")
+		compression = self.header.compression_type.name
 		show_temp = False
 		dds_file_path = texconv.png_to_dds(
 			file_path, size_info.height * size_info.array_size, show_temp, codec=compression, mips=size_info.num_mips)
