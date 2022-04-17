@@ -13,6 +13,7 @@ import os
 import shutil
 import pathlib
 import webbrowser
+import traceback
 
 # Import QApplication and the required widgets from PyQt5.QtWidgets
 from PyQt5.QtWidgets import QApplication
@@ -277,17 +278,34 @@ class ModToolGUI(QMainWindow):
         self.watcher_add_files(files)
 
 
+    def inject_pngs(self, ovl_dir):
+        texlist = [file for file in os.listdir(ovl_dir) if file.endswith('.tex')]
+        for texfile in texlist:
+            parts = os.path.splitext(texfile)
+            pngfile = "/".join([ovl_dir, parts[0] + ".png"])
+            if os.path.exists(pngfile):
+                print(f"Injecting {pngfile}")
+                error_files, foreign_files = self.ovl_data.inject([pngfile], False)
+                print(f"Errors : {error_files}")
+                print(f"Foreign: {foreign_files}")
+
+
     def create_ovl(self, ovl_dir, dst_file):
         # clear the ovl
         self.ovl_data = OvlFile()
         self.game_changed()
         try:
             self.ovl_data.create(ovl_dir)
+            
+            # attempt to inject png files
+            self.inject_pngs(ovl_dir)
+
             print(f"Saving {dst_file}")
             self.ovl_data.save(dst_file, "")
 
             return True
         except Exception as ex:
+            traceback.print_exc()
             return False
 
 
