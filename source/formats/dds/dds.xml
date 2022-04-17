@@ -185,7 +185,7 @@
 		<option value="103" name="NV12" />
 		<option value="104" name="P010" />
 		<option value="105" name="P016" />
-		<option value="106" name="420_OPAQUE" />
+<!--		<option value="106" name="420_OPAQUE" />-->
 		<option value="107" name="YUY2" />
 		<option value="108" name="Y210" />
 		<option value="109" name="Y216" />
@@ -195,10 +195,11 @@
 		<option value="113" name="P8" />
 		<option value="114" name="A8P8" />
 		<option value="115" name="B4G4R4A4_UNORM" />
-		<option value="116" name="P208" />
-		<option value="117" name="V208" />
-		<option value="118" name="V408" />
-		<option value="119" name="FORCE_UINT" />
+        a break in the enum values
+		<option value="130" name="P208" />
+		<option value="131" name="V208" />
+		<option value="132" name="V408" />
+		<option value="0xffffffff" name="FORCE_UINT" />
     </enum>
     
     <enum name="D3D10 RESOURCE DIMENSION" numbytes="4" storage="uint" default="0">

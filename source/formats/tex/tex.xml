@@ -6,126 +6,105 @@
 
 	<enum name="DdsType" storage="ubyte">
 		maps the OVL's dds type to name of compression format
-<!--<option value="0" name="UNKNOWN" />-->
-<!--<option value="1" name="R32G32B32A32F" />-->
-<!--<option value="2" name="R32G32B32A32U" />-->
-<!--<option value="3" name="R32G32B32A32S" />-->
-<!--<option value="4" name="R32G32B32A32UN" />-->
-<!--<option value="5" name="R32G32B32A32SN" />-->
-<!--<option value="6" name="R32G32B32F" />-->
-<!--<option value="7" name="R32G32B32U" />-->
-<!--<option value="8" name="R32G32B32S" />-->
-<!--<option value="9" name="R32G32B32UN" />-->
-<!--<option value="10" name="R32G32B32SN" />-->
-<!--<option value="11" name="R32G32F" />-->
-<!--<option value="12" name="R32G32U" />-->
-<!--<option value="13" name="R32G32S" />-->
-<!--<option value="14" name="R32G32UN" />-->
-<!--<option value="15" name="R32G32SN" />-->
-<!--<option value="16" name="R32F" />-->
-<!--<option value="17" name="R32U" />-->
-<!--<option value="18" name="R32S" />-->
-<!--<option value="19" name="R32UN" />-->
-<!--<option value="20" name="R32SN" />-->
-<!--<option value="21" name="R11G11B10F" />-->
-<!--<option value="22" name="R11G11B10U" />-->
-<!--<option value="23" name="R11G11B10S" />-->
-<!--<option value="24" name="R11G11B10UN" />-->
-<!--<option value="25" name="R11G11B10SN" />-->
-<!--<option value="26" name="R10G10B10FA2UN" />-->
-<!--<option value="27" name="R10G10B10A2U" />-->
-<!--<option value="28" name="R10G10B10A2UN" />-->
-<!--<option value="29" name="R10G10B10X2U" />-->
-<!--<option value="30" name="R10G10B10X2S" />-->
-<!--<option value="31" name="R10G10B10X2UN" />-->
-<!--<option value="32" name="R10G10B10X2SN" />-->
-<!--<option value="33" name="R8G8B8A8U" />-->
-<!--<option value="34" name="R8G8B8A8S" />-->
-<!--<option value="35" name="R8G8B8A8UN" />-->
-<!--<option value="36" name="R8G8B8A8SN" />-->
-<!--<option value="37" name="R8G8B8A8UN_SRGB" />-->
-<!--<option value="38" name="R16G16B16A16F" />-->
-<!--<option value="39" name="R16G16B16A16U" />-->
-<!--<option value="40" name="R16G16B16A16S" />-->
-<!--<option value="41" name="R16G16B16A16UN" />-->
-<!--<option value="42" name="R16G16B16A16SN" />-->
-<!--<option value="43" name="R16G16F" />-->
-<!--<option value="44" name="R16G16U" />-->
-<!--<option value="45" name="R16G16S" />-->
-<!--<option value="46" name="R16G16UN" />-->
-<!--<option value="47" name="R16G16SN" />-->
-<!--<option value="48" name="R16F" />-->
-<!--<option value="49" name="R16U" />-->
-<!--<option value="50" name="R16S" />-->
-<!--<option value="51" name="R16UN" />-->
-<!--<option value="52" name="R16SN" />-->
-<!--<option value="53" name="R8G8U" />-->
-<!--<option value="54" name="R8G8S" />-->
-<!--<option value="55" name="R8G8UN" />-->
-<!--<option value="56" name="R8G8SN" />-->
-<!--<option value="57" name="R8U" />-->
-<!--<option value="58" name="R8S" />-->
-<!--<option value="59" name="R8UN" />-->
-<!--<option value="60" name="R8SN" />-->
-<!--<option value="61" name="B10G10R10A2UN" />-->
-<!--<option value="62" name="B10G10R10X2UN" />-->
-<!--<option value="63" name="B8G8R8A8UN" />-->
-<!--<option value="64" name="B8G8R8A8UN_SRGB" />-->
-<!--<option value="65" name="B8G8R8X8UN" />-->
-<!--<option value="66" name="B8G8UN" />-->
-<!--<option value="67" name="B8UN" />-->
-<!--<option value="68" name="D32FS8U" />-->
-<!--<option value="69" name="D32UN" />-->
-<!--<option value="70" name="D32F" />-->
-<!--<option value="71" name="D24UNS8U" />-->
-<!--<option value="72" name="D24FS8U" />-->
-<!--<option value="73" name="D24UNX8" />-->
-<!--<option value="74" name="D24FX8" />-->
-<!--<option value="75" name="D16UN" />-->
-<!--<option value="76" name="D16F" />-->
-<!--<option value="77" name="A8UN" />-->
-<!--<option value="78" name="BC1" />-->
-<!--<option value="79" name="BC1_SRGB" />-->
-<!--<option value="80" name="BC2" />-->
-<!--<option value="81" name="BC2_SRGB" />-->
-<!--<option value="82" name="BC3" />-->
-<!--<option value="83" name="BC3_SRGB" />-->
-<!--<option value="84" name="BC4_UNORM" />-->
-<!--<option value="85" name="BC4_SNORM" />-->
-<!--<option value="86" name="BC5_UNORM" />-->
-<!--<option value="87" name="BC5_SNORM" />-->
-<!--<option value="88" name="BC6H_UF16" />-->
-<!--<option value="89" name="BC6H_SF16" />-->
-<!--<option value="90" name="BC7" />-->
-<!--<option value="91" name="BC7_SRGB" />-->
-<!--<option value="92" name="FMASK_R8U" />-->
-<!--<option value="93" name="FMASK_R16U" />-->
-<!--<option value="94" name="FMASK_R32U" />-->
-<!--<option value="95" name="FMASK_R32G32U" />-->
-<!--<option value="96" name="X32TG8UX24T" />-->
-<!--<option value="97" name="X24TG8U" />-->
-
-		<option value="16" name="UNK16">seemingly in JWE2 main</option>
-		<option value="35" name="R8G8B8A8_UNORM"></option>
-		<option value="37" name="R8G8B8A8_UNORM_SRGB">gharial_male.pclut.dds, or D24_UNORM_S8_UINT, R8G8B8A8_UNORM</option>
-		<option value="38" name="D32_FLOAT_S8X24_UINT">atmospherics_stars_data.dds</option>
-		<option value="43" name="R16G16_FLOAT"></option>
-		<option value="59" name="UNK59">seemingly in JWE2 main</option>
-
-		<option value="78" name="BC1_UNORM"></option>
-		<option value="79" name="BC1_UNORM_SRGB"></option>
-		<option value="80" name="BC2_UNORM"></option>
-		<option value="81" name="BC2_UNORM_SRGB"></option>
-		<option value="82" name="BC3_UNORM">PZ wolf baldnessscars texture</option>
-		<option value="83" name="BC3_UNORM_SRGB"></option>
-		<option value="84" name="BC4_UNORM"></option>
-		<option value="85" name="BC4_SNORM"></option>
-		<option value="86" name="BC5_UNORM"></option>
-		<option value="87" name="BC5_SNORM"></option>
-		<option value="88" name="BC6H_UF16">ptero aviary</option>
-		<option value="89" name="BC6H_SF16"></option>
-		<option value="90" name="BC7_UNORM"></option>
-		<option value="91" name="BC7_UNORM_SRGB">PZ titan beetle</option>
+		<option value="0" name="UNKNOWN" />
+		<option value="1" name="R32G32B32A32_FLOAT" />
+		<option value="2" name="R32G32B32A32_UINT" />
+		<option value="3" name="R32G32B32A32_SINT" />
+		<option value="4" name="R32G32B32A32_UNORM" custom="True" />
+		<option value="5" name="R32G32B32A32_SNORM" custom="True" />
+		<option value="6" name="R32G32B32_FLOAT" />
+		<option value="7" name="R32G32B32_UINT" />
+		<option value="8" name="R32G32B32_SINT" />
+		<option value="9" name="R32G32B32_UNORM" custom="True" />
+		<option value="10" name="R32G32B32_SNORM" custom="True" />
+		<option value="11" name="R32G32_FLOAT" />
+		<option value="12" name="R32G32_UINT" />
+		<option value="13" name="R32G32_SINT" />
+		<option value="14" name="R32G32_UNORM" custom="True" />
+		<option value="15" name="R32G32_SNORM" custom="True" />
+		<option value="16" name="R32_FLOAT" />
+		<option value="17" name="R32_UINT" />
+		<option value="18" name="R32_SINT" />
+		<option value="19" name="R32_UNORM" custom="True" />
+		<option value="20" name="R32_SNORM" custom="True" />
+		<option value="21" name="R11G11B10_FLOAT" />
+		<option value="22" name="R11G11B10_UINT" custom="True" />
+		<option value="23" name="R11G11B10_SINT" custom="True" />
+		<option value="24" name="R11G11B10_UNORM" custom="True" />
+		<option value="25" name="R11G11B10_SNORM" custom="True" />
+		<option value="26" name="R10G10B10FA2_UNORM" custom="True" />
+		<option value="27" name="R10G10B10A2_UINT" />
+		<option value="28" name="R10G10B10A2_UNORM" />
+		<option value="29" name="R10G10B10X2_UINT" custom="True" />
+		<option value="30" name="R10G10B10X2_SINT" custom="True" />
+		<option value="31" name="R10G10B10X2_UNORM" custom="True" />
+		<option value="32" name="R10G10B10X2_SNORM" custom="True" />
+		<option value="33" name="R8G8B8A8_UINT" />
+		<option value="34" name="R8G8B8A8_SINT" />
+		<option value="35" name="R8G8B8A8_UNORM" />
+		<option value="36" name="R8G8B8A8_SNORM" />
+		<option value="37" name="R8G8B8A8_UNORM_SRGB" />
+		<option value="38" name="R16G16B16A16_FLOAT" />
+<!--		<option value="38" name="D32_FLOAT_S8X24_UINT">atmospherics_stars_data.dds may contradict the official enum</option>-->
+		<option value="39" name="R16G16B16A16_UINT" />
+		<option value="40" name="R16G16B16A16_SINT" />
+		<option value="41" name="R16G16B16A16_UNORM" />
+		<option value="42" name="R16G16B16A16_SNORM" />
+		<option value="43" name="R16G16_FLOAT" />
+		<option value="44" name="R16G16_UINT" />
+		<option value="45" name="R16G16_SINT" />
+		<option value="46" name="R16G16_UNORM" />
+		<option value="47" name="R16G16_SNORM" />
+		<option value="48" name="R16_FLOAT" />
+		<option value="49" name="R16_UINT" />
+		<option value="50" name="R16_SINT" />
+		<option value="51" name="R16_UNORM" />
+		<option value="52" name="R16_SNORM" />
+		<option value="53" name="R8G8_UINT" />
+		<option value="54" name="R8G8_SINT" />
+		<option value="55" name="R8G8_UNORM" />
+		<option value="56" name="R8G8_SNORM" />
+		<option value="57" name="R8_UINT" />
+		<option value="58" name="R8_SINT" />
+		<option value="59" name="R8_UNORM" />
+		<option value="60" name="R8_SNORM" />
+		<option value="61" name="B10G10R10A2_UNORM" custom="True" />
+		<option value="62" name="B10G10R10X2_UNORM" custom="True" />
+		<option value="63" name="B8G8R8A8_UNORM" />
+		<option value="64" name="B8G8R8A8_UNORM_SRGB" />
+		<option value="65" name="B8G8R8X8_UNORM" />
+		<option value="66" name="B8G8_UNORM" custom="True" />
+		<option value="67" name="B8_UNORM" custom="True" />
+		<option value="68" name="D32FS8_UINT" custom="True" />
+		<option value="69" name="D32_UNORM" custom="True" />
+		<option value="70" name="D32_FLOAT" />
+		<option value="71" name="D24UNS8_UINT" custom="True" />
+		<option value="72" name="D24FS8_UINT" custom="True" />
+		<option value="73" name="D24UNX8" custom="True" />
+		<option value="74" name="D24FX8" custom="True" />
+		<option value="75" name="D16_UNORM" />
+		<option value="76" name="D16_FLOAT" custom="True" />
+		<option value="77" name="A8_UNORM" />
+		<option value="78" name="BC1_UNORM" />
+		<option value="79" name="BC1_UNORM_SRGB" />
+		<option value="80" name="BC2_UNORM" />
+		<option value="81" name="BC2_UNORM_SRGB" />
+		<option value="82" name="BC3_UNORM" />
+		<option value="83" name="BC3_UNORM_SRGB" />
+		<option value="84" name="BC4_UNORM" />
+		<option value="85" name="BC4_SNORM" />
+		<option value="86" name="BC5_UNORM" />
+		<option value="87" name="BC5_SNORM" />
+		<option value="88" name="BC6H_UF16" />
+		<option value="89" name="BC6H_SF16" />
+		<option value="90" name="BC7_UNORM" />
+		<option value="91" name="BC7_UNORM_SRGB" />
+		<option value="92" name="FMASK_R8_UINT" custom="True" />
+		<option value="93" name="FMASK_R16_UINT" custom="True" />
+		<option value="94" name="FMASK_R32_UINT" custom="True" />
+		<option value="95" name="FMASK_R32G32_UINT" custom="True" />
+		<option value="96" name="X32TG8UX24T" custom="True" />
+		<option value="97" name="X24TG8_UINT" custom="True" />
     </enum>
 
     <enum name="DdsTypeCoaster" storage="ubyte">
