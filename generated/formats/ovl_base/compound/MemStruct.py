@@ -102,7 +102,7 @@ class MemStruct:
 
 		print("ref_ptr before", ref_ptr)
 
-		# get all ptrs of this MemStruct, butonly create them if they have data assigned
+		# get all ptrs of this MemStruct, but only create them if they have data assigned
 		ptrs = self.get_props_and_ptrs()
 		ptrs_with_data = [ptr for prop, ptr in ptrs if ptr.data is not None]
 		print(f"{len(ptrs)} pointers, {len(ptrs_with_data)} with data")
@@ -116,10 +116,7 @@ class MemStruct:
 			else:
 				# basic pointer
 				frag.pointers[1].pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-				try:
-					frag.pointers[1].write_instance(ptr.template, ptr.data)
-				except struct.error:
-					raise TypeError(f"Failed to write pointer data {ptr.data} type: {type(ptr.data)} as {ptr.template}")
+				ptr.write_pointer(frag)
 		# don't write array members again, they have already been written!
 		if not is_member:
 			# write this struct's data
@@ -128,7 +125,7 @@ class MemStruct:
 			ref_ptr.write_instance(type(self), self)
 			print("ref_ptr after", ref_ptr)
 		# update positions for frag ptrs 0
-		for ptr, frag in zip(ptrs, ptr_frags):
+		for ptr, frag in zip(ptrs_with_data, ptr_frags):
 			p = frag.pointers[0]
 			p.pool_index = ref_ptr.pool_index
 			p.data_offset = ptr.io_start

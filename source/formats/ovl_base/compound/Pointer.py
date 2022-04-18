@@ -1,3 +1,5 @@
+import struct
+
 from generated.context import ContextReference
 # from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -49,11 +51,23 @@ class Pointer:
 		# store valid frag to be able to delete it later
 		sized_str_entry.fragments.append(self.frag)
 		# now read an instance of template class at the offset
-		self.handle_template()
+		self.read_template()
 
-	def handle_template(self):
+	def read_template(self):
 		if self.template:
 			self.data = self.template.from_stream(self.frag.pointers[1].stream, self.context, self.arg)
+
+	def write_pointer(self, frag):
+		self.frag = frag
+		# self.frag.pointers[1].stream.tell()
+		try:
+			self.write_template()
+		except struct.error:
+			raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
+
+	def write_template(self):
+		assert self.template is not None
+		self.frag.pointers[1].write_instance(self.template, self.data)
 
 	def __repr__(self):
 		s = self.get_info_str()

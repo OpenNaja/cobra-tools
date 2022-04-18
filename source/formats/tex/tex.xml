@@ -103,8 +103,8 @@
 		<option value="93" name="FMASK_R16_UINT" custom="True" />
 		<option value="94" name="FMASK_R32_UINT" custom="True" />
 		<option value="95" name="FMASK_R32G32_UINT" custom="True" />
-		<option value="96" name="X32TG8UX24T" custom="True" />
-		<option value="97" name="X24TG8_UINT" custom="True" />
+		<option value="96" name="X32_TYPELESS_G8X24_UINT" />
+		<option value="97" name="X24_TYPELESS_G8_UINT" />
     </enum>
 
     <enum name="DdsTypeCoaster" storage="ubyte">

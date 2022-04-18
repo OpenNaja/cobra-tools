@@ -17,39 +17,42 @@ class FgmLoader(MemStructLoader):
 		# first create dependencies
 		for tex_name in fgm_data.texture_files:
 			self.create_dependency(f"{tex_name}.tex")
-		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 		# now check for frags
 		self.header = fgm_data.fgm_info
-		frag_count = self._get_frag_count()
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
-
+		# link the pointers
+		self.header.textures.data = fgm_data.textures
+		self.header.attributes.data = fgm_data.attributes
+		# todo - data_lib, dependencies
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, sizedstr_bytes)
+		ss_ptr = self.sized_str_entry.pointers[0]
+		self.header.write_ptrs(self, self.ovs, ss_ptr)
+		# self.write_to_pool(self.sized_str_entry.pointers[0], 2, sizedstr_bytes)
 		self.create_data_entry(self.sized_str_entry, (fgm_data.buffer_bytes,))
-		self.create_fragments(self.sized_str_entry, frag_count)
-		self._tag_fragments()
-
-		# self.tex_info, self.attr_info, self.dependencies_ptr, self.data_lib
-		offsets = []
-		if self.header.attribute_count:
-			offsets.append(24)
-			offsets.append(40)
-		if self.header.texture_count:
-			offsets.append(16)
-		if self.file_entry.dependencies:
-			offsets.append(32)
-		for frag, rel_offset in zip(self.sized_str_entry.fragments, sorted(offsets)):
-			self.ptr_relative(frag.pointers[0], self.sized_str_entry.pointers[0], rel_offset)
-
-		# write the actual data
-		for frag, data in zip(self._valid_frags(), datas):
-			self.write_to_pool(frag.pointers[1], 2, data)
-
-		if fgm_data.texture_files:
-			for dependency in self.file_entry.dependencies:
-				self.write_to_pool(dependency.pointers[0], 2, b"\x00" * 8)
-			# points to the start of the dependencies region
-			self.ptr_relative(self.dependencies_ptr.pointers[1], self.file_entry.dependencies[0].pointers[0])
+		# self.create_fragments(self.sized_str_entry, frag_count)
+		# self._tag_fragments()
+		#
+		# # self.tex_info, self.attr_info, self.dependencies_ptr, self.data_lib
+		# offsets = []
+		# if self.header.attribute_count:
+		# 	offsets.append(24)
+		# 	offsets.append(40)
+		# if self.header.texture_count:
+		# 	offsets.append(16)
+		# if self.file_entry.dependencies:
+		# 	offsets.append(32)
+		# for frag, rel_offset in zip(self.sized_str_entry.fragments, sorted(offsets)):
+		# 	self.ptr_relative(frag.pointers[0], self.sized_str_entry.pointers[0], rel_offset)
+		#
+		# # write the actual data
+		# for frag, data in zip(self._valid_frags(), datas):
+		# 	self.write_to_pool(frag.pointers[1], 2, data)
+		#
+		# if fgm_data.texture_files:
+		# 	for dependency in self.file_entry.dependencies:
+		# 		self.write_to_pool(dependency.pointers[0], 2, b"\x00" * 8)
+		# 	# points to the start of the dependencies region
+		# 	self.ptr_relative(self.dependencies_ptr.pointers[1], self.file_entry.dependencies[0].pointers[0])
 
 	def collect(self):
 		super().collect()
