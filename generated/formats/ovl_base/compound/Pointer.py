@@ -91,7 +91,9 @@ class Pointer:
 
 	def write_pointer(self, frag):
 		self.frag = frag
-		# self.frag.pointers[1].stream.tell()
+		if isinstance(self.data, (bytes, bytearray)):
+			# seek to end, set data_offset, write
+			self.frag.pointers[1].write_to_pool(self.data)
 		try:
 			self.write_template()
 		except struct.error:

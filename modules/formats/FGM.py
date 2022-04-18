@@ -23,6 +23,7 @@ class FgmLoader(MemStructLoader):
 		# link the pointers
 		self.header.textures.data = fgm_data.textures
 		self.header.attributes.data = fgm_data.attributes
+		self.header.data_lib.data = fgm_data.data_bytes
 		# todo - data_lib, dependencies
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		ss_ptr = self.sized_str_entry.pointers[0]
@@ -81,18 +82,6 @@ class FgmLoader(MemStructLoader):
 		self.attr_info = self.header.attributes.frag
 		self.dependencies_ptr = self.header.dependencies.frag
 		self.data_lib = self.header.data_lib.frag
-
-	def _get_frag_count(self):
-		frag_count = 0
-		if self.header.texture_count:
-			frag_count += 1
-		if self.header.attribute_count:
-			# attrib + data frag
-			frag_count += 2
-		if self.file_entry.dependencies:
-			frag_count += 1
-		logging.debug(f"Count {frag_count}: textures {bool(self.header.texture_count)} attributes {bool(self.header.attribute_count)} dependencies {bool(self.file_entry.dependencies)}")
-		return frag_count
 
 	def load(self, file_path):
 		fgm_data = self._get_data(file_path)
