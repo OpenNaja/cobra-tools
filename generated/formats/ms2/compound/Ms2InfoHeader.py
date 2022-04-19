@@ -28,7 +28,7 @@ class Ms2InfoHeader:
 		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
-		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
+		self.buffer_infos = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 
 		# handles interleaved (old) or separate (new) styles for models and bone infos
@@ -41,7 +41,7 @@ class Ms2InfoHeader:
 		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
-		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
+		self.buffer_infos = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 		self.models_reader = ModelReader(self.context, self.model_infos, None)
 
@@ -61,7 +61,7 @@ class Ms2InfoHeader:
 		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
 		instance.buffer_0 = Buffer0.from_stream(stream, instance.context, instance.info, None)
-		instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
+		instance.buffer_infos = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		instance.model_infos = Array.from_stream(stream, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
 		instance.models_reader = ModelReader.from_stream(stream, instance.context, instance.model_infos, None)
 
@@ -71,7 +71,7 @@ class Ms2InfoHeader:
 		Ms2Root.to_stream(stream, instance.info)
 		stream.write_zstrings(instance.mdl_2_names)
 		Buffer0.to_stream(stream, instance.buffer_0)
-		Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.buffer_infos, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.model_infos, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
 		ModelReader.to_stream(stream, instance.models_reader)
 
@@ -99,7 +99,7 @@ class Ms2InfoHeader:
 		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
 		s += f'\n	* mdl_2_names = {fmt_member(self.mdl_2_names, indent+1)}'
 		s += f'\n	* buffer_0 = {fmt_member(self.buffer_0, indent+1)}'
-		s += f'\n	* buffer_info = {fmt_member(self.buffer_info, indent+1)}'
+		s += f'\n	* buffer_infos = {fmt_member(self.buffer_infos, indent+1)}'
 		s += f'\n	* model_infos = {fmt_member(self.model_infos, indent+1)}'
 		s += f'\n	* models_reader = {fmt_member(self.models_reader, indent+1)}'
 		return s

@@ -332,7 +332,7 @@ class NewMeshData(MeshData):
 
 	@property
 	def tris_address(self):
-		buffer_info = self.ms2_file.buffer_info[self.buffer_info.offset]
+		buffer_info = self.ms2_file.buffer_infos[self.buffer_info.offset]
 		return self.buffer_2_offset + self.stream_offset + buffer_info.vertex_buffer_size + self.tri_offset
 
 	def set_verts(self, verts):
@@ -379,8 +379,9 @@ class NewMeshData(MeshData):
 		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
+		# todo - refactor buffer_infos for external model2stream
 		self.stream_offset = 0
-		for s in self.ms2_file.buffer_info[:self.buffer_info.offset]:
+		for s in self.ms2_file.buffer_infos[:self.buffer_info.offset]:
 			s.size = s.vertex_buffer_size + s.tris_buffer_size  # + s.uv_buffer_size
 			self.stream_offset += s.size
 			# logging.debug(f"Stream {s.size}")

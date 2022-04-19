@@ -261,8 +261,7 @@
 		<add name="mdl2 names" type="ZString" arr1="info \ mdl2_count"/>
 		<add name="buffer 0" type="Buffer0" arg="info" />
 <!--		corresponds to PC buffer 1-->
-		# todo rename to buffer_infos
-		<add name="buffer_info" type="BufferInfo" arr1="info \ vertex_buffer_count" />
+		<add name="buffer_infos" type="BufferInfo" arr1="info \ vertex_buffer_count" />
 		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2_count"/>
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
 		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>

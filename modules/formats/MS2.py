@@ -41,7 +41,7 @@ class Ms2Loader(BaseFile):
 		ss_ptr = self.sized_str_entry.pointers[0]
 		self.header = Ms2Root.from_stream(ss_ptr.stream, self.context)
 		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
-		print(self.header)
+		# print(self.header)
 		# old JWE1 still uses 1 fragment
 		if self.header.version > 39:
 			if ss_ptr.data_size != 48:
@@ -66,7 +66,7 @@ class Ms2Loader(BaseFile):
 
 		self.header = ms2_file.info
 		# fix up the pointers
-		self.header.buffer_infos.data = ms2_file.buffer_info
+		self.header.buffer_infos.data = ms2_file.buffer_infos
 		self.header.model_infos.data = ms2_file.model_infos
 		# todo - maybe store in ms2 file
 		self.header.buffers_presence.data = self.get_frag_3(self.header)
@@ -242,8 +242,7 @@ class Ms2Loader(BaseFile):
 
 		# load ms2 ss data
 		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.info, version_info=versions))
-		# todo - multi buffer infos
-		self.header.buffer_infos.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
+		self.header.buffer_infos.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_infos, version_info=versions), update_copies=True)
 		self.header.model_infos.frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
