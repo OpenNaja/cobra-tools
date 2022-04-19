@@ -173,24 +173,6 @@ class HeaderPointer:
 		"""Update data and size of this pointer"""
 		self._data = data
 
-	def load_as(self, cls, num=1, version_info={}, args=(), context=None):
-		"""Return self.data as codegen cls"""
-		insts = []
-		if context:
-			con = context
-		else:
-			con = self.context
-		with ConvStream(self.data) as stream:
-			try:
-				for i in range(num):
-					inst = cls(con, *args)
-					inst.read(stream)
-					insts.append(inst)
-			except:
-				traceback.print_exc()
-				print(insts)
-		return insts
-
 	def remove(self):
 		"""Remove this pointer from suitable pool"""
 		if self.pool:

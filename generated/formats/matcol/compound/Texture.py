@@ -1,34 +1,30 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+import generated.formats.base.basic
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class Texture:
-
-	"""
-	each texture = three fragments of format: data0 = 8 bytes zeros | data1 = null terminating string (scale texture name)
-	"""
-
-	context = ContextReference()
+class Texture(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 
 		# first fgm slot
-		self.fgm_name = ''
-		self.texture_suffix = ''
-		self.texture_type = ''
+		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_suffix = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.fgm_name = ''
-		self.texture_suffix = ''
-		self.texture_type = ''
+		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_suffix = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -42,15 +38,20 @@ class Texture:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.fgm_name = stream.read_zstring()
-		instance.texture_suffix = stream.read_zstring()
-		instance.texture_type = stream.read_zstring()
+		super().read_fields(stream, instance)
+		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.texture_suffix = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.texture_type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.fgm_name.arg = 0
+		instance.texture_suffix.arg = 0
+		instance.texture_type.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_zstring(instance.fgm_name)
-		stream.write_zstring(instance.texture_suffix)
-		stream.write_zstring(instance.texture_type)
+		super().write_fields(stream, instance)
+		Pointer.to_stream(stream, instance.fgm_name)
+		Pointer.to_stream(stream, instance.texture_suffix)
+		Pointer.to_stream(stream, instance.texture_type)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -72,6 +73,7 @@ class Texture:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* fgm_name = {fmt_member(self.fgm_name, indent+1)}'
 		s += f'\n	* texture_suffix = {fmt_member(self.texture_suffix, indent+1)}'
 		s += f'\n	* texture_type = {fmt_member(self.texture_type, indent+1)}'
