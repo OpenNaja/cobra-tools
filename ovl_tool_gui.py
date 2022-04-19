@@ -339,8 +339,7 @@ class MainWindow(widgets.MainWindow):
 		if vmax is not None:
 			self.p_action.setMaximum(vmax)
 
-		# don't update the GUI unless the message has changed. label updates
-		# are expensive
+		# don't update the GUI unless the message has changed. label updates are expensive
 		if self.t_action_current_message != message:
 			self.t_action.setText(message)
 			self.t_action_current_message = message
@@ -466,7 +465,7 @@ class MainWindow(widgets.MainWindow):
 			ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
 			self.ovl_data.save(filepath, ext_path)
 			self.file_widget.dirty = False
-			self.update_progress("Operation completed!", value=1, vmax=1)
+			self.update_progress(f"Saved {self.ovl_data.basename}", value=1, vmax=1)
 		except BaseException as ex:
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
@@ -509,6 +508,9 @@ class MainWindow(widgets.MainWindow):
 					if interaction.showdialog(f"Do you want to add {len(foreign_files)} files to this ovl?", ask=True):
 						self.ovl_data.add_files(foreign_files)
 						self.update_gui_table()
+				if error_files:
+					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
+				self.update_progress("Injection completed", value=1, vmax=1)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
@@ -556,7 +558,7 @@ class MainWindow(widgets.MainWindow):
 					with open(filelist_src, 'w') as f:
 						f.write("\n".join(file_names))
 
-					self.update_progress("Operation completed!", value=1, vmax=1)
+					self.update_progress("Saved file list", value=1, vmax=1)
 				except BaseException as ex:
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
@@ -570,7 +572,7 @@ class MainWindow(widgets.MainWindow):
 			if filelist_src:
 				try:
 					self.ovl_data.save_included_ovls(filelist_src)
-					self.update_progress("Operation completed!", value=1, vmax=1)
+					self.update_progress("Saved included OVLs", value=1, vmax=1)
 				except BaseException as ex:
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
@@ -589,17 +591,17 @@ class MainWindow(widgets.MainWindow):
 	def walker_hash(self,):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.generate_hash_table(self, start_dir)
-		self.update_progress("Operation completed!", value=1, vmax=1)
+		self.update_progress("Hashed", value=1, vmax=1)
 
 	def walker_fgm(self,):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.get_fgm_values(self, start_dir)
-		self.update_progress("Operation completed!", value=1, vmax=1)
+		self.update_progress("Walked FGMs", value=1, vmax=1)
 
 	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.bulk_test_models(self, start_dir, walk_ovls=False)
-		self.update_progress("Operation completed!", value=1, vmax=1)
+		self.update_progress("Inspected models", value=1, vmax=1)
 
 	def closeEvent(self, event):
 		if self.file_widget.dirty:

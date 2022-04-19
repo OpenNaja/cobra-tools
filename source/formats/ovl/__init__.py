@@ -1017,7 +1017,6 @@ class OvlFile(Header, IoFile):
 			# if the pool has editable pointers, flush them to the pool writer first
 			pool.flush_pointers()
 		shutil.rmtree(tmp_dir)
-		self.progress_callback("Injection completed!", value=1, vmax=1)
 		return error_files, foreign_files
 
 	def create_file_entry(self, file_path):
