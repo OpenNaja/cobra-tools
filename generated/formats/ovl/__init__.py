@@ -36,7 +36,7 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from modules.formats.shared import get_versions, djb, assign_versions
 from modules.helpers import split_path
 
-BAD_HASH = "Unknown Hash"
+UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
@@ -1280,7 +1280,6 @@ class OvlFile(Header, IoFile):
 
 		# get names of all dependencies
 		ht_max = len(self.dependencies)
-		print(self.hash_table_local)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
 			self.print_and_callback("Loading dependencies", value=ht_index, max_value=ht_max)
 			file_entry = self.files[dependency_entry.file_index]
@@ -1296,7 +1295,7 @@ class OvlFile(Header, IoFile):
 			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
-				dependency_entry.basename = BAD_HASH
+				dependency_entry.basename = UNK_HASH
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 		# sort dependencies by their pool offset
@@ -1505,8 +1504,8 @@ class OvlFile(Header, IoFile):
 			# logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
 			# update dependency hashes
 			for dependency in file.dependencies:
-				if BAD_HASH in dependency.basename:
-					logging.warning(f"{BAD_HASH} on dependency entry - won't update hash")
+				if UNK_HASH in dependency.basename:
+					logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
 				else:
 					dependency.file_hash = djb(dependency.basename.lower())
 			self.dependencies.extend(file.dependencies)
@@ -1759,7 +1758,7 @@ if __name__ == "__main__":
 
 
 def rename_entry(entry, name_tups):
-	if BAD_HASH in entry.name:
+	if UNK_HASH in entry.name:
 		logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
 		return
 	for old, new in name_tups:
