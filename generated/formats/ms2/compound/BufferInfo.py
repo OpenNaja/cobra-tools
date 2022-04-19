@@ -9,7 +9,7 @@ class BufferInfo:
 	ZTUAC: 64 bytes
 	PC: 32 bytes
 	JWE1: 48 bytes
-	PZ old: 56 bytes?
+	PZ old: 32 bytes?
 	PZ1.6+ and JWE2: 56 bytes
 	
 	JWE and PC, 16 bytes of 00 padding
