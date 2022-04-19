@@ -118,10 +118,8 @@
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
 		<add name="stream count" type="short" >-1 if there is no vertex buffer at all; else count of streams</add>
 		<add name="zeros" type="uint" arr1="3"/>
-
-		# todo rename to buffer_infos
 		the following two ptrs are not used in PC
-		<add name="buffer_info" type="ArrayPointer" template="BufferInfo" arg="vertex_buffer_count">ms2's static buffer_info or empty (if no buffers)</add>
+		<add name="buffer_infos" type="ArrayPointer" template="BufferInfo" arg="vertex_buffer_count">ms2's static buffer_info or empty (if no buffers)</add>
 		<add name="model_infos" type="ArrayPointer" template="ModelInfo" arg="mdl2 count">one for each mdl2</add>
 		already used in PC
 		<add name="buffers_presence" type="ArrayPointer" template="BufferPresence" arg="vertex_buffer_count">data as in get_frag_3()</add>
@@ -185,9 +183,9 @@
 
 	<compound name="MeshData" inherit="MemStruct">
 		used for shared functions
-		<add name="stream index" type="uint64" until="32">index into streamed buffers</add>
-		<add name="buffer info" type="Pointer" template="BufferInfo" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
-		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
+		<add name="buffer_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
+		<add name="some_index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
 	</compound>
 
 
@@ -260,12 +258,12 @@
 		Custom header struct
 		<add name="bone info size" type="uint"/>
 		<add name="info" type="MS2Root"/>
-		<add name="mdl2 names" type="ZString" arr1="info \ mdl2 count"/>
+		<add name="mdl2 names" type="ZString" arr1="info \ mdl2_count"/>
 		<add name="buffer 0" type="Buffer0" arg="info" />
 <!--		corresponds to PC buffer 1-->
+		# todo rename to buffer_infos
 		<add name="buffer_info" type="BufferInfo" arr1="info \ vertex_buffer_count" />
-		
-		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2 count"/>
+		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2_count"/>
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
 		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>
 		many ZTUAC models have a big undecoded array of uints here

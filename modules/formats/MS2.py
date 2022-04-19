@@ -60,14 +60,18 @@ class Ms2Loader(BaseFile):
 		ms2_file.load(self.file_entry.path, read_bytes=True)
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
-		ms2_entry = self.create_ss_entry(self.file_entry)
-		ms2_entry.children = []
+		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		self.sized_str_entry.children = []
+		ss_ptr = self.sized_str_entry.pointers[0]
 
 		self.header = ms2_file.info
 		# now fix up the pointers
-		self.header.buffers_presence.data = self.get_frag_3(self.header)
 		# todo - make point to first buffer info incase of multiple buffers
-		# self.header.buffer_info.data =
+		self.header.buffer_infos.data = ms2_file.buffer_info
+		self.header.model_infos.data = ms2_file.model_infos
+		# todo - maybe store in ms2 file
+		self.header.buffers_presence.data = self.get_frag_3(self.header)
+
 		# 1 for the ms2, 2 for each mdl2
 		# pool.num_files += 1
 		# create sized str entries and mesh data fragments
@@ -78,70 +82,63 @@ class Ms2Loader(BaseFile):
 
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
 			mdl2_entry.pointers[0].pool_index = -1
-			ms2_entry.children.append(mdl2_entry)
+			self.sized_str_entry.children.append(mdl2_entry)
 
-		first_materials_ptr = None
-		# create the 5 fixed frags per MDL2 and write their data
-		for model_info, mdl2_entry in zip(ms2_file.model_infos, ms2_entry.children):
-			mdl2_entry.fragments = [self.create_fragment() for _ in range(5)]
-			materials, lods, objects, meshes, model_info_ptr = mdl2_entry.fragments
+		# first_materials_ptr = None
+		# # create the 5 fixed frags per MDL2 and write their data
+		# for model_info, mdl2_entry in zip(ms2_file.model_infos, self.sized_str_entry.children):
+		# 	mdl2_entry.fragments = [self.create_fragment() for _ in range(5)]
+		# 	materials, lods, objects, meshes, model_info_ptr = mdl2_entry.fragments
+		#
+		# 	if first_materials_ptr is None:
+		# 		first_materials_ptr = materials.pointers[1]
+		#
+		# 	self.write_to_pool(materials.pointers[1], 2, as_bytes(model_info.model.materials, version_info=versions))
+		# 	self.write_to_pool(lods.pointers[1], 2, as_bytes(model_info.model.lods, version_info=versions))
+		# 	objects_bytes = as_bytes(model_info.model.objects, version_info=versions)
+		# 	# todo - padding like this is likely wrong, probably relative to start of materials
+		# 	# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
+		# 	# logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
+		# 	# logging.debug(f"rel offset {meshes.pointers[1].data_offset-materials.pointers[1].data_offset}")
+		# 	# logging.debug(f"rel mod 8 {(meshes.pointers[1].data_offset-materials.pointers[1].data_offset) % 8}")
+		# 	self.write_to_pool(objects.pointers[1], 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
+		# 	self.write_to_pool(meshes.pointers[1], 2, as_bytes(model_info.model.meshes, version_info=versions))
+		#
+		# 	self.ptr_relative(model_info_ptr.pointers[1], first_materials_ptr)
+		# 	# point to start of each modeldata
+		# 	offset = 0
+		# 	for frag in mdl2_entry.model_data_frags:
+		# 		self.ptr_relative(frag.pointers[0], meshes.pointers[1], rel_offset=offset)
+		# 		offset += 64
+		# # create fragments for ms2
+		# buffer_info_frag, model_info_frag, end_frag = self.create_fragments(self.sized_str_entry, 3)
+		#
+		# # write mesh info
+		# self.write_to_pool(model_info_frag.pointers[1], 2, as_bytes(ms2_file.model_infos, version_info=versions))
+		# offset = 0
+		# for mdl2_entry in self.sized_str_entry.children:
+		# 	# byte size of modelinfo varies - JWE1 (176 bytes total)
+		# 	if ovl_versions.is_jwe(self.ovl):
+		# 		offset += 104
+		# 	# 16 additional bytes for PZ/PZ16/JWE2 (192 bytes total)
+		# 	else:
+		# 		offset += 120
+		# 	for frag in mdl2_entry.fragments:
+		# 		self.ptr_relative(frag.pointers[0], model_info_frag.pointers[1], rel_offset=offset)
+		# 		offset += 8
+		# 	offset += 32
+		# # buffer info data
+		# buffer_info_bytes = as_bytes(ms2_file.buffer_info, version_info=versions)
+		# self.write_to_pool(buffer_info_frag.pointers[1], 2, buffer_info_bytes)
+		# # set ptr to buffer info for each MeshData frag
+		# for mdl2_entry in self.sized_str_entry.children:
+		# 	for frag in mdl2_entry.model_data_frags:
+		# 		self.ptr_relative(frag.pointers[1], buffer_info_frag.pointers[1])
 
-			if first_materials_ptr is None:
-				first_materials_ptr = materials.pointers[1]
-
-			self.write_to_pool(materials.pointers[1], 2, as_bytes(model_info.model.materials, version_info=versions))
-			self.write_to_pool(lods.pointers[1], 2, as_bytes(model_info.model.lods, version_info=versions))
-			objects_bytes = as_bytes(model_info.model.objects, version_info=versions)
-			# todo - padding like this is likely wrong, probably relative to start of materials
-			# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
-			# logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
-			# logging.debug(f"rel offset {meshes.pointers[1].data_offset-materials.pointers[1].data_offset}")
-			# logging.debug(f"rel mod 8 {(meshes.pointers[1].data_offset-materials.pointers[1].data_offset) % 8}")
-			self.write_to_pool(objects.pointers[1], 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
-			self.write_to_pool(meshes.pointers[1], 2, as_bytes(model_info.model.meshes, version_info=versions))
-
-			self.ptr_relative(model_info_ptr.pointers[1], first_materials_ptr)
-			# point to start of each modeldata
-			offset = 0
-			for frag in mdl2_entry.model_data_frags:
-				self.ptr_relative(frag.pointers[0], meshes.pointers[1], rel_offset=offset)
-				offset += 64
-		# create fragments for ms2
-		buffer_info_frag, model_info_frag, end_frag = self.create_fragments(ms2_entry, 3)
-
-		# write mesh info
-		self.write_to_pool(model_info_frag.pointers[1], 2, as_bytes(ms2_file.model_infos, version_info=versions))
-		offset = 0
-		for mdl2_entry in ms2_entry.children:
-			# byte size of modelinfo varies - JWE1 (176 bytes total)
-			if ovl_versions.is_jwe(self.ovl):
-				offset += 104
-			# 16 additional bytes for PZ/PZ16/JWE2 (192 bytes total)
-			else:
-				offset += 120
-			for frag in mdl2_entry.fragments:
-				self.ptr_relative(frag.pointers[0], model_info_frag.pointers[1], rel_offset=offset)
-				offset += 8
-			offset += 32
-		# buffer info data
-		buffer_info_bytes = as_bytes(ms2_file.buffer_info, version_info=versions)
-		self.write_to_pool(buffer_info_frag.pointers[1], 2, buffer_info_bytes)
-		# set ptr to buffer info for each MeshData frag
-		for mdl2_entry in ms2_entry.children:
-			for frag in mdl2_entry.model_data_frags:
-				self.ptr_relative(frag.pointers[1], buffer_info_frag.pointers[1])
-
-		# ms2 ss data
-		ms2_ss_bytes = as_bytes(ms2_file.info, version_info=versions)
-		self.write_to_pool(ms2_entry.pointers[0], 2, ms2_ss_bytes)
-		# set frag ptr 0
-		for frag, offset in zip(ms2_entry.fragments, (24, 32, 40)):
-			self.ptr_relative(frag.pointers[0], ms2_entry.pointers[0], rel_offset=offset)
-
-		# the last ms2 fragment
-		self.write_to_pool(end_frag.pointers[1], 2, self.get_frag_3(ms2_file.info))
 		# create ms2 data
-		self.create_data_entry(ms2_entry, ms2_file.buffers)
+		self.create_data_entry(self.sized_str_entry, ms2_file.buffers)
+		# todo - link more ptrs
+		self.header.write_ptrs(self, self.ovs, ss_ptr)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
@@ -268,7 +265,7 @@ class Ms2Loader(BaseFile):
 		# load ms2 ss data
 		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.info, version_info=versions))
 		# todo - multi buffer infos
-		self.header.buffer_info.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
+		self.header.buffer_infos.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
 		self.header.model_infos.frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
