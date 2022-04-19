@@ -71,7 +71,18 @@ class Ms2Loader(BaseFile):
 		self.header.model_infos.data = ms2_file.model_infos
 		# todo - maybe store in ms2 file
 		self.header.buffers_presence.data = self.get_frag_3(self.header)
-
+		for model_info in ms2_file.model_infos:
+			model_info.materials.data = model_info.model.materials
+			model_info.lods.data = model_info.model.lods
+			model_info.objects.data = model_info.model.objects
+			model_info.meshes.data = model_info.model.meshes
+			# just set empty data here, link later
+			model_info.first_materials.data = b""
+			for mesh in model_info.model.meshes:
+				# undo what we did on export - link the right buffer_info, then clear offset value
+				mesh.buffer_info.data = self.header.buffer_infos.data[mesh.buffer_info.offset]
+				mesh.buffer_info.offset = 0
+		print(self.header)
 		# 1 for the ms2, 2 for each mdl2
 		# pool.num_files += 1
 		# create sized str entries and mesh data fragments
@@ -137,8 +148,20 @@ class Ms2Loader(BaseFile):
 
 		# create ms2 data
 		self.create_data_entry(self.sized_str_entry, ms2_file.buffers)
-		# todo - link more ptrs
+		# write the final memstruct
 		self.header.write_ptrs(self, self.ovs, ss_ptr)
+		# link some more pointers
+		for model_info in self.header.model_infos.data:
+			# link first_materials pointer
+			first_materials = self.header.model_infos.data[0].materials.frag
+			assert first_materials
+			self.ptr_relative(model_info.first_materials.frag.pointers[1], first_materials.pointers[1])
+			for mesh in model_info.model.meshes:
+				# turn this into an index of the main buffer_infos array
+				pass
+				# # undo what we did on export - link the right buffer_info, then clear offset value
+				# mesh.buffer_info.data = self.header.buffer_infos.data[mesh.buffer_info.offset]
+				# mesh.buffer_info.offset = 0
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):

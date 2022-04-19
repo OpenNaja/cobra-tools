@@ -351,7 +351,7 @@
 		<add name="lods" type="ArrayPointer" template="LodInfo" arg="num_lods"/>
 		<add name="objects" type="ArrayPointer" template="Object" arg="num_objects"/>
 		<add name="meshes" type="ArrayPointer" template="NewMeshData" arg="num_meshes"/>
-		<add name="first materials" type="Pointer">actually points to the start of ModelInfos array</add>
+		<add name="first_materials" type="Pointer">actually points to the start of ModelInfos array</add>
 		<add name="zeros ztuac" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
 		<add name="zero 0" type="uint64"/>
