@@ -13,6 +13,7 @@
     </compound>
 
     <compound name="FgmHeader" inherit="MemStruct">
+		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
         Sized str entry of 16 bytes, then ptrs, then padding
         <add name="texture_count" type="uint" until="15"/>
         <add name="texture_count" type="uint64" since="17"/>

@@ -2,6 +2,7 @@
 import logging
 import traceback
 
+from generated.array import Array
 from generated.formats.ovl_base.basic import ConvStream
 
 
@@ -113,14 +114,17 @@ class HeaderPointer:
 
 	def write_instance(self, cls, instance):
 		"""Write instance to end of stream and set offset"""
-		print(f"write_instance of class {cls}")
+		logging.debug(f"write_instance of class {cls}")
 		if self.pool:
 			# seek to end of pool
 			self.pool.data.seek(0, 2)
 			self.data_offset = self.pool.data.tell()
-			cls.to_stream(self.pool.data, instance)
+			if isinstance(instance, Array):
+				Array.to_stream(self.pool.data, instance, (len(instance),), cls, instance.context, 0, None)
+			else:
+				cls.to_stream(self.pool.data, instance)
 			self.data_size = self.pool.data.tell() - self.data_offset
-			print(f"start at {self.data_offset}, size {self.data_size}")
+			logging.debug(f"start at {self.data_offset}, size {self.data_size}")
 		else:
 			logging.warning(f"Pool missing, can not write {cls}")
 

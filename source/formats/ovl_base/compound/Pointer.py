@@ -59,13 +59,16 @@ class Pointer:
 
 	def write_pointer(self, frag):
 		self.frag = frag
+		# if bytes have been set (usually manually), don't ask, just write
 		if isinstance(self.data, (bytes, bytearray)):
 			# seek to end, set data_offset, write
 			self.frag.pointers[1].write_to_pool(self.data)
-		try:
-			self.write_template()
-		except struct.error:
-			raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
+		else:
+			# process the generated data
+			try:
+				self.write_template()
+			except struct.error:
+				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
 
 	def write_template(self):
 		assert self.template is not None

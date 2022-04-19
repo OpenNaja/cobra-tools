@@ -9,6 +9,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class FgmHeader(MemStruct):
 
 	"""
+	# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
 	Sized str entry of 16 bytes, then ptrs, then padding
 	"""
 

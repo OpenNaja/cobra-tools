@@ -78,7 +78,8 @@ class ArrayPointer(Pointer):
 		if self.template:
 			self.data = Array.from_stream(self.frag.pointers[1].stream, (self.arg,), self.template, self.context, 0, None)
 
-	def write_template(self):
-		assert self.template is not None
-		Array.to_stream(self.frag.pointers[1].stream, self.data, (len(self.data),), self.template, self.context, 0, None)
+	# def write_template(self):
+	# 	assert self.template is not None
+	# 	# Array.to_stream(self.frag.pointers[1].stream, self.data, (len(self.data),), self.template, self.context, 0, None)
+	# 	self.frag.pointers[1].write_instance(self.template, self.data)
 
