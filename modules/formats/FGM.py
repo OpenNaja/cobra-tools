@@ -2,7 +2,6 @@ import logging
 import struct
 
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
-from generated.formats.ovl_base.versions import is_ztuac
 from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_versions, get_padding
 from modules.helpers import as_bytes, zstr
