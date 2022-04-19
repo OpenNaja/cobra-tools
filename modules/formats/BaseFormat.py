@@ -58,20 +58,6 @@ class BaseFile:
 			frag_data_pairs.append((frags_entry, array_data[x:x+entry_size]))
 		return frag_data_pairs
 
-	def collect_array_structs(self, ptr, count, struct_class):
-		frag_structs_pairs = []
-		instances = ptr.load_as(struct_class, num=count)
-		entry_size = instances[0].io_size
-		out_frags, array_data = self.collect_array(ptr, count, entry_size)
-		for i, instance in enumerate(instances):
-			x = i * entry_size
-			abs_offset = ptr.data_offset + x
-			frags_entry = self.get_frags_between(out_frags, abs_offset, abs_offset+entry_size)
-			# rel_offsets = [f.pointers[0].data_offset-abs_offset for f in frags_entry]
-			# frag_data_pairs.append((frags_entry, array_data[x:x+entry_size], rel_offsets))
-			frag_structs_pairs.append((frags_entry, instance))
-		return frag_structs_pairs
-
 	def get_frags_between(self, frags, offset_start, offset_end):
 		out_frags = []
 		for frag in frags:
