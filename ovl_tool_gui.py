@@ -316,11 +316,6 @@ class MainWindow(widgets.MainWindow):
 		else:
 			self.dat_widget.hide()
 
-	def update_commands(self):
-		# at some point, just set commands to archive and trigger changes there
-		if self.file_widget.filename:
-			self.ovl_data.commands = self.commands
-
 	def update_progress(self, message, value=None, vmax=None):
 		# avoid gui updates if the value won't actually change the percentage.
 		# this saves us from making lots of GUI update calls that don't really
