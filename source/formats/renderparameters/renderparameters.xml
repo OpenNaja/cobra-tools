@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <enum name="RenderParameterType" numbytes="8" storage="uint64" default="0">
+        <option value="0" name="Bool" />
+        <option value="1" name="Float" />
+        <option value="2" name="Int" />
+        <option value="3" name="UInt" />
+        <option value="4" name="Vector2" />
+        <option value="5" name="Vector3" />
+        <option value="6" name="Vector4" />
+        <option value="7" name="Colour" />
+        <option value="8" name="ColourHDR" />
+        <option value="9" name="String" />
+    </enum>
+
+    <compound name="RenderParametersRoot" inherit="MemStruct">
+        32 bytes
+        <add name="param_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="params" type="Pointer" template="ParamList" arg="count"/>
+        <add name="count" type="uint64" />
+        <add name="unk" type="uint64" />
+    </compound>
+
+    <compound name="ParamList" inherit="MemStruct">
+        this is not null ptr terminated, but padded to 16 bytes at the end
+        <add name="ptrs" type="Pointer" template="Param" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="Param" inherit="MemStruct">
+        <add name="attribute_name" type="Pointer" template="ZString"/>
+        <add name="dtype" type="RenderParameterType" />
+        # todo - make data type depend on dtype
+        <add name="data0" type="float" />
+        <add name="data1" type="float" />
+        <add name="data2" type="float" />
+        <add name="data3" type="float" />
+    </compound>
+
+</niftoolsxml>

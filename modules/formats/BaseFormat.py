@@ -13,8 +13,6 @@ from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import djb
 import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
-from modules.helpers import as_bytes
-
 
 class BaseFile:
 
