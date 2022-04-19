@@ -6,6 +6,8 @@ import traceback
 import logging
 import tempfile
 
+from root_path import root_dir
+
 try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
@@ -253,7 +255,7 @@ class MainWindow(widgets.MainWindow):
 
 	@staticmethod
 	def open_tools_dir():
-		os.startfile(os.getcwd())
+		os.startfile(root_dir)
 
 	def drag_files(self, file_names):
 		logging.info(f"DRAGGING {file_names}")

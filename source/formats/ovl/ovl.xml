@@ -75,8 +75,8 @@
         Description of one file in the archive
         <add name="offset" type="uint">offset in the ovl's names block; start offset of zero terminated string</add>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
-        <add name="pool type" type="byte" >pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type</add>
-        <add name="set pool type" type="byte" >if this file is part of a set, the set's sizedstr entry's pool type, else 0</add>
+        <add name="pool_type" type="byte" >pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type</add>
+        <add name="set_pool_type" type="byte" >if this file is part of a set, the set's sizedstr entry's pool type, else 0</add>
         <add name="extension" type="ushort" >index into 'Extensions' array</add>
     </compound>
 

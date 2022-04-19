@@ -35,6 +35,7 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import get_versions, djb, assign_versions
 from modules.helpers import split_path
+from root_path import root_dir
 
 UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
@@ -1208,7 +1209,7 @@ class OvlFile(Header, IoFile):
 		logging.info("Loading hash table...")
 		start_time = time.time()
 		self.hash_table_global = {}
-		hashes_dir = os.path.join(os.getcwd(), "hashes")
+		hashes_dir = os.path.join(root_dir, "hashes")
 		try:
 			for file in os.listdir(hashes_dir):
 				fp = os.path.join(hashes_dir, file)
