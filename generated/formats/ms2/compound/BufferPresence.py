@@ -1,13 +1,8 @@
 from source.formats.base.basic import fmt_member
-import numpy
 from generated.context import ContextReference
 
 
-class BufferInfoPC:
-
-	"""
-	PC: 32 bytes
-	"""
+class BufferPresence:
 
 	context = ContextReference()
 
@@ -18,18 +13,16 @@ class BufferInfoPC:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_1 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 
-		# Total size of vertex buffer for PC, starting with the 0 - 16 byte indices
-		self.vertex_buffer_size = 0
-		self.zero_2 = 0
+		# -1 for a static buffer, 0 for streamed buffer; may be stream index
+		self.flag = 0
+		self.zero = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.zeros_1 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
-		self.vertex_buffer_size = 0
-		self.zero_2 = 0
+		self.flag = 0
+		self.zero = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -43,15 +36,13 @@ class BufferInfoPC:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.zeros_1 = stream.read_uint64s((2,))
-		instance.vertex_buffer_size = stream.read_uint64()
-		instance.zero_2 = stream.read_uint64()
+		instance.flag = stream.read_int()
+		instance.zero = stream.read_int()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_uint64s(instance.zeros_1)
-		stream.write_uint64(instance.vertex_buffer_size)
-		stream.write_uint64(instance.zero_2)
+		stream.write_int(instance.flag)
+		stream.write_int(instance.zero)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -69,13 +60,12 @@ class BufferInfoPC:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'BufferInfoPC [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BufferPresence [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* zeros_1 = {fmt_member(self.zeros_1, indent+1)}'
-		s += f'\n	* vertex_buffer_size = {fmt_member(self.vertex_buffer_size, indent+1)}'
-		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

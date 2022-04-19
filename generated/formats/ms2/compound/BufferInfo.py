@@ -1,5 +1,4 @@
 from source.formats.base.basic import fmt_member
-import numpy
 from generated.context import ContextReference
 
 
@@ -7,8 +6,13 @@ class BufferInfo:
 
 	"""
 	Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-	JWE: 48 bytes
-	PZ: 56 bytes
+	ZTUAC: 64 bytes
+	PC: 32 bytes
+	JWE1: 48 bytes
+	PZ old: 56 bytes?
+	PZ1.6+ and JWE2: 56 bytes
+	
+	JWE and PC, 16 bytes of 00 padding
 	"""
 
 	context = ContextReference()
@@ -20,37 +24,49 @@ class BufferInfo:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# JWE, 16 bytes of 00 padding
-		self.skip_1 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.u_0 = 0
+		self.u_1 = 0
 		self.vertex_buffer_size = 0
-
-		# 8 empty bytes
-		self.ptr_1 = 0
-
-		# PZ+, another 8 empty bytes
-		self.unk_0 = 0
+		self.u_2 = 0
+		self.u_3 = 0
 		self.tris_buffer_size = 0
+		self.u_4 = 0
+		self.u_5 = 0
+		self.u_6 = 0
+		self.u_5 = 0
 
-		# 8 empty bytes
-		self.ptr_2 = 0
-
-		# PZ+, another 16 empty bytes
-		self.unk_2 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		# from start of tris buffer
+		self.uv_buffer_size = 0
+		self.u_6 = 0
+		self.u_7 = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		if (self.context.version == 47) or (self.context.version == 39):
-			self.skip_1 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		if 32 <= self.context.version <= 47:
+			self.u_0 = 0
+		if 32 <= self.context.version <= 47:
+			self.u_1 = 0
 		self.vertex_buffer_size = 0
-		self.ptr_1 = 0
+		self.u_2 = 0
 		if self.context.version >= 48:
-			self.unk_0 = 0
-		self.tris_buffer_size = 0
-		self.ptr_2 = 0
+			self.u_3 = 0
+		if not (self.context.version == 32):
+			self.tris_buffer_size = 0
+		if not (self.context.version == 32):
+			self.u_4 = 0
 		if self.context.version >= 48:
-			self.unk_2 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+			self.u_5 = 0
+		if self.context.version >= 48:
+			self.u_6 = 0
+		if self.context.version <= 13:
+			self.u_5 = 0
+		if self.context.version <= 13:
+			self.uv_buffer_size = 0
+		if self.context.version <= 13:
+			self.u_6 = 0
+		if self.context.version <= 13:
+			self.u_7 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -64,29 +80,47 @@ class BufferInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		if (instance.context.version == 47) or (instance.context.version == 39):
-			instance.skip_1 = stream.read_uint64s((2,))
+		if 32 <= instance.context.version <= 47:
+			instance.u_0 = stream.read_uint64()
+			instance.u_1 = stream.read_uint64()
 		instance.vertex_buffer_size = stream.read_uint64()
-		instance.ptr_1 = stream.read_uint64()
+		instance.u_2 = stream.read_uint64()
 		if instance.context.version >= 48:
-			instance.unk_0 = stream.read_uint64()
-		instance.tris_buffer_size = stream.read_uint64()
-		instance.ptr_2 = stream.read_uint64()
+			instance.u_3 = stream.read_uint64()
+		if not (instance.context.version == 32):
+			instance.tris_buffer_size = stream.read_uint64()
+			instance.u_4 = stream.read_uint64()
 		if instance.context.version >= 48:
-			instance.unk_2 = stream.read_uint64s((2,))
+			instance.u_5 = stream.read_uint64()
+			instance.u_6 = stream.read_uint64()
+		if instance.context.version <= 13:
+			instance.u_5 = stream.read_uint64()
+			instance.uv_buffer_size = stream.read_uint64()
+		if instance.context.version <= 13:
+			instance.u_6 = stream.read_uint64()
+			instance.u_7 = stream.read_uint64()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		if (instance.context.version == 47) or (instance.context.version == 39):
-			stream.write_uint64s(instance.skip_1)
+		if 32 <= instance.context.version <= 47:
+			stream.write_uint64(instance.u_0)
+			stream.write_uint64(instance.u_1)
 		stream.write_uint64(instance.vertex_buffer_size)
-		stream.write_uint64(instance.ptr_1)
+		stream.write_uint64(instance.u_2)
 		if instance.context.version >= 48:
-			stream.write_uint64(instance.unk_0)
-		stream.write_uint64(instance.tris_buffer_size)
-		stream.write_uint64(instance.ptr_2)
+			stream.write_uint64(instance.u_3)
+		if not (instance.context.version == 32):
+			stream.write_uint64(instance.tris_buffer_size)
+			stream.write_uint64(instance.u_4)
 		if instance.context.version >= 48:
-			stream.write_uint64s(instance.unk_2)
+			stream.write_uint64(instance.u_5)
+			stream.write_uint64(instance.u_6)
+		if instance.context.version <= 13:
+			stream.write_uint64(instance.u_5)
+			stream.write_uint64(instance.uv_buffer_size)
+		if instance.context.version <= 13:
+			stream.write_uint64(instance.u_6)
+			stream.write_uint64(instance.u_7)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -108,13 +142,19 @@ class BufferInfo:
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* skip_1 = {fmt_member(self.skip_1, indent+1)}'
+		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
 		s += f'\n	* vertex_buffer_size = {fmt_member(self.vertex_buffer_size, indent+1)}'
-		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
-		s += f'\n	* unk_0 = {fmt_member(self.unk_0, indent+1)}'
+		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
 		s += f'\n	* tris_buffer_size = {fmt_member(self.tris_buffer_size, indent+1)}'
-		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* unk_2 = {fmt_member(self.unk_2, indent+1)}'
+		s += f'\n	* u_4 = {fmt_member(self.u_4, indent+1)}'
+		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
+		s += f'\n	* u_6 = {fmt_member(self.u_6, indent+1)}'
+		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
+		s += f'\n	* uv_buffer_size = {fmt_member(self.uv_buffer_size, indent+1)}'
+		s += f'\n	* u_6 = {fmt_member(self.u_6, indent+1)}'
+		s += f'\n	* u_7 = {fmt_member(self.u_7, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

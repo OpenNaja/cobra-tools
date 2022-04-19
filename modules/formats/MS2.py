@@ -25,13 +25,13 @@ class Ms2Loader(BaseFile):
 		self.context.version = version
 		return vdic
 
-	def get_frag_3(self, ms2_info):
+	def get_frag_3(self, header):
 		# some in JWE2 have a model2stream again
 		expected_frag = b""
-		if self.ms2_info.vertex_buffer_count:
-			for stream in range(self.ms2_info.stream_count):
+		if self.header.vertex_buffer_count:
+			for stream in range(self.header.stream_count):
 				expected_frag += struct.pack("<ii", 0, 0)
-			for stream in range(self.ms2_info.vertex_buffer_count - self.ms2_info.stream_count):
+			for stream in range(self.header.vertex_buffer_count - self.header.stream_count):
 				expected_frag += struct.pack("<ii", -1, 0)
 		return expected_frag
 
@@ -39,18 +39,19 @@ class Ms2Loader(BaseFile):
 		self.assign_ss_entry()
 		self.get_version()
 		ss_ptr = self.sized_str_entry.pointers[0]
-		self.ms2_info = Ms2Root.from_stream(ss_ptr.stream, self.context)
-		self.ms2_info.read_ptrs(ss_ptr.pool, self.sized_str_entry)
+		self.header = Ms2Root.from_stream(ss_ptr.stream, self.context)
+		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
+		print(self.header)
 		# old JWE1 still uses 1 fragment
-		if self.ms2_info.version > 39:
+		if self.header.version > 39:
 			if ss_ptr.data_size != 48:
 				logging.warning(f"Unexpected Root size ({ss_ptr.data_size}) for {self.file_entry.name}")
-			expected_frag = self.get_frag_3(self.ms2_info)
-			frag_data = self.ms2_info.buffers_presence.frag.pointers[1].data
+			expected_frag = self.get_frag_3(self.header)
+			frag_data = self.header.buffers_presence.frag.pointers[1].data
 			if frag_data != expected_frag:
 				logging.warning(
 					f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
-			for model_info in self.ms2_info.model_infos.data:
+			for model_info in self.header.model_infos.data:
 				objects_ptr = model_info.objects.frag.pointers[1]
 				objects_ptr.split_data_padding(4 * model_info.num_objects)
 
@@ -62,8 +63,11 @@ class Ms2Loader(BaseFile):
 		ms2_entry = self.create_ss_entry(self.file_entry)
 		ms2_entry.children = []
 
-		versions = get_versions(self.ovl)
-
+		self.header = ms2_file.info
+		# now fix up the pointers
+		self.header.buffers_presence.data = self.get_frag_3(self.header)
+		# todo - make point to first buffer info incase of multiple buffers
+		# self.header.buffer_info.data =
 		# 1 for the ms2, 2 for each mdl2
 		# pool.num_files += 1
 		# create sized str entries and mesh data fragments
@@ -75,9 +79,6 @@ class Ms2Loader(BaseFile):
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
 			mdl2_entry.pointers[0].pool_index = -1
 			ms2_entry.children.append(mdl2_entry)
-
-			# first, create all MeshData structs as fragments
-			mdl2_entry.model_data_frags = [self.create_fragment() for _ in range(model_info.num_meshes)]
 
 		first_materials_ptr = None
 		# create the 5 fixed frags per MDL2 and write their data
@@ -176,21 +177,21 @@ class Ms2Loader(BaseFile):
 				stream.write(as_bytes(mdl2_entry.basename))
 			stream.write(name_buffer)
 			# export each mdl2
-			if self.ms2_info.version > 39:
+			if self.header.version > 39:
 				# this corresponds to pc buffer 1 already
 				# handle multiple buffer infos
 				# grab all unique ptrs to buffer infos
-				ptrs = set(mesh.buffer_info.frag.pointers[1] for model_info in self.ms2_info.model_infos.data for mesh in model_info.meshes.data)
+				ptrs = set(mesh.buffer_info.frag.pointers[1] for model_info in self.header.model_infos.data for mesh in model_info.meshes.data)
 				# get the sorted binary representations
 				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset, reverse=True)]
 				# turn the offset value of the pointers into a valid index
-				for model_info in self.ms2_info.model_infos.data:
+				for model_info in self.header.model_infos.data:
 					for mesh in model_info.meshes.data:
 						buffer_info_bytes = mesh.buffer_info.frag.pointers[1].data
 						mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
 				stream.write(b"".join(buffer_infos))
-				self.ms2_info.model_infos.data.write(stream)
-				for model_info in self.ms2_info.model_infos.data:
+				self.header.model_infos.data.write(stream)
+				for model_info in self.header.model_infos.data:
 					for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
 						ptr.data.write(stream)
 		
@@ -227,7 +228,7 @@ class Ms2Loader(BaseFile):
 		ms2_file.load(ms2_file_path, read_bytes=True)
 
 		missing_materials = set()
-		for model_info, mdl2_name, ovl_model_info in zip(ms2_file.model_infos, ms2_file.mdl_2_names, self.ms2_info.model_infos.data):
+		for model_info, mdl2_name, ovl_model_info in zip(ms2_file.model_infos, ms2_file.mdl_2_names, self.header.model_infos.data):
 			for material in model_info.model.materials:
 				fgm_name = f"{material.name.lower()}.fgm"
 				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
@@ -248,7 +249,7 @@ class Ms2Loader(BaseFile):
 				logging.info("Injection was canceled by the user")
 				return
 
-		for ovl_model_info, model_info in zip(self.ms2_info.model_infos.data, ms2_file.model_infos):
+		for ovl_model_info, model_info in zip(self.header.model_infos.data, ms2_file.model_infos):
 			for ptr, mdl2_list in (
 					(ovl_model_info.materials, model_info.model.materials,),
 					(ovl_model_info.lods, model_info.model.lods),
@@ -267,8 +268,8 @@ class Ms2Loader(BaseFile):
 		# load ms2 ss data
 		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.info, version_info=versions))
 		# todo - multi buffer infos
-		self.ms2_info.buffer_info.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
-		self.ms2_info.model_infos.frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
+		self.header.buffer_info.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_info, version_info=versions), update_copies=True)
+		self.header.model_infos.frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
 		self.sized_str_entry.data_entry.update_data(ms2_file.buffers)

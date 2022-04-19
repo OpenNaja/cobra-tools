@@ -4,8 +4,6 @@ from generated.context import ContextReference
 from generated.formats.base.basic import ZString
 from generated.formats.ms2.compound.Buffer0 import Buffer0
 from generated.formats.ms2.compound.BufferInfo import BufferInfo
-from generated.formats.ms2.compound.BufferInfoPC import BufferInfoPC
-from generated.formats.ms2.compound.BufferInfoZT import BufferInfoZT
 from generated.formats.ms2.compound.ModelInfo import ModelInfo
 from generated.formats.ms2.compound.ModelReader import ModelReader
 from generated.formats.ms2.compound.Ms2Root import Ms2Root
@@ -30,8 +28,6 @@ class Ms2InfoHeader:
 		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
-		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoZT, self.context, 0, None)
-		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoPC, self.context, 0, None)
 		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 
@@ -45,12 +41,7 @@ class Ms2InfoHeader:
 		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
-		if self.context.version == 13:
-			self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoZT, self.context, 0, None)
-		if self.context.version == 32:
-			self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfoPC, self.context, 0, None)
-		if self.context.version >= 47:
-			self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
+		self.buffer_info = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 		self.models_reader = ModelReader(self.context, self.model_infos, None)
 
@@ -70,12 +61,7 @@ class Ms2InfoHeader:
 		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
 		instance.buffer_0 = Buffer0.from_stream(stream, instance.context, instance.info, None)
-		if instance.context.version == 13:
-			instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfoZT, instance.context, 0, None)
-		if instance.context.version == 32:
-			instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfoPC, instance.context, 0, None)
-		if instance.context.version >= 47:
-			instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
+		instance.buffer_info = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		instance.model_infos = Array.from_stream(stream, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
 		instance.models_reader = ModelReader.from_stream(stream, instance.context, instance.model_infos, None)
 
@@ -85,12 +71,7 @@ class Ms2InfoHeader:
 		Ms2Root.to_stream(stream, instance.info)
 		stream.write_zstrings(instance.mdl_2_names)
 		Buffer0.to_stream(stream, instance.buffer_0)
-		if instance.context.version == 13:
-			Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfoZT, instance.context, 0, None)
-		if instance.context.version == 32:
-			Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfoPC, instance.context, 0, None)
-		if instance.context.version >= 47:
-			Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.buffer_info, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.model_infos, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
 		ModelReader.to_stream(stream, instance.models_reader)
 
