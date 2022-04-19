@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="WmetasbRoot" inherit="MemStruct">
+        <add name="levels" type="ArrayPointer" template="WmetasbMain" arg="count"/>
+        <add name="count" type="uint64" />
+    </compound>
+
+    <compound name="WmetasbMain" inherit="MemStruct">
+		# JWE: 112 bytes??
+		# PZ, JWE2: 32 bytes
+        <add name="hash" type="uint" />
+        <add name="unk" type="uint" />
+        <add name="block_name" type="Pointer" template="ZString"/>
+        <add name="next_levels" type="ArrayPointer" template="WmetasbChild" arg="count"/>
+        <add name="count" type="uint64" />
+    </compound>
+
+    <compound name="WmetasbChild" inherit="MemStruct">
+        40 bytes
+        <add name="hash" type="uint" />
+        <add name="float_limit" type="float" />
+        <add name="c0" type="uint" />
+        <add name="c1" type="uint" />
+        <add name="c2" type="uint" />
+        <add name="hash2" type="uint" />
+        <add name="hash3" type="uint" />
+        <add name="u0" type="uint" />
+        <add name="u1" type="uint" />
+        <add name="u2" type="uint" />
+    </compound>
+
+</niftoolsxml>
