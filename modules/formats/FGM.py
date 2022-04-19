@@ -40,30 +40,22 @@ class FgmLoader(MemStructLoader):
 	def collect(self):
 		super().collect()
 		# print(self.header)
-		self._tag_fragments()
-		if self.tex_info:
-			# size of a texture info varies
-			if is_ztuac(self.ovl):
-				tex_size = self.header.texture_count * 12
-			else:
-				tex_size = self.header.texture_count * 24
-			ptr = self.tex_info.pointers[1]
+		tex_info = self.header.textures.frag
+		attr_info = self.header.attributes.frag
+		if tex_info:
+			# size of a texture info varies by version
+			tex_size = self.header.texture_count * self.header.textures.data[0].io_size
+			ptr = tex_info.pointers[1]
 			ptr.split_data_padding(tex_size)
 			logging.debug(f"Texture data {len(ptr.data)} padding {len(ptr.padding)}")
-		if self.attr_info:
+		if attr_info:
 			# this likely has no padding anyway
-			ptr = self.attr_info.pointers[1]
+			ptr = attr_info.pointers[1]
 			ptr.split_data_padding(self.header.attribute_count * 16)
 			logging.debug(f"Attribute data {len(ptr.data)} padding {len(ptr.padding)}")
 		# for i, f in enumerate(self.sized_str_entry.fragments):
 		# 	p = f.pointers[1]
 		# 	logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
-
-	def _tag_fragments(self):
-		self.tex_info = self.header.textures.frag
-		self.attr_info = self.header.attributes.frag
-		self.dependencies_ptr = self.header.dependencies.frag
-		self.data_lib = self.header.data_lib.frag
 
 	def load(self, file_path):
 		fgm_data = self._get_data(file_path)
@@ -73,7 +65,10 @@ class FgmLoader(MemStructLoader):
 		self.sized_str_entry.pointers[0].update_data(sizedstr_bytes)
 
 		# inject fragment datas
-		for frag, data in zip(self._valid_frags(), datas):
+		for ptr, data in zip(self._ptrs(), datas):
+			frag = ptr.frag
+			if not frag:
+				continue
 			logging.debug(f"frag: len old {len(frag.pointers[1].data)} len padding {len(frag.pointers[1].padding)} len new {len(data)}")
 			frag.pointers[1].update_data(data, update_copies=True)
 
@@ -98,12 +93,7 @@ class FgmLoader(MemStructLoader):
 		# attributes never seem to have padding
 		# attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
 		self.header = fgm_data.fgm_info
-		datas = []
-		if self.header.texture_count:
-			datas.append(textures_bytes)
-		if self.header.attribute_count:
-			datas.append(attributes_bytes)
-			datas.append(fgm_data.data_bytes)
+		datas = (textures_bytes, attributes_bytes, fgm_data.data_bytes)
 		return datas, sizedstr_bytes
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
@@ -115,20 +105,19 @@ class FgmLoader(MemStructLoader):
 		with open(out_path, 'wb') as outfile:
 			outfile.write(self.pack_header(b"FGM "))
 			# we need this as its size is not predetermined
-			data_lib_size = len(self.data_lib.pointers[1].data) if self.data_lib else 0
+			data_lib_f = self.header.data_lib.frag
+			data_lib_size = len(data_lib_f.pointers[1].data) if data_lib_f else 0
 			outfile.write(struct.pack("II", data_lib_size, len(self.file_entry.dependencies)))
 			outfile.write(self.sized_str_entry.pointers[0].data)
 			for tex in self.file_entry.dependencies:
 				outfile.write(zstr(tex.basename.encode()))
 			# write each of the fragments
-			for frag in self._valid_frags():
-				outfile.write(frag.pointers[1].data)
+			for ptr in self._ptrs():
+				if ptr.frag:
+					outfile.write(ptr.frag.pointers[1].data)
 			# write the buffer
 			outfile.write(buffer_data)
 		return out_path,
 
-	def _valid_frags(self):
-		"""Only yields fragments with data, ignores dependency pointers fragment and missing fragments"""
-		for frag in (self.tex_info, self.attr_info, self.data_lib):
-			if frag:
-				yield frag
+	def _ptrs(self):
+		return self.header.textures, self.header.attributes, self.header.data_lib
