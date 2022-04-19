@@ -65,6 +65,12 @@ class MemStruct:
 				# basic pointer
 				frag.pointers[1].pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
 				ptr.write_pointer(frag)
+				# handle ArrayPointer
+				if isinstance(ptr.data, Array):
+					for member in ptr.data:
+						if isinstance(member, MemStruct):
+							member.write_ptrs(loader, ovs, frag.pointers[1], is_member=True)
+
 		# don't write array members again, they have already been written!
 		if not is_member:
 			# write this struct's data
@@ -88,8 +94,8 @@ class MemStruct:
 				print("member")
 				if isinstance(member, MemStruct):
 					member.write_ptrs(loader, ovs, ref_ptr, is_member=True)
-				elif isinstance(member, Pointer):
-					logging.warning(f"Missing write_ptrs for ArrayPointer")
+				# elif isinstance(member, Pointer):
+				# 	logging.warning(f"Missing write_ptrs for ArrayPointer")
 
 		# print(ovs.fragments)
 		for frag in ovs.fragments:
