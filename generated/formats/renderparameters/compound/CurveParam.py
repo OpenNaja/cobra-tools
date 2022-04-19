@@ -7,15 +7,6 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 
 class CurveParam(MemStruct):
 
-	"""
-	#             # offset  x0: strz attribute name (Atmospherics.Lights.IrradianceScatterIntensity, ...)
-	#             # offset  x8: int  type   (4294967296, 4294967297, 4294967303, 1...)
-	#             # offset  xc: int unused (probably type is int64)
-	#             # offset x10: list of ptr to curve entries
-	#             # offset x18: count of curve entries
-	#             # offset x1c: int unused (probably count is int64)
-	"""
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
@@ -24,7 +15,9 @@ class CurveParam(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.dtype = 0
-		self.flag = 0
+
+		# set to 1 if count > 1
+		self.do_interpolation = 0
 		self.count = 0
 		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.curve_entries = Pointer(self.context, self.count, generated.formats.renderparameters.compound.CurveList.CurveList)
@@ -33,7 +26,7 @@ class CurveParam(MemStruct):
 
 	def set_defaults(self):
 		self.dtype = 0
-		self.flag = 0
+		self.do_interpolation = 0
 		self.count = 0
 		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.curve_entries = Pointer(self.context, self.count, generated.formats.renderparameters.compound.CurveList.CurveList)
@@ -53,7 +46,7 @@ class CurveParam(MemStruct):
 		super().read_fields(stream, instance)
 		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.dtype = stream.read_int()
-		instance.flag = stream.read_uint()
+		instance.do_interpolation = stream.read_uint()
 		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.renderparameters.compound.CurveList.CurveList)
 		instance.count = stream.read_uint64()
 		instance.attribute_name.arg = 0
@@ -64,7 +57,7 @@ class CurveParam(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.attribute_name)
 		stream.write_int(instance.dtype)
-		stream.write_uint(instance.flag)
+		stream.write_uint(instance.do_interpolation)
 		Pointer.to_stream(stream, instance.curve_entries)
 		stream.write_uint64(instance.count)
 
@@ -91,7 +84,7 @@ class CurveParam(MemStruct):
 		s += super().get_fields_str()
 		s += f'\n	* attribute_name = {fmt_member(self.attribute_name, indent+1)}'
 		s += f'\n	* dtype = {fmt_member(self.dtype, indent+1)}'
-		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
+		s += f'\n	* do_interpolation = {fmt_member(self.do_interpolation, indent+1)}'
 		s += f'\n	* curve_entries = {fmt_member(self.curve_entries, indent+1)}'
 		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
 		return s
