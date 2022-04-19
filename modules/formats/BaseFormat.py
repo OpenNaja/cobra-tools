@@ -33,14 +33,6 @@ class BaseFile:
 		return struct.pack(
 			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
 
-	def get_str_at_offset(self, offset):
-		"""Gets string pointed to at offset from ss ptr"""
-		f = self.ovs.frag_at_pointer(self.sized_str_entry.pointers[0], offset=offset)
-		if f:
-			# log the frag
-			self.sized_str_entry.fragments.append(f)
-			return self.p1_ztsr(f)
-
 	def assign_ss_entry(self):
 		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)
 
