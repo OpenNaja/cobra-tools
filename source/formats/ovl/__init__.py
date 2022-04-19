@@ -36,6 +36,7 @@ from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 from modules.formats.shared import get_versions, djb, assign_versions
 from modules.helpers import split_path
 
+BAD_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 REVERSED_TYPES = (
@@ -1248,7 +1249,7 @@ class OvlFile(Header, IoFile):
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
-			self.hash_table_local[djb(mime_entry.ext[1:])] = mime_entry.ext
+			self.hash_table_local[djb(mime_entry.ext[1:].lower())] = mime_entry.ext
 			mime_entry.triplets = self.triplets[
 								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
 
@@ -1279,6 +1280,7 @@ class OvlFile(Header, IoFile):
 
 		# get names of all dependencies
 		ht_max = len(self.dependencies)
+		print(self.hash_table_local)
 		for ht_index, dependency_entry in enumerate(self.dependencies):
 			self.print_and_callback("Loading dependencies", value=ht_index, max_value=ht_max)
 			file_entry = self.files[dependency_entry.file_index]
@@ -1294,7 +1296,7 @@ class OvlFile(Header, IoFile):
 			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
-				dependency_entry.basename = "bad hash"
+				dependency_entry.basename = BAD_HASH
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 		# sort dependencies by their pool offset
@@ -1497,15 +1499,16 @@ class OvlFile(Header, IoFile):
 		self.aux_entries.clear()
 		# update file hashes
 		for file in self.files:
-			file.file_hash = djb(file.basename)
-			file.ext_hash = djb(file.ext[1:])
+			# ensure lowercase, at the risk of being redundant
+			file.file_hash = djb(file.basename.lower())
+			file.ext_hash = djb(file.ext[1:].lower())
 			# logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
 			# update dependency hashes
 			for dependency in file.dependencies:
-				if dependency.basename == "bad hash":
-					logging.warning(f"Bad hash on dependency entry - won't update hash")
+				if BAD_HASH in dependency.basename:
+					logging.warning(f"{BAD_HASH} on dependency entry - won't update hash")
 				else:
-					dependency.file_hash = djb(dependency.basename)
+					dependency.file_hash = djb(dependency.basename.lower())
 			self.dependencies.extend(file.dependencies)
 			self.aux_entries.extend(file.aux_entries)
 
@@ -1756,7 +1759,7 @@ if __name__ == "__main__":
 
 
 def rename_entry(entry, name_tups):
-	if "bad hash" in entry.name:
+	if BAD_HASH in entry.name:
 		logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
 		return
 	for old, new in name_tups:

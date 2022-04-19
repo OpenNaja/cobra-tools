@@ -209,14 +209,14 @@ class BaseFile:
 	def set_dependency_identity(self, dependency, file_name):
 		"""Use a standard file name with extension"""
 		dependency.name = file_name
-		dependency.basename, dependency.ext = os.path.splitext(file_name)
+		dependency.basename, dependency.ext = os.path.splitext(file_name.lower())
 		dependency.ext = dependency.ext.replace(".", ":")
-		dependency.file_hash = djb(dependency.basename.lower())
+		dependency.file_hash = djb(dependency.basename)
+		logging.debug(f"Dependency: {dependency.basename} | {dependency.ext} | {dependency.file_hash}")
 
 	def create_dependency(self, name):
 		dependency = DependencyEntry(self.ovl.context)
 		self.set_dependency_identity(dependency, name)
-		# dependency.pointers.append(HeaderPointer(self.ovl.context))
 		self.file_entry.dependencies.append(dependency)
 		return dependency
 
