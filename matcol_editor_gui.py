@@ -2,10 +2,9 @@ import os
 import traceback
 from PyQt5 import QtWidgets, QtCore
 
-import modules.formats.shared
 import ovl_util.interaction
-from generated.formats.matcol import MatcolFile
-from generated.formats.ovl_base.versions import get_game
+from generated.formats.matcol.compound.MatcolRoot import MatcolRoot
+from generated.formats.ovl_base import OvlContext
 from ovl_util import widgets, config
 
 
@@ -16,7 +15,8 @@ class MainWindow(widgets.MainWindow):
 		
 		self.resize(450, 500)
 
-		self.matcol_data = MatcolFile()
+		self.context = OvlContext()
+		self.matcol_data = MatcolRoot(self.context)
 		self.file_src = ""
 		self.widgets = []
 		self.tooltips = config.read_config("ovl_util/tooltips/matcol.txt")
@@ -103,12 +103,13 @@ class MainWindow(widgets.MainWindow):
 				w.deleteLater()
 			self.cfg["dir_materialcollections_in"], materialcollection_name = os.path.split(self.file_src)
 			try:
-				self.matcol_data.load(self.file_src)
-				game = get_game(self.matcol_data)[0]
-				print("from game", game)
-				self.game_container.entry.setText(game.value)
+				self.matcol_data = self.matcol_data.from_xml_file(self.file_src, self.context)
+				print(self.matcol_data)
+				# game = get_game(self.matcol_data)[0]
+				# print("from game", game)
+				# self.game_container.entry.setText(game.value)
 
-				self.materialcollection_container.entry.setText( materialcollection_name )
+				self.materialcollection_container.entry.setText(materialcollection_name)
 
 				# delete existing widgets
 				self.clear_layout(self.tex_grid)
@@ -120,7 +121,7 @@ class MainWindow(widgets.MainWindow):
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
 				line_i = 0
-				for i, tex in enumerate(self.matcol_data.textures):
+				for i, tex in enumerate(self.matcol_data.main.data.textures.data):
 					# w = widgets.VectorEntry(tex, self.tooltips)
 					# form.addRow(w.label, w.data)
 					box = widgets.CollapsibleBox(f"Slot {i}")
@@ -130,8 +131,8 @@ class MainWindow(widgets.MainWindow):
 					lay = self.create_grid()
 					a = QtWidgets.QLabel("texture type")
 					b = QtWidgets.QLabel("texture suffix")
-					x = QtWidgets.QLineEdit(tex.texture_type)
-					y = QtWidgets.QLineEdit(tex.texture_suffix)
+					x = QtWidgets.QLineEdit(tex.texture_type.data)
+					y = QtWidgets.QLineEdit(tex.texture_suffix.data)
 
 					combo = widgets.LabelCombo("First FGM:", self.default_fgms, tex, "fgm_name")
 					lay.addWidget(a, 0, 0)
@@ -141,23 +142,23 @@ class MainWindow(widgets.MainWindow):
 					lay.addWidget(combo.label, 2, 0)
 					lay.addWidget(combo.entry, 2, 1)
 					box.setLayout(lay)
-
-				line_i = 0
-				for i, attrib in enumerate(self.matcol_data.layers):
-					box = widgets.CollapsibleBox(f"Slot {i}")
-					self.attrib_grid.addWidget(box, line_i, 0)
-					line_i += 1
-					lay = self.create_grid()
-					combo = widgets.LabelCombo("FGM:", self.default_fgms, attrib, "name")
-					lay.addWidget(combo.label, 0, 0)
-					lay.addWidget(combo.entry, 0, 1)
-					l = 1
-					for infow in attrib.infos:
-						w = widgets.MatcolInfo(infow, self.tooltips)
-						lay.addWidget(w.label, l, 0)
-						lay.addWidget(w.data, l, 1)
-						l+=1
-					box.setLayout(lay)
+				#
+				# line_i = 0
+				# for i, attrib in enumerate(self.matcol_data.layers):
+				# 	box = widgets.CollapsibleBox(f"Slot {i}")
+				# 	self.attrib_grid.addWidget(box, line_i, 0)
+				# 	line_i += 1
+				# 	lay = self.create_grid()
+				# 	combo = widgets.LabelCombo("FGM:", self.default_fgms, attrib, "name")
+				# 	lay.addWidget(combo.label, 0, 0)
+				# 	lay.addWidget(combo.entry, 0, 1)
+				# 	l = 1
+				# 	for infow in attrib.infos:
+				# 		w = widgets.MatcolInfo(infow, self.tooltips)
+				# 		lay.addWidget(w.label, l, 0)
+				# 		lay.addWidget(w.data, l, 1)
+				# 		l+=1
+				# 	box.setLayout(lay)
 				
 				line_i = 0
 				# for zstr in self.matcol_data.layers:
