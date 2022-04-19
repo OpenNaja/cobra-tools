@@ -30,14 +30,57 @@
         <add name="ptrs" type="Pointer" template="Param" arr1="#ARG#"/>
     </compound>
 
+    <compound name="CurveParamList" inherit="MemStruct">
+        this is not null ptr terminated, but padded to 16 bytes at the end
+        <add name="ptrs" type="Pointer" template="CurveParam" arr1="#ARG#"/>
+    </compound>
+
     <compound name="Param" inherit="MemStruct">
         <add name="attribute_name" type="Pointer" template="ZString"/>
         <add name="dtype" type="RenderParameterType" />
-        # todo - make data type depend on dtype
+<!--        todo - make data type depend on dtype-->
         <add name="data0" type="float" />
         <add name="data1" type="float" />
         <add name="data2" type="float" />
         <add name="data3" type="float" />
+    </compound>
+
+    <compound name="RenderParameterCurvesRoot" inherit="MemStruct">
+        32 bytes
+        <add name="param_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="params" type="Pointer" template="CurveParamList" arg="count"/>
+        <add name="count" type="uint64" />
+        <add name="unk" type="uint64" />
+    </compound>
+
+    <compound name="CurveParam" inherit="MemStruct">
+    #             # offset  x0: strz attribute name (Atmospherics.Lights.IrradianceScatterIntensity, ...)
+    #             # offset  x8: int  type   (4294967296, 4294967297, 4294967303, 1...)
+    #             # offset  xc: int unused (probably type is int64)
+    #             # offset x10: list of ptr to curve entries
+    #             # offset x18: count of curve entries
+    #             # offset x1c: int unused (probably count is int64)
+        <add name="attribute_name" type="Pointer" template="ZString"/>
+        <add name="dtype" type="int" />
+        not sure what this does?
+        <add name="flag" type="uint" />
+<!--        todo - make data type depend on dtype-->
+        <add name="curve_entries" type="Pointer" template="CurveList" arg="count"/>
+        <add name="count" type="uint64" />
+    </compound>
+
+    <compound name="CurveList" inherit="MemStruct">
+        this is not null ptr terminated, but padded to 16 bytes at the end
+        <add name="ptrs" type="Pointer" template="KeyPoint" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="KeyPoint" inherit="MemStruct">
+        <add name="time" type="float" />
+<!--        todo - float/int/vec3 value (depends on dtype: 1, 7, 5)-->
+        <add name="value" type="float" />
+        # often 0 or very close
+        <add name="tangent before" type="float" />
+        <add name="tangent after" type="float" />
     </compound>
 
 </niftoolsxml>
