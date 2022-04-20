@@ -101,7 +101,7 @@ class VoxelskirtFile(Header, IoFile):
 				# the same pixel of each layer is stored in 4 consecutive bytes
 				self.weights = stream.read_ubytes((self.info.x, self.info.y, 4))
 
-		print(f"Loaded {self.basename} in {time.time()-start_time:.2f} seconds!")
+		print(f"Loaded {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def extract(self, ):
 		"""Stores the embedded height map and masks as separate images, lossless."""
@@ -129,7 +129,7 @@ class VoxelskirtFile(Header, IoFile):
 					logging.warning(f"Unknown data type {data.type}")
 					continue
 				image_paths.append(p)
-		logging.info(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds!")
+		logging.info(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds")
 		return image_paths
 
 	def inject(self, filepaths):
@@ -158,7 +158,7 @@ class VoxelskirtFile(Header, IoFile):
 				else:
 					raise AttributeError(f"Could not find layer {suffix} in this file.")
 				data.im = im
-		print(f"Injected {len(filepaths)} layers into {self.basename} in {time.time()-start_time:.2f} seconds!")
+		print(f"Injected {len(filepaths)} layers into {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def update_names(self, list_of_arrays):
 		self.names = []
@@ -233,7 +233,7 @@ class VoxelskirtFile(Header, IoFile):
 		with self.writer(filepath) as stream:
 			self.write(stream)
 			stream.write(buffer_bytes)
-		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds!")
+		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def get_structs(self, filepath):
 		with self.reader(filepath) as stream:

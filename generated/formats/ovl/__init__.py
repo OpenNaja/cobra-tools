@@ -227,6 +227,7 @@ class OvsFile(OvsHeader):
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
+		start_time = time.time()
 		self.compression_header = compressed_bytes[:2]
 		logging.debug(f"Compression magic bytes: {self.compression_header}")
 		if self.ovl.user_version.compression == Compression.OODLE:
@@ -245,6 +246,7 @@ class OvsFile(OvsHeader):
 			# for debugging, write deflated content to dat
 			with open(save_temp_dat, 'wb') as out:
 				out.write(decompressed)
+		logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
 		with ConvStream(decompressed) as stream:
 			yield stream
 
@@ -323,9 +325,10 @@ class OvsFile(OvsHeader):
 		logging.debug(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
-			logging.debug("Reading unzipped stream")
 			assign_versions(stream, get_versions(self.ovl))
+			start_time = time.time()
 			super().read(stream)
+			logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
 			# print(self)
 			# print(self.buffer_groups)
 			pool_index = 0
@@ -1223,7 +1226,7 @@ class OvlFile(Header, IoFile):
 		except:
 			pass
 		logging.info(
-			f"Loaded {len(self.hash_table_global)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
+			f"Loaded {len(self.hash_table_global)} hash - name pairs in {time.time() - start_time:.2f} seconds")
 
 	def load(self, filepath, commands=()):
 		start_time = time.time()
@@ -1311,7 +1314,7 @@ class OvlFile(Header, IoFile):
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
 		# self.debug_unks()
-		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds")
 
 	def update_mimes(self):
 		"""Rebuilds the mimes list according to the ovl's current file entries"""
@@ -1369,7 +1372,7 @@ class OvlFile(Header, IoFile):
 				break
 		self.close_ovs_streams()
 		self.postprocessing()
-		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded archives in {time.time() - start_time:.2f} seconds")
 
 	def postprocessing(self):
 		self.update_ss_dict()
@@ -1426,7 +1429,7 @@ class OvlFile(Header, IoFile):
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_pointer_sizes()
-		logging.info(f"Loaded pointers in {time.time() - start_time:.2f} seconds.")
+		logging.info(f"Loaded pointers in {time.time() - start_time:.2f} seconds")
 
 	def load_file_classes(self):
 		logging.info("Loading file classes")
@@ -1439,7 +1442,7 @@ class OvlFile(Header, IoFile):
 				except Exception as err:
 					logging.error(err)
 					traceback.print_exc()
-		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds.")
+		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
 	def get_sized_str_entry(self, name):
 		"""Retrieves the desired ss entry"""

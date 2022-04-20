@@ -135,7 +135,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		print(f"last_counts: {last_counts}")
 		print(f"flags: {flags}")
 		print(f"no_bones: {no_bones}")
-		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds."
+		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)
 

@@ -441,7 +441,7 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loading {len(self.ovl_data.files)} files into gui")
 		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in self.ovl_data.files])
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
-		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_as_ovl(self):

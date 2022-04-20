@@ -103,7 +103,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_2_bytes = stream.read()
 				# self.get_buffers()
 
-		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds.")
+		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
 	def load_mesh(self, stream):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
