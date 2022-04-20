@@ -176,8 +176,12 @@ class OvsFile(OvsHeader):
 	basic_map = basic_map
 
 	def __init__(self, context, ovl_inst, archive_entry):
-		super().__init__(context, archive_entry, None)
+		# init with a dummy default archive
+		dummy_archive = ArchiveEntry(context, None, None)
+		super().__init__(context, dummy_archive, None, set_default=False)
 		self.ovl = ovl_inst
+		# set arg later to avoid initializing huge arrays with default data
+		self.arg = archive_entry
 
 	@staticmethod
 	def add_pointer(pointer, ss_entry, pointers_to_ss):
@@ -1360,11 +1364,13 @@ class OvlFile(Header, IoFile):
 				read_start = self.eof
 			else:
 				read_start = archive_entry.read_start
+			start_time = time.time()
 			archive_entry.content = OvsFile(self.context, self, archive_entry)
+			logging.info(f"Initialized OVS in {time.time() - start_time:.2f} seconds")
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
 			except BaseException as err:
-				logging.error(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
+				logging.error(f"Decompressing {archive_entry.name} from {archive_entry.ovs_path} failed")
 				logging.error(err)
 				traceback.print_exc()
 				print(archive_entry)
