@@ -44,9 +44,9 @@
         <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
         <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls">Array of IncludedOvl objects.</add>
-        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" vercond="!#ZTUAC#">aka InstancesArray of DependencyEntry objects.</add>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19">aka InstancesArray of DependencyEntry objects.</add>
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
-        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" vercond="#ZTUAC#">after aux in ZTUAC</add>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" until="18">after aux in ZTUAC and PC</add>
         <add name="stream_files" type="StreamEntry" arr1="Num Files OVS">Array of StreamEntry objects.</add>
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
     </compound>

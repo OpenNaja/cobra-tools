@@ -128,7 +128,7 @@ class Header(GenericHeader):
 		# Array of AuxEntry objects.
 		self.aux_entries = Array((self.num_aux_entries,), AuxEntry, self.context, 0, None)
 
-		# after aux in ZTUAC
+		# after aux in ZTUAC and PC
 		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
 
 		# Array of StreamEntry objects.
@@ -173,10 +173,10 @@ class Header(GenericHeader):
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 		self.archives = Array((self.num_archives,), ArchiveEntry, self.context, 0, None)
 		self.included_ovls = Array((self.num_included_ovls,), IncludedOvl, self.context, 0, None)
-		if not (self.context.version == 17):
+		if self.context.version >= 19:
 			self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
 		self.aux_entries = Array((self.num_aux_entries,), AuxEntry, self.context, 0, None)
-		if self.context.version == 17:
+		if self.context.version <= 18:
 			self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
 		self.stream_files = Array((self.num_files_ovs,), StreamEntry, self.context, 0, None)
 		self.zlibs = Array((self.num_archives,), ZlibInfo, self.context, 0, None)
@@ -226,10 +226,10 @@ class Header(GenericHeader):
 		instance.archive_names = ZStringBuffer.from_stream(stream, instance.context, instance.len_archive_names, None)
 		instance.archives = Array.from_stream(stream, (instance.num_archives,), ArchiveEntry, instance.context, 0, None)
 		instance.included_ovls = Array.from_stream(stream, (instance.num_included_ovls,), IncludedOvl, instance.context, 0, None)
-		if not (instance.context.version == 17):
+		if instance.context.version >= 19:
 			instance.dependencies = Array.from_stream(stream, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
 		instance.aux_entries = Array.from_stream(stream, (instance.num_aux_entries,), AuxEntry, instance.context, 0, None)
-		if instance.context.version == 17:
+		if instance.context.version <= 18:
 			instance.dependencies = Array.from_stream(stream, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
 		instance.stream_files = Array.from_stream(stream, (instance.num_files_ovs,), StreamEntry, instance.context, 0, None)
 		instance.zlibs = Array.from_stream(stream, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
@@ -269,10 +269,10 @@ class Header(GenericHeader):
 		ZStringBuffer.to_stream(stream, instance.archive_names)
 		Array.to_stream(stream, instance.archives, (instance.num_archives,), ArchiveEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.included_ovls, (instance.num_included_ovls,), IncludedOvl, instance.context, 0, None)
-		if not (instance.context.version == 17):
+		if instance.context.version >= 19:
 			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.aux_entries, (instance.num_aux_entries,), AuxEntry, instance.context, 0, None)
-		if instance.context.version == 17:
+		if instance.context.version <= 18:
 			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.stream_files, (instance.num_files_ovs,), StreamEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.zlibs, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
