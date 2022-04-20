@@ -61,6 +61,7 @@ class Array(list):
 
     @classmethod
     def from_stream(cls, stream, shape, dtype, context, arg=0, template=None):
+        # basic types have read_array method defined on their class
         if callable(getattr(dtype, 'read_array', None)):
             return dtype.read_array(stream, shape, context, arg, template)
         else:
@@ -143,7 +144,10 @@ class Array(list):
 
 def _class_to_name(cls):
     cls_str = str(cls)
-    # <class 'generated.formats.dinosaurmaterialvariants.compound.Variant.Variant'>
-    _, a = cls_str.rsplit(".", 1)
-    b, _ = a.rsplit("'", 1)
-    return b
+    if "." in cls_str:
+        # <class 'generated.formats.dinosaurmaterialvariants.compound.Variant.Variant'>
+        _, a = cls_str.rsplit(".", 1)
+        b, _ = a.rsplit("'", 1)
+        return b
+    # eg for enums
+    return cls.__name__

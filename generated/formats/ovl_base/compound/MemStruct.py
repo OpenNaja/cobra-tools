@@ -6,6 +6,7 @@ from numpy.core.multiarray import ndarray
 
 from generated.array import Array, _class_to_name
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer
 import xml.etree.ElementTree as ET
 
@@ -190,7 +191,7 @@ class MemStruct:
 			ptr.data.read_ptrs(ptr.frag.pointers[1].pool, sized_str_entry)
 		# ArrayPointer
 		elif isinstance(ptr.data, Array):
-			assert isinstance(ptr, ArrayPointer)
+			assert isinstance(ptr, (ArrayPointer, ForEachPointer))
 			# print("ArrayPointer")
 			for member in ptr.data:
 				if isinstance(member, MemStruct):
@@ -303,15 +304,16 @@ class MemStruct:
 		# it is a basic type
 		else:
 			if isinstance(val, Array):
-				# print("array")
+				# print(f"_to_xml array {val.dtype}")
+				# print(f"_to_xml array {val}")
 				# subelement with subelements
-				# print(val.dtype)
 				for member in val:
 					if isinstance(member, Pointer):
 						member = member.data
 					self._to_xml(subelement, val.class_name, member)
 			# print("basic")
 			else:
+				# special case for xml data - make it a sub element
 				if prop == "xml_string":
 					# print(val)
 					subelement.append(ET.fromstring(val))
@@ -336,9 +338,8 @@ class MemStruct:
 				# print(val.template)
 				self._to_xml(elem, prop, val.data, val.frag)
 			elif isinstance(val, Array):
-				# print("array")
+				print(f"to_xml array {val.dtype}")
 				# subelement with subelements
-				# print(val.dtype)
 				for member in val:
 					if isinstance(member, Pointer):
 						member = member.data
