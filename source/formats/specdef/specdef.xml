@@ -42,24 +42,6 @@
         <add name="scripts" type="Pointer" template="PtrList" arg="script_count"/>
     </compound>
 
-    <compound name="ResearchLevel" inherit="MemStruct">
-        <add name="level_name" type="Pointer" template="ZString"/>
-        <add name="next_levels" type="Pointer" template="PtrList" arg="next_level_count"/>
-        <add name="next_level_count" type="uint64" />
-        <add name="children" type="Pointer" template="PtrList" arg="children_count"/>
-        <add name="children_count" type="uint64" />
-    </compound>
-
-    <compound name="UnlockState" inherit="MemStruct">
-        <add name="entity_name" type="Pointer" template="ZString"/>
-        <add name="level_name" type="Pointer" template="ZString"/>
-    </compound>
-
-    <compound name="ResearchStartRoot" inherit="MemStruct">
-        <add name="states" type="ArrayPointer" template="UnlockState" arg="count"/>
-        <add name="count" type="uint64" />
-    </compound>
-
     <compound name="DataList" inherit="MemStruct">
         <add name="ptrs" type="Pointer" arr1="#ARG#"/>
     </compound>

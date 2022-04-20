@@ -34,31 +34,12 @@
 <!--        <add name="attrib_dtypes" type="ArrayPointer" template="SpecdefDtype" arg="attrib_count"/>-->
         <add name="attrib_dtypes" type="ArrayPointer" template="uint" arg="attrib_count"/>
         <add name="attrib_names" type="Pointer" template="PtrList" arg="attrib_count"/>
-<!--        todo - need a foreach pointer so that one entry is created for each entry in dtypes-->
         <add name="attrib_datas" type="ForEachPointer" template="Data" arg="attrib_dtypes"/>
 
         <add name="names" type="Pointer" template="PtrList" arg="name_count"/>
         <add name="childspecs" type="Pointer" template="PtrList" arg="childspec_count"/>
         <add name="managers" type="Pointer" template="PtrList" arg="manager_count"/>
         <add name="scripts" type="Pointer" template="PtrList" arg="script_count"/>
-    </compound>
-
-    <compound name="ResearchLevel" inherit="MemStruct">
-        <add name="level_name" type="Pointer" template="ZString"/>
-        <add name="next_levels" type="Pointer" template="PtrList" arg="next_level_count"/>
-        <add name="next_level_count" type="uint64" />
-        <add name="children" type="Pointer" template="PtrList" arg="children_count"/>
-        <add name="children_count" type="uint64" />
-    </compound>
-
-    <compound name="UnlockState" inherit="MemStruct">
-        <add name="entity_name" type="Pointer" template="ZString"/>
-        <add name="level_name" type="Pointer" template="ZString"/>
-    </compound>
-
-    <compound name="ResearchStartRoot" inherit="MemStruct">
-        <add name="states" type="ArrayPointer" template="UnlockState" arg="count"/>
-        <add name="count" type="uint64" />
     </compound>
 
     <compound name="DataList" inherit="MemStruct">
@@ -70,6 +51,7 @@
     </compound>
 
     <compound name="Data" inherit="MemStruct">
+        #ARG# is dtype
         <add name="test" type="uint"/>
     </compound>
 
