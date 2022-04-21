@@ -5,6 +5,7 @@ from modules.helpers import split_path
 
 
 class FctLoader(BaseFile):
+	extension = ".fct"
 
 	def create(self):
 		pass

@@ -9,6 +9,7 @@ import struct
 
 class SpecdefLoader(MemStructLoader):
 	target_class = SpecdefRoot
+	extension = ".specdef"
 
 	# def create(self):
 	# 	# Note: this version of create ignores specdef attributes

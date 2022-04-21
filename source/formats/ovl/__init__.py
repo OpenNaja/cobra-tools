@@ -34,6 +34,7 @@ from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import get_versions, djb, assign_versions
+from modules.formats.formats_dict import formats_dict
 from modules.helpers import split_path
 from root_path import root_dir
 
@@ -41,33 +42,8 @@ UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 TAB = '  '
 
-REVERSED_TYPES = (
-	".animalresearchunlockssettings",
-	".assetpkg",
-	".curve",
-	".fdb",
-	".fgm",
-	".gfx",
-	".guesteconomy",
-	".island",
-	".logicalcontrols",
-	".lua",
-	".materialcollection",
-	".mdl2",
-	".mergedetails",
-	".ms2",
-	".pscollection",
-	".renderparameters",
-	".renderparametercurves",
-	".spl",
-	".tex",
-	".texturestream",
-	".txt",
-	".uimovidefinition",
-	".userinterfaceicondata",
-	".world"
-	".xmlconfig",
-)
+REVERSED_TYPES = (ext for ext in formats_dict.keys())
+
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -81,93 +57,7 @@ aliases = {
 
 
 def get_loader(ext, ovl, file_entry):
-	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchstartunlockedssettingsLoader
-	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
-	from modules.formats.ASSETPKG import AssetpkgLoader
-	from modules.formats.BANI import BanisLoader
-	from modules.formats.BNK import BnkLoader
-	from modules.formats.CURVE import CurveLoader
-	from modules.formats.DDS import DdsLoader
-	from modules.formats.ENUMNAMER import EnumnamerLoader
-	from modules.formats.FCT import FctLoader
-	from modules.formats.FDB import FdbLoader
-	from modules.formats.FGM import FgmLoader
-	from modules.formats.GFX import GfxLoader
-	from modules.formats.GUESTECONOMY import GuestEconomyLoader
-	from modules.formats.ISLAND import IslandLoader
-	from modules.formats.LOGICALCONTROLS import LogicalControlsLoader
-	from modules.formats.LUA import LuaLoader
-	from modules.formats.MANI import ManisLoader
-	from modules.formats.MATCOL import MatcolLoader
-	from modules.formats.MATLAYERS import MateffsLoader
-	from modules.formats.MATLAYERS import MatlayersLoader
-	from modules.formats.MATLAYERS import MatpatsLoader
-	from modules.formats.MATLAYERS import MatvarsLoader
-	from modules.formats.MERGEDETAILS import MergeDetailsLoader
-	from modules.formats.MOTIONGRAPH import MotiongraphLoader
-	from modules.formats.MOTIONGRAPHVARS import MotiongraphvarsLoader
-	from modules.formats.MS2 import Ms2Loader
-	from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
-	from modules.formats.PREFAB import PrefabLoader
-	from modules.formats.PSCOLLECTION import PSCollectionLoader
-	from modules.formats.RENDERPARAMETERS import RenderParametersLoader
-	from modules.formats.RENDERPARAMETERCURVES import RenderParameterCurvesLoader
-	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
-	from modules.formats.SPECDEF import SpecdefLoader
-	from modules.formats.SPL import SplineLoader
-	from modules.formats.TXT import TxtLoader
-	from modules.formats.UIMOVIEDEFINITION import UIMovieDefinitionLoader
-	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
-	from modules.formats.VOXELSKIRT import VoxelskirtLoader
-	from modules.formats.WMETA import WmetaLoader
-	from modules.formats.WORLD import WorldLoader
-	from modules.formats.WSM import WsmLoader
-	from modules.formats.XMLCONFIG import XmlconfigLoader
-	ext_2_class = {
-		".animalresearchstartunlockedsettings": AnimalresearchstartunlockedssettingsLoader,
-		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
-		".assetpkg": AssetpkgLoader,
-		".banis": BanisLoader,
-		".bnk": BnkLoader,
-		".curve": CurveLoader,
-		".dinosaurmaterialeffects": MateffsLoader,
-		".dinosaurmateriallayers": MatlayersLoader,
-		".dinosaurmaterialpatterns": MatpatsLoader,
-		".dinosaurmaterialvariants": MatvarsLoader,
-		".enumnamer": EnumnamerLoader,
-		".fct": FctLoader,
-		".fdb": FdbLoader,
-		".fgm": FgmLoader,
-		".gfx": GfxLoader,
-		".guesteconomy": GuestEconomyLoader,
-		".island": IslandLoader,
-		".logicalcontrols": LogicalControlsLoader,
-		".lua": LuaLoader,
-		".manis": ManisLoader,
-		".materialcollection": MatcolLoader,
-		".mergedetails": MergeDetailsLoader,
-		".motiongraph": MotiongraphLoader,
-		".motiongraphvars": MotiongraphvarsLoader,
-		".ms2": Ms2Loader,
-		".posedriverdef": PosedriverdefLoader,
-		".prefab": PrefabLoader,
-		".pscollection": PSCollectionLoader,
-		".renderparameters": RenderParametersLoader,
-		".renderparametercurves": RenderParameterCurvesLoader,
-		".scaleformlanguagedata": ScaleformLoader,
-		".specdef": SpecdefLoader,
-		".spl": SplineLoader,
-		".tex": DdsLoader,
-		".txt": TxtLoader,
-		".uimoviedefinition": UIMovieDefinitionLoader,
-		".userinterfaceicondata": UserinterfaceicondataLoader,
-		".voxelskirt": VoxelskirtLoader,
-		".wmetasb": WmetaLoader,
-		".world": WorldLoader,
-		".wsm": WsmLoader,
-		".xmlconfig": XmlconfigLoader,
-	}
-	cls = ext_2_class.get(ext, None)
+	cls = formats_dict.get(ext, None)
 	if cls:
 		return cls(ovl, file_entry)
 

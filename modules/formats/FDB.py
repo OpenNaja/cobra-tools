@@ -11,6 +11,7 @@ from root_path import root_dir
 
 
 class FdbLoader(BaseFile):
+	extension = ".fdb"
 
 	def create(self):
 		ss, buffer_0, buffer_1 = self._get_data(self.file_entry.path)

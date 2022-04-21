@@ -5,6 +5,7 @@ from modules.formats.BaseFormat import BaseFile
 
 
 class GuestEconomyLoader(BaseFile):
+    extension = ".guesteconomy"
 
     def create(self):
         buffer_0 = self._get_data(self.file_entry.path)

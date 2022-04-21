@@ -4,3 +4,4 @@ from modules.formats.BaseFormat import MemStructLoader
 
 class MotiongraphLoader(MemStructLoader):
 	target_class = MotiongraphHeader
+	extension = ".motiongraph"

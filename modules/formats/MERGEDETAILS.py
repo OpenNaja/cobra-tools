@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers 
 
 
 class MergeDetailsLoader(BaseFile):
+	extension = ".mergedetails"
 
 	def create(self):
 		pass

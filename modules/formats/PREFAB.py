@@ -5,7 +5,10 @@ from modules.formats.BaseFormat import BaseFile
 from modules.helpers import zstr
 from hashes import specdefs_jwe
 
+
 class PrefabLoader(BaseFile):
+	# extension = ".prefab"
+
 	def prefab_unpack_temp(self, len, data):
 		if len % 4 != 0:
 			ret = data

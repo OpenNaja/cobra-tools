@@ -16,6 +16,7 @@ from ovl_util import interaction
 
 
 class Ms2Loader(BaseFile):
+	extension = ".ms2"
 
 	def get_version(self):
 		ss_ptr = self.sized_str_entry.pointers[0]

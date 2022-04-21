@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers 
 
 
 class CurveLoader(BaseFile):
+	extension = ".curve"
 
 	def create(self):
 		f_0, f_1 = self._get_data(self.file_entry.path)

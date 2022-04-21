@@ -6,6 +6,7 @@ from modules.formats.BaseFormat import BaseFile
 
 
 class ScaleformLoader(BaseFile):
+	extension = ".scaleformlanguagedata"
 
 	def collect(self):
 		self.assign_fixed_frags(1)

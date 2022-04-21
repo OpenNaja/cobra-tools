@@ -8,6 +8,7 @@ from modules.formats.shared import get_padding
 
 
 class PSCollectionLoader(BaseFile):
+	extension = ".pscollection"
 
 	def create(self):
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)

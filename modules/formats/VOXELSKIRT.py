@@ -3,6 +3,7 @@ from modules.formats.BaseFormat import BaseFile
 
 
 class VoxelskirtLoader(BaseFile):
+	extension = ".voxelskirt"
 
 	def create(self):
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)

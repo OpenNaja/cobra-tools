@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers 
 
 
 class BaseFile:
+	extension = None
 
 	def __init__(self, ovl, file_entry):
 		self.ovl = ovl

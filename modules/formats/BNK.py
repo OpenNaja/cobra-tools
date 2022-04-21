@@ -10,6 +10,7 @@ from ovl_util import texconv
 
 
 class BnkLoader(BaseFile):
+	extension = ".bnk"
 
 	def create(self):
 		pass

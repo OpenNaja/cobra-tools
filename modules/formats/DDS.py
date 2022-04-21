@@ -31,6 +31,7 @@ def align_to(width, comp, alignment=64):
 
 class DdsLoader(MemStructLoader):
 	target_class = TexHeader
+	extension = ".tex"
 
 	def _get_data(self, file_path):
 		tex_file = TexFile(self.ovl.context)

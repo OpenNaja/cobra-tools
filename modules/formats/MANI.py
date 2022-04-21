@@ -10,6 +10,7 @@ from modules.helpers import as_bytes
 
 
 class ManisLoader(BaseFile):
+	extension = ".manis"
 
 	def collect(self):
 		self.assign_ss_entry()

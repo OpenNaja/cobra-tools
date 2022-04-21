@@ -5,6 +5,7 @@ from modules.formats.BaseFormat import BaseFile
 
 
 class GfxLoader(BaseFile):
+    extension = ".gfx"
 
     def create(self):
         ss, buffer_0 = self._get_data(self.file_entry.path)

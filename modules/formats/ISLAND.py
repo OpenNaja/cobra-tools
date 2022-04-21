@@ -3,10 +3,12 @@ from modules.formats.shared import get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import zstr
 
-# NOT COMPLETE, the .island mime has a float value after the path pointer
-# found to be 400.0 in all islands
-class IslandLoader(BaseFile):
 
+class IslandLoader(BaseFile):
+	extension = ".island"
+
+	# NOT COMPLETE, the .island mime has a float value after the path pointer
+	# found to be 400.0 in all islands
 	def create(self):
 		if True:
 			pass

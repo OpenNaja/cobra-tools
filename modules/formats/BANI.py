@@ -7,6 +7,7 @@ from modules.helpers import as_bytes
 
 
 class BanisLoader(BaseFile):
+	extension = ".banis"
 
 	def collect(self):
 		self.assign_ss_entry()

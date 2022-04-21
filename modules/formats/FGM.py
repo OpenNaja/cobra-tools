@@ -10,6 +10,7 @@ from generated.formats.fgm import FgmFile
 
 class FgmLoader(MemStructLoader):
 	target_class = FgmHeader
+	extension = ".fgm"
 
 	def create(self):
 		fgm_data = self._get_data(self.file_entry.path)

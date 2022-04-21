@@ -10,6 +10,7 @@ from ovl_util.interaction import showdialog
 
 
 class LuaLoader(BaseFile):
+	extension = ".lua"
 	
 	def create(self):
 		ss, buffer_0 = self._get_data(self.file_entry.path)

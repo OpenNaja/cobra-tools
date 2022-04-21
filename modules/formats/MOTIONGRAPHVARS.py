@@ -5,3 +5,4 @@ from modules.formats.BaseFormat import MemStructLoader
 class MotiongraphvarsLoader(MemStructLoader):
 	# probably same layout
 	target_class = EnumnamerRoot
+	extension = ".motiongraphvars"
