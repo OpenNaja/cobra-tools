@@ -30,7 +30,7 @@
 
     <version id="DLA" version="15">Disneyland Adventure</version>
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
-    <version id="PC" version="18">Planet Coaster</version>
+    <version id="PC" version="18" user_version="8340 8724 8212" version_flag="8">Planet Coaster</version>
     <version id="PZ" version="19" user_version="8340 8724 8212">Planet Zoo pre-1.6</version>
     <version id="PZ16" version="20" user_version="8340 8724 8212">Planet Zoo 1.6+</version>
     <version id="JWE" version="19" user_version="24724 25108 24596">Jurassic World Evolution</version>
@@ -100,11 +100,11 @@
     <compound name="GenericHeader">
         Found at the beginning of every OVL file
         <add name="magic" type="FixedString" arg="4">'FGM ' for fgm, 'FRES' for ovl, 'MANI' for manis, 'MS2 ' for ms2, 'VOXE' for voxelskirt</add>
-        <add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform</add>
+        <add name="version_flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform</add>
         <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
         <add name="Bitswap" type="byte" >endianness?, usually zero</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-        <add name="user version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
+        <add name="user_version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
     </compound>
 
 </niftoolsxml>

@@ -20,14 +20,14 @@ def set_ztuac(context):
 
 
 def is_pc(context):
-	if context.version == 18:
+	if context.version == 18 and context.user_version in (8340, 8724, 8212) and context.version_flag == 8:
 		return True
 
 
 def set_pc(context):
 	context.version = 18
+	context.user_version._value = 8340
 	context.version_flag = 8
-	context.user_version._value = 8212
 
 
 def is_pz(context):
