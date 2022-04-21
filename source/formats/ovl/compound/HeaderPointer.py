@@ -35,15 +35,8 @@ class HeaderPointer:
 		# temp data for flushing
 		self._data = None
 
-		# generally all ptrs store data, only frag ptr 0 is just a reference
-		self.is_ref_ptr = True
-
-	# def read_data(self):
-	# 	"""Load data from archive header data readers into pointer for modification and io"""
-	# 	if self.pool_index == -1:
-	# 		self.data = None
-	# 	else:
-	# 		self.data = self.read_from_pool(self.data_size)
+		# sizedstr and frag ptr 1 point to structs, whereas frag ptr 0 and dependency are just a reference
+		self.is_struct_ptr = True
 
 	@property
 	def data(self, with_padding=False):
@@ -107,14 +100,14 @@ class HeaderPointer:
 		self.data_size = cut
 		self.padding_size = _d - cut
 
-	def link_to_pool(self, pools, is_ref_ptr=True):
+	def link_to_pool(self, pools, is_struct_ptr=True):
 		"""Link this pointer to its pool"""
 
-		self.is_ref_ptr = is_ref_ptr
+		self.is_struct_ptr = is_struct_ptr
 		if self.pool_index != -1:
 			# get pool
 			self.pool = pools[self.pool_index]
-			if not is_ref_ptr:
+			if not is_struct_ptr:
 				self.data_size = 8
 			if self.data_offset not in self.pool.pointer_map:
 				self.pool.pointer_map[self.data_offset] = []
@@ -130,6 +123,7 @@ class HeaderPointer:
 
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""
+		assert self.is_struct_ptr
 		self._data = data
 
 	def remove(self):

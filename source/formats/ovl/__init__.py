@@ -1366,7 +1366,7 @@ class OvlFile(Header, IoFile):
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of pools
-			dep.pointers[0].link_to_pool(self.pools, is_ref_ptr=False)
+			dep.pointers[0].link_to_pool(self.pools, is_struct_ptr=False)
 		for archive in self.archives:
 			ovs = archive.content
 			# sort fragments by their first pointer
@@ -1374,7 +1374,7 @@ class OvlFile(Header, IoFile):
 			# attach all pointers to their pool
 			# however we no longer break up at fragments' ptr 0
 			for entry in ovs.fragments:
-				entry.pointers[0].link_to_pool(ovs.pools, is_ref_ptr=False)
+				entry.pointers[0].link_to_pool(ovs.pools, is_struct_ptr=False)
 				entry.pointers[1].link_to_pool(ovs.pools)
 			for entry in ovs.sized_str_entries:
 				entry.pointers[0].link_to_pool(ovs.pools)
