@@ -674,6 +674,11 @@ class OvsFile(OvsHeader):
 				for offset in pool.fragments_lut.keys():
 					f.seek(offset)
 					f.write(b"@POINTER")
+				for dep in self.ovl.dependencies:
+					ptr = dep.pointers[0]
+					if ptr.pool == pool:
+						f.seek(ptr.data_offset)
+						f.write(b"@DEPENDS")
 
 	def dump_buffer_groups_log(self):
 		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_buffers.log")
@@ -724,22 +729,36 @@ class OvsFile(OvsHeader):
 				pool.log_entries.sort()
 				f.write("\n".join([tup[2] for tup in pool.log_entries]))
 
-	def check_for_ptrs(self, f, struct_ptr, indent=1):
+	def check_for_ptrs(self, f, deps, struct_ptr, known_frags, indent=1):
+		for dep in deps:
+			ptr = dep.pointers[0]
+			abs_offset = ptr.data_offset
+			if struct_ptr.data_offset <= abs_offset < struct_ptr.data_offset + struct_ptr.data_size:
+				# get the relative offset of this dependency to its struct
+				rel_offset = abs_offset - struct_ptr.data_offset
+				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {dep.name}")
+
 		# see if any pointers are inside this struct
 		for frag in struct_ptr.pool.fragments_lut.values():
 			ptr0, ptr1 = frag.pointers
-			abs_offset = frag.pointers[0].data_offset
+			abs_offset = ptr0.data_offset
 			if struct_ptr.data_offset <= abs_offset < struct_ptr.data_offset + struct_ptr.data_size:
 				# get the relative offset of this pointer to its struct
 				rel_offset = abs_offset - struct_ptr.data_offset
-				# f.write(f"\n{indent * TAB}PTR {ptr0} -> SUB {ptr1} ({ptr1.data_size: 4})")
-				f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {ptr1} ({ptr1.data_size: 4})")
-				# f.write(f"\n{indent * TAB}PTR {ptr0}")
-				# indent += 1
-				# f.write(f"\n{indent * TAB}SUB {ptr1} ({ptr1.data_size: 4})")
-				self.check_for_ptrs(f, ptr1, indent=indent+1)
+				if frag in known_frags:
+					# pointer refers to a known frag
+					# stop here to avoid recursion
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {ptr1} ({ptr1.data_size: 4})")
+				else:
+					known_frags.add(frag)
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {ptr1} ({ptr1.data_size: 4})")
+					# f.write(f"\n{indent * TAB}PTR {ptr0} -> SUB {ptr1} ({ptr1.data_size: 4})")
+					# f.write(f"\n{indent * TAB}PTR {ptr0}")
+					# indent += 1
+					# f.write(f"\n{indent * TAB}SUB {ptr1} ({ptr1.data_size: 4})")
+					self.check_for_ptrs(f, deps, ptr1, known_frags, indent=indent+1)
 
-	def dump_stack(self):
+	def dump_stack(self, file_lut):
 		"""for development; collect info about fragment types"""
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}.stack")
 		logging.info(f"Dumping stack to {frag_log_path}")
@@ -750,7 +769,9 @@ class OvsFile(OvsHeader):
 				if ptr.pool:
 					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {ss.name}"
 					f.write(debug_str)
-					self.check_for_ptrs(f, ptr)
+					known_frags = set()
+					file_entry = file_lut[ss.name]
+					self.check_for_ptrs(f, file_entry.dependencies, ptr, known_frags)
 
 
 	@staticmethod
@@ -1455,7 +1476,7 @@ class OvlFile(Header, IoFile):
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of pools
-			dep.pointers[0].link_to_pool(self.pools)
+			dep.pointers[0].link_to_pool(self.pools, is_ref_ptr=False)
 		for archive in self.archives:
 			ovs = archive.content
 			# sort fragments by their first pointer
@@ -1742,6 +1763,7 @@ class OvlFile(Header, IoFile):
 	#     logging.info(self.stream_files)
 
 	def dump_frag_log(self):
+		file_lut = {file.name: file for file in self.files}
 		for pool in self.pools:
 			# a tuple - (offset, sorting prio, str)
 			pool.log_entries = []
@@ -1753,7 +1775,7 @@ class OvlFile(Header, IoFile):
 			try:
 				archive_entry.content.assign_frag_names()
 				archive_entry.content.dump_frag_log()
-				archive_entry.content.dump_stack()
+				archive_entry.content.dump_stack(file_lut)
 				archive_entry.content.dump_buffer_groups_log()
 				archive_entry.content.dump_pools()
 			except BaseException as err:
