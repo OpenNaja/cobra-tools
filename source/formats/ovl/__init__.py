@@ -39,6 +39,7 @@ from root_path import root_dir
 
 UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
+TAB = '  '
 
 REVERSED_TYPES = (
 	".animalresearchunlockssettings",
@@ -722,6 +723,35 @@ class OvsFile(OvsHeader):
 				f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size}\n")
 				pool.log_entries.sort()
 				f.write("\n".join([tup[2] for tup in pool.log_entries]))
+
+	def check_for_ptrs(self, f, struct_ptr, indent=1):
+		# see if any pointers are inside this struct
+		for frag in struct_ptr.pool.fragments_lut.values():
+			ptr0, ptr1 = frag.pointers
+			abs_offset = frag.pointers[0].data_offset
+			if struct_ptr.data_offset <= abs_offset < struct_ptr.data_offset + struct_ptr.data_size:
+				# get the relative offset of this pointer to its struct
+				rel_offset = abs_offset - struct_ptr.data_offset
+				f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {ptr1} ({ptr1.data_size: 4})")
+				# f.write(f"\n{indent * TAB}PTR {ptr0} -> SUB {ptr1} ({ptr1.data_size: 4})")
+				# f.write(f"\n{indent * TAB}PTR {ptr0}")
+				# indent += 1
+				# f.write(f"\n{indent * TAB}SUB {ptr1} ({ptr1.data_size: 4})")
+				self.check_for_ptrs(f, ptr1, indent=indent+1)
+
+	def dump_stack(self):
+		"""for development; collect info about fragment types"""
+		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}.stack")
+		logging.info(f"Dumping stack to {frag_log_path}")
+		with open(frag_log_path, "w") as f:
+
+			for ss in self.sized_str_entries:
+				ptr = ss.pointers[0]
+				if ptr.pool:
+					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {ss.name}"
+					f.write(debug_str)
+					self.check_for_ptrs(f, ptr)
+
 
 	@staticmethod
 	def get_frags_after_count(frags, initpos, count, reuse=False):
@@ -1723,6 +1753,7 @@ class OvlFile(Header, IoFile):
 			try:
 				archive_entry.content.assign_frag_names()
 				archive_entry.content.dump_frag_log()
+				archive_entry.content.dump_stack()
 				archive_entry.content.dump_buffer_groups_log()
 				archive_entry.content.dump_pools()
 			except BaseException as err:
