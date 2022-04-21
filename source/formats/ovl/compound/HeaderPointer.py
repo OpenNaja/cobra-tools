@@ -109,6 +109,7 @@ class HeaderPointer:
 			self.pool = pools[self.pool_index]
 			if not is_struct_ptr:
 				self.data_size = 8
+			# todo - only add struct ptrs to map, but ensure that non-struct ptrs have their offsets adjusted for delete
 			if self.data_offset not in self.pool.pointer_map:
 				self.pool.pointer_map[self.data_offset] = []
 			self.pool.pointer_map[self.data_offset].append(self)

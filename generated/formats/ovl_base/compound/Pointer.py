@@ -79,7 +79,6 @@ class Pointer:
 		if not self.frag:
 			# print("is a nullptr")
 			return
-		self.frag.done = True
 		# store valid frag to be able to delete it later
 		sized_str_entry.fragments.append(self.frag)
 		# now read an instance of template class at the offset

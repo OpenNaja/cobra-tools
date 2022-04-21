@@ -429,20 +429,16 @@ class OvsFile(OvsHeader):
 		if frags is None:
 			frags = self.fragments
 		for frag in frags:
-			if frag.done:
-				continue
 			if sum((f.pointers[0].data_size for f in fs)) >= d_size:
 				# we now have the data size that we need
 				break
 			if frag.pointers[0].data_offset >= p.data_offset:
-				frag.done = True
 				fs.append(frag)
 		return fs
 
 	def frags_accumulate_from_pointer_till_count(self, p, d_size, count):
 		frags = self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
 		if len(frags) > count:
-			frags[-1].done = False
 			return frags[0:count]
 		else:
 			return frags
@@ -456,7 +452,6 @@ class OvsFile(OvsHeader):
 		if ptr.data_offset == 8944:
 			print(ptr.pool_index, abs_offset, f)
 		if f:
-			f.done = True
 			return f
 
 	def frags_from_pointer(self, ptr, count, reuse=False):
@@ -672,15 +667,8 @@ class OvsFile(OvsHeader):
 			# check length of fragment, grab good ones
 			if len(out) == count:
 				break
-			# can't add fragments that have already been added elsewhere
-			if f.done and not reuse:
-				continue
 			if f.pointers[0].data_offset >= initpos:
-				f.done = True
 				out.append(f)
-				if f.done and reuse:
-					logging.debug(
-						f"Reusing fragment {f.pointers[0].pool_index} | {f.pointers[0].data_offset} for count {count}, initpos {initpos}")
 		else:
 			if len(out) != count:
 				raise AttributeError(
@@ -692,11 +680,7 @@ class OvsFile(OvsHeader):
 		"""Get frag whose ptr 0 is at initpos."""
 		out = []
 		for f in frags:
-			# can't add fragments that have already been added elsewhere
-			if f.done:
-				continue
 			if f.pointers[0].address == initpos:
-				f.done = True
 				out.append(f)
 				break
 		return out
@@ -708,21 +692,14 @@ class OvsFile(OvsHeader):
 		first = 1
 		for f in frags:
 			if first == 1:
-				if f.done:
-					continue
 				if f.pointers[0].address == initpos:
-					f.done = True
 					out.append(f)
 					first = 0
 			else:
 				# check length of fragment, grab good ones
 				if len(out) == count:
 					break
-				# can't add fragments that have already been added elsewhere
-				if f.done:
-					continue
 				if f.pointers[0].address >= initpos:
-					f.done = True
 					out.append(f)
 		return out
 
@@ -731,11 +708,7 @@ class OvsFile(OvsHeader):
 		"""Returns count entries of frags that have not been processed and occur after initpos."""
 		out = []
 		for f in frags:
-			# can't add fragments that have already been added elsewhere
-			if f.done:
-				continue
 			if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-				f.done = True
 				out.append(f)
 				break
 		return out
@@ -747,21 +720,14 @@ class OvsFile(OvsHeader):
 		first = 1
 		for f in frags:
 			if first == 1:
-				if f.done:
-					continue
 				if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-					f.done = True
 					out.append(f)
 					first = 0
 			else:
 				# check length of fragment, grab good ones
 				if len(out) == count:
 					break
-				# can't add fragments that have already been added elsewhere
-				if f.done:
-					continue
 				if f.pointers[0].address >= initpos:
-					f.done = True
 					out.append(f)
 		return out
 
@@ -1360,6 +1326,7 @@ class OvlFile(Header, IoFile):
 			pool.new = False
 			# store fragments per header for faster lookup
 			pool.fragments = []
+			# lookup by ptr 0
 			pool.fragments_lut = {}
 			# pool.dependencies = []
 			# pool.ss_entries = []
@@ -1369,10 +1336,10 @@ class OvlFile(Header, IoFile):
 			dep.pointers[0].link_to_pool(self.pools, is_struct_ptr=False)
 		for archive in self.archives:
 			ovs = archive.content
-			# sort fragments by their first pointer
+			# sort fragments by their first pointer, no real need to do so, though
 			ovs.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset))
 			# attach all pointers to their pool
-			# however we no longer break up at fragments' ptr 0
+			# only detect 'splits' between structs when is_struct_ptr=True
 			for entry in ovs.fragments:
 				entry.pointers[0].link_to_pool(ovs.pools, is_struct_ptr=False)
 				entry.pointers[1].link_to_pool(ovs.pools)
@@ -1380,7 +1347,6 @@ class OvlFile(Header, IoFile):
 				entry.pointers[0].link_to_pool(ovs.pools)
 			for i, frag in enumerate(ovs.fragments):
 				# we assign these later when the loader classes run collect()
-				frag.done = False
 				frag.name = None
 				ptr = frag.pointers[0]
 				try:
