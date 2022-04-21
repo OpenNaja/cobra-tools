@@ -26,6 +26,8 @@ def is_pc(context):
 
 def set_pc(context):
 	context.version = 18
+	context.version_flag = 8
+	context.user_version._value = 8212
 
 
 def is_pz(context):
