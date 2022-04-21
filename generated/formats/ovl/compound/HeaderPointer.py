@@ -188,7 +188,7 @@ class HeaderPointer:
 			return self.data_offset == other.data_offset and self.pool_index == other.pool_index
 
 	def __repr__(self):
-		return f"[{self.pool_index} | {self.data_offset}]"
+		return f"[{self.pool_index: 3} | {self.data_offset: 6}] ({self.data_size: 4})"
 
 	def __hash__(self):
 		return hash((self.pool_index, self.data_offset))

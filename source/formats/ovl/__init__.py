@@ -669,6 +669,10 @@ class OvsFile(OvsHeader):
 			pool_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_pool[{i}].dmp")
 			with open(pool_path, "wb") as f:
 				f.write(pool.data.getvalue())
+				# write a pointer marker at each offset
+				for offset in pool.fragments_lut.keys():
+					f.seek(offset)
+					f.write(b"@POINTER")
 
 	def dump_buffer_groups_log(self):
 		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_buffers.log")
@@ -701,12 +705,23 @@ class OvsFile(OvsHeader):
 			f.write(f"Overview\n")
 			for i, pool in enumerate(self.pools):
 				f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
+
+			for frag in self.fragments:
+				ptr0, ptr1 = frag.pointers
+				debug_str = f" PTR {ptr0} -> {ptr1} {frag.name}"
+				ptr0.pool.log_entries.append((ptr0.data_offset, 2, debug_str))
+				debug_str = f"\n SUB {ptr1} {frag.name}"
+				ptr1.pool.log_entries.append((ptr1.data_offset, 1, debug_str))
+			for ss in self.sized_str_entries:
+				ptr = ss.pointers[0]
+				if ptr.pool:
+					debug_str = f"\n\nMAIN {ptr} {ss.name}"
+					ptr.pool.log_entries.append((ptr.data_offset, 0, debug_str))
+
 			for i, pool in enumerate(self.pools):
-				f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size} at {pool.offset} with {len(pool.fragments)} fragments\n")
-				entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i] + [dep for dep in self.ovl.dependencies if dep.pointers[0].pool_index == i + self.arg.pools_offset]
-				entries.sort(key=lambda entry: entry.pointers[0].data_offset)
-				lines = [self.get_ptr_debug_str(entry) for entry in entries]
-				f.write("\n".join(lines))
+				f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size}\n")
+				pool.log_entries.sort()
+				f.write("\n".join([tup[2] for tup in pool.log_entries]))
 
 	@staticmethod
 	def get_frags_after_count(frags, initpos, count, reuse=False):
@@ -1697,6 +1712,13 @@ class OvlFile(Header, IoFile):
 	#     logging.info(self.stream_files)
 
 	def dump_frag_log(self):
+		for pool in self.pools:
+			# a tuple - (offset, sorting prio, str)
+			pool.log_entries = []
+		for dep in self.dependencies:
+			ptr = dep.pointers[0]
+			debug_str = f" DEP {ptr} -> {dep.name}"
+			ptr.pool.log_entries.append((ptr.data_offset, 3, debug_str))
 		for archive_entry in self.archives:
 			try:
 				archive_entry.content.assign_frag_names()
@@ -1705,6 +1727,8 @@ class OvlFile(Header, IoFile):
 				archive_entry.content.dump_pools()
 			except BaseException as err:
 				traceback.print_exc()
+		for pool in self.pools:
+			del pool.log_entries
 
 	def save(self, filepath, dat_path):
 		self.store_filepath(filepath)
