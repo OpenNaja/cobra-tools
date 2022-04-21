@@ -443,17 +443,6 @@ class OvsFile(OvsHeader):
 		else:
 			return frags
 
-	def frag_at_pointer(self, ptr, offset=0):
-		"""Returns the fragment found at offset in the pool's fragment lookup table"""
-		pool = self.pools[ptr.pool_index]
-		# pool = ptr.pool
-		abs_offset = ptr.data_offset+offset
-		f = pool.fragments_lut.get(abs_offset, None)
-		if ptr.data_offset == 8944:
-			print(ptr.pool_index, abs_offset, f)
-		if f:
-			return f
-
 	def frags_from_pointer(self, ptr, count, reuse=False):
 		frags = self.frags_for_pointer(ptr)
 		return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
@@ -658,7 +647,6 @@ class OvsFile(OvsHeader):
 					file_entry = file_lut[ss.name]
 					self.check_for_ptrs(f, file_entry.dependencies, ptr, known_frags)
 
-
 	@staticmethod
 	def get_frags_after_count(frags, initpos, count, reuse=False):
 		"""Returns count entries of frags that have not been processed and occur after initpos."""
@@ -673,44 +661,6 @@ class OvsFile(OvsHeader):
 			if len(out) != count:
 				raise AttributeError(
 					f"Could not find {count} fragments in {len(frags)} frags after initpos {initpos}, only found {len(out)}!")
-		return out
-
-	@staticmethod
-	def get_frag_equal(frags, initpos):
-		"""Get frag whose ptr 0 is at initpos."""
-		out = []
-		for f in frags:
-			if f.pointers[0].address == initpos:
-				out.append(f)
-				break
-		return out
-
-	@staticmethod
-	def get_frag_equal_counts(frags, initpos, count):
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
-		out = []
-		first = 1
-		for f in frags:
-			if first == 1:
-				if f.pointers[0].address == initpos:
-					out.append(f)
-					first = 0
-			else:
-				# check length of fragment, grab good ones
-				if len(out) == count:
-					break
-				if f.pointers[0].address >= initpos:
-					out.append(f)
-		return out
-
-	@staticmethod
-	def get_frag_equalb(frags, initpos, datalength):
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
-		out = []
-		for f in frags:
-			if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-				out.append(f)
-				break
 		return out
 
 	@staticmethod
