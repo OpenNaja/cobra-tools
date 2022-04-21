@@ -1762,7 +1762,8 @@ class OvlFile(Header, IoFile):
 	#     logging.info(f"set_pool_type {set_pool_type}")
 	#     logging.info(self.stream_files)
 
-	def dump_frag_log(self):
+	def dump_debug_data(self):
+		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
 		file_lut = {file.name: file for file in self.files}
 		for pool in self.pools:
 			# a tuple - (offset, sorting prio, str)

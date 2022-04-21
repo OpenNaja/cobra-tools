@@ -187,7 +187,7 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Inspect Models", self.inspect_models, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(util_menu, "Save Frag Log", self.ovl_data.dump_frag_log, "", ""),
+			(util_menu, "Dump Debug Data", self.ovl_data.dump_debug_data, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Set Game Dir", self.ask_game_dir, "", ""),
