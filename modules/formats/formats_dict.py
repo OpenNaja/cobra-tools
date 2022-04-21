@@ -31,4 +31,4 @@ for (_, module_name, _) in iter_modules([package_dir]):
 			# print(attribute_name)
 			# # Add the class to this package's variables
 			# globals()[attribute_name] = attribute
-print(formats_dict)
+# print(formats_dict)
