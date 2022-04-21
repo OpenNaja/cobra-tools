@@ -49,11 +49,13 @@ class Basics:
                 # from_stream
                 f.write(f'\n\n\t@classmethod')
                 f.write(f'\n\tdef from_stream(cls, stream, context=None, arg=0, template=None):')
-                f.write(f'\n\t\tcls.from_value({self.parser.read_for_type(basic_name, None)})')
+                f.write(f'\n\t\tinstance = cls.from_value({self.parser.read_for_type(basic_name, None)})')
+                f.write(f'\n\t\treturn instance')
                 # to_stream
                 f.write(f'\n\n\t@classmethod')
                 f.write(f'\n\tdef to_stream(cls, stream, instance):')
                 f.write(f"\n\t\t{self.parser.write_for_type(basic_name, 'instance.value', None)}")
+                f.write(f"\n\t\treturn instance")
                 f.write(f'\n')
 
     def add_other_basics(self, other_basics, other_basic_path):

@@ -30,9 +30,7 @@
         <add name="childspec_count" type="ubyte" />
         <add name="manager_count" type="ubyte" />
         <add name="script_count" type="ubyte" />
-<!--        todo bug in codegen, from an array SpecdefDtype is read as None -->
-<!--        <add name="attrib_dtypes" type="ArrayPointer" template="SpecdefDtype" arg="attrib_count"/>-->
-        <add name="attrib_dtypes" type="ArrayPointer" template="uint" arg="attrib_count"/>
+        <add name="attrib_dtypes" type="ArrayPointer" template="SpecdefDtype" arg="attrib_count"/>
         <add name="attrib_names" type="Pointer" template="PtrList" arg="attrib_count"/>
         <add name="attrib_datas" type="ForEachPointer" template="Data" arg="attrib_dtypes"/>
 

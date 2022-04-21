@@ -1,7 +1,7 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.base.basic
 import generated.formats.specdef.compound.Data
 import generated.formats.specdef.compound.PtrList
+import generated.formats.specdef.enum.SpecdefDtype
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -23,7 +23,7 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.base.basic.Uint)
+		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
 		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
 		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.Data.Data)
 		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compound.PtrList.PtrList)
@@ -40,7 +40,7 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.base.basic.Uint)
+		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
 		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
 		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.Data.Data)
 		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compound.PtrList.PtrList)
@@ -67,7 +67,7 @@ class SpecdefRoot(MemStruct):
 		instance.childspec_count = stream.read_ubyte()
 		instance.manager_count = stream.read_ubyte()
 		instance.script_count = stream.read_ubyte()
-		instance.attrib_dtypes = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.base.basic.Uint)
+		instance.attrib_dtypes = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
 		instance.attrib_names = Pointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
 		instance.attrib_datas = ForEachPointer.from_stream(stream, instance.context, instance.attrib_dtypes, generated.formats.specdef.compound.Data.Data)
 		instance.names = Pointer.from_stream(stream, instance.context, instance.name_count, generated.formats.specdef.compound.PtrList.PtrList)
