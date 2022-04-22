@@ -306,11 +306,14 @@ class MemStruct:
 					elem.set(prop, str(val))
 
 	def debug_ptrs(self):
+		"""Iteratively debugs all pointers of a struct"""
 		cls_name = self.__class__.__name__
 		if cls_name not in self.ptr_al_dict:
 			self.ptr_al_dict[cls_name] = {}
 		cls_al_dict = self.ptr_al_dict[cls_name]
-		for prop, ptr in self.get_props_and_ptrs():
+		props_arrays = [(prop, val) for prop, val in vars(self).items() if isinstance(val, Array)]
+		props_ptrs = self.get_props_and_ptrs() + [(prop, ptr) for prop, arr in props_arrays for ptr in arr if isinstance(ptr, Pointer)]
+		for prop, ptr in props_ptrs:
 			# dtype = ptr.template.__name__ if ptr.template else None
 			# al = None
 			if ptr.frag:
@@ -326,10 +329,11 @@ class MemStruct:
 							# add or overwrite if new al is smaller than stored al
 							if prop not in cls_al_dict or al < cls_al_dict[prop]:
 								cls_al_dict[prop] = al
+							# don't test smaller alignments
 							break
 				# else:
 				# 	al = "can't tell, data_offset=0"
-				# children
+				# test children
 				if isinstance(ptr.data, MemStruct):
 					ptr.data.debug_ptrs()
 				elif isinstance(ptr.data, Array):
