@@ -21,8 +21,8 @@ class AuxEntry:
 		# index into files list
 		self.file_index = 0
 
-		# maybe index into extension list
-		self.extension_index = 0
+		# offset for suffix into string name table
+		self.offset = 0
 
 		# byte count of the complete external resource file
 		self.size = 0
@@ -31,7 +31,7 @@ class AuxEntry:
 
 	def set_defaults(self):
 		self.file_index = 0
-		self.extension_index = 0
+		self.offset = 0
 		self.size = 0
 
 	def read(self, stream):
@@ -47,13 +47,13 @@ class AuxEntry:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.file_index = stream.read_uint()
-		instance.extension_index = stream.read_uint()
+		instance.offset = stream.read_uint()
 		instance.size = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_uint(instance.file_index)
-		stream.write_uint(instance.extension_index)
+		stream.write_uint(instance.offset)
 		stream.write_uint(instance.size)
 
 	@classmethod
@@ -77,7 +77,7 @@ class AuxEntry:
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += f'\n	* file_index = {fmt_member(self.file_index, indent+1)}'
-		s += f'\n	* extension_index = {fmt_member(self.extension_index, indent+1)}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
 		return s
 

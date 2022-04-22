@@ -117,7 +117,7 @@
     <compound name="AuxEntry" >
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
-        <add name="extension index" type="uint">maybe index into extension list</add>
+        <add name="offset" type="uint">offset for suffix into string name table</add>
         <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
 

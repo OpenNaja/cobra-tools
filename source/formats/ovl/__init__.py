@@ -1070,6 +1070,7 @@ class OvlFile(Header, IoFile):
 			(self.dependencies, "ext"),
 			(self.included_ovls, "basename"),
 			(self.mimes, "name"),
+			(self.aux_entries, "name"),
 			(self.files, "basename")
 		))
 		self.archive_names.update_with((
@@ -1182,6 +1183,7 @@ class OvlFile(Header, IoFile):
 			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
 
 		for aux_entry in self.aux_entries:
+			aux_entry.name = self.names.get_str_at(aux_entry.offset)
 			file_entry = self.files[aux_entry.file_index]
 			file_entry.aux_entries.append(aux_entry)
 

@@ -1,17 +1,9 @@
 from generated.formats.bnk.basic import basic_map
 from generated.formats.bnk.compound.AuxFileContainer import AuxFileContainer
 from generated.formats.bnk.compound.BnkFileContainer import BnkFileContainer
+from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile
 import os
-
-
-class AuxContext(object):
-	def __init__(self):
-		self.version = 0
-		self.user_version = 0
-
-	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
 
 
 class BnkFile(BnkFileContainer, IoFile):
@@ -19,7 +11,7 @@ class BnkFile(BnkFileContainer, IoFile):
 	basic_map = basic_map
 
 	def __init__(self):
-		super().__init__(AuxContext())
+		super().__init__(OvlContext())
 
 	def load(self, filepath):
 		with self.reader(filepath) as stream:
@@ -36,7 +28,7 @@ class AuxFile(AuxFileContainer, IoFile):
 	basic_map = basic_map
 
 	def __init__(self):
-		super().__init__(AuxContext())
+		super().__init__(OvlContext())
 
 	def load(self, filepath):
 		with self.reader(filepath) as stream:
