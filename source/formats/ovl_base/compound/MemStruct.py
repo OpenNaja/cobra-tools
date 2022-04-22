@@ -306,26 +306,41 @@ class MemStruct:
 					elem.set(prop, str(val))
 
 	def debug_ptrs(self):
-		logging.debug(f"MemStruct: {self.__class__.__name__} {self.ptr_al_dict}")
+		cls_name = self.__class__.__name__
+		if cls_name not in self.ptr_al_dict:
+			self.ptr_al_dict[cls_name] = {}
+		cls_al_dict = self.ptr_al_dict[cls_name]
 		for prop, ptr in self.get_props_and_ptrs():
-			dtype = ptr.template.__name__ if ptr.template else None
-			al = None
+			# dtype = ptr.template.__name__ if ptr.template else None
+			# al = None
 			if ptr.frag:
 				d_off = ptr.frag.pointers[1].data_offset
-				if not d_off:
-					al = "can't tell, data_offset=0"
-				else:
-					# 64, 32, 16, 8, 4, 2
-					for x in reversed(range(1, 6)):
+				if d_off:
+					# go over decreasing possible alignments
+					# 64, 32, 16, 8, 4, 2, 1
+					for x in reversed(range(6)):
 						al = 2 ** x
 						# logging.debug(f"Testing alignment: {al}")
-						# is data_offset of struct ptr aligned at al?
+						# is data_offset of struct ptr aligned at al bytes?
 						if d_off % al == 0:
-							# add or overwrite if stored value is smaller
-							if prop not in self.ptr_al_dict or al < self.ptr_al_dict[prop]:
-								self.ptr_al_dict[prop] = al
+							# add or overwrite if new al is smaller than stored al
+							if prop not in cls_al_dict or al < cls_al_dict[prop]:
+								cls_al_dict[prop] = al
 							break
-			logging.debug(f"Pointer: {prop} Dtype: {dtype} Alignment: {al}")
+				# else:
+				# 	al = "can't tell, data_offset=0"
+				# children
+				if isinstance(ptr.data, MemStruct):
+					ptr.data.debug_ptrs()
+				elif isinstance(ptr.data, Array):
+					for member in ptr.data:
+						if isinstance(member, Pointer):
+							member = member.data
+						if isinstance(member, MemStruct):
+							member.debug_ptrs()
+
+			# logging.debug(f"Pointer: {prop} Dtype: {dtype} Alignment: {al}")
+		logging.debug(f"MemStruct: {self.__class__.__name__} {cls_al_dict}")
 
 	def get_info_str(self):
 		return f'\nMemStruct'

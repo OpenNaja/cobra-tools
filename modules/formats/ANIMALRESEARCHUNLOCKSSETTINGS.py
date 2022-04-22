@@ -7,6 +7,10 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 	target_class = ResearchRoot
 	extension = ".animalresearchunlockssettings"
 
+	def collect(self):
+		super().collect()
+		self.header.debug_ptrs()
+
 
 class AnimalresearchstartunlockedssettingsLoader(MemStructLoader):
 	target_class = ResearchStartRoot
