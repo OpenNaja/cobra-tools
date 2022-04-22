@@ -88,6 +88,9 @@ class MemStruct:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
+	# used for the ptr alignment mapping
+	ptr_al_dict = {}
+
 	def get_props_and_ptrs(self):
 		return [(prop, val) for prop, val in vars(self).items() if isinstance(val, Pointer)]
 
@@ -353,6 +356,28 @@ class MemStruct:
 				# basic attribute
 				else:
 					elem.set(prop, str(val))
+
+	def debug_ptrs(self):
+		logging.debug(f"MemStruct: {self.__class__.__name__} {self.ptr_al_dict}")
+		for prop, ptr in self.get_props_and_ptrs():
+			dtype = ptr.template.__name__ if ptr.template else None
+			al = None
+			if ptr.frag:
+				d_off = ptr.frag.pointers[1].data_offset
+				if not d_off:
+					al = "can't tell, data_offset=0"
+				else:
+					# 64, 32, 16, 8, 4, 2
+					for x in reversed(range(1, 6)):
+						al = 2 ** x
+						# logging.debug(f"Testing alignment: {al}")
+						# is data_offset of struct ptr aligned at al?
+						if d_off % al == 0:
+							# add or overwrite if stored value is smaller
+							if prop not in self.ptr_al_dict or al < self.ptr_al_dict[prop]:
+								self.ptr_al_dict[prop] = al
+							break
+			logging.debug(f"Pointer: {prop} Dtype: {dtype} Alignment: {al}")
 
 	def get_info_str(self):
 		return f'\nMemStruct'

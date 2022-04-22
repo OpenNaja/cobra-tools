@@ -39,6 +39,7 @@ class FgmLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
+		self.header.debug_ptrs()
 		# print(self.header)
 		tex_info = self.header.textures.frag
 		attr_info = self.header.attributes.frag
