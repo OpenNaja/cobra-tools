@@ -27,6 +27,7 @@ class BnkLoader(BaseFile):
 		out_path = out_dir(self.sized_str_entry.name)
 		out_files = [out_path, ]
 		with open(out_path, "wb") as f:
+			f.write(self.pack_header(b"BNK"))
 			f.write(self.sized_str_entry.data_entry.buffer_datas[0])
 		# for i in range(1, len(self.sized_str_entry.data_entry.buffer_datas)):
 		# 	buffer_path = out_path+str(i)
@@ -42,7 +43,7 @@ class BnkLoader(BaseFile):
 			bnk.load(out_path)
 			print(bnk)
 			# extract streamed files
-			for ext in bnk.extensions:
+			for ext in bnk.bnk_header.extensions:
 				aux_path = f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{ext}.aux"
 				if not self.file_entry.aux_entries:
 					with open(aux_path, "wb") as f:
@@ -52,10 +53,9 @@ class BnkLoader(BaseFile):
 					# raise FileNotFoundError(f"AUX file expected at {aux_path}!")
 				if ext.lower() == "s":
 					with open(aux_path, "rb") as f:
-						for i, stream_info in enumerate(bnk.stream_infos):
-							offset, size, unk = stream_info
-							f.seek(offset)
-							d = f.read(size)
+						for i, stream_info in enumerate(bnk.bnk_header.stream_infos):
+							f.seek(stream_info.offset)
+							d = f.read(stream_info.size)
 							wem_path = out_dir(f"{bnk_name}_bnk_{i}.wem")
 							with open(wem_path, "wb") as wem:
 								wem.write(d)

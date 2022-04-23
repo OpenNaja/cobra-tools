@@ -1,27 +1,32 @@
 from source.formats.base.basic import fmt_member
-from generated.formats.bnk.compound.BnkBufferData import BnkBufferData
-from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
+from generated.context import ContextReference
 
 
-class BnkFileContainer(GenericHeader):
+class StreamInfo:
 
 	"""
-	custom struct
+	Describes a wem file in a stream
 	"""
+
+	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default)
+		self._context = context
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.bnk_header = BnkBufferData(self.context, 0, None)
+		self.offset = 0
+		self.size = 0
+		self.unk = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.bnk_header = BnkBufferData(self.context, 0, None)
+		self.offset = 0
+		self.size = 0
+		self.unk = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -35,13 +40,15 @@ class BnkFileContainer(GenericHeader):
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.bnk_header = BnkBufferData.from_stream(stream, instance.context, 0, None)
+		instance.offset = stream.read_uint64()
+		instance.size = stream.read_uint64()
+		instance.unk = stream.read_uint64()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		BnkBufferData.to_stream(stream, instance.bnk_header)
+		stream.write_uint64(instance.offset)
+		stream.write_uint64(instance.size)
+		stream.write_uint64(instance.unk)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -59,12 +66,13 @@ class BnkFileContainer(GenericHeader):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'BnkFileContainer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'StreamInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* bnk_header = {fmt_member(self.bnk_header, indent+1)}'
+		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
+		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
+		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

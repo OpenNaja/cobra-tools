@@ -3,12 +3,6 @@
 <niftoolsxml version="0.7.1.0">
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-
-    <!--Basic Types-->
-
-    <basic name="int64" integral="true" countable="false">
-        A signed 64-bit integer.
-    </basic>
 	
     <compound name="DataPointer">
         second Section of a soundback aux
@@ -73,19 +67,29 @@
         <add name="raw" type="byte" arr1="length">id of this Sound SFX object</add>
     </compound>
 
-    <compound name="BnkFileContainer">
+    <compound name="BnkFileContainer" inherit="GenericHeader">
+        custom struct
+        <add name="bnk_header" type="BnkBufferData"/>
+    </compound>
+    
+    <compound name="StreamInfo" >
+        Describes a wem file in a stream
+        <add name="offset" type="uint64"/>
+        <add name="size" type="uint64"/>
+        <add name="unk" type="uint64"/>
+    </compound>
+
+    <compound name="BnkBufferData">
         Buffer data of bnk files
         <add name="size b" type="uint64" >data size of aux file of type b</add>
-        <add name="name count" type="uint" >1, guess</add>
-        <add name="count 2" type="uint" >2 for PZ, 6 for ZTUAC</add>
-        <add name="stream info count" type="uint" >variable</add>
-<!--        <add name="zeros" type="uint" arr1="11">0</add>-->
+        <add name="suffix count" type="uint" >1, guess</add>
+        <add name="count 2" type="uint" >1 for PC, 2 for PZ, JWE1, 6 for ZTUAC</add>
+        <add name="stream_info_count" type="uint" >variable</add>
         <add name="zeros" type="uint" arr1="7">0</add>
-        <add name="zeros2" type="uint" arr1="2" vercond="#JWE# #OR# #JWE2#">0</add>
-        <add name="stream infos" type="uint64" arr1="stream info count" arr2="3">data</add>
-<!--        <add name="zero 3" type="uint">0</add>-->
-        <add name="names" type="ZString" arr1="name count">data</add>
-        <add name="extensions" type="ZString" arr1="count 2">ext format subtypes</add>
+        <add name="zeros old" type="uint" arr1="4" vercond="#JWE# #OR# #PC#">0</add>
+        <add name="stream_infos" type="StreamInfo" arr1="stream_info_count" >data</add>
+        <add name="name" type="ZString" >data</add>
+        <add name="extensions" type="ZString" arr1="suffix_count">ext format subtypes</add>
     </compound>
 
 </niftoolsxml>
