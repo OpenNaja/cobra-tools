@@ -8,6 +8,7 @@ from generated.formats.bnk.compound.DATASection import DATASection
 from generated.formats.bnk.compound.DIDXSection import DIDXSection
 from generated.formats.bnk.compound.HIRCSection import HIRCSection
 from modules.formats.shared import get_padding
+from ovl_util.texconv import write_riff_file
 
 
 class AuxFileContainer:
@@ -65,18 +66,17 @@ class AuxFileContainer:
 				pointer.hash = "".join([f"{b:02X}" for b in struct.pack("<I", pointer.wem_id)])
 				pointer.pad = b""
 
-	def extract_audio(self, out_dir_func, basename):
+	def extract_audio(self, out_dir_func, basename, progress_callback=None):
 		"""Extracts all wem files from the container into a folder"""
 		logging.info("Extracting audio")
 		paths = []
 		if self.didx:
-			for pointer in self.didx.data_pointers:
-				wem_name = f"{basename}_{pointer.hash}.wem"
-				wem_path = out_dir_func(wem_name)
-				paths.append(wem_path)
-				logging.debug(wem_path)
-				with open(wem_path, "wb") as f:
-					f.write(pointer.data)
+			for i, pointer in enumerate(self.didx.data_pointers):
+				if progress_callback:
+					progress_callback("Extracting pointer", value=i, vmax=len(self.didx.data_pointers))
+				out_file = write_riff_file(pointer.data, out_dir_func(f"{basename}_{pointer.hash}"))
+				if out_file:
+					paths.append(out_file)
 		return paths
 
 	def inject_audio(self, wem_path, wem_id):

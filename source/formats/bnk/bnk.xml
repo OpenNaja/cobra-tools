@@ -82,14 +82,14 @@
     <compound name="BnkBufferData">
         Buffer data of bnk files
         <add name="size b" type="uint64" >data size of aux file of type b</add>
-        <add name="suffix count" type="uint" >1, guess</add>
+        <add name="suffix_count" type="uint" >1, guess</add>
         <add name="count 2" type="uint" >1 for PC, 2 for PZ, JWE1, 6 for ZTUAC</add>
         <add name="stream_info_count" type="uint" >variable</add>
         <add name="zeros" type="uint" arr1="7">0</add>
-        <add name="zeros old" type="uint" arr1="4" vercond="#JWE# #OR# #PC#">0</add>
+        <add name="zeros_per_suffix" type="uint64" arr1="suffix_count" arr2="2">variable</add>
         <add name="stream_infos" type="StreamInfo" arr1="stream_info_count" >data</add>
         <add name="name" type="ZString" >data</add>
-        <add name="extensions" type="ZString" arr1="suffix_count">ext format subtypes</add>
+        <add name="suffixes" type="ZString" arr1="suffix_count">ext format subtypes</add>
     </compound>
 
 </niftoolsxml>

@@ -64,6 +64,7 @@
         <add name="possibly_unused_count_3" type="ubyte" />
         <add name="possibly_unused_count_4" type="ubyte" />
 
+        back to the "data" part
         <add name="unk_11" type="float"/>
         <add name="unk_12" type="float"/>
         <add name="unk_13" type="float"/>
