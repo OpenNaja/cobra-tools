@@ -43,14 +43,24 @@ class BnkLoader(BaseFile):
 			bnk.load(out_path)
 			print(bnk)
 			# extract streamed files
-			for ext in bnk.bnk_header.extensions:
-				aux_path = f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{ext}.aux"
-				if not self.file_entry.aux_entries:
+			if bnk.bnk_header.extensions and self.file_entry.aux_entries:
+				# usually both are present
+				ext_aux_paths = [(ext, f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{ext}.aux") for ext in bnk.bnk_header.extensions]
+			elif self.file_entry.aux_entries:
+				# JWE2 Music_Tour_media has no bnk_header.extensions but does have aux files
+				ext_aux_paths = [(aux.name.lower(), f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{aux.name.lower()}.aux") for aux in self.file_entry.aux_entries]
+			else:
+				# JWE2 dinos, no aux_entries nor extensions, aux file is stored as second buffer
+				# check for dtype
+				ext = "s" if bnk.bnk_header.stream_infos else "b"
+				ext_aux_paths = [(ext, f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{ext}.aux") for ext in (ext,)]
+				for ext, aux_path in ext_aux_paths:
 					with open(aux_path, "wb") as f:
 						for b in self.sized_str_entry.data_entry.buffer_datas[1:]:
 							f.write(b)
-				# if ext and not os.path.isfile(aux_path):
-					# raise FileNotFoundError(f"AUX file expected at {aux_path}!")
+			for ext, aux_path in ext_aux_paths:
+				if ext and not os.path.isfile(aux_path):
+					logging.warning(f"AUX file expected at {aux_path}!")
 				if ext.lower() == "s":
 					with open(aux_path, "rb") as f:
 						for i, stream_info in enumerate(bnk.bnk_header.stream_infos):
@@ -64,8 +74,6 @@ class BnkLoader(BaseFile):
 					aux = AuxFile()
 					aux.load(aux_path)
 					wem_files.extend(aux.extract_audio(out_dir, bnk_name))
-				if is_jwe2(self.ovl):
-					break
 		except BaseException as err:
 			logging.error(err)
 			traceback.print_exc()
