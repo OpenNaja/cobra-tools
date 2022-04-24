@@ -1,4 +1,5 @@
-from generated.base_enum import UintEnum
+from source.formats.base.basic import fmt_member
+from generated.formats.dds.enum import UintEnum
 
 
 class FourCC(UintEnum):

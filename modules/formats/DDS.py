@@ -7,10 +7,10 @@ from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
 from generated.formats.tex import TexFile
 from generated.formats.tex.compound.TexBuffer import TexBuffer
-from generated.formats.tex.compound.Header7Data1 import Header7Data1
+from generated.formats.tex.compound.SizeInfo import SizeInfo
 from generated.formats.tex.compound.TexBufferPc import TexBufferPc
 from generated.formats.tex.compound.TexHeader import TexHeader
-from modules.formats.BaseFormat import BaseFile
+from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_versions
 from modules.helpers import split_path, as_bytes
 
@@ -29,7 +29,9 @@ def align_to(width, comp, alignment=64):
 	return width
 
 
-class DdsLoader(BaseFile):
+class DdsLoader(MemStructLoader):
+	target_class = TexHeader
+	extension = ".tex"
 
 	def _get_data(self, file_path):
 		tex_file = TexFile(self.ovl.context)
@@ -102,11 +104,8 @@ class DdsLoader(BaseFile):
 			logging.error(f"Only .tex supported for now!")
 
 	def collect(self):
-		self.assign_ss_entry()
-		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
-			self.assign_fixed_frags(2)
-		elif is_pc(self.ovl) or is_ztuac(self.ovl):
-			self.assign_fixed_frags(1)
+		super().collect()
+		# print(self.header)
 		# all_buffers = self.get_sorted_streams()
 		# for buff in all_buffers:
 		# 	print(buff.index, buff.size)
@@ -131,14 +130,14 @@ class DdsLoader(BaseFile):
 
 	def load_dds(self, file_path):
 		logging.info(f"Loading DDS {file_path}")
-		tex_header, tex_buffers, header_7 = self.get_tex_structs(self.sized_str_entry)
-		# tex_d = tex_header.one_0
-		# tex_d = header_7.depth
+		tex_buffers, size_info = self.get_tex_structs()
+		# tex_d = self.header.one_0
+		# tex_d = size_info.depth
 		tex_d = 1
-		tex_h = header_7.height
-		tex_w = header_7.width
-		tex_a = header_7.array_size
-		comp = tex_header.compression_type.name
+		tex_h = size_info.height
+		tex_w = size_info.width
+		tex_a = size_info.array_size
+		comp = self.header.compression_type.name
 		tex_w = align_to(tex_w, comp)
 	
 		# read archive tex header to make sure we have the right mip count
@@ -154,7 +153,7 @@ class DdsLoader(BaseFile):
 				dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 				self.overwrite_buffer(buffer, dds_buff)
 		else:
-			out_bytes = dds_file.pack_mips(header_7.num_mips)
+			out_bytes = dds_file.pack_mips(size_info.num_mips)
 			sum_of_buffers = sum(buffer.size for buffer in sorted_streams)
 			if len(out_bytes) != sum_of_buffers:
 				logging.warning(
@@ -171,23 +170,14 @@ class DdsLoader(BaseFile):
 			dds_buff = dds_buff + buffer.data[len(dds_buff):]
 		buffer.update_data(dds_buff)
 
-	def get_tex_structs(self, sized_str_entry):
-
-		versions = get_versions(self.ovl)
-		tex_header = sized_str_entry.pointers[0].load_as(TexHeader, version_info=versions)[0]
-
+	def get_tex_structs(self):
+		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl) or is_ztuac(self.ovl):
-			frag = sized_str_entry.fragments[0]
-			tex_buffers = frag.pointers[1].load_as(TexBufferPc, num=tex_header.stream_count, version_info=versions)
-			# this corresponds to a stripped down header_7
-			header_7 = tex_buffers[0]
+			# this corresponds to a stripped down size_info
+			size_info = self.header.buffer_infos.data[0]
 		else:
-			# we have exactly two fragments, pointing into these pool_groups
-			f_3_3, f_3_7 = sized_str_entry.fragments
-			tex_buffers = f_3_3.pointers[1].load_as(TexBuffer, num=tex_header.stream_count, version_info=versions)
-			header_7 = f_3_7.pointers[1].load_as(Header7Data1, version_info=versions)[0]
-		# print(header_7)
-		return tex_header, tex_buffers, header_7
+			size_info = self.header.size_info.data
+		return tex_buffers, size_info
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		tex_name = self.sized_str_entry.name
@@ -230,7 +220,7 @@ class DdsLoader(BaseFile):
 			dds_file.width = tex_info.width
 			# hack until we have proper support for array_size on the image editors
 			# todo - this is most assuredly not array size for ED
-			dds_file.height = tex_info.height  # * max(1, header_7.array_size)
+			dds_file.height = tex_info.height  # * max(1, size_info.array_size)
 			dds_file.mipmap_count = tex_info.mip_index
 			dds_file.linear_size = len(buffer_data)
 			dds_file.depth = 1
@@ -290,13 +280,11 @@ class DdsLoader(BaseFile):
 	def load_png(self, file_path):
 		logging.info(f"Loading PNG {file_path}")
 		# convert the png into a dds, then inject that
-		tex_header, tex_buffers, header_7 = self.get_tex_structs(self.sized_str_entry)
-		dds_compression_type = tex_header.compression_type.name
-		# texconv works without prefix
-		compression = dds_compression_type.replace("DXGI_FORMAT_", "")
+		tex_buffers, size_info = self.get_tex_structs()
+		compression = self.header.compression_type.name
 		show_temp = False
 		dds_file_path = texconv.png_to_dds(
-			file_path, header_7.height * header_7.array_size, show_temp, codec=compression, mips=header_7.num_mips)
+			file_path, size_info.height * size_info.array_size, show_temp, codec=compression, mips=size_info.num_mips)
 	
 		# inject the dds generated by texconv
 		self.load_dds(dds_file_path)

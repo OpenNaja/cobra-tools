@@ -6,6 +6,7 @@ from modules.helpers import zstr
 
 
 class UserinterfaceicondataLoader(BaseFile):
+	extension = ".userinterfaceicondata"
 
 	def create(self):
 		f_01, f_11 = self._get_data(self.file_entry.path)

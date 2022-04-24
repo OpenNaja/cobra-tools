@@ -4,15 +4,16 @@ import math
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
+from source.formats.base.basic import fmt_member
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 from generated.formats.ms2.compound.MeshData import MeshData
 
 
 class ZtMeshData(MeshData):
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -61,14 +62,15 @@ class ZtMeshData(MeshData):
 		self.zero = 0
 
 		# some floats
-		self.unknown_07 = 0
+		self.unknown_07 = 0.0
 
 		# bitfield
-		self.flag = ModelFlagZT()
+		self.flag = ModelFlagZT(self.context, 0, None)
 
 		# always zero
 		self.zero_uac = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.tri_index_count = 0
@@ -89,92 +91,113 @@ class ZtMeshData(MeshData):
 		if self.context.version == 32:
 			self.zero = 0
 		if self.context.version == 32:
-			self.unknown_07 = 0
-		self.flag = ModelFlagZT()
+			self.unknown_07 = 0.0
+		self.flag = ModelFlagZT(self.context, 0, None)
 		if self.context.version == 13:
 			self.zero_uac = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		super().read(stream)
-		self.tri_index_count = stream.read_uint()
-		self.vertex_count = stream.read_uint()
-		self.tri_info_offset = stream.read_uint()
-		self.vert_info_offset = stream.read_uint()
-		self.known_ff_0 = stream.read_int()
-		self.tri_offset = stream.read_uint()
-		self.uv_offset = stream.read_uint()
-		self.vertex_offset = stream.read_uint()
-		self.known_ff_1 = stream.read_short()
-		self.one_0 = stream.read_ushort()
-		self.one_1 = stream.read_ushort()
-		if self.context.version == 13:
-			self.poweroftwo = stream.read_ushort()
-		if self.context.version == 32:
-			self.poweroftwo = stream.read_uint()
-			self.zero = stream.read_uint()
-		if self.context.version == 32:
-			self.unknown_07 = stream.read_float()
-		self.flag = stream.read_type(ModelFlagZT)
-		if self.context.version == 13:
-			self.zero_uac = stream.read_uint()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		super().write(stream)
-		stream.write_uint(self.tri_index_count)
-		stream.write_uint(self.vertex_count)
-		stream.write_uint(self.tri_info_offset)
-		stream.write_uint(self.vert_info_offset)
-		stream.write_int(self.known_ff_0)
-		stream.write_uint(self.tri_offset)
-		stream.write_uint(self.uv_offset)
-		stream.write_uint(self.vertex_offset)
-		stream.write_short(self.known_ff_1)
-		stream.write_ushort(self.one_0)
-		stream.write_ushort(self.one_1)
-		if self.context.version == 13:
-			stream.write_ushort(self.poweroftwo)
-		if self.context.version == 32:
-			stream.write_uint(self.poweroftwo)
-			stream.write_uint(self.zero)
-		if self.context.version == 32:
-			stream.write_float(self.unknown_07)
-		stream.write_type(self.flag)
-		if self.context.version == 13:
-			stream.write_uint(self.zero_uac)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.tri_index_count = stream.read_uint()
+		instance.vertex_count = stream.read_uint()
+		instance.tri_info_offset = stream.read_uint()
+		instance.vert_info_offset = stream.read_uint()
+		instance.known_ff_0 = stream.read_int()
+		instance.tri_offset = stream.read_uint()
+		instance.uv_offset = stream.read_uint()
+		instance.vertex_offset = stream.read_uint()
+		instance.known_ff_1 = stream.read_short()
+		instance.one_0 = stream.read_ushort()
+		instance.one_1 = stream.read_ushort()
+		if instance.context.version == 13:
+			instance.poweroftwo = stream.read_ushort()
+		if instance.context.version == 32:
+			instance.poweroftwo = stream.read_uint()
+			instance.zero = stream.read_uint()
+		if instance.context.version == 32:
+			instance.unknown_07 = stream.read_float()
+		instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
+		if instance.context.version == 13:
+			instance.zero_uac = stream.read_uint()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_uint(instance.tri_index_count)
+		stream.write_uint(instance.vertex_count)
+		stream.write_uint(instance.tri_info_offset)
+		stream.write_uint(instance.vert_info_offset)
+		stream.write_int(instance.known_ff_0)
+		stream.write_uint(instance.tri_offset)
+		stream.write_uint(instance.uv_offset)
+		stream.write_uint(instance.vertex_offset)
+		stream.write_short(instance.known_ff_1)
+		stream.write_ushort(instance.one_0)
+		stream.write_ushort(instance.one_1)
+		if instance.context.version == 13:
+			stream.write_ushort(instance.poweroftwo)
+		if instance.context.version == 32:
+			stream.write_uint(instance.poweroftwo)
+			stream.write_uint(instance.zero)
+		if instance.context.version == 32:
+			stream.write_float(instance.unknown_07)
+		ModelFlagZT.to_stream(stream, instance.flag)
+		if instance.context.version == 13:
+			stream.write_uint(instance.zero_uac)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def get_info_str(self, indent=0):
 		return f'ZtMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
-		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
-		s += f'\n	* tri_info_offset = {self.tri_info_offset.__repr__()}'
-		s += f'\n	* vert_info_offset = {self.vert_info_offset.__repr__()}'
-		s += f'\n	* known_ff_0 = {self.known_ff_0.__repr__()}'
-		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
-		s += f'\n	* uv_offset = {self.uv_offset.__repr__()}'
-		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
-		s += f'\n	* known_ff_1 = {self.known_ff_1.__repr__()}'
-		s += f'\n	* one_0 = {self.one_0.__repr__()}'
-		s += f'\n	* one_1 = {self.one_1.__repr__()}'
-		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* unknown_07 = {self.unknown_07.__repr__()}'
-		s += f'\n	* flag = {self.flag.__repr__()}'
-		s += f'\n	* zero_uac = {self.zero_uac.__repr__()}'
+		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'
+		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* tri_info_offset = {fmt_member(self.tri_info_offset, indent+1)}'
+		s += f'\n	* vert_info_offset = {fmt_member(self.vert_info_offset, indent+1)}'
+		s += f'\n	* known_ff_0 = {fmt_member(self.known_ff_0, indent+1)}'
+		s += f'\n	* tri_offset = {fmt_member(self.tri_offset, indent+1)}'
+		s += f'\n	* uv_offset = {fmt_member(self.uv_offset, indent+1)}'
+		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
+		s += f'\n	* known_ff_1 = {fmt_member(self.known_ff_1, indent+1)}'
+		s += f'\n	* one_0 = {fmt_member(self.one_0, indent+1)}'
+		s += f'\n	* one_1 = {fmt_member(self.one_1, indent+1)}'
+		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* unknown_07 = {fmt_member(self.unknown_07, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
+		s += f'\n	* zero_uac = {fmt_member(self.zero_uac, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 
@@ -182,16 +205,17 @@ class ZtMeshData(MeshData):
 		self.sum_uv_dict = sum_uv_dict
 		self.last_vertex_offset = last_vertex_offset
 		self.new_vertex_offset = 0
-		self.streams = ms2_file.buffer_info.streams
+		# todo - refactor buffer_infos for external model2stream
+		self.streams = ms2_file.buffer_infos
 		self.stream_info = self.streams[self.stream_index]
 		self.stream_offset = 0
 		for s in self.streams[:self.stream_index]:
-			s.size = s.vertex_buffer_length + s.tris_buffer_length + s.uv_buffer_length
+			s.size = s.vertex_buffer_size + s.tris_buffer_size + s.uv_buffer_size
 			self.stream_offset += s.size
 			logging.debug(f"Stream {s.size}")
 		self.buffer_2_offset = buffer_2_offset
 		# determine end of vertex stream to seek back from
-		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length
+		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size
 		logging.debug(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
 		logging.debug(f"Vertex Stream end {self.vert_stream_end}")
 		logging.debug(f"Tri info address {self.buffer_2_offset+self.stream_offset+self.tri_info_offset}")
@@ -236,7 +260,7 @@ class ZtMeshData(MeshData):
 		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
 		stream_info = self.streams[self.stream_index]
 		# hack for zt monitor
-		if stream_info.uv_buffer_length // vert_count_in_stream == 4:
+		if stream_info.uv_buffer_size // vert_count_in_stream == 4:
 			dt_colors = [
 				("uvs", np.ushort, (1, 2)),
 			]
@@ -253,7 +277,7 @@ class ZtMeshData(MeshData):
 
 	@property
 	def tris_address(self):
-		return self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.tri_offset
+		return self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size + self.tri_offset
 
 	def read_verts(self, stream):
 		# get dtype according to which the vertices are packed
@@ -276,7 +300,7 @@ class ZtMeshData(MeshData):
 		stream.readinto(self.verts_data)
 		self.new_vertex_offset = stream.tell()
 		# print(self.verts_data.shape)
-		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_length + self.stream_info.tris_buffer_length + self.uv_offset)
+		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
 		logging.debug(f"UV at {stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
 		stream.readinto(self.colors_data)

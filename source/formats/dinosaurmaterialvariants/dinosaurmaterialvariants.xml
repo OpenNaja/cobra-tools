@@ -4,26 +4,87 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="Pointer" >
-        <add name="offset" type="uint64"/>
-    </compound>
-
-    <compound name="VariantArray" >
+    <compound name="VariantArray" inherit="MemStruct" >
         <add name="variants" type="Variant" arr1="#ARG#"/>
     </compound>
 
-    <compound name="Variant" >
+    <compound name="Variant" inherit="MemStruct" >
         <add name="has_ptr" type="uint64"/>
-        <add name="name" type="Pointer" template="ZString"/>
+        <add name="variant_name" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="DinoVariantsHeader" >
-        <add name="name" type="Pointer" template="ZString"/>
+    <compound name="DinoVariantsHeader" inherit="MemStruct" >
+		# set_count - seen either 0 or 1, could possibly be more, would need refactor in that case
+		# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
         <add name="has_sets" type="uint64"/>
         <add name="set_name" type="Pointer" template="ZString"/>
         <add name="variants" type="Pointer" template="VariantArray" arg="variant_count"/>
         <add name="variant_count" type="uint64"/>
         <add name="zero" type="uint64"/>
+    </compound>
+
+
+    <compound name="LayerArray" inherit="MemStruct" >
+        <add name="layers" type="Layer" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="Layer" inherit="MemStruct" >
+        <add name="has_ptr" type="uint64"/>
+        <add name="fgm_name" type="Pointer" template="ZString"/>
+        <add name="layer_name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="DinoLayersHeader" inherit="MemStruct" >
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="layers" type="Pointer" template="LayerArray" arg="layer_count"/>
+        <add name="layer_count" type="uint64"/>
+        <add name="zero" type="uint64"/>
+    </compound>
+
+
+    <compound name="PatternArray" inherit="MemStruct" >
+        <add name="patterns" type="Pattern" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="Pattern" inherit="MemStruct" >
+        <add name="has_ptr" type="uint64"/>
+        <add name="pattern_name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="DinoPatternsHeader" inherit="MemStruct" >
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="set_count" type="uint64"/>
+        <add name="set_name" type="Pointer" template="ZString"/>
+        <add name="patterns" type="Pointer" template="PatternArray" arg="pattern_count"/>
+        <add name="pattern_count" type="uint64"/>
+        <add name="zero" type="uint64"/>
+    </compound>
+
+    <compound name="Vector3f" >
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="z" type="float"/>
+    </compound>
+
+    <compound name="DinoEffectsHeader" inherit="MemStruct" >
+<!--"<Q 6f 2I 12f 2I 2f I 39f I f"-->
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+        <add name="vec0" type="Vector3f"/>
+        <add name="vec1" type="Vector3f"/>
+        <add name="a" type="uint"/>
+        <add name="b" type="uint"/>
+        <add name="vec2" type="Vector3f"/>
+        <add name="vec3" type="Vector3f"/>
+        <add name="vec4" type="Vector3f"/>
+        <add name="c" type="uint"/>
+        <add name="d" type="uint"/>
+        <add name="e" type="float"/>
+        <add name="f" type="float"/>
+        <add name="g" type="uint"/>
+        <add name="floats" type="float" arr1="39"/>
+        <add name="d" type="uint"/>
+        <add name="e" type="float"/>
     </compound>
 
 </niftoolsxml>

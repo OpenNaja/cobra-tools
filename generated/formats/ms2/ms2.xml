@@ -2,9 +2,6 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-
-	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-
     <token name="verexpr" attrs="vercond">
 		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE1</verexpr>
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
@@ -21,7 +18,9 @@
         <global token="#VER#" string="version" />
     </token>
 
-	<verattr name="version" access="#VER#" index="0" />
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+<!--	<verattr name="version" access="#VER#" index="0" />-->
 
 	13 if ZTUAC, 32 if PC, 39 if old JWE1, 47 if JWE1, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
     <version id="old" version="13 32" >Old</version>
@@ -68,10 +67,6 @@
 		<option value="11" name="UnkRhino" >?</option>
 <!--		<option value="32" name="Unk2Rhino" >?</option>-->
 	</enum>
-
-	<compound name="SmartPadding">
-		Grabs 00 bytes only
-	</compound>
 	
 	<compound name="Matrix44" size="64">
 		A 4x4 transformation matrix.
@@ -114,24 +109,31 @@
 		<add name="scale" type="float" since="48" />
 	</compound>
 	
-	<compound name="Ms2SizedStrData">
-		Seems to be the 'root header' of the ms2.
+	<compound name="Ms2Root" inherit="MemStruct">
+		root header of the ms2
+		48 bytes
 		<add name="version" type="uint" >see version tag</add>
-		<add name="vertex buffer count" type="ushort" >1 if yes, 0 if no</add>
+		<add name="vertex_buffer_count" type="ushort" >total count of vertex buffers, including streamed buffers</add>
 		<add name="mdl2 count" type="ushort"/>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
-		<add name="unk count" type="ushort" >usually 0, rarely 1</add>
-		<add name="unknown1" type="uint" arr1="3" >seems to be zeros</add>
-		3 pointers
-		<add name="ptr 0" type="uint64">8 empty bytes</add>
-		<add name="ptr 1" type="uint64">8 empty bytes</add>
-		<add name="ptr 2" type="uint64">8 empty bytes</add>
+		<add name="stream count" type="short" >-1 if there is no vertex buffer at all; else count of streams</add>
+		<add name="zeros" type="uint" arr1="3"/>
+		the following two ptrs are not used in PC
+		<add name="buffer_infos" type="ArrayPointer" template="BufferInfo" arg="vertex_buffer_count">ms2's static buffer_info or empty (if no buffers)</add>
+		<add name="model_infos" type="ArrayPointer" template="ModelInfo" arg="mdl2 count">one for each mdl2</add>
+		already used in PC
+		<add name="buffers_presence" type="ArrayPointer" template="BufferPresence" arg="vertex_buffer_count">data as in get_frag_3()</add>
+	</compound>
+
+	<compound name="BufferPresence">
+		<add name="flag" type="int" >-1 for a static buffer, 0 for streamed buffer; may be stream index</add>
+		<add name="zero" type="int"/>
 	</compound>
 
 	<compound name="Model">
 		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
 		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" until="13" />
-		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" cond="#ARG#\num_meshes" since="32">lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
+		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" since="32">lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
 		rhino: start of model - end of objects: 124 - 4 bytes padding
@@ -179,19 +181,20 @@
 		<add name="mesh index" type="ushort" >index into mesh array</add>
 	</compound>
 
-	<compound name="MeshData" >
+	<compound name="MeshData" inherit="MemStruct">
 		used for shared functions
-		<add name="stream index" type="uint64" until="32">index into streamed buffers</add>
-		<add name="ptr" type="uint64" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
-		<add name="some index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
+		<add name="buffer_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
+		<add name="some_index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
 	</compound>
+
 
 	<compound name="NewMeshData" inherit="MeshData">
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 		<add name="zero1" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-		<add name="vertex offset" type="uint" > byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
+		<add name="vertex offset" type="uint" >byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
 		<add name="size of vertex" type="uint" >usually 48</add>
 		<add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
 		<add name="zero2" type="uint">always zero</add>
@@ -254,14 +257,12 @@
 	<compound name="Ms2InfoHeader">
 		Custom header struct
 		<add name="bone info size" type="uint"/>
-		<add name="info" type="Ms2SizedStrData"/>
-		<add name="mdl2 names" type="ZString" arr1="info \ mdl2 count"/>
+		<add name="info" type="MS2Root"/>
+		<add name="mdl2 names" type="ZString" arr1="info \ mdl2_count"/>
 		<add name="buffer 0" type="Buffer0" arg="info" />
 <!--		corresponds to PC buffer 1-->
-		<add name="buffer_info" type="BufferInfo" cond="info \ vertex buffer count" since="47"/>
-		<add name="buffer_info" type="BufferInfoZT" vercond="#ZTUAC#" arg="info \ vertex buffer count"/>
-		<add name="buffer_info" type="BufferInfoPC" vercond="#PC#" />
-		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2 count"/>
+		<add name="buffer_infos" type="BufferInfo" arr1="info \ vertex_buffer_count" />
+		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2_count"/>
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
 		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>
 		many ZTUAC models have a big undecoded array of uints here
@@ -276,15 +277,14 @@
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
 		<add name="names padding" padding="1" type="ubyte" since="50" arr1="(4 - ( names \ io_size #MOD# 4)) % 4">align to 4</add>
-		<add name="zt streams header" type="BufferInfoZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
+		<add name="zt streams header" type="StreamsZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
 	</compound>
 
-	<compound name="BufferInfoZTHeader" >
-		Data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-		266 bytes
+	<compound name="StreamsZTHeader" >
+		266 bytes ?
 		very end of buffer 0 after the names list
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
-		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ unk count" >?</add>
+		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ stream count" >?</add>
 	</compound>
 
 	<compound name="InfoZTMemPool" >
@@ -294,44 +294,35 @@
 
 	<compound name="BufferInfo" >
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-		JWE: 48 bytes
-		PZ: 56 bytes
-		<add name="skip1" type="uint64" arr1="2" vercond="#JWE#">JWE, 16 bytes of 00 padding</add>
-		<add name="vertexdatasize" type="uint64"/>
-		<add name="ptr1" type="uint64">8 empty bytes</add>
-		<add name="unk 0" type="uint64" since="48" > PZ+, another 8 empty bytes </add>
-		<add name="facesdatasize" type="uint64"/>
-		<add name="ptr2" type="uint64">8 empty bytes</add>
-		<add name="unk 2" type="uint64" arr1="2" since="48" > PZ+, another 16 empty bytes </add>
-	</compound>
-
-	<compound name="BufferInfoPC" >
+		ZTUAC: 64 bytes
 		PC: 32 bytes
-		<add name="zeros 1" type="uint64" arr1="2"/>
-		<add name="vertex buffer size" type="uint64" >Total size of vertex buffer for PC, starting with the 0 - 16 byte indices</add>
-		<add name="zero 2" type="uint64"/>
+		JWE1: 48 bytes
+		PZ old: 32 bytes?
+		PZ1.6+ and JWE2: 56 bytes
+
+		JWE and PC, 16 bytes of 00 padding
+		<add name="u0" type="uint64" since="32" until="47" />
+		<add name="u1" type="uint64" since="32" until="47" />
+
+		<add name="vertex_buffer_size" type="uint64"/>
+		<add name="u2" type="uint64"/>
+		PC ends here
+		PZ+, another 8 empty bytes
+		<add name="u3" type="uint64" since="48"/>
+		on all games except PC
+		<add name="tris_buffer_size" type="uint64" vercond="!#PC#"/>
+		<add name="u4" type="uint64" vercond="!#PC#"/>
+		PZ+, another 16 empty bytes
+		<add name="u5" type="uint64" since="48" />
+		<add name="u6" type="uint64" since="48" />
+		alternative end, ZTUAC style
+		<add name="u5" type="uint64" until="13" />
+		<add name="uv_buffer_size" type="uint64" until="13" >from start of tris buffer</add>
+		<add name="u6" type="uint64" until="13" />
+		<add name="u7" type="uint64" until="13" />
 	</compound>
 
-	<compound name="BufferInfoZT" >
-		from here on, it's buffer 1
-		<add name="streams" type="StreamInfo" arr1="#ARG#" ></add>
-	</compound>
-
-	<compound name="StreamInfo" >
-		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-		64 bytes
-		this has the starting offsets of tri buffers per streamed buffer
-		<add name="vertex buffer length" type="uint64" >in bytes</add>
-		<add name="zero 0" type="uint64"/>
-		<add name="tris buffer length" type="uint64" >from start of tris buffer</add>
-		<add name="zero 1" type="uint64"/>
-		<add name="zero 2" type="uint64"/>
-		<add name="uv buffer length" type="uint64" >from start of tris buffer</add>
-		<add name="zero 3" type="uint64"/>
-		<add name="zero 4" type="uint64"/>
-	</compound>
-	
-	<compound name="ModelInfo" >
+	<compound name="ModelInfo" inherit="MemStruct">
 		Linked to by the ms2, part of an array
 		120 bytes for JWE2
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
@@ -354,11 +345,12 @@
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 
-		<add name="materials ptr" type="uint64"/>
-		<add name="lods ptr" type="uint64"/>
-		<add name="objects ptr" type="uint64"/>
-		<add name="models ptr" type="uint64"/>
-		<add name="first materials ptr" type="uint64"/>
+		todo - versioning
+		<add name="materials" type="ArrayPointer" template="MaterialName" arg="num_materials"/>
+		<add name="lods" type="ArrayPointer" template="LodInfo" arg="num_lods"/>
+		<add name="objects" type="ArrayPointer" template="Object" arg="num_objects"/>
+		<add name="meshes" type="ArrayPointer" template="NewMeshData" arg="num_meshes"/>
+		<add name="first_materials" type="Pointer">actually points to the start of ModelInfos array</add>
 		<add name="zeros ztuac" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
 		<add name="zero 0" type="uint64"/>

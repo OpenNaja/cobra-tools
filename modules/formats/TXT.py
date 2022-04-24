@@ -5,6 +5,7 @@ from modules.formats.shared import get_padding
 
 
 class TxtLoader(BaseFile):
+	extension = ".txt"
 
 	def create(self):
 		ss = self._get_data(self.file_entry.path)

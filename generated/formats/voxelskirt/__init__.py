@@ -4,13 +4,15 @@ import numpy as np
 import os
 from generated.array import Array
 from generated.formats.ovl.versions import *
+from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.voxelskirt.compound.Data import Data
 from generated.formats.voxelskirt.compound.Header import Header
 # from generated.formats.ovl.versions import *
+from generated.formats.voxelskirt.basic import basic_map
 from generated.formats.voxelskirt.compound.Material import Material
 from generated.formats.voxelskirt.compound.PosInfo import PosInfo
 from generated.formats.voxelskirt.compound.Size import Size
-from generated.io import IoFile, BinaryStream
+from generated.io import IoFile
 from modules.formats.shared import get_padding_size, get_padding
 
 
@@ -24,6 +26,8 @@ class VoxelskirtContext(object):
 
 
 class VoxelskirtFile(Header, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self, ):
 		super().__init__(VoxelskirtContext())
@@ -97,7 +101,7 @@ class VoxelskirtFile(Header, IoFile):
 				# the same pixel of each layer is stored in 4 consecutive bytes
 				self.weights = stream.read_ubytes((self.info.x, self.info.y, 4))
 
-		print(f"Loaded {self.basename} in {time.time()-start_time:.2f} seconds!")
+		print(f"Loaded {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def extract(self, ):
 		"""Stores the embedded height map and masks as separate images, lossless."""
@@ -125,7 +129,7 @@ class VoxelskirtFile(Header, IoFile):
 					logging.warning(f"Unknown data type {data.type}")
 					continue
 				image_paths.append(p)
-		logging.info(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds!")
+		logging.info(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds")
 		return image_paths
 
 	def inject(self, filepaths):
@@ -154,7 +158,7 @@ class VoxelskirtFile(Header, IoFile):
 				else:
 					raise AttributeError(f"Could not find layer {suffix} in this file.")
 				data.im = im
-		print(f"Injected {len(filepaths)} layers into {self.basename} in {time.time()-start_time:.2f} seconds!")
+		print(f"Injected {len(filepaths)} layers into {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def update_names(self, list_of_arrays):
 		self.names = []
@@ -175,7 +179,7 @@ class VoxelskirtFile(Header, IoFile):
 			self.info.height_array_size_pc = self.info.x * self.info.y * 4
 
 		# write the buffer data to a temporary stream
-		with BinaryStream() as stream:
+		with ConvStream() as stream:
 			# write the images
 			if is_pc(self):
 				stream.write_floats(self.heightmap)
@@ -191,12 +195,11 @@ class VoxelskirtFile(Header, IoFile):
 
 			self.info.data_offset = stream.tell()
 			self.info.data_count = len(self.datas)
-			stream.write_types(self.datas)
+			Array.to_stream(stream, self.datas, (self.info.data_count,), Data, self.context, 0, None)
 
 			self.info.size_offset = stream.tell()
 			self.info.size_count = len(self.sizes)
-			# todo - need to update this??
-			stream.write_types(self.sizes)
+			Array.to_stream(stream, self.sizes, (self.info.size_count,), Size, self.context, 0, None)
 
 			# write object positions
 			for pos in self.positions:
@@ -204,7 +207,7 @@ class VoxelskirtFile(Header, IoFile):
 				stream.write_floats(pos.locs)
 			self.info.position_offset = stream.tell()
 			self.info.position_count = len(self.positions)
-			stream.write_types(self.positions)
+			Array.to_stream(stream, self.positions, (self.info.position_count,), PosInfo, self.context, 0, None)
 
 			# write 'materials' / bbox / whatever
 			for mat in self.materials:
@@ -212,7 +215,7 @@ class VoxelskirtFile(Header, IoFile):
 				stream.write_floats(mat.locs)
 			self.info.material_offset = stream.tell()
 			self.info.material_count = len(self.materials)
-			stream.write_types(self.materials)
+			Array.to_stream(stream, self.materials, (self.info.material_count,), Material, self.context, 0, None)
 
 			# write names
 			name_addresses = []
@@ -230,7 +233,7 @@ class VoxelskirtFile(Header, IoFile):
 		with self.writer(filepath) as stream:
 			self.write(stream)
 			stream.write(buffer_bytes)
-		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds!")
+		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def get_structs(self, filepath):
 		with self.reader(filepath) as stream:

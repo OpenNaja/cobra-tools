@@ -8,18 +8,17 @@ from generated.formats.ms2.compound.packing_utils import *
 FUR_OVERHEAD = 2
 
 
+from source.formats.base.basic import fmt_member
 import numpy
-import typing
-from generated.array import Array
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 from generated.formats.ms2.compound.MeshData import MeshData
 
 
 class NewMeshData(MeshData):
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -50,14 +49,15 @@ class NewMeshData(MeshData):
 		self.zero_2 = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = numpy.zeros((2), dtype='float')
+		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
 
 		# always zero
 		self.zero_3 = 0
 
 		# bitfield, determines vertex format
-		self.flag = ModelFlag()
-		self.set_defaults()
+		self.flag = ModelFlag(self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.vertex_count = 0
@@ -68,66 +68,87 @@ class NewMeshData(MeshData):
 		self.size_of_vertex = 0
 		self.tri_offset = 0
 		self.zero_2 = 0
-		self.unk_floats = numpy.zeros((2), dtype='float')
+		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
 		self.zero_3 = 0
-		self.flag = ModelFlag()
+		self.flag = ModelFlag(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		super().read(stream)
-		self.vertex_count = stream.read_uint()
-		self.tri_index_count = stream.read_uint()
-		self.zero_1 = stream.read_uint()
-		self.poweroftwo = stream.read_uint()
-		self.vertex_offset = stream.read_uint()
-		self.size_of_vertex = stream.read_uint()
-		self.tri_offset = stream.read_uint()
-		self.zero_2 = stream.read_uint()
-		self.unk_floats = stream.read_floats((2))
-		self.zero_3 = stream.read_uint()
-		self.flag = stream.read_type(ModelFlag)
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		super().write(stream)
-		stream.write_uint(self.vertex_count)
-		stream.write_uint(self.tri_index_count)
-		stream.write_uint(self.zero_1)
-		stream.write_uint(self.poweroftwo)
-		stream.write_uint(self.vertex_offset)
-		stream.write_uint(self.size_of_vertex)
-		stream.write_uint(self.tri_offset)
-		stream.write_uint(self.zero_2)
-		stream.write_floats(self.unk_floats)
-		stream.write_uint(self.zero_3)
-		stream.write_type(self.flag)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.vertex_count = stream.read_uint()
+		instance.tri_index_count = stream.read_uint()
+		instance.zero_1 = stream.read_uint()
+		instance.poweroftwo = stream.read_uint()
+		instance.vertex_offset = stream.read_uint()
+		instance.size_of_vertex = stream.read_uint()
+		instance.tri_offset = stream.read_uint()
+		instance.zero_2 = stream.read_uint()
+		instance.unk_floats = stream.read_floats((2,))
+		instance.zero_3 = stream.read_uint()
+		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_uint(instance.vertex_count)
+		stream.write_uint(instance.tri_index_count)
+		stream.write_uint(instance.zero_1)
+		stream.write_uint(instance.poweroftwo)
+		stream.write_uint(instance.vertex_offset)
+		stream.write_uint(instance.size_of_vertex)
+		stream.write_uint(instance.tri_offset)
+		stream.write_uint(instance.zero_2)
+		stream.write_floats(instance.unk_floats)
+		stream.write_uint(instance.zero_3)
+		ModelFlag.to_stream(stream, instance.flag)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def get_info_str(self, indent=0):
 		return f'NewMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* vertex_count = {self.vertex_count.__repr__()}'
-		s += f'\n	* tri_index_count = {self.tri_index_count.__repr__()}'
-		s += f'\n	* zero_1 = {self.zero_1.__repr__()}'
-		s += f'\n	* poweroftwo = {self.poweroftwo.__repr__()}'
-		s += f'\n	* vertex_offset = {self.vertex_offset.__repr__()}'
-		s += f'\n	* size_of_vertex = {self.size_of_vertex.__repr__()}'
-		s += f'\n	* tri_offset = {self.tri_offset.__repr__()}'
-		s += f'\n	* zero_2 = {self.zero_2.__repr__()}'
-		s += f'\n	* unk_floats = {self.unk_floats.__repr__()}'
-		s += f'\n	* zero_3 = {self.zero_3.__repr__()}'
-		s += f'\n	* flag = {self.flag.__repr__()}'
+		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
+		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
+		s += f'\n	* size_of_vertex = {fmt_member(self.size_of_vertex, indent+1)}'
+		s += f'\n	* tri_offset = {fmt_member(self.tri_offset, indent+1)}'
+		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* unk_floats = {fmt_member(self.unk_floats, indent+1)}'
+		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 
@@ -248,8 +269,8 @@ class NewMeshData(MeshData):
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
 
 	def read_verts(self, stream):
-		# read a vertices of this mesh
-		stream.seek(self.buffer_2_offset + self.vertex_offset)
+		# read vertices of this mesh
+		stream.seek(self.buffer_2_offset + self.stream_offset + self.vertex_offset)
 		logging.debug(f"Reading {self.vertex_count} verts at {stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
@@ -311,7 +332,8 @@ class NewMeshData(MeshData):
 
 	@property
 	def tris_address(self):
-		return self.buffer_2_offset + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset
+		buffer_info = self.ms2_file.buffer_infos[self.buffer_info.offset]
+		return self.buffer_2_offset + self.stream_offset + buffer_info.vertex_buffer_size + self.tri_offset
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""
@@ -357,6 +379,12 @@ class NewMeshData(MeshData):
 		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
+		# todo - refactor buffer_infos for external model2stream
+		self.stream_offset = 0
+		for s in self.ms2_file.buffer_infos[:self.buffer_info.offset]:
+			s.size = s.vertex_buffer_size + s.tris_buffer_size  # + s.uv_buffer_size
+			self.stream_offset += s.size
+			# logging.debug(f"Stream {s.size}")
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
 		self.validate_tris()

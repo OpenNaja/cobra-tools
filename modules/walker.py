@@ -8,6 +8,7 @@ from generated.formats.fgm import FgmFile
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from ovl_util import interaction
+from root_path import root_dir
 
 
 def walk_type(start_dir, extension=".ovl"):
@@ -26,7 +27,7 @@ def generate_hash_table(gui, start_dir):
 		# don't use internal data
 		ovl_data = OvlFile()
 		dic = {}
-		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplet_count", "triplets"), "files": ("unkn_0", "unkn_1")}
+		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplet_count", "triplets"), "files": ("pool_type", "set_pool_type")}
 		for list_name, attr_names in lists.items():
 			dic[list_name] = {}
 			for attr_name in attr_names:
@@ -52,13 +53,14 @@ def generate_hash_table(gui, start_dir):
 							dic[list_name][attr_name][entry.ext] = v
 				hash_dict.update(new_hashes)
 			except:
+				traceback.print_exc()
 				error_files.append(ovl_path)
 		# print(dic)
 		if error_files:
 			logging.error(f"{error_files} caused errors!")
 		try:
 			# write the hash text file to the hashes folder
-			export_dir = os.path.join(os.getcwd(), "hashes")
+			export_dir = os.path.join(root_dir, "hashes")
 			out_path = os.path.join(export_dir, f"{os.path.basename(start_dir)}.txt")
 			with open(out_path, "w") as f:
 				for k, v in hash_dict.items():
@@ -133,7 +135,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		print(f"last_counts: {last_counts}")
 		print(f"flags: {flags}")
 		print(f"no_bones: {no_bones}")
-		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds."
+		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)
 

@@ -4,6 +4,7 @@ from modules.formats.shared import get_padding
 
 
 class XmlconfigLoader(BaseFile):
+	extension = ".xmlconfig"
 
 	def create(self):
 		data = self._get_data(self.file_entry.path)

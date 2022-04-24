@@ -1,7 +1,9 @@
 from os.path import sep
 
+import codegen.naming_conventions as convention
 
-NO_CLASSES = ("Padding",)
+
+NO_CLASSES = ("Padding", "self")
 
 
 class Imports:
@@ -14,6 +16,7 @@ class Imports:
         self.imports = []
         # import parent class
         self.add(xml_struct.attrib.get("inherit"))
+        # self.add("basic")
         # import ContextReference class
         if xml_struct.tag in parser.struct_types and not xml_struct.attrib.get("inherit"):
             self.add("ContextReference")
@@ -22,38 +25,41 @@ class Imports:
         for field in xml_struct:
             if field.tag in ("add", "field", "member"):
                 field_type = field.attrib["type"]
-                # template = field.attrib.get("template")
-                # self.add(template)
-                # if field_type == "self.template":
-                #     self.add("typing")
-                # else:
-                #     self.add(field_type)
-                self.add(field_type)
-                # arr1 needs typing.List
+                template = field.attrib.get("template")
+                if template:
+                    # template can be either a type or a reference to a local field
+                    # only import if a type
+                    template_class = convention.name_class(template)
+                    if template_class in self.path_dict:
+                        self.add_module(template_class)
                 arr1 = field.attrib.get("arr1")
                 if arr1 is None:
                     arr1 = field.attrib.get("length")
                 if arr1:
-                    self.add("typing")
-                    self.add("Array")
-                type_attribs = ("onlyT", "excludeT")
-                for attrib in type_attribs:
-                    attrib_type = field.attrib.get(attrib)
-                    if attrib_type:
-                        self.add(attrib_type)
+                    self.add(field_type, array=True)
+                else:
+                    self.add(field_type)
 
                 for default in field:
                     if default.tag in ("default",):
-                        for attrib in type_attribs:
-                            attrib_type = default.attrib.get(attrib)
-                            if attrib_type:
-                                self.add(attrib_type)
+                        if default.attrib.get("versions"):
+                            self.add("versions")
 
-    def add(self, cls_to_import, import_from=None):
+    def add(self, cls_to_import, array=False):
         if cls_to_import:
-            must_import, import_type = self.parent.map_type(cls_to_import)
-            if must_import:
-                self.imports.append(import_type)
+            has_stream_functions, import_type = self.parent.map_type(cls_to_import, array)
+            if has_stream_functions and not array and import_type in self.parent.builtin_literals:
+                # import not necessary (read/write on stream, and init can happen from literal)
+                return
+            else:
+                if not array:
+                    import_type = (import_type, )
+            [self.imports.append(import_class.split('.')[0]) for import_class in import_type]
+
+    def add_module(self, cls_to_import):
+        # provide class access through the module to prevent circular import
+        if cls_to_import:
+            self.imports.append(self.import_from_module_path(self.path_dict[cls_to_import]))
 
     def write(self, stream):
         module_imports = []
@@ -63,13 +69,19 @@ class Imports:
             if class_import in NO_CLASSES:
                 continue
             if class_import in self.path_dict:
-                import_path = "generated." + self.path_dict[class_import].replace(sep, ".")
+                import_path = self.import_from_module_path(self.path_dict[class_import])
                 local_imports.append(f"from {import_path} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
+        # hard coded for now lol
+        module_imports.append(f"from source.formats.base.basic import fmt_member\n")
         module_imports.sort()
         local_imports.sort()
         for line in module_imports + local_imports:
             stream.write(line)
         if self.imports:
             stream.write("\n\n")
+
+    @staticmethod
+    def import_from_module_path(module_path):
+        return f"generated.{module_path.replace(sep, '.')}"

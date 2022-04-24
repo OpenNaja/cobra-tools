@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl_base.compound.FixedString import FixedString
@@ -11,7 +12,7 @@ class GenericHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -35,8 +36,9 @@ class GenericHeader:
 		self.seventh_byte = 1
 
 		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
-		self.user_version = VersionInfo()
-		self.set_defaults()
+		self.user_version = VersionInfo(self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.magic = FixedString(self.context, 4, None)
@@ -44,48 +46,69 @@ class GenericHeader:
 		self.version = 0
 		self.bitswap = 0
 		self.seventh_byte = 1
-		self.user_version = VersionInfo()
+		self.user_version = VersionInfo(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.magic = stream.read_type(FixedString, (self.context, 4, None))
-		self.version_flag = stream.read_byte()
-		self.context.version_flag = self.version_flag
-		self.version = stream.read_byte()
-		self.context.version = self.version
-		self.bitswap = stream.read_byte()
-		self.seventh_byte = stream.read_byte()
-		self.user_version = stream.read_type(VersionInfo)
-		self.context.user_version = self.user_version
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_type(self.magic)
-		stream.write_byte(self.version_flag)
-		stream.write_byte(self.version)
-		stream.write_byte(self.bitswap)
-		stream.write_byte(self.seventh_byte)
-		stream.write_type(self.user_version)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.magic = FixedString.from_stream(stream, instance.context, 4, None)
+		instance.version_flag = stream.read_byte()
+		instance.context.version_flag = instance.version_flag
+		instance.version = stream.read_byte()
+		instance.context.version = instance.version
+		instance.bitswap = stream.read_byte()
+		instance.seventh_byte = stream.read_byte()
+		instance.user_version = VersionInfo.from_stream(stream, instance.context, 0, None)
+		instance.context.user_version = instance.user_version
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		FixedString.to_stream(stream, instance.magic)
+		stream.write_byte(instance.version_flag)
+		stream.write_byte(instance.version)
+		stream.write_byte(instance.bitswap)
+		stream.write_byte(instance.seventh_byte)
+		VersionInfo.to_stream(stream, instance.user_version)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def get_info_str(self, indent=0):
 		return f'GenericHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* magic = {self.magic.__repr__()}'
-		s += f'\n	* version_flag = {self.version_flag.__repr__()}'
-		s += f'\n	* version = {self.version.__repr__()}'
-		s += f'\n	* bitswap = {self.bitswap.__repr__()}'
-		s += f'\n	* seventh_byte = {self.seventh_byte.__repr__()}'
-		s += f'\n	* user_version = {self.user_version.__repr__()}'
+		s += f'\n	* magic = {fmt_member(self.magic, indent+1)}'
+		s += f'\n	* version_flag = {fmt_member(self.version_flag, indent+1)}'
+		s += f'\n	* version = {fmt_member(self.version, indent+1)}'
+		s += f'\n	* bitswap = {fmt_member(self.bitswap, indent+1)}'
+		s += f'\n	* seventh_byte = {fmt_member(self.seventh_byte, indent+1)}'
+		s += f'\n	* user_version = {fmt_member(self.user_version, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

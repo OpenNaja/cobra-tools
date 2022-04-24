@@ -4,12 +4,12 @@ import struct
 import traceback
 
 from generated.formats.bnk import BnkFile, AuxFile
-from generated.formats.ovl_base.versions import is_jwe2, is_pz16
 from modules.formats.BaseFormat import BaseFile
-from ovl_util import texconv
+from ovl_util.texconv import write_riff_file
 
 
 class BnkLoader(BaseFile):
+	extension = ".bnk"
 
 	def create(self):
 		pass
@@ -26,54 +26,55 @@ class BnkLoader(BaseFile):
 		out_path = out_dir(self.sized_str_entry.name)
 		out_files = [out_path, ]
 		with open(out_path, "wb") as f:
+			f.write(self.pack_header(b"BNK"))
 			f.write(self.sized_str_entry.data_entry.buffer_datas[0])
-		# for i in range(1, len(self.sized_str_entry.data_entry.buffer_datas)):
-		# 	buffer_path = out_path+str(i)
-		# 	out_files.append(buffer_path)
-		# 	with open(buffer_path, "wb") as f:
-		# 		f.write(self.sized_str_entry.data_entry.buffer_datas[i])
 		logging.debug(f"Num buffers {len(self.sized_str_entry.data_entry.buffer_datas)}")
-	
-		wem_files = []
+
 		try:
 			# first read the bnk file which informs of any streams
 			bnk = BnkFile()
 			bnk.load(out_path)
 			print(bnk)
 			# extract streamed files
-			for ext in bnk.extensions:
-				aux_path = f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{ext}.aux"
-				if not self.file_entry.aux_entries:
+			if bnk.bnk_header.suffixes and self.file_entry.aux_entries:
+				# usually both are present
+				ext_aux_paths = [(suffix, f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{suffix}.aux") for suffix in bnk.bnk_header.suffixes]
+			elif self.file_entry.aux_entries:
+				# JWE2 Music_Tour_media has no bnk_header.suffixes but does have aux files
+				ext_aux_paths = [(aux.name.lower(), f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{aux.name.lower()}.aux") for aux in self.file_entry.aux_entries]
+			else:
+				# JWE2 dinos, no aux_entries nor suffixes, aux file is stored as second buffer
+				# check for dtype
+				suffix = "s" if bnk.bnk_header.stream_infos else "b"
+				ext_aux_paths = [(suffix, f"{self.ovl.path_no_ext}_{bnk_name}_bnk_{suffix}.aux") for suffix in (suffix,)]
+				for suffix, aux_path in ext_aux_paths:
+					# only internal aux will be in extracted output
+					logging.debug(f"Extracted internal .aux to {aux_path}")
+					out_files.append(aux_path)
 					with open(aux_path, "wb") as f:
 						for b in self.sized_str_entry.data_entry.buffer_datas[1:]:
 							f.write(b)
-				# if ext and not os.path.isfile(aux_path):
-					# raise FileNotFoundError(f"AUX file expected at {aux_path}!")
-				if ext.lower() == "s":
+			for suffix, aux_path in ext_aux_paths:
+				if suffix and not os.path.isfile(aux_path):
+					logging.warning(f"AUX file expected at {aux_path}!")
+				if suffix.lower() == "s":
 					with open(aux_path, "rb") as f:
-						for i, stream_info in enumerate(bnk.stream_infos):
-							offset, size, unk = stream_info
-							f.seek(offset)
-							d = f.read(size)
-							wem_path = out_dir(f"{bnk_name}_bnk_{i}.wem")
-							with open(wem_path, "wb") as wem:
-								wem.write(d)
-							wem_files.append(wem_path)
-				elif ext.lower() in ("b", ""):
+						for i, stream_info in enumerate(bnk.bnk_header.stream_infos):
+							if progress_callback:
+								progress_callback("Extracting stream", value=i, vmax=len(bnk.bnk_header.stream_infos))
+							f.seek(stream_info.offset)
+							d = f.read(stream_info.size)
+							out_file = write_riff_file(d, out_dir(f"{bnk_name}_bnk_{i}"))
+							if out_file:
+								out_files.append(out_file)
+				elif suffix.lower() in ("b", ""):
 					aux = AuxFile()
 					aux.load(aux_path)
-					wem_files.extend(aux.extract_audio(out_dir, bnk_name))
-				if is_jwe2(self.ovl):
-					break
+					out_files.extend(aux.extract_audio(out_dir, bnk_name, progress_callback))
 		except BaseException as err:
 			logging.error(err)
 			traceback.print_exc()
-		processed_files = texconv.wem_handle(wem_files, show_temp_files, progress_callback)
-		if show_temp_files:
-			out_files.append(aux_path)
-			return out_files + wem_files + processed_files
-		else:
-			return out_files + processed_files
+		return out_files
 	
 	def load(self, wem_file_path):
 		# todo - resolve and get these

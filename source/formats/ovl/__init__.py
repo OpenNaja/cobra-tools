@@ -15,11 +15,13 @@ from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
+from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.ovl_base.enum.Compression import Compression
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
-from generated.io import IoFile, BinaryStream
+from generated.io import IoFile
 from generated.formats.ovl.versions import *
+from generated.formats.ovl.basic import basic_map
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.Header import Header
 from generated.formats.ovl.compound.OvsHeader import OvsHeader
@@ -32,37 +34,16 @@ from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import get_versions, djb, assign_versions
+from modules.formats.formats_dict import formats_dict
 from modules.helpers import split_path
+from root_path import root_dir
 
+UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
+TAB = '  '
 
-REVERSED_TYPES = (
-	".animalresearchunlockssettings",
-	".assetpkg",
-	".curve",
-	".fdb",
-	".fgm",
-	".gfx",
-	".guesteconomy",
-	".island",
-	".logicalcontrols",
-	".lua",
-	".materialcollection",
-	".mdl2",
-	".mergedetails",
-	".ms2",
-	".pscollection",
-	".renderparameters",
-	".renderparametercurves",
-	".spl",
-	".tex",
-	".texturestream",
-	".txt",
-	".uimovidefinition",
-	".userinterfaceicondata",
-	".world"
-	".xmlconfig",
-)
+REVERSED_TYPES = (ext for ext in formats_dict.keys())
+
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
 
@@ -76,102 +57,21 @@ aliases = {
 
 
 def get_loader(ext, ovl, file_entry):
-	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchstartunlockedssettingsLoader
-	from modules.formats.ANIMALRESEARCHUNLOCKSSETTINGS import AnimalresearchunlockssettingsLoader
-	from modules.formats.ASSETPKG import AssetpkgLoader
-	from modules.formats.BANI import BanisLoader
-	from modules.formats.BNK import BnkLoader
-	from modules.formats.CURVE import CurveLoader
-	from modules.formats.DDS import DdsLoader
-	from modules.formats.ENUMNAMER import EnumnamerLoader
-	from modules.formats.FCT import FctLoader
-	from modules.formats.FDB import FdbLoader
-	from modules.formats.FGM import FgmLoader
-	from modules.formats.GFX import GfxLoader
-	from modules.formats.GUESTECONOMY import GuestEconomyLoader
-	from modules.formats.ISLAND import IslandLoader
-	from modules.formats.LOGICALCONTROLS import LogicalControlsLoader
-	from modules.formats.LUA import LuaLoader
-	from modules.formats.MANI import ManisLoader
-	from modules.formats.MATCOL import MatcolLoader
-	from modules.formats.MATLAYERS import MateffsLoader
-	from modules.formats.MATLAYERS import MatlayersLoader
-	from modules.formats.MATLAYERS import MatpatsLoader
-	from modules.formats.MATLAYERS import MatvarsLoader
-	from modules.formats.MERGEDETAILS import MergeDetailsLoader
-	from modules.formats.MOTIONGRAPH import MotiongraphLoader
-	from modules.formats.MOTIONGRAPHVARS import MotiongraphvarsLoader
-	from modules.formats.MS2 import Ms2Loader
-	from modules.formats.POSEDRIVERDEF import PosedriverdefLoader
-	from modules.formats.PREFAB import PrefabLoader
-	from modules.formats.PSCOLLECTION import PSCollectionLoader
-	from modules.formats.RENDERPARAMETERS import RenderParametersLoader
-	from modules.formats.RENDERPARAMETERCURVES import RenderParameterCurvesLoader
-	from modules.formats.SCALEFORMLANGUAGEDATA import ScaleformLoader
-	from modules.formats.SPECDEF import SpecdefLoader
-	from modules.formats.SPL import SplineLoader
-	from modules.formats.TXT import TxtLoader
-	from modules.formats.UIMOVIEDEFINITION import UIMovieDefinitionLoader
-	from modules.formats.USERINTERFACEICONDATA import UserinterfaceicondataLoader
-	from modules.formats.VOXELSKIRT import VoxelskirtLoader
-	from modules.formats.WMETA import WmetaLoader
-	from modules.formats.WORLD import WorldLoader
-	from modules.formats.WSM import WsmLoader
-	from modules.formats.XMLCONFIG import XmlconfigLoader
-	ext_2_class = {
-		".animalresearchstartunlockedsettings": AnimalresearchstartunlockedssettingsLoader,
-		".animalresearchunlockssettings": AnimalresearchunlockssettingsLoader,
-		".assetpkg": AssetpkgLoader,
-		".banis": BanisLoader,
-		".bnk": BnkLoader,
-		".curve": CurveLoader,
-		".dinosaurmaterialeffects": MateffsLoader,
-		".dinosaurmateriallayers": MatlayersLoader,
-		".dinosaurmaterialpatterns": MatpatsLoader,
-		".dinosaurmaterialvariants": MatvarsLoader,
-		".enumnamer": EnumnamerLoader,
-		".fct": FctLoader,
-		".fdb": FdbLoader,
-		".fgm": FgmLoader,
-		".gfx": GfxLoader,
-		".guesteconomy": GuestEconomyLoader,
-		".island": IslandLoader,
-		".logicalcontrols": LogicalControlsLoader,
-		".lua": LuaLoader,
-		".manis": ManisLoader,
-		".materialcollection": MatcolLoader,
-		".mergedetails": MergeDetailsLoader,
-		".motiongraph": MotiongraphLoader,
-		".motiongraphvars": MotiongraphvarsLoader,
-		".ms2": Ms2Loader,
-		".posedriverdef": PosedriverdefLoader,
-		".prefab": PrefabLoader,
-		".pscollection": PSCollectionLoader,
-		".renderparameters": RenderParametersLoader,
-		".renderparametercurves": RenderParameterCurvesLoader,
-		".scaleformlanguagedata": ScaleformLoader,
-		".specdef": SpecdefLoader,
-		".spl": SplineLoader,
-		".tex": DdsLoader,
-		".txt": TxtLoader,
-		".uimoviedefinition": UIMovieDefinitionLoader,
-		".userinterfaceicondata": UserinterfaceicondataLoader,
-		".voxelskirt": VoxelskirtLoader,
-		".wmetasb": WmetaLoader,
-		".world": WorldLoader,
-		".wsm": WsmLoader,
-		".xmlconfig": XmlconfigLoader,
-	}
-	cls = ext_2_class.get(ext, None)
+	cls = formats_dict.get(ext, None)
 	if cls:
 		return cls(ovl, file_entry)
 
 
 class OvsFile(OvsHeader):
 
+	basic_map = basic_map
+
 	def __init__(self, context, ovl_inst, archive_entry):
-		super().__init__(context)
+		# init with a dummy default archive
+		dummy_archive = ArchiveEntry(context, None, None)
+		super().__init__(context, dummy_archive, None, set_default=False)
 		self.ovl = ovl_inst
+		# set arg later to avoid initializing huge arrays with default data
 		self.arg = archive_entry
 
 	@staticmethod
@@ -215,13 +115,14 @@ class OvsFile(OvsHeader):
 				return f.read()
 		# write the internal data
 		else:
-			stream = BinaryStream()
+			stream = ConvStream()
 			assign_versions(stream, get_versions(self.ovl))
 			self.write_archive(stream)
 			return stream.getbuffer()
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
+		start_time = time.time()
 		self.compression_header = compressed_bytes[:2]
 		logging.debug(f"Compression magic bytes: {self.compression_header}")
 		if self.ovl.user_version.compression == Compression.OODLE:
@@ -240,7 +141,8 @@ class OvsFile(OvsHeader):
 			# for debugging, write deflated content to dat
 			with open(save_temp_dat, 'wb') as out:
 				out.write(decompressed)
-		with BinaryStream(decompressed) as stream:
+		logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
+		with ConvStream(decompressed) as stream:
 			yield stream
 
 	def compress(self, uncompressed_bytes):
@@ -306,8 +208,9 @@ class OvsFile(OvsHeader):
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
+		print("self.arg.num_files", self.arg.num_files)
 		self.arg.num_buffer_groups = len(self.buffer_groups)
-	# todo - self.arg.ovs_offset
+		# todo - self.arg.ovs_offset
 
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
@@ -317,9 +220,10 @@ class OvsFile(OvsHeader):
 		logging.debug(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
-			logging.debug("Reading unzipped stream")
 			assign_versions(stream, get_versions(self.ovl))
+			start_time = time.time()
 			super().read(stream)
+			logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
 			# print(self)
 			# print(self.buffer_groups)
 			pool_index = 0
@@ -378,7 +282,7 @@ class OvsFile(OvsHeader):
 	def read_pools(self, stream):
 		for pool in self.pools:
 			pool.address = stream.tell()
-			pool.data = BinaryStream(stream.read(pool.size))
+			pool.data = ConvStream(stream.read(pool.size))
 			assign_versions(pool.data, get_versions(self.ovl))
 
 	def map_assets(self):
@@ -525,49 +429,23 @@ class OvsFile(OvsHeader):
 		if frags is None:
 			frags = self.fragments
 		for frag in frags:
-			if frag.done:
-				continue
 			if sum((f.pointers[0].data_size for f in fs)) >= d_size:
 				# we now have the data size that we need
 				break
 			if frag.pointers[0].data_offset >= p.data_offset:
-				frag.done = True
 				fs.append(frag)
 		return fs
-
-	def frags_accumulate_from_pointer(self, p, d_size):
-		return self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
 
 	def frags_accumulate_from_pointer_till_count(self, p, d_size, count):
 		frags = self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
 		if len(frags) > count:
-			frags[-1].done = False
 			return frags[0:count]
 		else:
 			return frags
 
-	def frag_at_pointer(self, ptr, offset=0):
-		frags = self.frags_for_pointer(ptr)
-		for frag in frags:
-			if frag.pointers[0].pool_index == ptr.pool_index and frag.pointers[0].data_offset == ptr.data_offset + offset:
-				frag.done = True
-				return frag
-
 	def frags_from_pointer(self, ptr, count, reuse=False):
 		frags = self.frags_for_pointer(ptr)
 		return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
-
-	def frags_from_pointer_equals(self, p):
-		frags = self.frags_for_pointer(p)
-		return self.get_frag_equal(frags, p.address)
-
-	def frags_from_pointer_equals_counts(self, p, count):
-		frags = self.frags_for_pointer(p)
-		return self.get_frag_equal_counts(frags, p.address, count)
-
-	def frags_from_pointer_equalsb(self, p):
-		frags = self.frags_for_pointer(p)
-		return self.get_frag_equalb(frags, p.address, len(p.data))
 
 	def frags_from_pointer_equalsb_counts(self, p, count):
 		frags = self.frags_for_pointer(p)
@@ -666,6 +544,15 @@ class OvsFile(OvsHeader):
 			pool_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_pool[{i}].dmp")
 			with open(pool_path, "wb") as f:
 				f.write(pool.data.getvalue())
+				# write a pointer marker at each offset
+				for offset in pool.fragments_lut.keys():
+					f.seek(offset)
+					f.write(b"@POINTER")
+				for dep in self.ovl.dependencies:
+					ptr = dep.pointers[0]
+					if ptr.pool == pool:
+						f.seek(ptr.data_offset)
+						f.write(b"@DEPENDS")
 
 	def dump_buffer_groups_log(self):
 		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_buffers.log")
@@ -698,12 +585,67 @@ class OvsFile(OvsHeader):
 			f.write(f"Overview\n")
 			for i, pool in enumerate(self.pools):
 				f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
+
+			for frag in self.fragments:
+				ptr0, ptr1 = frag.pointers
+				debug_str = f" PTR {ptr0} -> {ptr1} {frag.name}"
+				ptr0.pool.log_entries.append((ptr0.data_offset, 2, debug_str))
+				debug_str = f"\n SUB {ptr1} {frag.name}"
+				ptr1.pool.log_entries.append((ptr1.data_offset, 1, debug_str))
+			for ss in self.sized_str_entries:
+				ptr = ss.pointers[0]
+				if ptr.pool:
+					debug_str = f"\n\nMAIN {ptr} {ss.name}"
+					ptr.pool.log_entries.append((ptr.data_offset, 0, debug_str))
+
 			for i, pool in enumerate(self.pools):
-				f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size} at {pool.offset} with {len(pool.fragments)} fragments\n")
-				entries = pool.fragments + [ss for ss in self.sized_str_entries if ss.pointers[0].pool_index == i] + [dep for dep in self.ovl.dependencies if dep.pointers[0].pool_index == i + self.arg.pools_offset]
-				entries.sort(key=lambda entry: entry.pointers[0].data_offset)
-				lines = [self.get_ptr_debug_str(entry) for entry in entries]
-				f.write("\n".join(lines))
+				f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size}\n")
+				pool.log_entries.sort()
+				f.write("\n".join([tup[2] for tup in pool.log_entries]))
+
+	def check_for_ptrs(self, f, deps, struct_ptr, known_frags, indent=1):
+		for dep in deps:
+			ptr = dep.pointers[0]
+			abs_offset = ptr.data_offset
+			if struct_ptr.data_offset <= abs_offset < struct_ptr.data_offset + struct_ptr.data_size:
+				# get the relative offset of this dependency to its struct
+				rel_offset = abs_offset - struct_ptr.data_offset
+				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {dep.name}")
+
+		# see if any pointers are inside this struct
+		for frag in struct_ptr.pool.fragments_lut.values():
+			ptr0, ptr1 = frag.pointers
+			abs_offset = ptr0.data_offset
+			if struct_ptr.data_offset <= abs_offset < struct_ptr.data_offset + struct_ptr.data_size:
+				# get the relative offset of this pointer to its struct
+				rel_offset = abs_offset - struct_ptr.data_offset
+				if frag in known_frags:
+					# pointer refers to a known frag
+					# stop here to avoid recursion
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {ptr1} ({ptr1.data_size: 4})")
+				else:
+					known_frags.add(frag)
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {ptr1} ({ptr1.data_size: 4})")
+					# f.write(f"\n{indent * TAB}PTR {ptr0} -> SUB {ptr1} ({ptr1.data_size: 4})")
+					# f.write(f"\n{indent * TAB}PTR {ptr0}")
+					# indent += 1
+					# f.write(f"\n{indent * TAB}SUB {ptr1} ({ptr1.data_size: 4})")
+					self.check_for_ptrs(f, deps, ptr1, known_frags, indent=indent+1)
+
+	def dump_stack(self, file_lut):
+		"""for development; collect info about fragment types"""
+		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}.stack")
+		logging.info(f"Dumping stack to {frag_log_path}")
+		with open(frag_log_path, "w") as f:
+
+			for ss in self.sized_str_entries:
+				ptr = ss.pointers[0]
+				if ptr.pool:
+					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {ss.name}"
+					f.write(debug_str)
+					known_frags = set()
+					file_entry = file_lut[ss.name]
+					self.check_for_ptrs(f, file_entry.dependencies, ptr, known_frags)
 
 	@staticmethod
 	def get_frags_after_count(frags, initpos, count, reuse=False):
@@ -713,72 +655,12 @@ class OvsFile(OvsHeader):
 			# check length of fragment, grab good ones
 			if len(out) == count:
 				break
-			# can't add fragments that have already been added elsewhere
-			if f.done and not reuse:
-				continue
 			if f.pointers[0].data_offset >= initpos:
-				f.done = True
 				out.append(f)
-				if f.done and reuse:
-					logging.debug(
-						f"Reusing fragment {f.pointers[0].pool_index} | {f.pointers[0].data_offset} for count {count}, initpos {initpos}")
 		else:
 			if len(out) != count:
 				raise AttributeError(
 					f"Could not find {count} fragments in {len(frags)} frags after initpos {initpos}, only found {len(out)}!")
-		return out
-
-	@staticmethod
-	def get_frag_equal(frags, initpos):
-		"""Get frag whose ptr 0 is at initpos."""
-		out = []
-		for f in frags:
-			# can't add fragments that have already been added elsewhere
-			if f.done:
-				continue
-			if f.pointers[0].address == initpos:
-				f.done = True
-				out.append(f)
-				break
-		return out
-
-	@staticmethod
-	def get_frag_equal_counts(frags, initpos, count):
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
-		out = []
-		first = 1
-		for f in frags:
-			if first == 1:
-				if f.done:
-					continue
-				if f.pointers[0].address == initpos:
-					f.done = True
-					out.append(f)
-					first = 0
-			else:
-				# check length of fragment, grab good ones
-				if len(out) == count:
-					break
-				# can't add fragments that have already been added elsewhere
-				if f.done:
-					continue
-				if f.pointers[0].address >= initpos:
-					f.done = True
-					out.append(f)
-		return out
-
-	@staticmethod
-	def get_frag_equalb(frags, initpos, datalength):
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
-		out = []
-		for f in frags:
-			# can't add fragments that have already been added elsewhere
-			if f.done:
-				continue
-			if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-				f.done = True
-				out.append(f)
-				break
 		return out
 
 	@staticmethod
@@ -788,21 +670,14 @@ class OvsFile(OvsHeader):
 		first = 1
 		for f in frags:
 			if first == 1:
-				if f.done:
-					continue
 				if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-					f.done = True
 					out.append(f)
 					first = 0
 			else:
 				# check length of fragment, grab good ones
 				if len(out) == count:
 					break
-				# can't add fragments that have already been added elsewhere
-				if f.done:
-					continue
 				if f.pointers[0].address >= initpos:
-					f.done = True
 					out.append(f)
 		return out
 
@@ -875,6 +750,8 @@ class OvsFile(OvsHeader):
 
 class OvlFile(Header, IoFile):
 
+	basic_map = basic_map
+
 	def __init__(self, progress_callback=None):
 		# create a context
 		super().__init__(OvlContext())
@@ -943,7 +820,7 @@ class OvlFile(Header, IoFile):
 		# old style
 		# hash all the pools
 		for pool in self.pools:
-			pool.data = BinaryStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
+			pool.data = ConvStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
@@ -1020,7 +897,6 @@ class OvlFile(Header, IoFile):
 			# if the pool has editable pointers, flush them to the pool writer first
 			pool.flush_pointers()
 		shutil.rmtree(tmp_dir)
-		self.progress_callback("Injection completed!", value=1, vmax=1)
 		return error_files, foreign_files
 
 	def create_file_entry(self, file_path):
@@ -1082,6 +958,9 @@ class OvlFile(Header, IoFile):
 		self.update_hashes()
 		self.update_counts()
 		self.postprocessing()
+		for archive in self.archives:
+			print(archive)
+			print(archive.content)
 
 	def create_archive(self, name="STATIC"):
 		# logging.debug(f"Getting archive '{name}'")
@@ -1191,6 +1070,7 @@ class OvlFile(Header, IoFile):
 			(self.dependencies, "ext"),
 			(self.included_ovls, "basename"),
 			(self.mimes, "name"),
+			(self.aux_entries, "name"),
 			(self.files, "basename")
 		))
 		self.archive_names.update_with((
@@ -1209,7 +1089,7 @@ class OvlFile(Header, IoFile):
 		logging.info("Loading hash table...")
 		start_time = time.time()
 		self.hash_table_global = {}
-		hashes_dir = os.path.join(os.getcwd(), "hashes")
+		hashes_dir = os.path.join(root_dir, "hashes")
 		try:
 			for file in os.listdir(hashes_dir):
 				fp = os.path.join(hashes_dir, file)
@@ -1223,7 +1103,7 @@ class OvlFile(Header, IoFile):
 		except:
 			pass
 		logging.info(
-			f"Loaded {len(self.hash_table_global)} hash - name pairs in {time.time() - start_time:.2f} seconds.")
+			f"Loaded {len(self.hash_table_global)} hash - name pairs in {time.time() - start_time:.2f} seconds")
 
 	def load(self, filepath, commands=()):
 		start_time = time.time()
@@ -1249,7 +1129,7 @@ class OvlFile(Header, IoFile):
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
 			# instead we must calculate the DJB hash of the extension and store that
 			# because this is how we find the extension from inside the archive
-			self.hash_table_local[djb(mime_entry.ext[1:])] = mime_entry.ext
+			self.hash_table_local[djb(mime_entry.ext[1:].lower())] = mime_entry.ext
 			mime_entry.triplets = self.triplets[
 								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
 
@@ -1295,7 +1175,7 @@ class OvlFile(Header, IoFile):
 			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
-				dependency_entry.basename = "bad hash"
+				dependency_entry.basename = UNK_HASH
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 		# sort dependencies by their pool offset
@@ -1303,6 +1183,7 @@ class OvlFile(Header, IoFile):
 			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
 
 		for aux_entry in self.aux_entries:
+			aux_entry.name = self.names.get_str_at(aux_entry.offset)
 			file_entry = self.files[aux_entry.file_index]
 			file_entry.aux_entries.append(aux_entry)
 
@@ -1311,7 +1192,7 @@ class OvlFile(Header, IoFile):
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
 		# self.debug_unks()
-		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds")
 
 	def update_mimes(self):
 		"""Rebuilds the mimes list according to the ovl's current file entries"""
@@ -1357,11 +1238,13 @@ class OvlFile(Header, IoFile):
 				read_start = self.eof
 			else:
 				read_start = archive_entry.read_start
+			start_time = time.time()
 			archive_entry.content = OvsFile(self.context, self, archive_entry)
+			logging.info(f"Initialized OVS in {time.time() - start_time:.2f} seconds")
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
 			except BaseException as err:
-				logging.error(f"Unzipping of {archive_entry.name} from {archive_entry.ovs_path} failed")
+				logging.error(f"Decompressing {archive_entry.name} from {archive_entry.ovs_path} failed")
 				logging.error(err)
 				traceback.print_exc()
 				print(archive_entry)
@@ -1369,7 +1252,7 @@ class OvlFile(Header, IoFile):
 				break
 		self.close_ovs_streams()
 		self.postprocessing()
-		logging.info(f"Loaded Archives in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded archives in {time.time() - start_time:.2f} seconds")
 
 	def postprocessing(self):
 		self.update_ss_dict()
@@ -1388,44 +1271,49 @@ class OvlFile(Header, IoFile):
 	def load_pointers(self):
 		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
 		logging.info("Loading pointers")
+		start_time = time.time()
 		# reset pointer map for each header entry
 		for pool in self.pools:
 			pool.pointer_map = {}
 			pool.new = False
 			# store fragments per header for faster lookup
 			pool.fragments = []
+			# lookup by ptr 0
+			pool.fragments_lut = {}
 			# pool.dependencies = []
 			# pool.ss_entries = []
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of pools
-			dep.pointers[0].link_to_pool(self.pools)
+			dep.pointers[0].link_to_pool(self.pools, is_struct_ptr=False)
 		for archive in self.archives:
 			ovs = archive.content
-			# sort fragments by their first pointer
+			# sort fragments by their first pointer, no real need to do so, though
 			ovs.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset))
 			# attach all pointers to their pool
-			# however we no longer break up at fragments' ptr 0
+			# only detect 'splits' between structs when is_struct_ptr=True
 			for entry in ovs.fragments:
-				entry.pointers[0].link_to_pool(ovs.pools, is_ref_ptr=False)
+				entry.pointers[0].link_to_pool(ovs.pools, is_struct_ptr=False)
 				entry.pointers[1].link_to_pool(ovs.pools)
 			for entry in ovs.sized_str_entries:
 				entry.pointers[0].link_to_pool(ovs.pools)
 			for i, frag in enumerate(ovs.fragments):
 				# we assign these later when the loader classes run collect()
-				frag.done = False
 				frag.name = None
 				ptr = frag.pointers[0]
 				try:
 					ptr.pool.fragments.append(frag)
+					ptr.pool.fragments_lut[ptr.data_offset] = frag
 				except:
 					logging.warning(f"frag {i} failed")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_pointer_sizes()
+		logging.info(f"Loaded pointers in {time.time() - start_time:.2f} seconds")
 
 	def load_file_classes(self):
 		logging.info("Loading file classes")
+		start_time = time.time()
 		for file in self.files:
 			file.loader = get_loader(file.ext, self, file)
 			if file.loader:
@@ -1434,6 +1322,7 @@ class OvlFile(Header, IoFile):
 				except Exception as err:
 					logging.error(err)
 					traceback.print_exc()
+		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
 	def get_sized_str_entry(self, name):
 		"""Retrieves the desired ss entry"""
@@ -1467,7 +1356,9 @@ class OvlFile(Header, IoFile):
 						file.streams.append(stream_file)
 			elif file.ext == ".ms2":
 				for lod_i in range(4):
-					stream_file = file_lut.get(f"{file.basename[:-1]}{lod_i}.model2stream", None)
+					# if the ms2 name ends in a trailing underscore, remove it
+					bare_name = file.basename.rstrip("_")
+					stream_file = file_lut.get(f"{bare_name}{lod_i}.model2stream", None)
 					if stream_file:
 						file.streams.append(stream_file)
 
@@ -1490,15 +1381,16 @@ class OvlFile(Header, IoFile):
 		self.aux_entries.clear()
 		# update file hashes
 		for file in self.files:
-			file.file_hash = djb(file.basename)
-			file.ext_hash = djb(file.ext[1:])
+			# ensure lowercase, at the risk of being redundant
+			file.file_hash = djb(file.basename.lower())
+			file.ext_hash = djb(file.ext[1:].lower())
 			# logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
 			# update dependency hashes
 			for dependency in file.dependencies:
-				if dependency.basename == "bad hash":
-					logging.warning(f"Bad hash on dependency entry - won't update hash")
+				if UNK_HASH in dependency.basename:
+					logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
 				else:
-					dependency.file_hash = djb(dependency.basename)
+					dependency.file_hash = djb(dependency.basename.lower())
 			self.dependencies.extend(file.dependencies)
 			self.aux_entries.extend(file.aux_entries)
 
@@ -1678,15 +1570,27 @@ class OvlFile(Header, IoFile):
 	#     logging.info(f"set_pool_type {set_pool_type}")
 	#     logging.info(self.stream_files)
 
-	def dump_frag_log(self):
+	def dump_debug_data(self):
+		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
+		file_lut = {file.name: file for file in self.files}
+		for pool in self.pools:
+			# a tuple - (offset, sorting prio, str)
+			pool.log_entries = []
+		for dep in self.dependencies:
+			ptr = dep.pointers[0]
+			debug_str = f" DEP {ptr} -> {dep.name}"
+			ptr.pool.log_entries.append((ptr.data_offset, 3, debug_str))
 		for archive_entry in self.archives:
 			try:
 				archive_entry.content.assign_frag_names()
 				archive_entry.content.dump_frag_log()
+				archive_entry.content.dump_stack(file_lut)
 				archive_entry.content.dump_buffer_groups_log()
 				archive_entry.content.dump_pools()
 			except BaseException as err:
 				traceback.print_exc()
+		for pool in self.pools:
+			del pool.log_entries
 
 	def save(self, filepath, dat_path):
 		self.store_filepath(filepath)
@@ -1749,7 +1653,7 @@ if __name__ == "__main__":
 
 
 def rename_entry(entry, name_tups):
-	if "bad hash" in entry.name:
+	if UNK_HASH in entry.name:
 		logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
 		return
 	for old, new in name_tups:

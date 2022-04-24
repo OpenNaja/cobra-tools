@@ -132,8 +132,8 @@ class NewMeshData:
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
 
 	def read_verts(self, stream):
-		# read a vertices of this mesh
-		stream.seek(self.buffer_2_offset + self.vertex_offset)
+		# read vertices of this mesh
+		stream.seek(self.buffer_2_offset + self.stream_offset + self.vertex_offset)
 		logging.debug(f"Reading {self.vertex_count} verts at {stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
@@ -195,7 +195,8 @@ class NewMeshData:
 
 	@property
 	def tris_address(self):
-		return self.buffer_2_offset + self.ms2_file.buffer_info.vertexdatasize + self.tri_offset
+		buffer_info = self.ms2_file.buffer_infos[self.buffer_info.offset]
+		return self.buffer_2_offset + self.stream_offset + buffer_info.vertex_buffer_size + self.tri_offset
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""
@@ -241,6 +242,12 @@ class NewMeshData:
 		self.buffer_2_offset = buffer_2_offset
 		self.ms2_file = ms2_file
 		self.base = base
+		# todo - refactor buffer_infos for external model2stream
+		self.stream_offset = 0
+		for s in self.ms2_file.buffer_infos[:self.buffer_info.offset]:
+			s.size = s.vertex_buffer_size + s.tris_buffer_size  # + s.uv_buffer_size
+			self.stream_offset += s.size
+			# logging.debug(f"Stream {s.size}")
 		self.read_verts(ms2_stream)
 		self.read_tris(ms2_stream)
 		self.validate_tris()

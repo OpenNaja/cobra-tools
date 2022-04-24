@@ -1,95 +1,128 @@
-from generated.context import ContextReference
-from generated.formats.world.compound.Pointer import Pointer
+from source.formats.base.basic import fmt_member
+import generated.formats.base.basic
+import generated.formats.world.compound.PtrList
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class WorldHeader:
+class WorldHeader(MemStruct):
 
 	"""
 	# NOTE, World struct in JWE1 has an extra pointer this import/export is not accounting for yet
 	"""
 
-	context = ContextReference()
-
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
 		self.world_type = 0
-		self.ptr_asset_pkg = Pointer(self.context, None, None)
 		self.asset_pkg_count = 0
-		self.ptr_lua = Pointer(self.context, None, None)
-		self.ptr_0 = Pointer(self.context, None, None)
-		self.ptr_1 = Pointer(self.context, None, None)
-		self.ptr_prefab = Pointer(self.context, None, None)
-		self.ptr_2 = Pointer(self.context, None, None)
 		self.prefab_count = 0
-		self.ptr_3 = Pointer(self.context, None, None)
-		self.set_defaults()
+		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, generated.formats.world.compound.PtrList.PtrList)
+		self.lua_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.prefabs = Pointer(self.context, self.prefab_count, generated.formats.world.compound.PtrList.PtrList)
+		self.ptr_2 = Pointer(self.context, 0, None)
+		self.ptr_3 = Pointer(self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.world_type = 0
-		self.ptr_asset_pkg = Pointer(self.context, None, None)
 		self.asset_pkg_count = 0
-		self.ptr_lua = Pointer(self.context, None, None)
-		self.ptr_0 = Pointer(self.context, None, None)
-		self.ptr_1 = Pointer(self.context, None, None)
-		self.ptr_prefab = Pointer(self.context, None, None)
-		self.ptr_2 = Pointer(self.context, None, None)
 		self.prefab_count = 0
-		self.ptr_3 = Pointer(self.context, None, None)
+		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, generated.formats.world.compound.PtrList.PtrList)
+		self.lua_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.prefabs = Pointer(self.context, self.prefab_count, generated.formats.world.compound.PtrList.PtrList)
+		self.ptr_2 = Pointer(self.context, 0, None)
+		self.ptr_3 = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.world_type = stream.read_uint64()
-		self.ptr_asset_pkg = stream.read_type(Pointer, (self.context, None, None))
-		self.asset_pkg_count = stream.read_uint64()
-		self.ptr_lua = stream.read_type(Pointer, (self.context, None, None))
-		self.ptr_0 = stream.read_type(Pointer, (self.context, None, None))
-		self.ptr_1 = stream.read_type(Pointer, (self.context, None, None))
-		self.ptr_prefab = stream.read_type(Pointer, (self.context, None, None))
-		self.ptr_2 = stream.read_type(Pointer, (self.context, None, None))
-		self.prefab_count = stream.read_uint64()
-		self.ptr_3 = stream.read_type(Pointer, (self.context, None, None))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.world_type)
-		stream.write_type(self.ptr_asset_pkg)
-		stream.write_uint64(self.asset_pkg_count)
-		stream.write_type(self.ptr_lua)
-		stream.write_type(self.ptr_0)
-		stream.write_type(self.ptr_1)
-		stream.write_type(self.ptr_prefab)
-		stream.write_type(self.ptr_2)
-		stream.write_uint64(self.prefab_count)
-		stream.write_type(self.ptr_3)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.world_type = stream.read_uint64()
+		instance.asset_pkgs = Pointer.from_stream(stream, instance.context, instance.asset_pkg_count, generated.formats.world.compound.PtrList.PtrList)
+		instance.asset_pkg_count = stream.read_uint64()
+		instance.lua_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.prefabs = Pointer.from_stream(stream, instance.context, instance.prefab_count, generated.formats.world.compound.PtrList.PtrList)
+		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.prefab_count = stream.read_uint64()
+		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.asset_pkgs.arg = instance.asset_pkg_count
+		instance.lua_name.arg = 0
+		instance.ptr_0.arg = 0
+		instance.ptr_1.arg = 0
+		instance.prefabs.arg = instance.prefab_count
+		instance.ptr_2.arg = 0
+		instance.ptr_3.arg = 0
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		stream.write_uint64(instance.world_type)
+		Pointer.to_stream(stream, instance.asset_pkgs)
+		stream.write_uint64(instance.asset_pkg_count)
+		Pointer.to_stream(stream, instance.lua_name)
+		Pointer.to_stream(stream, instance.ptr_0)
+		Pointer.to_stream(stream, instance.ptr_1)
+		Pointer.to_stream(stream, instance.prefabs)
+		Pointer.to_stream(stream, instance.ptr_2)
+		stream.write_uint64(instance.prefab_count)
+		Pointer.to_stream(stream, instance.ptr_3)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def get_info_str(self, indent=0):
 		return f'WorldHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* world_type = {self.world_type.__repr__()}'
-		s += f'\n	* ptr_asset_pkg = {self.ptr_asset_pkg.__repr__()}'
-		s += f'\n	* asset_pkg_count = {self.asset_pkg_count.__repr__()}'
-		s += f'\n	* ptr_lua = {self.ptr_lua.__repr__()}'
-		s += f'\n	* ptr_0 = {self.ptr_0.__repr__()}'
-		s += f'\n	* ptr_1 = {self.ptr_1.__repr__()}'
-		s += f'\n	* ptr_prefab = {self.ptr_prefab.__repr__()}'
-		s += f'\n	* ptr_2 = {self.ptr_2.__repr__()}'
-		s += f'\n	* prefab_count = {self.prefab_count.__repr__()}'
-		s += f'\n	* ptr_3 = {self.ptr_3.__repr__()}'
+		s += super().get_fields_str()
+		s += f'\n	* world_type = {fmt_member(self.world_type, indent+1)}'
+		s += f'\n	* asset_pkgs = {fmt_member(self.asset_pkgs, indent+1)}'
+		s += f'\n	* asset_pkg_count = {fmt_member(self.asset_pkg_count, indent+1)}'
+		s += f'\n	* lua_name = {fmt_member(self.lua_name, indent+1)}'
+		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* prefabs = {fmt_member(self.prefabs, indent+1)}'
+		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* prefab_count = {fmt_member(self.prefab_count, indent+1)}'
+		s += f'\n	* ptr_3 = {fmt_member(self.ptr_3, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

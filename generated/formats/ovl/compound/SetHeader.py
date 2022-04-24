@@ -1,5 +1,4 @@
-import numpy
-import typing
+from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
@@ -14,7 +13,7 @@ class SetHeader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,55 +28,77 @@ class SetHeader:
 
 		# must be 16909320
 		self.sig_b = 16909320
-		self.sets = Array(self.context)
-		self.assets = Array(self.context)
-		self.set_defaults()
+		self.sets = Array((self.set_count,), SetEntry, self.context, 0, None)
+		self.assets = Array((self.asset_count,), AssetEntry, self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.set_count = 0
 		self.asset_count = 0
 		self.sig_a = 1065336831
 		self.sig_b = 16909320
-		self.sets = Array(self.context)
-		self.assets = Array(self.context)
+		self.sets = Array((self.set_count,), SetEntry, self.context, 0, None)
+		self.assets = Array((self.asset_count,), AssetEntry, self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.set_count = stream.read_uint()
-		self.asset_count = stream.read_uint()
-		self.sig_a = stream.read_uint()
-		self.sig_b = stream.read_uint()
-		self.sets.read(stream, SetEntry, self.set_count, None)
-		self.assets.read(stream, AssetEntry, self.asset_count, None)
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.set_count)
-		stream.write_uint(self.asset_count)
-		stream.write_uint(self.sig_a)
-		stream.write_uint(self.sig_b)
-		self.sets.write(stream, SetEntry, self.set_count, None)
-		self.assets.write(stream, AssetEntry, self.asset_count, None)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.set_count = stream.read_uint()
+		instance.asset_count = stream.read_uint()
+		instance.sig_a = stream.read_uint()
+		instance.sig_b = stream.read_uint()
+		instance.sets = Array.from_stream(stream, (instance.set_count,), SetEntry, instance.context, 0, None)
+		instance.assets = Array.from_stream(stream, (instance.asset_count,), AssetEntry, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.set_count)
+		stream.write_uint(instance.asset_count)
+		stream.write_uint(instance.sig_a)
+		stream.write_uint(instance.sig_b)
+		Array.to_stream(stream, instance.sets, (instance.set_count,), SetEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.assets, (instance.asset_count,), AssetEntry, instance.context, 0, None)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def get_info_str(self, indent=0):
 		return f'SetHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* set_count = {self.set_count.__repr__()}'
-		s += f'\n	* asset_count = {self.asset_count.__repr__()}'
-		s += f'\n	* sig_a = {self.sig_a.__repr__()}'
-		s += f'\n	* sig_b = {self.sig_b.__repr__()}'
-		s += f'\n	* sets = {self.sets.__repr__()}'
-		s += f'\n	* assets = {self.assets.__repr__()}'
+		s += f'\n	* set_count = {fmt_member(self.set_count, indent+1)}'
+		s += f'\n	* asset_count = {fmt_member(self.asset_count, indent+1)}'
+		s += f'\n	* sig_a = {fmt_member(self.sig_a, indent+1)}'
+		s += f'\n	* sig_b = {fmt_member(self.sig_b, indent+1)}'
+		s += f'\n	* sets = {fmt_member(self.sets, indent+1)}'
+		s += f'\n	* assets = {fmt_member(self.assets, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

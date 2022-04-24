@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -9,7 +10,7 @@ class DataEntry:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -35,7 +36,8 @@ class DataEntry:
 
 		# size of last buffer; tex and texstream have all size here
 		self.size_2 = 0
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
 		self.file_hash = 0
@@ -50,49 +52,70 @@ class DataEntry:
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.file_hash = stream.read_uint()
-		if self.context.version >= 19:
-			self.ext_hash = stream.read_uint()
-		self.set_index = stream.read_ushort()
-		self.buffer_count = stream.read_ushort()
-		if self.context.version >= 19:
-			self.zero = stream.read_uint()
-		self.size_1 = stream.read_uint64()
-		self.size_2 = stream.read_uint64()
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint(self.file_hash)
-		if self.context.version >= 19:
-			stream.write_uint(self.ext_hash)
-		stream.write_ushort(self.set_index)
-		stream.write_ushort(self.buffer_count)
-		if self.context.version >= 19:
-			stream.write_uint(self.zero)
-		stream.write_uint64(self.size_1)
-		stream.write_uint64(self.size_2)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.file_hash = stream.read_uint()
+		if instance.context.version >= 19:
+			instance.ext_hash = stream.read_uint()
+		instance.set_index = stream.read_ushort()
+		instance.buffer_count = stream.read_ushort()
+		if instance.context.version >= 19:
+			instance.zero = stream.read_uint()
+		instance.size_1 = stream.read_uint64()
+		instance.size_2 = stream.read_uint64()
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.file_hash)
+		if instance.context.version >= 19:
+			stream.write_uint(instance.ext_hash)
+		stream.write_ushort(instance.set_index)
+		stream.write_ushort(instance.buffer_count)
+		if instance.context.version >= 19:
+			stream.write_uint(instance.zero)
+		stream.write_uint64(instance.size_1)
+		stream.write_uint64(instance.size_2)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def get_info_str(self, indent=0):
 		return f'DataEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* file_hash = {self.file_hash.__repr__()}'
-		s += f'\n	* ext_hash = {self.ext_hash.__repr__()}'
-		s += f'\n	* set_index = {self.set_index.__repr__()}'
-		s += f'\n	* buffer_count = {self.buffer_count.__repr__()}'
-		s += f'\n	* zero = {self.zero.__repr__()}'
-		s += f'\n	* size_1 = {self.size_1.__repr__()}'
-		s += f'\n	* size_2 = {self.size_2.__repr__()}'
+		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
+		s += f'\n	* set_index = {fmt_member(self.set_index, indent+1)}'
+		s += f'\n	* buffer_count = {fmt_member(self.buffer_count, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* size_1 = {fmt_member(self.size_1, indent+1)}'
+		s += f'\n	* size_2 = {fmt_member(self.size_2, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
 

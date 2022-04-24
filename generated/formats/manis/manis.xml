@@ -4,17 +4,9 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="PadAlign">
-        Grabs 00 bytes only
-    </compound>
-
     <compound name="Empty">
         Grabs 00 bytes only
     </compound>
-
-    <basic name="ZString">
-        A string of given length.
-    </basic>
 
     <compound name="UshortVector2" size="4">
         A vector in 2D space (x,y).
@@ -44,10 +36,6 @@
         <field name="z" type="float">Third coordinate.</field>
     </compound>
 
-	<compound name="SmartPadding">
-		Grabs 00 bytes only
-	</compound>
-
 
     <compound name="SizedStrData">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
@@ -75,7 +63,7 @@
     <compound name="Buffer1">
 		<add name="bone hashes" type="uint" arr1="#ARG#" ></add>
 		<add name="bone names" type="ZString" arr1="#ARG#" ></add>
-        <add name="bone pad" type="PadAlign" arg="bone names" template="4" >?</add>
+        <add name="bone pad" type="PadAlign" template="bone names" arg="4" >?</add>
     </compound>
 
     <compound name="KeysReader">
@@ -145,7 +133,7 @@
 		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #GTE# 0"> </add>
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>
 
-        <add name="pad" type="PadAlign" arg="ref" template="4" >?</add>
+        <add name="pad" type="PadAlign" template="ref" arg="4" >?</add>
         <add name="floatsa" type="float" arr2="#ARG#\FloatCount" arr1="#ARG#\FrameCount" >these are likely a scale reference or factor</add>
 
 <!--		two uint zeros, or padding-->
@@ -165,7 +153,7 @@
 		<add name="flag 1" type="ubyte" > </add>
 		<add name="flag 2" type="ubyte" > </add>
 		<add name="flag 3" type="ubyte" > </add>
-		<add name="anoth pad" type="PadAlign" arg="ref2" template="4" > </add>
+		<add name="anoth pad" type="PadAlign" template="ref2" arg="4" > </add>
 <!--		<add name="anoth pad" type="SmartPadding" >?</add>-->
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 		<add name="floatsb" type="float" arr1="6" >these are likely a scale reference or factor</add>

@@ -1,3 +1,4 @@
+from generated.formats.bani.basic import basic_map
 from generated.formats.bani.compound.BaniInfoHeader import BaniInfoHeader
 from generated.formats.bani.compound.BanisHeader import BanisHeader
 from generated.io import IoFile
@@ -33,6 +34,8 @@ class BaniContext(object):
 
 
 class BaniFile(BaniInfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(BaniContext())

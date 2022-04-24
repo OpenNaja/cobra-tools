@@ -10,6 +10,7 @@ from modules.helpers import as_bytes
 
 
 class ManisLoader(BaseFile):
+	extension = ".manis"
 
 	def collect(self):
 		self.assign_ss_entry()
@@ -20,7 +21,6 @@ class ManisLoader(BaseFile):
 		if not self.sized_str_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
 		ss_ptr = self.sized_str_entry.pointers[0]
-		# header = ss_ptr.load_as(SizedStrData)[0]
 		# buffers = self.sized_str_entry.data_entry.buffer_datas
 		# print(len(buffers))
 		ovl_header = self.pack_header(b"MANI")

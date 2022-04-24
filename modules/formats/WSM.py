@@ -5,6 +5,7 @@ from modules.formats.BaseFormat import BaseFile
 
 
 class WsmLoader(BaseFile):
+	extension = ".wsm"
 
 	def collect(self):
 		self.assign_ss_entry()

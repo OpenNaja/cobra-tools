@@ -1,9 +1,12 @@
+from generated.formats.matcol.basic import basic_map
 from generated.formats.matcol.compound.MaterialcollectionInfoHeader import MaterialcollectionInfoHeader
 from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile
 
 
 class MatcolFile(MaterialcollectionInfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(OvlContext())

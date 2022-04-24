@@ -1,10 +1,12 @@
 import logging
 
 from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
+from generated.formats.fgm.basic import basic_map
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
 from generated.formats.ovl_base import OvlContext
-from generated.io import IoFile, BinaryStream
+from generated.formats.ovl_base.basic import ConvStream
+from generated.io import IoFile
 import os
 import struct
 
@@ -13,6 +15,8 @@ dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}  # 4:"I", 8:"I"
 
 
 class FgmFile(FgmInfoHeader, IoFile):
+
+	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(OvlContext())
@@ -115,8 +119,8 @@ class FgmFile(FgmInfoHeader, IoFile):
 			print()
 
 	def save(self, filepath):
-		names_writer = BinaryStream()
-		data_writer = BinaryStream()
+		names_writer = ConvStream()
+		data_writer = ConvStream()
 		# shader name is at 0
 		names_writer.write_zstring(self.shader_name)
 		names_writer.write(b"\x00")

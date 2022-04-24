@@ -9,7 +9,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin
-from plugin.utils.object import create_ob
+from plugin.utils.object import create_ob, get_collection
 from generated.formats.ms2 import Ms2File, is_old
 
 
@@ -36,8 +36,12 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.debug(f"lod_i {lod_i}")
+			lod_coll = get_collection(scene, f"LOD{lod_i}")
 			for ob_i, m_ob in enumerate(m_lod.objects):
 				mesh = model_info.model.meshes[m_ob.mesh_index]
+				# print(model_info)
+				# print(model_info.model)
+				# print(mesh)
 				# lod_i = mesh.lod_index
 				logging.debug(f"flag {mesh.flag}")
 				if m_ob.mesh_index in mesh_dict:
@@ -48,6 +52,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					b_me = bpy.data.meshes.new(f"{mdl2_name}_model{m_ob.mesh_index}")
 					# cast array to prevent truth check in from_pydata
 					b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
+					# print(mesh.vertices, [], tuple(mesh.tris))
 					# store mesh unknowns
 					# cast the bitfield to int
 					b_me["flag"] = int(mesh.flag)
@@ -61,7 +66,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 
 				if m_ob.mesh_index not in ob_dict:
-					b_ob = create_ob(scene, f"{mdl2_name}_lod{lod_i}_ob{ob_i}", b_me, coll_name=f"LOD{lod_i}")
+					b_ob = create_ob(scene, f"{mdl2_name}_lod{lod_i}_ob{ob_i}", b_me, coll=lod_coll)
 					b_ob.parent = b_armature_obj
 					b_ob["bone_index"] = m_lod.bone_index
 
@@ -79,8 +84,9 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 
 			coll_name = f"{scene.name}_LOD{lod_i}"
-			# get view layer, show lod 0, hide the others
-			bpy.context.view_layer.layer_collection.children[coll_name].hide_viewport = lod_i != 0
+			# get view layer if it exists, show lod 0, hide the others
+			if coll_name in bpy.context.view_layer.layer_collection.children:
+				bpy.context.view_layer.layer_collection.children[coll_name].hide_viewport = lod_i != 0
 
 	messages.add(f"Finished MS2 import in {time.time() - start_time:.2f} seconds")
 	return messages

@@ -4,15 +4,11 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="Pointer" >
-        <add name="offset" type="uint64"/>
-    </compound>
-
-    <compound name="UiMovieHeader" >
-        <add name="ptr_movie_name" type="Pointer"/>
-        <add name="ptr_pkg_name" type="Pointer"/>
-        <add name="ptr_category_name" type="Pointer"/>
-        <add name="ptr_type_name" type="Pointer"/>
+    <compound name="UiMovieHeader" inherit="MemStruct">
+        <add name="movie_name" type="Pointer" template="ZString"/>
+        <add name="pkg_name" type="Pointer" template="ZString"/>
+        <add name="category_name" type="Pointer" template="ZString"/>
+        <add name="type_name" type="Pointer" template="ZString"/>
 
         <add name="flag 1" type="uint"/>
         <add name="flag 2" type="ushort"/>
@@ -32,15 +28,19 @@
         <add name="u5" type="ubyte"/>
 
         <add name="ptr_0" type="Pointer"/>
-        <add name="ptr_ui_triggers" type="Pointer"/>
+        <add name="ui_triggers" type="Pointer" template="PtrList" arg="num_ui_triggers"/>
         <add name="ptr_1" type="Pointer"/>
-        <add name="ptr_ui_names" type="Pointer"/>
-        <add name="ptr_assetpkgs" type="Pointer"/>
+        <add name="ui_names" type="Pointer" template="PtrList" arg="num_ui_names"/>
+        <add name="assetpkgs" type="Pointer" template="PtrList" arg="num_assetpkgs"/>
         <add name="ptr_2" type="Pointer"/>
-        <add name="ptr_list_1" type="Pointer"/>
-        <add name="ptr_list_2" type="Pointer"/>
-        <add name="ptr_ui_interfaces" type="Pointer"/>
+        <add name="list_1" type="ArrayPointer" template="uint" arg="num_list_1"/>
+        <add name="list_2" type="ArrayPointer" template="uint" arg="num_list_2"/>
+        <add name="ui_interfaces" type="Pointer" template="PtrList" arg="num_ui_interfaces"/>
         <add name="ptr_3" type="Pointer"/>
+    </compound>
+
+    <compound name="PtrList" inherit="MemStruct">
+        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>
 
 </niftoolsxml>

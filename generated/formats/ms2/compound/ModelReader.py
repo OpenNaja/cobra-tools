@@ -10,6 +10,7 @@ from generated.formats.ms2.enum.CollisionType import CollisionType
 from modules.formats.shared import get_padding_size, get_padding
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -21,7 +22,32 @@ class ModelReader:
 
 	context = ContextReference()
 
-	def __init__(self, context, arg=None, template=None):
+	def read(self, stream):
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
+	def write(self, stream):
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -29,28 +55,30 @@ class ModelReader:
 		self.io_size = 0
 		self.io_start = 0
 		self.bone_infos = []
-		self.set_defaults()
+		if set_default:
+			self.set_defaults()
 		self.bone_info_start = 0
 
 	def set_defaults(self):
 		pass
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.bone_infos = []
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.io_start = stream.tell()
+		instance.bone_infos = []
+		logging.info(f"ModelReader starts at {instance.io_start}")
 		i = 0
-		if self.context.version < 47:
-			#
-			# start = self.io_start
-			start = self.arg.io_start
+		if instance.context.version < 47:
+			# start = instance.io_start
+			start = instance.arg.io_start
 			# meh, add it here even though it's really interleaved
-			self.bone_info_start = stream.tell()
-			for model_info in self.arg:
+			instance.bone_info_start = stream.tell()
+			for model_info in instance.arg:
 				# logging.debug(model_info)
-				model_info.model = Model(self.context, model_info)
+				model_info.model = Model(instance.context, model_info)
 				if model_info.num_objects:
-					# self.get_padding(stream, alignment=8) # 21346
-					# self.get_padding(stream)
+					# instance.get_padding(stream, alignment=8) # 21346
+					# instance.get_padding(stream)
 					model_info.model.read(stream)
 				# logging.debug(model_info.model)
 				# alignment, not sure if really correct
@@ -59,26 +87,26 @@ class ModelReader:
 				else:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=8))
 				# logging.debug(f"model padding {model_info.model_padding}")
-				i = self.assign_bone_info(i, model_info, stream)
+				i = instance.assign_bone_info(i, model_info, stream)
 
 		else:
-			for model_info in self.arg:
+			for model_info in instance.arg:
 				# logging.debug(model_info)
-				model_info.model = Model(self.context, model_info)
-				if model_info.num_objects:
-					model_info.model.read(stream)
-					# logging.debug(model_info.model)
-			self.bone_info_start = stream.tell()
-			for model_info in self.arg:
+				model_info.model = Model(instance.context, model_info)
+				# if model_info.num_objects:
+				model_info.model.read(stream)
+				# logging.debug(model_info.model)
+			instance.bone_info_start = stream.tell()
+			for model_info in instance.arg:
 				try:
-					i = self.assign_bone_info(i, model_info, stream)
+					i = instance.assign_bone_info(i, model_info, stream)
 				except:
 					raise AttributeError(f"Bone info {i} failed")
-		self.io_size = stream.tell() - self.io_start
+		instance.io_size = stream.tell() - instance.io_start
 
 	def assign_bone_info(self, i, model_info, stream):
 		if model_info.increment_flag:
-			logging.debug(f"Reading bone info")
+			logging.debug(f"Reading bone info at {stream.tell()}")
 			model_info.bone_info = self.read_bone_info(stream, i)
 			# logging.debug(model_info.bone_info)
 			self.bone_infos.append(model_info.bone_info)
@@ -160,28 +188,29 @@ class ModelReader:
 				logging.debug(f"Writing vertices for {hitcheck.type}")
 				stream.write_floats(hitcheck.collider.vertices)
 
-	def write(self, stream):
-		self.io_start = stream.tell()
+	@classmethod
+	def write_fields(cls, stream, instance):
+		instance.io_start = stream.tell()
 		i = 0
-		if self.context.version < 47:
+		if instance.context.version < 47:
 			raise NotImplementedError("Can't write old style mesh and bone info blocks")
 		else:
-			for model_info in self.arg:
+			for model_info in instance.arg:
 				model_info.model.write(stream)
-			self.bone_info_start = stream.tell()
-			for model_info in self.arg:
+			instance.bone_info_start = stream.tell()
+			for model_info in instance.arg:
 				if model_info.increment_flag:
 					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
 					model_info.bone_info.write(stream)
-					self.write_hitcheck_verts(model_info.bone_info, stream)
-					if i + 1 < len(self.bone_infos):
-						relative_offset = stream.tell() - self.bone_info_start
+					instance.write_hitcheck_verts(model_info.bone_info, stream)
+					if i + 1 < len(instance.bone_infos):
+						relative_offset = stream.tell() - instance.bone_info_start
 						padding = get_padding(relative_offset)
 						logging.debug(f"Writing padding {padding}")
 						stream.write(padding)
 					i += 1
-			self.bone_info_size = stream.tell() - self.bone_info_start
-		self.io_size = stream.tell() - self.io_start
+			instance.bone_info_size = stream.tell() - instance.bone_info_start
+		instance.io_size = stream.tell() - instance.io_start
 
 	def get_info_str(self):
 		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

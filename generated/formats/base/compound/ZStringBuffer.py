@@ -1,11 +1,13 @@
 
 import logging
-from generated.io import BinaryStream
+
+from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 ZERO = b"\x00"
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
@@ -20,7 +22,17 @@ class ZStringBuffer:
 	def set_defaults(self):
 		pass
 
-	def __init__(self, context, arg=None, template=None):
+	def read(self, stream):
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
+	def write(self, stream):
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
+	def __init__(self, context, arg=0, template=None):
 		self.name = ''
 		self._context = context
 		# arg is byte count
@@ -28,13 +40,6 @@ class ZStringBuffer:
 		self.template = template
 		self.data = b""
 		self.strings = []
-
-	def read(self, stream):
-		self.data = stream.read(self.arg)
-		self.strings = self.data.split(ZERO)
-
-	def write(self, stream):
-		stream.write(self.data)
 
 	def get_str_at(self, pos):
 		end = self.data.find(ZERO, pos)
@@ -47,8 +52,8 @@ class ZStringBuffer:
 		logging.debug("Updating name buffer")
 		self.strings = []
 		offset_dic = {}
-		with BinaryStream() as stream:
-			# for name in self.names:
+		with ConvStream() as stream:
+
 			for array, attrib in list_of_arrays:
 				for item in sorted(array, key=lambda i: getattr(i, attrib)):
 					name = getattr(item, attrib)
@@ -70,4 +75,24 @@ class ZStringBuffer:
 
 	def __repr__(self):
 		return str(self.strings)
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.data = stream.read(instance.arg)
+		instance.strings = instance.data.split(ZERO)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write(instance.data)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template)
+		cls.read_fields(stream, instance)
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		cls.write_fields(stream, instance)
+		return instance
 

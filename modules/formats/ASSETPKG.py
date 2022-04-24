@@ -5,6 +5,7 @@ from modules.helpers import zstr
 
 
 class AssetpkgLoader(BaseFile):
+	extension = ".assetpkg"
 
 	def create(self):
 		ss, f_1 = self._get_data(self.file_entry.path)

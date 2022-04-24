@@ -7,12 +7,36 @@ from generated.formats.manis.compound.ManiBlock import ManiBlock
 from modules.formats.shared import get_padding_size, get_padding
 
 
+from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
 
 class KeysReader:
 
 	context = ContextReference()
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		pass
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		pass
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
 
 	def __init__(self, context, arg=None, template=None):
 		self.name = ''
@@ -33,7 +57,7 @@ class KeysReader:
 		for mani_info in self.arg:
 			print(mani_info)
 			print(stream.tell())
-			mani_info.keys = stream.read_type(ManiBlock, (self.context, mani_info,))
+			mani_info.keys = ManiBlock.from_stream(stream, self.context, mani_info, None)
 			print(mani_info.keys)
 
 			sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)

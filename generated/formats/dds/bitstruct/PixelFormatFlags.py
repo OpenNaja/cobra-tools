@@ -1,3 +1,4 @@
+from source.formats.base.basic import fmt_member
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 
@@ -28,3 +29,11 @@ class PixelFormatFlags(BasicBitfield):
 
 	def write(self, stream):
 		stream.write_uint(self._value)
+
+	@classmethod
+	def from_stream(cls, stream, context=None, arg=0, template=None):
+		return cls.from_value(stream.read_uint())
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		stream.write_uint(instance._value)

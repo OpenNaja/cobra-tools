@@ -1,4 +1,6 @@
 import os
+
+from root_path import root_dir
 from .Imports import Imports
 
 
@@ -38,15 +40,14 @@ class BaseClass:
             self.write_line(stream, indent, line)
 
     def get_code_from_src(self,):
-        cwd = os.getcwd()
-        src_dir = os.path.join(cwd, "source")
+        src_dir = os.path.join(root_dir, "source")
         py_name = f"{self.class_name.lower()}.py"
 
         for root, dirs, files in os.walk(src_dir):
             for name in files:
                 if self.parser.format_name in root and py_name == name.lower():
                     src_path = os.path.join(root, name)
-                    print("found source", src_path)
+                    # print(f"found source {src_path}")
                     with open(src_path, "r", encoding=self.parser.encoding) as f:
                         return f.read()
         return ""
@@ -69,7 +70,7 @@ class BaseClass:
     @staticmethod
     def get_out_path(module_path):
         # get the module path from the path of the file
-        out_file = os.path.join(os.getcwd(), "generated", module_path + ".py")
+        out_file = os.path.join(root_dir, "generated", module_path + ".py")
         out_dir = os.path.dirname(out_file)
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)

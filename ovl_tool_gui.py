@@ -6,6 +6,8 @@ import traceback
 import logging
 import tempfile
 
+from root_path import root_dir
+
 try:
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
@@ -185,7 +187,7 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Inspect Models", self.inspect_models, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(util_menu, "Save Frag Log", self.ovl_data.dump_frag_log, "", ""),
+			(util_menu, "Dump Debug Data", self.ovl_data.dump_debug_data, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Set Game Dir", self.ask_game_dir, "", ""),
@@ -253,7 +255,7 @@ class MainWindow(widgets.MainWindow):
 
 	@staticmethod
 	def open_tools_dir():
-		os.startfile(os.getcwd())
+		os.startfile(root_dir)
 
 	def drag_files(self, file_names):
 		logging.info(f"DRAGGING {file_names}")
@@ -276,7 +278,8 @@ class MainWindow(widgets.MainWindow):
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
-		names = [(old_name, new_name), ]
+		# force new name to be lowercase
+		names = [(old_name, new_name.lower()), ]
 		self.ovl_data.rename(names)
 		self.update_gui_table()
 
@@ -315,11 +318,6 @@ class MainWindow(widgets.MainWindow):
 		else:
 			self.dat_widget.hide()
 
-	def update_commands(self):
-		# at some point, just set commands to archive and trigger changes there
-		if self.file_widget.filename:
-			self.ovl_data.commands = self.commands
-
 	def update_progress(self, message, value=None, vmax=None):
 		# avoid gui updates if the value won't actually change the percentage.
 		# this saves us from making lots of GUI update calls that don't really
@@ -338,8 +336,7 @@ class MainWindow(widgets.MainWindow):
 		if vmax is not None:
 			self.p_action.setMaximum(vmax)
 
-		# don't update the GUI unless the message has changed. label updates
-		# are expensive
+		# don't update the GUI unless the message has changed. label updates are expensive
 		if self.t_action_current_message != message:
 			self.t_action.setText(message)
 			self.t_action_current_message = message
@@ -444,7 +441,7 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loading {len(self.ovl_data.files)} files into gui")
 		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in self.ovl_data.files])
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
-		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds!")
+		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_as_ovl(self):
@@ -465,7 +462,7 @@ class MainWindow(widgets.MainWindow):
 			ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
 			self.ovl_data.save(filepath, ext_path)
 			self.file_widget.dirty = False
-			self.update_progress("Operation completed!", value=1, vmax=1)
+			self.update_progress(f"Saved {self.ovl_data.basename}", value=1, vmax=1)
 		except BaseException as ex:
 			traceback.print_exc()
 			interaction.showdialog(str(ex))
@@ -508,6 +505,9 @@ class MainWindow(widgets.MainWindow):
 					if interaction.showdialog(f"Do you want to add {len(foreign_files)} files to this ovl?", ask=True):
 						self.ovl_data.add_files(foreign_files)
 						self.update_gui_table()
+				if error_files:
+					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
+				self.update_progress("Injection completed", value=1, vmax=1)
 			except Exception as ex:
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
@@ -555,7 +555,7 @@ class MainWindow(widgets.MainWindow):
 					with open(filelist_src, 'w') as f:
 						f.write("\n".join(file_names))
 
-					self.update_progress("Operation completed!", value=1, vmax=1)
+					self.update_progress("Saved file list", value=1, vmax=1)
 				except BaseException as ex:
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
@@ -569,7 +569,7 @@ class MainWindow(widgets.MainWindow):
 			if filelist_src:
 				try:
 					self.ovl_data.save_included_ovls(filelist_src)
-					self.update_progress("Operation completed!", value=1, vmax=1)
+					self.update_progress("Saved included OVLs", value=1, vmax=1)
 				except BaseException as ex:
 					traceback.print_exc()
 					interaction.showdialog(str(ex))
@@ -588,17 +588,17 @@ class MainWindow(widgets.MainWindow):
 	def walker_hash(self,):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.generate_hash_table(self, start_dir)
-		self.update_progress("Operation completed!", value=1, vmax=1)
+		self.update_progress("Hashed", value=1, vmax=1)
 
 	def walker_fgm(self,):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.get_fgm_values(self, start_dir)
-		self.update_progress("Operation completed!", value=1, vmax=1)
+		self.update_progress("Walked FGMs", value=1, vmax=1)
 
 	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.bulk_test_models(self, start_dir, walk_ovls=False)
-		self.update_progress("Operation completed!", value=1, vmax=1)
+		self.update_progress("Inspected models", value=1, vmax=1)
 
 	def closeEvent(self, event):
 		if self.file_widget.dirty:

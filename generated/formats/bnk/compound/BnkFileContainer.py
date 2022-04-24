@@ -1,113 +1,74 @@
-import numpy
-import typing
-from generated.array import Array
-from generated.context import ContextReference
+from source.formats.base.basic import fmt_member
+from generated.formats.bnk.compound.BnkBufferData import BnkBufferData
+from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 
 
-class BnkFileContainer:
+class BnkFileContainer(GenericHeader):
 
 	"""
-	Buffer data of bnk files
+	custom struct
 	"""
 
-	context = ContextReference()
-
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# data size of aux file of type b
-		self.size_b = 0
-
-		# 1, guess
-		self.name_count = 0
-
-		# 2 for PZ, 6 for ZTUAC
-		self.count_2 = 0
-
-		# variable
-		self.stream_info_count = 0
-
-		# 0
-		self.zeros = numpy.zeros((7), dtype='uint')
-
-		# 0
-		self.zeros_2 = numpy.zeros((2), dtype='uint')
-
-		# data
-		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
-
-		# data
-		self.names = Array(self.context)
-
-		# ext format subtypes
-		self.extensions = Array(self.context)
-		self.set_defaults()
+		self.bnk_header = BnkBufferData(self.context, 0, None)
+		if set_default:
+			self.set_defaults()
 
 	def set_defaults(self):
-		self.size_b = 0
-		self.name_count = 0
-		self.count_2 = 0
-		self.stream_info_count = 0
-		self.zeros = numpy.zeros((7), dtype='uint')
-		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.zeros_2 = numpy.zeros((2), dtype='uint')
-		self.stream_infos = numpy.zeros((self.stream_info_count, 3), dtype='uint64')
-		self.names = Array(self.context)
-		self.extensions = Array(self.context)
+		self.bnk_header = BnkBufferData(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
-		self.size_b = stream.read_uint64()
-		self.name_count = stream.read_uint()
-		self.count_2 = stream.read_uint()
-		self.stream_info_count = stream.read_uint()
-		self.zeros = stream.read_uints((7))
-		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			self.zeros_2 = stream.read_uints((2))
-		self.stream_infos = stream.read_uint64s((self.stream_info_count, 3))
-		self.names = stream.read_zstrings((self.name_count))
-		self.extensions = stream.read_zstrings((self.count_2))
-
+		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		self.io_start = stream.tell()
-		stream.write_uint64(self.size_b)
-		stream.write_uint(self.name_count)
-		stream.write_uint(self.count_2)
-		stream.write_uint(self.stream_info_count)
-		stream.write_uints(self.zeros)
-		if (self.context.user_version.is_jwe and (self.context.version == 19)) or (self.context.user_version.is_jwe and (self.context.version == 20)):
-			stream.write_uints(self.zeros_2)
-		stream.write_uint64s(self.stream_infos)
-		stream.write_zstrings(self.names)
-		stream.write_zstrings(self.extensions)
-
+		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	def get_info_str(self):
+	@classmethod
+	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.bnk_header = BnkBufferData.from_stream(stream, instance.context, 0, None)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		BnkBufferData.to_stream(stream, instance.bnk_header)
+
+	@classmethod
+	def from_stream(cls, stream, context, arg=0, template=None):
+		instance = cls(context, arg, template, set_default=False)
+		instance.io_start = stream.tell()
+		cls.read_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		instance.io_start = stream.tell()
+		cls.write_fields(stream, instance)
+		instance.io_size = stream.tell() - instance.io_start
+		return instance
+
+	def get_info_str(self, indent=0):
 		return f'BnkFileContainer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self):
+	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* size_b = {self.size_b.__repr__()}'
-		s += f'\n	* name_count = {self.name_count.__repr__()}'
-		s += f'\n	* count_2 = {self.count_2.__repr__()}'
-		s += f'\n	* stream_info_count = {self.stream_info_count.__repr__()}'
-		s += f'\n	* zeros = {self.zeros.__repr__()}'
-		s += f'\n	* zeros_2 = {self.zeros_2.__repr__()}'
-		s += f'\n	* stream_infos = {self.stream_infos.__repr__()}'
-		s += f'\n	* names = {self.names.__repr__()}'
-		s += f'\n	* extensions = {self.extensions.__repr__()}'
+		s += super().get_fields_str()
+		s += f'\n	* bnk_header = {fmt_member(self.bnk_header, indent+1)}'
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(indent)
 		s += '\n'
 		return s

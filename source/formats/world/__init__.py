@@ -4,7 +4,8 @@ from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
 from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
 from generated.formats.ovl_base import OvlContext
-from generated.io import IoFile, BinaryStream
+from generated.formats.ovl_base.basic import ConvStream
+from generated.io import IoFile
 import os
 import struct
 
@@ -113,8 +114,8 @@ class FgmFile(FgmInfoHeader, IoFile):
 			print()
 
 	def save(self, filepath):
-		names_writer = BinaryStream()
-		data_writer = BinaryStream()
+		names_writer = ConvStream()
+		data_writer = ConvStream()
 		# shader name is at 0
 		names_writer.write_zstring(self.shader_name)
 		names_writer.write(b"\x00")

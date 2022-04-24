@@ -2,7 +2,7 @@ import os
 import struct
 import numpy as np
 
-from generated.io import BinaryStream
+from generated.formats.ovl_base.basic import ConvStream
 from generated.array import Array
 from modules.formats.shared import assign_versions
 
@@ -15,8 +15,8 @@ def split_path(fp):
 
 
 def as_bytes(inst, version_info={}):
-	"""helper that returns the bytes representation of a pyffi struct"""
-	# we must make sure that pyffi arrays are not treated as a list although they are an instance of 'list'
+	"""helper that returns the bytes representation of a struct"""
+	# we must make sure that arrays are not treated as a list although they inherit from 'list'
 	if isinstance(inst, np.ndarray):
 		return inst.tobytes()
 	if isinstance(inst, list) and not isinstance(inst, Array):
@@ -26,7 +26,7 @@ def as_bytes(inst, version_info={}):
 		return inst.encode() + b"\x00"
 	if isinstance(inst, (bytes, bytearray)):
 		return inst
-	with BinaryStream() as stream:
+	with ConvStream() as stream:
 		assign_versions(stream, version_info)
 		inst.write(stream)
 		return stream.getvalue()

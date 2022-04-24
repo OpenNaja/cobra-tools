@@ -6,6 +6,7 @@ from modules.helpers import zstr
 
 
 class SplineLoader(BaseFile):
+	extension = ".spl"
 
 	def create(self):
 		if True:

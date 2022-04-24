@@ -7,9 +7,11 @@ import traceback
 
 from generated.formats.ovl_base.versions import is_pz, is_pz16
 from modules.formats.BaseFormat import BaseFile
+from root_path import root_dir
 
 
 class FdbLoader(BaseFile):
+	extension = ".fdb"
 
 	def create(self):
 		ss, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
@@ -44,7 +46,7 @@ class FdbLoader(BaseFile):
 		return ss, buffer_0, buffer_1
 
 	def open_command(self, f):
-		command_path = os.path.join(os.getcwd(), "sql_commands", f+".sql")
+		command_path = os.path.join(root_dir, "sql_commands", f+".sql")
 		with open(command_path, "r") as file:
 			return file.read()
 

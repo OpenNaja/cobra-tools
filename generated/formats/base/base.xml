@@ -25,45 +25,46 @@
         <operator token="#MOD#" string="%" />
     </token>
 
-    <basic name="byte" count="1">
+    <basic name="byte" integral="true" countable="false">
         An signed 8-bit integer.
     </basic>
-    <basic name="ubyte" count="1">
+    <basic name="ubyte" integral="true" countable="true">
         An unsigned 8-bit integer.
     </basic>
 
-    <basic name="uint64" count="1">
+    <basic name="uint64" integral="true" countable="true">
         An unsigned 64-bit integer.
     </basic>
-    <basic name="uint" count="1">
+
+    <basic name="int64" integral="true" countable="true">
+        A signed 64-bit integer.
+    </basic>
+
+    <basic name="uint" integral="true" countable="true">
         An unsigned 32-bit integer.
     </basic>
-    <basic name="ushort" count="1" >
+    <basic name="ushort" integral="true" countable="true">
         An unsigned 16-bit integer.
     </basic>
 
-    <basic name="int" count="1" >
+    <basic name="int" integral="true" countable="false">
         A signed 32-bit integer.
     </basic>
 
-    <basic name="short" count="1" >
+    <basic name="short" integral="true" countable="false">
         A signed 16-bit integer.
     </basic>
 	
-    <basic name="char" count="0" >
+    <basic name="char" integral="true" countable="false">
         An 8-bit character.
     </basic>
 	
-    <basic name="float" count="0" >
+    <basic name="float" integral="false">
         A standard 32-bit floating point number.
     </basic>
 
-    <basic name="bool" count="1">
-        An unsigned 8-bit integer.
-    </basic>
-
-    <basic name="ZString">
-        A string terminated by a 00 byte.
+    <basic name="ZString" integral="false">
+        A string that ends with a null byte (0x00).
     </basic>
 
     <compound name="ZStringBuffer" count="0" >

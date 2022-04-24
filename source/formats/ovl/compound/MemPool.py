@@ -2,7 +2,7 @@
 import logging
 import io
 
-from generated.io import BinaryStream
+from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 
@@ -36,7 +36,7 @@ class MemPool:
 		if not stack:
 			return
 		# create new data writer
-		data = BinaryStream()
+		data = ConvStream()
 		last_offset = 0
 		logging.debug(f"Stack size = {len(stack)}")
 		# now go sequentially over all ptrs in the stack
@@ -83,7 +83,7 @@ class MemPool:
 		# make them unique and sort them
 		sorted_items = sorted(self.pointer_map.items())
 		# pick all ptrs except frag ptr0
-		sorted_items_filtered = [(offset, pointers) for offset, pointers in sorted_items if any(p.is_ref_ptr for p in pointers)]
+		sorted_items_filtered = [(offset, pointers) for offset, pointers in sorted_items if any(p.is_struct_ptr for p in pointers)]
 		# logging.info(f"len(sorted_items) {len(sorted_items)}, len(sorted_items_filtered) {len(sorted_items_filtered)}")
 		# add the end of the header data block
 		sorted_items_filtered.append((self.size, None))

@@ -30,11 +30,17 @@
 
     <version id="DLA" version="15">Disneyland Adventure</version>
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
-    <version id="PC" version="18">Planet Coaster</version>
+    <version id="PC" version="18" user_version="8340 8724 8212" version_flag="8">Planet Coaster</version>
     <version id="PZ" version="19" user_version="8340 8724 8212">Planet Zoo pre-1.6</version>
     <version id="PZ16" version="20" user_version="8340 8724 8212">Planet Zoo 1.6+</version>
     <version id="JWE" version="19" user_version="24724 25108 24596">Jurassic World Evolution</version>
     <version id="JWE2" version="20" user_version="24724 25108 24596">Jurassic World Evolution 2</version>
+
+    <!-- Extra basic types -->
+
+    <basic name="bool" integral="true" countable="false" >
+        An unsigned 8-bit integer.
+    </basic>
 
     <bitfield name="VersionInfo" storage="uint">
         Determines the format of the OVL file.
@@ -62,18 +68,43 @@
 
 	<!-- Structs for the OVL file -->
 
+    <compound name="Pointer" >
+        a pointer in an ovl memory layout
+        <add name="offset" type="uint64"/>
+    </compound>
+
+    <compound name="ArrayPointer" inherit="Pointer" >
+        a pointer to an array in an ovl memory layout
+    </compound>
+
+    <compound name="ForEachPointer" inherit="Pointer" >
+        a pointer to an array in an ovl memory layout
+    </compound>
+
+    <compound name="MemStruct" >
+        this is a struct that is capable of having pointers
+    </compound>
+
+	<compound name="SmartPadding">
+		Grabs 00 bytes only
+	</compound>
+
     <compound name="FixedString" count="0" >
         Holds a string of a fixed size, given as an argument.
     </compound>
 
+    <basic name="ZStringObfuscated" integral="false">
+        A string that ends with a null byte (0x00), and additionally has its bytes modified.
+    </basic>
+
     <compound name="GenericHeader">
         Found at the beginning of every OVL file
         <add name="magic" type="FixedString" arg="4">'FGM ' for fgm, 'FRES' for ovl, 'MANI' for manis, 'MS2 ' for ms2, 'VOXE' for voxelskirt</add>
-        <add name="version flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform</add>
+        <add name="version_flag" type="byte" >if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform</add>
         <add name="version" type="byte" >0x12 = PC, 0x13 = JWE, PZ</add>
         <add name="Bitswap" type="byte" >endianness?, usually zero</add>
         <add name="Seventh Byte" type="byte" default="1" >always = 1</add>
-        <add name="user version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
+        <add name="user_version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
     </compound>
 
 </niftoolsxml>

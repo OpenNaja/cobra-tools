@@ -1,10 +1,9 @@
 # START_GLOBALS
-import io
 import logging
 import traceback
 
-from generated.io import BinaryStream
-from modules.formats.shared import assign_versions, get_padding
+from generated.array import Array
+from generated.formats.ovl_base.basic import ConvStream
 
 
 # END_GLOBALS
@@ -14,8 +13,7 @@ class HeaderPointer:
 
 # START_CLASS
 
-
-	def __init__(self, context, arg=None, template=None):
+	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
 		self.arg = arg
@@ -37,15 +35,8 @@ class HeaderPointer:
 		# temp data for flushing
 		self._data = None
 
-		# generally all ptrs store data, only frag ptr 0 is just a reference
-		self.is_ref_ptr = True
-
-	# def read_data(self):
-	# 	"""Load data from archive header data readers into pointer for modification and io"""
-	# 	if self.pool_index == -1:
-	# 		self.data = None
-	# 	else:
-	# 		self.data = self.read_from_pool(self.data_size)
+		# sizedstr and frag ptr 1 point to structs, whereas frag ptr 0 and dependency are just a reference
+		self.is_struct_ptr = True
 
 	@property
 	def data(self, with_padding=False):
@@ -61,6 +52,29 @@ class HeaderPointer:
 		"""Get padding from pool writer"""
 		if self.pool:
 			return self.pool.get_at(self.data_offset+self.data_size, self.padding_size)
+
+	@property
+	def stream(self):
+		"""Get stream from pool"""
+		if self.pool:
+			self.pool.data.seek(self.data_offset)
+			return self.pool.data
+
+	def write_instance(self, cls, instance):
+		"""Write instance to end of stream and set offset"""
+		logging.debug(f"write_instance of class {cls}")
+		if self.pool:
+			# seek to end of pool
+			self.pool.data.seek(0, 2)
+			self.data_offset = self.pool.data.tell()
+			if isinstance(instance, Array):
+				Array.to_stream(self.pool.data, instance, (len(instance),), cls, instance.context, 0, None)
+			else:
+				cls.to_stream(self.pool.data, instance)
+			self.data_size = self.pool.data.tell() - self.data_offset
+			logging.debug(f"start at {self.data_offset}, size {self.data_size}")
+		else:
+			logging.warning(f"Pool missing, can not write {cls}")
 
 	def read_from_pool(self, data_size):
 		return self.pool.get_at(self.data_offset, data_size)
@@ -86,15 +100,16 @@ class HeaderPointer:
 		self.data_size = cut
 		self.padding_size = _d - cut
 
-	def link_to_pool(self, pools, is_ref_ptr=True):
+	def link_to_pool(self, pools, is_struct_ptr=True):
 		"""Link this pointer to its pool"""
 
-		self.is_ref_ptr = is_ref_ptr
+		self.is_struct_ptr = is_struct_ptr
 		if self.pool_index != -1:
 			# get pool
 			self.pool = pools[self.pool_index]
-			if not is_ref_ptr:
+			if not is_struct_ptr:
 				self.data_size = 8
+			# todo - only add struct ptrs to map, but ensure that non-struct ptrs have their offsets adjusted for delete
 			if self.data_offset not in self.pool.pointer_map:
 				self.pool.pointer_map[self.data_offset] = []
 			self.pool.pointer_map[self.data_offset].append(self)
@@ -109,25 +124,8 @@ class HeaderPointer:
 
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""
+		assert self.is_struct_ptr
 		self._data = data
-
-	def load_as(self, cls, num=1, version_info={}, args=(), context=None):
-		"""Return self.data as codegen cls"""
-		insts = []
-		if context:
-			con = context
-		else:
-			con = self.context
-		with BinaryStream(self.data) as stream:
-			try:
-				for i in range(num):
-					inst = cls(con, *args)
-					inst.read(stream)
-					insts.append(inst)
-			except:
-				traceback.print_exc()
-				print(insts)
-		return insts
 
 	def remove(self):
 		"""Remove this pointer from suitable pool"""
@@ -140,4 +138,7 @@ class HeaderPointer:
 			return self.data_offset == other.data_offset and self.pool_index == other.pool_index
 
 	def __repr__(self):
-		return f"[{self.pool_index} | {self.data_offset}]"
+		return f"[{self.pool_index: 3} | {self.data_offset: 6}]"
+
+	def __hash__(self):
+		return hash((self.pool_index, self.data_offset))

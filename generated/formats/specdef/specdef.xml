@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <enum name="SpecdefDtype" numbytes="4" storage="uint" default="0">
+		<option value="0" name="Boolean" />
+		<option value="1" name="Int8" />
+		<option value="2" name="Int16" />
+		<option value="3" name="Int32" />
+		<option value="4" name="Int64" />
+		<option value="5" name="UInt8" />
+		<option value="6" name="UInt16" />
+		<option value="7" name="UInt32" />
+		<option value="8" name="UInt64" />
+		<option value="9" name="Float" />
+		<option value="10" name="String" />
+		<option value="11" name="Vector2" />
+		<option value="12" name="Vector3" />
+		<option value="13" name="Array" />
+		<option value="14" name="ChildItem" />
+		<option value="15" name="ReferenceToObject" />
+    </enum>
+
+    <compound name="SpecdefRoot" inherit="MemStruct">
+        <add name="attrib_count" type="ushort" />
+        <add name="flags" type="ushort" />
+        <add name="name_count" type="ubyte" />
+        <add name="childspec_count" type="ubyte" />
+        <add name="manager_count" type="ubyte" />
+        <add name="script_count" type="ubyte" />
+        <add name="attrib_dtypes" type="ArrayPointer" template="SpecdefDtype" arg="attrib_count"/>
+        <add name="attrib_names" type="Pointer" template="PtrList" arg="attrib_count"/>
+        <add name="attrib_datas" type="ForEachPointer" template="Data" arg="attrib_dtypes"/>
+
+        <add name="names" type="Pointer" template="PtrList" arg="name_count"/>
+        <add name="childspecs" type="Pointer" template="PtrList" arg="childspec_count"/>
+        <add name="managers" type="Pointer" template="PtrList" arg="manager_count"/>
+        <add name="scripts" type="Pointer" template="PtrList" arg="script_count"/>
+    </compound>
+
+    <compound name="DataList" inherit="MemStruct">
+        <add name="ptrs" type="Pointer" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="PtrList" inherit="MemStruct">
+        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
+    </compound>
+
+    <compound name="Data" inherit="MemStruct">
+        #ARG# is dtype
+        <add name="test" type="uint"/>
+    </compound>
+
+    <compound name="DtypeList" inherit="MemStruct">
+<!--        <add name="dtypes" type="SpecdefDtype" arr1="#ARG#"/>-->
+        <add name="dtypes" type="uint" arr1="#ARG#"/>
+        works
+<!--        <add name="dtypes" type="SpecdefDtype" />-->
+    </compound>
+
+</niftoolsxml>
