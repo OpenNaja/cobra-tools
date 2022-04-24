@@ -6,7 +6,7 @@
 	
     <compound name="DataPointer">
         second Section of a soundbank aux
-        <add name="wem id" type="uint" ></add>
+        <add name="wem id" type="uint"/>
         <add name="data section offset" type="uint" >offset into data section</add>
         <add name="wem filesize" type="uint" >length of the wem file</add>
     </compound>
@@ -19,8 +19,8 @@
         <add name="IdB" type="uint" ></add>
         <add name="constantA" type="uint" ></add>
         <add name="constantB" type="uint" ></add>
-        <add name="unk" type="uint" arr1="2" ></add>
-<!--        <add name="zeroes" type="ubyte" arr1="length - 24">filler zeroes, seems to be gone now</add>-->
+        <add name="unk" type="uint" ></add>
+        <add name="zeroes" type="ubyte" arr1="length - 24">sometimes present</add>
     </compound>
 
     <compound name="DIDXSection">

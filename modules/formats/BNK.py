@@ -85,7 +85,8 @@ class BnkLoader(BaseFile):
 	def load(self, wem_file_path):
 		logging.info(f"Trying to inject {wem_file_path}")
 		# bnk_name = None
-		wem_id = None
+		wem_id = os.path.splitext(wem_file_path)[0].rsplit("_")[-1]
+		logging.info(f"WEM id: {wem_id}")
 		bnk = os.path.splitext(self.sized_str_entry.name)[0]
 		bare_bnk = bnk.rsplit("_", 1)[0]
 		for base_dir in (self.ovl.dir, os.path.dirname(wem_file_path)):

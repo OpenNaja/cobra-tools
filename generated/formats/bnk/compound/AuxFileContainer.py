@@ -55,10 +55,12 @@ class AuxFileContainer:
 				break
 			else:
 				raise NotImplementedError(f"Unknown chunk {chunk_id}!")
+			# see where this chunk should have ended
 			desired_end = after_size_pos + instance.chunks[-1][1].length
 			if stream.tell() != desired_end:
-				logging.info(f"Seeking to {desired_end}")
+				logging.info(f"Ended up at bad offset, seeking to desired {desired_end}")
 				stream.seek(desired_end)
+		# id the pointers
 		if instance.hirc:
 			for pointer in instance.hirc.hirc_pointers:
 				if pointer.id == 2:
@@ -119,27 +121,31 @@ class AuxFileContainer:
 	def write_fields(cls, stream, instance):
 		"""Update representation, then write the container from the internal representation"""
 		offset = 0
-		if not instance.hirc:
+		if instance.didx:
 			for pointer in instance.didx.data_pointers:
 				pointer.data_section_offset = offset
 				pointer.wem_filesize = len(pointer.data)
 				pointer.pad = get_padding(len(pointer.data), alignment=16)
 				offset += len(pointer.data + pointer.pad)
 		for chunk_id, chunk in instance.chunks:
+			if chunk_id == b"DATA":
+				continue
+			# print(stream.tell(), chunk_id, chunk)
 			stream.write(chunk_id)
-			type(chunk).to_stream(stream, chunk)
+			chunk.to_stream(stream, chunk)
 		if instance.hirc:
-			stream.write(bytearray(instance.old_size - stream.tell()))
-			logging.info(f"End of HIRC at {stream.tell()}")
+			# stream.write(bytearray(instance.old_size - stream.tell()))
+			# logging.info(f"End of HIRC at {stream.tell()}")
 			return
 		if not instance.didx.data_pointers:
 			return
-		data = b"".join(pointer.data + pointer.pad for pointer in instance.didx.data_pointers)
-		stream.write(b"DATA")
-		stream.write_uint(len(data) - len(pointer.pad))
-		stream.write(data)
-		# ovl ignores the padding of the last wem
-		instance.size_for_ovl = stream.tell() - len(pointer.pad)
+		if instance.data:
+			data = b"".join(pointer.data + pointer.pad for pointer in instance.didx.data_pointers)
+			stream.write(b"DATA")
+			stream.write_uint(len(data) - len(pointer.pad))
+			stream.write(data)
+			# ovl ignores the padding of the last wem
+			instance.size_for_ovl = stream.tell() - len(pointer.pad)
 		logging.info(f"AUX size for OVL {instance.size_for_ovl}")
 
 	def read(self, stream):
