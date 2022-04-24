@@ -15,6 +15,7 @@ Int = Struct("<i")  # int32
 UInt = Struct("<I")  # uint32
 Int64 = Struct("<q")  # int64
 UInt64 = Struct("<Q")  # uint64
+Double = Struct("<d")  # float64
 Float = Struct("<f")  # float32
 HFloat = Struct("<e")  # float16
 

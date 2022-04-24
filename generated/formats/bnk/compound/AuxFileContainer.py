@@ -42,6 +42,7 @@ class AuxFileContainer:
 				instance.chunks.append((chunk_id, instance.bhkd))
 			elif chunk_id == b"HIRC":
 				instance.hirc = HIRCSection.from_stream(stream, instance.context, 0, None)
+				print(instance.hirc)
 				instance.chunks.append((chunk_id, instance.hirc))
 			elif chunk_id == b"DIDX":
 				instance.didx = DIDXSection.from_stream(stream, instance.context, 0, None)

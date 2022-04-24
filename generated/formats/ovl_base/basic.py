@@ -71,7 +71,7 @@ class ZStringObfuscated(ZString):
         return read_zstring, write_zstring, read_zstrings, write_zstrings
 
 
-from generated.formats.base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, ZString
+from generated.formats.base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, Double, ZString
 
 basic_map = {
 			'Byte': Byte,
@@ -84,6 +84,7 @@ basic_map = {
 			'Short': Short,
 			'Char': Char,
 			'Float': Float,
+			'Double': Double,
 			'ZString': ZString,
 			'Bool': Bool,
 			'ZStringObfuscated': ZStringObfuscated,

@@ -1,12 +1,9 @@
 from source.formats.base.basic import fmt_member
+import numpy
 from generated.context import ContextReference
 
 
-class DataPointer:
-
-	"""
-	second Section of a soundbank aux
-	"""
+class NodeBaseParams:
 
 	context = ContextReference()
 
@@ -17,20 +14,12 @@ class DataPointer:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.wem_id = 0
-
-		# offset into data section
-		self.data_section_offset = 0
-
-		# length of the wem file
-		self.wem_filesize = 0
+		self.raw = numpy.zeros((30,), dtype=numpy.dtype('int8'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.wem_id = 0
-		self.data_section_offset = 0
-		self.wem_filesize = 0
+		self.raw = numpy.zeros((30,), dtype=numpy.dtype('int8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -44,15 +33,11 @@ class DataPointer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.wem_id = stream.read_uint()
-		instance.data_section_offset = stream.read_uint()
-		instance.wem_filesize = stream.read_uint()
+		instance.raw = stream.read_bytes((30,))
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_uint(instance.wem_id)
-		stream.write_uint(instance.data_section_offset)
-		stream.write_uint(instance.wem_filesize)
+		stream.write_bytes(instance.raw)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -70,13 +55,11 @@ class DataPointer:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'DataPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'NodeBaseParams [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* wem_id = {fmt_member(self.wem_id, indent+1)}'
-		s += f'\n	* data_section_offset = {fmt_member(self.data_section_offset, indent+1)}'
-		s += f'\n	* wem_filesize = {fmt_member(self.wem_filesize, indent+1)}'
+		s += f'\n	* raw = {fmt_member(self.raw, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

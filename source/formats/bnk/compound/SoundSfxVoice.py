@@ -3,7 +3,7 @@ import typing
 from generated.array import Array
 
 
-class Type2:
+class SoundSfxVoice:
 
 	# START_CLASS
 

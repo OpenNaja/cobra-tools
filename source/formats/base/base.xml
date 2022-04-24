@@ -63,6 +63,10 @@
         A standard 32-bit floating point number.
     </basic>
 
+    <basic name="double" integral="false">
+        A standard 64-bit floating point number.
+    </basic>
+
     <basic name="ZString" integral="false">
         A string that ends with a null byte (0x00).
     </basic>

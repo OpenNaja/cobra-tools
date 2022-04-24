@@ -6,7 +6,7 @@ from generated.context import ContextReference
 class BKHDSection:
 
 	"""
-	First Section of a soundback aux
+	First Section of a soundbank aux
 	"""
 
 	context = ContextReference()
