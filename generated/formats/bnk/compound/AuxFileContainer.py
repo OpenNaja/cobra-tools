@@ -130,7 +130,7 @@ class AuxFileContainer:
 			type(chunk).to_stream(stream, chunk)
 		if instance.hirc:
 			stream.write(bytearray(instance.old_size - stream.tell()))
-			logging.info(stream.tell())
+			logging.info(f"End of HIRC at {stream.tell()}")
 			return
 		if not instance.didx.data_pointers:
 			return
