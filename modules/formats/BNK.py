@@ -13,6 +13,7 @@ class BnkLoader(BaseFile):
 	child_extensions = (".wav", ".wem", ".ogg")
 
 	def validate_child(self, file_path):
+		# only accept audio files on media bnks
 		if "media" in self.file_entry.name:
 			return True
 		return False
@@ -87,32 +88,51 @@ class BnkLoader(BaseFile):
 		# bnk_name = None
 		wem_id = os.path.splitext(wem_file_path)[0].rsplit("_")[-1]
 		logging.info(f"WEM id: {wem_id}")
-		bnk = os.path.splitext(self.sized_str_entry.name)[0]
-		bare_bnk = bnk.rsplit("_", 1)[0]
+		# without extension
+		media_bnk = os.path.splitext(self.sized_str_entry.name)[0]
+		events_bnk = f"{media_bnk.rsplit('_', 1)[0]}_events"
 		for base_dir in (self.ovl.dir, os.path.dirname(wem_file_path)):
 
-			media_path = os.path.join(base_dir, f"{self.ovl.basename}_{bnk}_bnk_b.aux")
-			events_path = os.path.join(base_dir, f"{self.ovl.basename}_{bare_bnk}_events_bnk_b.aux")
+			media_path = os.path.join(base_dir, f"{self.ovl.basename}_{media_bnk}_bnk_b.aux")
+			events_path = os.path.join(base_dir, f"{self.ovl.basename}_{events_bnk}_bnk_b.aux")
 			print(media_path)
 			print(events_path)
-			if os.path.isfile(media_path):
-				# if "_media_" not in media_path:
-				# 	print("skipping events bnk", media_path)
-				# 	return
+			if os.path.isfile(media_path) and os.path.isfile(events_path):
+				media = AuxFile()
+				media.load(media_path)
+				media.inject_audio(wem_file_path, wem_id)
+				media.save(media_path)
 
-				data = AuxFile()
-				data.load(media_path)
-				data.inject_audio(wem_file_path, wem_id)
-				data.save(media_path)
 				events = AuxFile()
 				events.load(events_path)
-				# print(events)
 				events.inject_hirc(wem_file_path, wem_id)
 				events.save(events_path)
 
 				# first uint of the buffer is the size of the data that should be read from the aux file
-				buffers = self.sized_str_entry.data_entry.buffer_datas
-				buffers[0] = struct.pack("<I", data.size_for_ovl) + buffers[0][4:]
+				media_buffers = self.sized_str_entry.data_entry.buffer_datas
+				media_buffers[0] = struct.pack("<I", media.size_for_ovl) + media_buffers[0][4:]
+
+				if len(media_buffers) > 1:
+					logging.info(f"Loaded bnk {media_path} into OVL buffers")
+					with open(media_path, "rb") as f:
+						media_buffers[1] = f.read()
 				# update the buffer
-				self.sized_str_entry.data_entry.update_data(buffers)
+				self.sized_str_entry.data_entry.update_data(media_buffers)
+
+				# get events bnk for internal files
+				if not self.file_entry.aux_entries:
+					events_ss = self.ovl.get_sized_str_entry(f"{events_bnk}.bnk")
+					if events_ss:
+						events_buffers = events_ss.data_entry.buffer_datas
+						events_buffers[0] = struct.pack("<I", events.size_for_ovl) + events_buffers[0][4:]
+
+						logging.info(f"Loaded bnk {events_path} into OVL buffers")
+						with open(events_path, "rb") as f:
+							events_buffers[1] = f.read()
+						events_ss.data_entry.update_data(events_buffers)
+					else:
+						logging.warning(f"Could not find {events_bnk}.bnk in OVL")
+
 				logging.info(f"Injected {wem_file_path} {wem_id}")
+				break
+
