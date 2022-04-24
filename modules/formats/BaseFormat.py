@@ -16,12 +16,16 @@ import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers 
 
 class BaseFile:
 	extension = None
+	child_extensions = ()
 
 	def __init__(self, ovl, file_entry):
 		self.ovl = ovl
 		self.ovs = ovl.create_archive()
 		self.file_entry = file_entry
 		self.sized_str_entry = None
+
+	def validate_child(self, file_path):
+		return False
 
 	def create(self):
 		raise NotImplementedError

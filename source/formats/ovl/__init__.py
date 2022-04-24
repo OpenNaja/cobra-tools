@@ -884,8 +884,16 @@ class OvlFile(Header, IoFile):
 			if name_lower in _files_dict:
 				file = _files_dict[name_lower]
 			else:
-				foreign_files.append(file_path)
-				continue
+				# check if this file could be handled by a loader still
+				for file in self.files:
+					if file.loader and ext in file.loader.child_extensions:
+						if file.loader.validate_child(name_lower):
+							logging.info(f"Could inject {name_lower} into {file.name}")
+							break
+				# nope, it may need to be added
+				else:
+					foreign_files.append(file_path)
+					continue
 			try:
 				file.loader.load(file_path)
 			except BaseException as error:

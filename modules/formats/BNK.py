@@ -10,6 +10,12 @@ from ovl_util.texconv import write_riff_file
 
 class BnkLoader(BaseFile):
 	extension = ".bnk"
+	child_extensions = (".wav", ".wem", ".ogg")
+
+	def validate_child(self, file_path):
+		if "media" in self.file_entry.name:
+			return True
+		return False
 
 	def create(self):
 		pass
@@ -77,15 +83,15 @@ class BnkLoader(BaseFile):
 		return out_files
 	
 	def load(self, wem_file_path):
-		# todo - resolve and get these
-		bnk_name = None
+		logging.info(f"Trying to inject {wem_file_path}")
+		# bnk_name = None
 		wem_id = None
 		bnk = os.path.splitext(self.sized_str_entry.name)[0]
 		aux_path = f"{self.ovl.path_no_ext}_{bnk}_bnk_b.aux"
 		if os.path.isfile(aux_path):
-			if "_media_" not in aux_path:
-				print("skipping events bnk", aux_path)
-				return
+			# if "_media_" not in aux_path:
+			# 	print("skipping events bnk", aux_path)
+			# 	return
 	
 			data = AuxFile()
 			data.load(aux_path)
@@ -95,7 +101,7 @@ class BnkLoader(BaseFile):
 			ss = self.sized_str_entry.name.rsplit("_", 1)[0]
 			eventspath = f"{self.ovl.path_no_ext}_{ss}_events_bnk_b.aux"
 			events.load(eventspath)
-			print(events)
+			# print(events)
 			events.inject_hirc(wem_file_path, wem_id)
 			events.save(eventspath)
 	
@@ -104,3 +110,4 @@ class BnkLoader(BaseFile):
 			buffers[0] = struct.pack("<I", data.size_for_ovl) + buffers[0][4:]
 			# update the buffer
 			self.sized_str_entry.data_entry.update_data(buffers)
+			logging.info(f"Injected {wem_file_path} {wem_id}")

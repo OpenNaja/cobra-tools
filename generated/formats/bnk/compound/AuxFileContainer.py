@@ -42,7 +42,7 @@ class AuxFileContainer:
 				instance.chunks.append((chunk_id, instance.bhkd))
 			elif chunk_id == b"HIRC":
 				instance.hirc = HIRCSection.from_stream(stream, instance.context, 0, None)
-				print(instance.hirc)
+				# print(instance.hirc)
 				instance.chunks.append((chunk_id, instance.hirc))
 			elif chunk_id == b"DIDX":
 				instance.didx = DIDXSection.from_stream(stream, instance.context, 0, None)
@@ -59,13 +59,19 @@ class AuxFileContainer:
 			if stream.tell() != desired_end:
 				logging.info(f"Seeking to {desired_end}")
 				stream.seek(desired_end)
-		# if not instance.hirc:
+		if instance.hirc:
+			for pointer in instance.hirc.hirc_pointers:
+				if pointer.id == 2:
+					pointer.hash = instance.fmt_hash(pointer.data.didx_id)
 		if instance.didx:
 			for pointer in instance.didx.data_pointers:
-				pointer.data = bytes(instance.data.wem_datas[
-							   pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize])
-				pointer.hash = "".join([f"{b:02X}" for b in struct.pack("<I", pointer.wem_id)])
+				pointer.data = bytes(instance.data.wem_datas[pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize])
+				pointer.hash = instance.fmt_hash(pointer.wem_id)
 				pointer.pad = b""
+
+	@staticmethod
+	def fmt_hash(id_hash):
+		return "".join([f"{b:02X}" for b in struct.pack("<I", id_hash)])
 
 	def extract_audio(self, out_dir_func, basename, progress_callback=None):
 		"""Extracts all wem files from the container into a folder"""
@@ -85,7 +91,7 @@ class AuxFileContainer:
 		logging.info("Injecting audio")
 		for pointer in self.didx.data_pointers:
 			if pointer.hash == wem_id:
-				logging.info("found a match, reading wem data")
+				logging.info(f"found a match {pointer.hash}, reading wem data")
 				with open(wem_path, "rb") as f:
 					pointer.data = f.read()
 				break
@@ -93,19 +99,14 @@ class AuxFileContainer:
 	def inject_hirc(self, wem_path, wem_id):
 		"""Loads wem size into the events container"""
 		logging.info("updating hirc data size")
-		for hirc_pointer in self.hirc.hirc_pointers:
-
-			if hirc_pointer.id == 2:
-				hash = "".join([f"{b:02X}" for b in struct.pack("<I", hirc_pointer.data.didx_id)])
-				# print(hirc_pointer.id, hash, wem_id)
-				if hash == wem_id:
-					logging.info("found a match, reading wem data size")
-					hirc_pointer.data.wem_length = os.path.getsize(wem_path)
-					# print(hirc_pointer.data)
-					break
-	# if self.hirc != None:
-	#   for hirc_pointer in self.hirc.hirc_pointers:
-	#      if hirc_pointer.id == 2:
+		if self.hirc:
+			for pointer in self.hirc.hirc_pointers:
+				if pointer.id == 2:
+					if pointer.hash == wem_id:
+						logging.info(f"found a match {pointer.hash}, updating wem data size")
+						pointer.data.wem_length = os.path.getsize(wem_path)
+						# print(hirc_pointer.data)
+						break
 
 	def __repr__(self):
 		s = 'AuxFileContainer'
