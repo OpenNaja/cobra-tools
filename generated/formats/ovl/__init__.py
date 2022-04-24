@@ -208,7 +208,6 @@ class OvsFile(OvsHeader):
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
 		self.arg.num_files = len(self.sized_str_entries)
-		print("self.arg.num_files", self.arg.num_files)
 		self.arg.num_buffer_groups = len(self.buffer_groups)
 		# todo - self.arg.ovs_offset
 
@@ -1643,16 +1642,15 @@ class OvlFile(Header, IoFile):
 
 	def update_aux_sizes(self):
 		logging.debug("Updating AUX sizes in OVL")
-		for aux in self.aux_entries:
-			name = aux.file.basename
-			if aux.extension_index != 0:
-				bnkpath = f"{self.path_no_ext}_{name}_bnk_s.aux"
-			else:
-				bnkpath = f"{self.path_no_ext}_{name}_bnk_b.aux"
-
-			# grab and update size
-			if os.path.isfile(bnkpath):
-				aux.size = os.path.getsize(bnkpath)
+		for file in self.files:
+			name = file.basename
+			for aux in file.aux_entries:
+				bnkpath = f"{self.path_no_ext}_{name}_bnk_{aux.name.lower()}.aux"
+				# grab and update size
+				if os.path.isfile(bnkpath):
+					aux.size = os.path.getsize(bnkpath)
+				else:
+					logging.warning(f"Could find {bnkpath} to update .aux file size")
 
 
 if __name__ == "__main__":
