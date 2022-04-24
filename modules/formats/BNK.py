@@ -87,27 +87,31 @@ class BnkLoader(BaseFile):
 		# bnk_name = None
 		wem_id = None
 		bnk = os.path.splitext(self.sized_str_entry.name)[0]
-		aux_path = f"{self.ovl.path_no_ext}_{bnk}_bnk_b.aux"
-		if os.path.isfile(aux_path):
-			# if "_media_" not in aux_path:
-			# 	print("skipping events bnk", aux_path)
-			# 	return
-	
-			data = AuxFile()
-			data.load(aux_path)
-			data.inject_audio(wem_file_path, wem_id)
-			data.save(aux_path)
-			events = AuxFile()
-			ss = self.sized_str_entry.name.rsplit("_", 1)[0]
-			eventspath = f"{self.ovl.path_no_ext}_{ss}_events_bnk_b.aux"
-			events.load(eventspath)
-			# print(events)
-			events.inject_hirc(wem_file_path, wem_id)
-			events.save(eventspath)
-	
-			# first uint of the buffer is the size of the data that should be read from the aux file
-			buffers = self.sized_str_entry.data_entry.buffer_datas
-			buffers[0] = struct.pack("<I", data.size_for_ovl) + buffers[0][4:]
-			# update the buffer
-			self.sized_str_entry.data_entry.update_data(buffers)
-			logging.info(f"Injected {wem_file_path} {wem_id}")
+		bare_bnk = bnk.rsplit("_", 1)[0]
+		for base_dir in (self.ovl.dir, os.path.dirname(wem_file_path)):
+
+			media_path = os.path.join(base_dir, f"{self.ovl.basename}_{bnk}_bnk_b.aux")
+			events_path = os.path.join(base_dir, f"{self.ovl.basename}_{bare_bnk}_events_bnk_b.aux")
+			print(media_path)
+			print(events_path)
+			if os.path.isfile(media_path):
+				# if "_media_" not in media_path:
+				# 	print("skipping events bnk", media_path)
+				# 	return
+
+				data = AuxFile()
+				data.load(media_path)
+				data.inject_audio(wem_file_path, wem_id)
+				data.save(media_path)
+				events = AuxFile()
+				events.load(events_path)
+				# print(events)
+				events.inject_hirc(wem_file_path, wem_id)
+				events.save(events_path)
+
+				# first uint of the buffer is the size of the data that should be read from the aux file
+				buffers = self.sized_str_entry.data_entry.buffer_datas
+				buffers[0] = struct.pack("<I", data.size_for_ovl) + buffers[0][4:]
+				# update the buffer
+				self.sized_str_entry.data_entry.update_data(buffers)
+				logging.info(f"Injected {wem_file_path} {wem_id}")

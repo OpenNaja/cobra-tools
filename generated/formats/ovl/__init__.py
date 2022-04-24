@@ -889,14 +889,12 @@ class OvlFile(Header, IoFile):
 					if file.loader and ext in file.loader.child_extensions:
 						if file.loader.validate_child(name_lower):
 							logging.info(f"Could inject {name_lower} into {file.name}")
-							# file.loader.load(file_path)
 							break
 				# nope, it may need to be added
 				else:
 					foreign_files.append(file_path)
 					continue
 			try:
-				print("try loading")
 				file.loader.load(file_path)
 			except BaseException as error:
 				logging.error(f"An exception occurred while injecting {name_ext}")
