@@ -29,8 +29,7 @@ class BnkLoader(BaseFile):
 			f.write(self.pack_header(b"BNK"))
 			f.write(self.sized_str_entry.data_entry.buffer_datas[0])
 		logging.debug(f"Num buffers {len(self.sized_str_entry.data_entry.buffer_datas)}")
-	
-		wem_files = []
+
 		try:
 			# first read the bnk file which informs of any streams
 			bnk = BnkFile()

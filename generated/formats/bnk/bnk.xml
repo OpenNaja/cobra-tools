@@ -73,10 +73,11 @@
     </compound>
     
     <compound name="StreamInfo" >
-        Describes a wem file in a stream
+        Describes a wem file in an s type bank stream
         <add name="offset" type="uint64"/>
         <add name="size" type="uint64"/>
-        <add name="unk" type="uint64"/>
+        <add name="event id" type="uint">referred to by the events aux file</add>
+        <add name="zero" type="uint"/>
     </compound>
 
     <compound name="BnkBufferData">

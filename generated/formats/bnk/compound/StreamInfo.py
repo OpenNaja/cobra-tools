@@ -5,7 +5,7 @@ from generated.context import ContextReference
 class StreamInfo:
 
 	"""
-	Describes a wem file in a stream
+	Describes a wem file in an s type bank stream
 	"""
 
 	context = ContextReference()
@@ -19,14 +19,18 @@ class StreamInfo:
 		self.io_start = 0
 		self.offset = 0
 		self.size = 0
-		self.unk = 0
+
+		# referred to by the events aux file
+		self.event_id = 0
+		self.zero = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.offset = 0
 		self.size = 0
-		self.unk = 0
+		self.event_id = 0
+		self.zero = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -42,13 +46,15 @@ class StreamInfo:
 	def read_fields(cls, stream, instance):
 		instance.offset = stream.read_uint64()
 		instance.size = stream.read_uint64()
-		instance.unk = stream.read_uint64()
+		instance.event_id = stream.read_uint()
+		instance.zero = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_uint64(instance.offset)
 		stream.write_uint64(instance.size)
-		stream.write_uint64(instance.unk)
+		stream.write_uint(instance.event_id)
+		stream.write_uint(instance.zero)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -72,7 +78,8 @@ class StreamInfo:
 		s = ''
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
+		s += f'\n	* event_id = {fmt_member(self.event_id, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
