@@ -1405,16 +1405,16 @@ class OvlFile(Header, IoFile):
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		self.dependencies.sort(key=lambda x: x.file_hash)
-		self.aux_entries.sort(key=lambda x: x.file_hash)
 		self.num_dependencies = len(self.dependencies)
 		self.num_aux_entries = len(self.aux_entries)
 
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
 		# update the file indices
-		for file in self.files:
+		for file_i, file in enumerate(self.files):
 			for entry in file.dependencies + file.aux_entries:
-				entry.file_index = file_name_lut[file.name]
+				entry.file_index = file_i
+		self.aux_entries.sort(key=lambda x: x.file_index)
 
 		for archive in self.archives:
 			# change the hashes / indices of all entries to be valid for the current game version
