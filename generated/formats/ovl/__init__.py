@@ -280,7 +280,6 @@ class OvsFile(OvsHeader):
 
 	def read_pools(self, stream):
 		for pool in self.pools:
-			pool.address = stream.tell()
 			pool.data = ConvStream(stream.read(pool.size))
 			assign_versions(pool.data, get_versions(self.ovl))
 

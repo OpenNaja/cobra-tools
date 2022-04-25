@@ -60,16 +60,13 @@ class BaseFile:
 		ovs_file = self.ovl.create_archive(ovs)
 		# get one directly editable pool, if it exists
 		# todo - remove pool index throughout all formats
-		for pool_index, pool in enumerate(ovs_file.pools):
+		for pool in ovs_file.pools:
 			# todo - reasonable add size condition
 			if pool.type == pool_type_key and pool.new:
 				return pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
 		pool.data = ConvStream()
-		# the real address isn't known until it is written, but declare it anyway
-		pool.address = 0
-		# assign_versions(pool.data, get_versions(self.ovl))
 		pool.type = pool_type_key
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
 		pool.new = True
