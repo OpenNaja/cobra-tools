@@ -1,11 +1,8 @@
 import logging
 import os
-import struct
-import traceback
 
-from generated.formats.bnk import BnkFile, AuxFile
+from generated.formats.bnk import BnkFile
 from modules.formats.BaseFormat import BaseFile
-from ovl_util.texconv import write_riff_file
 
 
 class BnkLoader(BaseFile):
@@ -41,10 +38,10 @@ class BnkLoader(BaseFile):
 		# first read the bnk file which informs of any streams
 		bnk = BnkFile()
 		bnk.load(out_path)
-		print(bnk)
+		# print(bnk)
 		# ensure that aux files are where they should be
 		for aux_file in self.file_entry.aux_entries:
-			print(aux_file)
+			# print(aux_file)
 			if aux_file.name.lower() == "b":
 				assert bnk.bnk_header.external_b_suffix.lower() == "b"
 			elif aux_file.name.lower() == "s":
@@ -69,5 +66,29 @@ class BnkLoader(BaseFile):
 		return out_files
 	
 	def load(self, bnk_file_path):
+		# # first uint of the buffer is the size of the data that should be read from the aux file
+		# media_buffers = self.sized_str_entry.data_entry.buffer_datas
+		# media_buffers[0] = struct.pack("<I", media.size_for_ovl) + media_buffers[0][4:]
+		#
+		# if len(media_buffers) > 1:
+		# 	logging.info(f"Loaded bnk {media_path} into OVL buffers")
+		# 	with open(media_path, "rb") as f:
+		# 		media_buffers[1] = f.read()
+		# # update the buffer
+		# self.sized_str_entry.data_entry.update_data(media_buffers)
+		#
+		# # get events bnk for internal files
+		# if not self.file_entry.aux_entries:
+		# 	events_ss = self.ovl.get_sized_str_entry(f"{events_bnk}.bnk")
+		# 	if events_ss:
+		# 		events_buffers = events_ss.data_entry.buffer_datas
+		# 		events_buffers[0] = struct.pack("<I", events.size_for_ovl) + events_buffers[0][4:]
+		#
+		# 		logging.info(f"Loaded bnk {events_path} into OVL buffers")
+		# 		with open(events_path, "rb") as f:
+		# 			events_buffers[1] = f.read()
+		# 		events_ss.data_entry.update_data(events_buffers)
+		# 	else:
+		# 		logging.warning(f"Could not find {events_bnk}.bnk in OVL")
 		pass
 

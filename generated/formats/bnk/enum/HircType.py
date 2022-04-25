@@ -22,4 +22,7 @@ class HircType(UbyteEnum):
 	MotionBus = 16
 	MotionFX = 17
 	Effect = 18
+	UnkType19 = 19
 	AuxiliaryBus = 20
+	UnkType21 = 21
+	UnkType22 = 22

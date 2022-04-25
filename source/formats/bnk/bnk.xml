@@ -62,8 +62,10 @@
 		<option value="16" name="MotionBus" />
 		<option value="17" name="MotionFX" />
 		<option value="18" name="Effect" />
-<!--		<option value="19" name="" />-->
+		<option value="19" name="UnkType19" />
 		<option value="20" name="AuxiliaryBus" />
+		<option value="21" name="UnkType21" />
+		<option value="22" name="UnkType22" />
     </enum>
 
 
