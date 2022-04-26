@@ -421,11 +421,25 @@ class OvsFile(OvsHeader):
 						-1 - x].data_offset
 
 	def frags_from_pointer(self, ptr, count, reuse=False):
-		frags = self.frags_for_pointer(ptr)
-		return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
+		# todo - deprecate
+		return self.get_frags_after_count(ptr.pool.fragments, ptr.data_offset, count)
 
-	def frags_for_pointer(self, p):
-		return self.pools[p.pool_index].fragments
+	@staticmethod
+	def get_frags_after_count(frags, initpos, count):
+		# todo - deprecate
+		"""Returns count entries of frags that have not been processed and occur after initpos."""
+		out = []
+		for f in frags:
+			# check length of fragment, grab good ones
+			if len(out) == count:
+				break
+			if f.pointers[0].data_offset >= initpos:
+				out.append(f)
+		else:
+			if len(out) != count:
+				raise AttributeError(
+					f"Could not find {count} fragments in {len(frags)} frags after initpos {initpos}, only found {len(out)}!")
+		return out
 
 	def assign_frag_names(self):
 		# for debugging only:
@@ -619,40 +633,6 @@ class OvsFile(OvsHeader):
 					known_frags = set()
 					file_entry = file_lut[ss.name]
 					self.check_for_ptrs(f, file_entry.dependencies, ptr, known_frags)
-
-	@staticmethod
-	def get_frags_after_count(frags, initpos, count, reuse=False):
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
-		out = []
-		for f in frags:
-			# check length of fragment, grab good ones
-			if len(out) == count:
-				break
-			if f.pointers[0].data_offset >= initpos:
-				out.append(f)
-		else:
-			if len(out) != count:
-				raise AttributeError(
-					f"Could not find {count} fragments in {len(frags)} frags after initpos {initpos}, only found {len(out)}!")
-		return out
-
-	@staticmethod
-	def get_frag_equalb_counts(frags, initpos, datalength, count):
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
-		out = []
-		first = 1
-		for f in frags:
-			if first == 1:
-				if (f.pointers[0].address == initpos) or (f.pointers[0].address == initpos + datalength):
-					out.append(f)
-					first = 0
-			else:
-				# check length of fragment, grab good ones
-				if len(out) == count:
-					break
-				if f.pointers[0].address >= initpos:
-					out.append(f)
-		return out
 
 	@staticmethod
 	def find_entry(entries, src_entry):
