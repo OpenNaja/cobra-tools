@@ -1,18 +1,13 @@
-
-import logging
-
-from generated.array import Array
-from generated.context import ContextReference
-from generated.formats.ovl_base.compound.Pointer import Pointer
-from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from source.formats.base.basic import fmt_member
+import generated.formats.base.basic
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class ForEachPointer(Pointer):
+class StringData(MemStruct):
 
 	"""
-	a pointer to an array in an ovl memory layout
+	12 bytes ?
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -22,11 +17,14 @@ class ForEachPointer(Pointer):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.ioptional = 0
+		self.str_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		pass
+		self.ioptional = 0
+		self.str_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -41,12 +39,15 @@ class ForEachPointer(Pointer):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		pass
+		instance.str_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.ioptional = stream.read_uint()
+		instance.str_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		pass
+		Pointer.to_stream(stream, instance.str_name)
+		stream.write_uint(instance.ioptional)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -64,11 +65,13 @@ class ForEachPointer(Pointer):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'ForEachPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'StringData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* str_name = {fmt_member(self.str_name, indent+1)}'
+		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
@@ -76,21 +79,3 @@ class ForEachPointer(Pointer):
 		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
-
-	def read_template(self):
-		if self.template:
-			if isinstance(self.arg, ArrayPointer):
-				args = self.arg.data
-			else:
-				raise AttributeError(f"Unsupported arg {type(self.arg)} for ForEachPointer")
-			self.data = Array((len(args)), self.template, self.context, set_default=False)
-			stream = self.frag.pointers[1].stream
-			for i, arg in enumerate(args):
-				logging.debug(f"Argument {i} = {arg}, template {self.template}")
-			self.data[:] = [self.template.from_stream(stream, self.context, arg) for arg in args]
-
-	# def write_template(self):
-	# 	assert self.template is not None
-	# 	# Array.to_stream(self.frag.pointers[1].stream, self.data, (len(self.data),), self.template, self.context, 0, None)
-	# 	self.frag.pointers[1].write_instance(self.template, self.data)
-

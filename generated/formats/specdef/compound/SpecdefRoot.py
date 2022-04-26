@@ -1,5 +1,5 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.specdef.compound.Data
+import generated.formats.specdef.compound.DataPtr
 import generated.formats.specdef.compound.PtrList
 import generated.formats.specdef.enum.SpecdefDtype
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
@@ -25,7 +25,7 @@ class SpecdefRoot(MemStruct):
 		self.script_count = 0
 		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
 		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.Data.Data)
+		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr)
 		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compound.PtrList.PtrList)
 		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compound.PtrList.PtrList)
 		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compound.PtrList.PtrList)
@@ -42,7 +42,7 @@ class SpecdefRoot(MemStruct):
 		self.script_count = 0
 		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
 		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.Data.Data)
+		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr)
 		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compound.PtrList.PtrList)
 		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compound.PtrList.PtrList)
 		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compound.PtrList.PtrList)
@@ -69,7 +69,7 @@ class SpecdefRoot(MemStruct):
 		instance.script_count = stream.read_ubyte()
 		instance.attrib_dtypes = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
 		instance.attrib_names = Pointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
-		instance.attrib_datas = ForEachPointer.from_stream(stream, instance.context, instance.attrib_dtypes, generated.formats.specdef.compound.Data.Data)
+		instance.attrib_datas = ForEachPointer.from_stream(stream, instance.context, instance.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr)
 		instance.names = Pointer.from_stream(stream, instance.context, instance.name_count, generated.formats.specdef.compound.PtrList.PtrList)
 		instance.childspecs = Pointer.from_stream(stream, instance.context, instance.childspec_count, generated.formats.specdef.compound.PtrList.PtrList)
 		instance.managers = Pointer.from_stream(stream, instance.context, instance.manager_count, generated.formats.specdef.compound.PtrList.PtrList)

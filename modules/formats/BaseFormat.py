@@ -11,7 +11,6 @@ from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import djb
-import xml.etree.ElementTree as ET # prob move this to a custom modules.helpers or utils?
 
 
 class BaseFile:

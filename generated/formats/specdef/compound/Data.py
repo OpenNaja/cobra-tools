@@ -1,5 +1,12 @@
 from source.formats.base.basic import fmt_member
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.specdef.compound.BooleanData import BooleanData
+from generated.formats.specdef.compound.FloatData import FloatData
+from generated.formats.specdef.compound.ReferenceToObjectData import ReferenceToObjectData
+from generated.formats.specdef.compound.StringData import StringData
+from generated.formats.specdef.compound.Uint8Data import Uint8Data
+from generated.formats.specdef.compound.Vector2 import Vector2
+from generated.formats.specdef.compound.Vector3 import Vector3
 
 
 class Data(MemStruct):
@@ -15,12 +22,31 @@ class Data(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.test = 0
+		self.dtype = BooleanData(self.context, 0, None)
+		self.dtype = Uint8Data(self.context, 0, None)
+		self.dtype = FloatData(self.context, 0, None)
+		self.dtype = StringData(self.context, 0, None)
+		self.dtype = Vector2(self.context, 0, None)
+		self.dtype = Vector3(self.context, 0, None)
+		self.dtype = ReferenceToObjectData(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.test = 0
+		if self.arg == 0:
+			self.dtype = BooleanData(self.context, 0, None)
+		if self.arg == 5:
+			self.dtype = Uint8Data(self.context, 0, None)
+		if self.arg == 9:
+			self.dtype = FloatData(self.context, 0, None)
+		if self.arg == 10:
+			self.dtype = StringData(self.context, 0, None)
+		if self.arg == 11:
+			self.dtype = Vector2(self.context, 0, None)
+		if self.arg == 12:
+			self.dtype = Vector3(self.context, 0, None)
+		if self.arg == 15:
+			self.dtype = ReferenceToObjectData(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -35,12 +61,38 @@ class Data(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.test = stream.read_uint()
+		if instance.arg == 0:
+			instance.dtype = BooleanData.from_stream(stream, instance.context, 0, None)
+		if instance.arg == 5:
+			instance.dtype = Uint8Data.from_stream(stream, instance.context, 0, None)
+		if instance.arg == 9:
+			instance.dtype = FloatData.from_stream(stream, instance.context, 0, None)
+		if instance.arg == 10:
+			instance.dtype = StringData.from_stream(stream, instance.context, 0, None)
+		if instance.arg == 11:
+			instance.dtype = Vector2.from_stream(stream, instance.context, 0, None)
+		if instance.arg == 12:
+			instance.dtype = Vector3.from_stream(stream, instance.context, 0, None)
+		if instance.arg == 15:
+			instance.dtype = ReferenceToObjectData.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.test)
+		if instance.arg == 0:
+			BooleanData.to_stream(stream, instance.dtype)
+		if instance.arg == 5:
+			Uint8Data.to_stream(stream, instance.dtype)
+		if instance.arg == 9:
+			FloatData.to_stream(stream, instance.dtype)
+		if instance.arg == 10:
+			StringData.to_stream(stream, instance.dtype)
+		if instance.arg == 11:
+			Vector2.to_stream(stream, instance.dtype)
+		if instance.arg == 12:
+			Vector3.to_stream(stream, instance.dtype)
+		if instance.arg == 15:
+			ReferenceToObjectData.to_stream(stream, instance.dtype)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -63,7 +115,7 @@ class Data(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* test = {fmt_member(self.test, indent+1)}'
+		s += f'\n	* dtype = {fmt_member(self.dtype, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

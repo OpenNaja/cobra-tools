@@ -312,8 +312,9 @@ class MemStruct:
 				# subelement with subelements
 				for member in val:
 					if isinstance(member, Pointer):
-						member = member.data
-					self._to_xml(subelement, val.class_name, member)
+						self._to_xml(subelement, val.class_name, member.data, member.frag)
+					else:
+						self._to_xml(subelement, val.class_name, member)
 			# print("basic")
 			else:
 				# special case for xml data - make it a sub element
@@ -345,8 +346,9 @@ class MemStruct:
 				# subelement with subelements
 				for member in val:
 					if isinstance(member, Pointer):
-						member = member.data
-					self._to_xml(elem, val.class_name, member)
+						self._to_xml(elem, val.class_name, member.data, member.frag)
+					else:
+						self._to_xml(elem, val.class_name, member)
 			else:
 				# todo - add this distinction for from_xml
 				# a MemStruct

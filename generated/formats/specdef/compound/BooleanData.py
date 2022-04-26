@@ -3,7 +3,11 @@ import numpy
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class DtypeList(MemStruct):
+class BooleanData(MemStruct):
+
+	"""
+	8 bytes
+	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -12,12 +16,16 @@ class DtypeList(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.dtypes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
+		self.value = 0
+		self.default = 0
+		self.unused = numpy.zeros((6,), dtype=numpy.dtype('uint8'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.dtypes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
+		self.value = 0
+		self.default = 0
+		self.unused = numpy.zeros((6,), dtype=numpy.dtype('uint8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -32,12 +40,16 @@ class DtypeList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.dtypes = stream.read_uints((instance.arg,))
+		instance.value = stream.read_ubyte()
+		instance.default = stream.read_ubyte()
+		instance.unused = stream.read_ubytes((6,))
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uints(instance.dtypes)
+		stream.write_ubyte(instance.value)
+		stream.write_ubyte(instance.default)
+		stream.write_ubytes(instance.unused)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -55,12 +67,14 @@ class DtypeList(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'DtypeList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BooleanData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* dtypes = {fmt_member(self.dtypes, indent+1)}'
+		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
+		s += f'\n	* default = {fmt_member(self.default, indent+1)}'
+		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
