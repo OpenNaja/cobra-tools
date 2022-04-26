@@ -1,15 +1,11 @@
 import os
 import shutil
-import struct
 import sys
 import time
 import traceback
 import logging
 import tempfile
 
-from generated.formats.bnk import BnkFile, AuxFile
-from ovl_util.texconv import write_riff_file
-from root_path import root_dir
 
 try:
 	import numpy as np
@@ -22,10 +18,12 @@ try:
 	logging.info(f"Running python {sys.version}")
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-	from ovl_util import widgets, interaction, qt_threads
-	from modules import walker, remover
-	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
-	from generated.formats.ovl_base.enum.Compression import Compression
+	from ovl_util import widgets, interaction
+	from generated.formats.ovl import IGNORE_TYPES
+
+	from generated.formats.bnk import BnkFile, AuxFile
+	from ovl_util.texconv import write_riff_file
+	# from root_path import root_dir
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
@@ -87,10 +85,9 @@ class MainWindow(widgets.MainWindow):
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		button_data = (
-			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.save_ovl, "CTRL+S", "save"),
-			(file_menu, "Save As", self.save_as_ovl, "CTRL+SHIFT+S", "save"),
+			(file_menu, "Save", self.save_bnk, "CTRL+S", "save"),
+			(file_menu, "Save As", self.save_as_bnk, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject")
@@ -236,18 +233,7 @@ class MainWindow(widgets.MainWindow):
 				print(self.bnk_file)
 			# self.update_gui_table()
 
-	def create_ovl(self, ovl_dir):
-		# clear the ovl
-		self.bnk_file = BnkFile()
-		self.game_changed()
-		try:
-			self.bnk_file.create(ovl_dir)
-		except Exception as ex:
-			traceback.print_exc()
-			interaction.showdialog(str(ex))
-		self.update_gui_table()
-
-	def is_open_ovl(self):
+	def is_open_bnk(self):
 		if not self.file_widget.filename:
 			interaction.showdialog("You must open a BNK file first!")
 		else:
@@ -261,20 +247,20 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
-	def save_as_ovl(self):
-		if self.is_open_ovl():
+	def save_as_bnk(self):
+		if self.is_open_bnk():
 			filepath = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
-				"OVL files (*.ovl)", )[0]
+				self, 'Save BNK', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
+				"BNK files (*.bnk)", )[0]
 			if filepath:
-				self.cfg["dir_ovls_out"], ovl_name = os.path.split(filepath)
-				self._save_ovl(filepath)
+				self.cfg["dir_bnks_out"], ovl_name = os.path.split(filepath)
+				self._save_bnk(filepath)
 
-	def save_ovl(self):
-		if self.is_open_ovl():
-			self._save_ovl(self.file_widget.filepath)
+	def save_bnk(self):
+		if self.is_open_bnk():
+			self._save_bnk(self.file_widget.filepath)
 
-	def _save_ovl(self, filepath):
+	def _save_bnk(self, filepath):
 		try:
 			ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
 			self.bnk_file.save(filepath, ext_path)
@@ -297,7 +283,7 @@ class MainWindow(widgets.MainWindow):
 			interaction.extract_error_warning(error_files)
 
 	def inject_ask(self):
-		if self.is_open_ovl():
+		if self.is_open_bnk():
 			files = QtWidgets.QFileDialog.getOpenFileNames(
 				self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
 			self.inject_files(files)
