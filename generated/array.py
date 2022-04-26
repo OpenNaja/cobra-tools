@@ -5,21 +5,21 @@ from generated.context import ContextReference
 
 
 class Array(list):
-    '''Main class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
+    """Main class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
     mostly like an array.
-    '''
+    """
 
     context = ContextReference()
 
     def __new__(cls, shape, dtype, context, arg=0, template=None, set_default=True):
         if callable(getattr(dtype, 'create_array', None)):
-            # there is a more efficient method of creating this array on the class (which may not return Array class type)
+            # there is a more efficient method of creating this array on the class (may not return Array instance)
             return dtype.create_array(shape, None, context, arg, template)
         else:
             return super(cls, cls).__new__(cls)
 
     def __init__(self, shape, dtype, context, arg=0, template=None, set_default=True):
-        '''Create a new array of the specified shape and type.
+        """Create a new array of the specified shape and type.
         :param shape: Shape of the resulting array. Zero-dimensional arrays are not supported.
         :type shape: Union[int, Tuple[int, ...]]
         :param dtype: The class to use for instancing objects in this array. If it supports create_array, that will
@@ -32,7 +32,7 @@ class Array(list):
         :param set_default: Whether to create the elements of this array on init. If false, it is assumed that these
         elements will be created by another process immediately after init.
         :type set_default: bool, optional
-        '''
+        """
         super().__init__(self)
         self._shape = None
         self.shape = shape
