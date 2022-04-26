@@ -212,7 +212,6 @@ class BaseFile:
 
 
 class MemStructLoader(BaseFile):
-
 	target_class: None
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
@@ -242,3 +241,4 @@ class MemStructLoader(BaseFile):
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		# print(self.header)
 		# todo
+		logging.warning(f"Injection not fully implemented for {self.extension}")
