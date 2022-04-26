@@ -145,41 +145,6 @@ class BaseFile:
 		"""Don't do anything by default, overwrite if needed"""
 		pass
 
-	def indent(self, e, level=0):
-		i = "\n" + level*"	"
-		if len(e):
-			if not e.text or not e.text.strip():
-				e.text = i + "	"
-			if not e.tail or not e.tail.strip():
-				e.tail = i
-			for e in e:
-				self.indent(e, level+1)
-			if not e.tail or not e.tail.strip():
-				e.tail = i
-		else:
-			if level and (not e.tail or not e.tail.strip()):
-				e.tail = i
-
-	def load_xml(self, xml_path):
-		tree = ET.parse(xml_path)
-		return tree.getroot()
-
-	def write_xml(self, out_path, xml_data):
-		self.indent(xml_data)
-		xml_text = ET.tostring(xml_data)
-		with open(out_path, 'wb') as outfile:
-			outfile.write(xml_text)
-
-	def p1_ztsr(self, frag):
-		ptr = frag.pointers[1]
-		# not needed here, but for good measure
-		ptr.strip_zstring_padding()
-		return self.get_zstr(ptr.data)
-
-	def get_zstr(self, d):
-		end = d.find(b'\x00')
-		return d[:end].decode()
-
 	def rename_content(self, name_tuple_bytes):
 		# try:
 		# 	# hash the internal buffers
