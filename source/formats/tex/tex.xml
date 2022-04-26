@@ -110,6 +110,7 @@
     <enum name="DdsTypeCoaster" storage="ubyte">
 		maps the OVL's dds type to name of compression format
 		<option value="74" name="D24_UNORM_S8_UINT">ZTUAC ele heights textures</option>
+		<option value="76" name="D24_UNORM_S8_UINT_B">?</option>
 		<option value="97" name="BC1_UNORM"></option>
 		<option value="98" name="BC1_UNORM_SRGB"></option>
 		<option value="99" name="BC2_UNORM"></option>
