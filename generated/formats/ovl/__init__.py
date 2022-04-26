@@ -420,34 +420,9 @@ class OvsFile(OvsHeader):
 					self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
 						-1 - x].data_offset
 
-	def frags_accumulate(self, p, d_size, frags=None):
-		# get frags whose pointers 0 datas together occupy d_size bytes
-		fs = []
-		# the frag list crosses header borders at Deinonychus_events, so use full frag list
-		if frags is None:
-			frags = self.fragments
-		for frag in frags:
-			if sum((f.pointers[0].data_size for f in fs)) >= d_size:
-				# we now have the data size that we need
-				break
-			if frag.pointers[0].data_offset >= p.data_offset:
-				fs.append(frag)
-		return fs
-
-	def frags_accumulate_from_pointer_till_count(self, p, d_size, count):
-		frags = self.frags_accumulate(p, d_size, self.frags_for_pointer(p))
-		if len(frags) > count:
-			return frags[0:count]
-		else:
-			return frags
-
 	def frags_from_pointer(self, ptr, count, reuse=False):
 		frags = self.frags_for_pointer(ptr)
 		return self.get_frags_after_count(frags, ptr.data_offset, count, reuse=reuse)
-
-	def frags_from_pointer_equalsb_counts(self, p, count):
-		frags = self.frags_for_pointer(p)
-		return self.get_frag_equalb_counts(frags, p.address, len(p.data), count)
 
 	def frags_for_pointer(self, p):
 		return self.pools[p.pool_index].fragments
