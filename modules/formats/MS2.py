@@ -63,7 +63,6 @@ class Ms2Loader(BaseFile):
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.sized_str_entry.children = []
 		ss_ptr = self.sized_str_entry.pointers[0]
 
 		self.header = ms2_file.info

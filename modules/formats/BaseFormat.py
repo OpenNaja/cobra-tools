@@ -41,11 +41,6 @@ class BaseFile:
 	def assign_ss_entry(self):
 		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)
 
-	def assign_fixed_frags(self, count):
-		self.assign_ss_entry()
-		ss_ptr = self.sized_str_entry.pointers[0]
-		self.sized_str_entry.fragments = self.ovs.frags_from_pointer(ss_ptr, count)
-
 	def get_streams(self):
 		logging.debug(f"Num streams: {len(self.file_entry.streams)}")
 		all_buffers = [*self.sized_str_entry.data_entry.buffers]
@@ -100,7 +95,6 @@ class BaseFile:
 		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
 		ss_entry.fragments = []
-		# ss_entry.pointers.append(HeaderPointer(self.ovl.context))
 		ovs_file = self.ovl.create_archive(ovs)
 		ovs_file.transfer_identity(ss_entry, file_entry)
 		ovs_file.sized_str_entries.append(ss_entry)
@@ -127,8 +121,6 @@ class BaseFile:
 
 	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
-		# new_frag.pointers.append(HeaderPointer(self.ovl.context))
-		# new_frag.pointers.append(HeaderPointer(self.ovl.context))
 		self.ovs.fragments.append(new_frag)
 		return new_frag
 

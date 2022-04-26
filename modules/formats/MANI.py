@@ -51,7 +51,6 @@ class ManisLoader(BaseFile):
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		manis_entry = self.create_ss_entry(self.file_entry)
-		manis_entry.children = []
 
 		# create mani files
 		for mani_name in manis_file.names:
