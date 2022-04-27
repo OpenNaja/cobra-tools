@@ -34,15 +34,13 @@ from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import get_versions, djb, assign_versions
-from modules.formats.formats_dict import formats_dict
+from modules.formats.formats_dict import build_formats_dict
 from modules.helpers import split_path
 from root_path import root_dir
 
 UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 TAB = '  '
-
-REVERSED_TYPES = (ext for ext in formats_dict.keys())
 
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
@@ -54,12 +52,6 @@ aliases = {
 	".otf": ".fct",
 	".ttf": ".fct",
 }
-
-
-def get_loader(ext, ovl, file_entry):
-	cls = formats_dict.get(ext, None)
-	if cls:
-		return cls(ovl, file_entry)
 
 
 class OvsFile(OvsHeader):
@@ -92,7 +84,7 @@ class OvsFile(OvsHeader):
 		for pool_index, pool in enumerate(self.pools):
 			logging.debug(f"pool_index {pool_index}")
 			# if we are dealing with a pool loaded from an ovl, see if its extension has been figured out
-			if hasattr(pool, "ext") and pool.ext not in REVERSED_TYPES:
+			if hasattr(pool, "ext") and pool.ext not in self.ovl.REVERSED_TYPES:
 				logging.debug(f"Keeping pool name {pool.name} as it has not been reverse engineered!")
 				continue
 			ss_map = pointers_to_ss[pool_index]
@@ -716,6 +708,13 @@ class OvlFile(Header, IoFile):
 			self.progress_callback = progress_callback
 		else:
 			self.progress_callback = self.dummy_callback
+		self.formats_dict = build_formats_dict()
+		self.REVERSED_TYPES = (ext for ext in self.formats_dict.keys())
+
+	def get_loader(self, ext, ovl, file_entry):
+		cls = self.formats_dict.get(ext, None)
+		if cls:
+			return cls(ovl, file_entry)
 
 	def get_extract_files(self, only_names, only_types, ignore=True):
 		"""Returns files that are suitable for extraction"""
@@ -890,7 +889,7 @@ class OvlFile(Header, IoFile):
 		file_entry = self.create_file_entry(file_path)
 		if not file_entry:
 			return
-		file_entry.loader = get_loader(file_entry.ext, self, file_entry)
+		file_entry.loader = self.get_loader(file_entry.ext, self, file_entry)
 		if not file_entry.loader:
 			return
 		try:
@@ -1279,7 +1278,7 @@ class OvlFile(Header, IoFile):
 		logging.info("Loading file classes")
 		start_time = time.time()
 		for file in self.files:
-			file.loader = get_loader(file.ext, self, file)
+			file.loader = self.get_loader(file.ext, self, file)
 			if file.loader:
 				try:
 					file.loader.collect()

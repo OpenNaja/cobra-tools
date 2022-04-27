@@ -1,7 +1,5 @@
 # START_GLOBALS
 import logging
-import traceback
-
 from generated.context import ContextReference
 from generated.formats.ms2.versions import is_old
 from generated.formats.ms2.compound.Model import Model

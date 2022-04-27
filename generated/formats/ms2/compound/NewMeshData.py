@@ -1,6 +1,5 @@
 
 import logging
-import math
 import numpy as np
 import struct
 from generated.formats.ms2.compound.packing_utils import *

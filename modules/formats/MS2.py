@@ -43,7 +43,7 @@ class Ms2Loader(BaseFile):
 		self.header = Ms2Root.from_stream(ss_ptr.stream, self.context)
 		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
 		self.header.debug_ptrs()
-		# print(self.header)
+		print(self.header)
 		# old JWE1 still uses 1 fragment
 		if self.header.version > 39:
 			if ss_ptr.data_size != 48:
