@@ -41,7 +41,7 @@ class Struct7:
 		# align list to multiples of 8
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8,), dtype=numpy.dtype('uint8'))
 
-		# jwe2 only - if flag is non-zero, 8 bytes, else 0
+		# latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0
 		self.alignment = 0
 		if set_default:
 			self.set_defaults()
@@ -60,7 +60,7 @@ class Struct7:
 		if self.context.version >= 32:
 			self.unknown_list = Array((self.count_7,), NasutoJointEntry, self.context, 0, None)
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8,), dtype=numpy.dtype('uint8'))
-		if self.context.version >= 51 and self.flag:
+		if self.context.version >= 50 and self.flag:
 			self.alignment = 0
 
 	def read(self, stream):
@@ -87,7 +87,7 @@ class Struct7:
 		if instance.context.version >= 32:
 			instance.unknown_list = Array.from_stream(stream, (instance.count_7,), NasutoJointEntry, instance.context, 0, None)
 		instance.padding = stream.read_ubytes(((8 - ((instance.count_7 * 60) % 8)) % 8,))
-		if instance.context.version >= 51 and instance.flag:
+		if instance.context.version >= 50 and instance.flag:
 			instance.alignment = stream.read_uint64()
 
 	@classmethod
@@ -104,7 +104,7 @@ class Struct7:
 		if instance.context.version >= 32:
 			Array.to_stream(stream, instance.unknown_list, (instance.count_7,), NasutoJointEntry, instance.context, 0, None)
 		stream.write_ubytes(instance.padding)
-		if instance.context.version >= 51 and instance.flag:
+		if instance.context.version >= 50 and instance.flag:
 			stream.write_uint64(instance.alignment)
 
 	@classmethod

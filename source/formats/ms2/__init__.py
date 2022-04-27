@@ -30,6 +30,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		super().__init__(Ms2Context())
 
 	def assign_joints(self, bone_info):
+		if not hasattr(bone_info, "joints"):
+			logging.warning(f"Joints deactivated for debugging")
+			return
 		if self.context.version >= 47:
 			for i, x in enumerate(bone_info.struct_7.unknown_list):
 				# print(i)
@@ -320,8 +323,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/buff/wild_water_buffalo_juvenile_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
 	# m.save("C:/Users/arnfi/Desktop/test.ms2")
-	print(m.model_infos[0].bone_info.joints.joint_infos)
+	print(m)
 	# print(m.model_infos[1].bone_info.joints.joint_infos)
