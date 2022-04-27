@@ -1,6 +1,7 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
 class Int8Data(MemStruct):
@@ -21,6 +22,7 @@ class Int8Data(MemStruct):
 		self.ivalue = 0
 		self.ioptional = 0
 		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
+		self.enum = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -30,6 +32,7 @@ class Int8Data(MemStruct):
 		self.ivalue = 0
 		self.ioptional = 0
 		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
+		self.enum = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -49,6 +52,8 @@ class Int8Data(MemStruct):
 		instance.ivalue = stream.read_byte()
 		instance.ioptional = stream.read_byte()
 		instance.unused = stream.read_ubytes((4,))
+		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.enum.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -58,6 +63,7 @@ class Int8Data(MemStruct):
 		stream.write_byte(instance.ivalue)
 		stream.write_byte(instance.ioptional)
 		stream.write_ubytes(instance.unused)
+		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -85,6 +91,7 @@ class Int8Data(MemStruct):
 		s += f'\n	* ivalue = {fmt_member(self.ivalue, indent+1)}'
 		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
 		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
+		s += f'\n	* enum = {fmt_member(self.enum, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

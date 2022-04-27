@@ -6,7 +6,7 @@ from generated.formats.ovl_base.compound.MemStruct import MemStruct
 class BooleanData(MemStruct):
 
 	"""
-	8 bytes
+	8 bytes in log
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

@@ -8,7 +8,7 @@ from generated.formats.specdef.enum.SpecdefDtype import SpecdefDtype
 class ArrayData(MemStruct):
 
 	"""
-	16 bytes
+	16 bytes in log
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

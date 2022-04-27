@@ -1,5 +1,6 @@
 from source.formats.base.basic import fmt_member
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
 class Int32Data(MemStruct):
@@ -19,6 +20,7 @@ class Int32Data(MemStruct):
 		self.imax = 0
 		self.ivalue = 0
 		self.ioptional = 0
+		self.enum = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -27,6 +29,7 @@ class Int32Data(MemStruct):
 		self.imax = 0
 		self.ivalue = 0
 		self.ioptional = 0
+		self.enum = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -45,6 +48,8 @@ class Int32Data(MemStruct):
 		instance.imax = stream.read_int()
 		instance.ivalue = stream.read_int()
 		instance.ioptional = stream.read_int()
+		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.enum.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -53,6 +58,7 @@ class Int32Data(MemStruct):
 		stream.write_int(instance.imax)
 		stream.write_int(instance.ivalue)
 		stream.write_int(instance.ioptional)
+		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -79,6 +85,7 @@ class Int32Data(MemStruct):
 		s += f'\n	* imax = {fmt_member(self.imax, indent+1)}'
 		s += f'\n	* ivalue = {fmt_member(self.ivalue, indent+1)}'
 		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
+		s += f'\n	* enum = {fmt_member(self.enum, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compound.MemStruct import MemStruct
 class Vector3(MemStruct):
 
 	"""
-	16 bytes
+	16 bytes in log
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

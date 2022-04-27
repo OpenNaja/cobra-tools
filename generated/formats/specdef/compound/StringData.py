@@ -7,7 +7,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class StringData(MemStruct):
 
 	"""
-	12 bytes ?
+	16 bytes in log
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

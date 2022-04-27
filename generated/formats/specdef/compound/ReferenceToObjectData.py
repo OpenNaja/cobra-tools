@@ -7,7 +7,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class ReferenceToObjectData(MemStruct):
 
 	"""
-	12 bytes ?
+	16 bytes in log
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -18,13 +18,13 @@ class ReferenceToObjectData(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.ioptional = 0
-		self.str_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.obj_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.ioptional = 0
-		self.str_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.obj_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -39,14 +39,14 @@ class ReferenceToObjectData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.str_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.obj_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ioptional = stream.read_uint()
-		instance.str_name.arg = 0
+		instance.obj_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.str_name)
+		Pointer.to_stream(stream, instance.obj_name)
 		stream.write_uint(instance.ioptional)
 
 	@classmethod
@@ -70,7 +70,7 @@ class ReferenceToObjectData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* str_name = {fmt_member(self.str_name, indent+1)}'
+		s += f'\n	* obj_name = {fmt_member(self.obj_name, indent+1)}'
 		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
 		return s
 
