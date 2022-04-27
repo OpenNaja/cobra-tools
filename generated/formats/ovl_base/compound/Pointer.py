@@ -1,3 +1,8 @@
+
+import struct
+from generated.context import ContextReference
+from generated.formats.ovl.compound.Fragment import Fragment
+
 from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
@@ -5,7 +10,7 @@ from generated.context import ContextReference
 class Pointer:
 
 	"""
-	a pointer in an ovl memory layout
+	a pointer in an ovl memory layout, can point to a struct or a dependency entry
 	"""
 
 	context = ContextReference()
@@ -79,10 +84,14 @@ class Pointer:
 		if not self.frag:
 			# print("is a nullptr")
 			return
-		# store valid frag to be able to delete it later
-		sized_str_entry.fragments.append(self.frag)
-		# now read an instance of template class at the offset
-		self.read_template()
+		if isinstance(self.frag, Fragment):
+			# store valid frag to be able to delete it later
+			sized_str_entry.fragments.append(self.frag)
+			# now read an instance of template class at the offset
+			self.read_template()
+		else:
+			# store dependency name
+			self.data = self.frag.name
 
 	def read_template(self):
 		if self.template:

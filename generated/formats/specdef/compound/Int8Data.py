@@ -1,13 +1,12 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
-from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class Uint8Data(MemStruct):
+class Int8Data(MemStruct):
 
 	"""
-	8 bytes, 24 bytes in log
+	8 bytes
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -22,7 +21,6 @@ class Uint8Data(MemStruct):
 		self.ivalue = 0
 		self.ioptional = 0
 		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
-		self.enum = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -32,7 +30,6 @@ class Uint8Data(MemStruct):
 		self.ivalue = 0
 		self.ioptional = 0
 		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
-		self.enum = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -47,23 +44,20 @@ class Uint8Data(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.imin = stream.read_ubyte()
-		instance.imax = stream.read_ubyte()
-		instance.ivalue = stream.read_ubyte()
-		instance.ioptional = stream.read_ubyte()
+		instance.imin = stream.read_byte()
+		instance.imax = stream.read_byte()
+		instance.ivalue = stream.read_byte()
+		instance.ioptional = stream.read_byte()
 		instance.unused = stream.read_ubytes((4,))
-		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.enum.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.imin)
-		stream.write_ubyte(instance.imax)
-		stream.write_ubyte(instance.ivalue)
-		stream.write_ubyte(instance.ioptional)
+		stream.write_byte(instance.imin)
+		stream.write_byte(instance.imax)
+		stream.write_byte(instance.ivalue)
+		stream.write_byte(instance.ioptional)
 		stream.write_ubytes(instance.unused)
-		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -81,7 +75,7 @@ class Uint8Data(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Uint8Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Int8Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
@@ -91,7 +85,6 @@ class Uint8Data(MemStruct):
 		s += f'\n	* ivalue = {fmt_member(self.ivalue, indent+1)}'
 		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
 		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
-		s += f'\n	* enum = {fmt_member(self.enum, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,7 +1,9 @@
+# START_GLOBALS
 import struct
-
 from generated.context import ContextReference
-# from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl.compound.Fragment import Fragment
+
+# END_GLOBALS
 
 
 class Pointer:
@@ -47,10 +49,14 @@ class Pointer:
 		if not self.frag:
 			# print("is a nullptr")
 			return
-		# store valid frag to be able to delete it later
-		sized_str_entry.fragments.append(self.frag)
-		# now read an instance of template class at the offset
-		self.read_template()
+		if isinstance(self.frag, Fragment):
+			# store valid frag to be able to delete it later
+			sized_str_entry.fragments.append(self.frag)
+			# now read an instance of template class at the offset
+			self.read_template()
+		else:
+			# store dependency name
+			self.data = self.frag.name
 
 	def read_template(self):
 		if self.template:

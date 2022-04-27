@@ -1246,7 +1246,10 @@ class OvlFile(Header, IoFile):
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of pools
-			dep.pointers[0].link_to_pool(self.pools, is_struct_ptr=False)
+			ptr = dep.pointers[0]
+			ptr.link_to_pool(self.pools, is_struct_ptr=False)
+			# a dependency cannot occupy the same spot as a fragment ptr 0
+			ptr.pool.fragments_lut[ptr.data_offset] = dep
 		for archive in self.archives:
 			ovs = archive.content
 			# sort fragments by their first pointer, no real need to do so, though
@@ -1281,7 +1284,7 @@ class OvlFile(Header, IoFile):
 				try:
 					file.loader.collect()
 				except Exception as err:
-					logging.error(err)
+					logging.error(f"Collecting {file.name} raised '{err}' error")
 					traceback.print_exc()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 

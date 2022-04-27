@@ -1,13 +1,14 @@
 from source.formats.base.basic import fmt_member
-import numpy
+import generated.formats.specdef.compound.Data
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
+from generated.formats.specdef.enum.SpecdefDtype import SpecdefDtype
 
 
-class Uint8Data(MemStruct):
+class ArrayData(MemStruct):
 
 	"""
-	8 bytes, 24 bytes in log
+	16 bytes
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -17,22 +18,16 @@ class Uint8Data(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.imin = 0
-		self.imax = 0
-		self.ivalue = 0
-		self.ioptional = 0
-		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
-		self.enum = Pointer(self.context, 0, None)
+		self.dtype = SpecdefDtype(self.context, 0, None)
+		self.unused = 0
+		self.item = Pointer(self.context, self.dtype, generated.formats.specdef.compound.Data.Data)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.imin = 0
-		self.imax = 0
-		self.ivalue = 0
-		self.ioptional = 0
-		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
-		self.enum = Pointer(self.context, 0, None)
+		self.dtype = SpecdefDtype(self.context, 0, None)
+		self.unused = 0
+		self.item = Pointer(self.context, self.dtype, generated.formats.specdef.compound.Data.Data)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -47,23 +42,17 @@ class Uint8Data(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.imin = stream.read_ubyte()
-		instance.imax = stream.read_ubyte()
-		instance.ivalue = stream.read_ubyte()
-		instance.ioptional = stream.read_ubyte()
-		instance.unused = stream.read_ubytes((4,))
-		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.enum.arg = 0
+		instance.item = Pointer.from_stream(stream, instance.context, instance.dtype, generated.formats.specdef.compound.Data.Data)
+		instance.dtype = SpecdefDtype.from_value(stream.read_uint())
+		instance.unused = stream.read_uint()
+		instance.item.arg = instance.dtype
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.imin)
-		stream.write_ubyte(instance.imax)
-		stream.write_ubyte(instance.ivalue)
-		stream.write_ubyte(instance.ioptional)
-		stream.write_ubytes(instance.unused)
-		Pointer.to_stream(stream, instance.enum)
+		Pointer.to_stream(stream, instance.item)
+		stream.write_uint(instance.dtype.value)
+		stream.write_uint(instance.unused)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -81,17 +70,14 @@ class Uint8Data(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Uint8Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'ArrayData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* imin = {fmt_member(self.imin, indent+1)}'
-		s += f'\n	* imax = {fmt_member(self.imax, indent+1)}'
-		s += f'\n	* ivalue = {fmt_member(self.ivalue, indent+1)}'
-		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
+		s += f'\n	* item = {fmt_member(self.item, indent+1)}'
+		s += f'\n	* dtype = {fmt_member(self.dtype, indent+1)}'
 		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
-		s += f'\n	* enum = {fmt_member(self.enum, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

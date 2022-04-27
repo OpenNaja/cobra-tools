@@ -51,12 +51,22 @@
 
     <compound name="Data" inherit="MemStruct">
         #ARG# is dtype
+        todo - enum, grab, implement, fetch
         <add name="dtype" type="BooleanData" cond="#ARG# #EQ# 0"/>
+        <add name="dtype" type="Int8Data" cond="#ARG# #EQ# 1"/>
+        <add name="dtype" type="Int16Data" cond="#ARG# #EQ# 2"/>
+        <add name="dtype" type="Int32Data" cond="#ARG# #EQ# 3"/>
+        <add name="dtype" type="Int64Data" cond="#ARG# #EQ# 4"/>
         <add name="dtype" type="Uint8Data" cond="#ARG# #EQ# 5"/>
+        <add name="dtype" type="Uint16Data" cond="#ARG# #EQ# 6"/>
+        <add name="dtype" type="Uint32Data" cond="#ARG# #EQ# 7"/>
+        <add name="dtype" type="Uint64Data" cond="#ARG# #EQ# 8"/>
         <add name="dtype" type="FloatData" cond="#ARG# #EQ# 9"/>
         <add name="dtype" type="StringData" cond="#ARG# #EQ# 10"/>
         <add name="dtype" type="Vector2" cond="#ARG# #EQ# 11"/>
         <add name="dtype" type="Vector3" cond="#ARG# #EQ# 12"/>
+        <add name="dtype" type="ArrayData" cond="#ARG# #EQ# 13"/>
+        <add name="dtype" type="ChildSpecData" cond="#ARG# #EQ# 14"/>
         <add name="dtype" type="ReferenceToObjectData" cond="#ARG# #EQ# 15"/>
     </compound>
 
@@ -67,13 +77,72 @@
         <add name="unused" type="ubyte" arr1="6"/>
     </compound>
 
-    <compound name="Uint8Data" inherit="MemStruct">
+    <compound name="Int8Data" inherit="MemStruct">
         8 bytes
+        <add name="imin" type="byte"/>
+        <add name="imax" type="byte"/>
+        <add name="ivalue" type="byte"/>
+        <add name="ioptional" type="byte"/>
+        <add name="unused" type="ubyte" arr1="4"/>
+    </compound>
+
+    <compound name="Int16Data" inherit="MemStruct">
+        8 bytes
+        <add name="imin" type="short"/>
+        <add name="imax" type="short"/>
+        <add name="ivalue" type="short"/>
+        <add name="ioptional" type="short"/>
+    </compound>
+
+    <compound name="Int32Data" inherit="MemStruct">
+        16 bytes
+        <add name="imin" type="int"/>
+        <add name="imax" type="int"/>
+        <add name="ivalue" type="int"/>
+        <add name="ioptional" type="int"/>
+    </compound>
+
+    <compound name="Int64Data" inherit="MemStruct">
+        32 bytes
+        <add name="imin" type="int64"/>
+        <add name="imax" type="int64"/>
+        <add name="ivalue" type="int64"/>
+        <add name="ioptional" type="int64"/>
+    </compound>
+
+    <compound name="Uint8Data" inherit="MemStruct">
+        8 bytes, 24 bytes in log
         <add name="imin" type="ubyte"/>
         <add name="imax" type="ubyte"/>
         <add name="ivalue" type="ubyte"/>
         <add name="ioptional" type="ubyte"/>
         <add name="unused" type="ubyte" arr1="4"/>
+        dep pointer for enum here
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Uint16Data" inherit="MemStruct">
+        8 bytes
+        <add name="imin" type="ushort"/>
+        <add name="imax" type="ushort"/>
+        <add name="ivalue" type="ushort"/>
+        <add name="ioptional" type="ushort"/>
+    </compound>
+
+    <compound name="Uint32Data" inherit="MemStruct">
+        16 bytes
+        <add name="imin" type="uint"/>
+        <add name="imax" type="uint"/>
+        <add name="ivalue" type="uint"/>
+        <add name="ioptional" type="uint"/>
+    </compound>
+
+    <compound name="Uint64Data" inherit="MemStruct">
+        32 bytes
+        <add name="imin" type="uint64"/>
+        <add name="imax" type="uint64"/>
+        <add name="ivalue" type="uint64"/>
+        <add name="ioptional" type="uint64"/>
     </compound>
 
     <compound name="FloatData" inherit="MemStruct">
@@ -94,6 +163,22 @@
         12 bytes ?
         <add name="str_name" type="Pointer" template="ZString" />
         <add name="ioptional" type="uint"/>
+    </compound>
+
+    <compound name="ArrayData" inherit="MemStruct">
+        16 bytes
+        <add name="item" type="Pointer" template="Data" arg="dtype"/>
+        <add name="dtype" type="SpecdefDtype" />
+        <add name="unused" type="uint" />
+    </compound>
+
+    <compound name="ChildSpecData" inherit="MemStruct">
+        8 bytes
+        # todo - support both options simultaneously, no known switch
+        eg. spineflex.specdef
+<!--        <add name="specdef_name" type="Pointer"/>-->
+        eg. flatridecontroller.specdef points to SpecdefRoot
+        <add name="specdef" type="Pointer" template="SpecdefRoot"/>
     </compound>
 
     <compound name="Vector2" inherit="MemStruct">

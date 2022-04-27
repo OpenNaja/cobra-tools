@@ -325,7 +325,7 @@ class MemStruct:
 					subelement.set("data", str(val))
 		# set address for debugging
 		if frag:
-			f_ptr = frag.pointers[1]
+			f_ptr = frag.pointers[-1]
 			subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 			subelement.set("_size", f"{f_ptr.data_size}")
 
@@ -371,6 +371,10 @@ class MemStruct:
 			# dtype = ptr.template.__name__ if ptr.template else None
 			# al = None
 			if ptr.frag:
+				# if isinstance(ptr.frag,)
+				# skip dependency
+				if len(ptr.frag.pointers) == 1:
+					continue
 				d_off = ptr.frag.pointers[1].data_offset
 				if d_off:
 					# go over decreasing possible alignments
