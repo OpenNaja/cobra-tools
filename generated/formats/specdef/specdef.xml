@@ -174,9 +174,7 @@
 
     <compound name="ChildSpecData" inherit="MemStruct">
         8 bytes
-        # todo - support both options simultaneously, no known switch
-        eg. spineflex.specdef
-<!--        <add name="specdef_name" type="Pointer"/>-->
+        eg. spineflex.specdef points to dependency for another specdef
         eg. flatridecontroller.specdef points to SpecdefRoot
         <add name="specdef" type="Pointer" template="SpecdefRoot"/>
     </compound>

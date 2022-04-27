@@ -8,9 +8,7 @@ class ChildSpecData(MemStruct):
 
 	"""
 	8 bytes
-	# todo - support both options simultaneously, no known switch
-	eg. spineflex.specdef
-	
+	eg. spineflex.specdef points to dependency for another specdef
 	eg. flatridecontroller.specdef points to SpecdefRoot
 	"""
 
