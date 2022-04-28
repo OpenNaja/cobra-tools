@@ -47,7 +47,6 @@
 	<compound name="BaniRoot" inherit="MemStruct">
 		24 bytes This varies per bani animation file and describes the bani's frames and duration
         <add name="banis" type="Pointer" />
-        <add name="zero" type="uint64"/>
         <add name="read start frame" type="uint">The frame in the banis where this bani starts reading</add>
         <add name="num frames" type="uint">Number of frames in this bani file</add>
         <add name="animation length" type="float">length of the animation, can easily get keyframe spacing now</add>

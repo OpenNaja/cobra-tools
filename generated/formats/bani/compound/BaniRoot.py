@@ -16,7 +16,6 @@ class BaniRoot(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zero = 0
 
 		# The frame in the banis where this bani starts reading
 		self.read_start_frame = 0
@@ -34,7 +33,6 @@ class BaniRoot(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.zero = 0
 		self.read_start_frame = 0
 		self.num_frames = 0
 		self.animation_length = 0.0
@@ -55,7 +53,6 @@ class BaniRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.banis = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.zero = stream.read_uint64()
 		instance.read_start_frame = stream.read_uint()
 		instance.num_frames = stream.read_uint()
 		instance.animation_length = stream.read_float()
@@ -66,7 +63,6 @@ class BaniRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.banis)
-		stream.write_uint64(instance.zero)
 		stream.write_uint(instance.read_start_frame)
 		stream.write_uint(instance.num_frames)
 		stream.write_float(instance.animation_length)
@@ -94,7 +90,6 @@ class BaniRoot(MemStruct):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* banis = {fmt_member(self.banis, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		s += f'\n	* read_start_frame = {fmt_member(self.read_start_frame, indent+1)}'
 		s += f'\n	* num_frames = {fmt_member(self.num_frames, indent+1)}'
 		s += f'\n	* animation_length = {fmt_member(self.animation_length, indent+1)}'
