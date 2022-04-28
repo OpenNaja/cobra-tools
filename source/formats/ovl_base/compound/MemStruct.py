@@ -162,6 +162,14 @@ class MemStruct:
 		instance.from_xml(xml)
 		return instance
 
+	def _array_from_xml(self, val, elem):
+		# create array elements
+		# print(f"array, len {len(elem)}")
+		val[:] = [val.dtype(self._context) for i in range(len(elem))]
+		# subelement with subelements
+		for subelem, member in zip(elem, val):
+			self._from_xml(subelem, member, val.dtype)
+
 	def from_xml(self, elem):
 		"""Sets the data from the XML to this MemStruct"""
 		# go over all fields of this MemStruct
@@ -176,37 +184,28 @@ class MemStruct:
 				subelement = elem.find(f'.//{prop}')
 				# print("val.template", val.template)
 				if isinstance(val, ArrayPointer):
-					logging.warning(f"Setting ArrayPointer '{prop}' not supported yet")
-					pass
-					# val.data[:] = [val.data.dtype(self._context) for i in range(len(subelement))]
-					# # subelement with subelements
-					# for subelem, member in zip(elem, val.data):
-					# 	self._from_xml(subelem, member, val.data.dtype)
+					val.data = Array((len(subelement)), val.template, val.context, set_default=False)
+					self._array_from_xml(val.data, subelement)
 				else:
 					self._from_xml(subelement, val, val.template)
 			elif isinstance(val, Array):
-				# print(f"array, len {len(elem)}")
-				# create array elements
-				val[:] = [val.dtype(self._context) for i in range(len(elem))]
-				# subelement with subelements
-				for subelem, member in zip(elem, val):
-					self._from_xml(subelem, member, val.dtype)
+				self._array_from_xml(val, elem)
 			else:
 				# set basic attribute
 				cls = type(val)
-				if isinstance(val, ndarray):
-					logging.warning(f"Ignoring basic array '{prop}'")
-					continue
-				if isinstance(val, BaseEnum):
-					finished_val = val.from_str(elem.attrib[prop])
-					# logging.warning(f"Ignoring enum '{prop}'")
-					# continue
-				else:
-					finished_val = cls(elem.attrib[prop])
 				try:
+					if isinstance(val, BaseEnum):
+						finished_val = val.from_str(elem.attrib[prop])
+					elif isinstance(val, ndarray):
+						logging.warning(f"Ignoring basic array '{prop}'")
+						continue
+					else:
+						finished_val = cls(elem.attrib[prop])
 					setattr(self, prop, finished_val)
 				except TypeError:
 					raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
+				except KeyError:
+					logging.warning(f"Missing '{prop}' in {elem.tag} attributes")
 
 	def _from_xml(self, subelement, val, val_cls):
 		"""Populates this MemStruct from the xml elem"""

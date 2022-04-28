@@ -117,7 +117,7 @@ class DdsLoader(MemStructLoader):
 	def load(self, file_path):
 		# right now there is no use in updating the struct here
 		super().load(file_path)
-		# print(self.header)
+		print(self.header)
 		logging.debug(f"Loading image {file_path}")
 		# name_ext, name, ext = split_path(file_path)
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
