@@ -411,9 +411,9 @@ class MainWindow(widgets.MainWindow):
 				# 	logging.debug(a.content)
 				# print(self.ovl_data.user_version)
 			except Exception as ex:
+				print(self.ovl_data)
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
-				print(self.ovl_data)
 			self.update_gui_table()
 			game = get_game(self.ovl_data)[0]
 			self.game_choice.entry.setText(game.value)

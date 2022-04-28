@@ -1,6 +1,8 @@
 import io
 import logging
 import os
+import shutil
+import tempfile
 
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
@@ -45,8 +47,8 @@ class DdsLoader(MemStructLoader):
 
 	def create(self):
 		name_ext, name, ext = split_path(self.file_entry.path)
-		if ext == ".tex":
-			super().create()
+		# if ext == ".tex":
+		super().create()
 		# logging.debug(f"Creating image {name_ext}")
 		# if ext == ".tex":
 		# 	if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
@@ -102,8 +104,8 @@ class DdsLoader(MemStructLoader):
 		# 				buffer.index = i
 		# 	elif is_pc(self.ovl) or is_ztuac(self.ovl):
 		# 		logging.error(f"Only modern texture format supported for now!")
-		else:
-			logging.error(f"Only .tex supported for now!")
+		# else:
+		# 	logging.error(f"Only .tex supported for now!")
 
 	def collect(self):
 		super().collect()
@@ -113,15 +115,19 @@ class DdsLoader(MemStructLoader):
 		# 	print(buff.index, buff.size)
 
 	def load(self, file_path):
+		# right now there is no use in updating the struct here
+		# super().load(file_path)
+		# print(self.header)
 		logging.debug(f"Loading image {file_path}")
-		name_ext, name, ext = split_path(file_path)
-		if ext == ".png":
-			self.load_png(file_path)
-		elif ext == ".dds":
-			self.load_dds(file_path)
-		elif ext == ".tex":
-			raise NotImplementedError(f"Can't inject .tex, only create them!")
-			# self.load_dds(file_path)
+		# name_ext, name, ext = split_path(file_path)
+		tmp_dir = tempfile.mkdtemp("-cobra-tools")
+		png_path = imarray.png_from_tex(file_path, tmp_dir)
+		if png_path:
+			self.load_png(png_path)
+		# elif ext == ".dds":
+		# 	self.load_dds(file_path)
+
+		shutil.rmtree(tmp_dir)
 
 	def get_sorted_streams(self):
 		# lod0 | lod1 | static

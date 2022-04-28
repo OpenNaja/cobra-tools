@@ -46,8 +46,6 @@ IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stre
 
 aliases = {
 	".matcol": ".materialcollection",
-	".png": ".tex",
-	".dds": ".tex",
 	".otf": ".fct",
 	".ttf": ".fct",
 }
@@ -751,21 +749,6 @@ class OvlFile(Header, IoFile):
 		self.progress_callback("Extraction completed!", value=1, vmax=1)
 		return out_paths, error_files
 
-	def preprocess_files(self, file_paths, tmp_dir):
-		"""Check the files that should be injected and piece them back together"""
-		# only import locally to avoid dependency on imageio for plugin
-		# logging.debug(f"file_paths {file_paths}")
-		from ovl_util import imarray
-		out_file_paths = set()
-		for file_path in file_paths:
-			name_ext, name, ext = split_path(file_path)
-			if ext == ".png":
-				imarray.inject_wrapper(file_path, out_file_paths, tmp_dir)
-			else:
-				out_file_paths.add(file_path)
-		# logging.debug(f"out_file_paths {out_file_paths}")
-		return out_file_paths
-
 	def inject(self, file_paths, show_temp_files):
 		"""Inject files into archive"""
 		logging.info(f"Injecting {len(file_paths)} files")
@@ -774,8 +757,6 @@ class OvlFile(Header, IoFile):
 		foreign_files = []
 		# key with name+ext
 		_files_dict = {file.name.lower(): file for file in self.files}
-		# handle dupes and piece separated files back together
-		file_paths = self.preprocess_files(file_paths, tmp_dir)
 		for file_index, file_path in enumerate(file_paths):
 			self.progress_callback("Injecting", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
@@ -868,9 +849,9 @@ class OvlFile(Header, IoFile):
 		self.update_hashes()
 		self.update_counts()
 		self.postprocessing()
-		for archive in self.archives:
-			print(archive)
-			print(archive.content)
+		# for archive in self.archives:
+		# 	print(archive)
+		# 	print(archive.content)
 
 	def create_archive(self, name="STATIC"):
 		# logging.debug(f"Getting archive '{name}'")

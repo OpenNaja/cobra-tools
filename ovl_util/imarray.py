@@ -116,6 +116,11 @@ def is_array_tile(fp, array_name_bare):
 				return True
 
 
+def is_corresponding_png(file_name, name_bare):
+	if file_name.startswith(name_bare) and file_name.lower().endswith(".png"):
+		return True
+
+
 def split_name_suffix(in_name):
 	# grab the basic name, and the array index suffix if it exists
 	if "_" in in_name:
@@ -134,34 +139,31 @@ def check_same_dimensions(dimensions, files):
 		raise AttributeError(f"Array tiles have different dimensions:\n{t_str}")
 
 
-def inject_wrapper(png_file_path, out_file_paths, tmp_dir):
-	"""This handles PNG modifications (arrays or flipped channels) and ensures the costly IO is only done once"""
+def png_from_tex(tex_file_path, tmp_dir):
+	"""This finds and if required, creates, a png file that is ready for DDS conversion (arrays or flipped channels)"""
 
-	logging.info(f"PNG injection wrapper input {png_file_path}")
-	join_components = has_components(png_file_path)
-	join_rg_b_a = has_rg_b_a(png_file_path)
-	must_flip_gb = has_vectors(png_file_path)
-
-	in_dir, in_name_ext = os.path.split(png_file_path)
+	logging.debug(f"Looking for .png for {tex_file_path}")
+	in_dir, in_name_ext = os.path.split(tex_file_path)
 	in_name, ext = os.path.splitext(in_name_ext)
-
+	png_file_path = os.path.join(in_dir, f"{in_name}.png")
+	tmp_png_file_path = os.path.join(tmp_dir, f"{in_name}.png")
+	corresponding_png_textures = [file for file in os.listdir(in_dir) if is_corresponding_png(file, in_name)]
+	if not corresponding_png_textures:
+		raise FileNotFoundError(f"Found no .png files for {tex_file_path}")
+	# print(corresponding_png_textures)
 	in_name_bare, suffix = split_name_suffix(in_name)
 	# join arrays if there is a suffix
 	must_join = suffix is not None
+	join_components = has_components(tex_file_path)
+	join_rg_b_a = has_rg_b_a(tex_file_path)
+	must_flip_gb = has_vectors(tex_file_path)
 
-	# update output path
+	# check if processing needs to be done
 	if not must_join and not join_components and not must_flip_gb:
+		assert len(corresponding_png_textures) == 1
+		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
-		out_file_path = png_file_path
-		out_file_paths.add(out_file_path)
-		return
-	else:
-		out_file_path = os.path.join(tmp_dir, in_name_bare + ext)
-		logging.debug(f"checking if {out_file_path} has been processed")
-		if out_file_path in out_file_paths:
-			logging.warning(f"{png_file_path} has already been processed")
-			return
-		out_file_paths.add(out_file_path)
+		return png_file_path
 
 	logging.debug(f"must_join {must_join}")
 	logging.debug(f"join_components {join_components}")
@@ -171,11 +173,12 @@ def inject_wrapper(png_file_path, out_file_paths, tmp_dir):
 	# non-tiled files that need fixes - normal maps
 	if not must_join and not join_components:
 		# just read the one input file
+		assert len(corresponding_png_textures) == 1
 		im = imageio.imread(png_file_path)
 
 	# rebuild array from separated tiles
 	if must_join or join_components or join_rg_b_a:
-		array_textures = [file for file in os.listdir(in_dir) if is_array_tile(file, in_name_bare)]
+		array_textures = [file for file in corresponding_png_textures if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
 		ims = [imageio.imread(os.path.join(in_dir, file)) for file in array_textures]
 		logging.debug(f"Array tile names: {array_textures}")
@@ -255,9 +258,9 @@ def inject_wrapper(png_file_path, out_file_paths, tmp_dir):
 		flip_gb(im)
 
 	# this is shared for all that have to be read
-	logging.debug("Writing png output")
-	imageio.imwrite(out_file_path, im, compress_level=2)
-	return out_file_path
+	logging.debug(f"Writing output to {tmp_png_file_path}")
+	imageio.imwrite(tmp_png_file_path, im, compress_level=2)
+	return tmp_png_file_path
 
 
 def get_single_channel(im, name):
