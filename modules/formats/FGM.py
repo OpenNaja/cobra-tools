@@ -43,14 +43,17 @@ class FgmLoader(MemStructLoader):
 		# print(self.header)
 
 	def load(self, file_path):
+		# todo - replace self.header, and update the pointer datas
+		# self.header = fgm_data
 		fgm_data = self._get_data(file_path)
 		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 
 		self.sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))
-		self.sized_str_entry.struct_ptr.update_data(sizedstr_bytes)
+		self.sized_str_entry.struct_ptr.update_data(as_bytes(self.header))
 
 		# inject fragment datas
 		for ptr, data in zip(self._ptrs(), datas):
+			# print(ptr, ptr.data, ptr.frag)
 			frag = ptr.frag
 			if not frag:
 				continue
@@ -77,7 +80,6 @@ class FgmLoader(MemStructLoader):
 		# textures_bytes += get_padding(len(textures_bytes), alignment=16)
 		# attributes never seem to have padding
 		# attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
-		self.header = fgm_data.fgm_info
 		datas = (textures_bytes, attributes_bytes, fgm_data.data_bytes)
 		return datas, sizedstr_bytes
 
@@ -98,8 +100,10 @@ class FgmLoader(MemStructLoader):
 				stream.write(self.sized_str_entry.struct_ptr.data)
 				for tex in self.file_entry.dependencies:
 					stream.write(zstr(tex.basename.encode()))
-				self.header.textures.data.write(stream)
-				self.header.attributes.data.write(stream)
+				if self.header.textures.data:
+					self.header.textures.data.write(stream)
+				if self.header.attributes.data:
+					self.header.attributes.data.write(stream)
 				if data_lib_size:
 					stream.write(data_lib_f.struct_ptr.data)
 				outfile.write(stream.getvalue())

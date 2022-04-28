@@ -227,11 +227,14 @@ class MemPool:
 				# logging.debug(f"data size of stack [len: {len(sorted_structs_map)}] member {i} has changed")
 				# get all ptrs that point into this pool, but after this ptr
 				if i < len(sorted_structs_map):
-					for offset_later, pointers in sorted_structs_map[i+1:]:
+					for offset_later, entries in sorted_structs_map[i+1:]:
 						# logging.debug(f"Moving {offset_later} to {offset_later+delta}")
 						# update their data offsets
-						for p in pointers:
-							p.data_offset += delta
+						# todo - this does not update dependencies, use self.offset_2_link_entry
+						for e in entries:
+							e.struct_ptr.data_offset += delta
+							if hasattr(e, "link_ptr"):
+								e.struct_ptr.data_offset += delta
 			# remove from ptr map, so pool can be deleted if it's empty
 			if not ptr._data:
 				if offset in self.offset_2_struct_entries:
