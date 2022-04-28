@@ -14,6 +14,6 @@ class WsmLoader(MemStructLoader):
 	# 	out_path = out_dir(name)
 	# 	with open(out_path, 'wb') as outfile:
 	# 		outfile.write(ovl_header)
-	# 		outfile.write(self.sized_str_entry.pointers[0].data)
+	# 		outfile.write(self.sized_str_entry.struct_ptr.data)
 	# 		for f in self.sized_str_entry.fragments:
-	# 			outfile.write(f.pointers[1].data)
+	# 			outfile.write(f.link_ptr.data)

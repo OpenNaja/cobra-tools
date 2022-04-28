@@ -33,7 +33,7 @@ def has_rg_b_a(png_file_path):
 	return check_any(("pbasenormaltexture",), png_file_path)
 
 
-def wrapper(png_file_path, header_7, ovl):
+def wrapper(png_file_path, size_info, ovl):
 	out_files = []
 	must_split = False
 	split_components = has_components(png_file_path)
@@ -41,9 +41,9 @@ def wrapper(png_file_path, header_7, ovl):
 	split_rg_b_a = has_rg_b_a(png_file_path)
 	if is_ztuac(ovl):
 		must_flip_gb = False
-	h = header_7.height
-	w = header_7.width
-	array_size = header_7.array_size
+	h = size_info.height
+	w = size_info.width
+	array_size = size_info.array_size
 	# hack since some games have this set to 0 sometimes
 	array_size = max(1, array_size)
 	if array_size > 1:

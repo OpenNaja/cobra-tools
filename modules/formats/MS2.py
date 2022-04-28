@@ -19,7 +19,7 @@ class Ms2Loader(BaseFile):
 	extension = ".ms2"
 
 	def get_version(self):
-		ss_ptr = self.sized_str_entry.pointers[0]
+		ss_ptr = self.sized_str_entry.struct_ptr
 		version = struct.unpack(f"I", ss_ptr.data[:4])[0]
 		vdic = {"version": version}
 		self.context = Ms2Context()
@@ -39,23 +39,20 @@ class Ms2Loader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		self.get_version()
-		ss_ptr = self.sized_str_entry.pointers[0]
+		ss_ptr = self.sized_str_entry.struct_ptr
 		self.header = Ms2Root.from_stream(ss_ptr.stream, self.context)
 		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
 		self.header.debug_ptrs()
-		print(self.header)
+		# print(self.header)
 		# old JWE1 still uses 1 fragment
 		if self.header.version > 39:
 			if ss_ptr.data_size != 48:
 				logging.warning(f"Unexpected Root size ({ss_ptr.data_size}) for {self.file_entry.name}")
 			expected_frag = self.get_frag_3(self.header)
-			frag_data = self.header.buffers_presence.frag.pointers[1].data
+			frag_data = self.header.buffers_presence.frag.struct_ptr.data
 			if frag_data != expected_frag:
 				logging.warning(
 					f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
-			for model_info in self.header.model_infos.data:
-				objects_ptr = model_info.objects.frag.pointers[1]
-				objects_ptr.split_data_padding(4 * model_info.num_objects)
 
 	def create(self):
 		ms2_file = Ms2File()
@@ -63,7 +60,7 @@ class Ms2Loader(BaseFile):
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		ss_ptr = self.sized_str_entry.pointers[0]
+		ss_ptr = self.sized_str_entry.struct_ptr
 
 		self.header = ms2_file.info
 		# fix up the pointers
@@ -94,15 +91,15 @@ class Ms2Loader(BaseFile):
 			mdl2_file_entry = self.get_file_entry(mdl2_path)
 
 			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
-			mdl2_entry.pointers[0].pool_index = -1
+			mdl2_entry.struct_ptr.pool_index = -1
 			self.sized_str_entry.children.append(mdl2_entry)
 
 		# todo - padding like this is likely wrong, probably relative to start of materials
 		# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
 		# logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
-		# logging.debug(f"rel offset {meshes.pointers[1].data_offset-materials.pointers[1].data_offset}")
-		# logging.debug(f"rel mod 8 {(meshes.pointers[1].data_offset-materials.pointers[1].data_offset) % 8}")
-		# self.write_to_pool(objects.pointers[1], 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
+		# logging.debug(f"rel offset {meshes.link_ptr.data_offset-materials.link_ptr.data_offset}")
+		# logging.debug(f"rel mod 8 {(meshes.link_ptr.data_offset-materials.link_ptr.data_offset) % 8}")
+		# self.write_to_pool(objects.link_ptr, 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
 
 		# create ms2 data
 		self.create_data_entry(self.sized_str_entry, ms2_file.buffers)
@@ -113,11 +110,11 @@ class Ms2Loader(BaseFile):
 			# link first_materials pointer
 			first_materials = self.header.model_infos.data[0].materials.frag
 			assert first_materials
-			self.ptr_relative(model_info.first_materials.frag.pointers[1], first_materials.pointers[1])
+			self.ptr_relative(model_info.first_materials.frag.struct_ptr, first_materials.struct_ptr)
 			for mesh in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
 				offset = mesh.buffer_info.temp_index * self.header.buffer_infos.data[0].io_size
-				self.ptr_relative(mesh.buffer_info.frag.pointers[1], self.header.buffer_infos.frag.pointers[1], rel_offset=offset)
+				self.ptr_relative(mesh.buffer_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
@@ -134,7 +131,7 @@ class Ms2Loader(BaseFile):
 		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		# truncate to 48 bytes for PZ af_keeperbodyparts
-		ms2_general_info_data = self.sized_str_entry.pointers[0].data[:48]
+		ms2_general_info_data = self.sized_str_entry.struct_ptr.data[:48]
 
 		ms2_header = struct.pack("<I", len(bone_infos))
 	
@@ -157,13 +154,13 @@ class Ms2Loader(BaseFile):
 				# this corresponds to pc buffer 1 already
 				# handle multiple buffer infos
 				# grab all unique ptrs to buffer infos
-				ptrs = set(mesh.buffer_info.frag.pointers[1] for model_info in self.header.model_infos.data for mesh in model_info.meshes.data)
+				ptrs = set(mesh.buffer_info.frag.struct_ptr for model_info in self.header.model_infos.data for mesh in model_info.meshes.data)
 				# get the sorted binary representations
 				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset, reverse=True)]
 				# turn the offset value of the pointers into a valid index
 				for model_info in self.header.model_infos.data:
 					for mesh in model_info.meshes.data:
-						buffer_info_bytes = mesh.buffer_info.frag.pointers[1].data
+						buffer_info_bytes = mesh.buffer_info.frag.struct_ptr.data
 						mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
 				stream.write(b"".join(buffer_infos))
 				self.header.model_infos.data.write(stream)
@@ -234,17 +231,17 @@ class Ms2Loader(BaseFile):
 				if len(mdl2_list) > 0:
 					data = as_bytes(mdl2_list, version_info=versions)
 					frag = ptr.frag
-					# objects.pointers[1] has padding in stock, apparently as each entry is 4 bytes
-					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
-					# frag.pointers[1].update_data(data, pad_to=8)
+					# objects.link_ptr has padding in stock, apparently as each entry is 4 bytes
+					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.struct_ptr.data)} ({len(frag.struct_ptr.padding)})")
+					# frag.struct_ptr.update_data(data, pad_to=8)
 					# the above breaks injecting minmi
-					frag.pointers[1].update_data(data)
-					logging.debug(f"Result {len(frag.pointers[1].data)} ({len(frag.pointers[1].padding)})")
+					frag.struct_ptr.update_data(data)
+					logging.debug(f"Result {len(frag.struct_ptr.data)} ({len(frag.struct_ptr.padding)})")
 
 		# load ms2 ss data
-		self.sized_str_entry.pointers[0].update_data(as_bytes(ms2_file.info, version_info=versions))
-		self.header.buffer_infos.frag.pointers[1].update_data(as_bytes(ms2_file.buffer_infos, version_info=versions), update_copies=True)
-		self.header.model_infos.frag.pointers[1].update_data(as_bytes(ms2_file.model_infos, version_info=versions))
+		self.sized_str_entry.struct_ptr.update_data(as_bytes(ms2_file.info, version_info=versions))
+		self.header.buffer_infos.frag.struct_ptr.update_data(as_bytes(ms2_file.buffer_infos, version_info=versions), update_copies=True)
+		self.header.model_infos.frag.struct_ptr.update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
 		self.sized_str_entry.data_entry.update_data(ms2_file.buffers)

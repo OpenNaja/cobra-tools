@@ -24,7 +24,7 @@ class BnkLoader(BaseFile):
 			
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		bnk_name = os.path.splitext(self.sized_str_entry.name)[0]
-		# print(self.sized_str_entry.pointers[0].data)
+		# print(self.sized_str_entry.struct_ptr.data)
 		out_path = out_dir(self.sized_str_entry.name)
 		out_files = [out_path, ]
 		buffer_datas = self.sized_str_entry.data_entry.buffer_datas

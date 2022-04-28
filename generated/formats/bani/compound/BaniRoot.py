@@ -1,18 +1,17 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class BaniFragmentData0:
+class BaniRoot(MemStruct):
 
 	"""
-	This varies per bani animation file and describes the bani's frames and duration
+	24 bytes This varies per bani animation file and describes the bani's frames and duration
 	"""
-
-	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -30,6 +29,7 @@ class BaniFragmentData0:
 
 		# if 1381323599 then looped
 		self.loop_flag = 0
+		self.banis = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -39,6 +39,7 @@ class BaniFragmentData0:
 		self.num_frames = 0
 		self.animation_length = 0.0
 		self.loop_flag = 0
+		self.banis = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -52,14 +53,19 @@ class BaniFragmentData0:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
+		instance.banis = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.zero = stream.read_uint64()
 		instance.read_start_frame = stream.read_uint()
 		instance.num_frames = stream.read_uint()
 		instance.animation_length = stream.read_float()
 		instance.loop_flag = stream.read_uint()
+		instance.banis.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
+		Pointer.to_stream(stream, instance.banis)
 		stream.write_uint64(instance.zero)
 		stream.write_uint(instance.read_start_frame)
 		stream.write_uint(instance.num_frames)
@@ -82,10 +88,12 @@ class BaniFragmentData0:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'BaniFragmentData0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BaniRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
+		s += f'\n	* banis = {fmt_member(self.banis, indent+1)}'
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		s += f'\n	* read_start_frame = {fmt_member(self.read_start_frame, indent+1)}'
 		s += f'\n	* num_frames = {fmt_member(self.num_frames, indent+1)}'

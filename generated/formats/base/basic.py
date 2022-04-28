@@ -112,9 +112,11 @@ def r_zstr(rfunc):
     while char != b'\x00':
         i += 1
         if i > MAX_LEN:
-            raise ValueError('string too long')
+            raise ValueError(f'string too long')
         val += char
         char = rfunc(1)
+        if not char:
+            raise ValueError('Reached end of file before end of zstring')
     return val.decode(errors="surrogateescape")
 
 

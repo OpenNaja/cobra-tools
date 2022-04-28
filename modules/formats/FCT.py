@@ -17,8 +17,8 @@ class FctLoader(BaseFile):
 		name = self.sized_str_entry.name
 		print("\nWriting", name)
 		buff = b"".join(self.sized_str_entry.data_entry.buffer_datas)
-		ss_len = (len(self.sized_str_entry.pointers[0].data) // 4) - 4
-		ss_data = struct.unpack(f"<4f{ss_len}I", self.sized_str_entry.pointers[0].data)
+		ss_len = (len(self.sized_str_entry.struct_ptr.data) // 4) - 4
+		ss_data = struct.unpack(f"<4f{ss_len}I", self.sized_str_entry.struct_ptr.data)
 		offset = ss_data[8]
 
 		data_sizes = (ss_data[10], ss_data[12], ss_data[14], ss_data[16])
@@ -42,8 +42,8 @@ class FctLoader(BaseFile):
 		# read fct
 		# inject fct buffers
 		# update sized string
-		ss_len = len(self.sized_str_entry.pointers[0].data) / 4
-		ss_data = list(struct.unpack("<4f{}I".format(int(ss_len - 4)), self.sized_str_entry.pointers[0].data))
+		ss_len = len(self.sized_str_entry.struct_ptr.data) / 4
+		ss_data = list(struct.unpack("<4f{}I".format(int(ss_len - 4)), self.sized_str_entry.struct_ptr.data))
 		pad_size = ss_data[8]
 		data_sizes = (ss_data[10], ss_data[12], ss_data[14], ss_data[16])
 		old_buffer_bytes = self.sized_str_entry.data_entry.buffer_datas[0]
@@ -97,4 +97,4 @@ class FctLoader(BaseFile):
 			self.sized_str_entry.data_entry.update_data((buffer_bytes,))
 
 			data = struct.pack("<4f{}I".format(int(ss_len - 4)), *ss_data)
-			self.sized_str_entry.pointers[0].update_data(data, update_copies=True)
+			self.sized_str_entry.struct_ptr.update_data(data, update_copies=True)

@@ -1,3 +1,4 @@
+import traceback
 from inspect import isclass
 from pkgutil import iter_modules
 from pathlib import Path
@@ -35,6 +36,7 @@ def build_formats_dict():
 					# # Add the class to this package's variables
 					# globals()[attribute_name] = attribute
 		except ModuleNotFoundError:
+			traceback.print_exc()
 			logging.warning(f"Could not load {module_name}")
 
 	return formats_dict

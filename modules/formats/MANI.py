@@ -20,7 +20,7 @@ class ManisLoader(BaseFile):
 		logging.info(f"Writing {name}")
 		if not self.sized_str_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		ss_ptr = self.sized_str_entry.pointers[0]
+		ss_ptr = self.sized_str_entry.struct_ptr
 		# buffers = self.sized_str_entry.data_entry.buffer_datas
 		# print(len(buffers))
 		ovl_header = self.pack_header(b"MANI")
@@ -58,11 +58,11 @@ class ManisLoader(BaseFile):
 			mani_file_entry = self.get_file_entry(mani_path)
 
 			mani_entry = self.create_ss_entry(mani_file_entry)
-			mani_entry.pointers[0].pool_index = -1
+			mani_entry.struct_ptr.pool_index = -1
 			manis_entry.children.append(mani_entry)
 
 		# todo - pool type
-		self.write_to_pool(manis_entry.pointers[0], 2, ss)
+		self.write_to_pool(manis_entry.struct_ptr, 2, ss)
 		self.create_data_entry(manis_entry, (b0, b1, b2))
 
 	def _get_data(self, file_path):

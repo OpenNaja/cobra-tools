@@ -10,7 +10,7 @@ class VoxelskirtLoader(BaseFile):
 		vox = VoxelskirtFile()
 		ss_bytes, buffer_bytes = vox.get_structs(self.file_entry.path)
 		self.create_data_entry(self.sized_str_entry, (buffer_bytes,))
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss_bytes)
+		self.write_to_pool(self.sized_str_entry.struct_ptr, 2, ss_bytes)
 		
 
 	def collect(self):
@@ -27,9 +27,9 @@ class VoxelskirtLoader(BaseFile):
 		# write voxelskirt
 		with open(out_path, 'wb') as outfile:
 			# write the sized str and buffers
-			# print(sized_str_entry.pointers[0].data)
+			# print(sized_str_entry.struct_ptr.data)
 			outfile.write(ovl_header)
-			outfile.write(self.sized_str_entry.pointers[0].data)
+			outfile.write(self.sized_str_entry.struct_ptr.data)
 			for buff in buffers:
 				outfile.write(buff)
 
@@ -42,5 +42,5 @@ class VoxelskirtLoader(BaseFile):
 		vox = VoxelskirtFile()
 		ss_bytes, buffer_bytes = vox.get_structs(file_path)
 		self.sized_str_entry.data_entry.update_data((buffer_bytes,))
-		self.sized_str_entry.pointers[0].update_data(ss_bytes, update_copies=True)
+		self.sized_str_entry.struct_ptr.update_data(ss_bytes, update_copies=True)
 

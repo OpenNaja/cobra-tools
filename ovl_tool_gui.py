@@ -345,14 +345,14 @@ class MainWindow(widgets.MainWindow):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 		ss_entry = self.ovl_data.get_sized_str_entry(file_entry.name)
-		ss_p = ss_entry.pointers[0]
+		ss_p = ss_entry.struct_ptr
 		logging.debug(f"File: {ss_p.pool_index} {ss_p.data_offset} {ss_entry.name}")
 		for dep in file_entry.dependencies:
-			p = dep.pointers[0]
+			p = dep.link_ptr
 			logging.debug(f"Dependency: {p.pool_index} {p.data_offset} {dep.name}")
 		for f in ss_entry.fragments:
-			p0 = f.pointers[0]
-			p1 = f.pointers[1]
+			p0 = f.struct_ptr
+			p1 = f.link_ptr
 			logging.debug(f"Fragment: {p0.pool_index} {p0.data_offset} {p1.pool_index} {p1.data_offset}")
 
 	def load(self):
@@ -597,7 +597,7 @@ class MainWindow(widgets.MainWindow):
 
 	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		walker.bulk_test_models(self, start_dir, walk_ovls=False)
+		walker.bulk_test_models(self, start_dir, walk_ovls=True)
 		self.update_progress("Inspected models", value=1, vmax=1)
 
 	def closeEvent(self, event):

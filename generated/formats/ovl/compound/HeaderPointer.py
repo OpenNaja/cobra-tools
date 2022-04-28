@@ -14,7 +14,6 @@ class HeaderPointer:
 
 	"""
 	Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
-	8 bytes
 	"""
 
 	context = ContextReference()
@@ -132,19 +131,6 @@ class HeaderPointer:
 			self.data_size = len(data)
 			self.pool.data.write(data)
 
-	def strip_zstring_padding(self):
-		"""Move surplus padding into the padding attribute"""
-		# the actual zstring content + end byte
-		data = self.data.split(b"\x00")[0] + b"\x00"
-		# do the split itself
-		self.split_data_padding(len(data))
-
-	def split_data_padding(self, cut):
-		"""Move a fixed surplus padding into the padding attribute"""
-		_d = self.data_size + self.padding_size
-		self.data_size = cut
-		self.padding_size = _d - cut
-
 	def link_to_pool(self, pools, is_struct_ptr=True):
 		"""Link this pointer to its pool"""
 
@@ -154,10 +140,11 @@ class HeaderPointer:
 			self.pool = pools[self.pool_index]
 			if not is_struct_ptr:
 				self.data_size = 8
-			# todo - only add struct ptrs to map, but ensure that non-struct ptrs have their offsets adjusted for delete
-			if self.data_offset not in self.pool.pointer_map:
-				self.pool.pointer_map[self.data_offset] = []
-			self.pool.pointer_map[self.data_offset].append(self)
+			# else:
+			# 	# todo - only add struct ptrs to map, but ensure that non-struct ptrs have their offsets adjusted for delete
+			# 	if self.data_offset not in self.pool.offset_2_struct_entries:
+			# 		self.pool.offset_2_struct_entries[self.data_offset] = []
+			# 	self.pool.offset_2_struct_entries[self.data_offset].append(self)
 
 	def update_pool_index(self, pools_lut):
 		"""Changes self.pool_index according to self.pool in pools_lut"""

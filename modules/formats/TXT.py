@@ -10,18 +10,18 @@ class TxtLoader(BaseFile):
 	def create(self):
 		ss = self._get_data(self.file_entry.path)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
-		self.sized_str_entry.pointers[0].pool.num_files += 1
+		self.write_to_pool(self.sized_str_entry.struct_ptr, 2, ss)
+		self.sized_str_entry.struct_ptr.pool.num_files += 1
 
 	def collect(self):
 		self.assign_ss_entry()
 	
 	def load(self, file_path):
 		ss = self._get_data(file_path)
-		self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
+		self.sized_str_entry.struct_ptr.update_data(ss, update_copies=True)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		b = self.sized_str_entry.pointers[0].data
+		b = self.sized_str_entry.struct_ptr.data
 		if is_dla(self.ovl):
 			# not sure, not standard sized strings
 			size, unk = struct.unpack("<2B", b[:2])

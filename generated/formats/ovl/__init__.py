@@ -1,5 +1,4 @@
 import os
-import itertools
 import shutil
 import struct
 import tempfile
@@ -43,7 +42,7 @@ OODLE_MAGIC = (b'\x8c', b'\xcc')
 TAB = '  '
 
 # types that have no loader themselves, but are handled by other classes
-IGNORE_TYPES = (".mani", ".mdl2", ".bani", ".texturestream", ".datastreams", ".model2stream")
+IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
 
 aliases = {
 	".matcol": ".materialcollection",
@@ -70,35 +69,6 @@ class OvsFile(OvsHeader):
 	def add_pointer(pointer, ss_entry, pointers_to_ss):
 		if pointer.pool_index != -1:
 			pointers_to_ss[pointer.pool_index][pointer.data_offset] = ss_entry
-
-	def header_name_finder(self):
-		# this algorithm depends on every fragment being assigned to the correct sized string entries
-		logging.info("Updating pool names")
-		pointers_to_ss = [{} for _ in self.pools]
-		pointers_to_ss_frag = [{} for _ in self.pools]
-		for sized_str_entry in self.sized_str_entries:
-			self.add_pointer(sized_str_entry.pointers[0], sized_str_entry, pointers_to_ss)
-			for frag in sized_str_entry.fragments:
-				for pointer in frag.pointers:
-					self.add_pointer(pointer, sized_str_entry, pointers_to_ss_frag)
-		for pool_index, pool in enumerate(self.pools):
-			logging.debug(f"pool_index {pool_index}")
-			# if we are dealing with a pool loaded from an ovl, see if its extension has been figured out
-			if hasattr(pool, "ext") and pool.ext not in self.ovl.REVERSED_TYPES:
-				logging.debug(f"Keeping pool name {pool.name} as it has not been reverse engineered!")
-				continue
-			ss_map = pointers_to_ss[pool_index]
-			results = tuple(sorted(ss_map.items()))
-			if not results:
-				logging.debug("No ss pointer found, checking frag pointers!")
-				ss_map = pointers_to_ss_frag[pool_index]
-				results = tuple(sorted(ss_map.items()))
-				if not results:
-					logging.error(f"No pointer found for pool {pool_index}, error!")
-					continue
-			ss = results[0][1]
-			logging.debug(f"Header[{pool_index}]: {pool.name} -> {ss.name}")
-			self.transfer_identity(pool, ss)
 
 	def get_bytes(self, external_path):
 		# load external uncompressed data
@@ -159,7 +129,15 @@ class OvsFile(OvsHeader):
 	def update_hashes(self, file_name_lut):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		logging.debug(f"Game: {get_game(self.ovl)}")
-		self.header_name_finder()
+		logging.info("Updating pool names")
+		for pool_index, pool in self.pools:
+			first_entry = pool.get_first_entry()
+			if first_entry:
+				logging.debug(
+					f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({first_entry.__class__.__name__})")
+				self.transfer_identity(pool, first_entry)
+			else:
+				logging.error(f"No entry found for pool {pool_index}!")
 		entry_lists = (
 			self.pools,
 			self.sized_str_entries,
@@ -230,7 +208,7 @@ class OvsFile(OvsHeader):
 			for sized_str_entry in self.sized_str_entries:
 				self.assign_name(sized_str_entry)
 				sized_str_entry.children = []
-				sized_str_entry.fragments = []
+				# sized_str_entry.fragments = []
 				# get data entry for link to buffers, or none
 				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
 
@@ -295,8 +273,7 @@ class OvsFile(OvsHeader):
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
-		source_entry.basename = target_entry.basename
-		source_entry.ext = target_entry.ext
+		source_entry.basename, source_entry.ext = os.path.splitext(target_entry.name)
 		source_entry.name = target_entry.name
 
 	def rebuild_assets(self):
@@ -412,27 +389,6 @@ class OvsFile(OvsHeader):
 					self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
 						-1 - x].data_offset
 
-	def frags_from_pointer(self, ptr, count, reuse=False):
-		# todo - deprecate
-		return self.get_frags_after_count(ptr.pool.fragments, ptr.data_offset, count)
-
-	@staticmethod
-	def get_frags_after_count(frags, initpos, count):
-		# todo - deprecate
-		"""Returns count entries of frags that have not been processed and occur after initpos."""
-		out = []
-		for f in frags:
-			# check length of fragment, grab good ones
-			if len(out) == count:
-				break
-			if f.pointers[0].data_offset >= initpos:
-				out.append(f)
-		else:
-			if len(out) != count:
-				raise AttributeError(
-					f"Could not find {count} fragments in {len(frags)} frags after initpos {initpos}, only found {len(out)}!")
-		return out
-
 	def assign_frag_names(self):
 		# for debugging only:
 		for sized_str_entry in self.sized_str_entries:
@@ -524,13 +480,11 @@ class OvsFile(OvsHeader):
 			with open(pool_path, "wb") as f:
 				f.write(pool.data.getvalue())
 				# write a pointer marker at each offset
-				for offset in pool.fragments_lut.keys():
+				for offset, entry in pool.offset_2_link_entry.items():
 					f.seek(offset)
-					f.write(b"@POINTER")
-				for dep in self.ovl.dependencies:
-					ptr = dep.pointers[0]
-					if ptr.pool == pool:
-						f.seek(ptr.data_offset)
+					if isinstance(entry, Fragment):
+						f.write(b"@POINTER")
+					else:
 						f.write(b"@DEPENDS")
 
 	def dump_buffer_groups_log(self):
@@ -543,18 +497,12 @@ class OvsFile(OvsHeader):
 
 	@staticmethod
 	def get_ptr_debug_str(entry):
-		# d_str = ""
-		# if len(entry.pointers) == 2:
-		#     d_str = str(entry.pointers[1].data)
-		ptr_str = ' '.join((f'[{p.pool_index} {p.data_offset} | {p.data_size} ({len(p.padding)})]' for p in entry.pointers))
 		if isinstance(entry, Fragment):
-			p0, p1 = entry.pointers
-			ptr_str = f"@ {p0.pool_index} {p0.data_offset} -> [{p1.pool_index} {p1.data_offset} | {p1.data_size} ({len(p1.padding)})]"\
-
-		infix = ""
-		if isinstance(entry, DependencyEntry):
-			infix = "->"
-		return f"{ptr_str} {infix} {entry.name}"
+			return f"@ {entry.link_ptr} -> {entry.struct_ptr} {entry.name}"
+		elif isinstance(entry, DependencyEntry):
+			return f"@ {entry.link_ptr} -> {entry.name}"
+		else:
+			return f"{entry.struct_ptr} {entry.name}"
 
 	def dump_frag_log(self):
 		"""for development; collect info about fragment types"""
@@ -566,13 +514,12 @@ class OvsFile(OvsHeader):
 				f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
 
 			for frag in self.fragments:
-				ptr0, ptr1 = frag.pointers
-				debug_str = f" PTR {ptr0} -> {ptr1} {frag.name}"
-				ptr0.pool.log_entries.append((ptr0.data_offset, 2, debug_str))
-				debug_str = f"\n SUB {ptr1} {frag.name}"
-				ptr1.pool.log_entries.append((ptr1.data_offset, 1, debug_str))
+				debug_str = f" PTR {frag.link_ptr} -> {frag.struct_ptr} {frag.name}"
+				frag.link_ptr.pool.log_entries.append((frag.link_ptr.data_offset, 2, debug_str))
+				debug_str = f"\n SUB {frag.struct_ptr} {frag.name}"
+				frag.struct_ptr.pool.log_entries.append((frag.struct_ptr.data_offset, 1, debug_str))
 			for ss in self.sized_str_entries:
-				ptr = ss.pointers[0]
+				ptr = ss.struct_ptr
 				if ptr.pool:
 					debug_str = f"\n\nMAIN {ptr} {ss.name}"
 					ptr.pool.log_entries.append((ptr.data_offset, 0, debug_str))
@@ -582,34 +529,40 @@ class OvsFile(OvsHeader):
 				pool.log_entries.sort()
 				f.write("\n".join([tup[2] for tup in pool.log_entries]))
 
-	def check_for_ptrs(self, f, deps, struct_ptr, known_frags, indent=1):
-		for dep in deps:
-			ptr = dep.pointers[0]
-			abs_offset = ptr.data_offset
-			if struct_ptr.data_offset <= abs_offset < struct_ptr.data_offset + struct_ptr.data_size:
-				# get the relative offset of this dependency to its struct
-				rel_offset = abs_offset - struct_ptr.data_offset
-				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {dep.name}")
-
+	def check_for_ptrs(self, parent_struct_ptr, ss):
+		"""Recursively assigns pointers to an entry"""
+		parent_struct_ptr.children = set()
 		# see if any pointers are inside this struct
-		for frag in struct_ptr.pool.fragments_lut.values():
-			ptr0, ptr1 = frag.pointers
-			abs_offset = ptr0.data_offset
-			if struct_ptr.data_offset <= abs_offset < struct_ptr.data_offset + struct_ptr.data_size:
-				# get the relative offset of this pointer to its struct
-				rel_offset = abs_offset - struct_ptr.data_offset
-				if frag in known_frags:
-					# pointer refers to a known frag
-					# stop here to avoid recursion
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {ptr1} ({ptr1.data_size: 4})")
+		for entry in parent_struct_ptr.pool.offset_2_link_entry.values():
+			abs_offset = entry.link_ptr.data_offset
+			if parent_struct_ptr.data_offset <= abs_offset < parent_struct_ptr.data_offset + parent_struct_ptr.data_size:
+				parent_struct_ptr.children.add(entry)
+				if isinstance(entry, Fragment):
+					entry.name = ss.name
+					# points to a child struct
+					struct_ptr = entry.struct_ptr
+					if entry not in ss.fragments:
+						ss.fragments.append(entry)
+						self.check_for_ptrs(struct_ptr, ss)
+
+	def _dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
+		"""Recursively writes parent_struct_ptr.children to f"""
+		# todo - compare performance of sorting here vs sorting the whole frags & dependencies list
+		for entry in sorted(parent_struct_ptr.children, key=lambda e: e.link_ptr.data_offset):
+			# get the relative offset of this pointer to its struct
+			rel_offset = entry.link_ptr.data_offset - parent_struct_ptr.data_offset
+			if isinstance(entry, Fragment):
+				# points to a child struct
+				struct_ptr = entry.struct_ptr
+				if entry in rec_check:
+					# pointer refers to a known entry - stop here to avoid recursion
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {struct_ptr} ({struct_ptr.data_size: 4})")
 				else:
-					known_frags.add(frag)
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {ptr1} ({ptr1.data_size: 4})")
-					# f.write(f"\n{indent * TAB}PTR {ptr0} -> SUB {ptr1} ({ptr1.data_size: 4})")
-					# f.write(f"\n{indent * TAB}PTR {ptr0}")
-					# indent += 1
-					# f.write(f"\n{indent * TAB}SUB {ptr1} ({ptr1.data_size: 4})")
-					self.check_for_ptrs(f, deps, ptr1, known_frags, indent=indent+1)
+					rec_check.add(entry)
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {struct_ptr} ({struct_ptr.data_size: 4})")
+					self._dump_ptr_stack(f, struct_ptr, rec_check, indent=indent+1)
+			else:
+				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {entry.name}")
 
 	def dump_stack(self, file_lut):
 		"""for development; collect info about fragment types"""
@@ -618,13 +571,11 @@ class OvsFile(OvsHeader):
 		with open(frag_log_path, "w") as f:
 
 			for ss in self.sized_str_entries:
-				ptr = ss.pointers[0]
+				ptr = ss.struct_ptr
 				if ptr.pool:
 					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {ss.name}"
 					f.write(debug_str)
-					known_frags = set()
-					file_entry = file_lut[ss.name]
-					self.check_for_ptrs(f, file_entry.dependencies, ptr, known_frags)
+					self._dump_ptr_stack(f, ptr, set())
 
 	@staticmethod
 	def find_entry(entries, src_entry):
@@ -709,7 +660,6 @@ class OvlFile(Header, IoFile):
 		else:
 			self.progress_callback = self.dummy_callback
 		self.formats_dict = build_formats_dict()
-		self.REVERSED_TYPES = (ext for ext in self.formats_dict.keys())
 
 	def get_loader(self, ext, ovl, file_entry):
 		cls = self.formats_dict.get(ext, None)
@@ -1129,10 +1079,10 @@ class OvlFile(Header, IoFile):
 			h = dependency_entry.file_hash
 			if h in self.hash_table_local:
 				dependency_entry.basename = self.hash_table_local[h]
-			# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
+				# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
 			elif h in self.hash_table_global:
 				dependency_entry.basename = self.hash_table_global[h]
-			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
+				# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
 				dependency_entry.basename = UNK_HASH
@@ -1140,7 +1090,7 @@ class OvlFile(Header, IoFile):
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 		# sort dependencies by their pool offset
 		for file_entry in self.files:
-			file_entry.dependencies.sort(key=lambda entry: entry.pointers[0].data_offset)
+			file_entry.dependencies.sort(key=lambda entry: entry.link_ptr.data_offset)
 
 		for aux_entry in self.aux_entries:
 			aux_entry.name = self.names.get_str_at(aux_entry.offset)
@@ -1234,44 +1184,43 @@ class OvlFile(Header, IoFile):
 		start_time = time.time()
 		# reset pointer map for each header entry
 		for pool in self.pools:
-			pool.pointer_map = {}
-			pool.new = False
-			# store fragments per header for faster lookup
-			pool.fragments = []
-			# lookup by ptr 0
-			pool.fragments_lut = {}
-			# pool.dependencies = []
-			# pool.ss_entries = []
+			pool.clear_data()
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of pools
-			ptr = dep.pointers[0]
+			ptr = dep.link_ptr
 			ptr.link_to_pool(self.pools, is_struct_ptr=False)
-			# a dependency cannot occupy the same spot as a fragment ptr 0
-			ptr.pool.fragments_lut[ptr.data_offset] = dep
+			ptr.pool.offset_2_link_entry[ptr.data_offset] = dep
 		for archive in self.archives:
 			ovs = archive.content
-			# sort fragments by their first pointer, no real need to do so, though
-			ovs.fragments.sort(key=lambda f: (f.pointers[0].pool_index, f.pointers[0].data_offset))
-			# attach all pointers to their pool
-			# only detect 'splits' between structs when is_struct_ptr=True
-			for entry in ovs.fragments:
-				entry.pointers[0].link_to_pool(ovs.pools, is_struct_ptr=False)
-				entry.pointers[1].link_to_pool(ovs.pools)
+			# # sort fragments by their first pointer, no real need to do so, though
+			# ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
+			# attach all pointers to their pool, only detect 'splits' between struct_ptrs
 			for entry in ovs.sized_str_entries:
-				entry.pointers[0].link_to_pool(ovs.pools)
+				entry.struct_ptr.link_to_pool(ovs.pools)
+				if entry.struct_ptr.pool:
+					entry.struct_ptr.pool.add_struct(entry)
 			for i, frag in enumerate(ovs.fragments):
+				frag.link_ptr.link_to_pool(ovs.pools, is_struct_ptr=False)
+				frag.struct_ptr.link_to_pool(ovs.pools)
+				frag.struct_ptr.pool.add_struct(frag)
 				# we assign these later when the loader classes run collect()
 				frag.name = None
-				ptr = frag.pointers[0]
 				try:
-					ptr.pool.fragments.append(frag)
-					ptr.pool.fragments_lut[ptr.data_offset] = frag
+					frag.link_ptr.pool.offset_2_link_entry[frag.link_ptr.data_offset] = frag
 				except:
 					logging.warning(f"frag {i} failed")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_pointer_sizes()
+
+		for archive in self.archives:
+			ovs = archive.content
+			for entry in ovs.sized_str_entries:
+				entry.fragments = []
+				if entry.struct_ptr.pool:
+					ovs.check_for_ptrs(entry.struct_ptr, entry)
+
 		logging.info(f"Loaded pointers in {time.time() - start_time:.2f} seconds")
 
 	def load_file_classes(self):
@@ -1382,13 +1331,18 @@ class OvlFile(Header, IoFile):
 
 			logging.debug(f"Sorting pools for {archive.name}")
 			ovs = archive.content
+			# sort pools by their type
 			ovs.pools.sort(key=lambda pool: pool.type)
-
+			# remove all fragments to rebuild the list later
+			ovs.fragments.clear()
+			# map pool to index
 			pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
-			for entry in itertools.chain(ovs.fragments, ovs.sized_str_entries):
-				for pointer in entry.pointers:
-					# the index goes into the ovs file's pools
-					pointer.update_pool_index(pools_lut)
+			for ss_entry in ovs.sized_str_entries:
+				ss_entry.struct_ptr.update_pool_index(pools_lut)
+				for frag in ss_entry.fragments:
+					frag.link_ptr.update_pool_index(pools_lut)
+					frag.struct_ptr.update_pool_index(pools_lut)
+				ovs.fragments.extend(ss_entry.fragments)
 
 			# map the pool types to pools
 			pools_by_type = {}
@@ -1415,7 +1369,7 @@ class OvlFile(Header, IoFile):
 		# dependencies index goes into the flattened list of pools
 		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
 		for dep in self.dependencies:
-			dep.pointers[0].update_pool_index(pools_lut)
+			dep.link_ptr.update_pool_index(pools_lut)
 		# pools are updated, gotta rebuild stream files now
 		self.update_stream_files()
 
@@ -1487,9 +1441,9 @@ class OvlFile(Header, IoFile):
 				for stream in file.streams:
 					stream_ss, stream_archive = self._ss_dict[stream.name.lower()]
 					stream_entry = StreamEntry(self.context)
-					steam_ptr = stream_ss.pointers[0]
+					steam_ptr = stream_ss.struct_ptr
 					stream_entry.stream_offset = self._get_abs_mem_offset(stream_archive, steam_ptr)
-					file_ptr = file_ss.pointers[0]
+					file_ptr = file_ss.struct_ptr
 					stream_entry.file_offset = self._get_abs_mem_offset(file_archive, file_ptr)
 					stream_entry.archive_name = stream_archive.name
 					self.stream_files.append(stream_entry)
@@ -1513,26 +1467,6 @@ class OvlFile(Header, IoFile):
 			if file.loader:
 				file.loader.update()
 
-	# def debug_unks(self):
-	#     pool_type = set()
-	#     set_pool_type = set()
-	#     for file in self.files:
-	#         pool_type.add(file.pool_type)
-	#         set_pool_type.add(file.set_pool_type)
-	#         ss = self.get_sized_str_entry(file.name)
-	#         ss_ptr = ss.pointers[0]
-	#         if not file.set_pool_type:
-	#             if file.pool_type != ss_ptr.pool.type:
-	#                 raise AttributeError(f"No match: {file.pool_type},  {ss_ptr.pool.type}")
-	#             else:
-	#                 pass
-	#         # logging.debug(f"match: {file.pool_type},  {ss_ptr.pool.type}")
-	#         else:
-	#             pass
-	#     logging.info(f"pool_type {pool_type}")
-	#     logging.info(f"set_pool_type {set_pool_type}")
-	#     logging.info(self.stream_files)
-
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
 		file_lut = {file.name: file for file in self.files}
@@ -1540,7 +1474,7 @@ class OvlFile(Header, IoFile):
 			# a tuple - (offset, sorting prio, str)
 			pool.log_entries = []
 		for dep in self.dependencies:
-			ptr = dep.pointers[0]
+			ptr = dep.link_ptr
 			debug_str = f" DEP {ptr} -> {dep.name}"
 			ptr.pool.log_entries.append((ptr.data_offset, 3, debug_str))
 		for archive_entry in self.archives:

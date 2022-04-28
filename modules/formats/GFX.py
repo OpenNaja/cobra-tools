@@ -10,13 +10,13 @@ class GfxLoader(BaseFile):
     def create(self):
         ss, buffer_0 = self._get_data(self.file_entry.path)
         self.sized_str_entry = self.create_ss_entry(self.file_entry)
-        self.write_to_pool(self.sized_str_entry.pointers[0], 4, ss)
+        self.write_to_pool(self.sized_str_entry.struct_ptr, 4, ss)
         self.create_data_entry(self.sized_str_entry, (buffer_0,))
 
     def load(self, file_path):
         ss, buffer_0 = self._get_data(file_path)
         self.sized_str_entry.data_entry.update_data((buffer_0,))
-        self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
+        self.sized_str_entry.struct_ptr.update_data(ss, update_copies=True)
 
     def collect(self):
         self.assign_ss_entry()

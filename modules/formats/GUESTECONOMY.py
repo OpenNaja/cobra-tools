@@ -10,7 +10,7 @@ class GuestEconomyLoader(BaseFile):
     def create(self):
         buffer_0 = self._get_data(self.file_entry.path)
         self.sized_str_entry = self.create_ss_entry(self.file_entry)
-        self.write_to_pool(self.sized_str_entry.pointers[0], len(buffer_0), buffer_0)
+        self.write_to_pool(self.sized_str_entry.struct_ptr, len(buffer_0), buffer_0)
 
     def load(self, file_path):
         buffer_0 = self._get_data(file_path)
@@ -20,8 +20,8 @@ class GuestEconomyLoader(BaseFile):
         self.assign_ss_entry()
         logging.debug(f"Collecting {self.sized_str_entry.name}")
         self.sized_str_entry.floats = []
-        self.sized_str_entry.floats = struct.unpack("<IfIfI27f", self.sized_str_entry.pointers[0].data)
-        self.sized_str_entry.guesteconomyrawdata = self.sized_str_entry.pointers[0].data
+        self.sized_str_entry.floats = struct.unpack("<IfIfI27f", self.sized_str_entry.struct_ptr.data)
+        self.sized_str_entry.guesteconomyrawdata = self.sized_str_entry.struct_ptr.data
         logging.debug(f"data {self.sized_str_entry.floats}")
         #TODO: instead of saving/loading it raw, finish the mapping and convert to xml?
         #data (500000, 0.0, 5000, 0.8500000238418579, 10000, 0.0, 0.0, 0.0, 750.0, 1000.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 1.5, 0.4000000059604645, 1.0, 8.0, 4.0, 2.0, 2.0, 8.0, 200.0, 8.0, 0.0, 0.0, 0.0, 0.0)

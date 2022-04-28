@@ -93,7 +93,7 @@ class BaseFile:
 	def create_ss_entry(self, file_entry, ovs="STATIC"):
 		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
-		ss_entry.fragments = []
+		# ss_entry.fragments = []
 		ovs_file = self.ovl.create_archive(ovs)
 		ovs_file.transfer_identity(ss_entry, file_entry)
 		ovs_file.sized_str_entries.append(ss_entry)
@@ -115,12 +115,12 @@ class BaseFile:
 
 	def create_fragments(self, ss, count):
 		frags = [self.create_fragment() for i in range(count)]
-		ss.fragments.extend(frags)
+		ss.fragments.add(frags)
 		return frags
 
 	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
-		self.ovs.fragments.append(new_frag)
+		# self.ovs.fragments.append(new_frag)
 		return new_frag
 
 	def create_data_entry(self, ss_entry, buffers_bytes, ovs="STATIC"):
@@ -178,14 +178,14 @@ class MemStructLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		ss_ptr = self.sized_str_entry.pointers[0]
+		ss_ptr = self.sized_str_entry.struct_ptr
 		self.header = self.target_class.from_stream(ss_ptr.stream, self.ovl.context)
 		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
 		# print(self.header)
 
 	def create(self):
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		ss_ptr = self.sized_str_entry.pointers[0]
+		ss_ptr = self.sized_str_entry.struct_ptr
 
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)

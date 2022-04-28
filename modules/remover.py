@@ -12,8 +12,8 @@ def file_remover(ovl, filenames):
 	_remove_files(ovl, filenames)
 	for i, pool in sorted(enumerate(ovl.pools), reverse=True):
 		pool.flush_pointers()
-		logging.info(f"pool {i} {pool.pointer_map}")
-		if not pool.pointer_map:
+		logging.info(f"pool {i} {pool.offset_2_struct_entries}")
+		if not pool.offset_2_struct_entries:
 			logging.info(f"Deleting pool {pool.name} as it has no pointers")
 			for archive in ovl.archives:
 				if pool in archive.content.pools:
@@ -30,7 +30,7 @@ def _remove_files(ovl, filenames):
 			logging.info(f"Removing {file_entry.name}")
 			ovl.files.pop(i)
 			for dep in file_entry.dependencies:
-				dep.pointers[0].remove()
+				dep.link_ptr.remove()
 	remove_from_ovs(ovl, filenames)
 	if children_names:
 		logging.info(f"Removing children")
@@ -54,10 +54,10 @@ def remove_from_ovs(ovl, filenames):
 			if ss_entry.name in filenames:
 				# wipe out ss and frag data
 				for frag in ss_entry.fragments:
-					frag.pointers[0].remove()
-					frag.pointers[1].remove()
-					ovs.fragments.remove(frag)
-				ss_entry.pointers[0].remove()
+					frag.struct_ptr.remove()
+					frag.link_ptr.remove()
+					# ovs.fragments.remove(frag)
+				ss_entry.struct_ptr.remove()
 				# remove frag and then ss entry
 				ovs.sized_str_entries.remove(ss_entry)
 

@@ -2,6 +2,7 @@ import logging
 import struct
 
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_versions, get_padding
 from modules.helpers import as_bytes, zstr
@@ -22,56 +23,39 @@ class FgmLoader(MemStructLoader):
 		self.header.textures.data = fgm_data.textures
 		self.header.attributes.data = fgm_data.attributes
 		self.header.data_lib.data = fgm_data.data_bytes
-		# todo - dependencies
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		ss_ptr = self.sized_str_entry.pointers[0]
+		ss_ptr = self.sized_str_entry.struct_ptr
 		self.header.write_ptrs(self, self.ovs, ss_ptr)
 		self.create_data_entry(self.sized_str_entry, (fgm_data.buffer_bytes,))
 
 		if fgm_data.texture_files:
 			for dependency in self.file_entry.dependencies:
-				self.write_to_pool(dependency.pointers[0], 2, b"\x00" * 8)
+				self.write_to_pool(dependency.link_ptr, 2, b"\x00" * 8)
 			# points to the start of the dependencies region
 			self.header.dependencies.frag = self.create_fragments(self.sized_str_entry, 1)[0]
 			rel_off = self.header.dependencies.io_start - self.header.io_start
-			self.ptr_relative(self.header.dependencies.frag.pointers[0], ss_ptr, rel_offset=rel_off)
-			self.ptr_relative(self.header.dependencies.frag.pointers[1], self.file_entry.dependencies[0].pointers[0])
+			self.ptr_relative(self.header.dependencies.frag.link_ptr, ss_ptr, rel_offset=rel_off)
+			self.ptr_relative(self.header.dependencies.frag.struct_ptr, self.file_entry.dependencies[0].link_ptr)
 
 	def collect(self):
 		super().collect()
 		self.header.debug_ptrs()
 		# print(self.header)
-		tex_info = self.header.textures.frag
-		attr_info = self.header.attributes.frag
-		if tex_info:
-			# size of a texture info varies by version
-			tex_size = self.header.texture_count * self.header.textures.data[0].io_size
-			ptr = tex_info.pointers[1]
-			ptr.split_data_padding(tex_size)
-			logging.debug(f"Texture data {len(ptr.data)} padding {len(ptr.padding)}")
-		if attr_info:
-			# this likely has no padding anyway
-			ptr = attr_info.pointers[1]
-			ptr.split_data_padding(self.header.attribute_count * 16)
-			logging.debug(f"Attribute data {len(ptr.data)} padding {len(ptr.padding)}")
-		# for i, f in enumerate(self.sized_str_entry.fragments):
-		# 	p = f.pointers[1]
-		# 	logging.debug(f"{self.sized_str_entry.name} {i} {len(p.data)} {len(p.padding)}")
 
 	def load(self, file_path):
 		fgm_data = self._get_data(file_path)
 		datas, sizedstr_bytes = self._get_frag_datas(fgm_data)
 
 		self.sized_str_entry.data_entry.update_data((fgm_data.buffer_bytes,))
-		self.sized_str_entry.pointers[0].update_data(sizedstr_bytes)
+		self.sized_str_entry.struct_ptr.update_data(sizedstr_bytes)
 
 		# inject fragment datas
 		for ptr, data in zip(self._ptrs(), datas):
 			frag = ptr.frag
 			if not frag:
 				continue
-			logging.debug(f"frag: len old {len(frag.pointers[1].data)} len padding {len(frag.pointers[1].padding)} len new {len(data)}")
-			frag.pointers[1].update_data(data, update_copies=True)
+			logging.debug(f"frag: len old {len(frag.struct_ptr.data)} len padding {len(frag.struct_ptr.padding)} len new {len(data)}")
+			frag.struct_ptr.update_data(data, update_copies=True)
 
 		# update dependencies on ovl
 		for dependency, tex_name in zip(self.file_entry.dependencies, fgm_data.texture_files):
@@ -104,18 +88,21 @@ class FgmLoader(MemStructLoader):
 
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			outfile.write(self.pack_header(b"FGM "))
-			# we need this as its size is not predetermined
-			data_lib_f = self.header.data_lib.frag
-			data_lib_size = len(data_lib_f.pointers[1].data) if data_lib_f else 0
-			outfile.write(struct.pack("II", data_lib_size, len(self.file_entry.dependencies)))
-			outfile.write(self.sized_str_entry.pointers[0].data)
-			for tex in self.file_entry.dependencies:
-				outfile.write(zstr(tex.basename.encode()))
-			# write each of the fragments
-			for ptr in self._ptrs():
-				if ptr.frag:
-					outfile.write(ptr.frag.pointers[1].data)
+
+			with ConvStream() as stream:
+				stream.write(self.pack_header(b"FGM "))
+				# we need this as its size is not predetermined
+				data_lib_f = self.header.data_lib.frag
+				data_lib_size = len(data_lib_f.struct_ptr.data) if data_lib_f else 0
+				stream.write(struct.pack("II", data_lib_size, len(self.file_entry.dependencies)))
+				stream.write(self.sized_str_entry.struct_ptr.data)
+				for tex in self.file_entry.dependencies:
+					stream.write(zstr(tex.basename.encode()))
+				self.header.textures.data.write(stream)
+				self.header.attributes.data.write(stream)
+				if data_lib_size:
+					stream.write(data_lib_f.struct_ptr.data)
+				outfile.write(stream.getvalue())
 			# write the buffer
 			outfile.write(buffer_data)
 		return out_path,

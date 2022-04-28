@@ -16,7 +16,7 @@ class FdbLoader(BaseFile):
 	def create(self):
 		ss, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.write_to_pool(self.sized_str_entry.pointers[0], 2, ss)
+		self.write_to_pool(self.sized_str_entry.struct_ptr, 2, ss)
 		self.create_data_entry(self.sized_str_entry, (buffer_0, buffer_1))
 
 	def collect(self):
@@ -25,7 +25,7 @@ class FdbLoader(BaseFile):
 	def load(self, file_path):
 		ss, buffer_0, buffer_1 = self._get_data(file_path)
 		self.sized_str_entry.data_entry.update_data((buffer_0, buffer_1))
-		self.sized_str_entry.pointers[0].update_data(ss, update_copies=True)
+		self.sized_str_entry.struct_ptr.update_data(ss, update_copies=True)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.sized_str_entry.name

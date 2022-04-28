@@ -116,16 +116,16 @@ class MemStruct:
 		# write their data and update frags
 		for ptr, frag in zip(ptrs_with_data, ptr_frags):
 			if isinstance(ptr.data, MemStruct):
-				ptr.data.write_ptrs(loader, ovs, frag.pointers[1])
+				ptr.data.write_ptrs(loader, ovs, frag.struct_ptr)
 			else:
 				# basic pointer
-				frag.pointers[1].pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
+				frag.struct_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
 				ptr.write_pointer(frag)
 				# handle ArrayPointer
 				if isinstance(ptr.data, Array):
 					for member in ptr.data:
 						if isinstance(member, MemStruct):
-							member.write_ptrs(loader, ovs, frag.pointers[1], is_member=True)
+							member.write_ptrs(loader, ovs, frag.struct_ptr, is_member=True)
 
 		# don't write array members again, they have already been written!
 		if not is_member:
@@ -136,7 +136,7 @@ class MemStruct:
 			print("ref_ptr after", ref_ptr)
 		# update positions for frag ptrs 0
 		for ptr, frag in zip(ptrs_with_data, ptr_frags):
-			p = frag.pointers[0]
+			p = frag.link_ptr
 			p.pool_index = ref_ptr.pool_index
 			p.data_offset = ptr.io_start
 			p.pool = ref_ptr.pool
@@ -155,7 +155,7 @@ class MemStruct:
 
 		# print(ovs.fragments)
 		for frag in ovs.fragments:
-			print(frag, frag.pointers[1].data_size, frag.pointers[1].data)
+			print(frag, frag.struct_ptr.data_size, frag.struct_ptr.data)
 		# print(ref_ptr.pool.data.getvalue())
 
 	def read_ptrs(self, pool, sized_str_entry):
@@ -191,7 +191,7 @@ class MemStruct:
 		ptr.read_ptr(pool, sized_str_entry)
 		if isinstance(ptr.data, MemStruct):
 			# print("ptr to a memstruct")
-			ptr.data.read_ptrs(ptr.frag.pointers[1].pool, sized_str_entry)
+			ptr.data.read_ptrs(ptr.frag.struct_ptr.pool, sized_str_entry)
 		# ArrayPointer
 		elif isinstance(ptr.data, Array):
 			assert isinstance(ptr, (ArrayPointer, ForEachPointer))
@@ -199,7 +199,7 @@ class MemStruct:
 			for member in ptr.data:
 				if isinstance(member, MemStruct):
 					# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
-					member.read_ptrs(ptr.frag.pointers[1].pool, sized_str_entry)
+					member.read_ptrs(ptr.frag.struct_ptr.pool, sized_str_entry)
 		else:
 			# points to a normal struct or basic type, which can't have any pointers
 			pass
@@ -324,8 +324,8 @@ class MemStruct:
 				else:
 					subelement.set("data", str(val))
 		# set address for debugging
-		if frag:
-			f_ptr = frag.pointers[-1]
+		if frag and hasattr(frag, "struct_ptr"):
+			f_ptr = frag.struct_ptr
 			subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 			subelement.set("_size", f"{f_ptr.data_size}")
 
@@ -373,9 +373,9 @@ class MemStruct:
 			if ptr.frag:
 				# if isinstance(ptr.frag,)
 				# skip dependency
-				if len(ptr.frag.pointers) == 1:
+				if not hasattr(ptr.frag, "struct_ptr"):
 					continue
-				d_off = ptr.frag.pointers[1].data_offset
+				d_off = ptr.frag.struct_ptr.data_offset
 				if d_off:
 					# go over decreasing possible alignments
 					# 64, 32, 16, 8, 4, 2, 1

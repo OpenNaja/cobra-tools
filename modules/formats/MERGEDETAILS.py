@@ -16,7 +16,7 @@ class MergeDetailsLoader(BaseFile):
 
 		# there is a count for a ptr list, but all mergedetails have only 1 in the count so it is hard to tell
 		# which one of the ptr in the struct is affected by it.		
-		_,_,_,_,_,count,flags = struct.unpack("<5QII", self.sized_str_entry.pointers[0].read_from_pool(0x30))
+		_,_,_,_,_,count,flags = struct.unpack("<5QII", self.sized_str_entry.struct_ptr.read_from_pool(0x30))
 
 		self.sized_str_entry.mergedetails  = {
 			'flags': flags,

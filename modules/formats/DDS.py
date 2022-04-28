@@ -45,61 +45,63 @@ class DdsLoader(MemStructLoader):
 
 	def create(self):
 		name_ext, name, ext = split_path(self.file_entry.path)
-		logging.debug(f"Creating image {name_ext}")
 		if ext == ".tex":
-			if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
-				ss, f01, f11, buffers = self._get_data(self.file_entry.path)
-				self.sized_str_entry = self.create_ss_entry(self.file_entry)
-				frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
-				ss_ptr = self.sized_str_entry.pointers[0]
-				# pool type 3
-				data3 = (ss, f01)
-				ptrs3 = (ss_ptr, frag0.pointers[1])
-				for ptr, data in zip(ptrs3, data3):
-					self.write_to_pool(ptr, 3, data)
-
-				self.ptr_relative(frag0.pointers[0], ss_ptr, rel_offset=16)
-				self.ptr_relative(frag1.pointers[0], ss_ptr, rel_offset=24)
-
-				if is_jwe(self.ovl):
-					f11_pool_type = 7
-				else:
-					f11_pool_type = 4
-				self.write_to_pool(frag1.pointers[1], f11_pool_type, f11)
-
-				# decide where to store the buffers
-				static_lods = 2
-				streamed_lods = len(buffers) - static_lods
-				logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
-				ss_entries = [self.sized_str_entry, ]
-				# ovs name generation only works for up to 2 streams
-				assert streamed_lods < 3
-				for i in range(streamed_lods):
-					# generate ovs name - highly idiosyncratic
-					# game expects to start with L1
-					# if there are 2 lods
-					# stock puts the first stream lod0 in L1, lod1 in L0
-					# a file with just one stream lod0 goes into L1 too
-					ovs_name = f"Textures_L{1-i}"
-					# create texturestream file
-					texstream_file = self.get_file_entry(f"test/{name}_lod{i}.texturestream")
-					self.file_entry.streams.append(texstream_file)
-					# ss entry
-					texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
-					ss_entries.append(texstream_ss)
-					self.write_to_pool(texstream_ss.pointers[0], 3, b"\x00" * 8, ovs=ovs_name)
-					# data entry, assign buffer
-					self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
-				self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
-				# patch buffer indices for PZ, JWE1
-				if not is_jwe2(self.ovl):
-					logging.debug(f"Using absolute buffer indices for streams")
-					all_buffers = [buffer for ss in ss_entries for buffer in ss.data_entry.buffers]
-					all_buffers.sort(key=lambda b: b.size, reverse=True)
-					for i, buffer in enumerate(all_buffers):
-						buffer.index = i
-			elif is_pc(self.ovl) or is_ztuac(self.ovl):
-				logging.error(f"Only modern texture format supported for now!")
+			super().create()
+		# logging.debug(f"Creating image {name_ext}")
+		# if ext == ".tex":
+		# 	if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
+		# 		ss, f01, f11, buffers = self._get_data(self.file_entry.path)
+		# 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		# 		frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
+		# 		ss_ptr = self.sized_str_entry.struct_ptr
+		# 		# pool type 3
+		# 		data3 = (ss, f01)
+		# 		ptrs3 = (ss_ptr, frag0.link_ptr)
+		# 		for ptr, data in zip(ptrs3, data3):
+		# 			self.write_to_pool(ptr, 3, data)
+		#
+		# 		self.ptr_relative(frag0.struct_ptr, ss_ptr, rel_offset=16)
+		# 		self.ptr_relative(frag1.struct_ptr, ss_ptr, rel_offset=24)
+		#
+		# 		if is_jwe(self.ovl):
+		# 			f11_pool_type = 7
+		# 		else:
+		# 			f11_pool_type = 4
+		# 		self.write_to_pool(frag1.link_ptr, f11_pool_type, f11)
+		#
+		# 		# decide where to store the buffers
+		# 		static_lods = 2
+		# 		streamed_lods = len(buffers) - static_lods
+		# 		logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
+		# 		ss_entries = [self.sized_str_entry, ]
+		# 		# ovs name generation only works for up to 2 streams
+		# 		assert streamed_lods < 3
+		# 		for i in range(streamed_lods):
+		# 			# generate ovs name - highly idiosyncratic
+		# 			# game expects to start with L1
+		# 			# if there are 2 lods
+		# 			# stock puts the first stream lod0 in L1, lod1 in L0
+		# 			# a file with just one stream lod0 goes into L1 too
+		# 			ovs_name = f"Textures_L{1-i}"
+		# 			# create texturestream file
+		# 			texstream_file = self.get_file_entry(f"test/{name}_lod{i}.texturestream")
+		# 			self.file_entry.streams.append(texstream_file)
+		# 			# ss entry
+		# 			texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
+		# 			ss_entries.append(texstream_ss)
+		# 			self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
+		# 			# data entry, assign buffer
+		# 			self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
+		# 		self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
+		# 		# patch buffer indices for PZ, JWE1
+		# 		if not is_jwe2(self.ovl):
+		# 			logging.debug(f"Using absolute buffer indices for streams")
+		# 			all_buffers = [buffer for ss in ss_entries for buffer in ss.data_entry.buffers]
+		# 			all_buffers.sort(key=lambda b: b.size, reverse=True)
+		# 			for i, buffer in enumerate(all_buffers):
+		# 				buffer.index = i
+		# 	elif is_pc(self.ovl) or is_ztuac(self.ovl):
+		# 		logging.error(f"Only modern texture format supported for now!")
 		else:
 			logging.error(f"Only .tex supported for now!")
 
@@ -139,10 +141,10 @@ class DdsLoader(MemStructLoader):
 		tex_a = size_info.array_size
 		comp = self.header.compression_type.name
 		tex_w = align_to(tex_w, comp)
-	
+
 		# read archive tex header to make sure we have the right mip count
 		# even when users import DDS with mips when it should have none
-	
+
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(file_path)
@@ -180,74 +182,72 @@ class DdsLoader(MemStructLoader):
 		return tex_buffers, size_info
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
+		tex_paths = super().extract(out_dir, show_temp_files, progress_callback)
 		tex_name = self.sized_str_entry.name
 		basename = os.path.splitext(tex_name)[0]
 		dds_name = basename + ".dds"
 		logging.info(f"Writing {tex_name}")
 
+		# print(self.header)
 		# get joined output buffer
 		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 
 		out_files = []
-		tex_path = out_dir(tex_name)
-		if show_temp_files:
-			out_files.append(tex_path)
-		with open(tex_path, "wb") as tex_file:
-			tex_file.write(self.pack_header(b"TEX"))
-			# num_buffers
-			# tex_file.write(struct.pack("I", 1+len(self.file_entry.streams)))
-			tex_file.write(self.sized_str_entry.pointers[0].data)
-			for frag in self.sized_str_entry.fragments:
-				tex_file.write(frag.pointers[1].data)
-			tex_file.write(buffer_data)
+		# tex_path = out_dir(tex_name)
+		# if show_temp_files:
+		out_files.extend(tex_paths)
+		# with open(tex_path, "wb") as tex_file:
+		# 	tex_file.write(self.pack_header(b"TEX"))
+		# 	tex_file.write(self.sized_str_entry.struct_ptr.data)
+		# 	for frag in self.sized_str_entry.fragments:
+		# 		tex_file.write(frag.struct_ptr.data)
+		# 	tex_file.write(buffer_data)
 
-		tex_file = TexFile(self.ovl.context)
-		tex_file.load(tex_path)
+		# tex_file = TexFile(self.ovl.context)
+		# tex_file.load(tex_path)
 		# print(tex_file)
-		# return out_files
 		dds_file = DdsFile()
-		dds_file.buffer = buffer_data
 
 		if is_dla(self.ovl):
-			tex_info = tex_file.tex_info
-			dds_file.width = tex_info.width
-			dds_file.height = tex_info.height
-			dds_file.mipmap_count = tex_info.num_mips
-			dds_file.linear_size = len(buffer_data)
+			size_info = self.header
+			dds_file.width = size_info.width
+			dds_file.height = size_info.height
+			dds_file.mipmap_count = size_info.num_mips
 			dds_file.depth = 1
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
-			tex_info = tex_file.frag_01[0]
-			dds_file.width = tex_info.width
+			size_info = self.header.buffer_infos.data[0]
+			dds_file.width = size_info.width
 			# hack until we have proper support for array_size on the image editors
 			# todo - this is most assuredly not array size for ED
-			dds_file.height = tex_info.height  # * max(1, size_info.array_size)
-			dds_file.mipmap_count = tex_info.mip_index
-			dds_file.linear_size = len(buffer_data)
+			dds_file.height = size_info.height  # * max(1, size_info.array_size)
+			dds_file.mipmap_count = size_info.mip_index
 			dds_file.depth = 1
 		else:
-			tex_info = tex_file.frag_11
-			if not len(buffer_data) == tex_info.data_size:
-				print(
-					f"7_1 data size ({tex_info.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")
-			dds_file.width = tex_info.width
+			size_info = self.header.size_info.data
+			if not len(buffer_data) == size_info.data_size:
+				logging.warning(
+					f"7_1 data size ({size_info.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")
+			dds_file.width = size_info.width
 			# hack until we have proper support for array_size on the image editors
-			dds_file.height = tex_info.height * tex_info.array_size
-			dds_file.depth = tex_info.depth
-			dds_file.linear_size = tex_info.data_size
-			dds_file.mipmap_count = tex_info.num_mips
-	
+			dds_file.height = size_info.height * size_info.array_size
+			dds_file.depth = size_info.depth
+			dds_file.mipmap_count = size_info.num_mips
+			# todo - regenerate continous buffer data
+			# buffer_datas = []
 		try:
-			dds_type = tex_file.tex_info.compression_type.name
-			logging.info(tex_file.tex_info.compression_type)
+			dds_type = self.header.compression_type.name
+			logging.info(self.header.compression_type)
 			# account for aliases
 			if dds_type.endswith(("_B", "_C")):
 				dds_type = dds_type[:-2]
 			dds_compression_types = ((dds_type, DxgiFormat[dds_type]),)
 		except KeyError:
 			dds_compression_types = [(x.name, x) for x in DxgiFormat]
-			logging.warning(f"Unknown compression type {tex_file.tex_info.compression_type}, trying all compression types")
+			logging.warning(f"Unknown compression type {self.header.compression_type}, trying all compression types")
 		logging.debug(f"dds_compression_type {dds_compression_types}")
 
+		dds_file.buffer = buffer_data
+		dds_file.linear_size = len(buffer_data)
 		# write out everything for each compression type
 		for dds_type, dds_value in dds_compression_types:
 			# print(dds_file.width)
@@ -274,7 +274,7 @@ class DdsLoader(MemStructLoader):
 	
 			if os.path.isfile(png_file_path):
 				# postprocessing of the png
-				out_files.extend(imarray.wrapper(png_file_path, tex_file.frag_11, self.ovl))
+				out_files.extend(imarray.wrapper(png_file_path, size_info, self.ovl))
 		return out_files
 
 	def load_png(self, file_path):
