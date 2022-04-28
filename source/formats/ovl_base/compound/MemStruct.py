@@ -5,6 +5,7 @@ import struct
 from numpy.core.multiarray import ndarray
 
 from generated.array import Array, _class_to_name
+from generated.base_enum import BaseEnum
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -196,8 +197,14 @@ class MemStruct:
 				if isinstance(val, ndarray):
 					logging.warning(f"Ignoring basic array '{prop}'")
 					continue
+				if isinstance(val, BaseEnum):
+					finished_val = val.from_str(elem.attrib[prop])
+					# logging.warning(f"Ignoring enum '{prop}'")
+					# continue
+				else:
+					finished_val = cls(elem.attrib[prop])
 				try:
-					setattr(self, prop, cls(elem.attrib[prop]))
+					setattr(self, prop, finished_val)
 				except TypeError:
 					raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
 
