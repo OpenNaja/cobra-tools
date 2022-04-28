@@ -130,7 +130,7 @@ class OvsFile(OvsHeader):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		logging.debug(f"Game: {get_game(self.ovl)}")
 		logging.info("Updating pool names")
-		for pool_index, pool in self.pools:
+		for pool_index, pool in enumerate(self.pools):
 			first_entry = pool.get_first_entry()
 			if first_entry:
 				logging.debug(

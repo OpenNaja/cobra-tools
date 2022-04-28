@@ -63,6 +63,7 @@ class BaseFile:
 		pool.data = ConvStream()
 		pool.type = pool_type_key
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
+		pool.clear_data()
 		pool.new = True
 		ovs_file.pools.append(pool)
 		return pool
@@ -93,7 +94,7 @@ class BaseFile:
 	def create_ss_entry(self, file_entry, ovs="STATIC"):
 		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
-		# ss_entry.fragments = []
+		ss_entry.fragments = set()
 		ovs_file = self.ovl.create_archive(ovs)
 		ovs_file.transfer_identity(ss_entry, file_entry)
 		ovs_file.sized_str_entries.append(ss_entry)
@@ -115,7 +116,7 @@ class BaseFile:
 
 	def create_fragments(self, ss, count):
 		frags = [self.create_fragment() for i in range(count)]
-		ss.fragments.add(frags)
+		ss.fragments.update(frags)
 		return frags
 
 	def create_fragment(self):

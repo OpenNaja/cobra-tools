@@ -37,14 +37,14 @@ class FgmFile(FgmInfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			self.eoh = stream.tell()
-			print(self)
+			# print(self)
 			data_start = stream.tell()
 			self.data_bytes = stream.read(self.data_lib_size)
 			name_start = data_start + self.data_lib_size
 			self.buffer_bytes = stream.read()
 			self.shader_name = self.read_z_str(stream, name_start)
 			for texture in self.textures:
-				logging.debug(f"Reading at {name_start + texture.offset}")
+				# logging.debug(f"Reading at {name_start + texture.offset}")
 				texture.name = self.read_z_str(stream, name_start + texture.offset)
 				# convert to bool
 				texture.textured = texture.is_textured == 8
