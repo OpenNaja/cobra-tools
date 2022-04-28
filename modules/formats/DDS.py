@@ -145,8 +145,7 @@ class DdsLoader(MemStructLoader):
 		tex_h = size_info.height
 		tex_w = size_info.width
 		tex_a = size_info.array_size
-		comp = self.header.compression_type.name
-		tex_w = align_to(tex_w, comp)
+		tex_w = align_to(tex_w, self.header.compression_type.name)
 
 		# read archive tex header to make sure we have the right mip count
 		# even when users import DDS with mips when it should have none
@@ -154,7 +153,7 @@ class DdsLoader(MemStructLoader):
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(file_path)
-		self.ensure_size_match(dds_file, tex_h, tex_w, tex_d, tex_a, comp)
+		self.ensure_size_match(dds_file, tex_h, tex_w, tex_d, tex_a)
 		sorted_streams = self.get_sorted_streams()
 		if is_pc(self.ovl):
 			for buffer, tex_header_3 in zip(sorted_streams, tex_buffers):
@@ -297,7 +296,7 @@ class DdsLoader(MemStructLoader):
 		# remove the temp file if desired
 		texconv.clear_tmp(dds_file_path, show_temp)
 
-	def ensure_size_match(self, dds_header, tex_h, tex_w, tex_d, tex_a, comp):
+	def ensure_size_match(self, dds_header, tex_h, tex_w, tex_d, tex_a):
 		"""Check that DDS files have the same basic size"""
 		dds_h = dds_header.height
 		dds_w = dds_header.width
