@@ -154,15 +154,6 @@ class MemStruct:
 			# points to a normal struct or basic type, which can't have any pointers
 			pass
 
-	@classmethod
-	def from_xml_file(cls, file_path, context, arg=0, template=None):
-		"""Load MemStruct represented by the xml in 'file_path'"""
-		instance = cls(context, arg, template, set_default=False)
-		tree = ET.parse(file_path)
-		xml = tree.getroot()
-		instance.from_xml(xml)
-		return instance
-
 	def _array_from_xml(self, val, elem):
 		# create array elements
 		# print(f"array, len {len(elem)}")
@@ -180,12 +171,19 @@ class MemStruct:
 			else:
 				self._to_xml(elem, val.class_name, member)
 
+	@classmethod
+	def from_xml_file(cls, file_path, context, arg=0, template=None):
+		"""Load MemStruct represented by the xml in 'file_path'"""
+		instance = cls(context, arg, template, set_default=False)
+		tree = ET.parse(file_path)
+		xml = tree.getroot()
+		instance.from_xml(xml)
+		return instance
 
 	def from_xml(self, elem):
 		"""Sets the data from the XML to this MemStruct"""
 		# go over all fields of this MemStruct
-		items = list(vars(self).items())
-		for prop, val in items:
+		for prop, val in vars(self).items():
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
