@@ -12,6 +12,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 import xml.etree.ElementTree as ET
 
 ZERO = b"\x00"
+SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
 
 
 def indent(e, level=0):
@@ -170,13 +171,23 @@ class MemStruct:
 		for subelem, member in zip(elem, val):
 			self._from_xml(subelem, member, val.dtype)
 
+	def _array_to_xml(self, val, elem):
+		# print(f"to_xml array {val.dtype}")
+		# subelement with subelements
+		for member in val:
+			if isinstance(member, Pointer):
+				self._to_xml(elem, val.class_name, member.data, member.frag)
+			else:
+				self._to_xml(elem, val.class_name, member)
+
+
 	def from_xml(self, elem):
 		"""Sets the data from the XML to this MemStruct"""
 		# go over all fields of this MemStruct
 		items = list(vars(self).items())
 		for prop, val in items:
 			# skip dummy properties
-			if prop in ("_context", "arg", "name", "io_start", "io_size", "template"):
+			if prop in SKIPS:
 				continue
 			if isinstance(val, Pointer):
 				# print("pointer")
@@ -258,60 +269,39 @@ class MemStruct:
 		if isinstance(val, MemStruct):
 			# print("memstruct")
 			val.to_xml(subelement)
-		# it is a basic type
+		elif isinstance(val, Array):
+			self._array_to_xml(val, subelement)
+		# print("basic")
 		else:
-			if isinstance(val, Array):
-				# print(f"_to_xml array {val.dtype}")
-				# print(f"_to_xml array {val}")
-				# subelement with subelements
-				for member in val:
-					if isinstance(member, Pointer):
-						self._to_xml(subelement, val.class_name, member.data, member.frag)
-					else:
-						self._to_xml(subelement, val.class_name, member)
-			# print("basic")
+			# special case for xml data - make it a sub element
+			if prop == "xml_string":
+				subelement.append(ET.fromstring(val))
 			else:
-				# special case for xml data - make it a sub element
-				if prop == "xml_string":
-					# print(val)
-					subelement.append(ET.fromstring(val))
-				else:
-					subelement.set("data", str(val))
+				subelement.set("data", str(val))
 		# set address for debugging
 		if frag and hasattr(frag, "struct_ptr"):
 			f_ptr = frag.struct_ptr
 			subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 			subelement.set("_size", f"{f_ptr.data_size}")
+			subelement.set("_pool_type", f"{f_ptr.pool.type}")
 
 	def to_xml(self, elem):
 		"""Adds data of this MemStruct to 'elem', recursively"""
 		# go over all fields of this MemStruct
 		for prop, val in vars(self).items():
 			# skip dummy properties
-			if prop in ("_context", "arg", "name", "io_start", "io_size", "template"):
+			if prop in SKIPS:
 				continue
 			if isinstance(val, Pointer):
-				# print("pointer")
-				# subelementptr.frag
-				# print(val.template)
 				self._to_xml(elem, prop, val.data, val.frag)
 			elif isinstance(val, Array):
-				print(f"to_xml array {val.dtype}")
-				# subelement with subelements
-				for member in val:
-					if isinstance(member, Pointer):
-						self._to_xml(elem, val.class_name, member.data, member.frag)
-					else:
-						self._to_xml(elem, val.class_name, member)
+				self._array_to_xml(val, elem)
+			elif isinstance(val, MemStruct):
+				subelement = ET.SubElement(elem, prop)
+				val.to_xml(subelement)
+			# basic attribute
 			else:
-				# todo - add this distinction for from_xml
-				# a MemStruct
-				if isinstance(val, MemStruct):
-					subelement = ET.SubElement(elem, prop)
-					val.to_xml(subelement)
-				# basic attribute
-				else:
-					elem.set(prop, str(val))
+				elem.set(prop, str(val))
 
 	def debug_ptrs(self):
 		"""Iteratively debugs all pointers of a struct"""

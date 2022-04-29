@@ -117,13 +117,13 @@ class DdsLoader(MemStructLoader):
 	def load(self, file_path):
 		# right now there is no use in updating the struct here
 		super().load(file_path)
-		print(self.header)
+		# print(self.header)
 		logging.debug(f"Loading image {file_path}")
 		# name_ext, name, ext = split_path(file_path)
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		png_path = imarray.png_from_tex(file_path, tmp_dir)
 		if png_path:
-			self.load_png(png_path)
+			self.load_png(png_path, tmp_dir)
 		# elif ext == ".dds":
 		# 	self.load_dds(file_path)
 
@@ -282,12 +282,13 @@ class DdsLoader(MemStructLoader):
 				out_files.extend(imarray.wrapper(png_file_path, size_info, self.ovl))
 		return out_files
 
-	def load_png(self, file_path):
+	def load_png(self, file_path, tmp_dir):
 		logging.info(f"Loading PNG {file_path}")
 		# convert the png into a dds, then inject that
 		tex_buffers, size_info = self.get_tex_structs()
 		compression = self.header.compression_type.name
 		show_temp = False
+		# todo - refactor, pass tmp_dir
 		dds_file_path = texconv.png_to_dds(
 			file_path, size_info.height * size_info.array_size, show_temp, codec=compression, mips=size_info.num_mips)
 	
