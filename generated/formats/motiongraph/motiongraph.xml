@@ -383,6 +383,7 @@
         16 bytes
         <add name="float" type="float"/>
         <add name="OptionalVarAndCurve count" type="uint" />
+        # todo - check presence and layout
         <add name="OptionalVarAndCurve" type="uint64" />
     </compound>
 
