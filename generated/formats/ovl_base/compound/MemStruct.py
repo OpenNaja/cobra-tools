@@ -316,19 +316,6 @@ class MemStruct:
 
 	def _to_xml(self, elem, prop, val):
 		"""Create a subelement named 'prop' that represents object 'val'"""
-		# # value is a memstruct
-		# if isinstance(val, MemStruct):
-		# 	# print("memstruct")
-		# 	val.to_xml(elem)
-		# elif isinstance(val, Array):
-		# 	self._array_to_xml(val, elem)
-		# # print("basic")
-		# else:
-		# 	# special case for xml data - make it a sub element
-		# 	if prop == "xml_string":
-		# 		elem.append(ET.fromstring(val))
-		# 	else:
-		# 		elem.set("data", str(val))
 		if isinstance(val, Pointer):
 			subelement = ET.SubElement(elem, prop)
 			if val.frag:
@@ -347,8 +334,10 @@ class MemStruct:
 			if prop == "xml_string":
 				elem.append(ET.fromstring(val))
 			else:
+				# this indicates we're looking at a pointer's basic type, usually str
 				if elem.tag == prop:
 					elem.set("data", str(val))
+				# just a regular basic type on a MemStruct
 				else:
 					elem.set(prop, str(val))
 
