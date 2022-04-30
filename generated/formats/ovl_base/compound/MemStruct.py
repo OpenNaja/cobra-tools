@@ -1,15 +1,13 @@
 
 import logging
-import struct
-
+import xml.etree.ElementTree as ET
 from numpy.core.multiarray import ndarray
 
-from generated.array import Array, _class_to_name
+from generated.array import Array
 from generated.base_enum import BaseEnum
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer
-import xml.etree.ElementTree as ET
 
 ZERO = b"\x00"
 SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
@@ -206,15 +204,15 @@ class MemStruct:
 			# points to a normal struct or basic type, which can't have any pointers
 			pass
 
-	def _array_from_xml(self, val, elem):
+	def _array_from_xml(self, elem, val):
 		# create array elements
 		# print(f"array, len {len(elem)}")
 		val[:] = [val.dtype(self._context) for i in range(len(elem))]
 		# subelement with subelements
 		for subelem, member in zip(elem, val):
-			self._from_xml(subelem, member, val.dtype)
+			self._from_xml(subelem, val.class_name, member)
 
-	def _array_to_xml(self, val, elem):
+	def _array_to_xml(self, elem, val):
 		# print(f"to_xml array {val.dtype}")
 		# subelement with subelements
 		for member in val:
@@ -239,74 +237,66 @@ class MemStruct:
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
-			if isinstance(val, Pointer):
-				# print("pointer")
-				# subelement
-				subelement = elem.find(f'.//{prop}')
-				# print("val.template", val.template)
-				if isinstance(val, ArrayPointer):
-					val.data = Array((len(subelement)), val.template, val.context, set_default=False)
-					self._array_from_xml(val.data, subelement)
-				else:
-					self._from_xml(subelement, val, val.template)
-			elif isinstance(val, Array):
-				self._array_from_xml(val, elem)
-			else:
-				# set basic attribute
-				cls = type(val)
-				try:
-					if isinstance(val, BaseEnum):
-						finished_val = val.from_str(elem.attrib[prop])
-					elif isinstance(val, ndarray):
-						logging.warning(f"Ignoring basic array '{prop}'")
-						continue
-					else:
-						finished_val = cls(elem.attrib[prop])
-					setattr(self, prop, finished_val)
-				except TypeError:
-					raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
-				except KeyError:
-					logging.warning(f"Missing '{prop}' in {elem.tag} attributes")
+			self._from_xml(elem, prop, val)
 
-	def _from_xml(self, subelement, val, val_cls):
+	def _from_xml(self, elem, prop, val):
 		"""Populates this MemStruct from the xml elem"""
-		# print("\n_from_xml", subelement, subelement.attrib, type(val))
-		# print("cls", val_cls)
-		if not val_cls:
-			assert isinstance(val, Pointer)
-			assert not val.template
-			logging.warning(f"No template set for pointer on XML element '{subelement.tag}'")
+		# print("_from_xml", elem, prop, val)
+		if isinstance(val, Pointer):
+			subelement = elem.find(f'.//{prop}')
+			if not subelement:
+				logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
+				return
+			if not val.template:
+				logging.warning(f"No template set for pointer {prop} on XML element '{subelement.tag}'")
+				return
+			# print("val.template", val.template)
+			if isinstance(val, ArrayPointer):
+				# print("ArrayPointer", subelement, len(subelement))
+				val.data = Array((len(subelement)), val.template, val.context, set_default=False)
+				self._array_from_xml(subelement, val.data)
+			else:
+				# print("other pointer")
+				val.data = val.template(self._context)
+				self._from_xml(subelement, prop, val.data)
+		elif isinstance(val, Array):
+			# print("Array")
+			self._array_from_xml(elem, val)
+		elif isinstance(val, MemStruct):
+			# print("MemStruct")
+			# when called from array or pointer, the subelement is already given
+			# finding the subelem may not actually be needed
+			if elem.tag != prop:
+				# get it if a memstruct is a child of a memstruct
+				elem = elem.find(f'.//{prop}')
+			val.from_xml(elem)
+		elif isinstance(val, BaseEnum):
+			# print("BaseEnum")
+			setattr(self, prop, val.from_str(elem.attrib[prop]))
+		elif isinstance(val, ndarray):
+			logging.warning(f"Ignoring basic array '{prop}'")
 			return
-		# template class inherits from memstruct
-		if issubclass(val_cls, MemStruct):
-			if isinstance(val, Pointer):
-				# print("ptr to memstruct")
-				# todo - test if it is better to already create the template here, or on demand from MemStruct
-				val.data = val_cls(self._context)
-				val.data.from_xml(subelement)
-			# array
-			else:
-				# print("member is memstruct")
-				val.from_xml(subelement)
-		# it is a basic type, and a ptr
 		else:
-			# print("ptr to basic")
-			assert isinstance(val, Pointer)
-			# cls = type(val.template)
-			# val.data = cls(subelement.attrib["data"])
-			# todo - convert string to proper basic dtype here, if needed
-			# it seems however like only strings would land here at the moment
-			if "data" in subelement.attrib:
-				data = subelement.attrib["data"]
-				# only set data that is not 'None'
+			# print("basic")
+			# set basic attribute
+			cls = type(val)
+			# todo - str pointer's data is called data by convention - handle this
+			if prop in elem.attrib:
+				data = elem.attrib[prop]
 				if data != "None":
-					val.data = subelement.attrib["data"]
-			else:
-				logging.warning(f"Expected attribute 'data' for pointer '{subelement.tag}'")
+					# val.data = elem.attrib["data"]
+					try:
+						setattr(self, prop, cls(data))
+					except TypeError:
+						raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
+					except KeyError:
+						logging.warning(f"Missing '{prop}' in {elem.tag} attributes")
+					except AttributeError:
+						logging.warning(f"Missing something on property '{prop}' in element {elem}")
 
 	def to_xml_file(self, file_path):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
-		xml = ET.Element(_class_to_name(type(self)))
+		xml = ET.Element(self.__class__.__name__)
 		self.to_xml(xml)
 		indent(xml)
 		with open(file_path, 'wb') as outfile:
@@ -323,7 +313,8 @@ class MemStruct:
 				subelement.set("_pool_type", f"{f_ptr.pool.type}")
 			self._to_xml(subelement, prop, val.data)
 		elif isinstance(val, Array):
-			self._array_to_xml(val, elem)
+			self._array_to_xml(elem, val)
+		# todo - ndarray of basic types, subelements or as xml list? multiple dimensions?
 		elif isinstance(val, MemStruct):
 			subelement = ET.SubElement(elem, prop)
 			val.to_xml(subelement)
