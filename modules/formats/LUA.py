@@ -19,7 +19,7 @@ class LuaLoader(MemStructLoader):
 		self.header.source_path = self.file_entry.basename
 		# todo - likely wrong, not sure how to handle
 		self.header.likely_alignment = b"\x00"
-		self.header.write_ptrs(self, self.ovs, self.sized_str_entry.struct_ptr)
+		self.header.write_ptrs(self, self.ovs, self.sized_str_entry.struct_ptr, self.file_entry.pool_type)
 
 	def load(self, file_path):
 		buffer_0 = self._get_data(file_path)

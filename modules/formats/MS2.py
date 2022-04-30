@@ -41,7 +41,7 @@ class Ms2Loader(BaseFile):
 		self.get_version()
 		ss_ptr = self.sized_str_entry.struct_ptr
 		self.header = Ms2Root.from_stream(ss_ptr.stream, self.context)
-		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
+		self.header.read_ptrs(ss_ptr.pool)
 		self.header.debug_ptrs()
 		# print(self.header)
 		# old JWE1 still uses 1 fragment
@@ -104,7 +104,7 @@ class Ms2Loader(BaseFile):
 		# create ms2 data
 		self.create_data_entry(self.sized_str_entry, ms2_file.buffers)
 		# write the final memstruct
-		self.header.write_ptrs(self, self.ovs, ss_ptr)
+		self.header.write_ptrs(self, self.ovs, ss_ptr, self.file_entry.pool_type)
 		# link some more pointers
 		for model_info in self.header.model_infos.data:
 			# link first_materials pointer

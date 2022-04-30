@@ -276,10 +276,10 @@ def files_pack(files, basepath):
 		# load the file contents
 		dbuffer = getContent(basepath + '/' + entry[4])
 		
-		if entry[5] == 0x444B295A: # assetpkg.. copy content, pad to 64b, then assign 1 ptr.
+		if entry[5] == 0x444B295A: # assetpkg.. copy content, pad to 64b, then assign 1 pointer.
 			dbuffer = buffer_padding(dbuffer + b'\x00',64)
 			memblock += dbuffer
-			memblock += struct.pack('8s', b'') #ptr
+			memblock += struct.pack('8s', b'') #pointer
 			memblock += struct.pack('8s', b'')
 			pointers.append([0, offset + len(dbuffer), 0 , offset])
 			ovsentries.append([entry[1] ,0xA8B4AFC7, 0,  offset + len(dbuffer)] )
@@ -298,10 +298,10 @@ def files_pack(files, basepath):
 			memblock += struct.pack("IIII",  len(dbuffer), 16000, 0x00, 0x00)
 			memblock += struct.pack("24s", b'') # room for 3 pointers
 			memblock += struct.pack("8s", b'')  # room for 2 ints
-			memblock += b'\x00' #one more char for the 2nd ptr
+			memblock += b'\x00' #one more char for the 2nd pointer
 			memblock += bytearray(entry[6], encoding='utf8') + b'\x00'
-			pointers.append([0, offset + 0x10, 0 , offset + 0x31]) #ptr to name
-			pointers.append([0, offset + 0x18, 0 , offset + 0x30]) #ptr to deleted name
+			pointers.append([0, offset + 0x10, 0 , offset + 0x31]) #pointer to name
+			pointers.append([0, offset + 0x18, 0 , offset + 0x30]) #pointer to deleted name
 			ovsentries.append([entry[1] , 0xB888DC7, 0, offset])
 
 			buffers.append(dbuffer)

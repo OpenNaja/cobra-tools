@@ -14,8 +14,8 @@ class MergeDetailsLoader(BaseFile):
 		self.assign_ss_entry()
 		print(f"Collecting {self.sized_str_entry.name}")
 
-		# there is a count for a ptr list, but all mergedetails have only 1 in the count so it is hard to tell
-		# which one of the ptr in the struct is affected by it.		
+		# there is a count for a pointer list, but all mergedetails have only 1 in the count so it is hard to tell
+		# which one of the pointer in the struct is affected by it.
 		_,_,_,_,_,count,flags = struct.unpack("<5QII", self.sized_str_entry.struct_ptr.read_from_pool(0x30))
 
 		self.sized_str_entry.mergedetails  = {
@@ -27,9 +27,9 @@ class MergeDetailsLoader(BaseFile):
 		}
 		print(self.sized_str_entry.mergedetails)
 
-		# first frag ptr points to a list of 1 item, the item being name: DLCPacks
-		# second frag ptr points to a list of 1 item, the item being query: SELECT ....
-		# third frag ptr points to a list of 1 item, the item geing field: ChildDB
+		# first frag pointer points to a list of 1 item, the item being name: DLCPacks
+		# second frag pointer points to a list of 1 item, the item being query: SELECT ....
+		# third frag pointer points to a list of 1 item, the item geing field: ChildDB
 
 		pass
 

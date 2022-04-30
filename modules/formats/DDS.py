@@ -59,8 +59,8 @@ class DdsLoader(MemStructLoader):
 		# 		# pool type 3
 		# 		data3 = (ss, f01)
 		# 		ptrs3 = (ss_ptr, frag0.link_ptr)
-		# 		for ptr, data in zip(ptrs3, data3):
-		# 			self.write_to_pool(ptr, 3, data)
+		# 		for pointer, data in zip(ptrs3, data3):
+		# 			self.write_to_pool(pointer, 3, data)
 		#
 		# 		self.ptr_relative(frag0.struct_ptr, ss_ptr, rel_offset=16)
 		# 		self.ptr_relative(frag1.struct_ptr, ss_ptr, rel_offset=24)

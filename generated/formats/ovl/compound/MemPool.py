@@ -162,7 +162,7 @@ class MemPool:
 
 	def clear_data(self):
 		self.new = False
-		# lookup by ptr 0
+		# lookup by pointer 0
 		self.offset_2_struct_entries = {}  # multiple (fragments') struct_ptrs can point to the same data
 		self.offset_2_link_entry = {}  # link_ptrs are unique
 
@@ -215,17 +215,17 @@ class MemPool:
 			logging.debug(f"Flushing stack member {i} at original offset {offset} to {data.tell()}")
 
 			data.write(ptr._data)
-			# update offset to end of the original ptr
+			# update offset to end of the original pointer
 			last_offset = offset + ptr.data_size
 			# check delta
 			# todo - padding
 			ptr._padding_size = ptr.padding_size
 			delta = (len(ptr._data) + ptr._padding_size) - (ptr.data_size + ptr.padding_size)
-			# update new data size on ptr
+			# update new data size on pointer
 			ptr.data_size = len(ptr._data)
 			if delta:
 				# logging.debug(f"data size of stack [len: {len(sorted_structs_map)}] member {i} has changed")
-				# get all ptrs that point into this pool, but after this ptr
+				# get all ptrs that point into this pool, but after this pointer
 				if i < len(sorted_structs_map):
 					for offset_later, entries in sorted_structs_map[i+1:]:
 						# logging.debug(f"Moving {offset_later} to {offset_later+delta}")
@@ -235,14 +235,14 @@ class MemPool:
 							e.struct_ptr.data_offset += delta
 							if hasattr(e, "link_ptr"):
 								e.struct_ptr.data_offset += delta
-			# remove from ptr map, so pool can be deleted if it's empty
+			# remove from pointer map, so pool can be deleted if it's empty
 			if not ptr._data:
 				if offset in self.offset_2_struct_entries:
 					logging.debug(f"Removed offset {offset} from pool")
 					self.offset_2_struct_entries.pop(offset)
 		# write the rest of the data
 		data.write(self.get_at(last_offset))
-		# clear ptr data and stack
+		# clear pointer data and stack
 		for ptr, i, offset in stack:
 			ptr._data = None
 		# overwrite internal data

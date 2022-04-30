@@ -25,7 +25,7 @@ class FgmLoader(MemStructLoader):
 		self.header.data_lib.data = fgm_data.data_bytes
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		ss_ptr = self.sized_str_entry.struct_ptr
-		self.header.write_ptrs(self, self.ovs, ss_ptr)
+		self.header.write_ptrs(self, self.ovs, ss_ptr, self.file_entry.pool_type)
 		self.create_data_entry(self.sized_str_entry, (fgm_data.buffer_bytes,))
 
 		if fgm_data.texture_files:
@@ -53,7 +53,7 @@ class FgmLoader(MemStructLoader):
 
 		# inject fragment datas
 		for ptr, data in zip(self._ptrs(), datas):
-			# print(ptr, ptr.data, ptr.frag)
+			# print(pointer, pointer.data, pointer.frag)
 			frag = ptr.frag
 			if not frag:
 				continue
@@ -76,7 +76,7 @@ class FgmLoader(MemStructLoader):
 		textures_bytes = as_bytes(fgm_data.textures, version_info=versions)
 		attributes_bytes = as_bytes(fgm_data.attributes, version_info=versions)
 		# todo - this is definitely NOT right/ needed padding by comparing to stock FGMs
-		# no clue what the 'rule' here is, it may not be padding but be appear if another ptr is missing
+		# no clue what the 'rule' here is, it may not be padding but be appear if another pointer is missing
 		# textures_bytes += get_padding(len(textures_bytes), alignment=16)
 		# attributes never seem to have padding
 		# attributes_bytes += get_padding(len(attributes_bytes), alignment=16)

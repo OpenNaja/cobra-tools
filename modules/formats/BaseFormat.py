@@ -151,8 +151,8 @@ class BaseFile:
 		# 	for archive_entry in ovl.archives:
 		# 		ovs = archive_entry.content
 		# 		for fragment in ovs.fragments:
-		# 			for ptr in fragment.pointers:
-		# 				ptr.data = replace_bytes(ptr.data, name_tups_new)
+		# 			for pointer in fragment.pointers:
+		# 				pointer.data = replace_bytes(pointer.data, name_tups_new)
 		# except Exception as err:
 		# 	showdialog(str(err))
 		# logging.info("Done!")
@@ -181,7 +181,7 @@ class MemStructLoader(BaseFile):
 		self.assign_ss_entry()
 		ss_ptr = self.sized_str_entry.struct_ptr
 		self.header = self.target_class.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(ss_ptr.pool, self.sized_str_entry)
+		self.header.read_ptrs(ss_ptr.pool)
 		# print(self.header)
 
 	def create(self):
@@ -190,8 +190,7 @@ class MemStructLoader(BaseFile):
 
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
-		self.header.write_ptrs(self, self.ovs, ss_ptr)
-		# todo - may use wrong pools !
+		self.header.write_ptrs(self, self.ovs, ss_ptr, self.file_entry.pool_type)
 		# todo - may need padding here
 
 	def load(self, file_path):

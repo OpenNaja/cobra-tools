@@ -11,6 +11,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 
 ZERO = b"\x00"
 SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
+POOL_TYPE = "_pool_type"
 
 
 def indent(e, level=0):
@@ -88,7 +89,7 @@ class MemStruct:
 		instance.io_size = stream.tell() - instance.io_start
 		return instance
 
-	# used for the ptr alignment mapping
+	# used for the pointer alignment mapping
 	ptr_al_dict = {}
 
 	def get_props_and_ptrs(self):
@@ -100,12 +101,8 @@ class MemStruct:
 	def get_memstructs(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
 
-	def write_ptrs(self, loader, ovs, ref_ptr, is_member=False):
-		# todo - get / set pool type
-		pool_type_key = 4
-
-		print("ref_ptr before", ref_ptr)
-
+	def write_ptrs(self, loader, ovs, struct_ptr, pool_type, is_member=False):
+		print("struct_ptr before", struct_ptr)
 		# get all ptrs of this MemStruct, but only create them if they have data assigned
 		ptrs = self.get_props_and_ptrs()
 		ptrs_with_data = [ptr for prop, ptr in ptrs if ptr.data is not None]
@@ -114,32 +111,32 @@ class MemStruct:
 		ptr_frags = loader.create_fragments(loader.sized_str_entry, len(ptrs_with_data))
 		# print("frags immediate", ptr_frags)
 		# write their data and update frags
-		for ptr, frag in zip(ptrs_with_data, ptr_frags):
-			if isinstance(ptr.data, MemStruct):
-				ptr.data.write_ptrs(loader, ovs, frag.struct_ptr)
+		for pointer, frag in zip(ptrs_with_data, ptr_frags):
+			if isinstance(pointer.data, MemStruct):
+				pointer.data.write_ptrs(loader, ovs, frag.struct_ptr, pool_type)
 			else:
 				# basic pointer
-				frag.struct_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-				ptr.write_pointer(frag)
+				frag.struct_ptr.pool = loader.get_pool(pointer.pool_type, ovs=ovs.arg.name)
+				pointer.write_pointer(frag)
 				# handle ArrayPointer
-				if isinstance(ptr.data, Array):
-					for member in ptr.data:
+				if isinstance(pointer.data, Array):
+					for member in pointer.data:
 						if isinstance(member, MemStruct):
-							member.write_ptrs(loader, ovs, frag.struct_ptr, is_member=True)
+							member.write_ptrs(loader, ovs, frag.struct_ptr, pointer.pool_type, is_member=True)
 
 		# don't write array members again, they have already been written!
 		if not is_member:
 			# write this struct's data
-			ref_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-			# print("ref_ptr.pool", ref_ptr.pool)
-			ref_ptr.write_instance(type(self), self)
-			print("ref_ptr after", ref_ptr)
+			struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
+			# print("struct_ptr.pool", struct_ptr.pool)
+			struct_ptr.write_instance(type(self), self)
+			print("struct_ptr after", struct_ptr)
 		# update positions for frag ptrs 0
-		for ptr, frag in zip(ptrs_with_data, ptr_frags):
+		for pointer, frag in zip(ptrs_with_data, ptr_frags):
 			p = frag.link_ptr
-			p.pool_index = ref_ptr.pool_index
-			p.data_offset = ptr.io_start
-			p.pool = ref_ptr.pool
+			p.pool_index = struct_ptr.pool_index
+			p.data_offset = pointer.io_start
+			p.pool = struct_ptr.pool
 
 		# get all arrays of this MemStruct
 		arrays = self.get_arrays()
@@ -149,20 +146,20 @@ class MemStruct:
 			for member in array:
 				print("member")
 				if isinstance(member, MemStruct):
-					member.write_ptrs(loader, ovs, ref_ptr, is_member=True)
+					member.write_ptrs(loader, ovs, struct_ptr, pool_type, is_member=True)
 				# elif isinstance(member, Pointer):
 				# 	logging.warning(f"Missing write_ptrs for ArrayPointer")
 
 		# print(ovs.fragments)
 		for frag in ovs.fragments:
 			print(frag, frag.struct_ptr.data_size, frag.struct_ptr.data)
-		# print(ref_ptr.pool.data.getvalue())
+		# print(struct_ptr.pool.data.getvalue())
 
-	def read_ptrs(self, pool, sized_str_entry):
-		# print("read_ptrs")
+	def read_ptrs(self, pool):
+		logging.debug(f"read_ptrs for {self.__class__.__name__}")
 		# get all pointers in this struct
 		for prop, ptr in self.get_props_and_ptrs():
-			self.handle_ptr(prop, ptr, pool, sized_str_entry)
+			self.handle_pointer(prop, ptr, pool)
 		# read arrays attached to this memstruct
 		arrays = self.get_arrays()
 		for array in arrays:
@@ -170,39 +167,44 @@ class MemStruct:
 			for member in array:
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
-					member.read_ptrs(pool, sized_str_entry)
+					member.read_ptrs(pool)
 				elif isinstance(member, Pointer):
-					self.handle_ptr(None, member, pool, sized_str_entry)
+					self.handle_pointer(None, member, pool)
 		# continue reading sub-memstructs directly attached to this memstruct
 		for memstr in self.get_memstructs():
-			memstr.read_ptrs(pool, sized_str_entry)
+			memstr.read_ptrs(pool)
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
 		return None
 
-	def handle_ptr(self, prop, ptr, pool, sized_str_entry):
+	def handle_pointer(self, prop, pointer, pool):
 		"""Ensures a pointer has a valid template, load it, and continue processing the linked memstruct."""
-		if not ptr.template:
+		logging.debug(f"handle_pointer for {self.__class__.__name__}")
+		if not pointer.template:
 			# try the lookup function
-			ptr.template = self.get_ptr_template(prop)
-		# reads the template
-		ptr.read_ptr(pool, sized_str_entry)
-		if isinstance(ptr.data, MemStruct):
-			# print("ptr to a memstruct")
-			ptr.data.read_ptrs(ptr.frag.struct_ptr.pool, sized_str_entry)
-		# ArrayPointer
-		elif isinstance(ptr.data, Array):
-			assert isinstance(ptr, (ArrayPointer, ForEachPointer))
-			# print("ArrayPointer")
-			for member in ptr.data:
-				if isinstance(member, MemStruct):
-					# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
-					member.read_ptrs(ptr.frag.struct_ptr.pool, sized_str_entry)
-		else:
-			# points to a normal struct or basic type, which can't have any pointers
-			pass
+			pointer.template = self.get_ptr_template(prop)
+		# reads the template and grabs the frag
+		pointer.read_ptr(pool)  # , sized_str_entry)
+		if pointer.frag:
+			pool = pointer.frag.struct_ptr.pool
+			pointer.pool_type = pool.type
+			logging.debug(f"Set pool type {pointer.pool_type} for pointer {prop}")
+			if isinstance(pointer.data, MemStruct):
+				# print("pointer to a memstruct")
+				pointer.data.read_ptrs(pool)
+			# ArrayPointer
+			elif isinstance(pointer.data, Array):
+				assert isinstance(pointer, (ArrayPointer, ForEachPointer))
+				# print("ArrayPointer")
+				for member in pointer.data:
+					if isinstance(member, MemStruct):
+						# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
+						member.read_ptrs(pool)
+			else:
+				# points to a normal struct or basic type, which can't have any pointers
+				pass
 
 	def _array_from_xml(self, elem, val):
 		# create array elements
@@ -217,7 +219,7 @@ class MemStruct:
 		# subelement with subelements
 		for member in val:
 			if isinstance(member, Pointer):
-				self._to_xml(elem, val.class_name, member.data, member.frag)
+				self._to_xml(elem, val.class_name, member.data)
 			else:
 				self._to_xml(elem, val.class_name, member)
 
@@ -250,6 +252,11 @@ class MemStruct:
 			if not val.template:
 				logging.warning(f"No template set for pointer {prop} on XML element '{subelement.tag}'")
 				return
+			if POOL_TYPE in subelement.attrib:
+				val.pool_type = subelement.attrib[POOL_TYPE]
+				logging.debug(f"Set pool type {val.pool_type} for pointer {prop}")
+			else:
+				logging.warning(f"Missing pool type for pointer {prop}")
 			# print("val.template", val.template)
 			if isinstance(val, ArrayPointer):
 				# print("ArrayPointer", subelement, len(subelement))
@@ -310,7 +317,7 @@ class MemStruct:
 				f_ptr = val.frag.struct_ptr
 				subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 				subelement.set("_size", f"{f_ptr.data_size}")
-				subelement.set("_pool_type", f"{f_ptr.pool.type}")
+				subelement.set(POOL_TYPE, f"{f_ptr.pool.type}")
 			self._to_xml(subelement, prop, val.data)
 		elif isinstance(val, Array):
 			self._array_to_xml(elem, val)
@@ -348,10 +355,10 @@ class MemStruct:
 		props_arrays = [(prop, val) for prop, val in vars(self).items() if isinstance(val, Array)]
 		props_ptrs = self.get_props_and_ptrs() + [(prop, ptr) for prop, arr in props_arrays for ptr in arr if isinstance(ptr, Pointer)]
 		for prop, ptr in props_ptrs:
-			# dtype = ptr.template.__name__ if ptr.template else None
+			# dtype = pointer.template.__name__ if pointer.template else None
 			# al = None
 			if ptr.frag:
-				# if isinstance(ptr.frag,)
+				# if isinstance(pointer.frag,)
 				# skip dependency
 				if not hasattr(ptr.frag, "struct_ptr"):
 					continue
@@ -362,7 +369,7 @@ class MemStruct:
 					for x in reversed(range(6)):
 						al = 2 ** x
 						# logging.debug(f"Testing alignment: {al}")
-						# is data_offset of struct ptr aligned at al bytes?
+						# is data_offset of struct pointer aligned at al bytes?
 						if d_off % al == 0:
 							# add or overwrite if new al is smaller than stored al
 							if prop not in cls_al_dict or al < cls_al_dict[prop]:

@@ -79,7 +79,7 @@ class HeaderPointer:
 		# temp data for flushing
 		self._data = None
 
-		# sizedstr and frag ptr 1 point to structs, whereas frag ptr 0 and dependency are just a reference
+		# sizedstr and frag pointer 1 point to structs, whereas frag pointer 0 and dependency are just a reference
 		self.is_struct_ptr = True
 
 	@property

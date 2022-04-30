@@ -28,6 +28,7 @@ class Pointer:
 		# self.data = template(context, arg=0, template=None)
 		self.data = None
 		self.frag = None
+		self.pool_type = None
 		if set_default:
 			self.set_defaults()
 
@@ -40,12 +41,12 @@ class Pointer:
 		s += f'\n	* data = {self.data.__repr__()}'
 		return s
 
-	def read_ptr(self, pool, sized_str_entry):
+	def read_ptr(self, pool):  # , sized_str_entry):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
 		# find the frag entry with matching pointers[0].data_offset
 		self.frag = pool.offset_2_link_entry.get(self.io_start, None)
-		# ptr may be a nullptr, so ignore
+		# pointer may be a nullptr, so ignore
 		if not self.frag:
 			# print("is a nullptr")
 			return
