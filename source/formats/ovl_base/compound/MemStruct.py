@@ -135,7 +135,7 @@ class MemStruct:
 			pointer.template = self.get_ptr_template(prop)
 		# reads the template and grabs the frag
 		pointer.read_ptr(pool)  # , sized_str_entry)
-		if pointer.frag:
+		if pointer.frag and hasattr(pointer.frag, "struct_ptr"):
 			pool = pointer.frag.struct_ptr.pool
 			pointer.pool_type = pool.type
 			logging.debug(f"Set pool type {pointer.pool_type} for pointer {prop}")
@@ -166,10 +166,12 @@ class MemStruct:
 		# print(f"to_xml array {val.dtype}")
 		# subelement with subelements
 		for member in val:
+			cls_name = member.__class__.__name__
+			subelement = ET.SubElement(elem, cls_name)
 			if isinstance(member, Pointer):
-				self._to_xml(elem, val.class_name, member.data)
-			else:
-				self._to_xml(elem, val.class_name, member)
+				member = member.data
+			# self._to_xml(elem, cls_name, member)
+			self._to_xml(subelement, cls_name, member)
 
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):
@@ -259,20 +261,22 @@ class MemStruct:
 
 	def _to_xml(self, elem, prop, val):
 		"""Create a subelement named 'prop' that represents object 'val'"""
+		logging.info(f"_to_xml {elem.tag} - {prop}")
 		if isinstance(val, Pointer):
 			subelement = ET.SubElement(elem, prop)
-			if val.frag:
+			if val.frag and hasattr(val.frag, "struct_ptr"):
 				f_ptr = val.frag.struct_ptr
 				subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 				subelement.set("_size", f"{f_ptr.data_size}")
 				subelement.set(POOL_TYPE, f"{f_ptr.pool.type}")
 			self._to_xml(subelement, prop, val.data)
-		elif isinstance(val, Array):
-			self._array_to_xml(elem, val)
 		# todo - ndarray of basic types, subelements or as xml list? multiple dimensions?
+		elif isinstance(val, (Array, ndarray)):
+			self._array_to_xml(elem, val)
 		elif isinstance(val, MemStruct):
-			subelement = ET.SubElement(elem, prop)
-			val.to_xml(subelement)
+			if elem.tag != prop:
+				elem = ET.SubElement(elem, prop)
+			val.to_xml(elem)
 		# basic attribute
 		else:
 			if prop == "xml_string":
