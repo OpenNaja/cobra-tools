@@ -47,64 +47,45 @@ class DdsLoader(MemStructLoader):
 
 	def create(self):
 		name_ext, name, ext = split_path(self.file_entry.path)
-		# if ext == ".tex":
 		super().create()
-		# logging.debug(f"Creating image {name_ext}")
-		# if ext == ".tex":
-		# 	if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
-		# 		ss, f01, f11, buffers = self._get_data(self.file_entry.path)
-		# 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		# 		frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
-		# 		# pool type 3
-		# 		data3 = (ss, f01)
-		# 		ptrs3 = (self.root_ptr, frag0.link_ptr)
-		# 		for pointer, data in zip(ptrs3, data3):
-		# 			self.write_to_pool(pointer, 3, data)
-		#
-		# 		self.ptr_relative(frag0.struct_ptr, self.root_ptr, rel_offset=16)
-		# 		self.ptr_relative(frag1.struct_ptr, self.root_ptr, rel_offset=24)
-		#
-		# 		if is_jwe(self.ovl):
-		# 			f11_pool_type = 7
-		# 		else:
-		# 			f11_pool_type = 4
-		# 		self.write_to_pool(frag1.link_ptr, f11_pool_type, f11)
-		#
-		# 		# decide where to store the buffers
-		# 		static_lods = 2
-		# 		streamed_lods = len(buffers) - static_lods
-		# 		logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
-		# 		ss_entries = [self.sized_str_entry, ]
-		# 		# ovs name generation only works for up to 2 streams
-		# 		assert streamed_lods < 3
-		# 		for i in range(streamed_lods):
-		# 			# generate ovs name - highly idiosyncratic
-		# 			# game expects to start with L1
-		# 			# if there are 2 lods
-		# 			# stock puts the first stream lod0 in L1, lod1 in L0
-		# 			# a file with just one stream lod0 goes into L1 too
-		# 			ovs_name = f"Textures_L{1-i}"
-		# 			# create texturestream file
-		# 			texstream_file = self.get_file_entry(f"test/{name}_lod{i}.texturestream")
-		# 			self.file_entry.streams.append(texstream_file)
-		# 			# ss entry
-		# 			texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
-		# 			ss_entries.append(texstream_ss)
-		# 			self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
-		# 			# data entry, assign buffer
-		# 			self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
-		# 		self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
-		# 		# patch buffer indices for PZ, JWE1
-		# 		if not is_jwe2(self.ovl):
-		# 			logging.debug(f"Using absolute buffer indices for streams")
-		# 			all_buffers = [buffer for ss in ss_entries for buffer in ss.data_entry.buffers]
-		# 			all_buffers.sort(key=lambda b: b.size, reverse=True)
-		# 			for i, buffer in enumerate(all_buffers):
-		# 				buffer.index = i
-		# 	elif is_pc(self.ovl) or is_ztuac(self.ovl):
-		# 		logging.error(f"Only modern texture format supported for now!")
-		# else:
-		# 	logging.error(f"Only .tex supported for now!")
+		logging.debug(f"Creating image {name_ext}")
+		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
+			buffers = [b"" for _ in range(self.header.stream_count)]
+			# decide where to store the buffers
+			static_lods = 2
+			streamed_lods = len(buffers) - static_lods
+			logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
+			ss_entries = [self.sized_str_entry, ]
+			# ovs name generation only works for up to 2 streams
+			assert streamed_lods < 3
+			for i in range(streamed_lods):
+				# generate ovs name - highly idiosyncratic
+				# game expects to start with L1
+				# if there are 2 lods
+				# stock puts the first stream lod0 in L1, lod1 in L0
+				# a file with just one stream lod0 goes into L1 too
+				ovs_name = f"Textures_L{1-i}"
+				# create texturestream file - dummy_dir is ignored
+				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{i}.texturestream")
+				self.file_entry.streams.append(texstream_file)
+				# ss entry
+				texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
+				ss_entries.append(texstream_ss)
+				self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
+				# data entry, assign buffer
+				self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
+			self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
+			# patch buffer indices for PZ, JWE1
+			if not is_jwe2(self.ovl):
+				logging.debug(f"Using absolute buffer indices for streams")
+				all_buffers = [buffer for ss in ss_entries for buffer in ss.data_entry.buffers]
+				all_buffers.sort(key=lambda b: b.size, reverse=True)
+				for i, buffer in enumerate(all_buffers):
+					buffer.index = i
+			# ready, now inject
+			self.load(self.file_entry.path)
+		elif is_pc(self.ovl) or is_ztuac(self.ovl):
+			logging.error(f"Only modern texture format supported for now!")
 
 	def collect(self):
 		super().collect()
@@ -118,22 +99,23 @@ class DdsLoader(MemStructLoader):
 		super().load(file_path)
 		print(self.header)
 		logging.debug(f"Loading image {file_path}")
-		# name_ext, name, ext = split_path(file_path)
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		png_path = imarray.png_from_tex(file_path, tmp_dir)
 		if png_path:
 			self.load_png(png_path, tmp_dir)
 		# elif ext == ".dds":
 		# 	self.load_dds(file_path)
-
 		shutil.rmtree(tmp_dir)
 
-	def get_sorted_streams(self):
-		# lod0 | lod1 | static
-		# PZ assigns the buffer index for the complete struct 0 | 1 | 2, 3
-		# from JWE2, buffer index for streams is 0 | 0 | 0, 1
-		# the last buffer is always 0 bytes
-		return list(sorted(self.get_streams(), key=lambda buffer: buffer.size, reverse=True))
+	def load_png(self, file_path, tmp_dir):
+		logging.info(f"Loading PNG {file_path}")
+		# convert the png into a dds, then inject that
+		tex_buffers, size_info = self.get_tex_structs()
+		compression = self.header.compression_type.name
+		dds_file_path = texconv.png_to_dds(
+			file_path, size_info.height * size_info.array_size, tmp_dir, codec=compression, mips=size_info.num_mips)
+		# inject the dds generated by texconv
+		self.load_dds(dds_file_path)
 
 	def load_dds(self, file_path):
 		logging.info(f"Loading DDS {file_path}")
@@ -168,6 +150,13 @@ class DdsLoader(MemStructLoader):
 				for buffer in sorted_streams:
 					dds_buff = reader.read(buffer.size)
 					self.overwrite_buffer(buffer, dds_buff)
+
+	def get_sorted_streams(self):
+		# lod0 | lod1 | static
+		# PZ assigns the buffer index for the complete struct 0 | 1 | 2, 3
+		# from JWE2, buffer index for streams is 0 | 0 | 0, 1
+		# the last buffer is always 0 bytes
+		return list(sorted(self.get_streams(), key=lambda buffer: buffer.size, reverse=True))
 
 	@staticmethod
 	def overwrite_buffer(buffer, dds_buff):
@@ -280,21 +269,6 @@ class DdsLoader(MemStructLoader):
 				# postprocessing of the png
 				out_files.extend(imarray.wrapper(png_file_path, size_info, self.ovl))
 		return out_files
-
-	def load_png(self, file_path, tmp_dir):
-		logging.info(f"Loading PNG {file_path}")
-		# convert the png into a dds, then inject that
-		tex_buffers, size_info = self.get_tex_structs()
-		compression = self.header.compression_type.name
-		show_temp = False
-		# todo - refactor, pass tmp_dir
-		dds_file_path = texconv.png_to_dds(
-			file_path, size_info.height * size_info.array_size, show_temp, codec=compression, mips=size_info.num_mips)
-	
-		# inject the dds generated by texconv
-		self.load_dds(dds_file_path)
-		# remove the temp file if desired
-		texconv.clear_tmp(dds_file_path, show_temp)
 
 	def ensure_size_match(self, dds_header, tex_h, tex_w, tex_d, tex_a):
 		"""Check that DDS files have the same basic size"""

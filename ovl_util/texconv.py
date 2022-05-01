@@ -93,16 +93,14 @@ def dds_to_png(dds_file_path, height):
 	return os.path.join(out_dir, name + '.png')
 
 
-def png_to_dds(png_file_path, height, show_temp_files, codec="BC7_UNORM", mips=1):
+def png_to_dds(png_file_path, height, out_dir, codec="BC7_UNORM", mips=1):
 	"""Converts a PNG file given by a path to a DDS file"""
 	png_file_path = os.path.normpath(png_file_path)
 	in_dir, in_name = os.path.split(png_file_path)
-
-	out_dir = make_tmp(in_dir, show_temp_files)
 	name = os.path.splitext(in_name)[0]
-	run_smart([BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "BOX",
-			   "-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
-
+	run_smart([
+		BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "BOX",
+		"-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
 	return os.path.join(out_dir, name + '.dds')
 
 
