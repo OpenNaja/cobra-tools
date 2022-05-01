@@ -233,6 +233,10 @@ class MemStruct:
 			else:
 				self._from_xml(self, elem, prop, val)
 
+	@staticmethod
+	def _handle_xml_str(prop):
+		return "data" if prop != XML_STR else XML_STR
+
 	def _from_xml(self, target, elem, prop, val):
 		"""Populates this MemStruct from the xml elem"""
 		# print("_from_xml", elem, prop, val)
@@ -253,7 +257,7 @@ class MemStruct:
 				# print("other pointer")
 				logging.debug(f"Creating pointer.data = {val.template.__name__}()")
 				val.data = val.template(self._context, 0, val.arg)
-			self._from_xml(val, elem, "data", val.data)
+			self._from_xml(val, elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, (Array, ndarray)):
 			# create array elements
 			# print(f"array, len {len(elem)}")
@@ -271,18 +275,22 @@ class MemStruct:
 			# print("basic")
 			# set basic attribute
 			cls = type(val)
-			# todo - str pointer's data is called data by convention - handle this
-			# todo - XML_STR
-			if prop in elem.attrib:
-				data = elem.attrib[prop]
-				if data != "None":
-					try:
-						logging.debug(f"Setting {type(target).__name__}.{prop} = {cls(data)}")
-						setattr(target, prop, cls(data))
-					except TypeError:
-						raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
+			if prop != XML_STR:
+				if prop in elem.attrib:
+					data = elem.attrib[prop]
+					if data != "None":
+						try:
+							logging.debug(f"Setting {type(target).__name__}.{prop} = {cls(data)}")
+							setattr(target, prop, cls(data))
+						except TypeError:
+							raise TypeError(f"Could not convert attribute {prop} = '{data}' to {cls.__name__}")
+				else:
+					logging.warning(f"Missing attribute '{prop}' in element '{elem.tag}'")
 			else:
-				logging.warning(f"Missing attribute '{prop}' in element '{elem.tag}'")
+				# logging.debug(f"Can't handle {XML_STR} inside '{elem.tag}'")
+				data = ET.tostring(elem[0], encoding="unicode").replace("\t", "").replace("\n", "")
+				setattr(target, "data", cls(data))
+				logging.debug(f"Setting {type(target).__name__}.data = {cls(data)}")
 
 	def to_xml_file(self, file_path):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
@@ -301,7 +309,7 @@ class MemStruct:
 				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 				elem.set("_size", f"{f_ptr.data_size}")
 				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
-			self._to_xml(elem, "data", val.data)
+			self._to_xml(elem, self._handle_xml_str(prop), val.data)
 		# todo - multiple dimensions?
 		elif isinstance(val, (Array, ndarray)):
 			for member in val:
