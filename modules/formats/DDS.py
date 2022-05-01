@@ -35,16 +35,6 @@ class DdsLoader(MemStructLoader):
 	target_class = TexHeader
 	extension = ".tex"
 
-	def _get_data(self, file_path):
-		tex_file = TexFile(self.ovl.context)
-		tex_file.load(file_path)
-		# print(tex_file)
-		ss = as_bytes(tex_file.tex_info)
-		f01 = as_bytes(tex_file.frag_01)
-		f11 = as_bytes(tex_file.frag_11) + as_bytes(tex_file.padding)
-		buffers = tex_file.buffers
-		return ss, f01, f11, buffers
-
 	def create(self):
 		name_ext, name, ext = split_path(self.file_entry.path)
 		super().create()
