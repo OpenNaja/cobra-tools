@@ -87,9 +87,9 @@ def dds_to_png(dds_file_path, height):
 	out_dir, in_name = os.path.split(dds_file_path)
 	name = os.path.splitext(in_name)[0]
 	# print("dds to png", dds_file_path, out_dir, height)
-	run_smart(
-		[BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
-		 "-dx10", dds_file_path])
+	run_smart([
+		BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
+		"-dx10", dds_file_path])
 	return os.path.join(out_dir, name + '.png')
 
 
