@@ -20,7 +20,6 @@ class ManisLoader(BaseFile):
 		logging.info(f"Writing {name}")
 		if not self.sized_str_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		ss_ptr = self.sized_str_entry.struct_ptr
 		# buffers = self.sized_str_entry.data_entry.buffer_datas
 		# print(len(buffers))
 		ovl_header = self.pack_header(b"MANI")
@@ -36,7 +35,7 @@ class ManisLoader(BaseFile):
 			outfile.write(manis_header)
 			for mani in self.sized_str_entry.children:
 				outfile.write(as_bytes(mani.basename))
-			outfile.write(ss_ptr.data)
+			outfile.write(self.root_ptr.data)
 			for buff in self.sized_str_entry.data_entry.buffers:
 				outfile.write(buff.data)
 	

@@ -12,9 +12,8 @@ class BaniLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		ss_ptr = self.sized_str_entry.struct_ptr
-		self.header = BaniRoot.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(ss_ptr.pool)
+		self.header = BaniRoot.from_stream(self.root_ptr.stream, self.ovl.context)
+		self.header.read_ptrs(self.root_ptr.pool)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		logging.info(f"Writing {self.sized_str_entry.name}")

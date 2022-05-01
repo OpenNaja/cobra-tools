@@ -193,7 +193,7 @@ class MemStruct:
 				logging.warning(f"No template set for pointer '{prop}' on XML element '{elem.tag}'")
 				return
 			if POOL_TYPE in elem.attrib:
-				val.pool_type = elem.attrib[POOL_TYPE]
+				val.pool_type = int(elem.attrib[POOL_TYPE])
 				logging.debug(f"Set pool type {val.pool_type} for pointer {prop}")
 			else:
 				logging.warning(f"Missing pool type for pointer '{prop}' on '{elem.tag}'")

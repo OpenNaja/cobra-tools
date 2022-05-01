@@ -55,15 +55,14 @@ class DdsLoader(MemStructLoader):
 		# 		ss, f01, f11, buffers = self._get_data(self.file_entry.path)
 		# 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
 		# 		frag0, frag1 = self.create_fragments(self.sized_str_entry, 2)
-		# 		ss_ptr = self.sized_str_entry.struct_ptr
 		# 		# pool type 3
 		# 		data3 = (ss, f01)
-		# 		ptrs3 = (ss_ptr, frag0.link_ptr)
+		# 		ptrs3 = (self.root_ptr, frag0.link_ptr)
 		# 		for pointer, data in zip(ptrs3, data3):
 		# 			self.write_to_pool(pointer, 3, data)
 		#
-		# 		self.ptr_relative(frag0.struct_ptr, ss_ptr, rel_offset=16)
-		# 		self.ptr_relative(frag1.struct_ptr, ss_ptr, rel_offset=24)
+		# 		self.ptr_relative(frag0.struct_ptr, self.root_ptr, rel_offset=16)
+		# 		self.ptr_relative(frag1.struct_ptr, self.root_ptr, rel_offset=24)
 		#
 		# 		if is_jwe(self.ovl):
 		# 			f11_pool_type = 7

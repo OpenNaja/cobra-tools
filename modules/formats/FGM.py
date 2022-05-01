@@ -24,8 +24,7 @@ class FgmLoader(MemStructLoader):
 		self.header.attributes.data = fgm_data.attributes
 		self.header.data_lib.data = fgm_data.data_bytes
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		ss_ptr = self.sized_str_entry.struct_ptr
-		self.header.write_ptrs(self, self.ovs, ss_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		self.create_data_entry(self.sized_str_entry, (fgm_data.buffer_bytes,))
 
 		if fgm_data.texture_files:
@@ -34,7 +33,7 @@ class FgmLoader(MemStructLoader):
 			# points to the start of the dependencies region
 			self.header.dependencies.frag = self.create_fragments(self.sized_str_entry, 1)[0]
 			rel_off = self.header.dependencies.io_start - self.header.io_start
-			self.ptr_relative(self.header.dependencies.frag.link_ptr, ss_ptr, rel_offset=rel_off)
+			self.ptr_relative(self.header.dependencies.frag.link_ptr, self.root_ptr, rel_offset=rel_off)
 			self.ptr_relative(self.header.dependencies.frag.struct_ptr, self.file_entry.dependencies[0].link_ptr)
 
 	def collect(self):

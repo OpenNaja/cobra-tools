@@ -167,6 +167,11 @@ class BaseFile:
 
 		return temp_dir, out_dir_func
 
+	@property
+	def root_ptr(self):
+		"""Shorthand for the root entry's struct_ptr"""
+		return self.sized_str_entry.struct_ptr
+
 
 class MemStructLoader(BaseFile):
 	target_class: None
@@ -179,18 +184,15 @@ class MemStructLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		ss_ptr = self.sized_str_entry.struct_ptr
-		self.header = self.target_class.from_stream(ss_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(ss_ptr.pool)
+		self.header = self.target_class.from_stream(self.root_ptr.stream, self.ovl.context)
+		self.header.read_ptrs(self.root_ptr.pool)
 		# print(self.header)
 
 	def create(self):
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		ss_ptr = self.sized_str_entry.struct_ptr
-
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
-		self.header.write_ptrs(self, self.ovs, ss_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		# todo - may need padding here
 
 	def load(self, file_path):

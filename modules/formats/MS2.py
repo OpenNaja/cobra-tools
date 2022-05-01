@@ -19,8 +19,7 @@ class Ms2Loader(BaseFile):
 	extension = ".ms2"
 
 	def get_version(self):
-		ss_ptr = self.sized_str_entry.struct_ptr
-		version = struct.unpack(f"I", ss_ptr.data[:4])[0]
+		version = struct.unpack(f"I", self.root_ptr.data[:4])[0]
 		vdic = {"version": version}
 		self.context = Ms2Context()
 		self.context.version = version
@@ -39,15 +38,14 @@ class Ms2Loader(BaseFile):
 	def collect(self):
 		self.assign_ss_entry()
 		self.get_version()
-		ss_ptr = self.sized_str_entry.struct_ptr
-		self.header = Ms2Root.from_stream(ss_ptr.stream, self.context)
-		self.header.read_ptrs(ss_ptr.pool)
+		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
+		self.header.read_ptrs(self.root_ptr.pool)
 		self.header.debug_ptrs()
 		# print(self.header)
 		# old JWE1 still uses 1 fragment
 		if self.header.version > 39:
-			if ss_ptr.data_size != 48:
-				logging.warning(f"Unexpected Root size ({ss_ptr.data_size}) for {self.file_entry.name}")
+			if self.root_ptr.data_size != 48:
+				logging.warning(f"Unexpected Root size ({self.root_ptr.data_size}) for {self.file_entry.name}")
 			expected_frag = self.get_frag_3(self.header)
 			frag_data = self.header.buffers_presence.frag.struct_ptr.data
 			if frag_data != expected_frag:
@@ -60,7 +58,6 @@ class Ms2Loader(BaseFile):
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		ss_ptr = self.sized_str_entry.struct_ptr
 
 		self.header = ms2_file.info
 		# fix up the pointers
@@ -104,7 +101,7 @@ class Ms2Loader(BaseFile):
 		# create ms2 data
 		self.create_data_entry(self.sized_str_entry, ms2_file.buffers)
 		# write the final memstruct
-		self.header.write_ptrs(self, self.ovs, ss_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		# link some more pointers
 		for model_info in self.header.model_infos.data:
 			# link first_materials pointer
