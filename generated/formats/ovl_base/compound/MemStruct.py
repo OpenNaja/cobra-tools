@@ -206,14 +206,6 @@ class MemStruct:
 				# points to a normal struct or basic type, which can't have any pointers
 				pass
 
-	def _array_from_xml(self, elem, val):
-		# create array elements
-		# print(f"array, len {len(elem)}")
-		val[:] = [val.dtype(self._context) for i in range(len(elem))]
-		# subelement with subelements
-		for subelem, member in zip(elem, val):
-			self._from_xml(subelem, val.class_name, member)
-
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):
 		"""Load MemStruct represented by the xml in 'file_path'"""
@@ -230,52 +222,48 @@ class MemStruct:
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
-			if isinstance(val, MemStruct):
-				elem = ET.SubElement(elem, prop)
-			self._from_xml(elem, prop, val)
+			if isinstance(val, (MemStruct, Array, ndarray, Pointer)):
+				sub = elem.find(f'.//{prop}')
+				self._from_xml(sub, prop, val)
+			else:
+				self._from_xml(elem, prop, val)
 
 	def _from_xml(self, elem, prop, val):
 		"""Populates this MemStruct from the xml elem"""
 		# print("_from_xml", elem, prop, val)
 		if isinstance(val, Pointer):
-			subelement = elem.find(f'.//{prop}')
-			if not subelement:
+			if not elem:
 				logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
 				return
 			if not val.template:
-				logging.warning(f"No template set for pointer {prop} on XML element '{subelement.tag}'")
+				logging.warning(f"No template set for pointer {prop} on XML element '{elem.tag}'")
 				return
-			if POOL_TYPE in subelement.attrib:
-				val.pool_type = subelement.attrib[POOL_TYPE]
+			if POOL_TYPE in elem.attrib:
+				val.pool_type = elem.attrib[POOL_TYPE]
 				logging.debug(f"Set pool type {val.pool_type} for pointer {prop}")
 			else:
 				logging.warning(f"Missing pool type for pointer {prop}")
 			# print("val.template", val.template)
 			if isinstance(val, ArrayPointer):
-				# print("ArrayPointer", subelement, len(subelement))
-				val.data = Array((len(subelement)), val.template, val.context, set_default=False)
-				self._array_from_xml(subelement, val.data)
+				# print("ArrayPointer", elem, len(elem))
+				val.data = Array((len(elem)), val.template, val.context, set_default=False)
 			else:
 				# print("other pointer")
 				val.data = val.template(self._context)
-				self._from_xml(subelement, prop, val.data)
-		elif isinstance(val, Array):
-			# print("Array")
-			self._array_from_xml(elem, val)
+			self._from_xml(elem, prop, val.data)
+		elif isinstance(val, (Array, ndarray)):
+			# create array elements
+			# print(f"array, len {len(elem)}")
+			val[:] = [val.dtype(self._context) for i in range(len(elem))]
+			# subelement with subelements
+			for subelem, member in zip(elem, val):
+				self._from_xml(subelem, subelem.tag, member)
 		elif isinstance(val, MemStruct):
 			# print("MemStruct")
-			# when called from array or pointer, the subelement is already given
-			# finding the subelem may not actually be needed
-			if elem.tag != prop:
-				# get it if a memstruct is a child of a memstruct
-				elem = elem.find(f'.//{prop}')
 			val.from_xml(elem)
 		elif isinstance(val, BaseEnum):
 			# print("BaseEnum")
 			setattr(self, prop, val.from_str(elem.attrib[prop]))
-		elif isinstance(val, ndarray):
-			logging.warning(f"Ignoring basic array '{prop}'")
-			return
 		else:
 			# print("basic")
 			# set basic attribute
