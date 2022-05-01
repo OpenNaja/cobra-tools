@@ -50,11 +50,11 @@ def bin_to_lua(bin_file):
 	try:
 		out_file = os.path.splitext(bin_file)[0]
 		# out_file = os.path.join(out_dir, out_name)
-		function_string = '"{}" "{}"'.format(luadec, bin_file)
+		function_string = f'"{luadec}" "{bin_file}"'
 		output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
-		function_string2 = '"{}" -s "{}"'.format(luadec, bin_file)
+		function_string2 = f'"{luadec}" -s "{bin_file}"'
 		output2 = subprocess.Popen(function_string2, stdout=subprocess.PIPE).communicate()[0]
-		print(function_string, output)
+		# print(function_string, output)
 		if len(bytearray(output)) > 0:
 			with open(out_file, 'wb') as outfile:
 				outfile.write(bytearray(output))
