@@ -86,7 +86,7 @@ def dds_to_png(dds_file_path, height):
 	"""Converts a DDS file given by a path to a PNG file"""
 	out_dir, in_name = os.path.split(dds_file_path)
 	name = os.path.splitext(in_name)[0]
-	print("dds to png", dds_file_path, out_dir, height)
+	# print("dds to png", dds_file_path, out_dir, height)
 	run_smart(
 		[BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
 		 "-dx10", dds_file_path])
@@ -103,16 +103,3 @@ def png_to_dds(png_file_path, height, out_dir, codec="BC7_UNORM", mips=1):
 		"-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
 	return os.path.join(out_dir, name + '.dds')
 
-
-def make_tmp(in_dir, show_temp_files):
-	""" Make a new temp dir if show_temp_files is False """
-	if show_temp_files:
-		return in_dir
-	else:
-		return tempfile.mkdtemp("-cobra")
-
-
-def clear_tmp(dds_file_path, show_temp_files):
-	if not show_temp_files:
-		tmp, in_name = os.path.split(dds_file_path)
-		shutil.rmtree(tmp)
