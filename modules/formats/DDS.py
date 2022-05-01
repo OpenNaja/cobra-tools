@@ -7,14 +7,9 @@ import tempfile
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
-from generated.formats.tex import TexFile
-from generated.formats.tex.compound.TexBuffer import TexBuffer
-from generated.formats.tex.compound.SizeInfo import SizeInfo
-from generated.formats.tex.compound.TexBufferPc import TexBufferPc
 from generated.formats.tex.compound.TexHeader import TexHeader
 from modules.formats.BaseFormat import MemStructLoader
-from modules.formats.shared import get_versions
-from modules.helpers import split_path, as_bytes
+from modules.helpers import split_path
 
 from ovl_util import texconv, imarray
 
@@ -132,14 +127,17 @@ class DdsLoader(MemStructLoader):
 				self.overwrite_buffer(buffer, dds_buff)
 		else:
 			out_bytes = dds_file.pack_mips(size_info.num_mips)
+			out_bytes2 = dds_file.pack_mips_new(size_info.mip_maps)
+			if out_bytes != out_bytes2:
+				logging.warning(f"Mip packers got different results")
+			# update data in buffers according to tex header buffer specifications
+			for buffer_entry, b_info in zip(sorted_streams, tex_buffers):
+				self.overwrite_buffer(buffer_entry, out_bytes[b_info.offset: b_info.offset + b_info.size])
+			# sanity check
 			sum_of_buffers = sum(buffer.size for buffer in sorted_streams)
 			if len(out_bytes) != sum_of_buffers:
 				logging.warning(
 					f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes.")
-			with io.BytesIO(out_bytes) as reader:
-				for buffer in sorted_streams:
-					dds_buff = reader.read(buffer.size)
-					self.overwrite_buffer(buffer, dds_buff)
 
 	def get_sorted_streams(self):
 		# lod0 | lod1 | static
