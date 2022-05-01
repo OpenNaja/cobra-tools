@@ -214,17 +214,6 @@ class MemStruct:
 		for subelem, member in zip(elem, val):
 			self._from_xml(subelem, val.class_name, member)
 
-	def _array_to_xml(self, elem, val):
-		# print(f"to_xml array {val.dtype}")
-		# subelement with subelements
-		for member in val:
-			cls_name = member.__class__.__name__
-			subelement = ET.SubElement(elem, cls_name)
-			if isinstance(member, Pointer):
-				member = member.data
-			# self._to_xml(elem, cls_name, member)
-			self._to_xml(subelement, cls_name, member)
-
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):
 		"""Load MemStruct represented by the xml in 'file_path'"""
@@ -241,6 +230,8 @@ class MemStruct:
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
+			if isinstance(val, MemStruct):
+				elem = ET.SubElement(elem, prop)
 			self._from_xml(elem, prop, val)
 
 	def _from_xml(self, elem, prop, val):
@@ -312,22 +303,22 @@ class MemStruct:
 			outfile.write(ET.tostring(xml))
 
 	def _to_xml(self, elem, prop, val):
-		"""Create a subelement named 'prop' that represents object 'val'"""
-		logging.info(f"_to_xml {elem.tag} - {prop}")
+		"""Assigns data val to xml elem"""
+		# logging.debug(f"_to_xml {elem.tag} - {prop}")
 		if isinstance(val, Pointer):
-			subelement = ET.SubElement(elem, prop)
 			if val.frag and hasattr(val.frag, "struct_ptr"):
 				f_ptr = val.frag.struct_ptr
-				subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
-				subelement.set("_size", f"{f_ptr.data_size}")
-				subelement.set(POOL_TYPE, f"{f_ptr.pool.type}")
-			self._to_xml(subelement, prop, val.data)
-		# todo - ndarray of basic types, subelements or as xml list? multiple dimensions?
+				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+				elem.set("_size", f"{f_ptr.data_size}")
+				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
+			self._to_xml(elem, prop, val.data)
+		# todo - multiple dimensions?
 		elif isinstance(val, (Array, ndarray)):
-			self._array_to_xml(elem, val)
+			for member in val:
+				cls_name = member.__class__.__name__.lower()
+				member_elem = ET.SubElement(elem, cls_name)
+				self._to_xml(member_elem, cls_name, member)
 		elif isinstance(val, MemStruct):
-			if elem.tag != prop:
-				elem = ET.SubElement(elem, prop)
 			val.to_xml(elem)
 		# basic attribute
 		else:
@@ -348,7 +339,12 @@ class MemStruct:
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
-			self._to_xml(elem, prop, val)
+			# add a sub-element if these are child of a MemStruct
+			if isinstance(val, (MemStruct, Array, ndarray, Pointer)):
+				sub = ET.SubElement(elem, prop)
+				self._to_xml(sub, prop, val)
+			else:
+				self._to_xml(elem, prop, val)
 
 	def debug_ptrs(self):
 		"""Iteratively debugs all pointers of a struct"""
