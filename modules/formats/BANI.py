@@ -3,17 +3,16 @@ import os
 
 from generated.formats.bani import BaniFile
 from generated.formats.bani.compound.BaniRoot import BaniRoot
-from modules.formats.BaseFormat import BaseFile
+from modules.formats.BaseFormat import BaseFile, MemStructLoader
 from modules.helpers import as_bytes
 
 
-class BaniLoader(BaseFile):
+class BaniLoader(MemStructLoader):
 	extension = ".bani"
+	target_class = BaniRoot
 
-	def collect(self):
-		self.assign_ss_entry()
-		self.header = BaniRoot.from_stream(self.root_ptr.stream, self.ovl.context)
-		self.header.read_ptrs(self.root_ptr.pool)
+	def create(self):
+		raise NotImplementedError
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		logging.info(f"Writing {self.sized_str_entry.name}")
