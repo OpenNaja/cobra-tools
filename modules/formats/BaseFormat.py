@@ -195,6 +195,6 @@ class MemStructLoader(BaseFile):
 
 	def load(self, file_path):
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		# print(self.header)
+		print(self.header)
 		# todo
 		logging.warning(f"Injection not fully implemented for {self.extension}")

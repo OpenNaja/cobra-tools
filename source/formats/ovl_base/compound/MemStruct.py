@@ -12,6 +12,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 ZERO = b"\x00"
 SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
 POOL_TYPE = "_pool_type"
+XML_STR = "xml_string"
 
 
 def indent(e, level=0):
@@ -166,69 +167,70 @@ class MemStruct:
 	def from_xml(self, elem):
 		"""Sets the data from the XML to this MemStruct"""
 		# go over all fields of this MemStruct
-		for prop, val in vars(self).items():
+		# cast to list to avoid 'dictionary changed size during iteration'
+		for prop, val in list(vars(self).items()):
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
 			if isinstance(val, (MemStruct, Array, ndarray, Pointer)):
 				sub = elem.find(f'.//{prop}')
-				self._from_xml(sub, prop, val)
+				if sub is None:
+					logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
+					return
+				self._from_xml(self, sub, prop, val)
 			else:
-				self._from_xml(elem, prop, val)
+				self._from_xml(self, elem, prop, val)
 
-	def _from_xml(self, elem, prop, val):
+	def _from_xml(self, target, elem, prop, val):
 		"""Populates this MemStruct from the xml elem"""
 		# print("_from_xml", elem, prop, val)
 		if isinstance(val, Pointer):
-			if not elem:
-				logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
-				return
-			if not val.template:
-				logging.warning(f"No template set for pointer {prop} on XML element '{elem.tag}'")
+			if val.template is None:
+				logging.warning(f"No template set for pointer '{prop}' on XML element '{elem.tag}'")
 				return
 			if POOL_TYPE in elem.attrib:
 				val.pool_type = elem.attrib[POOL_TYPE]
 				logging.debug(f"Set pool type {val.pool_type} for pointer {prop}")
 			else:
-				logging.warning(f"Missing pool type for pointer {prop}")
+				logging.warning(f"Missing pool type for pointer '{prop}' on '{elem.tag}'")
 			# print("val.template", val.template)
 			if isinstance(val, ArrayPointer):
 				# print("ArrayPointer", elem, len(elem))
 				val.data = Array((len(elem)), val.template, val.context, set_default=False)
 			else:
 				# print("other pointer")
-				val.data = val.template(self._context)
-			self._from_xml(elem, prop, val.data)
+				logging.debug(f"Creating pointer.data = {val.template.__name__}()")
+				val.data = val.template(self._context, 0, val.arg)
+			self._from_xml(val, elem, "data", val.data)
 		elif isinstance(val, (Array, ndarray)):
 			# create array elements
 			# print(f"array, len {len(elem)}")
-			val[:] = [val.dtype(self._context) for i in range(len(elem))]
+			val[:] = [val.dtype(self._context, 0, val.template) for i in range(len(elem))]
 			# subelement with subelements
 			for subelem, member in zip(elem, val):
-				self._from_xml(subelem, subelem.tag, member)
+				self._from_xml(self, subelem, subelem.tag, member)
 		elif isinstance(val, MemStruct):
 			# print("MemStruct")
 			val.from_xml(elem)
 		elif isinstance(val, BaseEnum):
 			# print("BaseEnum")
-			setattr(self, prop, val.from_str(elem.attrib[prop]))
+			setattr(target, prop, val.from_str(elem.attrib[prop]))
 		else:
 			# print("basic")
 			# set basic attribute
 			cls = type(val)
 			# todo - str pointer's data is called data by convention - handle this
+			# todo - XML_STR
 			if prop in elem.attrib:
 				data = elem.attrib[prop]
 				if data != "None":
-					# val.data = elem.attrib["data"]
 					try:
-						setattr(self, prop, cls(data))
+						logging.debug(f"Setting {type(target).__name__}.{prop} = {cls(data)}")
+						setattr(target, prop, cls(data))
 					except TypeError:
 						raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
-					except KeyError:
-						logging.warning(f"Missing '{prop}' in {elem.tag} attributes")
-					except AttributeError:
-						logging.warning(f"Missing something on property '{prop}' in element {elem}")
+			else:
+				logging.warning(f"Missing attribute '{prop}' in element '{elem.tag}'")
 
 	def to_xml_file(self, file_path):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
@@ -247,7 +249,7 @@ class MemStruct:
 				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 				elem.set("_size", f"{f_ptr.data_size}")
 				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
-			self._to_xml(elem, prop, val.data)
+			self._to_xml(elem, "data", val.data)
 		# todo - multiple dimensions?
 		elif isinstance(val, (Array, ndarray)):
 			for member in val:
@@ -258,15 +260,10 @@ class MemStruct:
 			val.to_xml(elem)
 		# basic attribute
 		else:
-			if prop == "xml_string":
+			if prop == XML_STR:
 				elem.append(ET.fromstring(val))
 			else:
-				# this indicates we're looking at a pointer's basic type, usually str
-				if elem.tag == prop:
-					elem.set("data", str(val))
-				# just a regular basic type on a MemStruct
-				else:
-					elem.set(prop, str(val))
+				elem.set(prop, str(val))
 
 	def to_xml(self, elem):
 		"""Adds data of this MemStruct to 'elem', recursively"""
