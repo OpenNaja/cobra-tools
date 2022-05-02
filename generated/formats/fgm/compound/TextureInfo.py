@@ -1,21 +1,19 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
 from generated.formats.fgm.compound.Color import Color
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class TextureInfo:
+class TextureInfo(MemStruct):
 
 	"""
 	part of fgm fragment, per texture involved
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -65,6 +63,7 @@ class TextureInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.offset = stream.read_uint()
 		instance.is_textured = stream.read_uint()
 		if not (instance.context.version == 17) and instance.is_textured == 8:
@@ -78,6 +77,7 @@ class TextureInfo:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.offset)
 		stream.write_uint(instance.is_textured)
 		if not (instance.context.version == 17) and instance.is_textured == 8:
@@ -109,6 +109,7 @@ class TextureInfo:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* is_textured = {fmt_member(self.is_textured, indent+1)}'
 		s += f'\n	* indices = {fmt_member(self.indices, indent+1)}'

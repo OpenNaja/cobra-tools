@@ -4,7 +4,7 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="Color" >
+    <compound name="Color" inherit="MemStruct">
         4 bytes
         <add name="r" type="ubyte"/>
         <add name="g" type="ubyte"/>
@@ -12,9 +12,27 @@
         <add name="a" type="ubyte"/>
     </compound>
 
+    <compound name="AttribData" inherit="MemStruct">
+        <add name="data" type="float" arr1="1" cond="#ARG#\dtype #EQ# 0"/>
+        <add name="data" type="float" arr1="2" cond="#ARG#\dtype #EQ# 1"/>
+        <add name="data" type="float" arr1="3" cond="#ARG#\dtype #EQ# 2"/>
+        <add name="data" type="float" arr1="4" cond="#ARG#\dtype #EQ# 3"/>
+        <add name="data" type="int" arr1="1" cond="#ARG#\dtype #EQ# 5"/>
+        <add name="data" type="int" arr1="1" cond="#ARG#\dtype #EQ# 6"/>
+    </compound>
+
+    <enum name="FgmDtype" numbytes="4" storage="uint" default="0">
+        dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}  # 4:"I", 8:"I"
+		<option value="0" name="Float" />
+		<option value="1" name="Vector2" />
+		<option value="2" name="Vector3" />
+		<option value="3" name="Vector4" />
+		<option value="5" name="Int32" />
+		<option value="6" name="Bool" />
+    </enum>
+
     <compound name="FgmHeader" inherit="MemStruct">
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
-        Sized str entry of 16 bytes, then ptrs, then padding
         <add name="texture_count" type="uint" until="15"/>
         <add name="texture_count" type="uint64" since="17"/>
         <add name="attribute_count" type="uint" until="15"/>
@@ -22,14 +40,14 @@
         followed by 32 bytes for 4 pointers, which are not always all used
         <add name="textures" type="ArrayPointer" template="TextureInfo" arg="texture_count"/>
         <add name="attributes" type="ArrayPointer" template="AttributeInfo" arg="attribute_count"/>
-        <add name="dependencies" type="Pointer"/>
-        <add name="data_lib" type="Pointer" />
+        <add name="dependencies" type="ForEachPointer" template="DependencyInfo" arg="textures"/>
+        <add name="data_lib" type="ForEachPointer" template="AttribData" arg="attributes"/>
         and finally 16 bytes, apparently unused
         <add name="unk 0" type="uint64"/>
         <add name="unk 1" type="uint64"/>
     </compound>
 
-	<compound name="TextureInfo" >
+	<compound name="TextureInfo" inherit="MemStruct">
 		part of fgm fragment, per texture involved
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
 		<add name="is textured" type="uint">7=has RGB 8=uses texture indices</add>
@@ -39,12 +57,15 @@
 		<add name="colors" type="Color" arr1="1" cond="is textured == 7" vercond="#ZTUAC#">Stores rgba color</add>
     </compound>
 
-	<compound name="AttributeInfo" >
+	<compound name="AttributeInfo" inherit="MemStruct">
 		part of fgm fragment, repeated per attribute
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
-		<add name="dtype" type="uint">6=bool 5=integer 0=float</add>
-		<add name="value offset" type="uint" >byte offset to first value in the 4th fragment entry</add>
-		<add name="zero" type="uint" ></add>
+        <add name="dtype" type="FgmDtype"/>
+		<add name="value offset" type="uint64" >byte offset to first value in the data_lib pointer</add>
+    </compound>
+
+	<compound name="DependencyInfo" inherit="MemStruct">
+		<add name="dependency_name" type="Pointer" cond="#ARG#\is_textured #EQ# 8">only present if textured</add>
     </compound>
 
     <compound name="FgmInfoHeader" inherit="GenericHeader">

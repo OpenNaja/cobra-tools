@@ -1,12 +1,9 @@
 from source.formats.base.basic import fmt_member
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class Color(MemStruct):
-
-	"""
-	4 bytes
-	"""
+class DependencyInfo(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -15,18 +12,15 @@ class Color(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.r = 0
-		self.g = 0
-		self.b = 0
-		self.a = 0
+
+		# only present if textured
+		self.dependency_name = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.r = 0
-		self.g = 0
-		self.b = 0
-		self.a = 0
+		if self.arg.is_textured == 8:
+			self.dependency_name = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -41,18 +35,15 @@ class Color(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.r = stream.read_ubyte()
-		instance.g = stream.read_ubyte()
-		instance.b = stream.read_ubyte()
-		instance.a = stream.read_ubyte()
+		if instance.arg.is_textured == 8:
+			instance.dependency_name = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.dependency_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.r)
-		stream.write_ubyte(instance.g)
-		stream.write_ubyte(instance.b)
-		stream.write_ubyte(instance.a)
+		if instance.arg.is_textured == 8:
+			Pointer.to_stream(stream, instance.dependency_name)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -70,15 +61,12 @@ class Color(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Color [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'DependencyInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* r = {fmt_member(self.r, indent+1)}'
-		s += f'\n	* g = {fmt_member(self.g, indent+1)}'
-		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
-		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
+		s += f'\n	* dependency_name = {fmt_member(self.dependency_name, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

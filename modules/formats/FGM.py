@@ -81,34 +81,34 @@ class FgmLoader(MemStructLoader):
 		# attributes_bytes += get_padding(len(attributes_bytes), alignment=16)
 		datas = (textures_bytes, attributes_bytes, fgm_data.data_bytes)
 		return datas, sizedstr_bytes
-
-	def extract(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
-		logging.info(f"Writing {name}")
-		buffer_data = self.sized_str_entry.data_entry.buffer_datas[0]
-
-		out_path = out_dir(name)
-		with open(out_path, 'wb') as outfile:
-
-			with ConvStream() as stream:
-				stream.write(self.pack_header(b"FGM "))
-				# we need this as its size is not predetermined
-				data_lib_f = self.header.data_lib.frag
-				data_lib_size = len(data_lib_f.struct_ptr.data) if data_lib_f else 0
-				stream.write(struct.pack("II", data_lib_size, len(self.file_entry.dependencies)))
-				stream.write(self.sized_str_entry.struct_ptr.data)
-				for tex in self.file_entry.dependencies:
-					stream.write(zstr(tex.basename.encode()))
-				if self.header.textures.data:
-					self.header.textures.data.write(stream)
-				if self.header.attributes.data:
-					self.header.attributes.data.write(stream)
-				if data_lib_size:
-					stream.write(data_lib_f.struct_ptr.data)
-				outfile.write(stream.getvalue())
-			# write the buffer
-			outfile.write(buffer_data)
-		return out_path,
+	#
+	# def extract(self, out_dir, show_temp_files, progress_callback):
+	# 	name = self.sized_str_entry.name
+	# 	logging.info(f"Writing {name}")
+	# 	buffer_data = self.sized_str_entry.data_entry.buffer_datas[0]
+	#
+	# 	out_path = out_dir(name)
+	# 	with open(out_path, 'wb') as outfile:
+	#
+	# 		with ConvStream() as stream:
+	# 			stream.write(self.pack_header(b"FGM "))
+	# 			# we need this as its size is not predetermined
+	# 			data_lib_f = self.header.data_lib.frag
+	# 			data_lib_size = len(data_lib_f.struct_ptr.data) if data_lib_f else 0
+	# 			stream.write(struct.pack("II", data_lib_size, len(self.file_entry.dependencies)))
+	# 			stream.write(self.sized_str_entry.struct_ptr.data)
+	# 			for tex in self.file_entry.dependencies:
+	# 				stream.write(zstr(tex.basename.encode()))
+	# 			if self.header.textures.data:
+	# 				self.header.textures.data.write(stream)
+	# 			if self.header.attributes.data:
+	# 				self.header.attributes.data.write(stream)
+	# 			if data_lib_size:
+	# 				stream.write(data_lib_f.struct_ptr.data)
+	# 			outfile.write(stream.getvalue())
+	# 		# write the buffer
+	# 		outfile.write(buffer_data)
+	# 	return out_path,
 
 	def _ptrs(self):
 		return self.header.textures, self.header.attributes, self.header.data_lib
