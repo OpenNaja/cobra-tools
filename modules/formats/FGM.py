@@ -36,9 +36,21 @@ class FgmLoader(MemStructLoader):
 			self.ptr_relative(self.header.dependencies.frag.link_ptr, self.root_ptr, rel_offset=rel_off)
 			self.ptr_relative(self.header.dependencies.frag.struct_ptr, self.file_entry.dependencies[0].link_ptr)
 
+	@staticmethod
+	def read_z_str(stream, pos):
+		stream.seek(pos)
+		return stream.read_zstring()
+
 	def collect(self):
 		super().collect()
 		self.header.debug_ptrs()
+		buffer_data = self.sized_str_entry.data_entry.buffer_datas[0]
+		stream = ConvStream(buffer_data)
+		self.header.shader_name = self.read_z_str(stream, 0)
+		for texture in self.header.textures.data:
+			texture.texture_name = self.read_z_str(stream, texture.offset)
+		for attrib in self.header.attributes.data:
+			attrib.attrib_name = self.read_z_str(stream, attrib.offset)
 		# print(self.header)
 
 	def load(self, file_path):
