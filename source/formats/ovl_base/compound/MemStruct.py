@@ -209,6 +209,7 @@ class MemStruct:
 		elif isinstance(val, (Array, ndarray)):
 			# create array elements
 			# print(f"array, len {len(elem)}")
+			# todo - support ndarray here
 			val[:] = [val.dtype(self._context, 0, val.template) for i in range(len(elem))]
 			# subelement with subelements
 			for subelem, member in zip(elem, val):
