@@ -204,13 +204,17 @@ class MemStruct:
 			else:
 				# print("other pointer")
 				logging.debug(f"Creating pointer.data = {val.template.__name__}()")
-				val.data = val.template(self._context, 0, val.arg)
+				val.data = val.template(self._context, 0, val.arg, set_default=False)
 			self._from_xml(val, elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, (Array, ndarray)):
 			# create array elements
 			# print(f"array, len {len(elem)}")
-			# todo - support ndarray here
-			val[:] = [val.dtype(self._context, 0, val.template) for i in range(len(elem))]
+			if isinstance(val, ndarray):
+				# todo - init from given dtype?
+				val.resize(len(elem), refcheck=False)
+				# print(val)
+			else:
+				val[:] = [val.dtype(self._context, 0, val.template, set_default=False) for i in range(len(elem))]
 			# subelement with subelements
 			for subelem, member in zip(elem, val):
 				self._from_xml(self, subelem, subelem.tag, member)

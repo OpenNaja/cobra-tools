@@ -48,14 +48,15 @@ class FgmLoader(MemStructLoader):
 		return names_writer.getvalue()
 
 	def load(self, file_path):
-		super().load(file_path)
-		self.sized_str_entry.data_entry.update_data((self.update_names_buffer(),))
-
-		# clear and create dependencies
+		# clear dependencies
 		self.file_entry.dependencies.clear()
+		super().load(file_path)
+		# todo - set shader_name, texture_name, attrib_name to be able to update the buffer
+		# self.sized_str_entry.data_entry.update_data((self.update_names_buffer(),))
+
+		# todo - automatically create dependency from MemStruct
 		for tex_name in self.get_deps_names():
 			self.create_dependency(f"{tex_name}.tex")
-		# todo - make sure they point to the right data, or ensure that the pointer is written as a dependency pointer
 
 	def get_deps_names(self):
 		return [dep.data for dep in self.header.dependencies.data if dep.data]
