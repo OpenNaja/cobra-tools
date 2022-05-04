@@ -58,7 +58,7 @@
         # can point to data of changing size
         template has to be defined according to data type ie 'AnimationActivity' + 'Data'
         <add name="ptr" type="Pointer" />
-<!--        <add name="ptr" type="Pointer" template="ActivityData" arg="data_type\data"/>-->
+<!--        <add name="pointer" type="Pointer" template="ActivityData" arg="data_type\data"/>-->
         <add name="count_2" type="uint64"/>
         <add name="count_3" type="uint64"/>
         <add name="minus one" type="int64"/>
@@ -383,6 +383,7 @@
         16 bytes
         <add name="float" type="float"/>
         <add name="OptionalVarAndCurve count" type="uint" />
+        # todo - check presence and layout
         <add name="OptionalVarAndCurve" type="uint64" />
     </compound>
 

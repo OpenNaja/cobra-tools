@@ -1,18 +1,16 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class Color:
+class Color(MemStruct):
 
 	"""
 	4 bytes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -42,6 +40,7 @@ class Color:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.r = stream.read_ubyte()
 		instance.g = stream.read_ubyte()
 		instance.b = stream.read_ubyte()
@@ -49,6 +48,7 @@ class Color:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_ubyte(instance.r)
 		stream.write_ubyte(instance.g)
 		stream.write_ubyte(instance.b)
@@ -74,6 +74,7 @@ class Color:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* r = {fmt_member(self.r, indent+1)}'
 		s += f'\n	* g = {fmt_member(self.g, indent+1)}'
 		s += f'\n	* b = {fmt_member(self.b, indent+1)}'

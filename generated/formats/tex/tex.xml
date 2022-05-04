@@ -110,6 +110,7 @@
     <enum name="DdsTypeCoaster" storage="ubyte">
 		maps the OVL's dds type to name of compression format
 		<option value="74" name="D24_UNORM_S8_UINT">ZTUAC ele heights textures</option>
+		<option value="76" name="D24_UNORM_S8_UINT_B">?</option>
 		<option value="97" name="BC1_UNORM"></option>
 		<option value="98" name="BC1_UNORM_SRGB"></option>
 		<option value="99" name="BC2_UNORM"></option>
@@ -128,7 +129,7 @@
 		<option value="250" name="ALL"></option>
     </enum>
 
-	<compound name="TexBuffer" >
+	<compound name="TexBuffer" inherit="MemStruct" >
 		Part of a fragment, repeated for count of texture LODs / buffers.
 		Data struct for headers of type 3
 		24 bytes per texture buffer
@@ -137,14 +138,14 @@
 		<add name="unkn" type="uint64">is also related to data size</add>
     </compound>
 
-	<compound name="TexBufferPc" >
+	<compound name="TexBufferPc" inherit="MemStruct" >
 		<add name="width" type="ushort"/>
 		<add name="height" type="ushort"/>
 		<add name="array size" type="ushort" vercond="!#ZTUAC#">may be depth</add>
 		<add name="mip index" type="ushort">max mip in this buffer</add>
     </compound>
 
-	<compound name="SizeInfo" >
+	<compound name="SizeInfo" inherit="MemStruct" >
 		Data struct for headers of type 7
 		<add name="zero" type="uint64">zero</add>
 		<add name="data size" type="uint" >total dds buffer size</add>
@@ -157,7 +158,7 @@
 		<add name="mip maps" type="Mipmap" arr1="num mips">info about mip levels</add>
     </compound>
 
-	<compound name="Mipmap" >
+	<compound name="Mipmap" inherit="MemStruct">
 		Data struct for one mipmap, part of a data 1 struct in headers of type 7
 		<add name="offset" type="uint">starting offset into the texture buffer for this mip level</add>
 		<add name="size" type="uint" >bytes for one array entry</add>

@@ -1,7 +1,9 @@
 from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
-from generated.formats.bnk.compound.Type2 import Type2
+from generated.formats.bnk.compound.MusicTrack import MusicTrack
+from generated.formats.bnk.compound.SoundSfxVoice import SoundSfxVoice
 from generated.formats.bnk.compound.TypeOther import TypeOther
+from generated.formats.bnk.enum.HircType import HircType
 
 
 class HircPointer:
@@ -15,19 +17,20 @@ class HircPointer:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# length of following data
-		self.id = 0
-		self.data = Type2(self.context, 0, None)
+		self.id = HircType(self.context, 0, None)
+		self.data = SoundSfxVoice(self.context, 0, None)
+		self.data = MusicTrack(self.context, 0, None)
 		self.data = TypeOther(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.id = 0
+		self.id = HircType(self.context, 0, None)
 		if self.id == 2:
-			self.data = Type2(self.context, 0, None)
-		if self.id != 2:
+			self.data = SoundSfxVoice(self.context, 0, None)
+		if self.id == 11:
+			self.data = MusicTrack(self.context, 0, None)
+		if (self.id != 2) and (self.id != 11):
 			self.data = TypeOther(self.context, 0, None)
 
 	def read(self, stream):
@@ -42,18 +45,22 @@ class HircPointer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.id = stream.read_byte()
+		instance.id = HircType.from_value(stream.read_ubyte())
 		if instance.id == 2:
-			instance.data = Type2.from_stream(stream, instance.context, 0, None)
-		if instance.id != 2:
+			instance.data = SoundSfxVoice.from_stream(stream, instance.context, 0, None)
+		if instance.id == 11:
+			instance.data = MusicTrack.from_stream(stream, instance.context, 0, None)
+		if (instance.id != 2) and (instance.id != 11):
 			instance.data = TypeOther.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_byte(instance.id)
+		stream.write_ubyte(instance.id.value)
 		if instance.id == 2:
-			Type2.to_stream(stream, instance.data)
-		if instance.id != 2:
+			SoundSfxVoice.to_stream(stream, instance.data)
+		if instance.id == 11:
+			MusicTrack.to_stream(stream, instance.data)
+		if (instance.id != 2) and (instance.id != 11):
 			TypeOther.to_stream(stream, instance.data)
 
 	@classmethod

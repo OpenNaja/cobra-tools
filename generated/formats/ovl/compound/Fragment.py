@@ -1,5 +1,4 @@
 from source.formats.base.basic import fmt_member
-from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
@@ -7,10 +6,7 @@ from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 class Fragment:
 
 	"""
-	These are to be thought of as instructions for loading.
-	Their order is irrelevant.
-	pointers[0] determines where to write a pointer
-	pointers[1] describes the address that is written at pointers[0]
+	These are to be thought of as instructions for loading. Their order is irrelevant.
 	"""
 
 	context = ContextReference()
@@ -23,13 +19,17 @@ class Fragment:
 		self.io_size = 0
 		self.io_start = 0
 
-		# points into pools
-		self.pointers = Array((2,), HeaderPointer, self.context, 0, None)
+		# determines where to write a pointer address
+		self.link_ptr = HeaderPointer(self.context, 0, None)
+
+		# the struct that is pointed to can be found here
+		self.struct_ptr = HeaderPointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.pointers = Array((2,), HeaderPointer, self.context, 0, None)
+		self.link_ptr = HeaderPointer(self.context, 0, None)
+		self.struct_ptr = HeaderPointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -43,11 +43,13 @@ class Fragment:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.pointers = Array.from_stream(stream, (2,), HeaderPointer, instance.context, 0, None)
+		instance.link_ptr = HeaderPointer.from_stream(stream, instance.context, 0, None)
+		instance.struct_ptr = HeaderPointer.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		Array.to_stream(stream, instance.pointers, (2,), HeaderPointer, instance.context, 0, None)
+		HeaderPointer.to_stream(stream, instance.link_ptr)
+		HeaderPointer.to_stream(stream, instance.struct_ptr)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -69,7 +71,8 @@ class Fragment:
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* pointers = {fmt_member(self.pointers, indent+1)}'
+		s += f'\n	* link_ptr = {fmt_member(self.link_ptr, indent+1)}'
+		s += f'\n	* struct_ptr = {fmt_member(self.struct_ptr, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

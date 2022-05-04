@@ -73,6 +73,7 @@ class ModelReader:
 				try:
 					i = instance.assign_bone_info(i, model_info, stream)
 				except:
+					traceback.print_exc()
 					raise AttributeError(f"Bone info {i} failed")
 		instance.io_size = stream.tell() - instance.io_start
 
@@ -147,11 +148,14 @@ class ModelReader:
 		logging.debug(f"padding: {padding_len} aligned to {alignment}")
 
 	def read_hitcheck_verts(self, bone_info, stream):
-		logging.debug(f"Reading additional hitcheck data")
-		for hitcheck in self.get_hitchecks(bone_info):
-			if hitcheck.type in (CollisionType.ConvexHullPC, CollisionType.ConvexHull):
-				logging.debug(f"Reading vertices for {hitcheck.type}")
-				hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
+		try:
+			logging.debug(f"Reading additional hitcheck data")
+			for hitcheck in self.get_hitchecks(bone_info):
+				if hitcheck.type in (CollisionType.ConvexHullPC, CollisionType.ConvexHull):
+					logging.debug(f"Reading vertices for {hitcheck.type}")
+					hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
+		except BaseException:
+			logging.error(f"Reading hitchecks failed")
 
 	def write_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Writing additional hitcheck data")

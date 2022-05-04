@@ -1,10 +1,12 @@
 from source.formats.base.basic import fmt_member
-from generated.array import Array
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
-from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
-class DataList(MemStruct):
+class FloatData(MemStruct):
+
+	"""
+	16 bytes in log
+	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -13,12 +15,18 @@ class DataList(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ptrs = Array((self.arg,), Pointer, self.context, 0, None)
+		self.imin = 0.0
+		self.imax = 0.0
+		self.ivalue = 0.0
+		self.ioptional = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.ptrs = Array((self.arg,), Pointer, self.context, 0, None)
+		self.imin = 0.0
+		self.imax = 0.0
+		self.ivalue = 0.0
+		self.ioptional = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -33,13 +41,18 @@ class DataList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ptrs = Array.from_stream(stream, (instance.arg,), Pointer, instance.context, 0, None)
-		instance.ptrs.arg = 0
+		instance.imin = stream.read_float()
+		instance.imax = stream.read_float()
+		instance.ivalue = stream.read_float()
+		instance.ioptional = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, (instance.arg,), Pointer, instance.context, 0, None)
+		stream.write_float(instance.imin)
+		stream.write_float(instance.imax)
+		stream.write_float(instance.ivalue)
+		stream.write_uint(instance.ioptional)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -57,12 +70,15 @@ class DataList(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'DataList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'FloatData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ptrs = {fmt_member(self.ptrs, indent+1)}'
+		s += f'\n	* imin = {fmt_member(self.imin, indent+1)}'
+		s += f'\n	* imax = {fmt_member(self.imax, indent+1)}'
+		s += f'\n	* ivalue = {fmt_member(self.ivalue, indent+1)}'
+		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

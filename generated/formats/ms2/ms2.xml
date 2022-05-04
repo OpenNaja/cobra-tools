@@ -431,7 +431,7 @@
 		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="32">60 bytes per entry</add>
 		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
 <!--		<add name="joint debug" type="StreamDebugger" >joints</add>-->
-		<add name="alignment" type="uint64" cond="flag" since="51">jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
+		<add name="alignment" type="uint64" cond="flag" since="50">latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
 	</compound>
 
 	<compound name="UACJoint">

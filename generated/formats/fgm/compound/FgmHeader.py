@@ -1,16 +1,17 @@
 from source.formats.base.basic import fmt_member
+import generated.formats.fgm.compound.AttribData
 import generated.formats.fgm.compound.AttributeInfo
+import generated.formats.fgm.compound.DependencyInfo
 import generated.formats.fgm.compound.TextureInfo
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
+from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
-from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
 class FgmHeader(MemStruct):
 
 	"""
 	# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
-	Sized str entry of 16 bytes, then ptrs, then padding
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -28,8 +29,8 @@ class FgmHeader(MemStruct):
 		self.unk_1 = 0
 		self.textures = ArrayPointer(self.context, self.texture_count, generated.formats.fgm.compound.TextureInfo.TextureInfo)
 		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compound.AttributeInfo.AttributeInfo)
-		self.dependencies = Pointer(self.context, 0, None)
-		self.data_lib = Pointer(self.context, 0, None)
+		self.dependencies = ForEachPointer(self.context, self.textures, generated.formats.fgm.compound.DependencyInfo.DependencyInfo)
+		self.data_lib = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compound.AttribData.AttribData)
 		if set_default:
 			self.set_defaults()
 
@@ -46,8 +47,8 @@ class FgmHeader(MemStruct):
 		self.unk_1 = 0
 		self.textures = ArrayPointer(self.context, self.texture_count, generated.formats.fgm.compound.TextureInfo.TextureInfo)
 		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compound.AttributeInfo.AttributeInfo)
-		self.dependencies = Pointer(self.context, 0, None)
-		self.data_lib = Pointer(self.context, 0, None)
+		self.dependencies = ForEachPointer(self.context, self.textures, generated.formats.fgm.compound.DependencyInfo.DependencyInfo)
+		self.data_lib = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compound.AttribData.AttribData)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -72,14 +73,14 @@ class FgmHeader(MemStruct):
 			instance.attribute_count = stream.read_uint64()
 		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance.texture_count, generated.formats.fgm.compound.TextureInfo.TextureInfo)
 		instance.attributes = ArrayPointer.from_stream(stream, instance.context, instance.attribute_count, generated.formats.fgm.compound.AttributeInfo.AttributeInfo)
-		instance.dependencies = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.data_lib = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.dependencies = ForEachPointer.from_stream(stream, instance.context, instance.textures, generated.formats.fgm.compound.DependencyInfo.DependencyInfo)
+		instance.data_lib = ForEachPointer.from_stream(stream, instance.context, instance.attributes, generated.formats.fgm.compound.AttribData.AttribData)
 		instance.unk_0 = stream.read_uint64()
 		instance.unk_1 = stream.read_uint64()
 		instance.textures.arg = instance.texture_count
 		instance.attributes.arg = instance.attribute_count
-		instance.dependencies.arg = 0
-		instance.data_lib.arg = 0
+		instance.dependencies.arg = instance.textures
+		instance.data_lib.arg = instance.attributes
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -94,8 +95,8 @@ class FgmHeader(MemStruct):
 			stream.write_uint64(instance.attribute_count)
 		ArrayPointer.to_stream(stream, instance.textures)
 		ArrayPointer.to_stream(stream, instance.attributes)
-		Pointer.to_stream(stream, instance.dependencies)
-		Pointer.to_stream(stream, instance.data_lib)
+		ForEachPointer.to_stream(stream, instance.dependencies)
+		ForEachPointer.to_stream(stream, instance.data_lib)
 		stream.write_uint64(instance.unk_0)
 		stream.write_uint64(instance.unk_1)
 

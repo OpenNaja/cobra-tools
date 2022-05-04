@@ -1,14 +1,12 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class TexBufferPc:
-
-	context = ContextReference()
+class TexBufferPc(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -43,6 +41,7 @@ class TexBufferPc:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.width = stream.read_ushort()
 		instance.height = stream.read_ushort()
 		if not (instance.context.version == 17):
@@ -51,6 +50,7 @@ class TexBufferPc:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_ushort(instance.width)
 		stream.write_ushort(instance.height)
 		if not (instance.context.version == 17):
@@ -77,6 +77,7 @@ class TexBufferPc:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* width = {fmt_member(self.width, indent+1)}'
 		s += f'\n	* height = {fmt_member(self.height, indent+1)}'
 		s += f'\n	* array_size = {fmt_member(self.array_size, indent+1)}'

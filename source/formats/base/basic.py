@@ -101,6 +101,7 @@ Int64 = class_from_struct(Struct("<q"), lambda value: (int(value) + 922337203685
 Short = class_from_struct(Struct("<h"), lambda value: (int(value) + 32768) % 65536 - 32768)
 Char = Byte
 Float = class_from_struct(Struct("<f"), float)
+Double = class_from_struct(Struct("<d"), float)
 
 
 # @staticmethod
@@ -111,9 +112,11 @@ def r_zstr(rfunc):
     while char != b'\x00':
         i += 1
         if i > MAX_LEN:
-            raise ValueError('string too long')
+            raise ValueError(f'string too long')
         val += char
         char = rfunc(1)
+        if not char:
+            raise ValueError('Reached end of file before end of zstring')
     return val.decode(errors="surrogateescape")
 
 

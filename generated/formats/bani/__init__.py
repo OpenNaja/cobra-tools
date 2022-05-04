@@ -1,6 +1,6 @@
 from generated.formats.bani.basic import basic_map
 from generated.formats.bani.compound.BaniInfoHeader import BaniInfoHeader
-from generated.formats.bani.compound.BanisHeader import BanisHeader
+from generated.formats.bani.compound.BanisRoot import BanisRoot
 from generated.io import IoFile
 import os
 
@@ -121,7 +121,7 @@ class BaniFile(BaniInfoHeader, IoFile):
 		# got to write the banis too
 
 
-class BanisFile(BanisHeader, IoFile):
+class BanisFile(BanisRoot, IoFile):
 
 	def __init__(self):
 		super().__init__(BaniContext())

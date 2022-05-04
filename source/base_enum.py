@@ -27,3 +27,11 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 	def __int__(self):
 		return self.value
 	pass
+
+	@classmethod
+	def from_str(cls, label):
+		"""Creates the enum from its str representation"""
+		assert "." in label
+		value = label.split(".")[-1]
+		enum = cls[value]
+		return enum

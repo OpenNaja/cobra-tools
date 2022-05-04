@@ -3,18 +3,13 @@ import numpy
 from generated.context import ContextReference
 
 
-class Type2:
-
-	"""
-	Sound SFX/Sound Voice
-	02 -- identifier for Sound SFX section
-	"""
+class SoundSfxVoice:
 
 	context = ContextReference()
 
 	def set_defaults(self):
 		self.length = 0
-		self.sfx_id = 0
+		self.id = 0
 		self.const_a = 0
 		self.const_b = 0
 		self.didx_id = 0
@@ -34,7 +29,7 @@ class Type2:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.length = stream.read_uint()
-		instance.sfx_id = stream.read_uint()
+		instance.id = stream.read_uint()
 		instance.const_a = stream.read_uint()
 		instance.const_b = stream.read_byte()
 		instance.didx_id = stream.read_uint()
@@ -44,7 +39,7 @@ class Type2:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_uint(instance.length)
-		stream.write_uint(instance.sfx_id)
+		stream.write_uint(instance.id)
 		stream.write_uint(instance.const_a)
 		stream.write_byte(instance.const_b)
 		stream.write_uint(instance.didx_id)
@@ -67,12 +62,12 @@ class Type2:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Type2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'SoundSfxVoice [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
-		s += f'\n	* sfx_id = {fmt_member(self.sfx_id, indent+1)}'
+		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
 		s += f'\n	* const_a = {fmt_member(self.const_a, indent+1)}'
 		s += f'\n	* const_b = {fmt_member(self.const_b, indent+1)}'
 		s += f'\n	* didx_id = {fmt_member(self.didx_id, indent+1)}'

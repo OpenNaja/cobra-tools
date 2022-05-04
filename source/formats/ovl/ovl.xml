@@ -111,7 +111,7 @@
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
         <add name="offset" type="uint" >offset for extension into string name table</add>
         <add name="file index" type="uint" >index into ovl file table, points to the file entry where this dependency is used</add>
-        <add name="pointers" type="HeaderPointer" arr1="1" >pointer into flattened list of all archives' pools</add>
+        <add name="link_ptr" type="HeaderPointer" >pointer into flattened list of all archives' pools</add>
     </compound>
 
     <compound name="AuxEntry" >
@@ -203,8 +203,7 @@
 
 	<compound name="HeaderPointer" >
 		Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
-		8 bytes
-        <add name="pool_index" type="int" >The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)</add>
+        <add name="pool_index" type="int" >The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
         <add name="data offset" type="uint" >the byte offset relative to the start of the header entry data</add>
     </compound>
 	
@@ -212,15 +211,13 @@
         Main file entry in the ovs
         <add name="File Hash" type="uint">id (index or djb) of the file</add>
         <add name="Ext Hash" type="uint" since="19">djb of extension</add>
-        <add name="pointers" type="HeaderPointer" arr1="1" >one pointer OR -1 pointer for assets</add>
+        <add name="struct_ptr" type="HeaderPointer" >one pointer OR -1 pointer for assets</add>
     </compound>
 	
     <compound name="Fragment" >
-		These are to be thought of as instructions for loading.
-        Their order is irrelevant.
-        pointers[0] determines where to write a pointer
-        pointers[1] describes the address that is written at pointers[0]
-        <add name="pointers" type="HeaderPointer" arr1="2" >points into pools</add>
+		These are to be thought of as instructions for loading. Their order is irrelevant.
+        <add name="link_ptr" type="HeaderPointer" >determines where to write a pointer address</add>
+        <add name="struct_ptr" type="HeaderPointer" >the struct that is pointed to can be found here</add>
     </compound>
 	
 	<compound name="SetHeader" >

@@ -32,7 +32,7 @@
         <add name="script_count" type="ubyte" />
         <add name="attrib_dtypes" type="ArrayPointer" template="SpecdefDtype" arg="attrib_count"/>
         <add name="attrib_names" type="Pointer" template="PtrList" arg="attrib_count"/>
-        <add name="attrib_datas" type="ForEachPointer" template="Data" arg="attrib_dtypes"/>
+        <add name="attrib_datas" type="ForEachPointer" template="DataPtr" arg="attrib_dtypes"/>
 
         <add name="names" type="Pointer" template="PtrList" arg="name_count"/>
         <add name="childspecs" type="Pointer" template="PtrList" arg="childspec_count"/>
@@ -40,24 +40,165 @@
         <add name="scripts" type="Pointer" template="PtrList" arg="script_count"/>
     </compound>
 
-    <compound name="DataList" inherit="MemStruct">
-        <add name="ptrs" type="Pointer" arr1="#ARG#"/>
-    </compound>
-
     <compound name="PtrList" inherit="MemStruct">
         <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>
 
-    <compound name="Data" inherit="MemStruct">
+    <compound name="DataPtr" inherit="MemStruct">
         #ARG# is dtype
-        <add name="test" type="uint"/>
+        <add name="ptr" type="Pointer" template="Data" arg="#ARG#"/>
     </compound>
 
-    <compound name="DtypeList" inherit="MemStruct">
-<!--        <add name="dtypes" type="SpecdefDtype" arr1="#ARG#"/>-->
-        <add name="dtypes" type="uint" arr1="#ARG#"/>
-        works
-<!--        <add name="dtypes" type="SpecdefDtype" />-->
+    <compound name="Data" inherit="MemStruct">
+        #ARG# is dtype
+        todo - enum, grab, implement, fetch
+        <add name="dtype" type="BooleanData" cond="#ARG# #EQ# 0"/>
+        <add name="dtype" type="Int8Data" cond="#ARG# #EQ# 1"/>
+        <add name="dtype" type="Int16Data" cond="#ARG# #EQ# 2"/>
+        <add name="dtype" type="Int32Data" cond="#ARG# #EQ# 3"/>
+        <add name="dtype" type="Int64Data" cond="#ARG# #EQ# 4"/>
+        <add name="dtype" type="Uint8Data" cond="#ARG# #EQ# 5"/>
+        <add name="dtype" type="Uint16Data" cond="#ARG# #EQ# 6"/>
+        <add name="dtype" type="Uint32Data" cond="#ARG# #EQ# 7"/>
+        <add name="dtype" type="Uint64Data" cond="#ARG# #EQ# 8"/>
+        <add name="dtype" type="FloatData" cond="#ARG# #EQ# 9"/>
+        <add name="dtype" type="StringData" cond="#ARG# #EQ# 10"/>
+        <add name="dtype" type="Vector2" cond="#ARG# #EQ# 11"/>
+        <add name="dtype" type="Vector3" cond="#ARG# #EQ# 12"/>
+        <add name="dtype" type="ArrayData" cond="#ARG# #EQ# 13"/>
+        <add name="dtype" type="ChildSpecData" cond="#ARG# #EQ# 14"/>
+        <add name="dtype" type="ReferenceToObjectData" cond="#ARG# #EQ# 15"/>
+    </compound>
+
+    <compound name="BooleanData" inherit="MemStruct">
+        8 bytes in log
+        <add name="value" type="ubyte"/>
+        <add name="default" type="ubyte"/>
+        <add name="unused" type="ubyte" arr1="6"/>
+    </compound>
+
+    <compound name="Int8Data" inherit="MemStruct">
+        8 bytes
+        <add name="imin" type="byte"/>
+        <add name="imax" type="byte"/>
+        <add name="ivalue" type="byte"/>
+        <add name="ioptional" type="byte"/>
+        <add name="unused" type="ubyte" arr1="4"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Int16Data" inherit="MemStruct">
+        8 bytes
+        <add name="imin" type="short"/>
+        <add name="imax" type="short"/>
+        <add name="ivalue" type="short"/>
+        <add name="ioptional" type="short"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Int32Data" inherit="MemStruct">
+        16 bytes
+        <add name="imin" type="int"/>
+        <add name="imax" type="int"/>
+        <add name="ivalue" type="int"/>
+        <add name="ioptional" type="int"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Int64Data" inherit="MemStruct">
+        48 bytes in log
+        <add name="imin" type="int64"/>
+        <add name="imax" type="int64"/>
+        <add name="ivalue" type="int64"/>
+        <add name="ioptional" type="int64"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Uint8Data" inherit="MemStruct">
+        24 bytes in log
+        <add name="imin" type="ubyte"/>
+        <add name="imax" type="ubyte"/>
+        <add name="ivalue" type="ubyte"/>
+        <add name="ioptional" type="ubyte"/>
+        <add name="unused" type="ubyte" arr1="4"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Uint16Data" inherit="MemStruct">
+        24 bytes in log
+        <add name="imin" type="ushort"/>
+        <add name="imax" type="ushort"/>
+        <add name="ivalue" type="ushort"/>
+        <add name="ioptional" type="ushort"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Uint32Data" inherit="MemStruct">
+        32 in log with enum
+        <add name="imin" type="uint"/>
+        <add name="imax" type="uint"/>
+        <add name="ivalue" type="uint"/>
+        <add name="ioptional" type="uint"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="Uint64Data" inherit="MemStruct">
+        48 bytes in log
+        <add name="imin" type="uint64"/>
+        <add name="imax" type="uint64"/>
+        <add name="ivalue" type="uint64"/>
+        <add name="ioptional" type="uint64"/>
+        <add name="enum" type="Pointer" />
+    </compound>
+
+    <compound name="FloatData" inherit="MemStruct">
+        16 bytes in log
+        <add name="imin" type="float"/>
+        <add name="imax" type="float"/>
+        <add name="ivalue" type="float"/>
+        <add name="ioptional" type="uint"/>
+    </compound>
+
+    <compound name="StringData" inherit="MemStruct">
+        16 bytes in log
+        <add name="str_name" type="Pointer" template="ZString" />
+        <add name="ioptional" type="uint"/>
+    </compound>
+
+    <compound name="ReferenceToObjectData" inherit="MemStruct">
+        16 bytes in log
+        <add name="obj_name" type="Pointer" template="ZString" />
+        <add name="ioptional" type="uint"/>
+    </compound>
+
+    <compound name="ArrayData" inherit="MemStruct">
+        16 bytes in log
+        <add name="item" type="Pointer" template="Data" arg="dtype"/>
+        <add name="dtype" type="SpecdefDtype" />
+        <add name="unused" type="uint" />
+    </compound>
+
+    <compound name="ChildSpecData" inherit="MemStruct">
+        8 bytes
+        eg. spineflex.specdef points to dependency for another specdef
+        eg. flatridecontroller.specdef points to SpecdefRoot
+        <add name="specdef" type="Pointer" template="SpecdefRoot"/>
+    </compound>
+
+    <compound name="Vector2" inherit="MemStruct">
+        16 bytes
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="ioptional" type="uint"/>
+        <add name="unused" type="uint"/>
+    </compound>
+
+    <compound name="Vector3" inherit="MemStruct">
+        16 bytes in log
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="z" type="float"/>
+        <add name="ioptional" type="uint"/>
     </compound>
 
 </niftoolsxml>

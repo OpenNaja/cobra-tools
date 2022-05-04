@@ -69,7 +69,7 @@
 	<!-- Structs for the OVL file -->
 
     <compound name="Pointer" >
-        a pointer in an ovl memory layout
+        a pointer in an ovl memory layout, can point to a struct or a dependency entry
         <add name="offset" type="uint64"/>
     </compound>
 

@@ -1,18 +1,16 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class Mipmap:
+class Mipmap(MemStruct):
 
 	"""
 	Data struct for one mipmap, part of a data 1 struct in headers of type 7
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -54,6 +52,7 @@ class Mipmap:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.offset = stream.read_uint()
 		instance.size = stream.read_uint()
 		instance.size_array = stream.read_uint()
@@ -62,6 +61,7 @@ class Mipmap:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.offset)
 		stream.write_uint(instance.size)
 		stream.write_uint(instance.size_array)
@@ -88,6 +88,7 @@ class Mipmap:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
 		s += f'\n	* size_array = {fmt_member(self.size_array, indent+1)}'

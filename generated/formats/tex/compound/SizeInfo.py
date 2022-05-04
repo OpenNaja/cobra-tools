@@ -1,20 +1,18 @@
 from source.formats.base.basic import fmt_member
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.tex.compound.Mipmap import Mipmap
 
 
-class SizeInfo:
+class SizeInfo(MemStruct):
 
 	"""
 	Data struct for headers of type 7
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -73,6 +71,7 @@ class SizeInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.zero = stream.read_uint64()
 		instance.data_size = stream.read_uint()
 		instance.width = stream.read_uint()
@@ -86,6 +85,7 @@ class SizeInfo:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64(instance.zero)
 		stream.write_uint(instance.data_size)
 		stream.write_uint(instance.width)
@@ -117,6 +117,7 @@ class SizeInfo:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		s += f'\n	* data_size = {fmt_member(self.data_size, indent+1)}'
 		s += f'\n	* width = {fmt_member(self.width, indent+1)}'

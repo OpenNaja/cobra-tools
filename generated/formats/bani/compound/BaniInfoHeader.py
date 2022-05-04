@@ -1,7 +1,7 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
-from generated.formats.bani.compound.BaniFragmentData0 import BaniFragmentData0
+from generated.formats.bani.compound.BaniRoot import BaniRoot
 
 
 class BaniInfoHeader:
@@ -26,14 +26,14 @@ class BaniInfoHeader:
 
 		# name of the banis file buffer
 		self.banis_name = ''
-		self.data = BaniFragmentData0(self.context, 0, None)
+		self.data = BaniRoot(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.magic = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 		self.banis_name = ''
-		self.data = BaniFragmentData0(self.context, 0, None)
+		self.data = BaniRoot(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -49,13 +49,13 @@ class BaniInfoHeader:
 	def read_fields(cls, stream, instance):
 		instance.magic = stream.read_bytes((4,))
 		instance.banis_name = stream.read_zstring()
-		instance.data = BaniFragmentData0.from_stream(stream, instance.context, 0, None)
+		instance.data = BaniRoot.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_bytes(instance.magic)
 		stream.write_zstring(instance.banis_name)
-		BaniFragmentData0.to_stream(stream, instance.data)
+		BaniRoot.to_stream(stream, instance.data)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

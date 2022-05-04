@@ -5,7 +5,7 @@ from generated.context import ContextReference
 class DataPointer:
 
 	"""
-	second Section of a soundback aux
+	second Section of a soundbank aux
 	"""
 
 	context = ContextReference()

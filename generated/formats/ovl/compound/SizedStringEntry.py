@@ -1,5 +1,4 @@
 from source.formats.base.basic import fmt_member
-from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
@@ -27,7 +26,7 @@ class SizedStringEntry:
 		self.ext_hash = 0
 
 		# one pointer OR -1 pointer for assets
-		self.pointers = Array((1,), HeaderPointer, self.context, 0, None)
+		self.struct_ptr = HeaderPointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -35,7 +34,7 @@ class SizedStringEntry:
 		self.file_hash = 0
 		if self.context.version >= 19:
 			self.ext_hash = 0
-		self.pointers = Array((1,), HeaderPointer, self.context, 0, None)
+		self.struct_ptr = HeaderPointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -52,14 +51,14 @@ class SizedStringEntry:
 		instance.file_hash = stream.read_uint()
 		if instance.context.version >= 19:
 			instance.ext_hash = stream.read_uint()
-		instance.pointers = Array.from_stream(stream, (1,), HeaderPointer, instance.context, 0, None)
+		instance.struct_ptr = HeaderPointer.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_uint(instance.file_hash)
 		if instance.context.version >= 19:
 			stream.write_uint(instance.ext_hash)
-		Array.to_stream(stream, instance.pointers, (1,), HeaderPointer, instance.context, 0, None)
+		HeaderPointer.to_stream(stream, instance.struct_ptr)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -83,7 +82,7 @@ class SizedStringEntry:
 		s = ''
 		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
 		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
-		s += f'\n	* pointers = {fmt_member(self.pointers, indent+1)}'
+		s += f'\n	* struct_ptr = {fmt_member(self.struct_ptr, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

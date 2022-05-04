@@ -6,29 +6,10 @@ from generated.context import ContextReference
 class BKHDSection:
 
 	"""
-	First Section of a soundback aux
+	First Section of a soundbank aux
 	"""
 
 	context = ContextReference()
-
-	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-
-		# length of following data
-		self.length = 0
-		self.version = 0
-		self.id_a = 0
-		self.id_b = 0
-		self.constant_a = 0
-		self.constant_b = 0
-		self.unk = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
-		if set_default:
-			self.set_defaults()
 
 	def set_defaults(self):
 		self.length = 0
@@ -37,7 +18,8 @@ class BKHDSection:
 		self.id_b = 0
 		self.constant_a = 0
 		self.constant_b = 0
-		self.unk = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
+		self.unk = 0
+		self.zeroes = numpy.zeros((self.length - 24,), dtype=numpy.dtype('uint8'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -58,7 +40,8 @@ class BKHDSection:
 		instance.id_b = stream.read_uint()
 		instance.constant_a = stream.read_uint()
 		instance.constant_b = stream.read_uint()
-		instance.unk = stream.read_uints((2,))
+		instance.unk = stream.read_uint()
+		instance.zeroes = stream.read_ubytes((instance.length - 24,))
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -68,7 +51,8 @@ class BKHDSection:
 		stream.write_uint(instance.id_b)
 		stream.write_uint(instance.constant_a)
 		stream.write_uint(instance.constant_b)
-		stream.write_uints(instance.unk)
+		stream.write_uint(instance.unk)
+		stream.write_ubytes(instance.zeroes)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -97,6 +81,7 @@ class BKHDSection:
 		s += f'\n	* constant_a = {fmt_member(self.constant_a, indent+1)}'
 		s += f'\n	* constant_b = {fmt_member(self.constant_b, indent+1)}'
 		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
+		s += f'\n	* zeroes = {fmt_member(self.zeroes, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
@@ -104,3 +89,25 @@ class BKHDSection:
 		s += self.get_fields_str(indent)
 		s += '\n'
 		return s
+
+	def __init__(self, context, arg=0, template=None, set_default=True):
+		self.name = ''
+		self._context = context
+		self.arg = arg
+		self.template = template
+		self.io_size = 0
+		self.io_start = 0
+
+		# length of following data
+		self.length = 0
+		self.version = 0
+		self.id_a = 0
+		self.id_b = 0
+		self.constant_a = 0
+		self.constant_b = 0
+		self.unk = 0
+
+		# sometimes present
+		# self.zeroes = numpy.zeros((self.length - 24,), dtype=numpy.dtype('uint8'))
+
+

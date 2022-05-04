@@ -1,3 +1,8 @@
+
+import struct
+from generated.context import ContextReference
+# from generated.formats.ovl.compound.Fragment import Fragment
+
 from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
@@ -5,7 +10,7 @@ from generated.context import ContextReference
 class Pointer:
 
 	"""
-	a pointer in an ovl memory layout
+	a pointer in an ovl memory layout, can point to a struct or a dependency entry
 	"""
 
 	context = ContextReference()
@@ -58,6 +63,7 @@ class Pointer:
 		# self.data = template(context, arg=0, template=None)
 		self.data = None
 		self.frag = None
+		self.pool_type = None
 		if set_default:
 			self.set_defaults()
 
@@ -70,30 +76,35 @@ class Pointer:
 		s += f'\n	* data = {self.data.__repr__()}'
 		return s
 
-	def read_ptr(self, pool, sized_str_entry):
+	def read_ptr(self, pool):  # , sized_str_entry):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
 		# find the frag entry with matching pointers[0].data_offset
-		self.frag = pool.fragments_lut.get(self.io_start, None)
-		# ptr may be a nullptr, so ignore
+		self.frag = pool.offset_2_link_entry.get(self.io_start, None)
+		# pointer may be a nullptr, so ignore
 		if not self.frag:
 			# print("is a nullptr")
 			return
-		# store valid frag to be able to delete it later
-		sized_str_entry.fragments.append(self.frag)
-		# now read an instance of template class at the offset
-		self.read_template()
+		# if isinstance(self.frag, Fragment):
+		if hasattr(self.frag, "struct_ptr"):
+			# store valid frag to be able to delete it later
+			# sized_str_entry.fragments.append(self.frag)
+			# now read an instance of template class at the offset
+			self.read_template()
+		else:
+			# store dependency name
+			self.data = self.frag.name
 
 	def read_template(self):
 		if self.template:
-			self.data = self.template.from_stream(self.frag.pointers[1].stream, self.context, self.arg)
+			self.data = self.template.from_stream(self.frag.struct_ptr.stream, self.context, self.arg)
 
 	def write_pointer(self, frag):
 		self.frag = frag
 		# if bytes have been set (usually manually), don't ask, just write
 		if isinstance(self.data, (bytes, bytearray)):
 			# seek to end, set data_offset, write
-			self.frag.pointers[1].write_to_pool(self.data)
+			self.frag.struct_ptr.write_to_pool(self.data)
 		else:
 			# process the generated data
 			try:
@@ -103,7 +114,7 @@ class Pointer:
 
 	def write_template(self):
 		assert self.template is not None
-		self.frag.pointers[1].write_instance(self.template, self.data)
+		self.frag.struct_ptr.write_instance(self.template, self.data)
 
 	def __repr__(self):
 		s = self.get_info_str()

@@ -1,16 +1,18 @@
 # START_GLOBALS
 import logging
-import struct
-
+import xml.etree.ElementTree as ET
 from numpy.core.multiarray import ndarray
 
-from generated.array import Array, _class_to_name
+from generated.array import Array
+from generated.base_enum import BaseEnum
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer
-import xml.etree.ElementTree as ET
 
 ZERO = b"\x00"
+SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
+POOL_TYPE = "_pool_type"
+XML_STR = "xml_string"
 
 
 def indent(e, level=0):
@@ -36,7 +38,7 @@ class MemStruct:
 	"""this is a struct that is capable of having pointers"""
 # START_CLASS
 
-	# used for the ptr alignment mapping
+	# used for the pointer alignment mapping
 	ptr_al_dict = {}
 
 	def get_props_and_ptrs(self):
@@ -48,12 +50,8 @@ class MemStruct:
 	def get_memstructs(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
 
-	def write_ptrs(self, loader, ovs, ref_ptr, is_member=False):
-		# todo - get / set pool type
-		pool_type_key = 4
-
-		print("ref_ptr before", ref_ptr)
-
+	def write_ptrs(self, loader, ovs, struct_ptr, pool_type, is_member=False):
+		print("struct_ptr before", struct_ptr)
 		# get all ptrs of this MemStruct, but only create them if they have data assigned
 		ptrs = self.get_props_and_ptrs()
 		ptrs_with_data = [ptr for prop, ptr in ptrs if ptr.data is not None]
@@ -62,32 +60,32 @@ class MemStruct:
 		ptr_frags = loader.create_fragments(loader.sized_str_entry, len(ptrs_with_data))
 		# print("frags immediate", ptr_frags)
 		# write their data and update frags
-		for ptr, frag in zip(ptrs_with_data, ptr_frags):
-			if isinstance(ptr.data, MemStruct):
-				ptr.data.write_ptrs(loader, ovs, frag.pointers[1])
+		for pointer, frag in zip(ptrs_with_data, ptr_frags):
+			if isinstance(pointer.data, MemStruct):
+				pointer.data.write_ptrs(loader, ovs, frag.struct_ptr, pool_type)
 			else:
 				# basic pointer
-				frag.pointers[1].pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-				ptr.write_pointer(frag)
+				frag.struct_ptr.pool = loader.get_pool(pointer.pool_type, ovs=ovs.arg.name)
+				pointer.write_pointer(frag)
 				# handle ArrayPointer
-				if isinstance(ptr.data, Array):
-					for member in ptr.data:
+				if isinstance(pointer.data, Array):
+					for member in pointer.data:
 						if isinstance(member, MemStruct):
-							member.write_ptrs(loader, ovs, frag.pointers[1], is_member=True)
+							member.write_ptrs(loader, ovs, frag.struct_ptr, pointer.pool_type, is_member=True)
 
 		# don't write array members again, they have already been written!
 		if not is_member:
 			# write this struct's data
-			ref_ptr.pool = loader.get_pool(pool_type_key, ovs=ovs.arg.name)
-			# print("ref_ptr.pool", ref_ptr.pool)
-			ref_ptr.write_instance(type(self), self)
-			print("ref_ptr after", ref_ptr)
+			struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
+			# print("struct_ptr.pool", struct_ptr.pool)
+			struct_ptr.write_instance(type(self), self)
+			print("struct_ptr after", struct_ptr)
 		# update positions for frag ptrs 0
-		for ptr, frag in zip(ptrs_with_data, ptr_frags):
-			p = frag.pointers[0]
-			p.pool_index = ref_ptr.pool_index
-			p.data_offset = ptr.io_start
-			p.pool = ref_ptr.pool
+		for pointer, frag in zip(ptrs_with_data, ptr_frags):
+			p = frag.link_ptr
+			p.pool_index = struct_ptr.pool_index
+			p.data_offset = pointer.io_start
+			p.pool = struct_ptr.pool
 
 		# get all arrays of this MemStruct
 		arrays = self.get_arrays()
@@ -97,20 +95,20 @@ class MemStruct:
 			for member in array:
 				print("member")
 				if isinstance(member, MemStruct):
-					member.write_ptrs(loader, ovs, ref_ptr, is_member=True)
+					member.write_ptrs(loader, ovs, struct_ptr, pool_type, is_member=True)
 				# elif isinstance(member, Pointer):
 				# 	logging.warning(f"Missing write_ptrs for ArrayPointer")
 
 		# print(ovs.fragments)
 		for frag in ovs.fragments:
-			print(frag, frag.pointers[1].data_size, frag.pointers[1].data)
-		# print(ref_ptr.pool.data.getvalue())
+			print(frag, frag.struct_ptr.data_size, frag.struct_ptr.data)
+		# print(struct_ptr.pool.data.getvalue())
 
-	def read_ptrs(self, pool, sized_str_entry):
-		# print("read_ptrs")
+	def read_ptrs(self, pool):
+		logging.debug(f"read_ptrs for {self.__class__.__name__}")
 		# get all pointers in this struct
 		for prop, ptr in self.get_props_and_ptrs():
-			self.handle_ptr(prop, ptr, pool, sized_str_entry)
+			self.handle_pointer(prop, ptr, pool)
 		# read arrays attached to this memstruct
 		arrays = self.get_arrays()
 		for array in arrays:
@@ -118,39 +116,44 @@ class MemStruct:
 			for member in array:
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
-					member.read_ptrs(pool, sized_str_entry)
+					member.read_ptrs(pool)
 				elif isinstance(member, Pointer):
-					self.handle_ptr(None, member, pool, sized_str_entry)
+					self.handle_pointer(None, member, pool)
 		# continue reading sub-memstructs directly attached to this memstruct
 		for memstr in self.get_memstructs():
-			memstr.read_ptrs(pool, sized_str_entry)
+			memstr.read_ptrs(pool)
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
 		return None
 
-	def handle_ptr(self, prop, ptr, pool, sized_str_entry):
+	def handle_pointer(self, prop, pointer, pool):
 		"""Ensures a pointer has a valid template, load it, and continue processing the linked memstruct."""
-		if not ptr.template:
+		logging.debug(f"handle_pointer for {self.__class__.__name__}")
+		if not pointer.template:
 			# try the lookup function
-			ptr.template = self.get_ptr_template(prop)
-		# reads the template
-		ptr.read_ptr(pool, sized_str_entry)
-		if isinstance(ptr.data, MemStruct):
-			# print("ptr to a memstruct")
-			ptr.data.read_ptrs(ptr.frag.pointers[1].pool, sized_str_entry)
-		# ArrayPointer
-		elif isinstance(ptr.data, Array):
-			assert isinstance(ptr, (ArrayPointer, ForEachPointer))
-			# print("ArrayPointer")
-			for member in ptr.data:
-				if isinstance(member, MemStruct):
-					# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
-					member.read_ptrs(ptr.frag.pointers[1].pool, sized_str_entry)
-		else:
-			# points to a normal struct or basic type, which can't have any pointers
-			pass
+			pointer.template = self.get_ptr_template(prop)
+		# reads the template and grabs the frag
+		pointer.read_ptr(pool)  # , sized_str_entry)
+		if pointer.frag and hasattr(pointer.frag, "struct_ptr"):
+			pool = pointer.frag.struct_ptr.pool
+			pointer.pool_type = pool.type
+			logging.debug(f"Set pool type {pointer.pool_type} for pointer {prop}")
+			if isinstance(pointer.data, MemStruct):
+				# print("pointer to a memstruct")
+				pointer.data.read_ptrs(pool)
+			# ArrayPointer
+			elif isinstance(pointer.data, Array):
+				assert isinstance(pointer, (ArrayPointer, ForEachPointer))
+				# print("ArrayPointer")
+				for member in pointer.data:
+					if isinstance(member, MemStruct):
+						# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
+						member.read_ptrs(pool)
+			else:
+				# points to a normal struct or basic type, which can't have any pointers
+				pass
 
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):
@@ -164,146 +167,130 @@ class MemStruct:
 	def from_xml(self, elem):
 		"""Sets the data from the XML to this MemStruct"""
 		# go over all fields of this MemStruct
-		items = list(vars(self).items())
-		for prop, val in items:
+		# cast to list to avoid 'dictionary changed size during iteration'
+		for prop, val in list(vars(self).items()):
 			# skip dummy properties
-			if prop in ("_context", "arg", "name", "io_start", "io_size", "template"):
+			if prop in SKIPS:
 				continue
-			if isinstance(val, Pointer):
-				# print("pointer")
-				# subelement
-				subelement = elem.find(f'.//{prop}')
-				# print("val.template", val.template)
-				if isinstance(val, ArrayPointer):
-					logging.warning(f"Setting ArrayPointer '{prop}' not supported yet")
-					pass
-					# val.data[:] = [val.data.dtype(self._context) for i in range(len(subelement))]
-					# # subelement with subelements
-					# for subelem, member in zip(elem, val.data):
-					# 	self._from_xml(subelem, member, val.data.dtype)
-				else:
-					self._from_xml(subelement, val, val.template)
-			elif isinstance(val, Array):
-				# print(f"array, len {len(elem)}")
-				# create array elements
-				val[:] = [val.dtype(self._context) for i in range(len(elem))]
-				# subelement with subelements
-				for subelem, member in zip(elem, val):
-					self._from_xml(subelem, member, val.dtype)
+			if isinstance(val, (MemStruct, Array, ndarray, Pointer)):
+				sub = elem.find(f'.//{prop}')
+				if sub is None:
+					logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
+					return
+				self._from_xml(self, sub, prop, val)
 			else:
-				# set basic attribute
-				cls = type(val)
-				if isinstance(val, ndarray):
-					logging.warning(f"Ignoring basic array '{prop}'")
-					continue
-				try:
-					setattr(self, prop, cls(elem.attrib[prop]))
-				except TypeError:
-					raise TypeError(f"Could not convert attribute {prop} = '{elem.attrib[prop]}' to {cls.__name__}")
+				self._from_xml(self, elem, prop, val)
 
-	def _from_xml(self, subelement, val, val_cls):
+	@staticmethod
+	def _handle_xml_str(prop):
+		return "data" if prop != XML_STR else XML_STR
+
+	def _from_xml(self, target, elem, prop, val):
 		"""Populates this MemStruct from the xml elem"""
-		# print("\n_from_xml", subelement, subelement.attrib, type(val))
-		# print("cls", val_cls)
-		if not val_cls:
-			assert isinstance(val, Pointer)
-			assert not val.template
-			logging.warning(f"No template set for pointer on XML element '{subelement.tag}'")
-			return
-		# template class inherits from memstruct
-		if issubclass(val_cls, MemStruct):
-			if isinstance(val, Pointer):
-				# print("ptr to memstruct")
-				# todo - test if it is better to already create the template here, or on demand from MemStruct
-				val.data = val_cls(self._context)
-				val.data.from_xml(subelement)
-			# array
+		# print("_from_xml", elem, prop, val)
+		if isinstance(val, Pointer):
+			if val.template is None:
+				logging.warning(f"No template set for pointer '{prop}' on XML element '{elem.tag}'")
+				return
+			if POOL_TYPE in elem.attrib:
+				val.pool_type = int(elem.attrib[POOL_TYPE])
+				logging.debug(f"Set pool type {val.pool_type} for pointer {prop}")
 			else:
-				# print("member is memstruct")
-				val.from_xml(subelement)
-		# it is a basic type, and a ptr
+				logging.warning(f"Missing pool type for pointer '{prop}' on '{elem.tag}'")
+			# print("val.template", val.template)
+			if isinstance(val, ArrayPointer):
+				# print("ArrayPointer", elem, len(elem))
+				val.data = Array((len(elem)), val.template, val.context, set_default=False)
+			else:
+				# print("other pointer")
+				logging.debug(f"Creating pointer.data = {val.template.__name__}()")
+				val.data = val.template(self._context, 0, val.arg, set_default=False)
+			self._from_xml(val, elem, self._handle_xml_str(prop), val.data)
+		elif isinstance(val, (Array, ndarray)):
+			# create array elements
+			# print(f"array, len {len(elem)}")
+			if isinstance(val, ndarray):
+				# todo - init from given dtype?
+				val.resize(len(elem), refcheck=False)
+				# print(val)
+			else:
+				val[:] = [val.dtype(self._context, 0, val.template, set_default=False) for i in range(len(elem))]
+			# subelement with subelements
+			for subelem, member in zip(elem, val):
+				self._from_xml(self, subelem, subelem.tag, member)
+		elif isinstance(val, MemStruct):
+			# print("MemStruct")
+			val.from_xml(elem)
+		elif isinstance(val, BaseEnum):
+			# print("BaseEnum")
+			setattr(target, prop, val.from_str(elem.attrib[prop]))
 		else:
-			# print("ptr to basic")
-			assert isinstance(val, Pointer)
-			# cls = type(val.template)
-			# val.data = cls(subelement.attrib["data"])
-			# todo - convert string to proper basic dtype here, if needed
-			# it seems however like only strings would land here at the moment
-			if "data" in subelement.attrib:
-				data = subelement.attrib["data"]
-				# only set data that is not 'None'
-				if data != "None":
-					val.data = subelement.attrib["data"]
+			# print("basic")
+			# set basic attribute
+			cls = type(val)
+			if prop != XML_STR:
+				if prop in elem.attrib:
+					data = elem.attrib[prop]
+					if data != "None":
+						try:
+							logging.debug(f"Setting {type(target).__name__}.{prop} = {cls(data)}")
+							setattr(target, prop, cls(data))
+						except TypeError:
+							raise TypeError(f"Could not convert attribute {prop} = '{data}' to {cls.__name__}")
+				else:
+					logging.warning(f"Missing attribute '{prop}' in element '{elem.tag}'")
 			else:
-				logging.warning(f"Expected attribute 'data' for pointer '{subelement.tag}'")
+				# logging.debug(f"Can't handle {XML_STR} inside '{elem.tag}'")
+				data = ET.tostring(elem[0], encoding="unicode").replace("\t", "").replace("\n", "")
+				setattr(target, "data", cls(data))
+				logging.debug(f"Setting {type(target).__name__}.data = {cls(data)}")
 
 	def to_xml_file(self, file_path):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
-		xml = ET.Element(_class_to_name(type(self)))
+		xml = ET.Element(self.__class__.__name__)
 		self.to_xml(xml)
 		indent(xml)
 		with open(file_path, 'wb') as outfile:
 			outfile.write(ET.tostring(xml))
 
-	def _to_xml(self, elem, prop, val, frag=None):
-		"""Create a subelement named 'prop' that represents object 'val'"""
-		subelement = ET.SubElement(elem, prop)
-		# value is a memstruct
-		if isinstance(val, MemStruct):
-			# print("memstruct")
-			val.to_xml(subelement)
-		# it is a basic type
+	def _to_xml(self, elem, prop, val):
+		"""Assigns data val to xml elem"""
+		# logging.debug(f"_to_xml {elem.tag} - {prop}")
+		if isinstance(val, Pointer):
+			if val.frag and hasattr(val.frag, "struct_ptr"):
+				f_ptr = val.frag.struct_ptr
+				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+				elem.set("_size", f"{f_ptr.data_size}")
+				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
+			self._to_xml(elem, self._handle_xml_str(prop), val.data)
+		# todo - multiple dimensions?
+		elif isinstance(val, (Array, ndarray)):
+			for member in val:
+				cls_name = member.__class__.__name__.lower()
+				member_elem = ET.SubElement(elem, cls_name)
+				self._to_xml(member_elem, cls_name, member)
+		elif isinstance(val, MemStruct):
+			val.to_xml(elem)
+		# basic attribute
 		else:
-			if isinstance(val, Array):
-				# print(f"_to_xml array {val.dtype}")
-				# print(f"_to_xml array {val}")
-				# subelement with subelements
-				for member in val:
-					if isinstance(member, Pointer):
-						member = member.data
-					self._to_xml(subelement, val.class_name, member)
-			# print("basic")
+			if prop == XML_STR:
+				elem.append(ET.fromstring(val))
 			else:
-				# special case for xml data - make it a sub element
-				if prop == "xml_string":
-					# print(val)
-					subelement.append(ET.fromstring(val))
-				else:
-					subelement.set("data", str(val))
-		# set address for debugging
-		if frag:
-			f_ptr = frag.pointers[1]
-			subelement.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
-			subelement.set("_size", f"{f_ptr.data_size}")
+				elem.set(prop, str(val))
 
 	def to_xml(self, elem):
 		"""Adds data of this MemStruct to 'elem', recursively"""
 		# go over all fields of this MemStruct
 		for prop, val in vars(self).items():
 			# skip dummy properties
-			if prop in ("_context", "arg", "name", "io_start", "io_size", "template"):
+			if prop in SKIPS:
 				continue
-			if isinstance(val, Pointer):
-				# print("pointer")
-				# subelementptr.frag
-				# print(val.template)
-				self._to_xml(elem, prop, val.data, val.frag)
-			elif isinstance(val, Array):
-				print(f"to_xml array {val.dtype}")
-				# subelement with subelements
-				for member in val:
-					if isinstance(member, Pointer):
-						member = member.data
-					self._to_xml(elem, val.class_name, member)
+			# add a sub-element if these are child of a MemStruct
+			if isinstance(val, (MemStruct, Array, ndarray, Pointer)):
+				sub = ET.SubElement(elem, prop)
+				self._to_xml(sub, prop, val)
 			else:
-				# todo - add this distinction for from_xml
-				# a MemStruct
-				if isinstance(val, MemStruct):
-					subelement = ET.SubElement(elem, prop)
-					val.to_xml(subelement)
-				# basic attribute
-				else:
-					elem.set(prop, str(val))
+				self._to_xml(elem, prop, val)
 
 	def debug_ptrs(self):
 		"""Iteratively debugs all pointers of a struct"""
@@ -314,17 +301,21 @@ class MemStruct:
 		props_arrays = [(prop, val) for prop, val in vars(self).items() if isinstance(val, Array)]
 		props_ptrs = self.get_props_and_ptrs() + [(prop, ptr) for prop, arr in props_arrays for ptr in arr if isinstance(ptr, Pointer)]
 		for prop, ptr in props_ptrs:
-			# dtype = ptr.template.__name__ if ptr.template else None
+			# dtype = pointer.template.__name__ if pointer.template else None
 			# al = None
 			if ptr.frag:
-				d_off = ptr.frag.pointers[1].data_offset
+				# if isinstance(pointer.frag,)
+				# skip dependency
+				if not hasattr(ptr.frag, "struct_ptr"):
+					continue
+				d_off = ptr.frag.struct_ptr.data_offset
 				if d_off:
 					# go over decreasing possible alignments
 					# 64, 32, 16, 8, 4, 2, 1
 					for x in reversed(range(6)):
 						al = 2 ** x
 						# logging.debug(f"Testing alignment: {al}")
-						# is data_offset of struct ptr aligned at al bytes?
+						# is data_offset of struct pointer aligned at al bytes?
 						if d_off % al == 0:
 							# add or overwrite if new al is smaller than stored al
 							if prop not in cls_al_dict or al < cls_al_dict[prop]:

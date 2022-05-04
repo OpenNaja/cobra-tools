@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="SplRoot" inherit="MemStruct">
+        JWE2: 16 bytes
+        very weird, related to count
+        <add name="spline_data" type="Pointer" arg="count" />
+        <add name="count" type="ushort" />
+        <add name="sixteen" type="ubyte" />
+        <add name="one" type="ubyte" />
+        <add name="length" type="float" />
+    </compound>
+
+<!--    <compound name="SplData" inherit="MemStruct">-->
+<!--Offset(d) 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15-->
+
+<!--00000000  00 00 00 00 00 00 00 00 00 00 00 00 80 01 40 39  ............€.@9-->
+<!--00000016  01 80 00 00 FF 7F 00 00 00 00 00 81 04 02 01 3C  .€..ÿ..........<-->
+<!--00000032  01 80 00 00 01 80 00 00 7F 7F 00 00 04 02 01 3C  .€...€.........<-->
+<!--00000048  FF 7F 00 00 01 80 81 00 00 00 00 7F 04 02 01 3C  ÿ....€.........<-->
+<!--00000064  FF 7F 00 00 FF 7F 00 00 81 00 00 00 04 02 01 3C  ÿ...ÿ..........<-->
+
+
+<!--Offset(d) 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15-->
+
+<!--00000000  00 00 00 00 00 00 00 00 00 00 00 BF 80 01 C0 38  ...........¿€.À8-->
+<!--00000016  54 75 00 00 A9 6A 00 00 00 7F 00 81 06 83 41 3A  Tu..©j.......ƒA:-->
+<!--00000032  FF 7F 00 00 FF 5F F9 00 07 00 00 82 45 22 11 3C  ÿ...ÿ_ù....‚E".<-->
+<!--00000048  FF 7F 00 00 01 A0 00 00 7F F9 00 F9 67 B3 59 3C  ÿ.... ...ù.ùg³Y<-->
+<!--00000064  54 75 00 00 57 95 03 00 03 81 00 00 14 0A 85 3C  Tu..W•........…<-->
+<!--00000080  AC 8A 00 00 57 95 7E 00 00 F8 00 08 C6 62 31 3C  ¬Š..W•~..ø..Æb1<-->
+<!--00000096  01 80 00 00 01 A0 04 00 FC 00 00 7F 67 B3 59 3C  .€... ..ü...g³Y<-->
+<!--00000112  01 80 00 00 FF 5F 00 00 82 0A 00 0A 45 22 11 3C  .€..ÿ_..‚...E".<-->
+<!--00000128  AC 8A 00 00 A9 6A 81 00 81 00 00 00 04 02 01 3A  ¬Š..©j.........:-->
+
+<!--    </compound>-->
+
+</niftoolsxml>

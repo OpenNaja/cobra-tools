@@ -9,6 +9,8 @@ class DdsTypeCoaster(UbyteEnum):
 	"""
 	# ZTUAC ele heights textures
 	D24_UNORM_S8_UINT = 74
+	# ?
+	D24_UNORM_S8_UINT_B = 76
 	BC1_UNORM = 97
 	BC1_UNORM_SRGB = 98
 	BC2_UNORM = 99

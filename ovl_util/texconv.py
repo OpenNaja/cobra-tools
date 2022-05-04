@@ -50,11 +50,11 @@ def bin_to_lua(bin_file):
 	try:
 		out_file = os.path.splitext(bin_file)[0]
 		# out_file = os.path.join(out_dir, out_name)
-		function_string = '"{}" "{}"'.format(luadec, bin_file)
+		function_string = f'"{luadec}" "{bin_file}"'
 		output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
-		function_string2 = '"{}" -s "{}"'.format(luadec, bin_file)
+		function_string2 = f'"{luadec}" -s "{bin_file}"'
 		output2 = subprocess.Popen(function_string2, stdout=subprocess.PIPE).communicate()[0]
-		print(function_string, output)
+		# print(function_string, output)
 		if len(bytearray(output)) > 0:
 			with open(out_file, 'wb') as outfile:
 				outfile.write(bytearray(output))
@@ -86,35 +86,20 @@ def dds_to_png(dds_file_path, height):
 	"""Converts a DDS file given by a path to a PNG file"""
 	out_dir, in_name = os.path.split(dds_file_path)
 	name = os.path.splitext(in_name)[0]
-	print("dds to png", dds_file_path, out_dir, height)
-	run_smart(
-		[BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
-		 "-dx10", dds_file_path])
+	# print("dds to png", dds_file_path, out_dir, height)
+	run_smart([
+		BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
+		"-dx10", dds_file_path])
 	return os.path.join(out_dir, name + '.png')
 
 
-def png_to_dds(png_file_path, height, show_temp_files, codec="BC7_UNORM", mips=1):
+def png_to_dds(png_file_path, height, out_dir, codec="BC7_UNORM", mips=1):
 	"""Converts a PNG file given by a path to a DDS file"""
 	png_file_path = os.path.normpath(png_file_path)
 	in_dir, in_name = os.path.split(png_file_path)
-
-	out_dir = make_tmp(in_dir, show_temp_files)
 	name = os.path.splitext(in_name)[0]
-	run_smart([BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "BOX",
-			   "-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
-
+	run_smart([
+		BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "BOX",
+		"-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
 	return os.path.join(out_dir, name + '.dds')
 
-
-def make_tmp(in_dir, show_temp_files):
-	""" Make a new temp dir if show_temp_files is False """
-	if show_temp_files:
-		return in_dir
-	else:
-		return tempfile.mkdtemp("-cobra")
-
-
-def clear_tmp(dds_file_path, show_temp_files):
-	if not show_temp_files:
-		tmp, in_name = os.path.split(dds_file_path)
-		shutil.rmtree(tmp)

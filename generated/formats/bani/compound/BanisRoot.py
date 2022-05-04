@@ -3,11 +3,7 @@ import numpy
 from generated.context import ContextReference
 
 
-class BanisHeader:
-
-	"""
-	Seems to be the same for all bani anims of one bani file
-	"""
+class BanisRoot:
 
 	context = ContextReference()
 
@@ -95,7 +91,7 @@ class BanisHeader:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'BanisHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'BanisRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

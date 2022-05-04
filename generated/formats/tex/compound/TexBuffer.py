@@ -1,8 +1,8 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class TexBuffer:
+class TexBuffer(MemStruct):
 
 	"""
 	Part of a fragment, repeated for count of texture LODs / buffers.
@@ -10,11 +10,9 @@ class TexBuffer:
 	24 bytes per texture buffer
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -48,12 +46,14 @@ class TexBuffer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.offset = stream.read_uint64()
 		instance.size = stream.read_uint64()
 		instance.unkn = stream.read_uint64()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64(instance.offset)
 		stream.write_uint64(instance.size)
 		stream.write_uint64(instance.unkn)
@@ -78,6 +78,7 @@ class TexBuffer:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
 		s += f'\n	* unkn = {fmt_member(self.unkn, indent+1)}'
