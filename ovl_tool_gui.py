@@ -527,11 +527,15 @@ class MainWindow(widgets.MainWindow):
 
 	def rename(self):
 		names = self.get_replace_strings()
-		if names:
-			for ovl in self.handle_path():
-				if self.is_open_ovl():
-					self.ovl_data.rename(names, animal_mode=self.t_animal_ovl.isChecked())
-					self.update_gui_table()
+		try:
+			if names:
+				for ovl in self.handle_path():
+					if self.is_open_ovl():
+						self.ovl_data.rename(names, animal_mode=self.t_animal_ovl.isChecked())
+						self.update_gui_table()
+		except BaseException as err:
+			print(err)
+			traceback.print_exc()
 
 	def rename_contents(self):
 		names = self.get_replace_strings()

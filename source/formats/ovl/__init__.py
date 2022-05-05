@@ -131,8 +131,16 @@ class OvsFile(OvsHeader):
 		for pool_index, pool in enumerate(self.pools):
 			first_entry = pool.get_first_entry()
 			if first_entry:
-				logging.debug(
-					f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({first_entry.__class__.__name__})")
+				type_str = first_entry.__class__.__name__
+				# map fragment to containing sizedstr entry
+				if isinstance(first_entry, Fragment):
+					for ss in self.sized_str_entries:
+						if first_entry in ss.fragments:
+							first_entry = ss
+							break
+					else:
+						raise NameError(f"Could not find root entry to resolve fragment's name {first_entry}")
+				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
 				self.transfer_identity(pool, first_entry)
 			else:
 				logging.error(f"No entry found for pool {pool_index}!")
@@ -493,40 +501,6 @@ class OvsFile(OvsHeader):
 				f.write(
 					f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
 
-	@staticmethod
-	def get_ptr_debug_str(entry):
-		if isinstance(entry, Fragment):
-			return f"@ {entry.link_ptr} -> {entry.struct_ptr} {entry.name}"
-		elif isinstance(entry, DependencyEntry):
-			return f"@ {entry.link_ptr} -> {entry.name}"
-		else:
-			return f"{entry.struct_ptr} {entry.name}"
-
-	def dump_frag_log(self):
-		"""for development; collect info about fragment types"""
-		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}.log")
-		logging.info(f"Dumping fragment log to {frag_log_path}")
-		with open(frag_log_path, "w") as f:
-			f.write(f"Overview\n")
-			for i, pool in enumerate(self.pools):
-				f.write(f"Pool[{i}] (type: {pool.type}) {pool.name}\n")
-
-			for frag in self.fragments:
-				debug_str = f" PTR {frag.link_ptr} -> {frag.struct_ptr} {frag.name}"
-				frag.link_ptr.pool.log_entries.append((frag.link_ptr.data_offset, 2, debug_str))
-				debug_str = f"\n SUB {frag.struct_ptr} {frag.name}"
-				frag.struct_ptr.pool.log_entries.append((frag.struct_ptr.data_offset, 1, debug_str))
-			for ss in self.sized_str_entries:
-				ptr = ss.struct_ptr
-				if ptr.pool:
-					debug_str = f"\n\nMAIN {ptr} {ss.name}"
-					ptr.pool.log_entries.append((ptr.data_offset, 0, debug_str))
-
-			for i, pool in enumerate(self.pools):
-				f.write(f"\n\nPool[{i}] (type: {pool.type}) size: {pool.size}\n")
-				pool.log_entries.sort()
-				f.write("\n".join([tup[2] for tup in pool.log_entries]))
-
 	def check_for_ptrs(self, parent_struct_ptr, ss):
 		"""Recursively assigns pointers to an entry"""
 		parent_struct_ptr.children = set()
@@ -536,7 +510,7 @@ class OvsFile(OvsHeader):
 			if parent_struct_ptr.data_offset <= abs_offset < parent_struct_ptr.data_offset + parent_struct_ptr.data_size:
 				parent_struct_ptr.children.add(entry)
 				if isinstance(entry, Fragment):
-					entry.name = ss.name
+					# entry.name = ss.name
 					# points to a child struct
 					struct_ptr = entry.struct_ptr
 					if entry not in ss.fragments:
@@ -635,7 +609,7 @@ class OvsFile(OvsHeader):
 		logging.info(f"Writing archive {self.arg.name}")
 		# write out all entries
 		super().write(stream)
-		# write the header data containing all the pointers' datas
+		# write the pools data containing all the pointers' datas
 		stream.write(self.pools_data)
 		# write buffer data
 		for b in self.buffers_io_order:
@@ -1163,7 +1137,7 @@ class OvlFile(Header, IoFile):
 		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
 		logging.info("Loading pointers")
 		start_time = time.time()
-		# reset pointer map for each header entry
+		# reset pointer map for each pool
 		for pool in self.pools:
 			pool.clear_data()
 		logging.debug("Linking pointers to pools")
@@ -1451,24 +1425,15 @@ class OvlFile(Header, IoFile):
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
 		file_lut = {file.name: file for file in self.files}
-		for pool in self.pools:
-			# a tuple - (offset, sorting prio, str)
-			pool.log_entries = []
-		for dep in self.dependencies:
-			ptr = dep.link_ptr
-			debug_str = f" DEP {ptr} -> {dep.name}"
-			ptr.pool.log_entries.append((ptr.data_offset, 3, debug_str))
 		for archive_entry in self.archives:
 			try:
-				archive_entry.content.assign_frag_names()
-				archive_entry.content.dump_frag_log()
+				# archive_entry.content.assign_frag_names()
+				# archive_entry.content.dump_frag_log()
 				archive_entry.content.dump_stack(file_lut)
 				archive_entry.content.dump_buffer_groups_log()
 				archive_entry.content.dump_pools()
 			except BaseException as err:
 				traceback.print_exc()
-		for pool in self.pools:
-			del pool.log_entries
 
 	def save(self, filepath, dat_path):
 		self.store_filepath(filepath)
