@@ -79,7 +79,12 @@ class Pointer:
 
 	def write_template(self):
 		assert self.template is not None
-		self.frag.struct_ptr.write_instance(self.template, self.data)
+		# align pointer
+		if isinstance(self.data, str):
+			alignment = 1
+		else:
+			alignment = 8
+		self.frag.struct_ptr.write_instance(self.template, self.data, alignment=alignment)
 
 	def __repr__(self):
 		s = self.get_info_str()

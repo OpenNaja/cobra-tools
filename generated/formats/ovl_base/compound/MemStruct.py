@@ -148,8 +148,8 @@ class MemStruct:
 				print("member")
 				if isinstance(member, MemStruct):
 					member.write_ptrs(loader, ovs, struct_ptr, pool_type, is_member=True)
-				# elif isinstance(member, Pointer):
-				# 	logging.warning(f"Missing write_ptrs for ArrayPointer")
+				elif isinstance(member, Pointer):
+					logging.warning(f"Missing write_ptrs for ArrayPointer")
 
 		# print(ovs.fragments)
 		for frag in ovs.fragments:
@@ -256,7 +256,8 @@ class MemStruct:
 			else:
 				# print("other pointer")
 				logging.debug(f"Creating pointer.data = {val.template.__name__}()")
-				val.data = val.template(self._context, 0, val.arg, set_default=False)
+				# val.data = val.template(self._context, 0, val.arg, set_default=False)
+				val.data = val.template(self._context, 0, val.arg)
 			self._from_xml(val, elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, (Array, ndarray)):
 			# create array elements
