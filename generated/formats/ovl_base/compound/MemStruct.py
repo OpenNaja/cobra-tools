@@ -131,7 +131,7 @@ class MemStruct:
 			struct_ptr.write_instance(type(self), self)
 			logging.debug(f"memstruct's struct_ptr after {struct_ptr}")
 
-		# # write their data and update frags
+		# write their data and update frags
 		for prop, pointer in self.get_props_and_ptrs():
 			self.handle_write(pointer, struct_ptr, loader, ovs, pool_type)
 		# get all arrays of this MemStruct
