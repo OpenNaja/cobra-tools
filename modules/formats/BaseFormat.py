@@ -172,6 +172,23 @@ class BaseFile:
 		"""Shorthand for the root entry's struct_ptr"""
 		return self.sized_str_entry.struct_ptr
 
+	def remove(self):
+		# todo make this handle stream / children files
+		for dep in self.file_entry.dependencies:
+			dep.link_ptr.remove()
+		# wipe out ss and frag data
+		for frag in self.sized_str_entry.fragments:
+			frag.struct_ptr.remove()
+			frag.link_ptr.remove()
+		self.sized_str_entry.struct_ptr.remove()
+		# remove frag and then ss entry
+		self.ovs.sized_str_entries.remove(self.sized_str_entry)
+		data = self.sized_str_entry.data_entry
+		for buffer in data.buffers:
+			buffer.update_data(b"")
+			self.ovs.buffer_entries.remove(buffer)
+		self.ovs.data_entries.remove(data)
+
 
 class MemStructLoader(BaseFile):
 	target_class: None
@@ -193,10 +210,10 @@ class MemStructLoader(BaseFile):
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
-		# todo - may need padding here
 
 	def load(self, file_path):
+		# todo - delete ss struct & fragments from pools
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		print(self.header)
-		# todo
+		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		logging.warning(f"Injection not fully implemented for {self.extension}")

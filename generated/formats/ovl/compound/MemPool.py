@@ -180,7 +180,7 @@ class MemPool:
 			self.offset_2_struct_entries[offset] = []
 		self.offset_2_struct_entries[offset].append(entry)
 
-	def flush_pointers(self, ignore_unaccounted_bytes=False):
+	def flush_pointers(self):
 		"""Pre-writing step to convert all edits that were done on individual pointers back into the consolidated header
 		data io block"""
 
