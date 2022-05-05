@@ -1164,6 +1164,7 @@ class OvlFile(Header, IoFile):
 				try:
 					frag.link_ptr.pool.offset_2_link_entry[frag.link_ptr.data_offset] = frag
 				except:
+					traceback.print_exc()
 					logging.warning(f"frag {i} failed")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:

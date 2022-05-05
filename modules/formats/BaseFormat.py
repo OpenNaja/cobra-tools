@@ -94,7 +94,7 @@ class BaseFile:
 	def create_ss_entry(self, file_entry, ovs="STATIC"):
 		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
-		ss_entry.fragments = set()
+		ss_entry.fragments = []
 		ovs_file = self.ovl.create_archive(ovs)
 		ovs_file.transfer_identity(ss_entry, file_entry)
 		ovs_file.sized_str_entries.append(ss_entry)
@@ -115,13 +115,13 @@ class BaseFile:
 		return dependency
 
 	def create_fragments(self, ss, count):
-		frags = [self.create_fragment() for i in range(count)]
-		ss.fragments.update(frags)
+		frags = [self.create_fragment(ss) for _ in range(count)]
+		# ss.fragments.update(frags)
 		return frags
 
-	def create_fragment(self):
+	def create_fragment(self, ss):
 		new_frag = Fragment(self.ovl.context)
-		# self.ovs.fragments.append(new_frag)
+		ss.fragments.append(new_frag)
 		return new_frag
 
 	def create_data_entry(self, ss_entry, buffers_bytes, ovs="STATIC"):

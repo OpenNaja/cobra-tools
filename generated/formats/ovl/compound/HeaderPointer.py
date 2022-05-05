@@ -106,7 +106,7 @@ class HeaderPointer:
 
 	def write_instance(self, cls, instance, alignment=1):
 		"""Write instance to end of stream and set offset"""
-		logging.debug(f"write_instance of class {cls}")
+		logging.debug(f"write_instance of class {cls.__name__}")
 		if self.pool:
 			# seek to end of pool
 			self.pool.data.seek(0, 2)
@@ -114,8 +114,8 @@ class HeaderPointer:
 				offset = self.pool.data.tell()
 				padding = (alignment - (offset % alignment)) % alignment
 				if padding:
-					logging.debug(f"Aligned pointer from {offset} to {self.pool.data.tell()} with {padding} bytes")
 					self.pool.data.write(b"\x00" * padding)
+					logging.debug(f"Aligned pointer from {offset} to {self.pool.data.tell()} with {padding} bytes, alignment = {alignment}")
 			self.data_offset = self.pool.data.tell()
 			if isinstance(instance, Array):
 				Array.to_stream(self.pool.data, instance, (len(instance),), cls, instance.context, 0, None)
