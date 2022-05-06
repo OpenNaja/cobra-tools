@@ -344,7 +344,7 @@ class MainWindow(widgets.MainWindow):
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
-		ss_entry = self.ovl_data.get_sized_str_entry(file_entry.name)
+		ss_entry, archive = self.ovl_data.get_sized_str_entry(file_entry.name)
 		ss_p = ss_entry.struct_ptr
 		logging.debug(f"File: {ss_p.pool_index} {ss_p.data_offset} {ss_entry.name}")
 		for dep in file_entry.dependencies:

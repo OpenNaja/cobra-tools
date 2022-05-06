@@ -214,7 +214,6 @@ class OvsFile(OvsHeader):
 			for sized_str_entry in self.sized_str_entries:
 				self.assign_name(sized_str_entry)
 				sized_str_entry.children = []
-				# sized_str_entry.fragments = []
 				# get data entry for link to buffers, or none
 				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
 
@@ -681,7 +680,7 @@ class OvlFile(Header, IoFile):
 
 	def get_children(self, file_entry):
 		children_names = []
-		ss_entry = self.get_sized_str_entry(file_entry.name)
+		ss_entry, archive = self.get_sized_str_entry(file_entry.name)
 		children_names.extend([ss.name for ss in ss_entry.children])
 		children_names.extend([stream.name for stream in file_entry.streams])
 		return children_names
@@ -1195,7 +1194,7 @@ class OvlFile(Header, IoFile):
 	def get_sized_str_entry(self, name):
 		"""Retrieves the desired ss entry"""
 		if name.lower() in self._ss_dict:
-			return self._ss_dict[name.lower()][0]
+			return self._ss_dict[name.lower()]
 		else:
 			for archive_entry in self.archives:
 				for file in archive_entry.content.sized_str_entries:

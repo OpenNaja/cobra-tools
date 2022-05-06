@@ -9,7 +9,11 @@ def file_remover(ovl, filenames):
 	:return:
 	"""
 	logging.info(f"Removing files for {filenames}")
-	_remove_files(ovl, filenames)
+	# remove file entry
+	for file_entry in ovl.files:
+		if file_entry.name in filenames:
+			if file_entry.loader:
+				file_entry.loader.remove()
 	for i, pool in sorted(enumerate(ovl.pools), reverse=True):
 		pool.flush_pointers()
 		logging.info(f"pool {i} {pool.offset_2_struct_entries}")
@@ -19,21 +23,6 @@ def file_remover(ovl, filenames):
 				if pool in archive.content.pools:
 					archive.content.pools.remove(pool)
 			ovl.pools.remove(pool)
-
-
-def _remove_files(ovl, filenames):
-	children_names = []
-	# remove file entry
-	for i, file_entry in sorted(enumerate(ovl.files), reverse=True):
-		if file_entry.name in filenames:
-			children_names.extend(ovl.get_children(file_entry))
-			logging.info(f"Removing {file_entry.name}")
-			ovl.files.pop(i)
-			if file_entry.loader:
-				file_entry.loader.remove()
-	if children_names:
-		logging.info(f"Removing children")
-		_remove_files(ovl, children_names)
 
 
 def bulk_delete(input_list, entries_to_delete):

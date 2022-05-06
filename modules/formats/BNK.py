@@ -79,7 +79,7 @@ class BnkLoader(BaseFile):
 		#
 		# # get events bnk for internal files
 		# if not self.file_entry.aux_entries:
-		# 	events_ss = self.ovl.get_sized_str_entry(f"{events_bnk}.bnk")
+		# 	events_ss, archive = self.ovl.get_sized_str_entry(f"{events_bnk}.bnk")
 		# 	if events_ss:
 		# 		events_buffers = events_ss.data_entry.buffer_datas
 		# 		events_buffers[0] = struct.pack("<I", events.size_for_ovl) + events_buffers[0][4:]

@@ -38,14 +38,15 @@ class BaseFile:
 			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
 
 	def assign_ss_entry(self):
-		self.sized_str_entry = self.ovl.get_sized_str_entry(self.file_entry.name)
+		self.sized_str_entry, archive = self.ovl.get_sized_str_entry(self.file_entry.name)
+		self.ovs = archive.content
 
 	def get_streams(self):
 		logging.debug(f"Num streams: {len(self.file_entry.streams)}")
 		all_buffers = [*self.sized_str_entry.data_entry.buffers]
 		logging.debug(f"Static buffers: {all_buffers}")
 		for stream_file in self.file_entry.streams:
-			stream_ss = self.ovl.get_sized_str_entry(stream_file.name)
+			stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
 			all_buffers.extend(stream_ss.data_entry.buffers)
 			logging.debug(f"Stream buffers: {stream_ss.data_entry.buffers} {stream_file.name}")
 		return all_buffers
@@ -172,22 +173,39 @@ class BaseFile:
 		"""Shorthand for the root entry's struct_ptr"""
 		return self.sized_str_entry.struct_ptr
 
-	def remove(self):
-		# todo make this handle stream / children files
+	def remove_pointers(self):
+		# remove any pointers
 		for dep in self.file_entry.dependencies:
 			dep.link_ptr.remove()
-		# wipe out ss and frag data
 		for frag in self.sized_str_entry.fragments:
 			frag.struct_ptr.remove()
 			frag.link_ptr.remove()
 		self.sized_str_entry.struct_ptr.remove()
-		# remove frag and then ss entry
+
+	def remove(self):
+		logging.info(f"Removing {self.file_entry.name}")
+		self.remove_pointers()
+
+		# remove entries in ovs
 		self.ovs.sized_str_entries.remove(self.sized_str_entry)
 		data = self.sized_str_entry.data_entry
-		for buffer in data.buffers:
-			buffer.update_data(b"")
-			self.ovs.buffer_entries.remove(buffer)
-		self.ovs.data_entries.remove(data)
+		if data:
+			for buffer in data.buffers:
+				buffer.update_data(b"")
+				self.ovs.buffer_entries.remove(buffer)
+			self.ovs.data_entries.remove(data)
+
+		# remove entries in ovl
+		# self.ovl.files.pop(i)
+		self.ovl.files.remove(self.file_entry)
+
+		# todo children files
+		# remove streamed and child files
+		for stream_file in self.file_entry.streams:
+			if stream_file.loader:
+				stream_file.loader.remove()
+			else:
+				logging.warning(f"Could not remove {stream_file.name} as it has no loader")
 
 
 class MemStructLoader(BaseFile):
@@ -212,8 +230,7 @@ class MemStructLoader(BaseFile):
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 
 	def load(self, file_path):
-		# todo - delete ss struct & fragments from pools
+		self.remove_pointers()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		print(self.header)
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
-		logging.warning(f"Injection not fully implemented for {self.extension}")

@@ -69,7 +69,7 @@ class BanisLoader(BaseFile):
 						logging.debug(f"Found matching bani {bani_file_name}")
 						fp = os.path.join(banis_dir, bani_file_name)
 						f0 = self._get_bani_data(fp)
-						b_ss = self.ovl.get_sized_str_entry(bani_file_name)
+						b_ss, archive = self.ovl.get_sized_str_entry(bani_file_name)
 						b_ss.struct_ptr.update_data(f0, update_copies=True)
 						break
 

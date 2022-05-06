@@ -8,7 +8,7 @@ from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
 from generated.formats.tex.compound.TexHeader import TexHeader
-from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.helpers import split_path
 
 from ovl_util import texconv, imarray
@@ -24,6 +24,14 @@ def align_to(width, comp, alignment=64):
 	if m:
 		return width + alignment - m
 	return width
+
+
+class TexturestreamLoader(BaseFile):
+	extension = ".texturestream"
+
+	def collect(self):
+		self.assign_ss_entry()
+		print(self.sized_str_entry)
 
 
 class DdsLoader(MemStructLoader):
