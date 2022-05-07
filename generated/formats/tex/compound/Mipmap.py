@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compound.MemStruct import MemStruct
 class Mipmap(MemStruct):
 
 	"""
-	Data struct for one mipmap, part of a data 1 struct in headers of type 7
+	Describes one tex mipmap
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

@@ -27,10 +27,12 @@ class FgmLoader(MemStructLoader):
 		buffer_data = self.sized_str_entry.data_entry.buffer_datas[0]
 		stream = ConvStream(buffer_data)
 		self.header.shader_name = self.read_z_str(stream, 0)
-		for texture in self.header.textures.data:
-			texture.texture_name = self.read_z_str(stream, texture.offset)
-		for attrib in self.header.attributes.data:
-			attrib.attrib_name = self.read_z_str(stream, attrib.offset)
+		if self.header.attributes.data:
+			for attrib in self.header.attributes.data:
+				attrib.attrib_name = self.read_z_str(stream, attrib.offset)
+		if self.header.textures.data:
+			for texture in self.header.textures.data:
+				texture.texture_name = self.read_z_str(stream, texture.offset)
 
 	def update_names_buffer(self):
 		"""Rewrites the name buffer and updates the offsets"""
@@ -39,12 +41,14 @@ class FgmLoader(MemStructLoader):
 		names_writer.write_zstring(self.header.shader_name)
 		names_writer.write(b"\x00")
 		# attribs are written first
-		for attrib in self.header.attributes.data:
-			attrib.offset = names_writer.tell()
-			names_writer.write_zstring(attrib.texture_name)
-		for texture in self.header.textures.data:
-			texture.offset = names_writer.tell()
-			names_writer.write_zstring(texture.attrib_name)
+		if self.header.attributes.data:
+			for attrib in self.header.attributes.data:
+				attrib.offset = names_writer.tell()
+				names_writer.write_zstring(attrib.texture_name)
+		if self.header.textures.data:
+			for texture in self.header.textures.data:
+				texture.offset = names_writer.tell()
+				names_writer.write_zstring(texture.attrib_name)
 		return names_writer.getvalue()
 
 	def load(self, file_path):

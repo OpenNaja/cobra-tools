@@ -161,7 +161,7 @@
     </compound>
 
 	<compound name="Mipmap" inherit="MemStruct">
-		Data struct for one mipmap, part of a data 1 struct in headers of type 7
+		Describes one tex mipmap
 		<add name="offset" type="uint">starting offset into the texture buffer for this mip level</add>
 		<add name="size" type="uint" >bytes for one array entry</add>
 		<add name="size array" type="uint">bytes for all array entries</add>

@@ -5,8 +5,7 @@ from generated.formats.ovl_base.compound.MemStruct import MemStruct
 class TexBuffer(MemStruct):
 
 	"""
-	Part of a fragment, repeated for count of texture LODs / buffers.
-	Data struct for headers of type 3
+	Describes one buffer of a tex / texturestream file.
 	24 bytes per texture buffer
 	"""
 
