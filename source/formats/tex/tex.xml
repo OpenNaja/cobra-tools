@@ -130,12 +130,14 @@
     </enum>
 
 	<compound name="TexBuffer" inherit="MemStruct" >
-		Part of a fragment, repeated for count of texture LODs / buffers.
-		Data struct for headers of type 3
+		Describes one buffer of a tex / texturestream file.
 		24 bytes per texture buffer
 		<add name="offset" type="uint64">byte offset in the combined buffer</add>
 		<add name="size" type="uint64">byte size of this tex buffer</add>
-		<add name="unkn" type="uint64">is also related to data size</add>
+		<add name="first_mip" type="ubyte">index of first mip used in this buffer</add>
+		<add name="mip_count" type="ubyte">amount of mip levels included in this buffer</add>
+		<add name="padding0" type="short" />
+		<add name="padding1" type="int" />
     </compound>
 
 	<compound name="TexBufferPc" inherit="MemStruct" >

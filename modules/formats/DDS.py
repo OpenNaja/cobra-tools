@@ -31,7 +31,7 @@ class TexturestreamLoader(BaseFile):
 
 	def collect(self):
 		self.assign_ss_entry()
-		print(self.sized_str_entry)
+		# print(self.sized_str_entry)
 
 
 class DdsLoader(MemStructLoader):
@@ -177,26 +177,13 @@ class DdsLoader(MemStructLoader):
 		dds_name = basename + ".dds"
 		logging.info(f"Writing {tex_name}")
 
-		# print(self.header)
 		# get joined output buffer
 		buffer_data = b"".join([buffer.data for buffer in self.get_sorted_streams()])
 
 		out_files = []
-		# tex_path = out_dir(tex_name)
-		# if show_temp_files:
 		out_files.extend(tex_paths)
-		# with open(tex_path, "wb") as tex_file:
-		# 	tex_file.write(self.pack_header(b"TEX"))
-		# 	tex_file.write(self.sized_str_entry.struct_ptr.data)
-		# 	for frag in self.sized_str_entry.fragments:
-		# 		tex_file.write(frag.struct_ptr.data)
-		# 	tex_file.write(buffer_data)
 
-		# tex_file = TexFile(self.ovl.context)
-		# tex_file.load(tex_path)
-		# print(tex_file)
 		dds_file = DdsFile()
-
 		if is_dla(self.ovl):
 			size_info = self.header
 			dds_file.width = size_info.width
