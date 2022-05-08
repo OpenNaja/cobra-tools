@@ -103,7 +103,7 @@ class DdsLoader(MemStructLoader):
 	def load_png(self, file_path, tmp_dir):
 		logging.info(f"Loading PNG {file_path}")
 		# convert the png into a dds, then inject that
-		tex_buffers, size_info = self.get_tex_structs()
+		size_info = self.get_tex_structs()
 		compression = self.header.compression_type.name
 		dds_file_path = texconv.png_to_dds(
 			file_path, size_info.height * size_info.array_size, tmp_dir, codec=compression, mips=size_info.num_mips)
@@ -112,8 +112,7 @@ class DdsLoader(MemStructLoader):
 
 	def load_dds(self, file_path):
 		logging.info(f"Loading DDS {file_path}")
-		tex_buffers, size_info = self.get_tex_structs()
-		# tex_d = self.header.one_0
+		size_info = self.get_tex_structs()
 		# tex_d = size_info.depth
 		tex_d = 1
 		tex_h = size_info.height
@@ -121,14 +120,12 @@ class DdsLoader(MemStructLoader):
 		tex_a = size_info.array_size
 		tex_w = align_to(tex_w, self.header.compression_type.name)
 
-		# read archive tex header to make sure we have the right mip count
-		# even when users import DDS with mips when it should have none
-
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(file_path)
 		self.ensure_size_match(dds_file, tex_h, tex_w, tex_d, tex_a)
 		sorted_streams = self.get_sorted_streams()
+		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl):
 			for buffer, tex_header_3 in zip(sorted_streams, tex_buffers):
 				dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
@@ -162,13 +159,11 @@ class DdsLoader(MemStructLoader):
 		buffer.update_data(dds_buff)
 
 	def get_tex_structs(self):
-		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl) or is_ztuac(self.ovl):
 			# this corresponds to a stripped down size_info
-			size_info = self.header.buffer_infos.data[0]
+			return self.header.buffer_infos.data[0]
 		else:
-			size_info = self.header.size_info.data
-		return tex_buffers, size_info
+			return self.header.size_info.data
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		tex_paths = super().extract(out_dir, show_temp_files, progress_callback)
