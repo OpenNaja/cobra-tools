@@ -44,23 +44,20 @@ class FgmLoader(MemStructLoader):
 		if self.header.attributes.data:
 			for attrib in self.header.attributes.data:
 				attrib.offset = names_writer.tell()
-				names_writer.write_zstring(attrib.texture_name)
+				names_writer.write_zstring(attrib.attrib_name)
 		if self.header.textures.data:
 			for texture in self.header.textures.data:
 				texture.offset = names_writer.tell()
-				names_writer.write_zstring(texture.attrib_name)
+				names_writer.write_zstring(texture.texture_name)
 		return names_writer.getvalue()
 
 	def load(self, file_path):
-		# clear dependencies
+		# clear dependencies, they are automatically regenerated
 		self.file_entry.dependencies.clear()
+		print(self.file_entry.dependencies)
 		super().load(file_path)
-		# todo - set shader_name, texture_name, attrib_name to be able to update the buffer
-		# self.sized_str_entry.data_entry.update_data((self.update_names_buffer(),))
-
-		# todo - automatically create dependency from MemStruct
-		for tex_name in self.get_deps_names():
-			self.create_dependency(f"{tex_name}.tex")
+		self.sized_str_entry.data_entry.update_data((self.update_names_buffer(),))
+		print(self.file_entry.dependencies)
 
 	def get_deps_names(self):
 		return [dep.data for dep in self.header.dependencies.data if dep.data]
