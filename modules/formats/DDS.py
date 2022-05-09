@@ -93,13 +93,12 @@ class DdsLoader(MemStructLoader):
 		# 	print(buff.index, buff.size)
 
 	def load(self, file_path):
+		# this loads the tex file and updates the header
 		super().load(file_path)
 		self.load_image(file_path)
 
 	def load_image(self, file_path):
-		# right now there is no use in updating the struct here
-		super().load(file_path)
-		print(self.header)
+		# this assumes self.header matches the specs of the tex in file_path
 		logging.debug(f"Loading image {file_path}")
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		png_path = imarray.png_from_tex(file_path, tmp_dir)
