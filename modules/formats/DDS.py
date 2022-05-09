@@ -33,6 +33,10 @@ class TexturestreamLoader(BaseFile):
 		self.assign_ss_entry()
 		# print(self.sized_str_entry)
 
+	def create(self):
+		# this is only to be called from DdsLoader?
+		pass
+
 
 class DdsLoader(MemStructLoader):
 	target_class = TexHeader
@@ -75,8 +79,10 @@ class DdsLoader(MemStructLoader):
 				all_buffers.sort(key=lambda b: b.size, reverse=True)
 				for i, buffer in enumerate(all_buffers):
 					buffer.index = i
+			# ensure that the streams ss entries can be accessed for injecting the buffers
+			self.ovl.update_ss_dict()
 			# ready, now inject
-			self.load(self.file_entry.path)
+			self.load_image(self.file_entry.path)
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
 			logging.error(f"Only modern texture format supported for now!")
 
@@ -88,6 +94,12 @@ class DdsLoader(MemStructLoader):
 		# 	print(buff.index, buff.size)
 
 	def load(self, file_path):
+		# right now there is no use in updating the struct here
+		super().load(file_path)
+		# print(self.header)
+		self.load_image(file_path)
+
+	def load_image(self, file_path):
 		# right now there is no use in updating the struct here
 		super().load(file_path)
 		print(self.header)

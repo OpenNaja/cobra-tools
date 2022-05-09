@@ -213,9 +213,7 @@ class MemStruct:
 			else:
 				# print("other pointer")
 				logging.debug(f"Creating pointer.data = {val.template.__name__}()")
-				# val.data = val.template(self._context, 0, val.arg, set_default=False)
-				# val.data = val.template(self._context, 0, val.arg)  # breaks fgm injection
-				val.data = val.template(self._context, val.arg.data, None)
+				val.data = val.template(self._context, val.arg, None)
 			self._from_xml(val, elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, Array):
 			# create array elements

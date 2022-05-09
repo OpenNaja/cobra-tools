@@ -139,7 +139,9 @@ class OvsFile(OvsHeader):
 							first_entry = ss
 							break
 					else:
-						raise NameError(f"Could not find root entry to resolve fragment's name {first_entry}")
+						# raise NameError(f"Could not find root entry to resolve fragment's name {first_entry}")
+						logging.warning(f"Could not find root entry to resolve fragment's name {first_entry}")
+						continue
 				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
 				self.transfer_identity(pool, first_entry)
 			else:

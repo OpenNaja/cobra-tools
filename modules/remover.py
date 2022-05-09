@@ -23,6 +23,9 @@ def file_remover(ovl, filenames):
 				if pool in archive.content.pools:
 					archive.content.pools.remove(pool)
 			ovl.pools.remove(pool)
+	# this isn't enough, and the above seems to be broken to some extent
+	ovl.load_flattened_pools()
+
 
 
 def bulk_delete(input_list, entries_to_delete):
