@@ -9,7 +9,6 @@ import traceback
 import logging
 from contextlib import contextmanager
 
-from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.StreamEntry import StreamEntry

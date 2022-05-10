@@ -73,8 +73,9 @@ class DdsLoader(MemStructLoader):
 				# 2 lods: lod0 -> L1, lod1 -> L0
 				# 22-05-10: this seems to have changed for PZ
 				# 2 lods: lod0 -> L0, lod1 -> L1
-				# todo 22-05-10: create with 2 streams crashes ingame
-				indices = ((1, 1), (0, 0))
+				# todo 22-05-10: create with 2 streams crashes ingame, either order
+				# indices = ((1, 1), (0, 0))
+				indices = ((0, 0), (1, 1), )
 			else:
 				raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
 			for i, (lod_i, ovs_i) in enumerate(indices):
@@ -87,6 +88,7 @@ class DdsLoader(MemStructLoader):
 				ss_entries.append(texstream_ss)
 				self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
 				# data entry, assign buffer
+				# todo - verify which field the data goes to
 				self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
 				buffer_i = self.increment_buffers(texstream_ss, buffer_i)
 			self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
@@ -101,8 +103,18 @@ class DdsLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
+		print("\n", self.file_entry.name)
+		for buff in self.sized_str_entry.data_entry.buffers:
+			print(buff.index, buff.size)
+		for stream_file in self.file_entry.streams:
+			print(stream_file.name)
+			stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
+			# idk why the loader is not used?!
+			# for buff in stream.loader.sized_str_entry.data_entry.buffers:
+			for buff in stream_ss.data_entry.buffers:
+				print(buff.index, buff.size)
 		# print(self.header)
-		all_buffers = self.get_sorted_streams()
+		# all_buffers = self.get_sorted_streams()
 		# for buff in all_buffers:
 		# 	print(buff.index, buff.size)
 

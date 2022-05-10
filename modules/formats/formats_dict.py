@@ -21,6 +21,8 @@ def build_formats_dict():
 			for attribute_name in dir(module):
 				attribute = getattr(module, attribute_name)
 
+				if attribute_name in ("MemStructLoader", "BaseFile"):
+					continue
 				if isclass(attribute):
 					# ignore any imports
 					if not hasattr(attribute, "extension"):
