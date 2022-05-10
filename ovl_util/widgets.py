@@ -789,8 +789,6 @@ class FileWidget(QtWidgets.QWidget):
 		# only return True if we should abort
 		if not self.ask_user:
 			return False
-		if new_filepath == self.filepath:
-			return True
 		if self.filepath and self.dirty:
 			qm = QtWidgets.QMessageBox
 			return qm.No == qm.question(self, '', "Do you really want to load " + os.path.basename(
