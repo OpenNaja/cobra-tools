@@ -41,6 +41,15 @@ class DdsLoader(MemStructLoader):
 	target_class = TexHeader
 	extension = ".tex"
 
+	def increment_buffers(self, ss, buffer_i):
+		"""Linearly increments buffer indices for games that need it"""
+		# create increasing buffer indices for PZ (still needed 22-05-10), JWE1
+		if not is_jwe2(self.ovl):
+			for buff in ss.data_entry.buffers:
+				buff.index = buffer_i
+				buffer_i += 1
+		return buffer_i
+
 	def create(self):
 		name_ext, name, ext = split_path(self.file_entry.path)
 		super().create()
@@ -53,20 +62,25 @@ class DdsLoader(MemStructLoader):
 			streamed_lods = len(buffers) - static_lods
 			logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
 			ss_entries = [self.sized_str_entry, ]
-			# ovs name generation only works for up to 2 streams
-			assert streamed_lods < 3
-			start_offset = 2 - streamed_lods
-			for i in range(streamed_lods):
-				# generate ovs name - highly idiosyncratic
+			buffer_i = 0
+			# generate ovs name - highly idiosyncratic
+			if streamed_lods == 0:
+				indices = ()
+			elif streamed_lods == 1:
 				# 1 lod: lod0 -> L1
+				indices = ((0, 1),)
+			elif streamed_lods == 2:
 				# 2 lods: lod0 -> L1, lod1 -> L0
-				# ovs_name = f"Textures_L{1-i}"
 				# 22-05-10: this seems to have changed for PZ
-				# 1 lod: lod0 -> L1
 				# 2 lods: lod0 -> L0, lod1 -> L1
-				ovs_name = f"Textures_L{start_offset+i}"
+				# todo 22-05-10: create with 2 streams crashes ingame
+				indices = ((1, 1), (0, 0))
+			else:
+				raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
+			for i, (lod_i, ovs_i) in enumerate(indices):
+				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
-				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{i}.texturestream")
+				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{lod_i}.texturestream")
 				self.file_entry.streams.append(texstream_file)
 				# ss entry
 				texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
@@ -74,14 +88,10 @@ class DdsLoader(MemStructLoader):
 				self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
 				# data entry, assign buffer
 				self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
+				buffer_i = self.increment_buffers(texstream_ss, buffer_i)
 			self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
-			# patch buffer indices for PZ, JWE1
-			if not is_jwe2(self.ovl):
-				logging.debug(f"Using absolute buffer indices for streams")
-				all_buffers = [buffer for ss in ss_entries for buffer in ss.data_entry.buffers]
-				all_buffers.sort(key=lambda b: b.size, reverse=True)
-				for i, buffer in enumerate(all_buffers):
-					buffer.index = i
+			self.increment_buffers(self.sized_str_entry, buffer_i)
+
 			# ensure that the streams ss entries can be accessed for injecting the buffers
 			self.ovl.update_ss_dict()
 			# ready, now inject
@@ -92,7 +102,7 @@ class DdsLoader(MemStructLoader):
 	def collect(self):
 		super().collect()
 		# print(self.header)
-		# all_buffers = self.get_sorted_streams()
+		all_buffers = self.get_sorted_streams()
 		# for buff in all_buffers:
 		# 	print(buff.index, buff.size)
 
