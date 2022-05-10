@@ -46,7 +46,8 @@ class DdsLoader(MemStructLoader):
 		super().create()
 		logging.debug(f"Creating image {name_ext}")
 		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
-			buffers = [b"" for _ in range(self.header.stream_count)]
+			# there's one empty buffer at the end!
+			buffers = [b"" for _ in range(self.header.stream_count + 1)]
 			# decide where to store the buffers
 			static_lods = 2
 			streamed_lods = len(buffers) - static_lods
@@ -54,13 +55,16 @@ class DdsLoader(MemStructLoader):
 			ss_entries = [self.sized_str_entry, ]
 			# ovs name generation only works for up to 2 streams
 			assert streamed_lods < 3
+			start_offset = 2 - streamed_lods
 			for i in range(streamed_lods):
 				# generate ovs name - highly idiosyncratic
-				# game expects to start with L1
-				# if there are 2 lods
-				# stock puts the first stream lod0 in L1, lod1 in L0
-				# a file with just one stream lod0 goes into L1 too
-				ovs_name = f"Textures_L{1-i}"
+				# 1 lod: lod0 -> L1
+				# 2 lods: lod0 -> L1, lod1 -> L0
+				# ovs_name = f"Textures_L{1-i}"
+				# 22-05-10: this seems to have changed for PZ
+				# 1 lod: lod0 -> L1
+				# 2 lods: lod0 -> L0, lod1 -> L1
+				ovs_name = f"Textures_L{start_offset+i}"
 				# create texturestream file - dummy_dir is ignored
 				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{i}.texturestream")
 				self.file_entry.streams.append(texstream_file)
