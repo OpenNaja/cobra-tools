@@ -26,8 +26,8 @@ class ForEachPointer(Pointer):
 				raise AttributeError(f"Unsupported arg {type(self.arg)} for ForEachPointer")
 			self.data = Array((len(args)), self.template, self.context, set_default=False)
 			stream = self.frag.struct_ptr.stream
-			for i, arg in enumerate(args):
-				logging.debug(f"Argument {i} = {arg}, template {self.template}")
+			# for i, arg in enumerate(args):
+			# 	logging.debug(f"Argument {i} = {arg}, template {self.template}")
 			self.data[:] = [self.template.from_stream(stream, self.context, arg) for arg in args]
 
 	# def write_template(self):

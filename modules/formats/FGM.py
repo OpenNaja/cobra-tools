@@ -18,7 +18,7 @@ class FgmLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
-		self.header.debug_ptrs()
+		# self.header.debug_ptrs()
 		self.get_names()
 		# print(self.header)
 
@@ -54,10 +54,10 @@ class FgmLoader(MemStructLoader):
 	def load(self, file_path):
 		# clear dependencies, they are automatically regenerated
 		self.file_entry.dependencies.clear()
-		print(self.file_entry.dependencies)
+		# print(self.file_entry.dependencies)
 		super().load(file_path)
 		self.sized_str_entry.data_entry.update_data((self.update_names_buffer(),))
-		print(self.file_entry.dependencies)
+		# print(self.file_entry.dependencies)
 
 	def get_deps_names(self):
 		return [dep.data for dep in self.header.dependencies.data if dep.data]

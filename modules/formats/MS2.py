@@ -40,7 +40,7 @@ class Ms2Loader(BaseFile):
 		self.get_version()
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
-		self.header.debug_ptrs()
+		# self.header.debug_ptrs()
 		# print(self.header)
 		# old JWE1 still uses 1 fragment
 		if self.header.version > 39:
