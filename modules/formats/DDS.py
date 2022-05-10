@@ -63,7 +63,7 @@ class DdsLoader(MemStructLoader):
 			logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
 			ss_entries = [self.sized_str_entry, ]
 			buffer_i = 0
-			# generate ovs name - highly idiosyncratic
+			# generate ovs and lod names - highly idiosyncratic
 			if streamed_lods == 0:
 				indices = ()
 			elif streamed_lods == 1:
@@ -73,8 +73,6 @@ class DdsLoader(MemStructLoader):
 				# 2 lods: lod0 -> L1, lod1 -> L0
 				# 22-05-10: this seems to have changed for PZ
 				# 2 lods: lod0 -> L0, lod1 -> L1
-				# todo 22-05-10: create with 2 streams crashes ingame, either order
-				# indices = ((1, 1), (0, 0))
 				indices = ((0, 0), (1, 1), )
 			else:
 				raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
@@ -88,7 +86,6 @@ class DdsLoader(MemStructLoader):
 				ss_entries.append(texstream_ss)
 				self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
 				# data entry, assign buffer
-				# todo - verify which field the data goes to
 				self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
 				buffer_i = self.increment_buffers(texstream_ss, buffer_i)
 			self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
@@ -103,20 +100,16 @@ class DdsLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
-		print("\n", self.file_entry.name)
-		for buff in self.sized_str_entry.data_entry.buffers:
-			print(buff.index, buff.size)
-		for stream_file in self.file_entry.streams:
-			print(stream_file.name)
-			stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
-			# idk why the loader is not used?!
-			# for buff in stream.loader.sized_str_entry.data_entry.buffers:
-			for buff in stream_ss.data_entry.buffers:
-				print(buff.index, buff.size)
-		# print(self.header)
-		# all_buffers = self.get_sorted_streams()
-		# for buff in all_buffers:
+		# print("\n", self.file_entry.name)
+		# for buff in self.sized_str_entry.data_entry.buffers:
 		# 	print(buff.index, buff.size)
+		# for stream_file in self.file_entry.streams:
+		# 	print(stream_file.name)
+		# 	stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
+		# 	# idk why the loader is not used?!
+		# 	# for buff in stream.loader.sized_str_entry.data_entry.buffers:
+		# 	for buff in stream_ss.data_entry.buffers:
+		# 		print(buff.index, buff.size)
 
 	def load(self, file_path):
 		# this loads the tex file and updates the header
@@ -183,7 +176,14 @@ class DdsLoader(MemStructLoader):
 		# PZ assigns the buffer index for the complete struct 0 | 1 | 2, 3
 		# from JWE2, buffer index for streams is 0 | 0 | 0, 1
 		# the last buffer is always 0 bytes
-		return list(sorted(self.get_streams(), key=lambda buffer: buffer.size, reverse=True))
+		all_buffers = []
+		for stream_file in sorted(self.file_entry.streams, key=lambda f: f.name):
+			stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
+			# seen 1 per stream
+			all_buffers.extend(stream_ss.data_entry.buffers)
+		# seen 2
+		all_buffers.extend(self.sized_str_entry.data_entry.buffers)
+		return all_buffers
 
 	@staticmethod
 	def overwrite_buffer(buffer, dds_buff):
