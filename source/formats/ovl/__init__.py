@@ -504,18 +504,17 @@ class OvsFile(OvsHeader):
 
 	def check_for_ptrs(self, parent_struct_ptr, ss):
 		"""Recursively assigns pointers to an entry"""
+		# tracking children for each struct adds no detectable overhead for animal ovls
 		parent_struct_ptr.children = set()
 		# see if any pointers are inside this struct
-		for entry in parent_struct_ptr.pool.offset_2_link_entry.values():
-			abs_offset = entry.link_ptr.data_offset
-			if parent_struct_ptr.data_offset <= abs_offset < parent_struct_ptr.data_offset + parent_struct_ptr.data_size:
+		for offset, entry in parent_struct_ptr.pool.offset_2_link_entry.items():
+			if parent_struct_ptr.data_offset <= offset < parent_struct_ptr.data_offset + parent_struct_ptr.data_size:
 				parent_struct_ptr.children.add(entry)
 				if isinstance(entry, Fragment):
-					# entry.name = ss.name
 					# points to a child struct
 					struct_ptr = entry.struct_ptr
 					if entry not in ss.fragments:
-						ss.fragments.append(entry)
+						ss.fragments.add(entry)
 						self.check_for_ptrs(struct_ptr, ss)
 
 	def _dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
@@ -1143,38 +1142,38 @@ class OvlFile(Header, IoFile):
 			pool.clear_data()
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
-			# the index goes into the flattened list of pools
-			ptr = dep.link_ptr
-			ptr.link_to_pool(self.pools, is_struct_ptr=False)
-			ptr.pool.offset_2_link_entry[ptr.data_offset] = dep
+			# the index goes into the flattened list of ovl pools
+			dep.link_ptr.get_pool(self.pools)
+			dep.link_ptr.pool.add_link(dep)
 		for archive in self.archives:
 			ovs = archive.content
-			# # sort fragments by their first pointer, no real need to do so, though
+			# sort fragments by their first pointer, no real need to do so, though
 			# ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
-			# attach all pointers to their pool, only detect 'splits' between struct_ptrs
+			# attach all pointers to their pool
 			for entry in ovs.sized_str_entries:
-				entry.struct_ptr.link_to_pool(ovs.pools)
+				entry.struct_ptr.get_pool(ovs.pools)
+				# may not have a pool
 				if entry.struct_ptr.pool:
 					entry.struct_ptr.pool.add_struct(entry)
 			for i, frag in enumerate(ovs.fragments):
-				frag.link_ptr.link_to_pool(ovs.pools, is_struct_ptr=False)
-				frag.struct_ptr.link_to_pool(ovs.pools)
-				frag.struct_ptr.pool.add_struct(frag)
-				# we assign these later when the loader classes run collect()
-				frag.name = None
+				frag.link_ptr.get_pool(ovs.pools)
+				frag.struct_ptr.get_pool(ovs.pools)
 				try:
-					frag.link_ptr.pool.offset_2_link_entry[frag.link_ptr.data_offset] = frag
+					frag.struct_ptr.pool.add_struct(frag)
+					frag.link_ptr.pool.add_link(frag)
 				except:
 					traceback.print_exc()
-					logging.warning(f"frag {i} failed")
+					logging.warning(f"linking frag {i} failed")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_pointer_sizes()
 
+		logging.info("Tracking pointers")
 		for archive in self.archives:
 			ovs = archive.content
 			for entry in ovs.sized_str_entries:
-				entry.fragments = []
+				# this is significantly slower if a list is used
+				entry.fragments = set()
 				if entry.struct_ptr.pool:
 					ovs.check_for_ptrs(entry.struct_ptr, entry)
 

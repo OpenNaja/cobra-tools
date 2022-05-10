@@ -27,7 +27,6 @@ def file_remover(ovl, filenames):
 	ovl.load_flattened_pools()
 
 
-
 def bulk_delete(input_list, entries_to_delete):
 	entries_to_delete = set(entries_to_delete)
 	lut_dict = {e: e_index for e_index, e in enumerate(input_list)}

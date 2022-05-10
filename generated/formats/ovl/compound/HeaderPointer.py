@@ -79,9 +79,6 @@ class HeaderPointer:
 		# temp data for flushing
 		self._data = None
 
-		# sizedstr and frag pointer 1 point to structs, whereas frag pointer 0 and dependency are just a reference
-		self.is_struct_ptr = True
-
 	@property
 	def data(self, with_padding=False):
 		"""Get data from pool writer"""
@@ -137,20 +134,11 @@ class HeaderPointer:
 			self.data_size = len(data)
 			self.pool.data.write(data)
 
-	def link_to_pool(self, pools, is_struct_ptr=True):
+	def get_pool(self, pools):
 		"""Link this pointer to its pool"""
-
-		self.is_struct_ptr = is_struct_ptr
 		if self.pool_index != -1:
 			# get pool
 			self.pool = pools[self.pool_index]
-			if not is_struct_ptr:
-				self.data_size = 8
-			# else:
-			# 	# todo - only add struct ptrs to map, but ensure that non-struct ptrs have their offsets adjusted for delete
-			# 	if self.data_offset not in self.pool.offset_2_struct_entries:
-			# 		self.pool.offset_2_struct_entries[self.data_offset] = []
-			# 	self.pool.offset_2_struct_entries[self.data_offset].append(self)
 
 	def update_pool_index(self, pools_lut):
 		"""Changes self.pool_index according to self.pool in pools_lut"""
@@ -162,7 +150,6 @@ class HeaderPointer:
 
 	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
 		"""Update data and size of this pointer"""
-		assert self.is_struct_ptr
 		self._data = data
 
 	def remove(self):

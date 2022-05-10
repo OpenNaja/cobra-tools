@@ -175,10 +175,17 @@ class MemPool:
 				return first_entries[0]
 
 	def add_struct(self, entry):
+		"""Adds an entry to the required tables of this pool"""
 		offset = entry.struct_ptr.data_offset
 		if offset not in self.offset_2_struct_entries:
 			self.offset_2_struct_entries[offset] = []
 		self.offset_2_struct_entries[offset].append(entry)
+
+	def add_link(self, entry):
+		"""Adds an entry to the required tables of this pool"""
+		offset = entry.link_ptr.data_offset
+		self.offset_2_link_entry[offset] = entry
+		entry.link_ptr.data_size = 8
 
 	def flush_pointers(self):
 		"""Pre-writing step to convert all edits that were done on individual pointers back into the consolidated header

@@ -95,7 +95,7 @@ class BaseFile:
 	def create_ss_entry(self, file_entry, ovs="STATIC"):
 		ss_entry = SizedStringEntry(self.ovl.context)
 		ss_entry.children = []
-		ss_entry.fragments = []
+		ss_entry.fragments = set()
 		ovs_file = self.ovl.create_archive(ovs)
 		ovs_file.transfer_identity(ss_entry, file_entry)
 		ovs_file.sized_str_entries.append(ss_entry)
@@ -122,7 +122,8 @@ class BaseFile:
 
 	def create_fragment(self, ss):
 		new_frag = Fragment(self.ovl.context)
-		ss.fragments.append(new_frag)
+		# ss.fragments.append(new_frag)
+		ss.fragments.add(new_frag)
 		return new_frag
 
 	def create_data_entry(self, ss_entry, buffers_bytes, ovs="STATIC"):
@@ -181,6 +182,9 @@ class BaseFile:
 			frag.struct_ptr.remove()
 			frag.link_ptr.remove()
 		self.sized_str_entry.struct_ptr.remove()
+		for pool in self.ovl.pools:
+			# if the pool has editable pointers, flush them to the pool writer first
+			pool.flush_pointers()
 
 	def remove(self):
 		logging.info(f"Removing {self.file_entry.name}")
@@ -230,6 +234,7 @@ class MemStructLoader(BaseFile):
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 
 	def load(self, file_path):
+		# todo - fix removal etc
 		# self.remove_pointers()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		# print(self.header)
