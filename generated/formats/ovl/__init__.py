@@ -536,7 +536,7 @@ class OvsFile(OvsHeader):
 			else:
 				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {entry.name}")
 
-	def dump_stack(self, file_lut):
+	def dump_stack(self):
 		"""for development; collect info about fragment types"""
 		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}.stack")
 		logging.info(f"Dumping stack to {frag_log_path}")
@@ -1428,12 +1428,9 @@ class OvlFile(Header, IoFile):
 
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
-		file_lut = {file.name: file for file in self.files}
 		for archive_entry in self.archives:
 			try:
-				# archive_entry.content.assign_frag_names()
-				# archive_entry.content.dump_frag_log()
-				archive_entry.content.dump_stack(file_lut)
+				archive_entry.content.dump_stack()
 				archive_entry.content.dump_buffer_groups_log()
 				archive_entry.content.dump_pools()
 			except BaseException as err:
