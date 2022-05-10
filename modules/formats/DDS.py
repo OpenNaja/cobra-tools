@@ -167,11 +167,13 @@ class DdsLoader(MemStructLoader):
 		buffer.update_data(dds_buff)
 
 	def get_tex_structs(self):
+		if is_dla(self.ovl):
+			return self.header
 		if is_pc(self.ovl) or is_ztuac(self.ovl):
 			# this corresponds to a stripped down size_info
 			return self.header.buffer_infos.data[0]
 		else:
-			return self.header.size_info.data
+			return self.header.size_info.data.data
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		tex_paths = super().extract(out_dir, show_temp_files, progress_callback)
@@ -187,14 +189,13 @@ class DdsLoader(MemStructLoader):
 		out_files.extend(tex_paths)
 
 		dds_file = DdsFile()
+		size_info = self.get_tex_structs()
 		if is_dla(self.ovl):
-			size_info = self.header
 			dds_file.width = size_info.width
 			dds_file.height = size_info.height
 			dds_file.mipmap_count = size_info.num_mips
 			dds_file.depth = 1
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
-			size_info = self.header.buffer_infos.data[0]
 			dds_file.width = size_info.width
 			# hack until we have proper support for array_size on the image editors
 			# todo - this is most assuredly not array size for ED
@@ -202,7 +203,6 @@ class DdsLoader(MemStructLoader):
 			dds_file.mipmap_count = size_info.mip_index
 			dds_file.depth = 1
 		else:
-			size_info = self.header.size_info.data
 			if not len(buffer_data) == size_info.data_size:
 				logging.warning(
 					f"7_1 data size ({size_info.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")

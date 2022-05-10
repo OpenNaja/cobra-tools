@@ -147,7 +147,7 @@
 		<add name="mip index" type="ushort">max mip in this buffer</add>
     </compound>
 
-	<compound name="SizeInfo" inherit="MemStruct" >
+	<compound name="SizeInfoRaw" inherit="MemStruct" >
 		Data struct for headers of type 7
 		<add name="zero" type="uint64">zero</add>
 		<add name="data size" type="uint" >total dds buffer size</add>
@@ -158,6 +158,12 @@
 		<add name="num mips" type="uint">amount of mip map levels</add>
 		<add name="unk_pz" type="uint64" since="20">only found in PZ and JWE2</add>
 		<add name="mip maps" type="Mipmap" arr1="num mips">info about mip levels</add>
+    </compound>
+
+	<compound name="SizeInfo" inherit="MemStruct" >
+		<add name="data" type="SizeInfoRaw"/>
+		<add name="padding" type="ubyte" arr1="320 - (data \ io_size)" vercond="#PZ16# #OR# #PZ# #OR# #JWE2#"/>
+		<add name="padding" type="ubyte" arr1="384 - (data \ io_size)" vercond="#JWE#"/>
     </compound>
 
 	<compound name="Mipmap" inherit="MemStruct">

@@ -69,18 +69,18 @@ class MemStruct:
 					val.frag = loader.create_fragment(loader.sized_str_entry)
 
 				if DEPENDENCY_TAG not in prop:
-					val.frag.struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
+					val.frag.struct_ptr.pool = loader.get_pool(val.pool_type, ovs=ovs.arg.name)
 					# this writes pointer.data to the pool
 					val.write_pointer()
 					# now repeat with pointer.data
-					self.handle_write(prop, val.data, val.frag.struct_ptr, loader, ovs, pool_type)
+					self.handle_write(prop, val.data, val.frag.struct_ptr, loader, ovs, pool_type, is_member=True)
 				# set link_ptr
 				p = val.frag.link_ptr
 				p.data_offset = val.io_start
 				p.pool = struct_ptr.pool
 
 	def write_ptrs(self, loader, ovs, struct_ptr, pool_type, is_member=False):
-		logging.debug(f"write_ptrs")
+		logging.debug(f"write_ptrs, member={is_member}")
 		# don't write array members again, they have already been written!
 		if not is_member:
 			# write this struct's data

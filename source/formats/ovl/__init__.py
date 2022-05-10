@@ -542,6 +542,9 @@ class OvsFile(OvsHeader):
 		logging.info(f"Dumping stack to {frag_log_path}")
 		with open(frag_log_path, "w") as f:
 
+			for i, pool in enumerate(self.pools):
+				f.write(f"\nPool {i} (type: {pool.type})")
+
 			for ss in self.sized_str_entries:
 				ptr = ss.struct_ptr
 				if ptr.pool:
