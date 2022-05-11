@@ -17,7 +17,7 @@ from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from generated.formats.ms2 import Ms2File
 from plugin.utils.matrix_util import evaluate_mesh
-from plugin.utils.shell import get_collection, is_shell, is_fin
+from plugin.utils.shell import get_collection, is_shell, is_fin, is_flipped
 
 MAX_USHORT = 65535
 
@@ -121,6 +121,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
 		# build indices into vertex buffer for the current face
 		tri = []
+		flip = is_flipped(eval_me.uv_layers[0].data, face)
 		# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
 		for loop_index in face.loop_indices:
 			b_loop = eval_me.loops[loop_index]
@@ -171,10 +172,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# collect vertex colors
 				vcols = [(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
 
-				bone_ids, bone_weights, fur_length, fur_width, residue, winding = export_weights(
+				bone_ids, bone_weights, fur_length, fur_width, residue = export_weights(
 					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
 				# store all raw blender data
-				verts.append((position, residue, normal, winding, tangent, bone_ids[0], uvs, vcols, bone_ids,
+				verts.append((position, residue, normal, flip, tangent, bone_ids[0], uvs, vcols, bone_ids,
 					bone_weights, fur_length, fur_width, shapekey))
 			tri.append(v_index)
 		tris.append(tri)
@@ -201,7 +202,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# defaults that may or may not be set later on
-	winding = 0
 	residue = 1
 	fur_length = 0
 	fur_width = 0
@@ -211,10 +211,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	for vertex_group in b_vert.groups:
 		try:
 			vgroup_name = b_ob.vertex_groups[vertex_group.group].name
-			# get the winding
-			if vgroup_name == "winding":
-				winding = vertex_group.weight
-			elif vgroup_name == "residue":
+			if vgroup_name == "residue":
 				# if this is not rounded, somehow it affects the weights
 				# might be a bug, but can't figure out where the rest is affected
 				residue = int(round(vertex_group.weight))
@@ -235,7 +232,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 		except BaseException as err:
 			logging.warning(f"Vert with {len(b_vert.groups)} groups, index {vertex_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
 			traceback.print_exc()
-	# print(residue, winding)
+	# print(residue)
 	# get the 4 strongest influences on this vert
 	w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
 	# print(w_s)
@@ -254,7 +251,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	elif b_vert.index not in unweighted_vertices:
 		# print("Sum of weights",sw)
 		unweighted_vertices.append(b_vert.index)
-	return bone_ids, bone_weights, fur_length, fur_width, residue, winding
+	return bone_ids, bone_weights, fur_length, fur_width, residue
 
 
 def get_property(ob, prop_name):

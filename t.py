@@ -139,3 +139,104 @@ if __name__ == '__main__':
 # import struct
 # b = struct.unpack("Q", a)[0]
 # print(unpack_longint_vec(b, 512))
+
+
+bl_info = {
+    "name": "Flipped UVs Selector",
+    "description": "Simple operator and menu item in UV editor for selecting faces with flipped UVs for active uv layer.",
+    "author": "Simon Lusenc (50keda)",
+    "version": (1, 1),
+    "blender": (2, 80, 0),
+    "location": "3D View > Quick Search; UV/Image Editor > Select > Flipped UVs",
+    "category": "UV",
+    "support": "COMMUNITY"
+}
+
+import bpy, bmesh, array
+from mathutils import Vector
+
+UP_VEC = Vector((0, 0, 1))
+
+
+def is_flipped(uv_layer, poly):
+    # from https://blenderartists.org/t/addon-flipped-uvs-selector/668111/5
+    # order of polygon loop defines direction of face normal
+    # and that same loop order is used in uv data.
+    # With this knowladge we can easily say that cross product:
+    # (v2.uv-v1.uv)x(v3.uv-v2.uv) gives us uv normal direction of part of the polygon. Further
+    # this normal has to be used in dot product with up vector (0,0,1) and result smaller than zero
+    # means uv normal is pointed in opposite direction than it should be (partial polygon v1,v2,v3 is flipped).
+
+    # calculate uv differences between current and next face vertex for whole polygon
+    diffs = []
+    for l_i in poly.loop_indices:
+        next_l = l_i + 1 if l_i < poly.loop_start + poly.loop_total - 1 else poly.loop_start
+
+        next_v_uv = uv_layer[next_l].uv
+        v_uv = uv_layer[l_i].uv
+
+        diffs.append((next_v_uv - v_uv).to_3d())
+
+    # go trough all uv differences and calculate cross product between current and next.
+    # cross product gives us normal of the triangle. That normal then is used in dot product
+    # with up vector (0,0,1). If result is negative we have found flipped part of polygon.
+    for i, diff in enumerate(diffs):
+        if i == len(diffs) - 1:
+            break
+
+        # as soon as we find partial flipped polygon we select it and finish search
+        if diffs[i].cross(diffs[i + 1]) @ UP_VEC <= 0:
+            return True
+    return False
+
+
+
+class FlippedUVSelector(bpy.types.Operator):
+    """Select polygons with flipped UV mapping."""
+
+    # order of polygon loop defines direction of face normal
+    # and that same loop order is used in uv data.
+    # With this knowladge we can easily say that cross product:
+    # (v2.uv-v1.uv)x(v3.uv-v2.uv) gives us uv normal direction of part of the polygon. Further
+    # this normal has to be used in dot product with up vector (0,0,1) and result smaller than zero
+    # means uv normal is pointed in opposite direction than it should be (partial polygon v1,v2,v3 is flipped).
+
+    bl_idname = "uv.select_flipped"
+    bl_label = "Flipped UVs"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.object and context.object.mode == "EDIT" and context.object.type == "MESH"
+
+    def execute(self, context):
+        ob = bpy.context.object
+
+        bpy.ops.mesh.select_all(action="DESELECT")
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        for p in ob.data.polygons:
+            p.select = is_flipped(ob.data.uv_layers.active.data, p)
+
+        bpy.ops.object.mode_set(mode="EDIT")
+
+        return {'FINISHED'}
+
+
+def draw_item(self, context):
+    self.layout.separator()
+    self.layout.operator(FlippedUVSelector.bl_idname)
+
+
+def register():
+    bpy.utils.register_class(FlippedUVSelector)
+    bpy.types.IMAGE_MT_select.append(draw_item)
+
+
+def unregister():
+    bpy.utils.register_class(FlippedUVSelector)
+    bpy.types.IMAGE_MT_select.remove(draw_item)
+
+
+if __name__ == '__main__':
+    register()

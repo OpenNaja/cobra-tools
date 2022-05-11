@@ -118,10 +118,6 @@ def unpack_weights(model, i, residue, extra=True):
             vert_w.append(("fur_length", model.fur[i][0] * 255))
             vert_w.append(("fur_width", model.fur[i][1] * 255))
 
-        # winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
-        # 0 = natural winding matching the geometry
-        # 128 = UV's winding is flipped / inverted compared to geometry
-        vert_w.append(("winding", model.verts_data[i]["winding"]))
         # packing bit
         vert_w.append(("residue", residue * 255))
     return vert_w

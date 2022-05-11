@@ -188,7 +188,7 @@ class NewMeshData:
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, residue))
-		print(self.verts_data[:]["winding"])
+		# print(self.verts_data[:]["winding"])
 
 	def write_verts(self, stream):
 		stream.write(self.verts_data.tobytes())
@@ -209,7 +209,11 @@ class NewMeshData:
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
 			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
 			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
-			self.verts_data[i]["winding"] = winding * 255
+
+			# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
+			# 0 = natural winding matching the geometry
+			# 128 = UV's winding is flipped / inverted compared to geometry
+			self.verts_data[i]["winding"] = winding * 128
 			self.verts_data[i]["bone index"] = bone_index
 			if "bone ids" in self.dt.fields:
 				self.verts_data[i]["bone ids"] = bone_ids
@@ -237,6 +241,7 @@ class NewMeshData:
 				first, second = struct.unpack("LL", raw_bytes)
 				self.verts_data[i]["shapekeys0"] = first
 				self.verts_data[i]["shapekeys1"] = second
+		# print(self.verts_data[:]["winding"])
 
 	def populate(self, ms2_file, base=512):
 		self.ms2_file = ms2_file

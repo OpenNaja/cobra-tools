@@ -145,7 +145,7 @@ Precision
 #
 # ***** END LICENSE BLOCK *****
 
-from .mathutils import *
+from .pyffi_mathutils import *
 
 import operator
 
