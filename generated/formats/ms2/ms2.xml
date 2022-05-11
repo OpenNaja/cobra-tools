@@ -116,7 +116,7 @@
 		<add name="vertex_buffer_count" type="ushort" >total count of vertex buffers, including streamed buffers</add>
 		<add name="mdl2 count" type="ushort"/>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
-		<add name="stream count" type="short" >-1 if there is no vertex buffer at all; else count of streams</add>
+		<add name="stream_count" type="short" >-1 if there is no vertex buffer at all; else count of static buffers</add>
 		<add name="zeros" type="uint" arr1="3"/>
 		the following two ptrs are not used in PC
 		<add name="buffer_infos" type="ArrayPointer" template="BufferInfo" arg="vertex_buffer_count">ms2's static buffer_info or empty (if no buffers)</add>
@@ -259,6 +259,10 @@
 		<add name="bone info size" type="uint"/>
 		<add name="info" type="MS2Root"/>
 		<add name="mdl2 names" type="ZString" arr1="info \ mdl2_count"/>
+		for uac, vertex_buffer_count = 4 -> stream count (4 streams for rhino, + 1 static)
+		<add name="modelstream_names" type="ZString" arr1="info \ vertex_buffer_count" cond="info \ vertex_buffer_count" until="13"/>
+		no clue about the versioning here, need more samples with newer and more streams other than JWE2 gst_parktour_trucks
+		<add name="modelstream_names" type="ZString" arr1="info \ stream_count" cond="info \ vertex_buffer_count" since="39"/>
 		<add name="buffer 0" type="Buffer0" arg="info" />
 <!--		corresponds to PC buffer 1-->
 		<add name="buffer_infos" type="BufferInfo" arr1="info \ vertex_buffer_count" />
@@ -284,7 +288,7 @@
 		266 bytes ?
 		very end of buffer 0 after the names list
 		<add name="weird padding" type="SmartPadding">sometimes 00 byte</add>
-		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ stream count" >?</add>
+		<add name="unks" type="InfoZTMemPool" arr1="#ARG# \ stream_count" >?</add>
 	</compound>
 
 	<compound name="InfoZTMemPool" >

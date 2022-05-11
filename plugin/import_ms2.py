@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+import traceback
 
 import bpy
 # import bmesh
@@ -60,8 +61,10 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						b_me["unk_f0"] = float(mesh.unk_floats[0])
 						b_me["unk_f1"] = float(mesh.unk_floats[1])
 					mesh_dict[m_ob.mesh_index] = b_me
+					# try:
 					import_mesh_layers(b_me, mesh, use_custom_normals)
-
+					# except:
+					# 	traceback.print_exc()
 				# link material to mesh
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 

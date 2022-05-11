@@ -85,30 +85,47 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			if is_old(self.info):
-				self.buffer_1_offset = self.buffer_info.io_start
+				self.buffer_1_offset = self.buffer_infos.io_start
 			else:
 				self.buffer_1_offset = self.models_reader.bone_info_start
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
-			# logging.debug(self)
+
+			logging.info(self)
+			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
 			for bone_info in self.models_reader.bone_infos:
 				self.assign_bone_names(bone_info)
 				self.assign_joints(bone_info)
 
 			self.lookup_material()
-			if read_editable:
-				self.load_mesh(stream)
+
 			if read_bytes:
 				stream.seek(self.buffer_0.io_start)
 				self.buffer_0_bytes = stream.read(self.buffer_0.io_size)
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
-				# self.get_buffers()
+
+			stream.seek(self.buffer_2_offset)
+			verts_bytes = stream.read()
+		self.streams = []
+		if not is_old(self.info):
+			self.streams.append(ConvStream(verts_bytes))
+		for modelstream_name in self.modelstream_names:
+			modelstream_path = os.path.join(self.dir, f"{modelstream_name}.model2stream")
+			logging.info(f"Loading {modelstream_path}")
+			with open(modelstream_path, "rb") as modelstream_reader:
+				modelstream_stream = ConvStream(modelstream_reader.read())
+				self.streams.append(modelstream_stream)
+		if is_old(self.info):
+			self.streams.append(ConvStream(verts_bytes))
+		if read_editable:
+			self.load_mesh()
+			# self.get_buffers()
 
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
-	def load_mesh(self, stream):
+	def load_mesh(self):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 			if is_old(self.info):
 				# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
@@ -128,7 +145,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					for i, mesh in sorted_meshes:
 						logging.info(f"Populating mesh {i}")
 						last_vertex_offset = mesh.populate(
-							self, stream, self.buffer_2_offset, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+							self, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
 				except:
 					traceback.print_exc()
 					# print(self)
@@ -136,7 +153,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# if mdl2.read_editable:
 				logging.debug(f"Loading editable mesh data for {mdl2_name}")
 				for mesh in model_info.model.meshes:
-					mesh.populate(self, stream, self.buffer_2_offset, model_info.pack_offset)
+					mesh.populate(self, model_info.pack_offset)
 				#
 				# elif mdl2.map_bytes:
 				# 	logging.debug(f"Reading mesh statistics for {mdl2_name}")

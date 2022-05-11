@@ -136,22 +136,24 @@ class Ms2Loader(BaseFile):
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		# truncate to 48 bytes for PZ af_keeperbodyparts
 		ms2_general_info_data = self.root_entry.struct_ptr.data[:48]
-
 		ms2_header = struct.pack("<I", len(bone_infos))
-	
-		# for i, buffer in enumerate(buffers):
-		# 	p = out_dir(name+str(i)+".ms2")
-		# 	with open(p, 'wb') as outfile:
-		# 		outfile.write(buffer)
 
 		# write the ms2 file
 		out_path = out_dir(name)
+		out_paths = [out_path, ]
 		with ConvStream() as stream:
 			stream.write(ms2_header)
 			stream.write(ms2_general_info_data)
 			for mdl2_entry in self.root_entry.children:
 				logging.debug(f"Writing {mdl2_entry.name}")
 				stream.write(as_bytes(mdl2_entry.basename))
+			for modelstream_file in self.file_entry.streams:
+				stream.write(as_bytes(modelstream_file.basename))
+				stream_path = out_dir(modelstream_file.name)
+				out_paths.append(stream_path)
+				with open(stream_path, 'wb') as outfile:
+					stream_ss, archive = self.ovl.get_root_entry(modelstream_file.name)
+					outfile.write(stream_ss.data_entry.buffer_datas[0])
 			stream.write(name_buffer)
 			# export each mdl2
 			if self.header.version > 39:
@@ -177,24 +179,18 @@ class Ms2Loader(BaseFile):
 				outfile.write(bone_infos)
 				outfile.write(verts)
 		# m = Ms2File()
+		# m.load(out_path)
 		# m.load(out_path, read_editable=True)
 		# m.save(out_path+"_.ms2")
 		# print(m)
-		return out_path,
+		return out_paths
 	
 	def get_ms2_buffer_datas(self):
 		assert self.root_entry.data_entry
-		buffers_in_order = list(sorted(self.get_streams(), key=lambda b: b.index))
-		for buff in buffers_in_order:
-			logging.debug(f"buffer {buff.index}, size {buff.size} bytes")
-		all_buffer_bytes = [buffer.data for buffer in buffers_in_order]
+		all_buffer_bytes = self.root_entry.data_entry.buffer_datas
 		name_buffer = all_buffer_bytes[0]
 		bone_infos = all_buffer_bytes[1]
 		verts = b"".join(all_buffer_bytes[2:])
-		for i, vbuff in enumerate(all_buffer_bytes[2:]):
-			logging.debug(f"Vertex buffer {i}, size {len(vbuff)} bytes")
-		logging.debug(f"len buffers: {len(all_buffer_bytes)}")
-		logging.debug(f"name_buffer: {len(name_buffer)}, bone_infos: {len(bone_infos)}, verts: {len(verts)}")
 		return name_buffer, bone_infos, verts
 	
 	def load(self, ms2_file_path):

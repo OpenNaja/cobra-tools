@@ -32,7 +32,7 @@ class Ms2Root(MemStruct):
 		# count of names in ms2 buffer0
 		self.name_count = 0
 
-		# -1 if there is no vertex buffer at all; else count of streams
+		# -1 if there is no vertex buffer at all; else count of static buffers
 		self.stream_count = 0
 		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 

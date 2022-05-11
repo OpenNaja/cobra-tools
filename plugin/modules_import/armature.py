@@ -48,6 +48,7 @@ def import_armature(scene, model_info, b_bone_names):
 					# calculate ms2 armature space matrix
 					n_bind = mats[parent_name] @ n_bind
 			except:
+				traceback.print_exc()
 				logging.warning(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
 
 			# store the ms2 armature space matrix

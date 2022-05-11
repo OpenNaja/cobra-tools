@@ -27,6 +27,8 @@ class Ms2InfoHeader:
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
+		self.modelstream_names = Array((self.info.vertex_buffer_count,), ZString, self.context, 0, None)
+		self.modelstream_names = Array((self.info.stream_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
 		self.buffer_infos = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
@@ -40,6 +42,10 @@ class Ms2InfoHeader:
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
+		if self.context.version <= 13 and self.info.vertex_buffer_count:
+			self.modelstream_names = Array((self.info.vertex_buffer_count,), ZString, self.context, 0, None)
+		if self.context.version >= 39 and self.info.vertex_buffer_count:
+			self.modelstream_names = Array((self.info.stream_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
 		self.buffer_infos = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
@@ -60,6 +66,10 @@ class Ms2InfoHeader:
 		instance.bone_info_size = stream.read_uint()
 		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
+		if instance.context.version <= 13 and instance.info.vertex_buffer_count:
+			instance.modelstream_names = stream.read_zstrings((instance.info.vertex_buffer_count,))
+		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
+			instance.modelstream_names = stream.read_zstrings((instance.info.stream_count,))
 		instance.buffer_0 = Buffer0.from_stream(stream, instance.context, instance.info, None)
 		instance.buffer_infos = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		instance.model_infos = Array.from_stream(stream, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
@@ -70,6 +80,10 @@ class Ms2InfoHeader:
 		stream.write_uint(instance.bone_info_size)
 		Ms2Root.to_stream(stream, instance.info)
 		stream.write_zstrings(instance.mdl_2_names)
+		if instance.context.version <= 13 and instance.info.vertex_buffer_count:
+			stream.write_zstrings(instance.modelstream_names)
+		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
+			stream.write_zstrings(instance.modelstream_names)
 		Buffer0.to_stream(stream, instance.buffer_0)
 		Array.to_stream(stream, instance.buffer_infos, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.model_infos, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)
@@ -98,6 +112,7 @@ class Ms2InfoHeader:
 		s += f'\n	* bone_info_size = {fmt_member(self.bone_info_size, indent+1)}'
 		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
 		s += f'\n	* mdl_2_names = {fmt_member(self.mdl_2_names, indent+1)}'
+		s += f'\n	* modelstream_names = {fmt_member(self.modelstream_names, indent+1)}'
 		s += f'\n	* buffer_0 = {fmt_member(self.buffer_0, indent+1)}'
 		s += f'\n	* buffer_infos = {fmt_member(self.buffer_infos, indent+1)}'
 		s += f'\n	* model_infos = {fmt_member(self.model_infos, indent+1)}'

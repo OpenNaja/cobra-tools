@@ -11,31 +11,21 @@ class ZtMeshData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vertex_offset=0, sum_uv_dict={}):
+	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
 		self.last_vertex_offset = last_vertex_offset
 		self.new_vertex_offset = 0
-		# todo - refactor buffer_infos for external model2stream
-		self.streams = ms2_file.buffer_infos
-		self.stream_info = self.streams[self.stream_index]
-		self.stream_offset = 0
-		for s in self.streams[:self.stream_index]:
-			s.size = s.vertex_buffer_size + s.tris_buffer_size + s.uv_buffer_size
-			self.stream_offset += s.size
-			logging.debug(f"Stream {s.size}")
-		self.buffer_2_offset = buffer_2_offset
-		# determine end of vertex stream to seek back from
-		self.vert_stream_end = self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size
-		logging.debug(f"Stream {self.stream_index}, Offset: {self.stream_offset}, Address: {self.buffer_2_offset+self.stream_offset}")
-		logging.debug(f"Vertex Stream end {self.vert_stream_end}")
-		logging.debug(f"Tri info address {self.buffer_2_offset+self.stream_offset+self.tri_info_offset}")
-		logging.debug(f"Vertex info address {self.buffer_2_offset+self.stream_offset+self.vert_info_offset}")
+		stream = ms2_file.streams[self.stream_index]
+		logging.debug(f"Using stream {self.stream_index}")
+		self.stream_info = ms2_file.buffer_infos[self.stream_index]
+		logging.debug(f"Tri info address {self.tri_info_offset}")
+		logging.debug(f"Vertex info address {self.vert_info_offset}")
 		# print(self)
 		self.ms2_file = ms2_file
 		self.base = base
 		self.shapekeys = None
-		self.read_verts(ms2_stream)
-		self.read_tris(ms2_stream)
+		self.read_verts(stream)
+		self.read_tris(stream)
 		return self.new_vertex_offset
 
 	def init_arrays(self):
@@ -68,9 +58,8 @@ class ZtMeshData:
 			("b", np.ubyte, ),
 		]
 		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
-		stream_info = self.streams[self.stream_index]
 		# hack for zt monitor
-		if stream_info.uv_buffer_size // vert_count_in_stream == 4:
+		if self.stream_info.uv_buffer_size // vert_count_in_stream == 4:
 			dt_colors = [
 				("uvs", np.ushort, (1, 2)),
 			]
@@ -87,7 +76,7 @@ class ZtMeshData:
 
 	@property
 	def tris_address(self):
-		return self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size + self.tri_offset
+		return self.stream_info.vertex_buffer_size + self.tri_offset
 
 	def read_verts(self, stream):
 		# get dtype according to which the vertices are packed
@@ -98,19 +87,17 @@ class ZtMeshData:
 		if 4294967295 == self.vertex_offset:
 			logging.warning(f"vertex_offset is -1, seeking to last vertex offset {self.last_vertex_offset}")
 			if self.last_vertex_offset == 0:
-				self.last_vertex_offset = self.buffer_2_offset + self.stream_offset
-				# stream.seek(self.vert_stream_end - (self.vertex_count * self.dt.itemsize))
 				logging.warning(f"Zero, starting at buffer start {stream.tell()}")
 			else:
 				stream.seek(self.last_vertex_offset)
 		else:
-			stream.seek(self.buffer_2_offset + self.stream_offset + self.vertex_offset)
+			stream.seek(self.vertex_offset)
 		logging.debug(f"{self.vertex_count} VERTS at {stream.tell()}")
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		stream.readinto(self.verts_data)
 		self.new_vertex_offset = stream.tell()
 		# print(self.verts_data.shape)
-		stream.seek(self.buffer_2_offset + self.stream_offset + self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
+		stream.seek(self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
 		logging.debug(f"UV at {stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
 		stream.readinto(self.colors_data)

@@ -52,6 +52,7 @@ class HitcheckReader:
 	def set_defaults(self):
 		pass
 
+	@classmethod
 	def read_fields(cls, stream, instance):
 		for jointinfo in instance.arg:
 			jointinfo.hitchecks = []
@@ -60,6 +61,7 @@ class HitcheckReader:
 				hc.read(stream)
 				jointinfo.hitchecks.append(hc)
 
+	@classmethod
 	def write_fields(cls, stream, instance):
 		pass
 

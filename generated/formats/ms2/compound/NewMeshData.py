@@ -269,7 +269,7 @@ class NewMeshData(MeshData):
 
 	def read_verts(self, stream):
 		# read vertices of this mesh
-		stream.seek(self.buffer_2_offset + self.stream_offset + self.vertex_offset)
+		stream.seek(self.vertex_offset)
 		logging.debug(f"Reading {self.vertex_count} verts at {stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
@@ -332,7 +332,7 @@ class NewMeshData(MeshData):
 	@property
 	def tris_address(self):
 		buffer_info = self.ms2_file.buffer_infos[self.buffer_info.offset]
-		return self.buffer_2_offset + self.stream_offset + buffer_info.vertex_buffer_size + self.tri_offset
+		return buffer_info.vertex_buffer_size + self.tri_offset
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""
@@ -374,18 +374,14 @@ class NewMeshData(MeshData):
 				self.verts_data[i]["shapekeys0"] = first
 				self.verts_data[i]["shapekeys1"] = second
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512):
-		self.buffer_2_offset = buffer_2_offset
+	def populate(self, ms2_file, base=512):
 		self.ms2_file = ms2_file
 		self.base = base
-		# todo - refactor buffer_infos for external model2stream
-		self.stream_offset = 0
-		for s in self.ms2_file.buffer_infos[:self.buffer_info.offset]:
-			s.size = s.vertex_buffer_size + s.tris_buffer_size  # + s.uv_buffer_size
-			self.stream_offset += s.size
-			# logging.debug(f"Stream {s.size}")
-		self.read_verts(ms2_stream)
-		self.read_tris(ms2_stream)
+		stream_index = self.buffer_info.offset
+		stream = ms2_file.streams[stream_index]
+		logging.debug(f"Using stream {stream_index}")
+		self.read_verts(stream)
+		self.read_tris(stream)
 		self.validate_tris()
 
 
