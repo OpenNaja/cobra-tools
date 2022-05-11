@@ -211,7 +211,7 @@ class Ms2Loader(BaseFile):
 				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
 					# don't cry about this
 					continue
-				if fgm_name not in self.ovl._ss_dict:
+				if fgm_name not in self.ovl._root_entry_dict:
 					missing_materials.add(fgm_name)
 			if ovl_model_info.num_meshes != model_info.num_meshes:
 				raise AttributeError(
@@ -225,6 +225,8 @@ class Ms2Loader(BaseFile):
 			if not interaction.showdialog(msg, ask=True):
 				logging.info("Injection was canceled by the user")
 				return
+
+		# todo - ms2 injection is broken
 
 		for ovl_model_info, model_info in zip(self.header.model_infos.data, ms2_file.model_infos):
 			for ptr, mdl2_list in (

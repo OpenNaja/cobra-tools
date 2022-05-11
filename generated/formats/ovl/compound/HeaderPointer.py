@@ -116,6 +116,7 @@ class HeaderPointer:
 	def write_to_pool(self, data, overwrite=False):
 		if self.pool:
 			if overwrite:
+				# write at old data_offset
 				if self.data_size != len(data):
 					logging.warning(f"Data size for overwritten pointer has changed from {self.data_size} to {len(data)}!")
 			else:

@@ -1193,8 +1193,8 @@ class OvlFile(Header, IoFile):
 
 	def get_root_entry(self, name):
 		"""Retrieves the desired root_entry entry"""
-		if name.lower() in self._ss_dict:
-			return self._ss_dict[name.lower()]
+		if name.lower() in self._root_entry_dict:
+			return self._root_entry_dict[name.lower()]
 		else:
 			for archive_entry in self.archives:
 				for file in archive_entry.content.root_entries:
@@ -1204,10 +1204,10 @@ class OvlFile(Header, IoFile):
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
 		logging.info("Updating the entry dict")
-		self._ss_dict = {}
+		self._root_entry_dict = {}
 		for archive in self.archives:
 			for file in archive.content.root_entries:
-				self._ss_dict[file.name.lower()] = file, archive
+				self._root_entry_dict[file.name.lower()] = file, archive
 
 	def link_streams(self):
 		"""Attach the data buffers of streamed files to standard files from the first archive"""
@@ -1392,9 +1392,9 @@ class OvlFile(Header, IoFile):
 		self.update_ss_dict()
 		for file in self.files:
 			if file.streams:
-				file_ss, file_archive = self._ss_dict[file.name.lower()]
+				file_ss, file_archive = self._root_entry_dict[file.name.lower()]
 				for stream in file.streams:
-					stream_ss, stream_archive = self._ss_dict[stream.name.lower()]
+					stream_ss, stream_archive = self._root_entry_dict[stream.name.lower()]
 					stream_entry = StreamEntry(self.context)
 					steam_ptr = stream_ss.struct_ptr
 					stream_entry.stream_offset = self._get_abs_mem_offset(stream_archive, steam_ptr)
