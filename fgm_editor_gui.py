@@ -153,10 +153,11 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filepath:
 			try:
 				self.header = FgmHeader.from_xml_file(self.file_widget.filepath, self.context)
-				# game = get_game(self.header.context)[0]
-				# logging.debug(f"from game {game}")
-				# self.game_container.entry.setText(game.value)
-				# self.game_changed()
+				enum_name, member_name = self.header.game.split(".")
+				game = games[member_name]
+				logging.debug(f"from game {game}")
+				self.game_container.entry.setText(game.value)
+				self.game_changed()
 				self.shader_choice.entry.setText(self.header.shader_name)
 				# link the data properly
 				for tex, texd in zip(self.header.textures.data, self.header.dependencies.data):

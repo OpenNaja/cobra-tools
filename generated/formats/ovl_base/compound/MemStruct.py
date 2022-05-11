@@ -7,6 +7,7 @@ from numpy.core.multiarray import ndarray
 
 from generated.array import Array
 from generated.base_enum import BaseEnum
+from generated.formats.ovl import get_game
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -318,6 +319,7 @@ class MemStruct:
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
 		xml = ET.Element(self.__class__.__name__)
 		self.to_xml(xml)
+		xml.attrib["game"] = str(get_game(self.context)[0])
 		indent(xml)
 		with open(file_path, 'wb') as outfile:
 			outfile.write(ET.tostring(xml))

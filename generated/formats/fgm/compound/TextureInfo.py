@@ -20,28 +20,33 @@ class TextureInfo(GenericInfo):
 		self.io_start = 0
 
 		# stores index into shader and array index of texture
-		self.value = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		self.value = numpy.zeros((1,), dtype=numpy.dtype('uint64'))
 
-		# Stores (usually) 2 rgba colors
-		self.value = Array((4,), Color, self.context, 0, None)
+		# Stores 2 rgba colors
+		self.value = Array((2,), Color, self.context, 0, None)
 
 		# stores index into shader
 		self.value = numpy.zeros((1,), dtype=numpy.dtype('uint32'))
 
 		# Stores rgba color
 		self.value = Array((1,), Color, self.context, 0, None)
+
+		# unused
+		self.unused = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		if not (self.context.version == 17) and self.dtype == 8:
-			self.value = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+			self.value = numpy.zeros((1,), dtype=numpy.dtype('uint64'))
 		if not (self.context.version == 17) and self.dtype == 7:
-			self.value = Array((4,), Color, self.context, 0, None)
+			self.value = Array((2,), Color, self.context, 0, None)
 		if self.context.version == 17 and self.dtype == 8:
 			self.value = numpy.zeros((1,), dtype=numpy.dtype('uint32'))
 		if self.context.version == 17 and self.dtype == 7:
 			self.value = Array((1,), Color, self.context, 0, None)
+		if not (self.context.version == 17):
+			self.unused = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -57,25 +62,29 @@ class TextureInfo(GenericInfo):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if not (instance.context.version == 17) and instance.dtype == 8:
-			instance.value = stream.read_uints((4,))
+			instance.value = stream.read_uint64s((1,))
 		if not (instance.context.version == 17) and instance.dtype == 7:
-			instance.value = Array.from_stream(stream, (4,), Color, instance.context, 0, None)
+			instance.value = Array.from_stream(stream, (2,), Color, instance.context, 0, None)
 		if instance.context.version == 17 and instance.dtype == 8:
 			instance.value = stream.read_uints((1,))
 		if instance.context.version == 17 and instance.dtype == 7:
 			instance.value = Array.from_stream(stream, (1,), Color, instance.context, 0, None)
+		if not (instance.context.version == 17):
+			instance.unused = stream.read_uint64()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if not (instance.context.version == 17) and instance.dtype == 8:
-			stream.write_uints(instance.value)
+			stream.write_uint64s(instance.value)
 		if not (instance.context.version == 17) and instance.dtype == 7:
-			Array.to_stream(stream, instance.value, (4,), Color, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, (2,), Color, instance.context, 0, None)
 		if instance.context.version == 17 and instance.dtype == 8:
 			stream.write_uints(instance.value)
 		if instance.context.version == 17 and instance.dtype == 7:
 			Array.to_stream(stream, instance.value, (1,), Color, instance.context, 0, None)
+		if not (instance.context.version == 17):
+			stream.write_uint64(instance.unused)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -99,6 +108,7 @@ class TextureInfo(GenericInfo):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
+		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
