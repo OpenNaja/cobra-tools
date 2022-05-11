@@ -173,22 +173,24 @@ class MainWindow(widgets.MainWindow):
 				logging.warning(ex)
 			logging.info("Done!")
 
-	def save_fgm(self):
-		if self.file_widget.filepath:
-			self.header.save(self.file_widget.filepath)
-
-	def save_as_fgm(self):
-		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
-		if file_out:
-			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
+	def _save_fgm(self, filepath):
+		if filepath:
 			try:
-				self.header.save(file_out)
-				print(self.header)
+				self.header.to_xml_file(filepath)
 			except BaseException as err:
 				traceback.print_exc()
 				interaction.showdialog(str(err))
 				logging.error(err)
 			logging.info("Done!")
+
+	def save_fgm(self):
+		self._save_fgm(self.file_widget.filepath)
+
+	def save_as_fgm(self):
+		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
+		if file_out:
+			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
+			self._save_fgm(file_out)
 
 
 class ProptertyContainer(QtWidgets.QGroupBox):
