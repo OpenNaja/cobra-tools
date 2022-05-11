@@ -5,6 +5,7 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
+from generated.formats.fgm.enum.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
 from hashes import fgm_pz, fgm_jwe2
 import ovl_util.interaction
@@ -159,13 +160,8 @@ class MainWindow(widgets.MainWindow):
 				self.game_container.entry.setText(game.value)
 				self.game_changed()
 				self.shader_choice.entry.setText(self.header.shader_name)
-				# link the data properly
-				for tex, texd in zip(self.header.textures.data, self.header.dependencies.data):
-					tex.file = texd.dependency_name.data
-				for tex, texd in zip(self.header.attributes.data, self.header.data_lib.data):
-					tex.value = texd.data
-				self.tex_container.update_gui(self.header.textures.data)
-				self.attrib_container.update_gui(self.header.attributes.data)
+				self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+				self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 
 			except Exception as ex:
 				traceback.print_exc()
@@ -197,11 +193,14 @@ class ProptertyContainer(QtWidgets.QGroupBox):
 	def __init__(self, gui, name):
 		super().__init__(name)
 		self.gui = gui
+		self.entry_list = []
 		self.data_list = []
 		self.widgets = []
 
-	def update_gui(self, data_list):
-		logging.debug(f"Populating table with {len(data_list)} entries")
+	def update_gui(self, entry_list, data_list):
+		logging.debug(f"Populating table with {len(entry_list)} entries")
+		assert len(entry_list) == len(data_list)
+		self.entry_list = entry_list
 		self.data_list = data_list
 		self.clear_layout()
 		grid = self.gui.create_grid()
@@ -209,12 +208,12 @@ class ProptertyContainer(QtWidgets.QGroupBox):
 		grid.setColumnStretch(2, 3)
 		self.setLayout(grid)
 		self.widgets = []
-		for line_i, tex in enumerate(self.data_list):
-			w = TextureVisual(self, tex)
+		for line_i, (entry, data) in enumerate(zip(self.entry_list, self.data_list)):
+			w = TextureVisual(self, entry, data)
 			self.widgets.append(w)
-			grid.addWidget(w.delete_btn, line_i, 0)
-			grid.addWidget(w.entry, line_i, 1)
-			grid.addWidget(w.data, line_i, 2)
+			grid.addWidget(w.b_delete, line_i, 0)
+			grid.addWidget(w.w_label, line_i, 1)
+			grid.addWidget(w.w_data, line_i, 2)
 
 	def clear_layout(self):
 		layout = self.layout()
@@ -224,76 +223,77 @@ class ProptertyContainer(QtWidgets.QGroupBox):
 
 
 class TextureVisual:
-	def __init__(self, container, property):
+	def __init__(self, container, entry, data):
 		self.container = container
-		self.property = property
-		self.entry = QtWidgets.QLabel(property.name)
-		# self.entry = QtWidgets.QLineEdit(property.name)
-		# self.entry.textEdited.connect(self.update_name)
-		self.delete_btn = QtWidgets.QPushButton("x")
-		self.delete_btn.setMaximumWidth(15)
-		self.delete_btn.clicked.connect(self.delete)
-		self.data = QtWidgets.QWidget()
+		self.entry = entry
+		self.data = data
+		self.w_label = QtWidgets.QLabel(entry.name)
+
+		self.b_delete = QtWidgets.QPushButton("x")
+		self.b_delete.setMaximumWidth(15)
+		self.b_delete.clicked.connect(self.delete)
+		self.w_data = QtWidgets.QWidget()
 		layout = QtWidgets.QHBoxLayout()
 		self.fields = self.create_fields()
 		for button in self.fields:
 			layout.addWidget(button)
-		self.data.setLayout(layout)
+		self.w_data.setLayout(layout)
 
 		# get tooltip
-		tooltip = self.container.gui.tooltips.get(self.property.name, "Undocumented attribute.")
-		self.data.setToolTip(tooltip)
-		self.entry.setToolTip(tooltip)
-		self.delete_btn.setToolTip(f"Delete {property.name}")
+		tooltip = self.container.gui.tooltips.get(self.entry.name, "Undocumented attribute.")
+		self.w_data.setToolTip(tooltip)
+		self.w_label.setToolTip(tooltip)
+		self.b_delete.setToolTip(f"Delete {entry.name}")
 
 	def delete(self):
-		self.container.data_list.remove(self.property)
+		self.container.entry_list.remove(self.entry)
+		self.container.data_list.remove(self.data)
 		self.container.update_gui(self.container.data_list)
 
-	# def update_name(self, name):
-	# 	self.property.name = name
-
 	def update_file(self, file):
-		self.property.file = file
+		self.data.dependency_name = file
 
 	def create_fields(self):
-		if hasattr(self.property, "file") and self.property.file:
-			self.file_w = QtWidgets.QLineEdit(self.property.file)
-			self.file_w.textEdited.connect(self.update_file)
-			return self.file_w,
-		elif "_RGB" in self.property.name:
+		if self.entry.dtype == FgmDtype.Texture:
+			assert self.data.dependency_name.data
+			self.w_file = QtWidgets.QLineEdit(self.data.dependency_name.data)
+			self.w_file.textEdited.connect(self.update_file)
+			return self.w_file,
+		elif self.entry.dtype == FgmDtype.RGBA:
+			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
+		elif "_RGB" in self.entry.name:
 			return self.create_rgb_field(),
 		else:
-			return [self.create_field(i) for i in range(len(self.property.value))]
+			return [self.create_field(i, self.data.value) for i in range(len(self.data.value))]
 
 	def update_rgb_field(self, c):
-		self.property.value = [x / 255 for x in c.getRgb()[:3]]
+		self.data.value = [x / 255 for x in c.getRgb()[:3]]
 
 	def create_rgb_field(self):
 		field = QColorButton()
 		field.colorChanged.connect(self.update_rgb_field)
-		d = [x * 255 for x in self.property.value]
+		d = [x * 255 for x in self.data.value]
 		c = QColor(*d, 255)
 		field.setColor(c)
 		return field
 
-	def create_field(self, ind):
-		default = self.property.value[ind]
+	def create_field(self, ind, target):
+		default = target[ind]
 
 		def update_ind_color(c):
 			# use a closure to remember index
-			color = self.property.value[ind]
+			color = target[ind]
 			color.r, color.g, color.b, color.a = c.getRgb()
 
 		def update_ind(v):
 			# use a closure to remember index
 			# print(self.attrib, ind, v)
-			self.property.value[ind] = v
+			target[ind] = v
 
 		def update_ind_int(v):
 			# use a closure to remember index
 			# print(self.attrib, ind, v)
-			self.property.value[ind] = int(v)
+			target[ind] = int(v)
 
 		t = str(type(default))
 		# print(t)

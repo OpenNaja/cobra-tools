@@ -13,12 +13,12 @@
     </compound>
 
     <compound name="AttribData" inherit="MemStruct">
-        <add name="data" type="float" arr1="1" cond="#ARG#\dtype #EQ# 0"/>
-        <add name="data" type="float" arr1="2" cond="#ARG#\dtype #EQ# 1"/>
-        <add name="data" type="float" arr1="3" cond="#ARG#\dtype #EQ# 2"/>
-        <add name="data" type="float" arr1="4" cond="#ARG#\dtype #EQ# 3"/>
-        <add name="data" type="int" arr1="1" cond="#ARG#\dtype #EQ# 5"/>
-        <add name="data" type="int" arr1="1" cond="#ARG#\dtype #EQ# 6"/>
+        <add name="value" type="float" arr1="1" cond="#ARG#\dtype #EQ# 0"/>
+        <add name="value" type="float" arr1="2" cond="#ARG#\dtype #EQ# 1"/>
+        <add name="value" type="float" arr1="3" cond="#ARG#\dtype #EQ# 2"/>
+        <add name="value" type="float" arr1="4" cond="#ARG#\dtype #EQ# 3"/>
+        <add name="value" type="int" arr1="1" cond="#ARG#\dtype #EQ# 5"/>
+        <add name="value" type="int" arr1="1" cond="#ARG#\dtype #EQ# 6"/>
     </compound>
 
     <enum name="FgmDtype" numbytes="4" storage="uint" default="0">

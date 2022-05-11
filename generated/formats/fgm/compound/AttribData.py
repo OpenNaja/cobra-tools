@@ -12,28 +12,28 @@ class AttribData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.data = numpy.zeros((1,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((3,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((1,), dtype=numpy.dtype('int32'))
-		self.data = numpy.zeros((1,), dtype=numpy.dtype('int32'))
+		self.value = numpy.zeros((1,), dtype=numpy.dtype('float32'))
+		self.value = numpy.zeros((2,), dtype=numpy.dtype('float32'))
+		self.value = numpy.zeros((3,), dtype=numpy.dtype('float32'))
+		self.value = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+		self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
+		self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		if self.arg.dtype == 0:
-			self.data = numpy.zeros((1,), dtype=numpy.dtype('float32'))
+			self.value = numpy.zeros((1,), dtype=numpy.dtype('float32'))
 		if self.arg.dtype == 1:
-			self.data = numpy.zeros((2,), dtype=numpy.dtype('float32'))
+			self.value = numpy.zeros((2,), dtype=numpy.dtype('float32'))
 		if self.arg.dtype == 2:
-			self.data = numpy.zeros((3,), dtype=numpy.dtype('float32'))
+			self.value = numpy.zeros((3,), dtype=numpy.dtype('float32'))
 		if self.arg.dtype == 3:
-			self.data = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+			self.value = numpy.zeros((4,), dtype=numpy.dtype('float32'))
 		if self.arg.dtype == 5:
-			self.data = numpy.zeros((1,), dtype=numpy.dtype('int32'))
+			self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
 		if self.arg.dtype == 6:
-			self.data = numpy.zeros((1,), dtype=numpy.dtype('int32'))
+			self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -49,33 +49,33 @@ class AttribData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.arg.dtype == 0:
-			instance.data = stream.read_floats((1,))
+			instance.value = stream.read_floats((1,))
 		if instance.arg.dtype == 1:
-			instance.data = stream.read_floats((2,))
+			instance.value = stream.read_floats((2,))
 		if instance.arg.dtype == 2:
-			instance.data = stream.read_floats((3,))
+			instance.value = stream.read_floats((3,))
 		if instance.arg.dtype == 3:
-			instance.data = stream.read_floats((4,))
+			instance.value = stream.read_floats((4,))
 		if instance.arg.dtype == 5:
-			instance.data = stream.read_ints((1,))
+			instance.value = stream.read_ints((1,))
 		if instance.arg.dtype == 6:
-			instance.data = stream.read_ints((1,))
+			instance.value = stream.read_ints((1,))
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.arg.dtype == 0:
-			stream.write_floats(instance.data)
+			stream.write_floats(instance.value)
 		if instance.arg.dtype == 1:
-			stream.write_floats(instance.data)
+			stream.write_floats(instance.value)
 		if instance.arg.dtype == 2:
-			stream.write_floats(instance.data)
+			stream.write_floats(instance.value)
 		if instance.arg.dtype == 3:
-			stream.write_floats(instance.data)
+			stream.write_floats(instance.value)
 		if instance.arg.dtype == 5:
-			stream.write_ints(instance.data)
+			stream.write_ints(instance.value)
 		if instance.arg.dtype == 6:
-			stream.write_ints(instance.data)
+			stream.write_ints(instance.value)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -98,7 +98,7 @@ class AttribData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
+		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
