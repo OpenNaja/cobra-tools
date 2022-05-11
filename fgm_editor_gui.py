@@ -5,9 +5,10 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
+from generated.formats.ovl_base import OvlContext
 from hashes import fgm_pz, fgm_jwe2
 import ovl_util.interaction
-from generated.formats.fgm import FgmFile
+from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.ovl.versions import *
 from ovl_util import widgets, config, interaction
 from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT
@@ -24,7 +25,8 @@ class MainWindow(widgets.MainWindow):
 		
 		self.resize(800, 600)
 
-		self.fgm_data = FgmFile()
+		self.context = OvlContext()
+		self.header = FgmHeader(self.context)
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
 		self.fgm_dict = None
@@ -90,14 +92,14 @@ class MainWindow(widgets.MainWindow):
 		game = self.game_container.entry.currentText()
 		logging.info(f"Changed game to {game}")
 		try:
-			set_game(self.fgm_data.context, game)
-			set_game(self.fgm_data, game)
+			set_game(self.header.context, game)
+			# set_game(self.header, game)
 		except BaseException as err:
 			print(err)
 
-		if is_jwe2(self.fgm_data):
+		if is_jwe2(self.header.context):
 			self.fgm_dict = fgm_jwe2
-		elif is_pz16(self.fgm_data) or is_pz(self.fgm_data):
+		elif is_pz16(self.header.context) or is_pz(self.header.context):
 			self.fgm_dict = fgm_pz
 		else:
 			self.fgm_dict = None
@@ -113,18 +115,18 @@ class MainWindow(widgets.MainWindow):
 			self.texture_choice.entry.addItems(sorted(self.fgm_dict.textures))
 		
 	def shader_changed(self,):
-		self.fgm_data.shader_name = self.shader_choice.entry.currentText()
+		self.header.shader_name = self.shader_choice.entry.currentText()
 
 	def add_attribute(self,):
 		if self.fgm_dict:
 			attrib_name = self.attribute_choice.entry.currentText()
-			self.fgm_data.add_attrib(attrib_name, self.fgm_dict.attributes[attrib_name])
-			self.attrib_container.update_gui(self.fgm_data.attributes)
+			self.header.add_attrib(attrib_name, self.fgm_dict.attributes[attrib_name])
+			self.attrib_container.update_gui(self.header.attributes)
 
 	def add_texture(self,):
 		tex_name = self.texture_choice.entry.currentText()
-		self.fgm_data.add_texture(tex_name)
-		self.tex_container.update_gui(self.fgm_data.textures)
+		self.header.add_texture(tex_name)
+		self.tex_container.update_gui(self.header.textures)
 
 	@property
 	def fgm_name(self,):
@@ -150,14 +152,20 @@ class MainWindow(widgets.MainWindow):
 	def load(self):
 		if self.file_widget.filepath:
 			try:
-				self.fgm_data.load(self.file_widget.filepath)
-				game = get_game(self.fgm_data)[0]
-				logging.debug(f"from game {game}")
-				self.game_container.entry.setText(game.value)
-				self.game_changed()
-				self.shader_choice.entry.setText(self.fgm_data.shader_name)
-				self.tex_container.update_gui(self.fgm_data.textures)
-				self.attrib_container.update_gui(self.fgm_data.attributes)
+				self.header = FgmHeader.from_xml_file(self.file_widget.filepath, self.context)
+				# game = get_game(self.header.context)[0]
+				# logging.debug(f"from game {game}")
+				# self.game_container.entry.setText(game.value)
+				# self.game_changed()
+				self.shader_choice.entry.setText(self.header.shader_name)
+				for tex, texd in zip(self.header.textures.data, self.header.dependencies.data):
+					tex.file = texd.dependency_name.data
+					tex.name = tex.texture_name
+				for tex, texd in zip(self.header.attributes.data, self.header.data_lib.data):
+					tex.value = texd.data
+					tex.name = tex.attrib_name
+				self.tex_container.update_gui(self.header.textures.data)
+				self.attrib_container.update_gui(self.header.attributes.data)
 
 			except Exception as ex:
 				traceback.print_exc()
@@ -167,15 +175,15 @@ class MainWindow(widgets.MainWindow):
 
 	def save_fgm(self):
 		if self.file_widget.filepath:
-			self.fgm_data.save(self.file_widget.filepath)
+			self.header.save(self.file_widget.filepath)
 
 	def save_as_fgm(self):
 		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
 		if file_out:
 			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
 			try:
-				self.fgm_data.save(file_out)
-				print(self.fgm_data)
+				self.header.save(file_out)
+				print(self.header)
 			except BaseException as err:
 				traceback.print_exc()
 				interaction.showdialog(str(err))

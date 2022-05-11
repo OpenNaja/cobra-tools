@@ -29,6 +29,8 @@
 		<option value="3" name="Vector4" />
 		<option value="5" name="Int32" />
 		<option value="6" name="Bool" />
+		<option value="7" name="RGBA" />
+		<option value="8" name="Texture" />
     </enum>
 
     <compound name="FgmHeader" inherit="MemStruct">
@@ -47,25 +49,26 @@
         <add name="unk 1" type="uint64"/>
     </compound>
 
-	<compound name="TextureInfo" inherit="MemStruct">
-		part of fgm fragment, per texture involved
-		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
-		<add name="is textured" type="uint">7=has RGB 8=uses texture indices</add>
-		<add name="indices" type="uint" arr1="4" cond="is textured == 8" vercond="!#ZTUAC#">stores index into shader and array index of texture</add>
-		<add name="colors" type="Color" arr1="4" cond="is textured == 7" vercond="!#ZTUAC#">Stores (usually) 2 rgba colors</add>
-		<add name="indices" type="uint" arr1="1" cond="is textured == 8" vercond="#ZTUAC#">stores index into shader</add>
-		<add name="colors" type="Color" arr1="1" cond="is textured == 7" vercond="#ZTUAC#">Stores rgba color</add>
-    </compound>
-
-	<compound name="AttributeInfo" inherit="MemStruct">
-		part of fgm fragment, repeated per attribute
+	<compound name="GenericInfo" inherit="MemStruct">
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
         <add name="dtype" type="FgmDtype"/>
-		<add name="value offset" type="uint64" >byte offset to first value in the data_lib pointer</add>
+    </compound>
+
+	<compound name="TextureInfo" inherit="GenericInfo">
+		part of fgm fragment, per texture involved
+		<add name="value" type="uint" arr1="4" cond="dtype == 8" vercond="!#ZTUAC#">stores index into shader and array index of texture</add>
+		<add name="value" type="Color" arr1="4" cond="dtype == 7" vercond="!#ZTUAC#">Stores (usually) 2 rgba colors</add>
+		<add name="value" type="uint" arr1="1" cond="dtype == 8" vercond="#ZTUAC#">stores index into shader</add>
+		<add name="value" type="Color" arr1="1" cond="dtype == 7" vercond="#ZTUAC#">Stores rgba color</add>
+    </compound>
+
+	<compound name="AttributeInfo" inherit="GenericInfo">
+		part of fgm fragment, repeated per attribute
+		<add name="value offset" type="uint64" >byte offset to first value in the data_lib pointer, usually or always sorted in stock</add>
     </compound>
 
 	<compound name="DependencyInfo" inherit="MemStruct">
-		<add name="dependency_name" type="Pointer" cond="#ARG#\is_textured #EQ# 8">only present if textured</add>
+		<add name="dependency_name" type="Pointer" cond="#ARG#\dtype #EQ# 8">only present if textured</add>
     </compound>
 
     <compound name="FgmInfoHeader" inherit="GenericHeader">

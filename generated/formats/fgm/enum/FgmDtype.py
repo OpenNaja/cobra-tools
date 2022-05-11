@@ -13,3 +13,5 @@ class FgmDtype(UintEnum):
 	Vector4 = 3
 	Int32 = 5
 	Bool = 6
+	RGBA = 7
+	Texture = 8

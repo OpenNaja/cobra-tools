@@ -19,7 +19,7 @@ class DependencyInfo(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		if self.arg.is_textured == 8:
+		if self.arg.dtype == 8:
 			self.dependency_name = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -35,14 +35,14 @@ class DependencyInfo(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		if instance.arg.is_textured == 8:
+		if instance.arg.dtype == 8:
 			instance.dependency_name = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.dependency_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		if instance.arg.is_textured == 8:
+		if instance.arg.dtype == 8:
 			Pointer.to_stream(stream, instance.dependency_name)
 
 	@classmethod
