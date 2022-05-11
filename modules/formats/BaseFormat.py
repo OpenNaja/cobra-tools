@@ -70,7 +70,10 @@ class BaseFile:
 		return pool
 
 	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC", overwrite=False):
-		ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
+		if not overwrite:
+			ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
+		else:
+			assert ptr.pool
 		ptr.write_to_pool(data, overwrite=overwrite)
 
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
