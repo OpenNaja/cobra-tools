@@ -1146,8 +1146,6 @@ class OvlFile(Header, IoFile):
 			dep.link_ptr.pool.add_link(dep)
 		for archive in self.archives:
 			ovs = archive.content
-			# sort fragments by their first pointer, no real need to do so, though
-			# ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 			# attach all pointers to their pool
 			for entry in ovs.root_entries:
 				entry.struct_ptr.get_pool(ovs.pools)
@@ -1298,6 +1296,8 @@ class OvlFile(Header, IoFile):
 					frag.link_ptr.update_pool_index(pools_lut)
 					frag.struct_ptr.update_pool_index(pools_lut)
 				ovs.fragments.extend(root_entry.fragments)
+			# sort fragments by their first pointer just to keep saves consistent for easier debugging
+			ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 
 			# map the pool types to pools
 			pools_by_type = {}
