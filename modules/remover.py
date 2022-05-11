@@ -10,20 +10,19 @@ def file_remover(ovl, filenames):
 	"""
 	logging.info(f"Removing files for {filenames}")
 	# remove file entry
-	for file_entry in ovl.files:
-		if file_entry.name in filenames:
-			if file_entry.loader:
-				file_entry.loader.remove()
+	loaders = [file_entry.loader for file_entry in ovl.files if file_entry.name in filenames and file_entry.loader]
+	# do this in one step to avoid losing entries during iterations
+	for loader in loaders:
+		loader.remove()
 	for i, pool in sorted(enumerate(ovl.pools), reverse=True):
-		logging.info(f"pool {i} {pool.offset_2_struct_entries}")
+		# logging.info(f"pool {i} {pool.offset_2_struct_entries}")
 		if not pool.offset_2_struct_entries:
-			logging.info(f"Deleting pool {pool.name} as it has no pointers")
+			logging.info(f"Deleting pool {i} {pool.name} as it has no pointers")
 			for archive in ovl.archives:
 				if pool in archive.content.pools:
 					archive.content.pools.remove(pool)
 			ovl.pools.remove(pool)
-	# this isn't enough, and the above seems to be broken to some extent
-	ovl.load_flattened_pools()
+	# todo - delete ovs + archive entry if it is unused
 
 
 def bulk_delete(input_list, entries_to_delete):

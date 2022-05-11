@@ -99,13 +99,13 @@ class HeaderPointer:
 		"""Remove this pointer and all of its link children from suitable pool"""
 		if self.pool:
 			if self.data_offset in self.pool.offset_2_struct_entries:
-				logging.debug(f"Removed struct at offset {self.data_offset} from pool")
+				# logging.debug(f"Removed struct at offset {self.data_offset} from pool")
 				structs = self.pool.offset_2_struct_entries.pop(self.data_offset)
 				for entry in structs:
 					for c in entry.struct_ptr.children:
 						offset = c.link_ptr.data_offset
 						if offset in self.pool.offset_2_link_entry:
-							logging.debug(f"Removed link at offset {offset} from pool")
+							# logging.debug(f"Removed link at offset {offset} from pool")
 							self.pool.offset_2_link_entry.pop(offset)
 
 	def __eq__(self, other):
