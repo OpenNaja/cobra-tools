@@ -53,7 +53,7 @@
 		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
         <add name="dtype" type="FgmDtype"/>
     </compound>
-    
+
 	<compound name="TextureInfo" inherit="GenericInfo">
 		part of fgm fragment, per texture involved
 		<add name="value" type="uint" arr1="4" cond="dtype == 8" vercond="!#ZTUAC#">stores index into shader and array index of texture</add>

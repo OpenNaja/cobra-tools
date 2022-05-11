@@ -158,12 +158,11 @@ class MainWindow(widgets.MainWindow):
 				# self.game_container.entry.setText(game.value)
 				# self.game_changed()
 				self.shader_choice.entry.setText(self.header.shader_name)
+				# link the data properly
 				for tex, texd in zip(self.header.textures.data, self.header.dependencies.data):
 					tex.file = texd.dependency_name.data
-					tex.name = tex.texture_name
 				for tex, texd in zip(self.header.attributes.data, self.header.data_lib.data):
 					tex.value = texd.data
-					tex.name = tex.attrib_name
 				self.tex_container.update_gui(self.header.textures.data)
 				self.attrib_container.update_gui(self.header.attributes.data)
 

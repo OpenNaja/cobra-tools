@@ -164,6 +164,9 @@ class MemStruct:
 		# go over all fields of this MemStruct
 		# cast to tuple to avoid 'dictionary changed size during iteration'
 		for prop, val in tuple(vars(self).items()):
+			# special case
+			if prop == "name" and prop in elem.attrib:
+				self.name = elem.attrib[prop]
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
@@ -297,6 +300,8 @@ class MemStruct:
 		"""Adds data of this MemStruct to 'elem', recursively"""
 		# go over all fields of this MemStruct
 		for prop, val in vars(self).items():
+			if prop == "name" and val:
+				elem.attrib[prop] = val
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
