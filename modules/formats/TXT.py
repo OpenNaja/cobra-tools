@@ -8,9 +8,8 @@ class TxtLoader(BaseFile):
 	extension = ".txt"
 
 	def create(self):
-		root_entry = self._get_data(self.file_entry.path)
 		self.root_entry = self.create_root_entry(self.file_entry)
-		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry)
+		self.load(self.file_entry.path)
 		self.root_entry.struct_ptr.pool.num_files += 1
 
 	def collect(self):
@@ -18,7 +17,7 @@ class TxtLoader(BaseFile):
 	
 	def load(self, file_path):
 		root_entry = self._get_data(file_path)
-		self.root_entry.struct_ptr.update_data(root_entry, update_copies=True)
+		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		b = self.root_entry.struct_ptr.data

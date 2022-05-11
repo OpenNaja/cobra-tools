@@ -113,11 +113,15 @@ class HeaderPointer:
 	def read_from_pool(self, data_size):
 		return self.pool.get_at(self.data_offset, data_size)
 
-	def write_to_pool(self, data):
+	def write_to_pool(self, data, overwrite=False):
 		if self.pool:
-			# seek to end of pool
-			self.pool.data.seek(0, 2)
-			self.data_offset = self.pool.data.tell()
+			if overwrite:
+				if self.data_size != len(data):
+					logging.warning(f"Data size for overwritten pointer has changed from {self.data_size} to {len(data)}!")
+			else:
+				# seek to end of pool
+				self.pool.data.seek(0, 2)
+				self.data_offset = self.pool.data.tell()
 			self.data_size = len(data)
 			self.pool.data.write(data)
 
@@ -134,10 +138,6 @@ class HeaderPointer:
 			self.pool_index = pools_lut[self.pool]
 		else:
 			self.pool_index = -1
-
-	def update_data(self, data, update_copies=False):
-		"""Update data and size of this pointer"""
-		raise NotImplementedError
 
 	def remove(self):
 		"""Remove this pointer and all of its link children from suitable pool"""

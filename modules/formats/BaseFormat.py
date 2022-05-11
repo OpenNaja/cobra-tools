@@ -52,6 +52,7 @@ class BaseFile:
 		return all_buffers
 
 	def get_pool(self, pool_type_key, ovs="STATIC"):
+		assert pool_type_key is not None
 		ovs_file = self.ovl.create_archive(ovs)
 		# get one directly editable pool, if it exists
 		for pool in ovs_file.pools:
@@ -68,9 +69,9 @@ class BaseFile:
 		ovs_file.pools.append(pool)
 		return pool
 
-	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC"):
+	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC", overwrite=False):
 		ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
-		ptr.write_to_pool(data)
+		ptr.write_to_pool(data, overwrite=overwrite)
 
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
 		ptr.pool_index = other_ptr.pool_index

@@ -15,6 +15,13 @@ from modules.helpers import as_bytes
 from ovl_util import interaction
 
 
+class Mdl2Loader(BaseFile):
+	extension = ".mdl2"
+
+	def collect(self):
+		self.assign_root_entry()
+
+
 class Ms2Loader(BaseFile):
 	extension = ".ms2"
 
@@ -91,26 +98,26 @@ class Ms2Loader(BaseFile):
 			mdl2_entry.struct_ptr.pool_index = -1
 			self.root_entry.children.append(mdl2_entry)
 
-		# todo - padding like this is likely wrong, probably relative to start of materials
-		# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
-		# logging.debug(f"Sum {objects_ptr.data_size + objects_ptr.padding_size}")
-		# logging.debug(f"rel offset {meshes.link_ptr.data_offset-materials.link_ptr.data_offset}")
-		# logging.debug(f"rel mod 8 {(meshes.link_ptr.data_offset-materials.link_ptr.data_offset) % 8}")
-		# self.write_to_pool(objects.link_ptr, 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
-
 		# create ms2 data
 		self.create_data_entry(self.root_entry, ms2_file.buffers)
 		# write the final memstruct
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		# link some more pointers
+		pool = self.header.model_infos.frag.struct_ptr.pool
 		for model_info in self.header.model_infos.data:
 			# link first_materials pointer
 			first_materials = self.header.model_infos.data[0].materials.frag
 			assert first_materials
+			model_info.first_materials.frag = self.create_fragment(self.root_entry)
+			model_info.first_materials.frag.link_ptr.data_offset = model_info.first_materials.io_start
+			model_info.first_materials.frag.link_ptr.pool = pool
 			self.ptr_relative(model_info.first_materials.frag.struct_ptr, first_materials.struct_ptr)
 			for mesh in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
 				offset = mesh.buffer_info.temp_index * self.header.buffer_infos.data[0].io_size
+				mesh.buffer_info.frag = self.create_fragment(self.root_entry)
+				mesh.buffer_info.frag.link_ptr.data_offset = mesh.buffer_info.io_start
+				mesh.buffer_info.frag.link_ptr.pool = pool
 				self.ptr_relative(mesh.buffer_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
 
 	def update(self):
@@ -226,18 +233,12 @@ class Ms2Loader(BaseFile):
 					(ovl_model_info.objects, model_info.model.objects),
 					(ovl_model_info.meshes, model_info.model.meshes)):
 				if len(mdl2_list) > 0:
-					data = as_bytes(mdl2_list, version_info=versions)
-					frag = ptr.frag
-					# objects.link_ptr has padding in stock, apparently as each entry is 4 bytes
-					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.struct_ptr.data)} ({len(frag.struct_ptr.padding)})")
-					# the above breaks injecting minmi
-					frag.struct_ptr.update_data(data)
-					logging.debug(f"Result {len(frag.struct_ptr.data)} ({len(frag.struct_ptr.padding)})")
+					self.write_to_pool(ptr.frag.struct_ptr, 2, as_bytes(mdl2_list, version_info=versions), overwrite=True)
 
 		# load ms2 root_entry data
-		self.root_entry.struct_ptr.update_data(as_bytes(ms2_file.info, version_info=versions))
-		self.header.buffer_infos.frag.struct_ptr.update_data(as_bytes(ms2_file.buffer_infos, version_info=versions), update_copies=True)
-		self.header.model_infos.frag.struct_ptr.update_data(as_bytes(ms2_file.model_infos, version_info=versions))
+		self.write_to_pool(self.root_entry.struct_ptr, 2, as_bytes(ms2_file.info, version_info=versions), overwrite=True)
+		self.write_to_pool(self.header.buffer_infos.frag.struct_ptr, 2, as_bytes(ms2_file.buffer_infos, version_info=versions), overwrite=True)
+		self.write_to_pool(self.header.model_infos.frag.struct_ptr, 2, as_bytes(ms2_file.model_infos, version_info=versions), overwrite=True)
 	
 		# update ms2 data
 		self.root_entry.data_entry.update_data(ms2_file.buffers)

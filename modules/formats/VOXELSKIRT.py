@@ -8,10 +8,9 @@ class VoxelskirtLoader(BaseFile):
 	def create(self):
 		self.root_entry = self.create_root_entry(self.file_entry)
 		vox = VoxelskirtFile()
-		ss_bytes, buffer_bytes = vox.get_structs(self.file_entry.path)
+		root_entry_bytes, buffer_bytes = vox.get_structs(self.file_entry.path)
 		self.create_data_entry(self.root_entry, (buffer_bytes,))
-		self.write_to_pool(self.root_entry.struct_ptr, 2, ss_bytes)
-		
+		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry_bytes)
 
 	def collect(self):
 		self.assign_root_entry()
@@ -40,7 +39,7 @@ class VoxelskirtLoader(BaseFile):
 
 	def load(self, file_path):
 		vox = VoxelskirtFile()
-		ss_bytes, buffer_bytes = vox.get_structs(file_path)
+		root_entry_bytes, buffer_bytes = vox.get_structs(file_path)
 		self.root_entry.data_entry.update_data((buffer_bytes,))
-		self.root_entry.struct_ptr.update_data(ss_bytes, update_copies=True)
+		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry_bytes, overwrite=True)
 

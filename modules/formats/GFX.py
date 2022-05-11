@@ -8,15 +8,15 @@ class GfxLoader(BaseFile):
     extension = ".gfx"
 
     def create(self):
-        root_entry, buffer_0 = self._get_data(self.file_entry.path)
+        root_entry_data, buffer_0 = self._get_data(self.file_entry.path)
         self.root_entry = self.create_root_entry(self.file_entry)
-        self.write_to_pool(self.root_entry.struct_ptr, 4, root_entry)
+        self.write_to_pool(self.root_entry.struct_ptr, 4, root_entry_data)
         self.create_data_entry(self.root_entry, (buffer_0,))
 
     def load(self, file_path):
-        root_entry, buffer_0 = self._get_data(file_path)
+        root_entry_data, buffer_0 = self._get_data(file_path)
         self.root_entry.data_entry.update_data((buffer_0,))
-        self.root_entry.struct_ptr.update_data(root_entry, update_copies=True)
+        self.write_to_pool(self.root_entry.struct_ptr, 4, root_entry_data, overwrite=True)
 
     def collect(self):
         self.assign_root_entry()

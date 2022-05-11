@@ -121,7 +121,11 @@ class MemStruct:
 					val.frag = loader.create_fragment(loader.root_entry)
 
 				if DEPENDENCY_TAG not in prop:
-					val.frag.struct_ptr.pool = loader.get_pool(val.pool_type, ovs=ovs.arg.name)
+					# when generated from XML, the pool type is stored as metadata
+					# it's not stored in binary, so for those, keep the root pool type
+					if val.pool_type is not None:
+						pool_type = val.pool_type
+					val.frag.struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
 					# this writes pointer.data to the pool
 					val.write_pointer()
 					# now repeat with pointer.data
