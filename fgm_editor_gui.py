@@ -246,9 +246,12 @@ class TextureVisual:
 		self.b_delete.setToolTip(f"Delete {entry.name}")
 
 	def delete(self):
-		self.container.entry_list.remove(self.entry)
-		self.container.data_list.remove(self.data)
-		self.container.update_gui(self.container.data_list)
+		try:
+			self.container.entry_list.remove(self.entry)
+			self.container.data_list.remove(self.data)
+			self.container.update_gui(self.container.entry_list, self.container.data_list)
+		except:
+			traceback.print_exc()
 
 	def update_file(self, file):
 		self.data.dependency_name = file
