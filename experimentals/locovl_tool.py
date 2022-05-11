@@ -31,7 +31,7 @@ def ovl_header(entrycount, strsize):
 		entrycount, entrycount,0,1,1,1,0,0,0,0,0,0,8,entrycount,0x3f,0,
 		b'')
 
-def class_entry(entrycount): # has of FGDK:Text:text
+def claroot_entry(entrycount): # has of FGDK:Text:text
 	return struct.pack("<6I",0,0,0x262EA686,2,0,entrycount)
 	
 def ovs_header(entrycount, strsize, hashval):
@@ -108,7 +108,7 @@ if len(args) > 0:
 
 	#our main output buffer, ovl part
 	ovl  = ovl_header(len(ovlentries),len(strpol1)) + strpol1
-	ovl += class_entry(len(ovlentries))
+	ovl += claroot_entry(len(ovlentries))
 	for entry in ovlentries:
 		ovl += struct.pack("<2I2H", entry[0],entry[1],1,0) 
 

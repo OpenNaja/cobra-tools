@@ -106,7 +106,7 @@ class MemStruct:
 		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
 
 	def handle_write(self, prop, val, struct_ptr, loader, ovs, pool_type, is_member=False):
-		logging.debug(f"handle_write {prop} {type(val).__name__}, {len(loader.sized_str_entry.fragments)} frags")
+		logging.debug(f"handle_write {prop} {type(val).__name__}, {len(loader.root_entry.fragments)} frags")
 		if isinstance(val, MemStruct):
 			val.write_ptrs(loader, ovs, struct_ptr, pool_type, is_member=is_member)
 		elif isinstance(val, Array):
@@ -118,7 +118,7 @@ class MemStruct:
 					logging.debug(f"Created dependency for {prop} = {val.data}")
 					val.frag = loader.create_dependency(val.data)
 				else:
-					val.frag = loader.create_fragment(loader.sized_str_entry)
+					val.frag = loader.create_fragment(loader.root_entry)
 
 				if DEPENDENCY_TAG not in prop:
 					val.frag.struct_ptr.pool = loader.get_pool(val.pool_type, ovs=ovs.arg.name)
@@ -178,7 +178,7 @@ class MemStruct:
 			# try the lookup function
 			pointer.template = self.get_ptr_template(prop)
 		# reads the template and grabs the frag
-		pointer.read_ptr(pool)  # , sized_str_entry)
+		pointer.read_ptr(pool)  # , root_entry)
 		if pointer.frag and hasattr(pointer.frag, "struct_ptr"):
 			pool = pointer.frag.struct_ptr.pool
 			pointer.pool_type = pool.type

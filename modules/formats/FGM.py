@@ -9,7 +9,7 @@ class FgmLoader(MemStructLoader):
 
 	def create(self):
 		super().create()
-		self.create_data_entry(self.sized_str_entry, (self.update_names_buffer(),))
+		self.create_data_entry(self.root_entry, (self.update_names_buffer(),))
 
 	@staticmethod
 	def read_z_str(stream, pos):
@@ -24,7 +24,7 @@ class FgmLoader(MemStructLoader):
 
 	def get_names(self):
 		"""Assigns names from the data buffer"""
-		buffer_data = self.sized_str_entry.data_entry.buffer_datas[0]
+		buffer_data = self.root_entry.data_entry.buffer_datas[0]
 		stream = ConvStream(buffer_data)
 		self.header.shader_name = self.read_z_str(stream, 0)
 		if self.header.attributes.data:
@@ -56,7 +56,7 @@ class FgmLoader(MemStructLoader):
 		self.file_entry.dependencies.clear()
 		# print(self.file_entry.dependencies)
 		super().load(file_path)
-		self.sized_str_entry.data_entry.update_data((self.update_names_buffer(),))
+		self.root_entry.data_entry.update_data((self.update_names_buffer(),))
 		# print(self.file_entry.dependencies)
 
 	def get_deps_names(self):

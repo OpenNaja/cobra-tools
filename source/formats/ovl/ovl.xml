@@ -126,9 +126,9 @@
         Links the main pointers of a streamed file to its user, eg. a texturestream to a tex file.
         --These appear sorted in the order of sizedstr entries per ovs.-- only true for lod0, not lod1
         the order does not seem to be consistent
-        interestingly, the order of ss entries per ovs is consistent with decreasing pool offset
-        <add name="stream_offset" type="uint">offset to the stream's ss pointer inside the flattened mempools</add>
-        <add name="file_offset" type="uint">offset to the user file's ss pointer (in STATIC) inside the flattened mempools</add>
+        interestingly, the order of root_entry entries per ovs is consistent with decreasing pool offset
+        <add name="stream_offset" type="uint">offset to the stream's root_entry pointer inside the flattened mempools</add>
+        <add name="file_offset" type="uint">offset to the user file's root_entry pointer (in STATIC) inside the flattened mempools</add>
         <add name="zero" type="uint"/>
     </compound>
 
@@ -147,7 +147,7 @@
         <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
         <add name="buffer groups" type="BufferGroup" arr1="#ARG#\num_buffer_groups"/>
-        <add name="sized str entries " type="SizedStringEntry" arr1="#ARG#\Num Files"/>
+        <add name="root_entries" type="RootEntry" arr1="#ARG#\Num Files"/>
         <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
         <add name="set header " type="SetHeader"/>
     </compound>
@@ -202,16 +202,16 @@
     </compound>
 
 	<compound name="HeaderPointer" >
-		Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
+		Not standalone, used by RootEntry, Fragment and DependencyEntry
         <add name="pool_index" type="int" >The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
-        <add name="data offset" type="uint" >the byte offset relative to the start of the header entry data</add>
+        <add name="data offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
     </compound>
 	
-    <compound name="SizedStringEntry" >
-        Main file entry in the ovs
+    <compound name="RootEntry" >
+        Main file entry in the ovs, one per FileEntry
         <add name="File Hash" type="uint">id (index or djb) of the file</add>
         <add name="Ext Hash" type="uint" since="19">djb of extension</add>
-        <add name="struct_ptr" type="HeaderPointer" >one pointer OR -1 pointer for assets</add>
+        <add name="struct_ptr" type="HeaderPointer" >points to the main struct of this file OR -1 pointer for assets</add>
     </compound>
 	
     <compound name="Fragment" >
@@ -238,13 +238,13 @@
     </compound>
 	
 	<compound name="AssetEntry" >
-		refers to sized string entries so they can be grouped into set entries.
-		It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
+		refers to root entries so they can be grouped into set entries.
+		It seems to point exclusively to RootEntry's whose Ext Hash is FF FF FF FF aka max uint32
 		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
 		<add name="zero 0" type="uint" > </add>
         <add name="Ext Hash" type="uint" since="19"/>
         <add name="zero 1" type="uint" since="19"/>
-		<add name="file index" type="uint" >index into sized string entries array; hash of targeted file matches this assetentry's hash.</add>
+		<add name="file index" type="uint" >index into root entries array; hash of targeted file matches this assetentry's hash.</add>
         <add name="zero 2" type="uint"/>
     </compound>
 

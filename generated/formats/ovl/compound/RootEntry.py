@@ -3,10 +3,10 @@ from generated.context import ContextReference
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 
 
-class SizedStringEntry:
+class RootEntry:
 
 	"""
-	Main file entry in the ovs
+	Main file entry in the ovs, one per FileEntry
 	"""
 
 	context = ContextReference()
@@ -25,7 +25,7 @@ class SizedStringEntry:
 		# djb of extension
 		self.ext_hash = 0
 
-		# one pointer OR -1 pointer for assets
+		# points to the main struct of this file OR -1 pointer for assets
 		self.struct_ptr = HeaderPointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -76,7 +76,7 @@ class SizedStringEntry:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'SizedStringEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'RootEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

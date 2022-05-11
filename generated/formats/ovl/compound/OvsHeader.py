@@ -7,8 +7,8 @@ from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.MemPool import MemPool
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
+from generated.formats.ovl.compound.RootEntry import RootEntry
 from generated.formats.ovl.compound.SetHeader import SetHeader
-from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
 
 
 class OvsHeader:
@@ -31,7 +31,7 @@ class OvsHeader:
 		self.data_entries = Array((self.arg.num_datas,), DataEntry, self.context, 0, None)
 		self.buffer_entries = Array((self.arg.num_buffers,), BufferEntry, self.context, 0, None)
 		self.buffer_groups = Array((self.arg.num_buffer_groups,), BufferGroup, self.context, 0, None)
-		self.sized_str_entries = Array((self.arg.num_files,), SizedStringEntry, self.context, 0, None)
+		self.root_entries = Array((self.arg.num_files,), RootEntry, self.context, 0, None)
 		self.fragments = Array((self.arg.num_fragments,), Fragment, self.context, 0, None)
 		self.set_header = SetHeader(self.context, 0, None)
 		if set_default:
@@ -43,7 +43,7 @@ class OvsHeader:
 		self.data_entries = Array((self.arg.num_datas,), DataEntry, self.context, 0, None)
 		self.buffer_entries = Array((self.arg.num_buffers,), BufferEntry, self.context, 0, None)
 		self.buffer_groups = Array((self.arg.num_buffer_groups,), BufferGroup, self.context, 0, None)
-		self.sized_str_entries = Array((self.arg.num_files,), SizedStringEntry, self.context, 0, None)
+		self.root_entries = Array((self.arg.num_files,), RootEntry, self.context, 0, None)
 		self.fragments = Array((self.arg.num_fragments,), Fragment, self.context, 0, None)
 		self.set_header = SetHeader(self.context, 0, None)
 
@@ -64,7 +64,7 @@ class OvsHeader:
 		instance.data_entries = Array.from_stream(stream, (instance.arg.num_datas,), DataEntry, instance.context, 0, None)
 		instance.buffer_entries = Array.from_stream(stream, (instance.arg.num_buffers,), BufferEntry, instance.context, 0, None)
 		instance.buffer_groups = Array.from_stream(stream, (instance.arg.num_buffer_groups,), BufferGroup, instance.context, 0, None)
-		instance.sized_str_entries = Array.from_stream(stream, (instance.arg.num_files,), SizedStringEntry, instance.context, 0, None)
+		instance.root_entries = Array.from_stream(stream, (instance.arg.num_files,), RootEntry, instance.context, 0, None)
 		instance.fragments = Array.from_stream(stream, (instance.arg.num_fragments,), Fragment, instance.context, 0, None)
 		instance.set_header = SetHeader.from_stream(stream, instance.context, 0, None)
 
@@ -75,7 +75,7 @@ class OvsHeader:
 		Array.to_stream(stream, instance.data_entries, (instance.arg.num_datas,), DataEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.buffer_entries, (instance.arg.num_buffers,), BufferEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.buffer_groups, (instance.arg.num_buffer_groups,), BufferGroup, instance.context, 0, None)
-		Array.to_stream(stream, instance.sized_str_entries, (instance.arg.num_files,), SizedStringEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.root_entries, (instance.arg.num_files,), RootEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.fragments, (instance.arg.num_fragments,), Fragment, instance.context, 0, None)
 		SetHeader.to_stream(stream, instance.set_header)
 
@@ -104,7 +104,7 @@ class OvsHeader:
 		s += f'\n	* data_entries = {fmt_member(self.data_entries, indent+1)}'
 		s += f'\n	* buffer_entries = {fmt_member(self.buffer_entries, indent+1)}'
 		s += f'\n	* buffer_groups = {fmt_member(self.buffer_groups, indent+1)}'
-		s += f'\n	* sized_str_entries = {fmt_member(self.sized_str_entries, indent+1)}'
+		s += f'\n	* root_entries = {fmt_member(self.root_entries, indent+1)}'
 		s += f'\n	* fragments = {fmt_member(self.fragments, indent+1)}'
 		s += f'\n	* set_header = {fmt_member(self.set_header, indent+1)}'
 		return s

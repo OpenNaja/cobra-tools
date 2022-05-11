@@ -76,7 +76,7 @@ class Pointer:
 		s += f'\n	* data = {self.data.__repr__()}'
 		return s
 
-	def read_ptr(self, pool):  # , sized_str_entry):
+	def read_ptr(self, pool):  # , root_entry):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
 		# find the frag entry with matching pointers[0].data_offset
@@ -88,7 +88,7 @@ class Pointer:
 		# if isinstance(self.frag, Fragment):
 		if hasattr(self.frag, "struct_ptr"):
 			# store valid frag to be able to delete it later
-			# sized_str_entry.fragments.append(self.frag)
+			# root_entry.fragments.append(self.frag)
 			# now read an instance of template class at the offset
 			self.read_template()
 		else:

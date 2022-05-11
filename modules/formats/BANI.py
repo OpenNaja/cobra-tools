@@ -15,22 +15,22 @@ class BaniLoader(MemStructLoader):
 		raise NotImplementedError
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		logging.info(f"Writing {self.sized_str_entry.name}")
+		logging.info(f"Writing {self.root_entry.name}")
 
 		# find banis name
-		for ss in self.ovs.sized_str_entries:
-			if self.header.banis.frag.struct_ptr == ss.struct_ptr:
-				banis_name = ss.name
+		for root_entry in self.ovs.root_entries:
+			if self.header.banis.frag.struct_ptr == root_entry.struct_ptr:
+				banis_name = root_entry.name
 				break
 		else:
 			banis_name = "None"
 
 		# write bani file
-		out_path = out_dir(self.sized_str_entry.name)
+		out_path = out_dir(self.root_entry.name)
 		with open(out_path, 'wb') as outfile:
 			outfile.write(b"BANI")
 			outfile.write(as_bytes(banis_name))
-			outfile.write(self.sized_str_entry.struct_ptr.data)
+			outfile.write(self.root_entry.struct_ptr.data)
 
 		return out_path,
 
@@ -39,28 +39,28 @@ class BanisLoader(BaseFile):
 	extension = ".banis"
 
 	def collect(self):
-		self.assign_ss_entry()
+		self.assign_root_entry()
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
-		if not self.sized_str_entry.data_entry:
+		name = self.root_entry.name
+		if not self.root_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		buffers = self.sized_str_entry.data_entry.buffer_datas
+		buffers = self.root_entry.data_entry.buffer_datas
 		if len(buffers) != 1:
 			raise AttributeError(f"Wrong amount of buffers for {name}")
 		logging.info(f"Writing {name}")
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as outfile:
-			outfile.write(self.sized_str_entry.struct_ptr.data)
+			outfile.write(self.root_entry.struct_ptr.data)
 			outfile.write(buffers[0])
 
 		return out_paths
 
 	def load(self, file_path):
-		ss, buffer_0 = self._get_data(file_path)
-		self.sized_str_entry.data_entry.update_data((buffer_0,))
-		self.sized_str_entry.struct_ptr.update_data(ss, update_copies=True)
+		root_entry, buffer_0 = self._get_data(file_path)
+		self.root_entry.data_entry.update_data((buffer_0,))
+		self.root_entry.struct_ptr.update_data(root_entry, update_copies=True)
 		banis_dir = os.path.dirname(file_path)
 		for bani_file_name in os.listdir(banis_dir):
 			if bani_file_name.endswith(".bani"):
@@ -69,7 +69,7 @@ class BanisLoader(BaseFile):
 						logging.debug(f"Found matching bani {bani_file_name}")
 						fp = os.path.join(banis_dir, bani_file_name)
 						f0 = self._get_bani_data(fp)
-						b_ss, archive = self.ovl.get_sized_str_entry(bani_file_name)
+						b_ss, archive = self.ovl.get_root_entry(bani_file_name)
 						b_ss.struct_ptr.update_data(f0, update_copies=True)
 						break
 

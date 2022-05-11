@@ -9,7 +9,7 @@ class StreamEntry:
 	Links the main pointers of a streamed file to its user, eg. a texturestream to a tex file.
 	--These appear sorted in the order of sizedstr entries per ovs.-- only true for lod0, not lod1
 	the order does not seem to be consistent
-	interestingly, the order of ss entries per ovs is consistent with decreasing pool offset
+	interestingly, the order of root_entry entries per ovs is consistent with decreasing pool offset
 	"""
 
 	context = ContextReference()
@@ -22,10 +22,10 @@ class StreamEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# offset to the stream's ss pointer inside the flattened mempools
+		# offset to the stream's root_entry pointer inside the flattened mempools
 		self.stream_offset = 0
 
-		# offset to the user file's ss pointer (in STATIC) inside the flattened mempools
+		# offset to the user file's root_entry pointer (in STATIC) inside the flattened mempools
 		self.file_offset = 0
 		self.zero = 0
 		if set_default:

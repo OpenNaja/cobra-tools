@@ -36,7 +36,7 @@ class Ms2Loader(BaseFile):
 		return expected_frag
 
 	def collect(self):
-		self.assign_ss_entry()
+		self.assign_root_entry()
 		self.get_version()
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
@@ -57,7 +57,7 @@ class Ms2Loader(BaseFile):
 		ms2_file.load(self.file_entry.path, read_bytes=True)
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
-		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		self.root_entry = self.create_root_entry(self.file_entry)
 
 		self.header = ms2_file.info
 		# fix up the pointers
@@ -81,15 +81,15 @@ class Ms2Loader(BaseFile):
 		# print(self.header)
 		# 1 for the ms2, 2 for each mdl2
 		# pool.num_files += 1
-		# create sized str entries and mesh data fragments
+		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
 			# pool.num_files += 2
 			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")
 			mdl2_file_entry = self.get_file_entry(mdl2_path)
 
-			mdl2_entry = self.create_ss_entry(mdl2_file_entry)
+			mdl2_entry = self.create_root_entry(mdl2_file_entry)
 			mdl2_entry.struct_ptr.pool_index = -1
-			self.sized_str_entry.children.append(mdl2_entry)
+			self.root_entry.children.append(mdl2_entry)
 
 		# todo - padding like this is likely wrong, probably relative to start of materials
 		# logging.debug(f"Objects data {objects_ptr.data_size}, padding {objects_ptr.padding_size}")
@@ -99,7 +99,7 @@ class Ms2Loader(BaseFile):
 		# self.write_to_pool(objects.link_ptr, 2, objects_bytes + get_padding(len(objects_bytes), alignment=8))
 
 		# create ms2 data
-		self.create_data_entry(self.sized_str_entry, ms2_file.buffers)
+		self.create_data_entry(self.root_entry, ms2_file.buffers)
 		# write the final memstruct
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		# link some more pointers
@@ -115,20 +115,20 @@ class Ms2Loader(BaseFile):
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
-			logging.info(f"Updating MS2 buffer 0 with padding for {self.sized_str_entry.name}")
+			logging.info(f"Updating MS2 buffer 0 with padding for {self.root_entry.name}")
 			name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 			# make sure buffer 0 is padded to 4 bytes
 			padding = get_padding(len(name_buffer), 4)
 			if padding:
-				self.sized_str_entry.data_entry.update_data([name_buffer + padding, bone_infos, verts])
+				self.root_entry.data_entry.update_data([name_buffer + padding, bone_infos, verts])
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		self.get_version()
-		name = self.sized_str_entry.name
+		name = self.root_entry.name
 		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		# truncate to 48 bytes for PZ af_keeperbodyparts
-		ms2_general_info_data = self.sized_str_entry.struct_ptr.data[:48]
+		ms2_general_info_data = self.root_entry.struct_ptr.data[:48]
 
 		ms2_header = struct.pack("<I", len(bone_infos))
 	
@@ -142,7 +142,7 @@ class Ms2Loader(BaseFile):
 		with ConvStream() as stream:
 			stream.write(ms2_header)
 			stream.write(ms2_general_info_data)
-			for mdl2_entry in self.sized_str_entry.children:
+			for mdl2_entry in self.root_entry.children:
 				logging.debug(f"Writing {mdl2_entry.name}")
 				stream.write(as_bytes(mdl2_entry.basename))
 			stream.write(name_buffer)
@@ -176,7 +176,7 @@ class Ms2Loader(BaseFile):
 		return out_path,
 	
 	def get_ms2_buffer_datas(self):
-		assert self.sized_str_entry.data_entry
+		assert self.root_entry.data_entry
 		buffers_in_order = list(sorted(self.get_streams(), key=lambda b: b.index))
 		for buff in buffers_in_order:
 			logging.debug(f"buffer {buff.index}, size {buff.size} bytes")
@@ -235,13 +235,13 @@ class Ms2Loader(BaseFile):
 					frag.struct_ptr.update_data(data)
 					logging.debug(f"Result {len(frag.struct_ptr.data)} ({len(frag.struct_ptr.padding)})")
 
-		# load ms2 ss data
-		self.sized_str_entry.struct_ptr.update_data(as_bytes(ms2_file.info, version_info=versions))
+		# load ms2 root_entry data
+		self.root_entry.struct_ptr.update_data(as_bytes(ms2_file.info, version_info=versions))
 		self.header.buffer_infos.frag.struct_ptr.update_data(as_bytes(ms2_file.buffer_infos, version_info=versions), update_copies=True)
 		self.header.model_infos.frag.struct_ptr.update_data(as_bytes(ms2_file.model_infos, version_info=versions))
 	
 		# update ms2 data
-		self.sized_str_entry.data_entry.update_data(ms2_file.buffers)
+		self.root_entry.data_entry.update_data(ms2_file.buffers)
 
 	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()

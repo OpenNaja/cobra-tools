@@ -29,8 +29,8 @@ class TexturestreamLoader(BaseFile):
 	extension = ".texturestream"
 
 	def collect(self):
-		self.assign_ss_entry()
-		# print(self.sized_str_entry)
+		self.assign_root_entry()
+		# print(self.root_entry)
 
 	def create(self):
 		# this is only to be called from DdsLoader?
@@ -41,11 +41,11 @@ class DdsLoader(MemStructLoader):
 	target_class = TexHeader
 	extension = ".tex"
 
-	def increment_buffers(self, ss, buffer_i):
+	def increment_buffers(self, root_entry, buffer_i):
 		"""Linearly increments buffer indices for games that need it"""
 		# create increasing buffer indices for PZ (still needed 22-05-10), JWE1
 		if not is_jwe2(self.ovl):
-			for buff in ss.data_entry.buffers:
+			for buff in root_entry.data_entry.buffers:
 				buff.index = buffer_i
 				buffer_i += 1
 		return buffer_i
@@ -61,7 +61,7 @@ class DdsLoader(MemStructLoader):
 			static_lods = 2
 			streamed_lods = len(buffers) - static_lods
 			logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
-			ss_entries = [self.sized_str_entry, ]
+			ss_entries = [self.root_entry, ]
 			buffer_i = 0
 			# generate ovs and lod names - highly idiosyncratic
 			if streamed_lods == 0:
@@ -81,17 +81,17 @@ class DdsLoader(MemStructLoader):
 				# create texturestream file - dummy_dir is ignored
 				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{lod_i}.texturestream")
 				self.file_entry.streams.append(texstream_file)
-				# ss entry
-				texstream_ss = self.create_ss_entry(texstream_file, ovs=ovs_name)
+				# root_entry entry
+				texstream_ss = self.create_root_entry(texstream_file, ovs=ovs_name)
 				ss_entries.append(texstream_ss)
 				self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
 				# data entry, assign buffer
 				self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
 				buffer_i = self.increment_buffers(texstream_ss, buffer_i)
-			self.create_data_entry(self.sized_str_entry, buffers[streamed_lods:])
-			self.increment_buffers(self.sized_str_entry, buffer_i)
+			self.create_data_entry(self.root_entry, buffers[streamed_lods:])
+			self.increment_buffers(self.root_entry, buffer_i)
 
-			# ensure that the streams ss entries can be accessed for injecting the buffers
+			# ensure that the streams root_entry entries can be accessed for injecting the buffers
 			self.ovl.update_ss_dict()
 			# ready, now inject
 			self.load_image(self.file_entry.path)
@@ -101,13 +101,13 @@ class DdsLoader(MemStructLoader):
 	def collect(self):
 		super().collect()
 		# print("\n", self.file_entry.name)
-		# for buff in self.sized_str_entry.data_entry.buffers:
+		# for buff in self.root_entry.data_entry.buffers:
 		# 	print(buff.index, buff.size)
 		# for stream_file in self.file_entry.streams:
 		# 	print(stream_file.name)
-		# 	stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
+		# 	stream_ss, archive = self.ovl.get_root_entry(stream_file.name)
 		# 	# idk why the loader is not used?!
-		# 	# for buff in stream.loader.sized_str_entry.data_entry.buffers:
+		# 	# for buff in stream.loader.root_entry.data_entry.buffers:
 		# 	for buff in stream_ss.data_entry.buffers:
 		# 		print(buff.index, buff.size)
 
@@ -178,11 +178,11 @@ class DdsLoader(MemStructLoader):
 		# the last buffer is always 0 bytes
 		all_buffers = []
 		for stream_file in sorted(self.file_entry.streams, key=lambda f: f.name):
-			stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
+			stream_ss, archive = self.ovl.get_root_entry(stream_file.name)
 			# seen 1 per stream
 			all_buffers.extend(stream_ss.data_entry.buffers)
 		# seen 2
-		all_buffers.extend(self.sized_str_entry.data_entry.buffers)
+		all_buffers.extend(self.root_entry.data_entry.buffers)
 		return all_buffers
 
 	@staticmethod
@@ -203,7 +203,7 @@ class DdsLoader(MemStructLoader):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		tex_paths = super().extract(out_dir, show_temp_files, progress_callback)
-		tex_name = self.sized_str_entry.name
+		tex_name = self.root_entry.name
 		basename = os.path.splitext(tex_name)[0]
 		dds_name = basename + ".dds"
 		logging.info(f"Writing {tex_name}")

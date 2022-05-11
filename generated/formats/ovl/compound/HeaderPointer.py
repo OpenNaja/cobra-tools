@@ -13,7 +13,7 @@ from generated.context import ContextReference
 class HeaderPointer:
 
 	"""
-	Not standalone, used by SizedStringEntry, Fragment and DependencyEntry
+	Not standalone, used by RootEntry, Fragment and DependencyEntry
 	"""
 
 	context = ContextReference()

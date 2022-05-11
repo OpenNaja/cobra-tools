@@ -7,13 +7,13 @@ class WsmLoader(MemStructLoader):
 	target_class = WsmHeader
 
 	# def extract(self, out_dir, show_temp_files, progress_callback):
-	# 	name = self.sized_str_entry.name
+	# 	name = self.root_entry.name
 	# 	logging.info(f"Writing {name}")
 	# 	ovl_header = self.pack_header(b"WSM ")
 	#
 	# 	out_path = out_dir(name)
 	# 	with open(out_path, 'wb') as outfile:
 	# 		outfile.write(ovl_header)
-	# 		outfile.write(self.sized_str_entry.struct_ptr.data)
-	# 		for f in self.sized_str_entry.fragments:
+	# 		outfile.write(self.root_entry.struct_ptr.data)
+	# 		for f in self.root_entry.fragments:
 	# 			outfile.write(f.link_ptr.data)

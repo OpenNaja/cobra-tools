@@ -344,13 +344,13 @@ class MainWindow(widgets.MainWindow):
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
-		ss_entry, archive = self.ovl_data.get_sized_str_entry(file_entry.name)
-		ss_p = ss_entry.struct_ptr
-		logging.debug(f"File: {ss_p.pool_index} {ss_p.data_offset} {ss_entry.name}")
+		root_entry, archive = self.ovl_data.get_root_entry(file_entry.name)
+		ss_p = root_entry.struct_ptr
+		logging.debug(f"File: {ss_p.pool_index} {ss_p.data_offset} {root_entry.name}")
 		for dep in file_entry.dependencies:
 			p = dep.link_ptr
 			logging.debug(f"Dependency: {p.pool_index} {p.data_offset} {dep.name}")
-		for f in ss_entry.fragments:
+		for f in root_entry.fragments:
 			p0 = f.struct_ptr
 			p1 = f.link_ptr
 			logging.debug(f"Fragment: {p0.pool_index} {p0.data_offset} {p1.pool_index} {p1.data_offset}")
@@ -372,8 +372,8 @@ class MainWindow(widgets.MainWindow):
 				# 	print(a)
 				# for a in self.ovl_data.archives[1:]:
 				# 	print(a.name)
-				# 	for ss in a.content.sized_str_entries:
-				# 		print(ss.name)
+				# 	for root_entry in a.content.root_entries:
+				# 		print(root_entry.name)
 				# print(self.ovl_data.mimes)
 				# print(self.ovl_data.triplets)
 				# for a, z in zip(self.ovl_data.archives, self.ovl_data.zlibs):
@@ -402,7 +402,7 @@ class MainWindow(widgets.MainWindow):
 				# 		if a.pools_start <= sf.stream_offset < a.pools_end:
 				# 			print(f"is in {a.name}")
 				# 			print(f"pool offset relative {sf.stream_offset - a.pools_start}")
-				# 			# print(a.content.sized_str_entries)
+				# 			# print(a.content.root_entries)
 				# 	for a in self.ovl_data.archives:
 				# 		if a.name == "STATIC":
 				# 			for i, pool in enumerate(a.content.pools):

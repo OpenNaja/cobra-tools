@@ -7,7 +7,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class MatcolRoot(MemStruct):
 
 	"""
-	ss data
+	root_entry data
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

@@ -35,7 +35,7 @@
     </compound>
 
 	<compound name="MatcolRoot" inherit="MemStruct">
-        ss data
+        root_entry data
         <add name="main" type="Pointer" template="RootFrag"/>
 		<add name="one" type="uint64" >always 1</add>
     </compound>

@@ -11,21 +11,21 @@ class MergeDetailsLoader(BaseFile):
 		pass
 
 	def collect(self):
-		self.assign_ss_entry()
-		print(f"Collecting {self.sized_str_entry.name}")
+		self.assign_root_entry()
+		print(f"Collecting {self.root_entry.name}")
 
 		# there is a count for a pointer list, but all mergedetails have only 1 in the count so it is hard to tell
 		# which one of the pointer in the struct is affected by it.
-		_,_,_,_,_,count,flags = struct.unpack("<5QII", self.sized_str_entry.struct_ptr.read_from_pool(0x30))
+		_,_,_,_,_,count,flags = struct.unpack("<5QII", self.root_entry.struct_ptr.read_from_pool(0x30))
 
-		self.sized_str_entry.mergedetails  = {
+		self.root_entry.mergedetails  = {
 			'flags': flags,
 			'count': count,
 			'query': "test sql;",
 			'name' : "DLCPacks", # hardcode value of all mergedetails seen
 			'field': "ChildDB"   # hardcode value of all mergedetails seen
 		}
-		print(self.sized_str_entry.mergedetails)
+		print(self.root_entry.mergedetails)
 
 		# first frag pointer points to a list of 1 item, the item being name: DLCPacks
 		# second frag pointer points to a list of 1 item, the item being query: SELECT ....
@@ -37,13 +37,13 @@ class MergeDetailsLoader(BaseFile):
 		pass
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
+		name = self.root_entry.name
 		print(f"Writing {name}")		
 
 		out_files = []
 		out_path = out_dir(name)
 
-		md = self.sized_str_entry.mergedetails
+		md = self.root_entry.mergedetails
 
 		xmldata = ET.Element('MergeDetails')
 		xmldata.set('name',   str(md['name']))

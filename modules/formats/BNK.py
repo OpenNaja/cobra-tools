@@ -20,14 +20,14 @@ class BnkLoader(BaseFile):
 		pass
 
 	def collect(self):
-		self.assign_ss_entry()
+		self.assign_root_entry()
 			
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		bnk_name = os.path.splitext(self.sized_str_entry.name)[0]
-		# print(self.sized_str_entry.struct_ptr.data)
-		out_path = out_dir(self.sized_str_entry.name)
+		bnk_name = os.path.splitext(self.root_entry.name)[0]
+		# print(self.root_entry.struct_ptr.data)
+		out_path = out_dir(self.root_entry.name)
 		out_files = [out_path, ]
-		buffer_datas = self.sized_str_entry.data_entry.buffer_datas
+		buffer_datas = self.root_entry.data_entry.buffer_datas
 		with open(out_path, "wb") as f:
 			f.write(self.pack_header(b"BNK"))
 			f.write(buffer_datas[0])
@@ -67,7 +67,7 @@ class BnkLoader(BaseFile):
 	
 	def load(self, bnk_file_path):
 		# # first uint of the buffer is the size of the data that should be read from the aux file
-		# media_buffers = self.sized_str_entry.data_entry.buffer_datas
+		# media_buffers = self.root_entry.data_entry.buffer_datas
 		# media_buffers[0] = struct.pack("<I", media.size_for_ovl) + media_buffers[0][4:]
 		#
 		# if len(media_buffers) > 1:
@@ -75,11 +75,11 @@ class BnkLoader(BaseFile):
 		# 	with open(media_path, "rb") as f:
 		# 		media_buffers[1] = f.read()
 		# # update the buffer
-		# self.sized_str_entry.data_entry.update_data(media_buffers)
+		# self.root_entry.data_entry.update_data(media_buffers)
 		#
 		# # get events bnk for internal files
 		# if not self.file_entry.aux_entries:
-		# 	events_ss, archive = self.ovl.get_sized_str_entry(f"{events_bnk}.bnk")
+		# 	events_ss, archive = self.ovl.get_root_entry(f"{events_bnk}.bnk")
 		# 	if events_ss:
 		# 		events_buffers = events_ss.data_entry.buffer_datas
 		# 		events_buffers[0] = struct.pack("<I", events.size_for_ovl) + events_buffers[0][4:]

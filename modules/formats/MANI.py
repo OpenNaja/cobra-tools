@@ -13,17 +13,17 @@ class ManisLoader(BaseFile):
 	extension = ".manis"
 
 	def collect(self):
-		self.assign_ss_entry()
+		self.assign_root_entry()
 				
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
+		name = self.root_entry.name
 		logging.info(f"Writing {name}")
-		if not self.sized_str_entry.data_entry:
+		if not self.root_entry.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		# buffers = self.sized_str_entry.data_entry.buffer_datas
+		# buffers = self.root_entry.data_entry.buffer_datas
 		# print(len(buffers))
 		ovl_header = self.pack_header(b"MANI")
-		manis_header = struct.pack("<I", len(self.sized_str_entry.children))
+		manis_header = struct.pack("<I", len(self.root_entry.children))
 
 		# sized str data gives general info
 		# buffer 0 - all mani infos
@@ -33,35 +33,35 @@ class ManisLoader(BaseFile):
 		with open(out_path, 'wb') as outfile:
 			outfile.write(ovl_header)
 			outfile.write(manis_header)
-			for mani in self.sized_str_entry.children:
+			for mani in self.root_entry.children:
 				outfile.write(as_bytes(mani.basename))
 			outfile.write(self.root_ptr.data)
-			for buff in self.sized_str_entry.data_entry.buffers:
+			for buff in self.root_entry.data_entry.buffers:
 				outfile.write(buff.data)
 	
-		# for i, buff in enumerate(self.sized_str_entry.data_entry.buffers):
+		# for i, buff in enumerate(self.root_entry.data_entry.buffers):
 		# 	with open(out_path+str(i), 'wb') as outfile:
 		# 		outfile.write(buff.data)
 	
 		return out_path,
 
 	def create(self):
-		manis_file, ss, b0, b1, b2 = self._get_data(self.file_entry.path)
+		manis_file, root_entry, b0, b1, b2 = self._get_data(self.file_entry.path)
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
-		manis_entry = self.create_ss_entry(self.file_entry)
+		manis_entry = self.create_root_entry(self.file_entry)
 
 		# create mani files
 		for mani_name in manis_file.names:
 			mani_path = os.path.join(ms2_dir, mani_name+".mani")
 			mani_file_entry = self.get_file_entry(mani_path)
 
-			mani_entry = self.create_ss_entry(mani_file_entry)
+			mani_entry = self.create_root_entry(mani_file_entry)
 			mani_entry.struct_ptr.pool_index = -1
 			manis_entry.children.append(mani_entry)
 
 		# todo - pool type
-		self.write_to_pool(manis_entry.struct_ptr, 2, ss)
+		self.write_to_pool(manis_entry.struct_ptr, 2, root_entry)
 		self.create_data_entry(manis_entry, (b0, b1, b2))
 
 	def _get_data(self, file_path):

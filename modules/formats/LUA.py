@@ -11,27 +11,27 @@ class LuaLoader(MemStructLoader):
 	
 	def create(self):
 		buffer_0 = self._get_data(self.file_entry.path)
-		self.sized_str_entry = self.create_ss_entry(self.file_entry)
-		self.create_data_entry(self.sized_str_entry, (buffer_0,))
+		self.root_entry = self.create_root_entry(self.file_entry)
+		self.create_data_entry(self.root_entry, (buffer_0,))
 
 		self.header = LuaRoot(self.ovl.context)
 		self.header.lua_size = len(buffer_0)
 		self.header.source_path = self.file_entry.basename
 		# todo - likely wrong, not sure how to handle
 		self.header.likely_alignment = b"\x00"
-		self.header.write_ptrs(self, self.ovs, self.sized_str_entry.struct_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.ovs, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
 	def load(self, file_path):
 		buffer_0 = self._get_data(file_path)
 		self.header.lua_size = len(buffer_0)
 		# todo - update stream from header
-		# self.sized_str_entry.struct_ptr.update_data(ss, update_copies=True)
-		self.sized_str_entry.data_entry.update_data((buffer_0,))
+		# self.root_entry.struct_ptr.update_data(root_entry, update_copies=True)
+		self.root_entry.data_entry.update_data((buffer_0,))
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
+		name = self.root_entry.name
 		logging.info(f"Writing {name}")
-		buffer_data = self.sized_str_entry.data_entry.buffer_datas[0]
+		buffer_data = self.root_entry.data_entry.buffer_datas[0]
 		logging.debug(f"buffer size: {len(buffer_data)}")
 		# write lua
 		out_path = out_dir(name)

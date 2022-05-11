@@ -11,14 +11,14 @@ class FctLoader(BaseFile):
 		pass
 	
 	def collect(self):
-		self.assign_ss_entry()
+		self.assign_root_entry()
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
+		name = self.root_entry.name
 		print("\nWriting", name)
-		buff = b"".join(self.sized_str_entry.data_entry.buffer_datas)
-		ss_len = (len(self.sized_str_entry.struct_ptr.data) // 4) - 4
-		ss_data = struct.unpack(f"<4f{ss_len}I", self.sized_str_entry.struct_ptr.data)
+		buff = b"".join(self.root_entry.data_entry.buffer_datas)
+		ss_len = (len(self.root_entry.struct_ptr.data) // 4) - 4
+		ss_data = struct.unpack(f"<4f{ss_len}I", self.root_entry.struct_ptr.data)
 		offset = ss_data[8]
 
 		data_sizes = (ss_data[10], ss_data[12], ss_data[14], ss_data[16])
@@ -42,11 +42,11 @@ class FctLoader(BaseFile):
 		# read fct
 		# inject fct buffers
 		# update sized string
-		ss_len = len(self.sized_str_entry.struct_ptr.data) / 4
-		ss_data = list(struct.unpack("<4f{}I".format(int(ss_len - 4)), self.sized_str_entry.struct_ptr.data))
+		ss_len = len(self.root_entry.struct_ptr.data) / 4
+		ss_data = list(struct.unpack("<4f{}I".format(int(ss_len - 4)), self.root_entry.struct_ptr.data))
 		pad_size = ss_data[8]
 		data_sizes = (ss_data[10], ss_data[12], ss_data[14], ss_data[16])
-		old_buffer_bytes = self.sized_str_entry.data_entry.buffer_datas[0]
+		old_buffer_bytes = self.root_entry.data_entry.buffer_datas[0]
 		print("old", len(old_buffer_bytes))
 		pad_bytes = old_buffer_bytes[0:pad_size]
 		d0 = old_buffer_bytes[pad_size:data_sizes[0] + pad_size]
@@ -65,7 +65,7 @@ class FctLoader(BaseFile):
 			# load the new buffer
 			new_buffer_bytes = stream.read()
 
-			buffer_bytes = pad_bytes  # update the correct ss entry size
+			buffer_bytes = pad_bytes  # update the correct root_entry entry size
 			if ind == 0:
 				ss_data[10] = len(new_buffer_bytes)
 				buffer_bytes += new_buffer_bytes
@@ -94,7 +94,7 @@ class FctLoader(BaseFile):
 			print(len(buffer_bytes))
 
 			# update the buffers
-			self.sized_str_entry.data_entry.update_data((buffer_bytes,))
+			self.root_entry.data_entry.update_data((buffer_bytes,))
 
 			data = struct.pack("<4f{}I".format(int(ss_len - 4)), *ss_data)
-			self.sized_str_entry.struct_ptr.update_data(data, update_copies=True)
+			self.root_entry.struct_ptr.update_data(data, update_copies=True)

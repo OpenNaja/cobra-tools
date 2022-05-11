@@ -5,8 +5,8 @@ from generated.context import ContextReference
 class AssetEntry:
 
 	"""
-	refers to sized string entries so they can be grouped into set entries.
-	It seems to point exclusively to SizedStringEntry's whose Ext Hash is FF FF FF FF aka max uint32
+	refers to root entries so they can be grouped into set entries.
+	It seems to point exclusively to RootEntry's whose Ext Hash is FF FF FF FF aka max uint32
 	"""
 
 	context = ContextReference()
@@ -25,7 +25,7 @@ class AssetEntry:
 		self.ext_hash = 0
 		self.zero_1 = 0
 
-		# index into sized string entries array; hash of targeted file matches this assetentry's hash.
+		# index into root entries array; hash of targeted file matches this assetentry's hash.
 		self.file_index = 0
 		self.zero_2 = 0
 		if set_default:

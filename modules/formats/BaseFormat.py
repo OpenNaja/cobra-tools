@@ -7,7 +7,7 @@ from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.MemPool import MemPool
-from generated.formats.ovl.compound.SizedStringEntry import SizedStringEntry
+from generated.formats.ovl.compound.RootEntry import RootEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import djb
@@ -21,7 +21,7 @@ class BaseFile:
 		self.ovl = ovl
 		self.ovs = ovl.create_archive()
 		self.file_entry = file_entry
-		self.sized_str_entry = None
+		self.root_entry = None
 
 	def validate_child(self, file_path):
 		return False
@@ -37,16 +37,16 @@ class BaseFile:
 		return struct.pack(
 			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
 
-	def assign_ss_entry(self):
-		self.sized_str_entry, archive = self.ovl.get_sized_str_entry(self.file_entry.name)
+	def assign_root_entry(self):
+		self.root_entry, archive = self.ovl.get_root_entry(self.file_entry.name)
 		self.ovs = archive.content
 
 	def get_streams(self):
 		logging.debug(f"Num streams: {len(self.file_entry.streams)}")
-		all_buffers = [*self.sized_str_entry.data_entry.buffers]
+		all_buffers = [*self.root_entry.data_entry.buffers]
 		logging.debug(f"Static buffers: {all_buffers}")
 		for stream_file in self.file_entry.streams:
-			stream_ss, archive = self.ovl.get_sized_str_entry(stream_file.name)
+			stream_ss, archive = self.ovl.get_root_entry(stream_file.name)
 			all_buffers.extend(stream_ss.data_entry.buffers)
 			logging.debug(f"Stream buffers: {stream_ss.data_entry.buffers} {stream_file.name}")
 		return all_buffers
@@ -54,9 +54,8 @@ class BaseFile:
 	def get_pool(self, pool_type_key, ovs="STATIC"):
 		ovs_file = self.ovl.create_archive(ovs)
 		# get one directly editable pool, if it exists
-		# todo - remove pool index throughout all formats
 		for pool in ovs_file.pools:
-			# todo - reasonable add size condition
+			# todo - add reasonable size condition
 			if pool.type == pool_type_key and pool.new:
 				return pool
 		# nope, means we gotta create pool
@@ -92,14 +91,14 @@ class BaseFile:
 		self.ovl.files.append(file_entry)
 		return file_entry
 
-	def create_ss_entry(self, file_entry, ovs="STATIC"):
-		ss_entry = SizedStringEntry(self.ovl.context)
-		ss_entry.children = []
-		ss_entry.fragments = set()
+	def create_root_entry(self, file_entry, ovs="STATIC"):
+		root_entry = RootEntry(self.ovl.context)
+		root_entry.children = []
+		root_entry.fragments = set()
 		ovs_file = self.ovl.create_archive(ovs)
-		ovs_file.transfer_identity(ss_entry, file_entry)
-		ovs_file.sized_str_entries.append(ss_entry)
-		return ss_entry
+		ovs_file.transfer_identity(root_entry, file_entry)
+		ovs_file.root_entries.append(root_entry)
+		return root_entry
 
 	def set_dependency_identity(self, dependency, file_name):
 		"""Use a standard file name with extension"""
@@ -115,30 +114,24 @@ class BaseFile:
 		self.file_entry.dependencies.append(dependency)
 		return dependency
 
-	def create_fragments(self, ss, count):
-		frags = [self.create_fragment(ss) for _ in range(count)]
-		# ss.fragments.update(frags)
-		return frags
-
-	def create_fragment(self, ss):
+	def create_fragment(self, root_entry):
 		new_frag = Fragment(self.ovl.context)
-		# ss.fragments.append(new_frag)
-		ss.fragments.add(new_frag)
+		root_entry.fragments.add(new_frag)
 		return new_frag
 
-	def create_data_entry(self, ss_entry, buffers_bytes, ovs="STATIC"):
+	def create_data_entry(self, root_entry, buffers_bytes, ovs="STATIC"):
 		ovs_file = self.ovl.create_archive(ovs)
 		data = DataEntry(self.ovl.context)
-		ss_entry.data_entry = data
+		root_entry.data_entry = data
 		data.buffer_count = len(buffers_bytes)
 		data.buffers = []
 		for i, buffer_bytes in enumerate(buffers_bytes):
 			buffer = BufferEntry(self.ovl.context)
 			buffer.index = i
 			data.buffers.append(buffer)
-			ovs_file.transfer_identity(buffer, ss_entry)
+			ovs_file.transfer_identity(buffer, root_entry)
 			ovs_file.buffer_entries.append(buffer)
-		ovs_file.transfer_identity(data, ss_entry)
+		ovs_file.transfer_identity(data, root_entry)
 		ovs_file.data_entries.append(data)
 		data.update_data(buffers_bytes)
 		return data
@@ -172,16 +165,16 @@ class BaseFile:
 	@property
 	def root_ptr(self):
 		"""Shorthand for the root entry's struct_ptr"""
-		return self.sized_str_entry.struct_ptr
+		return self.root_entry.struct_ptr
 
 	def remove_pointers(self):
 		# remove any pointers
 		for dep in self.file_entry.dependencies:
 			dep.link_ptr.remove()
-		for frag in self.sized_str_entry.fragments:
+		for frag in self.root_entry.fragments:
 			frag.struct_ptr.remove()
 			frag.link_ptr.remove()
-		self.sized_str_entry.struct_ptr.remove()
+		self.root_entry.struct_ptr.remove()
 		for pool in self.ovl.pools:
 			# if the pool has editable pointers, flush them to the pool writer first
 			pool.flush_pointers()
@@ -191,8 +184,8 @@ class BaseFile:
 		self.remove_pointers()
 
 		# remove entries in ovs
-		self.ovs.sized_str_entries.remove(self.sized_str_entry)
-		data = self.sized_str_entry.data_entry
+		self.ovs.root_entries.remove(self.root_entry)
+		data = self.root_entry.data_entry
 		if data:
 			for buffer in data.buffers:
 				buffer.update_data(b"")
@@ -216,19 +209,19 @@ class MemStructLoader(BaseFile):
 	target_class: None
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
-		name = self.sized_str_entry.name
+		name = self.root_entry.name
 		out_path = out_dir(name)
 		self.header.to_xml_file(out_path)
 		return out_path,
 
 	def collect(self):
-		self.assign_ss_entry()
+		self.assign_root_entry()
 		self.header = self.target_class.from_stream(self.root_ptr.stream, self.ovl.context)
 		self.header.read_ptrs(self.root_ptr.pool)
 		# print(self.header)
 
 	def create(self):
-		self.sized_str_entry = self.create_ss_entry(self.file_entry)
+		self.root_entry = self.create_root_entry(self.file_entry)
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)

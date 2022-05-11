@@ -63,9 +63,9 @@ class OvsFile(OvsHeader):
 		self.arg = archive_entry
 
 	@staticmethod
-	def add_pointer(pointer, ss_entry, pointers_to_ss):
+	def add_pointer(pointer, root_entry, pointers_to_ss):
 		if pointer.pool_index != -1:
-			pointers_to_ss[pointer.pool_index][pointer.data_offset] = ss_entry
+			pointers_to_ss[pointer.pool_index][pointer.data_offset] = root_entry
 
 	def get_bytes(self, external_path):
 		# load external uncompressed data
@@ -133,9 +133,9 @@ class OvsFile(OvsHeader):
 				type_str = first_entry.__class__.__name__
 				# map fragment to containing sizedstr entry
 				if isinstance(first_entry, Fragment):
-					for ss in self.sized_str_entries:
-						if first_entry in ss.fragments:
-							first_entry = ss
+					for root_entry in self.root_entries:
+						if first_entry in root_entry.fragments:
+							first_entry = root_entry
 							break
 					else:
 						# raise NameError(f"Could not find root entry to resolve fragment's name {first_entry}")
@@ -147,7 +147,7 @@ class OvsFile(OvsHeader):
 				logging.error(f"No entry found for pool {pool_index}!")
 		entry_lists = (
 			self.pools,
-			self.sized_str_entries,
+			self.root_entries,
 			self.data_entries,
 			self.set_header.sets,
 			self.set_header.assets,
@@ -184,7 +184,7 @@ class OvsFile(OvsHeader):
 		self.arg.num_pool_groups = len(self.pool_groups)
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
-		self.arg.num_files = len(self.sized_str_entries)
+		self.arg.num_files = len(self.root_entries)
 		self.arg.num_buffer_groups = len(self.buffer_groups)
 		# todo - self.arg.ovs_offset
 
@@ -212,11 +212,11 @@ class OvsFile(OvsHeader):
 
 			for data_entry in self.data_entries:
 				self.assign_name(data_entry)
-			for sized_str_entry in self.sized_str_entries:
-				self.assign_name(sized_str_entry)
-				sized_str_entry.children = []
+			for root_entry in self.root_entries:
+				self.assign_name(root_entry)
+				root_entry.children = []
 				# get data entry for link to buffers, or none
-				sized_str_entry.data_entry = self.find_entry(self.data_entries, sized_str_entry)
+				root_entry.data_entry = self.find_entry(self.data_entries, root_entry)
 
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
@@ -226,15 +226,15 @@ class OvsFile(OvsHeader):
 
 			for set_entry in self.set_header.sets:
 				self.assign_name(set_entry)
-				set_entry.entry = self.find_entry(self.sized_str_entries, set_entry)
+				set_entry.entry = self.find_entry(self.root_entries, set_entry)
 
 			for asset_entry in self.set_header.assets:
 				self.assign_name(asset_entry)
 				try:
-					asset_entry.entry = self.sized_str_entries[asset_entry.file_index]
+					asset_entry.entry = self.root_entries[asset_entry.file_index]
 				except:
 					raise IndexError(
-						f"Could not find a sizedstr entry for asset {asset_entry} in {len(self.sized_str_entries)}")
+						f"Could not find a sizedstr entry for asset {asset_entry} in {len(self.root_entries)}")
 
 			self.map_assets()
 
@@ -275,7 +275,7 @@ class OvsFile(OvsHeader):
 			logging.debug(f"ASSETS: {[a.name for a in assets]}")
 			# store the references on the corresponding sized str entry
 			assert set_entry.entry
-			set_entry.entry.children = [self.sized_str_entries[a.file_index] for a in assets]
+			set_entry.entry.children = [self.root_entries[a.file_index] for a in assets]
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
@@ -283,36 +283,36 @@ class OvsFile(OvsHeader):
 		source_entry.name = target_entry.name
 
 	def rebuild_assets(self):
-		"""Update archive asset grouping from children list on sized str entries"""
+		"""Update archive asset grouping from children list on root_entries"""
 		logging.info(f"Updating assets for {self.arg.name}")
 		self.set_header.sets.clear()
 		self.set_header.assets.clear()
 		self.set_header.set_count = 0
 		self.set_header.asset_count = 0
 		start = 0
-		ss_index_table = {file.name: i for i, file in enumerate(self.sized_str_entries)}
-		for ss_entry in self.sized_str_entries:
-			if ss_entry.children:
+		ss_index_table = {file.name: i for i, file in enumerate(self.root_entries)}
+		for root_entry in self.root_entries:
+			if root_entry.children:
 				set_entry = SetEntry(self.context)
 				set_entry.start = start
-				set_entry.end = start + len(ss_entry.children)
-				self.transfer_identity(set_entry, ss_entry)
+				set_entry.end = start + len(root_entry.children)
+				self.transfer_identity(set_entry, root_entry)
 				self.set_header.sets.append(set_entry)
-				for ss_child in ss_entry.children:
+				for ss_child in root_entry.children:
 					asset_entry = AssetEntry(self.context)
 					asset_entry.file_index = ss_index_table[ss_child.name]
 					self.transfer_identity(asset_entry, ss_child)
 					self.set_header.assets.append(asset_entry)
-				start += len(ss_entry.children)
+				start += len(root_entry.children)
 				self.set_header.set_count += 1
-				self.set_header.asset_count += len(ss_entry.children)
+				self.set_header.asset_count += len(root_entry.children)
 				# set_index is 1-based, so the first set = 1, so we do it after the increment
-				ss_entry.data_entry.set_index = self.set_header.set_count
+				root_entry.data_entry.set_index = self.set_header.set_count
 
 	def rebuild_buffer_groups(self):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
 		self.buffer_groups.clear()
-		self.sized_str_entries.sort(key=lambda b: (b.ext, b.file_hash))
+		self.root_entries.sort(key=lambda b: (b.ext, b.file_hash))
 		self.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 		if (is_pz16(self.ovl) or is_jwe2(self.ovl)) and self.data_entries:
 			for data_entry in self.data_entries:
@@ -397,13 +397,13 @@ class OvsFile(OvsHeader):
 
 	def assign_frag_names(self):
 		# for debugging only:
-		for sized_str_entry in self.sized_str_entries:
+		for root_entry in self.root_entries:
 			try:
-				for frag in sized_str_entry.fragments:
-					frag.name = sized_str_entry.name
+				for frag in root_entry.fragments:
+					frag.name = root_entry.name
 			except BaseException as err:
-				logging.error(f"Assigning frag names failed for {sized_str_entry.name}")
-				logging.error(sized_str_entry.fragments)
+				logging.error(f"Assigning frag names failed for {root_entry.name}")
+				logging.error(root_entry.fragments)
 				traceback.print_exc()
 
 	def map_buffers(self):
@@ -501,7 +501,7 @@ class OvsFile(OvsHeader):
 				f.write(
 					f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
 
-	def check_for_ptrs(self, parent_struct_ptr, ss):
+	def check_for_ptrs(self, parent_struct_ptr, root_entry):
 		"""Recursively assigns pointers to an entry"""
 		# tracking children for each struct adds no detectable overhead for animal ovls
 		parent_struct_ptr.children = set()
@@ -512,9 +512,9 @@ class OvsFile(OvsHeader):
 				if isinstance(entry, Fragment):
 					# points to a child struct
 					struct_ptr = entry.struct_ptr
-					if entry not in ss.fragments:
-						ss.fragments.add(entry)
-						self.check_for_ptrs(struct_ptr, ss)
+					if entry not in root_entry.fragments:
+						root_entry.fragments.add(entry)
+						self.check_for_ptrs(struct_ptr, root_entry)
 
 	def _dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
@@ -544,10 +544,10 @@ class OvsFile(OvsHeader):
 			for i, pool in enumerate(self.pools):
 				f.write(f"\nPool {i} (type: {pool.type})")
 
-			for ss in self.sized_str_entries:
-				ptr = ss.struct_ptr
+			for root_entry in self.root_entries:
+				ptr = root_entry.struct_ptr
 				if ptr.pool:
-					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {ss.name}"
+					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {root_entry.name}"
 					f.write(debug_str)
 					self._dump_ptr_stack(f, ptr, set())
 
@@ -670,7 +670,7 @@ class OvlFile(Header, IoFile):
 				ovs.set_header.sets,
 				ovs.set_header.assets,
 				ovs.pools,
-				ovs.sized_str_entries
+				ovs.root_entries
 			))
 		for entry_list in lists:
 			for entry in entry_list:
@@ -683,8 +683,8 @@ class OvlFile(Header, IoFile):
 
 	def get_children(self, file_entry):
 		children_names = []
-		ss_entry, archive = self.get_sized_str_entry(file_entry.name)
-		children_names.extend([ss.name for ss in ss_entry.children])
+		root_entry, archive = self.get_root_entry(file_entry.name)
+		children_names.extend([root_entry.name for root_entry in root_entry.children])
 		children_names.extend([stream.name for stream in file_entry.streams])
 		return children_names
 
@@ -1136,7 +1136,7 @@ class OvlFile(Header, IoFile):
 				self.pools[archive.pools_offset: archive.pools_offset + archive.num_pools] = archive.content.pools
 
 	def load_pointers(self):
-		"""Handle all pointers of this file, including dependencies, fragments and ss entries"""
+		"""Handle all pointers of this file, including dependencies, fragments and root_entry entries"""
 		logging.info("Loading pointers")
 		start_time = time.time()
 		# reset pointer map for each pool
@@ -1152,7 +1152,7 @@ class OvlFile(Header, IoFile):
 			# sort fragments by their first pointer, no real need to do so, though
 			# ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 			# attach all pointers to their pool
-			for entry in ovs.sized_str_entries:
+			for entry in ovs.root_entries:
 				entry.struct_ptr.get_pool(ovs.pools)
 				# may not have a pool
 				if entry.struct_ptr.pool:
@@ -1173,7 +1173,7 @@ class OvlFile(Header, IoFile):
 		logging.info("Tracking pointers")
 		for archive in self.archives:
 			ovs = archive.content
-			for entry in ovs.sized_str_entries:
+			for entry in ovs.root_entries:
 				# this is significantly slower if a list is used
 				entry.fragments = set()
 				if entry.struct_ptr.pool:
@@ -1194,13 +1194,13 @@ class OvlFile(Header, IoFile):
 					traceback.print_exc()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
-	def get_sized_str_entry(self, name):
-		"""Retrieves the desired ss entry"""
+	def get_root_entry(self, name):
+		"""Retrieves the desired root_entry entry"""
 		if name.lower() in self._ss_dict:
 			return self._ss_dict[name.lower()]
 		else:
 			for archive_entry in self.archives:
-				for file in archive_entry.content.sized_str_entries:
+				for file in archive_entry.content.root_entries:
 					print(file.name.lower())
 			raise KeyError(f"Can't find a sizedstr entry for {name}, not from this archive?")
 
@@ -1209,7 +1209,7 @@ class OvlFile(Header, IoFile):
 		logging.info("Updating the entry dict")
 		self._ss_dict = {}
 		for archive in self.archives:
-			for file in archive.content.sized_str_entries:
+			for file in archive.content.root_entries:
 				self._ss_dict[file.name.lower()] = file, archive
 
 	def link_streams(self):
@@ -1295,12 +1295,12 @@ class OvlFile(Header, IoFile):
 			ovs.fragments.clear()
 			# map pool to index
 			pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
-			for ss_entry in ovs.sized_str_entries:
-				ss_entry.struct_ptr.update_pool_index(pools_lut)
-				for frag in ss_entry.fragments:
+			for root_entry in ovs.root_entries:
+				root_entry.struct_ptr.update_pool_index(pools_lut)
+				for frag in root_entry.fragments:
 					frag.link_ptr.update_pool_index(pools_lut)
 					frag.struct_ptr.update_pool_index(pools_lut)
-				ovs.fragments.extend(ss_entry.fragments)
+				ovs.fragments.extend(root_entry.fragments)
 
 			# map the pool types to pools
 			pools_by_type = {}
@@ -1391,7 +1391,7 @@ class OvlFile(Header, IoFile):
 	def update_stream_files(self):
 		logging.info("Updating stream file memory links")
 		self.stream_files.clear()
-		# ensure we have an up to date ss dict
+		# ensure we have an up to date root_entry dict
 		self.update_ss_dict()
 		for file in self.files:
 			if file.streams:
