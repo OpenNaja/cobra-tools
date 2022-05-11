@@ -190,7 +190,15 @@ class BaseFile:
 		# self.ovl.files.pop(i)
 		self.ovl.files.remove(self.file_entry)
 
-		# todo children files
+		# remove children files
+		for file_entry in self.ovl.files:
+			for child_root in self.root_entry.children:
+				if file_entry.name == child_root.name:
+					if file_entry.loader:
+						file_entry.loader.remove()
+						break
+					else:
+						logging.warning(f"Could not remove {file_entry.name} as it has no loader")
 		# remove streamed and child files
 		for stream_file in self.file_entry.streams:
 			if stream_file.loader:
