@@ -15,7 +15,6 @@ def file_remover(ovl, filenames):
 			if file_entry.loader:
 				file_entry.loader.remove()
 	for i, pool in sorted(enumerate(ovl.pools), reverse=True):
-		pool.flush_pointers()
 		logging.info(f"pool {i} {pool.offset_2_struct_entries}")
 		if not pool.offset_2_struct_entries:
 			logging.info(f"Deleting pool {pool.name} as it has no pointers")

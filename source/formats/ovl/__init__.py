@@ -760,9 +760,6 @@ class OvlFile(Header, IoFile):
 				logging.error(error)
 				traceback.print_exc()
 				error_files.append(name_ext)
-		for pool in self.pools:
-			# if the pool has editable pointers, flush them to the pool writer first
-			pool.flush_pointers()
 		shutil.rmtree(tmp_dir)
 		return error_files, foreign_files
 

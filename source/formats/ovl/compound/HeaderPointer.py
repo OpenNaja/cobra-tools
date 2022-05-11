@@ -30,25 +30,12 @@ class HeaderPointer:
 		# define this already
 		self.pool = None
 		self.data_size = 0
-		self.padding_size = 0
-
-		# temp data for flushing
-		self._data = None
 
 	@property
-	def data(self, with_padding=False):
+	def data(self):
 		"""Get data from pool writer"""
 		if self.pool:
-			s = self.data_size
-			if with_padding:
-				s += self.padding_size
-			return self.read_from_pool(s)
-
-	@property
-	def padding(self):
-		"""Get padding from pool writer"""
-		if self.pool:
-			return self.pool.get_at(self.data_offset+self.data_size, self.padding_size)
+			return self.read_from_pool(self.data_size)
 
 	@property
 	def stream(self):
@@ -104,15 +91,22 @@ class HeaderPointer:
 		else:
 			self.pool_index = -1
 
-	def update_data(self, data, update_copies=False, pad_to=None, include_old_pad=False):
+	def update_data(self, data, update_copies=False):
 		"""Update data and size of this pointer"""
-		self._data = data
+		raise NotImplementedError
 
 	def remove(self):
-		"""Remove this pointer from suitable pool"""
+		"""Remove this pointer and all of its link children from suitable pool"""
 		if self.pool:
-			# add it to the stack
-			self._data = b""
+			if self.data_offset in self.pool.offset_2_struct_entries:
+				logging.debug(f"Removed struct at offset {self.data_offset} from pool")
+				structs = self.pool.offset_2_struct_entries.pop(self.data_offset)
+				for entry in structs:
+					for c in entry.struct_ptr.children:
+						offset = c.link_ptr.data_offset
+						if offset in self.pool.offset_2_link_entry:
+							logging.debug(f"Removed link at offset {offset} from pool")
+							self.pool.offset_2_link_entry.pop(offset)
 
 	def __eq__(self, other):
 		if isinstance(other, HeaderPointer):

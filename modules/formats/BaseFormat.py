@@ -169,15 +169,9 @@ class BaseFile:
 
 	def remove_pointers(self):
 		# remove any pointers
-		for dep in self.file_entry.dependencies:
-			dep.link_ptr.remove()
 		for frag in self.root_entry.fragments:
 			frag.struct_ptr.remove()
-			frag.link_ptr.remove()
 		self.root_entry.struct_ptr.remove()
-		for pool in self.ovl.pools:
-			# if the pool has editable pointers, flush them to the pool writer first
-			pool.flush_pointers()
 
 	def remove(self):
 		logging.info(f"Removing {self.file_entry.name}")

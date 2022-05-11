@@ -230,7 +230,6 @@ class Ms2Loader(BaseFile):
 					frag = ptr.frag
 					# objects.link_ptr has padding in stock, apparently as each entry is 4 bytes
 					logging.debug(f"Injecting mdl2 data {len(data)} into {len(frag.struct_ptr.data)} ({len(frag.struct_ptr.padding)})")
-					# frag.struct_ptr.update_data(data, pad_to=8)
 					# the above breaks injecting minmi
 					frag.struct_ptr.update_data(data)
 					logging.debug(f"Result {len(frag.struct_ptr.data)} ({len(frag.struct_ptr.padding)})")
