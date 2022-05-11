@@ -5,7 +5,9 @@ import bpy
 import os
 
 from generated.formats.fgm import FgmFile
+from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.ovl.versions import is_jwe
+from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex
 
@@ -18,8 +20,9 @@ def create_material(in_dir, matname):
 	fgm_path = os.path.join(in_dir, matname + ".fgm")
 	# print(fgm_path)
 	try:
-		fgm_data = FgmFile()
-		fgm_data.load(fgm_path)
+		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
+		# fgm_data = FgmFile()
+		# fgm_data.load(fgm_path)
 	except FileNotFoundError:
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
@@ -29,27 +32,27 @@ def create_material(in_dir, matname):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
-	color_ramp = fgm_data.get_color_ramp("colourKey", "RGB")
-	opacity_ramp = fgm_data.get_color_ramp("opacityKey", "Value")
-	if color_ramp and opacity_ramp:
-		# print(color_ramp, list(zip(color_ramp)))
-		positions, colors = zip(*color_ramp)
-		positions_2, opacities = zip(*color_ramp)
-		ramp = tree.nodes.new('ShaderNodeValToRGB')
-		for position, color, opacity in zip(positions, colors, opacities):
-			print(position, color, opacity)
-			pos_relative = (position-min(positions)) / (max(positions)-min(positions))
-			e = ramp.color_ramp.elements.new(pos_relative)
-			e.color[:3] = color
-			e.alpha = opacity[0]
+	# color_ramp = fgm_data.get_color_ramp("colourKey", "RGB")
+	# opacity_ramp = fgm_data.get_color_ramp("opacityKey", "Value")
+	# if color_ramp and opacity_ramp:
+	# 	# print(color_ramp, list(zip(color_ramp)))
+	# 	positions, colors = zip(*color_ramp)
+	# 	positions_2, opacities = zip(*color_ramp)
+	# 	ramp = tree.nodes.new('ShaderNodeValToRGB')
+	# 	for position, color, opacity in zip(positions, colors, opacities):
+	# 		print(position, color, opacity)
+	# 		pos_relative = (position-min(positions)) / (max(positions)-min(positions))
+	# 		e = ramp.color_ramp.elements.new(pos_relative)
+	# 		e.color[:3] = color
+	# 		e.alpha = opacity[0]
 
 	all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
 	# map texture names to node
 	tex_dic = {}
-	for fgm_texture in fgm_data.textures:
-		if not fgm_texture.file:
+	for dep_info in fgm_data.dependencies.data:
+		if not dep_info.dependency_name.data:
 			continue
-		png_base = fgm_texture.file.lower()
+		png_base, ext = os.path.splitext(dep_info.dependency_name.data.lower())
 		if "blendweights" in png_base or "warpoffset" in png_base:
 			continue
 		textures = [file for file in all_textures if file.lower().startswith(png_base)]
@@ -162,7 +165,8 @@ def create_material(in_dir, matname):
 	elif "popacitytexture" in tex_dic:
 		alpha = tex_dic["popacitytexture"]
 		alpha_pass = alpha.outputs[0]
-	elif is_jwe(fgm_data) and "proughnesspackedtexture_[00]" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
+	# todo - use game version tag?
+	elif is_jwe(fgm_data.context) and "proughnesspackedtexture_[00]" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
 		alpha = tex_dic["proughnesspackedtexture_[00]"]
 		alpha_pass = alpha.outputs[0]
 	elif "proughnesspackedtexture_[03]" in tex_dic:
@@ -172,9 +176,11 @@ def create_material(in_dir, matname):
 		# transparency
 		b_mat.blend_method = "CLIP"
 		b_mat.shadow_method = "CLIP"
-		attr_dict = fgm_data.get_attr_dict()
-		if "palphatestref" in attr_dict:
-			b_mat.alpha_threshold = attr_dict["palphatestref"].value[0]
+		# attr_dict = {attrib.name.lower(): attrib for attrib in fgm_data.attributes.data}
+		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.data_lib.data):
+			if "palphatestref" in attr.name.lower():
+				b_mat.alpha_threshold = attr_data.value[0]
+				break
 		transp = tree.nodes.new('ShaderNodeBsdfTransparent')
 		alpha_mixer = tree.nodes.new('ShaderNodeMixShader')
 		tree.links.new(alpha_pass, alpha_mixer.inputs[0])
