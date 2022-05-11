@@ -159,7 +159,7 @@ class MemStruct:
 			self.handle_pointer(prop, ptr, pool)
 		# read arrays attached to this memstruct
 		arrays = self.get_arrays()
-		for array in arrays:
+		for prop, array in arrays:
 			# print(f"array, start at at {array.io_start}")
 			for member in array:
 				if isinstance(member, MemStruct):
@@ -346,7 +346,10 @@ class MemStruct:
 		# basic attribute
 		else:
 			if prop == XML_STR:
-				elem.append(ET.fromstring(val))
+				if val is not None:
+					elem.append(ET.fromstring(val))
+				else:
+					logging.warning(f"bug, val should not be None for XML_STR")
 			else:
 				elem.set(prop, str(val))
 
