@@ -148,8 +148,8 @@
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
         <add name="buffer groups" type="BufferGroup" arr1="#ARG#\num_buffer_groups"/>
         <add name="root_entries" type="RootEntry" arr1="#ARG#\Num Files"/>
-        <add name="fragments " type="Fragment" arr1="#ARG#\Num Fragments"/>
-        <add name="set header " type="SetHeader"/>
+        <add name="fragments" type="Fragment" arr1="#ARG#\Num Fragments"/>
+        <add name="set header" type="SetHeader"/>
     </compound>
 
 	<compound name="PoolGroup">
