@@ -56,7 +56,7 @@ class NewMeshData:
 		dt = [
 			("pos", np.uint64),
 			("normal", np.ubyte, (3,)),
-			("unk", np.ubyte),
+			("winding", np.ubyte),
 			("tangent", np.ubyte, (3,)),
 			("bone index", np.ubyte),
 		]
@@ -188,6 +188,7 @@ class NewMeshData:
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, residue))
+		print(self.verts_data[:]["winding"])
 
 	def write_verts(self, stream):
 		stream.write(self.verts_data.tobytes())
@@ -201,14 +202,14 @@ class NewMeshData:
 		"""Update self.verts_data from list of new verts"""
 		self.verts_data = np.zeros(len(verts), dtype=self.dt)
 		for i, (
-				position, residue, normal, unk_0, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
+				position, residue, normal, winding, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
 				fur_length, fur_width, shapekey) in enumerate(
 			verts):
 			# print("shapekey", shapekey)
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
 			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
 			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
-			self.verts_data[i]["unk"] = unk_0 * 255
+			self.verts_data[i]["winding"] = winding * 255
 			self.verts_data[i]["bone index"] = bone_index
 			if "bone ids" in self.dt.fields:
 				self.verts_data[i]["bone ids"] = bone_ids

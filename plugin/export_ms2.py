@@ -171,10 +171,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# collect vertex colors
 				vcols = [(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
 
-				bone_ids, bone_weights, fur_length, fur_width, residue, unk_0 = export_weights(
+				bone_ids, bone_weights, fur_length, fur_width, residue, winding = export_weights(
 					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
 				# store all raw blender data
-				verts.append((position, residue, normal, unk_0, tangent, bone_ids[0], uvs, vcols, bone_ids,
+				verts.append((position, residue, normal, winding, tangent, bone_ids[0], uvs, vcols, bone_ids,
 					bone_weights, fur_length, fur_width, shapekey))
 			tri.append(v_index)
 		tris.append(tri)
@@ -201,7 +201,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# defaults that may or may not be set later on
-	unk_0 = 0
+	winding = 0
 	residue = 1
 	fur_length = 0
 	fur_width = 0
@@ -211,9 +211,9 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	for vertex_group in b_vert.groups:
 		try:
 			vgroup_name = b_ob.vertex_groups[vertex_group.group].name
-			# get the unk0
-			if vgroup_name == "unk0":
-				unk_0 = vertex_group.weight
+			# get the winding
+			if vgroup_name == "winding":
+				winding = vertex_group.weight
 			elif vgroup_name == "residue":
 				# if this is not rounded, somehow it affects the weights
 				# might be a bug, but can't figure out where the rest is affected
@@ -235,7 +235,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 		except BaseException as err:
 			logging.warning(f"Vert with {len(b_vert.groups)} groups, index {vertex_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
 			traceback.print_exc()
-	# print(residue, unk_0)
+	# print(residue, winding)
 	# get the 4 strongest influences on this vert
 	w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
 	# print(w_s)
@@ -254,7 +254,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	elif b_vert.index not in unweighted_vertices:
 		# print("Sum of weights",sw)
 		unweighted_vertices.append(b_vert.index)
-	return bone_ids, bone_weights, fur_length, fur_width, residue, unk_0
+	return bone_ids, bone_weights, fur_length, fur_width, residue, winding
 
 
 def get_property(ob, prop_name):
