@@ -106,6 +106,8 @@ class BaseFile:
 			if file_entry.name == file_name:
 				return file_entry
 		file_entry = self.ovl.create_file_entry(file_path)
+		file_entry.loader = self.ovl.get_loader(file_entry)
+		self.ovl.loaders[file_entry.name] = file_entry.loader
 		self.ovl.files.append(file_entry)
 		return file_entry
 
@@ -191,7 +193,7 @@ class BaseFile:
 			frag.struct_ptr.remove()
 		self.root_entry.struct_ptr.remove()
 
-	def remove(self):
+	def remove(self, remove_file=True):
 		logging.info(f"Removing {self.file_entry.name}")
 		self.remove_pointers()
 
@@ -204,9 +206,10 @@ class BaseFile:
 				self.ovs.buffer_entries.remove(buffer)
 			self.ovs.data_entries.remove(data)
 
-		# remove entries in ovl
-		# self.ovl.files.pop(i)
-		self.ovl.files.remove(self.file_entry)
+		if remove_file:
+			# remove entries in ovl
+			# self.ovl.files.pop(i)
+			self.ovl.files.remove(self.file_entry)
 
 		# remove children files
 		for file_entry in self.ovl.files:
@@ -244,7 +247,7 @@ class MemStructLoader(BaseFile):
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 
 	def load(self, file_path):
-		# todo - fix removal etc
+		# todo - do this for all injections?
 		# self.remove_pointers()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		# print(self.header)

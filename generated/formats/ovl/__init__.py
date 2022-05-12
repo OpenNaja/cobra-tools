@@ -285,7 +285,7 @@ class OvsFile(OvsHeader):
 		self.set_header.set_count = 0
 		self.set_header.asset_count = 0
 		start = 0
-		ss_index_table = {file.name: i for i, file in enumerate(self.root_entries)}
+		root_entry_lut = {file.name: i for i, file in enumerate(self.root_entries)}
 		for root_entry in self.root_entries:
 			if root_entry.children:
 				set_entry = SetEntry(self.context)
@@ -295,7 +295,7 @@ class OvsFile(OvsHeader):
 				self.set_header.sets.append(set_entry)
 				for ss_child in root_entry.children:
 					asset_entry = AssetEntry(self.context)
-					asset_entry.file_index = ss_index_table[ss_child.name]
+					asset_entry.file_index = root_entry_lut[ss_child.name]
 					self.transfer_identity(asset_entry, ss_child)
 					self.set_header.assets.append(asset_entry)
 				start += len(root_entry.children)

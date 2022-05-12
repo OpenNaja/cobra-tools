@@ -18,8 +18,6 @@ class AssetEntry:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# sometimes matches an archive header's first File Hash
 		self.file_hash = 0
 		self.zero_0 = 0
 		self.ext_hash = 0

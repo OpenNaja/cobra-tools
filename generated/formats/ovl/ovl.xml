@@ -240,8 +240,8 @@
 	<compound name="AssetEntry" >
 		refers to root entries so they can be grouped into set entries.
 		It seems to point exclusively to RootEntry's whose Ext Hash is FF FF FF FF aka max uint32
-		<add name="File Hash" type="uint"> sometimes matches an archive header's first File Hash</add>
-		<add name="zero 0" type="uint" > </add>
+        <add name="File Hash" type="uint"/>
+        <add name="zero 0" type="uint"/>
         <add name="Ext Hash" type="uint" since="19"/>
         <add name="zero 1" type="uint" since="19"/>
 		<add name="file index" type="uint" >index into root entries array; hash of targeted file matches this assetentry's hash.</add>

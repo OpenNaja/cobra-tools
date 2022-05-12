@@ -92,11 +92,8 @@ class Ms2Loader(BaseFile):
 				# undo what we did on export
 				mesh.buffer_info.offset = 0
 		# print(self.header)
-		# 1 for the ms2, 2 for each mdl2
-		# pool.num_files += 1
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
-			# pool.num_files += 2
 			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")
 			mdl2_file_entry = self.get_file_entry(mdl2_path)
 
@@ -200,51 +197,28 @@ class Ms2Loader(BaseFile):
 	
 	def load(self, ms2_file_path):
 		logging.info(f"Injecting MS2")
-		versions = get_versions(self.ovl)
+		self.remove(remove_file=False)
+		self.file_entry.path = ms2_file_path
+		self.create()
 
-		ms2_file = Ms2File()
-		ms2_file.load(ms2_file_path, read_bytes=True)
-
+	def check_materials(self, ms2_file):
+		"""Verify that the used materials exist in the OVL"""
 		missing_materials = set()
-		for model_info, mdl2_name, ovl_model_info in zip(ms2_file.model_infos, ms2_file.mdl_2_names, self.header.model_infos.data):
+		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
 			for material in model_info.model.materials:
 				fgm_name = f"{material.name.lower()}.fgm"
 				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
 					# don't cry about this
 					continue
-				if fgm_name not in self.ovl._root_entry_dict:
+				if fgm_name not in self.ovl.loaders:
 					missing_materials.add(fgm_name)
-			if ovl_model_info.num_meshes != model_info.num_meshes:
-				raise AttributeError(
-					f"{mdl2_name} ({model_info.num_meshes}) doesn't have the "
-					f"expected amount ({ovl_model_info.num_meshes}) of meshes!")
 		if missing_materials:
 			mats = '\n'.join(missing_materials)
 			msg = f"The following materials are used by {self.file_entry.name}, but are missing from the OVL:\n" \
 				f"{mats}\n" \
 				f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
 			if not interaction.showdialog(msg, ask=True):
-				logging.info("Injection was canceled by the user")
-				return
-
-		# todo - ms2 injection is broken
-
-		for ovl_model_info, model_info in zip(self.header.model_infos.data, ms2_file.model_infos):
-			for ptr, mdl2_list in (
-					(ovl_model_info.materials, model_info.model.materials,),
-					(ovl_model_info.lods, model_info.model.lods),
-					(ovl_model_info.objects, model_info.model.objects),
-					(ovl_model_info.meshes, model_info.model.meshes)):
-				if len(mdl2_list) > 0:
-					self.write_to_pool(ptr.frag.struct_ptr, 2, as_bytes(mdl2_list, version_info=versions), overwrite=True)
-
-		# load ms2 root_entry data
-		self.write_to_pool(self.root_entry.struct_ptr, 2, as_bytes(ms2_file.info, version_info=versions), overwrite=True)
-		self.write_to_pool(self.header.buffer_infos.frag.struct_ptr, 2, as_bytes(ms2_file.buffer_infos, version_info=versions), overwrite=True)
-		self.write_to_pool(self.header.model_infos.frag.struct_ptr, 2, as_bytes(ms2_file.model_infos, version_info=versions), overwrite=True)
-	
-		# update ms2 data
-		self.root_entry.data_entry.update_data(ms2_file.buffers)
+				raise UserWarning("Injection was canceled by the user")
 
 	def rename_content(self, name_tuples):
 		temp_dir, out_dir_func = self.get_tmp_dir()

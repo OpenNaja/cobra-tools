@@ -90,7 +90,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_1_offset = self.models_reader.bone_info_start
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
 
-			logging.info(self)
+			# logging.info(self)
 			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
 			for bone_info in self.models_reader.bone_infos:

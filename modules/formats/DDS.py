@@ -83,7 +83,6 @@ class DdsLoader(MemStructLoader):
 				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
 				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{lod_i}.texturestream")
-				texstream_file.loader = self.ovl.get_loader(texstream_file)
 				texstream_file.loader.create(ovs_name)
 				self.streams.append(texstream_file.loader)
 				buffer_i = self.increment_buffers(texstream_file.loader.root_entry, buffer_i)
@@ -108,6 +107,7 @@ class DdsLoader(MemStructLoader):
 		# 		print(buff.index, buff.size)
 
 	def load(self, file_path):
+		self.remove_pointers()
 		# this loads the tex file and updates the header
 		super().load(file_path)
 		self.load_image(file_path)
