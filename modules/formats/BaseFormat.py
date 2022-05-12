@@ -50,7 +50,7 @@ class BaseFile:
 	def validate_child(self, file_path):
 		return False
 
-	def create(self):
+	def create(self, ovs_name=""):
 		raise NotImplementedError
 
 	def collect(self):
@@ -218,11 +218,8 @@ class BaseFile:
 					else:
 						logging.warning(f"Could not remove {file_entry.name} as it has no loader")
 		# remove streamed and child files
-		for stream_file in self.file_entry.streams:
-			if stream_file.loader:
-				stream_file.loader.remove()
-			else:
-				logging.warning(f"Could not remove {stream_file.name} as it has no loader")
+		for loader in self.streams:
+			loader.remove()
 
 
 class MemStructLoader(BaseFile):

@@ -28,13 +28,13 @@ def align_to(width, comp, alignment=64):
 class TexturestreamLoader(BaseFile):
 	extension = ".texturestream"
 
-	def collect(self):
-		self.assign_root_entry()
-		# print(self.root_entry)
-
-	def create(self):
-		# this is only to be called from DdsLoader?
-		pass
+	def create(self, ovs_name=""):
+		# logging.info(f"Creating texturestream in {ovs_name}")
+		# this is only to be called from DdsLoader
+		self.root_entry = self.create_root_entry(self.file_entry, ovs=ovs_name)
+		self.write_to_pool(self.root_entry.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
+		# data entry, assign buffer
+		self.create_data_entry(self.root_entry, (b"", ), ovs=ovs_name)
 
 
 class DdsLoader(MemStructLoader):
@@ -65,7 +65,6 @@ class DdsLoader(MemStructLoader):
 			static_lods = 2
 			streamed_lods = len(buffers) - static_lods
 			logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
-			ss_entries = [self.root_entry, ]
 			buffer_i = 0
 			# generate ovs and lod names - highly idiosyncratic
 			if streamed_lods == 0:
@@ -83,21 +82,13 @@ class DdsLoader(MemStructLoader):
 			for i, (lod_i, ovs_i) in enumerate(indices):
 				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
-				# todo - append a loader instead!
 				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{lod_i}.texturestream")
+				texstream_file.loader = self.ovl.get_loader(texstream_file)
+				texstream_file.loader.create(ovs_name)
 				self.streams.append(texstream_file.loader)
-				# root_entry entry
-				texstream_ss = self.create_root_entry(texstream_file, ovs=ovs_name)
-				ss_entries.append(texstream_ss)
-				self.write_to_pool(texstream_ss.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
-				# data entry, assign buffer
-				self.create_data_entry(texstream_ss, (buffers[i], ), ovs=ovs_name)
-				buffer_i = self.increment_buffers(texstream_ss, buffer_i)
+				buffer_i = self.increment_buffers(texstream_file.loader.root_entry, buffer_i)
 			self.create_data_entry(self.root_entry, buffers[streamed_lods:])
 			self.increment_buffers(self.root_entry, buffer_i)
-
-			# ensure that the streams root_entry entries can be accessed for injecting the buffers
-			self.ovl.update_ss_dict()
 			# ready, now inject
 			self.load_image(self.file_entry.path)
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
