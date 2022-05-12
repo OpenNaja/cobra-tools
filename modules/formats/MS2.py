@@ -25,6 +25,12 @@ class Mdl2Loader(BaseFile):
 class Ms2Loader(BaseFile):
 	extension = ".ms2"
 
+	def link_streams(self):
+		"""Collect other loaders"""
+		# if the ms2 name ends in a trailing underscore, remove it
+		bare_name = self.file_entry.basename.rstrip("_")
+		self._link_streams(f"{bare_name}{lod_i}.model2stream" for lod_i in range(4))
+
 	def get_version(self):
 		version = struct.unpack(f"I", self.root_ptr.data[:4])[0]
 		vdic = {"version": version}
@@ -147,13 +153,12 @@ class Ms2Loader(BaseFile):
 			for mdl2_entry in self.root_entry.children:
 				logging.debug(f"Writing {mdl2_entry.name}")
 				stream.write(as_bytes(mdl2_entry.basename))
-			for modelstream_file in self.file_entry.streams:
-				stream.write(as_bytes(modelstream_file.basename))
-				stream_path = out_dir(modelstream_file.name)
+			for loader in self.streams:
+				stream.write(as_bytes(loader.file_entry.basename))
+				stream_path = out_dir(loader.file_entry.name)
 				out_paths.append(stream_path)
 				with open(stream_path, 'wb') as outfile:
-					stream_ss, archive = self.ovl.get_root_entry(modelstream_file.name)
-					outfile.write(stream_ss.data_entry.buffer_datas[0])
+					outfile.write(loader.root_entry.data_entry.buffer_datas[0])
 			stream.write(name_buffer)
 			# export each mdl2
 			if self.header.version > 39:

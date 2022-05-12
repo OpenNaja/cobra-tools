@@ -62,11 +62,6 @@ class OvsFile(OvsHeader):
 		# set arg later to avoid initializing huge arrays with default data
 		self.arg = archive_entry
 
-	@staticmethod
-	def add_pointer(pointer, root_entry, pointers_to_ss):
-		if pointer.pool_index != -1:
-			pointers_to_ss[pointer.pool_index][pointer.data_offset] = root_entry
-
 	def get_bytes(self, external_path):
 		# load external uncompressed data
 		if external_path and self.arg.name == "STATIC":
@@ -395,17 +390,6 @@ class OvsFile(OvsHeader):
 					self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
 						-1 - x].data_offset
 
-	def assign_frag_names(self):
-		# for debugging only:
-		for root_entry in self.root_entries:
-			try:
-				for frag in root_entry.fragments:
-					frag.name = root_entry.name
-			except BaseException as err:
-				logging.error(f"Assigning frag names failed for {root_entry.name}")
-				logging.error(root_entry.fragments)
-				traceback.print_exc()
-
 	def map_buffers(self):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
@@ -518,7 +502,6 @@ class OvsFile(OvsHeader):
 
 	def _dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
-		# todo - compare performance of sorting here vs sorting the whole frags & dependencies list
 		for entry in sorted(parent_struct_ptr.children, key=lambda e: e.link_ptr.data_offset):
 			# get the relative offset of this pointer to its struct
 			rel_offset = entry.link_ptr.data_offset - parent_struct_ptr.data_offset
@@ -634,11 +617,13 @@ class OvlFile(Header, IoFile):
 		else:
 			self.progress_callback = self.dummy_callback
 		self.formats_dict = build_formats_dict()
+		self.loaders = {}
 
-	def get_loader(self, ext, ovl, file_entry):
-		cls = self.formats_dict.get(ext, None)
-		if cls:
-			return cls(ovl, file_entry)
+	def get_loader(self, file_entry):
+		# fall back to BaseFile loader
+		from modules.formats.BaseFormat import BaseFile
+		cls = self.formats_dict.get(file_entry.ext, BaseFile)
+		return cls(self, file_entry)
 
 	def get_extract_files(self, only_names, only_types, ignore=True):
 		"""Returns files that are suitable for extraction"""
@@ -680,13 +665,6 @@ class OvlFile(Header, IoFile):
 		self.update_hashes()
 		self.update_ss_dict()
 		logging.info("Finished renaming!")
-
-	def get_children(self, file_entry):
-		children_names = []
-		root_entry, archive = self.get_root_entry(file_entry.name)
-		children_names.extend([root_entry.name for root_entry in root_entry.children])
-		children_names.extend([stream.name for stream in file_entry.streams])
-		return children_names
 
 	def rename_contents(self, name_tups):
 		logging.info(f"Renaming contents for {name_tups}")
@@ -775,7 +753,6 @@ class OvlFile(Header, IoFile):
 		file_entry.basename, file_entry.ext = os.path.splitext(filename)
 		file_entry.dependencies = []
 		file_entry.aux_entries = []
-		file_entry.streams = []
 		try:
 			file_entry.update_constants(self)
 			return file_entry
@@ -793,9 +770,7 @@ class OvlFile(Header, IoFile):
 		file_entry = self.create_file_entry(file_path)
 		if not file_entry:
 			return
-		file_entry.loader = self.get_loader(file_entry.ext, self, file_entry)
-		if not file_entry.loader:
-			return
+		file_entry.loader = self.get_loader(file_entry)
 		try:
 			file_entry.loader.create()
 		except NotImplementedError:
@@ -807,10 +782,12 @@ class OvlFile(Header, IoFile):
 			return
 		self.pad_pools()
 		self.files.append(file_entry)
+		self.loaders[file_entry.name] = file_entry.loader
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
+		self.loaders = {}
 		self.add_files(file_paths)
 		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
@@ -978,6 +955,7 @@ class OvlFile(Header, IoFile):
 		self.eof = super().load(filepath)
 		logging.info(f"Game: {get_game(self)}")
 
+		self.loaders = {}
 		# maps djb hash to string
 		self.hash_table_local = {}
 		# print(self)
@@ -1120,7 +1098,6 @@ class OvlFile(Header, IoFile):
 
 	def postprocessing(self):
 		self.update_ss_dict()
-		self.link_streams()
 		self.load_flattened_pools()
 		self.load_pointers()
 		self.load_file_classes()
@@ -1179,14 +1156,16 @@ class OvlFile(Header, IoFile):
 	def load_file_classes(self):
 		logging.info("Loading file classes")
 		start_time = time.time()
-		for file in self.files:
-			file.loader = self.get_loader(file.ext, self, file)
-			if file.loader:
-				try:
-					file.loader.collect()
-				except Exception as err:
-					logging.error(f"Collecting {file.name} raised '{err}' error")
-					traceback.print_exc()
+		for file_entry in self.files:
+			file_entry.loader = self.get_loader(file_entry)
+			try:
+				file_entry.loader.collect()
+			except Exception as err:
+				logging.error(f"Collecting {file_entry.name} raised '{err}' error")
+				traceback.print_exc()
+			self.loaders[file_entry.name] = file_entry.loader
+		for loader in self.loaders.values():
+			loader.link_streams()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
 	def get_root_entry(self, name):
@@ -1206,26 +1185,6 @@ class OvlFile(Header, IoFile):
 		for archive in self.archives:
 			for file in archive.content.root_entries:
 				self._root_entry_dict[file.name.lower()] = file, archive
-
-	def link_streams(self):
-		"""Attach the data buffers of streamed files to standard files from the first archive"""
-		logging.info("Linking streams")
-
-		file_lut = {file.name: file for file in self.files}
-		for file in self.files:
-			file.streams = []
-			if file.ext == ".tex":
-				for lod_i in range(3):
-					stream_file = file_lut.get(f"{file.basename}_lod{lod_i}.texturestream", None)
-					if stream_file:
-						file.streams.append(stream_file)
-			elif file.ext == ".ms2":
-				for lod_i in range(4):
-					# if the ms2 name ends in a trailing underscore, remove it
-					bare_name = file.basename.rstrip("_")
-					stream_file = file_lut.get(f"{bare_name}{lod_i}.model2stream", None)
-					if stream_file:
-						file.streams.append(stream_file)
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
@@ -1377,31 +1336,16 @@ class OvlFile(Header, IoFile):
 			pools_byte_offset += 4
 			pools_offset += len(archive.content.pools)
 
-	def _get_abs_mem_offset(self, archive, ptr):
-		# JWE, JWE2: relative offset for each pool
-		if self.user_version.is_jwe:
-			return archive.pools_start + ptr.pool.offset + ptr.data_offset
-		# PZ, PC: offsets relative to the whole pool block
-		else:
-			return ptr.pool.offset + ptr.data_offset
-
 	def update_stream_files(self):
 		logging.info("Updating stream file memory links")
 		self.stream_files.clear()
-		# ensure we have an up to date root_entry dict
-		self.update_ss_dict()
-		for file in self.files:
-			if file.streams:
-				file_ss, file_archive = self._root_entry_dict[file.name.lower()]
-				for stream in file.streams:
-					stream_ss, stream_archive = self._root_entry_dict[stream.name.lower()]
-					stream_entry = StreamEntry(self.context)
-					steam_ptr = stream_ss.struct_ptr
-					stream_entry.stream_offset = self._get_abs_mem_offset(stream_archive, steam_ptr)
-					file_ptr = file_ss.struct_ptr
-					stream_entry.file_offset = self._get_abs_mem_offset(file_archive, file_ptr)
-					stream_entry.archive_name = stream_archive.name
-					self.stream_files.append(stream_entry)
+		for loader in self.loaders.values():
+			for stream_loader in loader.streams:
+				stream_entry = StreamEntry(self.context)
+				stream_entry.file_offset = loader.abs_mem_offset
+				stream_entry.stream_offset = stream_loader.abs_mem_offset
+				stream_entry.archive_name = stream_loader.ovs.arg.name
+				self.stream_files.append(stream_entry)
 		# sort stream files by archive and then the file offset in the pool
 		self.stream_files.sort(key=lambda s: (s.archive_name, s.file_offset))
 		self.num_files_ovs = len(self.stream_files)

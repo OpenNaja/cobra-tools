@@ -22,6 +22,30 @@ class BaseFile:
 		self.ovs = ovl.create_archive()
 		self.file_entry = file_entry
 		self.root_entry = None
+		self.streams = []
+		self.children = []
+
+	@property
+	def abs_mem_offset(self):
+		"""Returns the memory offset of this loader's root_entry"""
+		offset = self.root_ptr.pool.offset + self.root_ptr.data_offset
+		# JWE, JWE2: relative offset for each pool
+		if self.ovl.user_version.is_jwe:
+			return self.ovs.arg.pools_start + offset
+		# PZ, PC: offsets relative to the whole pool block
+		else:
+			return offset
+
+	def link_streams(self):
+		"""Collect other loaders"""
+		pass
+
+	def _link_streams(self, names):
+		"""Helper that finds and attaches existing loaders for names"""
+		for name in names:
+			loader = self.ovl.loaders.get(name, None)
+			if loader:
+				self.streams.append(loader)
 
 	def validate_child(self, file_path):
 		return False
@@ -30,7 +54,7 @@ class BaseFile:
 		raise NotImplementedError
 
 	def collect(self):
-		raise NotImplementedError
+		self.assign_root_entry()
 
 	def pack_header(self, fmt_name):
 		ovl = self.ovl
@@ -40,16 +64,6 @@ class BaseFile:
 	def assign_root_entry(self):
 		self.root_entry, archive = self.ovl.get_root_entry(self.file_entry.name)
 		self.ovs = archive.content
-
-	def get_streams(self):
-		logging.debug(f"Num streams: {len(self.file_entry.streams)}")
-		all_buffers = [*self.root_entry.data_entry.buffers]
-		logging.debug(f"Static buffers: {all_buffers}")
-		for stream_file in self.file_entry.streams:
-			stream_ss, archive = self.ovl.get_root_entry(stream_file.name)
-			all_buffers.extend(stream_ss.data_entry.buffers)
-			logging.debug(f"Stream buffers: {stream_ss.data_entry.buffers} {stream_file.name}")
-		return all_buffers
 
 	def get_pool(self, pool_type_key, ovs="STATIC"):
 		assert pool_type_key is not None
@@ -221,7 +235,7 @@ class MemStructLoader(BaseFile):
 		return out_path,
 
 	def collect(self):
-		self.assign_root_entry()
+		super().collect()
 		self.header = self.target_class.from_stream(self.root_ptr.stream, self.ovl.context)
 		self.header.read_ptrs(self.root_ptr.pool)
 		# print(self.header)

@@ -41,6 +41,10 @@ class DdsLoader(MemStructLoader):
 	target_class = TexHeader
 	extension = ".tex"
 
+	def link_streams(self):
+		"""Collect other loaders"""
+		self._link_streams(f"{self.file_entry.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
+
 	def increment_buffers(self, root_entry, buffer_i):
 		"""Linearly increments buffer indices for games that need it"""
 		# create increasing buffer indices for PZ (still needed 22-05-10), JWE1
@@ -79,8 +83,9 @@ class DdsLoader(MemStructLoader):
 			for i, (lod_i, ovs_i) in enumerate(indices):
 				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
+				# todo - append a loader instead!
 				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{lod_i}.texturestream")
-				self.file_entry.streams.append(texstream_file)
+				self.streams.append(texstream_file.loader)
 				# root_entry entry
 				texstream_ss = self.create_root_entry(texstream_file, ovs=ovs_name)
 				ss_entries.append(texstream_ss)
@@ -177,10 +182,9 @@ class DdsLoader(MemStructLoader):
 		# from JWE2, buffer index for streams is 0 | 0 | 0, 1
 		# the last buffer is always 0 bytes
 		all_buffers = []
-		for stream_file in sorted(self.file_entry.streams, key=lambda f: f.name):
-			stream_ss, archive = self.ovl.get_root_entry(stream_file.name)
+		for loader in sorted(self.streams, key=lambda f: f.file_entry.name):
 			# seen 1 per stream
-			all_buffers.extend(stream_ss.data_entry.buffers)
+			all_buffers.extend(loader.root_entry.data_entry.buffers)
 		# seen 2
 		all_buffers.extend(self.root_entry.data_entry.buffers)
 		return all_buffers
