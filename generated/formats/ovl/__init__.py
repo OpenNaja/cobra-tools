@@ -812,10 +812,8 @@ class OvlFile(Header, IoFile):
 		# nope, gotta create it
 		logging.debug(f"Creating archive '{name}'")
 		archive = ArchiveEntry(self.context)
-		self.archives.append(archive)
-		if name == "STATIC":
-			self.static_archive = archive
 		archive.name = name
+		self.archives.append(archive)
 		content = OvsFile(self.context, self, archive)
 		archive.content = content
 		new_zlib = ZlibInfo(self.context)
@@ -1029,7 +1027,6 @@ class OvlFile(Header, IoFile):
 			file_entry = self.files[aux_entry.file_index]
 			file_entry.aux_entries.append(aux_entry)
 
-		self.static_archive = None
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
@@ -1188,7 +1185,6 @@ class OvlFile(Header, IoFile):
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
-			self.static_archive = archive_entry
 			archive_entry.ovs_path = self.filepath
 		else:
 			# JWE style
