@@ -22,6 +22,16 @@ class Mdl2Loader(BaseFile):
 		self.assign_root_entry()
 
 
+class Model2streamLoader(BaseFile):
+	extension = ".model2stream"
+
+	def extract(self, out_dir, show_temp_files, progress_callback):
+		stream_path = out_dir(self.file_entry.name)
+		with open(stream_path, 'wb') as outfile:
+			outfile.write(self.root_entry.data_entry.buffer_datas[0])
+		return stream_path,
+
+
 class Ms2Loader(BaseFile):
 	extension = ".ms2"
 
@@ -152,10 +162,7 @@ class Ms2Loader(BaseFile):
 				stream.write(as_bytes(mdl2_entry.basename))
 			for loader in self.streams:
 				stream.write(as_bytes(loader.file_entry.basename))
-				stream_path = out_dir(loader.file_entry.name)
-				out_paths.append(stream_path)
-				with open(stream_path, 'wb') as outfile:
-					outfile.write(loader.root_entry.data_entry.buffer_datas[0])
+				out_paths.extend(loader.extract(out_dir, show_temp_files, progress_callback))
 			stream.write(name_buffer)
 			# export each mdl2
 			if self.header.version > 39:
@@ -164,7 +171,9 @@ class Ms2Loader(BaseFile):
 				# grab all unique ptrs to buffer infos
 				ptrs = set(mesh.buffer_info.frag.struct_ptr for model_info in self.header.model_infos.data for mesh in model_info.meshes.data)
 				# get the sorted binary representations
+				# todo - don't reverse? should solve ms2 init issue
 				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset, reverse=True)]
+				print(buffer_infos)
 				# turn the offset value of the pointers into a valid index
 				for model_info in self.header.model_infos.data:
 					for mesh in model_info.meshes.data:
