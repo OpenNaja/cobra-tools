@@ -109,17 +109,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			stream.seek(self.buffer_2_offset)
 			verts_bytes = stream.read()
 		self.streams = []
-		# is this changed behavior for the streams or just an artifact of how newer ms2s resolve their indices?
-		if not is_old(self.info):
-			self.streams.append(ConvStream(verts_bytes))
 		for modelstream_name in self.modelstream_names:
 			modelstream_path = os.path.join(self.dir, f"{modelstream_name}.model2stream")
 			logging.info(f"Loading {modelstream_path}")
 			with open(modelstream_path, "rb") as modelstream_reader:
 				modelstream_stream = ConvStream(modelstream_reader.read())
 				self.streams.append(modelstream_stream)
-		if is_old(self.info):
-			self.streams.append(ConvStream(verts_bytes))
+		self.streams.append(ConvStream(verts_bytes))
 		if read_editable:
 			self.load_mesh()
 			# self.get_buffers()

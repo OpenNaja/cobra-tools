@@ -171,9 +171,7 @@ class Ms2Loader(BaseFile):
 				# grab all unique ptrs to buffer infos
 				ptrs = set(mesh.buffer_info.frag.struct_ptr for model_info in self.header.model_infos.data for mesh in model_info.meshes.data)
 				# get the sorted binary representations
-				# todo - don't reverse? should solve ms2 init issue
-				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset, reverse=True)]
-				print(buffer_infos)
+				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset)]
 				# turn the offset value of the pointers into a valid index
 				for model_info in self.header.model_infos.data:
 					for mesh in model_info.meshes.data:
