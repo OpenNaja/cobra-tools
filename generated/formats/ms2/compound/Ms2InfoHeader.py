@@ -4,6 +4,7 @@ from generated.context import ContextReference
 from generated.formats.base.basic import ZString
 from generated.formats.ms2.compound.Buffer0 import Buffer0
 from generated.formats.ms2.compound.BufferInfo import BufferInfo
+from generated.formats.ms2.compound.BufferPresence import BufferPresence
 from generated.formats.ms2.compound.ModelInfo import ModelInfo
 from generated.formats.ms2.compound.ModelReader import ModelReader
 from generated.formats.ms2.compound.Ms2Root import Ms2Root
@@ -26,6 +27,9 @@ class Ms2InfoHeader:
 		self.io_start = 0
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
+
+		# used since PC
+		self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.modelstream_names = Array((self.info.vertex_buffer_count,), ZString, self.context, 0, None)
 		self.modelstream_names = Array((self.info.stream_count,), ZString, self.context, 0, None)
@@ -41,6 +45,8 @@ class Ms2InfoHeader:
 	def set_defaults(self):
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
+		if self.context.version >= 32:
+			self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		if self.context.version <= 13 and self.info.vertex_buffer_count:
 			self.modelstream_names = Array((self.info.vertex_buffer_count,), ZString, self.context, 0, None)
@@ -65,6 +71,8 @@ class Ms2InfoHeader:
 	def read_fields(cls, stream, instance):
 		instance.bone_info_size = stream.read_uint()
 		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
+		if instance.context.version >= 32:
+			instance.buffers_presence = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferPresence, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
 		if instance.context.version <= 13 and instance.info.vertex_buffer_count:
 			instance.modelstream_names = stream.read_zstrings((instance.info.vertex_buffer_count,))
@@ -79,6 +87,8 @@ class Ms2InfoHeader:
 	def write_fields(cls, stream, instance):
 		stream.write_uint(instance.bone_info_size)
 		Ms2Root.to_stream(stream, instance.info)
+		if instance.context.version >= 32:
+			Array.to_stream(stream, instance.buffers_presence, (instance.info.vertex_buffer_count,), BufferPresence, instance.context, 0, None)
 		stream.write_zstrings(instance.mdl_2_names)
 		if instance.context.version <= 13 and instance.info.vertex_buffer_count:
 			stream.write_zstrings(instance.modelstream_names)
@@ -111,6 +121,7 @@ class Ms2InfoHeader:
 		s = ''
 		s += f'\n	* bone_info_size = {fmt_member(self.bone_info_size, indent+1)}'
 		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
+		s += f'\n	* buffers_presence = {fmt_member(self.buffers_presence, indent+1)}'
 		s += f'\n	* mdl_2_names = {fmt_member(self.mdl_2_names, indent+1)}'
 		s += f'\n	* modelstream_names = {fmt_member(self.modelstream_names, indent+1)}'
 		s += f'\n	* buffer_0 = {fmt_member(self.buffer_0, indent+1)}'

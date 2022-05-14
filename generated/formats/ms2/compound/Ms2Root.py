@@ -42,7 +42,7 @@ class Ms2Root(MemStruct):
 		# one for each mdl2
 		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compound.ModelInfo.ModelInfo)
 
-		# data as in get_frag_3()
+		# data as in get_buffer_presence()
 		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compound.BufferPresence.BufferPresence)
 		if set_default:
 			self.set_defaults()

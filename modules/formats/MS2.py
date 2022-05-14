@@ -48,7 +48,7 @@ class Ms2Loader(BaseFile):
 		self.context.version = version
 		return vdic
 
-	def get_frag_3(self, header):
+	def get_buffer_presence(self):
 		# some in JWE2 have a model2stream again
 		expected_frag = b""
 		if self.header.vertex_buffer_count:
@@ -69,7 +69,7 @@ class Ms2Loader(BaseFile):
 		if self.header.version > 39:
 			if self.root_ptr.data_size != 48:
 				logging.warning(f"Unexpected Root size ({self.root_ptr.data_size}) for {self.file_entry.name}")
-			expected_frag = self.get_frag_3(self.header)
+			expected_frag = self.get_buffer_presence()
 			frag_data = self.header.buffers_presence.frag.struct_ptr.data
 			if frag_data != expected_frag:
 				logging.warning(
@@ -86,8 +86,7 @@ class Ms2Loader(BaseFile):
 		# fix up the pointers
 		self.header.buffer_infos.data = ms2_file.buffer_infos
 		self.header.model_infos.data = ms2_file.model_infos
-		# todo - maybe store in ms2 file
-		self.header.buffers_presence.data = self.get_frag_3(self.header)
+		self.header.buffers_presence.data = ms2_file.buffers_presence
 		for model_info in ms2_file.model_infos:
 			model_info.materials.data = model_info.model.materials
 			model_info.lods.data = model_info.model.lods
@@ -147,8 +146,6 @@ class Ms2Loader(BaseFile):
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
-		# truncate to 48 bytes for PZ af_keeperbodyparts
-		ms2_general_info_data = self.root_entry.struct_ptr.data[:48]
 		ms2_header = struct.pack("<I", len(bone_infos))
 
 		# write the ms2 file
@@ -156,7 +153,11 @@ class Ms2Loader(BaseFile):
 		out_paths = [out_path, ]
 		with ConvStream() as stream:
 			stream.write(ms2_header)
-			stream.write(ms2_general_info_data)
+			# truncate header to 48 bytes for PZ af_keeperbodyparts
+			stream.write(self.root_entry.struct_ptr.data[:48])
+			# present since PC
+			if self.header.version >= 32:
+				self.header.buffers_presence.data.write(stream)
 			for mdl2_entry in self.root_entry.children:
 				logging.debug(f"Writing {mdl2_entry.name}")
 				stream.write(as_bytes(mdl2_entry.basename))
