@@ -154,14 +154,11 @@ def transfer_hair_combing():
 	src_me, src_ob_eval, src_particle_modifier_eval, src_particle_system, src_particle_system_eval = comb_common(adjust_psys_count=False, warn=False)
 
 	# populate a KD tree with all hair key roots
-	# these are not guaranteed to match
+	# count and actual size are not guaranteed to match
 	size = len(src_particle_system_eval.particles)
-	# print(f"Size {size} {src_particle_system_eval.settings.count}")
 	kd = mathutils.kdtree.KDTree(size)
-
 	for i, particle in enumerate(src_particle_system_eval.particles):
 		root_hair_key = particle.hair_keys[0]
-		# print(i, root_hair_key.co)
 		kd.insert(root_hair_key.co, i)
 	kd.balance()
 

@@ -285,11 +285,7 @@ def gauge_uv_factors(src_ob, trg_ob):
 
 	# populate a KD tree with all verts from the base (shells) mesh
 	src_me = src_ob.data
-	size = len(src_me.vertices)
-	kd = mathutils.kdtree.KDTree(size)
-	for i, v in enumerate(src_me.vertices):
-		kd.insert(v.co, i)
-	kd.balance()
+	kd = fill_kd_tree_co(src_me.vertices)
 
 	x_facs = []
 	y_facs = []
@@ -347,6 +343,14 @@ def gauge_uv_factors(src_ob, trg_ob):
 	src_ob["uv_scale_y"] = uv_scale_y
 	# print(base_fur_width, uv_scale_x/base_fur_width)
 	return f"Found UV scale ({uv_scale_x}, {uv_scale_y})"
+
+
+def fill_kd_tree_co(iterable):
+	kd = mathutils.kdtree.KDTree(len(iterable))
+	for i, v in enumerate(iterable):
+		kd.insert(v.co, i)
+	kd.balance()
+	return kd
 
 
 def is_fin(ob):
