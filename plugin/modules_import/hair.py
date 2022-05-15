@@ -31,15 +31,15 @@ def add_psys(ob, model):
 	psys.settings.display_step = 1
 
 
-def comb_common(adjust_psys_count=False):
-	context = bpy.context
-	ob = context.object
+def comb_common(adjust_psys_count=False, warn=True):
+	ob = bpy.context.active_object
 	if not ob:
 		raise AttributeError("No object in context")
 	# particle edit mode has to be entered so that hair strands are generated
 	# otherwise the non-eval ob's particle count is 0
 	if not ob.particle_systems:
 		raise AttributeError(f"No particle system on {ob.name}")
+	logging.debug(f"comb_common on object '{ob.name}'")
 	bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
 	bpy.ops.object.mode_set(mode='OBJECT')
 	ob_eval, me_eval = evaluate_mesh(ob)
@@ -54,9 +54,10 @@ def comb_common(adjust_psys_count=False):
 	assert num_particles == num_particles2
 	if not (len(vertices) == num_particles):
 		if not adjust_psys_count:
-			raise IndexError(
-				f"Mesh {ob.name} has {len(vertices)} vertices, while particle system has {num_particles}. "
-				f"Adjust the particle system's vertex count and try again.")
+			if warn:
+				raise IndexError(
+					f"Mesh '{ob.name}' has {len(vertices)} vertices, while particle system has {num_particles}. "
+					f"Adjust the particle system's vertex count and try again.")
 		else:
 			logging.warning(f"Changed {ob.name}'s particle count to {len(vertices)} to match vertices")
 			# set particle count on non evaluated mesh, and start over
@@ -110,10 +111,7 @@ def vcol_to_comb():
 
 			particle = particle_system.particles[vert.vertex_index]
 			particle_eval = particle_system_eval.particles[vert.vertex_index]
-			num_hair_keys = len(particle_eval.hair_keys)
-			for hair_key_index in range(num_hair_keys):
-				hair_key = particle.hair_keys[hair_key_index]
-				hair_key.co_object_set(ob_eval, particle_modifier_eval, particle_eval, root.lerp(tip, hair_key_index/(num_hair_keys-1)))
+			set_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval, root, tip)
 
 	return f"Converted Vertex Color to Combing for {ob_eval.name}",
 
@@ -130,17 +128,12 @@ def comb_to_vcol():
 
 			particle = particle_system.particles[vert.vertex_index]
 			particle_eval = particle_system_eval.particles[vert.vertex_index]
-			num_hair_keys = len(particle_eval.hair_keys)
-
-			root = particle.hair_keys[0].co_object(ob_eval, particle_modifier_eval, particle_eval)
-			tip = particle.hair_keys[num_hair_keys - 1].co_object(ob_eval, particle_modifier_eval, particle_eval)
-
+			root, tip = get_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval)
 			hair_direction = (tip - root).normalized()
 			vec = tangent_space_mat.inverted() @ hair_direction
 			vcol = vcol_layer[loop_index].color
 			vcol[0] = (vec.x/FAC) + 0.5
 			vcol[2] = -(vec.y/FAC) + 0.5
-
 	return f"Converted Combing to Vertex Color for {ob_eval.name}",
 
 
@@ -152,3 +145,61 @@ def get_tangent_space_mat(vert):
 	# print(tangent_space_mat)
 	# print(normal, tangent, bitangent)
 	return tangent_space_mat
+
+
+def transfer_hair_combing():
+	src_ob = bpy.context.object
+	trg_obs = [ob for ob in bpy.context.selected_objects if ob != src_ob]
+	logging.info(f"Transferring hair combing from {src_ob.name}, preparing for {len(trg_obs)} targets")
+	src_me, src_ob_eval, src_particle_modifier_eval, src_particle_system, src_particle_system_eval = comb_common(adjust_psys_count=False, warn=False)
+
+	# populate a KD tree with all hair key roots
+	# these are not guaranteed to match
+	size = len(src_particle_system_eval.particles)
+	# print(f"Size {size} {src_particle_system_eval.settings.count}")
+	kd = mathutils.kdtree.KDTree(size)
+
+	for i, particle in enumerate(src_particle_system_eval.particles):
+		root_hair_key = particle.hair_keys[0]
+		# print(i, root_hair_key.co)
+		kd.insert(root_hair_key.co, i)
+	kd.balance()
+
+	for trg_ob in trg_obs:
+		logging.info(f"Transferring hair combing from {src_ob.name} to {trg_ob.name}")
+		bpy.context.view_layer.objects.active = trg_ob
+		trg_me, trg_ob_eval, trg_particle_modifier_eval, trg_particle_system, trg_particle_system_eval = comb_common(adjust_psys_count=True)
+
+		for trg_i, trg_particle in enumerate(trg_particle_system.particles):
+			# get the properties of the target particle that we want to change
+			trg_particle_eval = trg_particle_system_eval.particles[trg_i]
+			trg_root, trg_tip = get_hair_keys(trg_particle, trg_particle_eval, trg_ob_eval, trg_particle_modifier_eval)
+			trg_len = (trg_tip - trg_root).length
+			co, src_i, dist = kd.find(trg_root)
+			# print(trg_i, co, src_i, dist)
+			# now find the best corresponding source particle
+			src_particle = src_particle_system.particles[src_i]
+			src_particle_eval = src_particle_system_eval.particles[src_i]
+			src_root, src_tip = get_hair_keys(src_particle, src_particle_eval, src_ob_eval, src_particle_modifier_eval)
+			src_direction = (src_tip - src_root).normalized() * trg_len
+			trg_tip = trg_root + src_direction
+			# change the target particle
+			set_hair_keys(trg_particle, trg_particle_eval, trg_ob_eval, trg_particle_modifier_eval, trg_root, trg_tip)
+	return f"Finished hair transfer",
+
+
+def get_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval):
+	"""Gets the evaluated coordinated for a particle's root and tip"""
+	num_hair_keys = len(particle_eval.hair_keys)
+	root = particle.hair_keys[0].co_object(ob_eval, particle_modifier_eval, particle_eval)
+	tip = particle.hair_keys[num_hair_keys - 1].co_object(ob_eval, particle_modifier_eval, particle_eval)
+	return root, tip
+
+
+def set_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval, root, tip):
+	"""Linearly interpolate coordinates for hair keys of particle from root to tip"""
+	num_hair_keys = len(particle_eval.hair_keys)
+	for hair_key_index in range(num_hair_keys):
+		hair_key = particle.hair_keys[hair_key_index]
+		co = root.lerp(tip, hair_key_index / (num_hair_keys - 1))
+		hair_key.co_object_set(ob_eval, particle_modifier_eval, particle_eval, co)

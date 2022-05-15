@@ -9,6 +9,7 @@ import plugin.utils.object
 # X_START = -16.0
 # Y_START = 1.00049
 # changed to avoid clamping bug and squares on fins
+
 X_START = -15.9993
 Y_START = 0.999756
 

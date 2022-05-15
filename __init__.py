@@ -33,7 +33,7 @@ from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
 
 from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm
-from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol
+from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils import shell
 from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
 
@@ -249,6 +249,16 @@ class HairToVcol(bpy.types.Operator):
         return handle_errors(self, comb_to_vcol, {})
 
 
+class TransferHairCombing(bpy.types.Operator):
+    """Transfer particle hair combing from one mesh to another"""
+    bl_idname = "object.transfer_hair_combing"
+    bl_label = "Transfer Combing"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, transfer_hair_combing, {})
+
+
 class MESH_PT_CobraTools(bpy.types.Panel):
     """Creates a Panel in the scene context of the properties editor"""
     bl_label = "Cobra Mesh Tools"
@@ -279,6 +289,7 @@ class MESH_PT_CobraTools(bpy.types.Panel):
         sub = row.row()
         sub.operator("object.comb_to_vcol", icon_value=icon)
         row = layout.row(align=True)
+        row.operator("object.transfer_hair_combing", icon_value=icon)
 
         addon_updater_ops.update_notice_box_ui(self, context)
 
@@ -350,6 +361,7 @@ classes = (
     GaugeUVScale,
     VcolToHair,
     HairToVcol,
+    TransferHairCombing,
     CobraPreferences,
     CobraSceneSettings,
     MESH_PT_CobraTools,
