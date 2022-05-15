@@ -161,8 +161,6 @@ def build_fins(src_ob, trg_ob):
 		v.co += (n * 0.00001)
 
 	# now delete all old faces, but only faces
-	# We have to pass these as ints
-	# DEL_VERTS = 1 DEL_EDGES = 2 DEL_ONLYFACES = 3 DEL_EDGESFACES = 4 DEL_FACES = 5 DEL_ALL = 6 DEL_ONLYTAGGED = 7
 	bmesh.ops.delete(bm, geom=faces, context="FACES_ONLY")
 
 	# build uv1 coords
@@ -229,6 +227,11 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y):
 
 	for face_a in bm.faces:
 		if not face_a.tag:
+			# todo - rewrite that considers UV fur direction
+			# basically, the whole UV strip should be oriented so that its hair tilts in the same direction
+			# start by looking at the vcol of this face's two base verts in the shell mesh's original tangent space
+			# decide with which edge to continue
+			# pick the adjoining face whose base edge's direction aligns best with the respective tangent space
 			ring = get_face_ring(face_a)
 			# store the x position
 			x_pos_dic = {}
