@@ -9,7 +9,7 @@ from generated.formats.ms2.compound.Ms2Root import Ms2Root
 import generated.formats.ovl.versions as ovl_versions
 from generated.formats.ovl_base.basic import ConvStream
 
-from modules.formats.shared import get_versions, get_padding
+from modules.formats.shared import get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
 from ovl_util import interaction
