@@ -174,14 +174,14 @@ def transfer_hair_combing():
 			# get the properties of the target particle that we want to change
 			trg_particle_eval = trg_particle_system_eval.particles[trg_i]
 			trg_root, trg_tip = get_hair_keys(trg_particle, trg_particle_eval, trg_ob_eval, trg_particle_modifier_eval)
-			trg_len = (trg_tip - trg_root).length
+			# trg_len = (trg_tip - trg_root).length
 			co, src_i, dist = kd.find(trg_root)
 			# print(trg_i, co, src_i, dist)
 			# now find the best corresponding source particle
 			src_particle = src_particle_system.particles[src_i]
 			src_particle_eval = src_particle_system_eval.particles[src_i]
 			src_root, src_tip = get_hair_keys(src_particle, src_particle_eval, src_ob_eval, src_particle_modifier_eval)
-			src_direction = (src_tip - src_root).normalized() * trg_len
+			src_direction = (src_tip - src_root)  # .normalized() * trg_len
 			trg_tip = trg_root + src_direction
 			# change the target particle
 			set_hair_keys(trg_particle, trg_particle_eval, trg_ob_eval, trg_particle_modifier_eval, trg_root, trg_tip)
