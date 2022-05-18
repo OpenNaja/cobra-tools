@@ -1,4 +1,5 @@
 import logging
+import math
 
 import bpy
 import bmesh
@@ -9,6 +10,8 @@ import plugin.utils.object
 # X_START = -16.0
 # Y_START = 1.00049
 # changed to avoid clamping bug and squares on fins
+from plugin.modules_import.hair import get_tangent_space_mat
+from plugin.utils.matrix_util import evaluate_mesh
 
 X_START = -15.9993
 Y_START = 0.999756
@@ -124,6 +127,10 @@ def build_fins(src_ob, trg_ob):
 	ob = copy_ob(src_ob, lod_group_name)
 
 	me = ob.data
+	# data is per loop
+	hair_directions, loop_vertices = build_tangent_table(src_ob.data)
+	loop_coord_kd = fill_kd_tree_co(loop_vertices)
+
 	# transfer the material
 	me.materials.clear()
 	me.materials.append(trg_ob.data.materials[0])
@@ -164,7 +171,7 @@ def build_fins(src_ob, trg_ob):
 	bmesh.ops.delete(bm, geom=faces, context="FACES_ONLY")
 
 	# build uv1 coords
-	build_uv(ob, bm, uv_scale_x, uv_scale_y)
+	build_uv(ob, bm, uv_scale_x, uv_scale_y, loop_coord_kd, hair_directions)
 
 	# Finish up, write the bmesh back to the mesh
 	bm.to_mesh(me)
@@ -197,8 +204,12 @@ def get_face_ring(face):
 	return strip
 
 
+def get_link_faces(bm_face):
+	return [f for e in bm_face.edges for f in e.link_faces if not f.tag and f is not bm_face]
+
+
 def get_best_face(current_face):
-	link_faces = [f for e in current_face.edges for f in e.link_faces if not f.tag and f is not current_face]
+	link_faces = get_link_faces(current_face)
 	# print(len(link_faces), len(set(link_faces)))
 	if link_faces:
 		# get the face whose orientation is most similar
@@ -211,7 +222,19 @@ def get_best_face(current_face):
 		return best_face
 
 
-def build_uv(ob, bm, uv_scale_x, uv_scale_y):
+def get_best_face_dir(current_face, hair_direction):
+	link_faces = get_link_faces(current_face)
+	# print(len(link_faces), len(set(link_faces)))
+	if link_faces:
+		# get the face whose orientation is most similar
+		dots = [f.edges[0] for f in link_faces]
+		# we need parallel normals
+		best_face = dots[-1][1]
+		best_face.tag = True
+		return best_face
+
+
+def build_uv(ob, bm, uv_scale_x, uv_scale_y, loop_coord_kd, hair_directions):
 	# get vertex group index
 	# this is stored in the object, not the BMesh
 	group_index = ob.vertex_groups["fur_length"].index
@@ -225,19 +248,63 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y):
 	# get uv 1
 	uv_lay = bm.loops.layers.uv["UV1"]
 
-	for face_a in bm.faces:
-		if not face_a.tag:
-			# todo - rewrite that considers UV fur direction
-			# basically, the whole UV strip should be oriented so that its hair tilts in the same direction
-			# start by looking at the vcol of this face's two base verts in the shell mesh's original tangent space
-			# decide with which edge to continue
-			# pick the adjoining face whose base edge's direction aligns best with the respective tangent space
-			ring = get_face_ring(face_a)
+	# basically, the whole UV strip should be oriented so that its hair tilts in the same direction
+	# start by looking at the vcol of this face's two base verts in the shell mesh's original tangent space
+	# decide with which edge to continue
+	# pick the adjoining face whose base edge's direction aligns best with the respective tangent space
+	for current_face in bm.faces:
+		# this face has not been processed
+		if not current_face.tag:
+			# current_face.tag = True
+			# add tuple face, hair_dir, a/b
+			# print("new strip")
+			strip = [current_face, ]
+			modes = []
+			# base_edge corresponds to the original edge before extrusion
+			while True:
+				current_face = strip[-1]
+				current_face.tag = True
+				base_edge, edge_a, top_edge, edge_b = current_face.edges
+				a, b = get_hair_angles(base_edge, edge_a, edge_b, hair_directions, loop_coord_kd)
+				# print(a, b)
+				# compare both angles
+				if a < b:
+					# print("at b")
+					# hair direction at a is closer to a->b
+					# so the hair points from a to b
+					# so find next face at edge_b
+					look_at_edge = edge_b
+					modes.append(0)
+				else:
+					# hair direction at b is closer to b->a
+					# continue equivalent to for the other case
+					look_at_edge = edge_a
+					# print("at a")
+					modes.append(1)
+				if len(strip) == 10:
+					break
+				next_face = get_best_angled_face(look_at_edge, hair_directions, loop_coord_kd)
+				if not next_face:
+					break
+				strip.append(next_face)
+
+			assert len(strip) == len(modes)
+			# print("strip", len(strip), modes)
+			# faces should be mapped so that hair direction points to the left in UV space
 			# store the x position
 			x_pos_dic = {}
-			for face in ring:
+			for face, mode in zip(strip, modes):
+				# print(f"mode {mode}")
+				# todo - may need to handle face according to mode
+				# if mode == 0:
+				# 	# mode 0 - put this face's edge a to the right, because hair points from a to b
+				# 	pass
+				# elif mode == 1:
+				# 	# mode 1 - put this face's edge b to the right, because hair points from b to a
+				# 	pass
 				# update X coords
-				length = face.edges[0].calc_length() * uv_scale_x
+				base_edge, edge_a, top_edge, edge_b = current_face.edges
+				length = base_edge.calc_length() * uv_scale_x
 				# print(x_pos_dic)
 				ind = face.loops[0].vert.index
 				# print("ind", ind)
@@ -266,18 +333,66 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y):
 
 				# update Y coords
 				# top edge
+				# print(len(base_edge.link_loops), list(base_edge.link_loops), face.loops[:2])
 				for loop in face.loops[:2]:
 					loop[uv_lay].uv.y = Y_START
 				# lower edge
 				for loop in face.loops[2:]:
 					vert = loop.vert
-
 					dvert = vert[dvert_lay]
-
 					if group_index in dvert:
 						weight = dvert[group_index]
 						loop[uv_lay].uv.y = Y_START - (weight * psys_fac * uv_scale_y)
-	print("Finished UV generation")
+	logging.info("Finished UV generation")
+
+
+def get_best_angled_face(edge_b, hair_directions, loop_coord_kd):
+	link_faces = [f for f in edge_b.link_faces if not f.tag]
+	if not link_faces:
+		return
+	results = []
+	for face in link_faces:
+		f_base_edge, f_edge_a, f_top_edge, f_edge_b = face.edges
+		a, b = get_hair_angles(f_base_edge, f_edge_a, f_edge_b, hair_directions, loop_coord_kd)
+		results.append((a, b))
+	# pick the faces with the lowest angle
+	# 0 = a, 1 = b
+	face_ind, mode = np.unravel_index(np.argmin(results, axis=None), (len(results), 2))
+	# angle should be smaller than 90° to be considered ok
+	best_angle = results[face_ind][mode]
+	if best_angle > math.radians(90.0):
+		logging.debug(f"Discarded best face with angle {math.degrees(best_angle)}°")
+		return
+	next_face = link_faces[face_ind]
+	return next_face
+
+
+def get_hair_angles(base_edge, edge_a, edge_b, hair_directions, loop_coord_kd):
+	# get the base verts
+	base_vert_a = [v for v in edge_a.verts if v in base_edge.verts][0]
+	base_vert_b = [v for v in edge_b.verts if v in base_edge.verts][0]
+	# check both edges
+	a = hair_angle_for_verts(base_vert_a, base_vert_b, hair_directions, loop_coord_kd)
+	b = hair_angle_for_verts(base_vert_b, base_vert_a, hair_directions, loop_coord_kd)
+	return a, b
+
+
+def hair_angle_for_verts(ref_vert, other_vert, hair_directions, loop_coord_kd):
+	ref_to_other = other_vert.co - ref_vert.co
+	# find the closest vertex in the original mesh
+	loop_vert_co, loop_vert_i, dist = loop_coord_kd.find(ref_vert.co)
+	if dist > 0.0:
+		logging.warning(f"Could not find a perfect match in kd find")
+	# this vector rests in the original vertex's tangent plane
+	hair_direction = hair_directions[loop_vert_i]
+	if hair_direction.length == 0.0:
+		print(f"hair_direction_a is zero")
+	elif ref_to_other.length == 0.0:
+		print(f"ref_to_other is zero")
+	else:
+		angle_a = ref_to_other.angle(hair_direction)
+		# print(f"angle {angle_a}")
+		return angle_a
 
 
 def gauge_uv_factors(src_ob, trg_ob):
@@ -346,6 +461,27 @@ def gauge_uv_factors(src_ob, trg_ob):
 	src_ob["uv_scale_y"] = uv_scale_y
 	# print(base_fur_width, uv_scale_x/base_fur_width)
 	return f"Found UV scale ({uv_scale_x}, {uv_scale_y})"
+
+
+def build_tangent_table(me):
+	"""Stores coord & direction"""
+	me.calc_tangents()
+	vcol_layer = me.vertex_colors[0].data
+	hair_directions = []
+	vertices = []
+	for loop in me.loops:
+		vertex = me.vertices[loop.vertex_index]
+		tangent_space_mat = get_tangent_space_mat(loop)
+		vcol = vcol_layer[loop.index].color
+		r = (vcol[0] - 0.5)
+		# g = (vcol[1] - 0.5)*FAC
+		b = (vcol[2] - 0.5)
+		vec = mathutils.Vector((r, -b, 0))
+
+		hair_direction = tangent_space_mat @ vec
+		hair_directions.append(hair_direction)
+		vertices.append(vertex)
+	return hair_directions, vertices
 
 
 def fill_kd_tree_co(iterable):

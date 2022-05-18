@@ -74,44 +74,41 @@ def vcol_to_comb():
 	me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval = comb_common(adjust_psys_count=True)
 	# loop faces
 	vcol_layer = me.vertex_colors[0].data
-	for i, face in enumerate(me.polygons):
-		# loop over face loop
-		for loop_index in face.loop_indices:
-			vert = me.loops[loop_index]
-			vertex = me.vertices[vert.vertex_index]
-			tangent_space_mat = get_tangent_space_mat(vert)
-			vcol = vcol_layer[loop_index].color
-			r = (vcol[0] - 0.5)*FAC
-			# g = (vcol[1] - 0.5)*FAC
-			b = (vcol[2] - 0.5)*FAC
-			# not sure what this does, kinda random
-			# a = (vcol[3] - 0.5)*FAC
-			# print((r * r) + (b * b) + (g*g), (b * b) + (r * r))
-			try:
-				# calculate third component for unit vector
-				# z = math.sqrt((r * r) + (b * b) - 1)
-				z = math.sqrt(1 - (r * r) - (b * b))
-			except:
-				# print("EXCEPT", r, b, a, (r * r) + (b * b) - 1)
-				z = 0
-			# n = math.sqrt((r * r + b * b + z * z))
-			# print("normalized", n)
-			# this is the raw vector, in tangent space
-			# this is like uv, so we do 1-v
-			vec = mathutils.Vector((r, -b, z))
+	for loop in me.loops:
+		vertex = me.vertices[loop.vertex_index]
+		tangent_space_mat = get_tangent_space_mat(loop)
+		vcol = vcol_layer[loop.index].color
+		r = (vcol[0] - 0.5)*FAC
+		# g = (vcol[1] - 0.5)*FAC
+		b = (vcol[2] - 0.5)*FAC
+		# not sure what this does, kinda random
+		# a = (vcol[3] - 0.5)*FAC
+		# print((r * r) + (b * b) + (g*g), (b * b) + (r * r))
+		try:
+			# calculate third component for unit vector
+			# z = math.sqrt((r * r) + (b * b) - 1)
+			z = math.sqrt(1 - (r * r) - (b * b))
+		except:
+			# print("EXCEPT", r, b, a, (r * r) + (b * b) - 1)
+			z = 0
+		# n = math.sqrt((r * r + b * b + z * z))
+		# print("normalized", n)
+		# this is the raw vector, in tangent space
+		# this is like uv, so we do 1-v
+		vec = mathutils.Vector((r, -b, z))
 
-			# convert to object space
-			hair_direction = tangent_space_mat @ vec
-			# print("t+v+g", tangent, vec, dir)
-			# print("dir",dir, vec)
+		# convert to object space
+		hair_direction = tangent_space_mat @ vec
+		# print("t+v+g", tangent, vec, dir)
+		# print("dir",dir, vec)
 
-			# calculate root and tip of the hair
-			root = vertex.co
-			tip = vertex.co + (hair_direction * particle_system.settings.hair_length)
+		# calculate root and tip of the hair
+		root = vertex.co
+		tip = vertex.co + (hair_direction * particle_system.settings.hair_length)
 
-			particle = particle_system.particles[vert.vertex_index]
-			particle_eval = particle_system_eval.particles[vert.vertex_index]
-			set_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval, root, tip)
+		particle = particle_system.particles[loop.vertex_index]
+		particle_eval = particle_system_eval.particles[loop.vertex_index]
+		set_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval, root, tip)
 
 	return f"Converted Vertex Color to Combing for {ob_eval.name}",
 

@@ -103,7 +103,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	shell_ob = None
 	shapekey = None
 	# fin meshes have to grab tangents from shell
-	# if mesh.flag == 565:
 	if is_fin(b_ob):
 		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob) and ob is not b_ob]
 		if shell_obs:
@@ -121,7 +120,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
 		# build indices into vertex buffer for the current face
 		tri = []
-		flip = is_flipped(eval_me.uv_layers[0].data, face)
+		if is_fin(b_ob):
+			flip = 0
+		else:
+			flip = is_flipped(eval_me.uv_layers[0].data, face)
 		# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
 		for loop_index in face.loop_indices:
 			b_loop = eval_me.loops[loop_index]
