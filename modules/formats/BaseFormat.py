@@ -24,6 +24,7 @@ class BaseFile:
 		self.root_entry = None
 		self.streams = []
 		self.children = []
+		self.header = None
 
 	@property
 	def abs_mem_offset(self):
