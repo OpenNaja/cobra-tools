@@ -53,7 +53,3 @@ class FgmLoader(MemStructLoader):
 		super().load(file_path)
 		self.root_entry.data_entry.update_data((self.update_names_buffer(),))
 		# print(self.file_entry.dependencies)
-
-	def get_deps_names(self):
-		return [dep.data for dep in self.header.dependencies.data if dep.data]
-

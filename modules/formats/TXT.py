@@ -11,9 +11,6 @@ class TxtLoader(BaseFile):
 		self.root_entry = self.create_root_entry(self.file_entry)
 		self.load(self.file_entry.path)
 		self.root_entry.struct_ptr.pool.num_files += 1
-
-	def collect(self):
-		self.assign_root_entry()
 	
 	def load(self, file_path):
 		root_entry = self._get_data(file_path)
