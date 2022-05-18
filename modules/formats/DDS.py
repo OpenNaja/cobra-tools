@@ -107,7 +107,6 @@ class DdsLoader(MemStructLoader):
 		# 		print(buff.index, buff.size)
 
 	def load(self, file_path):
-		self.remove_pointers()
 		# this loads the tex file and updates the header
 		super().load(file_path)
 		self.load_image(file_path)

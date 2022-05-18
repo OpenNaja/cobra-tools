@@ -247,8 +247,8 @@ class MemStructLoader(BaseFile):
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 
 	def load(self, file_path):
-		# todo - do this for all injections?
-		# self.remove_pointers()
+		# do this for all injections that use write_ptrs
+		self.remove_pointers()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		# print(self.header)
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
