@@ -6,6 +6,7 @@ from generated.bitfield import BitfieldMember
 class ModelFlagZT(BasicBitfield):
 
 	"""
+	todo - DLA seems to have a different bitfield, meaning of stripify is different here - currently hacked in MeshData.py triangulate
 	Determines the data held by a mesh.
 	"""
 	stripify = BitfieldMember(pos=6, mask=0x40, return_type=bool)

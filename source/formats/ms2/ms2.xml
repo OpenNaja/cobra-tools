@@ -25,6 +25,7 @@
 
 	13 if ZTUAC, 32 if PC, 39 if old JWE1, 47 if JWE1, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
     <version id="old" version="7 13 32" >Old</version>
+    <version id="DLA" version="7" >DLA</version>
     <version id="ZTUAC" version="13" >ZTUAC</version>
     <version id="PC" version="32" >PC</version>
     <version id="JWE1" version="47 39" >JWE1</version>
@@ -43,6 +44,7 @@
 	</bitfield>
 
 	<bitfield name="ModelFlagZT" storage="uint">
+		todo - DLA seems to have a different bitfield, meaning of stripify is different here - currently hacked in MeshData.py triangulate
 		Determines the data held by a mesh.
 		<member width="1" pos="6" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
 		<member width="1" pos="9" name="repeat tris" type="bool">repeats the tri array 5 times</member>

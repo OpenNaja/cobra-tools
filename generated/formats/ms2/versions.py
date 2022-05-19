@@ -79,6 +79,15 @@ def set_old(context):
 	context.version = 7
 
 
+def is_dla(context):
+	if context.version == 7:
+		return True
+
+
+def set_dla(context):
+	context.version = 7
+
+
 def is_ztuac(context):
 	if context.version == 13:
 		return True
@@ -133,12 +142,12 @@ def set_jwe2(context):
 	context.version = 51
 
 
-games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6+'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN_GAME', 'Unknown Game')])
+games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_1_6', 'Planet Zoo 1.6+'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN_GAME', 'Unknown Game')])
 
 
 def get_game(context):
 	if is_dla(context):
-		return [games.DISNEYLAND_ADVENTURE]
+		return [games.DLA]
 	if is_ztuac(context):
 		return [games.ZTUAC]
 	if is_pc(context):
@@ -153,6 +162,8 @@ def get_game(context):
 		return [games.JWE_2]
 	if is_old(context):
 		return [games.OLD]
+	if is_dla(context):
+		return [games.DLA]
 	if is_ztuac(context):
 		return [games.ZTUAC]
 	if is_pc(context):
@@ -171,7 +182,7 @@ def get_game(context):
 def set_game(context, game):
 	if isinstance(game, str):
 		game = games(game)
-	if game in {games.DISNEYLAND_ADVENTURE}:
+	if game in {games.DLA}:
 		return set_dla(context)
 	if game in {games.ZTUAC}:
 		return set_ztuac(context)
@@ -187,6 +198,8 @@ def set_game(context, game):
 		return set_jwe2(context)
 	if game in {games.OLD}:
 		return set_old(context)
+	if game in {games.DLA}:
+		return set_dla(context)
 	if game in {games.ZTUAC}:
 		return set_ztuac(context)
 	if game in {games.PC}:

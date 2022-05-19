@@ -17,7 +17,8 @@ def import_armature(scene, model_info, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
-	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
+	is_old_orientation = any((is_ztuac(model_info.context), is_dla(model_info.context)))
+	print(f"is_old_orientation {is_old_orientation}")
 	corrector = matrix_util.Corrector(is_old_orientation)
 	bone_info = model_info.bone_info
 	logging.debug(bone_info)
