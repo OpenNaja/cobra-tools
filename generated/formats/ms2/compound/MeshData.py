@@ -119,29 +119,50 @@ class MeshData(MemStruct):
 	# 	"""Used to document byte usage of different vertex formats"""
 	# 	# read a vertices of this mesh
 	# 	stream.seek(buffer_2_offset + self.vertex_offset)
-	# 	# read the packed ms2_file
-	# 	ms2_file = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
-	# 	ms2_file = ms2_file.reshape((self.vertex_count, self.size_of_vertex))
-	# 	self.bytes_max = np.max(ms2_file, axis=0)
-	# 	self.bytes_min = np.min(ms2_file, axis=0)
-	# 	self.bytes_mean = np.mean(ms2_file, axis=0)
+	# 	# read the packed ms2_array
+	# 	ms2_array = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
+	# 	ms2_array = ms2_array.reshape((self.vertex_count, self.size_of_vertex))
+	# 	self.bytes_max = np.max(ms2_array, axis=0)
+	# 	self.bytes_min = np.min(ms2_array, axis=0)
+	# 	self.bytes_mean = np.mean(ms2_array, axis=0)
 	# 	if self.size_of_vertex != 48:
 	# 		raise AttributeError(f"size_of_vertex != 48: size_of_vertex {self.size_of_vertex}, flag {self.flag}", )
+	
+	@property
+	def _stream_index(self):
+		logging.debug(f"Using stream {self.stream_index}")
+		return self.stream_index
 
+	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
+		self.sum_uv_dict = sum_uv_dict
+		self.last_vertex_offset = last_vertex_offset
+		self.new_vertex_offset = 0
+		self.stream = ms2_file.streams[self._stream_index]
+		self.stream_info = ms2_file.buffer_infos[self._stream_index]
+		logging.debug(f"Tri info address {self.tri_info_offset}")
+		logging.debug(f"Vertex info address {self.vert_info_offset}")
+		# print(self)
+		self.base = base
+		self.shapekeys = None
+		self.read_verts()
+		self.read_tris()
+		# self.validate_tris()
+		return self.new_vertex_offset
+	
 	def write_verts(self, stream):
 		stream.write(self.verts_data.tobytes())
 
 	@property
 	def tris_address(self):
-		raise NotImplementedError("Subclass must overwrite tris_address")
+		return self.stream_info.vertex_buffer_size + self.tri_offset
 
-	def read_tris(self, stream):
+	def read_tris(self):
 		# read all tri indices for this mesh, but only as many as needed if there are shells
-		stream.seek(self.tris_address)
+		self.stream.seek(self.tris_address)
 		index_count = self.tri_index_count // self.shell_count
-		logging.debug(f"Reading {index_count} indices at {stream.tell()}")
+		logging.debug(f"Reading {index_count} indices at {self.stream.tell()}")
 		self.tri_indices = np.empty(dtype=np.uint16, shape=index_count)
-		stream.readinto(self.tri_indices)
+		self.stream.readinto(self.tri_indices)
 		# check if there's no empty value left in the array
 		# if len(self.tri_indices) != index_count:
 		# 	raise BufferError(f"{len(self.tri_indices)} were read into tri index buffer, should have {index_count}")
@@ -178,6 +199,7 @@ class MeshData(MemStruct):
 		if hasattr(self.flag, "stripify") and self.flag.stripify:
 			return triangulate((self.tri_indices,))
 		else:
+			# todo - DLA stripify field is different
 			try:
 				# create non-overlapping tris from flattened tri indices
 				tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
@@ -197,12 +219,11 @@ class MeshData(MemStruct):
 
 	def validate_tris(self):
 		"""See if all tri indices point into the vertex buffer, raise an error if they don't"""
-		pass
 		# this is fairly costly (10 % of total loading time), so don't do it by default
-		# # max_ind = np.max(self.tri_indices)
-		# # if max_ind >= len(self.verts_data):
-		# for max_ind in self.tri_indices:
-		# 	if max_ind >= len(self.verts_data):
-		# 		raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices")
-		# logging.debug("All tri indices are valid")
+		# max_ind = np.max(self.tri_indices)
+		# if max_ind >= len(self.verts_data):
+		for max_ind in self.tri_indices:
+			if max_ind >= len(self.verts_data):
+				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices")
+		logging.debug("All tri indices are valid")
 

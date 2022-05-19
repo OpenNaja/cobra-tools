@@ -14,6 +14,11 @@ class NewMeshData:
 
 	# START_CLASS
 
+	@property
+	def _stream_index(self):
+		logging.debug(f"Using stream {self.buffer_info.offset}")
+		return self.buffer_info.offset
+
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
@@ -130,15 +135,15 @@ class NewMeshData:
 			raise AttributeError(
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
 
-	def read_verts(self, stream):
+	def read_verts(self):
 		# read vertices of this mesh
-		stream.seek(self.vertex_offset)
-		logging.debug(f"Reading {self.vertex_count} verts at {stream.tell()}")
+		self.stream.seek(self.vertex_offset)
+		logging.debug(f"Reading {self.vertex_count} verts at {self.stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		stream.readinto(self.verts_data)
+		self.stream.readinto(self.verts_data)
 		# if len(self.verts_data) != self.vertex_count:
 		# 	raise BufferError(f"{len(self.verts_data)} were read into vertex buffer, should have {self.vertex_count}")
 		# create arrays for the unpacked ms2_file
@@ -193,11 +198,6 @@ class NewMeshData:
 	def write_verts(self, stream):
 		stream.write(self.verts_data.tobytes())
 
-	@property
-	def tris_address(self):
-		buffer_info = self.ms2_file.buffer_infos[self.buffer_info.offset]
-		return buffer_info.vertex_buffer_size + self.tri_offset
-
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""
 		self.verts_data = np.zeros(len(verts), dtype=self.dt)
@@ -242,14 +242,4 @@ class NewMeshData:
 				self.verts_data[i]["shapekeys0"] = first
 				self.verts_data[i]["shapekeys1"] = second
 		# print(self.verts_data[:]["winding"])
-
-	def populate(self, ms2_file, base=512):
-		self.ms2_file = ms2_file
-		self.base = base
-		stream_index = self.buffer_info.offset
-		stream = ms2_file.streams[stream_index]
-		logging.debug(f"Using stream {stream_index}")
-		self.read_verts(stream)
-		self.read_tris(stream)
-		self.validate_tris()
 

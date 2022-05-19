@@ -11,23 +11,6 @@ class ZtMeshData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
-		self.sum_uv_dict = sum_uv_dict
-		self.last_vertex_offset = last_vertex_offset
-		self.new_vertex_offset = 0
-		stream = ms2_file.streams[self.stream_index]
-		logging.debug(f"Using stream {self.stream_index}")
-		self.stream_info = ms2_file.buffer_infos[self.stream_index]
-		logging.debug(f"Tri info address {self.tri_info_offset}")
-		logging.debug(f"Vertex info address {self.vert_info_offset}")
-		# print(self)
-		self.ms2_file = ms2_file
-		self.base = base
-		self.shapekeys = None
-		self.read_verts(stream)
-		self.read_tris(stream)
-		return self.new_vertex_offset
-
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
@@ -74,11 +57,7 @@ class ZtMeshData:
 		logging.debug(f"PC size of vertex: {self.dt.itemsize}")
 		logging.debug(f"PC size of vcol+uv: {self.dt_colors.itemsize}")
 
-	@property
-	def tris_address(self):
-		return self.stream_info.vertex_buffer_size + self.tri_offset
-
-	def read_verts(self, stream):
+	def read_verts(self):
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# create arrays for the unpacked ms2_file
@@ -87,20 +66,20 @@ class ZtMeshData:
 		if 4294967295 == self.vertex_offset:
 			logging.warning(f"vertex_offset is -1, seeking to last vertex offset {self.last_vertex_offset}")
 			if self.last_vertex_offset == 0:
-				logging.warning(f"Zero, starting at buffer start {stream.tell()}")
+				logging.warning(f"Zero, starting at buffer start {self.stream.tell()}")
 			else:
-				stream.seek(self.last_vertex_offset)
+				self.stream.seek(self.last_vertex_offset)
 		else:
-			stream.seek(self.vertex_offset)
-		logging.debug(f"{self.vertex_count} VERTS at {stream.tell()}")
+			self.stream.seek(self.vertex_offset)
+		logging.debug(f"{self.vertex_count} VERTS at {self.stream.tell()}")
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		stream.readinto(self.verts_data)
-		self.new_vertex_offset = stream.tell()
+		self.stream.readinto(self.verts_data)
+		self.new_vertex_offset = self.stream.tell()
 		# print(self.verts_data.shape)
-		stream.seek(self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
-		logging.debug(f"UV at {stream.tell()}")
+		self.stream.seek(self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
+		logging.debug(f"UV at {self.stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
-		stream.readinto(self.colors_data)
+		self.stream.readinto(self.colors_data)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
