@@ -256,7 +256,7 @@
 
 	<compound name="Ms2InfoHeader">
 		Custom header struct
-		<add name="bone info size" type="uint"/>
+		<add name="bone_info_size" type="uint"/>
 		<add name="info" type="MS2Root"/>
 		<add name="buffers_presence" type="BufferPresence" arr1="info \ vertex_buffer_count" since="32">used since PC</add>
 		<add name="mdl2 names" type="ZString" arr1="info \ mdl2_count"/>
@@ -379,7 +379,7 @@
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
-		<add name="unk pc count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but count7 is not present</add>
+		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but count7 is not present</add>
 		<add name="count7" type="uint64" >index count 7</add>
 		<add name="joint count" type="uint64" >joint count</add>
 		<add name="unk78count" type="uint64" >zero</add>
@@ -399,7 +399,9 @@
 		<add name="ZT weirdness" type="short" arr1="10" vercond="#ZTUAC#">zeros</add>
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
+<!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
 		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>
+<!--		<add name="NewPcStruct" type="NewPcStruct" cond="unk_pc_count" >ragdoll links?</add>-->
 <!--		<add name="joint debug" type="StreamDebugger" cond="joint count" >joints</add>-->
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#">?</add>-->
@@ -438,6 +440,27 @@
 <!--		<add name="joint debug" type="StreamDebugger" >joints</add>-->
 		<add name="alignment" type="uint64" cond="flag" since="50">latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
 	</compound>
+
+	this was dumb, is just the lods region
+<!--	<compound name="NewPcStruct">-->
+<!--		<add name="zeros 0" type="ushort" arr1="7"/>-->
+<!--		<add name="count a" type="uint" />-->
+<!--		<add name="subs" type="NewPcSub1" arr1="6"/>-->
+
+<!--	</compound>-->
+
+<!--	<compound name="NewPcSub1">-->
+<!--		seemingly lod related-->
+<!--		20 bytes-->
+<!--		<add name="offset" type="float" />-->
+<!--		<add name="zero 0" type="ushort" />-->
+<!--		<add name="one" type="ushort" />-->
+<!--		<add name="index" type="ushort" />-->
+<!--		<add name="index_plus" type="ushort" />-->
+<!--		<add name="index_plus" type="ushort" />-->
+<!--		<add name="zeros 1" type="ushort" arr1="2"/>-->
+
+<!--	</compound>-->
 
 	<compound name="UACJoint">
 		36 bytes

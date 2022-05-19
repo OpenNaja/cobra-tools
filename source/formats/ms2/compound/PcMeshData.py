@@ -11,13 +11,15 @@ class PcMeshData:
 
 	# START_CLASS
 
-	def populate(self, ms2_file, ms2_stream, buffer_2_offset, base=512, last_vertex_offset=0, sum_uv_dict={}):
-		self.buffer_2_offset = buffer_2_offset
+	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.ms2_file = ms2_file
 		self.base = base
 		self.shapekeys = None
-		self.read_verts(ms2_stream)
-		self.read_tris(ms2_stream)
+		stream = ms2_file.streams[self.stream_index]
+		logging.debug(f"Using stream {self.stream_index}")
+		self.stream_info = ms2_file.buffer_infos[self.stream_index]
+		self.read_verts(stream)
+		self.read_tris(stream)
 
 	def init_arrays(self, count):
 		self.vertex_count = count
@@ -65,23 +67,23 @@ class PcMeshData:
 
 	@property
 	def tris_address(self):
-		logging.debug(f"self.buffer_2_offset {self.buffer_2_offset}, count {self.tri_offset}")
-		return self.buffer_2_offset + (self.tri_offset * 16)
+		logging.debug(f"count {self.tri_offset}")
+		return self.tri_offset * 16
 
 	def read_verts(self, stream):
 		# read a vertices of this mesh
-		stream.seek(self.buffer_2_offset + (self.vertex_offset * 16))
+		stream.seek(self.vertex_offset * 16)
 		logging.debug(f"VERTS at {stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		stream.readinto(self.verts_data)
-		stream.seek(self.buffer_2_offset + (self.uv_offset * 16))
+		stream.seek(self.uv_offset * 16)
 		logging.debug(f"UV at {stream.tell()}")
 		self.uv_data = np.empty(dtype=self.dt_uv, shape=self.vertex_count)
 		stream.readinto(self.uv_data)
-		stream.seek(self.buffer_2_offset + (self.weights_offset * 16))
+		stream.seek(self.weights_offset * 16)
 		logging.debug(f"WEIGHTS at {stream.tell()}")
 		# print(self)
 		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights

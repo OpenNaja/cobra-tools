@@ -48,10 +48,19 @@ class ModelReader:
 			for model_info in instance.arg:
 				# logging.debug(model_info)
 				model_info.model = Model(instance.context, model_info)
+				# todo - really only read if objects?
 				if model_info.num_objects:
 					# instance.get_padding(stream, alignment=8) # 21346
 					# instance.get_padding(stream)
-					model_info.model.read(stream)
+					# pc alignment
+					# if instance.context.version == 32:
+					# 	model_info.padding = instance.get_padding(stream, alignment=8)
+					try:
+						model_info.model.read(stream)
+					except:
+						logging.warning(f"Failed reading model for model_info {model_info}")
+						logging.warning(model_info.model)
+						traceback.print_exc()
 				# logging.debug(model_info.model)
 				# alignment, not sure if really correct
 				if model_info.increment_flag:
@@ -79,10 +88,17 @@ class ModelReader:
 
 	def assign_bone_info(self, i, model_info, stream):
 		if model_info.increment_flag:
-			logging.debug(f"Reading bone info at {stream.tell()}")
-			model_info.bone_info = self.read_bone_info(stream, i)
-			# logging.debug(model_info.bone_info)
-			self.bone_infos.append(model_info.bone_info)
+			logging.info(f"Reading bone info {i} at {stream.tell()}")
+			try:
+				model_info.bone_info = self.read_bone_info(stream, i)
+				# logging.debug(model_info.bone_info)
+				self.bone_infos.append(model_info.bone_info)
+			except:
+				logging.warning(f"Bone info {i} failed for model_info")
+				logging.warning(model_info)
+				logging.warning(model_info.model)
+				logging.warning(f"here's the bone info before:")
+				logging.warning(self.bone_infos[-1])
 			i += 1
 		else:
 			logging.debug(f"Using previous bone info")
@@ -100,6 +116,7 @@ class ModelReader:
 	def read_bone_info(self, stream, i):
 
 		logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
+		# 22-05: in PC anubis, we do have padding here
 		# there's never padding before the first bone info, and after the last
 		# if not is_old(self.context) and i == 0:
 		if (not is_old(self.context)) and i:
