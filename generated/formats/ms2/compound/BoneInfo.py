@@ -12,6 +12,10 @@ from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
 
 class BoneInfo:
 
+	"""
+	# 858 in DLA c_cl_thread_.ms2
+	"""
+
 	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -98,11 +102,14 @@ class BoneInfo:
 		# enumerates all bone indices, 4 may be flags
 		self.enumeration = numpy.zeros((self.enum_count, 2,), dtype=numpy.dtype('uint32'))
 
-		# enumerates all bone indices, 4 may be flags
+		# enumerates all bone indices
 		self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
 
 		# zeros
-		self.zt_weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
+		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int8'))
+
+		# zeros
+		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
@@ -132,7 +139,7 @@ class BoneInfo:
 		self.bone_count = 0
 		self.unknown_40 = 0
 		self.parents_count = 0
-		if (self.context.version == 13) or (((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51)):
+		if (self.context.version == 7) or ((self.context.version == 13) or (((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51))):
 			self.extra_zero = 0
 		self.enum_count = 0
 		self.unknown_58 = 0
@@ -158,14 +165,16 @@ class BoneInfo:
 		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
 		self.bones = Array((self.bone_count,), Bone, self.context, 0, None)
 		self.parents = numpy.zeros((self.parents_count,), dtype=numpy.dtype('uint8'))
-		if not (self.context.version == 13):
+		if self.context.version >= 32:
 			self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
-		if not (self.context.version == 13) and self.one:
+		if self.context.version >= 32 and self.one:
 			self.enumeration = numpy.zeros((self.enum_count, 2,), dtype=numpy.dtype('uint32'))
-		if self.context.version == 13 and self.one:
+		if self.context.version <= 13 and self.one:
 			self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
+		if self.context.version == 7:
+			self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int8'))
 		if self.context.version == 13:
-			self.zt_weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
+			self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
 		if not (self.context.version < 47) and self.zeros_count:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 		if self.context.version < 47 and self.zeros_count:
@@ -199,7 +208,7 @@ class BoneInfo:
 		instance.bone_count = stream.read_uint64()
 		instance.unknown_40 = stream.read_uint64()
 		instance.parents_count = stream.read_uint64()
-		if (instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51)):
+		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
 			instance.extra_zero = stream.read_uint64()
 		instance.enum_count = stream.read_uint64()
 		instance.unknown_58 = stream.read_uint64()
@@ -225,14 +234,16 @@ class BoneInfo:
 		instance.inverse_bind_matrices = Array.from_stream(stream, (instance.bind_matrix_count,), Matrix44, instance.context, 0, None)
 		instance.bones = Array.from_stream(stream, (instance.bone_count,), Bone, instance.context, 0, None)
 		instance.parents = stream.read_ubytes((instance.parents_count,))
-		if not (instance.context.version == 13):
+		if instance.context.version >= 32:
 			instance.parents_padding = stream.read_bytes(((8 - (instance.parents_count % 8)) % 8,))
-		if not (instance.context.version == 13) and instance.one:
+		if instance.context.version >= 32 and instance.one:
 			instance.enumeration = stream.read_uints((instance.enum_count, 2,))
-		if instance.context.version == 13 and instance.one:
+		if instance.context.version <= 13 and instance.one:
 			instance.enumeration = stream.read_ubytes((instance.enum_count,))
+		if instance.context.version == 7:
+			instance.weirdness = stream.read_bytes((10,))
 		if instance.context.version == 13:
-			instance.zt_weirdness = stream.read_shorts((10,))
+			instance.weirdness = stream.read_shorts((10,))
 		if not (instance.context.version < 47) and instance.zeros_count:
 			instance.zeros_padding = ZerosPadding.from_stream(stream, instance.context, instance.zeros_count, None)
 		if instance.context.version < 47 and instance.zeros_count:
@@ -256,7 +267,7 @@ class BoneInfo:
 		stream.write_uint64(instance.bone_count)
 		stream.write_uint64(instance.unknown_40)
 		stream.write_uint64(instance.parents_count)
-		if (instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51)):
+		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
 			stream.write_uint64(instance.extra_zero)
 		stream.write_uint64(instance.enum_count)
 		stream.write_uint64(instance.unknown_58)
@@ -284,15 +295,17 @@ class BoneInfo:
 		Array.to_stream(stream, instance.inverse_bind_matrices, (instance.bind_matrix_count,), Matrix44, instance.context, 0, None)
 		Array.to_stream(stream, instance.bones, (instance.bone_count,), Bone, instance.context, 0, None)
 		stream.write_ubytes(instance.parents)
-		if not (instance.context.version == 13):
+		if instance.context.version >= 32:
 			instance.parents_padding.resize(((8 - (instance.parents_count % 8)) % 8,))
 			stream.write_bytes(instance.parents_padding)
-		if not (instance.context.version == 13) and instance.one:
+		if instance.context.version >= 32 and instance.one:
 			stream.write_uints(instance.enumeration)
-		if instance.context.version == 13 and instance.one:
+		if instance.context.version <= 13 and instance.one:
 			stream.write_ubytes(instance.enumeration)
+		if instance.context.version == 7:
+			stream.write_bytes(instance.weirdness)
 		if instance.context.version == 13:
-			stream.write_shorts(instance.zt_weirdness)
+			stream.write_shorts(instance.weirdness)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			ZerosPadding.to_stream(stream, instance.zeros_padding)
 		if instance.context.version < 47 and instance.zeros_count:
@@ -350,7 +363,7 @@ class BoneInfo:
 		s += f'\n	* parents = {fmt_member(self.parents, indent+1)}'
 		s += f'\n	* parents_padding = {fmt_member(self.parents_padding, indent+1)}'
 		s += f'\n	* enumeration = {fmt_member(self.enumeration, indent+1)}'
-		s += f'\n	* zt_weirdness = {fmt_member(self.zt_weirdness, indent+1)}'
+		s += f'\n	* weirdness = {fmt_member(self.weirdness, indent+1)}'
 		s += f'\n	* zeros_padding = {fmt_member(self.zeros_padding, indent+1)}'
 		s += f'\n	* minus_padding = {fmt_member(self.minus_padding, indent+1)}'
 		s += f'\n	* struct_7 = {fmt_member(self.struct_7, indent+1)}'

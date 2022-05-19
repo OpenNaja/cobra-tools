@@ -38,9 +38,8 @@ class JointData:
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-
-		# 0s, might be related to count 7 in PC
-		self.zeros_extra = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
+		self.zero_0 = 0
+		self.zero_1 = 0
 
 		# size of the name buffer below, including trailing zeros
 		self.namespace_length = 0
@@ -55,7 +54,7 @@ class JointData:
 		self.zeros_1 = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
 
 		# 0s
-		self.extra_zeros_pc = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		self.extra_zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
 
 		# 1, 1
 		self.ones = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
@@ -68,6 +67,9 @@ class JointData:
 
 		# usually 0s
 		self.zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+
+		# usually 0s
+		self.zeros_3 = 0
 
 		# corresponds to bone transforms
 		self.joint_transforms = Array((self.joint_count,), JointEntry, self.context, 0, None)
@@ -121,17 +123,22 @@ class JointData:
 		self.count_1 = 0
 		self.count_2 = 0
 		if self.context.version <= 32:
-			self.zeros_extra = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
+			self.zero_0 = 0
+		if 13 <= self.context.version <= 32:
+			self.zero_1 = 0
 		self.namespace_length = 0
 		self.zeros_0 = numpy.zeros((5,), dtype=numpy.dtype('uint32'))
 		self.pc_count = 0
 		self.zeros_1 = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
-		if self.context.version <= 32:
-			self.extra_zeros_pc = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
-		self.ones = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		if 13 <= self.context.version <= 32:
+			self.extra_zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		if self.context.version >= 13:
+			self.ones = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 		self.bone_count = 0
 		self.joint_entry_count = 0
 		self.zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		if self.context.version <= 7:
+			self.zeros_3 = 0
 		self.joint_transforms = Array((self.joint_count,), JointEntry, self.context, 0, None)
 		if self.context.version >= 47:
 			self.zeros_3 = numpy.zeros((self.joint_count,), dtype=numpy.dtype('uint64'))
@@ -175,17 +182,22 @@ class JointData:
 		instance.count_1 = stream.read_uint()
 		instance.count_2 = stream.read_uint()
 		if instance.context.version <= 32:
-			instance.zeros_extra = stream.read_uints((2,))
+			instance.zero_0 = stream.read_uint()
+		if 13 <= instance.context.version <= 32:
+			instance.zero_1 = stream.read_uint()
 		instance.namespace_length = stream.read_uint()
 		instance.zeros_0 = stream.read_uints((5,))
 		instance.pc_count = stream.read_uint()
 		instance.zeros_1 = stream.read_uints((7,))
-		if instance.context.version <= 32:
-			instance.extra_zeros_pc = stream.read_uints((4,))
-		instance.ones = stream.read_uint64s((2,))
+		if 13 <= instance.context.version <= 32:
+			instance.extra_zeros_2 = stream.read_uints((4,))
+		if instance.context.version >= 13:
+			instance.ones = stream.read_uint64s((2,))
 		instance.bone_count = stream.read_uint()
 		instance.joint_entry_count = stream.read_uint()
 		instance.zeros_2 = stream.read_uints((4,))
+		if instance.context.version <= 7:
+			instance.zeros_3 = stream.read_uint()
 		instance.joint_transforms = Array.from_stream(stream, (instance.joint_count,), JointEntry, instance.context, 0, None)
 		if instance.context.version >= 47:
 			instance.zeros_3 = stream.read_uint64s((instance.joint_count,))
@@ -216,17 +228,22 @@ class JointData:
 		stream.write_uint(instance.count_1)
 		stream.write_uint(instance.count_2)
 		if instance.context.version <= 32:
-			stream.write_uints(instance.zeros_extra)
+			stream.write_uint(instance.zero_0)
+		if 13 <= instance.context.version <= 32:
+			stream.write_uint(instance.zero_1)
 		stream.write_uint(instance.namespace_length)
 		stream.write_uints(instance.zeros_0)
 		stream.write_uint(instance.pc_count)
 		stream.write_uints(instance.zeros_1)
-		if instance.context.version <= 32:
-			stream.write_uints(instance.extra_zeros_pc)
-		stream.write_uint64s(instance.ones)
+		if 13 <= instance.context.version <= 32:
+			stream.write_uints(instance.extra_zeros_2)
+		if instance.context.version >= 13:
+			stream.write_uint64s(instance.ones)
 		stream.write_uint(instance.bone_count)
 		stream.write_uint(instance.joint_entry_count)
 		stream.write_uints(instance.zeros_2)
+		if instance.context.version <= 7:
+			stream.write_uint(instance.zeros_3)
 		Array.to_stream(stream, instance.joint_transforms, (instance.joint_count,), JointEntry, instance.context, 0, None)
 		if instance.context.version >= 47:
 			stream.write_uint64s(instance.zeros_3)
@@ -273,16 +290,18 @@ class JointData:
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
 		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* zeros_extra = {fmt_member(self.zeros_extra, indent+1)}'
+		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
 		s += f'\n	* namespace_length = {fmt_member(self.namespace_length, indent+1)}'
 		s += f'\n	* zeros_0 = {fmt_member(self.zeros_0, indent+1)}'
 		s += f'\n	* pc_count = {fmt_member(self.pc_count, indent+1)}'
 		s += f'\n	* zeros_1 = {fmt_member(self.zeros_1, indent+1)}'
-		s += f'\n	* extra_zeros_pc = {fmt_member(self.extra_zeros_pc, indent+1)}'
+		s += f'\n	* extra_zeros_2 = {fmt_member(self.extra_zeros_2, indent+1)}'
 		s += f'\n	* ones = {fmt_member(self.ones, indent+1)}'
 		s += f'\n	* bone_count = {fmt_member(self.bone_count, indent+1)}'
 		s += f'\n	* joint_entry_count = {fmt_member(self.joint_entry_count, indent+1)}'
 		s += f'\n	* zeros_2 = {fmt_member(self.zeros_2, indent+1)}'
+		s += f'\n	* zeros_3 = {fmt_member(self.zeros_3, indent+1)}'
 		s += f'\n	* joint_transforms = {fmt_member(self.joint_transforms, indent+1)}'
 		s += f'\n	* zeros_3 = {fmt_member(self.zeros_3, indent+1)}'
 		s += f'\n	* unknown_listc = {fmt_member(self.unknown_listc, indent+1)}'

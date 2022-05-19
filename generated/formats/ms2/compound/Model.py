@@ -43,6 +43,7 @@ class Model:
 		self.meshes = Array((self.arg.num_meshes,), NewMeshData, self.context, 0, None)
 		self.meshes = Array((self.arg.num_meshes,), PcMeshData, self.context, 0, None)
 		self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
+		self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
 
 		# ?
 		self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
@@ -66,6 +67,8 @@ class Model:
 		if self.context.version == 32:
 			self.meshes = Array((self.arg.num_meshes,), PcMeshData, self.context, 0, None)
 		if self.context.version == 13:
+			self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
+		if self.context.version == 7:
 			self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
 		if self.context.version == 13 and self.arg.last_count:
 			self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
@@ -98,6 +101,8 @@ class Model:
 			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), PcMeshData, instance.context, 0, None)
 		if instance.context.version == 13:
 			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
+		if instance.context.version == 7:
+			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
 		if instance.context.version == 13 and instance.arg.last_count:
 			instance.ztuac_pre_bones = ZTPreBones.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 32:
@@ -118,6 +123,8 @@ class Model:
 		if instance.context.version == 32:
 			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), PcMeshData, instance.context, 0, None)
 		if instance.context.version == 13:
+			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
+		if instance.context.version == 7:
 			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
 		if instance.context.version == 13 and instance.arg.last_count:
 			ZTPreBones.to_stream(stream, instance.ztuac_pre_bones)

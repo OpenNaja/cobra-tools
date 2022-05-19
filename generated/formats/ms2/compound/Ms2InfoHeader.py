@@ -31,6 +31,7 @@ class Ms2InfoHeader:
 		# used since PC
 		self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
+		self.modelstream_names = Array((self.info.vertex_buffer_count - self.info.stream_count,), ZString, self.context, 0, None)
 		self.modelstream_names = Array((self.info.vertex_buffer_count,), ZString, self.context, 0, None)
 		self.modelstream_names = Array((self.info.stream_count,), ZString, self.context, 0, None)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
@@ -48,7 +49,9 @@ class Ms2InfoHeader:
 		if self.context.version >= 32:
 			self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
-		if self.context.version <= 13 and self.info.vertex_buffer_count:
+		if self.context.version <= 7 and self.info.vertex_buffer_count:
+			self.modelstream_names = Array((self.info.vertex_buffer_count - self.info.stream_count,), ZString, self.context, 0, None)
+		if 13 <= self.context.version <= 13 and self.info.vertex_buffer_count:
 			self.modelstream_names = Array((self.info.vertex_buffer_count,), ZString, self.context, 0, None)
 		if self.context.version >= 39 and self.info.vertex_buffer_count:
 			self.modelstream_names = Array((self.info.stream_count,), ZString, self.context, 0, None)
@@ -74,7 +77,9 @@ class Ms2InfoHeader:
 		if instance.context.version >= 32:
 			instance.buffers_presence = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferPresence, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
-		if instance.context.version <= 13 and instance.info.vertex_buffer_count:
+		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
+			instance.modelstream_names = stream.read_zstrings((instance.info.vertex_buffer_count - instance.info.stream_count,))
+		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
 			instance.modelstream_names = stream.read_zstrings((instance.info.vertex_buffer_count,))
 		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
 			instance.modelstream_names = stream.read_zstrings((instance.info.stream_count,))
@@ -90,7 +95,9 @@ class Ms2InfoHeader:
 		if instance.context.version >= 32:
 			Array.to_stream(stream, instance.buffers_presence, (instance.info.vertex_buffer_count,), BufferPresence, instance.context, 0, None)
 		stream.write_zstrings(instance.mdl_2_names)
-		if instance.context.version <= 13 and instance.info.vertex_buffer_count:
+		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
+			stream.write_zstrings(instance.modelstream_names)
+		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
 			stream.write_zstrings(instance.modelstream_names)
 		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
 			stream.write_zstrings(instance.modelstream_names)

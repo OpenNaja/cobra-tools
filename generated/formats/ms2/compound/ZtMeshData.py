@@ -11,6 +11,10 @@ from generated.formats.ms2.compound.MeshData import MeshData
 
 class ZtMeshData(MeshData):
 
+	"""
+	64 bytes total, same layout for DLA and ZTUAC
+	"""
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		super().__init__(context, arg, template, set_default)
@@ -55,15 +59,6 @@ class ZtMeshData(MeshData):
 		# ?
 		self.poweroftwo = 0
 
-		# power of 2 increasing with lod index
-		self.poweroftwo = 0
-
-		# always zero
-		self.zero = 0
-
-		# some floats
-		self.unknown_07 = 0.0
-
 		# bitfield
 		self.flag = ModelFlagZT(self.context, 0, None)
 
@@ -84,17 +79,9 @@ class ZtMeshData(MeshData):
 		self.known_ff_1 = 0
 		self.one_0 = 0
 		self.one_1 = 0
-		if self.context.version == 13:
-			self.poweroftwo = 0
-		if self.context.version == 32:
-			self.poweroftwo = 0
-		if self.context.version == 32:
-			self.zero = 0
-		if self.context.version == 32:
-			self.unknown_07 = 0.0
+		self.poweroftwo = 0
 		self.flag = ModelFlagZT(self.context, 0, None)
-		if self.context.version == 13:
-			self.zero_uac = 0
+		self.zero_uac = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -120,16 +107,9 @@ class ZtMeshData(MeshData):
 		instance.known_ff_1 = stream.read_short()
 		instance.one_0 = stream.read_ushort()
 		instance.one_1 = stream.read_ushort()
-		if instance.context.version == 13:
-			instance.poweroftwo = stream.read_ushort()
-		if instance.context.version == 32:
-			instance.poweroftwo = stream.read_uint()
-			instance.zero = stream.read_uint()
-		if instance.context.version == 32:
-			instance.unknown_07 = stream.read_float()
+		instance.poweroftwo = stream.read_ushort()
 		instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 13:
-			instance.zero_uac = stream.read_uint()
+		instance.zero_uac = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -145,16 +125,9 @@ class ZtMeshData(MeshData):
 		stream.write_short(instance.known_ff_1)
 		stream.write_ushort(instance.one_0)
 		stream.write_ushort(instance.one_1)
-		if instance.context.version == 13:
-			stream.write_ushort(instance.poweroftwo)
-		if instance.context.version == 32:
-			stream.write_uint(instance.poweroftwo)
-			stream.write_uint(instance.zero)
-		if instance.context.version == 32:
-			stream.write_float(instance.unknown_07)
+		stream.write_ushort(instance.poweroftwo)
 		ModelFlagZT.to_stream(stream, instance.flag)
-		if instance.context.version == 13:
-			stream.write_uint(instance.zero_uac)
+		stream.write_uint(instance.zero_uac)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -189,8 +162,6 @@ class ZtMeshData(MeshData):
 		s += f'\n	* one_0 = {fmt_member(self.one_0, indent+1)}'
 		s += f'\n	* one_1 = {fmt_member(self.one_1, indent+1)}'
 		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
-		s += f'\n	* unknown_07 = {fmt_member(self.unknown_07, indent+1)}'
 		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
 		s += f'\n	* zero_uac = {fmt_member(self.zero_uac, indent+1)}'
 		return s

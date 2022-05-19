@@ -142,6 +142,7 @@
 		<add name="meshes" type="NewMeshData" arr1="#ARG#\num_meshes" since="47">mesh data blocks for this model</add>
 		<add name="meshes" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#"/>
 		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#"/>
+		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#DLA#"/>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" until="32">see if it is a flag for ztuac too, so might be totally wrong here</add>
 		alignment here is handled by py code, seems to depend on whether a bone info follows
@@ -167,6 +168,7 @@
 	</compound>
 
 	<compound name="LodInfoZT">
+		DLA, ZTUAC: 16 bytes
 		<add name="full" type="short" >FFFF</add>
 		<add name="half" type="short" >7F7F</add>
 		<add name="lod index" type="ushort" >increasing</add>
@@ -188,7 +190,6 @@
 		<add name="buffer_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
 		<add name="some_index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
 	</compound>
-
 
 	<compound name="NewMeshData" inherit="MeshData">
 		<add name="vertex count" type="uint" >vertex count of model</add>
@@ -223,6 +224,7 @@
 	</compound>
 
 	<compound name="ZtMeshData" inherit="MeshData">
+		64 bytes total, same layout for DLA and ZTUAC
 		<add name="tri index count" type="uint" >repeat</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri info offset" type="uint">stores count, -1 as ints</add>
@@ -234,12 +236,9 @@
 		<add name="known ff 1" type="short">x*16 = offset in buffer 2</add>
 		<add name="one 0" type="ushort">x*16 = offset in buffer 2</add>
 		<add name="one 1" type="ushort" > ?</add>
-		<add name="poweroftwo" type="ushort" vercond="#ZTUAC#"> ?</add>
-		<add name="poweroftwo" type="uint" vercond="#PC#">power of 2 increasing with lod index</add>
-		<add name="zero" type="uint" vercond="#PC#">always zero</add>
-		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
+		<add name="poweroftwo" type="ushort" vercond=""> ?</add>
 		<add name="flag" type="ModelFlagZT">bitfield</add>
-		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
+		<add name="zero uac" type="uint"  >always zero</add>
 	</compound>
 
 	<compound name="ZTPreBones">
@@ -262,7 +261,9 @@
 		<add name="buffers_presence" type="BufferPresence" arr1="info \ vertex_buffer_count" since="32">used since PC</add>
 		<add name="mdl2 names" type="ZString" arr1="info \ mdl2_count"/>
 		for uac, vertex_buffer_count = 4 -> stream count (4 streams for rhino, + 1 static)
-		<add name="modelstream_names" type="ZString" arr1="info \ vertex_buffer_count" cond="info \ vertex_buffer_count" until="13"/>
+		# 1, 1 = 0 modelstreams
+		<add name="modelstream_names" type="ZString" arr1="info \ vertex_buffer_count - info \ stream_count" cond="info \ vertex_buffer_count" until="7"/>
+		<add name="modelstream_names" type="ZString" arr1="info \ vertex_buffer_count" cond="info \ vertex_buffer_count" since="13" until="13"/>
 		no clue about the versioning here, need more samples with newer and more streams other than JWE2 gst_parktour_trucks
 		<add name="modelstream_names" type="ZString" arr1="info \ stream_count" cond="info \ vertex_buffer_count" since="39"/>
 		<add name="buffer 0" type="Buffer0" arg="info" />
@@ -270,6 +271,7 @@
 		<add name="buffer_infos" type="BufferInfo" arr1="info \ vertex_buffer_count" />
 		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2_count"/>
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
+<!--		<add name="models_reader" type="ModelReaderDummy" >handles interleaved (old) or separate (new) styles for models and bone infos</add>-->
 		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>
 		many ZTUAC models have a big undecoded array of uints here
 		the vertex and face data buffers follow
@@ -279,11 +281,16 @@
 		This reads and assigns models to each model_info that is passed to it
 	</compound>
 
+<!--	<compound name="ModelReaderDummy">-->
+<!--		<add name="bone_info_start" type="uint" ></add>-->
+<!--		<add name="bone_infos" type="uint" arr1="0"></add>-->
+<!--	</compound>-->
+
 	<compound name="Buffer0" >
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
 		<add name="names padding" padding="1" type="ubyte" since="50" arr1="(4 - ( names \ io_size #MOD# 4)) % 4">align to 4</add>
-		<add name="zt streams header" type="StreamsZTHeader" vercond="#ZTUAC#" arg="#ARG#" />
+		<add name="zt streams header" type="StreamsZTHeader" until="13" arg="#ARG#" />
 	</compound>
 
 	<compound name="StreamsZTHeader" >
@@ -331,6 +338,8 @@
 	<compound name="ModelInfo" inherit="MemStruct">
 		Linked to by the ms2, part of an array
 		120 bytes for JWE2
+		<add name="unk dla" type="uint64" until="7">??</add>
+
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="unk float a" type="float" since="47">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
@@ -357,14 +366,16 @@
 		<add name="objects" type="ArrayPointer" template="Object" arg="num_objects"/>
 		<add name="meshes" type="ArrayPointer" template="NewMeshData" arg="num_meshes"/>
 		<add name="first_materials" type="Pointer">actually points to the start of ModelInfos array</add>
-		<add name="zeros ztuac" type="uint64" arr1="4" vercond="#ZTUAC#"/>
+		<add name="zeros" type="uint64" arr1="4" vercond="#ZTUAC#"/>
+		<add name="zeros" type="uint64" arr1="2" vercond="#DLA#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
-		<add name="zero 0" type="uint64"/>
+		<add name="zero 0" type="uint64" vercond="!#DLA#"/>
 		<add name="zero 1" type="uint64" vercond="!#PC#"/>
 		<add name="zero 2" type="uint64" since="47"/>
 	</compound>
 
 	<compound name="BoneInfo">
+		# 858 in DLA c_cl_thread_.ms2
 		<add name="name count" type="uint64" >counts the names</add>
 		<add name="knownff" type="short" since="32" >this is always FFFF for now</add>
 		<add name="zero0" type="short" since="32" >this is always 0000 for now</add>
@@ -375,7 +386,7 @@
 		<add name="bone count" type="uint64"/>
 		<add name="unknown40" type="uint64"/>
 		<add name="parents count" type="uint64"/>
-		<add name="extra zero" type="uint64" vercond="#ZTUAC# #OR# #PZ# #OR# #JWE2#">not PC, JWE1</add>
+		<add name="extra zero" type="uint64" vercond="#DLA# #OR# #ZTUAC# #OR# #PZ# #OR# #JWE2#">not PC, JWE1</add>
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" >always 1</add>
@@ -394,12 +405,14 @@
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
 		<add name="bones" type="Bone" arr1="bone count"/>
 		<add name="parents" type="ubyte" arr1="parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
-		<add name="parents_padding" padding="1" type="byte" arr1="(8 - (parents count % 8)) % 8" vercond="!#ZTUAC#">zeros</add>
-		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" vercond="!#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
-		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" vercond="#ZTUAC#" >enumerates all bone indices, 4 may be flags</add>
-		<add name="ZT weirdness" type="short" arr1="10" vercond="#ZTUAC#">zeros</add>
+		<add name="parents_padding" padding="1" type="byte" arr1="(8 - (parents count % 8)) % 8" since="32">zeros</add>
+		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" >enumerates all bone indices, 4 may be flags</add>
+		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</add>
+		<add name="weirdness" type="byte" arr1="10" vercond="#DLA#">zeros</add>
+		<add name="weirdness" type="short" arr1="10" vercond="#ZTUAC#">zeros</add>
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
+
 <!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
 		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>
 <!--		<add name="NewPcStruct" type="NewPcStruct" cond="unk_pc_count" >ragdoll links?</add>-->
@@ -486,16 +499,18 @@
 		<add name="count_0" type="uint"/>
 		<add name="count_1" type="uint"/>
 		<add name="count_2" type="uint"/>
-		<add name="zeros extra" type="uint" arr1="2" until="32">0s, might be related to count 7 in PC</add>
+		<add name="zero 0" type="uint" until="32"/>
+		<add name="zero 1" type="uint" since="13" until="32"/>
 		<add name="namespace length" type="uint" >size of the name buffer below, including trailing zeros</add>
 		<add name="zeros 0" type="uint" arr1="5" >0s</add>
 		<add name="pc count" type="uint" >0 or 1</add>
 		<add name="zeros 1" type="uint" arr1="7">0s</add>
-		<add name="extra zeros pc" type="uint" arr1="4" until="32">0s</add>
-		<add name="ones" type="uint64" arr1="2" >1, 1</add>
+		<add name="extra zeros 2" type="uint" arr1="4" since="13"  until="32">0s</add>
+		<add name="ones" type="uint64" arr1="2" since="13" >1, 1</add>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
 		<add name="joint entry count" type="uint" >0</add>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
+		<add name="zeros 3" type="uint" until="7" >usually 0s</add>
 		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
 		<add name="zeros 3" type="uint64" arr1="joint_count" since="47">might be pointers</add>

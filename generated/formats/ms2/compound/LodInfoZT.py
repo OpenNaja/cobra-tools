@@ -4,6 +4,10 @@ from generated.context import ContextReference
 
 class LodInfoZT:
 
+	"""
+	DLA, ZTUAC: 16 bytes
+	"""
+
 	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

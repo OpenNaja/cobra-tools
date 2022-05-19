@@ -93,11 +93,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# logging.info(self)
 			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
-			for bone_info in self.models_reader.bone_infos:
-				self.assign_bone_names(bone_info)
-				self.assign_joints(bone_info)
 
-			self.lookup_material()
+			try:
+				for bone_info in self.models_reader.bone_infos:
+					self.assign_bone_names(bone_info)
+					self.assign_joints(bone_info)
+				self.lookup_material()
+			except:
+				logging.warning(f"Material lookup failed")
+				traceback.print_exc()
 
 			if read_bytes:
 				stream.seek(self.buffer_0.io_start)
