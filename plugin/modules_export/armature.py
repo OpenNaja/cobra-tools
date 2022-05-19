@@ -5,7 +5,7 @@ import mathutils
 
 from generated.formats.ms2.compound.Bone import Bone
 from generated.formats.ms2.compound.Matrix44 import Matrix44
-from generated.formats.ovl.versions import is_ztuac, is_jwe
+from generated.formats.ms2.versions import is_ztuac, is_jwe, is_dla
 from plugin.modules_export.collision import export_hitcheck
 from plugin.utils import matrix_util
 from plugin.utils.matrix_util import bone_name_for_ovl
@@ -91,7 +91,8 @@ def handle_transforms(ob, me, apply=True):
 
 
 def export_bones_custom(b_armature_ob, model_info):
-	corrector = matrix_util.Corrector(is_ztuac(model_info.context))
+	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
+	corrector = matrix_util.Corrector(is_old_orientation)
 	# now get bone names from b_armature.data
 	if is_jwe(model_info.context):
 		b_bone_names = ovl_bones_jwe(b_armature_ob)

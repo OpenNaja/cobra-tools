@@ -5,7 +5,7 @@ import traceback
 import bpy
 import mathutils
 
-from generated.formats.ms2.versions import is_ztuac
+from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_import.collision import import_collider
 
 from plugin.utils.object import create_ob, link_to_collection
@@ -17,7 +17,8 @@ def import_armature(scene, model_info, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature.
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
-	corrector = matrix_util.Corrector(is_ztuac(model_info.context))
+	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
+	corrector = matrix_util.Corrector(is_old_orientation)
 	bone_info = model_info.bone_info
 	logging.debug(bone_info)
 	if bone_info:
