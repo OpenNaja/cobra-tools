@@ -3,13 +3,13 @@ from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 
 
-class ModelFlagZT(BasicBitfield):
+class ModelFlagDLA(BasicBitfield):
 
 	"""
 	Determines the data held by a mesh.
 	"""
-	stripify = BitfieldMember(pos=6, mask=0x40, return_type=bool)
-	repeat_tris = BitfieldMember(pos=9, mask=0x200, return_type=bool)
+	vertex_offset = BitfieldMember(pos=1, mask=0x2, return_type=bool)
+	stripify = BitfieldMember(pos=5, mask=0x20, return_type=bool)
 
 	def set_defaults(self):
 		pass

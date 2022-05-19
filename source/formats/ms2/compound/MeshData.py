@@ -97,7 +97,7 @@ class MeshData:
 
 	def update_shell_count(self):
 		# 853 in aardvark is a shell mesh, but has no tri shells
-		if self.flag.repeat_tris:
+		if hasattr(self.flag, "repeat_tris") and self.flag.repeat_tris:
 			self.shell_count = 6
 		else:
 			self.shell_count = 1
@@ -107,14 +107,10 @@ class MeshData:
 		if hasattr(self.flag, "stripify") and self.flag.stripify:
 			return triangulate((self.tri_indices,))
 		else:
-			# todo - DLA stripify field is different
-			try:
-				# create non-overlapping tris from flattened tri indices
-				tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
-				# reverse each tri to account for the flipped normals from mirroring in blender
-				return np.flip(tris_raw, axis=-1)
-			except:
-				return triangulate((self.tri_indices,))
+			# create non-overlapping tris from flattened tri indices
+			tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
+			# reverse each tri to account for the flipped normals from mirroring in blender
+			return np.flip(tris_raw, axis=-1)
 
 	@tris.setter
 	def tris(self, b_tris):

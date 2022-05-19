@@ -44,10 +44,18 @@
 	</bitfield>
 
 	<bitfield name="ModelFlagZT" storage="uint">
-		todo - DLA seems to have a different bitfield, meaning of stripify is different here - currently hacked in MeshData.py triangulate
 		Determines the data held by a mesh.
 		<member width="1" pos="6" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
 		<member width="1" pos="9" name="repeat tris" type="bool">repeats the tri array 5 times</member>
+	</bitfield>
+
+	<bitfield name="ModelFlagDLA" storage="uint">
+		Determines the data held by a mesh.
+		<member width="1" pos="1" name="vertex_offset" type="bool">seen in DLA - if false, vertex_offset = -1</member>
+		todo - check if this is stripify, meaning of stripify is different here - currently hacked in MeshData.py triangulate
+		pos 2 would also qualify 36 0b100100, 38 0b100110
+		<member width="1" pos="5" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
+<!--		<member width="1" pos="9" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
 	</bitfield>
 
 	<bitfield name="RenderFlag" storage="ushort">
@@ -239,7 +247,8 @@
 		<add name="one 0" type="ushort">x*16 = offset in buffer 2</add>
 		<add name="one 1" type="ushort" > ?</add>
 		<add name="poweroftwo" type="ushort" vercond=""> ?</add>
-		<add name="flag" type="ModelFlagZT">bitfield</add>
+		<add name="flag" type="ModelFlagDLA" until="7">bitfield</add>
+		<add name="flag" type="ModelFlagZT" since="13">bitfield</add>
 		<add name="zero uac" type="uint"  >always zero</add>
 	</compound>
 

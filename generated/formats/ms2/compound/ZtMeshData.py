@@ -5,6 +5,7 @@ import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
 from source.formats.base.basic import fmt_member
+from generated.formats.ms2.bitfield.ModelFlagDLA import ModelFlagDLA
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 from generated.formats.ms2.compound.MeshData import MeshData
 
@@ -60,6 +61,9 @@ class ZtMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# bitfield
+		self.flag = ModelFlagDLA(self.context, 0, None)
+
+		# bitfield
 		self.flag = ModelFlagZT(self.context, 0, None)
 
 		# always zero
@@ -80,7 +84,10 @@ class ZtMeshData(MeshData):
 		self.one_0 = 0
 		self.one_1 = 0
 		self.poweroftwo = 0
-		self.flag = ModelFlagZT(self.context, 0, None)
+		if self.context.version <= 7:
+			self.flag = ModelFlagDLA(self.context, 0, None)
+		if self.context.version >= 13:
+			self.flag = ModelFlagZT(self.context, 0, None)
 		self.zero_uac = 0
 
 	def read(self, stream):
@@ -108,7 +115,10 @@ class ZtMeshData(MeshData):
 		instance.one_0 = stream.read_ushort()
 		instance.one_1 = stream.read_ushort()
 		instance.poweroftwo = stream.read_ushort()
-		instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
+		if instance.context.version <= 7:
+			instance.flag = ModelFlagDLA.from_stream(stream, instance.context, 0, None)
+		if instance.context.version >= 13:
+			instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
 		instance.zero_uac = stream.read_uint()
 
 	@classmethod
@@ -126,7 +136,10 @@ class ZtMeshData(MeshData):
 		stream.write_ushort(instance.one_0)
 		stream.write_ushort(instance.one_1)
 		stream.write_ushort(instance.poweroftwo)
-		ModelFlagZT.to_stream(stream, instance.flag)
+		if instance.context.version <= 7:
+			ModelFlagDLA.to_stream(stream, instance.flag)
+		if instance.context.version >= 13:
+			ModelFlagZT.to_stream(stream, instance.flag)
 		stream.write_uint(instance.zero_uac)
 
 	@classmethod
