@@ -4,6 +4,7 @@
 
     <token name="verexpr" attrs="vercond">
 		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE1</verexpr>
+		<verexpr token="#DLA#" string="(#VER# #EQ# 7)">DLA</verexpr>
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 32)">PC</verexpr>
 		<verexpr token="#JWE#" string="((#VER# #EQ# 47) #OR# (#VER# #EQ# 39))">JWE1</verexpr>

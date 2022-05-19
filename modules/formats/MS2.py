@@ -147,7 +147,6 @@ class Ms2Loader(BaseFile):
 		logging.info(f"Writing {name}")
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		ms2_header = struct.pack("<I", len(bone_infos))
-
 		# write the ms2 file
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
