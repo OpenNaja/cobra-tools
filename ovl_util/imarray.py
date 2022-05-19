@@ -43,7 +43,10 @@ def wrapper(png_file_path, size_info, ovl):
 		must_flip_gb = False
 	h = size_info.height
 	w = size_info.width
-	array_size = size_info.array_size
+	if hasattr(size_info, "array_size"):
+		array_size = size_info.array_size
+	else:
+		array_size = 1
 	# hack since some games have this set to 0 sometimes
 	array_size = max(1, array_size)
 	if array_size > 1:

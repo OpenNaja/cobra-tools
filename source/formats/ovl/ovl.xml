@@ -36,8 +36,9 @@
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
+<!--        <add name="Names_pad" type="ubyte" arr1="(16 - ((Names \ io_start + Names \ io_size) #MOD# 16)) #MOD# 16" until="15">used in DLA</add>-->
+        <add name="Names_pad" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes">Array of MimeEntry objects that represent a mime type (file extension) each. </add>
-        <add name="mimes_pad" type="ubyte" arr1="(16 - ((mimes \ io_start + mimes \ io_size) #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20" >?</add>
         <add name="triplets_pad" type="PadAlign" template="triplets" arg="4" since="20" >?</add>
 <!--        <add name="triplets pad" type="ubyte" arr1="(4 - ((num_triplets * 3) #MOD# 4)) #MOD# 4" since="20" >?</add>-->

@@ -56,11 +56,11 @@
 
 	<compound name="TextureInfo" inherit="GenericInfo">
 		part of fgm fragment, per texture involved
-		<add name="value" type="uint64" arr1="1" cond="dtype == 8" vercond="!#ZTUAC#">stores index into shader and array index of texture</add>
-		<add name="value" type="Color" arr1="2" cond="dtype == 7" vercond="!#ZTUAC#">Stores 2 rgba colors</add>
-		<add name="value" type="uint" arr1="1" cond="dtype == 8" vercond="#ZTUAC#">stores index into shader</add>
-		<add name="value" type="Color" arr1="1" cond="dtype == 7" vercond="#ZTUAC#">Stores rgba color</add>
-		<add name="unused" type="uint64" vercond="!#ZTUAC#">unused</add>
+		<add name="value" type="uint64" arr1="1" cond="dtype == 8" since="18">stores index into shader and array index of texture</add>
+		<add name="value" type="Color" arr1="2" cond="dtype == 7" since="18">Stores 2 rgba colors</add>
+		<add name="value" type="uint" arr1="1" cond="dtype == 8" until="17">stores index into shader</add>
+		<add name="value" type="Color" arr1="1" cond="dtype == 7" until="17">Stores rgba color</add>
+		<add name="unused" type="uint64" since="18">unused</add>
     </compound>
 
 	<compound name="AttributeInfo" inherit="GenericInfo">

@@ -37,15 +37,15 @@ class TextureInfo(GenericInfo):
 			self.set_defaults()
 
 	def set_defaults(self):
-		if not (self.context.version == 17) and self.dtype == 8:
+		if self.context.version >= 18 and self.dtype == 8:
 			self.value = numpy.zeros((1,), dtype=numpy.dtype('uint64'))
-		if not (self.context.version == 17) and self.dtype == 7:
+		if self.context.version >= 18 and self.dtype == 7:
 			self.value = Array((2,), Color, self.context, 0, None)
-		if self.context.version == 17 and self.dtype == 8:
+		if self.context.version <= 17 and self.dtype == 8:
 			self.value = numpy.zeros((1,), dtype=numpy.dtype('uint32'))
-		if self.context.version == 17 and self.dtype == 7:
+		if self.context.version <= 17 and self.dtype == 7:
 			self.value = Array((1,), Color, self.context, 0, None)
-		if not (self.context.version == 17):
+		if self.context.version >= 18:
 			self.unused = 0
 
 	def read(self, stream):
@@ -61,29 +61,29 @@ class TextureInfo(GenericInfo):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		if not (instance.context.version == 17) and instance.dtype == 8:
+		if instance.context.version >= 18 and instance.dtype == 8:
 			instance.value = stream.read_uint64s((1,))
-		if not (instance.context.version == 17) and instance.dtype == 7:
+		if instance.context.version >= 18 and instance.dtype == 7:
 			instance.value = Array.from_stream(stream, (2,), Color, instance.context, 0, None)
-		if instance.context.version == 17 and instance.dtype == 8:
+		if instance.context.version <= 17 and instance.dtype == 8:
 			instance.value = stream.read_uints((1,))
-		if instance.context.version == 17 and instance.dtype == 7:
+		if instance.context.version <= 17 and instance.dtype == 7:
 			instance.value = Array.from_stream(stream, (1,), Color, instance.context, 0, None)
-		if not (instance.context.version == 17):
+		if instance.context.version >= 18:
 			instance.unused = stream.read_uint64()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		if not (instance.context.version == 17) and instance.dtype == 8:
+		if instance.context.version >= 18 and instance.dtype == 8:
 			stream.write_uint64s(instance.value)
-		if not (instance.context.version == 17) and instance.dtype == 7:
+		if instance.context.version >= 18 and instance.dtype == 7:
 			Array.to_stream(stream, instance.value, (2,), Color, instance.context, 0, None)
-		if instance.context.version == 17 and instance.dtype == 8:
+		if instance.context.version <= 17 and instance.dtype == 8:
 			stream.write_uints(instance.value)
-		if instance.context.version == 17 and instance.dtype == 7:
+		if instance.context.version <= 17 and instance.dtype == 7:
 			Array.to_stream(stream, instance.value, (1,), Color, instance.context, 0, None)
-		if not (instance.context.version == 17):
+		if instance.context.version >= 18:
 			stream.write_uint64(instance.unused)
 
 	@classmethod
