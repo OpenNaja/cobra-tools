@@ -104,6 +104,9 @@ class Header(GenericHeader):
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
 		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
 
+		# used in DLA
+		self.mimes_pad = numpy.zeros(((16 - ((self.mimes.io_start + self.mimes.io_size) % 16)) % 16,), dtype=numpy.dtype('uint8'))
+
 		# ?
 		self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
 
@@ -165,6 +168,8 @@ class Header(GenericHeader):
 		self.reserved = numpy.zeros((12,), dtype=numpy.dtype('uint32'))
 		self.names = ZStringBuffer(self.context, self.len_names, None)
 		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
+		if self.context.version <= 15:
+			self.mimes_pad = numpy.zeros(((16 - ((self.mimes.io_start + self.mimes.io_size) % 16)) % 16,), dtype=numpy.dtype('uint8'))
 		if self.context.version >= 20:
 			self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
 		if self.context.version >= 20:
@@ -219,6 +224,8 @@ class Header(GenericHeader):
 		instance.reserved = stream.read_uints((12,))
 		instance.names = ZStringBuffer.from_stream(stream, instance.context, instance.len_names, None)
 		instance.mimes = Array.from_stream(stream, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
+		if instance.context.version <= 15:
+			instance.mimes_pad = stream.read_ubytes(((16 - ((instance.mimes.io_start + instance.mimes.io_size) % 16)) % 16,))
 		if instance.context.version >= 20:
 			instance.triplets = Array.from_stream(stream, (instance.num_triplets,), Triplet, instance.context, 0, None)
 			instance.triplets_pad = PadAlign.from_stream(stream, instance.context, 4, instance.triplets)
@@ -262,6 +269,8 @@ class Header(GenericHeader):
 		stream.write_uints(instance.reserved)
 		ZStringBuffer.to_stream(stream, instance.names)
 		Array.to_stream(stream, instance.mimes, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
+		if instance.context.version <= 15:
+			stream.write_ubytes(instance.mimes_pad)
 		if instance.context.version >= 20:
 			Array.to_stream(stream, instance.triplets, (instance.num_triplets,), Triplet, instance.context, 0, None)
 			PadAlign.to_stream(stream, instance.triplets_pad)
@@ -323,6 +332,7 @@ class Header(GenericHeader):
 		s += f'\n	* reserved = {fmt_member(self.reserved, indent+1)}'
 		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
 		s += f'\n	* mimes = {fmt_member(self.mimes, indent+1)}'
+		s += f'\n	* mimes_pad = {fmt_member(self.mimes_pad, indent+1)}'
 		s += f'\n	* triplets = {fmt_member(self.triplets, indent+1)}'
 		s += f'\n	* triplets_pad = {fmt_member(self.triplets_pad, indent+1)}'
 		s += f'\n	* files = {fmt_member(self.files, indent+1)}'
