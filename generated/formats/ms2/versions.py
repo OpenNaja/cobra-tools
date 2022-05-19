@@ -71,12 +71,12 @@ def set_jwe2(context):
 
 
 def is_old(context):
-	if context.version in (13, 32):
+	if context.version in (7, 13, 32):
 		return True
 
 
 def set_old(context):
-	context.version = 13
+	context.version = 7
 
 
 def is_ztuac(context):

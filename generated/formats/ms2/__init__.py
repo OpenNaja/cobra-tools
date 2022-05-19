@@ -98,6 +98,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				for bone_info in self.models_reader.bone_infos:
 					self.assign_bone_names(bone_info)
 					self.assign_joints(bone_info)
+			except:
+				logging.warning(f"Joints or bones lookup failed")
+				traceback.print_exc()
+			try:
 				self.lookup_material()
 			except:
 				logging.warning(f"Material lookup failed")
@@ -129,22 +133,23 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def load_mesh(self):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 			if is_old(self.info):
-				# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
-				sum_uv_dict = {}
-				for mesh in model_info.model.meshes:
-					if mesh.stream_index not in sum_uv_dict:
-						sum_uv_dict[mesh.stream_index] = 0
-					sum_uv_dict[mesh.stream_index] += mesh.vertex_count
-				last_vertex_offset = 0
 				# sort by lod, read those with offset first
 				# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
 				# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: x[1].vertex_offset)
 				sorted_meshes = list(enumerate(model_info.model.meshes))
+				# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
+				sum_uv_dict = {}
 				for i, mesh in sorted_meshes:
-					print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
+					if mesh.stream_index not in sum_uv_dict:
+						sum_uv_dict[mesh.stream_index] = 0
+					sum_uv_dict[mesh.stream_index] += mesh.vertex_count
+
+				last_vertex_offset = 0
+				# for i, mesh in sorted_meshes:
+				# 	print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
 				try:
 					for i, mesh in sorted_meshes:
-						logging.info(f"Populating mesh {i}")
+						logging.info(f"Populating mesh {i} {sum_uv_dict}")
 						last_vertex_offset = mesh.populate(self, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
 				except:
 					traceback.print_exc()
