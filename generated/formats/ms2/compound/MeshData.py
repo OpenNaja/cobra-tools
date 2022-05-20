@@ -139,8 +139,6 @@ class MeshData(MemStruct):
 		self.end_of_vertices = 0
 		self.stream = ms2_file.streams[self._stream_index]
 		self.stream_info = ms2_file.buffer_infos[self._stream_index]
-		logging.debug(f"Tri info address {self.tri_info_offset}")
-		logging.debug(f"Vertex info address {self.vert_info_offset}")
 		# print(self)
 		self.base = base
 		self.shapekeys = None

@@ -232,6 +232,8 @@ class ZtMeshData(MeshData):
 		# logging.debug(f"PC size of vcol+uv: {self.dt_colors.itemsize}")
 
 	def read_verts(self):
+		logging.debug(f"Tri info address {self.tri_info_offset}")
+		logging.debug(f"Vertex info address {self.vert_info_offset}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# create arrays for the unpacked ms2_file
