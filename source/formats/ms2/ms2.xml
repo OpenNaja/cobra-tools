@@ -132,11 +132,12 @@
 		the following two ptrs are not used in PC
 		<add name="buffer_infos" type="ArrayPointer" template="BufferInfo" arg="vertex_buffer_count">ms2's static buffer_info or empty (if no buffers)</add>
 		<add name="model_infos" type="ArrayPointer" template="ModelInfo" arg="mdl2 count">one for each mdl2</add>
-		already used in PC
+		already used in DLA
 		<add name="buffers_presence" type="ArrayPointer" template="BufferPresence" arg="vertex_buffer_count">data as in get_buffer_presence()</add>
 	</compound>
 
 	<compound name="BufferPresence">
+		in DLA, this can also be a dependency to a model2stream
 		<add name="flag" type="int" >-1 for a static buffer, 0 for streamed buffer; may be stream index</add>
 		<add name="zero" type="int"/>
 	</compound>

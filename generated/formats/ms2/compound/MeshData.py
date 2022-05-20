@@ -130,13 +130,13 @@ class MeshData(MemStruct):
 	
 	@property
 	def _stream_index(self):
-		logging.debug(f"Using stream {self.stream_index}")
+		# logging.debug(f"Using stream {self.stream_index}")
 		return self.stream_index
 
 	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
 		self.last_vertex_offset = last_vertex_offset
-		self.new_vertex_offset = 0
+		self.end_of_vertices = 0
 		self.stream = ms2_file.streams[self._stream_index]
 		self.stream_info = ms2_file.buffer_infos[self._stream_index]
 		logging.debug(f"Tri info address {self.tri_info_offset}")
@@ -147,7 +147,7 @@ class MeshData(MemStruct):
 		self.read_verts()
 		self.read_tris()
 		# self.validate_tris()
-		return self.new_vertex_offset
+		return self.end_of_vertices
 	
 	def write_verts(self, stream):
 		stream.write(self.verts_data.tobytes())

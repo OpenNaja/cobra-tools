@@ -187,11 +187,11 @@ class Ms2Loader(BaseFile):
 				outfile.write(stream.getvalue())
 				outfile.write(bone_infos)
 				outfile.write(verts)
-		m = Ms2File()
-		m.load(out_path)
-		m.load(out_path, read_editable=True)
-		# m.save(out_path+"_.ms2")
-		print(m)
+		# m = Ms2File()
+		# m.load(out_path)
+		# m.load(out_path, read_editable=True)
+		# # m.save(out_path+"_.ms2")
+		# print(m)
 		return out_paths
 	
 	def get_ms2_buffer_datas(self):

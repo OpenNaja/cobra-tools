@@ -149,7 +149,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# 	print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
 				try:
 					for i, mesh in sorted_meshes:
-						logging.info(f"Populating mesh {i} {sum_uv_dict}")
+						logging.info(f"Populating mesh {i}")
 						last_vertex_offset = mesh.populate(self, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
 				except:
 					traceback.print_exc()

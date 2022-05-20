@@ -4,6 +4,10 @@ from generated.context import ContextReference
 
 class BufferPresence:
 
+	"""
+	in DLA, this can also be a dependency to a model2stream
+	"""
+
 	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

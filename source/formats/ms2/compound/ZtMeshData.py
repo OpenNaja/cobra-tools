@@ -54,8 +54,8 @@ class ZtMeshData:
 		self.dt = np.dtype(dt)
 		self.dt_colors = np.dtype(dt_colors)
 		self.update_shell_count()
-		logging.debug(f"PC size of vertex: {self.dt.itemsize}")
-		logging.debug(f"PC size of vcol+uv: {self.dt_colors.itemsize}")
+		# logging.debug(f"PC size of vertex: {self.dt.itemsize}")
+		# logging.debug(f"PC size of vcol+uv: {self.dt_colors.itemsize}")
 
 	def read_verts(self):
 		# get dtype according to which the vertices are packed
@@ -64,20 +64,26 @@ class ZtMeshData:
 		self.init_arrays()
 		# read a vertices of this mesh
 		if 4294967295 == self.vertex_offset:
-			logging.warning(f"vertex_offset is -1, seeking to last vertex offset {self.last_vertex_offset}")
+			logging.warning(f"vertex_offset is -1")
+			# return
 			if self.last_vertex_offset == 0:
 				logging.warning(f"Zero, starting at buffer start {self.stream.tell()}")
 			else:
 				self.stream.seek(self.last_vertex_offset)
 		else:
 			self.stream.seek(self.vertex_offset)
-		logging.debug(f"{self.vertex_count} VERTS at {self.stream.tell()}")
+		self.start_of_vertices = self.stream.tell()
+		# logging.debug(f"{self.vertex_count} VERTS at {self.stream.tell()}")
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		self.stream.readinto(self.verts_data)
-		self.new_vertex_offset = self.stream.tell()
+		self.end_of_vertices = self.stream.tell()
+		size = self.end_of_vertices - self.start_of_vertices
+		logging.info(
+			f"{self.vertex_count} vertices from {self.start_of_vertices:5} to {self.end_of_vertices:5} "
+			f"in stream {self._stream_index}, size {size:5}")
 		# print(self.verts_data.shape)
 		self.stream.seek(self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
-		logging.debug(f"UV at {self.stream.tell()}")
+		# logging.debug(f"UV at {self.stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
 		self.stream.readinto(self.colors_data)
 		# first cast to the float uvs array so unpacking doesn't use int division
