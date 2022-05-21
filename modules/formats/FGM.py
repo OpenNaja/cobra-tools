@@ -9,6 +9,7 @@ class FgmLoader(MemStructLoader):
 
 	def create(self):
 		super().create()
+		print(self.header)
 		self.create_data_entry(self.root_entry, (self.update_names_buffer(),))
 
 	@staticmethod
@@ -51,5 +52,6 @@ class FgmLoader(MemStructLoader):
 		self.file_entry.dependencies.clear()
 		# print(self.file_entry.dependencies)
 		super().load(file_path)
+		print(self.header)
 		self.root_entry.data_entry.update_data((self.update_names_buffer(),))
 		# print(self.file_entry.dependencies)

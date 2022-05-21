@@ -1,8 +1,8 @@
 from source.formats.base.basic import fmt_member
-import numpy
 from generated.array import Array
 from generated.formats.fgm.compound.Color import Color
 from generated.formats.fgm.compound.GenericInfo import GenericInfo
+from generated.formats.fgm.compound.TexIndex import TexIndex
 
 
 class TextureInfo(GenericInfo):
@@ -18,15 +18,10 @@ class TextureInfo(GenericInfo):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# stores index into shader and array index of texture
-		self.value = numpy.zeros((1,), dtype=numpy.dtype('uint64'))
+		self.value = Array((1,), TexIndex, self.context, 0, None)
 
 		# Stores 2 rgba colors
 		self.value = Array((2,), Color, self.context, 0, None)
-
-		# stores index into shader
-		self.value = numpy.zeros((1,), dtype=numpy.dtype('uint32'))
 
 		# Stores rgba color
 		self.value = Array((1,), Color, self.context, 0, None)
@@ -37,12 +32,10 @@ class TextureInfo(GenericInfo):
 			self.set_defaults()
 
 	def set_defaults(self):
-		if self.context.version >= 18 and self.dtype == 8:
-			self.value = numpy.zeros((1,), dtype=numpy.dtype('uint64'))
+		if self.dtype == 8:
+			self.value = Array((1,), TexIndex, self.context, 0, None)
 		if self.context.version >= 18 and self.dtype == 7:
 			self.value = Array((2,), Color, self.context, 0, None)
-		if self.context.version <= 17 and self.dtype == 8:
-			self.value = numpy.zeros((1,), dtype=numpy.dtype('uint32'))
 		if self.context.version <= 17 and self.dtype == 7:
 			self.value = Array((1,), Color, self.context, 0, None)
 		if self.context.version >= 18:
@@ -61,12 +54,10 @@ class TextureInfo(GenericInfo):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		if instance.context.version >= 18 and instance.dtype == 8:
-			instance.value = stream.read_uint64s((1,))
+		if instance.dtype == 8:
+			instance.value = Array.from_stream(stream, (1,), TexIndex, instance.context, 0, None)
 		if instance.context.version >= 18 and instance.dtype == 7:
 			instance.value = Array.from_stream(stream, (2,), Color, instance.context, 0, None)
-		if instance.context.version <= 17 and instance.dtype == 8:
-			instance.value = stream.read_uints((1,))
 		if instance.context.version <= 17 and instance.dtype == 7:
 			instance.value = Array.from_stream(stream, (1,), Color, instance.context, 0, None)
 		if instance.context.version >= 18:
@@ -75,12 +66,10 @@ class TextureInfo(GenericInfo):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		if instance.context.version >= 18 and instance.dtype == 8:
-			stream.write_uint64s(instance.value)
+		if instance.dtype == 8:
+			Array.to_stream(stream, instance.value, (1,), TexIndex, instance.context, 0, None)
 		if instance.context.version >= 18 and instance.dtype == 7:
 			Array.to_stream(stream, instance.value, (2,), Color, instance.context, 0, None)
-		if instance.context.version <= 17 and instance.dtype == 8:
-			stream.write_uints(instance.value)
 		if instance.context.version <= 17 and instance.dtype == 7:
 			Array.to_stream(stream, instance.value, (1,), Color, instance.context, 0, None)
 		if instance.context.version >= 18:

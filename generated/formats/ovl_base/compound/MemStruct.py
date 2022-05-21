@@ -15,6 +15,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 ZERO = b"\x00"
 SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
 POOL_TYPE = "_pool_type"
+DTYPE = "dtype"
 XML_STR = "xml_string"
 DEPENDENCY_TAG = "dependency"
 
@@ -216,7 +217,13 @@ class MemStruct:
 		"""Sets the data from the XML to this MemStruct"""
 		# go over all fields of this MemStruct
 		# cast to tuple to avoid 'dictionary changed size during iteration'
-		for prop, val in tuple(vars(self).items()):
+		vars_dict = vars(self)
+		# special case - handle dtype first to set defaults on struct before setting any other data
+		if DTYPE in vars_dict:
+			self._from_xml(self, elem, DTYPE, vars_dict[DTYPE])
+			logging.debug(f"Set defaults on {self.__class__.__name__}")
+			self.set_defaults()
+		for prop, val in tuple(vars_dict.items()):
 			# special case
 			if prop == "name" and prop in elem.attrib:
 				self.name = elem.attrib[prop]
@@ -277,7 +284,7 @@ class MemStruct:
 			self._from_xml(val, elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, Array):
 			# create array elements
-			# print(f"array, len {len(elem)}")
+			# print(f"array {prop}, len {len(elem)}")
 			val[:] = [val.dtype(self._context, 0, val.template, set_default=False) for i in range(len(elem))]
 			# subelement with subelements
 			for subelem, member in zip(elem, val):
