@@ -196,11 +196,12 @@ class ModelReader:
 					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
 					model_info.bone_info.write(stream)
 					instance.write_hitcheck_verts(model_info.bone_info, stream)
-					if i + 1 < len(instance.bone_infos):
-						relative_offset = stream.tell() - instance.bone_info_start
-						padding = get_padding(relative_offset)
-						logging.debug(f"Writing padding {padding}")
-						stream.write(padding)
+					# PZ lion needs padding after last boneinfo, crashes if missing, adding probably won't hurt other cases
+					# if i + 1 < len(instance.bone_infos):
+					relative_offset = stream.tell() - instance.bone_info_start
+					padding = get_padding(relative_offset)
+					logging.debug(f"Writing padding {padding}")
+					stream.write(padding)
 					i += 1
 			instance.bone_info_size = stream.tell() - instance.bone_info_start
 		instance.io_size = stream.tell() - instance.io_start
