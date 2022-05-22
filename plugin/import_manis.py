@@ -18,18 +18,6 @@ def load_manis(file_path):
 	return data
 
 
-def get_armature():
-	src_armatures = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Armature]
-	# do we have armatures?
-	if src_armatures:
-		# see if one of these is selected -> get only that one
-		if len(src_armatures) > 1:
-			sel_armatures = [ob for ob in src_armatures if ob.select_get()]
-			if sel_armatures:
-				return sel_armatures[0]
-		return src_armatures[0]
-
-
 def create_anim(ob, anim_name):
 	action = bpy.data.actions.new(name=anim_name)
 	action.use_fake_user = True

@@ -44,7 +44,7 @@ def load(files=[], filepath="", set_fps=False):
 	scene.frame_start = 0
 	scene.frame_end = num_frames-1
 	print("Banis fps", fps)
-	ob = get_armature()
+	ob = get_armature(scene)
 
 	bones_table = sorted([(bone["index"], bone.name) for bone in ob.pose.bones])
 	bone_names = [tup[1] for tup in bones_table]

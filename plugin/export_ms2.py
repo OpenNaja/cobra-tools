@@ -12,10 +12,10 @@ from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.MaterialName import MaterialName
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2.compound.NewMeshData import NewMeshData
+from generated.formats.ms2 import Ms2File
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
-from generated.formats.ms2 import Ms2File
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.shell import get_collection, is_shell, is_fin, is_flipped
 
