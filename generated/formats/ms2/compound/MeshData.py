@@ -4,9 +4,6 @@ import math
 import numpy as np
 from plugin.utils.tristrip import triangulate
 
-FUR_OVERHEAD = 2
-
-
 from source.formats.base.basic import fmt_member
 import generated.formats.ms2.compound.BufferInfo
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -106,39 +103,19 @@ class MeshData(MemStruct):
 		s += '\n'
 		return s
 
-	# def read_bytes(self, buffer_2_offset, vertex_data_size, stream):
-	# 	"""Used to store raw binary vertex and tri data on the mesh, for merging"""
-	# 	# print("reading binary mesh data")
-	# 	# read a vertices of this mesh
-	# 	stream.seek(buffer_2_offset + self.vertex_offset)
-	# 	self.verts_bytes = stream.read(self.size_of_vertex * self.vertex_count)
-	# 	stream.seek(buffer_2_offset + vertex_data_size + self.tri_offset)
-	# 	self.tris_bytes = stream.read(2 * self.tri_index_count)
-	#
-	# def read_bytes_map(self, buffer_2_offset, stream):
-	# 	"""Used to document byte usage of different vertex formats"""
-	# 	# read a vertices of this mesh
-	# 	stream.seek(buffer_2_offset + self.vertex_offset)
-	# 	# read the packed ms2_array
-	# 	ms2_array = np.fromfile(stream, dtype=np.ubyte, count=self.size_of_vertex * self.vertex_count)
-	# 	ms2_array = ms2_array.reshape((self.vertex_count, self.size_of_vertex))
-	# 	self.bytes_max = np.max(ms2_array, axis=0)
-	# 	self.bytes_min = np.min(ms2_array, axis=0)
-	# 	self.bytes_mean = np.mean(ms2_array, axis=0)
-	# 	if self.size_of_vertex != 48:
-	# 		raise AttributeError(f"size_of_vertex != 48: size_of_vertex {self.size_of_vertex}, flag {self.flag}", )
-	
-	@property
-	def _stream_index(self):
+	# @property
+	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.stream_index}")
 		return self.stream_index
+
+	def assign_stream(self, buffer_infos):
+		self.stream_info = buffer_infos[self.get_stream_index()]
 
 	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
 		self.last_vertex_offset = last_vertex_offset
 		self.end_of_vertices = 0
-		self.stream = ms2_file.streams[self._stream_index]
-		self.stream_info = ms2_file.buffer_infos[self._stream_index]
+		self.assign_stream(ms2_file.buffer_infos)
 		# print(self)
 		self.base = base
 		self.shapekeys = None
@@ -146,9 +123,21 @@ class MeshData(MemStruct):
 		self.read_tris()
 		# self.validate_tris()
 		return self.end_of_vertices
-	
-	def write_verts(self, stream):
-		stream.write(self.verts_data.tobytes())
+
+	def write_data(self):
+		# write to the stream_info that has been assigned to mesh
+		self.vertex_offset = self.stream_info.verts.tell()
+		self.tri_offset = self.stream_info.tris.tell()
+		self.vertex_count = len(self.verts_data)
+		self.tri_index_count = len(self.tri_indices) * self.shell_count
+		# write vertices
+		self.stream_info.verts.write(self.verts_data.tobytes())
+		# write tris
+		tri_bytes = self.tri_indices.tobytes()
+		# extend tri array according to shell count
+		logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
+		for shell in range(self.shell_count):
+			self.stream_info.tris.write(tri_bytes)
 
 	@property
 	def tris_address(self):
@@ -156,21 +145,14 @@ class MeshData(MemStruct):
 
 	def read_tris(self):
 		# read all tri indices for this mesh, but only as many as needed if there are shells
-		self.stream.seek(self.tris_address)
+		self.stream_info.stream.seek(self.tris_address)
 		index_count = self.tri_index_count // self.shell_count
-		logging.debug(f"Reading {index_count} indices at {self.stream.tell()}")
+		logging.debug(f"Reading {index_count} indices at {self.stream_info.stream.tell()}")
 		self.tri_indices = np.empty(dtype=np.uint16, shape=index_count)
-		self.stream.readinto(self.tri_indices)
+		self.stream_info.stream.readinto(self.tri_indices)
 		# check if there's no empty value left in the array
 		# if len(self.tri_indices) != index_count:
 		# 	raise BufferError(f"{len(self.tri_indices)} were read into tri index buffer, should have {index_count}")
-
-	def write_tris(self, stream):
-		tri_bytes = self.tri_indices.tobytes()
-		# extend tri array according to shell count
-		logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
-		for shell in range(self.shell_count):
-			stream.write(tri_bytes)
 
 	@property
 	def lod_index(self, ):

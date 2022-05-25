@@ -113,63 +113,54 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
-
-			stream.seek(self.buffer_2_offset)
-			verts_bytes = stream.read()
-		self.streams = []
-		for modelstream_name in self.modelstream_names:
-			modelstream_path = os.path.join(self.dir, f"{modelstream_name}.model2stream")
-			logging.info(f"Loading {modelstream_path}")
-			with open(modelstream_path, "rb") as modelstream_reader:
-				modelstream_stream = ConvStream(modelstream_reader.read())
-				self.streams.append(modelstream_stream)
-		self.streams.append(ConvStream(verts_bytes))
+			else:
+				stream.seek(self.buffer_2_offset)
+				self.buffer_2_bytes = stream.read()
+		# attach the streams to each buffer_info
+		for buffer_info, modelstream_name in zip(self.buffer_infos, self.modelstream_names):
+			buffer_info.name = f"{modelstream_name}.model2stream"
+			buffer_info.path = os.path.join(self.dir, buffer_info.name)
+			logging.info(f"Loading {buffer_info.path}")
+			with open(buffer_info.path, "rb") as modelstream_reader:
+				buffer_info.stream = ConvStream(modelstream_reader.read())
+		# attach the static stream to last buffer_info
+		if self.buffer_infos:
+			static_buffer_info = self.buffer_infos[-1]
+			static_buffer_info.stream = ConvStream(self.buffer_2_bytes)
+			static_buffer_info.name = "STATIC"
+			static_buffer_info.path = None
 		if read_editable:
-			self.load_mesh()
-			# self.get_buffers()
+			self.load_meshes()
 
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
-	def load_mesh(self):
+	def load_meshes(self):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
-			if is_old(self.info):
-				# sort by lod, read those with offset first
-				# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
-				# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: x[1].vertex_offset)
-				sorted_meshes = list(enumerate(model_info.model.meshes))
-				# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
-				sum_uv_dict = {}
-				for i, mesh in sorted_meshes:
-					if mesh.stream_index not in sum_uv_dict:
-						sum_uv_dict[mesh.stream_index] = 0
-					sum_uv_dict[mesh.stream_index] += mesh.vertex_count
+			logging.debug(f"Loading mesh data for {mdl2_name}")
+			# sort by lod, read those with offset first
+			# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
+			# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: x[1].vertex_offset)
+			sorted_meshes = list(enumerate(model_info.model.meshes))
+			# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
+			sum_uv_dict = {}
+			for i, mesh in sorted_meshes:
+				if mesh.stream_index not in sum_uv_dict:
+					sum_uv_dict[mesh.stream_index] = 0
+				sum_uv_dict[mesh.stream_index] += mesh.vertex_count
 
-				last_vertex_offset = 0
-				# for i, mesh in sorted_meshes:
-				# 	print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
-				try:
-					for i, mesh in sorted_meshes:
-						logging.info(f"Populating mesh {i}")
-						last_vertex_offset = mesh.populate(self, 512, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
-				except:
-					traceback.print_exc()
-					# print(self)
+			last_vertex_offset = 0
+			# for i, mesh in sorted_meshes:
+			# 	print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
+			if is_old(self.info):
+				pack_offset = 512
 			else:
-				# if mdl2.read_editable:
-				logging.debug(f"Loading editable mesh data for {mdl2_name}")
-				for mesh in model_info.model.meshes:
-					mesh.populate(self, model_info.pack_offset)
-				#
-				# elif mdl2.map_bytes:
-				# 	logging.debug(f"Reading mesh statistics for {mdl2_name}")
-				# 	for model in mdl2.model.meshes:
-				# 		model.read_bytes_map(self.buffer_2_offset, stream)
-				#
-				# # store binary data for verts and tris on the mesh
-				# elif mdl2.read_bytes:
-				# 	logging.debug(f"Copying mesh data for {mdl2_name}")
-				# 	for model in mdl2.model.meshes:
-				# 		model.read_bytes(self.buffer_2_offset, self.buffer_info.vertex_buffer_size, stream)
+				pack_offset = model_info.pack_offset
+			try:
+				for i, mesh in sorted_meshes:
+					logging.info(f"Populating mesh {i}")
+					last_vertex_offset = mesh.populate(self, pack_offset, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+			except:
+				traceback.print_exc()
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
@@ -258,9 +249,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def update_buffer_2_bytes(self):
 		if self.read_editable:
 			logging.debug(f"Updating buffer 2")
-			# write each mesh's vert & tri block to a temporary buffer
-			temp_vert_writer = io.BytesIO()
-			temp_tris_writer = io.BytesIO()
+			# first init all writers for the buffers
+			for buffer_info in self.buffer_infos:
+				# write each mesh's vert & tri block to a temporary buffer
+				buffer_info.verts = io.BytesIO()
+				buffer_info.tris = io.BytesIO()
+			# now store each model
 			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 				logging.debug(f"Storing {mdl2_name}")
 				# update ModelInfo
@@ -268,38 +262,28 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				model_info.num_lods = len(model_info.model.lods)
 				model_info.num_objects = len(model_info.model.objects)
 				model_info.num_meshes = len(model_info.model.meshes)
-				# update MeshData structs
+				# update MeshData
 				for mesh in model_info.model.meshes:
-					mesh.vertex_offset = temp_vert_writer.tell()
-					mesh.tri_offset = temp_tris_writer.tell()
-					mesh.vertex_count = len(mesh.verts_data)
-					mesh.tri_index_count = len(mesh.tri_indices) * mesh.shell_count
-					# write data
-					mesh.write_verts(temp_vert_writer)
-					mesh.write_tris(temp_tris_writer)
-				# update LodInfo structs
+					mesh.assign_stream(self.buffer_infos)
+					mesh.write_data()
+				# update LodInfo
 				logging.debug(f"Updating lod vertex counts...")
 				for lod in model_info.model.lods:
 					lod.vertex_count = sum(model.vertex_count for model in lod.meshes)
 					lod.tri_index_count = sum(model.tri_index_count for model in lod.meshes)
 					logging.debug(f"lod.vertex_count = {lod.vertex_count}")
 					logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
-			# get bytes from IO obj
-			vert_bytes = temp_vert_writer.getvalue()
-			tris_bytes = temp_tris_writer.getvalue()
 			# modify buffer size
-			# todo multiple buffer_infos
-			self.buffer_infos[0].vertex_buffer_size = len(vert_bytes)
-			self.buffer_infos[0].tris_buffer_size = len(tris_bytes)
-			self.buffer_2_bytes = vert_bytes + tris_bytes
-
-	def get_buffers(self):
-		"""Returns a list of buffer datas for this ms2"""
-		logging.info("Pre-writing buffers")
-		self.update_names()
-		self.update_buffer_0_bytes()
-		self.update_buffer_1_bytes()
-		self.update_buffer_2_bytes()
+			for buffer_info in self.buffer_infos:
+				# get bytes from IO obj
+				buffer_info.vert_bytes = buffer_info.verts.getvalue()
+				buffer_info.tris_bytes = buffer_info.tris.getvalue()
+				buffer_info.vertex_buffer_size = len(buffer_info.vert_bytes)
+				buffer_info.tris_buffer_size = len(buffer_info.tris_bytes)
+			# store static buffer
+			if self.buffer_infos:
+				static_buffer_info = self.buffer_infos[-1]
+				self.buffer_2_bytes = static_buffer_info.vert_bytes + static_buffer_info.tris_bytes
 
 	@property
 	def buffers(self):
@@ -307,11 +291,21 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def save(self, filepath):
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
-		self.get_buffers()
+		logging.info("Pre-writing buffers")
+		self.update_names()
+		self.update_buffer_0_bytes()
+		self.update_buffer_1_bytes()
+		self.update_buffer_2_bytes()
 		logging.info(f"Writing to {filepath}")
 		with self.writer(filepath) as f:
 			self.write(f)
 			f.write(self.buffer_2_bytes)
+		# save multiple buffer_infos
+		for buffer_info in self.buffer_infos:
+			if buffer_info.name:
+				buffer_info.path = os.path.join(self.dir, buffer_info.name)
+				with open(buffer_info.path, "wb") as f:
+					f.write(buffer_info.vert_bytes + buffer_info.tris_bytes)
 
 	def lookup_material(self):
 		for name, model_info in zip(self.mdl_2_names, self.model_infos):

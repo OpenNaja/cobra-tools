@@ -151,9 +151,9 @@ class NewMeshData(MeshData):
 		s += '\n'
 		return s
 
-	@property
-	def _stream_index(self):
-		logging.debug(f"Using stream {self.buffer_info.offset}")
+	# @property
+	def get_stream_index(self):
+		# logging.debug(f"Using stream {self.buffer_info.offset}")
 		return self.buffer_info.offset
 
 	def init_arrays(self):
@@ -274,13 +274,13 @@ class NewMeshData(MeshData):
 
 	def read_verts(self):
 		# read vertices of this mesh
-		self.stream.seek(self.vertex_offset)
-		logging.debug(f"Reading {self.vertex_count} verts at {self.stream.tell()}")
+		self.stream_info.stream.seek(self.vertex_offset)
+		logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		self.stream.readinto(self.verts_data)
+		self.stream_info.stream.readinto(self.verts_data)
 		# if len(self.verts_data) != self.vertex_count:
 		# 	raise BufferError(f"{len(self.verts_data)} were read into vertex buffer, should have {self.vertex_count}")
 		# create arrays for the unpacked ms2_file
@@ -331,9 +331,6 @@ class NewMeshData(MeshData):
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, residue))
 		# print(self.verts_data[:]["winding"])
-
-	def write_verts(self, stream):
-		stream.write(self.verts_data.tobytes())
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""

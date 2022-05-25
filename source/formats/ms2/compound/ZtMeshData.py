@@ -69,25 +69,25 @@ class ZtMeshData:
 			logging.warning(f"vertex_offset is -1")
 			# return
 			if self.last_vertex_offset == 0:
-				logging.warning(f"Zero, starting at buffer start {self.stream.tell()}")
+				logging.warning(f"Zero, starting at buffer start {self.stream_info.stream.tell()}")
 			else:
-				self.stream.seek(self.last_vertex_offset)
+				self.stream_info.stream.seek(self.last_vertex_offset)
 		else:
-			self.stream.seek(self.vertex_offset)
-		self.start_of_vertices = self.stream.tell()
-		# logging.debug(f"{self.vertex_count} VERTS at {self.stream.tell()}")
+			self.stream_info.stream.seek(self.vertex_offset)
+		self.start_of_vertices = self.stream_info.stream.tell()
+		# logging.debug(f"{self.vertex_count} VERTS at {self.stream_info.stream.tell()}")
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		self.stream.readinto(self.verts_data)
-		self.end_of_vertices = self.stream.tell()
+		self.stream_info.stream.readinto(self.verts_data)
+		self.end_of_vertices = self.stream_info.stream.tell()
 		size = self.end_of_vertices - self.start_of_vertices
 		logging.info(
 			f"{self.vertex_count} vertices from {self.start_of_vertices:5} to {self.end_of_vertices:5} "
-			f"in stream {self._stream_index}, size {size:5}")
+			f"in stream {self.get_stream_index()}, size {size:5}")
 		# print(self.verts_data.shape)
-		self.stream.seek(self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
-		# logging.debug(f"UV at {self.stream.tell()}")
+		self.stream_info.stream.seek(self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
+		# logging.debug(f"UV at {self.stream_info.stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
-		self.stream.readinto(self.colors_data)
+		self.stream_info.stream.readinto(self.colors_data)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division

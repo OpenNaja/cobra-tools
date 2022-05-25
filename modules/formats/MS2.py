@@ -189,10 +189,10 @@ class Ms2Loader(BaseFile):
 				outfile.write(bone_infos)
 				outfile.write(verts)
 		# m = Ms2File()
-		# # m.load(out_path)
-		# # m.load(out_path, read_editable=True)
+		# m.load(out_path)
+		# m.load(out_path, read_editable=True)
 		# m.load(out_path, read_editable=False)
-		# # # m.save(out_path+"_.ms2")
+		# m.save(out_path+"_.ms2")
 		# print(m)
 		return out_paths
 	
