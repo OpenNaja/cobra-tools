@@ -144,6 +144,7 @@ class Ms2Loader(BaseFile):
 		self.get_version()
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
+		# print(self.header)
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		ms2_header = struct.pack("<I", len(bone_infos))
 		# write the ms2 file
@@ -176,7 +177,8 @@ class Ms2Loader(BaseFile):
 					for mesh in model_info.meshes.data:
 						buffer_info_bytes = mesh.buffer_info.frag.struct_ptr.data
 						mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
-				stream.write(b"".join(buffer_infos))
+				if self.header.buffer_infos.data is not None:
+					self.header.buffer_infos.data.write(stream)
 				self.header.model_infos.data.write(stream)
 				for model_info in self.header.model_infos.data:
 					for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
@@ -186,11 +188,12 @@ class Ms2Loader(BaseFile):
 				outfile.write(stream.getvalue())
 				outfile.write(bone_infos)
 				outfile.write(verts)
-		# m = Ms2File()
+		m = Ms2File()
 		# m.load(out_path)
 		# m.load(out_path, read_editable=True)
+		m.load(out_path, read_editable=False)
 		# # m.save(out_path+"_.ms2")
-		# print(m)
+		print(m)
 		return out_paths
 	
 	def get_ms2_buffer_datas(self):
