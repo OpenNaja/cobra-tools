@@ -65,15 +65,13 @@ class Ms2Loader(BaseFile):
 		self.header.read_ptrs(self.root_ptr.pool)
 		# self.header.debug_ptrs()
 		# print(self.header)
-		# old JWE1 still uses 1 fragment
-		if self.header.version > 39:
-			if self.root_ptr.data_size != 48:
-				logging.warning(f"Unexpected Root size ({self.root_ptr.data_size}) for {self.file_entry.name}")
-			expected_frag = self.get_buffer_presence()
-			frag_data = self.header.buffers_presence.frag.struct_ptr.data
-			if frag_data != expected_frag:
-				logging.warning(
-					f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
+		if self.root_ptr.data_size != 48:
+			logging.warning(f"Unexpected Root size ({self.root_ptr.data_size}) for {self.file_entry.name}")
+		expected_frag = self.get_buffer_presence()
+		frag_data = self.header.buffers_presence.frag.struct_ptr.data
+		if frag_data != expected_frag:
+			logging.warning(
+				f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
 
 	def create(self):
 		ms2_file = Ms2File()
@@ -119,7 +117,8 @@ class Ms2Loader(BaseFile):
 		for model_info in self.header.model_infos.data:
 			# link first_materials pointer
 			first_materials = self.header.model_infos.data[0].materials.frag
-			assert first_materials
+			if not first_materials:
+				logging.debug(f"MS2 {self.file_entry.name} has no materials")
 			model_info.first_materials.frag = self.create_fragment(self.root_entry)
 			model_info.first_materials.frag.link_ptr.data_offset = model_info.first_materials.io_start
 			model_info.first_materials.frag.link_ptr.pool = pool
@@ -154,8 +153,8 @@ class Ms2Loader(BaseFile):
 			stream.write(ms2_header)
 			# truncate header to 48 bytes for PZ af_keeperbodyparts
 			stream.write(self.root_entry.struct_ptr.data[:48])
-			# present since PC
-			if self.header.version >= 32:
+			# present since DLA
+			if self.header.buffers_presence.data is not None:
 				self.header.buffers_presence.data.write(stream)
 			for mdl2_entry in self.root_entry.children:
 				logging.debug(f"Writing {mdl2_entry.name}")
