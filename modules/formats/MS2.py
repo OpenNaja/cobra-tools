@@ -74,7 +74,6 @@ class Ms2Loader(BaseFile):
 				f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
 
 	def get_first_model_frag(self):
-		print(self.header)
 		for model_info in self.header.model_infos.data:
 			for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
 				if ptr.frag:
@@ -97,10 +96,7 @@ class Ms2Loader(BaseFile):
 			model_info.lods.data = model_info.model.lods
 			model_info.objects.data = model_info.model.objects
 			model_info.meshes.data = model_info.model.meshes
-			# just set empty data here, link later
-			# model_info.first_model.data = b""
 			for mesh in model_info.model.meshes:
-				# mesh.buffer_info.data = b""
 				# link the right buffer_info, then clear offset value
 				mesh.buffer_info.temp_index = mesh.buffer_info.offset
 				# undo what we did on export
@@ -136,7 +132,7 @@ class Ms2Loader(BaseFile):
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
-			logging.info(f"Updating MS2 buffer 0 with padding for {self.root_entry.name}")
+			logging.info(f"Updating MS2 name_buffer with padding for {self.root_entry.name}")
 			name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 			# make sure buffer 0 is padded to 4 bytes
 			padding = get_padding(len(name_buffer), 4)
