@@ -87,8 +87,9 @@ class ModelInfo(MemStruct):
 		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
 		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
 
-		# actually points to the start of ModelInfos array
-		self.first_materials = Pointer(self.context, 0, None)
+		# points to the start of this ModelInfo's model, usually starts at materials
+		# stays the same for successive mdl2s in the same model; or points to nil if no models are present
+		self.first_model = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -134,7 +135,7 @@ class ModelInfo(MemStruct):
 		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
 		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
-		self.first_materials = Pointer(self.context, 0, None)
+		self.first_model = Pointer(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -177,7 +178,7 @@ class ModelInfo(MemStruct):
 		instance.lods = ArrayPointer.from_stream(stream, instance.context, instance.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		instance.objects = ArrayPointer.from_stream(stream, instance.context, instance.num_objects, generated.formats.ms2.compound.Object.Object)
 		instance.meshes = ArrayPointer.from_stream(stream, instance.context, instance.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
-		instance.first_materials = Pointer.from_stream(stream, instance.context, 0, None)
+		instance.first_model = Pointer.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
 			instance.zeros = stream.read_uint64s((4,))
 		if instance.context.version == 7:
@@ -193,7 +194,7 @@ class ModelInfo(MemStruct):
 		instance.lods.arg = instance.num_lods
 		instance.objects.arg = instance.num_objects
 		instance.meshes.arg = instance.num_meshes
-		instance.first_materials.arg = 0
+		instance.first_model.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -226,7 +227,7 @@ class ModelInfo(MemStruct):
 		ArrayPointer.to_stream(stream, instance.lods)
 		ArrayPointer.to_stream(stream, instance.objects)
 		ArrayPointer.to_stream(stream, instance.meshes)
-		Pointer.to_stream(stream, instance.first_materials)
+		Pointer.to_stream(stream, instance.first_model)
 		if instance.context.version == 13:
 			stream.write_uint64s(instance.zeros)
 		if instance.context.version == 7:
@@ -283,7 +284,7 @@ class ModelInfo(MemStruct):
 		s += f'\n	* lods = {fmt_member(self.lods, indent+1)}'
 		s += f'\n	* objects = {fmt_member(self.objects, indent+1)}'
 		s += f'\n	* meshes = {fmt_member(self.meshes, indent+1)}'
-		s += f'\n	* first_materials = {fmt_member(self.first_materials, indent+1)}'
+		s += f'\n	* first_model = {fmt_member(self.first_model, indent+1)}'
 		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
 		s += f'\n	* increment_flag = {fmt_member(self.increment_flag, indent+1)}'
 		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'

@@ -377,7 +377,8 @@
 		<add name="lods" type="ArrayPointer" template="LodInfo" arg="num_lods"/>
 		<add name="objects" type="ArrayPointer" template="Object" arg="num_objects"/>
 		<add name="meshes" type="ArrayPointer" template="NewMeshData" arg="num_meshes"/>
-		<add name="first_materials" type="Pointer">actually points to the start of ModelInfos array</add>
+		<add name="first_model" type="Pointer">points to the start of this ModelInfo's model, usually starts at materials
+			stays the same for successive mdl2s in the same model; or points to nil if no models are present</add>
 		<add name="zeros" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="zeros" type="uint64" arr1="2" vercond="#DLA#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>

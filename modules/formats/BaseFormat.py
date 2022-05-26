@@ -66,6 +66,12 @@ class BaseFile:
 		self.root_entry, archive = self.ovl.get_root_entry(self.file_entry.name)
 		self.ovs = archive.content
 
+	def attach_frag_to_ptr(self, pointer, pool):
+		"""Creates a frag on a MemStruct Pointer; needs to have been written so that io_start is set"""
+		pointer.frag = self.create_fragment(self.root_entry)
+		pointer.frag.link_ptr.data_offset = pointer.io_start
+		pointer.frag.link_ptr.pool = pool
+
 	def get_pool(self, pool_type_key, ovs="STATIC"):
 		assert pool_type_key is not None
 		ovs_file = self.ovl.create_archive(ovs)

@@ -65,7 +65,7 @@ class Pointer:
 			self.data = self.template.from_stream(self.frag.struct_ptr.stream, self.context, self.arg)
 
 	def write_pointer(self):
-		assert self.data and self.frag
+		assert (self.data is not None) and self.frag
 		# if bytes have been set (usually manually), don't ask, just write
 		if isinstance(self.data, (bytes, bytearray)):
 			# seek to end, set data_offset, write

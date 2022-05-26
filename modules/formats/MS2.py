@@ -73,6 +73,13 @@ class Ms2Loader(BaseFile):
 			logging.warning(
 				f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
 
+	def get_first_model_frag(self):
+		print(self.header)
+		for model_info in self.header.model_infos.data:
+			for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
+				if ptr.frag:
+					return ptr.frag
+
 	def create(self):
 		ms2_file = Ms2File()
 		ms2_file.load(self.file_entry.path, read_bytes=True)
@@ -91,9 +98,9 @@ class Ms2Loader(BaseFile):
 			model_info.objects.data = model_info.model.objects
 			model_info.meshes.data = model_info.model.meshes
 			# just set empty data here, link later
-			model_info.first_materials.data = b""
+			# model_info.first_model.data = b""
 			for mesh in model_info.model.meshes:
-				mesh.buffer_info.data = b""
+				# mesh.buffer_info.data = b""
 				# link the right buffer_info, then clear offset value
 				mesh.buffer_info.temp_index = mesh.buffer_info.offset
 				# undo what we did on export
@@ -114,21 +121,17 @@ class Ms2Loader(BaseFile):
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		# link some more pointers
 		pool = self.header.model_infos.frag.struct_ptr.pool
+		first_model_frag = self.get_first_model_frag()
 		for model_info in self.header.model_infos.data:
-			# link first_materials pointer
-			first_materials = self.header.model_infos.data[0].materials.frag
-			if not first_materials:
-				logging.debug(f"MS2 {self.file_entry.name} has no materials")
-			model_info.first_materials.frag = self.create_fragment(self.root_entry)
-			model_info.first_materials.frag.link_ptr.data_offset = model_info.first_materials.io_start
-			model_info.first_materials.frag.link_ptr.pool = pool
-			self.ptr_relative(model_info.first_materials.frag.struct_ptr, first_materials.struct_ptr)
+			# link first_model pointer
+			if not first_model_frag:
+				logging.error(f"MS2 {self.file_entry.name} has no pointers on any model")
+			self.attach_frag_to_ptr(model_info.first_model, pool)
+			self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
 			for mesh in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
 				offset = mesh.buffer_info.temp_index * self.header.buffer_infos.data[0].io_size
-				mesh.buffer_info.frag = self.create_fragment(self.root_entry)
-				mesh.buffer_info.frag.link_ptr.data_offset = mesh.buffer_info.io_start
-				mesh.buffer_info.frag.link_ptr.pool = pool
+				self.attach_frag_to_ptr(mesh.buffer_info, pool)
 				self.ptr_relative(mesh.buffer_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
 
 	def update(self):
