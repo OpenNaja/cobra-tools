@@ -18,10 +18,10 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 		# print(self.header)
 		# avoid generating pointers for these
 		for level in self.header.levels:
-			if not level.next_levels:
-				level.next_levels = None
-			if not level.children:
-				level.children = None
+			if not level.next_level_count:
+				level.next_levels.data = None
+			if not level.children_count:
+				level.children.data = None
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 
 
