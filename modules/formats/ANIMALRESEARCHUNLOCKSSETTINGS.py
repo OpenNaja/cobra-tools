@@ -10,18 +10,29 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 	def collect(self):
 		super().collect()
 		# self.header.debug_ptrs()
-		print(self.header)
+		# print(self.header)
+
+	def prep(self):
+		# avoid generating pointers for these
+		for level in self.header.levels.data:
+			if not level.next_level_count:
+				level.next_levels.data = None
+			if not level.children_count:
+				level.children.data = None
 
 	def create(self):
 		self.root_entry = self.create_root_entry(self.file_entry)
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
-		# avoid generating pointers for these
-		for level in self.header.levels:
-			if not level.next_level_count:
-				level.next_levels.data = None
-			if not level.children_count:
-				level.children.data = None
+		self.prep()
+		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
+
+	def load(self, file_path):
+		# do this for all injections that use write_ptrs
+		self.remove_pointers()
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
+		# print(self.header)
+		self.prep()
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 
 
