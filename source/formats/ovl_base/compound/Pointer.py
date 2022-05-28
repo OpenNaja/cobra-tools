@@ -83,7 +83,7 @@ class Pointer:
 		if isinstance(self.data, str):
 			alignment = 1
 		else:
-			alignment = 8
+			alignment = 16
 		self.frag.struct_ptr.write_instance(self.template, self.data, alignment=alignment)
 
 	def __repr__(self):
