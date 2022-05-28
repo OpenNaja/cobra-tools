@@ -24,10 +24,10 @@
     <enum name="FgmDtype" numbytes="4" storage="uint" default="0">
         dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}  # 4:"I", 8:"I"
 		<option value="0" name="Float" />
-		<option value="1" name="Vector2" />
-		<option value="2" name="Vector3" />
-		<option value="3" name="Vector4" />
-		<option value="5" name="Int32" />
+		<option value="1" name="Float2" />
+		<option value="2" name="Float3" />
+		<option value="3" name="Float4" />
+		<option value="5" name="Int" />
 		<option value="6" name="Bool" />
 		<option value="7" name="RGBA" />
 		<option value="8" name="Texture" />

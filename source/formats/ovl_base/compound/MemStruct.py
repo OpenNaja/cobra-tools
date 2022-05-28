@@ -172,10 +172,11 @@ class MemStruct:
 			self._from_xml(self, elem, DTYPE, vars_dict[DTYPE])
 			logging.debug(f"Set defaults on {self.__class__.__name__}")
 			self.set_defaults()
+		# special cases - these are not added to the xml definition, but need to be converted
+		for prop in ("name", ):
+			if prop in elem.attrib:
+				setattr(self, prop, elem.attrib[prop])
 		for prop, val in tuple(vars_dict.items()):
-			# special case
-			if prop == "name" and prop in elem.attrib:
-				self.name = elem.attrib[prop]
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
@@ -289,6 +290,8 @@ class MemStruct:
 				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 				elem.set("_size", f"{f_ptr.data_size}")
 				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
+			elif hasattr(val, "pool_type"):
+				elem.set(POOL_TYPE, f"{val.pool_type}")
 			self._to_xml(elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, Array):
 			for member in val:

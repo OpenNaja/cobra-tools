@@ -33,5 +33,8 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 		"""Creates the enum from its str representation"""
 		assert "." in label
 		value = label.split(".")[-1]
-		enum = cls[value]
+		try:
+			enum = cls[value]
+		except KeyError:
+			raise KeyError(f"Key '{value}' not found in enum '{cls.__name__}', outdated definition?")
 		return enum

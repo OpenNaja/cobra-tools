@@ -121,12 +121,12 @@ class MainWindow(widgets.MainWindow):
 	def add_attribute(self,):
 		if self.fgm_dict:
 			attrib_name = self.attribute_choice.entry.currentText()
-			self.header.add_attrib(attrib_name, self.fgm_dict.attributes[attrib_name])
+			# self.header.add_attrib(attrib_name, self.fgm_dict.attributes[attrib_name])
 			self.attrib_container.update_gui(self.header.attributes)
 
 	def add_texture(self,):
 		tex_name = self.texture_choice.entry.currentText()
-		self.header.add_texture(tex_name)
+		# self.header.add_texture(tex_name)
 		self.tex_container.update_gui(self.header.textures)
 
 	@property
@@ -205,7 +205,8 @@ class ProptertyContainer(QtWidgets.QGroupBox):
 		self.clear_layout()
 		grid = self.gui.create_grid()
 		grid.setColumnStretch(1, 3)
-		grid.setColumnStretch(2, 3)
+		grid.setColumnStretch(2, 1)
+		grid.setColumnStretch(3, 4)
 		self.setLayout(grid)
 		self.widgets = []
 		for line_i, (entry, data) in enumerate(zip(self.entry_list, self.data_list)):
@@ -213,7 +214,8 @@ class ProptertyContainer(QtWidgets.QGroupBox):
 			self.widgets.append(w)
 			grid.addWidget(w.b_delete, line_i, 0)
 			grid.addWidget(w.w_label, line_i, 1)
-			grid.addWidget(w.w_data, line_i, 2)
+			grid.addWidget(w.w_dtype, line_i, 2)
+			grid.addWidget(w.w_data, line_i, 3)
 
 	def clear_layout(self):
 		layout = self.layout()
@@ -228,16 +230,16 @@ class TextureVisual:
 		self.entry = entry
 		self.data = data
 		self.w_label = QtWidgets.QLabel(entry.name)
+		self.w_dtype = widgets.CleverCombo([e.name for e in FgmDtype])
+		self.w_dtype.setText(entry.dtype.name)
+		self.w_dtype.setToolTip(f"Data type of {entry.name}")
+		self.w_dtype.currentIndexChanged.connect(self.update_dtype)
 
 		self.b_delete = QtWidgets.QPushButton("x")
 		self.b_delete.setMaximumWidth(15)
 		self.b_delete.clicked.connect(self.delete)
 		self.w_data = QtWidgets.QWidget()
-		layout = QtWidgets.QHBoxLayout()
-		self.fields = self.create_fields()
-		for button in self.fields:
-			layout.addWidget(button)
-		self.w_data.setLayout(layout)
+		self.create_fields_w_layout()
 
 		# get tooltip
 		tooltip = self.container.gui.tooltips.get(self.entry.name, "Undocumented attribute.")
@@ -245,11 +247,32 @@ class TextureVisual:
 		self.w_label.setToolTip(tooltip)
 		self.b_delete.setToolTip(f"Delete {entry.name}")
 
+	def create_fields_w_layout(self):
+		self.fields = self.create_fields()
+		if self.w_data.layout():
+			QtWidgets.QWidget().setLayout(self.w_data.layout())
+		# layout = QGridLayout(self)
+		layout = QtWidgets.QHBoxLayout()
+		for button in self.fields:
+			layout.addWidget(button)
+		self.w_data.setLayout(layout)
+
 	def delete(self):
 		try:
 			self.container.entry_list.remove(self.entry)
 			self.container.data_list.remove(self.data)
 			self.container.update_gui(self.container.entry_list, self.container.data_list)
+		except:
+			traceback.print_exc()
+
+	def update_dtype(self, ind):
+		dtype_name = self.w_dtype.currentText()
+		self.entry.dtype = FgmDtype[dtype_name]
+		try:
+			# print(self.data)
+			self.data.set_defaults()
+			# print(self.data)
+			self.create_fields_w_layout()
 		except:
 			traceback.print_exc()
 
@@ -298,21 +321,20 @@ class TextureVisual:
 			# print(self.attrib, ind, v)
 			target[ind] = int(v)
 
-		t = str(type(default))
-		# print(t)
-		if "Color" in t:
+		t = self.entry.dtype.name
+		if "RGBA" in t:
 			field = QColorButton()
 			field.colorChanged.connect(update_ind_color)
-		elif "float" in t:
+		elif "Float" in t:
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(3)
 			field.setRange(-10000, 10000)
 			field.setSingleStep(.05)
 			field.valueChanged.connect(update_ind)
-		elif "bool" in t:
+		elif "Bool" in t:
 			field = MySwitch()
 			field.clicked.connect(update_ind)
-		elif "int" in t:
+		elif "Int" in t:
 			default = int(default)
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(0)
