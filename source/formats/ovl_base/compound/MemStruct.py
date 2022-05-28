@@ -291,7 +291,8 @@ class MemStruct:
 				elem.set("_size", f"{f_ptr.data_size}")
 				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
 			elif hasattr(val, "pool_type"):
-				elem.set(POOL_TYPE, f"{val.pool_type}")
+				if val.pool_type is not None:
+					elem.set(POOL_TYPE, f"{val.pool_type}")
 			self._to_xml(elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, Array):
 			for member in val:
