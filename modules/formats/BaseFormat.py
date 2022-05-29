@@ -169,16 +169,6 @@ class BaseFile:
 		pass
 
 	def rename_content(self, name_tuple_bytes):
-		# try:
-		# 	# hash the internal buffers
-		# 	for archive_entry in ovl.archives:
-		# 		ovs = archive_entry.content
-		# 		for fragment in ovs.fragments:
-		# 			for pointer in fragment.pointers:
-		# 				pointer.data = replace_bytes(pointer.data, name_tups_new)
-		# except Exception as err:
-		# 	showdialog(str(err))
-		# logging.info("Done!")
 		pass
 
 	def get_tmp_dir(self):
