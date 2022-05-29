@@ -204,12 +204,6 @@ class Ms2Loader(BaseFile):
 		bone_infos = all_buffer_bytes[1]
 		verts = b"".join(all_buffer_bytes[2:])
 		return name_buffer, bone_infos, verts
-	
-	def load(self, ms2_file_path):
-		logging.info(f"Injecting MS2")
-		self.remove(remove_file=False)
-		self.file_entry.path = ms2_file_path
-		self.create()
 
 	def check_materials(self, ms2_file):
 		"""Verify that the used materials exist in the OVL"""

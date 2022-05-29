@@ -13,11 +13,6 @@ class GfxLoader(BaseFile):
         self.write_to_pool(self.root_entry.struct_ptr, 4, root_entry_data)
         self.create_data_entry(self.root_entry, (buffer_0,))
 
-    def load(self, file_path):
-        root_entry_data, buffer_0 = self._get_data(file_path)
-        self.root_entry.data_entry.update_data((buffer_0,))
-        self.write_to_pool(self.root_entry.struct_ptr, 4, root_entry_data, overwrite=True)
-
     def collect(self):
         self.assign_root_entry()
 

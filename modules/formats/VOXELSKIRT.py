@@ -37,9 +37,3 @@ class VoxelskirtLoader(BaseFile):
 		out_paths.extend(vox.extract())
 		return out_paths
 
-	def load(self, file_path):
-		vox = VoxelskirtFile()
-		root_entry_bytes, buffer_bytes = vox.get_structs(file_path)
-		self.root_entry.data_entry.update_data((buffer_bytes,))
-		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry_bytes, overwrite=True)
-

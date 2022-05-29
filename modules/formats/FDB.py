@@ -22,11 +22,6 @@ class FdbLoader(BaseFile):
 	def collect(self):
 		self.assign_root_entry()
 
-	def load(self, file_path):
-		root_entry, buffer_0, buffer_1 = self._get_data(file_path)
-		self.root_entry.data_entry.update_data((buffer_0, buffer_1))
-		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry, overwrite=True)
-
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
 		try:

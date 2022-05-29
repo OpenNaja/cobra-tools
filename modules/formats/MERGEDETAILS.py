@@ -8,6 +8,7 @@ class MergeDetailsLoader(BaseFile):
 	extension = ".mergedetails"
 
 	def create(self):
+		# todo - fixme
 		pass
 
 	def collect(self):
@@ -31,9 +32,6 @@ class MergeDetailsLoader(BaseFile):
 		# second frag pointer points to a list of 1 item, the item being query: SELECT ....
 		# third frag pointer points to a list of 1 item, the item geing field: ChildDB
 
-		pass
-
-	def load(self, file_path):
 		pass
 
 	def extract(self, out_dir, show_temp_files, progress_callback):

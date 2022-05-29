@@ -17,6 +17,31 @@ class BnkLoader(BaseFile):
 		# return False
 
 	def create(self):
+		# todo - fixme
+		# # first uint of the buffer is the size of the data that should be read from the aux file
+		# media_buffers = self.root_entry.data_entry.buffer_datas
+		# media_buffers[0] = struct.pack("<I", media.size_for_ovl) + media_buffers[0][4:]
+		#
+		# if len(media_buffers) > 1:
+		# 	logging.info(f"Loaded bnk {media_path} into OVL buffers")
+		# 	with open(media_path, "rb") as f:
+		# 		media_buffers[1] = f.read()
+		# # update the buffer
+		# self.root_entry.data_entry.update_data(media_buffers)
+		#
+		# # get events bnk for internal files
+		# if not self.file_entry.aux_entries:
+		# 	events_ss, archive = self.ovl.get_root_entry(f"{events_bnk}.bnk")
+		# 	if events_ss:
+		# 		events_buffers = events_ss.data_entry.buffer_datas
+		# 		events_buffers[0] = struct.pack("<I", events.size_for_ovl) + events_buffers[0][4:]
+		#
+		# 		logging.info(f"Loaded bnk {events_path} into OVL buffers")
+		# 		with open(events_path, "rb") as f:
+		# 			events_buffers[1] = f.read()
+		# 		events_ss.data_entry.update_data(events_buffers)
+		# 	else:
+		# 		logging.warning(f"Could not find {events_bnk}.bnk in OVL")
 		pass
 
 	def collect(self):
@@ -64,31 +89,4 @@ class BnkLoader(BaseFile):
 				for b in buffer_datas[1:]:
 					f.write(b)
 		return out_files
-	
-	def load(self, bnk_file_path):
-		# # first uint of the buffer is the size of the data that should be read from the aux file
-		# media_buffers = self.root_entry.data_entry.buffer_datas
-		# media_buffers[0] = struct.pack("<I", media.size_for_ovl) + media_buffers[0][4:]
-		#
-		# if len(media_buffers) > 1:
-		# 	logging.info(f"Loaded bnk {media_path} into OVL buffers")
-		# 	with open(media_path, "rb") as f:
-		# 		media_buffers[1] = f.read()
-		# # update the buffer
-		# self.root_entry.data_entry.update_data(media_buffers)
-		#
-		# # get events bnk for internal files
-		# if not self.file_entry.aux_entries:
-		# 	events_ss, archive = self.ovl.get_root_entry(f"{events_bnk}.bnk")
-		# 	if events_ss:
-		# 		events_buffers = events_ss.data_entry.buffer_datas
-		# 		events_buffers[0] = struct.pack("<I", events.size_for_ovl) + events_buffers[0][4:]
-		#
-		# 		logging.info(f"Loaded bnk {events_path} into OVL buffers")
-		# 		with open(events_path, "rb") as f:
-		# 			events_buffers[1] = f.read()
-		# 		events_ss.data_entry.update_data(events_buffers)
-		# 	else:
-		# 		logging.warning(f"Could not find {events_bnk}.bnk in OVL")
-		pass
 

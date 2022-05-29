@@ -36,6 +36,7 @@ class FctLoader(BaseFile):
 		return paths
 
 	def load(self, file_path):
+		# todo - fixme
 		# read fct
 		# inject fct buffers
 		# update sized string

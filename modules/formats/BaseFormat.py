@@ -209,6 +209,8 @@ class BaseFile:
 			# self.ovl.files.pop(i)
 			self.ovl.files.remove(self.file_entry)
 
+		# clear dependencies, they are automatically regenerated for the ovl on saving
+		self.file_entry.dependencies.clear()
 		# remove children files
 		for file_entry in self.ovl.files:
 			for child_root in self.root_entry.children:
@@ -245,8 +247,7 @@ class MemStructLoader(BaseFile):
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 
 	def load(self, file_path):
-		# do this for all injections that use write_ptrs
-		self.remove_pointers()
-		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		# print(self.header)
-		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
+		logging.info(f"Injecting {file_path} with new workflow")
+		self.remove(remove_file=False)
+		self.file_entry.path = file_path
+		self.create()

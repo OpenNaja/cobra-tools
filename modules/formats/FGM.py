@@ -9,7 +9,7 @@ class FgmLoader(MemStructLoader):
 
 	def create(self):
 		super().create()
-		print(self.header)
+		# print(self.header)
 		self.create_data_entry(self.root_entry, (self.update_names_buffer(),))
 
 	@staticmethod
@@ -46,12 +46,3 @@ class FgmLoader(MemStructLoader):
 					member.offset = names_writer.tell()
 					names_writer.write_zstring(member.name)
 		return names_writer.getvalue()
-
-	def load(self, file_path):
-		# clear dependencies, they are automatically regenerated
-		self.file_entry.dependencies.clear()
-		# print(self.file_entry.dependencies)
-		super().load(file_path)
-		print(self.header)
-		self.root_entry.data_entry.update_data((self.update_names_buffer(),))
-		# print(self.file_entry.dependencies)

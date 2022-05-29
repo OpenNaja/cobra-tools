@@ -20,12 +20,6 @@ class LuaLoader(MemStructLoader):
 		self.header.likely_alignment.data = b"\x00"
 		self.header.write_ptrs(self, self.ovs, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
-	def load(self, file_path):
-		buffer_0 = self._get_data(file_path)
-		self.header.lua_size = len(buffer_0)
-		self.header.write_ptrs(self, self.ovs, self.root_entry.struct_ptr, self.file_entry.pool_type)
-		self.root_entry.data_entry.update_data((buffer_0,))
-
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")

@@ -1142,11 +1142,11 @@ class OvlFile(Header, IoFile):
 		logging.info("Tracking pointers")
 		for archive in self.archives:
 			ovs = archive.content
-			for entry in ovs.root_entries:
+			for root_entry in ovs.root_entries:
 				# this is significantly slower if a list is used
-				entry.fragments = set()
-				if entry.struct_ptr.pool:
-					ovs.check_for_ptrs(entry.struct_ptr, entry)
+				root_entry.fragments = set()
+				if root_entry.struct_ptr.pool:
+					ovs.check_for_ptrs(root_entry.struct_ptr, root_entry)
 
 		logging.info(f"Loaded pointers in {time.time() - start_time:.2f} seconds")
 
