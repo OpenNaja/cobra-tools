@@ -224,6 +224,12 @@ class BaseFile:
 		for loader in self.streams:
 			loader.remove()
 
+	def load(self, file_path):
+		logging.info(f"Injecting {file_path} with new workflow")
+		self.remove(remove_file=False)
+		self.file_entry.path = file_path
+		self.create()
+
 
 class MemStructLoader(BaseFile):
 	target_class: None
@@ -245,9 +251,3 @@ class MemStructLoader(BaseFile):
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
-
-	def load(self, file_path):
-		logging.info(f"Injecting {file_path} with new workflow")
-		self.remove(remove_file=False)
-		self.file_entry.path = file_path
-		self.create()
