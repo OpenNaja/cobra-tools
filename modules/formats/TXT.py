@@ -11,7 +11,7 @@ class TxtLoader(BaseFile):
 		self.root_entry = self.create_root_entry(self.file_entry)
 		self.load(self.file_entry.path)
 		self.root_entry.struct_ptr.pool.num_files += 1
-		self.write_to_pool(self.root_entry.struct_ptr, 2, self._get_data(file_path))
+		self.write_to_pool(self.root_entry.struct_ptr, 2, self._get_data(self.file_entry.path))
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		b = self.root_entry.struct_ptr.data
