@@ -68,7 +68,7 @@ class BaseFile:
 
 	def attach_frag_to_ptr(self, pointer, pool):
 		"""Creates a frag on a MemStruct Pointer; needs to have been written so that io_start is set"""
-		pointer.frag = self.create_fragment(self.root_entry)
+		pointer.frag = self.create_fragment()
 		pointer.frag.link_ptr.data_offset = pointer.io_start
 		pointer.frag.link_ptr.pool = pool
 
@@ -142,9 +142,9 @@ class BaseFile:
 		self.file_entry.dependencies.append(dependency)
 		return dependency
 
-	def create_fragment(self, root_entry):
+	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
-		root_entry.fragments.add(new_frag)
+		self.root_entry.fragments.add(new_frag)
 		return new_frag
 
 	def create_data_entry(self, root_entry, buffers_bytes, ovs="STATIC"):

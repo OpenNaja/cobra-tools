@@ -69,7 +69,7 @@ class MemStruct:
 					logging.debug(f"Created dependency for {prop} = {val.data}")
 					val.frag = loader.create_dependency(val.data)
 				else:
-					val.frag = loader.create_fragment(loader.root_entry)
+					val.frag = loader.create_fragment()
 
 				if DEPENDENCY_TAG not in prop:
 					# when generated from XML, the pool type is stored as metadata
