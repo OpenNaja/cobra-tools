@@ -61,7 +61,7 @@ class BanisLoader(BaseFile):
 		# todo - fixme
 		root_entry, buffer_0 = self._get_data(file_path)
 		self.root_entry.data_entry.update_data((buffer_0,))
-		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry)
+		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)
 		banis_dir = os.path.dirname(file_path)
 		for bani_file_name in os.listdir(banis_dir):
 			if bani_file_name.endswith(".bani"):
@@ -71,7 +71,7 @@ class BanisLoader(BaseFile):
 						fp = os.path.join(banis_dir, bani_file_name)
 						f0 = self._get_bani_data(fp)
 						b_ss, archive = self.ovl.get_root_entry(bani_file_name)
-						self.write_to_pool(b_ss.struct_ptr, 2, f0)
+						self.write_data_to_pool(b_ss.struct_ptr, 2, f0)
 						break
 
 	def _get_data(self, file_path):

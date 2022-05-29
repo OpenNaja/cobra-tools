@@ -32,7 +32,7 @@ class TexturestreamLoader(BaseFile):
 		# logging.info(f"Creating texturestream in {ovs_name}")
 		# this is only to be called from DdsLoader
 		self.root_entry = self.create_root_entry(self.file_entry, ovs=ovs_name)
-		self.write_to_pool(self.root_entry.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
+		self.write_data_to_pool(self.root_entry.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
 		# data entry, assign buffer
 		self.create_data_entry(self.root_entry, (b"", ), ovs=ovs_name)
 

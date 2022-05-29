@@ -10,7 +10,7 @@ class VoxelskirtLoader(BaseFile):
 		vox = VoxelskirtFile()
 		root_entry_bytes, buffer_bytes = vox.get_structs(self.file_entry.path)
 		self.create_data_entry(self.root_entry, (buffer_bytes,))
-		self.write_to_pool(self.root_entry.struct_ptr, 2, root_entry_bytes)
+		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry_bytes)
 
 	def collect(self):
 		self.assign_root_entry()

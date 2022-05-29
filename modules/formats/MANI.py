@@ -61,7 +61,7 @@ class ManisLoader(BaseFile):
 			manis_entry.children.append(mani_entry)
 
 		# todo - pool type
-		self.write_to_pool(manis_entry.struct_ptr, 2, root_entry)
+		self.write_data_to_pool(manis_entry.struct_ptr, 2, root_entry)
 		self.create_data_entry(manis_entry, (b0, b1, b2))
 
 	def _get_data(self, file_path):
