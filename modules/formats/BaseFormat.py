@@ -121,6 +121,7 @@ class BaseFile:
 	def create_root_entry(self, file_entry, ovs="STATIC"):
 		root_entry = RootEntry(self.ovl.context)
 		root_entry.children = []
+		root_entry.data_entry = None
 		root_entry.fragments = set()
 		ovs_file = self.ovl.create_archive(ovs)
 		ovs_file.transfer_identity(root_entry, file_entry)

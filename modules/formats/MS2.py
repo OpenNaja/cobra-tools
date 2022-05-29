@@ -22,6 +22,10 @@ class Mdl2Loader(BaseFile):
 	def collect(self):
 		self.assign_root_entry()
 
+	def create(self, ovs_name=""):
+		self.root_entry = self.create_root_entry(self.file_entry)
+		self.root_entry.struct_ptr.pool_index = -1
+
 
 class Model2streamLoader(BaseFile):
 	extension = ".model2stream"
@@ -86,7 +90,6 @@ class Ms2Loader(BaseFile):
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		self.root_entry = self.create_root_entry(self.file_entry)
-
 		self.header = ms2_file.info
 		# fix up the pointers
 		self.header.buffer_infos.data = ms2_file.buffer_infos
@@ -106,11 +109,9 @@ class Ms2Loader(BaseFile):
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
 			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")
-			mdl2_file_entry = self.get_file_entry(mdl2_path)
-
-			mdl2_entry = self.create_root_entry(mdl2_file_entry)
-			mdl2_entry.struct_ptr.pool_index = -1
-			self.root_entry.children.append(mdl2_entry)
+			mdl2_file = self.get_file_entry(mdl2_path)
+			mdl2_file.loader.create()
+			self.root_entry.children.append(mdl2_file.loader.root_entry)
 
 		# create ms2 data
 		self.create_data_entry(self.root_entry, ms2_file.buffers)
