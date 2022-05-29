@@ -90,12 +90,9 @@ class BaseFile:
 		ovs_file.pools.append(pool)
 		return pool
 
-	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC", overwrite=False):
-		if not overwrite:
-			ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
-		else:
-			assert ptr.pool
-		ptr.write_to_pool(data, overwrite=overwrite)
+	def write_to_pool(self, ptr, pool_type_key, data, ovs="STATIC"):
+		ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
+		ptr.write_to_pool(data)
 
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
 		ptr.pool_index = other_ptr.pool_index

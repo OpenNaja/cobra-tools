@@ -95,4 +95,4 @@ class FctLoader(BaseFile):
 			self.root_entry.data_entry.update_data((buffer_bytes,))
 
 			data = struct.pack("<4f{}I".format(int(ss_len - 4)), *ss_data)
-			self.write_to_pool(self.root_entry.struct_ptr, 2, data, overwrite=True)
+			self.write_to_pool(self.root_entry.struct_ptr, 2, data)
