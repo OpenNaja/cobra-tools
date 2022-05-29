@@ -2,6 +2,7 @@ import os
 import shutil
 import struct
 import logging
+import traceback
 
 from generated.formats.ms2 import Ms2File, Ms2Context
 from generated.formats.ms2.compound.Ms2Root import Ms2Root
@@ -242,6 +243,7 @@ class Ms2Loader(BaseFile):
 			# inject again
 			self.load(ms2_path)
 		except BaseException as err:
+			traceback.print_exc()
 			logging.warning(err)
 		# delete temp dir again
 		shutil.rmtree(temp_dir)

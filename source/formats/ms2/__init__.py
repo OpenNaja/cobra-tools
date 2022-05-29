@@ -302,7 +302,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			f.write(self.buffer_2_bytes)
 		# save multiple buffer_infos
 		for buffer_info in self.buffer_infos:
-			if buffer_info.name:
+			if buffer_info.name != "STATIC":
 				buffer_info.path = os.path.join(self.dir, buffer_info.name)
 				with open(buffer_info.path, "wb") as f:
 					f.write(buffer_info.vert_bytes + buffer_info.tris_bytes)
