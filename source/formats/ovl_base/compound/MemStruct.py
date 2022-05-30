@@ -56,7 +56,7 @@ class MemStruct:
 		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
 
 	def handle_write(self, prop, val, struct_ptr, loader, ovs, pool_type, is_member=False):
-		logging.debug(f"handle_write {prop} {type(val).__name__}, {len(loader.root_entry.fragments)} frags")
+		logging.debug(f"handle_write {prop} {type(val).__name__}, {len(loader.fragments)} frags")
 		if isinstance(val, MemStruct):
 			val.write_ptrs(loader, ovs, struct_ptr, pool_type, is_member=is_member)
 		elif isinstance(val, Array):
@@ -77,7 +77,6 @@ class MemStruct:
 					if val.pool_type is not None:
 						pool_type = val.pool_type
 					val.frag.struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
-					val.frag.struct_ptr.pool.add_struct(val.frag)
 					# this writes pointer.data to the pool
 					val.write_pointer()
 					# now repeat with pointer.data
@@ -86,7 +85,6 @@ class MemStruct:
 				p = val.frag.link_ptr
 				p.data_offset = val.io_start
 				p.pool = struct_ptr.pool
-				p.pool.add_link(val.frag)
 
 	def write_ptrs(self, loader, ovs, struct_ptr, pool_type, is_member=False):
 		logging.debug(f"write_ptrs, member={is_member}")
@@ -94,8 +92,6 @@ class MemStruct:
 		if not is_member:
 			# write this struct's data
 			struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
-			# todo - unable to tell which entry has the struct_ptr
-			# struct_ptr.pool.add_struct(self)
 			struct_ptr.write_instance(type(self), self)
 			logging.debug(f"memstruct's struct_ptr after {struct_ptr}")
 

@@ -31,10 +31,10 @@ class TexturestreamLoader(BaseFile):
 	def create(self, ovs_name=""):
 		# logging.info(f"Creating texturestream in {ovs_name}")
 		# this is only to be called from DdsLoader
-		self.root_entry = self.create_root_entry(self.file_entry, ovs=ovs_name)
+		self.create_root_entry(ovs=ovs_name)
 		self.write_data_to_pool(self.root_entry.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
 		# data entry, assign buffer
-		self.create_data_entry(self.root_entry, (b"", ), ovs=ovs_name)
+		self.create_data_entry((b"", ), ovs=ovs_name)
 
 
 class DdsLoader(MemStructLoader):
@@ -86,7 +86,7 @@ class DdsLoader(MemStructLoader):
 				texstream_file.loader.create(ovs_name)
 				self.streams.append(texstream_file.loader)
 				buffer_i = self.increment_buffers(texstream_file.loader.root_entry, buffer_i)
-			self.create_data_entry(self.root_entry, buffers[streamed_lods:])
+			self.create_data_entry(buffers[streamed_lods:])
 			self.increment_buffers(self.root_entry, buffer_i)
 			# ready, now inject
 			self.load_image(self.file_entry.path)

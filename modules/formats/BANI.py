@@ -38,9 +38,6 @@ class BaniLoader(MemStructLoader):
 class BanisLoader(BaseFile):
 	extension = ".banis"
 
-	def collect(self):
-		self.assign_root_entry()
-
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
 		if not self.root_entry.data_entry:

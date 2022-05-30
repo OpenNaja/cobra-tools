@@ -19,11 +19,8 @@ from ovl_util import interaction
 class Mdl2Loader(BaseFile):
 	extension = ".mdl2"
 
-	def collect(self):
-		self.assign_root_entry()
-
 	def create(self, ovs_name=""):
-		self.root_entry = self.create_root_entry(self.file_entry)
+		self.create_root_entry()
 		self.root_entry.struct_ptr.pool_index = -1
 
 
@@ -64,7 +61,6 @@ class Ms2Loader(BaseFile):
 		return expected_frag
 
 	def collect(self):
-		self.assign_root_entry()
 		self.get_version()
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
@@ -89,7 +85,7 @@ class Ms2Loader(BaseFile):
 		ms2_file.load(self.file_entry.path, read_bytes=True)
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
-		self.root_entry = self.create_root_entry(self.file_entry)
+		self.create_root_entry()
 		self.header = ms2_file.info
 		# fix up the pointers
 		self.header.buffer_infos.data = ms2_file.buffer_infos
@@ -114,7 +110,7 @@ class Ms2Loader(BaseFile):
 			self.root_entry.children.append(mdl2_file.loader.root_entry)
 
 		# create ms2 data
-		self.create_data_entry(self.root_entry, ms2_file.buffers)
+		self.create_data_entry(ms2_file.buffers)
 		# write the final memstruct
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
 		# link some more pointers

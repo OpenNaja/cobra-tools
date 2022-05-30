@@ -15,12 +15,9 @@ class FdbLoader(BaseFile):
 
 	def create(self):
 		root_entry, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
-		self.root_entry = self.create_root_entry(self.file_entry)
+		self.create_root_entry()
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)
-		self.create_data_entry(self.root_entry, (buffer_0, buffer_1))
-
-	def collect(self):
-		self.assign_root_entry()
+		self.create_data_entry((buffer_0, buffer_1))
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name

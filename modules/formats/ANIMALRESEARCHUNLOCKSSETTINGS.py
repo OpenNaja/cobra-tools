@@ -21,7 +21,7 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 				level.children.data = None
 
 	def create(self):
-		self.root_entry = self.create_root_entry(self.file_entry)
+		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
 		self.prep()

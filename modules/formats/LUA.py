@@ -11,8 +11,8 @@ class LuaLoader(MemStructLoader):
 	
 	def create(self):
 		buffer_0 = self._get_data(self.file_entry.path)
-		self.root_entry = self.create_root_entry(self.file_entry)
-		self.create_data_entry(self.root_entry, (buffer_0,))
+		self.create_root_entry()
+		self.create_data_entry((buffer_0,))
 
 		self.header = LuaRoot(self.ovl.context)
 		self.header.lua_size = len(buffer_0)

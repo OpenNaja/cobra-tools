@@ -43,9 +43,6 @@ class BnkLoader(BaseFile):
 		# 	else:
 		# 		logging.warning(f"Could not find {events_bnk}.bnk in OVL")
 		pass
-
-	def collect(self):
-		self.assign_root_entry()
 			
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		bnk_name = os.path.splitext(self.root_entry.name)[0]

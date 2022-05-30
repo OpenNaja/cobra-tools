@@ -128,9 +128,9 @@ class OvsFile(OvsHeader):
 				type_str = first_entry.__class__.__name__
 				# map fragment to containing sizedstr entry
 				if isinstance(first_entry, Fragment):
-					for root_entry in self.root_entries:
-						if first_entry in root_entry.fragments:
-							first_entry = root_entry
+					for loader in self.ovl.loaders.values():
+						if first_entry in loader.fragments:
+							first_entry = loader.root_entry
 							break
 					else:
 						# raise NameError(f"Could not find root entry to resolve fragment's name {first_entry}")
@@ -485,21 +485,6 @@ class OvsFile(OvsHeader):
 				f.write(
 					f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
 
-	def check_for_ptrs(self, parent_struct_ptr, root_entry):
-		"""Recursively assigns pointers to an entry"""
-		# tracking children for each struct adds no detectable overhead for animal ovls
-		parent_struct_ptr.children = set()
-		# see if any pointers are inside this struct
-		for offset, entry in parent_struct_ptr.pool.offset_2_link_entry.items():
-			if parent_struct_ptr.data_offset <= offset < parent_struct_ptr.data_offset + parent_struct_ptr.data_size:
-				parent_struct_ptr.children.add(entry)
-				if isinstance(entry, Fragment):
-					# points to a child struct
-					struct_ptr = entry.struct_ptr
-					if entry not in root_entry.fragments:
-						root_entry.fragments.add(entry)
-						self.check_for_ptrs(struct_ptr, root_entry)
-
 	def _dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
 		for entry in sorted(parent_struct_ptr.children, key=lambda e: e.link_ptr.data_offset):
@@ -640,10 +625,6 @@ class OvlFile(Header, IoFile):
 			extract_files.append(file)
 		return extract_files
 
-	def get_loaders(self):
-		"""Returns all loader instances for this ovl"""
-		return [file.loader for file in self.files if hasattr(file, 'loader') and file.loader is not None]
-
 	def rename(self, name_tups, animal_mode=False):
 		logging.info(f"Renaming for {name_tups}, animal mode = {animal_mode}")
 		lists = [self.files, self.dependencies, self.included_ovls]
@@ -669,8 +650,11 @@ class OvlFile(Header, IoFile):
 	def rename_contents(self, name_tups):
 		logging.info(f"Renaming contents for {name_tups}")
 		name_tuple_bytes = [(o.encode(), n.encode()) for o, n in name_tups]
-		for loader in self.get_loaders():
+		for loader in self.loaders.values():
 			loader.rename_content(name_tups)
+			# todo - enabling these breaks ms2 - why?
+			# loader.register_created_ptrs()
+			# loader.track_ptrs()
 		# rename content may delete files and add them again
 		self.sort_pools_and_update_groups()
 		# old style - rename contents on all the pools
@@ -737,6 +721,9 @@ class OvlFile(Header, IoFile):
 					continue
 			try:
 				file.loader.load(file_path)
+				# todo - enabling these breaks ms2 - why?
+				# file.loader.register_created_ptrs()
+				# file.loader.track_ptrs()
 			except BaseException as error:
 				logging.error(f"An exception occurred while injecting {name_ext}")
 				logging.error(error)
@@ -1101,7 +1088,6 @@ class OvlFile(Header, IoFile):
 		self.update_ss_dict()
 		self.load_flattened_pools()
 		self.load_pointers()
-		self.load_file_classes()
 
 	def load_flattened_pools(self):
 		"""Create flattened list of pools"""
@@ -1142,30 +1128,21 @@ class OvlFile(Header, IoFile):
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_pointer_sizes()
+		logging.info(f"Prepared pointers in {time.time() - start_time:.2f} seconds")
 
-		logging.info("Tracking pointers")
-		for archive in self.archives:
-			ovs = archive.content
-			for root_entry in ovs.root_entries:
-				# this is significantly slower if a list is used
-				root_entry.fragments = set()
-				if root_entry.struct_ptr.pool:
-					ovs.check_for_ptrs(root_entry.struct_ptr, root_entry)
-
-		logging.info(f"Loaded pointers in {time.time() - start_time:.2f} seconds")
-
-	def load_file_classes(self):
 		logging.info("Loading file classes")
 		start_time = time.time()
 		for file_entry in self.files:
 			file_entry.loader = self.get_loader(file_entry)
-			try:
-				file_entry.loader.collect()
-			except Exception as err:
-				logging.error(f"Collecting {file_entry.name} raised '{err}' error")
-				traceback.print_exc()
 			self.loaders[file_entry.name] = file_entry.loader
+
 		for loader in self.loaders.values():
+			loader.track_ptrs()
+			try:
+				loader.collect()
+			except Exception as err:
+				logging.error(f"Collecting {loader.file_entry.name} raised '{err}' error")
+				traceback.print_exc()
 			loader.link_streams()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
@@ -1252,12 +1229,15 @@ class OvlFile(Header, IoFile):
 				ovs.fragments.clear()
 				# map pool to index
 				pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
-				for root_entry in ovs.root_entries:
-					root_entry.struct_ptr.update_pool_index(pools_lut)
-					for frag in root_entry.fragments:
-						frag.link_ptr.update_pool_index(pools_lut)
-						frag.struct_ptr.update_pool_index(pools_lut)
-					ovs.fragments.extend(root_entry.fragments)
+				# add frags to correct ovs
+				# todo - refactor, pull out into separate loop with dict for ovs?
+				for loader in self.loaders.values():
+					if loader.ovs == ovs:
+						loader.root_entry.struct_ptr.update_pool_index(pools_lut)
+						for frag in loader.fragments:
+							frag.link_ptr.update_pool_index(pools_lut)
+							frag.struct_ptr.update_pool_index(pools_lut)
+						ovs.fragments.extend(loader.fragments)
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
 				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 

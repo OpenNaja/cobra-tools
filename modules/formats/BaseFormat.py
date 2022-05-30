@@ -25,6 +25,7 @@ class BaseFile:
 		self.streams = []
 		self.children = []
 		self.header = None
+		self.fragments = set()
 
 	@property
 	def abs_mem_offset(self):
@@ -55,7 +56,7 @@ class BaseFile:
 		raise NotImplementedError
 
 	def collect(self):
-		self.assign_root_entry()
+		pass
 
 	def pack_header(self, fmt_name):
 		ovl = self.ovl
@@ -71,7 +72,6 @@ class BaseFile:
 		pointer.frag = self.create_fragment()
 		pointer.frag.link_ptr.data_offset = pointer.io_start
 		pointer.frag.link_ptr.pool = pool
-		pointer.frag.link_ptr.pool.add_link(pointer.frag)
 
 	def get_pool(self, pool_type_key, ovs="STATIC"):
 		assert pool_type_key is not None
@@ -117,15 +117,14 @@ class BaseFile:
 		self.ovl.files.append(file_entry)
 		return file_entry
 
-	def create_root_entry(self, file_entry, ovs="STATIC"):
-		root_entry = RootEntry(self.ovl.context)
-		root_entry.children = []
-		root_entry.data_entry = None
-		root_entry.fragments = set()
-		ovs_file = self.ovl.create_archive(ovs)
-		ovs_file.transfer_identity(root_entry, file_entry)
-		ovs_file.root_entries.append(root_entry)
-		return root_entry
+	def create_root_entry(self, ovs="STATIC"):
+		self.root_entry = RootEntry(self.ovl.context)
+		self.root_entry.children = []
+		self.root_entry.data_entry = None
+		self.fragments = set()
+		self.ovs = self.ovl.create_archive(ovs)
+		self.ovs.transfer_identity(self.root_entry, self.file_entry)
+		self.ovs.root_entries.append(self.root_entry)
 
 	def set_dependency_identity(self, dependency, file_name):
 		"""Use a standard file name with extension"""
@@ -143,22 +142,22 @@ class BaseFile:
 
 	def create_fragment(self):
 		new_frag = Fragment(self.ovl.context)
-		self.root_entry.fragments.add(new_frag)
+		self.fragments.add(new_frag)
 		return new_frag
 
-	def create_data_entry(self, root_entry, buffers_bytes, ovs="STATIC"):
+	def create_data_entry(self, buffers_bytes, ovs="STATIC"):
 		ovs_file = self.ovl.create_archive(ovs)
 		data = DataEntry(self.ovl.context)
-		root_entry.data_entry = data
+		self.root_entry.data_entry = data
 		data.buffer_count = len(buffers_bytes)
 		data.buffers = []
 		for i, buffer_bytes in enumerate(buffers_bytes):
 			buffer = BufferEntry(self.ovl.context)
 			buffer.index = i
 			data.buffers.append(buffer)
-			ovs_file.transfer_identity(buffer, root_entry)
+			ovs_file.transfer_identity(buffer, self.root_entry)
 			ovs_file.buffer_entries.append(buffer)
-		ovs_file.transfer_identity(data, root_entry)
+		ovs_file.transfer_identity(data, self.root_entry)
 		ovs_file.data_entries.append(data)
 		data.update_data(buffers_bytes)
 		return data
@@ -186,7 +185,7 @@ class BaseFile:
 
 	def remove_pointers(self):
 		# remove any pointers
-		for frag in self.root_entry.fragments:
+		for frag in self.fragments:
 			frag.struct_ptr.remove()
 		self.root_entry.struct_ptr.remove()
 
@@ -229,6 +228,38 @@ class BaseFile:
 		self.file_entry.path = file_path
 		self.create()
 
+	def register_created_ptrs(self):
+		if self.root_entry.struct_ptr.pool:
+			self.root_entry.struct_ptr.pool.add_struct(self.root_entry)
+		for frag in self.fragments:
+			frag.link_ptr.pool.add_link(frag)
+			frag.struct_ptr.pool.add_struct(frag)
+		for dep in self.file_entry.dependencies:
+			dep.link_ptr.pool.add_link(dep)
+
+	def track_ptrs(self):
+		logging.info(f"Tracking {self.file_entry.name}")
+		self.assign_root_entry()
+		# this is significantly slower if a list is used
+		self.fragments = set()
+		if self.root_entry.struct_ptr.pool:
+			self.check_for_ptrs(self.root_entry.struct_ptr)
+
+	def check_for_ptrs(self, parent_struct_ptr):
+		"""Recursively assigns pointers to an entry"""
+		# tracking children for each struct adds no detectable overhead for animal ovls
+		parent_struct_ptr.children = set()
+		# see if any pointers are inside this struct
+		for offset, entry in parent_struct_ptr.pool.offset_2_link_entry.items():
+			if parent_struct_ptr.data_offset <= offset < parent_struct_ptr.data_offset + parent_struct_ptr.data_size:
+				parent_struct_ptr.children.add(entry)
+				if isinstance(entry, Fragment):
+					# points to a child struct
+					struct_ptr = entry.struct_ptr
+					if entry not in self.fragments:
+						self.fragments.add(entry)
+						self.check_for_ptrs(struct_ptr)
+
 
 class MemStructLoader(BaseFile):
 	target_class: None
@@ -246,7 +277,7 @@ class MemStructLoader(BaseFile):
 		# print(self.header)
 
 	def create(self):
-		self.root_entry = self.create_root_entry(self.file_entry)
+		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
 		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)

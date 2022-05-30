@@ -7,9 +7,6 @@ from modules.helpers import split_path
 class FctLoader(BaseFile):
 	extension = ".fct"
 	
-	def collect(self):
-		self.assign_root_entry()
-	
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
 		print("\nWriting", name)

@@ -10,7 +10,7 @@ class FgmLoader(MemStructLoader):
 	def create(self):
 		super().create()
 		# print(self.header)
-		self.create_data_entry(self.root_entry, (self.update_names_buffer(),))
+		self.create_data_entry((self.update_names_buffer(),))
 
 	@staticmethod
 	def read_z_str(stream, pos):

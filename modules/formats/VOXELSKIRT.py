@@ -6,14 +6,11 @@ class VoxelskirtLoader(BaseFile):
 	extension = ".voxelskirt"
 
 	def create(self):
-		self.root_entry = self.create_root_entry(self.file_entry)
+		self.create_root_entry()
 		vox = VoxelskirtFile()
 		root_entry_bytes, buffer_bytes = vox.get_structs(self.file_entry.path)
-		self.create_data_entry(self.root_entry, (buffer_bytes,))
+		self.create_data_entry((buffer_bytes,))
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry_bytes)
-
-	def collect(self):
-		self.assign_root_entry()
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name

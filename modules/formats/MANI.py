@@ -9,11 +9,15 @@ from modules.formats.shared import get_versions
 from modules.helpers import as_bytes
 
 
+class ManiLoader(BaseFile):
+
+	def create(self):
+		self.create_root_entry()
+		self.root_entry.struct_ptr.pool_index = -1
+
+
 class ManisLoader(BaseFile):
 	extension = ".manis"
-
-	def collect(self):
-		self.assign_root_entry()
 				
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
@@ -49,20 +53,18 @@ class ManisLoader(BaseFile):
 		manis_file, root_entry, b0, b1, b2 = self._get_data(self.file_entry.path)
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
-		manis_entry = self.create_root_entry(self.file_entry)
+		self.create_root_entry()
 
 		# create mani files
 		for mani_name in manis_file.names:
 			mani_path = os.path.join(ms2_dir, mani_name+".mani")
 			mani_file_entry = self.get_file_entry(mani_path)
-
-			mani_entry = self.create_root_entry(mani_file_entry)
-			mani_entry.struct_ptr.pool_index = -1
-			manis_entry.children.append(mani_entry)
+			mani_file_entry.loader.create()
+			self.root_entry.children.append(mani_file_entry.loader.root_entry)
 
 		# todo - pool type
-		self.write_data_to_pool(manis_entry.struct_ptr, 2, root_entry)
-		self.create_data_entry(manis_entry, (b0, b1, b2))
+		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)
+		self.create_data_entry((b0, b1, b2))
 
 	def _get_data(self, file_path):
 		"""Loads and returns the data for a manis"""

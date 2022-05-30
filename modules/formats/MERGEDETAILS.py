@@ -12,7 +12,6 @@ class MergeDetailsLoader(BaseFile):
 		pass
 
 	def collect(self):
-		self.assign_root_entry()
 		print(f"Collecting {self.root_entry.name}")
 
 		# there is a count for a pointer list, but all mergedetails have only 1 in the count so it is hard to tell
