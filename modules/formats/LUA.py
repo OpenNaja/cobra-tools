@@ -64,3 +64,10 @@ class LuaLoader(MemStructLoader):
 			if not confirmed:
 				raise UserWarning(f"Injection aborted for {file_path}")
 		return buffer_0
+
+	def rename_content(self, name_tuples):
+		logging.info(f"Renaming in {self.file_entry.name}")
+		buffer_data = self.root_entry.data_entry.buffer_datas[0]
+		for old, new in name_tuples:
+			buffer_data = buffer_data.replace(old.encode(), new.encode())
+		self.root_entry.data_entry.update_data((buffer_data,))

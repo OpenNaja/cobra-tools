@@ -14,14 +14,7 @@ def file_remover(ovl, filenames):
 	# do this in one step to avoid losing entries during iterations
 	for loader in loaders:
 		loader.remove()
-	for i, pool in sorted(enumerate(ovl.pools), reverse=True):
-		# logging.info(f"pool {i} {pool.offset_2_struct_entries}")
-		if not pool.offset_2_struct_entries:
-			logging.info(f"Deleting pool {i} {pool.name} as it has no pointers")
-			for archive in ovl.archives:
-				if pool in archive.content.pools:
-					archive.content.pools.remove(pool)
-			ovl.pools.remove(pool)
+	ovl.sort_pools_and_update_groups()
 	# todo - delete ovs + archive entry if it is unused
 
 

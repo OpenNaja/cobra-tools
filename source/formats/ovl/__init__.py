@@ -671,10 +671,14 @@ class OvlFile(Header, IoFile):
 		name_tuple_bytes = [(o.encode(), n.encode()) for o, n in name_tups]
 		for loader in self.get_loaders():
 			loader.rename_content(name_tups)
-		# old style
-		# hash all the pools
-		for pool in self.pools:
-			pool.data = ConvStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
+		# rename content may delete files and add them again
+		self.sort_pools_and_update_groups()
+		# old style - rename contents on all the pools
+		try:
+			for pool in self.pools:
+				pool.data = ConvStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
+		except:
+			traceback.print_exc()
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
@@ -1103,8 +1107,8 @@ class OvlFile(Header, IoFile):
 		"""Create flattened list of pools"""
 		self.pools = [None for _ in range(self.num_pools)]
 		for archive in self.archives:
-			if archive.num_pools:
-				self.pools[archive.pools_offset: archive.pools_offset + archive.num_pools] = archive.content.pools
+			assert len(archive.content.pools) == archive.num_pools
+			self.pools[archive.pools_offset: archive.pools_offset + archive.num_pools] = archive.content.pools
 
 	def load_pointers(self):
 		"""Handle all pointers of this file, including dependencies, fragments and root_entry entries"""
@@ -1233,55 +1237,78 @@ class OvlFile(Header, IoFile):
 			archive.content.update_hashes(file_name_lut)
 
 	def sort_pools_and_update_groups(self):
-		logging.debug(f"Sorting pools by type and updating pool groups")
-		self.archives.sort(key=lambda a: a.name)
-		for archive in self.archives:
+		try:
+			logging.debug(f"Sorting pools by type and updating pool groups")
+			pools_byte_offset = 0
+			pools_offset = 0
+			self.archives.sort(key=lambda a: a.name)
+			for archive in self.archives:
 
-			logging.debug(f"Sorting pools for {archive.name}")
-			ovs = archive.content
-			# sort pools by their type
-			ovs.pools.sort(key=lambda pool: pool.type)
-			# remove all fragments to rebuild the list later
-			ovs.fragments.clear()
-			# map pool to index
-			pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
-			for root_entry in ovs.root_entries:
-				root_entry.struct_ptr.update_pool_index(pools_lut)
-				for frag in root_entry.fragments:
-					frag.link_ptr.update_pool_index(pools_lut)
-					frag.struct_ptr.update_pool_index(pools_lut)
-				ovs.fragments.extend(root_entry.fragments)
-			# sort fragments by their first pointer just to keep saves consistent for easier debugging
-			ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
+				logging.debug(f"Sorting pools for {archive.name}")
+				ovs = archive.content
+				# sort pools by their type
+				ovs.pools.sort(key=lambda pool: pool.type)
+				# remove all fragments to rebuild the list later
+				ovs.fragments.clear()
+				# map pool to index
+				pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
+				for root_entry in ovs.root_entries:
+					root_entry.struct_ptr.update_pool_index(pools_lut)
+					for frag in root_entry.fragments:
+						frag.link_ptr.update_pool_index(pools_lut)
+						frag.struct_ptr.update_pool_index(pools_lut)
+					ovs.fragments.extend(root_entry.fragments)
+				# sort fragments by their first pointer just to keep saves consistent for easier debugging
+				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 
-			# map the pool types to pools
-			pools_by_type = {}
-			for pool in ovs.pools:
-				if pool.type not in pools_by_type:
-					pools_by_type[pool.type] = []
-				pools_by_type[pool.type].append(pool)
+				# map the pool types to pools
+				pools_by_type = {}
+				for i, pool in enumerate(reversed(ovs.pools)):
+					if not pool.offset_2_struct_entries:
+						logging.info(f"Deleting {archive.name} pool {i} '{pool.name}' as it has no pointers")
+						ovs.pools.remove(pool)
+						continue
+					else:
+						logging.info(f"pool {i} has {len(pool.offset_2_struct_entries)} structs")
+					if pool.type not in pools_by_type:
+						pools_by_type[pool.type] = []
+					pools_by_type[pool.type].append(pool)
 
-			# rebuild pool groups
-			ovs.pool_groups.clear()
-			for pool_type, pools in pools_by_type.items():
-				pool_group = PoolGroup(self.context)
-				pool_group.type = pool_type
-				pool_group.num_pools = len(pools)
-				ovs.pool_groups.append(pool_group)
+				# rebuild pool groups
+				ovs.pool_groups.clear()
+				for pool_type, pools in pools_by_type.items():
+					pool_group = PoolGroup(self.context)
+					pool_group.type = pool_type
+					pool_group.num_pools = len(pools)
+					ovs.pool_groups.append(pool_group)
 
-			# update the counts
-			archive.num_pool_groups = len(ovs.pool_groups)
-			archive.num_pools = len(ovs.pools)
+				# update the counts
+				archive.num_pool_groups = len(ovs.pool_groups)
+				archive.num_pools = len(ovs.pools)
+				logging.info(f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
-		# update the flattened list of pools
-		self.update_pool_datas()
-		self.load_flattened_pools()
-		# dependencies index goes into the flattened list of pools
-		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
-		for dep in self.dependencies:
-			dep.link_ptr.update_pool_index(pools_lut)
-		# pools are updated, gotta rebuild stream files now
-		self.update_stream_files()
+				archive.pools_offset = pools_offset
+				archive.pools_start = pools_byte_offset
+				archive.content.write_pools()
+				pools_byte_offset += len(archive.content.pools_data)
+				archive.pools_end = pools_byte_offset
+				# at least PZ & JWE require 4 additional bytes after each pool region
+				pools_byte_offset += 4
+				pools_offset += len(archive.content.pools)
+			# todo - nope, rewrite
+			self.load_flattened_pools()
+			# self.pools = [None for _ in range(self.num_pools)]
+			# for archive in self.archives:
+			# 	if archive.num_pools:
+			# 		self.pools[archive.pools_offset: archive.pools_offset + archive.num_pools] = archive.content.pools
+			# dependencies index goes into the flattened list of pools
+			pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
+			for dep in self.dependencies:
+				dep.link_ptr.update_pool_index(pools_lut)
+			# pools are updated, gotta rebuild stream files now
+			self.update_stream_files()
+		except:
+			traceback.print_exc()
 
 	def update_counts(self):
 		"""Update counts of this ovl and all of its archives"""
@@ -1318,19 +1345,6 @@ class OvlFile(Header, IoFile):
 		# we don't use context manager so gotta close them
 		for ovs_file in self.ovs_dict.values():
 			ovs_file.close()
-
-	def update_pool_datas(self):
-		pools_byte_offset = 0
-		pools_offset = 0
-		for archive in self.archives:
-			archive.pools_offset = pools_offset
-			archive.pools_start = pools_byte_offset
-			archive.content.write_pools()
-			pools_byte_offset += len(archive.content.pools_data)
-			archive.pools_end = pools_byte_offset
-			# at least PZ & JWE require 4 additional bytes after each pool region
-			pools_byte_offset += 4
-			pools_offset += len(archive.content.pools)
 
 	def update_stream_files(self):
 		logging.info("Updating stream file memory links")

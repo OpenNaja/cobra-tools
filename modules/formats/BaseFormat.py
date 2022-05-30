@@ -71,6 +71,7 @@ class BaseFile:
 		pointer.frag = self.create_fragment()
 		pointer.frag.link_ptr.data_offset = pointer.io_start
 		pointer.frag.link_ptr.pool = pool
+		pointer.frag.link_ptr.pool.add_link(pointer.frag)
 
 	def get_pool(self, pool_type_key, ovs="STATIC"):
 		assert pool_type_key is not None
