@@ -25,7 +25,7 @@ class FgmLoader(MemStructLoader):
 
 	def get_names(self):
 		"""Assigns names from the data buffer"""
-		buffer_data = self.root_entry.data_entry.buffer_datas[0]
+		buffer_data = self.data_entry.buffer_datas[0]
 		stream = ConvStream(buffer_data)
 		self.header.shader_name = self.read_z_str(stream, 0)
 		for arr in (self.header.attributes.data, self.header.textures.data):

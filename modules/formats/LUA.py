@@ -23,7 +23,7 @@ class LuaLoader(MemStructLoader):
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
-		buffer_data = self.root_entry.data_entry.buffer_datas[0]
+		buffer_data = self.data_entry.buffer_datas[0]
 		logging.debug(f"buffer size: {len(buffer_data)}")
 		# write lua
 		out_path = out_dir(name)
@@ -67,7 +67,7 @@ class LuaLoader(MemStructLoader):
 
 	def rename_content(self, name_tuples):
 		logging.info(f"Renaming in {self.file_entry.name}")
-		buffer_data = self.root_entry.data_entry.buffer_datas[0]
+		buffer_data = self.data_entry.buffer_datas[0]
 		for old, new in name_tuples:
 			buffer_data = buffer_data.replace(old.encode(), new.encode())
-		self.root_entry.data_entry.update_data((buffer_data,))
+		self.data_entry.update_data((buffer_data,))

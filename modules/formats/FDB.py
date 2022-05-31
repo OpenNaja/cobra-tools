@@ -22,7 +22,7 @@ class FdbLoader(BaseFile):
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
 		try:
-			buff = self.root_entry.data_entry.buffer_datas[1]
+			buff = self.data_entry.buffer_datas[1]
 		except:
 			raise AttributeError(f"Found no buffer data for {name}")
 		out_path = out_dir(name)

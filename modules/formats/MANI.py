@@ -22,12 +22,12 @@ class ManisLoader(BaseFile):
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
-		if not self.root_entry.data_entry:
+		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		# buffers = self.root_entry.data_entry.buffer_datas
+		# buffers = self.data_entry.buffer_datas
 		# print(len(buffers))
 		ovl_header = self.pack_header(b"MANI")
-		manis_header = struct.pack("<I", len(self.root_entry.children))
+		manis_header = struct.pack("<I", len(self.children))
 
 		# sized str data gives general info
 		# buffer 0 - all mani infos
@@ -37,13 +37,13 @@ class ManisLoader(BaseFile):
 		with open(out_path, 'wb') as outfile:
 			outfile.write(ovl_header)
 			outfile.write(manis_header)
-			for mani in self.root_entry.children:
-				outfile.write(as_bytes(mani.basename))
+			for mani in self.children:
+				outfile.write(as_bytes(mani.file_entry.basename))
 			outfile.write(self.root_ptr.data)
-			for buff in self.root_entry.data_entry.buffers:
+			for buff in self.data_entry.buffers:
 				outfile.write(buff.data)
 	
-		# for i, buff in enumerate(self.root_entry.data_entry.buffers):
+		# for i, buff in enumerate(self.data_entry.buffers):
 		# 	with open(out_path+str(i), 'wb') as outfile:
 		# 		outfile.write(buff.data)
 	
@@ -60,7 +60,7 @@ class ManisLoader(BaseFile):
 			mani_path = os.path.join(ms2_dir, mani_name+".mani")
 			mani_file_entry = self.get_file_entry(mani_path)
 			mani_file_entry.loader.create()
-			self.root_entry.children.append(mani_file_entry.loader.root_entry)
+			self.children.append(mani_file_entry.loader)
 
 		# todo - pool type
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)

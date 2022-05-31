@@ -126,7 +126,7 @@ class OvsFile(OvsHeader):
 			first_entry = pool.get_first_entry()
 			if first_entry:
 				type_str = first_entry.__class__.__name__
-				# map fragment to containing sizedstr entry
+				# map fragment to containing root entry
 				if isinstance(first_entry, Fragment):
 					for loader in self.ovl.loaders.values():
 						if first_entry in loader.fragments:
@@ -188,7 +188,7 @@ class OvsFile(OvsHeader):
 		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
 		stream = self.ovl.ovs_dict[filepath]
 		stream.seek(start)
-		logging.debug(f"Compressed stream in {os.path.basename(filepath)} starts at {stream.tell()}")
+		logging.info(f"Compressed stream {archive_entry.name} in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
 			assign_versions(stream, get_versions(self.ovl))
@@ -207,11 +207,12 @@ class OvsFile(OvsHeader):
 
 			for data_entry in self.data_entries:
 				self.assign_name(data_entry)
+				loader = self.ovl.loaders[data_entry.name]
+				loader.data_entry = data_entry
 			for root_entry in self.root_entries:
 				self.assign_name(root_entry)
-				root_entry.children = []
-				# get data entry for link to buffers, or none
-				root_entry.data_entry = self.find_entry(self.data_entries, root_entry)
+				loader = self.ovl.loaders[root_entry.name]
+				loader.root_entry = root_entry
 
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
@@ -227,9 +228,8 @@ class OvsFile(OvsHeader):
 				self.assign_name(asset_entry)
 				try:
 					asset_entry.entry = self.root_entries[asset_entry.file_index]
-				except:
-					raise IndexError(
-						f"Could not find a sizedstr entry for asset {asset_entry} in {len(self.root_entries)}")
+				except IndexError:
+					raise IndexError(f"Could not find root entry for asset {asset_entry} in {len(self.root_entries)}")
 
 			self.map_assets()
 
@@ -268,9 +268,10 @@ class OvsFile(OvsHeader):
 			assets = self.set_header.assets[set_entry.start: set_entry.end]
 			logging.debug(f"SET: {set_entry.name}")
 			logging.debug(f"ASSETS: {[a.name for a in assets]}")
-			# store the references on the corresponding sized str entry
+			# store the references on the corresponding loader
 			assert set_entry.entry
-			set_entry.entry.children = [self.root_entries[a.file_index] for a in assets]
+			loader = self.ovl.loaders[set_entry.entry.name]
+			loader.children = [self.ovl.loaders[self.root_entries[a.file_index].name] for a in assets]
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
@@ -286,23 +287,24 @@ class OvsFile(OvsHeader):
 		self.set_header.asset_count = 0
 		start = 0
 		root_entry_lut = {file.name: i for i, file in enumerate(self.root_entries)}
-		for root_entry in self.root_entries:
-			if root_entry.children:
-				set_entry = SetEntry(self.context)
-				set_entry.start = start
-				set_entry.end = start + len(root_entry.children)
-				self.transfer_identity(set_entry, root_entry)
-				self.set_header.sets.append(set_entry)
-				for ss_child in root_entry.children:
-					asset_entry = AssetEntry(self.context)
-					asset_entry.file_index = root_entry_lut[ss_child.name]
-					self.transfer_identity(asset_entry, ss_child)
-					self.set_header.assets.append(asset_entry)
-				start += len(root_entry.children)
-				self.set_header.set_count += 1
-				self.set_header.asset_count += len(root_entry.children)
-				# set_index is 1-based, so the first set = 1, so we do it after the increment
-				root_entry.data_entry.set_index = self.set_header.set_count
+		for loader in self.ovl.loaders.values():
+			if loader.ovs == self:
+				if loader.children:
+					set_entry = SetEntry(self.context)
+					set_entry.start = start
+					set_entry.end = start + len(loader.children)
+					self.transfer_identity(set_entry, loader.root_entry)
+					self.set_header.sets.append(set_entry)
+					for ss_child in loader.children:
+						asset_entry = AssetEntry(self.context)
+						asset_entry.file_index = root_entry_lut[ss_child.name]
+						self.transfer_identity(asset_entry, ss_child)
+						self.set_header.assets.append(asset_entry)
+					start += len(loader.children)
+					self.set_header.set_count += 1
+					self.set_header.asset_count += len(loader.children)
+					# set_index is 1-based, so the first set = 1, so we do it after the increment
+					loader.data_entry.set_index = self.set_header.set_count
 
 	def rebuild_buffer_groups(self):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
@@ -742,8 +744,6 @@ class OvlFile(Header, IoFile):
 		file_entry.path = file_path
 		file_entry.name = filename
 		file_entry.basename, file_entry.ext = os.path.splitext(filename)
-		file_entry.dependencies = []
-		file_entry.aux_entries = []
 		try:
 			file_entry.update_constants(self)
 			return file_entry
@@ -975,9 +975,11 @@ class OvlFile(Header, IoFile):
 			file_entry.ext_hash = djb(file_entry.ext[1:])
 			file_entry.basename = file_name
 			file_entry.name = file_name + file_entry.ext
-			file_entry.dependencies = []
-			file_entry.aux_entries = []
 			self.hash_table_local[file_entry.file_hash] = file_name
+
+			# initialize the loader right here
+			file_entry.loader = self.get_loader(file_entry)
+			self.loaders[file_entry.name] = file_entry.loader
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
 
@@ -994,7 +996,8 @@ class OvlFile(Header, IoFile):
 		for ht_index, dependency_entry in enumerate(self.dependencies):
 			self.print_and_callback("Loading dependencies", value=ht_index, max_value=ht_max)
 			file_entry = self.files[dependency_entry.file_index]
-			file_entry.dependencies.append(dependency_entry)
+
+			self.loaders[file_entry.name].dependencies.append(dependency_entry)
 			# nb: these use : instead of . at the start, eg. :tex
 			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
 			h = dependency_entry.file_hash
@@ -1009,14 +1012,11 @@ class OvlFile(Header, IoFile):
 				dependency_entry.basename = UNK_HASH
 
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
-		# sort dependencies by their pool offset
-		for file_entry in self.files:
-			file_entry.dependencies.sort(key=lambda entry: entry.link_ptr.data_offset)
 
 		for aux_entry in self.aux_entries:
 			aux_entry.name = self.names.get_str_at(aux_entry.offset)
 			file_entry = self.files[aux_entry.file_index]
-			file_entry.aux_entries.append(aux_entry)
+			self.loaders[file_entry.name].aux_entries.append(aux_entry)
 
 		for archive_entry in self.archives:
 			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
@@ -1132,10 +1132,6 @@ class OvlFile(Header, IoFile):
 
 		logging.info("Loading file classes")
 		start_time = time.time()
-		for file_entry in self.files:
-			file_entry.loader = self.get_loader(file_entry)
-			self.loaders[file_entry.name] = file_entry.loader
-
 		for loader in self.loaders.values():
 			loader.track_ptrs()
 			try:
@@ -1154,7 +1150,7 @@ class OvlFile(Header, IoFile):
 			for archive_entry in self.archives:
 				for file in archive_entry.content.root_entries:
 					print(file.name.lower())
-			raise KeyError(f"Can't find a sizedstr entry for {name}, not from this archive?")
+			raise KeyError(f"Can't find a root entry for {name}, not from this archive?")
 
 	def update_ss_dict(self):
 		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
@@ -1181,19 +1177,19 @@ class OvlFile(Header, IoFile):
 		self.dependencies.clear()
 		self.aux_entries.clear()
 		# update file hashes
-		for file in self.files:
+		for loader in self.loaders.values():
 			# ensure lowercase, at the risk of being redundant
-			file.file_hash = djb(file.basename.lower())
-			file.ext_hash = djb(file.ext[1:].lower())
+			loader.file_entry.file_hash = djb(loader.file_entry.basename.lower())
+			loader.file_entry.ext_hash = djb(loader.file_entry.ext[1:].lower())
 			# logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
 			# update dependency hashes
-			for dependency in file.dependencies:
+			for dependency in loader.dependencies:
 				if UNK_HASH in dependency.basename:
 					logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
 				else:
 					dependency.file_hash = djb(dependency.basename.lower())
-			self.dependencies.extend(file.dependencies)
-			self.aux_entries.extend(file.aux_entries)
+			self.dependencies.extend(loader.dependencies)
+			self.aux_entries.extend(loader.aux_entries)
 
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
@@ -1204,9 +1200,9 @@ class OvlFile(Header, IoFile):
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
 		# update the file indices
-		for file_i, file in enumerate(self.files):
-			for entry in file.dependencies + file.aux_entries:
-				entry.file_index = file_i
+		for loader in self.loaders.values():
+			for entry in loader.dependencies + loader.aux_entries:
+				entry.file_index = file_name_lut[loader.file_entry.name]
 		self.aux_entries.sort(key=lambda x: x.file_index)
 
 		for archive in self.archives:
@@ -1409,9 +1405,9 @@ class OvlFile(Header, IoFile):
 
 	def update_aux_sizes(self):
 		logging.debug("Updating AUX sizes in OVL")
-		for file in self.files:
-			name = file.basename
-			for aux in file.aux_entries:
+		for loader in self.loaders.values():
+			name = loader.file_entry.basename
+			for aux in loader.aux_entries:
 				bnkpath = f"{self.path_no_ext}_{name}_bnk_{aux.name.lower()}.aux"
 				# grab and update size
 				if os.path.isfile(bnkpath):

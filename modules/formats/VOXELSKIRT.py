@@ -19,7 +19,7 @@ class VoxelskirtLoader(BaseFile):
 		ovl_header = self.pack_header(b"VOXE")
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
-		buffers = self.root_entry.data_entry.buffer_datas
+		buffers = self.data_entry.buffer_datas
 		# write voxelskirt
 		with open(out_path, 'wb') as outfile:
 			# write the sized str and buffers

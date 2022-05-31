@@ -19,7 +19,7 @@ class BnkLoader(BaseFile):
 	def create(self):
 		# todo - fixme
 		# # first uint of the buffer is the size of the data that should be read from the aux file
-		# media_buffers = self.root_entry.data_entry.buffer_datas
+		# media_buffers = self.data_entry.buffer_datas
 		# media_buffers[0] = struct.pack("<I", media.size_for_ovl) + media_buffers[0][4:]
 		#
 		# if len(media_buffers) > 1:
@@ -27,7 +27,7 @@ class BnkLoader(BaseFile):
 		# 	with open(media_path, "rb") as f:
 		# 		media_buffers[1] = f.read()
 		# # update the buffer
-		# self.root_entry.data_entry.update_data(media_buffers)
+		# self.data_entry.update_data(media_buffers)
 		#
 		# # get events bnk for internal files
 		# if not self.file_entry.aux_entries:
@@ -49,7 +49,7 @@ class BnkLoader(BaseFile):
 		# print(self.root_entry.struct_ptr.data)
 		out_path = out_dir(self.root_entry.name)
 		out_files = [out_path, ]
-		buffer_datas = self.root_entry.data_entry.buffer_datas
+		buffer_datas = self.data_entry.buffer_datas
 		with open(out_path, "wb") as f:
 			f.write(self.pack_header(b"BNK"))
 			f.write(buffer_datas[0])
@@ -62,7 +62,7 @@ class BnkLoader(BaseFile):
 		bnk.load(out_path)
 		# print(bnk)
 		# ensure that aux files are where they should be
-		for aux_file in self.file_entry.aux_entries:
+		for aux_file in self.aux_entries:
 			# print(aux_file)
 			if aux_file.name.lower() == "b":
 				assert bnk.bnk_header.external_b_suffix.lower() == "b"

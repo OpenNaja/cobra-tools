@@ -18,7 +18,7 @@ class GfxLoader(BaseFile):
         logging.info(f"Writing {name}")
 
         out_path = out_dir(name)
-        buffers = self.root_entry.data_entry.buffer_datas
+        buffers = self.data_entry.buffer_datas
         with open(out_path, 'wb') as outfile:
             for buff in buffers:
                 outfile.write(buff)

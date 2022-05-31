@@ -30,7 +30,7 @@ class Model2streamLoader(BaseFile):
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		stream_path = out_dir(self.file_entry.name)
 		with open(stream_path, 'wb') as outfile:
-			outfile.write(self.root_entry.data_entry.buffer_datas[0])
+			outfile.write(self.data_entry.buffer_datas[0])
 		return stream_path,
 
 
@@ -107,7 +107,7 @@ class Ms2Loader(BaseFile):
 			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")
 			mdl2_file = self.get_file_entry(mdl2_path)
 			mdl2_file.loader.create()
-			self.root_entry.children.append(mdl2_file.loader.root_entry)
+			self.children.append(mdl2_file.loader)
 
 		# create ms2 data
 		self.create_data_entry(ms2_file.buffers)
@@ -135,7 +135,7 @@ class Ms2Loader(BaseFile):
 			# make sure buffer 0 is padded to 4 bytes
 			padding = get_padding(len(name_buffer), 4)
 			if padding:
-				self.root_entry.data_entry.update_data([name_buffer + padding, bone_infos, verts])
+				self.data_entry.update_data([name_buffer + padding, bone_infos, verts])
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		self.get_version()
@@ -154,7 +154,8 @@ class Ms2Loader(BaseFile):
 			# present since DLA
 			if self.header.buffers_presence.data is not None:
 				self.header.buffers_presence.data.write(stream)
-			for mdl2_entry in self.root_entry.children:
+			for mdl2_loader in self.children:
+				mdl2_entry = mdl2_loader.file_entry
 				logging.debug(f"Writing {mdl2_entry.name}")
 				stream.write(as_bytes(mdl2_entry.basename))
 			for loader in self.streams:
@@ -194,8 +195,8 @@ class Ms2Loader(BaseFile):
 		return out_paths
 	
 	def get_ms2_buffer_datas(self):
-		assert self.root_entry.data_entry
-		all_buffer_bytes = self.root_entry.data_entry.buffer_datas
+		assert self.data_entry
+		all_buffer_bytes = self.data_entry.buffer_datas
 		name_buffer = all_buffer_bytes[0]
 		bone_infos = all_buffer_bytes[1]
 		verts = b"".join(all_buffer_bytes[2:])

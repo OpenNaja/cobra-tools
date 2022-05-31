@@ -19,12 +19,20 @@ class BaseFile:
 
 	def __init__(self, ovl, file_entry):
 		self.ovl = ovl
-		self.ovs = ovl.create_archive()
-		self.file_entry = file_entry
-		self.root_entry = None
-		self.streams = []
-		self.children = []
+		# this needs to be figured out by the root_entry
+		self.ovs = None
 		self.header = None
+
+		# defined in ovl
+		self.file_entry = file_entry
+		self.dependencies = []
+		self.aux_entries = []
+		self.streams = []
+
+		# defined in ovs
+		self.root_entry = None
+		self.data_entry = None
+		self.children = []
 		self.fragments = set()
 
 	@property
@@ -119,8 +127,8 @@ class BaseFile:
 
 	def create_root_entry(self, ovs="STATIC"):
 		self.root_entry = RootEntry(self.ovl.context)
-		self.root_entry.children = []
-		self.root_entry.data_entry = None
+		self.children = []
+		self.data_entry = None
 		self.fragments = set()
 		self.ovs = self.ovl.create_archive(ovs)
 		self.ovs.transfer_identity(self.root_entry, self.file_entry)
@@ -137,7 +145,7 @@ class BaseFile:
 	def create_dependency(self, name):
 		dependency = DependencyEntry(self.ovl.context)
 		self.set_dependency_identity(dependency, name)
-		self.file_entry.dependencies.append(dependency)
+		self.dependencies.append(dependency)
 		return dependency
 
 	def create_fragment(self):
@@ -148,7 +156,7 @@ class BaseFile:
 	def create_data_entry(self, buffers_bytes, ovs="STATIC"):
 		ovs_file = self.ovl.create_archive(ovs)
 		data = DataEntry(self.ovl.context)
-		self.root_entry.data_entry = data
+		self.data_entry = data
 		data.buffer_count = len(buffers_bytes)
 		data.buffers = []
 		for i, buffer_bytes in enumerate(buffers_bytes):
@@ -195,7 +203,7 @@ class BaseFile:
 
 		# remove entries in ovs
 		self.ovs.root_entries.remove(self.root_entry)
-		data = self.root_entry.data_entry
+		data = self.data_entry
 		if data:
 			for buffer in data.buffers:
 				buffer.update_data(b"")
@@ -208,16 +216,15 @@ class BaseFile:
 			self.ovl.files.remove(self.file_entry)
 
 		# clear dependencies, they are automatically regenerated for the ovl on saving
-		self.file_entry.dependencies.clear()
+		self.dependencies.clear()
+		self.aux_entries.clear()
 		# remove children files
-		for file_entry in self.ovl.files:
-			for child_root in self.root_entry.children:
-				if file_entry.name == child_root.name:
-					if file_entry.loader:
-						file_entry.loader.remove()
-						break
-					else:
-						logging.warning(f"Could not remove {file_entry.name} as it has no loader")
+		for child_root in self.children:
+			child_loader = self.ovl.loaders.get(child_root.file_entry.name, None)
+			if child_loader:
+				child_loader.remove()
+			else:
+				logging.warning(f"Could not remove {child_root.name} as it has no loader")
 		# remove streamed and child files
 		for loader in self.streams:
 			loader.remove()
@@ -234,11 +241,11 @@ class BaseFile:
 		for frag in self.fragments:
 			frag.link_ptr.pool.add_link(frag)
 			frag.struct_ptr.pool.add_struct(frag)
-		for dep in self.file_entry.dependencies:
+		for dep in self.dependencies:
 			dep.link_ptr.pool.add_link(dep)
 
 	def track_ptrs(self):
-		logging.info(f"Tracking {self.file_entry.name}")
+		logging.debug(f"Tracking {self.file_entry.name}")
 		self.assign_root_entry()
 		# this is significantly slower if a list is used
 		self.fragments = set()

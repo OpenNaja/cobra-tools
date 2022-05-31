@@ -45,11 +45,11 @@ class DdsLoader(MemStructLoader):
 		"""Collect other loaders"""
 		self._link_streams(f"{self.file_entry.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
 
-	def increment_buffers(self, root_entry, buffer_i):
+	def increment_buffers(self, loader, buffer_i):
 		"""Linearly increments buffer indices for games that need it"""
 		# create increasing buffer indices for PZ (still needed 22-05-10), JWE1
 		if not is_jwe2(self.ovl):
-			for buff in root_entry.data_entry.buffers:
+			for buff in loader.data_entry.buffers:
 				buff.index = buffer_i
 				buffer_i += 1
 		return buffer_i
@@ -85,9 +85,9 @@ class DdsLoader(MemStructLoader):
 				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{lod_i}.texturestream")
 				texstream_file.loader.create(ovs_name)
 				self.streams.append(texstream_file.loader)
-				buffer_i = self.increment_buffers(texstream_file.loader.root_entry, buffer_i)
+				buffer_i = self.increment_buffers(texstream_file.loader, buffer_i)
 			self.create_data_entry(buffers[streamed_lods:])
-			self.increment_buffers(self.root_entry, buffer_i)
+			self.increment_buffers(self, buffer_i)
 			# ready, now inject
 			self.load_image(self.file_entry.path)
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
@@ -96,13 +96,13 @@ class DdsLoader(MemStructLoader):
 	def collect(self):
 		super().collect()
 		# print("\n", self.file_entry.name)
-		# for buff in self.root_entry.data_entry.buffers:
+		# for buff in self.data_entry.buffers:
 		# 	print(buff.index, buff.size)
 		# for stream_file in self.file_entry.streams:
 		# 	print(stream_file.name)
 		# 	stream_ss, archive = self.ovl.get_root_entry(stream_file.name)
 		# 	# idk why the loader is not used?!
-		# 	# for buff in stream.loader.root_entry.data_entry.buffers:
+		# 	# for buff in stream.loader.data_entry.buffers:
 		# 	for buff in stream_ss.data_entry.buffers:
 		# 		print(buff.index, buff.size)
 
@@ -174,9 +174,9 @@ class DdsLoader(MemStructLoader):
 		all_buffers = []
 		for loader in sorted(self.streams, key=lambda f: f.file_entry.name):
 			# seen 1 per stream
-			all_buffers.extend(loader.root_entry.data_entry.buffers)
+			all_buffers.extend(loader.data_entry.buffers)
 		# seen 2
-		all_buffers.extend(self.root_entry.data_entry.buffers)
+		all_buffers.extend(self.data_entry.buffers)
 		return all_buffers
 
 	@staticmethod

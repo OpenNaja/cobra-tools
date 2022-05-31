@@ -40,9 +40,9 @@ class BanisLoader(BaseFile):
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
-		if not self.root_entry.data_entry:
+		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		buffers = self.root_entry.data_entry.buffer_datas
+		buffers = self.data_entry.buffer_datas
 		if len(buffers) != 1:
 			raise AttributeError(f"Wrong amount of buffers for {name}")
 		logging.info(f"Writing {name}")
@@ -57,7 +57,7 @@ class BanisLoader(BaseFile):
 	def load(self, file_path):
 		# todo - fixme
 		root_entry, buffer_0 = self._get_data(file_path)
-		self.root_entry.data_entry.update_data((buffer_0,))
+		self.data_entry.update_data((buffer_0,))
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)
 		banis_dir = os.path.dirname(file_path)
 		for bani_file_name in os.listdir(banis_dir):
