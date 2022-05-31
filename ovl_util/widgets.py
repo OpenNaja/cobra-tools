@@ -319,6 +319,27 @@ class TableView(QtWidgets.QTableView):
 		# returns the list of all file names
 		return [x[0] for x in self.model._data]
 
+	# todo - the following do not have the intended effect of allowing left click drags only
+	# @staticmethod
+	# def handle_event(q_event):
+	# 	if q_event.mouseButtons() == QtCore.Qt.MouseButtons.LeftButton:
+	# 		q_event.accept()
+	# 	else:
+	# 		q_event.ignore()
+	#
+	# def dragEnterEvent(self, q_event):
+	# 	self.handle_event(q_event)
+	#
+	# # def dragLeaveEvent(self, q_event):
+	# # crashes
+	# # 	self.handle_event(q_event)
+	#
+	# def dragMoveEvent(self, q_event):
+	# 	self.handle_event(q_event)
+	#
+	# def dropEvent(self, q_event):
+	# 	self.handle_event(q_event)
+
 	def startDrag(self, drop_actions):
 		"""Emits a signal with the file names of all files that are being dragged"""
 		# drop_actions is just a flag
