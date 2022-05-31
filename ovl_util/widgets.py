@@ -319,9 +319,9 @@ class TableView(QtWidgets.QTableView):
 		# returns the list of all file names
 		return [x[0] for x in self.model._data]
 
-
-	def startDrag(self, actions):
+	def startDrag(self, drop_actions):
 		"""Emits a signal with the file names of all files that are being dragged"""
+		# drop_actions is just a flag
 		self.files_dragged.emit(self.get_selected_files())
 
 	def set_data(self, data):
