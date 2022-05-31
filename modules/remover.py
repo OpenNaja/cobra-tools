@@ -9,10 +9,7 @@ def file_remover(ovl, filenames):
 	:return:
 	"""
 	logging.info(f"Removing files for {filenames}")
-	# remove file entry
-	loaders = [file_entry.loader for file_entry in ovl.files if file_entry.name in filenames and file_entry.loader]
-	# do this in one step to avoid losing entries during iterations
-	for loader in loaders:
+	for loader in ovl.loaders.values():
 		loader.remove()
 	ovl.sort_pools_and_update_groups()
 	# todo - delete ovs + archive entry if it is unused

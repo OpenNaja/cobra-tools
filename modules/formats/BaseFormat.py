@@ -120,7 +120,7 @@ class BaseFile:
 			if file_entry.name == file_name:
 				return file_entry
 		file_entry = self.ovl.create_file_entry(file_path)
-		file_entry.loader = self.ovl.get_loader(file_entry)
+		file_entry.loader = self.ovl.init_loader(file_entry)
 		self.ovl.loaders[file_entry.name] = file_entry.loader
 		self.ovl.files.append(file_entry)
 		return file_entry

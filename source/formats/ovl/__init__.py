@@ -606,7 +606,7 @@ class OvlFile(Header, IoFile):
 		self.formats_dict = build_formats_dict()
 		self.loaders = {}
 
-	def get_loader(self, file_entry):
+	def init_loader(self, file_entry):
 		# fall back to BaseFile loader
 		from modules.formats.BaseFormat import BaseFile
 		cls = self.formats_dict.get(file_entry.ext, BaseFile)
@@ -699,8 +699,6 @@ class OvlFile(Header, IoFile):
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		error_files = []
 		foreign_files = []
-		# key with name+ext
-		_files_dict = {file.name.lower(): file for file in self.files}
 		for file_index, file_path in enumerate(file_paths):
 			self.progress_callback("Injecting", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
@@ -708,24 +706,25 @@ class OvlFile(Header, IoFile):
 			if ext in aliases:
 				name_lower = name_lower.replace(ext, aliases[ext])
 			# check if this file exists in this ovl
-			if name_lower in _files_dict:
-				file = _files_dict[name_lower]
+			if name_lower in self.loaders:
+				loader = self.loaders[name_lower]
 			else:
 				# check if this file could be handled by a loader still
 				for file in self.files:
 					if file.loader and ext in file.loader.child_extensions:
 						if file.loader.validate_child(name_lower):
 							logging.info(f"Could inject {name_lower} into {file.name}")
+							loader = file.loader
 							break
 				# nope, it may need to be added
 				else:
 					foreign_files.append(file_path)
 					continue
 			try:
-				file.loader.load(file_path)
+				loader.load(file_path)
 				# todo - enabling these breaks ms2 - why?
-				# file.loader.register_created_ptrs()
-				# file.loader.track_ptrs()
+				# loader.register_created_ptrs()
+				# loader.track_ptrs()
 			except BaseException as error:
 				logging.error(f"An exception occurred while injecting {name_ext}")
 				logging.error(error)
@@ -761,7 +760,7 @@ class OvlFile(Header, IoFile):
 		file_entry = self.create_file_entry(file_path)
 		if not file_entry:
 			return
-		file_entry.loader = self.get_loader(file_entry)
+		file_entry.loader = self.init_loader(file_entry)
 		try:
 			file_entry.loader.create()
 		except NotImplementedError:
@@ -978,7 +977,7 @@ class OvlFile(Header, IoFile):
 			self.hash_table_local[file_entry.file_hash] = file_name
 
 			# initialize the loader right here
-			file_entry.loader = self.get_loader(file_entry)
+			file_entry.loader = self.init_loader(file_entry)
 			self.loaders[file_entry.name] = file_entry.loader
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
@@ -1271,6 +1270,8 @@ class OvlFile(Header, IoFile):
 				# at least PZ & JWE require 4 additional bytes after each pool region
 				pools_byte_offset += 4
 				pools_offset += len(archive.content.pools)
+			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
+			self.num_pools = sum(a.num_pools for a in self.archives)
 			# todo - nope, rewrite
 			self.load_flattened_pools()
 			# self.pools = [None for _ in range(self.num_pools)]
@@ -1295,8 +1296,6 @@ class OvlFile(Header, IoFile):
 			archive.content.update_counts()
 			archive.content.rebuild_assets()
 		# sum content of individual archives
-		self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
-		self.num_pools = sum(a.num_pools for a in self.archives)
 		self.num_datas = sum(a.num_datas for a in self.archives)
 		self.num_buffers = sum(a.num_buffers for a in self.archives)
 
@@ -1340,9 +1339,11 @@ class OvlFile(Header, IoFile):
 			archive.stream_files_offset = 0
 			if archive.name != "STATIC":
 				files = [f for f in self.stream_files if f.archive_name == archive.name]
+				# todo - this appears to be redundant, cf. ovs.update_counts
 				archive.num_files = len(files)
 				if not files:
 					logging.warning(f"No files in archive {archive.name}")
+					# todo - delete archive
 					continue
 				archive.stream_files_offset = self.stream_files.index(files[0])
 
