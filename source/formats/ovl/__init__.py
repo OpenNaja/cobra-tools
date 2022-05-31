@@ -1086,11 +1086,11 @@ class OvlFile(Header, IoFile):
 
 	def postprocessing(self):
 		self.update_ss_dict()
-		# self.load_flattened_pools()
+		self.load_flattened_pools()
 		self.load_pointers()
 
 	def load_flattened_pools(self):
-		"""Create flattened list of pools"""
+		"""Create flattened list of ovl.pools from all ovs.pools"""
 		self.pools = [None for _ in range(self.num_pools)]
 		for archive in self.archives:
 			assert len(archive.content.pools) == archive.num_pools
