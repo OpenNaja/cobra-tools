@@ -121,25 +121,6 @@ class OvsFile(OvsHeader):
 	def update_hashes(self, file_name_lut):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		logging.debug(f"Game: {get_game(self.ovl)}")
-		logging.info("Updating pool names")
-		for pool_index, pool in enumerate(self.pools):
-			first_entry = pool.get_first_entry()
-			if first_entry:
-				type_str = first_entry.__class__.__name__
-				# map fragment to containing root entry
-				if isinstance(first_entry, Fragment):
-					for loader in self.ovl.loaders.values():
-						if first_entry in loader.fragments:
-							first_entry = loader.root_entry
-							break
-					else:
-						# raise NameError(f"Could not find root entry to resolve fragment's name {first_entry}")
-						logging.warning(f"Could not find root entry to resolve fragment's name {first_entry}")
-						continue
-				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
-				self.transfer_identity(pool, first_entry)
-			else:
-				logging.error(f"No entry found for pool {pool_index}!")
 		entry_lists = (
 			self.pools,
 			self.root_entries,
@@ -657,8 +638,9 @@ class OvlFile(Header, IoFile):
 			# todo - enabling these breaks ms2 - why?
 			# loader.register_created_ptrs()
 			# loader.track_ptrs()
-		# rename content may delete files and add them again
+		# rename content may delete files and add them again, so we need to catch those newly created files too
 		self.sort_pools_and_update_groups()
+		self.update_hashes()
 		# old style - rename contents on all the pools
 		try:
 			for pool in self.pools:
@@ -1209,6 +1191,7 @@ class OvlFile(Header, IoFile):
 			archive.content.update_hashes(file_name_lut)
 
 	def sort_pools_and_update_groups(self):
+		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
 		try:
 			logging.debug(f"Sorting pools by type and updating pool groups")
 			pools_byte_offset = 0
@@ -1236,18 +1219,33 @@ class OvlFile(Header, IoFile):
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
 				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 
+				logging.info("Updating pool names, deleting unused pools")
 				# map the pool types to pools
 				pools_by_type = {}
-				for i, pool in enumerate(reversed(ovs.pools)):
-					if not pool.offset_2_struct_entries:
-						logging.info(f"Deleting {archive.name} pool {i} '{pool.name}' as it has no pointers")
-						ovs.pools.remove(pool)
-						continue
+				for pool_index, pool in enumerate(reversed(ovs.pools)):
+					if pool.offset_2_struct_entries:
+						logging.info(f"pool {pool_index} has {len(pool.offset_2_struct_entries)} structs")
+						first_entry = pool.get_first_entry()
+						assert first_entry
+						type_str = first_entry.__class__.__name__
+						# map fragment to containing root entry
+						if isinstance(first_entry, Fragment):
+							for loader in self.loaders.values():
+								if first_entry in loader.fragments:
+									first_entry = loader.root_entry
+									break
+							else:
+								logging.warning(f"Could not find root entry to get name for {first_entry}")
+								continue
+						logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
+						self.transfer_identity(pool, first_entry)
+						# store pool in pool_groups map
+						if pool.type not in pools_by_type:
+							pools_by_type[pool.type] = []
+						pools_by_type[pool.type].append(pool)
 					else:
-						logging.info(f"pool {i} has {len(pool.offset_2_struct_entries)} structs")
-					if pool.type not in pools_by_type:
-						pools_by_type[pool.type] = []
-					pools_by_type[pool.type].append(pool)
+						logging.info(f"Deleting {archive.name} pool {pool_index} '{pool.name}' as it has no pointers")
+						ovs.pools.remove(pool)
 
 				# rebuild pool groups
 				ovs.pool_groups.clear()
@@ -1257,7 +1255,7 @@ class OvlFile(Header, IoFile):
 					pool_group.num_pools = len(pools)
 					ovs.pool_groups.append(pool_group)
 
-				# update the counts
+				# update the ovs counts
 				archive.num_pool_groups = len(ovs.pool_groups)
 				archive.num_pools = len(ovs.pools)
 				logging.info(f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
@@ -1270,14 +1268,12 @@ class OvlFile(Header, IoFile):
 				# at least PZ & JWE require 4 additional bytes after each pool region
 				pools_byte_offset += 4
 				pools_offset += len(archive.content.pools)
+
+			# update the ovl counts
 			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
 			self.num_pools = sum(a.num_pools for a in self.archives)
 			# todo - nope, rewrite
 			self.load_flattened_pools()
-			# self.pools = [None for _ in range(self.num_pools)]
-			# for archive in self.archives:
-			# 	if archive.num_pools:
-			# 		self.pools[archive.pools_offset: archive.pools_offset + archive.num_pools] = archive.content.pools
 			# dependencies index goes into the flattened list of pools
 			pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
 			for dep in self.dependencies:
