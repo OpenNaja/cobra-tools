@@ -295,10 +295,10 @@ class OvsFile(OvsHeader):
 					set_entry.end = start + len(loader.children)
 					self.transfer_identity(set_entry, loader.root_entry)
 					self.set_header.sets.append(set_entry)
-					for ss_child in loader.children:
+					for child_loader in loader.children:
 						asset_entry = AssetEntry(self.context)
-						asset_entry.file_index = root_entry_lut[ss_child.name]
-						self.transfer_identity(asset_entry, ss_child)
+						asset_entry.file_index = root_entry_lut[child_loader.root_entry.name]
+						self.transfer_identity(asset_entry, child_loader.root_entry)
 						self.set_header.assets.append(asset_entry)
 					start += len(loader.children)
 					self.set_header.set_count += 1
@@ -1086,7 +1086,7 @@ class OvlFile(Header, IoFile):
 
 	def postprocessing(self):
 		self.update_ss_dict()
-		self.load_flattened_pools()
+		# self.load_flattened_pools()
 		self.load_pointers()
 
 	def load_flattened_pools(self):

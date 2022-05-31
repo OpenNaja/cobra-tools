@@ -130,7 +130,10 @@ class HeaderPointer:
 		"""Link this pointer to its pool"""
 		if self.pool_index != -1:
 			# get pool
-			self.pool = pools[self.pool_index]
+			try:
+				self.pool = pools[self.pool_index]
+			except IndexError:
+				raise IndexError(f"Pool index {self.pool_index} exceeds of {len(pools)} pools")
 
 	def update_pool_index(self, pools_lut):
 		"""Changes self.pool_index according to self.pool in pools_lut"""
