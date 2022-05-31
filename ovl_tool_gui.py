@@ -344,16 +344,6 @@ class MainWindow(widgets.MainWindow):
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
-		root_entry, archive = self.ovl_data.get_root_entry(file_entry.name)
-		ss_p = root_entry.struct_ptr
-		logging.debug(f"File: {ss_p.pool_index} {ss_p.data_offset} {root_entry.name}")
-		for dep in file_entry.dependencies:
-			p = dep.link_ptr
-			logging.debug(f"Dependency: {p.pool_index} {p.data_offset} {dep.name}")
-		for f in root_entry.fragments:
-			p0 = f.struct_ptr
-			p1 = f.link_ptr
-			logging.debug(f"Fragment: {p0.pool_index} {p0.data_offset} {p1.pool_index} {p1.data_offset}")
 
 	def load(self):
 		if self.file_widget.filepath:
@@ -439,7 +429,9 @@ class MainWindow(widgets.MainWindow):
 	def update_gui_table(self, ):
 		start_time = time.time()
 		logging.info(f"Loading {len(self.ovl_data.files)} files into gui")
-		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in self.ovl_data.files])
+		files = [loader.file_entry for loader in self.ovl_data.loaders.values()]
+		files.sort(key=lambda file: (file.ext, file.name))
+		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in files])
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)

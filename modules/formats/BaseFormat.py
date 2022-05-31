@@ -3,6 +3,7 @@ import os
 import struct
 import tempfile
 
+from generated.formats.ovl import UNK_HASH
 from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compound.Fragment import Fragment
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
@@ -70,10 +71,6 @@ class BaseFile:
 		ovl = self.ovl
 		return struct.pack(
 			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
-
-	def assign_root_entry(self):
-		self.root_entry, archive = self.ovl.get_root_entry(self.file_entry.name)
-		self.ovs = archive.content
 
 	def attach_frag_to_ptr(self, pointer, pool):
 		"""Creates a frag on a MemStruct Pointer; needs to have been written so that io_start is set"""
@@ -174,8 +171,23 @@ class BaseFile:
 		"""Don't do anything by default, overwrite if needed"""
 		pass
 
-	def rename_content(self, name_tuple_bytes):
+	def rename_content(self, name_tuples):
+		# this needs to be implemented per file format to actually do something
 		pass
+
+	def rename(self, name_tuples):
+		"""Rename all entries controlled by this loader"""
+		entries = [self.file_entry, *self.dependencies, *self.aux_entries, self.root_entry, ]
+		if self.data_entry:
+			entries.extend((self.data_entry, *self.data_entry.buffers))
+		for entry in entries:
+			if UNK_HASH in entry.name:
+				logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
+				return
+			# update name
+			for old, new in name_tuples:
+				entry.name = entry.name.replace(old, new)
+			entry.basename, entry.ext = os.path.splitext(entry.name)
 
 	def get_tmp_dir(self):
 		temp_dir = tempfile.mkdtemp("-cobra")
@@ -246,7 +258,6 @@ class BaseFile:
 
 	def track_ptrs(self):
 		logging.debug(f"Tracking {self.file_entry.name}")
-		self.assign_root_entry()
 		# this is significantly slower if a list is used
 		self.fragments = set()
 		if self.root_entry.struct_ptr.pool:

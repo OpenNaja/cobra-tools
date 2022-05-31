@@ -98,12 +98,9 @@ class DdsLoader(MemStructLoader):
 		# print("\n", self.file_entry.name)
 		# for buff in self.data_entry.buffers:
 		# 	print(buff.index, buff.size)
-		# for stream_file in self.file_entry.streams:
-		# 	print(stream_file.name)
-		# 	stream_ss, archive = self.ovl.get_root_entry(stream_file.name)
-		# 	# idk why the loader is not used?!
-		# 	# for buff in stream.loader.data_entry.buffers:
-		# 	for buff in stream_ss.data_entry.buffers:
+		# for stream_loader in self.file_entry.streams:
+		# 	print(stream_loader.file_entry.name)
+		# 	for buff in stream_loader.data_entry.buffers:
 		# 		print(buff.index, buff.size)
 
 	def load(self, file_path):

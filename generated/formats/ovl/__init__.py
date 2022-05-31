@@ -138,7 +138,9 @@ class OvsFile(OvsHeader):
 					file_index = file_name_lut[entry.name]
 				else:
 					logging.debug(file_name_lut)
-					raise KeyError(f"Can't find '{entry.name}' [{entry.__class__.__name__}] in name LUT")
+					# raise KeyError
+					logging.warning(f"Can't find '{entry.name}' [{entry.__class__.__name__}] in name LUT, cannot update hash")
+					continue
 				file = self.ovl.files[file_index]
 				if self.ovl.user_version.is_jwe:
 					entry.file_hash = file.file_hash
@@ -192,8 +194,10 @@ class OvsFile(OvsHeader):
 				loader.data_entry = data_entry
 			for root_entry in self.root_entries:
 				self.assign_name(root_entry)
+				# store ovs and root_entry on loader
 				loader = self.ovl.loaders[root_entry.name]
 				loader.root_entry = root_entry
+				loader.ovs = self
 
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
@@ -253,6 +257,9 @@ class OvsFile(OvsHeader):
 			assert set_entry.entry
 			loader = self.ovl.loaders[set_entry.entry.name]
 			loader.children = [self.ovl.loaders[self.root_entries[a.file_index].name] for a in assets]
+		# can clear them now, the loaders store all we need
+		self.set_header.sets.clear()
+		self.set_header.assets.clear()
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
@@ -610,29 +617,20 @@ class OvlFile(Header, IoFile):
 
 	def rename(self, name_tups, animal_mode=False):
 		logging.info(f"Renaming for {name_tups}, animal mode = {animal_mode}")
-		lists = [self.files, self.dependencies, self.included_ovls]
-		for archive in self.archives:
-			ovs = archive.content
-			lists.extend((
-				ovs.data_entries,
-				ovs.buffer_entries,
-				ovs.set_header.sets,
-				ovs.set_header.assets,
-				ovs.pools,
-				ovs.root_entries
-			))
-		for entry_list in lists:
-			for entry in entry_list:
-				if animal_mode and entry.ext not in (".ms2", ".mdl2", ".motiongraph"):
-					continue
-				rename_entry(entry, name_tups)
+		# todo - support renaming included_ovls?
+		# make a temporary copy
+		temp_loaders = list(self.loaders.values())
+		for loader in temp_loaders:
+			if animal_mode and loader.file_entry.ext not in (".ms2", ".mdl2", ".motiongraph"):
+				continue
+			loader.rename(name_tups)
+		# recreate the loaders dict
+		self.loaders = {loader.file_entry.name: loader for loader in temp_loaders}
 		self.update_hashes()
-		self.update_ss_dict()
 		logging.info("Finished renaming!")
 
 	def rename_contents(self, name_tups):
 		logging.info(f"Renaming contents for {name_tups}")
-		name_tuple_bytes = [(o.encode(), n.encode()) for o, n in name_tups]
 		for loader in self.loaders.values():
 			loader.rename_content(name_tups)
 			# todo - enabling these breaks ms2 - why?
@@ -641,12 +639,6 @@ class OvlFile(Header, IoFile):
 		# rename content may delete files and add them again, so we need to catch those newly created files too
 		self.sort_pools_and_update_groups()
 		self.update_hashes()
-		# old style - rename contents on all the pools
-		try:
-			for pool in self.pools:
-				pool.data = ConvStream(replace_bytes(pool.data.getvalue(), name_tuple_bytes))
-		except:
-			traceback.print_exc()
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
@@ -1066,7 +1058,6 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Loaded archives in {time.time() - start_time:.2f} seconds")
 
 	def postprocessing(self):
-		self.update_ss_dict()
 		self.load_flattened_pools()
 		self.load_pointers()
 
@@ -1122,24 +1113,6 @@ class OvlFile(Header, IoFile):
 				traceback.print_exc()
 			loader.link_streams()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
-
-	def get_root_entry(self, name):
-		"""Retrieves the desired root_entry entry"""
-		if name.lower() in self._root_entry_dict:
-			return self._root_entry_dict[name.lower()]
-		else:
-			for archive_entry in self.archives:
-				for file in archive_entry.content.root_entries:
-					print(file.name.lower())
-			raise KeyError(f"Can't find a root entry for {name}, not from this archive?")
-
-	def update_ss_dict(self):
-		"""Stores a reference to each sizedstring entry in a dict so they can be extracted"""
-		logging.info("Updating the entry dict")
-		self._root_entry_dict = {}
-		for archive in self.archives:
-			for file in archive.content.root_entries:
-				self._root_entry_dict[file.name.lower()] = file, archive
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
@@ -1238,7 +1211,7 @@ class OvlFile(Header, IoFile):
 								logging.warning(f"Could not find root entry to get name for {first_entry}")
 								continue
 						logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
-						self.transfer_identity(pool, first_entry)
+						ovs.transfer_identity(pool, first_entry)
 						# store pool in pool_groups map
 						if pool.type not in pools_by_type:
 							pools_by_type[pool.type] = []
@@ -1416,15 +1389,6 @@ class OvlFile(Header, IoFile):
 if __name__ == "__main__":
 	ovl = OvlFile()
 	ovl.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
-
-
-def rename_entry(entry, name_tups):
-	if UNK_HASH in entry.name:
-		logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
-		return
-	for old, new in name_tups:
-		entry.name = entry.name.replace(old, new)
-	entry.basename, entry.ext = os.path.splitext(entry.name)
 
 
 def replace_bytes(b, name_tups):
