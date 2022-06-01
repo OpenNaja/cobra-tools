@@ -971,36 +971,6 @@ class OvlFile(Header, IoFile):
 		# self.debug_unks()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds")
 
-	def update_mimes(self):
-		"""Rebuilds the mimes list according to the ovl's current file entries"""
-		logging.info("Updating mimes and triplets")
-		# map all files by their extension
-		files_by_extension = {}
-		for file in self.files:
-			if file.ext not in files_by_extension:
-				files_by_extension[file.ext] = []
-			files_by_extension[file.ext].append(file)
-
-		# now create the mimes
-		file_index_offset = 0
-		for file_ext, files in sorted(files_by_extension.items()):
-			mime_entry = MimeEntry(self.context)
-			mime_entry.ext = file_ext
-			try:
-				mime_entry.update_constants(self)
-			except KeyError:
-				logging.warning(f"Unsupported extension {file_ext}")
-				continue
-			mime_entry.file_index_offset = file_index_offset
-			mime_entry.file_count = len(files)
-			file_index_offset += len(files)
-			for file_entry in files:
-				file_entry.update_constants(self)
-				file_entry.extension = len(self.mimes)
-			self.mimes.append(mime_entry)
-		self.num_mimes = len(self.mimes)
-		self.num_triplets = len(self.triplets)
-
 	def load_archives(self):
 		logging.info("Loading archives")
 		start_time = time.time()
@@ -1097,16 +1067,16 @@ class OvlFile(Header, IoFile):
 			else:
 				archive_entry.ovs_path = f"{self.path_no_ext}.ovs"
 
-	def update_hashes(self):
+	def rebuild_ovl_arrays(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
-		# rebuild the ovl lists
+		# clear ovl lists
 		self.dependencies.clear()
 		self.aux_entries.clear()
 		self.files.clear()
 		self.mimes.clear()
 		self.triplets.clear()
-		self.update_mimes()
-		# update file hashes
+
+		# update file hashes and extend entries per loader
 		for loader in self.loaders.values():
 			# force an update on the loader's data for older versions' data
 			loader.update()
@@ -1120,15 +1090,13 @@ class OvlFile(Header, IoFile):
 					logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
 				else:
 					dependency.file_hash = djb(dependency.basename.lower())
-			self.files.extend(loader.file_entry)
+			self.files.append(loader.file_entry)
 			self.dependencies.extend(loader.dependencies)
 			self.aux_entries.extend(loader.aux_entries)
 
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		self.dependencies.sort(key=lambda x: x.file_hash)
-		self.num_dependencies = len(self.dependencies)
-		self.num_aux_entries = len(self.aux_entries)
 
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
@@ -1137,6 +1105,37 @@ class OvlFile(Header, IoFile):
 			for entry in loader.dependencies + loader.aux_entries:
 				entry.file_index = file_name_lut[loader.file_entry.name]
 		self.aux_entries.sort(key=lambda x: x.file_index)
+
+		# map all files by their extension
+		files_by_extension = {}
+		for file in self.files:
+			if file.ext not in files_by_extension:
+				files_by_extension[file.ext] = []
+			files_by_extension[file.ext].append(file)
+		# create the mimes
+		file_index_offset = 0
+		for file_ext, files in sorted(files_by_extension.items()):
+			mime_entry = MimeEntry(self.context)
+			mime_entry.ext = file_ext
+			try:
+				mime_entry.update_constants(self)
+			except KeyError:
+				logging.warning(f"Unsupported extension {file_ext}")
+				continue
+			mime_entry.file_index_offset = file_index_offset
+			mime_entry.file_count = len(files)
+			file_index_offset += len(files)
+			for file_entry in files:
+				file_entry.update_constants(self)
+				file_entry.extension = len(self.mimes)
+			self.mimes.append(mime_entry)
+
+		# update ovl counts
+		self.num_dependencies = len(self.dependencies)
+		self.num_aux_entries = len(self.aux_entries)
+		self.num_triplets = len(self.triplets)
+		self.num_mimes = len(self.mimes)
+		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 
 		for archive in self.archives:
 			# change the hashes / indices of all entries to be valid for the current game version
@@ -1258,7 +1257,6 @@ class OvlFile(Header, IoFile):
 		self.num_buffers = sum(a.num_buffers for a in self.archives)
 
 		self.num_included_ovls = len(self.included_ovls)
-		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 		self.num_archives = len(self.archives)
 
 	def open_ovs_streams(self, mode="wb"):
@@ -1318,7 +1316,7 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Writing {self.name}")
 		self.update_counts()
 		# do this last so we also catch the assets & sets
-		self.update_hashes()
+		self.rebuild_ovl_arrays()
 		# update the name buffer and offsets
 		self.update_names()
 		self.update_aux_sizes()
