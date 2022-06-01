@@ -61,7 +61,7 @@ class MainWindow(widgets.MainWindow):
 		self.compression_choice.entry.textActivated.connect(self.compression_changed)
 		self.compression_choice.entry.setEditable(False)
 
-		header_names = ["Name", "File Type", "DJB"]
+		header_names = ["Name", "File Type"]
 
 		self.model = QtWidgets.QFileSystemModel()
 		self.dirs_container = QtWidgets.QTreeView()
@@ -402,7 +402,7 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loading {len(self.ovl_data.files)} files into gui")
 		files = [loader.file_entry for loader in self.ovl_data.loaders.values()]
 		files.sort(key=lambda file: (file.ext, file.name))
-		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in files])
+		self.files_container.set_data([[f.name, f.ext] for f in files])
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)

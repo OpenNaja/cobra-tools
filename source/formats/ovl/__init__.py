@@ -608,7 +608,6 @@ class OvlFile(Header, IoFile):
 			loader.rename(name_tups)
 		# recreate the loaders dict
 		self.loaders = {loader.file_entry.name: loader for loader in temp_loaders}
-		self.update_hashes()
 		logging.info("Finished renaming!")
 
 	def rename_contents(self, name_tups):
@@ -620,7 +619,6 @@ class OvlFile(Header, IoFile):
 			# loader.track_ptrs()
 		# rename content may delete files and add them again, so we need to catch those newly created files too
 		self.sort_pools_and_update_groups()
-		self.update_hashes()
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
@@ -741,12 +739,7 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Game: {get_game(self)}")
 		for file_path in file_paths:
 			self.create_file(file_path)
-		self.update_hashes()
-		self.update_counts()
-		self.postprocessing()
-		# for archive in self.archives:
-		# 	print(archive)
-		# 	print(archive.content)
+		# todo - decide what really needs to be done after create
 
 	def create_archive(self, name="STATIC"):
 		# logging.debug(f"Getting archive '{name}'")
