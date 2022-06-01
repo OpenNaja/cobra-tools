@@ -974,8 +974,6 @@ class OvlFile(Header, IoFile):
 	def update_mimes(self):
 		"""Rebuilds the mimes list according to the ovl's current file entries"""
 		logging.info("Updating mimes and triplets")
-		self.mimes.clear()
-		self.triplets.clear()
 		# map all files by their extension
 		files_by_extension = {}
 		for file in self.files:
@@ -1105,6 +1103,9 @@ class OvlFile(Header, IoFile):
 		self.dependencies.clear()
 		self.aux_entries.clear()
 		self.files.clear()
+		self.mimes.clear()
+		self.triplets.clear()
+		self.update_mimes()
 		# update file hashes
 		for loader in self.loaders.values():
 			# force an update on the loader's data for older versions' data
@@ -1315,7 +1316,6 @@ class OvlFile(Header, IoFile):
 	def save(self, filepath):
 		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
-		self.update_mimes()
 		self.update_counts()
 		# do this last so we also catch the assets & sets
 		self.update_hashes()
