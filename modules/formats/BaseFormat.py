@@ -223,22 +223,11 @@ class BaseFile:
 			self.ovs.data_entries.remove(data)
 
 		if remove_file:
-			# remove entries in ovl
+			# remove the loader from ovl so it is not saved
 			self.ovl.loaders.pop(self.file_entry.name)
-			self.ovl.files.remove(self.file_entry)
 
-		# clear dependencies, they are automatically regenerated for the ovl on saving
-		self.dependencies.clear()
-		self.aux_entries.clear()
-		# remove children files
-		for child_root in self.children:
-			child_loader = self.ovl.loaders.get(child_root.file_entry.name, None)
-			if child_loader:
-				child_loader.remove()
-			else:
-				logging.warning(f"Could not remove {child_root.name} as it has no loader")
 		# remove streamed and child files
-		for loader in self.streams:
+		for loader in self.streams + self.children:
 			loader.remove()
 
 	def load(self, file_path):

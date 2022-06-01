@@ -1101,11 +1101,14 @@ class OvlFile(Header, IoFile):
 
 	def update_hashes(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
-		# rebuild the dependencies list
+		# rebuild the ovl lists
 		self.dependencies.clear()
 		self.aux_entries.clear()
+		self.files.clear()
 		# update file hashes
 		for loader in self.loaders.values():
+			# force an update on the loader's data for older versions' data
+			loader.update()
 			# ensure lowercase, at the risk of being redundant
 			loader.file_entry.file_hash = djb(loader.file_entry.basename.lower())
 			loader.file_entry.ext_hash = djb(loader.file_entry.ext[1:].lower())
@@ -1116,6 +1119,7 @@ class OvlFile(Header, IoFile):
 					logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
 				else:
 					dependency.file_hash = djb(dependency.basename.lower())
+			self.files.extend(loader.file_entry)
 			self.dependencies.extend(loader.dependencies)
 			self.aux_entries.extend(loader.aux_entries)
 
@@ -1127,7 +1131,7 @@ class OvlFile(Header, IoFile):
 
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
-		# update the file indices
+		# update indices into ovl.files
 		for loader in self.loaders.values():
 			for entry in loader.dependencies + loader.aux_entries:
 				entry.file_index = file_name_lut[loader.file_entry.name]
@@ -1298,12 +1302,6 @@ class OvlFile(Header, IoFile):
 					continue
 				archive.stream_files_offset = self.stream_files.index(files[0])
 
-	def update_files(self):
-		logging.info("Updating files")
-		for file in self.files:
-			if file.loader:
-				file.loader.update()
-
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
 		for archive_entry in self.archives:
@@ -1317,7 +1315,6 @@ class OvlFile(Header, IoFile):
 	def save(self, filepath):
 		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
-		self.update_files()
 		self.update_mimes()
 		self.update_counts()
 		# do this last so we also catch the assets & sets
