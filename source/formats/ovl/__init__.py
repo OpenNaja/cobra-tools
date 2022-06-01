@@ -62,20 +62,15 @@ class OvsFile(OvsHeader):
 		# set arg later to avoid initializing huge arrays with default data
 		self.arg = archive_entry
 
-	def get_bytes(self, external_path):
-		# load external uncompressed data
-		if external_path and self.arg.name == "STATIC":
-			with open(external_path, "rb") as f:
-				return f.read()
+	def get_bytes(self):
 		# write the internal data
-		else:
-			stream = ConvStream()
-			assign_versions(stream, get_versions(self.ovl))
-			self.write_archive(stream)
-			return stream.getbuffer()
+		stream = ConvStream()
+		assign_versions(stream, get_versions(self.ovl))
+		self.write_archive(stream)
+		return stream.getbuffer()
 
 	@contextmanager
-	def unzipper(self, compressed_bytes, uncompressed_size, save_temp_dat=""):
+	def unzipper(self, compressed_bytes, uncompressed_size):
 		start_time = time.time()
 		self.compression_header = compressed_bytes[:2]
 		logging.debug(f"Compression magic bytes: {self.compression_header}")
@@ -91,10 +86,6 @@ class OvsFile(OvsHeader):
 		else:
 			logging.debug("No compression")
 			decompressed = compressed_bytes
-		if save_temp_dat:
-			# for debugging, write deflated content to dat
-			with open(save_temp_dat, 'wb') as out:
-				out.write(decompressed)
 		logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
 		with ConvStream(decompressed) as stream:
 			yield stream
@@ -162,12 +153,11 @@ class OvsFile(OvsHeader):
 
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
-		save_temp_dat = f"{filepath}_{self.arg.name}.dat" if "write_dat" in self.ovl.commands else ""
 		stream = self.ovl.ovs_dict[filepath]
 		stream.seek(start)
 		logging.info(f"Compressed stream {archive_entry.name} in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
-		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size, save_temp_dat=save_temp_dat) as stream:
+		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size) as stream:
 			assign_versions(stream, get_versions(self.ovl))
 			start_time = time.time()
 			super().read(stream)
@@ -1331,7 +1321,7 @@ class OvlFile(Header, IoFile):
 			except BaseException as err:
 				traceback.print_exc()
 
-	def save(self, filepath, dat_path):
+	def save(self, filepath):
 		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
 		self.update_files()
@@ -1348,7 +1338,7 @@ class OvlFile(Header, IoFile):
 		for i, archive in enumerate(self.archives):
 			# write archive into bytes IO stream
 			self.progress_callback("Saving archives", value=i, vmax=len(self.archives))
-			uncompressed = archive.content.get_bytes(dat_path)
+			uncompressed = archive.content.get_bytes()
 			archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
 				uncompressed)
 			# update set data size

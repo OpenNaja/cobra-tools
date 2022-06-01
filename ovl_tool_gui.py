@@ -27,8 +27,6 @@ except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
 
-SUPPORTED_TYPES = (".dds", ".png", ".ms2", ".txt", ".fgm", ".fdb", ".matcol", ".xmlconfig", ".assetpkg", ".lua", ".wem", ".otf", ".ttf")
-
 
 class MainWindow(widgets.MainWindow):
 
@@ -39,7 +37,8 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 		self.ovl_data.load_hash_table()
 
-		self.filter = "Supported files ({})".format(" ".join("*" + t for t in SUPPORTED_TYPES))
+		supported_types = [ext for ext in self.ovl_data.formats_dict.keys()]
+		self.filter = "Supported files ({})".format(" ".join("*" + t for t in supported_types))
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 		self.file_widget.setToolTip("The name of the OVL file that is currently open")
@@ -96,16 +95,11 @@ class MainWindow(widgets.MainWindow):
 		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included")
 		self.included_ovls_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
 
-		self.dat_widget = widgets.FileWidget(self, self.cfg, ask_user=False, dtype="DAT", poll=False)
-		self.dat_widget.setToolTip("External .dat file path to overwrite internal OVS data")
-		self.dat_widget.hide()
-
 		right_frame = QtWidgets.QWidget()
 		hbox = QtWidgets.QVBoxLayout()
 		hbox.addWidget(self.file_widget)
 		hbox.addWidget(self.files_container)
 		hbox.addWidget(self.included_ovls_view)
-		hbox.addWidget(self.dat_widget)
 		right_frame.setLayout(hbox)
 
 		# toggles
@@ -118,30 +112,22 @@ class MainWindow(widgets.MainWindow):
 		self.in_folder.setToolTip("Runs commands on all OVLs of current folder")
 		self.in_folder.setChecked(False)
 
-		self.ext_dat = QtWidgets.QCheckBox("Use External DAT")
-		self.ext_dat.setToolTip("Experimental: Save the ovl with an external STATIC DAT instead of one in memory")
-		self.ext_dat.setChecked(False)
-		self.ext_dat.stateChanged.connect(self.dat_show)
-
 		self.t_animal_ovl = QtWidgets.QCheckBox("Animal OVL Mode")
 		self.t_animal_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
 		self.t_animal_ovl.setChecked(False)
 
-		self.t_unsafe = QtWidgets.QCheckBox("Unsafe Mode")
-		self.t_unsafe.setToolTip("Forces unsafe (brute force) replacement. May break your files.")
-		self.t_unsafe.setChecked(False)
+		# self.t_unsafe = QtWidgets.QCheckBox("Unsafe Mode")
+		# self.t_unsafe.setToolTip("Forces unsafe (brute force) replacement. May break your files.")
+		# self.t_unsafe.setChecked(False)
 
-		self.e_name_old = QtWidgets.QTextEdit("old")
-		self.e_name_new = QtWidgets.QTextEdit("new")
+		self.e_name_old = QtWidgets.QTextEdit("")
+		self.e_name_old.setToolTip("Old strings - one item per line")
+		self.e_name_new = QtWidgets.QTextEdit("")
+		self.e_name_new.setToolTip("New strings - one item per line")
 		self.e_name_old.setFixedHeight(100)
 		self.e_name_new.setFixedHeight(100)
 		self.e_name_old.setTabChangesFocus(True)
 		self.e_name_new.setTabChangesFocus(True)
-
-		self.t_write_dat = QtWidgets.QCheckBox("Save DAT")
-		self.t_write_dat.setToolTip("Writes decompressed archive streams to DAT files for debugging")
-		self.t_write_dat.setChecked(False)
-		self.t_write_dat.stateChanged.connect(self.load)
 
 		self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
 		self.splitter.addWidget(self.dirs_container)
@@ -154,13 +140,11 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.e_name_new, 0, 1, 5, 1)
 
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
-		self.qgrid.addWidget(self.t_write_dat, 1, 3)
-		self.qgrid.addWidget(self.ext_dat, 2, 3)
-		self.qgrid.addWidget(self.in_folder, 3, 3)
+		self.qgrid.addWidget(self.in_folder, 1, 3)
+		self.qgrid.addWidget(self.t_animal_ovl, 2, 3)
+		# self.qgrid.addWidget(self.t_unsafe, 3, 3)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
-		self.qgrid.addWidget(self.t_animal_ovl, 2, 4)
-		self.qgrid.addWidget(self.t_unsafe, 3, 4)
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
@@ -298,25 +282,12 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def commands(self):
 		# get those commands that are set to True
-		return [x for x in ("write_dat", ) if getattr(self, x)]
+		# return [x for x in ("write_dat", ) if getattr(self, x)]
+		return []
 
 	@property
 	def show_temp_files(self, ):
 		return self.t_show_temp_files.isChecked()
-
-	@property
-	def use_ext_dat(self, ):
-		return self.ext_dat.isChecked()
-
-	@property
-	def write_dat(self, ):
-		return self.t_write_dat.isChecked()
-
-	def dat_show(self, ):
-		if self.use_ext_dat:
-			self.dat_widget.show()
-		else:
-			self.dat_widget.hide()
 
 	def update_progress(self, message, value=None, vmax=None):
 		# avoid gui updates if the value won't actually change the percentage.
@@ -451,8 +422,7 @@ class MainWindow(widgets.MainWindow):
 
 	def _save_ovl(self, filepath):
 		try:
-			ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
-			self.ovl_data.save(filepath, ext_path)
+			self.ovl_data.save(filepath)
 			self.file_widget.dirty = False
 			self.update_progress(f"Saved {self.ovl_data.basename}", value=1, vmax=1)
 		except BaseException as ex:
