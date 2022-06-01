@@ -148,21 +148,15 @@ class OvsFile(OvsHeader):
 					entry.file_hash = file_index
 				entry.ext_hash = file.ext_hash
 
-	def pad_pools(self):
-		# make sure that all pools are padded
-		for pool in self.pools:
-			pool.pad()
-
 	def update_counts(self):
 		"""Update counts of this archive"""
-		self.pad_pools()
 		# adjust the counts
 		self.arg.num_pools = len(self.pools)
 		self.arg.num_datas = len(self.data_entries)
 		self.arg.num_pool_groups = len(self.pool_groups)
 		self.arg.num_buffers = len(self.buffer_entries)
 		self.arg.num_fragments = len(self.fragments)
-		self.arg.num_files = len(self.root_entries)
+		self.arg.num_root_entries = len(self.root_entries)
 		self.arg.num_buffer_groups = len(self.buffer_groups)
 		# todo - self.arg.ovs_offset
 
@@ -179,7 +173,6 @@ class OvsFile(OvsHeader):
 			super().read(stream)
 			logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
 			# print(self)
-			# print(self.buffer_groups)
 			pool_index = 0
 			for pool_type in self.pool_groups:
 				for i in range(pool_type.num_pools):
@@ -217,18 +210,6 @@ class OvsFile(OvsHeader):
 					raise IndexError(f"Could not find root entry for asset {asset_entry} in {len(self.root_entries)}")
 
 			self.map_assets()
-
-			# up to here was data defined by the OvsHeader class, ending with the AssetEntries
-			self.start_of_pools = stream.tell()
-			logging.debug(f"Start of pools data: {self.start_of_pools}")
-
-			# doesn't work for 1.6
-			# # another integrity check
-			# if self.arg.uncompressed_size and not is_pc(self.ovl) and self.calc_uncompressed_size() != self.arg.uncompressed_size:
-			# 	raise AttributeError(
-			# 		f"Archive.uncompressed_size ({self.arg.uncompressed_size}) "
-			# 		f"does not match calculated size ({self.calc_uncompressed_size()})")
-
 			# add IO object to every pool
 			self.read_pools(stream)
 			self.map_buffers()
@@ -543,16 +524,13 @@ class OvsFile(OvsHeader):
 		entry.basename = n
 		entry.name = f"{n}{e}"
 
-	def calc_uncompressed_size(self, ):
-		"""Calculate the size of the whole decompressed stream for this archive"""
-		return self.start_of_pools + sum(pool.size for pool in self.pools) + sum(
-			buffer.size for buffer in self.buffer_entries)
-
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
 		# do this first so pools can be updated
 		pools_data_writer = io.BytesIO()
 		for pool in self.pools:
+			# make sure that all pools are padded before writing
+			pool.pad()
 			pool_bytes = pool.data.getvalue()
 			# JWE, JWE2: relative offset for each pool
 			if self.ovl.user_version.is_jwe:
@@ -758,7 +736,6 @@ class OvlFile(Header, IoFile):
 			logging.warning(f"Could not create: {file_entry.name}")
 			traceback.print_exc()
 			return
-		self.pad_pools()
 		self.files.append(file_entry)
 		self.loaders[file_entry.name] = file_entry.loader
 
@@ -1326,14 +1303,12 @@ class OvlFile(Header, IoFile):
 				self.stream_files.append(stream_entry)
 		# sort stream files by archive and then the file offset in the pool
 		self.stream_files.sort(key=lambda s: (s.archive_name, s.file_offset))
-		self.num_files_ovs = len(self.stream_files)
+		self.num_stream_files = len(self.stream_files)
 		# update the archive entries to point to the stream files
 		for archive in self.archives:
 			archive.stream_files_offset = 0
 			if archive.name != "STATIC":
 				files = [f for f in self.stream_files if f.archive_name == archive.name]
-				# todo - this appears to be redundant, cf. ovs.update_counts
-				archive.num_files = len(files)
 				if not files:
 					logging.warning(f"No files in archive {archive.name}")
 					# todo - delete archive

@@ -24,7 +24,7 @@
         <add name="num_pools" type="uint" >number of headers of all types across all archives</add>
         <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
         <add name="Num Buffers" type="uint" >number of BufferEntries across all archives</add>
-        <add name="Num Files OVS" type="uint" >number of files in external OVS archives</add>
+        <add name="num_stream_files" type="uint" >number of files in external OVS archives</add>
         <add name="ztuac unk 0" type="uint" >used in ZTUAC elephants</add>
         <add name="ztuac unk 1" type="uint" >used in ZTUAC elephants</add>
         <add name="ztuac unk 2" type="uint" >used in ZTUAC elephants</add>
@@ -49,7 +49,7 @@
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19">aka InstancesArray of DependencyEntry objects.</add>
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" until="18">after aux in ZTUAC and PC</add>
-        <add name="stream_files" type="StreamEntry" arr1="Num Files OVS">Array of StreamEntry objects.</add>
+        <add name="stream_files" type="StreamEntry" arr1="num_stream_files">Array of StreamEntry objects.</add>
 		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
     </compound>
 
@@ -93,7 +93,7 @@
         <add name="num_buffer_groups" type="uint">used in pz 1.6</add>
         <add name="Num Buffers" type="uint">Amount of buffers in the archive</add>
         <add name="Num Fragments" type="uint" >Amount of Fragments in the archive</add>
-        <add name="Num Files" type="uint">Number of files in the archive</add>
+        <add name="num_root_entries" type="uint">Number of files in the archive</add>
         <add name="read start" type="uint">Seek to pos to get zlib header for this archive</add>
         <add name="set data size" type="uint" >size of the set and asset entry data</add>
         <add name="compressed_size" type="uint">size of the compressed data for this archive</add>
@@ -149,7 +149,7 @@
         <add name="data entries" type="DataEntry" arr1="#ARG#\Num Datas"/>
         <add name="buffer entries" type="BufferEntry" arr1="#ARG#\Num Buffers"/>
         <add name="buffer groups" type="BufferGroup" arr1="#ARG#\num_buffer_groups"/>
-        <add name="root_entries" type="RootEntry" arr1="#ARG#\Num Files"/>
+        <add name="root_entries" type="RootEntry" arr1="#ARG#\num_root_entries"/>
         <add name="fragments" type="Fragment" arr1="#ARG#\Num Fragments"/>
         <add name="set header" type="SetHeader"/>
     </compound>

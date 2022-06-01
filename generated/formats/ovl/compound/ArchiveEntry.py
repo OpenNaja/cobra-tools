@@ -46,7 +46,7 @@ class ArchiveEntry:
 		self.num_fragments = 0
 
 		# Number of files in the archive
-		self.num_files = 0
+		self.num_root_entries = 0
 
 		# Seek to pos to get zlib header for this archive
 		self.read_start = 0
@@ -81,7 +81,7 @@ class ArchiveEntry:
 		self.num_buffer_groups = 0
 		self.num_buffers = 0
 		self.num_fragments = 0
-		self.num_files = 0
+		self.num_root_entries = 0
 		self.read_start = 0
 		self.set_data_size = 0
 		self.compressed_size = 0
@@ -111,7 +111,7 @@ class ArchiveEntry:
 		instance.num_buffer_groups = stream.read_uint()
 		instance.num_buffers = stream.read_uint()
 		instance.num_fragments = stream.read_uint()
-		instance.num_files = stream.read_uint()
+		instance.num_root_entries = stream.read_uint()
 		instance.read_start = stream.read_uint()
 		instance.set_data_size = stream.read_uint()
 		instance.compressed_size = stream.read_uint()
@@ -131,7 +131,7 @@ class ArchiveEntry:
 		stream.write_uint(instance.num_buffer_groups)
 		stream.write_uint(instance.num_buffers)
 		stream.write_uint(instance.num_fragments)
-		stream.write_uint(instance.num_files)
+		stream.write_uint(instance.num_root_entries)
 		stream.write_uint(instance.read_start)
 		stream.write_uint(instance.set_data_size)
 		stream.write_uint(instance.compressed_size)
@@ -169,7 +169,7 @@ class ArchiveEntry:
 		s += f'\n	* num_buffer_groups = {fmt_member(self.num_buffer_groups, indent+1)}'
 		s += f'\n	* num_buffers = {fmt_member(self.num_buffers, indent+1)}'
 		s += f'\n	* num_fragments = {fmt_member(self.num_fragments, indent+1)}'
-		s += f'\n	* num_files = {fmt_member(self.num_files, indent+1)}'
+		s += f'\n	* num_root_entries = {fmt_member(self.num_root_entries, indent+1)}'
 		s += f'\n	* read_start = {fmt_member(self.read_start, indent+1)}'
 		s += f'\n	* set_data_size = {fmt_member(self.set_data_size, indent+1)}'
 		s += f'\n	* compressed_size = {fmt_member(self.compressed_size, indent+1)}'

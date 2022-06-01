@@ -72,7 +72,7 @@ class Header(GenericHeader):
 		self.num_buffers = 0
 
 		# number of files in external OVS archives
-		self.num_files_ovs = 0
+		self.num_stream_files = 0
 
 		# used in ZTUAC elephants
 		self.ztuac_unk_0 = 0
@@ -135,7 +135,7 @@ class Header(GenericHeader):
 		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
 
 		# Array of StreamEntry objects.
-		self.stream_files = Array((self.num_files_ovs,), StreamEntry, self.context, 0, None)
+		self.stream_files = Array((self.num_stream_files,), StreamEntry, self.context, 0, None)
 
 		# repeats by archive count
 		self.zlibs = Array((self.num_archives,), ZlibInfo, self.context, 0, None)
@@ -157,7 +157,7 @@ class Header(GenericHeader):
 		self.num_pools = 0
 		self.num_datas = 0
 		self.num_buffers = 0
-		self.num_files_ovs = 0
+		self.num_stream_files = 0
 		self.ztuac_unk_0 = 0
 		self.ztuac_unk_1 = 0
 		self.ztuac_unk_2 = 0
@@ -183,7 +183,7 @@ class Header(GenericHeader):
 		self.aux_entries = Array((self.num_aux_entries,), AuxEntry, self.context, 0, None)
 		if self.context.version <= 18:
 			self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
-		self.stream_files = Array((self.num_files_ovs,), StreamEntry, self.context, 0, None)
+		self.stream_files = Array((self.num_stream_files,), StreamEntry, self.context, 0, None)
 		self.zlibs = Array((self.num_archives,), ZlibInfo, self.context, 0, None)
 
 	def read(self, stream):
@@ -213,7 +213,7 @@ class Header(GenericHeader):
 		instance.num_pools = stream.read_uint()
 		instance.num_datas = stream.read_uint()
 		instance.num_buffers = stream.read_uint()
-		instance.num_files_ovs = stream.read_uint()
+		instance.num_stream_files = stream.read_uint()
 		instance.ztuac_unk_0 = stream.read_uint()
 		instance.ztuac_unk_1 = stream.read_uint()
 		instance.ztuac_unk_2 = stream.read_uint()
@@ -238,7 +238,7 @@ class Header(GenericHeader):
 		instance.aux_entries = Array.from_stream(stream, (instance.num_aux_entries,), AuxEntry, instance.context, 0, None)
 		if instance.context.version <= 18:
 			instance.dependencies = Array.from_stream(stream, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
-		instance.stream_files = Array.from_stream(stream, (instance.num_files_ovs,), StreamEntry, instance.context, 0, None)
+		instance.stream_files = Array.from_stream(stream, (instance.num_stream_files,), StreamEntry, instance.context, 0, None)
 		instance.zlibs = Array.from_stream(stream, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
 
 	@classmethod
@@ -258,7 +258,7 @@ class Header(GenericHeader):
 		stream.write_uint(instance.num_pools)
 		stream.write_uint(instance.num_datas)
 		stream.write_uint(instance.num_buffers)
-		stream.write_uint(instance.num_files_ovs)
+		stream.write_uint(instance.num_stream_files)
 		stream.write_uint(instance.ztuac_unk_0)
 		stream.write_uint(instance.ztuac_unk_1)
 		stream.write_uint(instance.ztuac_unk_2)
@@ -283,7 +283,7 @@ class Header(GenericHeader):
 		Array.to_stream(stream, instance.aux_entries, (instance.num_aux_entries,), AuxEntry, instance.context, 0, None)
 		if instance.context.version <= 18:
 			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.stream_files, (instance.num_files_ovs,), StreamEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.stream_files, (instance.num_stream_files,), StreamEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.zlibs, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
 
 	@classmethod
@@ -321,7 +321,7 @@ class Header(GenericHeader):
 		s += f'\n	* num_pools = {fmt_member(self.num_pools, indent+1)}'
 		s += f'\n	* num_datas = {fmt_member(self.num_datas, indent+1)}'
 		s += f'\n	* num_buffers = {fmt_member(self.num_buffers, indent+1)}'
-		s += f'\n	* num_files_ovs = {fmt_member(self.num_files_ovs, indent+1)}'
+		s += f'\n	* num_stream_files = {fmt_member(self.num_stream_files, indent+1)}'
 		s += f'\n	* ztuac_unk_0 = {fmt_member(self.ztuac_unk_0, indent+1)}'
 		s += f'\n	* ztuac_unk_1 = {fmt_member(self.ztuac_unk_1, indent+1)}'
 		s += f'\n	* ztuac_unk_2 = {fmt_member(self.ztuac_unk_2, indent+1)}'
