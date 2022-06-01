@@ -151,7 +151,6 @@ def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):
 	bpy.ops.uv.seams_from_islands()
 	# shells are messed up by remove doubles, affected faces have their dupe faces removed
 	# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
-	# todo reimplement check against fins for mesh
 	if not use_custom_normals and not is_fin(b_ob):
 		bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
 	bpy.ops.object.mode_set(mode='OBJECT')

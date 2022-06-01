@@ -224,7 +224,7 @@ class BaseFile:
 
 		if remove_file:
 			# remove entries in ovl
-			# self.ovl.files.pop(i)
+			self.ovl.loaders.pop(self.file_entry.name)
 			self.ovl.files.remove(self.file_entry)
 
 		# clear dependencies, they are automatically regenerated for the ovl on saving

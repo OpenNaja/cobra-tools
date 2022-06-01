@@ -15,7 +15,7 @@ class MemPool:
 
 	def clear_data(self):
 		self.new = False
-		# lookup by pointer 0
+		# lookup by offset
 		self.offset_2_struct_entries = {}  # multiple (fragments') struct_ptrs can point to the same data
 		self.offset_2_link_entry = {}  # link_ptrs are unique
 

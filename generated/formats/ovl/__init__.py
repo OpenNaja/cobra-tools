@@ -615,6 +615,20 @@ class OvlFile(Header, IoFile):
 			extract_files.append(file)
 		return extract_files
 
+	def remove(self, filenames):
+		"""
+		Removes files from an ovl file
+		:param filenames: list of file names (eg. "example.ext") that should be removed from ovl
+		:return:
+		"""
+		logging.info(f"Removing files for {filenames}")
+		# prevent RuntimeError: dictionary changed size during iteration
+		for loader in tuple(self.loaders.values()):
+			if loader.file_entry.name in filenames:
+				loader.remove()
+		self.sort_pools_and_update_groups()
+		# todo - delete ovs + archive entry if it is unused
+
 	def rename(self, name_tups, animal_mode=False):
 		logging.info(f"Renaming for {name_tups}, animal mode = {animal_mode}")
 		# todo - support renaming included_ovls?
@@ -1167,28 +1181,25 @@ class OvlFile(Header, IoFile):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
 		try:
 			logging.debug(f"Sorting pools by type and updating pool groups")
+			self.archives.sort(key=lambda a: a.name)
+
+			# remove all fragments to rebuild the list later
+			for archive in self.archives:
+				ovs = archive.content
+				ovs.pool_groups.clear()
+				ovs.fragments.clear()
+			# add frags to correct ovs
+			for loader in self.loaders.values():
+				loader.ovs.fragments.extend(loader.fragments)
+
 			pools_byte_offset = 0
 			pools_offset = 0
-			self.archives.sort(key=lambda a: a.name)
 			for archive in self.archives:
 
 				logging.debug(f"Sorting pools for {archive.name}")
 				ovs = archive.content
 				# sort pools by their type
-				ovs.pools.sort(key=lambda pool: pool.type)
-				# remove all fragments to rebuild the list later
-				ovs.fragments.clear()
-				# map pool to index
-				pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
-				# add frags to correct ovs
-				# todo - refactor, pull out into separate loop with dict for ovs?
-				for loader in self.loaders.values():
-					if loader.ovs == ovs:
-						loader.root_entry.struct_ptr.update_pool_index(pools_lut)
-						for frag in loader.fragments:
-							frag.link_ptr.update_pool_index(pools_lut)
-							frag.struct_ptr.update_pool_index(pools_lut)
-						ovs.fragments.extend(loader.fragments)
+				ovs.pools.sort(key=lambda p: p.type)
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
 				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 
@@ -1221,7 +1232,6 @@ class OvlFile(Header, IoFile):
 						ovs.pools.remove(pool)
 
 				# rebuild pool groups
-				ovs.pool_groups.clear()
 				for pool_type, pools in pools_by_type.items():
 					pool_group = PoolGroup(self.context)
 					pool_group.type = pool_type
@@ -1245,16 +1255,30 @@ class OvlFile(Header, IoFile):
 			# update the ovl counts
 			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
 			self.num_pools = sum(a.num_pools for a in self.archives)
-			# todo - nope, rewrite
+			# apply the new pools to the ovl
 			self.load_flattened_pools()
-			# dependencies index goes into the flattened list of pools
-			pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
-			for dep in self.dependencies:
-				dep.link_ptr.update_pool_index(pools_lut)
+			self.update_pool_indices()
 			# pools are updated, gotta rebuild stream files now
 			self.update_stream_files()
 		except:
 			traceback.print_exc()
+
+	def update_pool_indices(self):
+		"""Updates pool_index for all entries"""
+		for archive in self.archives:
+			# we have the final list of pools now
+			ovs = archive.content
+			pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
+			for loader in self.loaders.values():
+				if loader.ovs == ovs:
+					loader.root_entry.struct_ptr.update_pool_index(pools_lut)
+					for frag in loader.fragments:
+						frag.link_ptr.update_pool_index(pools_lut)
+						frag.struct_ptr.update_pool_index(pools_lut)
+		# dependencies index goes into the flattened list of pools
+		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
+		for dep in self.dependencies:
+			dep.link_ptr.update_pool_index(pools_lut)
 
 	def update_counts(self):
 		"""Update counts of this ovl and all of its archives"""

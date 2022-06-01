@@ -20,7 +20,7 @@ try:
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
 	from ovl_util import widgets, interaction, qt_threads
-	from modules import walker, remover
+	from modules import walker
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
 	from generated.formats.ovl_base.enum.Compression import Compression
 except Exception as err:
@@ -576,7 +576,7 @@ class MainWindow(widgets.MainWindow):
 			# todo - might want to check self.files_container.hasFocus(), but does not seem to work!
 			if selected_file_names:
 				try:
-					remover.file_remover(self.ovl_data, selected_file_names)
+					self.ovl_data.remove(selected_file_names)
 				except:
 					traceback.print_exc()
 				self.update_gui_table()
