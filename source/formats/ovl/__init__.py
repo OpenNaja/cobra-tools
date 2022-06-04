@@ -1158,12 +1158,16 @@ class OvlFile(Header, IoFile):
 
 				logging.debug(f"Sorting pools for {archive.name}")
 				ovs = archive.content
+
 				# sort pools by their type
 				ovs.pools.sort(key=lambda p: p.type)
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
 				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 				ovs.root_entries.sort(key=lambda b: (b.ext, b.file_hash))
 				ovs.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
+				ovs.rebuild_buffer_groups()
+				# depends on sorted root_entries
+				ovs.rebuild_assets()
 
 				logging.info("Updating pool names, deleting unused pools")
 				# map the pool types to pools
@@ -1208,9 +1212,6 @@ class OvlFile(Header, IoFile):
 				archive.num_fragments = len(ovs.fragments)
 				archive.num_root_entries = len(ovs.root_entries)
 				archive.num_buffer_groups = len(ovs.buffer_groups)
-
-				logging.info(f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
-
 				archive.pools_offset = pools_offset
 				archive.pools_start = pools_byte_offset
 				archive.content.write_pools()
@@ -1219,6 +1220,7 @@ class OvlFile(Header, IoFile):
 				# at least PZ & JWE require 4 additional bytes after each pool region
 				pools_byte_offset += 4
 				pools_offset += len(archive.content.pools)
+				logging.info(f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
 			# update the ovl counts
 			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
@@ -1252,10 +1254,6 @@ class OvlFile(Header, IoFile):
 	def update_counts(self):
 		"""Update counts of this ovl and all of its archives"""
 		self.sort_pools_and_update_groups()
-		# adjust the counts
-		for archive in self.archives:
-			archive.content.rebuild_buffer_groups()
-			archive.content.rebuild_assets()
 		# sum content of individual archives
 		self.num_datas = sum(a.num_datas for a in self.archives)
 		self.num_buffers = sum(a.num_buffers for a in self.archives)
