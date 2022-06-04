@@ -585,8 +585,6 @@ class OvlFile(Header, IoFile):
 		for loader in tuple(self.loaders.values()):
 			if loader.file_entry.name in filenames:
 				loader.remove()
-		self.sort_pools_and_update_groups()
-		# todo - delete ovs + archive entry if it is unused
 
 	def rename(self, name_tups, animal_mode=False):
 		logging.info(f"Renaming for {name_tups}, animal mode = {animal_mode}")
@@ -608,8 +606,6 @@ class OvlFile(Header, IoFile):
 			# todo - enabling these breaks ms2 - why?
 			# loader.register_created_ptrs()
 			# loader.track_ptrs()
-		# rename content may delete files and add them again, so we need to catch those newly created files too
-		self.sort_pools_and_update_groups()
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
@@ -655,11 +651,10 @@ class OvlFile(Header, IoFile):
 				loader = self.loaders[name_lower]
 			else:
 				# check if this file could be handled by a loader still
-				for file in self.files:
-					if file.loader and ext in file.loader.child_extensions:
-						if file.loader.validate_child(name_lower):
-							logging.info(f"Could inject {name_lower} into {file.name}")
-							loader = file.loader
+				for loader in self.loaders.values():
+					if loader and ext in loader.child_extensions:
+						if loader.validate_child(name_lower):
+							logging.info(f"Could inject {name_lower} into {loader.file_entry.name}")
 							break
 				# nope, it may need to be added
 				else:
@@ -1138,7 +1133,7 @@ class OvlFile(Header, IoFile):
 			# change the hashes / indices of all entries to be valid for the current game version
 			archive.content.update_hashes(file_name_lut, mime_lut)
 
-	def sort_pools_and_update_groups(self):
+	def rebuild_ovs_arrays(self):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
 		try:
 			logging.debug(f"Sorting pools by type and updating pool groups")
@@ -1223,9 +1218,14 @@ class OvlFile(Header, IoFile):
 				logging.info(f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
 			# update the ovl counts
+			self.num_included_ovls = len(self.included_ovls)
+			self.num_archives = len(self.archives)
+			# sum counts of individual archives
 			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
 			self.num_pools = sum(a.num_pools for a in self.archives)
-
+			self.num_datas = sum(a.num_datas for a in self.archives)
+			self.num_buffers = sum(a.num_buffers for a in self.archives)
+	
 			# apply the new pools to the ovl
 			self.load_flattened_pools()
 			self.update_pool_indices()
@@ -1250,16 +1250,6 @@ class OvlFile(Header, IoFile):
 		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
 		for dep in self.dependencies:
 			dep.link_ptr.update_pool_index(pools_lut)
-
-	def update_counts(self):
-		"""Update counts of this ovl and all of its archives"""
-		self.sort_pools_and_update_groups()
-		# sum content of individual archives
-		self.num_datas = sum(a.num_datas for a in self.archives)
-		self.num_buffers = sum(a.num_buffers for a in self.archives)
-
-		self.num_included_ovls = len(self.included_ovls)
-		self.num_archives = len(self.archives)
 
 	def open_ovs_streams(self, mode="wb"):
 		logging.info("Opening OVS streams")
@@ -1316,7 +1306,7 @@ class OvlFile(Header, IoFile):
 	def save(self, filepath):
 		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
-		self.update_counts()
+		self.rebuild_ovs_arrays()
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
 		# update the name buffer and offsets
