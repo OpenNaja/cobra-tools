@@ -209,6 +209,14 @@ class BaseFile:
 			frag.struct_ptr.remove()
 		self.root_entry.struct_ptr.remove()
 
+	def register_entries(self):
+
+		self.ovs.fragments.extend(self.fragments)
+		self.ovs.root_entries.append(self.root_entry)
+		if self.data_entry:
+			self.ovs.data_entries.append(self.data_entry)
+			self.ovs.buffer_entries.extend(self.data_entry.buffers)
+
 	def remove(self, remove_file=True):
 		logging.info(f"Removing {self.file_entry.name}")
 		self.remove_pointers()
