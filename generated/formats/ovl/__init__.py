@@ -559,21 +559,6 @@ class OvlFile(Header, IoFile):
 		cls = self.formats_dict.get(file_entry.ext, BaseFile)
 		return cls(self, file_entry)
 
-	def get_extract_files(self, only_names, only_types, ignore=True):
-		"""Returns files that are suitable for extraction"""
-		extract_files = []
-		for file in self.files:
-			# for batch operations, only export those that we need
-			if only_types and file.ext not in only_types:
-				continue
-			if only_names and file.name not in only_names:
-				continue
-			# ignore types in the count that we export from inside other type exporters
-			if ignore and file.ext in IGNORE_TYPES:
-				continue
-			extract_files.append(file)
-		return extract_files
-
 	def remove(self, filenames):
 		"""
 		Removes files from an ovl file
@@ -620,16 +605,26 @@ class OvlFile(Header, IoFile):
 
 		error_files = []
 		out_paths = []
-		extract_files = self.get_extract_files(only_names, only_types)
-		for file_index, file in enumerate(extract_files):
-			self.progress_callback("Extracting", value=file_index, vmax=len(extract_files))
+		loaders_for_extract = []
+		for loader in self.loaders.values():
+			# for batch operations, only export those that we need
+			if only_types and loader.file_entry.ext not in only_types:
+				continue
+			if only_names and loader.file_entry.name not in only_names:
+				continue
+			# ignore types in the count that we export from inside other type exporters
+			if loader.file_entry.ext in IGNORE_TYPES:
+				continue
+			loaders_for_extract.append(loader)
+		for i, loader in enumerate(loaders_for_extract):
+			self.progress_callback("Extracting", value=i, vmax=len(loaders_for_extract))
 			try:
-				out_paths.extend(file.loader.extract(out_dir_func, show_temp_files, self.progress_callback))
+				out_paths.extend(loader.extract(out_dir_func, show_temp_files, self.progress_callback))
 			except BaseException as error:
-				logging.error(f"An exception occurred while extracting {file.name}")
+				logging.error(f"An exception occurred while extracting {loader.file_entry.name}")
 				logging.error(error)
 				traceback.print_exc()
-				error_files.append(file.name)
+				error_files.append(loader.file_entry.name)
 
 		self.progress_callback("Extraction completed!", value=1, vmax=1)
 		return out_paths, error_files
