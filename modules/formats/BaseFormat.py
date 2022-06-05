@@ -111,17 +111,6 @@ class BaseFile:
 			content = f.read()
 		return content
 
-	def get_file_entry(self, file_path):
-		file_name = os.path.basename(file_path)
-		for file_entry in self.ovl.files:
-			if file_entry.name == file_name:
-				return file_entry
-		file_entry = self.ovl.create_file_entry(file_path)
-		file_entry.loader = self.ovl.init_loader(file_entry)
-		self.ovl.loaders[file_entry.name] = file_entry.loader
-		self.ovl.files.append(file_entry)
-		return file_entry
-
 	def create_root_entry(self, ovs="STATIC"):
 		self.root_entry = RootEntry(self.ovl.context)
 		self.children = []

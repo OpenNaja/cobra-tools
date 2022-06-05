@@ -105,9 +105,8 @@ class Ms2Loader(BaseFile):
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
 			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")
-			mdl2_file = self.get_file_entry(mdl2_path)
-			mdl2_file.loader.create()
-			self.children.append(mdl2_file.loader)
+			mdl2_loader = self.ovl.create_file(mdl2_path)
+			self.children.append(mdl2_loader)
 
 		# create ms2 data
 		self.create_data_entry(ms2_file.buffers)

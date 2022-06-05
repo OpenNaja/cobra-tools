@@ -82,10 +82,9 @@ class DdsLoader(MemStructLoader):
 			for i, (lod_i, ovs_i) in enumerate(indices):
 				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
-				texstream_file = self.get_file_entry(f"dummy_dir/{name}_lod{lod_i}.texturestream")
-				texstream_file.loader.create(ovs_name)
-				self.streams.append(texstream_file.loader)
-				buffer_i = self.increment_buffers(texstream_file.loader, buffer_i)
+				texstream_loader = self.ovl.create_file(f"dummy_dir/{name}_lod{lod_i}.texturestream")
+				self.streams.append(texstream_loader)
+				buffer_i = self.increment_buffers(texstream_loader, buffer_i)
 			self.create_data_entry(buffers[streamed_lods:])
 			self.increment_buffers(self, buffer_i)
 			# ready, now inject

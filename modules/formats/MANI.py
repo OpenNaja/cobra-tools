@@ -58,9 +58,8 @@ class ManisLoader(BaseFile):
 		# create mani files
 		for mani_name in manis_file.names:
 			mani_path = os.path.join(ms2_dir, mani_name+".mani")
-			mani_file_entry = self.get_file_entry(mani_path)
-			mani_file_entry.loader.create()
-			self.children.append(mani_file_entry.loader)
+			mani_loader = self.ovl.create_file(mani_path)
+			self.children.append(mani_loader)
 
 		# todo - pool type
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)

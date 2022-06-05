@@ -557,7 +557,10 @@ class OvlFile(Header, IoFile):
 		# fall back to BaseFile loader
 		from modules.formats.BaseFormat import BaseFile
 		cls = self.formats_dict.get(file_entry.ext, BaseFile)
-		return cls(self, file_entry)
+		loader = cls(self, file_entry)
+		# store loader in dict for access
+		self.loaders[loader.file_entry.name] = loader
+		return loader
 
 	def remove(self, filenames):
 		"""
@@ -695,18 +698,16 @@ class OvlFile(Header, IoFile):
 		file_entry = self.create_file_entry(file_path)
 		if not file_entry:
 			return
-		file_entry.loader = self.init_loader(file_entry)
+		loader = self.init_loader(file_entry)
 		try:
-			file_entry.loader.create()
+			loader.create()
 		except NotImplementedError:
-			logging.warning(f"Creation not implemented for {file_entry.ext}")
+			logging.warning(f"Creation not implemented for {loader.file_entry.ext}")
 			return
 		except BaseException as err:
-			logging.warning(f"Could not create: {file_entry.name}")
+			logging.warning(f"Could not create: {loader.file_entry.name}")
 			traceback.print_exc()
 			return
-		self.files.append(file_entry)
-		self.loaders[file_entry.name] = file_entry.loader
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
@@ -906,8 +907,7 @@ class OvlFile(Header, IoFile):
 			self.hash_table_local[file_entry.file_hash] = file_name
 
 			# initialize the loader right here
-			file_entry.loader = self.init_loader(file_entry)
-			self.loaders[file_entry.name] = file_entry.loader
+			self.init_loader(file_entry)
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
 
