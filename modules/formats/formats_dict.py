@@ -34,6 +34,9 @@ def build_formats_dict():
 						logging.warning(f"Bad extension '{attribute.extension}' on class {attribute_name} in file {module_name}")
 						continue
 					formats_dict[attribute.extension] = attribute
+					# alternative file extensions
+					for alias in attribute.aliases:
+						formats_dict[alias] = attribute
 					# print(attribute_name)
 					# # Add the class to this package's variables
 					# globals()[attribute_name] = attribute

@@ -16,7 +16,7 @@ from modules.formats.shared import djb
 
 class BaseFile:
 	extension = None
-	child_extensions = ()
+	aliases = ()
 
 	def __init__(self, ovl, file_entry):
 		self.ovl = ovl
@@ -61,9 +61,6 @@ class BaseFile:
 			loader = self.ovl.loaders.get(name, None)
 			if loader:
 				self.streams.append(loader)
-
-	def validate_child(self, file_path):
-		return False
 
 	def create(self):
 		raise NotImplementedError

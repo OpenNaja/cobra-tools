@@ -101,3 +101,4 @@ class BufferEntry:
 		"""Set data internal data so it can be written on save and update the size value"""
 		self.data = data
 		self.size = len(data)
+

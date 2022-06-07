@@ -43,12 +43,6 @@ TAB = '  '
 # types that have no loader themselves, but are handled by other classes
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
 
-aliases = {
-	".matcol": ".materialcollection",
-	".otf": ".fct",
-	".ttf": ".fct",
-}
-
 
 class OvsFile(OvsHeader):
 
@@ -635,41 +629,21 @@ class OvlFile(Header, IoFile):
 	def inject(self, file_paths, show_temp_files):
 		"""Inject files into archive"""
 		logging.info(f"Injecting {len(file_paths)} files")
-		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		error_files = []
-		foreign_files = []
 		for file_index, file_path in enumerate(file_paths):
 			self.progress_callback("Injecting", value=file_index, vmax=len(file_paths))
 			name_ext, name, ext = split_path(file_path)
 			name_lower = name_ext.lower()
-			if ext in aliases:
-				name_lower = name_lower.replace(ext, aliases[ext])
-			# check if this file exists in this ovl
+			# todo - aliases will not be handled, but no problem for now
+			# if ext in aliases:
+			# 	name_lower = name_lower.replace(ext, aliases[ext])
+			# check if this file exists in this ovl, if so, delete old loader
 			if name_lower in self.loaders:
 				loader = self.loaders[name_lower]
-			else:
-				# check if this file could be handled by a loader still
-				for loader in self.loaders.values():
-					if loader and ext in loader.child_extensions:
-						if loader.validate_child(name_lower):
-							logging.info(f"Could inject {name_lower} into {loader.file_entry.name}")
-							break
-				# nope, it may need to be added
-				else:
-					foreign_files.append(file_path)
-					continue
-			try:
-				loader.load(file_path)
-				# todo - enabling these breaks ms2 - why?
-				# loader.register_ptrs()
-				# loader.track_ptrs()
-			except BaseException as error:
-				logging.error(f"An exception occurred while injecting {name_ext}")
-				logging.error(error)
-				traceback.print_exc()
-				error_files.append(name_ext)
-		shutil.rmtree(tmp_dir)
-		return error_files, foreign_files
+				loader.remove()
+		# now create them
+		self.add_files(file_paths)
+		return error_files
 
 	def create_file_entry(self, file_path):
 		"""Create a file entry from a file path"""

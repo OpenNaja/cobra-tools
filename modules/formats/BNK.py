@@ -7,14 +7,6 @@ from modules.formats.BaseFormat import BaseFile
 
 class BnkLoader(BaseFile):
 	extension = ".bnk"
-	# child_extensions = (".aux",)
-
-	def validate_child(self, file_path):
-		return True
-		# # only accept audio files on media bnks
-		# if "media" in self.file_entry.name:
-		# 	return True
-		# return False
 
 	def create(self):
 		# todo - fixme

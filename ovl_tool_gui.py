@@ -461,14 +461,11 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				error_files, foreign_files = self.ovl_data.inject(files, self.show_temp_files)
+				error_files = self.ovl_data.inject(files, self.show_temp_files)
 				self.file_widget.dirty = True
-				if foreign_files:
-					if interaction.showdialog(f"Do you want to add {len(foreign_files)} files to this ovl?", ask=True):
-						self.ovl_data.add_files(foreign_files)
-						self.update_gui_table()
 				if error_files:
 					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
+				self.update_gui_table()
 				self.update_progress("Injection completed", value=1, vmax=1)
 			except Exception as ex:
 				traceback.print_exc()
