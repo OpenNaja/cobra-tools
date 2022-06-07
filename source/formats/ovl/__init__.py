@@ -336,6 +336,42 @@ class OvsFile(OvsHeader):
 					self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
 						-1 - x].data_offset
 
+	def rebuild_pools(self):
+		logging.info("Updating pool names, deleting unused pools")
+		# map the pool types to pools
+		pools_by_type = {}
+		# make a copy to be able to delete pools
+		for pool_index, pool in enumerate(tuple(self.pools)):
+			if pool.offset_2_struct_entries:
+				logging.debug(f"Pool[{pool_index}]: {len(pool.offset_2_struct_entries)} structs")
+				first_entry = pool.get_first_entry()
+				assert first_entry
+				type_str = first_entry.__class__.__name__
+				# map fragment to containing root entry
+				if isinstance(first_entry, Fragment):
+					for loader in self.ovl.loaders.values():
+						if first_entry in loader.fragments:
+							first_entry = loader.root_entry
+							break
+					else:
+						logging.warning(f"Could not find root entry to get name for {first_entry}")
+						continue
+				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
+				self.transfer_identity(pool, first_entry)
+				# store pool in pool_groups map
+				if pool.type not in pools_by_type:
+					pools_by_type[pool.type] = []
+				pools_by_type[pool.type].append(pool)
+			else:
+				logging.info(f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
+				self.pools.remove(pool)
+		# rebuild pool groups
+		for pool_type, pools in pools_by_type.items():
+			pool_group = PoolGroup(self.context)
+			pool_group.type = pool_type
+			pool_group.num_pools = len(pools)
+			self.pool_groups.append(pool_group)
+
 	def map_buffers(self):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
@@ -1136,40 +1172,7 @@ class OvlFile(Header, IoFile):
 				# depends on sorted root_entries
 				ovs.rebuild_assets()
 
-				logging.info("Updating pool names, deleting unused pools")
-				# map the pool types to pools
-				pools_by_type = {}
-				for pool_index, pool in enumerate(reversed(ovs.pools)):
-					if pool.offset_2_struct_entries:
-						logging.info(f"pool {pool_index} has {len(pool.offset_2_struct_entries)} structs")
-						first_entry = pool.get_first_entry()
-						assert first_entry
-						type_str = first_entry.__class__.__name__
-						# map fragment to containing root entry
-						if isinstance(first_entry, Fragment):
-							for loader in self.loaders.values():
-								if first_entry in loader.fragments:
-									first_entry = loader.root_entry
-									break
-							else:
-								logging.warning(f"Could not find root entry to get name for {first_entry}")
-								continue
-						logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
-						ovs.transfer_identity(pool, first_entry)
-						# store pool in pool_groups map
-						if pool.type not in pools_by_type:
-							pools_by_type[pool.type] = []
-						pools_by_type[pool.type].append(pool)
-					else:
-						logging.info(f"Deleting {archive.name} pool {pool_index} '{pool.name}' as it has no pointers")
-						ovs.pools.remove(pool)
-
-				# rebuild pool groups
-				for pool_type, pools in pools_by_type.items():
-					pool_group = PoolGroup(self.context)
-					pool_group.type = pool_type
-					pool_group.num_pools = len(pools)
-					ovs.pool_groups.append(pool_group)
+				ovs.rebuild_pools()
 
 				# update the ovs counts
 				archive.num_pool_groups = len(ovs.pool_groups)

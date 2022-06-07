@@ -117,7 +117,6 @@ class BaseFile:
 		self.data_entry = None
 		self.fragments = set()
 		self.ovs.transfer_identity(self.root_entry, self.file_entry)
-		# self.ovs.root_entries.append(self.root_entry)
 
 	def set_dependency_identity(self, dependency, file_name):
 		"""Use a standard file name with extension"""
@@ -148,9 +147,7 @@ class BaseFile:
 			buffer.index = i
 			data.buffers.append(buffer)
 			self.ovs.transfer_identity(buffer, self.root_entry)
-			# self.ovs.buffer_entries.append(buffer)
 		self.ovs.transfer_identity(data, self.root_entry)
-		# self.ovs.data_entries.append(data)
 		data.update_data(buffers_bytes)
 		return data
 
