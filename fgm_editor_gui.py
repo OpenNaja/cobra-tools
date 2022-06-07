@@ -284,6 +284,7 @@ class TextureVisual:
 			assert self.data.dependency_name.data
 			self.w_file = QtWidgets.QLineEdit(self.data.dependency_name.data)
 			self.w_file.textEdited.connect(self.update_file)
+			# self.w_file = widgets.FileWidget(None, {}, dtype="TEX")
 			return self.w_file,
 		elif self.entry.dtype == FgmDtype.RGBA:
 			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
