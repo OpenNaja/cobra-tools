@@ -1200,14 +1200,12 @@ class OvlFile(Header, IoFile):
 	
 			# apply the new pools to the ovl
 			self.load_flattened_pools()
-			self.update_pool_indices()
-			# pools are updated, gotta rebuild stream files now
-			self.update_stream_files()
 		except:
 			traceback.print_exc()
 
 	def update_pool_indices(self):
 		"""Updates pool_index for all entries"""
+		# nb. this relies on dependencies being updated already
 		for archive in self.archives:
 			# we have the final list of pools now
 			ovs = archive.content
@@ -1281,6 +1279,9 @@ class OvlFile(Header, IoFile):
 		self.rebuild_ovs_arrays()
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
+		# these need to be done after the rest
+		self.update_pool_indices()
+		self.update_stream_files()
 		# update the name buffer and offsets
 		self.update_names()
 		self.open_ovs_streams()
