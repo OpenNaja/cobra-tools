@@ -1,12 +1,13 @@
 from source.formats.base.basic import fmt_member
+import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
+from generated.formats.ovl_base.compound.Pointer import Pointer
 
 
 class IslandRoot(MemStruct):
 
 	"""
-	# NOT COMPLETE, the .island mime has a float value after the path pointer
-	# found to be 400.0 in all islands
+	JWE2: 32 bytes
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -16,11 +17,20 @@ class IslandRoot(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.a = 0.0
+		self.b = 0.0
+		self.count = 0
+		self.zero = 0
+		self.path_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		pass
+		self.a = 0.0
+		self.b = 0.0
+		self.count = 0
+		self.zero = 0
+		self.path_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -35,12 +45,21 @@ class IslandRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		pass
+		instance.path_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.a = stream.read_float()
+		instance.b = stream.read_float()
+		instance.count = stream.read_uint64()
+		instance.zero = stream.read_uint64()
+		instance.path_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		pass
+		Pointer.to_stream(stream, instance.path_name)
+		stream.write_float(instance.a)
+		stream.write_float(instance.b)
+		stream.write_uint64(instance.count)
+		stream.write_uint64(instance.zero)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -63,6 +82,11 @@ class IslandRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
+		s += f'\n	* path_name = {fmt_member(self.path_name, indent+1)}'
+		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
+		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
+		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
+		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

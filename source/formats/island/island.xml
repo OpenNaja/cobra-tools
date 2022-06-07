@@ -5,34 +5,12 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="IslandRoot" inherit="MemStruct">
-
-	# NOT COMPLETE, the .island mime has a float value after the path pointer
-	# found to be 400.0 in all islands
-<!--        <add name="path_name" type="Pointer" template="ZString"/>-->
-<!--        <add name="levels" type="ArrayPointer" template="ResearchLevel" arg="count"/>-->
-<!--        <add name="count" type="uint64" />-->
+        JWE2: 32 bytes
+        <add name="path_name" type="Pointer" template="ZString"/>
+        <add name="a" type="float"/>
+        <add name="b" type="float"/>
+        <add name="count" type="uint64"/>
+        <add name="zero" type="uint64"/>
     </compound>
-
-<!--    <compound name="ResearchLevel" inherit="MemStruct">-->
-<!--        <add name="level_name" type="Pointer" template="ZString"/>-->
-<!--        <add name="next_levels" type="Pointer" template="PtrList" arg="next_level_count"/>-->
-<!--        <add name="next_level_count" type="uint64" />-->
-<!--        <add name="children" type="Pointer" template="PtrList" arg="children_count"/>-->
-<!--        <add name="children_count" type="uint64" />-->
-<!--    </compound>-->
-
-<!--    <compound name="UnlockState" inherit="MemStruct">-->
-<!--        <add name="entity_name" type="Pointer" template="ZString"/>-->
-<!--        <add name="level_name" type="Pointer" template="ZString"/>-->
-<!--    </compound>-->
-
-<!--    <compound name="ResearchStartRoot" inherit="MemStruct">-->
-<!--        <add name="states" type="ArrayPointer" template="UnlockState" arg="count"/>-->
-<!--        <add name="count" type="uint64" />-->
-<!--    </compound>-->
-
-<!--    <compound name="PtrList" inherit="MemStruct">-->
-<!--        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>-->
-<!--    </compound>-->
 
 </niftoolsxml>
