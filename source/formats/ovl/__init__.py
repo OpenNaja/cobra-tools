@@ -587,7 +587,6 @@ class OvlFile(Header, IoFile):
 			loader.rename_content(name_tups)
 			# todo - enabling these breaks ms2 - why?
 			# loader.register_ptrs()
-			# loader.track_ptrs()
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
@@ -1121,7 +1120,8 @@ class OvlFile(Header, IoFile):
 
 			pools_byte_offset = 0
 			pools_offset = 0
-			for archive in self.archives:
+			# make a temporary copy so we can delete archive if needed
+			for archive in tuple(self.archives):
 
 				logging.debug(f"Sorting pools for {archive.name}")
 				ovs = archive.content
@@ -1179,6 +1179,13 @@ class OvlFile(Header, IoFile):
 				archive.num_fragments = len(ovs.fragments)
 				archive.num_root_entries = len(ovs.root_entries)
 				archive.num_buffer_groups = len(ovs.buffer_groups)
+
+				# remove archive if needed
+				if not archive.num_pools and not archive.num_root_entries:
+					logging.info(f"Removed archive {archive.name} as it was empty")
+					self.archives.remove(archive)
+					continue
+
 				archive.pools_offset = pools_offset
 				archive.pools_start = pools_byte_offset
 				archive.content.write_pools()
@@ -1258,8 +1265,7 @@ class OvlFile(Header, IoFile):
 			if archive.name != "STATIC":
 				files = [f for f in self.stream_files if f.archive_name == archive.name]
 				if not files:
-					logging.warning(f"No files in archive {archive.name}")
-					# todo - delete archive
+					logging.error(f"No files in streamed archive {archive.name}")
 					continue
 				archive.stream_files_offset = self.stream_files.index(files[0])
 
