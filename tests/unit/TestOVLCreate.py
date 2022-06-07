@@ -1,9 +1,9 @@
 import unittest
-from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
+from generated.formats.ovl import OvlFile, get_game, set_game
 
-# create a new empty OVL, save the ovl with diff formats, and try loading it again
 
 class TestOVLCreate(unittest.TestCase):
+	"""create a new empty OVL, save the ovl with diff formats, and try loading it again"""
 
 	# load an empty ovl file for each test case
 	def setUp(self):
@@ -15,7 +15,7 @@ class TestOVLCreate(unittest.TestCase):
 		set_game(self.ovlfile.context, game)
 		set_game(self.ovlfile, game)
 		self.ovlfile.create('tests/Files/')
-		self.ovlfile.save(file, '')
+		self.ovlfile.save(file)
 		self.ovlfile.load(file)
 		self.assertEqual(game, get_game(self.ovlfile)[0].value, "Should have the same game")
 
@@ -25,7 +25,7 @@ class TestOVLCreate(unittest.TestCase):
 		set_game(self.ovlfile.context, game)
 		set_game(self.ovlfile, game)
 		self.ovlfile.create('tests/Files/')
-		self.ovlfile.save(file, '')
+		self.ovlfile.save(file)
 		self.ovlfile.load(file)
 		self.assertEqual(game, get_game(self.ovlfile)[0].value, "Should have the same game")
 
@@ -35,7 +35,7 @@ class TestOVLCreate(unittest.TestCase):
 		set_game(self.ovlfile.context, game)
 		set_game(self.ovlfile, game)
 		self.ovlfile.create('tests/Files/')
-		self.ovlfile.save(file, '')
+		self.ovlfile.save(file)
 		self.ovlfile.load(file)
 		self.assertEqual(game, get_game(self.ovlfile)[0].value, "Should have the same game")
 
@@ -45,7 +45,7 @@ class TestOVLCreate(unittest.TestCase):
 		set_game(self.ovlfile.context, game)
 		set_game(self.ovlfile, game)
 		self.ovlfile.create('tests/Files/')
-		self.ovlfile.save(file, '')
+		self.ovlfile.save(file)
 		self.ovlfile.load(file)
 		self.assertEqual(game, get_game(self.ovlfile)[0].value, "Should have the same game")
 
