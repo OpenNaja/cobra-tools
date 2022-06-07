@@ -137,9 +137,9 @@
 	</compound>
 
 	<compound name="BufferPresence">
-		in DLA, this can also be a dependency to a model2stream
-		<add name="flag" type="int" >-1 for a static buffer, 0 for streamed buffer; may be stream index</add>
-		<add name="zero" type="int"/>
+		in DLA and JWE2, this can be a dependency to a model2stream
+		<add name="pool_index" type="int" >-1 for a static buffer, 0 for streamed buffer; may be stream index</add>
+		<add name="data_offset" type="int"/>
 	</compound>
 
 	<compound name="Model">

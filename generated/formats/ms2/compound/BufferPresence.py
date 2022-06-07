@@ -5,7 +5,7 @@ from generated.context import ContextReference
 class BufferPresence:
 
 	"""
-	in DLA, this can also be a dependency to a model2stream
+	in DLA and JWE2, this can be a dependency to a model2stream
 	"""
 
 	context = ContextReference()
@@ -19,14 +19,14 @@ class BufferPresence:
 		self.io_start = 0
 
 		# -1 for a static buffer, 0 for streamed buffer; may be stream index
-		self.flag = 0
-		self.zero = 0
+		self.pool_index = 0
+		self.data_offset = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.flag = 0
-		self.zero = 0
+		self.pool_index = 0
+		self.data_offset = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -40,13 +40,13 @@ class BufferPresence:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.flag = stream.read_int()
-		instance.zero = stream.read_int()
+		instance.pool_index = stream.read_int()
+		instance.data_offset = stream.read_int()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_int(instance.flag)
-		stream.write_int(instance.zero)
+		stream.write_int(instance.pool_index)
+		stream.write_int(instance.data_offset)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -68,8 +68,8 @@ class BufferPresence:
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* pool_index = {fmt_member(self.pool_index, indent+1)}'
+		s += f'\n	* data_offset = {fmt_member(self.data_offset, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
