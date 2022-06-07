@@ -66,8 +66,6 @@ class Ms2Loader(BaseFile):
 		self.header.read_ptrs(self.root_ptr.pool)
 		# self.header.debug_ptrs()
 		# print(self.header)
-		if self.root_ptr.data_size != 48:
-			logging.warning(f"Unexpected Root size ({self.root_ptr.data_size}) for {self.file_entry.name}")
 		expected_frag = self.get_buffer_presence()
 		frag_data = self.header.buffers_presence.frag.struct_ptr.data
 		if frag_data != expected_frag:
@@ -148,8 +146,7 @@ class Ms2Loader(BaseFile):
 		out_paths = [out_path, ]
 		with ConvStream() as stream:
 			stream.write(ms2_header)
-			# truncate header to 48 bytes for PZ af_keeperbodyparts
-			stream.write(self.root_entry.struct_ptr.data[:48])
+			self.header.write(stream)
 			# present since DLA
 			if self.header.buffers_presence.data is not None:
 				self.header.buffers_presence.data.write(stream)
@@ -158,7 +155,7 @@ class Ms2Loader(BaseFile):
 				logging.debug(f"Writing {mdl2_entry.name}")
 				stream.write(as_bytes(mdl2_entry.basename))
 			for loader in self.streams:
-				stream.write(as_bytes(loader.file_entry.basename))
+				stream.write(as_bytes(loader.file_entry.name))
 				out_paths.extend(loader.extract(out_dir, show_temp_files, progress_callback))
 			stream.write(name_buffer)
 			# export each mdl2
@@ -186,7 +183,6 @@ class Ms2Loader(BaseFile):
 				outfile.write(bone_infos)
 				outfile.write(verts)
 		# m = Ms2File()
-		# m.load(out_path)
 		# m.load(out_path, read_editable=True)
 		# m.load(out_path, read_editable=False)
 		# m.save(out_path+"_.ms2")

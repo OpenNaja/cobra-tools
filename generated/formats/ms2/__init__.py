@@ -118,7 +118,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_2_bytes = stream.read()
 		# attach the streams to each buffer_info
 		for buffer_info, modelstream_name in zip(self.buffer_infos, self.modelstream_names):
-			buffer_info.name = f"{modelstream_name}.model2stream"
+			buffer_info.name = modelstream_name
 			buffer_info.path = os.path.join(self.dir, buffer_info.name)
 			logging.info(f"Loading {buffer_info.path}")
 			with open(buffer_info.path, "rb") as modelstream_reader:
