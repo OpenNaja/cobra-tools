@@ -711,6 +711,7 @@ class OvlFile(Header, IoFile):
 		try:
 			loader.set_ovs(ovs_name)
 			loader.create()
+			loader.register_ptrs()
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {loader.file_entry.ext}")
 			return

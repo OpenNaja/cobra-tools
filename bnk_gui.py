@@ -19,7 +19,6 @@ try:
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
 	from ovl_util import widgets, interaction
-	from generated.formats.ovl import IGNORE_TYPES
 
 	from generated.formats.bnk import BnkFile, AuxFile
 	from ovl_util.texconv import write_riff_file
@@ -53,7 +52,7 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "DJB"]
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, IGNORE_TYPES)
+		self.files_container = widgets.SortableTable(header_names, ())
 		# connect the interaction functions
 		# self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)

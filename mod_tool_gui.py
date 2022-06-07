@@ -34,7 +34,7 @@ from PyQt5 import QtGui, QtCore
 
 from ovl_util import widgets, interaction, qt_threads
 from ovl_util import config, qt_theme
-from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
+from generated.formats.ovl import OvlFile, games, set_game
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'
