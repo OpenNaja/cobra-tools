@@ -733,10 +733,8 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Game: {get_game(self)}")
 		for file_path in file_paths:
 			self.create_file(file_path)
-		# todo - decide what really needs to be done after create
 
 	def create_archive(self, name="STATIC"):
-		# logging.debug(f"Getting archive '{name}'")
 		# see if it exists
 		for archive in self.archives:
 			if archive.name == name:
