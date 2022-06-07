@@ -592,7 +592,7 @@ class OvlFile(Header, IoFile):
 		for loader in self.loaders.values():
 			loader.rename_content(name_tups)
 			# todo - enabling these breaks ms2 - why?
-			# loader.register_created_ptrs()
+			# loader.register_ptrs()
 			# loader.track_ptrs()
 		logging.info("Finished renaming contents!")
 
@@ -661,7 +661,7 @@ class OvlFile(Header, IoFile):
 			try:
 				loader.load(file_path)
 				# todo - enabling these breaks ms2 - why?
-				# loader.register_created_ptrs()
+				# loader.register_ptrs()
 				# loader.track_ptrs()
 			except BaseException as error:
 				logging.error(f"An exception occurred while injecting {name_ext}")
@@ -676,7 +676,6 @@ class OvlFile(Header, IoFile):
 		# capital letters in the name buffer crash JWE2, apparently
 		file_path = file_path.lower()
 		filename = os.path.basename(file_path)
-		logging.info(f"Creating {filename}")
 		file_entry = FileEntry(self.context)
 		file_entry.path = file_path
 		file_entry.name = filename
@@ -693,13 +692,15 @@ class OvlFile(Header, IoFile):
 		for archive in self.archives:
 			archive.content.pad_pools()
 
-	def create_file(self, file_path):
+	def create_file(self, file_path, ovs_name="STATIC"):
 		"""Register a file entry from a file path, add a loader"""
 		file_entry = self.create_file_entry(file_path)
 		if not file_entry:
 			return
+		logging.info(f"Creating {file_entry.name} in {ovs_name}")
 		loader = self.init_loader(file_entry)
 		try:
+			loader.set_ovs(ovs_name)
 			loader.create()
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {loader.file_entry.ext}")
@@ -708,6 +709,7 @@ class OvlFile(Header, IoFile):
 			logging.warning(f"Could not create: {loader.file_entry.name}")
 			traceback.print_exc()
 			return
+		return loader
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
@@ -1001,19 +1003,19 @@ class OvlFile(Header, IoFile):
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of ovl pools
-			dep.link_ptr.get_pool(self.pools)
+			dep.link_ptr.assign_pool(self.pools)
 			dep.link_ptr.pool.add_link(dep)
 		for archive in self.archives:
 			ovs = archive.content
 			# attach all pointers to their pool
 			for entry in ovs.root_entries:
-				entry.struct_ptr.get_pool(ovs.pools)
+				entry.struct_ptr.assign_pool(ovs.pools)
 				# may not have a pool
 				if entry.struct_ptr.pool:
 					entry.struct_ptr.pool.add_struct(entry)
 			for i, frag in enumerate(ovs.fragments):
-				frag.link_ptr.get_pool(ovs.pools)
-				frag.struct_ptr.get_pool(ovs.pools)
+				frag.link_ptr.assign_pool(ovs.pools)
+				frag.struct_ptr.assign_pool(ovs.pools)
 				try:
 					frag.struct_ptr.pool.add_struct(frag)
 					frag.link_ptr.pool.add_link(frag)
@@ -1022,12 +1024,13 @@ class OvlFile(Header, IoFile):
 					logging.warning(f"linking frag {i} failed")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
-			pool.calc_pointer_sizes()
+			pool.calc_struct_ptr_sizes()
 		logging.info(f"Prepared pointers in {time.time() - start_time:.2f} seconds")
 
 		logging.info("Loading file classes")
 		start_time = time.time()
-		for loader in self.loaders.values():
+		for i, loader in enumerate(self.loaders.values()):
+			self.print_and_callback(f"Mapping files", value=i, max_value=len(self.loaders))
 			loader.track_ptrs()
 			try:
 				loader.collect()

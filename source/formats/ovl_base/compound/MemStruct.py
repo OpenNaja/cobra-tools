@@ -55,13 +55,13 @@ class MemStruct:
 	def get_memstructs(self):
 		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
 
-	def handle_write(self, prop, val, struct_ptr, loader, ovs, pool_type, is_member=False):
+	def handle_write(self, prop, val, struct_ptr, loader, pool_type, is_member=False):
 		logging.debug(f"handle_write {prop} {type(val).__name__}, {len(loader.fragments)} frags")
 		if isinstance(val, MemStruct):
-			val.write_ptrs(loader, ovs, struct_ptr, pool_type, is_member=is_member)
+			val.write_ptrs(loader, struct_ptr, pool_type, is_member=is_member)
 		elif isinstance(val, Array):
 			for member in val:
-				self.handle_write(prop, member, struct_ptr, loader, ovs, pool_type, is_member=True)
+				self.handle_write(prop, member, struct_ptr, loader, pool_type, is_member=True)
 		elif isinstance(val, Pointer):
 			# usually we add a pointer for empty arrays
 			if val.data is not None:
@@ -76,31 +76,31 @@ class MemStruct:
 					# it's not stored in binary, so for those, keep the root pool type
 					if val.pool_type is not None:
 						pool_type = val.pool_type
-					val.frag.struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
+					val.frag.struct_ptr.pool = loader.get_pool(pool_type)
 					# this writes pointer.data to the pool
 					val.write_pointer()
 					# now repeat with pointer.data
-					self.handle_write(prop, val.data, val.frag.struct_ptr, loader, ovs, pool_type, is_member=True)
+					self.handle_write(prop, val.data, val.frag.struct_ptr, loader, pool_type, is_member=True)
 				# set link_ptr
 				p = val.frag.link_ptr
 				p.data_offset = val.io_start
 				p.pool = struct_ptr.pool
 
-	def write_ptrs(self, loader, ovs, struct_ptr, pool_type, is_member=False):
+	def write_ptrs(self, loader, struct_ptr, pool_type, is_member=False):
 		logging.debug(f"write_ptrs, member={is_member}")
 		# don't write array members again, they have already been written!
 		if not is_member:
 			# write this struct's data
-			struct_ptr.pool = loader.get_pool(pool_type, ovs=ovs.arg.name)
+			struct_ptr.pool = loader.get_pool(pool_type)
 			struct_ptr.write_instance(type(self), self)
 			logging.debug(f"memstruct's struct_ptr after {struct_ptr}")
 
 		# write their data and update frags
 		for prop, pointer in self.get_props_and_ptrs():
-			self.handle_write(prop, pointer, struct_ptr, loader, ovs, pool_type)
+			self.handle_write(prop, pointer, struct_ptr, loader, pool_type)
 		# get all arrays of this MemStruct
 		for prop, array in self.get_arrays():
-			self.handle_write(prop, array, struct_ptr, loader, ovs, pool_type)
+			self.handle_write(prop, array, struct_ptr, loader, pool_type)
 
 	def read_ptrs(self, pool):
 		logging.debug(f"read_ptrs for {self.__class__.__name__}")

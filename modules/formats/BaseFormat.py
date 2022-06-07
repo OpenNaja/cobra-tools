@@ -36,6 +36,10 @@ class BaseFile:
 		self.children = []
 		self.fragments = set()
 
+	def set_ovs(self, ovs_name):
+		"""Assigns or creates suitable ovs"""
+		self.ovs = self.ovl.create_archive(ovs_name)
+
 	@property
 	def abs_mem_offset(self):
 		"""Returns the memory offset of this loader's root_entry"""
@@ -61,7 +65,7 @@ class BaseFile:
 	def validate_child(self, file_path):
 		return False
 
-	def create(self, ovs_name=""):
+	def create(self):
 		raise NotImplementedError
 
 	def collect(self):
@@ -78,11 +82,10 @@ class BaseFile:
 		pointer.frag.link_ptr.data_offset = pointer.io_start
 		pointer.frag.link_ptr.pool = pool
 
-	def get_pool(self, pool_type_key, ovs="STATIC"):
+	def get_pool(self, pool_type_key):
 		assert pool_type_key is not None
-		ovs_file = self.ovl.create_archive(ovs)
 		# get one directly editable pool, if it exists
-		for pool in ovs_file.pools:
+		for pool in self.ovs.pools:
 			# todo - add reasonable size condition
 			if pool.type == pool_type_key and pool.new:
 				return pool
@@ -93,12 +96,12 @@ class BaseFile:
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
 		pool.clear_data()
 		pool.new = True
-		ovs_file.pools.append(pool)
+		self.ovs.pools.append(pool)
 		return pool
 
-	def write_data_to_pool(self, struct_ptr, pool_type_key, data, ovs="STATIC"):
+	def write_data_to_pool(self, struct_ptr, pool_type_key, data):
 		"""Finds or creates a suitable pool in the right ovs and writes data"""
-		struct_ptr.pool = self.get_pool(pool_type_key, ovs=ovs)
+		struct_ptr.pool = self.get_pool(pool_type_key)
 		struct_ptr.write_to_pool(data)
 
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
@@ -111,14 +114,13 @@ class BaseFile:
 			content = f.read()
 		return content
 
-	def create_root_entry(self, ovs="STATIC"):
+	def create_root_entry(self):
 		self.root_entry = RootEntry(self.ovl.context)
 		self.children = []
 		self.data_entry = None
 		self.fragments = set()
-		self.ovs = self.ovl.create_archive(ovs)
 		self.ovs.transfer_identity(self.root_entry, self.file_entry)
-		self.ovs.root_entries.append(self.root_entry)
+		# self.ovs.root_entries.append(self.root_entry)
 
 	def set_dependency_identity(self, dependency, file_name):
 		"""Use a standard file name with extension"""
@@ -139,8 +141,7 @@ class BaseFile:
 		self.fragments.add(new_frag)
 		return new_frag
 
-	def create_data_entry(self, buffers_bytes, ovs="STATIC"):
-		ovs_file = self.ovl.create_archive(ovs)
+	def create_data_entry(self, buffers_bytes):
 		data = DataEntry(self.ovl.context)
 		self.data_entry = data
 		data.buffer_count = len(buffers_bytes)
@@ -149,10 +150,10 @@ class BaseFile:
 			buffer = BufferEntry(self.ovl.context)
 			buffer.index = i
 			data.buffers.append(buffer)
-			ovs_file.transfer_identity(buffer, self.root_entry)
-			ovs_file.buffer_entries.append(buffer)
-		ovs_file.transfer_identity(data, self.root_entry)
-		ovs_file.data_entries.append(data)
+			self.ovs.transfer_identity(buffer, self.root_entry)
+			# self.ovs.buffer_entries.append(buffer)
+		self.ovs.transfer_identity(data, self.root_entry)
+		# self.ovs.data_entries.append(data)
 		data.update_data(buffers_bytes)
 		return data
 
@@ -192,12 +193,6 @@ class BaseFile:
 		"""Shorthand for the root entry's struct_ptr"""
 		return self.root_entry.struct_ptr
 
-	def remove_pointers(self):
-		# remove any pointers
-		for frag in self.fragments:
-			frag.struct_ptr.remove()
-		self.root_entry.struct_ptr.remove()
-
 	def register_entries(self):
 
 		self.ovs.fragments.extend(self.fragments)
@@ -209,15 +204,6 @@ class BaseFile:
 	def remove(self, remove_file=True):
 		logging.info(f"Removing {self.file_entry.name}")
 		self.remove_pointers()
-
-		# remove entries in ovs
-		self.ovs.root_entries.remove(self.root_entry)
-		data = self.data_entry
-		if data:
-			for buffer in data.buffers:
-				buffer.update_data(b"")
-				self.ovs.buffer_entries.remove(buffer)
-			self.ovs.data_entries.remove(data)
 
 		if remove_file:
 			# remove the loader from ovl so it is not saved
@@ -233,7 +219,25 @@ class BaseFile:
 		self.file_entry.path = file_path
 		self.create()
 
-	def register_created_ptrs(self):
+	def remove_pointers(self):
+		# in theory, this should handle the removal of all other pointers
+		# remove any struct pointers - the link ptrs are removed as well
+		self.root_entry.struct_ptr.remove()
+		for frag in self.fragments:
+			frag.struct_ptr.remove()
+
+	# def get_pools(self):
+	# 	# todo - can't do this here as frags need to be assigned to loaders first
+	# 	for dep in self.dependencies:
+	# 		# the index goes into the flattened list of ovl pools
+	# 		dep.link_ptr.assign_pool(self.ovl.pools)
+	# 	# attach all pointers to their pool
+	# 	self.root_entry.assign_pool(self.ovs.pools)
+	# 	for frag in self.ovs.fragments:
+	# 		frag.link_ptr.assign_pool(self.ovs.pools)
+	# 		frag.struct_ptr.assign_pool(self.ovs.pools)
+
+	def register_ptrs(self):
 		if self.root_entry.struct_ptr.pool:
 			self.root_entry.struct_ptr.pool.add_struct(self.root_entry)
 		for frag in self.fragments:
@@ -284,4 +288,4 @@ class MemStructLoader(BaseFile):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		# print(self.header)
-		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)

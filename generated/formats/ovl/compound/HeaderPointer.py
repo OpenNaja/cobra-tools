@@ -126,7 +126,7 @@ class HeaderPointer:
 			self.data_size = len(data)
 			self.pool.data.write(data)
 
-	def get_pool(self, pools):
+	def assign_pool(self, pools):
 		"""Link this pointer to its pool"""
 		if self.pool_index != -1:
 			# get pool

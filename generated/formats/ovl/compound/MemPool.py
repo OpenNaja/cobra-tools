@@ -187,8 +187,8 @@ class MemPool:
 		self.offset_2_link_entry[offset] = entry
 		entry.link_ptr.data_size = 8
 
-	def calc_pointer_sizes(self):
-		"""Assign an estimated size to every pointer"""
+	def calc_struct_ptr_sizes(self):
+		"""Assign an estimated size to every struct_ptr"""
 		# sort them
 		sorted_entries = sorted(self.offset_2_struct_entries.items())
 		# add the end of the header data block

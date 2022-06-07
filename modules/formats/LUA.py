@@ -18,7 +18,7 @@ class LuaLoader(MemStructLoader):
 		self.header.lua_size = len(buffer_0)
 		self.header.source_path.data = self.file_entry.basename
 		self.header.likely_alignment.data = b"\x00"
-		self.header.write_ptrs(self, self.ovs, self.root_entry.struct_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name

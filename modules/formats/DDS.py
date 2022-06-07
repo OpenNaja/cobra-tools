@@ -28,13 +28,12 @@ def align_to(width, comp, alignment=64):
 class TexturestreamLoader(BaseFile):
 	extension = ".texturestream"
 
-	def create(self, ovs_name=""):
-		# logging.info(f"Creating texturestream in {ovs_name}")
+	def create(self):
 		# this is only to be called from DdsLoader
-		self.create_root_entry(ovs=ovs_name)
-		self.write_data_to_pool(self.root_entry.struct_ptr, 3, b"\x00" * 8, ovs=ovs_name)
+		self.create_root_entry()
+		self.write_data_to_pool(self.root_entry.struct_ptr, 3, b"\x00" * 8)
 		# data entry, assign buffer
-		self.create_data_entry((b"", ), ovs=ovs_name)
+		self.create_data_entry((b"", ))
 
 
 class DdsLoader(MemStructLoader):
@@ -82,7 +81,7 @@ class DdsLoader(MemStructLoader):
 			for i, (lod_i, ovs_i) in enumerate(indices):
 				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
-				texstream_loader = self.ovl.create_file(f"dummy_dir/{name}_lod{lod_i}.texturestream")
+				texstream_loader = self.ovl.create_file(f"dummy_dir/{name}_lod{lod_i}.texturestream", ovs_name=ovs_name)
 				self.streams.append(texstream_loader)
 				buffer_i = self.increment_buffers(texstream_loader, buffer_i)
 			self.create_data_entry(buffers[streamed_lods:])

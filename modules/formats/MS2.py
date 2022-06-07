@@ -19,7 +19,7 @@ from ovl_util import interaction
 class Mdl2Loader(BaseFile):
 	extension = ".mdl2"
 
-	def create(self, ovs_name=""):
+	def create(self):
 		self.create_root_entry()
 		self.root_entry.struct_ptr.pool_index = -1
 
@@ -109,7 +109,7 @@ class Ms2Loader(BaseFile):
 		# create ms2 data
 		self.create_data_entry(ms2_file.buffers)
 		# write the final memstruct
-		self.header.write_ptrs(self, self.ovs, self.root_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
 		# link some more pointers
 		pool = self.header.model_infos.frag.struct_ptr.pool
 		first_model_frag = self.get_first_model_frag()
