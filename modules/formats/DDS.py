@@ -78,7 +78,7 @@ class DdsLoader(MemStructLoader):
 				indices = ((0, 0), (1, 1), )
 			else:
 				raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
-			for i, (lod_i, ovs_i) in enumerate(indices):
+			for lod_i, ovs_i in indices:
 				ovs_name = f"Textures_L{ovs_i}"
 				# create texturestream file - dummy_dir is ignored
 				texstream_loader = self.ovl.create_file(f"dummy_dir/{name}_lod{lod_i}.texturestream", ovs_name=ovs_name)
