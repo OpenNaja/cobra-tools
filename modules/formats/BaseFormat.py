@@ -39,7 +39,11 @@ class BaseFile:
 
 	@property
 	def data_entry(self):
-		return self.data_entries.get("STATIC", None)
+		return self.data_entries.get(self.ovs_name, None)
+
+	@property
+	def ovs_name(self):
+		return self.ovs.arg.name
 
 	def set_ovs(self, ovs_name):
 		"""Assigns or creates suitable ovs"""
@@ -144,7 +148,9 @@ class BaseFile:
 
 	def create_data_entry(self, buffers_bytes):
 		data = DataEntry(self.ovl.context)
-		self.data_entries["STATIC"] = data
+		# needs to be created in the ovs that this loader has been assigned to use
+		# needs additional research to be able to create jwe2 dino manis with stray data_entry
+		self.data_entries[self.ovs_name] = data
 		data.buffer_count = len(buffers_bytes)
 		data.buffers = []
 		for i, buffer_bytes in enumerate(buffers_bytes):
@@ -167,8 +173,8 @@ class BaseFile:
 	def rename(self, name_tuples):
 		"""Rename all entries controlled by this loader"""
 		entries = [self.file_entry, *self.dependencies, *self.aux_entries, self.root_entry, ]
-		if self.data_entry:
-			entries.extend((self.data_entry, *self.data_entry.buffers))
+		for data_entry in self.data_entries.values():
+			entries.extend((data_entry, *data_entry.buffers))
 		for entry in entries:
 			if UNK_HASH in entry.name:
 				logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
