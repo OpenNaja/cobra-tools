@@ -1,7 +1,5 @@
 import os
-import shutil
 import struct
-import tempfile
 import zlib
 import io
 import time
@@ -167,7 +165,7 @@ class OvsFile(OvsHeader):
 			for data_entry in self.data_entries:
 				self.assign_name(data_entry)
 				loader = self.ovl.loaders[data_entry.name]
-				loader.data_entry = data_entry
+				loader.data_entries[archive_entry.name] = data_entry
 			for root_entry in self.root_entries:
 				self.assign_name(root_entry)
 				# store ovs and root_entry on loader
@@ -516,7 +514,7 @@ class OvsFile(OvsHeader):
 				n = self.ovl.hash_table_local[entry.file_hash]
 				e = self.ovl.hash_table_local[entry.ext_hash]
 			except KeyError:
-				raise KeyError(f"No match for entry!\n{entry}")
+				raise KeyError(f"No match for entry {entry.file_hash} [{entry.__class__.__name__}] from archive {self.arg.name}")
 		# PZ Style and PC Style
 		else:
 			# file_hash is an index into ovl files
@@ -746,8 +744,6 @@ class OvlFile(Header, IoFile):
 		self.archives.append(archive)
 		content = OvsFile(self.context, self, archive)
 		archive.content = content
-		new_zlib = ZlibInfo(self.context)
-		self.zlibs.append(new_zlib)
 		return content
 
 	# dummy (black hole) callback for if we decide we don't want one
@@ -983,9 +979,9 @@ class OvlFile(Header, IoFile):
 				logging.error(f"Decompressing {archive_entry.name} from {archive_entry.ovs_path} failed")
 				logging.error(err)
 				traceback.print_exc()
-				print(archive_entry)
-				print(archive_entry.content)
-				break
+				# print(archive_entry)
+				# print(archive_entry.content)
+				continue
 		self.close_ovs_streams()
 		self.postprocessing()
 		logging.info(f"Loaded archives in {time.time() - start_time:.2f} seconds")
@@ -1016,11 +1012,11 @@ class OvlFile(Header, IoFile):
 		for archive in self.archives:
 			ovs = archive.content
 			# attach all pointers to their pool
-			for entry in ovs.root_entries:
-				entry.struct_ptr.assign_pool(ovs.pools)
+			for root_entry in ovs.root_entries:
+				root_entry.struct_ptr.assign_pool(ovs.pools)
 				# may not have a pool
-				if entry.struct_ptr.pool:
-					entry.struct_ptr.pool.add_struct(entry)
+				if root_entry.struct_ptr.pool:
+					root_entry.struct_ptr.pool.add_struct(root_entry)
 			for i, frag in enumerate(ovs.fragments):
 				frag.link_ptr.assign_pool(ovs.pools)
 				frag.struct_ptr.assign_pool(ovs.pools)
@@ -1182,8 +1178,8 @@ class OvlFile(Header, IoFile):
 				archive.num_root_entries = len(ovs.root_entries)
 				archive.num_buffer_groups = len(ovs.buffer_groups)
 
-				# remove archive if needed
-				if not archive.num_pools and not archive.num_root_entries:
+				# remove archive if it has no pools and no roots and no datas
+				if not archive.num_pools and not archive.num_root_entries and not archive.num_datas:
 					logging.info(f"Removed archive {archive.name} as it was empty")
 					self.archives.remove(archive)
 					continue
@@ -1214,6 +1210,7 @@ class OvlFile(Header, IoFile):
 
 	def update_pool_indices(self):
 		"""Updates pool_index for all entries"""
+		logging.info(f"Updating pool indices")
 		# nb. this relies on dependencies being updated already
 		for archive in self.archives:
 			# we have the final list of pools now
@@ -1265,11 +1262,10 @@ class OvlFile(Header, IoFile):
 		for archive in self.archives:
 			archive.stream_files_offset = 0
 			if archive.name != "STATIC":
-				files = [f for f in self.stream_files if f.archive_name == archive.name]
-				if not files:
-					logging.error(f"No files in streamed archive {archive.name}")
-					continue
-				archive.stream_files_offset = self.stream_files.index(files[0])
+				stream_files = [f for f in self.stream_files if f.archive_name == archive.name]
+				# some JWE2 dino archives have no stream_files, just extra data_entries
+				if stream_files:
+					archive.stream_files_offset = self.stream_files.index(stream_files[0])
 
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
@@ -1294,6 +1290,7 @@ class OvlFile(Header, IoFile):
 		self.update_names()
 		self.open_ovs_streams()
 		ovl_compressed = b""
+		self.zlibs.clear()
 		# compress data stream
 		for i, archive in enumerate(self.archives):
 			# write archive into bytes IO stream
@@ -1310,11 +1307,13 @@ class OvlFile(Header, IoFile):
 				ovs_stream = self.ovs_dict[archive.ovs_path]
 				archive.read_start = ovs_stream.tell()
 				ovs_stream.write(compressed)
+			new_zlib = ZlibInfo(self.context)
 			# size of the archive entry = 68
 			# this is true for jwe2 tylo, but not for jwe2 rex 93 and many others
-			self.zlibs[i].zlib_thing_1 = 68 + archive.uncompressed_size
+			new_zlib.zlib_thing_1 = 68 + archive.uncompressed_size
 			# this is fairly good, doesn't work for tylo static but all others, all of jwe2 rex 93, jwe1 parrot, pz fallow deer
-			self.zlibs[i].zlib_thing_2 = sum([data.size_2 for data in archive.content.data_entries])
+			new_zlib.zlib_thing_2 = sum([data.size_2 for data in archive.content.data_entries])
+			self.zlibs.append(new_zlib)
 
 		self.close_ovs_streams()
 		eof = super().save(filepath)

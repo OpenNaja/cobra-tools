@@ -329,8 +329,16 @@ class MainWindow(widgets.MainWindow):
 				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
 				# print(self.ovl_data.user_version)
 				# print(self.ovl_data)
+				# for loader in self.ovl_data.loaders.values():
+				# 	print(loader.file_entry.name)
+				# 	print(loader.data_entries)
 				# for a in self.ovl_data.archives:
 				# 	print(a)
+				# 	for root_entry in a.content.root_entries:
+				# 		print("root", root_entry.name)
+				# 	for data in a.content.data_entries:
+				# 		print("data", data.name)
+				# 		print(data)
 				# for a in self.ovl_data.archives[1:]:
 				# 	print(a.name)
 				# 	for root_entry in a.content.root_entries:
@@ -372,7 +380,7 @@ class MainWindow(widgets.MainWindow):
 				# 	logging.debug(a.content)
 				# print(self.ovl_data.user_version)
 			except Exception as ex:
-				print(self.ovl_data)
+				# print(self.ovl_data)
 				traceback.print_exc()
 				interaction.showdialog(str(ex))
 			self.update_gui_table()

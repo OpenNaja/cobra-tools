@@ -32,9 +32,14 @@ class BaseFile:
 
 		# defined in ovs
 		self.root_entry = None
-		self.data_entry = None
+		# self.data_entry = None
+		self.data_entries = {}
 		self.children = []
 		self.fragments = set()
+
+	@property
+	def data_entry(self):
+		return self.data_entries.get("STATIC", None)
 
 	def set_ovs(self, ovs_name):
 		"""Assigns or creates suitable ovs"""
@@ -114,7 +119,7 @@ class BaseFile:
 	def create_root_entry(self):
 		self.root_entry = RootEntry(self.ovl.context)
 		self.children = []
-		self.data_entry = None
+		self.data_entries = {}
 		self.fragments = set()
 		self.ovs.transfer_identity(self.root_entry, self.file_entry)
 
@@ -139,7 +144,7 @@ class BaseFile:
 
 	def create_data_entry(self, buffers_bytes):
 		data = DataEntry(self.ovl.context)
-		self.data_entry = data
+		self.data_entries["STATIC"] = data
 		data.buffer_count = len(buffers_bytes)
 		data.buffers = []
 		for i, buffer_bytes in enumerate(buffers_bytes):
@@ -191,9 +196,11 @@ class BaseFile:
 
 		self.ovs.fragments.extend(self.fragments)
 		self.ovs.root_entries.append(self.root_entry)
-		if self.data_entry:
-			self.ovs.data_entries.append(self.data_entry)
-			self.ovs.buffer_entries.extend(self.data_entry.buffers)
+
+		for ovs_name, data_entry in self.data_entries.items():
+			ovs = self.ovl.create_archive(ovs_name)
+			ovs.data_entries.append(data_entry)
+			ovs.buffer_entries.extend(data_entry.buffers)
 
 	def remove(self, remove_file=True):
 		logging.info(f"Removing {self.file_entry.name}")
