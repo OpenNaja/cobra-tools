@@ -71,15 +71,13 @@ class DdsLoader(MemStructLoader):
 		logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
 		buffer_i = 0
 		# generate ovs and lod names - highly idiosyncratic
+		# checked for PZ, JWE2, PC
 		if streamed_lods == 0:
 			indices = ()
 		elif streamed_lods == 1:
 			# 1 lod: lod0 -> L1
-			# same in JWE2
 			indices = ((0, 1),)
 		elif streamed_lods == 2:
-			# 2 lods: lod0 -> L1, lod1 -> L0
-			# 22-05-10: this seems to have changed for PZ, same in JWE2, PC
 			# 2 lods: lod0 -> L0, lod1 -> L1
 			indices = ((0, 0), (1, 1), )
 		else:
@@ -94,21 +92,6 @@ class DdsLoader(MemStructLoader):
 		self.increment_buffers(self, buffer_i)
 		# ready, now inject
 		self.load_image(self.file_entry.path)
-
-	def collect(self):
-		super().collect()
-		# print("\n", self.file_entry.name)
-		# for buff in self.data_entry.buffers:
-		# 	print(buff.index, buff.size)
-		# for stream_loader in self.file_entry.streams:
-		# 	print(stream_loader.file_entry.name)
-		# 	for buff in stream_loader.data_entry.buffers:
-		# 		print(buff.index, buff.size)
-
-	def load(self, file_path):
-		# this loads the tex file and updates the header
-		super().load(file_path)
-		self.load_image(file_path)
 
 	def load_image(self, file_path):
 		# this assumes self.header matches the specs of the tex in file_path
