@@ -59,8 +59,6 @@ class Pointer:
 		self.io_size = 0
 		self.io_start = 0
 		self.offset = 0
-		# todo - test if it is better to already create the template here, or on demand from MemStruct
-		# self.data = template(context, arg=0, template=None)
 		self.data = None
 		self.frag = None
 		self.pool_type = None
