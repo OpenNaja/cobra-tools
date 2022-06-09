@@ -79,7 +79,7 @@ class HeaderPointer:
 	def data(self):
 		"""Get data from pool writer"""
 		if self.pool:
-			return self.read_from_pool(self.data_size)
+			return self.pool.get_at(self.data_offset, self.data_size)
 
 	@property
 	def stream(self):
@@ -109,9 +109,6 @@ class HeaderPointer:
 			logging.debug(f"start at {self.data_offset}, size {self.data_size}")
 		else:
 			logging.warning(f"Pool missing, can not write {cls}")
-
-	def read_from_pool(self, data_size):
-		return self.pool.get_at(self.data_offset, data_size)
 
 	def write_to_pool(self, data, overwrite=False):
 		if self.pool:
