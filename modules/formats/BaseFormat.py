@@ -233,17 +233,6 @@ class BaseFile:
 		for frag in self.fragments:
 			frag.struct_ptr.remove()
 
-	# def get_pools(self):
-	# 	# todo - can't do this here as frags need to be assigned to loaders first
-	# 	for dep in self.dependencies:
-	# 		# the index goes into the flattened list of ovl pools
-	# 		dep.link_ptr.assign_pool(self.ovl.pools)
-	# 	# attach all pointers to their pool
-	# 	self.root_entry.assign_pool(self.ovs.pools)
-	# 	for frag in self.ovs.fragments:
-	# 		frag.link_ptr.assign_pool(self.ovs.pools)
-	# 		frag.struct_ptr.assign_pool(self.ovs.pools)
-
 	def register_ptrs(self):
 		if self.root_entry.struct_ptr.pool:
 			self.root_entry.struct_ptr.pool.add_struct(self.root_entry)
