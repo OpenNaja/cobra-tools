@@ -188,16 +188,22 @@ class MainWindow(widgets.MainWindow):
 
 	def ask_game_dir(self):
 		dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
-		self.cfg["dir_game"] = dir_game
-		return dir_game
+		if dir_game:
+			self.cfg["dir_game"] = dir_game
+			self.populate_game_widget(dir_game)
+			return dir_game
 
 	def set_game_dir(self):
 		dir_game = self.cfg.get("dir_game", "")
-		if not dir_game:
-			dir_game = self.ask_game_dir()
+
 		if dir_game:
-			rt_index = self.model.setRootPath(dir_game)
-			self.dirs_container.setRootIndex(rt_index)
+			self.populate_game_widget(dir_game)
+		else:
+			self.ask_game_dir()
+
+	def populate_game_widget(self, dir_game):
+		rt_index = self.model.setRootPath(dir_game)
+		self.dirs_container.setRootIndex(rt_index)
 
 	def get_selected_dir(self):
 		model = self.dirs_container.model()
