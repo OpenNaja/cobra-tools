@@ -35,7 +35,7 @@ class TexturestreamLoader(BaseFile):
 			lod_index = int(self.file_entry.basename[-1])
 			pool_data = struct.pack("<QQ", 0, lod_index)
 		else:
-			# JWE1, PZ
+			# JWE1, PZ, PC
 			pool_data = struct.pack("<Q", 0)
 		self.write_data_to_pool(self.root_entry.struct_ptr, 3, pool_data)
 		# data entry, assign buffer
@@ -63,40 +63,37 @@ class DdsLoader(MemStructLoader):
 		name_ext, name, ext = split_path(self.file_entry.path)
 		super().create()
 		logging.debug(f"Creating image {name_ext}")
-		if is_jwe(self.ovl) or is_pz(self.ovl) or is_pz16(self.ovl) or is_jwe2(self.ovl):
-			# there's one empty buffer at the end!
-			buffers = [b"" for _ in range(self.header.stream_count + 1)]
-			# decide where to store the buffers
-			static_lods = 2
-			streamed_lods = len(buffers) - static_lods
-			logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
-			buffer_i = 0
-			# generate ovs and lod names - highly idiosyncratic
-			if streamed_lods == 0:
-				indices = ()
-			elif streamed_lods == 1:
-				# 1 lod: lod0 -> L1
-				# same in JWE2
-				indices = ((0, 1),)
-			elif streamed_lods == 2:
-				# 2 lods: lod0 -> L1, lod1 -> L0
-				# 22-05-10: this seems to have changed for PZ, same in JWE2
-				# 2 lods: lod0 -> L0, lod1 -> L1
-				indices = ((0, 0), (1, 1), )
-			else:
-				raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
-			for lod_i, ovs_i in indices:
-				ovs_name = f"Textures_L{ovs_i}"
-				# create texturestream file - dummy_dir is ignored
-				texstream_loader = self.ovl.create_file(f"dummy_dir/{name}_lod{lod_i}.texturestream", ovs_name=ovs_name)
-				self.streams.append(texstream_loader)
-				buffer_i = self.increment_buffers(texstream_loader, buffer_i)
-			self.create_data_entry(buffers[streamed_lods:])
-			self.increment_buffers(self, buffer_i)
-			# ready, now inject
-			self.load_image(self.file_entry.path)
-		elif is_pc(self.ovl) or is_ztuac(self.ovl):
-			logging.error(f"Only modern texture format supported for now!")
+		# there's one empty buffer at the end!
+		buffers = [b"" for _ in range(self.header.stream_count + 1)]
+		# decide where to store the buffers
+		static_lods = 2
+		streamed_lods = len(buffers) - static_lods
+		logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
+		buffer_i = 0
+		# generate ovs and lod names - highly idiosyncratic
+		if streamed_lods == 0:
+			indices = ()
+		elif streamed_lods == 1:
+			# 1 lod: lod0 -> L1
+			# same in JWE2
+			indices = ((0, 1),)
+		elif streamed_lods == 2:
+			# 2 lods: lod0 -> L1, lod1 -> L0
+			# 22-05-10: this seems to have changed for PZ, same in JWE2, PC
+			# 2 lods: lod0 -> L0, lod1 -> L1
+			indices = ((0, 0), (1, 1), )
+		else:
+			raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
+		for lod_i, ovs_i in indices:
+			ovs_name = f"Textures_L{ovs_i}"
+			# create texturestream file - dummy_dir is ignored
+			texstream_loader = self.ovl.create_file(f"dummy_dir/{name}_lod{lod_i}.texturestream", ovs_name=ovs_name)
+			self.streams.append(texstream_loader)
+			buffer_i = self.increment_buffers(texstream_loader, buffer_i)
+		self.create_data_entry(buffers[streamed_lods:])
+		self.increment_buffers(self, buffer_i)
+		# ready, now inject
+		self.load_image(self.file_entry.path)
 
 	def collect(self):
 		super().collect()
