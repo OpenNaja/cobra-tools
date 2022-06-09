@@ -275,6 +275,18 @@ class BaseFile:
 						self.fragments.add(entry)
 						self.check_for_ptrs(struct_ptr)
 
+	def dump_buffer_infos(self, f):
+		debug_str = f"\n\nFILE {self.file_entry.name}"
+		f.write(debug_str)
+
+		for ovs_name, data_entry in self.data_entries.items():
+			f.write(f"\nData in {ovs_name} with {len(data_entry.buffers)} buffers")
+			for buffer in data_entry.buffers:
+				f.write(f"\nBuffer {buffer.index}, size {buffer.size}")
+		# for loader in self.streams:
+		# 	f.write(f"\nSTREAM {loader.file_entry.name}")
+		# 	loader.dump_buffer_infos(f)
+
 
 class MemStructLoader(BaseFile):
 	target_class: None

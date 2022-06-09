@@ -70,10 +70,11 @@ class DdsLoader(MemStructLoader):
 				indices = ()
 			elif streamed_lods == 1:
 				# 1 lod: lod0 -> L1
+				# same in JWE2
 				indices = ((0, 1),)
 			elif streamed_lods == 2:
 				# 2 lods: lod0 -> L1, lod1 -> L0
-				# 22-05-10: this seems to have changed for PZ
+				# 22-05-10: this seems to have changed for PZ, same in JWE2
 				# 2 lods: lod0 -> L0, lod1 -> L1
 				indices = ((0, 0), (1, 1), )
 			else:

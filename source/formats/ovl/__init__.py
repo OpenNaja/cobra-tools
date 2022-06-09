@@ -1276,6 +1276,19 @@ class OvlFile(Header, IoFile):
 				archive_entry.content.dump_pools()
 			except BaseException as err:
 				traceback.print_exc()
+		self.dump_buffer_info()
+
+	@property
+	def sorted_loaders(self):
+		return sorted(self.loaders.values(), key=lambda l: l.file_entry.name)
+
+	def dump_buffer_info(self):
+		"""for development; collect info about fragment types"""
+		log_path = os.path.join(self.dir, f"{self.name}_buffer_info.log")
+		logging.info(f"Dumping buffers info to {log_path}")
+		with open(log_path, "w") as f:
+			for loader in self.sorted_loaders:
+				loader.dump_buffer_infos(f)
 
 	def save(self, filepath):
 		self.store_filepath(filepath)
