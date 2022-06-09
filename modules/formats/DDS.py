@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import struct
 import tempfile
 
 from generated.formats.dds import DdsFile
@@ -29,9 +30,14 @@ class TexturestreamLoader(BaseFile):
 	extension = ".texturestream"
 
 	def create(self):
-		# this is only to be called from DdsLoader
 		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, 3, b"\x00" * 8)
+		if is_jwe2(self.ovl):
+			lod_index = int(self.file_entry.basename[-1])
+			pool_data = struct.pack("<QQ", 0, lod_index)
+		else:
+			# JWE1, PZ
+			pool_data = struct.pack("<Q", 0)
+		self.write_data_to_pool(self.root_entry.struct_ptr, 3, pool_data)
 		# data entry, assign buffer
 		self.create_data_entry((b"", ))
 
