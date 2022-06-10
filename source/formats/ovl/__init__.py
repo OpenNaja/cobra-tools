@@ -1066,8 +1066,6 @@ class OvlFile(Header, IoFile):
 
 		# update file hashes and extend entries per loader
 		for loader in self.loaders.values():
-			# force an update on the loader's data for older versions' data
-			loader.update()
 			# ensure lowercase, at the risk of being redundant
 			loader.file_entry.file_hash = djb(loader.file_entry.basename.lower())
 			loader.file_entry.ext_hash = djb(loader.file_entry.ext[1:].lower())
@@ -1148,6 +1146,9 @@ class OvlFile(Header, IoFile):
 			# add entries to correct ovs
 			for loader in self.loaders.values():
 				loader.register_entries()
+				# force an update on the loader's data for older versions' data
+				# and link entries like bani to banis
+				loader.update()
 
 			pools_byte_offset = 0
 			pools_offset = 0

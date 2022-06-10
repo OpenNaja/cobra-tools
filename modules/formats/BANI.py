@@ -1,9 +1,9 @@
 import logging
-import os
 
 from generated.formats.bani import BaniFile
+from generated.formats.bani.compound.BanisRoot import BanisRoot
 from generated.formats.bani.compound.BaniRoot import BaniRoot
-from modules.formats.BaseFormat import BaseFile, MemStructLoader
+from modules.formats.BaseFormat import MemStructLoader
 from modules.helpers import as_bytes
 
 
@@ -12,7 +12,26 @@ class BaniLoader(MemStructLoader):
 	target_class = BaniRoot
 
 	def create(self):
-		raise NotImplementedError
+		bani = BaniFile()
+		bani.load(self.file_entry.path)
+		self.header = bani.data
+		self.create_root_entry()
+		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		# create banis fragment, link it during update
+		self.attach_frag_to_ptr(self.header.banis, self.root_ptr.pool)
+		# temporarily set frag so that register_ptrs works
+		self.ptr_relative(self.header.banis.frag.struct_ptr, self.root_entry.struct_ptr)
+		# store banis name for linking
+		self.target_name = bani.banis_name
+
+	def update(self):
+		# link frag to banis
+		banis_loader = self.ovl.loaders.get(self.target_name, None)
+		if not banis_loader:
+			logging.warning(f"Could not find '{self.target_name}' for '{self.file_entry.name}'")
+			return
+		logging.info(f"Linked '{self.file_entry.name}' to '{self.target_name}'")
+		self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		logging.info(f"Writing {self.root_entry.name}")
@@ -30,13 +49,14 @@ class BaniLoader(MemStructLoader):
 		with open(out_path, 'wb') as outfile:
 			outfile.write(b"BANI")
 			outfile.write(as_bytes(banis_name))
-			outfile.write(self.root_entry.struct_ptr.data)
+			self.header.write(outfile)
 
 		return out_path,
 
 
-class BanisLoader(BaseFile):
+class BanisLoader(MemStructLoader):
 	extension = ".banis"
+	target_class = BanisRoot
 
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		name = self.root_entry.name
@@ -49,36 +69,23 @@ class BanisLoader(BaseFile):
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as outfile:
-			outfile.write(self.root_entry.struct_ptr.data)
+			self.header.write(outfile)
 			outfile.write(buffers[0])
 
 		return out_paths
 
-	def load(self, file_path):
-		# todo - fixme
-		root_entry, buffer_0 = self._get_data(file_path)
-		self.data_entry.update_data((buffer_0,))
-		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)
-		banis_dir = os.path.dirname(file_path)
-		for bani_file_name in os.listdir(banis_dir):
-			if bani_file_name.endswith(".bani"):
-				for bani_file in self.bani_files:
-					if bani_file_name == bani_file.name:
-						logging.debug(f"Found matching bani {bani_file_name}")
-						fp = os.path.join(banis_dir, bani_file_name)
-						f0 = self._get_bani_data(fp)
-						b_ss, archive = self.ovl.get_root_entry(bani_file_name)
-						self.write_data_to_pool(b_ss.struct_ptr, 2, f0)
-						break
+	def create(self):
+		# create banis data
+		root_entry, buffer_0 = self._get_data(self.file_entry.path)
+		self.create_root_entry()
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_entry)
+		self.create_data_entry((buffer_0,))
 
-	def _get_data(self, file_path):
+	@staticmethod
+	def _get_data(file_path):
 		with open(file_path, 'rb') as stream:
 			header = stream.read(40)
 			data = stream.read()
 		return header, data
 
-	def _get_bani_data(self, file_path):
-		bani = BaniFile()
-		bani.load(file_path)
-		return as_bytes(bani.data)
 

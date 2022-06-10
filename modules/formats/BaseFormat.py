@@ -23,6 +23,7 @@ class BaseFile:
 		# this needs to be figured out by the root_entry
 		self.ovs = None
 		self.header = None
+		self.target_name = ""
 
 		# defined in ovl
 		self.file_entry = file_entry
@@ -183,6 +184,9 @@ class BaseFile:
 			for old, new in name_tuples:
 				entry.name = entry.name.replace(old, new)
 			entry.basename, entry.ext = os.path.splitext(entry.name)
+		# also rename target_name
+		for old, new in name_tuples:
+			self.target_name = self.target_name.replace(old, new)
 
 	def get_tmp_dir(self):
 		temp_dir = tempfile.mkdtemp("-cobra")
@@ -221,6 +225,7 @@ class BaseFile:
 			loader.remove()
 
 	def load(self, file_path):
+		# todo - remove load
 		logging.info(f"Injecting {file_path} with new workflow")
 		self.remove(remove_file=False)
 		self.file_entry.path = file_path

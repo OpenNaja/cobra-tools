@@ -230,6 +230,7 @@ class Ms2Loader(BaseFile):
 			# update the hashes & save
 			ms2_file.save(ms2_path)
 			# inject again
+			# todo - remove load
 			self.load(ms2_path)
 		except BaseException as err:
 			traceback.print_exc()

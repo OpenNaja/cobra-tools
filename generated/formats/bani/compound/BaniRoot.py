@@ -28,6 +28,8 @@ class BaniRoot(MemStruct):
 
 		# if 1381323599 then looped
 		self.loop_flag = 0
+
+		# points to the banis file used
 		self.banis = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()

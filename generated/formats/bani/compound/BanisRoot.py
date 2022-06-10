@@ -1,15 +1,17 @@
 from source.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class BanisRoot:
+class BanisRoot(MemStruct):
 
-	context = ContextReference()
+	"""
+	40 bytes
+	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -57,6 +59,7 @@ class BanisRoot:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.zeros = stream.read_uint64s((2,))
 		instance.bytes_per_frame = stream.read_uint()
 		instance.bytes_per_bone = stream.read_uint()
@@ -67,6 +70,7 @@ class BanisRoot:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64s(instance.zeros)
 		stream.write_uint(instance.bytes_per_frame)
 		stream.write_uint(instance.bytes_per_bone)
@@ -95,6 +99,7 @@ class BanisRoot:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
 		s += f'\n	* bytes_per_frame = {fmt_member(self.bytes_per_frame, indent+1)}'
 		s += f'\n	* bytes_per_bone = {fmt_member(self.bytes_per_bone, indent+1)}'
