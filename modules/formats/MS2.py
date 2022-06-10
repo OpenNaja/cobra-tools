@@ -129,10 +129,12 @@ class Ms2Loader(BaseFile):
 		if ovl_versions.is_pz16(self.ovl):
 			logging.info(f"Updating MS2 name_buffer with padding for {self.root_entry.name}")
 			name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
-			# make sure buffer 0 is padded to 4 bytes
-			padding = get_padding(len(name_buffer), 4)
-			if padding:
-				self.data_entry.update_data([name_buffer + padding, bone_infos, verts])
+			# fix ms2s that have additional 'padding'
+			# first remove trailing zeroes, add zstr terminator back in
+			name_buffer_truncated = name_buffer.rstrip(b"\x00") + b"\x00"
+			# make sure name_buffer is padded to 4 bytes
+			padding = get_padding(len(name_buffer_truncated), 4)
+			self.data_entry.update_data([name_buffer_truncated + padding, bone_infos, verts])
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		self.get_version()
