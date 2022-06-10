@@ -65,8 +65,8 @@ class FdbLoader(BaseFile):
 				# Save (commit) the changes
 				con.commit()
 				con.close()
-				# todo - remove load
-				self.load(fdb_path)
+				self.remove()
+				self.ovl.create_file(fdb_path)
 				shutil.rmtree(temp_dir)
 			except BaseException as err:
 				traceback.print_exc()

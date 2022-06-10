@@ -617,10 +617,8 @@ class OvlFile(Header, IoFile):
 
 	def rename_contents(self, name_tups):
 		logging.info(f"Renaming contents for {name_tups}")
-		for loader in self.loaders.values():
+		for loader in self.sorted_loaders:
 			loader.rename_content(name_tups)
-			# todo - enabling these breaks ms2 - why?
-			# loader.register_ptrs()
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
@@ -1008,21 +1006,20 @@ class OvlFile(Header, IoFile):
 		for dep in self.dependencies:
 			# the index goes into the flattened list of ovl pools
 			dep.link_ptr.assign_pool(self.pools)
-			dep.link_ptr.pool.add_link(dep)
+			dep.link_ptr.add_link(dep)
 		for archive in self.archives:
 			ovs = archive.content
 			# attach all pointers to their pool
 			for root_entry in ovs.root_entries:
 				root_entry.struct_ptr.assign_pool(ovs.pools)
 				# may not have a pool
-				if root_entry.struct_ptr.pool:
-					root_entry.struct_ptr.pool.add_struct(root_entry)
+				root_entry.struct_ptr.add_struct(root_entry)
 			for i, frag in enumerate(ovs.fragments):
 				frag.link_ptr.assign_pool(ovs.pools)
 				frag.struct_ptr.assign_pool(ovs.pools)
 				try:
-					frag.struct_ptr.pool.add_struct(frag)
-					frag.link_ptr.pool.add_link(frag)
+					frag.struct_ptr.add_struct(frag)
+					frag.link_ptr.add_link(frag)
 				except:
 					traceback.print_exc()
 					logging.warning(f"linking frag {i} failed")

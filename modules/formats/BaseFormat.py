@@ -224,28 +224,21 @@ class BaseFile:
 		for loader in self.streams + self.children:
 			loader.remove()
 
-	def load(self, file_path):
-		# todo - remove load
-		logging.info(f"Injecting {file_path} with new workflow")
-		self.remove(remove_file=False)
-		self.file_entry.path = file_path
-		self.create()
-
 	def remove_pointers(self):
-		# in theory, this should handle the removal of all other pointers
-		# remove any struct pointers - the link ptrs are removed as well
-		self.root_entry.struct_ptr.remove()
+		self.root_entry.struct_ptr.del_struct()
 		for frag in self.fragments:
-			frag.struct_ptr.remove()
+			frag.link_ptr.del_link()
+			frag.struct_ptr.del_struct()
+		for dep in self.dependencies:
+			dep.link_ptr.del_link()
 
 	def register_ptrs(self):
-		if self.root_entry.struct_ptr.pool:
-			self.root_entry.struct_ptr.pool.add_struct(self.root_entry)
+		self.root_entry.struct_ptr.add_struct(self.root_entry)
 		for frag in self.fragments:
-			frag.link_ptr.pool.add_link(frag)
-			frag.struct_ptr.pool.add_struct(frag)
+			frag.link_ptr.add_link(frag)
+			frag.struct_ptr.add_struct(frag)
 		for dep in self.dependencies:
-			dep.link_ptr.pool.add_link(dep)
+			dep.link_ptr.add_link(dep)
 
 	def track_ptrs(self):
 		logging.debug(f"Tracking {self.file_entry.name}")

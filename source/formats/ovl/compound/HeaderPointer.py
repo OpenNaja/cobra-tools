@@ -109,6 +109,30 @@ class HeaderPointer:
 							# logging.debug(f"Removed link at offset {offset} from pool")
 							self.pool.offset_2_link_entry.pop(offset)
 
+	def add_struct(self, entry):
+		"""Adds an entry to the required tables of this pool"""
+		if self.pool:
+			if self.data_offset not in self.pool.offset_2_struct_entries:
+				self.pool.offset_2_struct_entries[self.data_offset] = []
+			self.pool.offset_2_struct_entries[self.data_offset].append(entry)
+
+	def add_link(self, entry):
+		"""Adds an entry to the required tables of this pool"""
+		if self.pool:
+			self.pool.offset_2_link_entry[self.data_offset] = entry
+			self.data_size = 8
+
+	def del_struct(self):
+		"""Adds an entry to the required tables of this pool"""
+		if self.pool:
+			if self.data_offset in self.pool.offset_2_struct_entries:
+				self.pool.offset_2_struct_entries.pop(self.data_offset)
+
+	def del_link(self):
+		if self.pool:
+			if self.data_offset in self.pool.offset_2_link_entry:
+				self.pool.offset_2_link_entry.pop(self.data_offset)
+
 	def __eq__(self, other):
 		if isinstance(other, HeaderPointer):
 			return self.data_offset == other.data_offset and self.pool_index == other.pool_index

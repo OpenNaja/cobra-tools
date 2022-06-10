@@ -219,6 +219,7 @@ class Ms2Loader(BaseFile):
 				raise UserWarning("Injection was canceled by the user")
 
 	def rename_content(self, name_tuples):
+		logging.info("Renaming inside .ms2")
 		temp_dir, out_dir_func = self.get_tmp_dir()
 		try:
 			ms2_path = self.extract(out_dir_func, False, None)[0]
@@ -230,8 +231,8 @@ class Ms2Loader(BaseFile):
 			# update the hashes & save
 			ms2_file.save(ms2_path)
 			# inject again
-			# todo - remove load
-			self.load(ms2_path)
+			self.remove()
+			self.ovl.create_file(ms2_path)
 		except BaseException as err:
 			traceback.print_exc()
 			logging.warning(err)

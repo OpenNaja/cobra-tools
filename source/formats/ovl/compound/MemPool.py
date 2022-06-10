@@ -27,19 +27,6 @@ class MemPool:
 			if first_entries:
 				return first_entries[0]
 
-	def add_struct(self, entry):
-		"""Adds an entry to the required tables of this pool"""
-		offset = entry.struct_ptr.data_offset
-		if offset not in self.offset_2_struct_entries:
-			self.offset_2_struct_entries[offset] = []
-		self.offset_2_struct_entries[offset].append(entry)
-
-	def add_link(self, entry):
-		"""Adds an entry to the required tables of this pool"""
-		offset = entry.link_ptr.data_offset
-		self.offset_2_link_entry[offset] = entry
-		entry.link_ptr.data_size = 8
-
 	def calc_struct_ptr_sizes(self):
 		"""Assign an estimated size to every struct_ptr"""
 		# sort them
