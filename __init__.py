@@ -1,8 +1,8 @@
 bl_info = {
     "name": "Frontier's Cobra Engine Formats (JWE, Planet Zoo)",
-    "author": "Harlequinz Ego & HENDRIX",
-    "blender": (2, 93, 0),
-    "version": (2, 3, 8),
+    "author": "Harlequinz Ego, HENDRIX et al.",
+    "blender": (3, 2, 0),
+    "version": (2, 4, 0),
     "location": "File > Import-Export",
     "description": "Import-Export models, skeletons and animations.",
     "warning": "",
