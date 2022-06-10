@@ -59,13 +59,15 @@
         <add name="value" type="TexIndex" arr1="1" cond="dtype == 8" />
 		<add name="value" type="Color" arr1="2" cond="dtype == 7" since="18">Stores 2 rgba colors</add>
 		<add name="value" type="Color" arr1="1" cond="dtype == 7" until="17">Stores rgba color</add>
-		<add name="unused" type="uint64" since="18">unused</add>
+        used in JWE swatches, purpose unknown
+        <add name="some_index_0" type="uint" since="18"/>
+        <add name="some_index_1" type="uint" since="18"/>
     </compound>
 
 	<compound name="TexIndex" inherit="MemStruct">
         stores index into shader and array index of texture
-        <add name="index" type="uint64" since="18"/>
-        <add name="index" type="uint" until="17"/>
+        <add name="index" type="uint" />
+        <add name="array_index" type="uint" since="18">index of tile if an array texture is used eg JWE swatches</add>
     </compound>
 
 	<compound name="AttributeInfo" inherit="GenericInfo">

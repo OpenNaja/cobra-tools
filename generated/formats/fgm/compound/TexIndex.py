@@ -16,15 +16,16 @@ class TexIndex(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.index = 0
-		self.index = 0
+
+		# index of tile if an array texture is used eg JWE swatches
+		self.array_index = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		self.index = 0
 		if self.context.version >= 18:
-			self.index = 0
-		if self.context.version <= 17:
-			self.index = 0
+			self.array_index = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -39,18 +40,16 @@ class TexIndex(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
+		instance.index = stream.read_uint()
 		if instance.context.version >= 18:
-			instance.index = stream.read_uint64()
-		if instance.context.version <= 17:
-			instance.index = stream.read_uint()
+			instance.array_index = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
+		stream.write_uint(instance.index)
 		if instance.context.version >= 18:
-			stream.write_uint64(instance.index)
-		if instance.context.version <= 17:
-			stream.write_uint(instance.index)
+			stream.write_uint(instance.array_index)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -74,6 +73,7 @@ class TexIndex(MemStruct):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* index = {fmt_member(self.index, indent+1)}'
+		s += f'\n	* array_index = {fmt_member(self.array_index, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

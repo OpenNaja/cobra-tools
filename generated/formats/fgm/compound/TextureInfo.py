@@ -25,9 +25,8 @@ class TextureInfo(GenericInfo):
 
 		# Stores rgba color
 		self.value = Array((1,), Color, self.context, 0, None)
-
-		# unused
-		self.unused = 0
+		self.some_index_0 = 0
+		self.some_index_1 = 0
 		if set_default:
 			self.set_defaults()
 
@@ -39,7 +38,9 @@ class TextureInfo(GenericInfo):
 		if self.context.version <= 17 and self.dtype == 7:
 			self.value = Array((1,), Color, self.context, 0, None)
 		if self.context.version >= 18:
-			self.unused = 0
+			self.some_index_0 = 0
+		if self.context.version >= 18:
+			self.some_index_1 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -61,7 +62,8 @@ class TextureInfo(GenericInfo):
 		if instance.context.version <= 17 and instance.dtype == 7:
 			instance.value = Array.from_stream(stream, (1,), Color, instance.context, 0, None)
 		if instance.context.version >= 18:
-			instance.unused = stream.read_uint64()
+			instance.some_index_0 = stream.read_uint()
+			instance.some_index_1 = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -73,7 +75,8 @@ class TextureInfo(GenericInfo):
 		if instance.context.version <= 17 and instance.dtype == 7:
 			Array.to_stream(stream, instance.value, (1,), Color, instance.context, 0, None)
 		if instance.context.version >= 18:
-			stream.write_uint64(instance.unused)
+			stream.write_uint(instance.some_index_0)
+			stream.write_uint(instance.some_index_1)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -97,7 +100,8 @@ class TextureInfo(GenericInfo):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
-		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
+		s += f'\n	* some_index_0 = {fmt_member(self.some_index_0, indent+1)}'
+		s += f'\n	* some_index_1 = {fmt_member(self.some_index_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
