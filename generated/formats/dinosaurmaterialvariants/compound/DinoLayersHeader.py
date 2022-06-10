@@ -1,6 +1,7 @@
 from source.formats.base.basic import fmt_member
-import generated.formats.dinosaurmaterialvariants.compound.LayerArray
+import generated.formats.dinosaurmaterialvariants.compound.Layer
 import generated.formats.ovl_base.basic
+from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -17,7 +18,7 @@ class DinoLayersHeader(MemStruct):
 		self.layer_count = 0
 		self.zero = 0
 		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.layers = Pointer(self.context, self.layer_count, generated.formats.dinosaurmaterialvariants.compound.LayerArray.LayerArray)
+		self.layers = ArrayPointer(self.context, self.layer_count, generated.formats.dinosaurmaterialvariants.compound.Layer.Layer)
 		if set_default:
 			self.set_defaults()
 
@@ -25,7 +26,7 @@ class DinoLayersHeader(MemStruct):
 		self.layer_count = 0
 		self.zero = 0
 		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.layers = Pointer(self.context, self.layer_count, generated.formats.dinosaurmaterialvariants.compound.LayerArray.LayerArray)
+		self.layers = ArrayPointer(self.context, self.layer_count, generated.formats.dinosaurmaterialvariants.compound.Layer.Layer)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -41,7 +42,7 @@ class DinoLayersHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		instance.layers = Pointer.from_stream(stream, instance.context, instance.layer_count, generated.formats.dinosaurmaterialvariants.compound.LayerArray.LayerArray)
+		instance.layers = ArrayPointer.from_stream(stream, instance.context, instance.layer_count, generated.formats.dinosaurmaterialvariants.compound.Layer.Layer)
 		instance.layer_count = stream.read_uint64()
 		instance.zero = stream.read_uint64()
 		instance.fgm_name.arg = 0
@@ -51,7 +52,7 @@ class DinoLayersHeader(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.fgm_name)
-		Pointer.to_stream(stream, instance.layers)
+		ArrayPointer.to_stream(stream, instance.layers)
 		stream.write_uint64(instance.layer_count)
 		stream.write_uint64(instance.zero)
 

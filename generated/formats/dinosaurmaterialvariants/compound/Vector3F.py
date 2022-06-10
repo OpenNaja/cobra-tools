@@ -1,14 +1,12 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class Vector3F:
-
-	context = ContextReference()
+class Vector3F(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -36,12 +34,14 @@ class Vector3F:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.x = stream.read_float()
 		instance.y = stream.read_float()
 		instance.z = stream.read_float()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_float(instance.x)
 		stream.write_float(instance.y)
 		stream.write_float(instance.z)
@@ -66,6 +66,7 @@ class Vector3F:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* x = {fmt_member(self.x, indent+1)}'
 		s += f'\n	* y = {fmt_member(self.y, indent+1)}'
 		s += f'\n	* z = {fmt_member(self.z, indent+1)}'

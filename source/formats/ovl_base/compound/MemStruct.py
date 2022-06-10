@@ -208,13 +208,13 @@ class MemStruct:
 					logging.debug(f"Setting dependency {type(val).__name__}.data = {data}")
 					val.data = data
 			if val.template is None:
-				logging.warning(f"No template set for pointer '{prop}' on XML element '{elem.tag}'")
+				logging.debug(f"No template set for pointer '{prop}' on XML element '{elem.tag}'")
 				return
 			if POOL_TYPE in elem.attrib:
 				val.pool_type = int(elem.attrib[POOL_TYPE])
 				logging.debug(f"Set pool type {val.pool_type} for pointer {prop}")
-			else:
-				logging.warning(f"Missing pool type for pointer '{prop}' on '{elem.tag}'")
+			# else:
+			# 	logging.debug(f"Missing pool type for pointer '{prop}' on '{elem.tag}'")
 			# print("val.template", val.template)
 			if isinstance(val, ArrayPointer):
 				# print("ArrayPointer", elem, len(elem))

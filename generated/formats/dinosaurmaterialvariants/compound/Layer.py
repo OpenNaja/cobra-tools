@@ -14,15 +14,19 @@ class Layer(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.has_ptr = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.layer_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+
+		# defines the tiled texture material to be used
+		self.texture_fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+
+		# defines how to transform the texture
+		self.transform_fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		self.has_ptr = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.layer_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.transform_fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -38,17 +42,17 @@ class Layer(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.has_ptr = stream.read_uint64()
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.layer_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.fgm_name.arg = 0
-		instance.layer_name.arg = 0
+		instance.texture_fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.transform_fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.texture_fgm_name.arg = 0
+		instance.transform_fgm_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		stream.write_uint64(instance.has_ptr)
-		Pointer.to_stream(stream, instance.fgm_name)
-		Pointer.to_stream(stream, instance.layer_name)
+		Pointer.to_stream(stream, instance.texture_fgm_name)
+		Pointer.to_stream(stream, instance.transform_fgm_name)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -72,8 +76,8 @@ class Layer(MemStruct):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* has_ptr = {fmt_member(self.has_ptr, indent+1)}'
-		s += f'\n	* fgm_name = {fmt_member(self.fgm_name, indent+1)}'
-		s += f'\n	* layer_name = {fmt_member(self.layer_name, indent+1)}'
+		s += f'\n	* texture_fgm_name = {fmt_member(self.texture_fgm_name, indent+1)}'
+		s += f'\n	* transform_fgm_name = {fmt_member(self.transform_fgm_name, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

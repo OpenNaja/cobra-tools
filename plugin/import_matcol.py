@@ -94,40 +94,40 @@ def create_flip():
 
 	# create group inputs
 	group_inputs = test_group.nodes.new('NodeGroupInput')
-	group_inputs.location = (-350,0)
-	test_group.inputs.new('NodeSocketVectorXYZ','in')
+	group_inputs.location = (-350, 0)
+	test_group.inputs.new('NodeSocketVectorXYZ', 'in')
 
 	# create group outputs
 	group_outputs = test_group.nodes.new('NodeGroupOutput')
-	group_outputs.location = (300,0)
-	test_group.outputs.new('NodeSocketVectorXYZ','out')
-
+	group_outputs.location = (300, 0)
+	test_group.outputs.new('NodeSocketVectorXYZ', 'out')
 
 	split = test_group.nodes.new('ShaderNodeSeparateXYZ')
 	split.label = "Split"
 	test_group.links.new(group_inputs.outputs["in"], split.inputs[0])
-	
+
 	flip = test_group.nodes.new('ShaderNodeMath')
 	flip.operation = 'MULTIPLY'
 	test_group.links.new(split.outputs[0], flip.inputs[0])
 	flip.inputs[1].default_value = -1.0
-	
+
 	join = test_group.nodes.new('ShaderNodeCombineXYZ')
 	join.label = "Join"
 	test_group.links.new(flip.outputs[0], join.inputs[0])
 	test_group.links.new(split.outputs[1], join.inputs[1])
 	test_group.links.new(split.outputs[2], join.inputs[2])
-	
+
 	# #link output
 	test_group.links.new(join.outputs[0], group_outputs.inputs['out'])
-	
+
 	nodes_iterate(test_group, group_outputs)
 	return test_group
+
 
 def create_group():
 	flipgr = create_flip()
 	name = "MatcolSlot"
-	#only create the material if we haven't already created it, then just grab it
+	# only create the material if we haven't already created it, then just grab it
 	if name not in bpy.data.node_groups:
 		# create a group
 		test_group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
@@ -143,21 +143,20 @@ def create_group():
 
 	# create group inputs
 	group_inputs = test_group.nodes.new('NodeGroupInput')
-	test_group.inputs.new('NodeSocketVectorTranslation','UVOffset')
-	test_group.inputs.new('NodeSocketFloatAngle','uvRotationAngle')
-	test_group.inputs.new('NodeSocketVectorTranslation','uvRotationPosition')
-	test_group.inputs.new('NodeSocketVectorXYZ','uvTile')
+	test_group.inputs.new('NodeSocketVectorTranslation', 'UVOffset')
+	test_group.inputs.new('NodeSocketFloatAngle', 'uvRotationAngle')
+	test_group.inputs.new('NodeSocketVectorTranslation', 'uvRotationPosition')
+	test_group.inputs.new('NodeSocketVectorXYZ', 'uvTile')
 
 	# create group outputs
 	group_outputs = test_group.nodes.new('NodeGroupOutput')
-	group_outputs.location = (300,0)
-	test_group.outputs.new('NodeSocketVectorXYZ','out')
-
+	group_outputs.location = (300, 0)
+	test_group.outputs.new('NodeSocketVectorXYZ', 'out')
 
 	offset_flipx = test_group.nodes.new("ShaderNodeGroup")
 	offset_flipx.node_tree = flipgr
 	test_group.links.new(group_inputs.outputs["UVOffset"], offset_flipx.inputs[0])
-	
+
 	rotpos_flipx = test_group.nodes.new("ShaderNodeGroup")
 	rotpos_flipx.node_tree = flipgr
 	test_group.links.new(group_inputs.outputs["uvRotationPosition"], rotpos_flipx.inputs[0])
@@ -165,40 +164,37 @@ def create_group():
 	uv = test_group.nodes.new('ShaderNodeUVMap')
 	uv.label = "UV Input"
 	uv.uv_map = "UV0"
-	
+
 	scale_pivot = test_group.nodes.new('ShaderNodeMapping')
 	scale_pivot.inputs[1].default_value[1] = -1.0
 	scale_pivot.label = "Scale Pivot"
 	test_group.links.new(uv.outputs[0], scale_pivot.inputs[0])
 
-
-
 	uv_offset = test_group.nodes.new('ShaderNodeMapping')
 	uv_offset.label = "UVOffset"
 	test_group.links.new(scale_pivot.outputs[0], uv_offset.inputs[0])
 	test_group.links.new(offset_flipx.outputs[0], uv_offset.inputs[1])
-	
+
 	uv_tile = test_group.nodes.new('ShaderNodeMapping')
 	uv_tile.label = "uvTile"
 	test_group.links.new(uv_offset.outputs[0], uv_tile.inputs[0])
 	test_group.links.new(group_inputs.outputs["uvTile"], uv_tile.inputs[3])
-	
+
 	rot_pivot = test_group.nodes.new('ShaderNodeMapping')
 	rot_pivot.inputs[1].default_value[1] = -1.0
 	rot_pivot.label = "Rot Pivot"
 	test_group.links.new(uv_tile.outputs[0], rot_pivot.inputs[0])
-	
+
 	uv_rot_pos_a = test_group.nodes.new('ShaderNodeMapping')
 	uv_rot_pos_a.label = "uvRotationPosition"
 	test_group.links.new(rot_pivot.outputs[0], uv_rot_pos_a.inputs[0])
 	test_group.links.new(rotpos_flipx.outputs[0], uv_rot_pos_a.inputs[1])
-	
+
 	# extra step to create vector from float
 	uv_rot_combine = test_group.nodes.new('ShaderNodeCombineXYZ')
 	uv_rot_combine.label = "build uvRotation Vector"
 	test_group.links.new(group_inputs.outputs["uvRotationAngle"], uv_rot_combine.inputs[2])
-	
-	
+
 	uv_rot = test_group.nodes.new('ShaderNodeMapping')
 	uv_rot.label = "uvRotationAngle"
 	test_group.links.new(uv_rot_pos_a.outputs[0], uv_rot.inputs[0])
@@ -215,29 +211,29 @@ def create_group():
 		print("bug with new blender 2.9, unsure how to solve")
 		pass
 	test_group.links.new(rotpos_flipx.outputs[0], uv_rot_pos_flip.inputs[0])
-	
+
 	uv_rot_pos_b = test_group.nodes.new('ShaderNodeMapping')
 	uv_rot_pos_b.label = "undo uvRotationPosition"
 	test_group.links.new(uv_rot_pos_flip.outputs[0], uv_rot_pos_b.inputs[1])
 	test_group.links.new(uv_rot.outputs[0], uv_rot_pos_b.inputs[0])
-	
+
 	# #link output
 	test_group.links.new(uv_rot_pos_b.outputs[0], group_outputs.inputs['out'])
-	
-	
+
 	nodes_iterate(test_group, group_outputs)
 	return test_group
+
 
 def create_material(matcol_path):
 	slots = load_matcol(matcol_path)
 
 	matdir, mat_ext = os.path.split(matcol_path)
 	matname = os.path.splitext(mat_ext)[0]
-	print("MATERIAL:",matname)
-	#only create the material if we haven't already created it, then just grab it
+	print("MATERIAL:", matname)
+	# only create the material if we haven't already created it, then just grab it
 	if matname not in bpy.data.materials:
 		mat = bpy.data.materials.new(matname)
-	#only create the material if we haven't already created it, then just grab it
+	# only create the material if we haven't already created it, then just grab it
 	else:
 		mat = bpy.data.materials[matname]
 
@@ -246,20 +242,20 @@ def create_material(matcol_path):
 	transform_group = create_group()
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
-	
+
 	last_mixer = None
 	textures = []
-	for i, (infos, texture) in enumerate( slots):
+	for i, (infos, texture) in enumerate(slots):
 		# skip default materials that have no fgm assigned
 		if not texture:
-			textures.append( None )
+			textures.append(None)
 			continue
-		print("Slot",i)
+		print("Slot", i)
 		slotnum = i
 		# load the tiled texture
 		tex = load_tex(tree, texture)
 		# load the blendweights layer mask
-		mask_path = os.path.join(matdir, matname+".playered_blendweights_{:02}.png".format(i))
+		mask_path = os.path.join(matdir, f"{matname}.playered_blendweights_[{i:02}].png")
 		mask = load_tex(tree, mask_path)
 
 		# height offset attribute
@@ -279,7 +275,7 @@ def create_material(matcol_path):
 		height.inputs["heightBlendScale.upper"].default_value = heightscale_upper
 		tree.links.new(tex.outputs[0], height.inputs[0])
 
-		textures.append( (height, mask) )
+		textures.append((height, mask))
 
 		transform = tree.nodes.new("ShaderNodeGroup")
 		transform.node_tree = transform_group
@@ -299,20 +295,20 @@ def create_material(matcol_path):
 		# m_uvRotationAngle
 		# matcol stores it as fraction of 180°
 		# in radians for blender internally even though it displays as degree
-		rot = math.radians( infos[5].info.value[0]*180 )
+		rot = math.radians(infos[5].info.value[0] * 180)
 		# flip since blender flips V coord
 		transform.inputs["uvRotationAngle"].default_value = -rot
 		tree.links.new(transform.outputs[0], tex.inputs[0])
-		
+
 		tex.update()
 		mask.update()
 
 	indices = []
 	for i_a in range(4):
 		for i_b in range(4):
-			indices.append(i_a + i_b*4)
+			indices.append(i_a + i_b * 4)
 
-	indices = list( i for i in range(slotnum) )
+	indices = list(i for i in range(slotnum))
 	print(indices)
 
 	normal_path = os.path.join(matdir, matname + ".pnormaltexture.png")
@@ -326,7 +322,7 @@ def create_material(matcol_path):
 	# bump.inputs["Strength"].default_value = 0.5
 	# bump.inputs["Distance"].default_value = 0.1
 
-	#tree.links.new(normal_map.outputs[0], bump.inputs["Normal"])
+	# tree.links.new(normal_map.outputs[0], bump.inputs["Normal"])
 	last_mixer = normal_map
 	for i in indices:
 		# skip empty slots
@@ -338,17 +334,16 @@ def create_material(matcol_path):
 			tree.links.new(height.outputs[0], bump.inputs["Height"])
 			last_mixer = bump
 
-
 	# tree.links.new(mixRGB.outputs[0], bump.inputs[2])
 
-	diffuse_path = os.path.join(matdir, matname+".pbasediffusetexture.png")
+	diffuse_path = os.path.join(matdir, matname + ".pbasediffusetexture.png")
 	diffuse = load_tex(tree, diffuse_path)
 
-	roughness_path = os.path.join(matdir, matname+".pbasepackedtexture_01.png")
+	roughness_path = os.path.join(matdir, matname + ".pbasepackedtexture_01.png")
 	roughness = load_tex(tree, roughness_path)
 	roughness.image.colorspace_settings.name = "Non-Color"
 
-	ao_path = os.path.join(matdir, matname+".pbasepackedtexture_03.png")
+	ao_path = os.path.join(matdir, matname + ".pbasepackedtexture_03.png")
 	ao = load_tex(tree, ao_path)
 	ao.image.colorspace_settings.name = "Non-Color"
 
@@ -358,24 +353,27 @@ def create_material(matcol_path):
 	diffuse_premix.inputs["Fac"].default_value = .25
 	tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
 	tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
-	
+
 	tree.links.new(diffuse_premix.outputs[0], principled.inputs["Base Color"])
 	tree.links.new(roughness.outputs[0], principled.inputs["Metallic"])
 	tree.links.new(bump.outputs[0], principled.inputs["Normal"])
 	tree.links.new(principled.outputs[0], output.inputs[0])
-		
+
 	nodes_iterate(tree, output)
 	return mat
-	# #now finally set all the textures we have in the mesh
-	# me = ob.data
-	# me.materials.append(mat)
-	
+
+
+# #now finally set all the textures we have in the mesh
+# me = ob.data
+# me.materials.append(mat)
+
 def get_data(p, d):
 	dat = d()
 	with open(p, "rb") as stream:
 		dat.read(stream)
 	return dat
-	
+
+
 def load_matcol(matcol_path):
 	lib_dir = os.path.normpath(os.path.dirname(matcol_path))
 	matcol_file = MatcolFile()
@@ -389,14 +387,14 @@ def load_matcol(matcol_path):
 	height_textures = [os.path.join(lib_dir, file) for file in all_textures if rootname in file and baseheight in file]
 	# print(base_textures)
 	# for layer in matcol_file.layered_wrapper:
-		# print(layer)
+	# print(layer)
 	for layer in matcol_file.layered_wrapper.layers:
 		print(layer.name)
 		if layer.name == "Default":
 			print("Skipping Default layer")
 			htex = None
 		else:
-			fgm_path = os.path.join(lib_dir, layer.name+".fgm")
+			fgm_path = os.path.join(lib_dir, layer.name + ".fgm")
 			# print(fgm_path)
 			fgm_data = FgmFile()
 			fgm_data.load(fgm_path)
@@ -412,8 +410,9 @@ def load_matcol(matcol_path):
 			htex = height_textures[height_index]
 		slots.append((layer.infos, htex))
 	return slots
-	
+
+
 if __name__ == '__main__':
 	matcol_path = "C:/Users/arnfi/Desktop/pp/herrerasaurus.materialcollection"
 	load_matcol(matcol_path)
-	# python tmc.py
+# python tmc.py

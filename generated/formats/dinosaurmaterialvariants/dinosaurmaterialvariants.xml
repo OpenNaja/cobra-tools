@@ -31,13 +31,13 @@
 
     <compound name="Layer" inherit="MemStruct" >
         <add name="has_ptr" type="uint64"/>
-        <add name="fgm_name" type="Pointer" template="ZString"/>
-        <add name="layer_name" type="Pointer" template="ZString"/>
+        <add name="texture_fgm_name" type="Pointer" template="ZString">defines the tiled texture material to be used</add>
+        <add name="transform_fgm_name" type="Pointer" template="ZString">defines how to transform the texture</add>
     </compound>
 
     <compound name="DinoLayersHeader" inherit="MemStruct" >
         <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
-        <add name="layers" type="Pointer" template="LayerArray" arg="layer_count"/>
+        <add name="layers" type="ArrayPointer" template="Layer" arg="layer_count"/>
         <add name="layer_count" type="uint64"/>
         <add name="zero" type="uint64"/>
     </compound>
@@ -61,7 +61,7 @@
         <add name="zero" type="uint64"/>
     </compound>
 
-    <compound name="Vector3f" >
+    <compound name="Vector3f" inherit="MemStruct" >
         <add name="x" type="float"/>
         <add name="y" type="float"/>
         <add name="z" type="float"/>
