@@ -162,7 +162,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 	must_flip_gb = has_vectors(tex_file_path)
 
 	# check if processing needs to be done
-	if not must_join and not join_components and not must_flip_gb:
+	if not must_join and not join_components and not must_flip_gb and not join_rg_b_a:
 		assert len(corresponding_png_textures) == 1
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
@@ -174,7 +174,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 	logging.debug(f"must_flip_gb {must_flip_gb}")
 
 	# non-tiled files that need fixes - normal maps
-	if not must_join and not join_components:
+	if not must_join and not join_components and not join_rg_b_a:
 		# just read the one input file
 		assert len(corresponding_png_textures) == 1
 		im = imageio.imread(png_file_path)
