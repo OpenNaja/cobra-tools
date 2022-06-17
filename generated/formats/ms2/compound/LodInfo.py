@@ -6,7 +6,8 @@ class LodInfo:
 
 	"""
 	Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
-	20 bytes
+	JWE1, PZ, JWE2 - 20 bytes
+	JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 	"""
 
 	context = ContextReference()
@@ -48,8 +49,10 @@ class LodInfo:
 		self.bone_index = 0
 		self.first_object_index = 0
 		self.last_object_index = 0
-		self.vertex_count = 0
-		self.tri_index_count = 0
+		if not ((self.context.version == 51) and self.context.biosyn):
+			self.vertex_count = 0
+		if not ((self.context.version == 51) and self.context.biosyn):
+			self.tri_index_count = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -68,8 +71,9 @@ class LodInfo:
 		instance.bone_index = stream.read_ushort()
 		instance.first_object_index = stream.read_ushort()
 		instance.last_object_index = stream.read_ushort()
-		instance.vertex_count = stream.read_uint()
-		instance.tri_index_count = stream.read_uint()
+		if not ((instance.context.version == 51) and instance.context.biosyn):
+			instance.vertex_count = stream.read_uint()
+			instance.tri_index_count = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -78,8 +82,9 @@ class LodInfo:
 		stream.write_ushort(instance.bone_index)
 		stream.write_ushort(instance.first_object_index)
 		stream.write_ushort(instance.last_object_index)
-		stream.write_uint(instance.vertex_count)
-		stream.write_uint(instance.tri_index_count)
+		if not ((instance.context.version == 51) and instance.context.biosyn):
+			stream.write_uint(instance.vertex_count)
+			stream.write_uint(instance.tri_index_count)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

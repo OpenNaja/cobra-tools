@@ -274,6 +274,15 @@ class BaseFile:
 		# 	f.write(f"\nSTREAM {loader.file_entry.name}")
 		# 	loader.dump_buffer_infos(f)
 
+	def dump_buffers(self, out_dir):
+		paths = []
+		for i, b in enumerate(self.data_entry.buffer_datas):
+			name = f"{self.file_entry.name}_{i}.dmp"
+			out_path = out_dir(name)
+			paths.append(out_path)
+			with open(out_path, 'wb') as outfile:
+				outfile.write(b)
+		return paths
 
 class MemStructLoader(BaseFile):
 	target_class: None

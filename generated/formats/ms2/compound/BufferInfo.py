@@ -11,6 +11,7 @@ class BufferInfo:
 	JWE1: 48 bytes
 	PZ old: 32 bytes?
 	PZ1.6+ and JWE2: 56 bytes
+	JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, a, b
 	
 	JWE and PC, 16 bytes of 00 padding
 	"""
@@ -26,6 +27,10 @@ class BufferInfo:
 		self.io_start = 0
 		self.u_0 = 0
 		self.u_1 = 0
+		self.a_size = 0
+		self.a_ptr = 0
+		self.b_size = 0
+		self.b_ptr = 0
 		self.vertex_buffer_size = 0
 		self.u_2 = 0
 		self.u_3 = 0
@@ -47,6 +52,14 @@ class BufferInfo:
 			self.u_0 = 0
 		if 32 <= self.context.version <= 47:
 			self.u_1 = 0
+		if (self.context.version == 51) and self.context.biosyn:
+			self.a_size = 0
+		if (self.context.version == 51) and self.context.biosyn:
+			self.a_ptr = 0
+		if (self.context.version == 51) and self.context.biosyn:
+			self.b_size = 0
+		if (self.context.version == 51) and self.context.biosyn:
+			self.b_ptr = 0
 		self.vertex_buffer_size = 0
 		self.u_2 = 0
 		if self.context.version >= 48:
@@ -83,6 +96,12 @@ class BufferInfo:
 		if 32 <= instance.context.version <= 47:
 			instance.u_0 = stream.read_uint64()
 			instance.u_1 = stream.read_uint64()
+		if (instance.context.version == 51) and instance.context.biosyn:
+			instance.a_size = stream.read_uint64()
+			instance.a_ptr = stream.read_uint64()
+		if (instance.context.version == 51) and instance.context.biosyn:
+			instance.b_size = stream.read_uint64()
+			instance.b_ptr = stream.read_uint64()
 		instance.vertex_buffer_size = stream.read_uint64()
 		instance.u_2 = stream.read_uint64()
 		if instance.context.version >= 48:
@@ -105,6 +124,12 @@ class BufferInfo:
 		if 32 <= instance.context.version <= 47:
 			stream.write_uint64(instance.u_0)
 			stream.write_uint64(instance.u_1)
+		if (instance.context.version == 51) and instance.context.biosyn:
+			stream.write_uint64(instance.a_size)
+			stream.write_uint64(instance.a_ptr)
+		if (instance.context.version == 51) and instance.context.biosyn:
+			stream.write_uint64(instance.b_size)
+			stream.write_uint64(instance.b_ptr)
 		stream.write_uint64(instance.vertex_buffer_size)
 		stream.write_uint64(instance.u_2)
 		if instance.context.version >= 48:
@@ -144,6 +169,10 @@ class BufferInfo:
 		s = ''
 		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
 		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* a_size = {fmt_member(self.a_size, indent+1)}'
+		s += f'\n	* a_ptr = {fmt_member(self.a_ptr, indent+1)}'
+		s += f'\n	* b_size = {fmt_member(self.b_size, indent+1)}'
+		s += f'\n	* b_ptr = {fmt_member(self.b_ptr, indent+1)}'
 		s += f'\n	* vertex_buffer_size = {fmt_member(self.vertex_buffer_size, indent+1)}'
 		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
 		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'

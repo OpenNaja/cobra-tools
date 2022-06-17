@@ -11,17 +11,19 @@
 		<verexpr token="#PZ#" string="((#VER# #EQ# 48) #OR# (#VER# #EQ# 50))">PZ all</verexpr>
 		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
+		<verexpr token="#JWE2_BIO#" string="((#VER# #EQ# 51) #AND# (#BIOSYN#))">JWE2</verexpr>
     </token>
 
 	<token name="global" attrs="vercond access">
         Global Tokens.
         NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
         <global token="#VER#" string="version" />
+        <global token="#BIOSYN#" string="biosyn" />
     </token>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-<!--	<verattr name="version" access="#VER#" index="0" />-->
+	<verattr name="biosyn" access="#BIOSYN#" index="1" />
 
 	13 if ZTUAC, 32 if PC, 39 if old JWE1, 47 if JWE1, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
     <version id="old" version="7 13 32" >Old</version>
@@ -150,10 +152,7 @@
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
 		rhino: start of model - end of objects: 124 - 4 bytes padding
 		ele: start of model - end of objects: 120 - 0 bytes padding</add>
-		<add name="meshes" type="NewMeshData" arr1="#ARG#\num_meshes" since="47">mesh data blocks for this model</add>
-		<add name="meshes" type="PcMeshData" arr1="#ARG#\num_meshes" vercond="#PC#"/>
-		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#ZTUAC#"/>
-		<add name="meshes" type="ZtMeshData" arr1="#ARG#\num_meshes" vercond="#DLA#"/>
+		<add name="meshes" type="MeshDataWrap" arr1="#ARG#\num_meshes" >mesh data blocks for this model</add>
 		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" until="32">see if it is a flag for ztuac too, so might be totally wrong here</add>
 		alignment here is handled by py code, seems to depend on whether a bone info follows
@@ -168,14 +167,15 @@
 
 	<compound name="LodInfo">
 		Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
-		20 bytes
+		JWE1, PZ, JWE2 - 20 bytes
+		JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 		<add name="distance" type="float" >usually first lod is 900</add>
 		<add name="zero" type="ushort" >always 0</add>
 		<add name="bone index" type="ushort" >Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes</add>
 		<add name="first object index" type="ushort" >first object for this lod in objects list</add>
 		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="vertex count" type="uint" >vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
-		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
+		<add name="vertex count" type="uint" vercond="!#JWE2_BIO#">vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
+		<add name="tri index count" type="uint" vercond="!#JWE2_BIO#" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
 	</compound>
 
 	<compound name="LodInfoZT">
@@ -195,14 +195,37 @@
 		<add name="mesh index" type="ushort" >index into mesh array</add>
 	</compound>
 
+	<compound name="MeshDataWrap" inherit="MemStruct">
+		<add name="mesh" type="BioMeshData" since="47" vercond="#JWE2_BIO#"/>
+		<add name="mesh" type="NewMeshData" since="47" vercond="!#JWE2_BIO#"/>
+		<add name="mesh" type="PcMeshData" vercond="#PC#"/>
+		<add name="mesh" type="ZtMeshData" vercond="#ZTUAC#"/>
+		<add name="mesh" type="ZtMeshData" vercond="#DLA#"/>
+	</compound>
+
 	<compound name="MeshData" inherit="MemStruct">
 		used for shared functions
 		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
 		<add name="buffer_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE have a ptr at the start instead of the stream index</add>
-		<add name="some_index" type="uint64" >increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="some_index" type="uint64" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+	</compound>
+
+	<compound name="BioMeshData" inherit="MeshData">
+		JWE2 - 48 bytes incl. inheritance
+		<add name="a offset" type="uint" vercond="#JWE2_BIO#">unk</add>
+		<add name="a size" type="uint" vercond="#JWE2_BIO#">unk</add>
+		<add name="vertex count" type="uint" >vertex count of model</add>
+		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="zero1" type="uint64">unk, may be used in other models</add>
+		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
+		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
+		<add name="one" type="uint">always 1</add>
 	</compound>
 
 	<compound name="NewMeshData" inherit="MeshData">
+		PZ, JWE2 - 64 bytes incl. inheritance
+		<add name="a offset" type="uint" vercond="#JWE2_BIO#">unk</add>
+		<add name="a size" type="uint" vercond="#JWE2_BIO#">unk</add>
 		<add name="vertex count" type="uint" >vertex count of model</add>
 		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 		<add name="zero1" type="uint">always zero</add>
@@ -324,10 +347,16 @@
 		JWE1: 48 bytes
 		PZ old: 32 bytes?
 		PZ1.6+ and JWE2: 56 bytes
+		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, a, b
 
 		JWE and PC, 16 bytes of 00 padding
 		<add name="u0" type="uint64" since="32" until="47" />
 		<add name="u1" type="uint64" since="32" until="47" />
+
+		<add name="a_size" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="a_ptr" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="b_size" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="b_ptr" type="uint64" vercond="#JWE2_BIO#"/>
 
 		<add name="vertex_buffer_size" type="uint64"/>
 		<add name="u2" type="uint64"/>
@@ -335,6 +364,8 @@
 		PZ+, another 8 empty bytes
 		<add name="u3" type="uint64" since="48"/>
 		on all games except PC
+
+		at offset 56 in JWE2
 		<add name="tris_buffer_size" type="uint64" vercond="!#PC#"/>
 		<add name="u4" type="uint64" vercond="!#PC#"/>
 		PZ+, another 16 empty bytes
@@ -348,21 +379,25 @@
 	</compound>
 
 	<compound name="ModelInfo" inherit="MemStruct">
-		Linked to by the ms2, part of an array
-		120 bytes for JWE2
-		<add name="unk dla" type="uint64" until="7">??</add>
+		Describes one model, corresponding to a virtual .mdl2 file
+		JWE2 - 192 bytes
+		JWE2 Biosyn - 160 bytes
+		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented
 
+		this block loses 24 bytes after Biosyn
+		<add name="unk dla" type="uint64" until="7">??</add>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-		<add name="unk float a" type="float" since="47">not sure, for PZ often 40 00 00 37 for animals</add>
+		<add name="unk float a" type="float" since="47" vercond="!#JWE2_BIO#">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="pack offset" type="float" since="47">scale: pack_offset / 512, also added as offset</add>
+		<add name="pack offset" type="float" since="47" vercond="!#JWE2_BIO#">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
-		<add name="num_lods_2" type="uint64" since="48">seen 6 or 1, matches lod count</add>
-		<add name="zero" type="uint64" since="48">zero</add>
+		<add name="num_lods_2" type="uint64" since="48" vercond="!#JWE2_BIO#">seen 6 or 1, matches lod count</add>
+		<add name="zero" type="uint64" since="48" vercond="!#JWE2_BIO#">zero</add>
 		<add name="bounds min repeat" type="Vector3" since="32">verbatim repeat</add>
 		<add name="bounds max repeat" type="Vector3" since="32">verbatim repeat</add>
 <!--		array counts-->
+		for JWE2 incl Biosyn, these are 32 bytes
 		<add name="num_materials" type="ushort"/>
 		<add name="num_lods" type="ushort"/>
 		<add name="num_objects" type="ushort"/>
@@ -376,15 +411,17 @@
 		<add name="materials" type="ArrayPointer" template="MaterialName" arg="num_materials"/>
 		<add name="lods" type="ArrayPointer" template="LodInfo" arg="num_lods"/>
 		<add name="objects" type="ArrayPointer" template="Object" arg="num_objects"/>
-		<add name="meshes" type="ArrayPointer" template="NewMeshData" arg="num_meshes"/>
+		<add name="meshes" type="ArrayPointer" template="MeshDataWrap" arg="num_meshes"/>
 		<add name="first_model" type="Pointer">points to the start of this ModelInfo's model, usually starts at materials
 			stays the same for successive mdl2s in the same model; or points to nil if no models are present</add>
+
+		this loses 8 bytes after Biosyn
 		<add name="zeros" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="zeros" type="uint64" arr1="2" vercond="#DLA#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
 		<add name="zero 0" type="uint64" vercond="!#DLA#"/>
 		<add name="zero 1" type="uint64" vercond="!#PC#"/>
-		<add name="zero 2" type="uint64" since="47"/>
+		<add name="zero 2" type="uint64" since="47" vercond="!#JWE2_BIO#"/>
 	</compound>
 
 	<compound name="BoneInfo">
@@ -467,27 +504,6 @@
 <!--		<add name="joint debug" type="StreamDebugger" >joints</add>-->
 		<add name="alignment" type="uint64" cond="flag" since="50">latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
 	</compound>
-
-	this was dumb, is just the lods region
-<!--	<compound name="NewPcStruct">-->
-<!--		<add name="zeros 0" type="ushort" arr1="7"/>-->
-<!--		<add name="count a" type="uint" />-->
-<!--		<add name="subs" type="NewPcSub1" arr1="6"/>-->
-
-<!--	</compound>-->
-
-<!--	<compound name="NewPcSub1">-->
-<!--		seemingly lod related-->
-<!--		20 bytes-->
-<!--		<add name="offset" type="float" />-->
-<!--		<add name="zero 0" type="ushort" />-->
-<!--		<add name="one" type="ushort" />-->
-<!--		<add name="index" type="ushort" />-->
-<!--		<add name="index_plus" type="ushort" />-->
-<!--		<add name="index_plus" type="ushort" />-->
-<!--		<add name="zeros 1" type="ushort" arr1="2"/>-->
-
-<!--	</compound>-->
 
 	<compound name="UACJoint">
 		36 bytes

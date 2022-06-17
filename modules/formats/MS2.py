@@ -45,10 +45,10 @@ class Ms2Loader(BaseFile):
 
 	def get_version(self):
 		version = struct.unpack(f"I", self.root_ptr.data[:4])[0]
-		vdic = {"version": version}
 		self.context = Ms2Context()
 		self.context.version = version
-		return vdic
+		self.context.biosyn = self.ovl.biosyn
+		# self.context.biosyn = 0
 
 	def get_buffer_presence(self):
 		# some in JWE2 have a model2stream again
@@ -65,6 +65,7 @@ class Ms2Loader(BaseFile):
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
 		# self.header.debug_ptrs()
+		# print(f"context.biosyn {self.context.biosyn}")
 		# print(self.header)
 		expected_frag = self.get_buffer_presence()
 		frag_data = self.header.buffers_presence.frag.struct_ptr.data
@@ -94,11 +95,11 @@ class Ms2Loader(BaseFile):
 			model_info.lods.data = model_info.model.lods
 			model_info.objects.data = model_info.model.objects
 			model_info.meshes.data = model_info.model.meshes
-			for mesh in model_info.model.meshes:
+			for wrapper in model_info.model.meshes:
 				# link the right buffer_info, then clear offset value
-				mesh.buffer_info.temp_index = mesh.buffer_info.offset
+				wrapper.mesh.buffer_info.temp_index = wrapper.mesh.buffer_info.offset
 				# undo what we did on export
-				mesh.buffer_info.offset = 0
+				wrapper.mesh.buffer_info.offset = 0
 		# print(self.header)
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
@@ -138,6 +139,7 @@ class Ms2Loader(BaseFile):
 	
 	def extract(self, out_dir, show_temp_files, progress_callback):
 		self.get_version()
+		# return self.dump_buffers(out_dir)
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
 		# print(self.header)
@@ -165,14 +167,14 @@ class Ms2Loader(BaseFile):
 				# this corresponds to pc buffer 1 already
 				# handle multiple buffer infos
 				# grab all unique ptrs to buffer infos
-				ptrs = set(mesh.buffer_info.frag.struct_ptr for model_info in self.header.model_infos.data for mesh in model_info.meshes.data)
+				ptrs = set(wrapper.mesh.buffer_info.frag.struct_ptr for model_info in self.header.model_infos.data for wrapper in model_info.meshes.data)
 				# get the sorted binary representations
 				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset)]
 				# turn the offset value of the pointers into a valid index
 				for model_info in self.header.model_infos.data:
-					for mesh in model_info.meshes.data:
-						buffer_info_bytes = mesh.buffer_info.frag.struct_ptr.data
-						mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
+					for wrapper in model_info.meshes.data:
+						buffer_info_bytes = wrapper.mesh.buffer_info.frag.struct_ptr.data
+						wrapper.mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
 				if self.header.buffer_infos.data is not None:
 					self.header.buffer_infos.data.write(stream)
 				self.header.model_infos.data.write(stream)

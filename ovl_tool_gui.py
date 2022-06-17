@@ -116,9 +116,10 @@ class MainWindow(widgets.MainWindow):
 		self.t_animal_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
 		self.t_animal_ovl.setChecked(False)
 
-		# self.t_unsafe = QtWidgets.QCheckBox("Unsafe Mode")
-		# self.t_unsafe.setToolTip("Forces unsafe (brute force) replacement. May break your files.")
-		# self.t_unsafe.setChecked(False)
+		self.t_biosyn = QtWidgets.QCheckBox("Biosyn Format")
+		self.t_biosyn.setToolTip("Check for opening OVLs with MS2 files after JWE2 Biosyn upgrade.")
+		self.t_biosyn.setChecked(False)
+		self.t_biosyn.stateChanged.connect(self.biosyn_changed)
 
 		self.e_name_old = QtWidgets.QTextEdit("")
 		self.e_name_old.setToolTip("Old strings - one item per line")
@@ -142,7 +143,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
 		self.qgrid.addWidget(self.in_folder, 1, 3)
 		self.qgrid.addWidget(self.t_animal_ovl, 2, 3)
-		# self.qgrid.addWidget(self.t_unsafe, 3, 3)
+		self.qgrid.addWidget(self.t_biosyn, 3, 3)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
 
@@ -272,6 +273,10 @@ class MainWindow(widgets.MainWindow):
 		names = [(old_name, new_name.lower()), ]
 		self.ovl_data.rename(names)
 		self.update_gui_table()
+
+	def biosyn_changed(self):
+		self.ovl_data.biosyn = self.t_biosyn.isChecked()
+		logging.info(f"Biosyn {self.ovl_data.biosyn}")
 
 	def game_changed(self):
 		game = self.game_choice.entry.currentText()

@@ -573,6 +573,8 @@ class OvlFile(Header, IoFile):
 		self.magic.data = b'FRES'
 		self.hash_table_global = {}
 
+		self.biosyn = False
+
 		self.last_print = None
 		if progress_callback:
 			self.progress_callback = progress_callback
@@ -903,7 +905,8 @@ class OvlFile(Header, IoFile):
 			self.print_and_callback("Loading files", value=hf_index, max_value=hf_max)
 			# get file name from name table
 			file_name = self.names.get_str_at(file_entry.offset)
-			file_entry.ext = self.mimes[file_entry.extension].ext
+			file_entry.mime = self.mimes[file_entry.extension]
+			file_entry.ext = file_entry.mime.ext
 			# store this so we can use it
 			file_entry.ext_hash = djb(file_entry.ext[1:])
 			file_entry.basename = file_name

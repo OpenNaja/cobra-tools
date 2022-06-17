@@ -38,7 +38,8 @@ class MeshData(MemStruct):
 	def set_defaults(self):
 		if self.context.version <= 32:
 			self.stream_index = 0
-		self.some_index = 0
+		if not ((self.context.version == 51) and self.context.biosyn):
+			self.some_index = 0
 		if self.context.version >= 47:
 			self.buffer_info = Pointer(self.context, 0, generated.formats.ms2.compound.BufferInfo.BufferInfo)
 
@@ -59,7 +60,8 @@ class MeshData(MemStruct):
 			instance.stream_index = stream.read_uint64()
 		if instance.context.version >= 47:
 			instance.buffer_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.ms2.compound.BufferInfo.BufferInfo)
-		instance.some_index = stream.read_uint64()
+		if not ((instance.context.version == 51) and instance.context.biosyn):
+			instance.some_index = stream.read_uint64()
 		instance.buffer_info.arg = 0
 
 	@classmethod
@@ -69,7 +71,8 @@ class MeshData(MemStruct):
 			stream.write_uint64(instance.stream_index)
 		if instance.context.version >= 47:
 			Pointer.to_stream(stream, instance.buffer_info)
-		stream.write_uint64(instance.some_index)
+		if not ((instance.context.version == 51) and instance.context.biosyn):
+			stream.write_uint64(instance.some_index)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

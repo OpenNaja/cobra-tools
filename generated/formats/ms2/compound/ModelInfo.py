@@ -1,7 +1,7 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.ms2.compound.LodInfo
 import generated.formats.ms2.compound.MaterialName
-import generated.formats.ms2.compound.NewMeshData
+import generated.formats.ms2.compound.MeshDataWrap
 import generated.formats.ms2.compound.Object
 import numpy
 from generated.formats.ms2.bitfield.RenderFlag import RenderFlag
@@ -14,8 +14,12 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class ModelInfo(MemStruct):
 
 	"""
-	Linked to by the ms2, part of an array
-	120 bytes for JWE2
+	Describes one model, corresponding to a virtual .mdl2 file
+	JWE2 - 192 bytes
+	JWE2 Biosyn - 160 bytes
+	There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented
+	
+	this block loses 24 bytes after Biosyn
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -85,7 +89,7 @@ class ModelInfo(MemStruct):
 		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
 		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
-		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
+		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.MeshDataWrap.MeshDataWrap)
 
 		# points to the start of this ModelInfo's model, usually starts at materials
 		# stays the same for successive mdl2s in the same model; or points to nil if no models are present
@@ -97,16 +101,16 @@ class ModelInfo(MemStruct):
 		if self.context.version <= 7:
 			self.unk_dla = 0
 		self.bounds_min = Vector3(self.context, 0, None)
-		if self.context.version >= 47:
+		if self.context.version >= 47 and not ((self.context.version == 51) and self.context.biosyn):
 			self.unk_float_a = 0.0
 		self.bounds_max = Vector3(self.context, 0, None)
-		if self.context.version >= 47:
+		if self.context.version >= 47 and not ((self.context.version == 51) and self.context.biosyn):
 			self.pack_offset = 0.0
 		self.center = Vector3(self.context, 0, None)
 		self.radius = 0.0
-		if self.context.version >= 48:
+		if self.context.version >= 48 and not ((self.context.version == 51) and self.context.biosyn):
 			self.num_lods_2 = 0
-		if self.context.version >= 48:
+		if self.context.version >= 48 and not ((self.context.version == 51) and self.context.biosyn):
 			self.zero = 0
 		if self.context.version >= 32:
 			self.bounds_min_repeat = Vector3(self.context, 0, None)
@@ -129,12 +133,12 @@ class ModelInfo(MemStruct):
 			self.zero_0 = 0
 		if not (self.context.version == 32):
 			self.zero_1 = 0
-		if self.context.version >= 47:
+		if self.context.version >= 47 and not ((self.context.version == 51) and self.context.biosyn):
 			self.zero_2 = 0
 		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
 		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
-		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
+		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.MeshDataWrap.MeshDataWrap)
 		self.first_model = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -153,14 +157,14 @@ class ModelInfo(MemStruct):
 		if instance.context.version <= 7:
 			instance.unk_dla = stream.read_uint64()
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 47:
+		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.unk_float_a = stream.read_float()
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 47:
+		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.pack_offset = stream.read_float()
 		instance.center = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.radius = stream.read_float()
-		if instance.context.version >= 48:
+		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.num_lods_2 = stream.read_uint64()
 			instance.zero = stream.read_uint64()
 		if instance.context.version >= 32:
@@ -177,7 +181,7 @@ class ModelInfo(MemStruct):
 		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
 		instance.lods = ArrayPointer.from_stream(stream, instance.context, instance.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
 		instance.objects = ArrayPointer.from_stream(stream, instance.context, instance.num_objects, generated.formats.ms2.compound.Object.Object)
-		instance.meshes = ArrayPointer.from_stream(stream, instance.context, instance.num_meshes, generated.formats.ms2.compound.NewMeshData.NewMeshData)
+		instance.meshes = ArrayPointer.from_stream(stream, instance.context, instance.num_meshes, generated.formats.ms2.compound.MeshDataWrap.MeshDataWrap)
 		instance.first_model = Pointer.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
 			instance.zeros = stream.read_uint64s((4,))
@@ -188,7 +192,7 @@ class ModelInfo(MemStruct):
 			instance.zero_0 = stream.read_uint64()
 		if not (instance.context.version == 32):
 			instance.zero_1 = stream.read_uint64()
-		if instance.context.version >= 47:
+		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.zero_2 = stream.read_uint64()
 		instance.materials.arg = instance.num_materials
 		instance.lods.arg = instance.num_lods
@@ -202,14 +206,14 @@ class ModelInfo(MemStruct):
 		if instance.context.version <= 7:
 			stream.write_uint64(instance.unk_dla)
 		Vector3.to_stream(stream, instance.bounds_min)
-		if instance.context.version >= 47:
+		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
 			stream.write_float(instance.unk_float_a)
 		Vector3.to_stream(stream, instance.bounds_max)
-		if instance.context.version >= 47:
+		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
 			stream.write_float(instance.pack_offset)
 		Vector3.to_stream(stream, instance.center)
 		stream.write_float(instance.radius)
-		if instance.context.version >= 48:
+		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
 			stream.write_uint64(instance.num_lods_2)
 			stream.write_uint64(instance.zero)
 		if instance.context.version >= 32:
@@ -237,7 +241,7 @@ class ModelInfo(MemStruct):
 			stream.write_uint64(instance.zero_0)
 		if not (instance.context.version == 32):
 			stream.write_uint64(instance.zero_1)
-		if instance.context.version >= 47:
+		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
 			stream.write_uint64(instance.zero_2)
 
 	@classmethod
