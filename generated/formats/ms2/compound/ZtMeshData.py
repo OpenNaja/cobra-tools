@@ -26,8 +26,6 @@ class ZtMeshData(MeshData):
 
 		# repeat
 		self.tri_index_count = 0
-
-		# vertex count of model
 		self.vertex_count = 0
 
 		# stores count, -1 as ints
@@ -39,7 +37,7 @@ class ZtMeshData(MeshData):
 		# x*16 = offset in buffer 2
 		self.known_ff_0 = 0
 
-		# relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri index count
+		# relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri_index_count
 		self.tri_offset = 0
 
 		# relative to start of buffer[i], blocks of 8 bytes, count vertex_count

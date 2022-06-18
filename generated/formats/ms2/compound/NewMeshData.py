@@ -17,7 +17,6 @@ class NewMeshData(MeshData):
 
 	"""
 	PZ, JWE2 - 64 bytes incl. inheritance
-	JWE2 - 48 bytes incl. inheritance
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -27,14 +26,6 @@ class NewMeshData(MeshData):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-
-		# unk
-		self.a_offset = 0
-
-		# unk
-		self.a_size = 0
-
-		# vertex count of model
 		self.vertex_count = 0
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
@@ -70,10 +61,6 @@ class NewMeshData(MeshData):
 			self.set_defaults()
 
 	def set_defaults(self):
-		if (self.context.version == 51) and self.context.biosyn:
-			self.a_offset = 0
-		if (self.context.version == 51) and self.context.biosyn:
-			self.a_size = 0
 		self.vertex_count = 0
 		self.tri_index_count = 0
 		self.zero_1 = 0
@@ -99,9 +86,6 @@ class NewMeshData(MeshData):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		if (instance.context.version == 51) and instance.context.biosyn:
-			instance.a_offset = stream.read_uint()
-			instance.a_size = stream.read_uint()
 		instance.vertex_count = stream.read_uint()
 		instance.tri_index_count = stream.read_uint()
 		instance.zero_1 = stream.read_uint()
@@ -117,9 +101,6 @@ class NewMeshData(MeshData):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		if (instance.context.version == 51) and instance.context.biosyn:
-			stream.write_uint(instance.a_offset)
-			stream.write_uint(instance.a_size)
 		stream.write_uint(instance.vertex_count)
 		stream.write_uint(instance.tri_index_count)
 		stream.write_uint(instance.zero_1)
@@ -153,8 +134,6 @@ class NewMeshData(MeshData):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* a_offset = {fmt_member(self.a_offset, indent+1)}'
-		s += f'\n	* a_size = {fmt_member(self.a_size, indent+1)}'
 		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
 		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'
 		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'

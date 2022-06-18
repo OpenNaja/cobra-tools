@@ -77,7 +77,7 @@ class MeshData:
 
 	def update_shell_count(self):
 		# 853 in aardvark is a shell mesh, but has no tri shells
-		if hasattr(self.flag, "repeat_tris") and self.flag.repeat_tris:
+		if hasattr(self, "flag") and hasattr(self.flag, "repeat_tris") and self.flag.repeat_tris:
 			self.shell_count = 6
 		else:
 			self.shell_count = 1

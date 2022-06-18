@@ -25,6 +25,7 @@ class Ms2InfoHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.biosyn = 0
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
 
@@ -44,6 +45,7 @@ class Ms2InfoHeader:
 			self.set_defaults()
 
 	def set_defaults(self):
+		self.biosyn = 0
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
 		if self.context.version >= 32:
@@ -72,6 +74,8 @@ class Ms2InfoHeader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		instance.biosyn = stream.read_uint()
+		instance.context.biosyn = instance.biosyn
 		instance.bone_info_size = stream.read_uint()
 		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 32:
@@ -90,6 +94,7 @@ class Ms2InfoHeader:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		stream.write_uint(instance.biosyn)
 		stream.write_uint(instance.bone_info_size)
 		Ms2Root.to_stream(stream, instance.info)
 		if instance.context.version >= 32:
@@ -126,6 +131,7 @@ class Ms2InfoHeader:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += f'\n	* biosyn = {fmt_member(self.biosyn, indent+1)}'
 		s += f'\n	* bone_info_size = {fmt_member(self.bone_info_size, indent+1)}'
 		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
 		s += f'\n	* buffers_presence = {fmt_member(self.buffers_presence, indent+1)}'

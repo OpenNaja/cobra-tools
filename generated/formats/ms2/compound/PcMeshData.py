@@ -21,8 +21,6 @@ class PcMeshData(MeshData):
 
 		# repeat
 		self.tri_index_count_a = 0
-
-		# vertex count of model
 		self.vertex_count = 0
 
 		# x*16 = offset in buffer 2

@@ -175,7 +175,7 @@
 		<add name="first object index" type="ushort" >first object for this lod in objects list</add>
 		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
 		<add name="vertex count" type="uint" vercond="!#JWE2_BIO#">vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
-		<add name="tri index count" type="uint" vercond="!#JWE2_BIO#" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
+		<add name="tri_index_count" type="uint" vercond="!#JWE2_BIO#" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
 	</compound>
 
 	<compound name="LodInfoZT">
@@ -212,10 +212,10 @@
 
 	<compound name="BioMeshData" inherit="MeshData">
 		JWE2 - 48 bytes incl. inheritance
-		<add name="a offset" type="uint" vercond="#JWE2_BIO#">unk</add>
-		<add name="a size" type="uint" vercond="#JWE2_BIO#">unk</add>
-		<add name="vertex count" type="uint" >vertex count of model</add>
-		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="chunks_offset" type="uint" vercond="#JWE2_BIO#">unk</add>
+		<add name="chunks_count" type="uint" vercond="#JWE2_BIO#">unk</add>
+		<add name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
+		<add name="vertex_count" type="uint" >num verts in mesh</add>
 		<add name="zero1" type="uint64">unk, may be used in other models</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
@@ -224,10 +224,8 @@
 
 	<compound name="NewMeshData" inherit="MeshData">
 		PZ, JWE2 - 64 bytes incl. inheritance
-		<add name="a offset" type="uint" vercond="#JWE2_BIO#">unk</add>
-		<add name="a size" type="uint" vercond="#JWE2_BIO#">unk</add>
-		<add name="vertex count" type="uint" >vertex count of model</add>
-		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="vertex_count" type="uint" />
+		<add name="tri_index_count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 		<add name="zero1" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="vertex offset" type="uint" >byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
@@ -240,10 +238,10 @@
 	</compound>
 
 	<compound name="PcMeshData" inherit="MeshData">
-		<add name="tri index count a" type="uint" >repeat</add>
-		<add name="vertex count" type="uint" >vertex count of model</add>
+		<add name="tri_index_count a" type="uint" >repeat</add>
+		<add name="vertex_count" type="uint" />
 		<add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
-		<add name="tri index count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="tri_index_count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 		<add name="vertex offset" type="uint" >x*16 = offset in buffer 2</add>
 		<add name="weights offset" type="uint">x*16 = offset in buffer 2</add>
 		<add name="uv offset" type="uint" >x*16 = offset in buffer 2</add>
@@ -259,12 +257,12 @@
 
 	<compound name="ZtMeshData" inherit="MeshData">
 		64 bytes total, same layout for DLA and ZTUAC
-		<add name="tri index count" type="uint" >repeat</add>
-		<add name="vertex count" type="uint" >vertex count of model</add>
+		<add name="tri_index_count" type="uint" >repeat</add>
+		<add name="vertex_count" type="uint" />
 		<add name="tri info offset" type="uint">stores count, -1 as ints</add>
 		<add name="vert info offset" type="uint" >stores count, -1 as ints</add>
 		<add name="known ff 0" type="int" >x*16 = offset in buffer 2</add>
-		<add name="tri offset" type="uint">relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri index count</add>
+		<add name="tri offset" type="uint">relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri_index_count</add>
 		<add name="uv offset" type="uint" >relative to start of buffer[i], blocks of 8 bytes, count vertex_count</add>
 		<add name="vertex offset" type="uint">relative to start of buffer[i], blocks of 24 bytes, count vertex_count</add>
 		<add name="known ff 1" type="short">x*16 = offset in buffer 2</add>
@@ -291,6 +289,7 @@
 
 	<compound name="Ms2InfoHeader">
 		Custom header struct
+		<add name="biosyn" type="uint"/>
 		<add name="bone_info_size" type="uint"/>
 		<add name="info" type="MS2Root"/>
 		<add name="buffers_presence" type="BufferPresence" arr1="info \ vertex_buffer_count" since="32">used since PC</add>
@@ -347,16 +346,18 @@
 		JWE1: 48 bytes
 		PZ old: 32 bytes?
 		PZ1.6+ and JWE2: 56 bytes
-		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, a, b
+		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, chunks_pos, chunks_size
 
 		JWE and PC, 16 bytes of 00 padding
 		<add name="u0" type="uint64" since="32" until="47" />
 		<add name="u1" type="uint64" since="32" until="47" />
 
-		<add name="a_size" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="a_ptr" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="b_size" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="b_ptr" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="chunk_pos_size" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="chunk_pos_ptr" type="uint64" vercond="#JWE2_BIO#"/>
+
+		# these give counts per
+		<add name="chunks_size" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="chunks_ptr" type="uint64" vercond="#JWE2_BIO#"/>
 
 		<add name="vertex_buffer_size" type="uint64"/>
 		<add name="u2" type="uint64"/>
@@ -378,6 +379,31 @@
 		<add name="u7" type="uint64" until="13" />
 	</compound>
 
+	<compound name="PosChunk" >
+		used in JWE2 Biosyn
+		64 bytes
+		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
+		<add name="u0" type="ushort"/> 0
+		<add name="u1" type="ushort"/>
+		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
+		<add name="tris_offset" type="uint"/>bytes into tris buffer, absolutely certain
+		<add name="loc" type="Vector3">can be 0,0,0, no obvious range</add>
+		todo - may be a different quat that standard (w first?)
+		<add name="rot" type="Vector4">can be 1, 0, 0, 0, the always in range -1, +1</add>
+		<add name="u2" type="uint"/>
+	</compound>
+	
+	<compound name="OffsetChunk" >
+		used in JWE2 Biosyn
+		16 bytes
+		<add name="flag" type="uint" />
+		<add name="pack_offset" type="float" >scale: pack_offset / 512, also added as offset</add>
+		<add name="vertex offset" type="uint" >byte offset from start of vert buffer in bytes</add>
+		<add name="vertex count" type="ubyte"/>confirmed
+		<add name="some count" type="ushort">unsure</add>
+		<add name="zero" type="ubyte"/>
+	</compound>
+
 	<compound name="ModelInfo" inherit="MemStruct">
 		Describes one model, corresponding to a virtual .mdl2 file
 		JWE2 - 192 bytes
@@ -389,7 +415,7 @@
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="unk float a" type="float" since="47" vercond="!#JWE2_BIO#">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="pack offset" type="float" since="47" vercond="!#JWE2_BIO#">scale: pack_offset / 512, also added as offset</add>
+		<add name="pack_offset" type="float" since="47" vercond="!#JWE2_BIO#">scale: pack_offset / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
 		<add name="num_lods_2" type="uint64" since="48" vercond="!#JWE2_BIO#">seen 6 or 1, matches lod count</add>

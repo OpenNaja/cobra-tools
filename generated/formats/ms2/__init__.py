@@ -143,10 +143,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			sorted_meshes = list(enumerate(model_info.model.meshes))
 			# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
 			sum_uv_dict = {}
-			for i, mesh in sorted_meshes:
-				if mesh.stream_index not in sum_uv_dict:
-					sum_uv_dict[mesh.stream_index] = 0
-				sum_uv_dict[mesh.stream_index] += mesh.vertex_count
+			for i, wrapper in sorted_meshes:
+				if wrapper.mesh.stream_index not in sum_uv_dict:
+					sum_uv_dict[wrapper.mesh.stream_index] = 0
+				sum_uv_dict[wrapper.mesh.stream_index] += wrapper.mesh.vertex_count
 
 			last_vertex_offset = 0
 			# for i, mesh in sorted_meshes:
@@ -156,9 +156,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			else:
 				pack_offset = model_info.pack_offset
 			try:
-				for i, mesh in sorted_meshes:
+				for i, wrapper in sorted_meshes:
 					logging.info(f"Populating mesh {i}")
-					last_vertex_offset = mesh.populate(self, pack_offset, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+					last_vertex_offset = wrapper.mesh.populate(self, pack_offset, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
 			except:
 				traceback.print_exc()
 
@@ -269,8 +269,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# update LodInfo
 				logging.debug(f"Updating lod vertex counts...")
 				for lod in model_info.model.lods:
-					lod.vertex_count = sum(model.vertex_count for model in lod.meshes)
-					lod.tri_index_count = sum(model.tri_index_count for model in lod.meshes)
+					lod.vertex_count = sum(wrapper.mesh.vertex_count for wrapper in lod.meshes)
+					lod.tri_index_count = sum(wrapper.mesh.tri_index_count for wrapper in lod.meshes)
 					logging.debug(f"lod.vertex_count = {lod.vertex_count}")
 					logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
 			# modify buffer size
@@ -319,11 +319,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					try:
 						material = model_info.model.materials[obj.material_index]
 						material.name = self.buffer_0.names[material.name_index]
-						obj.mesh = model_info.model.meshes[obj.mesh_index]
+						obj.mesh = model_info.model.meshes[obj.mesh_index].mesh
 						obj.material = material
+						flag = int(obj.mesh.flag) if hasattr(obj.mesh, "flag") else None
 						logging.debug(
 							f"Mesh: {obj.mesh_index} Material: {material.name} Material Unk: {material.some_index} "
-							f"Lod Index: {obj.mesh.poweroftwo} Flag: {int(obj.mesh.flag)}")
+							f"Lod Index: {obj.mesh.poweroftwo} Flag: {flag}")
 					except Exception as err:
 						logging.error(err)
 						logging.error(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")

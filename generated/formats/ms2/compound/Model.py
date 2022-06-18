@@ -5,11 +5,9 @@ from generated.formats.ms2.compound.FloatsY import FloatsY
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.LodInfoZT import LodInfoZT
 from generated.formats.ms2.compound.MaterialName import MaterialName
-from generated.formats.ms2.compound.NewMeshData import NewMeshData
+from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
-from generated.formats.ms2.compound.PcMeshData import PcMeshData
 from generated.formats.ms2.compound.ZTPreBones import ZTPreBones
-from generated.formats.ms2.compound.ZtMeshData import ZtMeshData
 
 
 class Model:
@@ -40,10 +38,7 @@ class Model:
 		self.objects_padding = 0
 
 		# mesh data blocks for this model
-		self.meshes = Array((self.arg.num_meshes,), NewMeshData, self.context, 0, None)
-		self.meshes = Array((self.arg.num_meshes,), PcMeshData, self.context, 0, None)
-		self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
-		self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
+		self.meshes = Array((self.arg.num_meshes,), MeshDataWrap, self.context, 0, None)
 
 		# ?
 		self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
@@ -62,14 +57,7 @@ class Model:
 		self.objects = Array((self.arg.num_objects,), Object, self.context, 0, None)
 		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = 0
-		if self.context.version >= 47:
-			self.meshes = Array((self.arg.num_meshes,), NewMeshData, self.context, 0, None)
-		if self.context.version == 32:
-			self.meshes = Array((self.arg.num_meshes,), PcMeshData, self.context, 0, None)
-		if self.context.version == 13:
-			self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
-		if self.context.version == 7:
-			self.meshes = Array((self.arg.num_meshes,), ZtMeshData, self.context, 0, None)
+		self.meshes = Array((self.arg.num_meshes,), MeshDataWrap, self.context, 0, None)
 		if self.context.version == 13 and self.arg.last_count:
 			self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
 		if self.context.version <= 32:
@@ -95,14 +83,7 @@ class Model:
 		instance.objects = Array.from_stream(stream, (instance.arg.num_objects,), Object, instance.context, 0, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
 			instance.objects_padding = stream.read_uint()
-		if instance.context.version >= 47:
-			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), NewMeshData, instance.context, 0, None)
-		if instance.context.version == 32:
-			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), PcMeshData, instance.context, 0, None)
-		if instance.context.version == 13:
-			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
-		if instance.context.version == 7:
-			instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
+		instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), MeshDataWrap, instance.context, 0, None)
 		if instance.context.version == 13 and instance.arg.last_count:
 			instance.ztuac_pre_bones = ZTPreBones.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 32:
@@ -118,14 +99,7 @@ class Model:
 		Array.to_stream(stream, instance.objects, (instance.arg.num_objects,), Object, instance.context, 0, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
 			stream.write_uint(instance.objects_padding)
-		if instance.context.version >= 47:
-			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), NewMeshData, instance.context, 0, None)
-		if instance.context.version == 32:
-			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), PcMeshData, instance.context, 0, None)
-		if instance.context.version == 13:
-			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
-		if instance.context.version == 7:
-			Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), ZtMeshData, instance.context, 0, None)
+		Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), MeshDataWrap, instance.context, 0, None)
 		if instance.context.version == 13 and instance.arg.last_count:
 			ZTPreBones.to_stream(stream, instance.ztuac_pre_bones)
 		if instance.context.version <= 32:
