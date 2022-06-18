@@ -237,11 +237,12 @@ def resolve_name(b_bone_names, bone_index):
 		return str(bone_index)
 
 
-def import_vertex_groups(ob, model, b_bone_names):
+def import_vertex_groups(ob, mesh, b_bone_names):
 	logging.debug(f"Importing vertex groups for {ob.name}...")
+	mesh.weights_info = get_weights(mesh)
 	# sort by bone name
-	for bone_index in sorted(model.weights_info.keys(), key=lambda x: resolve_name(b_bone_names, x)):
-		weights_dic = model.weights_info[bone_index]
+	for bone_index in sorted(mesh.weights_info.keys(), key=lambda x: resolve_name(b_bone_names, x)):
+		weights_dic = mesh.weights_info[bone_index]
 		bonename = resolve_name(b_bone_names, bone_index)
 		ob.vertex_groups.new(name=bonename)
 		for weight, vert_indices in weights_dic.items():

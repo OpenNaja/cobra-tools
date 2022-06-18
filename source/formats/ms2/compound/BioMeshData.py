@@ -185,10 +185,29 @@ class BioMeshData:
 		# 	print("\n", i, pos, off)
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
-			print(f"chunk {i} tris at {abs_tris}")
-		sum_verts = sum(o.vertex_count for o in self.offset_chunks)
-		print(f"vertex count {self.vertex_count}, sum {sum_verts}")
+			print(f"chunk {i} tris at {abs_tris}, some {off.some_count}")
 
+			self.stream_info.stream.seek(off.vertex_offset)
+			off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
+			self.stream_info.stream.readinto(off.raw_verts)
+			off.verts = [unpack_longint_vec(i, off.pack_offset)[0] for i in off.raw_verts]
+			# print(off.verts)
+		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
+		offs = 0
+		for off in self.offset_chunks:
+			self.vertices[offs:offs+len(off.verts)] = off.verts
+			offs += len(off.verts)
+		# print(self.vertices)
+		# confirmed
+		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
+
+	@property
+	def tris(self, ):
+		return ()
+		# # create non-overlapping tris from flattened tri indices
+		# tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
+		# # reverse each tri to account for the flipped normals from mirroring in blender
+		# return np.flip(tris_raw, axis=-1)
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""

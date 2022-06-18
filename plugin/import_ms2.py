@@ -6,7 +6,7 @@ import traceback
 import bpy
 # import bmesh
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
-	get_bone_names, get_weights
+	get_bone_names
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin
@@ -39,32 +39,31 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 			logging.debug(f"lod_i {lod_i}")
 			lod_coll = get_collection(scene, f"LOD{lod_i}")
 			for ob_i, m_ob in enumerate(m_lod.objects):
-				mesh = model_info.model.meshes[m_ob.mesh_index]
+				mesh = m_ob.mesh
 				# print(model_info)
 				# print(model_info.model)
 				# print(mesh)
 				# lod_i = mesh.lod_index
-				logging.debug(f"flag {mesh.flag}")
+				# logging.debug(f"flag {mesh.flag}")
 				if m_ob.mesh_index in mesh_dict:
 					b_me = mesh_dict[m_ob.mesh_index]
 				# create object and mesh from data
 				else:
-					mesh.weights_info = get_weights(mesh)
 					b_me = bpy.data.meshes.new(f"{mdl2_name}_model{m_ob.mesh_index}")
 					# cast array to prevent truth check in from_pydata
 					b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
 					# print(mesh.vertices, [], tuple(mesh.tris))
-					# store mesh unknowns
-					# cast the bitfield to int
-					b_me["flag"] = int(mesh.flag)
-					if not is_old(ms2.info):
-						b_me["unk_f0"] = float(mesh.unk_floats[0])
-						b_me["unk_f1"] = float(mesh.unk_floats[1])
-					mesh_dict[m_ob.mesh_index] = b_me
-					# try:
-					import_mesh_layers(b_me, mesh, use_custom_normals)
-					# except:
-					# 	traceback.print_exc()
+					try:
+						# store mesh unknowns
+						# cast the bitfield to int
+						b_me["flag"] = int(mesh.flag)
+						if not is_old(ms2.info):
+							b_me["unk_f0"] = float(mesh.unk_floats[0])
+							b_me["unk_f1"] = float(mesh.unk_floats[1])
+						mesh_dict[m_ob.mesh_index] = b_me
+						import_mesh_layers(b_me, mesh, use_custom_normals)
+					except:
+						traceback.print_exc()
 				# link material to mesh
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 
@@ -73,15 +72,18 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					b_ob.parent = b_armature_obj
 					b_ob["bone_index"] = m_lod.bone_index
 
-					import_vertex_groups(b_ob, mesh, bone_names)
-					import_shapekeys(b_ob, mesh)
-					# link to armature, only after mirror so the order is good and weights are mirrored
-					append_armature_modifier(b_ob, b_armature_obj)
-					if mirror_mesh:
-						append_bisect_modifier(b_ob)
-					ob_postpro(b_ob, mirror_mesh, use_custom_normals)
-					if not is_old(ms2.info) and mesh.flag.fur_shells:
-						add_psys(b_ob, mesh)
+					try:
+						import_vertex_groups(b_ob, mesh, bone_names)
+						import_shapekeys(b_ob, mesh)
+						# link to armature, only after mirror so the order is good and weights are mirrored
+						append_armature_modifier(b_ob, b_armature_obj)
+						if mirror_mesh:
+							append_bisect_modifier(b_ob)
+						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+						if not is_old(ms2.info) and mesh.flag.fur_shells:
+							add_psys(b_ob, mesh)
+					except:
+						traceback.print_exc()
 					ob_dict[m_ob.mesh_index] = b_ob
 				# from plugin.modules_import.tangents import visualize_tangents
 				# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
