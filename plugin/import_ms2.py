@@ -60,6 +60,9 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						if not is_old(ms2.info):
 							b_me["unk_f0"] = float(mesh.unk_floats[0])
 							b_me["unk_f1"] = float(mesh.unk_floats[1])
+					except:
+						traceback.print_exc()
+					try:
 						mesh_dict[m_ob.mesh_index] = b_me
 						import_mesh_layers(b_me, mesh, use_custom_normals)
 					except:

@@ -200,19 +200,41 @@ class BioMeshData:
 		v_off = 0
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
+			print("\n", i, pos, off)
 			print(f"chunk {i} tris at {abs_tris}, some {off.some_count}")
 
 			self.stream_info.stream.seek(off.vertex_offset)
+			print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
 			off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_verts)
+			# print(off.raw_verts)
+			# 16 bytes
+			dt_list = [
+				("normal", np.ubyte, (3,)),
+				("winding", np.ubyte),
+				("tangent", np.ubyte, (3,)),
+				("bone index", np.ubyte),
+				("uvs", np.ushort, (1, 2)),
+				("zeros2", np.uint32, (1,)),
+				]
+			self.dt = np.dtype(dt_list)
+			uv_shape = self.dt["uvs"].shape
+			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
+			print(f"meta {i} start {self.stream_info.stream.tell()}")
+			off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
+			self.stream_info.stream.readinto(off.raw_meta)
 			off.verts = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
-
+			# print(off.raw_meta)
 			self._tris[(pos.tris_offset-first_tris_offs)//3:] += v_off
 			v_off = off.vertex_count
+			# if i == 3:
+			# 	break
 		offs = 0
 		for off in self.offset_chunks:
 			self.vertices[offs:offs+len(off.verts)] = off.verts
+			self.uvs[offs:offs+len(off.verts)] = off.raw_meta["uvs"]
 			offs += len(off.verts)
+		self.uvs = unpack_ushort_vector(self.uvs)
 		# print(self.vertices)
 		# confirmed
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
