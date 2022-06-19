@@ -270,13 +270,20 @@ class BioMeshData(MeshData):
 		return self.tris_start_address + self.pos_chunks[0].tris_offset
 
 	def read_tris(self):
+		pass
+
+	def read_tris_bio(self):
 		# read all tri indices for this mesh, but only as many as needed if there are shells
 		self.stream_info.stream.seek(self.tris_address)
 		index_count = self.tris_count * 3  # // self.shell_count
 		logging.info(f"Reading {index_count} indices at {self.stream_info.stream.tell()}")
 		self.tri_indices = np.empty(dtype=np.uint8, shape=index_count)
 		self.stream_info.stream.readinto(self.tri_indices)
-		print(self.tri_indices)
+		# print(self.tri_indices)
+		# create non-overlapping tris from flattened tri indices
+		tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices) // 3, 3))
+		# reverse each tri to account for the flipped normals from mirroring in blender
+		self._tris = np.flip(tris_raw, axis=-1).astype(np.uint32)
 
 	@property
 	def pos_chunks_address(self):
@@ -294,6 +301,11 @@ class BioMeshData(MeshData):
 		# read vertices of this mesh
 		# self.stream_info.stream.seek(self.vertex_offset)
 		# self.update_shell_count()
+		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
+		# the idea of the new method appears to be optimized tris, so use safe dtype here to avoid overflow in the complete list
+		# self.tris_raw = np.empty(dtype=np.uint32, shape=(self.vertex_count, 3))
+
+
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		self.stream_info.stream.seek(self.pos_chunks_address)
 		self.pos_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), PosChunk, self.context, 0, None)
@@ -304,6 +316,9 @@ class BioMeshData(MeshData):
 		print(f"{self.chunks_count} offset_chunks at {self.offset_chunks_address}")
 		# for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 		# 	print("\n", i, pos, off)
+		self.read_tris_bio()
+		first_tris_offs = self.pos_chunks[0].tris_offset
+		v_off = 0
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
 			print(f"chunk {i} tris at {abs_tris}, some {off.some_count}")
@@ -311,9 +326,10 @@ class BioMeshData(MeshData):
 			self.stream_info.stream.seek(off.vertex_offset)
 			off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_verts)
-			off.verts = [unpack_longint_vec(i, off.pack_offset)[0] for i in off.raw_verts]
-			# print(off.verts)
-		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
+			off.verts = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
+
+			self._tris[(pos.tris_offset-first_tris_offs)//3:] += v_off
+			v_off = off.vertex_count
 		offs = 0
 		for off in self.offset_chunks:
 			self.vertices[offs:offs+len(off.verts)] = off.verts
@@ -324,7 +340,7 @@ class BioMeshData(MeshData):
 
 	@property
 	def tris(self, ):
-		return ()
+		return self._tris
 		# # create non-overlapping tris from flattened tri indices
 		# tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
 		# # reverse each tri to account for the flipped normals from mirroring in blender

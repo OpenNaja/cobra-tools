@@ -398,8 +398,8 @@
 		16 bytes
 		<add name="flag" type="uint" />
 		<add name="pack_offset" type="float" >scale: pack_offset / 512, also added as offset</add>
-		<add name="vertex offset" type="uint" >byte offset from start of vert buffer in bytes</add>
-		<add name="vertex count" type="ubyte"/>confirmed
+		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
+		<add name="vertex_count" type="ubyte"/>confirmed
 		<add name="some count" type="ushort">unsure</add>
 		<add name="zero" type="ubyte"/>
 	</compound>
