@@ -36,6 +36,16 @@
     <version id="JWE2" version="51" >JWE2</version>
 
 <!--Count from the end!!!-->
+	<bitfield name="BioModelFlag" storage="ushort">
+		Determines the data held by a mesh.
+		<member width="1" pos="0" name="weights" type="bool"/>
+<!--		<member width="1" pos="3" name="stripify" type="bool">if true, tris are stored as a tri strip</member>-->
+<!--		<member width="1" pos="4" name="weights" type="bool">at least 529</member>-->
+<!--		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
+<!--		<member width="1" pos="8" name="fur shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>-->
+<!--		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>-->
+	</bitfield>
+
 	<bitfield name="ModelFlag" storage="uint">
 		Determines the data held by a mesh.
 		<member width="1" pos="3" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
@@ -396,11 +406,11 @@
 	<compound name="OffsetChunk" >
 		used in JWE2 Biosyn
 		16 bytes
-		<add name="flag" type="uint" />
+		<add name="flags" type="ubyte" arr1="4" />
 		<add name="pack_offset" type="float" >scale: pack_offset / 512, also added as offset</add>
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
 		<add name="vertex_count" type="ubyte"/>confirmed
-		<add name="some count" type="ushort">unsure</add>
+		<add name="flag" type="BioModelFlag">unsure</add>
 		<add name="zero" type="ubyte"/>
 	</compound>
 

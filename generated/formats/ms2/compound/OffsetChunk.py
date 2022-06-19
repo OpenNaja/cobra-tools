@@ -1,5 +1,7 @@
 from source.formats.base.basic import fmt_member
+import numpy
 from generated.context import ContextReference
+from generated.formats.ms2.bitfield.BioModelFlag import BioModelFlag
 
 
 class OffsetChunk:
@@ -18,7 +20,7 @@ class OffsetChunk:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.flag = 0
+		self.flags = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
 
 		# scale: pack_offset / 512, also added as offset
 		self.pack_offset = 0.0
@@ -28,17 +30,17 @@ class OffsetChunk:
 		self.vertex_count = 0
 
 		# unsure
-		self.some_count = 0
+		self.flag = BioModelFlag(self.context, 0, None)
 		self.zero = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.flag = 0
+		self.flags = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
 		self.pack_offset = 0.0
 		self.vertex_offset = 0
 		self.vertex_count = 0
-		self.some_count = 0
+		self.flag = BioModelFlag(self.context, 0, None)
 		self.zero = 0
 
 	def read(self, stream):
@@ -53,20 +55,20 @@ class OffsetChunk:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.flag = stream.read_uint()
+		instance.flags = stream.read_ubytes((4,))
 		instance.pack_offset = stream.read_float()
 		instance.vertex_offset = stream.read_uint()
 		instance.vertex_count = stream.read_ubyte()
-		instance.some_count = stream.read_ushort()
+		instance.flag = BioModelFlag.from_stream(stream, instance.context, 0, None)
 		instance.zero = stream.read_ubyte()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_uint(instance.flag)
+		stream.write_ubytes(instance.flags)
 		stream.write_float(instance.pack_offset)
 		stream.write_uint(instance.vertex_offset)
 		stream.write_ubyte(instance.vertex_count)
-		stream.write_ushort(instance.some_count)
+		BioModelFlag.to_stream(stream, instance.flag)
 		stream.write_ubyte(instance.zero)
 
 	@classmethod
@@ -89,11 +91,11 @@ class OffsetChunk:
 
 	def get_fields_str(self, indent=0):
 		s = ''
-		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
+		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
 		s += f'\n	* pack_offset = {fmt_member(self.pack_offset, indent+1)}'
 		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
 		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* some_count = {fmt_member(self.some_count, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
 

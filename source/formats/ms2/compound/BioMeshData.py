@@ -184,7 +184,6 @@ class BioMeshData:
 		# the idea of the new method appears to be optimized tris, so use safe dtype here to avoid overflow in the complete list
 		# self.tris_raw = np.empty(dtype=np.uint32, shape=(self.vertex_count, 3))
 
-
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		self.stream_info.stream.seek(self.pos_chunks_address)
 		self.pos_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), PosChunk, self.context, 0, None)
@@ -198,15 +197,30 @@ class BioMeshData:
 		self.read_tris_bio()
 		first_tris_offs = self.pos_chunks[0].tris_offset
 		v_off = 0
+		offs = 0
+		flags = set()
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
 			print("\n", i, pos, off)
-			print(f"chunk {i} tris at {abs_tris}, some {off.some_count}")
+			print(f"chunk {i} tris at {abs_tris}, flag {off.flag}")
 
 			self.stream_info.stream.seek(off.vertex_offset)
 			print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
 			off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_verts)
+
+			# most assuredly wrong, just happens to work for tylo
+			if off.flag.weights:
+				dt_weights = [
+					("bone ids", np.ubyte, (4,)),
+					("bone weights", np.ubyte, (4,)),
+					# ("zeros1", np.uint64)
+				]
+				self.dt_weights = np.dtype(dt_weights)
+				off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
+				self.stream_info.stream.readinto(off.weights)
+				# print(off.weights)
+
 			# print(off.raw_verts)
 			# 16 bytes
 			dt_list = [
@@ -216,7 +230,7 @@ class BioMeshData:
 				("bone index", np.ubyte),
 				("uvs", np.ushort, (1, 2)),
 				("zeros2", np.uint32, (1,)),
-				]
+			]
 			self.dt = np.dtype(dt_list)
 			uv_shape = self.dt["uvs"].shape
 			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
@@ -224,16 +238,18 @@ class BioMeshData:
 			off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_meta)
 			off.verts = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
-			# print(off.raw_meta)
-			self._tris[(pos.tris_offset-first_tris_offs)//3:] += v_off
+			if off.flag not in flags:
+				flags.add(off.flag)
+				print("new flag", off.raw_meta)
+			self._tris[(pos.tris_offset - first_tris_offs) // 3:] += v_off
 			v_off = off.vertex_count
+			self.vertices[offs:offs + len(off.verts)] = off.verts
+			self.uvs[offs:offs + len(off.verts)] = off.raw_meta["uvs"]
+			offs += len(off.verts)
+			# if any(off.raw_meta["zeros2"]):
+			# 	break
 			# if i == 3:
 			# 	break
-		offs = 0
-		for off in self.offset_chunks:
-			self.vertices[offs:offs+len(off.verts)] = off.verts
-			self.uvs[offs:offs+len(off.verts)] = off.raw_meta["uvs"]
-			offs += len(off.verts)
 		self.uvs = unpack_ushort_vector(self.uvs)
 		# print(self.vertices)
 		# confirmed
@@ -242,10 +258,11 @@ class BioMeshData:
 	@property
 	def tris(self, ):
 		return self._tris
-		# # create non-overlapping tris from flattened tri indices
-		# tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
-		# # reverse each tri to account for the flipped normals from mirroring in blender
-		# return np.flip(tris_raw, axis=-1)
+
+	# # create non-overlapping tris from flattened tri indices
+	# tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
+	# # reverse each tri to account for the flipped normals from mirroring in blender
+	# return np.flip(tris_raw, axis=-1)
 
 	def set_verts(self, verts):
 		"""Update self.verts_data from list of new verts"""
@@ -290,5 +307,4 @@ class BioMeshData:
 				first, second = struct.unpack("LL", raw_bytes)
 				self.verts_data[i]["shapekeys0"] = first
 				self.verts_data[i]["shapekeys1"] = second
-		# print(self.verts_data[:]["winding"])
-
+	# print(self.verts_data[:]["winding"])
