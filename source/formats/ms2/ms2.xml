@@ -222,14 +222,14 @@
 
 	<compound name="BioMeshData" inherit="MeshData">
 		JWE2 - 48 bytes incl. inheritance
-		<add name="chunks_offset" type="uint" vercond="#JWE2_BIO#">unk</add>
-		<add name="chunks_count" type="uint" vercond="#JWE2_BIO#">unk</add>
+		<add name="chunks_offset" type="uint" >unk</add>
+		<add name="chunks_count" type="uint" >unk</add>
 		<add name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
 		<add name="vertex_count" type="uint" >num verts in mesh</add>
 		<add name="zero1" type="uint64">unk, may be used in other models</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
-		<add name="one" type="uint">always 1</add>
+		<add name="flag" type="uint">seen 1 or 13</add>
 	</compound>
 
 	<compound name="NewMeshData" inherit="MeshData">
@@ -258,11 +258,10 @@
 		<add name="zero b" type="uint">always zero</add>
 		<add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
 		<add name="vertex offset within lod" type="uint" > ?</add>
-		<add name="poweroftwo" type="uint" vercond="#PC#">power of 2 increasing with lod index</add>
-		<add name="zero" type="uint" vercond="#PC#">always zero</add>
-		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
+		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
+		<add name="zero" type="uint">always zero</add>
+		<add name="unknown07" type="float">some floats</add>
 		<add name="flag" type="ModelFlag">bitfield</add>
-		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
 	</compound>
 
 	<compound name="ZtMeshData" inherit="MeshData">
