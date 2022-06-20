@@ -58,9 +58,6 @@ class PcMeshData(MeshData):
 
 		# bitfield
 		self.flag = ModelFlag(self.context, 0, None)
-
-		# always zero
-		self.zero_uac = 0
 		if set_default:
 			self.set_defaults()
 
@@ -75,15 +72,10 @@ class PcMeshData(MeshData):
 		self.zero_b = 0
 		self.vertex_color_offset = 0
 		self.vertex_offset_within_lod = 0
-		if self.context.version == 32:
-			self.poweroftwo = 0
-		if self.context.version == 32:
-			self.zero = 0
-		if self.context.version == 32:
-			self.unknown_07 = 0.0
+		self.poweroftwo = 0
+		self.zero = 0
+		self.unknown_07 = 0.0
 		self.flag = ModelFlag(self.context, 0, None)
-		if self.context.version == 13:
-			self.zero_uac = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -108,14 +100,10 @@ class PcMeshData(MeshData):
 		instance.zero_b = stream.read_uint()
 		instance.vertex_color_offset = stream.read_uint()
 		instance.vertex_offset_within_lod = stream.read_uint()
-		if instance.context.version == 32:
-			instance.poweroftwo = stream.read_uint()
-			instance.zero = stream.read_uint()
-		if instance.context.version == 32:
-			instance.unknown_07 = stream.read_float()
+		instance.poweroftwo = stream.read_uint()
+		instance.zero = stream.read_uint()
+		instance.unknown_07 = stream.read_float()
 		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 13:
-			instance.zero_uac = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -130,14 +118,10 @@ class PcMeshData(MeshData):
 		stream.write_uint(instance.zero_b)
 		stream.write_uint(instance.vertex_color_offset)
 		stream.write_uint(instance.vertex_offset_within_lod)
-		if instance.context.version == 32:
-			stream.write_uint(instance.poweroftwo)
-			stream.write_uint(instance.zero)
-		if instance.context.version == 32:
-			stream.write_float(instance.unknown_07)
+		stream.write_uint(instance.poweroftwo)
+		stream.write_uint(instance.zero)
+		stream.write_float(instance.unknown_07)
 		ModelFlag.to_stream(stream, instance.flag)
-		if instance.context.version == 13:
-			stream.write_uint(instance.zero_uac)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -174,7 +158,6 @@ class PcMeshData(MeshData):
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		s += f'\n	* unknown_07 = {fmt_member(self.unknown_07, indent+1)}'
 		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
-		s += f'\n	* zero_uac = {fmt_member(self.zero_uac, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

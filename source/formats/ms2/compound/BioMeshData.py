@@ -203,16 +203,16 @@ class BioMeshData:
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
 			# print("\n", i, pos, off)
-			print("\n", i, pos.u_1, int(off.flag))
-			print(f"chunk {i} tris at {abs_tris}, flag {off.flag}")
+			print("\n", i, pos.u_1)
+			print(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
 
 			self.stream_info.stream.seek(off.vertex_offset)
 			print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
 			off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_verts)
 
-			# most assuredly wrong, just happens to work for tylo
-			if off.flag.weights:
+			# check if weights chunk is present
+			if off.weights_flag.has_weights:
 				dt_weights = [
 					("bone ids", np.ubyte, (4,)),
 					("bone weights", np.ubyte, (4,)),
@@ -221,6 +221,9 @@ class BioMeshData:
 				self.dt_weights = np.dtype(dt_weights)
 				off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.weights)
+			else:
+				# use off.weights_flag.bone_index
+				pass
 				# print(off.weights)
 
 			# print(off.raw_verts)
@@ -240,9 +243,7 @@ class BioMeshData:
 			off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_meta)
 			off.verts = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
-			# if off.flag not in flags:
-			# 	print("new flag", off.raw_meta)
-			flags.add(off.flag)
+			flags.add(off.weights_flag)
 			us.add(pos.u_1)
 			self._tris[(pos.tris_offset - first_tris_offs) // 3:] += v_off
 			v_off = off.vertex_count
@@ -253,7 +254,7 @@ class BioMeshData:
 			# 	break
 			# if i == 3:
 			# 	break
-		print("flags", flags, "u1s", us)
+		print("weights_flags", flags, "u1s", us)
 		self.uvs = unpack_ushort_vector(self.uvs)
 		# print(self.vertices)
 		# confirmed

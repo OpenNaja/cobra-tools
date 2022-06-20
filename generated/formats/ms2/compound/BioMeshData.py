@@ -49,22 +49,20 @@ class BioMeshData(MeshData):
 		# some floats, purpose unknown
 		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
 
-		# always 1
-		self.one = 0
+		# seen 1 or 13
+		self.flag = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		if (self.context.version == 51) and self.context.biosyn:
-			self.chunks_offset = 0
-		if (self.context.version == 51) and self.context.biosyn:
-			self.chunks_count = 0
+		self.chunks_offset = 0
+		self.chunks_count = 0
 		self.tris_count = 0
 		self.vertex_count = 0
 		self.zero_1 = 0
 		self.poweroftwo = 0
 		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.one = 0
+		self.flag = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -79,28 +77,26 @@ class BioMeshData(MeshData):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		if (instance.context.version == 51) and instance.context.biosyn:
-			instance.chunks_offset = stream.read_uint()
-			instance.chunks_count = stream.read_uint()
+		instance.chunks_offset = stream.read_uint()
+		instance.chunks_count = stream.read_uint()
 		instance.tris_count = stream.read_uint()
 		instance.vertex_count = stream.read_uint()
 		instance.zero_1 = stream.read_uint64()
 		instance.poweroftwo = stream.read_uint()
 		instance.unk_floats = stream.read_floats((2,))
-		instance.one = stream.read_uint()
+		instance.flag = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		if (instance.context.version == 51) and instance.context.biosyn:
-			stream.write_uint(instance.chunks_offset)
-			stream.write_uint(instance.chunks_count)
+		stream.write_uint(instance.chunks_offset)
+		stream.write_uint(instance.chunks_count)
 		stream.write_uint(instance.tris_count)
 		stream.write_uint(instance.vertex_count)
 		stream.write_uint64(instance.zero_1)
 		stream.write_uint(instance.poweroftwo)
 		stream.write_floats(instance.unk_floats)
-		stream.write_uint(instance.one)
+		stream.write_uint(instance.flag)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -130,7 +126,7 @@ class BioMeshData(MeshData):
 		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
 		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
 		s += f'\n	* unk_floats = {fmt_member(self.unk_floats, indent+1)}'
-		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
+		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
@@ -324,16 +320,16 @@ class BioMeshData(MeshData):
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
 			# print("\n", i, pos, off)
-			print("\n", i, pos.u_1, int(off.flag))
-			print(f"chunk {i} tris at {abs_tris}, flag {off.flag}")
+			print("\n", i, pos.u_1)
+			print(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
 
 			self.stream_info.stream.seek(off.vertex_offset)
 			print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
 			off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_verts)
 
-			# most assuredly wrong, just happens to work for tylo
-			if off.flag.weights:
+			# check if weights chunk is present
+			if off.weights_flag.has_weights:
 				dt_weights = [
 					("bone ids", np.ubyte, (4,)),
 					("bone weights", np.ubyte, (4,)),
@@ -342,6 +338,9 @@ class BioMeshData(MeshData):
 				self.dt_weights = np.dtype(dt_weights)
 				off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.weights)
+			else:
+				# use off.weights_flag.bone_index
+				pass
 				# print(off.weights)
 
 			# print(off.raw_verts)
@@ -361,9 +360,7 @@ class BioMeshData(MeshData):
 			off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_meta)
 			off.verts = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
-			# if off.flag not in flags:
-			# 	print("new flag", off.raw_meta)
-			flags.add(off.flag)
+			flags.add(off.weights_flag)
 			us.add(pos.u_1)
 			self._tris[(pos.tris_offset - first_tris_offs) // 3:] += v_off
 			v_off = off.vertex_count
@@ -374,7 +371,7 @@ class BioMeshData(MeshData):
 			# 	break
 			# if i == 3:
 			# 	break
-		print("flags", flags, "u1s", us)
+		print("weights_flags", flags, "u1s", us)
 		self.uvs = unpack_ushort_vector(self.uvs)
 		# print(self.vertices)
 		# confirmed

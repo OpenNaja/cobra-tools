@@ -3,12 +3,9 @@ from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 
 
-class BioModelFlag(BasicBitfield):
-
-	"""
-	Determines the data held by a mesh.
-	"""
-	weights = BitfieldMember(pos=0, mask=0x1, return_type=bool)
+class WeightsFlag(BasicBitfield):
+	has_weights = BitfieldMember(pos=0, mask=0x1, return_type=bool)
+	bone_index = BitfieldMember(pos=1, mask=0xfffe, return_type=int)
 
 	def set_defaults(self):
 		pass

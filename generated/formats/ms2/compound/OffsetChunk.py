@@ -1,7 +1,7 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.context import ContextReference
-from generated.formats.ms2.bitfield.BioModelFlag import BioModelFlag
+from generated.formats.ms2.bitfield.WeightsFlag import WeightsFlag
 
 
 class OffsetChunk:
@@ -29,8 +29,8 @@ class OffsetChunk:
 		self.vertex_offset = 0
 		self.vertex_count = 0
 
-		# unsure
-		self.flag = BioModelFlag(self.context, 0, None)
+		# determines if weights are used by this chunk
+		self.weights_flag = WeightsFlag(self.context, 0, None)
 		self.zero = 0
 		if set_default:
 			self.set_defaults()
@@ -40,7 +40,7 @@ class OffsetChunk:
 		self.pack_offset = 0.0
 		self.vertex_offset = 0
 		self.vertex_count = 0
-		self.flag = BioModelFlag(self.context, 0, None)
+		self.weights_flag = WeightsFlag(self.context, 0, None)
 		self.zero = 0
 
 	def read(self, stream):
@@ -59,7 +59,7 @@ class OffsetChunk:
 		instance.pack_offset = stream.read_float()
 		instance.vertex_offset = stream.read_uint()
 		instance.vertex_count = stream.read_ubyte()
-		instance.flag = BioModelFlag.from_stream(stream, instance.context, 0, None)
+		instance.weights_flag = WeightsFlag.from_stream(stream, instance.context, 0, None)
 		instance.zero = stream.read_ubyte()
 
 	@classmethod
@@ -68,7 +68,7 @@ class OffsetChunk:
 		stream.write_float(instance.pack_offset)
 		stream.write_uint(instance.vertex_offset)
 		stream.write_ubyte(instance.vertex_count)
-		BioModelFlag.to_stream(stream, instance.flag)
+		WeightsFlag.to_stream(stream, instance.weights_flag)
 		stream.write_ubyte(instance.zero)
 
 	@classmethod
@@ -95,7 +95,7 @@ class OffsetChunk:
 		s += f'\n	* pack_offset = {fmt_member(self.pack_offset, indent+1)}'
 		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
 		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
+		s += f'\n	* weights_flag = {fmt_member(self.weights_flag, indent+1)}'
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
 

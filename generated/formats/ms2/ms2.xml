@@ -36,14 +36,9 @@
     <version id="JWE2" version="51" >JWE2</version>
 
 <!--Count from the end!!!-->
-	<bitfield name="BioModelFlag" storage="ushort">
-		Determines the data held by a mesh.
-		<member width="1" pos="0" name="weights" type="bool"/>
-<!--		<member width="1" pos="3" name="stripify" type="bool">if true, tris are stored as a tri strip</member>-->
-<!--		<member width="1" pos="4" name="weights" type="bool">at least 529</member>-->
-<!--		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
-<!--		<member width="1" pos="8" name="fur shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>-->
-<!--		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>-->
+	<bitfield name="WeightsFlag" storage="ushort">
+		<member width="1" pos="0" name="has_weights" type="bool"/>
+		<member width="15" pos="1" name="bone_index" type="int"/>
 	</bitfield>
 
 	<bitfield name="ModelFlag" storage="uint">
@@ -222,14 +217,14 @@
 
 	<compound name="BioMeshData" inherit="MeshData">
 		JWE2 - 48 bytes incl. inheritance
-		<add name="chunks_offset" type="uint" vercond="#JWE2_BIO#">unk</add>
-		<add name="chunks_count" type="uint" vercond="#JWE2_BIO#">unk</add>
+		<add name="chunks_offset" type="uint" >unk</add>
+		<add name="chunks_count" type="uint" >unk</add>
 		<add name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
 		<add name="vertex_count" type="uint" >num verts in mesh</add>
 		<add name="zero1" type="uint64">unk, may be used in other models</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
-		<add name="one" type="uint">always 1</add>
+		<add name="flag" type="uint">seen 1 or 13</add>
 	</compound>
 
 	<compound name="NewMeshData" inherit="MeshData">
@@ -258,11 +253,10 @@
 		<add name="zero b" type="uint">always zero</add>
 		<add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
 		<add name="vertex offset within lod" type="uint" > ?</add>
-		<add name="poweroftwo" type="uint" vercond="#PC#">power of 2 increasing with lod index</add>
-		<add name="zero" type="uint" vercond="#PC#">always zero</add>
-		<add name="unknown07" type="float" vercond="#PC#">some floats</add>
+		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
+		<add name="zero" type="uint">always zero</add>
+		<add name="unknown07" type="float">some floats</add>
 		<add name="flag" type="ModelFlag">bitfield</add>
-		<add name="zero uac" type="uint"  vercond="#ZTUAC#">always zero</add>
 	</compound>
 
 	<compound name="ZtMeshData" inherit="MeshData">
@@ -410,7 +404,7 @@
 		<add name="pack_offset" type="float" >scale: pack_offset / 512, also added as offset</add>
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
 		<add name="vertex_count" type="ubyte"/>confirmed
-		<add name="flag" type="BioModelFlag">unsure</add>
+		<add name="weights_flag" type="WeightsFlag">determines if weights are used by this chunk</add>
 		<add name="zero" type="ubyte"/>
 	</compound>
 
