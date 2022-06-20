@@ -195,6 +195,7 @@ class BioMeshData:
 		# for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 		# 	print("\n", i, pos, off)
 		self.read_tris_bio()
+		self.weights = []
 		first_tris_offs = self.pos_chunks[0].tris_offset
 		v_off = 0
 		offs = 0
@@ -216,15 +217,15 @@ class BioMeshData:
 				dt_weights = [
 					("bone ids", np.ubyte, (4,)),
 					("bone weights", np.ubyte, (4,)),
-					# ("zeros1", np.uint64)
 				]
 				self.dt_weights = np.dtype(dt_weights)
 				off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.weights)
+				chunk_weights = [((i, w) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0) for vert in off.weights]
 			else:
-				# use off.weights_flag.bone_index
-				pass
-				# print(off.weights)
+				# use bone index for each vertex in chunk
+				chunk_weights = [((off.weights_flag.bone_index, 255), ) for _ in range(off.vertex_count)]
+			self.weights.extend(chunk_weights)
 
 			# print(off.raw_verts)
 			# 16 bytes
