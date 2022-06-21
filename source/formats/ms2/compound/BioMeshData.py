@@ -184,6 +184,20 @@ class BioMeshData:
 		# the idea of the new method appears to be optimized tris, so use safe dtype here to avoid overflow in the complete list
 		# self.tris_raw = np.empty(dtype=np.uint32, shape=(self.vertex_count, 3))
 
+		# print(off.raw_verts)
+		# 16 bytes
+		dt_list = [
+			("normal", np.ubyte, (3,)),
+			("winding", np.ubyte),
+			("uvs", np.ushort, (2, 2)),
+			("colors", np.ubyte, (1, 4))
+		]
+		self.dt = np.dtype(dt_list)
+		uv_shape = self.dt["uvs"].shape
+		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
+		colors_shape = self.dt["colors"].shape
+		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
+
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		self.stream_info.stream.seek(self.pos_chunks_address)
 		self.pos_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), PosChunk, self.context, 0, None)
@@ -227,19 +241,6 @@ class BioMeshData:
 				chunk_weights = [((off.weights_flag.bone_index, 255), ) for _ in range(off.vertex_count)]
 			self.weights.extend(chunk_weights)
 
-			# print(off.raw_verts)
-			# 16 bytes
-			dt_list = [
-				("normal", np.ubyte, (3,)),
-				("winding", np.ubyte),
-				# ("tangent", np.ubyte, (3,)),
-				# ("bone index", np.ubyte),
-				("uvs", np.ushort, (2, 2)),
-				("zeros2", np.uint32, (1,)),
-			]
-			self.dt = np.dtype(dt_list)
-			uv_shape = self.dt["uvs"].shape
-			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 			print(f"meta {i} start {self.stream_info.stream.tell()}")
 			off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
 			self.stream_info.stream.readinto(off.raw_meta)
@@ -249,11 +250,14 @@ class BioMeshData:
 			self._tris[(pos.tris_offset - first_tris_offs) // 3:] += v_off
 			v_off = off.vertex_count
 			self.vertices[offs:offs + len(off.verts)] = off.verts
+
 			self.uvs[offs:offs + len(off.verts)] = off.raw_meta["uvs"]
+			self.colors[offs:offs + len(off.verts)] = off.raw_meta["colors"]
+
 			offs += len(off.verts)
 			# if any(off.raw_meta["zeros2"]):
 			# 	break
-			# if i == 3:
+			# if i == 0:
 			# 	break
 		print("weights_flags", flags, "u1s", us)
 		self.uvs = unpack_ushort_vector(self.uvs)
