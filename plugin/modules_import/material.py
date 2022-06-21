@@ -69,7 +69,7 @@ def create_material(in_dir, matname):
 			tex_dic[k] = b_tex
 
 	# get diffuse and AO
-	for diffuse_name in ("pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture", "palbinobasecolourandmasktexture"):
+	for diffuse_name in ("pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture", "palbinobasecolourandmasktexture", "pdinosaurfeathers_basediffusetexture"):
 		# get diffuse
 		if diffuse_name in tex_dic:
 			diffuse = tex_dic[diffuse_name]
