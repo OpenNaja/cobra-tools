@@ -349,9 +349,9 @@ class BioMeshData(MeshData):
 			dt_list = [
 				("normal", np.ubyte, (3,)),
 				("winding", np.ubyte),
-				("tangent", np.ubyte, (3,)),
-				("bone index", np.ubyte),
-				("uvs", np.ushort, (1, 2)),
+				# ("tangent", np.ubyte, (3,)),
+				# ("bone index", np.ubyte),
+				("uvs", np.ushort, (2, 2)),
 				("zeros2", np.uint32, (1,)),
 			]
 			self.dt = np.dtype(dt_list)
