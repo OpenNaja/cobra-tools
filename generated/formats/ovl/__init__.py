@@ -636,11 +636,13 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		out_paths = []
 		loaders_for_extract = []
+		_only_types = (s.lower() for s in only_types)
+		_only_names = (s.lower() for s in only_names)
 		for loader in self.loaders.values():
 			# for batch operations, only export those that we need
-			if only_types and loader.file_entry.ext not in only_types:
+			if _only_types and loader.file_entry.ext not in _only_types:
 				continue
-			if only_names and loader.file_entry.name not in only_names:
+			if _only_names and loader.file_entry.name not in _only_names:
 				continue
 			# ignore types in the count that we export from inside other type exporters
 			if loader.file_entry.ext in IGNORE_TYPES:
