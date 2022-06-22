@@ -17,6 +17,8 @@ from modules.formats.shared import djb
 class BaseFile:
 	extension = None
 	aliases = ()
+	# used to check output for any temporary files that should possibly be deleted
+	temp_extensions = ()
 
 	def __init__(self, ovl, file_entry):
 		self.ovl = ovl
@@ -284,10 +286,20 @@ class BaseFile:
 				outfile.write(b)
 		return paths
 
+	def handle_paths(self, paths, show_temp_files):
+		"""Deletes temporary files if asked and returns all valid paths."""
+		if self.temp_extensions and not show_temp_files:
+			paths_to_remove = [p for p in paths if os.path.splitext(p)[1].lower() in self.temp_extensions]
+			for p in paths_to_remove:
+				os.remove(p)
+			return [p for p in paths if p not in paths_to_remove]
+		return paths
+
+
 class MemStructLoader(BaseFile):
 	target_class: None
 
-	def extract(self, out_dir, show_temp_files, progress_callback):
+	def extract(self, out_dir, progress_callback):
 		name = self.root_entry.name
 		out_path = out_dir(name)
 		self.header.to_xml_file(out_path)

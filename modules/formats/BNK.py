@@ -43,7 +43,7 @@ class BnkLoader(BaseFile):
 		# 		logging.warning(f"Could find {bnkpath} to update .aux file size")
 		pass
 
-	def extract(self, out_dir, show_temp_files, progress_callback):
+	def extract(self, out_dir, progress_callback):
 		bnk_name = os.path.splitext(self.root_entry.name)[0]
 		# print(self.root_entry.struct_ptr.data)
 		out_path = out_dir(self.root_entry.name)

@@ -12,7 +12,7 @@ class VoxelskirtLoader(BaseFile):
 		self.create_data_entry((buffer_bytes,))
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry_bytes)
 
-	def extract(self, out_dir, show_temp_files, progress_callback):
+	def extract(self, out_dir, progress_callback):
 		name = self.root_entry.name
 		print(f"\nWriting {name}")
 

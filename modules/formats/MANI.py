@@ -19,7 +19,7 @@ class ManiLoader(BaseFile):
 class ManisLoader(BaseFile):
 	extension = ".manis"
 				
-	def extract(self, out_dir, show_temp_files, progress_callback):
+	def extract(self, out_dir, progress_callback):
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
 		if not self.data_entry:

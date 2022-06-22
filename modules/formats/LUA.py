@@ -8,6 +8,7 @@ from ovl_util.interaction import showdialog
 class LuaLoader(MemStructLoader):
 	extension = ".lua"
 	target_class = LuaRoot
+	temp_extensions = ".bin"
 	
 	def create(self):
 		buffer_0 = self._get_data(self.file_entry.path)
@@ -20,7 +21,7 @@ class LuaLoader(MemStructLoader):
 		self.header.likely_alignment.data = b"\x00"
 		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
-	def extract(self, out_dir, show_temp_files, progress_callback):
+	def extract(self, out_dir, progress_callback):
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
 		buffer_data = self.data_entry.buffer_datas[0]
@@ -42,8 +43,7 @@ class LuaLoader(MemStructLoader):
 			if texconv.bin_to_lua(bin_path):
 				out_files.append(out_path)
 				# optional bin
-				if show_temp_files:
-					out_files.append(bin_path)
+				out_files.append(bin_path)
 			# no conversion, just get bin
 			else:
 				out_files.append(bin_path)

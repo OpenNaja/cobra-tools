@@ -12,7 +12,7 @@ class TxtLoader(BaseFile):
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, self._get_data(self.file_entry.path))
 		self.root_entry.struct_ptr.pool.num_files += 1
 
-	def extract(self, out_dir, show_temp_files, progress_callback):
+	def extract(self, out_dir, progress_callback):
 		b = self.root_entry.struct_ptr.data
 		if is_dla(self.ovl):
 			# not sure, not standard sized strings

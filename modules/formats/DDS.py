@@ -45,6 +45,7 @@ class TexturestreamLoader(BaseFile):
 class DdsLoader(MemStructLoader):
 	target_class = TexHeader
 	extension = ".tex"
+	temp_extensions = (".dds", )
 
 	def link_streams(self):
 		"""Collect other loaders"""
@@ -177,8 +178,8 @@ class DdsLoader(MemStructLoader):
 		else:
 			return self.header.size_info.data.data
 
-	def extract(self, out_dir, show_temp_files, progress_callback):
-		tex_paths = super().extract(out_dir, show_temp_files, progress_callback)
+	def extract(self, out_dir, progress_callback):
+		tex_paths = super().extract(out_dir, progress_callback)
 		tex_name = self.root_entry.name
 		basename = os.path.splitext(tex_name)[0]
 		dds_name = basename + ".dds"
@@ -247,8 +248,7 @@ class DdsLoader(MemStructLoader):
 			# write dds
 			dds_file.save(dds_path)
 			# print(dds_file)
-			if show_temp_files:
-				out_files.append(dds_path)
+			out_files.append(dds_path)
 	
 			# convert the dds to PNG, PNG must be visible so put it in out_dir
 			png_file_path = texconv.dds_to_png(dds_path, dds_file.height)
