@@ -8,8 +8,6 @@ from generated.formats.ms2.compound.OffsetChunk import OffsetChunk
 from generated.formats.ms2.compound.PosChunk import PosChunk
 from generated.formats.ms2.compound.packing_utils import *
 
-FUR_OVERHEAD = 2
-
 
 from source.formats.base.basic import fmt_member
 import numpy
@@ -353,10 +351,11 @@ class BioMeshData(MeshData):
 				self.dt_weights = np.dtype(dt_weights)
 				off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.weights)
-				chunk_weights = [((i, w) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0) for vert in off.weights]
+				chunk_weights = [[(i, w) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0] for vert in off.weights]
 			else:
 				# use bone index for each vertex in chunk
-				chunk_weights = [((off.weights_flag.bone_index, 255), ) for _ in range(off.vertex_count)]
+				chunk_weights = [[(off.weights_flag.bone_index, 255), ] for _ in range(off.vertex_count)]
+
 			self.weights.extend(chunk_weights)
 
 			print(f"meta {i} start {self.stream_info.stream.tell()}")
@@ -373,13 +372,28 @@ class BioMeshData(MeshData):
 			self.colors[offs:offs + len(off.verts)] = off.raw_meta["colors"]
 
 			offs += len(off.verts)
-			# if any(off.raw_meta["zeros2"]):
-			# 	break
-			# if i == 0:
-			# 	break
-		print("weights_flags", flags, "u1s", us)
+		# print("weights_flags", flags, "u1s", us)
 		self.uvs = unpack_ushort_vector(self.uvs)
-		# print(self.vertices)
+
+
+		self.fur_length = 0.0
+		# transfer fur from uv to weights
+		if self.flag.fur_shells:
+			# fur is the 2nd uv layer
+			fur = self.uvs[:, 1]
+			# get max of fur length value for all verts
+			self.fur_length = np.max(fur[:, 0]) * FUR_OVERHEAD
+			# fur length can be set to 0 for the whole mesh, so make sure we don't divide in that case
+			if self.fur_length:
+				# normalize with some overhead
+				fur[:, 0] /= self.fur_length
+			# value range of fur width is +-16 - squash it into 0 - 1
+			fur[:, 1] = remap(fur[:, 1], -16, 16, 0, 1)
+			for fur_vert, weights_vert in zip(fur, self.weights):
+				weights_vert.append(("fur_length", fur_vert[0] * 255))
+				weights_vert.append(("fur_width", fur_vert[1] * 255))
+			# don't store as uv
+			self.uvs = self.uvs[:, :1]
 		# confirmed
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
 

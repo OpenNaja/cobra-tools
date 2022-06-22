@@ -55,8 +55,8 @@
 		<member width="1" pos="0" name="standard" type="bool">1</member>
 <!--		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
 		so far not sure about these, it is 13 on shell meshes
-		<member width="1" pos="2" name="fur shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
-		<member width="1" pos="3" name="fur shells 2" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
+		<member width="1" pos="2" name="fur_shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
+		<member width="1" pos="3" name="fur_shells_2" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
 	</bitfield>
 
 	<bitfield name="ModelFlagZT" storage="uint">
