@@ -50,6 +50,15 @@
 		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
 	</bitfield>
 
+	<bitfield name="BioModelFlag" storage="uint">
+		Determines the data held by a mesh.
+		<member width="1" pos="0" name="standard" type="bool">1</member>
+<!--		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
+		so far not sure about these, it is 13 on shell meshes
+		<member width="1" pos="2" name="fur shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
+		<member width="1" pos="3" name="fur shells 2" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
+	</bitfield>
+
 	<bitfield name="ModelFlagZT" storage="uint">
 		Determines the data held by a mesh.
 		<member width="1" pos="6" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
@@ -224,7 +233,7 @@
 		<add name="zero1" type="uint64">unk, may be used in other models</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
-		<add name="flag" type="uint">seen 1 or 13</add>
+		<add name="flag" type="BioModelFlag">seen 1 or 13</add>
 	</compound>
 
 	<compound name="NewMeshData" inherit="MeshData">

@@ -13,6 +13,7 @@ FUR_OVERHEAD = 2
 
 from source.formats.base.basic import fmt_member
 import numpy
+from generated.formats.ms2.bitfield.BioModelFlag import BioModelFlag
 from generated.formats.ms2.compound.MeshData import MeshData
 
 
@@ -50,7 +51,7 @@ class BioMeshData(MeshData):
 		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
 
 		# seen 1 or 13
-		self.flag = 0
+		self.flag = BioModelFlag(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -62,7 +63,7 @@ class BioMeshData(MeshData):
 		self.zero_1 = 0
 		self.poweroftwo = 0
 		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.flag = 0
+		self.flag = BioModelFlag(self.context, 0, None)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -84,7 +85,7 @@ class BioMeshData(MeshData):
 		instance.zero_1 = stream.read_uint64()
 		instance.poweroftwo = stream.read_uint()
 		instance.unk_floats = stream.read_floats((2,))
-		instance.flag = stream.read_uint()
+		instance.flag = BioModelFlag.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -96,7 +97,7 @@ class BioMeshData(MeshData):
 		stream.write_uint64(instance.zero_1)
 		stream.write_uint(instance.poweroftwo)
 		stream.write_floats(instance.unk_floats)
-		stream.write_uint(instance.flag)
+		BioModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
