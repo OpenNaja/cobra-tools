@@ -10,8 +10,8 @@ import mathutils
 
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.MaterialName import MaterialName
+from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
-from generated.formats.ms2.compound.NewMeshData import NewMeshData
 from generated.formats.ms2 import Ms2File
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
@@ -51,7 +51,8 @@ def export_material(ms2, b_mat):
 def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we create a ms2 mesh
-	mesh = NewMeshData(model_info.context)
+	wrapper = MeshDataWrap(model_info.context)
+	mesh = wrapper.mesh
 	# set data
 	mesh.size_of_vertex = 48
 	mesh.flag._value = get_property(b_me, "flag")
@@ -63,7 +64,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# ensure that these are initialized
 	mesh.tri_indices = []
 	mesh.verts = []
-	model_info.model.meshes.append(mesh)
+	model_info.model.meshes.append(wrapper)
 
 	if not len(b_me.vertices):
 		raise AttributeError(f"Mesh {b_ob.name} has no vertices!")
@@ -199,7 +200,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		raise AttributeError(f"Could not export {b_ob.name}!")
 
 	mesh.tris = tris
-	return mesh
+	return wrapper
 
 
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
@@ -332,8 +333,8 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 				b_me = b_ob.data
 				if b_me not in b_models:
 					b_models.append(b_me)
-					m_mesh = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms)
-					m_mesh.lod_index = lod_i
+					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms)
+					wrapper.mesh.lod_index = lod_i
 				for b_mat in b_me.materials:
 					if b_mat not in b_materials:
 						b_materials.append(b_mat)

@@ -120,11 +120,11 @@ class Ms2Loader(BaseFile):
 				logging.error(f"MS2 {self.file_entry.name} has no pointers on any model")
 			self.attach_frag_to_ptr(model_info.first_model, pool)
 			self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
-			for mesh in model_info.model.meshes:
+			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
-				offset = mesh.buffer_info.temp_index * self.header.buffer_infos.data[0].io_size
-				self.attach_frag_to_ptr(mesh.buffer_info, pool)
-				self.ptr_relative(mesh.buffer_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
+				offset = wrapper.mesh.buffer_info.temp_index * self.header.buffer_infos.data[0].io_size
+				self.attach_frag_to_ptr(wrapper.mesh.buffer_info, pool)
+				self.ptr_relative(wrapper.mesh.buffer_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):

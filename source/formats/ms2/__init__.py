@@ -263,9 +263,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				model_info.num_objects = len(model_info.model.objects)
 				model_info.num_meshes = len(model_info.model.meshes)
 				# update MeshData
-				for mesh in model_info.model.meshes:
-					mesh.assign_stream(self.buffer_infos)
-					mesh.write_data()
+				for wrapper in model_info.model.meshes:
+					wrapper.mesh.assign_stream(self.buffer_infos)
+					wrapper.mesh.write_data()
 				# update LodInfo
 				logging.debug(f"Updating lod vertex counts...")
 				for lod in model_info.model.lods:
