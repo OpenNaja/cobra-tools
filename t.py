@@ -139,8 +139,61 @@
 # import struct
 # b = struct.unpack("Q", a)[0]
 # print(unpack_longint_vec(b, 512))
-from generated.formats.ms2.compound.packing_utils import unpack_longint_vec
+import numpy as np
+from numba import jit
 
-res = unpack_longint_vec(4588382974177705383, 512.0)
-res = unpack_longint_vec(4589460495556148736, 512.0)
-print(res)
+# from generated.formats.ms2.compound.packing_utils import unpack_longint_vec
+
+
+twenty_bits_mask = np.uint64(0xFFFFF)
+twenty = np.uint8(20)
+ONE = np.uint8(1)
+PACKEDVEC_MAX = np.int64(2 ** 20)  # 0x100000
+
+
+# @jit(nopython=True)
+def scale_unpack(f, base):
+    """Converts a packed int component into a float in the range specified by base"""
+    scale = base / PACKEDVEC_MAX
+    return (f + base) * scale
+
+
+# @jit("void(uint64, float32, float32)", nopython=True)
+# @jit(nopython=True)
+def unpack_longint_vec(input, base, out_vec):
+    """Unpacks and returns the self.raw_pos uint64"""
+    # print("inp",bin(input))
+    for i in range(3):
+        # print("\nnew coord")
+        # grab the last 20 bits with bitand
+        # bit representation: 0b11111111111111111111
+        twenty_bits = input & twenty_bits_mask
+        # print("input", bin(input))
+        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
+        input >>= twenty
+        # print("input >>= 20", bin(input))
+        # print("1",bin(1))
+        # get the rightmost bit
+        rightmost_bit = input & ONE
+        # print("rightmost_bit = input & 1",bin(rightmost_bit))
+        # print(rightmost_bit, twenty_bits)
+        if not rightmost_bit:
+            # rightmost bit was 0
+            # print("rightmost_bit == 0")
+            # bit representation: 0b100000000000000000000
+            twenty_bits -= PACKEDVEC_MAX
+        # print("final int", twenty_bits)
+        out_vec[i] = scale_unpack(twenty_bits, base)
+        # shift to skip the sign bit
+        input >>= ONE
+    # input at this point is either 0 or 1
+    # return input
+
+
+inp = np.zeros(dtype=np.uint64, shape=(25))
+out = np.zeros(dtype=np.float32, shape=(25, 3))
+inp[0] = 4588382974177705383
+inp[1] = 4589460495556148736
+for i in range(2):
+    unpack_longint_vec(inp[i], 512.0, out[i])
+print(out)

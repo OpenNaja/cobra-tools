@@ -263,17 +263,7 @@ class BioMeshData:
 		if self.flag.fur_shells:
 			# fur is the 2nd uv layer
 			fur = self.uvs[:, 1]
-			# get max of fur length value for all verts
-			self.fur_length = np.max(fur[:, 0]) * FUR_OVERHEAD
-			# fur length can be set to 0 for the whole mesh, so make sure we don't divide in that case
-			if self.fur_length:
-				# normalize with some overhead
-				fur[:, 0] /= self.fur_length
-			# value range of fur width is +-16 - squash it into 0 - 1
-			fur[:, 1] = remap(fur[:, 1], -16, 16, 0, 1)
-			for fur_vert, weights_vert in zip(fur, self.weights):
-				weights_vert.append(("fur_length", fur_vert[0] * 255))
-				weights_vert.append(("fur_width", fur_vert[1] * 255))
+			self.import_fur_as_weights(fur)
 			# don't store as uv
 			self.uvs = self.uvs[:, :1]
 		# confirmed

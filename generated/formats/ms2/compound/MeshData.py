@@ -2,6 +2,8 @@
 import logging
 import math
 import numpy as np
+
+from generated.formats.ms2.compound.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
 from source.formats.base.basic import fmt_member
@@ -205,4 +207,17 @@ class MeshData(MemStruct):
 			if max_ind >= len(self.verts_data):
 				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices")
 		logging.debug("All tri indices are valid")
+
+	def import_fur_as_weights(self, fur):
+		# get max of fur length value for all verts
+		self.fur_length = np.max(fur[:, 0]) * FUR_OVERHEAD
+		# fur length can be set to 0 for the whole mesh, so make sure we don't divide in that case
+		if self.fur_length:
+			# normalize with some overhead
+			fur[:, 0] /= self.fur_length
+		# value range of fur width is +-16 - squash it into 0 - 1
+		fur[:, 1] = remap(fur[:, 1], -16, 16, 0, 1)
+		for fur_vert, weights_vert in zip(fur, self.weights):
+			weights_vert.append(("fur_length", fur_vert[0] * 255))
+			weights_vert.append(("fur_width", fur_vert[1] * 255))
 

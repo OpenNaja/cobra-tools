@@ -1,5 +1,7 @@
 # START_GLOBALS
 import logging
+import time
+
 import numpy as np
 import struct
 from generated.formats.ms2.compound.packing_utils import *
@@ -83,7 +85,7 @@ class NewMeshData:
 		elif self.flag in (821, 853, 885, 1013):
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
-				("fur_shell", np.ushort, (2,)),
+				("fur_shell", np.ushort, (2,)),  # fur length and shell tile scale
 				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
 			])
@@ -150,19 +152,6 @@ class NewMeshData:
 		if self.uvs is not None:
 			self.uvs[:] = self.verts_data[:]["uvs"]
 			self.uvs = unpack_ushort_vector(self.uvs)
-		self.fur_length = 0.0
-		if self.fur is not None:
-			self.fur[:] = self.verts_data[:]["fur_shell"]
-			self.fur = unpack_ushort_vector(self.fur)
-			# normalize with some overhead
-			self.fur_length = np.max(self.fur[:, 0]) * FUR_OVERHEAD
-			# fur length can be set to 0 for the whole mesh, so make sure we don't divide in that case
-			if self.fur_length:
-				# print("self.fur_length", self.fur_length)
-				self.fur[:, 0] /= self.fur_length
-			# value range of fur width is +-16 - squash it into 0 - 1
-			self.fur[:, 1] = remap(self.fur[:, 1], -16, 16, 0, 1)
-			# print("self.fur[0]", self.fur[0])
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data[:]["colors"]
@@ -183,7 +172,7 @@ class NewMeshData:
 				vert, residue = unpack_longint_vec(unpacked, self.base)
 				self.shapekeys[i] = unpack_swizzle(vert)
 			# print(self.shapekeys)
-
+		# start_time = time.time()
 		for i in range(self.vertex_count):
 			in_pos_packed = self.verts_data[i]["pos"]
 			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
@@ -191,6 +180,12 @@ class NewMeshData:
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i, residue))
+		# logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
+		self.fur_length = 0.0
+		if self.fur is not None:
+			fur = self.verts_data[:]["fur_shell"]
+			fur = unpack_ushort_vector(fur)
+			self.import_fur_as_weights(fur)
 		# print(self.verts_data[:]["winding"])
 
 	def set_verts(self, verts):

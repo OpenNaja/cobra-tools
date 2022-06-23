@@ -114,11 +114,6 @@ def unpack_weights(model, i, residue, extra=True):
         if not vert_w:
             vert_w = [(model.verts_data[i]["bone index"], 255), ]
 
-        # create fur length vgroup
-        if model.fur is not None:
-            vert_w.append(("fur_length", model.fur[i][0] * 255))
-            vert_w.append(("fur_width", model.fur[i][1] * 255))
-
         # packing bit
         vert_w.append(("residue", residue * 255))
     return vert_w
