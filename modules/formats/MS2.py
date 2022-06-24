@@ -224,7 +224,7 @@ class Ms2Loader(BaseFile):
 		logging.info("Renaming inside .ms2")
 		temp_dir, out_dir_func = self.get_tmp_dir()
 		try:
-			ms2_path = self.extract(out_dir_func, False, None)[0]
+			ms2_path = self.extract(out_dir_func, None)[0]
 			# open the ms2 file
 			ms2_file = Ms2File()
 			ms2_file.load(ms2_path, read_bytes=True)
