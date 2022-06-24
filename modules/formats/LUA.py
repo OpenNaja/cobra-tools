@@ -1,6 +1,7 @@
 import logging
 from generated.formats.lua.compound.LuaRoot import LuaRoot
 from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.shared import get_padding
 from ovl_util import texconv
 from ovl_util.interaction import showdialog
 
@@ -18,7 +19,7 @@ class LuaLoader(MemStructLoader):
 		self.header = LuaRoot(self.ovl.context)
 		self.header.lua_size = len(buffer_0)
 		self.header.source_path.data = self.file_entry.basename
-		self.header.likely_alignment.data = b"\x00"
+		self.header.likely_alignment.data = get_padding(len(self.file_entry.basename)+1, alignment=4)
 		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
 	def extract(self, out_dir, progress_callback):
