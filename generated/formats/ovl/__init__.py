@@ -610,7 +610,7 @@ class OvlFile(Header, IoFile):
 		# make a temporary copy
 		temp_loaders = list(self.loaders.values())
 		for loader in temp_loaders:
-			if animal_mode and loader.file_entry.ext not in (".ms2", ".mdl2", ".motiongraph"):
+			if animal_mode and loader.file_entry.ext not in (".ms2", ".mdl2", ".motiongraph", ".motiongraphvars"):
 				continue
 			loader.rename(name_tups)
 		# recreate the loaders dict
