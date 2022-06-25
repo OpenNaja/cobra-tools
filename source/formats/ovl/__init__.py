@@ -497,7 +497,12 @@ class OvsFile(OvsHeader):
 				if ptr.pool:
 					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {root_entry.name}"
 					f.write(debug_str)
-					self._dump_ptr_stack(f, ptr, set())
+					try:
+						self._dump_ptr_stack(f, ptr, set())
+					except AttributeError:
+						logging.error(f"Dumping {root_entry.name} failed")
+						traceback.print_exc()
+						f.write("\n!FAILED!")
 
 	@staticmethod
 	def find_entry(entries, src_entry):
