@@ -1118,8 +1118,7 @@ class OvlFile(Header, IoFile):
 			try:
 				mime_entry.update_constants(self)
 			except KeyError:
-				logging.warning(f"Unsupported extension {file_ext}")
-				continue
+				raise KeyError(f"Extension {file_ext} missing from hash constants, regenerate hash table!")
 			mime_entry.file_index_offset = file_index_offset
 			mime_entry.file_count = len(files)
 			file_index_offset += len(files)
