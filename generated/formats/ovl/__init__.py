@@ -258,81 +258,88 @@ class OvsFile(OvsHeader):
 
 	def rebuild_buffer_groups(self):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
-		if (is_pz16(self.ovl) or is_jwe2(self.ovl)) and self.data_entries:
+		if self.data_entries:
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
 					self.transfer_identity(buffer, data_entry)
-			# sort datas and buffers to be what 1.6 needs
-			# cobra < 20 used buffer index per data entry
-			self.buffer_entries.sort(key=lambda b: (b.ext, b.index, b.file_hash))
+			if self.ovl.version < 20:
+				# todo it appears we rely on the data_entry's hashes for sorting for JWE1
+				# raise NotImplementedError(f"Can't save old style OVL with buffers")
+				# sorting by index is not enforced in JWE1 stock
+				self.buffer_entries.sort(key=lambda b: (b.ext, b.file_hash, b.index))
+			else:
+				# v20: PZ1.6, JWE2
+				# sort datas and buffers to be what 1.6 needs
+				# cobra < 20 used buffer index per data entry
+				self.buffer_entries.sort(key=lambda b: (b.ext, b.index, b.file_hash))
 
-			# generate the buffergroup entries
-			last_ext = None
-			last_index = None
-			buffer_group = None
-			buffer_offset = 0
-			data_offset = 0
-			for i, buffer in enumerate(self.buffer_entries):
-				logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
-				# we have to create a new group
-				if buffer.ext != last_ext or buffer.index != last_index:
-					# if we already have a buffer_group declared, update offsets for the next one
-					# if buffer_group:
-					# 	logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
-					# 	buffer_offset += buffer_group.buffer_count
-					# 	# only change data offset if ext changes
-					# 	if buffer.ext != last_ext:
-					# 		data_offset += buffer_group.data_count
-					# now create the new buffer_group and update its initial data
-					buffer_group = BufferGroup(self.context)
-					buffer_group.ext = buffer.ext
-					buffer_group.buffer_index = buffer.index
-					buffer_group.buffer_offset = buffer_offset
-					buffer_group.data_offset = data_offset
-					self.buffer_groups.append(buffer_group)
-				# gotta add this buffer to the current group
-				buffer_group.buffer_count += 1
-				buffer_group.size += buffer.size
-				buffer_group.data_count += 1
-				# change buffer identity for next loop
-				last_ext = buffer.ext
-				last_index = buffer.index
+				# generate the buffergroup entries
+				last_ext = None
+				last_index = None
+				buffer_group = None
+				buffer_offset = 0
+				data_offset = 0
+				for i, buffer in enumerate(self.buffer_entries):
+					logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
+					# we have to create a new group
+					if buffer.ext != last_ext or buffer.index != last_index:
+						# if we already have a buffer_group declared, update offsets for the next one
+						# if buffer_group:
+						# 	logging.debug(f"Updating offsets {buffer_offset}, {data_offset}")
+						# 	buffer_offset += buffer_group.buffer_count
+						# 	# only change data offset if ext changes
+						# 	if buffer.ext != last_ext:
+						# 		data_offset += buffer_group.data_count
+						# now create the new buffer_group and update its initial data
+						buffer_group = BufferGroup(self.context)
+						buffer_group.ext = buffer.ext
+						buffer_group.buffer_index = buffer.index
+						buffer_group.buffer_offset = buffer_offset
+						buffer_group.data_offset = data_offset
+						self.buffer_groups.append(buffer_group)
+					# gotta add this buffer to the current group
+					buffer_group.buffer_count += 1
+					buffer_group.size += buffer.size
+					buffer_group.data_count += 1
+					# change buffer identity for next loop
+					last_ext = buffer.ext
+					last_index = buffer.index
 
-			# fix the offsets of the buffergroups
-			for x, buffer_group in enumerate(self.buffer_groups):
-				if x > 0:
-					buffer_group.buffer_offset = self.buffer_groups[x - 1].buffer_offset + self.buffer_groups[
-						x - 1].buffer_count
-					if buffer_group.ext != self.buffer_groups[x - 1].ext:
-						buffer_group.data_offset = self.buffer_groups[x - 1].data_offset + self.buffer_groups[
-							x - 1].data_count
-					else:
-						buffer_group.data_offset = self.buffer_groups[x - 1].data_offset
-						if buffer_group.data_count < self.buffer_groups[x - 1].data_count:
-							buffer_group.data_count = self.buffer_groups[x - 1].data_count
-			# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
-			tex_fixa = 0
-			tex_fixb = 0
-			tex_fixc = 0
-			for buffer_group in self.buffer_groups:
-				if ".tex" == buffer_group.ext:
-					if buffer_group.buffer_count > tex_fixb:
-						tex_fixb = buffer_group.buffer_count
-					if buffer_group.data_offset > tex_fixa:
-						tex_fixa = buffer_group.data_offset
-				elif ".texturestream" == buffer_group.ext:
-					tex_fixc += buffer_group.buffer_count
-			for buffer_group in self.buffer_groups:
-				if ".tex" == buffer_group.ext:
-					buffer_group.data_offset = tex_fixa
-					buffer_group.data_count = tex_fixb
-				elif ".texturestream" == buffer_group.ext:
-					buffer_group.data_count = tex_fixc
+				# fix the offsets of the buffergroups
+				for x, buffer_group in enumerate(self.buffer_groups):
+					if x > 0:
+						buffer_group.buffer_offset = self.buffer_groups[x - 1].buffer_offset + self.buffer_groups[
+							x - 1].buffer_count
+						if buffer_group.ext != self.buffer_groups[x - 1].ext:
+							buffer_group.data_offset = self.buffer_groups[x - 1].data_offset + self.buffer_groups[
+								x - 1].data_count
+						else:
+							buffer_group.data_offset = self.buffer_groups[x - 1].data_offset
+							if buffer_group.data_count < self.buffer_groups[x - 1].data_count:
+								buffer_group.data_count = self.buffer_groups[x - 1].data_count
+				# tex buffergroups sometimes are 0,1 instead of 1,2 so the offsets need additional correction
+				tex_fixa = 0
+				tex_fixb = 0
+				tex_fixc = 0
+				for buffer_group in self.buffer_groups:
+					if ".tex" == buffer_group.ext:
+						if buffer_group.buffer_count > tex_fixb:
+							tex_fixb = buffer_group.buffer_count
+						if buffer_group.data_offset > tex_fixa:
+							tex_fixa = buffer_group.data_offset
+					elif ".texturestream" == buffer_group.ext:
+						tex_fixc += buffer_group.buffer_count
+				for buffer_group in self.buffer_groups:
+					if ".tex" == buffer_group.ext:
+						buffer_group.data_offset = tex_fixa
+						buffer_group.data_count = tex_fixb
+					elif ".texturestream" == buffer_group.ext:
+						buffer_group.data_count = tex_fixc
 
-			if (self.buffer_groups[-1].data_count + self.buffer_groups[-1].data_offset) < len(self.data_entries):
-				for x in range(self.buffer_groups[-1].buffer_index + 1):
-					self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
-						-1 - x].data_offset
+				if (self.buffer_groups[-1].data_count + self.buffer_groups[-1].data_offset) < len(self.data_entries):
+					for x in range(self.buffer_groups[-1].buffer_index + 1):
+						self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
+							-1 - x].data_offset
 
 	def rebuild_pools(self):
 		logging.info("Updating pool names, deleting unused pools")
@@ -373,9 +380,6 @@ class OvsFile(OvsHeader):
 	def map_buffers(self):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
-		# print(self.data_entries)
-		# print(self.buffer_entries)
-		# print(self.buffer_groups)
 		if is_pz16(self.ovl) or is_jwe2(self.ovl):
 			for data in self.data_entries:
 				data.buffers = []
@@ -461,6 +465,9 @@ class OvsFile(OvsHeader):
 		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_buffers.log")
 		logging.info(f"Dumping buffer log to {buff_log_path}")
 		with open(buff_log_path, "w") as f:
+			for x, buffer in enumerate(self.buffer_entries):
+				f.write(f"\n{buffer.name} index: {buffer.index}| {buffer.size}")
+			f.write("\n\n")
 			for x, buffer_group in enumerate(self.buffer_groups):
 				f.write(
 					f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
