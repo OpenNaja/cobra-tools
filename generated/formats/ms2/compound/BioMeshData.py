@@ -258,24 +258,24 @@ class BioMeshData(MeshData):
 				self.stream_info.stream.readinto(off.raw_meta)
 
 				# store chunk's data
-				self.vertices[offs:offs + len(off.verts)] = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
-				self.uvs[offs:offs + len(off.verts)] = off.raw_meta["uvs"]
-				self.colors[offs:offs + len(off.verts)] = off.raw_meta["colors"]
+				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
+				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
+				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
 			else:
 				# read the interleaved vertex array, including all extra data
 				off.raw_verts = np.empty(dtype=dt_list, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.raw_verts)
 
 				# store chunk's data
-				self.vertices[offs:offs + len(off.verts)] = [unpack_swizzle(vec) for vec in off.raw_verts["pos"]]
-				self.uvs[offs:offs + len(off.verts)] = off.raw_verts["uvs"]
-				self.colors[offs:offs + len(off.verts)] = off.raw_verts["colors"]
+				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["pos"]]
+				self.uvs[offs:offs + off.vertex_count] = off.raw_verts["uvs"]
+				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
 			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(off.weights_flag)
 			us.add(pos.u_1)
 			self.tri_indices[pos.tris_offset - first_tris_offs:] += v_off
 			v_off = off.vertex_count
-			offs += len(off.verts)
+			offs += off.vertex_count
 
 		# print("weights_flags", flags, "u1s", us)
 
