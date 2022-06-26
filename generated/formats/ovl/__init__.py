@@ -219,9 +219,6 @@ class OvsFile(OvsHeader):
 			assert set_entry.entry
 			loader = self.ovl.loaders[set_entry.entry.name]
 			loader.children = [self.ovl.loaders[self.root_entries[a.file_index].name] for a in assets]
-		# can clear them now, the loaders store all we need
-		self.set_header.sets.clear()
-		self.set_header.assets.clear()
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
