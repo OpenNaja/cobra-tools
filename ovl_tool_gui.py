@@ -177,6 +177,7 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Set Game Dir", self.ask_game_dir, "", ""),
 			(util_menu, "Export included ovl list", self.save_included_ovls, "", ""),
+			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
@@ -186,6 +187,27 @@ class MainWindow(widgets.MainWindow):
 		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
 		self.statusBar.addWidget(label)
 		self.setStatusBar(self.statusBar)
+
+	def compare_ovls(self):
+		if self.is_open_ovl():
+			filepath = QtWidgets.QFileDialog.getOpenFileName(
+				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
+			if filepath:
+				other_ovl_data = OvlFile(progress_callback=self.update_progress)
+				other_ovl_data.load_hash_table()
+				other_ovl_data.load(filepath, commands=self.commands)
+				selected_file_names = self.files_container.table.get_selected_files()
+				for file_name in selected_file_names:
+					try:
+						loader_a = self.ovl_data.loaders[file_name]
+						loader_b = other_ovl_data.loaders[file_name]
+						if loader_a == loader_b:
+							logging.info(f"'{file_name}' is the same")
+						else:
+							logging.warning(f"'{file_name}' differs")
+					except:
+						traceback.print_exc()
+						logging.error(f"Could not compare '{file_name}'")
 
 	def ask_game_dir(self):
 		dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")

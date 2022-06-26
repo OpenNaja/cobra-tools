@@ -146,3 +146,15 @@ class DataEntry:
 		"""Get data for each buffer"""
 		return list(buffer.data for buffer in self.sorted_buffers)
 
+	def __eq__(self, other):
+		attr_check = ("buffer_count", "size_1", "size_2")
+		for attr in attr_check:
+			a = getattr(self, attr)
+			b = getattr(other, attr)
+			if a != b:
+				logging.warning(f"Data differs for '{attr}' - {a} vs {b}")
+				return False
+		for a, b in zip(self.sorted_buffers, other.sorted_buffers):
+			pass
+		return True
+

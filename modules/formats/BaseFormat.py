@@ -35,7 +35,6 @@ class BaseFile:
 
 		# defined in ovs
 		self.root_entry = None
-		# self.data_entry = None
 		self.data_entries = {}
 		self.children = []
 		self.fragments = set()
@@ -294,6 +293,18 @@ class BaseFile:
 				os.remove(p)
 			return [p for p in paths if p not in paths_to_remove]
 		return paths
+
+	def __eq__(self, other):
+		assert len(self.streams) == len(other.streams)
+		for s, o in zip(self.streams, other.streams):
+			assert s == o
+		assert len(self.data_entries) == len(other.data_entries)
+		for archive_name, data_entry in self.data_entries.items():
+			assert archive_name in other.data_entries
+			other_data = other.data_entries[archive_name]
+			if data_entry != other_data:
+				return False
+		return True
 
 
 class MemStructLoader(BaseFile):
