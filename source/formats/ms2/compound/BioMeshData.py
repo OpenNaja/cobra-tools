@@ -9,6 +9,42 @@ from generated.formats.ms2.compound.PosChunk import PosChunk
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
 
+def unpack_ushort_vec(input, base):
+    """Unpacks and returns the self.raw_pos uint64"""
+    # numpy uint64 does not like the bit operations so we cast to default int
+    input = int(input)
+    output = []
+    width = 4
+    USHORT_PACKEDVEC_MAX = 2 ** width
+    # print("inp",bin(input))
+    for i in range(3):
+        # print("\nnew coord")
+        # grab the last 20 bits with bitand
+        # bit representation: 0b11111111111111111111
+        twenty_bits = input & 0b1111
+        # print("input", bin(input))
+        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
+        input >>= 4
+        # print("input >>= 20", bin(input))
+        # print("1",bin(1))
+        # get the rightmost bit
+        rightmost_bit = input & 1
+        # print("rightmost_bit = input & 1",bin(rightmost_bit))
+        # print(rightmost_bit, twenty_bits)
+        if not rightmost_bit:
+            # rightmost bit was 0
+            # print("rightmost_bit == 0")
+            # bit representation: 0b100000000000000000000
+            twenty_bits -= USHORT_PACKEDVEC_MAX
+        # print("final int", twenty_bits)
+        # output.append(scale_unpack(twenty_bits, base))
+        output.append(twenty_bits / base)
+        # shift to skip the sign bit
+        input >>= 1
+    # input at this point is either 0 or 1
+    return output#, input
+
+
 
 # END_GLOBALS
 
@@ -70,6 +106,8 @@ class BioMeshData:
 		if self.flag.flat_arrays:
 			# 16 bytes of metadata that follows the vertices array
 			dt_list = [
+				# ("packed_normal", np.ushort),
+				# ("packed_tangent", np.ushort),
 				("normal", np.ubyte, (3,)),
 				("winding", np.ubyte),
 				("uvs", np.ushort, (2, 2)),
@@ -82,6 +120,8 @@ class BioMeshData:
 				("shapekey", np.float16, (3,)),  # used for lod fading
 				("sth", np.float16, (4,)),
 				("normal", np.ubyte, (3,)),
+				# ("packed_normal", np.ushort),
+				# ("packed_tangent", np.ushort),
 				("winding", np.ubyte),
 				("uvs", np.ushort, (1, 2)),
 				("colors", np.ubyte, (1, 4))
@@ -145,7 +185,7 @@ class BioMeshData:
 				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
 				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
-				self.normals[offs:offs + off.vertex_count] = off.raw_meta["normal"]
+				self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_meta["normal"]]
 			else:
 				# read the interleaved vertex array, including all extra data
 				off.raw_verts = np.empty(dtype=dt_list, shape=off.vertex_count)
@@ -155,7 +195,8 @@ class BioMeshData:
 				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["pos"]]
 				self.uvs[offs:offs + off.vertex_count] = off.raw_verts["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
-				self.normals[offs:offs + off.vertex_count] = off.raw_verts["normal"]
+				self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["normal"]]
+				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_ushort_vec(vec, 16)) for vec in off.raw_verts["packed_normal"]]
 			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(off.weights_flag)
 			us.add(pos.u_1)

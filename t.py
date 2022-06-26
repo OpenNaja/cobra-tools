@@ -190,10 +190,55 @@ def unpack_longint_vec(input, base, out_vec):
     # return input
 
 
-inp = np.zeros(dtype=np.uint64, shape=(25))
-out = np.zeros(dtype=np.float32, shape=(25, 3))
-inp[0] = 9799422295746670211
-# inp[1] = 4589460495556148736
-for i in range(2):
-    unpack_longint_vec(inp[i], 512.0, out[i])
-print(out)
+# inp = np.zeros(dtype=np.uint64, shape=(25))
+# out = np.zeros(dtype=np.float32, shape=(25, 3))
+# inp[0] = 9799422295746670211
+# # inp[1] = 4589460495556148736
+# for i in range(2):
+#     unpack_longint_vec(inp[i], 512.0, out[i])
+# print(out)
+
+
+
+def unpack_ushort_vec(input, base):
+    """Unpacks and returns the self.raw_pos uint64"""
+    # numpy uint64 does not like the bit operations so we cast to default int
+    input = int(input)
+    output = []
+    width = 4
+    USHORT_PACKEDVEC_MAX = 2 ** width
+    # print("inp",bin(input))
+    for i in range(3):
+        # print("\nnew coord")
+        # grab the last 20 bits with bitand
+        # bit representation: 0b11111111111111111111
+        twenty_bits = input & 0b1111
+        # print("input", bin(input))
+        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
+        input >>= 4
+        # print("input >>= 20", bin(input))
+        # print("1",bin(1))
+        # get the rightmost bit
+        rightmost_bit = input & 1
+        # print("rightmost_bit = input & 1",bin(rightmost_bit))
+        # print(rightmost_bit, twenty_bits)
+        if not rightmost_bit:
+            # rightmost bit was 0
+            # print("rightmost_bit == 0")
+            # bit representation: 0b100000000000000000000
+            twenty_bits -= USHORT_PACKEDVEC_MAX
+        # print("final int", twenty_bits)
+        # output.append(scale_unpack(twenty_bits, base))
+        output.append(twenty_bits / base)
+        # shift to skip the sign bit
+        input >>= 1
+    # input at this point is either 0 or 1
+    return output#, input
+
+
+vals = (61059, 36357, 42563, 36357)
+for val in vals:
+    ret = unpack_ushort_vec(val, 16)
+    print(ret)
+# ([-0,40625, 0,125, 0,34375]
+# ([-0,8125, 0,25, 0,6875], 1)
