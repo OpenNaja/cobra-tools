@@ -4,9 +4,8 @@ import traceback
 import bpy
 import os
 
-from generated.formats.fgm import FgmFile
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
-from generated.formats.ovl.versions import is_jwe
+from generated.formats.ovl.versions import is_jwe, is_jwe2
 from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex
@@ -21,8 +20,6 @@ def create_material(in_dir, matname):
 	# print(fgm_path)
 	try:
 		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
-		# fgm_data = FgmFile()
-		# fgm_data.load(fgm_path)
 	except FileNotFoundError:
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
@@ -166,7 +163,7 @@ def create_material(in_dir, matname):
 		alpha = tex_dic["popacitytexture"]
 		alpha_pass = alpha.outputs[0]
 	# todo - use game version tag?
-	elif is_jwe(fgm_data.context) and "proughnesspackedtexture_[00]" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
+	elif "JURASSIC" in fgm_data.game and "proughnesspackedtexture_[00]" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
 		alpha = tex_dic["proughnesspackedtexture_[00]"]
 		alpha_pass = alpha.outputs[0]
 	elif "proughnesspackedtexture_[03]" in tex_dic:
@@ -179,7 +176,9 @@ def create_material(in_dir, matname):
 		# attr_dict = {attrib.name.lower(): attrib for attrib in fgm_data.attributes.data}
 		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.data_lib.data):
 			if "palphatestref" in attr.name.lower():
-				b_mat.alpha_threshold = attr_data.value[0]
+				# blender appears to be stricter with the alpha clipping
+				# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
+				b_mat.alpha_threshold = attr_data.value[0] * 0.5
 				break
 		transp = tree.nodes.new('ShaderNodeBsdfTransparent')
 		alpha_mixer = tree.nodes.new('ShaderNodeMixShader')

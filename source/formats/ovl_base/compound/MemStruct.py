@@ -173,7 +173,7 @@ class MemStruct:
 			logging.debug(f"Set defaults on {self.__class__.__name__}")
 			self.set_defaults()
 		# special cases - these are not added to the xml definition, but need to be converted
-		for prop in ("name", ):
+		for prop in ("name", "game"):
 			if prop in elem.attrib:
 				setattr(self, prop, elem.attrib[prop])
 		for prop, val in tuple(vars_dict.items()):

@@ -94,6 +94,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
 
+			logging.info(f"Vertex buffer starts at {self.buffer_2_offset}")
 			try:
 				for bone_info in self.models_reader.bone_infos:
 					self.assign_bone_names(bone_info)
@@ -340,9 +341,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/buff/wild_water_buffalo_juvenile_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/pine/tree_pine_blackspruce.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
 	# m.save("C:/Users/arnfi/Desktop/test.ms2")
-	print(m)
+	# print(m)
 	# print(m.model_infos[1].bone_info.joints.joint_infos)

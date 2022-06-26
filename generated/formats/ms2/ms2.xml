@@ -52,7 +52,7 @@
 
 	<bitfield name="BioModelFlag" storage="uint">
 		Determines the data held by a mesh.
-		<member width="1" pos="0" name="standard" type="bool">1</member>
+		<member width="1" pos="0" name="flat_arrays" type="bool">vecs, weights, uvs if true, interleaved per vertex if false</member>
 <!--		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
 		so far not sure about these, it is 13 on shell meshes
 		<member width="1" pos="2" name="fur_shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>

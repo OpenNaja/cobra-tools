@@ -192,8 +192,8 @@ def unpack_longint_vec(input, base, out_vec):
 
 inp = np.zeros(dtype=np.uint64, shape=(25))
 out = np.zeros(dtype=np.float32, shape=(25, 3))
-inp[0] = 4588382974177705383
-inp[1] = 4589460495556148736
+inp[0] = 9799422295746670211
+# inp[1] = 4589460495556148736
 for i in range(2):
     unpack_longint_vec(inp[i], 512.0, out[i])
 print(out)

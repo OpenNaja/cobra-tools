@@ -7,6 +7,7 @@ from generated.array import Array
 from generated.formats.ms2.compound.OffsetChunk import OffsetChunk
 from generated.formats.ms2.compound.PosChunk import PosChunk
 from generated.formats.ms2.compound.packing_utils import *
+from plugin.utils.tristrip import triangulate
 
 
 # END_GLOBALS
@@ -154,13 +155,9 @@ class BioMeshData:
 		self.stream_info.stream.seek(self.tris_address)
 		index_count = self.tris_count * 3  # // self.shell_count
 		logging.info(f"Reading {index_count} indices at {self.stream_info.stream.tell()}")
-		self.tri_indices = np.empty(dtype=np.uint8, shape=index_count)
-		self.stream_info.stream.readinto(self.tri_indices)
-		# print(self.tri_indices)
-		# create non-overlapping tris from flattened tri indices
-		tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices) // 3, 3))
-		# reverse each tri to account for the flipped normals from mirroring in blender
-		self._tris = np.flip(tris_raw, axis=-1).astype(np.uint32)
+		_tri_indices = np.empty(dtype=np.uint8, shape=index_count)
+		self.stream_info.stream.readinto(_tri_indices)
+		self.tri_indices = _tri_indices.astype(np.uint32)
 
 	@property
 	def pos_chunks_address(self):
@@ -182,14 +179,24 @@ class BioMeshData:
 		# the idea of the new method appears to be optimized tris, so use safe dtype here to avoid overflow in the complete list
 		# self.tris_raw = np.empty(dtype=np.uint32, shape=(self.vertex_count, 3))
 
-		# print(off.raw_verts)
-		# 16 bytes
-		dt_list = [
-			("normal", np.ubyte, (3,)),
-			("winding", np.ubyte),
-			("uvs", np.ushort, (2, 2)),
-			("colors", np.ubyte, (1, 4))
-		]
+		if self.flag.flat_arrays:
+			# 16 bytes
+			dt_list = [
+				("normal", np.ubyte, (3,)),
+				("winding", np.ubyte),
+				("uvs", np.ushort, (2, 2)),
+				("colors", np.ubyte, (1, 4))
+			]
+		else:
+			# 32 bytes
+			dt_list = [
+				("pos", np.float16, (3,)),
+				("shapekey", np.float16, (3,)),
+				("sth", np.float16, (4,)),
+				("unk", np.ubyte, (4,)),  # normal or tangent
+				("uvs", np.ushort, (1, 2)),
+				("colors", np.ubyte, (1, 4))
+			]
 		self.dt = np.dtype(dt_list)
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
@@ -198,66 +205,91 @@ class BioMeshData:
 
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		self.stream_info.stream.seek(self.pos_chunks_address)
-		self.pos_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), PosChunk, self.context, 0, None)
+		self.pos_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), PosChunk, self.context, 0,
+											None)
 		print(self)
 		print(f"{self.chunks_count} pos_chunks at {self.pos_chunks_address}")
 		self.stream_info.stream.seek(self.offset_chunks_address)
-		self.offset_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), OffsetChunk, self.context, 0, None)
+		self.offset_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), OffsetChunk, self.context,
+											   0, None)
 		print(f"{self.chunks_count} offset_chunks at {self.offset_chunks_address}")
-		# for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
-		# 	print("\n", i, pos, off)
-		self.read_tris_bio()
-		self.weights = []
+
 		first_tris_offs = self.pos_chunks[0].tris_offset
 		v_off = 0
 		offs = 0
 		flags = set()
 		us = set()
-		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
-			abs_tris = self.tris_start_address + pos.tris_offset
-			# print("\n", i, pos, off)
-			print("\n", i, pos.u_1)
-			print(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
 
-			self.stream_info.stream.seek(off.vertex_offset)
-			print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
-			off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
-			self.stream_info.stream.readinto(off.raw_verts)
+		self.read_tris_bio()
+		self.weights = []
+		if self.flag.flat_arrays:
+			# print(off.raw_verts)
 
-			# check if weights chunk is present
-			if off.weights_flag.has_weights:
-				dt_weights = [
-					("bone ids", np.ubyte, (4,)),
-					("bone weights", np.ubyte, (4,)),
-				]
-				self.dt_weights = np.dtype(dt_weights)
-				off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
-				self.stream_info.stream.readinto(off.weights)
-				chunk_weights = [[(i, w) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0] for vert in off.weights]
-			else:
-				# use bone index for each vertex in chunk
-				chunk_weights = [[(off.weights_flag.bone_index, 255), ] for _ in range(off.vertex_count)]
+			# for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
+			# 	print("\n", i, pos, off)
+			for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
+				abs_tris = self.tris_start_address + pos.tris_offset
+				print("\n", i, pos, off)
+				print("\n", i, pos.u_1)
+				print(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
 
-			self.weights.extend(chunk_weights)
+				self.stream_info.stream.seek(off.vertex_offset)
+				print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
+				off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
+				self.stream_info.stream.readinto(off.raw_verts)
+				off.verts = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
 
-			print(f"meta {i} start {self.stream_info.stream.tell()}")
-			off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
-			self.stream_info.stream.readinto(off.raw_meta)
-			off.verts = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
-			flags.add(off.weights_flag)
-			us.add(pos.u_1)
-			self._tris[(pos.tris_offset - first_tris_offs) // 3:] += v_off
-			v_off = off.vertex_count
-			self.vertices[offs:offs + len(off.verts)] = off.verts
+				# check if weights chunk is present
+				if off.weights_flag.has_weights:
+					dt_weights = [
+						("bone ids", np.ubyte, (4,)),
+						("bone weights", np.ubyte, (4,)),
+					]
+					self.dt_weights = np.dtype(dt_weights)
+					off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
+					self.stream_info.stream.readinto(off.weights)
+					chunk_weights = [[(i, w) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0] for vert in off.weights]
+				else:
+					# use bone index for each vertex in chunk
+					chunk_weights = [[(off.weights_flag.bone_index, 255), ] for _ in range(off.vertex_count)]
 
-			self.uvs[offs:offs + len(off.verts)] = off.raw_meta["uvs"]
-			self.colors[offs:offs + len(off.verts)] = off.raw_meta["colors"]
+				self.weights.extend(chunk_weights)
 
-			offs += len(off.verts)
+				print(f"meta {i} start {self.stream_info.stream.tell()}")
+				off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
+				self.stream_info.stream.readinto(off.raw_meta)
+				flags.add(off.weights_flag)
+				us.add(pos.u_1)
+				self.tri_indices[pos.tris_offset - first_tris_offs:] += v_off
+				self.vertices[offs:offs + len(off.verts)] = off.verts
+
+				self.uvs[offs:offs + len(off.verts)] = off.raw_meta["uvs"]
+				self.colors[offs:offs + len(off.verts)] = off.raw_meta["colors"]
+				v_off = off.vertex_count
+				offs += len(off.verts)
+		else:
+			for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
+				abs_tris = self.tris_start_address + pos.tris_offset
+				print("\n", i, pos, off)
+				print("\n", i, pos.u_1)
+				print(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
+
+				self.stream_info.stream.seek(off.vertex_offset)
+				print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
+				off.raw_verts = np.empty(dtype=dt_list, shape=off.vertex_count)
+				self.stream_info.stream.readinto(off.raw_verts)
+				off.verts = [unpack_swizzle(vec["pos"]) for vec in off.raw_verts]
+				self.vertices[offs:offs + len(off.verts)] = off.verts
+				self.uvs[offs:offs + len(off.verts)] = off.raw_verts["uvs"]
+				self.colors[offs:offs + len(off.verts)] = off.raw_verts["colors"]
+				# print(off.verts)
+				self.tri_indices[pos.tris_offset - first_tris_offs:] += v_off
+				v_off = off.vertex_count
+				offs += len(off.verts)
+				# break
+
 		# print("weights_flags", flags, "u1s", us)
 		self.uvs = unpack_ushort_vector(self.uvs)
-
-
 		self.fur_length = 0.0
 		# transfer fur from uv to weights
 		if self.flag.fur_shells:
@@ -271,7 +303,14 @@ class BioMeshData:
 
 	@property
 	def tris(self, ):
-		return self._tris
+		# if self.flag.flat_arrays:
+		# print(self.tri_indices)
+		# create non-overlapping tris from flattened tri indices
+		tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices) // 3, 3))
+		# reverse each tri to account for the flipped normals from mirroring in blender
+		return np.flip(tris_raw, axis=-1)
+		# else:
+		# 	return triangulate((self.tri_indices,))
 
 	# # create non-overlapping tris from flattened tri indices
 	# tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))

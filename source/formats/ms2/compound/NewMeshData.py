@@ -113,6 +113,7 @@ class NewMeshData:
 				("shapekeys0", np.uint32, 1),
 				("colors", np.ubyte, (1, 4)),  # this appears to be normals, or something similar
 				("shapekeys1", np.uint32, 1),
+				# actually, these are 4 floats. sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
 				("colors1", np.ubyte, (4, 4)),
 			])
 		elif self.flag == 545:
