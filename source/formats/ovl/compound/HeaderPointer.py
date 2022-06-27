@@ -72,6 +72,7 @@ class HeaderPointer:
 				# write at old data_offset
 				if self.data_size != len(data):
 					logging.warning(f"Data size for overwritten pointer has changed from {self.data_size} to {len(data)}!")
+				self.pool.data.seek(self.data_offset)
 			else:
 				# seek to end of pool
 				self.pool.data.seek(0, 2)
@@ -132,6 +133,13 @@ class HeaderPointer:
 		if self.pool:
 			if self.data_offset in self.pool.offset_2_link_entry:
 				self.pool.offset_2_link_entry.pop(self.data_offset)
+
+	def replace_bytes(self, byte_name_tups):
+		"""Replaces the bytes tuples in byte_name_tups"""
+		b = self.data
+		for old, new in byte_name_tups:
+			b = b.replace(old, new)
+		self.write_to_pool(b, overwrite=True)
 
 	def __eq__(self, other):
 		if isinstance(other, HeaderPointer):

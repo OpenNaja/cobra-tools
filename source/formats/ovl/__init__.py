@@ -1353,9 +1353,3 @@ class OvlFile(Header, IoFile):
 if __name__ == "__main__":
 	ovl = OvlFile()
 	ovl.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
-
-
-def replace_bytes(b, name_tups):
-	for old, new in name_tups:
-		b = b.replace(old, new)
-	return b
