@@ -248,7 +248,7 @@ class MainWindow(widgets.MainWindow):
 					# process each
 					yield self.ovl_data
 					if save_over:
-						self.ovl_data.save(ovl_path, "")
+						self.ovl_data.save(ovl_path)
 			else:
 				interaction.showdialog("Select a root directory!")
 		# just the one that's currently open
@@ -542,9 +542,14 @@ class MainWindow(widgets.MainWindow):
 		if names:
 			if self.check_length(names):
 				return
+			# if we are operating only on the current ovl, check selection state
+			if not self.in_folder.isChecked():
+				only_files = self.files_container.table.get_selected_files()
+			else:
+				only_files = ()
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
-					self.ovl_data.rename_contents(names)
+					self.ovl_data.rename_contents(names, only_files)
 					self.update_gui_table()
 
 	# Save the OVL file list to disk

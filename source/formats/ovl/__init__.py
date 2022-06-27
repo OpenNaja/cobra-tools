@@ -626,10 +626,12 @@ class OvlFile(Header, IoFile):
 		self.loaders = {loader.file_entry.name: loader for loader in temp_loaders}
 		logging.info("Finished renaming!")
 
-	def rename_contents(self, name_tups):
-		logging.info(f"Renaming contents for {name_tups}")
-		for loader in self.sorted_loaders:
-			loader.rename_content(name_tups)
+	def rename_contents(self, name_tups, only_files):
+		if not only_files:
+			only_files = self.loaders.keys()
+		logging.info(f"Renaming contents for {name_tups} for {len(only_files)} selected files")
+		for file_name in only_files:
+			self.loaders[file_name].rename_content(name_tups)
 		logging.info("Finished renaming contents!")
 
 	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
