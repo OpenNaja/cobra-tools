@@ -277,6 +277,11 @@ class TableView(QtWidgets.QTableView):
 		self.rev_check = False
 		self.selectionModel().selectionChanged.connect(self.on_selectionChanged)
 
+		# handle column width
+		header = self.horizontalHeader()
+		header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+		header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+
 	def on_selectionChanged(self, selected, deselected):
 		self.selected = list(self.get_selected_line_indices())
 		if self.selected:
