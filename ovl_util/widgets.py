@@ -822,10 +822,14 @@ class FileWidget(QtWidgets.QWidget):
 
 	def set_file_path(self, filepath):
 		if not self.abort_open_new_file(filepath):
-			self.filepath = filepath
-			self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(self.filepath)
-			self.setText(self.filename)
+			self._set_file_path(filepath)
+			self.cfg[f"dir_{self.dtype_l}s_in"] = self.dir
 			return True
+
+	def _set_file_path(self, filepath):
+		self.filepath = filepath
+		self.dir, self.filename = os.path.split(filepath)
+		self.setText(self.filename)
 
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):

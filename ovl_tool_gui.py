@@ -455,15 +455,16 @@ class MainWindow(widgets.MainWindow):
 				"OVL files (*.ovl)", )[0]
 			if filepath:
 				self.cfg["dir_ovls_out"], ovl_name = os.path.split(filepath)
-				self._save_ovl(filepath)
+				self.file_widget._set_file_path(filepath)
+				self._save_ovl()
 
 	def save_ovl(self):
 		if self.is_open_ovl():
-			self._save_ovl(self.file_widget.filepath)
+			self._save_ovl()
 
-	def _save_ovl(self, filepath):
+	def _save_ovl(self, ):
 		try:
-			self.ovl_data.save(filepath)
+			self.ovl_data.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
 			self.update_progress(f"Saved {self.ovl_data.basename}", value=1, vmax=1)
 		except BaseException as ex:
