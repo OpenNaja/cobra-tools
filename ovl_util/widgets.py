@@ -1,3 +1,4 @@
+import traceback
 import webbrowser
 import os
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -118,20 +119,21 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 		model = self.sourceModel()
 		# The source mesh should have a method called row()
 		# which returns the table row as a python list.
-		tests = [func(model.row(row_num), self.filterString)
-				 for func in self.filterFunctions.values()]
-		return not False in tests
+		tests = [func(model.row(row_num), self.filterString) for func in self.filterFunctions.values()]
+		return False not in tests
 
 
 class TableModel(QtCore.QAbstractTableModel):
 	member_renamed = QtCore.pyqtSignal(str, str)
 
-	def __init__(self, data, header_names, ignore_types):
+	def __init__(self, header_names, ignore_types):
 		super(TableModel, self).__init__()
-		self._data = data
+		# data is a list of lists, row first
+		self._data = []
 		self.header_labels = header_names
 		self.ignore_types = ignore_types
-		# self.member_renamed.connect(self.member_renamed_debug_print)
+
+	# self.member_renamed.connect(self.member_renamed_debug_print)
 
 	@staticmethod
 	def member_renamed_debug_print(a, b):
@@ -183,7 +185,7 @@ class TableModel(QtCore.QAbstractTableModel):
 	def columnCount(self, index):
 		# The following takes the first sub-list, and returns
 		# the length (only works if all rows are an equal length)
-		return len(self._data[0])
+		return len(self.header_labels)
 
 	def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
 		if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
@@ -251,11 +253,8 @@ class TableView(QtWidgets.QTableView):
 
 	def __init__(self, header_names, ignore_types):
 		super().__init__()
-		# list of lists
-		# row first
-		self.data = [[], ]
 		self.ignore_types = ignore_types
-		self.model = TableModel(self.data, header_names, ignore_types)
+		self.model = TableModel(header_names, ignore_types)
 		# self.proxyModel = QSortFilterProxyModel()
 		self.proxyModel = CustomSortFilterProxyModel()
 		self.proxyModel.setSourceModel(self.model)
@@ -880,101 +879,102 @@ class FileWidget(QtWidgets.QWidget):
 	def mousePressEvent(self, event):
 		self.ask_open()
 
+
 # Creates a dir widget, same as file but for directories
 class DirWidget(QtWidgets.QWidget):
-    """An entry widget that starts a file selector when clicked and also accepts drag & drop.
-    Displays the current file's basename.
-    """
+	"""An entry widget that starts a file selector when clicked and also accepts drag & drop.
+	Displays the current file's basename.
+	"""
 
-    def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True):
-        super(DirWidget, self).__init__(parent)
-        self.entry = QtWidgets.QLineEdit()
-        self.icon = QtWidgets.QPushButton()
-        self.icon.setIcon(self.get_icon("dir"))
-        self.icon.setFlat(True)
-        self.icon.mousePressEvent = self.ignoreEvent
-        self.entry.mousePressEvent = self.ignoreEvent
-        self.icon.dropEvent = self.dropEvent
-        self.entry.dropEvent = self.dropEvent
-        self.icon.dragMoveEvent = self.dragMoveEvent
-        self.entry.dragMoveEvent = self.dragMoveEvent
-        self.icon.dragEnterEvent = self.dragEnterEvent
-        self.entry.dragEnterEvent = self.dragEnterEvent
-        self.dtype = dtype
-        self.dtype_l = dtype.lower()
+	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True):
+		super(DirWidget, self).__init__(parent)
+		self.entry = QtWidgets.QLineEdit()
+		self.icon = QtWidgets.QPushButton()
+		self.icon.setIcon(self.get_icon("dir"))
+		self.icon.setFlat(True)
+		self.icon.mousePressEvent = self.ignoreEvent
+		self.entry.mousePressEvent = self.ignoreEvent
+		self.icon.dropEvent = self.dropEvent
+		self.entry.dropEvent = self.dropEvent
+		self.icon.dragMoveEvent = self.dragMoveEvent
+		self.entry.dragMoveEvent = self.dragMoveEvent
+		self.icon.dragEnterEvent = self.dragEnterEvent
+		self.entry.dragEnterEvent = self.dragEnterEvent
+		self.dtype = dtype
+		self.dtype_l = dtype.lower()
 
-        self.poll = poll
-        self.parent = parent
-        self.cfg = cfg
-        if not self.cfg:
-            self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
-        self.entry.setDragEnabled(True)
-        self.entry.setReadOnly(True)
-        self.filepath = ""
-        self.filename = ""
-        self.ask_user = ask_user
-        # this checks if the data has been modified by the user, is set from the outside
-        self.dirty = False
+		self.poll = poll
+		self.parent = parent
+		self.cfg = cfg
+		if not self.cfg:
+			self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
+		self.entry.setDragEnabled(True)
+		self.entry.setReadOnly(True)
+		self.filepath = ""
+		self.filename = ""
+		self.ask_user = ask_user
+		# this checks if the data has been modified by the user, is set from the outside
+		self.dirty = False
 
-        self.qgrid = QtWidgets.QGridLayout()
-        self.qgrid.setContentsMargins(0, 0, 0, 0)
-        self.qgrid.addWidget(self.icon, 0, 0)
-        self.qgrid.addWidget(self.entry, 0, 1)
+		self.qgrid = QtWidgets.QGridLayout()
+		self.qgrid.setContentsMargins(0, 0, 0, 0)
+		self.qgrid.addWidget(self.icon, 0, 0)
+		self.qgrid.addWidget(self.entry, 0, 1)
 
-        self.setLayout(self.qgrid)
+		self.setLayout(self.qgrid)
 
-    def get_icon(self,name):
-        base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        return QtGui.QIcon(os.path.join(base_dir, f'icons/{name}.png'))
+	def get_icon(self, name):
+		base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+		return QtGui.QIcon(os.path.join(base_dir, f'icons/{name}.png'))
 
-    def accept_dir(self, dirpath):
-        if os.path.isdir(dirpath):
-            self.filepath = dirpath
-            self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(dirpath)
-            self.setText(dirpath)
-            self.parent.settings_changed()
-            return True
+	def accept_dir(self, dirpath):
+		if os.path.isdir(dirpath):
+			self.filepath = dirpath
+			self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(dirpath)
+			self.setText(dirpath)
+			self.parent.settings_changed()
+			return True
 
-    def setText(self, text):
-        self.entry.setText(text)
+	def setText(self, text):
+		self.entry.setText(text)
 
-    def get_files(self, event):
-        data = event.mimeData()
-        urls = data.urls()
-        if urls and urls[0].scheme() == 'file':
-            return urls
+	def get_files(self, event):
+		data = event.mimeData()
+		urls = data.urls()
+		if urls and urls[0].scheme() == 'file':
+			return urls
 
-    def dragEnterEvent(self, event):
-        if self.get_files(event):
-            event.acceptProposedAction()
-            self.setFocus(True)
+	def dragEnterEvent(self, event):
+		if self.get_files(event):
+			event.acceptProposedAction()
+			self.setFocus(True)
 
-    def dragMoveEvent(self, event):
-        if self.get_files(event):
-            event.acceptProposedAction()
-            self.setFocus(True)
+	def dragMoveEvent(self, event):
+		if self.get_files(event):
+			event.acceptProposedAction()
+			self.setFocus(True)
 
-    def dropEvent(self, event):
-        urls = self.get_files(event)
-        if urls:
-            filepath = str(urls[0].path())[1:]
-            self.decide_open(filepath)
+	def dropEvent(self, event):
+		urls = self.get_files(event)
+		if urls:
+			filepath = str(urls[0].path())[1:]
+			self.decide_open(filepath)
 
-    def decide_open(self, filepath):
-        if self.accept_dir(filepath) and self.poll:
-            #self.parent.poll()
-            pass
+	def decide_open(self, filepath):
+		if self.accept_dir(filepath) and self.poll:
+			# self.parent.poll()
+			pass
 
-    def ask_open_dir(self):
-        filepath = QtWidgets.QFileDialog.getExistingDirectory()
-        if self.accept_dir(filepath):
-           pass
+	def ask_open_dir(self):
+		filepath = QtWidgets.QFileDialog.getExistingDirectory()
+		if self.accept_dir(filepath):
+			pass
 
-    def ignoreEvent(self, event):
-        event.ignore()
+	def ignoreEvent(self, event):
+		event.ignore()
 
-    def mousePressEvent(self, event):
-        self.ask_open_dir()
+	def mousePressEvent(self, event):
+		self.ask_open_dir()
 
 
 def get_icon(name):
