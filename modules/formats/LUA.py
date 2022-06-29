@@ -22,7 +22,7 @@ class LuaLoader(MemStructLoader):
 		self.header.likely_alignment.data = get_padding(len(self.file_entry.basename)+1, alignment=4)
 		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
-	def extract(self, out_dir, progress_callback):
+	def extract(self, out_dir):
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
 		buffer_data = self.data_entry.buffer_datas[0]

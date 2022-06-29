@@ -19,7 +19,7 @@ class FdbLoader(BaseFile):
 		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)
 		self.create_data_entry((buffer_0, buffer_1))
 
-	def extract(self, out_dir, progress_callback):
+	def extract(self, out_dir):
 		name = self.root_entry.name
 		try:
 			buff = self.data_entry.buffer_datas[1]

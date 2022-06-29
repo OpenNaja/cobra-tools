@@ -662,7 +662,7 @@ class OvlFile(Header, IoFile):
 		for i, loader in enumerate(loaders_for_extract):
 			self.progress_callback("Extracting", value=i, vmax=len(loaders_for_extract))
 			try:
-				ret_paths = loader.extract(out_dir_func, self.progress_callback)
+				ret_paths = loader.extract(out_dir_func)
 				ret_paths = loader.handle_paths(ret_paths, show_temp_files)
 				out_paths.extend(ret_paths)
 			except BaseException as error:

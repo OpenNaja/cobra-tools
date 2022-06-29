@@ -13,7 +13,7 @@ class GfxLoader(BaseFile):
         self.write_data_to_pool(self.root_entry.struct_ptr, 4, root_entry_data)
         self.create_data_entry((buffer_0,))
 
-    def extract(self, out_dir, progress_callback):
+    def extract(self, out_dir):
         name = self.root_entry.name
         logging.info(f"Writing {name}")
 

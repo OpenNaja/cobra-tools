@@ -178,8 +178,8 @@ class DdsLoader(MemStructLoader):
 		else:
 			return self.header.size_info.data.data
 
-	def extract(self, out_dir, progress_callback):
-		tex_paths = super().extract(out_dir, progress_callback)
+	def extract(self, out_dir):
+		tex_paths = super().extract(out_dir)
 		tex_name = self.root_entry.name
 		basename = os.path.splitext(tex_name)[0]
 		dds_name = basename + ".dds"

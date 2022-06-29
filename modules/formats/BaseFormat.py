@@ -310,7 +310,7 @@ class BaseFile:
 class MemStructLoader(BaseFile):
 	target_class: None
 
-	def extract(self, out_dir, progress_callback):
+	def extract(self, out_dir):
 		name = self.root_entry.name
 		out_path = out_dir(name)
 		self.header.to_xml_file(out_path)

@@ -6,7 +6,7 @@ class WsmLoader(MemStructLoader):
 	extension = ".wsm"
 	target_class = WsmHeader
 
-	# def extract(self, out_dir, progress_callback):
+	# def extract(self, out_dir):
 	# 	name = self.root_entry.name
 	# 	logging.info(f"Writing {name}")
 	# 	ovl_header = self.pack_header(b"WSM ")

@@ -33,7 +33,7 @@ class BaniLoader(MemStructLoader):
 		logging.info(f"Linked '{self.file_entry.name}' to '{self.target_name}'")
 		self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
 
-	def extract(self, out_dir, progress_callback):
+	def extract(self, out_dir):
 		logging.info(f"Writing {self.root_entry.name}")
 
 		# find banis name
@@ -58,7 +58,7 @@ class BanisLoader(MemStructLoader):
 	extension = ".banis"
 	target_class = BanisRoot
 
-	def extract(self, out_dir, progress_callback):
+	def extract(self, out_dir):
 		name = self.root_entry.name
 		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")

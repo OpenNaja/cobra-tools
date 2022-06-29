@@ -27,7 +27,7 @@ class Mdl2Loader(BaseFile):
 class Model2streamLoader(BaseFile):
 	extension = ".model2stream"
 
-	def extract(self, out_dir, progress_callback):
+	def extract(self, out_dir):
 		stream_path = out_dir(self.file_entry.name)
 		with open(stream_path, 'wb') as outfile:
 			outfile.write(self.data_entry.buffer_datas[0])
@@ -137,7 +137,7 @@ class Ms2Loader(BaseFile):
 			padding = get_padding(len(name_buffer_truncated), 4)
 			self.data_entry.update_data([name_buffer_truncated + padding, bone_infos, verts])
 	
-	def extract(self, out_dir, progress_callback):
+	def extract(self, out_dir):
 		self.get_version()
 		# return self.dump_buffers(out_dir)
 		name = self.root_entry.name
@@ -160,7 +160,7 @@ class Ms2Loader(BaseFile):
 				stream.write(as_bytes(mdl2_entry.basename))
 			for loader in self.streams:
 				stream.write(as_bytes(loader.file_entry.name))
-				out_paths.extend(loader.extract(out_dir, progress_callback))
+				out_paths.extend(loader.extract(out_dir))
 			stream.write(name_buffer)
 			# export each mdl2
 			if self.header.version > 39:
