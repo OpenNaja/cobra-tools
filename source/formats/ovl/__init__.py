@@ -628,7 +628,7 @@ class OvlFile(Header, IoFile):
 
 	def rename_contents(self, name_tups, only_files):
 		if not only_files:
-			only_files = self.loaders.keys()
+			only_files = list(self.loaders.keys())
 		logging.info(f"Renaming contents for {name_tups} for {len(only_files)} selected files")
 		for file_name in only_files:
 			self.loaders[file_name].rename_content(name_tups)

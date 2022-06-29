@@ -54,7 +54,7 @@ class FdbLoader(BaseFile):
 			logging.info(f"Executing command '{s}' on {self.file_entry.name}")
 			try:
 				temp_dir, out_dir_func = self.get_tmp_dir()
-				fdb_path = self.extract(out_dir_func, False, None)[0]
+				fdb_path = self.extract(out_dir_func, None)[0]
 				con = sqlite3.connect(fdb_path)
 				cur = con.cursor()
 
