@@ -13,8 +13,9 @@ from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 ZERO = b"\x00"
+# these attributes present on the MemStruct will not be stored on the XML
 SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
-POOL_TYPE = "_pool_type"
+POOL_TYPE = "pool_type"
 DTYPE = "dtype"
 XML_STR = "xml_string"
 DEPENDENCY_TAG = "dependency"
@@ -307,54 +308,60 @@ class MemStruct:
 			# print("basic")
 			# set basic attribute
 			cls = type(val)
-			if prop != XML_STR:
-				if prop in elem.attrib:
-					data = elem.attrib[prop]
-					if data != "None":
-						try:
-							logging.debug(f"Setting {type(target).__name__}.{prop} = {data}")
-							setattr(target, prop, cls(data))
-						except TypeError:
-							raise TypeError(f"Could not convert attribute {prop} = '{data}' to {cls.__name__}")
-				else:
-					logging.warning(f"Missing attribute '{prop}' in element '{elem.tag}'")
-			else:
+			if prop == XML_STR:
 				# logging.debug(f"Can't handle {XML_STR} inside '{elem.tag}'")
 				data = ET.tostring(elem[0], encoding="unicode").replace("\t", "").replace("\n", "")
-				setattr(target, "data", cls(data))
-				logging.debug(f"Setting {type(target).__name__}.data = {data}")
+				# override for setattr
+				prop = "data"
+			# strings stored as element text for readability
+			elif prop == "data" and elem.text:
+				data = elem.text
+			# basic attributes
+			elif prop in elem.attrib:
+				data = elem.attrib[prop]
+			else:
+				logging.warning(f"Missing attribute '{prop}' in element '{elem.tag}'")
+				return
+			if data != "None":
+				try:
+					logging.debug(f"Setting {type(target).__name__}.{prop} = {data}")
+					setattr(target, prop, cls(data))
+				except TypeError:
+					raise TypeError(f"Could not convert attribute {prop} = '{data}' to {cls.__name__}")
 
-	def to_xml_file(self, file_path):
+
+	def to_xml_file(self, file_path, debug=False):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
 		xml = ET.Element(self.__class__.__name__)
-		self.to_xml(xml)
+		self.to_xml(xml, debug)
 		xml.attrib["game"] = str(get_game(self.context)[0])
 		indent(xml)
 		with open(file_path, 'wb') as outfile:
 			outfile.write(ET.tostring(xml))
 
-	def _to_xml(self, elem, prop, val):
+	def _to_xml(self, elem, prop, val, debug):
 		"""Assigns data val to xml elem"""
 		# logging.debug(f"_to_xml {elem.tag} - {prop}")
 		if isinstance(val, Pointer):
 			if val.frag and hasattr(val.frag, "struct_ptr"):
 				f_ptr = val.frag.struct_ptr
-				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
-				elem.set("_size", f"{f_ptr.data_size}")
+				if debug:
+					elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+					elem.set("_size", f"{f_ptr.data_size}")
 				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
-			elif hasattr(val, "pool_type"):
+			elif hasattr(val, POOL_TYPE):
 				if val.pool_type is not None:
 					elem.set(POOL_TYPE, f"{val.pool_type}")
-			self._to_xml(elem, self._handle_xml_str(prop), val.data)
+			self._to_xml(elem, self._handle_xml_str(prop), val.data, debug)
 		elif isinstance(val, Array):
 			for member in val:
 				cls_name = member.__class__.__name__.lower()
 				member_elem = ET.SubElement(elem, cls_name)
-				self._to_xml(member_elem, cls_name, member)
+				self._to_xml(member_elem, cls_name, member, debug)
 		elif isinstance(val, ndarray):
 			elem.attrib[prop] = " ".join([str(member) for member in val])
 		elif isinstance(val, MemStruct):
-			val.to_xml(elem)
+			val.to_xml(elem, debug)
 		# basic attribute
 		else:
 			if prop == XML_STR:
@@ -362,10 +369,13 @@ class MemStruct:
 					elem.append(ET.fromstring(val))
 				else:
 					logging.warning(f"bug, val should not be None for XML_STR")
+			# for better readability, set ztsr pointer data as xml text
+			elif prop == "data" and type(val) == str:
+				elem.text = val
 			else:
 				elem.set(prop, str(val))
 
-	def to_xml(self, elem):
+	def to_xml(self, elem, debug):
 		"""Adds data of this MemStruct to 'elem', recursively"""
 		# go over all fields of this MemStruct
 		for prop, val in vars(self).items():
@@ -377,9 +387,9 @@ class MemStruct:
 			# add a sub-element if these are child of a MemStruct
 			if isinstance(val, (MemStruct, Array, ndarray, Pointer)):
 				sub = ET.SubElement(elem, prop)
-				self._to_xml(sub, prop, val)
+				self._to_xml(sub, prop, val, debug)
 			else:
-				self._to_xml(elem, prop, val)
+				self._to_xml(elem, prop, val, debug)
 
 	def debug_ptrs(self):
 		"""Iteratively debugs all pointers of a struct"""
