@@ -116,7 +116,6 @@ class FdbLoader(BaseFile):
 						# Uses both Find and Replace strings for reduced chance of collisions
 						if context.name == "research":
 							command_replaced = command_replaced.replace("CALCULATED_HASH", str(djb(name_tuples[0][0] + name_tuples[0][1])))
-							print(djb(name_tuples[0][0] + name_tuples[0][1]))
 
 						cur.executescript(command_replaced)
 						# Save (commit) the changes
