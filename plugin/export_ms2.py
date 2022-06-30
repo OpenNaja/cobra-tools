@@ -13,6 +13,8 @@ from generated.formats.ms2.compound.MaterialName import MaterialName
 from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2 import Ms2File
+from generated.formats.ms2.compound.packing_utils import remap
+from plugin.import_ms2 import num_fur_as_weights
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
@@ -66,6 +68,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.verts = []
 	model_info.model.meshes.append(wrapper)
 
+	num_fur_weights = num_fur_as_weights(b_me.materials[0].name)
+
 	if not len(b_me.vertices):
 		raise AttributeError(f"Mesh {b_ob.name} has no vertices!")
 
@@ -73,7 +77,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		raise AttributeError(f"Mesh {b_ob.name} has no polygons!")
 
 	for len_type, num_type, name_type in (
-			(len(b_me.uv_layers), num_uvs, "UV"),
+			(len(b_me.uv_layers)+num_fur_weights, num_uvs, "UV"),
 			(len(b_me.vertex_colors), num_vcols, "Vertex Color")):
 		logging.debug(f"{name_type} count: {num_type}")
 		if len_type != num_type:
@@ -174,12 +178,14 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 				# collect vertex colors
 				vcols = [(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
-
 				bone_ids, bone_weights, fur_length, fur_width, residue = export_weights(
 					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
+				if num_fur_weights:
+					# append to uv
+					uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
 				# store all raw blender data
 				verts.append((position, residue, normal, flip, tangent, bone_ids[0], uvs, vcols, bone_ids,
-					bone_weights, fur_length, fur_width, shapekey))
+					bone_weights, shapekey))
 			tri.append(v_index)
 		tris.append(tri)
 

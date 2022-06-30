@@ -282,7 +282,7 @@ class ModToolGUI(QMainWindow):
         self.game_changed()
         try:
             self.ovl_data.create(ovl_dir)
-            self.ovl_data.save(dst_file, "")
+            self.ovl_data.save(dst_file)
             return True
         except Exception as ex:
             traceback.print_exc()

@@ -64,7 +64,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						traceback.print_exc()
 					try:
 						mesh_dict[m_ob.mesh_index] = b_me
-						import_mesh_layers(b_me, mesh, use_custom_normals)
+						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
 					except:
 						traceback.print_exc()
 				# link material to mesh
@@ -100,24 +100,39 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	return messages
 
 
-def import_mesh_layers(b_me, mesh, use_custom_normals):
+def num_fur_as_weights(mat_name):
+	mat_name = mat_name.lower()
+	# todo - include JWE2 feather name conventions
+	if "_fur_fin" in mat_name:
+		return 0
+	elif "_fur" in mat_name:
+		return 1
+	return 0
+
+
+def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	# set uv data
 	if mesh.uvs is not None:
+		# decide how to import the UVs according to mat_name
 		num_uv_layers = mesh.uvs.shape[1]
+		num_fur_weights = num_fur_as_weights(mat_name)
+		if num_fur_weights:
+			# fur is uv 1
+			mesh.import_fur_as_weights(mesh.uvs[:, num_fur_weights])
+			# so just use uv 0 as actual uv
+			num_uv_layers = 1
 		for uv_i in range(num_uv_layers):
 			uvs = mesh.uvs[:, uv_i]
 			b_me.uv_layers.new(name=f"UV{uv_i}")
-			b_me.uv_layers[-1].data.foreach_set("uv",
-												[uv for pair in [uvs[l.vertex_index] for l in b_me.loops] for uv in
-												 (pair[0], 1 - pair[1])])
+			b_me.uv_layers[-1].data.foreach_set(
+				"uv", [uv for pair in [uvs[l.vertex_index] for l in b_me.loops] for uv in (pair[0], 1 - pair[1])])
 	if mesh.colors is not None:
 		num_vcol_layers = mesh.colors.shape[1]
 		for col_i in range(num_vcol_layers):
 			vcols = mesh.colors[:, col_i]
 			b_me.vertex_colors.new(name=f"RGBA{col_i}")
-			b_me.vertex_colors[-1].data.foreach_set("color",
-													[c for col in [vcols[l.vertex_index] for l in b_me.loops] for c in
-													 col])
+			b_me.vertex_colors[-1].data.foreach_set(
+				"color", [c for col in [vcols[l.vertex_index] for l in b_me.loops] for c in col])
 	# b_me.vertex_colors.new(name="tangents")
 	# b_me.vertex_colors[-1].data.foreach_set("color", [c for col in [mesh.tangents[l.vertex_index] for l in b_me.loops] for c in (*col, 1,)])
 	#

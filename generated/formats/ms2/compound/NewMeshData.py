@@ -168,11 +168,6 @@ class NewMeshData(MeshData):
 		except:
 			self.uvs = None
 		try:
-			fur_shape = self.dt["fur_shell"].shape
-			self.fur = np.empty((self.vertex_count, *fur_shape), np.float32)
-		except:
-			self.fur = None
-		try:
 			colors_shape = self.dt["colors"].shape
 			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 		except:
@@ -215,16 +210,9 @@ class NewMeshData(MeshData):
 				("uvs", np.ushort, (2, 2)),
 				("zeros0", np.int32, (2,))
 			])
-		elif self.flag in (565,):
+		elif self.flag in (565, 821, 853, 885, 1013):
 			dt.extend([
-				("uvs", np.ushort, (2, 2)),
-				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
-				("zeros0", np.int32, (1,))
-			])
-		elif self.flag in (821, 853, 885, 1013):
-			dt.extend([
-				("uvs", np.ushort, (1, 2)),
-				("fur_shell", np.ushort, (2,)),  # fur length and shell tile scale
+				("uvs", np.ushort, (2, 2)),  # second UV is either fins texcoords or fur length and shell tile scale
 				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
 			])
@@ -322,10 +310,10 @@ class NewMeshData(MeshData):
 			self.weights.append(unpack_weights(self, i, residue))
 		# logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 		self.fur_length = 0.0
-		if self.fur is not None:
-			fur = self.verts_data[:]["fur_shell"]
-			fur = unpack_ushort_vector(fur)
-			self.import_fur_as_weights(fur)
+		# if self.fur is not None:
+		# 	fur = self.verts_data[:]["fur_shell"]
+		# 	fur = unpack_ushort_vector(fur)
+		# 	self.import_fur_as_weights(fur)
 		# print(self.verts_data[:]["winding"])
 
 	def set_verts(self, verts):
@@ -333,7 +321,7 @@ class NewMeshData(MeshData):
 		self.verts_data = np.zeros(len(verts), dtype=self.dt)
 		for i, (
 				position, residue, normal, winding, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
-				fur_length, fur_width, shapekey) in enumerate(
+				shapekey) in enumerate(
 			verts):
 			# print("shapekey", shapekey)
 			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
@@ -356,8 +344,9 @@ class NewMeshData(MeshData):
 				assert np.sum(self.verts_data[i]["bone weights"]) == 255
 			if "uvs" in self.dt.fields:
 				self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
-			if "fur_shell" in self.dt.fields and fur_length is not None:
-				self.verts_data[i]["fur_shell"] = pack_ushort_vector((fur_length, remap(fur_width, 0, 1, -16, 16)))
+			# todo - convert to UV before
+			# if "fur_shell" in self.dt.fields and fur_length is not None:
+			# 	self.verts_data[i]["fur_shell"] = pack_ushort_vector((fur_length, remap(fur_width, 0, 1, -16, 16)))
 			if "colors" in self.dt.fields:
 				self.verts_data[i]["colors"] = list(list(round(c * 255) for c in vcol) for vcol in vcols)
 			if "shapekeys0" in self.dt.fields:
