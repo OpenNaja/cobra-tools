@@ -294,6 +294,7 @@ class MainWindow(widgets.MainWindow):
 		# force new name to be lowercase
 		names = [(old_name, new_name.lower()), ]
 		self.ovl_data.rename(names)
+		self.file_widget.dirty = True
 		self.update_gui_table()
 
 	def biosyn_changed(self):
@@ -533,6 +534,7 @@ class MainWindow(widgets.MainWindow):
 				for ovl in self.handle_path():
 					if self.is_open_ovl():
 						self.ovl_data.rename(names, animal_mode=self.t_animal_ovl.isChecked())
+						self.file_widget.dirty = True
 						self.update_gui_table()
 		except BaseException as err:
 			print(err)
@@ -551,6 +553,7 @@ class MainWindow(widgets.MainWindow):
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
 					self.ovl_data.rename_contents(names, only_files)
+					self.file_widget.dirty = True
 					self.update_gui_table()
 
 	# Save the OVL file list to disk
@@ -591,6 +594,7 @@ class MainWindow(widgets.MainWindow):
 			if selected_file_names:
 				try:
 					self.ovl_data.remove(selected_file_names)
+					self.file_widget.dirty = True
 				except:
 					traceback.print_exc()
 				self.update_gui_table()
