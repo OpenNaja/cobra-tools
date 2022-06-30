@@ -5,11 +5,11 @@ import shutil
 import sqlite3
 import struct
 import traceback
-import mmap
 from collections import namedtuple
 
 from generated.formats.ovl_base.versions import is_pz, is_pz16
 from modules.formats.BaseFormat import BaseFile
+from modules.formats.shared import djb
 from root_path import root_dir
 
 
@@ -45,13 +45,6 @@ class FdbLoader(BaseFile):
 		with open(command_path, "r") as file:
 			return file.read()
 
-	@staticmethod
-	def hash_djb2(s):
-		hash = 5381
-		for x in s:
-			hash = (( hash << 5) + hash) + ord(x)
-		return hash & 0xFFFFFFFF
-
 	ScriptContext = namedtuple('ScriptContext', ['name', 'command', 'num_strings', 'find_strings'])
 	def context_is_valid(self, context: ScriptContext, name_tuples):
 		if not context or not name_tuples:
@@ -63,6 +56,17 @@ class FdbLoader(BaseFile):
 			logging.info(f"Rename Contents on this FDB needs {context.num_strings} strings in both Find/Replace separated by new lines.")
 			return False
 		return context.name and context.command and context.find_strings
+
+	def are_strs_in_fdb(self, fdb_path: str, context: ScriptContext, name_tuples):
+		not_found = []
+		with open(fdb_path, 'rb', 0) as file:
+			for tup in name_tuples[:context.num_strings]:
+				find = tup[0]
+				if find.encode() in file.read():
+					return True
+				not_found.append(find)
+		logging.error(f'SQL error: {not_found} not found in {self.file_entry.name}. Aborting SQL commands.')
+		return False
 
 	def rename_content(self, name_tuples):
 		# The current script context e.g. "animals" or "research"
@@ -99,16 +103,7 @@ class FdbLoader(BaseFile):
 					con.close()
 
 				# Before running SQL commands, verify the strings exist or you will get empty FDBs
-				run = True
-				with open(fdb_path, 'rb', 0) as file, mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ) as s:
-					for tup in name_tuples[:context.num_strings]:
-						find = tup[0]
-						if s.find(find.encode()) == -1:
-							run = False
-							logging.error(f'SQL error: "{find}" not found in {self.file_entry.name}. Aborting SQL commands.')
-							break
-
-				if run:
+				if self.are_strs_in_fdb(fdb_path, context, name_tuples):
 					con = sqlite3.connect(fdb_path)
 					cur = con.cursor()
 					try:
@@ -120,16 +115,14 @@ class FdbLoader(BaseFile):
 						# CALCULATED_HASH gets added to the original ResearchID in the SQL script
 						# Uses both Find and Replace strings for reduced chance of collisions
 						if context.name == "research":
-							command_replaced = command_replaced.replace("CALCULATED_HASH", str(self.hash_djb2(name_tuples[0][0] + name_tuples[0][1])))
+							command_replaced = command_replaced.replace("CALCULATED_HASH", str(djb(name_tuples[0][0] + name_tuples[0][1])))
+							print(djb(name_tuples[0][0] + name_tuples[0][1]))
 
 						cur.executescript(command_replaced)
 						# Save (commit) the changes
 						con.commit()
 					except sqlite3.Error as e:
 						logging.error(f"SQL error: {str(e)}")
-						#logging.warning(f"Re-extracting {self.file_entry.name} due to failed SQL commands")
-						# Possibly unncessary but safest
-						#fdb_path = self.extract(out_dir_func, None)[0]
 					finally:
 						con.close()
 
