@@ -148,6 +148,11 @@ class DdsLoader(MemStructLoader):
 			if len(out_bytes) != sum_of_buffers:
 				logging.warning(
 					f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes.")
+		# fix as we don't use the data.update_data api here
+		all_datas = [self.data_entry, ] + [loader.data_entry for loader in self.streams]
+		for data in all_datas:
+			data.size_1 = 0
+			data.size_2 = sum(buffer.size for buffer in data.buffers)
 
 	def get_sorted_streams(self):
 		# lod0 | lod1 | static
