@@ -19,7 +19,7 @@ class TestOVLSave(unittest.TestCase):
 		self.assertEqual(game, get_game(self.ovlfile)[0].value, "Should have the same game")
 
 	def test_ovl_save_pz(self):
-		game = "Planet Zoo 1.6+"
+		game = "Planet Zoo"
 		file = 'tests/tmp/pz.ovl'
 		set_game(self.ovlfile.context, game)
 		set_game(self.ovlfile, game)
