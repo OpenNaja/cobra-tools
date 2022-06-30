@@ -57,7 +57,8 @@ class Pointer:
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
-		self.io_start = 0
+		# set to -1 here so that read_ptr doesn't get a wrong frag by chance if the entry has not been read -> get at 0
+		self.io_start = -1
 		self.offset = 0
 		self.data = None
 		self.frag = None
@@ -77,7 +78,7 @@ class Pointer:
 	def read_ptr(self, pool):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
-		# find the frag entry with matching pointers[0].data_offset
+		# find the frag entry with matching link_ptr.data_offset
 		self.frag = pool.offset_2_link_entry.get(self.io_start, None)
 		# pointer may be a nullptr, so ignore
 		if not self.frag:

@@ -129,12 +129,12 @@ class MemStruct:
 
 	def handle_pointer(self, prop, pointer, pool):
 		"""Ensures a pointer has a valid template, load it, and continue processing the linked memstruct."""
-		logging.debug(f"handle_pointer for {self.__class__.__name__}")
+		logging.debug(f"handle_pointer for {self.__class__.__name__}.{prop}")
 		if not pointer.template:
 			# try the lookup function
 			pointer.template = self.get_ptr_template(prop)
 		# reads the template and grabs the frag
-		pointer.read_ptr(pool)  # , root_entry)
+		pointer.read_ptr(pool)
 		if pointer.frag and hasattr(pointer.frag, "struct_ptr"):
 			pool = pointer.frag.struct_ptr.pool
 			pointer.pool_type = pool.type
@@ -204,7 +204,7 @@ class MemStruct:
 		# print("_from_xml", elem, prop, val)
 		if isinstance(val, Pointer):
 			if DEPENDENCY_TAG in prop:
-				data = elem.attrib["data"]
+				data = elem.text
 				if data != "None":
 					logging.debug(f"Setting dependency {type(val).__name__}.data = {data}")
 					val.data = data
@@ -277,7 +277,6 @@ class MemStruct:
 				except TypeError:
 					raise TypeError(f"Could not convert attribute {prop} = '{data}' to {cls.__name__}")
 
-
 	def to_xml_file(self, file_path, debug=False):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
 		xml = ET.Element(self.__class__.__name__)
@@ -318,8 +317,9 @@ class MemStruct:
 				else:
 					logging.warning(f"bug, val should not be None for XML_STR")
 			# for better readability, set ztsr pointer data as xml text
-			elif prop == "data" and type(val) == str:
-				elem.text = val
+			elif prop == "data":
+				elem.text = str(val)
+			# actual basic attributes
 			else:
 				elem.set(prop, str(val))
 
