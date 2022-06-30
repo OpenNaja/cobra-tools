@@ -216,17 +216,28 @@ class MainWindow(widgets.MainWindow):
 			self.populate_game_widget(dir_game)
 			return dir_game
 
-	def set_game_dir(self):
-		dir_game = self.cfg.get("dir_game", "")
+	def get_game_dir(self):
+		return self.cfg.get("dir_game", "")
 
+	def set_game_dir(self):
+		dir_game = self.get_game_dir()
 		if dir_game:
 			self.populate_game_widget(dir_game)
 		else:
 			self.ask_game_dir()
 
+	def set_game_choice(self, game):
+		for g in games:
+			if g.value in self.get_game_dir():
+				self.game_choice.entry.setText(game)
+
 	def populate_game_widget(self, dir_game):
 		rt_index = self.model.setRootPath(dir_game)
 		self.dirs_container.setRootIndex(rt_index)
+		# Set Game Choice default based on current game dir
+		for g in games:
+			if g.value in self.get_game_dir():
+				self.set_game_choice(g.value)
 
 	def get_selected_dir(self):
 		model = self.dirs_container.model()
