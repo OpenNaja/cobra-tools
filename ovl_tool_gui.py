@@ -120,6 +120,14 @@ class MainWindow(widgets.MainWindow):
 		self.t_biosyn.setToolTip("Check for opening OVLs with MS2 files after JWE2 Biosyn upgrade.")
 		self.t_biosyn.setChecked(False)
 		self.t_biosyn.stateChanged.connect(self.biosyn_changed)
+		biosyn_frame = QtWidgets.QWidget()
+		biosyn_box = QtWidgets.QHBoxLayout()
+		biosyn_box.setSpacing(0)
+		biosyn_box.setContentsMargins(0, 0, 0, 0)
+		biosyn_box.addStretch(1)
+		biosyn_box.addWidget(self.t_biosyn)
+		biosyn_frame.setLayout(biosyn_box)
+		biosyn_frame.setContentsMargins(0, 0, 0, 0)
 
 		self.e_name_old = QtWidgets.QTextEdit("")
 		self.e_name_old.setToolTip("Old strings - one item per line")
@@ -143,7 +151,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
 		self.qgrid.addWidget(self.in_folder, 1, 3)
 		self.qgrid.addWidget(self.t_mesh_ovl, 2, 3)
-		self.qgrid.addWidget(self.t_biosyn, 3, 3)
+		self.qgrid.addWidget(biosyn_frame, 2, 4)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
 
