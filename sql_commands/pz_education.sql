@@ -1,23 +1,49 @@
-/*Copy the whole script below into SQLite’s SQL Editor; change ORIGINAL, NEW, and ORIGINAL into your original animal, its replacement, and the length of the animal’s name. USE THE FULL NAME OF THE ANIMAL even if you’re only replacing part of it. IE CuviersDwarfCaiman into NilecrcDwarfCaiman - I’d enter both full names, not only the part that changes*/
+-- FDB EDUCATION
+--***********************
 
-CREATE TEMP TABLE Replacement(Original TEXT PRIMARY KEY, New TEXT, Length INTEGER);
+-- IF USING IN SQLITESTUDIO:
+-- Open with Ctrl+O or the Folder icon in SQL Editor
+-- Make sure Configuration > SQL Queries > "Execute only the query under the cursor" is UNCHECKED
+-- Replace the 2 strings below Original/New with your base and modded species
+-- NOTES:
+--    Incomplete names ARE supported e.g. 'Grey' -> 'Harbor' will rename GreySeal to HarborSeal
+--    Do NOT use incomplete strings that are too short or generic e.g. Giant, Red, Nile, which all have multiple species matched.
 
-Insert Into Replacement(Original,New,Length) Values ('ORIGINAL','NEW',length('ORIGINAL'));
+CREATE TEMP TABLE IF NOT EXISTS Replacement(Original TEXT PRIMARY KEY, New TEXT);
+INSERT OR IGNORE INTO Replacement	(Original,		New)
+-- Replace the 2 strings below here
+VALUES			('ORIGINAL_SPECIES',	'NEW_SPECIES');
 
-/*This clears out everything except our base creature.*/
-delete from InfoBoardMaterials where ContentType not like ('%'||(select Original from Replacement)||'%');
-delete from EducationResearchPacks where ContentType not like ('%'||(select Original from Replacement)||'%');
-delete from EducationalContentTypes where Name not like ('%'||(select Original from Replacement)||'%');
+/* This clears out everything except our base creature. */
+DELETE FROM InfoBoardMaterials WHERE ContentType NOT LIKE '%'||(SELECT Original FROM Replacement)||'%' AND ContentType NOT LIKE '%'||(SELECT New FROM Replacement)||'%';
+DELETE FROM EducationResearchPacks WHERE ContentType NOT LIKE '%'||(SELECT Original FROM Replacement)||'%' AND ContentType NOT LIKE '%'||(SELECT New FROM Replacement)||'%';
+DELETE FROM EducationalContentTypes WHERE Name NOT LIKE '%'||(SELECT Original FROM Replacement)||'%' AND Name NOT LIKE '%'||(SELECT New FROM Replacement)||'%';
+DELETE FROM AssetPackageOverrides;
+DELETE FROM PrefabNamesToEducationSourceTypes;
+DELETE FROM EducationSourceTypes;
+DELETE FROM Tweakables;
 
+/* This creates our new creature modeled off the base creature in the master table for this FDB */
+INSERT OR IGNORE INTO EducationalContentTypes
+SELECT
+    replace(Name, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
+    Category,
+    replace(LocString, (SELECT Original FROM Replacement), (SELECT New FROM Replacement))
+    FROM EducationalContentTypes;
+UPDATE EducationResearchPacks SET
+    ContentType = replace(ContentType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
+    Unlock1PackName = replace(Unlock1PackName, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
+    Unlock2PackName = replace(Unlock2PackName, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
+    Unlock3PackName = replace(Unlock3PackName, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE InfoBoardMaterials SET
+    ContentType = replace(ContentType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
+    MaterialName = replace(MaterialName, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
 
-/*This creates our new creature modeled off the base creature in the master table for this FDB*/
-Insert into EducationalContentTypes (Name,Category,LocString) select ( (select New from Replacement)||(substr(Name,(select length+1 from Replacement)))),Category,('Animal_'||(select New from Replacement)||(Substr(Name,(select length+7 from Replacement))))LocString from EducationalContentTypes;
+/* This deletes the base animal from the master table */
+DELETE FROM InfoBoardMaterials WHERE ContentType LIKE '%'||(SELECT Original FROM Replacement)||'%';
+DELETE FROM EducationResearchPacks WHERE ContentType LIKE '%'||(SELECT Original FROM Replacement)||'%';
+DELETE FROM EducationalContentTypes WHERE Name like '%'||(SELECT Original FROM Replacement)||'%';
 
-/*This updates all other tables to use your new species instead of the base creature*/
-Update EducationResearchPacks set ContentType = ((select New from Replacement)||(substr(ContentType,(select length+1 from Replacement)))), Unlock1PackName = (select New from Replacement)||(substr(Unlock1PackName,(select length+1 from Replacement))), Unlock2PackName = (select New from Replacement)||(substr(Unlock2PackName,(select length+1 from Replacement))), Unlock3PackName = (select New from Replacement)||(substr(Unlock3PackName,(select length+1 from Replacement)));
-Update InfoBoardMaterials set ContentType = ((select New from Replacement)||(substr(ContentType,(select length+1 from Replacement)))), MaterialName = 'ED_InfoBoard_Habitat_'||(select New from Replacement)||(substr(MaterialName,(select length+22 from Replacement)));
+DROP TABLE Replacement;
 
-/*This deletes the base animal from the master table*/
-delete from EducationalContentTypes where Name not like (select New from Replacement);
-
-
+VACUUM;

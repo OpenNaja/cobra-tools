@@ -1,152 +1,194 @@
-/*Copy the whole script below into SQLite’s SQL Editor; change ORIGINAL, NEW, and ORIGINAL into your original animal, its replacement, and the length of the animal’s name. USE THE FULL NAME OF THE ANIMAL even if you’re only replacing part of it. IE CuviersDwarfCaiman into NilecrcDwarfCaiman - I’d enter both full names, not only the part that changes*/
+-- FDB Animals
+--***********************
 
-CREATE TEMP TABLE Replacement(Original TEXT PRIMARY KEY, New TEXT, Length INTEGER);
+-- IF USING IN SQLITESTUDIO:
+-- Open with Ctrl+O or the Folder icon in SQL Editor
+-- Make sure Configuration > SQL Queries > "Execute only the query under the cursor" is UNCHECKED
+-- Replace the 4 strings below Original/New/OriginalPrefab/NewPrefab with your base and modded species
+-- NOTES:
+--    Incomplete names ARE supported e.g. 'Grey' -> 'Harbor' will rename GreySeal to HarborSeal
+--    Do NOT use incomplete strings that are too short or generic e.g. Giant, Red, Nile, which all have multiple species matched.
 
-Insert Into Replacement(Original,New,Length) Values ('ORIGINAL','NEW',length('ORIGINAL'));
+CREATE TEMP TABLE IF NOT EXISTS Replacement(Original TEXT PRIMARY KEY, New TEXT, OriginalPrefab TEXT, NewPrefab TEXT);
+INSERT OR IGNORE INTO Replacement(Original,				New,				OriginalPrefab,				NewPrefab)
+-- Replace the 4 strings below here, 2 for species name, 2 for prefabs which contain an underscore in base game e.g. GreySeal -> Grey_Seal.
+VALUES                 ('ORIGINAL_SPECIES',				'NEW_SPECIES',			'ORIGINAL_PREFAB',				'NEW_PREFAB');
 
-/*This clears out everything except our base creature.*/
+-- Support older FDB versions by creating missing tables
+-- 1.7-1.9 Tables
+CREATE TABLE IF NOT EXISTS AnimalBurrowsData (AnimalType TEXT PRIMARY KEY REFERENCES AnimalDefinitions (AnimalType) ON UPDATE CASCADE NOT NULL COLLATE NOCASE UNIQUE, BurrowType TEXT NOT NULL, BabiesWaitForMother BOOLEAN NOT NULL DEFAULT (0), AfterbirthDuration REAL NOT NULL, MaleEnterOverOffset REAL NOT NULL, MaleEnterUnderOffset REAL NOT NULL, MaleExitUnderOffset REAL NOT NULL, MaleExitOverOffset REAL NOT NULL, FemaleEnterOverOffset REAL NOT NULL, FemaleEnterUnderOffset REAL NOT NULL, FemaleExitUnderOffset REAL NOT NULL, FemaleExitOverOffset REAL NOT NULL, JuvenileEnterOverOffset REAL NOT NULL, JuvenileEnterUnderOffset REAL NOT NULL, JuvenileExitUnderOffset REAL NOT NULL, JuvenileExitOverOffset REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS EscapeSpecificBarrierData (AnimalType TEXT REFERENCES AnimalDefinitions (AnimalType) ON UPDATE CASCADE NOT NULL, BarrierType TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS WaterStations (WaterStationPrefabName TEXT NOT NULL UNIQUE CHECK (WaterStationPrefabName NOT LIKE '% ') PRIMARY KEY);
+CREATE TABLE IF NOT EXISTS WaterStationSuitabilityBlacklist (AnimalType TEXT REFERENCES AnimalDefinitions (AnimalType) ON UPDATE CASCADE NOT NULL, WaterStationPrefabName TEXT NOT NULL REFERENCES WaterStations (WaterStationPrefabName) ON UPDATE CASCADE, CONSTRAINT "Animal and Feeding Station Combination are not Unique" UNIQUE (AnimalType COLLATE NOCASE, WaterStationPrefabName COLLATE NOCASE));
+-- 1.10 Tables
+CREATE TABLE IF NOT EXISTS AnimalSingingData (AnimalType TEXT COLLATE NOCASE REFERENCES AnimalDefinitions (AnimalType) ON UPDATE CASCADE, MinCallsPerChorus INTEGER NOT NULL, MaxCallsPerChorus INTEGER NOT NULL, ProbabilityOfPartialCall DOUBLE NOT NULL DEFAULT (0.0), MinTimeBetweenCalls DOUBLE NOT NULL DEFAULT (0.0), MaxTimeBetweenCalls DOUBLE NOT NULL DEFAULT (0.0), PartialCallVariants INTEGER NOT NULL DEFAULT (0), PartialCallAndReplyStart DOUBLE DEFAULT (0.5) NOT NULL, PartialCallAndReplyDuration INTEGER NOT NULL DEFAULT (1), ForceInstantTransitionIdle INTEGER NOT NULL DEFAULT (0));
+CREATE TABLE IF NOT EXISTS AnimalSingingPartialWeights (AnimalType TEXT REFERENCES AnimalDefinitions (AnimalType) ON UPDATE CASCADE NOT NULL COLLATE NOCASE, PartialName TEXT NOT NULL, PartialWeighting DOUBLE NOT NULL);
+CREATE TABLE IF NOT EXISTS SpeciesSniffWeighting (AnimalType TEXT REFERENCES AnimalDefinitions (AnimalType) ON UPDATE CASCADE, SniffWeighting DOUBLE NOT NULL CHECK (SniffWeighting >= 0 AND SniffWeighting <= 1.0) DEFAULT (0.5));
 
-delete from ActionCalculationParameters where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalBiomePreferences where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalCameraData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalContinentPreferences where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalEnrichmentItemSuitability where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalExchangeData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalFoodPreferences where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalHabitatRequirements where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalInterestRating where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from ActionCalculationParameters where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalNameLanguages where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalPurchaseCosts where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalsReadyToBePlacedInGame where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalTaxonomicFamilies where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalTalkParticipantData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalTerrainRequirements where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalTestData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from AnimalTheatreParameters where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from BeddingStationSuitability where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from BodyMass where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from BoxData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from CheatVariables where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from ColourMorphData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from DeepSwimmingBehaviourWeights where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from DeepSwimmingParameters where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from DefecationData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from DesiredGenderRatios where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from DesiredPopulationSizes where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from EnrichmentOffsets where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from EnrichmentRequirements where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from EscapeData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from FeedingStationSuitability where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from FertilityData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from FightAgeThresholds where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from GuestAnimalDesire where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from GuestStance where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from IdleBehaviourWeights where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from InterspeciesInteractionData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from LongevityData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from LocomotionSpeeds where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from MatingPairingRules where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from NavigationWorlds where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from NutritionData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from Offsets where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from PerformableAnimations where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SizeData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SleepVariables where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SocialBehaviourSettings where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SocialInteractionsParameters where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SpaceRequirements where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SpeciesDiseaseValues where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SpeciesEnum where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SpeciesIdleExploreTypeWeights where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SpeciesSpecificNeedModifiers where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SpeciesThatFight where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from SpeciesWithAlpha where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from StressParameters where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from TheatreClearRadii where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from ViewingDistanceModifier where AnimalType not like('%'||(select Original from Replacement)||'%');
-delete from VisualVariation where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from EnrichmentPartialTypesToUse where AnimalType not like ('%'||(select Original from Replacement)||'%');
-Delete from AudioPerActionCallData where ifnull(AnimalType,(select original from replacement)) not like ('%'||(select Original from Replacement)||'%');
-delete from FixRagdollMethodData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-delete from PounceVariablesData where AnimalType not like ('%'||(select Original from Replacement)||'%');
-/*unfinished*/
-/*Delete * from SocialEnrichmentData;*/
+/* This clears out everything except our base creature */
+DELETE FROM ActionCalculationParameters WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalBiomePreferences WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalBurrowsData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalCameraData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalDiggingData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalContinentPreferences WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalEnrichmentItemSuitability WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalExchangeData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalFoodPreferences WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalHabitatRequirements WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalInterestRating WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM ActionCalculationParameters WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalNameLanguages WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalPurchaseCosts WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalsReadyToBePlacedInGame WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalSingingData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%'); -- 1.10
+DELETE FROM AnimalSingingPartialWeights WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%'); -- 1.10
+DELETE FROM AnimalTaxonomicFamilies WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalTalkParticipantData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalTerrainRequirements WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalTestData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AnimalTheatreParameters WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM BeddingStationSuitability WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM BodyMass WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM BoxData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM CheatVariables WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM ColourMorphData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM DeepSwimmingBehaviourWeights WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM DeepSwimmingParameters WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM DefecationData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM DesiredGenderRatios WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM DesiredPopulationSizes WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM EnrichmentOffsets WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM EnrichmentRequirements WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM EscapeData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM EscapeSpecificBarrierData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM FeedingStationSuitability WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM FertilityData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM FightAgeThresholds WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM GuestAnimalDesire WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM GuestStance WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM IdleBehaviourWeights WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM InterspeciesInteractionData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM LongevityData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM LocomotionSpeeds WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM MatingPairingRules WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM NavigationWorlds WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM FixRagdollMethodData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM NutritionData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM Offsets WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM PerformableAnimations WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM PersonalityWeights WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SizeData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SleepVariables WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SocialBehaviourSettings WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM PounceVariablesData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SocialInteractionsParameters WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SpaceRequirements WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SpeciesDiseaseValues WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SpeciesEnum WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SpeciesIdleExploreTypeWeights WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SpeciesSniffWeighting WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%'); -- 1.10
+DELETE FROM SpeciesSpecificNeedModifiers WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SpeciesThatFight WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SpeciesWithAlpha WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM StressParameters WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM TheatreClearRadii WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM ViewingDistanceModifier WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM VisualVariation WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM EnrichmentPartialTypesToUse WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM AudioPerActionCallData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%'); 
+DELETE FROM PounceVariablesData WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%'); 
+DELETE FROM TemporaryFoodVisualOffsetModifier WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM WaterStationSuitabilityBlacklist WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
+DELETE FROM SocialEnrichmentData;
+DELETE FROM AnimalDefinitions WHERE AnimalType NOT LIKE ('%'||(SELECT Original FROM Replacement)||'%') AND AnimalType NOT LIKE ('%'||(SELECT New FROM Replacement)||'%');
 
-delete from AnimalDefinitions where AnimalType not like ('%'||(select Original from Replacement)||'%');
+/* This creates our new creature modeled off the base creature in the master table for this FDB */
+INSERT OR IGNORE INTO AnimalDefinitions (AnimalType,AdultMaleGamePrefab,AdultMaleVisualPrefab,AdultFemaleGamePrefab,AdultFemaleVisualPrefab,JuvenileGamePrefab,JuvenileVisualPrefab,ContentPack)
+SELECT
+    replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
+    replace(AdultMaleGamePrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
+    replace(AdultMaleVisualPrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
+    replace(AdultFemaleGamePrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
+    replace(AdultFemaleVisualPrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
+    replace(JuvenileGamePrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
+    replace(JuvenileVisualPrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
+    ContentPack
+FROM AnimalDefinitions;
 
+/* This updates all other tables to use your new species instead of the base creature */
+UPDATE ActionCalculationParameters SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalBiomePreferences SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalCameraData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalContinentPreferences SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalEnrichmentItemSuitability SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalExchangeData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalFoodPreferences SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalHabitatRequirements SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalInterestRating SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE ActionCalculationParameters SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalNameLanguages SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalPurchaseCosts SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalsReadyToBePlacedInGame SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalSingingData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)); -- 1.10
+UPDATE AnimalSingingPartialWeights SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)); -- 1.10
+UPDATE AnimalTaxonomicFamilies SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalTalkParticipantData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalTerrainRequirements SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalTestData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalTheatreParameters SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE BeddingStationSuitability SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE BodyMass SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE BoxData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE CheatVariables SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE ColourMorphData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE DeepSwimmingBehaviourWeights SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE DeepSwimmingParameters SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE DefecationData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE DesiredGenderRatios SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE DesiredPopulationSizes SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE EnrichmentOffsets SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE EnrichmentRequirements SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE EscapeData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE FeedingStationSuitability SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE FertilityData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE FightAgeThresholds SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE GuestAnimalDesire SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE GuestStance SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE IdleBehaviourWeights SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE InterspeciesInteractionData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE LongevityData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE LocomotionSpeeds SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE MatingPairingRules SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE NavigationWorlds SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE NutritionData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE Offsets SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE PerformableAnimations SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SizeData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SleepVariables SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SocialBehaviourSettings SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE PounceVariablesData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SocialInteractionsParameters SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SpaceRequirements SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SpeciesDiseaseValues SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SpeciesEnum SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AnimalsReadyToBePlacedInGame SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SpeciesIdleExploreTypeWeights SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SpeciesSniffWeighting SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)); -- 1.10
+UPDATE SpeciesSpecificNeedModifiers SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SpeciesThatFight SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE SpeciesWithAlpha SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE StressParameters SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE TheatreClearRadii SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE ViewingDistanceModifier SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE VisualVariation SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE EnrichmentPartialTypesToUse SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE FixRagdollMethodData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
+UPDATE AudioPerActionCallData SET AnimalType = replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)) WHERE AnimalType is not null;
 
+/* This clears out the base creature. */
+DELETE FROM AnimalDefinitions WHERE AnimalType NOT LIKE replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement));
 
-/*This creates our new creature modeled off the base creature in the master table for this FDB*/
-Insert into AnimalDefinitions (AnimalType,AdultMaleGamePrefab,AdultMaleVisualPrefab,AdultFemaleGamePrefab,AdultFemaleVisualPrefab,JuvenileGamePrefab,JuvenileVisualPrefab,ContentPack) select (((select New from Replacement))||(substr(AnimalType,(select length+1 from Replacement)))),(((select New from Replacement))||(substr(AdultMaleGamePrefab,(select length+1 from Replacement)))),(((select New from Replacement))||(substr(AdultMaleVisualPrefab,(select length+1 from Replacement)))),(((select New from Replacement))||(substr(AdultFemaleGamePrefab,(select length+1 from Replacement)))),(((select New from Replacement))||(substr(AdultFemaleVisualPrefab,(select length+1 from Replacement)))),(((select New from Replacement))||(substr(JuvenileGamePrefab,(select length+1 from Replacement)))),(((select New from Replacement))||(substr(JuvenileVisualPrefab,(select length+1 from Replacement)))),ContentPack from AnimalDefinitions;
+DROP TABLE Replacement;
 
-
-/*This updates all other tables to use your new species instead of the base creature*/
-Update ActionCalculationParameters set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalBiomePreferences set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalCameraData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalContinentPreferences set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalEnrichmentItemSuitability set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalExchangeData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalFoodPreferences set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalHabitatRequirements set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalInterestRating set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update ActionCalculationParameters set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalNameLanguages set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalPurchaseCosts set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalsReadyToBePlacedInGame set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalTaxonomicFamilies set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalTalkParticipantData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalTerrainRequirements set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalTestData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalTheatreParameters set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update BeddingStationSuitability set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update BodyMass set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update BoxData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update CheatVariables set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update ColourMorphData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update DeepSwimmingBehaviourWeights set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update DeepSwimmingParameters set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update DefecationData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update DesiredGenderRatios set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update DesiredPopulationSizes set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update EnrichmentOffsets set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update EnrichmentRequirements set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update EscapeData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update FeedingStationSuitability set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update FertilityData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update FightAgeThresholds set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update GuestAnimalDesire set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update GuestStance set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update IdleBehaviourWeights set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update InterspeciesInteractionData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update LongevityData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update LocomotionSpeeds set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update MatingPairingRules set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update NavigationWorlds set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update NutritionData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update Offsets set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update PerformableAnimations set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SizeData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SleepVariables set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SocialBehaviourSettings set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SocialInteractionsParameters set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SpaceRequirements set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SpeciesDiseaseValues set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SpeciesEnum set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AnimalsReadyToBePlacedInGame set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SpeciesIdleExploreTypeWeights set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SpeciesSpecificNeedModifiers set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SpeciesThatFight set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update SpeciesWithAlpha set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update StressParameters set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update TheatreClearRadii set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update ViewingDistanceModifier set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update VisualVariation set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update EnrichmentPartialTypesToUse set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update FixRagdollMethodData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement))));
-Update AudioPerActionCallData set AnimalType = ((select New from Replacement)||(substr(AnimalType,(select length+1 from replacement)))) where AnimalType is not null;
-
-
-/*This clears out everything except our base creature.*/
-delete from AnimalDefinitions where AnimalType not like (select New from Replacement);
+VACUUM;
