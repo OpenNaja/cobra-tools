@@ -33,7 +33,6 @@ def create_lods():
 
 	# Make list of all LOD collections
 	lod_collections = [col for col in col_list if col.name[:-1].endswith("LOD")]
-	orig_ob_count = get_ob_count(lod_collections)
 	# Setup default lod ratio values
 	lod_ratios = [1, 0.8, 0.56, 0.34, 0.2, 0.08]
 
@@ -65,9 +64,6 @@ def create_lods():
 					b_me.materials.pop(index=1)
 
 	msgs.append("LOD objects generated succesfully")
-	new_ob_count = get_ob_count(lod_collections)
-	if orig_ob_count != new_ob_count:
-		msgs.append(f"Scene '{scn.name}' originally had {orig_ob_count} objects, now has {new_ob_count} - only works for newly created OVLs")
 	return msgs
 
 
