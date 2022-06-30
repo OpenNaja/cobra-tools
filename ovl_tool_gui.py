@@ -130,11 +130,12 @@ class MainWindow(widgets.MainWindow):
 		biosyn_frame.setContentsMargins(0, 0, 0, 0)
 
 		self.e_name_old = QtWidgets.QTextEdit("")
+		self.e_name_old.setPlaceholderText("Find")
 		self.e_name_old.setToolTip("Old strings - one item per line")
 		self.e_name_new = QtWidgets.QTextEdit("")
+		self.e_name_new.setPlaceholderText("Replace")
 		self.e_name_new.setToolTip("New strings - one item per line")
-		self.e_name_old.setFixedHeight(100)
-		self.e_name_new.setFixedHeight(100)
+		self.e_name_old.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
 		self.e_name_old.setTabChangesFocus(True)
 		self.e_name_new.setTabChangesFocus(True)
 
@@ -145,8 +146,8 @@ class MainWindow(widgets.MainWindow):
 		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.e_name_old, 0, 0, 5, 1)
-		self.qgrid.addWidget(self.e_name_new, 0, 1, 5, 1)
+		self.qgrid.addWidget(self.e_name_old, 0, 0, 3, 1)
+		self.qgrid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
 		self.qgrid.addWidget(self.in_folder, 1, 3)
