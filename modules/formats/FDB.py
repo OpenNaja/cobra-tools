@@ -106,6 +106,7 @@ class FdbLoader(BaseFile):
 						if s.find(find.encode()) == -1:
 							run = False
 							logging.error(f'SQL error: "{find}" not found in {self.file_entry.name}. Aborting SQL commands.')
+							break
 
 				if run:
 					con = sqlite3.connect(fdb_path)
