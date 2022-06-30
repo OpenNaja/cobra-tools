@@ -297,14 +297,6 @@ class BaseFile:
 	def __eq__(self, other):
 		logging.info(f"Comparing {self.file_entry.name}")
 		same = True
-		# streams
-		if len(self.streams) != len(other.streams):
-			logging.warning(f"Amount of streams does not match")
-			same = False
-		for stream, other_stream in zip(self.streams, other.streams):
-			if stream != other_stream:
-				logging.warning(f"Stream files do not match")
-				same = False
 		# data
 		if len(self.data_entries) != len(other.data_entries):
 			logging.warning(f"Amount of data entries does not match")
@@ -315,6 +307,38 @@ class BaseFile:
 			if data_entry != other_data:
 				logging.warning(f"this: {data_entry}")
 				logging.warning(f"other: {other_data}")
+				same = False
+		# frags
+		if len(self.fragments) != len(other.fragments):
+			logging.warning(f"Amount of fragments does not match")
+			same = False
+		# children
+		if len(self.children) != len(other.children):
+			logging.warning(f"Amount of children does not match")
+			same = False
+		# root entry
+		this_root = self.root_entry.struct_ptr.data
+		other_root = other.root_entry.struct_ptr.data
+		if this_root != other_root:
+			logging.warning(f"Root entry data does not match - this {len(this_root)} vs other {len(other_root)}")
+			min_len = min((len(this_root), len(other_root)))
+			this_root = this_root[:min_len]
+			other_root = other_root[:min_len]
+			if this_root == other_root:
+				logging.info(f"Root entry data does actually match, size difference is likely just padding")
+			else:
+				same = False
+		# ovs name
+		if self.ovs_name != other.ovs_name:
+			logging.warning(f"OVS name does not match")
+			same = False
+		# streams
+		if len(self.streams) != len(other.streams):
+			logging.warning(f"Amount of streams does not match")
+			same = False
+		for stream, other_stream in zip(self.streams, other.streams):
+			if stream != other_stream:
+				logging.warning(f"Stream files do not match")
 				same = False
 		return same
 
