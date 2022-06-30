@@ -613,13 +613,13 @@ class OvlFile(Header, IoFile):
 			if loader.file_entry.name in filenames:
 				loader.remove()
 
-	def rename(self, name_tups, animal_mode=False):
-		logging.info(f"Renaming for {name_tups}, animal mode = {animal_mode}")
+	def rename(self, name_tups, mesh_mode=False):
+		logging.info(f"Renaming for {name_tups}, mesh mode = {mesh_mode}")
 		# todo - support renaming included_ovls?
 		# make a temporary copy
 		temp_loaders = list(self.loaders.values())
 		for loader in temp_loaders:
-			if animal_mode and loader.file_entry.ext not in (".ms2", ".mdl2", ".motiongraph", ".motiongraphvars"):
+			if mesh_mode and loader.file_entry.ext not in (".ms2", ".mdl2", ".motiongraph", ".motiongraphvars"):
 				continue
 			loader.rename(name_tups)
 		# recreate the loaders dict
