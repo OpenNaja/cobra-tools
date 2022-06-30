@@ -5,7 +5,6 @@ import struct
 from generated.formats.manis.compound.SizedStrData import SizedStrData
 from generated.formats.manis import ManisFile
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import get_versions
 from modules.helpers import as_bytes
 
 
@@ -66,9 +65,8 @@ class ManisLoader(BaseFile):
 
 	def _get_data(self, file_path):
 		"""Loads and returns the data for a manis"""
-		versions = get_versions(self.ovl)
 		manis_file = ManisFile()
 		manis_file.load(file_path)
-		return manis_file, as_bytes(manis_file.header, version_info=versions), \
-			as_bytes(manis_file.mani_infos, version_info=versions), as_bytes(manis_file.name_buffer, version_info=versions), \
-			as_bytes(manis_file.keys_buffer, version_info=versions)
+		return manis_file, as_bytes(manis_file.header), \
+			as_bytes(manis_file.mani_infos), as_bytes(manis_file.name_buffer), \
+			as_bytes(manis_file.keys_buffer)

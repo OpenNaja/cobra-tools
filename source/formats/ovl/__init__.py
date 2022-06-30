@@ -29,7 +29,7 @@ from generated.formats.ovl.compound.MimeEntry import MimeEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
-from modules.formats.shared import get_versions, djb, assign_versions
+from modules.formats.shared import djb
 from modules.formats.formats_dict import build_formats_dict
 from modules.helpers import split_path
 from root_path import root_dir
@@ -65,7 +65,6 @@ class OvsFile(OvsHeader):
 	def get_bytes(self):
 		# write the internal data
 		stream = ConvStream()
-		assign_versions(stream, get_versions(self.ovl))
 		self.write_archive(stream)
 		return stream.getbuffer()
 
@@ -149,7 +148,6 @@ class OvsFile(OvsHeader):
 		logging.info(f"Compressed stream {archive_entry.name} in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size) as stream:
-			assign_versions(stream, get_versions(self.ovl))
 			start_time = time.time()
 			super().read(stream)
 			logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
@@ -199,7 +197,6 @@ class OvsFile(OvsHeader):
 	def read_pools(self, stream):
 		for pool in self.pools:
 			pool.data = ConvStream(stream.read(pool.size))
-			assign_versions(pool.data, get_versions(self.ovl))
 
 	def map_assets(self):
 		"""Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
