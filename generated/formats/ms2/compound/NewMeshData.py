@@ -344,9 +344,6 @@ class NewMeshData(MeshData):
 				assert np.sum(self.verts_data[i]["bone weights"]) == 255
 			if "uvs" in self.dt.fields:
 				self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
-			# todo - convert to UV before
-			# if "fur_shell" in self.dt.fields and fur_length is not None:
-			# 	self.verts_data[i]["fur_shell"] = pack_ushort_vector((fur_length, remap(fur_width, 0, 1, -16, 16)))
 			if "colors" in self.dt.fields:
 				self.verts_data[i]["colors"] = list(list(round(c * 255) for c in vcol) for vcol in vcols)
 			if "shapekeys0" in self.dt.fields:
