@@ -1,3 +1,7 @@
+
+
+import logging
+
 from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
 
@@ -148,13 +152,16 @@ class DataEntry:
 
 	def __eq__(self, other):
 		attr_check = ("buffer_count", "size_1", "size_2")
+		same = True
 		for attr in attr_check:
 			a = getattr(self, attr)
 			b = getattr(other, attr)
 			if a != b:
 				logging.warning(f"Data differs for '{attr}' - {a} vs {b}")
-				return False
-		for a, b in zip(self.sorted_buffers, other.sorted_buffers):
-			pass
-		return True
+				same = False
+		for i, (a, b) in enumerate(zip(self.sorted_buffers, other.sorted_buffers)):
+			if a != b:
+				logging.warning(f"Buffer {i} differs for {a} vs {b}")
+				same = False
+		return same
 

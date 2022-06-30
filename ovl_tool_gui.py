@@ -199,6 +199,10 @@ class MainWindow(widgets.MainWindow):
 		self.setStatusBar(self.statusBar)
 
 	def compare_ovls(self):
+		selected_file_names = self.files_container.table.get_selected_files()
+		if not selected_file_names:
+			interaction.showdialog("Please select files to compare first")
+			return
 		if self.is_open_ovl():
 			filepath = QtWidgets.QFileDialog.getOpenFileName(
 				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
@@ -206,7 +210,6 @@ class MainWindow(widgets.MainWindow):
 				other_ovl_data = OvlFile(progress_callback=self.update_progress)
 				other_ovl_data.load_hash_table()
 				other_ovl_data.load(filepath, commands=self.commands)
-				selected_file_names = self.files_container.table.get_selected_files()
 				for file_name in selected_file_names:
 					try:
 						loader_a = self.ovl_data.loaders[file_name]

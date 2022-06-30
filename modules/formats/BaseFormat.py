@@ -295,16 +295,28 @@ class BaseFile:
 		return paths
 
 	def __eq__(self, other):
-		assert len(self.streams) == len(other.streams)
-		for s, o in zip(self.streams, other.streams):
-			assert s == o
-		assert len(self.data_entries) == len(other.data_entries)
+		logging.info(f"Comparing {self.file_entry.name}")
+		same = True
+		# streams
+		if len(self.streams) != len(other.streams):
+			logging.warning(f"Amount of streams does not match")
+			same = False
+		for stream, other_stream in zip(self.streams, other.streams):
+			if stream != other_stream:
+				logging.warning(f"Stream files do not match")
+				same = False
+		# data
+		if len(self.data_entries) != len(other.data_entries):
+			logging.warning(f"Amount of data entries does not match")
+			same = False
 		for archive_name, data_entry in self.data_entries.items():
 			assert archive_name in other.data_entries
 			other_data = other.data_entries[archive_name]
 			if data_entry != other_data:
-				return False
-		return True
+				logging.warning(f"this: {data_entry}")
+				logging.warning(f"other: {other_data}")
+				same = False
+		return same
 
 
 class MemStructLoader(BaseFile):
