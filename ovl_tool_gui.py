@@ -112,21 +112,30 @@ class MainWindow(widgets.MainWindow):
 		self.in_folder.setToolTip("Runs commands on all OVLs of current folder")
 		self.in_folder.setChecked(False)
 
-		self.t_animal_ovl = QtWidgets.QCheckBox("Animal OVL Mode")
-		self.t_animal_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
-		self.t_animal_ovl.setChecked(False)
+		self.t_mesh_ovl = QtWidgets.QCheckBox("Mesh OVL Mode")
+		self.t_mesh_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
+		self.t_mesh_ovl.setChecked(False)
 
 		self.t_biosyn = QtWidgets.QCheckBox("Biosyn Format")
 		self.t_biosyn.setToolTip("Check for opening OVLs with MS2 files after JWE2 Biosyn upgrade.")
 		self.t_biosyn.setChecked(False)
 		self.t_biosyn.stateChanged.connect(self.biosyn_changed)
+		biosyn_frame = QtWidgets.QWidget()
+		biosyn_box = QtWidgets.QHBoxLayout()
+		biosyn_box.setSpacing(0)
+		biosyn_box.setContentsMargins(0, 0, 0, 0)
+		biosyn_box.addStretch(1)
+		biosyn_box.addWidget(self.t_biosyn)
+		biosyn_frame.setLayout(biosyn_box)
+		biosyn_frame.setContentsMargins(0, 0, 0, 0)
 
 		self.e_name_old = QtWidgets.QTextEdit("")
+		self.e_name_old.setPlaceholderText("Find")
 		self.e_name_old.setToolTip("Old strings - one item per line")
 		self.e_name_new = QtWidgets.QTextEdit("")
+		self.e_name_new.setPlaceholderText("Replace")
 		self.e_name_new.setToolTip("New strings - one item per line")
-		self.e_name_old.setFixedHeight(100)
-		self.e_name_new.setFixedHeight(100)
+		self.e_name_old.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
 		self.e_name_old.setTabChangesFocus(True)
 		self.e_name_new.setTabChangesFocus(True)
 
@@ -137,13 +146,13 @@ class MainWindow(widgets.MainWindow):
 		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.e_name_old, 0, 0, 5, 1)
-		self.qgrid.addWidget(self.e_name_new, 0, 1, 5, 1)
+		self.qgrid.addWidget(self.e_name_old, 0, 0, 3, 1)
+		self.qgrid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
 		self.qgrid.addWidget(self.in_folder, 1, 3)
-		self.qgrid.addWidget(self.t_animal_ovl, 2, 3)
-		self.qgrid.addWidget(self.t_biosyn, 3, 3)
+		self.qgrid.addWidget(self.t_mesh_ovl, 2, 3)
+		self.qgrid.addWidget(biosyn_frame, 2, 4)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
 
@@ -186,6 +195,7 @@ class MainWindow(widgets.MainWindow):
 		# self.statusBar.showMessage(get_commit_str())
 		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
 		self.statusBar.addWidget(label)
+		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
 
 	def compare_ovls(self):
@@ -216,17 +226,28 @@ class MainWindow(widgets.MainWindow):
 			self.populate_game_widget(dir_game)
 			return dir_game
 
-	def set_game_dir(self):
-		dir_game = self.cfg.get("dir_game", "")
+	def get_game_dir(self):
+		return self.cfg.get("dir_game", "")
 
+	def set_game_dir(self):
+		dir_game = self.get_game_dir()
 		if dir_game:
 			self.populate_game_widget(dir_game)
 		else:
 			self.ask_game_dir()
 
+	def set_game_choice(self, game):
+		for g in games:
+			if g.value in self.get_game_dir():
+				self.game_choice.entry.setText(game)
+
 	def populate_game_widget(self, dir_game):
 		rt_index = self.model.setRootPath(dir_game)
 		self.dirs_container.setRootIndex(rt_index)
+		# Set Game Choice default based on current game dir
+		for g in games:
+			if g.value in self.get_game_dir():
+				self.set_game_choice(g.value)
 
 	def get_selected_dir(self):
 		model = self.dirs_container.model()
@@ -294,6 +315,7 @@ class MainWindow(widgets.MainWindow):
 		# force new name to be lowercase
 		names = [(old_name, new_name.lower()), ]
 		self.ovl_data.rename(names)
+		self.file_widget.dirty = True
 		self.update_gui_table()
 
 	def biosyn_changed(self):
@@ -532,7 +554,8 @@ class MainWindow(widgets.MainWindow):
 			if names:
 				for ovl in self.handle_path():
 					if self.is_open_ovl():
-						self.ovl_data.rename(names, animal_mode=self.t_animal_ovl.isChecked())
+						self.ovl_data.rename(names, mesh_mode=self.t_mesh_ovl.isChecked())
+						self.file_widget.dirty = True
 						self.update_gui_table()
 		except BaseException as err:
 			print(err)
@@ -551,6 +574,7 @@ class MainWindow(widgets.MainWindow):
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
 					self.ovl_data.rename_contents(names, only_files)
+					self.file_widget.dirty = True
 					self.update_gui_table()
 
 	# Save the OVL file list to disk
@@ -591,6 +615,7 @@ class MainWindow(widgets.MainWindow):
 			if selected_file_names:
 				try:
 					self.ovl_data.remove(selected_file_names)
+					self.file_widget.dirty = True
 				except:
 					traceback.print_exc()
 				self.update_gui_table()
