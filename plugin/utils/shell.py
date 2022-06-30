@@ -7,12 +7,10 @@ import numpy as np
 import mathutils
 import plugin.utils.object
 
-# X_START = -16.0
-# Y_START = 1.00049
-# changed to avoid clamping bug and squares on fins
 from plugin.modules_import.hair import get_tangent_space_mat
-from plugin.utils.matrix_util import evaluate_mesh
 
+
+# changed to avoid clamping bug and squares on fins
 X_START = -15.9993
 Y_START = 0.999756
 
