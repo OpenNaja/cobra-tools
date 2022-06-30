@@ -12,8 +12,8 @@ def get_padding(size, alignment=16):
 	return b""
 
 
-def djb(s):
-	# calculates DJB hash for string s
+def djb2(s):
+	# calculates djb2 hash for string s
 	# from https://gist.github.com/mengzhuo/180cd6be8ba9e2743753#file-hash_djb2-py
 	n = 5381
 	for x in s:

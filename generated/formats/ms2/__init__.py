@@ -9,7 +9,7 @@ from generated.formats.ms2.versions import *
 from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.ovl.basic import basic_map
 from generated.io import IoFile
-from modules.formats.shared import get_padding_size, djb, get_padding
+from modules.formats.shared import get_padding_size, djb2, get_padding
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -234,7 +234,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.info.name_count = len(self.buffer_0.names)
 		self.buffer_0.name_hashes.resize(len(self.buffer_0.names))
 		for name_i, name in enumerate(self.buffer_0.names):
-			self.buffer_0.name_hashes[name_i] = djb(name.lower())
+			self.buffer_0.name_hashes[name_i] = djb2(name.lower())
 
 	def update_buffer_0_bytes(self):
 		with ConvStream() as temp_writer:

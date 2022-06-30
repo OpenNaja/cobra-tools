@@ -12,7 +12,7 @@ class MimeEntry:
 
 	"""
 	Description of one mime type or file class.
-	Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
+	Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
 	"""
 
 	context = ContextReference()

@@ -55,7 +55,7 @@
 
     <compound name="MimeEntry" >
         Description of one mime type or file class.
-		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb("bani") == 2090104799
+		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
         <add name="Offset" type="uint">offset in the header's Names block</add>
         <add name="unknown" type="uint">usually zero</add>
         <add name="Mime Hash" type="uint">changes with game version; hash of this file extension; same across all files, but not used anywhere else in the archive</add>
@@ -166,18 +166,18 @@
 		<add name="Size" type="uint">the number of bytes inside this mempool</add>
 		<add name="Offset" type="uint">byte offset from the start of the mempools region</add>
 		<add name="zero2" type="uint64" until="15">always 0</add>
-		<add name="File Hash" type="uint">DJB hash of the first file that points into this mempool</add>
+		<add name="File Hash" type="uint">djb2 hash of the first file that points into this mempool</add>
 		<add name="disney zero" type="ushort" until="15">zero</add>
 		<add name="Num Files" type="ushort" until="15">unknown count (related to number of files or pointers)</add>
 		<add name="Num Files" type="uint" since="17">unknown count (related to number of files or pointers)</add>
-		<add name="Ext Hash" type="uint" since="19">JWE: DJB hash for extension, 0 for PZ</add>
+		<add name="Ext Hash" type="uint" since="19">JWE: djb2 hash for extension, 0 for PZ</add>
 		<add name="zero3" type="uint" since="19">always 0</add>
     </compound>
 	
 	<compound name="DataEntry" >
 		32 bytes
-		<add name="File Hash" type="uint"> DJB hash</add>
-		<add name="Ext Hash" type="uint" since="19">DJB hash for extension</add>
+		<add name="File Hash" type="uint"> djb2 hash</add>
+		<add name="Ext Hash" type="uint" since="19">djb2 hash for extension</add>
 		<add name="set index" type="ushort" >1-based indexing into set_header.sets; 0 if data is not part of a set</add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
 		<add name="zero" type="uint" since="19"> </add>
@@ -211,8 +211,8 @@
 	
     <compound name="RootEntry" >
         Main file entry in the ovs, one per FileEntry
-        <add name="File Hash" type="uint">id (index or djb) of the file</add>
-        <add name="Ext Hash" type="uint" since="19">djb of extension</add>
+        <add name="File Hash" type="uint">id (index or djb2) of the file</add>
+        <add name="Ext Hash" type="uint" since="19">djb2 of extension</add>
         <add name="struct_ptr" type="HeaderPointer" >points to the main struct of this file OR -1 pointer for assets</add>
     </compound>
 	

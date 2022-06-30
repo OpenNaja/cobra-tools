@@ -9,7 +9,7 @@ from collections import namedtuple
 
 from generated.formats.ovl_base.versions import is_pz, is_pz16
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import djb
+from modules.formats.shared import djb2
 from root_path import root_dir
 
 
@@ -115,7 +115,7 @@ class FdbLoader(BaseFile):
 						# CALCULATED_HASH gets added to the original ResearchID in the SQL script
 						# Uses both Find and Replace strings for reduced chance of collisions
 						if context.name == "research":
-							command_replaced = command_replaced.replace("CALCULATED_HASH", str(djb(name_tuples[0][0] + name_tuples[0][1])))
+							command_replaced = command_replaced.replace("CALCULATED_HASH", str(djb2(name_tuples[0][0] + name_tuples[0][1])))
 
 						cur.executescript(command_replaced)
 						# Save (commit) the changes

@@ -49,7 +49,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_action_current_message = "No operation in progress"
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
-		header_names = ["Name", "File Type", "DJB"]
+		header_names = ["Name", "File Type", "djb2"]
 
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())

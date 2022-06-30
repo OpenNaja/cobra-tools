@@ -19,10 +19,10 @@ class RootEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# id (index or djb) of the file
+		# id (index or djb2) of the file
 		self.file_hash = 0
 
-		# djb of extension
+		# djb2 of extension
 		self.ext_hash = 0
 
 		# points to the main struct of this file OR -1 pointer for assets

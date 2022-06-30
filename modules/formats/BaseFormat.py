@@ -11,7 +11,7 @@ from generated.formats.ovl.compound.MemPool import MemPool
 from generated.formats.ovl.compound.RootEntry import RootEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl_base.basic import ConvStream
-from modules.formats.shared import djb
+from modules.formats.shared import djb2
 
 
 class BaseFile:
@@ -134,7 +134,7 @@ class BaseFile:
 		dependency.name = file_name
 		dependency.basename, dependency.ext = os.path.splitext(file_name.lower())
 		dependency.ext = dependency.ext.replace(".", ":")
-		dependency.file_hash = djb(dependency.basename)
+		dependency.file_hash = djb2(dependency.basename)
 		logging.debug(f"Dependency: {dependency.basename} | {dependency.ext} | {dependency.file_hash}")
 
 	def create_dependency(self, name):

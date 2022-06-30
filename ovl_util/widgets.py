@@ -67,7 +67,7 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
 	def lessThan(self, QModelIndex, QModelIndex_1):
 		# for whatever reason, probably due to data loss in casting, we must override this function
-		# to allow for correct comparison of djb hashes
+		# to allow for correct comparison of djb2 hashes
 		l = QModelIndex.data()
 		r = QModelIndex_1.data()
 		return l < r

@@ -22,10 +22,10 @@ class DataEntry:
 		self.io_size = 0
 		self.io_start = 0
 
-		# DJB hash
+		# djb2 hash
 		self.file_hash = 0
 
-		# DJB hash for extension
+		# djb2 hash for extension
 		self.ext_hash = 0
 
 		# 1-based indexing into set_header.sets; 0 if data is not part of a set

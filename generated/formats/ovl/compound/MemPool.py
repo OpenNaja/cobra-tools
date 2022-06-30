@@ -38,7 +38,7 @@ class MemPool:
 		# always 0
 		self.zero_2 = 0
 
-		# DJB hash of the first file that points into this mempool
+		# djb2 hash of the first file that points into this mempool
 		self.file_hash = 0
 
 		# zero
@@ -50,7 +50,7 @@ class MemPool:
 		# unknown count (related to number of files or pointers)
 		self.num_files = 0
 
-		# JWE: DJB hash for extension, 0 for PZ
+		# JWE: djb2 hash for extension, 0 for PZ
 		self.ext_hash = 0
 
 		# always 0

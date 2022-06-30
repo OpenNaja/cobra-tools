@@ -18,7 +18,7 @@ class Buffer0:
 		self.io_size = 0
 		self.io_start = 0
 
-		# djb hashes
+		# djb2 hashes
 		self.name_hashes = numpy.zeros((self.arg.name_count,), dtype=numpy.dtype('uint32'))
 
 		# names

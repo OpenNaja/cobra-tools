@@ -29,7 +29,7 @@ from generated.formats.ovl.compound.MimeEntry import MimeEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
 
-from modules.formats.shared import djb
+from modules.formats.shared import djb2
 from modules.formats.formats_dict import build_formats_dict
 from modules.helpers import split_path
 from root_path import root_dir
@@ -892,7 +892,7 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Game: {get_game(self)}")
 
 		self.loaders = {}
-		# maps djb hash to string
+		# maps djb2 hash to string
 		self.hash_table_local = {}
 		# print(self)
 		# add extensions to hash dict
@@ -905,9 +905,9 @@ class OvlFile(Header, IoFile):
 			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
 			# the stored mime hash is not used anywhere
 			# self.hash_table_local[mime_entry.mime_hash] = mime_type
-			# instead we must calculate the DJB hash of the extension and store that
+			# instead we must calculate the djb2 hash of the extension and store that
 			# because this is how we find the extension from inside the archive
-			self.hash_table_local[djb(mime_entry.ext[1:].lower())] = mime_entry.ext
+			self.hash_table_local[djb2(mime_entry.ext[1:].lower())] = mime_entry.ext
 			mime_entry.triplets = self.triplets[
 								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
 
@@ -920,7 +920,7 @@ class OvlFile(Header, IoFile):
 			file_entry.mime = self.mimes[file_entry.extension]
 			file_entry.ext = file_entry.mime.ext
 			# store this so we can use it
-			file_entry.ext_hash = djb(file_entry.ext[1:])
+			file_entry.ext_hash = djb2(file_entry.ext[1:])
 			file_entry.basename = file_name
 			file_entry.name = file_name + file_entry.ext
 			self.hash_table_local[file_entry.file_hash] = file_name
@@ -1079,15 +1079,15 @@ class OvlFile(Header, IoFile):
 		# update file hashes and extend entries per loader
 		for loader in self.loaders.values():
 			# ensure lowercase, at the risk of being redundant
-			loader.file_entry.file_hash = djb(loader.file_entry.basename.lower())
-			loader.file_entry.ext_hash = djb(loader.file_entry.ext[1:].lower())
+			loader.file_entry.file_hash = djb2(loader.file_entry.basename.lower())
+			loader.file_entry.ext_hash = djb2(loader.file_entry.ext[1:].lower())
 			# logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
 			# update dependency hashes
 			for dependency in loader.dependencies:
 				if UNK_HASH in dependency.basename:
 					logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
 				else:
-					dependency.file_hash = djb(dependency.basename.lower())
+					dependency.file_hash = djb2(dependency.basename.lower())
 			self.files.append(loader.file_entry)
 			self.dependencies.extend(loader.dependencies)
 			self.aux_entries.extend(loader.aux_entries)
