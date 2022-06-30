@@ -195,6 +195,7 @@ class MainWindow(widgets.MainWindow):
 		# self.statusBar.showMessage(get_commit_str())
 		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
 		self.statusBar.addWidget(label)
+		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
 
 	def compare_ovls(self):
