@@ -110,6 +110,10 @@ def num_fur_as_weights(mat_name):
 	return 0
 
 
+def per_loop(b_me, per_vertex_input):
+	return [c for col in [per_vertex_input[l.vertex_index] for l in b_me.loops] for c in col]
+
+
 def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	# set uv data
 	if mesh.uvs is not None:
@@ -129,15 +133,15 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	if mesh.colors is not None:
 		num_vcol_layers = mesh.colors.shape[1]
 		for col_i in range(num_vcol_layers):
-			vcols = mesh.colors[:, col_i]
 			b_me.vertex_colors.new(name=f"RGBA{col_i}")
-			b_me.vertex_colors[-1].data.foreach_set(
-				"color", [c for col in [vcols[l.vertex_index] for l in b_me.loops] for c in col])
-	# b_me.vertex_colors.new(name="tangents")
-	# b_me.vertex_colors[-1].data.foreach_set("color", [c for col in [mesh.tangents[l.vertex_index] for l in b_me.loops] for c in (*col, 1,)])
-	#
-	# b_me.vertex_colors.new(name="normals")
-	# b_me.vertex_colors[-1].data.foreach_set("color", [c for col in [mesh.normals[l.vertex_index] for l in b_me.loops] for c in (*col,1,)])
+			b_me.vertex_colors[-1].data.foreach_set("color", per_loop(b_me, mesh.colors[:, col_i]))
+
+	tangents = b_me.attributes.new("ct_tangents", "FLOAT_VECTOR", "CORNER")
+	tangents.data.foreach_set("vector", per_loop(b_me, mesh.tangents))
+
+	normals = b_me.attributes.new("ct_normals", "FLOAT_VECTOR", "CORNER")
+	normals.data.foreach_set("vector", per_loop(b_me, mesh.normals))
+
 	# set faces to smooth
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))
 	# set normals

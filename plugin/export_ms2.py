@@ -18,6 +18,7 @@ from plugin.import_ms2 import num_fur_as_weights
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
+from plugin.modules_import.hair import comb_common, get_hair_keys, find_modifier_for_particle_system
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.shell import get_collection, is_shell, is_fin, is_flipped
 
@@ -98,6 +99,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# tangents have to be pre-calculated
 	# this will also calculate loop normal
 	eval_me.calc_tangents()
+
+	tangents = eval_me.attributes["ct_tangents"]
+	normals = eval_me.attributes["ct_normals"]
+
 	# stores values retrieved from blender, will be packed into array later
 	verts = []
 	# use a dict mapping dummy vertices to their index for fast lookup
@@ -113,11 +118,27 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		if shell_obs:
 			shell_ob = shell_obs[0]
 			logging.debug(f"Copying data for {b_ob.name} from base mesh {shell_ob.name}...")
+
+			# bpy.context.view_layer.objects.active = shell_ob
+			# if not shell_ob:
+			# 	raise AttributeError("No object in context")
+			# # particle edit mode has to be entered so that hair strands are generated
+			# # otherwise the non-eval ob's particle count is 0
+			# if not shell_ob.particle_systems:
+			# 	raise AttributeError(f"No particle system on {shell_ob.name}")
+			# logging.debug(f"comb_common on object '{shell_ob.name}'")
+			# bpy.ops.object.mode_set(mode='PARTICLE_EDIT')
+			# bpy.ops.object.mode_set(mode='OBJECT')
+
 			shell_eval_ob, shell_eval_me = evaluate_mesh(shell_ob)
 			shell_eval_me.calc_tangents()
 			shell_kd = fill_kd_tree(shell_eval_me)
 			fin_uv_layer = eval_me.uv_layers[0].data
 
+			# particle_system = shell_ob.particle_systems[0]
+			# particle_modifier = find_modifier_for_particle_system(shell_ob, particle_system)
+			# particle_modifier_eval = shell_eval_ob.modifiers[particle_modifier.name]
+			# particle_system_eval = shell_eval_ob.particle_systems[0]
 	# loop faces and collect unique and repeated vertices
 	for face in eval_me.polygons:
 		if len(face.loop_indices) != 3:
@@ -140,13 +161,24 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				uv_co = fin_uv_layer[b_loop.index].uv.to_3d()
 				co, index, dist = shell_kd.find(uv_co)
 				shell_loop = shell_eval_me.loops[index]
-				# print(tangent)
-				tangent = shell_loop.tangent
-				# todo - use combed fur vec here?
+
+				# from this test with reindeer normal on fins is confirmed to be the base shell normal
+				# not with fur direction applied - that messes with the shading
+				# # print(tangent)
+				# ind = shell_loop.vertex_index
+				# # vert = me.loops[loop_index]
+				# particle = particle_system.particles[ind]
+				# particle_eval = particle_system_eval.particles[ind]
+				# root, tip = get_hair_keys(particle, particle_eval, shell_eval_ob, particle_modifier_eval)
+				# hair_direction = (tip - root).normalized()
+				# normal = hair_direction
 				normal = shell_loop.normal
+				tangent = shell_loop.tangent
 			else:
-				tangent = b_loop.tangent
 				normal = b_loop.normal
+				tangent = b_loop.tangent
+			normal = normals.data[loop_index].vector
+			tangent = tangents.data[loop_index].vector
 
 			# shape key morphing
 			b_key = b_me.shape_keys
