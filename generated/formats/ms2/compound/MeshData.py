@@ -218,6 +218,19 @@ class MeshData(MemStruct):
 		# value range of fur width is +-16 - squash it into 0 - 1
 		fur[:, 1] = remap(fur[:, 1], -16, 16, 0, 1)
 		for fur_vert, weights_vert in zip(fur, self.weights):
-			weights_vert.append(("fur_length", fur_vert[0] * 255))
-			weights_vert.append(("fur_width", fur_vert[1] * 255))
+			weights_vert.append(("fur_length", fur_vert[0]))
+			weights_vert.append(("fur_width", fur_vert[1]))
+
+	@staticmethod
+	def quantize_bone_weights(bone_weights):
+		# normalize weights so that they sum to 1.0
+		sw = sum(bone_weights)
+		bone_weights = [x / sw for x in bone_weights]
+		# round is essential so the float is not truncated
+		bone_weights = list(round(w * 255) for w in bone_weights)
+		# additional double check
+		d = np.sum(bone_weights) - 255
+		bone_weights[0] -= d
+		assert np.sum(bone_weights) == 255
+		return bone_weights
 

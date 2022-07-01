@@ -143,7 +143,7 @@ import numpy as np
 from numba import jit
 
 # from generated.formats.ms2.compound.packing_utils import unpack_longint_vec
-
+from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 
 twenty_bits_mask = np.uint64(0xFFFFF)
 twenty = np.uint8(20)
@@ -242,3 +242,8 @@ for val in vals:
     print(ret)
 # ([-0,40625, 0,125, 0,34375]
 # ([-0,8125, 0,25, 0,6875], 1)
+
+flags = [512, 513, 517, 528, 529, 533, 545, 565, 821, 853, 885, 1013, ]
+for flag in flags:
+    f = ModelFlag.from_value(flag)
+    print(f)

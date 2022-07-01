@@ -256,6 +256,6 @@ class PcMeshData(MeshData):
 			self.vertices[i] = unpack_swizzle(vert)
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
-			self.weights.append(unpack_weights(self, i, residue, extra=False))
+			self.weights.append(unpack_weights(self, i))
 		# print(self.vertices)
 

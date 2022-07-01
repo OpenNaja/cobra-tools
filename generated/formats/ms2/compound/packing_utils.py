@@ -1,3 +1,6 @@
+
+UBYTE_SCALE = 128
+UBYTE_MAX = 255
 USHORT_SCALE = 2048
 USHORT_OFFSET = 32766.5
 USHORT_MIN = 0
@@ -29,7 +32,7 @@ def pack_ushort_vector(vec):
 
 
 def pack_ubyte_vector(vec):
-    return [min(int(round(x * 128 + 128)), 255) for x in vec]
+    return [min(int(round(x * UBYTE_SCALE + UBYTE_SCALE)), UBYTE_MAX) for x in vec]
 
 
 def scale_unpack(f, base):
@@ -96,26 +99,21 @@ def pack_longint_vec(vec, residue, base):
         output |= o << (21 * i)
     # print("bef",bin(output))
     output |= residue << 63
-    # thing = struct.unpack("<d", struct.pack("<Q",output))
-    # thing2 = -1.0*float(thing[0])
-    # output = struct.unpack("<Q", struct.pack("<d",thing2))[0]
     return output
 
 
-def unpack_weights(model, i, residue, extra=True):
+def unpack_weights(model, i):
+    # weight in range 0-1
     vert_w = []
     if "bone ids" in model.dt.fields:
-        vert_w = [(i, w) for i, w in zip(model.verts_data[i]["bone ids"], model.verts_data[i]["bone weights"]) if w > 0]
-    elif hasattr(model, "weights_data"):
-        vert_w = [(i, w) for i, w in zip(model.weights_data[i]["bone ids"], model.weights_data[i]["bone weights"]) if
-                  w > 0]
-    if extra:
+        vert = model.verts_data[i]
+        vert_w = [(i, w / 255) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0]
         # fallback: skin parition
         if not vert_w:
-            vert_w = [(model.verts_data[i]["bone index"], 255), ]
-
-        # packing bit
-        vert_w.append(("residue", residue * 255))
+            vert_w = [(vert["bone index"], 1.0), ]
+    elif hasattr(model, "weights_data"):
+        vert = model.weights_data[i]
+        vert_w = [(i, w / 255) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0]
     return vert_w
 
 

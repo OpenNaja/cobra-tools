@@ -126,9 +126,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		# build indices into vertex buffer for the current face
 		tri = []
 		if is_fin(b_ob):
-			flip = 0
+			winding = 0
 		else:
-			flip = is_flipped(eval_me.uv_layers[0].data, face)
+			winding = is_flipped(eval_me.uv_layers[0].data, face)
 		# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
 		for loop_index in face.loop_indices:
 			b_loop = eval_me.loops[loop_index]
@@ -177,15 +177,14 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# now collect any missing vert data that was not needed for the splitting of blender verts
 
 				# collect vertex colors
-				vcols = [(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
-				bone_ids, bone_weights, fur_length, fur_width, residue = export_weights(
+				vcols = [tuple(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
+				weights, fur_length, fur_width, residue = export_weights(
 					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
 				if num_fur_weights:
 					# append to uv
 					uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
 				# store all raw blender data
-				verts.append((position, residue, normal, flip, tangent, bone_ids[0], uvs, vcols, bone_ids,
-					bone_weights, shapekey))
+				verts.append((position, residue, normal, winding, tangent, uvs, vcols, weights, shapekey))
 			tri.append(v_index)
 		tris.append(tri)
 
@@ -243,24 +242,16 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 			traceback.print_exc()
 	# print(residue)
 	# get the 4 strongest influences on this vert
-	w_s = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
-	# print(w_s)
-	# pad the weight list to 4 bones, ie. add empty bones if missing
-	for i in range(0, 4 - len(w_s)):
-		w_s.append([0, 0])
-	assert len(w_s) == 4
-	# split the list of tuples into two separate lists
-	bone_ids, bone_weights = zip(*w_s)
-	# summed weights
-	sw = sum(bone_weights)
-	# print(sw)
-	if sw > 0.0:
-		# normalize
-		bone_weights = [x / sw for x in bone_weights]
-	elif b_vert.index not in unweighted_vertices:
+	weights_sorted = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
+	if not weights_sorted:
 		# print("Sum of weights",sw)
 		unweighted_vertices.append(b_vert.index)
-	return bone_ids, bone_weights, fur_length, fur_width, residue
+	# print(weights_sorted)
+	# pad the weight list to 4 bones, ie. add empty bones if missing
+	for i in range(0, 4 - len(weights_sorted)):
+		weights_sorted.append([0, 0])
+	assert len(weights_sorted) == 4
+	return weights_sorted, fur_length, fur_width, residue
 
 
 def get_property(ob, prop_name):

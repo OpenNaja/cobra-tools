@@ -71,18 +71,11 @@ class NewMeshData:
 				("uvs", np.ushort, (2, 2)),
 				("zeros0", np.int32, (2,))
 			])
-		elif self.flag in (565, 821, 853, 885, 1013):
+		elif self.flag in (533, 565, 821, 853, 885, 1013):
 			dt.extend([
 				("uvs", np.ushort, (2, 2)),  # second UV is either fins texcoords or fur length and shell tile scale
 				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
 				("zeros0", np.int32, (1,))
-			])
-		elif self.flag == 533:
-			dt.extend([
-				# see walls_gate.mdl2, two uv layers
-				("uvs", np.ushort, (2, 2)),
-				("colors", np.ubyte, (1, 4)),
-				("zeros2", np.int32, (1,))
 			])
 		elif self.flag == 513:
 			dt.extend([
@@ -101,8 +94,8 @@ class NewMeshData:
 				("shapekeys0", np.uint32, 1),
 				("colors", np.ubyte, (1, 4)),  # this appears to be normals, or something similar
 				("shapekeys1", np.uint32, 1),
-				# actually, these are 4 floats. sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
-				("colors1", np.ubyte, (4, 4)),
+				# sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
+				("floats", np.float32, 4),
 			])
 		elif self.flag == 545:
 			dt.extend([
@@ -110,9 +103,8 @@ class NewMeshData:
 				("uvs", np.ushort, (1, 2)),
 				("zeros2", np.uint32, (7,)),
 			])
-
 		# bone weights
-		if self.flag in (528, 529, 533, 565, 821, 853, 885, 1013):
+		if self.flag.weights:
 			dt.extend([
 				("bone ids", np.ubyte, (4,)),
 				("bone weights", np.ubyte, (4,)),
@@ -125,16 +117,15 @@ class NewMeshData:
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
 
 	def read_verts(self):
-		# read vertices of this mesh
-		self.stream_info.stream.seek(self.vertex_offset)
-		logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
+		# read vertices of this mesh
+		self.fur_length = 0.0
+		self.stream_info.stream.seek(self.vertex_offset)
+		logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		# read the packed ms2_file
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		self.stream_info.stream.readinto(self.verts_data)
-		# if len(self.verts_data) != self.vertex_count:
-		# 	raise BufferError(f"{len(self.verts_data)} were read into vertex buffer, should have {self.vertex_count}")
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
@@ -168,55 +159,58 @@ class NewMeshData:
 			self.vertices[i] = unpack_swizzle(vert)
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
-			self.weights.append(unpack_weights(self, i, residue))
+			self.weights.append(unpack_weights(self, i))
+
+			# if residue is not None:
+			# 	# packing bit
+			# 	vert_w.append(("residue", residue))
 		# logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
-		self.fur_length = 0.0
-		# if self.fur is not None:
-		# 	fur = self.verts_data[:]["fur_shell"]
-		# 	fur = unpack_ushort_vector(fur)
-		# 	self.import_fur_as_weights(fur)
-		# print(self.verts_data[:]["winding"])
 
 	def set_verts(self, verts):
-		"""Update self.verts_data from list of new verts"""
-		self.verts_data = np.zeros(len(verts), dtype=self.dt)
-		for i, (
-				position, residue, normal, winding, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
-				shapekey) in enumerate(
-			verts):
-			# print("shapekey", shapekey)
-			self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
-			self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
-			self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
+		"""Store verts as flat lists for each component"""
+		# need to update the count here
+		# self.vertex_count = len(verts)
+		# self.init_arrays()
+		# self.vertices[:], self.residues, self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
+		# self.colors[:], self.weights, self.shapekeys[:] = zip(*verts)
+		self.vertices, self.residues, self.normals, self.windings, self.tangents, self.uvs, \
+		self.colors, self.weights, self.shapekeys = zip(*verts)
+		self.pack_verts()
+
+	def pack_verts(self):
+		"""Repack flat lists into verts_data"""
+		# get dtype according to which the vertices are packed
+		self.update_dtype()
+		self.verts_data = np.zeros(len(self.vertices), dtype=self.dt)
+		residue = 1
+		for i, vert in enumerate(self.verts_data):
+			vert["pos"] = pack_longint_vec(pack_swizzle(self.vertices[i]), residue, self.base)
+			vert["normal"] = pack_ubyte_vector(pack_swizzle(self.normals[i]))
+			vert["tangent"] = pack_ubyte_vector(pack_swizzle(self.tangents[i]))
 
 			# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
 			# 0 = natural winding matching the geometry
 			# 128 = UV's winding is flipped / inverted compared to geometry
-			self.verts_data[i]["winding"] = winding * 128
-			self.verts_data[i]["bone index"] = bone_index
+			vert["winding"] = self.windings[i] * 128
+			# bone index of the strongest weight
+			vert["bone index"] = self.weights[i][0][0]
 			if "bone ids" in self.dt.fields:
-				self.verts_data[i]["bone ids"] = bone_ids
-				# round is essential so the float is not truncated
-				self.verts_data[i]["bone weights"] = list(round(w * 255) for w in bone_weights)
-				# print(self.verts_data[i]["bone weights"], np.sum(self.verts_data[i]["bone weights"]))
-				# additional double check
-				d = np.sum(self.verts_data[i]["bone weights"]) - 255
-				self.verts_data[i]["bone weights"][0] -= d
-				assert np.sum(self.verts_data[i]["bone weights"]) == 255
+				ids, weights = zip(*self.weights[i])
+				vert["bone ids"] = ids
+				vert["bone weights"] = self.quantize_bone_weights(weights)
 			if "uvs" in self.dt.fields:
-				self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
+				vert["uvs"] = list(pack_ushort_vector(uv) for uv in self.uvs[i])
 			if "colors" in self.dt.fields:
-				self.verts_data[i]["colors"] = list(list(round(c * 255) for c in vcol) for vcol in vcols)
+				vert["colors"] = list(list(round(c * 255) for c in vcol) for vcol in self.colors[i])
 			if "shapekeys0" in self.dt.fields:
 				# first pack it as uint64
-				raw_packed = pack_longint_vec(pack_swizzle(shapekey), 0, self.base)
+				raw_packed = pack_longint_vec(pack_swizzle(self.shapekeys[i]), residue, self.base)
 				if raw_packed < 0:
 					logging.error(f"Shapekey {raw_packed} could not be packed into uint64")
 					raw_packed = 0
 				raw_bytes = struct.pack("Q", raw_packed)
 				# unpack to 2 uints again and assign data
 				first, second = struct.unpack("LL", raw_bytes)
-				self.verts_data[i]["shapekeys0"] = first
-				self.verts_data[i]["shapekeys1"] = second
-		# print(self.verts_data[:]["winding"])
+				vert["shapekeys0"] = first
+				vert["shapekeys1"] = second
 

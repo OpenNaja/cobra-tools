@@ -246,4 +246,4 @@ def import_vertex_groups(ob, mesh, b_bone_names):
 		bonename = resolve_name(b_bone_names, bone_index)
 		ob.vertex_groups.new(name=bonename)
 		for weight, vert_indices in weights_dic.items():
-			ob.vertex_groups[bonename].add(vert_indices, weight/255, 'REPLACE')
+			ob.vertex_groups[bonename].add(vert_indices, weight, 'REPLACE')

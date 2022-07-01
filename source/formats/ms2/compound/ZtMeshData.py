@@ -108,7 +108,7 @@ class ZtMeshData:
 			# different swizzle!
 			self.normals[i] = (-self.normals[i][2], -self.normals[i][0], self.normals[i][1])
 		# 	self.tangents[i] = unpack_swizzle(self.tangents[i])
-			self.weights.append(unpack_weights(self, i, 0, extra=False))
+			self.weights.append(unpack_weights(self, i))
 			# print(math.sqrt(sum(x**2 for x in self.normals[i])))
 		# print(self.normals)
 		# print(self.verts_data)

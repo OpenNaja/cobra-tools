@@ -253,6 +253,13 @@ class BioMeshData(MeshData):
 		colors_shape = self.dt["colors"].shape
 		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 
+		# may or may not be used in a given chunk
+		dt_weights = [
+			("bone ids", np.ubyte, (4,)),
+			("bone weights", np.ubyte, (4,)),
+		]
+		self.dt_weights = np.dtype(dt_weights)
+
 		self.read_chunk_infos()
 
 		first_tris_offs = self.pos_chunks[0].tris_offset
@@ -280,18 +287,13 @@ class BioMeshData(MeshData):
 
 				# check if weights chunk is present
 				if off.weights_flag.has_weights:
-					# read a index data for each vertex
-					dt_weights = [
-						("bone ids", np.ubyte, (4,)),
-						("bone weights", np.ubyte, (4,)),
-					]
-					self.dt_weights = np.dtype(dt_weights)
+					# read for each vertex
 					off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
 					self.stream_info.stream.readinto(off.weights)
-					chunk_weights = [[(i, w) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0] for vert in off.weights]
+					chunk_weights = [[(i, w/255) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0] for vert in off.weights]
 				else:
 					# use the chunk's bone index for each vertex in chunk
-					chunk_weights = [[(off.weights_flag.bone_index, 255), ] for _ in range(off.vertex_count)]
+					chunk_weights = [[(off.weights_flag.bone_index, 1.0), ] for _ in range(off.vertex_count)]
 				self.weights.extend(chunk_weights)
 
 				# uv, normals etc
