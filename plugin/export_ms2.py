@@ -142,6 +142,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				shell_loop = shell_eval_me.loops[index]
 				# print(tangent)
 				tangent = shell_loop.tangent
+				# todo - use combed fur vec here?
 				normal = shell_loop.normal
 			else:
 				tangent = b_loop.tangent
