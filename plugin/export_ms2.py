@@ -247,10 +247,6 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 		# print("Sum of weights",sw)
 		unweighted_vertices.append(b_vert.index)
 	# print(weights_sorted)
-	# pad the weight list to 4 bones, ie. add empty bones if missing
-	for i in range(0, 4 - len(weights_sorted)):
-		weights_sorted.append([0, 0])
-	assert len(weights_sorted) == 4
 	return weights_sorted, fur_length, fur_width, residue
 
 

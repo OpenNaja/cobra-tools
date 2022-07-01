@@ -102,19 +102,21 @@ def pack_longint_vec(vec, residue, base):
     return output
 
 
+def get_valid_weights(vert):
+    return [(b, w / 255) for b, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0]
+
+
 def unpack_weights(model, i):
     # weight in range 0-1
-    vert_w = []
-    if "bone ids" in model.dt.fields:
-        vert = model.verts_data[i]
-        vert_w = [(i, w / 255) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0]
-        # fallback: skin parition
-        if not vert_w:
-            vert_w = [(vert["bone index"], 1.0), ]
-    elif hasattr(model, "weights_data"):
-        vert = model.weights_data[i]
-        vert_w = [(i, w / 255) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0]
-    return vert_w
+    weights = []
+    if hasattr(model, "weights_data"):
+        weights = get_valid_weights(model.weights_data[i])
+    elif "bone ids" in model.dt.fields:
+        weights = get_valid_weights(model.verts_data[i])
+    if not weights:
+        # fallback: skin partition
+        weights = [(model.verts_data[i]["bone index"], 1.0), ]
+    return weights
 
 
 def remap(v, old_min, old_max, new_min, new_max):

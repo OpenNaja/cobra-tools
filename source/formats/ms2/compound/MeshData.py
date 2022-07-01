@@ -34,6 +34,9 @@ class MeshData:
 		# self.validate_tris()
 		return self.end_of_vertices
 
+	def pack_verts(self):
+		pass
+
 	def write_data(self):
 		# write to the stream_info that has been assigned to mesh
 		self.vertex_offset = self.stream_info.verts.tell()

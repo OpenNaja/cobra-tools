@@ -75,7 +75,7 @@ class NewMeshData:
 			dt.extend([
 				("uvs", np.ushort, (2, 2)),  # second UV is either fins texcoords or fur length and shell tile scale
 				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
-				("zeros0", np.int32, (1,))
+				("zeros0", np.int32)
 			])
 		elif self.flag == 513:
 			dt.extend([
@@ -91,11 +91,11 @@ class NewMeshData:
 		elif self.flag == 517:
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
-				("shapekeys0", np.uint32, 1),
+				("shapekeys0", np.uint32),
 				("colors", np.ubyte, (1, 4)),  # this appears to be normals, or something similar
-				("shapekeys1", np.uint32, 1),
+				("shapekeys1", np.uint32),
 				# sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
-				("floats", np.float32, 4),
+				("floats", np.float32, (4,)),
 			])
 		elif self.flag == 545:
 			dt.extend([
@@ -136,6 +136,7 @@ class NewMeshData:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data[:]["colors"]
 			self.colors /= 255
+		self.windings = self.verts_data[:]["winding"] // 128
 		self.normals[:] = self.verts_data[:]["normal"]
 		self.tangents[:] = self.verts_data[:]["tangent"]
 		self.normals = (self.normals - 128) / 128
@@ -160,10 +161,10 @@ class NewMeshData:
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i))
+			# self.residues.append(unpack_weights(self, i))
 
-			# if residue is not None:
-			# 	# packing bit
-			# 	vert_w.append(("residue", residue))
+			# packing bit
+			self.weights[i].append(("residue", residue))
 		# logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
 	def set_verts(self, verts):
@@ -179,6 +180,7 @@ class NewMeshData:
 
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
+		logging.info("Packing vertices")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		self.verts_data = np.zeros(len(self.vertices), dtype=self.dt)
@@ -193,11 +195,12 @@ class NewMeshData:
 			# 128 = UV's winding is flipped / inverted compared to geometry
 			vert["winding"] = self.windings[i] * 128
 			# bone index of the strongest weight
-			vert["bone index"] = self.weights[i][0][0]
+			if self.weights[i]:
+				vert["bone index"] = self.weights[i][0][0]
+			# else:
+			# 	print(f"bad weight {i}, {self.weights[i]}")
 			if "bone ids" in self.dt.fields:
-				ids, weights = zip(*self.weights[i])
-				vert["bone ids"] = ids
-				vert["bone weights"] = self.quantize_bone_weights(weights)
+				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(self.weights[i])
 			if "uvs" in self.dt.fields:
 				vert["uvs"] = list(pack_ushort_vector(uv) for uv in self.uvs[i])
 			if "colors" in self.dt.fields:
@@ -213,4 +216,12 @@ class NewMeshData:
 				first, second = struct.unpack("LL", raw_bytes)
 				vert["shapekeys0"] = first
 				vert["shapekeys1"] = second
+
+	def unpack_weights_list(self, weights_sorted):
+		# pad the weight list to 4 bones, ie. add empty bones if missing
+		for i in range(0, 4 - len(weights_sorted)):
+			weights_sorted.append([0, 0])
+		assert len(weights_sorted) == 4
+		ids, weights = zip(*weights_sorted)
+		return ids, self.quantize_bone_weights(weights)
 
