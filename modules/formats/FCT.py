@@ -17,7 +17,14 @@ class FctLoader(MemStructLoader):
 		paths = [*out_files]
 		buff = b"".join(self.data_entry.buffer_datas)
 
+		# save data from start of buffer
 		offset = self.header.offset
+		path = out_dir(self.get_font_name("buffer", "dmp"))
+		paths.append(path)
+		with open(path, 'wb') as outfile:
+			outfile.write(buff[:offset])
+
+		# extract fonts
 		for i, font in enumerate(self.header.fonts):
 			if font.data_size:
 				type_check = buff[offset:offset + 4]
@@ -37,7 +44,15 @@ class FctLoader(MemStructLoader):
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		file_dir = os.path.dirname(self.file_entry.path)
 		with io.BytesIO() as buff_stream:
-			buff_stream.write(b'\x00' * self.header.offset)
+			# restore the stuff at the start of the stream
+			file_name = self.get_font_name("buffer", "dmp")
+			file_path = os.path.join(file_dir, file_name)
+			with open(file_path, "rb") as f:
+				start_bytes = f.read()
+			buff_stream.write(start_bytes)
+			self.header.offset = buff_stream.tell()
+
+			# load the possible fonts
 			for i, font in enumerate(self.header.fonts):
 				# see if a matching font exists
 				for ext in (".otf", ".ttf"):
