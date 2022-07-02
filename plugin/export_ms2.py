@@ -158,8 +158,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			# get the vectors
 			position = b_vert.co
 			if shell_ob:
-				uv_co = fin_uv_layer[b_loop.index].uv.to_3d()
-				co, index, dist = shell_kd.find(uv_co)
+				lookup = fin_uv_layer[b_loop.index].uv.to_3d()
+				lookup.z = b_vert.co.x
+				co, index, dist = shell_kd.find(lookup)
 				shell_loop = shell_eval_me.loops[index]
 
 				# reindeer is a special case: has beard normals pointing straight down for shell & fins
@@ -399,6 +400,9 @@ def fill_kd_tree(me):
 	kd = mathutils.kdtree.KDTree(size)
 	uv_layer = me.uv_layers[0].data
 	for i, loop in enumerate(me.loops):
-		kd.insert(uv_layer[loop.index].uv.to_3d(), i)
+		# include x coord in lookup to handle mirrored UVs
+		lookup = uv_layer[loop.index].uv.to_3d()
+		lookup.z = me.vertices[loop.vertex_index].co.x
+		kd.insert(lookup, i)
 	kd.balance()
 	return kd
