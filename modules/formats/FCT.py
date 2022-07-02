@@ -1,4 +1,5 @@
 import io
+import logging
 import os
 
 from generated.formats.fct.compound.FctRoot import FctRoot
@@ -19,7 +20,9 @@ class FctLoader(MemStructLoader):
 
 		# save data from start of buffer
 		offset = self.header.offset
-		path = out_dir(self.get_font_name("buffer", "dmp"))
+		path = out_dir(self.get_font_name("buffer", ".dmp"))
+		if not os.path.isfile(path):
+			logging.warning(f"FCT dump {path} is missing")
 		paths.append(path)
 		with open(path, 'wb') as outfile:
 			outfile.write(buff[:offset])
@@ -45,7 +48,7 @@ class FctLoader(MemStructLoader):
 		file_dir = os.path.dirname(self.file_entry.path)
 		with io.BytesIO() as buff_stream:
 			# restore the stuff at the start of the stream
-			file_name = self.get_font_name("buffer", "dmp")
+			file_name = self.get_font_name("buffer", ".dmp")
 			file_path = os.path.join(file_dir, file_name)
 			with open(file_path, "rb") as f:
 				start_bytes = f.read()
