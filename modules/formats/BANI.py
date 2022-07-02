@@ -24,25 +24,24 @@ class BaniLoader(MemStructLoader):
 		# store banis name for linking
 		self.target_name = bani.banis_name
 
+	def collect(self):
+		super().collect()
+		self.target_name = self.find_banis_name()
+
 	def update(self):
 		# link frag to banis
 		banis_loader = self.ovl.loaders.get(self.target_name, None)
 		if not banis_loader:
 			logging.warning(f"Could not find '{self.target_name}' for '{self.file_entry.name}'")
 			return
-		logging.info(f"Linked '{self.file_entry.name}' to '{self.target_name}'")
+		logging.debug(f"Linked '{self.file_entry.name}' to '{self.target_name}'")
 		self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
 
 	def extract(self, out_dir):
 		logging.info(f"Writing {self.root_entry.name}")
 
 		# find banis name
-		for root_entry in self.ovs.root_entries:
-			if self.header.banis.frag.struct_ptr == root_entry.struct_ptr:
-				banis_name = root_entry.name
-				break
-		else:
-			banis_name = "None"
+		banis_name = self.find_banis_name()
 
 		# write bani file
 		out_path = out_dir(self.root_entry.name)
@@ -52,6 +51,12 @@ class BaniLoader(MemStructLoader):
 			self.header.write(outfile)
 
 		return out_path,
+
+	def find_banis_name(self):
+		for root_entry in self.ovs.root_entries:
+			if self.header.banis.frag.struct_ptr == root_entry.struct_ptr:
+				return root_entry.name
+		return "None"
 
 
 class BanisLoader(MemStructLoader):
