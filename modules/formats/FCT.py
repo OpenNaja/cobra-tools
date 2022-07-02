@@ -20,11 +20,9 @@ class FctLoader(MemStructLoader):
 
 		# save data from start of buffer
 		offset = self.header.offset
-		path = out_dir(self.get_font_name("buffer", ".dmp"))
-		if not os.path.isfile(path):
-			logging.warning(f"FCT dump {path} is missing")
-		paths.append(path)
-		with open(path, 'wb') as outfile:
+		file_path = out_dir(self.get_font_name("buffer", ".dmp"))
+		paths.append(file_path)
+		with open(file_path, 'wb') as outfile:
 			outfile.write(buff[:offset])
 
 		# extract fonts
@@ -35,9 +33,9 @@ class FctLoader(MemStructLoader):
 					ext = ".otf"
 				else:
 					ext = ".ttf"
-				path = out_dir(self.get_font_name(i, ext))
-				paths.append(path)
-				with open(path, 'wb') as outfile:
+				file_path = out_dir(self.get_font_name(i, ext))
+				paths.append(file_path)
+				with open(file_path, 'wb') as outfile:
 					outfile.write(buff[offset:offset + font.data_size])
 			offset += font.data_size
 		return paths
@@ -50,6 +48,8 @@ class FctLoader(MemStructLoader):
 			# restore the stuff at the start of the stream
 			file_name = self.get_font_name("buffer", ".dmp")
 			file_path = os.path.join(file_dir, file_name)
+			if not os.path.isfile(file_path):
+				logging.warning(f"FCT dump {file_path} is missing")
 			with open(file_path, "rb") as f:
 				start_bytes = f.read()
 			buff_stream.write(start_bytes)
