@@ -1,3 +1,5 @@
+import bpy
+
 from plugin.utils.object import mesh_from_data
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.shell import get_ob_from_lod_and_flags
@@ -12,7 +14,7 @@ def visualize_tangents(name, verts, normals, tangents):
 		out_verts.append(v+v_len*n)
 		out_verts.append(v+v_len*t)
 		out_faces.append((i * 3, i*3 + 1, i * 3 + 2))
-	return mesh_from_data(f"{name}_Tangents", out_verts, out_faces, wireframe=False)
+	return mesh_from_data(bpy.context.scene, f"{name}_Tangents", out_verts, out_faces, wireframe=False)
 
 
 def create_tangents():

@@ -88,8 +88,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					except:
 						traceback.print_exc()
 					ob_dict[m_ob.mesh_index] = b_ob
-				# from plugin.modules_import.tangents import visualize_tangents
-				# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
+					# from plugin.modules_import.tangents import visualize_tangents
+					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 
 			coll_name = f"{scene.name}_LOD{lod_i}"
 			# get view layer if it exists, show lod 0, hide the others
