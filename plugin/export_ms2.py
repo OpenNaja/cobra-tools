@@ -162,6 +162,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				co, index, dist = shell_kd.find(uv_co)
 				shell_loop = shell_eval_me.loops[index]
 
+				# reindeer is a special case: has beard normals pointing straight down for shell & fins
+				# that is not the fur combing
 				# from this test with reindeer normal on fins is confirmed to be the base shell normal
 				# not with fur direction applied - that messes with the shading
 				# # print(tangent)
@@ -177,8 +179,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			else:
 				normal = b_loop.normal
 				tangent = b_loop.tangent
-			normal = normals.data[loop_index].vector
-			tangent = tangents.data[loop_index].vector
+			# normal = normals.data[loop_index].vector
+			# tangent = tangents.data[loop_index].vector
 
 			# shape key morphing
 			b_key = b_me.shape_keys
