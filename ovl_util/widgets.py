@@ -157,7 +157,7 @@ class TableModel(QtCore.QAbstractTableModel):
 				_type = self._data[index.row()]
 				if len(_type) and _type[1] in self.ignore_types:
 					# remove the leading .
-					return get_icon(dtype[1:])
+					return get_icon(_type[1][1:])
 
 		if role == QtCore.Qt.TextAlignmentRole:
 			# right align hashes
