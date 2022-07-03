@@ -14,6 +14,7 @@ from modules.formats.shared import get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
 from ovl_util import interaction
+from ovl_util.interaction import showdialog
 
 
 class Mdl2Loader(BaseFile):
@@ -37,6 +38,76 @@ class Model2streamLoader(BaseFile):
 class Ms2Loader(BaseFile):
 	extension = ".ms2"
 
+	@staticmethod
+	def _rel_at(parent_ptr, offset):
+		for frag in parent_ptr.children:
+			if frag.link_ptr.data_offset == parent_ptr.data_offset + offset:
+				return frag
+
+	def detect_biosyn_format(self):
+		logging.info("Detecting Biosyn format")
+		if ovl_versions.is_jwe2(self.ovl):
+			if self.ovl.is_biosyn is not None:
+				return self.ovl.is_biosyn
+			else:
+				for func in (
+						self.detect_biosyn_format_from_manis,
+						self.detect_biosyn_format_from_ptrs,
+						self.detect_biosyn_format_from_user_input,):
+					check = func()
+					if check is not None:
+						self.ovl.is_biosyn = check
+						return check
+
+	def detect_biosyn_format_from_user_input(self):
+		logging.info("Detecting Biosyn format from user input")
+		return showdialog(f"Does {self.ovl.name} use the mesh format from the Biosyn update?", ask=True)
+
+	def detect_biosyn_format_from_manis(self):
+		logging.info("Detecting Biosyn format from .manis")
+		for mime in self.ovl.mimes:
+			if mime.ext == ".manis":
+				# JWE2 pre Biosyn
+				if mime.mime_version == 261:
+					return False
+				# JWE2 post Biosyn
+				elif mime.mime_version == 262:
+					return True
+		return None
+
+	def detect_biosyn_format_from_ptrs(self):
+		logging.info("Detecting Biosyn format from pointers")
+		is_biosyn = False
+		is_older = False
+		older_buffer_entry = 56
+		biosyn_buffer_entry = 88
+		buffer_frag = self._rel_at(self.root_ptr, 24)
+		if buffer_frag:
+			buffer_size = buffer_frag.struct_ptr.data_size
+			if buffer_size:
+				if not buffer_size % biosyn_buffer_entry:
+					is_biosyn = True
+				if not buffer_size % older_buffer_entry:
+					is_older = True
+		# print(f"is_biosyn {is_biosyn}")
+		older_model_entry = 192
+		biosyn_model_entry = 160
+		model_infos_frag = self._rel_at(self.root_ptr, 32)
+		if model_infos_frag:
+			models_size = model_infos_frag.struct_ptr.data_size
+			if models_size:
+				if not models_size % biosyn_model_entry:
+					is_biosyn = True
+				if not models_size % older_model_entry:
+					is_older = True
+		if is_biosyn and not is_older:
+			# good, trust it
+			return True
+		elif is_older and not is_biosyn:
+			# good, trust it
+			return False
+		return None
+
 	def link_streams(self):
 		"""Collect other loaders"""
 		# if the ms2 name ends in a trailing underscore, remove it
@@ -47,8 +118,8 @@ class Ms2Loader(BaseFile):
 		version = struct.unpack(f"I", self.root_ptr.data[:4])[0]
 		self.context = Ms2Context()
 		self.context.version = version
-		self.context.biosyn = self.ovl.biosyn
-		# self.context.biosyn = 0
+		self.context.biosyn = self.detect_biosyn_format()
+		logging.info(f"context.biosyn {self.context.biosyn}")
 
 	def get_buffer_presence(self):
 		# some in JWE2 have a model2stream again
@@ -65,7 +136,6 @@ class Ms2Loader(BaseFile):
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
 		# self.header.debug_ptrs()
-		# print(f"context.biosyn {self.context.biosyn}")
 		# print(self.header)
 		expected_frag = self.get_buffer_presence()
 		frag_data = self.header.buffers_presence.frag.struct_ptr.data

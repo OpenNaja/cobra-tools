@@ -579,7 +579,7 @@ class OvlFile(Header, IoFile):
 		self.magic.data = b'FRES'
 		self.hash_table_global = {}
 
-		self.biosyn = False
+		self.is_biosyn = None
 
 		self.last_print = None
 		if progress_callback:
@@ -884,6 +884,7 @@ class OvlFile(Header, IoFile):
 
 	def load(self, filepath, commands=()):
 		start_time = time.time()
+		self.is_biosyn = None
 		# store commands
 		self.commands = commands
 		self.store_filepath(filepath)
