@@ -226,6 +226,8 @@ class MainWindow(widgets.MainWindow):
 		self.statusBar.addWidget(label)
 		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
+		# run once here to make sure we catch the default game
+		self.game_changed()
 
 	def get_steam_games(self,):
 		try:
