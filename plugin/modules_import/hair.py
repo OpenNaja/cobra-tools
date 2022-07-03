@@ -78,23 +78,20 @@ def vcol_to_comb():
 		vertex = me.vertices[loop.vertex_index]
 		tangent_space_mat = get_tangent_space_mat(loop)
 		vcol = vcol_layer[loop.index].color
-		r = (vcol[0] - 0.5)*FAC
-		# g = (vcol[1] - 0.5)*FAC
-		b = (vcol[2] - 0.5)*FAC
-		# not sure what this does, kinda random
-		# a = (vcol[3] - 0.5)*FAC
-		# print((r * r) + (b * b) + (g*g), (b * b) + (r * r))
+		r = (vcol[0] - 0.5) * FAC
+		# green appears to be unused
+		# g = (vcol[1] - 0.5) * FAC
+		b = (vcol[2] - 0.5) * FAC
+		# alpha is used to control the shape of the strands, apparent softness or clumping
 		try:
 			# calculate third component for unit vector
-			# z = math.sqrt((r * r) + (b * b) - 1)
-			z = math.sqrt(1 - (r * r) - (b * b))
+			# cf https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Normal-Reconstruct-Z-Node.html
+			squares = (r * r) - (b * b)
+			z = math.sqrt(1.0 - max(0.0, min(1.0, squares)))
 		except:
-			# print("EXCEPT", r, b, a, (r * r) + (b * b) - 1)
 			z = 0
-		# n = math.sqrt((r * r + b * b + z * z))
-		# print("normalized", n)
 		# this is the raw vector, in tangent space
-		# this is like uv, so we do 1-v
+		# this is like uv, so we negate the second component
 		vec = mathutils.Vector((r, -b, z))
 
 		# convert to object space
