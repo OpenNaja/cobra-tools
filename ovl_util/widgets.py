@@ -144,18 +144,20 @@ class TableModel(QtCore.QAbstractTableModel):
 			# See below for the nested-list data structure.
 			# .row() indexes into the outer list,
 			# .column() indexes into the sub-list
-			return self._data[index.row()][index.column()]
+			if len(self._data[index.row()]):
+				return self._data[index.row()][index.column()]
 
 		if role == QtCore.Qt.ForegroundRole:
-			dtype = self._data[index.row()][1]
-			if dtype in self.ignore_types:
+			_type = self._data[index.row()]
+			if len(_type) and _type[1] in self.ignore_types:
 				return QtGui.QColor('grey')
 
 		if role == QtCore.Qt.DecorationRole:
 			if index.column() == 0:
-				dtype = self._data[index.row()][1]
-				# remove the leading .
-				return get_icon(dtype[1:])
+				_type = self._data[index.row()]
+				if len(_type) and _type[1] in self.ignore_types:
+					# remove the leading .
+					return get_icon(dtype[1:])
 
 		if role == QtCore.Qt.TextAlignmentRole:
 			# right align hashes
@@ -193,13 +195,13 @@ class TableModel(QtCore.QAbstractTableModel):
 		return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
 
 	def flags(self, index):
-		dtype = self._data[index.row()][1]
+		dtype = self._data[index.row()]
 		d_n_d = QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsSelectable
 		renamable = QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
 		state = QtCore.Qt.NoItemFlags
 		if index.column() == 0:
 			state |= renamable
-		if dtype not in self.ignore_types:
+		if len(dtype) and dtype[1] not in self.ignore_types:
 			state |= d_n_d
 		return state
 
