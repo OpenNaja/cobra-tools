@@ -335,7 +335,7 @@ class MainWindow(widgets.MainWindow):
 					# process each
 					yield self.ovl_data
 					if save_over:
-						self.ovl_data.save(ovl_path)
+						self._save_ovl()
 			else:
 				interaction.showdialog("Select a root directory!")
 		# just the one that's currently open
