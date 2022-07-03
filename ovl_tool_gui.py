@@ -5,6 +5,7 @@ import time
 import traceback
 import logging
 import tempfile
+import winreg
 
 from root_path import root_dir
 
@@ -39,6 +40,18 @@ class MainWindow(widgets.MainWindow):
 
 		supported_types = [ext for ext in self.ovl_data.formats_dict.keys()]
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in supported_types))
+		self.installed_games = self.get_steam_games()
+		cfg_game_path = self.cfg.get("dir_game", "")
+		cfg_game = None
+		if cfg_game_path:
+			if cfg_game_path in self.installed_games.values():
+				for cfg_game, p in self.installed_games.items():
+					if p == cfg_game_path:
+						break
+				else:
+					cfg_game = None
+			else:
+				self.installed_games[os.path.basename(cfg_game_path)] = cfg_game_path
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 		self.file_widget.setToolTip("The name of the OVL file that is currently open")
@@ -63,6 +76,16 @@ class MainWindow(widgets.MainWindow):
 
 		header_names = ["Name", "File Type"]
 
+		self.installed_games_view = widgets.GamesCombo(self)
+		self.installed_games_view.setToolTip("Select game for easy access below")
+		self.installed_games_view.set_data(self.installed_games.keys())
+		self.installed_games_view.entry.setEditable(False)
+		self.installed_games_view.entry.textActivated.connect(self.installed_game_chosen)
+		self.installed_games_view.add_button.clicked.connect(self.add_installed_game)
+		if cfg_game:
+			self.installed_games_view.entry.setText(cfg_game)
+
+		# self.installed_games_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
 		self.model = QtWidgets.QFileSystemModel()
 		self.dirs_container = QtWidgets.QTreeView()
 		self.dirs_container.setModel(self.model)
@@ -94,6 +117,12 @@ class MainWindow(widgets.MainWindow):
 		self.included_ovls_view = widgets.EditCombo(self)
 		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included")
 		self.included_ovls_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
+
+		left_frame = QtWidgets.QWidget()
+		hbox = QtWidgets.QVBoxLayout()
+		hbox.addWidget(self.installed_games_view)
+		hbox.addWidget(self.dirs_container)
+		left_frame.setLayout(hbox)
 
 		right_frame = QtWidgets.QWidget()
 		hbox = QtWidgets.QVBoxLayout()
@@ -140,7 +169,7 @@ class MainWindow(widgets.MainWindow):
 		self.e_name_new.setTabChangesFocus(True)
 
 		self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
-		self.splitter.addWidget(self.dirs_container)
+		self.splitter.addWidget(left_frame)
 		self.splitter.addWidget(right_frame)
 		self.splitter.setSizes([200, 400])
 		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -198,6 +227,27 @@ class MainWindow(widgets.MainWindow):
 		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
 
+	def get_steam_games(self,):
+		try:
+			hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
+		except:
+			traceback.print_exc()
+			return
+		try:
+			steam_query = winreg.QueryValueEx(hkey, "InstallPath")
+		except:
+			traceback.print_exc()
+			return
+		# C:\\Program Files (x86)\\Steam
+		steam_path = steam_query[0]
+		apps_path = os.path.join(steam_path, "steamapps\\common")
+		steam_games = os.listdir(apps_path)
+		# print(steam_games)
+		_games = [g.value for g in games]
+		# C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
+		fdev_games = {game: os.path.join(apps_path, game, "win64\\ovldata") for game in steam_games if game in _games}
+		return fdev_games
+
 	def compare_ovls(self):
 		selected_file_names = self.files_container.table.get_selected_files()
 		if not selected_file_names:
@@ -221,6 +271,17 @@ class MainWindow(widgets.MainWindow):
 					except:
 						traceback.print_exc()
 						logging.error(f"Could not compare '{file_name}'")
+
+	def installed_game_chosen(self):
+		dir_game = self.installed_games[self.installed_games_view.entry.currentText()]
+		self.cfg["dir_game"] = dir_game
+		self.populate_game_widget(dir_game)
+
+	def add_installed_game(self):
+		dir_game = self.ask_game_dir()
+		if dir_game:
+			self.installed_games[os.path.basename(dir_game)] = dir_game
+			self.installed_games_view.set_data(self.installed_games.keys())
 
 	def ask_game_dir(self):
 		dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")

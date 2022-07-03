@@ -416,6 +416,50 @@ class CleverCombo(QtWidgets.QComboBox):
 		setattr(self.link_inst, self.link_attr, self.currentText())
 
 
+class GamesCombo(QtWidgets.QWidget):
+	entries_changed = QtCore.pyqtSignal(list)
+
+	def __init__(self, parent):
+		super().__init__(parent)
+		self.main_window = parent
+		self.add_button = QtWidgets.QPushButton("+")
+		# self.add_button.clicked.connect(self.add)
+		# self.delete_button = QtWidgets.QPushButton("-")
+		# self.delete_button.clicked.connect(self.delete)
+		self.add_button.setMaximumWidth(20)
+		# self.delete_button.setMaximumWidth(20)
+		# self.entry = QtWidgets.QComboBox()
+		self.entry = CleverCombo(options=[])
+		self.entry.setEditable(True)
+		vbox = QtWidgets.QHBoxLayout(self)
+		vbox.addWidget(self.entry)
+		vbox.addWidget(self.add_button)
+		# vbox.addWidget(self.delete_button)
+		vbox.setContentsMargins(0, 0, 0, 0)
+
+	# @property
+	# def items(self):
+	# 	return [self.entry.itemText(i) for i in range(self.entry.count())]
+	#
+	# def add(self):
+	# 	name = self.entry.currentText()
+	# 	if name:
+	# 		self.entry.addItem(name)
+	# 		self.entries_changed.emit(self.items)
+	#
+	# def delete(self):
+	# 	name = self.entry.currentText()
+	# 	if name:
+	# 		ind = self.entry.findText(name)
+	# 		self.entry.removeItem(ind)
+	# 		self.entries_changed.emit(self.items)
+
+	def set_data(self, items):
+		items = set(items)
+		self.entry.clear()
+		self.entry.addItems(sorted(items))
+
+
 class EditCombo(QtWidgets.QWidget):
 	entries_changed = QtCore.pyqtSignal(list)
 

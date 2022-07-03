@@ -139,6 +139,9 @@
 # import struct
 # b = struct.unpack("Q", a)[0]
 # print(unpack_longint_vec(b, 512))
+import os
+import traceback
+
 import numpy as np
 from numba import jit
 
@@ -247,3 +250,31 @@ flags = [512, 513, 517, 528, 529, 533, 545, 565, 821, 853, 885, 1013, ]
 for flag in flags:
     f = ModelFlag.from_value(flag)
     print(f)
+
+import sys
+import winreg
+from generated.formats.ovl import OvlFile, games
+
+def get_steam_games():
+    try:
+        hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
+    except:
+        traceback.print_exc()
+        return
+    try:
+        steam_query = winreg.QueryValueEx(hkey, "InstallPath")
+    except:
+        traceback.print_exc()
+        return
+    # C:\\Program Files (x86)\\Steam
+    steam_path = steam_query[0]
+    apps_path = os.path.join(steam_path, "steamapps\\common")
+    print(steam_path, apps_path)
+    # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
+    steam_games = os.listdir(apps_path)
+    print(steam_games)
+    _games = [g.value for g in games]
+    fdev_games = {game: os.path.join(apps_path, game, "win64\\ovldata") for game in steam_games if game in _games}
+    print(fdev_games)
+
+get_steam_games()
