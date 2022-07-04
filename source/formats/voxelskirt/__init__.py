@@ -4,6 +4,7 @@ import numpy as np
 import os
 from generated.array import Array
 from generated.formats.ovl.versions import *
+from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.voxelskirt.compound.Data import Data
 from generated.formats.voxelskirt.compound.Header import Header
@@ -16,25 +17,16 @@ from generated.io import IoFile
 from modules.formats.shared import get_padding_size, get_padding
 
 
-class VoxelskirtContext(object):
-	def __init__(self):
-		self.version = 0
-		self.user_version = 0
-
-	def __repr__(self):
-		return f"{self.version} | {self.user_version}"
-
-
 class VoxelskirtFile(Header, IoFile):
 
 	basic_map = basic_map
 
-	def __init__(self, ):
-		super().__init__(VoxelskirtContext())
-		self.datas = Array(self.context)
-		self.sizes = Array(self.context)
-		self.positions = Array(self.context)
-		self.materials = Array(self.context)
+	def __init__(self, context):
+		super().__init__(context)
+		self.datas = Array(0, Data, self.context)
+		self.sizes = Array(0, Size, self.context)
+		self.positions = Array(0, PosInfo, self.context)
+		self.materials = Array(0, Material, self.context)
 
 	def name_items(self, array):
 		for item in array:
@@ -44,12 +36,12 @@ class VoxelskirtFile(Header, IoFile):
 		start_time = time.time()
 		self.filepath = filepath
 		self.basename = os.path.basename(self.filepath)
-		print(f"Loading {self.basename}...")
+		logging.info(f"Loading {self.basename}...")
 
 		with self.reader(filepath) as stream:
 			self.read(stream)
 			self.eoh = stream.tell()
-			print(self)
+			# logging.info(self)
 			# print(self.eoh)
 
 			stream.seek(self.eoh + self.info.name_buffer_offset)
@@ -60,21 +52,21 @@ class VoxelskirtFile(Header, IoFile):
 				self.names.append(stream.read_zstring())
 
 			stream.seek(self.eoh + self.info.data_offset)
-			self.datas.read(stream, Data, self.info.data_count, None)
+			self.datas = Array.from_stream(stream, (self.info.data_count,), Data, self.context, 0, None)
 
 			stream.seek(self.eoh + self.info.size_offset)
-			self.sizes.read(stream, Size, self.info.size_count, None)
+			self.sizes = Array.from_stream(stream, (self.info.size_count,), Size, self.context, 0, None)
 
 			stream.seek(self.eoh + self.info.position_offset)
-			self.positions.read(stream, PosInfo, self.info.position_count, None)
+			self.positions = Array.from_stream(stream, (self.info.position_count,), PosInfo, self.context, 0, None)
 
 			stream.seek(self.eoh + self.info.mat_offset)
-			self.materials.read(stream, Material, self.info.mat_count, None)
+			self.materials = Array.from_stream(stream, (self.info.mat_count,), Material, self.context, 0, None)
 
 			# assign names...
 			for s in (self.datas, self.sizes, self.positions, self.materials):
 				self.name_items(s)
-			print(self.sizes)
+			# logging.info(self.sizes)
 
 			for data in self.datas:
 				stream.seek(self.eoh + data.offset)
@@ -101,7 +93,7 @@ class VoxelskirtFile(Header, IoFile):
 				# the same pixel of each layer is stored in 4 consecutive bytes
 				self.weights = stream.read_ubytes((self.info.x, self.info.y, 4))
 
-		print(f"Loaded {self.basename} in {time.time()-start_time:.2f} seconds")
+		logging.info(f"Loaded {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def extract(self, ):
 		"""Stores the embedded height map and masks as separate images, lossless."""
@@ -129,7 +121,7 @@ class VoxelskirtFile(Header, IoFile):
 					logging.warning(f"Unknown data type {data.type}")
 					continue
 				image_paths.append(p)
-		logging.info(f"Extracted maps from {self.basename} in {time.time()-start_time:.2f} seconds")
+		logging.info(f"Extracted {len(image_paths)} maps from {self.basename} in {time.time()-start_time:.2f} seconds")
 		return image_paths
 
 	def inject(self, filepaths):
