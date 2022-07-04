@@ -266,7 +266,7 @@ class MemStruct:
 				# override for setattr
 				prop = "data"
 			# strings stored as element text for readability
-			elif prop == "data" and elem.text:
+			elif prop == "data" and prop not in elem.attrib:
 				data = elem.text
 			# basic attributes
 			elif prop in elem.attrib:
