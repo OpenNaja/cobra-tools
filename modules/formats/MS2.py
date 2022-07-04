@@ -58,6 +58,8 @@ class Ms2Loader(BaseFile):
 					if check is not None:
 						self.ovl.is_biosyn = check
 						return check
+		else:
+			return False
 
 	def detect_biosyn_format_from_user_input(self):
 		logging.info("Detecting Biosyn format from user input")
