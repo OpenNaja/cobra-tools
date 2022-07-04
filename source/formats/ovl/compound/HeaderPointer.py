@@ -44,9 +44,14 @@ class HeaderPointer:
 			self.pool.data.seek(self.data_offset)
 			return self.pool.data
 
-	def write_instance(self, cls, instance, alignment=1):
+	def write_instance(self, cls, instance):
 		"""Write instance to end of stream and set offset"""
 		logging.debug(f"write_instance of class {cls.__name__}")
+		# align pointer
+		if isinstance(instance, str):
+			alignment = 1
+		else:
+			alignment = 16
 		if self.pool:
 			# seek to end of pool
 			self.pool.data.seek(0, 2)
