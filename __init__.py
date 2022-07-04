@@ -193,6 +193,8 @@ class ExportMS2(bpy.types.Operator, ExportHelper):
                                    description="Automatically applies object transforms to meshes.", default=False)
     edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - tends to break skeletons!",
                              default=False)
+    use_stock_normals_tangents: BoolProperty(name="Use Stock Normals & Tangents", description="Use to preserve normals and tangents from stock, if fur depends on custom normals",
+                                     default=False)
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))

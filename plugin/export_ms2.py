@@ -51,7 +51,7 @@ def export_material(ms2, b_mat):
 	ms2.model.materials.append(mat)
 
 
-def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms):
+def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we create a ms2 mesh
 	wrapper = MeshDataWrap(model_info.context)
@@ -180,8 +180,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			else:
 				normal = b_loop.normal
 				tangent = b_loop.tangent
-			# normal = normals.data[loop_index].vector
-			# tangent = tangents.data[loop_index].vector
+			# override with custom data if asked
+			if use_stock_normals_tangents:
+				normal = normals.data[loop_index].vector
+				tangent = tangents.data[loop_index].vector
 
 			# shape key morphing
 			b_key = b_me.shape_keys
@@ -294,7 +296,7 @@ def get_property(ob, prop_name):
 		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} (data: {type(ob).__name__}). Add it!")
 
 
-def save(filepath='', apply_transforms=False, edit_bones=False):
+def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normals_tangents=False):
 	messages = set()
 	start_time = time.time()
 
@@ -362,7 +364,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False):
 				b_me = b_ob.data
 				if b_me not in b_models:
 					b_models.append(b_me)
-					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms)
+					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents)
 					wrapper.mesh.lod_index = lod_i
 				for b_mat in b_me.materials:
 					if b_mat not in b_materials:
