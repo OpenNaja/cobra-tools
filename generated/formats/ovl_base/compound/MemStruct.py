@@ -293,11 +293,15 @@ class MemStruct:
 			for subelem, member in zip(elem, val):
 				self._from_xml(self, subelem, subelem.tag, member)
 		elif isinstance(val, ndarray):
-			data = elem.attrib[prop]
-			# create ndarray from data, assign value
-			arr = np.fromstring(data, dtype=val.dtype, sep=' ')
-			setattr(target, prop, arr)
-			# logging.debug(f"ndarray {array_data}")
+			# data = elem.attrib[prop]
+			if elem.text:
+				# create ndarray from data, assign value
+				arr = np.fromstring(elem.text, dtype=val.dtype, sep=' ')
+				setattr(target, prop, arr)
+				logging.debug(f"ndarray {arr}, {val.dtype}, {type(arr)}")
+			else:
+				# todo - for some reason, setting the empty array (fine here) causes trouble in Pointer.write_template
+				setattr(target, prop, None)
 		elif isinstance(val, MemStruct):
 			# print("MemStruct")
 			val.from_xml(elem)
@@ -358,7 +362,8 @@ class MemStruct:
 				member_elem = ET.SubElement(elem, cls_name)
 				self._to_xml(member_elem, cls_name, member, debug)
 		elif isinstance(val, ndarray):
-			elem.attrib[prop] = " ".join([str(member) for member in val])
+			# elem.attrib[prop] = " ".join([str(member) for member in val])
+			elem.text = " ".join([str(member) for member in val])
 		elif isinstance(val, MemStruct):
 			val.to_xml(elem, debug)
 		# basic attribute
@@ -370,7 +375,8 @@ class MemStruct:
 					logging.warning(f"bug, val should not be None for XML_STR")
 			# for better readability, set ztsr pointer data as xml text
 			elif prop == "data":
-				elem.text = str(val)
+				if val:
+					elem.text = str(val)
 			# actual basic attributes
 			else:
 				elem.set(prop, str(val))

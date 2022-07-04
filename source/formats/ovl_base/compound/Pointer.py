@@ -71,6 +71,8 @@ class Pointer:
 			# process the generated data
 			try:
 				self.write_template()
+			except TypeError:
+				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
 			except struct.error:
 				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
 
