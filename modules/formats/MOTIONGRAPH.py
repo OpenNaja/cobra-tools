@@ -12,10 +12,10 @@ class MotiongraphLoader(MemStructLoader):
 	def rename_content(self, name_tuples):
 		logging.info("Renaming inside .motiongraph")
 		byte_name_tups = []
-		for old, new in name_tuples:
-			assert len(old) == len(new)
-			byte_name_tups.append((old.encode(), new.encode()))
 		try:
+			for old, new in name_tuples:
+				assert len(old) == len(new)
+				byte_name_tups.append((old.encode(), new.encode()))
 			for fragment in self.fragments:
 				fragment.struct_ptr.replace_bytes(byte_name_tups)
 		except Exception as err:
