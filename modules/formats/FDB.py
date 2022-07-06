@@ -72,7 +72,7 @@ class FdbLoader(BaseFile):
 	def get_script_context(self):
 		# The SQL strings per script
 		script_strings = {
-			"animals": [("ORIGINAL_SPECIES", "NEW_SPECIES"), ("ORIGINAL_PREFAB", "NEW_PREFAB")],
+			"animals": [("ORIGINAL_SPECIES", "NEW_SPECIES")],
 			"education": [("ORIGINAL_SPECIES", "NEW_SPECIES")],
 			"research": [("ORIGINAL_SPECIES", "NEW_SPECIES")],
 			"zoopedia": [("ORIGINAL_SPECIES", "NEW_SPECIES")]

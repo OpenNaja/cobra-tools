@@ -4,15 +4,15 @@
 -- IF USING IN SQLITESTUDIO:
 -- Open with Ctrl+O or the Folder icon in SQL Editor
 -- Make sure Configuration > SQL Queries > "Execute only the query under the cursor" is UNCHECKED
--- Replace the 4 strings below Original/New/OriginalPrefab/NewPrefab with your base and modded species
+-- Replace the 2 strings below Original/New with your base and modded species
 -- NOTES:
 --    Incomplete names ARE supported e.g. 'Grey' -> 'Harbor' will rename GreySeal to HarborSeal
 --    Do NOT use incomplete strings that are too short or generic e.g. Giant, Red, Nile, which all have multiple species matched.
 
-CREATE TEMP TABLE IF NOT EXISTS Replacement(Original TEXT PRIMARY KEY, New TEXT, OriginalPrefab TEXT, NewPrefab TEXT);
-INSERT OR IGNORE INTO Replacement(Original,				New,				OriginalPrefab,				NewPrefab)
--- Replace the 4 strings below here, 2 for species name, 2 for prefabs which contain an underscore in base game e.g. GreySeal -> Grey_Seal.
-VALUES                 ('ORIGINAL_SPECIES',				'NEW_SPECIES',			'ORIGINAL_PREFAB',				'NEW_PREFAB');
+CREATE TEMP TABLE IF NOT EXISTS Replacement(Original TEXT PRIMARY KEY, New TEXT);
+INSERT OR IGNORE INTO Replacement(Original,				New)
+-- Replace the 2 strings below here.
+VALUES                 ('ORIGINAL_SPECIES',				'NEW_SPECIES');
 
 -- Support older FDB versions by creating missing tables
 -- 1.7-1.9 Tables
@@ -107,12 +107,12 @@ DELETE FROM AnimalDefinitions WHERE AnimalType NOT LIKE ('%'||(SELECT Original F
 INSERT OR IGNORE INTO AnimalDefinitions (AnimalType,AdultMaleGamePrefab,AdultMaleVisualPrefab,AdultFemaleGamePrefab,AdultFemaleVisualPrefab,JuvenileGamePrefab,JuvenileVisualPrefab,ContentPack)
 SELECT
     replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
-    replace(AdultMaleGamePrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
-    replace(AdultMaleVisualPrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
-    replace(AdultFemaleGamePrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
-    replace(AdultFemaleVisualPrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
-    replace(JuvenileGamePrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
-    replace(JuvenileVisualPrefab, (SELECT OriginalPrefab FROM Replacement), (SELECT NewPrefab FROM Replacement)),
+    (SELECT New FROM Replacement)||'_Game',
+    (SELECT New FROM Replacement)||'_Male_Visuals',
+    (SELECT New FROM Replacement)||'_Game',
+    (SELECT New FROM Replacement)||'_Female_Visuals',
+    (SELECT New FROM Replacement)||'_Juvenile_Game',
+    (SELECT New FROM Replacement)||'_Juvenile_Visuals',
     ContentPack
 FROM AnimalDefinitions;
 
