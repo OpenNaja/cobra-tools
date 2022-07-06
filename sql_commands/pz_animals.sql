@@ -107,12 +107,12 @@ DELETE FROM AnimalDefinitions WHERE AnimalType NOT LIKE ('%'||(SELECT Original F
 INSERT OR IGNORE INTO AnimalDefinitions (AnimalType,AdultMaleGamePrefab,AdultMaleVisualPrefab,AdultFemaleGamePrefab,AdultFemaleVisualPrefab,JuvenileGamePrefab,JuvenileVisualPrefab,ContentPack)
 SELECT
     replace(AnimalType, (SELECT Original FROM Replacement), (SELECT New FROM Replacement)),
-    (SELECT New FROM Replacement)||'_Game',
-    (SELECT New FROM Replacement)||'_Male_Visuals',
-    (SELECT New FROM Replacement)||'_Game',
-    (SELECT New FROM Replacement)||'_Female_Visuals',
-    (SELECT New FROM Replacement)||'_Juvenile_Game',
-    (SELECT New FROM Replacement)||'_Juvenile_Visuals',
+    AdultMaleGamePrefab,
+    AdultMaleVisualPrefab,
+    AdultFemaleGamePrefab,
+    AdultFemaleVisualPrefab,
+    JuvenileGamePrefab,
+    JuvenileVisualPrefab,
     ContentPack
 FROM AnimalDefinitions;
 
