@@ -2,6 +2,8 @@
 import logging
 import traceback
 
+import numpy as np
+
 from generated.array import Array
 from generated.formats.ovl_base.basic import ConvStream
 
@@ -64,6 +66,10 @@ class HeaderPointer:
 			self.data_offset = self.pool.data.tell()
 			if isinstance(instance, Array):
 				Array.to_stream(self.pool.data, instance, (len(instance),), cls, instance.context, 0, None)
+			# special case to avoid falling back on basic.to_stream
+			elif isinstance(instance, np.ndarray):
+				# self.pool.data.write(instance.tobytes())
+				cls.write_array(self.pool.data, instance)
 			else:
 				cls.to_stream(self.pool.data, instance)
 			self.data_size = self.pool.data.tell() - self.data_offset
