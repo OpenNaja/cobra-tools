@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+    <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="Vector3" size="12" inherit="MemStruct">
+        A vector in 3D space (x,y,z).
+        <field name="x" type="float">First coordinate.</field>
+        <field name="y" type="float">Second coordinate.</field>
+        <field name="z" type="float">Third coordinate.</field>
+    </compound>
+
+    <compound name="Vector4" size="16" inherit="MemStruct">
+        A vector in 3D space (x,y,z).
+        <field name="x" type="float">First coordinate.</field>
+        <field name="y" type="float">Second coordinate.</field>
+        <field name="z" type="float">Third coordinate.</field>
+        <field name="w" type="float">Fourth coordinate.</field>
+    </compound>
+
+    <compound name="PathExtrusion" inherit="MemStruct">
+        <!-- Size 48 -->
+        <add name="model" type="Pointer" template="ZString"/>
+        <add name="post_model" type="Pointer" template="ZString"/>
+        <add name="endcap_model" type="Pointer" template="ZString"/>
+        <add name="unkFloat1" type="float" />
+        <add name="unkFloat2" type="float" />
+        <add name="is_kerb" type="bool" />
+        <add name="unkBool" type="bool" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
+        <add name="padding" type="byte" arr1="14" />
+    </compound>
+
+    <compound name="PathMaterial" inherit="MemStruct">
+        <!-- Size 112 -->
+        <add name="elevated_mat" type="Pointer" template="ZString"/>
+        <add name="elevated_mat_valid" type="Pointer" template="ZString"/>
+        <add name="elevated_mat_invalid" type="Pointer" template="ZString"/>
+        <add name="terrain_mat" type="Pointer" template="ZString"/>
+        <add name="terrain_mat_valid" type="Pointer" template="ZString"/>
+        <add name="terrain_mat_invalid" type="Pointer" template="ZString"/>
+        <add name="underside_mat_1" type="Pointer" template="ZString"/>
+        <add name="underside_mat_2" type="Pointer" template="ZString"/>
+        <add name="stairs_mat_1" type="Pointer" template="ZString"/>
+        <add name="stairs_mat_2" type="Pointer" template="ZString"/>
+        <add name="num_data" type="uint64" />
+        <add name="mat_data" type="ArrayPointer" template="PathMaterialData" arg="num_data" />
+        <add name="num_data_copy" type="uint64" />
+        <add name="padding" type="uint64" />
+    </compound>
+
+    <compound name="PathMaterialData" inherit="MemStruct">
+        <!-- Size 16 -->
+        <add name="unkInt1" type="uint" />
+        <add name="unkFloat1" type="float" />
+        <add name="unkInt2" type="uint" />
+        <add name="unkInt3" type="uint" />
+    </compound>
+
+    <compound name="PathResource" inherit="MemStruct">
+        <!-- Size 48 -->
+        <add name="pathmaterial" type="Pointer" template="ZString"/>
+        <add name="pathextrusion_kerb" type="Pointer" template="ZString"/>
+        <add name="pathextrusion_railing" type="Pointer" template="ZString"/>
+        <add name="pathextrusion_ground" type="Pointer" template="ZString"/>
+        <add name="pathsupport" type="Pointer" template="ZString"/>
+        <add name="path_type" type="byte" /> <!-- 0 for Guest, 1 for Queue, 2 for Staff -->
+        <add name="path_sub_type" type="byte" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
+        <add name="unkByte1" type="byte" /> <!-- Always 1 -->
+        <add name="unkByte2" type="byte" />
+        <add name="padding" type="uint" />
+    </compound>
+
+    <compound name="PathJoinPartResourceRoot" inherit="MemStruct">
+        <!-- Size 16 -->
+        <add name="resources_list" type="Pointer" template="PathJoinPartResourceList" arg="num_res" />
+        <add name="num_res" type="uint64" />
+    </compound>
+
+    <compound name="PathJoinPartResourceList" inherit="MemStruct">
+        <!-- Size 72 * #ARG# + 16-byte alignment padding -->
+        <add name="resources" type="PathJoinPartResource" arr1="#ARG#" />
+        <add name="padding" type="byte" arr1="(#ARG# % 2) * 8" />
+    </compound>
+
+    <compound name="PathJoinPartResource" inherit="MemStruct">
+        <!-- Size 72 -->
+        <add name="unkPoints1" type="Pointer" template="PointsList" arg="num_points_1" />
+        <add name="unkPoints2" type="Pointer" template="PointsList" arg="num_points_2" />
+        <add name="unkVector" type="ArrayPointer" template="Vector4" arg="1" />
+        <add name="unkShorts" type="ArrayPointer" template="ushort" arg="8" />
+        <add name="unkPoints3" type="Pointer" template="PointsList" arg="num_points_3" />
+        <add name="padding_1" type="uint64" />
+        <add name="pathresource" type="Pointer" template="ZString"/>
+        <add name="unkByte1" type="byte" />
+        <add name="unkByte2" type="byte" />
+        <add name="unkByte3" type="byte" />
+        <add name="num_points_1" type="byte" />
+        <add name="num_points_1_copy" type="byte" />
+        <add name="num_points_2" type="byte" />
+        <add name="num_points_2_copy" type="byte" />
+        <add name="num_points_3" type="byte" />
+        <add name="padding_2" type="uint64" />
+    </compound>
+
+    <compound name="PointsList" inherit="MemStruct">
+        <!-- Size 12 * #ARG# + 16-byte alignment padding -->
+        <add name="points" type="Vector3" arr1="#ARG#" />
+        <add name="padding" type="byte" arr1="(#ARG# % 4) * 4" />
+    </compound>
+
+    <compound name="PathSupport" inherit="MemStruct">
+        <!-- Size 16 -->
+        <add name="support" type="Pointer" template="ZString"/>
+        <add name="unkFloat1" type="float" />
+        <add name="unkInt1" type="uint" />
+    </compound>
+
+    <compound name="PathType" inherit="MemStruct">
+        <!-- Size 16 -->
+        <add name="enum_value" type="uint" /> <!-- Matches the EnumValue column in c0paths.fdb -->
+        <add name="unkFloat1" type="float" />
+        <add name="unkFloat2" type="float" />
+        <add name="unkInt2" type="uint" />
+    </compound>
+
+</niftoolsxml>
