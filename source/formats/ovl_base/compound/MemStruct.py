@@ -292,6 +292,9 @@ class MemStruct:
 						setattr(target, prop, cls(data))
 				except TypeError:
 					raise TypeError(f"Could not convert attribute {prop} = '{data}' to {cls.__name__}")
+			# if there's actually no data, don't want to create a pointer later, so set to None
+			else:
+				setattr(target, prop, None)
 
 	def to_xml_file(self, file_path, debug=False):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
