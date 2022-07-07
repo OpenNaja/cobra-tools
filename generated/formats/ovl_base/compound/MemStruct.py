@@ -334,7 +334,7 @@ class MemStruct:
 			else:
 				logging.warning(f"Missing attribute '{prop}' in element '{elem.tag}'")
 				return
-			if data != "None":
+			if data and data != "None":
 				try:
 					logging.debug(f"Setting {type(target).__name__}.{prop} = {data}")
 					# special case as bool("False") returns true
