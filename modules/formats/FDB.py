@@ -5,6 +5,7 @@ import shutil
 import sqlite3
 import struct
 import traceback
+import re
 from collections import namedtuple
 
 from generated.formats.ovl_base.versions import is_pz, is_pz16
@@ -72,7 +73,7 @@ class FdbLoader(BaseFile):
 	def get_script_context(self):
 		# The SQL strings per script
 		script_strings = {
-			"animals": [("ORIGINAL_SPECIES", "NEW_SPECIES"), ("ORIGINAL_PREFAB", "NEW_PREFAB")],
+			"animals": [("ORIGINAL_SPECIES", "NEW_SPECIES")],
 			"education": [("ORIGINAL_SPECIES", "NEW_SPECIES")],
 			"research": [("ORIGINAL_SPECIES", "NEW_SPECIES")],
 			"zoopedia": [("ORIGINAL_SPECIES", "NEW_SPECIES")]
@@ -83,6 +84,17 @@ class FdbLoader(BaseFile):
 					# The SQL strings for the current context
 					find_strings = list(script_strings.get(s, [()]))
 					return self.ScriptContext(s, self.open_command(f"pz_{s}"), len(find_strings), find_strings)
+
+	@staticmethod
+	def fix_animal_definition(cur, pattern, new_species: str, column: str, default_suffix: str):
+		cur.execute(f"SELECT {column} FROM AnimalDefinitions;")
+		prefab_col = cur.fetchone()
+		if prefab_col:
+			prefab_col_search = pattern.search(prefab_col[0])
+			suffix = prefab_col_search.group(0) if prefab_col_search else default_suffix
+			
+			logging.info(f"Setting AnimalDefinitions {column} to '{new_species + suffix}' for '{new_species}'")
+			cur.execute(f"UPDATE AnimalDefinitions SET {column} = '{new_species + suffix}' WHERE AnimalType LIKE '{new_species}';")
 
 	def rename_content(self, name_tuples):
 		# The current script context e.g. "animals" or "research"
@@ -122,6 +134,19 @@ class FdbLoader(BaseFile):
 								name_tuples[0][0] + name_tuples[0][1])))
 
 						cur.executescript(command_replaced)
+
+						# Fix AnimalDefinitions
+						if context.name == "animals":
+							new_species = name_tuples[0][1]
+							re_game = re.compile(r"((_Male|_Female|_Juvenile)?_Game)", re.IGNORECASE)
+							re_visual = re.compile(r"(_(Male|Female|Juvenile)_Visuals)", re.IGNORECASE)
+							self.fix_animal_definition(cur, re_game, new_species, "AdultMaleGamePrefab", "_Game")
+							self.fix_animal_definition(cur, re_visual, new_species, "AdultMaleVisualPrefab", "_Male_Visuals")
+							self.fix_animal_definition(cur, re_game, new_species, "AdultFemaleGamePrefab", "_Game")
+							self.fix_animal_definition(cur, re_visual, new_species, "AdultFemaleVisualPrefab", "_Female_Visuals")
+							self.fix_animal_definition(cur, re_game, new_species, "JuvenileGamePrefab", "_Game")
+							self.fix_animal_definition(cur, re_visual, new_species, "JuvenileVisualPrefab", "_Juvenile_Visuals")
+
 						# Save (commit) the changes
 						con.commit()
 					except sqlite3.Error as e:
