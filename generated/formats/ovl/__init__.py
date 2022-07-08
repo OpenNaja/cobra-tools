@@ -594,8 +594,6 @@ class OvlFile(Header, IoFile):
 		from modules.formats.BaseFormat import BaseFile
 		cls = self.formats_dict.get(file_entry.ext, BaseFile)
 		loader = cls(self, file_entry)
-		# store loader in dict for access
-		self.loaders[loader.file_entry.name] = loader
 		return loader
 
 	def remove(self, filenames):
@@ -722,14 +720,11 @@ class OvlFile(Header, IoFile):
 			loader.set_ovs(ovs_name)
 			loader.create()
 			loader.register_ptrs()
+			return loader
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {loader.file_entry.ext}")
-			return
 		except BaseException as err:
-			logging.warning(f"Could not create: {loader.file_entry.name}")
-			traceback.print_exc()
-			return
-		return loader
+			logging.exception(f"Could not create: {loader.file_entry.name}")
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
@@ -742,7 +737,14 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)}")
 		for file_path in file_paths:
-			self.create_file(file_path)
+			loader = self.create_file(file_path)
+			if loader:
+				# only store loader in self.loaders after successful create
+				self.loaders[loader.file_entry.name] = loader
+				# also store any streams created by loader
+				for stream in loader.streams + loader.children:
+					if stream:
+						self.loaders[stream.file_entry.name] = stream
 
 	def create_archive(self, name="STATIC"):
 		# see if it exists
@@ -927,7 +929,7 @@ class OvlFile(Header, IoFile):
 			self.hash_table_local[file_entry.file_hash] = file_name
 
 			# initialize the loader right here
-			self.init_loader(file_entry)
+			self.loaders[file_entry.name] = self.init_loader(file_entry)
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
 
