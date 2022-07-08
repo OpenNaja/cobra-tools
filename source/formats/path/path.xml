@@ -4,6 +4,12 @@
 
     <xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+    <compound name="Vector2" size="8" inherit="MemStruct">
+        A vector in 2D space (x,y).
+        <field name="x" type="float">First coordinate.</field>
+        <field name="y" type="float">Second coordinate.</field>
+    </compound>
+
     <compound name="Vector3" size="12" inherit="MemStruct">
         A vector in 3D space (x,y,z).
         <field name="x" type="float">First coordinate.</field>
@@ -122,6 +128,77 @@
         <add name="unkFloat1" type="float" />
         <add name="unkFloat2" type="float" />
         <add name="unkInt2" type="uint" />
+    </compound>
+
+    <compound name="SupportSetRoot" inherit="MemStruct">
+        <!-- Size 144 -->
+        <add name="connector_1" type="ArrayPointer" template="Connector" arg="num_connector_1" />
+        <add name="connector_2" type="Pointer" template="ConnectorMultiJoint" />
+        <add name="pillar" type="Pointer" template="Pillar" />
+        <add name="footer" type="Pointer" template="Footer" />
+        <add name="padding" type="uint64" />
+        <add name="unkVector1" type="Vector3" />
+        <add name="unkVector2" type="Vector2" />
+        <add name="unkVector3" type="Vector3" />
+        <add name="numUnk1" type="uint" />
+        <add name="num_connector_1" type="uint" />
+        <add name="unkInts" type="uint" arr1="8" />
+        <add name="padding_2" type="uint64" />
+        <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
+        <add name="num_data" type="uint" />
+    </compound>
+
+    <compound name="Connector" inherit="MemStruct">
+        <!-- Size 24 -->
+        <add name="model_name" type="Pointer" template="ZString"/>
+        <add name="joint_name" type="Pointer" template="ZString"/>
+        <add name="unkVector" type="Vector2" />
+    </compound>
+
+    <compound name="ConnectorMultiJoint" inherit="MemStruct">
+        <!-- Size 48 -->
+        <add name="model_name" type="Pointer" template="ZString"/>
+        <add name="padding" type="uint64" />
+        <add name="joints" type="ArrayPointer" template="Joint" arg="num_joints" />
+        <add name="num_joints" type="uint64" />
+        <add name="unkFloat1" type="float" />
+        <add name="unkInt1" type="uint" />
+        <add name="padding" type="uint64" />
+    </compound>
+
+    <compound name="SupportAttach" inherit="MemStruct">
+        <!-- Size 32 -->
+        <add name="model_name" type="Pointer" template="ZString"/>
+        <add name="unkInt1" type="uint64" />
+        <add name="unkInt2" type="uint64" />
+        <add name="unkVector" type="Vector2" />
+    </compound>
+
+    <compound name="SupportAttachExtra" inherit="SupportAttach">
+        <!-- Size 16 -->
+        <add name="unkFloat1" type="float" />
+        <add name="unkInt3" type="uint" />
+        <add name="padding" type="uint64" />
+    </compound>
+
+    <compound name="Joint" inherit="SupportAttachExtra">
+        <!-- Size 48 -->
+    </compound>
+
+    <compound name="Pillar" inherit="SupportAttachExtra">
+        <!-- Size 48 -->
+    </compound>
+
+    <compound name="Footer" inherit="SupportAttach">
+        <!-- Size 32 -->
+    </compound>
+
+    <compound name="SupportSetData" inherit="MemStruct">
+        <!-- Size 16 -->
+        <add name="unkIndex" type="uint" />
+        <add name="unkInt1" type="uint" />
+        <add name="unkInt2" type="uint" />
+        <add name="unkFloat1" type="float" />
     </compound>
 
 </niftoolsxml>

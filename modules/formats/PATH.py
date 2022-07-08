@@ -3,6 +3,7 @@ from generated.formats.path.compound.PathMaterial import PathMaterial
 from generated.formats.path.compound.PathResource import PathResource
 from generated.formats.path.compound.PathSupport import PathSupport
 from generated.formats.path.compound.PathType import PathType
+from generated.formats.path.compound.SupportSetRoot import SupportSetRoot
 from generated.formats.path.compound.PathJoinPartResourceRoot import PathJoinPartResourceRoot
 from modules.formats.BaseFormat import MemStructLoader
 
@@ -42,3 +43,7 @@ class PathSupportLoader(MemStructLoader):
 class PathTypeLoader(MemStructLoader):
 	target_class = PathType
 	extension = ".pathtype"
+
+class SupportSetLoader(MemStructLoader):
+	target_class = SupportSetRoot
+	extension = ".supportset"
