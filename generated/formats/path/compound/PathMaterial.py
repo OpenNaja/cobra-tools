@@ -15,8 +15,8 @@ class PathMaterial(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
+		self.path_sub_type = 0
 		self.num_data = 0
-		self.num_data_copy = 0
 		self.padding = 0
 		self.elevated_mat = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.elevated_mat_valid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -33,8 +33,8 @@ class PathMaterial(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		self.path_sub_type = 0
 		self.num_data = 0
-		self.num_data_copy = 0
 		self.padding = 0
 		self.elevated_mat = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.elevated_mat_valid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -71,9 +71,9 @@ class PathMaterial(MemStruct):
 		instance.underside_mat_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.stairs_mat_1 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.stairs_mat_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.num_data = stream.read_uint64()
+		instance.path_sub_type = stream.read_uint64()
 		instance.mat_data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, generated.formats.path.compound.PathMaterialData.PathMaterialData)
-		instance.num_data_copy = stream.read_uint64()
+		instance.num_data = stream.read_uint64()
 		instance.padding = stream.read_uint64()
 		instance.elevated_mat.arg = 0
 		instance.elevated_mat_valid.arg = 0
@@ -100,9 +100,9 @@ class PathMaterial(MemStruct):
 		Pointer.to_stream(stream, instance.underside_mat_2)
 		Pointer.to_stream(stream, instance.stairs_mat_1)
 		Pointer.to_stream(stream, instance.stairs_mat_2)
-		stream.write_uint64(instance.num_data)
+		stream.write_uint64(instance.path_sub_type)
 		ArrayPointer.to_stream(stream, instance.mat_data)
-		stream.write_uint64(instance.num_data_copy)
+		stream.write_uint64(instance.num_data)
 		stream.write_uint64(instance.padding)
 
 	@classmethod
@@ -136,9 +136,9 @@ class PathMaterial(MemStruct):
 		s += f'\n	* underside_mat_2 = {fmt_member(self.underside_mat_2, indent+1)}'
 		s += f'\n	* stairs_mat_1 = {fmt_member(self.stairs_mat_1, indent+1)}'
 		s += f'\n	* stairs_mat_2 = {fmt_member(self.stairs_mat_2, indent+1)}'
-		s += f'\n	* num_data = {fmt_member(self.num_data, indent+1)}'
+		s += f'\n	* path_sub_type = {fmt_member(self.path_sub_type, indent+1)}'
 		s += f'\n	* mat_data = {fmt_member(self.mat_data, indent+1)}'
-		s += f'\n	* num_data_copy = {fmt_member(self.num_data_copy, indent+1)}'
+		s += f'\n	* num_data = {fmt_member(self.num_data, indent+1)}'
 		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
 		return s
 

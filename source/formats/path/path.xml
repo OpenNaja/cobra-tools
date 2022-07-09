@@ -48,9 +48,9 @@
         <add name="underside_mat_2" type="Pointer" template="ZString"/>
         <add name="stairs_mat_1" type="Pointer" template="ZString"/>
         <add name="stairs_mat_2" type="Pointer" template="ZString"/>
-        <add name="num_data" type="uint64" />
+        <add name="path_sub_type" type="uint64" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
         <add name="mat_data" type="ArrayPointer" template="PathMaterialData" arg="num_data" />
-        <add name="num_data_copy" type="uint64" />
+        <add name="num_data" type="uint64" />
         <add name="padding" type="uint64" />
     </compound>
 
