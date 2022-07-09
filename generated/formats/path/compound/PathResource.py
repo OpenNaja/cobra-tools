@@ -17,7 +17,6 @@ class PathResource(MemStruct):
 		self.path_sub_type = 0
 		self.unk_byte_1 = 0
 		self.unk_byte_2 = 0
-		self.padding = 0
 		self.pathmaterial = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pathextrusion_kerb = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pathextrusion_railing = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -31,7 +30,6 @@ class PathResource(MemStruct):
 		self.path_sub_type = 0
 		self.unk_byte_1 = 0
 		self.unk_byte_2 = 0
-		self.padding = 0
 		self.pathmaterial = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pathextrusion_kerb = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pathextrusion_railing = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -60,7 +58,6 @@ class PathResource(MemStruct):
 		instance.path_sub_type = stream.read_byte()
 		instance.unk_byte_1 = stream.read_byte()
 		instance.unk_byte_2 = stream.read_byte()
-		instance.padding = stream.read_uint()
 		instance.pathmaterial.arg = 0
 		instance.pathextrusion_kerb.arg = 0
 		instance.pathextrusion_railing.arg = 0
@@ -79,7 +76,6 @@ class PathResource(MemStruct):
 		stream.write_byte(instance.path_sub_type)
 		stream.write_byte(instance.unk_byte_1)
 		stream.write_byte(instance.unk_byte_2)
-		stream.write_uint(instance.padding)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -111,7 +107,6 @@ class PathResource(MemStruct):
 		s += f'\n	* path_sub_type = {fmt_member(self.path_sub_type, indent+1)}'
 		s += f'\n	* unk_byte_1 = {fmt_member(self.unk_byte_1, indent+1)}'
 		s += f'\n	* unk_byte_2 = {fmt_member(self.unk_byte_2, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

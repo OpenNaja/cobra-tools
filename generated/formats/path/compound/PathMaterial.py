@@ -17,7 +17,6 @@ class PathMaterial(MemStruct):
 		self.io_start = 0
 		self.path_sub_type = 0
 		self.num_data = 0
-		self.padding = 0
 		self.elevated_mat = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.elevated_mat_valid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.elevated_mat_invalid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -35,7 +34,6 @@ class PathMaterial(MemStruct):
 	def set_defaults(self):
 		self.path_sub_type = 0
 		self.num_data = 0
-		self.padding = 0
 		self.elevated_mat = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.elevated_mat_valid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.elevated_mat_invalid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -74,7 +72,6 @@ class PathMaterial(MemStruct):
 		instance.path_sub_type = stream.read_uint64()
 		instance.mat_data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, generated.formats.path.compound.PathMaterialData.PathMaterialData)
 		instance.num_data = stream.read_uint64()
-		instance.padding = stream.read_uint64()
 		instance.elevated_mat.arg = 0
 		instance.elevated_mat_valid.arg = 0
 		instance.elevated_mat_invalid.arg = 0
@@ -103,7 +100,6 @@ class PathMaterial(MemStruct):
 		stream.write_uint64(instance.path_sub_type)
 		ArrayPointer.to_stream(stream, instance.mat_data)
 		stream.write_uint64(instance.num_data)
-		stream.write_uint64(instance.padding)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -139,7 +135,6 @@ class PathMaterial(MemStruct):
 		s += f'\n	* path_sub_type = {fmt_member(self.path_sub_type, indent+1)}'
 		s += f'\n	* mat_data = {fmt_member(self.mat_data, indent+1)}'
 		s += f'\n	* num_data = {fmt_member(self.num_data, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

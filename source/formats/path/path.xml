@@ -51,7 +51,6 @@
         <add name="path_sub_type" type="uint64" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
         <add name="mat_data" type="ArrayPointer" template="PathMaterialData" arg="num_data" />
         <add name="num_data" type="uint64" />
-        <add name="padding" type="uint64" />
     </compound>
 
     <compound name="PathMaterialData" inherit="MemStruct">
@@ -73,7 +72,6 @@
         <add name="path_sub_type" type="byte" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
         <add name="unkByte1" type="byte" /> <!-- Always 1 -->
         <add name="unkByte2" type="byte" />
-        <add name="padding" type="uint" />
     </compound>
 
     <compound name="PathJoinPartResourceRoot" inherit="MemStruct">
@@ -104,7 +102,7 @@
         <add name="num_points_2" type="byte" />
         <add name="num_points_2_copy" type="byte" />
         <add name="num_points_3" type="byte" />
-        <add name="padding_2" type="uint64" />
+        <add name="padding_2" type="uint64" /> <!-- Required as part of list -->
     </compound>
 
     <compound name="PointsList" inherit="MemStruct">
@@ -160,7 +158,7 @@
         <add name="num_joints" type="uint64" />
         <add name="unkFloat1" type="float" />
         <add name="unkInt1" type="uint" />
-        <add name="padding" type="uint64" />
+        <add name="padding" type="uint64" /> <!-- Unsure if padding, keep -->
     </compound>
 
     <compound name="SupportAttach" inherit="MemStruct">
@@ -175,7 +173,7 @@
         <!-- Size 16 -->
         <add name="unkFloat1" type="float" />
         <add name="unkInt3" type="uint" />
-        <add name="padding" type="uint64" />
+        <add name="padding" type="uint64" /> <!-- Unsure if padding, keep -->
     </compound>
 
     <compound name="Joint" inherit="SupportAttachExtra">
