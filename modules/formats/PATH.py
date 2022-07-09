@@ -36,6 +36,23 @@ class PathJoinPartResourceLoader(MemStructLoader):
 	target_class = PathJoinPartResourceRoot
 	extension = ".pathjoinpartresource"
 
+	def prep(self):
+		# avoid generating pointers for these
+		for res in self.header.resources_list.data.resources:
+			if not res.num_points_1:
+				res.unk_points_1.data = None
+			if not res.num_points_2:
+				res.unk_points_2.data = None
+			if not res.num_points_3:
+				res.unk_points_3.data = None
+
+	def create(self):
+		self.create_root_entry()
+		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+		self.prep()
+		# print(self.header)
+		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+
 class PathSupportLoader(MemStructLoader):
 	target_class = PathSupport
 	extension = ".pathsupport"
