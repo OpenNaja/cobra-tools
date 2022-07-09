@@ -34,7 +34,6 @@
         <add name="unkFloat2" type="float" />
         <add name="is_kerb" type="bool" />
         <add name="unkBool" type="bool" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
-        <add name="padding" type="byte" arr1="14" />
     </compound>
 
     <compound name="PathMaterial" inherit="MemStruct">
@@ -86,7 +85,6 @@
     <compound name="PathJoinPartResourceList" inherit="MemStruct">
         <!-- Size 72 * #ARG# + 16-byte alignment padding -->
         <add name="resources" type="PathJoinPartResource" arr1="#ARG#" />
-        <add name="padding" type="byte" arr1="(#ARG# % 2) * 8" />
     </compound>
 
     <compound name="PathJoinPartResource" inherit="MemStruct">
@@ -112,7 +110,6 @@
     <compound name="PointsList" inherit="MemStruct">
         <!-- Size 12 * #ARG# + 16-byte alignment padding -->
         <add name="points" type="Vector3" arr1="#ARG#" />
-        <add name="padding" type="byte" arr1="(#ARG# % 4) * 4" />
     </compound>
 
     <compound name="PathSupport" inherit="MemStruct">
