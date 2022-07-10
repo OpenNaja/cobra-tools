@@ -64,3 +64,17 @@ class PathTypeLoader(MemStructLoader):
 class SupportSetLoader(MemStructLoader):
 	target_class = SupportSetRoot
 	extension = ".supportset"
+
+	def prep(self):
+		# avoid generating pointers for these
+		if not self.header.num_connector_1:
+			self.header.connector_1.data = None
+		if not self.header.num_connector_2:
+			self.header.connector_2.data = None
+
+	def create(self):
+		self.create_root_entry()
+		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+		self.prep()
+		# print(self.header)
+		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)

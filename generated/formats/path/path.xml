@@ -33,7 +33,7 @@
         <add name="unkFloat1" type="float" />
         <add name="unkFloat2" type="float" />
         <add name="is_kerb" type="bool" />
-        <add name="unkBool" type="bool" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
+        <add name="is_not_ground" type="bool" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
     </compound>
 
     <compound name="PathMaterial" inherit="MemStruct">
@@ -128,16 +128,17 @@
     <compound name="SupportSetRoot" inherit="MemStruct">
         <!-- Size 144 -->
         <add name="connector_1" type="ArrayPointer" template="Connector" arg="num_connector_1" />
-        <add name="connector_2" type="Pointer" template="ConnectorMultiJoint" />
+        <add name="connector_2" type="ArrayPointer" template="ConnectorMultiJoint" arg="num_connector_2" />
         <add name="pillar" type="Pointer" template="Pillar" />
         <add name="footer" type="Pointer" template="Footer" />
         <add name="padding" type="uint64" />
         <add name="unkVector1" type="Vector3" />
         <add name="unkVector2" type="Vector2" />
         <add name="unkVector3" type="Vector3" />
-        <add name="numUnk1" type="uint" />
+        <add name="unkInt1" type="uint" />
         <add name="num_connector_1" type="uint" />
-        <add name="unkInts" type="uint" arr1="8" />
+        <add name="num_connector_2" type="uint" />
+        <add name="unkInts" type="uint" arr1="7" />
         <add name="padding_2" type="uint64" />
         <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
         <add name="num_data" type="uint" />

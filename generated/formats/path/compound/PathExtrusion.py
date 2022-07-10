@@ -16,7 +16,7 @@ class PathExtrusion(MemStruct):
 		self.unk_float_1 = 0.0
 		self.unk_float_2 = 0.0
 		self.is_kerb = False
-		self.unk_bool = False
+		self.is_not_ground = False
 		self.model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.endcap_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -27,7 +27,7 @@ class PathExtrusion(MemStruct):
 		self.unk_float_1 = 0.0
 		self.unk_float_2 = 0.0
 		self.is_kerb = False
-		self.unk_bool = False
+		self.is_not_ground = False
 		self.model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.endcap_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -51,7 +51,7 @@ class PathExtrusion(MemStruct):
 		instance.unk_float_1 = stream.read_float()
 		instance.unk_float_2 = stream.read_float()
 		instance.is_kerb = stream.read_bool()
-		instance.unk_bool = stream.read_bool()
+		instance.is_not_ground = stream.read_bool()
 		instance.model.arg = 0
 		instance.post_model.arg = 0
 		instance.endcap_model.arg = 0
@@ -65,7 +65,7 @@ class PathExtrusion(MemStruct):
 		stream.write_float(instance.unk_float_1)
 		stream.write_float(instance.unk_float_2)
 		stream.write_bool(instance.is_kerb)
-		stream.write_bool(instance.unk_bool)
+		stream.write_bool(instance.is_not_ground)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -94,7 +94,7 @@ class PathExtrusion(MemStruct):
 		s += f'\n	* unk_float_1 = {fmt_member(self.unk_float_1, indent+1)}'
 		s += f'\n	* unk_float_2 = {fmt_member(self.unk_float_2, indent+1)}'
 		s += f'\n	* is_kerb = {fmt_member(self.is_kerb, indent+1)}'
-		s += f'\n	* unk_bool = {fmt_member(self.unk_bool, indent+1)}'
+		s += f'\n	* is_not_ground = {fmt_member(self.is_not_ground, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
