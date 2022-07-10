@@ -249,15 +249,10 @@ class MemStruct:
 			for subelem, member in zip(elem, val):
 				self._from_xml(self, subelem, subelem.tag, member)
 		elif isinstance(val, ndarray):
-			# data = elem.attrib[prop]
-			if elem.text:
-				# create ndarray from data, assign value
-				arr = np.fromstring(elem.text, dtype=val.dtype, sep=' ')
-				setattr(target, prop, arr)
-				logging.debug(f"ndarray {arr}, {val.dtype}, {type(arr)}")
-			else:
-				# todo - for some reason, setting the empty array (fine here) causes trouble in Pointer.write_template
-				setattr(target, prop, None)
+			# create ndarray from data, assign value
+			arr = np.fromstring(elem.text, dtype=val.dtype, sep=' ')
+			setattr(target, prop, arr)
+			logging.debug(f"ndarray {arr}, {val.dtype}, {type(arr)}")
 		elif isinstance(val, MemStruct):
 			# print("MemStruct")
 			val.from_xml(elem)
