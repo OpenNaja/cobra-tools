@@ -1,10 +1,11 @@
-import traceback
+import json
 import webbrowser
 import os
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from ovl_util.interaction import showdialog
 from ovl_util import config, qt_theme
+from root_path import root_dir
 
 MAX_UINT = 4294967295
 myFont = QtGui.QFont()
@@ -22,7 +23,7 @@ def startup(cls):
 	win = cls()
 	win.show()
 	appQt.exec_()
-	config.write_config("config.ini", win.cfg)
+	config.save_config(win.cfg)
 
 
 def abort_open_new_file(parent, newfile, oldfile):
@@ -1050,7 +1051,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setWindowTitle(name)
 		self.setWindowIcon(get_icon("frontier"))
 
-		self.cfg = config.read_config("config.ini")
+		self.cfg = config.load_config()
 
 	def poll(self):
 		if self.file_widget.filepath:

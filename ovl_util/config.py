@@ -1,8 +1,25 @@
+import json
 import logging
 import sys
 import os
 
+from root_path import root_dir
+
 plugin_dir = os.path.dirname(os.path.dirname(__file__))
+
+
+def save_config(cfg_dict):
+	with open(os.path.join(root_dir, "config.json"), "w") as json_writer:
+		json.dump(cfg_dict, json_writer, indent="\t", sort_keys=True)
+
+
+def load_config():
+	try:
+		with open(os.path.join(root_dir, "config.json"), "r") as json_reader:
+			return json.load(json_reader)
+	except FileNotFoundError:
+		logging.exception(f"Config file missing")
+		return {}
 
 
 def read_config(cfg_path):

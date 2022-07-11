@@ -105,3 +105,4 @@ venv.bak/
 
 # Config file
 /config.ini
+/config.json

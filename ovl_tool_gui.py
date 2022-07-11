@@ -24,6 +24,7 @@ try:
 	from modules import walker
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
 	from generated.formats.ovl_base.enum.Compression import Compression
+	games_list = [g.value for g in games]
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
@@ -40,18 +41,11 @@ class MainWindow(widgets.MainWindow):
 
 		supported_types = [ext for ext in self.ovl_data.formats_dict.keys()]
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in supported_types))
-		self.installed_games = self.get_steam_games()
-		cfg_game_path = self.cfg.get("dir_game", "")
-		cfg_game = None
-		if cfg_game_path:
-			if cfg_game_path in self.installed_games.values():
-				for cfg_game, p in self.installed_games.items():
-					if p == cfg_game_path:
-						break
-				else:
-					cfg_game = None
-			else:
-				self.installed_games[os.path.basename(cfg_game_path)] = cfg_game_path
+
+		# add games from steam to the dict
+		if "games" not in self.cfg:
+			self.cfg["games"] = {}
+		self.cfg["games"].update(self.get_steam_games())
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 		self.file_widget.setToolTip("The name of the OVL file that is currently open")
@@ -78,12 +72,10 @@ class MainWindow(widgets.MainWindow):
 
 		self.installed_games_view = widgets.GamesCombo(self)
 		self.installed_games_view.setToolTip("Select game for easy access below")
-		self.installed_games_view.set_data(self.installed_games.keys())
+		self.installed_games_view.set_data(self.cfg["games"].keys())
 		self.installed_games_view.entry.setEditable(False)
 		self.installed_games_view.entry.textActivated.connect(self.installed_game_chosen)
 		self.installed_games_view.add_button.clicked.connect(self.add_installed_game)
-		if cfg_game:
-			self.installed_games_view.entry.setText(cfg_game)
 
 		# self.installed_games_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
 		self.model = QtWidgets.QFileSystemModel()
@@ -93,7 +85,6 @@ class MainWindow(widgets.MainWindow):
 		self.dirs_container.setColumnHidden(2, True)
 		self.dirs_container.setColumnHidden(3, True)
 		self.dirs_container.doubleClicked.connect(self.dirs_clicked)
-		self.set_game_dir()
 
 		self.dirs_container.header().setSortIndicator(0, QtCore.Qt.AscendingOrder)
 		self.dirs_container.model().sort(self.dirs_container.header().sortIndicatorSection(),
@@ -199,7 +190,6 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Dump Debug Data", self.ovl_data.dump_debug_data, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
-			(util_menu, "Set Game Dir", self.ask_game_dir, "", ""),
 			(util_menu, "Export included ovl list", self.save_included_ovls, "", ""),
 			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
@@ -213,28 +203,27 @@ class MainWindow(widgets.MainWindow):
 		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
 		# run once here to make sure we catch the default game
+		self.populate_game_widget()
 		self.game_changed()
 
 	def get_steam_games(self,):
 		try:
+			# get steam folder from windows registry
 			hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
-		except:
-			traceback.print_exc()
-			return
-		try:
 			steam_query = winreg.QueryValueEx(hkey, "InstallPath")
+			# get path to steam games folder
+			# C:\\Program Files (x86)\\Steam
+			steam_path = steam_query[0]
+			apps_path = os.path.join(steam_path, "steamapps\\common")
+			steam_games = os.listdir(apps_path)
+			# filter with supported fdev games
+			# generate the whole path for each game
+			# C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
+			fdev_games = {game: os.path.join(apps_path, game, "win64\\ovldata") for game in steam_games if game in games_list}
+			return fdev_games
 		except:
-			traceback.print_exc()
-			return
-		# C:\\Program Files (x86)\\Steam
-		steam_path = steam_query[0]
-		apps_path = os.path.join(steam_path, "steamapps\\common")
-		steam_games = os.listdir(apps_path)
-		# print(steam_games)
-		_games = [g.value for g in games]
-		# C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
-		fdev_games = {game: os.path.join(apps_path, game, "win64\\ovldata") for game in steam_games if game in _games}
-		return fdev_games
+			logging.exception(f"Getting installed games from steam folder failed")
+			return {}
 
 	def compare_ovls(self):
 		selected_file_names = self.files_container.table.get_selected_files()
@@ -261,45 +250,42 @@ class MainWindow(widgets.MainWindow):
 						logging.error(f"Could not compare '{file_name}'")
 
 	def installed_game_chosen(self):
-		dir_game = self.installed_games[self.installed_games_view.entry.currentText()]
-		self.cfg["dir_game"] = dir_game
-		self.populate_game_widget(dir_game)
+		"""Choose a game from dropdown of installed games"""
+		current_game = self.installed_games_view.entry.currentText()
+		self.cfg["current_game"] = current_game
+		self.populate_game_widget()
 
 	def add_installed_game(self):
+		"""Choose a game from dropdown of installed games"""
 		dir_game = self.ask_game_dir()
 		if dir_game:
-			self.installed_games[os.path.basename(dir_game)] = dir_game
-			self.installed_games_view.set_data(self.installed_games.keys())
+			# todo - try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
+			current_game = os.path.basename(dir_game)
+			# store this newly chosen game in cfg
+			self.cfg["games"][current_game] = dir_game
+			self.cfg["current_game"] = current_game
+			# update available games
+			self.installed_games_view.set_data(self.cfg["games"].keys())
 
 	def ask_game_dir(self):
+		"""Ask the user to specify a game root folder"""
 		dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
 		if dir_game:
-			self.cfg["dir_game"] = dir_game
-			self.populate_game_widget(dir_game)
+			self.populate_game_widget()
 			return dir_game
 
-	def get_game_dir(self):
-		return self.cfg.get("dir_game", "")
-
-	def set_game_dir(self):
-		dir_game = self.get_game_dir()
+	def populate_game_widget(self):
+		current_game = self.cfg.get("current_game")
+		logging.info(f"Setting current_game {current_game}")
+		# if current_game has been set, we assume it exists in the games dict too
+		dir_game = self.cfg["games"].get(current_game)
 		if dir_game:
-			self.populate_game_widget(dir_game)
-		else:
-			self.ask_game_dir()
-
-	def set_game_choice(self, game):
-		for g in games:
-			if g.value in self.get_game_dir():
-				self.game_choice.entry.setText(game)
-
-	def populate_game_widget(self, dir_game):
-		rt_index = self.model.setRootPath(dir_game)
-		self.dirs_container.setRootIndex(rt_index)
-		# Set Game Choice default based on current game dir
-		for g in games:
-			if g.value in self.get_game_dir():
-				self.set_game_choice(g.value)
+			rt_index = self.model.setRootPath(dir_game)
+			self.dirs_container.setRootIndex(rt_index)
+			self.installed_games_view.entry.setText(current_game)
+			# Set Game Choice default based on current game
+			if current_game in games_list:
+				self.game_choice.entry.setText(current_game)
 
 	def get_selected_dir(self):
 		model = self.dirs_container.model()
