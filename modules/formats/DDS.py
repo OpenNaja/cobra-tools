@@ -138,7 +138,7 @@ class DdsLoader(MemStructLoader):
 				dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
 				self.overwrite_buffer(buffer, dds_buff)
 		else:
-			out_bytes = dds_file.pack_mips(size_info.mip_maps)
+			out_bytes = dds_file.pack_mips(size_info.mip_maps, tex_a)
 			# update data in buffers according to tex header buffer specifications
 			for buffer_entry, b_info in zip(sorted_streams, tex_buffers):
 				self.overwrite_buffer(buffer_entry, out_bytes[b_info.offset: b_info.offset + b_info.size])

@@ -66,15 +66,18 @@ class DdsFile(Header, IoFile):
         mips_start = stream.tell()
         for mip_i in range(self.mipmap_count):
             # go per tile
-            num_pixels = h * w
+            # note that array_size is not set by texconv
+            num_pixels = h * w * self.dx_10.array_size
             # read at least one block
             num_bytes = max(self.block_byte_size, self.get_bytes_size(num_pixels))
             logging.debug(f"Mip {mip_i} at {stream.tell()} ({stream.tell()-mips_start}), {num_pixels} pixels, {num_bytes} bytes")
-            self.mips.append((h, w, [stream.read(num_bytes) for i in range(self.dx_10.array_size)]))
+            # self.mips.append((h, w, [stream.read(num_bytes) for i in range(self.dx_10.array_size)]))
+            self.mips.append((h, w, stream.read(num_bytes)))
             h //= 2
             w //= 2
         # print(self.mips)
-        self.buffer = b"".join([b"".join(level_bytes_per_tile) for h, w, level_bytes_per_tile in self.mips])
+        # self.buffer = b"".join([b"".join(level_bytes_per_tile) for h, w, level_bytes_per_tile in self.mips])
+        self.buffer = b"".join([level_bytes for h, w, level_bytes in self.mips])
         logging.debug(f"End of mips at {stream.tell()}")
 
     def get_pixel_fmt(self):
@@ -98,16 +101,19 @@ class DdsFile(Header, IoFile):
         logging.debug(f"block_len_pixels_1d: {self.block_len_pixels_1d}")
         logging.debug(f"block_byte_size: {self.block_byte_size}")
 
-    def pack_mips(self, mip_infos):
+    def pack_mips(self, mip_infos, array_count):
         """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
         logging.info("Packing mip maps (new)")
         with io.BytesIO() as stream:
-            for mip_i, ((height, width, level_bytes_per_tile), mip_info) in enumerate(zip(self.mips, mip_infos)):
+            for mip_i, ((height, width, level_bytes), mip_info) in enumerate(zip(self.mips, mip_infos)):
                 mip_offset = stream.tell()
 
                 bytes_width = self.get_bytes_size(width)
+                tile_byte_size = len(level_bytes) // array_count
+                height //= array_count
+                level_bytes_per_tile = [level_bytes[i*tile_byte_size:(i+1)*tile_byte_size] for i in range(array_count)]
                 logging.debug(f"offset {mip_info.offset}, {mip_offset}")
-                logging.debug(f"width {width}, bytes width {bytes_width}")
+                logging.debug(f"width {width}, bytes width {bytes_width}, num_tiles {len(level_bytes_per_tile)}")
                 for tile_bytes in level_bytes_per_tile:
                     if bytes_width > 32:
                         stream.write(tile_bytes)
