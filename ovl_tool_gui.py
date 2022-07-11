@@ -203,6 +203,7 @@ class MainWindow(widgets.MainWindow):
 		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
 		# run once here to make sure we catch the default game
+		self.installed_game_chosen()
 		self.populate_game_widget()
 		self.game_changed()
 
