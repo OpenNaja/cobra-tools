@@ -269,7 +269,7 @@ class DdsLoader(MemStructLoader):
 		dds_w = dds_header.width
 		dds_d = dds_header.depth
 		dds_a = dds_header.dx_10.array_size
-		print(dds_header)
+		# print(dds_header)
 		if dds_h * dds_w * dds_d * dds_a != tex_h * tex_w * tex_d * tex_a:
 			raise AttributeError(
 				f"Dimensions do not match for {self.file_entry.name}!\n\n"
