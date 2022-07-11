@@ -65,15 +65,16 @@ class DdsFile(Header, IoFile):
         w = self.width
         mips_start = stream.tell()
         for mip_i in range(self.mipmap_count):
-            num_pixels = h * w * self.dx_10.array_size
+            # go per tile
+            num_pixels = h * w
             # read at least one block
             num_bytes = max(self.block_byte_size, self.get_bytes_size(num_pixels))
             logging.debug(f"Mip {mip_i} at {stream.tell()} ({stream.tell()-mips_start}), {num_pixels} pixels, {num_bytes} bytes")
-            self.mips.append((h, w, stream.read(num_bytes)))
+            self.mips.append((h, w, [stream.read(num_bytes) for i in range(self.dx_10.array_size)]))
             h //= 2
             w //= 2
         # print(self.mips)
-        self.buffer = b"".join([b for h, w, b in self.mips])
+        self.buffer = b"".join([b"".join(level_bytes_per_tile) for h, w, level_bytes_per_tile in self.mips])
         logging.debug(f"End of mips at {stream.tell()}")
 
     def get_pixel_fmt(self):
@@ -101,37 +102,38 @@ class DdsFile(Header, IoFile):
         """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
         logging.info("Packing mip maps (new)")
         with io.BytesIO() as stream:
-            for mip_i, ((height, width, level_bytes), mip_info) in enumerate(zip(self.mips, mip_infos)):
+            for mip_i, ((height, width, level_bytes_per_tile), mip_info) in enumerate(zip(self.mips, mip_infos)):
                 mip_offset = stream.tell()
 
                 bytes_width = self.get_bytes_size(width)
                 logging.debug(f"offset {mip_info.offset}, {mip_offset}")
                 logging.debug(f"width {width}, bytes width {bytes_width}")
-                if bytes_width > 32:
-                    stream.write(level_bytes)
-                    logging.debug(f"Wrote mip {mip_i}, {len(level_bytes)} raw bytes")
-                else:
-                    # no matter what pixel size the mips represent, they must be at least one 4x4 chunk
-                    height = max(self.block_len_pixels_1d, height)
+                for tile_bytes in level_bytes_per_tile:
+                    if bytes_width > 32:
+                        stream.write(tile_bytes)
+                        logging.debug(f"Wrote mip {mip_i}, {len(tile_bytes)} raw bytes for tile")
+                    else:
+                        # no matter what pixel size the mips represent, they must be at least one 4x4 chunk
+                        height = max(self.block_len_pixels_1d, height)
 
-                    # write horizontal lines
-                    # get count of h slices, 1 block is 4x4 px
-                    num_slices_y = height // self.block_len_pixels_1d
-                    bytes_per_line = len(level_bytes) // num_slices_y
+                        # write horizontal lines
+                        # get count of h slices, 1 block is 4x4 px
+                        num_slices_y = height // self.block_len_pixels_1d
+                        bytes_per_line = len(tile_bytes) // num_slices_y
 
-                    # write the bytes for this line from the mip bytes
-                    for slice_i in range(num_slices_y):
-                        # get the bytes that represent the blocks of this line
-                        sl = level_bytes[slice_i * bytes_per_line: (slice_i + 1) * bytes_per_line]
-                        stream.write(sl)
-                        # fill the line with padding blocks
-                        stream.write(get_padding(len(sl), alignment=256))
+                        # write the bytes for this line from the mip bytes
+                        for slice_i in range(num_slices_y):
+                            # get the bytes that represent the blocks of this line
+                            sl = tile_bytes[slice_i * bytes_per_line: (slice_i + 1) * bytes_per_line]
+                            stream.write(sl)
+                            # fill the line with padding blocks
+                            stream.write(get_padding(len(sl), alignment=256))
 
-                    # add one fully blank line for those cases
-                    if num_slices_y == 1:
-                        stream.write(b"\x00" * 256)
+                        # add one fully blank line for those cases
+                        if num_slices_y == 1:
+                            stream.write(b"\x00" * 256)
 
-                    logging.debug(f"Packed mip {mip_i}, {len(level_bytes)} raw bytes, {num_slices_y} Y slices, {stream.tell()-mip_offset} total bytes")
+                        logging.debug(f"Packed mip {mip_i}, {len(tile_bytes)} raw bytes, {num_slices_y} Y slices, {stream.tell()-mip_offset} total bytes")
 
             return stream.getvalue()
 

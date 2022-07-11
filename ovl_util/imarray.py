@@ -124,15 +124,15 @@ def is_corresponding_png(file_name, name_bare):
 		return True
 
 
-def split_name_suffix(in_name):
+def split_name_suffix(name_bare):
 	# grab the basic name, and the array index suffix if it exists
-	if "_" in in_name:
-		in_name_bare, suffix = in_name.rsplit("_", 1)
+	if "_" in name_bare:
+		in_name_bare, suffix = name_bare.rsplit("_", 1)
 		if suffix and "[" in suffix:
 			suffix = suffix[1:-1]
 			suffix = int(suffix)
 			return in_name_bare, suffix
-	return in_name, None
+	return name_bare, None
 
 
 def check_same_dimensions(dimensions, files):
@@ -154,7 +154,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 	if not corresponding_png_textures:
 		raise FileNotFoundError(f"Found no .png files for {tex_file_path}")
 	# print(corresponding_png_textures)
-	in_name_bare, suffix = split_name_suffix(in_name)
+	in_name_bare, suffix = split_name_suffix(os.path.splitext(corresponding_png_textures[0])[0])
 	# join arrays if there is a suffix
 	must_join = suffix is not None
 	join_components = has_components(tex_file_path)
