@@ -1,7 +1,5 @@
 import logging
 import os
-import tempfile
-import shutil
 import subprocess
 import struct
 
@@ -15,7 +13,6 @@ luac = os.path.normpath(os.path.join(util_dir, "luadec/luac.exe"))
 
 
 def run_smart(args):
-	# argline = " ".join(['"' + x + '"' for x in args])
 	subprocess.check_call(args)
 
 
@@ -86,7 +83,6 @@ def dds_to_png(dds_file_path, height):
 	"""Converts a DDS file given by a path to a PNG file"""
 	out_dir, in_name = os.path.split(dds_file_path)
 	name = os.path.splitext(in_name)[0]
-	# print("dds to png", dds_file_path, out_dir, height)
 	run_smart([
 		BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
 		"-dx10", dds_file_path])
