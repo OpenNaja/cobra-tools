@@ -162,7 +162,6 @@ def create_material(in_dir, matname):
 	elif "popacitytexture" in tex_dic:
 		alpha = tex_dic["popacitytexture"]
 		alpha_pass = alpha.outputs[0]
-	# todo - use game version tag?
 	elif "JURASSIC" in fgm_data.game and "proughnesspackedtexture_[00]" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
 		alpha = tex_dic["proughnesspackedtexture_[00]"]
 		alpha_pass = alpha.outputs[0]
