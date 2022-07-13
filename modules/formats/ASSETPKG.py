@@ -6,3 +6,6 @@ class AssetpkgLoader(MemStructLoader):
 	extension = ".assetpkg"
 	target_class = AssetpkgRoot
 
+	def rename_content(self, name_tuples):
+		self.rename_fragments(name_tuples)
+

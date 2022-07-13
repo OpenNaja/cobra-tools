@@ -12,6 +12,7 @@ from generated.formats.ovl.compound.RootEntry import RootEntry
 from generated.formats.ovl.compound.DataEntry import DataEntry
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import djb2
+from ovl_util.interaction import showdialog
 
 
 class BaseFile:
@@ -293,6 +294,18 @@ class BaseFile:
 				os.remove(p)
 			return [p for p in paths if p not in paths_to_remove]
 		return paths
+
+	def rename_fragments(self, name_tuples):
+		logging.info(f"Renaming inside {self.file_entry.name}")
+		byte_name_tups = []
+		try:
+			for old, new in name_tuples:
+				assert len(old) == len(new)
+				byte_name_tups.append((old.encode(), new.encode()))
+			for fragment in self.fragments:
+				fragment.struct_ptr.replace_bytes(byte_name_tups)
+		except Exception as err:
+			showdialog(str(err))
 
 	def __eq__(self, other):
 		logging.info(f"Comparing {self.file_entry.name}")
