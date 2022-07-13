@@ -4,6 +4,8 @@ import shutil
 import struct
 import tempfile
 
+import imageio.v3 as iio
+
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
@@ -110,8 +112,8 @@ class DdsLoader(MemStructLoader):
 		# convert the png into a dds, then inject that
 		size_info = self.get_tex_structs()
 		compression = self.header.compression_type.name
-		# todo - need to check the png dimensions here
-		# ensure_size_match is too late because texconv writes weird things to the dds header
+		# need to check the png dimensions here because texconv writes weird things to the dds header
+		self.ensure_size_match(file_path, size_info)
 		# we need to use tricks to make texconv generate proper mip maps for array textures
 		# save stacked png as uncompressed dds
 		dds_file_path = texconv.png_to_uncompressed_dds(
@@ -141,7 +143,6 @@ class DdsLoader(MemStructLoader):
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(file_path)
-		self.ensure_size_match(dds_file, tex_h, tex_w, tex_d, tex_a)
 		sorted_streams = self.get_sorted_streams()
 		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl):
@@ -274,17 +275,17 @@ class DdsLoader(MemStructLoader):
 				out_files.extend(imarray.wrapper(png_file_path, size_info, self.ovl))
 		return out_files
 
-	def ensure_size_match(self, dds_header, tex_h, tex_w, tex_d, tex_a):
+	def ensure_size_match(self, png_file_path, size_info):
 		"""Check that DDS files have the same basic size"""
-		dds_h = dds_header.height
-		dds_w = dds_header.width
-		dds_d = dds_header.depth
-		dds_a = dds_header.dx_10.array_size
-		# print(dds_header)
-		if dds_h * dds_w * dds_d * dds_a != tex_h * tex_w * tex_d * tex_a:
+		png_width, png_height = iio.immeta(png_file_path)["shape"]
+		tex_h = size_info.height
+		tex_w = size_info.width
+		tex_d = size_info.depth
+		tex_a = size_info.array_size
+		if png_width * png_height != tex_h * tex_w * tex_d * tex_a:
 			raise AttributeError(
-				f"Dimensions do not match for {self.file_entry.name}!\n\n"
+				f"Dimensions do not match for {self.file_entry.name}!\n"
 				f"Dimensions: height x width x depth [array size]\n"
-				f"OVL Texture: {tex_h} x {tex_w} x {tex_d} [{tex_a}]\n"
-				f"Injected texture: {dds_h} x {dds_w} x {dds_d} [{dds_a}]\n\n"
-				f"Make the external texture's dimensions match the OVL texture and try again!")
+				f".tex file: {tex_h} x {tex_w} x {tex_d} [{tex_a}]\n"
+				f".png file: {png_height} x {png_width}\n\n"
+				f"Make the textures' dimensions match and try again!")
