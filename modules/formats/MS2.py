@@ -306,7 +306,8 @@ class Ms2Loader(BaseFile):
 			ms2_file.save(ms2_path)
 			# inject again
 			self.remove()
-			self.ovl.create_file(ms2_path)
+			loader = self.ovl.create_file(ms2_path)
+			self.ovl.register_loader(loader)
 		except BaseException as err:
 			traceback.print_exc()
 			logging.warning(err)

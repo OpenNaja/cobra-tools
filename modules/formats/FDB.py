@@ -155,7 +155,8 @@ class FdbLoader(BaseFile):
 						con.close()
 
 				self.remove()
-				self.ovl.create_file(fdb_path)
+				loader = self.ovl.create_file(fdb_path)
+				self.ovl.register_loader(loader)
 				shutil.rmtree(temp_dir)
 			except BaseException as err:
 				traceback.print_exc()

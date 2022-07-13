@@ -738,13 +738,16 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Game: {get_game(self)}")
 		for file_path in file_paths:
 			loader = self.create_file(file_path)
-			if loader:
-				# only store loader in self.loaders after successful create
-				self.loaders[loader.file_entry.name] = loader
-				# also store any streams created by loader
-				for stream in loader.streams + loader.children:
-					if stream:
-						self.loaders[stream.file_entry.name] = stream
+			self.register_loader(loader)
+
+	def register_loader(self, loader):
+		if loader:
+			# only store loader in self.loaders after successful create
+			self.loaders[loader.file_entry.name] = loader
+			# also store any streams created by loader
+			for stream in loader.streams + loader.children:
+				if stream:
+					self.loaders[stream.file_entry.name] = stream
 
 	def create_archive(self, name="STATIC"):
 		# see if it exists
