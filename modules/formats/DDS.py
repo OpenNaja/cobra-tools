@@ -133,12 +133,6 @@ class DdsLoader(MemStructLoader):
 	def load_dds(self, file_path):
 		logging.info(f"Loading DDS {file_path}")
 		size_info = self.get_tex_structs()
-		# tex_d = size_info.depth
-		tex_d = 1
-		tex_h = size_info.height
-		tex_w = size_info.width
-		tex_a = size_info.array_size
-		tex_w = align_to(tex_w, self.header.compression_type.name)
 
 		# load dds
 		dds_file = DdsFile()
@@ -282,6 +276,7 @@ class DdsLoader(MemStructLoader):
 		tex_w = size_info.width
 		tex_d = size_info.depth
 		tex_a = size_info.array_size
+		tex_w = align_to(tex_w, self.header.compression_type.name)
 		if png_width * png_height != tex_h * tex_w * tex_d * tex_a:
 			raise AttributeError(
 				f"Dimensions do not match for {self.file_entry.name}!\n"
