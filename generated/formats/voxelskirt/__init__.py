@@ -99,24 +99,24 @@ class VoxelskirtFile(Header, IoFile):
 		"""Stores the embedded height map and masks as separate images, lossless."""
 		start_time = time.time()
 		image_paths = []
-		import imageio
+		import imageio.v3 as iio
 		bare_name = os.path.splitext(self.filepath)[0]
 		if is_pc(self):
 			p = f"{bare_name}_height.tiff"
 			image_paths.append(p)
-			imageio.imwrite(p, self.heightmap)
+			iio.imwrite(p, self.heightmap)
 			for i in range(4):
 				p = f"{bare_name}_mask{i}.png"
 				image_paths.append(p)
-				imageio.imwrite(p, self.weights[:, :, i], compress_level=2)
+				iio.imwrite(p, self.weights[:, :, i], compress_level=2)
 		else:
 			for data in self.datas:
 				if data.type == 0:
 					p = f"{bare_name}_{data.name}.png"
-					imageio.imwrite(p, data.im, compress_level=2)
+					iio.imwrite(p, data.im, compress_level=2)
 				elif data.type == 2:
 					p = f"{bare_name}_{data.name}.tiff"
-					imageio.imwrite(p, data.im)
+					iio.imwrite(p, data.im)
 				else:
 					logging.warning(f"Unknown data type {data.type}")
 					continue
@@ -127,9 +127,9 @@ class VoxelskirtFile(Header, IoFile):
 	def inject(self, filepaths):
 		"""Replaces images"""
 		start_time = time.time()
-		import imageio
+		import imageio.v3 as iio
 		for filepath in filepaths:
-			im = imageio.imread(filepath)
+			im = iio.imread(filepath)
 			bare_name = os.path.splitext(filepath)[0]
 			suffix = bare_name.rsplit("_", 1)[1]
 			if is_pc(self):

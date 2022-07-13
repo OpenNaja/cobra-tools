@@ -1,6 +1,6 @@
 import logging
 import os
-import imageio
+import imageio.v3 as iio
 import numpy as np
 
 from generated.formats.ovl.versions import is_ztuac
@@ -58,7 +58,7 @@ def wrapper(png_file_path, size_info, ovl):
 	logging.debug("Splitting PNG array")
 	logging.debug(f"h {h}, w {w}, array_size {array_size}")
 	if must_split or must_flip_gb or split_components or split_rg_b_a:
-		im = imageio.imread(png_file_path)
+		im = iio.imread(png_file_path)
 		# (4096, 1024, 4)
 		h, w, d = im.shape
 		h //= array_size
@@ -71,7 +71,7 @@ def wrapper(png_file_path, size_info, ovl):
 			for hi in range(array_size):
 				for di in range(d):
 					file_path = f"{name}_[{layer_i:02}]{ext}"
-					imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, di], compress_level=2)
+					iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, di], compress_level=2)
 					out_files.append(file_path)
 					layer_i += 1
 			os.remove(png_file_path)
@@ -79,7 +79,7 @@ def wrapper(png_file_path, size_info, ovl):
 		elif must_split:
 			for layer_i in range(array_size):
 				file_path = f"{name}_[{layer_i:02}]{ext}"
-				imageio.imwrite(file_path, im[layer_i * h:(layer_i + 1) * h, :, :], compress_level=2)
+				iio.imwrite(file_path, im[layer_i * h:(layer_i + 1) * h, :, :], compress_level=2)
 				out_files.append(file_path)
 			os.remove(png_file_path)
 		# separate into rgb and a components
@@ -88,19 +88,19 @@ def wrapper(png_file_path, size_info, ovl):
 				file_path = f"{name}_[{layer_i}]{ext}"
 				normal = np.array(im[hi * h:(hi + 1) * h, :, 0:3])
 				normal[:, :, 2] = 255
-				imageio.imwrite(file_path, normal, compress_level=2)
+				iio.imwrite(file_path, normal, compress_level=2)
 				out_files.append(file_path)
 				file_path = f"{name}_[{layer_i+1}]{ext}"
-				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 2], compress_level=2)
+				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 2], compress_level=2)
 				out_files.append(file_path)
 				file_path = f"{name}_[{layer_i+2}]{ext}"
-				imageio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
+				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
 				out_files.append(file_path)
 				layer_i += 3
 			os.remove(png_file_path)
 		# don't split at all, overwrite
 		else:
-			imageio.imwrite(png_file_path, im, compress_level=2)
+			iio.imwrite(png_file_path, im, compress_level=2)
 			out_files.append(png_file_path)
 	else:
 		out_files.append(png_file_path)
@@ -177,13 +177,13 @@ def png_from_tex(tex_file_path, tmp_dir):
 	if not must_join and not join_components and not join_rg_b_a:
 		# just read the one input file
 		assert len(corresponding_png_textures) == 1
-		im = imageio.imread(png_file_path)
+		im = iio.imread(png_file_path)
 
 	# rebuild array from separated tiles
 	if must_join or join_components or join_rg_b_a:
 		array_textures = [file for file in corresponding_png_textures if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
-		ims = [imageio.imread(os.path.join(in_dir, file)) for file in array_textures]
+		ims = [iio.imread(os.path.join(in_dir, file)) for file in array_textures]
 		logging.debug(f"Array tile names: {array_textures}")
 		# load them all, then build im array from scratch
 		array_size = len(array_textures)
@@ -262,7 +262,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 
 	# this is shared for all that have to be read
 	logging.debug(f"Writing output to {tmp_png_file_path}")
-	imageio.imwrite(tmp_png_file_path, im, compress_level=2)
+	iio.imwrite(tmp_png_file_path, im, compress_level=2)
 	return tmp_png_file_path
 
 
