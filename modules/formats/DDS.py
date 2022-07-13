@@ -206,7 +206,7 @@ class DdsLoader(MemStructLoader):
 
 		out_files = []
 		out_files.extend(tex_paths)
-		out_files.extend(self.dump_buffers(out_dir))
+		# out_files.extend(self.dump_buffers(out_dir))
 
 		dds_file = DdsFile()
 		size_info = self.get_tex_structs()
