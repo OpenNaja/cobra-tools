@@ -43,7 +43,7 @@ class DdsFile(Header, IoFile):
 
         # other stuff
         self.buffer = b""
-        self.mips = []
+        self.tiles = []
 
     def load(self, filepath):
         with self.reader(filepath) as stream:
@@ -61,23 +61,26 @@ class DdsFile(Header, IoFile):
     def read_mips(self, stream):
         logging.info("Reading mip maps")
         self.get_pixel_fmt()
-        h = self.height
-        w = self.width
+        self.tiles.clear()
         mips_start = stream.tell()
-        for mip_i in range(self.mipmap_count):
-            # go per tile
-            # note that array_size is not set by texconv
-            num_pixels = h * w * self.dx_10.array_size
-            # read at least one block
-            num_bytes = max(self.block_byte_size, self.get_bytes_size(num_pixels))
-            logging.debug(f"Mip {mip_i} at {stream.tell()} ({stream.tell()-mips_start}), {num_pixels} pixels, {num_bytes} bytes")
-            # self.mips.append((h, w, [stream.read(num_bytes) for i in range(self.dx_10.array_size)]))
-            self.mips.append((h, w, stream.read(num_bytes)))
-            h //= 2
-            w //= 2
+        for array_i in range(self.dx_10.array_size):
+            tile_mips = []
+            h = self.height
+            w = self.width
+            self.tiles.append(tile_mips)
+            for mip_i in range(self.mipmap_count):
+                # go per tile
+                # note that array_size is not set by texconv
+                num_pixels = h * w
+                # read at least one block
+                num_bytes = max(self.block_byte_size, self.get_bytes_size(num_pixels))
+                logging.debug(f"Tile {array_i} Mip {mip_i} at {stream.tell()} ({stream.tell()-mips_start}), {num_pixels} pixels, {num_bytes} bytes")
+                tile_mips.append((h, w, stream.read(num_bytes)))
+                h //= 2
+                w //= 2
         # print(self.mips)
         # self.buffer = b"".join([b"".join(level_bytes_per_tile) for h, w, level_bytes_per_tile in self.mips])
-        self.buffer = b"".join([level_bytes for h, w, level_bytes in self.mips])
+        self.buffer = b"".join([level_bytes for tile in self.tiles for h, w, level_bytes in tile])
         logging.debug(f"End of mips at {stream.tell()}")
 
     def get_pixel_fmt(self):
@@ -101,23 +104,22 @@ class DdsFile(Header, IoFile):
         logging.debug(f"block_len_pixels_1d: {self.block_len_pixels_1d}")
         logging.debug(f"block_byte_size: {self.block_byte_size}")
 
-    def pack_mips(self, mip_infos, array_count):
+    def pack_mips(self, mip_infos):
         """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
         logging.info("Packing mip maps (new)")
         with io.BytesIO() as stream:
-            for mip_i, ((height, width, level_bytes), mip_info) in enumerate(zip(self.mips, mip_infos)):
+            tiles_per_mips = zip(*self.tiles)
+
+            for mip_i, (tiles_per_mip, mip_info) in enumerate(zip(tiles_per_mips, mip_infos)):
                 mip_offset = stream.tell()
 
-                bytes_width = self.get_bytes_size(width)
-                tile_byte_size = len(level_bytes) // array_count
-                height //= array_count
-                level_bytes_per_tile = [level_bytes[i*tile_byte_size:(i+1)*tile_byte_size] for i in range(array_count)]
-                logging.debug(f"offset {mip_info.offset}, {mip_offset}")
-                logging.debug(f"width {width}, bytes width {bytes_width}, num_tiles {len(level_bytes_per_tile)}")
-                for tile_bytes in level_bytes_per_tile:
+                for tile_i, (height, width, tile_bytes) in enumerate(tiles_per_mip):
+                    bytes_width = self.get_bytes_size(width)
+                    logging.debug(f"offset {mip_info.offset}, {mip_offset}")
+                    logging.debug(f"width {width}, bytes width {bytes_width}")
                     if bytes_width > 32:
                         stream.write(tile_bytes)
-                        logging.debug(f"Wrote mip {mip_i}, {len(tile_bytes)} raw bytes for tile")
+                        logging.debug(f"Wrote mip {mip_i} for tile {tile_i}, {len(tile_bytes)} raw bytes")
                     else:
                         # no matter what pixel size the mips represent, they must be at least one 4x4 chunk
                         height = max(self.block_len_pixels_1d, height)
@@ -139,7 +141,7 @@ class DdsFile(Header, IoFile):
                         if num_slices_y == 1:
                             stream.write(b"\x00" * 256)
 
-                        logging.debug(f"Packed mip {mip_i}, {len(tile_bytes)} raw bytes, {num_slices_y} Y slices, {stream.tell()-mip_offset} total bytes")
+                        logging.debug(f"Packed mip {mip_i} for tile {tile_i}, {len(tile_bytes)} raw bytes, {num_slices_y} Y slices, {stream.tell()-mip_offset} total bytes")
 
             return stream.getvalue()
 
