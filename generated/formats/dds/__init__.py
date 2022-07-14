@@ -106,7 +106,7 @@ class DdsFile(Header, IoFile):
 
     def pack_mips(self, mip_infos):
         """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
-        logging.info("Packing mip maps (new)")
+        logging.info("Packing mip maps")
         with io.BytesIO() as stream:
             tiles_per_mips = zip(*self.tiles)
 

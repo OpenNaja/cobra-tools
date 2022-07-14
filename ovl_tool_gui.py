@@ -2,12 +2,10 @@ import os
 import shutil
 import sys
 import time
-import traceback
 import logging
 import tempfile
 import winreg
 
-from root_path import root_dir
 
 try:
 	import numpy as np
@@ -22,11 +20,12 @@ try:
 
 	from ovl_util import widgets, interaction, qt_threads
 	from modules import walker
+	from root_path import root_dir
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
 	from generated.formats.ovl_base.enum.Compression import Compression
 	games_list = [g.value for g in games]
-except Exception as err:
-	traceback.print_exc()
+except:
+	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
 	time.sleep(15)
 
 
@@ -246,8 +245,7 @@ class MainWindow(widgets.MainWindow):
 						else:
 							logging.warning(f"'{file_name}' differs")
 					except:
-						traceback.print_exc()
-						logging.error(f"Could not compare '{file_name}'")
+						logging.exception(f"Could not compare '{file_name}'")
 
 	def installed_game_chosen(self):
 		"""Choose a game from dropdown of installed games"""
@@ -298,10 +296,10 @@ class MainWindow(widgets.MainWindow):
 	def handle_path(self, save_over=True):
 		# get path
 		if self.in_folder.isChecked():
-			root_dir = self.get_selected_dir()
-			if root_dir:
+			selected_dir = self.get_selected_dir()
+			if selected_dir:
 				# walk path
-				ovls = walker.walk_type(root_dir, extension=".ovl")
+				ovls = walker.walk_type(selected_dir, extension=".ovl")
 				for ovl_path in ovls:
 					# open ovl file
 					self.file_widget.decide_open(ovl_path)
@@ -323,15 +321,15 @@ class MainWindow(widgets.MainWindow):
 				os.startfile(file_path)
 			elif file_path.lower().endswith(".ovl"):
 				self.file_widget.decide_open(file_path)
-		except BaseException as err:
-			print(err)
+		except:
+			self.handle_error("Clicked dir failed, see log!")
 
 	@staticmethod
 	def open_tools_dir():
 		os.startfile(root_dir)
 
 	def drag_files(self, file_names):
-		logging.info(f"DRAGGING {file_names}")
+		logging.info(f"Dragging {file_names}")
 		drag = QtGui.QDrag(self)
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
@@ -343,10 +341,8 @@ class MainWindow(widgets.MainWindow):
 			drag.setMimeData(data)
 			drag.exec_()
 			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors")
-		except BaseException as ex:
-			traceback.print_exc()
-			interaction.showdialog(str(ex))
-			logging.error(ex)
+		except:
+			self.handle_error("Dragging failed, see log!")
 		shutil.rmtree(temp_dir)
 
 	def rename_handle(self, old_name, new_name):
@@ -433,8 +429,6 @@ class MainWindow(widgets.MainWindow):
 				# 	print(a.name)
 				# 	for root_entry in a.content.root_entries:
 				# 		print(root_entry.name)
-				# print(self.ovl_data.mimes)
-				# print(self.ovl_data.triplets)
 				# for a, z in zip(self.ovl_data.archives, self.ovl_data.zlibs):
 				# 	print(a, z)
 				# 	print(f"zlib sum {z.zlib_thing_1 + z.zlib_thing_2 - 68}")
@@ -443,40 +437,17 @@ class MainWindow(widgets.MainWindow):
 				# 	print(f"buffer size {sum([buff.size for buff in a.content.buffer_entries])}")
 				# 	print(f"d1 size {sum([data.size_1 for data in a.content.data_entries])}")
 				# 	print(f"d2 size {sum([data.size_2 for data in a.content.data_entries])}")
-				# 	if a.name != "STATIC":
-				# 		streams = self.ovl_data.stream_files[a.stream_files_offset: a.stream_files_offset+a.num_files]
-				# 		print(a.name, streams)
-				# print(self.ovl_data.stream_files)
-				# for i, f in enumerate(self.ovl_data.files):
-				# 	if f.ext == ".texturestream":
-				# 		print(i, f.name)
-				# offsets = list(sorted((f.file_offset, i) for i, f in enumerate(self.ovl_data.stream_files)))
-				# # print(self.ovl_data)
-				# print(offsets)
-				# # for a in self.ovl_data.archives[1:]:
-				# # 	print(a.content)
-				# for sf in self.ovl_data.stream_files:
-				# 	print(sf)
-				# 	for a in self.ovl_data.archives:
-				# 		if a.pools_start <= sf.stream_offset < a.pools_end:
-				# 			print(f"is in {a.name}")
-				# 			print(f"pool offset relative {sf.stream_offset - a.pools_start}")
-				# 			# print(a.content.root_entries)
-				# 	for a in self.ovl_data.archives:
-				# 		if a.name == "STATIC":
-				# 			for i, pool in enumerate(a.content.pools):
-				# 				if pool.offset <= sf.file_offset < pool.offset + pool.size:
-				# 					print(f"static pool {i} offset relative {sf.file_offset - pool.offset}")
-				# 	logging.debug(a.content)
-				# print(self.ovl_data.user_version)
-			except Exception as ex:
-				# print(self.ovl_data)
-				traceback.print_exc()
-				interaction.showdialog(str(ex))
-			self.update_gui_table()
-			game = get_game(self.ovl_data)[0]
-			self.game_choice.entry.setText(game.value)
-			self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
+				self.update_gui_table()
+				game = get_game(self.ovl_data)[0]
+				self.game_choice.entry.setText(game.value)
+				self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
+			except:
+				self.handle_error("OVL loading failed, see log!")
+
+	def handle_error(self, msg):
+		"""Warn user with popup msg and write msg + exception traceback to log"""
+		interaction.showdialog(msg)
+		logging.exception(msg)
 
 	def create_ovl(self, ovl_dir):
 		# clear the ovl
@@ -484,9 +455,8 @@ class MainWindow(widgets.MainWindow):
 		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir)
-		except Exception as ex:
-			traceback.print_exc()
-			interaction.showdialog(str(ex))
+		except:
+			self.handle_error("Creating OVL failed, see log!")
 		self.update_gui_table()
 
 	def is_open_ovl(self):
@@ -497,7 +467,7 @@ class MainWindow(widgets.MainWindow):
 
 	def update_gui_table(self, ):
 		start_time = time.time()
-		logging.info(f"Loading {len(self.ovl_data.files)} files into gui")
+		logging.info(f"Loading {len(self.ovl_data.loaders)} files into gui")
 		files = [loader.file_entry for loader in self.ovl_data.loaders.values()]
 		files.sort(key=lambda file: (file.ext, file.name))
 		self.files_container.set_data([[f.name, f.ext] for f in files])
@@ -524,9 +494,8 @@ class MainWindow(widgets.MainWindow):
 			self.ovl_data.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
 			self.update_progress(f"Saved {self.ovl_data.basename}", value=1, vmax=1)
-		except BaseException as ex:
-			traceback.print_exc()
-			interaction.showdialog(str(ex))
+		except:
+			self.handle_error("Saving OVL failed, see log!")
 
 	def extract_all(self):
 		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
@@ -538,15 +507,14 @@ class MainWindow(widgets.MainWindow):
 				if self.is_open_ovl():
 					# for bulk extraction, add the ovl basename to the path to avoid overwriting
 					if self.in_folder.isChecked():
-						root_dir = self.get_selected_dir()
-						rel_p = os.path.relpath(ovl.path_no_ext, start=root_dir)
+						selected_dir = self.get_selected_dir()
+						rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 						out_dir = os.path.join(_out_dir, rel_p)
 					try:
 						out_paths, error_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files)
 						all_error_files += error_files
-					except Exception as ex:
-						traceback.print_exc()
-						interaction.showdialog(str(ex))
+					except:
+						self.handle_error("Extraction failed, see log!")
 			interaction.extract_error_warning(all_error_files)
 
 	def inject_ask(self):
@@ -566,9 +534,8 @@ class MainWindow(widgets.MainWindow):
 					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
 				self.update_gui_table()
 				self.update_progress("Injection completed", value=1, vmax=1)
-			except Exception as ex:
-				traceback.print_exc()
-				interaction.showdialog(str(ex))
+			except:
+				self.handle_error("Injection failed, see log!")
 
 	def get_replace_strings(self):
 		try:
@@ -580,8 +547,8 @@ class MainWindow(widgets.MainWindow):
 			if len(old) != len(new):
 				interaction.showdialog(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
 			return list(zip(old, new))
-		except BaseException as err:
-			print(err)
+		except:
+			self.handle_error("Getting replace strings failed, see log!")
 
 	def rename(self):
 		names = self.get_replace_strings()
@@ -592,9 +559,8 @@ class MainWindow(widgets.MainWindow):
 						self.ovl_data.rename(names, mesh_mode=self.t_mesh_ovl.isChecked())
 						self.file_widget.dirty = True
 						self.update_gui_table()
-		except BaseException as err:
-			print(err)
-			traceback.print_exc()
+		except:
+			self.handle_error("Renaming failed, see log!")
 
 	def rename_contents(self):
 		names = self.get_replace_strings()
@@ -625,9 +591,8 @@ class MainWindow(widgets.MainWindow):
 						f.write("\n".join(file_names))
 
 					self.update_progress("Saved file list", value=1, vmax=1)
-				except BaseException as ex:
-					traceback.print_exc()
-					interaction.showdialog(str(ex))
+				except:
+					self.handle_error("Writing file list failed, see log!")
 
 	# Save the OVL include list to disk
 	def save_included_ovls(self):
@@ -639,9 +604,8 @@ class MainWindow(widgets.MainWindow):
 				try:
 					self.ovl_data.save_included_ovls(filelist_src)
 					self.update_progress("Saved included OVLs", value=1, vmax=1)
-				except BaseException as ex:
-					traceback.print_exc()
-					interaction.showdialog(str(ex))
+				except:
+					self.handle_error("Writing included OVLs failed, see log!")
 
 	def remover(self):
 		if self.is_open_ovl():
@@ -652,7 +616,7 @@ class MainWindow(widgets.MainWindow):
 					self.ovl_data.remove(selected_file_names)
 					self.file_widget.dirty = True
 				except:
-					traceback.print_exc()
+					self.handle_error("Removing file from OVL failed, see log!")
 				self.update_gui_table()
 
 	def walker_hash(self,):
@@ -687,6 +651,7 @@ class MainWindow(widgets.MainWindow):
 						f"WARNING: length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
 						f"Stop renaming?", ask=True):
 					return True
+
 	@staticmethod
 	def check_version():
 		is_64bits = sys.maxsize > 2 ** 32
