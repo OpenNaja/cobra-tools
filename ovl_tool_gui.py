@@ -203,7 +203,6 @@ class MainWindow(widgets.MainWindow):
 		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
 		# run once here to make sure we catch the default game
-		self.installed_game_chosen()
 		self.populate_game_widget()
 		self.game_changed()
 
@@ -278,8 +277,9 @@ class MainWindow(widgets.MainWindow):
 	def populate_game_widget(self):
 		current_game = self.cfg.get("current_game")
 		logging.info(f"Setting current_game {current_game}")
-		# if current_game has been set, we assume it exists in the games dict too
-		dir_game = self.cfg["games"].get(current_game)
+		# if current_game hasn't been set (no config.json), fall back on currently selected game
+		dir_game = self.cfg["games"].get(current_game, self.installed_games_view.entry.currentText())
+		# if current_game has been set, assume it exists in the games dict too (from steam)
 		if dir_game:
 			rt_index = self.model.setRootPath(dir_game)
 			self.dirs_container.setRootIndex(rt_index)
