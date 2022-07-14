@@ -310,6 +310,10 @@ class BaseFile:
 	def __eq__(self, other):
 		logging.info(f"Comparing {self.file_entry.name}")
 		same = True
+		# mime version
+		if self.file_entry.mime.mime_version != other.file_entry.mime.mime_version:
+			logging.warning(f"Mime version does not match")
+			same = False
 		# data
 		if len(self.data_entries) != len(other.data_entries):
 			logging.warning(f"Amount of data entries does not match")
