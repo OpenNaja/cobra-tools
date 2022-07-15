@@ -8,8 +8,10 @@ from generated.formats.ovl.versions import is_ztuac
 
 def flip_gb(im):
 	"""Flips green and blue channels of image array"""
+	im = im.copy()
 	im[:, :, 1] = 255 - im[:, :, 1]
 	im[:, :, 2] = 255 - im[:, :, 2]
+	return im
 
 
 def check_any(iterable, string):
@@ -64,7 +66,7 @@ def wrapper(png_file_path, size_info, ovl):
 		h //= array_size
 		name, ext = os.path.splitext(png_file_path)
 		if must_flip_gb:
-			flip_gb(im)
+			im = flip_gb(im)
 		layer_i = 0
 		# split components and or tiles if present
 		if split_components:
@@ -258,7 +260,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 
 	# flip the green and blue channels of the array
 	if must_flip_gb:
-		flip_gb(im)
+		im = flip_gb(im)
 
 	# this is shared for all that have to be read
 	logging.debug(f"Writing output to {tmp_png_file_path}")
