@@ -171,10 +171,6 @@ class NewMeshData:
 	def set_verts(self, verts):
 		"""Store verts as flat lists for each component"""
 		# need to update the count here
-		# self.vertex_count = len(verts)
-		# self.init_arrays()
-		# self.vertices[:], self.residues, self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
-		# self.colors[:], self.weights, self.shapekeys[:] = zip(*verts)
 		self.vertices, self.residues, self.normals, self.windings, self.tangents, self.uvs, \
 		self.colors, self.weights, self.shapekeys = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
