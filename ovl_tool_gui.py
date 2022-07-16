@@ -4,10 +4,10 @@ import sys
 import time
 import logging
 import tempfile
-import winreg
 
 
 try:
+	import winreg
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
 
