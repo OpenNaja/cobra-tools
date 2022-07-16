@@ -1063,10 +1063,6 @@ class MainWindow(QtWidgets.QMainWindow):
 	def online_support(self):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
 
-	def update_file(self, filepath):
-		self.cfg["dir_in"], file_name = os.path.split(filepath)
-		self.setWindowTitle(f"{self.name} {file_name}")
-
 	def add_to_menu(self, button_data):
 		for submenu, name, func, shortcut, icon_name in button_data:
 			button = QtWidgets.QAction(name, self)

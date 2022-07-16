@@ -317,8 +317,10 @@ class MainWindow(widgets.MainWindow):
 		# handle double clicked file paths
 		try:
 			file_path = ind.model().filePath(ind)
+			# open folder in explorer
 			if os.path.isdir(file_path):
 				os.startfile(file_path)
+			# open ovl in tool
 			elif file_path.lower().endswith(".ovl"):
 				self.file_widget.decide_open(file_path)
 		except:
