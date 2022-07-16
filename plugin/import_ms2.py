@@ -136,11 +136,17 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 			b_me.vertex_colors.new(name=f"RGBA{col_i}")
 			b_me.vertex_colors[-1].data.foreach_set("color", per_loop(b_me, mesh.colors[:, col_i]))
 
-	tangents = b_me.attributes.new("ct_tangents", "FLOAT_VECTOR", "CORNER")
-	tangents.data.foreach_set("vector", per_loop(b_me, mesh.tangents))
+	if hasattr(mesh, "tangents"):
+		tangents = b_me.attributes.new("ct_tangents", "FLOAT_VECTOR", "CORNER")
+		tangents.data.foreach_set("vector", per_loop(b_me, mesh.tangents))
 
-	normals = b_me.attributes.new("ct_normals", "FLOAT_VECTOR", "CORNER")
-	normals.data.foreach_set("vector", per_loop(b_me, mesh.normals))
+	if hasattr(mesh, "normals"):
+		normals = b_me.attributes.new("ct_normals", "FLOAT_VECTOR", "CORNER")
+		normals.data.foreach_set("vector", per_loop(b_me, mesh.normals))
+
+	if mesh.flag == 517:
+		cols = b_me.attributes.new("ct_floats", "FLOAT_COLOR", "CORNER")
+		cols.data.foreach_set("color", per_loop(b_me, mesh.verts_data[:]["floats"] / 20))
 
 	# set faces to smooth
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))

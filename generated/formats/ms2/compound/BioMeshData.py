@@ -224,10 +224,14 @@ class BioMeshData(MeshData):
 		if self.flag.flat_arrays:
 			# 16 bytes of metadata that follows the vertices array
 			dt_list = [
+				# ("normal_xy", np.ubyte, (2,)),
+				# ("tangent_xy", np.ubyte, (2,)),
+				("normal_xy", np.byte, (2,)),
+				("tangent_xy", np.byte, (2,)),
 				# ("packed_normal", np.ushort),
 				# ("packed_tangent", np.ushort),
-				("normal", np.ubyte, (3,)),
-				("winding", np.ubyte),
+				# ("normal", np.ubyte, (3,)),
+				# ("winding", np.ubyte),
 				("uvs", np.ushort, (2, 2)),
 				("colors", np.ubyte, (1, 4))
 			]
@@ -237,10 +241,14 @@ class BioMeshData(MeshData):
 				("pos", np.float16, (3,)),
 				("shapekey", np.float16, (3,)),  # used for lod fading
 				("sth", np.float16, (4,)),
-				("normal", np.ubyte, (3,)),
+				("normal_xy", np.byte, (2,)),
+				("tangent_xy", np.byte, (2,)),
+				# ("normal_xy", np.ubyte, (2,)),
+				# ("tangent_xy", np.ubyte, (2,)),
+				# ("normal", np.ubyte, (3,)),
 				# ("packed_normal", np.ushort),
 				# ("packed_tangent", np.ushort),
-				("winding", np.ubyte),
+				# ("winding", np.ubyte),
 				("uvs", np.ushort, (1, 2)),
 				("colors", np.ubyte, (1, 4))
 			]
@@ -305,7 +313,8 @@ class BioMeshData(MeshData):
 				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
 				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
-				self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_meta["normal"]]
+				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_meta["normal"]]
+				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_xy"]
 			else:
 				# read the interleaved vertex array, including all extra data
 				off.raw_verts = np.empty(dtype=dt_list, shape=off.vertex_count)
@@ -315,7 +324,8 @@ class BioMeshData(MeshData):
 				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["pos"]]
 				self.uvs[offs:offs + off.vertex_count] = off.raw_verts["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
-				self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["normal"]]
+				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["normal"]]
+				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_xy"]
 				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_ushort_vec(vec, 16)) for vec in off.raw_verts["packed_normal"]]
 			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(off.weights_flag)
@@ -327,8 +337,15 @@ class BioMeshData(MeshData):
 		# print("weights_flags", flags, "u1s", us)
 
 		# normalize
-		self.normals = (self.normals - 128) / 128
+		# self.normals = (self.normals - 128) / 128
+		self.normals = self.normals / 128
+		# print(self.normals)
+		# reconstruct Z
+		self.normals[:, 2] = np.sqrt(1.0 - np.clip(np.linalg.norm(self.normals[:, 0:2], axis=1), 0.0, 1.0))
+		self.normals[:] = [unpack_swizzle(vec) for vec in self.normals]
+		# print(self.normals)
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
+		# print(np.linalg.norm(self.normals, axis=1, keepdims=True))
 		# pull out fur from UV data
 		self.uvs = unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
