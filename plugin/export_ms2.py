@@ -258,8 +258,6 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 		try:
 			vgroup_name = b_ob.vertex_groups[vertex_group.group].name
 			if vgroup_name == "residue":
-				# if this is not rounded, somehow it affects the weights
-				# might be a bug, but can't figure out where the rest is affected
 				residue = int(round(vertex_group.weight))
 			elif vgroup_name == "fur_length":
 				fur_length = vertex_group.weight * hair_length

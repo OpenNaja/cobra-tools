@@ -178,6 +178,7 @@ class NewMeshData(MeshData):
 		except:
 			self.shapekeys = None
 		self.weights = []
+		self.residues = []
 
 	def get_vcol_count(self, ):
 		if "colors" in self.dt.fields:
@@ -300,7 +301,7 @@ class NewMeshData(MeshData):
 			self.normals[i] = unpack_swizzle(self.normals[i])
 			self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i))
-			# self.residues.append(unpack_weights(self, i))
+			self.residues.append(residue)
 
 			# packing bit
 			self.weights[i].append(("residue", residue))
@@ -324,8 +325,10 @@ class NewMeshData(MeshData):
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		self.verts_data = np.zeros(len(self.vertices), dtype=self.dt)
-		residue = 1
 		for i, vert in enumerate(self.verts_data):
+			# residue = 1 -> 4 bones per vertex, no alpha blending
+			# residue = 0 -> 1 bone per vertex, alpha blending (whiskers)
+			residue = self.residues[i]
 			vert["pos"] = pack_longint_vec(pack_swizzle(self.vertices[i]), residue, self.base)
 			vert["normal"] = pack_ubyte_vector(pack_swizzle(self.normals[i]))
 			vert["tangent"] = pack_ubyte_vector(pack_swizzle(self.tangents[i]))
