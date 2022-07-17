@@ -214,6 +214,13 @@ class BioMeshData(MeshData):
 		rel_chunks_offset = self.chunks_offset * size_of_chunk
 		return self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + rel_chunks_offset
 
+	@staticmethod
+	def pr_indices(input_list, indices, msg):
+		print(f"\n{msg}")
+		for i, inp in enumerate(input_list):
+			if i in indices:
+				print(f"{i} = {inp}")
+
 	@property
 	def offset_chunks_address(self):
 		size_of_chunk = 16
@@ -225,10 +232,10 @@ class BioMeshData(MeshData):
 		# the format differs if its flat or interleaved
 		# 16 bytes of metadata that follows the vertices array
 		dt_separate = [
-			# ("normal_xy", np.ubyte, (2,)),
-			# ("tangent_xy", np.ubyte, (2,)),
-			("normal_xy", np.byte, (2,)),
-			("tangent_xy", np.byte, (2,)),
+			("normal_xy", np.ubyte, (2,)),
+			("tangent_xy", np.ubyte, (2,)),
+			# ("normal_xy", np.byte, (2,)),
+			# ("tangent_xy", np.byte, (2,)),
 			# ("packed_normal", np.ushort),
 			# ("packed_tangent", np.ushort),
 			# ("normal", np.ubyte, (3,)),
@@ -241,10 +248,10 @@ class BioMeshData(MeshData):
 			("pos", np.float16, (3,)),
 			("shapekey", np.float16, (3,)),  # used for lod fading
 			("sth", np.float16, (4,)),
-			("normal_xy", np.byte, (2,)),
-			("tangent_xy", np.byte, (2,)),
-			# ("normal_xy", np.ubyte, (2,)),
-			# ("tangent_xy", np.ubyte, (2,)),
+			# ("normal_xy", np.byte, (2,)),
+			# ("tangent_xy", np.byte, (2,)),
+			("normal_xy", np.ubyte, (2,)),
+			("tangent_xy", np.ubyte, (2,)),
 			# ("normal", np.ubyte, (3,)),
 			# ("packed_normal", np.ushort),
 			# ("packed_tangent", np.ushort),
@@ -259,7 +266,8 @@ class BioMeshData(MeshData):
 		]
 		# create arrays for this mesh
 		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
-		self.normals = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
+		# self.normals = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
+		self.normals = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 
 		# check first off
 		off = self.offset_chunks[0]
@@ -354,16 +362,24 @@ class BioMeshData(MeshData):
 
 		# print("weights_flags", flags, "u1s", us)
 
-		# normalize
-		# self.normals = (self.normals - 128) / 128
-		self.normals = self.normals / 128
-		# print(self.normals)
+		inds = (19, 23, 28, 36, 40, 44)
+		self.pr_indices(self.vertices, inds, "vertex coords")
+		self.pr_indices(self.normals, inds, "before decoding")
+
+		# unpack ubyte
+		self.normals = self.normals / 127 - 1.0
+		self.pr_indices(self.normals, inds, "after decoding")
+
 		# reconstruct Z
 		self.normals[:, 2] = np.sqrt(1.0 - np.clip(np.linalg.norm(self.normals[:, 0:2], axis=1), 0.0, 1.0))
-		self.normals[:] = [unpack_swizzle(vec) for vec in self.normals]
-		# print(self.normals)
+		self.pr_indices(self.normals, inds, "after z recon")
+
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
-		# print(np.linalg.norm(self.normals, axis=1, keepdims=True))
+		self.pr_indices(self.normals, inds, "after normalization")
+
+		self.normals[:] = [unpack_swizzle(vec) for vec in self.normals]
+		self.pr_indices(self.normals, inds, "after swizzle for blender")
+
 		# pull out fur from UV data
 		self.uvs = unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
