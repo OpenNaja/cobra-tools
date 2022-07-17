@@ -150,6 +150,7 @@ class BioMeshData:
 		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
 		# self.normals = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
 		self.normals = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
+		self.tangents = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 
 		# check first off
 		off = self.offset_chunks[0]
@@ -218,6 +219,7 @@ class BioMeshData:
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
 				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_meta["normal"]]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_xy"]
+				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_meta["tangent_xy"]
 
 			elif off.weights_flag.mesh_format == MeshFormat.Interleaved32:
 				# read the interleaved vertex array, including all extra data
@@ -230,6 +232,7 @@ class BioMeshData:
 				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
 				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["normal"]]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_xy"]
+				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_verts["tangent_xy"]
 				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_ushort_vec(vec, 16)) for vec in off.raw_verts["packed_normal"]]
 
 			elif off.weights_flag.mesh_format == MeshFormat.Interleaved48:
@@ -247,6 +250,7 @@ class BioMeshData:
 		inds = (0, 19, 23, 28, 36, 40, 44)
 		self.pr_indices(self.vertices, inds, "vertex coords")
 		self.pr_indices(self.normals, inds, "before decoding")
+		self.pr_indices([[int(x) for x in a[:2]]+[int(x) for x in b[:2]] for a, b in zip(self.normals, self.tangents)], inds, "normal + tangent")
 		# self.pr_indices([[bin(int(x)) for x in vec[:2]] for vec in self.normals], inds, "bin")
 
 		# unpack ubyte
