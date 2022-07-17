@@ -362,16 +362,19 @@ class BioMeshData(MeshData):
 
 		# print("weights_flags", flags, "u1s", us)
 
-		inds = (19, 23, 28, 36, 40, 44)
+		inds = (0, 19, 23, 28, 36, 40, 44)
 		self.pr_indices(self.vertices, inds, "vertex coords")
 		self.pr_indices(self.normals, inds, "before decoding")
+		# self.pr_indices([[bin(int(x)) for x in vec[:2]] for vec in self.normals], inds, "bin")
 
 		# unpack ubyte
 		self.normals = self.normals / 127 - 1.0
 		self.pr_indices(self.normals, inds, "after decoding")
+		squared_xy = np.linalg.norm(self.normals[:, 0:2], axis=1)
+		self.pr_indices(squared_xy, inds, "squared_xy")
 
 		# reconstruct Z
-		self.normals[:, 2] = np.sqrt(1.0 - np.clip(np.linalg.norm(self.normals[:, 0:2], axis=1), 0.0, 1.0))
+		self.normals[:, 2] = np.sqrt(1.0 - np.clip(squared_xy, 0.0, 1.0))
 		self.pr_indices(self.normals, inds, "after z recon")
 
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
