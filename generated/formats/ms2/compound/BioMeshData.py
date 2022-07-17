@@ -7,6 +7,7 @@ from generated.array import Array
 from generated.formats.ms2.compound.OffsetChunk import OffsetChunk
 from generated.formats.ms2.compound.PosChunk import PosChunk
 from generated.formats.ms2.compound.packing_utils import *
+from generated.formats.ms2.enum.MeshFormat import MeshFormat
 from plugin.utils.tristrip import triangulate
 
 def unpack_ushort_vec(input, base):
@@ -220,42 +221,55 @@ class BioMeshData(MeshData):
 		return self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.stream_info.chunk_pos_size + rel_chunks_offset
 
 	def read_verts(self):
+		self.read_chunk_infos()
 		# the format differs if its flat or interleaved
-		if self.flag.flat_arrays:
-			# 16 bytes of metadata that follows the vertices array
-			dt_list = [
-				# ("normal_xy", np.ubyte, (2,)),
-				# ("tangent_xy", np.ubyte, (2,)),
-				("normal_xy", np.byte, (2,)),
-				("tangent_xy", np.byte, (2,)),
-				# ("packed_normal", np.ushort),
-				# ("packed_tangent", np.ushort),
-				# ("normal", np.ubyte, (3,)),
-				# ("winding", np.ubyte),
-				("uvs", np.ushort, (2, 2)),
-				("colors", np.ubyte, (1, 4))
-			]
-		else:
-			# 32 bytes per vertex, with all data interleaved
-			dt_list = [
-				("pos", np.float16, (3,)),
-				("shapekey", np.float16, (3,)),  # used for lod fading
-				("sth", np.float16, (4,)),
-				("normal_xy", np.byte, (2,)),
-				("tangent_xy", np.byte, (2,)),
-				# ("normal_xy", np.ubyte, (2,)),
-				# ("tangent_xy", np.ubyte, (2,)),
-				# ("normal", np.ubyte, (3,)),
-				# ("packed_normal", np.ushort),
-				# ("packed_tangent", np.ushort),
-				# ("winding", np.ubyte),
-				("uvs", np.ushort, (1, 2)),
-				("colors", np.ubyte, (1, 4))
-			]
+		# 16 bytes of metadata that follows the vertices array
+		dt_separate = [
+			# ("normal_xy", np.ubyte, (2,)),
+			# ("tangent_xy", np.ubyte, (2,)),
+			("normal_xy", np.byte, (2,)),
+			("tangent_xy", np.byte, (2,)),
+			# ("packed_normal", np.ushort),
+			# ("packed_tangent", np.ushort),
+			# ("normal", np.ubyte, (3,)),
+			# ("winding", np.ubyte),
+			("uvs", np.ushort, (2, 2)),
+			("colors", np.ubyte, (1, 4))
+		]
+		# 32 bytes per vertex, with all data interleaved
+		dt_interleaved32 = [
+			("pos", np.float16, (3,)),
+			("shapekey", np.float16, (3,)),  # used for lod fading
+			("sth", np.float16, (4,)),
+			("normal_xy", np.byte, (2,)),
+			("tangent_xy", np.byte, (2,)),
+			# ("normal_xy", np.ubyte, (2,)),
+			# ("tangent_xy", np.ubyte, (2,)),
+			# ("normal", np.ubyte, (3,)),
+			# ("packed_normal", np.ushort),
+			# ("packed_tangent", np.ushort),
+			# ("winding", np.ubyte),
+			("uvs", np.ushort, (1, 2)),
+			("colors", np.ubyte, (1, 4))
+		]
+		# 48 bytes per vertex, with all data interleaved, old style??
+		dt_interleaved48 = [
+			("pos", np.float16, (3,)),
+			# todo
+		]
 		# create arrays for this mesh
 		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
 		self.normals = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
-		self.dt = np.dtype(dt_list)
+
+		# check first off
+		off = self.offset_chunks[0]
+		if off.weights_flag.mesh_format == MeshFormat.Separate:
+			self.dt = np.dtype(dt_separate)
+		elif off.weights_flag.mesh_format == MeshFormat.Interleaved32:
+			self.dt = np.dtype(dt_interleaved32)
+		elif off.weights_flag.mesh_format == MeshFormat.Interleaved48:
+			self.dt = np.dtype(dt_interleaved48)
+
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		colors_shape = self.dt["colors"].shape
@@ -268,7 +282,6 @@ class BioMeshData(MeshData):
 		]
 		self.dt_weights = np.dtype(dt_weights)
 
-		self.read_chunk_infos()
 
 		first_tris_offs = self.pos_chunks[0].tris_offset
 		v_off = 0
@@ -288,7 +301,7 @@ class BioMeshData(MeshData):
 			self.stream_info.stream.seek(off.vertex_offset)
 			print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
 
-			if self.flag.flat_arrays:
+			if off.weights_flag.mesh_format == MeshFormat.Separate:
 				# verts packed into uint64
 				off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.raw_verts)
@@ -315,9 +328,10 @@ class BioMeshData(MeshData):
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
 				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_meta["normal"]]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_xy"]
-			else:
+
+			elif off.weights_flag.mesh_format == MeshFormat.Interleaved32:
 				# read the interleaved vertex array, including all extra data
-				off.raw_verts = np.empty(dtype=dt_list, shape=off.vertex_count)
+				off.raw_verts = np.empty(dtype=self.dt, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.raw_verts)
 
 				# store chunk's data
@@ -327,6 +341,10 @@ class BioMeshData(MeshData):
 				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["normal"]]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_xy"]
 				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_ushort_vec(vec, 16)) for vec in off.raw_verts["packed_normal"]]
+
+			elif off.weights_flag.mesh_format == MeshFormat.Interleaved48:
+				logging.warning(f"Interleaved48 not supported")
+				continue
 			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(off.weights_flag)
 			us.add(pos.u_1)
@@ -350,12 +368,12 @@ class BioMeshData(MeshData):
 		self.uvs = unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
 		# transfer fur from uv to weights
-		if self.flag.fur_shells:
-			# fur is the 2nd uv layer
-			fur = self.uvs[:, 1]
-			self.import_fur_as_weights(fur)
-			# don't store fur data as uv for blender
-			self.uvs = self.uvs[:, :1]
+		# if self.flag.fur_shells:
+		# 	# fur is the 2nd uv layer
+		# 	fur = self.uvs[:, 1]
+		# 	self.import_fur_as_weights(fur)
+		# 	# don't store fur data as uv for blender
+		# 	self.uvs = self.uvs[:, :1]
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
 

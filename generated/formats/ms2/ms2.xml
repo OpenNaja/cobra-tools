@@ -38,7 +38,8 @@
 <!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">
 		<member width="1" pos="0" name="has_weights" type="bool"/>
-		<member width="15" pos="1" name="bone_index" type="int"/>
+		<member width="8" pos="1" name="bone_index" type="int"/>
+		<member width="7" pos="9" name="mesh_format" type="MeshFormat"/>
 	</bitfield>
 
 	<bitfield name="ModelFlag" storage="uint">
@@ -82,6 +83,12 @@
 		<member width="1" pos="3" name="d" type="bool">?</member>
 		<member width="1" pos="4" name="e" type="bool">?</member>
 	</bitfield>
+
+	<enum name="MeshFormat" storage="ubyte">
+		<option value="0" name="Separate" />
+		<option value="1" name="Interleaved32" />
+		<option value="2" name="Interleaved48" />
+	</enum>
 
 	<enum name="CollisionType" storage="uint">
 		<option value="0" name="Sphere" />
