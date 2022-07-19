@@ -140,6 +140,7 @@
 # b = struct.unpack("Q", a)[0]
 # print(unpack_longint_vec(b, 512))
 import os
+import struct
 import traceback
 
 import numpy as np
@@ -202,8 +203,7 @@ def unpack_longint_vec(input, base, out_vec):
 # print(out)
 
 
-
-def unpack_ushort_vec(input, base):
+def unpack_ushort_vec_old(input, base):
     """Unpacks and returns the self.raw_pos uint64"""
     # numpy uint64 does not like the bit operations so we cast to default int
     input = int(input)
@@ -218,7 +218,7 @@ def unpack_ushort_vec(input, base):
         twenty_bits = input & 0b1111
         # print("input", bin(input))
         # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-        input >>= 4
+        input >>= width
         # print("input >>= 20", bin(input))
         # print("1",bin(1))
         # get the rightmost bit
@@ -236,45 +236,123 @@ def unpack_ushort_vec(input, base):
         # shift to skip the sign bit
         input >>= 1
     # input at this point is either 0 or 1
-    return output#, input
+    return output, input
 
 
-vals = (61059, 36357, 42563, 36357)
-for val in vals:
-    ret = unpack_ushort_vec(val, 16)
-    print(ret)
+def unpack_ushort_vec(input, base):
+    """Unpacks and returns the self.raw_pos uint64"""
+    # numpy uint64 does not like the bit operations so we cast to default int
+    input = int(input)
+    output = []
+    width = 7
+    USHORT_PACKEDVEC_MAX = 2 ** width
+    # print("inp",bin(input))
+    for i in range(2):
+        # print("\nnew coord")
+        # grab the last 20 bits with bitand
+        # bit representation: 0b11111111111111111111
+        twenty_bits = input & 0b1111111
+        # print("input", bin(input))
+        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
+        input >>= width
+        # print("input >>= 20", bin(input))
+        # print("1",bin(1))
+        # get the rightmost bit
+        # rightmost_bit = input & 1
+        # print("rightmost_bit = input & 1",bin(rightmost_bit))
+        # print(rightmost_bit, twenty_bits)
+        # if not rightmost_bit:
+        #     # rightmost bit was 0
+        #     # print("rightmost_bit == 0")
+        #     # bit representation: 0b100000000000000000000
+        #     twenty_bits -= USHORT_PACKEDVEC_MAX
+        # print("final int", twenty_bits)
+        # output.append(scale_unpack(twenty_bits, base))
+        # output.append(twenty_bits / base)
+        output.append(twenty_bits)
+        # shift to skip the sign bit
+        # input >>= 1
+    # input at this point is either 0 or 1
+    return output, input
+
+
+innormals = (
+    [0, 164, 127, 254],  # [  9, 127,  78]
+    [0, 190, 127, 254],  # [ 37, 127,  37]
+    [0, 216, 127, 254],  # [ 78, 127,   9]
+    [0, 253, 127, 254],  # [126, 127,   0]
+    [254, 216, 127, 254],  # [175, 127,   9]
+    [254, 190, 127, 254],  # [216, 127,  37]
+    [254, 164, 127, 254],  # [244, 127,  78]
+    [254, 127, 127, 254],  # [254, 127, 126]
+    [216, 127, 127, 254],  # [244, 127, 175]
+    [190, 127, 127, 254],  # [216, 127, 216]
+    [164, 127, 127, 254],  # [175, 127, 244]
+    [127, 127, 127, 254],  # [127, 127, 254]
+    [89, 127, 127, 254],  # [ 78, 127, 244]
+    [63, 127, 127, 254],  # [ 37, 127, 216]
+    [37, 127, 127, 254],  # [  9, 127, 175]
+    [0, 127, 127, 254],  # [  0, 127, 127]
+    [0, 164, 127, 254],  # [  9, 127,  78]
+    [0, 164, 127, 254],  # [  9, 127,  78]
+    [0, 190, 127, 254],  # [ 37, 127,  37]
+    [0, 216, 127, 254],  # [ 78, 127,   9]
+    [0, 253, 127, 254],  # [126, 127,   0]
+    [254, 216, 127, 254],  # [175, 127,   9]
+    [254, 190, 127, 254],  # [216, 127,  37]
+    [254, 164, 127, 254],  # [244, 127,  78]
+    [254, 127, 127, 254],  # [254, 127, 126]
+    [216, 127, 127, 254],  # [244, 127, 175]
+    [190, 127, 127, 254],  # [216, 127, 216]
+    [164, 127, 127, 254],  # [175, 127, 244]
+    [127, 127, 127, 254],  # [127, 127, 254]
+    [89, 127, 127, 254],  # [ 78, 127, 244]
+    [63, 127, 127, 254],  # [ 37, 127, 216]
+    [37, 127, 127, 254],  # [  9, 127, 175]
+    [0, 127, 127, 254],  # [  0, 127, 127]
+    [0, 164, 127, 254],  # [  9, 127,  78]
+    [127, 254, 0, 122],  # [127, 254, 126]
+    [127, 254, 0, 131],  # [127, 254, 127]
+    [127, 254, 0, 123],  # [127, 254, 126]
+    [127, 254, 0, 130],  # [127, 254, 127]
+    [127, 254, 0, 127],  # [127, 254, 127]
+    [127, 254, 0, 126],  # [127, 254, 127]
+    [127, 254, 0, 127],  # [127, 254, 127]
+    [127, 254, 1, 127],  # [127, 254, 127]
+    [127, 254, 2, 127],  # [127, 254, 127]
+    [127, 254, 0, 131],  # [127, 254, 127]
+    [127, 254, 0, 128],  # [127, 254, 127]
+    [127, 254, 0, 129],  # [127, 254, 127]
+    [127, 254, 3, 127],  # [127, 254, 127]
+    [127, 254, 3, 127],  # [127, 254, 127]
+    [127, 254, 4, 127],  # [127, 254, 126]
+    [127, 254, 4, 127],  # [127, 254, 127]
+    [127, 254, 4, 127])  # [127, 254, 127]
+
+in_ubtyes = [struct.pack("BB", u[0], u[1]) for u in innormals]
+in_ushorts = [struct.unpack("H", u)[0] for u in in_ubtyes]
+print(in_ushorts)
+count = len(innormals)
+inp = np.zeros(dtype=np.uint16, shape=(count))
+out = np.zeros(dtype=np.float32, shape=(count, 3))
+# inp[0] = 61059
+# inp[1] = 36357
+# inp[2] = 42563
+# inp[3] = 36357
+# inp[4] = 32702
+for i in range(count):
+    # out[i], flag = unpack_ushort_vec(inp[i], 16)
+    # out[i, :2], flag = unpack_ushort_vec(inp[i], 16)
+    inp_ushort = in_ushorts[i]
+    ush_str = str(bin(inp_ushort))[2:]
+    print(f"{ush_str:>16}", innormals[i][:2])
+    # print(flag)
+# print(out)
+# print(np.linalg.norm(out, axis=1))
 # ([-0,40625, 0,125, 0,34375]
 # ([-0,8125, 0,25, 0,6875], 1)
-
-flags = [512, 513, 517, 528, 529, 533, 545, 565, 821, 853, 885, 1013, ]
-for flag in flags:
-    f = ModelFlag.from_value(flag)
-    print(f)
-
-import sys
-import winreg
-from generated.formats.ovl import OvlFile, games
-
-def get_steam_games():
-    try:
-        hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
-    except:
-        traceback.print_exc()
-        return
-    try:
-        steam_query = winreg.QueryValueEx(hkey, "InstallPath")
-    except:
-        traceback.print_exc()
-        return
-    # C:\\Program Files (x86)\\Steam
-    steam_path = steam_query[0]
-    apps_path = os.path.join(steam_path, "steamapps\\common")
-    print(steam_path, apps_path)
-    # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
-    steam_games = os.listdir(apps_path)
-    print(steam_games)
-    _games = [g.value for g in games]
-    fdev_games = {game: os.path.join(apps_path, game, "win64\\ovldata") for game in steam_games if game in _games}
-    print(fdev_games)
-
-get_steam_games()
+#
+# flags = [512, 513, 517, 528, 529, 533, 545, 565, 821, 853, 885, 1013, ]
+# for flag in flags:
+#     f = ModelFlag.from_value(flag)
+#     print(f)

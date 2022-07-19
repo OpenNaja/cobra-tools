@@ -247,17 +247,21 @@ class BioMeshData:
 
 		# print("weights_flags", flags, "u1s", us)
 
-		inds = (0, 19, 23, 28, 36, 40, 44)
+		inds = (0, 19, 23, 28, 32, 36, 40, 44, 48)
 		self.pr_indices(self.vertices, inds, "vertex coords")
 		self.pr_indices(self.normals, inds, "before decoding")
-		self.pr_indices([[int(x) for x in a[:2]]+[int(x) for x in b[:2]] for a, b in zip(self.normals, self.tangents)], inds, "normal + tangent")
-		# self.pr_indices([[bin(int(x)) for x in vec[:2]] for vec in self.normals], inds, "bin")
+		# self.pr_indices([[int(x) for x in a[:2]]+[int(x) for x in b[:2]] for a, b in zip(self.normals, self.tangents)], inds, "normal + tangent")
+		self.pr_indices([f"\t{str(bin(self.ubytes_2_ushort(*vec[:2])))[2:]:>16}" for vec in self.normals], inds, "bin")
 
 		# unpack ubyte
 		self.normals = self.normals / 127 - 1.0
 		self.pr_indices(self.normals, inds, "after decoding")
 		squared_xy = np.linalg.norm(self.normals[:, 0:2], axis=1)
 		self.pr_indices(squared_xy, inds, "squared_xy")
+
+		# self.normals[squared_xy > 1, 0] += 1.0
+		# self.normals[squared_xy > 1, 1] += -1.0
+		# self.pr_indices(self.normals, inds, "after determinant hack")
 
 		# reconstruct Z
 		self.normals[:, 2] = np.sqrt(1.0 - np.clip(squared_xy, 0.0, 1.0))
@@ -281,6 +285,10 @@ class BioMeshData:
 		# 	self.uvs = self.uvs[:, :1]
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
+
+	@staticmethod
+	def ubytes_2_ushort(a, b):
+		return struct.unpack("H", struct.pack("BB", int(a), int(b)))[0]
 
 	def read_chunk_infos(self):
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
