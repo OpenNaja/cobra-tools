@@ -19,9 +19,9 @@ class Param(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.dtype = RenderParameterType(self.context, 0, None)
-		self.data = ParamData(self.context, self.dtype, None)
-		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.dtype = 0
+		self.data = 0
+		self.attribute_name = 0
 		if set_default:
 			self.set_defaults()
 

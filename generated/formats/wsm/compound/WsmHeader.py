@@ -19,15 +19,15 @@ class WsmHeader(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.duration = 0.0
+		self.duration = 0
 
 		# likely
 		self.frame_count = 0
 
 		# unk
-		self.unknowns = numpy.zeros((8,), dtype=numpy.dtype('float32'))
-		self.locs = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compound.Vector3.Vector3)
-		self.quats = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compound.Vector4.Vector4)
+		self.unknowns = 0
+		self.locs = 0
+		self.quats = 0
 		if set_default:
 			self.set_defaults()
 

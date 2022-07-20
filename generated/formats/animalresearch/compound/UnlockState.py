@@ -13,8 +13,8 @@ class UnlockState(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.entity_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.level_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.entity_name = 0
+		self.level_name = 0
 		if set_default:
 			self.set_defaults()
 

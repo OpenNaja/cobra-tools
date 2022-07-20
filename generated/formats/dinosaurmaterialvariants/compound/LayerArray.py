@@ -13,7 +13,7 @@ class LayerArray(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.layers = Array((self.arg,), Layer, self.context, 0, None)
+		self.layers = 0
 		if set_default:
 			self.set_defaults()
 

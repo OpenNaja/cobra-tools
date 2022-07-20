@@ -18,7 +18,7 @@ class MusicTrack:
 		# seen 114
 		self.length = 0
 		self.id = 0
-		self.data = MusicTrackInitialValues(self.context, 0, None)
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

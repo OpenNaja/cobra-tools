@@ -16,7 +16,7 @@ class Vector3(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.floats = numpy.zeros((3,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 		if set_default:
 			self.set_defaults()
 

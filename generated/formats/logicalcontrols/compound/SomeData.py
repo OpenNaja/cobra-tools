@@ -17,8 +17,8 @@ class SomeData(MemStruct):
 		self.io_start = 0
 		self.key = 0
 		self.extra = 0
-		self.a = 0.0
-		self.b = 0.0
+		self.a = 0
+		self.b = 0
 		if set_default:
 			self.set_defaults()
 

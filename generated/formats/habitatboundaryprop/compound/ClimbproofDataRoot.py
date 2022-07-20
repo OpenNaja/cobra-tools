@@ -17,13 +17,13 @@ class ClimbproofDataRoot(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.u_0 = 0.0
-		self.u_1 = 0.0
+		self.u_0 = 0
+		self.u_1 = 0
 		self.zero = 0
-		self.climb_proof = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.climb_proof_cap_start = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.climb_proof_cap_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.climb_proof_bracket = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.climb_proof = 0
+		self.climb_proof_cap_start = 0
+		self.climb_proof_cap_end = 0
+		self.climb_proof_bracket = 0
 		if set_default:
 			self.set_defaults()
 

@@ -20,7 +20,7 @@ class Matrix44:
 		self.io_start = 0
 
 		# Stored in OpenGL column-major format.
-		self.data = numpy.zeros((4, 4,), dtype=numpy.dtype('float32'))
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

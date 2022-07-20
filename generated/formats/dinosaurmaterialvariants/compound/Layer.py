@@ -16,10 +16,10 @@ class Layer(MemStruct):
 		self.has_ptr = 0
 
 		# defines the tiled texture material to be used
-		self.texture_fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_fgm_name = 0
 
 		# defines how to transform the texture
-		self.transform_fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.transform_fgm_name = 0
 		if set_default:
 			self.set_defaults()
 

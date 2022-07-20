@@ -14,11 +14,11 @@ class Repeat:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.zeros_0 = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
+		self.zeros_0 = 0
 
 		# to be read sequentially starting after this array
 		self.byte_size = 0
-		self.zeros_1 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.zeros_1 = 0
 		if set_default:
 			self.set_defaults()
 

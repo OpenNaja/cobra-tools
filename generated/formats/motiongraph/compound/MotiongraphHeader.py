@@ -25,14 +25,14 @@ class MotiongraphHeader(MemStruct):
 		self.io_start = 0
 		self.count_0 = 0
 		self.count_1 = 0
-		self.ptr_0 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MotiongraphRootFrag.MotiongraphRootFrag)
-		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.StateArray.StateArray)
-		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
-		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
-		self.lua_modules = Pointer(self.context, 0, generated.formats.motiongraph.compound.LuaModules.LuaModules)
-		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.first_non_transition_state = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
-		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_0 = 0
+		self.state_output_entries = 0
+		self.ptr_2 = 0
+		self.ptr_3 = 0
+		self.lua_modules = 0
+		self.lua_results = 0
+		self.first_non_transition_state = 0
+		self.empty_str = 0
 		if set_default:
 			self.set_defaults()
 

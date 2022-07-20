@@ -15,8 +15,8 @@ class Key:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.euler = Vector3Short(self.context, 0, None)
-		self.translation = Vector3Ushort(self.context, 0, None)
+		self.euler = 0
+		self.translation = 0
 		if set_default:
 			self.set_defaults()
 

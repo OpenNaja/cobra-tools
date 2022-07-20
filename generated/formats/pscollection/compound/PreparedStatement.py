@@ -16,9 +16,9 @@ class PreparedStatement(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.arg_count = 0
-		self.args = ArrayPointer(self.context, self.arg_count, generated.formats.pscollection.compound.Arg.Arg)
-		self.statement_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.sql_query = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.args = 0
+		self.statement_name = 0
+		self.sql_query = 0
 		if set_default:
 			self.set_defaults()
 

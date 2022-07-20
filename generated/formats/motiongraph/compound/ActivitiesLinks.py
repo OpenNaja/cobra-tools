@@ -13,7 +13,7 @@ class ActivitiesLinks(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.activities = Array((self.arg,), ActivitiesLink, self.context, 0, None)
+		self.activities = 0
 		if set_default:
 			self.set_defaults()
 

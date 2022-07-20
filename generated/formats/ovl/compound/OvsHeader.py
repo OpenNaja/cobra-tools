@@ -26,14 +26,14 @@ class OvsHeader:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.pool_groups = Array((self.arg.num_pool_groups,), PoolGroup, self.context, 0, None)
-		self.pools = Array((self.arg.num_pools,), MemPool, self.context, 0, None)
-		self.data_entries = Array((self.arg.num_datas,), DataEntry, self.context, 0, None)
-		self.buffer_entries = Array((self.arg.num_buffers,), BufferEntry, self.context, 0, None)
-		self.buffer_groups = Array((self.arg.num_buffer_groups,), BufferGroup, self.context, 0, None)
-		self.root_entries = Array((self.arg.num_root_entries,), RootEntry, self.context, 0, None)
-		self.fragments = Array((self.arg.num_fragments,), Fragment, self.context, 0, None)
-		self.set_header = SetHeader(self.context, 0, None)
+		self.pool_groups = 0
+		self.pools = 0
+		self.data_entries = 0
+		self.buffer_entries = 0
+		self.buffer_groups = 0
+		self.root_entries = 0
+		self.fragments = 0
+		self.set_header = 0
 		if set_default:
 			self.set_defaults()
 

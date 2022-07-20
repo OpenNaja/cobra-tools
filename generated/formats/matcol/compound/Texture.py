@@ -15,9 +15,9 @@ class Texture(MemStruct):
 		self.io_start = 0
 
 		# first fgm slot
-		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.texture_suffix = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.texture_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.fgm_name = 0
+		self.texture_suffix = 0
+		self.texture_type = 0
 		if set_default:
 			self.set_defaults()
 

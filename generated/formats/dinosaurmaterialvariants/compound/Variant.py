@@ -14,7 +14,7 @@ class Variant(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.has_ptr = 0
-		self.variant_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.variant_name = 0
 		if set_default:
 			self.set_defaults()
 

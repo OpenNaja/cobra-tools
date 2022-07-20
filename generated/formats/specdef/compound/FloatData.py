@@ -15,9 +15,9 @@ class FloatData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.imin = 0.0
-		self.imax = 0.0
-		self.ivalue = 0.0
+		self.imin = 0
+		self.imax = 0
+		self.ivalue = 0
 		self.ioptional = 0
 		if set_default:
 			self.set_defaults()

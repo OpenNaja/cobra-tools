@@ -22,11 +22,11 @@ class LogicalControls(MemStruct):
 		self.count_3 = 0
 		self.count_4 = 0
 		self.flags = 0
-		self.buttons = ArrayPointer(self.context, self.button_count, generated.formats.logicalcontrols.compound.Button.Button)
-		self.axes = ArrayPointer(self.context, self.axis_count, generated.formats.logicalcontrols.compound.AxisValue.AxisValue)
-		self.c = ArrayPointer(self.context, self.count_3, )
-		self.d = ArrayPointer(self.context, self.count_4, generated.formats.logicalcontrols.compound.Some.Some)
-		self.unsure = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.buttons = 0
+		self.axes = 0
+		self.c = 0
+		self.d = 0
+		self.unsure = 0
 		if set_default:
 			self.set_defaults()
 

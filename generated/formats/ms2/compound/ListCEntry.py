@@ -20,19 +20,19 @@ class ListCEntry:
 		self.one = 0
 
 		# center of the collider
-		self.loc = Vector3(self.context, 0, None)
+		self.loc = 0
 
 		# -1 for PZ, 80 for JWE
-		self.constant = 0.0
+		self.constant = 0
 
 		# ?
-		self.a = 0.0
+		self.a = 0
 
 		# ?
-		self.floats = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 
 		# sometimes repeat of a
-		self.a_2 = 0.0
+		self.a_2 = 0
 		if set_default:
 			self.set_defaults()
 

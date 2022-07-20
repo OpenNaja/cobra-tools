@@ -11,10 +11,10 @@ class KeyPoint(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.time = 0.0
-		self.value = 0.0
-		self.tangent_before = 0.0
-		self.tangent_after = 0.0
+		self.time = 0
+		self.value = 0
+		self.tangent_before = 0
+		self.tangent_after = 0
 		if set_default:
 			self.set_defaults()
 

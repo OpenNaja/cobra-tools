@@ -15,8 +15,8 @@ class Dxt10Header:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.dxgi_format = DxgiFormat(self.context, 0, None)
-		self.resource_dimension = D3D10ResourceDimension(self.context, 0, None)
+		self.dxgi_format = 0
+		self.resource_dimension = 0
 		self.misc_flag = 0
 		self.array_size = 0
 		self.misc_flag_2 = 0

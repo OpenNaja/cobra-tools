@@ -18,9 +18,9 @@ class DinoPatternsHeader(MemStruct):
 		self.set_count = 0
 		self.pattern_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.patterns = Pointer(self.context, self.pattern_count, generated.formats.dinosaurmaterialvariants.compound.PatternArray.PatternArray)
+		self.fgm_name = 0
+		self.set_name = 0
+		self.patterns = 0
 		if set_default:
 			self.set_defaults()
 

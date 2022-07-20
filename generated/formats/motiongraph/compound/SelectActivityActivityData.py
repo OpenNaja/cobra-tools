@@ -20,10 +20,10 @@ class SelectActivityActivityData(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.num_activities = 0
-		self.blend_time = 0.0
-		self.mode = SelectActivityActivityMode(self.context, 0, None)
-		self.enum_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.activities = Pointer(self.context, self.num_activities, generated.formats.motiongraph.compound.ActivitiesLinks.ActivitiesLinks)
+		self.blend_time = 0
+		self.mode = 0
+		self.enum_variable = 0
+		self.activities = 0
 		if set_default:
 			self.set_defaults()
 

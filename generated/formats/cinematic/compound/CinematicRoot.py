@@ -15,7 +15,7 @@ class CinematicRoot(MemStruct):
 		self.io_start = 0
 		self.u_0 = 0
 		self.u_1 = 0
-		self.data = Pointer(self.context, 0, generated.formats.cinematic.compound.CinematicData.CinematicData)
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

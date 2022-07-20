@@ -15,22 +15,22 @@ class DinoEffectsHeader(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.vec_0 = Vector3F(self.context, 0, None)
-		self.vec_1 = Vector3F(self.context, 0, None)
+		self.vec_0 = 0
+		self.vec_1 = 0
 		self.a = 0
 		self.b = 0
-		self.vec_2 = Vector3F(self.context, 0, None)
-		self.vec_3 = Vector3F(self.context, 0, None)
-		self.vec_4 = Vector3F(self.context, 0, None)
+		self.vec_2 = 0
+		self.vec_3 = 0
+		self.vec_4 = 0
 		self.c = 0
 		self.d = 0
-		self.e = 0.0
-		self.f = 0.0
+		self.e = 0
+		self.f = 0
 		self.g = 0
-		self.floats = numpy.zeros((39,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 		self.d = 0
-		self.e = 0.0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		self.e = 0
+		self.fgm_name = 0
 		if set_default:
 			self.set_defaults()
 

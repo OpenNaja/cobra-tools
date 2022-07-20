@@ -13,13 +13,13 @@ class RideSettingsRoot(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.unk_0 = 0.0
+		self.unk_0 = 0
 		self.unk_1 = 0
 		self.count = 0
 		self.pad_0 = 0
 		self.pad_1 = 0
 		self.pad_2 = 0
-		self.array_1 = ArrayPointer(self.context, self.count, generated.formats.ridesettings.compound.Pair.Pair)
+		self.array_1 = 0
 		if set_default:
 			self.set_defaults()
 

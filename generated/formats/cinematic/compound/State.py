@@ -22,10 +22,10 @@ class State(MemStruct):
 		self.b = 0
 		self.c = 0
 		self.d = 0
-		self.abstract_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.concrete_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.debug_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.events_list = Pointer(self.context, 0, generated.formats.cinematic.compound.EventsList.EventsList)
+		self.abstract_name = 0
+		self.concrete_name = 0
+		self.debug_name = 0
+		self.events_list = 0
 		if set_default:
 			self.set_defaults()
 

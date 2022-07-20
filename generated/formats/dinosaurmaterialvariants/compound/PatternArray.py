@@ -13,7 +13,7 @@ class PatternArray(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.patterns = Array((self.arg,), Pattern, self.context, 0, None)
+		self.patterns = 0
 		if set_default:
 			self.set_defaults()
 

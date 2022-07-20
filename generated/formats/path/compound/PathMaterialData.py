@@ -12,7 +12,7 @@ class PathMaterialData(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.unk_int_1 = 0
-		self.unk_float_1 = 0.0
+		self.unk_float_1 = 0
 		self.unk_int_2 = 0
 		self.unk_int_3 = 0
 		if set_default:

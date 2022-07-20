@@ -18,7 +18,7 @@ class DataStreamResourceDataList(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.data_stream_resource_data = Pointer(self.context, self.count, generated.formats.motiongraph.compound.DataStreamResourceDataPoints.DataStreamResourceDataPoints)
+		self.data_stream_resource_data = 0
 		if set_default:
 			self.set_defaults()
 

@@ -32,22 +32,22 @@ class ModelInfo(MemStruct):
 		self.unk_dla = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(self.context, 0, None)
+		self.bounds_min = 0
 
 		# not sure, for PZ often 40 00 00 37 for animals
-		self.unk_float_a = 0.0
+		self.unk_float_a = 0
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(self.context, 0, None)
+		self.bounds_max = 0
 
 		# scale: pack_base / 512, also added as offset
-		self.pack_base = 0.0
+		self.pack_base = 0
 
 		# cog? medium of bounds?
-		self.center = Vector3(self.context, 0, None)
+		self.center = 0
 
 		# probably from center to max
-		self.radius = 0.0
+		self.radius = 0
 
 		# seen 6 or 1, matches lod count
 		self.num_lods_2 = 0
@@ -56,10 +56,10 @@ class ModelInfo(MemStruct):
 		self.zero = 0
 
 		# verbatim repeat
-		self.bounds_min_repeat = Vector3(self.context, 0, None)
+		self.bounds_min_repeat = 0
 
 		# verbatim repeat
-		self.bounds_max_repeat = Vector3(self.context, 0, None)
+		self.bounds_max_repeat = 0
 		self.num_materials = 0
 		self.num_lods = 0
 		self.num_objects = 0
@@ -71,27 +71,27 @@ class ModelInfo(MemStruct):
 		self.last_count = 0
 
 		# this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female
-		self.render_flag = RenderFlag(self.context, 0, None)
+		self.render_flag = 0
 
 		# ?
-		self.unks = numpy.zeros((7,), dtype=numpy.dtype('uint16'))
-		self.pad = numpy.zeros((3,), dtype=numpy.dtype('uint16'))
-		self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
-		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.unks = 0
+		self.pad = 0
+		self.zeros = 0
+		self.zeros = 0
 
 		# unknown, probably used to increment skeleton
 		self.increment_flag = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
-		self.materials = ArrayPointer(self.context, self.num_materials, generated.formats.ms2.compound.MaterialName.MaterialName)
-		self.lods = ArrayPointer(self.context, self.num_lods, generated.formats.ms2.compound.LodInfo.LodInfo)
-		self.objects = ArrayPointer(self.context, self.num_objects, generated.formats.ms2.compound.Object.Object)
-		self.meshes = ArrayPointer(self.context, self.num_meshes, generated.formats.ms2.compound.MeshDataWrap.MeshDataWrap)
+		self.materials = 0
+		self.lods = 0
+		self.objects = 0
+		self.meshes = 0
 
 		# points to the start of this ModelInfo's model, usually starts at materials
 		# stays the same for successive mdl2s in the same model; or points to nil if no models are present
-		self.first_model = Pointer(self.context, 0, None)
+		self.first_model = 0
 		if set_default:
 			self.set_defaults()
 

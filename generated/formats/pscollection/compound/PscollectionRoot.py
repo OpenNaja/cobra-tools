@@ -14,7 +14,7 @@ class PscollectionRoot(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.prepared_statements = ArrayPointer(self.context, self.count, generated.formats.pscollection.compound.PreparedStatement.PreparedStatement)
+		self.prepared_statements = 0
 		if set_default:
 			self.set_defaults()
 

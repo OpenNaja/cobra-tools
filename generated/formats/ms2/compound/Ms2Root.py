@@ -34,16 +34,16 @@ class Ms2Root(MemStruct):
 
 		# -1 if there is no vertex buffer at all; else count of static buffers
 		self.stream_count = 0
-		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
+		self.zeros = 0
 
 		# ms2's static buffer_info or empty (if no buffers)
-		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compound.BufferInfo.BufferInfo)
+		self.buffer_infos = 0
 
 		# one for each mdl2
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compound.ModelInfo.ModelInfo)
+		self.model_infos = 0
 
 		# data as in get_buffer_presence()
-		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compound.BufferPresence.BufferPresence)
+		self.buffers_presence = 0
 		if set_default:
 			self.set_defaults()
 

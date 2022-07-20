@@ -14,7 +14,7 @@ class PathJoinPartResourceRoot(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.num_res = 0
-		self.resources_list = Pointer(self.context, self.num_res, generated.formats.path.compound.PathJoinPartResourceList.PathJoinPartResourceList)
+		self.resources_list = 0
 		if set_default:
 			self.set_defaults()
 

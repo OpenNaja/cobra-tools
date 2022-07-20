@@ -13,7 +13,7 @@ class TransStructArray(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.array = Array((self.arg,), TransStruct, self.context, 0, None)
+		self.array = 0
 		if set_default:
 			self.set_defaults()
 

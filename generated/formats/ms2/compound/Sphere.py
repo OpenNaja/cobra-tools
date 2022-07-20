@@ -16,10 +16,10 @@ class Sphere:
 		self.io_start = 0
 
 		# center of the sphere
-		self.center = Vector3(self.context, 0, None)
+		self.center = 0
 
 		# radius around the center
-		self.radius = 0.0
+		self.radius = 0
 
 		# apparently unused
 		self.zero = 0

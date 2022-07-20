@@ -17,8 +17,8 @@ class TransStruct(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.states = StateArray(self.context, 0, None)
-		self.another_mrfentry_2 = Pointer(self.context, 0, None)
+		self.states = 0
+		self.another_mrfentry_2 = 0
 		if set_default:
 			self.set_defaults()
 

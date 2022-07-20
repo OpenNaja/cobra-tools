@@ -19,9 +19,9 @@ class MediaEntry(MemStruct):
 		self.io_start = 0
 		self.hash = 0
 		self.zero = 0
-		self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.wav_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.wem_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.block_name = 0
+		self.wav_name = 0
+		self.wem_name = 0
 		if set_default:
 			self.set_defaults()
 

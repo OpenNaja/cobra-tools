@@ -20,10 +20,10 @@ class Fragment:
 		self.io_start = 0
 
 		# determines where to write a pointer address
-		self.link_ptr = HeaderPointer(self.context, 0, None)
+		self.link_ptr = 0
 
 		# the struct that is pointed to can be found here
-		self.struct_ptr = HeaderPointer(self.context, 0, None)
+		self.struct_ptr = 0
 		if set_default:
 			self.set_defaults()
 

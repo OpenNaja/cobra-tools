@@ -15,7 +15,7 @@ class FloatInputData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.float = 0.0
+		self.float = 0
 		self.optional_var_and_curve_count = 0
 		self.optional_var_and_curve = 0
 		if set_default:

@@ -16,9 +16,9 @@ class FootPlantActivityData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.weight = FloatInputData(self.context, 0, None)
-		self.rotation_no_i_k_weight = FloatInputData(self.context, 0, None)
-		self.sticky_feet_weight = FloatInputData(self.context, 0, None)
+		self.weight = 0
+		self.rotation_no_i_k_weight = 0
+		self.sticky_feet_weight = 0
 		if set_default:
 			self.set_defaults()
 

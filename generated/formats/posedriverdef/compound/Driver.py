@@ -24,9 +24,9 @@ class Driver(MemStruct):
 		self.d = 0
 		self.unk_1 = 0
 		self.unk_2 = 0
-		self.joint_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.driven_joint_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.data = Pointer(self.context, 0, generated.formats.posedriverdef.compound.Data.Data)
+		self.joint_name = 0
+		self.driven_joint_name = 0
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

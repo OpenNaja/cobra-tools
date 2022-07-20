@@ -11,7 +11,7 @@ class SupportAttachExtra(SupportAttach):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.unk_float_1 = 0.0
+		self.unk_float_1 = 0
 		self.unk_int_3 = 0
 		self.padding = 0
 		if set_default:

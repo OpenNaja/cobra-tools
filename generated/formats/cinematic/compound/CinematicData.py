@@ -16,8 +16,8 @@ class CinematicData(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.next_level_count = 0
-		self.default_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.next_levels = ArrayPointer(self.context, self.next_level_count, generated.formats.cinematic.compound.State.State)
+		self.default_name = 0
+		self.next_levels = 0
 		if set_default:
 			self.set_defaults()
 

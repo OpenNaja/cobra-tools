@@ -11,8 +11,8 @@ class Key(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.time = 0.0
-		self.value = 0.0
+		self.time = 0
+		self.value = 0
 		if set_default:
 			self.set_defaults()
 

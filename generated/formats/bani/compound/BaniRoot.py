@@ -24,13 +24,13 @@ class BaniRoot(MemStruct):
 		self.num_frames = 0
 
 		# length of the animation, can easily get keyframe spacing now
-		self.animation_length = 0.0
+		self.animation_length = 0
 
 		# if 1381323599 then looped
 		self.loop_flag = 0
 
 		# points to the banis file used
-		self.banis = Pointer(self.context, 0, None)
+		self.banis = 0
 		if set_default:
 			self.set_defaults()
 

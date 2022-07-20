@@ -18,7 +18,7 @@ class CurveData(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.points = Pointer(self.context, self.count, generated.formats.motiongraph.compound.CurveDataPoints.CurveDataPoints)
+		self.points = 0
 		if set_default:
 			self.set_defaults()
 

@@ -20,7 +20,7 @@ class PCJointThing:
 		self.io_start = 0
 
 		# -1
-		self.shorts = numpy.zeros((4,), dtype=numpy.dtype('int16'))
+		self.shorts = 0
 		if set_default:
 			self.set_defaults()
 

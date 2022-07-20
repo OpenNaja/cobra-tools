@@ -20,7 +20,7 @@ class Struct7:
 		self.io_start = 0
 
 		# needed for ZTUAC
-		self.weird_padding = SmartPadding(self.context, 0, None)
+		self.weird_padding = 0
 
 		# repeat
 		self.count_7 = 0
@@ -33,13 +33,13 @@ class Struct7:
 		self.zero_2 = 0
 
 		# 36 bytes per entry
-		self.unknown_list = Array((self.count_7,), UACJoint, self.context, 0, None)
+		self.unknown_list = 0
 
 		# 60 bytes per entry
-		self.unknown_list = Array((self.count_7,), NasutoJointEntry, self.context, 0, None)
+		self.unknown_list = 0
 
 		# align list to multiples of 8
-		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8,), dtype=numpy.dtype('uint8'))
+		self.padding = 0
 
 		# latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0
 		self.alignment = 0

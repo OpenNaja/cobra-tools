@@ -19,17 +19,17 @@ class VertChunk:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.flags = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
+		self.flags = 0
 
 		# scale: pack_base / 512, also added as offset
-		self.pack_base = 0.0
+		self.pack_base = 0
 
 		# byte offset from start of vert buffer in bytes
 		self.vertex_offset = 0
 		self.vertex_count = 0
 
 		# determines if weights are used by this chunk
-		self.weights_flag = WeightsFlag(self.context, 0, None)
+		self.weights_flag = 0
 		self.zero = 0
 		if set_default:
 			self.set_defaults()

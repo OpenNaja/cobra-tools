@@ -18,7 +18,7 @@ class BooleanData(MemStruct):
 		self.io_start = 0
 		self.value = 0
 		self.default = 0
-		self.unused = numpy.zeros((6,), dtype=numpy.dtype('uint8'))
+		self.unused = 0
 		if set_default:
 			self.set_defaults()
 

@@ -17,11 +17,11 @@ class PathResource(MemStruct):
 		self.path_sub_type = 0
 		self.unk_byte_1 = 0
 		self.unk_byte_2 = 0
-		self.pathmaterial = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathextrusion_kerb = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathextrusion_railing = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathextrusion_ground = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathsupport = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.pathmaterial = 0
+		self.pathextrusion_kerb = 0
+		self.pathextrusion_railing = 0
+		self.pathextrusion_ground = 0
+		self.pathsupport = 0
 		if set_default:
 			self.set_defaults()
 

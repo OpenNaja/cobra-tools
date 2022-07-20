@@ -16,8 +16,8 @@ class SupportAttach(MemStruct):
 		self.io_start = 0
 		self.unk_int_1 = 0
 		self.unk_int_2 = 0
-		self.unk_vector = Vector2(self.context, 0, None)
-		self.model_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.unk_vector = 0
+		self.model_name = 0
 		if set_default:
 			self.set_defaults()
 

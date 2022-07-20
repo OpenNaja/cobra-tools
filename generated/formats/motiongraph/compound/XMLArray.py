@@ -13,7 +13,7 @@ class XMLArray(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.xmls = Array((self.arg,), XMLEntry, self.context, 0, None)
+		self.xmls = 0
 		if set_default:
 			self.set_defaults()
 

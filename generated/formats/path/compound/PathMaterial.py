@@ -17,17 +17,17 @@ class PathMaterial(MemStruct):
 		self.io_start = 0
 		self.path_sub_type = 0
 		self.num_data = 0
-		self.elevated_mat = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.elevated_mat_valid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.elevated_mat_invalid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.terrain_mat = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.terrain_mat_valid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.terrain_mat_invalid = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.underside_mat_1 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.underside_mat_2 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.stairs_mat_1 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.stairs_mat_2 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.mat_data = ArrayPointer(self.context, self.num_data, generated.formats.path.compound.PathMaterialData.PathMaterialData)
+		self.elevated_mat = 0
+		self.elevated_mat_valid = 0
+		self.elevated_mat_invalid = 0
+		self.terrain_mat = 0
+		self.terrain_mat_valid = 0
+		self.terrain_mat_invalid = 0
+		self.underside_mat_1 = 0
+		self.underside_mat_2 = 0
+		self.stairs_mat_1 = 0
+		self.stairs_mat_2 = 0
+		self.mat_data = 0
 		if set_default:
 			self.set_defaults()
 

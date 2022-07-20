@@ -32,22 +32,22 @@ class Data(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.dtype = BooleanData(self.context, 0, None)
-		self.dtype = Int8Data(self.context, 0, None)
-		self.dtype = Int16Data(self.context, 0, None)
-		self.dtype = Int32Data(self.context, 0, None)
-		self.dtype = Int64Data(self.context, 0, None)
-		self.dtype = Uint8Data(self.context, 0, None)
-		self.dtype = Uint16Data(self.context, 0, None)
-		self.dtype = Uint32Data(self.context, 0, None)
-		self.dtype = Uint64Data(self.context, 0, None)
-		self.dtype = FloatData(self.context, 0, None)
-		self.dtype = StringData(self.context, 0, None)
-		self.dtype = Vector2(self.context, 0, None)
-		self.dtype = Vector3(self.context, 0, None)
-		self.dtype = ArrayData(self.context, 0, None)
-		self.dtype = ChildSpecData(self.context, 0, None)
-		self.dtype = ReferenceToObjectData(self.context, 0, None)
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
+		self.dtype = 0
 		if set_default:
 			self.set_defaults()
 

@@ -18,12 +18,12 @@ class Event(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.start_time = 0.0
-		self.b = 0.0
-		self.duration = 0.0
-		self.d = 0.0
-		self.module_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.attributes = Pointer(self.context, 0, generated.formats.cinematic.compound.EventAttributes.EventAttributes)
+		self.start_time = 0
+		self.b = 0
+		self.duration = 0
+		self.d = 0
+		self.module_name = 0
+		self.attributes = 0
 		if set_default:
 			self.set_defaults()
 

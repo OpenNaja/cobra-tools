@@ -20,7 +20,7 @@ class MatcolRoot(MemStruct):
 
 		# always 1
 		self.one = 0
-		self.main = Pointer(self.context, 0, generated.formats.matcol.compound.RootFrag.RootFrag)
+		self.main = 0
 		if set_default:
 			self.set_defaults()
 

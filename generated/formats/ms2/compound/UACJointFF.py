@@ -19,12 +19,12 @@ class UACJointFF:
 		self.eleven = 0
 
 		# bunch of -1's, and constants
-		self.f_fs = numpy.zeros((4,), dtype=numpy.dtype('int32'))
+		self.f_fs = 0
 		self.name_offset = 0
 		self.hitcheck_count = 0
 
 		# 12 bytes of zeros
-		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
+		self.zeros = 0
 		if set_default:
 			self.set_defaults()
 

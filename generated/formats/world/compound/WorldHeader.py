@@ -21,13 +21,13 @@ class WorldHeader(MemStruct):
 		self.world_type = 0
 		self.asset_pkg_count = 0
 		self.prefab_count = 0
-		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, generated.formats.world.compound.PtrList.PtrList)
-		self.lua_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ptr_1 = Pointer(self.context, 0, None)
-		self.prefabs = Pointer(self.context, self.prefab_count, generated.formats.world.compound.PtrList.PtrList)
-		self.ptr_2 = Pointer(self.context, 0, None)
-		self.ptr_3 = Pointer(self.context, 0, None)
+		self.asset_pkgs = 0
+		self.lua_name = 0
+		self.ptr_0 = 0
+		self.ptr_1 = 0
+		self.prefabs = 0
+		self.ptr_2 = 0
+		self.ptr_3 = 0
 		if set_default:
 			self.set_defaults()
 

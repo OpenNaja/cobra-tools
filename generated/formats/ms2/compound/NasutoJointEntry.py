@@ -30,10 +30,10 @@ class NasutoJointEntry:
 		self.zero = 0
 
 		# no clue what space this is in
-		self.matrix = Matrix33(self.context, 0, None)
+		self.matrix = 0
 
 		# seems to be degrees of freedom or something like that, possibly an ellipsoid
-		self.vector = Vector4(self.context, 0, None)
+		self.vector = 0
 
 		# 1
 		self.one = 0

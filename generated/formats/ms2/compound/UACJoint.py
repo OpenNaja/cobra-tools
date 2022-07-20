@@ -20,10 +20,10 @@ class UACJoint:
 		self.io_start = 0
 
 		# variable
-		self.unk = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
+		self.unk = 0
 
 		# some at least
-		self.floats = numpy.zeros((6,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 		if set_default:
 			self.set_defaults()
 

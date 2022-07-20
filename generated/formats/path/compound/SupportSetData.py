@@ -14,7 +14,7 @@ class SupportSetData(MemStruct):
 		self.unk_index = 0
 		self.unk_int_1 = 0
 		self.unk_int_2 = 0
-		self.unk_float_1 = 0.0
+		self.unk_float_1 = 0
 		if set_default:
 			self.set_defaults()
 

@@ -195,9 +195,8 @@ class Union:
             if field_debug_str.strip():
                 f.write(field_debug_str)
 
-            # we init each field with its basic default string so that the field exists regardless of any condition
-            field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name,
-                                                    field_type)
+            # we init each field with 0 to prevent overhead, but still allow the field to be used in conditionals
+            field_default = 0
             f.write(f'{base_indent}self.{field_name} = {field_default}')
 
     def write_defaults(self, f, condition=""):

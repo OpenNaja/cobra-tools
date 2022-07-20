@@ -19,7 +19,7 @@ class ChildSpecData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.specdef = Pointer(self.context, 0, generated.formats.specdef.compound.SpecdefRoot.SpecdefRoot)
+		self.specdef = 0
 		if set_default:
 			self.set_defaults()
 

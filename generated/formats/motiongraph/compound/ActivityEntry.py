@@ -17,7 +17,7 @@ class ActivityEntry(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.value = Pointer(self.context, 0, generated.formats.motiongraph.compound.Activity.Activity)
+		self.value = 0
 		if set_default:
 			self.set_defaults()
 

@@ -23,14 +23,14 @@ class Model:
 		self.io_start = 0
 
 		# name pointers for each material
-		self.materials = Array((self.arg.num_materials,), MaterialName, self.context, 0, None)
-		self.lods = Array((self.arg.num_lods,), LodInfoZT, self.context, 0, None)
+		self.materials = 0
+		self.lods = 0
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
-		self.lods = Array((self.arg.num_lods,), LodInfo, self.context, 0, None)
+		self.lods = 0
 
 		# instantiate the meshes with materials
-		self.objects = Array((self.arg.num_objects,), Object, self.context, 0, None)
+		self.objects = 0
 
 		# pad to 8 bytes alignment
 		# rhino: start of model - end of objects: 124 - 4 bytes padding
@@ -38,13 +38,13 @@ class Model:
 		self.objects_padding = 0
 
 		# mesh data blocks for this model
-		self.meshes = Array((self.arg.num_meshes,), MeshDataWrap, self.context, 0, None)
+		self.meshes = 0
 
 		# ?
-		self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
+		self.ztuac_pre_bones = 0
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
-		self.floatsy = Array((self.arg.render_flag,), FloatsY, self.context, 0, None)
+		self.floatsy = 0
 		if set_default:
 			self.set_defaults()
 

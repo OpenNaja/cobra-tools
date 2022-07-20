@@ -19,13 +19,13 @@ class ListLong(Descriptor):
 		self.io_start = 0
 
 		# the location of the child joint
-		self.loc = Vector3(self.context, 0, None)
+		self.loc = 0
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
-		self.floats = numpy.zeros((5, 3,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 
 		# radians
-		self.radians = numpy.zeros((8,), dtype=numpy.dtype('float32'))
+		self.radians = 0
 		if set_default:
 			self.set_defaults()
 

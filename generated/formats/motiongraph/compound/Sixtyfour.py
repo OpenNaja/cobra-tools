@@ -20,10 +20,10 @@ class Sixtyfour(MemStruct):
 		self.count_1 = 0
 		self.count_2 = 0
 		self.count_3 = 0
-		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ptr_1 = Pointer(self.context, 0, None)
-		self.ptr_2 = Pointer(self.context, 0, None)
-		self.ptr_3 = Pointer(self.context, 0, None)
+		self.ptr_0 = 0
+		self.ptr_1 = 0
+		self.ptr_2 = 0
+		self.ptr_3 = 0
 		if set_default:
 			self.set_defaults()
 

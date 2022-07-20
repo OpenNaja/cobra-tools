@@ -17,15 +17,15 @@ class Perk(MemStruct):
 		self.building_cost = 0
 		self.running_cost_base = 0
 		self.running_cost_per_extension = 0
-		self.unk_4 = 0.0
-		self.unk_5 = 0.0
-		self.unk_6 = 0.0
-		self.appeal_adults = 0.0
-		self.appeal_families = 0.0
-		self.appeal_teenagers = 0.0
-		self.label = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.desc = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.icon = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.unk_4 = 0
+		self.unk_5 = 0
+		self.unk_6 = 0
+		self.appeal_adults = 0
+		self.appeal_families = 0
+		self.appeal_teenagers = 0
+		self.label = 0
+		self.desc = 0
+		self.icon = 0
 		if set_default:
 			self.set_defaults()
 

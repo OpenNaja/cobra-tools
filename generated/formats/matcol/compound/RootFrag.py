@@ -23,8 +23,8 @@ class RootFrag(MemStruct):
 		self.tex_count = 0
 		self.mat_count = 0
 		self.unk = 0
-		self.textures = ArrayPointer(self.context, self.tex_count, generated.formats.matcol.compound.Texture.Texture)
-		self.materials = ArrayPointer(self.context, self.mat_count, generated.formats.matcol.compound.LayerFrag.LayerFrag)
+		self.textures = 0
+		self.materials = 0
 		if set_default:
 			self.set_defaults()
 

@@ -33,7 +33,7 @@ class EventEntry(MemStruct):
 		self.zero_4 = 0
 		self.u_2 = 0
 		self.u_1 = 0
-		self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.block_name = 0
 		if set_default:
 			self.set_defaults()
 

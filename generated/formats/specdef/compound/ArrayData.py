@@ -18,9 +18,9 @@ class ArrayData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.dtype = SpecdefDtype(self.context, 0, None)
+		self.dtype = 0
 		self.unused = 0
-		self.item = Pointer(self.context, self.dtype, generated.formats.specdef.compound.Data.Data)
+		self.item = 0
 		if set_default:
 			self.set_defaults()
 

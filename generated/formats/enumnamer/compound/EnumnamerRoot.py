@@ -14,7 +14,7 @@ class EnumnamerRoot(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.strings = Pointer(self.context, self.count, generated.formats.enumnamer.compound.PtrList.PtrList)
+		self.strings = 0
 		if set_default:
 			self.set_defaults()
 

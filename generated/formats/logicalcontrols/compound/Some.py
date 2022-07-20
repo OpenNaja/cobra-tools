@@ -20,8 +20,8 @@ class Some(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.some_count = 0
-		self.some_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.some_data = ArrayPointer(self.context, self.some_count, generated.formats.logicalcontrols.compound.SomeData.SomeData)
+		self.some_name = 0
+		self.some_data = 0
 		if set_default:
 			self.set_defaults()
 

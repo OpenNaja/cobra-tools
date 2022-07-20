@@ -27,16 +27,16 @@ class WmetasbMain(MemStruct):
 		self.events_count = 0
 		self.hashes_count = 0
 		self.media_count = 0
-		self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.media_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.bnk_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.events = ArrayPointer(self.context, self.events_count, generated.formats.wmeta.compound.EventEntry.EventEntry)
-		self.hashes = ArrayPointer(self.context, self.hashes_count, generated.formats.base.basic.Uint)
-		self.media = ArrayPointer(self.context, self.media_count, generated.formats.wmeta.compound.MediaEntry.MediaEntry)
-		self.unused_2 = Pointer(self.context, 0, None)
-		self.unused_3 = Pointer(self.context, 0, None)
-		self.unused_4 = Pointer(self.context, 0, None)
-		self.unused_5 = Pointer(self.context, 0, None)
+		self.block_name = 0
+		self.media_name = 0
+		self.bnk_name = 0
+		self.events = 0
+		self.hashes = 0
+		self.media = 0
+		self.unused_2 = 0
+		self.unused_3 = 0
+		self.unused_4 = 0
+		self.unused_5 = 0
 		if set_default:
 			self.set_defaults()
 

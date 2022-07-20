@@ -18,8 +18,8 @@ class FontInfo(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.flag_or_count = 0
-		self.style_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.font_file = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.style_name = 0
+		self.font_file = 0
 		if set_default:
 			self.set_defaults()
 

@@ -19,8 +19,8 @@ class CurveParam(MemStruct):
 		# set to 1 if count > 1
 		self.do_interpolation = 0
 		self.count = 0
-		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.curve_entries = Pointer(self.context, self.count, generated.formats.renderparameters.compound.CurveList.CurveList)
+		self.attribute_name = 0
+		self.curve_entries = 0
 		if set_default:
 			self.set_defaults()
 

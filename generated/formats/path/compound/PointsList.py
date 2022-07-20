@@ -13,7 +13,7 @@ class PointsList(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.points = Array((self.arg,), Vector3, self.context, 0, None)
+		self.points = 0
 		if set_default:
 			self.set_defaults()
 

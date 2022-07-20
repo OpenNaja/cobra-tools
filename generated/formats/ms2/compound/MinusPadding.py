@@ -20,10 +20,10 @@ class MinusPadding:
 		self.io_start = 0
 
 		# -1
-		self.indices = numpy.zeros((self.arg,), dtype=numpy.dtype('int16'))
+		self.indices = 0
 
 		# 0
-		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.padding = 0
 		if set_default:
 			self.set_defaults()
 

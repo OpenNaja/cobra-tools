@@ -17,16 +17,16 @@ class TexInfoHeader(GenericHeader):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.tex_info = TexHeader(self.context, 0, None)
-		self.frag_01 = Array((self.tex_info.stream_count,), TexBufferPc, self.context, 0, None)
-		self.frag_01 = Array((self.tex_info.stream_count,), TexBuffer, self.context, 0, None)
-		self.frag_11 = SizeInfo(self.context, 0, None)
+		self.tex_info = 0
+		self.frag_01 = 0
+		self.frag_01 = 0
+		self.frag_11 = 0
 
 		# pad whole frag_11 struct to 320 bytes
-		self.padding = numpy.zeros((320 - self.frag_11.io_size,), dtype=numpy.dtype('uint8'))
+		self.padding = 0
 
 		# pad whole frag_11 struct to 320 bytes
-		self.padding = numpy.zeros((384 - self.frag_11.io_size,), dtype=numpy.dtype('uint8'))
+		self.padding = 0
 		if set_default:
 			self.set_defaults()
 

@@ -14,7 +14,7 @@ class DependencyInfo(MemStruct):
 		self.io_start = 0
 
 		# only present if textured
-		self.dependency_name = Pointer(self.context, 0, None)
+		self.dependency_name = 0
 		if set_default:
 			self.set_defaults()
 

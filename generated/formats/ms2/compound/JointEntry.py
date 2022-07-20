@@ -21,10 +21,10 @@ class JointEntry:
 		self.io_start = 0
 
 		# the rotation of the joint, inverted
-		self.rot = Matrix33(self.context, 0, None)
+		self.rot = 0
 
 		# the location of the joint
-		self.loc = Vector3(self.context, 0, None)
+		self.loc = 0
 		if set_default:
 			self.set_defaults()
 

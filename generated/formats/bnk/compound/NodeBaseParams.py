@@ -14,7 +14,7 @@ class NodeBaseParams:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.raw = numpy.zeros((30,), dtype=numpy.dtype('int8'))
+		self.raw = 0
 		if set_default:
 			self.set_defaults()
 

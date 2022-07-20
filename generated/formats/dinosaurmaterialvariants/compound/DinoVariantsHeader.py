@@ -23,9 +23,9 @@ class DinoVariantsHeader(MemStruct):
 		self.has_sets = 0
 		self.variant_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
+		self.fgm_name = 0
+		self.set_name = 0
+		self.variants = 0
 		if set_default:
 			self.set_defaults()
 

@@ -3,6 +3,6 @@ from generated.formats.base.enum import UbyteEnum
 
 
 class MeshFormat(UbyteEnum):
-	Separate = 0
-	Interleaved32 = 1
-	Interleaved48 = 2
+	SEPARATE = 0
+	INTERLEAVED_32 = 1
+	INTERLEAVED_48 = 2

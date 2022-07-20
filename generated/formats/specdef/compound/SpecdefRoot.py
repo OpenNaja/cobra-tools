@@ -23,13 +23,13 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
-		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr)
-		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.scripts = Pointer(self.context, self.script_count, generated.formats.specdef.compound.PtrList.PtrList)
+		self.attrib_dtypes = 0
+		self.attrib_names = 0
+		self.attrib_datas = 0
+		self.names = 0
+		self.childspecs = 0
+		self.managers = 0
+		self.scripts = 0
 		if set_default:
 			self.set_defaults()
 

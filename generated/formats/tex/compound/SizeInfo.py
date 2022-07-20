@@ -13,9 +13,9 @@ class SizeInfo(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.data = SizeInfoRaw(self.context, 0, None)
-		self.padding = numpy.zeros((320 - self.data.io_size,), dtype=numpy.dtype('uint8'))
-		self.padding = numpy.zeros((384 - self.data.io_size,), dtype=numpy.dtype('uint8'))
+		self.data = 0
+		self.padding = 0
+		self.padding = 0
 		if set_default:
 			self.set_defaults()
 

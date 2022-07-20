@@ -27,8 +27,8 @@ class TexHeader(MemStruct):
 		self.zero_0 = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.compression_type = DdsTypeCoaster(self.context, 0, None)
-		self.compression_type = DdsType(self.context, 0, None)
+		self.compression_type = 0
+		self.compression_type = 0
 
 		# 0 or 1
 		self.one_0 = 0
@@ -45,9 +45,9 @@ class TexHeader(MemStruct):
 		# 0
 		self.pad = 0
 		self.pad_dla = 0
-		self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBufferPc.TexBufferPc)
-		self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBuffer.TexBuffer)
-		self.size_info = Pointer(self.context, 0, generated.formats.tex.compound.SizeInfo.SizeInfo)
+		self.buffer_infos = 0
+		self.buffer_infos = 0
+		self.size_info = 0
 		if set_default:
 			self.set_defaults()
 

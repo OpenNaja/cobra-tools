@@ -17,8 +17,8 @@ class DinoLayersHeader(MemStruct):
 		self.io_start = 0
 		self.layer_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.layers = ArrayPointer(self.context, self.layer_count, generated.formats.dinosaurmaterialvariants.compound.Layer.Layer)
+		self.fgm_name = 0
+		self.layers = 0
 		if set_default:
 			self.set_defaults()
 

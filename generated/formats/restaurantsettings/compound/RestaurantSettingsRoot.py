@@ -15,16 +15,16 @@ class RestaurantSettingsRoot(MemStruct):
 		self.io_start = 0
 		self.running_cost_base = 0
 		self.unk_1 = 0
-		self.unk_2 = 0.0
-		self.unk_3 = 0.0
-		self.unk_4 = 0.0
-		self.unk_5 = 0.0
-		self.unk_6 = 0.0
+		self.unk_2 = 0
+		self.unk_3 = 0
+		self.unk_4 = 0
+		self.unk_5 = 0
+		self.unk_6 = 0
 		self.running_cost_per_extension = 0
 		self.unk_8 = 0
-		self.unk_9 = 0.0
+		self.unk_9 = 0
 		self.count = 0
-		self.perks = ArrayPointer(self.context, self.count, generated.formats.restaurantsettings.compound.Perk.Perk)
+		self.perks = 0
 		if set_default:
 			self.set_defaults()
 

@@ -16,7 +16,7 @@ class AkBankSourceData:
 		self.io_start = 0
 		self.ul_plugin_i_d = 0
 		self.stream_type = 0
-		self.ak_media_information = AkMediaInformation(self.context, 0, None)
+		self.ak_media_information = 0
 		if set_default:
 			self.set_defaults()
 

@@ -21,7 +21,7 @@ class GenericHeader:
 		self.io_start = 0
 
 		# 'FGM ' for fgm, 'FRES' for ovl, 'MANI' for manis, 'MS2 ' for ms2, 'VOXE' for voxelskirt
-		self.magic = FixedString(self.context, 4, None)
+		self.magic = 0
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform
 		self.version_flag = 0
@@ -33,10 +33,10 @@ class GenericHeader:
 		self.bitswap = 0
 
 		# always = 1
-		self.seventh_byte = 1
+		self.seventh_byte = 0
 
 		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
-		self.user_version = VersionInfo(self.context, 0, None)
+		self.user_version = 0
 		if set_default:
 			self.set_defaults()
 

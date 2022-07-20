@@ -12,12 +12,12 @@ class AttribData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.value = numpy.zeros((1,), dtype=numpy.dtype('float32'))
-		self.value = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.value = numpy.zeros((3,), dtype=numpy.dtype('float32'))
-		self.value = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
-		self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
+		self.value = 0
+		self.value = 0
+		self.value = 0
+		self.value = 0
+		self.value = 0
+		self.value = 0
 		if set_default:
 			self.set_defaults()
 

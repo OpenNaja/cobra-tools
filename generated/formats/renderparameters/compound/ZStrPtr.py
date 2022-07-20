@@ -17,7 +17,7 @@ class ZStrPtr(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.string = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.string = 0
 		if set_default:
 			self.set_defaults()
 

@@ -17,9 +17,9 @@ class LuaModules(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.motion_graph = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.motion_graph_event_handling = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.motion_graph_actions = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.motion_graph = 0
+		self.motion_graph_event_handling = 0
+		self.motion_graph_actions = 0
 		if set_default:
 			self.set_defaults()
 

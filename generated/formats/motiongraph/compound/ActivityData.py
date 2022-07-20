@@ -16,7 +16,7 @@ class ActivityData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.data = AnimationActivityData(self.context, 0, None)
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

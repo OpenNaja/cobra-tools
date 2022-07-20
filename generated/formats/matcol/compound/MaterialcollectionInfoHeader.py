@@ -20,10 +20,10 @@ class MaterialcollectionInfoHeader(GenericHeader):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.root = MatcolRoot(self.context, 0, None)
-		self.info = RootFrag(self.context, 0, None)
-		self.textures = Array((self.info.tex_count,), Texture, self.context, 0, None)
-		self.layers = Array((self.info.mat_count,), Layer, self.context, 0, None)
+		self.root = 0
+		self.info = 0
+		self.textures = 0
+		self.layers = 0
 		if set_default:
 			self.set_defaults()
 

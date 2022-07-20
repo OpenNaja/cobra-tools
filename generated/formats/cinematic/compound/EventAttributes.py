@@ -17,9 +17,9 @@ class EventAttributes(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.anim_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.event_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.empty_string = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.anim_name = 0
+		self.event_name = 0
+		self.empty_string = 0
 		if set_default:
 			self.set_defaults()
 

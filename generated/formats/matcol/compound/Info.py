@@ -14,10 +14,10 @@ class Info(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.flags = numpy.zeros((4,), dtype=numpy.dtype('int8'))
-		self.value = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+		self.flags = 0
+		self.value = 0
 		self.padding = 0
-		self.info_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.info_name = 0
 		if set_default:
 			self.set_defaults()
 

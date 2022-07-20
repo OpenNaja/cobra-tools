@@ -14,9 +14,9 @@ class Connector(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.unk_vector = Vector2(self.context, 0, None)
-		self.model_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.joint_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.unk_vector = 0
+		self.model_name = 0
+		self.joint_name = 0
 		if set_default:
 			self.set_defaults()
 

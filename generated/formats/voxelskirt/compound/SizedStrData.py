@@ -23,8 +23,8 @@ class SizedStrData:
 		self.data_size = 0
 		self.x = 0
 		self.y = 0
-		self.scale = 0.0
-		self.padding = 0.0
+		self.scale = 0
+		self.padding = 0
 
 		# zero, for PC only
 		self.zero_pc = 0

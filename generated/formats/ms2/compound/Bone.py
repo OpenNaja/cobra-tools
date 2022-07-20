@@ -20,12 +20,12 @@ class Bone:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.loc = Vector3(self.context, 0, None)
-		self.scale = 0.0
-		self.rot = Vector4(self.context, 0, None)
-		self.rot = Vector4(self.context, 0, None)
-		self.loc = Vector3(self.context, 0, None)
-		self.scale = 0.0
+		self.loc = 0
+		self.scale = 0
+		self.rot = 0
+		self.rot = 0
+		self.loc = 0
+		self.scale = 0
 		if set_default:
 			self.set_defaults()
 

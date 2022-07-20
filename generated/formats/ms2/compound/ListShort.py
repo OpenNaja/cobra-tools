@@ -18,16 +18,16 @@ class ListShort(Descriptor):
 		self.io_start = 0
 
 		# location of the joint
-		self.loc = Vector3(self.context, 0, None)
+		self.loc = 0
 
 		# normalized
-		self.direction = Vector3(self.context, 0, None)
+		self.direction = 0
 
 		# min, le 0
-		self.min = 0.0
+		self.min = 0
 
 		# max, ge 0
-		self.max = 0.0
+		self.max = 0
 		if set_default:
 			self.set_defaults()
 

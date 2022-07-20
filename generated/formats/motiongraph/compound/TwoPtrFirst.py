@@ -17,7 +17,7 @@ class TwoPtrFirst(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count_0 = 0
-		self.ptr = Pointer(self.context, 0, None)
+		self.ptr = 0
 		if set_default:
 			self.set_defaults()
 

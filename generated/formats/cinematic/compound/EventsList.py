@@ -14,7 +14,7 @@ class EventsList(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.events = ArrayPointer(self.context, self.count, generated.formats.cinematic.compound.Event.Event)
+		self.events = 0
 		if set_default:
 			self.set_defaults()
 

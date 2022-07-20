@@ -23,10 +23,10 @@ class StreamsZTHeader:
 		self.io_start = 0
 
 		# sometimes 00 byte
-		self.weird_padding = SmartPadding(self.context, 0, None)
+		self.weird_padding = 0
 
 		# ?
-		self.unks = Array((self.arg.stream_count,), InfoZTMemPool, self.context, 0, None)
+		self.unks = 0
 		if set_default:
 			self.set_defaults()
 

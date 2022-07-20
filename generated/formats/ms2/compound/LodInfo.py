@@ -21,7 +21,7 @@ class LodInfo:
 		self.io_start = 0
 
 		# usually first lod is 900
-		self.distance = 0.0
+		self.distance = 0
 
 		# always 0
 		self.zero = 0

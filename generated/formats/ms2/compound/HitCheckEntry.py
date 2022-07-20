@@ -20,7 +20,7 @@ class HitCheckEntry:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.type = CollisionType(self.context, 0, None)
+		self.type = 0
 
 		# 0
 		self.flag_0 = 0
@@ -39,13 +39,13 @@ class HitCheckEntry:
 
 		# offset into joint names
 		self.name_offset = 0
-		self.collider = Sphere(self.context, 0, None)
-		self.collider = BoundingBox(self.context, 0, None)
-		self.collider = Capsule(self.context, 0, None)
-		self.collider = Cylinder(self.context, 0, None)
-		self.collider = ConvexHull(self.context, 0, None)
-		self.collider = ConvexHull(self.context, 0, None)
-		self.collider = MeshCollision(self.context, 0, None)
+		self.collider = 0
+		self.collider = 0
+		self.collider = 0
+		self.collider = 0
+		self.collider = 0
+		self.collider = 0
+		self.collider = 0
 
 		# ?
 		self.zero_extra_zt = 0

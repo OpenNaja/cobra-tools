@@ -18,7 +18,7 @@ class MGTwo(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.count = 0
-		self.ptr = Pointer(self.context, self.count, generated.formats.motiongraph.compound.PtrList.PtrList)
+		self.ptr = 0
 		if set_default:
 			self.set_defaults()
 

@@ -13,7 +13,7 @@ class VariantArray(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.variants = Array((self.arg,), Variant, self.context, 0, None)
+		self.variants = 0
 		if set_default:
 			self.set_defaults()
 

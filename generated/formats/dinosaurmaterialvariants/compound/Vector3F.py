@@ -11,9 +11,9 @@ class Vector3F(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.x = 0.0
-		self.y = 0.0
-		self.z = 0.0
+		self.x = 0
+		self.y = 0
+		self.z = 0
 		if set_default:
 			self.set_defaults()
 

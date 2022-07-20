@@ -23,7 +23,7 @@ class HIRCSection:
 		# length of following data
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array((self.count,), HircPointer, self.context, 0, None)
+		self.hirc_pointers = 0
 		if set_default:
 			self.set_defaults()
 

@@ -14,7 +14,7 @@ class AssetpkgRoot(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.zero = 0
-		self.asset_path = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.asset_path = 0
 		if set_default:
 			self.set_defaults()
 

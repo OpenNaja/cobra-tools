@@ -15,11 +15,11 @@ class MeshDataWrap(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.mesh = BioMeshData(self.context, 0, None)
-		self.mesh = NewMeshData(self.context, 0, None)
-		self.mesh = PcMeshData(self.context, 0, None)
-		self.mesh = ZtMeshData(self.context, 0, None)
-		self.mesh = ZtMeshData(self.context, 0, None)
+		self.mesh = 0
+		self.mesh = 0
+		self.mesh = 0
+		self.mesh = 0
+		self.mesh = 0
 		if set_default:
 			self.set_defaults()
 

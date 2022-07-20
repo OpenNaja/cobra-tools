@@ -18,16 +18,16 @@ class ParamData(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.data = numpy.zeros((1,), dtype=numpy.dtype('bool'))
-		self.data = numpy.zeros((1,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((1,), dtype=numpy.dtype('int32'))
-		self.data = numpy.zeros((1,), dtype=numpy.dtype('uint32'))
-		self.data = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((3,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		self.data = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
-		self.data = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		self.data = Array((1,), ZStrPtr, self.context, 0, None)
+		self.data = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

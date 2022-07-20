@@ -14,7 +14,7 @@ class PtrList(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.ptrs = Array((self.arg,), Pointer, self.context, 0, generated.formats.base.basic.ZString)
+		self.ptrs = 0
 		if set_default:
 			self.set_defaults()
 

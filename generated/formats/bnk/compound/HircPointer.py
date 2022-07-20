@@ -17,10 +17,10 @@ class HircPointer:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.id = HircType(self.context, 0, None)
-		self.data = SoundSfxVoice(self.context, 0, None)
-		self.data = MusicTrack(self.context, 0, None)
-		self.data = TypeOther(self.context, 0, None)
+		self.id = 0
+		self.data = 0
+		self.data = 0
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

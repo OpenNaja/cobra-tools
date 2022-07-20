@@ -16,9 +16,9 @@ class ResearchLevel(MemStruct):
 		self.io_start = 0
 		self.next_level_count = 0
 		self.children_count = 0
-		self.level_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.next_levels = Pointer(self.context, self.next_level_count, generated.formats.animalresearch.compound.PtrList.PtrList)
-		self.children = Pointer(self.context, self.children_count, generated.formats.animalresearch.compound.PtrList.PtrList)
+		self.level_name = 0
+		self.next_levels = 0
+		self.children = 0
 		if set_default:
 			self.set_defaults()
 

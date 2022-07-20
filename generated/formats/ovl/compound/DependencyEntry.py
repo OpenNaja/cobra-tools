@@ -29,7 +29,7 @@ class DependencyEntry:
 		self.file_index = 0
 
 		# pointer into flattened list of all archives' pools
-		self.link_ptr = HeaderPointer(self.context, 0, None)
+		self.link_ptr = 0
 		if set_default:
 			self.set_defaults()
 

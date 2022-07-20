@@ -41,7 +41,7 @@ class BoneInfo:
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint64'))
+		self.zeros = 0
 		self.bone_count = 0
 		self.unknown_40 = 0
 		self.parents_count = 0
@@ -78,50 +78,50 @@ class BoneInfo:
 		self.unk_extra_jwe = 0
 
 		# index into ms2 string table for bones used here
-		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint32'))
+		self.name_indices = 0
 
 		# index into ms2 string table for bones used here
-		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint16'))
+		self.name_indices = 0
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = numpy.zeros(((16 - ((self.name_count * 4) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.name_padding = 0
 
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = numpy.zeros(((16 - ((self.name_count * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.name_padding = 0
 
 		# used for skinning
-		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
-		self.bones = Array((self.bone_count,), Bone, self.context, 0, None)
+		self.inverse_bind_matrices = 0
+		self.bones = 0
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.parents = numpy.zeros((self.parents_count,), dtype=numpy.dtype('uint8'))
+		self.parents = 0
 
 		# zeros
-		self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
+		self.parents_padding = 0
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = numpy.zeros((self.enum_count, 2,), dtype=numpy.dtype('uint32'))
+		self.enumeration = 0
 
 		# enumerates all bone indices
-		self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
+		self.enumeration = 0
 
 		# zeros
-		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int8'))
+		self.weirdness = 0
 
 		# zeros
-		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
+		self.weirdness = 0
 
 		# weird zeros
-		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
+		self.zeros_padding = 0
 
 		# weird -1s
-		self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
+		self.minus_padding = 0
 
 		# ragdoll links?
-		self.struct_7 = Struct7(self.context, 0, None)
+		self.struct_7 = 0
 
 		# joints
-		self.joints = JointData(self.context, 0, None)
+		self.joints = 0
 		if set_default:
 			self.set_defaults()
 

@@ -16,9 +16,9 @@ class CurveDataPoint(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.x = 0.0
+		self.x = 0
 		self.y = 0
-		self.sub_curve_type = SubCurveType(self.context, 0, None)
+		self.sub_curve_type = 0
 		self.subsequent_curve_param = 0
 		self.subsequent_curve_param_b = 0
 		if set_default:

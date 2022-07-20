@@ -22,7 +22,7 @@ class DIDXSection:
 
 		# length of following data
 		self.length = 0
-		self.data_pointers = Array((int(self.length / 12),), DataPointer, self.context, 0, None)
+		self.data_pointers = 0
 		if set_default:
 			self.set_defaults()
 

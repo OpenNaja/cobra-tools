@@ -19,7 +19,7 @@ class InfoZTMemPool:
 		self.unk_count = 0
 
 		# ?
-		self.unks = numpy.zeros((self.unk_count, 2,), dtype=numpy.dtype('uint16'))
+		self.unks = 0
 		if set_default:
 			self.set_defaults()
 

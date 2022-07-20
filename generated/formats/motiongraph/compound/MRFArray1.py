@@ -13,7 +13,7 @@ class MRFArray1(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.states = Array((self.arg,), MRFEntry1, self.context, 0, None)
+		self.states = 0
 		if set_default:
 			self.set_defaults()
 

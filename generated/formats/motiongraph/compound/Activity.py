@@ -32,9 +32,9 @@ class Activity(MemStruct):
 		self.count_2 = 0
 		self.count_3 = 0
 		self.minus_one = 0
-		self.data_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr = Pointer(self.context, 0, None)
-		self.name_b = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.data_type = 0
+		self.ptr = 0
+		self.name_b = 0
 		if set_default:
 			self.set_defaults()
 

@@ -13,7 +13,7 @@ class PathJoinPartResourceList(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.resources = Array((self.arg,), PathJoinPartResource, self.context, 0, None)
+		self.resources = 0
 		if set_default:
 			self.set_defaults()
 

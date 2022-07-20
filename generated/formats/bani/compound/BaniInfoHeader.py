@@ -22,11 +22,11 @@ class BaniInfoHeader:
 		self.io_start = 0
 
 		# 'BANI'
-		self.magic = numpy.zeros((4,), dtype=numpy.dtype('int8'))
+		self.magic = 0
 
 		# name of the banis file buffer
-		self.banis_name = ''
-		self.data = BaniRoot(self.context, 0, None)
+		self.banis_name = 0
+		self.data = 0
 		if set_default:
 			self.set_defaults()
 

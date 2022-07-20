@@ -96,49 +96,49 @@ class Header(GenericHeader):
 		self.num_triplets = 0
 
 		# zeros
-		self.reserved = numpy.zeros((12,), dtype=numpy.dtype('uint32'))
+		self.reserved = 0
 
 		# Name buffer for assets and file mime types.
-		self.names = ZStringBuffer(self.context, self.len_names, None)
+		self.names = 0
 
 		# used in DLA
-		self.names_pad = numpy.zeros(((16 - (self.len_names % 16)) % 16,), dtype=numpy.dtype('uint8'))
+		self.names_pad = 0
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
+		self.mimes = 0
 
 		# ?
-		self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
+		self.triplets = 0
 
 		# ?
-		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
+		self.triplets_pad = 0
 
 		# Array of FileEntry objects.
-		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
+		self.files = 0
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
-		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
+		self.archive_names = 0
 
 		# Array of ArchiveEntry objects.
-		self.archives = Array((self.num_archives,), ArchiveEntry, self.context, 0, None)
+		self.archives = 0
 
 		# Array of IncludedOvl objects.
-		self.included_ovls = Array((self.num_included_ovls,), IncludedOvl, self.context, 0, None)
+		self.included_ovls = 0
 
 		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
+		self.dependencies = 0
 
 		# Array of AuxEntry objects.
-		self.aux_entries = Array((self.num_aux_entries,), AuxEntry, self.context, 0, None)
+		self.aux_entries = 0
 
 		# after aux in ZTUAC and PC
-		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
+		self.dependencies = 0
 
 		# Array of StreamEntry objects.
-		self.stream_files = Array((self.num_stream_files,), StreamEntry, self.context, 0, None)
+		self.stream_files = 0
 
 		# repeats by archive count
-		self.zlibs = Array((self.num_archives,), ZlibInfo, self.context, 0, None)
+		self.zlibs = 0
 		if set_default:
 			self.set_defaults()
 

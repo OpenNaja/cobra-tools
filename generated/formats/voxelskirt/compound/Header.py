@@ -18,7 +18,7 @@ class Header(GenericHeader):
 		self.io_start = 0
 
 		# always = 0
-		self.info = SizedStrData(self.context, 0, None)
+		self.info = 0
 		if set_default:
 			self.set_defaults()
 

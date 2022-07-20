@@ -17,11 +17,11 @@ class ConnectorMultiJoint(MemStruct):
 		self.io_start = 0
 		self.padding = 0
 		self.num_joints = 0
-		self.unk_float_1 = 0.0
+		self.unk_float_1 = 0
 		self.unk_int_1 = 0
 		self.padding = 0
-		self.model_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.joints = ArrayPointer(self.context, self.num_joints, generated.formats.path.compound.Joint.Joint)
+		self.model_name = 0
+		self.joints = 0
 		if set_default:
 			self.set_defaults()
 

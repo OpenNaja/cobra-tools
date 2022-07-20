@@ -20,8 +20,8 @@ class SplRoot(MemStruct):
 		self.count = 0
 		self.sixteen = 0
 		self.one = 0
-		self.length = 0.0
-		self.spline_data = Pointer(self.context, self.count, None)
+		self.length = 0
+		self.spline_data = 0
 		if set_default:
 			self.set_defaults()
 

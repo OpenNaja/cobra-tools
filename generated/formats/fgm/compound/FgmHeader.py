@@ -27,10 +27,10 @@ class FgmHeader(MemStruct):
 		self.attribute_count = 0
 		self.unk_0 = 0
 		self.unk_1 = 0
-		self.textures = ArrayPointer(self.context, self.texture_count, generated.formats.fgm.compound.TextureInfo.TextureInfo)
-		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compound.AttributeInfo.AttributeInfo)
-		self.dependencies = ForEachPointer(self.context, self.textures, generated.formats.fgm.compound.DependencyInfo.DependencyInfo)
-		self.data_lib = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compound.AttribData.AttribData)
+		self.textures = 0
+		self.attributes = 0
+		self.dependencies = 0
+		self.data_lib = 0
 		if set_default:
 			self.set_defaults()
 

@@ -20,14 +20,14 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.io_start = 0
 		self.u_0 = 0
 		self.u_1 = 0
-		self.floats = numpy.zeros((4, 4,), dtype=numpy.dtype('float32'))
-		self.vec = numpy.zeros((3,), dtype=numpy.dtype('float32'))
+		self.floats = 0
+		self.vec = 0
 		self.u_2 = 0
-		self.quat = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		self.name_a = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_b = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_c = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_d = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.quat = 0
+		self.name_a = 0
+		self.name_b = 0
+		self.name_c = 0
+		self.name_d = 0
 		if set_default:
 			self.set_defaults()
 

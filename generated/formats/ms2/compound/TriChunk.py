@@ -21,19 +21,19 @@ class TriChunk:
 		self.io_start = 0
 
 		# the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0
-		self.bounds_min = Vector3(self.context, 0, None)
+		self.bounds_min = 0
 		self.u_0 = 0
 		self.u_1 = 0
 
 		# the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0
-		self.bounds_max = Vector3(self.context, 0, None)
+		self.bounds_max = 0
 		self.tris_offset = 0
 
 		# can be 0,0,0, no obvious range, not always within range of bounds
-		self.loc = Vector3(self.context, 0, None)
+		self.loc = 0
 
 		# can be 1, 0, 0, 0; w always in range -1, +1
-		self.rot = QuatWFirst(self.context, 0, None)
+		self.rot = 0
 		self.u_2 = 0
 		self.u_3 = 0
 		if set_default:

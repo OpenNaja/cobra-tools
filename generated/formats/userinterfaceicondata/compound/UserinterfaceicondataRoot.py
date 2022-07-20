@@ -13,8 +13,8 @@ class UserinterfaceicondataRoot(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.tex_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ovl_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.tex_name = 0
+		self.ovl_name = 0
 		if set_default:
 			self.set_defaults()
 

@@ -17,11 +17,11 @@ class Buffer1:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.bone_hashes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array((self.arg,), ZString, self.context, 0, None)
+		self.bone_hashes = 0
+		self.bone_names = 0
 
 		# ?
-		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
+		self.bone_pad = 0
 		if set_default:
 			self.set_defaults()
 

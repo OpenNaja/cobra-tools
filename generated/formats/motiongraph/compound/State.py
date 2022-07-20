@@ -23,9 +23,9 @@ class State(MemStruct):
 		self.unk = 0
 		self.activities_count = 0
 		self.count_2 = 0
-		self.activities = Pointer(self.context, self.activities_count, generated.formats.motiongraph.compound.PtrList.PtrList)
-		self.array_2 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compound.TransStructStopList.TransStructStopList)
-		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.activities = 0
+		self.array_2 = 0
+		self.id = 0
 		if set_default:
 			self.set_defaults()
 

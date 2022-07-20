@@ -19,26 +19,26 @@ class HabitatBoundaryDataRoot(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.u_0 = 0
-		self.zeros = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
+		self.zeros = 0
 		self.u_1 = 0
-		self.u_2 = 0.0
+		self.u_2 = 0
 		self.u_3 = 0
 		self.u_4 = 0
-		self.floats = numpy.zeros((10,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 		self.u_5 = 0
-		self.name_a = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.walls_extrusion = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.walls_extrusion_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.walls_extrusion_top = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.walls_extrusion_bottom = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_f = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_g = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_h = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_i = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_j = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_k = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_l = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.name_m = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.name_a = 0
+		self.walls_extrusion = 0
+		self.walls_extrusion_end = 0
+		self.walls_extrusion_top = 0
+		self.walls_extrusion_bottom = 0
+		self.name_f = 0
+		self.name_g = 0
+		self.name_h = 0
+		self.name_i = 0
+		self.name_j = 0
+		self.name_k = 0
+		self.name_l = 0
+		self.name_m = 0
 		if set_default:
 			self.set_defaults()
 

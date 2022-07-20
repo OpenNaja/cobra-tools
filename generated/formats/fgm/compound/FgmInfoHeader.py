@@ -23,10 +23,10 @@ class FgmInfoHeader(GenericHeader):
 		self.io_start = 0
 		self.data_lib_size = 0
 		self.dependency_count = 0
-		self.fgm_info = FgmHeader(self.context, 0, None)
-		self.texture_files = Array((self.dependency_count,), ZString, self.context, 0, None)
-		self.textures = Array((self.fgm_info.texture_count,), TextureInfo, self.context, 0, None)
-		self.attributes = Array((self.fgm_info.attribute_count,), AttributeInfo, self.context, 0, None)
+		self.fgm_info = 0
+		self.texture_files = 0
+		self.textures = 0
+		self.attributes = 0
 		if set_default:
 			self.set_defaults()
 

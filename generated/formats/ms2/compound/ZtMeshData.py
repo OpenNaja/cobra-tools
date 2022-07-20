@@ -59,10 +59,10 @@ class ZtMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# bitfield
-		self.flag = ModelFlagDLA(self.context, 0, None)
+		self.flag = 0
 
 		# bitfield
-		self.flag = ModelFlagZT(self.context, 0, None)
+		self.flag = 0
 
 		# always zero
 		self.zero_uac = 0
