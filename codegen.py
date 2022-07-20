@@ -47,7 +47,7 @@ class XmlParser:
             "BasicBitfield": "bitfield",
             "BitfieldMember": "bitfield",
             "basic_map": os.path.join(self.base_segments, "basic"),
-            "versions": "versions",
+            "versions": self.base_segments,
             "ContextReference": "context",
             "BaseEnum": "base_enum",
             }
@@ -196,6 +196,8 @@ class XmlParser:
                 self.apply_convention(struct, convention.force_bool, ("boolean", "integral", "countable", "generic"))
             elif struct.tag == "enum":
                 self.apply_convention(struct, convention.name_class, ("storage",))
+                for option in struct:
+                    self.apply_convention(option, convention.name_enum_key, ("name", ))
             elif struct.tag in self.bitstruct_types:
                 self.apply_convention(struct, convention.name_class, ("storage",))
                 # a bitfield/bitflags fields

@@ -3,5 +3,5 @@ from generated.formats.base.enum import UintEnum
 
 
 class TimeLimitMode(UintEnum):
-	Wrap = 0
-	Clamp = 1
+	WRAP = 0
+	CLAMP = 1

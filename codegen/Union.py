@@ -125,6 +125,7 @@ class Union:
         tag_of_field_type = self.compound.parser.tag_dict.get(field_type_lower)
         _, return_type = self.compound.parser.map_type(field_type, arr1)
         if tag_of_field_type == "enum" and default_string:
+            default_string = convention.name_enum_key(default_string)
             default_string = f'{field_type}.{default_string}'
 
         if arr1:

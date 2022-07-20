@@ -3,9 +3,9 @@ from generated.formats.base.enum import UshortEnum
 
 
 class SubCurveType(UshortEnum):
-	Constant = 0
-	Linear = 1
-	Polynomial = 2
-	Exponential = 3
-	SCurve = 4
-	Bezier = 5
+	CONSTANT = 0
+	LINEAR = 1
+	POLYNOMIAL = 2
+	EXPONENTIAL = 3
+	S_CURVE = 4
+	BEZIER = 5

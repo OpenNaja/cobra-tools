@@ -3,13 +3,13 @@ from generated.formats.base.enum import UintEnum
 
 
 class CollisionType(UintEnum):
-	Sphere = 0
-	BoundingBox = 1
-	Capsule = 2
-	Cylinder = 3
-	ConvexHull = 7
-	ConvexHullPC = 8
+	SPHERE = 0
+	BOUNDING_BOX = 1
+	CAPSULE = 2
+	CYLINDER = 3
+	CONVEX_HULL = 7
+	CONVEX_HULL_P_C = 8
 	# widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods
-	MeshCollision = 10
+	MESH_COLLISION = 10
 	# ?
-	UnkRhino = 11
+	UNK_RHINO = 11
