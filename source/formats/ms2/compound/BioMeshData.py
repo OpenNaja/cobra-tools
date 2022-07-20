@@ -112,6 +112,11 @@ class BioMeshData:
 	def read_verts(self):
 		self.read_chunk_infos()
 		# the format differs if its flat or interleaved
+		# per-vertex weights may or may not be used in a given chunk
+		dt_weights = [
+			("bone ids", np.ubyte, (4,)),
+			("bone weights", np.ubyte, (4,)),
+		]
 		# 16 bytes of metadata that follows the vertices array
 		dt_separate = [
 			("normal_xy", np.ubyte, (2,)),
@@ -144,6 +149,8 @@ class BioMeshData:
 		# 48 bytes per vertex, with all data interleaved, old style??
 		dt_interleaved48 = [
 			("pos", np.float16, (3,)),
+			("uvs", np.ushort, (1, 2)),
+			("colors", np.ubyte, (1, 4))
 			# todo
 		]
 		# create arrays for this mesh
@@ -166,11 +173,6 @@ class BioMeshData:
 		colors_shape = self.dt["colors"].shape
 		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 
-		# may or may not be used in a given chunk
-		dt_weights = [
-			("bone ids", np.ubyte, (4,)),
-			("bone weights", np.ubyte, (4,)),
-		]
 		self.dt_weights = np.dtype(dt_weights)
 
 
