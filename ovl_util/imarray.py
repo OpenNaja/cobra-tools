@@ -147,12 +147,14 @@ def check_same_dimensions(dimensions, files):
 def png_from_tex(tex_file_path, tmp_dir):
 	"""This finds and if required, creates, a png file that is ready for DDS conversion (arrays or flipped channels)"""
 
+	tex_file_path = tex_file_path.lower()
 	logging.debug(f"Looking for .png for {tex_file_path}")
 	in_dir, in_name_ext = os.path.split(tex_file_path)
 	in_name, ext = os.path.splitext(in_name_ext)
 	png_file_path = os.path.join(in_dir, f"{in_name}.png")
 	tmp_png_file_path = os.path.join(tmp_dir, f"{in_name}.png")
-	corresponding_png_textures = [file for file in os.listdir(in_dir) if is_corresponding_png(file, in_name)]
+	lower_files = [file.lower() for file in os.listdir(in_dir)]
+	corresponding_png_textures = [file for file in lower_files if is_corresponding_png(file, in_name)]
 	if not corresponding_png_textures:
 		raise FileNotFoundError(f"Found no .png files for {tex_file_path}")
 	# print(corresponding_png_textures)
@@ -165,7 +167,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 
 	# check if processing needs to be done
 	if not must_join and not join_components and not must_flip_gb and not join_rg_b_a:
-		assert len(corresponding_png_textures) == 1
+		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
@@ -177,8 +179,8 @@ def png_from_tex(tex_file_path, tmp_dir):
 
 	# non-tiled files that need fixes - normal maps
 	if not must_join and not join_components and not join_rg_b_a:
+		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		# just read the one input file
-		assert len(corresponding_png_textures) == 1
 		im = iio.imread(png_file_path)
 
 	# rebuild array from separated tiles
@@ -266,6 +268,12 @@ def png_from_tex(tex_file_path, tmp_dir):
 	logging.debug(f"Writing output to {tmp_png_file_path}")
 	iio.imwrite(tmp_png_file_path, im, compress_level=2)
 	return tmp_png_file_path
+
+
+def check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path):
+	if len(corresponding_png_textures) > 1:
+		logging.info(
+			f"There are {len(corresponding_png_textures)} .png files for {in_name_ext}, but only {png_file_path} will be used")
 
 
 def get_single_channel(im, name):
