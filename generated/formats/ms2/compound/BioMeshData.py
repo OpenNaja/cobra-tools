@@ -366,33 +366,11 @@ class BioMeshData(MeshData):
 			offs += off.vertex_count
 
 		# print("weights_flags", flags, "u1s", us)
-
-		inds = (0, 19, 23, 28, 32, 36, 40, 44, 48)
-		self.pr_indices(self.vertices, inds, "vertex coords")
-		self.pr_indices(self.normals, inds, "before decoding")
-		# self.pr_indices([[int(x) for x in a[:2]]+[int(x) for x in b[:2]] for a, b in zip(self.normals, self.tangents)], inds, "normal + tangent")
-		self.pr_indices([f"\t{str(bin(self.ubytes_2_ushort(*vec[:2])))[2:]:>16}" for vec in self.normals], inds, "bin")
-
 		# unpack ubyte
 		self.normals = self.normals / 127 - 1.0
 		self.oct_to_vec3(self.normals)
-		# self.pr_indices(self.normals, inds, "after decoding")
-		# squared_xy = np.linalg.norm(self.normals[:, 0:2], axis=1)
-		# self.pr_indices(squared_xy, inds, "squared_xy")
-		#
-		# # self.normals[squared_xy > 1, 0] += 1.0
-		# # self.normals[squared_xy > 1, 1] += -1.0
-		# # self.pr_indices(self.normals, inds, "after determinant hack")
-		#
-		# # reconstruct Z
-		# self.normals[:, 2] = np.sqrt(1.0 - np.clip(squared_xy, 0.0, 1.0))
-		# self.pr_indices(self.normals, inds, "after z recon")
-		#
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
-		# self.pr_indices(self.normals, inds, "after normalization")
-		#
 		self.normals[:] = [unpack_swizzle(vec) for vec in self.normals]
-		# self.pr_indices(self.normals, inds, "after swizzle for blender")
 
 		# pull out fur from UV data
 		self.uvs = unpack_ushort_vector(self.uvs)
@@ -414,8 +392,12 @@ class BioMeshData(MeshData):
 		# return normalize(v);
 		# }
 		arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
-		arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, :2])) * np.sign(np.abs(arr[:, :2])))[arr[:, 2] < 0]
-		# pass
+		arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, (1, 0)])) * np.sign(arr[:, :2]))[arr[:, 2] < 0]
+		# print(arr[arr[:, 2] < 0, 0:2])
+		# only_g_one = arr[np.where(arr[:, 2] < 0), :]
+		# only_g_one = arr[arr[:, 2] < 0]
+		# only_g_one[:, 0:2] = (1.0 - np.abs(only_g_one[:, (1, 0)])) * np.sign(only_g_one[:, :2])
+		# print(only_g_one)
 
 	@staticmethod
 	def ubytes_2_ushort(a, b):
