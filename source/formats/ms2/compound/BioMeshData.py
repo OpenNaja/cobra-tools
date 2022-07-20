@@ -257,23 +257,24 @@ class BioMeshData:
 
 		# unpack ubyte
 		self.normals = self.normals / 127 - 1.0
-		self.pr_indices(self.normals, inds, "after decoding")
-		squared_xy = np.linalg.norm(self.normals[:, 0:2], axis=1)
-		self.pr_indices(squared_xy, inds, "squared_xy")
-
-		# self.normals[squared_xy > 1, 0] += 1.0
-		# self.normals[squared_xy > 1, 1] += -1.0
-		# self.pr_indices(self.normals, inds, "after determinant hack")
-
-		# reconstruct Z
-		self.normals[:, 2] = np.sqrt(1.0 - np.clip(squared_xy, 0.0, 1.0))
-		self.pr_indices(self.normals, inds, "after z recon")
-
+		self.oct_to_vec3(self.normals)
+		# self.pr_indices(self.normals, inds, "after decoding")
+		# squared_xy = np.linalg.norm(self.normals[:, 0:2], axis=1)
+		# self.pr_indices(squared_xy, inds, "squared_xy")
+		#
+		# # self.normals[squared_xy > 1, 0] += 1.0
+		# # self.normals[squared_xy > 1, 1] += -1.0
+		# # self.pr_indices(self.normals, inds, "after determinant hack")
+		#
+		# # reconstruct Z
+		# self.normals[:, 2] = np.sqrt(1.0 - np.clip(squared_xy, 0.0, 1.0))
+		# self.pr_indices(self.normals, inds, "after z recon")
+		#
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
-		self.pr_indices(self.normals, inds, "after normalization")
-
+		# self.pr_indices(self.normals, inds, "after normalization")
+		#
 		self.normals[:] = [unpack_swizzle(vec) for vec in self.normals]
-		self.pr_indices(self.normals, inds, "after swizzle for blender")
+		# self.pr_indices(self.normals, inds, "after swizzle for blender")
 
 		# pull out fur from UV data
 		self.uvs = unpack_ushort_vector(self.uvs)
@@ -287,6 +288,16 @@ class BioMeshData:
 		# 	self.uvs = self.uvs[:, :1]
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
+
+	def oct_to_vec3(self, arr):
+		# vec3 oct_to_float32x3(vec2 e) {
+		# vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
+		# if (v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
+		# return normalize(v);
+		# }
+		arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
+		arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, :2])) * np.sign(np.abs(arr[:, :2])))[arr[:, 2] < 0]
+		# pass
 
 	@staticmethod
 	def ubytes_2_ushort(a, b):
