@@ -147,7 +147,9 @@ import numpy as np
 from numba import jit
 
 # from generated.formats.ms2.compound.packing_utils import unpack_longint_vec
+from generated.formats.fgm import TextureInfo
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
+from generated.formats.ovl_base import OvlContext
 
 twenty_bits_mask = np.uint64(0xFFFFF)
 twenty = np.uint8(20)
@@ -356,3 +358,7 @@ for i in range(count):
 # for flag in flags:
 #     f = ModelFlag.from_value(flag)
 #     print(f)
+
+context = OvlContext()
+tex = TextureInfo(context, arg=0, template=None, set_default=True)
+print(tex)
