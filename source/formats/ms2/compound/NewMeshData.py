@@ -158,15 +158,13 @@ class NewMeshData:
 		start_time = time.time()
 		for i in range(self.vertex_count):
 			in_pos_packed = self.verts_data[i]["pos"]
-			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
-			self.vertices[i] = unpack_swizzle(vert)
-			# self.normals[i] = unpack_swizzle(self.normals[i])
-			# self.tangents[i] = unpack_swizzle(self.tangents[i])
+			self.vertices[i], residue = unpack_longint_vec(in_pos_packed, self.base)
 			self.weights.append(unpack_weights(self, i))
 
 			# packing bit
 			self.residues.append(residue)
 			self.weights[i].append(("residue", residue))
+		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
 		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
