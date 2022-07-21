@@ -295,7 +295,7 @@ class TextureVisual:
 			return [self.create_field(i, self.data.value) for i in range(len(self.data.value))]
 
 	def update_rgb_field(self, c):
-		self.data.value = [x / 255 for x in c.getRgb()[:3]]
+		self.data.value = np.array([x / 255 for x in c.getRgb()[:3]])
 
 	def create_rgb_field(self):
 		field = QColorButton()
