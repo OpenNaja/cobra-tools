@@ -286,6 +286,7 @@ class TextureVisual:
 		self.data.dependency_name = file
 
 	def create_fields(self):
+		rgb_colors = ("_RGB")
 		if self.entry.dtype == FgmDtype.Texture:
 			assert self.data.dependency_name.data
 			self.w_file = QtWidgets.QLineEdit(self.data.dependency_name.data)
@@ -294,7 +295,7 @@ class TextureVisual:
 			return self.w_file,
 		elif self.entry.dtype == FgmDtype.RGBA:
 			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
-		elif not self.container.gui.skip_color.isChecked() and "_RGB" in self.entry.name:
+		elif self.entry.dtype == FgmDtype.Float3 and not self.container.gui.skip_color.isChecked() and self.entry.name.endswith(rgb_colors):
 			return self.create_rgb_field(),
 		else:
 			return [self.create_field(i, self.data.value) for i in range(len(self.data.value))]
