@@ -273,6 +273,7 @@ class TextureVisual:
 		# layout = QGridLayout(self)
 		layout = QtWidgets.QHBoxLayout()
 		for button in self.fields:
+			button.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
 			layout.addWidget(button)
 		self.w_data.setLayout(layout)
 
