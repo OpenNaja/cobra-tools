@@ -26,6 +26,7 @@ class MainWindow(widgets.MainWindow):
 		widgets.MainWindow.__init__(self, "FGM Editor", )
 		
 		self.resize(800, 600)
+		self.setAcceptDrops(True)
 
 		self.context = OvlContext()
 		self.header = FgmHeader(self.context)
@@ -94,6 +95,18 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual")
 		)
 		self.add_to_menu(button_data)
+
+	def dragEnterEvent(self, e):
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if path.lower().endswith(".fgm"):
+			e.accept()
+		else:
+			e.ignore()
+
+	def dropEvent(self, e):
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if path:
+			self.file_widget.decide_open(path)
 
 	def game_changed(self,):
 		game = self.game_container.entry.currentText()
