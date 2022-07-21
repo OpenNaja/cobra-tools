@@ -2,6 +2,7 @@ import logging
 import os
 import traceback
 
+import numpy as np
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
@@ -299,7 +300,7 @@ class TextureVisual:
 	def create_rgb_field(self):
 		field = QColorButton()
 		field.colorChanged.connect(self.update_rgb_field)
-		d = [x * 255 for x in self.data.value]
+		d = [int(np.rint(x * 255)) for x in self.data.value]
 		c = QColor(*d, 255)
 		field.setColor(c)
 		return field
