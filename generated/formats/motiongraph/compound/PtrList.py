@@ -12,7 +12,7 @@ class PtrList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -22,6 +22,7 @@ class PtrList(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
 		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, self.template)
 
 	def read(self, stream):

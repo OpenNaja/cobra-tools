@@ -11,7 +11,7 @@ class Int64Data(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -25,6 +25,7 @@ class Int64Data(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
 		self.imin = 0
 		self.imax = 0
 		self.ivalue = 0

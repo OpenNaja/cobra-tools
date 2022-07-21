@@ -44,7 +44,7 @@ class Compound(BaseClass):
                 # classes that this class inherits from have to be read first
                 if self.class_basename:
                     # context is set by the parent class
-                    super_line = f"super().__init__(context, arg, template, set_default)"
+                    super_line = f"super().__init__(context, arg, template, set_default=False)"
                 else:
                     # no inheritance, so set context
                     super_line = f"self._context = context"
@@ -71,6 +71,8 @@ class Compound(BaseClass):
             if "def set_defaults(" not in self.src_code:
                 self.write_line(f)
                 self.write_line(f, 1, "def set_defaults(self):")
+                if self.class_basename:
+                    self.write_line(f, 2, f"super().set_defaults()")
                 end = f.tell()
                 # write all fields, merge conditions
                 condition = ""

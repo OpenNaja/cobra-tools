@@ -6,7 +6,7 @@ class SupportAttachExtra(SupportAttach):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -18,6 +18,7 @@ class SupportAttachExtra(SupportAttach):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
 		self.unk_float_1 = 0.0
 		self.unk_int_3 = 0
 		self.padding = 0

@@ -14,7 +14,7 @@ class DataStreamProducerActivityData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -32,6 +32,7 @@ class DataStreamProducerActivityData(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
 		self.curve_type = 0
 		self.curve = CurveData(self.context, 0, None)
 		self.time_limit_mode = TimeLimitMode(self.context, 0, None)
