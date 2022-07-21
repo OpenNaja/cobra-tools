@@ -1,3 +1,4 @@
+import numpy as np
 
 UBYTE_SCALE = 128
 UBYTE_MAX = 255
@@ -7,6 +8,14 @@ USHORT_MIN = 0
 USHORT_MAX = 65535
 PACKEDVEC_MAX = 2 ** 20  # 0x100000
 FUR_OVERHEAD = 2
+zero_uint64 = np.uint64(0)
+
+
+def unpack_ubyte_vector(arr):
+    # convert to +-1 range; 255 is unused
+    arr[:] = arr / 127 - 1.0
+    # normalize result
+    arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
 
 def unpack_ushort_vector(vec):
@@ -51,10 +60,25 @@ def scale_unpack(f, base):
     return (f + base) * scale
 
 
+def scale_unpack_vectorized(f, base):
+    """Converts a packed int component into a float in the range specified by base"""
+    scale = base / PACKEDVEC_MAX
+    f[:] = f * scale - base
+
+
 def scale_pack(f, base):
     """Packs a float into the range specified by base"""
     scale = base / PACKEDVEC_MAX
     return int(round(f / scale - base))
+
+
+def unpack_int64_vector(packed_vert, vertices, residues):
+    for i in range(3):
+        # grab the last 21 bits with bitand
+        twenty_bits = packed_vert & 0b111111111111111111111
+        packed_vert >>= 21
+        vertices[:, i] = twenty_bits
+    residues[:] = packed_vert
 
 
 def unpack_longint_vec(input, base):

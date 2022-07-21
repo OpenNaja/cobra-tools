@@ -163,6 +163,7 @@ class NewMeshData(MeshData):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
+		self.residues = np.empty(self.vertex_count, np.bool)
 		try:
 			uv_shape = self.dt["uvs"].shape
 			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
@@ -178,8 +179,7 @@ class NewMeshData(MeshData):
 			self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
 		except:
 			self.shapekeys = None
-		self.weights = []
-		self.residues = []
+		self.weights = [None for _ in range(self.vertex_count)]
 
 	def get_vcol_count(self, ):
 		if "colors" in self.dt.fields:
@@ -195,7 +195,7 @@ class NewMeshData(MeshData):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
-			("pos", np.uint64),
+			("pos", np.int64),
 			("normal", np.ubyte, (3,)),
 			("winding", np.ubyte),
 			("tangent", np.ubyte, (3,)),
@@ -271,19 +271,15 @@ class NewMeshData(MeshData):
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.uvs is not None:
-			self.uvs[:] = self.verts_data[:]["uvs"]
+			self.uvs[:] = self.verts_data["uvs"]
 			self.uvs = unpack_ushort_vector(self.uvs)
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
-			self.colors[:] = self.verts_data[:]["colors"]
+			self.colors[:] = self.verts_data["colors"]
 			self.colors /= 255
-		self.windings = self.verts_data[:]["winding"] // 128
-		self.normals[:] = self.verts_data[:]["normal"]
-		self.tangents[:] = self.verts_data[:]["tangent"]
-		self.normals = self.normals / 127 - 1.0
-		# normalize
-		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
-		self.tangents = self.tangents / 127 - 1.0
+		self.windings = self.verts_data["winding"] // 128
+		self.normals[:] = self.verts_data["normal"]
+		self.tangents[:] = self.verts_data["tangent"]
 		# unpack the shapekeys
 		if self.shapekeys is not None:
 			for i in range(self.vertex_count):
@@ -296,13 +292,13 @@ class NewMeshData(MeshData):
 			# print(self.shapekeys)
 		start_time = time.time()
 		for i in range(self.vertex_count):
-			in_pos_packed = self.verts_data[i]["pos"]
-			self.vertices[i], residue = unpack_longint_vec(in_pos_packed, self.base)
-			self.weights.append(unpack_weights(self, i))
+			self.weights[i] = unpack_weights(self, i)
 
-			# packing bit
-			self.residues.append(residue)
-			self.weights[i].append(("residue", residue))
+			# self.weights[i].append(("residue", residue))
+		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.residues)
+		scale_unpack_vectorized(self.vertices, self.base)
+		unpack_ubyte_vector(self.normals)
+		unpack_ubyte_vector(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
