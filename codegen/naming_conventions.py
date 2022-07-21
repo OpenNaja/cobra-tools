@@ -118,6 +118,13 @@ def name_enum_key(name):
     return '_'.join(part.upper() for part in name_parts(name))
 
 
+def name_enum_key_if_necessary(name):
+    if len(name.split()) > 1 or name.upper() != name:
+        return name_enum_key(name)
+    else:
+        return name
+
+
 def clean_comment_str(comment_str="", indent="", class_comment=""):
     """Reformats an XML comment string into multi-line a python style comment block"""
     if comment_str is None:

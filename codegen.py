@@ -197,7 +197,7 @@ class XmlParser:
             elif struct.tag == "enum":
                 self.apply_convention(struct, convention.name_class, ("storage",))
                 for option in struct:
-                    self.apply_convention(option, convention.name_enum_key, ("name", ))
+                    self.apply_convention(option, convention.name_enum_key_if_necessary, ("name", ))
             elif struct.tag in self.bitstruct_types:
                 self.apply_convention(struct, convention.name_class, ("storage",))
                 # a bitfield/bitflags fields
