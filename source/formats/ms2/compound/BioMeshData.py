@@ -119,10 +119,10 @@ class BioMeshData:
 		]
 		# 16 bytes of metadata that follows the vertices array
 		dt_separate = [
-			("normal_xy", np.ubyte, (2,)),
-			("tangent_xy", np.ubyte, (2,)),
-			# ("normal_xy", np.byte, (2,)),
-			# ("tangent_xy", np.byte, (2,)),
+			("normal_oct", np.ubyte, (2,)),
+			("tangent_oct", np.ubyte, (2,)),
+			# ("normal_oct", np.byte, (2,)),
+			# ("tangent_oct", np.byte, (2,)),
 			# ("packed_normal", np.ushort),
 			# ("packed_tangent", np.ushort),
 			# ("normal", np.ubyte, (3,)),
@@ -135,10 +135,10 @@ class BioMeshData:
 			("pos", np.float16, (3,)),
 			("shapekey", np.float16, (3,)),  # used for lod fading
 			("sth", np.float16, (4,)),
-			# ("normal_xy", np.byte, (2,)),
-			# ("tangent_xy", np.byte, (2,)),
-			("normal_xy", np.ubyte, (2,)),
-			("tangent_xy", np.ubyte, (2,)),
+			# ("normal_oct", np.byte, (2,)),
+			# ("tangent_oct", np.byte, (2,)),
+			("normal_oct", np.ubyte, (2,)),
+			("tangent_oct", np.ubyte, (2,)),
 			# ("normal", np.ubyte, (3,)),
 			# ("packed_normal", np.ushort),
 			# ("packed_tangent", np.ushort),
@@ -219,9 +219,8 @@ class BioMeshData:
 				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
 				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
-				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_meta["normal"]]
-				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_xy"]
-				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_meta["tangent_xy"]
+				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_oct"]
+				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_meta["tangent_oct"]
 
 			elif off.weights_flag.mesh_format == MeshFormat.Interleaved32:
 				# read the interleaved vertex array, including all extra data
@@ -232,10 +231,8 @@ class BioMeshData:
 				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["pos"]]
 				self.uvs[offs:offs + off.vertex_count] = off.raw_verts["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
-				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["normal"]]
-				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_xy"]
-				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_verts["tangent_xy"]
-				# self.normals[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_ushort_vec(vec, 16)) for vec in off.raw_verts["packed_normal"]]
+				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_oct"]
+				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_verts["tangent_oct"]
 
 			elif off.weights_flag.mesh_format == MeshFormat.Interleaved48:
 				logging.warning(f"Interleaved48 not supported")
@@ -257,13 +254,6 @@ class BioMeshData:
 		# pull out fur from UV data
 		self.uvs = unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
-		# transfer fur from uv to weights
-		# if self.flag.fur_shells:
-		# 	# fur is the 2nd uv layer
-		# 	fur = self.uvs[:, 1]
-		# 	self.import_fur_as_weights(fur)
-		# 	# don't store fur data as uv for blender
-		# 	self.uvs = self.uvs[:, :1]
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
 
