@@ -18,9 +18,19 @@ def unpack_swizzle(vec):
     return -vec[0], -vec[2], vec[1]
 
 
+def unpack_swizzle_vectorized(arr):
+    arr[:] = arr[:, (0, 2, 1)]
+    arr[:, (0, 1)] *= -1.0
+
+
 def pack_swizzle(vec):
     # swizzle to avoid a matrix multiplication for global axis correction
     return -vec[0], vec[2], -vec[1]
+
+
+def pack_swizzle_vectorized(arr):
+    arr[:] = arr[:, (0, 2, 1)]
+    arr[:, (0, 2)] *= -1.0
 
 
 def ushort_clamp(coord):

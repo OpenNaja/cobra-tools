@@ -347,6 +347,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
 	# m.save("C:/Users/arnfi/Desktop/models.ms2")
-	m.load("C:/Users/arnfi/Desktop/paths_new/strips.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/paths_new/strips.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/bornean_orangutan_male_.ms2", read_editable=True)
 	# print(m)
 	# print(m.model_infos[1].bone_info.joints.joint_infos)

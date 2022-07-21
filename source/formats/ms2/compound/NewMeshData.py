@@ -8,6 +8,7 @@ from generated.formats.ms2.compound.packing_utils import *
 
 
 # END_GLOBALS
+from source.formats.ms2.compound.packing_utils import unpack_swizzle_vectorized
 
 
 class NewMeshData:
@@ -140,10 +141,10 @@ class NewMeshData:
 		self.windings = self.verts_data[:]["winding"] // 128
 		self.normals[:] = self.verts_data[:]["normal"]
 		self.tangents[:] = self.verts_data[:]["tangent"]
-		self.normals = (self.normals - 128) / 128
+		self.normals = self.normals / 127 - 1.0
 		# normalize
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
-		self.tangents = (self.tangents - 128) / 128
+		self.tangents = self.tangents / 127 - 1.0
 		# unpack the shapekeys
 		if self.shapekeys is not None:
 			for i in range(self.vertex_count):
@@ -154,19 +155,21 @@ class NewMeshData:
 				vert, residue = unpack_longint_vec(unpacked, self.base)
 				self.shapekeys[i] = unpack_swizzle(vert)
 			# print(self.shapekeys)
-		# start_time = time.time()
+		start_time = time.time()
 		for i in range(self.vertex_count):
 			in_pos_packed = self.verts_data[i]["pos"]
 			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
 			self.vertices[i] = unpack_swizzle(vert)
-			self.normals[i] = unpack_swizzle(self.normals[i])
-			self.tangents[i] = unpack_swizzle(self.tangents[i])
+			# self.normals[i] = unpack_swizzle(self.normals[i])
+			# self.tangents[i] = unpack_swizzle(self.tangents[i])
 			self.weights.append(unpack_weights(self, i))
-			self.residues.append(residue)
 
 			# packing bit
+			self.residues.append(residue)
 			self.weights[i].append(("residue", residue))
-		# logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
+		unpack_swizzle_vectorized(self.normals)
+		unpack_swizzle_vectorized(self.tangents)
+		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
 	def set_verts(self, verts):
 		"""Store verts as flat lists for each component"""
