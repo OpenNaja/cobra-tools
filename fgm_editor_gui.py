@@ -297,7 +297,7 @@ class TextureVisual:
 			traceback.print_exc()
 
 	def update_file(self, file):
-		self.data.dependency_name = file
+		self.data.dependency_name.data = file
 
 	def create_fields(self):
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour", "Albino0", "Albino1", "ic0", "ic1")
