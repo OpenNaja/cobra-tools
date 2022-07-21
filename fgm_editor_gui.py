@@ -48,6 +48,10 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.setEditable(False)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
 
+		self.skip_color = QtWidgets.QCheckBox("Disable Float3 Color Widgets")
+		self.skip_color.setLayoutDirection(QtCore.Qt.RightToLeft)
+		self.skip_color.setToolTip("Some Float3 colors can go above 1.0 or below 0.0 to achieve certain effects")
+
 		self.shader_choice = widgets.LabelCombo("Shader:", ())
 		self.shader_choice.entry.activated.connect(self.shader_changed)
 		self.attribute_choice = widgets.LabelCombo("Attribute:", ())
@@ -66,6 +70,7 @@ class MainWindow(widgets.MainWindow):
 
 		vbox = QtWidgets.QVBoxLayout()
 		vbox.addWidget(self.file_widget)
+		vbox.addWidget(self.skip_color)
 		vbox.addWidget(self.game_container)
 		vbox.addWidget(self.shader_choice)
 		vbox.addWidget(self.attribute_choice)
@@ -289,7 +294,7 @@ class TextureVisual:
 			return self.w_file,
 		elif self.entry.dtype == FgmDtype.RGBA:
 			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
-		elif "_RGB" in self.entry.name:
+		elif not self.container.gui.skip_color.isChecked() and "_RGB" in self.entry.name:
 			return self.create_rgb_field(),
 		else:
 			return [self.create_field(i, self.data.value) for i in range(len(self.data.value))]
