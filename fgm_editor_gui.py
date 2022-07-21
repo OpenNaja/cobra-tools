@@ -57,8 +57,8 @@ class MainWindow(widgets.MainWindow):
 		self.texture_add = QtWidgets.QPushButton("Add Texture")
 		self.texture_add.clicked.connect(self.add_texture)
 
-		self.tex_container = ProptertyContainer(self, "Textures")
-		self.attrib_container = ProptertyContainer(self, "Attributes")
+		self.tex_container = PropertyContainer(self, "Textures")
+		self.attrib_container = PropertyContainer(self, "Attributes")
 
 		self.game_changed()
 		# self.populate_choices()
@@ -190,7 +190,7 @@ class MainWindow(widgets.MainWindow):
 			self._save_fgm(file_out)
 
 
-class ProptertyContainer(QtWidgets.QGroupBox):
+class PropertyContainer(QtWidgets.QGroupBox):
 	def __init__(self, gui, name):
 		super().__init__(name)
 		self.gui = gui
