@@ -248,6 +248,7 @@ class MainWindow(widgets.MainWindow):
 		if file_out:
 			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
 			self._save_fgm(file_out)
+			self.file_widget.set_file_path(file_out)
 
 
 class PropertyContainer(QtWidgets.QGroupBox):
