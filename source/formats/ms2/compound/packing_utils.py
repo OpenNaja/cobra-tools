@@ -81,39 +81,6 @@ def unpack_int64_vector(packed_vert, vertices, residues):
     residues[:] = packed_vert
 
 
-def unpack_longint_vec(input, base):
-    """Unpacks and returns the self.raw_pos uint64"""
-    # numpy uint64 does not like the bit operations so we cast to default int
-    input = int(input)
-    output = []
-    # print("inp",bin(input))
-    for i in range(3):
-        # print("\nnew coord")
-        # grab the last 20 bits with bitand
-        # bit representation: 0b11111111111111111111
-        twenty_bits = input & 0xFFFFF
-        # print("input", bin(input))
-        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-        input >>= 20
-        # print("input >>= 20", bin(input))
-        # print("1",bin(1))
-        # get the rightmost bit
-        rightmost_bit = input & 1
-        # print("rightmost_bit = input & 1",bin(rightmost_bit))
-        # print(rightmost_bit, twenty_bits)
-        if not rightmost_bit:
-            # rightmost bit was 0
-            # print("rightmost_bit == 0")
-            # bit representation: 0b100000000000000000000
-            twenty_bits -= PACKEDVEC_MAX
-        # print("final int", twenty_bits)
-        output.append(scale_unpack(twenty_bits, base))
-        # shift to skip the sign bit
-        input >>= 1
-    # input at this point is either 0 or 1
-    return output, input
-
-
 def pack_longint_vec(vec, residue, base):
     """Packs the input vector + residue bit into a uint64 (1, 21, 21, 21)"""
     output = 0
