@@ -73,7 +73,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				if m_ob.mesh_index not in ob_dict:
 					b_ob = create_ob(scene, f"{mdl2_name}_lod{lod_i}_ob{ob_i}", b_me, coll=lod_coll)
 					b_ob.parent = b_armature_obj
-					b_ob["bone_index"] = m_lod.bone_index
+					b_ob["bone"] = m_lod.bone_index
 
 					try:
 						import_vertex_groups(b_ob, mesh, bone_names)

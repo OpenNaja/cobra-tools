@@ -251,7 +251,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	residue = 1
 	fur_length = 0
 	fur_width = 0
-	bone_index_cutoff = get_property(b_ob, "bone_index")
+	bone_index_cutoff = get_property(b_ob, "bone")
 	# get the weights
 	w = []
 	for vertex_group in b_vert.groups:
@@ -357,7 +357,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			model_info.model.lods.append(m_lod)
 			for b_ob in lod_coll.objects:
 				# store & set bone index for lod
-				m_lod.bone_index = get_property(b_ob, "bone_index")
+				m_lod.bone_index = get_property(b_ob, "bone")
 	
 				b_me = b_ob.data
 				if b_me not in b_models:

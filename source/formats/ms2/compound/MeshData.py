@@ -129,19 +129,25 @@ class MeshData:
 			self.add_to_weights("fur_length", vertex_index, fur_vert[0])
 			self.add_to_weights("fur_width", vertex_index, fur_vert[1])
 
-	def get_weights(self, ids, weights):
+	def get_weights(self, ids, weights, fallbacks):
 		self.weights_info = {}
-		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(ids, weights)):
+		for vertex_index, (bone_indices, bone_weights, fallback) in enumerate(zip(ids, weights, fallbacks)):
+			weighted = False
 			for bone_index, weight in zip(bone_indices, bone_weights):
 				if weight > 0.0:
 					self.add_to_weights(bone_index, vertex_index, weight)
+					weighted = True
+			if not weighted:
+				self.add_to_weights(fallback, vertex_index, 1.0)
 
-	def add_to_weights(self, bone_index, vertex_index, weight):
-		if bone_index not in self.weights_info:
-			self.weights_info[bone_index] = {}
-		if weight not in self.weights_info[bone_index]:
-			self.weights_info[bone_index][weight] = []
-		self.weights_info[bone_index][weight].append(vertex_index)
+	def add_to_weights(self, bone, vertex_index, weight):
+		# create a dict for new bone key
+		if bone not in self.weights_info:
+			self.weights_info[bone] = {}
+		# supplied weight
+		if weight not in self.weights_info[bone]:
+			self.weights_info[bone][weight] = set()
+		self.weights_info[bone][weight].add(vertex_index)
 
 	@staticmethod
 	def quantize_bone_weights(bone_weights):

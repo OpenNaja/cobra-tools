@@ -62,14 +62,12 @@ def scale_unpack(f, base):
 
 def scale_unpack_vectorized(f, base):
     """Converts a packed int component into a float in the range specified by base"""
-    scale = base / PACKEDVEC_MAX
-    f[:] = f * scale - base
+    f[:] = f * base / PACKEDVEC_MAX - base
 
 
-def scale_pack(f, base):
+def scale_pack_vectorized(f, base):
     """Packs a float into the range specified by base"""
-    scale = base / PACKEDVEC_MAX
-    return int(round(f / scale - base))
+    f[:] = np.round((f+base) / base * PACKEDVEC_MAX)
 
 
 def unpack_int64_vector(packed_vert, vertices, residues):
@@ -79,6 +77,13 @@ def unpack_int64_vector(packed_vert, vertices, residues):
         packed_vert >>= 21
         vertices[:, i] = twentyone_bits
     residues[:] = packed_vert
+
+
+def pack_int64_vector(packed_vert, vertices, residues):
+    packed_vert[:] = 0
+    for i in range(3):
+        packed_vert |= vertices[:, i] << (21 * i)
+    packed_vert[:] |= residues << 63
 
 
 def pack_longint_vec(vec, residue, base):

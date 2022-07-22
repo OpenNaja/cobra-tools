@@ -286,14 +286,37 @@ class NewMeshData(MeshData):
 		start_time = time.time()
 		if "bone weights" in self.dt.fields:
 			self.bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
-			self.get_weights(self.verts_data["bone ids"], self.bone_weights)
+			self.get_weights(self.verts_data["bone ids"], self.bone_weights, self.verts_data["bone index"])
+		# before = np.copy(self.verts_data["pos"])
+		# first = int(np.copy(before[0]))
+		# print("before", bin(int(first)))
+		# for i in range(3):
+		# 	# grab the last 21 bits with bitand
+		# 	twentyone_bits = first & 0b111111111111111111111
+		# 	first >>= 21
+		# 	print(bin(twentyone_bits))
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.residues)
+		# int21_vec = np.copy(self.vertices)
 		scale_unpack_vectorized(self.vertices, self.base)
+
+		# print("start")
+		# # print(int21_vec)
+		# scale_pack_vectorized(self.vertices, self.base)
+		# # print(self.vertices)
+		# print("int21_vec", np.allclose(int21_vec, self.vertices))
+		# pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.residues)
+		# for v in (int21_vec[0], self.vertices[0]):
+		# 	print([bin(int(c)) for c in v])
+		# print(bin(before[0]), type(before[0]))
+		# print(bin(self.verts_data["pos"][0]))
+		# print("packed int64", np.allclose(before, self.verts_data["pos"]))
+
 		unpack_ubyte_vector(self.normals)
 		unpack_ubyte_vector(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
+
 		# unpack the shapekeys
 		if self.shapekeys is not None:
 			shapes_combined = self.verts_data["shapekeys1"].astype(np.int64)
@@ -321,11 +344,17 @@ class NewMeshData(MeshData):
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		self.verts_data = np.zeros(len(self.vertices), dtype=self.dt)
+
+		if not isinstance(self.vertices, np.ndarray):
+			self.vertices = np.array(self.vertices, dtype=np.float32)
+		if not isinstance(self.residues, np.ndarray):
+			self.residues = np.array(self.residues, dtype=np.bool)
+		pack_swizzle_vectorized(self.vertices)
+		scale_pack_vectorized(self.vertices, self.base)
+		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.residues)
 		for i, vert in enumerate(self.verts_data):
 			# residue = 1 -> 4 bones per vertex, no alpha blending
 			# residue = 0 -> 1 bone per vertex, alpha blending (whiskers)
-			residue = self.residues[i]
-			vert["pos"] = pack_longint_vec(pack_swizzle(self.vertices[i]), residue, self.base)
 			vert["normal"] = pack_ubyte_vector(pack_swizzle(self.normals[i]))
 			vert["tangent"] = pack_ubyte_vector(pack_swizzle(self.tangents[i]))
 

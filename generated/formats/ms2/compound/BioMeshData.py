@@ -387,7 +387,7 @@ class BioMeshData(MeshData):
 	# 	"""Update self.verts_data from list of new verts"""
 	# 	self.verts_data = np.zeros(len(verts), dtype=self.dt)
 	# 	for i, (
-	# 			position, residue, normal, winding, tangent, bone_index, uvs, vcols, bone_ids, bone_weights,
+	# 			position, residue, normal, winding, tangent, bone, uvs, vcols, bone_ids, bone_weights,
 	# 			fur_length, fur_width, shapekey) in enumerate(
 	# 		verts):
 	# 		# print("shapekey", shapekey)
@@ -399,7 +399,7 @@ class BioMeshData(MeshData):
 	# 		# 0 = natural winding matching the geometry
 	# 		# 128 = UV's winding is flipped / inverted compared to geometry
 	# 		self.verts_data[i]["winding"] = winding * 128
-	# 		self.verts_data[i]["bone index"] = bone_index
+	# 		self.verts_data[i]["bone index"] = bone
 	# 		if "bone ids" in self.dt.fields:
 	# 			self.verts_data[i]["bone ids"] = bone_ids
 	# 			# round is essential so the float is not truncated

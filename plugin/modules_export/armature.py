@@ -161,7 +161,7 @@ def export_joints(armature_ob, bone_info, b_bone_names, corrector):
 	logging.info("Exporting joints")
 	scene = bpy.context.scene
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
-		# bone_name = b_bone_names[bone_index]
+		# bone_name = b_bone_names[bone]
 		logging.debug(f"joint {joint_info.name}")
 		for hitcheck in joint_info.hitchecks:
 			b_obj = bpy.data.objects.get(f"{scene.name}_{hitcheck.name}", None)
