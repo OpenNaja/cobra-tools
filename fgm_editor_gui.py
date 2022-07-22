@@ -52,6 +52,10 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.setEditable(False)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
 
+		self.lock_types = QtWidgets.QCheckBox("Lock Attribute Types")
+		self.lock_types.setLayoutDirection(QtCore.Qt.RightToLeft)
+		self.lock_types.setChecked(True)
+
 		self.skip_color = QtWidgets.QCheckBox("Disable Float3 Color Widgets")
 		self.skip_color.setLayoutDirection(QtCore.Qt.RightToLeft)
 		self.skip_color.setToolTip("Some Float3 colors can go above 1.0 or below 0.0 to achieve certain effects")
@@ -74,7 +78,6 @@ class MainWindow(widgets.MainWindow):
 
 		vbox = QtWidgets.QVBoxLayout()
 		vbox.addWidget(self.file_widget)
-		vbox.addWidget(self.skip_color)
 		vbox.addWidget(self.game_container)
 		vbox.addWidget(self.shader_choice)
 		vbox.addWidget(self.attribute_choice)
@@ -83,6 +86,8 @@ class MainWindow(widgets.MainWindow):
 		vbox.addWidget(self.texture_add)
 		vbox.addWidget(self.tex_container)
 		vbox.addWidget(self.attrib_container)
+		vbox.addWidget(self.skip_color)
+		vbox.addWidget(self.lock_types)
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
@@ -299,6 +304,10 @@ class TextureVisual:
 		self.w_dtype.setText(entry.dtype.name)
 		self.w_dtype.setToolTip(f"Data type of {entry.name}")
 		self.w_dtype.currentIndexChanged.connect(self.update_dtype)
+		if container.title() == "Attributes":
+			self.container.gui.lock_types.toggled.connect(self.w_dtype.setDisabled)
+			if self.container.gui.lock_types.isChecked():
+				self.w_dtype.setDisabled(True)
 
 		self.b_delete = QtWidgets.QPushButton("x")
 		self.b_delete.setMaximumWidth(15)
