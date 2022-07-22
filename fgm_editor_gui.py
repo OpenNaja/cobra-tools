@@ -152,13 +152,12 @@ class MainWindow(widgets.MainWindow):
 			if tex.dtype == FgmDtype.Texture:
 				tex.value[0].index = index
 				index += 1
-		return textures
 
 	def sort_textures(self):
 		textures = self.header.textures.data
 		deps = self.header.dependencies.data
 		textures[:], deps[:] = zip(*sorted(zip(textures, deps), key=lambda p: p[0].name))
-		textures = self.fix_tex_indices(textures)
+		self.fix_tex_indices(textures)
 		return textures, deps
 
 	def add_texture(self,):
@@ -327,6 +326,8 @@ class TextureVisual:
 			self.container.update_gui(self.container.entry_list, self.container.data_list)
 		except:
 			traceback.print_exc()
+		finally:
+			self.container.gui.fix_tex_indices(self.container.entry_list)
 
 	def update_dtype(self, ind):
 		dtype_name = self.w_dtype.currentText()
