@@ -4,7 +4,9 @@ import traceback
 import logging
 import numpy as np
 
-from generated.formats.fgm import FgmFile
+from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.ovl_base import OvlContext
+
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from ovl_util import interaction
@@ -174,26 +176,27 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		textures = set()
 		shaders = set()
 		if walk_fgms:
-			fgm_data = FgmFile()
+			context = OvlContext()
 			fgm_files = walk_type(export_dir, extension=".fgm")
 			mf_max = len(fgm_files)
 			for mf_index, fgm_path in enumerate(fgm_files):
 				fgm_name = os.path.basename(fgm_path)
 				gui.update_progress("Walking FGM files: " + fgm_name, value=mf_index, vmax=mf_max)
 				try:
-					fgm_data.load(fgm_path)
-					shaders.add(fgm_data.shader_name)
-					for attrib in fgm_data.attributes:
-						attributes[attrib.name] = attrib.dtype
-					for texture in fgm_data.textures:
+					header = FgmHeader.from_xml_file(fgm_path, context)
+					shaders.add(header.shader_name)
+					for attrib in header.attributes.data:
+						attributes[attrib.name] = int(attrib.dtype)
+					for texture in header.textures.data:
 						textures.add(texture.name)
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((fgm_path, ex))
 		# report
-		print("\nThe following errors occured:")
-		for file_path, ex in errors:
-			print(file_path, str(ex))
+		if errors:
+			print("\nThe following errors occured:")
+			for file_path, ex in errors:
+				print(file_path, str(ex))
 
 		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}.py")
 		with open(out_path, "w") as f:
