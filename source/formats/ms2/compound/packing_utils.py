@@ -75,9 +75,9 @@ def scale_pack(f, base):
 def unpack_int64_vector(packed_vert, vertices, residues):
     for i in range(3):
         # grab the last 21 bits with bitand
-        twenty_bits = packed_vert & 0b111111111111111111111
+        twentyone_bits = packed_vert & 0b111111111111111111111
         packed_vert >>= 21
-        vertices[:, i] = twenty_bits
+        vertices[:, i] = twentyone_bits
     residues[:] = packed_vert
 
 
