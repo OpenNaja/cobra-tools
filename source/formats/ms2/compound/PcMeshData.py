@@ -14,6 +14,7 @@ class PcMeshData:
 	def init_arrays(self, count):
 		self.vertex_count = count
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
+		self.residues = np.empty(self.vertex_count, np.bool)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		try:
@@ -26,7 +27,6 @@ class PcMeshData:
 			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 		except:
 			self.colors = None
-		self.weights = []
 
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
@@ -34,15 +34,13 @@ class PcMeshData:
 		dt = [
 			("pos", np.uint64),
 			("normal", np.ubyte, (3,)),
-			("unk", np.ubyte),
+			("winding", np.ubyte),
 			("tangent", np.ubyte, (3,)),
 			("bone index", np.ubyte),
 		]
 		dt_uv = [
 			("uvs", np.ushort, (1, 2)),
 		]
-		# bone weights
-		# if self.flag in (529, 533, 885, 565, 1013, 528, 821):
 		dt_w = [
 			("bone ids", np.ubyte, (4,)),
 			("bone weights", np.ubyte, (4,)),
@@ -75,31 +73,23 @@ class PcMeshData:
 		self.stream_info.stream.readinto(self.uv_data)
 		self.stream_info.stream.seek(self.weights_offset * 16)
 		logging.debug(f"WEIGHTS at {self.stream_info.stream.tell()}")
-		# print(self)
 		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		self.weights_data = np.empty(dtype=self.dt_w, shape=self.vertex_count)
 		self.stream_info.stream.readinto(self.weights_data)
-		# print(self.verts_data)
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.uvs is not None:
-			self.uvs[:] = self.uv_data[:]["uvs"]
-			# unpack uvs
+			self.uvs[:] = self.uv_data["uvs"]
 			self.uvs = unpack_ushort_vector(self.uvs)
-		# if self.colors is not None:
-		# 	# first cast to the float colors array so unpacking doesn't use int division
-		# 	self.colors[:] = self.verts_data[:]["colors"]
-		# 	self.colors /= 255
-		self.normals[:] = self.verts_data[:]["normal"]
-		self.tangents[:] = self.verts_data[:]["tangent"]
-		self.normals = (self.normals - 128) / 128
-		self.tangents = (self.tangents - 128) / 128
-		for i in range(self.vertex_count):
-			in_pos_packed = self.verts_data[i]["pos"]
-			vert, residue = unpack_longint_vec(in_pos_packed, self.base)
-			self.vertices[i] = unpack_swizzle(vert)
-			self.normals[i] = unpack_swizzle(self.normals[i])
-			self.tangents[i] = unpack_swizzle(self.tangents[i])
-			self.weights.append(unpack_weights(self, i))
+
+		self.bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
+		self.get_weights(self.weights_data["bone ids"], self.bone_weights)
+		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.residues)
+		scale_unpack_vectorized(self.vertices, self.base)
+		unpack_ubyte_vector(self.normals)
+		unpack_ubyte_vector(self.tangents)
+		unpack_swizzle_vectorized(self.vertices)
+		unpack_swizzle_vectorized(self.normals)
+		unpack_swizzle_vectorized(self.tangents)
 		# print(self.vertices)

@@ -129,9 +129,9 @@ class MeshData:
 			self.add_to_weights("fur_length", vertex_index, fur_vert[0])
 			self.add_to_weights("fur_width", vertex_index, fur_vert[1])
 
-	def get_weights(self):
+	def get_weights(self, ids, weights):
 		self.weights_info = {}
-		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(self.verts_data["bone ids"], self.bone_weights)):
+		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(ids, weights)):
 			for bone_index, weight in zip(bone_indices, bone_weights):
 				if weight > 0.0:
 					self.add_to_weights(bone_index, vertex_index, weight)

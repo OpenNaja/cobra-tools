@@ -40,7 +40,7 @@ class NewMeshData:
 			self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
 		except:
 			self.shapekeys = None
-		self.weights = [None for _ in range(self.vertex_count)]
+		self.weights_info = {}
 
 	def get_vcol_count(self, ):
 		if "colors" in self.dt.fields:
@@ -138,11 +138,15 @@ class NewMeshData:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data["colors"]
 			self.colors /= 255
+		# todo - PZ uses many more bits, while JWE2 pre-Biosyn uses really just the one bit
+		# print(self.verts_data["winding"], set(self.verts_data["winding"]))
 		self.windings = self.verts_data["winding"] // 128
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
 		start_time = time.time()
-		self.bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
+		if "bone weights" in self.dt.fields:
+			self.bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
+			self.get_weights(self.verts_data["bone ids"], self.bone_weights)
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.residues)
 		scale_unpack_vectorized(self.vertices, self.base)
 		unpack_ubyte_vector(self.normals)
@@ -159,7 +163,6 @@ class NewMeshData:
 			scale_unpack_vectorized(self.shapekeys, self.base)
 			unpack_swizzle_vectorized(self.shapekeys)
 
-		self.get_weights()
 		for vertex_index, res in enumerate(self.residues):
 			self.add_to_weights("residue", vertex_index, res)
 		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
