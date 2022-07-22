@@ -164,6 +164,7 @@ class NewMeshData(MeshData):
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		self.residues = np.empty(self.vertex_count, np.bool)
+		self.shape_residues = np.empty(self.vertex_count, np.bool)
 		try:
 			uv_shape = self.dt["uvs"].shape
 			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
@@ -234,7 +235,7 @@ class NewMeshData(MeshData):
 				("uvs", np.ushort, (1, 2)),
 				("shapekeys0", np.uint32),
 				("colors", np.ubyte, (1, 4)),  # this appears to be normals, or something similar
-				("shapekeys1", np.uint32),
+				("shapekeys1", np.int32),
 				# sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
 				("floats", np.float32, (4,)),
 			])
@@ -280,16 +281,6 @@ class NewMeshData(MeshData):
 		self.windings = self.verts_data["winding"] // 128
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
-		# unpack the shapekeys
-		if self.shapekeys is not None:
-			for i in range(self.vertex_count):
-				first = self.verts_data[i]["shapekeys0"]
-				second = self.verts_data[i]["shapekeys1"]
-				packed = struct.pack("LL", first, second)
-				unpacked = struct.unpack("Q", packed)[0]
-				vert, residue = unpack_longint_vec(unpacked, self.base)
-				self.shapekeys[i] = unpack_swizzle(vert)
-			# print(self.shapekeys)
 		start_time = time.time()
 		for i in range(self.vertex_count):
 			self.weights[i] = unpack_weights(self, i)
@@ -302,6 +293,14 @@ class NewMeshData(MeshData):
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
+		# unpack the shapekeys
+		if self.shapekeys is not None:
+			shapes_combined = self.verts_data["shapekeys1"].astype(np.int64)
+			shapes_combined <<= 32
+			shapes_combined |= self.verts_data["shapekeys0"]
+			unpack_int64_vector(shapes_combined, self.shapekeys, self.shape_residues)
+			scale_unpack_vectorized(self.shapekeys, self.base)
+			unpack_swizzle_vectorized(self.shapekeys)
 		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
 	def set_verts(self, verts):

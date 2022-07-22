@@ -98,184 +98,15 @@
 #     return [b.name for b in out_bones]
 #
 #
-# def unpack_longint_vec(input, base):
-#     """Unpacks and returns the self.raw_pos uint64"""
-#     # numpy uint64 does not like the bit operations so we cast to default int
-#     input = int(input)
-#     # correct for size according to base, relative to 512
-#     scale = base / 512 / 2048
-#     # input = self.raw_pos
-#     output = []
-#     # print("inp",bin(input))
-#     for i in range(3):
-#         # print("\nnew coord")
-#         # grab the last 20 bits with bitand
-#         # bit representation: 0b11111111111111111111
-#         twenty_bits = input & 0xFFFFF
-#         # print("input", bin(input))
-#         # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-#         input >>= 20
-#         # print("input >>= 20", bin(input))
-#         # print("1",bin(1))
-#         # get the rightmost bit
-#         rightmost_bit = input & 1
-#         # print("rightmost_bit = input & 1",bin(rightmost_bit))
-#         # print(rightmost_bit, twenty_bits)
-#         if not rightmost_bit:
-#             # rightmost bit was 0
-#             # print("rightmost_bit == 0")
-#             # bit representation: 0b100000000000000000000
-#             twenty_bits -= 0x100000
-#         # print("final int", twenty_bits)
-#         o = (twenty_bits + base) * scale
-#         output.append(o)
-#         # shift to skip the sign bit
-#         input >>= 1
-#     # input at this point is either 0 or 1
-#     return output, input
-#
-# a = bytes.fromhex("CE 09 90 56 8E FB 9B B9 03 02 0B 40")
-# a = bytes.fromhex("CE 09 90 56 03 02 0B 40")
-# import struct
-# b = struct.unpack("Q", a)[0]
-# print(unpack_longint_vec(b, 512))
-import os
+
 import struct
-import traceback
 
 import numpy as np
 from numba import jit
 
-# from generated.formats.ms2.compound.packing_utils import unpack_longint_vec
 from generated.formats.fgm import TextureInfo
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 from generated.formats.ovl_base import OvlContext
-
-twenty_bits_mask = np.uint64(0xFFFFF)
-twenty = np.uint8(20)
-ONE = np.uint8(1)
-PACKEDVEC_MAX = np.int64(2 ** 20)  # 0x100000
-
-
-# @jit(nopython=True)
-def scale_unpack(f, base):
-    """Converts a packed int component into a float in the range specified by base"""
-    scale = base / PACKEDVEC_MAX
-    return (f + base) * scale
-
-
-# @jit("void(uint64, float32, float32)", nopython=True)
-# @jit(nopython=True)
-def unpack_longint_vec(input, base, out_vec):
-    """Unpacks and returns the self.raw_pos uint64"""
-    # print("inp",bin(input))
-    for i in range(3):
-        # print("\nnew coord")
-        # grab the last 20 bits with bitand
-        # bit representation: 0b11111111111111111111
-        twenty_bits = input & twenty_bits_mask
-        # print("input", bin(input))
-        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-        input >>= twenty
-        # print("input >>= 20", bin(input))
-        # print("1",bin(1))
-        # get the rightmost bit
-        rightmost_bit = input & ONE
-        # print("rightmost_bit = input & 1",bin(rightmost_bit))
-        # print(rightmost_bit, twenty_bits)
-        if not rightmost_bit:
-            # rightmost bit was 0
-            # print("rightmost_bit == 0")
-            # bit representation: 0b100000000000000000000
-            twenty_bits -= PACKEDVEC_MAX
-        # print("final int", twenty_bits)
-        out_vec[i] = scale_unpack(twenty_bits, base)
-        # shift to skip the sign bit
-        input >>= ONE
-    # input at this point is either 0 or 1
-    # return input
-
-
-# inp = np.zeros(dtype=np.uint64, shape=(25))
-# out = np.zeros(dtype=np.float32, shape=(25, 3))
-# inp[0] = 9799422295746670211
-# # inp[1] = 4589460495556148736
-# for i in range(2):
-#     unpack_longint_vec(inp[i], 512.0, out[i])
-# print(out)
-
-
-def unpack_ushort_vec_old(input, base):
-    """Unpacks and returns the self.raw_pos uint64"""
-    # numpy uint64 does not like the bit operations so we cast to default int
-    input = int(input)
-    output = []
-    width = 4
-    USHORT_PACKEDVEC_MAX = 2 ** width
-    # print("inp",bin(input))
-    for i in range(3):
-        # print("\nnew coord")
-        # grab the last 20 bits with bitand
-        # bit representation: 0b11111111111111111111
-        twenty_bits = input & 0b1111
-        # print("input", bin(input))
-        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-        input >>= width
-        # print("input >>= 20", bin(input))
-        # print("1",bin(1))
-        # get the rightmost bit
-        rightmost_bit = input & 1
-        # print("rightmost_bit = input & 1",bin(rightmost_bit))
-        # print(rightmost_bit, twenty_bits)
-        if not rightmost_bit:
-            # rightmost bit was 0
-            # print("rightmost_bit == 0")
-            # bit representation: 0b100000000000000000000
-            twenty_bits -= USHORT_PACKEDVEC_MAX
-        # print("final int", twenty_bits)
-        # output.append(scale_unpack(twenty_bits, base))
-        output.append(twenty_bits / base)
-        # shift to skip the sign bit
-        input >>= 1
-    # input at this point is either 0 or 1
-    return output, input
-
-
-def unpack_ushort_vec(input, base):
-    """Unpacks and returns the self.raw_pos uint64"""
-    # numpy uint64 does not like the bit operations so we cast to default int
-    input = int(input)
-    output = []
-    width = 7
-    USHORT_PACKEDVEC_MAX = 2 ** width
-    # print("inp",bin(input))
-    for i in range(2):
-        # print("\nnew coord")
-        # grab the last 20 bits with bitand
-        # bit representation: 0b11111111111111111111
-        twenty_bits = input & 0b1111111
-        # print("input", bin(input))
-        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-        input >>= width
-        # print("input >>= 20", bin(input))
-        # print("1",bin(1))
-        # get the rightmost bit
-        # rightmost_bit = input & 1
-        # print("rightmost_bit = input & 1",bin(rightmost_bit))
-        # print(rightmost_bit, twenty_bits)
-        # if not rightmost_bit:
-        #     # rightmost bit was 0
-        #     # print("rightmost_bit == 0")
-        #     # bit representation: 0b100000000000000000000
-        #     twenty_bits -= USHORT_PACKEDVEC_MAX
-        # print("final int", twenty_bits)
-        # output.append(scale_unpack(twenty_bits, base))
-        # output.append(twenty_bits / base)
-        output.append(twenty_bits)
-        # shift to skip the sign bit
-        # input >>= 1
-    # input at this point is either 0 or 1
-    return output, input
 
 
 innormals = (
@@ -343,8 +174,6 @@ out = np.zeros(dtype=np.float32, shape=(count, 3))
 # inp[3] = 36357
 # inp[4] = 32702
 for i in range(count):
-    # out[i], flag = unpack_ushort_vec(inp[i], 16)
-    # out[i, :2], flag = unpack_ushort_vec(inp[i], 16)
     inp_ushort = in_ushorts[i]
     ush_str = str(bin(inp_ushort))[2:]
     print(f"{ush_str:>16}", innormals[i][:2])

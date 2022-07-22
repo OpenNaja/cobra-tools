@@ -10,42 +10,6 @@ from generated.formats.ms2.compound.packing_utils import *
 from generated.formats.ms2.enum.MeshFormat import MeshFormat
 from plugin.utils.tristrip import triangulate
 
-def unpack_ushort_vec(input, base):
-    """Unpacks and returns the self.raw_pos uint64"""
-    # numpy uint64 does not like the bit operations so we cast to default int
-    input = int(input)
-    output = []
-    width = 4
-    USHORT_PACKEDVEC_MAX = 2 ** width
-    # print("inp",bin(input))
-    for i in range(3):
-        # print("\nnew coord")
-        # grab the last 20 bits with bitand
-        # bit representation: 0b11111111111111111111
-        twenty_bits = input & 0b1111
-        # print("input", bin(input))
-        # print("twenty_bits = input & 0xFFFFF ", bin(twenty_bits), twenty_bits)
-        input >>= 4
-        # print("input >>= 20", bin(input))
-        # print("1",bin(1))
-        # get the rightmost bit
-        rightmost_bit = input & 1
-        # print("rightmost_bit = input & 1",bin(rightmost_bit))
-        # print(rightmost_bit, twenty_bits)
-        if not rightmost_bit:
-            # rightmost bit was 0
-            # print("rightmost_bit == 0")
-            # bit representation: 0b100000000000000000000
-            twenty_bits -= USHORT_PACKEDVEC_MAX
-        # print("final int", twenty_bits)
-        # output.append(scale_unpack(twenty_bits, base))
-        output.append(twenty_bits / base)
-        # shift to skip the sign bit
-        input >>= 1
-    # input at this point is either 0 or 1
-    return output#, input
-
-
 
 # END_GLOBALS
 
@@ -158,6 +122,7 @@ class BioMeshData:
 		# self.normals = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
 		self.normals = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 		self.tangents = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
+		self.residues = np.empty(self.vertex_count, np.bool)
 
 		# check first off
 		off = self.offset_chunks[0]
@@ -216,7 +181,8 @@ class BioMeshData:
 				self.stream_info.stream.readinto(off.raw_meta)
 
 				# store chunk's data
-				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(unpack_longint_vec(i, off.pack_offset)[0]) for i in off.raw_verts]
+				unpack_int64_vector(off.raw_verts, self.vertices[offs:offs + off.vertex_count], self.residues)
+				scale_unpack_vectorized(self.vertices[offs:offs + off.vertex_count], self.base)
 				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_oct"]
