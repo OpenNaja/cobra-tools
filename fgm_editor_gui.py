@@ -292,7 +292,10 @@ class TextureVisual:
 		self.entry = entry
 		self.data = data
 		self.w_label = QtWidgets.QLabel(entry.name)
-		self.w_dtype = widgets.CleverCombo([e.name for e in FgmDtype])
+		dtypes = [e.name for e in FgmDtype]
+		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("Texture"))]
+
+		self.w_dtype = widgets.CleverCombo(dtypes_tex if container.title() == "Textures" else dtypes)
 		self.w_dtype.setText(entry.dtype.name)
 		self.w_dtype.setToolTip(f"Data type of {entry.name}")
 		self.w_dtype.currentIndexChanged.connect(self.update_dtype)
