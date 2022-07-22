@@ -11,6 +11,9 @@ from generated.formats.ovl_base import OvlContext
 from hashes import fgm_pz, fgm_jwe2
 import ovl_util.interaction
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.fgm.compound.TexIndex import TexIndex
+from generated.formats.fgm.compound.TextureInfo import TextureInfo
+from generated.formats.fgm.compound.DependencyInfo import DependencyInfo
 from generated.formats.ovl.versions import *
 from ovl_util import widgets, config, interaction
 from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT
@@ -143,10 +146,50 @@ class MainWindow(widgets.MainWindow):
 			# self.header.add_attrib(attrib_name, self.fgm_dict.attributes[attrib_name])
 			self.attrib_container.update_gui(self.header.attributes)
 
+	def fix_tex_indices(self, textures):
+		index = 0
+		for tex in textures:
+			if tex.dtype == FgmDtype.Texture:
+				tex.value[0].index = index
+				index += 1
+		return textures
+
+	def sort_textures(self):
+		textures = self.header.textures.data
+		deps = self.header.dependencies.data
+		textures[:], deps[:] = zip(*sorted(zip(textures, deps), key=lambda p: p[0].name))
+		textures = self.fix_tex_indices(textures)
+		return textures, deps
+
 	def add_texture(self,):
 		tex_name = self.texture_choice.entry.currentText()
-		# self.header.add_texture(tex_name)
-		self.tex_container.update_gui(self.header.textures)
+		textures = self.header.textures.data
+		for tex in textures:
+			if tex.name == tex_name:
+				logging.warning(f"Texture '{tex_name}' already exists. Ignoring.")
+				return
+
+		tex_index = TexIndex(self.context, set_default=False)
+		tex_index.set_defaults()
+
+		tex = TextureInfo(self.context, set_default=False)
+		tex.dtype = FgmDtype.Texture
+		tex.set_defaults()
+		tex.name = tex_name
+		tex.value[:] = [tex_index]
+		textures.append(tex)
+
+		deps = self.header.dependencies.data
+		dep = DependencyInfo(self.context, arg=tex, set_default=False)
+		dep.set_defaults()
+		deps.append(dep)
+
+		self.header.textures.data[:], self.header.dependencies.data[:] = self.sort_textures()
+
+		try:
+			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+		except:
+			traceback.print_exc()
 
 	@property
 	def fgm_name(self,):
