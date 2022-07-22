@@ -333,7 +333,12 @@ class NewMeshData(MeshData):
 	def set_verts(self, verts):
 		"""Store verts as flat lists for each component"""
 		# need to update the count here
-		self.vertices, self.residues, self.normals, self.windings, self.tangents, self.uvs, \
+		# residue = 1 -> 4 bones per vertex, no alpha blending
+		# residue = 0 -> 1 bone per vertex, alpha blending (whiskers)
+		self.vertex_count = len(verts)
+		self.update_dtype()
+		self.init_arrays()
+		self.vertices[:], self.residues[:], self.normals[:], self.windings, self.tangents[:], self.uvs, \
 		self.colors, self.weights, self.shapekeys = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
@@ -341,23 +346,20 @@ class NewMeshData(MeshData):
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
 		logging.info("Packing vertices")
-		# get dtype according to which the vertices are packed
-		self.update_dtype()
-		self.verts_data = np.zeros(len(self.vertices), dtype=self.dt)
+		self.verts_data = np.zeros(self.vertex_count, dtype=self.dt)
 
-		if not isinstance(self.vertices, np.ndarray):
-			self.vertices = np.array(self.vertices, dtype=np.float32)
-		if not isinstance(self.residues, np.ndarray):
-			self.residues = np.array(self.residues, dtype=np.bool)
 		pack_swizzle_vectorized(self.vertices)
+		pack_swizzle_vectorized(self.normals)
+		pack_swizzle_vectorized(self.tangents)
+
 		scale_pack_vectorized(self.vertices, self.base)
 		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.residues)
+		pack_ubyte_vector(self.normals)
+		pack_ubyte_vector(self.tangents)
+		self.verts_data["normal"] = self.normals
+		self.verts_data["tangent"] = self.tangents
+		# non-vectorized data
 		for i, vert in enumerate(self.verts_data):
-			# residue = 1 -> 4 bones per vertex, no alpha blending
-			# residue = 0 -> 1 bone per vertex, alpha blending (whiskers)
-			vert["normal"] = pack_ubyte_vector(pack_swizzle(self.normals[i]))
-			vert["tangent"] = pack_ubyte_vector(pack_swizzle(self.tangents[i]))
-
 			# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
 			# 0 = natural winding matching the geometry
 			# 128 = UV's winding is flipped / inverted compared to geometry
@@ -373,17 +375,18 @@ class NewMeshData(MeshData):
 				vert["uvs"] = list(pack_ushort_vector(uv) for uv in self.uvs[i])
 			if "colors" in self.dt.fields:
 				vert["colors"] = list(list(round(c * 255) for c in vcol) for vcol in self.colors[i])
-			if "shapekeys0" in self.dt.fields:
-				# first pack it as uint64
-				raw_packed = pack_longint_vec(pack_swizzle(self.shapekeys[i]), residue, self.base)
-				if raw_packed < 0:
-					logging.error(f"Shapekey {raw_packed} could not be packed into uint64")
-					raw_packed = 0
-				raw_bytes = struct.pack("Q", raw_packed)
-				# unpack to 2 uints again and assign data
-				first, second = struct.unpack("LL", raw_bytes)
-				vert["shapekeys0"] = first
-				vert["shapekeys1"] = second
+			# todo - shapekeys packing
+			# if "shapekeys0" in self.dt.fields:
+			# 	# first pack it as uint64
+			# 	raw_packed = pack_longint_vec(pack_swizzle(self.shapekeys[i]), residue, self.base)
+			# 	if raw_packed < 0:
+			# 		logging.error(f"Shapekey {raw_packed} could not be packed into uint64")
+			# 		raw_packed = 0
+			# 	raw_bytes = struct.pack("Q", raw_packed)
+			# 	# unpack to 2 uints again and assign data
+			# 	first, second = struct.unpack("LL", raw_bytes)
+			# 	vert["shapekeys0"] = first
+			# 	vert["shapekeys1"] = second
 
 	def unpack_weights_list(self, weights_sorted):
 		# pad the weight list to 4 bones, ie. add empty bones if missing

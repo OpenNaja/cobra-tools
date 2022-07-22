@@ -1,6 +1,6 @@
 import numpy as np
 
-UBYTE_SCALE = 128
+UBYTE_SCALE = 127
 UBYTE_MAX = 255
 USHORT_SCALE = 2048
 USHORT_OFFSET = 32766.5
@@ -13,9 +13,13 @@ zero_uint64 = np.uint64(0)
 
 def unpack_ubyte_vector(arr):
     # convert to +-1 range; 255 is unused
-    arr[:] = arr / 127 - 1.0
+    arr[:] = arr / UBYTE_SCALE - 1.0
     # normalize result
     arr /= np.linalg.norm(arr, axis=1, keepdims=True)
+
+
+def pack_ubyte_vector(arr):
+    arr[:] = np.round(arr * UBYTE_SCALE + UBYTE_SCALE)
 
 
 def unpack_ushort_vector(vec):
@@ -50,10 +54,6 @@ def pack_ushort_vector(vec):
     return [ushort_clamp(int(round(coord * USHORT_SCALE + USHORT_OFFSET))) for coord in vec]
 
 
-def pack_ubyte_vector(vec):
-    return [min(int(round(x * UBYTE_SCALE + UBYTE_SCALE)), UBYTE_MAX) for x in vec]
-
-
 def scale_unpack(f, base):
     """Converts a packed int component into a float in the range specified by base"""
     scale = base / PACKEDVEC_MAX
@@ -84,28 +84,6 @@ def pack_int64_vector(packed_vert, vertices, residues):
     for i in range(3):
         packed_vert |= vertices[:, i] << (21 * i)
     packed_vert[:] |= residues << 63
-
-
-def pack_longint_vec(vec, residue, base):
-    """Packs the input vector + residue bit into a uint64 (1, 21, 21, 21)"""
-    output = 0
-    for i, f in enumerate(vec):
-        o = scale_pack(f, base)
-        # print("restored int", o)
-        # we are 'clamping' here if we - essentially wrapping the range around
-        # probably not correct!
-        # i think the cond might be o < 0
-        if o < PACKEDVEC_MAX:
-            # 0b100000000000000000000
-            o += PACKEDVEC_MAX
-        else:
-            # set the 1 bit flag
-            output |= 1 << (21 * (i + 1) - 1)
-        # print("restored int + correction", o)
-        output |= o << (21 * i)
-    # print("bef",bin(output))
-    output |= residue << 63
-    return output
 
 
 def get_valid_weights(vert):

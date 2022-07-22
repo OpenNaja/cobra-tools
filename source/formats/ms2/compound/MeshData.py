@@ -146,8 +146,9 @@ class MeshData:
 			self.weights_info[bone] = {}
 		# supplied weight
 		if weight not in self.weights_info[bone]:
-			self.weights_info[bone][weight] = set()
-		self.weights_info[bone][weight].add(vertex_index)
+			# no performance gain in using a set() here instead
+			self.weights_info[bone][weight] = []
+		self.weights_info[bone][weight].append(vertex_index)
 
 	@staticmethod
 	def quantize_bone_weights(bone_weights):
