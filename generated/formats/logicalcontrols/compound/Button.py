@@ -10,7 +10,7 @@ class Button(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default=False)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -23,7 +23,6 @@ class Button(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		super().set_defaults()
 		self.datas_count = 0
 		self.flags = 0
 		self.button_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)

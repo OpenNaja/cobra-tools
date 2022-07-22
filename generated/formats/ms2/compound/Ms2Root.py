@@ -16,7 +16,7 @@ class Ms2Root(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default=False)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -48,7 +48,6 @@ class Ms2Root(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		super().set_defaults()
 		self.version = 0
 		self.vertex_buffer_count = 0
 		self.mdl_2_count = 0

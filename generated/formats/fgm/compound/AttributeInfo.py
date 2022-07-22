@@ -10,7 +10,7 @@ class AttributeInfo(GenericInfo):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default=False)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -22,7 +22,6 @@ class AttributeInfo(GenericInfo):
 			self.set_defaults()
 
 	def set_defaults(self):
-		super().set_defaults()
 		self.value_offset = 0
 
 	def read(self, stream):

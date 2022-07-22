@@ -8,7 +8,7 @@ class SizeInfo(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default=False)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -20,7 +20,6 @@ class SizeInfo(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		super().set_defaults()
 		self.data = SizeInfoRaw(self.context, 0, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			self.padding = numpy.zeros((320 - self.data.io_size,), dtype=numpy.dtype('uint8'))

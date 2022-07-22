@@ -15,7 +15,7 @@ class AnimationActivityData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default=False)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -35,7 +35,6 @@ class AnimationActivityData(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		super().set_defaults()
 		self.animation_flags = AnimationFlags(self.context, 0, None)
 		self.priorities = 0
 		self.weight = FloatInputData(self.context, 0, None)

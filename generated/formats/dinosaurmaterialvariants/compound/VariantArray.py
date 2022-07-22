@@ -8,7 +8,7 @@ class VariantArray(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default=False)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -18,7 +18,6 @@ class VariantArray(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		super().set_defaults()
 		self.variants = Array((self.arg,), Variant, self.context, 0, None)
 
 	def read(self, stream):

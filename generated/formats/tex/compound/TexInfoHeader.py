@@ -12,7 +12,7 @@ class TexInfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		super().__init__(context, arg, template, set_default=False)
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -31,7 +31,6 @@ class TexInfoHeader(GenericHeader):
 			self.set_defaults()
 
 	def set_defaults(self):
-		super().set_defaults()
 		self.tex_info = TexHeader(self.context, 0, None)
 		if 17 <= self.context.version <= 18:
 			self.frag_01 = Array((self.tex_info.stream_count,), TexBufferPc, self.context, 0, None)
