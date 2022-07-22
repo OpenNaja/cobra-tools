@@ -217,18 +217,6 @@ def append_armature_modifier(b_obj, b_armature):
 		b_mod.use_vertex_groups = True
 
 
-def get_weights(model):
-	dic = {}
-	for i, vert in enumerate(model.weights):
-		for bone_index, weight in vert:
-			if bone_index not in dic:
-				dic[bone_index] = {}
-			if weight not in dic[bone_index]:
-				dic[bone_index][weight] = []
-			dic[bone_index][weight].append(i)
-	return dic
-
-
 def resolve_name(b_bone_names, bone_index):
 	try:
 		# already converted to blender convention
@@ -239,7 +227,6 @@ def resolve_name(b_bone_names, bone_index):
 
 def import_vertex_groups(ob, mesh, b_bone_names):
 	logging.debug(f"Importing vertex groups for {ob.name}...")
-	mesh.weights_info = get_weights(mesh)
 	# sort by bone name
 	for bone_index in sorted(mesh.weights_info.keys(), key=lambda x: resolve_name(b_bone_names, x)):
 		weights_dic = mesh.weights_info[bone_index]

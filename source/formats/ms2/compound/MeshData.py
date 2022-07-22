@@ -125,9 +125,23 @@ class MeshData:
 			fur[:, 0] /= self.fur_length
 		# value range of fur width is +-16 - squash it into 0 - 1
 		fur[:, 1] = remap(fur[:, 1], -16, 16, 0, 1)
-		for fur_vert, weights_vert in zip(fur, self.weights):
-			weights_vert.append(("fur_length", fur_vert[0]))
-			weights_vert.append(("fur_width", fur_vert[1]))
+		for vertex_index, fur_vert in enumerate(fur):
+			self.add_to_weights("fur_length", vertex_index, fur_vert[0])
+			self.add_to_weights("fur_width", vertex_index, fur_vert[1])
+
+	def get_weights(self):
+		self.weights_info = {}
+		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(self.verts_data["bone ids"], self.bone_weights)):
+			for bone_index, weight in zip(bone_indices, bone_weights):
+				if weight > 0.0:
+					self.add_to_weights(bone_index, vertex_index, weight)
+
+	def add_to_weights(self, bone_index, vertex_index, weight):
+		if bone_index not in self.weights_info:
+			self.weights_info[bone_index] = {}
+		if weight not in self.weights_info[bone_index]:
+			self.weights_info[bone_index][weight] = []
+		self.weights_info[bone_index][weight].append(vertex_index)
 
 	@staticmethod
 	def quantize_bone_weights(bone_weights):

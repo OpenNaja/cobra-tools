@@ -282,10 +282,7 @@ class NewMeshData(MeshData):
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
 		start_time = time.time()
-		for i in range(self.vertex_count):
-			self.weights[i] = unpack_weights(self, i)
-
-			# self.weights[i].append(("residue", residue))
+		self.bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.residues)
 		scale_unpack_vectorized(self.vertices, self.base)
 		unpack_ubyte_vector(self.normals)
@@ -301,6 +298,10 @@ class NewMeshData(MeshData):
 			unpack_int64_vector(shapes_combined, self.shapekeys, self.shape_residues)
 			scale_unpack_vectorized(self.shapekeys, self.base)
 			unpack_swizzle_vectorized(self.shapekeys)
+
+		self.get_weights()
+		for vertex_index, res in enumerate(self.residues):
+			self.add_to_weights("residue", vertex_index, res)
 		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
 	def set_verts(self, verts):
