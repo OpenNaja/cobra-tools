@@ -236,7 +236,7 @@ class PcMeshData(MeshData):
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.uvs is not None:
 			self.uvs[:] = self.uv_data["uvs"]
-			self.uvs = unpack_ushort_vector(self.uvs)
+			unpack_ushort_vector(self.uvs)
 
 		self.bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
 		self.get_weights(self.weights_data["bone ids"], self.bone_weights)

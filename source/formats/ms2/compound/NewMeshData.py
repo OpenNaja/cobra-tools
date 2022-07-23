@@ -127,9 +127,8 @@ class NewMeshData:
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
-		if self.uvs is not None:
-			self.uvs[:] = self.verts_data["uvs"]
-			self.uvs = unpack_ushort_vector(self.uvs)
+		self.uvs[:] = self.verts_data["uvs"]
+		unpack_ushort_vector(self.uvs)
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data["colors"]
@@ -195,7 +194,7 @@ class NewMeshData:
 		self.vertex_count = len(verts)
 		self.update_dtype()
 		self.init_arrays()
-		self.vertices[:], self.residues[:], self.normals[:], self.windings, self.tangents[:], self.uvs, \
+		self.vertices[:], self.residues[:], self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
 		self.colors, self.weights, self.shapekeys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
@@ -222,8 +221,10 @@ class NewMeshData:
 		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.residues)
 		pack_ubyte_vector(self.normals)
 		pack_ubyte_vector(self.tangents)
+		pack_ushort_vector(self.uvs)
 		self.verts_data["normal"] = self.normals
 		self.verts_data["tangent"] = self.tangents
+		self.verts_data["uvs"] = self.uvs
 		# non-vectorized data
 		for i, vert in enumerate(self.verts_data):
 			# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
@@ -237,8 +238,6 @@ class NewMeshData:
 			# 	print(f"bad weight {i}, {self.weights[i]}")
 			if "bone ids" in self.dt.fields:
 				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(self.weights[i])
-			if "uvs" in self.dt.fields:
-				vert["uvs"] = list(pack_ushort_vector(uv) for uv in self.uvs[i])
 			if "colors" in self.dt.fields:
 				vert["colors"] = list(list(round(c * 255) for c in vcol) for vcol in self.colors[i])
 

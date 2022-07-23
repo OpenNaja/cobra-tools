@@ -23,8 +23,12 @@ def pack_ubyte_vector(arr):
     arr[:] = np.round(arr * UBYTE_SCALE + UBYTE_SCALE)
 
 
-def unpack_ushort_vector(vec):
-    return (vec - USHORT_OFFSET) / USHORT_SCALE
+def unpack_ushort_vector(arr):
+    arr[:] = (arr - USHORT_OFFSET) / USHORT_SCALE
+
+
+def pack_ushort_vector(arr):
+    arr[:] = np.round(arr * USHORT_SCALE + USHORT_OFFSET)
 
 
 def unpack_swizzle(vec):
@@ -49,10 +53,6 @@ def pack_swizzle_vectorized(arr):
 
 def ushort_clamp(coord):
     return max(min(coord, USHORT_MAX), USHORT_MIN)
-
-
-def pack_ushort_vector(vec):
-    return [ushort_clamp(int(round(coord * USHORT_SCALE + USHORT_OFFSET))) for coord in vec]
 
 
 def scale_unpack_vectorized(f, base):

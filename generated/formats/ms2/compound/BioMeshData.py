@@ -335,8 +335,7 @@ class BioMeshData(MeshData):
 		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
 		self.normals[:] = [unpack_swizzle(vec) for vec in self.normals]
 
-		# pull out fur from UV data
-		self.uvs = unpack_ushort_vector(self.uvs)
+		unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
@@ -381,49 +380,4 @@ class BioMeshData(MeshData):
 		return np.flip(tris_raw, axis=-1)
 		# else:
 		# 	return triangulate((self.tri_indices,))
-
-	# def set_verts(self, verts):
-	# 	"""Update self.verts_data from list of new verts"""
-	# 	self.verts_data = np.zeros(len(verts), dtype=self.dt)
-	# 	for i, (
-	# 			position, residue, normal, winding, tangent, bone, uvs, vcols, bone_ids, bone_weights,
-	# 			fur_length, fur_width, shapekey) in enumerate(
-	# 		verts):
-	# 		# print("shapekey", shapekey)
-	# 		self.verts_data[i]["pos"] = pack_longint_vec(pack_swizzle(position), residue, self.base)
-	# 		self.verts_data[i]["normal"] = pack_ubyte_vector(pack_swizzle(normal))
-	# 		self.verts_data[i]["tangent"] = pack_ubyte_vector(pack_swizzle(tangent))
-	#
-	# 		# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
-	# 		# 0 = natural winding matching the geometry
-	# 		# 128 = UV's winding is flipped / inverted compared to geometry
-	# 		self.verts_data[i]["winding"] = winding * 128
-	# 		self.verts_data[i]["bone index"] = bone
-	# 		if "bone ids" in self.dt.fields:
-	# 			self.verts_data[i]["bone ids"] = bone_ids
-	# 			# round is essential so the float is not truncated
-	# 			self.verts_data[i]["bone weights"] = list(round(w * 255) for w in bone_weights)
-	# 			# print(self.verts_data[i]["bone weights"], np.sum(self.verts_data[i]["bone weights"]))
-	# 			# additional double check
-	# 			d = np.sum(self.verts_data[i]["bone weights"]) - 255
-	# 			self.verts_data[i]["bone weights"][0] -= d
-	# 			assert np.sum(self.verts_data[i]["bone weights"]) == 255
-	# 		if "uvs" in self.dt.fields:
-	# 			self.verts_data[i]["uvs"] = list(pack_ushort_vector(uv) for uv in uvs)
-	# 		if "fur_shell" in self.dt.fields and fur_length is not None:
-	# 			self.verts_data[i]["fur_shell"] = pack_ushort_vector((fur_length, remap(fur_width, 0, 1, -16, 16)))
-	# 		if "colors" in self.dt.fields:
-	# 			self.verts_data[i]["colors"] = list(list(round(c * 255) for c in vcol) for vcol in vcols)
-	# 		if "shapekeys0" in self.dt.fields:
-	# 			# first pack it as uint64
-	# 			raw_packed = pack_longint_vec(pack_swizzle(shapekey), 0, self.base)
-	# 			if raw_packed < 0:
-	# 				logging.error(f"Shapekey {raw_packed} could not be packed into uint64")
-	# 				raw_packed = 0
-	# 			raw_bytes = struct.pack("Q", raw_packed)
-	# 			# unpack to 2 uints again and assign data
-	# 			first, second = struct.unpack("LL", raw_bytes)
-	# 			self.verts_data[i]["shapekeys0"] = first
-	# 			self.verts_data[i]["shapekeys1"] = second
-	# print(self.verts_data[:]["winding"])
 
