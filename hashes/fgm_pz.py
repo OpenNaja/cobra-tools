@@ -483,7 +483,6 @@ shaders = {
     "Animal_Clip_DoubleSided",
     "Animal_Eye",
     "Animal_Skin",
-    "Animal_Skin",
     "Animal_SkinDetail",
     "Animal_SkinMarkings",
     "Animal_Skin_NoDirt",
@@ -494,10 +493,8 @@ shaders = {
     "Foliage_Billboard",
     "Foliage_BillboardEmissive",
     "Foliage_Clip",
-    "Foliage_Clip",
     "Foliage_Clip_NotSpeedTree",
     "Foliage_Grass_DetailObject",
-    "Foliage_Opaque",
     "Foliage_Opaque",
     "Foliage_Opaque_NotSpeedTree",
     "FrontEnd_Atmosphere",
@@ -526,7 +523,6 @@ shaders = {
     "Glass_Preview_Textured",
     "Glass_Preview_TexturedTwoSided",
     "Glass_Preview_Textured_Wall",
-    "Glass_TexturedTwoSided_Weather",
     "Glass_TexturedTwoSided_Weather",
     "Glass_TexturedTwoSided_Weather_Distant",
     "Glass_TexturedTwoSided_Weather_PerPixelFlexiColour",
@@ -601,7 +597,6 @@ shaders = {
     "Particle_Clip_Specular",
     "Particle_Clip_TexBlend",
     "Particle_Refractive",
-    "RenderMesh_WhiteWorldUI",
     "Retroreflective",
     "Terrain_Boundary",
     "Terrain_Edit_Grid",
@@ -627,3 +622,430 @@ shaders = {
     "Weather_PrecipitationOcclusion",
     "WindVectorField_Debug",
 }
+
+shader_attribs = {
+    "Animal_Skin_NoDirt":
+         ['gWetBrightness', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pColourMask_NoiseWeight', 'pCorpseTint', 'pEnableScreenSpaceAO', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarMaskPower', 'pSnowOnSlopesOffset', 'pSpecularOcclusion', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper', 'pWoundBloodDepthStrength', 'pWoundBloodNormalStrength', 'pWoundBloodRoughness', 'pWoundBloodSpecularReflectance', 'pWoundDepthMaskPower', 'pWoundScarDepthStrength', 'pWoundScarNormalStrength', 'pWoundScarRoughness', 'pWoundScarSpecularReflectance'],
+
+    "FurBase":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gFurExtension', 'gLodFade', 'gWetBrightness', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurFin":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gFinBrushScale', 'gFurExtension', 'gLodFade', 'gWetBrightness', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAlphaClip', 'pAlphaTestRef', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFinAxisFade', 'pFinCorpseAlpha', 'pFinNormalBend', 'pFinNormalCurveBend', 'pFinOpacity', 'pFinRimFade', 'pFinTilingRate', 'pFurAlbinoDepthScale', 'pFurAlbinoSpecularDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurErythristicSpecularDepthScale', 'pFurLeucisticDepthScale', 'pFurLeucisticSpecularDepthScale', 'pFurMelanisticDepthScale', 'pFurMelanisticSpecularDepthScale', 'pFurSpecularDepthScale', 'pFurXanthicDepthScale', 'pFurXanthicSpecularDepthScale', 'pIBLRoughnessTweak', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMipBias', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurShell":
+         ['gAnisotropicStrength', 'gBendStretchScale', 'gDirectionScale', 'gFurExtension', 'gHeightStretchScale', 'gLodFade', 'gShellClumping', 'gShellUVStretchPower', 'gWetBrightness', 'gWetClumping', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pIBLRoughnessTweak', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMipBias', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pShellCorpseAlphaCut', 'pShellOpacity', 'pShellRimFade', 'pShellRimNudge', 'pShellTilingRate', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "Animal_Skin":
+         ['gWetBrightness', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pColourMask_NoiseWeight', 'pCorpseTint', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarMaskPower', 'pSnowOnSlopesOffset', 'pSpecularOcclusion', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper', 'pWoundBloodDepthStrength', 'pWoundBloodNormalStrength', 'pWoundBloodRoughness', 'pWoundBloodSpecularReflectance', 'pWoundDepthMaskPower', 'pWoundScarDepthStrength', 'pWoundScarNormalStrength', 'pWoundScarRoughness', 'pWoundScarSpecularReflectance'],
+
+    "Animal_Eye":
+         ['pAOTexCoordIndex', 'pAlbinoHeightScale', 'pAnimalIdentityMask', 'pEnableScreenSpaceAO', 'pErythristicHeightScale', 'pEyeHorizonOffset', 'pEyeSunYMultiplierIris', 'pEyeSunYMultiplierLens', 'pEyelidOcclusion', 'pHeightScale', 'pIBLRoughness', 'pLensRoughness', 'pLensSpecularLevel', 'pLeucisticHeightScale', 'pMelanisticHeightScale', 'pRenderLayerOverride', 'pSpecularBrightness', 'pSpecularLevel', 'pSpecularSaturation', 'pVerticalTiling', 'pXanthicHeightScale'],
+
+    "Animal_SkinDetail":
+         ['gWetBrightness', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pBaseColourDetailStrength', 'pBrightness', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pColourMask_NoiseWeight', 'pContrast', 'pCorpseTint', 'pDetailMapTileRate', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pNormalDetailStrength', 'pRenderLayerOverride', 'pRoughnessDetailStrength', 'pScarBaldnessCutoff', 'pScarMaskPower', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper', 'pWoundBloodDepthStrength', 'pWoundBloodNormalStrength', 'pWoundBloodRoughness', 'pWoundBloodSpecularReflectance', 'pWoundDepthMaskPower', 'pWoundScarDepthStrength', 'pWoundScarNormalStrength', 'pWoundScarRoughness', 'pWoundScarSpecularReflectance'],
+
+    "Animal_Clip_DoubleSided":
+         ['gWetBrightness', 'pAOTexCoordIndex', 'pAlphaTestRef', 'pAnimalIdentityMask', 'pDirtDryColour', 'pDirtWetColour', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pHighlightAlphaTestRefBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurPatchworkBaldnessBase":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gFurExtension', 'gLodFade', 'gWetBrightness', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pMarkingMipBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurPatchworkBaldnessFin":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gFinBrushScale', 'gFurExtension', 'gLodFade', 'gWetBrightness', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAlphaClip', 'pAlphaTestRef', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFinAxisFade', 'pFinCorpseAlpha', 'pFinNormalBend', 'pFinNormalCurveBend', 'pFinOpacity', 'pFinRimFade', 'pFinTilingRate', 'pFurAlbinoDepthScale', 'pFurAlbinoSpecularDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurErythristicSpecularDepthScale', 'pFurLeucisticDepthScale', 'pFurLeucisticSpecularDepthScale', 'pFurMelanisticDepthScale', 'pFurMelanisticSpecularDepthScale', 'pFurSpecularDepthScale', 'pFurXanthicDepthScale', 'pFurXanthicSpecularDepthScale', 'pIBLRoughnessTweak', 'pMarkingMipBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMipBias', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurPatchworkBaldnessShell":
+         ['gAnisotropicStrength', 'gBendStretchScale', 'gDirectionScale', 'gFurExtension', 'gHeightStretchScale', 'gLodFade', 'gShellClumping', 'gShellUVStretchPower', 'gWetBrightness', 'gWetClumping', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pIBLRoughnessTweak', 'pMarkingMipBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMipBias', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pShellCorpseAlphaCut', 'pShellOpacity', 'pShellRimFade', 'pShellRimNudge', 'pShellTilingRate', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurBaseAlpha":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gLodFade', 'gWetBrightness', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAlphaTestRef', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDepthBias', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pHighlightAlphaTestRefBias', 'pIBLRoughnessTweak', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pSnowOnSlopesOffset', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "Animal_Whisker":
+         ['pAASoftness', 'pAnimalIdentityMask', 'pAnisotropicStrength', 'pBoundThickness', 'pDiffuseTransmittance', 'pEnableScreenSpaceAO', 'pEndThickness', 'pIBLRoughnessTweak', 'pRenderLayerOverride', 'pRoughness', 'pSpecularLevel', 'pStartFade', 'pStartThickness', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Clip_Weather":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "FurPatchworkBase":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gFurExtension', 'gLodFade', 'gWetBrightness', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pMarkingMipBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurPatchworkFin":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gFinBrushScale', 'gFurExtension', 'gLodFade', 'gWetBrightness', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAlphaClip', 'pAlphaTestRef', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFinAxisFade', 'pFinCorpseAlpha', 'pFinNormalBend', 'pFinNormalCurveBend', 'pFinOpacity', 'pFinRimFade', 'pFinTilingRate', 'pFurAlbinoDepthScale', 'pFurAlbinoSpecularDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurErythristicSpecularDepthScale', 'pFurLeucisticDepthScale', 'pFurLeucisticSpecularDepthScale', 'pFurMelanisticDepthScale', 'pFurMelanisticSpecularDepthScale', 'pFurSpecularDepthScale', 'pFurXanthicDepthScale', 'pFurXanthicSpecularDepthScale', 'pIBLRoughnessTweak', 'pMarkingMipBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMipBias', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurPatchworkShell":
+         ['gAnisotropicStrength', 'gBendStretchScale', 'gDirectionScale', 'gFurExtension', 'gHeightStretchScale', 'gLodFade', 'gShellClumping', 'gShellUVStretchPower', 'gWetBrightness', 'gWetClumping', 'gWetFlattening', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pIBLRoughnessTweak', 'pMarkingMipBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMipBias', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pShellCorpseAlphaCut', 'pShellOpacity', 'pShellRimFade', 'pShellRimNudge', 'pShellTilingRate', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "FurBaseAlpha_SingleSided":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gLodFade', 'gWetBrightness', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAlphaTestRef', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDepthBias', 'pDiffuseTransmittance', 'pDirtDryColour', 'pDirtWetColour', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pHighlightAlphaTestRefBias', 'pIBLRoughnessTweak', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pSnowOnSlopesOffset', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "Animal_SkinMarkings":
+         ['gWetBrightness', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pColourMask_NoiseWeight', 'pCorpseTint', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pMarkingMipBias', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarMaskPower', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper', 'pWoundBloodDepthStrength', 'pWoundBloodNormalStrength', 'pWoundBloodRoughness', 'pWoundBloodSpecularReflectance', 'pWoundDepthMaskPower', 'pWoundScarDepthStrength', 'pWoundScarNormalStrength', 'pWoundScarRoughness', 'pWoundScarSpecularReflectance'],
+
+    "Metallic_Roughness_Clip_Weather_DoubleSided_TAAGroup6":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseOrenNayar', 'pUseTwoSidedNormal', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_Weather_Transmissive":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pMipBias', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittanceScale', 'pUseExplicitNormals', 'pUseTwoSidedExplicitNormal', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Opaque_Dissolve":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Depth_Fade_Dissolve":
+         ['pDepthBias', 'pDepthColour', 'pDepthDistance', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Clip_Weather_Dissolve":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Opaque":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_Geometry_Decal":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pRenderLayerOverride', 'pTransmittance', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Opaque_Game_NoWeather_TAAGroup4":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_OpaqueEmissive_Game_NoWeather_TAAGroup4":
+         ['pAOTexCoordIndex', 'pEmissiveIntensity', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableEmissiveFlexiColour', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Glass_TexturedTwoSided_Weather_Distant":
+         ['pAOTexCoordIndex', 'pDistanceEndForOpaqueAtDistance', 'pDistanceStartForOpaqueAtDistance', 'pEnableOpaqueAtDistance', 'pEnableWeatherPooling', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseVertexColour', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Opaque_EmissiveLightType_Weather":
+         ['pAOTexCoordIndex', 'pEmissiveAdaptiveBrighnessWeight', 'pEmissiveLightPower', 'pEmissiveLightType', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableEmissiveFlexiColour', 'pEnablePoweredEmissive', 'pEnablePulsingEmissive', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIsDisplayPanel', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pPulsingEmitDarkenScale', 'pPulsingEmitFrequency', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Retroreflective":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pRenderLayerOverride', 'pRetroreflectiveBrightness', 'pVerticalTiling'],
+
+    "Water_Water":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pIncreaseRoughnessByRainIntensity', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pScrollSpeed0', 'pScrollSpeed1', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pUsePlanarReflections', 'pVerticalTiling', 'pWaterColour', 'pWaterDetailTile01', 'pWaterDetailWeights01', 'pWaterDrawParticleRipples', 'pWaterEdgeOpacityScale', 'pWaterFoggingDistance', 'pWaterPlaneThickness', 'pWaterRainRipplesScale', 'pWaterSpecular', 'pWaterUseTexcoords'],
+
+    "Glass_Textured_Weather":
+         ['pAOTexCoordIndex', 'pDistanceEndForOpaqueAtDistance', 'pDistanceStartForOpaqueAtDistance', 'pEnableOpaqueAtDistance', 'pEnableWeatherPooling', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseVertexColour', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Glass_TexturedTwoSided_Weather":
+         ['pAOTexCoordIndex', 'pDistanceEndForOpaqueAtDistance', 'pDistanceStartForOpaqueAtDistance', 'pEnableOpaqueAtDistance', 'pEnableWeatherPooling', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseVertexColour', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Detail_Opaque_Weather":
+         ['pBaseColourUniqueBlend', 'pBrightness', 'pContrast', 'pDetailTexCoordData', 'pDetailTexCoordIndex', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaskNormals', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pMetallicDetailStrength', 'pRenderLayerOverride', 'pRoughnessDetailStrength', 'pSnowOnSlopesOffset', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_DiffuseBlend_Dissolve":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Opaque_DiffuseBlend_Dissolve":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_Weather_DoubleSided_Dissolve":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Detail_Basic_Opaque_Weather":
+         ['pDetailBaseOffset', 'pDielectricSpecularLevel', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourStrength', 'pMaskNormals', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pMossAmount', 'pMossDielectricSpecularLevel', 'pMossDiscolour', 'pMossDiscolourEdge', 'pMossDiscolourRelativeToHeight', 'pMossEdge', 'pMossEdgeDetail', 'pMossEdgeFalloff', 'pMossEnabled', 'pMossHeight', 'pMossHeightVertexColourScale', 'pMossPitch', 'pMossSheenAmount', 'pMossSheenTint', 'pMossTiling', 'pMossVarianceAmount', 'pMossVarianceEdge', 'pMossVarianceEdgeFalloff', 'pMossVarianceTiling', 'pMossYaw', 'pRenderLayerOverride', 'pRoughnessDetailBlend', 'pSnowOnSlopesOffset', 'pTilingDetailBlend', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Glass_Textured_Weather_Distant_Dissolve":
+         ['pAOTexCoordIndex', 'pDistanceEndForOpaqueAtDistance', 'pDistanceStartForOpaqueAtDistance', 'pEnableOpaqueAtDistance', 'pEnableWeatherPooling', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseVertexColour', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_Flag":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWaveAmplitudes', 'pWaveCompliance', 'pWaveFrequencies', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_Weather_TAAGroup6":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_EmissiveLightType_Weather":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEmissiveAdaptiveBrighnessWeight', 'pEmissiveLightPower', 'pEmissiveLightType', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableAlphaTestRefFade', 'pEnableEmissiveFlexiColour', 'pEnablePoweredEmissive', 'pEnablePulsingEmissive', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pIsDisplayPanel', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pPulsingEmitDarkenScale', 'pPulsingEmitFrequency', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_EmissiveLightType_Weather_DoubleSided_TAAGroup6":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEmissiveAdaptiveBrighnessWeight', 'pEmissiveLightPower', 'pEmissiveLightType', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableAlphaTestRefFade', 'pEnableEmissiveFlexiColour', 'pEnablePoweredEmissive', 'pEnablePulsingEmissive', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pIsDisplayPanel', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pPulsingEmitDarkenScale', 'pPulsingEmitFrequency', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Foliage_Clip":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pAmbientTransmissionAmount', 'pAmbientTransmissionTint', 'pCrownRadius', 'pEnableAlphaTestRefFade', 'pEnableVertexAO', 'pHighlightAlphaTestRefBias', 'pIsSpeedTree', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pMipBias', 'pNormalizeType', 'pOffset0', 'pOffset1', 'pOffset2', 'pRenderLayerOverride', 'pScale0', 'pScale1', 'pScale1Normal', 'pScale2', 'pScale2Normal', 'pScreenSpaceAOStrength', 'pSnowOnSlopesOffset', 'pTransmittanceScale', 'pTrunkHeight', 'pUseExplicitNormals', 'pUseTwoSidedExplicitNormal', 'pWeather_ExplicitNormalThreshold', 'pWeight1Power'],
+
+    "Foliage_BillboardEmissive":
+         ['pAlphaTestRef', 'pAmbientTransmissionAmount', 'pAmbientTransmissionTint', 'pEmissiveLightPower', 'pEmissiveLightType', 'pEmissiveTint', 'pEnableAlphaTestRefFade', 'pEnablePoweredEmissive', 'pHighlightAlphaTestRefBias', 'pIsSpeedTree', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pMipBias', 'pOcclusionBillboardHeightOffset', 'pOcclusionBillboardScale', 'pRenderLayerOverride', 'pScreenSpaceAOStrength', 'pSnowOnSlopesOffset', 'pTransmittanceScale', 'pUseExplicitNormals', 'pUseTwoSidedExplicitNormal', 'pWeather_ExplicitNormalThreshold'],
+
+    "Foliage_Billboard":
+         ['pAlphaTestRef', 'pAmbientTransmissionAmount', 'pAmbientTransmissionTint', 'pEnableAlphaTestRefFade', 'pHighlightAlphaTestRefBias', 'pIsSpeedTree', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pMipBias', 'pOcclusionBillboardHeightOffset', 'pOcclusionBillboardScale', 'pRenderLayerOverride', 'pScreenSpaceAOStrength', 'pSnowOnSlopesOffset', 'pTransmittanceScale', 'pUseExplicitNormals', 'pUseTwoSidedExplicitNormal', 'pWeather_ExplicitNormalThreshold'],
+
+    "Foliage_Clip_NotSpeedTree":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pAmbientTransmissionAmount', 'pAmbientTransmissionTint', 'pCrownRadius', 'pEnableAlphaTestRefFade', 'pEnableVertexAO', 'pHighlightAlphaTestRefBias', 'pIsSpeedTree', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pMipBias', 'pNormalizeType', 'pOffset0', 'pOffset1', 'pOffset2', 'pRenderLayerOverride', 'pScale0', 'pScale1', 'pScale1Normal', 'pScale2', 'pScale2Normal', 'pScreenSpaceAOStrength', 'pSnowOnSlopesOffset', 'pTransmittanceScale', 'pTrunkHeight', 'pUseExplicitNormals', 'pUseTwoSidedExplicitNormal', 'pWeather_ExplicitNormalThreshold', 'pWeight1Power'],
+
+    "Foliage_Opaque":
+         ['pAOTexCoordIndex', 'pCrownRadius', 'pEnableScreenSpaceAO', 'pEnableVertexAO', 'pIsSpeedTree', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNormalizeType', 'pOffset0', 'pOffset1', 'pOffset2', 'pRenderLayerOverride', 'pScale0', 'pScale1', 'pScale1Normal', 'pScale2', 'pScale2Normal', 'pSnowOnSlopesOffset', 'pTransmittance', 'pTrunkHeight', 'pWeather_ExplicitNormalThreshold', 'pWeight1Power'],
+
+    "Foliage_Opaque_NotSpeedTree":
+         ['pAOTexCoordIndex', 'pCrownRadius', 'pEnableScreenSpaceAO', 'pEnableVertexAO', 'pIsSpeedTree', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNormalizeType', 'pOffset0', 'pOffset1', 'pOffset2', 'pRenderLayerOverride', 'pScale0', 'pScale1', 'pScale1Normal', 'pScale2', 'pScale2Normal', 'pSnowOnSlopesOffset', 'pTransmittance', 'pTrunkHeight', 'pWeather_ExplicitNormalThreshold', 'pWeight1Power'],
+
+    "Ice_Opaque":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSnowOnSlopesOffset', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Ice_Opaque_TriPlanar":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSnowOnSlopesOffset', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Waterfall_Water":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pReflectionPlaneRoughnessTolerance', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pUsePlanarReflections', 'pVerticalTiling', 'pWaterfall_EnableDynamicRipples', 'pWaterfall_EnableRainRipples', 'pWaterfall_RainIntensityRoughnessModifier', 'pWaterfall_RainRipplesIntensity', 'pWaterfall_ReflectionDistortion', 'pWaterfall_RefractionDistortion', 'pWaterfall_WaterBaseBlendweights', 'pWaterfall_WaterBaseScrollSpeed0', 'pWaterfall_WaterBaseScrollSpeed1', 'pWaterfall_WaterBaseTileRates', 'pWaterfall_WaterEdgeOpacityScale', 'pWaterfall_WaterFlowBlendweight', 'pWaterfall_WaterFlowFoamBlendDistance', 'pWaterfall_WaterFlowFoamBlendweights', 'pWaterfall_WaterFlowFoamFlowDistanceStrength', 'pWaterfall_WaterFlowFoamTileOffset', 'pWaterfall_WaterFlowFoamTileRate', 'pWaterfall_WaterFlowIntensity', 'pWaterfall_WaterFlowMaxSpeed', 'pWaterfall_WaterFlowMaxTimeOffset', 'pWaterfall_WaterFlowMipBias', 'pWaterfall_WaterFlowTileRate', 'pWaterfall_WaterFoggingDistance', 'pWaterfall_WaterMaxFlowDistance'],
+
+    "Ice_Opaque_TriPlanar_Dissolve":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pUseOrenNayar', 'pVerticalTiling'],
+
+    "Glass_Textured_Weather_Distant":
+         ['pAOTexCoordIndex', 'pDistanceEndForOpaqueAtDistance', 'pDistanceStartForOpaqueAtDistance', 'pEnableOpaqueAtDistance', 'pEnableWeatherPooling', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseVertexColour', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Opaque_Extrusion2D":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Preview_Opaque_Extrusion2D":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Opaque_Wall":
+         ['pDamageFade', 'pDamageThreshold25', 'pDamageThreshold50', 'pDamageThreshold75', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMacroDamageBlendMapTiling', 'pMacroDamageFade', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseDamageThresholds', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Preview_Opaque_Wall":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Clip_Wall":
+         ['pAlphaTestRef', 'pDamageFade', 'pDamageLevelForClip', 'pDamageThreshold25', 'pDamageThreshold50', 'pDamageThreshold75', 'pDistortionScale', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMacroDamageBlendMapTiling', 'pMacroDamageFade', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseDamageThresholds', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Preview_Clip_Wall":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pTransmittance', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Clip_DoubleSided_Extrusion2D":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Preview_ClipDoubleSided_Extrusion2D":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pTransmittance', 'pVerticalTiling'],
+
+    "Glass_Wall":
+         ['pClipThreshold', 'pDamageFade', 'pDamageThreshold25', 'pDamageThreshold50', 'pDamageThreshold75', 'pEnableWeatherPooling', 'pMacroDamageBlendMapTiling', 'pMacroDamageFade', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseDamageThresholds', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Glass_Distant_Wall":
+         ['pClipThreshold', 'pDamageFade', 'pDamageThreshold25', 'pDamageThreshold50', 'pDamageThreshold75', 'pEnableWeatherPooling', 'pMacroDamageBlendMapTiling', 'pMacroDamageFade', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseDamageThresholds', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Glass_Preview_Textured_Wall":
+         ['pAOTexCoordIndex', 'pOpacity', 'pRenderLayerOverride', 'pTransmittance', 'pVerticalTiling'],
+
+    "Metallic_Roughness_OpaqueEmissive_Extrusion2D":
+         ['pAOTexCoordIndex', 'pEmissiveAdaptiveBrighnessWeight', 'pEmissiveLightPower', 'pEmissiveLightType', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableEmissiveFlexiColour', 'pEnablePoweredEmissive', 'pEnablePulsingEmissive', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIsDisplayPanel', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pPulsingEmitDarkenScale', 'pPulsingEmitFrequency', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_OneWayGlassOpaque_Wall":
+         ['pClipThreshold', 'pDamageFade', 'pDamageThreshold25', 'pDamageThreshold50', 'pDamageThreshold75', 'pEnableWeatherPooling', 'pMacroDamageBlendMapTiling', 'pMacroDamageFade', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseDamageThresholds', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Water_WaterFlexi":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIncreaseRoughnessByRainIntensity', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pScrollSpeed0', 'pScrollSpeed1', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pUsePlanarReflections', 'pVerticalTiling', 'pWaterDetailTile01', 'pWaterDetailWeights01', 'pWaterDrawParticleRipples', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness', 'pWaterRainRipplesScale', 'pWaterSpecular', 'pWaterUseTexcoords'],
+
+    "Metallic_Roughness_Clip_Text_Weather":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pDistanceFieldParams', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Depth_Fade":
+         ['pDepthBias', 'pDepthColour', 'pDepthDistance', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Opaque_DetailObject":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pWeather_ExplicitNormalThreshold'],
+
+    "Glass_TexturedTwoSided_Weather_PerPixelFlexiColour":
+         ['pAOTexCoordIndex', 'pDistanceEndForOpaqueAtDistance', 'pDistanceStartForOpaqueAtDistance', 'pEnableOpaqueAtDistance', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_Weather_DoubleSided":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pUseTwoSidedNormal', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Glass_Textured_Weather_PerPixelFlexiColour":
+         ['pAOTexCoordIndex', 'pDistanceEndForOpaqueAtDistance', 'pDistanceStartForOpaqueAtDistance', 'pEnableOpaqueAtDistance', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Clip_TextEmissiveLightType_Weather":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pDistanceFieldParams', 'pEmissiveAdaptiveBrighnessWeight', 'pEmissiveLightPower', 'pEmissiveLightType', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableAlphaTestRefFade', 'pEnableEmissiveFlexiColour', 'pEnablePoweredEmissive', 'pEnablePulsingEmissive', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIsDisplayPanel', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pPulsingEmitDarkenScale', 'pPulsingEmitFrequency', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Weather_PrecipitationOcclusion":
+         ['pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Game_Terrain":
+         ['pCoarseNoiseScale', 'pCoarseNoiseTile', 'pEnableScreenSpaceAO', 'pEnabledNewHeightBlending', 'pFallbackCavityRoughness', 'pFallbackSpecular', 'pGrassRoughness', 'pGrassiness', 'pHeightBlendingDistance', 'pHeightBlendingScale', 'pLayerHeightBlend', 'pMacroTile', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pWeather_ExplicitNormalThreshold', 'pWeather_LocalWaterAmount'],
+
+    "Terrain_Skirt_Weather":
+         ['pCoarseNoiseScale', 'pCoarseNoiseTile', 'pEnableScreenSpaceAO', 'pEnabledNewHeightBlending', 'pFallbackCavityRoughness', 'pFallbackSpecular', 'pGrassRoughness', 'pGrassiness', 'pHeightBlendingDistance', 'pHeightBlendingScale', 'pLayerHeightBlend', 'pMacroTile', 'pRenderLayerOverride', 'pSkirtMaskScaleOffset', 'pSnowOnSlopesOffset', 'pWeather_ExplicitNormalThreshold', 'pWeather_LocalWaterAmount'],
+
+    "Foliage_Grass_DetailObject":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pGrassDarkenEnd', 'pGrassDarkenFactor', 'pGrassDarkenStart', 'pGrassUpBias', 'pMacroScale', 'pMacroTile', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRandomFrequency', 'pRandomScale', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pWeather_ExplicitNormalThreshold', 'pWindScale'],
+
+    "Terrain_Boundary":
+         ['pBoundaryPosHalfSizeXZ', 'pEmissiveExposureWeight', 'pOpacityMapScaleOffset', 'pRenderLayerOverride', 'pShadowStrength'],
+
+    "Terrain_Edit_Grid":
+         ['pEmissiveIntensity', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableEmissiveFlexiColour', 'pRenderLayerOverride', 'pTriPlanarTile'],
+
+    "Water_WaterVolume":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pIncreaseRoughnessByRainIntensity', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pScrollSpeed0', 'pScrollSpeed1', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterDetailTile01', 'pWaterDetailWeights01', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness', 'pWaterRainRipplesScale', 'pWaterSpecular'],
+
+    "Water_WaterVolumeCW":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pIncreaseRoughnessByRainIntensity', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pScrollSpeed0', 'pScrollSpeed1', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterDetailTile01', 'pWaterDetailWeights01', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness', 'pWaterRainRipplesScale', 'pWaterSpecular'],
+
+    "Water_WaterVolumeOpaque":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pIncreaseRoughnessByRainIntensity', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pScrollSpeed0', 'pScrollSpeed1', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterDetailTile01', 'pWaterDetailWeights01', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness', 'pWaterRainRipplesScale', 'pWaterSpecular'],
+
+    "Water_WaterVolumeOpaqueCW":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pIncreaseRoughnessByRainIntensity', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pScrollSpeed0', 'pScrollSpeed1', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterDetailTile01', 'pWaterDetailWeights01', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness', 'pWaterRainRipplesScale', 'pWaterSpecular'],
+
+    "Water_WaterVolumeSide":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness'],
+
+    "Water_WaterVolumeSideCW":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness'],
+
+    "Water_WaterVolumeSideOpaque":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness'],
+
+    "Water_WaterVolumeSideOpaqueCW":
+         ['pDiffuseHeightVarianceOcclusionBias', 'pReflectionDistortion', 'pReflectionPlaneRoughnessTolerance', 'pRefractionDistortion', 'pRenderLayerOverride', 'pScatterHeightVarianceOcclusionBias', 'pShadowOpacity', 'pSpecularHeightVarianceOcclusionBias', 'pTopSeeTroughModifier', 'pUsePlanarReflections', 'pWaterEdgeOpacityScale', 'pWaterPlaneThickness'],
+
+    "UI_Clip_Emissive":
+         ['pEmissiveIntensity', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableEmissiveFlexiColour', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Opaque_Surface_TriPlanar_Weather":
+         ['pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightChannelWeights', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTriPlanarTile', 'pUseOrenNayar', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Terrain_Metallic_Roughness_Decal":
+         ['pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTriPlanarTile', 'pUseOrenNayar', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Terrain_Preview_Metallic_Roughness_Decal":
+         ['pEnableScreenSpaceAO', 'pExposureWeight', 'pHighlightChannelWeights', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pTriPlanarTile'],
+
+    "Metallic_Roughness_Preview_Opaque_Surface_TriPlanar":
+         ['pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightChannelWeights', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pTriPlanarTile'],
+
+    "Terrain_Preview_Ice_Decal":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pHighlightChannelWeights', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacity', 'pOpacityDistance', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pTriPlanarTile'],
+
+    "Collection_Pattern":
+         ['pPatternClip', 'pPatternTexCoordOffset', 'pPatternTexCoordScale', 'pPatternTexCoordWrap'],
+
+    "Particle_Alpha_AmbientOnly":
+         ['pEmissiveBlend', 'pEnableScreenSpaceAO', 'pFalloff', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly'],
+
+    "Particle_Alpha_AmbientOnly_WaterOccludee":
+         ['pEmissiveBlend', 'pEnableScreenSpaceAO', 'pFalloff', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly'],
+
+    "Particle_Alpha_AmbientOnly_TexBlend":
+         ['pEmissiveBlend', 'pEnableScreenSpaceAO', 'pFalloff', 'pMotionBlendStrength', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly', 'pUseMotionVectors'],
+
+    "Particle_Alpha_EmissiveOnly":
+         ['pFalloff', 'pParticleFadeCollapse', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly'],
+
+    "Particle_Alpha_EmissiveOnly_TexBlend":
+         ['pFalloff', 'pMotionBlendStrength', 'pParticleFadeCollapse', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly', 'pUseMotionVectors'],
+
+    "Particle_Alpha":
+         ['pEmissiveBlend', 'pEnableScreenSpaceAO', 'pFalloff', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly'],
+
+    "Particle_Alpha_TexBlend":
+         ['pEmissiveBlend', 'pEnableScreenSpaceAO', 'pFalloff', 'pMotionBlendStrength', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly', 'pUseMotionVectors'],
+
+    "Particle_Alpha_Modulate":
+         ['pEmissiveBlend', 'pEnableScreenSpaceAO', 'pFalloff', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly'],
+
+    "Particle_Clip":
+         ['pAlphaTestRef', 'pEmissiveBlend', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pRenderLayerOverride'],
+
+    "Particle_Clip_TexBlend":
+         ['pAlphaTestRef', 'pEmissiveBlend', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pMotionBlendStrength', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pRenderLayerOverride', 'pUseMotionVectors'],
+
+    "Particle_Clip_Specular":
+         ['pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pRenderLayerOverride', 'pRoughness'],
+
+    "Particle_Alpha_AmbientOnly_TexBlend_PositionalFade":
+         ['pEmissiveBlend', 'pEnableScreenSpaceAO', 'pFalloff', 'pMotionBlendStrength', 'pParticleFadeCollapse', 'pParticleLightScatterData', 'pParticleNormalType', 'pParticleSoftDepth', 'pPositionalFade_Position', 'pPositionalFade_StartEndDistance', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly', 'pUseMotionVectors'],
+
+    "Particle_Refractive":
+         ['pDistortionOpacityThreshold', 'pDistortionScale', 'pFalloff', 'pParticleFadeCollapse', 'pParticleNormalType', 'pParticleSoftDepth', 'pRelativeFalloff', 'pRenderLayerOverride', 'pUnderwaterOnly'],
+
+    "Ice_OpaqueSurface_TriPlanar":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightChannelWeights', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSnowOnSlopesOffset', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pTriPlanarTile', 'pUseOrenNayar', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Terrain_Ice_Decal":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSnowOnSlopesOffset', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pTriPlanarTile', 'pUseOrenNayar', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Ice_Opaque_Extrusion2D":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSnowOnSlopesOffset', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Ice_Preview_Opaque_Extrusion2D":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacity', 'pOpacityDistance', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Preview_Opaque":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "UI_Opaque_Emissive_Extrusion2D":
+         ['pEmissiveIntensity', 'pEmissiveScrollData', 'pEmissiveTint', 'pEnableEmissiveFlexiColour', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Clip_DoubleSided_Extrusion2D_TAAGroup4":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pTransmittance', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Opaque_Extrusion2D_TAAGroup4":
+         ['pAOTexCoordIndex', 'pEnableScreenSpaceAO', 'pEnableWeatherPooling', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pSnowOnSlopesOffset', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_Enable', 'pWeather_ExplicitNormalThreshold'],
+
+    "Metallic_Roughness_Preview_Detail_Opaque":
+         ['pBaseColourUniqueBlend', 'pBrightness', 'pContrast', 'pDetailTexCoordData', 'pDetailTexCoordIndex', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pMaskNormals', 'pMetallicDetailStrength', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pRoughnessDetailStrength', 'pVerticalTiling'],
+
+    "Water_WaterOccluder":
+         ['pRenderLayerOverride', 'pVerticalTiling'],
+
+    "Glass_Preview_TexturedTwoSided":
+         ['pAOTexCoordIndex', 'pOpacity', 'pRenderLayerOverride', 'pTransmittance', 'pUseVertexColour', 'pVerticalTiling'],
+
+    "IridescentAnisotropic":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gLodFade', 'gWetBrightness', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDirtDryColour', 'pDirtWetColour', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pIridescenceColourRange', 'pIridescenceCurve', 'pIridescenceFilmThickness', 'pIridescenceHueRange', 'pIridescenceHueRoll', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pSnowOnSlopesOffset', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "IridescentAnisotropicAlpha":
+         ['gAnisotropicStrength', 'gDirectionScale', 'gLodFade', 'gWetBrightness', 'gWetHairBaseDirectionStrength', 'gWetHairDirectionStrength', 'gWetHairDownwardPush', 'pAOTexCoordIndex', 'pAlphaTestRef', 'pAnimalIdentityMask', 'pAnisoNormalBend', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pCorpseTint', 'pDepthBias', 'pDirtDryColour', 'pDirtWetColour', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pFurAlbinoDepthScale', 'pFurDepthScale', 'pFurErythristicDepthScale', 'pFurLeucisticDepthScale', 'pFurMelanisticDepthScale', 'pFurXanthicDepthScale', 'pIridescenceColourRange', 'pIridescenceCurve', 'pIridescenceFilmThickness', 'pIridescenceHueRange', 'pIridescenceHueRoll', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pNoisiness', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarBaldnessCutoffAlbino', 'pScarBaldnessCutoffErythristic', 'pScarBaldnessCutoffLeucistic', 'pScarBaldnessCutoffMelanistic', 'pScarBaldnessCutoffXanthic', 'pSnowOnSlopesOffset', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper'],
+
+    "Metallic_Roughness_Preview_Clip":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pTransmittance', 'pVerticalTiling'],
+
+    "Metallic_Roughness_Preview_ClipDoubleSided":
+         ['pAOTexCoordIndex', 'pAlphaTestRef', 'pEnableAlphaTestRefFade', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pOpacity', 'pOpacityDistance', 'pRenderLayerOverride', 'pTransmittance', 'pVerticalTiling'],
+
+    "Ice_Preview_ClipDoubleSided_Extrusion2D":
+         ['pAlphaTestRef', 'pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableAlphaTestRefFade', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightAlphaTestRefBias', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacity', 'pOpacityDistance', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittance', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pVerticalTiling'],
+
+    "Glass_Preview_Textured":
+         ['pAOTexCoordIndex', 'pOpacity', 'pRenderLayerOverride', 'pTransmittance', 'pUseVertexColour', 'pVerticalTiling'],
+
+    "Ice_Preview_Opaque":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacity', 'pOpacityDistance', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pVerticalTiling'],
+
+    "Ice_Preview_OpaqueSurface_TriPlanar":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pHighlightChannelWeights', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacity', 'pOpacityDistance', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pTriPlanarTile'],
+
+    "Ice_Preview_Opaque_TriPlanar":
+         ['pAngleDarkenPower', 'pDetailNormalStrength', 'pDetailTile', 'pDiffuseTint', 'pDirectScatterTransmittance', 'pDirectionalLightTransmittanceOcclusion', 'pEnableRandomSubLayerOffset', 'pEnableScreenSpaceAO', 'pExposureWeight', 'pFlexiColourBlended', 'pFlexiColourTexCoordIndex', 'pFlexiColourUseAdditiveBlend', 'pFlexiColourVertexColour', 'pIBLScatterTransmittanceSurfaceNormalDistortion', 'pNormalMapAngleDarkenStrength', 'pNormalMapRefractionStrength', 'pOpacity', 'pOpacityDistance', 'pOpacityScale', 'pRenderLayerOverride', 'pRoughnessRefractionStrength', 'pSSAOScatterReflectionOcclusionStrength', 'pSSRReflectionTransmittanceMip', 'pSSRReflectionTransmittanceScale', 'pSubLayer0', 'pSubLayer0DiffuseTint', 'pSubLayer1', 'pSubLayer1DiffuseTint', 'pSubLayerAOMipBias', 'pSubLayerAOStregnth', 'pSubLayerOpacityMipBias', 'pSubLayerTile', 'pTransmittanceMinimum', 'pTransmittanceScale', 'pVerticalTiling'],
+
+    "Game_WeatherParticle_AnimatedSplash":
+         ['pEmissiveIntensity', 'pEmissiveTint', 'pOpacity', 'pRenderLayerOverride'],
+
+    "Game_WeatherParticle_RainDrop":
+         ['pEmissiveIntensity', 'pEmissiveTint', 'pFaceCamera', 'pForwardFadeOffset', 'pForwardFadeScale', 'pNumFramesX', 'pNumFramesY', 'pOpacity', 'pRenderLayerOverride'],
+
+    "Game_WeatherParticle_TiledRain":
+         ['pEmissiveIntensity', 'pEmissiveTint', 'pFaceCamera', 'pForwardFadeOffset', 'pForwardFadeScale', 'pNumFramesX', 'pNumFramesY', 'pOpacity', 'pRenderLayerOverride'],
+
+    "Game_WeatherParticle":
+         ['pEmissiveIntensity', 'pEmissiveTint', 'pOpacity', 'pRenderLayerOverride'],
+
+    "WindVectorField_Debug":
+         ['pRenderLayerOverride'],
+
+    "FrontEnd_Atmosphere":
+         ['pAtmosphere_AmbientScatterColour', 'pAtmosphere_AmbientScatterIntensity', 'pAtmosphere_BetaMieExtScale', 'pAtmosphere_ColourMie', 'pAtmosphere_DensityMie', 'pAtmosphere_DensityPower', 'pAtmosphere_DirectionalScatterDirectivity0', 'pAtmosphere_DirectionalScatterDirectivity1', 'pAtmosphere_DirectionalScatterIntensity0', 'pAtmosphere_DirectionalScatterIntensity1', 'pAtmosphere_Height', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "FrontEnd_Metal":
+         ['pAOTexCoordIndex', 'pAnisotropicLength', 'pAnisotropicRotation', 'pDiffuseTransmittance', 'pEnableScreenSpaceAO', 'pIBLRoughnessTweak', 'pMetalSpecularDarken_Invert', 'pMetalSpecularDarken_Power', 'pMetalSpecularDarken_Scale', 'pMetalSpecularDarken_StartAngle', 'pMetalSpecularFill_Power', 'pMetalSpecularFill_Scale', 'pMetalSpecularFill_StartAngle', 'pRenderLayerOverride', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling'],
+
+    "FrontEnd_Radial":
+         ['pDepthDistance', 'pEmissiveAlphaBlendWeight', 'pEmissiveAngleOpacity', 'pEmissiveColour', 'pEmissiveIntensity', 'pEmissiveMaskPower', 'pEmissiveMaskSize', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "FrontEnd_GlobeArea":
+         ['pAOTexCoordIndex', 'pAnisotropicLength', 'pAnisotropicRotation', 'pDiffuseTransmittance', 'pEnableScreenSpaceAO', 'pHighlightPatternDistance', 'pHighlightPatternSpeed', 'pHighlightUsePattern', 'pIBLRoughnessTweak', 'pRenderLayerOverride', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling'],
+
+    "FrontEnd_SkyBox":
+         ['pAngles', 'pEmissiveColour0', 'pEmissiveColour1', 'pEmissiveIntensity', 'pExpose', 'pRenderLayerOverride', 'pVerticalTiling'],
+
+    "FrontEnd_Ocean":
+         ['pAOTexCoordIndex', 'pAnisotropicLength', 'pAnisotropicRotation', 'pDepthDistance', 'pDiffuseTransmittance', 'pEnableScreenSpaceAO', 'pIBLRoughnessTweak', 'pOceanDiffuseDarken_Power', 'pOceanDiffuseDarken_Scale', 'pOceanDiffuseDarken_StartAngle', 'pRenderLayerOverride', 'pTransmissionColour', 'pTransmissionFalloff', 'pTransmissionRoughness', 'pVerticalTiling'],
+
+}
+
