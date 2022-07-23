@@ -55,14 +55,8 @@ def pack_ushort_vector(vec):
     return [ushort_clamp(int(round(coord * USHORT_SCALE + USHORT_OFFSET))) for coord in vec]
 
 
-def scale_unpack(f, base):
-    """Converts a packed int component into a float in the range specified by base"""
-    return (f + base) * base / PACKEDVEC_MAX
-
-
 def scale_unpack_vectorized(f, base):
     """Converts a packed int component into a float in the range specified by base"""
-    # f[:] = f * base / PACKEDVEC_MAX# - base
     f[:] = (f + base) * base / PACKEDVEC_MAX - base
 
 
