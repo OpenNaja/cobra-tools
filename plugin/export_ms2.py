@@ -111,7 +111,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	count_unique = 0
 	count_reused = 0
 	shell_ob = None
-	shapekey = None
+	shapekey = (0, 0, 0)
 	# fin meshes have to grab tangents from shell
 	if is_fin(b_ob):
 		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob) and ob is not b_ob]

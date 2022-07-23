@@ -159,7 +159,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 
 
 def import_shapekeys(b_obj, mesh):
-	if mesh.shapekeys is not None:
+	if mesh.flag == 517:
 		b_mesh = b_obj.data
 		# insert base key
 		sk_basis = b_obj.shape_key_add(name="Basis")

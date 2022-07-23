@@ -174,11 +174,7 @@ class NewMeshData(MeshData):
 			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 		except:
 			self.colors = None
-		try:
-			shapekeys_shape = self.dt["shapekeys0"].shape
-			self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
-		except:
-			self.shapekeys = None
+		self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
 		self.weights_info = {}
 
 	def get_vcol_count(self, ):
@@ -317,7 +313,8 @@ class NewMeshData(MeshData):
 		unpack_swizzle_vectorized(self.tangents)
 
 		# unpack the shapekeys
-		if self.shapekeys is not None:
+		if self.flag == 517:
+			# create the int64 by combining its two parts
 			shapes_combined = self.verts_data["shapekeys1"].astype(np.int64)
 			shapes_combined <<= 32
 			shapes_combined |= self.verts_data["shapekeys0"]
@@ -338,7 +335,7 @@ class NewMeshData(MeshData):
 		self.update_dtype()
 		self.init_arrays()
 		self.vertices[:], self.residues[:], self.normals[:], self.windings, self.tangents[:], self.uvs, \
-		self.colors, self.weights, self.shapekeys = zip(*verts)
+		self.colors, self.weights, self.shapekeys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
 
@@ -346,6 +343,15 @@ class NewMeshData(MeshData):
 		"""Repack flat lists into verts_data"""
 		logging.info("Packing vertices")
 		self.verts_data = np.zeros(self.vertex_count, dtype=self.dt)
+
+		if self.flag == 517:
+			pack_swizzle_vectorized(self.shapekeys)
+			scale_pack_vectorized(self.shapekeys, self.base)
+			shapes_combined = np.zeros(self.vertex_count, dtype=np.int64)
+			# todo - store separate shape_residues?
+			pack_int64_vector(shapes_combined, self.shapekeys.astype(np.int64), self.residues)
+			self.verts_data["shapekeys1"][:] = (shapes_combined >> 32) & 0b11111111111111111111111111111111
+			self.verts_data["shapekeys0"][:] = shapes_combined & 0b11111111111111111111111111111111
 
 		pack_swizzle_vectorized(self.vertices)
 		pack_swizzle_vectorized(self.normals)
@@ -374,18 +380,6 @@ class NewMeshData(MeshData):
 				vert["uvs"] = list(pack_ushort_vector(uv) for uv in self.uvs[i])
 			if "colors" in self.dt.fields:
 				vert["colors"] = list(list(round(c * 255) for c in vcol) for vcol in self.colors[i])
-			# todo - shapekeys packing
-			# if "shapekeys0" in self.dt.fields:
-			# 	# first pack it as uint64
-			# 	raw_packed = pack_longint_vec(pack_swizzle(self.shapekeys[i]), residue, self.base)
-			# 	if raw_packed < 0:
-			# 		logging.error(f"Shapekey {raw_packed} could not be packed into uint64")
-			# 		raw_packed = 0
-			# 	raw_bytes = struct.pack("Q", raw_packed)
-			# 	# unpack to 2 uints again and assign data
-			# 	first, second = struct.unpack("LL", raw_bytes)
-			# 	vert["shapekeys0"] = first
-			# 	vert["shapekeys1"] = second
 
 	def unpack_weights_list(self, weights_sorted):
 		# pad the weight list to 4 bones, ie. add empty bones if missing
