@@ -6,7 +6,8 @@ USHORT_SCALE = 2048
 USHORT_OFFSET = 32766.5
 USHORT_MIN = 0
 USHORT_MAX = 65535
-PACKEDVEC_MAX = 2 ** 20  # 0x100000
+PACKEDVEC_MAX = 2 ** 20 - 1 # 0x100000
+# PACKEDVEC_MAX = 2 ** 20  # 0x100000
 FUR_OVERHEAD = 2
 zero_uint64 = np.uint64(0)
 
@@ -56,18 +57,18 @@ def pack_ushort_vector(vec):
 
 def scale_unpack(f, base):
     """Converts a packed int component into a float in the range specified by base"""
-    scale = base / PACKEDVEC_MAX
-    return (f + base) * scale
+    return (f + base) * base / PACKEDVEC_MAX
 
 
 def scale_unpack_vectorized(f, base):
     """Converts a packed int component into a float in the range specified by base"""
-    f[:] = f * base / PACKEDVEC_MAX - base
+    # f[:] = f * base / PACKEDVEC_MAX# - base
+    f[:] = (f + base) * base / PACKEDVEC_MAX - base
 
 
 def scale_pack_vectorized(f, base):
     """Packs a float into the range specified by base"""
-    f[:] = np.round((f+base) / base * PACKEDVEC_MAX)
+    f[:] = np.round((f + base) / base * PACKEDVEC_MAX - base)
 
 
 def unpack_int64_vector(packed_vert, vertices, residues):
