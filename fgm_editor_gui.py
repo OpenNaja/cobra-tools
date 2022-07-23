@@ -357,7 +357,7 @@ class TextureVisual:
 		self.data.dependency_name.data = file
 
 	def create_fields(self):
-		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour", "Albino0", "Albino1", "ic0", "ic1")
+		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
 		if self.entry.dtype == FgmDtype.Texture:
 			assert self.data.dependency_name.data
 			self.w_file = QtWidgets.QLineEdit(self.data.dependency_name.data)
