@@ -360,9 +360,9 @@ class TextureVisual:
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
 		if self.entry.dtype == FgmDtype.Texture:
 			assert self.data.dependency_name.data
-			self.w_file = QtWidgets.QLineEdit(self.data.dependency_name.data)
-			self.w_file.textEdited.connect(self.update_file)
-			# self.w_file = widgets.FileWidget(None, {}, dtype="TEX")
+			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, dtype="TEX", poll=False)
+			self.w_file.entry.setText(self.data.dependency_name.data)
+			self.w_file.entry.textChanged.connect(self.update_file)
 			return self.w_file,
 		elif self.entry.dtype == FgmDtype.RGBA:
 			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
