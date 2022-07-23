@@ -3,6 +3,7 @@ import time
 import traceback
 import logging
 import numpy as np
+from collections import defaultdict, Counter
 
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.ovl_base import OvlContext
@@ -175,6 +176,8 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		attributes = {}
 		textures = set()
 		shaders = set()
+		shader_attribs = defaultdict(set)
+		shader_attrib_stats = defaultdict(Counter)
 		if walk_fgms:
 			context = OvlContext()
 			fgm_files = walk_type(export_dir, extension=".fgm")
@@ -189,6 +192,10 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 						attributes[attrib.name] = int(attrib.dtype)
 					for texture in header.textures.data:
 						textures.add(texture.name)
+
+					shader_attribs[header.shader_name] |= {a.name for a in header.attributes.data}
+					#shader_attrib_stats[header.shader_name].update(frozenset([a.name for a in header.attributes.data]))
+
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((fgm_path, ex))
@@ -200,8 +207,25 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 
 		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}.py")
 		with open(out_path, "w") as f:
-			f.write(f"attributes = {attributes}\n\n")
-			f.write(f"textures = {textures}\n\n")
-			f.write(f"shaders = {shaders}\n\n")
+			f.write("attributes = {\n")
+			for att in sorted(attributes.keys()):
+				f.write(f'    "{att}": {attributes[att]},\n')
+			f.write("}\n\n")
+			f.write("textures = {\n")
+			for tex in sorted(textures):
+				f.write(f'    "{tex}",\n')
+			f.write("}\n\n")
+			f.write("shaders = {\n")
+			for shader in sorted(shaders):
+				f.write(f'    "{shader}",\n')
+			f.write("}\n\n")
+			f.write("shader_attribs = {\n")
+			for shader in shader_attribs.keys():
+				f.write(f'    "{shader}":\n         {sorted(shader_attribs[shader])},\n\n')
+			f.write("}\n\n")
+			#f.write("shader_attrib_stats = {\n\n")
+			#for shader in shader_attrib_stats.keys():
+			#	f.write(f"    '{shader}':\n         {shader_attrib_stats[shader]},\n\n")
+			#f.write("}\n\n")
 		print(f"Written to {out_path}")
 		gui.update_progress("Operation completed!", value=1, vmax=1)
