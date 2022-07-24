@@ -142,17 +142,12 @@ class JointData:
 		self.joint_transforms = Array((self.joint_count,), JointEntry, self.context, 0, None)
 		if self.context.version >= 47:
 			self.zeros_3 = numpy.zeros((self.joint_count,), dtype=numpy.dtype('uint64'))
-		if self.context.version >= 47:
 			self.unknown_listc = Array((self.joint_count,), ListCEntry, self.context, 0, None)
-		if self.context.version >= 47:
 			self.first_list = Array((self.count_0,), ListFirst, self.context, 0, None)
-		if self.context.version >= 47:
 			self.short_list = Array((self.count_1,), ListShort, self.context, 0, None)
-		if self.context.version >= 47:
 			self.long_list = Array((self.count_2,), ListLong, self.context, 0, None)
 		if self.context.version <= 32:
 			self.joint_infos = Array((self.joint_count,), UACJointFF, self.context, 0, None)
-		if self.context.version <= 32:
 			self.pc_floats = numpy.zeros((self.pc_count, 10,), dtype=numpy.dtype('float32'))
 		self.joint_indices = numpy.zeros((self.joint_count,), dtype=numpy.dtype('int32'))
 		self.bone_indices = numpy.zeros((self.bone_count,), dtype=numpy.dtype('int32'))
@@ -202,10 +197,8 @@ class JointData:
 		if instance.context.version >= 47:
 			instance.zeros_3 = stream.read_uint64s((instance.joint_count,))
 			instance.unknown_listc = Array.from_stream(stream, (instance.joint_count,), ListCEntry, instance.context, 0, None)
-		if instance.context.version >= 47:
 			instance.first_list = Array.from_stream(stream, (instance.count_0,), ListFirst, instance.context, 0, None)
 			instance.short_list = Array.from_stream(stream, (instance.count_1,), ListShort, instance.context, 0, None)
-		if instance.context.version >= 47:
 			instance.long_list = Array.from_stream(stream, (instance.count_2,), ListLong, instance.context, 0, None)
 		if instance.context.version <= 32:
 			instance.joint_infos = Array.from_stream(stream, (instance.joint_count,), UACJointFF, instance.context, 0, None)
@@ -248,10 +241,8 @@ class JointData:
 		if instance.context.version >= 47:
 			stream.write_uint64s(instance.zeros_3)
 			Array.to_stream(stream, instance.unknown_listc, (instance.joint_count,), ListCEntry, instance.context, 0, None)
-		if instance.context.version >= 47:
 			Array.to_stream(stream, instance.first_list, (instance.count_0,), ListFirst, instance.context, 0, None)
 			Array.to_stream(stream, instance.short_list, (instance.count_1,), ListShort, instance.context, 0, None)
-		if instance.context.version >= 47:
 			Array.to_stream(stream, instance.long_list, (instance.count_2,), ListLong, instance.context, 0, None)
 		if instance.context.version <= 32:
 			Array.to_stream(stream, instance.joint_infos, (instance.joint_count,), UACJointFF, instance.context, 0, None)

@@ -172,7 +172,6 @@ class Header(GenericHeader):
 		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
 		if self.context.version >= 20:
 			self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
-		if self.context.version >= 20:
 			self.triplets_pad = PadAlign(self.context, 4, self.triplets)
 		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)

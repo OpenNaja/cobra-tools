@@ -129,9 +129,7 @@ class BoneInfo:
 		self.name_count = 0
 		if self.context.version >= 32:
 			self.knownff = 0
-		if self.context.version >= 32:
 			self.zero_0 = 0
-		if self.context.version >= 32:
 			self.unknown_0_c = 0
 		self.unk_count = 0
 		self.bind_matrix_count = 0
@@ -200,7 +198,6 @@ class BoneInfo:
 		if instance.context.version >= 32:
 			instance.knownff = stream.read_short()
 			instance.zero_0 = stream.read_short()
-		if instance.context.version >= 32:
 			instance.unknown_0_c = stream.read_uint()
 		instance.unk_count = stream.read_uint64()
 		instance.bind_matrix_count = stream.read_uint64()
@@ -259,7 +256,6 @@ class BoneInfo:
 		if instance.context.version >= 32:
 			stream.write_short(instance.knownff)
 			stream.write_short(instance.zero_0)
-		if instance.context.version >= 32:
 			stream.write_uint(instance.unknown_0_c)
 		stream.write_uint64(instance.unk_count)
 		stream.write_uint64(instance.bind_matrix_count)

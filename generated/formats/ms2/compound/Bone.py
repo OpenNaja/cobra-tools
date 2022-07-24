@@ -32,15 +32,11 @@ class Bone:
 	def set_defaults(self):
 		if self.context.version <= 47:
 			self.loc = Vector3(self.context, 0, None)
-		if self.context.version <= 47:
 			self.scale = 0.0
-		if self.context.version <= 47:
 			self.rot = Vector4(self.context, 0, None)
 		if self.context.version >= 48:
 			self.rot = Vector4(self.context, 0, None)
-		if self.context.version >= 48:
 			self.loc = Vector3(self.context, 0, None)
-		if self.context.version >= 48:
 			self.scale = 0.0
 
 	def read(self, stream):
@@ -58,12 +54,10 @@ class Bone:
 		if instance.context.version <= 47:
 			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
 			instance.scale = stream.read_float()
-		if instance.context.version <= 47:
 			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 48:
 			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
 			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 48:
 			instance.scale = stream.read_float()
 
 	@classmethod
@@ -71,12 +65,10 @@ class Bone:
 		if instance.context.version <= 47:
 			Vector3.to_stream(stream, instance.loc)
 			stream.write_float(instance.scale)
-		if instance.context.version <= 47:
 			Vector4.to_stream(stream, instance.rot)
 		if instance.context.version >= 48:
 			Vector4.to_stream(stream, instance.rot)
 			Vector3.to_stream(stream, instance.loc)
-		if instance.context.version >= 48:
 			stream.write_float(instance.scale)
 
 	@classmethod

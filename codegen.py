@@ -50,6 +50,7 @@ class XmlParser:
             "versions": self.base_segments,
             "ContextReference": "context",
             "BaseEnum": "base_enum",
+            "StructBase": "struct",
             }
         # enum name -> storage name
         self.storage_dict = {}

@@ -39,7 +39,6 @@ class LuaRoot(MemStruct):
 		self.zero_2 = 0
 		if self.context.version >= 18:
 			self.source_path = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		if self.context.version >= 18:
 			self.likely_alignment = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):

@@ -42,21 +42,18 @@ class EventEntry(MemStruct):
 		self.zero = 0
 		if self.context.version <= 18:
 			self.zero_2 = 0
-		if self.context.version <= 18:
 			self.size = 0
 		self.flag_0 = 0
 		self.flag_1 = 0
 		self.flag_2 = 0
 		if self.context.version <= 18:
 			self.zero_3 = 0
-		if self.context.version <= 18:
 			self.flag_3 = 0
 		self.hash_b = 0
 		self.hash_c = 0
 		self.zero_4 = 0
 		if self.context.version >= 19:
 			self.u_2 = 0
-		if self.context.version >= 19:
 			self.u_1 = 0
 		if self.context.version <= 18:
 			self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -79,7 +76,6 @@ class EventEntry(MemStruct):
 		if instance.context.version <= 18:
 			instance.block_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 			instance.zero_2 = stream.read_ushort()
-		if instance.context.version <= 18:
 			instance.size = stream.read_ushort()
 		instance.flag_0 = stream.read_uint()
 		instance.flag_1 = stream.read_uint()
@@ -103,7 +99,6 @@ class EventEntry(MemStruct):
 		if instance.context.version <= 18:
 			Pointer.to_stream(stream, instance.block_name)
 			stream.write_ushort(instance.zero_2)
-		if instance.context.version <= 18:
 			stream.write_ushort(instance.size)
 		stream.write_uint(instance.flag_0)
 		stream.write_uint(instance.flag_1)

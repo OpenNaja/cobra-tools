@@ -100,17 +100,11 @@ class MeshCollision:
 			self.ff_or_zero = numpy.zeros((8,), dtype=numpy.dtype('int32'))
 		if self.context.version <= 32:
 			self.bounds_min_repeat = Vector3(self.context, 0, None)
-		if self.context.version <= 32:
 			self.bounds_max_repeat = Vector3(self.context, 0, None)
-		if self.context.version <= 32:
 			self.tri_flags_count = 0
-		if self.context.version <= 32:
 			self.count_bits = 0
-		if self.context.version <= 32:
 			self.stuff = numpy.zeros((9,), dtype=numpy.dtype('uint16'))
-		if self.context.version <= 32:
 			self.collision_bits = Array((self.count_bits,), MeshCollisionBit, self.context, 0, None)
-		if self.context.version <= 32:
 			self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
 		self.vertices = numpy.zeros((self.vertex_count, 3,), dtype=numpy.dtype('float32'))
 		self.triangles = numpy.zeros((self.tri_count, 3,), dtype=numpy.dtype('uint16'))
@@ -147,13 +141,10 @@ class MeshCollision:
 		if instance.context.version <= 32:
 			instance.bounds_min_repeat = Vector3.from_stream(stream, instance.context, 0, None)
 			instance.bounds_max_repeat = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 32:
 			instance.tri_flags_count = stream.read_uint()
 			instance.count_bits = stream.read_ushort()
-		if instance.context.version <= 32:
 			instance.stuff = stream.read_ushorts((9,))
 			instance.collision_bits = Array.from_stream(stream, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
-		if instance.context.version <= 32:
 			instance.zeros = stream.read_uints((4,))
 		instance.vertices = stream.read_floats((instance.vertex_count, 3,))
 		instance.triangles = stream.read_ushorts((instance.tri_count, 3,))
@@ -180,13 +171,10 @@ class MeshCollision:
 		if instance.context.version <= 32:
 			Vector3.to_stream(stream, instance.bounds_min_repeat)
 			Vector3.to_stream(stream, instance.bounds_max_repeat)
-		if instance.context.version <= 32:
 			stream.write_uint(instance.tri_flags_count)
 			stream.write_ushort(instance.count_bits)
-		if instance.context.version <= 32:
 			stream.write_ushorts(instance.stuff)
 			Array.to_stream(stream, instance.collision_bits, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
-		if instance.context.version <= 32:
 			stream.write_uints(instance.zeros)
 		stream.write_floats(instance.vertices)
 		stream.write_ushorts(instance.triangles)

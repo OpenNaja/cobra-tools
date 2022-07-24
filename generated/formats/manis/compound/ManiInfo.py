@@ -93,11 +93,8 @@ class ManiInfo:
 		self.scl_bone_count = 0
 		if self.context.version == 18:
 			self.extra_pc = 0
-		if self.context.version == 18:
 			self.pos_bone_count_repeat = 0
-		if self.context.version == 18:
 			self.ori_bone_count_repeat = 0
-		if self.context.version == 18:
 			self.scl_bone_count_repeat = 0
 		self.zeros_1 = 0
 		if not (self.context.version == 18):
@@ -118,17 +115,11 @@ class ManiInfo:
 		self.scl_bone_max = 0
 		if not (self.context.version == 18):
 			self.pos_bone_count_related = 0
-		if not (self.context.version == 18):
 			self.pos_bone_count_repeat = 0
-		if not (self.context.version == 18):
 			self.ori_bone_count_related = 0
-		if not (self.context.version == 18):
 			self.ori_bone_count_repeat = 0
-		if not (self.context.version == 18):
 			self.scl_bone_count_related = 0
-		if not (self.context.version == 18):
 			self.scl_bone_count_repeat = 0
-		if not (self.context.version == 18):
 			self.zeros_end = 0
 		self.zero_2_end = 0
 
@@ -156,7 +147,6 @@ class ManiInfo:
 		if instance.context.version == 18:
 			instance.extra_pc = stream.read_uint64()
 			instance.pos_bone_count_repeat = stream.read_ushort()
-		if instance.context.version == 18:
 			instance.ori_bone_count_repeat = stream.read_ushort()
 			instance.scl_bone_count_repeat = stream.read_ushort()
 		instance.zeros_1 = stream.read_ushort()
@@ -179,13 +169,10 @@ class ManiInfo:
 		if not (instance.context.version == 18):
 			instance.pos_bone_count_related = stream.read_ubyte()
 			instance.pos_bone_count_repeat = stream.read_ubyte()
-		if not (instance.context.version == 18):
 			instance.ori_bone_count_related = stream.read_ubyte()
 			instance.ori_bone_count_repeat = stream.read_ubyte()
-		if not (instance.context.version == 18):
 			instance.scl_bone_count_related = stream.read_byte()
 			instance.scl_bone_count_repeat = stream.read_byte()
-		if not (instance.context.version == 18):
 			instance.zeros_end = stream.read_ushort()
 		instance.zero_2_end = stream.read_ushort()
 
@@ -203,7 +190,6 @@ class ManiInfo:
 		if instance.context.version == 18:
 			stream.write_uint64(instance.extra_pc)
 			stream.write_ushort(instance.pos_bone_count_repeat)
-		if instance.context.version == 18:
 			stream.write_ushort(instance.ori_bone_count_repeat)
 			stream.write_ushort(instance.scl_bone_count_repeat)
 		stream.write_ushort(instance.zeros_1)
@@ -226,13 +212,10 @@ class ManiInfo:
 		if not (instance.context.version == 18):
 			stream.write_ubyte(instance.pos_bone_count_related)
 			stream.write_ubyte(instance.pos_bone_count_repeat)
-		if not (instance.context.version == 18):
 			stream.write_ubyte(instance.ori_bone_count_related)
 			stream.write_ubyte(instance.ori_bone_count_repeat)
-		if not (instance.context.version == 18):
 			stream.write_byte(instance.scl_bone_count_related)
 			stream.write_byte(instance.scl_bone_count_repeat)
-		if not (instance.context.version == 18):
 			stream.write_ushort(instance.zeros_end)
 		stream.write_ushort(instance.zero_2_end)
 

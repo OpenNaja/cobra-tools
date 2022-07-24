@@ -53,7 +53,6 @@ class Struct7:
 		self.zero_0 = 0
 		if self.context.version >= 48:
 			self.flag = 0
-		if self.context.version >= 48:
 			self.zero_2 = 0
 		if self.context.version <= 13:
 			self.unknown_list = Array((self.count_7,), UACJoint, self.context, 0, None)

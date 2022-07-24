@@ -46,25 +46,18 @@ class WmetasbMain(MemStruct):
 		self.events_count = 0
 		if self.context.version <= 18:
 			self.hashes_count = 0
-		if self.context.version <= 18:
 			self.media_count = 0
 		self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if self.context.version <= 18:
 			self.media_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		if self.context.version <= 18:
 			self.bnk_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.events = ArrayPointer(self.context, self.events_count, generated.formats.wmeta.compound.EventEntry.EventEntry)
 		if self.context.version <= 18:
 			self.hashes = ArrayPointer(self.context, self.hashes_count, generated.formats.base.basic.Uint)
-		if self.context.version <= 18:
 			self.media = ArrayPointer(self.context, self.media_count, generated.formats.wmeta.compound.MediaEntry.MediaEntry)
-		if self.context.version <= 18:
 			self.unused_2 = Pointer(self.context, 0, None)
-		if self.context.version <= 18:
 			self.unused_3 = Pointer(self.context, 0, None)
-		if self.context.version <= 18:
 			self.unused_4 = Pointer(self.context, 0, None)
-		if self.context.version <= 18:
 			self.unused_5 = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -91,13 +84,10 @@ class WmetasbMain(MemStruct):
 		if instance.context.version <= 18:
 			instance.hashes = ArrayPointer.from_stream(stream, instance.context, instance.hashes_count, generated.formats.base.basic.Uint)
 			instance.hashes_count = stream.read_uint64()
-		if instance.context.version <= 18:
 			instance.media = ArrayPointer.from_stream(stream, instance.context, instance.media_count, generated.formats.wmeta.compound.MediaEntry.MediaEntry)
 			instance.media_count = stream.read_uint64()
-		if instance.context.version <= 18:
 			instance.unused_2 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_3 = Pointer.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 18:
 			instance.unused_4 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_5 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.block_name.arg = 0
@@ -125,13 +115,10 @@ class WmetasbMain(MemStruct):
 		if instance.context.version <= 18:
 			ArrayPointer.to_stream(stream, instance.hashes)
 			stream.write_uint64(instance.hashes_count)
-		if instance.context.version <= 18:
 			ArrayPointer.to_stream(stream, instance.media)
 			stream.write_uint64(instance.media_count)
-		if instance.context.version <= 18:
 			Pointer.to_stream(stream, instance.unused_2)
 			Pointer.to_stream(stream, instance.unused_3)
-		if instance.context.version <= 18:
 			Pointer.to_stream(stream, instance.unused_4)
 			Pointer.to_stream(stream, instance.unused_5)
 

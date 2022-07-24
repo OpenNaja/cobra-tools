@@ -60,7 +60,6 @@ class MimeEntry:
 		self.file_count = 0
 		if self.context.version >= 20:
 			self.triplet_count = 0
-		if self.context.version >= 20:
 			self.triplet_offset = 0
 
 	def read(self, stream):

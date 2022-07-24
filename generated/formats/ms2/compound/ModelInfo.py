@@ -108,11 +108,9 @@ class ModelInfo(MemStruct):
 		self.radius = 0.0
 		if self.context.version >= 48 and not ((self.context.version == 51) and self.context.biosyn):
 			self.num_lods_2 = 0
-		if self.context.version >= 48 and not ((self.context.version == 51) and self.context.biosyn):
 			self.zero = 0
 		if self.context.version >= 32:
 			self.bounds_min_repeat = Vector3(self.context, 0, None)
-		if self.context.version >= 32:
 			self.bounds_max_repeat = Vector3(self.context, 0, None)
 		self.num_materials = 0
 		self.num_lods = 0

@@ -39,7 +39,6 @@ class TextureInfo(GenericInfo):
 			self.value = Array((1,), Color, self.context, 0, None)
 		if self.context.version >= 18:
 			self.some_index_0 = 0
-		if self.context.version >= 18:
 			self.some_index_1 = 0
 
 	def read(self, stream):

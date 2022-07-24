@@ -36,7 +36,6 @@ class TexInfoHeader(GenericHeader):
 			self.frag_01 = Array((self.tex_info.stream_count,), TexBufferPc, self.context, 0, None)
 		if self.context.version >= 19:
 			self.frag_01 = Array((self.tex_info.stream_count,), TexBuffer, self.context, 0, None)
-		if self.context.version >= 19:
 			self.frag_11 = SizeInfo(self.context, 0, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			self.padding = numpy.zeros((320 - self.frag_11.io_size,), dtype=numpy.dtype('uint8'))

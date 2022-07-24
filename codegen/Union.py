@@ -204,16 +204,18 @@ class Union:
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
 
-            indent, condition = condition_indent(base_indent, conditionals, condition)
+            indent, new_condition = condition_indent(base_indent, conditionals, condition)
 
             defaults = self.default_assigns(field, f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name, field_type, indent)
 
             # if defaults:
-            if condition:
-                f.write(f"{base_indent}{condition}")
-            for condition, default in defaults:
-                if condition:
-                    f.write(condition)
+            if new_condition:
+                f.write(f"{base_indent}{new_condition}")
+            if new_condition or indent == base_indent:
+                condition = new_condition
+            for default_condition, default in defaults:
+                if default_condition:
+                    f.write(default_condition)
                 f.write(default)
         return condition
 
@@ -222,9 +224,11 @@ class Union:
         base_indent = "\n\t\t"
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'{target_variable}.')
-            indent, condition = condition_indent(base_indent, conditionals, condition)
-            if condition:
-                f.write(f"{base_indent}{condition}")
+            indent, new_condition = condition_indent(base_indent, conditionals, condition)
+            if new_condition:
+                f.write(f"{base_indent}{new_condition}")
+            if new_condition or indent == base_indent:
+                condition = new_condition
             if method_type == 'read':
                 f.write(f"{indent}{target_variable}.{field_name} = {self.compound.parser.read_for_type(field_type, CONTEXT, arg, template, arr1, arr2)}")
                 # store version related fields on the context on read

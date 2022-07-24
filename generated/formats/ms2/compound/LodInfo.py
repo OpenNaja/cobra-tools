@@ -51,7 +51,6 @@ class LodInfo:
 		self.last_object_index = 0
 		if not ((self.context.version == 51) and self.context.biosyn):
 			self.vertex_count = 0
-		if not ((self.context.version == 51) and self.context.biosyn):
 			self.tri_index_count = 0
 
 	def read(self, stream):

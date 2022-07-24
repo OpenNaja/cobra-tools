@@ -67,15 +67,11 @@ class SizedStrData:
 		self.padding = 0.0
 		if self.context.version == 18:
 			self.zero_pc = 0
-		if self.context.version == 18:
 			self.height_array_size_pc = 0
 		if not (self.context.version == 18):
 			self.data_offset = 0
-		if not (self.context.version == 18):
 			self.data_count = 0
-		if not (self.context.version == 18):
 			self.size_offset = 0
-		if not (self.context.version == 18):
 			self.size_count = 0
 		self.position_offset = 0
 		self.position_count = 0
@@ -108,7 +104,6 @@ class SizedStrData:
 		if not (instance.context.version == 18):
 			instance.data_offset = stream.read_uint64()
 			instance.data_count = stream.read_uint64()
-		if not (instance.context.version == 18):
 			instance.size_offset = stream.read_uint64()
 			instance.size_count = stream.read_uint64()
 		instance.position_offset = stream.read_uint64()
@@ -132,7 +127,6 @@ class SizedStrData:
 		if not (instance.context.version == 18):
 			stream.write_uint64(instance.data_offset)
 			stream.write_uint64(instance.data_count)
-		if not (instance.context.version == 18):
 			stream.write_uint64(instance.size_offset)
 			stream.write_uint64(instance.size_count)
 		stream.write_uint64(instance.position_offset)

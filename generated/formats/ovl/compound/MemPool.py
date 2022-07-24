@@ -68,13 +68,11 @@ class MemPool:
 		self.file_hash = 0
 		if self.context.version <= 15:
 			self.disney_zero = 0
-		if self.context.version <= 15:
 			self.num_files = 0
 		if self.context.version >= 17:
 			self.num_files = 0
 		if self.context.version >= 19:
 			self.ext_hash = 0
-		if self.context.version >= 19:
 			self.zero_3 = 0
 
 	def read(self, stream):

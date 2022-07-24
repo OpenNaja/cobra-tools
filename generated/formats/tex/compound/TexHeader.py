@@ -65,13 +65,10 @@ class TexHeader(MemStruct):
 		self.one_0 = 0
 		if self.context.version <= 15:
 			self.num_mips = 0
-		if self.context.version <= 15:
 			self.width = 0
-		if self.context.version <= 15:
 			self.height = 0
 		if self.context.version >= 17:
 			self.stream_count = 0
-		if self.context.version >= 17:
 			self.stream_count_repeat = 0
 		self.pad = 0
 		if self.context.version <= 15:
@@ -80,7 +77,6 @@ class TexHeader(MemStruct):
 			self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBufferPc.TexBufferPc)
 		if self.context.version >= 19:
 			self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compound.TexBuffer.TexBuffer)
-		if self.context.version >= 19:
 			self.size_info = Pointer(self.context, 0, generated.formats.tex.compound.SizeInfo.SizeInfo)
 
 	def read(self, stream):
@@ -115,7 +111,6 @@ class TexHeader(MemStruct):
 		if instance.context.version <= 15:
 			instance.num_mips = stream.read_ushort()
 			instance.width = stream.read_ushort()
-		if instance.context.version <= 15:
 			instance.height = stream.read_ushort()
 		if instance.context.version >= 17:
 			instance.stream_count = stream.read_ubyte()
@@ -149,7 +144,6 @@ class TexHeader(MemStruct):
 		if instance.context.version <= 15:
 			stream.write_ushort(instance.num_mips)
 			stream.write_ushort(instance.width)
-		if instance.context.version <= 15:
 			stream.write_ushort(instance.height)
 		if instance.context.version >= 17:
 			stream.write_ubyte(instance.stream_count)

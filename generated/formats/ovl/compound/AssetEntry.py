@@ -34,7 +34,6 @@ class AssetEntry:
 		self.zero_0 = 0
 		if self.context.version >= 19:
 			self.ext_hash = 0
-		if self.context.version >= 19:
 			self.zero_1 = 0
 		self.file_index = 0
 		self.zero_2 = 0

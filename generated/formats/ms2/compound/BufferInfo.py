@@ -50,15 +50,11 @@ class BufferInfo:
 	def set_defaults(self):
 		if 32 <= self.context.version <= 47:
 			self.u_0 = 0
-		if 32 <= self.context.version <= 47:
 			self.u_1 = 0
 		if (self.context.version == 51) and self.context.biosyn:
 			self.tri_chunks_size = 0
-		if (self.context.version == 51) and self.context.biosyn:
 			self.tri_chunks_ptr = 0
-		if (self.context.version == 51) and self.context.biosyn:
 			self.vert_chunks_size = 0
-		if (self.context.version == 51) and self.context.biosyn:
 			self.vert_chunks_ptr = 0
 		self.verts_size = 0
 		self.verts_ptr = 0
@@ -66,19 +62,14 @@ class BufferInfo:
 			self.u_3 = 0
 		if not (self.context.version == 32):
 			self.tris_size = 0
-		if not (self.context.version == 32):
 			self.tris_ptr = 0
 		if self.context.version >= 48:
 			self.u_5 = 0
-		if self.context.version >= 48:
 			self.u_6 = 0
 		if self.context.version <= 13:
 			self.u_5 = 0
-		if self.context.version <= 13:
 			self.uvs_size = 0
-		if self.context.version <= 13:
 			self.u_6 = 0
-		if self.context.version <= 13:
 			self.u_7 = 0
 
 	def read(self, stream):
@@ -99,7 +90,6 @@ class BufferInfo:
 		if (instance.context.version == 51) and instance.context.biosyn:
 			instance.tri_chunks_size = stream.read_uint64()
 			instance.tri_chunks_ptr = stream.read_uint64()
-		if (instance.context.version == 51) and instance.context.biosyn:
 			instance.vert_chunks_size = stream.read_uint64()
 			instance.vert_chunks_ptr = stream.read_uint64()
 		instance.verts_size = stream.read_uint64()
@@ -115,7 +105,6 @@ class BufferInfo:
 		if instance.context.version <= 13:
 			instance.u_5 = stream.read_uint64()
 			instance.uvs_size = stream.read_uint64()
-		if instance.context.version <= 13:
 			instance.u_6 = stream.read_uint64()
 			instance.u_7 = stream.read_uint64()
 
@@ -127,7 +116,6 @@ class BufferInfo:
 		if (instance.context.version == 51) and instance.context.biosyn:
 			stream.write_uint64(instance.tri_chunks_size)
 			stream.write_uint64(instance.tri_chunks_ptr)
-		if (instance.context.version == 51) and instance.context.biosyn:
 			stream.write_uint64(instance.vert_chunks_size)
 			stream.write_uint64(instance.vert_chunks_ptr)
 		stream.write_uint64(instance.verts_size)
@@ -143,7 +131,6 @@ class BufferInfo:
 		if instance.context.version <= 13:
 			stream.write_uint64(instance.u_5)
 			stream.write_uint64(instance.uvs_size)
-		if instance.context.version <= 13:
 			stream.write_uint64(instance.u_6)
 			stream.write_uint64(instance.u_7)
 
