@@ -183,9 +183,6 @@ class MainWindow(widgets.MainWindow):
 		self.header.dependencies.data = Array((1,), self.header.dependencies.template, self.context, set_default=False)
 		self.header.data_lib.data = Array((1,), self.header.data_lib.template, self.context, set_default=False)
 
-		self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
-		self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
-
 		for tex in self.fgm_dict.shader_textures[self.header.shader_name]:
 			self.add_texture(tex)
 		
@@ -194,6 +191,9 @@ class MainWindow(widgets.MainWindow):
 
 		self.header.texture_count = len(self.header.textures.data)
 		self.header.attribute_count = len(self.header.attributes.data)
+
+		self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+		self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 
 	def create_tex_name(self, prefix, suffix):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
@@ -216,9 +216,9 @@ class MainWindow(widgets.MainWindow):
 		return textures, deps
 
 	def add_texture_clicked(self):
-		self.add_texture(self.texture_choice.entry.currentText())
+		self.add_texture(self.texture_choice.entry.currentText(), update_gui=True)
 
-	def add_texture(self, tex_name):
+	def add_texture(self, tex_name, update_gui=False):
 		textures = self.header.textures.data
 		for tex in textures:
 			if tex.name == tex_name:
@@ -243,13 +243,11 @@ class MainWindow(widgets.MainWindow):
 
 		self.header.textures.data[:], self.header.dependencies.data[:] = self.sort_textures()
 
-		try:
+		if update_gui:
 			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
-		except:
-			traceback.print_exc()
 
 	def add_attribute_clicked(self):
-		self.add_attribute(self.attribute_choice.entry.currentText())
+		self.add_attribute(self.attribute_choice.entry.currentText(), update_gui=True)
 
 	def fix_att_offsets(self, attributes):
 		for i, att in enumerate(attributes):
@@ -258,7 +256,7 @@ class MainWindow(widgets.MainWindow):
 	def offset_for_index(self, index):
 		return attrib_sizes[int(self.header.attributes.data[index-1].dtype)] + self.header.attributes.data[index-1].value_offset if index > 0 else 0
 
-	def add_attribute(self, att_name):
+	def add_attribute(self, att_name, update_gui=False):
 		attributes = self.header.attributes.data
 		for attrib in attributes:
 			if attrib.name == att_name:
@@ -280,10 +278,8 @@ class MainWindow(widgets.MainWindow):
 
 		self.header.data_lib.data[:] = data_lib
 
-		try:
+		if update_gui:
 			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
-		except:
-			traceback.print_exc()
 
 	@property
 	def fgm_name(self,):
@@ -542,7 +538,7 @@ class TextureVisual:
 			field.children()[1].colorChanged.connect(update_ind_color)
 			frame.setStyleSheet((f"""QFrame#ColorFrame {{ 
 				background-image: url('icon:transparency.png');
-				max-height: 20px;
+				max-height: 22px;
 				max-width: 100px;
 				padding: 0px;
 				border: 0px;

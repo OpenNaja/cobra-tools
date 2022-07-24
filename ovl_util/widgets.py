@@ -716,7 +716,7 @@ class QColorButton(QtWidgets.QPushButton):
 				background-color: {self._color.name(QtGui.QColor.NameFormat.HexArgb)};
 				border: 0px;
 				min-width: 100px;
-				min-height: 20px;
+				min-height: 22px;
 				border-radius: 3px;
 			}}""")
 		else:
