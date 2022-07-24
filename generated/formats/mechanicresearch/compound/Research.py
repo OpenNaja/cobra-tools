@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.mechanicresearch.compound.NextResearch
 from generated.formats.base.basic import Uint

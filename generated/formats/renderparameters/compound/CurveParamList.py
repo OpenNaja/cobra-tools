@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.renderparameters.compound.CurveParam
 from generated.array import Array
 from generated.formats.ovl_base.compound.MemStruct import MemStruct

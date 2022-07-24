@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.cinematic.compound.EventAttributes
 from generated.formats.base.basic import Float

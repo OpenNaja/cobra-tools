@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.tex.compound.SizeInfo
 import generated.formats.tex.compound.TexBuffer
 import generated.formats.tex.compound.TexBufferPc

@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.ovl_base.basic
 import numpy
 from generated.array import Array

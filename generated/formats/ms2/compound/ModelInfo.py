@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.ms2.compound.LodInfo
 import generated.formats.ms2.compound.MaterialName
 import generated.formats.ms2.compound.MeshDataWrap

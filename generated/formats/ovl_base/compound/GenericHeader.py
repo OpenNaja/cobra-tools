@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Byte
 from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl_base.compound.FixedString import FixedString

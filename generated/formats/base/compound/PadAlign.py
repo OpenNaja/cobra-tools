@@ -5,7 +5,7 @@ from modules.formats.shared import get_padding_size
 ZERO = b"\x00"
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.struct import StructBase
 
 

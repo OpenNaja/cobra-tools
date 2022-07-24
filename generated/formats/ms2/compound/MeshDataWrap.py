@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.ms2.compound.BioMeshData import BioMeshData
 from generated.formats.ms2.compound.NewMeshData import NewMeshData
 from generated.formats.ms2.compound.PcMeshData import PcMeshData

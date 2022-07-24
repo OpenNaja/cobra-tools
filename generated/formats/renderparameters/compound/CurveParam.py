@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.renderparameters.compound.CurveList
 from generated.formats.base.basic import Int

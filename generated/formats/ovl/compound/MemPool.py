@@ -6,7 +6,7 @@ from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort

@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Double
 from generated.formats.base.basic import Uint
 from generated.struct import StructBase

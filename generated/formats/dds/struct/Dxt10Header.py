@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.dds.basic import Uint
 from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enum.DxgiFormat import DxgiFormat

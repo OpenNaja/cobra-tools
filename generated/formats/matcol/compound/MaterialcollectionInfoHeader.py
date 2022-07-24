@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.matcol.compound.Layer import Layer
 from generated.formats.matcol.compound.MatcolRoot import MatcolRoot

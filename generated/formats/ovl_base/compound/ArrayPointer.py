@@ -2,7 +2,7 @@
 from generated.array import Array
 from generated.context import ContextReference
 from generated.formats.ovl_base.compound.Pointer import Pointer
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 

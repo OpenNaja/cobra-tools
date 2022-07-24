@@ -7,7 +7,7 @@ from generated.formats.manis.compound.ManiBlock import ManiBlock
 from modules.formats.shared import get_padding_size, get_padding
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.struct import StructBase
 
 

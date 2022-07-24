@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.bnk.compound.MusicTrack import MusicTrack
 from generated.formats.bnk.compound.SoundSfxVoice import SoundSfxVoice
 from generated.formats.bnk.compound.TypeOther import TypeOther

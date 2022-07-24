@@ -6,7 +6,7 @@ import numpy as np
 from generated.formats.ms2.compound.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.ms2.compound.BufferInfo
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct

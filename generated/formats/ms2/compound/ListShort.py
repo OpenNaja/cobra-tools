@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.ms2.compound.Descriptor import Descriptor
 from generated.formats.ms2.compound.Vector3 import Vector3

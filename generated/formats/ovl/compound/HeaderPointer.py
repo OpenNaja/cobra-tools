@@ -8,7 +8,7 @@ from generated.array import Array
 from generated.formats.ovl_base.basic import ConvStream
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
 from generated.struct import StructBase

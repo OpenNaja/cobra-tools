@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.AkMediaInformation import AkMediaInformation

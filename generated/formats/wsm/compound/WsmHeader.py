@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.wsm.compound.Vector3
 import generated.formats.wsm.compound.Vector4
 import numpy

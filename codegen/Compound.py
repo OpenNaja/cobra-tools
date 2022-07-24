@@ -41,6 +41,9 @@ class Compound(BaseClass):
             if "def __init__" not in self.src_code:
                 self.write_line(f)
                 self.write_line(f, 1, "def __init__(self, context, arg=0, template=None, set_default=True):")
+                if self.struct.attrib.get("generic", "false").upper() in ("TRUE", "1"):
+                    self.write_line(f, 2, "if template is None:")
+                    self.write_line(f, 3, "raise TypeError(f'{type(self).__name__} requires template is not None')")
                 # classes that this class inherits from have to be read first
                 if self.class_basename:
                     # context is set by the parent class

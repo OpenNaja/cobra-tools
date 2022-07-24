@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.fgm.enum.FgmDtype import FgmDtype
 from generated.formats.ovl_base.compound.MemStruct import MemStruct

@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.enumnamer.compound.PtrList
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct

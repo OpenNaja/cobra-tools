@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.ActivitiesLinks
 from generated.formats.base.basic import Float

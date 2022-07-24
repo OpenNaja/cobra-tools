@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector3 import Vector3
 from generated.struct import StructBase

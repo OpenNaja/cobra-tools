@@ -4,7 +4,7 @@ import time
 from generated.formats.ms2.compound.packing_utils import *
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float

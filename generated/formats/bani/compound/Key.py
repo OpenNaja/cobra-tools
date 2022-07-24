@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.bani.compound.Vector3Short import Vector3Short
 from generated.formats.bani.compound.Vector3Ushort import Vector3Ushort
 from generated.struct import StructBase

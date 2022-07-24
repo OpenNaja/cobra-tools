@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.motiongraph.compound.MRFEntry2 import MRFEntry2
 from generated.formats.ovl_base.compound.MemStruct import MemStruct

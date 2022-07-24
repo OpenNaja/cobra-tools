@@ -3,7 +3,7 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort

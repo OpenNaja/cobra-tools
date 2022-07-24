@@ -1,7 +1,7 @@
 
 import logging
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.AnimationActivityData
 import generated.formats.motiongraph.compound.FootPlantActivityData
@@ -10,7 +10,7 @@ import generated.formats.motiongraph.compound.SelectActivityActivityData
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Int64
 from generated.formats.base.basic import Uint64

@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Short
 from generated.formats.base.basic import Ushort
 from generated.struct import StructBase

@@ -10,7 +10,7 @@ from generated.formats.ms2.enum.CollisionType import CollisionType
 from modules.formats.shared import get_padding_size, get_padding
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.struct import StructBase
 
 

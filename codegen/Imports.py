@@ -1,4 +1,4 @@
-from os.path import sep
+import os.path as path
 
 import codegen.naming_conventions as convention
 
@@ -79,7 +79,7 @@ class Imports:
             else:
                 module_imports.append(f"import {class_import}\n")
         # hard coded for now lol
-        module_imports.append(f"from source.formats.base.basic import fmt_member\n")
+        module_imports.append(f"from {self.import_from_module_path(path.join('formats', 'base', 'basic'))} import fmt_member\n")
         module_imports.sort()
         local_imports.sort()
         for line in module_imports + local_imports:
@@ -89,4 +89,4 @@ class Imports:
 
     @staticmethod
     def import_from_module_path(module_path):
-        return f"generated.{module_path.replace(sep, '.')}"
+        return f"generated.{module_path.replace(path.sep, '.')}"

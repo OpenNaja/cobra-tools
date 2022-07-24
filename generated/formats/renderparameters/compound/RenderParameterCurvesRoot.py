@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.ovl_base.basic
 import generated.formats.renderparameters.compound.CurveParamList
 from generated.formats.base.basic import Uint64

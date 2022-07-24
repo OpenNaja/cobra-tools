@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.specdef.compound.DataPtr
 import generated.formats.specdef.compound.PtrList
 import generated.formats.specdef.enum.SpecdefDtype

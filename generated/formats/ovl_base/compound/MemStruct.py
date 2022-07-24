@@ -46,7 +46,7 @@ def str_to_bool(s):
 		raise ValueError
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.struct import StructBase
 
 

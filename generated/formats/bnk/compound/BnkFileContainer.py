@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.bnk.compound.BnkBufferData import BnkBufferData
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 

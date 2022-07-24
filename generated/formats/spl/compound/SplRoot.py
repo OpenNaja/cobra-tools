@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Ushort

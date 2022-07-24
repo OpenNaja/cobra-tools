@@ -4,7 +4,7 @@ import logging
 import numpy as np
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag

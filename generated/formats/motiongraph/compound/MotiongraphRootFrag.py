@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.motiongraph.compound.Activities
 import generated.formats.motiongraph.compound.MRFArray1
 import generated.formats.motiongraph.compound.MRFArray2

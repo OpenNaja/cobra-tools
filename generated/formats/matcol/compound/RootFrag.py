@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.matcol.compound.LayerFrag
 import generated.formats.matcol.compound.Texture
 from generated.formats.base.basic import Uint64
