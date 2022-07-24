@@ -195,6 +195,9 @@ class MainWindow(widgets.MainWindow):
 		self.header.texture_count = len(self.header.textures.data)
 		self.header.attribute_count = len(self.header.attributes.data)
 
+	def create_tex_name(self, prefix, suffix):
+		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
+
 	def fix_tex_indices(self, textures):
 		index = 0
 		for tex in textures:
@@ -463,6 +466,9 @@ class TextureVisual:
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
 		if self.entry.dtype == FgmDtype.Texture:
 			assert self.data.dependency_name.data is not None
+			if self.data.dependency_name.data == '':
+				self.data.dependency_name.data = self.container.gui.create_tex_name(self.container.gui.fgm_name, self.entry.name)
+
 			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, dtype="TEX", poll=False)
 			self.w_file.entry.setText(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
