@@ -129,16 +129,19 @@ class MeshData:
 			self.add_to_weights("fur_length", vertex_index, fur_vert[0])
 			self.add_to_weights("fur_width", vertex_index, fur_vert[1])
 
-	def get_weights(self, ids, weights, fallbacks):
+	def get_blended_weights(self, ids, weights):
 		self.weights_info = {}
-		for vertex_index, (bone_indices, bone_weights, fallback) in enumerate(zip(ids, weights, fallbacks)):
-			weighted = False
+		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(ids, weights)):
 			for bone_index, weight in zip(bone_indices, bone_weights):
 				if weight > 0.0:
 					self.add_to_weights(bone_index, vertex_index, weight)
-					weighted = True
-			if not weighted:
-				self.add_to_weights(fallback, vertex_index, 1.0)
+
+	def get_static_weights(self, bone_indices, use_blended_weights):
+		"""Only store static weight if no blended weights have been set for the vertex"""
+		for vertex_index, (use_blended, bone_index) in enumerate(zip(use_blended_weights, bone_indices)):
+			if not use_blended:
+				self.add_to_weights(bone_index, vertex_index, 1.0)
+			self.add_to_weights("use_blended_weights", vertex_index, use_blended)
 
 	def add_to_weights(self, bone, vertex_index, weight):
 		# create a dict for new bone key

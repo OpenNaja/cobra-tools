@@ -14,7 +14,7 @@ class PcMeshData:
 	def init_arrays(self, count):
 		self.vertex_count = count
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
-		self.residues = np.empty(self.vertex_count, np.bool)
+		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		try:
@@ -84,8 +84,8 @@ class PcMeshData:
 			unpack_ushort_vector(self.uvs)
 
 		self.bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
-		self.get_weights(self.weights_data["bone ids"], self.bone_weights)
-		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.residues)
+		self.get_blended_weights(self.weights_data["bone ids"], self.bone_weights)
+		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		scale_unpack_vectorized(self.vertices, self.base)
 		unpack_ubyte_vector(self.normals)
 		unpack_ubyte_vector(self.tangents)

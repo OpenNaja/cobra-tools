@@ -122,7 +122,7 @@ class BioMeshData:
 		# self.normals = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
 		self.normals = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 		self.tangents = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
-		self.residues = np.empty(self.vertex_count, np.bool)
+		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
 
 		# check first off
 		off = self.offset_chunks[0]
@@ -181,7 +181,7 @@ class BioMeshData:
 				self.stream_info.stream.readinto(off.raw_meta)
 
 				# store chunk's data
-				unpack_int64_vector(off.raw_verts, self.vertices[offs:offs + off.vertex_count], self.residues)
+				unpack_int64_vector(off.raw_verts, self.vertices[offs:offs + off.vertex_count], self.use_blended_weights)
 				scale_unpack_vectorized(self.vertices[offs:offs + off.vertex_count], self.base)
 				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]

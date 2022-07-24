@@ -23,7 +23,7 @@ class NewMeshData:
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
-		self.residues = np.empty(self.vertex_count, np.bool)
+		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
 		self.shape_residues = np.empty(self.vertex_count, np.bool)
 		try:
 			uv_shape = self.dt["uvs"].shape
@@ -133,15 +133,12 @@ class NewMeshData:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data["colors"]
 			self.colors /= 255
-		# todo - PZ uses many more bits, while JWE2 pre-Biosyn uses really just the one bit
+		# todo - PZ uses at least bits 4, 5, 6 with a random pattern, while JWE2 pre-Biosyn uses really just the one bit
 		# print(self.verts_data["winding"], set(self.verts_data["winding"]))
 		self.windings = self.verts_data["winding"] // 128
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
 		start_time = time.time()
-		if "bone weights" in self.dt.fields:
-			self.bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
-			self.get_weights(self.verts_data["bone ids"], self.bone_weights, self.verts_data["bone index"])
 		# before = np.copy(self.verts_data["pos"])
 		# first = int(np.copy(before[0]))
 		# print("before", bin(int(first)))
@@ -150,16 +147,20 @@ class NewMeshData:
 		# 	twentyone_bits = first & 0b111111111111111111111
 		# 	first >>= 21
 		# 	print(bin(twentyone_bits))
-		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.residues)
+		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		# int21_vec = np.copy(self.vertices)
 		scale_unpack_vectorized(self.vertices, self.base)
+		if "bone weights" in self.dt.fields:
+			bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
+			self.get_blended_weights(self.verts_data["bone ids"], bone_weights)
+		self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
 
 		# print("start")
 		# # print(int21_vec)
 		# scale_pack_vectorized(self.vertices, self.base)
 		# # print(self.vertices)
 		# print("int21_vec", np.allclose(int21_vec, self.vertices))
-		# pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.residues)
+		# pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
 		# for v in (int21_vec[0], self.vertices[0]):
 		# 	print([bin(int(c)) for c in v])
 		# print(bin(before[0]), type(before[0]))
@@ -182,19 +183,21 @@ class NewMeshData:
 			scale_unpack_vectorized(self.shapekeys, self.base)
 			unpack_swizzle_vectorized(self.shapekeys)
 
-		for vertex_index, res in enumerate(self.residues):
-			self.add_to_weights("residue", vertex_index, res)
+		# for bit in range(0, 8):
+		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
+		# 		# self.add_to_weights(f"bit{bit}", vertex_index, res/128)
+		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)
 		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
 	def set_verts(self, verts):
 		"""Store verts as flat lists for each component"""
 		# need to update the count here
-		# residue = 1 -> 4 bones per vertex, no alpha blending
-		# residue = 0 -> 1 bone per vertex, alpha blending (whiskers)
+		# use_blended_weights = 1 -> 4 bones per vertex, no alpha blending
+		# use_blended_weights = 0 -> 1 bone per vertex, alpha blending (whiskers)
 		self.vertex_count = len(verts)
 		self.update_dtype()
 		self.init_arrays()
-		self.vertices[:], self.residues[:], self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
+		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
 		self.colors, self.weights, self.shapekeys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
@@ -209,7 +212,7 @@ class NewMeshData:
 			scale_pack_vectorized(self.shapekeys, self.base)
 			shapes_combined = np.zeros(self.vertex_count, dtype=np.int64)
 			# todo - store separate shape_residues?
-			pack_int64_vector(shapes_combined, self.shapekeys.astype(np.int64), self.residues)
+			pack_int64_vector(shapes_combined, self.shapekeys.astype(np.int64), self.use_blended_weights)
 			self.verts_data["shapekeys1"][:] = (shapes_combined >> 32) & 0b11111111111111111111111111111111
 			self.verts_data["shapekeys0"][:] = shapes_combined & 0b11111111111111111111111111111111
 
@@ -218,7 +221,7 @@ class NewMeshData:
 		pack_swizzle_vectorized(self.tangents)
 
 		scale_pack_vectorized(self.vertices, self.base)
-		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.residues)
+		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
 		pack_ubyte_vector(self.normals)
 		pack_ubyte_vector(self.tangents)
 		pack_ushort_vector(self.uvs)
