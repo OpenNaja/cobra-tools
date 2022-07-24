@@ -351,7 +351,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/bornean_orangutan_male_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/acacia/tree_acacia_umbrella_thorn.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/scimitar_horned_oryx_female_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/tylo.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/quetz.ms2", read_editable=True)
 	# m.save("C:/Users/arnfi/Desktop/models.ms2")
 	# print(m)
 	# print(m.model_infos[1].bone_info.joints.joint_infos)

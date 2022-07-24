@@ -12,11 +12,12 @@ FUR_OVERHEAD = 2
 zero_uint64 = np.uint64(0)
 
 
-def unpack_ubyte_vector(arr):
+def unpack_ubyte_vector(arr, normalize=True):
     # convert to +-1 range; 255 is unused
     arr[:] = arr / UBYTE_SCALE - 1.0
-    # normalize result
-    arr /= np.linalg.norm(arr, axis=1, keepdims=True)
+    # some cases (oct) do not use normalization after unpacking
+    if normalize:
+        arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
 
 def pack_ubyte_vector(arr):

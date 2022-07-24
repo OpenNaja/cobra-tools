@@ -203,12 +203,6 @@ class BioMeshData(MeshData):
 		dt_separate = [
 			("normal_oct", np.ubyte, (2,)),
 			("tangent_oct", np.ubyte, (2,)),
-			# ("normal_oct", np.byte, (2,)),
-			# ("tangent_oct", np.byte, (2,)),
-			# ("packed_normal", np.ushort),
-			# ("packed_tangent", np.ushort),
-			# ("normal", np.ubyte, (3,)),
-			# ("winding", np.ubyte),
 			("uvs", np.ushort, (2, 2)),
 			("colors", np.ubyte, (1, 4))
 		]
@@ -216,15 +210,9 @@ class BioMeshData(MeshData):
 		dt_interleaved32 = [
 			("pos", np.float16, (3,)),
 			("shapekey", np.float16, (3,)),  # used for lod fading
-			("sth", np.float16, (4,)),
-			# ("normal_oct", np.byte, (2,)),
-			# ("tangent_oct", np.byte, (2,)),
+			("floats", np.float16, (4,)),
 			("normal_oct", np.ubyte, (2,)),
 			("tangent_oct", np.ubyte, (2,)),
-			# ("normal", np.ubyte, (3,)),
-			# ("packed_normal", np.ushort),
-			# ("packed_tangent", np.ushort),
-			# ("winding", np.ubyte),
 			("uvs", np.ushort, (1, 2)),
 			("colors", np.ubyte, (1, 4))
 		]
@@ -267,6 +255,7 @@ class BioMeshData(MeshData):
 
 		self.read_tris_bio()
 		self.weights = []
+		self.weights_info = {}
 
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
@@ -279,7 +268,7 @@ class BioMeshData(MeshData):
 
 			if off.weights_flag.mesh_format == MeshFormat.Separate:
 				# verts packed into uint64
-				off.raw_verts = np.empty(dtype=np.uint64, shape=off.vertex_count)
+				off.raw_verts = np.empty(dtype=np.int64, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.raw_verts)
 
 				# check if weights chunk is present
@@ -287,11 +276,14 @@ class BioMeshData(MeshData):
 					# read for each vertex
 					off.weights = np.empty(dtype=self.dt_weights, shape=off.vertex_count)
 					self.stream_info.stream.readinto(off.weights)
-					chunk_weights = [[(i, w/255) for i, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0] for vert in off.weights]
+					for vertex_index, (bone_indices, bone_weights) in enumerate(zip(off.weights["bone ids"], off.weights["bone weights"] / 255)):
+						for bone_index, weight in zip(bone_indices, bone_weights):
+							if weight > 0.0:
+								self.add_to_weights(bone_index, vertex_index + offs, weight)
 				else:
 					# use the chunk's bone index for each vertex in chunk
-					chunk_weights = [[(off.weights_flag.bone_index, 1.0), ] for _ in range(off.vertex_count)]
-				self.weights.extend(chunk_weights)
+					for vertex_index in range(off.vertex_count):
+						self.add_to_weights(off.weights_flag.bone_index, vertex_index + offs, 1.0)
 
 				# uv, normals etc
 				print(f"meta {i} start {self.stream_info.stream.tell()}")
@@ -299,8 +291,8 @@ class BioMeshData(MeshData):
 				self.stream_info.stream.readinto(off.raw_meta)
 
 				# store chunk's data
-				unpack_int64_vector(off.raw_verts, self.vertices[offs:offs + off.vertex_count], self.use_blended_weights)
-				scale_unpack_vectorized(self.vertices[offs:offs + off.vertex_count], self.base)
+				unpack_int64_vector(off.raw_verts, self.vertices[offs:offs + off.vertex_count], self.use_blended_weights[offs:offs + off.vertex_count])
+				scale_unpack_vectorized(self.vertices[offs:offs + off.vertex_count], off.pack_offset)
 				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_oct"]
@@ -312,7 +304,7 @@ class BioMeshData(MeshData):
 				self.stream_info.stream.readinto(off.raw_verts)
 
 				# store chunk's data
-				self.vertices[offs:offs + off.vertex_count] = [unpack_swizzle(vec) for vec in off.raw_verts["pos"]]
+				self.vertices[offs:offs + off.vertex_count] = off.raw_verts["pos"]
 				self.uvs[offs:offs + off.vertex_count] = off.raw_verts["uvs"]
 				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_oct"]
@@ -329,11 +321,11 @@ class BioMeshData(MeshData):
 			offs += off.vertex_count
 
 		# print("weights_flags", flags, "u1s", us)
-		# unpack ubyte
-		self.normals = self.normals / 127 - 1.0
 		self.oct_to_vec3(self.normals)
-		self.normals /= np.linalg.norm(self.normals, axis=1, keepdims=True)
-		self.normals[:] = [unpack_swizzle(vec) for vec in self.normals]
+		self.oct_to_vec3(self.tangents)
+		unpack_swizzle_vectorized(self.vertices)
+		unpack_swizzle_vectorized(self.normals)
+		unpack_swizzle_vectorized(self.tangents)
 
 		unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
@@ -346,13 +338,12 @@ class BioMeshData(MeshData):
 		# if (v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
 		# return normalize(v);
 		# }
+		unpack_ubyte_vector(arr, normalize=False)
 		arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
+		# note that advanced indexing like this creates a copy instead of a view, which makes this messy
 		arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, (1, 0)])) * np.sign(arr[:, :2]))[arr[:, 2] < 0]
-		# print(arr[arr[:, 2] < 0, 0:2])
-		# only_g_one = arr[np.where(arr[:, 2] < 0), :]
-		# only_g_one = arr[arr[:, 2] < 0]
-		# only_g_one[:, 0:2] = (1.0 - np.abs(only_g_one[:, (1, 0)])) * np.sign(only_g_one[:, :2])
-		# print(only_g_one)
+		# normalize after conversion
+		arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
 	@staticmethod
 	def ubytes_2_ushort(a, b):
