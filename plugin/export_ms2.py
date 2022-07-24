@@ -3,7 +3,6 @@ import math
 import os
 import time
 import struct
-import traceback
 
 import bpy
 import mathutils
@@ -18,7 +17,6 @@ from plugin.import_ms2 import num_fur_as_weights
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
-from plugin.modules_import.hair import comb_common, get_hair_keys, find_modifier_for_particle_system
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.shell import get_collection, is_shell, is_fin, is_flipped
 
@@ -248,7 +246,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# defaults that may or may not be set later on
-	use_blended_weights = 1
+	use_blended_weights = 0
 	fur_length = 0
 	fur_width = 0
 	bone_index_cutoff = get_property(b_ob, "bone")
@@ -257,6 +255,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	for vertex_group in b_vert.groups:
 		try:
 			vgroup_name = b_ob.vertex_groups[vertex_group.group].name
+			# note that blender's decimate modifier randomly removes vertex_groups if their weight is 0, so use fallback
 			if vgroup_name == "use_blended_weights":
 				use_blended_weights = int(round(vertex_group.weight))
 			elif vgroup_name == "fur_length":
@@ -274,8 +273,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 			else:
 				logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
 		except BaseException as err:
-			logging.warning(f"Vert with {len(b_vert.groups)} groups, index {vertex_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
-			traceback.print_exc()
+			logging.exception(f"Vert with {len(b_vert.groups)} groups, index {vertex_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
 	# get the 4 strongest influences on this vert
 	weights_sorted = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
 	if not weights_sorted:
