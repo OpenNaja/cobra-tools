@@ -832,14 +832,22 @@ class FileWidget(QtWidgets.QWidget):
 	Displays the current file's basename.
 	"""
 
-	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True, check_exists=False, root=None):
+	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True, editable=False, check_exists=False, root=None):
 		super().__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
 		self.icon.setIcon(get_icon("dir"))
 		self.icon.setFlat(True)
-		self.icon.mousePressEvent = self.ignoreEvent
-		self.entry.mousePressEvent = self.ignoreEvent
+		self.entry.setDragEnabled(True)
+		self.editable = editable
+		if editable:
+			# Icon still clickable
+			self.icon.clicked.connect(self.ask_open)
+			self.entry.textChanged.connect(self.check_file)
+		else:
+			self.entry.setReadOnly(True)
+			self.entry.mousePressEvent = self.ignoreEvent
+			self.icon.mousePressEvent = self.ignoreEvent
 		self.icon.dropEvent = self.dropEvent
 		self.entry.dropEvent = self.dropEvent
 		self.icon.dragMoveEvent = self.dragMoveEvent
@@ -856,8 +864,7 @@ class FileWidget(QtWidgets.QWidget):
 		self.cfg = cfg
 		if not self.cfg:
 			self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
-		self.entry.setDragEnabled(True)
-		self.entry.setReadOnly(True)
+
 		self.filepath = ""
 		self.filename = ""
 		self.ask_user = ask_user
@@ -891,12 +898,13 @@ class FileWidget(QtWidgets.QWidget):
 		self.filepath = filepath
 		self.dir, self.filename = os.path.split(filepath)
 		self.setText(self.filename)
+		self.check_file(self.filename)
+
+	def check_file(self, name):
 		if self.check_exists:
-			file_warning = "QLineEdit{ color: rgba(168, 168, 64, 255); background-color: rgba(44, 44, 30, 255); }"
-			is_file = Path(os.path.join(self.root if self.root else self.dir, self.filename)).is_file()
-			style = "" if is_file else file_warning
-			self.entry.setToolTip("" if is_file else "Warning: File does not exist. This is OK if the file is external.")
-			self.entry.setStyleSheet(style)
+			is_file = Path(os.path.join(self.root if self.root else self.dir, name)).is_file()
+			self.entry.setToolTip("" if is_file else "Warning: File does not exist. This is OK if the file is external/shared.")
+			self.entry.setStyleSheet("" if is_file else "QLineEdit { color: rgba(168, 168, 64, 255); background-color: rgba(44, 44, 30, 255); }")
 
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
@@ -938,7 +946,7 @@ class FileWidget(QtWidgets.QWidget):
 
 	def ask_open(self):
 		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}',
-														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://"),
+														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://") if not self.root else self.root,
 														 f"{self.dtype} files (*.{self.dtype_l})")[0]
 		self.decide_open(filepath)
 
@@ -955,7 +963,8 @@ class FileWidget(QtWidgets.QWidget):
 		event.ignore()
 
 	def mousePressEvent(self, event):
-		self.ask_open()
+		if not self.editable:
+			self.ask_open()
 
 
 # Creates a dir widget, same as file but for directories
