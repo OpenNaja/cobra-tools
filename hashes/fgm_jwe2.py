@@ -878,6 +878,315 @@ shaders = {
     "WindVectorField_Debug",
 }
 
+shader_textures = {
+    "Building_BiomeLayer":
+         ['pAOTexture', 'pBaseColourTexture', 'pHeightTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Weather":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Emissive":
+         ['pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Weather_Emissive_Extrusion2D":
+         ['pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Weather":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Detail_Basic_Opaque_Weather_WithMoss":
+         ['pBaseColourTextureDetailBase', 'pBaseColourTextureDetailBlend', 'pEnvironmentalNoiseMask', 'pMossBaseColourRoughnessPackedTexture', 'pMossNormalTexture', 'pMossVarianceTexture', 'pNormalMapTextureUnique', 'pNormalTextureDetailBase', 'pNormalTextureDetailBlend'],
+
+    "Metallic_Roughness_OpaqueNoFlexi_Weather":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Ice_Opaque_TriPlanar":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Depth_Fade":
+         [],
+
+    "Glass_UniformOpaqueWeather":
+         [],
+
+    "Glass_TexturedWeather":
+         ['pDiffuseTexture', 'pOpacityTexture', 'pRoughnessTexture', 'pSpecularTexture'],
+
+    "Glass_TexturedNormalsTwoSided":
+         ['pDiffuseTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessTexture', 'pSpecularTexture'],
+
+    "Projection_Interior":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pProjection_BackgroundPlaneDiffuseTexture', 'pProjection_BackgroundPlaneEmissiveTexture', 'pProjection_DiffuseTexture', 'pProjection_EmissiveTexture', 'pProjection_ForegroundPlaneDiffuseTexture', 'pProjection_ForegroundPlaneEmissiveTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_BC7":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture'],
+
+    "Metallic_Roughness_Clip_Weather_DoubleSided_BC7":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_OpaqueCheap_Weather":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Geometry_Decal":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "ParallaxOcclusionMapping_GeometryDecal":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalBlendWeightTexture', 'pNormalTexture', 'pPOM_DisplacementRelaxedConeTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Weather_BC7":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Galileo_TerrainOverlay":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Kerb":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_OpaqueCable":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Weather_Extrusion2D":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Extrusion2D":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Collection_Pattern":
+         ['pFlexiColourMasksTexture'],
+
+    "DinosaurLayered_Layered_Opaque":
+         ['pBaseAOTexture', 'pBaseDiffuseTexture', 'pBaseNormalTexture', 'pLayered_BlendWeights', 'pLayered_DiffuseTexture', 'pLayered_HeightTexture', 'pLayered_PackedTexture', 'pLayered_RemapTexture', 'pLayered_WarpOffset', 'pPatterning_PatchworkGradientMap', 'pPatterning_PatternGradientMap'],
+
+    "DinosaurLayered_Layer":
+         [],
+
+    "DinosaurLayered_PatternSet":
+         ['u_basePatchworkMap', 'u_basePatternMap', 'u_feathersBasePatchworkMap', 'u_feathersBasePatternMap'],
+
+    "DinosaurLayered_Pattern":
+         [],
+
+    "DinosaurLayered_Variant":
+         [],
+
+    "DinosaurLayered_VariantSet":
+         ['pBaseDiffuseTexture', 'pFeathersBaseDiffuseTexture'],
+
+    "DinosaurLayered_Swatch_Opaque":
+         ['pDiffuseTexture', 'pHeightTexture', 'pPackedTexture', 'pRemapTexture'],
+
+    "Terrain_Edit_Grid":
+         ['pEmissiveTexture'],
+
+    "Water_WaterVolume":
+         ['pWaterDetailGradientMap', 'pWaterDetailHeightMap', 'pWaterNormalMapTexture', 'pWaterRoughnessMapTexture'],
+
+    "Water_WaterSimulation":
+         ['pFoamMapTexture', 'pFoamyAreasDistantMap', 'pWaterBottomHeight', 'pWaterDetailNormalMapTexture', 'pWaterDetailSpecMapTexture'],
+
+    "Water_WaterSimulationSkirt":
+         ['pFoamMapTexture', 'pFoamyAreasDistantMap', 'pWaterDetailNormalMapTexture', 'pWaterDetailSpecMapTexture'],
+
+    "Water_Water":
+         ['pWaterDetailNormalMapTexture', 'pWaterDetailSpecMapTexture'],
+
+    "Water_WaterPool":
+         ['pWaterDetailGradientMap', 'pWaterDetailHeightMap', 'pWaterNormalMapTexture', 'pWaterRipplesTexture', 'pWaterRoughnessMapTexture'],
+
+    "Water_WaterParticle":
+         ['pBaseDiffuseTexture'],
+
+    "Water_WaterVolumeSide":
+         [],
+
+    "Game_WeatherParticle_AnimatedDust":
+         ['pEmissiveTexture'],
+
+    "Game_WeatherParticle_AnimatedSplash":
+         ['pEmissiveTexture'],
+
+    "Game_WeatherParticle_CameraDust":
+         ['pEmissiveTexture'],
+
+    "Game_WeatherParticle_RainDrop":
+         ['pEmissiveTexture'],
+
+    "Game_WeatherParticle_TiledRain":
+         ['pEmissiveTexture'],
+
+    "Tornado_Funnel":
+         ['pDetailTexture', 'pNoiseTexture'],
+
+    "Tornado_Funnel2":
+         [],
+
+    "Game_WeatherParticle":
+         ['pEmissiveTexture'],
+
+    "WindVectorField_Debug":
+         [],
+
+    "Particle_Alpha_AmbientOnly":
+         [],
+
+    "Particle_Alpha_AmbientOnly_WaterOccludee":
+         [],
+
+    "Particle_Alpha_AmbientOnly_TexBlend":
+         [],
+
+    "Particle_Alpha_EmissiveOnly":
+         [],
+
+    "Particle_Alpha_EmissiveOnly_TexBlend":
+         [],
+
+    "Particle_Alpha":
+         [],
+
+    "Particle_Alpha_TexBlend":
+         [],
+
+    "Particle_Alpha_Modulate":
+         [],
+
+    "Particle_Clip":
+         [],
+
+    "Particle_Clip_TexBlend":
+         [],
+
+    "Particle_Clip_Specular":
+         [],
+
+    "Particle_Refractive":
+         [],
+
+    "Particle_Volumetric_TexBlend":
+         [],
+
+    "Particle_Volumetric":
+         [],
+
+    "Particle_VolumetricEmissive_TexBlend":
+         [],
+
+    "Particle_Alpha_Specular_Normal_TexBlend":
+         [],
+
+    "DinosaurFur_Vanilla_Base":
+         ['pBaseAOTexture', 'pBaseDiffuseTexture', 'pBaseNormalTexture', 'pPatterning_PatchworkGradientMap', 'pPatterning_PatternGradientMap'],
+
+    "DinosaurFur_Vanilla_BaseLayered":
+         ['pBaseAOTexture', 'pBaseDiffuseTexture', 'pBaseNormalTexture', 'pLayered_BlendWeights', 'pLayered_DiffuseTexture', 'pLayered_HeightTexture', 'pLayered_PackedTexture', 'pLayered_RemapTexture', 'pLayered_WarpOffset', 'pPatterning_PatchworkGradientMap', 'pPatterning_PatternGradientMap'],
+
+    "DinosaurFeathers_ClipDoubleSided":
+         ['pDinosaurFeathers_BaseDiffuseTexture', 'pFeathers_AOHeightOpacityTransmission_PackedTexture', 'pFeathers_Aniso_PackedTexture', 'pFeathers_BaseColourTexture', 'pFeathers_EmissiveTexture', 'pFeathers_NormalTexture', 'pFeathers_RoughnessPackedTexture', 'pFlexiColourMasksTexture', 'pIridescenceMaskTexture', 'pIridescenceTexture', 'pPatterning_FeathersPatchworkGradientMap', 'pPatterning_FeathersPatternGradientMap'],
+
+    "DinosaurFur_Vanilla_Fin":
+         ['pBaseAOTexture', 'pBaseDiffuseTexture', 'pBaseNormalTexture', 'pFinAlphaTexture', 'pPatterning_PatchworkGradientMap', 'pPatterning_PatternGradientMap'],
+
+    "DinosaurFur_Vanilla_Shell":
+         ['pBaseAOTexture', 'pBaseDiffuseTexture', 'pBaseNormalTexture', 'pPatterning_PatchworkGradientMap', 'pPatterning_PatternGradientMap', 'pShellMap'],
+
+    "Foliage_Opaque":
+         ['pBaseColourTexture', 'pMoiseNoiseMask', 'pMossBaseColour', 'pMossNormalTexture', 'pNormalTexture'],
+
+    "UI_TransparentBillboard":
+         ['pAlphaTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture'],
+
+    "UI_Transparent":
+         ['pAlphaTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture'],
+
+    "Foliage_Billboard":
+         ['pDiffuseAlphaTexture', 'pNormalTexture'],
+
+    "Foliage_Billboard_DetailObject":
+         ['pDiffuseAlphaTexture', 'pNormalTexture'],
+
+    "Foliage_BillboardFading_DetailObject":
+         ['pDiffuseAlphaTexture', 'pNormalTexture'],
+
+    "Foliage_Clip":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_ClipLeaf_DetailObject":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_ClipLeafFading_DetailObject":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_OpaqueTrunk_DetailObject":
+         ['pBaseColourTexture', 'pMoiseNoiseMask', 'pMossBaseColour', 'pMossNormalTexture', 'pNormalTexture'],
+
+    "Foliage_OpaqueTrunkFading_DetailObject":
+         ['pBaseColourTexture', 'pMoiseNoiseMask', 'pMossBaseColour', 'pMossNormalTexture', 'pNormalTexture'],
+
+    "Foliage_ClipTexcoordWeight":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_ClipTexcoordWeight_DetailObject":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_ClipTexcoordWeightFading_DetailObject":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_ClipNoDisplacement":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_OpaqueNoDisplacement":
+         ['pBaseColourTexture', 'pMoiseNoiseMask', 'pMossBaseColour', 'pMossNormalTexture', 'pNormalTexture'],
+
+    "Foliage_GrassPrioritisedCull_DetailObject":
+         ['pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Alpha_Emissive":
+         ['pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Water_WaterOccluder":
+         [],
+
+    "Glass_UniformWeatherTwoSided":
+         [],
+
+    "Glass_UniformWeather":
+         [],
+
+    "Perturbation_Invisible":
+         [],
+
+    "Metallic_Roughness_Opaque_Cavity_Projection_Weather":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pProjection_Plane0Texture', 'pProjection_Plane1Texture', 'pProjection_Plane2Texture', 'pProjection_Texture', 'pRoughnessPackedTexture'],
+
+    "Glass_Uniform":
+         [],
+
+    "Galileo_Terrain_BespokeSkirtLayers":
+         ['pCavityRoughnessDielectricArray', 'pDetailNormalTexture', 'pDiffuseArray', 'pFullScaleDiffuseAndSpecial', 'pGradHeightArray', 'pMacroDiffuse', 'pPatchBlendMap', 'pPrimaryBlendMap'],
+
+    "Galileo_Terrain_BespokeSkirtLayers_Cutout":
+         ['pCavityRoughnessDielectricArray', 'pDetailNormalTexture', 'pDiffuseArray', 'pFullScaleDiffuseAndSpecial', 'pGradHeightArray', 'pMacroDiffuse', 'pPatchBlendMap', 'pPrimaryBlendMap'],
+
+    "Depth_Pollution":
+         ['pEmissiveTexture', 'pFlexiColourMasksTexture'],
+
+    "Glass_Textured":
+         ['pDiffuseTexture', 'pOpacityTexture', 'pRoughnessTexture', 'pSpecularTexture'],
+
+    "ModelViewer_FloorGrid":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pModelViewer_GridPatternMap', 'pRoughnessPackedTexture'],
+
+    "UI_Hyperloops":
+         ['pFlexiColourMasksTexture', 'pHyperloops_AlphaEmissiveMaskTexture', 'pHyperloops_DiffuseTexture'],
+
+    "Water_CameraBubble":
+         [],
+
+}
+
 shader_attribs = {
     "Building_BiomeLayer":
          ['pBlendDistance', 'pBlendMode'],

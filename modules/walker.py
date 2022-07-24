@@ -176,6 +176,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		attributes = {}
 		textures = set()
 		shaders = set()
+		shader_textures = defaultdict(set)
 		shader_attribs = defaultdict(set)
 		shader_attrib_stats = defaultdict(Counter)
 		if walk_fgms:
@@ -193,15 +194,16 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 					for texture in header.textures.data:
 						textures.add(texture.name)
 
+					shader_textures[header.shader_name] |= {a.name for a in header.textures.data}
 					shader_attribs[header.shader_name] |= {a.name for a in header.attributes.data}
-					#shader_attrib_stats[header.shader_name].update(frozenset([a.name for a in header.attributes.data]))
+					shader_attrib_stats[header.shader_name].update(frozenset([a.name for a in header.attributes.data]))
 
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((fgm_path, ex))
 		# report
 		if errors:
-			print("\nThe following errors occured:")
+			print("\nThe following errors occurred:")
 			for file_path, ex in errors:
 				print(file_path, str(ex))
 
@@ -219,13 +221,17 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 			for shader in sorted(shaders):
 				f.write(f'    "{shader}",\n')
 			f.write("}\n\n")
+			f.write("shader_textures = {\n")
+			for tex in shader_textures.keys():
+				f.write(f'    "{tex}":\n         {sorted(shader_textures[tex])},\n\n')
+			f.write("}\n\n")
 			f.write("shader_attribs = {\n")
 			for shader in shader_attribs.keys():
 				f.write(f'    "{shader}":\n         {sorted(shader_attribs[shader])},\n\n')
 			f.write("}\n\n")
-			#f.write("shader_attrib_stats = {\n\n")
-			#for shader in shader_attrib_stats.keys():
-			#	f.write(f"    '{shader}':\n         {shader_attrib_stats[shader]},\n\n")
-			#f.write("}\n\n")
+			f.write("shader_attrib_stats = {\n\n")
+			for shader in shader_attrib_stats.keys():
+				f.write(f"    '{shader}':\n         {shader_attrib_stats[shader]},\n\n")
+			f.write("}\n\n")
 		print(f"Written to {out_path}")
 		gui.update_progress("Operation completed!", value=1, vmax=1)

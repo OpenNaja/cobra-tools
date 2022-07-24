@@ -623,6 +623,432 @@ shaders = {
     "WindVectorField_Debug",
 }
 
+shader_textures = {
+    "Animal_Skin_NoDirt":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurBase":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurFin":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pFinAlphaTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurShell":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pShellMap', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Animal_Skin":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Animal_Eye":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pHeight', 'pLeucisticBaseColourAndMaskTexture', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Animal_SkinDetail":
+         ['pAOTexture', 'pAlbedoAndRoughnessDetail', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pDetailMask', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pNormalTextureDetail', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Animal_Clip_DoubleSided":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurPatchworkBaldnessBase":
+         ['p2MarkingBaldnessScarTexture', 'pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pClut', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurPatchworkBaldnessFin":
+         ['p2MarkingBaldnessScarTexture', 'pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pClut', 'pErythristicBaseColourAndMaskTexture', 'pFinAlphaTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurPatchworkBaldnessShell":
+         ['p2MarkingBaldnessScarTexture', 'pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pClut', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pShellMap', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurBaseAlpha":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pOpacityTexture', 'pScarClut', 'pTransmittancePackedTexture', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Animal_Whisker":
+         ['pDiffuse', 'pDiffuseAlbino', 'pDiffuseErythristic', 'pDiffuseLeucistic', 'pDiffuseMelanistic', 'pDiffuseXanthic'],
+
+    "Metallic_Roughness_Clip_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "FurPatchworkBase":
+         ['p3MarkingScarTexture', 'pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pClut', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurPatchworkFin":
+         ['p3MarkingScarTexture', 'pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pClut', 'pErythristicBaseColourAndMaskTexture', 'pFinAlphaTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurPatchworkShell":
+         ['p3MarkingScarTexture', 'pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pClut', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pShellMap', 'pXanthicBaseColourAndMaskTexture'],
+
+    "FurBaseAlpha_SingleSided":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pOpacityTexture', 'pScarClut', 'pTransmittancePackedTexture', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Animal_SkinMarkings":
+         ['p3MarkingScarTexture', 'pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaseColourAndMaskTexture', 'pClut', 'pErythristicBaseColourAndMaskTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Metallic_Roughness_Clip_Weather_DoubleSided_TAAGroup6":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Weather_Transmissive":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Dissolve":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Depth_Fade_Dissolve":
+         [],
+
+    "Metallic_Roughness_Clip_Weather_Dissolve":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Geometry_Decal":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalBlendWeightTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Game_NoWeather_TAAGroup4":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_OpaqueEmissive_Game_NoWeather_TAAGroup4":
+         ['pAOTexture', 'pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Glass_TexturedTwoSided_Weather_Distant":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_EmissiveLightType_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Retroreflective":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRetroreflectiveness', 'pRoughnessPackedTexture'],
+
+    "Water_Water":
+         ['pWaterDetailNormalTexture', 'pWaterDetailRoughnessTexture'],
+
+    "Glass_Textured_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Glass_TexturedTwoSided_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Detail_Opaque_Weather":
+         ['pAOTextureDetail', 'pAOTextureUnique', 'pBaseColourTextureDetail', 'pBaseColourTextureUnique', 'pFlexiColourMasksTexture', 'pNormalTextureDetail', 'pNormalTextureUnique', 'pRoughnessPackedTextureDetail', 'pRoughnessPackedTextureUnique'],
+
+    "Metallic_Roughness_Clip_DiffuseBlend_Dissolve":
+         ['pAOTexture', 'pBaseColour2', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_DiffuseBlend_Dissolve":
+         ['pAOTexture', 'pBaseColour2', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Weather_DoubleSided_Dissolve":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Detail_Basic_Opaque_Weather":
+         ['pBaseColourTextureDetailBase', 'pBaseColourTextureDetailBlend', 'pFlexiColourMasksTexture', 'pMaskAOTextureUnique', 'pMossBaseColourRoughnessPackedTexture', 'pMossNormalTexture', 'pMossVarianceTexture', 'pNormalMapTextureUnique', 'pNormalTextureDetailBase', 'pNormalTextureDetailBlend', 'pRoughnessAOPackedTextureDetailBase'],
+
+    "Glass_Textured_Weather_Distant_Dissolve":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Flag":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Weather_TAAGroup6":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_EmissiveLightType_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_EmissiveLightType_Weather_DoubleSided_TAAGroup6":
+         ['pAOTexture', 'pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_Clip":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_BillboardEmissive":
+         ['pAOTexture', 'pBaseColourTexture', 'pEmissiveTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_Billboard":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_Clip_NotSpeedTree":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_Opaque":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Foliage_Opaque_NotSpeedTree":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Ice_Opaque":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Ice_Opaque_TriPlanar":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Waterfall_Water":
+         ['pFlexiColourMasksTexture', 'pWaterfall_WaterFlowAndTimeOffsetMap', 'pWaterfall_WaterFoamMaskMap', 'pWaterfall_WaterNormalRoughnessMap'],
+
+    "Ice_Opaque_TriPlanar_Dissolve":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Glass_Textured_Weather_Distant":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Extrusion2D":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Preview_Opaque_Extrusion2D":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Wall":
+         ['pAOTexture', 'pAOTexture2', 'pBaseColourTexture', 'pBaseColourTexture2', 'pDamageBlendMap', 'pFlexiColourMasksTexture', 'pMacroDamageBlendMap', 'pNormalTexture', 'pNormalTexture2', 'pRoughnessPackedTexture', 'pRoughnessPackedTexture2'],
+
+    "Metallic_Roughness_Preview_Opaque_Wall":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Wall":
+         ['pAOTexture', 'pBaseColourTexture', 'pDamageBlendMap', 'pDistortionTexture', 'pFlexiColourMasksTexture', 'pMacroDamageBlendMap', 'pNormalTexture', 'pOpacityTexture', 'pOpacityTexture2', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Preview_Clip_Wall":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_DoubleSided_Extrusion2D":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Preview_ClipDoubleSided_Extrusion2D":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Glass_Wall":
+         ['pAOTexture', 'pAOTexture2', 'pBaseColourTexture', 'pBaseColourTexture2', 'pClipMap2', 'pDamageBlendMap', 'pMacroDamageBlendMap', 'pNormalTexture', 'pNormalTexture2', 'pRoughnessPackedTexture', 'pRoughnessPackedTexture2'],
+
+    "Glass_Distant_Wall":
+         ['pAOTexture', 'pAOTexture2', 'pBaseColourTexture', 'pBaseColourTexture2', 'pClipMap2', 'pDamageBlendMap', 'pMacroDamageBlendMap', 'pNormalTexture', 'pNormalTexture2', 'pRoughnessPackedTexture', 'pRoughnessPackedTexture2'],
+
+    "Glass_Preview_Textured_Wall":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_OpaqueEmissive_Extrusion2D":
+         ['pAOTexture', 'pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_OneWayGlassOpaque_Wall":
+         ['pAOTexture', 'pAOTexture2', 'pBaseColourTexture', 'pBaseColourTexture2', 'pClipMap2', 'pDamageBlendMap', 'pMacroDamageBlendMap', 'pNormalTexture', 'pNormalTexture2', 'pRoughnessPackedTexture', 'pRoughnessPackedTexture2'],
+
+    "Water_WaterFlexi":
+         ['pFlexiColourMasksTexture', 'pWaterDetailNormalTexture', 'pWaterDetailRoughnessTexture'],
+
+    "Metallic_Roughness_Clip_Text_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Depth_Fade":
+         [],
+
+    "Opaque_DetailObject":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Glass_TexturedTwoSided_Weather_PerPixelFlexiColour":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_Weather_DoubleSided":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Glass_Textured_Weather_PerPixelFlexiColour":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Clip_TextEmissiveLightType_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pEmissiveTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Weather_PrecipitationOcclusion":
+         [],
+
+    "Game_Terrain":
+         ['pCavityRoughnessDielectricArray', 'pCoarseNoise', 'pDiffuseArray', 'pGradHeightArray', 'pMacroDiffuse'],
+
+    "Terrain_Skirt_Weather":
+         ['pCavityRoughnessDielectricArray', 'pCoarseNoise', 'pDiffuseArray', 'pGradHeightArray', 'pMacroDiffuse', 'pSkirtMaterialMask', 'pSkirtNormals'],
+
+    "Foliage_Grass_DetailObject":
+         ['pAOTexture', 'pBaseColourTexture', 'pMacroDiffuse', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Terrain_Boundary":
+         ['pOpacityTexture'],
+
+    "Terrain_Edit_Grid":
+         ['pEmissiveTexture'],
+
+    "Water_WaterVolume":
+         ['pWaterDetailNormalTexture', 'pWaterDetailRoughnessTexture'],
+
+    "Water_WaterVolumeCW":
+         ['pWaterDetailNormalTexture', 'pWaterDetailRoughnessTexture'],
+
+    "Water_WaterVolumeOpaque":
+         ['pWaterDetailNormalTexture', 'pWaterDetailRoughnessTexture'],
+
+    "Water_WaterVolumeOpaqueCW":
+         ['pWaterDetailNormalTexture', 'pWaterDetailRoughnessTexture'],
+
+    "Water_WaterVolumeSide":
+         [],
+
+    "Water_WaterVolumeSideCW":
+         [],
+
+    "Water_WaterVolumeSideOpaque":
+         [],
+
+    "Water_WaterVolumeSideOpaqueCW":
+         [],
+
+    "UI_Clip_Emissive":
+         ['pEmissiveTexture', 'pFlexiColourMasksTexture', 'pOpacityTexture'],
+
+    "Metallic_Roughness_Opaque_Surface_TriPlanar_Weather":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Terrain_Metallic_Roughness_Decal":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Terrain_Preview_Metallic_Roughness_Decal":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Preview_Opaque_Surface_TriPlanar":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Terrain_Preview_Ice_Decal":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Collection_Pattern":
+         ['pFlexiColourMasksTexture'],
+
+    "Particle_Alpha_AmbientOnly":
+         [],
+
+    "Particle_Alpha_AmbientOnly_WaterOccludee":
+         [],
+
+    "Particle_Alpha_AmbientOnly_TexBlend":
+         [],
+
+    "Particle_Alpha_EmissiveOnly":
+         [],
+
+    "Particle_Alpha_EmissiveOnly_TexBlend":
+         [],
+
+    "Particle_Alpha":
+         [],
+
+    "Particle_Alpha_TexBlend":
+         [],
+
+    "Particle_Alpha_Modulate":
+         [],
+
+    "Particle_Clip":
+         [],
+
+    "Particle_Clip_TexBlend":
+         [],
+
+    "Particle_Clip_Specular":
+         [],
+
+    "Particle_Alpha_AmbientOnly_TexBlend_PositionalFade":
+         [],
+
+    "Particle_Refractive":
+         [],
+
+    "Ice_OpaqueSurface_TriPlanar":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Terrain_Ice_Decal":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Ice_Opaque_Extrusion2D":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Ice_Preview_Opaque_Extrusion2D":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Metallic_Roughness_Preview_Opaque":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "UI_Opaque_Emissive_Extrusion2D":
+         ['pEmissiveTexture', 'pFlexiColourMasksTexture'],
+
+    "Metallic_Roughness_Clip_DoubleSided_Extrusion2D_TAAGroup4":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Opaque_Extrusion2D_TAAGroup4":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Preview_Detail_Opaque":
+         ['pAOTextureDetail', 'pAOTextureUnique', 'pBaseColourTextureDetail', 'pBaseColourTextureUnique', 'pFlexiColourMasksTexture', 'pNormalTextureDetail', 'pNormalTextureUnique', 'pRoughnessPackedTextureDetail', 'pRoughnessPackedTextureUnique'],
+
+    "Water_WaterOccluder":
+         [],
+
+    "Glass_Preview_TexturedTwoSided":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "IridescentAnisotropic":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pIridescenceStrength', 'pIridescenceTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "IridescentAnisotropicAlpha":
+         ['pAOTexture', 'pAlbinoBaseColourAndMaskTexture', 'pBaldnessScarTexture', 'pBaseColourAndMaskTexture', 'pErythristicBaseColourAndMaskTexture', 'pIridescenceStrength', 'pIridescenceTexture', 'pLeucisticBaseColourAndMaskTexture', 'pMarkingNoise', 'pMarkingPatchworkMask', 'pMelanisticBaseColourAndMaskTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture', 'pScarClut', 'pXanthicBaseColourAndMaskTexture'],
+
+    "Metallic_Roughness_Preview_Clip":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Metallic_Roughness_Preview_ClipDoubleSided":
+         ['pAOTexture', 'pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "Ice_Preview_ClipDoubleSided_Extrusion2D":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Glass_Preview_Textured":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pOpacityTexture', 'pRoughnessPackedTexture'],
+
+    "Ice_Preview_Opaque":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Ice_Preview_OpaqueSurface_TriPlanar":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Ice_Preview_Opaque_TriPlanar":
+         ['pAOTexture', 'pBaseDielectricSpecularLevelTexture', 'pBaseNormalTexture', 'pDetailNormalTexture', 'pDetailRoughnessTexture', 'pDiffuseTexture', 'pFlexiColourMasksTexture', 'pSubLayerDiffuse0Texture', 'pSubLayerDiffuse1Texture', 'pThicknessTexture'],
+
+    "Game_WeatherParticle_AnimatedSplash":
+         ['pEmissiveTexture'],
+
+    "Game_WeatherParticle_RainDrop":
+         ['pEmissiveTexture'],
+
+    "Game_WeatherParticle_TiledRain":
+         ['pEmissiveTexture'],
+
+    "Game_WeatherParticle":
+         ['pEmissiveTexture'],
+
+    "WindVectorField_Debug":
+         [],
+
+    "FrontEnd_Atmosphere":
+         [],
+
+    "FrontEnd_Metal":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "FrontEnd_Radial":
+         ['pEmissiveMaskTexture'],
+
+    "FrontEnd_GlobeArea":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+    "FrontEnd_SkyBox":
+         [],
+
+    "FrontEnd_Ocean":
+         ['pAOTexture', 'pBaseColourTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
+}
+
 shader_attribs = {
     "Animal_Skin_NoDirt":
          ['gWetBrightness', 'pAOTexCoordIndex', 'pAnimalIdentityMask', 'pColourMask_HSLGenetic0', 'pColourMask_HSLGenetic1', 'pColourMask_HSLGeneticAlbino0', 'pColourMask_HSLGeneticAlbino1', 'pColourMask_HSLGeneticErythristic0', 'pColourMask_HSLGeneticErythristic1', 'pColourMask_HSLGeneticLeucistic0', 'pColourMask_HSLGeneticLeucistic1', 'pColourMask_HSLGeneticMelanistic0', 'pColourMask_HSLGeneticMelanistic1', 'pColourMask_HSLGeneticXanthic0', 'pColourMask_HSLGeneticXanthic1', 'pColourMask_NoiseContrast', 'pColourMask_NoiseThreshold', 'pColourMask_NoiseWeight', 'pCorpseTint', 'pEnableScreenSpaceAO', 'pMarkingNoiseEnableRandomOffset', 'pMarkingNoiseScale', 'pMaximumSnowAmount', 'pMaximumWaterPermeability', 'pRenderLayerOverride', 'pScarBaldnessCutoff', 'pScarMaskPower', 'pSnowOnSlopesOffset', 'pSpecularOcclusion', 'pUseOrenNayar', 'pVerticalTiling', 'pWeather_ExplicitNormalThreshold', 'pWetRoughnessStrength', 'pWetRoughnessValue', 'pWetSpecularStrength', 'pWetSpecularValue', 'pWetnessYPositionLower', 'pWetnessYPositionUpper', 'pWoundBloodDepthStrength', 'pWoundBloodNormalStrength', 'pWoundBloodRoughness', 'pWoundBloodSpecularReflectance', 'pWoundDepthMaskPower', 'pWoundScarDepthStrength', 'pWoundScarNormalStrength', 'pWoundScarRoughness', 'pWoundScarSpecularReflectance'],
