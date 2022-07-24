@@ -516,7 +516,26 @@ class TextureVisual:
 		t = self.entry.dtype.name
 		if "RGBA" in t:
 			field = QColorButton()
-			field.colorChanged.connect(update_ind_color)
+			# Create container for transparency background
+			frame = QtWidgets.QFrame()
+			frame.setObjectName("ColorFrame")
+			frame.setContentsMargins(0, 0, 0, 0)
+			layout = QtWidgets.QHBoxLayout()
+			layout.addWidget(QColorButton())
+			layout.setContentsMargins(0, 0, 0, 0)
+			layout.setSpacing(0)
+			frame.setLayout(layout)
+			field = frame
+			field.children()[1].colorChanged.connect(update_ind_color)
+			frame.setStyleSheet((f"""QFrame#ColorFrame {{ 
+				background-image: url('icon:transparency.png');
+				max-height: 20px;
+				max-width: 100px;
+				padding: 0px;
+				border: 0px;
+				border-radius: 4px;
+			}}"""))
+
 		elif "Float" in t:
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(3)
@@ -534,7 +553,12 @@ class TextureVisual:
 			field.valueChanged.connect(update_ind_int)
 		else:
 			raise AttributeError(f"Unsupported field type {t}")
-		field.setValue(default)
+		
+		if "RGBA" in t:
+			field.children()[1].setValue(default)
+		else:
+			field.setValue(default)
+			
 		field.setMinimumWidth(50)
 		return field
 

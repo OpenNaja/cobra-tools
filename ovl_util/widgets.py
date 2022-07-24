@@ -701,6 +701,10 @@ class QColorButton(QtWidgets.QPushButton):
 		self._color = None
 		self.setMaximumWidth(32)
 		self.pressed.connect(self.onColorPicker)
+		QtCore.QDir.addSearchPath("icon", self.get_icon_dir())
+
+	def get_icon_dir(self):
+		return os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "icons")
 
 	def setColor(self, color):
 		if color != self._color:
@@ -708,8 +712,13 @@ class QColorButton(QtWidgets.QPushButton):
 			self.colorChanged.emit(color)
 
 		if self._color:
-			color_hex = self._color.name(QtGui.QColor.NameFormat.HexArgb)
-			self.setStyleSheet(f"QColorButton {{background-color: {color_hex}; border: 1px solid rgba(0,0,0,128); min-width: 100px; min-height: 18px; border-radius: 3px;}}")
+			self.setStyleSheet(f"""QColorButton {{
+				background-color: {self._color.name(QtGui.QColor.NameFormat.HexArgb)};
+				border: 0px;
+				min-width: 100px;
+				min-height: 20px;
+				border-radius: 3px;
+			}}""")
 		else:
 			self.setStyleSheet("")
 
