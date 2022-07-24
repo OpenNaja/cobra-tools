@@ -78,7 +78,7 @@ def pack_int64_vector(packed_vert, vertices, use_blended_weights):
     packed_vert[:] = 0
     for i in range(3):
         packed_vert |= vertices[:, i] << (21 * i)
-    packed_vert[:] |= use_blended_weights << 63
+    packed_vert |= use_blended_weights.astype(np.int64) << 63
 
 
 def get_valid_weights(vert):

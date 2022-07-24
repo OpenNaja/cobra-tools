@@ -219,7 +219,7 @@ class NewMeshData:
 		pack_swizzle_vectorized(self.vertices)
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)
-
+		# print(self.use_blended_weights)
 		scale_pack_vectorized(self.vertices, self.base)
 		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
 		pack_ubyte_vector(self.normals)
