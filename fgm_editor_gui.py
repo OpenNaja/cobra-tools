@@ -199,11 +199,14 @@ class MainWindow(widgets.MainWindow):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
 
 	def fix_tex_indices(self, textures):
-		index = 0
-		for tex in textures:
-			if tex.dtype == FgmDtype.Texture:
-				tex.value[0].index = index
-				index += 1
+		for i, tex in enumerate([t for t in textures if t.dtype == FgmDtype.Texture]):
+			tex.value[0].index = i
+
+	def fix_dependencies(self, deps):
+		for i, dep in enumerate(deps):
+			tex_dtype = self.header.textures.data[i].dtype
+			if tex_dtype == FgmDtype.RGBA:
+				dep.dependency_name.data = ''
 
 	def sort_textures(self):
 		textures = self.header.textures.data
@@ -440,6 +443,7 @@ class TextureVisual:
 		if self.entry.dtype == FgmDtype.Texture or self.entry.dtype == FgmDtype.RGBA:
 			# Update texture indices after changing texture type
 			self.container.gui.fix_tex_indices(self.container.entry_list)
+			self.container.gui.fix_dependencies(self.container.data_list)
 		else:
 			# Update attribute offsets after changing type
 			self.container.gui.fix_att_offsets(self.container.entry_list)
