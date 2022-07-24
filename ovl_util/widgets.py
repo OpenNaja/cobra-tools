@@ -1,6 +1,8 @@
 import json
 import webbrowser
 import os
+from pathlib import Path
+
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from ovl_util.interaction import showdialog
@@ -821,7 +823,7 @@ class FileWidget(QtWidgets.QWidget):
 	Displays the current file's basename.
 	"""
 
-	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True):
+	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True, check_exists=False, root=None):
 		super().__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
@@ -839,6 +841,8 @@ class FileWidget(QtWidgets.QWidget):
 		self.dtype_l = dtype.lower()
 
 		self.poll = poll
+		self.check_exists = check_exists
+		self.root = root
 		self.parent = parent
 		self.cfg = cfg
 		if not self.cfg:
@@ -878,6 +882,12 @@ class FileWidget(QtWidgets.QWidget):
 		self.filepath = filepath
 		self.dir, self.filename = os.path.split(filepath)
 		self.setText(self.filename)
+		if self.check_exists:
+			file_warning = "QLineEdit{ color: rgba(168, 168, 64, 255); background-color: rgba(44, 44, 30, 255); }"
+			is_file = Path(os.path.join(self.root if self.root else self.dir, self.filename)).is_file()
+			style = "" if is_file else file_warning
+			self.entry.setToolTip("" if is_file else "Warning: File does not exist.")
+			self.entry.setStyleSheet(style)
 
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
@@ -892,6 +902,8 @@ class FileWidget(QtWidgets.QWidget):
 
 	def setText(self, text):
 		self.entry.setText(text)
+		# Keep front of path visible when small
+		self.entry.setCursorPosition(0)
 
 	def get_files(self, event):
 		data = event.mimeData()

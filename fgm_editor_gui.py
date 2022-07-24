@@ -283,6 +283,10 @@ class MainWindow(widgets.MainWindow):
 	def fgm_name(self,):
 		return self.file_widget.entry.text()
 
+	@property
+	def fgm_path(self,):
+		return os.path.split(self.file_widget.filepath)[0]
+
 	def create_grid(self,):
 		g = QtWidgets.QGridLayout()
 		g.setHorizontalSpacing(3)
@@ -469,8 +473,9 @@ class TextureVisual:
 			if self.data.dependency_name.data == '':
 				self.data.dependency_name.data = self.container.gui.create_tex_name(self.container.gui.fgm_name, self.entry.name)
 
-			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, dtype="TEX", poll=False)
-			self.w_file.entry.setText(self.data.dependency_name.data)
+			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, ask_user=False,
+											dtype="TEX", poll=False, check_exists=True, root=self.container.gui.fgm_path)
+			self.w_file.set_file_path(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
 			return self.w_file,
 		elif self.entry.dtype == FgmDtype.RGBA:
