@@ -14,6 +14,9 @@ from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.fgm.compound.TexIndex import TexIndex
 from generated.formats.fgm.compound.TextureInfo import TextureInfo
 from generated.formats.fgm.compound.DependencyInfo import DependencyInfo
+from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
+from generated.formats.fgm.compound.AttribData import AttribData
+from generated.array import Array
 from generated.formats.ovl.versions import *
 from ovl_util import widgets, config, interaction
 from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT
@@ -22,6 +25,24 @@ from ovl_util.config import logging_setup
 
 logging_setup("fgm_editor")
 
+attrib_sizes = {
+	0: 4, # FgmDtype.Float
+	1: 8, # FgmDtype.Float2
+	2: 12, # FgmDtype.Float3
+	3: 16, # FgmDtype.Float4
+	5: 4, # FgmDtype.Int
+	6: 4, # FgmDtype.Bool
+}
+
+# Because FgmDtype does not have a from int
+attrib_dtypes = {
+	0: FgmDtype.Float,
+	1: FgmDtype.Float2,
+	2: FgmDtype.Float3,
+	3: FgmDtype.Float4,
+	5: FgmDtype.Int,
+	6: FgmDtype.Bool,
+}
 
 class MainWindow(widgets.MainWindow):
 
@@ -65,9 +86,9 @@ class MainWindow(widgets.MainWindow):
 		self.attribute_choice = widgets.LabelCombo("Attribute:", ())
 		self.texture_choice = widgets.LabelCombo("Texture:", ())
 		self.attribute_add = QtWidgets.QPushButton("Add Attribute")
-		self.attribute_add.clicked.connect(self.add_attribute)
+		self.attribute_add.clicked.connect(self.add_attribute_clicked)
 		self.texture_add = QtWidgets.QPushButton("Add Texture")
-		self.texture_add.clicked.connect(self.add_texture)
+		self.texture_add.clicked.connect(self.add_texture_clicked)
 		self.lock_attrs.toggled.connect(self.attribute_choice.setHidden)
 		self.lock_attrs.toggled.connect(self.attribute_add.setHidden)
 
@@ -75,8 +96,6 @@ class MainWindow(widgets.MainWindow):
 		self.attrib_container = PropertyContainer(self, "Attributes")
 
 		self.game_changed()
-		# self.populate_choices()
-		self.shader_changed()
 
 		vbox = QtWidgets.QVBoxLayout()
 		vbox.addWidget(self.file_widget)
@@ -137,25 +156,44 @@ class MainWindow(widgets.MainWindow):
 			self.fgm_dict = fgm_pz
 		else:
 			self.fgm_dict = None
-		self.populate_choices()
-
-	def populate_choices(self):
 		if self.fgm_dict:
 			self.shader_choice.entry.clear()
 			self.shader_choice.entry.addItems(sorted(self.fgm_dict.shaders))
-			self.attribute_choice.entry.clear()
-			self.attribute_choice.entry.addItems(sorted(self.fgm_dict.attributes))
-			self.texture_choice.entry.clear()
-			self.texture_choice.entry.addItems(sorted(self.fgm_dict.textures))
-		
-	def shader_changed(self,):
-		self.header.shader_name = self.shader_choice.entry.currentText()
 
-	def add_attribute(self,):
-		if self.fgm_dict:
-			attrib_name = self.attribute_choice.entry.currentText()
-			# self.header.add_attrib(attrib_name, self.fgm_dict.attributes[attrib_name])
-			self.attrib_container.update_gui(self.header.attributes)
+	def update_choices(self):
+		shader_name = self.shader_choice.entry.currentText()
+		if self.fgm_dict and shader_name:
+			self.texture_choice.entry.clear()
+			self.texture_choice.entry.addItems(sorted(self.fgm_dict.shader_textures[shader_name]))
+			self.attribute_choice.entry.clear()
+			self.attribute_choice.entry.addItems(sorted(self.fgm_dict.shader_attribs[shader_name]))
+
+	def update_shader(self, name):
+		self.shader_choice.entry.setText(name)
+		self.update_choices()
+
+	def shader_changed(self,):
+		"""Run only during user activation"""
+		self.header.shader_name = self.shader_choice.entry.currentText()
+		self.update_choices()
+
+		# TODO: Completely wipe data for now
+		self.header.textures.data = Array((1,), self.header.textures.template, self.context, set_default=False)
+		self.header.attributes.data = Array((1,), self.header.attributes.template, self.context, set_default=False)
+		self.header.dependencies.data = Array((1,), self.header.dependencies.template, self.context, set_default=False)
+		self.header.data_lib.data = Array((1,), self.header.data_lib.template, self.context, set_default=False)
+
+		self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+		self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
+
+		for tex in self.fgm_dict.shader_textures[self.header.shader_name]:
+			self.add_texture(tex)
+		
+		for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
+			self.add_attribute(att)
+
+		self.header.texture_count = len(self.header.textures.data)
+		self.header.attribute_count = len(self.header.attributes.data)
 
 	def fix_tex_indices(self, textures):
 		index = 0
@@ -171,8 +209,10 @@ class MainWindow(widgets.MainWindow):
 		self.fix_tex_indices(textures)
 		return textures, deps
 
-	def add_texture(self,):
-		tex_name = self.texture_choice.entry.currentText()
+	def add_texture_clicked(self):
+		self.add_texture(self.texture_choice.entry.currentText())
+
+	def add_texture(self, tex_name):
 		textures = self.header.textures.data
 		for tex in textures:
 			if tex.name == tex_name:
@@ -192,12 +232,47 @@ class MainWindow(widgets.MainWindow):
 		deps = self.header.dependencies.data
 		dep = DependencyInfo(self.context, arg=tex, set_default=False)
 		dep.set_defaults()
+		dep.dependency_name.data = ''
 		deps.append(dep)
 
 		self.header.textures.data[:], self.header.dependencies.data[:] = self.sort_textures()
 
 		try:
 			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+		except:
+			traceback.print_exc()
+
+	def add_attribute_clicked(self):
+		self.add_attribute(self.attribute_choice.entry.currentText())
+
+	def last_value(self):
+		return (self.header.attributes.data[-1].dtype, self.header.attributes.data[-1].value_offset) if len(self.header.attributes.data) > 0 else None
+
+	def add_attribute(self, att_name):
+		attributes = self.header.attributes.data
+		for attrib in attributes:
+			if attrib.name == att_name:
+				logging.warning(f"Attribute '{att_name}' already exists. Ignoring.")
+				return
+
+		last_val = self.last_value()
+		att = AttributeInfo(self.context, set_default=False)
+		att.dtype = attrib_dtypes[self.fgm_dict.attributes[att_name]]
+		att.name = att_name
+		att.value_offset = 0 if not last_val else attrib_sizes[int(last_val[0])] + last_val[1]
+		attributes.append(att)
+
+		self.header.attributes.data[:] = attributes
+
+		data_lib = self.header.data_lib.data
+		data = AttribData(self.context, arg=att, set_default=False)
+		data.set_defaults()
+		data_lib.append(data)
+
+		self.header.data_lib.data[:] = data_lib
+
+		try:
+			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 		except:
 			traceback.print_exc()
 
@@ -231,7 +306,7 @@ class MainWindow(widgets.MainWindow):
 				logging.debug(f"from game {game}")
 				self.game_container.entry.setText(game.value)
 				self.game_changed()
-				self.shader_choice.entry.setText(self.header.shader_name)
+				self.update_shader(self.header.shader_name)
 				self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 
@@ -355,10 +430,29 @@ class TextureVisual:
 		dtype_name = self.w_dtype.currentText()
 		self.entry.dtype = FgmDtype[dtype_name]
 		try:
-			# print(self.data)
 			self.data.set_defaults()
-			# print(self.data)
+			if self.entry.dtype == FgmDtype.Texture:
+				self.entry.value = None
+				self.data.dependency_name.data = ''
+
+			self.entry.set_defaults()
+
+			# Set RGBA values to middle gray
+			if self.entry.dtype == FgmDtype.RGBA:
+				self.entry.value[0].r = 127
+				self.entry.value[0].g = 127
+				self.entry.value[0].b = 127
+				self.entry.value[0].a = 255
+				self.entry.value[1].r = 127
+				self.entry.value[1].g = 127
+				self.entry.value[1].b = 127
+				self.entry.value[1].a = 255
+
 			self.create_fields_w_layout()
+
+			# Update texture indices after changing texture type
+			if self.entry.dtype == FgmDtype.Texture or self.entry.dtype == FgmDtype.RGBA:
+				self.container.gui.fix_tex_indices(self.container.entry_list)
 		except:
 			traceback.print_exc()
 
@@ -368,7 +462,7 @@ class TextureVisual:
 	def create_fields(self):
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
 		if self.entry.dtype == FgmDtype.Texture:
-			assert self.data.dependency_name.data
+			assert self.data.dependency_name.data is not None
 			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, dtype="TEX", poll=False)
 			self.w_file.entry.setText(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
@@ -396,17 +490,16 @@ class TextureVisual:
 
 		def update_ind_color(c):
 			# use a closure to remember index
-			color = target[ind]
-			color.r, color.g, color.b, color.a = c.getRgb()
+			if c:
+				color = target[ind]
+				color.r, color.g, color.b, color.a = c.getRgb()
 
 		def update_ind(v):
 			# use a closure to remember index
-			# print(self.attrib, ind, v)
 			target[ind] = v
 
 		def update_ind_int(v):
 			# use a closure to remember index
-			# print(self.attrib, ind, v)
 			target[ind] = int(v)
 
 		t = self.entry.dtype.name
