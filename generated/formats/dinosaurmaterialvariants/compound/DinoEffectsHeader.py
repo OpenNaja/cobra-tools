@@ -1,6 +1,9 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.ovl_base.basic
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.dinosaurmaterialvariants.compound.Vector3F import Vector3F
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -104,19 +107,24 @@ class DinoEffectsHeader(MemStruct):
 		stream.write_float(instance.e)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated))
+		yield ('vec_0', Vector3F, (0, None))
+		yield ('vec_1', Vector3F, (0, None))
+		yield ('a', Uint, (0, None))
+		yield ('b', Uint, (0, None))
+		yield ('vec_2', Vector3F, (0, None))
+		yield ('vec_3', Vector3F, (0, None))
+		yield ('vec_4', Vector3F, (0, None))
+		yield ('c', Uint, (0, None))
+		yield ('d', Uint, (0, None))
+		yield ('e', Float, (0, None))
+		yield ('f', Float, (0, None))
+		yield ('g', Uint, (0, None))
+		yield ('floats', Array, ((39,), Float, 0, None))
+		yield ('d', Uint, (0, None))
+		yield ('e', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'DinoEffectsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

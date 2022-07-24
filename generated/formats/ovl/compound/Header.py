@@ -1,6 +1,9 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.base.compound.PadAlign import PadAlign
 from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
@@ -286,19 +289,49 @@ class Header(GenericHeader):
 		Array.to_stream(stream, instance.zlibs, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('lod_depth', Uint, (0, None))
+		yield ('len_names', Uint, (0, None))
+		yield ('zero_2', Uint, (0, None))
+		yield ('num_aux_entries', Uint, (0, None))
+		yield ('num_included_ovls', Ushort, (0, None))
+		yield ('num_mimes', Ushort, (0, None))
+		yield ('num_files', Uint, (0, None))
+		yield ('num_files_2', Uint, (0, None))
+		yield ('num_dependencies', Uint, (0, None))
+		yield ('num_archives', Uint, (0, None))
+		yield ('num_pool_groups', Uint, (0, None))
+		yield ('num_pools', Uint, (0, None))
+		yield ('num_datas', Uint, (0, None))
+		yield ('num_buffers', Uint, (0, None))
+		yield ('num_stream_files', Uint, (0, None))
+		yield ('ztuac_unk_0', Uint, (0, None))
+		yield ('ztuac_unk_1', Uint, (0, None))
+		yield ('ztuac_unk_2', Uint, (0, None))
+		yield ('len_archive_names', Uint, (0, None))
+		yield ('num_files_3', Uint, (0, None))
+		yield ('len_type_names', Uint, (0, None))
+		yield ('num_triplets', Uint, (0, None))
+		yield ('reserved', Array, ((12,), Uint, 0, None))
+		yield ('names', ZStringBuffer, (instance.len_names, None))
+		if instance.context.version <= 15:
+			yield ('names_pad', Array, (((16 - (instance.len_names % 16)) % 16,), Ubyte, 0, None))
+		yield ('mimes', Array, ((instance.num_mimes,), MimeEntry, 0, None))
+		if instance.context.version >= 20:
+			yield ('triplets', Array, ((instance.num_triplets,), Triplet, 0, None))
+			yield ('triplets_pad', PadAlign, (4, instance.triplets))
+		yield ('files', Array, ((instance.num_files,), FileEntry, 0, None))
+		yield ('archive_names', ZStringBuffer, (instance.len_archive_names, None))
+		yield ('archives', Array, ((instance.num_archives,), ArchiveEntry, 0, None))
+		yield ('included_ovls', Array, ((instance.num_included_ovls,), IncludedOvl, 0, None))
+		if instance.context.version >= 19:
+			yield ('dependencies', Array, ((instance.num_dependencies,), DependencyEntry, 0, None))
+		yield ('aux_entries', Array, ((instance.num_aux_entries,), AuxEntry, 0, None))
+		if instance.context.version <= 18:
+			yield ('dependencies', Array, ((instance.num_dependencies,), DependencyEntry, 0, None))
+		yield ('stream_files', Array, ((instance.num_stream_files,), StreamEntry, 0, None))
+		yield ('zlibs', Array, ((instance.num_archives,), ZlibInfo, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

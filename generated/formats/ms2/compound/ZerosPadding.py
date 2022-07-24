@@ -1,14 +1,13 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import Uint64
+from generated.struct import StructBase
 
 
-class ZerosPadding:
-
-	context = ContextReference()
+class ZerosPadding(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -42,6 +41,7 @@ class ZerosPadding:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.hier_2_padding_0 = stream.read_uint64()
 		if 64 < instance.arg:
 			instance.hier_2_padding_1 = stream.read_uint64()
@@ -50,6 +50,7 @@ class ZerosPadding:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64(instance.hier_2_padding_0)
 		if 64 < instance.arg:
 			stream.write_uint64(instance.hier_2_padding_1)
@@ -57,25 +58,20 @@ class ZerosPadding:
 			stream.write_uint64(instance.hier_2_padding_2)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('hier_2_padding_0', Uint64, (0, None))
+		if 64 < instance.arg:
+			yield ('hier_2_padding_1', Uint64, (0, None))
+		if 128 < instance.arg:
+			yield ('hier_2_padding_2', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ZerosPadding [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* hier_2_padding_0 = {fmt_member(self.hier_2_padding_0, indent+1)}'
 		s += f'\n	* hier_2_padding_1 = {fmt_member(self.hier_2_padding_1, indent+1)}'
 		s += f'\n	* hier_2_padding_2 = {fmt_member(self.hier_2_padding_2, indent+1)}'

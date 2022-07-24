@@ -26,14 +26,14 @@ class Compound(BaseClass):
                     self.field_unions.append(union)
                 union.append(field)
 
+        if not self.class_basename:
+            self.class_basename = "StructBase"
+            self.imports.add("StructBase")
+
         # write to python file
         with open(self.out_file, "w", encoding=self.parser.encoding) as f:
             # write the header stuff
             super().write(f)
-
-            if not self.class_basename:
-                self.write_line(f)
-                self.write_line(f, 1, "context = ContextReference()")
 
             # check all fields/members in this class and write them as fields
             # for union in self.field_unions.values():
@@ -129,29 +129,17 @@ class Compound(BaseClass):
                 if not self.field_unions:
                     self.write_line(f, 2, "pass")
 
-            # write the from_stream method
-            method_str = "def from_stream(cls, stream, context, arg=0, template=None):"
-            if not from_stream_re.search(self.src_code):
+            # write the _get_filtered_attribute_list method
+            method_str = "def _get_filtered_attribute_list(cls, instance):"
+            if "def _get_filtered_attribute_list(" not in self.src_code:
                 self.write_line(f)
-                self.write_line(f, 1, '@classmethod')
+                self.write_line(f, 1, "@classmethod")
                 self.write_line(f, 1, method_str)
-                # create the object
-                self.write_line(f, 2, 'instance = cls(context, arg, template, set_default=False)')
-                self.write_line(f, 2, 'instance.io_start = stream.tell()')
-                self.write_line(f, 2, 'cls.read_fields(stream, instance)')
-                self.write_line(f, 2, 'instance.io_size = stream.tell() - instance.io_start')
-                self.write_line(f, 2, 'return instance')
-
-            # write the to_stream method
-            method_str = "def to_stream(cls, stream, instance):"
-            if not to_stream_re.search(self.src_code):
-                self.write_line(f)
-                self.write_line(f, 1, '@classmethod')
-                self.write_line(f, 1, method_str)
-                self.write_line(f, 2, 'instance.io_start = stream.tell()')
-                self.write_line(f, 2, 'cls.write_fields(stream, instance)')
-                self.write_line(f, 2, 'instance.io_size = stream.tell() - instance.io_start')
-                self.write_line(f, 2, 'return instance')
+                condition = ""
+                if self.class_basename:
+                    self.write_line(f, 2, "super()._get_filtered_attribute_list(instance)")
+                for union in self.field_unions:
+                    condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 
             if "def __repr__(" not in self.src_code:
                 self.write_line(f)

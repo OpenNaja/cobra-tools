@@ -6,6 +6,7 @@ import generated.formats.motiongraph.compound.MRFMember1
 import generated.formats.motiongraph.compound.MRFMember2
 import generated.formats.motiongraph.compound.MotiongraphRootFrag
 import generated.formats.motiongraph.compound.StateArray
+from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -95,19 +96,18 @@ class MotiongraphHeader(MemStruct):
 		Pointer.to_stream(stream, instance.empty_str)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('ptr_0', Pointer, (0, generated.formats.motiongraph.compound.MotiongraphRootFrag.MotiongraphRootFrag))
+		yield ('state_output_entries', Pointer, (0, generated.formats.motiongraph.compound.StateArray.StateArray))
+		yield ('ptr_2', Pointer, (0, generated.formats.motiongraph.compound.MGTwo.MGTwo))
+		yield ('ptr_3', Pointer, (0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1))
+		yield ('count_0', Uint, (0, None))
+		yield ('count_1', Uint, (0, None))
+		yield ('lua_modules', Pointer, (0, generated.formats.motiongraph.compound.LuaModules.LuaModules))
+		yield ('lua_results', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('first_non_transition_state', Pointer, (0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2))
+		yield ('empty_str', Pointer, (0, generated.formats.base.basic.ZString))
 
 	def get_info_str(self, indent=0):
 		return f'MotiongraphHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

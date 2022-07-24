@@ -1,5 +1,6 @@
 from source.formats.base.basic import fmt_member
 from generated.array import Array
+from generated.formats.base.basic import Uint
 from generated.formats.fgm.compound.Color import Color
 from generated.formats.fgm.compound.GenericInfo import GenericInfo
 from generated.formats.fgm.compound.TexIndex import TexIndex
@@ -78,19 +79,17 @@ class TextureInfo(GenericInfo):
 			stream.write_uint(instance.some_index_1)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.dtype == 8:
+			yield ('value', Array, ((1,), TexIndex, 0, None))
+		if instance.context.version >= 18 and instance.dtype == 7:
+			yield ('value', Array, ((2,), Color, 0, None))
+		if instance.context.version <= 17 and instance.dtype == 7:
+			yield ('value', Array, ((1,), Color, 0, None))
+		if instance.context.version >= 18:
+			yield ('some_index_0', Uint, (0, None))
+			yield ('some_index_1', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'TextureInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

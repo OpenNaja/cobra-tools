@@ -1,21 +1,20 @@
 from source.formats.base.basic import fmt_member
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Uint
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.SetEntry import SetEntry
+from generated.struct import StructBase
 
 
-class SetHeader:
+class SetHeader(StructBase):
 
 	"""
 	defines amount of sets and assets
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -53,6 +52,7 @@ class SetHeader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.set_count = stream.read_uint()
 		instance.asset_count = stream.read_uint()
 		instance.sig_a = stream.read_uint()
@@ -62,6 +62,7 @@ class SetHeader:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.set_count)
 		stream.write_uint(instance.asset_count)
 		stream.write_uint(instance.sig_a)
@@ -70,25 +71,21 @@ class SetHeader:
 		Array.to_stream(stream, instance.assets, (instance.asset_count,), AssetEntry, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('set_count', Uint, (0, None))
+		yield ('asset_count', Uint, (0, None))
+		yield ('sig_a', Uint, (0, None))
+		yield ('sig_b', Uint, (0, None))
+		yield ('sets', Array, ((instance.set_count,), SetEntry, 0, None))
+		yield ('assets', Array, ((instance.asset_count,), AssetEntry, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'SetHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* set_count = {fmt_member(self.set_count, indent+1)}'
 		s += f'\n	* asset_count = {fmt_member(self.asset_count, indent+1)}'
 		s += f'\n	* sig_a = {fmt_member(self.sig_a, indent+1)}'

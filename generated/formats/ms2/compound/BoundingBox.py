@@ -1,17 +1,17 @@
 from source.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.base.basic import Uint
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector3 import Vector3
+from generated.struct import StructBase
 
 
-class BoundingBox:
-
-	context = ContextReference()
+class BoundingBox(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -48,6 +48,7 @@ class BoundingBox:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
 		instance.center = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.extent = Vector3.from_stream(stream, instance.context, 0, None)
@@ -56,6 +57,7 @@ class BoundingBox:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.center)
 		Vector3.to_stream(stream, instance.extent)
@@ -63,25 +65,20 @@ class BoundingBox:
 			stream.write_uints(instance.zeros)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('rotation', Matrix33, (0, None))
+		yield ('center', Vector3, (0, None))
+		yield ('extent', Vector3, (0, None))
+		if instance.context.version == 32:
+			yield ('zeros', Array, ((3,), Uint, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BoundingBox [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* rotation = {fmt_member(self.rotation, indent+1)}'
 		s += f'\n	* center = {fmt_member(self.center, indent+1)}'
 		s += f'\n	* extent = {fmt_member(self.extent, indent+1)}'

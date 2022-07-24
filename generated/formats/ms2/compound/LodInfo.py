@@ -1,8 +1,11 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class LodInfo:
+class LodInfo(StructBase):
 
 	"""
 	Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
@@ -10,11 +13,9 @@ class LodInfo:
 	JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -65,6 +66,7 @@ class LodInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.distance = stream.read_float()
 		instance.zero = stream.read_ushort()
 		instance.bone_index = stream.read_ushort()
@@ -76,6 +78,7 @@ class LodInfo:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_float(instance.distance)
 		stream.write_ushort(instance.zero)
 		stream.write_ushort(instance.bone_index)
@@ -86,25 +89,23 @@ class LodInfo:
 			stream.write_uint(instance.tri_index_count)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('distance', Float, (0, None))
+		yield ('zero', Ushort, (0, None))
+		yield ('bone_index', Ushort, (0, None))
+		yield ('first_object_index', Ushort, (0, None))
+		yield ('last_object_index', Ushort, (0, None))
+		if not ((instance.context.version == 51) and instance.context.biosyn):
+			yield ('vertex_count', Uint, (0, None))
+			yield ('tri_index_count', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* distance = {fmt_member(self.distance, indent+1)}'
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		s += f'\n	* bone_index = {fmt_member(self.bone_index, indent+1)}'

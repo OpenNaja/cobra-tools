@@ -1,15 +1,15 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.AkMediaInformation import AkMediaInformation
+from generated.struct import StructBase
 
 
-class AkBankSourceData:
-
-	context = ContextReference()
+class AkBankSourceData(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -37,36 +37,31 @@ class AkBankSourceData:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.ul_plugin_i_d = stream.read_uint()
 		instance.stream_type = stream.read_ubyte()
 		instance.ak_media_information = AkMediaInformation.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.ul_plugin_i_d)
 		stream.write_ubyte(instance.stream_type)
 		AkMediaInformation.to_stream(stream, instance.ak_media_information)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('ul_plugin_i_d', Uint, (0, None))
+		yield ('stream_type', Ubyte, (0, None))
+		yield ('ak_media_information', AkMediaInformation, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'AkBankSourceData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* ul_plugin_i_d = {fmt_member(self.ul_plugin_i_d, indent+1)}'
 		s += f'\n	* stream_type = {fmt_member(self.stream_type, indent+1)}'
 		s += f'\n	* ak_media_information = {fmt_member(self.ak_media_information, indent+1)}'

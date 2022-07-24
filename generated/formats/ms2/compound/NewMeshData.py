@@ -6,6 +6,9 @@ from generated.formats.ms2.compound.packing_utils import *
 
 from source.formats.base.basic import fmt_member
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.ms2.bitfield.ModelFlag import ModelFlag
 from generated.formats.ms2.compound.MeshData import MeshData
 
@@ -111,19 +114,19 @@ class NewMeshData(MeshData):
 		ModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('vertex_count', Uint, (0, None))
+		yield ('tri_index_count', Uint, (0, None))
+		yield ('zero_1', Uint, (0, None))
+		yield ('poweroftwo', Uint, (0, None))
+		yield ('vertex_offset', Uint, (0, None))
+		yield ('size_of_vertex', Uint, (0, None))
+		yield ('tri_offset', Uint, (0, None))
+		yield ('zero_2', Uint, (0, None))
+		yield ('unk_floats', Array, ((2,), Float, 0, None))
+		yield ('zero_3', Uint, (0, None))
+		yield ('flag', ModelFlag, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'NewMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

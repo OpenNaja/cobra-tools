@@ -1,6 +1,7 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.world.compound.PtrList
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -89,19 +90,18 @@ class WorldHeader(MemStruct):
 		Pointer.to_stream(stream, instance.ptr_3)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('world_type', Uint64, (0, None))
+		yield ('asset_pkgs', Pointer, (instance.asset_pkg_count, generated.formats.world.compound.PtrList.PtrList))
+		yield ('asset_pkg_count', Uint64, (0, None))
+		yield ('lua_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('ptr_0', Pointer, (0, None))
+		yield ('ptr_1', Pointer, (0, None))
+		yield ('prefabs', Pointer, (instance.prefab_count, generated.formats.world.compound.PtrList.PtrList))
+		yield ('ptr_2', Pointer, (0, None))
+		yield ('prefab_count', Uint64, (0, None))
+		yield ('ptr_3', Pointer, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'WorldHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

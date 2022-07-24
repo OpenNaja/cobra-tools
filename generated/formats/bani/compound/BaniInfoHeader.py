@@ -1,21 +1,22 @@
 from source.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
 from generated.formats.bani.compound.BaniRoot import BaniRoot
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import ZString
+from generated.struct import StructBase
 
 
-class BaniInfoHeader:
+class BaniInfoHeader(StructBase):
 
 	"""
 	Custom header struct
 	includes fragments but none of the 3 data buffers
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -47,36 +48,31 @@ class BaniInfoHeader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.magic = stream.read_bytes((4,))
 		instance.banis_name = stream.read_zstring()
 		instance.data = BaniRoot.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_bytes(instance.magic)
 		stream.write_zstring(instance.banis_name)
 		BaniRoot.to_stream(stream, instance.data)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('magic', Array, ((4,), Byte, 0, None))
+		yield ('banis_name', ZString, (0, None))
+		yield ('data', BaniRoot, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BaniInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* magic = {fmt_member(self.magic, indent+1)}'
 		s += f'\n	* banis_name = {fmt_member(self.banis_name, indent+1)}'
 		s += f'\n	* data = {fmt_member(self.data, indent+1)}'

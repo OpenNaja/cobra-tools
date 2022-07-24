@@ -1,6 +1,5 @@
 from source.formats.base.basic import fmt_member
 from generated.array import Array
-from generated.context import ContextReference
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.DataEntry import DataEntry
@@ -9,19 +8,18 @@ from generated.formats.ovl.compound.MemPool import MemPool
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.RootEntry import RootEntry
 from generated.formats.ovl.compound.SetHeader import SetHeader
+from generated.struct import StructBase
 
 
-class OvsHeader:
+class OvsHeader(StructBase):
 
 	"""
 	Description of one archive's content
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -59,6 +57,7 @@ class OvsHeader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.pool_groups = Array.from_stream(stream, (instance.arg.num_pool_groups,), PoolGroup, instance.context, 0, None)
 		instance.pools = Array.from_stream(stream, (instance.arg.num_pools,), MemPool, instance.context, 0, None)
 		instance.data_entries = Array.from_stream(stream, (instance.arg.num_datas,), DataEntry, instance.context, 0, None)
@@ -70,6 +69,7 @@ class OvsHeader:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Array.to_stream(stream, instance.pool_groups, (instance.arg.num_pool_groups,), PoolGroup, instance.context, 0, None)
 		Array.to_stream(stream, instance.pools, (instance.arg.num_pools,), MemPool, instance.context, 0, None)
 		Array.to_stream(stream, instance.data_entries, (instance.arg.num_datas,), DataEntry, instance.context, 0, None)
@@ -80,25 +80,23 @@ class OvsHeader:
 		SetHeader.to_stream(stream, instance.set_header)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('pool_groups', Array, ((instance.arg.num_pool_groups,), PoolGroup, 0, None))
+		yield ('pools', Array, ((instance.arg.num_pools,), MemPool, 0, None))
+		yield ('data_entries', Array, ((instance.arg.num_datas,), DataEntry, 0, None))
+		yield ('buffer_entries', Array, ((instance.arg.num_buffers,), BufferEntry, 0, None))
+		yield ('buffer_groups', Array, ((instance.arg.num_buffer_groups,), BufferGroup, 0, None))
+		yield ('root_entries', Array, ((instance.arg.num_root_entries,), RootEntry, 0, None))
+		yield ('fragments', Array, ((instance.arg.num_fragments,), Fragment, 0, None))
+		yield ('set_header', SetHeader, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'OvsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* pool_groups = {fmt_member(self.pool_groups, indent+1)}'
 		s += f'\n	* pools = {fmt_member(self.pools, indent+1)}'
 		s += f'\n	* data_entries = {fmt_member(self.data_entries, indent+1)}'

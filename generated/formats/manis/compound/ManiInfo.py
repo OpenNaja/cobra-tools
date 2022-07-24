@@ -1,20 +1,25 @@
 from source.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class ManiInfo:
+class ManiInfo(StructBase):
 
 	"""
 	288 bytes for JWE / PZ
 	304 bytes for PC
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -135,6 +140,7 @@ class ManiInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.duration = stream.read_float()
 		instance.frame_count = stream.read_uint()
 		instance.b = stream.read_uint()
@@ -178,6 +184,7 @@ class ManiInfo:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_float(instance.duration)
 		stream.write_uint(instance.frame_count)
 		stream.write_uint(instance.b)
@@ -220,25 +227,55 @@ class ManiInfo:
 		stream.write_ushort(instance.zero_2_end)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('duration', Float, (0, None))
+		yield ('frame_count', Uint, (0, None))
+		yield ('b', Uint, (0, None))
+		yield ('zeros_0', Array, ((6,), Ushort, 0, None))
+		if instance.context.version == 18:
+			yield ('extra_pc_1', Ushort, (0, None))
+		yield ('pos_bone_count', Ushort, (0, None))
+		yield ('ori_bone_count', Ushort, (0, None))
+		yield ('scl_bone_count', Ushort, (0, None))
+		if instance.context.version == 18:
+			yield ('extra_pc', Uint64, (0, None))
+			yield ('pos_bone_count_repeat', Ushort, (0, None))
+			yield ('ori_bone_count_repeat', Ushort, (0, None))
+			yield ('scl_bone_count_repeat', Ushort, (0, None))
+		yield ('zeros_1', Ushort, (0, None))
+		if not (instance.context.version == 18):
+			yield ('zeros_1_new', Uint, (0, None))
+		yield ('float_count', Ushort, (0, None))
+		yield ('count_a', Ubyte, (0, None))
+		yield ('count_b', Ubyte, (0, None))
+		yield ('target_bone_count', Ushort, (0, None))
+		yield ('g', Ushort, (0, None))
+		yield ('zeros_2', Array, ((57,), Uint, 0, None))
+		if instance.context.version == 18:
+			yield ('extra_zeros_pc', Array, ((6,), Ushort, 0, None))
+		yield ('pos_bone_min', Ubyte, (0, None))
+		yield ('pos_bone_max', Ubyte, (0, None))
+		yield ('ori_bone_min', Ubyte, (0, None))
+		yield ('ori_bone_max', Ubyte, (0, None))
+		yield ('scl_bone_min', Byte, (0, None))
+		yield ('scl_bone_max', Byte, (0, None))
+		if not (instance.context.version == 18):
+			yield ('pos_bone_count_related', Ubyte, (0, None))
+			yield ('pos_bone_count_repeat', Ubyte, (0, None))
+			yield ('ori_bone_count_related', Ubyte, (0, None))
+			yield ('ori_bone_count_repeat', Ubyte, (0, None))
+			yield ('scl_bone_count_related', Byte, (0, None))
+			yield ('scl_bone_count_repeat', Byte, (0, None))
+			yield ('zeros_end', Ushort, (0, None))
+		yield ('zero_2_end', Ushort, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ManiInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* duration = {fmt_member(self.duration, indent+1)}'
 		s += f'\n	* frame_count = {fmt_member(self.frame_count, indent+1)}'
 		s += f'\n	* b = {fmt_member(self.b, indent+1)}'

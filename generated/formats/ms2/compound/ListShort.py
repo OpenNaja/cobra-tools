@@ -1,4 +1,5 @@
 from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import Float
 from generated.formats.ms2.compound.Descriptor import Descriptor
 from generated.formats.ms2.compound.Vector3 import Vector3
 
@@ -64,19 +65,12 @@ class ListShort(Descriptor):
 		stream.write_float(instance.max)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('loc', Vector3, (0, None))
+		yield ('direction', Vector3, (0, None))
+		yield ('min', Float, (0, None))
+		yield ('max', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ListShort [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

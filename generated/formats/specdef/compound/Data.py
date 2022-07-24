@@ -168,19 +168,40 @@ class Data(MemStruct):
 			ReferenceToObjectData.to_stream(stream, instance.dtype)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.arg == 0:
+			yield ('dtype', BooleanData, (0, None))
+		if instance.arg == 1:
+			yield ('dtype', Int8Data, (0, None))
+		if instance.arg == 2:
+			yield ('dtype', Int16Data, (0, None))
+		if instance.arg == 3:
+			yield ('dtype', Int32Data, (0, None))
+		if instance.arg == 4:
+			yield ('dtype', Int64Data, (0, None))
+		if instance.arg == 5:
+			yield ('dtype', Uint8Data, (0, None))
+		if instance.arg == 6:
+			yield ('dtype', Uint16Data, (0, None))
+		if instance.arg == 7:
+			yield ('dtype', Uint32Data, (0, None))
+		if instance.arg == 8:
+			yield ('dtype', Uint64Data, (0, None))
+		if instance.arg == 9:
+			yield ('dtype', FloatData, (0, None))
+		if instance.arg == 10:
+			yield ('dtype', StringData, (0, None))
+		if instance.arg == 11:
+			yield ('dtype', Vector2, (0, None))
+		if instance.arg == 12:
+			yield ('dtype', Vector3, (0, None))
+		if instance.arg == 13:
+			yield ('dtype', ArrayData, (0, None))
+		if instance.arg == 14:
+			yield ('dtype', ChildSpecData, (0, None))
+		if instance.arg == 15:
+			yield ('dtype', ReferenceToObjectData, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

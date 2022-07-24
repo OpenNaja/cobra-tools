@@ -1,5 +1,7 @@
 from source.formats.base.basic import fmt_member
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Ubyte
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.tex.compound.SizeInfoRaw import SizeInfoRaw
 
@@ -55,19 +57,13 @@ class SizeInfo(MemStruct):
 			stream.write_ubytes(instance.padding)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('data', SizeInfoRaw, (0, None))
+		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
+			yield ('padding', Array, ((320 - instance.data.io_size,), Ubyte, 0, None))
+		if instance.context.user_version.is_jwe and (instance.context.version == 19):
+			yield ('padding', Array, ((384 - instance.data.io_size,), Ubyte, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'SizeInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

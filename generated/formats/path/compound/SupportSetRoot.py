@@ -5,6 +5,9 @@ import generated.formats.path.compound.Footer
 import generated.formats.path.compound.Pillar
 import generated.formats.path.compound.SupportSetData
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -110,19 +113,23 @@ class SupportSetRoot(MemStruct):
 		stream.write_uint(instance.num_data)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('connector_1', ArrayPointer, (instance.num_connector_1, generated.formats.path.compound.Connector.Connector))
+		yield ('connector_2', ArrayPointer, (instance.num_connector_2, generated.formats.path.compound.ConnectorMultiJoint.ConnectorMultiJoint))
+		yield ('pillar', Pointer, (0, generated.formats.path.compound.Pillar.Pillar))
+		yield ('footer', Pointer, (0, generated.formats.path.compound.Footer.Footer))
+		yield ('padding', Uint64, (0, None))
+		yield ('unk_vector_1', Vector3, (0, None))
+		yield ('unk_vector_2', Vector2, (0, None))
+		yield ('unk_vector_3', Vector3, (0, None))
+		yield ('unk_int_1', Uint, (0, None))
+		yield ('num_connector_1', Uint, (0, None))
+		yield ('num_connector_2', Uint, (0, None))
+		yield ('unk_ints', Array, ((7,), Uint, 0, None))
+		yield ('padding_2', Uint64, (0, None))
+		yield ('data', ArrayPointer, (instance.num_data, generated.formats.path.compound.SupportSetData.SupportSetData))
+		yield ('num_data', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'SupportSetRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

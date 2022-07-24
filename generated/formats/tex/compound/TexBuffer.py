@@ -1,4 +1,8 @@
 from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Short
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
@@ -72,19 +76,14 @@ class TexBuffer(MemStruct):
 		stream.write_int(instance.padding_1)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('offset', Uint64, (0, None))
+		yield ('size', Uint64, (0, None))
+		yield ('first_mip', Ubyte, (0, None))
+		yield ('mip_count', Ubyte, (0, None))
+		yield ('padding_0', Short, (0, None))
+		yield ('padding_1', Int, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'TexBuffer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

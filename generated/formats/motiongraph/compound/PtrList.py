@@ -45,19 +45,9 @@ class PtrList(MemStruct):
 		Array.to_stream(stream, instance.ptrs, (instance.arg,), SinglePtr, instance.context, 0, instance.template)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('ptrs', Array, ((instance.arg,), SinglePtr, 0, instance.template))
 
 	def get_info_str(self, indent=0):
 		return f'PtrList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

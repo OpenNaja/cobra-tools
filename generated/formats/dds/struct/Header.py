@@ -1,21 +1,21 @@
 from source.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.dds.basic import Uint
 from generated.formats.dds.bitstruct.Caps1 import Caps1
 from generated.formats.dds.bitstruct.Caps2 import Caps2
 from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
 from generated.formats.dds.compound.FixedString import FixedString
 from generated.formats.dds.struct.Dxt10Header import Dxt10Header
 from generated.formats.dds.struct.PixelFormat import PixelFormat
+from generated.struct import StructBase
 
 
-class Header:
-
-	context = ContextReference()
+class Header(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -78,6 +78,7 @@ class Header:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.header_string = FixedString.from_stream(stream, instance.context, 4, None)
 		instance.size = stream.read_uint()
 		instance.flags = HeaderFlags.from_stream(stream, instance.context, 0, None)
@@ -98,6 +99,7 @@ class Header:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		FixedString.to_stream(stream, instance.header_string)
 		stream.write_uint(instance.size)
 		HeaderFlags.to_stream(stream, instance.flags)
@@ -117,25 +119,32 @@ class Header:
 			Dxt10Header.to_stream(stream, instance.dx_10)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('header_string', FixedString, (4, None))
+		yield ('size', Uint, (0, None))
+		yield ('flags', HeaderFlags, (0, None))
+		yield ('height', Uint, (0, None))
+		yield ('width', Uint, (0, None))
+		yield ('linear_size', Uint, (0, None))
+		yield ('depth', Uint, (0, None))
+		yield ('mipmap_count', Uint, (0, None))
+		yield ('reserved_1', Array, ((11,), Uint, 0, None))
+		yield ('pixel_format', PixelFormat, (0, None))
+		yield ('caps_1', Caps1, (0, None))
+		yield ('caps_2', Caps2, (0, None))
+		yield ('caps_3', Uint, (0, None))
+		yield ('caps_4', Uint, (0, None))
+		yield ('unused', Uint, (0, None))
+		if instance.pixel_format.four_c_c == 808540228:
+			yield ('dx_10', Dxt10Header, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* header_string = {fmt_member(self.header_string, indent+1)}'
 		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
 		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'

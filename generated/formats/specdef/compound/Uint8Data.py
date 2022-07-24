@@ -1,5 +1,7 @@
 from source.formats.base.basic import fmt_member
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Ubyte
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -66,19 +68,14 @@ class Uint8Data(MemStruct):
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('imin', Ubyte, (0, None))
+		yield ('imax', Ubyte, (0, None))
+		yield ('ivalue', Ubyte, (0, None))
+		yield ('ioptional', Ubyte, (0, None))
+		yield ('unused', Array, ((4,), Ubyte, 0, None))
+		yield ('enum', Pointer, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Uint8Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

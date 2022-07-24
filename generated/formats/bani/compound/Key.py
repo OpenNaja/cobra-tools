@@ -1,16 +1,14 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
 from generated.formats.bani.compound.Vector3Short import Vector3Short
 from generated.formats.bani.compound.Vector3Ushort import Vector3Ushort
+from generated.struct import StructBase
 
 
-class Key:
-
-	context = ContextReference()
+class Key(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -36,34 +34,28 @@ class Key:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.euler = Vector3Short.from_stream(stream, instance.context, 0, None)
 		instance.translation = Vector3Ushort.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Vector3Short.to_stream(stream, instance.euler)
 		Vector3Ushort.to_stream(stream, instance.translation)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('euler', Vector3Short, (0, None))
+		yield ('translation', Vector3Ushort, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Key [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* euler = {fmt_member(self.euler, indent+1)}'
 		s += f'\n	* translation = {fmt_member(self.translation, indent+1)}'
 		return s

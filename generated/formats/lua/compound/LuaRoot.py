@@ -1,5 +1,7 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -80,19 +82,17 @@ class LuaRoot(MemStruct):
 		stream.write_uint64(instance.zero_2)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('lua_size', Uint, (0, None))
+		yield ('sixteenk', Uint, (0, None))
+		yield ('hash', Uint, (0, None))
+		yield ('zero_0', Uint, (0, None))
+		if instance.context.version >= 18:
+			yield ('source_path', Pointer, (0, generated.formats.base.basic.ZString))
+			yield ('likely_alignment', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('zero_1', Uint64, (0, None))
+		yield ('zero_2', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'LuaRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

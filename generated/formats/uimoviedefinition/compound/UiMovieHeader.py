@@ -2,6 +2,11 @@ from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.uimoviedefinition.compound.PtrList
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -174,19 +179,38 @@ class UiMovieHeader(MemStruct):
 		Pointer.to_stream(stream, instance.ptr_3)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('movie_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('pkg_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('category_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('type_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('flag_1', Uint, (0, None))
+		yield ('flag_2', Ushort, (0, None))
+		yield ('flag_3', Ushort, (0, None))
+		yield ('floats', Array, ((3,), Float, 0, None))
+		yield ('u_0', Ubyte, (0, None))
+		yield ('num_ui_triggers', Ubyte, (0, None))
+		yield ('u_1', Ubyte, (0, None))
+		yield ('num_ui_names', Ubyte, (0, None))
+		yield ('num_assetpkgs', Ubyte, (0, None))
+		yield ('u_2', Ubyte, (0, None))
+		yield ('num_list_1', Ubyte, (0, None))
+		yield ('num_list_2', Ubyte, (0, None))
+		yield ('num_ui_interfaces', Ubyte, (0, None))
+		yield ('u_3', Ubyte, (0, None))
+		yield ('u_4', Ubyte, (0, None))
+		yield ('u_5', Ubyte, (0, None))
+		yield ('ptr_0', Pointer, (0, None))
+		yield ('ui_triggers', Pointer, (instance.num_ui_triggers, generated.formats.uimoviedefinition.compound.PtrList.PtrList))
+		yield ('ptr_1', Pointer, (0, None))
+		yield ('ui_names', Pointer, (instance.num_ui_names, generated.formats.uimoviedefinition.compound.PtrList.PtrList))
+		yield ('assetpkgs', Pointer, (instance.num_assetpkgs, generated.formats.uimoviedefinition.compound.PtrList.PtrList))
+		yield ('ptr_2', Pointer, (0, None))
+		yield ('list_1', ArrayPointer, (instance.num_list_1, generated.formats.base.basic.Uint))
+		yield ('list_2', ArrayPointer, (instance.num_list_2, generated.formats.base.basic.Uint))
+		yield ('ui_interfaces', Pointer, (instance.num_ui_interfaces, generated.formats.uimoviedefinition.compound.PtrList.PtrList))
+		yield ('ptr_3', Pointer, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'UiMovieHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -1,19 +1,19 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint64
 from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
 from generated.formats.ms2.compound.UACJoint import UACJoint
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
+from generated.struct import StructBase
 
 
-class Struct7:
-
-	context = ContextReference()
+class Struct7(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -74,6 +74,7 @@ class Struct7:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		if instance.context.version <= 13:
 			instance.weird_padding = SmartPadding.from_stream(stream, instance.context, 0, None)
 		instance.count_7 = stream.read_uint64()
@@ -91,6 +92,7 @@ class Struct7:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		if instance.context.version <= 13:
 			SmartPadding.to_stream(stream, instance.weird_padding)
 		stream.write_uint64(instance.count_7)
@@ -107,25 +109,29 @@ class Struct7:
 			stream.write_uint64(instance.alignment)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.context.version <= 13:
+			yield ('weird_padding', SmartPadding, (0, None))
+		yield ('count_7', Uint64, (0, None))
+		yield ('zero_0', Uint64, (0, None))
+		if instance.context.version >= 48:
+			yield ('flag', Uint64, (0, None))
+			yield ('zero_2', Uint64, (0, None))
+		if instance.context.version <= 13:
+			yield ('unknown_list', Array, ((instance.count_7,), UACJoint, 0, None))
+		if instance.context.version >= 32:
+			yield ('unknown_list', Array, ((instance.count_7,), NasutoJointEntry, 0, None))
+		yield ('padding', Array, (((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte, 0, None))
+		if instance.context.version >= 50 and instance.flag:
+			yield ('alignment', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Struct7 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* weird_padding = {fmt_member(self.weird_padding, indent+1)}'
 		s += f'\n	* count_7 = {fmt_member(self.count_7, indent+1)}'
 		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'

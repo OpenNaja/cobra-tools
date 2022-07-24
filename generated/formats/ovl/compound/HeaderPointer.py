@@ -9,16 +9,16 @@ from generated.formats.ovl_base.basic import ConvStream
 
 
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Uint
+from generated.struct import StructBase
 
 
-class HeaderPointer:
+class HeaderPointer(StructBase):
 
 	"""
 	Not standalone, used by RootEntry, Fragment and DependencyEntry
 	"""
-
-	context = ContextReference()
 
 	def set_defaults(self):
 		self.pool_index = 0
@@ -36,28 +36,21 @@ class HeaderPointer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.pool_index = stream.read_int()
 		instance.data_offset = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_int(instance.pool_index)
 		stream.write_uint(instance.data_offset)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('pool_index', Int, (0, None))
+		yield ('data_offset', Uint, (0, None))
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''

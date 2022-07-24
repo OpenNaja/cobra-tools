@@ -1,6 +1,11 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.ovl_base.basic import Bool
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.renderparameters.compound.ZStrPtr import ZStrPtr
 
@@ -112,19 +117,28 @@ class ParamData(MemStruct):
 			Array.to_stream(stream, instance.data, (1,), ZStrPtr, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.arg == 0:
+			yield ('data', Array, ((1,), Bool, 0, None))
+		if instance.arg == 1:
+			yield ('data', Array, ((1,), Float, 0, None))
+		if instance.arg == 2:
+			yield ('data', Array, ((1,), Int, 0, None))
+		if instance.arg == 3:
+			yield ('data', Array, ((1,), Uint, 0, None))
+		if instance.arg == 4:
+			yield ('data', Array, ((2,), Float, 0, None))
+		if instance.arg == 5:
+			yield ('data', Array, ((3,), Float, 0, None))
+		if instance.arg == 6:
+			yield ('data', Array, ((4,), Float, 0, None))
+		if instance.arg == 7:
+			yield ('data', Array, ((4,), Ubyte, 0, None))
+		if instance.arg == 8:
+			yield ('data', Array, ((4,), Float, 0, None))
+		if instance.arg == 9:
+			yield ('data', Array, ((1,), ZStrPtr, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ParamData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

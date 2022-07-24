@@ -2,6 +2,8 @@ from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.PtrList
 import generated.formats.motiongraph.compound.TransStructStopList
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -71,19 +73,14 @@ class State(MemStruct):
 		Pointer.to_stream(stream, instance.id)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('unk', Uint, (0, None))
+		yield ('activities_count', Uint, (0, None))
+		yield ('activities', Pointer, (instance.activities_count, generated.formats.motiongraph.compound.PtrList.PtrList))
+		yield ('count_2', Uint64, (0, None))
+		yield ('array_2', Pointer, (instance.count_2, generated.formats.motiongraph.compound.TransStructStopList.TransStructStopList))
+		yield ('id', Pointer, (0, generated.formats.base.basic.ZString))
 
 	def get_info_str(self, indent=0):
 		return f'State [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

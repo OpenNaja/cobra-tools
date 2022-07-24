@@ -2,6 +2,8 @@ from source.formats.base.basic import fmt_member
 import generated.formats.specdef.compound.DataPtr
 import generated.formats.specdef.compound.PtrList
 import generated.formats.specdef.enum.SpecdefDtype
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -100,19 +102,21 @@ class SpecdefRoot(MemStruct):
 		Pointer.to_stream(stream, instance.scripts)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('attrib_count', Ushort, (0, None))
+		yield ('flags', Ushort, (0, None))
+		yield ('name_count', Ubyte, (0, None))
+		yield ('childspec_count', Ubyte, (0, None))
+		yield ('manager_count', Ubyte, (0, None))
+		yield ('script_count', Ubyte, (0, None))
+		yield ('attrib_dtypes', ArrayPointer, (instance.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype))
+		yield ('attrib_names', Pointer, (instance.attrib_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('attrib_datas', ForEachPointer, (instance.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr))
+		yield ('names', Pointer, (instance.name_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('childspecs', Pointer, (instance.childspec_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('managers', Pointer, (instance.manager_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('scripts', Pointer, (instance.script_count, generated.formats.specdef.compound.PtrList.PtrList))
 
 	def get_info_str(self, indent=0):
 		return f'SpecdefRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

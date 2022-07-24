@@ -1,17 +1,19 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.struct import StructBase
 
 
-class FixedString:
+class FixedString(StructBase):
 
 	"""
 	Holds a string of a fixed size, given as an argument.
 	"""
 
-	context = ContextReference()
-
 	def set_defaults(self):
 		pass
+
+	@classmethod
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
 
 	def __init__(self, context, arg=0, template=None):
 		self.name = ''

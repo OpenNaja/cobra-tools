@@ -3,6 +3,8 @@ import generated.formats.base.basic
 import generated.formats.logicalcontrols.compound.AxisValue
 import generated.formats.logicalcontrols.compound.Button
 import generated.formats.logicalcontrols.compound.Some
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -86,19 +88,18 @@ class LogicalControls(MemStruct):
 		Pointer.to_stream(stream, instance.unsure)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('buttons', ArrayPointer, (instance.button_count, generated.formats.logicalcontrols.compound.Button.Button))
+		yield ('axes', ArrayPointer, (instance.axis_count, generated.formats.logicalcontrols.compound.AxisValue.AxisValue))
+		yield ('c', ArrayPointer, (instance.count_3, ))
+		yield ('d', ArrayPointer, (instance.count_4, generated.formats.logicalcontrols.compound.Some.Some))
+		yield ('button_count', Ubyte, (0, None))
+		yield ('axis_count', Ubyte, (0, None))
+		yield ('count_3', Ubyte, (0, None))
+		yield ('count_4', Ubyte, (0, None))
+		yield ('flags', Uint, (0, None))
+		yield ('unsure', Pointer, (0, generated.formats.base.basic.ZString))
 
 	def get_info_str(self, indent=0):
 		return f'LogicalControls [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

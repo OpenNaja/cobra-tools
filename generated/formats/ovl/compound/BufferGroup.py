@@ -1,18 +1,18 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.struct import StructBase
 
 
-class BufferGroup:
+class BufferGroup(StructBase):
 
 	"""
 	32 bytes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -62,6 +62,7 @@ class BufferGroup:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.buffer_offset = stream.read_uint()
 		instance.buffer_count = stream.read_uint()
 		instance.ext_index = stream.read_uint()
@@ -72,6 +73,7 @@ class BufferGroup:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.buffer_offset)
 		stream.write_uint(instance.buffer_count)
 		stream.write_uint(instance.ext_index)
@@ -81,25 +83,22 @@ class BufferGroup:
 		stream.write_uint(instance.data_count)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('buffer_offset', Uint, (0, None))
+		yield ('buffer_count', Uint, (0, None))
+		yield ('ext_index', Uint, (0, None))
+		yield ('buffer_index', Uint, (0, None))
+		yield ('size', Uint64, (0, None))
+		yield ('data_offset', Uint, (0, None))
+		yield ('data_count', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BufferGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* buffer_offset = {fmt_member(self.buffer_offset, indent+1)}'
 		s += f'\n	* buffer_count = {fmt_member(self.buffer_count, indent+1)}'
 		s += f'\n	* ext_index = {fmt_member(self.ext_index, indent+1)}'

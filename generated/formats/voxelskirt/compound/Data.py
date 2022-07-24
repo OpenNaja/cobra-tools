@@ -1,18 +1,17 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import Uint64
+from generated.struct import StructBase
 
 
-class Data:
+class Data(StructBase):
 
 	"""
 	PZ and JWE only, describes a data layer image
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -50,6 +49,7 @@ class Data:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.id = stream.read_uint64()
 		instance.type = stream.read_uint64()
 		instance.offset = stream.read_uint64()
@@ -57,31 +57,26 @@ class Data:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64(instance.id)
 		stream.write_uint64(instance.type)
 		stream.write_uint64(instance.offset)
 		stream.write_uint64(instance.dsize)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('id', Uint64, (0, None))
+		yield ('type', Uint64, (0, None))
+		yield ('offset', Uint64, (0, None))
+		yield ('dsize', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
 		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'

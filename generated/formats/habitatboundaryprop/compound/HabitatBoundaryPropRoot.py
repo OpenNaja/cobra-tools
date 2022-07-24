@@ -1,6 +1,10 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -86,19 +90,18 @@ class HabitatBoundaryPropRoot(MemStruct):
 		stream.write_floats(instance.quat)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('u_0', Uint64, (0, None))
+		yield ('name_a', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('u_1', Uint64, (0, None))
+		yield ('name_b', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('name_c', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('floats', Array, ((4, 4,), Float, 0, None))
+		yield ('name_d', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('vec', Array, ((3,), Float, 0, None))
+		yield ('u_2', Uint, (0, None))
+		yield ('quat', Array, ((4,), Float, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'HabitatBoundaryPropRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

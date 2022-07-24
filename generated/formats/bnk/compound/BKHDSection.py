@@ -1,15 +1,16 @@
 from source.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.struct import StructBase
 
 
-class BKHDSection:
+class BKHDSection(StructBase):
 
 	"""
 	First Section of a soundbank aux
 	"""
-
-	context = ContextReference()
 
 	def set_defaults(self):
 		self.length = 0
@@ -33,6 +34,7 @@ class BKHDSection:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.length = stream.read_uint()
 		instance.version = stream.read_uint()
 		instance.context.version = instance.version
@@ -45,6 +47,7 @@ class BKHDSection:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.length)
 		stream.write_uint(instance.version)
 		stream.write_uint(instance.id_a)
@@ -55,25 +58,23 @@ class BKHDSection:
 		stream.write_ubytes(instance.zeroes)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('length', Uint, (0, None))
+		yield ('version', Uint, (0, None))
+		yield ('id_a', Uint, (0, None))
+		yield ('id_b', Uint, (0, None))
+		yield ('constant_a', Uint, (0, None))
+		yield ('constant_b', Uint, (0, None))
+		yield ('unk', Uint, (0, None))
+		yield ('zeroes', Array, ((instance.length - 24,), Ubyte, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BKHDSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
 		s += f'\n	* version = {fmt_member(self.version, indent+1)}'
 		s += f'\n	* id_a = {fmt_member(self.id_a, indent+1)}'

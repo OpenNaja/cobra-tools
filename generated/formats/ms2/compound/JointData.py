@@ -1,7 +1,10 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ms2.compound.HitcheckReader import HitcheckReader
 from generated.formats.ms2.compound.JointEntry import JointEntry
@@ -12,19 +15,18 @@ from generated.formats.ms2.compound.ListLong import ListLong
 from generated.formats.ms2.compound.ListShort import ListShort
 from generated.formats.ms2.compound.UACJointFF import UACJointFF
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
+from generated.struct import StructBase
 
 
-class JointData:
+class JointData(StructBase):
 
 	"""
 	appears in dinos and static meshes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -170,6 +172,7 @@ class JointData:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		if instance.context.version == 32:
 			instance.start_pc = SmartPadding.from_stream(stream, instance.context, 0, None)
 		instance.joint_count = stream.read_uint()
@@ -214,6 +217,7 @@ class JointData:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		if instance.context.version == 32:
 			SmartPadding.to_stream(stream, instance.start_pc)
 		stream.write_uint(instance.joint_count)
@@ -257,25 +261,56 @@ class JointData:
 			HitcheckReader.to_stream(stream, instance.hitcheck_reader)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.context.version == 32:
+			yield ('start_pc', SmartPadding, (0, None))
+		yield ('joint_count', Uint, (0, None))
+		yield ('count_0', Uint, (0, None))
+		yield ('count_1', Uint, (0, None))
+		yield ('count_2', Uint, (0, None))
+		if instance.context.version <= 32:
+			yield ('zero_0', Uint, (0, None))
+		if 13 <= instance.context.version <= 32:
+			yield ('zero_1', Uint, (0, None))
+		yield ('namespace_length', Uint, (0, None))
+		yield ('zeros_0', Array, ((5,), Uint, 0, None))
+		yield ('pc_count', Uint, (0, None))
+		yield ('zeros_1', Array, ((7,), Uint, 0, None))
+		if 13 <= instance.context.version <= 32:
+			yield ('extra_zeros_2', Array, ((4,), Uint, 0, None))
+		if instance.context.version >= 13:
+			yield ('ones', Array, ((2,), Uint64, 0, None))
+		yield ('bone_count', Uint, (0, None))
+		yield ('joint_entry_count', Uint, (0, None))
+		yield ('zeros_2', Array, ((4,), Uint, 0, None))
+		if instance.context.version <= 7:
+			yield ('zeros_3', Uint, (0, None))
+		yield ('joint_transforms', Array, ((instance.joint_count,), JointEntry, 0, None))
+		if instance.context.version >= 47:
+			yield ('zeros_3', Array, ((instance.joint_count,), Uint64, 0, None))
+			yield ('unknown_listc', Array, ((instance.joint_count,), ListCEntry, 0, None))
+			yield ('first_list', Array, ((instance.count_0,), ListFirst, 0, None))
+			yield ('short_list', Array, ((instance.count_1,), ListShort, 0, None))
+			yield ('long_list', Array, ((instance.count_2,), ListLong, 0, None))
+		if instance.context.version <= 32:
+			yield ('joint_infos', Array, ((instance.joint_count,), UACJointFF, 0, None))
+			yield ('pc_floats', Array, ((instance.pc_count, 10,), Float, 0, None))
+		yield ('joint_indices', Array, ((instance.joint_count,), Int, 0, None))
+		yield ('bone_indices', Array, ((instance.bone_count,), Int, 0, None))
+		yield ('joint_names', ZStringBuffer, (instance.namespace_length, None))
+		yield ('joint_names_padding', SmartPadding, (0, None))
+		if instance.context.version >= 47:
+			yield ('joint_infos', Array, ((instance.joint_count,), JointInfo, 0, None))
+		if instance.context.version <= 32:
+			yield ('hitcheck_reader', HitcheckReader, (instance.joint_infos, None))
 
 	def get_info_str(self, indent=0):
 		return f'JointData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* start_pc = {fmt_member(self.start_pc, indent+1)}'
 		s += f'\n	* joint_count = {fmt_member(self.joint_count, indent+1)}'
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'

@@ -1,5 +1,6 @@
 from source.formats.base.basic import fmt_member
 from generated.array import Array
+from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
 from generated.formats.manis.compound.Buffer1 import Buffer1
 from generated.formats.manis.compound.KeysReader import KeysReader
@@ -69,19 +70,14 @@ class InfoHeader(GenericHeader):
 		KeysReader.to_stream(stream, instance.keys_buffer)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('mani_count', Uint, (0, None))
+		yield ('names', Array, ((instance.mani_count,), ZString, 0, None))
+		yield ('header', SizedStrData, (0, None))
+		yield ('mani_infos', Array, ((instance.mani_count,), ManiInfo, 0, None))
+		yield ('name_buffer', Buffer1, (int(instance.header.hash_block_size / 4), None))
+		yield ('keys_buffer', KeysReader, (instance.mani_infos, None))
 
 	def get_info_str(self, indent=0):
 		return f'InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

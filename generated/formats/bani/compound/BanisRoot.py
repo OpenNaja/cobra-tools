@@ -1,5 +1,9 @@
 from source.formats.base.basic import fmt_member
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
@@ -80,19 +84,15 @@ class BanisRoot(MemStruct):
 		stream.write_float(instance.loc_offset)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('zeros', Array, ((2,), Uint64, 0, None))
+		yield ('bytes_per_frame', Uint, (0, None))
+		yield ('bytes_per_bone', Uint, (0, None))
+		yield ('num_frames', Uint, (0, None))
+		yield ('num_bones', Uint, (0, None))
+		yield ('loc_scale', Float, (0, None))
+		yield ('loc_offset', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BanisRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

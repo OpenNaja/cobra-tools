@@ -1,16 +1,17 @@
 from source.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.ms2.compound.Vector3 import Vector3
+from generated.struct import StructBase
 
 
-class ListCEntry:
-
-	context = ContextReference()
+class ListCEntry(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -56,6 +57,7 @@ class ListCEntry:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.one = stream.read_uint()
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.constant = stream.read_float()
@@ -65,6 +67,7 @@ class ListCEntry:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.one)
 		Vector3.to_stream(stream, instance.loc)
 		stream.write_float(instance.constant)
@@ -73,25 +76,21 @@ class ListCEntry:
 		stream.write_float(instance.a_2)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('one', Uint, (0, None))
+		yield ('loc', Vector3, (0, None))
+		yield ('constant', Float, (0, None))
+		yield ('a', Float, (0, None))
+		yield ('floats', Array, ((4,), Float, 0, None))
+		yield ('a_2', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ListCEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
 		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
 		s += f'\n	* constant = {fmt_member(self.constant, indent+1)}'

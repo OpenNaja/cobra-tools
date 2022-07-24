@@ -1,20 +1,20 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.QuatWFirst import QuatWFirst
 from generated.formats.ms2.compound.Vector3 import Vector3
+from generated.struct import StructBase
 
 
-class TriChunk:
+class TriChunk(StructBase):
 
 	"""
 	JWE2 Biosyn: 64 bytes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -62,6 +62,7 @@ class TriChunk:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.u_0 = stream.read_ushort()
 		instance.u_1 = stream.read_ushort()
@@ -74,6 +75,7 @@ class TriChunk:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.bounds_min)
 		stream.write_ushort(instance.u_0)
 		stream.write_ushort(instance.u_1)
@@ -85,25 +87,24 @@ class TriChunk:
 		stream.write_ushort(instance.u_3)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('bounds_min', Vector3, (0, None))
+		yield ('u_0', Ushort, (0, None))
+		yield ('u_1', Ushort, (0, None))
+		yield ('bounds_max', Vector3, (0, None))
+		yield ('tris_offset', Uint, (0, None))
+		yield ('loc', Vector3, (0, None))
+		yield ('rot', QuatWFirst, (0, None))
+		yield ('u_2', Ushort, (0, None))
+		yield ('u_3', Ushort, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'TriChunk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
 		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
 		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'

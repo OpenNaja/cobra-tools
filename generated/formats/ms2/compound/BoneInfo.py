@@ -1,26 +1,30 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Short
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.Bone import Bone
 from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.MinusPadding import MinusPadding
 from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
+from generated.struct import StructBase
 
 
-class BoneInfo:
+class BoneInfo(StructBase):
 
 	"""
 	# 858 in DLA c_cl_thread_.ms2
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -194,6 +198,7 @@ class BoneInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.name_count = stream.read_uint64()
 		if instance.context.version >= 32:
 			instance.knownff = stream.read_short()
@@ -252,6 +257,7 @@ class BoneInfo:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64(instance.name_count)
 		if instance.context.version >= 32:
 			stream.write_short(instance.knownff)
@@ -312,25 +318,70 @@ class BoneInfo:
 			JointData.to_stream(stream, instance.joints)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('name_count', Uint64, (0, None))
+		if instance.context.version >= 32:
+			yield ('knownff', Short, (0, None))
+			yield ('zero_0', Short, (0, None))
+			yield ('unknown_0_c', Uint, (0, None))
+		yield ('unk_count', Uint64, (0, None))
+		yield ('bind_matrix_count', Uint64, (0, None))
+		yield ('zeros', Array, ((3,), Uint64, 0, None))
+		yield ('bone_count', Uint64, (0, None))
+		yield ('unknown_40', Uint64, (0, None))
+		yield ('parents_count', Uint64, (0, None))
+		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
+			yield ('extra_zero', Uint64, (0, None))
+		yield ('enum_count', Uint64, (0, None))
+		yield ('unknown_58', Uint64, (0, None))
+		yield ('one', Uint64, (0, None))
+		yield ('zeros_count', Uint64, (0, None))
+		if instance.context.version == 32:
+			yield ('unk_pc_count', Uint64, (0, None))
+		yield ('count_7', Uint64, (0, None))
+		yield ('joint_count', Uint64, (0, None))
+		yield ('unk_78_count', Uint64, (0, None))
+		if instance.context.version <= 13:
+			yield ('unk_extra', Uint64, (0, None))
+		if (instance.context.version == 47) or (instance.context.version == 39):
+			yield ('unk_extra_jwe', Uint64, (0, None))
+		if not (instance.context.version < 47):
+			yield ('name_indices', Array, ((instance.name_count,), Uint, 0, None))
+		if instance.context.version < 47:
+			yield ('name_indices', Array, ((instance.name_count,), Ushort, 0, None))
+		if not (instance.context.version < 47):
+			yield ('name_padding', Array, (((16 - ((instance.name_count * 4) % 16)) % 16,), Byte, 0, None))
+		if instance.context.version < 47:
+			yield ('name_padding', Array, (((16 - ((instance.name_count * 2) % 16)) % 16,), Byte, 0, None))
+		yield ('inverse_bind_matrices', Array, ((instance.bind_matrix_count,), Matrix44, 0, None))
+		yield ('bones', Array, ((instance.bone_count,), Bone, 0, None))
+		yield ('parents', Array, ((instance.parents_count,), Ubyte, 0, None))
+		if instance.context.version >= 32:
+			yield ('parents_padding', Array, (((8 - (instance.parents_count % 8)) % 8,), Byte, 0, None))
+		if instance.context.version >= 32 and instance.one:
+			yield ('enumeration', Array, ((instance.enum_count, 2,), Uint, 0, None))
+		if instance.context.version <= 13 and instance.one:
+			yield ('enumeration', Array, ((instance.enum_count,), Ubyte, 0, None))
+		if instance.context.version == 7:
+			yield ('weirdness', Array, ((10,), Byte, 0, None))
+		if instance.context.version == 13:
+			yield ('weirdness', Array, ((10,), Short, 0, None))
+		if not (instance.context.version < 47) and instance.zeros_count:
+			yield ('zeros_padding', ZerosPadding, (instance.zeros_count, None))
+		if instance.context.version < 47 and instance.zeros_count:
+			yield ('minus_padding', MinusPadding, (instance.zeros_count, None))
+		if instance.count_7:
+			yield ('struct_7', Struct7, (0, None))
+		if instance.joint_count:
+			yield ('joints', JointData, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BoneInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
 		s += f'\n	* knownff = {fmt_member(self.knownff, indent+1)}'
 		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'

@@ -1,19 +1,22 @@
 from source.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.MeshCollisionBit import MeshCollisionBit
 from generated.formats.ms2.compound.Vector3 import Vector3
+from generated.struct import StructBase
 
 
-class MeshCollision:
-
-	context = ContextReference()
+class MeshCollision(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -126,6 +129,7 @@ class MeshCollision:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
 		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.unk_1 = stream.read_ushorts((3, 2,))
@@ -156,6 +160,7 @@ class MeshCollision:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.offset)
 		stream.write_ushorts(instance.unk_1)
@@ -185,25 +190,42 @@ class MeshCollision:
 		stream.write_uint(instance.zero_end)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('rotation', Matrix33, (0, None))
+		yield ('offset', Vector3, (0, None))
+		yield ('unk_1', Array, ((3, 2,), Ushort, 0, None))
+		yield ('vertex_count', Uint64, (0, None))
+		yield ('tri_count', Uint64, (0, None))
+		yield ('bounds_min', Vector3, (0, None))
+		yield ('bounds_max', Vector3, (0, None))
+		yield ('ones_or_zeros', Array, ((7,), Uint64, 0, None))
+		if instance.context.version <= 32:
+			yield ('ff_or_zero', Array, ((10,), Int, 0, None))
+		if instance.context.version >= 47:
+			yield ('ff_or_zero', Array, ((8,), Int, 0, None))
+		if instance.context.version <= 32:
+			yield ('bounds_min_repeat', Vector3, (0, None))
+			yield ('bounds_max_repeat', Vector3, (0, None))
+			yield ('tri_flags_count', Uint, (0, None))
+			yield ('count_bits', Ushort, (0, None))
+			yield ('stuff', Array, ((9,), Ushort, 0, None))
+			yield ('collision_bits', Array, ((instance.count_bits,), MeshCollisionBit, 0, None))
+			yield ('zeros', Array, ((4,), Uint, 0, None))
+		yield ('vertices', Array, ((instance.vertex_count, 3,), Float, 0, None))
+		yield ('triangles', Array, ((instance.tri_count, 3,), Ushort, 0, None))
+		if instance.context.version <= 32:
+			yield ('const', Uint, (0, None))
+		if instance.context.version <= 32 and instance.const:
+			yield ('triangle_flags', Array, ((instance.tri_flags_count,), Uint, 0, None))
+		yield ('zero_end', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'MeshCollision [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* rotation = {fmt_member(self.rotation, indent+1)}'
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'

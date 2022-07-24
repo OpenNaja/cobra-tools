@@ -6,19 +6,21 @@ ZERO = b"\x00"
 
 
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.struct import StructBase
 
 
-class PadAlign:
+class PadAlign(StructBase):
 
 	"""
 	Grabs 00 bytes only
 	"""
 
-	context = ContextReference()
-
 	def set_defaults(self):
 		pass
+
+	@classmethod
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
 
 	context = ContextReference()
 

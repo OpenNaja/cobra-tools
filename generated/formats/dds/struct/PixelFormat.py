@@ -1,16 +1,15 @@
 from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.dds.basic import Uint
 from generated.formats.dds.bitstruct.PixelFormatFlags import PixelFormatFlags
 from generated.formats.dds.enum.FourCC import FourCC
+from generated.struct import StructBase
 
 
-class PixelFormat:
-
-	context = ContextReference()
+class PixelFormat(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
-		self._context = context
+		super().__init__(context, arg, template, set_default)
 		self.arg = arg
 		self.template = template
 		self.io_size = 0
@@ -67,6 +66,7 @@ class PixelFormat:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.size = stream.read_uint()
 		instance.flags = PixelFormatFlags.from_stream(stream, instance.context, 0, None)
 		instance.four_c_c = FourCC.from_value(stream.read_uint())
@@ -78,6 +78,7 @@ class PixelFormat:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.size)
 		PixelFormatFlags.to_stream(stream, instance.flags)
 		stream.write_uint(instance.four_c_c.value)
@@ -88,25 +89,23 @@ class PixelFormat:
 		stream.write_uint(instance.a_mask)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('size', Uint, (0, None))
+		yield ('flags', PixelFormatFlags, (0, None))
+		yield ('four_c_c', FourCC, (0, None))
+		yield ('bit_count', Uint, (0, None))
+		yield ('r_mask', Uint, (0, None))
+		yield ('g_mask', Uint, (0, None))
+		yield ('b_mask', Uint, (0, None))
+		yield ('a_mask', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'PixelFormat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
 		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
 		s += f'\n	* four_c_c = {fmt_member(self.four_c_c, indent+1)}'
