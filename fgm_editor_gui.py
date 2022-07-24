@@ -52,9 +52,9 @@ class MainWindow(widgets.MainWindow):
 		self.game_container.entry.setEditable(False)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
 
-		self.lock_types = QtWidgets.QCheckBox("Lock Attribute Types")
-		self.lock_types.setLayoutDirection(QtCore.Qt.RightToLeft)
-		self.lock_types.setChecked(True)
+		self.lock_attrs = QtWidgets.QCheckBox("Lock Attributes")
+		self.lock_attrs.setLayoutDirection(QtCore.Qt.RightToLeft)
+		self.lock_attrs.setChecked(True)
 
 		self.skip_color = QtWidgets.QCheckBox("Disable Float3 Color Widgets")
 		self.skip_color.setLayoutDirection(QtCore.Qt.RightToLeft)
@@ -68,6 +68,8 @@ class MainWindow(widgets.MainWindow):
 		self.attribute_add.clicked.connect(self.add_attribute)
 		self.texture_add = QtWidgets.QPushButton("Add Texture")
 		self.texture_add.clicked.connect(self.add_texture)
+		self.lock_attrs.toggled.connect(self.attribute_choice.setHidden)
+		self.lock_attrs.toggled.connect(self.attribute_add.setHidden)
 
 		self.tex_container = PropertyContainer(self, "Textures")
 		self.attrib_container = PropertyContainer(self, "Attributes")
@@ -87,7 +89,7 @@ class MainWindow(widgets.MainWindow):
 		vbox.addWidget(self.tex_container)
 		vbox.addWidget(self.attrib_container)
 		vbox.addWidget(self.skip_color)
-		vbox.addWidget(self.lock_types)
+		vbox.addWidget(self.lock_attrs)
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
@@ -103,6 +105,10 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual")
 		)
 		self.add_to_menu(button_data)
+
+		if self.lock_attrs.isChecked():
+			self.attribute_choice.hide()
+			self.attribute_add.hide()
 
 	def dragEnterEvent(self, e):
 		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
@@ -283,6 +289,9 @@ class PropertyContainer(QtWidgets.QGroupBox):
 			grid.addWidget(w.w_label, line_i, 1)
 			grid.addWidget(w.w_dtype, line_i, 2)
 			grid.addWidget(w.w_data, line_i, 3)
+			if self.title() == "Attributes":
+				w.b_delete.setHidden(self.gui.lock_attrs.isChecked())
+				self.gui.lock_attrs.toggled.connect(w.b_delete.setHidden)
 
 	def clear_layout(self):
 		layout = self.layout()
@@ -305,8 +314,8 @@ class TextureVisual:
 		self.w_dtype.setToolTip(f"Data type of {entry.name}")
 		self.w_dtype.currentIndexChanged.connect(self.update_dtype)
 		if container.title() == "Attributes":
-			self.container.gui.lock_types.toggled.connect(self.w_dtype.setDisabled)
-			if self.container.gui.lock_types.isChecked():
+			self.container.gui.lock_attrs.toggled.connect(self.w_dtype.setDisabled)
+			if self.container.gui.lock_attrs.isChecked():
 				self.w_dtype.setDisabled(True)
 
 		self.b_delete = QtWidgets.QPushButton("x")
