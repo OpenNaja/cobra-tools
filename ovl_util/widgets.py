@@ -707,7 +707,7 @@ class QColorButton(QtWidgets.QPushButton):
 
 		if self._color:
 			color_hex = self._color.name(QtGui.QColor.NameFormat.HexArgb)
-			self.setStyleSheet(f"QColorButton {{background-color: {color_hex}; border: none; min-width: 100px; min-height: 18px; border-radius: 3px;}}")
+			self.setStyleSheet(f"QColorButton {{background-color: {color_hex}; border: 1px solid rgba(0,0,0,128); min-width: 100px; min-height: 18px; border-radius: 3px;}}")
 		else:
 			self.setStyleSheet("")
 
