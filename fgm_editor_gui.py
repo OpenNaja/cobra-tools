@@ -248,8 +248,12 @@ class MainWindow(widgets.MainWindow):
 	def add_attribute_clicked(self):
 		self.add_attribute(self.attribute_choice.entry.currentText())
 
-	def last_value(self):
-		return (self.header.attributes.data[-1].dtype, self.header.attributes.data[-1].value_offset) if len(self.header.attributes.data) > 0 else None
+	def fix_att_offsets(self, attributes):
+		for i, att in enumerate(attributes):
+			att.value_offset = self.offset_for_index(i)
+
+	def offset_for_index(self, index):
+		return attrib_sizes[int(self.header.attributes.data[index-1].dtype)] + self.header.attributes.data[index-1].value_offset if index > 0 else 0
 
 	def add_attribute(self, att_name):
 		attributes = self.header.attributes.data
@@ -258,11 +262,10 @@ class MainWindow(widgets.MainWindow):
 				logging.warning(f"Attribute '{att_name}' already exists. Ignoring.")
 				return
 
-		last_val = self.last_value()
 		att = AttributeInfo(self.context, set_default=False)
 		att.dtype = attrib_dtypes[self.fgm_dict.attributes[att_name]]
 		att.name = att_name
-		att.value_offset = 0 if not last_val else attrib_sizes[int(last_val[0])] + last_val[1]
+		att.value_offset = self.offset_for_index(len(self.header.attributes.data))
 		attributes.append(att)
 
 		self.header.attributes.data[:] = attributes
@@ -431,7 +434,15 @@ class TextureVisual:
 		except:
 			traceback.print_exc()
 		finally:
+			self.update()
+
+	def update(self):
+		if self.entry.dtype == FgmDtype.Texture or self.entry.dtype == FgmDtype.RGBA:
+			# Update texture indices after changing texture type
 			self.container.gui.fix_tex_indices(self.container.entry_list)
+		else:
+			# Update attribute offsets after changing type
+			self.container.gui.fix_att_offsets(self.container.entry_list)
 
 	def update_dtype(self, ind):
 		dtype_name = self.w_dtype.currentText()
@@ -456,10 +467,8 @@ class TextureVisual:
 				self.entry.value[1].a = 255
 
 			self.create_fields_w_layout()
+			self.update()
 
-			# Update texture indices after changing texture type
-			if self.entry.dtype == FgmDtype.Texture or self.entry.dtype == FgmDtype.RGBA:
-				self.container.gui.fix_tex_indices(self.container.entry_list)
 		except:
 			traceback.print_exc()
 
