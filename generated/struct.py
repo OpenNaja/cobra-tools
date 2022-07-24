@@ -4,23 +4,23 @@ class StructBase:
 
 	context = ContextReference()
 
-    def __init__(self, context, arg=0, template=None, set_default=True):
-        self._context = context
+	def __init__(self, context, arg=0, template=None, set_default=True):
+		self._context = context
 
-    def get_fields_str(self, indent=0):
-        return ""
+	def get_fields_str(self, indent=0):
+		return ""
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-        pass
+		pass
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-        pass
+		pass
 
-    @classmethod
-    def _get_filtered_attribute_list(cls, instance):
-        pass
+	@classmethod
+	def _get_filtered_attribute_list(cls, instance):
+		pass
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

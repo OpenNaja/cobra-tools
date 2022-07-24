@@ -3,7 +3,7 @@ import os.path as path
 import codegen.naming_conventions as convention
 
 
-NO_CLASSES = ("Padding", "self")
+NO_CLASSES = ("Padding", "self", "template")
 
 
 class Imports:
