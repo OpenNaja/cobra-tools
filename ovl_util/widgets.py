@@ -895,7 +895,7 @@ class FileWidget(QtWidgets.QWidget):
 			file_warning = "QLineEdit{ color: rgba(168, 168, 64, 255); background-color: rgba(44, 44, 30, 255); }"
 			is_file = Path(os.path.join(self.root if self.root else self.dir, self.filename)).is_file()
 			style = "" if is_file else file_warning
-			self.entry.setToolTip("" if is_file else "Warning: File does not exist.")
+			self.entry.setToolTip("" if is_file else "Warning: File does not exist. This is OK if the file is external.")
 			self.entry.setStyleSheet(style)
 
 	def accept_file(self, filepath):
