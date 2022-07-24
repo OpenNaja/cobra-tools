@@ -107,7 +107,6 @@ class BioMeshData:
 		]
 		# create arrays for this mesh
 		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
-		# self.normals = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
 		self.normals = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 		self.tangents = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
@@ -127,7 +126,6 @@ class BioMeshData:
 		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 
 		self.dt_weights = np.dtype(dt_weights)
-
 
 		first_tris_offs = self.pos_chunks[0].tris_offset
 		v_off = 0
@@ -167,6 +165,9 @@ class BioMeshData:
 					for vertex_index in range(off.vertex_count):
 						self.add_to_weights(off.weights_flag.bone_index, vertex_index + offs, 1.0)
 
+				for vertex_index in range(off.vertex_count):
+					self.add_to_weights("u_0", vertex_index + offs, pos.u_0 / 255)
+					self.add_to_weights("u_1", vertex_index + offs, pos.u_1 / 255)
 				# uv, normals etc
 				print(f"meta {i} start {self.stream_info.stream.tell()}")
 				off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
