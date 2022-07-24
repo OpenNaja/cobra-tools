@@ -229,9 +229,9 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 			for shader in shader_attribs.keys():
 				f.write(f'    "{shader}":\n         {sorted(shader_attribs[shader])},\n\n')
 			f.write("}\n\n")
-			f.write("shader_attrib_stats = {\n\n")
-			for shader in shader_attrib_stats.keys():
-				f.write(f"    '{shader}':\n         {shader_attrib_stats[shader]},\n\n")
-			f.write("}\n\n")
+			#f.write("shader_attrib_stats = {\n\n")
+			#for shader in shader_attrib_stats.keys():
+			#	f.write(f"    '{shader}':\n         {shader_attrib_stats[shader]},\n\n")
+			#f.write("}\n\n")
 		print(f"Written to {out_path}")
 		gui.update_progress("Operation completed!", value=1, vmax=1)
