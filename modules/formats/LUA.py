@@ -19,7 +19,8 @@ class LuaLoader(MemStructLoader):
 		self.header = LuaRoot(self.ovl.context)
 		self.header.lua_size = len(buffer_0)
 		self.header.source_path.data = self.file_entry.basename
-		self.header.likely_alignment.data = get_padding(len(self.file_entry.basename)+1, alignment=4)
+		# even if the lua + zstr terminator was padded to 4, keep at least 1 byte for this ptr
+		self.header.likely_alignment.data = b"\x00" + get_padding(len(self.file_entry.basename)+2, alignment=4)
 		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
 	def extract(self, out_dir):
