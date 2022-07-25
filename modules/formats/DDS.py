@@ -35,11 +35,11 @@ class TexturestreamLoader(BaseFile):
 		self.create_root_entry()
 		if is_jwe2(self.ovl):
 			lod_index = int(self.file_entry.basename[-1])
-			pool_data = struct.pack("<QQ", 0, lod_index)
+			root_data = struct.pack("<QQ", 0, lod_index)
 		else:
 			# JWE1, PZ, PC
-			pool_data = struct.pack("<Q", 0)
-		self.write_data_to_pool(self.root_entry.struct_ptr, 3, pool_data)
+			root_data = struct.pack("<Q", 0)
+		self.write_data_to_pool(self.root_entry.struct_ptr, 3, root_data)
 		# data entry, assign buffer
 		self.create_data_entry((b"", ))
 

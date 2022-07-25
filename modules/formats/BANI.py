@@ -81,9 +81,9 @@ class BanisLoader(MemStructLoader):
 
 	def create(self):
 		# create banis data
-		root_entry, buffer_0 = self._get_data(self.file_entry.path)
+		root_data, buffer_0 = self._get_data(self.file_entry.path)
 		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_entry)
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_data)
 		self.create_data_entry((buffer_0,))
 
 	@staticmethod

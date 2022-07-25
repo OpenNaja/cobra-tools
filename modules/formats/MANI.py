@@ -49,7 +49,7 @@ class ManisLoader(BaseFile):
 		return out_path,
 
 	def create(self):
-		manis_file, root_entry, b0, b1, b2 = self._get_data(self.file_entry.path)
+		manis_file, root_data, b0, b1, b2 = self._get_data(self.file_entry.path)
 		ms2_dir = os.path.dirname(self.file_entry.path)
 
 		self.create_root_entry()
@@ -60,7 +60,7 @@ class ManisLoader(BaseFile):
 			mani_loader = self.ovl.create_file(mani_path)
 			self.children.append(mani_loader)
 
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_entry)
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_data)
 		self.create_data_entry((b0, b1, b2))
 
 	def _get_data(self, file_path):

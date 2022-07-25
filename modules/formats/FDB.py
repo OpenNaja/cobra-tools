@@ -18,9 +18,9 @@ class FdbLoader(BaseFile):
 	extension = ".fdb"
 
 	def create(self):
-		root_entry, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
+		root_data, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
 		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_entry)
+		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_data)
 		self.create_data_entry((buffer_0, buffer_1))
 
 	def extract(self, out_dir):

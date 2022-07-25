@@ -90,24 +90,38 @@ class HeaderPointer:
 			self.pool.data.seek(self.data_offset)
 			return self.pool.data
 
+	def align_write(self, data, overwrite=False):
+		"""Prepares self.pool.data for writing, handling alignment according to type of data"""
+		if self.pool:
+			if overwrite:
+				# write at old data_offset, but then check for size match
+				if isinstance(data, (bytes, bytearray, str)) and self.data_size != len(data):
+					logging.warning(f"Data size for overwritten pointer has changed from {self.data_size} to {len(data)}!")
+				self.pool.data.seek(self.data_offset)
+			else:
+				# seek to end of pool
+				self.pool.data.seek(0, 2)
+				# check for alignment
+				if isinstance(data, str):
+					alignment = 1
+				else:
+					alignment = 16
+				# logging.info(f"{type(data)} {data} alignment {alignment}")
+				# write alignment to pool
+				if alignment > 1:
+					offset = self.pool.data.tell()
+					padding = (alignment - (offset % alignment)) % alignment
+					if padding:
+						self.pool.data.write(b"\x00" * padding)
+						logging.debug(
+							f"Aligned pointer from {offset} to {self.pool.data.tell()} with {padding} bytes, alignment = {alignment}")
+				self.data_offset = self.pool.data.tell()
+			return True
+
 	def write_instance(self, cls, instance):
 		"""Write instance to end of stream and set offset"""
 		logging.debug(f"write_instance of class {cls.__name__}")
-		# align pointer
-		if isinstance(instance, str):
-			alignment = 1
-		else:
-			alignment = 16
-		if self.pool:
-			# seek to end of pool
-			self.pool.data.seek(0, 2)
-			if alignment > 1:
-				offset = self.pool.data.tell()
-				padding = (alignment - (offset % alignment)) % alignment
-				if padding:
-					self.pool.data.write(b"\x00" * padding)
-					logging.debug(f"Aligned pointer from {offset} to {self.pool.data.tell()} with {padding} bytes, alignment = {alignment}")
-			self.data_offset = self.pool.data.tell()
+		if self.align_write(instance, overwrite=False):
 			if isinstance(instance, Array):
 				Array.to_stream(self.pool.data, instance, (len(instance),), cls, instance.context, 0, None)
 			# special case to avoid falling back on basic.to_stream
@@ -122,16 +136,8 @@ class HeaderPointer:
 			logging.warning(f"Pool missing, can not write {cls}")
 
 	def write_to_pool(self, data, overwrite=False):
-		if self.pool:
-			if overwrite:
-				# write at old data_offset
-				if self.data_size != len(data):
-					logging.warning(f"Data size for overwritten pointer has changed from {self.data_size} to {len(data)}!")
-				self.pool.data.seek(self.data_offset)
-			else:
-				# seek to end of pool
-				self.pool.data.seek(0, 2)
-				self.data_offset = self.pool.data.tell()
+		# logging.info(f"write_to_pool overwrite={overwrite}")
+		if self.align_write(data, overwrite=overwrite):
 			self.data_size = len(data)
 			self.pool.data.write(data)
 
