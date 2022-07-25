@@ -160,6 +160,12 @@ class MainWindow(widgets.MainWindow):
 			self.shader_choice.entry.clear()
 			self.shader_choice.entry.addItems(sorted(self.fgm_dict.shaders))
 
+	def set_tex_count(self, count=None):
+		self.header.texture_count = count if count is not None else len(self.header.textures.data)
+
+	def set_attrib_count(self, count=None):
+		self.header.attribute_count = count if count is not None else len(self.header.attributes.data)
+
 	def update_choices(self):
 		shader_name = self.shader_choice.entry.currentText()
 		if self.fgm_dict and shader_name:
@@ -188,9 +194,6 @@ class MainWindow(widgets.MainWindow):
 		
 		for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
 			self.add_attribute(att)
-
-		self.header.texture_count = len(self.header.textures.data)
-		self.header.attribute_count = len(self.header.attributes.data)
 
 		self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
 		self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
@@ -242,6 +245,7 @@ class MainWindow(widgets.MainWindow):
 		deps.append(dep)
 
 		self.header.textures.data[:], self.header.dependencies.data[:] = self.sort_textures()
+		self.set_tex_count()
 
 		if update_gui:
 			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
@@ -277,6 +281,7 @@ class MainWindow(widgets.MainWindow):
 		data_lib.append(data)
 
 		self.header.data_lib.data[:] = data_lib
+		self.set_attrib_count()
 
 		if update_gui:
 			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
@@ -429,6 +434,8 @@ class TextureVisual:
 		try:
 			self.container.entry_list.remove(self.entry)
 			self.container.data_list.remove(self.data)
+			self.container.gui.set_tex_count()
+			self.container.gui.set_attrib_count()
 			self.container.update_gui(self.container.entry_list, self.container.data_list)
 		except:
 			traceback.print_exc()
