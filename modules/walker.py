@@ -3,8 +3,11 @@ import time
 import traceback
 import logging
 import numpy as np
+from collections import defaultdict, Counter
 
-from generated.formats.fgm import FgmFile
+from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.ovl_base import OvlContext
+
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from ovl_util import interaction
@@ -173,32 +176,62 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		attributes = {}
 		textures = set()
 		shaders = set()
+		shader_textures = defaultdict(set)
+		shader_attribs = defaultdict(set)
+		shader_attrib_stats = defaultdict(Counter)
 		if walk_fgms:
-			fgm_data = FgmFile()
+			context = OvlContext()
 			fgm_files = walk_type(export_dir, extension=".fgm")
 			mf_max = len(fgm_files)
 			for mf_index, fgm_path in enumerate(fgm_files):
 				fgm_name = os.path.basename(fgm_path)
 				gui.update_progress("Walking FGM files: " + fgm_name, value=mf_index, vmax=mf_max)
 				try:
-					fgm_data.load(fgm_path)
-					shaders.add(fgm_data.shader_name)
-					for attrib in fgm_data.attributes:
-						attributes[attrib.name] = attrib.dtype
-					for texture in fgm_data.textures:
+					header = FgmHeader.from_xml_file(fgm_path, context)
+					shaders.add(header.shader_name)
+					for attrib in header.attributes.data:
+						attributes[attrib.name] = int(attrib.dtype)
+					for texture in header.textures.data:
 						textures.add(texture.name)
+
+					shader_textures[header.shader_name] |= {a.name for a in header.textures.data}
+					shader_attribs[header.shader_name] |= {a.name for a in header.attributes.data}
+					shader_attrib_stats[header.shader_name].update(frozenset([a.name for a in header.attributes.data]))
+
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((fgm_path, ex))
 		# report
-		print("\nThe following errors occured:")
-		for file_path, ex in errors:
-			print(file_path, str(ex))
+		if errors:
+			print("\nThe following errors occurred:")
+			for file_path, ex in errors:
+				print(file_path, str(ex))
 
 		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}.py")
 		with open(out_path, "w") as f:
-			f.write(f"attributes = {attributes}\n\n")
-			f.write(f"textures = {textures}\n\n")
-			f.write(f"shaders = {shaders}\n\n")
+			f.write("attributes = {\n")
+			for att in sorted(attributes.keys()):
+				f.write(f'    "{att}": {attributes[att]},\n')
+			f.write("}\n\n")
+			f.write("textures = {\n")
+			for tex in sorted(textures):
+				f.write(f'    "{tex}",\n')
+			f.write("}\n\n")
+			f.write("shaders = {\n")
+			for shader in sorted(shaders):
+				f.write(f'    "{shader}",\n')
+			f.write("}\n\n")
+			f.write("shader_textures = {\n")
+			for tex in shader_textures.keys():
+				f.write(f'    "{tex}":\n         {sorted(shader_textures[tex])},\n\n')
+			f.write("}\n\n")
+			f.write("shader_attribs = {\n")
+			for shader in shader_attribs.keys():
+				f.write(f'    "{shader}":\n         {sorted(shader_attribs[shader])},\n\n')
+			f.write("}\n\n")
+			#f.write("shader_attrib_stats = {\n\n")
+			#for shader in shader_attrib_stats.keys():
+			#	f.write(f"    '{shader}':\n         {shader_attrib_stats[shader]},\n\n")
+			#f.write("}\n\n")
 		print(f"Written to {out_path}")
 		gui.update_progress("Operation completed!", value=1, vmax=1)

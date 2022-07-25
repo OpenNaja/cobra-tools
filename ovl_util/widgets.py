@@ -1,6 +1,8 @@
 import json
 import webbrowser
 import os
+from pathlib import Path
+
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from ovl_util.interaction import showdialog
@@ -699,6 +701,10 @@ class QColorButton(QtWidgets.QPushButton):
 		self._color = None
 		self.setMaximumWidth(32)
 		self.pressed.connect(self.onColorPicker)
+		QtCore.QDir.addSearchPath("icon", self.get_icon_dir())
+
+	def get_icon_dir(self):
+		return os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "icons")
 
 	def setColor(self, color):
 		if color != self._color:
@@ -706,7 +712,13 @@ class QColorButton(QtWidgets.QPushButton):
 			self.colorChanged.emit(color)
 
 		if self._color:
-			self.setStyleSheet("background-color: %s;" % self._color.name(QtGui.QColor.NameFormat.HexArgb))
+			self.setStyleSheet(f"""QColorButton {{
+				background-color: {self._color.name(QtGui.QColor.NameFormat.HexArgb)};
+				border: 0px;
+				min-width: 100px;
+				min-height: 22px;
+				border-radius: 3px;
+			}}""")
 		else:
 			self.setStyleSheet("")
 
@@ -820,14 +832,22 @@ class FileWidget(QtWidgets.QWidget):
 	Displays the current file's basename.
 	"""
 
-	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True):
+	def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True, editable=False, check_exists=False, root=None):
 		super().__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
 		self.icon.setIcon(get_icon("dir"))
 		self.icon.setFlat(True)
-		self.icon.mousePressEvent = self.ignoreEvent
-		self.entry.mousePressEvent = self.ignoreEvent
+		self.entry.setDragEnabled(True)
+		self.editable = editable
+		if editable:
+			# Icon still clickable
+			self.icon.clicked.connect(self.ask_open)
+			self.entry.textChanged.connect(self.check_file)
+		else:
+			self.entry.setReadOnly(True)
+			self.entry.mousePressEvent = self.ignoreEvent
+			self.icon.mousePressEvent = self.ignoreEvent
 		self.icon.dropEvent = self.dropEvent
 		self.entry.dropEvent = self.dropEvent
 		self.icon.dragMoveEvent = self.dragMoveEvent
@@ -838,12 +858,13 @@ class FileWidget(QtWidgets.QWidget):
 		self.dtype_l = dtype.lower()
 
 		self.poll = poll
+		self.check_exists = check_exists
+		self.root = root
 		self.parent = parent
 		self.cfg = cfg
 		if not self.cfg:
 			self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
-		self.entry.setDragEnabled(True)
-		self.entry.setReadOnly(True)
+
 		self.filepath = ""
 		self.filename = ""
 		self.ask_user = ask_user
@@ -877,6 +898,13 @@ class FileWidget(QtWidgets.QWidget):
 		self.filepath = filepath
 		self.dir, self.filename = os.path.split(filepath)
 		self.setText(self.filename)
+		self.check_file(self.filename)
+
+	def check_file(self, name):
+		if self.check_exists:
+			is_file = Path(os.path.join(self.root if self.root else self.dir, name)).is_file()
+			self.entry.setToolTip("" if is_file else "Warning: File does not exist. This is OK if the file is external/shared.")
+			self.entry.setStyleSheet("" if is_file else "QLineEdit { color: rgba(168, 168, 64, 255); background-color: rgba(44, 44, 30, 255); }")
 
 	def accept_file(self, filepath):
 		if os.path.isfile(filepath):
@@ -891,6 +919,8 @@ class FileWidget(QtWidgets.QWidget):
 
 	def setText(self, text):
 		self.entry.setText(text)
+		# Keep front of path visible when small
+		self.entry.setCursorPosition(0)
 
 	def get_files(self, event):
 		data = event.mimeData()
@@ -916,7 +946,7 @@ class FileWidget(QtWidgets.QWidget):
 
 	def ask_open(self):
 		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}',
-														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://"),
+														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://") if not self.root else self.root,
 														 f"{self.dtype} files (*.{self.dtype_l})")[0]
 		self.decide_open(filepath)
 
@@ -933,7 +963,8 @@ class FileWidget(QtWidgets.QWidget):
 		event.ignore()
 
 	def mousePressEvent(self, event):
-		self.ask_open()
+		if not self.editable:
+			self.ask_open()
 
 
 # Creates a dir widget, same as file but for directories
