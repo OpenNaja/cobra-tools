@@ -186,7 +186,7 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Inspect Models", self.inspect_models, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(util_menu, "Dump Debug Data", self.ovl_data.dump_debug_data, "", ""),
+			(util_menu, "Dump Debug Data", self.dump_debug_data, "", ""),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Export included ovl list", self.save_included_ovls, "", ""),
@@ -204,6 +204,9 @@ class MainWindow(widgets.MainWindow):
 		# run once here to make sure we catch the default game
 		self.populate_game_widget()
 		self.game_changed()
+
+	def dump_debug_data(self,):
+		self.ovl_data.dump_debug_data()
 
 	def get_steam_games(self,):
 		try:

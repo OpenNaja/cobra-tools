@@ -728,6 +728,7 @@ class OvlFile(Header, IoFile):
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
+		self.store_filepath(f"{ovl_dir}.ovl")
 		file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
 		self.loaders = {}
 		self.add_files(file_paths)
