@@ -4,7 +4,7 @@ import traceback
 
 import numpy as np
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QIcon
 
 from generated.formats.fgm.enum.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
@@ -128,6 +128,11 @@ class MainWindow(widgets.MainWindow):
 		if self.lock_attrs.isChecked():
 			self.attribute_choice.hide()
 			self.attribute_add.hide()
+
+	@staticmethod
+	def get_icon(name, format="png"):
+		base_dir = os.path.dirname(os.path.realpath(__file__))
+		return QIcon(os.path.join(base_dir, f'icons/{name}.{format}'))
 
 	def dragEnterEvent(self, e):
 		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
@@ -296,6 +301,7 @@ class MainWindow(widgets.MainWindow):
 
 	def create_grid(self,):
 		g = QtWidgets.QGridLayout()
+		g.setContentsMargins(8, 0, 0, 0)
 		g.setHorizontalSpacing(3)
 		g.setVerticalSpacing(0)
 		return g
@@ -407,8 +413,12 @@ class TextureVisual:
 			if self.container.gui.lock_attrs.isChecked():
 				self.w_dtype.setDisabled(True)
 
-		self.b_delete = QtWidgets.QPushButton("x")
-		self.b_delete.setMaximumWidth(15)
+		self.b_delete = QtWidgets.QPushButton()
+		self.b_delete.setIcon(container.gui.get_icon("x", "svg"))
+		self.b_delete.setFlat(True)
+		self.b_delete.setIconSize(QtCore.QSize(12, 12))
+		self.b_delete.setFixedSize(16, 16)
+		self.b_delete.setStyleSheet(r"QPushButton {padding: 2px; margin: 2px 4px 0 0;} QPushButton:pressed { background-color: rgba(240, 30, 30, 128); }")
 		self.b_delete.clicked.connect(self.delete)
 		self.w_data = QtWidgets.QWidget()
 		self.create_fields_w_layout()
