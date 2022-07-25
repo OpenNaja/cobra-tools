@@ -47,9 +47,6 @@ class MeshCollision(StructBase):
 		# seemingly fixed
 		self.ff_or_zero = 0
 
-		# seemingly fixed
-		self.ff_or_zero = 0
-
 		# verbatim
 		self.bounds_min_repeat = 0
 

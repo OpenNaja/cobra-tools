@@ -17,8 +17,6 @@ class HircPointer(StructBase):
 		self.io_start = 0
 		self.id = 0
 		self.data = 0
-		self.data = 0
-		self.data = 0
 		if set_default:
 			self.set_defaults()
 

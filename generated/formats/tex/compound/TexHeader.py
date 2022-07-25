@@ -29,9 +29,7 @@ class TexHeader(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.zero_0 = 0
-		self.zero_0 = 0
 		self.zero_1 = 0
-		self.compression_type = 0
 		self.compression_type = 0
 
 		# 0 or 1
@@ -49,7 +47,6 @@ class TexHeader(MemStruct):
 		# 0
 		self.pad = 0
 		self.pad_dla = 0
-		self.buffer_infos = 0
 		self.buffer_infos = 0
 		self.size_info = 0
 		if set_default:

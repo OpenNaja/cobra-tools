@@ -24,15 +24,6 @@ class ParamData(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.data = 0
-		self.data = 0
-		self.data = 0
-		self.data = 0
-		self.data = 0
-		self.data = 0
-		self.data = 0
-		self.data = 0
-		self.data = 0
-		self.data = 0
 		if set_default:
 			self.set_defaults()
 

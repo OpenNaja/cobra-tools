@@ -17,12 +17,6 @@ class MaterialName(StructBase):
 		# index into ms2 names array
 		self.name_index = 0
 
-		# index into ms2 names array
-		self.name_index = 0
-
-		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
-		self.some_index = 0
-
 		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
 		self.some_index = 0
 		if set_default:

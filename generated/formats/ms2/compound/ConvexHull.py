@@ -26,9 +26,6 @@ class ConvexHull(StructBase):
 
 		# probably padding
 		self.zeros = 0
-
-		# probably padding
-		self.zeros = 0
 		if set_default:
 			self.set_defaults()
 

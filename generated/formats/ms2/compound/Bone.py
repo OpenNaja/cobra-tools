@@ -22,7 +22,6 @@ class Bone(StructBase):
 		self.loc = 0
 		self.scale = 0
 		self.rot = 0
-		self.rot = 0
 		self.loc = 0
 		self.scale = 0
 		if set_default:

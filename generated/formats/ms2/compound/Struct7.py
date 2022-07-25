@@ -33,7 +33,6 @@ class Struct7(StructBase):
 		self.zero_2 = 0
 
 		# 36 bytes per entry
-		self.unknown_list = 0
 
 		# 60 bytes per entry
 		self.unknown_list = 0

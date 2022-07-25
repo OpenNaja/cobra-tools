@@ -65,9 +65,6 @@ class ZtMeshData(MeshData):
 		# bitfield
 		self.flag = 0
 
-		# bitfield
-		self.flag = 0
-
 		# always zero
 		self.zero_uac = 0
 		if set_default:

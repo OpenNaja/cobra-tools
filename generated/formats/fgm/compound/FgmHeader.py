@@ -24,8 +24,6 @@ class FgmHeader(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 		self.texture_count = 0
-		self.texture_count = 0
-		self.attribute_count = 0
 		self.attribute_count = 0
 		self.unk_0 = 0
 		self.unk_1 = 0

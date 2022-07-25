@@ -84,12 +84,6 @@ class BoneInfo(StructBase):
 		# index into ms2 string table for bones used here
 		self.name_indices = 0
 
-		# index into ms2 string table for bones used here
-		self.name_indices = 0
-
-		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
-		self.name_padding = 0
-
 		# zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.
 		self.name_padding = 0
 
@@ -104,13 +98,9 @@ class BoneInfo(StructBase):
 		self.parents_padding = 0
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = 0
 
 		# enumerates all bone indices
 		self.enumeration = 0
-
-		# zeros
-		self.weirdness = 0
 
 		# zeros
 		self.weirdness = 0

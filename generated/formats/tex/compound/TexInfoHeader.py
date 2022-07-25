@@ -20,11 +20,7 @@ class TexInfoHeader(GenericHeader):
 		self.io_start = 0
 		self.tex_info = 0
 		self.frag_01 = 0
-		self.frag_01 = 0
 		self.frag_11 = 0
-
-		# pad whole frag_11 struct to 320 bytes
-		self.padding = 0
 
 		# pad whole frag_11 struct to 320 bytes
 		self.padding = 0

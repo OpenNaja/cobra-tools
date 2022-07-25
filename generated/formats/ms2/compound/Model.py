@@ -23,7 +23,6 @@ class Model(StructBase):
 
 		# name pointers for each material
 		self.materials = 0
-		self.lods = 0
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
 		self.lods = 0

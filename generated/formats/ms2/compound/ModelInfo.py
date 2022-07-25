@@ -81,7 +81,6 @@ class ModelInfo(MemStruct):
 		self.unks = 0
 		self.pad = 0
 		self.zeros = 0
-		self.zeros = 0
 
 		# unknown, probably used to increment skeleton
 		self.increment_flag = 0

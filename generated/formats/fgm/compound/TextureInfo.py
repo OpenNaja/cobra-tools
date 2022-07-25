@@ -19,10 +19,8 @@ class TextureInfo(GenericInfo):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.value = 0
 
 		# Stores 2 rgba colors
-		self.value = 0
 
 		# Stores rgba color
 		self.value = 0

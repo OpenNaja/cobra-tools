@@ -32,8 +32,6 @@ class Ms2InfoHeader(StructBase):
 		self.buffers_presence = 0
 		self.mdl_2_names = 0
 		self.modelstream_names = 0
-		self.modelstream_names = 0
-		self.modelstream_names = 0
 		self.buffer_0 = 0
 		self.buffer_infos = 0
 		self.model_infos = 0

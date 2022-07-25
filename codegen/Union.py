@@ -189,15 +189,19 @@ class Union:
 
     def write_init(self, f):
         base_indent = "\n\t\t"
+        debug_strs = []
         for field in self.members:
             field_debug_str = convention.clean_comment_str(field.text, indent="\t\t")
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
-            if field_debug_str.strip():
-                f.write(field_debug_str)
+            if field_debug_str.strip() and field_debug_str not in debug_strs:
+                debug_strs.append(field_debug_str)
 
-            # we init each field with 0 to prevent overhead, but still allow the field to be used in conditionals
-            field_default = 0
-            f.write(f'{base_indent}self.{field_name} = {field_default}')
+        # add every (unique) debug string:
+        for field_debug_str in debug_strs:
+            f.write(field_debug_str)
+        # we init each field with 0 to prevent overhead, but still allow the field to be used in conditionals
+        field_default = 0
+        f.write(f'{base_indent}self.{field_name} = {field_default}')
 
     def write_defaults(self, f, condition=""):
         base_indent = "\n\t\t"

@@ -48,9 +48,6 @@ class MemPool(StructBase):
 		# unknown count (related to number of files or pointers)
 		self.num_files = 0
 
-		# unknown count (related to number of files or pointers)
-		self.num_files = 0
-
 		# JWE: djb2 hash for extension, 0 for PZ
 		self.ext_hash = 0
 

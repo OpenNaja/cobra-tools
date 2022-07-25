@@ -40,12 +40,6 @@ class HitCheckEntry(StructBase):
 		# offset into joint names
 		self.name_offset = 0
 		self.collider = 0
-		self.collider = 0
-		self.collider = 0
-		self.collider = 0
-		self.collider = 0
-		self.collider = 0
-		self.collider = 0
 
 		# ?
 		self.zero_extra_zt = 0

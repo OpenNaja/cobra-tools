@@ -24,12 +24,8 @@ class ManiBlock(StructBase):
 		self.io_start = 0
 		self.ref = 0
 		self.pos_bones = 0
-		self.pos_bones = 0
-		self.ori_bones = 0
 		self.ori_bones = 0
 		self.scl_bones = 0
-		self.scl_bones = 0
-		self.floats = 0
 		self.floats = 0
 		self.pos_bones_p = 0
 		self.ori_bones_p = 0
