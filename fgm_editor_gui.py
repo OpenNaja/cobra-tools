@@ -302,7 +302,7 @@ class MainWindow(widgets.MainWindow):
 				return
 
 		att = AttributeInfo(self.context, set_default=False)
-		att.dtype = attrib_dtypes[self.fgm_dict.attributes[att_name]]
+		att.dtype = attrib_dtypes[self.fgm_dict.attributes[att_name][0]]
 		att.name = att_name
 		att.value_offset = self.offset_for_index(len(self.header.attributes.data))
 		attributes.append(att)
@@ -312,6 +312,9 @@ class MainWindow(widgets.MainWindow):
 		data_lib = self.header.data_lib.data
 		data = AttribData(self.context, arg=att, set_default=False)
 		data.set_defaults()
+		# Assign default value from attributes dict
+		if self.fgm_dict.attributes.get(att.name):
+			data.value = np.array(self.fgm_dict.attributes[att.name][1][0][0], data.value.dtype)
 		data_lib.append(data)
 
 		self.header.data_lib.data[:] = data_lib
@@ -454,6 +457,11 @@ class TextureVisual:
 
 		# get tooltip
 		tooltip = self.container.gui.tooltips.get(self.entry.name, "Undocumented attribute.")
+		if container.title() == "Attributes":
+			most_common = [fr"{a[0]} ({a[1]})" if len(a[0]) > 1 else fr"{a[0][0]} ({a[1]})"
+							for a in self.container.gui.fgm_dict.attributes.get(self.entry.name, [("No data",), 0])[1]
+							if len(a) > 0]
+			tooltip += fr"<br><br>Most Common Values (Usage #)<br> {'<br>'.join(most_common)}"
 		self.w_data.setToolTip(tooltip)
 		self.w_label.setToolTip(tooltip)
 		self.b_delete.setToolTip(f"Delete {entry.name}")
