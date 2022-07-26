@@ -274,12 +274,14 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 				logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
 		except BaseException as err:
 			logging.exception(f"Vert with {len(b_vert.groups)} groups, index {vertex_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
-	# get the 4 strongest influences on this vert
+	# get the strongest influences on this vert, truncate to 4
 	weights_sorted = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
+	# are there any weights at all
 	if not weights_sorted:
-		# print("Sum of weights",sw)
 		unweighted_vertices.append(b_vert.index)
-	# print(weights_sorted)
+	# is the strongest one actually weighted
+	elif not weights_sorted[0][1] > 0.0:
+		unweighted_vertices.append(b_vert.index)
 	return weights_sorted, fur_length, fur_width, use_blended_weights
 
 
