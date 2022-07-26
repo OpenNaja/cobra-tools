@@ -183,12 +183,35 @@ class MainWindow(widgets.MainWindow):
 		self.shader_choice.entry.setText(name)
 		self.update_choices()
 
+	def merge_textures(self, data_old, data_new):
+		tex_old, dep_old = data_old
+		tex_new, dep_new = data_new
+		for i, t_old in enumerate(tex_old):
+			for j, t_new in enumerate(tex_new):
+				if t_old.name == t_new.name:
+					t_new.dtype = t_old.dtype
+					t_new.value = t_old.value
+					dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
+					break
+
+	def merge_attributes(self, data_old, data_new):
+		att_old, lib_old = data_old
+		att_new, lib_new = data_new
+		for i, a_old in enumerate(att_old):
+			for j, a_new in enumerate(att_new):
+				if a_old.name == a_new.name:
+					a_new.dtype = a_old.dtype
+					lib_new[j].value = lib_old[i].value
+					break
+
 	def shader_changed(self,):
 		"""Run only during user activation"""
 		self.header.shader_name = self.shader_choice.entry.currentText()
 		self.update_choices()
 
-		# TODO: Completely wipe data for now
+		tex_data_old = (self.header.textures.data.copy(), self.header.dependencies.data.copy())
+		attrib_data_old = (self.header.attributes.data.copy(), self.header.data_lib.data.copy())
+
 		self.header.textures.data = Array((1,), self.header.textures.template, self.context, set_default=False)
 		self.header.attributes.data = Array((1,), self.header.attributes.template, self.context, set_default=False)
 		self.header.dependencies.data = Array((1,), self.header.dependencies.template, self.context, set_default=False)
@@ -199,6 +222,12 @@ class MainWindow(widgets.MainWindow):
 		
 		for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
 			self.add_attribute(att)
+
+		# Preserve old values when possible
+		self.merge_textures(tex_data_old, (self.header.textures.data, self.header.dependencies.data))
+		self.merge_attributes(attrib_data_old, (self.header.attributes.data, self.header.data_lib.data))
+		# Fix indices again after merge
+		self.fix_tex_indices(self.header.textures.data)
 
 		self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
 		self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
