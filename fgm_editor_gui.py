@@ -57,6 +57,7 @@ class MainWindow(widgets.MainWindow):
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
 		self.fgm_dict = None
+		self.import_header = None
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
 
@@ -114,12 +115,15 @@ class MainWindow(widgets.MainWindow):
 
 		main_menu = self.menuBar()
 		file_menu = main_menu.addMenu('File')
+		edit_menu = main_menu.addMenu('Edit')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
 			(file_menu, "Save", self.save_fgm, "CTRL+S", "save"),
 			(file_menu, "Save As", self.save_as_fgm, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
+			(edit_menu, "Import Texture Values", self.import_tex, "", ""),
+			(edit_menu, "Import Attribute Values", self.import_att, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual")
 		)
@@ -183,26 +187,62 @@ class MainWindow(widgets.MainWindow):
 		self.shader_choice.entry.setText(name)
 		self.update_choices()
 
+	def import_tex(self):
+		self.import_fgm()
+		if self.import_header:
+			try:
+				self.merge_textures((self.import_header.textures.data, self.import_header.dependencies.data), 
+									(self.header.textures.data, self.header.dependencies.data))
+				logging.info("Finished importing texture values")
+			except:
+				logging.error("Error importing texture values")
+				traceback.print_exc()
+
+	def import_att(self):
+		self.import_fgm()
+		if self.import_header:
+			try:
+				self.merge_attributes((self.import_header.attributes.data, self.import_header.data_lib.data),
+									(self.header.attributes.data, self.header.data_lib.data))
+				logging.info("Finished importing attribute values")
+			except:
+				logging.error("Error importing attribute values")
+				traceback.print_exc()
+
 	def merge_textures(self, data_old, data_new):
-		tex_old, dep_old = data_old
-		tex_new, dep_new = data_new
-		for i, t_old in enumerate(tex_old):
-			for j, t_new in enumerate(tex_new):
-				if t_old.name == t_new.name:
-					t_new.dtype = t_old.dtype
-					t_new.value = t_old.value
-					dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
-					break
+		try:
+			tex_old, dep_old = data_old
+			tex_new, dep_new = data_new
+			for i, t_old in enumerate(tex_old):
+				for j, t_new in enumerate(tex_new):
+					if t_old.name == t_new.name:
+						t_new.dtype = t_old.dtype
+						t_new.value = t_old.value
+						dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
+						break
+		except:
+			logging.error("Error merging texture values")
+			traceback.print_exc()
+		finally:
+			# Fix indices again after merge
+			self.fix_tex_indices(self.header.textures.data)
+			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
 
 	def merge_attributes(self, data_old, data_new):
-		att_old, lib_old = data_old
-		att_new, lib_new = data_new
-		for i, a_old in enumerate(att_old):
-			for j, a_new in enumerate(att_new):
-				if a_old.name == a_new.name:
-					a_new.dtype = a_old.dtype
-					lib_new[j].value = lib_old[i].value
-					break
+		try:
+			att_old, lib_old = data_old
+			att_new, lib_new = data_new
+			for i, a_old in enumerate(att_old):
+				for j, a_new in enumerate(att_new):
+					if a_old.name == a_new.name:
+						assert a_new.dtype == a_old.dtype
+						lib_new[j].value = lib_old[i].value
+						break
+		except:
+			logging.error("Error merging attribute values")
+			traceback.print_exc()
+		finally:
+			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 
 	def shader_changed(self,):
 		"""Run only during user activation"""
@@ -226,11 +266,6 @@ class MainWindow(widgets.MainWindow):
 		# Preserve old values when possible
 		self.merge_textures(tex_data_old, (self.header.textures.data, self.header.dependencies.data))
 		self.merge_attributes(attrib_data_old, (self.header.attributes.data, self.header.data_lib.data))
-		# Fix indices again after merge
-		self.fix_tex_indices(self.header.textures.data)
-
-		self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
-		self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 
 	def create_tex_name(self, prefix, suffix):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
@@ -367,6 +402,18 @@ class MainWindow(widgets.MainWindow):
 				ovl_util.interaction.showdialog(str(ex))
 				logging.warning(ex)
 			logging.info("Done!")
+
+	def import_fgm(self):
+		file_in = QtWidgets.QFileDialog.getOpenFileName(self, 'Import FGM', self.cfg.get("dir_fgms_in", "C://"), "FGM files (*.fgm)")[0]
+		if file_in:
+			try:
+				self.cfg["dir_fgms_in"], _ = os.path.split(file_in)
+				self.import_header = FgmHeader.from_xml_file(file_in, self.context)
+				logging.info(f"Importing {file_in}")
+			except Exception as ex:
+				traceback.print_exc()
+				ovl_util.interaction.showdialog(str(ex))
+				logging.warning(ex)
 
 	def _save_fgm(self, filepath):
 		if filepath:
