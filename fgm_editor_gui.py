@@ -118,6 +118,7 @@ class MainWindow(widgets.MainWindow):
 		edit_menu = main_menu.addMenu('Edit')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
+			(file_menu, "New", self.new_file, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
 			(file_menu, "Save", self.save_fgm, "CTRL+S", "save"),
 			(file_menu, "Save As", self.save_as_fgm, "CTRL+SHIFT+S", "save"),
@@ -169,6 +170,9 @@ class MainWindow(widgets.MainWindow):
 			self.shader_choice.entry.clear()
 			self.shader_choice.entry.addItems(sorted(self.fgm_dict.shaders))
 
+	def set_dirty(self):
+		self.file_widget.dirty = True
+
 	def set_tex_count(self, count=None):
 		self.header.texture_count = count if count is not None else len(self.header.textures.data)
 
@@ -211,46 +215,59 @@ class MainWindow(widgets.MainWindow):
 
 	def merge_textures(self, data_old, data_new):
 		try:
-			tex_old, dep_old = data_old
-			tex_new, dep_new = data_new
-			for i, t_old in enumerate(tex_old):
-				for j, t_new in enumerate(tex_new):
-					if t_old.name == t_new.name:
-						t_new.dtype = t_old.dtype
-						t_new.value = t_old.value
-						dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
-						break
+			if data_old and data_new:
+				tex_old, dep_old = data_old
+				tex_new, dep_new = data_new
+				for i, t_old in enumerate(tex_old):
+					for j, t_new in enumerate(tex_new):
+						if t_old.name == t_new.name:
+							t_new.dtype = t_old.dtype
+							t_new.value = t_old.value
+							dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
+							break
 		except:
-			logging.error("Error merging texture values")
+			logging.warning("Could not merge texture values")
 			traceback.print_exc()
 		finally:
 			# Fix indices again after merge
 			self.fix_tex_indices(self.header.textures.data)
 			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+			self.set_dirty()
 
 	def merge_attributes(self, data_old, data_new):
 		try:
-			att_old, lib_old = data_old
-			att_new, lib_new = data_new
-			for i, a_old in enumerate(att_old):
-				for j, a_new in enumerate(att_new):
-					if a_old.name == a_new.name:
-						assert a_new.dtype == a_old.dtype
-						lib_new[j].value = lib_old[i].value
-						break
+			if data_old and data_new:
+				att_old, lib_old = data_old
+				att_new, lib_new = data_new
+				for i, a_old in enumerate(att_old):
+					for j, a_new in enumerate(att_new):
+						if a_old.name == a_new.name:
+							assert a_new.dtype == a_old.dtype
+							lib_new[j].value = lib_old[i].value
+							break
 		except:
-			logging.error("Error merging attribute values")
+			logging.warning("Could not merge attribute values")
 			traceback.print_exc()
 		finally:
 			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
+			self.set_dirty()
+
+	def has_data(self):
+		return self.header.textures.data and self.header.dependencies.data and self.header.attributes.data and self.header.data_lib.data
 
 	def shader_changed(self,):
 		"""Run only during user activation"""
 		self.header.shader_name = self.shader_choice.entry.currentText()
 		self.update_choices()
 
-		tex_data_old = (self.header.textures.data.copy(), self.header.dependencies.data.copy())
-		attrib_data_old = (self.header.attributes.data.copy(), self.header.data_lib.data.copy())
+		# Show New File dialog in a blank window when changing shader type
+		# Return if the dialog is cancelled
+		if not self.file_widget.filepath and not self.has_data() and not self.new_file():
+			return
+
+		tex_data_old = (self.header.textures.data.copy(), self.header.dependencies.data.copy()) if self.has_data() else None
+		attrib_data_old = (self.header.attributes.data.copy(), self.header.data_lib.data.copy()) if self.has_data() else None
+		self.set_dirty()
 
 		self.header.textures.data = Array((1,), self.header.textures.template, self.context, set_default=False)
 		self.header.attributes.data = Array((1,), self.header.attributes.template, self.context, set_default=False)
@@ -384,6 +401,16 @@ class MainWindow(widgets.MainWindow):
 		# 	# i.e.:   aList.append(widget.someId)
 		# 	widget.deleteLater()
 
+	def new_file(self):
+		self.close_file()
+		file_out, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New File", os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)
+		if file_out:
+			self.cfg["dir_fgms_out"], _ = os.path.split(file_out)
+			self.file_widget.set_file_path(file_out)
+			self.set_dirty()
+			return True
+		return False
+
 	def load(self):
 		if self.file_widget.filepath:
 			try:
@@ -427,6 +454,7 @@ class MainWindow(widgets.MainWindow):
 
 	def save_fgm(self):
 		self._save_fgm(self.file_widget.filepath)
+		self.file_widget.dirty = False
 
 	def save_as_fgm(self):
 		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
@@ -434,7 +462,20 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
 			self._save_fgm(file_out)
 			self.file_widget.set_file_path(file_out)
+			self.file_widget.dirty = False
 
+	def close_file(self):
+		if self.file_widget.dirty:
+			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
+			if not interaction.showdialog(quit_msg, ask=True):
+				return True
+		return False
+
+	def closeEvent(self, event):
+		if self.close_file():
+			event.ignore()
+			return
+		event.accept()
 
 class PropertyContainer(QtWidgets.QGroupBox):
 	def __init__(self, gui, name):
@@ -544,6 +585,7 @@ class TextureVisual:
 		else:
 			# Update attribute offsets after changing type
 			self.container.gui.fix_att_offsets(self.container.entry_list)
+		self.container.gui.set_dirty()
 
 	def update_dtype(self, ind):
 		dtype_name = self.w_dtype.currentText()
@@ -575,6 +617,7 @@ class TextureVisual:
 
 	def update_file(self, file):
 		self.data.dependency_name.data = file
+		self.container.gui.set_dirty()
 
 	def create_fields(self):
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
@@ -668,6 +711,16 @@ class TextureVisual:
 			field.children()[1].setValue(default)
 		else:
 			field.setValue(default)
+
+		# Connect *after* setting initial value
+		if "RGBA" in t:
+			field.children()[1].colorChanged.connect(self.container.gui.set_dirty)
+		elif "Float" in t:
+			field.valueChanged.connect(self.container.gui.set_dirty)
+		elif "Bool" in t:
+			field.clicked.connect(self.container.gui.set_dirty)
+		elif "Int" in t:
+			field.valueChanged.connect(self.container.gui.set_dirty)
 			
 		field.setMinimumWidth(50)
 		return field
