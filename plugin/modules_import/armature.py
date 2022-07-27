@@ -1,6 +1,5 @@
 import logging
 import math
-import traceback
 
 import bpy
 import mathutils
@@ -18,7 +17,7 @@ def import_armature(scene, model_info, b_bone_names):
 	This is done outside the normal node tree scan to allow for positioning
 	of the bones before skins are attached."""
 	is_old_orientation = any((is_ztuac(model_info.context), is_dla(model_info.context)))
-	print(f"is_old_orientation {is_old_orientation}")
+	# print(f"is_old_orientation {is_old_orientation}")
 	corrector = matrix_util.Corrector(is_old_orientation)
 	bone_info = model_info.bone_info
 	logging.debug(bone_info)
@@ -55,8 +54,7 @@ def import_armature(scene, model_info, b_bone_names):
 					# calculate ms2 armature space matrix
 					n_bind = mats[parent_short_name] @ n_bind
 			except:
-				traceback.print_exc()
-				logging.warning(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
+				logging.exception(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
 
 			# store the ms2 armature space matrix
 			mats[b_edit_bone.name] = n_bind
@@ -91,10 +89,8 @@ def import_armature(scene, model_info, b_bone_names):
 			bone["index"] = i
 		try:
 			import_joints(scene, b_armature_obj, bone_info, b_bone_names, corrector)
-		except Exception as err:
-			logging.error("Importing joints failed...")
-			logging.error(err)
-			traceback.print_exc()
+		except:
+			logging.exception("Importing joints failed...")
 		return b_armature_obj
 
 
