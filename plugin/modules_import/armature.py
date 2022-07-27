@@ -36,28 +36,33 @@ def import_armature(scene, model_info, b_bone_names):
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 		mats = {}
 		z_dic = {}
+		long_name_2_short_name = {}
+		# JWE2 hoarding_straight8m_door has names that exceed the 63 char limit
 		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.parents):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
+			b_edit_bone["long_name"] = bone_name
+			long_name_2_short_name[bone_name] = b_edit_bone.name
 
 			n_bind = get_local_bone_matrix(bone)
 
 			# link to parent
 			try:
 				if o_parent_ind != 255:
-					parent_name = b_bone_names[o_parent_ind]
-					b_parent_bone = b_armature_data.edit_bones[parent_name]
-					b_edit_bone.parent = b_parent_bone
+					parent_long_name = b_bone_names[o_parent_ind]
+					# needed to support long names
+					parent_short_name = long_name_2_short_name[parent_long_name]
+					b_edit_bone.parent = b_armature_data.edit_bones[parent_short_name]
 					# calculate ms2 armature space matrix
-					n_bind = mats[parent_name] @ n_bind
+					n_bind = mats[parent_short_name] @ n_bind
 			except:
 				traceback.print_exc()
 				logging.warning(f"Bone hierarchy error for bone {bone_name} with parent index {o_parent_ind}")
 
 			# store the ms2 armature space matrix
-			mats[bone_name] = n_bind
+			mats[b_edit_bone.name] = n_bind
 			# change orientation for blender bones
 			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
-			z_dic[bone_name] = b_bind.to_3x3()[2]
+			z_dic[b_edit_bone.name] = b_bind.to_3x3()[2]
 			# set orientation to blender bone
 			set_transform4(b_bind, b_edit_bone)
 
@@ -81,7 +86,8 @@ def import_armature(scene, model_info, b_bone_names):
 
 		# store original bone index as custom property
 		for i, bone_name in enumerate(b_bone_names):
-			bone = b_armature_obj.pose.bones[bone_name]
+			short_name = long_name_2_short_name[bone_name]
+			bone = b_armature_obj.pose.bones[short_name]
 			bone["index"] = i
 		try:
 			import_joints(scene, b_armature_obj, bone_info, b_bone_names, corrector)
@@ -198,12 +204,15 @@ def fix_bone_lengths(b_armature_data):
 				for b_child in b_edit_bone.children:
 					child_heads += b_child.head
 				bone_length = (b_edit_bone.head - child_heads / len(b_edit_bone.children)).length
-				if bone_length < 0.0001:
-					bone_length = 0.1
 			# end of a chain
 			else:
 				bone_length = b_edit_bone.parent.length
-			b_edit_bone.length = bone_length
+		else:
+			bone_length = b_edit_bone.length
+		# clamp to a safe minimum length
+		if bone_length < 0.0001:
+			bone_length = 0.1
+		b_edit_bone.length = bone_length
 
 
 def append_armature_modifier(b_obj, b_armature):
