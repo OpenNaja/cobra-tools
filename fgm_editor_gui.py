@@ -336,6 +336,13 @@ class MainWindow(widgets.MainWindow):
 		if update_gui:
 			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
 
+	def sort_attributes(self):
+		attribs = self.header.attributes.data
+		data = self.header.data_lib.data
+		attribs[:], data[:] = zip(*sorted(zip(attribs, data), key=lambda p: p[0].name))
+		self.fix_att_offsets(attribs)
+		return attribs, data
+
 	def add_attribute_clicked(self):
 		self.add_attribute(self.attribute_choice.entry.currentText(), update_gui=True)
 
@@ -359,8 +366,6 @@ class MainWindow(widgets.MainWindow):
 		att.value_offset = self.offset_for_index(len(self.header.attributes.data))
 		attributes.append(att)
 
-		self.header.attributes.data[:] = attributes
-
 		data_lib = self.header.data_lib.data
 		data = AttribData(self.context, arg=att, set_default=False)
 		data.set_defaults()
@@ -369,7 +374,7 @@ class MainWindow(widgets.MainWindow):
 			data.value = np.array(self.fgm_dict.attributes[att.name][1][0][0], data.value.dtype)
 		data_lib.append(data)
 
-		self.header.data_lib.data[:] = data_lib
+		self.header.attributes.data[:], self.header.data_lib.data[:] = self.sort_attributes()
 		self.set_attrib_count()
 
 		if update_gui:
