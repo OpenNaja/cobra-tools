@@ -457,12 +457,12 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget.dirty = False
 
 	def save_as_fgm(self):
+		self.file_widget.dirty = False
 		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
 		if file_out:
 			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
 			self._save_fgm(file_out)
 			self.file_widget.set_file_path(file_out)
-			self.file_widget.dirty = False
 
 	def close_file(self):
 		if self.file_widget.dirty:
