@@ -222,7 +222,9 @@ class NewMeshData(MeshData):
 			])
 		elif self.flag == 512:
 			dt.extend([
-				# tree_birch_white_03 - apparently 8 uvs
+				# last lod of many tree meshes (eg. tree_birch_white_03)
+				# 8 uvs for an impostor texture atlas
+				# a different unpacking factor is used here
 				("uvs", np.ushort, (8, 2)),
 			])
 		elif self.flag == 517:
@@ -267,7 +269,10 @@ class NewMeshData(MeshData):
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
 		self.uvs[:] = self.verts_data["uvs"]
-		unpack_ushort_vector(self.uvs)
+		if self.flag == 512:
+			unpack_ushort_vector_b(self.uvs)
+		else:
+			unpack_ushort_vector(self.uvs)
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data["colors"]

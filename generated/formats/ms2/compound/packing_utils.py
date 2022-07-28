@@ -3,10 +3,11 @@ import numpy as np
 UBYTE_SCALE = 127
 UBYTE_MAX = 255
 USHORT_SCALE = 2048
+USHORT_SCALE_B = 65536
 USHORT_OFFSET = 32766.5
 USHORT_MIN = 0
 USHORT_MAX = 65535
-PACKEDVEC_MAX = 2 ** 20 - 1 # 0x100000
+PACKEDVEC_MAX = 2 ** 20 - 1  # 0x100000
 # PACKEDVEC_MAX = 2 ** 20  # 0x100000
 FUR_OVERHEAD = 2
 zero_uint64 = np.uint64(0)
@@ -26,6 +27,10 @@ def pack_ubyte_vector(arr):
 
 def unpack_ushort_vector(arr):
     arr[:] = (arr - USHORT_OFFSET) / USHORT_SCALE
+
+
+def unpack_ushort_vector_b(arr):
+    arr[:] = arr / USHORT_SCALE_B
 
 
 def pack_ushort_vector(arr):
