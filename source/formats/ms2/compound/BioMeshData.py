@@ -229,21 +229,17 @@ class BioMeshData:
 		# normalize after conversion
 		arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
-	@staticmethod
-	def ubytes_2_ushort(a, b):
-		return struct.unpack("H", struct.pack("BB", int(a), int(b)))[0]
-
 	def read_chunk_infos(self):
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		self.stream_info.stream.seek(self.pos_chunks_address)
 		self.pos_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), PosChunk, self.context, 0,
 											None)
-		print(self)
-		print(f"{self.chunks_count} pos_chunks at {self.pos_chunks_address}")
+		logging.info(self)
+		logging.info(f"{self.chunks_count} pos_chunks at {self.pos_chunks_address}")
 		self.stream_info.stream.seek(self.offset_chunks_address)
 		self.offset_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), OffsetChunk, self.context,
 											   0, None)
-		print(f"{self.chunks_count} offset_chunks at {self.offset_chunks_address}")
+		logging.info(f"{self.chunks_count} offset_chunks at {self.offset_chunks_address}")
 
 	@property
 	def tris(self, ):
