@@ -54,6 +54,15 @@ class BioMeshData:
 		self.stream_info.stream.readinto(_tri_indices)
 		self.tri_indices = _tri_indices.astype(np.uint32)
 
+	def get_tri_counts(self):
+		for i, pos in enumerate(self.pos_chunks[:-1]):
+			next_pos = self.pos_chunks[i+1]
+			pos.tri_indices_count = next_pos.tris_offset - pos.tris_offset
+		last_pos = self.pos_chunks[-1]
+		last_pos.tri_indices_count = (self.tris_count * 3) - last_pos.tris_offset + self.pos_chunks[0].tris_offset
+		for i, pos in enumerate(self.pos_chunks):
+			logging.info(f"pos {i} {last_pos.tri_indices_count} tris")
+
 	@property
 	def pos_chunks_address(self):
 		size_of_chunk = 64
@@ -75,6 +84,7 @@ class BioMeshData:
 
 	def read_verts(self):
 		self.read_chunk_infos()
+		self.get_tri_counts()
 		# the format differs if its flat or interleaved
 		# per-vertex weights may or may not be used in a given chunk
 		dt_weights = [
@@ -140,10 +150,14 @@ class BioMeshData:
 		self.read_tris_bio()
 		self.weights = []
 		self.weights_info = {}
-
+		self.face_maps = {}
+		self.bones_sets = []
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
-			logging.info(f"{i}, {pos}, {off}")
+			# bones_per_chunk = set()
+			logging.debug(f"{i}, {pos}, {off}")
+			# these sometimes correspond but not always
+			logging.info(f"{i}, {pos.u_0}, {off.weights_flag.mesh_format}")
 			# print(i, pos.u_1)
 			logging.info(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
 
@@ -164,10 +178,13 @@ class BioMeshData:
 						for bone_index, weight in zip(bone_indices, bone_weights):
 							if weight > 0.0:
 								self.add_to_weights(bone_index, vertex_index + offs, weight)
+					# 			bones_per_chunk.add(bone_index)
+					# logging.info(f"Length set {len(bones_per_chunk)}")
 				else:
 					# use the chunk's bone index for each vertex in chunk
 					for vertex_index in range(off.vertex_count):
 						self.add_to_weights(off.weights_flag.bone_index, vertex_index + offs, 1.0)
+					# bones_per_chunk.add(off.weights_flag.bone_index)
 
 				for vertex_index in range(off.vertex_count):
 					self.add_to_weights("u_0", vertex_index + offs, pos.u_0 / 255)
@@ -196,21 +213,33 @@ class BioMeshData:
 				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_oct"]
 				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_verts["tangent_oct"]
+			else:
+				raise AttributeError(f"Unsupported weights_flag.mesh_format {off.weights_flag.mesh_format}")
 
+			# self.bones_sets.append((off.vertex_count, bones_per_chunk))
 			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(off.weights_flag)
 			us.add(pos.u_1)
-			self.tri_indices[pos.tris_offset - first_tris_offs:] += v_off
+			tris_start = pos.tris_offset - first_tris_offs
+			self.tri_indices[tris_start:] += v_off
+
+			# prep face maps
+			fmt_str = str(off.weights_flag.mesh_format).split(".")[1]
+			_weights = f"_weights" if off.weights_flag.has_weights else ""
+			id_str = f"{fmt_str}_{i:03}{_weights}"
+			self.face_maps[id_str] = list(range(tris_start // 3, (tris_start+pos.tri_indices_count) // 3))
+
 			v_off = off.vertex_count
 			offs += off.vertex_count
-
+		# print(self.face_maps)
+		# logging.info(self.bones_sets)
 		# print("weights_flags", flags, "u1s", us)
 		self.oct_to_vec3(self.normals)
 		self.oct_to_vec3(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
-
+		# currently, known uses of Interleaved48 use the other unpacking
 		unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
 		# just a sanity check
@@ -234,12 +263,12 @@ class BioMeshData:
 		self.stream_info.stream.seek(self.pos_chunks_address)
 		self.pos_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), PosChunk, self.context, 0,
 											None)
-		logging.info(self)
-		logging.info(f"{self.chunks_count} pos_chunks at {self.pos_chunks_address}")
+		logging.debug(self)
+		logging.debug(f"{self.chunks_count} pos_chunks at {self.pos_chunks_address}")
 		self.stream_info.stream.seek(self.offset_chunks_address)
 		self.offset_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), OffsetChunk, self.context,
 											   0, None)
-		logging.info(f"{self.chunks_count} offset_chunks at {self.offset_chunks_address}")
+		logging.debug(f"{self.chunks_count} offset_chunks at {self.offset_chunks_address}")
 
 	@property
 	def tris(self, ):

@@ -36,6 +36,7 @@ class PosChunk:
 		# can be 1, 0, 0, 0, the always in range -1, +1
 		self.rot = Vector4(self.context, 0, None)
 		self.u_2 = 0
+		self.u_3 = 0
 		if set_default:
 			self.set_defaults()
 
@@ -48,6 +49,7 @@ class PosChunk:
 		self.loc = Vector3(self.context, 0, None)
 		self.rot = Vector4(self.context, 0, None)
 		self.u_2 = 0
+		self.u_3 = 0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -68,7 +70,8 @@ class PosChunk:
 		instance.tris_offset = stream.read_uint()
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
-		instance.u_2 = stream.read_uint()
+		instance.u_2 = stream.read_ushort()
+		instance.u_3 = stream.read_ushort()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -79,7 +82,8 @@ class PosChunk:
 		stream.write_uint(instance.tris_offset)
 		Vector3.to_stream(stream, instance.loc)
 		Vector4.to_stream(stream, instance.rot)
-		stream.write_uint(instance.u_2)
+		stream.write_ushort(instance.u_2)
+		stream.write_ushort(instance.u_3)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -109,6 +113,7 @@ class PosChunk:
 		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
 		s += f'\n	* rot = {fmt_member(self.rot, indent+1)}'
 		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

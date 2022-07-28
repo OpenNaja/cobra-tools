@@ -77,6 +77,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 
 					try:
 						import_vertex_groups(b_ob, mesh, bone_names)
+						import_face_maps(b_ob, mesh)
 						import_shapekeys(b_ob, mesh)
 						# link to armature, only after mirror so the order is good and weights are mirrored
 						append_armature_modifier(b_ob, b_armature_obj)
@@ -98,6 +99,15 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 
 	messages.add(f"Finished MS2 import in {time.time() - start_time:.2f} seconds")
 	return messages
+
+
+def import_face_maps(b_ob, mesh):
+	if hasattr(mesh, "face_maps"):
+		for map_name, face_indices in mesh.face_maps.items():
+			b_face_map = b_ob.face_maps.new(name=map_name)
+			b_face_map.add(face_indices)
+			# for ind in face_indices:
+			# 	b_face_map.add(ind)
 
 
 def num_fur_as_weights(mat_name):
