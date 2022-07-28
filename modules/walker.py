@@ -98,16 +98,18 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			ms2_files = walk_type(export_dir, extension=".ms2")
 			mf_max = len(ms2_files)
 			for mf_index, ms2_path in enumerate(ms2_files):
-				mdl2_name = os.path.basename(ms2_path)
-				gui.update_progress("Walking MS2 files: " + mdl2_name, value=mf_index, vmax=mf_max)
+				ms2_name = os.path.basename(ms2_path)
+				gui.update_progress(f"Walking MS2 files: {ms2_name}", value=mf_index, vmax=mf_max)
 				try:
 					# ms2_data.load(ms2_path, map_bytes=True, entry=True)
 					ms2_data.load(ms2_path)
-					for model_info in ms2_data.model_infos:
-						# for model in ms2_data.model.meshes:
-						# 	if model.flag not in type_dic:
-						# 		type_dic[model.flag] = ([], [])
-						# 	type_dic[model.flag][0].append(mdl2_name)
+					for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
+						for i, wrapper in enumerate(model_info.model.meshes):
+							mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
+							mesh = wrapper.mesh
+							if mesh.flag not in type_dic:
+								type_dic[mesh.flag] = ([], [])
+							type_dic[mesh.flag][0].append(mesh_id)
 						# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 						last_counts.add(model_info.last_count)
 						if model_info.bone_info:
@@ -116,7 +118,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 						else:
 							no_bones.add(ms2_path)
 				except Exception as ex:
-					traceback.print_exc()
+					logging.exception("Walking models errored")
 					errors.append((ms2_path, ex))
 		# report
 		print(f"\nThe following {len(errors)} errors occured:")
@@ -127,14 +129,14 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		for flag, tup in sorted(type_dic.items()):
 			print(flag)
 			names, maps_list = tup
-			print("Some files:", list(set(names))[:25])
-			print("num meshes", len(maps_list))
-			means, maxs, mins = zip(*maps_list)
-			print(len(means))
-			print("mean", np.mean(means, axis=0).astype(dtype=np.ubyte))
-			print("max", np.max(maxs, axis=0))
-			print("min", np.min(mins, axis=0))
-			print()
+			print("Some files:", list(sorted(set(names)))[:25])
+			print("num meshes", len(names))
+			# means, maxs, mins = zip(*maps_list)
+			# print(len(means))
+			# print("mean", np.mean(means, axis=0).astype(dtype=np.ubyte))
+			# print("max", np.max(maxs, axis=0))
+			# print("min", np.min(mins, axis=0))
+			# print()
 		print(f"last_counts: {last_counts}")
 		print(f"flags: {flags}")
 		print(f"no_bones: {no_bones}")

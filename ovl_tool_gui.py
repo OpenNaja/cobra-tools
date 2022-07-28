@@ -636,7 +636,7 @@ class MainWindow(widgets.MainWindow):
 
 	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		walker.bulk_test_models(self, start_dir, walk_ovls=True)
+		walker.bulk_test_models(self, start_dir, walk_ovls=False)
 		self.update_progress("Inspected models", value=1, vmax=1)
 
 	def closeEvent(self, event):
