@@ -98,12 +98,15 @@ class BioMeshData:
 			("uvs", np.ushort, (1, 2)),
 			("colors", np.ubyte, (1, 4))
 		]
-		# 48 bytes per vertex, with all data interleaved, old style??
+		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
 		dt_interleaved48 = [
 			("pos", np.float16, (3,)),
-			("uvs", np.ushort, (1, 2)),
-			("colors", np.ubyte, (1, 4))
-			# todo
+			("one", np.ubyte),  # not sure
+			("zero", np.ubyte),  # may be bone index
+			("normal_oct", np.ubyte, (2,)),
+			("tangent_oct", np.ubyte, (2,)),
+			("colors", np.ubyte, (1, 4)),  # zero, may be colors
+			("uvs", np.ushort, (8, 2)),
 		]
 		# create arrays for this mesh
 		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
@@ -122,7 +125,8 @@ class BioMeshData:
 
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
-		colors_shape = self.dt["colors"].shape
+		# colors_shape = self.dt["colors"].shape
+		colors_shape = (1, 4)
 		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 
 		self.dt_weights = np.dtype(dt_weights)
@@ -139,12 +143,12 @@ class BioMeshData:
 
 		for i, (pos, off) in enumerate(zip(self.pos_chunks, self.offset_chunks)):
 			abs_tris = self.tris_start_address + pos.tris_offset
-			print("\n", i, pos, off)
-			print("\n", i, pos.u_1)
-			print(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
+			logging.info(f"{i}, {pos}, {off}")
+			# print(i, pos.u_1)
+			logging.info(f"chunk {i} tris at {abs_tris}, weights_flag {off.weights_flag}")
 
 			self.stream_info.stream.seek(off.vertex_offset)
-			print(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
+			logging.info(f"verts {i} start {self.stream_info.stream.tell()}, count {off.vertex_count}")
 
 			if off.weights_flag.mesh_format == MeshFormat.Separate:
 				# verts packed into uint64
@@ -169,7 +173,7 @@ class BioMeshData:
 					self.add_to_weights("u_0", vertex_index + offs, pos.u_0 / 255)
 					self.add_to_weights("u_1", vertex_index + offs, pos.u_1 / 255)
 				# uv, normals etc
-				print(f"meta {i} start {self.stream_info.stream.tell()}")
+				logging.info(f"meta {i} start {self.stream_info.stream.tell()}")
 				off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.raw_meta)
 
@@ -181,7 +185,7 @@ class BioMeshData:
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_oct"]
 				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_meta["tangent_oct"]
 
-			elif off.weights_flag.mesh_format == MeshFormat.Interleaved32:
+			elif off.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				# read the interleaved vertex array, including all extra data
 				off.raw_verts = np.empty(dtype=self.dt, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.raw_verts)
@@ -193,9 +197,6 @@ class BioMeshData:
 				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_oct"]
 				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_verts["tangent_oct"]
 
-			elif off.weights_flag.mesh_format == MeshFormat.Interleaved48:
-				logging.warning(f"Interleaved48 not supported")
-				continue
 			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(off.weights_flag)
 			us.add(pos.u_1)
