@@ -888,7 +888,7 @@ class OvlFile(Header, IoFile):
 		logging.info(
 			f"Loaded {len(self.hash_table_global)} hash - name pairs in {time.time() - start_time:.2f} seconds")
 
-	def load(self, filepath, commands=()):
+	def load(self, filepath, commands={}):
 		start_time = time.time()
 		self.is_biosyn = None
 		# store commands
@@ -1052,7 +1052,13 @@ class OvlFile(Header, IoFile):
 
 		logging.info("Loading file classes")
 		start_time = time.time()
-		for i, loader in enumerate(self.loaders.values()):
+
+		loaders = self.loaders.values()
+		if "only_types" in self.commands:
+			only_types = self.commands['only_types']
+			logging.info(f"Loading only {only_types}")
+			loaders = [loader for loader in loaders if loader.file_entry.ext in only_types]
+		for i, loader in enumerate(loaders):
 			self.print_and_callback(f"Mapping files", value=i, max_value=len(self.loaders))
 			loader.track_ptrs()
 			try:

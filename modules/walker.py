@@ -42,7 +42,7 @@ def generate_hash_table(gui, start_dir):
 			gui.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
 			try:
 				# read ovl file
-				new_hashes = ovl_data.load(ovl_path, commands=("generate_hash_table",))
+				new_hashes = ovl_data.load(ovl_path, commands={"generate_hash_table": True})
 				for list_name, attr_names in lists.items():
 					for entry in getattr(ovl_data, list_name):
 						for attr_name in attr_names:
@@ -150,15 +150,15 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 	ovl_files = walk_type(start_dir, extension=".ovl")
 	of_max = len(ovl_files)
 	for of_index, ovl_path in enumerate(ovl_files):
-		gui.update_progress("Walking OVL files: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
+		gui.update_progress(f"Walking OVL files: {os.path.basename(ovl_path)}", value=of_index, vmax=of_max)
 		try:
 			# read ovl file
-			ovl_data.load(ovl_path, commands=gui.commands)
+			ovl_data.load(ovl_path, commands={"only_types": only_types})
 			# create an output folder for it
 			rel_p = os.path.relpath(ovl_path, start=start_dir)
 			rel_d = os.path.splitext(rel_p)[0]
-			outdir = os.path.join(export_dir, rel_d)
-			out_paths, error_files_new = ovl_data.extract(outdir, only_types=only_types)
+			out_dir = os.path.join(export_dir, rel_d)
+			out_paths, error_files_new = ovl_data.extract(out_dir, only_types=only_types)
 			error_files += error_files_new
 		except Exception as ex:
 			traceback.print_exc()
@@ -185,7 +185,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 			mf_max = len(fgm_files)
 			for mf_index, fgm_path in enumerate(fgm_files):
 				fgm_name = os.path.basename(fgm_path)
-				gui.update_progress("Walking FGM files: " + fgm_name, value=mf_index, vmax=mf_max)
+				gui.update_progress(f"Walking FGM files: {fgm_name}", value=mf_index, vmax=mf_max)
 				try:
 					header = FgmHeader.from_xml_file(fgm_path, context)
 					shaders.add(header.shader_name)

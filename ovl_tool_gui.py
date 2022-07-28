@@ -374,7 +374,7 @@ class MainWindow(widgets.MainWindow):
 	def commands(self):
 		# get those commands that are set to True
 		# return [x for x in ("write_dat", ) if getattr(self, x)]
-		return []
+		return {}
 
 	@property
 	def show_temp_files(self, ):

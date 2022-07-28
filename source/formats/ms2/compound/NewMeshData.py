@@ -84,7 +84,7 @@ class NewMeshData:
 		elif self.flag == 512:
 			dt.extend([
 				# last lod of many tree meshes (eg. tree_birch_white_03)
-				# 8 uvs for an impostor texture atlas
+				# 8 uvs for an impostor texture atlas aka flipbook
 				# a different unpacking factor is used here
 				("uvs", np.ushort, (8, 2)),
 			])
