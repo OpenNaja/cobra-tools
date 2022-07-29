@@ -9,12 +9,7 @@ from generated.struct import StructBase
 class CommonJointInfo(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# must be 11
 		self.eleven = 0

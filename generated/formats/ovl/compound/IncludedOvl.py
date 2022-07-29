@@ -10,12 +10,7 @@ class IncludedOvl(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# offset in the header's names block. path is relative to this ovl's directory, without the .ovl suffix
 		self.offset = 0

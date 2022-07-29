@@ -12,12 +12,7 @@ from generated.struct import StructBase
 class Struct7(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# needed for ZTUAC
 		self.weird_padding = 0

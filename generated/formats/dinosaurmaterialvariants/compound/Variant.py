@@ -8,12 +8,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class Variant(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.has_ptr = 0
 		self.variant_name = 0
 		if set_default:

@@ -8,12 +8,7 @@ from generated.formats.path.compound.Vector2 import Vector2
 class Connector(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.unk_vector = 0
 		self.model_name = 0
 		self.joint_name = 0

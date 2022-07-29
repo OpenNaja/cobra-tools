@@ -5,7 +5,12 @@ class StructBase:
 	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
+		self.name = ''
 		self._context = context
+		self.arg = arg
+		self.template = template
+		self.io_size = 0
+		self.io_start = 0
 
 	def get_fields_str(self, indent=0):
 		return ""

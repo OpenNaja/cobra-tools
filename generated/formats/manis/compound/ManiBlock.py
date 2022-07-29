@@ -16,12 +16,7 @@ from generated.struct import StructBase
 class ManiBlock(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.ref = 0
 		self.pos_bones = 0
 		self.ori_bones = 0

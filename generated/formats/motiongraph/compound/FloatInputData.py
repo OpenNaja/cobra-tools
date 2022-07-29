@@ -12,12 +12,7 @@ class FloatInputData(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.float = 0
 		self.optional_var_and_curve_count = 0
 		self.optional_var_and_curve = 0

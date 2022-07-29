@@ -46,21 +46,20 @@ class Compound(BaseClass):
                     self.write_line(f, 3, "raise TypeError(f'{type(self).__name__} requires template is not None')")
                 # classes that this class inherits from have to be read first
                 if self.class_basename:
-                    # context is set by the parent class
+                    # the standard attributes are handled by the parent class
                     # todo - needs testing
-                    # super_line = f"super().__init__(context, arg, template, set_default=False)"
-                    super_line = f"super().__init__(context, arg, template, set_default)"
+                    # self.write_line(f, 2, "super().__init__(context, arg, template, set_default=False)")
+                    self.write_line(f, 2, "super().__init__(context, arg, template, set_default)")
                 else:
-                    # no inheritance, so set context
-                    super_line = f"self._context = context"
-                self.write_lines(f, 2, (
-                    "self.name = ''",
-                    super_line,
-                    "self.arg = arg",
-                    "self.template = template",
-                    "self.io_size = 0",
-                    "self.io_start = 0"
-                ))
+                    # no inheritance, so set the standerd attributes
+                    self.write_lines(f, 2, (
+                        "self.name = ''",
+                        "self._context = context",
+                        "self.arg = arg",
+                        "self.template = template",
+                        "self.io_size = 0",
+                        "self.io_start = 0"
+                    ))
 
                 # for ovl memory structs, some pointers may have counts that are defined before the count
                 # so for init, write pointers last

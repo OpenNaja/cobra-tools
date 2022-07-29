@@ -11,12 +11,7 @@ class LuaModules(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.motion_graph = 0
 		self.motion_graph_event_handling = 0
 		self.motion_graph_actions = 0

@@ -12,12 +12,7 @@ from generated.formats.tex.compound.TexHeader import TexHeader
 class TexInfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.tex_info = 0
 		self.frag_01 = 0
 		self.frag_11 = 0
