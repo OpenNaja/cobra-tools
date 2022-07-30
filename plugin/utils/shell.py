@@ -34,6 +34,8 @@ def create_lods():
 	# Setup default lod ratio values
 	lod_ratios = [1, 0.8, 0.56, 0.34, 0.2, 0.08]
 
+	# todo - enforce visibility of all lod_collections and their objects to avoid error when they are not visible
+
 	# Deleting old LODS
 	for lod_coll in lod_collections[1:]:
 		for ob in lod_coll.objects:
