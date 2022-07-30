@@ -1,7 +1,7 @@
 from source.formats.base.basic import fmt_member
 from generated.context import ContextReference
+from generated.formats.ms2.compound.QuatWFirst import QuatWFirst
 from generated.formats.ms2.compound.Vector3 import Vector3
-from generated.formats.ms2.compound.Vector4 import Vector4
 
 
 class PosChunk:
@@ -21,12 +21,12 @@ class PosChunk:
 		self.io_size = 0
 		self.io_start = 0
 
-		# the smallest coordinates across all axes
+		# the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0
 		self.bounds_min = Vector3(self.context, 0, None)
 		self.u_0 = 0
 		self.u_1 = 0
 
-		# the biggest coordinates across all axes
+		# the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0
 		self.bounds_max = Vector3(self.context, 0, None)
 		self.tris_offset = 0
 
@@ -34,7 +34,7 @@ class PosChunk:
 		self.loc = Vector3(self.context, 0, None)
 
 		# can be 1, 0, 0, 0, the always in range -1, +1
-		self.rot = Vector4(self.context, 0, None)
+		self.rot = QuatWFirst(self.context, 0, None)
 		self.u_2 = 0
 		self.u_3 = 0
 		if set_default:
@@ -47,7 +47,7 @@ class PosChunk:
 		self.bounds_max = Vector3(self.context, 0, None)
 		self.tris_offset = 0
 		self.loc = Vector3(self.context, 0, None)
-		self.rot = Vector4(self.context, 0, None)
+		self.rot = QuatWFirst(self.context, 0, None)
 		self.u_2 = 0
 		self.u_3 = 0
 
@@ -69,7 +69,7 @@ class PosChunk:
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.tris_offset = stream.read_uint()
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
+		instance.rot = QuatWFirst.from_stream(stream, instance.context, 0, None)
 		instance.u_2 = stream.read_ushort()
 		instance.u_3 = stream.read_ushort()
 
@@ -81,7 +81,7 @@ class PosChunk:
 		Vector3.to_stream(stream, instance.bounds_max)
 		stream.write_uint(instance.tris_offset)
 		Vector3.to_stream(stream, instance.loc)
-		Vector4.to_stream(stream, instance.rot)
+		QuatWFirst.to_stream(stream, instance.rot)
 		stream.write_ushort(instance.u_2)
 		stream.write_ushort(instance.u_3)
 

@@ -215,6 +215,11 @@ class BioMeshData:
 				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_verts["tangent_oct"]
 			else:
 				raise AttributeError(f"Unsupported weights_flag.mesh_format {off.weights_flag.mesh_format}")
+			bounds_min = np.min(self.vertices[offs:offs + off.vertex_count], axis=0)
+			bounds_max = np.max(self.vertices[offs:offs + off.vertex_count], axis=0)
+			logging.info(f"{bounds_min} {pos.bounds_min}")
+			logging.info(f"{bounds_max} {pos.bounds_max}")
+			logging.info(f"pos.loc {pos.loc} {np.mean((bounds_min, bounds_max), axis=0)} {np.mean(self.vertices[offs:offs + off.vertex_count], axis=0)}")
 
 			# self.bones_sets.append((off.vertex_count, bones_per_chunk))
 			# same for all chunked meshes, regardless if flat or interleaved arrays

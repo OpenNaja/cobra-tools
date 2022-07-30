@@ -127,6 +127,13 @@
 		<field name="w" type="float">zeroth coordinate.</field>
 	</compound>
 
+	<compound name="QuatWFirst" size="16">
+		<field name="w" type="float"/>
+		<field name="x" type="float"/>
+		<field name="y" type="float"/>
+		<field name="z" type="float"/>
+	</compound>
+
 	<compound name="StreamDebugger">
 		logs stream address to debug log
 	</compound>
@@ -402,14 +409,14 @@
 	<compound name="PosChunk" >
 		used in JWE2 Biosyn
 		64 bytes
-		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
+		<add name="bounds min" type="Vector3">the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0</add>
 		<add name="u0" type="ushort"/> 0
 		<add name="u1" type="ushort"/>
-		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
+		<add name="bounds max" type="Vector3">the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0</add>
 		<add name="tris_offset" type="uint"/>bytes into tris buffer, absolutely certain
 		<add name="loc" type="Vector3">can be 0,0,0, no obvious range</add>
 		todo - may be a different quat that standard (w first?)
-		<add name="rot" type="Vector4">can be 1, 0, 0, 0, the always in range -1, +1</add>
+		<add name="rot" type="QuatWFirst">can be 1, 0, 0, 0, the always in range -1, +1</add>
 		<add name="u2" type="ushort"/> 0
 		<add name="u3" type="ushort"/> 0 or 3 in theri
 	</compound>

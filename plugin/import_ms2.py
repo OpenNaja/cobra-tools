@@ -7,6 +7,7 @@ import bpy
 # import bmesh
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
+from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin
@@ -67,6 +68,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
 					except:
 						traceback.print_exc()
+					import_chunk_bounds(b_me, mesh, lod_coll)
 				# link material to mesh
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 
