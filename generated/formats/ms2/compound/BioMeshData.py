@@ -203,61 +203,20 @@ class BioMeshData(MeshData):
 	def read_verts(self):
 		self.read_chunk_infos()
 		self.get_tri_counts()
-		# the format differs if its flat or interleaved
-		# per-vertex weights may or may not be used in a given chunk
-		dt_weights = [
-			("bone ids", np.ubyte, (4,)),
-			("bone weights", np.ubyte, (4,)),
-		]
-		# 16 bytes of metadata that follows the vertices array
-		dt_separate = [
-			("normal_oct", np.ubyte, (2,)),
-			("tangent_oct", np.ubyte, (2,)),
-			("uvs", np.ushort, (2, 2)),
-			("colors", np.ubyte, (1, 4))
-		]
-		# 32 bytes per vertex, with all data interleaved
-		dt_interleaved32 = [
-			("pos", np.float16, (3,)),
-			("shapekey", np.float16, (3,)),  # used for lod fading
-			("floats", np.float16, (4,)),
-			("normal_oct", np.ubyte, (2,)),
-			("tangent_oct", np.ubyte, (2,)),
-			("uvs", np.ushort, (1, 2)),
-			("colors", np.ubyte, (1, 4))
-		]
-		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
-		dt_interleaved48 = [
-			("pos", np.float16, (3,)),
-			("one", np.ubyte),  # not sure
-			("zero", np.ubyte),  # may be bone index
-			("normal_oct", np.ubyte, (2,)),
-			("tangent_oct", np.ubyte, (2,)),
-			("colors", np.ubyte, (1, 4)),  # zero, may be colors
-			("uvs", np.ushort, (8, 2)),
-		]
+		# check first off
+		off = self.offset_chunks[0]
+		self.get_dtypes(off.weights_flag.mesh_format)
+
 		# create arrays for this mesh
 		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
 		self.normals = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 		self.tangents = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
 		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
-
-		# check first off
-		off = self.offset_chunks[0]
-		if off.weights_flag.mesh_format == MeshFormat.Separate:
-			self.dt = np.dtype(dt_separate)
-		elif off.weights_flag.mesh_format == MeshFormat.Interleaved32:
-			self.dt = np.dtype(dt_interleaved32)
-		elif off.weights_flag.mesh_format == MeshFormat.Interleaved48:
-			self.dt = np.dtype(dt_interleaved48)
-
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		# colors_shape = self.dt["colors"].shape
 		colors_shape = (1, 4)
 		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
-
-		self.dt_weights = np.dtype(dt_weights)
 
 		first_tris_offs = self.pos_chunks[0].tris_offset
 		v_off = 0
@@ -266,7 +225,6 @@ class BioMeshData(MeshData):
 		us = set()
 
 		self.read_tris_bio()
-		self.weights = []
 		self.weights_info = {}
 		self.face_maps = {}
 		self.bones_sets = []
@@ -311,33 +269,23 @@ class BioMeshData(MeshData):
 				logging.info(f"meta {i} start {self.stream_info.stream.tell()}")
 				off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
 				self.stream_info.stream.readinto(off.raw_meta)
-
-				# store chunk's data
+				# store pos
 				unpack_int64_vector(off.raw_verts, self.vertices[offs:offs + off.vertex_count], self.use_blended_weights[offs:offs + off.vertex_count])
 				scale_unpack_vectorized(self.vertices[offs:offs + off.vertex_count], off.pack_offset)
-				self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
-				self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
-				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_oct"]
-				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_meta["tangent_oct"]
 
 			elif off.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
-				# read the interleaved vertex array, including all extra data
-				off.raw_verts = np.empty(dtype=self.dt, shape=off.vertex_count)
-				self.stream_info.stream.readinto(off.raw_verts)
-
-				# store chunk's data
-				self.vertices[offs:offs + off.vertex_count] = off.raw_verts["pos"]
-				self.uvs[offs:offs + off.vertex_count] = off.raw_verts["uvs"]
-				self.colors[offs:offs + off.vertex_count] = off.raw_verts["colors"]
-				self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_verts["normal_oct"]
-				self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_verts["tangent_oct"]
+				# interleaved vertex array, raw_meta includes all extra data
+				off.raw_meta = np.empty(dtype=self.dt, shape=off.vertex_count)
+				self.stream_info.stream.readinto(off.raw_meta)
+				# store pos
+				self.vertices[offs:offs + off.vertex_count] = off.raw_meta["pos"]
 			else:
 				raise AttributeError(f"Unsupported weights_flag.mesh_format {off.weights_flag.mesh_format}")
-			bounds_min = np.min(self.vertices[offs:offs + off.vertex_count], axis=0)
-			bounds_max = np.max(self.vertices[offs:offs + off.vertex_count], axis=0)
-			logging.info(f"{bounds_min} {pos.bounds_min}")
-			logging.info(f"{bounds_max} {pos.bounds_max}")
-			logging.info(f"pos.loc {pos.loc} {np.mean((bounds_min, bounds_max), axis=0)} {np.mean(self.vertices[offs:offs + off.vertex_count], axis=0)}")
+			# store chunk's meta data
+			self.uvs[offs:offs + off.vertex_count] = off.raw_meta["uvs"]
+			self.colors[offs:offs + off.vertex_count] = off.raw_meta["colors"]
+			self.normals[offs:offs + off.vertex_count, 0:2] = off.raw_meta["normal_oct"]
+			self.tangents[offs:offs + off.vertex_count, 0:2] = off.raw_meta["tangent_oct"]
 
 			# self.bones_sets.append((off.vertex_count, bones_per_chunk))
 			# same for all chunked meshes, regardless if flat or interleaved arrays
@@ -368,6 +316,48 @@ class BioMeshData(MeshData):
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.offset_chunks)
 
+	def get_dtypes(self, mesh_format):
+		# the format differs if its flat or interleaved
+		# per-vertex weights may or may not be used in a given chunk
+		dt_weights = [
+			("bone ids", np.ubyte, (4,)),
+			("bone weights", np.ubyte, (4,)),
+		]
+		# 16 bytes of metadata that follows the vertices array
+		dt_separate = [
+			("normal_oct", np.ubyte, (2,)),
+			("tangent_oct", np.ubyte, (2,)),
+			("uvs", np.ushort, (2, 2)),
+			("colors", np.ubyte, (1, 4))
+		]
+		# 32 bytes per vertex, with all data interleaved
+		dt_interleaved32 = [
+			("pos", np.float16, (3,)),
+			("shapekey", np.float16, (3,)),  # used for lod fading
+			("floats", np.float16, (4,)),
+			("normal_oct", np.ubyte, (2,)),
+			("tangent_oct", np.ubyte, (2,)),
+			("uvs", np.ushort, (1, 2)),
+			("colors", np.ubyte, (1, 4))
+		]
+		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
+		dt_interleaved48 = [
+			("pos", np.float16, (3,)),
+			("one", np.ubyte),  # not sure
+			("zero", np.ubyte),  # may be bone index
+			("normal_oct", np.ubyte, (2,)),
+			("tangent_oct", np.ubyte, (2,)),
+			("colors", np.ubyte, (1, 4)),  # zero, may be colors
+			("uvs", np.ushort, (8, 2)),
+		]
+		if mesh_format == MeshFormat.Separate:
+			self.dt = np.dtype(dt_separate)
+		elif mesh_format == MeshFormat.Interleaved32:
+			self.dt = np.dtype(dt_interleaved32)
+		elif mesh_format == MeshFormat.Interleaved48:
+			self.dt = np.dtype(dt_interleaved48)
+		self.dt_weights = np.dtype(dt_weights)
+
 	def oct_to_vec3(self, arr):
 		# vec3 oct_to_float32x3(vec2 e) {
 		# vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
@@ -392,6 +382,15 @@ class BioMeshData(MeshData):
 		self.offset_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), OffsetChunk, self.context,
 											   0, None)
 		logging.debug(f"{self.chunks_count} offset_chunks at {self.offset_chunks_address}")
+
+	def set_chunks(self, verts):
+		# correct bounds for the chunk, do after swizzling
+		# bounds_min = np.min(self.vertices[offs:offs + off.vertex_count], axis=0)
+		# bounds_max = np.max(self.vertices[offs:offs + off.vertex_count], axis=0)
+		# logging.info(f"{bounds_min} {pos.bounds_min}")
+		# logging.info(f"{bounds_max} {pos.bounds_max}")
+		# logging.info(f"pos.loc {pos.loc} {np.mean((bounds_min, bounds_max), axis=0)} {np.mean(self.vertices[offs:offs + off.vertex_count], axis=0)}")
+		pass
 
 	@property
 	def tris(self, ):
