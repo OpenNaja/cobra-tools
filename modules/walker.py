@@ -191,18 +191,26 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 				try:
 					header = FgmHeader.from_xml_file(fgm_path, context)
 					shaders.add(header.shader_name)
-					for attrib in header.attributes.data:
-						attributes[attrib.name] = int(attrib.dtype)
+					for i, attrib in enumerate(header.attributes.data):
+						val = tuple(header.data_lib.data[i].value)
+						if attributes.get(attrib.name):
+							attributes[attrib.name][1].append(val)
+						else:
+							attributes[attrib.name] = (int(attrib.dtype), [val])
 					for texture in header.textures.data:
 						textures.add(texture.name)
 
 					shader_textures[header.shader_name] |= {a.name for a in header.textures.data}
 					shader_attribs[header.shader_name] |= {a.name for a in header.attributes.data}
-					shader_attrib_stats[header.shader_name].update(frozenset([a.name for a in header.attributes.data]))
+					#shader_attrib_stats[header.shader_name].update(frozenset([a.name for a in header.attributes.data]))
 
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((fgm_path, ex))
+
+		for att, val in attributes.items():
+			attributes[att] = (val[0], Counter(tuple(sorted(tup)) for tup in val[1]).most_common(5))
+
 		# report
 		if errors:
 			print("\nThe following errors occurred:")
@@ -211,6 +219,8 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 
 		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}.py")
 		with open(out_path, "w") as f:
+			f.write(f"# Attributes, their dtypes, and {len(list(attributes.values())[0][1])} most common values\n")
+			f.write("# To generate full usage values, you must run FGM Walker on all Content FGMs\n")
 			f.write("attributes = {\n")
 			for att in sorted(attributes.keys()):
 				f.write(f'    "{att}": {attributes[att]},\n')

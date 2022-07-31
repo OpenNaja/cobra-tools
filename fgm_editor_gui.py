@@ -57,6 +57,7 @@ class MainWindow(widgets.MainWindow):
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
 		self.fgm_dict = None
+		self.import_header = None
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
 
@@ -114,12 +115,16 @@ class MainWindow(widgets.MainWindow):
 
 		main_menu = self.menuBar()
 		file_menu = main_menu.addMenu('File')
+		edit_menu = main_menu.addMenu('Edit')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
+			(file_menu, "New", self.new_file, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
 			(file_menu, "Save", self.save_fgm, "CTRL+S", "save"),
 			(file_menu, "Save As", self.save_as_fgm, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
+			(edit_menu, "Import Texture Values", self.import_tex, "", ""),
+			(edit_menu, "Import Attribute Values", self.import_att, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual")
 		)
@@ -165,6 +170,9 @@ class MainWindow(widgets.MainWindow):
 			self.shader_choice.entry.clear()
 			self.shader_choice.entry.addItems(sorted(self.fgm_dict.shaders))
 
+	def set_dirty(self):
+		self.file_widget.dirty = True
+
 	def set_tex_count(self, count=None):
 		self.header.texture_count = count if count is not None else len(self.header.textures.data)
 
@@ -183,12 +191,84 @@ class MainWindow(widgets.MainWindow):
 		self.shader_choice.entry.setText(name)
 		self.update_choices()
 
+	def import_tex(self):
+		self.import_fgm()
+		if self.import_header:
+			try:
+				self.merge_textures((self.import_header.textures.data, self.import_header.dependencies.data), 
+									(self.header.textures.data, self.header.dependencies.data))
+				logging.info("Finished importing texture values")
+			except:
+				logging.error("Error importing texture values")
+				traceback.print_exc()
+
+	def import_att(self):
+		self.import_fgm()
+		if self.import_header:
+			try:
+				self.merge_attributes((self.import_header.attributes.data, self.import_header.data_lib.data),
+									(self.header.attributes.data, self.header.data_lib.data))
+				logging.info("Finished importing attribute values")
+			except:
+				logging.error("Error importing attribute values")
+				traceback.print_exc()
+
+	def merge_textures(self, data_old, data_new):
+		try:
+			if data_old and data_new:
+				tex_old, dep_old = data_old
+				tex_new, dep_new = data_new
+				for i, t_old in enumerate(tex_old):
+					for j, t_new in enumerate(tex_new):
+						if t_old.name == t_new.name:
+							t_new.dtype = t_old.dtype
+							t_new.value = t_old.value
+							dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
+							break
+		except:
+			logging.warning("Could not merge texture values")
+			traceback.print_exc()
+		finally:
+			# Fix indices again after merge
+			self.fix_tex_indices(self.header.textures.data)
+			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+			self.set_dirty()
+
+	def merge_attributes(self, data_old, data_new):
+		try:
+			if data_old and data_new:
+				att_old, lib_old = data_old
+				att_new, lib_new = data_new
+				for i, a_old in enumerate(att_old):
+					for j, a_new in enumerate(att_new):
+						if a_old.name == a_new.name:
+							assert a_new.dtype == a_old.dtype
+							lib_new[j].value = lib_old[i].value
+							break
+		except:
+			logging.warning("Could not merge attribute values")
+			traceback.print_exc()
+		finally:
+			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
+			self.set_dirty()
+
+	def has_data(self):
+		return self.header.textures.data and self.header.dependencies.data and self.header.attributes.data and self.header.data_lib.data
+
 	def shader_changed(self,):
 		"""Run only during user activation"""
 		self.header.shader_name = self.shader_choice.entry.currentText()
 		self.update_choices()
 
-		# TODO: Completely wipe data for now
+		# Show New File dialog in a blank window when changing shader type
+		# Return if the dialog is cancelled
+		if not self.file_widget.filepath and not self.has_data() and not self.new_file():
+			return
+
+		tex_data_old = (self.header.textures.data.copy(), self.header.dependencies.data.copy()) if self.has_data() else None
+		attrib_data_old = (self.header.attributes.data.copy(), self.header.data_lib.data.copy()) if self.has_data() else None
+		self.set_dirty()
+
 		self.header.textures.data = Array((1,), self.header.textures.template, self.context, set_default=False)
 		self.header.attributes.data = Array((1,), self.header.attributes.template, self.context, set_default=False)
 		self.header.dependencies.data = Array((1,), self.header.dependencies.template, self.context, set_default=False)
@@ -200,8 +280,9 @@ class MainWindow(widgets.MainWindow):
 		for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
 			self.add_attribute(att)
 
-		self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
-		self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
+		# Preserve old values when possible
+		self.merge_textures(tex_data_old, (self.header.textures.data, self.header.dependencies.data))
+		self.merge_attributes(attrib_data_old, (self.header.attributes.data, self.header.data_lib.data))
 
 	def create_tex_name(self, prefix, suffix):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
@@ -255,6 +336,13 @@ class MainWindow(widgets.MainWindow):
 		if update_gui:
 			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
 
+	def sort_attributes(self):
+		attribs = self.header.attributes.data
+		data = self.header.data_lib.data
+		attribs[:], data[:] = zip(*sorted(zip(attribs, data), key=lambda p: p[0].name))
+		self.fix_att_offsets(attribs)
+		return attribs, data
+
 	def add_attribute_clicked(self):
 		self.add_attribute(self.attribute_choice.entry.currentText(), update_gui=True)
 
@@ -273,19 +361,20 @@ class MainWindow(widgets.MainWindow):
 				return
 
 		att = AttributeInfo(self.context, set_default=False)
-		att.dtype = attrib_dtypes[self.fgm_dict.attributes[att_name]]
+		att.dtype = attrib_dtypes[self.fgm_dict.attributes[att_name][0]]
 		att.name = att_name
 		att.value_offset = self.offset_for_index(len(self.header.attributes.data))
 		attributes.append(att)
 
-		self.header.attributes.data[:] = attributes
-
 		data_lib = self.header.data_lib.data
 		data = AttribData(self.context, arg=att, set_default=False)
 		data.set_defaults()
+		# Assign default value from attributes dict
+		if self.fgm_dict.attributes.get(att.name):
+			data.value = np.array(self.fgm_dict.attributes[att.name][1][0][0], data.value.dtype)
 		data_lib.append(data)
 
-		self.header.data_lib.data[:] = data_lib
+		self.header.attributes.data[:], self.header.data_lib.data[:] = self.sort_attributes()
 		self.set_attrib_count()
 
 		if update_gui:
@@ -317,6 +406,16 @@ class MainWindow(widgets.MainWindow):
 		# 	# i.e.:   aList.append(widget.someId)
 		# 	widget.deleteLater()
 
+	def new_file(self):
+		self.close_file()
+		file_out, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New File", os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)
+		if file_out:
+			self.cfg["dir_fgms_out"], _ = os.path.split(file_out)
+			self.file_widget.set_file_path(file_out)
+			self.set_dirty()
+			return True
+		return False
+
 	def load(self):
 		if self.file_widget.filepath:
 			try:
@@ -336,6 +435,18 @@ class MainWindow(widgets.MainWindow):
 				logging.warning(ex)
 			logging.info("Done!")
 
+	def import_fgm(self):
+		file_in = QtWidgets.QFileDialog.getOpenFileName(self, 'Import FGM', self.cfg.get("dir_fgms_in", "C://"), "FGM files (*.fgm)")[0]
+		if file_in:
+			try:
+				self.cfg["dir_fgms_in"], _ = os.path.split(file_in)
+				self.import_header = FgmHeader.from_xml_file(file_in, self.context)
+				logging.info(f"Importing {file_in}")
+			except Exception as ex:
+				traceback.print_exc()
+				ovl_util.interaction.showdialog(str(ex))
+				logging.warning(ex)
+
 	def _save_fgm(self, filepath):
 		if filepath:
 			try:
@@ -348,14 +459,28 @@ class MainWindow(widgets.MainWindow):
 
 	def save_fgm(self):
 		self._save_fgm(self.file_widget.filepath)
+		self.file_widget.dirty = False
 
 	def save_as_fgm(self):
 		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
 		if file_out:
 			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
+			self.file_widget.dirty = False
 			self._save_fgm(file_out)
 			self.file_widget.set_file_path(file_out)
 
+	def close_file(self):
+		if self.file_widget.dirty:
+			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
+			if not interaction.showdialog(quit_msg, ask=True):
+				return True
+		return False
+
+	def closeEvent(self, event):
+		if self.close_file():
+			event.ignore()
+			return
+		event.accept()
 
 class PropertyContainer(QtWidgets.QGroupBox):
 	def __init__(self, gui, name):
@@ -425,6 +550,11 @@ class TextureVisual:
 
 		# get tooltip
 		tooltip = self.container.gui.tooltips.get(self.entry.name, "Undocumented attribute.")
+		if container.title() == "Attributes":
+			most_common = [fr"{a[0]} ({a[1]})" if len(a[0]) > 1 else fr"{a[0][0]} ({a[1]})"
+							for a in self.container.gui.fgm_dict.attributes.get(self.entry.name, [("No data",), 0])[1]
+							if len(a) > 0]
+			tooltip += fr"<br><br>Most Common Values (Usage #)<br> {'<br>'.join(most_common)}"
 		self.w_data.setToolTip(tooltip)
 		self.w_label.setToolTip(tooltip)
 		self.b_delete.setToolTip(f"Delete {entry.name}")
@@ -460,6 +590,7 @@ class TextureVisual:
 		else:
 			# Update attribute offsets after changing type
 			self.container.gui.fix_att_offsets(self.container.entry_list)
+		self.container.gui.set_dirty()
 
 	def update_dtype(self, ind):
 		dtype_name = self.w_dtype.currentText()
@@ -491,6 +622,7 @@ class TextureVisual:
 
 	def update_file(self, file):
 		self.data.dependency_name.data = file
+		self.container.gui.set_dirty()
 
 	def create_fields(self):
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
@@ -584,6 +716,16 @@ class TextureVisual:
 			field.children()[1].setValue(default)
 		else:
 			field.setValue(default)
+
+		# Connect *after* setting initial value
+		if "RGBA" in t:
+			field.children()[1].colorChanged.connect(self.container.gui.set_dirty)
+		elif "Float" in t:
+			field.valueChanged.connect(self.container.gui.set_dirty)
+		elif "Bool" in t:
+			field.clicked.connect(self.container.gui.set_dirty)
+		elif "Int" in t:
+			field.valueChanged.connect(self.container.gui.set_dirty)
 			
 		field.setMinimumWidth(50)
 		return field
