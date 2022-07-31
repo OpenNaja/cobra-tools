@@ -11,7 +11,6 @@ import sys
 import os
 import shutil
 import pathlib
-import webbrowser
 import traceback
 
 from PyQt5 import QtCore
@@ -20,7 +19,6 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QMenuBar
-from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QCheckBox
 
