@@ -46,18 +46,27 @@ class Array(list):
             self.set_defaults()
 
     def set_defaults(self):
-        self[:] = self.create_nested_list(lambda: self.dtype(self.context, self.arg, self.template), self.shape)
+        self[:] = self.fill(lambda: self.dtype(self.context, self.arg, self.template))
 
     def read(self, stream):
         self.io_start = stream.tell()
-        self[:] = self.create_nested_list(lambda: self.dtype.from_stream(stream, self.context, self.arg, self.template),
-                                          self.shape)
+        self[:] = self.fill(lambda: self.dtype.from_stream(stream, self.context, self.arg, self.template))
         self.io_size = stream.tell() - self.io_start
 
     def write(self, stream):
         self.io_start = stream.tell()
         self.perform_nested_func(self, lambda x: self.dtype.to_stream(stream, x), self.ndim)
         self.io_size = stream.tell() - self.io_start
+
+    def fill(self, function_to_generate):
+        # fill every entry of this array using the function_to_generate
+        if len(self.shape) > 1:
+			# a multi-dimensional array must be filled with subarrays to allow .shape access on them
+            array_list = [Array(self.shape[1:], self.dtype, self.context, self.arg, self.template, set_default=False) for _ in range(self.shape[0])]
+            self[:] = [array.fill(function_to_generate) for array in array_list]
+        else:
+            self[:] = [function_to_generate() for _ in range(self.shape[0])]
+        return self
 
     @classmethod
     def from_stream(cls, stream, shape, dtype, context, arg=0, template=None):
@@ -112,14 +121,6 @@ class Array(list):
     @property
     def size(self):
         return math.prod(self.shape)
-
-    @classmethod
-    def create_nested_list(cls, function_to_generate, shape):
-        # create a nested list with the specified shape, where every element is created by function_to_generate()
-        if len(shape) > 1:
-            return [cls.create_nested_list(function_to_generate, shape[1:]) for _ in range(shape[0])]
-        else:
-            return [function_to_generate() for _ in range(shape[0])]
 
     @classmethod
     def perform_nested_func(cls, nested_iterable, efunc, ndim):
