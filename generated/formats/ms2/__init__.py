@@ -252,9 +252,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"Updating buffer 2")
 			# first init all writers for the buffers
 			for buffer_info in self.buffer_infos:
-				# write each mesh's vert & tri block to a temporary buffer
+				# write each mesh's data blocks to a temporary buffer
 				buffer_info.verts = io.BytesIO()
 				buffer_info.tris = io.BytesIO()
+				buffer_info.tri_chunks = io.BytesIO()
+				buffer_info.vert_chunks = io.BytesIO()
 			# now store each model
 			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 				logging.debug(f"Storing {mdl2_name}")
@@ -289,7 +291,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# store static buffer
 			if self.buffer_infos:
 				static_buffer_info = self.buffer_infos[-1]
-				self.buffer_2_bytes = static_buffer_info.verts_bytes + static_buffer_info.tris_bytes
+				self.buffer_2_bytes = static_buffer_info.verts_bytes + static_buffer_info.tris_bytes \
+					+ buffer_info.tri_chunks_bytes + buffer_info.vert_chunks_bytes
 
 	@property
 	def buffers(self):

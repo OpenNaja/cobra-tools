@@ -403,3 +403,23 @@ class BioMeshData(MeshData):
 		# else:
 		# 	return triangulate((self.tri_indices,))
 
+	def write_data(self):
+		# todo - rewrite to save tris and verts per chunk, and update the offsets each time
+		# write to the stream_info that has been assigned to mesh
+		self.vertex_count = len(self.verts_data)
+		self.tris_count = (len(self.tri_indices) // 3)  # * self.shell_count
+		# write vertices
+		self.stream_info.verts.write(self.verts_data.tobytes())
+		# write tris
+		tri_bytes = self.tri_indices.tobytes()
+		# extend tri array according to shell count
+		# logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
+		# for shell in range(self.shell_count):
+		self.stream_info.tris.write(tri_bytes)
+
+		# write the chunks
+		self.chunks_offset = self.stream_info.tri_chunks.tell() // 64
+		self.chunks_count = len(self.tri_chunks)
+		Array.to_stream(self.stream_info.tri_chunks, self.tri_chunks, (self.chunks_count,), TriChunk, self.context, 0, None)
+		Array.to_stream(self.stream_info.vert_chunks, self.vert_chunks, (self.chunks_count,), VertChunk, self.context, 0, None)
+
