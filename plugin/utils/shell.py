@@ -29,12 +29,15 @@ def create_lods():
 	col = scn.collection
 	col_list = bpy.types.Collection(col).children
 
+	# enforce inclusion of all lod_collections [tick box] and their objects to avoid error
+	view_layer = bpy.context.view_layer
+	for layer_collection in view_layer.layer_collection.children:
+		layer_collection.exclude = False
+
 	# Make list of all LOD collections
 	lod_collections = [col for col in col_list if col.name[:-1].endswith("LOD")]
 	# Setup default lod ratio values
 	lod_ratios = [1, 0.8, 0.56, 0.34, 0.2, 0.08]
-
-	# todo - enforce visibility of all lod_collections and their objects to avoid error when they are not visible
 
 	# Deleting old LODS
 	for lod_coll in lod_collections[1:]:
