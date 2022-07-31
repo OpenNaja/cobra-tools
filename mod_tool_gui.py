@@ -7,7 +7,6 @@
 # TODO: split getting src folder list, watcher folder should contain all 
 # directiories, or it wont detect changes in empty folders.
 
-
 import sys
 import os
 import shutil
@@ -15,39 +14,32 @@ import pathlib
 import webbrowser
 import traceback
 
-# Import QApplication and the required widgets from PyQt5.QtWidgets
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QMenuBar
 from PyQt5.QtWidgets import QAction
-from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QStyleFactory
 from PyQt5.QtWidgets import QCheckBox
 
-from PyQt5 import QtGui, QtCore
-
-from ovl_util import widgets, interaction, qt_threads
-from ovl_util import config, qt_theme
+from ovl_util import widgets
+from ovl_util import config
+from ovl_util.widgets import startup, MainWindow
 from generated.formats.ovl import OvlFile, games, set_game
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'
 
 
-# Create a subclass of QMainWindow to setup the calculator's GUI
-class ModToolGUI(QMainWindow):
+class ModToolGUI(MainWindow):
     """Main's View (GUI)."""
 
     def __init__(self):
 
         """View initializer."""
-        super().__init__()
+        super().__init__("ModToolGUI")
 
         # save config file name from args
         self.config_path = ''
@@ -68,8 +60,6 @@ class ModToolGUI(QMainWindow):
             (help_menu, "Documentation", self.online_support, "", "manual"))
         self.add_to_menu(button_data)
         self.setMenuBar(main_menu)
-        self.aboutAction = QAction("&About", self)
-        help_menu.addAction(self.aboutAction)
 
         # Set the central widget
         self.generalLayout = QVBoxLayout()
@@ -108,25 +98,6 @@ class ModToolGUI(QMainWindow):
 
         if len(sys.argv) > 1:
             self.apply_from_config(sys.argv[1])
-
-    def report_bug(self):
-        webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
-
-    def online_support(self):
-        webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
-
-    def add_to_menu(self, button_data):
-        for submenu, name, func, shortcut, icon_name in button_data:
-            button = QAction(name, self)
-            # if icon_name:
-            # icon = get_icon(icon_name)
-            # if not icon:
-            #   icon = self.style().standardIcon(getattr(QtWidgets.QStyle, icon))
-            # button.setIcon(icon)
-            button.triggered.connect(func)
-            if shortcut:
-                button.setShortcut(shortcut)
-            submenu.addAction(button)
 
     def apply_from_config(self, path):
         try:
@@ -175,10 +146,6 @@ class ModToolGUI(QMainWindow):
             config.write_config(self.config_path, tconfig)
         except IOError:
             print("Config save failed.")
-        pass
-
-    def aboutAction(self):
-        pass
 
     def set_src_path(self, sPath):
         self.src_widget.setText(sPath)
@@ -325,22 +292,5 @@ class ModToolGUI(QMainWindow):
         self.copy_file(srcbasepath, dstbasepath, "Readme.md")
 
 
-# cmd line code
-def main():
-    """Main function."""
-    # Create an instance of QApplication
-    mToolApp = QApplication(sys.argv)
-    mToolApp.setStyle(QStyleFactory.create('Fusion'))
-    mToolApp.setPalette(qt_theme.dark_palette)
-    mToolApp.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
-
-    # Show the GUI
-    view = ModToolGUI()
-    view.show()
-
-    # Execute the main loop
-    sys.exit(mToolApp.exec_())
-
-
 if __name__ == '__main__':
-    main()
+    startup(ModToolGUI)
