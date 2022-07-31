@@ -34,15 +34,6 @@ attrib_sizes = {
 	6: 4, # FgmDtype.Bool
 }
 
-# Because FgmDtype does not have a from int
-attrib_dtypes = {
-	0: FgmDtype.Float,
-	1: FgmDtype.Float2,
-	2: FgmDtype.Float3,
-	3: FgmDtype.Float4,
-	5: FgmDtype.Int,
-	6: FgmDtype.Bool,
-}
 
 class MainWindow(widgets.MainWindow):
 
@@ -361,7 +352,7 @@ class MainWindow(widgets.MainWindow):
 				return
 
 		att = AttributeInfo(self.context, set_default=False)
-		att.dtype = attrib_dtypes[self.fgm_dict.attributes[att_name][0]]
+		att.dtype = FgmDtype.from_value(self.fgm_dict.attributes[att_name][0])
 		att.name = att_name
 		att.value_offset = self.offset_for_index(len(self.header.attributes.data))
 		attributes.append(att)
