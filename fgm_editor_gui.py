@@ -1,10 +1,9 @@
 import logging
 import os
-import traceback
 
 import numpy as np
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor, QIcon
+from PyQt5.QtGui import QColor
 
 from generated.formats.fgm.enum.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
@@ -144,7 +143,7 @@ class MainWindow(widgets.MainWindow):
 			set_game(self.header.context, game)
 			# set_game(self.header, game)
 		except BaseException as err:
-			print(err)
+			logging.error("Error setting game")
 
 		if is_jwe2(self.header.context):
 			self.fgm_dict = fgm_jwe2
@@ -185,8 +184,7 @@ class MainWindow(widgets.MainWindow):
 									(self.header.textures.data, self.header.dependencies.data))
 				logging.info("Finished importing texture values")
 			except:
-				logging.error("Error importing texture values")
-				traceback.print_exc()
+				logging.exception("Error importing texture values")
 
 	def import_att(self):
 		self.import_fgm()
@@ -196,8 +194,7 @@ class MainWindow(widgets.MainWindow):
 									(self.header.attributes.data, self.header.data_lib.data))
 				logging.info("Finished importing attribute values")
 			except:
-				logging.error("Error importing attribute values")
-				traceback.print_exc()
+				logging.exception("Error importing attribute values")
 
 	def merge_textures(self, data_old, data_new):
 		try:
@@ -212,8 +209,7 @@ class MainWindow(widgets.MainWindow):
 							dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
 							break
 		except:
-			logging.warning("Could not merge texture values")
-			traceback.print_exc()
+			logging.exception("Could not merge texture values")
 		finally:
 			# Fix indices again after merge
 			self.fix_tex_indices(self.header.textures.data)
@@ -232,8 +228,7 @@ class MainWindow(widgets.MainWindow):
 							lib_new[j].value = lib_old[i].value
 							break
 		except:
-			logging.warning("Could not merge attribute values")
-			traceback.print_exc()
+			logging.exception("Could not merge attribute values")
 		finally:
 			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 			self.set_dirty()
@@ -416,9 +411,8 @@ class MainWindow(widgets.MainWindow):
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
 
 			except Exception as ex:
-				traceback.print_exc()
 				ovl_util.interaction.showdialog(str(ex))
-				logging.warning(ex)
+				logging.exception("Loading fgm errored")
 			logging.info("Done!")
 
 	def import_fgm(self):
@@ -429,18 +423,16 @@ class MainWindow(widgets.MainWindow):
 				self.import_header = FgmHeader.from_xml_file(file_in, self.context)
 				logging.info(f"Importing {file_in}")
 			except Exception as ex:
-				traceback.print_exc()
 				ovl_util.interaction.showdialog(str(ex))
-				logging.warning(ex)
+				logging.exception("Importing fgm errored")
 
 	def _save_fgm(self, filepath):
 		if filepath:
 			try:
 				self.header.to_xml_file(filepath)
 			except BaseException as err:
-				traceback.print_exc()
 				interaction.showdialog(str(err))
-				logging.error(err)
+				logging.exception("Saving fgm errored")
 			logging.info("Done!")
 
 	def save_fgm(self):
@@ -564,7 +556,7 @@ class TextureVisual:
 			self.container.gui.set_attrib_count()
 			self.container.update_gui(self.container.entry_list, self.container.data_list)
 		except:
-			traceback.print_exc()
+			logging.exception("Deleting errored")
 		finally:
 			self.update()
 
@@ -604,7 +596,7 @@ class TextureVisual:
 			self.update()
 
 		except:
-			traceback.print_exc()
+			logging.exception("Updating dtype errored")
 
 	def update_file(self, file):
 		self.data.dependency_name.data = file
