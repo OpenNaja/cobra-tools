@@ -29,10 +29,10 @@ class TriChunk:
 		self.bounds_max = Vector3(self.context, 0, None)
 		self.tris_offset = 0
 
-		# can be 0,0,0, no obvious range
+		# can be 0,0,0, no obvious range, not always within range of bounds
 		self.loc = Vector3(self.context, 0, None)
 
-		# can be 1, 0, 0, 0, the always in range -1, +1
+		# can be 1, 0, 0, 0; w always in range -1, +1
 		self.rot = QuatWFirst(self.context, 0, None)
 		self.u_2 = 0
 		self.u_3 = 0

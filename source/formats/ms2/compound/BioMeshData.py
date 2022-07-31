@@ -101,7 +101,6 @@ class BioMeshData:
 		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 
 		first_tris_offs = self.tri_chunks[0].tris_offset
-		v_off = 0
 		offs = 0
 		flags = set()
 		us = set()
@@ -167,31 +166,29 @@ class BioMeshData:
 			else:
 				raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
 			# store chunk's meta data
-			self.uvs[offs:offs + vert_chunk.vertex_count] = vert_chunk.meta["uvs"]
-			self.colors[offs:offs + vert_chunk.vertex_count] = vert_chunk.meta["colors"]
-			self.normals[offs:offs + vert_chunk.vertex_count, 0:2] = vert_chunk.meta["normal_oct"]
-			self.tangents[offs:offs + vert_chunk.vertex_count, 0:2] = vert_chunk.meta["tangent_oct"]
+			self.uvs[offs: offs+vert_chunk.vertex_count] = vert_chunk.meta["uvs"]
+			self.colors[offs: offs+vert_chunk.vertex_count] = vert_chunk.meta["colors"]
+			self.normals[offs: offs+vert_chunk.vertex_count, 0:2] = vert_chunk.meta["normal_oct"]
+			self.tangents[offs: offs+vert_chunk.vertex_count, 0:2] = vert_chunk.meta["tangent_oct"]
 
 			# self.bones_sets.append((vert_chunk.vertex_count, bones_per_chunk))
 			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(vert_chunk.weights_flag)
 			us.add(tri_chunk.u_1)
 			tris_start = tri_chunk.tris_offset - first_tris_offs
-			self.tri_indices[tris_start:] += v_off
+			self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count] += offs
 
 			# prep face maps
 			fmt_str = str(vert_chunk.weights_flag.mesh_format).split(".")[1]
 			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
 			id_str = f"{fmt_str}_{i:03}{_weights}"
 			self.face_maps[id_str] = list(range(tris_start // 3, (tris_start+tri_chunk.tri_indices_count) // 3))
-
-			v_off = vert_chunk.vertex_count
 			offs += vert_chunk.vertex_count
 		# print(self.face_maps)
 		# logging.info(self.bones_sets)
 		# print("weights_flags", flags, "u1s", us)
-		self.oct_to_vec3(self.normals)
-		self.oct_to_vec3(self.tangents)
+		oct_to_vec3(self.normals)
+		oct_to_vec3(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
@@ -243,18 +240,6 @@ class BioMeshData:
 			self.dt = np.dtype(dt_interleaved48)
 		self.dt_weights = np.dtype(dt_weights)
 
-	def oct_to_vec3(self, arr):
-		# vec3 oct_to_float32x3(vec2 e) {
-		# vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
-		# if (v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
-		# return normalize(v);
-		# }
-		unpack_ubyte_vector(arr, normalize=False)
-		arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
-		# note that advanced indexing like this creates a copy instead of a view, which makes this messy
-		arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, (1, 0)])) * np.sign(arr[:, :2]))[arr[:, 2] < 0]
-		# normalize after conversion
-		arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
 	def read_chunk_infos(self):
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
@@ -268,7 +253,7 @@ class BioMeshData:
 											   0, None)
 		logging.debug(f"{self.chunks_count} vert_chunks at {self.vert_chunks_address}")
 
-	def set_chunks(self, verts):
+	def set_chunks(self, chunks):
 		# set all verts as one list
 		# or use one list for each shape?
 		# correct bounds for the chunk, do after swizzling

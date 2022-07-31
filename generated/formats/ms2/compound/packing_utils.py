@@ -106,3 +106,48 @@ def unpack_weights(model, i):
 
 def remap(v, old_min, old_max, new_min, new_max):
     return ((v - old_min) / (old_max - old_min)) * (new_max - new_min) + new_min
+
+
+def sign_not_zero(a):
+    # 	vec2 signNotZero(vec2 v) {
+    # return vec2((v.x >= 0.0) ? +1.0 : -1.0, (v.y >= 0.0) ? +1.0 : -1.0);
+    # }
+    # np.sign returns -1 if x < 0, 0 if x==0, 1 if x > 0
+    c = a.copy()
+    c[:] = -1.0
+    c[a >= 0.0] = 1.0
+    return c
+
+
+def vec3_to_oct(arr):
+    # ported from Cigolle et al. "Survey of Efficient Representations for Independent Unit Vectors" 2014.
+    # // Assume normalized input. Output is on [-1, 1] for each component.
+    # vec2 float32x3_to_oct(in vec3 v) {
+    # // Project the sphere onto the octahedron, and then onto the xy plane
+    # vec2 p = v.xy * (1.0 / (abs(v.x) + abs(v.y) + abs(v.z)));
+    # // Reflect the folds of the lower hemisphere over the diagonals
+    # return (v.z <= 0.0) ? ((1.0 - abs(p.yx)) * signNotZero(p)) : p;
+    # }
+    # Project the sphere onto the octahedron, and then onto the xy plane
+    arr[:, (0, 1)] /= np.sum(np.abs(arr), axis=1, keepdims=True)
+    # Reflect the folds of the lower hemisphere over the diagonals
+    # update xy when z <= 0
+    arr[arr[:, 2] <= 0.0, :2] = ((1.0 - np.abs(arr[:, (1, 0)])) * sign_not_zero(arr[:, (0, 1)]))[arr[:, 2] <= 0.0, :2]
+    pack_ubyte_vector(arr)
+    # clear z coord
+    arr[:, 2] = 0.0
+
+
+def oct_to_vec3(arr):
+    # ported from Cigolle et al. "Survey of Efficient Representations for Independent Unit Vectors" 2014.
+    # vec3 oct_to_float32x3(vec2 e) {
+    # vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
+    # if (v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
+    # return normalize(v);
+    # }
+    unpack_ubyte_vector(arr, normalize=False)
+    arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
+    # note that advanced indexing like this creates a copy instead of a view, which makes this messy
+    arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, (1, 0)])) * sign_not_zero(arr[:, :2]))[arr[:, 2] < 0]
+    # normalize after conversion
+    arr /= np.linalg.norm(arr, axis=1, keepdims=True)
