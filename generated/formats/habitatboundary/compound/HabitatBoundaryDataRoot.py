@@ -24,7 +24,11 @@ class HabitatBoundaryDataRoot(MemStruct):
 		self.u_1 = 0
 		self.u_2 = 0.0
 		self.u_3 = 0
+
+		# Controls the Straight-Curved option for barriers
 		self.opt_straight_curve = False
+
+		# Controls the Windows option for barriers
 		self.opt_windows = False
 		self.unk_vec_1 = Vector3(self.context, 0, None)
 		self.unk_vec_2 = Vector3(self.context, 0, None)

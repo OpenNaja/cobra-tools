@@ -19,7 +19,7 @@
         <add name="Post" type="Pointer" template="ZString"/>
         <add name="Wall" type="Pointer" template="ZString"/>
         <add name="u2" type="uint" />
-        <add name="PosPostRL" type="Vector3" />
+        <add name="PosPostRL" type="Vector3">x = right post position, y = left post position</add>
         <add name="UnkVec2" type="Vector3" />
         <add name="UnkVec3" type="Vector3" />
         <add name="UnkVec4" type="Vector3" />
@@ -50,8 +50,8 @@
         <add name="u1" type="uint" />
         <add name="u2" type="float" />
         <add name="u3" type="ushort" />
-        <add name="opt_straight_curve" type="bool" />
-        <add name="opt_windows" type="bool" />
+        <add name="opt_straight_curve" type="bool">Controls the Straight-Curved option for barriers</add>
+        <add name="opt_windows" type="bool">Controls the Windows option for barriers</add>
         <add name="UnkVec1" type="Vector3" />
         <add name="UnkVec2" type="Vector3" />
         <add name="UnkVec3" type="Vector3" />

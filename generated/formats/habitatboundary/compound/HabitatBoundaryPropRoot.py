@@ -23,6 +23,8 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.type = 0
 		self.u_1 = 0
 		self.u_2 = 0
+
+		# x = right post position, y = left post position
 		self.pos_post_r_l = Vector3(self.context, 0, None)
 		self.unk_vec_2 = Vector3(self.context, 0, None)
 		self.unk_vec_3 = Vector3(self.context, 0, None)
