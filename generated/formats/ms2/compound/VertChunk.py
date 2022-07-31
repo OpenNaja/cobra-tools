@@ -4,11 +4,10 @@ from generated.context import ContextReference
 from generated.formats.ms2.bitfield.WeightsFlag import WeightsFlag
 
 
-class OffsetChunk:
+class VertChunk:
 
 	"""
-	used in JWE2 Biosyn
-	16 bytes
+	JWE2 Biosyn: 16 bytes
 	"""
 
 	context = ContextReference()
@@ -87,7 +86,7 @@ class OffsetChunk:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'OffsetChunk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'VertChunk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

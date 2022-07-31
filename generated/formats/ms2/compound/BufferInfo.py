@@ -11,7 +11,7 @@ class BufferInfo:
 	JWE1: 48 bytes
 	PZ old: 32 bytes?
 	PZ1.6+ and JWE2: 56 bytes
-	JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, chunks_pos, chunks_size
+	JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, tri_chunks, vert_chunks
 	
 	JWE and PC, 16 bytes of 00 padding
 	"""
@@ -27,14 +27,14 @@ class BufferInfo:
 		self.io_start = 0
 		self.u_0 = 0
 		self.u_1 = 0
-		self.chunk_pos_size = 0
-		self.chunk_pos_ptr = 0
-		self.chunks_size = 0
-		self.chunks_ptr = 0
-		self.vertex_buffer_size = 0
+		self.tri_chunks_size = 0
+		self.tri_chunks_ptr = 0
+		self.vert_chunks_size = 0
+		self.vert_chunks_ptr = 0
+		self.verts_size = 0
 		self.u_2 = 0
 		self.u_3 = 0
-		self.tris_buffer_size = 0
+		self.tris_size = 0
 		self.u_4 = 0
 		self.u_5 = 0
 		self.u_6 = 0
@@ -53,19 +53,19 @@ class BufferInfo:
 		if 32 <= self.context.version <= 47:
 			self.u_1 = 0
 		if (self.context.version == 51) and self.context.biosyn:
-			self.chunk_pos_size = 0
+			self.tri_chunks_size = 0
 		if (self.context.version == 51) and self.context.biosyn:
-			self.chunk_pos_ptr = 0
+			self.tri_chunks_ptr = 0
 		if (self.context.version == 51) and self.context.biosyn:
-			self.chunks_size = 0
+			self.vert_chunks_size = 0
 		if (self.context.version == 51) and self.context.biosyn:
-			self.chunks_ptr = 0
-		self.vertex_buffer_size = 0
+			self.vert_chunks_ptr = 0
+		self.verts_size = 0
 		self.u_2 = 0
 		if self.context.version >= 48:
 			self.u_3 = 0
 		if not (self.context.version == 32):
-			self.tris_buffer_size = 0
+			self.tris_size = 0
 		if not (self.context.version == 32):
 			self.u_4 = 0
 		if self.context.version >= 48:
@@ -97,17 +97,17 @@ class BufferInfo:
 			instance.u_0 = stream.read_uint64()
 			instance.u_1 = stream.read_uint64()
 		if (instance.context.version == 51) and instance.context.biosyn:
-			instance.chunk_pos_size = stream.read_uint64()
-			instance.chunk_pos_ptr = stream.read_uint64()
+			instance.tri_chunks_size = stream.read_uint64()
+			instance.tri_chunks_ptr = stream.read_uint64()
 		if (instance.context.version == 51) and instance.context.biosyn:
-			instance.chunks_size = stream.read_uint64()
-			instance.chunks_ptr = stream.read_uint64()
-		instance.vertex_buffer_size = stream.read_uint64()
+			instance.vert_chunks_size = stream.read_uint64()
+			instance.vert_chunks_ptr = stream.read_uint64()
+		instance.verts_size = stream.read_uint64()
 		instance.u_2 = stream.read_uint64()
 		if instance.context.version >= 48:
 			instance.u_3 = stream.read_uint64()
 		if not (instance.context.version == 32):
-			instance.tris_buffer_size = stream.read_uint64()
+			instance.tris_size = stream.read_uint64()
 			instance.u_4 = stream.read_uint64()
 		if instance.context.version >= 48:
 			instance.u_5 = stream.read_uint64()
@@ -125,17 +125,17 @@ class BufferInfo:
 			stream.write_uint64(instance.u_0)
 			stream.write_uint64(instance.u_1)
 		if (instance.context.version == 51) and instance.context.biosyn:
-			stream.write_uint64(instance.chunk_pos_size)
-			stream.write_uint64(instance.chunk_pos_ptr)
+			stream.write_uint64(instance.tri_chunks_size)
+			stream.write_uint64(instance.tri_chunks_ptr)
 		if (instance.context.version == 51) and instance.context.biosyn:
-			stream.write_uint64(instance.chunks_size)
-			stream.write_uint64(instance.chunks_ptr)
-		stream.write_uint64(instance.vertex_buffer_size)
+			stream.write_uint64(instance.vert_chunks_size)
+			stream.write_uint64(instance.vert_chunks_ptr)
+		stream.write_uint64(instance.verts_size)
 		stream.write_uint64(instance.u_2)
 		if instance.context.version >= 48:
 			stream.write_uint64(instance.u_3)
 		if not (instance.context.version == 32):
-			stream.write_uint64(instance.tris_buffer_size)
+			stream.write_uint64(instance.tris_size)
 			stream.write_uint64(instance.u_4)
 		if instance.context.version >= 48:
 			stream.write_uint64(instance.u_5)
@@ -169,14 +169,14 @@ class BufferInfo:
 		s = ''
 		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
 		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* chunk_pos_size = {fmt_member(self.chunk_pos_size, indent+1)}'
-		s += f'\n	* chunk_pos_ptr = {fmt_member(self.chunk_pos_ptr, indent+1)}'
-		s += f'\n	* chunks_size = {fmt_member(self.chunks_size, indent+1)}'
-		s += f'\n	* chunks_ptr = {fmt_member(self.chunks_ptr, indent+1)}'
-		s += f'\n	* vertex_buffer_size = {fmt_member(self.vertex_buffer_size, indent+1)}'
+		s += f'\n	* tri_chunks_size = {fmt_member(self.tri_chunks_size, indent+1)}'
+		s += f'\n	* tri_chunks_ptr = {fmt_member(self.tri_chunks_ptr, indent+1)}'
+		s += f'\n	* vert_chunks_size = {fmt_member(self.vert_chunks_size, indent+1)}'
+		s += f'\n	* vert_chunks_ptr = {fmt_member(self.vert_chunks_ptr, indent+1)}'
+		s += f'\n	* verts_size = {fmt_member(self.verts_size, indent+1)}'
 		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
 		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
-		s += f'\n	* tris_buffer_size = {fmt_member(self.tris_buffer_size, indent+1)}'
+		s += f'\n	* tris_size = {fmt_member(self.tris_size, indent+1)}'
 		s += f'\n	* u_4 = {fmt_member(self.u_4, indent+1)}'
 		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
 		s += f'\n	* u_6 = {fmt_member(self.u_6, indent+1)}'

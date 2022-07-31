@@ -183,8 +183,8 @@ def parent_to(armature_ob, ob, bone_name):
 
 def import_chunk_bounds(b_full_me, mesh, lod_coll):
 	corrector = matrix_util.Corrector(False)
-	if hasattr(mesh, "pos_chunks"):
-		for i, pos in enumerate(mesh.pos_chunks):
+	if hasattr(mesh, "tri_chunks"):
+		for i, pos in enumerate(mesh.tri_chunks):
 			name = f"{b_full_me.name}_bbox_{i:03}"
 			v0 = unpack_swizzle([pos.bounds_min.x, pos.bounds_min.y, pos.bounds_min.z])
 			v1 = unpack_swizzle([pos.bounds_max.x, pos.bounds_max.y, pos.bounds_max.z])

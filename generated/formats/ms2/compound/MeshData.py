@@ -149,7 +149,7 @@ class MeshData(MemStruct):
 
 	@property
 	def tris_address(self):
-		return self.stream_info.vertex_buffer_size + self.tri_offset
+		return self.stream_info.verts_size + self.tri_offset
 
 	def read_tris(self):
 		# read all tri indices for this mesh, but only as many as needed if there are shells

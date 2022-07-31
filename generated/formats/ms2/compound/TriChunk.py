@@ -4,11 +4,10 @@ from generated.formats.ms2.compound.QuatWFirst import QuatWFirst
 from generated.formats.ms2.compound.Vector3 import Vector3
 
 
-class PosChunk:
+class TriChunk:
 
 	"""
-	used in JWE2 Biosyn
-	64 bytes
+	JWE2 Biosyn: 64 bytes
 	"""
 
 	context = ContextReference()
@@ -101,7 +100,7 @@ class PosChunk:
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'PosChunk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'TriChunk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

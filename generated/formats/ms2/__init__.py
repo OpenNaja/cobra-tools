@@ -277,14 +277,19 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# modify buffer size
 			for buffer_info in self.buffer_infos:
 				# get bytes from IO obj
-				buffer_info.vert_bytes = buffer_info.verts.getvalue()
+				buffer_info.verts_bytes = buffer_info.verts.getvalue()
+				buffer_info.verts_size = len(buffer_info.verts_bytes)
 				buffer_info.tris_bytes = buffer_info.tris.getvalue()
-				buffer_info.vertex_buffer_size = len(buffer_info.vert_bytes)
-				buffer_info.tris_buffer_size = len(buffer_info.tris_bytes)
+				buffer_info.tris_size = len(buffer_info.tris_bytes)
+				buffer_info.tri_chunks_bytes = buffer_info.tri_chunks.getvalue()
+				buffer_info.tri_chunks_size = len(buffer_info.tri_chunks_bytes)
+				buffer_info.vert_chunks_bytes = buffer_info.vert_chunks.getvalue()
+				buffer_info.vert_chunks_size = len(buffer_info.vert_chunks_bytes)
+				
 			# store static buffer
 			if self.buffer_infos:
 				static_buffer_info = self.buffer_infos[-1]
-				self.buffer_2_bytes = static_buffer_info.vert_bytes + static_buffer_info.tris_bytes
+				self.buffer_2_bytes = static_buffer_info.verts_bytes + static_buffer_info.tris_bytes
 
 	@property
 	def buffers(self):
@@ -306,7 +311,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if buffer_info.name != "STATIC":
 				buffer_info.path = os.path.join(self.dir, buffer_info.name)
 				with open(buffer_info.path, "wb") as f:
-					f.write(buffer_info.vert_bytes + buffer_info.tris_bytes)
+					f.write(buffer_info.verts_bytes + buffer_info.tris_bytes)
 
 	def lookup_material(self):
 		for name, model_info in zip(self.mdl_2_names, self.model_infos):

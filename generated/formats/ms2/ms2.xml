@@ -240,8 +240,8 @@
 
 	<compound name="BioMeshData" inherit="MeshData">
 		JWE2 - 48 bytes incl. inheritance
-		<add name="chunks_offset" type="uint" >unk</add>
-		<add name="chunks_count" type="uint" >unk</add>
+		<add name="chunks_offset" type="uint" >start index into list of verts / tris chunks</add>
+		<add name="chunks_count" type="uint" >count of verts / tris chunks</add>
 		<add name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
 		<add name="vertex_count" type="uint" >num verts in mesh</add>
 		<add name="zero1" type="uint64">unk, may be used in other models</add>
@@ -373,20 +373,18 @@
 		JWE1: 48 bytes
 		PZ old: 32 bytes?
 		PZ1.6+ and JWE2: 56 bytes
-		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, chunks_pos, chunks_size
+		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, tri_chunks, vert_chunks
 
 		JWE and PC, 16 bytes of 00 padding
 		<add name="u0" type="uint64" since="32" until="47" />
 		<add name="u1" type="uint64" since="32" until="47" />
 
-		<add name="chunk_pos_size" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="chunk_pos_ptr" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="tri_chunks_size" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="tri_chunks_ptr" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="vert_chunks_size" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="vert_chunks_ptr" type="uint64" vercond="#JWE2_BIO#"/>
 
-		# these give counts per
-		<add name="chunks_size" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="chunks_ptr" type="uint64" vercond="#JWE2_BIO#"/>
-
-		<add name="vertex_buffer_size" type="uint64"/>
+		<add name="verts_size" type="uint64"/>
 		<add name="u2" type="uint64"/>
 		PC ends here
 		PZ+, another 8 empty bytes
@@ -394,7 +392,7 @@
 		on all games except PC
 
 		at offset 56 in JWE2
-		<add name="tris_buffer_size" type="uint64" vercond="!#PC#"/>
+		<add name="tris_size" type="uint64" vercond="!#PC#"/>
 		<add name="u4" type="uint64" vercond="!#PC#"/>
 		PZ+, another 16 empty bytes
 		<add name="u5" type="uint64" since="48" />
@@ -406,9 +404,8 @@
 		<add name="u7" type="uint64" until="13" />
 	</compound>
 
-	<compound name="PosChunk" >
-		used in JWE2 Biosyn
-		64 bytes
+	<compound name="TriChunk" >
+		JWE2 Biosyn: 64 bytes
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0</add>
 		<add name="u0" type="ushort"/> 0
 		<add name="u1" type="ushort"/>
@@ -421,9 +418,8 @@
 		<add name="u3" type="ushort"/> 0 or 3 in theri
 	</compound>
 	
-	<compound name="OffsetChunk" >
-		used in JWE2 Biosyn
-		16 bytes
+	<compound name="VertChunk" >
+		JWE2 Biosyn: 16 bytes
 		<add name="flags" type="ubyte" arr1="4" />
 		<add name="pack_offset" type="float" >scale: pack_offset / 512, also added as offset</add>
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
@@ -437,8 +433,6 @@
 		JWE2 - 192 bytes
 		JWE2 Biosyn - 160 bytes
 		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented
-
-		this block loses 24 bytes after Biosyn
 		<add name="unk dla" type="uint64" until="7">??</add>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="unk float a" type="float" since="47" vercond="!#JWE2_BIO#">not sure, for PZ often 40 00 00 37 for animals</add>
@@ -451,7 +445,6 @@
 		<add name="bounds min repeat" type="Vector3" since="32">verbatim repeat</add>
 		<add name="bounds max repeat" type="Vector3" since="32">verbatim repeat</add>
 <!--		array counts-->
-		for JWE2 incl Biosyn, these are 32 bytes
 		<add name="num_materials" type="ushort"/>
 		<add name="num_lods" type="ushort"/>
 		<add name="num_objects" type="ushort"/>
@@ -469,7 +462,6 @@
 		<add name="first_model" type="Pointer">points to the start of this ModelInfo's model, usually starts at materials
 			stays the same for successive mdl2s in the same model; or points to nil if no models are present</add>
 
-		this loses 8 bytes after Biosyn
 		<add name="zeros" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="zeros" type="uint64" arr1="2" vercond="#DLA#"/>
 		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>

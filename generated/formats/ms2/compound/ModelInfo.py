@@ -18,8 +18,6 @@ class ModelInfo(MemStruct):
 	JWE2 - 192 bytes
 	JWE2 Biosyn - 160 bytes
 	There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented
-	
-	this block loses 24 bytes after Biosyn
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

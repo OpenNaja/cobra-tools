@@ -84,7 +84,7 @@ class ZtMeshData:
 			f"{self.vertex_count} vertices from {self.start_of_vertices:5} to {self.end_of_vertices:5} "
 			f"in stream {self.get_stream_index()}, size {size:5}")
 		# print(self.verts_data.shape)
-		self.stream_info.stream.seek(self.stream_info.vertex_buffer_size + self.stream_info.tris_buffer_size + self.uv_offset)
+		self.stream_info.stream.seek(self.stream_info.verts_size + self.stream_info.tris_size + self.uv_offset)
 		# logging.debug(f"UV at {self.stream_info.stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
 		self.stream_info.stream.readinto(self.colors_data)
