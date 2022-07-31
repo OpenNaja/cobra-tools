@@ -206,6 +206,7 @@ class XmlParser:
                     self.apply_convention(field, convention.name_attribute, ("name",))
                     self.apply_convention(field, convention.name_class, ("type",))
             elif struct.tag in self.struct_types:
+                self.apply_convention(struct, convention.force_bool, ("generic",))
                 # a struct's fields
                 for field in struct:
                     self.apply_convention(field, convention.name_attribute, ("name",))
