@@ -2,19 +2,17 @@ import logging
 import os
 import struct
 
-from generated.context import ContextReference
 from generated.formats.bnk.compound.BKHDSection import BKHDSection
 from generated.formats.bnk.compound.DATASection import DATASection
 from generated.formats.bnk.compound.DIDXSection import DIDXSection
 from generated.formats.bnk.compound.HIRCSection import HIRCSection
+from generated.struct import StructBase
 from modules.formats.shared import get_padding
 from ovl_util.texconv import write_riff_file
 
 
-class AuxFileContainer:
+class AuxFileContainer(StructBase):
 	# Custom file struct
-
-	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None, set_default=False):
 		self._context = context

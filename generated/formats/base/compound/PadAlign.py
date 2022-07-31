@@ -1,5 +1,6 @@
 
 from generated.io import MAX_LEN
+from generated.struct import StructBase
 from modules.formats.shared import get_padding_size
 
 ZERO = b"\x00"
@@ -21,8 +22,6 @@ class PadAlign(StructBase):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-
-	context = ContextReference()
 
 	def __init__(self, context, arg=0, template=None):
 		# template is reference object

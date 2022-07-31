@@ -2,7 +2,7 @@
 import logging
 import traceback
 
-from generated.context import ContextReference
+from generated.struct import StructBase
 from generated.formats.manis.compound.ManiBlock import ManiBlock
 from modules.formats.shared import get_padding_size, get_padding
 

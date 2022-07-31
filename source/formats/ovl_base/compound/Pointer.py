@@ -1,18 +1,16 @@
 # START_GLOBALS
 import struct
-from generated.context import ContextReference
+from generated.struct import StructBase
 # from generated.formats.ovl.compound.Fragment import Fragment
 
 # END_GLOBALS
 
 
-class Pointer:
+class Pointer(StructBase):
 
 	"""
 	a pointer in an ovl memory layout
 	"""
-
-	context = ContextReference()
 
 # START_CLASS
 

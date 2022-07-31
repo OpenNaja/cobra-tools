@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.struct import StructBase
 
@@ -6,12 +6,7 @@ from generated.struct import StructBase
 class QuatWFirst(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.w = 0
 		self.x = 0
 		self.y = 0

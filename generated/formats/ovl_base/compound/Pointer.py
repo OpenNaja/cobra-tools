@@ -1,6 +1,6 @@
 
 import struct
-from generated.context import ContextReference
+from generated.struct import StructBase
 # from generated.formats.ovl.compound.Fragment import Fragment
 
 from generated.formats.base.basic import fmt_member
