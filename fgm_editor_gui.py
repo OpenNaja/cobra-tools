@@ -26,12 +26,12 @@ from ovl_util.config import logging_setup
 logging_setup("fgm_editor")
 
 attrib_sizes = {
-	0: 4, # FgmDtype.Float
-	1: 8, # FgmDtype.Float2
-	2: 12, # FgmDtype.Float3
-	3: 16, # FgmDtype.Float4
-	5: 4, # FgmDtype.Int
-	6: 4, # FgmDtype.Bool
+	0: 4,  # FgmDtype.Float
+	1: 8,  # FgmDtype.Float2
+	2: 12,  # FgmDtype.Float3
+	3: 16,  # FgmDtype.Float4
+	5: 4,  # FgmDtype.Int
+	6: 4,  # FgmDtype.Bool
 }
 
 
@@ -39,7 +39,7 @@ class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "FGM Editor", )
-		
+
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
@@ -186,7 +186,7 @@ class MainWindow(widgets.MainWindow):
 		self.import_fgm()
 		if self.import_header:
 			try:
-				self.merge_textures((self.import_header.textures.data, self.import_header.dependencies.data), 
+				self.merge_textures((self.import_header.textures.data, self.import_header.dependencies.data),
 									(self.header.textures.data, self.header.dependencies.data))
 				logging.info("Finished importing texture values")
 			except:
@@ -267,7 +267,7 @@ class MainWindow(widgets.MainWindow):
 
 		for tex in self.fgm_dict.shader_textures[self.header.shader_name]:
 			self.add_texture(tex)
-		
+
 		for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
 			self.add_attribute(att)
 
@@ -702,7 +702,7 @@ class TextureVisual:
 			field.valueChanged.connect(update_ind_int)
 		else:
 			raise AttributeError(f"Unsupported field type {t}")
-		
+
 		if "RGBA" in t:
 			field.children()[1].setValue(default)
 		else:
@@ -717,7 +717,7 @@ class TextureVisual:
 			field.clicked.connect(self.container.gui.set_dirty)
 		elif "Int" in t:
 			field.valueChanged.connect(self.container.gui.set_dirty)
-			
+
 		field.setMinimumWidth(50)
 		return field
 
