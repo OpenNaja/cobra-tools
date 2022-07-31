@@ -269,6 +269,8 @@ class BioMeshData:
 		logging.debug(f"{self.chunks_count} vert_chunks at {self.vert_chunks_address}")
 
 	def set_chunks(self, verts):
+		# set all verts as one list
+		# or use one list for each shape?
 		# correct bounds for the chunk, do after swizzling
 		# tri_chunk.bounds_min.set(np.min(self.vertices[offs:offs + vert_chunk.vertex_count], axis=0))
 		# tri_chunk.bounds_max.set(np.max(self.vertices[offs:offs + vert_chunk.vertex_count], axis=0))
