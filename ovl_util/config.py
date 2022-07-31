@@ -5,8 +5,6 @@ import os
 
 from root_path import root_dir
 
-plugin_dir = os.path.dirname(os.path.dirname(__file__))
-
 
 def save_config(cfg_dict):
 	with open(os.path.join(root_dir, "config.json"), "w") as json_writer:
@@ -58,7 +56,7 @@ def read_list(cfg_path):
 
 
 def logging_setup(log_name):
-	log_path = f'{os.path.join(plugin_dir, log_name)}.log'
+	log_path = f'{os.path.join(root_dir, log_name)}.log'
 	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
 	# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
@@ -74,7 +72,7 @@ def logging_setup(log_name):
 
 
 def get_version():
-	init_path = f'{os.path.join(plugin_dir, "__init__")}.py'
+	init_path = f'{os.path.join(root_dir, "__init__")}.py'
 	with open(init_path, "r") as f:
 		line = ""
 		while '"version"' not in line:
@@ -92,7 +90,7 @@ def get_version_str():
 
 
 def get_commit_str():
-	with open(os.path.join(plugin_dir, "version.txt"), "r") as f:
+	with open(os.path.join(root_dir, "version.txt"), "r") as f:
 		return f.read()
 
 

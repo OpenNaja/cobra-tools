@@ -19,7 +19,7 @@ from generated.formats.fgm.compound.AttribData import AttribData
 from generated.array import Array
 from generated.formats.ovl.versions import *
 from ovl_util import widgets, config, interaction
-from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT
+from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 
 from ovl_util.config import logging_setup
 
@@ -124,11 +124,6 @@ class MainWindow(widgets.MainWindow):
 		if self.lock_attrs.isChecked():
 			self.attribute_choice.hide()
 			self.attribute_add.hide()
-
-	@staticmethod
-	def get_icon(name, format="png"):
-		base_dir = os.path.dirname(os.path.realpath(__file__))
-		return QIcon(os.path.join(base_dir, f'icons/{name}.{format}'))
 
 	def dragEnterEvent(self, e):
 		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
@@ -530,7 +525,7 @@ class TextureVisual:
 				self.w_dtype.setDisabled(True)
 
 		self.b_delete = QtWidgets.QPushButton()
-		self.b_delete.setIcon(container.gui.get_icon("x", "svg"))
+		self.b_delete.setIcon(get_icon("x", ".svg"))
 		self.b_delete.setFlat(True)
 		self.b_delete.setIconSize(QtCore.QSize(12, 12))
 		self.b_delete.setFixedSize(16, 16)

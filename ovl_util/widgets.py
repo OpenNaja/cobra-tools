@@ -48,6 +48,10 @@ def vbox(parent, grid):
 	parent.setLayout(grid)
 
 
+def get_icon(name, ext=".png"):
+	return QtGui.QIcon(os.path.join(root_dir, f'icons/{name}{ext}'))
+
+
 class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
 	"""
 	Implements a QSortFilterProxyModel that allows for custom
@@ -143,24 +147,23 @@ class TableModel(QtCore.QAbstractTableModel):
 		print("renamed", a, b)
 
 	def data(self, index, role):
+		file_row = self._data[index.row()]
 		if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
 			# See below for the nested-list data structure.
 			# .row() indexes into the outer list,
 			# .column() indexes into the sub-list
-			if len(self._data[index.row()]):
+			if len(file_row):
 				return self._data[index.row()][index.column()]
 
 		if role == QtCore.Qt.ForegroundRole:
-			_type = self._data[index.row()]
-			if len(_type) and _type[1] in self.ignore_types:
+			if len(file_row) and file_row[1] in self.ignore_types:
 				return QtGui.QColor('grey')
 
 		if role == QtCore.Qt.DecorationRole:
 			if index.column() == 0:
-				_type = self._data[index.row()]
-				if len(_type) and _type[1] in self.ignore_types:
-					# remove the leading .
-					return get_icon(_type[1][1:])
+				if len(file_row):
+					# remove the leading '.' from ext
+					return get_icon(file_row[1][1:])
 
 		if role == QtCore.Qt.TextAlignmentRole:
 			# right align hashes
@@ -977,7 +980,7 @@ class DirWidget(QtWidgets.QWidget):
 		super(DirWidget, self).__init__(parent)
 		self.entry = QtWidgets.QLineEdit()
 		self.icon = QtWidgets.QPushButton()
-		self.icon.setIcon(self.get_icon("dir"))
+		self.icon.setIcon(get_icon("dir"))
 		self.icon.setFlat(True)
 		self.icon.mousePressEvent = self.ignoreEvent
 		self.entry.mousePressEvent = self.ignoreEvent
@@ -1009,10 +1012,6 @@ class DirWidget(QtWidgets.QWidget):
 		self.qgrid.addWidget(self.entry, 0, 1)
 
 		self.setLayout(self.qgrid)
-
-	def get_icon(self, name):
-		base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-		return QtGui.QIcon(os.path.join(base_dir, f'icons/{name}.png'))
 
 	def accept_dir(self, dirpath):
 		if os.path.isdir(dirpath):
@@ -1064,11 +1063,6 @@ class DirWidget(QtWidgets.QWidget):
 		self.ask_open_dir()
 
 
-def get_icon(name):
-	base_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-	return QtGui.QIcon(os.path.join(base_dir, f'icons/{name}.png'))
-
-
 class MainWindow(QtWidgets.QMainWindow):
 
 	def __init__(self, name, ):
@@ -1099,8 +1093,6 @@ class MainWindow(QtWidgets.QMainWindow):
 			button = QtWidgets.QAction(name, self)
 			if icon_name:
 				icon = get_icon(icon_name)
-				# if not icon:
-				# 	icon = self.style().standardIcon(getattr(QtWidgets.QStyle, icon))
 				button.setIcon(icon)
 			button.triggered.connect(func)
 			if shortcut:
