@@ -292,7 +292,9 @@ class BioMeshData:
 		# todo - rewrite to save tris and verts per chunk, and update the offsets each time
 		# write to the stream_info that has been assigned to mesh
 		# write vertices
-		self.vertex_count = len(self.verts_data)
+		self.vertex_count = len(self.vertices)
+		# this may not be needed, but for now is used in update_buffer_2_bytes
+		self.tri_index_count = len(self.tri_indices)
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			vert_chunk.vertex_offset = self.stream_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
@@ -304,7 +306,9 @@ class BioMeshData:
 		self.tris_count = (len(self.tri_indices) // 3)  # * self.shell_count
 		for tri_chunk in self.tri_chunks:
 			tri_chunk.tris_offset = self.stream_info.tris.tell()
-			tri_bytes = tri_chunk.tri_indices.tobytes()
+			_tri_chunk_tri_indices = np.copy(tri_chunk.tri_indices)
+			_tri_chunk_tri_indices -= np.min(_tri_chunk_tri_indices)
+			tri_bytes = _tri_chunk_tri_indices.astype(np.uint8).tobytes()
 			# extend tri array according to shell count
 			# logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
 			# for shell in range(self.shell_count):

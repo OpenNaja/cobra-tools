@@ -13,6 +13,8 @@ from modules.formats.shared import get_padding_size, djb2, get_padding
 
 logging.basicConfig(level=logging.DEBUG)
 
+BUFFER_NAMES = ("verts", "tris", "tri_chunks", "vert_chunks")
+
 
 class Ms2Context:
 	def __init__(self):
@@ -252,11 +254,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"Updating buffer 2")
 			# first init all writers for the buffers
 			for buffer_info in self.buffer_infos:
-				# write each mesh's data blocks to a temporary buffer
-				buffer_info.verts = io.BytesIO()
-				buffer_info.tris = io.BytesIO()
-				buffer_info.tri_chunks = io.BytesIO()
-				buffer_info.vert_chunks = io.BytesIO()
+				for buffer_name in BUFFER_NAMES:
+					setattr(buffer_info, buffer_name, ConvStream())
 			# now store each model
 			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 				logging.debug(f"Storing {mdl2_name}")
@@ -265,7 +264,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				model_info.num_lods = len(model_info.model.lods)
 				model_info.num_objects = len(model_info.model.objects)
 				model_info.num_meshes = len(model_info.model.meshes)
-				# update MeshData
+				# write each mesh's data blocks to the right temporary buffer
 				for wrapper in model_info.model.meshes:
 					wrapper.mesh.assign_stream(self.buffer_infos)
 					wrapper.mesh.write_data()
@@ -278,21 +277,19 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
 			# modify buffer size
 			for buffer_info in self.buffer_infos:
-				# get bytes from IO obj
-				buffer_info.verts_bytes = buffer_info.verts.getvalue()
-				buffer_info.verts_size = len(buffer_info.verts_bytes)
-				buffer_info.tris_bytes = buffer_info.tris.getvalue()
-				buffer_info.tris_size = len(buffer_info.tris_bytes)
-				buffer_info.tri_chunks_bytes = buffer_info.tri_chunks.getvalue()
-				buffer_info.tri_chunks_size = len(buffer_info.tri_chunks_bytes)
-				buffer_info.vert_chunks_bytes = buffer_info.vert_chunks.getvalue()
-				buffer_info.vert_chunks_size = len(buffer_info.vert_chunks_bytes)
+				# get bytes from IO obj, pad, and update size in BufferInfo
+				for buffer_name in BUFFER_NAMES:
+					buff = getattr(buffer_info, buffer_name)
+					buff_bytes = buff.getvalue()
+					buff_bytes += get_padding(len(buff_bytes), alignment=16)
+					setattr(buffer_info, f"{buffer_name}_bytes", buff_bytes)
+					setattr(buffer_info, f"{buffer_name}_size", len(buff_bytes))
 				
 			# store static buffer
 			if self.buffer_infos:
-				static_buffer_info = self.buffer_infos[-1]
-				self.buffer_2_bytes = static_buffer_info.verts_bytes + static_buffer_info.tris_bytes \
-					+ buffer_info.tri_chunks_bytes + buffer_info.vert_chunks_bytes
+				buffer_info = self.buffer_infos[-1]
+				self.buffer_2_bytes = b"".join((getattr(buffer_info, f"{b_name}_bytes") for b_name in BUFFER_NAMES))
+
 
 	@property
 	def buffers(self):
@@ -314,7 +311,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if buffer_info.name != "STATIC":
 				buffer_info.path = os.path.join(self.dir, buffer_info.name)
 				with open(buffer_info.path, "wb") as f:
-					f.write(buffer_info.verts_bytes + buffer_info.tris_bytes)
+					f.write(b"".join((getattr(buffer_info, f"{b_name}_bytes") for b_name in BUFFER_NAMES)))
 
 	def lookup_material(self):
 		for name, model_info in zip(self.mdl_2_names, self.model_infos):
@@ -353,6 +350,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC3/Dinosaurs/Land/Therizinosaurus/Therizinosaurus/models.ms2", read_editable=True)
 	m.load("C:/Users/arnfi/Desktop/pine/tree_pine_blackspruce.ms2", read_editable=True)
+	m.save("C:/Users/arnfi/Desktop/test.ms2")
 	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
 	# m.save("C:/Users/arnfi/Desktop/models.ms2")
