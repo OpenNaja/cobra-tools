@@ -156,7 +156,7 @@ class BioMeshData:
 				self.read_weights(vert_chunk, offs)
 			else:
 				raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
-			# store chunk's meta data
+			# store chunk's meta data in mesh's array
 			vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
 			vert_chunk.colors[:] = vert_chunk.meta["colors"]
 			vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
@@ -180,6 +180,9 @@ class BioMeshData:
 		# print(self.face_maps)
 		# logging.info(self.bones_sets)
 		# print("weights_flags", flags, "u1s", us)
+		# slower
+		# decode_oct(vert_chunk.tangents, vert_chunk.meta["tangent_oct"])
+		# decode_oct(vert_chunk.normals, vert_chunk.meta["normal_oct"])
 		oct_to_vec3(self.normals)
 		oct_to_vec3(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
@@ -288,34 +291,45 @@ class BioMeshData:
 		# else:
 		# 	return triangulate((self.tri_indices,))
 
-	def pack_data(self):
+	def set_verts(self, verts):
+		"""Store verts as flat lists for each component"""
+		# need to update the count here
+		self.vertex_count = len(verts)
+		# todo
+		# self.tris_count = sum(len(tris) for tris in tris_chunks)
+		self.update_dtype()
+		self.init_arrays()
+		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
+		self.colors, self.weights, self.shapekeys[:] = zip(*verts)
+		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
+		self.pack_verts()
+
+	def pack_verts(self):
+		"""Repack flat lists into verts_data"""
+		# prepare data in whole mesh array for assignment
+		pack_swizzle_vectorized(self.vertices)
+		pack_swizzle_vectorized(self.normals)
+		pack_swizzle_vectorized(self.tangents)
+		vec3_to_oct(self.normals)
+		vec3_to_oct(self.tangents)
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
-			# todo compare to NewMeshData implementation
-			pack_swizzle_vectorized(self.vertices)
+			# todo - (re)generate views into mesh arrays for vert_chunk according to tri_chunk
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
-				# decode and store position
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_offset)
-				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.use_blended_weights)
+				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.use_blended_weights)
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
-				# store position
 				vert_chunk.meta["pos"] = vert_chunk.vertices
 			# store chunk's meta data
 			# currently, known uses of Interleaved48 use impostor uv atlas
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved48:
-				pack_ushort_vector_impostor(self.uvs)
+				pack_ushort_vector_impostor(vert_chunk.uvs)
 			else:
-				pack_ushort_vector(self.uvs)
+				pack_ushort_vector(vert_chunk.uvs)
+			# assign the right views from the main arrays back to the chunks
 			vert_chunk.meta["uvs"] = vert_chunk.uvs
 			vert_chunk.meta["colors"] = vert_chunk.colors
-			pack_swizzle_vectorized(self.normals)
-			vec3_to_oct(self.normals)
 			vert_chunk.meta["normal_oct"] = vert_chunk.normals[:, :2]
-			pack_swizzle_vectorized(self.tangents)
-			vec3_to_oct(self.tangents)
 			vert_chunk.meta["tangent_oct"] = vert_chunk.tangents[:, :2]
-			# create absolute vertex indices for the total mesh
-			# tri_chunk.tri_indices += offs
-			# offs += vert_chunk.vertex_count
 
 	def write_data(self):
 		# todo - rewrite to save tris and verts per chunk, and update the offsets each time

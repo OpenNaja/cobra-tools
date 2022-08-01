@@ -12,6 +12,19 @@ FUR_OVERHEAD = 2
 zero_uint64 = np.uint64(0)
 
 
+# high level access - while more readable, these are noticeably slower for dino meshes than working on the whole array
+def decode_oct(decoded, encoded):
+    decoded[:, :2] = encoded
+    oct_to_vec3(decoded)
+    unpack_swizzle_vectorized(decoded)
+
+
+def encode_oct(decoded, encoded):
+    pack_swizzle_vectorized(decoded)
+    vec3_to_oct(decoded)
+    encoded[:] = decoded[:, :2]
+
+
 def unpack_ubyte_vector(arr, normalize=True):
     # convert to +-1 range; 255 is unused
     arr[:] = arr / UBYTE_SCALE - 1.0
