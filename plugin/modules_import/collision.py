@@ -61,7 +61,7 @@ def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
 	b_r_body.type = "PASSIVE"
 
 
-def box_from_extents(b_name, minx, maxx, miny, maxy, minz, maxz):
+def box_from_extents(b_name, minx, maxx, miny, maxy, minz, maxz, coll_name="hitchecks", coll=None):
 	verts = []
 	for x in [minx, maxx]:
 		for y in [miny, maxy]:
@@ -69,7 +69,7 @@ def box_from_extents(b_name, minx, maxx, miny, maxy, minz, maxz):
 				verts.append((x, y, z))
 	faces = [[0, 1, 3, 2], [6, 7, 5, 4], [0, 2, 6, 4], [3, 1, 5, 7], [4, 5, 1, 0], [7, 6, 2, 3]]
 	scene = bpy.context.scene
-	return mesh_from_data(scene, b_name, verts, faces, coll_name="hitchecks")
+	return mesh_from_data(scene, b_name, verts, faces, coll_name=coll_name, coll=coll)
 
 
 def center_origin_to_matrix(n_center, n_dir):
@@ -189,9 +189,8 @@ def import_chunk_bounds(b_full_me, mesh, lod_coll):
 			v0 = unpack_swizzle([pos.bounds_min.x, pos.bounds_min.y, pos.bounds_min.z])
 			v1 = unpack_swizzle([pos.bounds_max.x, pos.bounds_max.y, pos.bounds_max.z])
 			# print(v0, v1)
-			b_obj, b_me = box_from_extents(name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2])
+			b_obj, b_me = box_from_extents(name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], coll_name=None, coll=lod_coll)
 			set_b_collider(b_obj, 1, bounds_type="CONVEX_HULL", display_type="MESH")
-			lod_coll.objects.link(b_obj)
 			# print(name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], pos.loc, pos.rot)
 			empty = create_ob(bpy.context.scene, name+"_empty", None, coll=lod_coll)
 			empty.matrix_local = import_collision_quat(pos.rot, corrector)

@@ -4,13 +4,13 @@ import bpy
 import time
 
 
-def mesh_from_data(scene, name, verts, faces, wireframe=False, coll_name=None):
+def mesh_from_data(scene, name, verts, faces, wireframe=False, coll_name=None, coll=None):
 	me = bpy.data.meshes.new(name)
 	# start_time = time.time()
 	me.from_pydata(verts, [], faces)
 	# print(f"from_pydata() took {time.time()-start_time:.2f} seconds for {len(verts)} verts")
 	# me.update()
-	ob = create_ob(scene, name, me, coll_name=coll_name)
+	ob = create_ob(scene, name, me, coll_name=coll_name, coll=coll)
 	if wireframe:
 		ob.draw_type = 'WIRE'
 	return ob, me
