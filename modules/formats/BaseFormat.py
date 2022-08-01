@@ -170,8 +170,22 @@ class BaseFile:
 		pass
 
 	def rename_content(self, name_tuples):
-		# this needs to be implemented per file format to actually do something
-		pass
+		"""This is the fallback that is used when the loader class itself does not implement custom methods"""
+		self.rename_fragments(name_tuples)
+		# todo - rename in buffers
+
+	def rename_fragments(self, name_tuples):
+		logging.info(f"Renaming inside {self.file_entry.name}")
+		byte_name_tups = []
+		try:
+			# brute force fallback with same length of strings
+			for old, new in name_tuples:
+				assert len(old) == len(new)
+				byte_name_tups.append((old.encode(), new.encode()))
+			for fragment in self.fragments:
+				fragment.struct_ptr.replace_bytes(byte_name_tups)
+		except Exception as err:
+			showdialog(str(err))
 
 	def rename(self, name_tuples):
 		"""Rename all entries controlled by this loader"""
@@ -294,18 +308,6 @@ class BaseFile:
 				os.remove(p)
 			return [p for p in paths if p not in paths_to_remove]
 		return paths
-
-	def rename_fragments(self, name_tuples):
-		logging.info(f"Renaming inside {self.file_entry.name}")
-		byte_name_tups = []
-		try:
-			for old, new in name_tuples:
-				assert len(old) == len(new)
-				byte_name_tups.append((old.encode(), new.encode()))
-			for fragment in self.fragments:
-				fragment.struct_ptr.replace_bytes(byte_name_tups)
-		except Exception as err:
-			showdialog(str(err))
 
 	def __eq__(self, other):
 		logging.info(f"Comparing {self.file_entry.name}")
