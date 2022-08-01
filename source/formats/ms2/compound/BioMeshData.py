@@ -288,6 +288,35 @@ class BioMeshData:
 		# else:
 		# 	return triangulate((self.tri_indices,))
 
+	def pack_data(self):
+		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
+			# todo compare to NewMeshData implementation
+			pack_swizzle_vectorized(self.vertices)
+			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
+				# decode and store position
+				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_offset)
+				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.use_blended_weights)
+			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
+				# store position
+				vert_chunk.meta["pos"] = vert_chunk.vertices
+			# store chunk's meta data
+			# currently, known uses of Interleaved48 use impostor uv atlas
+			if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved48:
+				pack_ushort_vector_impostor(self.uvs)
+			else:
+				pack_ushort_vector(self.uvs)
+			vert_chunk.meta["uvs"] = vert_chunk.uvs
+			vert_chunk.meta["colors"] = vert_chunk.colors
+			pack_swizzle_vectorized(self.normals)
+			vec3_to_oct(self.normals)
+			vert_chunk.meta["normal_oct"] = vert_chunk.normals[:, :2]
+			pack_swizzle_vectorized(self.tangents)
+			vec3_to_oct(self.tangents)
+			vert_chunk.meta["tangent_oct"] = vert_chunk.tangents[:, :2]
+			# create absolute vertex indices for the total mesh
+			# tri_chunk.tri_indices += offs
+			# offs += vert_chunk.vertex_count
+
 	def write_data(self):
 		# todo - rewrite to save tris and verts per chunk, and update the offsets each time
 		# write to the stream_info that has been assigned to mesh
