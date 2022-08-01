@@ -411,6 +411,7 @@ class BioMeshData(MeshData):
 		# write to the stream_info that has been assigned to mesh
 		# write vertices
 		self.vertex_count = len(self.vertices)
+		self.tris_count = len(self.tri_indices) // 3  # * self.shell_count
 		# this may not be needed, but for now is used in update_buffer_2_bytes
 		self.tri_index_count = len(self.tri_indices)
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
@@ -420,10 +421,9 @@ class BioMeshData(MeshData):
 			for arr in (vert_chunk.packed_verts, vert_chunk.weights, vert_chunk.meta):
 				if arr is not None:
 					self.stream_info.verts.write(arr.tobytes())
-		# write tris
-		self.tris_count = (len(self.tri_indices) // 3)  # * self.shell_count
-		for tri_chunk in self.tri_chunks:
+
 			tri_chunk.tris_offset = self.stream_info.tris.tell()
+			# get tri indices of this chunk
 			_tri_chunk_tri_indices = np.copy(tri_chunk.tri_indices)
 			_tri_chunk_tri_indices -= np.min(_tri_chunk_tri_indices)
 			tri_bytes = _tri_chunk_tri_indices.astype(np.uint8).tobytes()
