@@ -303,6 +303,7 @@ class BioMeshData:
 		# write tris
 		self.tris_count = (len(self.tri_indices) // 3)  # * self.shell_count
 		for tri_chunk in self.tri_chunks:
+			tri_chunk.tris_offset = self.stream_info.tris.tell()
 			tri_bytes = tri_chunk.tri_indices.tobytes()
 			# extend tri array according to shell count
 			# logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
