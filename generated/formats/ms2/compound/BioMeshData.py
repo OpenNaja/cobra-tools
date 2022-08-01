@@ -237,71 +237,64 @@ class BioMeshData(MeshData):
 			logging.info(f"chunk {i} tris at {abs_tris}, weights_flag {vert_chunk.weights_flag}")
 
 			self.stream_info.stream.seek(vert_chunk.vertex_offset)
-			logging.info(f"verts {i} start {self.stream_info.stream.tell()}, count {vert_chunk.vertex_count}")
+			logging.info(f"packed_verts {i} start {self.stream_info.stream.tell()}, count {vert_chunk.vertex_count}")
 
-			vert_chunk.verts = None
+			vert_chunk.packed_verts = None
 			vert_chunk.weights = None
 			vert_chunk.meta = None
+			# views into main array
+			vert_chunk.vertices = self.vertices[offs: offs + vert_chunk.vertex_count]
+			vert_chunk.use_blended_weights = self.use_blended_weights[offs:offs + vert_chunk.vertex_count]
+			vert_chunk.colors = self.colors[offs: offs+vert_chunk.vertex_count]
+			vert_chunk.uvs = self.uvs[offs: offs + vert_chunk.vertex_count]
+			vert_chunk.normals = self.normals[offs: offs + vert_chunk.vertex_count]
+			vert_chunk.tangents = self.tangents[offs: offs + vert_chunk.vertex_count]
+			tris_start = tri_chunk.tris_offset - first_tris_offs
+			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count]
+
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
-				# verts packed into uint64
-				vert_chunk.verts = np.empty(dtype=np.int64, shape=vert_chunk.vertex_count)
-				self.stream_info.stream.readinto(vert_chunk.verts)
+				vert_chunk.packed_verts = np.empty(dtype=np.int64, shape=vert_chunk.vertex_count)
+				self.stream_info.stream.readinto(vert_chunk.packed_verts)
+				# decode and store position
+				unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.use_blended_weights)
+				scale_unpack_vectorized(vert_chunk.vertices, vert_chunk.pack_offset)
 
-				# check if weights chunk is present
-				if vert_chunk.weights_flag.has_weights:
-					# read for each vertex
-					vert_chunk.weights = np.empty(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
-					self.stream_info.stream.readinto(vert_chunk.weights)
-					for vertex_index, (bone_indices, bone_weights) in enumerate(zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
-						for bone_index, weight in zip(bone_indices, bone_weights):
-							if weight > 0.0:
-								self.add_to_weights(bone_index, vertex_index + offs, weight)
-					# 			bones_per_chunk.add(bone_index)
-					# logging.info(f"Length set {len(bones_per_chunk)}")
-				else:
-					# use the chunk's bone index for each vertex in chunk
-					for vertex_index in range(vert_chunk.vertex_count):
-						self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
-					# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
-
-				for vertex_index in range(vert_chunk.vertex_count):
-					self.add_to_weights("u_0", vertex_index + offs, tri_chunk.u_0 / 255)
-					self.add_to_weights("u_1", vertex_index + offs, tri_chunk.u_1 / 255)
-				# uv, normals etc
-				logging.info(f"meta {i} start {self.stream_info.stream.tell()}")
+				self.read_weights(vert_chunk, offs)
+				# read uv, normals etc
+				# logging.info(f"meta {i} start {self.stream_info.stream.tell()}")
 				vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
 				self.stream_info.stream.readinto(vert_chunk.meta)
-				# store tri_chunk
-				unpack_int64_vector(vert_chunk.verts, self.vertices[offs:offs + vert_chunk.vertex_count], self.use_blended_weights[offs:offs + vert_chunk.vertex_count])
-				scale_unpack_vectorized(self.vertices[offs:offs + vert_chunk.vertex_count], vert_chunk.pack_offset)
 
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				# interleaved vertex array, meta includes all extra data
 				vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
 				self.stream_info.stream.readinto(vert_chunk.meta)
-				# store tri_chunk
-				self.vertices[offs:offs + vert_chunk.vertex_count] = vert_chunk.meta["tri_chunk"]
+				# store position
+				vert_chunk.vertices[:] = vert_chunk.meta["pos"]
+				self.read_weights(vert_chunk, offs)
 			else:
 				raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
 			# store chunk's meta data
-			self.uvs[offs: offs+vert_chunk.vertex_count] = vert_chunk.meta["uvs"]
-			self.colors[offs: offs+vert_chunk.vertex_count] = vert_chunk.meta["colors"]
-			self.normals[offs: offs+vert_chunk.vertex_count, 0:2] = vert_chunk.meta["normal_oct"]
-			self.tangents[offs: offs+vert_chunk.vertex_count, 0:2] = vert_chunk.meta["tangent_oct"]
+			vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
+			vert_chunk.colors[:] = vert_chunk.meta["colors"]
+			vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
+			vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
+			# create absolute vertex indices for the total mesh
+			tri_chunk.tri_indices += offs
+			offs += vert_chunk.vertex_count
 
+			# ##### temporary debugging stuff
 			# self.bones_sets.append((vert_chunk.vertex_count, bones_per_chunk))
-			# same for all chunked meshes, regardless if flat or interleaved arrays
 			flags.add(vert_chunk.weights_flag)
 			us.add(tri_chunk.u_1)
-			tris_start = tri_chunk.tris_offset - first_tris_offs
-			self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count] += offs
-
+			for vertex_index in range(vert_chunk.vertex_count):
+				self.add_to_weights("u_0", vertex_index + offs, tri_chunk.u_0 / 255)
+				self.add_to_weights("u_1", vertex_index + offs, tri_chunk.u_1 / 255)
 			# prep face maps
 			fmt_str = str(vert_chunk.weights_flag.mesh_format).split(".")[1]
 			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
 			id_str = f"{fmt_str}_{i:03}{_weights}"
 			self.face_maps[id_str] = list(range(tris_start // 3, (tris_start+tri_chunk.tri_indices_count) // 3))
-			offs += vert_chunk.vertex_count
 		# print(self.face_maps)
 		# logging.info(self.bones_sets)
 		# print("weights_flags", flags, "u1s", us)
@@ -319,6 +312,25 @@ class BioMeshData(MeshData):
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.vert_chunks)
 
+	def read_weights(self, vert_chunk, offs):
+		# check if weights chunk is present
+		if vert_chunk.weights_flag.has_weights:
+			# read for each vertex
+			vert_chunk.weights = np.empty(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
+			self.stream_info.stream.readinto(vert_chunk.weights)
+			for vertex_index, (bone_indices, bone_weights) in enumerate(
+					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
+				for bone_index, weight in zip(bone_indices, bone_weights):
+					if weight > 0.0:
+						self.add_to_weights(bone_index, vertex_index + offs, weight)
+		# 			bones_per_chunk.add(bone_index)
+		# logging.info(f"Length set {len(bones_per_chunk)}")
+		else:
+			# use the chunk's bone index for each vertex in chunk
+			for vertex_index in range(vert_chunk.vertex_count):
+				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
+		# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
+
 	def get_dtypes(self, mesh_format):
 		# the format differs if its flat or interleaved
 		# per-vertex weights may or may not be used in a given chunk
@@ -335,7 +347,7 @@ class BioMeshData(MeshData):
 		]
 		# 32 bytes per vertex, with all data interleaved
 		dt_interleaved32 = [
-			("tri_chunk", np.float16, (3,)),
+			("pos", np.float16, (3,)),
 			("shapekey", np.float16, (3,)),  # used for lod fading
 			("floats", np.float16, (4,)),
 			("normal_oct", np.ubyte, (2,)),
@@ -345,7 +357,7 @@ class BioMeshData(MeshData):
 		]
 		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
 		dt_interleaved48 = [
-			("tri_chunk", np.float16, (3,)),
+			("pos", np.float16, (3,)),
 			("one", np.ubyte),  # not sure
 			("zero", np.ubyte),  # may be bone index
 			("normal_oct", np.ubyte, (2,)),
@@ -362,7 +374,6 @@ class BioMeshData(MeshData):
 		self.dt_weights = np.dtype(dt_weights)
 
 	def read_chunk_infos(self):
-		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		self.stream_info.stream.seek(self.tri_chunks_address)
 		self.tri_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), TriChunk, self.context, 0,
 											None)
@@ -397,25 +408,24 @@ class BioMeshData(MeshData):
 
 	def write_data(self):
 		# todo - rewrite to save tris and verts per chunk, and update the offsets each time
+		# write to the stream_info that has been assigned to mesh
 		# write vertices
 		self.vertex_count = len(self.verts_data)
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			vert_chunk.vertex_offset = self.stream_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
 			# write the arrays if they exist, in this order
-			for arr in (vert_chunk.verts, vert_chunk.weights, vert_chunk.meta):
+			for arr in (vert_chunk.packed_verts, vert_chunk.weights, vert_chunk.meta):
 				if arr is not None:
 					self.stream_info.verts.write(arr.tobytes())
 		# write tris
 		self.tris_count = (len(self.tri_indices) // 3)  # * self.shell_count
 		for tri_chunk in self.tri_chunks:
-			pass
-			# write to the stream_info that has been assigned to mesh
-			# tri_bytes = self.tri_indices.tobytes()
+			tri_bytes = tri_chunk.tri_indices.tobytes()
 			# extend tri array according to shell count
 			# logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
 			# for shell in range(self.shell_count):
-			# self.stream_info.tris.write(tri_bytes)
+			self.stream_info.tris.write(tri_bytes)
 
 		# write the chunks
 		self.chunks_offset = self.stream_info.tri_chunks.tell() // 64
