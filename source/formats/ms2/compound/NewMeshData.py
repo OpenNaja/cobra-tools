@@ -131,7 +131,7 @@ class NewMeshData:
 		# first cast to the float uvs array so unpacking doesn't use int division
 		self.uvs[:] = self.verts_data["uvs"]
 		if self.flag == 512:
-			unpack_ushort_vector_b(self.uvs)
+			unpack_ushort_vector_impostor(self.uvs)
 		else:
 			unpack_ushort_vector(self.uvs)
 		if self.colors is not None:
@@ -229,7 +229,10 @@ class NewMeshData:
 		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
 		pack_ubyte_vector(self.normals)
 		pack_ubyte_vector(self.tangents)
-		pack_ushort_vector(self.uvs)
+		if self.flag == 512:
+			pack_ushort_vector_impostor(self.uvs)
+		else:
+			pack_ushort_vector(self.uvs)
 		self.verts_data["normal"] = self.normals
 		self.verts_data["tangent"] = self.tangents
 		self.verts_data["uvs"] = self.uvs

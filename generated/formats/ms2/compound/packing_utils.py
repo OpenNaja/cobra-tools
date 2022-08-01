@@ -3,7 +3,6 @@ import numpy as np
 UBYTE_SCALE = 127
 UBYTE_MAX = 255
 USHORT_SCALE = 2048
-USHORT_SCALE_B = 65536
 USHORT_OFFSET = 32766.5
 USHORT_MIN = 0
 USHORT_MAX = 65535
@@ -29,12 +28,17 @@ def unpack_ushort_vector(arr):
     arr[:] = (arr - USHORT_OFFSET) / USHORT_SCALE
 
 
-def unpack_ushort_vector_b(arr):
-    arr[:] = arr / USHORT_SCALE_B
+def unpack_ushort_vector_impostor(arr):
+    # improved precision in 0, 1 range
+    arr[:] = arr / USHORT_MAX
 
 
 def pack_ushort_vector(arr):
     arr[:] = np.round(arr * USHORT_SCALE + USHORT_OFFSET)
+
+
+def pack_ushort_vector_impostor(arr):
+    arr[:] = np.round(arr * USHORT_MAX)
 
 
 def unpack_swizzle(vec):

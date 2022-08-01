@@ -192,8 +192,11 @@ class BioMeshData:
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
-		# currently, known uses of Interleaved48 use the other unpacking
-		unpack_ushort_vector(self.uvs)
+		# currently, known uses of Interleaved48 use impostor uv atlas
+		if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved48:
+			unpack_ushort_vector_impostor(self.uvs)
+		else:
+			unpack_ushort_vector(self.uvs)
 		self.fur_length = 0.0
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.vert_chunks)
@@ -240,7 +243,6 @@ class BioMeshData:
 			self.dt = np.dtype(dt_interleaved48)
 		self.dt_weights = np.dtype(dt_weights)
 
-
 	def read_chunk_infos(self):
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
 		self.stream_info.stream.seek(self.tri_chunks_address)
@@ -282,12 +284,10 @@ class BioMeshData:
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			vert_chunk.vertex_offset = self.stream_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
-			if vert_chunk.verts is not None:
-				self.stream_info.verts.write(vert_chunk.verts.tobytes())
-			if vert_chunk.weights is not None:
-				self.stream_info.verts.write(vert_chunk.weights.tobytes())
-			if vert_chunk.meta is not None:
-				self.stream_info.verts.write(vert_chunk.meta.tobytes())
+			# write the arrays if they exist, in this order
+			for arr in (vert_chunk.verts, vert_chunk.weights, vert_chunk.meta):
+				if arr is not None:
+					self.stream_info.verts.write(arr.tobytes())
 		# write tris
 		self.tris_count = (len(self.tri_indices) // 3)  # * self.shell_count
 		for tri_chunk in self.tri_chunks:
