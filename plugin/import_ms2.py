@@ -48,6 +48,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				# logging.debug(f"flag {mesh.flag}")
 				if m_ob.mesh_index in mesh_dict:
 					b_me = mesh_dict[m_ob.mesh_index]
+
 				# create object and mesh from data
 				else:
 					b_me = bpy.data.meshes.new(f"{mdl2_name}_model{m_ob.mesh_index}")
@@ -62,13 +63,17 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 							b_me["unk_f0"] = float(mesh.unk_floats[0])
 							b_me["unk_f1"] = float(mesh.unk_floats[1])
 					except:
-						traceback.print_exc()
+						logging.exception("setting unks failed")
 					try:
 						mesh_dict[m_ob.mesh_index] = b_me
 						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
 					except:
-						traceback.print_exc()
-					import_chunk_bounds(b_me, mesh, lod_coll)
+						logging.exception("import_mesh_layers failed")
+					# import_chunk_bounds(b_me, mesh, lod_coll)
+				# JWE2 - possibly unique pack_base per vert_chunk
+				if hasattr(mesh, "vert_chunks"):
+					scene.cobra.pack_base = mesh.vert_chunks[0].pack_base
+					b_me.cobra.mesh_format = mesh.vert_chunks[0].weights_flag.mesh_format.name
 				# link material to mesh
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 
@@ -89,7 +94,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						if not is_old(ms2.info) and mesh.flag.fur_shells:
 							add_psys(b_ob, mesh)
 					except:
-						traceback.print_exc()
+						logging.exception("some mesh data failed")
 					ob_dict[m_ob.mesh_index] = b_ob
 					# from plugin.modules_import.tangents import visualize_tangents
 					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)

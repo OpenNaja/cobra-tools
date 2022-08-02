@@ -27,7 +27,7 @@ logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
 import bpy
 import bpy.utils.previews
-from bpy.props import StringProperty, BoolProperty, CollectionProperty, IntProperty, FloatProperty
+from bpy.props import StringProperty, BoolProperty, CollectionProperty, IntProperty, FloatProperty, EnumProperty
 from bpy.types import PropertyGroup, Object
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
@@ -36,6 +36,7 @@ from plugin import import_bani, import_manis, import_matcol, import_ms2, export_
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils import shell
 from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
+from generated.formats.ms2.enum.MeshFormat import MeshFormat
 
 
 preview_collection = bpy.utils.previews.new()
@@ -293,6 +294,9 @@ class MESH_PT_CobraTools(bpy.types.Panel):
         row = layout.row(align=True)
         row.operator("object.transfer_hair_combing", icon_value=icon)
 
+        row = layout.row(align=True)
+        row.prop(context.mesh.cobra, "mesh_format")
+
         addon_updater_ops.update_notice_box_ui(self, context)
 
 
@@ -335,6 +339,17 @@ class CobraSceneSettings(PropertyGroup):
     )
 
 
+class CobraMeshSettings(PropertyGroup):
+
+    mesh_format: EnumProperty(
+        name='Mesh Format',
+        description='Mesh formatused for this mesh - JWE2 after Biosyn update',
+        items=[(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
+        # default = 'MO_SYS_FIXED',
+
+    )
+
+
 def menu_func_export(self, context):
     icon = preview_collection["frontier.png"].icon_id
     self.layout.operator(ExportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
@@ -366,6 +381,7 @@ classes = (
     TransferHairCombing,
     CobraPreferences,
     CobraSceneSettings,
+    CobraMeshSettings,
     MESH_PT_CobraTools,
     SCENE_PT_CobraTools
 )
@@ -386,6 +402,7 @@ def register():
 
     # insert properties
     bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
+    bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
 
 
 def unregister():

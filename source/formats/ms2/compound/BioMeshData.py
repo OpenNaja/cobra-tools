@@ -87,7 +87,7 @@ class BioMeshData:
 		self.get_tri_counts()
 		# check first vert_chunk
 		vert_chunk = self.vert_chunks[0]
-		self.get_dtypes(vert_chunk.weights_flag.mesh_format)
+		self.update_dtype(vert_chunk.weights_flag.mesh_format)
 
 		# create arrays for this mesh
 		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
@@ -223,7 +223,7 @@ class BioMeshData:
 				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
 		# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
 
-	def get_dtypes(self, mesh_format):
+	def update_dtype(self, mesh_format):
 		# prepare descriptions of the dtypes
 		_normal_tangent_oct = (("normal_oct", np.ubyte, (2,)), ("tangent_oct", np.ubyte, (2,)))
 		# per-vertex weights may or may not be used in a given chunk
