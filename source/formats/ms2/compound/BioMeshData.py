@@ -121,22 +121,12 @@ class BioMeshData:
 			self.stream_info.stream.seek(vert_chunk.vertex_offset)
 			logging.info(f"packed_verts {i} start {self.stream_info.stream.tell()}, count {vert_chunk.vertex_count}")
 
-			vert_chunk.packed_verts = None
-			vert_chunk.weights = None
-			vert_chunk.meta = None
-			# views into main array
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
-			vert_chunk.vertices = self.vertices[v_slice]
-			vert_chunk.use_blended_weights = self.use_blended_weights[v_slice]
-			vert_chunk.colors = self.colors[v_slice]
-			vert_chunk.uvs = self.uvs[v_slice]
-			vert_chunk.normals = self.normals[v_slice]
-			vert_chunk.tangents = self.tangents[v_slice]
+			self.init_vert_chunk_arrays(v_slice, vert_chunk)
 			tris_start = tri_chunk.tris_offset - first_tris_offs
 			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count]
 
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
-				vert_chunk.packed_verts = np.empty(dtype=np.int64, shape=vert_chunk.vertex_count)
 				self.stream_info.stream.readinto(vert_chunk.packed_verts)
 				# decode and store position
 				unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.use_blended_weights)
@@ -145,12 +135,10 @@ class BioMeshData:
 				self.read_weights(vert_chunk, offs)
 				# read uv, normals etc
 				# logging.info(f"meta {i} start {self.stream_info.stream.tell()}")
-				vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
 				self.stream_info.stream.readinto(vert_chunk.meta)
 
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				# interleaved vertex array, meta includes all extra data
-				vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
 				self.stream_info.stream.readinto(vert_chunk.meta)
 				# store position
 				vert_chunk.vertices[:] = vert_chunk.meta["pos"]
@@ -198,11 +186,29 @@ class BioMeshData:
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.vert_chunks)
 
+	def init_vert_chunk_arrays(self, v_slice, vert_chunk):
+		vert_chunk.packed_verts = None
+		vert_chunk.weights = None
+		vert_chunk.meta = None
+		# views into main array
+		vert_chunk.vertices = self.vertices[v_slice]
+		vert_chunk.use_blended_weights = self.use_blended_weights[v_slice]
+		vert_chunk.colors = self.colors[v_slice]
+		vert_chunk.uvs = self.uvs[v_slice]
+		vert_chunk.normals = self.normals[v_slice]
+		vert_chunk.tangents = self.tangents[v_slice]
+		if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
+			vert_chunk.packed_verts = np.empty(dtype=np.int64, shape=vert_chunk.vertex_count)
+			vert_chunk.weights = np.empty(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
+			vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
+		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
+			# interleaved vertex array, meta includes all extra data
+			vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
+
 	def read_weights(self, vert_chunk, offs):
 		# check if weights chunk is present
 		if vert_chunk.weights_flag.has_weights:
 			# read for each vertex
-			vert_chunk.weights = np.empty(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
 			self.stream_info.stream.readinto(vert_chunk.weights)
 			for vertex_index, (bone_indices, bone_weights) in enumerate(
 					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
