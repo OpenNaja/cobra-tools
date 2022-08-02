@@ -24,11 +24,13 @@ def has_components(png_file_path):
 		"playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture",
 		"markingbaldnessscartexture", "markingscartexture", "pflexicolourmaskssamplertexture",
 		"pmetalsmoothnesscavitysamplertexture", "pmetalsmoothnesscavityopacitysamplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "proughnessaopackedtexturedetailbase"), png_file_path)
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",
+		"proughnessaopackedtexturedetailbase", "pfeathers_roughnesspackedtexture",
+		"pfeathers_aoheightopacitytransmission_packedtexture", "pfeathers_aniso_packedtexture",), png_file_path)
 
 
 def has_vectors(png_file_path):
-	return check_any(("pnormaltexture", "pbasenormaltexture", "playered_warpoffset"), png_file_path)
+	return check_any(("pnormaltexture", "pbasenormaltexture", "playered_warpoffset", "pfeathers_normaltexture"), png_file_path)
 
 
 def has_rg_b_a(png_file_path):
