@@ -4,6 +4,8 @@ import time
 import traceback
 import logging
 
+import numpy as np
+
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
 from generated.formats.ovl_base.basic import ConvStream
@@ -349,8 +351,15 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/caribou/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC3/Dinosaurs/Land/Therizinosaurus/Therizinosaurus/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/pine/tree_pine_blackspruce.ms2", read_editable=True)
-	m.save("C:/Users/arnfi/Desktop/test.ms2")
+	# m.load("C:/Users/arnfi/Desktop/pine/tree_pine_blackspruce.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
+	for model_info in m.model_infos:
+		for w in model_info.model.meshes:
+			me = w.mesh
+			me.vertices[:, 1] += np.sin(np.pi * me.vertices[:, 2] * 0.2) * 2
+			# me.vertices[:, 2] *= 2
+			me.pack_verts()
+	m.save("C:/Users/arnfi/Desktop/export/tree_palm_coconut_desert.ms2")
 	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
 	# m.save("C:/Users/arnfi/Desktop/models.ms2")

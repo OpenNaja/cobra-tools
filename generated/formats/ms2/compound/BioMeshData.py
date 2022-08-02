@@ -390,9 +390,6 @@ class BioMeshData(MeshData):
 	def set_chunks(self, chunks):
 		# set all verts as one list
 		# or use one list for each shape?
-		# correct bounds for the chunk, do after swizzling
-		# tri_chunk.bounds_min.set(np.min(self.vertices[offs:offs + vert_chunk.vertex_count], axis=0))
-		# tri_chunk.bounds_max.set(np.max(self.vertices[offs:offs + vert_chunk.vertex_count], axis=0))
 		# logging.info(f"{bounds_min} {tri_chunk.bounds_min}")
 		# logging.info(f"{bounds_max} {tri_chunk.bounds_max}")
 		# logging.info(f"tri_chunk.loc {tri_chunk.loc} {np.mean((bounds_min, bounds_max), axis=0)} {np.mean(self.vertices[offs:offs + vert_chunk.vertex_count], axis=0)}")
@@ -431,6 +428,9 @@ class BioMeshData(MeshData):
 		vec3_to_oct(self.normals)
 		vec3_to_oct(self.tangents)
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
+			# correct bounds for the chunk, do after swizzling
+			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
+			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
 			# todo - (re)generate views into mesh arrays for vert_chunk according to tri_chunk
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_offset)
