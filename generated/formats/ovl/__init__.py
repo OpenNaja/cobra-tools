@@ -1284,13 +1284,12 @@ class OvlFile(Header, IoFile):
 		self.stream_files.sort(key=lambda s: (s.archive_name, s.file_offset))
 		self.num_stream_files = len(self.stream_files)
 		# update the archive entries to point to the stream files
+		stream_files_offset = 0
 		for archive in self.archives:
-			archive.stream_files_offset = 0
-			if archive.name != "STATIC":
-				stream_files = [f for f in self.stream_files if f.archive_name == archive.name]
-				# some JWE2 dino archives have no stream_files, just extra data_entries
-				if stream_files:
-					archive.stream_files_offset = self.stream_files.index(stream_files[0])
+			archive.stream_files_offset = stream_files_offset
+			stream_files = [f for f in self.stream_files if f.archive_name == archive.name]
+			# some JWE2 dino archives have no stream_files, just extra data_entries
+			stream_files_offset += len(stream_files)
 
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
