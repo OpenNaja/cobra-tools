@@ -342,7 +342,8 @@ class BioMeshData(MeshData):
 		# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
 
 	def get_dtypes(self, mesh_format):
-		# the format differs if its flat or interleaved
+		# prepare descriptions of the dtypes
+		_normal_tangent_oct = (("normal_oct", np.ubyte, (2,)), ("tangent_oct", np.ubyte, (2,)))
 		# per-vertex weights may or may not be used in a given chunk
 		dt_weights = [
 			("bone ids", np.ubyte, (4,)),
@@ -350,8 +351,7 @@ class BioMeshData(MeshData):
 		]
 		# 16 bytes of metadata that follows the vertices array
 		dt_separate = [
-			("normal_oct", np.ubyte, (2,)),
-			("tangent_oct", np.ubyte, (2,)),
+			*_normal_tangent_oct,
 			("uvs", np.ushort, (2, 2)),
 			("colors", np.ubyte, (1, 4))
 		]
@@ -360,8 +360,7 @@ class BioMeshData(MeshData):
 			("pos", np.float16, (3,)),
 			("shapekey", np.float16, (3,)),  # used for lod fading
 			("floats", np.float16, (4,)),
-			("normal_oct", np.ubyte, (2,)),
-			("tangent_oct", np.ubyte, (2,)),
+			*_normal_tangent_oct,
 			("uvs", np.ushort, (1, 2)),
 			("colors", np.ubyte, (1, 4))
 		]
@@ -370,8 +369,7 @@ class BioMeshData(MeshData):
 			("pos", np.float16, (3,)),
 			("one", np.ubyte),  # not sure
 			("zero", np.ubyte),  # may be bone index
-			("normal_oct", np.ubyte, (2,)),
-			("tangent_oct", np.ubyte, (2,)),
+			*_normal_tangent_oct,
 			("colors", np.ubyte, (1, 4)),  # zero, may be colors
 			("uvs", np.ushort, (8, 2)),
 		]
