@@ -34,6 +34,19 @@ class MeshData:
 		# self.validate_tris()
 		return self.end_of_vertices
 
+	def set_verts(self, verts):
+		"""Store verts as flat lists for each component"""
+		# need to update the count here
+		# use_blended_weights = 1 -> 4 bones per vertex, no alpha blending
+		# use_blended_weights = 0 -> 1 bone per vertex, alpha blending (whiskers)
+		self.vertex_count = len(verts)
+		self.update_dtype()
+		self.init_arrays()
+		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
+		self.colors, self.weights, self.shapekeys[:] = zip(*verts)
+		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
+		self.pack_verts()
+
 	def pack_verts(self):
 		pass
 
