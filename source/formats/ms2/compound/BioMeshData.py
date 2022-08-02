@@ -125,12 +125,13 @@ class BioMeshData:
 			vert_chunk.weights = None
 			vert_chunk.meta = None
 			# views into main array
-			vert_chunk.vertices = self.vertices[offs: offs + vert_chunk.vertex_count]
-			vert_chunk.use_blended_weights = self.use_blended_weights[offs:offs + vert_chunk.vertex_count]
-			vert_chunk.colors = self.colors[offs: offs+vert_chunk.vertex_count]
-			vert_chunk.uvs = self.uvs[offs: offs + vert_chunk.vertex_count]
-			vert_chunk.normals = self.normals[offs: offs + vert_chunk.vertex_count]
-			vert_chunk.tangents = self.tangents[offs: offs + vert_chunk.vertex_count]
+			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
+			vert_chunk.vertices = self.vertices[v_slice]
+			vert_chunk.use_blended_weights = self.use_blended_weights[v_slice]
+			vert_chunk.colors = self.colors[v_slice]
+			vert_chunk.uvs = self.uvs[v_slice]
+			vert_chunk.normals = self.normals[v_slice]
+			vert_chunk.tangents = self.tangents[v_slice]
 			tris_start = tri_chunk.tris_offset - first_tris_offs
 			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count]
 

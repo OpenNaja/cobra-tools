@@ -129,7 +129,6 @@ class MeshData(MemStruct):
 		# self.validate_tris()
 		return self.end_of_vertices
 
-
 	def set_verts(self, verts):
 		"""Store verts as flat lists for each component"""
 		# need to update the count here
