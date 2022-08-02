@@ -150,6 +150,8 @@ def vec3_to_oct(arr):
     # Reflect the folds of the lower hemisphere over the diagonals
     # update xy when z <= 0
     arr[arr[:, 2] <= 0.0, :2] = ((1.0 - np.abs(arr[:, (1, 0)])) * sign_not_zero(arr[:, (0, 1)]))[arr[:, 2] <= 0.0, :2]
+    # could also use np.where
+    # arr[:, :2] = np.where(arr[:, 2] <= 0.0, (1.0 - np.abs(arr[:, (1, 0)])) * sign_not_zero(arr[:, (0, 1)]), arr[:, :2])
     pack_ubyte_vector(arr)
     # clear z coord
     arr[:, 2] = 0.0
