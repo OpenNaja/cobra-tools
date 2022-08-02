@@ -40,8 +40,8 @@ class ModelInfo(MemStruct):
 		# the biggest coordinates across all axes
 		self.bounds_max = Vector3(self.context, 0, None)
 
-		# scale: pack_offset / 512, also added as offset
-		self.pack_offset = 0.0
+		# scale: pack_base / 512, also added as offset
+		self.pack_base = 0.0
 
 		# cog? medium of bounds?
 		self.center = Vector3(self.context, 0, None)
@@ -103,7 +103,7 @@ class ModelInfo(MemStruct):
 			self.unk_float_a = 0.0
 		self.bounds_max = Vector3(self.context, 0, None)
 		if self.context.version >= 47 and not ((self.context.version == 51) and self.context.biosyn):
-			self.pack_offset = 0.0
+			self.pack_base = 0.0
 		self.center = Vector3(self.context, 0, None)
 		self.radius = 0.0
 		if self.context.version >= 48 and not ((self.context.version == 51) and self.context.biosyn):
@@ -159,7 +159,7 @@ class ModelInfo(MemStruct):
 			instance.unk_float_a = stream.read_float()
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.pack_offset = stream.read_float()
+			instance.pack_base = stream.read_float()
 		instance.center = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.radius = stream.read_float()
 		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
@@ -208,7 +208,7 @@ class ModelInfo(MemStruct):
 			stream.write_float(instance.unk_float_a)
 		Vector3.to_stream(stream, instance.bounds_max)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			stream.write_float(instance.pack_offset)
+			stream.write_float(instance.pack_base)
 		Vector3.to_stream(stream, instance.center)
 		stream.write_float(instance.radius)
 		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
@@ -267,7 +267,7 @@ class ModelInfo(MemStruct):
 		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
 		s += f'\n	* unk_float_a = {fmt_member(self.unk_float_a, indent+1)}'
 		s += f'\n	* bounds_max = {fmt_member(self.bounds_max, indent+1)}'
-		s += f'\n	* pack_offset = {fmt_member(self.pack_offset, indent+1)}'
+		s += f'\n	* pack_base = {fmt_member(self.pack_base, indent+1)}'
 		s += f'\n	* center = {fmt_member(self.center, indent+1)}'
 		s += f'\n	* radius = {fmt_member(self.radius, indent+1)}'
 		s += f'\n	* num_lods_2 = {fmt_member(self.num_lods_2, indent+1)}'

@@ -420,7 +420,7 @@
 	<compound name="VertChunk" >
 		JWE2 Biosyn: 16 bytes
 		<add name="flags" type="ubyte" arr1="4" />
-		<add name="pack_offset" type="float" >scale: pack_offset / 512, also added as offset</add>
+		<add name="pack_base" type="float" >scale: pack_base / 512, also added as offset</add>
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
 		<add name="vertex_count" type="ubyte"/>confirmed
 		<add name="weights_flag" type="WeightsFlag">determines if weights are used by this chunk</add>
@@ -436,7 +436,7 @@
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="unk float a" type="float" since="47" vercond="!#JWE2_BIO#">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="pack_offset" type="float" since="47" vercond="!#JWE2_BIO#">scale: pack_offset / 512, also added as offset</add>
+		<add name="pack_base" type="float" since="47" vercond="!#JWE2_BIO#">scale: pack_base / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
 		<add name="num_lods_2" type="uint64" since="48" vercond="!#JWE2_BIO#">seen 6 or 1, matches lod count</add>

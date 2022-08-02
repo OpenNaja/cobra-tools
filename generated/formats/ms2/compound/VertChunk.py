@@ -21,8 +21,8 @@ class VertChunk:
 		self.io_start = 0
 		self.flags = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
 
-		# scale: pack_offset / 512, also added as offset
-		self.pack_offset = 0.0
+		# scale: pack_base / 512, also added as offset
+		self.pack_base = 0.0
 
 		# byte offset from start of vert buffer in bytes
 		self.vertex_offset = 0
@@ -36,7 +36,7 @@ class VertChunk:
 
 	def set_defaults(self):
 		self.flags = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
-		self.pack_offset = 0.0
+		self.pack_base = 0.0
 		self.vertex_offset = 0
 		self.vertex_count = 0
 		self.weights_flag = WeightsFlag(self.context, 0, None)
@@ -55,7 +55,7 @@ class VertChunk:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.flags = stream.read_ubytes((4,))
-		instance.pack_offset = stream.read_float()
+		instance.pack_base = stream.read_float()
 		instance.vertex_offset = stream.read_uint()
 		instance.vertex_count = stream.read_ubyte()
 		instance.weights_flag = WeightsFlag.from_stream(stream, instance.context, 0, None)
@@ -64,7 +64,7 @@ class VertChunk:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write_ubytes(instance.flags)
-		stream.write_float(instance.pack_offset)
+		stream.write_float(instance.pack_base)
 		stream.write_uint(instance.vertex_offset)
 		stream.write_ubyte(instance.vertex_count)
 		WeightsFlag.to_stream(stream, instance.weights_flag)
@@ -91,7 +91,7 @@ class VertChunk:
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
-		s += f'\n	* pack_offset = {fmt_member(self.pack_offset, indent+1)}'
+		s += f'\n	* pack_base = {fmt_member(self.pack_base, indent+1)}'
 		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
 		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
 		s += f'\n	* weights_flag = {fmt_member(self.weights_flag, indent+1)}'

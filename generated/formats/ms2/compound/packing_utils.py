@@ -78,14 +78,14 @@ def ushort_clamp(coord):
     return max(min(coord, USHORT_MAX), USHORT_MIN)
 
 
-def scale_unpack_vectorized(f, base):
-    """Converts a packed int component into a float in the range specified by base"""
-    f[:] = (f + base) * base / PACKEDVEC_MAX - base
+def scale_unpack_vectorized(f, pack_base):
+    """Converts a packed int component into a float in the range specified by pack_base"""
+    f[:] = (f + pack_base) * pack_base / PACKEDVEC_MAX - pack_base
 
 
-def scale_pack_vectorized(f, base):
-    """Packs a float into the range specified by base"""
-    f[:] = np.round((f + base) / base * PACKEDVEC_MAX - base)
+def scale_pack_vectorized(f, pack_base):
+    """Packs a float into the range specified by pack_base"""
+    f[:] = np.round((f + pack_base) / pack_base * PACKEDVEC_MAX - pack_base)
 
 
 def unpack_int64_vector(packed_vert, vertices, use_blended_weights):

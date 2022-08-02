@@ -157,13 +157,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# for i, mesh in sorted_meshes:
 			# 	print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
 			if is_old(self.info):
-				pack_offset = 512
+				pack_base = 512
 			else:
-				pack_offset = model_info.pack_offset
+				pack_base = model_info.pack_base
 			try:
 				for i, wrapper in sorted_meshes:
 					logging.info(f"Populating mesh {i}")
-					last_vertex_offset = wrapper.mesh.populate(self, pack_offset, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+					last_vertex_offset = wrapper.mesh.populate(self, pack_base, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
 			except:
 				traceback.print_exc()
 
@@ -275,8 +275,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				for lod in model_info.model.lods:
 					lod.vertex_count = sum(wrapper.mesh.vertex_count for wrapper in lod.meshes)
 					lod.tri_index_count = sum(wrapper.mesh.tri_index_count for wrapper in lod.meshes)
-					logging.debug(f"lod.vertex_count = {lod.vertex_count}")
-					logging.debug(f"lod.tri_index_count = {lod.tri_index_count}")
 			# modify buffer size
 			for buffer_info in self.buffer_infos:
 				# get bytes from IO obj, pad, and update size in BufferInfo

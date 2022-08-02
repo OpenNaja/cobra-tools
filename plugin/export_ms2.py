@@ -205,7 +205,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
 	# update vert & tri array
-	mesh.base = model_info.pack_offset
+	mesh.base = model_info.pack_base
 	# transfer raw verts into mesh data packed array
 	try:
 		mesh.set_verts(verts)
@@ -304,7 +304,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			raise AttributeError(f"Set the pack base value for scene '{scene.name}'!")
 
 		model_info = model_info_lut[scene.name]
-		model_info.pack_offset = scene.cobra.pack_base
+		model_info.pack_base = scene.cobra.pack_base
 		model_info.render_flag._value = get_property(scene, "render_flag")
 		if edit_bones:
 			export_bones_custom(b_armature_ob, model_info)

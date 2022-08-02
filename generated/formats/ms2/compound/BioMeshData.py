@@ -257,7 +257,7 @@ class BioMeshData(MeshData):
 				self.stream_info.stream.readinto(vert_chunk.packed_verts)
 				# decode and store position
 				unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.use_blended_weights)
-				scale_unpack_vectorized(vert_chunk.vertices, vert_chunk.pack_offset)
+				scale_unpack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 
 				self.read_weights(vert_chunk, offs)
 				# read uv, normals etc
@@ -433,7 +433,7 @@ class BioMeshData(MeshData):
 			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
 			# todo - (re)generate views into mesh arrays for vert_chunk according to tri_chunk
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
-				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_offset)
+				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.use_blended_weights)
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				vert_chunk.meta["pos"] = vert_chunk.vertices
