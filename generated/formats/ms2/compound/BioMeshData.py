@@ -135,28 +135,24 @@ class BioMeshData(MeshData):
 
 	# @property
 	def get_stream_index(self):
-		# logging.debug(f"Using stream {self.buffer_info.offset}")
-		return self.buffer_info.offset
-
-	@property
-	def tris_start_address(self):
-		return self.stream_info.verts_size
+		# logging.debug(f"Using stream {self.stream_info.offset}")
+		return self.stream_info.offset
 
 	@property
 	def tris_address(self):
-		# just a guess here, not guaranteed to be the right starting offset
-		return self.tris_start_address + self.tri_chunks[0].tris_offset
+		# this assumes that chunks are sorted by tris_offset, not guaranteed to be always true
+		return self.tri_chunks[0].tris_offset
 
 	def read_tris(self):
 		pass
 
 	def read_tris_bio(self):
-		# read all tri indices for this mesh, but only as many as needed if there are shells
-		self.stream_info.stream.seek(self.tris_address)
+		# read all tri indices for this mesh
+		self.buffer_info.tris.seek(self.tris_address)
 		index_count = self.tris_count * 3  # // self.shell_count
-		logging.info(f"Reading {index_count} indices at {self.stream_info.stream.tell()}")
+		# logging.info(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
 		_tri_indices = np.empty(dtype=np.uint8, shape=index_count)
-		self.stream_info.stream.readinto(_tri_indices)
+		self.buffer_info.tris.readinto(_tri_indices)
 		self.tri_indices = _tri_indices.astype(np.uint32)
 
 	def get_tri_counts(self):
@@ -165,14 +161,8 @@ class BioMeshData(MeshData):
 			tri_chunk.tri_indices_count = next_pos.tris_offset - tri_chunk.tris_offset
 		last_pos = self.tri_chunks[-1]
 		last_pos.tri_indices_count = (self.tris_count * 3) - last_pos.tris_offset + self.tri_chunks[0].tris_offset
-		for i, tri_chunk in enumerate(self.tri_chunks):
-			logging.info(f"tri_chunk {i} {last_pos.tri_indices_count} tris")
-
-	@property
-	def tri_chunks_address(self):
-		size_of_chunk = 64
-		rel_chunks_offset = self.chunks_offset * size_of_chunk
-		return self.stream_info.verts_size + self.stream_info.tris_size + rel_chunks_offset
+		# for i, tri_chunk in enumerate(self.tri_chunks):
+		# 	logging.info(f"tri_chunk {i} {last_pos.tri_indices_count} tris")
 
 	@staticmethod
 	def pr_indices(input_list, indices, msg):
@@ -182,12 +172,17 @@ class BioMeshData(MeshData):
 				print(f"{i} = {inp}")
 
 	@property
+	def tri_chunks_address(self):
+		size_of_chunk = 64
+		return self.chunks_offset * size_of_chunk
+
+	@property
 	def vert_chunks_address(self):
 		size_of_chunk = 16
-		rel_chunks_offset = self.chunks_offset * size_of_chunk
-		return self.stream_info.verts_size + self.stream_info.tris_size + self.stream_info.tri_chunks_size + rel_chunks_offset
+		return self.chunks_offset * size_of_chunk
 
 	def read_verts(self):
+		logging.debug(self)
 		self.read_chunk_infos()
 		self.get_tri_counts()
 		# check first vert_chunk
@@ -205,16 +200,15 @@ class BioMeshData(MeshData):
 		self.face_maps = {}
 		self.bones_sets = []
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
-			abs_tris = self.tris_start_address + tri_chunk.tris_offset
 			# bones_per_chunk = set()
 			logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			# these sometimes correspond but not always
 			logging.info(f"{i}, {tri_chunk.u_0}, {vert_chunk.weights_flag.mesh_format}")
 			# print(i, tri_chunk.u_1)
-			logging.info(f"chunk {i} tris at {abs_tris}, weights_flag {vert_chunk.weights_flag}")
+			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
 
-			self.stream_info.stream.seek(vert_chunk.vertex_offset)
-			logging.info(f"packed_verts {i} start {self.stream_info.stream.tell()}, count {vert_chunk.vertex_count}")
+			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
+			logging.info(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
 
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
 			self.init_vert_chunk_arrays(v_slice, vert_chunk)
@@ -222,19 +216,19 @@ class BioMeshData(MeshData):
 			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count]
 
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
-				self.stream_info.stream.readinto(vert_chunk.packed_verts)
+				self.buffer_info.verts.readinto(vert_chunk.packed_verts)
 				# decode and store position
 				unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.use_blended_weights)
 				scale_unpack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 
 				self.read_weights(vert_chunk, offs)
 				# read uv, normals etc
-				# logging.info(f"meta {i} start {self.stream_info.stream.tell()}")
-				self.stream_info.stream.readinto(vert_chunk.meta)
+				# logging.info(f"meta {i} start {self.buffer_info.verts.tell()}")
+				self.buffer_info.verts.readinto(vert_chunk.meta)
 
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				# interleaved vertex array, meta includes all extra data
-				self.stream_info.stream.readinto(vert_chunk.meta)
+				self.buffer_info.verts.readinto(vert_chunk.meta)
 				# store position
 				vert_chunk.vertices[:] = vert_chunk.meta["pos"]
 				self.read_weights(vert_chunk, offs)
@@ -304,7 +298,7 @@ class BioMeshData(MeshData):
 		# check if weights chunk is present
 		if vert_chunk.weights_flag.has_weights:
 			# read for each vertex
-			self.stream_info.stream.readinto(vert_chunk.weights)
+			self.buffer_info.verts.readinto(vert_chunk.weights)
 			for vertex_index, (bone_indices, bone_weights) in enumerate(
 					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
 				for bone_index, weight in zip(bone_indices, bone_weights):
@@ -359,15 +353,12 @@ class BioMeshData(MeshData):
 		self.dt_weights = np.dtype(dt_weights)
 
 	def read_chunk_infos(self):
-		self.stream_info.stream.seek(self.tri_chunks_address)
-		self.tri_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), TriChunk, self.context, 0,
-											None)
-		logging.debug(self)
-		logging.debug(f"{self.chunks_count} tri_chunks at {self.tri_chunks_address}")
-		self.stream_info.stream.seek(self.vert_chunks_address)
-		self.vert_chunks = Array.from_stream(self.stream_info.stream, (self.chunks_count,), VertChunk, self.context,
-											   0, None)
-		logging.debug(f"{self.chunks_count} vert_chunks at {self.vert_chunks_address}")
+		self.buffer_info.tri_chunks.seek(self.tri_chunks_address)
+		self.tri_chunks = Array.from_stream(self.buffer_info.tri_chunks, (self.chunks_count,), TriChunk, self.context)
+		# logging.debug(f"{self.chunks_count} tri_chunks at {self.tri_chunks_address}")
+		self.buffer_info.vert_chunks.seek(self.vert_chunks_address)
+		self.vert_chunks = Array.from_stream(self.buffer_info.vert_chunks, (self.chunks_count,), VertChunk, self.context)
+		# logging.debug(f"{self.chunks_count} vert_chunks at {self.vert_chunks_address}")
 
 	def set_chunks(self, chunks):
 		# set all verts as one list
@@ -420,21 +411,21 @@ class BioMeshData(MeshData):
 
 	def write_data(self):
 		# todo - rewrite to save tris and verts per chunk, and update the offsets each time
-		# write to the stream_info that has been assigned to mesh
+		# write to the buffer_info that has been assigned to mesh
 		# write vertices
 		self.vertex_count = len(self.vertices)
 		self.tris_count = len(self.tri_indices) // 3  # * self.shell_count
 		# this may not be needed, but for now is used in update_buffer_2_bytes
 		self.tri_index_count = len(self.tri_indices)
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
-			vert_chunk.vertex_offset = self.stream_info.verts.tell()
+			vert_chunk.vertex_offset = self.buffer_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
 			# write the arrays if they exist, in this order
 			for arr in (vert_chunk.packed_verts, vert_chunk.weights, vert_chunk.meta):
 				if arr is not None:
-					self.stream_info.verts.write(arr.tobytes())
+					self.buffer_info.verts.write(arr.tobytes())
 
-			tri_chunk.tris_offset = self.stream_info.tris.tell()
+			tri_chunk.tris_offset = self.buffer_info.tris.tell()
 			# get tri indices of this chunk
 			_tri_chunk_tri_indices = np.copy(tri_chunk.tri_indices)
 			_tri_chunk_tri_indices -= np.min(_tri_chunk_tri_indices)
@@ -442,11 +433,11 @@ class BioMeshData(MeshData):
 			# extend tri array according to shell count
 			# logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
 			# for shell in range(self.shell_count):
-			self.stream_info.tris.write(tri_bytes)
+			self.buffer_info.tris.write(tri_bytes)
 
 		# write the chunks
-		self.chunks_offset = self.stream_info.tri_chunks.tell() // 64
+		self.chunks_offset = self.buffer_info.tri_chunks.tell() // 64
 		self.chunks_count = len(self.tri_chunks)
-		Array.to_stream(self.stream_info.tri_chunks, self.tri_chunks, (self.chunks_count,), TriChunk, self.context, 0, None)
-		Array.to_stream(self.stream_info.vert_chunks, self.vert_chunks, (self.chunks_count,), VertChunk, self.context, 0, None)
+		Array.to_stream(self.buffer_info.tri_chunks, self.tri_chunks, (self.chunks_count,), TriChunk, self.context, 0, None)
+		Array.to_stream(self.buffer_info.vert_chunks, self.vert_chunks, (self.chunks_count,), VertChunk, self.context, 0, None)
 

@@ -42,7 +42,7 @@ class ZtMeshData:
 		]
 		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
 		# hack for zt monitor
-		if self.stream_info.uvs_size // vert_count_in_stream == 4:
+		if self.buffer_info.uvs_size // vert_count_in_stream == 4:
 			dt_colors = [
 				("uvs", np.ushort, (1, 2)),
 			]
@@ -69,25 +69,25 @@ class ZtMeshData:
 			logging.warning(f"vertex_offset is -1")
 			# return
 			if self.last_vertex_offset == 0:
-				logging.warning(f"Zero, starting at buffer start {self.stream_info.stream.tell()}")
+				logging.warning(f"Zero, starting at buffer start {self.buffer_info.stream.tell()}")
 			else:
-				self.stream_info.stream.seek(self.last_vertex_offset)
+				self.buffer_info.stream.seek(self.last_vertex_offset)
 		else:
-			self.stream_info.stream.seek(self.vertex_offset)
-		self.start_of_vertices = self.stream_info.stream.tell()
-		# logging.debug(f"{self.vertex_count} VERTS at {self.stream_info.stream.tell()}")
+			self.buffer_info.stream.seek(self.vertex_offset)
+		self.start_of_vertices = self.buffer_info.stream.tell()
+		# logging.debug(f"{self.vertex_count} VERTS at {self.buffer_info.stream.tell()}")
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		self.stream_info.stream.readinto(self.verts_data)
-		self.end_of_vertices = self.stream_info.stream.tell()
+		self.buffer_info.stream.readinto(self.verts_data)
+		self.end_of_vertices = self.buffer_info.stream.tell()
 		size = self.end_of_vertices - self.start_of_vertices
 		logging.info(
 			f"{self.vertex_count} vertices from {self.start_of_vertices:5} to {self.end_of_vertices:5} "
 			f"in stream {self.get_stream_index()}, size {size:5}")
 		# print(self.verts_data.shape)
-		self.stream_info.stream.seek(self.stream_info.verts_size + self.stream_info.tris_size + self.uv_offset)
-		# logging.debug(f"UV at {self.stream_info.stream.tell()}")
+		self.buffer_info.stream.seek(self.buffer_info.verts_size + self.buffer_info.tris_size + self.uv_offset)
+		# logging.debug(f"UV at {self.buffer_info.stream.tell()}")
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
-		self.stream_info.stream.readinto(self.colors_data)
+		self.buffer_info.stream.readinto(self.colors_data)
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division

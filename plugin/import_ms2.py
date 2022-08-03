@@ -133,21 +133,20 @@ def per_loop(b_me, per_vertex_input):
 
 def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	# set uv data
-	if mesh.uvs is not None:
-		# decide how to import the UVs according to mat_name
-		num_uv_layers = mesh.uvs.shape[1]
-		num_fur_weights = num_fur_as_weights(mat_name)
-		if num_fur_weights:
-			# fur is uv 1
-			mesh.import_fur_as_weights(mesh.uvs[:, num_fur_weights])
-			# so just use uv 0 as actual uv
-			num_uv_layers = 1
-		for uv_i in range(num_uv_layers):
-			uvs = mesh.uvs[:, uv_i]
-			b_me.uv_layers.new(name=f"UV{uv_i}")
-			b_me.uv_layers[-1].data.foreach_set(
-				"uv", [uv for pair in [uvs[l.vertex_index] for l in b_me.loops] for uv in (pair[0], 1 - pair[1])])
-	if mesh.colors is not None:
+	# decide how to import the UVs according to mat_name
+	num_uv_layers = mesh.uvs.shape[1]
+	num_fur_weights = num_fur_as_weights(mat_name)
+	if num_fur_weights:
+		# fur is uv 1
+		mesh.import_fur_as_weights(mesh.uvs[:, num_fur_weights])
+		# so just use uv 0 as actual uv
+		num_uv_layers = 1
+	for uv_i in range(num_uv_layers):
+		uvs = mesh.uvs[:, uv_i]
+		b_me.uv_layers.new(name=f"UV{uv_i}")
+		b_me.uv_layers[-1].data.foreach_set(
+			"uv", [uv for pair in [uvs[l.vertex_index] for l in b_me.loops] for uv in (pair[0], 1 - pair[1])])
+	if mesh.get_vcol_count():
 		num_vcol_layers = mesh.colors.shape[1]
 		for col_i in range(num_vcol_layers):
 			b_me.vertex_colors.new(name=f"RGBA{col_i}")

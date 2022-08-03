@@ -60,22 +60,22 @@ class PcMeshData:
 
 	def read_verts(self):
 		# read a vertices of this mesh
-		self.stream_info.stream.seek(self.vertex_offset * 16)
-		logging.debug(f"VERTS at {self.stream_info.stream.tell()}")
+		self.buffer_info.stream.seek(self.vertex_offset * 16)
+		logging.debug(f"VERTS at {self.buffer_info.stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# read the packed ms2_file
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		self.stream_info.stream.readinto(self.verts_data)
-		self.stream_info.stream.seek(self.uv_offset * 16)
-		logging.debug(f"UV at {self.stream_info.stream.tell()}")
+		self.buffer_info.stream.readinto(self.verts_data)
+		self.buffer_info.stream.seek(self.uv_offset * 16)
+		logging.debug(f"UV at {self.buffer_info.stream.tell()}")
 		self.uv_data = np.empty(dtype=self.dt_uv, shape=self.vertex_count)
-		self.stream_info.stream.readinto(self.uv_data)
-		self.stream_info.stream.seek(self.weights_offset * 16)
-		logging.debug(f"WEIGHTS at {self.stream_info.stream.tell()}")
+		self.buffer_info.stream.readinto(self.uv_data)
+		self.buffer_info.stream.seek(self.weights_offset * 16)
+		logging.debug(f"WEIGHTS at {self.buffer_info.stream.tell()}")
 		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		self.weights_data = np.empty(dtype=self.dt_w, shape=self.vertex_count)
-		self.stream_info.stream.readinto(self.weights_data)
+		self.buffer_info.stream.readinto(self.weights_data)
 		# create arrays for the unpacked ms2_file
 		self.init_arrays(self.vertex_count)
 		# first cast to the float uvs array so unpacking doesn't use int division

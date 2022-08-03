@@ -13,8 +13,8 @@ class NewMeshData:
 
 	# @property
 	def get_stream_index(self):
-		# logging.debug(f"Using stream {self.buffer_info.offset}")
-		return self.buffer_info.offset
+		# logging.debug(f"Using stream {self.stream_info.offset}")
+		return self.stream_info.offset
 
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
@@ -85,17 +85,17 @@ class NewMeshData:
 				f"Vertex size for flag {self.flag} is wrong! Collected {self.dt.itemsize}, got {self.size_of_vertex}")
 
 	def read_verts(self):
+		self.fur_length = 0.0
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
-		# read vertices of this mesh
-		self.fur_length = 0.0
-		self.stream_info.stream.seek(self.vertex_offset)
-		logging.debug(f"Reading {self.vertex_count} verts at {self.stream_info.stream.tell()}")
-		# read the packed ms2_file
+		# create array to populate with packed vertices
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		self.stream_info.stream.readinto(self.verts_data)
+		# read the packed data
+		self.buffer_info.verts.seek(self.vertex_offset)
+		self.buffer_info.verts.readinto(self.verts_data)
+		# logging.debug(f"Reading {self.vertex_count} verts at {self.buffer_info.verts.tell()}")
 		# first cast to the float uvs array so unpacking doesn't use int division
 		self.uvs[:] = self.verts_data["uvs"]
 		if self.flag == 512:

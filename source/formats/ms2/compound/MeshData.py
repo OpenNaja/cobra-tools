@@ -28,14 +28,14 @@ class MeshData:
 			return self.dt["uvs"].shape[0]
 		return 0
 
-	def assign_stream(self, buffer_infos):
-		self.stream_info = buffer_infos[self.get_stream_index()]
+	def assign_buffer_info(self, buffer_infos):
+		self.buffer_info = buffer_infos[self.get_stream_index()]
 
 	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
 		self.last_vertex_offset = last_vertex_offset
 		self.end_of_vertices = 0
-		self.assign_stream(ms2_file.buffer_infos)
+		self.assign_buffer_info(ms2_file.buffer_infos)
 		# print(self)
 		self.base = base
 		self.shapekeys = None
@@ -76,31 +76,32 @@ class MeshData:
 		pass
 
 	def write_data(self):
-		# write to the stream_info that has been assigned to mesh
-		self.vertex_offset = self.stream_info.verts.tell()
-		self.tri_offset = self.stream_info.tris.tell()
+		# write to the buffer_info that has been assigned to mesh
+		self.vertex_offset = self.buffer_info.verts.tell()
+		self.tri_offset = self.buffer_info.tris.tell()
 		self.vertex_count = len(self.verts_data)
 		self.tri_index_count = len(self.tri_indices) * self.shell_count
 		# write vertices
-		self.stream_info.verts.write(self.verts_data.tobytes())
+		self.buffer_info.verts.write(self.verts_data.tobytes())
 		# write tris
 		tri_bytes = self.tri_indices.tobytes()
 		# extend tri array according to shell count
 		logging.debug(f"Writing {self.shell_count} shells of {len(self.tri_indices)} triangles")
 		for shell in range(self.shell_count):
-			self.stream_info.tris.write(tri_bytes)
+			self.buffer_info.tris.write(tri_bytes)
 
 	@property
 	def tris_address(self):
-		return self.stream_info.verts_size + self.tri_offset
+		# todo - remove
+		return self.tri_offset
 
 	def read_tris(self):
 		# read all tri indices for this mesh, but only as many as needed if there are shells
-		self.stream_info.stream.seek(self.tris_address)
+		self.buffer_info.tris.seek(self.tris_address)
 		index_count = self.tri_index_count // self.shell_count
-		logging.debug(f"Reading {index_count} indices at {self.stream_info.stream.tell()}")
+		logging.debug(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
 		self.tri_indices = np.empty(dtype=np.uint16, shape=index_count)
-		self.stream_info.stream.readinto(self.tri_indices)
+		self.buffer_info.tris.readinto(self.tri_indices)
 		# check if there's no empty value left in the array
 		# if len(self.tri_indices) != index_count:
 		# 	raise BufferError(f"{len(self.tri_indices)} were read into tri index buffer, should have {index_count}")

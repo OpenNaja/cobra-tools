@@ -1,5 +1,4 @@
 import os
-import io
 import time
 import traceback
 import logging
@@ -11,11 +10,11 @@ from generated.formats.ms2.versions import *
 from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.ovl.basic import basic_map
 from generated.io import IoFile
-from modules.formats.shared import get_padding_size, djb2, get_padding
+from modules.formats.shared import djb2, get_padding
 
 logging.basicConfig(level=logging.DEBUG)
 
-BUFFER_NAMES = ("verts", "tris", "tri_chunks", "vert_chunks")
+BUFFER_NAMES = ("verts", "tris", "uvs", "tri_chunks", "vert_chunks")
 
 
 class Ms2Context:
@@ -118,26 +117,34 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
-			else:
+			# attach the streams to each buffer_info
+			for buffer_info, modelstream_name in zip(self.buffer_infos, self.modelstream_names):
+				buffer_info.name = modelstream_name
+				buffer_info.path = os.path.join(self.dir, buffer_info.name)
+				logging.info(f"Loading {buffer_info.path}")
+				with open(buffer_info.path, "rb") as modelstream_reader:
+					self.attach_streams(buffer_info, modelstream_reader)
+			# attach the static stream to last buffer_info
+			if self.buffer_infos:
+				static_buffer_info = self.buffer_infos[-1]
 				stream.seek(self.buffer_2_offset)
-				self.buffer_2_bytes = stream.read()
-		# attach the streams to each buffer_info
-		for buffer_info, modelstream_name in zip(self.buffer_infos, self.modelstream_names):
-			buffer_info.name = modelstream_name
-			buffer_info.path = os.path.join(self.dir, buffer_info.name)
-			logging.info(f"Loading {buffer_info.path}")
-			with open(buffer_info.path, "rb") as modelstream_reader:
-				buffer_info.stream = ConvStream(modelstream_reader.read())
-		# attach the static stream to last buffer_info
-		if self.buffer_infos:
-			static_buffer_info = self.buffer_infos[-1]
-			static_buffer_info.stream = ConvStream(self.buffer_2_bytes)
-			static_buffer_info.name = "STATIC"
-			static_buffer_info.path = None
-		if read_editable:
-			self.load_meshes()
+				self.attach_streams(static_buffer_info, stream)
+				static_buffer_info.name = "STATIC"
+				static_buffer_info.path = None
+			if read_editable:
+				self.load_meshes()
 
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
+
+	def attach_streams(self, buffer_info, in_stream=None):
+		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
+		for buffer_name in BUFFER_NAMES:
+			if in_stream:
+				buff_size = getattr(buffer_info, f"{buffer_name}_size")
+				b = in_stream.read(buff_size)
+			else:
+				b = b""
+			setattr(buffer_info, buffer_name, ConvStream(b))
 
 	def load_meshes(self):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
@@ -256,8 +263,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"Updating buffer 2")
 			# first init all writers for the buffers
 			for buffer_info in self.buffer_infos:
-				for buffer_name in BUFFER_NAMES:
-					setattr(buffer_info, buffer_name, ConvStream())
+				self.attach_streams(buffer_info)
 			# now store each model
 			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 				logging.debug(f"Storing {mdl2_name}")
@@ -268,7 +274,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				model_info.num_meshes = len(model_info.model.meshes)
 				# write each mesh's data blocks to the right temporary buffer
 				for wrapper in model_info.model.meshes:
-					wrapper.mesh.assign_stream(self.buffer_infos)
+					wrapper.mesh.assign_buffer_info(self.buffer_infos)
 					wrapper.mesh.write_data()
 				# update LodInfo
 				logging.debug(f"Updating lod vertex counts...")
@@ -308,6 +314,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			f.write(self.buffer_2_bytes)
 		# save multiple buffer_infos
 		for buffer_info in self.buffer_infos:
+			print("buffer_info.name", buffer_info.name)
 			if buffer_info.name != "STATIC":
 				buffer_info.path = os.path.join(self.dir, buffer_info.name)
 				with open(buffer_info.path, "wb") as f:

@@ -169,9 +169,9 @@ class Ms2Loader(BaseFile):
 			model_info.meshes.data = model_info.model.meshes
 			for wrapper in model_info.model.meshes:
 				# link the right buffer_info, then clear offset value
-				wrapper.mesh.buffer_info.temp_index = wrapper.mesh.buffer_info.offset
+				wrapper.mesh.stream_info.temp_index = wrapper.mesh.stream_info.offset
 				# undo what we did on export
-				wrapper.mesh.buffer_info.offset = 0
+				wrapper.mesh.stream_info.offset = 0
 		# print(self.header)
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
@@ -194,9 +194,9 @@ class Ms2Loader(BaseFile):
 			self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
 			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
-				offset = wrapper.mesh.buffer_info.temp_index * self.header.buffer_infos.data[0].io_size
-				self.attach_frag_to_ptr(wrapper.mesh.buffer_info, pool)
-				self.ptr_relative(wrapper.mesh.buffer_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
+				offset = wrapper.mesh.stream_info.temp_index * self.header.buffer_infos.data[0].io_size
+				self.attach_frag_to_ptr(wrapper.mesh.stream_info, pool)
+				self.ptr_relative(wrapper.mesh.stream_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
@@ -239,14 +239,14 @@ class Ms2Loader(BaseFile):
 				# this corresponds to pc buffer 1 already
 				# handle multiple buffer infos
 				# grab all unique ptrs to buffer infos
-				ptrs = set(wrapper.mesh.buffer_info.frag.struct_ptr for model_info in self.header.model_infos.data for wrapper in model_info.meshes.data)
+				ptrs = set(wrapper.mesh.stream_info.frag.struct_ptr for model_info in self.header.model_infos.data for wrapper in model_info.meshes.data)
 				# get the sorted binary representations
 				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset)]
 				# turn the offset value of the pointers into a valid index
 				for model_info in self.header.model_infos.data:
 					for wrapper in model_info.meshes.data:
-						buffer_info_bytes = wrapper.mesh.buffer_info.frag.struct_ptr.data
-						wrapper.mesh.buffer_info.offset = buffer_infos.index(buffer_info_bytes)
+						buffer_info_bytes = wrapper.mesh.stream_info.frag.struct_ptr.data
+						wrapper.mesh.stream_info.offset = buffer_infos.index(buffer_info_bytes)
 				if self.header.buffer_infos.data is not None:
 					self.header.buffer_infos.data.write(stream)
 				self.header.model_infos.data.write(stream)
