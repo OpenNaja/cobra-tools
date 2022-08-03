@@ -12,7 +12,7 @@ from generated.formats.ms2.compound.MaterialName import MaterialName
 from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2 import Ms2File
-from generated.formats.ms2.compound.packing_utils import remap
+from generated.formats.ms2.compound.packing_utils import remap, USHORT_MAX
 from generated.formats.ms2.enum import MeshFormat
 from plugin.import_ms2 import num_fur_as_weights
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
@@ -20,8 +20,6 @@ from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.shell import get_collection, is_shell, is_fin, is_flipped
-
-MAX_USHORT = 65535
 
 
 def ensure_tri_modifier(ob):
@@ -180,9 +178,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			except KeyError:
 				# it doesn't, so we have to fill in additional data
 				v_index = count_unique
-				if v_index > MAX_USHORT:
+				if v_index > USHORT_MAX:
 					raise OverflowError(
-						f"{b_ob.name} has too many ms2 verts. The limit is {MAX_USHORT}. "
+						f"{b_ob.name} has too many ms2 verts. The limit is {USHORT_MAX}. "
 						f"\nBlender vertices have to be duplicated on every UV seam, hence the increase.")
 				dummy_vertices[dummy] = v_index
 				count_unique += 1
