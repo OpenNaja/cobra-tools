@@ -248,7 +248,7 @@ class ModelInfo(MemStruct):
 			yield ('unk_float_a', Float, (0, None))
 		yield ('bounds_max', Vector3, (0, None))
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			yield ('pack_offset', Float, (0, None))
+			yield ('pack_base', Float, (0, None))
 		yield ('center', Vector3, (0, None))
 		yield ('radius', Float, (0, None))
 		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):

@@ -73,7 +73,7 @@ class VertChunk(StructBase):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		yield ('flags', Array, ((4,), Ubyte, 0, None))
-		yield ('pack_offset', Float, (0, None))
+		yield ('pack_base', Float, (0, None))
 		yield ('vertex_offset', Uint, (0, None))
 		yield ('vertex_count', Ubyte, (0, None))
 		yield ('weights_flag', WeightsFlag, (0, None))

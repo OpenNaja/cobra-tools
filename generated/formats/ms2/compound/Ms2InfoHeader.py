@@ -111,7 +111,7 @@ class Ms2InfoHeader(StructBase):
 		yield ('biosyn', Uint, (0, None))
 		yield ('bone_info_size', Uint, (0, None))
 		yield ('info', Ms2Root, (0, None))
-		if instance.context.version >= 32:
+		if instance.context.version >= 7:
 			yield ('buffers_presence', Array, ((instance.info.vertex_buffer_count,), BufferPresence, 0, None))
 		yield ('mdl_2_names', Array, ((instance.info.mdl_2_count,), ZString, 0, None))
 		if instance.context.version <= 7 and instance.info.vertex_buffer_count:

@@ -78,7 +78,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			yield ('stream_index', Uint64, (0, None))
 		if instance.context.version >= 47:
-			yield ('buffer_info', Pointer, (0, generated.formats.ms2.compound.BufferInfo.BufferInfo))
+			yield ('stream_info', Pointer, (0, generated.formats.ms2.compound.BufferInfo.BufferInfo))
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			yield ('some_index', Uint64, (0, None))
 

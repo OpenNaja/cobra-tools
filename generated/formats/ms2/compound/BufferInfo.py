@@ -142,18 +142,18 @@ class BufferInfo(StructBase):
 			yield ('vert_chunks_size', Uint64, (0, None))
 			yield ('vert_chunks_ptr', Uint64, (0, None))
 		yield ('verts_size', Uint64, (0, None))
-		yield ('u_2', Uint64, (0, None))
+		yield ('verts_ptr', Uint64, (0, None))
 		if instance.context.version >= 48:
 			yield ('u_3', Uint64, (0, None))
 		if not (instance.context.version == 32):
 			yield ('tris_size', Uint64, (0, None))
-			yield ('u_4', Uint64, (0, None))
+			yield ('tris_ptr', Uint64, (0, None))
 		if instance.context.version >= 48:
 			yield ('u_5', Uint64, (0, None))
 			yield ('u_6', Uint64, (0, None))
 		if instance.context.version <= 13:
 			yield ('u_5', Uint64, (0, None))
-			yield ('uv_buffer_size', Uint64, (0, None))
+			yield ('uvs_size', Uint64, (0, None))
 			yield ('u_6', Uint64, (0, None))
 			yield ('u_7', Uint64, (0, None))
 

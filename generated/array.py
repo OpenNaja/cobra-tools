@@ -144,7 +144,7 @@ class Array(list):
         if callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):
             return dtype._get_filtered_attribute_list_array(instance)
         else:
-            if len(instance.shape > 1):
+            if len(instance.shape) > 1:
                 for i in range(instance.shape[0]):
                     yield (i, cls, (instance.shape[1:], dtype, instance.arg, instance.template))
             else:
