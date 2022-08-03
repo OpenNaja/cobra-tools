@@ -28,7 +28,7 @@ class PcMeshData:
 			self.colors = None
 		self.weights_info = {}
 
-	def update_dtype(self, mesh_format=None):
+	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [

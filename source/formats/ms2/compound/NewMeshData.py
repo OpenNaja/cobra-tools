@@ -16,7 +16,7 @@ class NewMeshData:
 		# logging.debug(f"Using stream {self.stream_info.offset}")
 		return self.stream_info.offset
 
-	def update_dtype(self, mesh_format=None):
+	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
@@ -113,7 +113,7 @@ class NewMeshData:
 		self.tangents[:] = self.verts_data["tangent"]
 		start_time = time.time()
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
-		scale_unpack_vectorized(self.vertices, self.base)
+		scale_unpack_vectorized(self.vertices, self.pack_base)
 		if "bone weights" in self.dt.fields:
 			bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
 			self.get_blended_weights(self.verts_data["bone ids"], bone_weights)
@@ -132,7 +132,7 @@ class NewMeshData:
 			shapes_combined <<= 32
 			shapes_combined |= self.verts_data["shapekeys0"]
 			unpack_int64_vector(shapes_combined, self.shapekeys, self.shape_residues)
-			scale_unpack_vectorized(self.shapekeys, self.base)
+			scale_unpack_vectorized(self.shapekeys, self.pack_base)
 			unpack_swizzle_vectorized(self.shapekeys)
 
 		# for bit in range(0, 8):
@@ -148,7 +148,7 @@ class NewMeshData:
 
 		if self.flag == 517:
 			pack_swizzle_vectorized(self.shapekeys)
-			scale_pack_vectorized(self.shapekeys, self.base)
+			scale_pack_vectorized(self.shapekeys, self.pack_base)
 			shapes_combined = np.zeros(self.vertex_count, dtype=np.int64)
 			# todo - store separate shape_residues?
 			pack_int64_vector(shapes_combined, self.shapekeys.astype(np.int64), self.use_blended_weights)
@@ -159,7 +159,7 @@ class NewMeshData:
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)
 		# print(self.use_blended_weights)
-		scale_pack_vectorized(self.vertices, self.base)
+		scale_pack_vectorized(self.vertices, self.pack_base)
 		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
 		pack_ubyte_vector(self.normals)
 		pack_ubyte_vector(self.tangents)

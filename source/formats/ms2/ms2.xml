@@ -128,10 +128,10 @@
 	</compound>
 
 	<compound name="QuatWFirst" size="16">
-		<field name="w" type="float"/>
-		<field name="x" type="float"/>
-		<field name="y" type="float"/>
-		<field name="z" type="float"/>
+		<field name="w" type="float" default="1.0"/>
+		<field name="x" type="float" default="0.0"/>
+		<field name="y" type="float" default="0.0"/>
+		<field name="z" type="float" default="0.0"/>
 	</compound>
 
 	<compound name="StreamDebugger">

@@ -31,11 +31,11 @@ class MeshData:
 	def assign_buffer_info(self, buffer_infos):
 		self.buffer_info = buffer_infos[self.get_stream_index()]
 
-	def populate(self, ms2_file, base=512, sum_uv_dict={}):
+	def populate(self, ms2_file, pack_base=512, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
 		self.assign_buffer_info(ms2_file.buffer_infos)
 		# print(self)
-		self.base = base
+		self.pack_base = pack_base
 		self.shapekeys = None
 		self.read_verts()
 		self.read_tris()
@@ -134,7 +134,10 @@ class MeshData:
 			return np.flip(tris_raw, axis=-1)
 
 	@tris.setter
-	def tris(self, b_tris):
+	def tris(self, list_of_b_tris):
+		# just take the first and only chunk
+		assert len(list_of_b_tris) == 1
+		b_tris = list_of_b_tris[0]
 		# cast to uint16
 		raw_tris = np.array(b_tris, dtype=np.uint16)
 		# reverse tris

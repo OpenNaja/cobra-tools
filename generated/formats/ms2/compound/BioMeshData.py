@@ -187,7 +187,8 @@ class BioMeshData(MeshData):
 		self.get_tri_counts()
 		# check first vert_chunk
 		vert_chunk = self.vert_chunks[0]
-		self.update_dtype(vert_chunk.weights_flag.mesh_format)
+		self.mesh_format = vert_chunk.weights_flag.mesh_format
+		self.update_dtype()
 		self.init_arrays()
 
 		first_tris_offs = self.tri_chunks[0].tris_offset
@@ -199,6 +200,7 @@ class BioMeshData(MeshData):
 		self.weights_info = {}
 		self.face_maps = {}
 		self.bones_sets = []
+		mesh_formats = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# bones_per_chunk = set()
 			logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
@@ -214,7 +216,7 @@ class BioMeshData(MeshData):
 			self.init_vert_chunk_arrays(v_slice, vert_chunk)
 			tris_start = tri_chunk.tris_offset - first_tris_offs
 			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count]
-
+			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 				self.buffer_info.verts.readinto(vert_chunk.packed_verts)
 				# decode and store position
@@ -239,6 +241,9 @@ class BioMeshData(MeshData):
 			vert_chunk.colors[:] = vert_chunk.meta["colors"]
 			vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
 			vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
+
+			if vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32,):
+				vert_chunk.shapekeys[:] = vert_chunk.meta["shapekey"]
 			# create absolute vertex indices for the total mesh
 			tri_chunk.tri_indices += offs
 			offs += vert_chunk.vertex_count
@@ -255,6 +260,7 @@ class BioMeshData(MeshData):
 			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
 			id_str = f"{fmt_str}_{i:03}{_weights}"
 			self.face_maps[id_str] = list(range(tris_start // 3, (tris_start+tri_chunk.tri_indices_count) // 3))
+		assert len(mesh_formats) == 1
 		# print(self.face_maps)
 		# logging.info(self.bones_sets)
 		# print("weights_flags", flags, "u1s", us)
@@ -264,6 +270,7 @@ class BioMeshData(MeshData):
 		oct_to_vec3(self.normals)
 		oct_to_vec3(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
+		unpack_swizzle_vectorized(self.shapekeys)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
 		# currently, known uses of Interleaved48 use impostor uv atlas
@@ -281,18 +288,20 @@ class BioMeshData(MeshData):
 		vert_chunk.meta = None
 		# views into main array
 		vert_chunk.vertices = self.vertices[v_slice]
+		vert_chunk.shapekeys = self.shapekeys[v_slice]
 		vert_chunk.use_blended_weights = self.use_blended_weights[v_slice]
 		vert_chunk.colors = self.colors[v_slice]
 		vert_chunk.uvs = self.uvs[v_slice]
 		vert_chunk.normals = self.normals[v_slice]
 		vert_chunk.tangents = self.tangents[v_slice]
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
-			vert_chunk.packed_verts = np.empty(dtype=np.int64, shape=vert_chunk.vertex_count)
-			vert_chunk.weights = np.empty(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
-			vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
+			# todo - once stable, change back to empty
+			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
+			vert_chunk.weights = np.zeros(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
+			vert_chunk.meta = np.zeros(dtype=self.dt, shape=vert_chunk.vertex_count)
 		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 			# interleaved vertex array, meta includes all extra data
-			vert_chunk.meta = np.empty(dtype=self.dt, shape=vert_chunk.vertex_count)
+			vert_chunk.meta = np.zeros(dtype=self.dt, shape=vert_chunk.vertex_count)
 
 	def read_weights(self, vert_chunk, offs):
 		# check if weights chunk is present
@@ -312,7 +321,7 @@ class BioMeshData(MeshData):
 				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
 		# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
 
-	def update_dtype(self, mesh_format=None):
+	def update_dtype(self):
 		# prepare descriptions of the dtypes
 		_normal_tangent_oct = (("normal_oct", np.ubyte, (2,)), ("tangent_oct", np.ubyte, (2,)))
 		# per-vertex weights may or may not be used in a given chunk
@@ -344,14 +353,14 @@ class BioMeshData(MeshData):
 			("colors", np.ubyte, (1, 4)),  # zero, may be colors
 			("uvs", np.ushort, (8, 2)),
 		]
-		if mesh_format == MeshFormat.Separate:
+		if self.mesh_format == MeshFormat.Separate:
 			self.dt = np.dtype(dt_separate)
-		elif mesh_format == MeshFormat.Interleaved32:
+		elif self.mesh_format == MeshFormat.Interleaved32:
 			self.dt = np.dtype(dt_interleaved32)
-		elif mesh_format == MeshFormat.Interleaved48:
+		elif self.mesh_format == MeshFormat.Interleaved48:
 			self.dt = np.dtype(dt_interleaved48)
 		else:
-			raise AttributeError(f"Unsupported mesh_format {mesh_format}")
+			raise AttributeError(f"Unsupported mesh_format {self.mesh_format}")
 		self.dt_weights = np.dtype(dt_weights)
 
 	def read_chunk_infos(self):
@@ -361,14 +370,6 @@ class BioMeshData(MeshData):
 		self.buffer_info.vert_chunks.seek(self.vert_chunks_address)
 		self.vert_chunks = Array.from_stream(self.buffer_info.vert_chunks, (self.chunks_count,), VertChunk, self.context)
 		# logging.debug(f"{self.chunks_count} vert_chunks at {self.vert_chunks_address}")
-
-	def set_chunks(self, chunks):
-		# set all verts as one list
-		# or use one list for each shape?
-		# logging.info(f"{bounds_min} {tri_chunk.bounds_min}")
-		# logging.info(f"{bounds_max} {tri_chunk.bounds_max}")
-		# logging.info(f"tri_chunk.loc {tri_chunk.loc} {np.mean((bounds_min, bounds_max), axis=0)} {np.mean(self.vertices[offs:offs + vert_chunk.vertex_count], axis=0)}")
-		pass
 
 	@property
 	def tris(self, ):
@@ -381,35 +382,67 @@ class BioMeshData(MeshData):
 		# else:
 		# 	return triangulate((self.tri_indices,))
 
+	@tris.setter
+	def tris(self, list_of_b_tris):
+		# create chunks for each segment in tris
+		self.vert_chunks = Array((len(list_of_b_tris),), VertChunk, self.context)
+		self.tri_chunks = Array((len(list_of_b_tris),), TriChunk, self.context)
+		for vert_chunk, tri_chunk, b_tris in zip(self.vert_chunks, self.tri_chunks, list_of_b_tris):
+			# logging.info(b_tris)
+			# cast to uint16
+			raw_tris = np.array(b_tris, dtype=np.uint8)
+			# reverse tris
+			raw_tris = np.flip(raw_tris, axis=-1)
+			# flatten array
+			tri_chunk.tri_indices = np.reshape(raw_tris, len(raw_tris) * 3)
+			# get the vertex count from the tri indices
+			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
+			vert_chunk.weights_flag.mesh_format = self.mesh_format
+			vert_chunk.weights_flag.has_weights = False
+			# logging.info(f"vert_chunk.vertex_count {vert_chunk.vertex_count}")
+
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
 		# prepare data in whole mesh array for assignment
 		pack_swizzle_vectorized(self.vertices)
+		pack_swizzle_vectorized(self.shapekeys)
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)
 		vec3_to_oct(self.normals)
 		vec3_to_oct(self.tangents)
+		self.colors *= 255
+		offs = 0
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
-			# correct bounds for the chunk, do after swizzling
+			# (re)generate views into mesh vertex arrays for vert_chunk according to tri_chunk
+			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
+			self.init_vert_chunk_arrays(v_slice, vert_chunk)
+			offs += vert_chunk.vertex_count
+			# we have the views, so set bounds for the chunk (after swizzling)
 			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
 			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
-			# todo - (re)generate views into mesh arrays for vert_chunk according to tri_chunk
+			# pack the verts
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.use_blended_weights)
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				vert_chunk.meta["pos"] = vert_chunk.vertices
+			else:
+				raise AttributeError(f"Unsupported mesh_format {self.mesh_format}")
 			# store chunk's meta data
+			if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved32:
+				vert_chunk.meta["shapekey"] = vert_chunk.shapekeys
 			# currently, known uses of Interleaved48 use impostor uv atlas
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved48:
 				pack_ushort_vector_impostor(vert_chunk.uvs)
 			else:
 				pack_ushort_vector(vert_chunk.uvs)
 			# assign the right views from the main arrays back to the chunks
+			print("bef", vert_chunk.meta)
 			vert_chunk.meta["uvs"] = vert_chunk.uvs
 			vert_chunk.meta["colors"] = vert_chunk.colors
 			vert_chunk.meta["normal_oct"] = vert_chunk.normals[:, :2]
 			vert_chunk.meta["tangent_oct"] = vert_chunk.tangents[:, :2]
+			print("after", vert_chunk.meta)
 
 	def write_data(self):
 		# todo - rewrite to save tris and verts per chunk, and update the offsets each time

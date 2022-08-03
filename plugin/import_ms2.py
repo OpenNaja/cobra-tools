@@ -13,6 +13,7 @@ from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin
 from plugin.utils.object import create_ob, get_collection
 from generated.formats.ms2 import Ms2File, is_old
+from generated.formats.ms2.enum.MeshFormat import MeshFormat
 
 
 def load(filepath="", use_custom_normals=False, mirror_mesh=False):
@@ -175,7 +176,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 
 
 def import_shapekeys(b_obj, mesh):
-	if mesh.flag == 517:
+	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.Interleaved32:
 		b_mesh = b_obj.data
 		# insert base key
 		sk_basis = b_obj.shape_key_add(name="Basis")

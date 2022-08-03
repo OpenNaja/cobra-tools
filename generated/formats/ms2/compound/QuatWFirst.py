@@ -13,7 +13,7 @@ class QuatWFirst:
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.w = 0.0
+		self.w = 1.0
 		self.x = 0.0
 		self.y = 0.0
 		self.z = 0.0
@@ -21,7 +21,7 @@ class QuatWFirst:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.w = 0.0
+		self.w = 1.0
 		self.x = 0.0
 		self.y = 0.0
 		self.z = 0.0

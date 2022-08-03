@@ -13,7 +13,7 @@ from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.compound.packing_utils import remap, USHORT_MAX
-from generated.formats.ms2.enum import MeshFormat
+from generated.formats.ms2.enum.MeshFormat import MeshFormat
 from plugin.import_ms2 import num_fur_as_weights
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
@@ -58,11 +58,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
 
-	# todo - register this format for all vert chunks that will be created later
-	mesh_format = MeshFormat[b_me.cobra.mesh_format]
-	# print(mesh_format)
-	# use mesh format optional here for JWE2
-	mesh.update_dtype(mesh_format)
+	# register this format for all vert chunks that will be created later
+	mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
+	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()
 	# ensure that these are initialized
@@ -105,7 +103,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# stores values retrieved from blender, will be packed into array later
 	verts = []
 	unweighted_vertices = []
-	tris = []
+	# list of tri lists to support chunks
+	tris_chunks = [[], ]
 	# use a dict mapping dummy vertices to their index for fast lookup
 	# this is used to convert blender vertices (several UVs, normals per face corner) to ms2 vertices
 	dummy_vertices = {}
@@ -128,6 +127,15 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		if len(face.loop_indices) != 3:
 			# this is a bug - we are applying the triangulation modifier above
 			raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
+
+		if mesh.context.biosyn:
+			if len(dummy_vertices) >= 250:
+				logging.info(f"Starting new chunk")
+				tris_chunks.append([])
+				dummy_vertices = {}
+				count_unique = 0
+				count_reused = 0
+
 		# build indices into vertex buffer for the current face
 		tri = []
 		if is_fin(b_ob):
@@ -170,6 +178,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			# create a dummy bytes str for indexing
 			float_items = [*position, *[c for uv in uvs[:2] for c in uv], *tangent]
 			dummy = struct.pack(f'<{len(float_items)}f', *float_items)
+
 			# see if this dummy key exists
 			try:
 				# if it does - reuse it by grabbing its index from the dict
@@ -186,8 +195,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				count_unique += 1
 
 				# now collect any missing vert data that was not needed for the splitting of blender verts
-
-				# collect vertex colors
 				vcols = [tuple(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
 				weights, fur_length, fur_width, use_blended_weights = export_weights(
 					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
@@ -197,10 +204,12 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# store all raw blender data
 				verts.append((position, use_blended_weights, normal, winding, tangent, uvs, vcols, weights, shapekey))
 			tri.append(v_index)
-		tris.append(tri)
+		# add it to the latest chunk
+		tris_chunks[-1].append(tri)
 
 	logging.debug(f"count_unique {count_unique}")
 	logging.debug(f"count_reused {count_reused}")
+	logging.debug(f"count_chunks {len(tris_chunks)}")
 
 	# report unweighted vertices
 	if hasattr(mesh.flag, "weights") and mesh.flag.weights:
@@ -208,14 +217,13 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
 	# update vert & tri array
-	mesh.base = model_info.pack_base
+	mesh.pack_base = model_info.pack_base
 	# transfer raw verts into mesh data packed array
+	mesh.tris = tris_chunks
 	try:
 		mesh.set_verts(verts)
 	except ValueError as err:
 		raise AttributeError(f"Could not export {b_ob.name}!")
-
-	mesh.tris = tris
 	return wrapper
 
 
