@@ -36,9 +36,9 @@ class ZtMeshData:
 			("pos", np.float16, (3,)),
 			("one", np.float16),
 			("normal", np.ubyte, (3,)),
-			("winding", np.ubyte, ),
+			("winding", np.ubyte, ),  # not tested
 			("tangent", np.ubyte, (3,)),
-			("bone index", np.ubyte, ),
+			("bone index", np.ubyte, ),  # not tested
 		]
 		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
 		# hack for zt monitor
