@@ -3,8 +3,6 @@ import time
 import traceback
 import logging
 
-import numpy as np
-
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
 from generated.formats.ovl_base.basic import ConvStream
@@ -94,7 +92,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
 
 			# logging.info(f"self.buffer_2_offset {self.buffer_2_offset}")
-			logging.info(self)
+			# logging.info(self)
 			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
 
