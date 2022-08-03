@@ -344,7 +344,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/caribou/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC3/Dinosaurs/Land/Therizinosaurus/Therizinosaurus/models.ms2", read_editable=True)

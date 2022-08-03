@@ -385,6 +385,7 @@ class BioMeshData(MeshData):
 	@tris.setter
 	def tris(self, list_of_b_tris):
 		# create chunks for each segment in tris
+		self.tris_count = sum(len(b_tris) for b_tris in list_of_b_tris)
 		self.vert_chunks = Array((len(list_of_b_tris),), VertChunk, self.context)
 		self.tri_chunks = Array((len(list_of_b_tris),), TriChunk, self.context)
 		for vert_chunk, tri_chunk, b_tris in zip(self.vert_chunks, self.tri_chunks, list_of_b_tris):
@@ -399,6 +400,7 @@ class BioMeshData(MeshData):
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format
 			vert_chunk.weights_flag.has_weights = False
+			vert_chunk.pack_base = self.pack_base
 			# logging.info(f"vert_chunk.vertex_count {vert_chunk.vertex_count}")
 
 	def pack_verts(self):
@@ -437,22 +439,21 @@ class BioMeshData(MeshData):
 			else:
 				pack_ushort_vector(vert_chunk.uvs)
 			# assign the right views from the main arrays back to the chunks
-			print("bef", vert_chunk.meta)
+			# print("bef", vert_chunk.meta)
 			vert_chunk.meta["uvs"] = vert_chunk.uvs
 			vert_chunk.meta["colors"] = vert_chunk.colors
 			vert_chunk.meta["normal_oct"] = vert_chunk.normals[:, :2]
 			vert_chunk.meta["tangent_oct"] = vert_chunk.tangents[:, :2]
-			print("after", vert_chunk.meta)
+			# print("after", vert_chunk.meta)
 
 	def write_data(self):
-		# todo - rewrite to save tris and verts per chunk, and update the offsets each time
+		# save tris and verts per chunk, and update the offsets each time
 		# write to the buffer_info that has been assigned to mesh
-		# write vertices
 		self.vertex_count = len(self.vertices)
-		self.tris_count = len(self.tri_indices) // 3  # * self.shell_count
 		# this may not be needed, but for now is used in update_buffer_2_bytes
 		self.tri_index_count = len(self.tri_indices)
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
+			# write vertices
 			vert_chunk.vertex_offset = self.buffer_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
 			# write the arrays if they exist, in this order
