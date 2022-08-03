@@ -33,6 +33,14 @@ def unpack_ubyte_vector(arr, normalize=True):
         arr /= np.linalg.norm(arr, axis=1, keepdims=True)
 
 
+def unpack_ubyte_color(arr):
+    arr[:] = arr / UBYTE_MAX
+
+
+def pack_ubyte_color(arr):
+    arr[:] = np.round(arr * UBYTE_MAX)
+
+
 def pack_ubyte_vector(arr):
     arr[:] = np.round(arr * UBYTE_SCALE + UBYTE_SCALE)
 

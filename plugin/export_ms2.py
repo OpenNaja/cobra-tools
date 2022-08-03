@@ -195,6 +195,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				count_unique += 1
 
 				# now collect any missing vert data that was not needed for the splitting of blender verts
+				# todo - use attribute api, ensure fallback so array setting does not choke
 				vcols = [tuple(x for x in layer.data[loop_index].color) for layer in eval_me.vertex_colors]
 				weights, fur_length, fur_width, use_blended_weights = export_weights(
 					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)

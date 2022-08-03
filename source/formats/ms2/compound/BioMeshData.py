@@ -155,6 +155,7 @@ class BioMeshData:
 		unpack_swizzle_vectorized(self.shapekeys)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
+		unpack_ubyte_color(self.colors)
 		# currently, known uses of Interleaved48 use impostor uv atlas
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved48:
 			unpack_ushort_vector_impostor(self.uvs)
@@ -294,7 +295,9 @@ class BioMeshData:
 		pack_swizzle_vectorized(self.tangents)
 		vec3_to_oct(self.normals)
 		vec3_to_oct(self.tangents)
-		self.colors *= 255
+		# todo - ensure we are able to set these to array directly
+		self.colors = np.array(self.colors)
+		pack_ubyte_color(self.colors)
 		offs = 0
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			# (re)generate views into mesh vertex arrays for vert_chunk according to tri_chunk
