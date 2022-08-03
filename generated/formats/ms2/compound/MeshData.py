@@ -113,6 +113,16 @@ class MeshData(MemStruct):
 		# logging.debug(f"Using stream {self.stream_index}")
 		return self.stream_index
 
+	def get_vcol_count(self, ):
+		if "colors" in self.dt.fields:
+			return self.dt["colors"].shape[0]
+		return 0
+
+	def get_uv_count(self, ):
+		if "uvs" in self.dt.fields:
+			return self.dt["uvs"].shape[0]
+		return 0
+
 	def assign_stream(self, buffer_infos):
 		self.stream_info = buffer_infos[self.get_stream_index()]
 
@@ -128,6 +138,21 @@ class MeshData(MemStruct):
 		self.read_tris()
 		# self.validate_tris()
 		return self.end_of_vertices
+
+	def init_arrays(self):
+		# create arrays for this mesh
+		self.vertices = np.empty((self.vertex_count, 3), np.float32)
+		self.normals = np.empty((self.vertex_count, 3), np.float32)
+		self.tangents = np.empty((self.vertex_count, 3), np.float32)
+		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
+		self.shape_residues = np.empty(self.vertex_count, np.bool)
+		uv_shape = self.dt["uvs"].shape
+		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
+		# colors_shape = self.dt["colors"].shape
+		colors_shape = (1, 4)
+		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
+		self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
+		self.weights_info = {}
 
 	def set_verts(self, verts):
 		"""Store verts as flat lists for each component"""

@@ -1,9 +1,6 @@
 
 import logging
 import time
-
-import numpy as np
-import struct
 from generated.formats.ms2.compound.packing_utils import *
 
 
@@ -158,35 +155,6 @@ class NewMeshData(MeshData):
 		# logging.debug(f"Using stream {self.buffer_info.offset}")
 		return self.buffer_info.offset
 
-	def init_arrays(self):
-		self.vertices = np.empty((self.vertex_count, 3), np.float32)
-		self.normals = np.empty((self.vertex_count, 3), np.float32)
-		self.tangents = np.empty((self.vertex_count, 3), np.float32)
-		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
-		self.shape_residues = np.empty(self.vertex_count, np.bool)
-		try:
-			uv_shape = self.dt["uvs"].shape
-			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
-		except:
-			self.uvs = None
-		try:
-			colors_shape = self.dt["colors"].shape
-			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
-		except:
-			self.colors = None
-		self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
-		self.weights_info = {}
-
-	def get_vcol_count(self, ):
-		if "colors" in self.dt.fields:
-			return self.dt["colors"].shape[0]
-		return 0
-
-	def get_uv_count(self, ):
-		if "uvs" in self.dt.fields:
-			return self.dt["uvs"].shape[0]
-		return 0
-
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
@@ -258,6 +226,8 @@ class NewMeshData(MeshData):
 	def read_verts(self):
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
+		# create arrays for the unpacked ms2_file
+		self.init_arrays()
 		# read vertices of this mesh
 		self.fur_length = 0.0
 		self.stream_info.stream.seek(self.vertex_offset)
@@ -265,15 +235,13 @@ class NewMeshData(MeshData):
 		# read the packed ms2_file
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		self.stream_info.stream.readinto(self.verts_data)
-		# create arrays for the unpacked ms2_file
-		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
 		self.uvs[:] = self.verts_data["uvs"]
 		if self.flag == 512:
 			unpack_ushort_vector_impostor(self.uvs)
 		else:
 			unpack_ushort_vector(self.uvs)
-		if self.colors is not None:
+		if "colors" in self.verts_data:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data["colors"]
 			self.colors /= 255

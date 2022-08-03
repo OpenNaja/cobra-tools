@@ -1,8 +1,5 @@
 # START_GLOBALS
 import logging
-import numpy as np
-import struct
-
 from generated.array import Array
 from generated.formats.ms2.compound.VertChunk import VertChunk
 from generated.formats.ms2.compound.TriChunk import TriChunk
@@ -22,16 +19,6 @@ class BioMeshData:
 	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.buffer_info.offset}")
 		return self.buffer_info.offset
-
-	def get_vcol_count(self, ):
-		if "colors" in self.dt.fields:
-			return self.dt["colors"].shape[0]
-		return 0
-
-	def get_uv_count(self, ):
-		if "uvs" in self.dt.fields:
-			return self.dt["uvs"].shape[0]
-		return 0
 
 	@property
 	def tris_start_address(self):
@@ -88,17 +75,7 @@ class BioMeshData:
 		# check first vert_chunk
 		vert_chunk = self.vert_chunks[0]
 		self.update_dtype(vert_chunk.weights_flag.mesh_format)
-
-		# create arrays for this mesh
-		self.vertices = np.empty(dtype=np.float, shape=(self.vertex_count, 3))
-		self.normals = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
-		self.tangents = np.zeros(dtype=np.float, shape=(self.vertex_count, 3))
-		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
-		uv_shape = self.dt["uvs"].shape
-		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
-		# colors_shape = self.dt["colors"].shape
-		colors_shape = (1, 4)
-		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
+		self.init_arrays()
 
 		first_tris_offs = self.tri_chunks[0].tris_offset
 		offs = 0
