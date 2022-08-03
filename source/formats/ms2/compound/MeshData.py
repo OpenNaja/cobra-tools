@@ -129,7 +129,7 @@ class MeshData:
 	@property
 	def tris(self, ):
 		if hasattr(self.flag, "stripify") and self.flag.stripify:
-			return triangulate((self.tri_indices,))
+			return np.flip(triangulate((self.tri_indices,)), axis=-1)
 		else:
 			# create non-overlapping tris from flattened tri indices
 			tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
@@ -169,7 +169,6 @@ class MeshData:
 			self.add_to_weights("fur_width", vertex_index, fur_vert[1])
 
 	def get_blended_weights(self, ids, weights):
-		self.weights_info = {}
 		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(ids, weights)):
 			for bone_index, weight in zip(bone_indices, bone_weights):
 				if weight > 0.0:

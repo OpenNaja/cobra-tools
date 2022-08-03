@@ -7,7 +7,7 @@ class BufferInfo:
 	"""
 	Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 	ZTUAC: 64 bytes
-	PC: 32 bytes
+	PC: 32 bytes, lumps all data (pos, uv, weights, tris) into verts_size
 	JWE1: 48 bytes
 	PZ old: 32 bytes?
 	PZ1.6+ and JWE2: 56 bytes
@@ -32,10 +32,10 @@ class BufferInfo:
 		self.vert_chunks_size = 0
 		self.vert_chunks_ptr = 0
 		self.verts_size = 0
-		self.u_2 = 0
+		self.verts_ptr = 0
 		self.u_3 = 0
 		self.tris_size = 0
-		self.u_4 = 0
+		self.tris_ptr = 0
 		self.u_5 = 0
 		self.u_6 = 0
 		self.u_5 = 0
@@ -61,13 +61,13 @@ class BufferInfo:
 		if (self.context.version == 51) and self.context.biosyn:
 			self.vert_chunks_ptr = 0
 		self.verts_size = 0
-		self.u_2 = 0
+		self.verts_ptr = 0
 		if self.context.version >= 48:
 			self.u_3 = 0
 		if not (self.context.version == 32):
 			self.tris_size = 0
 		if not (self.context.version == 32):
-			self.u_4 = 0
+			self.tris_ptr = 0
 		if self.context.version >= 48:
 			self.u_5 = 0
 		if self.context.version >= 48:
@@ -103,12 +103,12 @@ class BufferInfo:
 			instance.vert_chunks_size = stream.read_uint64()
 			instance.vert_chunks_ptr = stream.read_uint64()
 		instance.verts_size = stream.read_uint64()
-		instance.u_2 = stream.read_uint64()
+		instance.verts_ptr = stream.read_uint64()
 		if instance.context.version >= 48:
 			instance.u_3 = stream.read_uint64()
 		if not (instance.context.version == 32):
 			instance.tris_size = stream.read_uint64()
-			instance.u_4 = stream.read_uint64()
+			instance.tris_ptr = stream.read_uint64()
 		if instance.context.version >= 48:
 			instance.u_5 = stream.read_uint64()
 			instance.u_6 = stream.read_uint64()
@@ -131,12 +131,12 @@ class BufferInfo:
 			stream.write_uint64(instance.vert_chunks_size)
 			stream.write_uint64(instance.vert_chunks_ptr)
 		stream.write_uint64(instance.verts_size)
-		stream.write_uint64(instance.u_2)
+		stream.write_uint64(instance.verts_ptr)
 		if instance.context.version >= 48:
 			stream.write_uint64(instance.u_3)
 		if not (instance.context.version == 32):
 			stream.write_uint64(instance.tris_size)
-			stream.write_uint64(instance.u_4)
+			stream.write_uint64(instance.tris_ptr)
 		if instance.context.version >= 48:
 			stream.write_uint64(instance.u_5)
 			stream.write_uint64(instance.u_6)
@@ -174,10 +174,10 @@ class BufferInfo:
 		s += f'\n	* vert_chunks_size = {fmt_member(self.vert_chunks_size, indent+1)}'
 		s += f'\n	* vert_chunks_ptr = {fmt_member(self.vert_chunks_ptr, indent+1)}'
 		s += f'\n	* verts_size = {fmt_member(self.verts_size, indent+1)}'
-		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* verts_ptr = {fmt_member(self.verts_ptr, indent+1)}'
 		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
 		s += f'\n	* tris_size = {fmt_member(self.tris_size, indent+1)}'
-		s += f'\n	* u_4 = {fmt_member(self.u_4, indent+1)}'
+		s += f'\n	* tris_ptr = {fmt_member(self.tris_ptr, indent+1)}'
 		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
 		s += f'\n	* u_6 = {fmt_member(self.u_6, indent+1)}'
 		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'

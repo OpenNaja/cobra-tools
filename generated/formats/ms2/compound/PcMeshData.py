@@ -166,8 +166,7 @@ class PcMeshData(MeshData):
 		s += '\n'
 		return s
 
-	def init_arrays(self, count):
-		self.vertex_count = count
+	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
@@ -182,6 +181,7 @@ class PcMeshData(MeshData):
 			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
 		except:
 			self.colors = None
+		self.weights_info = {}
 
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
@@ -204,42 +204,33 @@ class PcMeshData(MeshData):
 		self.dt_uv = np.dtype(dt_uv)
 		self.dt_w = np.dtype(dt_w)
 		self.update_shell_count()
-		logging.debug(f"PC size of vertex: {self.dt.itemsize}")
-		logging.debug(f"PC size of uv: {self.dt_uv.itemsize}")
-		logging.debug(f"PC size of weights: {self.dt_w.itemsize}")
+		# logging.debug(f"PC size of vertex: {self.dt.itemsize}")
+		# logging.debug(f"PC size of uv: {self.dt_uv.itemsize}")
+		# logging.debug(f"PC size of weights: {self.dt_w.itemsize}")
 
-	@property
-	def tris_address(self):
-		logging.debug(f"count {self.tri_offset}")
-		return self.tri_offset * 16
+	def read_pc_array(self, dt, offset, count):
+		arr = np.empty(dtype=dt, shape=count)
+		self.buffer_info.verts.seek(offset * 16)
+		# logging.debug(f"VERTS at {self.buffer_info.verts.tell()}")
+		self.buffer_info.verts.readinto(arr)
+		return arr
 
 	def read_verts(self):
-		# read a vertices of this mesh
-		self.buffer_info.stream.seek(self.vertex_offset * 16)
-		logging.debug(f"VERTS at {self.buffer_info.stream.tell()}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
-		# read the packed ms2_file
-		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		self.buffer_info.stream.readinto(self.verts_data)
-		self.buffer_info.stream.seek(self.uv_offset * 16)
-		logging.debug(f"UV at {self.buffer_info.stream.tell()}")
-		self.uv_data = np.empty(dtype=self.dt_uv, shape=self.vertex_count)
-		self.buffer_info.stream.readinto(self.uv_data)
-		self.buffer_info.stream.seek(self.weights_offset * 16)
-		logging.debug(f"WEIGHTS at {self.buffer_info.stream.tell()}")
-		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
-		self.weights_data = np.empty(dtype=self.dt_w, shape=self.vertex_count)
-		self.buffer_info.stream.readinto(self.weights_data)
+		# read a vertices of this mesh
+		self.verts_data = self.read_pc_array(self.dt, self.vertex_offset, self.vertex_count)
+		self.uv_data = self.read_pc_array(self.dt_uv, self.uv_offset, self.vertex_count)
+		self.weights_data = self.read_pc_array(self.dt_w, self.weights_offset, self.vertex_count)
+		# todo - PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		# create arrays for the unpacked ms2_file
-		self.init_arrays(self.vertex_count)
+		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
 		if self.uvs is not None:
 			self.uvs[:] = self.uv_data["uvs"]
 			unpack_ushort_vector(self.uvs)
-
-		self.bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
-		self.get_blended_weights(self.weights_data["bone ids"], self.bone_weights)
+		self.normals[:] = self.verts_data["normal"]
+		self.tangents[:] = self.verts_data["tangent"]
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		scale_unpack_vectorized(self.vertices, self.base)
 		unpack_ubyte_vector(self.normals)
@@ -247,5 +238,18 @@ class PcMeshData(MeshData):
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
+
+		# PC does not use use_blended_weights, nor a flag
+		if self.weights_offset != 0:
+			bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
+			self.get_blended_weights(self.weights_data["bone ids"], bone_weights)
+		else:
+			self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
 		# print(self.vertices)
+
+	def read_tris(self):
+		# tris are stored in the verts stream for PC
+		# read all tri indices for this mesh, but only as many as needed if there are shells
+		index_count = self.tri_index_count // self.shell_count
+		self.tri_indices = self.read_pc_array(np.uint16, self.tri_offset, index_count)
 

@@ -369,7 +369,7 @@
 	<compound name="BufferInfo" >
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		ZTUAC: 64 bytes
-		PC: 32 bytes
+		PC: 32 bytes, lumps all data (pos, uv, weights, tris) into verts_size
 		JWE1: 48 bytes
 		PZ old: 32 bytes?
 		PZ1.6+ and JWE2: 56 bytes
@@ -385,7 +385,7 @@
 		<add name="vert_chunks_ptr" type="uint64" vercond="#JWE2_BIO#"/>
 
 		<add name="verts_size" type="uint64"/>
-		<add name="u2" type="uint64"/>
+		<add name="verts_ptr" type="uint64"/>
 		PC ends here
 		PZ+, another 8 empty bytes
 		<add name="u3" type="uint64" since="48"/>
@@ -393,7 +393,7 @@
 
 		at offset 56 in JWE2
 		<add name="tris_size" type="uint64" vercond="!#PC#"/>
-		<add name="u4" type="uint64" vercond="!#PC#"/>
+		<add name="tris_ptr" type="uint64" vercond="!#PC#"/>
 		PZ+, another 16 empty bytes
 		<add name="u5" type="uint64" since="48" />
 		<add name="u6" type="uint64" since="48" />
