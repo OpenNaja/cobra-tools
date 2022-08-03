@@ -144,12 +144,14 @@ class Array(list):
         if callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):
             return dtype._get_filtered_attribute_list_array(instance)
         else:
+            arg = getattr(instance, "arg", 0)
+            template = getattr(instance, "template", None)
             if len(instance.shape) > 1:
                 for i in range(instance.shape[0]):
-                    yield (i, cls, (instance.shape[1:], dtype, instance.arg, instance.template))
+                    yield (i, cls, (instance.shape[1:], dtype, arg, template))
             else:
                 for i in range(instance.shape[0]):
-                    yield (i, dtype, (instance.arg, instance.template))
+                    yield (i, dtype, (arg, template))
 
     @property
     def class_name(self):
