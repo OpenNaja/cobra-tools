@@ -312,7 +312,7 @@ class BioMeshData(MeshData):
 				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
 		# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
 
-	def update_dtype(self, mesh_format):
+	def update_dtype(self, mesh_format=None):
 		# prepare descriptions of the dtypes
 		_normal_tangent_oct = (("normal_oct", np.ubyte, (2,)), ("tangent_oct", np.ubyte, (2,)))
 		# per-vertex weights may or may not be used in a given chunk
@@ -350,6 +350,8 @@ class BioMeshData(MeshData):
 			self.dt = np.dtype(dt_interleaved32)
 		elif mesh_format == MeshFormat.Interleaved48:
 			self.dt = np.dtype(dt_interleaved48)
+		else:
+			raise AttributeError(f"Unsupported mesh_format {mesh_format}")
 		self.dt_weights = np.dtype(dt_weights)
 
 	def read_chunk_infos(self):

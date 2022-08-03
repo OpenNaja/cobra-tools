@@ -16,7 +16,7 @@ class NewMeshData:
 		# logging.debug(f"Using stream {self.stream_info.offset}")
 		return self.stream_info.offset
 
-	def update_dtype(self):
+	def update_dtype(self, mesh_format=None):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
@@ -112,33 +112,12 @@ class NewMeshData:
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
 		start_time = time.time()
-		# before = np.copy(self.verts_data["pos"])
-		# first = int(np.copy(before[0]))
-		# print("before", bin(int(first)))
-		# for i in range(3):
-		# 	# grab the last 21 bits with bitand
-		# 	twentyone_bits = first & 0b111111111111111111111
-		# 	first >>= 21
-		# 	print(bin(twentyone_bits))
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
-		# int21_vec = np.copy(self.vertices)
 		scale_unpack_vectorized(self.vertices, self.base)
 		if "bone weights" in self.dt.fields:
 			bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
 			self.get_blended_weights(self.verts_data["bone ids"], bone_weights)
 		self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
-
-		# print("start")
-		# # print(int21_vec)
-		# scale_pack_vectorized(self.vertices, self.base)
-		# # print(self.vertices)
-		# print("int21_vec", np.allclose(int21_vec, self.vertices))
-		# pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
-		# for v in (int21_vec[0], self.vertices[0]):
-		# 	print([bin(int(c)) for c in v])
-		# print(bin(before[0]), type(before[0]))
-		# print(bin(self.verts_data["pos"][0]))
-		# print("packed int64", np.allclose(before, self.verts_data["pos"]))
 
 		unpack_ubyte_vector(self.normals)
 		unpack_ubyte_vector(self.tangents)

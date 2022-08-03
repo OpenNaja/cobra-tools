@@ -13,6 +13,7 @@ from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.compound.packing_utils import remap
+from generated.formats.ms2.enum import MeshFormat
 from plugin.import_ms2 import num_fur_as_weights
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
@@ -59,9 +60,11 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
 
-	# todo - make mesh format optional here for JWE2?
-	# b_me.cobra.mesh_format
-	mesh.update_dtype()
+	# todo - register this format for all vert chunks that will be created later
+	mesh_format = MeshFormat[b_me.cobra.mesh_format]
+	# print(mesh_format)
+	# use mesh format optional here for JWE2
+	mesh.update_dtype(mesh_format)
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()
 	# ensure that these are initialized
@@ -202,7 +205,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	logging.debug(f"count_reused {count_reused}")
 
 	# report unweighted vertices
-	if mesh.flag.weights:
+	if hasattr(mesh.flag, "weights") and mesh.flag.weights:
 		if unweighted_vertices:
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 

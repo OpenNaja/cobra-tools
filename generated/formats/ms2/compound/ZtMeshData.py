@@ -199,7 +199,7 @@ class ZtMeshData(MeshData):
 			self.colors = None
 		self.weights_info = {}
 
-	def update_dtype(self):
+	def update_dtype(self, mesh_format=None):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
