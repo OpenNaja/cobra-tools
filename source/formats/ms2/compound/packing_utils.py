@@ -64,6 +64,11 @@ def unpack_swizzle_vectorized(arr):
     arr[:, (0, 1)] *= -1.0
 
 
+def unpack_swizzle_vectorized_b(arr):
+    arr[:] = arr[:, (2, 0, 1)]
+    arr[:, (0, 1)] *= -1.0
+
+
 def pack_swizzle(vec):
     # swizzle to avoid a matrix multiplication for global axis correction
     return -vec[0], vec[2], -vec[1]

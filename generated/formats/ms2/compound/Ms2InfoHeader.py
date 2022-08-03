@@ -29,7 +29,7 @@ class Ms2InfoHeader:
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
 
-		# used since PC
+		# used since DLA
 		self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		self.modelstream_names = Array((self.info.vertex_buffer_count - self.info.stream_count,), ZString, self.context, 0, None)
@@ -48,7 +48,7 @@ class Ms2InfoHeader:
 		self.biosyn = 0
 		self.bone_info_size = 0
 		self.info = Ms2Root(self.context, 0, None)
-		if self.context.version >= 32:
+		if self.context.version >= 7:
 			self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
 		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
 		if self.context.version <= 7 and self.info.vertex_buffer_count:
@@ -78,7 +78,7 @@ class Ms2InfoHeader:
 		instance.context.biosyn = instance.biosyn
 		instance.bone_info_size = stream.read_uint()
 		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 32:
+		if instance.context.version >= 7:
 			instance.buffers_presence = Array.from_stream(stream, (instance.info.vertex_buffer_count,), BufferPresence, instance.context, 0, None)
 		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
 		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
@@ -97,7 +97,7 @@ class Ms2InfoHeader:
 		stream.write_uint(instance.biosyn)
 		stream.write_uint(instance.bone_info_size)
 		Ms2Root.to_stream(stream, instance.info)
-		if instance.context.version >= 32:
+		if instance.context.version >= 7:
 			Array.to_stream(stream, instance.buffers_presence, (instance.info.vertex_buffer_count,), BufferPresence, instance.context, 0, None)
 		stream.write_zstrings(instance.mdl_2_names)
 		if instance.context.version <= 7 and instance.info.vertex_buffer_count:

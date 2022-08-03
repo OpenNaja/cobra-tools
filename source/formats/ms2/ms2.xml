@@ -319,7 +319,7 @@
 		<add name="biosyn" type="uint"/>
 		<add name="bone_info_size" type="uint"/>
 		<add name="info" type="MS2Root"/>
-		<add name="buffers_presence" type="BufferPresence" arr1="info \ vertex_buffer_count" since="32">used since PC</add>
+		<add name="buffers_presence" type="BufferPresence" arr1="info \ vertex_buffer_count" since="7">used since DLA</add>
 		<add name="mdl2 names" type="ZString" arr1="info \ mdl2_count"/>
 		for uac, vertex_buffer_count = 4 -> stream count (4 streams for rhino, + 1 static)
 		# 1, 1 = 0 modelstreams

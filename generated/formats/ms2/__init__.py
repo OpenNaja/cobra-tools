@@ -87,12 +87,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		logging.debug(f"Reading {self.filepath}")
 		with self.reader(filepath) as stream:
 			self.read(stream)
+			# print(self)
 			if is_old(self.info):
 				self.buffer_1_offset = self.buffer_infos.io_start
 			else:
 				self.buffer_1_offset = self.models_reader.bone_info_start
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
 
+			# logging.info(f"self.buffer_2_offset {self.buffer_2_offset}")
 			# logging.info(self)
 			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
@@ -110,7 +112,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			except:
 				logging.warning(f"Material lookup failed")
 				traceback.print_exc()
-
 			if read_bytes:
 				stream.seek(self.buffer_0.io_start)
 				self.buffer_0_bytes = stream.read(self.buffer_0.io_size)
@@ -125,7 +126,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				with open(buffer_info.path, "rb") as modelstream_reader:
 					self.attach_streams(buffer_info, modelstream_reader)
 			# attach the static stream to last buffer_info
-			if self.buffer_infos:
+			# some older models do not have a static stream (eg. ZTUAC rhino)
+			if self.buffer_infos and len(self.buffer_infos) != len(self.modelstream_names):
 				static_buffer_info = self.buffer_infos[-1]
 				stream.seek(self.buffer_2_offset)
 				self.attach_streams(static_buffer_info, stream)
@@ -138,12 +140,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def attach_streams(self, buffer_info, in_stream=None):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
+		# logging.info(buffer_info)
 		for buffer_name in BUFFER_NAMES:
 			if in_stream:
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
 				b = in_stream.read(buff_size)
 			else:
 				b = b""
+			# logging.info(f"Loading {buffer_name} size {len(b)}")
 			setattr(buffer_info, buffer_name, ConvStream(b))
 
 	def load_meshes(self):
@@ -352,19 +356,21 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/caribou/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC3/Dinosaurs/Land/Therizinosaurus/Therizinosaurus/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/pine/tree_pine_blackspruce.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
-	for model_info in m.model_infos:
-		for w in model_info.model.meshes:
-			me = w.mesh
-			me.vertices[:, 1] += np.sin(np.pi * me.vertices[:, 2] * 0.2) * 2
-			# me.vertices[:, 2] *= 2
-			me.pack_verts()
-	m.save("C:/Users/arnfi/Desktop/export/tree_palm_coconut_desert.ms2")
+
+	# m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
+	# for model_info in m.model_infos:
+	# 	for w in model_info.model.meshes:
+	# 		me = w.mesh
+	# 		me.vertices[:, 1] += np.sin(np.pi * me.vertices[:, 2] * 0.2) * 2
+	# 		# me.vertices[:, 2] *= 2
+	# 		me.pack_verts()
+	# m.save("C:/Users/arnfi/Desktop/export/tree_palm_coconut_desert.ms2")
+
 	# m.load("C:/Users/arnfi/Desktop/dilophosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/diplodocus.ms2", read_editable=True)
 	# m.save("C:/Users/arnfi/Desktop/models.ms2")
