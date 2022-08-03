@@ -358,8 +358,6 @@ class TableView(QtWidgets.QTableView):
 		self.files_dragged.emit(self.get_selected_files())
 
 	def set_data(self, data):
-		if not data:
-			data = [[], ]
 		self.model.beginResetModel()
 		self.model._data = data
 		self.model.endResetModel()
