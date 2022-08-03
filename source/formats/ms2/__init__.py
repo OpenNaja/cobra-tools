@@ -87,7 +87,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		logging.debug(f"Reading {self.filepath}")
 		with self.reader(filepath) as stream:
 			self.read(stream)
-			# print(self)
 			if is_old(self.info):
 				self.buffer_1_offset = self.buffer_infos.io_start
 			else:
@@ -95,7 +94,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
 
 			# logging.info(f"self.buffer_2_offset {self.buffer_2_offset}")
-			# logging.info(self)
+			logging.info(self)
 			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
 
@@ -144,37 +143,28 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for buffer_name in BUFFER_NAMES:
 			if in_stream:
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
+				logging.info(f"Loading {buffer_name} size {buff_size} at {in_stream.tell()}")
 				b = in_stream.read(buff_size)
 			else:
 				b = b""
-			# logging.info(f"Loading {buffer_name} size {len(b)}")
 			setattr(buffer_info, buffer_name, ConvStream(b))
 
 	def load_meshes(self):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 			logging.debug(f"Loading mesh data for {mdl2_name}")
-			# sort by lod, read those with offset first
-			# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: (x[1].poweroftwo, x[1].vertex_offset))
-			# sorted_meshes = sorted(reversed(list(enumerate(model_info.model.meshes))), key=lambda x: x[1].vertex_offset)
-			sorted_meshes = list(enumerate(model_info.model.meshes))
-			# logging.debug(f"PC mesh, {len(model_info.model.meshes)} meshes")
 			sum_uv_dict = {}
-			for i, wrapper in sorted_meshes:
+			for wrapper in model_info.model.meshes:
 				if wrapper.mesh.stream_index not in sum_uv_dict:
 					sum_uv_dict[wrapper.mesh.stream_index] = 0
 				sum_uv_dict[wrapper.mesh.stream_index] += wrapper.mesh.vertex_count
-
-			last_vertex_offset = 0
-			# for i, mesh in sorted_meshes:
-			# 	print(i, mesh.vertex_offset, mesh.vertex_offset + mesh.vertex_count*24)
 			if is_old(self.info):
 				pack_base = 512
 			else:
 				pack_base = model_info.pack_base
 			try:
-				for i, wrapper in sorted_meshes:
+				for i, wrapper in enumerate(model_info.model.meshes):
 					logging.info(f"Populating mesh {i}")
-					last_vertex_offset = wrapper.mesh.populate(self, pack_base, last_vertex_offset=last_vertex_offset, sum_uv_dict=sum_uv_dict)
+					wrapper.mesh.populate(self, pack_base, sum_uv_dict=sum_uv_dict)
 			except:
 				traceback.print_exc()
 

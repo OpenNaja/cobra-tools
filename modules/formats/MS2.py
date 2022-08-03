@@ -224,7 +224,6 @@ class Ms2Loader(BaseFile):
 			stream.write(ms2_header)
 			self.header.write(stream)
 			# present since DLA
-			print(self.header.buffers_presence.data)
 			if self.header.buffers_presence.data is not None:
 				self.header.buffers_presence.data.write(stream)
 			for mdl2_loader in self.children:

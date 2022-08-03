@@ -126,10 +126,8 @@ class MeshData(MemStruct):
 	def assign_buffer_info(self, buffer_infos):
 		self.buffer_info = buffer_infos[self.get_stream_index()]
 
-	def populate(self, ms2_file, base=512, last_vertex_offset=0, sum_uv_dict={}):
+	def populate(self, ms2_file, base=512, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
-		self.last_vertex_offset = last_vertex_offset
-		self.end_of_vertices = 0
 		self.assign_buffer_info(ms2_file.buffer_infos)
 		# print(self)
 		self.base = base
@@ -137,7 +135,6 @@ class MeshData(MemStruct):
 		self.read_verts()
 		self.read_tris()
 		# self.validate_tris()
-		return self.end_of_vertices
 
 	def init_arrays(self):
 		# create arrays for this mesh
