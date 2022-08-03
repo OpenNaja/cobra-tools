@@ -399,7 +399,7 @@
 		<add name="u6" type="uint64" since="48" />
 		alternative end, ZTUAC style
 		<add name="u5" type="uint64" until="13" />
-		<add name="uv_buffer_size" type="uint64" until="13" >from start of tris buffer</add>
+		<add name="uvs_size" type="uint64" until="13" >from start of tris buffer</add>
 		<add name="u6" type="uint64" until="13" />
 		<add name="u7" type="uint64" until="13" />
 	</compound>

@@ -214,7 +214,7 @@ class ZtMeshData(MeshData):
 		]
 		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
 		# hack for zt monitor
-		if self.stream_info.uv_buffer_size // vert_count_in_stream == 4:
+		if self.stream_info.uvs_size // vert_count_in_stream == 4:
 			dt_colors = [
 				("uvs", np.ushort, (1, 2)),
 			]

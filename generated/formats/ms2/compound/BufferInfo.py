@@ -41,7 +41,7 @@ class BufferInfo:
 		self.u_5 = 0
 
 		# from start of tris buffer
-		self.uv_buffer_size = 0
+		self.uvs_size = 0
 		self.u_6 = 0
 		self.u_7 = 0
 		if set_default:
@@ -75,7 +75,7 @@ class BufferInfo:
 		if self.context.version <= 13:
 			self.u_5 = 0
 		if self.context.version <= 13:
-			self.uv_buffer_size = 0
+			self.uvs_size = 0
 		if self.context.version <= 13:
 			self.u_6 = 0
 		if self.context.version <= 13:
@@ -114,7 +114,7 @@ class BufferInfo:
 			instance.u_6 = stream.read_uint64()
 		if instance.context.version <= 13:
 			instance.u_5 = stream.read_uint64()
-			instance.uv_buffer_size = stream.read_uint64()
+			instance.uvs_size = stream.read_uint64()
 		if instance.context.version <= 13:
 			instance.u_6 = stream.read_uint64()
 			instance.u_7 = stream.read_uint64()
@@ -142,7 +142,7 @@ class BufferInfo:
 			stream.write_uint64(instance.u_6)
 		if instance.context.version <= 13:
 			stream.write_uint64(instance.u_5)
-			stream.write_uint64(instance.uv_buffer_size)
+			stream.write_uint64(instance.uvs_size)
 		if instance.context.version <= 13:
 			stream.write_uint64(instance.u_6)
 			stream.write_uint64(instance.u_7)
@@ -181,7 +181,7 @@ class BufferInfo:
 		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
 		s += f'\n	* u_6 = {fmt_member(self.u_6, indent+1)}'
 		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
-		s += f'\n	* uv_buffer_size = {fmt_member(self.uv_buffer_size, indent+1)}'
+		s += f'\n	* uvs_size = {fmt_member(self.uvs_size, indent+1)}'
 		s += f'\n	* u_6 = {fmt_member(self.u_6, indent+1)}'
 		s += f'\n	* u_7 = {fmt_member(self.u_7, indent+1)}'
 		return s
