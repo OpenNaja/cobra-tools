@@ -161,8 +161,6 @@ class BioMeshData(MeshData):
 			tri_chunk.tri_indices_count = next_pos.tris_offset - tri_chunk.tris_offset
 		last_pos = self.tri_chunks[-1]
 		last_pos.tri_indices_count = (self.tris_count * 3) - last_pos.tris_offset + self.tri_chunks[0].tris_offset
-		# for i, tri_chunk in enumerate(self.tri_chunks):
-		# 	logging.info(f"tri_chunk {i} {last_pos.tri_indices_count} tris")
 
 	@staticmethod
 	def pr_indices(input_list, indices, msg):
@@ -210,6 +208,7 @@ class BioMeshData(MeshData):
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
 
 			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
+			logging.info(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tri_indices_count} tris")
 			logging.info(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
 
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
@@ -265,6 +264,8 @@ class BioMeshData(MeshData):
 		# print(self.face_maps)
 		# logging.info(self.bones_sets)
 		# print("weights_flags", flags, "u1s", us)
+		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
+		logging.info(f"max_verts {max_verts}")
 		# slower
 		# decode_oct(vert_chunk.tangents, vert_chunk.meta["tangent_oct"])
 		# decode_oct(vert_chunk.normals, vert_chunk.meta["normal_oct"])
