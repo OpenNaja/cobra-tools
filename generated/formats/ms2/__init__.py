@@ -344,7 +344,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/nile_lechwe_male_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/tree_palm_coconut.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/caribou/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)

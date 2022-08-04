@@ -40,13 +40,13 @@ class NewMeshData:
 		elif self.flag in (533, 565, 821, 853, 885, 1013):
 			dt.extend([
 				("uvs", np.ushort, (2, 2)),  # second UV is either fins texcoords or fur length and shell tile scale
-				("colors", np.ubyte, (1, 4)),  # these appear to be directional vectors
+				("colors", np.ubyte, 4),  # these appear to be directional vectors
 				("zeros0", np.int32)
 			])
 		elif self.flag == 513:
 			dt.extend([
 				("uvs", np.ushort, (2, 2)),
-				# ("colors", np.ubyte, (1, 4)),
+				# ("colors", np.ubyte, 4),
 				("zeros2", np.uint64, (3,))
 			])
 		elif self.flag == 512:
@@ -60,10 +60,10 @@ class NewMeshData:
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
 				("shapekeys0", np.uint32),
-				("colors", np.ubyte, (1, 4)),  # this appears to be normals, or something similar
+				("colors", np.ubyte, 4),  # this appears to be normals, or something similar
 				("shapekeys1", np.int32),
 				# sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
-				("floats", np.float32, (4,)),
+				("floats", np.float32, 4),
 			])
 		elif self.flag == 545:
 			dt.extend([
@@ -102,15 +102,16 @@ class NewMeshData:
 			unpack_ushort_vector_impostor(self.uvs)
 		else:
 			unpack_ushort_vector(self.uvs)
-		if "colors" in self.verts_data:
+		if self.get_vcol_count():
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.verts_data["colors"]
-			self.colors /= 255
+			unpack_ubyte_color(self.colors)
 		# todo - PZ uses at least bits 4, 5, 6 with a random pattern, while JWE2 pre-Biosyn uses really just the one bit
-		# print(self.verts_data["winding"], set(self.verts_data["winding"]))
-		self.windings = self.verts_data["winding"] // 128
+		self.windings[:] = (self.verts_data["winding"] >> 7) & 1
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
+		if "floats" in self.dt.fields:
+			self.floats[:] = self.verts_data["floats"]
 		start_time = time.time()
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		scale_unpack_vectorized(self.vertices, self.pack_base)
@@ -170,21 +171,26 @@ class NewMeshData:
 		self.verts_data["normal"] = self.normals
 		self.verts_data["tangent"] = self.tangents
 		self.verts_data["uvs"] = self.uvs
+		if "floats" in self.dt.fields:
+			self.verts_data["floats"] = self.floats
+		if self.get_vcol_count():
+			self.colors = np.array(self.colors)
+			pack_ubyte_color(self.colors)
+			self.verts_data["colors"] = self.colors
+		# todo - it may just be bitangent sign...
+		# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
+		# 0 = natural winding matching the geometry
+		# 128 = UV's winding is flipped / inverted compared to geometry
+		self.verts_data["winding"] = self.windings << 7
 		# non-vectorized data
-		for i, vert in enumerate(self.verts_data):
-			# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
-			# 0 = natural winding matching the geometry
-			# 128 = UV's winding is flipped / inverted compared to geometry
-			vert["winding"] = self.windings[i] * 128
+		for vert, weight in zip(self.verts_data, self.weights):
 			# bone index of the strongest weight
-			if self.weights[i]:
-				vert["bone index"] = self.weights[i][0][0]
+			if weight:
+				vert["bone index"] = weight[0][0]
 			# else:
 			# 	print(f"bad weight {i}, {self.weights[i]}")
 			if "bone ids" in self.dt.fields:
-				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(self.weights[i])
-			if "colors" in self.dt.fields:
-				vert["colors"] = list(list(round(c * 255) for c in vcol) for vcol in self.colors[i])
+				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 
 	def unpack_weights_list(self, weights_sorted):
 		# pad the weight list to 4 bones, ie. add empty bones if missing

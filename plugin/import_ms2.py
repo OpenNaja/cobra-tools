@@ -148,10 +148,10 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 		b_me.uv_layers[-1].data.foreach_set(
 			"uv", [uv for pair in [uvs[l.vertex_index] for l in b_me.loops] for uv in (pair[0], 1 - pair[1])])
 	if mesh.get_vcol_count():
-		num_vcol_layers = mesh.colors.shape[1]
-		for col_i in range(num_vcol_layers):
-			b_me.vertex_colors.new(name=f"RGBA{col_i}")
-			b_me.vertex_colors[-1].data.foreach_set("color", per_loop(b_me, mesh.colors[:, col_i]))
+		# num_vcol_layers = mesh.colors.shape[1]
+		# for col_i in range(num_vcol_layers):
+		cols = b_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
+		cols.data.foreach_set("color", per_loop(b_me, mesh.colors))
 
 	if hasattr(mesh, "tangents"):
 		tangents = b_me.attributes.new("ct_tangents", "FLOAT_VECTOR", "CORNER")
@@ -161,9 +161,9 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 		normals = b_me.attributes.new("ct_normals", "FLOAT_VECTOR", "CORNER")
 		normals.data.foreach_set("vector", per_loop(b_me, mesh.normals))
 
-	if mesh.flag == 517:
+	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.Interleaved32:
 		cols = b_me.attributes.new("ct_floats", "FLOAT_COLOR", "CORNER")
-		cols.data.foreach_set("color", per_loop(b_me, mesh.verts_data[:]["floats"] / 20))
+		cols.data.foreach_set("color", per_loop(b_me, mesh.floats / 20))
 
 	# set faces to smooth
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))

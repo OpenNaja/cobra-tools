@@ -115,7 +115,8 @@ class MeshData(MemStruct):
 
 	def get_vcol_count(self, ):
 		if "colors" in self.dt.fields:
-			return self.dt["colors"].shape[0]
+			return 1
+			# return self.dt["colors"].shape[0]
 		return 0
 
 	def get_uv_count(self, ):
@@ -128,8 +129,8 @@ class MeshData(MemStruct):
 
 	def populate(self, ms2_file, pack_base=512, sum_uv_dict={}):
 		self.sum_uv_dict = sum_uv_dict
+		self.mesh_format = None
 		self.assign_buffer_info(ms2_file.buffer_infos)
-		# print(self)
 		self.pack_base = pack_base
 		self.shapekeys = None
 		self.read_verts()
@@ -143,11 +144,13 @@ class MeshData(MemStruct):
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
 		self.shape_residues = np.empty(self.vertex_count, np.bool)
+		self.windings = np.empty(self.vertex_count, np.uint8)
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		# colors_shape = self.dt["colors"].shape
-		colors_shape = (1, 4)
-		self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
+		# colors_shape = (1, 4)
+		self.colors = np.empty((self.vertex_count, 4), np.float32)
+		self.floats = np.empty((self.vertex_count, 4), np.float32)
 		self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
 		self.weights_info = {}
 
@@ -159,8 +162,8 @@ class MeshData(MemStruct):
 		self.vertex_count = len(verts)
 		self.update_dtype()
 		self.init_arrays()
-		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.windings, self.tangents[:], self.uvs[:], \
-		self.colors, self.weights, self.shapekeys[:] = zip(*verts)
+		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.windings[:], self.tangents[:], self.uvs[:], \
+		self.colors[:], self.weights, self.shapekeys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
 

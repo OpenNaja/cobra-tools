@@ -126,6 +126,7 @@ class BioMeshData:
 
 			if vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32,):
 				vert_chunk.shapekeys[:] = vert_chunk.meta["shapekey"]
+				vert_chunk.floats[:] = vert_chunk.meta["floats"]
 			# create absolute vertex indices for the total mesh
 			tri_chunk.tri_indices += offs
 			offs += vert_chunk.vertex_count
@@ -177,6 +178,7 @@ class BioMeshData:
 		vert_chunk.uvs = self.uvs[v_slice]
 		vert_chunk.normals = self.normals[v_slice]
 		vert_chunk.tangents = self.tangents[v_slice]
+		vert_chunk.floats = self.floats[v_slice]
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 			# todo - once stable, change back to empty
 			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
@@ -216,16 +218,16 @@ class BioMeshData:
 		dt_separate = [
 			*_normal_tangent_oct,
 			("uvs", np.ushort, (2, 2)),
-			("colors", np.ubyte, (1, 4))
+			("colors", np.ubyte, 4)
 		]
 		# 32 bytes per vertex, with all data interleaved
 		dt_interleaved32 = [
 			("pos", np.float16, (3,)),
 			("shapekey", np.float16, (3,)),  # used for lod fading
-			("floats", np.float16, (4,)),
+			("floats", np.float16, 4),
 			*_normal_tangent_oct,
 			("uvs", np.ushort, (1, 2)),
-			("colors", np.ubyte, (1, 4))
+			("colors", np.ubyte, 4)
 		]
 		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
 		dt_interleaved48 = [
@@ -233,7 +235,7 @@ class BioMeshData:
 			("one", np.ubyte),  # not sure
 			("zero", np.ubyte),  # may be bone index
 			*_normal_tangent_oct,
-			("colors", np.ubyte, (1, 4)),  # zero, may be colors
+			("colors", np.ubyte, 4),  # zero, may be colors
 			("uvs", np.ushort, (8, 2)),
 		]
 		if self.mesh_format == MeshFormat.Separate:
@@ -295,8 +297,6 @@ class BioMeshData:
 		pack_swizzle_vectorized(self.tangents)
 		vec3_to_oct(self.normals)
 		vec3_to_oct(self.tangents)
-		# todo - ensure we are able to set these to array directly
-		self.colors = np.array(self.colors)
 		pack_ubyte_color(self.colors)
 		offs = 0
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
@@ -318,6 +318,7 @@ class BioMeshData:
 			# store chunk's meta data
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved32:
 				vert_chunk.meta["shapekey"] = vert_chunk.shapekeys
+				vert_chunk.meta["floats"] = vert_chunk.floats
 			# currently, known uses of Interleaved48 use impostor uv atlas
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Interleaved48:
 				pack_ushort_vector_impostor(vert_chunk.uvs)

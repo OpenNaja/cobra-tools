@@ -507,39 +507,3 @@ def is_shell(ob):
 			raise AttributeError(f"{ob.name} has an empty material slot!")
 		if "_fur_shell" in b_mat.name.lower():
 			return True
-
-
-UP_VEC = mathutils.Vector((0, 0, 1))
-
-
-def is_flipped(uv_layer, poly):
-	"""Returns True if poly is flipped in uv_layer"""
-	# from https://blenderartists.org/t/addon-flipped-uvs-selector/668111/5
-	# order of polygon loop defines direction of face normal
-	# and that same loop order is used in uv data.
-	# With this knowladge we can easily say that cross product:
-	# (v2.uv-v1.uv)x(v3.uv-v2.uv) gives us uv normal direction of part of the polygon. Further
-	# this normal has to be used in dot product with up vector (0,0,1) and result smaller than zero
-	# means uv normal is pointed in opposite direction than it should be (partial polygon v1,v2,v3 is flipped).
-
-	# calculate uv differences between current and next face vertex for whole polygon
-	diffs = []
-	for l_i in poly.loop_indices:
-		next_l = l_i + 1 if l_i < poly.loop_start + poly.loop_total - 1 else poly.loop_start
-
-		next_v_uv = uv_layer[next_l].uv
-		v_uv = uv_layer[l_i].uv
-
-		diffs.append((next_v_uv - v_uv).to_3d())
-
-	# go trough all uv differences and calculate cross product between current and next.
-	# cross product gives us normal of the triangle. That normal then is used in dot product
-	# with up vector (0,0,1). If result is negative we have found flipped part of polygon.
-	for i, diff in enumerate(diffs):
-		if i == len(diffs) - 1:
-			break
-
-		# as soon as we find partial flipped polygon we select it and finish search
-		if diffs[i].cross(diffs[i + 1]) @ UP_VEC <= 0:
-			return True
-	return False
