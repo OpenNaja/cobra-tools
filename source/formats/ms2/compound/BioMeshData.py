@@ -37,13 +37,6 @@ class BioMeshData:
 		self.buffer_info.tris.readinto(_tri_indices)
 		self.tri_indices = _tri_indices.astype(np.uint32)
 
-	def get_tri_counts(self):
-		for i, tri_chunk in enumerate(self.tri_chunks[:-1]):
-			next_pos = self.tri_chunks[i+1]
-			tri_chunk.tri_indices_count = next_pos.tris_offset - tri_chunk.tris_offset
-		last_pos = self.tri_chunks[-1]
-		last_pos.tri_indices_count = (self.tris_count * 3) - last_pos.tris_offset + self.tri_chunks[0].tris_offset
-
 	@staticmethod
 	def pr_indices(input_list, indices, msg):
 		print(f"\n{msg}")
@@ -64,7 +57,6 @@ class BioMeshData:
 	def read_verts(self):
 		logging.debug(self)
 		self.read_chunk_infos()
-		self.get_tri_counts()
 		# check first vert_chunk
 		vert_chunk = self.vert_chunks[0]
 		self.mesh_format = vert_chunk.weights_flag.mesh_format
@@ -86,17 +78,17 @@ class BioMeshData:
 			logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			# these sometimes correspond but not always
 			logging.info(f"{i}, {tri_chunk.material_index}, {vert_chunk.weights_flag.mesh_format}")
-			# print(i, tri_chunk.u_1)
+			# print(i, tri_chunk.tris_count)
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
 
 			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
-			logging.info(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tri_indices_count} tris")
+			logging.info(f"tri_chunk {i} {tri_chunk.tris_offset} {tri_chunk.tris_count} tris")
 			logging.info(f"packed_verts {i} start {self.buffer_info.verts.tell()}, count {vert_chunk.vertex_count}")
 
 			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
 			self.init_vert_chunk_arrays(v_slice, vert_chunk)
 			tris_start = tri_chunk.tris_offset - first_tris_offs
-			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tri_indices_count]
+			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tris_count * 3]
 			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 				self.buffer_info.verts.readinto(vert_chunk.packed_verts)
@@ -133,15 +125,15 @@ class BioMeshData:
 			# ##### temporary debugging stuff
 			# self.bones_sets.append((vert_chunk.vertex_count, bones_per_chunk))
 			flags.add(vert_chunk.weights_flag)
-			us.add(tri_chunk.u_1)
+			us.add(tri_chunk.tris_count)
 			for vertex_index in range(vert_chunk.vertex_count):
 				self.add_to_weights("material_index", vertex_index + offs, tri_chunk.material_index / 255)
-				self.add_to_weights("u_1", vertex_index + offs, tri_chunk.u_1 / 255)
+				self.add_to_weights("tris_count", vertex_index + offs, tri_chunk.tris_count / 255)
 			# prep face maps
 			fmt_str = str(vert_chunk.weights_flag.mesh_format).split(".")[1]
 			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
 			id_str = f"{fmt_str}_{i:03}{_weights}"
-			self.face_maps[id_str] = list(range(tris_start // 3, (tris_start+tri_chunk.tri_indices_count) // 3))
+			self.face_maps[id_str] = list(range(tris_start // 3, tris_start // 3 + tri_chunk.tris_count))
 		assert len(mesh_formats) == 1
 		# print(self.face_maps)
 		# logging.info(self.bones_sets)
@@ -282,7 +274,7 @@ class BioMeshData:
 			raw_tris = np.flip(raw_tris, axis=-1)
 			# flatten array
 			tri_chunk.tri_indices = np.reshape(raw_tris, len(raw_tris) * 3)
-			tri_chunk.u_1 = 64
+			tri_chunk.tris_count = len(b_tris)
 			# get the vertex count from the tri indices
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format

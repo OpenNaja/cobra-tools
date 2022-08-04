@@ -37,6 +37,7 @@ from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair
 from plugin.utils import shell
 from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
 from generated.formats.ms2.enum.MeshFormat import MeshFormat
+from root_path import root_dir
 
 
 preview_collection = bpy.utils.previews.new()
@@ -296,6 +297,12 @@ class MESH_PT_CobraTools(bpy.types.Panel):
 
         row = layout.row(align=True)
         row.prop(context.mesh.cobra, "mesh_format")
+        if context.mesh.cobra.mesh_format == "Separate":
+            row = layout.row(align=True)
+            sub = row.row()
+            sub.template_icon(icon_value=preview_collection["nedry.png"].icon_id, scale=10)
+            sub = row.row()
+            sub.label(text="Ah ah ah, you did not say the magic word!")
 
         addon_updater_ops.update_notice_box_ui(self, context)
 
@@ -316,6 +323,7 @@ class SCENE_PT_CobraTools(bpy.types.Panel):
         row = layout.row(align=True)
         row.prop(context.scene.cobra, "pack_base")
         row.prop(context.scene.cobra, "resolution")
+        col = self.layout.box().column()
 
 
 def update_pack_base(self, context):
@@ -344,7 +352,7 @@ class CobraMeshSettings(PropertyGroup):
     mesh_format: EnumProperty(
         name='Mesh Format',
         description='Mesh formatused for this mesh - JWE2 after Biosyn update',
-        items=[(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
+        items=[("NONE", "None", "")]+[(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
         # default = 'MO_SYS_FIXED',
 
     )
@@ -389,11 +397,10 @@ classes = (
 
 def register():
     addon_updater_ops.register(bl_info)
-    icons_dir = os.path.join(os.path.dirname(__file__), "icons")
+    icons_dir = os.path.join(root_dir, "icons")
     for icon_name_ext in os.listdir(icons_dir):
         icon_name = os.path.basename(icon_name_ext)
-        preview_collection.load(icon_name,
-                                os.path.join(os.path.join(os.path.dirname(__file__), "icons"), icon_name_ext), 'IMAGE')
+        preview_collection.load(icon_name, os.path.join(icons_dir, icon_name_ext), 'IMAGE')
 
     for cls in classes:
         bpy.utils.register_class(cls)

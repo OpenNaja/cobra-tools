@@ -1,7 +1,5 @@
 import logging
-
 import bpy
-import time
 
 
 def mesh_from_data(scene, name, verts, faces, wireframe=False, coll_name=None, coll=None):
@@ -59,3 +57,14 @@ def link_to_collection(scene, ob, coll_name):
 	# Link active object to the new collection
 	coll.objects.link(ob)
 	return coll_name
+
+
+class NedryError(Exception):
+	"""For things users should not do"""
+
+	def __init__(self, message="Ah ah ah, you didn't say the magic word!"):
+		self.message = message
+		super().__init__(self.message)
+
+	def __str__(self):
+		return f'{self.message}'

@@ -19,6 +19,7 @@ from plugin.modules_export.armature import get_armature, handle_transforms, expo
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.matrix_util import evaluate_mesh
+from plugin.utils.object import NedryError
 from plugin.utils.shell import get_collection, is_shell, is_fin
 
 
@@ -59,7 +60,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
 
 	# register this format for all vert chunks that will be created later
-	mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
+	if mesh.context.biosyn:
+		mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
+		if mesh.mesh_format == MeshFormat.Separate:
+			raise NedryError()
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()

@@ -163,7 +163,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 
 	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.Interleaved32:
 		cols = b_me.attributes.new("ct_floats", "FLOAT_COLOR", "CORNER")
-		cols.data.foreach_set("color", per_loop(b_me, mesh.floats / 20))
+		cols.data.foreach_set("color", per_loop(b_me, mesh.floats))
 
 	# set faces to smooth
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))

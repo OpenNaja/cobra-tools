@@ -23,7 +23,7 @@ class TriChunk:
 		# the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0
 		self.bounds_min = Vector3(self.context, 0, None)
 		self.material_index = 0
-		self.u_1 = 0
+		self.tris_count = 0
 
 		# the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0
 		self.bounds_max = Vector3(self.context, 0, None)
@@ -42,7 +42,7 @@ class TriChunk:
 	def set_defaults(self):
 		self.bounds_min = Vector3(self.context, 0, None)
 		self.material_index = 0
-		self.u_1 = 0
+		self.tris_count = 0
 		self.bounds_max = Vector3(self.context, 0, None)
 		self.tris_offset = 0
 		self.loc = Vector3(self.context, 0, None)
@@ -64,7 +64,7 @@ class TriChunk:
 	def read_fields(cls, stream, instance):
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.material_index = stream.read_ushort()
-		instance.u_1 = stream.read_ushort()
+		instance.tris_count = stream.read_ushort()
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.tris_offset = stream.read_uint()
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
@@ -76,7 +76,7 @@ class TriChunk:
 	def write_fields(cls, stream, instance):
 		Vector3.to_stream(stream, instance.bounds_min)
 		stream.write_ushort(instance.material_index)
-		stream.write_ushort(instance.u_1)
+		stream.write_ushort(instance.tris_count)
 		Vector3.to_stream(stream, instance.bounds_max)
 		stream.write_uint(instance.tris_offset)
 		Vector3.to_stream(stream, instance.loc)
@@ -106,7 +106,7 @@ class TriChunk:
 		s = ''
 		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
 		s += f'\n	* material_index = {fmt_member(self.material_index, indent+1)}'
-		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* tris_count = {fmt_member(self.tris_count, indent+1)}'
 		s += f'\n	* bounds_max = {fmt_member(self.bounds_max, indent+1)}'
 		s += f'\n	* tris_offset = {fmt_member(self.tris_offset, indent+1)}'
 		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
