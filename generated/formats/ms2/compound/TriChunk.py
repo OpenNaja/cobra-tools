@@ -22,7 +22,7 @@ class TriChunk:
 
 		# the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0
 		self.bounds_min = Vector3(self.context, 0, None)
-		self.u_0 = 0
+		self.material_index = 0
 		self.u_1 = 0
 
 		# the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0
@@ -41,7 +41,7 @@ class TriChunk:
 
 	def set_defaults(self):
 		self.bounds_min = Vector3(self.context, 0, None)
-		self.u_0 = 0
+		self.material_index = 0
 		self.u_1 = 0
 		self.bounds_max = Vector3(self.context, 0, None)
 		self.tris_offset = 0
@@ -63,7 +63,7 @@ class TriChunk:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.u_0 = stream.read_ushort()
+		instance.material_index = stream.read_ushort()
 		instance.u_1 = stream.read_ushort()
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.tris_offset = stream.read_uint()
@@ -75,7 +75,7 @@ class TriChunk:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		Vector3.to_stream(stream, instance.bounds_min)
-		stream.write_ushort(instance.u_0)
+		stream.write_ushort(instance.material_index)
 		stream.write_ushort(instance.u_1)
 		Vector3.to_stream(stream, instance.bounds_max)
 		stream.write_uint(instance.tris_offset)
@@ -105,7 +105,7 @@ class TriChunk:
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
-		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* material_index = {fmt_member(self.material_index, indent+1)}'
 		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
 		s += f'\n	* bounds_max = {fmt_member(self.bounds_max, indent+1)}'
 		s += f'\n	* tris_offset = {fmt_member(self.tris_offset, indent+1)}'

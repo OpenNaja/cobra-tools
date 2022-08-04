@@ -361,8 +361,14 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 					m_ob = Object(ms2.context)
 					m_ob.mesh_index = b_models.index(b_me)
 					m_ob.material_index = b_materials.index(b_mat)
+
 					model_info.model.objects.append(m_ob)
-					m_lod.meshes.append(model_info.model.meshes[m_ob.mesh_index])
+					wrapper = model_info.model.meshes[m_ob.mesh_index]
+					m_lod.meshes.append(wrapper)
+					if wrapper.context.biosyn:
+						logging.info(f"Setting chunk material indices")
+						for tri_chunk in wrapper.mesh.tri_chunks:
+							tri_chunk.material_index = m_ob.material_index
 					m_lod.objects.append(m_ob)
 			m_lod.last_object_index = len(model_info.model.objects)
 	

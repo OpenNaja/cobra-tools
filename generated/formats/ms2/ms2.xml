@@ -407,7 +407,7 @@
 	<compound name="TriChunk" >
 		JWE2 Biosyn: 64 bytes
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0</add>
-		<add name="u0" type="ushort"/> 0
+		<add name="material_index" type="ushort"/> 0, 1, 2
 		<add name="u1" type="ushort"/>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0</add>
 		<add name="tris_offset" type="uint"/>bytes into tris buffer

@@ -87,7 +87,7 @@ class BioMeshData:
 			# bones_per_chunk = set()
 			logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			# these sometimes correspond but not always
-			logging.info(f"{i}, {tri_chunk.u_0}, {vert_chunk.weights_flag.mesh_format}")
+			logging.info(f"{i}, {tri_chunk.material_index}, {vert_chunk.weights_flag.mesh_format}")
 			# print(i, tri_chunk.u_1)
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
 
@@ -136,7 +136,7 @@ class BioMeshData:
 			flags.add(vert_chunk.weights_flag)
 			us.add(tri_chunk.u_1)
 			for vertex_index in range(vert_chunk.vertex_count):
-				self.add_to_weights("u_0", vertex_index + offs, tri_chunk.u_0 / 255)
+				self.add_to_weights("material_index", vertex_index + offs, tri_chunk.material_index / 255)
 				self.add_to_weights("u_1", vertex_index + offs, tri_chunk.u_1 / 255)
 			# prep face maps
 			fmt_str = str(vert_chunk.weights_flag.mesh_format).split(".")[1]
@@ -281,11 +281,13 @@ class BioMeshData:
 			raw_tris = np.flip(raw_tris, axis=-1)
 			# flatten array
 			tri_chunk.tri_indices = np.reshape(raw_tris, len(raw_tris) * 3)
+			tri_chunk.u_1 = 64
 			# get the vertex count from the tri indices
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format
 			vert_chunk.weights_flag.has_weights = False
 			vert_chunk.pack_base = self.pack_base
+			vert_chunk.flags = (2, 16, 0, 58)
 			# logging.info(f"vert_chunk.vertex_count {vert_chunk.vertex_count}")
 
 	def pack_verts(self):
