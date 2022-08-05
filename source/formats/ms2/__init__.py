@@ -342,7 +342,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/shop_mainstreet_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
+	# print(m.models_reader.bone_infos[0].bone_names)
+	print(m.buffer_0.names[142])
+	# m.load("C:/Users/arnfi/Desktop/shop_mainstreet_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/c_bz_shipparts_.ms2", read_editable=True)
 	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/nile_lechwe_male_.ms2", read_editable=True)

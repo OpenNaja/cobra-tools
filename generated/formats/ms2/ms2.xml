@@ -485,13 +485,16 @@
 
 	<compound name="BoneInfo">
 		# 858 in DLA c_cl_thread_.ms2
-		<add name="name count" type="uint64" >counts the names</add>
+		<add name="name count" type="uint" >counts the names</add>
+		<add name="z0" type="ushort" >?</add>
+		<add name="inv_names_count" type="ushort" >?</add>
 		<add name="knownff" type="short" since="32" >this is always FFFF for now</add>
 		<add name="zero0" type="short" since="32" >this is always 0000 for now</add>
 		<add name="unknown0c" type="uint" since="32"/>
 		<add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
 		<add name="bind matrix count" type="uint64" >seems to match bone count</add>
-		<add name="zeros" type="uint64" arr1="3"/>
+		<add name="zeros" type="uint64" arr1="2"/>
+		<add name="inv_data_count" type="uint64" /> if inv_names_count = 1, also 1 for DLA
 		<add name="bone count" type="uint64"/>
 		<add name="unknown40" type="uint64"/>
 		<add name="parents count" type="uint64"/>
@@ -507,18 +510,33 @@
 		<add name="unk extra" type="uint64" until="13" >zero</add>
 		<add name="unk extra jwe" type="uint64" vercond="#JWE#" >zero</add>
 
-		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#">index into ms2 string table for bones used here</add>
-		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#">index into ms2 string table for bones used here</add>
-		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 4) % 16)) % 16" vercond="!#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
-		<add name="name padding" padding="1" type="byte" arr1="(16 - ((name count * 2) % 16)) % 16" vercond="#OLD#">zeros. One index occupies 4 bytes; pad to multiples of 16 bytes.</add>
+		index into ms2 string table for bones used here
+		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#"/>
+		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#"/>
+		<add name="inventory name indices" type="ushort" arr1="inv_names_count" vercond="#OLD#"/>
+		pad to multiples of 16 bytes
+		<add name="name padding" padding="1" type="byte" arr1="(16 - (((name count + inv_names_count) * 4) % 16)) % 16" vercond="!#OLD#"/>
+		<add name="name padding" padding="1" type="byte" arr1="(16 - (((name count + inv_names_count) * 2) % 16)) % 16" vercond="#OLD#"/>
+
+
+<!--		<add name="inventory data" type="ubyte" arr1="inv_data_count" arr2="46">used for skinning</add>-->
+		# hook size 8256
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
+		# hook start at 13153
 		<add name="bones" type="Bone" arr1="bone count"/>
 		<add name="parents" type="ubyte" arr1="parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="parents_padding" padding="1" type="byte" arr1="(8 - (parents count % 8)) % 8" since="32">zeros</add>
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" >enumerates all bone indices, 4 may be flags</add>
 		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</add>
+
+		# experimental stuff for DLA cpt. hook model
+		<add name="inventory_datas" type="byte" arr1="inv_data_count" arr2="6" vercond="#DLA#">zeros</add>
+
 		<add name="weirdness" type="byte" arr1="10" vercond="#DLA#">zeros</add>
 		<add name="weirdness" type="short" arr1="10" vercond="#ZTUAC#">zeros</add>
+
+		<add name="inventory_datas_2" type="byte" arr1="inv_data_count" arr2="14" vercond="#DLA#">zeros</add>
+
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
 
