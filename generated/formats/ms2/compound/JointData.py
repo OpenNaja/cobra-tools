@@ -32,6 +32,8 @@ class JointData:
 
 		# seemingly additional alignment, unsure about the rule
 		self.start_pc = SmartPadding(self.context, 0, None)
+		self.before_dla_0 = 0
+		self.before_dla_1 = 0
 
 		# repeat
 		self.joint_count = 0
@@ -118,6 +120,10 @@ class JointData:
 	def set_defaults(self):
 		if self.context.version == 32:
 			self.start_pc = SmartPadding(self.context, 0, None)
+		if self.context.version <= 7:
+			self.before_dla_0 = 0
+		if self.context.version <= 7:
+			self.before_dla_1 = 0
 		self.joint_count = 0
 		self.count_0 = 0
 		self.count_1 = 0
@@ -177,6 +183,9 @@ class JointData:
 	def read_fields(cls, stream, instance):
 		if instance.context.version == 32:
 			instance.start_pc = SmartPadding.from_stream(stream, instance.context, 0, None)
+		if instance.context.version <= 7:
+			instance.before_dla_0 = stream.read_uint64()
+			instance.before_dla_1 = stream.read_uint64()
 		instance.joint_count = stream.read_uint()
 		instance.count_0 = stream.read_uint()
 		instance.count_1 = stream.read_uint()
@@ -223,6 +232,9 @@ class JointData:
 	def write_fields(cls, stream, instance):
 		if instance.context.version == 32:
 			SmartPadding.to_stream(stream, instance.start_pc)
+		if instance.context.version <= 7:
+			stream.write_uint64(instance.before_dla_0)
+			stream.write_uint64(instance.before_dla_1)
 		stream.write_uint(instance.joint_count)
 		stream.write_uint(instance.count_0)
 		stream.write_uint(instance.count_1)
@@ -286,6 +298,8 @@ class JointData:
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += f'\n	* start_pc = {fmt_member(self.start_pc, indent+1)}'
+		s += f'\n	* before_dla_0 = {fmt_member(self.before_dla_0, indent+1)}'
+		s += f'\n	* before_dla_1 = {fmt_member(self.before_dla_1, indent+1)}'
 		s += f'\n	* joint_count = {fmt_member(self.joint_count, indent+1)}'
 		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
 		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'

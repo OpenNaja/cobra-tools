@@ -60,7 +60,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# 		print(joints.joint_infos[x.parent].name, x.parent)
 		# 		print(joints.joint_infos[x.child].name, x.child)
 
-		if bone_info.joint_count:
+		if bone_info.joint_count and joints.joint_indices:
 			for bone_i, joint_info in zip(joints.joint_indices, joints.joint_infos):
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
@@ -142,6 +142,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				setattr(buffer_info, f"{buffer_name}_offsets", {buff_size})
 				logging.info(f"Loading {buffer_name} size {buff_size} at {in_stream.tell()}")
 				b = in_stream.read(buff_size)
+				# dump for easy debugging
 				with open(f"{buffer_info.path}_{buffer_name}.dmp", "wb") as f:
 					f.write(b)
 			else:
@@ -314,10 +315,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for name, model_info in zip(self.mdl_2_names, self.model_infos):
 			logging.debug(f"Mapping links for {name}")
 			for lod_index, lod in enumerate(model_info.model.lods):
+				logging.info(f"Mapping LOD{lod_index}")
 				lod.objects = model_info.model.objects[lod.first_object_index:lod.last_object_index]
 				# todo - investigate how duplicate meshes are handled for the lod's vertex count0
 				lod.meshes = tuple(model_info.model.meshes[obj.mesh_index] for obj in lod.objects)
-				logging.debug(f"LOD{lod_index}")
 				for obj in lod.objects:
 					try:
 						material = model_info.model.materials[obj.material_index]
@@ -329,8 +330,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 							f"Mesh: {obj.mesh_index} Material: {material.name} Material Unk: {material.some_index} "
 							f"Lod Index: {obj.mesh.poweroftwo} Flag: {flag}")
 					except Exception as err:
-						logging.error(err)
-						logging.error(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")
+						logging.exception(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")
 
 	def clear(self):
 		for model_info in self.model_infos:
@@ -342,9 +342,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/park_snowwhite_.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0].bone_names)
-	print(m.buffer_0.names[142])
+	# print(m.buffer_0.names[142])
 	# m.load("C:/Users/arnfi/Desktop/shop_mainstreet_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/c_bz_shipparts_.ms2", read_editable=True)
 	# print(m)

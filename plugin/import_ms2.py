@@ -38,7 +38,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 		ob_dict = {}
 		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
-			logging.debug(f"lod_i {lod_i}")
+			logging.info(f"Importing LOD{lod_i}")
 			lod_coll = get_collection(scene, f"LOD{lod_i}")
 			for ob_i, m_ob in enumerate(m_lod.objects):
 				mesh = m_ob.mesh

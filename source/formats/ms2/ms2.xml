@@ -181,7 +181,8 @@
 		rhino: start of model - end of objects: 124 - 4 bytes padding
 		ele: start of model - end of objects: 120 - 0 bytes padding</add>
 		<add name="meshes" type="MeshDataWrap" arr1="#ARG#\num_meshes" >mesh data blocks for this model</add>
-		<add name="ztuac pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
+		<add name="pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
+		<add name="pre bones" type="DLAPreBones" vercond="#DLA#" cond="#ARG# \ last_count">?</add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" until="32">see if it is a flag for ztuac too, so might be totally wrong here</add>
 		alignment here is handled by py code, seems to depend on whether a bone info follows
 	</compound>
@@ -321,6 +322,10 @@
 		<add name="unks2" type="uint" arr1="10" />
 		<add name="floats" type="float" arr1="4" />
 		<add name="unks3" type="uint" arr1="2" />
+	</compound>
+
+	<compound name="DLAPreBones">
+		<add name="unk" type="ubyte" arr1="120" />
 	</compound>
 
 	<compound name="FloatsY">
@@ -532,10 +537,10 @@
 		# experimental stuff for DLA cpt. hook model
 		<add name="inventory_datas" type="byte" arr1="inv_data_count" arr2="6" vercond="#DLA#">zeros</add>
 
-		<add name="weirdness" type="byte" arr1="10" vercond="#DLA#">zeros</add>
+		<add name="weirdness" type="short" arr1="8" vercond="#DLA#">-1s and 0s</add>
 		<add name="weirdness" type="short" arr1="10" vercond="#ZTUAC#">zeros</add>
 
-		<add name="inventory_datas_2" type="byte" arr1="inv_data_count" arr2="14" vercond="#DLA#">zeros</add>
+		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
@@ -601,6 +606,8 @@
 	<compound name="JointData">
 		appears in dinos and static meshes
 		<add name="start_pc" type="SmartPadding" vercond="#PC#">seemingly additional alignment, unsure about the rule</add>
+		<add name="before_dla_0" type="uint64" until="7"/>
+		<add name="before_dla_1" type="uint64" until="7"/>
 		<add name="joint_count" type="uint" >repeat</add>
 		<add name="count_0" type="uint"/>
 		<add name="count_1" type="uint"/>

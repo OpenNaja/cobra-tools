@@ -108,14 +108,14 @@ class BoneInfo:
 		# zeros
 		self.inventory_datas = numpy.zeros((self.inv_data_count, 6,), dtype=numpy.dtype('int8'))
 
-		# zeros
-		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int8'))
+		# -1s and 0s
+		self.weirdness = numpy.zeros((8,), dtype=numpy.dtype('int16'))
 
 		# zeros
 		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
 
 		# zeros
-		self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 14,), dtype=numpy.dtype('int8'))
+		self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 2,), dtype=numpy.dtype('int32'))
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
@@ -185,11 +185,11 @@ class BoneInfo:
 		if self.context.version == 7:
 			self.inventory_datas = numpy.zeros((self.inv_data_count, 6,), dtype=numpy.dtype('int8'))
 		if self.context.version == 7:
-			self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int8'))
+			self.weirdness = numpy.zeros((8,), dtype=numpy.dtype('int16'))
 		if self.context.version == 13:
 			self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
 		if self.context.version == 7:
-			self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 14,), dtype=numpy.dtype('int8'))
+			self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 2,), dtype=numpy.dtype('int32'))
 		if not (self.context.version < 47) and self.zeros_count:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 		if self.context.version < 47 and self.zeros_count:
@@ -261,11 +261,11 @@ class BoneInfo:
 			instance.enumeration = stream.read_ubytes((instance.enum_count,))
 		if instance.context.version == 7:
 			instance.inventory_datas = stream.read_bytes((instance.inv_data_count, 6,))
-			instance.weirdness = stream.read_bytes((10,))
+			instance.weirdness = stream.read_shorts((8,))
 		if instance.context.version == 13:
 			instance.weirdness = stream.read_shorts((10,))
 		if instance.context.version == 7:
-			instance.inventory_datas_2 = stream.read_bytes((instance.inv_data_count, 14,))
+			instance.inventory_datas_2 = stream.read_ints((instance.inv_data_count, 2,))
 		if not (instance.context.version < 47) and instance.zeros_count:
 			instance.zeros_padding = ZerosPadding.from_stream(stream, instance.context, instance.zeros_count, None)
 		if instance.context.version < 47 and instance.zeros_count:
@@ -330,11 +330,11 @@ class BoneInfo:
 			stream.write_ubytes(instance.enumeration)
 		if instance.context.version == 7:
 			stream.write_bytes(instance.inventory_datas)
-			stream.write_bytes(instance.weirdness)
+			stream.write_shorts(instance.weirdness)
 		if instance.context.version == 13:
 			stream.write_shorts(instance.weirdness)
 		if instance.context.version == 7:
-			stream.write_bytes(instance.inventory_datas_2)
+			stream.write_ints(instance.inventory_datas_2)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			ZerosPadding.to_stream(stream, instance.zeros_padding)
 		if instance.context.version < 47 and instance.zeros_count:

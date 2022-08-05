@@ -1,6 +1,7 @@
 from source.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.context import ContextReference
+from generated.formats.ms2.compound.DLAPreBones import DLAPreBones
 from generated.formats.ms2.compound.FloatsY import FloatsY
 from generated.formats.ms2.compound.LodInfo import LodInfo
 from generated.formats.ms2.compound.LodInfoZT import LodInfoZT
@@ -41,7 +42,10 @@ class Model:
 		self.meshes = Array((self.arg.num_meshes,), MeshDataWrap, self.context, 0, None)
 
 		# ?
-		self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
+		self.pre_bones = ZTPreBones(self.context, 0, None)
+
+		# ?
+		self.pre_bones = DLAPreBones(self.context, 0, None)
 
 		# see if it is a flag for ztuac too, so might be totally wrong here
 		self.floatsy = Array((self.arg.render_flag,), FloatsY, self.context, 0, None)
@@ -59,7 +63,9 @@ class Model:
 			self.objects_padding = 0
 		self.meshes = Array((self.arg.num_meshes,), MeshDataWrap, self.context, 0, None)
 		if self.context.version == 13 and self.arg.last_count:
-			self.ztuac_pre_bones = ZTPreBones(self.context, 0, None)
+			self.pre_bones = ZTPreBones(self.context, 0, None)
+		if self.context.version == 7 and self.arg.last_count:
+			self.pre_bones = DLAPreBones(self.context, 0, None)
 		if self.context.version <= 32:
 			self.floatsy = Array((self.arg.render_flag,), FloatsY, self.context, 0, None)
 
@@ -85,7 +91,9 @@ class Model:
 			instance.objects_padding = stream.read_uint()
 		instance.meshes = Array.from_stream(stream, (instance.arg.num_meshes,), MeshDataWrap, instance.context, 0, None)
 		if instance.context.version == 13 and instance.arg.last_count:
-			instance.ztuac_pre_bones = ZTPreBones.from_stream(stream, instance.context, 0, None)
+			instance.pre_bones = ZTPreBones.from_stream(stream, instance.context, 0, None)
+		if instance.context.version == 7 and instance.arg.last_count:
+			instance.pre_bones = DLAPreBones.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 32:
 			instance.floatsy = Array.from_stream(stream, (instance.arg.render_flag,), FloatsY, instance.context, 0, None)
 
@@ -101,7 +109,9 @@ class Model:
 			stream.write_uint(instance.objects_padding)
 		Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), MeshDataWrap, instance.context, 0, None)
 		if instance.context.version == 13 and instance.arg.last_count:
-			ZTPreBones.to_stream(stream, instance.ztuac_pre_bones)
+			ZTPreBones.to_stream(stream, instance.pre_bones)
+		if instance.context.version == 7 and instance.arg.last_count:
+			DLAPreBones.to_stream(stream, instance.pre_bones)
 		if instance.context.version <= 32:
 			Array.to_stream(stream, instance.floatsy, (instance.arg.render_flag,), FloatsY, instance.context, 0, None)
 
@@ -130,7 +140,7 @@ class Model:
 		s += f'\n	* objects = {fmt_member(self.objects, indent+1)}'
 		s += f'\n	* objects_padding = {fmt_member(self.objects_padding, indent+1)}'
 		s += f'\n	* meshes = {fmt_member(self.meshes, indent+1)}'
-		s += f'\n	* ztuac_pre_bones = {fmt_member(self.ztuac_pre_bones, indent+1)}'
+		s += f'\n	* pre_bones = {fmt_member(self.pre_bones, indent+1)}'
 		s += f'\n	* floatsy = {fmt_member(self.floatsy, indent+1)}'
 		return s
 
