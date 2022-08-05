@@ -183,8 +183,6 @@ class BioMeshData(MeshData):
 
 		first_tris_offs = self.tri_chunks[0].tris_offset
 		offs = 0
-		flags = set()
-		us = set()
 
 		self.read_tris_bio()
 		self.weights_info = {}
@@ -242,11 +240,6 @@ class BioMeshData(MeshData):
 
 			# ##### temporary debugging stuff
 			# self.bones_sets.append((vert_chunk.vertex_count, bones_per_chunk))
-			flags.add(vert_chunk.weights_flag)
-			us.add(tri_chunk.tris_count)
-			for vertex_index in range(vert_chunk.vertex_count):
-				self.add_to_weights("material_index", vertex_index + offs, tri_chunk.material_index / 255)
-				self.add_to_weights("tris_count", vertex_index + offs, tri_chunk.tris_count / 255)
 			# prep face maps
 			fmt_str = str(vert_chunk.weights_flag.mesh_format).split(".")[1]
 			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
@@ -255,7 +248,6 @@ class BioMeshData(MeshData):
 		assert len(mesh_formats) == 1
 		# print(self.face_maps)
 		# logging.info(self.bones_sets)
-		# print("weights_flags", flags, "u1s", us)
 		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
 		logging.info(f"max_verts {max_verts}")
 		# slower

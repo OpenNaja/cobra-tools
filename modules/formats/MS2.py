@@ -34,6 +34,11 @@ class Model2streamLoader(BaseFile):
 			outfile.write(self.data_entry.buffer_datas[0])
 		return stream_path,
 
+	def create(self):
+		self.create_root_entry()
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, b"\x00"*16)
+		self.create_data_entry((self.get_content(self.file_entry.path),))
+
 
 class Ms2Loader(BaseFile):
 	extension = ".ms2"
@@ -173,6 +178,12 @@ class Ms2Loader(BaseFile):
 				# undo what we did on export
 				wrapper.mesh.stream_info.offset = 0
 		# print(self.header)
+		# create modelstreams
+		for modelstream_name in ms2_file.modelstream_names:
+			modelstream_path = os.path.join(ms2_dir, modelstream_name)
+			modelstream_loader = self.ovl.create_file(modelstream_path, ovs_name="HighPolyModels")
+			self.streams.append(modelstream_loader)
+
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
 			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")

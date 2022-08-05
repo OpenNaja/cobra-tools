@@ -353,7 +353,7 @@ class BaseFile:
 			same = False
 		# streams
 		if len(self.streams) != len(other.streams):
-			logging.warning(f"Amount of streams does not match")
+			logging.warning(f"Amount of streams does not match self {len(self.streams)} vs other {len(other.streams)}")
 			same = False
 		for stream, other_stream in zip(self.streams, other.streams):
 			if stream != other_stream:
