@@ -250,7 +250,6 @@ class ZtMeshData(MeshData):
 		# read vertices of this mesh
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
-		# print(self.verts_data.shape)
 		self.buffer_info.uvs.seek(self.uv_offset)
 		# logging.debug(f"UV at {self.buffer_info.uvs.tell()}")
 		self.buffer_info.uvs.readinto(self.colors_data)
@@ -261,11 +260,6 @@ class ZtMeshData(MeshData):
 			self.normals[:] = self.verts_data["normal"]
 			self.tangents[:] = self.verts_data["tangent"]
 			self.vertices[:] = self.verts_data["pos"]
-			# self.end_of_vertices = self.buffer_info.verts.tell()
-			# size = self.end_of_vertices - self.start_of_vertices
-			# logging.info(
-			# 	f"{self.vertex_count} vertices from {self.start_of_vertices:5} to {self.end_of_vertices:5} "
-			# 	f"in stream {self.get_stream_index()}, size {size:5}")
 
 			# if "bone weights" in self.dt.fields:
 			bone_weights = self.verts_data["bone weights"].astype(np.float32) / 255
@@ -279,7 +273,7 @@ class ZtMeshData(MeshData):
 		if self.colors is not None:
 			# first cast to the float colors array so unpacking doesn't use int division
 			self.colors[:] = self.colors_data["colors"]
-			self.colors /= 255
+			unpack_ubyte_color(self.colors)
 		if self.uvs is not None:
 			self.uvs[:] = self.colors_data["uvs"]
 			self.uvs /= 2048
