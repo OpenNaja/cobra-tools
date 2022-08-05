@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 from generated.formats.bnk import BnkFile
 from modules.formats.BaseFormat import BaseFile
@@ -62,22 +63,29 @@ class BnkLoader(BaseFile):
 		# print(bnk)
 		# ensure that aux files are where they should be
 		for aux_file in self.aux_entries:
-			# print(aux_file)
-			if aux_file.name.lower() == "b":
+			aux_suffix = aux_file.name.lower()
+			if aux_suffix == "b":
 				assert bnk.bnk_header.external_b_suffix.lower() == "b"
-			elif aux_file.name.lower() == "s":
+			elif aux_suffix == "s":
 				assert bnk.bnk_header.external_s_suffix.lower() == "s"
 			else:
 				logging.warning(f"Unknown .aux suffix '{aux_file.name}'")
 				continue
-			bnk_path = os.path.join(self.ovl.dir, f"{self.ovl.basename}_{bnk_name}_bnk_b.aux")
-			if not os.path.isfile(bnk_path):
-				logging.warning(f"External .aux file '{aux_file.name}' is missing")
+			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_{aux_suffix}.aux"
+			aux_path = os.path.join(self.ovl.dir, aux_name)
+			if not os.path.isfile(aux_path):
+				logging.error(f"External .aux file '{aux_file.name}' was not found at {aux_path}")
+			# copy to tmp path so we leave the original file intact
+			copy_aux_path = out_dir(aux_name)
+			shutil.copy(aux_path, copy_aux_path)
+			out_files.append(copy_aux_path)
 
 		# check if an aux 'file' is stored as second buffer
 		if len(buffer_datas) > 1:
 			# always type b
-			aux_path = f"{self.ovl.path_no_ext}_{bnk_name}_bnk_b.aux"
+			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_b.aux"
+			# extract to tmp path
+			aux_path = out_dir(aux_name)
 			# only internal aux will be in extracted output
 			logging.debug(f"Extracted internal .aux to {aux_path}")
 			out_files.append(aux_path)
