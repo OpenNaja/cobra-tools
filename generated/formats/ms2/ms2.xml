@@ -368,7 +368,7 @@
 
 	<compound name="BufferInfo" >
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
-		ZTUAC: 64 bytes
+		ZTUAC, DLA: 64 bytes verts, tris, uvs (incl. verts sometimes)
 		PC: 32 bytes, lumps all data (pos, uv, weights, tris) into verts_size
 		JWE1: 48 bytes
 		PZ old: 32 bytes?
