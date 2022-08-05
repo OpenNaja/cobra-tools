@@ -286,19 +286,33 @@
 		64 bytes total, same layout for DLA and ZTUAC
 		<add name="tri_index_count" type="uint" >repeat</add>
 		<add name="vertex_count" type="uint" />
-		<add name="tri info offset" type="uint">stores count, -1 as ints</add>
+		<add name="tri_info_offset" type="uint">stores count, -1 as ints</add>
 		<add name="vert info offset" type="uint" >stores count, -1 as ints</add>
 		<add name="known ff 0" type="int"/>
 		<add name="tri offset" type="uint"/>
 		<add name="uv offset" type="uint" >variable dtype, can include vertices too</add>
 		<add name="vertex offset" type="uint">if present, blocks of 24 bytes</add>
-		<add name="known ff 1" type="short"/>
+		<add name="unk_index" type="short"/>often -1, but not always
 		<add name="one 0" type="ushort"/>
 		<add name="one 1" type="ushort" >?</add>
 		<add name="poweroftwo" type="ushort" >?</add>
 		<add name="flag" type="ModelFlagDLA" until="7">bitfield</add>
 		<add name="flag" type="ModelFlagZT" since="13">bitfield</add>
 		<add name="zero uac" type="uint" >always zero</add>
+	</compound>
+
+	<compound name="ZtTriBlockInfo" >
+		8 bytes total
+		<add name="tri_index_count" type="uint" />
+		<add name="a" type="short" />
+		<add name="unk_index" type="short" />
+	</compound>
+
+	<compound name="ZtVertBlockInfo" >
+		16 bytes total
+		<add name="vertex_count" type="uint" />
+		<add name="flags" type="ubyte" arr1="8" />
+		<add name="zero" type="uint" />
 	</compound>
 
 	<compound name="ZTPreBones">

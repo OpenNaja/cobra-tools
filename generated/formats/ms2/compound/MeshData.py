@@ -127,10 +127,20 @@ class MeshData(MemStruct):
 	def assign_buffer_info(self, buffer_infos):
 		self.buffer_info = buffer_infos[self.get_stream_index()]
 
-	def populate(self, ms2_file, pack_base=512, sum_uv_dict={}):
-		self.sum_uv_dict = sum_uv_dict
+	def guess_size(self, val, offset, count):
+		# self.buffer_info.uvs_offsets
+		try:
+			sorted_l = list(sorted(val))
+			i = sorted_l.index(offset)
+			next_offset = sorted_l[i+1]
+			return (next_offset-offset) // count
+		except:
+			logging.exception(f"Size value guessing failed")
+			return 0
+
+	def populate(self, ms2_file, pack_base=512):
 		self.mesh_format = None
-		self.assign_buffer_info(ms2_file.buffer_infos)
+		# self.assign_buffer_info(ms2_file.buffer_infos)
 		self.pack_base = pack_base
 		self.shapekeys = None
 		self.read_verts()

@@ -127,9 +127,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if self.buffer_infos and len(self.buffer_infos) != len(self.modelstream_names):
 				static_buffer_info = self.buffer_infos[-1]
 				stream.seek(self.buffer_2_offset)
-				self.attach_streams(static_buffer_info, stream)
 				static_buffer_info.name = "STATIC"
-				static_buffer_info.path = None
+				static_buffer_info.path = filepath
+				self.attach_streams(static_buffer_info, stream)
 			if read_editable:
 				self.load_meshes()
 
@@ -141,8 +141,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for buffer_name in BUFFER_NAMES:
 			if in_stream:
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
+				# create a set to be able to guess the size of any entry
+				setattr(buffer_info, f"{buffer_name}_offsets", {buff_size})
 				logging.info(f"Loading {buffer_name} size {buff_size} at {in_stream.tell()}")
 				b = in_stream.read(buff_size)
+				with open(f"{buffer_info.path}_{buffer_name}.dmp", "wb") as f:
+					f.write(b)
 			else:
 				b = b""
 			setattr(buffer_info, buffer_name, ConvStream(b))
@@ -150,11 +154,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def load_meshes(self):
 		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
 			logging.debug(f"Loading mesh data for {mdl2_name}")
-			sum_uv_dict = {}
 			for wrapper in model_info.model.meshes:
-				if wrapper.mesh.stream_index not in sum_uv_dict:
-					sum_uv_dict[wrapper.mesh.stream_index] = 0
-				sum_uv_dict[wrapper.mesh.stream_index] += wrapper.mesh.vertex_count
+				wrapper.mesh.assign_buffer_info(self.buffer_infos)
+				if hasattr(wrapper.mesh, "uv_offset"):
+					wrapper.mesh.buffer_info.uvs_offsets.add(wrapper.mesh.uv_offset)
 			if is_old(self.info):
 				pack_base = 512
 			else:
@@ -162,9 +165,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			try:
 				for i, wrapper in enumerate(model_info.model.meshes):
 					logging.info(f"Populating mesh {i}")
-					wrapper.mesh.populate(self, pack_base, sum_uv_dict=sum_uv_dict)
+					wrapper.mesh.populate(self, pack_base)
 			except:
-				traceback.print_exc()
+				logging.exception(f"Populating mesh failed")
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
@@ -344,8 +347,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
+	m.load("C:/Users/arnfi/Desktop/shop_mainstreet_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/c_bz_shipparts_.ms2", read_editable=True)
+	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/nile_lechwe_male_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut_desert.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True)

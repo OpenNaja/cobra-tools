@@ -2,6 +2,9 @@
 import logging
 import math
 import numpy as np
+
+from generated.formats.ms2.compound.ZtTriBlockInfo import ZtTriBlockInfo
+from generated.formats.ms2.compound.ZtVertBlockInfo import ZtVertBlockInfo
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
 from source.formats.base.basic import fmt_member
@@ -41,7 +44,7 @@ class ZtMeshData(MeshData):
 
 		# if present, blocks of 24 bytes
 		self.vertex_offset = 0
-		self.known_ff_1 = 0
+		self.unk_index = 0
 		self.one_0 = 0
 
 		# ?
@@ -70,7 +73,7 @@ class ZtMeshData(MeshData):
 		self.tri_offset = 0
 		self.uv_offset = 0
 		self.vertex_offset = 0
-		self.known_ff_1 = 0
+		self.unk_index = 0
 		self.one_0 = 0
 		self.one_1 = 0
 		self.poweroftwo = 0
@@ -101,7 +104,7 @@ class ZtMeshData(MeshData):
 		instance.tri_offset = stream.read_uint()
 		instance.uv_offset = stream.read_uint()
 		instance.vertex_offset = stream.read_uint()
-		instance.known_ff_1 = stream.read_short()
+		instance.unk_index = stream.read_short()
 		instance.one_0 = stream.read_ushort()
 		instance.one_1 = stream.read_ushort()
 		instance.poweroftwo = stream.read_ushort()
@@ -122,7 +125,7 @@ class ZtMeshData(MeshData):
 		stream.write_uint(instance.tri_offset)
 		stream.write_uint(instance.uv_offset)
 		stream.write_uint(instance.vertex_offset)
-		stream.write_short(instance.known_ff_1)
+		stream.write_short(instance.unk_index)
 		stream.write_ushort(instance.one_0)
 		stream.write_ushort(instance.one_1)
 		stream.write_ushort(instance.poweroftwo)
@@ -161,7 +164,7 @@ class ZtMeshData(MeshData):
 		s += f'\n	* tri_offset = {fmt_member(self.tri_offset, indent+1)}'
 		s += f'\n	* uv_offset = {fmt_member(self.uv_offset, indent+1)}'
 		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
-		s += f'\n	* known_ff_1 = {fmt_member(self.known_ff_1, indent+1)}'
+		s += f'\n	* unk_index = {fmt_member(self.unk_index, indent+1)}'
 		s += f'\n	* one_0 = {fmt_member(self.one_0, indent+1)}'
 		s += f'\n	* one_1 = {fmt_member(self.one_1, indent+1)}'
 		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
@@ -204,22 +207,35 @@ class ZtMeshData(MeshData):
 			("tangent", np.ubyte, (3,)),
 			("bone index", np.ubyte, ),  # not tested
 		]
-		vert_count_in_stream = self.sum_uv_dict[self.stream_index]
+		size = self.guess_size(self.buffer_info.uvs_offsets, self.uv_offset, self.vertex_count)
+		logging.info(f"Guessed size {size}")
 		if 4294967295 == self.vertex_offset:
-			# 20 bytes per vert
-			dt_colors = [
-				("pos", np.float16, (3,)),
-				("one", np.float16),
-				("normal", np.ubyte, (3,)),
-				("winding", np.ubyte, ),  # not tested
-				("tangent", np.ubyte, (3,)),
-				("bone index", np.ubyte, ),  # not tested
-				# ("colors", np.ubyte, (1, 4)),
-				("uvs", np.ushort, (1, 2)),
-			]
+			if size == 24:
+				# 24 bytes per vert, flag is unk
+				dt_colors = [
+					("pos", np.float16, (3,)),
+					("one", np.float16),
+					("normal", np.ubyte, (3,)),
+					("winding", np.ubyte, ),  # not tested
+					("tangent", np.ubyte, (3,)),
+					("bone index", np.ubyte, ),  # not tested
+					("colors", np.ubyte, (1, 4)),
+					("uvs", np.ushort, (1, 2)),
+				]
+			else:
+				# 20 bytes per vert
+				dt_colors = [
+					("pos", np.float16, (3,)),
+					("one", np.float16),
+					("normal", np.ubyte, (3,)),
+					("winding", np.ubyte, ),  # not tested
+					("tangent", np.ubyte, (3,)),
+					("bone index", np.ubyte, ),  # not tested
+					("uvs", np.ushort, (1, 2)),
+				]
 		else:
 			# hack for zt monitor
-			if self.buffer_info.uvs_size // vert_count_in_stream == 4:
+			if size == 4:
 				dt_colors = [
 					("uvs", np.ushort, (1, 2)),
 				]
@@ -233,12 +249,17 @@ class ZtMeshData(MeshData):
 		self.update_shell_count()
 
 	def read_verts(self):
-		logging.debug(f"Tri info address {self.tri_info_offset}")
-		logging.debug(f"Vertex info address {self.vert_info_offset}")
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
+		self.buffer_info.verts.seek(self.tri_info_offset)
+		tri_info = ZtTriBlockInfo.from_stream(self.buffer_info.verts, self.context, 0, None)
+		self.buffer_info.verts.seek(self.vert_info_offset)
+		vert_info = ZtVertBlockInfo.from_stream(self.buffer_info.verts, self.context, 0, None)
+		# logging.info(self)
+		# logging.info(tri_info)
+		# logging.info(vert_info)
 		# read vertices of this mesh
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
