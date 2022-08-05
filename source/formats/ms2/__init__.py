@@ -102,13 +102,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					self.assign_bone_names(bone_info)
 					self.assign_joints(bone_info)
 			except:
-				logging.warning(f"Joints or bones lookup failed")
-				traceback.print_exc()
+				logging.exception(f"Joints or bones lookup failed")
 			try:
 				self.lookup_material()
 			except:
-				logging.warning(f"Material lookup failed")
-				traceback.print_exc()
+				logging.exception(f"Material lookup failed")
 			if read_bytes:
 				stream.seek(self.buffer_0.io_start)
 				self.buffer_0_bytes = stream.read(self.buffer_0.io_size)
