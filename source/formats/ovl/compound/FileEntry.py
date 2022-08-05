@@ -1,6 +1,6 @@
 # START_GLOBALS
 from generated.formats.ovl.versions import *
-from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc
+from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla
 
 
 # END_GLOBALS
@@ -22,6 +22,8 @@ class FileEntry:
 			constants = constants_jwe2
 		elif is_pc(ovl):
 			constants = constants_pc
+		elif is_dla(ovl):
+			constants = constants_dla
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
 		self.pool_type = constants.files_pool_type[self.ext]

@@ -1,7 +1,7 @@
 
 from generated.formats.ovl.compound.Triplet import Triplet
 from generated.formats.ovl.versions import *
-from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc
+from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla
 
 
 from source.formats.base.basic import fmt_member
@@ -146,6 +146,8 @@ class MimeEntry:
 			constants = constants_jwe2
 		elif is_pc(ovl):
 			constants = constants_pc
+		elif is_dla(ovl):
+			constants = constants_dla
 		else:
 			raise ValueError(f"Unsupported game {get_game(ovl)}")
 		self.name = constants.mimes_name[self.ext]
