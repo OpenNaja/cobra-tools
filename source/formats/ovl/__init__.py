@@ -736,7 +736,7 @@ class OvlFile(Header, IoFile):
 
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
-		logging.info(f"Game: {get_game(self)}")
+		logging.info(f"Game: {get_game(self)[0].name}")
 		for file_path in file_paths:
 			loader = self.create_file(file_path)
 			self.register_loader(loader)
@@ -896,7 +896,7 @@ class OvlFile(Header, IoFile):
 		self.store_filepath(filepath)
 		logging.info(f"Loading {self.name}")
 		self.eof = super().load(filepath)
-		logging.info(f"Game: {get_game(self)}")
+		logging.info(f"Game: {get_game(self)[0].name}")
 
 		self.loaders = {}
 		# maps djb2 hash to string
