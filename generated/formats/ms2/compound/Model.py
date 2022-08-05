@@ -4,7 +4,6 @@ from generated.context import ContextReference
 from generated.formats.ms2.compound.DLAPreBones import DLAPreBones
 from generated.formats.ms2.compound.FloatsY import FloatsY
 from generated.formats.ms2.compound.LodInfo import LodInfo
-from generated.formats.ms2.compound.LodInfoZT import LodInfoZT
 from generated.formats.ms2.compound.MaterialName import MaterialName
 from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
@@ -25,7 +24,6 @@ class Model:
 
 		# name pointers for each material
 		self.materials = Array((self.arg.num_materials,), MaterialName, self.context, 0, None)
-		self.lods = Array((self.arg.num_lods,), LodInfoZT, self.context, 0, None)
 
 		# lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)
 		self.lods = Array((self.arg.num_lods,), LodInfo, self.context, 0, None)
@@ -54,10 +52,7 @@ class Model:
 
 	def set_defaults(self):
 		self.materials = Array((self.arg.num_materials,), MaterialName, self.context, 0, None)
-		if self.context.version <= 13:
-			self.lods = Array((self.arg.num_lods,), LodInfoZT, self.context, 0, None)
-		if self.context.version >= 32:
-			self.lods = Array((self.arg.num_lods,), LodInfo, self.context, 0, None)
+		self.lods = Array((self.arg.num_lods,), LodInfo, self.context, 0, None)
 		self.objects = Array((self.arg.num_objects,), Object, self.context, 0, None)
 		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
 			self.objects_padding = 0
@@ -82,10 +77,7 @@ class Model:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.materials = Array.from_stream(stream, (instance.arg.num_materials,), MaterialName, instance.context, 0, None)
-		if instance.context.version <= 13:
-			instance.lods = Array.from_stream(stream, (instance.arg.num_lods,), LodInfoZT, instance.context, 0, None)
-		if instance.context.version >= 32:
-			instance.lods = Array.from_stream(stream, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
+		instance.lods = Array.from_stream(stream, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
 		instance.objects = Array.from_stream(stream, (instance.arg.num_objects,), Object, instance.context, 0, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
 			instance.objects_padding = stream.read_uint()
@@ -100,10 +92,7 @@ class Model:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		Array.to_stream(stream, instance.materials, (instance.arg.num_materials,), MaterialName, instance.context, 0, None)
-		if instance.context.version <= 13:
-			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfoZT, instance.context, 0, None)
-		if instance.context.version >= 32:
-			Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.objects, (instance.arg.num_objects,), Object, instance.context, 0, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
 			stream.write_uint(instance.objects_padding)

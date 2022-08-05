@@ -5,7 +5,7 @@ from generated.context import ContextReference
 class LodInfo:
 
 	"""
-	Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
+	DLA, ZTUAC - 16 bytes
 	JWE1, PZ, JWE2 - 20 bytes
 	JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 	"""
@@ -20,6 +20,15 @@ class LodInfo:
 		self.io_size = 0
 		self.io_start = 0
 
+		# FFFF
+		self.full = 0
+
+		# 7F7F
+		self.half = 0
+
+		# increasing
+		self.lod_index = 0
+
 		# usually first lod is 900
 		self.distance = 0.0
 
@@ -31,6 +40,8 @@ class LodInfo:
 
 		# first object for this lod in objects list
 		self.first_object_index = 0
+		self.first_object_index_1 = 0
+		self.first_object_index_2 = 0
 
 		# not included in interval (python style indexing)
 		self.last_object_index = 0
@@ -44,14 +55,26 @@ class LodInfo:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.distance = 0.0
-		self.zero = 0
+		if self.context.version <= 13:
+			self.full = 0
+		if self.context.version <= 13:
+			self.half = 0
+		if self.context.version <= 13:
+			self.lod_index = 0
+		if self.context.version >= 32:
+			self.distance = 0.0
+		if self.context.version >= 32:
+			self.zero = 0
 		self.bone_index = 0
 		self.first_object_index = 0
+		if self.context.version <= 13:
+			self.first_object_index_1 = 0
+		if self.context.version <= 13:
+			self.first_object_index_2 = 0
 		self.last_object_index = 0
-		if not ((self.context.version == 51) and self.context.biosyn):
+		if self.context.version >= 32 and not ((self.context.version == 51) and self.context.biosyn):
 			self.vertex_count = 0
-		if not ((self.context.version == 51) and self.context.biosyn):
+		if self.context.version >= 32 and not ((self.context.version == 51) and self.context.biosyn):
 			self.tri_index_count = 0
 
 	def read(self, stream):
@@ -66,23 +89,41 @@ class LodInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		instance.distance = stream.read_float()
-		instance.zero = stream.read_ushort()
+		if instance.context.version <= 13:
+			instance.full = stream.read_short()
+			instance.half = stream.read_short()
+		if instance.context.version <= 13:
+			instance.lod_index = stream.read_ushort()
+		if instance.context.version >= 32:
+			instance.distance = stream.read_float()
+			instance.zero = stream.read_ushort()
 		instance.bone_index = stream.read_ushort()
 		instance.first_object_index = stream.read_ushort()
+		if instance.context.version <= 13:
+			instance.first_object_index_1 = stream.read_ushort()
+			instance.first_object_index_2 = stream.read_ushort()
 		instance.last_object_index = stream.read_ushort()
-		if not ((instance.context.version == 51) and instance.context.biosyn):
+		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.vertex_count = stream.read_uint()
 			instance.tri_index_count = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		stream.write_float(instance.distance)
-		stream.write_ushort(instance.zero)
+		if instance.context.version <= 13:
+			stream.write_short(instance.full)
+			stream.write_short(instance.half)
+		if instance.context.version <= 13:
+			stream.write_ushort(instance.lod_index)
+		if instance.context.version >= 32:
+			stream.write_float(instance.distance)
+			stream.write_ushort(instance.zero)
 		stream.write_ushort(instance.bone_index)
 		stream.write_ushort(instance.first_object_index)
+		if instance.context.version <= 13:
+			stream.write_ushort(instance.first_object_index_1)
+			stream.write_ushort(instance.first_object_index_2)
 		stream.write_ushort(instance.last_object_index)
-		if not ((instance.context.version == 51) and instance.context.biosyn):
+		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
 			stream.write_uint(instance.vertex_count)
 			stream.write_uint(instance.tri_index_count)
 
@@ -106,10 +147,15 @@ class LodInfo:
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += f'\n	* full = {fmt_member(self.full, indent+1)}'
+		s += f'\n	* half = {fmt_member(self.half, indent+1)}'
+		s += f'\n	* lod_index = {fmt_member(self.lod_index, indent+1)}'
 		s += f'\n	* distance = {fmt_member(self.distance, indent+1)}'
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		s += f'\n	* bone_index = {fmt_member(self.bone_index, indent+1)}'
 		s += f'\n	* first_object_index = {fmt_member(self.first_object_index, indent+1)}'
+		s += f'\n	* first_object_index_1 = {fmt_member(self.first_object_index_1, indent+1)}'
+		s += f'\n	* first_object_index_2 = {fmt_member(self.first_object_index_2, indent+1)}'
 		s += f'\n	* last_object_index = {fmt_member(self.last_object_index, indent+1)}'
 		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
 		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'

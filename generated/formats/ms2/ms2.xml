@@ -174,8 +174,7 @@
 
 	<compound name="Model">
 		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
-		<add name="lods" type="LodInfoZT" arr1="#ARG#\num_lods" until="13" />
-		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" since="32">lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
+		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
 		rhino: start of model - end of objects: 124 - 4 bytes padding
@@ -195,28 +194,22 @@
 	</compound>
 
 	<compound name="LodInfo">
-		Part of a mdl2 fragment, read for lodcount from one of the mdl2's fixed fragment entries
+		DLA, ZTUAC - 16 bytes
 		JWE1, PZ, JWE2 - 20 bytes
 		JWE2 Biosyn - 12 bytes, skips the vert / tris counts
-		<add name="distance" type="float" >usually first lod is 900</add>
-		<add name="zero" type="ushort" >always 0</add>
+		<add name="full" type="short" until="13" >FFFF</add>
+		<add name="half" type="short" until="13" >7F7F</add>
+		<add name="lod index" type="ushort" until="13" >increasing</add>
+		<add name="distance" type="float" since="32" >usually first lod is 900</add>
+		<add name="zero" type="ushort" since="32" >always 0</add>
 		<add name="bone index" type="ushort" >Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes</add>
-		<add name="first object index" type="ushort" >first object for this lod in objects list</add>
+		<add name="first_object_index" type="ushort" >first object for this lod in objects list</add>
+		# apparent repeats, purpose unknown
+		<add name="first_object_index_1" type="ushort" until="13"/>
+		<add name="first_object_index_2" type="ushort" until="13"/>
 		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="vertex count" type="uint" vercond="!#JWE2_BIO#">vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
-		<add name="tri_index_count" type="uint" vercond="!#JWE2_BIO#" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
-	</compound>
-
-	<compound name="LodInfoZT">
-		DLA, ZTUAC: 16 bytes
-		<add name="full" type="short" >FFFF</add>
-		<add name="half" type="short" >7F7F</add>
-		<add name="lod index" type="ushort" >increasing</add>
-		<add name="bone index" type="ushort" >index of the bone in this model's bone info that this lod level is attached to (good example: JWE detailobjects - nat_groundcover_searocket_patchy_02)</add>
-		<add name="first object index" type="ushort" >first model for this lod in models list</add>
-		<add name="some index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="some index 2" type="ushort" >vertex count of lod</add>
-		<add name="last object index" type="ushort" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
+		<add name="vertex count" type="uint" since="32" vercond="!#JWE2_BIO#">vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
+		<add name="tri_index_count" type="uint" since="32" vercond="!#JWE2_BIO#" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
 	</compound>
 
 	<compound name="Object">
