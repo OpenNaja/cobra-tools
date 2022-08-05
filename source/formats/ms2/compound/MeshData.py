@@ -43,9 +43,8 @@ class MeshData:
 			logging.exception(f"Size value guessing failed")
 			return 0
 
-	def populate(self, ms2_file, pack_base=512):
+	def populate(self, pack_base=512):
 		self.mesh_format = None
-		# self.assign_buffer_info(ms2_file.buffer_infos)
 		self.pack_base = pack_base
 		self.shapekeys = None
 		self.read_verts()
