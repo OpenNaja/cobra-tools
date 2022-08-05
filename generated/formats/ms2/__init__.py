@@ -1,6 +1,5 @@
 import os
 import time
-import traceback
 import logging
 
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
