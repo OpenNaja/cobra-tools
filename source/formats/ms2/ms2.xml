@@ -239,7 +239,7 @@
 	</compound>
 
 	<compound name="BioMeshData" inherit="MeshData">
-		JWE2 - 48 bytes incl. inheritance
+		JWE2 after Biosyn update - 48 bytes incl. inheritance
 		<add name="chunks_offset" type="uint" >start index into list of verts / tris chunks</add>
 		<add name="chunks_count" type="uint" >count of verts / tris chunks</add>
 		<add name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
@@ -256,9 +256,9 @@
 		<add name="tri_index_count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
 		<add name="zero1" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-		<add name="vertex offset" type="uint" >byte offset from start of vert buffer (=start of buffer nr 2) in bytes</add>
+		<add name="vertex offset" type="uint" >in bytes</add>
 		<add name="size of vertex" type="uint" >usually 48</add>
-		<add name="tri offset" type="uint">byte offset from start of tri buffer in bytes</add>
+		<add name="tri offset" type="uint">in bytes</add>
 		<add name="zero2" type="uint">always zero</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="zero3" type="uint">always zero</add>
@@ -268,14 +268,14 @@
 	<compound name="PcMeshData" inherit="MeshData">
 		<add name="tri_index_count a" type="uint" >repeat</add>
 		<add name="vertex_count" type="uint" />
-		<add name="tri offset" type="uint">x*16 = offset in buffer 2</add>
+		<add name="tri offset" type="uint">x*16 = offset</add>
 		<add name="tri_index_count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
-		<add name="vertex offset" type="uint" >x*16 = offset in buffer 2</add>
-		<add name="weights offset" type="uint">x*16 = offset in buffer 2</add>
-		<add name="uv offset" type="uint" >x*16 = offset in buffer 2</add>
+		<add name="vertex offset" type="uint" >x*16 = offset</add>
+		<add name="weights offset" type="uint">x*16 = offset</add>
+		<add name="uv offset" type="uint" >x*16 = offset</add>
 		<add name="zero b" type="uint">always zero</add>
-		<add name="vertex color offset" type="uint">x*16 = offset in buffer 2</add>
-		<add name="vertex offset within lod" type="uint" > ?</add>
+		<add name="vertex color offset" type="uint">x*16 = offset</add>
+		<add name="vertex offset within lod" type="uint" >?</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="zero" type="uint">always zero</add>
 		<add name="unknown07" type="float">some floats</add>
@@ -288,17 +288,17 @@
 		<add name="vertex_count" type="uint" />
 		<add name="tri info offset" type="uint">stores count, -1 as ints</add>
 		<add name="vert info offset" type="uint" >stores count, -1 as ints</add>
-		<add name="known ff 0" type="int" >x*16 = offset in buffer 2</add>
-		<add name="tri offset" type="uint">relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri_index_count</add>
-		<add name="uv offset" type="uint" >relative to start of buffer[i], blocks of 8 bytes, count vertex_count</add>
-		<add name="vertex offset" type="uint">relative to start of buffer[i], blocks of 24 bytes, count vertex_count</add>
-		<add name="known ff 1" type="short">x*16 = offset in buffer 2</add>
-		<add name="one 0" type="ushort">x*16 = offset in buffer 2</add>
-		<add name="one 1" type="ushort" > ?</add>
-		<add name="poweroftwo" type="ushort" vercond=""> ?</add>
+		<add name="known ff 0" type="int"/>
+		<add name="tri offset" type="uint"/>
+		<add name="uv offset" type="uint" >variable dtype, can include vertices too</add>
+		<add name="vertex offset" type="uint">if present, blocks of 24 bytes</add>
+		<add name="known ff 1" type="short"/>
+		<add name="one 0" type="ushort"/>
+		<add name="one 1" type="ushort" >?</add>
+		<add name="poweroftwo" type="ushort" >?</add>
 		<add name="flag" type="ModelFlagDLA" until="7">bitfield</add>
 		<add name="flag" type="ModelFlagZT" since="13">bitfield</add>
-		<add name="zero uac" type="uint"  >always zero</add>
+		<add name="zero uac" type="uint" >always zero</add>
 	</compound>
 
 	<compound name="ZTPreBones">

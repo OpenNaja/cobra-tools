@@ -17,7 +17,7 @@ from generated.formats.ms2.compound.MeshData import MeshData
 class BioMeshData(MeshData):
 
 	"""
-	JWE2 - 48 bytes incl. inheritance
+	JWE2 after Biosyn update - 48 bytes incl. inheritance
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

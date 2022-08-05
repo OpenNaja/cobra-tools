@@ -23,25 +23,25 @@ class PcMeshData(MeshData):
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 
-		# x*16 = offset in buffer 2
+		# x*16 = offset
 		self.tri_offset = 0
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
 		self.tri_index_count = 0
 
-		# x*16 = offset in buffer 2
+		# x*16 = offset
 		self.vertex_offset = 0
 
-		# x*16 = offset in buffer 2
+		# x*16 = offset
 		self.weights_offset = 0
 
-		# x*16 = offset in buffer 2
+		# x*16 = offset
 		self.uv_offset = 0
 
 		# always zero
 		self.zero_b = 0
 
-		# x*16 = offset in buffer 2
+		# x*16 = offset
 		self.vertex_color_offset = 0
 
 		# ?

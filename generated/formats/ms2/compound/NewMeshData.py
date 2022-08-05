@@ -34,13 +34,13 @@ class NewMeshData(MeshData):
 		# power of 2 increasing with lod index
 		self.poweroftwo = 0
 
-		# byte offset from start of vert buffer (=start of buffer nr 2) in bytes
+		# in bytes
 		self.vertex_offset = 0
 
 		# usually 48
 		self.size_of_vertex = 0
 
-		# byte offset from start of tri buffer in bytes
+		# in bytes
 		self.tri_offset = 0
 
 		# always zero

@@ -33,23 +33,15 @@ class ZtMeshData(MeshData):
 
 		# stores count, -1 as ints
 		self.vert_info_offset = 0
-
-		# x*16 = offset in buffer 2
 		self.known_ff_0 = 0
-
-		# relative to start of buffer[i]'s tris section start, blocks of 2 bytes (ushort), tri_index_count
 		self.tri_offset = 0
 
-		# relative to start of buffer[i], blocks of 8 bytes, count vertex_count
+		# variable dtype, can include vertices too
 		self.uv_offset = 0
 
-		# relative to start of buffer[i], blocks of 24 bytes, count vertex_count
+		# if present, blocks of 24 bytes
 		self.vertex_offset = 0
-
-		# x*16 = offset in buffer 2
 		self.known_ff_1 = 0
-
-		# x*16 = offset in buffer 2
 		self.one_0 = 0
 
 		# ?
