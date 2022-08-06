@@ -302,6 +302,9 @@ class BioMeshData:
 				vert_chunk.weights_flag.has_weights = True
 				for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
 					vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
+				# vert_chunk.weights_flag.has_weights = False
+				# # vert_chunk.weights = self.weights[v_slice]
+				# vert_chunk.weights_flag.bone_index = self.weights[v_slice][0][0][0]
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				vert_chunk.meta["pos"] = vert_chunk.vertices
 				vert_chunk.weights_flag.has_weights = False
