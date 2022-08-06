@@ -1,27 +1,20 @@
 import os
-import shutil
 import sys
 import time
 import traceback
 import logging
-import tempfile
 
 
 try:
-	import numpy as np
-	from PyQt5 import QtWidgets, QtGui, QtCore
-
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-
 	logging_setup("ms2_tool_gui")
-
 	logging.info(f"Running python {sys.version}")
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
+	import numpy as np
+	from PyQt5 import QtWidgets, QtGui, QtCore
 	from ovl_util import widgets, interaction
-
 	from generated.formats.ms2 import Ms2File
-	# from root_path import root_dir
 except Exception as err:
 	traceback.print_exc()
 	time.sleep(15)
@@ -171,19 +164,20 @@ class MainWindow(widgets.MainWindow):
 				"MS2 files (*.ms2)", )[0]
 			if filepath:
 				self.cfg["dir_ms2s_out"], ms2_name = os.path.split(filepath)
-				self._save_ms2(filepath)
+				self.file_widget._set_file_path(filepath)
+				self._save_ms2()
 
 	def save_ms2(self):
 		if self.is_open_ms2():
-			self._save_ms2(self.file_widget.filepath)
+			self._save_ms2()
 
-	def _save_ms2(self, filepath):
+	def _save_ms2(self, ):
 		try:
-			self.ms2_file.save(filepath)
+			self.ms2_file.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
 			self.update_progress(f"Saved {self.ms2_file.name}", value=1, vmax=1)
 		except:
-			self.handle_error("Saving failed, see log!")
+			self.handle_error("Saving OVL failed, see log!")
 
 	def closeEvent(self, event):
 		if self.file_widget.dirty:
