@@ -138,7 +138,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
 
 		if mesh.context.biosyn:
-			# tris are apparently not allowed to exceed 192, can be odd number counts, need not be aligned
+			# tris are apparently not allowed to exceed 64 in stock
 			# seen chunks with more than 100 verts
 			if len(dummy_vertices) >= 100 or len(tris_chunks[-1]) >= 192:
 				logging.info(f"Starting new chunk")
