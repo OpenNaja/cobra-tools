@@ -1,6 +1,6 @@
-from generated.formats.habitatboundary.compound.ClimbproofDataRoot import ClimbproofDataRoot
-from generated.formats.habitatboundary.compound.HabitatBoundaryDataRoot import HabitatBoundaryDataRoot
-from generated.formats.habitatboundary.compound.HabitatBoundaryPropRoot import HabitatBoundaryPropRoot
+from generated.formats.habitatboundary.struct.ClimbproofDataRoot import ClimbproofDataRoot
+from generated.formats.habitatboundary.struct.HabitatBoundaryDataRoot import HabitatBoundaryDataRoot
+from generated.formats.habitatboundary.struct.HabitatBoundaryPropRoot import HabitatBoundaryPropRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,11 +1,12 @@
 from source.formats.base.basic import fmt_member
+from generated.formats.habitatboundary.struct.HbPostSize import HbPostSize
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
-class Vector3(MemStruct):
+class HbPhysicsOffsets(MemStruct):
 
 	"""
-	A vector in 3D space (x,y,z).
+	Physics values for barriers.
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -16,21 +17,23 @@ class Vector3(MemStruct):
 		self.io_size = 0
 		self.io_start = 0
 
-		# First coordinate.
-		self.x = 0.0
+		# Wall thickness. Affects navcut, selection, and climb nav width. Must be under a certain value or it crashes.
+		self.thickness = 0.0
+		self.post_size = HbPostSize(self.context, 0, None)
 
-		# Second coordinate.
-		self.y = 0.0
+		# Wall size above wall_height. Affects navcut, selection, and climb nav height.
+		self.wall_pad_top = 0.0
 
-		# Third coordinate.
-		self.z = 0.0
+		# Distance between post center and start of wall. Larger values create a visual and nav gap between the post and wall segment.
+		self.wall_post_gap = 0.0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.x = 0.0
-		self.y = 0.0
-		self.z = 0.0
+		self.thickness = 0.0
+		self.post_size = HbPostSize(self.context, 0, None)
+		self.wall_pad_top = 0.0
+		self.wall_post_gap = 0.0
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -45,16 +48,18 @@ class Vector3(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.x = stream.read_float()
-		instance.y = stream.read_float()
-		instance.z = stream.read_float()
+		instance.thickness = stream.read_float()
+		instance.post_size = HbPostSize.from_stream(stream, instance.context, 0, None)
+		instance.wall_pad_top = stream.read_float()
+		instance.wall_post_gap = stream.read_float()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.x)
-		stream.write_float(instance.y)
-		stream.write_float(instance.z)
+		stream.write_float(instance.thickness)
+		HbPostSize.to_stream(stream, instance.post_size)
+		stream.write_float(instance.wall_pad_top)
+		stream.write_float(instance.wall_post_gap)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -72,14 +77,15 @@ class Vector3(MemStruct):
 		return instance
 
 	def get_info_str(self, indent=0):
-		return f'Vector3 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'HbPhysicsOffsets [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* x = {fmt_member(self.x, indent+1)}'
-		s += f'\n	* y = {fmt_member(self.y, indent+1)}'
-		s += f'\n	* z = {fmt_member(self.z, indent+1)}'
+		s += f'\n	* thickness = {fmt_member(self.thickness, indent+1)}'
+		s += f'\n	* post_size = {fmt_member(self.post_size, indent+1)}'
+		s += f'\n	* wall_pad_top = {fmt_member(self.wall_pad_top, indent+1)}'
+		s += f'\n	* wall_post_gap = {fmt_member(self.wall_post_gap, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,6 +1,8 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
-from generated.formats.habitatboundary.compound.Vector3 import Vector3
+from generated.formats.habitatboundary.struct.HbDoorCutout import HbDoorCutout
+from generated.formats.habitatboundary.struct.HbPostPos import HbPostPos
+from generated.formats.habitatboundary.struct.HbPropPhysics import HbPropPhysics
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -22,19 +24,14 @@ class HabitatBoundaryPropRoot(MemStruct):
 		# 0 = Habitat, 1 = Ride, 2 = Guest
 		self.type = 0
 		self.u_1 = 0
-		self.u_2 = 0
-
-		# x = right post position, y = left post position
-		self.pos_post_r_l = Vector3(self.context, 0, None)
-		self.unk_vec_2 = Vector3(self.context, 0, None)
-		self.unk_vec_3 = Vector3(self.context, 0, None)
-		self.unk_vec_4 = Vector3(self.context, 0, None)
-		self.unk_vec_5 = Vector3(self.context, 0, None)
-
-		# x = Wall cutout height for door, y = door cutout right, z = door cutout left
-		self.door_cutout_height_r_l = Vector3(self.context, 0, None)
-		self.u_2 = 0
-		self.unk_float_1 = 0.0
+		self.is_guest = 0
+		self.post_position = HbPostPos(self.context, 0, None)
+		self.u_2 = 0.0
+		self.door_physics = HbPropPhysics(self.context, 0, None)
+		self.path_physics = HbPropPhysics(self.context, 0, None)
+		self.door_cutout = HbDoorCutout(self.context, 0, None)
+		self.small = 0
+		self.height = 0.0
 		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -45,15 +42,14 @@ class HabitatBoundaryPropRoot(MemStruct):
 	def set_defaults(self):
 		self.type = 0
 		self.u_1 = 0
-		self.u_2 = 0
-		self.pos_post_r_l = Vector3(self.context, 0, None)
-		self.unk_vec_2 = Vector3(self.context, 0, None)
-		self.unk_vec_3 = Vector3(self.context, 0, None)
-		self.unk_vec_4 = Vector3(self.context, 0, None)
-		self.unk_vec_5 = Vector3(self.context, 0, None)
-		self.door_cutout_height_r_l = Vector3(self.context, 0, None)
-		self.u_2 = 0
-		self.unk_float_1 = 0.0
+		self.is_guest = 0
+		self.post_position = HbPostPos(self.context, 0, None)
+		self.u_2 = 0.0
+		self.door_physics = HbPropPhysics(self.context, 0, None)
+		self.path_physics = HbPropPhysics(self.context, 0, None)
+		self.door_cutout = HbDoorCutout(self.context, 0, None)
+		self.small = 0
+		self.height = 0.0
 		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -77,16 +73,15 @@ class HabitatBoundaryPropRoot(MemStruct):
 		instance.u_1 = stream.read_uint64()
 		instance.post = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.wall = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.u_2 = stream.read_uint()
-		instance.pos_post_r_l = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_vec_2 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_vec_3 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_vec_4 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_vec_5 = Vector3.from_stream(stream, instance.context, 0, None)
+		instance.is_guest = stream.read_uint()
+		instance.post_position = HbPostPos.from_stream(stream, instance.context, 0, None)
+		instance.u_2 = stream.read_float()
+		instance.door_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
+		instance.path_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
 		instance.path_join_part = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.door_cutout_height_r_l = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.u_2 = stream.read_uint()
-		instance.unk_float_1 = stream.read_float()
+		instance.door_cutout = HbDoorCutout.from_stream(stream, instance.context, 0, None)
+		instance.small = stream.read_uint()
+		instance.height = stream.read_float()
 		instance.prefab.arg = 0
 		instance.post.arg = 0
 		instance.wall.arg = 0
@@ -100,16 +95,15 @@ class HabitatBoundaryPropRoot(MemStruct):
 		stream.write_uint64(instance.u_1)
 		Pointer.to_stream(stream, instance.post)
 		Pointer.to_stream(stream, instance.wall)
-		stream.write_uint(instance.u_2)
-		Vector3.to_stream(stream, instance.pos_post_r_l)
-		Vector3.to_stream(stream, instance.unk_vec_2)
-		Vector3.to_stream(stream, instance.unk_vec_3)
-		Vector3.to_stream(stream, instance.unk_vec_4)
-		Vector3.to_stream(stream, instance.unk_vec_5)
+		stream.write_uint(instance.is_guest)
+		HbPostPos.to_stream(stream, instance.post_position)
+		stream.write_float(instance.u_2)
+		HbPropPhysics.to_stream(stream, instance.door_physics)
+		HbPropPhysics.to_stream(stream, instance.path_physics)
 		Pointer.to_stream(stream, instance.path_join_part)
-		Vector3.to_stream(stream, instance.door_cutout_height_r_l)
-		stream.write_uint(instance.u_2)
-		stream.write_float(instance.unk_float_1)
+		HbDoorCutout.to_stream(stream, instance.door_cutout)
+		stream.write_uint(instance.small)
+		stream.write_float(instance.height)
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
@@ -137,16 +131,15 @@ class HabitatBoundaryPropRoot(MemStruct):
 		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
 		s += f'\n	* post = {fmt_member(self.post, indent+1)}'
 		s += f'\n	* wall = {fmt_member(self.wall, indent+1)}'
+		s += f'\n	* is_guest = {fmt_member(self.is_guest, indent+1)}'
+		s += f'\n	* post_position = {fmt_member(self.post_position, indent+1)}'
 		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* pos_post_r_l = {fmt_member(self.pos_post_r_l, indent+1)}'
-		s += f'\n	* unk_vec_2 = {fmt_member(self.unk_vec_2, indent+1)}'
-		s += f'\n	* unk_vec_3 = {fmt_member(self.unk_vec_3, indent+1)}'
-		s += f'\n	* unk_vec_4 = {fmt_member(self.unk_vec_4, indent+1)}'
-		s += f'\n	* unk_vec_5 = {fmt_member(self.unk_vec_5, indent+1)}'
+		s += f'\n	* door_physics = {fmt_member(self.door_physics, indent+1)}'
+		s += f'\n	* path_physics = {fmt_member(self.path_physics, indent+1)}'
 		s += f'\n	* path_join_part = {fmt_member(self.path_join_part, indent+1)}'
-		s += f'\n	* door_cutout_height_r_l = {fmt_member(self.door_cutout_height_r_l, indent+1)}'
-		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* unk_float_1 = {fmt_member(self.unk_float_1, indent+1)}'
+		s += f'\n	* door_cutout = {fmt_member(self.door_cutout, indent+1)}'
+		s += f'\n	* small = {fmt_member(self.small, indent+1)}'
+		s += f'\n	* height = {fmt_member(self.height, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

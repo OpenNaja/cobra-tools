@@ -1,7 +1,7 @@
 from source.formats.base.basic import fmt_member
 import generated.formats.base.basic
-import numpy
-from generated.formats.habitatboundary.compound.Vector3 import Vector3
+from generated.formats.habitatboundary.struct.HbOffsets import HbOffsets
+from generated.formats.habitatboundary.struct.HbUiOptions import HbUiOptions
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -19,21 +19,17 @@ class HabitatBoundaryDataRoot(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.u_0 = 0
-		self.zeros = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
+
+		# 3 for everything but null barrier which is 0
 		self.u_1 = 0
 		self.u_2 = 0.0
+
+		# 0 for everything but wood logs barrier which is 1
 		self.u_3 = 0
-
-		# Controls the Straight-Curved option for barriers
-		self.opt_straight_curve = False
-
-		# Controls the Windows option for barriers
-		self.opt_windows = False
-		self.unk_vec_1 = Vector3(self.context, 0, None)
-		self.unk_vec_2 = Vector3(self.context, 0, None)
-		self.unk_vec_3 = Vector3(self.context, 0, None)
-		self.unk_float_1 = 0.0
+		self.ui_options = HbUiOptions(self.context, 0, None)
+		self.u_4 = 0.0
+		self.u_5 = 0.0
+		self.offsets = HbOffsets(self.context, 0, None)
 
 		# Posts of N Level can only use Walls of less than N Level
 		self.wall_replace_level = 0
@@ -45,7 +41,15 @@ class HabitatBoundaryDataRoot(MemStruct):
 		self.walls_extrusion = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.walls_extrusion_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.walls_extrusion_top = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_cap_top = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.walls_extrusion_bottom = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_2 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_3 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_4 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_side = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_underside = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.climb_proof_data = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.broken_post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.broken_extrusion = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.broken_extrusion_pile = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -58,17 +62,13 @@ class HabitatBoundaryDataRoot(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.u_0 = 0
-		self.zeros = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
 		self.u_1 = 0
 		self.u_2 = 0.0
 		self.u_3 = 0
-		self.opt_straight_curve = False
-		self.opt_windows = False
-		self.unk_vec_1 = Vector3(self.context, 0, None)
-		self.unk_vec_2 = Vector3(self.context, 0, None)
-		self.unk_vec_3 = Vector3(self.context, 0, None)
-		self.unk_float_1 = 0.0
+		self.ui_options = HbUiOptions(self.context, 0, None)
+		self.u_4 = 0.0
+		self.u_5 = 0.0
+		self.offsets = HbOffsets(self.context, 0, None)
 		self.wall_replace_level = 0
 		self.type = 0
 		self.padding = 0
@@ -76,7 +76,15 @@ class HabitatBoundaryDataRoot(MemStruct):
 		self.walls_extrusion = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.walls_extrusion_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.walls_extrusion_top = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_cap_top = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.walls_extrusion_bottom = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_2 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_3 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_4 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_side = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_underside = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.climb_proof_data = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.broken_post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.broken_extrusion = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.broken_extrusion_pile = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -103,9 +111,15 @@ class HabitatBoundaryDataRoot(MemStruct):
 		instance.walls_extrusion = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.walls_extrusion_end = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.walls_extrusion_top = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.u_0 = stream.read_uint64()
+		instance.walls_extrusion_cap_top = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.walls_extrusion_bottom = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.zeros = stream.read_uint64s((7,))
+		instance.walls_unk_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.walls_unk_3 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.walls_unk_4 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.walls_extrusion_door_cap_side = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.walls_extrusion_door_cap_end = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.walls_extrusion_door_cap_underside = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.climb_proof_data = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.broken_post = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.broken_extrusion = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.broken_extrusion_pile = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
@@ -117,12 +131,10 @@ class HabitatBoundaryDataRoot(MemStruct):
 		instance.u_1 = stream.read_uint()
 		instance.u_2 = stream.read_float()
 		instance.u_3 = stream.read_ushort()
-		instance.opt_straight_curve = stream.read_bool()
-		instance.opt_windows = stream.read_bool()
-		instance.unk_vec_1 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_vec_2 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_vec_3 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_float_1 = stream.read_float()
+		instance.ui_options = HbUiOptions.from_stream(stream, instance.context, 0, None)
+		instance.u_4 = stream.read_float()
+		instance.u_5 = stream.read_float()
+		instance.offsets = HbOffsets.from_stream(stream, instance.context, 0, None)
 		instance.wall_replace_level = stream.read_byte()
 		instance.type = stream.read_byte()
 		instance.padding = stream.read_ushort()
@@ -130,7 +142,15 @@ class HabitatBoundaryDataRoot(MemStruct):
 		instance.walls_extrusion.arg = 0
 		instance.walls_extrusion_end.arg = 0
 		instance.walls_extrusion_top.arg = 0
+		instance.walls_extrusion_cap_top.arg = 0
 		instance.walls_extrusion_bottom.arg = 0
+		instance.walls_unk_2.arg = 0
+		instance.walls_unk_3.arg = 0
+		instance.walls_unk_4.arg = 0
+		instance.walls_extrusion_door_cap_side.arg = 0
+		instance.walls_extrusion_door_cap_end.arg = 0
+		instance.walls_extrusion_door_cap_underside.arg = 0
+		instance.climb_proof_data.arg = 0
 		instance.broken_post.arg = 0
 		instance.broken_extrusion.arg = 0
 		instance.broken_extrusion_pile.arg = 0
@@ -147,9 +167,15 @@ class HabitatBoundaryDataRoot(MemStruct):
 		Pointer.to_stream(stream, instance.walls_extrusion)
 		Pointer.to_stream(stream, instance.walls_extrusion_end)
 		Pointer.to_stream(stream, instance.walls_extrusion_top)
-		stream.write_uint64(instance.u_0)
+		Pointer.to_stream(stream, instance.walls_extrusion_cap_top)
 		Pointer.to_stream(stream, instance.walls_extrusion_bottom)
-		stream.write_uint64s(instance.zeros)
+		Pointer.to_stream(stream, instance.walls_unk_2)
+		Pointer.to_stream(stream, instance.walls_unk_3)
+		Pointer.to_stream(stream, instance.walls_unk_4)
+		Pointer.to_stream(stream, instance.walls_extrusion_door_cap_side)
+		Pointer.to_stream(stream, instance.walls_extrusion_door_cap_end)
+		Pointer.to_stream(stream, instance.walls_extrusion_door_cap_underside)
+		Pointer.to_stream(stream, instance.climb_proof_data)
 		Pointer.to_stream(stream, instance.broken_post)
 		Pointer.to_stream(stream, instance.broken_extrusion)
 		Pointer.to_stream(stream, instance.broken_extrusion_pile)
@@ -161,12 +187,10 @@ class HabitatBoundaryDataRoot(MemStruct):
 		stream.write_uint(instance.u_1)
 		stream.write_float(instance.u_2)
 		stream.write_ushort(instance.u_3)
-		stream.write_bool(instance.opt_straight_curve)
-		stream.write_bool(instance.opt_windows)
-		Vector3.to_stream(stream, instance.unk_vec_1)
-		Vector3.to_stream(stream, instance.unk_vec_2)
-		Vector3.to_stream(stream, instance.unk_vec_3)
-		stream.write_float(instance.unk_float_1)
+		HbUiOptions.to_stream(stream, instance.ui_options)
+		stream.write_float(instance.u_4)
+		stream.write_float(instance.u_5)
+		HbOffsets.to_stream(stream, instance.offsets)
 		stream.write_byte(instance.wall_replace_level)
 		stream.write_byte(instance.type)
 		stream.write_ushort(instance.padding)
@@ -196,9 +220,15 @@ class HabitatBoundaryDataRoot(MemStruct):
 		s += f'\n	* walls_extrusion = {fmt_member(self.walls_extrusion, indent+1)}'
 		s += f'\n	* walls_extrusion_end = {fmt_member(self.walls_extrusion_end, indent+1)}'
 		s += f'\n	* walls_extrusion_top = {fmt_member(self.walls_extrusion_top, indent+1)}'
-		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* walls_extrusion_cap_top = {fmt_member(self.walls_extrusion_cap_top, indent+1)}'
 		s += f'\n	* walls_extrusion_bottom = {fmt_member(self.walls_extrusion_bottom, indent+1)}'
-		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* walls_unk_2 = {fmt_member(self.walls_unk_2, indent+1)}'
+		s += f'\n	* walls_unk_3 = {fmt_member(self.walls_unk_3, indent+1)}'
+		s += f'\n	* walls_unk_4 = {fmt_member(self.walls_unk_4, indent+1)}'
+		s += f'\n	* walls_extrusion_door_cap_side = {fmt_member(self.walls_extrusion_door_cap_side, indent+1)}'
+		s += f'\n	* walls_extrusion_door_cap_end = {fmt_member(self.walls_extrusion_door_cap_end, indent+1)}'
+		s += f'\n	* walls_extrusion_door_cap_underside = {fmt_member(self.walls_extrusion_door_cap_underside, indent+1)}'
+		s += f'\n	* climb_proof_data = {fmt_member(self.climb_proof_data, indent+1)}'
 		s += f'\n	* broken_post = {fmt_member(self.broken_post, indent+1)}'
 		s += f'\n	* broken_extrusion = {fmt_member(self.broken_extrusion, indent+1)}'
 		s += f'\n	* broken_extrusion_pile = {fmt_member(self.broken_extrusion_pile, indent+1)}'
@@ -210,12 +240,10 @@ class HabitatBoundaryDataRoot(MemStruct):
 		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
 		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
 		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
-		s += f'\n	* opt_straight_curve = {fmt_member(self.opt_straight_curve, indent+1)}'
-		s += f'\n	* opt_windows = {fmt_member(self.opt_windows, indent+1)}'
-		s += f'\n	* unk_vec_1 = {fmt_member(self.unk_vec_1, indent+1)}'
-		s += f'\n	* unk_vec_2 = {fmt_member(self.unk_vec_2, indent+1)}'
-		s += f'\n	* unk_vec_3 = {fmt_member(self.unk_vec_3, indent+1)}'
-		s += f'\n	* unk_float_1 = {fmt_member(self.unk_float_1, indent+1)}'
+		s += f'\n	* ui_options = {fmt_member(self.ui_options, indent+1)}'
+		s += f'\n	* u_4 = {fmt_member(self.u_4, indent+1)}'
+		s += f'\n	* u_5 = {fmt_member(self.u_5, indent+1)}'
+		s += f'\n	* offsets = {fmt_member(self.offsets, indent+1)}'
 		s += f'\n	* wall_replace_level = {fmt_member(self.wall_replace_level, indent+1)}'
 		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
 		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
